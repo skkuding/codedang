@@ -1,11 +1,10 @@
 'use client'
 
 import { ConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
-import { EditorDescription } from '@/app/admin/_components/code-editor/EditorDescription'
 import { PreviewEditorLayout } from '@/app/admin/_components/code-editor/PreviewEditorLayout'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
-import type { ProblemDetail, Template } from '@/types/type'
+import type { ProblemDetail } from '@/types/type'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
@@ -56,25 +55,17 @@ export default function Page({ params }: { params: { problemId: string } }) {
       source: methods.getValues('source'),
       tags: [],
       hint: methods.getValues('hint'),
-      template: methods
-        .getValues('template')
-        ?.map((template) =>
-          template.code.map((snippet) => snippet.text).join('\n')
-        ),
-      solution: [],
+      template: [JSON.stringify(methods.getValues('template'))],
+      solution: methods.getValues('solution'),
       difficulty: methods.getValues('difficulty')
     } as ProblemDetail
 
     return createPortal(
       <div className="fixed inset-0 z-50 flex bg-white">
         <PreviewEditorLayout
-          problemTitle={problem.title}
-          languages={problem.languages}
-          template={methods.getValues('template') as Template[]}
+          problem={problem}
           exitPreview={() => setIsPreviewing(false)}
-        >
-          <EditorDescription problem={problem} />
-        </PreviewEditorLayout>
+        />
       </div>,
       document.body
     )

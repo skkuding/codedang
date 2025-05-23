@@ -5,7 +5,7 @@ import { createSchema } from '@/app/admin/problem/_libs/schemas'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { useSession } from '@/libs/hooks/useSession'
-import type { ProblemDetail, Template } from '@/types/type'
+import type { ProblemDetail } from '@/types/type'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
@@ -19,7 +19,6 @@ import { DescriptionForm } from '../../_components/DescriptionForm'
 import { FormSection } from '../../_components/FormSection'
 import { SwitchField } from '../../_components/SwitchField'
 import { TitleForm } from '../../_components/TitleForm'
-import { EditorDescription } from '../../_components/code-editor/EditorDescription'
 import { InfoForm } from '../_components/InfoForm'
 import { LimitForm } from '../_components/LimitForm'
 import { SolutionField } from '../_components/SolutionField'
@@ -73,25 +72,17 @@ export default function Page() {
       source: methods.getValues('source'),
       tags: [],
       hint: methods.getValues('hint'),
-      template: methods
-        .getValues('template')
-        ?.map((template) =>
-          template.code.map((snippet) => snippet.text).join('\n')
-        ),
-      solution: [],
+      template: [JSON.stringify(methods.getValues('template'))],
+      solution: methods.getValues('solution'),
       difficulty: methods.getValues('difficulty')
     } as ProblemDetail
 
     return createPortal(
       <div className="fixed inset-0 z-50 flex bg-white">
         <PreviewEditorLayout
-          problemTitle={problem.title}
-          languages={problem.languages}
-          template={methods.getValues('template') as Template[]}
+          problem={problem}
           exitPreview={() => setIsPreviewing(false)}
-        >
-          <EditorDescription problem={problem} />
-        </PreviewEditorLayout>
+        />
       </div>,
       document.body
     )

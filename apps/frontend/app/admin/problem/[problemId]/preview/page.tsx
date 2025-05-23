@@ -1,6 +1,5 @@
 'use client'
 
-import { EditorDescription } from '@/app/admin/_components/code-editor/EditorDescription'
 import { PreviewEditorResizablePanel } from '@/app/admin/_components/code-editor/PreviewEditorResizablePanel'
 import { Button } from '@/components/shadcn/button'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
@@ -59,12 +58,7 @@ export default function Page({ params }: PageProps) {
               Back
             </Button>
           </header>
-          <PreviewEditorResizablePanel
-            languages={problem.languages ?? ['C']}
-            template={JSON.parse(problem.template?.[0]) ?? ''}
-          >
-            <EditorDescription problem={problem} />
-          </PreviewEditorResizablePanel>
+          <PreviewEditorResizablePanel problem={problem} />
         </>
       )}
     </div>

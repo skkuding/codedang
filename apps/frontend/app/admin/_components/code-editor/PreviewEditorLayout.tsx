@@ -1,24 +1,18 @@
 import { Button } from '@/components/shadcn/button'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
-import type { Language, Template } from '@/types/type'
+import type { ProblemDetail } from '@/types/type'
 import Image from 'next/image'
 import Link from 'next/link'
 import { PreviewEditorResizablePanel } from './PreviewEditorResizablePanel'
 
 interface EditorLayoutProps {
-  problemTitle: string
-  languages: string[]
-  template: Template[]
+  problem: ProblemDetail
   exitPreview: () => void
-  children: React.ReactNode
 }
 
 export function PreviewEditorLayout({
-  problemTitle,
-  languages,
-  template,
-  exitPreview,
-  children
+  problem,
+  exitPreview
 }: EditorLayoutProps) {
   return (
     // Admin Layout의 Sidebar를 무시하기 위한 fixed
@@ -29,7 +23,7 @@ export function PreviewEditorLayout({
             <Image src={codedangLogo} alt="코드당" width={33} />
           </Link>
           <div className="flex items-center gap-1 font-medium">
-            {problemTitle}
+            {problem.title}
           </div>
         </div>
         <Button
@@ -40,12 +34,7 @@ export function PreviewEditorLayout({
           Exit Preview
         </Button>
       </header>
-      <PreviewEditorResizablePanel
-        languages={languages ?? ['C']}
-        template={template ?? []}
-      >
-        {children}
-      </PreviewEditorResizablePanel>
+      <PreviewEditorResizablePanel problem={problem} />
     </div>
   )
 }

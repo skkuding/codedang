@@ -1,8 +1,8 @@
+import { SolutionLayout } from '@/app/(client)/(code-editor)/_components/SolutionLayout'
 import type { GetAssignmentProblemDetailResponse } from '@/app/(client)/_libs/apis/assignmentProblem'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { Language } from '@/types/type'
 import { redirect } from 'next/navigation'
-import { SolutionLayout } from './_components/SolutionLayout'
 
 interface Solution {
   code: string
