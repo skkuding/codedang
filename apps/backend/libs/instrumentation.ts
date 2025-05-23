@@ -42,7 +42,16 @@ class Instrumentation {
    * @returns {Promise<string>}
    */
   private static getAWSInstanceId = (): Promise<string> => {
+    /**
+     * AWS EC2 인스턴스 메타데이터 서비스의 호스트 주소
+     * EC2 인스턴스 내에서만 접근 가능한 특수 IP 주소
+     * @see https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html#instancedata-inside-access
+     */
     const AWS_METADATA_HOSTNAME = '169.254.169.254'
+    /**
+     * EC2 인스턴스 ID를 가져오기 위한 메타데이터 경로
+     * 이 경로로 요청하면 현재 실행 중인 EC2 인스턴스의 고유 ID를 반환받음
+     */
     const AWS_METADATA_INSTANCE_ID_PATH = '/latest/meta-data/instance-id'
     const url = `http://${AWS_METADATA_HOSTNAME}${AWS_METADATA_INSTANCE_ID_PATH}`
 
