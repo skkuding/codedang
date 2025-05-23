@@ -42,7 +42,7 @@ jobs:
             next = "${year}.1"
 
           else
-            max=$(echo "$tags" \
+            max=$(echo "$tags" \`
               | sed -E "s/^${year}\.([0-9]+)$/\1/" \
               | sort -n \
               | tail -n 1)
@@ -68,9 +68,9 @@ jobs:
           build-args: |
             target=client
             app_env=stage
-          tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:${{env.IMAGE_TAG}}
-          labels: |
-            org.opencontainers.image.revision=${{ github.sha }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/codedang-client-api:${{env.IMAGE_TAG}}
+            gchr.io/${{ github.repository_owner }}/codedang-client-api:${{github.sha}}
 
   build-admin-api:
     name: Build admin-api image
@@ -130,9 +130,9 @@ jobs:
           build-args: |
             target=admin
             app_env=stage
-          tags: ghcr.io/${{ github.repository_owner }}/codedang-admin-api:${{env.IMAGE_TAG}}
-          labels: |
-            org.opencontainers.image.revision=${{ github.sha }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/codedang-admin-api:${{env.IMAGE_TAG}}
+            gchr.io/${{ github.repository_owner }}/codedang-admin-api:${{github.sha}}
 
   build-iris:
     name: Build Iris docker image
@@ -189,9 +189,9 @@ jobs:
           context: '{{defaultContext}}:apps/iris'
           build-args: |
             app_env=stage
-          tags: ghcr.io/${{ github.repository_owner }}/codedang-iris:${{env.IMAGE_TAG}}
-          labels: |
-            org.opencontainers.image.revision=${{ github.sha }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/codedang-iris:${{env.IMAGE_TAG}}
+            ghcr.io/${{ github.repository_owner }}/codedang-iris:${{github.sha}}
 
   run-server:
     name: Run stage server
