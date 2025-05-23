@@ -42,7 +42,7 @@ jobs:
             next = "${year}.1"
 
           else
-            max=$(echo "$tags" \`
+            max=$(echo "$tags" \
               | sed -E "s/^${year}\.([0-9]+)$/\1/" \
               | sort -n \
               | tail -n 1)
