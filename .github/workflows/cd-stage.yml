@@ -38,8 +38,8 @@ jobs:
             |  jq -r '.[].metadata.container.tags[]' \
             |  grep "^${year}\.[0-9]\+$" || true)
 
-          if [[-z "$tags"]]; then
-            next = "${year}.1"
+          if [[ -z "$tags" ]]; then
+            next="${year}.1"
 
           else
             max=$(echo "$tags" \
@@ -100,8 +100,8 @@ jobs:
             |  jq -r '.[].metadata.container.tags[]' \
             |  grep "^${year}\.[0-9]\+$" || true)
 
-          if [[-z "$tags"]]; then
-            next = "${year}.1"
+          if [[ -z "$tags" ]]; then
+            next="${year}.1"
 
           else
             max=$(echo "$tags" \
@@ -160,8 +160,8 @@ jobs:
             |  jq -r '.[].metadata.container.tags[]' \
             |  grep "^${year}\.[0-9]\+$" || true)
 
-          if [[-z "$tags"]]; then
-            next = "${year}.1"
+          if [[ -z "$tags" ]]; then
+            next="${year}.1"
 
           else
             max=$(echo "$tags" \
