@@ -54,7 +54,7 @@ export function ContainedContests({ problemId }: { problemId: number }) {
   if (loading) {
     return <Skeleton className="size-[25px]" />
   }
-
+  console.log('contestData', contestData)
   return contestData ? (
     <Dialog onOpenChange={() => setIsTooltipOpen(false)}>
       <TooltipProvider>
