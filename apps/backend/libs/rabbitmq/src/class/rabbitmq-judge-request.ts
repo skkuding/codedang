@@ -8,18 +8,23 @@ export class JudgeRequest {
   problemId: number
   timeLimit: number
   memoryLimit: number
-  judgeMode: string
+  stopOnNotAccepted: boolean
+  judgeOnlyHiddenTestcases: boolean
 
   constructor(
     code: Snippet[],
     language: Language,
-    problem: { id: number; timeLimit: number; memoryLimit: number }
+    problem: { id: number; timeLimit: number; memoryLimit: number },
+    stopOnNotAccepted = false,
+    judgeOnlyHiddenTestcases = false
   ) {
     this.code = code.map((snippet) => snippet.text).join('\n')
     this.language = language
     this.problemId = problem.id
     this.timeLimit = calculateTimeLimit(language, problem.timeLimit)
     this.memoryLimit = calculateMemoryLimit(language, problem.memoryLimit)
+    this.stopOnNotAccepted = stopOnNotAccepted
+    this.judgeOnlyHiddenTestcases = judgeOnlyHiddenTestcases
   }
 }
 
@@ -35,9 +40,10 @@ export class UserTestcaseJudgeRequest extends JudgeRequest {
     code: Snippet[],
     language: Language,
     problem: { id: number; timeLimit: number; memoryLimit: number },
-    userTestcases: { id: number; in: string; out: string }[]
+    userTestcases: { id: number; in: string; out: string }[],
+    stopOnNotAccepted = false
   ) {
-    super(code, language, problem)
+    super(code, language, problem, stopOnNotAccepted)
     this.userTestcases = userTestcases.map((tc) => {
       return { ...tc, hidden: false }
     })
