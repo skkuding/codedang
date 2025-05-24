@@ -10,7 +10,7 @@ import { SubmissionSubscriptionService } from './rabbitmq-sub.service'
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    RabbitMQModule.forRootAsync(RabbitMQModule, {
+    RabbitMQModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => {
         const channels = {
