@@ -5,24 +5,24 @@ go 1.22.7
 toolchain go1.22.10
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.32.7
-	github.com/aws/aws-sdk-go-v2/config v1.28.7
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.48
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.22
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.51.2
+	github.com/aws/aws-sdk-go-v2 v1.36.3
+	github.com/aws/aws-sdk-go-v2/config v1.29.14
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.67
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.30
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.79.4
 	github.com/lib/pq v1.10.9
 	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/skkuding/codedang/iris v0.0.0-20240305172235-94f43878c03d
 	github.com/stretchr/testify v1.10.0
-	go.opentelemetry.io/otel v1.35.0
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.35.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.35.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.35.0
-	go.opentelemetry.io/otel/metric v1.35.0
-	go.opentelemetry.io/otel/sdk v1.35.0
-	go.opentelemetry.io/otel/sdk/metric v1.35.0
-	go.opentelemetry.io/otel/trace v1.35.0
+	go.opentelemetry.io/otel v1.36.0
+	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.36.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.36.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.36.0
+	go.opentelemetry.io/otel/metric v1.36.0
+	go.opentelemetry.io/otel/sdk v1.36.0
+	go.opentelemetry.io/otel/sdk/metric v1.36.0
+	go.opentelemetry.io/otel/trace v1.36.0
 	go.uber.org/zap v1.27.0
 )
 
