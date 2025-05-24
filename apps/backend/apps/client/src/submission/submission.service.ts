@@ -30,13 +30,13 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { SubmissionPublicationService } from '@libs/rabbitmq'
 import {
   CreateSubmissionDto,
   CreateUserTestSubmissionDto,
   Snippet,
   Template
 } from './class/create-submission.dto'
-import { SubmissionPublicationService } from './submission-pub.service'
 
 @Injectable()
 export class SubmissionService {
@@ -676,7 +676,6 @@ export class SubmissionService {
     ) {
       throw new ConflictFoundException('Modifying template is not allowed')
     }
-
     // User Testcase에 대한 TEST 요청인 경우
     if (isUserTest) {
       const testSubmission = await this.createTestSubmission(
