@@ -205,7 +205,7 @@ const updateInput = {
   endTime: faker.date.future(),
   freezeTime: faker.date.between({
     from: new Date(new Date().getTime()),
-    to: new Date(endTime.getTime())
+    to: new Date(endTime.getTime() - 1000)
   })
 } satisfies UpdateContestInput
 
