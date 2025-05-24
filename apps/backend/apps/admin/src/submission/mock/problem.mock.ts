@@ -35,6 +35,7 @@ export const problems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
-    engOutputDescription: null
+    engOutputDescription: null,
+    solution: []
   }
 ]
