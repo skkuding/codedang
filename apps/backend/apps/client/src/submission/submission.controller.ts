@@ -7,9 +7,16 @@ import {
   Req,
   Query,
   DefaultValuePipe,
-  Headers
+  Headers,
+  Patch,
+  UseGuards
 } from '@nestjs/common'
-import { AuthNotNeededIfPublic, AuthenticatedRequest } from '@libs/auth'
+import type { ResultStatus } from '@prisma/client'
+import {
+  AdminGuard,
+  AuthNotNeededIfPublic,
+  AuthenticatedRequest
+} from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import {
   CursorValidationPipe,

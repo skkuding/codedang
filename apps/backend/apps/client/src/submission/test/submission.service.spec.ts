@@ -16,11 +16,11 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { SubmissionPublicationService } from '@libs/rabbitmq'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
-import { SubmissionPublicationService } from '../submission-pub.service'
 import { SubmissionService } from '../submission.service'
 
 const db = {
@@ -80,7 +80,28 @@ const db = {
   user: {
     findFirst: stub()
   },
-  getPaginator: PrismaService.prototype.getPaginator
+  getPaginator: PrismaService.prototype.getPaginator,
+  $transaction: stub().callsFake(
+    async <T>(operations: (() => Promise<T>)[]): Promise<T[]> => {
+      if (!Array.isArray(operations)) {
+        throw new Error('$transaction expects an array of operations')
+      }
+
+      try {
+        const results: T[] = [] // ✅ 제네릭 T 적용하여 타입 명확화
+        for (const op of operations) {
+          if (typeof op === 'function') {
+            results.push(await op())
+          } else {
+            results.push(op)
+          }
+        }
+        return results
+      } catch (error) {
+        throw new Error(`Transaction failed: ${error.message}`)
+      }
+    }
+  )
 }
 
 const CONTEST_ID = 1
