@@ -21,15 +21,15 @@ params:path {
 docs {
   # Get Leaderboard
   contest의 리더보드를 return합니다.
-  
+
   ## Query
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |search|string|검색하고자하는 string을 넣으면 해당 문자열이 포함된 유저명들만을 return합니다|
-  
+
   ## Return
   ## 🔹 Response Format
-  
+
   ```json
   {
     "maxScore": 60,
@@ -56,11 +56,12 @@ docs {
     ]
   }
   ```
-  
+
   ## 🔹 Response Fields
-  
+
   | 이름 | 타입 | 설명 |
   |------------|--------|----------------------------|
+  | `userRole` | `string` | 사용자의 대회 role (Admin, Manager, Reviewer, Participant, null) |
   | `maxScore` | `number` | 대회에서 획득 가능한 최대 점수 |
   | `leaderboard` | `array` | 대회의 리더보드 |
   | `leaderboard[].user` | `object` | 참가자 정보 |
