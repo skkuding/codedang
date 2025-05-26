@@ -106,6 +106,8 @@ func (l *logger) Log(level Level, msg string) {
 // Trace 정보와 함께 로그를 남기는 메서드
 // TODO: 위의 Log 메서드와 통합
 func (l *logger) LogWithContext(level Level, msg string, ctx context.Context) {
+	defer l.zap.Sync()
+
 	// add trace_id and span_id to zap fields
 	var fields []zap.Field
 	if ctx != nil {
