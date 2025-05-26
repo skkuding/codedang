@@ -51,7 +51,6 @@ module "admin_api" {
         media_access_key                = local.storage.media_access_key,
         media_secret_key                = local.storage.media_secret_access_key,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
-        loki_url                        = var.loki_url,
         log_group_name                  = aws_cloudwatch_log_group.admin_api.name,
         region                          = data.aws_region.current.name,
       })),

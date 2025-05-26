@@ -1,7 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
-import { context, propagation } from '@opentelemetry/api'
 import {
   ResultStatus,
   type Submission,
@@ -46,42 +45,35 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     this.amqpConnection.createSubscriber(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       async (msg: object, raw: any) => {
-        const carrier = raw.properties.headers as Record<string, string>
-        const extractedContext = propagation.extract(context.active(), carrier)
+        try {
+          const res = await this.validateJudgerResponse(msg)
 
-        return context.with(extractedContext, async () => {
-          try {
-            const res = await this.validateJudgerResponse(msg)
-
-            if (
-              raw.properties.type === RUN_MESSAGE_TYPE ||
+          if (
+            raw.properties.type === RUN_MESSAGE_TYPE ||
+            raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
+          ) {
+            await this.handleRunMessage(
+              res,
+              res.submissionId,
               raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
-            ) {
-              await this.handleRunMessage(
-                res,
-                res.submissionId,
-                raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
-                  ? true
-                  : false
-              )
-              return
-            }
-
-            await this.handleJudgerMessage(res)
-          } catch (error) {
-            if (
-              Array.isArray(error) &&
-              error.every((e) => e instanceof ValidationError)
-            ) {
-              this.logger.error(error, 'Message format error')
-            } else if (error instanceof UnprocessableDataException) {
-              this.logger.error(error, 'Iris exception')
-            } else {
-              this.logger.error(error, 'Unexpected error')
-            }
-            return new Nack()
+            )
+            return
           }
-        })
+
+          await this.handleJudgerMessage(res)
+        } catch (error) {
+          if (
+            Array.isArray(error) &&
+            error.every((e) => e instanceof ValidationError)
+          ) {
+            this.logger.error(error, 'Message format error')
+          } else if (error instanceof UnprocessableDataException) {
+            this.logger.error(error, 'Iris exception')
+          } else {
+            this.logger.error(error, 'Unexpected error')
+          }
+          return new Nack()
+        }
       },
       {
         exchange: EXCHANGE,
@@ -95,6 +87,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     )
   }
 
+  @Span()
   async handleRunMessage(
     msg: JudgerResponse,
     submissionId: number,
@@ -186,6 +179,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
   }
 
+  @Span()
   async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
     const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
     await validateOrReject(res)

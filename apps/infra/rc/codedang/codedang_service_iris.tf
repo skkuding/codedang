@@ -32,7 +32,6 @@ module "iris" {
         rabbitmq_password               = local.storage.mq_password,
         rabbitmq_vhost                  = rabbitmq_vhost.vh.name,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
-        loki_url                        = var.loki_url,
         testcase_bucket_name            = local.storage.s3_testcase_bucket.name,
         log_group_name                  = aws_cloudwatch_log_group.iris.name,
         region                          = data.aws_region.current.name,

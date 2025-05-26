@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
-import { context, propagation } from '@opentelemetry/api'
 import type { Submission, TestSubmission } from '@prisma/client'
 import { Span, TraceService } from 'nestjs-otel'
 import {
@@ -99,16 +98,11 @@ export class SubmissionPublicationService {
     )
     span.setAttributes({ submissionId: submission.id })
 
-    // OpenTelemetry Context에 활성 Span을 삽입하여 메세지 헤더에 전파
-    const carrier = {}
-    propagation.inject(context.active(), carrier)
-
     await this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
       messageId: String(submission.id),
       persistent: true,
       type: this.calculateMessageType(isTest, isUserTest),
-      priority: this.calculateMessagePriority(isTest, isUserTest),
-      headers: carrier
+      priority: this.calculateMessagePriority(isTest, isUserTest)
     })
     span.end()
   }
