@@ -440,7 +440,7 @@ export class SubmissionService {
     if (assignment.title === '') {
       return `Assignment_${assignmentId}`
     }
-    return encodeURIComponent(assignment.title)
+    return assignment.title
   }
 
   async getProblemTitle(problemId: number): Promise<string | null> {
@@ -458,7 +458,7 @@ export class SubmissionService {
     if (problem.title === '') {
       return `Problem_${problemId}`
     }
-    return encodeURIComponent(problem.title)
+    return problem.title
   }
 
   async compressSourceCodes(
@@ -591,16 +591,18 @@ export class SubmissionService {
       return
     }
 
+    const encodedFilename = encodeURIComponent(filename)
     res.set({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/zip',
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'Content-Disposition': `attachment; filename*=UTF-8''${filename}.zip`
+      'Content-Disposition': `attachment; filename=test.zip; filename*=UTF-8''${encodedFilename}.zip`
     })
     const fileStream = createReadStream(`${zipFilename}.zip`)
+    this.logger.debug('DEBUG: ', zipFilename)
     fileStream.pipe(res)
 
-    fileStream.on('close', () => {
+    fileStream.on('finish', () => {
       unlink(`${zipFilename}.zip`, (err) => {
         if (err) this.logger.error('Error on deleting file: ', err)
       })
