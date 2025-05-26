@@ -18,7 +18,7 @@ import { SubmissionService } from './submission.service'
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    RabbitMQModule.forRootAsync({
+    RabbitMQModule.forRootAsync(RabbitMQModule, {
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => {
         const channels = {
