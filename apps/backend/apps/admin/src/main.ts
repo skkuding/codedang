@@ -4,6 +4,11 @@ import type { NestExpressApplication } from '@nestjs/platform-express'
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'
 import Instrumentation from '@libs/instrumentation'
 
+/**
+  TODO: 가능하면 `admin.module.ts`에서 PrismaModule 처럼 IoC 리팩터링 필요  
+  지금은 Instrumentation.start가 AdminModule 보다 먼저 실행되어야 함  
+  자세한 이유는 [이 comment](https://github.com/skkuding/codedang/pull/2705#discussion_r2072945663)를 참고해주세요.
+*/
 const bootstrap = async () => {
   if (
     process.env.APP_ENV === 'production' ||

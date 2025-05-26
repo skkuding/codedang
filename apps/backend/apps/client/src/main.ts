@@ -4,6 +4,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import cookieParser from 'cookie-parser'
 import Instrumentation from '@libs/instrumentation'
 
+/**
+  TODO: 가능하면 `app.module.ts`에서 PrismaModule 처럼 IoC 리팩터링 필요  
+  지금은 Instrumentation.start가 AppModule 보다 먼저 실행되어야 함  
+  자세한 이유는 [이 comment](https://github.com/skkuding/codedang/pull/2705#discussion_r2072945663)를 참고해주세요.
+*/
 const bootstrap = async () => {
   if (
     process.env.APP_ENV === 'production' ||
