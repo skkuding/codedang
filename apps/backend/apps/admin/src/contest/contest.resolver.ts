@@ -168,6 +168,7 @@ export class ContestResolver {
   }
 
   @Query(() => ContestsGroupedByStatus)
+  @UseDisableContestRolesGuard()
   async getContestsByProblemId(
     @Args('problemId', { type: () => Int }) problemId: number
   ) {
