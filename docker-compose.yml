@@ -164,24 +164,6 @@ services:
           cpus: '0.50'
           memory: 512M
 
-  promtail:
-    profiles: ['deploy']
-    image: grafana/promtail
-    container_name: grafana-promtail
-    restart: always
-    env_file: .env
-    depends_on:
-      - backend-client
-      - backend-admin
-      - iris
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - $PWD/apps/grafana-logs/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
-    command:
-      - -config.file=/etc/promtail/promtail-config.yml
-      - -config.expand-env=true
-    network_mode: host
-
   dozzle:
     profiles: ['deploy']
     image: amir20/dozzle:latest

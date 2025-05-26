@@ -82,9 +82,5 @@
       "name": "TESTCASE_BUCKET_NAME",
       "value": "${testcase_bucket_name}"
     }
-  ],
-  "logConfiguration": {
-    "logDriver": "awsfirelens",
-    "secretOptions": []
-  }
+  ]
 }

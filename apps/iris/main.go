@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
+	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/connector"
 	"github.com/skkuding/codedang/apps/iris/src/connector/rabbitmq"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
-	"github.com/skkuding/codedang/apps/iris/src/observability"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -41,29 +40,11 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// profile()
 	env := Env(utils.Getenv("APP_ENV", "stage"))
 	logProvider := logger.NewLogger(logger.Console, env == Production)
 
 	ctx := context.Background()
-	if env == "production" {
-		// load container Id from args
-		containerId := os.Args[1]
-		if len(containerId) == 0 {
-			logProvider.Log(logger.ERROR, "Cannot find containerId Args")
-		}
-
-		if utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "") != "" {
-			shutdown := observability.InitTracer(ctx)
-			defer shutdown()
-			observability.SetGlobalMeterProvider(containerId)
-			// Aynchronous Instruments로써, go routine 불필요
-			observability.GetMemoryMeter(otel.Meter("memory-metrics"))
-			observability.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
-		} else {
-			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT_URL")
-		}
-	} else {
+	if env == "stage" {
 		logProvider.Log(logger.INFO, "Running in stage mode")
 		http.HandleFunc("/health", healthCheckHandler)
 		go func() {
@@ -72,6 +53,25 @@ func main() {
 			}
 		}()
 	}
+
+	enableOtel := utils.Getenv("ENABLE_OPENTELEMETRY", "false") == "true"
+	if env == Production || env == Stage || enableOtel {
+		otelExporterUrl := utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "")
+		if otelExporterUrl != "" {
+			// TODO: ServiceName, ServiceVersion을 환경변수를 통해 동적으로 로드
+			shutdown, err := instrumentation.Init(ctx, "IRIS", "2.2.0", otelExporterUrl)
+			if err != nil {
+				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to initialize instrumentation: %v", err))
+			}
+			defer shutdown(ctx)
+
+			instrumentation.GetMemoryMeter(otel.Meter("memory-metrics"))
+			instrumentation.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
+		} else {
+			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT_URL")
+		}
+	}
+	defaultTracer := otel.Tracer("default")
 
 	bucket := utils.Getenv("TESTCASE_BUCKET_NAME", "")
 	s3reader, err := loader.NewS3DataSource(bucket)
@@ -95,9 +95,10 @@ func main() {
 		testcaseManager,
 		fileManager,
 		logProvider,
+		defaultTracer,
 	)
 
-	routeProvider := router.NewRouter(judgeHandler, logProvider)
+	routeProvider := router.NewRouter(judgeHandler, logProvider, defaultTracer)
 
 	logProvider.Log(logger.INFO, "Server Started")
 
