@@ -596,7 +596,7 @@ export class SubmissionService {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/zip',
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'Content-Disposition': `attachment; filename=test.zip; filename*=UTF-8''${encodedFilename}.zip`
+      'Content-Disposition': `attachment; filename=assignment${assignmentId}_problem${problemId}.zip; filename*=UTF-8''${encodedFilename}.zip`
     })
     const fileStream = createReadStream(`${zipFilename}.zip`)
     this.logger.debug('DEBUG: ', zipFilename)
