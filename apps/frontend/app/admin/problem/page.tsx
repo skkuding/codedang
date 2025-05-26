@@ -11,7 +11,10 @@ import { UploadDialog } from './_components/UploadDialog'
 
 export default async function Page() {
   const session = await auth()
-  const isUser = session?.user.role === 'User'
+  const isUser =
+    session?.user.role === 'User' &&
+    session?.user.username !== 'contestAdmin' &&
+    session?.user.username !== 'contestManager'
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between">

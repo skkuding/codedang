@@ -2,6 +2,12 @@ import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableCo
 import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { Switch } from '@/components/shadcn/switch'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/shadcn/tooltip'
 import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
 import { useMutation } from '@apollo/client'
@@ -32,23 +38,37 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
 
   return (
     <div className="ml-8 flex items-center space-x-2">
-      <Switch
-        id="hidden-mode"
-        onClick={(e) => e.stopPropagation()}
-        disabled={row.original.isVisible === null}
-        checked={row.original.isVisible === true}
-        onCheckedChange={() => {
-          row.original.isVisible = !row.original.isVisible
-          updateVisible({
-            variables: {
-              input: {
-                id: row.original.id,
-                isVisible: row.original.isVisible
-              }
-            }
-          })
-        }}
-      />
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>
+              <Switch
+                id="hidden-mode"
+                onClick={(e) => e.stopPropagation()}
+                disabled={row.original.isVisible === null}
+                checked={row.original.isVisible === true}
+                onCheckedChange={() => {
+                  row.original.isVisible = !row.original.isVisible
+                  updateVisible({
+                    variables: {
+                      input: {
+                        id: row.original.id,
+                        isVisible: row.original.isVisible
+                      }
+                    }
+                  })
+                }}
+              />
+            </div>
+          </TooltipTrigger>
+          {row.original.isVisible === null && (
+            <TooltipContent className="bg-white text-black">
+              <p>This Problem is Not contained in Finished Contest.</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
+
       <ContainedContests problemId={row.original.id} />
     </div>
   )
