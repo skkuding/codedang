@@ -5,14 +5,14 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/submission?problemId=7&assignmentId=5
+  url: {{baseUrl}}/submission?problemId=1&assignmentId=1
   body: json
   auth: none
 }
 
 params:query {
-  problemId: 7
-  assignmentId: 5
+  problemId: 1
+  assignmentId: 1
   ~workbookId: 1
 }
 
@@ -35,13 +35,13 @@ script:pre-request {
 
 docs {
   # Create Submission
-  
+
   코드를 제출하여 채점 요청을 보냅니다.
-  
+
   ## Query
-  
+
   > 필수 query는 * 표시하였습니다.
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|
