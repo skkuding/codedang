@@ -95,7 +95,6 @@ jobs:
             scripts/deploy.sh
             .env.development
             apps/infra/stage/server2/Caddyfile
-            apps/grafana-logs/promtail/promtail-config.yml
 
       - name: Load dotenv from secret
         run: |
@@ -122,7 +121,6 @@ jobs:
           docker compose --profile deploy up backend-client -d --no-deps
           docker compose --profile deploy up backend-admin -d --no-deps
           docker compose --profile deploy up iris -d --no-deps
-          docker compose --profile deploy up promtail -d --no-deps
 
       - name: Copy Caddyfile into Caddy Container
         run: docker cp ./apps/infra/stage/server2/Caddyfile caddy:/etc/caddy/Caddyfile
