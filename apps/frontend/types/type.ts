@@ -1,3 +1,5 @@
+import type { UpdateContestInput } from '@generated/graphql'
+
 export type ContestStatus =
   | 'ongoing'
   | 'upcoming'
@@ -16,7 +18,7 @@ export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
 
 export type SemesterSeason = 'Spring' | 'Summer' | 'Fall' | 'Winter'
 
-export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
+export type Language = 'C' | 'Cpp' | 'Java' | 'Python3' | 'PyPy3'
 // Problem type definition
 
 export type MemberRole = 'Instructor' | 'Student'
@@ -49,6 +51,11 @@ export interface Snippet {
 
 export interface Template {
   code: Snippet[]
+  language: Language
+}
+
+export interface Solution {
+  code: string
   language: Language
 }
 
@@ -119,6 +126,7 @@ export interface ProblemDetail {
   tags: Tag[]
   hint: string
   template: string[]
+  solution: Solution[]
   difficulty: Level
   order?: number
 }
@@ -440,4 +448,14 @@ export interface ProblemSubmission {
   submissionResult: string
   testcaseCount: number
   acceptedTestcaseCount: number
+}
+
+export interface UpdateContestInfo extends UpdateContestInput {
+  contestRecord?: {
+    userId: number
+    user: {
+      username: string
+      email: string
+    }
+  }[]
 }

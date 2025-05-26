@@ -2,13 +2,13 @@
 
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import {
+  Table,
   TableBody,
   TableCell,
   TableFooter,
   TableHead,
   TableHeader,
-  TableRow,
-  Table
+  TableRow
 } from '@/components/shadcn/table'
 import { cn } from '@/libs/utils'
 import {

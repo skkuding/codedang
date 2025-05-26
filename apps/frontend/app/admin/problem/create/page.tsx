@@ -5,7 +5,7 @@ import { createSchema } from '@/app/admin/problem/_libs/schemas'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { useSession } from '@/libs/hooks/useSession'
-import type { ProblemDetail, Template } from '@/types/type'
+import type { ProblemDetail } from '@/types/type'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
@@ -19,11 +19,9 @@ import { DescriptionForm } from '../../_components/DescriptionForm'
 import { FormSection } from '../../_components/FormSection'
 import { SwitchField } from '../../_components/SwitchField'
 import { TitleForm } from '../../_components/TitleForm'
-import { VisibleForm } from '../../_components/VisibleForm'
-import { EditorDescription } from '../../_components/code-editor/EditorDescription'
 import { InfoForm } from '../_components/InfoForm'
 import { LimitForm } from '../_components/LimitForm'
-import { PopoverVisibleInfo } from '../_components/PopoverVisibleInfo'
+import { SolutionField } from '../_components/SolutionField'
 import { TemplateField } from '../_components/TemplateField'
 import { TestcaseField } from '../_components/TestcaseField'
 import { CreateProblemForm } from './_components/CreateProblemForm'
@@ -41,14 +39,14 @@ export default function Page() {
       inputDescription: '',
       outputDescription: '',
       testcases: [
-        { input: '', output: '', isHidden: false, scoreWeight: null },
-        { input: '', output: '', isHidden: true, scoreWeight: null }
+        { input: '', output: '', isHidden: false, scoreWeight: null }
       ],
       timeLimit: 2000,
       memoryLimit: 512,
       hint: '',
       source: '',
       template: [],
+      solution: [],
       isVisible: isAdmin
     }
   })
@@ -74,24 +72,17 @@ export default function Page() {
       source: methods.getValues('source'),
       tags: [],
       hint: methods.getValues('hint'),
-      template: methods
-        .getValues('template')
-        ?.map((template) =>
-          template.code.map((snippet) => snippet.text).join('\n')
-        ),
+      template: [JSON.stringify(methods.getValues('template'))],
+      solution: methods.getValues('solution'),
       difficulty: methods.getValues('difficulty')
     } as ProblemDetail
 
     return createPortal(
       <div className="fixed inset-0 z-50 flex bg-white">
         <PreviewEditorLayout
-          problemTitle={problem.title}
-          languages={problem.languages}
-          template={methods.getValues('template') as Template[]}
+          problem={problem}
           exitPreview={() => setIsPreviewing(false)}
-        >
-          <EditorDescription problem={problem} />
-        </PreviewEditorLayout>
+        />
       </div>,
       document.body
     )
@@ -105,23 +96,12 @@ export default function Page() {
             <Link href="/admin/problem">
               <FaAngleLeft className="h-12 hover:text-gray-700/80" />
             </Link>
-            <span className="text-4xl font-bold">Create Problem</span>
+            <span className="text-4xl font-bold">CREATE PROBLEM</span>
           </div>
 
           <CreateProblemForm methods={methods}>
-            <div className="flex gap-32">
-              <FormSection isFlexColumn title="Title">
-                <TitleForm placeholder="Enter a problem name" />
-              </FormSection>
-
-              <FormSection isFlexColumn title="Visible">
-                <PopoverVisibleInfo />
-                <VisibleForm blockEdit={!isAdmin} />
-              </FormSection>
-            </div>
-
-            <FormSection isFlexColumn title="Info">
-              <InfoForm />
+            <FormSection isFlexColumn title="Title">
+              <TitleForm placeholder="Enter a problem name" />
             </FormSection>
 
             <FormSection isFlexColumn title="Description">
@@ -151,11 +131,17 @@ export default function Page() {
 
             <TestcaseField />
 
-            <FormSection isFlexColumn title="Limit">
-              <LimitForm />
+            <FormSection isFlexColumn title="Info">
+              <InfoForm />
             </FormSection>
 
             <TemplateField />
+
+            <SolutionField />
+
+            <FormSection isFlexColumn title="Limit">
+              <LimitForm />
+            </FormSection>
 
             <SwitchField
               name="hint"

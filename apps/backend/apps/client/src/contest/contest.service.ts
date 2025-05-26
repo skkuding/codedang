@@ -334,17 +334,29 @@ export class ContestService {
     })
   }
 
-  async getContestLeaderboard(contestId: number, search?: string) {
+  async getContestLeaderboard(
+    contestId: number,
+    userId: number,
+    search?: string
+  ) {
     const contest = await this.prisma.contest.findUniqueOrThrow({
       where: {
         id: contestId
       },
       select: {
         freezeTime: true,
-        unfreeze: true
+        unfreeze: true,
+        userContest: {
+          where: {
+            userId
+          },
+          select: {
+            role: true
+          }
+        }
       }
     })
-
+    const userRole = contest.userContest[0]?.role ?? null
     const now = new Date()
     const isFrozen = Boolean(
       contest.freezeTime && now >= contest.freezeTime && !contest.unfreeze
@@ -476,6 +488,9 @@ export class ContestService {
         id: true,
         order: true,
         problemId: true
+      },
+      orderBy: {
+        order: 'asc'
       }
     }) // 모든 문제 목록이 포함된 배열
 
@@ -566,6 +581,7 @@ export class ContestService {
       : leaderboard
 
     return {
+      userRole,
       maxScore,
       leaderboard: filteredLeaderboard
     }

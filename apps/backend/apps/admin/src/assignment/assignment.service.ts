@@ -11,10 +11,10 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
+import type { AssignmentProblemInput } from './model/assignment-problem.input'
 import type { AssignmentWithScores } from './model/assignment-with-scores.model'
 import type { CreateAssignmentInput } from './model/assignment.input'
 import type { UpdateAssignmentInput } from './model/assignment.input'
-import type { AssignmentProblemScoreInput } from './model/problem-score.input'
 
 @Injectable()
 export class AssignmentService {
@@ -92,6 +92,12 @@ export class AssignmentService {
       )
     }
 
+    if (assignment.startTime >= assignment.dueTime) {
+      throw new UnprocessableDataException(
+        'The start time must be earlier than the due time'
+      )
+    }
+
     const group = await this.prisma.group.findUnique({
       where: {
         id: groupId
@@ -130,6 +136,7 @@ export class AssignmentService {
         groupId: true,
         startTime: true,
         endTime: true,
+        dueTime: true,
         assignmentProblem: {
           select: {
             problemId: true
@@ -153,6 +160,13 @@ export class AssignmentService {
     if (assignment.startTime >= assignment.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
+      )
+    }
+
+    assignment.dueTime = assignment.dueTime || assignmentFound.dueTime
+    if (assignment.startTime >= assignment.dueTime) {
+      throw new UnprocessableDataException(
+        'The start time must be earlier than the due time'
       )
     }
 
@@ -270,7 +284,7 @@ export class AssignmentService {
   async importProblemsToAssignment(
     groupId: number,
     assignmentId: number,
-    problemIdsWithScore: AssignmentProblemScoreInput[]
+    assignmentProblemInput: AssignmentProblemInput[]
   ) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
@@ -295,7 +309,11 @@ export class AssignmentService {
 
     const assignmentProblems: AssignmentProblem[] = []
 
-    for (const { problemId, score } of problemIdsWithScore) {
+    for (const {
+      problemId,
+      score,
+      solutionReleaseTime
+    } of assignmentProblemInput) {
       const isProblemAlreadyImported =
         await this.prisma.assignmentProblem.findUnique({
           where: {
@@ -319,7 +337,8 @@ export class AssignmentService {
               order: 0,
               assignmentId,
               problemId,
-              score
+              score,
+              solutionReleaseTime
             }
           }),
           this.prisma.problem.updateMany({
@@ -637,7 +656,8 @@ export class AssignmentService {
                   order: assignmentProblem.order,
                   assignmentId: newAssignment.id,
                   problemId: assignmentProblem.problemId,
-                  score: assignmentProblem.score
+                  score: assignmentProblem.score,
+                  solutionReleaseTime: assignmentProblem.solutionReleaseTime
                 }
               })
             )
@@ -938,7 +958,7 @@ export class AssignmentService {
         assignment: {
           select: {
             groupId: true,
-            endTime: true
+            dueTime: true
           }
         }
       }
@@ -954,7 +974,7 @@ export class AssignmentService {
       throw new ForbiddenAccessException('Forbidden Resource')
     }
 
-    if (now <= assignment.endTime) {
+    if (now <= assignment.dueTime) {
       throw new ConflictFoundException('Can grade only finished assignments')
     }
 

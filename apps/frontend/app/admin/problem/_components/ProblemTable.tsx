@@ -30,10 +30,15 @@ export function ProblemTable({ isUser }: ProblemTableProps) {
           Level.Level4,
           Level.Level5
         ],
-        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
+        languages: [
+          Language.C,
+          Language.Cpp,
+          Language.Java,
+          Language.Python3,
+          Language.PyPy3
+        ]
       },
-      my: true,
-      shared: false
+      mode: 'my'
     }
   })
 

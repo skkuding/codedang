@@ -86,7 +86,10 @@ describe('SubmissionPublicationService', () => {
       )
 
       await expect(
-        service.publishJudgeRequestMessage(submissions[0].code, submission)
+        service.publishJudgeRequestMessage({
+          code: submissions[0].code,
+          submission
+        })
       ).not.to.be.rejected
 
       expect(
@@ -127,11 +130,11 @@ describe('SubmissionPublicationService', () => {
       )
 
       await expect(
-        service.publishJudgeRequestMessage(
-          submissions[0].code,
+        service.publishJudgeRequestMessage({
+          code: submissions[0].code,
           submission,
-          true
-        )
+          isTest: true
+        })
       ).not.to.be.rejected
 
       expect(
@@ -160,7 +163,10 @@ describe('SubmissionPublicationService', () => {
       sandbox.stub(db.problem, 'findUnique').resolves(undefined)
 
       await expect(
-        service.publishJudgeRequestMessage(submissions[0].code, submission)
+        service.publishJudgeRequestMessage({
+          code: submissions[0].code,
+          submission
+        })
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })

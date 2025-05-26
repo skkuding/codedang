@@ -319,21 +319,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     if (!submission) return
 
-    if (submission.contest && !submission.contest.evaluateWithSampleTestcase) {
-      const testcaseSet = new Set(
-        (
-          await this.prisma.problemTestcase.findMany({
-            where: { problemId: submission.problemId, isHidden: true },
-            select: { id: true }
-          })
-        ).map((tc) => tc.id)
-      )
-
-      submission.submissionResult = submission.submissionResult.filter((sr) =>
-        testcaseSet.has(sr.problemTestcaseId)
-      )
-    }
-
     const allAccepted = submission.submissionResult.every(
       (submissionResult) => submissionResult.result === ResultStatus.Accepted
     )
@@ -342,7 +327,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       ? ResultStatus.Accepted
       : (submission.submissionResult.find(
           (submissionResult) =>
-            submissionResult.result !== ResultStatus.Accepted
+            submissionResult.result !== ResultStatus.Accepted &&
+            submissionResult.result !== ResultStatus.Canceled
         )?.result ?? ResultStatus.ServerError)
 
     await this.prisma.submission.update({

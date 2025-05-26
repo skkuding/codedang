@@ -20,7 +20,6 @@ EOF
 # TODO: description 넣고 공통부분은 object로 처리
 variable "public_subnet1" { sensitive = true }
 variable "public_subnet2" { sensitive = true }
-variable "database_url" { sensitive = true }
 variable "redis_host" { sensitive = true }
 variable "redis_port" { sensitive = true }
 variable "jwt_secret" { sensitive = true }
@@ -33,7 +32,6 @@ variable "github_client_secret" { sensitive = true }
 variable "kakao_client_id" { sensitive = true }
 variable "kakao_client_secret" { sensitive = true }
 variable "otel_exporter_otlp_endpoint_url" { sensitive = true }
-variable "loki_url" { sensitive = true }
 
 variable "testcase_bucket_name" { sensitive = true }
 variable "testcase_access_key" { sensitive = true }

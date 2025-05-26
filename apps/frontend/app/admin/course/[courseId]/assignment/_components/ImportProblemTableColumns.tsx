@@ -3,9 +3,11 @@ import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import { SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
+import { CiShare1 } from 'react-icons/ci'
+import { FaCheck } from 'react-icons/fa6'
 import { toast } from 'sonner'
+import type { Solution } from '../../_libs/type'
 
 export interface DataTableProblem {
   id: number
@@ -17,6 +19,8 @@ export interface DataTableProblem {
   languages: string[]
   score?: number
   order?: number
+  solutionReleaseTime: Date | null
+  solution: Solution[]
 }
 
 export const DEFAULT_PAGE_SIZE = 5
@@ -69,55 +73,56 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader
+        column={column}
+        title="Title"
+        className="w-[250px] justify-start"
+      />
     ),
     cell: ({ row }) => {
       return (
-        <div className="w-[500px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        <div className="w-[250px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
           {row.getValue('title')}
         </div>
       )
     },
-    enableHiding: false
-  },
-  {
-    accessorKey: 'languages',
-    header: () => {},
-    cell: () => {},
-    filterFn: (row, id, value) => {
-      const languages = row.original.languages
-      if (!languages?.length) {
-        return false
-      }
-
-      const langValue: string[] = row.getValue(id)
-      const valueArray = value as string[]
-      const result = langValue.some((language) => valueArray.includes(language))
-      return result
-    }
+    enableHiding: false,
+    enableSorting: false
   },
   {
     accessorKey: 'updateTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Update" />
+      <DataTableColumnHeader
+        column={column}
+        title="Update"
+        className="w-[100px]"
+      />
     ),
     cell: ({ row }) => {
-      return <div>{row.original.updateTime.substring(2, 10)}</div>
+      return (
+        <div className="w-[100px]">
+          {row.original.updateTime.substring(2, 10)}
+        </div>
+      )
     }
   },
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Level" />
+      <DataTableColumnHeader
+        column={column}
+        title="Level"
+        className="w-[70px]"
+      />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
       const formattedLevel = `Level ${level.slice(-1)}`
       return (
-        <div>
+        <div className="flex w-[70px] justify-end">
           <Badge
             variant={level as Level}
-            className="mr-1 whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
+            className="whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
           >
             {formattedLevel}
           </Badge>
@@ -129,39 +134,45 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     }
   },
   {
-    accessorKey: 'submissionCount',
+    accessorKey: 'solution',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Submission" />
+      <DataTableColumnHeader
+        column={column}
+        title="Solution"
+        className="flex w-[70px] justify-center"
+      />
     ),
     cell: ({ row }) => {
-      return <div>{row.getValue('submissionCount')}</div>
-    }
-  },
-  {
-    accessorKey: 'acceptedRate',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Success Rate" />
-    ),
-    cell: ({ row }) => {
-      const acceptedRate: number = row.getValue('acceptedRate')
-      const acceptedRateFloat = (acceptedRate * 100).toFixed(2)
-      return <div>{acceptedRateFloat}%</div>
-    }
+      return (
+        <div className="flex w-[70px] justify-center">
+          {row.original.solution.some((solution) => solution.code !== '') ? (
+            <FaCheck />
+          ) : (
+            '-'
+          )}
+        </div>
+      )
+    },
+    enableSorting: false
   },
   {
     accessorKey: 'preview',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Preview" />
+      <DataTableColumnHeader
+        column={column}
+        title="Preview"
+        className="flex justify-center"
+      />
     ),
     cell: ({ row }) => {
       return (
         <Link
           href={`/admin/problem/${row.original.id}/preview`}
           target="_blank"
-          className="flex justify-center"
+          className="flex w-[70px] justify-center"
           onClick={(e) => e.stopPropagation()}
         >
-          <SquareArrowOutUpRight />
+          <CiShare1 size={20} />
         </Link>
       )
     },

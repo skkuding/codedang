@@ -2,6 +2,17 @@ data "aws_ecr_repository" "client_api" {
   name = "codedang-client-api"
 }
 
+# TODO: send log to grafana
+resource "aws_cloudwatch_log_group" "client_api" {
+  name              = "/aws/ecs/codedang-client-api"
+  retention_in_days = 30
+
+  tags = {
+    Name        = "Codedang-Client-Api"
+    Description = "Codedang Client Api log group"
+  }
+}
+
 module "client_api_loadbalancer" {
   source = "./modules/loadbalancing"
 
@@ -34,7 +45,7 @@ module "client_api" {
         redis_host                      = local.storage.redis_host,
         redis_port                      = var.redis_port,
         jwt_secret                      = var.jwt_secret,
-        rabbitmq_host                   = "${local.storage.mq_host_id}.mq.ap-northeast-2.amazonaws.com",
+        rabbitmq_host                   = local.storage.mq_host,
         rabbitmq_port                   = var.rabbitmq_port,
         rabbitmq_username               = var.rabbitmq_username,
         rabbitmq_password               = local.storage.mq_password,
@@ -45,7 +56,10 @@ module "client_api" {
         kakao_client_id                 = var.kakao_client_id,
         kakao_client_secret             = var.kakao_client_secret,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
-      }))
+        log_group_name                  = aws_cloudwatch_log_group.client_api.name,
+        region                          = data.aws_region.current.name,
+        testcase_bucket_name            = local.storage.s3_testcase_bucket.name,
+      })),
     ])
 
     execution_role_arn = aws_iam_role.ecs_task_execution_role.arn

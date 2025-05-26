@@ -77,6 +77,18 @@
     {
       "name": "OTEL_EXPORTER_OTLP_ENDPOINT_URL",
       "value": "${otel_exporter_otlp_endpoint_url}"
+    },
+    {
+      "name": "TESTCASE_BUCKET_NAME",
+      "value": "${testcase_bucket_name}"
     }
-  ]
+  ],
+  "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group": "${log_group_name}",
+      "awslogs-region": "${region}",
+      "awslogs-stream-prefix": "client-api"
+    }
+  }
 }

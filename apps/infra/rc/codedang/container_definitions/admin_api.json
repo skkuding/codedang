@@ -58,5 +58,13 @@
       "name": "OTEL_EXPORTER_OTLP_ENDPOINT_URL",
       "value": "${otel_exporter_otlp_endpoint_url}"
     }
-  ]
+  ],
+  "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group": "${log_group_name}",
+      "awslogs-region": "${region}",
+      "awslogs-stream-prefix": "admin-api"
+    }
+  }
 }
