@@ -32,7 +32,7 @@ const BaseLeaderboardUser = {
 const BaseContestLeaderboardData = {
   maxScore: 0,
   leaderboard: [BaseLeaderboardUser],
-  userRole: null
+  contestRole: null
 }
 
 const BaseFetchedContest = {
@@ -81,8 +81,8 @@ export default function ContestLeaderBoard() {
       const contestStartTime = new Date(fetchedContest?.startTime)
 
       const hasContestAuth =
-        contestLeaderboard.userRole === 'Admin' ||
-        contestLeaderboard.userRole === 'Manager'
+        contestLeaderboard.contestRole === 'Admin' ||
+        contestLeaderboard.contestRole === 'Manager'
 
       if (!hasContestAuth && contestEndTime > now && contestStartTime < now) {
         throw new Error('Error(ongoing): The contest has not ended yet.')
