@@ -336,7 +336,7 @@ export class ContestService {
 
   async getContestLeaderboard(
     contestId: number,
-    userId: number,
+    userId?: number,
     search?: string
   ) {
     const contest = await this.prisma.contest.findUniqueOrThrow({
@@ -356,7 +356,7 @@ export class ContestService {
         }
       }
     })
-    const userRole = contest.userContest[0]?.role ?? null
+    const contestRole = userId ? (contest.userContest[0]?.role ?? null) : null
     const now = new Date()
     const isFrozen = Boolean(
       contest.freezeTime && now >= contest.freezeTime && !contest.unfreeze
@@ -581,7 +581,7 @@ export class ContestService {
       : leaderboard
 
     return {
-      userRole,
+      contestRole,
       maxScore,
       leaderboard: filteredLeaderboard
     }
