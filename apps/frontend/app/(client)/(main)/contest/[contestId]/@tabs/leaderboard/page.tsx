@@ -100,9 +100,9 @@ export default function ContestLeaderBoard() {
       setProblemSize(contestLeaderboard.leaderboard[0].problemRecords.length)
       setLeaderboardUsers(contestLeaderboard.leaderboard)
 
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 420, behavior: 'auto' })
-      })
+      // requestAnimationFrame(() => {
+      //   window.scrollTo({ top: 420, behavior: 'auto' })
+      // })
     }
   }, [data, isLoading, isError, isContestLoading, isContestError])
 
@@ -127,11 +127,6 @@ export default function ContestLeaderBoard() {
       return
     }
   }
-  console.log('preview')
-  // useEffect(() => {}, [])
-  requestAnimationFrame(() => {
-    window.scrollTo({ top: 100, behavior: 'auto' })
-  })
 
   return (
     <div className="relative ml-[116px] w-screen pb-[120px]">
