@@ -41,7 +41,6 @@ export function ProblemTable({ isUser }: ProblemTableProps) {
       mode: 'my'
     }
   })
-  console.log('problems: ', data)
 
   const problems = data.getProblems.map((problem) => ({
     ...problem,
