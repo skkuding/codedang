@@ -25,7 +25,7 @@ export interface LeaderboardUser {
 export interface ContestLeaderboard {
   maxScore: number
   leaderboard: LeaderboardUser[]
-  userRole: string
+  contestRole: string
 }
 
 export const getContestLeaderboard = async ({
