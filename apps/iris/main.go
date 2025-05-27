@@ -54,8 +54,8 @@ func main() {
 		}()
 	}
 
-	enableInstrumentation := utils.Getenv("ENABLE_INSTRUMENTATION", "true") == "true"
-	if enableInstrumentation {
+	disableInstrumentation := utils.Getenv("DISABLE_INSTRUMENTATION", "false") == "true"
+	if !disableInstrumentation {
 		otelExporterUrl := utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "")
 		if otelExporterUrl != "" {
 			// TODO: ServiceName, ServiceVersion을 환경변수를 통해 동적으로 로드
