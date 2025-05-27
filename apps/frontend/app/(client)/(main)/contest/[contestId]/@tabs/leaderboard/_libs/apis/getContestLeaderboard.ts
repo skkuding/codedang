@@ -1,4 +1,4 @@
-import { safeFetcher } from '@/libs/utils'
+import { safeFetcherWithAuth } from '@/libs/utils'
 
 interface GetContestLeaderboard {
   contestId: number
@@ -25,12 +25,15 @@ export interface LeaderboardUser {
 export interface ContestLeaderboard {
   maxScore: number
   leaderboard: LeaderboardUser[]
+  userRole: string
 }
 
 export const getContestLeaderboard = async ({
   contestId
 }: GetContestLeaderboard) => {
-  const response = await safeFetcher.get(`contest/${contestId}/leaderboard`)
+  const response = await safeFetcherWithAuth.get(
+    `contest/${contestId}/leaderboard`
+  )
 
   const data = await response.json<ContestLeaderboard>()
   return data

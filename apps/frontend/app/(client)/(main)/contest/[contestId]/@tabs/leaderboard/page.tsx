@@ -5,12 +5,12 @@ import searchIcon from '@/public/icons/search.svg'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { LeaderboardModalDialog } from './_components/LeaderboardModalDialog'
 import { LeaderboardTable } from './_components/LeaderboardTable'
 import { getContest } from './_libs/apis/getContest'
-import { getContestLeaderboard } from './_libs/apis/getContestLeaderboard'
 import type { LeaderboardUser } from './_libs/apis/getContestLeaderboard'
+import { getContestLeaderboard } from './_libs/apis/getContestLeaderboard'
 
 const BaseLeaderboardUser = {
   username: '',
@@ -31,7 +31,8 @@ const BaseLeaderboardUser = {
 }
 const BaseContestLeaderboardData = {
   maxScore: 0,
-  leaderboard: [BaseLeaderboardUser]
+  leaderboard: [BaseLeaderboardUser],
+  userRole: null
 }
 
 const BaseFetchedContest = {
@@ -78,7 +79,12 @@ export default function ContestLeaderBoard() {
     if (!isLoading && !isError) {
       const contestEndTime = new Date(fetchedContest?.endTime)
       const contestStartTime = new Date(fetchedContest?.startTime)
-      if (contestEndTime > now && contestStartTime < now) {
+
+      const hasContestAuth =
+        contestLeaderboard.userRole === 'Admin' ||
+        contestLeaderboard.userRole === 'Manager'
+
+      if (!hasContestAuth && contestEndTime > now && contestStartTime < now) {
         throw new Error('Error(ongoing): The contest has not ended yet.')
       }
       if (contestStartTime > now) {
