@@ -54,7 +54,6 @@ export default function ContestLeaderBoard() {
     queryFn: () => getContestLeaderboard({ contestId })
   })
   const contestLeaderboard = data ? data : BaseContestLeaderboardData
-  console.log('contest leaderboard role: ', contestLeaderboard.userRole)
   const [problemSize, setProblemSize] = useState(0)
   const [leaderboardUsers, setLeaderboardUsers] = useState([
     BaseLeaderboardUser
