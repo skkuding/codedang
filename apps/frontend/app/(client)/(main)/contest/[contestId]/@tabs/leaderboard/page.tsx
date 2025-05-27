@@ -123,6 +123,7 @@ export default function ContestLeaderBoard() {
       return
     }
   }
+  console.log('preview')
 
   return (
     <div className="relative ml-[116px] w-screen pb-[120px]">
