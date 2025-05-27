@@ -64,16 +64,15 @@ class Instrumentation {
     serviceName: string,
     serviceVersion: string
   ): Promise<Resource> => {
-    const ATTR_INSTANCE_ID = 'service.instance.id'
     let instanceId: string
-    if (process.env.APP_ENV == 'production' || process.env.APP_ENV == 'rc') {
+    const environment = process.env.APP_ENV || 'local'
+    if (environment == 'production' || environment == 'rc') {
       instanceId = await Instrumentation.getAWSInstanceId()
     }
     instanceId = '1'
 
+    const ATTR_INSTANCE_ID = 'service.instance.id'
     const ATTR_ENVIRONMENT = 'service.environment'
-    const environment = process.env.APP_ENV || 'local'
-
     return resourceFromAttributes({
       [ATTR_SERVICE_NAME]: serviceName, // TODO: 동적으로 서비스 이름을 가져오기
       [ATTR_SERVICE_VERSION]: serviceVersion, // TODO: 동적으로 서비스 버전을 가져오기

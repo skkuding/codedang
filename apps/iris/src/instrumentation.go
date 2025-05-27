@@ -66,10 +66,12 @@ func getAWSInstanceID() (string, error) {
 }
 
 func newResource(ctx context.Context, serviceName, serviceVersion string) (*resource.Resource, error) {
+	appEnv := strings.ToLower(os.Getenv("APP_ENV"))
 	attrs := []resource.Option{
 		resource.WithAttributes(
 			semconv.ServiceName(serviceName),
 			semconv.ServiceVersion(serviceVersion),
+			semconv.DeploymentEnvironment(appEnv),
 		),
 		resource.WithProcess(),
 		resource.WithHost(),
@@ -79,7 +81,6 @@ func newResource(ctx context.Context, serviceName, serviceVersion string) (*reso
 	}
 
 	var instanceID string
-	appEnv := strings.ToLower(os.Getenv("APP_ENV"))
 	if appEnv == "production" || appEnv == "rc" {
 		var err error
 		instanceID, err = getAWSInstanceID()
