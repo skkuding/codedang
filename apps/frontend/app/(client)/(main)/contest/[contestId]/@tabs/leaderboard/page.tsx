@@ -153,11 +153,13 @@ export default function ContestLeaderBoard() {
         />
       </div>
       <div>
-        <LeaderboardTable
-          problemSize={problemSize}
-          leaderboardUsers={leaderboardUsers}
-          matchedIndices={matchedIndices}
-        />
+        {!isLoading && (
+          <LeaderboardTable
+            problemSize={problemSize}
+            leaderboardUsers={leaderboardUsers}
+            matchedIndices={matchedIndices}
+          />
+        )}
       </div>
     </div>
   )
