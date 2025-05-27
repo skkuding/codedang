@@ -32,6 +32,7 @@ export default async function ContestStatistics({ params }: ContestStatisticsPro
   // 현재 시간과 대회 종료 시간 + 5분 비교
   const currentTime = new Date()
   const endTime = new Date(contest.endTime)
+  // TODO: 2025 SKKU 프로그래밍 대회 사용 이후에는 버퍼 시간 없애기
   const endTimeWithBuffer = new Date(endTime.getTime() + 5 * 60 * 1000)
   const isContestFinished = currentTime >= endTimeWithBuffer
 
