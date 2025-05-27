@@ -34,7 +34,7 @@ jobs:
 
           url="https://api.github.com/orgs/$OWNER/packages/container/$PKG/versions"
 
-          tags=$(curl -fsSL -H "Authorization: Bearer $GIHUB_TOKEN" "$url" \
+          tags=$(curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" "$url" \
             |  jq -r '.[].metadata.container.tags[]' \
             |  grep "^${year}\.[0-9]\+$" || true)
 
