@@ -10,7 +10,9 @@ import Instrumentation from '@libs/instrumentation'
   자세한 이유는 [이 comment](https://github.com/skkuding/codedang/pull/2705#discussion_r2072945663)를 참고해주세요.
 */
 const bootstrap = async () => {
-  if (process.env.ENABLE_OPENTELEMETRY === 'true') {
+  const isInstrumentationDisabled =
+    process.env.DISABLE_INSTRUMENTATION === 'true'
+  if (!isInstrumentationDisabled) {
     const otlpEndpointUrl =
       process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL || 'localhost:4317'
     const resource = await Instrumentation.getResource('CLIENT-API', '2.2.0')

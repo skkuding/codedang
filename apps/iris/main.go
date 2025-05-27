@@ -54,8 +54,8 @@ func main() {
 		}()
 	}
 
-	enableOtel := utils.Getenv("ENABLE_OPENTELEMETRY", "true") == "true"
-	if enableOtel {
+	disableInstrumentation := utils.Getenv("DISABLE_INSTRUMENTATION", "false") == "true"
+	if !disableInstrumentation {
 		otelExporterUrl := utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "")
 		if otelExporterUrl != "" {
 			// TODO: ServiceName, ServiceVersion을 환경변수를 통해 동적으로 로드
