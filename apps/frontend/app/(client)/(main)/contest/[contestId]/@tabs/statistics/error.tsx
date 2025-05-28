@@ -12,8 +12,8 @@ export default function StatisticsError() {
         Statistics will be available after the contest ends.
       </div>
       <div className="mt-2 text-base text-gray-500">
-        You can check the statistics after the contest ends and the contest
-        manager releases the leaderboard.
+        You can check the statistics after the contest ends and the leaderboard
+        is unfrozen.
       </div>
       <Button className="mt-4" onClick={() => window.location.reload()}>
         Refresh
