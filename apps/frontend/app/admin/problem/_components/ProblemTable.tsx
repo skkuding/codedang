@@ -1,13 +1,8 @@
 'use client'
 
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
-import { useSession } from '@/libs/hooks/useSession'
-import { safeFetcherWithAuth } from '@/libs/utils'
-import type { User } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
-import { useEffect } from 'react'
-import { create } from 'zustand'
 import {
   DataTable,
   DataTableFallback,
@@ -20,17 +15,7 @@ import {
 import { createColumns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 
-const usePermissionStore = create<{
-  canCreateContest: boolean
-  setCanCreateContest: (value: boolean) => void
-}>((set) => ({
-  canCreateContest: false,
-  setCanCreateContest: (value) => set({ canCreateContest: value })
-}))
-
 export function ProblemTable() {
-  const { canCreateContest, setCanCreateContest } = usePermissionStore()
-  const session = useSession()
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       take: 500,
@@ -68,26 +53,10 @@ export function ProblemTable() {
     }))
   }))
 
-  useEffect(() => {
-    const fetchUserPermissions = async () => {
-      try {
-        const user: User = await safeFetcherWithAuth.get('user').json()
-        console.log('User permissions:', user)
-        setCanCreateContest(user.canCreateContest ?? false)
-      } catch (error) {
-        console.error('Error fetching user permissions:', error)
-      }
-    }
-
-    if (session) {
-      fetchUserPermissions()
-    }
-  }, [session])
-
   return (
     <DataTableRoot
       data={problems}
-      columns={createColumns(canCreateContest)}
+      columns={createColumns()}
       defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <div className="flex gap-4">
@@ -103,6 +72,5 @@ export function ProblemTable() {
 }
 
 export function ProblemTableFallback() {
-  const { canCreateContest } = usePermissionStore()
-  return <DataTableFallback columns={createColumns(canCreateContest)} />
+  return <DataTableFallback columns={createColumns()} />
 }

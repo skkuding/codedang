@@ -86,7 +86,9 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
           </TooltipTrigger>
           {row.original.isVisible === null && (
             <TooltipContent className="bg-white text-black">
-              <p>This Problem is Not contained in Finished Contest.</p>
+              <p>
+                This Problem is Not included in Contest or Finished Contest.
+              </p>
             </TooltipContent>
           )}
         </Tooltip>
@@ -97,9 +99,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   )
 }
 
-export const createColumns = (
-  canCreateContest: boolean
-): ColumnDef<DataTableProblem>[] => [
+export const createColumns = (): ColumnDef<DataTableProblem>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -215,12 +215,11 @@ export const createColumns = (
 
   {
     accessorKey: 'isVisible',
-    header: ({ column }) =>
-      canCreateContest && (
-        <DataTableColumnHeader column={column} title="Visible" />
-      ),
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Visible" />
+    ),
     cell: ({ row }) => {
-      return canCreateContest && <VisibleCell row={row} />
+      return <VisibleCell row={row} />
     }
   },
   {
