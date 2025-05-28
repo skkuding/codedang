@@ -1,6 +1,5 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
-import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -9,12 +8,7 @@ import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
 import { ProblemTabs } from './_components/ProblemTabs'
 import { UploadDialog } from './_components/UploadDialog'
 
-export default async function Page() {
-  const session = await auth()
-  const isUser =
-    session?.user.role === 'User' &&
-    session?.user.username !== 'contestAdmin' &&
-    session?.user.username !== 'contestManager'
+export default function Page() {
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between">
@@ -36,8 +30,8 @@ export default async function Page() {
       </div>
       <ProblemTabs />
       <ErrorBoundary fallback={FetchErrorFallback}>
-        <Suspense fallback={<ProblemTableFallback isUser={isUser} />}>
-          <ProblemTable isUser={isUser} />
+        <Suspense fallback={<ProblemTableFallback />}>
+          <ProblemTable />
         </Suspense>
       </ErrorBoundary>
     </div>

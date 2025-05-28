@@ -98,7 +98,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
 }
 
 export const createColumns = (
-  isUser: boolean
+  canCreateContest: boolean
 ): ColumnDef<DataTableProblem>[] => [
   {
     id: 'select',
@@ -216,9 +216,11 @@ export const createColumns = (
   {
     accessorKey: 'isVisible',
     header: ({ column }) =>
-      !isUser && <DataTableColumnHeader column={column} title="Visible" />,
+      canCreateContest && (
+        <DataTableColumnHeader column={column} title="Visible" />
+      ),
     cell: ({ row }) => {
-      return !isUser && <VisibleCell row={row} />
+      return canCreateContest && <VisibleCell row={row} />
     }
   },
   {
