@@ -1,21 +1,14 @@
 import { Button } from '@/components/shadcn/button'
 import { Card, CardContent } from '@/components/shadcn/card'
 import { auth } from '@/libs/auth'
-import { safeFetcher, safeFetcherWithAuth } from '@/libs/utils'
 import statisticsChart from '@/public/captures/statistics-chart.gif'
 import statisticsLeaderboard from '@/public/captures/statistics-leaderboard.gif'
 import statisticsSubmissions from '@/public/captures/statistics-submissions.gif'
-import pleaseLogo from '@/public/logos/please.png'
 import Image from 'next/image'
 import Link from 'next/link'
 import { LuArrowRight } from 'react-icons/lu'
-
-interface Contest {
-  id: number
-  title: string
-  startTime: string
-  endTime: string
-}
+import { getContest } from '../leaderboard/_libs/apis/getContest'
+import { getContestLeaderboard } from '../leaderboard/_libs/apis/getContestLeaderboard'
 
 interface ContestStatisticsProps {
   params: {
@@ -27,43 +20,32 @@ export default async function ContestStatistics({
   params
 }: ContestStatisticsProps) {
   const { contestId } = params
-
-  const response = await safeFetcher.get(`contest/${contestId}`)
-  const contest: Contest = await response.json()
-
   const session = await auth()
   const username = session?.user?.username
 
-  // 현재 시간과 대회 종료 시간 + 5분 비교
-  const currentTime = new Date()
-  const endTime = new Date(contest.endTime)
-  // TODO: 2025 SKKU 프로그래밍 대회 사용 이후에는 버퍼 시간 없애기
-  const endTimeWithBuffer = new Date(endTime.getTime() + 5 * 60 * 1000)
-  const isContestFinished = currentTime >= endTimeWithBuffer
+  // If contest is not finished or has frozen records, throw error to show error.tsx
+  const [contestLeaderboard, contest] = await Promise.all([
+    getContestLeaderboard({
+      contestId: parseInt(contestId)
+    }),
+    getContest({ contestId: parseInt(contestId) })
+  ])
+  if (new Date(contest.endTime) > new Date()) {
+    throw new Error('Contest not finished')
+  }
+
+  // TODO: should change to check if the contest is frozen, not problem records (inefficient implementation)
+  const hasFrozenRecords = contestLeaderboard.leaderboard.some((user) =>
+    user.problemRecords.some((record) => record.isFrozen)
+  )
+
+  if (hasFrozenRecords) {
+    throw new Error('Leaderboard has frozen records')
+  }
 
   const statisticsUrl = username
     ? (`https://leaderboard-statistics.vercel.app/?username=${username}` as const)
     : ('https://leaderboard-statistics.vercel.app/' as const)
-
-  if (!isContestFinished) {
-    return (
-      <div className="flex flex-col items-center justify-center pb-[120px]">
-        <Image
-          className="mt-40"
-          src={pleaseLogo}
-          alt="coming-soon"
-          width={336}
-        />
-        <div className="mt-5 text-lg text-gray-600">
-          Statistics will be available after{' '}
-          {new Date(endTimeWithBuffer).toLocaleString('ko-KR')}
-        </div>
-        <div className="mt-2 text-base text-gray-500">
-          You can check the statistics five minutes after the contest ends.
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="pb-[120px]">
