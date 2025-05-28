@@ -1,6 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import { Card, CardContent } from '@/components/shadcn/card'
-import { safeFetcher } from '@/libs/utils'
+import { auth } from '@/libs/auth'
+import { safeFetcher, safeFetcherWithAuth } from '@/libs/utils'
 import statisticsChart from '@/public/captures/statistics-chart.gif'
 import statisticsLeaderboard from '@/public/captures/statistics-leaderboard.gif'
 import statisticsSubmissions from '@/public/captures/statistics-submissions.gif'
@@ -27,9 +28,11 @@ export default async function ContestStatistics({
 }: ContestStatisticsProps) {
   const { contestId } = params
 
-  // 대회 정보 가져오기
   const response = await safeFetcher.get(`contest/${contestId}`)
   const contest: Contest = await response.json()
+
+  const session = await auth()
+  const username = session?.user?.username
 
   // 현재 시간과 대회 종료 시간 + 5분 비교
   const currentTime = new Date()
@@ -37,6 +40,10 @@ export default async function ContestStatistics({
   // TODO: 2025 SKKU 프로그래밍 대회 사용 이후에는 버퍼 시간 없애기
   const endTimeWithBuffer = new Date(endTime.getTime() + 5 * 60 * 1000)
   const isContestFinished = currentTime >= endTimeWithBuffer
+
+  const statisticsUrl = username
+    ? (`https://leaderboard-statistics.vercel.app/?username=${username}` as const)
+    : ('https://leaderboard-statistics.vercel.app/' as const)
 
   if (!isContestFinished) {
     return (
@@ -66,11 +73,12 @@ export default async function ContestStatistics({
       </div>
 
       <Button className="w-fit text-lg" asChild>
-        <Link href="https://leaderboard-statistics.vercel.app/">
+        <Link href={statisticsUrl}>
           See statistics in new page
           <LuArrowRight className="ml-2 inline" />
         </Link>
       </Button>
+
       {/* Statistics Feature Cards */}
       <div className="my-10 grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card className="border-none">
