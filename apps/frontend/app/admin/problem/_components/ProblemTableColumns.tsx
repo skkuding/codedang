@@ -87,7 +87,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
           {row.original.isVisible === null && (
             <TooltipContent className="bg-white text-black">
               <p>
-                This Problem is Not included in Contest or Finished Contest.
+                This Problem is Not Included in Contest or Finished Contest.
               </p>
             </TooltipContent>
           )}
