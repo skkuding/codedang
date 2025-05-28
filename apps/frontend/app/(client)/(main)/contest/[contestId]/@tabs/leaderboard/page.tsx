@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { LeaderboardModalDialog } from './_components/LeaderboardModalDialog'
 import { LeaderboardTable } from './_components/LeaderboardTable'
 import { getContest } from './_libs/apis/getContest'
@@ -110,7 +111,7 @@ export default function ContestLeaderBoard() {
 
   const handleSearch = ({ text, leaderboardUsers }: HandleSearchProps) => {
     if (text === '') {
-      alert('제발 입력값을 넣어주세요. 이렇게 부탁드립니다.')
+      toast.error('입력값을 넣어주세요.')
       return
     }
     const regex = new RegExp(text, 'i')
@@ -119,7 +120,7 @@ export default function ContestLeaderBoard() {
       .filter((index) => index !== -1)
     setMatchedIndices(matchedIndices)
     if (matchedIndices.length === 0) {
-      alert('일치하는 유저 없음 ㅋ')
+      toast.error('일치하는 유저 이름이 없습니다.')
       return
     }
   }
