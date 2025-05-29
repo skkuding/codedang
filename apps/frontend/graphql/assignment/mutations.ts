@@ -56,16 +56,17 @@ const IMPORT_PROBLEMS_TO_ASSIGNMENT = gql(`
   mutation ImportProblemsToAssignment(
     $groupId: Int!,
     $assignmentId: Int!,
-    $problemIdsWithScore: [AssignmentProblemScoreInput!]!
+    $assignmentProblemInput: [AssignmentProblemInput!]!
   ) {
     importProblemsToAssignment(
       groupId: $groupId,
       assignmentId: $assignmentId,
-      problemIdsWithScore: $problemIdsWithScore
+      assignmentProblemInput: $assignmentProblemInput
     ) {
       assignmentId
       problemId
       score
+      solutionReleaseTime
     }
   }
 `)
@@ -130,11 +131,11 @@ const UPDATE_ASSIGNMENT_PROBLEM_RECORD = gql(`
 
 export {
   CREATE_ASSIGNMENT,
-  UPDATE_ASSIGNMENT,
-  UPDATE_ASSIGNMENT_VISIBLE,
   DELETE_ASSIGNMENT,
+  DUPLICATE_ASSIGNMENT,
   IMPORT_PROBLEMS_TO_ASSIGNMENT,
   REMOVE_PROBLEMS_FROM_ASSIGNMENT,
-  DUPLICATE_ASSIGNMENT,
-  UPDATE_ASSIGNMENT_PROBLEM_RECORD
+  UPDATE_ASSIGNMENT,
+  UPDATE_ASSIGNMENT_PROBLEM_RECORD,
+  UPDATE_ASSIGNMENT_VISIBLE
 }

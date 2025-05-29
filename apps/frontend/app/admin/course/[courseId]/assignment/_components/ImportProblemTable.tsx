@@ -1,7 +1,7 @@
+import { ImportProblemDescription } from '@/app/admin/_components/ImportProblemDescription'
 import {
   DataTable,
   DataTableFallback,
-  DataTableLangFilter,
   DataTableLevelFilter,
   DataTablePagination,
   DataTableRoot,
@@ -11,7 +11,7 @@ import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { toast } from 'sonner'
-import type { AssignmentProblem } from '../_libs/type'
+import type { AssignmentProblem } from '../../_libs/type'
 import { ImportProblemButton } from './ImportProblemButton'
 import {
   columns,
@@ -20,13 +20,15 @@ import {
   MAX_SELECTED_ROW_COUNT
 } from './ImportProblemTableColumns'
 
+interface ImportProblemTableProps {
+  checkedProblems: AssignmentProblem[]
+  onSelectedExport: (selectedRows: AssignmentProblem[]) => void
+}
+
 export function ImportProblemTable({
   checkedProblems,
   onSelectedExport
-}: {
-  checkedProblems: AssignmentProblem[]
-  onSelectedExport: (selectedRows: AssignmentProblem[]) => void
-}) {
+}: ImportProblemTableProps) {
   const queryVariables = {
     take: 500,
     input: {
@@ -44,8 +46,7 @@ export function ImportProblemTable({
   const { data: myData } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       ...queryVariables,
-      shared: false,
-      my: true
+      mode: 'my'
     }
   })
 
@@ -53,8 +54,7 @@ export function ImportProblemTable({
   const { data: sharedData } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       ...queryVariables,
-      shared: true,
-      my: false
+      mode: 'shared'
     }
   })
 
@@ -85,13 +85,17 @@ export function ImportProblemTable({
       defaultPageSize={DEFAULT_PAGE_SIZE}
       defaultSortState={[{ id: 'select', desc: true }]}
     >
-      <div className="flex gap-4">
-        <DataTableSearchBar columndId="title" />
-        <DataTableLangFilter />
+      <ImportProblemDescription />
+      <div className="flex gap-[6px] pb-1">
+        <DataTableSearchBar columndId="title" className="lg:w-[308px]" />
         <DataTableLevelFilter />
-        <ImportProblemButton onSelectedExport={onSelectedExport} />
       </div>
       <DataTable
+        isModalDataTable={true}
+        headerStyle={{
+          select: 'rounded-l-full',
+          preview: 'rounded-r-full'
+        }}
         onRowClick={(table, row) => {
           const selectedRowCount = table.getSelectedRowModel().rows.length
           if (
@@ -105,7 +109,10 @@ export function ImportProblemTable({
           }
         }}
       />
-      <DataTablePagination showSelection showRowsPerPage={false} />
+      <div className="h-[12px]" />
+      <DataTablePagination showRowsPerPage={false} />
+      <div className="h-[20px]" />
+      <ImportProblemButton onSelectedExport={onSelectedExport} />
     </DataTableRoot>
   )
 }

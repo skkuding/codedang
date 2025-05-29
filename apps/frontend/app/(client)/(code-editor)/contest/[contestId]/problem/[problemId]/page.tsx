@@ -1,5 +1,6 @@
 import { EditorDescription } from '@/app/(client)/(code-editor)/_components/EditorDescription'
 import type { GetContestProblemDetailResponse } from '@/app/(client)/_libs/apis/contestProblem'
+import { ChannelIO } from '@/components/ChannelIO'
 import { fetcherWithAuth } from '@/libs/utils'
 import { redirect } from 'next/navigation'
 
@@ -18,5 +19,10 @@ export default async function DescriptionPage({
 
   const { problem, order } = await res.json<GetContestProblemDetailResponse>()
 
-  return <EditorDescription problem={{ ...problem, order }} isContest={true} />
+  return (
+    <>
+      <EditorDescription problem={{ ...problem, order }} isContest={true} />
+      <ChannelIO />
+    </>
+  )
 }

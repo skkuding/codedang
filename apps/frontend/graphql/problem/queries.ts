@@ -30,13 +30,14 @@ const GET_PROBLEM = gql(`
       hint
       source
       template
+      solution
     }
   }
 `)
 
 const GET_PROBLEMS = gql(`
-  query GetProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!, $my: Boolean, $shared: Boolean) {
-    getProblems(cursor: $cursor, take: $take, input: $input, my: $my, shared: $shared) {
+  query GetProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!, $mode: String!, $contestId: Int) {
+    getProblems(cursor: $cursor, take: $take, input: $input, mode: $mode, contestId: $contestId) {
       id
       title
       updateTime
@@ -55,6 +56,7 @@ const GET_PROBLEMS = gql(`
           name
         }
       }
+      solution
     }
   }
 `)
@@ -77,12 +79,14 @@ const GET_ASSIGNMENT_PROBLEMS = gql(`
       score
       createTime
       updateTime
+      solutionReleaseTime
       problem {
         id
         title
         description
         isVisible
         difficulty
+        solution
       }
     }
   }
@@ -149,13 +153,13 @@ const GET_TESTCASE = gql(`
 `)
 
 export {
-  GET_PROBLEM,
-  GET_PROBLEMS,
-  GET_PROBLEM_DETAIL,
-  GET_CONTEST_PROBLEMS,
-  GET_ASSIGNMENT_PROBLEMS,
   GET_ASSIGNMENT_PROBLEM_MAX_SCORE,
-  GET_TAGS,
+  GET_ASSIGNMENT_PROBLEMS,
+  GET_CONTEST_PROBLEMS,
+  GET_PROBLEM,
+  GET_PROBLEM_DETAIL,
   GET_PROBLEM_TESTCASE,
+  GET_PROBLEMS,
+  GET_TAGS,
   GET_TESTCASE
 }

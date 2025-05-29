@@ -112,8 +112,7 @@ describe('SubmissionPublicationService', () => {
           messageId: String(submission.id),
           persistent: true,
           type: JUDGE_MESSAGE_TYPE,
-          priority: MESSAGE_PRIORITY_HIGH,
-          headers: {}
+          priority: MESSAGE_PRIORITY_HIGH
         }
       )
       expect(result).to.be.true
@@ -155,8 +154,7 @@ describe('SubmissionPublicationService', () => {
           messageId: String(submission.id),
           persistent: true,
           type: RUN_MESSAGE_TYPE,
-          priority: MESSAGE_PRIORITY_MIDDLE,
-          headers: {}
+          priority: MESSAGE_PRIORITY_MIDDLE
         })
       ).to.be.true
     })

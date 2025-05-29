@@ -5,7 +5,12 @@ import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavi
 import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
-import type { Template, UpdateProblemInput, Testcase } from '@generated/graphql'
+import type {
+  Solution,
+  Template,
+  Testcase,
+  UpdateProblemInput
+} from '@generated/graphql'
 import { useRouter } from 'next/navigation'
 import { useRef, useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
@@ -87,6 +92,15 @@ export function EditProblemForm({
                 locked: template.code[0].locked
               }
             ]
+          })
+        })
+      }
+      if (data.solution) {
+        const solutions = data.solution
+        solutions.map((solution: Solution, index: number) => {
+          methods.setValue(`solution.${index}`, {
+            language: solution.language,
+            code: solution.code
           })
         })
       }

@@ -45,6 +45,7 @@ export function TemplateField() {
                 name={`template.${index}.code.0.text`}
                 language={language}
                 hasValue={getValues(`template.${index}.code.0.text`) || false}
+                variant="template"
               />
             )}
           </div>

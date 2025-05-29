@@ -2,19 +2,20 @@ import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
+import { APP_FILTER, APP_GUARD, HttpAdapterHost } from '@nestjs/core'
 import { GraphQLModule } from '@nestjs/graphql'
 import type { Server } from 'http'
+import { OpenTelemetryModule } from 'nestjs-otel'
 import { LoggerModule } from 'nestjs-pino'
 import {
-  JwtAuthModule,
+  AdminGuard,
   JwtAuthGuard,
-  RolesModule,
-  AdminGuard
+  JwtAuthModule,
+  RolesModule
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
-import { AdminExceptionFilter } from '@libs/exception'
-import { apolloErrorFormatter } from '@libs/exception'
+import { AdminExceptionFilter, apolloErrorFormatter } from '@libs/exception'
+import { openTelemetryModuleOption } from '@libs/instrumentation'
 import { LoggingPlugin, pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { StorageModule } from '@libs/storage'
@@ -29,6 +30,7 @@ import { ProblemModule } from './problem/problem.module'
 import { SubmissionModule } from './submission/submission.module'
 import { TestcaseModule } from './testcase/testcase.module'
 import { UserModule } from './user/user.module'
+import { WorkbookModule } from './workbook/workbook.module'
 
 @Module({
   imports: [
@@ -53,6 +55,7 @@ import { UserModule } from './user/user.module'
     PrismaModule,
     ContestModule,
     AssignmentModule,
+    WorkbookModule,
     ProblemModule,
     StorageModule,
     GroupModule,
@@ -60,8 +63,9 @@ import { UserModule } from './user/user.module'
     AnnouncementModule,
     NoticeModule,
     SubmissionModule,
+    TestcaseModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
-    TestcaseModule
+    OpenTelemetryModule.forRoot(openTelemetryModuleOption)
   ],
   controllers: [AdminController],
   providers: [

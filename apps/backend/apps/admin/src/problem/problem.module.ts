@@ -4,29 +4,37 @@ import { RolesModule } from '@libs/auth'
 import { StorageModule } from '@libs/storage'
 import { TestcaseModule } from '@admin/testcase/testcase.module'
 import { TestcaseService } from '@admin/testcase/testcase.service'
-import { ProblemTagResolver, TagResolver } from './problem-tag.resolver'
 import {
-  AssignmentProblemResolver,
-  ContestProblemResolver,
-  ProblemResolver,
-  WorkbookProblemResolver
-} from './problem.resolver'
-import { ProblemService } from './problem.service'
+  FileResolver,
+  ProblemTagResolver,
+  TagResolver,
+  TestcaseResolver
+} from './resolvers'
+import { ProblemResolver } from './resolvers/problem.resolver'
 import { IntScoreScalar } from './scalar/int-score.scalar'
+import {
+  FileService,
+  ProblemService,
+  TagService,
+  TestcaseService as ProblemTestcaseService
+} from './services'
 
 @Module({
   imports: [StorageModule, ConfigModule, RolesModule, TestcaseModule],
   providers: [
     ProblemResolver,
-    ContestProblemResolver,
-    WorkbookProblemResolver,
-    AssignmentProblemResolver,
-    ProblemService,
-    IntScoreScalar,
     ProblemTagResolver,
     TagResolver,
-    TestcaseService
+    TestcaseService,
+    ProblemTestcaseService,
+    TestcaseResolver,
+    FileResolver,
+    IntScoreScalar,
+    ProblemService,
+    TestcaseService,
+    FileService,
+    TagService
   ],
-  exports: [IntScoreScalar]
+  exports: [IntScoreScalar, ProblemService]
 })
 export class ProblemModule {}

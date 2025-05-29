@@ -15,11 +15,9 @@ import {
   GET_ASSIGNMENT_SCORE_SUMMARIES
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
-import excelIcon from '@/public/logos/excel.png'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import dayjs from 'dayjs'
-import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
 import { createColumns } from './Columns'
@@ -60,12 +58,13 @@ export function ParticipantTable({
     .slice()
     .sort((a, b) => a.order - b.order)
 
-  const [revealRawScore, setRevealRawScore] = useState(
-    assignmentData?.isJudgeResultVisible
-  )
   const [revealFinalScore, setRevealFinalScore] = useState(
     assignmentData?.isFinalScoreVisible
   )
+
+  useEffect(() => {
+    setRevealFinalScore(assignmentData?.isFinalScoreVisible)
+  }, [assignmentData?.isFinalScoreVisible])
 
   const formatScore = (score: number): string => {
     const fixedScore = Math.floor(score * 1000) / 1000
@@ -102,11 +101,7 @@ export function ParticipantTable({
     { label: 'Student Id', key: 'studentId' },
     { label: 'Name', key: 'realName' },
     {
-      label: `Raw Score(MAX ${summaries?.data.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
-      key: 'rawScore'
-    },
-    {
-      label: `Final Score(MAX ${summaries?.data.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
+      label: `Total Score(MAX ${summaries?.data.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
       key: 'finalScore'
     },
 
@@ -139,7 +134,46 @@ export function ParticipantTable({
     }) || []
 
   return (
-    <div>
+    <div className="flex flex-col gap-6">
+      <div className="flex justify-between gap-4">
+        <UtilityPanel
+          title="Show Scores to Students"
+          description="When enabled, students can view their scores for this assignment."
+        >
+          <Switch
+            onCheckedChange={async (checked) => {
+              setRevealFinalScore(checked)
+              await updateAssignment({
+                variables: {
+                  groupId,
+                  input: {
+                    id: assignmentId,
+                    isFinalScoreVisible: checked
+                  }
+                },
+                onCompleted: () => {
+                  toast.success('Successfully updated')
+                }
+              })
+            }}
+            checked={revealFinalScore}
+            className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
+          />
+        </UtilityPanel>
+        <UtilityPanel
+          title="Download as a CSV"
+          description="Download grading results, showing scores by student and problem"
+        >
+          <CSVLink
+            data={csvData}
+            headers={headers}
+            filename={fileName}
+            className="bg-primary flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-85"
+          >
+            Download
+          </CSVLink>
+        </UtilityPanel>
+      </div>
       <p className="mb-3 font-medium">
         <span className="text-primary font-bold">{summariesData.length}</span>{' '}
         Participants
@@ -150,86 +184,12 @@ export function ParticipantTable({
           problemData,
           groupId,
           assignmentId,
-          isAssignmentFinished
+          isAssignmentFinished,
+          summaries.refetch
         )}
       >
-        <div className="flex justify-between">
-          <div className="flex items-center gap-4">
-            <DataTableSearchBar
-              columndId="realName"
-              placeholder="Search Name"
-            />
-            <div className="flex items-center gap-2">
-              Reveal Hidden T/C Result
-              <Switch
-                onCheckedChange={async (checked) => {
-                  setRevealRawScore(checked)
-                  await updateAssignment({
-                    variables: {
-                      groupId,
-                      input: {
-                        id: assignmentId,
-                        isJudgeResultVisible: checked
-                      }
-                    }
-                  })
-                }}
-                checked={revealRawScore}
-                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              Reveal Final Score
-              <Switch
-                onCheckedChange={async (checked) => {
-                  setRevealFinalScore(checked)
-                  await updateAssignment({
-                    variables: {
-                      groupId,
-                      input: {
-                        id: assignmentId,
-                        isFinalScoreVisible: checked
-                      }
-                    }
-                  })
-                }}
-                checked={revealFinalScore}
-                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
-              />
-            </div>
-          </div>
-          <CSVLink
-            data={csvData}
-            headers={headers}
-            filename={fileName}
-            className="bg-primary flex items-center gap-2 rounded-full px-[12px] py-[8px] text-lg font-semibold text-white transition-opacity hover:opacity-85"
-          >
-            Export
-            <Image
-              src={excelIcon}
-              alt="Excel Icon"
-              width={20}
-              height={20}
-              className="overflow-hidden"
-            />
-          </CSVLink>
-        </div>
-        {isAssignmentFinished ? (
-          <DataTable
-            getHref={(data) =>
-              `/admin/course/${groupId}/assignment/${assignmentId}/assessment/user/${data.id}/problem/${problemData[0].problemId}` as const
-            }
-          />
-        ) : (
-          <div
-            onClick={(e) => {
-              e.preventDefault()
-              toast.error('Only completed assignments can be graded')
-            }}
-          >
-            <DataTable />
-          </div>
-        )}
+        <DataTableSearchBar columndId="realName" placeholder="Search Name" />
+        <DataTable />
         <DataTablePagination />
       </DataTableRoot>
     </div>
@@ -240,7 +200,25 @@ export function ParticipantTableFallback() {
   return (
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
-      <DataTableFallback columns={createColumns([], 0, 0, true)} />
+      <DataTableFallback columns={createColumns([], 0, 0, true, () => {})} />
+    </div>
+  )
+}
+
+interface UtilityPanelProps {
+  children: React.ReactNode
+  title: string
+  description: string
+}
+
+function UtilityPanel({ children, title, description }: UtilityPanelProps) {
+  return (
+    <div className="flex h-24 w-full items-center justify-between rounded-xl border border-[#D8D8D8] bg-white px-5 py-4">
+      <div className="text-[#737373]">
+        <p className="text-xl font-semibold">{title}</p>
+        <p className="text-base">{description}</p>
+      </div>
+      {children}
     </div>
   )
 }

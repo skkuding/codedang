@@ -2,7 +2,7 @@
 
 import { DialogTrigger } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
-import { GradeDetailIcon } from './Icons'
+import { GradeDetailIcon } from '../../../../../../components/Icons'
 
 interface DetailButtonProps {
   isActivated: boolean

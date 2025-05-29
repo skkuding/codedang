@@ -2,29 +2,29 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import cookieParser from 'cookie-parser'
-import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
-import { AppModule } from './app.module'
-import startMetricsExporter from './metric'
-import tracer from './tracer'
+import Instrumentation from '@libs/instrumentation'
 
+/**
+  TODO: 가능하면 `app.module.ts`에서 PrismaModule 처럼 IoC 리팩터링 필요  
+  지금은 Instrumentation.start가 AppModule 보다 먼저 실행되어야 함  
+  자세한 이유는 [이 comment](https://github.com/skkuding/codedang/pull/2705#discussion_r2072945663)를 참고해주세요.
+*/
 const bootstrap = async () => {
-  // otel instrumentation
-  if (process.env.APP_ENV == 'production' || process.env.APP_ENV == 'stage') {
-    if (
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == undefined ||
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == ''
-    ) {
-      console.log('The exporter url is not defined')
-    } else {
-      tracer.init()
-      startMetricsExporter()
-    }
+  const isInstrumentationDisabled =
+    process.env.DISABLE_INSTRUMENTATION === 'true'
+  if (!isInstrumentationDisabled) {
+    const otlpEndpointUrl =
+      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL || 'localhost:4317'
+    const resource = await Instrumentation.getResource('CLIENT-API', '2.2.0')
+    await Instrumentation.start(otlpEndpointUrl, resource)
   }
 
+  const { AppModule } = await import('./app.module')
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true
   })
 
+  const { Logger, LoggerErrorInterceptor } = await import('nestjs-pino')
   app.useLogger(app.get(Logger))
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
