@@ -4,14 +4,15 @@ import { expect } from 'chai'
 import { PrismaService } from '@libs/prisma'
 import { StorageService, S3Provider, S3MediaProvider } from '@libs/storage'
 import type { ProblemTestcaseCreateManyInput } from '@admin/@generated'
-import { ProblemService } from '@admin/problem/problem.service'
+import { FileService } from '@admin/problem/services/file.service'
+import { TestcaseService as ProblemTestcaseService } from '@admin/problem/services/testcase.service'
 import { TestcaseService } from './testcase.service'
 
 describe('TestcaseService', () => {
   let service: TestcaseService
   let storageService: StorageService
   let prismaService: PrismaService
-  let problemService: ProblemService
+  let problemTestcaseService: ProblemTestcaseService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,7 +20,8 @@ describe('TestcaseService', () => {
         TestcaseService,
         StorageService,
         PrismaService,
-        ProblemService,
+        ProblemTestcaseService,
+        FileService,
         ConfigService,
         S3Provider,
         S3MediaProvider
@@ -29,7 +31,9 @@ describe('TestcaseService', () => {
     service = module.get<TestcaseService>(TestcaseService)
     storageService = module.get<StorageService>(StorageService)
     prismaService = module.get<PrismaService>(PrismaService)
-    problemService = module.get<ProblemService>(ProblemService)
+    problemTestcaseService = module.get<ProblemTestcaseService>(
+      ProblemTestcaseService
+    )
   })
 
   it('should be defined', () => {
@@ -56,7 +60,7 @@ describe('TestcaseService', () => {
         }
       ] satisfies ProblemTestcaseCreateManyInput[]
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
       await prismaService.problemTestcase.createMany({
         data: testcases
       })
@@ -70,7 +74,7 @@ describe('TestcaseService', () => {
       expect(result[1].input).to.equal(testcases[1].input)
       expect(result[1].output).to.equal(testcases[1].output)
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
     })
 
     it('should return testcases if input/output are stored in s3', async () => {
@@ -88,7 +92,7 @@ describe('TestcaseService', () => {
         }
       ] satisfies ProblemTestcaseCreateManyInput[]
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
       const testcaseIds =
         await prismaService.problemTestcase.createManyAndReturn({
           data: testcases,
@@ -114,13 +118,13 @@ describe('TestcaseService', () => {
       expect(result[1].input).to.equal('1000 2000')
       expect(result[1].output).to.equal('3000')
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
     })
 
     it('should return empty array if no testcases found', async () => {
       const problemId = 1
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
 
       const result = await service.getTestcases(problemId)
       expect(result.length).to.equal(0)
@@ -136,7 +140,7 @@ describe('TestcaseService', () => {
         }
       ] satisfies ProblemTestcaseCreateManyInput[]
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
       const testcaseIds =
         await prismaService.problemTestcase.createManyAndReturn({
           data: testcases,
@@ -153,7 +157,7 @@ describe('TestcaseService', () => {
       expect(result.length).to.equal(1)
       expect(result[0].isTruncated).to.equal(true)
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
     })
   })
 
@@ -177,7 +181,7 @@ describe('TestcaseService', () => {
         }
       ] satisfies ProblemTestcaseCreateManyInput[]
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
       await prismaService.problemTestcase.createMany({
         data: testcases
       })
@@ -195,7 +199,7 @@ describe('TestcaseService', () => {
       expect(result[0].input).to.equal(newTestcase.input)
       expect(result[0].output).to.equal(newTestcase.output)
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
     })
 
     it('should change isHidden field when input/output is empty', async () => {
@@ -217,7 +221,7 @@ describe('TestcaseService', () => {
         }
       ] satisfies ProblemTestcaseCreateManyInput[]
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
       const testcaseIds =
         await prismaService.problemTestcase.createManyAndReturn({
           data: testcases,
@@ -241,7 +245,7 @@ describe('TestcaseService', () => {
       expect(result[1].output).to.equal(testcases[1].output)
       expect(result[1].isHidden).to.equal(true)
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
     })
   })
 
@@ -265,7 +269,7 @@ describe('TestcaseService', () => {
         }
       ] satisfies ProblemTestcaseCreateManyInput[]
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
       const testcaseIds =
         await prismaService.problemTestcase.createManyAndReturn({
           data: testcases,
@@ -279,7 +283,7 @@ describe('TestcaseService', () => {
       expect(result[0].input).to.equal(testcases[1].input)
       expect(result[0].output).to.equal(testcases[1].output)
 
-      await problemService.removeAllTestcaseFiles(problemId)
+      await problemTestcaseService.removeAllTestcaseFiles(problemId)
     })
   })
 })

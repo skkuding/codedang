@@ -115,28 +115,6 @@ export class TestcaseService {
     }
   }
 
-  async updateTestcases(problemId: number, testcases: Array<Testcase>) {
-    await Promise.all([
-      this.prisma.problemTestcase.deleteMany({
-        where: {
-          problemId
-        }
-      })
-    ])
-
-    for (const tc of testcases) {
-      await this.prisma.problemTestcase.create({
-        data: {
-          problemId,
-          input: tc.input,
-          output: tc.output,
-          scoreWeight: tc.scoreWeight,
-          isHidden: tc.isHidden
-        }
-      })
-    }
-  }
-
   async uploadTestcase(
     fileInput: UploadFileInput,
     problemId: number,
@@ -229,9 +207,9 @@ export class TestcaseService {
   }
 
   async uploadTestcaseZip(file: FileUpload, problemId: number) {
-    const { filename, mimetype, createReadStream } = file
+    const { filename, createReadStream } = file
 
-    if (!filename.endsWith('.zip') || mimetype !== 'application/zip') {
+    if (!filename.endsWith('.zip')) {
       throw new UnprocessableDataException('Only zip files are accepted')
     }
 
@@ -282,7 +260,7 @@ export class TestcaseService {
         }
         if (!(chunkName in testcaseIdMapper)) {
           const testcase = await this.prisma.problemTestcase.create({
-            data: { problemId }
+            data: { problemId, isHidden: true }
           })
           testcaseIdMapper[chunkName] = testcase.id
         }

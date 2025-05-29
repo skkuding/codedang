@@ -16,6 +16,7 @@ import {
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
+import { TestcaseService } from '@admin/testcase/testcase.service'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -23,7 +24,7 @@ import {
   UpdateProblemInput
 } from '../model/problem.input'
 import { ProblemModel } from '../model/problem.output'
-import { ProblemService, TagService, TestcaseService } from '../services'
+import { ProblemService, TagService } from '../services'
 
 @Resolver(() => ProblemModel)
 @UseDisableAdminGuard()
@@ -105,7 +106,7 @@ export class ProblemResolver {
 
   @ResolveField('testcase', () => [ProblemTestcase])
   async getProblemTestCases(@Parent() problem: ProblemModel) {
-    return await this.testcaseService.getProblemTestcases(problem.id)
+    return await this.testcaseService.getTestcases(problem.id)
   }
 
   @Mutation(() => ProblemModel)

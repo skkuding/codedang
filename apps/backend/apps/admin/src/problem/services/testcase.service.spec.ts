@@ -163,7 +163,7 @@ describe('TestcaseService', () => {
     })
 
     it('should not allow if given file is not zip', async () => {
-      const nonZipFile = { ...file, mimetype: 'text/plain' }
+      const nonZipFile = { ...file, filename: 'testcase.txt' }
 
       await expect(
         service.uploadTestcaseZip(nonZipFile, problemId)

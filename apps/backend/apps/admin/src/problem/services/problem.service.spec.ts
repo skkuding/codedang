@@ -4,6 +4,7 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { Level } from '@generated'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
+import { MIN_DATE, MAX_DATE } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService, S3MediaProvider, S3Provider } from '@libs/storage'
@@ -315,6 +316,30 @@ describe('ProblemService', () => {
         user[0].id!
       )
       expect(result).to.deep.equal(problems[0])
+    })
+  })
+
+  describe('getProblemVisibility', () => {
+    it('should return true if the problem is visible', () => {
+      const isVisible = service.getProblemVisibility(MIN_DATE)
+      expect(isVisible).to.be.true
+    })
+
+    it('should return false if the problem is not visible', () => {
+      const isVisible = service.getProblemVisibility(MAX_DATE)
+      expect(isVisible).to.be.false
+    })
+
+    it('should return false if the lock time is in the past', () => {
+      const time = new Date(Date.now() - 1000 * 60 * 60)
+      const isVisible = service.getProblemVisibility(time)
+      expect(isVisible).to.be.false
+    })
+
+    it('should return null if the lock time is in the future', () => {
+      const time = new Date(Date.now() + 1000 * 60 * 60)
+      const isVisible = service.getProblemVisibility(time)
+      expect(isVisible).to.be.null
     })
   })
 })

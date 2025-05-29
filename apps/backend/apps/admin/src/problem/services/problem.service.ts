@@ -538,24 +538,6 @@ export class ProblemService {
       }
     })
 
-    if (testcases?.length) {
-      const existingTestcases = await this.prisma.problemTestcase.findMany({
-        where: { problemId: id }
-      })
-      if (
-        JSON.stringify(testcases) !==
-        JSON.stringify(
-          existingTestcases.map((tc) => ({
-            input: tc.input,
-            output: tc.output,
-            scoreWeight: tc.scoreWeight,
-            isHidden: tc.isHidden
-          }))
-        )
-      ) {
-        updatedFields.push(ProblemField.testcase)
-      }
-    }
     if (userRole == Role.User && problem.createdById != userId) {
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({
@@ -643,7 +625,7 @@ export class ProblemService {
       : undefined
 
     if (testcases?.length) {
-      await this.problemTestcaseService.updateTestcases(id, testcases)
+      await this.testcaseService.updateTestcases(testcases, id)
     }
 
     const updatedInfo = updatedInfos
