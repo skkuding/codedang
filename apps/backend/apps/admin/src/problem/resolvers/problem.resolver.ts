@@ -9,13 +9,14 @@ import {
   ResolveField,
   Parent
 } from '@nestjs/graphql'
-import { Group, ProblemTag, ProblemTestcase, UpdateHistory } from '@generated'
+import { Group, ProblemTag, UpdateHistory } from '@generated'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import {
   CursorValidationPipe,
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
+import { TestcaseModel } from '@admin/testcase/model/testcase.model'
 import { TestcaseService } from '@admin/testcase/testcase.service'
 import {
   CreateProblemInput,
@@ -104,7 +105,7 @@ export class ProblemResolver {
     return await this.tagService.getProblemTags(problem.id)
   }
 
-  @ResolveField('testcase', () => [ProblemTestcase])
+  @ResolveField('testcase', () => [TestcaseModel])
   async getProblemTestCases(@Parent() problem: ProblemModel) {
     return await this.testcaseService.getTestcases(problem.id)
   }
