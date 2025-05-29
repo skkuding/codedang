@@ -157,5 +157,5 @@
     "uuidv7": "^1.0.2",
     "vitest": "^2.1.8"
   },
-  "packageManager": "pnpm@9.15.2"
+  "packageManager": "pnpm@10.11.0"
 }
