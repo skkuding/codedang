@@ -9,6 +9,7 @@ import {
   TagService,
   TestcaseService as ProblemTestcaseService
 } from '../services'
+import { FileService } from '../services/file.service'
 import { ProblemService } from '../services/problem.service'
 import { ProblemResolver } from './problem.resolver'
 
@@ -25,6 +26,7 @@ describe('ProblemResolver', () => {
         TagService,
         PrismaService,
         StorageService,
+        FileService,
         ConfigService,
         S3Provider,
         S3MediaProvider

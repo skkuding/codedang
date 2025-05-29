@@ -12,7 +12,7 @@ import { ContestRole } from '@prisma/client'
 import { UseContestRolesGuard } from '@libs/auth'
 import { RequiredIntPipe } from '@libs/pipe'
 import { ContestProblem } from '@admin/@generated'
-import { ProblemWithIsVisible } from '@admin/problem/model/problem.output'
+import { ProblemModel } from '@admin/problem/model/problem.output'
 import { ProblemService } from '@admin/problem/services'
 import { ContestProblemService } from './contest-problem.service'
 import { ProblemScoreInput } from './model/problem-score.input'
@@ -59,7 +59,7 @@ export class ContestProblemResolver {
     )
   }
 
-  @ResolveField('problem', () => ProblemWithIsVisible)
+  @ResolveField('problem', () => ProblemModel)
   async getProblem(@Parent() contestProblem: ContestProblem) {
     return await this.problemService.getProblemById(contestProblem.problemId)
   }

@@ -44,8 +44,10 @@ import {
   updateHistories,
   testcaseData
 } from './mock/mock'
+import type { CreateProblemInput } from './model/problem.input'
 import type { Testcase } from './model/testcase.input'
 import { ProblemService } from './problem.service'
+import { FileService } from './services'
 
 /**
  * TODO: s3 관련 코드 재작성(수정) 필요
@@ -160,8 +162,9 @@ describe('ProblemService', () => {
       difficulty: Level.Level1,
       source: problems[0].source,
       testcases: [testcaseInput],
+      solution: problems[0].solution,
       tagIds: [1]
-    }
+    } satisfies CreateProblemInput
 
     it('should return created problem', async () => {
       db.problem.create.resolves(problems[0])

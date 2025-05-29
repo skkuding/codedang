@@ -11,7 +11,7 @@ import {
 import { WorkbookProblem } from '@generated'
 import { UseGroupLeaderGuard } from '@libs/auth'
 import { GroupIDPipe } from '@libs/pipe'
-import { ProblemWithIsVisible } from '@admin/problem/model/problem.output'
+import { ProblemModel } from '@admin/problem/model/problem.output'
 import { ProblemService } from '@admin/problem/services'
 import { WorkbookProblemService } from './workbook-problem.service'
 
@@ -50,7 +50,7 @@ export class WorkbookProblemResolver {
     )
   }
 
-  @ResolveField('problem', () => ProblemWithIsVisible)
+  @ResolveField('problem', () => ProblemModel)
   async getProblem(@Parent() workbookProblem: WorkbookProblem) {
     return await this.problemService.getProblemById(workbookProblem.problemId)
   }

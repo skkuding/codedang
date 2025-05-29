@@ -430,6 +430,7 @@ export class ProblemService {
         memoryLimit: 512,
         difficulty: level,
         source: '',
+        solution: [],
         testcases: testcaseInput,
         tagIds: []
       })

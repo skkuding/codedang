@@ -22,10 +22,10 @@ import {
   FilterProblemsInput,
   UpdateProblemInput
 } from '../model/problem.input'
-import { ProblemWithIsVisible } from '../model/problem.output'
+import { ProblemModel } from '../model/problem.output'
 import { ProblemService, TagService, TestcaseService } from '../services'
 
-@Resolver(() => ProblemWithIsVisible)
+@Resolver(() => ProblemModel)
 @UseDisableAdminGuard()
 export class ProblemResolver {
   constructor(
@@ -34,7 +34,7 @@ export class ProblemResolver {
     private readonly testcaseService: TestcaseService
   ) {}
 
-  @Mutation(() => ProblemWithIsVisible)
+  @Mutation(() => ProblemModel)
   async createProblem(
     @Context('req') req: AuthenticatedRequest,
     @Args('input') input: CreateProblemInput
@@ -46,7 +46,7 @@ export class ProblemResolver {
     )
   }
 
-  @Mutation(() => [ProblemWithIsVisible])
+  @Mutation(() => [ProblemModel])
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadProblems(
     @Context('req') req: AuthenticatedRequest,
@@ -59,7 +59,7 @@ export class ProblemResolver {
     )
   }
 
-  @Query(() => [ProblemWithIsVisible])
+  @Query(() => [ProblemModel])
   async getProblems(
     @Context('req') req: AuthenticatedRequest,
     @Args('input') input: FilterProblemsInput,
@@ -80,7 +80,7 @@ export class ProblemResolver {
     })
   }
 
-  @Query(() => ProblemWithIsVisible)
+  @Query(() => ProblemModel)
   async getProblem(
     @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
@@ -89,26 +89,26 @@ export class ProblemResolver {
   }
 
   @ResolveField('updateHistory', () => [UpdateHistory])
-  async getProblemUpdateHistory(@Parent() problem: ProblemWithIsVisible) {
+  async getProblemUpdateHistory(@Parent() problem: ProblemModel) {
     return await this.problemService.getProblemUpdateHistory(problem.id)
   }
 
   @ResolveField('sharedGroups', () => [Group])
-  async getSharedGroups(@Parent() problem: ProblemWithIsVisible) {
+  async getSharedGroups(@Parent() problem: ProblemModel) {
     return await this.problemService.getSharedGroups(problem.id)
   }
 
   @ResolveField('tag', () => [ProblemTag])
-  async getProblemTags(@Parent() problem: ProblemWithIsVisible) {
+  async getProblemTags(@Parent() problem: ProblemModel) {
     return await this.tagService.getProblemTags(problem.id)
   }
 
   @ResolveField('testcase', () => [ProblemTestcase])
-  async getProblemTestCases(@Parent() problem: ProblemWithIsVisible) {
+  async getProblemTestCases(@Parent() problem: ProblemModel) {
     return await this.testcaseService.getProblemTestcases(problem.id)
   }
 
-  @Mutation(() => ProblemWithIsVisible)
+  @Mutation(() => ProblemModel)
   async updateProblem(
     @Context('req') req: AuthenticatedRequest,
     @Args('input') input: UpdateProblemInput
@@ -120,7 +120,7 @@ export class ProblemResolver {
     )
   }
 
-  @Mutation(() => ProblemWithIsVisible)
+  @Mutation(() => ProblemModel)
   async deleteProblem(
     @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number

@@ -15,7 +15,8 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { StorageService } from '@admin/storage/storage.service'
+import { StorageService } from '@libs/storage'
+import { TestcaseService } from '@admin/testcase/testcase.service'
 import { ImportedProblemHeader } from '../model/problem.constants'
 import type {
   CreateProblemInput,
@@ -23,12 +24,12 @@ import type {
   FilterProblemsInput,
   UpdateProblemInput
 } from '../model/problem.input'
-import type { ProblemWithIsVisible } from '../model/problem.output'
+import type { ProblemModel } from '../model/problem.output'
 import type { Solution } from '../model/solution.input'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
 import { TagService } from './tag.service'
-import { TestcaseService } from './testcase.service'
+import { TestcaseService as ProblemTestcaseService } from './testcase.service'
 
 @Injectable()
 export class ProblemService {
@@ -36,6 +37,7 @@ export class ProblemService {
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
     private readonly testcaseService: TestcaseService,
+    private readonly problemTestcaseService: ProblemTestcaseService,
     private readonly tagService: TagService
   ) {}
 
@@ -115,8 +117,11 @@ export class ProblemService {
       }
     })
     // TODO: do not create testcases in createProblem
-    await this.testcaseService.createTestcasesLegacy(problem.id, testcases)
-    return this.changeVisibleLockTimeToIsVisible(problem)
+    await this.problemTestcaseService.createTestcasesLegacy(
+      problem.id,
+      testcases
+    )
+    return this.processToProblemModel(problem)
   }
 
   async uploadProblems(input: UploadFileInput, userId: number, userRole: Role) {
@@ -267,7 +272,7 @@ export class ProblemService {
    * @param {number} take - 한 번에 조회할 문제 최대 개수
    * @param {'my'|'shared'|'contest'} mode - 조회 모드
    * @param {(number | null)} contestId - 특정 대회 문제만 조회할 contest ID (contest 모드에서 필요)
-   * @returns {Promise<ProblemWithIsVisible[]>} - isVisible 필드가 추가된 문제 배열
+   * @returns {Promise<ProblemModel[]>} - isVisible 필드가 추가된 문제 배열
    * @throws {ForbiddenException} 아래의 경우에 발생합니다
    *   - contestId로 필터링 시 해당 대회의 Admin/Manager가 아닌 경우
    *   - contestId가 contest 모드에서 제공되지 않은 경우
@@ -311,7 +316,9 @@ export class ProblemService {
         createdBy: true
       }
     })
-    return this.changeVisibleLockTimeToIsVisible(problems)
+    return await Promise.all(
+      problems.map((problem) => this.processToProblemModel(problem))
+    )
   }
 
   private async buildProblemWhereOptionsWithMode(
@@ -410,7 +417,7 @@ export class ProblemService {
         )
       }
     }
-    return this.changeVisibleLockTimeToIsVisible(problem)
+    return this.processToProblemModel(problem)
   }
 
   async getProblemById(id: number) {
@@ -419,7 +426,7 @@ export class ProblemService {
         id
       }
     })
-    return this.changeVisibleLockTimeToIsVisible(problem)
+    return this.processToProblemModel(problem)
   }
 
   async updateProblem(
@@ -636,7 +643,7 @@ export class ProblemService {
       : undefined
 
     if (testcases?.length) {
-      await this.testcaseService.updateTestcases(id, testcases)
+      await this.problemTestcaseService.updateTestcases(id, testcases)
     }
 
     const updatedInfo = updatedInfos
@@ -676,7 +683,7 @@ export class ProblemService {
       }
     })
 
-    return this.changeVisibleLockTimeToIsVisible(updatedProblem)
+    return this.processToProblemModel(updatedProblem)
   }
 
   async getProblemUpdateHistory(problemId: number): Promise<UpdateHistory[]> {
@@ -742,35 +749,33 @@ export class ProblemService {
       .sharedGroups()
   }
 
-  changeVisibleLockTimeToIsVisible(
-    problems: Problem | Problem[]
-  ): ProblemWithIsVisible | ProblemWithIsVisible[] {
-    if (Array.isArray(problems)) {
-      return problems.map((problem) => {
-        const { visibleLockTime, ...data } = problem
-        return {
-          isVisible:
-            visibleLockTime.getTime() === MIN_DATE.getTime()
-              ? true
-              : visibleLockTime < new Date() ||
-                  visibleLockTime.getTime() === MAX_DATE.getTime()
-                ? false
-                : null,
-          ...data
-        }
-      })
-    } else {
-      const { visibleLockTime, ...data } = problems
-      return {
-        isVisible:
-          visibleLockTime.getTime() === MIN_DATE.getTime()
-            ? true
-            : visibleLockTime < new Date() ||
-                visibleLockTime.getTime() === MAX_DATE.getTime()
-              ? false
-              : null,
-        ...data
-      }
+  getProblemVisibility(visibleLockTime: Date) {
+    // By default, a problem is invisible.
+    // It is visible only if manager set the problem to be visible(visibleLockTime == MIN_DATE).
+    // If the problem belongs to upcoming/ongoing contest, it is invisible.
+    //
+    // Please check below link for more details
+    // https://github.com/skkuding/codedang/pull/1673
+    if (visibleLockTime.getTime() === MIN_DATE.getTime()) {
+      return true
+    }
+    if (visibleLockTime < new Date()) {
+      return false
+    }
+    if (visibleLockTime.getTime() === MAX_DATE.getTime()) {
+      return false
+    }
+    return null
+  }
+
+  async processToProblemModel(problem: Problem): Promise<ProblemModel> {
+    const testcase = await this.testcaseService.getTestcases(problem.id)
+    const { visibleLockTime, ...data } = problem
+    const isVisible = this.getProblemVisibility(visibleLockTime)
+    return {
+      ...data,
+      testcase,
+      isVisible
     }
   }
 }

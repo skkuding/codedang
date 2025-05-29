@@ -6,8 +6,8 @@ import { expect } from 'chai'
 import { spy, stub } from 'sinon'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { S3MediaProvider, S3Provider } from '@admin/storage/s3.provider'
-import { StorageService } from '@admin/storage/storage.service'
+import { StorageService, S3MediaProvider, S3Provider } from '@libs/storage'
+import { TestcaseService } from '@admin/testcase/testcase.service'
 import {
   fileUploadInput,
   user,
@@ -20,7 +20,12 @@ import {
   testcaseInput,
   updateHistories
 } from '../mock/mock'
-import { FileService, ProblemService, TagService, TestcaseService } from './'
+import {
+  FileService,
+  ProblemService,
+  TagService,
+  TestcaseService as ProblemTestcaseService
+} from './'
 
 /**
  * TODO: s3 관련 코드 재작성(수정) 필요
@@ -70,7 +75,7 @@ const db = {
 describe('ProblemService', () => {
   let service: ProblemService
   let storageService: StorageService
-  let testcaseService: TestcaseService
+  let testcaseService: ProblemTestcaseService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -78,6 +83,7 @@ describe('ProblemService', () => {
         ProblemService,
         { provide: PrismaService, useValue: db },
         StorageService,
+        ProblemTestcaseService,
         TestcaseService,
         TagService,
         FileService,
@@ -90,7 +96,7 @@ describe('ProblemService', () => {
 
     service = module.get<ProblemService>(ProblemService)
     storageService = module.get<StorageService>(StorageService)
-    testcaseService = module.get<TestcaseService>(TestcaseService)
+    testcaseService = module.get<ProblemTestcaseService>(ProblemTestcaseService)
   })
 
   it('should be defined', () => {
@@ -119,6 +125,7 @@ describe('ProblemService', () => {
     it('should return created problem', async () => {
       db.problem.create.resolves(problems[0])
       db.problemTestcase.create.resolves({ index: 1, id: 1 })
+      db.problemTestcase.findMany.resolves([])
 
       const result = await service.createProblem(
         input,
