@@ -72,12 +72,12 @@ class Instrumentation {
     instanceId = '1'
 
     const ATTR_INSTANCE_ID = 'service.instance.id'
-    const ATTR_ENVIRONMENT = 'service.environment'
+    const ATTR_DEPLOYMENT_ENVIRONMENT = 'deployment.environment'
     return resourceFromAttributes({
-      [ATTR_SERVICE_NAME]: serviceName, // TODO: 동적으로 서비스 이름을 가져오기
+      [ATTR_SERVICE_NAME]: serviceName,
       [ATTR_SERVICE_VERSION]: serviceVersion, // TODO: 동적으로 서비스 버전을 가져오기
       [ATTR_INSTANCE_ID]: instanceId,
-      [ATTR_ENVIRONMENT]: environment
+      [ATTR_DEPLOYMENT_ENVIRONMENT]: environment
     })
   }
 
