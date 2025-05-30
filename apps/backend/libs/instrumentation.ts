@@ -11,8 +11,16 @@ import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib'
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino'
-import type { Resource } from '@opentelemetry/resources'
-import { resourceFromAttributes } from '@opentelemetry/resources'
+import { ContainerDetector } from '@opentelemetry/resource-detector-container/build/src/detectors/ContainerDetector'
+import {
+  type Resource,
+  detectResources,
+  envDetector,
+  hostDetector,
+  osDetector,
+  processDetector,
+  resourceFromAttributes
+} from '@opentelemetry/resources'
 import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs'
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
@@ -73,12 +81,25 @@ class Instrumentation {
 
     const ATTR_INSTANCE_ID = 'service.instance.id'
     const ATTR_DEPLOYMENT_ENVIRONMENT = 'deployment.environment'
-    return resourceFromAttributes({
+    const baseResource = resourceFromAttributes({
       [ATTR_SERVICE_NAME]: serviceName,
-      [ATTR_SERVICE_VERSION]: serviceVersion, // TODO: 동적으로 서비스 버전을 가져오기
+      [ATTR_SERVICE_VERSION]: serviceVersion,
       [ATTR_INSTANCE_ID]: instanceId,
       [ATTR_DEPLOYMENT_ENVIRONMENT]: environment
     })
+
+    const autoDetectedResource = detectResources({
+      detectors: [
+        processDetector,
+        hostDetector,
+        new ContainerDetector(),
+        osDetector,
+        envDetector
+      ]
+    })
+
+    // 3. 두 리소스 병합 (사용자 정의 속성이 자동 감지된 속성보다 우선함)
+    return baseResource.merge(autoDetectedResource)
   }
 
   /**
