@@ -11,8 +11,16 @@ import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib'
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino'
-import type { Resource } from '@opentelemetry/resources'
-import { resourceFromAttributes } from '@opentelemetry/resources'
+import { containerDetector } from '@opentelemetry/resource-detector-container'
+import {
+  type Resource,
+  detectResources,
+  envDetector,
+  hostDetector,
+  osDetector,
+  processDetector,
+  resourceFromAttributes
+} from '@opentelemetry/resources'
 import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs'
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
@@ -72,13 +80,25 @@ class Instrumentation {
     instanceId = '1'
 
     const ATTR_INSTANCE_ID = 'service.instance.id'
-    const ATTR_ENVIRONMENT = 'service.environment'
-    return resourceFromAttributes({
-      [ATTR_SERVICE_NAME]: serviceName, // TODO: 동적으로 서비스 이름을 가져오기
-      [ATTR_SERVICE_VERSION]: serviceVersion, // TODO: 동적으로 서비스 버전을 가져오기
+    const ATTR_DEPLOYMENT_ENVIRONMENT = 'deployment.environment'
+    const baseResource = resourceFromAttributes({
+      [ATTR_SERVICE_NAME]: serviceName,
+      [ATTR_SERVICE_VERSION]: serviceVersion,
       [ATTR_INSTANCE_ID]: instanceId,
-      [ATTR_ENVIRONMENT]: environment
+      [ATTR_DEPLOYMENT_ENVIRONMENT]: environment
     })
+
+    const autoDetectedResource = detectResources({
+      detectors: [
+        processDetector,
+        hostDetector,
+        containerDetector,
+        osDetector,
+        envDetector
+      ]
+    })
+
+    return baseResource.merge(autoDetectedResource)
   }
 
   /**
