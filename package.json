@@ -33,8 +33,5 @@
   "packageManager": "pnpm@10.11.0",
   "engines": {
     "node": "^22.14.0"
-  },
-  "dependencies": {
-    "@opentelemetry/resource-detector-container": "^0.7.1"
   }
 }
