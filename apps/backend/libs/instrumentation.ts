@@ -11,7 +11,7 @@ import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib'
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino'
-import { ContainerDetector } from '@opentelemetry/resource-detector-container/build/src/detectors/ContainerDetector'
+import { containerDetector } from '@opentelemetry/resource-detector-container'
 import {
   type Resource,
   detectResources,
@@ -92,7 +92,7 @@ class Instrumentation {
       detectors: [
         processDetector,
         hostDetector,
-        new ContainerDetector(),
+        containerDetector,
         osDetector,
         envDetector
       ]
