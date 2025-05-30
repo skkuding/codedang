@@ -27,10 +27,14 @@ export function ContestTable() {
     }
   })
 
-  const contests = data.getContests.map((contest) => ({
-    ...contest,
-    id: Number(contest.id)
-  }))
+  // TODO: Remove filter (it's only for temporary use)
+  const contests = data.getContests
+    .map((contest) => ({
+      ...contest,
+      id: Number(contest.id)
+    }))
+    .filter((contest) => contest.id !== 9)
+
   const now = new Date()
 
   const contestsWithStatus = contests.map((contest) => {
