@@ -22,16 +22,18 @@ interface ContestMainTableProps {
 }
 
 export function ContestMainTable({ search, session }: ContestMainTableProps) {
-  const { data: contestData } = useSuspenseQuery({
+  let { data: contestData } = useSuspenseQuery({
     queryKey: ['contest', search],
     queryFn: () => getOngoingUpcomingContests(search, session)
   })
 
+  // TODO: remove hardcoded id (only for temporary use in SKKU Programming Contest)
+  contestData = contestData.filter((contest) => contest.id !== 9)
+
   const [filteredData, setFilteredData] = useState(contestData)
 
   useEffect(() => {
-    // TODO: remove hardcoded id (only for temporary use in SKKU Programming Contest)
-    setFilteredData(contestData.filter((contest) => contest.id !== 9))
+    setFilteredData(contestData)
   }, [contestData])
 
   const {
