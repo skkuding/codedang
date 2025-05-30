@@ -30,7 +30,8 @@ export function ContestMainTable({ search, session }: ContestMainTableProps) {
   const [filteredData, setFilteredData] = useState(contestData)
 
   useEffect(() => {
-    setFilteredData(contestData)
+    // TODO: remove hardcoded id (only for temporary use in SKKU Programming Contest)
+    setFilteredData(contestData.filter((contest) => contest.id !== 9))
   }, [contestData])
 
   const {
