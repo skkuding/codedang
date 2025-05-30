@@ -98,7 +98,6 @@ class Instrumentation {
       ]
     })
 
-    // 3. 두 리소스 병합 (사용자 정의 속성이 자동 감지된 속성보다 우선함)
     return baseResource.merge(autoDetectedResource)
   }
 
