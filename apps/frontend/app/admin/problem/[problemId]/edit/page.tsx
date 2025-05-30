@@ -132,10 +132,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
             </FormSection>
 
             {methods.getValues('testcases') && (
-              <TestcaseField
-                blockEdit={false}
-                problemId={parseInt(problemId)}
-              />
+              <TestcaseField blockEdit={false} />
             )}
 
             <FormSection isFlexColumn title="Limit">
