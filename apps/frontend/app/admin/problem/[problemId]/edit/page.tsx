@@ -119,10 +119,6 @@ export default function Page({ params }: { params: { problemId: string } }) {
               </div>
             </div>
 
-            <FormSection isFlexColumn title="Upload Testcase" isLabeled={false}>
-              <UploadTestcase problemId={parseInt(problemId)} />
-            </FormSection>
-
             <FormSection isFlexColumn title="Info">
               <InfoForm />
             </FormSection>
@@ -130,6 +126,10 @@ export default function Page({ params }: { params: { problemId: string } }) {
             <TemplateField />
 
             <SolutionField />
+
+            <FormSection isFlexColumn title="Upload Testcase" isLabeled={false}>
+              <UploadTestcase problemId={parseInt(problemId)} />
+            </FormSection>
 
             {methods.getValues('testcases') && (
               <TestcaseField

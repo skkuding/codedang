@@ -20,7 +20,6 @@ export function UploadTestcase({ problemId }: UploadTestcaseProps) {
       toast.success('File uploaded successfully')
 
       const { data } = await refetch()
-      setValue('testcases', data.testcases)
 
       if (data.testcases.some((testcase) => testcase.isTruncated)) {
         toast.warning(
@@ -28,6 +27,19 @@ export function UploadTestcase({ problemId }: UploadTestcaseProps) {
           { duration: 60 * 1000 }
         )
       }
+
+      const testcases = data.testcases.map((testcase) => {
+        if (testcase.isTruncated) {
+          return {
+            ...testcase,
+            input: null,
+            output: null
+          }
+        }
+        return testcase
+      })
+
+      setValue('testcases', testcases)
     },
     onError: () => {
       toast.error('File upload failed')
