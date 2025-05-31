@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import type { NestExpressApplication } from '@nestjs/platform-express'
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'
+import { MAX_ZIP_SIZE } from '@libs/constants'
 import Instrumentation from '@libs/instrumentation'
 
 /**
@@ -36,7 +37,7 @@ const bootstrap = async () => {
 
   // default body parser limit: 100KB. Increase the limit to 10MB ()
   app.useBodyParser('json', { limit: '10mb' })
-  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 2 }))
+  app.use(graphqlUploadExpress({ maxFileSize: MAX_ZIP_SIZE, maxFiles: 2 }))
   const { Logger, LoggerErrorInterceptor } = await import('nestjs-pino')
   app.useLogger(app.get(Logger))
   app.useGlobalInterceptors(new LoggerErrorInterceptor())

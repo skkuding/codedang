@@ -1,6 +1,15 @@
+import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { TagService, TestcaseService } from '../services'
+import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
+import { S3MediaProvider, S3Provider } from '@libs/storage'
+import { TestcaseService } from '@admin/testcase/testcase.service'
+import {
+  TagService,
+  TestcaseService as ProblemTestcaseService
+} from '../services'
+import { FileService } from '../services/file.service'
 import { ProblemService } from '../services/problem.service'
 import { ProblemResolver } from './problem.resolver'
 
@@ -11,9 +20,16 @@ describe('ProblemResolver', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProblemResolver,
-        { provide: ProblemService, useValue: {} },
-        { provide: TagService, useValue: {} },
-        { provide: TestcaseService, useValue: {} }
+        ProblemService,
+        TestcaseService,
+        ProblemTestcaseService,
+        TagService,
+        PrismaService,
+        StorageService,
+        FileService,
+        ConfigService,
+        S3Provider,
+        S3MediaProvider
       ]
     }).compile()
 

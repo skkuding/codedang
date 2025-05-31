@@ -22,6 +22,7 @@ import { LimitForm } from '../../_components/LimitForm'
 import { SolutionField } from '../../_components/SolutionField'
 import { TemplateField } from '../../_components/TemplateField'
 import { TestcaseField } from '../../_components/TestcaseField'
+import { UploadTestcase } from '../../_components/UploadTestcase'
 import { editSchema } from '../../_libs/schemas'
 import { EditProblemForm } from './_components/EditProblemForm'
 
@@ -125,6 +126,10 @@ export default function Page({ params }: { params: { problemId: string } }) {
             <TemplateField />
 
             <SolutionField />
+
+            <FormSection isFlexColumn title="Upload Testcase" isLabeled={false}>
+              <UploadTestcase problemId={parseInt(problemId)} />
+            </FormSection>
 
             {methods.getValues('testcases') && (
               <TestcaseField blockEdit={false} />

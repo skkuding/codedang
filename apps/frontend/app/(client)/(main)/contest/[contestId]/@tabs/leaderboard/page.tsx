@@ -52,7 +52,8 @@ export default function ContestLeaderBoard() {
   // eslint-disable-next-line prefer-const
   const { data, isLoading, isError } = useQuery({
     queryKey: ['contest leaderboard', contestId],
-    queryFn: () => getContestLeaderboard({ contestId })
+    queryFn: () => getContestLeaderboard({ contestId }),
+    refetchInterval: 5 * 1000 // 5 seconds
   })
   const contestLeaderboard = data ? data : BaseContestLeaderboardData
   const [problemSize, setProblemSize] = useState(0)

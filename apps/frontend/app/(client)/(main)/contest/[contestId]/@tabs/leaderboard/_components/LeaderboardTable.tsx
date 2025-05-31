@@ -3,6 +3,7 @@
 import { useWindowSize } from '@/libs/hooks/useWindowSize'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useInterval } from 'react-use'
 import type { LeaderboardUser } from '../_libs/apis/getContestLeaderboard'
 import { countSolved } from '../_libs/utils'
 import { LeaderboardRow } from './LeaderboardRow'
@@ -152,6 +153,16 @@ export function LeaderboardTable({
   const handleMouseUp = () => {
     setIsDragging(false)
   }
+
+  useEffect(() => {
+    const lastScrollY = localStorage.getItem('leaderboardScrollY') ?? '0'
+    window.scrollTo({ top: parseInt(lastScrollY) })
+  }, [])
+
+  useInterval(() => {
+    const scrollY = window.scrollY
+    localStorage.setItem('leaderboardScrollY', scrollY.toString())
+  }, 1000)
 
   return (
     <div className="flex flex-col">

@@ -29,6 +29,8 @@ export function TestcaseItem({
     control
   })
 
+  const isTruncated = getValues('testcases')[index].isTruncated
+
   const scoreWeightError = (itemError?.[index] as FieldErrorsImpl<Testcase>)
     ?.scoreWeight
   const message = scoreWeightError?.message
@@ -84,7 +86,6 @@ export function TestcaseItem({
 
         <div>
           <input
-            disabled={blockEdit}
             {...register(`testcases.${index}.scoreWeight`, {
               setValueAs: (value) => (isInvalid(value) ? null : Number(value))
             })}
@@ -103,13 +104,22 @@ export function TestcaseItem({
           (%)
         </div>
       </div>
-      <ExampleTextarea
-        blockEdit={blockEdit}
-        onRemove={onRemove}
-        inputName={`testcases.${index}.input`}
-        outputName={`testcases.${index}.output`}
-        register={register}
-      />
+      {isTruncated ? (
+        <div>
+          <p className="text-sm text-red-500">
+            This testcase is over 5KB and has been truncated from this browser.
+            Please use the upload feature to edit it.
+          </p>
+        </div>
+      ) : (
+        <ExampleTextarea
+          blockEdit={blockEdit}
+          onRemove={onRemove}
+          inputName={`testcases.${index}.input`}
+          outputName={`testcases.${index}.output`}
+          register={register}
+        />
+      )}
       {typeof message === 'string' && <ErrorMessage message={message} />}
     </div>
   )

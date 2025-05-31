@@ -23,6 +23,7 @@ const GET_PROBLEM = gql(`
         output
         isHidden
         scoreWeight
+        isTruncated
       }
       timeLimit
       memoryLimit
@@ -137,6 +138,20 @@ const GET_PROBLEM_TESTCASE = gql(`
   }
 `)
 
+const GET_TESTCASE = gql(`
+  query GetTestcase($problemId: Int!) {
+    testcases(problemId: $problemId) {
+      id
+      order
+      scoreWeight
+      input
+      output
+      isTruncated
+      isHidden
+    }
+  }
+`)
+
 export {
   GET_ASSIGNMENT_PROBLEM_MAX_SCORE,
   GET_ASSIGNMENT_PROBLEMS,
@@ -145,5 +160,6 @@ export {
   GET_PROBLEM_DETAIL,
   GET_PROBLEM_TESTCASE,
   GET_PROBLEMS,
-  GET_TAGS
+  GET_TAGS,
+  GET_TESTCASE
 }

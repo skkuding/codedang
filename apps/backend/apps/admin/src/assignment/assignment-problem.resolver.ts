@@ -11,7 +11,7 @@ import {
 import { UseGroupLeaderGuard } from '@libs/auth'
 import { GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { AssignmentProblem } from '@admin/@generated'
-import { ProblemWithIsVisible } from '@admin/problem/model/problem.output'
+import { ProblemModel } from '@admin/problem/model/problem.output'
 import { ProblemService } from '@admin/problem/services'
 import { AssignmentProblemService } from './assignment-problem.service'
 import { AssignmentProblemUpdateInput } from './model/assignment-problem.input'
@@ -76,7 +76,7 @@ export class AssignmentProblemResolver {
     )
   }
 
-  @ResolveField('problem', () => ProblemWithIsVisible)
+  @ResolveField('problem', () => ProblemModel)
   async getProblem(@Parent() assignmentProblem: AssignmentProblem) {
     return await this.problemService.getProblemById(assignmentProblem.problemId)
   }

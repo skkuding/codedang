@@ -15,7 +15,7 @@ const CREATE_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
-      problemTestcase {
+      testcase {
         input
         output
       }
@@ -46,7 +46,7 @@ const UPDATE_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
-      problemTestcase {
+      testcase {
         input
         output
       }
@@ -146,6 +146,14 @@ const UPLOAD_FILE = gql(`
   }
 `)
 
+const UPLOAD_TESTCASE_ZIP = gql(`
+  mutation uploadTestcaseZip($input: UploadTestcaseZipInput!) {
+    uploadTestcaseZip(input: $input) {
+      testcaseId
+    }
+  }
+`)
+
 export {
   CREATE_PROBLEM,
   DELETE_PROBLEM,
@@ -157,5 +165,6 @@ export {
   UPDATE_PROBLEM_VISIBLE,
   UPLOAD_FILE,
   UPLOAD_IMAGE,
-  UPLOAD_PROBLEMS
+  UPLOAD_PROBLEMS,
+  UPLOAD_TESTCASE_ZIP
 }
