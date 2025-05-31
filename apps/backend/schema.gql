@@ -1,0 +1,3052 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Announcement {
+  content: String!
+  contest: Contest!
+  contestId: Int!
+  createTime: DateTime!
+  id: ID!
+  problem: Problem
+  problemId: Int
+  updateTime: DateTime!
+}
+
+type AnnouncementAvgAggregate {
+  contestId: Float
+  id: Float
+  problemId: Float
+}
+
+type AnnouncementCountAggregate {
+  _all: Int!
+  content: Int!
+  contestId: Int!
+  createTime: Int!
+  id: Int!
+  problemId: Int!
+  updateTime: Int!
+}
+
+type AnnouncementMaxAggregate {
+  content: String
+  contestId: Int
+  createTime: DateTime
+  id: Int
+  problemId: Int
+  updateTime: DateTime
+}
+
+type AnnouncementMinAggregate {
+  content: String
+  contestId: Int
+  createTime: DateTime
+  id: Int
+  problemId: Int
+  updateTime: DateTime
+}
+
+type AnnouncementSumAggregate {
+  contestId: Int
+  id: Int
+  problemId: Int
+}
+
+type AnnouncementWithProblemOrder {
+  content: String!
+  contest: Contest!
+  contestId: Int!
+  createTime: DateTime!
+  id: ID!
+  problem: Problem
+  problemId: Int
+  problemOrder: Int
+  updateTime: DateTime!
+}
+
+type Assignment {
+  _count: AssignmentCount!
+  assignmentProblem: [AssignmentProblem!]
+  assignmentRecord: [AssignmentRecord!]
+  autoFinalizeScore: Boolean!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  description: String!
+  dueTime: DateTime!
+  enableCopyPaste: Boolean!
+  endTime: DateTime!
+  group: Group!
+  groupId: Int!
+  id: ID!
+  isExercise: Boolean!
+  isFinalScoreVisible: Boolean!
+  isJudgeResultVisible: Boolean!
+  isRankVisible: Boolean!
+  isVisible: Boolean!
+  startTime: DateTime!
+  submission: [Submission!]
+  testSubmission: [TestSubmission!]
+  title: String!
+  updateTime: DateTime!
+  week: Int!
+}
+
+type AssignmentAvgAggregate {
+  createdById: Float
+  groupId: Float
+  id: Float
+  week: Float
+}
+
+type AssignmentCount {
+  assignmentProblem: Int!
+  assignmentRecord: Int!
+  submission: Int!
+  testSubmission: Int!
+}
+
+type AssignmentCountAggregate {
+  _all: Int!
+  autoFinalizeScore: Int!
+  createTime: Int!
+  createdById: Int!
+  description: Int!
+  dueTime: Int!
+  enableCopyPaste: Int!
+  endTime: Int!
+  groupId: Int!
+  id: Int!
+  isExercise: Int!
+  isFinalScoreVisible: Int!
+  isJudgeResultVisible: Int!
+  isRankVisible: Int!
+  isVisible: Int!
+  startTime: Int!
+  title: Int!
+  updateTime: Int!
+  week: Int!
+}
+
+type AssignmentMaxAggregate {
+  autoFinalizeScore: Boolean
+  createTime: DateTime
+  createdById: Int
+  description: String
+  dueTime: DateTime
+  enableCopyPaste: Boolean
+  endTime: DateTime
+  groupId: Int
+  id: Int
+  isExercise: Boolean
+  isFinalScoreVisible: Boolean
+  isJudgeResultVisible: Boolean
+  isRankVisible: Boolean
+  isVisible: Boolean
+  startTime: DateTime
+  title: String
+  updateTime: DateTime
+  week: Int
+}
+
+type AssignmentMinAggregate {
+  autoFinalizeScore: Boolean
+  createTime: DateTime
+  createdById: Int
+  description: String
+  dueTime: DateTime
+  enableCopyPaste: Boolean
+  endTime: DateTime
+  groupId: Int
+  id: Int
+  isExercise: Boolean
+  isFinalScoreVisible: Boolean
+  isJudgeResultVisible: Boolean
+  isRankVisible: Boolean
+  isVisible: Boolean
+  startTime: DateTime
+  title: String
+  updateTime: DateTime
+  week: Int
+}
+
+type AssignmentProblem {
+  _count: AssignmentProblemCount!
+  assignment: Assignment!
+  assignmentId: Int!
+  assignmentProblemRecord: [AssignmentProblemRecord!]
+  createTime: DateTime!
+  order: Int!
+  problem: ProblemModel!
+  problemId: Int!
+  score: Int!
+  solutionReleaseTime: DateTime
+  updateTime: DateTime!
+}
+
+type AssignmentProblemAvgAggregate {
+  assignmentId: Float
+  order: Float
+  problemId: Float
+  score: Float
+}
+
+type AssignmentProblemCount {
+  assignmentProblemRecord: Int!
+}
+
+type AssignmentProblemCountAggregate {
+  _all: Int!
+  assignmentId: Int!
+  createTime: Int!
+  order: Int!
+  problemId: Int!
+  score: Int!
+  solutionReleaseTime: Int!
+  updateTime: Int!
+}
+
+input AssignmentProblemInput {
+  problemId: Int!
+  score: IntScore!
+  solutionReleaseTime: DateTime
+}
+
+type AssignmentProblemMaxAggregate {
+  assignmentId: Int
+  createTime: DateTime
+  order: Int
+  problemId: Int
+  score: Int
+  solutionReleaseTime: DateTime
+  updateTime: DateTime
+}
+
+type AssignmentProblemMinAggregate {
+  assignmentId: Int
+  createTime: DateTime
+  order: Int
+  problemId: Int
+  score: Int
+  solutionReleaseTime: DateTime
+  updateTime: DateTime
+}
+
+type AssignmentProblemRecord {
+  assignmentId: Int!
+  assignmentProblem: AssignmentProblem!
+  assignmentRecord: AssignmentRecord!
+  comment: String!
+  finalScore: Int
+  isAccepted: Boolean!
+  isSubmitted: Boolean!
+  problemId: Int!
+  score: Int!
+  userId: Int!
+}
+
+type AssignmentProblemRecordAvgAggregate {
+  assignmentId: Float
+  finalScore: Float
+  problemId: Float
+  score: Float
+  userId: Float
+}
+
+type AssignmentProblemRecordCountAggregate {
+  _all: Int!
+  assignmentId: Int!
+  comment: Int!
+  finalScore: Int!
+  isAccepted: Int!
+  isSubmitted: Int!
+  problemId: Int!
+  score: Int!
+  userId: Int!
+}
+
+type AssignmentProblemRecordMaxAggregate {
+  assignmentId: Int
+  comment: String
+  finalScore: Int
+  isAccepted: Boolean
+  isSubmitted: Boolean
+  problemId: Int
+  score: Int
+  userId: Int
+}
+
+type AssignmentProblemRecordMinAggregate {
+  assignmentId: Int
+  comment: String
+  finalScore: Int
+  isAccepted: Boolean
+  isSubmitted: Boolean
+  problemId: Int
+  score: Int
+  userId: Int
+}
+
+type AssignmentProblemRecordSumAggregate {
+  assignmentId: Int
+  finalScore: Int
+  problemId: Int
+  score: Int
+  userId: Int
+}
+
+type AssignmentProblemScore {
+  finalScore: Int
+  maxScore: Int!
+  problemId: Int!
+  score: Float!
+}
+
+type AssignmentProblemSumAggregate {
+  assignmentId: Int
+  order: Int
+  problemId: Int
+  score: Int
+}
+
+input AssignmentProblemUpdateInput {
+  problemId: Int!
+  score: IntScore
+  solutionReleaseTime: DateTime
+}
+
+type AssignmentRecord {
+  _count: AssignmentRecordCount!
+  acceptedProblemNum: Int!
+  assignment: Assignment!
+  assignmentId: Int!
+  assignmentProblemRecord: [AssignmentProblemRecord!]
+  comment: String!
+  createTime: DateTime!
+  finalScore: Int
+  finishTime: DateTime
+  id: ID!
+  score: Int!
+  totalPenalty: Int!
+  updateTime: DateTime!
+  user: User
+  userId: Int
+}
+
+type AssignmentRecordAvgAggregate {
+  acceptedProblemNum: Float
+  assignmentId: Float
+  finalScore: Float
+  id: Float
+  score: Float
+  totalPenalty: Float
+  userId: Float
+}
+
+type AssignmentRecordCount {
+  assignmentProblemRecord: Int!
+}
+
+type AssignmentRecordCountAggregate {
+  _all: Int!
+  acceptedProblemNum: Int!
+  assignmentId: Int!
+  comment: Int!
+  createTime: Int!
+  finalScore: Int!
+  finishTime: Int!
+  id: Int!
+  score: Int!
+  totalPenalty: Int!
+  updateTime: Int!
+  userId: Int!
+}
+
+type AssignmentRecordMaxAggregate {
+  acceptedProblemNum: Int
+  assignmentId: Int
+  comment: String
+  createTime: DateTime
+  finalScore: Int
+  finishTime: DateTime
+  id: Int
+  score: Int
+  totalPenalty: Int
+  updateTime: DateTime
+  userId: Int
+}
+
+type AssignmentRecordMinAggregate {
+  acceptedProblemNum: Int
+  assignmentId: Int
+  comment: String
+  createTime: DateTime
+  finalScore: Int
+  finishTime: DateTime
+  id: Int
+  score: Int
+  totalPenalty: Int
+  updateTime: DateTime
+  userId: Int
+}
+
+type AssignmentRecordSumAggregate {
+  acceptedProblemNum: Int
+  assignmentId: Int
+  finalScore: Int
+  id: Int
+  score: Int
+  totalPenalty: Int
+  userId: Int
+}
+
+"""assignmentSubmissionOverall"""
+type AssignmentSubmission {
+  codeSize: Int
+  id: Int!
+  ip: String
+  language: Language!
+  order: Int
+  problemId: Int!
+  realname: String
+  result: ResultStatus!
+  studentId: String!
+  submissionTime: String!
+  title: String!
+  username: String!
+}
+
+"""AssignmentSubmissionSummaryForOne"""
+type AssignmentSubmissionSummaryForOne {
+  assignmentId: Int!
+  codeSize: Int
+  id: Int!
+  ip: String
+  language: Language!
+  order: Int
+  problemId: Int!
+  problemTitle: String!
+  studentId: String!
+  submissionResult: ResultStatus!
+  submissionTime: String!
+  username: String!
+}
+
+"""AssignmentSubmissionSummaryForUser"""
+type AssignmentSubmissionSummaryForUser {
+  scoreSummary: UserAssignmentScoreSummary!
+  submissions: [AssignmentSubmissionSummaryForOne!]!
+}
+
+type AssignmentSumAggregate {
+  createdById: Int
+  groupId: Int
+  id: Int
+  week: Int
+}
+
+"""assignmentWithParticipants"""
+type AssignmentWithParticipants {
+  _count: AssignmentCount!
+  assignmentProblem: [AssignmentProblem!]
+  assignmentRecord: [AssignmentRecord!]
+  autoFinalizeScore: Boolean!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  description: String!
+  dueTime: DateTime!
+  enableCopyPaste: Boolean!
+  endTime: DateTime!
+  group: Group!
+  groupId: Int!
+  id: ID!
+  isExercise: Boolean!
+  isFinalScoreVisible: Boolean!
+  isJudgeResultVisible: Boolean!
+  isRankVisible: Boolean!
+  isVisible: Boolean!
+  participants: Int!
+  startTime: DateTime!
+  submission: [Submission!]
+  testSubmission: [TestSubmission!]
+  title: String!
+  updateTime: DateTime!
+  week: Int!
+}
+
+type AssignmentWithScores {
+  _count: AssignmentCount!
+  assignmentProblem: [AssignmentProblem!]
+  assignmentRecord: [AssignmentRecord!]
+  autoFinalizeScore: Boolean!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  description: String!
+  dueTime: DateTime!
+  enableCopyPaste: Boolean!
+  endTime: DateTime!
+  group: Group!
+  groupId: Int!
+  id: ID!
+  isExercise: Boolean!
+  isFinalScoreVisible: Boolean!
+  isJudgeResultVisible: Boolean!
+  isRankVisible: Boolean!
+  isVisible: Boolean!
+  problemScore: Int!
+  startTime: DateTime!
+  submission: [Submission!]
+  testSubmission: [TestSubmission!]
+  title: String!
+  totalScore: Int!
+  updateTime: DateTime!
+  week: Int!
+}
+
+type AssignmentsGroupedByStatus {
+  finished: [AssignmentWithScores!]!
+  ongoing: [AssignmentWithScores!]!
+  upcoming: [AssignmentWithScores!]!
+}
+
+input Config {
+  allowJoinFromSearch: Boolean!
+  allowJoinWithURL: Boolean!
+  requireApprovalBeforeJoin: Boolean!
+  showOnList: Boolean!
+}
+
+type Contest {
+  _count: ContestCount!
+  announcement: [Announcement!]
+  contestProblem: [ContestProblem!]
+  contestRecord: [ContestRecord!]
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  description: String
+
+  """이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
+  enableCopyPaste: Boolean!
+  endTime: DateTime!
+
+  """이 Contest에 포함된 문제의 채점을 샘플 테스트케이스를 포함하여 할지 말지 결정합니다."""
+  evaluateWithSampleTestcase: Boolean!
+  freezeTime: DateTime
+  id: ID!
+  invitationCode: String
+
+  """이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다."""
+  isJudgeResultVisible: Boolean!
+  lastPenalty: Boolean!
+  penalty: Int!
+  posterUrl: String
+  startTime: DateTime!
+  submission: [Submission!]
+
+  """
+  summary structure
+  {
+  참여대상: string,
+  진행방식: string,
+  순위산정: string,
+  문제형태: string,
+  참여혜택: string
+  }
+  """
+  summary: JSON
+  testSubmission: [TestSubmission!]
+  title: String!
+  unfreeze: Boolean!
+  updateTime: DateTime!
+  userContest: [UserContest!]
+}
+
+type ContestAvgAggregate {
+  createdById: Float
+  id: Float
+  penalty: Float
+}
+
+type ContestCount {
+  announcement: Int!
+  contestProblem: Int!
+  contestRecord: Int!
+  submission: Int!
+  testSubmission: Int!
+  userContest: Int!
+}
+
+type ContestCountAggregate {
+  _all: Int!
+  createTime: Int!
+  createdById: Int!
+  description: Int!
+  enableCopyPaste: Int!
+  endTime: Int!
+  evaluateWithSampleTestcase: Int!
+  freezeTime: Int!
+  id: Int!
+  invitationCode: Int!
+  isJudgeResultVisible: Int!
+  lastPenalty: Int!
+  penalty: Int!
+  posterUrl: Int!
+  startTime: Int!
+  summary: Int!
+  title: Int!
+  unfreeze: Int!
+  updateTime: Int!
+}
+
+type ContestLeaderboard {
+  isFrozen: Boolean!
+  leaderboard: [LeaderboardEntry!]!
+  maxScore: Int!
+  participatedNum: Int!
+  registeredNum: Int!
+}
+
+type ContestMaxAggregate {
+  createTime: DateTime
+  createdById: Int
+  description: String
+  enableCopyPaste: Boolean
+  endTime: DateTime
+  evaluateWithSampleTestcase: Boolean
+  freezeTime: DateTime
+  id: Int
+  invitationCode: String
+  isJudgeResultVisible: Boolean
+  lastPenalty: Boolean
+  penalty: Int
+  posterUrl: String
+  startTime: DateTime
+  title: String
+  unfreeze: Boolean
+  updateTime: DateTime
+}
+
+type ContestMinAggregate {
+  createTime: DateTime
+  createdById: Int
+  description: String
+  enableCopyPaste: Boolean
+  endTime: DateTime
+  evaluateWithSampleTestcase: Boolean
+  freezeTime: DateTime
+  id: Int
+  invitationCode: String
+  isJudgeResultVisible: Boolean
+  lastPenalty: Boolean
+  penalty: Int
+  posterUrl: String
+  startTime: DateTime
+  title: String
+  unfreeze: Boolean
+  updateTime: DateTime
+}
+
+type ContestProblem {
+  ContestProblemFirstSolver: [ContestProblemFirstSolver!]
+  _count: ContestProblemCount!
+  contest: Contest!
+  contestId: Int!
+  contestProblemRecord: [ContestProblemRecord!]
+  createTime: DateTime!
+  id: ID!
+  order: Int!
+  problem: ProblemModel!
+  problemId: Int!
+  score: Int!
+  updateTime: DateTime!
+}
+
+type ContestProblemAvgAggregate {
+  contestId: Float
+  id: Float
+  order: Float
+  problemId: Float
+  score: Float
+}
+
+type ContestProblemCount {
+  ContestProblemFirstSolver: Int!
+  contestProblemRecord: Int!
+}
+
+type ContestProblemCountAggregate {
+  _all: Int!
+  contestId: Int!
+  createTime: Int!
+  id: Int!
+  order: Int!
+  problemId: Int!
+  score: Int!
+  updateTime: Int!
+}
+
+type ContestProblemFirstSolver {
+  contestProblem: ContestProblem!
+  contestProblemId: ID!
+  contestRecord: ContestRecord!
+  contestRecordId: Int!
+  createTime: DateTime!
+}
+
+type ContestProblemFirstSolverAvgAggregate {
+  contestProblemId: Float
+  contestRecordId: Float
+}
+
+type ContestProblemFirstSolverCountAggregate {
+  _all: Int!
+  contestProblemId: Int!
+  contestRecordId: Int!
+  createTime: Int!
+}
+
+type ContestProblemFirstSolverMaxAggregate {
+  contestProblemId: Int
+  contestRecordId: Int
+  createTime: DateTime
+}
+
+type ContestProblemFirstSolverMinAggregate {
+  contestProblemId: Int
+  contestRecordId: Int
+  createTime: DateTime
+}
+
+type ContestProblemFirstSolverSumAggregate {
+  contestProblemId: Int
+  contestRecordId: Int
+}
+
+type ContestProblemMaxAggregate {
+  contestId: Int
+  createTime: DateTime
+  id: Int
+  order: Int
+  problemId: Int
+  score: Int
+  updateTime: DateTime
+}
+
+type ContestProblemMinAggregate {
+  contestId: Int
+  createTime: DateTime
+  id: Int
+  order: Int
+  problemId: Int
+  score: Int
+  updateTime: DateTime
+}
+
+type ContestProblemRecord {
+  contestProblem: ContestProblem!
+  contestProblemId: Int!
+  contestRecord: ContestRecord!
+  contestRecordId: Int!
+  createTime: DateTime!
+  finalScore: Int!
+  finalSubmitCountPenalty: Int!
+  finalTimePenalty: Int!
+
+  """(좋은 제출 전까지 유저 u가 문제 p에 제출한 횟수) × (대회의 페널티)"""
+  finishTime: DateTime
+  isFirstSolver: Boolean!
+
+  """finishTime: Pariticipant가 가장 최근에 좋은 제출을 받은 시각"""
+  score: Int!
+
+  """대회 시작부터 좋은 제출이 제출되기까지 쇼요된 시간, 단위는 분"""
+  submitCountPenalty: Int!
+  timePenalty: Int!
+  updateTime: DateTime!
+}
+
+type ContestProblemRecordAvgAggregate {
+  contestProblemId: Float
+  contestRecordId: Float
+  finalScore: Float
+  finalSubmitCountPenalty: Float
+  finalTimePenalty: Float
+  score: Float
+  submitCountPenalty: Float
+  timePenalty: Float
+}
+
+type ContestProblemRecordCountAggregate {
+  _all: Int!
+  contestProblemId: Int!
+  contestRecordId: Int!
+  createTime: Int!
+  finalScore: Int!
+  finalSubmitCountPenalty: Int!
+  finalTimePenalty: Int!
+  finishTime: Int!
+  isFirstSolver: Int!
+  score: Int!
+  submitCountPenalty: Int!
+  timePenalty: Int!
+  updateTime: Int!
+}
+
+type ContestProblemRecordMaxAggregate {
+  contestProblemId: Int
+  contestRecordId: Int
+  createTime: DateTime
+  finalScore: Int
+  finalSubmitCountPenalty: Int
+  finalTimePenalty: Int
+  finishTime: DateTime
+  isFirstSolver: Boolean
+  score: Int
+  submitCountPenalty: Int
+  timePenalty: Int
+  updateTime: DateTime
+}
+
+type ContestProblemRecordMinAggregate {
+  contestProblemId: Int
+  contestRecordId: Int
+  createTime: DateTime
+  finalScore: Int
+  finalSubmitCountPenalty: Int
+  finalTimePenalty: Int
+  finishTime: DateTime
+  isFirstSolver: Boolean
+  score: Int
+  submitCountPenalty: Int
+  timePenalty: Int
+  updateTime: DateTime
+}
+
+type ContestProblemRecordSumAggregate {
+  contestProblemId: Int
+  contestRecordId: Int
+  finalScore: Int
+  finalSubmitCountPenalty: Int
+  finalTimePenalty: Int
+  score: Int
+  submitCountPenalty: Int
+  timePenalty: Int
+}
+
+type ContestProblemSumAggregate {
+  contestId: Int
+  id: Int
+  order: Int
+  problemId: Int
+  score: Int
+}
+
+type ContestRecord {
+  ContestProblemFirstSolver: [ContestProblemFirstSolver!]
+  _count: ContestRecordCount!
+  acceptedProblemNum: Int!
+  contest: Contest!
+  contestId: Int!
+  contestProblemRecord: [ContestProblemRecord!]
+  createTime: DateTime!
+  finalScore: Int!
+  finalTotalPenalty: Int!
+  id: ID!
+  lastAcceptedTime: DateTime
+  score: Int!
+  totalPenalty: Int!
+  updateTime: DateTime!
+  user: User
+  userId: Int
+}
+
+type ContestRecordAvgAggregate {
+  acceptedProblemNum: Float
+  contestId: Float
+  finalScore: Float
+  finalTotalPenalty: Float
+  id: Float
+  score: Float
+  totalPenalty: Float
+  userId: Float
+}
+
+type ContestRecordCount {
+  ContestProblemFirstSolver: Int!
+  contestProblemRecord: Int!
+}
+
+type ContestRecordCountAggregate {
+  _all: Int!
+  acceptedProblemNum: Int!
+  contestId: Int!
+  createTime: Int!
+  finalScore: Int!
+  finalTotalPenalty: Int!
+  id: Int!
+  lastAcceptedTime: Int!
+  score: Int!
+  totalPenalty: Int!
+  updateTime: Int!
+  userId: Int!
+}
+
+type ContestRecordMaxAggregate {
+  acceptedProblemNum: Int
+  contestId: Int
+  createTime: DateTime
+  finalScore: Int
+  finalTotalPenalty: Int
+  id: Int
+  lastAcceptedTime: DateTime
+  score: Int
+  totalPenalty: Int
+  updateTime: DateTime
+  userId: Int
+}
+
+type ContestRecordMinAggregate {
+  acceptedProblemNum: Int
+  contestId: Int
+  createTime: DateTime
+  finalScore: Int
+  finalTotalPenalty: Int
+  id: Int
+  lastAcceptedTime: DateTime
+  score: Int
+  totalPenalty: Int
+  updateTime: DateTime
+  userId: Int
+}
+
+type ContestRecordSumAggregate {
+  acceptedProblemNum: Int
+  contestId: Int
+  finalScore: Int
+  finalTotalPenalty: Int
+  id: Int
+  score: Int
+  totalPenalty: Int
+  userId: Int
+}
+
+enum ContestRole {
+  Admin
+  Manager
+  Participant
+  Reviewer
+}
+
+"""contestSubmissionOverall"""
+type ContestSubmission {
+  codeSize: Int
+  id: Int!
+  ip: String
+  language: Language!
+  order: Int
+  problemId: Int!
+  realname: String
+  result: ResultStatus!
+  studentId: String!
+  submissionTime: String!
+  title: String!
+  username: String!
+}
+
+"""ContestSubmissionSummaryForOne"""
+type ContestSubmissionSummaryForOne {
+  codeSize: Int
+  contestId: Int!
+  id: Int!
+  ip: String
+  language: Language!
+  order: Int
+  problemId: Int!
+  problemTitle: String!
+  studentId: String!
+  submissionResult: ResultStatus!
+  submissionTime: String!
+  username: String!
+}
+
+"""ContestSubmissionSummaryForUser"""
+type ContestSubmissionSummaryForUser {
+  scoreSummary: UserContestScoreSummary!
+  submissions: [ContestSubmissionSummaryForOne!]!
+}
+
+type ContestSumAggregate {
+  createdById: Int
+  id: Int
+  penalty: Int
+}
+
+type ContestUpdateHistories {
+  contestId: Int!
+  updateHistories: [UpdateHistoryRecord!]!
+}
+
+"""contestWithParticipants"""
+type ContestWithParticipants {
+  _count: ContestCount!
+  announcement: [Announcement!]
+  contestProblem: [ContestProblem!]
+  contestRecord: [ContestRecord!]
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  description: String
+
+  """이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
+  enableCopyPaste: Boolean!
+  endTime: DateTime!
+
+  """이 Contest에 포함된 문제의 채점을 샘플 테스트케이스를 포함하여 할지 말지 결정합니다."""
+  evaluateWithSampleTestcase: Boolean!
+  freezeTime: DateTime
+  id: ID!
+  invitationCode: String
+
+  """이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다."""
+  isJudgeResultVisible: Boolean!
+  lastPenalty: Boolean!
+  participants: Int!
+  penalty: Int!
+  posterUrl: String
+  startTime: DateTime!
+  submission: [Submission!]
+
+  """
+  summary structure
+  {
+  참여대상: string,
+  진행방식: string,
+  순위산정: string,
+  문제형태: string,
+  참여혜택: string
+  }
+  """
+  summary: JSON
+  testSubmission: [TestSubmission!]
+  title: String!
+  unfreeze: Boolean!
+  updateTime: DateTime!
+  userContest: [UserContest!]
+}
+
+type ContestWithScores {
+  _count: ContestCount!
+  announcement: [Announcement!]
+  contestProblem: [ContestProblem!]
+  contestRecord: [ContestRecord!]
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  description: String
+
+  """이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
+  enableCopyPaste: Boolean!
+  endTime: DateTime!
+
+  """이 Contest에 포함된 문제의 채점을 샘플 테스트케이스를 포함하여 할지 말지 결정합니다."""
+  evaluateWithSampleTestcase: Boolean!
+  freezeTime: DateTime
+  id: ID!
+  invitationCode: String
+
+  """이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다."""
+  isJudgeResultVisible: Boolean!
+  lastPenalty: Boolean!
+  penalty: Int!
+  posterUrl: String
+  problemScore: Int!
+  startTime: DateTime!
+  submission: [Submission!]
+
+  """
+  summary structure
+  {
+  참여대상: string,
+  진행방식: string,
+  순위산정: string,
+  문제형태: string,
+  참여혜택: string
+  }
+  """
+  summary: JSON
+  testSubmission: [TestSubmission!]
+  title: String!
+  totalScore: Int!
+  unfreeze: Boolean!
+  updateTime: DateTime!
+  userContest: [UserContest!]
+}
+
+type ContestsGroupedByStatus {
+  finished: [ContestWithScores!]!
+  ongoing: [ContestWithScores!]!
+  upcoming: [ContestWithScores!]!
+}
+
+type CourseInfo {
+  classNum: Int
+  courseNum: String!
+  email: String
+  group: Group!
+  groupId: ID!
+  office: String
+  phoneNum: String
+  professor: String!
+  semester: String!
+  website: String
+  week: Int!
+}
+
+type CourseInfoAvgAggregate {
+  classNum: Float
+  groupId: Float
+  week: Float
+}
+
+type CourseInfoCountAggregate {
+  _all: Int!
+  classNum: Int!
+  courseNum: Int!
+  email: Int!
+  groupId: Int!
+  office: Int!
+  phoneNum: Int!
+  professor: Int!
+  semester: Int!
+  website: Int!
+  week: Int!
+}
+
+type CourseInfoMaxAggregate {
+  classNum: Int
+  courseNum: String
+  email: String
+  groupId: Int
+  office: String
+  phoneNum: String
+  professor: String
+  semester: String
+  website: String
+  week: Int
+}
+
+type CourseInfoMinAggregate {
+  classNum: Int
+  courseNum: String
+  email: String
+  groupId: Int
+  office: String
+  phoneNum: String
+  professor: String
+  semester: String
+  website: String
+  week: Int
+}
+
+type CourseInfoSumAggregate {
+  classNum: Int
+  groupId: Int
+  week: Int
+}
+
+input CourseInput {
+  classNum: Int
+  config: Config!
+  courseNum: String!
+  courseTitle: String!
+  email: String
+  office: String
+  phoneNum: String
+  professor: String!
+  semester: String!
+  website: String
+  week: Int!
+}
+
+input CreateAnnouncementInput {
+  """content of announcement"""
+  content: String!
+
+  """related problemOrder of announcement"""
+  problemOrder: Int
+}
+
+input CreateAssignmentInput {
+  autoFinalizeScore: Boolean
+  description: String!
+  dueTime: DateTime!
+  enableCopyPaste: Boolean
+  endTime: DateTime!
+  invitationCode: String
+  isExercise: Boolean
+  isFinalScoreVisible: Boolean
+  isJudgeResultVisible: Boolean!
+  isRankVisible: Boolean!
+  isVisible: Boolean!
+  startTime: DateTime!
+  title: String!
+  week: Float!
+}
+
+input CreateContestInput {
+  description: String
+  enableCopyPaste: Boolean
+  endTime: DateTime!
+  evaluateWithSampleTestcase: Boolean
+  freezeTime: DateTime
+  invitationCode: String
+  isJudgeResultVisible: Boolean!
+  lastPenalty: Boolean
+  penalty: Int
+  posterUrl: String
+  startTime: DateTime!
+  summary: JSON
+  title: String!
+  userContest: [UserContestInput!]
+}
+
+input CreateNoticeInput {
+  content: String!
+  isFixed: Boolean
+  isVisible: Boolean
+  title: String!
+}
+
+input CreateProblemInput {
+  description: String!
+  difficulty: Level!
+  hint: String!
+  inputDescription: String!
+  isVisible: Boolean! = true
+  languages: [Language!]!
+  memoryLimit: Int!
+  outputDescription: String!
+  solution: [Solution!]!
+  source: String!
+  tagIds: [Int!]!
+  template: [Template!]!
+  testcases: [Testcase!]!
+  timeLimit: Int!
+  title: String!
+}
+
+input CreateTestcasesInput {
+  problemId: Int!
+  testcases: [Testcase!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DuplicateCourse {
+  copiedAssignments: [Int!]!
+  duplicatedCourse: Group!
+  originAssignments: [Int!]!
+}
+
+type DuplicatedAssignmentResponse {
+  assignment: Assignment!
+  problems: [AssignmentProblem!]!
+  records: [AssignmentRecord!]!
+}
+
+type File {
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  filename: ID!
+}
+
+type FileAvgAggregate {
+  createdById: Float
+}
+
+type FileCountAggregate {
+  _all: Int!
+  createTime: Int!
+  createdById: Int!
+  filename: Int!
+}
+
+type FileMaxAggregate {
+  createTime: DateTime
+  createdById: Int
+  filename: String
+}
+
+type FileMinAggregate {
+  createTime: DateTime
+  createdById: Int
+  filename: String
+}
+
+"""file"""
+type FileSource {
+  src: String!
+}
+
+type FileSumAggregate {
+  createdById: Int
+}
+
+input FilterProblemsInput {
+  difficulty: [Level!]
+  languages: [Language!]
+}
+
+type FindGroup {
+  GroupWhitelist: [GroupWhitelist!]
+  _count: GroupCount!
+  assignment: [Assignment!]
+
+  """
+  config default value
+  {
+  "showOnList": true,          // show on 'all groups' list
+  "allowJoinFromSearch": true, // can join from 'all groups' list. set to false if `showOnList` is false
+  "allowJoinWithURL": false,
+  "requireApprovalBeforeJoin": true
+  }
+  """
+  config: JSON!
+  courseInfo: CourseInfo
+  createTime: DateTime!
+  description: String
+  groupName: String!
+  groupType: GroupType!
+  id: ID!
+  invitation: String
+  memberNum: Int!
+  sharedProblems: [Problem!]
+  updateTime: DateTime!
+  userGroup: [UserGroup!]
+  workbook: [Workbook!]
+}
+
+input GetAssignmentSubmissionsInput {
+  assignmentId: Int!
+  problemId: Int
+  searchingName: String
+}
+
+input GetContestSubmissionsInput {
+  problemId: Int
+  searchingName: String
+}
+
+type Group {
+  GroupWhitelist: [GroupWhitelist!]
+  _count: GroupCount!
+  assignment: [Assignment!]
+
+  """
+  config default value
+  {
+  "showOnList": true,          // show on 'all groups' list
+  "allowJoinFromSearch": true, // can join from 'all groups' list. set to false if `showOnList` is false
+  "allowJoinWithURL": false,
+  "requireApprovalBeforeJoin": true
+  }
+  """
+  config: JSON!
+  courseInfo: CourseInfo
+  createTime: DateTime!
+  description: String
+  groupName: String!
+  groupType: GroupType!
+  id: ID!
+  sharedProblems: [Problem!]
+  updateTime: DateTime!
+  userGroup: [UserGroup!]
+  workbook: [Workbook!]
+}
+
+type GroupAvgAggregate {
+  id: Float
+}
+
+type GroupCount {
+  GroupWhitelist: Int!
+  assignment: Int!
+  sharedProblems: Int!
+  userGroup: Int!
+  workbook: Int!
+}
+
+type GroupCountAggregate {
+  _all: Int!
+  config: Int!
+  createTime: Int!
+  description: Int!
+  groupName: Int!
+  groupType: Int!
+  id: Int!
+  updateTime: Int!
+}
+
+type GroupMaxAggregate {
+  createTime: DateTime
+  description: String
+  groupName: String
+  groupType: GroupType
+  id: Int
+  updateTime: DateTime
+}
+
+type GroupMember {
+  email: String!
+  isGroupLeader: Boolean!
+  major: String!
+  name: String!
+  role: String!
+  studentId: String!
+  userId: Float!
+  username: String!
+}
+
+type GroupMinAggregate {
+  createTime: DateTime
+  description: String
+  groupName: String
+  groupType: GroupType
+  id: Int
+  updateTime: DateTime
+}
+
+type GroupSumAggregate {
+  id: Int
+}
+
+enum GroupType {
+  Course
+  Study
+}
+
+type GroupWhitelist {
+  group: Group!
+  groupId: Int!
+  studentId: String!
+}
+
+type GroupWhitelistAvgAggregate {
+  groupId: Float
+}
+
+type GroupWhitelistCountAggregate {
+  _all: Int!
+  groupId: Int!
+  studentId: Int!
+}
+
+type GroupWhitelistMaxAggregate {
+  groupId: Int
+  studentId: String
+}
+
+type GroupWhitelistMinAggregate {
+  groupId: Int
+  studentId: String
+}
+
+type GroupWhitelistSumAggregate {
+  groupId: Int
+}
+
+scalar IntScore
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+enum Language {
+  C
+  Cpp
+  Golang
+  Java
+  PyPy3
+  Python2
+  Python3
+}
+
+type LeaderboardEntry {
+  finalScore: Int!
+  finalTotalPenalty: Int!
+  problemRecords: [ProblemRecord!]!
+  rank: Int!
+  userId: Int!
+  username: String!
+}
+
+enum Level {
+  Level1
+  Level2
+  Level3
+  Level4
+  Level5
+}
+
+type Mutation {
+  createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
+  createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
+  createContest(input: CreateContestInput!): Contest!
+  createCourse(input: CourseInput!): Group!
+  createNotice(input: CreateNoticeInput!): Notice!
+  createProblem(input: CreateProblemInput!): ProblemModel!
+  createTag(tagName: String!): Tag!
+  createTestcases(input: CreateTestcasesInput!): [ProblemTestcaseId!]!
+  createWhitelist(groupId: Int!, studentIds: [String!]!): Float!
+  deleteAssignment(assignmentId: Int!, groupId: Int!): Assignment!
+  deleteContest(contestId: Int!): Contest!
+  deleteCourse(groupId: Int!): Group!
+  deleteFile(filename: String!): File!
+  deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
+  deleteNotice(noticeId: Int!): Notice!
+  deleteProblem(id: Int!): ProblemModel!
+  deleteTag(tagName: String!): Tag!
+  deleteWhitelist(groupId: Int!): Float!
+  duplicateAssignment(assignmentId: Int!, groupId: Int!): DuplicatedAssignmentResponse!
+  duplicateCourse(groupId: Int!): DuplicateCourse!
+  handleJoinRequest(groupId: Int!, isAccept: Boolean!, userId: Int!): UserGroup!
+  importProblemsToAssignment(assignmentId: Int!, assignmentProblemInput: [AssignmentProblemInput!]!, groupId: Int!): [AssignmentProblem!]!
+  importProblemsToContest(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
+  inviteUser(groupId: Int!, isGroupLeader: Boolean!, userId: Int!): UserGroup!
+  issueInvitation(groupId: Int!): String!
+  removeAnnouncement(contestId: Int!, id: Int!): Announcement!
+  removeProblemsFromAssignment(assignmentId: Int!, groupId: Int!, problemIds: [Int!]!): [AssignmentProblem!]!
+  removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
+  revokeInvitation(groupId: Int!): String!
+  updateAnnouncement(contestId: Int!, input: UpdateAnnouncementInput!): Announcement!
+  updateAssignment(groupId: Int!, input: UpdateAssignmentInput!): Assignment!
+  updateAssignmentProblemRecord(groupId: Int!, input: UpdateAssignmentProblemRecordInput!): AssignmentProblemRecord!
+  updateAssignmentProblems(assignmentId: Int!, assignmentProblemUpdateInput: [AssignmentProblemUpdateInput!]!, groupId: Int!): [AssignmentProblem!]!
+  updateAssignmentProblemsOrder(assignmentId: Int!, groupId: Int!, orders: [Int!]!): [AssignmentProblem!]!
+  updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
+  updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
+  updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
+  updateCourse(groupId: Int!, input: CourseInput!): Group!
+  updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
+  updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
+  updateNotice(input: UpdateNoticeInput!, noticeId: Int!): Notice!
+  updateProblem(input: UpdateProblemInput!): ProblemModel!
+  updateWorkbookProblemsOrder(groupId: Int!, orders: [Int!]!, workbookId: Int!): [WorkbookProblem!]!
+  uploadFile(input: UploadFileInput!): FileSource!
+  uploadImage(input: UploadFileInput!): FileSource!
+  uploadProblems(input: UploadFileInput!): [ProblemModel!]!
+  uploadTestcase(input: UploadFileInput!, problemId: Int!): ProblemTestcase!
+  uploadTestcaseZip(input: UploadTestcaseZipInput!): [ProblemTestcaseId!]!
+}
+
+type Notice {
+  content: String!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  id: ID!
+  isFixed: Boolean!
+  isVisible: Boolean!
+  title: String!
+  updateTime: DateTime!
+}
+
+type NoticeAvgAggregate {
+  createdById: Float
+  id: Float
+}
+
+type NoticeCountAggregate {
+  _all: Int!
+  content: Int!
+  createTime: Int!
+  createdById: Int!
+  id: Int!
+  isFixed: Int!
+  isVisible: Int!
+  title: Int!
+  updateTime: Int!
+}
+
+type NoticeMaxAggregate {
+  content: String
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  isFixed: Boolean
+  isVisible: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type NoticeMinAggregate {
+  content: String
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  isFixed: Boolean
+  isVisible: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type NoticeSumAggregate {
+  createdById: Int
+  id: Int
+}
+
+type Problem {
+  _count: ProblemCount!
+  acceptedCount: Int!
+  acceptedRate: Float!
+  announcement: [Announcement!]
+  assignmentProblem: [AssignmentProblem!]
+  contestProblem: [ContestProblem!]
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  description: String!
+  difficulty: Level!
+  engDescription: String
+  engHint: String
+  engInputDescription: String
+  engOutputDescription: String
+  engTitle: String
+  hint: String!
+  id: ID!
+  inputDescription: String!
+  languages: [Language!]
+  memoryLimit: Int!
+  outputDescription: String!
+  problemTag: [ProblemTag!]
+  problemTestcase: [ProblemTestcase!]
+  sharedGroups: [Group!]
+  solution: [JSON!]
+  source: String!
+  submission: [Submission!]
+  submissionCount: Int!
+
+  """
+  template code item structure
+  {
+  "lanaguage": Language,
+  "code": {
+  "id": number,
+  "text": string,
+  "locked": boolean
+  }[]
+  }
+  """
+  template: [JSON!]
+  testSubmission: [TestSubmission!]
+  timeLimit: Int!
+  title: String!
+  updateHistory: [UpdateHistory!]
+  updateTime: DateTime!
+  visibleLockTime: DateTime!
+  workbookProblem: [WorkbookProblem!]
+}
+
+type ProblemAvgAggregate {
+  acceptedCount: Float
+  acceptedRate: Float
+  createdById: Float
+  id: Float
+  memoryLimit: Float
+  submissionCount: Float
+  timeLimit: Float
+}
+
+type ProblemCount {
+  announcement: Int!
+  assignmentProblem: Int!
+  contestProblem: Int!
+  problemTag: Int!
+  problemTestcase: Int!
+  sharedGroups: Int!
+  submission: Int!
+  testSubmission: Int!
+  updateHistory: Int!
+  workbookProblem: Int!
+}
+
+type ProblemCountAggregate {
+  _all: Int!
+  acceptedCount: Int!
+  acceptedRate: Int!
+  createTime: Int!
+  createdById: Int!
+  description: Int!
+  difficulty: Int!
+  engDescription: Int!
+  engHint: Int!
+  engInputDescription: Int!
+  engOutputDescription: Int!
+  engTitle: Int!
+  hint: Int!
+  id: Int!
+  inputDescription: Int!
+  languages: Int!
+  memoryLimit: Int!
+  outputDescription: Int!
+  solution: Int!
+  source: Int!
+  submissionCount: Int!
+  template: Int!
+  timeLimit: Int!
+  title: Int!
+  updateTime: Int!
+  visibleLockTime: Int!
+}
+
+enum ProblemField {
+  description
+  hint
+  languages
+  memoryLimit
+  testcase
+  timeLimit
+  title
+}
+
+type ProblemMaxAggregate {
+  acceptedCount: Int
+  acceptedRate: Float
+  createTime: DateTime
+  createdById: Int
+  description: String
+  difficulty: Level
+  engDescription: String
+  engHint: String
+  engInputDescription: String
+  engOutputDescription: String
+  engTitle: String
+  hint: String
+  id: Int
+  inputDescription: String
+  memoryLimit: Int
+  outputDescription: String
+  source: String
+  submissionCount: Int
+  timeLimit: Int
+  title: String
+  updateTime: DateTime
+  visibleLockTime: DateTime
+}
+
+type ProblemMinAggregate {
+  acceptedCount: Int
+  acceptedRate: Float
+  createTime: DateTime
+  createdById: Int
+  description: String
+  difficulty: Level
+  engDescription: String
+  engHint: String
+  engInputDescription: String
+  engOutputDescription: String
+  engTitle: String
+  hint: String
+  id: Int
+  inputDescription: String
+  memoryLimit: Int
+  outputDescription: String
+  source: String
+  submissionCount: Int
+  timeLimit: Int
+  title: String
+  updateTime: DateTime
+  visibleLockTime: DateTime
+}
+
+type ProblemModel {
+  _count: ProblemCount!
+  acceptedCount: Int!
+  acceptedRate: Float!
+  announcement: [Announcement!]
+  assignmentProblem: [AssignmentProblem!]
+  contestProblem: [ContestProblem!]
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  description: String!
+  difficulty: Level!
+  engDescription: String
+  engHint: String
+  engInputDescription: String
+  engOutputDescription: String
+  engTitle: String
+  hint: String!
+  id: ID!
+  inputDescription: String!
+  isVisible: Boolean
+  languages: [Language!]
+  memoryLimit: Int!
+  outputDescription: String!
+  problemTag: [ProblemTag!]
+  sharedGroups: [Group!]!
+  solution: [JSON!]
+  source: String!
+  submission: [Submission!]
+  submissionCount: Int!
+  tag: [ProblemTag!]!
+
+  """
+  template code item structure
+  {
+  "lanaguage": Language,
+  "code": {
+  "id": number,
+  "text": string,
+  "locked": boolean
+  }[]
+  }
+  """
+  template: [JSON!]
+  testSubmission: [TestSubmission!]
+  testcase: [TestcaseModel!]!
+  timeLimit: Int!
+  title: String!
+  updateHistory: [UpdateHistory!]!
+  updateTime: DateTime!
+  workbookProblem: [WorkbookProblem!]
+}
+
+type ProblemRecord {
+  isFirstSolver: Boolean!
+  order: Int!
+  penalty: Int!
+  problemId: Int!
+  score: Int!
+  submissionCount: Int!
+}
+
+type ProblemScore {
+  maxScore: Int!
+  problemId: Int!
+  score: Float!
+}
+
+input ProblemScoreInput {
+  problemId: Int!
+  score: IntScore!
+}
+
+type ProblemSumAggregate {
+  acceptedCount: Int
+  acceptedRate: Float
+  createdById: Int
+  id: Int
+  memoryLimit: Int
+  submissionCount: Int
+  timeLimit: Int
+}
+
+type ProblemTag {
+  id: ID!
+  problem: Problem!
+  problemId: Int!
+  tag: Tag!
+  tagId: Int!
+}
+
+type ProblemTagAvgAggregate {
+  id: Float
+  problemId: Float
+  tagId: Float
+}
+
+type ProblemTagCountAggregate {
+  _all: Int!
+  id: Int!
+  problemId: Int!
+  tagId: Int!
+}
+
+type ProblemTagMaxAggregate {
+  id: Int
+  problemId: Int
+  tagId: Int
+}
+
+type ProblemTagMinAggregate {
+  id: Int
+  problemId: Int
+  tagId: Int
+}
+
+type ProblemTagSumAggregate {
+  id: Int
+  problemId: Int
+  tagId: Int
+}
+
+type ProblemTestcase {
+  _count: ProblemTestcaseCount!
+  createTime: DateTime!
+  id: ID!
+  input: String
+  isHidden: Boolean!
+  order: Int
+  output: String
+  problem: Problem!
+  problemId: Int!
+  scoreWeight: Int!
+  submissionResult: [SubmissionResult!]
+  updateTime: DateTime!
+}
+
+type ProblemTestcaseAvgAggregate {
+  id: Float
+  order: Float
+  problemId: Float
+  scoreWeight: Float
+}
+
+type ProblemTestcaseCount {
+  submissionResult: Int!
+}
+
+type ProblemTestcaseCountAggregate {
+  _all: Int!
+  createTime: Int!
+  id: Int!
+  input: Int!
+  isHidden: Int!
+  order: Int!
+  output: Int!
+  problemId: Int!
+  scoreWeight: Int!
+  updateTime: Int!
+}
+
+type ProblemTestcaseId {
+  testcaseId: Float!
+}
+
+type ProblemTestcaseMaxAggregate {
+  createTime: DateTime
+  id: Int
+  input: String
+  isHidden: Boolean
+  order: Int
+  output: String
+  problemId: Int
+  scoreWeight: Int
+  updateTime: DateTime
+}
+
+type ProblemTestcaseMinAggregate {
+  createTime: DateTime
+  id: Int
+  input: String
+  isHidden: Boolean
+  order: Int
+  output: String
+  problemId: Int
+  scoreWeight: Int
+  updateTime: DateTime
+}
+
+type ProblemTestcaseResult {
+  input: String!
+  output: String!
+}
+
+type ProblemTestcaseSumAggregate {
+  id: Int
+  order: Int
+  problemId: Int
+  scoreWeight: Int
+}
+
+enum Provider {
+  github
+  google
+  kakao
+  naver
+}
+
+type Query {
+  announcement(contestId: Int!, id: Int!): Announcement!
+  announcementByContestId(contestId: Int!): [AnnouncementWithProblemOrder!]!
+  compressSourceCodes(assignmentId: Int!, groupId: Int!, problemId: Int!): String
+  getAssignment(assignmentId: Int!, groupId: Int!): AssignmentWithParticipants!
+  getAssignmentLatestSubmission(assignmentId: Int!, groupId: Int!, problemId: Int!, userId: Int!): SubmissionDetail!
+  getAssignmentProblemRecord(assignmentId: Int!, groupId: Int!, problemId: Int!, userId: Int!): AssignmentProblemRecord!
+  getAssignmentProblems(assignmentId: Int!, groupId: Int!): [AssignmentProblem!]!
+  getAssignmentScoreSummaries(assignmentId: Int!, cursor: Int, groupId: Int!, searchingName: String, take: Int! = 10): [UserAssignmentScoreSummaryWithUserInfo!]!
+  getAssignmentSubmissionSummaryByUserId(assignmentId: Int!, cursor: Int, groupId: Int!, problemId: Int, take: Int! = 10, userId: Int!): AssignmentSubmissionSummaryForUser!
+  getAssignmentSubmissions(cursor: Int, groupId: Int!, input: GetAssignmentSubmissionsInput!, order: String, take: Int = 10): [AssignmentSubmission!]!
+  getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
+  getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
+  getContest(contestId: Int!): ContestWithParticipants!
+  getContestLeaderboard(contestId: Int!): ContestLeaderboard!
+  getContestProblems(contestId: Int!): [ContestProblem!]!
+  getContestRoles: [UserContest!]!
+  getContestScoreSummaries(contestId: Int!, cursor: Int, searchingName: String, take: Int! = 10): [UserContestScoreSummaryWithUserInfo!]!
+  getContestSubmissionSummaryByUserId(contestId: Int!, cursor: Int, problemId: Int, take: Int! = 10, userId: Int!): ContestSubmissionSummaryForUser!
+  getContestSubmissions(contestId: Int!, cursor: Int, input: GetContestSubmissionsInput!, order: String, take: Int = 10): [ContestSubmission!]!
+  getContestUpdateHistories(contestId: Int!): ContestUpdateHistories!
+  getContests(cursor: Int, take: Int! = 10): [ContestWithParticipants!]!
+  getContestsByProblemId(problemId: Int!): ContestsGroupedByStatus!
+  getCourse(groupId: Int!): FindGroup!
+  getCourses(cursor: Int, take: Int! = 10): [FindGroup!]!
+  getCoursesUserLead: [FindGroup!]!
+  getGroupMember(groupId: Int!, userId: Int!): GroupMember!
+  getGroupMembers(cursor: Int, groupId: Int!, leaderOnly: Boolean! = false, take: Int! = 10): [GroupMember!]!
+  getJoinRequests(groupId: Int!): [User!]!
+  getNotice(noticeId: Int!): Notice!
+  getNotices(cursor: Int, take: Int! = 10): [Notice]!
+  getProblem(id: Int!): ProblemModel!
+  getProblems(contestId: Int, cursor: Int, input: FilterProblemsInput!, mode: String!, take: Int! = 10): [ProblemModel!]!
+  getSubmission(id: Int!): SubmissionDetail!
+  getSubmissions(cursor: Int, problemId: Int!, take: Int = 10): SubmissionsWithTotal!
+  getTags: [Tag!]!
+  getUserByEmailOrStudentId(email: String, groupId: Int!, studentId: String): [User!]!
+  getUsers(cursor: Int, take: Int! = 10): [User!]!
+  getWhitelist(groupId: Int!): [String!]!
+  getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
+  testcases(problemId: Int!): [TestcaseModel!]!
+}
+
+enum ResultStatus {
+  Accepted
+  Blind
+  Canceled
+  CompileError
+  Judging
+  MemoryLimitExceeded
+  OutputLimitExceeded
+  RuntimeError
+  SegmentationFaultError
+  ServerError
+  TimeLimitExceeded
+  WrongAnswer
+}
+
+enum Role {
+  Admin
+  Manager
+  SuperAdmin
+  User
+}
+
+input Snippet {
+  id: Int!
+  locked: Boolean!
+  text: String!
+}
+
+input Solution {
+  code: String!
+  language: Language!
+}
+
+type Submission {
+  _count: SubmissionCount!
+  assignment: Assignment
+  assignmentId: Int
+
+  """
+  code item structure
+  {
+  "id": number,
+  "text": string,
+  "locked": boolean
+  }
+  """
+  code: [JSON!]
+  codeSize: Int
+  contest: Contest
+  contestId: Int
+  createTime: DateTime!
+  id: ID!
+  language: Language!
+  problem: Problem!
+  problemId: Int!
+  result: ResultStatus!
+
+  """100점 만점 기준 점수"""
+  score: Int!
+  submissionResult: [SubmissionResult!]
+  updateTime: DateTime!
+  user: User
+  userId: Int
+  userIp: String
+  workbook: Workbook
+  workbookId: Int
+}
+
+type SubmissionAvgAggregate {
+  assignmentId: Float
+  codeSize: Float
+  contestId: Float
+  id: Float
+  problemId: Float
+  score: Float
+  userId: Float
+  workbookId: Float
+}
+
+type SubmissionCount {
+  submissionResult: Int!
+}
+
+type SubmissionCountAggregate {
+  _all: Int!
+  assignmentId: Int!
+  code: Int!
+  codeSize: Int!
+  contestId: Int!
+  createTime: Int!
+  id: Int!
+  language: Int!
+  problemId: Int!
+  result: Int!
+  score: Int!
+  updateTime: Int!
+  userId: Int!
+  userIp: Int!
+  workbookId: Int!
+}
+
+type SubmissionDetail {
+  assignment: Assignment
+  assignmentId: Int
+  code: String!
+  codeSize: Int
+  contest: Contest
+  contestId: Int
+  createTime: DateTime!
+  id: ID!
+  language: Language!
+  problem: Problem!
+  problemId: Int!
+  result: ResultStatus!
+
+  """100점 만점 기준 점수"""
+  score: Int!
+  testcaseResult: [TestCaseResult!]!
+  updateTime: DateTime!
+  user: User
+  userId: Int
+  userIp: String
+  workbook: Workbook
+  workbookId: Int
+}
+
+type SubmissionMaxAggregate {
+  assignmentId: Int
+  codeSize: Int
+  contestId: Int
+  createTime: DateTime
+  id: Int
+  language: Language
+  problemId: Int
+  result: ResultStatus
+  score: Int
+  updateTime: DateTime
+  userId: Int
+  userIp: String
+  workbookId: Int
+}
+
+type SubmissionMinAggregate {
+  assignmentId: Int
+  codeSize: Int
+  contestId: Int
+  createTime: DateTime
+  id: Int
+  language: Language
+  problemId: Int
+  result: ResultStatus
+  score: Int
+  updateTime: DateTime
+  userId: Int
+  userIp: String
+  workbookId: Int
+}
+
+type SubmissionResult {
+  cpuTime: String
+  createTime: DateTime!
+  id: ID!
+  memoryUsage: Int
+  output: String
+  problemTestcase: ProblemTestcase!
+  problemTestcaseId: Int!
+  result: ResultStatus!
+  submission: Submission!
+  submissionId: Int!
+  updateTime: DateTime!
+}
+
+type SubmissionResultAvgAggregate {
+  cpuTime: Float
+  id: Float
+  memoryUsage: Float
+  problemTestcaseId: Float
+  submissionId: Float
+}
+
+type SubmissionResultCountAggregate {
+  _all: Int!
+  cpuTime: Int!
+  createTime: Int!
+  id: Int!
+  memoryUsage: Int!
+  output: Int!
+  problemTestcaseId: Int!
+  result: Int!
+  submissionId: Int!
+  updateTime: Int!
+}
+
+type SubmissionResultMaxAggregate {
+  cpuTime: String
+  createTime: DateTime
+  id: Int
+  memoryUsage: Int
+  output: String
+  problemTestcaseId: Int
+  result: ResultStatus
+  submissionId: Int
+  updateTime: DateTime
+}
+
+type SubmissionResultMinAggregate {
+  cpuTime: String
+  createTime: DateTime
+  id: Int
+  memoryUsage: Int
+  output: String
+  problemTestcaseId: Int
+  result: ResultStatus
+  submissionId: Int
+  updateTime: DateTime
+}
+
+type SubmissionResultSumAggregate {
+  cpuTime: String
+  id: Int
+  memoryUsage: Int
+  problemTestcaseId: Int
+  submissionId: Int
+}
+
+type SubmissionSumAggregate {
+  assignmentId: Int
+  codeSize: Int
+  contestId: Int
+  id: Int
+  problemId: Int
+  score: Int
+  userId: Int
+  workbookId: Int
+}
+
+type SubmissionsWithTotal {
+  data: [Submission!]!
+  total: Int!
+}
+
+type Tag {
+  _count: TagCount!
+  createTime: DateTime!
+  id: ID!
+  name: String!
+  problemTag: [ProblemTag!]
+  updateTime: DateTime!
+}
+
+type TagAvgAggregate {
+  id: Float
+}
+
+type TagCount {
+  problemTag: Int!
+}
+
+type TagCountAggregate {
+  _all: Int!
+  createTime: Int!
+  id: Int!
+  name: Int!
+  updateTime: Int!
+}
+
+type TagMaxAggregate {
+  createTime: DateTime
+  id: Int
+  name: String
+  updateTime: DateTime
+}
+
+type TagMinAggregate {
+  createTime: DateTime
+  id: Int
+  name: String
+  updateTime: DateTime
+}
+
+type TagSumAggregate {
+  id: Int
+}
+
+input Template {
+  code: [Snippet!]!
+  language: Language!
+}
+
+type TestCaseResult {
+  cpuTime: String
+  createTime: DateTime!
+  id: Int!
+  memoryUsage: Int
+  output: String
+  problemTestcase: ProblemTestcaseResult!
+  problemTestcaseId: Int!
+  result: ResultStatus!
+  submissionId: Int!
+  updateTime: DateTime!
+}
+
+type TestSubmission {
+  assignment: Assignment
+  assignmentId: Int
+  code: [JSON!]
+  codeSize: Int
+  contest: Contest
+  contestId: Int
+  createTime: DateTime!
+  id: ID!
+  isUserTest: Boolean!
+
+  """
+  code item structure
+  {
+  "id": number,
+  "text": string,
+  "locked": boolean
+  }
+  """
+  language: Language!
+  maxCpuTime: String
+  maxMemoryUsage: Int
+  problem: Problem!
+  problemId: Int!
+  updateTime: DateTime!
+  user: User
+  userId: Int
+  userIp: String
+  workbook: Workbook
+  workbookId: Int
+}
+
+type TestSubmissionAvgAggregate {
+  assignmentId: Float
+  codeSize: Float
+  contestId: Float
+  id: Float
+  maxCpuTime: Float
+  maxMemoryUsage: Float
+  problemId: Float
+  userId: Float
+  workbookId: Float
+}
+
+type TestSubmissionCountAggregate {
+  _all: Int!
+  assignmentId: Int!
+  code: Int!
+  codeSize: Int!
+  contestId: Int!
+  createTime: Int!
+  id: Int!
+  isUserTest: Int!
+  language: Int!
+  maxCpuTime: Int!
+  maxMemoryUsage: Int!
+  problemId: Int!
+  updateTime: Int!
+  userId: Int!
+  userIp: Int!
+  workbookId: Int!
+}
+
+type TestSubmissionMaxAggregate {
+  assignmentId: Int
+  codeSize: Int
+  contestId: Int
+  createTime: DateTime
+  id: Int
+  isUserTest: Boolean
+  language: Language
+  maxCpuTime: String
+  maxMemoryUsage: Int
+  problemId: Int
+  updateTime: DateTime
+  userId: Int
+  userIp: String
+  workbookId: Int
+}
+
+type TestSubmissionMinAggregate {
+  assignmentId: Int
+  codeSize: Int
+  contestId: Int
+  createTime: DateTime
+  id: Int
+  isUserTest: Boolean
+  language: Language
+  maxCpuTime: String
+  maxMemoryUsage: Int
+  problemId: Int
+  updateTime: DateTime
+  userId: Int
+  userIp: String
+  workbookId: Int
+}
+
+type TestSubmissionSumAggregate {
+  assignmentId: Int
+  codeSize: Int
+  contestId: Int
+  id: Int
+  maxCpuTime: String
+  maxMemoryUsage: Int
+  problemId: Int
+  userId: Int
+  workbookId: Int
+}
+
+input Testcase {
+  input: String!
+  isHidden: Boolean!
+  output: String!
+  scoreWeight: IntScore
+}
+
+type TestcaseModel {
+  id: Int!
+  input: String!
+  isHidden: Boolean!
+
+  """input/output is so long(over KB) that it is truncated"""
+  isTruncated: Boolean!
+  order: Int
+  output: String!
+  problemId: Int!
+  scoreWeight: Int!
+}
+
+input UpdateAnnouncementInput {
+  """content of announcement"""
+  content: String!
+
+  """id of announcement"""
+  id: Int!
+}
+
+input UpdateAssignmentInput {
+  autoFinalizeScore: Boolean
+  description: String
+  dueTime: DateTime
+  enableCopyPaste: Boolean
+  endTime: DateTime
+  id: Int!
+  invitationCode: String
+  isExercise: Boolean
+  isFinalScoreVisible: Boolean
+  isJudgeResultVisible: Boolean
+  isRankVisible: Boolean
+  isVisible: Boolean
+  startTime: DateTime
+  title: String
+  week: Float
+}
+
+input UpdateAssignmentProblemRecordInput {
+  assignmentId: Int!
+  comment: String
+  finalScore: Int
+  problemId: Int!
+  userId: Int!
+}
+
+input UpdateContestInput {
+  description: String
+  enableCopyPaste: Boolean
+  endTime: DateTime
+  evaluateWithSampleTestcase: Boolean
+  freezeTime: DateTime
+  invitationCode: String
+  isJudgeResultVisible: Boolean
+  lastPenalty: Boolean
+  penalty: Int
+  posterUrl: String
+  startTime: DateTime
+  summary: JSON
+  title: String
+  unfreeze: Boolean
+  userContest: [UserContestInput!]
+}
+
+type UpdateCreationPermissionResult {
+  canCreateContest: Boolean!
+  canCreateCourse: Boolean!
+  id: Int!
+  role: Role!
+}
+
+input UpdateCreationPermissionsInput {
+  canCreateContest: Boolean
+  canCreateCourse: Boolean
+  userId: Int!
+}
+
+type UpdateHistory {
+  id: ID!
+  problem: Problem!
+  problemId: Int!
+  updatedAt: DateTime!
+  updatedBy: User!
+  updatedByid: Int!
+  updatedFields: [ProblemField!]
+  updatedInfo: [JSON!]
+}
+
+type UpdateHistoryAvgAggregate {
+  id: Float
+  problemId: Float
+  updatedByid: Float
+}
+
+type UpdateHistoryCountAggregate {
+  _all: Int!
+  id: Int!
+  problemId: Int!
+  updatedAt: Int!
+  updatedByid: Int!
+  updatedFields: Int!
+  updatedInfo: Int!
+}
+
+type UpdateHistoryMaxAggregate {
+  id: Int
+  problemId: Int
+  updatedAt: DateTime
+  updatedByid: Int
+}
+
+type UpdateHistoryMinAggregate {
+  id: Int
+  problemId: Int
+  updatedAt: DateTime
+  updatedByid: Int
+}
+
+type UpdateHistoryRecord {
+  id: Int!
+  order: Int
+  problemId: Int!
+  updatedAt: DateTime!
+  updatedById: Int!
+  updatedFields: [String!]!
+  updatedInfo: [JSON!]!
+}
+
+type UpdateHistorySumAggregate {
+  id: Int
+  problemId: Int
+  updatedByid: Int
+}
+
+input UpdateNoticeInput {
+  content: String
+  isFixed: Boolean
+  isVisible: Boolean
+  title: String
+}
+
+input UpdateProblemInput {
+  description: String
+  difficulty: Level
+  hint: String
+  id: Int!
+  inputDescription: String
+  isVisible: Boolean
+  languages: [Language!]
+  memoryLimit: Int
+  outputDescription: String
+  solution: [Solution!]
+  source: String
+  tags: UpdateProblemTagInput
+  template: [Template!]
+  testcases: [Testcase!]
+  timeLimit: Int
+  title: String
+}
+
+input UpdateProblemTagInput {
+  create: [Int!]!
+  delete: [Int!]!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+input UploadFileInput {
+  file: Upload!
+}
+
+input UploadTestcaseZipInput {
+  file: Upload!
+  problemId: Int!
+}
+
+type User {
+  UpdateHistory: [UpdateHistory!]
+  _count: UserCount!
+  assignment: [Assignment!]
+  assignmentRecord: [AssignmentRecord!]
+  canCreateContest: Boolean!
+  canCreateCourse: Boolean!
+  contest: [Contest!]
+  contestRecord: [ContestRecord!]
+  createTime: DateTime!
+  email: String!
+  file: [File!]
+  id: ID!
+  lastLogin: DateTime
+  major: String
+  notice: [Notice!]
+  problem: [Problem!]
+  role: Role!
+  studentId: String!
+  submission: [Submission!]
+  testSubmission: [TestSubmission!]
+  updateTime: DateTime!
+  userContest: [UserContest!]
+  userGroup: [UserGroup!]
+  userProfile: UserProfile
+  username: String!
+  useroauth: UserOAuth
+  workbook: [Workbook!]
+}
+
+type UserAssignmentScoreSummary {
+  assignmentPerfectScore: Int!
+  problemScores: [AssignmentProblemScore!]!
+  submittedProblemCount: Int!
+  totalProblemCount: Int!
+  userAssignmentFinalScore: Float
+  userAssignmentScore: Float!
+}
+
+type UserAssignmentScoreSummaryWithUserInfo {
+  assignmentPerfectScore: Int!
+  major: String!
+  problemScores: [AssignmentProblemScore!]!
+  realName: String
+  studentId: String!
+  submittedProblemCount: Int!
+  totalProblemCount: Int!
+  userAssignmentFinalScore: Float
+  userAssignmentScore: Float!
+  userId: Int!
+  username: String!
+}
+
+type UserAvgAggregate {
+  id: Float
+}
+
+type UserContest {
+  contest: Contest!
+  contestId: Int!
+  id: ID!
+  role: ContestRole!
+  user: User
+  userId: Int
+}
+
+type UserContestAvgAggregate {
+  contestId: Float
+  id: Float
+  userId: Float
+}
+
+type UserContestCountAggregate {
+  _all: Int!
+  contestId: Int!
+  id: Int!
+  role: Int!
+  userId: Int!
+}
+
+input UserContestInput {
+  contestRole: String!
+  userId: Int!
+}
+
+type UserContestMaxAggregate {
+  contestId: Int
+  id: Int
+  role: ContestRole
+  userId: Int
+}
+
+type UserContestMinAggregate {
+  contestId: Int
+  id: Int
+  role: ContestRole
+  userId: Int
+}
+
+type UserContestScoreSummary {
+  contestPerfectScore: Int!
+  problemScores: [ProblemScore!]!
+  submittedProblemCount: Int!
+  totalProblemCount: Int!
+  userContestScore: Float!
+}
+
+type UserContestScoreSummaryWithUserInfo {
+  contestPerfectScore: Int!
+  major: String!
+  problemScores: [ProblemScore!]!
+  realName: String
+  studentId: String!
+  submittedProblemCount: Int!
+  totalProblemCount: Int!
+  userContestScore: Float!
+  userId: Int!
+  username: String!
+}
+
+type UserContestSumAggregate {
+  contestId: Int
+  id: Int
+  userId: Int
+}
+
+type UserCount {
+  UpdateHistory: Int!
+  assignment: Int!
+  assignmentRecord: Int!
+  contest: Int!
+  contestRecord: Int!
+  file: Int!
+  notice: Int!
+  problem: Int!
+  submission: Int!
+  testSubmission: Int!
+  userContest: Int!
+  userGroup: Int!
+  workbook: Int!
+}
+
+type UserCountAggregate {
+  _all: Int!
+  canCreateContest: Int!
+  canCreateCourse: Int!
+  createTime: Int!
+  email: Int!
+  id: Int!
+  lastLogin: Int!
+  major: Int!
+  role: Int!
+  studentId: Int!
+  updateTime: Int!
+  username: Int!
+}
+
+type UserGroup {
+  createTime: DateTime!
+  group: Group!
+  groupId: Int!
+  isGroupLeader: Boolean!
+  updateTime: DateTime!
+  user: User!
+  userId: Int!
+}
+
+type UserGroupAvgAggregate {
+  groupId: Float
+  userId: Float
+}
+
+type UserGroupCountAggregate {
+  _all: Int!
+  createTime: Int!
+  groupId: Int!
+  isGroupLeader: Int!
+  updateTime: Int!
+  userId: Int!
+}
+
+type UserGroupMaxAggregate {
+  createTime: DateTime
+  groupId: Int
+  isGroupLeader: Boolean
+  updateTime: DateTime
+  userId: Int
+}
+
+type UserGroupMinAggregate {
+  createTime: DateTime
+  groupId: Int
+  isGroupLeader: Boolean
+  updateTime: DateTime
+  userId: Int
+}
+
+type UserGroupSumAggregate {
+  groupId: Int
+  userId: Int
+}
+
+type UserMaxAggregate {
+  canCreateContest: Boolean
+  canCreateCourse: Boolean
+  createTime: DateTime
+  email: String
+  id: Int
+  lastLogin: DateTime
+  major: String
+  role: Role
+  studentId: String
+  updateTime: DateTime
+  username: String
+}
+
+type UserMinAggregate {
+  canCreateContest: Boolean
+  canCreateCourse: Boolean
+  createTime: DateTime
+  email: String
+  id: Int
+  lastLogin: DateTime
+  major: String
+  role: Role
+  studentId: String
+  updateTime: DateTime
+  username: String
+}
+
+type UserOAuth {
+  createTime: DateTime!
+  id: String!
+  provider: Provider!
+  updateTime: DateTime!
+  user: User!
+  userId: Int!
+}
+
+type UserOAuthAvgAggregate {
+  userId: Float
+}
+
+type UserOAuthCountAggregate {
+  _all: Int!
+  createTime: Int!
+  id: Int!
+  provider: Int!
+  updateTime: Int!
+  userId: Int!
+}
+
+type UserOAuthMaxAggregate {
+  createTime: DateTime
+  id: String
+  provider: Provider
+  updateTime: DateTime
+  userId: Int
+}
+
+type UserOAuthMinAggregate {
+  createTime: DateTime
+  id: String
+  provider: Provider
+  updateTime: DateTime
+  userId: Int
+}
+
+type UserOAuthSumAggregate {
+  userId: Int
+}
+
+type UserProfile {
+  createTime: DateTime!
+  id: ID!
+  realName: String!
+  updateTime: DateTime!
+  user: User!
+  userId: Int!
+}
+
+type UserProfileAvgAggregate {
+  id: Float
+  userId: Float
+}
+
+type UserProfileCountAggregate {
+  _all: Int!
+  createTime: Int!
+  id: Int!
+  realName: Int!
+  updateTime: Int!
+  userId: Int!
+}
+
+type UserProfileMaxAggregate {
+  createTime: DateTime
+  id: Int
+  realName: String
+  updateTime: DateTime
+  userId: Int
+}
+
+type UserProfileMinAggregate {
+  createTime: DateTime
+  id: Int
+  realName: String
+  updateTime: DateTime
+  userId: Int
+}
+
+type UserProfileSumAggregate {
+  id: Int
+  userId: Int
+}
+
+type UserSumAggregate {
+  id: Int
+}
+
+type Workbook {
+  _count: WorkbookCount!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  description: String!
+  group: Group!
+  groupId: Int!
+  id: ID!
+  isVisible: Boolean!
+  submission: [Submission!]
+  testSubmission: [TestSubmission!]
+  title: String!
+  updateTime: DateTime!
+  workbookProblem: [WorkbookProblem!]
+}
+
+type WorkbookAvgAggregate {
+  createdById: Float
+  groupId: Float
+  id: Float
+}
+
+type WorkbookCount {
+  submission: Int!
+  testSubmission: Int!
+  workbookProblem: Int!
+}
+
+type WorkbookCountAggregate {
+  _all: Int!
+  createTime: Int!
+  createdById: Int!
+  description: Int!
+  groupId: Int!
+  id: Int!
+  isVisible: Int!
+  title: Int!
+  updateTime: Int!
+}
+
+type WorkbookMaxAggregate {
+  createTime: DateTime
+  createdById: Int
+  description: String
+  groupId: Int
+  id: Int
+  isVisible: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type WorkbookMinAggregate {
+  createTime: DateTime
+  createdById: Int
+  description: String
+  groupId: Int
+  id: Int
+  isVisible: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type WorkbookProblem {
+  createTime: DateTime!
+  order: Int!
+  problem: ProblemModel!
+  problemId: Int!
+  updateTime: DateTime!
+  workbook: Workbook!
+  workbookId: Int!
+}
+
+type WorkbookProblemAvgAggregate {
+  order: Float
+  problemId: Float
+  workbookId: Float
+}
+
+type WorkbookProblemCountAggregate {
+  _all: Int!
+  createTime: Int!
+  order: Int!
+  problemId: Int!
+  updateTime: Int!
+  workbookId: Int!
+}
+
+type WorkbookProblemMaxAggregate {
+  createTime: DateTime
+  order: Int
+  problemId: Int
+  updateTime: DateTime
+  workbookId: Int
+}
+
+type WorkbookProblemMinAggregate {
+  createTime: DateTime
+  order: Int
+  problemId: Int
+  updateTime: DateTime
+  workbookId: Int
+}
+
+type WorkbookProblemSumAggregate {
+  order: Int
+  problemId: Int
+  workbookId: Int
+}
+
+type WorkbookSumAggregate {
+  createdById: Int
+  groupId: Int
+  id: Int
+}
