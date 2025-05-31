@@ -94,7 +94,7 @@ services:
 
   caddy:
     profiles: ['deploy']
-    image: caddy:2.8.4-alpine
+    image: caddy:2.10.0-alpine
     container_name: caddy
     restart: always
     ports:
