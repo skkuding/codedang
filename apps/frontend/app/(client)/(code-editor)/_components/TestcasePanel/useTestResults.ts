@@ -7,7 +7,7 @@ import { useShallow } from 'zustand/shallow'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 import { useTestcaseStore } from '../context/TestcaseStoreProvider'
 
-const MAX_ATTEMPTS = 10
+const MAX_ATTEMPTS = 100
 const REFETCH_INTERVAL = 2000
 
 const useGetTestResult = (type: 'sample' | 'user') => {
