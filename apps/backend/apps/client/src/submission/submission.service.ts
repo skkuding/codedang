@@ -910,6 +910,8 @@ export class SubmissionService {
    */
   @Span()
   async checkDelay(): Promise<{ isDelay: boolean; cause?: string }> {
+    return { isDelay: false }
+    
     const baseUrl = this.configService.get(
       'RABBITMQ_API_URL',
       'http://127.0.0.1:15672/api'
