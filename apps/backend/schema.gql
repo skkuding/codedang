@@ -178,7 +178,7 @@ type AssignmentProblem {
   assignmentProblemRecord: [AssignmentProblemRecord!]
   createTime: DateTime!
   order: Int!
-  problem: ProblemModel!
+  problem: ProblemWithIsVisible!
   problemId: Int!
   score: Int!
   solutionReleaseTime: DateTime
@@ -659,7 +659,7 @@ type ContestProblem {
   createTime: DateTime!
   id: ID!
   order: Int!
-  problem: ProblemModel!
+  problem: ProblemWithIsVisible!
   problemId: Int!
   score: Int!
   updateTime: DateTime!
@@ -1503,7 +1503,7 @@ type Mutation {
   createContest(input: CreateContestInput!): Contest!
   createCourse(input: CourseInput!): Group!
   createNotice(input: CreateNoticeInput!): Notice!
-  createProblem(input: CreateProblemInput!): ProblemModel!
+  createProblem(input: CreateProblemInput!): ProblemWithIsVisible!
   createTag(tagName: String!): Tag!
   createTestcases(input: CreateTestcasesInput!): [ProblemTestcaseId!]!
   createWhitelist(groupId: Int!, studentIds: [String!]!): Float!
@@ -1513,7 +1513,7 @@ type Mutation {
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
   deleteNotice(noticeId: Int!): Notice!
-  deleteProblem(id: Int!): ProblemModel!
+  deleteProblem(id: Int!): ProblemWithIsVisible!
   deleteTag(tagName: String!): Tag!
   deleteWhitelist(groupId: Int!): Float!
   duplicateAssignment(assignmentId: Int!, groupId: Int!): DuplicatedAssignmentResponse!
@@ -1539,11 +1539,11 @@ type Mutation {
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
   updateNotice(input: UpdateNoticeInput!, noticeId: Int!): Notice!
-  updateProblem(input: UpdateProblemInput!): ProblemModel!
+  updateProblem(input: UpdateProblemInput!): ProblemWithIsVisible!
   updateWorkbookProblemsOrder(groupId: Int!, orders: [Int!]!, workbookId: Int!): [WorkbookProblem!]!
   uploadFile(input: UploadFileInput!): FileSource!
   uploadImage(input: UploadFileInput!): FileSource!
-  uploadProblems(input: UploadFileInput!): [ProblemModel!]!
+  uploadProblems(input: UploadFileInput!): [ProblemWithIsVisible!]!
   uploadTestcase(input: UploadFileInput!, problemId: Int!): ProblemTestcase!
   uploadTestcaseZip(input: UploadTestcaseZipInput!): [ProblemTestcaseId!]!
 }
@@ -1768,59 +1768,6 @@ type ProblemMinAggregate {
   visibleLockTime: DateTime
 }
 
-type ProblemModel {
-  _count: ProblemCount!
-  acceptedCount: Int!
-  acceptedRate: Float!
-  announcement: [Announcement!]
-  assignmentProblem: [AssignmentProblem!]
-  contestProblem: [ContestProblem!]
-  createTime: DateTime!
-  createdBy: User
-  createdById: Int
-  description: String!
-  difficulty: Level!
-  engDescription: String
-  engHint: String
-  engInputDescription: String
-  engOutputDescription: String
-  engTitle: String
-  hint: String!
-  id: ID!
-  inputDescription: String!
-  isVisible: Boolean
-  languages: [Language!]
-  memoryLimit: Int!
-  outputDescription: String!
-  problemTag: [ProblemTag!]
-  sharedGroups: [Group!]!
-  solution: [JSON!]
-  source: String!
-  submission: [Submission!]
-  submissionCount: Int!
-  tag: [ProblemTag!]!
-
-  """
-  template code item structure
-  {
-  "lanaguage": Language,
-  "code": {
-  "id": number,
-  "text": string,
-  "locked": boolean
-  }[]
-  }
-  """
-  template: [JSON!]
-  testSubmission: [TestSubmission!]
-  testcase: [TestcaseModel!]!
-  timeLimit: Int!
-  title: String!
-  updateHistory: [UpdateHistory!]!
-  updateTime: DateTime!
-  workbookProblem: [WorkbookProblem!]
-}
-
 type ProblemRecord {
   isFirstSolver: Boolean!
   order: Int!
@@ -1969,6 +1916,60 @@ type ProblemTestcaseSumAggregate {
   scoreWeight: Int
 }
 
+type ProblemWithIsVisible {
+  _count: ProblemCount!
+  acceptedCount: Int!
+  acceptedRate: Float!
+  announcement: [Announcement!]
+  assignmentProblem: [AssignmentProblem!]
+  contestProblem: [ContestProblem!]
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  description: String!
+  difficulty: Level!
+  engDescription: String
+  engHint: String
+  engInputDescription: String
+  engOutputDescription: String
+  engTitle: String
+  hint: String!
+  id: ID!
+  inputDescription: String!
+  isVisible: Boolean
+  languages: [Language!]
+  memoryLimit: Int!
+  outputDescription: String!
+  problemTag: [ProblemTag!]
+  problemTestcase: [ProblemTestcase!]
+  sharedGroups: [Group!]!
+  solution: [JSON!]
+  source: String!
+  submission: [Submission!]
+  submissionCount: Int!
+  tag: [ProblemTag!]!
+
+  """
+  template code item structure
+  {
+  "lanaguage": Language,
+  "code": {
+  "id": number,
+  "text": string,
+  "locked": boolean
+  }[]
+  }
+  """
+  template: [JSON!]
+  testSubmission: [TestSubmission!]
+  testcase: [ProblemTestcase!]!
+  timeLimit: Int!
+  title: String!
+  updateHistory: [UpdateHistory!]!
+  updateTime: DateTime!
+  workbookProblem: [WorkbookProblem!]
+}
+
 enum Provider {
   github
   google
@@ -2007,8 +2008,8 @@ type Query {
   getJoinRequests(groupId: Int!): [User!]!
   getNotice(noticeId: Int!): Notice!
   getNotices(cursor: Int, take: Int! = 10): [Notice]!
-  getProblem(id: Int!): ProblemModel!
-  getProblems(contestId: Int, cursor: Int, input: FilterProblemsInput!, mode: String!, take: Int! = 10): [ProblemModel!]!
+  getProblem(id: Int!): ProblemWithIsVisible!
+  getProblems(contestId: Int, cursor: Int, input: FilterProblemsInput!, mode: String!, take: Int! = 10): [ProblemWithIsVisible!]!
   getSubmission(id: Int!): SubmissionDetail!
   getSubmissions(cursor: Int, problemId: Int!, take: Int = 10): SubmissionsWithTotal!
   getTags: [Tag!]!
@@ -2016,7 +2017,6 @@ type Query {
   getUsers(cursor: Int, take: Int! = 10): [User!]!
   getWhitelist(groupId: Int!): [String!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
-  testcases(problemId: Int!): [TestcaseModel!]!
 }
 
 enum ResultStatus {
@@ -2435,19 +2435,6 @@ input Testcase {
   isHidden: Boolean!
   output: String!
   scoreWeight: IntScore
-}
-
-type TestcaseModel {
-  id: Int!
-  input: String!
-  isHidden: Boolean!
-
-  """input/output is so long(over KB) that it is truncated"""
-  isTruncated: Boolean!
-  order: Int
-  output: String!
-  problemId: Int!
-  scoreWeight: Int!
 }
 
 input UpdateAnnouncementInput {
@@ -3001,7 +2988,7 @@ type WorkbookMinAggregate {
 type WorkbookProblem {
   createTime: DateTime!
   order: Int!
-  problem: ProblemModel!
+  problem: ProblemWithIsVisible!
   problemId: Int!
   updateTime: DateTime!
   workbook: Workbook!
