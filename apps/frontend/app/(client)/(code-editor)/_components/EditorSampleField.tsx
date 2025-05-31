@@ -9,6 +9,10 @@ interface EditorSampleFieldProps {
 }
 
 export function EditorSampleField({ problemTestCase }: EditorSampleFieldProps) {
+  problemTestCase = problemTestCase.sort(
+    (a, b) => (a.order ?? 0) - (b.order ?? 0)
+  )
+
   return (
     <div>
       {problemTestCase.map(({ id, input, output }, index) => {
