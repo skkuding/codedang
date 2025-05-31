@@ -44,7 +44,8 @@ const problemSelectOption: Prisma.ProblemSelect = {
     select: {
       id: true,
       input: true,
-      output: true
+      output: true,
+      order: true
     }
   }
 }
@@ -463,6 +464,10 @@ export class ContestProblemService {
         }
       }
     })
+
+    data.problem.problemTestcase = data.problem.problemTestcase.sort(
+      (a, b) => (a.order ?? a.id) - (b.order ?? b.id)
+    )
 
     data.problem.problemTestcase = await Promise.all(
       data.problem.problemTestcase.map(async (testcase) => {
