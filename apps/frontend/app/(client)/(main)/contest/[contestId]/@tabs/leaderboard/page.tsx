@@ -133,6 +133,13 @@ export default function ContestLeaderBoard() {
           CHECK YOUR RANKING!
         </div>
         <LeaderboardModalDialog />
+        <div className="text-primary ml-8 flex items-center gap-3">
+          On Live
+          <span class="relative flex size-3">
+            <span class="bg-primary-light absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+            <span class="bg-primary relative inline-flex size-3 rounded-full" />
+          </span>
+        </div>
       </div>
       <div className="relative mb-[62px] mt-[30px]">
         <Image
