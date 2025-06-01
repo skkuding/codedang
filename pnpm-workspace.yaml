@@ -1,2 +1,4 @@
 packages:
   - apps/*
+
+inject-workspace-packages: true
