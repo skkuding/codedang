@@ -50,16 +50,8 @@ export function EditProblemForm({
     onCompleted: (problemData) => {
       const data = problemData.getProblem
 
-      // HACK: This is a workaround for migrating testcase to separated query/mutation.
-      // After migration, testcase input/output is not going to passed through 'getProblem' and 'updateProblem'
-      const testcases = data.testcase.map((testcase) => ({
-        ...testcase,
-        input: testcase.input ?? '',
-        output: testcase.output ?? ''
-      }))
-
       const initialFormValues = {
-        testcases,
+        testcases: data.testcase,
         timeLimit: data.timeLimit,
         memoryLimit: data.memoryLimit
       }
@@ -71,19 +63,22 @@ export function EditProblemForm({
         isVisible: data.isVisible,
         difficulty: data.difficulty,
         languages: data.languages ?? [],
-        tags: {
-          create: data.tag.map(({ tag }) => Number(tag.id)),
-          delete: data.tag.map(({ tag }) => Number(tag.id))
-        },
         description: data.description,
         inputDescription: data.inputDescription || '<p></p>',
         outputDescription: data.outputDescription || '<p></p>',
-        testcases,
+        testcases: data.testcase,
         timeLimit: data.timeLimit,
         memoryLimit: data.memoryLimit,
         hint: data.hint,
         source: data.source
       })
+
+      if (data.testcase.some((testcase) => testcase.isTruncated)) {
+        toast.warning(
+          'Some testcases are over 5KB and has been truncated from this browser.',
+          { duration: 60 * 1000 }
+        )
+      }
 
       if (data.template) {
         const templates = JSON.parse(data.template[0])

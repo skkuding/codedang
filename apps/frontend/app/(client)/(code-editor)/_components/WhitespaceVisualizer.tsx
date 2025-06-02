@@ -27,7 +27,7 @@ export function WhitespaceVisualizer({
   } else {
     highlightedWhitespaceText = text
       .replaceAll(/ /g, `<span style="${whitespaceStyle}">␣</span>`)
-      .replaceAll(/\n/g, `<span style="${whitespaceStyle}">↵</span>\n`)
+      .replaceAll(/\r\n|\n/g, `<span style="${whitespaceStyle}">↵</span>\n`)
       .replaceAll(/\t/g, `<span style="${whitespaceStyle}">↹</span>`)
 
     const lines = highlightedWhitespaceText.split('\n')

@@ -17,7 +17,6 @@ const main = async () => {
 const setupMediaBucket = async () => {
   const client = new S3Client({
     region: 'ap-northeast-2',
-    // endpoint: process.env.TESTCASE_ENDPOINT_URL,
     endpoint: process.env.STORAGE_BUCKET_ENDPOINT_URL,
     forcePathStyle: true, // required for minio
     credentials: {
@@ -64,7 +63,6 @@ const setupMediaBucket = async () => {
 const setupTestcaseBucket = async () => {
   const client = new S3Client({
     region: 'ap-northeast-2',
-    // endpoint: process.env.TESTCASE_ENDPOINT_URL,
     endpoint: process.env.STORAGE_BUCKET_ENDPOINT_URL,
     forcePathStyle: true, // required for minio
     credentials: {

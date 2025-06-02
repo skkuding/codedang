@@ -1,7 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   DeleteObjectCommand,
+  HeadObjectCommand,
   ListObjectsV2Command,
   GetObjectCommand,
   PutObjectCommand,
@@ -13,6 +14,7 @@ import { type ContentType, ContentTypes } from './content.type'
 
 @Injectable()
 export class StorageService {
+  private readonly logger = new Logger(StorageService.name)
   constructor(
     private readonly config: ConfigService,
     @Inject('S3_CLIENT') private readonly client: S3Client,
@@ -88,20 +90,50 @@ export class StorageService {
   }
 
   /**
-   * @deprecated testcase를 더 이상 S3에 저장하지 않습니다.
+   * S3 Bucket에서 파일을 읽어옵니다.
    *
-   * Object(testcase)를 불러옵니다.
    * @param filename 파일 이름
-   * @returns S3에 저장된 Object
+   * @param bucket Bucket type to read from ('testcase' or 'media')
+   * @param options Optional parameters
+   * @param options.readBytes Read only a certain number of bytes
    */
-  async readObject(filename: string) {
-    const res = await this.client.send(
-      new GetObjectCommand({
-        Bucket: this.config.get('TESTCASE_BUCKET_NAME'),
+  async readObject(
+    filename: string,
+    bucket: 'testcase' | 'media',
+    options?: {
+      readBytes?: number
+    }
+  ) {
+    const bucketName = this.config.get(
+      bucket == 'testcase' ? 'TESTCASE_BUCKET_NAME' : 'MEDIA_BUCKET_NAME'
+    )
+
+    this.logger.debug(`Reading file ${filename} from ${bucketName}`)
+    const head = await this.client.send(
+      new HeadObjectCommand({
+        Bucket: bucketName,
         Key: filename
       })
     )
-    return res.Body?.transformToString() ?? ''
+    const size = head.ContentLength ?? 0
+    const range =
+      options?.readBytes && size > options.readBytes
+        ? `bytes=0-${options.readBytes}`
+        : undefined
+
+    const output = await this.client.send(
+      new GetObjectCommand({
+        Bucket: bucketName,
+        Key: filename,
+        Range: range
+      })
+    )
+    if (output.Body == null) {
+      throw new Error('File not found')
+    }
+
+    const text = await output.Body.transformToString()
+    return text
   }
 
   /**
