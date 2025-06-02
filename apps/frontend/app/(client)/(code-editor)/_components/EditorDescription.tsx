@@ -10,7 +10,6 @@ import {
 } from '@/components/shadcn/accordion'
 import { Badge } from '@/components/shadcn/badge'
 import { convertToLetter } from '@/libs/utils'
-import type { ProblemDetail } from '@/types/type'
 import DOMPurify from 'isomorphic-dompurify'
 import { EditorSampleField } from './EditorSampleField'
 import { ReferenceDialog } from './ReferenceDialog'
