@@ -62,14 +62,14 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
               <TabsList className="rounded bg-slate-900">
                 <TabsTrigger
                   value="Description"
-                  className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                  className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                   onClick={() => setTabValue('Description')}
                 >
                   Description
                 </TabsTrigger>
                 <TabsTrigger
                   value="Submission"
-                  className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                  className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                   onClick={() => setTabValue('Submission')}
                 >
                   Submission
@@ -77,7 +77,7 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
                 {hasSolution && (
                   <TabsTrigger
                     value="Solution"
-                    className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                    className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                     onClick={() => setTabValue('Solution')}
                   >
                     Solution

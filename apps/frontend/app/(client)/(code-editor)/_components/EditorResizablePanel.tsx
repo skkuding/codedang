@@ -176,7 +176,7 @@ export function EditorMainResizablePanel({
                 <Link replace href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
-                    className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                    className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                   >
                     Description
                   </TabsTrigger>
@@ -187,7 +187,7 @@ export function EditorMainResizablePanel({
                 >
                   <TabsTrigger
                     value="Submission"
-                    className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                    className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                   >
                     Submissions
                   </TabsTrigger>
@@ -199,7 +199,7 @@ export function EditorMainResizablePanel({
                   >
                     <TabsTrigger
                       value="Solution"
-                      className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                      className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                     >
                       Solution
                     </TabsTrigger>
@@ -214,7 +214,7 @@ export function EditorMainResizablePanel({
                   >
                     <TabsTrigger
                       value="Leaderboard"
-                      className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                      className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                     >
                       Leaderboard
                     </TabsTrigger>
