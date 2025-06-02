@@ -151,6 +151,7 @@ export default function Page({
                   problems={problems}
                   setProblems={setProblems}
                   disableInput={false}
+                  isExercise={true}
                 />
               </div>
 

@@ -192,19 +192,21 @@ export function EditorMainResizablePanel({
                     Submissions
                   </TabsTrigger>
                 </Link>
-                {assignmentId && (
-                  <Link
-                    replace
-                    href={`${base}/problem/${problem.id}/solution` as Route}
-                  >
-                    <TabsTrigger
-                      value="Solution"
-                      className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
+                {assignmentId &&
+                  problem.solution &&
+                  problem.solution.length > 0 && (
+                    <Link
+                      replace
+                      href={`${base}/problem/${problem.id}/solution` as Route}
                     >
-                      Solution
-                    </TabsTrigger>
-                  </Link>
-                )}
+                      <TabsTrigger
+                        value="Solution"
+                        className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
+                      >
+                        Solution
+                      </TabsTrigger>
+                    </Link>
+                  )}
                 {contestId && (
                   <Link
                     replace
