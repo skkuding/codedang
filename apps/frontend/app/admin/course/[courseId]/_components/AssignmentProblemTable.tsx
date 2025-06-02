@@ -14,7 +14,7 @@ export function AssignmentProblemTable({
   problems,
   setProblems,
   disableInput,
-  isExercise = true
+  isExercise = false
 }: AssignmentProblemTableProps) {
   const columns = useMemo(
     () => createColumns(setProblems, disableInput, isExercise),
