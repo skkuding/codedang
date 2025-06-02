@@ -120,6 +120,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                   problems={problems}
                   setProblems={setProblems}
                   disableInput={false}
+                  isExercise={true}
                 />
               </div>
 
