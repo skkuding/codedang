@@ -7,16 +7,18 @@ interface AssignmentProblemTableProps {
   problems: AssignmentProblem[]
   setProblems: Dispatch<SetStateAction<AssignmentProblem[]>>
   disableInput: boolean
+  isExercise?: boolean
 }
 
 export function AssignmentProblemTable({
   problems,
   setProblems,
-  disableInput
+  disableInput,
+  isExercise = true
 }: AssignmentProblemTableProps) {
   const columns = useMemo(
-    () => createColumns(setProblems, disableInput),
-    [setProblems, disableInput]
+    () => createColumns(setProblems, disableInput, isExercise),
+    [setProblems, disableInput, isExercise]
   )
 
   return (

@@ -5,13 +5,18 @@ import { ContainedContests } from '@/app/admin/problem/_components/ContainedCont
 import { Badge } from '@/components/shadcn/badge'
 import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
-import type { ColumnDef } from '@tanstack/react-table'
+import type {
+  CellContext,
+  ColumnDef,
+  HeaderContext
+} from '@tanstack/react-table'
 import { toast } from 'sonner'
 import type { AssignmentProblem } from '../../_libs/type'
 
 export const createColumns = (
   setProblems: React.Dispatch<React.SetStateAction<AssignmentProblem[]>>,
-  disableInput: boolean
+  disableInput: boolean,
+  isExercise: boolean
 ): ColumnDef<AssignmentProblem>[] => [
   {
     accessorKey: 'title',
@@ -25,58 +30,66 @@ export const createColumns = (
     enableSorting: false,
     enableHiding: false
   },
-  {
-    accessorKey: 'score',
-    header: () => <p className="text-center text-sm">Score</p>,
-    cell: ({ row }) => (
-      <div
-        className="flex justify-center"
-        onClick={() => {
-          if (disableInput) {
-            toast.error('Problem scoring cannot be edited')
-          }
-        }}
-      >
-        <Input
-          disabled={disableInput}
-          defaultValue={row.getValue('score')}
-          className="hide-spin-button w-[70px] text-center focus-visible:ring-0 disabled:pointer-events-none"
-          type="number"
-          min={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              const target = e.target as HTMLInputElement
-              target.blur()
-            }
-          }}
-          onBlur={(event) => {
-            setProblems((prevProblems: AssignmentProblem[]) =>
-              prevProblems.map((problem) =>
-                problem.id === row.original.id
-                  ? { ...problem, score: Number(event.target.value) }
-                  : problem
-              )
-            )
-          }}
-        />
-      </div>
-    ),
-    footer: ({ table }) => (
-      <div className="flex justify-center">
-        <Input
-          disabled={true}
-          className="w-[70px] text-center focus-visible:ring-0"
-          value={table
-            .getCoreRowModel()
-            .rows.map((row) => row.original)
-            .reduce((total, problem) => total + problem.score, 0)}
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false
-  },
+  ...(!isExercise
+    ? [
+        {
+          accessorKey: 'score',
+          header: () => <p className="text-center text-sm">Score</p>,
+          cell: ({ row }: CellContext<AssignmentProblem, unknown>) => (
+            <div
+              className="flex justify-center"
+              onClick={() => {
+                if (disableInput) {
+                  toast.error('Problem scoring cannot be edited')
+                }
+              }}
+            >
+              <Input
+                disabled={disableInput}
+                defaultValue={row.getValue('score')}
+                className="hide-spin-button w-[70px] text-center focus-visible:ring-0 disabled:pointer-events-none"
+                type="number"
+                min={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    const target = e.target as HTMLInputElement
+                    target.blur()
+                  }
+                }}
+                onBlur={(event) => {
+                  setProblems((prevProblems: AssignmentProblem[]) =>
+                    prevProblems.map((problem) =>
+                      problem.id === row.original.id
+                        ? { ...problem, score: Number(event.target.value) }
+                        : problem
+                    )
+                  )
+                }}
+              />
+            </div>
+          ),
+          footer: ({ table }: HeaderContext<AssignmentProblem, unknown>) => (
+            <div className="flex justify-center">
+              <Input
+                disabled={true}
+                className="w-[70px] text-center focus-visible:ring-0"
+                value={table
+                  .getCoreRowModel()
+                  .rows.map((row) => row.original)
+                  .reduce(
+                    (total: number, problem: AssignmentProblem) =>
+                      total + problem.score,
+                    0
+                  )}
+              />
+            </div>
+          ),
+          enableSorting: false,
+          enableHiding: false
+        }
+      ]
+    : []),
   {
     accessorKey: 'order',
     header: () => <p className="text-center text-sm">Order</p>,
