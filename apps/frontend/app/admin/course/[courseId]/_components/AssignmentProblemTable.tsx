@@ -1,7 +1,8 @@
 import { DataTable, DataTableRoot } from '@/app/admin/_components/table'
 import { useMemo, type Dispatch, type SetStateAction } from 'react'
 import type { AssignmentProblem } from '../_libs/type'
-import { createColumns } from '../assignment/_components/AssignmentProblemColumns'
+import { createAssignmentColumns } from '../assignment/_components/AssignmentProblemColumns'
+import { createExerciseColumns } from '../exercise/_components/ExerciseProblemColumns'
 
 interface AssignmentProblemTableProps {
   problems: AssignmentProblem[]
@@ -17,7 +18,10 @@ export function AssignmentProblemTable({
   isExercise = false
 }: AssignmentProblemTableProps) {
   const columns = useMemo(
-    () => createColumns(setProblems, disableInput, isExercise),
+    () =>
+      isExercise
+        ? createExerciseColumns(setProblems, disableInput)
+        : createAssignmentColumns(setProblems, disableInput),
     [setProblems, disableInput, isExercise]
   )
 
