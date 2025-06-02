@@ -6,9 +6,11 @@ import (
 	"net/http"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Producer interface {
@@ -102,18 +104,27 @@ func (p *producer) confirmHandler(confirms chan amqp.Confirmation) {
 }
 
 func (p *producer) Publish(result []byte, ctx context.Context, messageType string) error {
+	span := trace.SpanFromContext(ctx)
+	tracer := otel.Tracer("Producer")
+	spanCtx, childSpan := tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("producer", "publish"),
+		trace.WithLinks(trace.Link{SpanContext: span.SpanContext()}),
+		trace.WithSpanKind(trace.SpanKindProducer),
+	)
+	defer childSpan.End()
 
 	seqNo := p.channel.GetNextPublishSeqNo()
 	p.logger.Log(logger.INFO, fmt.Sprintf("publishing %dB body", len(result)))
 	p.logger.Log(logger.INFO, string(result))
 
 	carrier := propagation.HeaderCarrier(http.Header{})
-	otel.GetTextMapPropagator().Inject(ctx, carrier)
+	otel.GetTextMapPropagator().Inject(spanCtx, carrier)
 
 	headers := convertHeaderCarrierToTable(carrier)
 
 	// https://www.rabbitmq.com/publishers.html
-	if err := p.channel.PublishWithContext(ctx,
+	if err := p.channel.PublishWithContext(spanCtx,
 		p.exchangeName, // publish to an exchange
 		p.routingKey,   // routing to 0 or more queues
 		false,          // mandatory
@@ -133,7 +144,6 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 
 	p.logger.Log(logger.DEBUG, fmt.Sprintf("published %dB OK", len(result)))
 	p.publishes <- seqNo
-
 	return nil
 }
 

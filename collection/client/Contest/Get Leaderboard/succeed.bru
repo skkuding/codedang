@@ -32,6 +32,7 @@ docs {
   
   ```json
   {
+    "contestRole": "Manager",
     "maxScore": 60,
     "leaderboard": [
       {
@@ -61,6 +62,7 @@ docs {
   
   | 이름 | 타입 | 설명 |
   |------------|--------|----------------------------|
+  | `contestRole` | `string` | 사용자의 대회 role (Admin, Manager, Reviewer, Participant, null) |
   | `maxScore` | `number` | 대회에서 획득 가능한 최대 점수 |
   | `leaderboard` | `array` | 대회의 리더보드 |
   | `leaderboard[].user` | `object` | 참가자 정보 |

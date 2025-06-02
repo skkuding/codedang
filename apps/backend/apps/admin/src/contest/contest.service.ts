@@ -1166,6 +1166,9 @@ export class ContestService {
         id: true,
         order: true,
         problemId: true
+      },
+      orderBy: {
+        order: 'asc'
       }
     })
 
@@ -1280,8 +1283,6 @@ export class ContestService {
         role: true
       }
     })
-
-    console.log('userContests', userContests)
 
     return userContests
   }

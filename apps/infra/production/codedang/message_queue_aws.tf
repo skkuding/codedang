@@ -27,7 +27,7 @@ resource "aws_mq_broker" "judge_queue" {
   auto_minor_version_upgrade = true
 
   host_instance_type  = "mq.t3.micro"
-  subnet_ids          = [aws_subnet.private_mq.id]
+  subnet_ids          = [local.network.mq_subnet_id]
   publicly_accessible = true
 
   logs {
