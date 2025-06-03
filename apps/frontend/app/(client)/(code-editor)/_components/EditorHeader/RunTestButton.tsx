@@ -35,7 +35,7 @@ export function RunTestButton({
   const setIsTesting = useTestPollingStore((state) => state.setIsTesting)
   const startPolling = useTestPollingStore((state) => state.startPolling)
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
-  const getCode = useCodeStore((state) => state.getCode)
+  const { code } = useCodeStore()
   const getUserTestcases = useTestcaseStore((state) => state.getUserTestcases)
   const setActiveTestcaseTab = useTestcaseTabStore(
     (state) => state.setActiveTab
@@ -111,7 +111,6 @@ export function RunTestButton({
   const submitTest = () => {
     setActiveTestcaseTab(TESTCASE_RESULT_TAB)
 
-    const code = getCode()
     const testcases = getUserTestcases()
 
     if (session === null) {
