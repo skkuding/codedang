@@ -15,10 +15,6 @@ const CREATE_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
-      problemTestcase {
-        input
-        output
-      }
       timeLimit
       memoryLimit
       hint
@@ -46,10 +42,6 @@ const UPDATE_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
-      problemTestcase {
-        input
-        output
-      }
       timeLimit
       memoryLimit
       hint
