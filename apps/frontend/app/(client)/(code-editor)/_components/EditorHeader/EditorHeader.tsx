@@ -59,7 +59,7 @@ import { Save } from 'lucide-react'
 import type { Route } from 'next'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval, useKey } from 'react-use'
@@ -87,10 +87,12 @@ export function EditorHeader({
   templateString
 }: ProblemEditorProps) {
   const session = useSession()
-  if (!session) {
-    toast.info('Log in to use submission & save feature')
-  }
   const userName = session?.user.username || ''
+
+  if (session === null) {
+    // id guarantees that the toast is shown only once
+    toast.info('Log in to use submission & save feature', { id: 'login-info' })
+  }
 
   const { language, setLanguage } = useLanguageStore(
     problem.id,
@@ -188,12 +190,14 @@ export function EditorHeader({
   const templateCode =
     filteredTemplate.length > 0 ? filteredTemplate[0].code[0].text : ''
 
-  if (storageKey !== null) {
-    const storedCode = getCodeFromLocalStorage(storageKey)
-    setCode(storedCode || templateCode)
-  } else {
-    setCode(templateCode)
-  }
+  useMemo(() => {
+    if (storageKey !== null) {
+      const storedCode = getCodeFromLocalStorage(storageKey)
+      setCode(storedCode || templateCode)
+    } else {
+      setCode(templateCode)
+    }
+  }, [storageKey, setCode, templateCode])
 
   const storeCodeToLocalStorage = (code: string) => {
     if (storageKey !== null) {
