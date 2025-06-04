@@ -44,12 +44,12 @@ export default function ContestLeaderBoard() {
 
   const [disableLeaderboard, setDisableLeaderboard] = useState<boolean>(true)
   const { data: fetchedContest } = useSuspenseQuery(GET_CONTEST, {
-    variables: { contestId }
+    variables: { id: contestId }
   })
 
   const now = new Date()
   useEffect(() => {
-    const endTime = new Date(fetchedContest.getContest.endTime)
+    const endTime = new Date(fetchedContest.contest.endTime)
     if (endTime > now) {
       setDisableLeaderboard(true)
     } else {
@@ -65,7 +65,7 @@ export default function ContestLeaderBoard() {
 
   useEffect(() => {
     if (contestLeaderboard.getContestLeaderboard.leaderboard[0] === undefined) {
-      const contestStartTime = new Date(fetchedContest.getContest.startTime)
+      const contestStartTime = new Date(fetchedContest.contest.startTime)
       if (contestStartTime > now) {
         throw new Error(
           'Error(before start): There is no data in leaderboard yet.'

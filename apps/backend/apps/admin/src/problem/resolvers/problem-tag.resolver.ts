@@ -16,8 +16,8 @@ export class ProblemTagResolver {
 
   constructor(private readonly tagService: TagService) {}
 
-  @ResolveField('tag', () => Tag)
-  async getTag(@Parent() problemTag: ProblemTag) {
+  @ResolveField(() => Tag)
+  async tag(@Parent() problemTag: ProblemTag) {
     try {
       return await this.tagService.getTag(problemTag.tagId)
     } catch (error) {
@@ -47,7 +47,7 @@ export class TagResolver {
   }
 
   @Query(() => [Tag])
-  async getTags() {
+  async tags() {
     return await this.tagService.getTags()
   }
 }

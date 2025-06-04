@@ -30,7 +30,7 @@ export default function Information({ params }: InformationProps) {
       groupId: Number(params.courseId),
       assignmentId: Number(params.assignmentId)
     }
-  }).data?.getAssignment
+  }).data?.assignment
 
   const problemsData =
     useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {

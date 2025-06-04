@@ -25,6 +25,7 @@ export class ContestProblemResolver {
     private readonly problemService: ProblemService
   ) {}
 
+  // TODO: move to contest resolver as @ResolveField
   @Query(() => [ContestProblem], { name: 'getContestProblems' })
   async getContestProblems(
     @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
@@ -59,8 +60,8 @@ export class ContestProblemResolver {
     )
   }
 
-  @ResolveField('problem', () => ProblemWithIsVisible)
-  async getProblem(@Parent() contestProblem: ContestProblem) {
+  @ResolveField(() => ProblemWithIsVisible)
+  async problem(@Parent() contestProblem: ContestProblem) {
     return await this.problemService.getProblemById(contestProblem.problemId)
   }
 }

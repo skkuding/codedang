@@ -17,7 +17,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
       groupId: Number(courseId),
       assignmentId: Number(assignmentId)
     }
-  }).data?.getAssignment
+  }).data?.assignment
 
   return (
     <main className="flex flex-col gap-6 px-20 py-16">

@@ -2,7 +2,7 @@ import { gql } from '@generated'
 
 const GET_PROBLEM = gql(`
   query GetProblem($id: Int!) {
-    getProblem(id: $id) {
+    problem(id: $id) {
       title
       isVisible
       difficulty
@@ -36,7 +36,7 @@ const GET_PROBLEM = gql(`
 
 const GET_PROBLEMS = gql(`
   query GetProblems($cursor: Int, $take: Int!, $input: FilterProblemsInput!, $mode: String!, $contestId: Int) {
-    getProblems(cursor: $cursor, take: $take, input: $input, mode: $mode, contestId: $contestId) {
+    problems(cursor: $cursor, take: $take, input: $input, mode: $mode, contestId: $contestId) {
       id
       title
       updateTime
@@ -62,7 +62,7 @@ const GET_PROBLEMS = gql(`
 
 const GET_PROBLEM_DETAIL = gql(`
   query GetProblemDetail($id: Int!) {
-    getProblem(id: $id) {
+    problem(id: $id) {
       title
       description
     }
@@ -116,7 +116,7 @@ const GET_CONTEST_PROBLEMS = gql(`
 
 const GET_TAGS = gql(`
   query GetTags {
-    getTags {
+    tags {
       id
       name
     }
@@ -125,7 +125,7 @@ const GET_TAGS = gql(`
 
 const GET_PROBLEM_TESTCASE = gql(`
   query GetProblemTestcase($id: Int!) {
-    getProblem(id: $id) {
+    problem(id: $id) {
       testcase {
         id
         input

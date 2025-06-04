@@ -59,7 +59,7 @@ export function EditAssignmentForm({
   useQuery(GET_ASSIGNMENT, {
     variables: { groupId: courseId, assignmentId },
     onCompleted: (assignmentData) => {
-      const data = assignmentData.getAssignment
+      const data = assignmentData.assignment
       methods.reset({
         id: assignmentId,
         title: data.title,

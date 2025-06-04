@@ -23,9 +23,9 @@ export default function Layout({
 
   const contestData = useQuery(GET_CONTEST, {
     variables: {
-      contestId: Number(contestId)
+      id: Number(contestId)
     }
-  }).data?.getContest
+  }).data?.contest
 
   return (
     <main className="flex flex-col px-20 py-16">

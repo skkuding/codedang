@@ -36,7 +36,7 @@ export function ParticipantTable({
       groupId,
       assignmentId
     }
-  }).data?.getAssignment
+  }).data?.assignment
 
   const [updateAssignment] = useMutation(UPDATE_ASSIGNMENT)
 

@@ -76,8 +76,8 @@ export class AssignmentProblemResolver {
     )
   }
 
-  @ResolveField('problem', () => ProblemWithIsVisible)
-  async getProblem(@Parent() assignmentProblem: AssignmentProblem) {
+  @ResolveField(() => ProblemWithIsVisible)
+  async problem(@Parent() assignmentProblem: AssignmentProblem) {
     return await this.problemService.getProblemById(assignmentProblem.problemId)
   }
 }
