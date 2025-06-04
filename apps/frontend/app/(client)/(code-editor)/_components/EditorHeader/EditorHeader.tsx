@@ -89,10 +89,14 @@ export function EditorHeader({
   const session = useSession()
   const userName = session?.user.username || ''
 
-  if (session === null) {
-    // id guarantees that the toast is shown only once
-    toast.info('Log in to use submission & save feature', { id: 'login-info' })
-  }
+  useEffect(() => {
+    if (session === null) {
+      // id guarantees that the toast is shown only once
+      toast.info('Log in to use submission & save feature', {
+        id: 'login-info'
+      })
+    }
+  }, [session])
 
   const { language, setLanguage } = useLanguageStore(
     problem.id,
