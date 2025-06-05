@@ -23,7 +23,7 @@ services:
     cgroup: host
 
   local-storage:
-    profiles: ['devcontainer']
+    profiles: ['dev']
     container_name: codedang-local-storage
     image: minio/minio
     ports:
@@ -51,6 +51,7 @@ services:
       - codedang-storage:/data
 
   database:
+    profiles: ['dev', 'deploy']
     container_name: codedang-database
     image: postgres:16-alpine
     ports:
@@ -63,6 +64,7 @@ services:
       - codedang-database:/var/lib/postgresql/data
 
   test-database:
+    profiles: ['dev']
     container_name: codedang-test-database
     image: postgres:16-alpine
     ports:
@@ -75,12 +77,14 @@ services:
       - codedang-test-database:/var/lib/postgresql/data
 
   cache:
+    profiles: ['dev', 'deploy']
     container_name: codedang-cache
     image: redis:7-alpine
     ports:
       - 6380:6379
 
   rabbitmq:
+    profiles: ['dev', 'deploy']
     image: rabbitmq:4-management-alpine
     container_name: codedang-rabbitmq
     ports:
