@@ -5,15 +5,14 @@ import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
 import {
   mkdirSync,
-  writeFile,
   createWriteStream,
   createReadStream,
   existsSync,
   unlink,
-  rm
+  rm,
+  writeFileSync
 } from 'fs'
 import path from 'path'
-import sanitize from 'sanitize-filename'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -441,7 +440,7 @@ export class SubmissionService {
     if (assignment.title === '') {
       return `Assignment_${assignmentId}`
     }
-    return encodeURIComponent(assignment.title)
+    return assignment.title
   }
 
   async getProblemTitle(problemId: number): Promise<string | null> {
@@ -459,10 +458,29 @@ export class SubmissionService {
     if (problem.title === '') {
       return `Problem_${problemId}`
     }
-    return encodeURIComponent(problem.title)
+    return problem.title
   }
 
-  async compressSourceCodes(assignmentId: number, problemId: number) {
+  async compressSourceCodes(
+    groupId: number,
+    assignmentId: number,
+    problemId: number
+  ) {
+    const assignmentGroupId = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (assignmentGroupId?.groupId != groupId) {
+      throw new ForbiddenAccessException(
+        'Only Group Leader can download source codes.'
+      )
+    }
+
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
         where: {
@@ -504,15 +522,15 @@ export class SubmissionService {
       const formattedCode = code.map((snippet) => snippet.text).join('\n')
       const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
       const filePath = path.join(dirPath, filename)
-      writeFile(filePath, formattedCode, (err) => {
-        if (err) {
-          this.logger.error(err)
-          throw new UnprocessableFileDataException(
-            'failed to handle source code file.',
-            filename
-          )
-        }
-      })
+      try {
+        writeFileSync(filePath, formattedCode)
+      } catch (err) {
+        this.logger.error(err)
+        throw new UnprocessableFileDataException(
+          'failed to handle source code file.',
+          filename
+        )
+      }
     })
     const zipFilename = `${assignmentTitle}_${problemId}`
     const zipPath = path.join(__dirname, `${zipFilename}.zip`)
@@ -535,31 +553,56 @@ export class SubmissionService {
       )
     })
 
-    const downloadSrc = `/submission/download/${zipFilename}`
+    const downloadSrc = `/submission/download/${assignmentGroupId!.groupId}/${assignmentId}/${problemId}`
     return downloadSrc
   }
 
-  async downloadCodes(filename: string, res: Response) {
-    const sanitizedFilename = sanitize(filename)
-    const encodedFilename = encodeURIComponent(sanitizedFilename)
-    const zipFilename = path.resolve(__dirname, encodedFilename)
+  async downloadCodes(
+    groupId: number,
+    assignmentId: number,
+    problemId: number,
+    res: Response
+  ) {
+    const assignmentGroupId = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (assignmentGroupId?.groupId != groupId) {
+      throw new ForbiddenAccessException(
+        'Only Group Leader can download source codes.'
+      )
+    }
+
+    const assignmentTitle = await this.getAssignmentTitle(assignmentId)
+
+    const filename = `${assignmentTitle}_${problemId}`
+
+    const zipFilename = path.resolve(__dirname, filename)
     if (
       !zipFilename.startsWith(__dirname) ||
       !existsSync(`${zipFilename}.zip`)
     ) {
       res.status(404).json({ error: 'File not found' })
+      return
     }
 
+    const encodedFilename = encodeURIComponent(filename)
     res.set({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/zip',
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'Content-Disposition': `attachment; filename*=UTF-8''${encodedFilename}.zip`
+      'Content-Disposition': `attachment; filename=assignment${assignmentId}_problem${problemId}.zip; filename*=UTF-8''${encodedFilename}.zip`
     })
     const fileStream = createReadStream(`${zipFilename}.zip`)
+    this.logger.debug('DEBUG: ', zipFilename)
     fileStream.pipe(res)
 
-    fileStream.on('close', () => {
+    fileStream.on('finish', () => {
       unlink(`${zipFilename}.zip`, (err) => {
         if (err) this.logger.error('Error on deleting file: ', err)
       })
@@ -575,7 +618,7 @@ export class SubmissionService {
       rm(zipFilename, { recursive: true, force: true }, (err) => {
         if (err) this.logger.error('Error on deleting folder: ', err)
       })
-      res.status(500).json({ error: 'File download failed' })
+      res.status(500).json({ error: 'File download failed: ', err })
     })
   }
 }
