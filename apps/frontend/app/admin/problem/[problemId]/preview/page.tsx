@@ -28,9 +28,9 @@ export default function Page({ params }: PageProps) {
     ? null
     : ({
         id: 0,
-        ...data?.getProblem,
+        ...data?.problem,
         problemTestcase:
-          data?.getProblem?.testcase
+          data?.problem?.testcase
             ?.filter(({ isHidden }) => !isHidden)
             ?.map(({ id, ...rest }) => ({
               id: Number(id),

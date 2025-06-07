@@ -30,7 +30,7 @@ export function GradeAssignmentTable({ groupId }: AssignmentTableProps) {
     }
   })
 
-  const assignments = data.getAssignments.map((assignment) => ({
+  const assignments = data.assignments.map((assignment) => ({
     ...assignment,
     id: Number(assignment.id)
   }))

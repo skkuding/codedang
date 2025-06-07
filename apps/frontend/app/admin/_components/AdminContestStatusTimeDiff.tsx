@@ -15,7 +15,7 @@ import { toast } from 'sonner'
 dayjs.extend(duration)
 
 interface AdminTimeDiffProps {
-  contest: GetContestQuery['getContest'] | undefined
+  contest: GetContestQuery['contest'] | undefined
   textStyle: string
   inContestEditor: boolean
 }
