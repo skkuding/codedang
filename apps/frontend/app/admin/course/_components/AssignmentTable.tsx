@@ -38,7 +38,7 @@ export function AssignmentTable({
     }
   })
 
-  const assignments = data.getAssignments.map((assignment) => ({
+  const assignments = data.assignments.map((assignment) => ({
     ...assignment,
     id: Number(assignment.id)
   }))
