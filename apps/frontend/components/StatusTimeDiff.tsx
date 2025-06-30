@@ -70,7 +70,7 @@ export function StatusTimeDiff({
         textStyle
       )}
     >
-       {target} {assignmentStatus === 'ongoing' ? 'ends in' : 'ended'}
+      {target} {assignmentStatus === 'ongoing' ? 'ends in' : 'ended'}
       {assignmentStatus === 'ongoing' && (
         <p className="overflow-hidden text-ellipsis whitespace-nowrap">
           {timeDiff.days > 0
@@ -78,7 +78,6 @@ export function StatusTimeDiff({
             : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`}
         </p>
       )}
-
     </div>
   )
 }
