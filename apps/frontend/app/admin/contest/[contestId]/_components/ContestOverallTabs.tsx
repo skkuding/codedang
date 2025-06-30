@@ -8,6 +8,7 @@ import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 interface SubmissionSummary {
   problemId: number
@@ -40,6 +41,37 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     return pathname.startsWith(`/admin/contest/${id}/${tab}`)
   }
 
+  const [realSize, setRealSize] = useState(0)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setRealSize(window.innerWidth)
+    }
+
+    window.addEventListener('resize', handleResize)
+    handleResize()
+
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    console.log('realSize:', realSize)
+  }, [realSize])
+
+  const [leaderBoard, setLeaderBoard] = useState(<p />)
+  useEffect(() => {
+    setLeaderBoard(
+      realSize >= 768 ? (
+        <p>LEADERBOARD</p>
+      ) : (
+        <div>
+          <p className="text-xs">LEADER</p>
+          <p className="text-xs">BOARD</p>
+        </div>
+      )
+    )
+  }, [realSize, setRealSize])
+
   return (
     <div className="mb-16 flex h-[60px] w-full rounded-full border border-solid border-[#80808040] bg-white">
       <Link
@@ -50,7 +82,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
             'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p>LEADERBOARD</p>
+        <div>{leaderBoard}</div>
       </Link>
       <Link
         href={`/admin/contest/${id}/submission`}
@@ -60,7 +92,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
             'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p>ALL SUBMISSION</p>
+        <p className="md:text-sm">ALL SUBMISSION</p>
       </Link>
       <Link
         href={`/admin/contest/${id}/announcement`}
@@ -70,7 +102,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
             'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p>ANNOUNCEMENT</p>
+        <p className="md:text-sm">ANNOUNCEMENT</p>
       </Link>
       <Link
         href={`/admin/contest/${id}/statistics`}
@@ -80,7 +112,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
             'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p>STATISTICS</p>
+        <p className="md:text-sm">STATISTICS</p>
       </Link>
       <Link
         href={`/admin/contest/${id}/qna`}
@@ -90,7 +122,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
             'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p>Q&A</p>
+        <p className="md:text-sm">Q&A</p>
       </Link>
     </div>
   )
