@@ -35,8 +35,8 @@ import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useCallback, useEffect, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { useForm, type SubmitHandler } from 'react-hook-form'
-import { FaCirclePlus } from 'react-icons/fa6'
 import { FiX } from 'react-icons/fi'
+import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { IoCloudUpload, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineEmail } from 'react-icons/md'
 import { toast } from 'sonner'
@@ -80,11 +80,12 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
     <>
       <Button
         type="button"
+        variant="default"
         onClick={() => setIsAlertDialogOpen(true)}
-        className="flex items-center gap-2"
+        className="w-[120px]"
       >
-        <FaCirclePlus />
-        Invite
+        <HiMiniPlusCircle className="mr-2 h-5 w-5" />
+        <span className="text-lg">Invite</span>
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={handleOpenChange}>
         <AlertDialogContent className="flex max-h-[693px] w-[580px] flex-col overflow-hidden">
