@@ -54,7 +54,7 @@
     "@opentelemetry/sdk-node": "^0.200.0",
     "@opentelemetry/sdk-trace-node": "^2.0.0",
     "@opentelemetry/semantic-conventions": "^1.32.0",
-    "@prisma/client": "^6.1.0",
+    "@prisma/client": "^6.10.1",
     "@prisma/instrumentation": "~6.1.0",
     "archiver": "^7.0.1",
     "argon2": "^0.41.1",
