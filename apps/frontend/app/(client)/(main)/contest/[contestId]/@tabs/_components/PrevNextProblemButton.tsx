@@ -24,12 +24,12 @@ export function PrevNextProblemButton({
       <Link
         href={`/contest/${contestData[currentIndex - 1].id}${search ? `?search=${search}` : ''}`}
       >
-        <Button className="mb-0 mt-[18px] h-[54px] w-[1208px] justify-start rounded-b-none rounded-t-xl border border-[#80808040] bg-white pl-6 font-light text-black hover:bg-[#80808014]">
+        <Button className="mb-0 mt-[18px] h-[54px] w-[1208px] justify-start rounded-b-none rounded-t-xl border border-[#80808040] bg-white pl-6 font-light text-black hover:bg-[#F0F0F0]">
           <div className="flex flex-row">
-            <p className="mr-6 w-[100px] text-left text-base font-semibold text-[#737373]">
+            <p className="mr-6 w-[100px] text-left text-lg font-medium leading-[25.2px] tracking-[-0.54px] text-[#000000]">
               Previous
             </p>
-            <p className="w-[1020px] truncate text-left text-base font-medium text-[#737373]">
+            <p className="w-[1020px] truncate text-left text-base font-normal leading-[25.2px] tracking-[-0.48px] text-[#000000]">
               {contestData[currentIndex - 1].title}
             </p>
           </div>
@@ -52,12 +52,12 @@ export function PrevNextProblemButton({
       <Link
         href={`/contest/${contestData[currentIndex + 1].id}${search ? `?search=${search}` : ''}`}
       >
-        <Button className="mb-0 h-[54px] w-[1208px] justify-start rounded-b-xl rounded-t-none border border-t-0 border-[#80808040] bg-white pl-6 font-light text-black hover:bg-[#80808014]">
+        <Button className="mb-0 h-[54px] w-[1208px] justify-start rounded-b-xl rounded-t-none border border-t-0 border-[#80808040] bg-white pl-6 font-light text-black hover:bg-[#F0F0F0]">
           <div className="flex flex-row">
-            <p className="mr-6 w-[100px] text-left text-base font-semibold text-[#3581FA]">
+            <p className="leading-[25.2px]tracking-[-0.54px] mr-6 w-[100px] text-left text-lg font-medium text-[#000000]">
               Next
             </p>
-            <p className="w-[1020px] truncate text-left text-base font-medium">
+            <p className="w-[1020px] truncate text-left text-base font-normal leading-[25.2px] tracking-[-0.48px] text-[#000000]">
               {contestData[currentIndex + 1].title}
             </p>
           </div>
