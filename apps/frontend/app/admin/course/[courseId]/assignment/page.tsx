@@ -16,7 +16,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
   return (
     <div className="container mx-auto space-y-5 py-10">
       <div className="flex justify-between">
-        <p className="text-4xl font-bold">Assignment List</p>
+        <p className="text-4xl font-bold">ASSIGNMENT LIST</p>
         <Button variant="default" asChild>
           <Link
             href={`/admin/course/${courseId}/assignment/create` as const}
@@ -28,7 +28,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
         </Button>
       </div>
       <p className="text-lg text-slate-500">
-        Here&apos;s a list of the assignments you made
+        Here&apos;s a assignment list you made
       </p>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<AssignmentTableFallback />}>
