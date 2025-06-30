@@ -64,7 +64,7 @@ export function GroupTable() {
         <span>Members</span>
       </div>
       <h1 className="mb-5 text-lg font-normal text-gray-500">
-        Here’s a list of the instructors and students of the course
+        Here&apos;s a list of the instructors and students of the course
       </h1>
       <DataTableRoot data={members} columns={createColumns(groupId)}>
         <div className="flex justify-between">
