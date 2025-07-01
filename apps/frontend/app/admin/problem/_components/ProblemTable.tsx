@@ -15,10 +15,7 @@ import {
 import { createColumns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 
-interface ProblemTableProps {
-  isUser: boolean
-}
-export function ProblemTable({ isUser }: ProblemTableProps) {
+export function ProblemTable() {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       take: 500,
@@ -59,7 +56,7 @@ export function ProblemTable({ isUser }: ProblemTableProps) {
   return (
     <DataTableRoot
       data={problems}
-      columns={createColumns(isUser)}
+      columns={createColumns()}
       defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <div className="flex gap-4">
@@ -74,9 +71,6 @@ export function ProblemTable({ isUser }: ProblemTableProps) {
   )
 }
 
-interface ProblemTableFallbackProps {
-  isUser: boolean
-}
-export function ProblemTableFallback({ isUser }: ProblemTableFallbackProps) {
-  return <DataTableFallback columns={createColumns(isUser)} />
+export function ProblemTableFallback() {
+  return <DataTableFallback columns={createColumns()} />
 }

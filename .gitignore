@@ -75,7 +75,6 @@ dist/
 
 # NestJS & GraphQL
 @generated/
-apps/backend/schema.gql
 
 # Go Debugger
 __debug_bin*

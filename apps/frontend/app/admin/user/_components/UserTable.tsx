@@ -19,10 +19,10 @@ export function UserTable() {
     }
   })
   const users = data.getUsers
-
   const mappedUsers = users.map((user) => ({
     id: Number(user.id),
     username: user.username,
+    realName: user.userProfile?.realName,
     email: user.email,
     studentId: user.studentId,
     major: user.major ?? '-',

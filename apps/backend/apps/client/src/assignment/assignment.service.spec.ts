@@ -1,15 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import {
-  Prisma,
-  type Assignment,
-  type Group,
-  type AssignmentRecord,
-  GroupType
-} from '@prisma/client'
+import { Prisma, type AssignmentRecord } from '@prisma/client'
 import { expect } from 'chai'
-import * as dayjs from 'dayjs'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -20,92 +13,11 @@ import {
   PrismaTestService,
   type FlatTransactionClient
 } from '@libs/prisma'
-import { AssignmentService, type AssignmentResult } from './assignment.service'
+import { AssignmentService } from './assignment.service'
 
 const assignmentId = 1
 const user01Id = 7
 const groupId = 1
-
-const now = dayjs()
-
-const assignment = {
-  id: assignmentId,
-  createdById: 1,
-  groupId,
-  title: 'title',
-  description: 'description',
-  startTime: now.add(-1, 'day').toDate(),
-  endTime: now.add(1, 'day').toDate(),
-  dueTime: now.add(1, 'day').toDate(),
-  isVisible: true,
-  isJudgeResultVisible: true,
-  isRankVisible: true,
-  enableCopyPaste: true,
-  createTime: now.add(-1, 'day').toDate(),
-  updateTime: now.add(-1, 'day').toDate(),
-  week: 1,
-  group: {
-    id: groupId,
-    groupName: 'group',
-    groupType: GroupType.Course
-  },
-  autoFinalizeScore: true,
-  isFinalScoreVisible: true,
-  isExercise: false
-} satisfies Assignment & {
-  group: Partial<Group>
-}
-
-const ongoingAssignments = [
-  {
-    id: assignment.id,
-    group: assignment.group,
-    title: assignment.title,
-    isJudgeResultVisible: true,
-    startTime: now.add(-1, 'day').toDate(),
-    endTime: now.add(1, 'day').toDate(),
-    dueTime: now.add(1, 'day').toDate(),
-    week: 1,
-    participants: 1,
-    enableCopyPaste: true
-  }
-] satisfies Partial<AssignmentResult>[]
-
-const upcomingAssignments = [
-  {
-    id: assignment.id + 6,
-    group: assignment.group,
-    title: assignment.title,
-    isJudgeResultVisible: true,
-    startTime: now.add(1, 'day').toDate(),
-    endTime: now.add(2, 'day').toDate(),
-    dueTime: now.add(2, 'day').toDate(),
-    week: 1,
-    participants: 1,
-    enableCopyPaste: true
-  }
-] satisfies Partial<AssignmentResult>[]
-
-const finishedAssignments = [
-  {
-    id: assignment.id + 1,
-    group: assignment.group,
-    title: assignment.title,
-    isJudgeResultVisible: true,
-    startTime: now.add(-2, 'day').toDate(),
-    endTime: now.add(-1, 'day').toDate(),
-    dueTime: now.add(-1, 'day').toDate(),
-    week: 1,
-    participants: 1,
-    enableCopyPaste: true
-  }
-] satisfies Partial<AssignmentResult>[]
-
-const assignments = [
-  ...ongoingAssignments,
-  ...finishedAssignments,
-  ...upcomingAssignments
-] satisfies Partial<AssignmentResult>[]
 
 describe('AssignmentService', () => {
   let service: AssignmentService

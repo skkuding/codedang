@@ -74,11 +74,11 @@ module "iris" {
   ecs_service = {
     name          = "Codedang-Iris-Service"
     cluster_arn   = module.codedang_iris.ecs_cluster.arn
-    desired_count = 2
+    desired_count = 0
   }
 
   appautoscaling_target = {
-    min_capacity = 2
+    min_capacity = 0
     max_capacity = 4
     resource_id = {
       cluster_name = module.codedang_iris.ecs_cluster.name

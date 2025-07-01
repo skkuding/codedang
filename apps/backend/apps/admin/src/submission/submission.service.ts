@@ -568,7 +568,7 @@ export class SubmissionService {
       })
       res.end()
     })
-    fileStream.on('error', (err) => {
+    fileStream.on('error', () => {
       unlink(`${zipFilename}.zip`, (err) => {
         if (err) this.logger.error('Error on deleting file: ', err)
       })

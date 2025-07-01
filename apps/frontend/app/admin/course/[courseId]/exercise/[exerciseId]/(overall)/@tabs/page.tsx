@@ -78,10 +78,7 @@ export default function Information({ params }: InformationProps) {
                     <TableHead className="bg-gray-50 text-left text-sm font-normal text-gray-500">
                       Title
                     </TableHead>
-                    <TableHead className="w-20 bg-gray-50 text-center text-sm font-normal text-gray-500">
-                      Score
-                    </TableHead>
-                    <TableHead className="w-20 bg-gray-50 text-center text-sm font-normal text-gray-500">
+                    <TableHead className="w-40 bg-gray-50 text-center text-sm font-normal text-gray-500">
                       Solution
                     </TableHead>
                   </TableRow>
@@ -98,29 +95,11 @@ export default function Information({ params }: InformationProps) {
                       <TableCell className="text-left text-sm text-gray-900">
                         {problem.problem.title}
                       </TableCell>
-                      <TableCell className="text-center text-sm text-gray-900">
-                        {problem.score}
-                      </TableCell>
                       <TableCell className="text-center">
                         <FaEye className="inline text-gray-400" />
                       </TableCell>
                     </TableRow>
                   ))}
-                  <TableRow>
-                    <TableCell
-                      colSpan={2}
-                      className="rounded-bl-xl bg-gray-50 text-right text-sm font-semibold text-gray-700"
-                    >
-                      Total
-                    </TableCell>
-                    <TableCell className="text-primary bg-gray-50 text-center text-sm font-semibold">
-                      {problemsData.reduce(
-                        (acc, cur) => acc + (cur.score || 0),
-                        0
-                      )}
-                    </TableCell>
-                    <TableCell className="rounded-br-xl bg-gray-50" />
-                  </TableRow>
                 </TableBody>
               </Table>
             </div>

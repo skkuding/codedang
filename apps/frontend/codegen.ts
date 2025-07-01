@@ -1,9 +1,7 @@
 import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
-  schema:
-    process.env.NEXT_PUBLIC_GQL_BASEURL ?? 'https://stage.codedang.com/graphql',
-  // this assumes that all your source files are in a top-level `src/` directory - you might need to adjust this to your file structure
+  schema: '../backend/schema.gql',
   documents: ['./**/*.{ts,tsx}'],
   generates: {
     './__generated__/': {

@@ -15,6 +15,7 @@ import { AssignmentProblemDropdown } from './AssignmentProblemDropdown'
 import { ContestProblemDropdown } from './ContestProblemDropdown'
 import { EditorMainResizablePanel } from './EditorResizablePanel'
 import { ExerciseProblemDropdown } from './ExerciseProblemDropdown'
+import { ProblemProvider } from './context/ProblemContext'
 
 interface EditorLayoutProps {
   assignmentId?: number
@@ -116,49 +117,51 @@ export async function EditorLayout({
   const session = await auth()
 
   return (
-    <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
-      <header className="flex h-12 justify-between bg-slate-900 px-6">
-        <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
-          <Link href="/">
-            <Image src={codedangLogo} alt="코드당" width={33} />
-          </Link>
-          <div className="flex items-center gap-1 font-medium">
-            {renderHeaderContent({
-              contest,
-              assignment,
-              exercise,
-              problem,
-              courseId,
-              courseName
-            })}
+    <ProblemProvider problem={problem}>
+      <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
+        <header className="flex h-12 justify-between bg-slate-900 px-6">
+          <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
+            <Link href="/">
+              <Image src={codedangLogo} alt="코드당" width={33} />
+            </Link>
+            <div className="flex items-center gap-1 font-medium">
+              {renderHeaderContent({
+                contest,
+                assignment,
+                exercise,
+                problem,
+                courseId,
+                courseName
+              })}
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-1">
-          {renderTimediff({ contest, assignment, exercise })}
-          <HeaderAuthPanel session={session} group={'editor'} />
-        </div>
-      </header>
-      <EditorMainResizablePanel
-        problem={problem}
-        contestId={contestId}
-        courseId={courseId}
-        assignmentId={assignmentId}
-        exerciseId={exerciseId}
-        enableCopyPaste={(() => {
-          if (contest) {
-            return contest.enableCopyPaste
-          } else if (assignment) {
-            return assignment.enableCopyPaste
-          } else if (exercise) {
-            return exercise.enableCopyPaste
-          } else {
-            return true
-          }
-        })()}
-      >
-        {children}
-      </EditorMainResizablePanel>
-    </div>
+          <div className="flex items-center gap-1">
+            {renderTimediff({ contest, assignment, exercise })}
+            <HeaderAuthPanel session={session} group={'editor'} />
+          </div>
+        </header>
+        <EditorMainResizablePanel
+          problem={problem}
+          contestId={contestId}
+          courseId={courseId}
+          assignmentId={assignmentId}
+          exerciseId={exerciseId}
+          enableCopyPaste={(() => {
+            if (contest) {
+              return contest.enableCopyPaste
+            } else if (assignment) {
+              return assignment.enableCopyPaste
+            } else if (exercise) {
+              return exercise.enableCopyPaste
+            } else {
+              return true
+            }
+          })()}
+        >
+          {children}
+        </EditorMainResizablePanel>
+      </div>
+    </ProblemProvider>
   )
 }
 
