@@ -508,7 +508,7 @@ export class SubmissionService {
         if (err) {
           this.logger.error(err)
           throw new UnprocessableFileDataException(
-            'failed to handle source code file.',
+            'Failed to handle source code file',
             filename
           )
         }
@@ -530,7 +530,7 @@ export class SubmissionService {
       this.logger.error(`Finalization failed: ${err}`)
       output.end()
       throw new UnprocessableFileDataException(
-        'failed to create zip file',
+        'Failed to create zip file',
         zipFilename
       )
     })
