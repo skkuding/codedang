@@ -74,7 +74,7 @@ export class SubmissionPublicationService {
     })
 
     if (!problem) {
-      throw new EntityNotExistException('problem')
+      throw new EntityNotExistException('Problem')
     }
 
     const judgeRequest = isUserTest

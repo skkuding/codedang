@@ -41,7 +41,7 @@ export class WorkbookProblemService {
     // orders 길이와  찾은 workbookProblem 길이가 같은지 확인
     if (orders.length !== workbookProblemsToBeUpdated.length) {
       throw new UnprocessableDataException(
-        'the len of orders and the len of workbookProblem are not equal.'
+        'The len of orders and the len of workbookProblem are not equal.'
       )
     }
     //problemId 기준으로 오름차순 정렬

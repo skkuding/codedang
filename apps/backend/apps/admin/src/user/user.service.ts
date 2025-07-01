@@ -206,7 +206,7 @@ export class GroupMemberService {
     })
 
     if (groupMember === null) {
-      throw new NotFoundException(
+      throw new EntityNotExistException(
         `userId ${userId} is not a group member of groupId ${groupId}`
       )
     }
@@ -223,9 +223,9 @@ export class GroupMemberService {
         throw new BadRequestException('One or more leaders are required')
       }
     } else if (groupMember.isGroupLeader && toGroupLeader) {
-      throw new BadRequestException(`userId ${userId} is already manager`)
+      throw new BadRequestException(`The userId ${userId} is already manager`)
     } else if (!groupMember.isGroupLeader && !toGroupLeader) {
-      throw new BadRequestException(`userId ${userId} is already member`)
+      throw new BadRequestException(`The userId ${userId} is already member`)
     }
 
     return await this.prisma.userGroup.update({
@@ -262,7 +262,7 @@ export class GroupMemberService {
     })
 
     if (!userGroup) {
-      throw new UnprocessableDataException('Not a member')
+      throw new UnprocessableDataException('It is not a member')
     }
 
     if (userGroup.isGroupLeader) {
@@ -347,7 +347,7 @@ export class GroupMemberService {
 
     if (!userRequested) {
       throw new ConflictFoundException(
-        `userId ${userId} didn't request join to groupId ${groupId}`
+        `The userId ${userId} didn't request join to groupId ${groupId}`
       )
     }
 

@@ -58,7 +58,7 @@ export class ContestProblemService {
 
     if (orders.length !== contestProblems.length) {
       throw new UnprocessableDataException(
-        'the length of orders and the length of contestProblem are not equal.'
+        'The length of orders and the length of contestProblem are not equal.'
       )
     }
 
