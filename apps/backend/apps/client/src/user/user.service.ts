@@ -100,7 +100,7 @@ export class UserService {
     const user = await this.getUserCredentialByEmail(email)
     if (!user) {
       this.logger.debug('no registered email')
-      throw new UnidentifiedException(`email ${email}`)
+      throw new UnidentifiedException(`Email ${email}`)
     }
 
     return this.createPinAndSendEmail(user.email)
@@ -225,7 +225,7 @@ export class UserService {
         },
         'verifyPin - input is different from stored one'
       )
-      throw new UnidentifiedException(`pin ${pin}`)
+      throw new UnidentifiedException(`Pin ${pin}`)
     }
     return true
   }
@@ -395,7 +395,7 @@ export class UserService {
     const user = await this.getUserCredential(username)
     if (!(user && (await this.jwtAuthService.isValidUser(user, password)))) {
       this.logger.debug('user not exist or login fail')
-      throw new UnidentifiedException('password')
+      throw new UnidentifiedException('Password')
     }
 
     const leadingGroups = await this.prisma.userGroup.findMany({
@@ -528,7 +528,7 @@ export class UserService {
         error instanceof PrismaClientKnownRequestError &&
         error.code == 'P2025'
       )
-        throw new EntityNotExistException('user')
+        throw new EntityNotExistException('User')
       throw error
     }
   }
@@ -542,7 +542,7 @@ export class UserService {
 
     if (duplicatedUser) {
       this.logger.debug('exception (username duplicated)')
-      throw new DuplicateFoundException('user')
+      throw new DuplicateFoundException('User')
     }
   }
 
@@ -553,7 +553,7 @@ export class UserService {
     if (updateUserDto.newPassword) {
       if (!updateUserDto.password) {
         throw new UnprocessableDataException(
-          'current password needed to change password'
+          'Current password needed to change password'
         )
       }
       const user = await this.getUserCredential(req.user.username)
@@ -566,7 +566,7 @@ export class UserService {
         updateUserDto.password
       )
       if (!isValidUser) {
-        throw new UnidentifiedException('current password')
+        throw new UnidentifiedException('Current password')
       }
 
       if (!this.isValidPassword(updateUserDto.newPassword)) {
