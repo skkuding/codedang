@@ -47,30 +47,58 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     const handleResize = () => {
       setRealSize(window.innerWidth)
     }
-
     window.addEventListener('resize', handleResize)
     handleResize()
-
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  useEffect(() => {
-    console.log('realSize:', realSize)
-  }, [realSize])
-
-  const [leaderBoard, setLeaderBoard] = useState(<p />)
-  useEffect(() => {
-    setLeaderBoard(
-      realSize >= 768 ? (
-        <p>LEADERBOARD</p>
-      ) : (
-        <div>
-          <p className="text-xs">LEADER</p>
-          <p className="text-xs">BOARD</p>
-        </div>
-      )
+  const leaderBoard =
+    realSize >= 768 ? (
+      <p>LEADERBOARD</p>
+    ) : (
+      <p className="text-xs">
+        LEADER
+        <br />
+        BOARD
+      </p>
     )
-  }, [realSize, setRealSize])
+
+  const allSubmission =
+    realSize >= 768 ? (
+      <p>ALL SUBMISSION</p>
+    ) : (
+      <p className="text-xs">
+        ALL
+        <br />
+        SUB
+        <br />
+        MISSION
+      </p>
+    )
+
+  const announcement =
+    realSize >= 768 ? (
+      <p>ANNOUNCEMENT</p>
+    ) : (
+      <p className="text-xs">
+        ANNOUNCE
+        <br />
+        MENT
+      </p>
+    )
+
+  const statistics =
+    realSize >= 768 ? (
+      <p>STATISTICS</p>
+    ) : (
+      <p className="text-xs">
+        STATIS
+        <br />
+        TICS
+      </p>
+    )
+
+  const qna = realSize >= 768 ? <p>Q&A</p> : <p className="text-xs">Q&A</p>
 
   return (
     <div className="mb-16 flex h-[60px] w-full rounded-full border border-solid border-[#80808040] bg-white">
@@ -92,7 +120,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
             'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p className="md:text-sm">ALL SUBMISSION</p>
+        <div>{allSubmission}</div>
       </Link>
       <Link
         href={`/admin/contest/${id}/announcement`}
@@ -102,7 +130,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
             'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p className="md:text-sm">ANNOUNCEMENT</p>
+        <div>{announcement}</div>
       </Link>
       <Link
         href={`/admin/contest/${id}/statistics`}
@@ -112,7 +140,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
             'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p className="md:text-sm">STATISTICS</p>
+        <div>{statistics}</div>
       </Link>
       <Link
         href={`/admin/contest/${id}/qna`}
@@ -122,7 +150,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
             'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
-        <p className="md:text-sm">Q&A</p>
+        <div>{qna}</div>
       </Link>
     </div>
   )
