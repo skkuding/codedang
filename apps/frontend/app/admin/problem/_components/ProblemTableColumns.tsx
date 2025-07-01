@@ -2,12 +2,20 @@ import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableCo
 import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { Switch } from '@/components/shadcn/switch'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/shadcn/tooltip'
+import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
-import { useMutation } from '@apollo/client'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { ContainedContests } from './ContainedContests'
 
 interface Tag {
@@ -29,34 +37,69 @@ export interface DataTableProblem {
 
 function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
+  const [getContestsByProblemId] = useLazyQuery(GET_BELONGED_CONTESTS)
+  const [fetched, setFetched] = useState(false)
+
+  useEffect(() => {
+    if (!fetched) {
+      getContestsByProblemId({
+        variables: { problemId: row.original.id },
+        onCompleted: (data) => {
+          const contests = data?.getContestsByProblemId
+          if (
+            contests.finished.length === 0 &&
+            contests.ongoing.length === 0 &&
+            contests.upcoming.length === 0
+          ) {
+            row.original.isVisible = null
+          }
+          setFetched(true)
+        }
+      })
+    }
+  }, [fetched, getContestsByProblemId, row.original])
 
   return (
     <div className="ml-8 flex items-center space-x-2">
-      <Switch
-        id="hidden-mode"
-        onClick={(e) => e.stopPropagation()}
-        disabled={row.original.isVisible === null}
-        checked={row.original.isVisible === true}
-        onCheckedChange={() => {
-          row.original.isVisible = !row.original.isVisible
-          updateVisible({
-            variables: {
-              input: {
-                id: row.original.id,
-                isVisible: row.original.isVisible
-              }
-            }
-          })
-        }}
-      />
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>
+              <Switch
+                id="hidden-mode"
+                onClick={(e) => e.stopPropagation()}
+                disabled={row.original.isVisible === null}
+                checked={row.original.isVisible === true}
+                onCheckedChange={() => {
+                  row.original.isVisible = !row.original.isVisible
+                  updateVisible({
+                    variables: {
+                      input: {
+                        id: row.original.id,
+                        isVisible: row.original.isVisible
+                      }
+                    }
+                  })
+                }}
+              />
+            </div>
+          </TooltipTrigger>
+          {row.original.isVisible === null && (
+            <TooltipContent className="bg-white text-black">
+              <p>
+                This Problem is Not Included in Contest or Finished Contest.
+              </p>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
+
       <ContainedContests problemId={row.original.id} />
     </div>
   )
 }
 
-export const createColumns = (
-  isUser: boolean
-): ColumnDef<DataTableProblem>[] => [
+export const createColumns = (): ColumnDef<DataTableProblem>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -172,10 +215,11 @@ export const createColumns = (
 
   {
     accessorKey: 'isVisible',
-    header: ({ column }) =>
-      !isUser && <DataTableColumnHeader column={column} title="Visible" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Visible" />
+    ),
     cell: ({ row }) => {
-      return !isUser && <VisibleCell row={row} />
+      return <VisibleCell row={row} />
     }
   },
   {
