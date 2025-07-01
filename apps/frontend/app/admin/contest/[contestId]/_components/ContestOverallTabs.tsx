@@ -53,7 +53,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
   }, [])
 
   const leaderBoard =
-    realSize >= 768 ? (
+    realSize >= 1024 ? (
       <p>LEADERBOARD</p>
     ) : (
       <p className="text-xs">
@@ -64,7 +64,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     )
 
   const allSubmission =
-    realSize >= 768 ? (
+    realSize >= 1024 ? (
       <p>ALL SUBMISSION</p>
     ) : (
       <p className="text-xs">
@@ -77,7 +77,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     )
 
   const announcement =
-    realSize >= 768 ? (
+    realSize >= 1024 ? (
       <p>ANNOUNCEMENT</p>
     ) : (
       <p className="text-xs">
@@ -88,7 +88,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     )
 
   const statistics =
-    realSize >= 768 ? (
+    realSize >= 1024 ? (
       <p>STATISTICS</p>
     ) : (
       <p className="text-xs">
@@ -98,7 +98,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
       </p>
     )
 
-  const qna = realSize >= 768 ? <p>Q&A</p> : <p className="text-xs">Q&A</p>
+  const qna = realSize >= 1024 ? <p>Q&A</p> : <p className="text-xs">Q&A</p>
 
   return (
     <div className="mb-16 flex h-[60px] w-full rounded-full border border-solid border-[#80808040] bg-white">
