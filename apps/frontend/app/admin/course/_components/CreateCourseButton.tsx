@@ -126,7 +126,7 @@ export function CreateCourseButton() {
         className="w-[120px]"
       >
         <HiMiniPlusCircle className="mr-2 h-5 w-5" />
-        Create
+        <span className="text-lg">Create</span>
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
         <AlertDialogContent className="px-2 py-0">
