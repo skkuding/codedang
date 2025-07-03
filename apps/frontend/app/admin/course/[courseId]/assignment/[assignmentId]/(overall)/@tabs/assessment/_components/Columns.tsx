@@ -253,7 +253,7 @@ export const createColumns = (
               target="_blank"
               className="flex justify-center"
             >
-              <SquareArrowOutUpRight className="hover:text-primary h-4 w-4 text-gray-500" />
+              <SquareArrowOutUpRight className="hover:text-primary text-black-500 h-4 w-4" />
             </Link>
           )
         } else {
