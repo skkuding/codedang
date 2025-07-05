@@ -10,7 +10,7 @@ import { Button } from '@/components/shadcn/button'
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
-import calendarIcon from '@/public/icons/calendar.svg'
+import calendarIcon from '@/public/icons/calendar_blue.svg'
 import type {
   Contest,
   ContestStatus,
@@ -121,17 +121,19 @@ export default async function ContestTop({
   const prev = true
   return (
     <div>
-      <h1 className="mt-24 w-[1208px] text-2xl font-bold">{data?.title}</h1>
+      <h1 className="mt-24 w-[1208px] text-2xl font-semibold tracking-[-0.72px]">
+        {data?.title}
+      </h1>
       <div className="mt-[30px] flex flex-col gap-[10px]">
         <div className="flex gap-2">
-          <Image src={calendarIcon} alt="calendar" width={16} height={16} />
-          <p className="font-medium text-[#333333e6]">
+          <Image src={calendarIcon} alt="calendar" width={20} height={20} />
+          <p className="text-base font-normal tracking-[-0.48px] text-[#333333e6]">
             {formattedStartTime} ~ {formattedEndTime}
           </p>
         </div>
         <ContestStatusTimeDiff
           contest={contest}
-          textStyle="text-[#333333e6] font-medium opacity-100"
+          textStyle="text-[#333333e6] font-normal opacity-100"
           inContestEditor={false}
         />
       </div>
@@ -175,7 +177,7 @@ export default async function ContestTop({
           {session && state !== 'Finished' && (
             <div className="h-[48px] w-[940px]">
               {data.isRegistered ? (
-                <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#80808014] font-medium text-[#3333334d]">
+                <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#F0F0F0] font-medium text-[#9B9B9B]">
                   Registered
                 </Button>
               ) : (
@@ -193,7 +195,7 @@ export default async function ContestTop({
       </div>
       <Accordion type="single" collapsible className="mt-16 w-[1208px]">
         <AccordionItem value="item-1" className="border-b-0">
-          <AccordionTrigger className="h-[74px] border-t-[1.5px] border-[#a2a2a240] pr-[25px] text-lg font-semibold">
+          <AccordionTrigger className="h-[74px] border-t-[1.5px] border-[#a2a2a240] pr-[25px] text-lg font-semibold tracking-[-0.6px]">
             More Description
           </AccordionTrigger>
           <AccordionContent className="pb-8 text-base text-[#00000080]">
@@ -208,7 +210,7 @@ export default async function ContestTop({
         className="w-[1208px]"
       >
         <AccordionItem value="item-1" className="border-b-0">
-          <AccordionTrigger className="h-[74px] border-t-[1.5px] border-[#a2a2a240] pr-[25px] text-lg font-semibold">
+          <AccordionTrigger className="h-[74px] border-t-[1.5px] border-[#a2a2a240] pr-[25px] text-lg font-semibold tracking-[-0.6px]">
             Problem List
           </AccordionTrigger>
           <AccordionContent className="mb-10 pb-0 pt-[3px] text-base text-[#00000080]">
