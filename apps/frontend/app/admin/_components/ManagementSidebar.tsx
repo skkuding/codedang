@@ -32,7 +32,7 @@ import {
   FaTrophy,
   FaUser
 } from 'react-icons/fa6'
-import { SideBar } from './SideBar'
+import { SideBar } from '../../../components/SideBar'
 
 interface NavItem {
   name: string

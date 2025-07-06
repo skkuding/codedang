@@ -1,6 +1,6 @@
 'use client'
 
-import { SideBar } from '@/app/admin/_components/SideBar'
+import { SideBar } from '@/components/SideBar'
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
 import { motion } from 'framer-motion'
