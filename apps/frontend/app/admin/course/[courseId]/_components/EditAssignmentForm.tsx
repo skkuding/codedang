@@ -162,7 +162,7 @@ export function EditAssignmentForm({
     }
 
     if (input.dueTime > input.endTime) {
-      toast.error('Due time cannot be later than end time')
+      toast.error('End time cannot be earlier than due time')
       return
     }
 
