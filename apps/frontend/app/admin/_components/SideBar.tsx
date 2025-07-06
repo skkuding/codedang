@@ -1,42 +1,71 @@
 'use client'
 
 import { cn } from '@/libs/utils'
+import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { FaChartBar, FaUser, FaBell, FaPen, FaTrophy } from 'react-icons/fa6'
+import type { ComponentType } from 'react'
+import type { IconType } from 'react-icons'
 
-export function SideBar() {
+interface NavItem {
+  name: string
+  path: string
+  icon: IconType | ComponentType<{ className: string }>
+}
+
+interface SideBarProps {
+  navItems: NavItem[]
+  isSidebarExpanded: boolean
+  defaultItem?: string
+}
+
+export function SideBar({
+  navItems,
+  isSidebarExpanded,
+  defaultItem
+}: SideBarProps) {
   const pathname = usePathname()
-
-  const navItems = [
-    { name: 'Dashboard', path: '/admin' as const, icon: FaChartBar },
-    { name: 'User', path: '/admin/user' as const, icon: FaUser },
-    { name: 'Notice', path: '/admin/notice' as const, icon: FaBell },
-    { name: 'Problem', path: '/admin/problem' as const, icon: FaPen },
-    { name: 'Contest', path: '/admin/contest' as const, icon: FaTrophy }
-  ]
 
   return (
     <div className="flex flex-col gap-2">
       {navItems.map((item) => (
-        <Link
+        <SidebarLink
           key={item.name}
-          href={item.path}
-          className={cn(
-            'rounded px-4 py-2 transition',
-            (
-              item.path === '/admin'
-                ? pathname === item.path
-                : pathname.startsWith(item.path)
-            )
-              ? 'bg-primary text-white hover:opacity-95'
-              : 'text-slate-600 hover:bg-slate-100'
-          )}
-        >
-          {item.icon && <item.icon className="mr-2 inline-block" />}
-          {item.name}
-        </Link>
+          item={item}
+          isActive={
+            defaultItem && item.name === defaultItem
+              ? pathname === item.path
+              : pathname.startsWith(item.path)
+          }
+          isExpanded={isSidebarExpanded}
+        />
       ))}
     </div>
+  )
+}
+
+interface SidebarLinkProps {
+  item: NavItem
+  isActive: boolean
+  isExpanded: boolean
+}
+
+function SidebarLink({ item, isActive, isExpanded }: SidebarLinkProps) {
+  return (
+    <Link
+      href={item.path as Route}
+      className={cn(
+        'flex items-center px-4 py-2 transition',
+        isActive ? 'bg-primary text-white' : 'text-[#474747] hover:bg-gray-100',
+        isExpanded ? 'w-48 rounded-full' : 'rounded'
+      )}
+    >
+      <item.icon
+        className={cn('h-4 w-4', isActive ? 'fill-white' : 'fill-gray-600')}
+      />
+      {isExpanded && (
+        <span className="ml-3 text-base font-medium">{item.name}</span>
+      )}
+    </Link>
   )
 }
