@@ -1,10 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException
-} from '@nestjs/common'
+import { BadRequestException, Inject, Injectable } from '@nestjs/common'
 import { GroupType, UserGroup, type User } from '@generated'
 import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
