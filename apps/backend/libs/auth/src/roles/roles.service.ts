@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { PrismaService } from '@libs/prisma'
+import type { ContestRole } from '@prisma/client'
+import type { PrismaService } from '@libs/prisma'
 
 @Injectable()
 export class RolesService {
@@ -9,7 +10,9 @@ export class RolesService {
     return await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: {
-        role: true
+        role: true,
+        canCreateCourse: true,
+        canCreateContest: true
       }
     })
   }
@@ -26,6 +29,18 @@ export class RolesService {
     })
   }
 
+  async findLeaderGroup(userId: number) {
+    return await this.prisma.userGroup.findFirst({
+      where: {
+        userId,
+        isGroupLeader: true
+      },
+      select: {
+        groupId: true
+      }
+    })
+  }
+
   async getUserContest(userId: number, contestId: number) {
     return await this.prisma.userContest.findFirst({
       where: {
@@ -34,6 +49,20 @@ export class RolesService {
       },
       select: {
         role: true
+      }
+    })
+  }
+
+  async findUserContestByRole(userId: number, roles: ContestRole[]) {
+    return await this.prisma.userContest.findFirst({
+      where: {
+        userId,
+        role: {
+          in: roles
+        }
+      },
+      select: {
+        id: true
       }
     })
   }
