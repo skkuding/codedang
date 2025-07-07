@@ -1,8 +1,8 @@
 interface IconProps {
-  fill: string
+  className: string
 }
 
-export function AssignmentIcon(props: { className: string }) {
+export function AssignmentIcon(props: IconProps) {
   return (
     <svg
       width="16"
@@ -16,7 +16,7 @@ export function AssignmentIcon(props: { className: string }) {
   )
 }
 
-export function ExerciseIcon(props: { className: string }) {
+export function ExerciseIcon(props: IconProps) {
   return (
     <svg
       width="16"
@@ -34,7 +34,7 @@ export function ExerciseIcon(props: { className: string }) {
   )
 }
 
-export function HomeIcon(props: { className: string }) {
+export function HomeIcon(props: IconProps) {
   return (
     <svg
       width="16"
@@ -48,7 +48,7 @@ export function HomeIcon(props: { className: string }) {
   )
 }
 
-export function MemberIcon(props: { className: string }) {
+export function MemberIcon(props: IconProps) {
   return (
     <svg
       width="16"
@@ -66,7 +66,7 @@ export function MemberIcon(props: { className: string }) {
   )
 }
 
-export function NoticeIcon(props: { className: string }) {
+export function NoticeIcon(props: IconProps) {
   return (
     <svg
       width="16"
@@ -84,18 +84,20 @@ export function NoticeIcon(props: { className: string }) {
   )
 }
 
-export function GradeDetailIcon({ fill }: IconProps) {
+export function GradeDetailIcon(props: IconProps) {
   return (
     <svg
       width="20"
       height="20"
       viewBox="0 0 24 24"
-      fill="none"
+      className={props.className}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        fill="currentColor"
         d="M22.5 4.5C22.5 2.84531 21.1547 1.5 19.5 1.5H4.5C2.84531 1.5 1.5 2.84531 1.5 4.5V19.5C1.5 21.1547 2.84531 22.5 4.5 22.5H19.5C21.1547 22.5 22.5 21.1547 22.5 19.5V4.5ZM13.5 7.5C13.5 8.32969 12.8297 9 12 9H7.5C6.67031 9 6 8.32969 6 7.5C6 6.67031 6.67031 6 7.5 6H12C12.8297 6 13.5 6.67031 13.5 7.5ZM16.5 10.5C17.3297 10.5 18 11.1703 18 12C18 12.8297 17.3297 13.5 16.5 13.5H7.5C6.67031 13.5 6 12.8297 6 12C6 11.1703 6.67031 10.5 7.5 10.5H16.5ZM10.5 16.5C10.5 17.3297 9.82969 18 9 18H7.5C6.67031 18 6 17.3297 6 16.5C6 15.6703 6.67031 15 7.5 15H9C9.82969 15 10.5 15.6703 10.5 16.5Z"
-        fill={fill}
       />
     </svg>
   )
