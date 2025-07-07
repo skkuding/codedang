@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import type { ContestRole } from '@prisma/client'
-import type { PrismaService } from '@libs/prisma'
+import { PrismaService } from '@libs/prisma'
 
 @Injectable()
 export class RolesService {
