@@ -1,5 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
 import { MIN_DATE, MAX_DATE } from '@libs/constants'
