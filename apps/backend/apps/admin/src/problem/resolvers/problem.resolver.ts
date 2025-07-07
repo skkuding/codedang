@@ -60,7 +60,7 @@ export class ProblemResolver {
   }
 
   @Query(() => [ProblemWithIsVisible])
-  async getProblems(
+  async problems(
     @Context('req') req: AuthenticatedRequest,
     @Args('input') input: FilterProblemsInput,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
@@ -81,30 +81,30 @@ export class ProblemResolver {
   }
 
   @Query(() => ProblemWithIsVisible)
-  async getProblem(
+  async problem(
     @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     return await this.problemService.getProblem(id, req.user.role, req.user.id)
   }
 
-  @ResolveField('updateHistory', () => [UpdateHistory])
-  async getProblemUpdateHistory(@Parent() problem: ProblemWithIsVisible) {
+  @ResolveField(() => [UpdateHistory])
+  async updateHistory(@Parent() problem: ProblemWithIsVisible) {
     return await this.problemService.getProblemUpdateHistory(problem.id)
   }
 
-  @ResolveField('sharedGroups', () => [Group])
-  async getSharedGroups(@Parent() problem: ProblemWithIsVisible) {
+  @ResolveField(() => [Group])
+  async sharedGroups(@Parent() problem: ProblemWithIsVisible) {
     return await this.problemService.getSharedGroups(problem.id)
   }
 
-  @ResolveField('tag', () => [ProblemTag])
-  async getProblemTags(@Parent() problem: ProblemWithIsVisible) {
+  @ResolveField(() => [ProblemTag])
+  async tag(@Parent() problem: ProblemWithIsVisible) {
     return await this.tagService.getProblemTags(problem.id)
   }
 
-  @ResolveField('testcase', () => [ProblemTestcase])
-  async getProblemTestCases(@Parent() problem: ProblemWithIsVisible) {
+  @ResolveField(() => [ProblemTestcase])
+  async testcase(@Parent() problem: ProblemWithIsVisible) {
     return await this.testcaseService.getProblemTestcases(problem.id)
   }
 

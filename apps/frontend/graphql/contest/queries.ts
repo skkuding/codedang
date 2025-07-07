@@ -1,8 +1,8 @@
 import { gql } from '@generated'
 
 const GET_CONTEST = gql(`
-  query GetContest($contestId: Int!) {
-    getContest(contestId: $contestId) {
+  query GetContest($id: Int!) {
+    contest(id: $id) {
       id
       isJudgeResultVisible
       invitationCode
@@ -43,7 +43,7 @@ const GET_CONTEST = gql(`
 
 const GET_CONTESTS = gql(`
   query GetContests($cursor: Int, $take: Int!) {
-    getContests(cursor: $cursor, take: $take) {
+    contests(cursor: $cursor, take: $take) {
       id
       title
       startTime

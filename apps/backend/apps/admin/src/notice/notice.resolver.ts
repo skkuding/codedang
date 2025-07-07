@@ -50,14 +50,14 @@ export class NoticeResolver {
   }
 
   @Query(() => Notice)
-  async getNotice(
+  async notice(
     @Args('noticeId', { type: () => Int }, IDValidationPipe) noticeId: number
   ) {
     return await this.noticeService.getNotice(noticeId)
   }
 
   @Query(() => [Notice], { nullable: 'items' })
-  async getNotices(
+  async notices(
     @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { type: () => Int, defaultValue: 10 })
@@ -66,8 +66,8 @@ export class NoticeResolver {
     return await this.noticeService.getNotices(cursor, take)
   }
 
-  @ResolveField('createdBy', () => User, { nullable: true })
-  async getUser(@Parent() notice: Notice) {
+  @ResolveField(() => User, { nullable: true })
+  async createdBy(@Parent() notice: Notice) {
     const { createdById } = notice
     if (createdById == null) {
       return null

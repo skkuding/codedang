@@ -49,7 +49,7 @@ export function ImportProblemTable({
     }
   })
 
-  const problems = data.getProblems.map((problem) => ({
+  const problems = data.problems.map((problem) => ({
     ...problem,
     id: Number(problem.id),
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
