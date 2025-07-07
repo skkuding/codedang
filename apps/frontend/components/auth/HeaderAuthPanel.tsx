@@ -49,13 +49,14 @@ export function HeaderAuthPanel({
     (state) => state
   )
   const isUser = session?.user.role === 'User'
-  const [hasCreatePermission, setHasCreatePermission] = useState(false)
-  const [isAnyGroupLeader, setIsAnyGroupLeader] = useState(false)
-  const [isAnyContestAdmin, setIsAnyContestAdmin] = useState(false)
+
   const isEditor = group === 'editor'
   const [isUserInfoIncomplete, setIsUserInfoIncomplete] = useState(false)
   const pathname = usePathname()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [hasCreatePermission, setHasCreatePermission] = useState(false)
+  const [isAnyGroupLeader, setIsAnyGroupLeader] = useState(false)
+  const [isAnyContestAdmin, setIsAnyContestAdmin] = useState(false)
 
   useEffect(() => {
     if (!session) {
@@ -151,48 +152,16 @@ export function HeaderAuthPanel({
                   'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
               )}
             >
-              {(isAnyGroupLeader ||
-                isAnyContestAdmin ||
-                hasCreatePermission ||
-                !isUser) && (
-                <Link href="/admin">
-                  <DropdownMenuItem
-                    className={cn(
-                      'flex cursor-pointer items-center gap-1',
-                      isEditor
-                        ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-                        : 'font-semibold'
-                    )}
-                  >
-                    <UserRoundCog className="size-4" /> Management
-                  </DropdownMenuItem>
-                </Link>
-              )}
-              <Link href="/settings">
-                <DropdownMenuItem
-                  className={cn(
-                    'flex cursor-pointer items-center gap-1',
-                    isEditor
-                      ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-                      : 'font-semibold'
-                  )}
-                >
-                  <UserRoundCog className="size-4" /> Settings
-                </DropdownMenuItem>
-              </Link>
-              <DropdownMenuItem
-                className={cn(
-                  'flex cursor-pointer items-center gap-1',
-                  isEditor
-                    ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-                    : 'font-semibold'
-                )}
-                onClick={() => {
-                  signOut({ callbackUrl: '/', redirect: true })
-                }}
-              >
-                <LogOut className="size-4" /> LogOut
-              </DropdownMenuItem>
+              <AccountItems
+                session={session}
+                isAnyGroupLeader={isAnyGroupLeader}
+                isAnyContestAdmin={isAnyContestAdmin}
+                hasCreatePermission={hasCreatePermission}
+                isUser={isUser}
+                isEditor={isEditor}
+                showSignIn={showSignIn}
+                showSignUp={showSignUp}
+              />
             </DropdownMenuContent>
           </DropdownMenu>
           <Dialog open={shouldUpdateUserInfo}>
@@ -245,111 +214,146 @@ export function HeaderAuthPanel({
           </DialogContent>
         </Dialog>
       )}
-      {session ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex gap-2 px-4 py-1 md:hidden">
-            <RxHamburgerMenu size="30" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="md:hidden">
-            <DropdownMenuItem className="text-primary pointer-events-none flex select-none items-center gap-1 font-semibold">
-              {session?.user.username}
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator className="bg-gray-300" />
-            <Link href="/notice">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Notice
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/contest">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Contest
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/problem">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Problem
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/course">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Course
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuSeparator className="bg-gray-300" />
-            {(isAnyGroupLeader || hasCreatePermission || !isUser) && (
-              <Link href="/admin">
-                <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                  <UserRoundCog className="size-4" /> Management
-                </DropdownMenuItem>
-              </Link>
-            )}
-            <Link href="/settings">
-              <DropdownMenuItem
-                className={cn(
-                  'flex cursor-pointer items-center gap-1',
-                  isEditor
-                    ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-                    : 'font-semibold'
-                )}
-              >
-                <UserRoundCog className="size-4" /> Settings
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuItem
-              className="flex cursor-pointer items-center gap-1 font-semibold"
-              onClick={() => {
-                signOut({ callbackUrl: '/', redirect: true })
-              }}
-            >
-              <LogOut className="size-4" /> Log Out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ) : (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex gap-2 px-4 py-1 md:hidden">
-            <RxHamburgerMenu size="30" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="md:hidden">
-            <Link href="/notice">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Notice
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/contest">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Contest
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/problem">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Problem
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/course">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Course
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuSeparator className="bg-gray-300" />
-            <DropdownMenuItem
-              className="flex cursor-pointer items-center gap-1 font-semibold"
-              onClick={() => showSignIn()}
-            >
-              Log In
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="flex cursor-pointer items-center gap-1 font-semibold"
-              onClick={() => {
-                showSignUp()
-              }}
-            >
-              Sign Up
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      <DropdownMenu>
+        <DropdownMenuTrigger className="flex gap-2 px-4 py-1 md:hidden">
+          <RxHamburgerMenu size="30" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="md:hidden">
+          <DropdownMenuItem className="text-primary pointer-events-none flex select-none items-center gap-1 font-semibold">
+            {session?.user.username}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="bg-gray-300" />
+          <NavItems />
+          <DropdownMenuSeparator className="bg-gray-300" />
+          <AccountItems
+            session={session}
+            isAnyGroupLeader={isAnyGroupLeader}
+            isAnyContestAdmin={isAnyContestAdmin}
+            hasCreatePermission={hasCreatePermission}
+            isUser={isUser}
+            isEditor={isEditor}
+            showSignIn={showSignIn}
+            showSignUp={showSignUp}
+          />
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
+  )
+}
+
+function NavItems() {
+  return (
+    <>
+      <Link href="/notice">
+        <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+          Notice
+        </DropdownMenuItem>
+      </Link>
+      <Link href="/contest">
+        <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+          Contest
+        </DropdownMenuItem>
+      </Link>
+      <Link href="/problem">
+        <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+          Problem
+        </DropdownMenuItem>
+      </Link>
+      <Link href="/course">
+        <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+          Course
+        </DropdownMenuItem>
+      </Link>
+    </>
+  )
+}
+
+interface AccountItemsProps {
+  session: Session | null
+  isAnyGroupLeader: boolean
+  isAnyContestAdmin: boolean
+  hasCreatePermission: boolean
+  isUser: boolean
+  isEditor: boolean
+  showSignIn: () => void
+  showSignUp: () => void
+}
+
+function AccountItems({
+  session,
+  isAnyGroupLeader,
+  isAnyContestAdmin,
+  hasCreatePermission,
+  isUser,
+  isEditor,
+  showSignIn,
+  showSignUp
+}: AccountItemsProps) {
+  if (session) {
+    return (
+      <>
+        {(isAnyGroupLeader ||
+          isAnyContestAdmin ||
+          hasCreatePermission ||
+          !isUser) && (
+          <Link href="/admin">
+            <DropdownMenuItem
+              className={cn(
+                'flex cursor-pointer items-center gap-1',
+                isEditor
+                  ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
+                  : 'font-semibold'
+              )}
+            >
+              <UserRoundCog className="size-4" /> Management
+            </DropdownMenuItem>
+          </Link>
+        )}
+        <Link href="/settings">
+          <DropdownMenuItem
+            className={cn(
+              'flex cursor-pointer items-center gap-1',
+              isEditor
+                ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
+                : 'font-semibold'
+            )}
+          >
+            <UserRoundCog className="size-4" /> Settings
+          </DropdownMenuItem>
+        </Link>
+        <DropdownMenuItem
+          className={cn(
+            'flex cursor-pointer items-center gap-1',
+            isEditor
+              ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
+              : 'font-semibold'
+          )}
+          onClick={() => {
+            signOut({ callbackUrl: '/', redirect: true })
+          }}
+        >
+          <LogOut className="size-4" /> LogOut
+        </DropdownMenuItem>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <DropdownMenuItem
+        className="flex cursor-pointer items-center gap-1 font-semibold"
+        onClick={() => showSignIn()}
+      >
+        Log In
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        className="flex cursor-pointer items-center gap-1 font-semibold"
+        onClick={() => {
+          showSignUp()
+        }}
+      >
+        Sign Up
+      </DropdownMenuItem>
+    </>
   )
 }
