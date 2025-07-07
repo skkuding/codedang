@@ -2,13 +2,13 @@ interface IconProps {
   className: string
 }
 
-export function AssignmentIcon(props: IconProps) {
+export function AssignmentIcon({ className }: IconProps) {
   return (
     <svg
       width="16"
       height="16"
       viewBox="0 0 16 16"
-      className={props.className}
+      className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M1.15332 3.05131C1.15332 2.14126 1.89322 1.40137 2.80327 1.40137H6.92813V4.70126C6.92813 5.15757 7.29679 5.52623 7.7531 5.52623H11.053V9.12517L8.61159 11.5666C8.40019 11.778 8.25066 12.0435 8.17848 12.3323L7.79177 13.8817C7.73248 14.124 7.74537 14.3715 7.82786 14.5984H2.80327C1.89322 14.5984 1.15332 13.8585 1.15332 12.9484V3.05131ZM11.053 4.70126H7.7531V1.40137L11.053 4.70126ZM15.3274 7.47781L15.6986 7.84904C16.1008 8.25122 16.1008 8.90346 15.6986 9.30821L14.9407 10.0662L13.1103 8.23575L13.8682 7.47781C14.2704 7.07563 14.9226 7.07563 15.3274 7.47781ZM9.19423 12.1518L12.5251 8.82096L14.3555 10.6514L11.0246 13.9796C10.9189 14.0853 10.7875 14.1601 10.6405 14.1962L9.0911 14.5829C8.94931 14.619 8.80236 14.5777 8.69924 14.4746C8.59612 14.3715 8.55487 14.2245 8.59096 14.0827L8.97767 12.5333C9.01376 12.389 9.08853 12.2549 9.19423 12.1492V12.1518Z" />
@@ -16,13 +16,13 @@ export function AssignmentIcon(props: IconProps) {
   )
 }
 
-export function ExerciseIcon(props: IconProps) {
+export function ExerciseIcon({ className }: IconProps) {
   return (
     <svg
       width="16"
       height="16"
       viewBox="0 0 16 16"
-      className={props.className}
+      className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
@@ -34,13 +34,13 @@ export function ExerciseIcon(props: IconProps) {
   )
 }
 
-export function HomeIcon(props: IconProps) {
+export function HomeIcon({ className }: IconProps) {
   return (
     <svg
       width="16"
       height="16"
       viewBox="0 0 16 16"
-      className={props.className}
+      className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M15.0045 7.98783C15.0045 8.42587 14.6395 8.769 14.2258 8.769H13.447L13.4641 12.6675C13.4641 12.7332 13.4592 12.7989 13.4519 12.8646V13.2564C13.4519 13.7943 13.0163 14.2299 12.4785 14.2299H12.0891C12.0624 14.2299 12.0356 14.2299 12.0088 14.2274C11.9747 14.2299 11.9407 14.2299 11.9066 14.2299H11.1157H10.5317C9.99385 14.2299 9.55824 13.7943 9.55824 13.2564V12.6724V11.1149C9.55824 10.6842 9.21025 10.3362 8.77951 10.3362H7.22205C6.79131 10.3362 6.44331 10.6842 6.44331 11.1149V12.6724V13.2564C6.44331 13.7943 6.00771 14.2299 5.4699 14.2299H4.88585H4.10955C4.07305 14.2299 4.03654 14.2274 4.00004 14.225C3.97084 14.2274 3.94164 14.2299 3.91243 14.2299H3.52307C2.98526 14.2299 2.54965 13.7943 2.54965 13.2564V10.5309C2.54965 10.509 2.54965 10.4846 2.55209 10.4627V8.769H1.77092C1.33288 8.769 0.992188 8.4283 0.992188 7.98783C0.992188 7.76881 1.06519 7.57413 1.23554 7.40378L7.47513 1.96482C7.64548 1.79448 7.84017 1.77014 8.01051 1.77014C8.18086 1.77014 8.37554 1.81881 8.52156 1.94049L14.7368 7.40378C14.9315 7.57413 15.0288 7.76881 15.0045 7.98783Z" />
@@ -48,13 +48,13 @@ export function HomeIcon(props: IconProps) {
   )
 }
 
-export function MemberIcon(props: IconProps) {
+export function MemberIcon({ className }: IconProps) {
   return (
     <svg
       width="16"
       height="16"
       viewBox="0 0 16 16"
-      className={props.className}
+      className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
@@ -66,13 +66,13 @@ export function MemberIcon(props: IconProps) {
   )
 }
 
-export function NoticeIcon(props: IconProps) {
+export function NoticeIcon({ className }: IconProps) {
   return (
     <svg
       width="16"
       height="16"
       viewBox="0 0 16 16"
-      className={props.className}
+      className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
@@ -84,13 +84,13 @@ export function NoticeIcon(props: IconProps) {
   )
 }
 
-export function GradeDetailIcon(props: IconProps) {
+export function GradeDetailIcon({ className }: IconProps) {
   return (
     <svg
       width="20"
       height="20"
       viewBox="0 0 24 24"
-      className={props.className}
+      className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
