@@ -219,10 +219,14 @@ export function HeaderAuthPanel({
           <RxHamburgerMenu size="30" />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="md:hidden">
-          <DropdownMenuItem className="text-primary pointer-events-none flex select-none items-center gap-1 font-semibold">
-            {session?.user.username}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-gray-300" />
+          {session && (
+            <>
+              <DropdownMenuItem className="text-primary pointer-events-none flex select-none items-center gap-1 font-semibold">
+                {session.user.username}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-gray-300" />
+            </>
+          )}
           <NavItems />
           <DropdownMenuSeparator className="bg-gray-300" />
           <AccountItems
