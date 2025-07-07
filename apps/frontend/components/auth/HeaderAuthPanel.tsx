@@ -251,12 +251,7 @@ export function HeaderAuthPanel({
             <RxHamburgerMenu size="30" />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="md:hidden">
-            <DropdownMenuItem
-              className="text-primary flex cursor-pointer items-center gap-1 font-semibold"
-              onClick={() => {
-                signOut({ callbackUrl: '/', redirect: true })
-              }}
-            >
+            <DropdownMenuItem className="text-primary pointer-events-none flex select-none items-center gap-1 font-semibold">
               {session?.user.username}
             </DropdownMenuItem>
 
