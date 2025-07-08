@@ -66,7 +66,7 @@ export class ProblemService {
       )
     }
 
-    // Check if the problem supports the language in the template
+    // 문제가 탬플릿의 언어를 지원하는지 확인합니다.
     const seen = new Set<Language>()
     template.forEach((template: Template) => {
       const lang = template.language as Language
@@ -83,7 +83,7 @@ export class ProblemService {
       seen.add(lang)
     })
 
-    // Check if the problem supports the language in the solution
+    // 문제가 솔루션의 언어를 지원하는지 확인합니다.
     seen.clear()
     solution.forEach((solution: Solution) => {
       const lang = solution.language as Language
