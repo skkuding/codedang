@@ -425,7 +425,9 @@ export class SubmissionService {
       testcaseResult: results
     }
   }
-
+  /**
+   * @param
+   */
   async getAssignmentTitle(assignmentId: number): Promise<string | null> {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
