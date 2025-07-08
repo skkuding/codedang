@@ -23,7 +23,7 @@ export default function Page() {
       <Suspense fallback={<GroupTableFallback />}>
         <div className="container mx-auto space-y-2 py-10">
           <div className="flex justify-between">
-            <h1 className="text-4xl font-bold">Member List</h1>
+            <h1 className="text-4xl font-bold">MEMBER LIST</h1>
             <InviteButton
               onSuccess={onSuccess}
               params={{
