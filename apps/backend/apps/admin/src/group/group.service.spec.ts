@@ -11,6 +11,7 @@ import { spy, stub } from 'sinon'
 import { AuthenticatedUser } from '@libs/auth'
 import {
   ConflictFoundException,
+  EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -334,7 +335,7 @@ describe('GroupService', () => {
       db.user.findUnique.resolves(null)
 
       await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
-        NotFoundException,
+        EntityNotExistException,
         'User not found'
       )
     })
@@ -354,7 +355,7 @@ describe('GroupService', () => {
 
       await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
         UnprocessableDataException,
-        'Invalid group ID for a course'
+        'Invalid groupId for a course'
       )
     })
 
