@@ -34,7 +34,7 @@ export class GroupService {
       }
     })
     if (!userWithCanCreateCourse) {
-      throw new NotFoundException('User not found')
+      throw new EntityNotExistException('User not found')
     }
     if (!userWithCanCreateCourse.canCreateCourse) {
       throw new ForbiddenAccessException('No Access to create course')
@@ -256,7 +256,7 @@ export class GroupService {
       }
     })
     if (!userWithCanCreateCourse) {
-      throw new NotFoundException('User not found')
+      throw new EntityNotExistException('User not found')
     }
 
     if (!userWithCanCreateCourse.canCreateCourse) {
@@ -282,7 +282,7 @@ export class GroupService {
       })
 
     if (!courseInfo) {
-      throw new UnprocessableDataException('Invalid group ID for a course')
+      throw new UnprocessableDataException('Invalid groupId for a course')
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -468,7 +468,7 @@ export class InvitationService {
     })
 
     if (!group) {
-      throw new NotFoundException('Group')
+      throw new EntityNotExistException('Group')
     }
 
     const user = await this.prisma.user.findUnique({
@@ -476,7 +476,7 @@ export class InvitationService {
     })
 
     if (!user) {
-      throw new NotFoundException('User')
+      throw new EntityNotExistException('User')
     }
 
     const isAlreadyMember = await this.prisma.userGroup.findUnique({

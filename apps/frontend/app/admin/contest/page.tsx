@@ -15,7 +15,7 @@ export default function Page() {
         <div>
           <p className="text-[32px] font-bold">CONTEST LIST</p>
           <p className="text-base text-[#787E80]">
-            Here&apos;s a list you made
+            Here&apos;s a contest list you made
           </p>
         </div>
         <Button variant="default" className="w-[120px]" asChild>

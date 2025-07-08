@@ -128,7 +128,7 @@ export class ProblemService {
       ].includes(mimetype) === false
     )
       throw new UnprocessableDataException(
-        'Extensions except Excel(.xlsx, .xls) are not supported.'
+        'Extensions except Excel(.xlsx, .xls) are not supported'
       )
     const header = {}
     const problems: CreateProblemInput[] = []
@@ -339,7 +339,7 @@ export class ProblemService {
           (user.role !== ContestRole.Admin && user.role !== ContestRole.Manager)
         ) {
           throw new ForbiddenException(
-            'You must be Admin/Manager of this contest.'
+            'You must be Admin/Manager of this contest'
           )
         }
         const contestManagers = await this.prisma.userContest.findMany({

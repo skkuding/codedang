@@ -14,9 +14,9 @@ export default function Page() {
     <div className="container mx-auto py-10">
       <div className="flex justify-between">
         <div>
-          <p className="text-4xl font-bold">Shared Problem List</p>
+          <p className="text-4xl font-bold">SHARED PROBLEM LIST</p>
           <p className="flex text-lg text-slate-500">
-            Here&apos;s the problems shared in other courses.
+            Here&apos;s a problem list shared in other courses.
           </p>
         </div>
       </div>

@@ -54,7 +54,7 @@ export class FileService {
         await this.storageService.deleteFile(newFilename) // 파일이 S3에 업로드되었지만, DB에 파일 정보 등록을 실패한 경우 rollback
       }
       throw new UnprocessableFileDataException(
-        'Error occurred during file upload.',
+        'Error occurred during file upload',
         newFilename
       )
     }

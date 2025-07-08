@@ -320,7 +320,7 @@ export class GroupService {
         })
 
         if (!whitelist.includes(studentId)) {
-          throw new ForbiddenAccessException('Whitelist Violation')
+          throw new ForbiddenAccessException('Whitelist violation')
         }
       }
 

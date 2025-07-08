@@ -275,7 +275,7 @@ const db = {
       const newContestProblem = await db.contestProblem.create()
       return [newContestProblem, updatedProblem]
     } else {
-      throw new Error('Invalid transaction mock usage')
+      throw new Error('There is invalid transaction mock usage')
     }
   }),
   getPaginator: PrismaService.prototype.getPaginator

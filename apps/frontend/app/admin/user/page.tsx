@@ -9,7 +9,7 @@ export default function User() {
   return (
     <div className="container mx-auto space-y-5 py-10">
       <div className="flex justify-between">
-        <h1 className="text-4xl font-bold">User List</h1>
+        <h1 className="text-4xl font-bold">USER LIST</h1>
       </div>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<UserTableFallback />}>
