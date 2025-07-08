@@ -508,7 +508,7 @@ describe('InvitationService', () => {
     db.group.findUnique.resolves(null)
 
     await expect(service.inviteUser(groupId, userId, false)).to.be.rejectedWith(
-      NotFoundException
+      EntityNotExistException
     )
   })
 
