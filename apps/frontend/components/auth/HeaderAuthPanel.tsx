@@ -18,6 +18,7 @@ import { useAuthModalStore } from '@/stores/authModal'
 import type { Course } from '@/types/type'
 import { ContestRole, type UserContest } from '@generated/graphql'
 import { ChevronDown, LogOut, UserRoundCog } from 'lucide-react'
+import type { Route } from 'next'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
@@ -246,30 +247,14 @@ export function HeaderAuthPanel({
 }
 
 function NavItems() {
-  return (
-    <>
-      <Link href="/notice">
-        <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-          Notice
-        </DropdownMenuItem>
-      </Link>
-      <Link href="/contest">
-        <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-          Contest
-        </DropdownMenuItem>
-      </Link>
-      <Link href="/problem">
-        <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-          Problem
-        </DropdownMenuItem>
-      </Link>
-      <Link href="/course">
-        <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-          Course
-        </DropdownMenuItem>
-      </Link>
-    </>
-  )
+  const navItems = ['notice', 'contest', 'problem', 'course']
+  return navItems.map((navItem) => (
+    <Link href={`/${navItem}` as Route} key={navItem}>
+      <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+        {navItem.charAt(0).toUpperCase() + navItem.slice(1)}
+      </DropdownMenuItem>
+    </Link>
+  ))
 }
 
 interface AccountItemsProps {
