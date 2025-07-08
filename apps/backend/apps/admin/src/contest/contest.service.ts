@@ -153,7 +153,7 @@ export class ContestService {
     })
 
     if (!contest) {
-      throw new EntityNotExistException('contest')
+      throw new EntityNotExistException('Contest')
     }
 
     const { _count, ...data } = contest
@@ -204,7 +204,7 @@ export class ContestService {
       for (const role of userContest) {
         if (!validRoles.has(role.contestRole)) {
           throw new UnprocessableDataException(
-            `Invalid contest role: ${role.contestRole}`
+            `Invalid contest role : ${role.contestRole}`
           )
         }
 
@@ -514,7 +514,7 @@ export class ContestService {
       }
     })
     if (!contest) {
-      throw new EntityNotExistException('contest')
+      throw new EntityNotExistException('Contest')
     }
 
     const problemIds = contest.contestProblem.map(
@@ -552,7 +552,7 @@ export class ContestService {
       }
     })
     if (!contest) {
-      throw new EntityNotExistException('contest')
+      throw new EntityNotExistException('Contest')
     }
 
     let maxOrder =
@@ -637,7 +637,7 @@ export class ContestService {
       }
     })
     if (!contest) {
-      throw new EntityNotExistException('contest')
+      throw new EntityNotExistException('Contest')
     }
 
     const contestProblems: ContestProblem[] = []
@@ -672,7 +672,7 @@ export class ContestService {
         })
 
         if (!latestContest) {
-          throw new EntityNotExistException('contest')
+          throw new EntityNotExistException('Contest')
         }
 
         visibleLockTime = latestContest.endTime
@@ -688,7 +688,7 @@ export class ContestService {
         }
       })
       if (!removeContestProblem) {
-        throw new EntityNotExistException('contestProblem')
+        throw new EntityNotExistException('ContestProblem')
       }
 
       try {
@@ -916,7 +916,7 @@ export class ContestService {
       })
 
       if (!contestProblem) {
-        throw new EntityNotExistException('contestProblem')
+        throw new EntityNotExistException('ContestProblem')
       }
 
       const maxScore = contestProblem.score
@@ -1074,7 +1074,7 @@ export class ContestService {
     })
 
     if (!contest) {
-      throw new EntityNotExistException('Contest not found')
+      throw new EntityNotExistException('Contest is not found')
     }
 
     const participated = await this.prisma.submission.findMany({

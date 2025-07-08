@@ -200,7 +200,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
 
     if (!msg.judgeResult) {
-      throw new UnprocessableDataException('judgeResult is empty')
+      throw new UnprocessableDataException('JudgeResult is empty')
     }
 
     const submissionResult = {
@@ -386,7 +386,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     if (!contestId || !userId)
       throw new UnprocessableDataException(
-        `contestId: ${contestId}, userId: ${userId} is empty`
+        `The contestId: ${contestId}, userId: ${userId} is empty`
       )
 
     const [contest, contestProblem, contestRecord, submissions] =
