@@ -114,6 +114,19 @@ export async function EditorLayout({
     problem = await fetcher(`problem/${problemId}`).json()
   }
 
+  if (problem.problemTestcase[0].order !== null) {
+    // s3에 업로드 된 테스트케이스일 경우
+    problem.problemTestcase = problem.problemTestcase.sort(
+      //eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      (a, b) => a.order! - b.order!
+    )
+  } else {
+    // DB에 저장된 테스트케이스일 경우 (테스트케이스 DB -> S3 마이그레이션이 완료되면 삭제 예정)
+    problem.problemTestcase = problem.problemTestcase.sort(
+      (a, b) => a.id - b.id
+    )
+  }
+
   const session = await auth()
 
   return (
