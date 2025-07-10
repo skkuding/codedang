@@ -7,11 +7,13 @@ import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 
+interface AssignmentFinishedPageProps {
+  params: { problemId: string; assignmentId: string; courseId: string }
+}
+
 export default async function AssignmentFinishedPage({
   params
-}: {
-  params: { problemId: string; assignmentId: string; courseId: string }
-}) {
+}: AssignmentFinishedPageProps) {
   const { problemId, assignmentId, courseId } = params
 
   const isProblemPubliclyAvailable =
@@ -59,8 +61,8 @@ export default async function AssignmentFinishedPage({
             href={`/course/${courseId}/assignment/${assignmentId}` as Route}
           >
             <Button
-              size="icon"
-              className="ml-4 h-10 w-24 shrink-0 gap-[5px] rounded-[4px] bg-blue-500 font-sans hover:bg-blue-700"
+              type="button"
+              className="ml-4 h-10 w-24 shrink-0 gap-[5px] bg-blue-500 font-sans hover:bg-blue-700"
             >
               <Image src={exitIcon} alt="exit" width={20} height={20} />
               Exit
