@@ -8,7 +8,13 @@ import {
   ResolveField,
   Resolver
 } from '@nestjs/graphql'
-import { Contest, ContestProblem, User, UserContest } from '@generated'
+import {
+  Contest,
+  ContestProblem,
+  ContestRecord,
+  User,
+  UserContest
+} from '@generated'
 import { ContestRole } from '@prisma/client'
 import {
   AuthenticatedRequest,
@@ -109,6 +115,22 @@ export class ContestResolver {
     return await this.contestService.removeProblemsFromContest(
       contestId,
       problemIds
+    )
+  }
+
+  @Mutation(() => UserContest)
+  @UseDisableContestRolesGuard()
+  async removeUserFromContest(
+    @Args('contestId', { type: () => Int }, IDValidationPipe)
+    contestId: number,
+    @Args('userId', { type: () => Int }, IDValidationPipe)
+    userId: number,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.contestService.removeUserFromContest(
+      contestId,
+      userId,
+      req.user.id
     )
   }
 
