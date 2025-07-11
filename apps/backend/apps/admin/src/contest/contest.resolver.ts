@@ -8,13 +8,7 @@ import {
   ResolveField,
   Resolver
 } from '@nestjs/graphql'
-import {
-  Contest,
-  ContestProblem,
-  ContestRecord,
-  User,
-  UserContest
-} from '@generated'
+import { Contest, ContestProblem, User, UserContest } from '@generated'
 import { ContestRole } from '@prisma/client'
 import {
   AuthenticatedRequest,
