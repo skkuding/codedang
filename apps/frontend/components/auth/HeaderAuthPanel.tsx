@@ -60,10 +60,6 @@ export function HeaderAuthPanel({
   const [isAnyContestAdmin, setIsAnyContestAdmin] = useState(false)
 
   useEffect(() => {
-    if (!session) {
-      return
-    }
-
     const fetchUserInfo = async () => {
       try {
         const user: HeaderAuthUser = await safeFetcherWithAuth
