@@ -31,7 +31,7 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 15,
+    "contestId": 19,
     "input": {
       "title": "Updated Contest 2",
       "description": "thisisupdatedcontest",
@@ -53,4 +53,8 @@ body:graphql:vars {
 
 assert {
   res.body.errors: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
 }

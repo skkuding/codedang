@@ -21,6 +21,7 @@ body:graphql {
       description
       startTime
       endTime
+      registerDueTime
       unfreeze
       freezeTime
       enableCopyPaste
@@ -41,8 +42,9 @@ body:graphql:vars {
     "input": {
       "title": "Updated Contest 2",
       "description": "thisisupdatedcontest",
-      "startTime": "2024-01-01",
+      "startTime": "2025-01-01",
       "endTime": "2030-01-01",
+      "registerDueTime": "2023-01-01",
       "enableCopyPaste": true,
       "isJudgeResultVisible": true,
       "invitationCode": "123456",
@@ -52,23 +54,17 @@ body:graphql:vars {
         "순위산정": "updatedrankingMethod",
         "문제형태": "updatedproblemFormat",
         "참여혜택": "updatedbenefits"
-      },
-      "userContest": [
-        { "userId": 5, "contestRole": "Manager" },
-        { "userId": 6, "contestRole": "Reviewer" }
-      ],
-      "penalty": 20,
-      "lastPenalty": false,
-      "posterUrl": null,
-      "freezeTime": "2028-01-01T00:00:00.000Z",
-      "unfreeze": false,
-      "evaluateWithSampleTestcase": false
+      }
     }
   }
 }
 
 assert {
   res.body.data.updateContest: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
 }
 
 docs {
@@ -89,6 +85,7 @@ docs {
   | invitationCode | String (6자리) | ❌ | 초대 코드 |
   | startTime | GraphQLISODateTime | ❌ | 시작 시간 |
   | endTime | GraphQLISODateTime | ❌ | 종료 시간 |
+  | registerDueTime | GraphQLISODateTime | ❌ | 종료 시간 |
   | freezeTime | GraphQLISODateTime | ❌ | 순위 공개 정지 시간 |
   | unfreeze | Boolean | ❌ | 콘테스트 순위 공개 해제 여부 |
   | isJudgeResultVisible | Boolean | ❌ | 채점 결과 공개 여부 |
