@@ -1,0 +1,28 @@
+meta {
+  name: [ERR] Nonexistent Contest
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    removeUserFromContest(
+      contestId: 99999
+      userId: 7
+    ) {
+      userId
+      contestId
+      role
+    }
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}

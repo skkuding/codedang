@@ -112,6 +112,22 @@ export class ContestResolver {
     )
   }
 
+  @Mutation(() => UserContest)
+  @UseDisableContestRolesGuard()
+  async removeUserFromContest(
+    @Args('contestId', { type: () => Int }, IDValidationPipe)
+    contestId: number,
+    @Args('userId', { type: () => Int }, IDValidationPipe)
+    userId: number,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.contestService.removeUserFromContest(
+      contestId,
+      userId,
+      req.user.id
+    )
+  }
+
   /**
    * 특정 User의 Contest 제출 내용 요약 정보를 가져옵니다.
    *
