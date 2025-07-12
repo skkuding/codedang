@@ -544,6 +544,7 @@ type Contest {
   lastPenalty: Boolean!
   penalty: Int!
   posterUrl: String
+  registerDueTime: DateTime!
   startTime: DateTime!
   submission: [Submission!]
 
@@ -595,6 +596,7 @@ type ContestCountAggregate {
   lastPenalty: Int!
   penalty: Int!
   posterUrl: Int!
+  registerDueTime: Int!
   startTime: Int!
   summary: Int!
   title: Int!
@@ -624,6 +626,7 @@ type ContestMaxAggregate {
   lastPenalty: Boolean
   penalty: Int
   posterUrl: String
+  registerDueTime: DateTime
   startTime: DateTime
   title: String
   unfreeze: Boolean
@@ -644,6 +647,7 @@ type ContestMinAggregate {
   lastPenalty: Boolean
   penalty: Int
   posterUrl: String
+  registerDueTime: DateTime
   startTime: DateTime
   title: String
   unfreeze: Boolean
@@ -1017,6 +1021,7 @@ type ContestWithParticipants {
   participants: Int!
   penalty: Int!
   posterUrl: String
+  registerDueTime: DateTime!
   startTime: DateTime!
   submission: [Submission!]
 
@@ -1064,6 +1069,7 @@ type ContestWithScores {
   penalty: Int!
   posterUrl: String
   problemScore: Int!
+  registerDueTime: DateTime!
   startTime: DateTime!
   submission: [Submission!]
 
@@ -1208,6 +1214,7 @@ input CreateContestInput {
   lastPenalty: Boolean
   penalty: Int
   posterUrl: String
+  registerDueTime: DateTime!
   startTime: DateTime!
   summary: JSON
   title: String!
@@ -2482,6 +2489,7 @@ input UpdateContestInput {
   lastPenalty: Boolean
   penalty: Int
   posterUrl: String
+  registerDueTime: DateTime
   startTime: DateTime
   summary: JSON
   title: String
