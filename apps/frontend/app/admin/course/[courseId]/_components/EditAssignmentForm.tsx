@@ -157,12 +157,12 @@ export function EditAssignmentForm({
 
   const isSubmittable = (input: UpdateAssignmentInput) => {
     if (input.startTime >= input.dueTime) {
-      toast.error('Start time must be less than due time')
+      toast.error('Start time must be earlier than due time')
       return
     }
 
-    if (input.dueTime >= input.endTime) {
-      toast.error('Due time must be less than end time')
+    if (input.dueTime > input.endTime) {
+      toast.error('End time cannot be earlier than due time')
       return
     }
 
