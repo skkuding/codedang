@@ -1,6 +1,7 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
+import { cn } from '@/libs/utils'
 import welcomeLogo from '@/public/logos/welcome.png'
 import { ErrorBoundary } from '@suspensive/react'
 import Image from 'next/image'
@@ -24,6 +25,44 @@ function CardListFallback() {
 
 export default async function Course() {
   const session = await auth()
+
+  const palette = [
+    // primary 계열
+    'primary',
+    'primary-light',
+    'primary-strong',
+    'primary-heavy',
+    // background 계열
+    'background',
+    'background-alternative',
+    // line 계열
+    'line',
+    'line-neutral',
+    // fill 계열
+    'fill',
+    'fill-neutral',
+    // secondary, error
+    'secondary',
+    'error',
+    // level (dark)
+    'level-dark-1',
+    'level-dark-2',
+    'level-dark-3',
+    'level-dark-4',
+    'level-dark-5',
+    // level (light)
+    'level-light-1',
+    'level-light-2',
+    'level-light-3',
+    'level-light-4',
+    'level-light-5',
+    // level (default)
+    'level-1',
+    'level-2',
+    'level-3',
+    'level-4',
+    'level-5'
+  ]
 
   if (!session) {
     return (
@@ -53,6 +92,15 @@ export default async function Course() {
         </ErrorBoundary>
       </div>
       <CourseSubBanner />
+      <div className="py-5" />
+      <div className="flex flex-col">
+        {palette.map((color) => (
+          <div key={color} className="my-2 flex items-center">
+            <div className={cn(`bg-${color} h-4 w-12 rounded`)} />
+            <span className="ml-4">{color}</span>
+          </div>
+        ))}
+      </div>
       <div className="h-[100px]" />
     </>
   )
