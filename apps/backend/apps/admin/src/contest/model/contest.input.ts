@@ -40,6 +40,9 @@ export class CreateContestInput {
   @Field(() => GraphQLISODateTime, { nullable: false })
   endTime!: Date
 
+  @Field(() => GraphQLISODateTime, { nullable: false })
+  registerDueTime!: Date
+
   @Field(() => GraphQLISODateTime, { nullable: true })
   freezeTime?: Date
 
@@ -90,6 +93,9 @@ export class UpdateContestInput {
 
   @Field(() => GraphQLISODateTime, { nullable: true })
   endTime?: Date
+
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  registerDueTime?: Date
 
   @Field(() => Boolean, { nullable: true })
   unfreeze?: boolean

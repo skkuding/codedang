@@ -1,5 +1,5 @@
 meta {
-  name: [409] Ended contest
+  name: [409] Registration closed
   type: http
   seq: 4
 }
@@ -16,7 +16,7 @@ params:query {
 
 assert {
   res.status: eq 409
-  res("message"): eq Cannot participate ended contest
+  res("message"): eq Not allowed to participate in this contest after registerDueTime
 }
 
 script:pre-request {

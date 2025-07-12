@@ -480,6 +480,7 @@ export const exampleContest: Contest = {
   isJudgeResultVisible: true,
   startTime: new Date(),
   endTime: new Date(),
+  registerDueTime: new Date(),
   unfreeze: false,
   freezeTime: null,
   createTime: new Date(),

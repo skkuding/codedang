@@ -1,7 +1,7 @@
 meta {
-  name: [ERR] Freeze Time Earlier than the Previous Value
+  name: [422] Start Time Earlier than Register Due Time
   type: graphql
-  seq: 5
+  seq: 3
 }
 
 post {
@@ -31,9 +31,13 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 20,
+    "contestId": 19,
     "input": {
-      "freezeTime": "2030-01-01"
+      "title": "Updated Contest 2",
+      "description": "thisisupdatedcontest2",
+      "startTime": "2020-01-01",
+      "endTime": "2030-01-01",
+      "registerDueTime": "2025-01-01"
     }
   }
 }
