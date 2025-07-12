@@ -76,6 +76,15 @@ export default async function Course() {
             <p>Click the button below to login.</p>
           </div>
           <LoginButton className="mt-6 flex h-[46px] w-60 items-center justify-center text-base font-bold" />
+          <div className="py-5" />
+          <div className="flex flex-col">
+            {palette.map((color) => (
+              <div key={color} className="my-2 flex items-center">
+                <div className={cn(`bg-${color} h-4 w-12 rounded`)} />
+                <span className="ml-4">{color}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </>
     )
@@ -92,15 +101,6 @@ export default async function Course() {
         </ErrorBoundary>
       </div>
       <CourseSubBanner />
-      <div className="py-5" />
-      <div className="flex flex-col">
-        {palette.map((color) => (
-          <div key={color} className="my-2 flex items-center">
-            <div className={cn(`bg-${color} h-4 w-12 rounded`)} />
-            <span className="ml-4">{color}</span>
-          </div>
-        ))}
-      </div>
       <div className="h-[100px]" />
     </>
   )
