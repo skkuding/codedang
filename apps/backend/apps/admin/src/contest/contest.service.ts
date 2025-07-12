@@ -761,8 +761,24 @@ export class ContestService {
       throw new EntityNotExistException('Contest')
     }
 
-    if (reqId != contest.createdById) {
-      throw new ForbiddenAccessException('No permission to unregister') // 이거 쓰면 되는건지
+    const userContest = await this.prisma.userContest.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_contestId: {
+          userId: reqId,
+          contestId
+        }
+      }
+    })
+
+    if (
+      !userContest ||
+      (userContest.role !== ContestRole.Admin &&
+        userContest.role !== ContestRole.Manager)
+    ) {
+      throw new ForbiddenAccessException(
+        'Only Admin or Manager can remove users from contest'
+      )
     }
 
     if (!contestRecord) {
