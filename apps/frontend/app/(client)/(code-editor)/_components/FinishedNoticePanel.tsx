@@ -46,13 +46,7 @@ export async function FinishedNoticePanel({
             target={target}
           />
         )}
-        {contestId && (
-          <ExitButton
-            courseId={courseId}
-            contestId={contestId}
-            target={target}
-          />
-        )}
+        {contestId && <ExitButton contestId={contestId} target={target} />}
       </div>
     </div>
   )
