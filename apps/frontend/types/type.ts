@@ -110,6 +110,7 @@ export interface TestcaseItem {
   id: number
   input: string
   output: string
+  order?: number
 }
 
 export interface ProblemDetail {
