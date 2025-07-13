@@ -99,28 +99,37 @@ export function RegisterCourseButton() {
       <Modal
         open={isRegisterDialogOpen}
         onOpenChange={setIsRegisterDialogOpen}
-        size="small"
+        size="sm"
         title="Course Register"
         onClose={() => setIsRegisterDialogOpen(false)}
-        primaryButtonText="Register"
-        primaryButtonAction={handleFindCourseByInvitation}
+        primaryButton={{
+          text: 'Register',
+          onClick: handleFindCourseByInvitation
+        }}
+        inputProps={{
+          type: 'text',
+          placeholder: 'Invitation Code',
+          value: invitationCode,
+          onChange: (value) => setInvitationCode(value)
+        }}
         type="input"
-        inputValue={invitationCode}
-        setInput={setInvitationCode}
-        inputType="text"
-        inputPlaceholder="Invitation Code"
       />
       <Modal
         open={isVerifyDialogOpen && isVerified}
         onOpenChange={setIsVerifyDialogOpen}
-        size="small"
+        size="sm"
         title="Verified"
         description="Are you sure you want to register this course?"
         onClose={() => setIsVerifyDialogOpen(false)}
-        primaryButtonText="Register"
-        primaryButtonAction={handleRegisterCourse}
-        secondaryButtonText="Cancel"
-        secondaryButtonAction={() => setIsVerifyDialogOpen(false)}
+        primaryButton={{
+          text: 'Register',
+          onClick: handleRegisterCourse
+        }}
+        secondaryButton={{
+          text: 'Cancel',
+          onClick: () => setIsVerifyDialogOpen(false),
+          variant: 'outline'
+        }}
         type="confirm"
       >
         <div
@@ -147,7 +156,7 @@ export function RegisterCourseButton() {
       <Modal
         open={isVerifyDialogOpen && !isVerified}
         onOpenChange={setIsVerifyDialogOpen}
-        size="small"
+        size="sm"
         title={verificationFailedTitle}
         description={verificationFailedDescription}
         onClose={() => setIsVerifyDialogOpen(false)}

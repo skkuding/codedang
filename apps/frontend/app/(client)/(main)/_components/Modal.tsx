@@ -9,32 +9,39 @@ import {
 import { cn } from '@/libs/utils'
 import infoIcon from '@/public/icons/info.svg'
 import Image from 'next/image'
-import type { Dispatch, SetStateAction } from 'react'
 import { ModalInput } from './ModalInput'
+
+export interface InputProps {
+  type: string
+  placeholder: string
+  value: string
+  onChange: (val: string) => void
+}
+
+interface ButtonProps {
+  text: string
+  onClick: () => void
+  variant?: 'default' | 'outline'
+}
 
 interface ModalProps {
   open: boolean
   onOpenChange?: (open: boolean) => void
-  size: 'small' | 'middle' | 'large'
+  size: 'sm' | 'md' | 'lg'
   type: 'confirm' | 'input' | 'warning' | 'custom'
-  inputType?: string
-  inputValue?: string // 이거맞나...?
-  setInput?: Dispatch<SetStateAction<string>>
-  inputPlaceholder?: string
   title: string
   description?: string
-  primaryButtonText?: string // ex) "Register", "Delete"
-  secondaryButtonText?: string // ex) "Cancel"
-  primaryButtonAction?: () => void
-  secondaryButtonAction?: () => void
+  inputProps?: InputProps
+  primaryButton?: ButtonProps
+  secondaryButton?: ButtonProps
   children?: React.ReactNode
   onClose?: () => void
 }
 
 const sizeClassMap = {
-  small: 'w-[424px] h-[280px]  p-[40px]',
-  middle: 'w-[600px] h-[580px] p-[50px]',
-  large: 'w-[800px] h-[620px] p-[50px]'
+  sm: 'w-[424px] h-[280px] p-[40px]',
+  md: 'w-[600px] h-[580px] p-[50px]',
+  lg: 'w-[800px] h-[620px] p-[50px]'
 }
 
 export function Modal({
@@ -42,16 +49,11 @@ export function Modal({
   onOpenChange,
   size,
   type,
-  inputType,
-  inputValue,
-  setInput,
-  inputPlaceholder,
   title,
   description,
-  primaryButtonText,
-  secondaryButtonText,
-  primaryButtonAction,
-  secondaryButtonAction,
+  inputProps,
+  primaryButton,
+  secondaryButton,
   children,
   onClose
 }: ModalProps) {
@@ -79,19 +81,15 @@ export function Modal({
             {title}
           </DialogTitle>
         </DialogHeader>
-        {type === 'input' &&
-          inputType &&
-          inputPlaceholder &&
-          typeof inputValue === 'string' &&
-          setInput && (
-            <ModalInput
-              type={inputType}
-              placeholder={inputPlaceholder}
-              input={inputValue}
-              setInput={setInput}
-            />
-          )}
-        {children && children}
+        {type === 'input' && inputProps && (
+          <ModalInput
+            type={inputProps.type}
+            placeholder={inputProps.placeholder}
+            value={inputProps.value}
+            onChange={inputProps.onChange}
+          />
+        )}
+        {children}
         {description && (
           <p
             className={cn(
@@ -103,18 +101,22 @@ export function Modal({
           </p>
         )}
         <DialogFooter className="flex w-full justify-center gap-[4px]">
-          {secondaryButtonText && secondaryButtonAction && (
+          {secondaryButton && (
             <Button
-              onClick={secondaryButtonAction}
+              onClick={secondaryButton.onClick}
               className="h-[46px] w-full"
-              variant="outline"
+              variant={secondaryButton.variant}
             >
-              {secondaryButtonText}
+              {secondaryButton.text}
             </Button>
           )}
-          {primaryButtonText && primaryButtonAction && (
-            <Button onClick={primaryButtonAction} className="h-[46px] w-full">
-              {primaryButtonText}
+          {primaryButton && (
+            <Button
+              onClick={primaryButton.onClick}
+              className="h-[46px] w-full"
+              variant={primaryButton.variant}
+            >
+              {primaryButton.text}
             </Button>
           )}
         </DialogFooter>
