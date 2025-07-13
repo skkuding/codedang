@@ -77,9 +77,9 @@ export function UploadDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <UploadIcon className="mr-2 h-4 w-4" />
-          Upload
+        <Button variant="outline" className="w-[120px]">
+          <UploadIcon className="mr-2 h-5 w-5" />
+          <span className="text-lg font-medium">Upload</span>
         </Button>
       </DialogTrigger>
       <DialogContent
