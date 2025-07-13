@@ -25,7 +25,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
         </Button>
       </div>
       <p className="text-lg text-slate-500">
-        Here&apos;s a list of the assignments you made
+        Here&apos;s a assignment list you made
       </p>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<AssignmentTableFallback />}>

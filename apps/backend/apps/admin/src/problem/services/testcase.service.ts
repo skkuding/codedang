@@ -182,7 +182,7 @@ export class TestcaseService {
       ].includes(mimetype) === false
     ) {
       throw new UnprocessableDataException(
-        'Extensions except Excel(.xlsx, .xls) are not supported.'
+        'Extensions except Excel(.xlsx, .xls) are not supported'
       )
     }
     const header = {}
