@@ -27,7 +27,7 @@ interface ModalProps {
   secondaryButtonText?: string // ex) "Cancel"
   primaryButtonAction?: () => void
   secondaryButtonAction?: () => void
-  itemsNode?: React.ReactNode[]
+  children?: React.ReactNode
   onClose?: () => void
 }
 
@@ -52,7 +52,7 @@ export function Modal({
   secondaryButtonText,
   primaryButtonAction,
   secondaryButtonAction,
-  itemsNode,
+  children,
   onClose
 }: ModalProps) {
   return (
@@ -91,12 +91,12 @@ export function Modal({
               setInput={setInput}
             />
           )}
-        {itemsNode && itemsNode}
+        {children && children}
         {description && (
           <p
             className={cn(
               'w-full text-center text-sm font-normal text-[#737373]',
-              itemsNode && 'text-left'
+              children && 'text-left'
             )}
           >
             {description}

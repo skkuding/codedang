@@ -122,29 +122,28 @@ export function RegisterCourseButton() {
         secondaryButtonText="Cancel"
         secondaryButtonAction={() => setIsVerifyDialogOpen(false)}
         type="confirm"
-        itemsNode={[
-          <div
-            key="course-info"
-            className="flex w-full flex-col gap-2 rounded-[10px] bg-[#F2F6F7] px-6 py-4"
-          >
-            <p className="text-primary text-base font-semibold">
-              [{foundCourse?.courseInfo?.courseNum}-
-              {foundCourse?.courseInfo?.classNum}] {foundCourse?.groupName}
+      >
+        <div
+          key="course-info"
+          className="flex w-full flex-col gap-2 rounded-[10px] bg-[#F2F6F7] px-6 py-4"
+        >
+          <p className="text-primary text-base font-semibold">
+            [{foundCourse?.courseInfo?.courseNum}-
+            {foundCourse?.courseInfo?.classNum}] {foundCourse?.groupName}
+          </p>
+          <div className="flex gap-2">
+            <Image
+              src={personFillIcon}
+              alt="person-fill"
+              width={16}
+              height={16}
+            />
+            <p className="text-sm font-medium text-[#8A8A8A]">
+              Prof. {foundCourse?.courseInfo?.professor}
             </p>
-            <div className="flex gap-2">
-              <Image
-                src={personFillIcon}
-                alt="person-fill"
-                width={16}
-                height={16}
-              />
-              <p className="text-sm font-medium text-[#8A8A8A]">
-                Prof. {foundCourse?.courseInfo?.professor}
-              </p>
-            </div>
           </div>
-        ]}
-      />
+        </div>
+      </Modal>
       <Modal
         open={isVerifyDialogOpen && !isVerified}
         onOpenChange={setIsVerifyDialogOpen}
