@@ -28,8 +28,10 @@ assert {
 }
 
 docs {
-  # remove Problems
+  # remove User from Contest
   
-  - Contest에 포함된 문제들을 remove합니다..
-  - 입력된 problemId, contestId, groupId의 조합과 일치하는 문제가 없을 경우 무시됩니다.
+  - Contest에 속해있는 User를 삭제합니다.
+  - 해당 대회의 admin 또는 manager가 아닌 user의 요청인 경우 ForbiddenAccessException을 반환합니다.
+  - 해당 ContestId를 가진 Contest가 존재하지 않는 경우, 또는 해당 Contest에 UserId를 가진 user가 참가하지 않은 경우 각각 EntityNotExistException을 반환합니다.
+  - 이미 진행중이거나 종료된 Contest의 경우 ForbiddenAccessException을 반환합니다.
 }
