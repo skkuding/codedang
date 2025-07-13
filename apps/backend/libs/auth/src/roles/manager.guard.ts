@@ -33,18 +33,26 @@ export class ManagerGuard implements CanActivate {
     }
 
     const user = request.user
+    let userRole
+
+    //TODO: JWT에 role을 포함하게 되면 이 부분 제거
+    if (!user.role) {
+      userRole = await this.service.getUserRole(user.id)
+      user.role = userRole.role
+    }
 
     if (user.isSuperAdmin?.() || user.isAdmin?.()) {
       return true
     }
 
-    const userRole = await this.service.getUserRole(user.id)
+    if (!userRole) {
+      userRole = await this.service.getUserRole(user.id)
+    }
     if (userRole.canCreateCourse || userRole.canCreateContest) {
       return true
     }
 
     const leadingGroup = await this.service.findLeaderGroup(user.id)
-
     if (leadingGroup) {
       return true
     }
