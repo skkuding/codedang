@@ -1,10 +1,10 @@
 import { ErrorMessage } from '@/app/admin/_components/ErrorMessage'
 import { Button } from '@/components/shadcn/button'
-import { Command, CommandList, CommandItem } from '@/components/shadcn/command'
+import { Command, CommandItem, CommandList } from '@/components/shadcn/command'
 import {
   Popover,
-  PopoverTrigger,
-  PopoverContent
+  PopoverContent,
+  PopoverTrigger
 } from '@/components/shadcn/popover'
 import { GET_COURSE } from '@/graphql/course/queries'
 import { cn } from '@/libs/utils'
@@ -47,7 +47,7 @@ export function WeekComboBox({ name, courseId }: WeekComboBoxProps) {
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="flex h-[36px] w-[220px] justify-between font-normal"
+            className="flex h-[36px] w-[255px] justify-between font-normal"
           >
             <p className={cn(!selectedWeek && 'text-[#C4C4C4]')}>
               {selectedWeek ? `Week ${selectedWeek}` : 'Select an option'}

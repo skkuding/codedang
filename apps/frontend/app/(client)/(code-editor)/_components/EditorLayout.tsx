@@ -114,6 +114,10 @@ export async function EditorLayout({
     problem = await fetcher(`problem/${problemId}`).json()
   }
 
+  problem.problemTestcase = problem.problemTestcase.sort(
+    (a, b) => (a.order ?? a.id) - (b.order ?? b.id)
+  )
+
   const session = await auth()
 
   return (

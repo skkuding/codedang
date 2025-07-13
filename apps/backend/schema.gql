@@ -1533,6 +1533,7 @@ type Mutation {
   removeAnnouncement(contestId: Int!, id: Int!): Announcement!
   removeProblemsFromAssignment(assignmentId: Int!, groupId: Int!, problemIds: [Int!]!): [AssignmentProblem!]!
   removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
+  removeUserFromContest(contestId: Int!, userId: Int!): UserContest!
   revokeInvitation(groupId: Int!): String!
   updateAnnouncement(contestId: Int!, input: UpdateAnnouncementInput!): Announcement!
   updateAssignment(groupId: Int!, input: UpdateAssignmentInput!): Assignment!
