@@ -309,6 +309,8 @@ model ProblemTestcase {
   isHidden    Boolean  @default(false) @map("is_hidden_testcase")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
+  acceptedCount	Int	@default(0)	@map("accepted_count")
+  submissionCount	Int	@default(0)	@map("submission_count")
 
   submissionResult SubmissionResult[]
 
