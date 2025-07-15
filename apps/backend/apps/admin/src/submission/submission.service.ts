@@ -10,7 +10,8 @@ import {
   existsSync,
   unlink,
   rm,
-  writeFileSync
+  writeFileSync,
+  rmSync
 } from 'fs'
 import path from 'path'
 import {
@@ -464,7 +465,8 @@ export class SubmissionService {
   async compressSourceCodes(
     groupId: number,
     assignmentId: number,
-    problemId: number
+    problemId: number,
+    res: Response
   ) {
     const assignmentGroupId = await this.prisma.assignment.findFirst({
       where: {
@@ -513,8 +515,13 @@ export class SubmissionService {
 
     const problemTitle = await this.getProblemTitle(problemId)
     const assignmentTitle = await this.getAssignmentTitle(assignmentId)
+    const zipFilename = `${assignmentTitle}_${problemId}`
+    const zipPath = path.join(__dirname, `${zipFilename}.zip`)
+    const dirPath = path.join(__dirname, `${zipFilename}`)
 
-    const dirPath = path.join(__dirname, `${assignmentTitle!}_${problemId}`)
+    if (existsSync(dirPath)) {
+      rmSync(dirPath, { recursive: true, force: true })
+    }
     mkdirSync(dirPath, { recursive: true })
 
     submissionInfos.forEach((info) => {
@@ -522,18 +529,18 @@ export class SubmissionService {
       const formattedCode = code.map((snippet) => snippet.text).join('\n')
       const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
       const filePath = path.join(dirPath, filename)
+
       try {
         writeFileSync(filePath, formattedCode)
       } catch (err) {
         this.logger.error(err)
         throw new UnprocessableFileDataException(
-          'failed to handle source code file.',
+          'Failed to handle source code file.',
           filename
         )
       }
     })
-    const zipFilename = `${assignmentTitle}_${problemId}`
-    const zipPath = path.join(__dirname, `${zipFilename}.zip`)
+
     const output = createWriteStream(zipPath)
     const archive = archiver.create('zip', { zlib: { level: 9 } })
 
@@ -553,45 +560,7 @@ export class SubmissionService {
       )
     })
 
-    const downloadSrc = `/submission/download/${assignmentGroupId!.groupId}/${assignmentId}/${problemId}`
-    return downloadSrc
-  }
-
-  async downloadCodes(
-    groupId: number,
-    assignmentId: number,
-    problemId: number,
-    res: Response
-  ) {
-    const assignmentGroupId = await this.prisma.assignment.findFirst({
-      where: {
-        id: assignmentId
-      },
-      select: {
-        groupId: true
-      }
-    })
-
-    if (assignmentGroupId?.groupId != groupId) {
-      throw new ForbiddenAccessException(
-        'Only Group Leader can download source codes.'
-      )
-    }
-
-    const assignmentTitle = await this.getAssignmentTitle(assignmentId)
-
-    const filename = `${assignmentTitle}_${problemId}`
-
-    const zipFilename = path.resolve(__dirname, filename)
-    if (
-      !zipFilename.startsWith(__dirname) ||
-      !existsSync(`${zipFilename}.zip`)
-    ) {
-      res.status(404).json({ error: 'File not found' })
-      return
-    }
-
-    const encodedFilename = encodeURIComponent(filename)
+    const encodedFilename = encodeURIComponent(zipFilename)
     res.set({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/zip',
@@ -599,7 +568,6 @@ export class SubmissionService {
       'Content-Disposition': `attachment; filename=assignment${assignmentId}_problem${problemId}.zip; filename*=UTF-8''${encodedFilename}.zip`
     })
     const fileStream = createReadStream(`${zipFilename}.zip`)
-    this.logger.debug('DEBUG: ', zipFilename)
     fileStream.pipe(res)
 
     fileStream.on('finish', () => {
