@@ -78,42 +78,37 @@ export class FileService {
   }
 
   async deleteFile(filename: string, userId: number) {
-    const fileExists = await this.prisma.file.findFirst({
-      where: {
-        filename,
-        createdById: userId
-      }
-    })
-
-    if (!fileExists) {
-      throw new EntityNotExistException(
-        'File not found or you do not have permission to delete this file'
-      )
-    }
-
-    // DB에서 먼저 삭제
-    const deletedFile = await this.prisma.file.delete({
-      where: {
-        filename,
-        createdById: userId
-      }
-    })
-
-    // DB 삭제 성공 후에만 S3에서 삭제
-    try {
-      await this.storageService.deleteFile(filename)
-    } catch (error) {
-      // S3 삭제 실패 시 DB 롤백
-      await this.prisma.file.create({
-        data: {
-          filename: deletedFile.filename,
-          createdById: deletedFile.createdById
+    const deletedFile = await this.prisma.$transaction(async (tx) => {
+      const fileExists = await tx.file.findFirst({
+        where: {
+          filename,
+          createdById: userId
         }
       })
-      throw new InternalServerErrorException(
-        'Failed to delete file from storage'
-      )
-    }
+
+      if (!fileExists) {
+        throw new UnprocessableDataException(
+          'File not found or you do not have permission to delete this file'
+        )
+      }
+
+      const file = await tx.file.delete({
+        where: {
+          filename,
+          createdById: userId
+        }
+      })
+
+      try {
+        await this.storageService.deleteFile(filename)
+      } catch (error) {
+        throw new UnprocessableDataException(
+          `Failed to delete file from storage: ${error.message}`
+        )
+      }
+
+      return file
+    })
 
     return deletedFile
   }
