@@ -26,9 +26,9 @@ interface ButtonProps {
 
 interface ModalProps {
   open: boolean
-  onOpenChange?: (open: boolean) => void
+  onOpenChange: (open: boolean) => void
   size: 'sm' | 'md' | 'lg'
-  type: 'confirm' | 'input' | 'warning' | 'custom'
+  type: 'input' | 'warning' | 'custom'
   title: string
   description?: string
   inputProps?: InputProps

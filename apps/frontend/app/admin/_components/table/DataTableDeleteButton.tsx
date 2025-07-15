@@ -1,20 +1,9 @@
 'use client'
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/shadcn/alert-dialog'
+import { AlertModal } from '@/components/AlertModal'
 import { Button } from '@/components/shadcn/button'
-import { capitalizeFirstLetter } from '@/libs/utils'
 import { useState } from 'react'
 import { FaTrash } from 'react-icons/fa'
-import { FaCircleExclamation } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { useDataTable } from './context'
 
@@ -98,35 +87,17 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       >
         <FaTrash fontSize={13} color={'#8A8A8A'} />
       </Button>
-      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogContent className="flex min-h-[304px] w-[432px] flex-col justify-between gap-6 rounded-2xl p-10 shadow-lg sm:rounded-2xl">
-          <AlertDialogHeader className="flex flex-col gap-[14px]">
-            <AlertDialogTitle>
-              <div className="flex flex-col items-center justify-center gap-[24px]">
-                <FaCircleExclamation color="#FF3B2F" size={50} />
-                <p className="text-2xl font-medium">{`Delete ${capitalizeFirstLetter(target)}?`}</p>
-              </div>
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-xs">
-              Are you sure you want to permanently delete{' '}
-              {table.getSelectedRowModel().rows.length} {target}(s)?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="w-full border-[#C4C4C4] text-sm font-semibold text-[#8A8A8A]">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                onClick={handleDeleteRows}
-                className="bg-error w-full text-sm font-semibold hover:bg-red-500/90"
-              >
-                Delete
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AlertModal
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        type={'warning'}
+        title={'Delete Problem?'}
+        primaryButton={{
+          text: 'Delete',
+          onClick: handleDeleteRows
+        }}
+        description={`Are you sure you want to permanently delete ${table.getSelectedRowModel().rows.length} ${target}(s)?`}
+      />
     </>
   )
 }
