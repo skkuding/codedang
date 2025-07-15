@@ -105,12 +105,12 @@ export function GroupTable() {
               duplicateTarget={duplicateTarget}
               onSuccess={onSuccess}
             />
-
-            <DeleteCourseButton
+            <DeleteCourseButton />
+            {/* <DeleteCourseButton
               target="course"
               deleteTarget={deleteTarget}
               onSuccess={onSuccess}
-            />
+            /> */}
           </div>
         </div>
         <DataTable

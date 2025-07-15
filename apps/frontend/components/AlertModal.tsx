@@ -22,8 +22,9 @@ interface AlertModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   type: 'confirm' | 'warning'
+  showWarningIcon?: boolean
   title: string
-  description: string
+  description?: string
   primaryButton: ButtonProps
   children?: React.ReactNode
   onClose?: () => void
@@ -33,6 +34,7 @@ export function AlertModal({
   open,
   onOpenChange,
   type,
+  showWarningIcon = true,
   title,
   description,
   primaryButton,
@@ -46,7 +48,7 @@ export function AlertModal({
         onEscapeKeyDown={onClose}
       >
         <AlertDialogHeader className="flex flex-col items-center justify-center">
-          {type === 'warning' && (
+          {type === 'warning' && showWarningIcon && (
             <Image
               src={infoIcon}
               alt="info"
