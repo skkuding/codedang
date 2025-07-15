@@ -57,14 +57,6 @@ export function GroupTable() {
     setSemesters(uniqueSemesters)
   }, [courses])
 
-  const deleteTarget = (id: number) => {
-    return deleteCourse({
-      variables: {
-        groupId: id
-      }
-    })
-  }
-
   const updateTarget = (id: number, courseInput: CourseInput) => {
     return updateCourse({
       variables: {
@@ -106,11 +98,6 @@ export function GroupTable() {
               onSuccess={onSuccess}
             />
             <DeleteCourseButton />
-            {/* <DeleteCourseButton
-              target="course"
-              deleteTarget={deleteTarget}
-              onSuccess={onSuccess}
-            /> */}
           </div>
         </div>
         <DataTable
