@@ -28,7 +28,6 @@ const remotePatterns = [
 const nextConfig = {
   experimental: {
     typedRoutes: process.env.NODE_ENV !== 'development'
-    // instrumentationHook: process.env.NODE_ENV !== 'development'
   },
   images: {
     remotePatterns
