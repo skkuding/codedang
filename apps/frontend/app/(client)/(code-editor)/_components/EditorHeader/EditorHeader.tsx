@@ -37,15 +37,15 @@ import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/icons/submit.svg'
 import { useAuthModalStore } from '@/stores/authModal'
 import {
-  useLanguageStore,
-  useCodeStore,
+  getCodeFromLocalStorage,
   getStorageKey,
-  getCodeFromLocalStorage
+  useCodeStore,
+  useLanguageStore
 } from '@/stores/editor'
 import {
-  useTestcaseTabStore,
+  RUN_CODE_TAB,
   useSidePanelTabStore,
-  RUN_CODE_TAB
+  useTestcaseTabStore
 } from '@/stores/editorTabs'
 import type {
   Language,
@@ -332,6 +332,8 @@ export function EditorHeader({
       if (res.status === 401) {
         showSignIn()
         toast.error('Log in first to submit your code')
+      } else if (res.status === 404) {
+        toast.error('The assignment submission period has ended.')
       } else {
         toast.error('Please try again later.')
       }

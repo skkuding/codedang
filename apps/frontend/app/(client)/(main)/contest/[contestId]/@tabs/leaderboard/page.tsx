@@ -49,7 +49,6 @@ export default function ContestLeaderBoard() {
   const pathname = usePathname()
   const contestId = Number(pathname.split('/')[2])
 
-  // eslint-disable-next-line prefer-const
   const { data, isLoading, isError } = useQuery({
     queryKey: ['contest leaderboard', contestId],
     queryFn: () => getContestLeaderboard({ contestId })
