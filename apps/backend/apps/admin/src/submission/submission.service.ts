@@ -152,6 +152,15 @@ export class SubmissionService {
     return results
   }
 
+  /**
+   * 특정 Assignment의 특정 Problem에 대한 제출 내역을 지정된 개수만큼 불러옵니다.
+   *
+   * @param {GetAssignmentSubmissionsInput} input 검색할 제출 내역의 정보
+   * @param {number} take 가져올 제출 내역의 개수
+   * @param {(number | null)} cursor Pagination을 위한 커서
+   * @param {(SubmissionOrder | null)} order 검색 결과의 정렬 기준
+   * @returns 찾은 제출 내역들을 반환합니다
+   */
   async getAssignmentSubmissions(
     input: GetAssignmentSubmissionsInput,
     take: number,
@@ -508,7 +517,7 @@ export class SubmissionService {
         if (err) {
           this.logger.error(err)
           throw new UnprocessableFileDataException(
-            'failed to handle source code file.',
+            'Failed to handle source code file',
             filename
           )
         }
@@ -530,7 +539,7 @@ export class SubmissionService {
       this.logger.error(`Finalization failed: ${err}`)
       output.end()
       throw new UnprocessableFileDataException(
-        'failed to create zip file',
+        'Failed to create zip file',
         zipFilename
       )
     })

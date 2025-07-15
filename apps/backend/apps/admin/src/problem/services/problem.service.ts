@@ -1,12 +1,12 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
+import type {} from '@generated'
 import {
   Language,
-  Problem,
   Level,
+  Problem,
   ProblemWhereInput,
   UpdateHistory
 } from '@generated'
-import type {} from '@generated'
 import { ContestRole, ProblemField, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
@@ -19,9 +19,9 @@ import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from '../model/problem.constants'
 import type {
   CreateProblemInput,
-  UploadFileInput,
   FilterProblemsInput,
-  UpdateProblemInput
+  UpdateProblemInput,
+  UploadFileInput
 } from '../model/problem.input'
 import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Solution } from '../model/solution.input'
@@ -66,7 +66,7 @@ export class ProblemService {
       )
     }
 
-    // Check if the problem supports the language in the template
+    // 문제가 탬플릿의 언어를 지원하는지 확인합니다.
     const seen = new Set<Language>()
     template.forEach((template: Template) => {
       const lang = template.language as Language
@@ -83,7 +83,7 @@ export class ProblemService {
       seen.add(lang)
     })
 
-    // Check if the problem supports the language in the solution
+    // 문제가 솔루션의 언어를 지원하는지 확인합니다.
     seen.clear()
     solution.forEach((solution: Solution) => {
       const lang = solution.language as Language
@@ -103,6 +103,7 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
+        solution,
         visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
         createdById: userId,
         languages,
