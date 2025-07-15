@@ -107,45 +107,5 @@ export default {
       })
     }
   ],
-  safelist: [
-    // 기존 항목
-    '!text-green-500',
-    '!text-neutral-400',
-    '!text-red-500',
-    // primary 계열
-    'bg-primary',
-    'bg-primary-light',
-    'bg-primary-strong',
-    'bg-primary-heavy',
-    // background 계열
-    'bg-background',
-    'bg-background-alternative',
-    // line 계열
-    'bg-line',
-    'bg-line-neutral',
-    // fill 계열
-    'bg-fill',
-    'bg-fill-neutral',
-    // secondary, error
-    'bg-secondary',
-    'bg-error',
-    // level (dark)
-    'bg-level-dark-1',
-    'bg-level-dark-2',
-    'bg-level-dark-3',
-    'bg-level-dark-4',
-    'bg-level-dark-5',
-    // level (light)
-    'bg-level-light-1',
-    'bg-level-light-2',
-    'bg-level-light-3',
-    'bg-level-light-4',
-    'bg-level-light-5',
-    // level (default)
-    'bg-level-1',
-    'bg-level-2',
-    'bg-level-3',
-    'bg-level-4',
-    'bg-level-5'
-  ]
+  safelist: ['!text-green-500', '!text-neutral-400', '!text-red-500']
 } satisfies Config
