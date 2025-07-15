@@ -2,7 +2,11 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
 import { Carousel } from './_components/Carousel'
 import { ContestCards } from './_components/ContestCards'
+import { InstagramCards } from './_components/InstagramCards'
+import { MiddleContestBanner } from './_components/MiddleContestBanner'
+import { NewProblemCards } from './_components/NewProblemCards'
 import { ProblemCards } from './_components/ProblemCards'
+import { ServiceCards } from './_components/ServiceCards'
 
 const slides = [
   {
@@ -39,30 +43,21 @@ export default function Home() {
     // NOTE: Temporary margin top for codedang main page carousel to avoid header overlap (until main page design is finalized)
     <div className="mt-14 flex w-full flex-col gap-16 lg:items-center">
       <Carousel slides={slides} />
-      {/* <div className="flex w-full flex-col gap-3">
-        <div className="flex w-full items-center justify-between text-gray-700">
-          <p className="text-xl font-bold">Contest</p>
-          <Link href="/contest">
-            <Button variant="outline" className="h-8">
-              More
-            </Button>
-          </Link>
-        </div>
-        <div className="grid w-full grid-cols-3 gap-5">
-          <Suspense
-            fallback={[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="flex h-[120px] w-full rounded-xl" />
-            ))}
-          >
-            <ContestCards />
-          </Suspense>
-        </div>
-      </div> */}
-
       <ErrorBoundary fallback={FetchErrorFallback}>
         <ContestCards />
       </ErrorBoundary>
-
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <ServiceCards />
+      </ErrorBoundary>
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <NewProblemCards />
+      </ErrorBoundary>
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <MiddleContestBanner />
+      </ErrorBoundary>
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <InstagramCards />
+      </ErrorBoundary>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <ProblemCards />
       </ErrorBoundary>

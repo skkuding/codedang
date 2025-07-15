@@ -3,7 +3,7 @@ import { Button } from '@/components/shadcn/button'
 import { ErrorBoundary } from '@suspensive/react'
 import Link from 'next/link'
 import { Suspense } from 'react'
-import { FaCirclePlus } from 'react-icons/fa6'
+import { HiMiniPlusCircle } from 'react-icons/hi2'
 import {
   AssignmentTable,
   AssignmentTableFallback
@@ -17,18 +17,15 @@ export default function Page({ params }: { params: { courseId: string } }) {
     <div className="container mx-auto space-y-5 py-10">
       <div className="flex justify-between">
         <p className="text-4xl font-bold">Exercise List</p>
-        <Button variant="default" asChild>
-          <Link
-            href={`/admin/course/${courseId}/exercise/create` as const}
-            className="flex gap-1"
-          >
-            <FaCirclePlus />
-            Create
+        <Button variant="default" className="w-[120px]" asChild>
+          <Link href={`/admin/course/${courseId}/exercise/create` as const}>
+            <HiMiniPlusCircle className="mr-2 h-5 w-5" />
+            <span className="text-lg">Create</span>
           </Link>
         </Button>
       </div>
       <p className="text-lg text-slate-500">
-        Here&apos;s a list of the exercises you made
+        Here&apos;s a exercise list you made
       </p>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<AssignmentTableFallback />}>
