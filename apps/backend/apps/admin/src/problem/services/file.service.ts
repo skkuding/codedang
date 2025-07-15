@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { internal } from '@opentelemetry/core'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
 import type { Readable } from 'stream'
 import { MAX_FILE_SIZE, MAX_IMAGE_SIZE } from '@libs/constants'
 import {
+  EntityNotExistException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
@@ -84,7 +86,7 @@ export class FileService {
     })
 
     if (!fileExists) {
-      throw new UnprocessableDataException(
+      throw new EntityNotExistException(
         'File not found or you do not have permission to delete this file'
       )
     }
@@ -108,7 +110,9 @@ export class FileService {
           createdById: deletedFile.createdById
         }
       })
-      throw new UnprocessableDataException('Failed to delete file from storage')
+      throw new InternalServerErrorException(
+        'Failed to delete file from storage'
+      )
     }
 
     return deletedFile
