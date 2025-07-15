@@ -31,9 +31,21 @@ export default {
       colors: {
         primary: {
           DEFAULT: '#3581FA',
-          light: '#5FA4F5',
+          light: '#619CFB',
           strong: '#0760EF',
           heavy: '#0348B2'
+        },
+        background: {
+          DEFAULT: '#FFF',
+          alternative: '#FAFAFA'
+        },
+        line: {
+          DEFAULT: '#D8D8D8',
+          neutral: '#E1E1E1'
+        },
+        fill: {
+          DEFAULT: '#F0F0F0',
+          neutral: '#E5E5E5'
         },
         secondary: '#30D7AE',
         level: {
@@ -50,7 +62,12 @@ export default {
             3: '#FEEACC',
             4: '#E0D9FC',
             5: '#FED7DE'
-          }
+          },
+          1: '#FED7DE',
+          2: '#FFF5CC',
+          3: '#D8F4DE',
+          4: '#C4F6FF',
+          5: '#E0D9FC'
         },
         error: '#FF3B2F'
       },

@@ -24,7 +24,6 @@ function CardListFallback() {
 
 export default async function Course() {
   const session = await auth()
-
   if (!session) {
     return (
       <>
