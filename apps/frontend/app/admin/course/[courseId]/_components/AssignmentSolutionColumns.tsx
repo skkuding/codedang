@@ -67,10 +67,12 @@ export const createColumns = (
               </label>
 
               {selectedOption === 'Manually' && (
-                <DateTimePickerDemo
-                  onChange={(date) => handleTimeFormChange(row.index, date)}
-                  defaultValue={solutionReleaseTimes[row.index] || undefined}
-                />
+                <div className="mx-auto w-full max-w-[150px]">
+                  <DateTimePickerDemo
+                    onChange={(date) => handleTimeFormChange(row.index, date)}
+                    defaultValue={solutionReleaseTimes[row.index] || undefined}
+                  />
+                </div>
               )}
             </div>
           </div>
