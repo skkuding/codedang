@@ -657,8 +657,13 @@ export class SubmissionService {
       },
       include: {
         sharedGroups: {
-          include: {
-            userGroup: true
+          select: {
+            userGroup: {
+              where: {
+                userId: userId,
+                isGroupLeader: true
+              }
+            }
           }
         }
       }
@@ -702,11 +707,8 @@ export class SubmissionService {
 
     // problem.sharedGroups 중에서 userGroup들 중에서 userId가 주어진 userId이고,
     // isGroupLeader = True인 userGroup이 존재하면
-    const isGroupLeader = problem.sharedGroups.some((sharedGroup) =>
-      sharedGroup.userGroup.some(
-        (userGroup) =>
-          userGroup.userId == userId && userGroup.isGroupLeader == true
-      )
+    const isGroupLeader = problem.sharedGroups.some(
+      (sharedGroup) => sharedGroup.userGroup.length > 0
     )
 
     // Open Testcase에 대한 TEST 요청인 경우
