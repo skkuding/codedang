@@ -1,7 +1,7 @@
 'use client'
 
 import { AlertModal } from '@/components/AlertModal'
-import { ModalList } from '@/components/shadcn/ModalList'
+import { ModalList } from '@/components/ModalList'
 import { Button } from '@/components/shadcn/button'
 import { useState, type ReactNode } from 'react'
 import { FaTrash } from 'react-icons/fa'
