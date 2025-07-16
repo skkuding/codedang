@@ -81,7 +81,12 @@ export function AssignmentSolutionTable({
     const prevManualTime = manualReleaseTimes[rowIndex]
 
     if (newState) {
-      if (prevOption === 'Manually' && prevManualTime) {
+      if (!prevOption || prevOption === '') {
+        setOptionStates((prev) => ({
+          ...prev,
+          [rowIndex]: 'After Due Date'
+        }))
+      } else if (prevOption === 'Manually' && prevManualTime) {
         setProblems((prevProblems) =>
           prevProblems.map((problem, index) =>
             index === rowIndex
@@ -101,41 +106,6 @@ export function AssignmentSolutionTable({
           [rowIndex]: 'Manually'
         }))
       } else if (prevOption === 'After Due Date') {
-        const dummyReleaseTime = new Date('2025-01-01')
-        setProblems((prevProblems) =>
-          prevProblems.map((problem, index) =>
-            index === rowIndex
-              ? {
-                  ...problem,
-                  solutionReleaseTime: dummyReleaseTime
-                }
-              : problem
-          )
-        )
-        setSolutionReleaseTimes((prev) => ({
-          ...prev,
-          [rowIndex]: dummyReleaseTime
-        }))
-        setOptionStates((prev) => ({
-          ...prev,
-          [rowIndex]: 'After Due Date'
-        }))
-      } else {
-        const dummyReleaseTime = new Date('2025-01-01')
-        setProblems((prevProblems) =>
-          prevProblems.map((problem, index) =>
-            index === rowIndex
-              ? {
-                  ...problem,
-                  solutionReleaseTime: dummyReleaseTime
-                }
-              : problem
-          )
-        )
-        setSolutionReleaseTimes((prev) => ({
-          ...prev,
-          [rowIndex]: dummyReleaseTime
-        }))
         setOptionStates((prev) => ({
           ...prev,
           [rowIndex]: 'After Due Date'
@@ -155,10 +125,6 @@ export function AssignmentSolutionTable({
       setSolutionReleaseTimes((prev) => ({
         ...prev,
         [rowIndex]: null
-      }))
-      setOptionStates((prev) => ({
-        ...prev,
-        [rowIndex]: ''
       }))
     }
     setRevealedStates((prev) => ({
