@@ -12,6 +12,7 @@ const contestSelectOption = {
   title: true,
   startTime: true,
   endTime: true,
+  registerDueTime: true,
   freezeTime: true,
   invitationCode: true,
   enableCopyPaste: true,
@@ -259,8 +260,7 @@ export class ContestService {
         id: contestId
       },
       select: {
-        startTime: true,
-        endTime: true,
+        registerDueTime: true,
         invitationCode: true
       }
     })
@@ -276,8 +276,10 @@ export class ContestService {
       throw new ConflictFoundException('Already participated this contest')
     }
     const now = new Date()
-    if (now >= contest.endTime) {
-      throw new ConflictFoundException('Cannot participate ended contest')
+    if (now >= contest.registerDueTime) {
+      throw new ConflictFoundException(
+        'Cannot participate in the contest after the registration deadline'
+      )
     }
     return await this.prisma.$transaction(async (prisma) => {
       const contestRecord = await prisma.contestRecord.create({
