@@ -21,7 +21,7 @@ import type {
 const contestId = 1
 const userId = 1
 const problemId = 2
-const startTime = faker.date.past()
+const startTime = faker.date.recent()
 const endTime = faker.date.future()
 const registerDueTime = faker.date.past()
 const createTime = faker.date.past()
@@ -211,8 +211,8 @@ const updateInput = {
   endTime: faker.date.future(),
   registerDueTime: faker.date.past(),
   freezeTime: faker.date.between({
-    from: new Date(),
-    to: new Date(endTime.getTime())
+    from: startTime,
+    to: endTime
   })
 } satisfies UpdateContestInput
 
