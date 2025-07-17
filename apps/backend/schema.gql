@@ -1847,6 +1847,7 @@ type ProblemTagSumAggregate {
 
 type ProblemTestcase {
   _count: ProblemTestcaseCount!
+  acceptedCount: Int!
   createTime: DateTime!
   id: ID!
   input: String
@@ -1856,15 +1857,18 @@ type ProblemTestcase {
   problem: Problem!
   problemId: Int!
   scoreWeight: Int!
+  submissionCount: Int!
   submissionResult: [SubmissionResult!]
   updateTime: DateTime!
 }
 
 type ProblemTestcaseAvgAggregate {
+  acceptedCount: Float
   id: Float
   order: Float
   problemId: Float
   scoreWeight: Float
+  submissionCount: Float
 }
 
 type ProblemTestcaseCount {
@@ -1873,6 +1877,7 @@ type ProblemTestcaseCount {
 
 type ProblemTestcaseCountAggregate {
   _all: Int!
+  acceptedCount: Int!
   createTime: Int!
   id: Int!
   input: Int!
@@ -1881,6 +1886,7 @@ type ProblemTestcaseCountAggregate {
   output: Int!
   problemId: Int!
   scoreWeight: Int!
+  submissionCount: Int!
   updateTime: Int!
 }
 
@@ -1889,6 +1895,7 @@ type ProblemTestcaseId {
 }
 
 type ProblemTestcaseMaxAggregate {
+  acceptedCount: Int
   createTime: DateTime
   id: Int
   input: String
@@ -1897,10 +1904,12 @@ type ProblemTestcaseMaxAggregate {
   output: String
   problemId: Int
   scoreWeight: Int
+  submissionCount: Int
   updateTime: DateTime
 }
 
 type ProblemTestcaseMinAggregate {
+  acceptedCount: Int
   createTime: DateTime
   id: Int
   input: String
@@ -1909,6 +1918,7 @@ type ProblemTestcaseMinAggregate {
   output: String
   problemId: Int
   scoreWeight: Int
+  submissionCount: Int
   updateTime: DateTime
 }
 
@@ -1918,10 +1928,12 @@ type ProblemTestcaseResult {
 }
 
 type ProblemTestcaseSumAggregate {
+  acceptedCount: Int
   id: Int
   order: Int
   problemId: Int
   scoreWeight: Int
+  submissionCount: Int
 }
 
 type ProblemWithIsVisible {
