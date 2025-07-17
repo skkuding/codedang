@@ -8,13 +8,15 @@ import { useSession } from '@/libs/hooks/useSession'
 import type { ProblemDetail } from '@/types/type'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { color } from 'framer-motion'
 import Link from 'next/link'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
+import { BsFileTextFill } from 'react-icons/bs'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline, IoMdEye } from 'react-icons/io'
-import { toast } from 'sonner'
+import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { ConfirmNavigation } from '../../_components/ConfirmNavigation'
 import { DescriptionForm } from '../../_components/DescriptionForm'
 import { FormSection } from '../../_components/FormSection'
@@ -92,7 +94,7 @@ export default function Page() {
   return (
     <ConfirmNavigation>
       <ScrollArea className="shrink-0">
-        <main className="flex flex-col gap-6 px-20 py-16">
+        <main className="flex w-full flex-col gap-6 px-20 py-16">
           <div className="-ml-8 flex items-center gap-4">
             <Link href="/admin/problem">
               <FaAngleLeft className="h-12 hover:text-gray-700/80" />
@@ -158,18 +160,11 @@ export default function Page() {
               formElement="input"
             />
 
-            <div className="flex gap-2">
-              <Button
-                type="submit"
-                className="flex h-[36px] w-[100px] items-center gap-2 px-0"
-              >
-                <IoMdCheckmarkCircleOutline fontSize={20} />
-                <div className="mb-[2px] text-base">Create</div>
-              </Button>
+            <div className="flex flex-col gap-5">
               <Button
                 type="button"
                 variant={'slate'}
-                className="flex h-[36px] w-[120px] items-center gap-2 bg-slate-200 px-0"
+                className="bg-fill hover:bg-fill-neutral flex h-[48px] w-full items-center gap-2 px-0"
                 onClick={async () => {
                   const isValid = await methods.trigger()
                   if (isValid) {
@@ -177,8 +172,15 @@ export default function Page() {
                   }
                 }}
               >
-                <IoMdEye fontSize={20} />
-                <div className="text-base">Preview</div>
+                <BsFileTextFill fontSize={16} className="text-[#8a8a8a]" />
+                <div className="text-base text-[#8a8a8a]">Show Preview</div>
+              </Button>
+              <Button
+                type="submit"
+                className="flex h-12 w-full items-center gap-2 px-0"
+              >
+                <IoIosCheckmarkCircle fontSize={20} />
+                <div className="mb-[2px] text-lg font-bold">Create</div>
               </Button>
             </div>
           </CreateProblemForm>
