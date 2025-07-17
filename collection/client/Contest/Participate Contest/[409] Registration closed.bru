@@ -16,7 +16,7 @@ params:query {
 
 assert {
   res.status: eq 409
-  res("message"): eq Not allowed to participate in this contest after registerDueTime
+  res("message"): eq Cannot participate in the contest after the registration deadline
 }
 
 script:pre-request {
