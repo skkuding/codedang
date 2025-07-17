@@ -1,12 +1,12 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
+import type {} from '@generated'
 import {
   Language,
-  Problem,
   Level,
+  Problem,
   ProblemWhereInput,
   UpdateHistory
 } from '@generated'
-import type {} from '@generated'
 import { ContestRole, ProblemField, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
@@ -19,9 +19,9 @@ import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from '../model/problem.constants'
 import type {
   CreateProblemInput,
-  UploadFileInput,
   FilterProblemsInput,
-  UpdateProblemInput
+  UpdateProblemInput,
+  UploadFileInput
 } from '../model/problem.input'
 import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Solution } from '../model/solution.input'
@@ -103,6 +103,7 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
+        solution,
         visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
         createdById: userId,
         languages,

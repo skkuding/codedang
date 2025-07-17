@@ -278,7 +278,50 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
 
+    const invalidSubmissionStatuses: Array<ResultStatus> = [
+      ResultStatus.Judging,
+      ResultStatus.ServerError,
+      ResultStatus.Blind,
+      ResultStatus.Canceled
+    ]
+    if (
+      invalidSubmissionStatuses.every(
+        (result) => result !== submissionResult.result
+      )
+    ) {
+      this.updateTestcaseStats(
+        submissionResult.problemTestcaseId,
+        submissionResult.result === ResultStatus.Accepted
+      )
+    }
+
     await this.updateSubmissionResult(submissionResult.submissionId)
+  }
+
+  @Span()
+  async updateTestcaseStats(
+    testcaseId: number,
+    isAccepted: boolean
+  ): Promise<void> {
+    const testcaseStats = {
+      where: {
+        id: testcaseId
+      },
+      data: {
+        submissionCount: {
+          increment: 1
+        },
+        acceptedCount: {
+          increment: 0
+        }
+      }
+    }
+
+    if (isAccepted) {
+      testcaseStats.data.acceptedCount.increment = 1
+    }
+
+    await this.prisma.problemTestcase.update(testcaseStats)
   }
 
   @Span()
