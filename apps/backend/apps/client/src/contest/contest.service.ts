@@ -278,7 +278,7 @@ export class ContestService {
     const now = new Date()
     if (now >= contest.registerDueTime) {
       throw new ConflictFoundException(
-        'Not allowed to participate in this contest after registerDueTime'
+        'Cannot participate in the contest after the registration deadline'
       )
     }
     return await this.prisma.$transaction(async (prisma) => {
