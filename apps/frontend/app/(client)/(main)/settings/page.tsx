@@ -216,7 +216,7 @@ export default function Page() {
     updateNow: Boolean(updateNow)
   }
   return (
-    <div className="mt-[60px] flex w-full gap-20 pb-6">
+    <div className="mt-[60px] flex w-full max-w-[1440px] gap-20 px-[116px] pb-6">
       {/* Logo */}
       <LogoSection />
 
