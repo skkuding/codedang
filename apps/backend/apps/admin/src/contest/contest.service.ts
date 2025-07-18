@@ -314,16 +314,19 @@ export class ContestService {
       contest.endTime && contest.endTime !== contestFound.endTime
     contest.startTime = contest.startTime || contestFound.startTime
     contest.endTime = contest.endTime || contestFound.endTime
-    contest.registerDueTime =
-      contest.registerDueTime || contestFound.registerDueTime
+    if (contest.registerDueTime != null) {
+      contest.registerDueTime =
+        contest.registerDueTime || contestFound.registerDueTime
+
+      if (contest.registerDueTime >= contest.startTime) {
+        throw new UnprocessableDataException(
+          'The register due time must be earlier than the start time'
+        )
+      }
+    }
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
-      )
-    }
-    if (contest.registerDueTime >= contest.startTime) {
-      throw new UnprocessableDataException(
-        'The register due time must be earlier than the start time'
       )
     }
     if (contest.summary) {
