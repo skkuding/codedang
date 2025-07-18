@@ -133,7 +133,7 @@ function AssignmentAccordionItem({
                 <p className="overflow-hidden whitespace-nowrap font-normal text-[#8A8A8A]">
                   {formatDateRange(
                     assignment.startTime,
-                    assignment.endTime,
+                    assignment.dueTime,
                     false
                   )}
                 </p>
@@ -248,7 +248,7 @@ export function AssignmentStatusTimeDiff({
 
   const updateAssignmentStatus = () => {
     const now = dayjs()
-    if (now.isAfter(assignment.endTime)) {
+    if (now.isAfter(assignment.dueTime)) {
       setAssignmentStatus('finished')
     } else if (now.isAfter(assignment.startTime)) {
       setAssignmentStatus('ongoing')
@@ -257,7 +257,7 @@ export function AssignmentStatusTimeDiff({
     }
 
     const timeRef =
-      assignmentStatus === 'ongoing' ? assignment.endTime : assignment.startTime
+      assignmentStatus === 'ongoing' ? assignment.dueTime : assignment.startTime
 
     const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
     const days = Math.floor(diff.asDays())
@@ -284,7 +284,7 @@ export function AssignmentStatusTimeDiff({
     updateAssignmentStatus()
   }, 1000)
 
-  if (dayjs(assignment.endTime).isSame(dayjs(UNLIMITED_DATE))) {
+  if (dayjs(assignment.dueTime).isSame(dayjs(UNLIMITED_DATE))) {
     return null
   }
 
