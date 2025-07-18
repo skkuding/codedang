@@ -1,17 +1,20 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
-import { ContestRole, Role, type ContestProblem, Prisma } from '@prisma/client'
+import { ContestRole, Prisma, Role, type ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { MIN_DATE, MAX_DATE } from '@libs/constants'
+import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
   EntityNotExistException,
+  ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { ContestWithScores } from './model/contest-with-scores.model'
-import type { CreateContestInput } from './model/contest.input'
-import type { UpdateContestInput } from './model/contest.input'
+import type {
+  CreateContestInput,
+  UpdateContestInput
+} from './model/contest.input'
 import type { ProblemScoreInput } from './model/problem-score.input'
 
 @Injectable()
@@ -153,7 +156,7 @@ export class ContestService {
     })
 
     if (!contest) {
-      throw new EntityNotExistException('contest')
+      throw new EntityNotExistException('Contest')
     }
 
     const { _count, ...data } = contest
@@ -204,7 +207,7 @@ export class ContestService {
       for (const role of userContest) {
         if (!validRoles.has(role.contestRole)) {
           throw new UnprocessableDataException(
-            `Invalid contest role: ${role.contestRole}`
+            `Invalid contest role : ${role.contestRole}`
           )
         }
 
@@ -514,7 +517,7 @@ export class ContestService {
       }
     })
     if (!contest) {
-      throw new EntityNotExistException('contest')
+      throw new EntityNotExistException('Contest')
     }
 
     const problemIds = contest.contestProblem.map(
@@ -552,7 +555,7 @@ export class ContestService {
       }
     })
     if (!contest) {
-      throw new EntityNotExistException('contest')
+      throw new EntityNotExistException('Contest')
     }
 
     let maxOrder =
@@ -637,7 +640,7 @@ export class ContestService {
       }
     })
     if (!contest) {
-      throw new EntityNotExistException('contest')
+      throw new EntityNotExistException('Contest')
     }
 
     const contestProblems: ContestProblem[] = []
@@ -672,7 +675,7 @@ export class ContestService {
         })
 
         if (!latestContest) {
-          throw new EntityNotExistException('contest')
+          throw new EntityNotExistException('Contest')
         }
 
         visibleLockTime = latestContest.endTime
@@ -688,7 +691,7 @@ export class ContestService {
         }
       })
       if (!removeContestProblem) {
-        throw new EntityNotExistException('contestProblem')
+        throw new EntityNotExistException('ContestProblem')
       }
 
       try {
@@ -735,6 +738,70 @@ export class ContestService {
     }
 
     return contestProblems
+  }
+
+  async removeUserFromContest(
+    contestId: number,
+    userId: number,
+    reqId: number
+  ) {
+    const contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      }
+    })
+    const contestRecord = await this.prisma.contestRecord.findFirst({
+      where: {
+        userId,
+        contestId
+      }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const userContest = await this.prisma.userContest.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_contestId: {
+          userId: reqId,
+          contestId
+        }
+      }
+    })
+
+    if (
+      !userContest ||
+      (userContest.role !== ContestRole.Admin &&
+        userContest.role !== ContestRole.Manager)
+    ) {
+      throw new ForbiddenAccessException(
+        'Only Admin or Manager can remove users from contest'
+      )
+    }
+
+    if (!contestRecord) {
+      throw new EntityNotExistException('ContestRecord')
+    }
+
+    const now = new Date()
+    if (now >= contest.startTime) {
+      throw new ForbiddenAccessException(
+        'Cannot unregister ongoing or ended contest'
+      )
+    }
+
+    return await this.prisma.$transaction(async (prisma) => {
+      await prisma.contestRecord.delete({
+        where: { id: contestRecord.id }
+      })
+
+      return prisma.userContest.delete({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { userId_contestId: { userId, contestId } }
+      })
+    })
   }
 
   async getContestSubmissionSummaryByUserId({
@@ -916,7 +983,7 @@ export class ContestService {
       })
 
       if (!contestProblem) {
-        throw new EntityNotExistException('contestProblem')
+        throw new EntityNotExistException('ContestProblem')
       }
 
       const maxScore = contestProblem.score
@@ -1074,7 +1141,7 @@ export class ContestService {
     })
 
     if (!contest) {
-      throw new EntityNotExistException('Contest not found')
+      throw new EntityNotExistException('Contest is not found')
     }
 
     const participated = await this.prisma.submission.findMany({

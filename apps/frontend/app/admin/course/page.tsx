@@ -12,7 +12,7 @@ export default function Page() {
   return (
     <div className="container mx-auto space-y-5 py-10">
       <div className="flex justify-between">
-        <h1 className="text-4xl font-bold">Course List</h1>
+        <h1 className="text-4xl font-bold">COURSE LIST</h1>
         <CreateCourseButton />
       </div>
       <h1 className="text-lg font-normal text-gray-500">

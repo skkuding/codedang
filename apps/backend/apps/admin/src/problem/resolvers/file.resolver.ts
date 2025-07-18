@@ -1,11 +1,12 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
 import { File } from '@generated'
-import { AuthenticatedRequest } from '@libs/auth'
+import { AuthenticatedRequest, UseManagerGuard } from '@libs/auth'
 import { FileSource } from '../model/file.output'
 import { UploadFileInput } from '../model/problem.input'
 import { FileService } from '../services'
 
 @Resolver()
+@UseManagerGuard()
 export class FileResolver {
   constructor(private readonly fileService: FileService) {}
 
