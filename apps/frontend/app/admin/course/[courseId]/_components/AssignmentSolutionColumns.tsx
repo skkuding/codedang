@@ -41,7 +41,7 @@ export const createColumns = (
     },
     {
       accessorKey: 'options',
-      header: () => <p className="w-[340px] text-center text-sm">Options</p>,
+      header: () => <p className="w-[280px] text-center text-sm">Options</p>,
       cell: ({ row }) => {
         const selectedOption = optionStates[row.index]
         return revealedStates[row.index] ? (
@@ -55,7 +55,7 @@ export const createColumns = (
               />
               <p>After Due Date</p>
             </label>
-            <div className="flex w-[218px] flex-col items-center justify-start gap-2">
+            <div className="flex w-[180px] flex-col items-center justify-start gap-2">
               <label className="flex items-center gap-1">
                 <input
                   type="radio"
@@ -67,12 +67,10 @@ export const createColumns = (
               </label>
 
               {selectedOption === 'Manually' && (
-                <div className="mx-auto w-full max-w-[150px]">
-                  <DateTimePickerDemo
-                    onChange={(date) => handleTimeFormChange(row.index, date)}
-                    defaultValue={solutionReleaseTimes[row.index] || undefined}
-                  />
-                </div>
+                <DateTimePickerDemo
+                  onChange={(date) => handleTimeFormChange(row.index, date)}
+                  defaultValue={solutionReleaseTimes[row.index] || undefined}
+                />
               )}
             </div>
           </div>
