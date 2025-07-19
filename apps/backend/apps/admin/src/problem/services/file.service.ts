@@ -5,12 +5,11 @@ import { randomUUID } from 'crypto'
 import type { Readable } from 'stream'
 import { MAX_FILE_SIZE, MAX_IMAGE_SIZE } from '@libs/constants'
 import {
-  EntityNotExistException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { StorageService } from '@admin/storage/storage.service'
+import { StorageService } from '@libs/storage'
 import type { UploadFileInput } from '../model/problem.input'
 
 @Injectable()

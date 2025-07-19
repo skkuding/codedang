@@ -20,10 +20,10 @@
   },
   "dependencies": {
     "@apollo/server": "^4.11.3",
-    "@aws-sdk/client-s3": "^3.722.0",
+    "@aws-sdk/client-s3": "^3.848.0",
     "@aws-sdk/client-ses": "^3.721.0",
     "@aws-sdk/credential-provider-node": "^3.721.0",
-    "@aws-sdk/lib-storage": "^3.782.0",
+    "@aws-sdk/lib-storage": "^3.848.0",
     "@golevelup/nestjs-rabbitmq": "^5.6.1",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/apollo": "^12.2.2",

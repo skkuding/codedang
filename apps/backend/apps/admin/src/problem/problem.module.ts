@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { RolesModule } from '@libs/auth'
-import { StorageModule } from '@admin/storage/storage.module'
+import { StorageModule } from '@libs/storage'
 import {
   FileResolver,
   ProblemTagResolver,
