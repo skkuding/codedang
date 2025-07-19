@@ -51,7 +51,8 @@ export default function ContestLeaderBoard() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['contest leaderboard', contestId],
-    queryFn: () => getContestLeaderboard({ contestId })
+    queryFn: () => getContestLeaderboard({ contestId }),
+    refetchInterval: 5 * 1000 // 5 seconds
   })
   const contestLeaderboard = data ? data : BaseContestLeaderboardData
   const [problemSize, setProblemSize] = useState(0)
@@ -131,6 +132,13 @@ export default function ContestLeaderBoard() {
           CHECK YOUR RANKING!
         </div>
         <LeaderboardModalDialog />
+        <div className="text-primary ml-8 flex items-center gap-3">
+          On Live
+          <span className="relative flex size-3">
+            <span className="bg-primary-light absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+            <span className="bg-primary relative inline-flex size-3 rounded-full" />
+          </span>
+        </div>
       </div>
       <div className="relative mb-[62px] mt-[30px]">
         <Image
