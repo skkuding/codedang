@@ -2,7 +2,7 @@
 
 import { cn } from '@/libs/utils'
 import clockIcon from '@/public/icons/clock_blue.svg'
-import type { Contest } from '@/types/type'
+import type { ContestStatusTimeDifftype } from '@/types/type'
 import type { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
@@ -19,7 +19,7 @@ export function ContestStatusTimeDiff({
   textStyle,
   inContestEditor
 }: {
-  contest: Contest
+  contest: ContestStatusTimeDifftype
   textStyle: string
   inContestEditor: boolean
 }) {

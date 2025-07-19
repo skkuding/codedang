@@ -11,9 +11,9 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
-import { BsFileTextFill } from 'react-icons/bs'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
+import { MdTextSnippet } from 'react-icons/md'
 import { DescriptionForm } from '../../../_components/DescriptionForm'
 import { FormSection } from '../../../_components/FormSection'
 import { SwitchField } from '../../../_components/SwitchField'
@@ -162,7 +162,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
                   }
                 }}
               >
-                <BsFileTextFill fontSize={16} className="text-[#8a8a8a]" />
+                <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
                 <div className="text-base text-[#8a8a8a]">Show Preview</div>
               </Button>
               <Button
