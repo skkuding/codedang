@@ -7,9 +7,8 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
-import { DELETE_GROUP_MEMBER } from '@/graphql/user/mutation'
 import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
-import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
+import { useSuspenseQuery } from '@apollo/client'
 import { useParams } from 'next/navigation'
 import { createColumns } from './Columns'
 import { DeleteUserButton } from './DeleteUserButton'
@@ -23,10 +22,9 @@ const headerStyle = {
 }
 
 export function GroupTable() {
-  const client = useApolloClient()
   const params = useParams() // 경로에서 params 가져오기
   const groupId = Number(params.courseId) // 문자열이므로 숫자로 변환
-  const [deleteGroupMember] = useMutation(DELETE_GROUP_MEMBER)
+
   const { data } = useSuspenseQuery(GET_GROUP_MEMBERS, {
     variables: { groupId, take: 1000, leaderOnly: false }
   })
@@ -42,21 +40,6 @@ export function GroupTable() {
     role: member.isGroupLeader ? 'Instructor' : 'Student'
   }))
 
-  const deleteTarget = (userId: number, groupId: number) => {
-    return deleteGroupMember({
-      variables: {
-        groupId,
-        userId
-      }
-    })
-  }
-
-  const onSuccess = () => {
-    client.refetchQueries({
-      include: [GET_GROUP_MEMBERS]
-    })
-  }
-
   return (
     <div>
       <div className="flex gap-2 text-base font-bold">
@@ -69,7 +52,7 @@ export function GroupTable() {
       <DataTableRoot data={members} columns={createColumns(groupId)}>
         <div className="flex justify-between">
           <DataTableSearchBar columndId="name" className="rounded-full" />
-          <DeleteUserButton deleteTarget={deleteTarget} onSuccess={onSuccess} />
+          <DeleteUserButton />
         </div>
         <DataTable headerStyle={headerStyle} />
         <DataTablePagination />

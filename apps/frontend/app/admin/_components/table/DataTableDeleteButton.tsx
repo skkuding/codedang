@@ -9,8 +9,16 @@ import { toast } from 'sonner'
 import { useDataTable } from './context'
 
 interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
-  target: 'problem' | 'contest' | 'assignment' | 'exercise' | 'group' | 'course'
-  deleteTarget: (id: number) => Promise<TPromise>
+  target:
+    | 'problem'
+    | 'contest'
+    | 'assignment'
+    | 'exercise'
+    | 'group'
+    | 'course'
+    | 'user'
+  deleteTarget: (id: number, extra?: number) => Promise<TPromise>
+  extraArg?: number
   getCanDelete?: (selectedRows: TData[]) => Promise<boolean>
   onSuccess?: () => void
   className?: string
@@ -34,6 +42,7 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
 export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   target,
   deleteTarget,
+  extraArg,
   getCanDelete,
   onSuccess,
   className,
@@ -67,7 +76,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   const handleDeleteRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows
     const deletePromises = selectedRows.map((row) =>
-      deleteTarget(row.original.id)
+      deleteTarget(row.original.id, extraArg)
     )
 
     try {
