@@ -175,6 +175,39 @@ export interface ContestAnnouncement {
   updateTime: string
 }
 
+export interface ContestPreview {
+  id: number
+  title: string
+  startTime: Date
+  endTime: Date
+  summary: {
+    문제형태?: string
+    순위산정?: string
+    진행방식?: string
+    참여대상?: string
+    참여혜택?: string
+  }
+  description: string
+  posterUrl: string
+  status: ContestStatus
+  problems: {
+    order: number
+    id: number | string
+    title: string
+    difficulty: string
+    submissionCount: number
+    acceptedRate: number
+    score: null | number
+  }[]
+}
+
+export interface ContestStatusTimeDifftype {
+  id: number
+  status: ContestStatus
+  startTime: Date
+  endTime: Date
+}
+
 export interface Standings {
   ranking: number
   userId: number

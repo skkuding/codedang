@@ -1,7 +1,6 @@
 'use client'
 
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
-import { createSchema } from '@/app/admin/contest/_libs/schemas'
 import {
   CREATE_CONTEST,
   IMPORT_PROBLEMS_TO_CONTEST
@@ -9,10 +8,10 @@ import {
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateContestInput } from '@generated/graphql'
-import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider } from 'react-hook-form'
+import type { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import type {
   ContestManagerReviewer,
@@ -21,6 +20,7 @@ import type {
 
 interface CreateContestFormProps {
   children: ReactNode
+  methods: ReturnType<typeof useForm<CreateContestInput>>
   problems: ContestProblem[]
   managers: ContestManagerReviewer[]
   setIsCreating: (isCreating: boolean) => void
@@ -28,20 +28,11 @@ interface CreateContestFormProps {
 
 export function CreateContestForm({
   children,
+  methods,
   problems,
   managers,
   setIsCreating
 }: CreateContestFormProps) {
-  const methods = useForm<CreateContestInput>({
-    resolver: valibotResolver(createSchema),
-    defaultValues: {
-      invitationCode: null,
-      enableCopyPaste: true,
-      isJudgeResultVisible: true,
-      description: null
-    }
-  })
-
   const formattedManagers = managers.map((manager) => ({
     userId: manager.id,
     contestRole: manager.type
