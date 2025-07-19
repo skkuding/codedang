@@ -64,7 +64,7 @@ export class GroupResolver {
   }
 
   @Query(() => [FindGroup])
-  async getCourses(
+  async courses(
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { defaultValue: 10, type: () => Int }) take: number
@@ -74,9 +74,7 @@ export class GroupResolver {
 
   @Query(() => FindGroup)
   @UseGroupLeaderGuard()
-  async getCourse(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
-  ) {
+  async course(@Args('groupId', { type: () => Int }, GroupIDPipe) id: number) {
     return await this.groupService.getCourse(id)
   }
 }
