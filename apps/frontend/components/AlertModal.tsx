@@ -44,7 +44,7 @@ export function AlertModal({
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent
-        className="flex h-[280px] w-[424px] flex-col items-center justify-between !rounded-2xl p-[40px]"
+        className="flex h-[280px] w-[424px] flex-col items-center justify-center !rounded-2xl p-[40px]"
         onEscapeKeyDown={onClose}
       >
         <AlertDialogHeader className="flex flex-col items-center justify-center">
@@ -62,15 +62,14 @@ export function AlertModal({
           </AlertDialogTitle>
         </AlertDialogHeader>
         {children}
-        <p
-          className={cn(
-            'w-full text-center text-sm font-normal text-[#737373]',
-            children && 'text-left'
-          )}
-        >
-          {description}
-        </p>
-        <AlertDialogFooter className="flex w-full justify-center gap-[4px]">
+        {description && (
+          <p
+            className={`w-full text-sm font-normal text-[#737373] ${children ? 'text-left' : 'text-center'}`}
+          >
+            {description}
+          </p>
+        )}
+        <AlertDialogFooter className="mt-auto flex w-full justify-center gap-[4px]">
           <AlertDialogCancel className="h-[46px] w-full">
             Cancel
           </AlertDialogCancel>
