@@ -4,7 +4,7 @@ import type {
 } from '@nestjs/cache-manager'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { redisStore } from 'cache-manager-redis-yet'
+import keyvRedis from '@keyv/redis'
 
 @Injectable()
 export class CacheConfigService implements CacheOptionsFactory {
@@ -12,7 +12,7 @@ export class CacheConfigService implements CacheOptionsFactory {
 
   async createCacheOptions(): Promise<CacheModuleOptions> {
     return {
-      store: await redisStore({
+      store: new keyvRedis({
         socket: {
           host: this.config.get('REDIS_HOST'),
           port: this.config.get('REDIS_PORT')
