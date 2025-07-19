@@ -294,23 +294,23 @@ enum Language {
 }
 
 model ProblemTestcase {
-  id              Int      @id @default(autoincrement())
-  problem         Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  problemId       Int      @map("problem_id")
-  order           Int?
+  id          Int      @id @default(autoincrement())
+  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  problemId   Int      @map("problem_id")
+  order       Int?
   // NOTE: Actual input/output value is going to be stored in S3.
   // These fields are only for backward compatibility.
   // All the new testcases are going to be stored in S3.
   // These fields are expected to be null for new testcases.
   // In future these fields will be removed after migration to S3.
-  input           String?
-  output          String?
-  scoreWeight     Int      @default(1) @map("score_weight")
-  isHidden        Boolean  @default(false) @map("is_hidden_testcase")
-  createTime      DateTime @default(now()) @map("create_time")
-  updateTime      DateTime @updatedAt @map("update_time")
-  acceptedCount   Int      @default(0) @map("accepted_count")
-  submissionCount Int      @default(0) @map("submission_count")
+  input       String?
+  output      String?
+  scoreWeight Int      @default(1) @map("score_weight")
+  isHidden    Boolean  @default(false) @map("is_hidden_testcase")
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
+  acceptedCount	Int	@default(0)	@map("accepted_count")
+  submissionCount	Int	@default(0)	@map("submission_count")
 
   submissionResult SubmissionResult[]
 
@@ -453,7 +453,7 @@ model Contest {
   invitationCode             String?   @map("invitation_code")
   startTime                  DateTime  @map("start_time")
   endTime                    DateTime  @map("end_time")
-  registerDueTime            DateTime? @map("register_due_time")
+  registerDueTime            DateTime  @map("register_due_time")
   unfreeze                   Boolean   @default(false)
   freezeTime                 DateTime? @map("freeze_time")
   isJudgeResultVisible       Boolean   @default(true) @map("is_judge_result_visible") /// 이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.

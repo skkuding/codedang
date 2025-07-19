@@ -276,7 +276,7 @@ export class ContestService {
       throw new ConflictFoundException('Already participated this contest')
     }
     const now = new Date()
-    if (contest.registerDueTime && now >= contest.registerDueTime) {
+    if (now >= contest.registerDueTime) {
       throw new ConflictFoundException(
         'Cannot participate in the contest after the registration deadline'
       )
