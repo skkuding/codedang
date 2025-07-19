@@ -1,5 +1,8 @@
+import { PrevNextProblemButton } from '@/app/(client)/(main)/contest/[contestId]/@tabs/_components/PrevNextProblemButton'
 import { DataTable, DataTableRoot } from '@/app/admin/_components/table'
+import { options } from '@fullcalendar/core/preact.js'
 import dayjs from 'dayjs'
+import { setSourceMapsEnabled } from 'process'
 import {
   useEffect,
   useMemo,
@@ -31,6 +34,9 @@ export function AssignmentSolutionTable({
   const [solutionReleaseTimes, setSolutionReleaseTimes] = useState<{
     [key: number]: Date | null
   }>({})
+  const [manualReleaseTimes, setManualReleaseTimes] = useState<{
+    [key: number]: Date | null
+  }>({})
 
   const hasProblemsLoaded = useRef(false)
 
@@ -39,6 +45,7 @@ export function AssignmentSolutionTable({
       const newRevealedStates: { [key: number]: boolean } = {}
       const newOptionStates: { [key: number]: string } = {}
       const newSolutionReleaseTimes: { [key: number]: Date | null } = {}
+      const newManualReleaseTimes: { [key: number]: Date | null } = {}
 
       problems.forEach((problem, index) => {
         if (problem.solutionReleaseTime) {
@@ -55,21 +62,56 @@ export function AssignmentSolutionTable({
         } else {
           newOptionStates[index] = 'Manually'
           newSolutionReleaseTimes[index] = problem.solutionReleaseTime
+          newManualReleaseTimes[index] = problem.solutionReleaseTime
         }
       })
 
       setRevealedStates(newRevealedStates)
       setOptionStates(newOptionStates)
       setSolutionReleaseTimes(newSolutionReleaseTimes)
+      setManualReleaseTimes(newManualReleaseTimes)
 
       hasProblemsLoaded.current = true
     }
   }, [problems])
 
   const handleSwitchChange = (rowIndex: number) => {
-    setRevealedStates((prev) => {
-      const newState = !prev[rowIndex]
+    const newState = !revealedStates[rowIndex]
+    const prevOption = optionStates[rowIndex]
+    const prevManualTime = manualReleaseTimes[rowIndex]
 
+    if (newState) {
+      if (!prevOption || prevOption === '') {
+        setOptionStates((prev) => ({
+          ...prev,
+          [rowIndex]: 'After Due Date'
+        }))
+      } else if (prevOption === 'Manually' && prevManualTime) {
+        setProblems((prevProblems) =>
+          prevProblems.map((problem, index) =>
+            index === rowIndex
+              ? {
+                  ...problem,
+                  solutionReleaseTime: prevManualTime
+                }
+              : problem
+          )
+        )
+        setSolutionReleaseTimes((prev) => ({
+          ...prev,
+          [rowIndex]: prevManualTime
+        }))
+        setOptionStates((prev) => ({
+          ...prev,
+          [rowIndex]: 'Manually'
+        }))
+      } else if (prevOption === 'After Due Date') {
+        setOptionStates((prev) => ({
+          ...prev,
+          [rowIndex]: 'After Due Date'
+        }))
+      }
+    } else {
       setProblems((prevProblems) =>
         prevProblems.map((problem, index) =>
           index === rowIndex
@@ -80,14 +122,15 @@ export function AssignmentSolutionTable({
             : problem
         )
       )
-
-      setOptionStates((prev) => ({
+      setSolutionReleaseTimes((prev) => ({
         ...prev,
-        [rowIndex]: ''
+        [rowIndex]: null
       }))
-
-      return { ...prev, [rowIndex]: newState }
-    })
+    }
+    setRevealedStates((prev) => ({
+      ...prev,
+      [rowIndex]: newState
+    }))
   }
 
   const handleOptionChange = (rowIndex: number, value: string) => {
@@ -95,7 +138,7 @@ export function AssignmentSolutionTable({
       const newState = { ...prev, [rowIndex]: value }
       const dummyReleaseTime = new Date('2025-01-01')
 
-      // 일단 2025-01-01로 해두고 Create 할 때 dueTime으로 갈아끼우기기
+      // 일단 2025-01-01로 해두고 Create 할 때 dueTime으로 갈아끼우기
       if (value === 'After Due Date') {
         setSolutionReleaseTimes((prev) => ({
           ...prev,
@@ -111,6 +154,26 @@ export function AssignmentSolutionTable({
               : problem
           )
         )
+      } else if (value === 'Manually') {
+        const manualTime = manualReleaseTimes[rowIndex] ?? new Date()
+        setSolutionReleaseTimes((prev) => ({
+          ...prev,
+          [rowIndex]: manualTime
+        }))
+        setProblems((prevProblems) =>
+          prevProblems.map((problem, index) =>
+            index === rowIndex
+              ? {
+                  ...problem,
+                  solutionReleaseTime: manualTime
+                }
+              : problem
+          )
+        )
+        setManualReleaseTimes((prev) => ({
+          ...prev,
+          [rowIndex]: manualTime
+        }))
       }
       return newState
     })
@@ -129,6 +192,13 @@ export function AssignmentSolutionTable({
             : problem
         )
       )
+
+      if (date) {
+        setManualReleaseTimes((prev) => ({
+          ...prev,
+          [rowIndex]: date
+        }))
+      }
       return newState
     })
   }

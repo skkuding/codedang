@@ -39,7 +39,7 @@ export function FormSection({
       )}
     >
       <div className="flex items-center gap-3 text-lg">
-        <span className="font-semibold">{title}</span>
+        <span className="whitespace-nowrap font-semibold">{title}</span>
         {isLabeled && <span className="mt-1 text-red-500">*</span>}
         {badge}
       </div>
