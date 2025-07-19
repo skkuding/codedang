@@ -15,7 +15,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { StorageService } from '@admin/storage/storage.service'
+import { StorageService } from '@libs/storage'
 import { ImportedProblemHeader } from '../model/problem.constants'
 import type {
   CreateProblemInput,
