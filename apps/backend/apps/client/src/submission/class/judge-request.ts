@@ -10,7 +10,7 @@ export class JudgeRequest {
   memoryLimit: number
   stopOnNotAccepted: boolean
   judgeOnlyHiddenTestcases: boolean
-  containHiddenTestcases?: boolean
+  containHiddenTestcases: boolean
 
   constructor(
     code: Snippet[],
