@@ -722,6 +722,11 @@ export class SubmissionService {
       submissionDto.code,
       testSubmission,
       isGroupLeader
+      /*
+      지금은 containHiddenTestcases = true로 설정할 경우가
+      isGroupLeader 밖에 없지만, 추후 contestAdmin, Manager 케이스도 추가할 예정
+      이렇게 되면 containHiddenTestcases를 isGroupLeader || isContestAdmin으로 수정
+      */
     )
     return testSubmission
   }
@@ -745,12 +750,12 @@ export class SubmissionService {
     problemId: number,
     code: Snippet[],
     testSubmission: TestSubmission,
-    isGroupLeader: boolean
+    containHiddenTestcases: boolean
   ): Promise<void> {
     const rawTestcases = await this.prisma.problemTestcase.findMany({
       where: {
         problemId,
-        ...(isGroupLeader ? {} : { isHidden: false })
+        ...(containHiddenTestcases ? {} : { isHidden: false })
       }
     })
 
@@ -770,7 +775,8 @@ export class SubmissionService {
       code,
       submission: testSubmission,
       isTest: true,
-      stopOnNotAccepted: false
+      stopOnNotAccepted: false,
+      containHiddenTestcases
     })
   }
 
