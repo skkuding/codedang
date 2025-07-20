@@ -47,6 +47,12 @@ export interface ProblemScore {
 export class AssignmentService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   *
+   * @param groupId
+   * @param isExercise
+   * @returns
+   */
   async getAssignments(groupId: number, isExercise: boolean) {
     const assignments = await this.prisma.assignment.findMany({
       where: {
