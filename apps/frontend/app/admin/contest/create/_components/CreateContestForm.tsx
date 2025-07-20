@@ -61,7 +61,7 @@ export function CreateContestForm({
 
   const isSubmittable = (input: CreateContestInput) => {
     if (input.startTime >= input.endTime) {
-      toast.error('Start time must be less than end time')
+      toast.error('Start time must be earlier than end time')
       return
     }
 
