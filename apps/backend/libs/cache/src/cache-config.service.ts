@@ -10,12 +10,19 @@ import keyvRedis from '@keyv/redis'
 export class CacheConfigService implements CacheOptionsFactory {
   constructor(private readonly config: ConfigService) {}
 
-  async createCacheOptions(): Promise<CacheModuleOptions> {
+  createCacheOptions(): CacheModuleOptions {
+    const host = this.config.get<string>('REDIS_HOST')
+    const port = this.config.get<string>('REDIS_PORT')
+
+    if (!host || !port) {
+      throw new Error('Redis host and port must be configured')
+    }
+
     return {
       store: new keyvRedis({
         socket: {
-          host: this.config.get('REDIS_HOST'),
-          port: this.config.get('REDIS_PORT')
+          host,
+          port: parseInt(port)
         }
       })
     }
