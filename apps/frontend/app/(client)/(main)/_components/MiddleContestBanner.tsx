@@ -1,4 +1,5 @@
 import { Button } from '@/components/shadcn/button'
+import { contestNoticeId } from '@/libs/constants'
 import RightIcon from '@/public/icons/arrow-right-white.svg'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -67,8 +68,7 @@ function BarButton() {
       className="h-full max-h-[54px] w-full max-w-[291px] p-0"
     >
       <Link
-        // TODO : 버튼 누르면 어디로 이동해야 하죠?
-        href={'/'}
+        href={`/notice/${contestNoticeId}`}
         className="flex h-full w-full items-center justify-between px-[4px] py-0"
       >
         <Text className="ms-[26px] max-h-[28px] max-w-[191px] text-[20px] font-medium leading-[140%] text-black">
