@@ -89,7 +89,7 @@ function ImageBox() {
     <>
       <ImageMask className="h-full max-h-[183px] w-full max-w-[1153px]" />
       <Image
-        src={'/banners/banner_mockup.png'}
+        src={'/banners/mainpage_middle_banner.png'}
         alt="middle_banner"
         width={1153}
         height={928}
