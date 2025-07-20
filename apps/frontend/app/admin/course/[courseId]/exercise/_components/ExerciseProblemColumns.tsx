@@ -88,8 +88,7 @@ export const createExerciseColumns = (
     header: () => <p className="text-center text-sm">Included</p>,
     cell: ({ row }) => (
       <div className="flex justify-center">
-        {/* 백엔드 API 작업 완료 후 수정 예정 */}
-        <ProblemUsage problemId={row.original.id} />
+        <ProblemUsage problemId={row.original.id} showAssignment={true} />
       </div>
     ),
     enableSorting: false

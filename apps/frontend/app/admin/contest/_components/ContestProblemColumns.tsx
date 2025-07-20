@@ -166,7 +166,7 @@ export const createColumns = (
     header: () => <p className="text-center text-sm">Included</p>,
     cell: ({ row }) => (
       <div className="flex justify-center">
-        <ProblemUsage problemId={row.original.id} />
+        <ProblemUsage problemId={row.original.id} showContest={true} />
       </div>
     ),
     enableSorting: false
