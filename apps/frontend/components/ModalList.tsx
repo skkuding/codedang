@@ -6,7 +6,7 @@ export interface ModalListProps {
 
 export function ModalList({ children }: ModalListProps) {
   return (
-    <div className="bg-background-alternative h-[111px] w-[344px] overflow-y-auto px-[12px] py-[14px]">
+    <div className="bg-background-alternative h-full w-full overflow-y-auto px-[12px] py-[14px]">
       {children}
     </div>
   )

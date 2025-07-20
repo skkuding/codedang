@@ -1,7 +1,7 @@
 'use client'
 
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
-import { ContainedContests } from '@/app/admin/problem/_components/ContainedContests'
+import { ProblemUsage } from '@/app/admin/problem/_components/ProblemUsage'
 import { Badge } from '@/components/shadcn/badge'
 // import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
@@ -166,7 +166,7 @@ export const createColumns = (
     header: () => <p className="text-center text-sm">Included</p>,
     cell: ({ row }) => (
       <div className="flex justify-center">
-        <ContainedContests problemId={row.original.id} />
+        <ProblemUsage problemId={row.original.id} />
       </div>
     ),
     enableSorting: false

@@ -1,7 +1,7 @@
 'use client'
 
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
-import { ContainedContests } from '@/app/admin/problem/_components/ContainedContests'
+import { ProblemUsage } from '@/app/admin/problem/_components/ProblemUsage'
 import { Badge } from '@/components/shadcn/badge'
 import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
@@ -142,7 +142,7 @@ export const createAssignmentColumns = (
     cell: ({ row }) => (
       <div className="flex justify-center">
         {/* 백엔드 API 작업 완료 후 수정 예정 */}
-        <ContainedContests problemId={row.original.id} />
+        <ProblemUsage problemId={row.original.id} />
       </div>
     ),
     enableSorting: false
