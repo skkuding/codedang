@@ -12,7 +12,7 @@ export function MiddleContestBanner() {
   )
 }
 
-function TextBox({ className }: { className: String }) {
+function TextBox({ className }: { className: string }) {
   return (
     <div
       className={`flex w-full max-w-[707px] items-center rounded-l-[20px] bg-[#182E56] ${className}`}
@@ -49,7 +49,7 @@ function Text({
   className
 }: {
   children: JSX.Element
-  className: String
+  className: string
 }) {
   return (
     <div
@@ -102,7 +102,7 @@ function ImageBox() {
   )
 }
 
-function ImageMask({ className }: { className: String }) {
+function ImageMask({ className }: { className: string }) {
   return (
     <div
       className={`from-background/50 to-background/0 absolute right-0 top-[-48px] bg-gradient-to-b ${className}`}
