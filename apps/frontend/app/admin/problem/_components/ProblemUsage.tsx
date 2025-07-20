@@ -81,7 +81,7 @@ export function ProblemUsage({
       parts.push('Contests')
     }
     if (showAssignment) {
-      parts.push('Courses')
+      parts.push('Assignments')
     }
 
     return parts.length > 0

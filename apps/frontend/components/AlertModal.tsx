@@ -64,7 +64,10 @@ export function AlertModal({
         {children}
         {description && (
           <p
-            className={`w-full text-sm font-normal text-[#737373] ${children ? 'text-left' : 'text-center'}`}
+            className={cn(
+              'w-full text-center text-sm font-normal text-[#737373]',
+              children && 'text-left'
+            )}
           >
             {description}
           </p>
