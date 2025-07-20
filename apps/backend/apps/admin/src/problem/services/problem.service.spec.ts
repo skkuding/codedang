@@ -6,8 +6,7 @@ import { expect } from 'chai'
 import { spy, stub } from 'sinon'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { S3MediaProvider, S3Provider } from '@admin/storage/s3.provider'
-import { StorageService } from '@admin/storage/storage.service'
+import { S3MediaProvider, S3Provider, StorageService } from '@libs/storage'
 import {
   fileUploadInput,
   user,
