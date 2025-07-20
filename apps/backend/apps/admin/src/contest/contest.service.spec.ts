@@ -21,8 +21,9 @@ import type {
 const contestId = 1
 const userId = 1
 const problemId = 2
-const startTime = faker.date.past()
+const startTime = faker.date.recent()
 const endTime = faker.date.future()
+const registerDueTime = faker.date.past()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
 const invitationCode = '123456'
@@ -41,6 +42,7 @@ const contest: Contest = {
   lastPenalty: false,
   startTime,
   endTime,
+  registerDueTime,
   unfreeze: false,
   freezeTime: null,
   isJudgeResultVisible: true,
@@ -69,6 +71,7 @@ const contestWithCount = {
   lastPenalty: false,
   startTime,
   endTime,
+  registerDueTime,
   unfreeze: false,
   freezeTime: null,
   isJudgeResultVisible: true,
@@ -100,6 +103,7 @@ const contestWithParticipants: ContestWithParticipants = {
   lastPenalty: false,
   startTime,
   endTime,
+  registerDueTime,
   unfreeze: false,
   freezeTime: null,
   enableCopyPaste: true,
@@ -195,17 +199,20 @@ const submissionsWithProblemTitleAndUsername = {
 const input = {
   title: 'test title10',
   description: 'test description',
-  startTime: faker.date.past(),
+  startTime: faker.date.recent(),
   endTime: faker.date.future(),
+  registerDueTime: faker.date.past(),
   enableCopyPaste: true,
   isJudgeResultVisible: true
 } satisfies CreateContestInput
 
 const updateInput = {
+  startTime: faker.date.recent(),
   endTime: faker.date.future(),
+  registerDueTime: faker.date.past(),
   freezeTime: faker.date.between({
-    from: new Date(new Date().getTime()),
-    to: new Date(endTime.getTime())
+    from: startTime,
+    to: endTime
   })
 } satisfies UpdateContestInput
 
@@ -344,7 +351,7 @@ describe('ContestService', () => {
       db.contest.findUniqueOrThrow.resolves(contest)
       db.contest.update.resolves(contest)
 
-      const res = await service.updateContest(1, updateInput)
+      const res = await service.updateContest(19, updateInput)
       expect(res).to.deep.equal(contest)
     })
   })

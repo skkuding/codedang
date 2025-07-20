@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
-import { MIN_DATE, MAX_DATE } from '@libs/constants'
+import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -13,8 +13,10 @@ import { PrismaService } from '@libs/prisma'
 import type { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
 import type { AssignmentProblemInput } from './model/assignment-problem.input'
 import type { AssignmentWithScores } from './model/assignment-with-scores.model'
-import type { CreateAssignmentInput } from './model/assignment.input'
-import type { UpdateAssignmentInput } from './model/assignment.input'
+import type {
+  CreateAssignmentInput,
+  UpdateAssignmentInput
+} from './model/assignment.input'
 
 @Injectable()
 export class AssignmentService {

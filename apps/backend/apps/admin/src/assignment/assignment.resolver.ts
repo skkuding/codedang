@@ -7,7 +7,7 @@ import {
 } from '@generated'
 import {
   AuthenticatedRequest,
-  UseDisableAdminGuard,
+  UseDisableGroupLeaderGuard,
   UseGroupLeaderGuard
 } from '@libs/auth'
 import {
@@ -21,8 +21,10 @@ import { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-r
 import { AssignmentProblemInput } from './model/assignment-problem.input'
 import { AssignmentSubmissionSummaryForUser } from './model/assignment-submission-summary-for-user.model'
 import { AssignmentWithParticipants } from './model/assignment-with-participants.model'
-import { CreateAssignmentInput } from './model/assignment.input'
-import { UpdateAssignmentInput } from './model/assignment.input'
+import {
+  CreateAssignmentInput,
+  UpdateAssignmentInput
+} from './model/assignment.input'
 import { AssignmentsGroupedByStatus } from './model/assignments-grouped-by-status.output'
 import { DuplicatedAssignmentResponse } from './model/duplicated-assignment-response.output'
 import { UserAssignmentScoreSummaryWithUserInfo } from './model/score-summary'
@@ -208,7 +210,7 @@ export class AssignmentResolver {
   }
 
   @Query(() => AssignmentsGroupedByStatus)
-  @UseDisableAdminGuard()
+  @UseDisableGroupLeaderGuard()
   async getAssignmentsByProblemId(
     @Args('problemId', { type: () => Int }) problemId: number,
     @Context('req') req: AuthenticatedRequest

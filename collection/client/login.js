@@ -30,7 +30,6 @@ const loginContestAdmin = async (req) => {
 }
 
 const loginContestManager = async (req) => {
-
   await login(req, {
     username: 'contestManager',
     password: 'ContestManager'

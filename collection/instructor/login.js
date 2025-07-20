@@ -19,6 +19,13 @@ const loginInstructor = async (req) => {
   })
 }
 
+const loginUser = async (req) => {
+  await login(req, {
+    username: 'user01',
+    password: 'Useruser'
+  })
+}
+
 module.exports = {
-  loginInstructor
+  loginInstructor,loginUser
 }

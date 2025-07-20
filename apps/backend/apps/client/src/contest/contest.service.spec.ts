@@ -36,6 +36,7 @@ const contest = {
   lastPenalty: false,
   startTime: now.add(-1, 'day').toDate(),
   endTime: now.add(1, 'day').toDate(),
+  registerDueTime: now.add(-2, 'day').toDate(),
   unfreeze: false,
   freezeTime: null,
   isJudgeResultVisible: true,
@@ -171,16 +172,19 @@ describe('ContestService', () => {
       expect(contests.ongoing[0]).to.have.property('title')
       expect(contests.ongoing[0]).to.have.property('startTime')
       expect(contests.ongoing[0]).to.have.property('endTime')
+      expect(contests.ongoing[0]).to.have.property('registerDueTime')
       expect(contests.ongoing[0]).to.have.property('participants')
       expect(contests.ongoing[0]).to.have.property('isRegistered')
       expect(contests.upcoming[0]).to.have.property('title')
       expect(contests.upcoming[0]).to.have.property('startTime')
       expect(contests.upcoming[0]).to.have.property('endTime')
+      expect(contests.upcoming[0]).to.have.property('registerDueTime')
       expect(contests.upcoming[0]).to.have.property('participants')
       expect(contests.upcoming[0]).to.have.property('isRegistered')
       expect(contests.finished[0]).to.have.property('title')
       expect(contests.finished[0]).to.have.property('startTime')
       expect(contests.finished[0]).to.have.property('endTime')
+      expect(contests.finished[0]).to.have.property('registerDueTime')
       expect(contests.finished[0]).to.have.property('participants')
       expect(contests.finished[0]).to.have.property('isRegistered')
     })
@@ -290,7 +294,7 @@ describe('ContestService', () => {
 
     it('should register to a contest successfully', async () => {
       const contestRecord = await service.registerContest({
-        contestId: 2,
+        contestId: 16,
         userId: user01Id,
         invitationCode
       })
