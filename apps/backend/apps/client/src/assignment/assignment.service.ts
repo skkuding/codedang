@@ -230,7 +230,6 @@ export class AssignmentService {
    * @returns {Promise<AssignmentRecord>} 제거된 assignmentRecord을 반환합니다.
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - assignment가 존재하지 않을 때
-   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 유저가 assignment에 참여하지 않아 assignmentRecord가 존재하지 않을 때
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * - 이미 assignment가 시작했거나 끝났을 때
@@ -284,6 +283,11 @@ export class AssignmentService {
    *   autoFinalizeScore: boolean;
    *   isFinalScoreVisible: boolean;
    * }>}
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - assignment가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - assignment와 그룹 아이디가 일치하지 않을 때
+   * - assignment가 아직 끝나지 않았을 때
    */
   async getAnonymizedScores(assignmentId: number, groupId: number) {
     const assignment = await this.prisma.assignment.findUnique({
@@ -383,6 +387,10 @@ export class AssignmentService {
    *     } | null;
    *   }>;
    * }>}
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - assignment가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 유저가 assignment에 포함되지 않았을 때
    */
   async getMyAssignmentProblemRecord(assignmentId: number, userId: number) {
     const assignment = await this.prisma.assignment.findUnique({
@@ -506,7 +514,8 @@ export class AssignmentService {
 
   /**
    * 한 그룹에서 특정 유저의 모든 assignment 결과를 요약해 가져옵니다.
-   * 요약한 내용에는 assignment 아이디, 문제/제출 수, 문제 별 점수의 총합, 최종 점수(제공 가능할 때만)가 포함됩니다.
+   * 요약한 내용에는 assignment 아이디, 문제/제출 수, 문제 별 점수의 총합, 최종 점수가 포함됩니다.
+   * assignment의 isFinalScoreVisible가 false일 때 userAssignmentFinalScore는 null이 됩니다.
    *
    * @param groupId 가져올 assignment가 속한 그룹 아이디
    * @param userId 유저 아이디
