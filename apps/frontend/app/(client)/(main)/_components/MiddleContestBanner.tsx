@@ -106,6 +106,6 @@ function ImageMask({ className }: { className: String }) {
   return (
     <div
       className={`from-background/50 to-background/0 absolute right-0 top-[-48px] bg-gradient-to-b ${className}`}
-    ></div>
+    />
   )
 }
