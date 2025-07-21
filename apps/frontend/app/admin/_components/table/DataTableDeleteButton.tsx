@@ -18,7 +18,7 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
     | 'course'
     | 'user'
   deleteTarget: (id: number, extra?: number) => Promise<TPromise>
-  extraArg?: number
+  extraArg?: number // 현재는 groupId만 사용되고 있음
   getCanDelete?: (selectedRows: TData[]) => Promise<boolean>
   onSuccess?: () => void
   className?: string

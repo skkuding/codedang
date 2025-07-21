@@ -37,9 +37,7 @@ export function DeleteUserButton() {
   return (
     <DataTableDeleteButton
       target="user"
-      deleteTarget={(userId: number, extra?: number) =>
-        deleteTarget(userId, extra ?? groupId)
-      }
+      deleteTarget={(id: number) => deleteTarget({ userId: id, groupId })}
       onSuccess={onSuccess}
       className="ml-auto"
       extraArg={groupId}
