@@ -38,6 +38,8 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
  * 삭제 성공 시 호출되는 함수
  * @param className
  * tailwind 클래스명
+ * @param extraArg
+ * deleteTarget의 row.original.id 외에 필요한 다른 매개변수
  */
 export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   target,

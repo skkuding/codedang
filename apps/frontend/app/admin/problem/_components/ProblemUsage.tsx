@@ -89,7 +89,7 @@ export function ProblemUsage({
       : 'Usage of this problem'
   }
 
-  if (contestLoading && assignmentLoading) {
+  if (contestLoading || assignmentLoading) {
     return <Skeleton className="size-[25px]" />
   }
   return contestDataResult && assignmentDataResult ? (

@@ -14,7 +14,12 @@ export function DeleteUserButton() {
   const params = useParams()
   const groupId = Number(params.courseId)
 
-  const deleteTarget = (userId: number, groupId: number) => {
+  interface DeleteTargetParams {
+    userId: number
+    groupId: number
+  }
+
+  const deleteTarget = ({ userId, groupId }: DeleteTargetParams) => {
     return deleteGroupMember({
       variables: {
         groupId,
