@@ -1,6 +1,7 @@
 import { DataTable, DataTableRoot } from '@/app/admin/_components/table'
 import dayjs from 'dayjs'
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -72,133 +73,156 @@ export function AssignmentSolutionTable({
     }
   }, [problems, dueTime])
 
-  const handleSwitchChange = (rowIndex: number) => {
-    const newState = !revealedStates[rowIndex]
-    const prevOption = optionStates[rowIndex]
-    const prevManualTime = manualReleaseTimes[rowIndex]
+  const handleSwitchChange = useCallback(
+    (rowIndex: number) => {
+      const newState = !revealedStates[rowIndex]
+      const prevOption = optionStates[rowIndex]
+      const prevManualTime = manualReleaseTimes[rowIndex]
 
-    if (newState) {
-      if (!prevOption || prevOption === '') {
-        setOptionStates((prev) => ({
-          ...prev,
-          [rowIndex]: 'After Due Date'
-        }))
-      } else if (prevOption === 'Manually' && prevManualTime) {
+      if (newState) {
+        if (!prevOption || prevOption === '') {
+          setOptionStates((prev) => ({
+            ...prev,
+            [rowIndex]: 'After Due Date'
+          }))
+        } else if (prevOption === 'Manually' && prevManualTime) {
+          setProblems((prevProblems) =>
+            prevProblems.map((problem, index) =>
+              index === rowIndex
+                ? {
+                    ...problem,
+                    solutionReleaseTime: prevManualTime
+                  }
+                : problem
+            )
+          )
+          setSolutionReleaseTimes((prev) => ({
+            ...prev,
+            [rowIndex]: prevManualTime
+          }))
+          setOptionStates((prev) => ({
+            ...prev,
+            [rowIndex]: 'Manually'
+          }))
+        } else if (prevOption === 'After Due Date') {
+          setOptionStates((prev) => ({
+            ...prev,
+            [rowIndex]: 'After Due Date'
+          }))
+        }
+      } else {
         setProblems((prevProblems) =>
           prevProblems.map((problem, index) =>
             index === rowIndex
               ? {
                   ...problem,
-                  solutionReleaseTime: prevManualTime
+                  solutionReleaseTime: null
                 }
               : problem
           )
         )
         setSolutionReleaseTimes((prev) => ({
           ...prev,
-          [rowIndex]: prevManualTime
-        }))
-        setOptionStates((prev) => ({
-          ...prev,
-          [rowIndex]: 'Manually'
-        }))
-      } else if (prevOption === 'After Due Date') {
-        setOptionStates((prev) => ({
-          ...prev,
-          [rowIndex]: 'After Due Date'
+          [rowIndex]: null
         }))
       }
-    } else {
-      setProblems((prevProblems) =>
-        prevProblems.map((problem, index) =>
-          index === rowIndex
-            ? {
-                ...problem,
-                solutionReleaseTime: null
-              }
-            : problem
-        )
-      )
-      setSolutionReleaseTimes((prev) => ({
+      setRevealedStates((prev) => ({
         ...prev,
-        [rowIndex]: null
+        [rowIndex]: newState
       }))
-    }
-    setRevealedStates((prev) => ({
-      ...prev,
-      [rowIndex]: newState
-    }))
-  }
+    },
+    [
+      revealedStates,
+      optionStates,
+      manualReleaseTimes,
+      setProblems,
+      setSolutionReleaseTimes,
+      setOptionStates,
+      setRevealedStates
+    ]
+  )
 
-  const handleOptionChange = (rowIndex: number, value: string) => {
-    setOptionStates((prev) => {
-      const newState = { ...prev, [rowIndex]: value }
-      const dummyReleaseTime = new Date('2025-01-01')
+  const handleOptionChange = useCallback(
+    (rowIndex: number, value: string) => {
+      setOptionStates((prev) => {
+        const newState = { ...prev, [rowIndex]: value }
+        const dummyReleaseTime = new Date('2025-01-01')
 
-      // 일단 2025-01-01로 해두고 Create 할 때 dueTime으로 갈아끼우기
-      if (value === 'After Due Date') {
-        setSolutionReleaseTimes((prev) => ({
-          ...prev,
-          [rowIndex]: new Date('2025-01-01')
-        }))
+        // 일단 2025-01-01로 해두고 Create 할 때 dueTime으로 갈아끼우기
+        if (value === 'After Due Date') {
+          setSolutionReleaseTimes((prev) => ({
+            ...prev,
+            [rowIndex]: new Date('2025-01-01')
+          }))
+          setProblems((prevProblems) =>
+            prevProblems.map((problem, index) =>
+              index === rowIndex
+                ? {
+                    ...problem,
+                    solutionReleaseTime: dummyReleaseTime
+                  }
+                : problem
+            )
+          )
+        } else if (value === 'Manually') {
+          const manualTime = manualReleaseTimes[rowIndex] ?? new Date()
+          setSolutionReleaseTimes((prev) => ({
+            ...prev,
+            [rowIndex]: manualTime
+          }))
+          setProblems((prevProblems) =>
+            prevProblems.map((problem, index) =>
+              index === rowIndex
+                ? {
+                    ...problem,
+                    solutionReleaseTime: manualTime
+                  }
+                : problem
+            )
+          )
+          setManualReleaseTimes((prev) => ({
+            ...prev,
+            [rowIndex]: manualTime
+          }))
+        }
+        return newState
+      })
+    },
+    [
+      manualReleaseTimes,
+      setManualReleaseTimes,
+      setOptionStates,
+      setProblems,
+      setSolutionReleaseTimes
+    ]
+  )
+
+  const handleTimeFormChange = useCallback(
+    (rowIndex: number, date: Date | null) => {
+      setSolutionReleaseTimes((prev) => {
+        const newState = { ...prev, [rowIndex]: date }
         setProblems((prevProblems) =>
           prevProblems.map((problem, index) =>
             index === rowIndex
               ? {
                   ...problem,
-                  solutionReleaseTime: dummyReleaseTime
+                  solutionReleaseTime: date
                 }
               : problem
           )
         )
-      } else if (value === 'Manually') {
-        const manualTime = manualReleaseTimes[rowIndex] ?? new Date()
-        setSolutionReleaseTimes((prev) => ({
-          ...prev,
-          [rowIndex]: manualTime
-        }))
-        setProblems((prevProblems) =>
-          prevProblems.map((problem, index) =>
-            index === rowIndex
-              ? {
-                  ...problem,
-                  solutionReleaseTime: manualTime
-                }
-              : problem
-          )
-        )
-        setManualReleaseTimes((prev) => ({
-          ...prev,
-          [rowIndex]: manualTime
-        }))
-      }
-      return newState
-    })
-  }
 
-  const handleTimeFormChange = (rowIndex: number, date: Date | null) => {
-    setSolutionReleaseTimes((prev) => {
-      const newState = { ...prev, [rowIndex]: date }
-      setProblems((prevProblems) =>
-        prevProblems.map((problem, index) =>
-          index === rowIndex
-            ? {
-                ...problem,
-                solutionReleaseTime: date
-              }
-            : problem
-        )
-      )
-
-      if (date) {
-        setManualReleaseTimes((prev) => ({
-          ...prev,
-          [rowIndex]: date
-        }))
-      }
-      return newState
-    })
-  }
+        if (date) {
+          setManualReleaseTimes((prev) => ({
+            ...prev,
+            [rowIndex]: date
+          }))
+        }
+        return newState
+      })
+    },
+    [setSolutionReleaseTimes, setProblems, setManualReleaseTimes]
+  )
 
   const filteredProblems = useMemo(() => {
     return problems.filter((problem) => {
