@@ -70,7 +70,7 @@ export function AssignmentSolutionTable({
 
       hasProblemsLoaded.current = true
     }
-  }, [problems])
+  }, [problems, dueTime])
 
   const handleSwitchChange = (rowIndex: number) => {
     const newState = !revealedStates[rowIndex]
@@ -218,7 +218,14 @@ export function AssignmentSolutionTable({
         handleTimeFormChange,
         solutionReleaseTimes
       ),
-    [revealedStates, optionStates]
+    [
+      revealedStates,
+      handleSwitchChange,
+      optionStates,
+      handleOptionChange,
+      handleTimeFormChange,
+      solutionReleaseTimes
+    ]
   )
 
   return (
