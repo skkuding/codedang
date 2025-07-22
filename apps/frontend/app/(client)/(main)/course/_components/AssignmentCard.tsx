@@ -28,7 +28,7 @@ interface AssignmentCardProps {
 
 export function AssignmentCard({ assignment }: AssignmentCardProps) {
   const startTime = dateFormatter(assignment.startTime, 'YYYY-MM-DD')
-  const endTime = dateFormatter(assignment.endTime, 'YYYY-MM-DD')
+  const dueTime = dateFormatter(assignment.dueTime, 'YYYY-MM-DD')
 
   return (
     <div
@@ -53,7 +53,7 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
           <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
             <Image src={calendarIcon} alt="calendar" width={16} height={16} />
             <p className="overflow-hidden text-ellipsis whitespace-pre-wrap">
-              {startTime} ~ {endTime}
+              {startTime} ~ {dueTime}
             </p>
           </div>
           <AssignmentStatusTimeDiff

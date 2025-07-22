@@ -16,7 +16,7 @@ import type { ColumnDef, Row } from '@tanstack/react-table'
 import { SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { ContainedContests } from './ContainedContests'
+import { ProblemUsage } from './ProblemUsage'
 
 interface Tag {
   id: number
@@ -94,7 +94,16 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
         </Tooltip>
       </TooltipProvider>
 
-      <ContainedContests problemId={row.original.id} />
+      <div
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <ProblemUsage
+          problemId={row.original.id}
+          showAssignment={true}
+          showContest={true}
+        />
+      </div>
     </div>
   )
 }

@@ -9,7 +9,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { StorageService } from '@admin/storage/storage.service'
+import { StorageService } from '@libs/storage'
 import type { UploadFileInput } from '../model/problem.input'
 
 @Injectable()
@@ -76,16 +76,39 @@ export class FileService {
   }
 
   async deleteFile(filename: string, userId: number) {
-    const file = this.prisma.file.delete({
-      where: {
-        filename,
-        createdById: userId
-      }
-    })
-    const s3FileDeleteResult = this.storageService.deleteFile(filename)
+    const deletedFile = await this.prisma.$transaction(async (tx) => {
+      const fileExists = await tx.file.findFirst({
+        where: {
+          filename,
+          createdById: userId
+        }
+      })
 
-    const [resolvedFile] = await Promise.all([file, s3FileDeleteResult])
-    return resolvedFile
+      if (!fileExists) {
+        throw new UnprocessableDataException(
+          'File not found or you do not have permission to delete this file'
+        )
+      }
+
+      const file = await tx.file.delete({
+        where: {
+          filename,
+          createdById: userId
+        }
+      })
+
+      try {
+        await this.storageService.deleteFile(filename)
+      } catch (error) {
+        throw new UnprocessableDataException(
+          `Failed to delete file from storage: ${error.message}`
+        )
+      }
+
+      return file
+    })
+
+    return deletedFile
   }
 
   async getFileSize(readStream: Readable, maxSize: number): Promise<number> {

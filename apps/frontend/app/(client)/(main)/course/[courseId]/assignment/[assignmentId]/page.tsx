@@ -79,7 +79,7 @@ export default function AssignmentDetail({ params }: AssignmentDetailProps) {
               <p className="text-sm font-medium text-[#333333e6]">
                 {formatDateRange(
                   assignment.startTime,
-                  assignment.endTime,
+                  assignment.dueTime,
                   false
                 )}
               </p>

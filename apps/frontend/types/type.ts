@@ -355,6 +355,7 @@ export interface Assignment {
   title: string
   startTime: Date
   endTime: Date
+  dueTime: Date
   group: {
     id: string
     groupName: string
