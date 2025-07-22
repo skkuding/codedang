@@ -9,8 +9,16 @@ import { toast } from 'sonner'
 import { useDataTable } from './context'
 
 interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
-  target: 'problem' | 'contest' | 'assignment' | 'exercise' | 'group' | 'course'
-  deleteTarget: (id: number) => Promise<TPromise>
+  target:
+    | 'problem'
+    | 'contest'
+    | 'assignment'
+    | 'exercise'
+    | 'group'
+    | 'course'
+    | 'user'
+  deleteTarget: (id: number, extra?: number) => Promise<TPromise>
+  extraArg?: number // 현재는 groupId만 사용되고 있음
   getCanDelete?: (selectedRows: TData[]) => Promise<boolean>
   onSuccess?: () => void
   className?: string
@@ -30,10 +38,13 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
  * 삭제 성공 시 호출되는 함수
  * @param className
  * tailwind 클래스명
+ * @param extraArg
+ * deleteTarget의 row.original.id 외에 필요한 다른 매개변수
  */
 export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   target,
   deleteTarget,
+  extraArg,
   getCanDelete,
   onSuccess,
   className,
@@ -67,7 +78,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   const handleDeleteRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows
     const deletePromises = selectedRows.map((row) =>
-      deleteTarget(row.original.id)
+      deleteTarget(row.original.id, extraArg)
     )
 
     try {

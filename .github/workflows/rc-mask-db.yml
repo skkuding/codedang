@@ -75,7 +75,7 @@ jobs:
           echo "db_name=$DB_NAME" >> $GITHUB_OUTPUT
 
       - name: Setup SSH agent for Bastion host access
-        uses: webfactory/ssh-agent@v0.5.4
+        uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.BASTION_SSH_KEY_RC }}
 

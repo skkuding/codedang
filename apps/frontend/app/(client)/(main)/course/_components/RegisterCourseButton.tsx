@@ -84,6 +84,7 @@ export function RegisterCourseButton() {
       }
       setIsVerified(false)
       setInvitationCode('')
+      setIsVerifyDialogOpen(true)
     }
   }
 
