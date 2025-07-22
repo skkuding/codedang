@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-api-prod
+  namespace: client-api-prod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: client-api-prod
+  template:
+    metadata:
+      labels:
+        app: client-api-prod
+    spec:
+      containers:
+        - name: client-api-prod
+          image: ghcr.io/skkuding/codedang-client-api:latest
+          resources:
+            limits:
+              cpu: 1
+              memory: 1.5Gi
+            requests:
+              cpu: 1
+              memory: 1.5Gi
+          # envFrom:
+          #   - secretRef:
+          #       name: client-api-prod-secrets
+          #   - secretRef:
+          #       name: aws-credentials
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT_URL
+              value: '211.214.111.9:4317'

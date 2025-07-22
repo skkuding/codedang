@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: client-api-prod-server-ingress
+  namespace: client-api-prod
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - codedang.com
+      secretName: client-api-prod-server-tls
+  rules:
+    - host: codedang.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: client-api-prod-server
+                port:
+                  number: 80
