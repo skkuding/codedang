@@ -58,6 +58,11 @@ describe('convertToLetter', () => {
   it('should convert 25 to Z', () => {
     expect(utils.convertToLetter(25)).toBe('Z')
   })
+  it('should throw error if n is not an integer between 0 and 25', () => {
+    expect(() => utils.convertToLetter(-1)).toThrow()
+    expect(() => utils.convertToLetter(26)).toThrow()
+    expect(() => utils.convertToLetter(1.5)).toThrow()
+  })
 })
 
 describe('dateFormatter', () => {
