@@ -23,11 +23,11 @@ spec:
             requests:
               cpu: 1
               memory: 1.5Gi
-          # envFrom:
-          #   - secretRef:
-          #       name: client-api-prod-secrets
-          #   - secretRef:
-          #       name: aws-credentials
+          envFrom:
+            - secretRef:
+                name: client-api-prod-secrets
+            # - secretRef:
+            #     name: aws-credentials
           env:
-            - name: OTEL_EXPORTER_OTLP_ENDPOINT_URL
-              value: '211.214.111.9:4317'
+            - name: RABBITMQ_SSL
+              value: 'true'
