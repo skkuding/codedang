@@ -11,15 +11,11 @@ import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar_blue.svg'
-import type {
-  Contest,
-  ContestTop,
-  ProblemDataTop,
-  ContestOrder
-} from '@/types/type'
+import type { ContestTop, ProblemDataTop, ContestOrder } from '@/types/type'
 import Image from 'next/image'
 import { getOngoingUpcomingContests } from '../_libs/apis'
 import { BiggerImageButton } from './_components/BiggerImageButton'
+import { ContestOverviewLayout } from './_components/ContestOverviewLayout'
 import { GotoContestListButton } from './_components/GotoContestListButton'
 import { PrevNextProblemButton } from './_components/PrevNextProblemButton'
 import { RegisterButton } from './_components/RegisterButton'
@@ -194,6 +190,14 @@ export default async function ContestTop({
       />
       <GotoContestListButton />
     </div>
+    // <ContestOverviewLayout
+    //   contest={data}
+    //   isRealPage={true}
+    //   problemData={problemData}
+    //   orderedContests={orderedContests}
+    //   session={session}
+    //   search={search}
+    // />
   )
 }
 

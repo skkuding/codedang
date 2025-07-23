@@ -47,19 +47,33 @@ export function ContestOverviewLayout({
   )
   const formattedEndTime = dateFormatter(contest.endTime, 'YYYY-MM-DD HH:mm:ss')
 
-  const previewProblemData: ProblemDataTop = {
-    data: (contest as ContestPreview).problems.map((problem) => ({
-      id: problem.id,
-      title: problem.title,
-      order: problem.order,
-      difficulty: problem.difficulty,
-      submissionCount: problem.submissionCount,
-      acceptedRate: problem.acceptedRate,
-      maxScore: 10, // 미리보기는 10점으로 고정
-      score: problem.score ?? null,
-      submissionTime: null
-    })),
-    total: (contest as ContestPreview).problems.length
+  let previewProblemData: ProblemDataTop
+
+  if (isRealPage) {
+    // 실제 페이지일 경우, props로 받은 problemData를 사용
+    // problemData가 undefined일 가능성을 대비하여 기본값 ({ data: [], total: 0 }) 할당
+    // 이 부분에서 problemData가 실제로 ContestTopPage에서 잘 넘어오는지 확인 필요
+    previewProblemData = problemData ?? { data: [], total: 0 }
+    console.log('session', session)
+    console.log('orderedContests', orderedContests)
+    console.log('problemData', problemData)
+  } else {
+    // 미리보기 페이지일 경우에만 contest.problems를 기반으로 problemData를 생성합니다.
+    // contest는 ContestPreview 타입이므로 problems 속성이 존재함을 확신할 수 있습니다.
+    previewProblemData = {
+      data: (contest as ContestPreview).problems.map((problem) => ({
+        id: problem.id,
+        title: problem.title,
+        order: problem.order,
+        difficulty: problem.difficulty,
+        submissionCount: problem.submissionCount,
+        acceptedRate: problem.acceptedRate,
+        maxScore: 10, // 미리보기는 10점으로 고정
+        score: problem.score ?? null,
+        submissionTime: null
+      })),
+      total: (contest as ContestPreview).problems.length
+    }
   }
 
   const problenDataToUse: ProblemDataTop =
