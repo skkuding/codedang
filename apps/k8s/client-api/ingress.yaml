@@ -22,4 +22,4 @@ spec:
               service:
                 name: client-api-prod-server
                 port:
-                  number: 80
+                  number: 4000

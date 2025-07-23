@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-api-prod-server
+  namespace: client-api-prod
+spec:
+  selector:
+    app: client-api-prod
+  ports:
+    - port: 4000
+      targetPort: 4000
