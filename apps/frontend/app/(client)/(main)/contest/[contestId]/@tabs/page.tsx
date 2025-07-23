@@ -13,7 +13,7 @@ import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar_blue.svg'
 import type {
   Contest,
-  ContestStatus,
+  ContestTop,
   ProblemDataTop,
   ContestOrder
 } from '@/types/type'
@@ -24,43 +24,6 @@ import { GotoContestListButton } from './_components/GotoContestListButton'
 import { PrevNextProblemButton } from './_components/PrevNextProblemButton'
 import { RegisterButton } from './_components/RegisterButton'
 import { RenderProblemList } from './_components/RenderProblemList'
-
-export interface ContestTop {
-  id: number
-  title: string
-  description: string
-  startTime: string
-  endTime: string
-  isJudgeResultVisible: boolean
-  posterUrl?: string
-  summary: {
-    문제형태?: string
-    순위산정?: string
-    진행방식?: string
-    참여대상?: string
-    참여혜택?: string
-  }
-  contestProblem: {
-    order: number
-    problem: {
-      title: string
-    }
-  }[]
-  enableCopyPaste: boolean
-  status: ContestStatus
-  participants: number
-  isRegistered: boolean
-  isPrivilegedRole: boolean
-  invitationCodeExists: boolean
-  prev: null | {
-    id: number
-    title: string
-  }
-  next: null | {
-    id: number
-    title: string
-  }
-}
 
 interface ContestTopProps {
   params: {
@@ -89,14 +52,8 @@ export default async function ContestTop({
     session
   )
 
-  const contest: Contest = {
-    ...data,
-    startTime: new Date(data.startTime),
-    endTime: new Date(data.endTime)
-  }
-
-  const startTime = new Date(data.startTime)
-  const endTime = new Date(data.endTime)
+  const startTime = data.startTime
+  const endTime = data.endTime
   const currentTime = new Date()
   const state = (() => {
     if (currentTime >= endTime) {
@@ -132,7 +89,7 @@ export default async function ContestTop({
           </p>
         </div>
         <ContestStatusTimeDiff
-          contest={contest}
+          contest={data}
           textStyle="text-[#333333e6] font-normal opacity-100"
           inContestEditor={false}
         />

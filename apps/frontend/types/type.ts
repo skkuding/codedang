@@ -161,6 +161,43 @@ export interface Contest {
   contestProblem: ProblemInContestInterface[]
 }
 
+export interface ContestTop {
+  id: number
+  title: string
+  description: string
+  startTime: Date
+  endTime: Date
+  isJudgeResultVisible: boolean
+  posterUrl?: string
+  summary: {
+    문제형태?: string
+    순위산정?: string
+    진행방식?: string
+    참여대상?: string
+    참여혜택?: string
+  }
+  contestProblem: {
+    order: number
+    problem: {
+      title: string
+    }
+  }[]
+  enableCopyPaste: boolean
+  status: ContestStatus
+  participants: number
+  isRegistered: boolean
+  isPrivilegedRole: boolean
+  invitationCodeExists: boolean
+  prev: null | {
+    id: number
+    title: string
+  }
+  next: null | {
+    id: number
+    title: string
+  }
+}
+
 export interface ContestOrder {
   id: number
   title: string
