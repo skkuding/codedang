@@ -665,6 +665,15 @@ export class SubmissionService {
               }
             }
           }
+        },
+        contestProblem: {
+          select: {
+            contest: {
+              select: {
+                userContest: true
+              }
+            }
+          }
         }
       }
     })
@@ -711,6 +720,19 @@ export class SubmissionService {
       (sharedGroup) => sharedGroup.userGroup.length > 0
     )
 
+    // 해당 problem이 포함된 contest에 대한 Admin / Manager / Reviewer인지 확인
+    const isContestStaff = problem.contestProblem.some((contestProblem) =>
+      contestProblem.contest.userContest.some(
+        (userContest) =>
+          userContest.userId == userId &&
+          (userContest.role == 'Admin' ||
+            userContest.role == 'Manager' ||
+            userContest.role == 'Reviewer')
+      )
+    )
+
+    const containHiddenTestcases = isGroupLeader || isContestStaff
+
     // Open Testcase에 대한 TEST 요청인 경우
     const testSubmission = await this.createTestSubmission(
       { ...submissionDto, problemId, userId, userIp },
@@ -721,12 +743,7 @@ export class SubmissionService {
       problemId,
       submissionDto.code,
       testSubmission,
-      isGroupLeader
-      /*
-      지금은 containHiddenTestcases = true로 설정할 경우가
-      isGroupLeader 밖에 없지만, 추후 contestAdmin, Manager 케이스도 추가할 예정
-      이렇게 되면 containHiddenTestcases를 isGroupLeader || isContestAdmin으로 수정
-      */
+      containHiddenTestcases
     )
     return testSubmission
   }
