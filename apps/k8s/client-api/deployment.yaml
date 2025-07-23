@@ -26,8 +26,8 @@ spec:
           envFrom:
             - secretRef:
                 name: client-api-prod-secrets
-            # - secretRef:
-            #     name: aws-credentials
+            - secretRef:
+                name: aws-credentials
           env:
             - name: RABBITMQ_SSL
               value: 'true'
