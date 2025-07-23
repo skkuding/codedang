@@ -50,16 +50,8 @@ export function ContestOverviewLayout({
   let previewProblemData: ProblemDataTop
 
   if (isRealPage) {
-    // 실제 페이지일 경우, props로 받은 problemData를 사용
-    // problemData가 undefined일 가능성을 대비하여 기본값 ({ data: [], total: 0 }) 할당
-    // 이 부분에서 problemData가 실제로 ContestTopPage에서 잘 넘어오는지 확인 필요
     previewProblemData = problemData ?? { data: [], total: 0 }
-    console.log('session', session)
-    console.log('orderedContests', orderedContests)
-    console.log('problemData', problemData)
   } else {
-    // 미리보기 페이지일 경우에만 contest.problems를 기반으로 problemData를 생성합니다.
-    // contest는 ContestPreview 타입이므로 problems 속성이 존재함을 확신할 수 있습니다.
     previewProblemData = {
       data: (contest as ContestPreview).problems.map((problem) => ({
         id: problem.id,
@@ -108,11 +100,7 @@ export function ContestOverviewLayout({
   return (
     <ScrollArea className={!isRealPage ? 'h-full w-full' : ''}>
       {' '}
-      <div
-        className={
-          !isRealPage ? 'flex w-[1208px] flex-col justify-self-center' : ''
-        }
-      >
+      <div className="flex w-[1208px] flex-col justify-self-center">
         <h1 className="mt-24 w-[1208px] text-2xl font-semibold tracking-[-0.72px]">
           {contest?.title}
         </h1>
@@ -225,7 +213,7 @@ export function ContestOverviewLayout({
             <AccordionContent className="mb-10 pb-0 pt-[3px] text-base text-[#00000080]">
               <RenderProblemList
                 state={isRealPage ? state : 'Ongoing'}
-                isRegistered={isRealPage ? actualIsRegistered : false}
+                isRegistered={isRealPage ? actualIsRegistered : true}
                 problemData={problenDataToUse}
                 isPrivilegedRole={isRealPage ? actualIsPrivilegedRole : false}
                 linked={isRealPage}

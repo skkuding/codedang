@@ -1,9 +1,9 @@
+import { ContestOverviewLayout } from '@/app/(client)/(main)/contest/[contestId]/@tabs/_components/ContestOverviewLayout'
 import { Button } from '@/components/shadcn/button'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { ContestPreview } from '@/types/type'
 import Image from 'next/image'
 import Link from 'next/link'
-import { PreviewOverviewPanel } from './PreviewOverviewPanel'
 
 interface OverviewLayoutProps {
   contest: ContestPreview
@@ -33,7 +33,7 @@ export function PreviewOverviewLayout({
         </Button>
       </header>
 
-      <PreviewOverviewPanel contest={contest} />
+      <ContestOverviewLayout contest={contest} isRealPage={false} />
     </div>
   )
 }
