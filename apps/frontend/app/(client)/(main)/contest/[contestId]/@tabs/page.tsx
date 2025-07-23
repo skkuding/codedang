@@ -72,6 +72,10 @@ export default async function ContestTop({
 
   const imageUrl = posterUrl || '/logos/welcome.png'
   const prev = true
+
+  console.log('data', data)
+  console.log('state', state)
+  console.log('Type of startTime:', typeof data.startTime)
   return (
     <div>
       <h1 className="mt-24 w-[1208px] text-2xl font-semibold tracking-[-0.72px]">
