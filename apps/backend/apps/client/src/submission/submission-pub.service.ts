@@ -54,7 +54,8 @@ export class SubmissionPublicationService {
     isUserTest = false,
     userTestcases,
     stopOnNotAccepted = false,
-    judgeOnlyHiddenTestcases = false
+    judgeOnlyHiddenTestcases = false,
+    containHiddenTestcases = false
   }: {
     code: Snippet[]
     submission: Submission | TestSubmission
@@ -63,6 +64,7 @@ export class SubmissionPublicationService {
     userTestcases?: { id: number; in: string; out: string }[]
     stopOnNotAccepted?: boolean
     judgeOnlyHiddenTestcases?: boolean
+    containHiddenTestcases?: boolean
   }): Promise<void> {
     const problem = await this.prisma.problem.findUnique({
       where: { id: submission.problemId },
@@ -90,7 +92,8 @@ export class SubmissionPublicationService {
           submission.language,
           problem,
           stopOnNotAccepted,
-          judgeOnlyHiddenTestcases
+          judgeOnlyHiddenTestcases,
+          containHiddenTestcases
         )
 
     const span = this.traceService.startSpan(
