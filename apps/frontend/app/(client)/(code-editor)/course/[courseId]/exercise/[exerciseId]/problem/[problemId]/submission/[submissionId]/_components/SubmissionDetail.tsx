@@ -27,7 +27,7 @@ export async function SubmissionDetail({
   exerciseId
 }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
-    searchParams: { problemId, exerciseId },
+    searchParams: { problemId, assignmentId: exerciseId },
     next: {
       tags: [`submission/${submissionId}`]
     }
