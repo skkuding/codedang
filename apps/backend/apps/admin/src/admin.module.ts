@@ -24,6 +24,7 @@ import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { AnnouncementModule } from './announcement/announcement.module'
 import { AssignmentModule } from './assignment/assignment.module'
+import { CheckModule } from './check/check.module'
 import { ContestModule } from './contest/contest.module'
 import { GroupModule } from './group/group.module'
 import { ProblemModule } from './problem/problem.module'
@@ -63,7 +64,8 @@ import { WorkbookModule } from './workbook/workbook.module'
     NoticeModule,
     SubmissionModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
-    OpenTelemetryModule.forRoot(openTelemetryModuleOption)
+    OpenTelemetryModule.forRoot(openTelemetryModuleOption),
+    CheckModule
   ],
   controllers: [AdminController],
   providers: [
