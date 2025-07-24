@@ -77,6 +77,7 @@ model User {
   UpdateHistory    UpdateHistory[]
 
   @@map("user")
+  PlagiarismCheck PlagiarismCheck[]
 }
 
 model UserOAuth {
@@ -720,6 +721,14 @@ model PlagiarismCheck {
   checkId        String      @unique @map("check_id")
   problem       Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId                 Int                         @map("problem_id")
+  user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId         Int?        @map("user_id")
+  userIp         String?     @map("user_ip")
+  language  Language
+  checkPreviousSubmission Boolean @map("check_previous_submission")
+  enableMerging Boolean @map("enable_merging")
+  minTokens Int @map("min_tokens")
+  useJplagClustering  Boolean @map("use_jplag_clustering")
   createTime DateTime @default(now()) @map("create_time")
   result       CheckResultStatus
   @@map("plagiarism_check")
