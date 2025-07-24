@@ -1,6 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
-import type { PrismaService } from '@libs/prisma'
+import { PrismaService } from '@libs/prisma'
 
 @Injectable()
 export class CheckSubscriptionService implements OnModuleInit {

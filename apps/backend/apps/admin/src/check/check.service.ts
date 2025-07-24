@@ -5,8 +5,8 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
-import type { PrismaService } from '@libs/prisma'
-import type { CheckPublicationService } from './check-pub.service'
+import { PrismaService } from '@libs/prisma'
+import { CheckPublicationService } from './check-pub.service'
 import type { CreatePlagiarismCheckDto } from './class/create-check.dto'
 
 @Injectable()

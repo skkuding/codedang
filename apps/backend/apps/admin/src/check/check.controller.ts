@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Query, Req, Headers } from '@nestjs/common'
 import type { AuthenticatedRequest } from '@libs/auth'
 import { RequiredIntPipe } from '@libs/pipe'
-import type { CheckService } from './check.service'
+import { CheckService } from './check.service'
 import type { CreatePlagiarismCheckDto } from './class/create-check.dto'
 
 @Controller('check')
