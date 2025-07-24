@@ -1,15 +1,16 @@
 'use client'
 
 import { ErrorMessage } from '@/app/admin/_components/ErrorMessage'
+import { Modal } from '@/components/Modal'
 import {
   AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogCancel,
-  AlertDialogFooter,
   AlertDialogAction,
-  AlertDialogDescription
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
@@ -35,7 +36,6 @@ import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useCallback, useEffect, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { useForm, type SubmitHandler } from 'react-hook-form'
-import { FiX } from 'react-icons/fi'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { IoCloudUpload, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineEmail } from 'react-icons/md'
@@ -77,37 +77,27 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
   }
 
   return (
-    <>
-      <Button
-        type="button"
-        variant="default"
-        onClick={() => setIsAlertDialogOpen(true)}
-        className="w-[120px]"
-      >
-        <HiMiniPlusCircle className="mr-2 h-5 w-5" />
-        <span className="text-lg">Invite</span>
-      </Button>
-      <AlertDialog open={isAlertDialogOpen} onOpenChange={handleOpenChange}>
-        <AlertDialogContent className="flex max-h-[693px] w-[580px] flex-col overflow-hidden">
-          <AlertDialogCancel className="absolute right-4 top-4 border-none">
-            <FiX className="h-5 w-5" />
-          </AlertDialogCancel>
-          <div className="flex justify-center">
-            <h2 className="m-0 mb-[28px] pt-[60px] text-center text-xl font-bold">
-              Invite Member
-            </h2>
-          </div>
-
-          <div className="flex flex-1 flex-col gap-6 overflow-hidden px-4">
-            <InviteByCode
-              courseId={courseId}
-              isAlertDialogOpen={isAlertDialogOpen}
-            />
-            <InviteManually courseId={courseId} />
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+    <Modal
+      size="lg"
+      type={'custom'}
+      title="Invite Member"
+      open={isAlertDialogOpen}
+      onOpenChange={handleOpenChange}
+      trigger={
+        <Button type="button" variant="default" className="w-[120px]">
+          <HiMiniPlusCircle className="mr-2 h-5 w-5" />
+          <span className="text-lg">Invite</span>
+        </Button>
+      }
+    >
+      <div className="flex flex-1 flex-col gap-6 overflow-hidden px-4">
+        <InviteByCode
+          courseId={courseId}
+          isAlertDialogOpen={isAlertDialogOpen}
+        />
+        <InviteManually courseId={courseId} />
+      </div>
+    </Modal>
   )
 }
 

@@ -76,12 +76,12 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       <DataTableColumnHeader
         column={column}
         title="Title"
-        className="w-[250px] justify-start"
+        className="w-[32%] justify-start"
       />
     ),
     cell: ({ row }) => {
       return (
-        <div className="w-[250px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        <div className="w-[32%] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
           {row.getValue('title')}
         </div>
       )
@@ -95,12 +95,12 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       <DataTableColumnHeader
         column={column}
         title="Update"
-        className="w-[100px]"
+        className="w-[23%]"
       />
     ),
     cell: ({ row }) => {
       return (
-        <div className="w-[100px]">
+        <div className="w-[23%]">
           {row.original.updateTime.substring(2, 10)}
         </div>
       )
@@ -112,14 +112,14 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       <DataTableColumnHeader
         column={column}
         title="Level"
-        className="w-[70px]"
+        className="w-[14%]"
       />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
       const formattedLevel = `Level ${level.slice(-1)}`
       return (
-        <div className="flex w-[70px] justify-end">
+        <div className="flex w-[14%] justify-end">
           <Badge
             variant={level as Level}
             className="whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
@@ -139,12 +139,12 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       <DataTableColumnHeader
         column={column}
         title="Solution"
-        className="flex w-[70px] justify-center"
+        className="flex w-[14%] justify-center"
       />
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex w-[70px] justify-center">
+        <div className="flex w-[14%] justify-center">
           {row.original.solution.some((solution) => solution.code !== '') ? (
             <FaCheck />
           ) : (
@@ -161,7 +161,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       <DataTableColumnHeader
         column={column}
         title="Preview"
-        className="flex justify-center"
+        className="flex w-[13%] justify-center"
       />
     ),
     cell: ({ row }) => {
@@ -169,7 +169,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
         <Link
           href={`/admin/problem/${row.original.id}/preview`}
           target="_blank"
-          className="flex w-[70px] justify-center"
+          className="flex w-[13%] justify-center"
           onClick={(e) => e.stopPropagation()}
         >
           <CiShare1 size={20} />
