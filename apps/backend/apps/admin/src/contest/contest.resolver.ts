@@ -112,6 +112,12 @@ export class ContestResolver {
     )
   }
 
+  /**
+   * 특정 Contest의 Contest Admin / Manager가 참가한 User를 참가 취소합니다.
+   * @param contestId 대회 Id
+   * @param userId 참가 취소할 User의 Id
+   * @param req AuthenticatedRequest
+   */
   @Mutation(() => UserContest)
   @UseDisableContestRolesGuard()
   async removeUserFromContest(

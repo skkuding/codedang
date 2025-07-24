@@ -2,6 +2,7 @@ package router
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
@@ -59,7 +60,16 @@ func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byt
 	switch path {
 	case Judge:
 		go r.judgeHandler.Handle(id, data, true, judgeChan, newCtx)
-	case Run, UserTestCase:
+	case Run:
+		// JudgeRequest에서 받아온 containHiddenTestcases 여부에 따라 구분
+		var req handler.Request
+		if err := json.Unmarshal(data, &req); err == nil {
+			hidden := req.ContainHiddenTestcases
+			go r.judgeHandler.Handle(id, data, hidden, judgeChan, newCtx)
+		} else {
+			go r.judgeHandler.Handle(id, data, false, judgeChan, newCtx) // 파싱 실패 시 공개 테스트 문제만 실행
+		}
+	case UserTestCase:
 		go r.judgeHandler.Handle(id, data, false, judgeChan, newCtx)
 	case SpecialJudge:
 	default:
