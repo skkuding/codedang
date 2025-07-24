@@ -16,6 +16,8 @@ interface TestcaseItemProps {
   currentIndex: number
   itemError: FieldErrorsImpl | undefined
   onRemove: () => void
+  onSelect: (isSelected: boolean) => void
+  isSelected: boolean
 }
 
 export function TestcaseItem({
@@ -23,7 +25,9 @@ export function TestcaseItem({
   index,
   currentIndex,
   itemError,
-  onRemove
+  onRemove,
+  onSelect,
+  isSelected
 }: TestcaseItemProps) {
   const { control, getValues, register } = useFormContext()
 
@@ -39,48 +43,34 @@ export function TestcaseItem({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <p className="text-lg font-medium text-[#5C5C5C]">
             #{(currentIndex + 1).toString().padStart(2, '0')}
           </p>
+          <input
+            type="checkbox"
+            className="text-primary-light h-5 w-5"
+            checked={isSelected}
+            onChange={(e) => onSelect(e.target.checked)}
+          />
         </div>
 
         <div className="flex items-center gap-1">
           <div className="mr-2 flex">
-            {/* <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                className="text-primary-light"
-                onBlur={isHiddenField.onBlur}
-                onChange={() => isHiddenField.onChange(false)}
-                checked={isHiddenField.value === false}
-              />
-              <p
-                className={cn(
-                  'text-sm',
-                  isHiddenField.value === false
-                    ? 'font-medium text-gray-500'
-                    : 'text-gray-400'
-                )}
-              >
-                sample
-              </p>
-            </label> */}
-
             <label className="flex items-center gap-1">
               <input
                 type="checkbox"
-                className="text-primary-light"
+                className="text-primary-light h-4 w-4"
                 onBlur={isHiddenField.onBlur}
                 onChange={(e) => isHiddenField.onChange(e.target.checked)}
                 checked={isHiddenField.value}
               />
               <p
                 className={cn(
-                  'text-base font-medium text-[#737373]'
-                  // isHiddenField.value === true
-                  //   ? 'font-medium text-gray-500'
-                  //   : 'text-gray-400'
+                  'text-base font-medium text-[#737373]',
+                  isHiddenField.value === true
+                    ? 'font-medium text-gray-500'
+                    : 'text-gray-400'
                 )}
               >
                 Hidden

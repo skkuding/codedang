@@ -39,6 +39,8 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const [disableDistribution, setDisableDistribution] = useState<boolean>(false)
   const [isScoreNull, setIsScoreNull] = useState<boolean>(true)
   const [testcaseFlag, setTestcaseFlag] = useState<number>(0)
+  const [searchTC, setsearchTC] = useState('')
+  const [selectedTestcases, setSelectedTestcases] = useState<number[]>([])
 
   useEffect(() => {
     const allFilled = watchedItems.every((item) => !isInvalid(item.scoreWeight))
@@ -52,6 +54,25 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       ...getValues('testcases'),
       { input: '', output: '', isHidden, scoreWeight: '' }
     ])
+  }
+  const handleSelectTestcase = (index: number, isSelected: boolean) => {
+    setSelectedTestcases((prev) =>
+      isSelected ? [...prev, index] : prev.filter((i) => i !== index)
+    )
+  }
+
+  const deleteSelectedTestcases = () => {
+    const currentValues: Testcase[] = getValues('testcases')
+    if (currentValues.length <= selectedTestcases.length) {
+      setDialogDescription('At least one test case must be retained.')
+      setDialogOpen(true)
+      return
+    }
+    const updatedValues = currentValues.filter(
+      (_, i) => !selectedTestcases.includes(i)
+    )
+    setValue('testcases', updatedValues)
+    setSelectedTestcases([])
   }
 
   const removeItem = (index: number) => {
@@ -126,19 +147,37 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     setValue('testcases', updatedTestcases)
   }
 
-  const PAGE_SIZE = 2
+  const PAGE_SIZE = 5
   const [currentPage, setCurrentPage] = useState(1)
 
   const [filteredItems, setFilteredItems] = useState<
     (Testcase & { originalIndex: number })[]
   >([])
 
-  const totalPages = Math.ceil(filteredItems.length / PAGE_SIZE)
+  const filteredTC = useMemo(() => {
+    const itemsWithOriginalIndex = watchedItems
+      .map((item, originalIndex) => ({ ...item, originalIndex }))
+      .filter((item) => (testcaseFlag === 0 ? !item.isHidden : item.isHidden))
+
+    const itemsWithCurrentIndex = itemsWithOriginalIndex.map((item, index) => ({
+      ...item,
+      currentIndex: index
+    }))
+
+    const searched = itemsWithCurrentIndex.filter((item) => {
+      const indexstr = `#${(item.currentIndex + 1).toString().padStart(2, '0')}`
+      return indexstr.toLowerCase().includes(searchTC.toLowerCase())
+    })
+
+    return searched
+  }, [watchedItems, testcaseFlag, searchTC])
+
+  const totalPages = Math.ceil(filteredTC.length / PAGE_SIZE)
 
   const currentItems = useMemo(() => {
     const startIndex = (currentPage - 1) * PAGE_SIZE
-    return filteredItems.slice(startIndex, startIndex + PAGE_SIZE)
-  }, [filteredItems, currentPage])
+    return filteredTC.slice(startIndex, startIndex + PAGE_SIZE)
+  }, [filteredTC, currentPage])
 
   const paginatorProps = {
     page: {
@@ -173,31 +212,92 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     setFilteredItems(newItems)
   }, [watchedItems, testcaseFlag])
 
-  // useEffect(() => {
-  //   console.log('watchedItems:', watchedItems)
-  //   console.log('filteredItems:', filteredItems)
-  //   console.log('currentItems:', currentItems)
-  // }, [watchedItems, filteredItems, currentItems])
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTC])
 
   return (
-    <div className="flex h-full w-full flex-col border-[1px] border-[#D8D8D8] bg-white px-10 pb-10 pt-[10px]">
-      <div className="mb-[50px] flex w-full items-center justify-between">
+    <div className="flex h-full w-full flex-col border-[1px] border-[#D8D8D8] bg-white px-10 pb-10 pt-[20px]">
+      <div className="mb-[40px] flex w-full items-center justify-between">
         <button
-          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 hover:text-gray-700 ${testcaseFlag === 1 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
+          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 1 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
           onClick={() => setTestcaseFlag(0)}
         >
           SAMPLE
         </button>
         <button
-          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 hover:text-gray-700 ${testcaseFlag === 0 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
+          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 0 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
           onClick={() => setTestcaseFlag(1)}
         >
           HIDDEN
         </button>
       </div>
       {testcaseFlag === 0 && (
-        <div className="flex flex-col gap-4">
-          <Label required={false}>Sample Testcase</Label>
+        <div className="flex flex-col gap-10">
+          <Label required={false} className="text-2xl font-semibold text-black">
+            Sample Testcase
+          </Label>
+          <div className="flex w-full items-center justify-between">
+            <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[1px] border-[#D8D8D8] bg-white py-2 pl-3">
+              <img
+                src="/icons/search.svg"
+                alt="Search Icon"
+                className="h-4 w-4"
+              />
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchTC}
+                onChange={(e) => setsearchTC(e.target.value)}
+                className="!focus:outline-none w-[300px] text-lg font-normal text-[#5C5C5C] !outline-none placeholder:text-[#C4C4C4]"
+              />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <button className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]">
+                <img
+                  src="/icons/upload.svg"
+                  alt="upload Icon"
+                  className="h-[20px] w-[20px]"
+                />
+                {/* 테스트케이스 업로드하는 함수 추가 해주시면 될 것 같아요 */}
+              </button>
+              <button
+                onClick={deleteSelectedTestcases}
+                className={cn(
+                  'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                  selectedTestcases.length > 0
+                    ? 'bg-[#FC5555] text-white'
+                    : 'bg-gray-300 text-gray-600'
+                )}
+                disabled={selectedTestcases.length === 0}
+              >
+                <img
+                  src="/icons/trashcan.svg"
+                  alt="trashcan Icon"
+                  className="h-[18px] w-[18px]"
+                />
+                <span className="ml-[6px] flex items-center text-center text-white">
+                  Delete
+                </span>
+              </button>
+
+              {!blockEdit && (
+                <button
+                  onClick={() => addTestcase(false)}
+                  className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
+                >
+                  <img
+                    src="/icons/plus-circle-white.svg"
+                    alt="plus circle white Icon"
+                    className="h-[18px] w-[18px]"
+                  />
+                  <span className="ml-[6px] flex items-center text-center text-white">
+                    Add
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
           <div className="flex min-h-[400px] flex-col gap-4">
             {currentItems.map((item, index) => {
               return (
@@ -206,36 +306,86 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                     blockEdit={blockEdit}
                     key={item.originalIndex}
                     index={item.originalIndex}
-                    currentIndex={(currentPage - 1) * PAGE_SIZE + index}
+                    currentIndex={item.currentIndex}
                     itemError={itemErrors}
                     onRemove={() => removeItem(item.originalIndex)}
+                    onSelect={(isSelected: boolean) =>
+                      handleSelectTestcase(item.originalIndex, isSelected)
+                    }
+                    isSelected={selectedTestcases.includes(item.originalIndex)}
                   />
                 )
               )
             })}
           </div>
           {totalPages > 1 && <Paginator {...paginatorProps} />}
-          {!blockEdit && (
-            <Badge
-              onClick={() => addTestcase(false)}
-              className="h-[38px] w-full cursor-pointer items-center justify-center border border-gray-200 bg-gray-200/60 p-0 text-[#8A8A8A] shadow-sm hover:bg-gray-200"
-            >
-              <div className="flex items-center">
-                <span className="mr-1 flex h-6 w-full items-center justify-center pb-[2px] text-2xl font-thin">
-                  +
-                </span>
-                <span className="flex h-6 w-full items-center text-base font-medium">
-                  {' '}
-                  Add
-                </span>
-              </div>
-            </Badge>
-          )}
         </div>
       )}
       {testcaseFlag === 1 && (
-        <div className="flex flex-col gap-4">
-          <Label required={false}>Hidden Testcase</Label>
+        <div className="flex flex-col gap-10">
+          <Label required={false} className="text-2xl font-semibold text-black">
+            Hidden Testcase
+          </Label>
+          <div className="flex w-full items-center justify-between">
+            <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[1px] border-[#D8D8D8] bg-white py-2 pl-3">
+              <img
+                src="/icons/search.svg"
+                alt="Search Icon"
+                className="h-4 w-4"
+              />
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchTC}
+                onChange={(e) => setsearchTC(e.target.value)}
+                className="!focus:outline-none w-[300px] text-lg font-normal text-[#5C5C5C] !outline-none placeholder:text-[#C4C4C4]"
+              />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <button className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]">
+                <img
+                  src="/icons/upload.svg"
+                  alt="upload Icon"
+                  className="h-[20px] w-[20px]"
+                />
+              </button>
+              <button
+                onClick={deleteSelectedTestcases}
+                className={cn(
+                  'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                  selectedTestcases.length > 0
+                    ? 'bg-[#FC5555] text-white'
+                    : 'bg-gray-300 text-gray-600'
+                )}
+                disabled={selectedTestcases.length === 0}
+              >
+                <img
+                  src="/icons/trashcan.svg"
+                  alt="trashcan Icon"
+                  className="h-[18px] w-[18px]"
+                />
+                <span className="ml-[6px] flex items-center text-center text-white">
+                  Delete
+                </span>
+              </button>
+
+              {!blockEdit && (
+                <button
+                  onClick={() => addTestcase(true)}
+                  className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
+                >
+                  <img
+                    src="/icons/plus-circle-white.svg"
+                    alt="plus circle white Icon"
+                    className="h-[18px] w-[18px]"
+                  />
+                  <span className="ml-[6px] flex items-center text-center text-white">
+                    Add
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
           <div className="flex min-h-[400px] flex-col gap-4">
             {currentItems.map((item, index) => {
               return (
@@ -244,31 +394,19 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                     blockEdit={blockEdit}
                     key={item.originalIndex}
                     index={item.originalIndex}
-                    currentIndex={(currentPage - 1) * PAGE_SIZE + index}
+                    currentIndex={item.currentIndex}
                     itemError={itemErrors}
                     onRemove={() => removeItem(item.originalIndex)}
+                    onSelect={(isSelected: boolean) =>
+                      handleSelectTestcase(item.originalIndex, isSelected)
+                    }
+                    isSelected={selectedTestcases.includes(item.originalIndex)}
                   />
                 )
               )
             })}
           </div>
           {totalPages > 1 && <Paginator {...paginatorProps} />}
-          {!blockEdit && (
-            <Badge
-              onClick={() => addTestcase(true)}
-              className="h-[38px] w-full cursor-pointer items-center justify-center border border-gray-200 bg-gray-200/60 p-0 text-[#8A8A8A] shadow-sm hover:bg-gray-200"
-            >
-              <div className="flex items-center">
-                <span className="mr-1 flex h-6 w-full items-center justify-center pb-[2px] text-2xl font-thin">
-                  +
-                </span>
-                <span className="flex h-6 w-full items-center text-base font-medium">
-                  {' '}
-                  Add
-                </span>
-              </div>
-            </Badge>
-          )}
         </div>
       )}
       <div className="mt-10 flex w-full justify-between">
@@ -277,16 +415,16 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             <TooltipTrigger asChild>
               <Button
                 className={cn(
-                  'w-43 flex h-10 items-center gap-2 px-3 py-2',
+                  'flex h-10 w-[133px] items-center gap-2 px-3 py-2',
                   isScoreNull &&
-                    'bg-#FFFFFF border border-[1px] border-[#D8D8D8] text-[#B0B0B0]'
+                    'bg-#FFFFFF border border-[1px] border-[#D8D8D8] text-[#9B9B9B] !opacity-100'
                 )}
                 onClick={initializeScore}
                 disabled={isScoreNull}
               >
                 <FaArrowRotateLeft
                   fontSize={20}
-                  className={cn(isScoreNull && 'text-[#C4C4C4]')}
+                  className={cn(isScoreNull && 'text-[#B0B0B0]')}
                 />
                 <p>Reset Ratio</p>
               </Button>
@@ -313,7 +451,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             <TooltipTrigger asChild>
               <Button
                 className={cn(
-                  'flex h-9 w-full items-center gap-2 px-0',
+                  'flex h-[42px] w-full items-center gap-2 px-0',
                   disableDistribution && 'bg-gray-300 text-gray-600'
                 )}
                 type="button"
