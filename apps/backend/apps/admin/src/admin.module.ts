@@ -63,9 +63,9 @@ import { WorkbookModule } from './workbook/workbook.module'
     AnnouncementModule,
     NoticeModule,
     SubmissionModule,
+    CheckModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
-    OpenTelemetryModule.forRoot(openTelemetryModuleOption),
-    CheckModule
+    OpenTelemetryModule.forRoot(openTelemetryModuleOption)
   ],
   controllers: [AdminController],
   providers: [

@@ -512,6 +512,12 @@ type AssignmentsGroupedByStatus {
   upcoming: [AssignmentWithScores!]!
 }
 
+enum CheckResultStatus {
+  Completed
+  Failed
+  Pending
+}
+
 input Config {
   allowJoinFromSearch: Boolean!
   allowJoinWithURL: Boolean!
@@ -1612,7 +1618,85 @@ type NoticeSumAggregate {
   id: Int
 }
 
+type PlagiarismCheck {
+  checkId: String!
+  checkPreviousSubmission: Boolean!
+  createTime: DateTime!
+  enableMerging: Boolean!
+  id: ID!
+  language: Language!
+  minTokens: Int!
+  problem: Problem!
+  problemId: Int!
+  result: CheckResultStatus!
+  useJplagClustering: Boolean!
+  user: User
+  userId: Int
+  userIp: String
+}
+
+type PlagiarismCheckAvgAggregate {
+  id: Float
+  minTokens: Float
+  problemId: Float
+  userId: Float
+}
+
+type PlagiarismCheckCountAggregate {
+  _all: Int!
+  checkId: Int!
+  checkPreviousSubmission: Int!
+  createTime: Int!
+  enableMerging: Int!
+  id: Int!
+  language: Int!
+  minTokens: Int!
+  problemId: Int!
+  result: Int!
+  useJplagClustering: Int!
+  userId: Int!
+  userIp: Int!
+}
+
+type PlagiarismCheckMaxAggregate {
+  checkId: String
+  checkPreviousSubmission: Boolean
+  createTime: DateTime
+  enableMerging: Boolean
+  id: Int
+  language: Language
+  minTokens: Int
+  problemId: Int
+  result: CheckResultStatus
+  useJplagClustering: Boolean
+  userId: Int
+  userIp: String
+}
+
+type PlagiarismCheckMinAggregate {
+  checkId: String
+  checkPreviousSubmission: Boolean
+  createTime: DateTime
+  enableMerging: Boolean
+  id: Int
+  language: Language
+  minTokens: Int
+  problemId: Int
+  result: CheckResultStatus
+  useJplagClustering: Boolean
+  userId: Int
+  userIp: String
+}
+
+type PlagiarismCheckSumAggregate {
+  id: Int
+  minTokens: Int
+  problemId: Int
+  userId: Int
+}
+
 type Problem {
+  PlagiarismCheck: [PlagiarismCheck!]
   _count: ProblemCount!
   acceptedCount: Int!
   acceptedRate: Float!
@@ -1675,6 +1759,7 @@ type ProblemAvgAggregate {
 }
 
 type ProblemCount {
+  PlagiarismCheck: Int!
   announcement: Int!
   assignmentProblem: Int!
   contestProblem: Int!
@@ -1937,6 +2022,7 @@ type ProblemTestcaseSumAggregate {
 }
 
 type ProblemWithIsVisible {
+  PlagiarismCheck: [PlagiarismCheck!]
   _count: ProblemCount!
   acceptedCount: Int!
   acceptedRate: Float!
@@ -2624,6 +2710,7 @@ input UploadTestcaseZipInput {
 }
 
 type User {
+  PlagiarismCheck: [PlagiarismCheck!]
   UpdateHistory: [UpdateHistory!]
   _count: UserCount!
   assignment: [Assignment!]
@@ -2750,6 +2837,7 @@ type UserContestSumAggregate {
 }
 
 type UserCount {
+  PlagiarismCheck: Int!
   UpdateHistory: Int!
   assignment: Int!
   assignmentRecord: Int!

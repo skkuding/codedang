@@ -1,7 +1,4 @@
-import type { HttpService } from '@nestjs/axios'
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, Logger } from '@nestjs/common'
-import type { ConfigService } from '@nestjs/config'
+import { Injectable, Logger } from '@nestjs/common'
 import { CheckResultStatus, Prisma } from '@prisma/client'
 import { Span } from 'nestjs-otel'
 import {
@@ -19,10 +16,7 @@ export class CheckService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
-    private readonly publish: CheckPublicationService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    private readonly publish: CheckPublicationService
   ) {}
 
   @Span()
