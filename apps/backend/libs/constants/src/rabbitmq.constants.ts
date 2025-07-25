@@ -1,6 +1,9 @@
 export const PUBLISH_CHANNEL = 'submission-publish-channel'
 export const CONSUME_CHANNEL = 'result-consume-channel'
 
+export const CHECK_PUBLISH_CHANNEL = 'check-publish-channel'
+export const CHECK_CONSUME_CHANNEL = 'check-result-consume-channel'
+
 export const EXCHANGE = 'iris.e.direct.judge'
 
 export const SUBMISSION_KEY = 'judge.submission'

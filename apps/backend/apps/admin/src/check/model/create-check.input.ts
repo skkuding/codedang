@@ -1,10 +1,10 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-import { Language } from '@prisma/client'
+import { Language } from '@generated'
 
 @InputType()
 export class CreatePlagiarismCheckInput {
   @Field(() => Language, { nullable: false })
-  language: Language
+  language!: keyof typeof Language
 
   @Field(() => Boolean, { nullable: false, defaultValue: true })
   checkPreviousSubmissions: boolean

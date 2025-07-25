@@ -1234,6 +1234,14 @@ input CreateNoticeInput {
   title: String!
 }
 
+input CreatePlagiarismCheckInput {
+  checkPreviousSubmissions: Boolean! = true
+  enableMerging: Boolean! = false
+  language: Language!
+  minTokens: Int! = 12
+  useJplagClustering: Boolean! = true
+}
+
 input CreateProblemInput {
   description: String!
   difficulty: Level!
@@ -1511,6 +1519,7 @@ enum Level {
 }
 
 type Mutation {
+  checkProblemSubmissions(input: CreatePlagiarismCheckInput!, problemId: Int!): PlagiarismCheck!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!
@@ -1632,7 +1641,6 @@ type PlagiarismCheck {
   useJplagClustering: Boolean!
   user: User
   userId: Int
-  userIp: String
 }
 
 type PlagiarismCheckAvgAggregate {
@@ -1655,7 +1663,6 @@ type PlagiarismCheckCountAggregate {
   result: Int!
   useJplagClustering: Int!
   userId: Int!
-  userIp: Int!
 }
 
 type PlagiarismCheckMaxAggregate {
@@ -1670,7 +1677,6 @@ type PlagiarismCheckMaxAggregate {
   result: CheckResultStatus
   useJplagClustering: Boolean
   userId: Int
-  userIp: String
 }
 
 type PlagiarismCheckMinAggregate {
@@ -1685,7 +1691,6 @@ type PlagiarismCheckMinAggregate {
   result: CheckResultStatus
   useJplagClustering: Boolean
   userId: Int
-  userIp: String
 }
 
 type PlagiarismCheckSumAggregate {

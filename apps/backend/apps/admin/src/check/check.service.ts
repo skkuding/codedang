@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
+import { Language } from '@generated'
 import { CheckResultStatus, Prisma } from '@prisma/client'
 import { Span } from 'nestjs-otel'
 import {
@@ -29,7 +30,14 @@ export class CheckService {
     checkInput: CreatePlagiarismCheckInput
     problemId: number
   }) {
-    // 문제가 해당 언어를 지원하는지 확인해야 합니다.
+    // 문제의 제출 기한이 끝났을 때 검사가 가능하게 합니다. (dueTime 이후)
+    // 한 학생의 최종 submission을 기준으로 검사합니다.
+    // 두 학생이 제출을 완료했는지 확인합니다.
+
+    // dueTime 확인 어떻게 하나요?
+    // 과제 문제로 한정?
+    // 과제에 대한 학생들의 제출물로 제한할 수 있나요?
+    // 모든 학생들에게 적용?
     const problem = await this.prisma.problem.findFirst({
       where: {
         id: problemId
@@ -79,7 +87,7 @@ export class CheckService {
       return check
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new UnprocessableDataException('Failed to create submission')
+        throw new UnprocessableDataException('Failed to create check record')
       }
       throw error
     }

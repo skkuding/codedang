@@ -13,7 +13,6 @@ export class CheckResolver {
    * 한 문제의 모든 제출 기록에 대해 표절 검사 요청을 보냅니다.
    *
    * @param {Request} req
-   * @param {string} userIp 검사를 요청한 유저 아이피
    * @param {CreatePlagiarismCheckDto} checkDto 표절 검사 요청에 필요한 설정을 포함합니다.
    * - 언어(필수, Language Enum)
    * - 최소 토큰 수(옵션, 기본: 12)

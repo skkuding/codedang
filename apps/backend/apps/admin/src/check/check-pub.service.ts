@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common'
-import type { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
-import type { PlagiarismCheck } from '@prisma/client'
-import { Span, type TraceService } from 'nestjs-otel'
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
+import { PlagiarismCheck } from '@prisma/client'
+import { Span, TraceService } from 'nestjs-otel'
+import { EXCHANGE, SUBMISSION_KEY } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
+import { CheckRequest } from './model/check-request'
 
 @Injectable()
 export class CheckPublicationService {
   constructor(
-    private readonly prisma: PrismaService
-    /*private readonly amqpConnection: AmqpConnection,
-    private readonly traceService: TraceService*/
+    private readonly prisma: PrismaService,
+    private readonly amqpConnection: AmqpConnection,
+    private readonly traceService: TraceService
   ) {}
 
   @Span()
@@ -17,5 +19,27 @@ export class CheckPublicationService {
     check
   }: {
     check: PlagiarismCheck
-  }): Promise<void> {}
+  }): Promise<void> {
+    const checkRequest = new CheckRequest(
+      check.checkId,
+      check.problemId,
+      check.language,
+      check.minTokens,
+      check.checkPreviousSubmission,
+      check.enableMerging,
+      check.useJplagClustering
+    )
+
+    const span = this.traceService.startSpan(
+      'publishCheckRequestMessage.publish'
+    )
+
+    span.setAttributes({ checkId: check.checkId })
+
+    await this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, checkRequest, {
+      messageId: check.checkId,
+      persistent: true
+    })
+    span.end()
+  }
 }
