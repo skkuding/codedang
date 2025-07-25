@@ -4,7 +4,7 @@ import { ProblemModule } from '@admin/problem/problem.module'
 import { UserModule } from '@admin/user/user.module'
 import { ContestProblemResolver } from './contest-problem.resolver'
 import { ContestProblemService } from './contest-problem.service'
-import { ContestResolver } from './contest.resolver'
+import { ContestResolver, ContestQnAResolver } from './contest.resolver'
 import { ContestService } from './contest.service'
 
 @Module({
@@ -13,7 +13,8 @@ import { ContestService } from './contest.service'
     ContestService,
     ContestProblemService,
     ContestResolver,
-    ContestProblemResolver
+    ContestProblemResolver,
+    ContestQnAResolver
   ]
 })
 export class ContestModule {}
