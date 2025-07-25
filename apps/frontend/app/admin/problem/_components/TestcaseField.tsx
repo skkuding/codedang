@@ -41,6 +41,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const [testcaseFlag, setTestcaseFlag] = useState<number>(0)
   const [searchTC, setsearchTC] = useState('')
   const [selectedTestcases, setSelectedTestcases] = useState<number[]>([])
+  const [dataChangeTrigger, setDataChangeTrigger] = useState<number>(0)
 
   useEffect(() => {
     const allFilled = watchedItems.every((item) => !isInvalid(item.scoreWeight))
@@ -147,7 +148,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     setValue('testcases', updatedTestcases)
   }
 
-  const PAGE_SIZE = 5
+  const PAGE_SIZE = 2
   const [currentPage, setCurrentPage] = useState(1)
 
   const [filteredItems, setFilteredItems] = useState<
@@ -184,22 +185,29 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       current: currentPage,
       first: 1,
       count: totalPages,
-      goto: setCurrentPage
+      goto: (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+          setDataChangeTrigger((prev) => prev + 1)
+          setCurrentPage(page)
+        }
+      }
     },
     slot: {
       prev: currentPage > 1 ? 'prev' : '',
       next: currentPage < totalPages ? 'next' : '',
       goto: (direction: 'prev' | 'next') => {
         if (direction === 'prev' && currentPage > 1) {
+          setDataChangeTrigger((prev) => prev + 1)
           setCurrentPage((p) => p - 1)
         } else if (direction === 'next' && currentPage < totalPages) {
+          setDataChangeTrigger((prev) => prev + 1)
           setCurrentPage((p) => p + 1)
         }
       }
     }
   }
 
-  const totalScore = filteredItems.reduce((acc, tc) => {
+  const totalScore = filteredTC.reduce((acc, tc) => {
     const weight = Number(tc.scoreWeight)
     return acc + (isNaN(weight) ? 0 : weight)
   }, 0)
@@ -217,23 +225,29 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   }, [watchedItems, testcaseFlag])
 
   useEffect(() => {
-    if (currentItems.length === 0) {
-      setCurrentPage(1)
+    if (currentItems.length === 0 && currentPage > 1 && dataChangeTrigger > 0) {
+      setCurrentPage((p) => p - 1)
     }
-  }, [deleteSelectedTestcases])
+  }, [currentItems])
 
   return (
     <div className="flex h-full w-full flex-col border-[1px] border-[#D8D8D8] bg-white px-10 pb-10 pt-[20px]">
       <div className="mb-[40px] flex w-full items-center justify-between">
         <button
           className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 1 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
-          onClick={() => setTestcaseFlag(0)}
+          onClick={() => {
+            setDataChangeTrigger(0)
+            setTestcaseFlag(0)
+          }}
         >
           SAMPLE
         </button>
         <button
           className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 0 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
-          onClick={() => setTestcaseFlag(1)}
+          onClick={() => {
+            setDataChangeTrigger(0)
+            setTestcaseFlag(1)
+          }}
         >
           HIDDEN
         </button>
@@ -254,7 +268,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 type="text"
                 placeholder="Search"
                 value={searchTC}
-                onChange={(e) => setsearchTC(e.target.value)}
+                onChange={(e) => {
+                  setsearchTC(e.target.value)
+                  setDataChangeTrigger((prev) => prev + 1)
+                }}
                 className="!focus:outline-none w-[300px] text-lg font-normal text-[#5C5C5C] !outline-none placeholder:text-[#C4C4C4]"
               />
             </div>
@@ -268,7 +285,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 {/* 테스트케이스 업로드하는 함수 추가 해주시면 될 것 같아요 */}
               </button>
               <button
-                onClick={deleteSelectedTestcases}
+                onClick={() => {
+                  deleteSelectedTestcases()
+                  setDataChangeTrigger((prev) => prev + 1)
+                }}
                 className={cn(
                   'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
                   selectedTestcases.length > 0
@@ -289,7 +309,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
 
               {!blockEdit && (
                 <button
-                  onClick={() => addTestcase(false)}
+                  onClick={() => {
+                    addTestcase(false)
+                    setDataChangeTrigger((prev) => prev + 1)
+                  }}
                   className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
                 >
                   <img
@@ -343,7 +366,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 type="text"
                 placeholder="Search"
                 value={searchTC}
-                onChange={(e) => setsearchTC(e.target.value)}
+                onChange={(e) => {
+                  setsearchTC(e.target.value)
+                  setDataChangeTrigger((prev) => prev + 1)
+                }}
                 className="!focus:outline-none w-[300px] text-lg font-normal text-[#5C5C5C] !outline-none placeholder:text-[#C4C4C4]"
               />
             </div>
@@ -356,7 +382,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 />
               </button>
               <button
-                onClick={deleteSelectedTestcases}
+                onClick={() => {
+                  deleteSelectedTestcases()
+                  setDataChangeTrigger((prev) => prev + 1)
+                }}
                 className={cn(
                   'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
                   selectedTestcases.length > 0
@@ -377,7 +406,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
 
               {!blockEdit && (
                 <button
-                  onClick={() => addTestcase(true)}
+                  onClick={() => {
+                    addTestcase(true)
+                    setDataChangeTrigger((prev) => prev + 1)
+                  }}
                   className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
                 >
                   <img
@@ -425,7 +457,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   isScoreNull &&
                     'bg-#FFFFFF border border-[1px] border-[#D8D8D8] text-[#9B9B9B] !opacity-100'
                 )}
-                onClick={initializeScore}
+                onClick={() => {
+                  initializeScore()
+                  setDataChangeTrigger((prev) => prev + 1)
+                }}
                 disabled={isScoreNull}
               >
                 <FaArrowRotateLeft
@@ -461,7 +496,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   disableDistribution && 'bg-gray-300 text-gray-600'
                 )}
                 type="button"
-                onClick={equalDistribution}
+                onClick={() => {
+                  equalDistribution()
+                  setDataChangeTrigger((prev) => prev + 1)
+                }}
                 disabled={disableDistribution}
               >
                 <IoIosCheckmarkCircle

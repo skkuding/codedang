@@ -62,7 +62,9 @@ export function TestcaseItem({
                 type="checkbox"
                 className="text-primary-light h-4 w-4"
                 onBlur={isHiddenField.onBlur}
-                onChange={(e) => isHiddenField.onChange(e.target.checked)}
+                onChange={(e) => {
+                  isHiddenField.onChange(e.target.checked)
+                }}
                 checked={isHiddenField.value}
               />
               <p
