@@ -1,21 +1,16 @@
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { cn, getResultColor } from '@/libs/utils'
+import type { TestResultDetail } from '@/types/type'
 import React from 'react'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 
-interface TestResultDetail {
-  id: number
+interface AdminTestResultDetail extends TestResultDetail {
   order?: number
   type?: string
-  input: string
-  expectedOutput: string
-  output: string
-  result: string
-  isUserTestcase: boolean
 }
 
 interface TestcasePanelProps {
-  data: TestResultDetail[]
+  data: AdminTestResultDetail[]
   isTesting?: boolean
 }
 

@@ -8,21 +8,12 @@ import {
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
-import type { Language, TestcaseItem } from '@/types/type'
+import type { Language, TestcaseItem, TestResultDetail } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
 import { useState } from 'react'
 import { BiSolidUser } from 'react-icons/bi'
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5'
 import { TestcasePanel } from './TestcasePanel'
-
-interface TestResultDetail {
-  id: number
-  input: string
-  expectedOutput: string
-  output: string
-  result: string
-  isUserTestcase: boolean
-}
 
 interface ProblemEditorProps {
   code: string

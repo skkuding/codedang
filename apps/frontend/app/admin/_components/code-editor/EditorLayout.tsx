@@ -6,6 +6,7 @@ import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { baseUrl } from '@/libs/constants'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
+import type { TestResultDetail } from '@/types/type'
 import { useQuery, useSuspenseQuery, useLazyQuery } from '@apollo/client'
 import type { Session } from 'next-auth'
 import Image from 'next/image'
@@ -13,15 +14,6 @@ import Link from 'next/link'
 import { useCallback, useState, useEffect } from 'react'
 import { AssignmentProblemDropdown } from './AssignmentProblemDropdown'
 import { EditorMainResizablePanel } from './EditorResizablePanel'
-
-interface TestResultDetail {
-  id: number
-  input: string
-  expectedOutput: string
-  output: string
-  result: string
-  isUserTestcase: boolean
-}
 
 interface EditorLayoutProps {
   courseId: number
