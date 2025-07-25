@@ -239,6 +239,7 @@ model Problem {
   contestProblem    ContestProblem[]
   submission        Submission[]
   announcement      Announcement[]
+  contestQnA        ContestQnA[]
 
   updateHistory UpdateHistory[]
 
@@ -569,22 +570,30 @@ model ContestRecord {
   @@map("contest_record")
 }
 
+enum QnACategory {
+  General
+  Problem
+}
+
 model ContestQnA {
-  id           Int      @id @default(autoincrement())
+  id           Int         @id @default(autoincrement())
   // contest 내부에서의 numbering
   order        Int
-  createdBy    User?    @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: SetNull)
-  createdById  Int?     @map("created_by_id")
-  answeredBy   User?    @relation("AnsweredByUser", fields: [answeredById], references: [id], onDelete: SetNull)
-  answeredById Int?     @map("answered_by_id")
-  contest      Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId    Int      @map("contest_id")
+  createdBy    User?       @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: SetNull)
+  createdById  Int?        @map("created_by_id")
+  answeredBy   User?       @relation("AnsweredByUser", fields: [answeredById], references: [id], onDelete: SetNull)
+  answeredById Int?        @map("answered_by_id")
+  contest      Contest     @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId    Int         @map("contest_id")
   title        String
   content      String
+  problem      Problem?    @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId    Int?        @map("problem_id")
+  category     QnACategory @default(General)
   answer       String?
-  isVisible    Boolean  @default(false) @map("is_visible")
-  createTime   DateTime @default(now()) @map("create_time")
-  updateTime   DateTime @updatedAt @map("update_time")
+  isVisible    Boolean     @default(false) @map("is_visible")
+  createTime   DateTime    @default(now()) @map("create_time")
+  updateTime   DateTime    @updatedAt @map("update_time")
 
   @@unique([contestId, order])
   @@map("contest_qna")
