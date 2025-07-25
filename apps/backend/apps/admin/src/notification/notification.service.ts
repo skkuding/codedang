@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { NotificationType } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@admin/assignment/assignment.service'
 
@@ -28,7 +29,12 @@ export class NotificationService {
       const title = assignmentInfo?.group.groupName ?? 'Assignment'
       const message = `Your assignment "${assignmentInfo?.title ?? ''}" has been graded.`
 
-      this.saveNotification([userId], title, message)
+      this.saveNotification(
+        [userId],
+        title,
+        message,
+        NotificationType.Assignment
+      )
     }
   }
 
@@ -52,17 +58,41 @@ export class NotificationService {
     const title = assignmentInfo?.group.groupName ?? 'Assignment'
     const message = `A new assignment "${assignmentInfo?.title ?? ''}" has been created.`
 
-    this.saveNotification(recievers, title, message)
+    this.saveNotification(
+      recievers,
+      title,
+      message,
+      NotificationType.Assignment
+    )
   }
 
   private async saveNotification(
     recievers: number[],
     title: string,
-    message: string
+    message: string,
+    type: NotificationType = NotificationType.Other,
+    url?: string
   ) {
-    console.log('Notification saved')
-    console.log('Recievers:', recievers)
-    console.log('Title:', title)
-    console.log('Message:', message)
+    if (recievers.length === 0) {
+      return
+    }
+
+    const notification = await this.prisma.notification.create({
+      data: {
+        title,
+        message,
+        url,
+        type
+      }
+    })
+
+    const notificationRecords = recievers.map((userId) => ({
+      notificationId: notification.id,
+      userId
+    }))
+
+    await this.prisma.notificationRecord.createMany({
+      data: notificationRecords
+    })
   }
 }

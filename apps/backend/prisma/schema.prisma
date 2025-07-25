@@ -60,23 +60,24 @@ model User {
   canCreateCourse  Boolean   @default(false) @map("can_create_course")
   canCreateContest Boolean   @default(false) @map("can_create_contest")
 
-  userProfile      UserProfile?
-  userGroup        UserGroup[]
-  notice           Notice[]
-  problem          Problem[]
-  assignment       Assignment[]
-  assignmentRecord AssignmentRecord[]
-  contest          Contest[]
-  userContest      UserContest[]
-  contestRecord    ContestRecord[]
-  workbook         Workbook[]
-  submission       Submission[]
-  useroauth        UserOAuth?
-  file             File[]
-  testSubmission   TestSubmission[]
-  UpdateHistory    UpdateHistory[]
-  createdQnAs      ContestQnA[]       @relation("CreatedByUser")
-  answeredQnAs     ContestQnA[]       @relation("AnsweredByUser")
+  userProfile        UserProfile?
+  userGroup          UserGroup[]
+  notice             Notice[]
+  problem            Problem[]
+  assignment         Assignment[]
+  assignmentRecord   AssignmentRecord[]
+  contest            Contest[]
+  userContest        UserContest[]
+  contestRecord      ContestRecord[]
+  workbook           Workbook[]
+  submission         Submission[]
+  useroauth          UserOAuth?
+  file               File[]
+  testSubmission     TestSubmission[]
+  UpdateHistory      UpdateHistory[]
+  createdQnAs        ContestQnA[]         @relation("CreatedByUser")
+  answeredQnAs       ContestQnA[]         @relation("AnsweredByUser")
+  NotificationRecord NotificationRecord[]
 
   @@map("user")
 }
@@ -733,4 +734,38 @@ model TestSubmission {
   updateTime DateTime @updatedAt @map("update_time")
 
   @@map("test_submission")
+}
+
+enum NotificationType {
+  Announcement
+  Assignment
+  Contest
+  Course
+  Other
+}
+
+model Notification {
+  id      Int              @id @default(autoincrement())
+  title   String
+  message String
+  url     String?
+  type    NotificationType @default(Other)
+
+  createTime         DateTime             @default(now()) @map("create_time")
+  NotificationRecord NotificationRecord[]
+
+  @@map("notification")
+}
+
+model NotificationRecord {
+  id             Int          @id @default(autoincrement())
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notificationId Int          @map("notification_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int          @map("user_id")
+  isRead         Boolean      @default(false) @map("is_read")
+  createTime     DateTime     @default(now()) @map("create_time")
+
+  @@index([userId, createTime])
+  @@map("notification_record")
 }
