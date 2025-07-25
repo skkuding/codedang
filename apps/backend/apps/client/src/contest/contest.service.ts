@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { ContestRole, Prisma, type Contest } from '@prisma/client'
+import { ContestRole, Prisma, QnACategory, type Contest } from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -611,7 +611,8 @@ export class ContestService {
   async createContestQnA(
     contestId: number,
     userId: number,
-    data: ContestQnACreateDto
+    data: ContestQnACreateDto,
+    problemId: number | undefined
   ) {
     const contest = await this.prisma.contest.findUnique({
       where: {
@@ -630,6 +631,20 @@ export class ContestService {
       throw new ForbiddenAccessException('Not registered in this contest')
     }
 
+    let categoryValue: QnACategory
+    if (problemId === undefined) {
+      categoryValue = QnACategory.General
+    } else {
+      categoryValue = QnACategory.Problem
+      const contestProblem = await this.prisma.contestProblem.findFirst({
+        where: {
+          contestId: contestId,
+          problemId: problemId
+        }
+      })
+      if (!contestProblem) throw new EntityNotExistException('ContestProblem')
+    }
+
     return await this.prisma.$transaction(async (tx) => {
       const maxOrder = await tx.contestQnA.aggregate({
         where: { contestId },
@@ -642,7 +657,9 @@ export class ContestService {
           ...data,
           contestId,
           createdById: userId,
-          order
+          order,
+          category: categoryValue,
+          ...(problemId !== undefined && { problemId })
         }
       })
     })

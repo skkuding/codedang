@@ -14,6 +14,7 @@ import {
   UserNullWhenAuthFailedIfPublic
 } from '@libs/auth'
 import { IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import { problemId } from '@admin/problem/mock/mock'
 import { ContestService } from './contest.service'
 import { ContestQnACreateDto } from './dto/contest-qna.dto'
 
@@ -86,16 +87,18 @@ export class ContestController {
     )
   }
 
-  @Post(':id/qna')
+  @Post(':id/qna/:problemId?')
   async createContestQnA(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number,
-    @Body() contestQnACreateDto: ContestQnACreateDto
+    @Body() contestQnACreateDto: ContestQnACreateDto,
+    @Param('problemId') problemId?: number
   ) {
     return await this.contestService.createContestQnA(
       contestId,
       req.user.id,
-      contestQnACreateDto
+      contestQnACreateDto,
+      problemId
     )
   }
 
