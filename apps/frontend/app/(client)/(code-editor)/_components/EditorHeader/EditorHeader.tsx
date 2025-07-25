@@ -1,5 +1,6 @@
 'use client'
 
+import { useSubmissionPolling } from '@/app/(client)/(code-editor)/_libs/hooks/useSubmissionPolling'
 import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
@@ -36,15 +37,15 @@ import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/icons/submit.svg'
 import { useAuthModalStore } from '@/stores/authModal'
 import {
-  useLanguageStore,
-  useCodeStore,
+  getCodeFromLocalStorage,
   getStorageKey,
-  getCodeFromLocalStorage
+  useCodeStore,
+  useLanguageStore
 } from '@/stores/editor'
 import {
-  useTestcaseTabStore,
+  RUN_CODE_TAB,
   useSidePanelTabStore,
-  RUN_CODE_TAB
+  useTestcaseTabStore
 } from '@/stores/editorTabs'
 import type {
   Language,
@@ -129,6 +130,12 @@ export function EditorHeader({
   const { isSidePanelHidden, toggleSidePanelVisibility } =
     useSidePanelTabStore()
 
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  useSubmissionPolling({
+    contestId,
+    problemId: problem.id,
+    enabled: isSubmitted
+  })
   useInterval(
     async () => {
       // TODO: Implement assignment submission
@@ -294,6 +301,7 @@ export function EditorHeader({
             problemId: problem.id
           })
         })
+        setIsSubmitted(true)
       } else if (assignmentId) {
         queryClient.invalidateQueries({
           queryKey: assignmentProblemQueries.lists(assignmentId)
@@ -324,6 +332,8 @@ export function EditorHeader({
       if (res.status === 401) {
         showSignIn()
         toast.error('Log in first to submit your code')
+      } else if (res.status === 404) {
+        toast.error('The assignment submission period has ended.')
       } else {
         toast.error('Please try again later.')
       }
@@ -469,6 +479,33 @@ export function EditorHeader({
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
       <div>
+        <Select
+          onValueChange={(language: Language) => {
+            setLanguage(language)
+          }}
+          value={language}
+        >
+          <SelectTrigger className="h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
+            <p className="px-1">
+              <SelectValue />
+            </p>
+          </SelectTrigger>
+          <SelectContent className="mt-3 min-w-[100px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
+            <SelectGroup className="text-white">
+              {problem.languages.map((language) => (
+                <SelectItem
+                  key={language}
+                  value={language}
+                  className="cursor-pointer hover:bg-[#222939]"
+                >
+                  {language}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex items-center gap-3">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -501,9 +538,26 @@ export function EditorHeader({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
-      <div className="flex items-center gap-3">
+
         <TooltipProvider>
+          {contestId === undefined && (
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  variant="secondary"
+                  className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
+                  onClick={run}
+                >
+                  <IoPlayCircleOutline size={22} />
+                  Run
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Ctrl/Cmd + Enter | Run your code in interactive terminal.</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+
           <Tooltip>
             <TooltipTrigger>
               <Button
@@ -520,22 +574,6 @@ export function EditorHeader({
             </TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant="secondary"
-                className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
-                onClick={run}
-              >
-                <IoPlayCircleOutline size={22} />
-                Run
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Ctrl/Cmd + Enter | Run your code in interactive terminal.</p>
-            </TooltipContent>
-          </Tooltip>
-
           <RunTestButton
             problemId={problem.id}
             language={language}
@@ -543,6 +581,7 @@ export function EditorHeader({
             saveCode={storeCodeToLocalStorage}
             className="test-button"
           />
+
           <Tooltip>
             <TooltipTrigger>
               <Button
@@ -564,31 +603,6 @@ export function EditorHeader({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <Select
-          onValueChange={(language: Language) => {
-            setLanguage(language)
-          }}
-          value={language}
-        >
-          <SelectTrigger className="h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
-            <p className="px-1">
-              <SelectValue />
-            </p>
-          </SelectTrigger>
-          <SelectContent className="mt-3 min-w-[100px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
-            <SelectGroup className="text-white">
-              {problem.languages.map((language) => (
-                <SelectItem
-                  key={language}
-                  value={language}
-                  className="cursor-pointer hover:bg-[#222939]"
-                >
-                  {language}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
       </div>
       <BackCautionDialog
         confrim={isModalConfrimed}

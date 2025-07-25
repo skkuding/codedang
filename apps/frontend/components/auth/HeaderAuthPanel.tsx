@@ -9,15 +9,16 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuTrigger,
   DropdownMenuItem,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
-import { cn, fetcherWithAuth, safeFetcherWithAuth } from '@/libs/utils'
+import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import type { Course } from '@/types/type'
 import { ContestRole, type UserContest } from '@generated/graphql'
-import { LogOut, UserRoundCog, ChevronDown } from 'lucide-react'
+import { ChevronDown, LogOut, UserRoundCog } from 'lucide-react'
+import type { Route } from 'next'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
@@ -33,6 +34,14 @@ interface HeaderAuthPanelProps {
   group?: 'default' | 'editor'
 }
 
+interface HeaderAuthUser {
+  role: string
+  studentId: string
+  major: string
+  canCreateCourse: boolean
+  canCreateContest: boolean
+}
+
 export function HeaderAuthPanel({
   session,
   group = 'default'
@@ -41,77 +50,75 @@ export function HeaderAuthPanel({
     (state) => state
   )
   const isUser = session?.user.role === 'User'
-  const [
-    hasCanCreateCourseOrContestPermission,
-    setHasCanCreateCourseOrContestPermission
-  ] = useState(false)
-  const [hasAnyGroupLeaderRole, setHasAnyGroupLeaderRole] = useState(false)
-  const [hasAnyPermissionOnContest, setHasAnyPermissionOnContest] =
-    useState(false)
+
   const isEditor = group === 'editor'
-  const [needsUpdate, setNeedsUpdate] = useState(false)
+  const [isUserInfoIncomplete, setIsUserInfoIncomplete] = useState(false)
   const pathname = usePathname()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [hasCreatePermission, setHasCreatePermission] = useState(false)
+  const [isAnyGroupLeader, setIsAnyGroupLeader] = useState(false)
+  const [isAnyContestAdmin, setIsAnyContestAdmin] = useState(false)
 
   useEffect(() => {
-    const checkIfNeedsUpdate = async () => {
-      const userResponse = await fetcherWithAuth.get('user')
-      const user: {
-        role: string
-        studentId: string
-        major: string
-        canCreateCourse: boolean
-        canCreateContest: boolean
-      } = await userResponse.json()
-      const updateNeeded =
-        user.role === 'User' &&
-        (user.studentId === '0000000000' || user.major === 'none')
-
-      if (user.canCreateCourse || user.canCreateContest) {
-        setHasCanCreateCourseOrContestPermission(true)
-      }
-      setNeedsUpdate(updateNeeded)
-    }
-    if (session) {
-      checkIfNeedsUpdate()
+    if (!session) {
+      return
     }
 
-    async function fetchGroupLeaderRole() {
+    const fetchUserInfo = async () => {
       try {
-        const response: Course[] = await safeFetcherWithAuth
+        const user: HeaderAuthUser = await safeFetcherWithAuth
+          .get('user')
+          .json()
+
+        const isUserInfoIncomplete =
+          user.role === 'User' &&
+          (user.studentId === '0000000000' || user.major === 'none')
+
+        setIsUserInfoIncomplete(isUserInfoIncomplete)
+
+        setHasCreatePermission(user.canCreateCourse || user.canCreateContest)
+      } catch (error) {
+        console.error('Error fetching user info:', error)
+      }
+    }
+
+    const checkIsAnyGroupLeader = async () => {
+      try {
+        const courses: Course[] = await safeFetcherWithAuth
           .get('course/joined')
           .json()
 
-        const hasRole = response.some((course) => course.isGroupLeader)
-        setHasAnyGroupLeaderRole(hasRole)
+        const isAnyGroupLeader = courses.some((course) => course.isGroupLeader)
+        setIsAnyGroupLeader(isAnyGroupLeader)
       } catch (error) {
-        //TODO: error handling
         console.error('Error fetching group leader role:', error)
       }
     }
-    async function fetchContestRoles() {
+
+    const checkIsAnyContestAdmin = async () => {
       try {
         const response: UserContest[] = await safeFetcherWithAuth
           .get('contest/role')
           .json()
 
-        const hasPermission = response.some((userContest) => {
+        const isAnyContestAdmin = response.some((userContest) => {
           return (
             userContest.role !== ContestRole.Participant &&
             userContest.role !== ContestRole.Reviewer
           )
         })
-        setHasAnyPermissionOnContest(hasPermission)
+        setIsAnyContestAdmin(isAnyContestAdmin)
       } catch (error) {
         console.error('Error fetching contest roles:', error)
       }
     }
-    fetchGroupLeaderRole()
-    fetchContestRoles()
+    fetchUserInfo()
+    checkIsAnyGroupLeader()
+    checkIsAnyContestAdmin()
   }, [session, pathname])
 
-  const shouldShowDialog =
-    needsUpdate && pathname.split('/').pop() !== 'settings'
+  const shouldUpdateUserInfo =
+    isUserInfoIncomplete && pathname.split('/').pop() !== 'settings'
 
   return (
     <div className="ml-2 flex items-center gap-2">
@@ -146,51 +153,19 @@ export function HeaderAuthPanel({
                   'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
               )}
             >
-              {(hasAnyGroupLeaderRole ||
-                hasAnyPermissionOnContest ||
-                hasCanCreateCourseOrContestPermission ||
-                !isUser) && (
-                <Link href="/admin">
-                  <DropdownMenuItem
-                    className={cn(
-                      'flex cursor-pointer items-center gap-1',
-                      isEditor
-                        ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-                        : 'font-semibold'
-                    )}
-                  >
-                    <UserRoundCog className="size-4" /> Management
-                  </DropdownMenuItem>
-                </Link>
-              )}
-              <Link href="/settings">
-                <DropdownMenuItem
-                  className={cn(
-                    'flex cursor-pointer items-center gap-1',
-                    isEditor
-                      ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-                      : 'font-semibold'
-                  )}
-                >
-                  <UserRoundCog className="size-4" /> Settings
-                </DropdownMenuItem>
-              </Link>
-              <DropdownMenuItem
-                className={cn(
-                  'flex cursor-pointer items-center gap-1',
-                  isEditor
-                    ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-                    : 'font-semibold'
-                )}
-                onClick={() => {
-                  signOut({ callbackUrl: '/', redirect: true })
-                }}
-              >
-                <LogOut className="size-4" /> LogOut
-              </DropdownMenuItem>
+              <AccountItems
+                session={session}
+                isAnyGroupLeader={isAnyGroupLeader}
+                isAnyContestAdmin={isAnyContestAdmin}
+                hasCreatePermission={hasCreatePermission}
+                isUser={isUser}
+                isEditor={isEditor}
+                showSignIn={showSignIn}
+                showSignUp={showSignUp}
+              />
             </DropdownMenuContent>
           </DropdownMenu>
-          <Dialog open={shouldShowDialog}>
+          <Dialog open={shouldUpdateUserInfo}>
             <DialogContent
               className="min-h-[30rem] max-w-[20.5rem]"
               hideCloseButton={true}
@@ -206,7 +181,7 @@ export function HeaderAuthPanel({
               onClick={() => showSignIn()}
               variant={'outline'}
               className={cn(
-                'border-primary text-primary mr-3 hidden bg-transparent px-5 py-1 text-sm font-semibold hover:bg-[#EAF3FF] active:bg-[#D7E5FE] md:block',
+                'border-primary text-primary mr-3 hidden bg-transparent px-5 py-1 text-sm font-semibold hover:bg-[#EAF3FF] active:bg-[#D7E5FE] lg:block',
                 isEditor &&
                   'h-8 border-none bg-[#EAF3FF] text-[11px] hover:bg-[#D7E5FE]'
               )}
@@ -220,7 +195,7 @@ export function HeaderAuthPanel({
                 showSignUp()
               }}
               className={cn(
-                'hidden px-5 py-1 text-sm font-semibold md:block',
+                'hidden px-5 py-1 text-sm font-semibold lg:block',
                 isEditor && 'h-8 text-[11px]'
               )}
             >
@@ -240,118 +215,134 @@ export function HeaderAuthPanel({
           </DialogContent>
         </Dialog>
       )}
-      {session ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex gap-2 px-4 py-1 md:hidden">
-            <RxHamburgerMenu size="30" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="md:hidden">
-            <DropdownMenuItem
-              className="text-primary flex cursor-pointer items-center gap-1 font-semibold"
-              onClick={() => {
-                signOut({ callbackUrl: '/', redirect: true })
-              }}
-            >
-              {session?.user.username}
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator className="bg-gray-300" />
-            <Link href="/notice">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Notice
+      <DropdownMenu>
+        <DropdownMenuTrigger className="flex gap-2 px-4 py-1 lg:hidden">
+          <RxHamburgerMenu size="30" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="lg:hidden">
+          {session && (
+            <>
+              <DropdownMenuItem className="text-primary pointer-events-none flex select-none items-center gap-1 font-semibold">
+                {session.user.username}
               </DropdownMenuItem>
-            </Link>
-            <Link href="/contest">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Contest
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/problem">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Problem
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/course">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Course
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuSeparator className="bg-gray-300" />
-            {(hasAnyGroupLeaderRole ||
-              hasCanCreateCourseOrContestPermission ||
-              !isUser) && (
-              <Link href="/admin">
-                <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                  <UserRoundCog className="size-4" /> Management
-                </DropdownMenuItem>
-              </Link>
-            )}
-            <Link href="/settings">
-              <DropdownMenuItem
-                className={cn(
-                  'flex cursor-pointer items-center gap-1',
-                  isEditor
-                    ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-                    : 'font-semibold'
-                )}
-              >
-                <UserRoundCog className="size-4" /> Settings
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuItem
-              className="flex cursor-pointer items-center gap-1 font-semibold"
-              onClick={() => {
-                signOut({ callbackUrl: '/', redirect: true })
-              }}
-            >
-              <LogOut className="size-4" /> Log Out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ) : (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex gap-2 px-4 py-1 md:hidden">
-            <RxHamburgerMenu size="30" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="md:hidden">
-            <Link href="/notice">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Notice
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/contest">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Contest
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/problem">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Problem
-              </DropdownMenuItem>
-            </Link>
-            <Link href="/course">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                Course
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuSeparator className="bg-gray-300" />
-            <DropdownMenuItem
-              className="flex cursor-pointer items-center gap-1 font-semibold"
-              onClick={() => showSignIn()}
-            >
-              Log In
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="flex cursor-pointer items-center gap-1 font-semibold"
-              onClick={() => {
-                showSignUp()
-              }}
-            >
-              Sign Up
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+              <DropdownMenuSeparator className="bg-gray-300" />
+            </>
+          )}
+          <NavItems />
+          <DropdownMenuSeparator className="bg-gray-300" />
+          <AccountItems
+            session={session}
+            isAnyGroupLeader={isAnyGroupLeader}
+            isAnyContestAdmin={isAnyContestAdmin}
+            hasCreatePermission={hasCreatePermission}
+            isUser={isUser}
+            isEditor={isEditor}
+            showSignIn={showSignIn}
+            showSignUp={showSignUp}
+          />
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
+  )
+}
+
+function NavItems() {
+  const navItems = ['notice', 'contest', 'problem', 'course']
+  return navItems.map((navItem) => (
+    <Link href={`/${navItem}` as Route} key={navItem}>
+      <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+        {navItem.charAt(0).toUpperCase() + navItem.slice(1)}
+      </DropdownMenuItem>
+    </Link>
+  ))
+}
+
+interface AccountItemsProps {
+  session: Session | null
+  isAnyGroupLeader: boolean
+  isAnyContestAdmin: boolean
+  hasCreatePermission: boolean
+  isUser: boolean
+  isEditor: boolean
+  showSignIn: () => void
+  showSignUp: () => void
+}
+
+function AccountItems({
+  session,
+  isAnyGroupLeader,
+  isAnyContestAdmin,
+  hasCreatePermission,
+  isUser,
+  isEditor,
+  showSignIn,
+  showSignUp
+}: AccountItemsProps) {
+  if (session) {
+    return (
+      <>
+        {(isAnyGroupLeader ||
+          isAnyContestAdmin ||
+          hasCreatePermission ||
+          !isUser) && (
+          <Link href="/admin">
+            <DropdownMenuItem
+              className={cn(
+                'flex cursor-pointer items-center gap-1',
+                isEditor
+                  ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
+                  : 'font-semibold'
+              )}
+            >
+              <UserRoundCog className="size-4" /> Management
+            </DropdownMenuItem>
+          </Link>
+        )}
+        <Link href="/settings">
+          <DropdownMenuItem
+            className={cn(
+              'flex cursor-pointer items-center gap-1',
+              isEditor
+                ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
+                : 'font-semibold'
+            )}
+          >
+            <UserRoundCog className="size-4" /> Settings
+          </DropdownMenuItem>
+        </Link>
+        <DropdownMenuItem
+          className={cn(
+            'flex cursor-pointer items-center gap-1',
+            isEditor
+              ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
+              : 'font-semibold'
+          )}
+          onClick={() => {
+            signOut({ callbackUrl: '/', redirect: true })
+          }}
+        >
+          <LogOut className="size-4" /> LogOut
+        </DropdownMenuItem>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <DropdownMenuItem
+        className="flex cursor-pointer items-center gap-1 font-semibold"
+        onClick={() => showSignIn()}
+      >
+        Log In
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        className="flex cursor-pointer items-center gap-1 font-semibold"
+        onClick={() => {
+          showSignUp()
+        }}
+      >
+        Sign Up
+      </DropdownMenuItem>
+    </>
   )
 }

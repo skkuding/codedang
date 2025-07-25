@@ -1,6 +1,7 @@
 import { useDataTable } from '@/app/admin/_components/table/context'
 import { Button } from '@/components/shadcn/button'
-import type { AssignmentProblem } from '../_libs/type'
+import { HiCheckCircle } from 'react-icons/hi2'
+import type { AssignmentProblem } from '../../_libs/type'
 import type { DataTableProblem } from './ImportProblemTableColumns'
 
 interface ImportProblemButtonProps {
@@ -44,8 +45,9 @@ export function ImportProblemButton({
   }
 
   return (
-    <Button onClick={handleImportProblems} className="ml-auto">
-      Import / Edit
+    <Button onClick={handleImportProblems} className="ml-auto w-full">
+      <HiCheckCircle className="text-lg" />
+      <span className="ml-[6px] font-bold">Confirm</span>
     </Button>
   )
 }

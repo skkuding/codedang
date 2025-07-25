@@ -10,12 +10,16 @@ interface SampleTestcaseFormProps {
   name: string
   title: string
   hasValue?: boolean
+  isOngoing?: boolean
+  isFinished?: boolean
 }
 
 export function SampleTestcaseForm({
   name,
   title,
-  hasValue = false
+  hasValue = false,
+  isOngoing = false,
+  isFinished = false
 }: SampleTestcaseFormProps) {
   const {
     control,
@@ -30,8 +34,11 @@ export function SampleTestcaseForm({
 
   return (
     <div className="flex items-center gap-3">
-      <Label required={false}>{title}</Label>
+      <Label disabled={isOngoing} required={false}>
+        {title}
+      </Label>
       <Switch
+        disabled={isOngoing || isFinished}
         onCheckedChange={field.onChange}
         checked={field.value}
         className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"

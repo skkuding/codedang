@@ -27,7 +27,7 @@ resource "aws_mq_broker" "judge_queue" {
   auto_minor_version_upgrade = true
 
   host_instance_type  = "mq.t3.micro"
-  subnet_ids          = [aws_subnet.private_mq.id]
+  subnet_ids          = [local.network.mq_subnet_id]
   publicly_accessible = true
 
   logs {
@@ -38,4 +38,20 @@ resource "aws_mq_broker" "judge_queue" {
     username = var.rabbitmq_username
     password = random_password.rabbitmq_password.result
   }
+}
+
+# Secret to share with on-premise kubernetes cluster
+resource "aws_secretsmanager_secret" "judge_queue" {
+  name = "Codedang-JudgeQueue-Secret"
+}
+
+resource "aws_secretsmanager_secret_version" "judge_queue" {
+  secret_id = aws_secretsmanager_secret.judge_queue.id
+  secret_string = jsonencode({
+    username = var.rabbitmq_username
+    password = random_password.rabbitmq_password.result
+    host     = trimprefix(aws_mq_broker.judge_queue.instances.0.console_url, "https://"),
+    port     = var.rabbitmq_port,
+    vhost    = rabbitmq_vhost.vh.name
+  })
 }

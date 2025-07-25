@@ -1,3 +1,6 @@
+'use client'
+
+import { useSubmissionDetailSync } from '@/app/(client)/(code-editor)/_components/context/ReFetchingSubmissionDetailStoreProvider'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { ErrorBoundary } from '@suspensive/react'
@@ -22,6 +25,9 @@ export default function Page({
 }) {
   const { problemId, submissionId, contestId } = params
   const { cellProblemId } = searchParams
+  const refreshTrigger = useSubmissionDetailSync(
+    (state) => state.refreshTrigger
+  )
 
   return (
     <div className="flex flex-col gap-5 overflow-auto py-6">
@@ -49,6 +55,7 @@ export default function Page({
             problemId={Number(cellProblemId)}
             contestId={Number(contestId)}
             submissionId={Number(submissionId)}
+            refreshTrigger={refreshTrigger}
           />
         </Suspense>
       </ErrorBoundary>

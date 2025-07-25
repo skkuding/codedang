@@ -13,7 +13,43 @@ jobs:
   build-client-api:
     name: Build client-api image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
     steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Determine next image tag
+        id: tag
+        env:
+          OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          year=$(date +%Y)
+
+          PKG="codedang-client-api"
+
+          url="https://api.github.com/orgs/$OWNER/packages/container/$PKG/versions"
+
+          tags=$(curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" "$url" \
+            |  jq -r '.[].metadata.container.tags[]' \
+            |  grep "^${year}\.[0-9]\+$" || true)
+
+          if [[ -z "$tags" ]]; then
+            next="${year}.1"
+
+          else
+            max=$(echo "$tags" \
+              | sed -E "s/^${year}\.([0-9]+)$/\1/" \
+              | sort -n \
+              | tail -n 1)
+            next="${year}.$((max + 1))"
+          fi
+          echo "IMAGE_TAG=$next" >> "$GITHUB_ENV"
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -32,12 +68,51 @@ jobs:
           build-args: |
             target=client
             app_env=stage
-          tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/codedang-client-api:${{env.IMAGE_TAG}}
+            ghcr.io/${{ github.repository_owner }}/codedang-client-api:${{github.sha}}
+            ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
 
   build-admin-api:
     name: Build admin-api image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
     steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Determine next image tag
+        id: tag
+        env:
+          OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          year=$(date +%Y)
+
+          PKG="codedang-admin-api"
+
+          url="https://api.github.com/orgs/$OWNER/packages/container/$PKG/versions"
+
+          tags=$(curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" "$url" \
+            |  jq -r '.[].metadata.container.tags[]' \
+            |  grep "^${year}\.[0-9]\+$" || true)
+
+          if [[ -z "$tags" ]]; then
+            next="${year}.1"
+
+          else
+            max=$(echo "$tags" \
+              | sed -E "s/^${year}\.([0-9]+)$/\1/" \
+              | sort -n \
+              | tail -n 1)
+            next="${year}.$((max + 1))"
+          fi
+          echo "IMAGE_TAG=$next" >> "$GITHUB_ENV"
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -56,12 +131,49 @@ jobs:
           build-args: |
             target=admin
             app_env=stage
-          tags: ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/codedang-admin-api:${{env.IMAGE_TAG}}
+            ghcr.io/${{ github.repository_owner }}/codedang-admin-api:${{github.sha}}
+            ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
 
   build-iris:
     name: Build Iris docker image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Determine next image tag
+        id: tag
+        env:
+          OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          year=$(date +%Y)
+
+          PKG="codedang-iris"
+
+          url="https://api.github.com/orgs/$OWNER/packages/container/$PKG/versions"
+
+          tags=$(curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" "$url" \
+            |  jq -r '.[].metadata.container.tags[]' \
+            |  grep "^${year}\.[0-9]\+$" || true)
+
+          if [[ -z "$tags" ]]; then
+            next="${year}.1"
+
+          else
+            max=$(echo "$tags" \
+              | sed -E "s/^${year}\.([0-9]+)$/\1/" \
+              | sort -n \
+              | tail -n 1)
+            next="${year}.$((max + 1))"
+          fi
+          echo "IMAGE_TAG=$next" >> "$GITHUB_ENV"
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -79,7 +191,10 @@ jobs:
           context: '{{defaultContext}}:apps/iris'
           build-args: |
             app_env=stage
-          tags: ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/codedang-iris:${{env.IMAGE_TAG}}
+            ghcr.io/${{ github.repository_owner }}/codedang-iris:${{github.sha}}
+            ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
 
   run-server:
     name: Run stage server
@@ -95,12 +210,10 @@ jobs:
             scripts/deploy.sh
             .env.development
             apps/infra/stage/server2/Caddyfile
-            apps/grafana-logs/promtail/promtail-config.yml
 
       - name: Load dotenv from secret
         run: |
           echo "${{ secrets.ENV_DEVELOPMENT }}" > .env
-          echo "${{ secrets.LOKI_SERVER_URL }}" >> .env
 
       - name: Check if containers are running
         id: check-container
@@ -123,7 +236,6 @@ jobs:
           docker compose --profile deploy up backend-client -d --no-deps
           docker compose --profile deploy up backend-admin -d --no-deps
           docker compose --profile deploy up iris -d --no-deps
-          docker compose --profile deploy up promtail -d --no-deps
 
       - name: Copy Caddyfile into Caddy Container
         run: docker cp ./apps/infra/stage/server2/Caddyfile caddy:/etc/caddy/Caddyfile

@@ -1053,6 +1053,8 @@ const createContests = async () => {
       summary: Prisma.InputJsonValue
       startTime: Date
       endTime: Date
+      registerDueTime: Date
+      freezeTime: Date | null
       invitationCode: string | null
       evaluateWithSampleTestcase: boolean
       enableCopyPaste: boolean
@@ -1103,6 +1105,8 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2023-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1122,6 +1126,8 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2023-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1141,6 +1147,8 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2023-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1160,6 +1168,8 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2023-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1180,6 +1190,8 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2023-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1199,6 +1211,8 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1219,6 +1233,8 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1239,6 +1255,8 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1258,6 +1276,8 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1277,6 +1297,8 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1296,6 +1318,8 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1315,6 +1339,8 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1335,6 +1361,8 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1354,6 +1382,8 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1374,6 +1404,8 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1393,6 +1425,8 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1412,6 +1446,8 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1431,6 +1467,8 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1450,6 +1488,8 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
+        freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
         evaluateWithSampleTestcase: false
@@ -1469,9 +1509,11 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
+        freezeTime: new Date('3024-01-01T00:00:00.000Z'),
+        invitationCode: null,
         enableCopyPaste: true,
-        evaluateWithSampleTestcase: true,
-        invitationCode: null
+        evaluateWithSampleTestcase: true
       }
     }
   ]

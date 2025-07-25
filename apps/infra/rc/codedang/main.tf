@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.75"
+      version = "~> 5.100"
     }
 
     rabbitmq = {
@@ -56,6 +56,8 @@ data "terraform_remote_state" "acm_validation" {
     region = "ap-northeast-2"
   }
 }
+
+data "aws_region" "current" {}
 
 locals {
   network        = data.terraform_remote_state.network.outputs

@@ -8,30 +8,31 @@
     "knip": "knip"
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.722.0",
-    "@commitlint/cli": "^19.6.1",
-    "@commitlint/config-conventional": "^19.6.0",
-    "@commitlint/types": "^19.5.0",
-    "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.17.0",
-    "@trivago/prettier-plugin-sort-imports": "^5.2.1",
-    "@tsconfig/recommended": "^1.0.8",
-    "eslint": "^9.17.0",
-    "eslint-config-next": "^15.1.2",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-prettier": "^5.2.1",
+    "@aws-sdk/client-s3": "^3.848.0",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/types": "^19.8.1",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.31.0",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@tsconfig/recommended": "^1.0.10",
+    "@types/node": "^22.16.5",
+    "eslint": "^9.31.0",
+    "eslint-config-next": "^15.4.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
     "eslint-plugin-promise": "^7.2.1",
-    "globals": "^15.14.0",
-    "knip": "^5.41.1",
-    "lefthook": "^1.10.1",
-    "prettier": "^3.4.2",
-    "prettier-plugin-tailwindcss": "^0.6.9",
+    "globals": "^16.3.0",
+    "knip": "^5.62.0",
+    "lefthook": "^1.12.2",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
     "ts-node": "^10.9.2",
-    "typescript": "5.7.2",
-    "typescript-eslint": "^8.18.1"
+    "typescript": "5.8.3",
+    "typescript-eslint": "^8.37.0"
   },
-  "packageManager": "pnpm@9.15.2",
+  "packageManager": "pnpm@10.13.1",
   "engines": {
-    "node": "^22.14.0"
+    "node": "^22.17.1"
   }
 }

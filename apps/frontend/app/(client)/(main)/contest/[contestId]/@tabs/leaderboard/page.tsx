@@ -5,12 +5,13 @@ import searchIcon from '@/public/icons/search.svg'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { LeaderboardModalDialog } from './_components/LeaderboardModalDialog'
 import { LeaderboardTable } from './_components/LeaderboardTable'
 import { getContest } from './_libs/apis/getContest'
-import { getContestLeaderboard } from './_libs/apis/getContestLeaderboard'
 import type { LeaderboardUser } from './_libs/apis/getContestLeaderboard'
+import { getContestLeaderboard } from './_libs/apis/getContestLeaderboard'
 
 const BaseLeaderboardUser = {
   username: '',
@@ -31,7 +32,8 @@ const BaseLeaderboardUser = {
 }
 const BaseContestLeaderboardData = {
   maxScore: 0,
-  leaderboard: [BaseLeaderboardUser]
+  leaderboard: [BaseLeaderboardUser],
+  contestRole: null
 }
 
 const BaseFetchedContest = {
@@ -47,10 +49,10 @@ export default function ContestLeaderBoard() {
   const pathname = usePathname()
   const contestId = Number(pathname.split('/')[2])
 
-  // eslint-disable-next-line prefer-const
   const { data, isLoading, isError } = useQuery({
     queryKey: ['contest leaderboard', contestId],
-    queryFn: () => getContestLeaderboard({ contestId })
+    queryFn: () => getContestLeaderboard({ contestId }),
+    refetchInterval: 5 * 1000 // 5 seconds
   })
   const contestLeaderboard = data ? data : BaseContestLeaderboardData
   const [problemSize, setProblemSize] = useState(0)
@@ -78,7 +80,12 @@ export default function ContestLeaderBoard() {
     if (!isLoading && !isError) {
       const contestEndTime = new Date(fetchedContest?.endTime)
       const contestStartTime = new Date(fetchedContest?.startTime)
-      if (contestEndTime > now && contestStartTime < now) {
+
+      const hasContestAuth =
+        contestLeaderboard.contestRole === 'Admin' ||
+        contestLeaderboard.contestRole === 'Manager'
+
+      if (!hasContestAuth && contestEndTime > now && contestStartTime < now) {
         throw new Error('Error(ongoing): The contest has not ended yet.')
       }
       if (contestStartTime > now) {
@@ -104,7 +111,7 @@ export default function ContestLeaderBoard() {
 
   const handleSearch = ({ text, leaderboardUsers }: HandleSearchProps) => {
     if (text === '') {
-      alert('제발 입력값을 넣어주세요. 이렇게 부탁드립니다.')
+      toast.error('입력값을 넣어주세요.')
       return
     }
     const regex = new RegExp(text, 'i')
@@ -113,7 +120,7 @@ export default function ContestLeaderBoard() {
       .filter((index) => index !== -1)
     setMatchedIndices(matchedIndices)
     if (matchedIndices.length === 0) {
-      alert('일치하는 유저 없음 ㅋ')
+      toast.error('일치하는 유저 이름이 없습니다.')
       return
     }
   }
@@ -125,6 +132,13 @@ export default function ContestLeaderBoard() {
           CHECK YOUR RANKING!
         </div>
         <LeaderboardModalDialog />
+        <div className="text-primary ml-8 flex items-center gap-3">
+          On Live
+          <span className="relative flex size-3">
+            <span className="bg-primary-light absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+            <span className="bg-primary relative inline-flex size-3 rounded-full" />
+          </span>
+        </div>
       </div>
       <div className="relative mb-[62px] mt-[30px]">
         <Image
@@ -147,11 +161,13 @@ export default function ContestLeaderBoard() {
         />
       </div>
       <div>
-        <LeaderboardTable
-          problemSize={problemSize}
-          leaderboardUsers={leaderboardUsers}
-          matchedIndices={matchedIndices}
-        />
+        {!isLoading && (
+          <LeaderboardTable
+            problemSize={problemSize}
+            leaderboardUsers={leaderboardUsers}
+            matchedIndices={matchedIndices}
+          />
+        )}
       </div>
     </div>
   )

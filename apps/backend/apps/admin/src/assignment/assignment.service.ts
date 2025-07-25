@@ -1,8 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
-import { MIN_DATE, MAX_DATE } from '@libs/constants'
+import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -11,10 +11,12 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
+import type { AssignmentProblemInput } from './model/assignment-problem.input'
 import type { AssignmentWithScores } from './model/assignment-with-scores.model'
-import type { CreateAssignmentInput } from './model/assignment.input'
-import type { UpdateAssignmentInput } from './model/assignment.input'
-import type { AssignmentProblemScoreInput } from './model/problem-score.input'
+import type {
+  CreateAssignmentInput,
+  UpdateAssignmentInput
+} from './model/assignment.input'
 
 @Injectable()
 export class AssignmentService {
@@ -66,11 +68,13 @@ export class AssignmentService {
     })
 
     if (!assignment) {
-      throw new EntityNotExistException('assignment')
+      throw new EntityNotExistException('Assignment')
     }
 
     if (groupId !== assignment.groupId) {
-      throw new ForbiddenAccessException('Forbidden Resource')
+      throw new ForbiddenAccessException(
+        'You can only access assignment in your own group'
+      )
     }
 
     const { _count, ...data } = assignment
@@ -88,13 +92,13 @@ export class AssignmentService {
   ): Promise<Assignment> {
     if (assignment.startTime >= assignment.endTime) {
       throw new UnprocessableDataException(
-        'The start time must be earlier than the end time'
+        'The startTime must be earlier than the endTime'
       )
     }
 
     if (assignment.startTime >= assignment.dueTime) {
       throw new UnprocessableDataException(
-        'The start time must be earlier than the due time'
+        'The startTime must be earlier than the dueTime'
       )
     }
 
@@ -146,11 +150,13 @@ export class AssignmentService {
     })
 
     if (!assignmentFound) {
-      throw new EntityNotExistException('assignment')
+      throw new EntityNotExistException('Assignment')
     }
 
     if (groupId !== assignmentFound.groupId) {
-      throw new ForbiddenAccessException('Forbidden Resource')
+      throw new ForbiddenAccessException(
+        'You can only access assignment in your own group'
+      )
     }
 
     const isEndTimeChanged =
@@ -159,14 +165,14 @@ export class AssignmentService {
     assignment.endTime = assignment.endTime || assignmentFound.endTime
     if (assignment.startTime >= assignment.endTime) {
       throw new UnprocessableDataException(
-        'The start time must be earlier than the end time'
+        'The startTime must be earlier than the endTime'
       )
     }
 
     assignment.dueTime = assignment.dueTime || assignmentFound.dueTime
     if (assignment.startTime >= assignment.dueTime) {
       throw new UnprocessableDataException(
-        'The start time must be earlier than the due time'
+        'The startTime must be earlier than the dueTime'
       )
     }
 
@@ -256,11 +262,13 @@ export class AssignmentService {
     })
 
     if (!assignment) {
-      throw new EntityNotExistException('assignment')
+      throw new EntityNotExistException('Assignment')
     }
 
     if (groupId !== assignment.groupId) {
-      throw new ForbiddenAccessException('Forbidden Resource')
+      throw new ForbiddenAccessException(
+        'You can only access assignment in your own group'
+      )
     }
 
     const problemIds = assignment.assignmentProblem.map(
@@ -284,7 +292,7 @@ export class AssignmentService {
   async importProblemsToAssignment(
     groupId: number,
     assignmentId: number,
-    problemIdsWithScore: AssignmentProblemScoreInput[]
+    assignmentProblemInput: AssignmentProblemInput[]
   ) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
@@ -300,16 +308,22 @@ export class AssignmentService {
     })
 
     if (!assignment) {
-      throw new EntityNotExistException('assignment')
+      throw new EntityNotExistException('Assignment')
     }
 
     if (groupId !== assignment.groupId) {
-      throw new ForbiddenAccessException('Forbidden Resource')
+      throw new ForbiddenAccessException(
+        'You can only access assignment in your own group'
+      )
     }
 
     const assignmentProblems: AssignmentProblem[] = []
 
-    for (const { problemId, score } of problemIdsWithScore) {
+    for (const {
+      problemId,
+      score,
+      solutionReleaseTime
+    } of assignmentProblemInput) {
       const isProblemAlreadyImported =
         await this.prisma.assignmentProblem.findUnique({
           where: {
@@ -333,7 +347,8 @@ export class AssignmentService {
               order: 0,
               assignmentId,
               problemId,
-              score
+              score,
+              solutionReleaseTime
             }
           }),
           this.prisma.problem.updateMany({
@@ -418,11 +433,13 @@ export class AssignmentService {
       }
     })
     if (!assignment) {
-      throw new EntityNotExistException('assignment')
+      throw new EntityNotExistException('Assignment')
     }
 
     if (groupId !== assignment.groupId) {
-      throw new ForbiddenAccessException('Forbidden Resource')
+      throw new ForbiddenAccessException(
+        'You can only access assignment in your own group'
+      )
     }
 
     const assignmentProblems: AssignmentProblem[] = []
@@ -459,7 +476,7 @@ export class AssignmentService {
         })
 
         if (!latestAssignment) {
-          throw new EntityNotExistException('assignment')
+          throw new EntityNotExistException('Assignment')
         }
 
         visibleLockTime = latestAssignment.endTime
@@ -615,7 +632,7 @@ export class AssignmentService {
       ])
 
     if (!assignmentFound) {
-      throw new EntityNotExistException('assignment')
+      throw new EntityNotExistException('Assignment')
     }
 
     // if assignment status is ongoing, visible would be true. else, false
@@ -651,7 +668,8 @@ export class AssignmentService {
                   order: assignmentProblem.order,
                   assignmentId: newAssignment.id,
                   problemId: assignmentProblem.problemId,
-                  score: assignmentProblem.score
+                  score: assignmentProblem.score,
+                  solutionReleaseTime: assignmentProblem.solutionReleaseTime
                 }
               })
             )
@@ -767,7 +785,9 @@ export class AssignmentService {
     }
 
     if (groupId !== assignment.groupId) {
-      throw new ForbiddenAccessException('Forbidden Resource')
+      throw new ForbiddenAccessException(
+        'You can only access assignment in your own group'
+      )
     }
 
     const [courseMemberCount, assignmentParticipantCount] = await Promise.all([
@@ -959,17 +979,21 @@ export class AssignmentService {
     })
 
     if (!assignmentProblem || !assignmentProblem.assignment) {
-      throw new EntityNotExistException('Assignment Problem')
+      throw new EntityNotExistException('AssignmentProblem')
     }
 
     const assignment = assignmentProblem.assignment
 
     if (groupId !== assignment.groupId) {
-      throw new ForbiddenAccessException('Forbidden Resource')
+      throw new ForbiddenAccessException(
+        'You can only access assignment in your own group'
+      )
     }
 
     if (now <= assignment.dueTime) {
-      throw new ConflictFoundException('Can grade only finished assignments')
+      throw new ConflictFoundException(
+        'You can grade only finished assignments'
+      )
     }
 
     if (
@@ -1063,7 +1087,7 @@ export class AssignmentService {
     ])
 
     if (!assignmentProblemRecord) {
-      throw new EntityNotExistException('Assignment Problem Record')
+      throw new EntityNotExistException('AssignmentProblemRecord')
     }
 
     if (!assignment) {
@@ -1071,7 +1095,9 @@ export class AssignmentService {
     }
 
     if (groupId !== assignment.groupId) {
-      throw new ForbiddenAccessException('Forbidden Resource')
+      throw new ForbiddenAccessException(
+        'You can only access assignment in your own group'
+      )
     }
 
     return assignmentProblemRecord
@@ -1087,7 +1113,7 @@ export class AssignmentService {
     })
 
     if (courseMembers.length === 0) {
-      throw new NotFoundException('Course Member')
+      throw new EntityNotExistException('Course Member')
     }
 
     const assignmentParticipants = await this.prisma.assignmentRecord.findMany({

@@ -13,6 +13,7 @@ const contestSelectOption = {
   title: true,
   startTime: true,
   endTime: true,
+  registerDueTime: true,
   freezeTime: true,
   invitationCode: true,
   enableCopyPaste: true,
@@ -260,8 +261,7 @@ export class ContestService {
         id: contestId
       },
       select: {
-        startTime: true,
-        endTime: true,
+        registerDueTime: true,
         invitationCode: true
       }
     })
@@ -277,8 +277,10 @@ export class ContestService {
       throw new ConflictFoundException('Already participated this contest')
     }
     const now = new Date()
-    if (now >= contest.endTime) {
-      throw new ConflictFoundException('Cannot participate ended contest')
+    if (now >= contest.registerDueTime) {
+      throw new ConflictFoundException(
+        'Cannot participate in the contest after the registration deadline'
+      )
     }
     return await this.prisma.$transaction(async (prisma) => {
       const contestRecord = await prisma.contestRecord.create({
@@ -335,17 +337,29 @@ export class ContestService {
     })
   }
 
-  async getContestLeaderboard(contestId: number, search?: string) {
+  async getContestLeaderboard(
+    contestId: number,
+    userId?: number,
+    search?: string
+  ) {
     const contest = await this.prisma.contest.findUniqueOrThrow({
       where: {
         id: contestId
       },
       select: {
         freezeTime: true,
-        unfreeze: true
+        unfreeze: true,
+        userContest: {
+          where: {
+            userId
+          },
+          select: {
+            role: true
+          }
+        }
       }
     })
-
+    const contestRole = userId ? (contest.userContest[0]?.role ?? null) : null
     const now = new Date()
     const isFrozen = Boolean(
       contest.freezeTime && now >= contest.freezeTime && !contest.unfreeze
@@ -477,6 +491,9 @@ export class ContestService {
         id: true,
         order: true,
         problemId: true
+      },
+      orderBy: {
+        order: 'asc'
       }
     }) // 모든 문제 목록이 포함된 배열
 
@@ -567,6 +584,7 @@ export class ContestService {
       : leaderboard
 
     return {
+      contestRole,
       maxScore,
       leaderboard: filteredLeaderboard
     }

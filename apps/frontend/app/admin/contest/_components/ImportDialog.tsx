@@ -3,14 +3,14 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import {
   AlertDialog,
-  AlertDialogTrigger,
+  AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import {
@@ -32,9 +32,14 @@ import type { ContestProblem } from '../_libs/schemas'
 interface ImportDialogProps {
   problems: ContestProblem[]
   setProblems: (problems: ContestProblem[]) => void
+  contestId?: string | null
 }
 
-export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
+export function ImportDialog({
+  problems,
+  setProblems,
+  contestId = null
+}: ImportDialogProps) {
   const [showImportDialog, setShowImportDialog] = useState(false)
   return (
     <>
@@ -84,6 +89,7 @@ export function ImportDialog({ problems, setProblems }: ImportDialogProps) {
           <ErrorBoundary fallback={FetchErrorFallback}>
             <Suspense fallback={<ImportProblemTableFallback />}>
               <ImportProblemTable
+                contestId={contestId}
                 checkedProblems={problems}
                 onSelectedExport={(problems) => {
                   setProblems(problems)

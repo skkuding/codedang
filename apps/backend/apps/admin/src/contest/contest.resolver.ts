@@ -120,6 +120,28 @@ export class ContestResolver {
   }
 
   /**
+   * 특정 Contest의 Contest Admin / Manager가 참가한 User를 참가 취소합니다.
+   * @param contestId 대회 Id
+   * @param userId 참가 취소할 User의 Id
+   * @param req AuthenticatedRequest
+   */
+  @Mutation(() => UserContest)
+  @UseDisableContestRolesGuard()
+  async removeUserFromContest(
+    @Args('contestId', { type: () => Int }, IDValidationPipe)
+    contestId: number,
+    @Args('userId', { type: () => Int }, IDValidationPipe)
+    userId: number,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.contestService.removeUserFromContest(
+      contestId,
+      userId,
+      req.user.id
+    )
+  }
+
+  /**
    * 특정 User의 Contest 제출 내용 요약 정보를 가져옵니다.
    *
    * Contest Overall 페이지에서 특정 유저를 선택했을 때 사용
@@ -175,6 +197,7 @@ export class ContestResolver {
   }
 
   @Query(() => ContestsGroupedByStatus)
+  @UseDisableContestRolesGuard()
   async getContestsByProblemId(
     @Args('problemId', { type: () => Int }) problemId: number
   ) {

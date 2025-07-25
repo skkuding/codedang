@@ -1,12 +1,10 @@
 'use client'
 
 import { ConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
-import { EditorDescription } from '@/app/admin/_components/code-editor/EditorDescription'
 import { PreviewEditorLayout } from '@/app/admin/_components/code-editor/PreviewEditorLayout'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
-import { useSession } from '@/libs/hooks/useSession'
-import type { ProblemDetail, Template } from '@/types/type'
+import type { ProblemDetail } from '@/types/type'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
@@ -19,10 +17,9 @@ import { DescriptionForm } from '../../../_components/DescriptionForm'
 import { FormSection } from '../../../_components/FormSection'
 import { SwitchField } from '../../../_components/SwitchField'
 import { TitleForm } from '../../../_components/TitleForm'
-import { VisibleForm } from '../../../_components/VisibleForm'
 import { InfoForm } from '../../_components/InfoForm'
 import { LimitForm } from '../../_components/LimitForm'
-import { PopoverVisibleInfo } from '../../_components/PopoverVisibleInfo'
+import { SolutionField } from '../../_components/SolutionField'
 import { TemplateField } from '../../_components/TemplateField'
 import { TestcaseField } from '../../_components/TestcaseField'
 import { editSchema } from '../../_libs/schemas'
@@ -32,12 +29,9 @@ export default function Page({ params }: { params: { problemId: string } }) {
   const [isPreviewing, setIsPreviewing] = useState(false)
   const { problemId } = params
 
-  const session = useSession()
-  const isAdmin = session?.user?.role !== 'User'
-
   const methods = useForm<UpdateProblemInput>({
     resolver: valibotResolver(editSchema),
-    defaultValues: { template: [] }
+    defaultValues: { template: [], solution: [] }
   })
 
   const PreviewPortal = () => {
@@ -61,24 +55,17 @@ export default function Page({ params }: { params: { problemId: string } }) {
       source: methods.getValues('source'),
       tags: [],
       hint: methods.getValues('hint'),
-      template: methods
-        .getValues('template')
-        ?.map((template) =>
-          template.code.map((snippet) => snippet.text).join('\n')
-        ),
+      template: [JSON.stringify(methods.getValues('template'))],
+      solution: methods.getValues('solution'),
       difficulty: methods.getValues('difficulty')
     } as ProblemDetail
 
     return createPortal(
       <div className="fixed inset-0 z-50 flex bg-white">
         <PreviewEditorLayout
-          problemTitle={problem.title}
-          languages={problem.languages}
-          template={methods.getValues('template') as Template[]}
+          problem={problem}
           exitPreview={() => setIsPreviewing(false)}
-        >
-          <EditorDescription problem={problem} />
-        </PreviewEditorLayout>
+        />
       </div>,
       document.body
     )
@@ -92,27 +79,12 @@ export default function Page({ params }: { params: { problemId: string } }) {
             <Link href={`/admin/problem/${problemId}`}>
               <FaAngleLeft className="h-12 hover:text-gray-700/80" />
             </Link>
-            <span className="text-4xl font-bold">Edit Problem</span>
+            <span className="text-4xl font-bold">EDIT PROBLEM</span>
           </div>
 
           <EditProblemForm problemId={Number(problemId)} methods={methods}>
-            <div className="flex gap-32">
-              <FormSection isFlexColumn title="Title">
-                <TitleForm placeholder="Enter a problem name" />
-              </FormSection>
-
-              <FormSection isFlexColumn title="Visible">
-                <PopoverVisibleInfo />
-                <VisibleForm
-                  blockEdit={
-                    methods.getValues('isVisible') === null || !isAdmin
-                  }
-                />
-              </FormSection>
-            </div>
-
-            <FormSection isFlexColumn title="Info">
-              <InfoForm />
+            <FormSection isFlexColumn title="Title">
+              <TitleForm placeholder="Enter a problem name" />
             </FormSection>
 
             <FormSection isFlexColumn title="Description">
@@ -146,6 +118,14 @@ export default function Page({ params }: { params: { problemId: string } }) {
               </div>
             </div>
 
+            <FormSection isFlexColumn title="Info">
+              <InfoForm />
+            </FormSection>
+
+            <TemplateField />
+
+            <SolutionField />
+
             {methods.getValues('testcases') && (
               <TestcaseField blockEdit={false} />
             )}
@@ -153,8 +133,6 @@ export default function Page({ params }: { params: { problemId: string } }) {
             <FormSection isFlexColumn title="Limit">
               <LimitForm blockEdit={false} />
             </FormSection>
-
-            <TemplateField />
 
             <SwitchField
               name="hint"

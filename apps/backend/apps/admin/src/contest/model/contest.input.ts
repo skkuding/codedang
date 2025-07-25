@@ -40,6 +40,9 @@ export class CreateContestInput {
   @Field(() => GraphQLISODateTime, { nullable: false })
   endTime!: Date
 
+  @Field(() => GraphQLISODateTime, { nullable: false })
+  registerDueTime!: Date
+
   @Field(() => GraphQLISODateTime, { nullable: true })
   freezeTime?: Date
 
@@ -91,6 +94,9 @@ export class UpdateContestInput {
   @Field(() => GraphQLISODateTime, { nullable: true })
   endTime?: Date
 
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  registerDueTime?: Date
+
   @Field(() => Boolean, { nullable: true })
   unfreeze?: boolean
 
@@ -115,12 +121,6 @@ export class UpdateContestInput {
 
   @Field(() => GraphQLJSON, { nullable: true })
   summary?: Record<string, string>
-
-  // ongoing contest에서 수정 가능한 필드
-  static readonly ongoingMutableFields: (keyof UpdateContestInput)[] = [
-    'endTime',
-    'freezeTime'
-  ]
 }
 
 @InputType()

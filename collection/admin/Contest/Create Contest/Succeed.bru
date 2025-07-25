@@ -18,6 +18,7 @@ body:graphql {
       description
       startTime
       endTime
+      registerDueTime
       enableCopyPaste
       isJudgeResultVisible
       invitationCode
@@ -31,8 +32,9 @@ body:graphql:vars {
     "input": {
       "title": "New Contest 1",
       "description": "thisisnewcontest",
-      "startTime": "2024-01-01",
+      "startTime": "2026-01-01",
       "endTime": "2030-01-01",
+      "registerDueTime": "2023-12-31",
       "enableCopyPaste": true,
       "isJudgeResultVisible": true,
       "invitationCode": "123456",
@@ -77,6 +79,7 @@ docs {
   | invitationCode | String (6자리) | ❌ | 초대 코드 |
   | startTime | GraphQLISODateTime | ✅ | 시작 시간 |
   | endTime | GraphQLISODateTime | ✅ | 종료 시간 |
+  | registerDueTime | GraphQLISODateTime | ✅ | 등록 마감 시간 |
   | freezeTime | GraphQLISODateTime | ❌ | 순위 공개 정지 시간 |
   | isJudgeResultVisible | Boolean | ✅ | 채점 결과 공개 여부 |
   | enableCopyPaste | Boolean | ❌ | 복사/붙여넣기 허용 여부 |
@@ -92,6 +95,7 @@ docs {
   | description | String | 콘테스트 설명 |
   | startTime | GraphQLISODateTime | 시작 시간 |
   | endTime | GraphQLISODateTime | 종료 시간 |
+  | registerDueTime | GraphQLISODateTime | 등록 마감 시간 |
   | isJudgeResultVisible | Boolean | 채점 결과 공개 여부 |
   | createdById | Int | 콘테스트 생성자 ID |
   

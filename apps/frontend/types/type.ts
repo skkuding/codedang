@@ -54,6 +54,11 @@ export interface Template {
   language: Language
 }
 
+export interface Solution {
+  code: string
+  language: Language
+}
+
 export interface Problem {
   id: number
   title: string
@@ -105,6 +110,7 @@ export interface TestcaseItem {
   id: number
   input: string
   output: string
+  order?: number
 }
 
 export interface ProblemDetail {
@@ -121,6 +127,7 @@ export interface ProblemDetail {
   tags: Tag[]
   hint: string
   template: string[]
+  solution: Solution[]
   difficulty: Level
   order?: number
 }
@@ -348,6 +355,7 @@ export interface Assignment {
   title: string
   startTime: Date
   endTime: Date
+  dueTime: Date
   group: {
     id: string
     groupName: string

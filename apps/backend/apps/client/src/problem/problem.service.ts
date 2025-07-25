@@ -280,13 +280,13 @@ export class ContestProblemService {
       if (contest.isRegistered) {
         if (now < contest.startTime!) {
           throw new ForbiddenAccessException(
-            'Cannot access to Contest problem before the contest starts.'
+            'Cannot access to ContestProblem before the Contest starts'
           )
         }
       } else {
         if (now < contest.endTime!) {
           throw new ForbiddenAccessException(
-            'Register to access the problems of this contest.'
+            'Register to access ContestProblem'
           )
         }
       }
@@ -410,15 +410,15 @@ export class ContestProblemService {
       if (contest.isRegistered) {
         if (now < contest.startTime!) {
           throw new ForbiddenAccessException(
-            'Cannot access to Contest problem before the contest starts.'
+            'Cannot access to ContestProblem before the Contest starts'
           )
         } else if (now > contest.endTime!) {
           throw new ForbiddenAccessException(
-            'Cannot access to Contest problem after the contest ends.'
+            'Cannot access to ContestProblem after the Contest ends'
           )
         }
       } else {
-        throw new ForbiddenAccessException('Register to access this problem.')
+        throw new ForbiddenAccessException('Register to access this Problem')
       }
     }
 
@@ -620,7 +620,7 @@ export class AssignmentProblemService {
 
     if (now > assignment.endTime!) {
       throw new ForbiddenAccessException(
-        'Cannot access to Assignment problem after the assignment ends.'
+        'Cannot access to AssignmentProblem after the Assignment ends'
       )
     }
 
@@ -634,8 +634,9 @@ export class AssignmentProblemService {
       },
       select: {
         order: true,
+        solutionReleaseTime: true,
         problem: {
-          select: problemSelectOption
+          select: { ...problemSelectOption, solution: true }
         }
       }
     })
@@ -665,6 +666,10 @@ export class AssignmentProblemService {
       'updateTime',
       'visibleLockTime'
     ]
+
+    if (!data.solutionReleaseTime || now < data.solutionReleaseTime) {
+      excludedFields.push('solution')
+    }
 
     const problem = { ...data.problem } // 원본 객체를 복사해서 안전하게 작업
     excludedFields.forEach((key) => {
@@ -701,9 +706,7 @@ export class WorkbookProblemService {
   }) {
     const isVisible = await this.workbookService.isVisible(workbookId, groupId)
     if (!isVisible) {
-      throw new ForbiddenAccessException(
-        'You do not have access to this workbook.'
-      )
+      throw new ForbiddenAccessException('Cannot access to this Workbook')
     }
 
     const paginator = this.prisma.getPaginator(cursor, (value) => ({
@@ -764,7 +767,8 @@ export class WorkbookProblemService {
       'timeLimit',
       'memoryLimit',
       'updateTime',
-      'visibleLockTime'
+      'visibleLockTime',
+      'solution'
     ]
 
     return {
@@ -792,9 +796,7 @@ export class WorkbookProblemService {
   ): Promise<RelatedProblemResponseDto> {
     const isVisible = await this.workbookService.isVisible(workbookId, groupId)
     if (!isVisible) {
-      throw new ForbiddenAccessException(
-        'You do not have access to this workbook.'
-      )
+      throw new ForbiddenAccessException('Cannot access to this Workbook')
     }
 
     const data = await this.prisma.workbookProblem.findUniqueOrThrow({
@@ -839,7 +841,8 @@ export class WorkbookProblemService {
       'problemTag',
       'submission',
       'updateTime',
-      'visibleLockTime'
+      'visibleLockTime',
+      'solution'
     ]
     const problem = { ...data.problem }
     excludedFields.forEach((key) => {

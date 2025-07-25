@@ -2,7 +2,7 @@
 
 import { DialogTrigger } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
-import { GradeDetailIcon } from './Icons'
+import { GradeDetailIcon } from '../../../../../../components/Icons'
 
 interface DetailButtonProps {
   isActivated: boolean
@@ -24,7 +24,9 @@ export function DetailButton({ isActivated }: DetailButtonProps) {
           isActivated ? 'cursor-pointer hover:opacity-70' : 'cursor-default'
         )}
       >
-        <GradeDetailIcon fill={isActivated ? '#3581FA' : '#C4C4C4'} />
+        <GradeDetailIcon
+          className={isActivated ? 'text-[#3581FA]' : 'text-[#C4C4C4]'}
+        />
       </div>
     </DialogTrigger>
   )

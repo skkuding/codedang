@@ -5,11 +5,11 @@ import { Problem } from '@generated'
 import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
 import { ContestRole, ResultStatus, Role } from '@prisma/client'
-import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { solution } from '@admin/problem/mock/mock'
 import { ContestService } from './contest.service'
 import type { ContestWithParticipants } from './model/contest-with-participants.model'
 import type {
@@ -20,8 +20,9 @@ import type {
 const contestId = 1
 const userId = 1
 const problemId = 2
-const startTime = faker.date.past()
+const startTime = faker.date.recent()
 const endTime = faker.date.future()
+const registerDueTime = faker.date.past()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
 const invitationCode = '123456'
@@ -40,6 +41,7 @@ const contest: Contest = {
   lastPenalty: false,
   startTime,
   endTime,
+  registerDueTime,
   unfreeze: false,
   freezeTime: null,
   isJudgeResultVisible: true,
@@ -68,6 +70,7 @@ const contestWithCount = {
   lastPenalty: false,
   startTime,
   endTime,
+  registerDueTime,
   unfreeze: false,
   freezeTime: null,
   isJudgeResultVisible: true,
@@ -99,6 +102,7 @@ const contestWithParticipants: ContestWithParticipants = {
   lastPenalty: false,
   startTime,
   endTime,
+  registerDueTime,
   unfreeze: false,
   freezeTime: null,
   enableCopyPaste: true,
@@ -127,7 +131,8 @@ const problem: Problem = {
   outputDescription: 'outputdescription',
   hint: 'hint',
   template: [],
-  languages: ['C'],
+  languages: ['C', 'Cpp'],
+  solution,
   timeLimit: 10000,
   memoryLimit: 100000,
   difficulty: 'Level1',
@@ -193,17 +198,20 @@ const submissionsWithProblemTitleAndUsername = {
 const input = {
   title: 'test title10',
   description: 'test description',
-  startTime: faker.date.past(),
+  startTime: faker.date.recent(),
   endTime: faker.date.future(),
+  registerDueTime: faker.date.past(),
   enableCopyPaste: true,
   isJudgeResultVisible: true
 } satisfies CreateContestInput
 
 const updateInput = {
-  endTime: faker.date.future(),
+  startTime,
+  endTime,
+  registerDueTime: faker.date.past(),
   freezeTime: faker.date.between({
-    from: new Date(new Date().getTime()),
-    to: new Date(endTime.getTime())
+    from: startTime,
+    to: endTime
   })
 } satisfies UpdateContestInput
 
@@ -273,7 +281,7 @@ const db = {
       const newContestProblem = await db.contestProblem.create()
       return [newContestProblem, updatedProblem]
     } else {
-      throw new Error('Invalid transaction mock usage')
+      throw new Error('There is invalid transaction mock usage')
     }
   }),
   getPaginator: PrismaService.prototype.getPaginator
@@ -281,7 +289,6 @@ const db = {
 
 describe('ContestService', () => {
   let service: ContestService
-  let cache: Cache
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -303,8 +310,6 @@ describe('ContestService', () => {
     }).compile()
 
     service = module.get<ContestService>(ContestService)
-    cache = module.get<Cache>(CACHE_MANAGER)
-    stub(cache.store, 'keys').resolves(['contest:1:publicize'])
   })
 
   it('should be defined', () => {
@@ -342,7 +347,7 @@ describe('ContestService', () => {
       db.contest.findUniqueOrThrow.resolves(contest)
       db.contest.update.resolves(contest)
 
-      const res = await service.updateContest(1, updateInput)
+      const res = await service.updateContest(19, updateInput)
       expect(res).to.deep.equal(contest)
     })
   })

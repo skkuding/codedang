@@ -7,7 +7,7 @@ import {
 } from '@generated'
 import {
   AuthenticatedRequest,
-  UseDisableAdminGuard,
+  UseDisableGroupLeaderGuard,
   UseGroupLeaderGuard
 } from '@libs/auth'
 import {
@@ -18,13 +18,15 @@ import {
 } from '@libs/pipe'
 import { AssignmentService } from './assignment.service'
 import { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
+import { AssignmentProblemInput } from './model/assignment-problem.input'
 import { AssignmentSubmissionSummaryForUser } from './model/assignment-submission-summary-for-user.model'
 import { AssignmentWithParticipants } from './model/assignment-with-participants.model'
-import { CreateAssignmentInput } from './model/assignment.input'
-import { UpdateAssignmentInput } from './model/assignment.input'
+import {
+  CreateAssignmentInput,
+  UpdateAssignmentInput
+} from './model/assignment.input'
 import { AssignmentsGroupedByStatus } from './model/assignments-grouped-by-status.output'
 import { DuplicatedAssignmentResponse } from './model/duplicated-assignment-response.output'
-import { AssignmentProblemScoreInput } from './model/problem-score.input'
 import { UserAssignmentScoreSummaryWithUserInfo } from './model/score-summary'
 
 @Resolver(() => Assignment)
@@ -106,13 +108,13 @@ export class AssignmentResolver {
   async importProblemsToAssignment(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
-    @Args('problemIdsWithScore', { type: () => [AssignmentProblemScoreInput] })
-    problemIdsWithScore: AssignmentProblemScoreInput[]
+    @Args('assignmentProblemInput', { type: () => [AssignmentProblemInput] })
+    assignmentProblemInput: AssignmentProblemInput[]
   ) {
     return await this.assignmentService.importProblemsToAssignment(
       groupId,
       assignmentId,
-      problemIdsWithScore
+      assignmentProblemInput
     )
   }
 
@@ -208,7 +210,7 @@ export class AssignmentResolver {
   }
 
   @Query(() => AssignmentsGroupedByStatus)
-  @UseDisableAdminGuard()
+  @UseDisableGroupLeaderGuard()
   async getAssignmentsByProblemId(
     @Args('problemId', { type: () => Int }) problemId: number,
     @Context('req') req: AuthenticatedRequest

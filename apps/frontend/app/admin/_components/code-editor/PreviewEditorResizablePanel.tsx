@@ -17,31 +17,33 @@ import {
 } from '@/components/shadcn/select'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import type { Language, Template } from '@/types/type'
+import type { ProblemDetail } from '@/types/type'
 import { useEffect, useState } from 'react'
+import { EditorDescription } from './EditorDescription'
+import { SolutionLayout } from './SolutionLayout'
 
 interface ProblemEditorProps {
-  template: Template[]
-  languages: string[]
-  children: React.ReactNode
+  problem: ProblemDetail
 }
 
-export function PreviewEditorResizablePanel({
-  template,
-  languages,
-  children
-}: ProblemEditorProps) {
+export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
+  const [tabValue, setTabValue] = useState('Description')
+  const hasSolution =
+    Array.isArray(problem.solution) && problem.solution.length > 0
+  const [language, setLanguage] = useState<Language>(problem.languages[0])
   const [code, setCode] = useState('')
-  const [language, setLanguage] = useState<Language>('C')
 
   useEffect(() => {
-    const filteredTemplate = template.filter(
-      (template) => template.language === language
+    const templates = problem.template ? JSON.parse(problem.template[0]) : []
+    const filteredTemplate = templates.filter(
+      (template: Template) => template.language === language
     )
     if (filteredTemplate.length === 0) {
+      setCode('')
       return
     }
     setCode(filteredTemplate[0].code[0].text)
-  }, [language, template])
+  }, [language, problem.template])
 
   return (
     <ResizablePanelGroup
@@ -56,30 +58,48 @@ export function PreviewEditorResizablePanel({
       >
         <div className="grid-rows-editor grid h-full w-full grid-cols-1">
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
-            <Tabs value={''} className="flex-grow">
+            <Tabs value={tabValue} className="flex-grow">
               <TabsList className="rounded bg-slate-900">
                 <TabsTrigger
                   value="Description"
-                  className="text-primary-light rounded-tab-button bg-slate-700"
+                  className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
+                  onClick={() => setTabValue('Description')}
                 >
                   Description
                 </TabsTrigger>
                 <TabsTrigger
                   value="Submission"
-                  className="data-[state=active]:text-primary-light rounded-tab-button data-[state=active]:bg-slate-700"
+                  className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
+                  onClick={() => setTabValue('Submission')}
                 >
-                  Submissions
+                  Submission
                 </TabsTrigger>
+                {hasSolution && (
+                  <TabsTrigger
+                    value="Solution"
+                    className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
+                    onClick={() => setTabValue('Solution')}
+                  >
+                    Solution
+                  </TabsTrigger>
+                )}
               </TabsList>
             </Tabs>
           </div>
-
-          <ScrollArea className="[&>div>div]:!block">{children}</ScrollArea>
+          <ScrollArea className="[&>div>div]:!block">
+            {tabValue === 'Description' && (
+              <EditorDescription problem={problem} />
+            )}
+            {tabValue === 'Solution' && hasSolution && (
+              <SolutionLayout
+                solution={problem.solution}
+                languages={problem.languages}
+              />
+            )}
+          </ScrollArea>
         </div>
       </ResizablePanel>
-
       <ResizableHandle className="border-[0.5px] border-slate-700" />
-
       <ResizablePanel defaultSize={65} className="bg-[#222939]">
         <div className="grid-rows-editor grid h-full">
           <div className="flex shrink-0 items-center justify-end border-b border-b-slate-700 bg-[#222939] px-6">
@@ -96,7 +116,7 @@ export function PreviewEditorResizablePanel({
               </SelectTrigger>
               <SelectContent className="mt-3 min-w-[100px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
                 <SelectGroup className="text-white">
-                  {languages.map((language) => (
+                  {problem.languages.map((language) => (
                     <SelectItem
                       key={language}
                       value={language}

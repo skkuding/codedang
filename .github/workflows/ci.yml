@@ -172,6 +172,8 @@ jobs:
       MEDIA_BUCKET_NAME: image-bucket
       MEDIA_ACCESS_KEY: abc123
       MEDIA_SECRET_KEY: xyz123456
+      REDIS_HOST: localhost
+      REDIS_PORT: 6380
 
     services:
       postgres:
@@ -186,7 +188,7 @@ jobs:
         # NOTE: GitHub Actions service containers do not support custom commands.
         # This image from Bitnami includes the command to run MinIO.
         # https://stackoverflow.com/questions/60849745/how-can-i-run-a-command-in-github-action-service-containers
-        image: bitnami/minio:latest
+        image: bitnami/minio:2025.7.18
         ports:
           - 9000:9000
           - 9001:9001
@@ -195,6 +197,10 @@ jobs:
           MINIO_ROOT_PASSWORD: ${{ env.TESTCASE_SECRET_KEY }}
         volumes:
           - minio-storage:/data
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6380:6379
 
     steps:
       - uses: actions/checkout@v4

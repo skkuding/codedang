@@ -1,15 +1,15 @@
 'use client'
 
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
-import { ContainedContests } from '@/app/admin/problem/_components/ContainedContests'
+import { ProblemUsage } from '@/app/admin/problem/_components/ProblemUsage'
 import { Badge } from '@/components/shadcn/badge'
 import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'
-import type { AssignmentProblem } from '../_libs/type'
+import type { AssignmentProblem } from '../../_libs/type'
 
-export const createColumns = (
+export const createAssignmentColumns = (
   setProblems: React.Dispatch<React.SetStateAction<AssignmentProblem[]>>,
   disableInput: boolean
 ): ColumnDef<AssignmentProblem>[] => [
@@ -40,7 +40,7 @@ export const createColumns = (
         <Input
           disabled={disableInput}
           defaultValue={row.getValue('score')}
-          className="hide-spin-button w-[70px] focus-visible:ring-0 disabled:pointer-events-none"
+          className="hide-spin-button w-[70px] text-center focus-visible:ring-0 disabled:pointer-events-none"
           type="number"
           min={0}
           onKeyDown={(e) => {
@@ -66,7 +66,7 @@ export const createColumns = (
       <div className="flex justify-center">
         <Input
           disabled={true}
-          className="w-[70px] focus-visible:ring-0"
+          className="w-[70px] text-center focus-visible:ring-0"
           value={table
             .getCoreRowModel()
             .rows.map((row) => row.original)
@@ -141,8 +141,7 @@ export const createColumns = (
     header: () => <p className="text-center text-sm">Included</p>,
     cell: ({ row }) => (
       <div className="flex justify-center">
-        {/* 백엔드 API 작업 완료 후 수정 예정 */}
-        <ContainedContests problemId={row.original.id} />
+        <ProblemUsage problemId={row.original.id} showAssignment={true} />
       </div>
     ),
     enableSorting: false

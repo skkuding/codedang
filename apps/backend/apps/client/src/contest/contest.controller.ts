@@ -73,12 +73,17 @@ export class ContestController {
   }
 
   @Get(':id/leaderboard')
-  @AuthNotNeededIfPublic()
+  @UserNullWhenAuthFailedIfPublic()
   async getLeaderboard(
+    @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number,
     @Query('search') search: string
   ) {
-    return await this.contestService.getContestLeaderboard(contestId, search)
+    return await this.contestService.getContestLeaderboard(
+      contestId,
+      req.user?.id,
+      search
+    )
   }
 
   @Post(':id/qna')

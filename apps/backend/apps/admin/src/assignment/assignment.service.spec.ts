@@ -10,11 +10,11 @@ import { Problem } from '@generated'
 import { Assignment } from '@generated'
 import { faker } from '@faker-js/faker'
 import { ResultStatus } from '@prisma/client'
-import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { solution } from '@admin/problem/mock/mock'
 import { AssignmentService } from './assignment.service'
 import type { AssignmentWithParticipants } from './model/assignment-with-participants.model'
 import type {
@@ -31,9 +31,10 @@ const endTime = faker.date.future()
 const dueTime = faker.date.future()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
-const problemIdsWithScore = {
+const assignmentProblemInput = {
   problemId,
-  score: 10
+  score: 10,
+  solutionReleaseTime: null
 }
 // const duplicatedAssignmentId = 2
 
@@ -130,7 +131,8 @@ const problem: Problem = {
   outputDescription: 'outputdescription',
   hint: 'hint',
   template: [],
-  languages: ['C'],
+  languages: ['C', 'Cpp'],
+  solution,
   timeLimit: 10000,
   memoryLimit: 100000,
   difficulty: 'Level1',
@@ -153,6 +155,7 @@ const assignmentProblem: AssignmentProblem = {
   assignmentId,
   problemId,
   score: 50,
+  solutionReleaseTime: null,
   createTime: faker.date.past(),
   updateTime: faker.date.past()
 }
@@ -270,7 +273,6 @@ const db = {
 
 describe('AssignmentService', () => {
   let service: AssignmentService
-  let cache: Cache
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -292,8 +294,6 @@ describe('AssignmentService', () => {
     }).compile()
 
     service = module.get<AssignmentService>(AssignmentService)
-    cache = module.get<Cache>(CACHE_MANAGER)
-    stub(cache.store, 'keys').resolves(['assignment:1:publicize'])
   })
 
   it('should be defined', () => {
@@ -365,7 +365,7 @@ describe('AssignmentService', () => {
 
       const res = await Promise.all(
         await service.importProblemsToAssignment(groupId, assignmentId, [
-          problemIdsWithScore
+          assignmentProblemInput
         ])
       )
 
@@ -380,7 +380,7 @@ describe('AssignmentService', () => {
       const res = await service.importProblemsToAssignment(
         groupId,
         assignmentId,
-        [problemIdsWithScore]
+        [assignmentProblemInput]
       )
 
       expect(res).to.deep.equal([])
@@ -388,7 +388,9 @@ describe('AssignmentService', () => {
 
     it('should throw error when the assignmentId not exist', async () => {
       expect(
-        service.importProblemsToAssignment(groupId, 9999, [problemIdsWithScore])
+        service.importProblemsToAssignment(groupId, 9999, [
+          assignmentProblemInput
+        ])
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })

@@ -217,6 +217,7 @@ model Problem {
 
   template        Json[]     @default([])
   languages       Language[]
+  solution        Json[]     @default([])
   timeLimit       Int        @map("time_limit") // unit: MilliSeconds
   memoryLimit     Int        @map("memory_limit") // unit: MegaBytes
   difficulty      Level
@@ -295,21 +296,23 @@ enum Language {
 }
 
 model ProblemTestcase {
-  id          Int      @id @default(autoincrement())
-  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  problemId   Int      @map("problem_id")
-  order       Int?
+  id              Int      @id @default(autoincrement())
+  problem         Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  problemId       Int      @map("problem_id")
+  order           Int?
   // NOTE: Actual input/output value is going to be stored in S3.
   // These fields are only for backward compatibility.
   // All the new testcases are going to be stored in S3.
   // These fields are expected to be null for new testcases.
   // In future these fields will be removed after migration to S3.
-  input       String?
-  output      String?
-  scoreWeight Int      @default(1) @map("score_weight")
-  isHidden    Boolean  @default(false) @map("is_hidden_testcase")
-  createTime  DateTime @default(now()) @map("create_time")
-  updateTime  DateTime @updatedAt @map("update_time")
+  input           String?
+  output          String?
+  scoreWeight     Int      @default(1) @map("score_weight")
+  isHidden        Boolean  @default(false) @map("is_hidden_testcase")
+  createTime      DateTime @default(now()) @map("create_time")
+  updateTime      DateTime @updatedAt @map("update_time")
+  acceptedCount   Int      @default(0) @map("accepted_count")
+  submissionCount Int      @default(0) @map("submission_count")
 
   submissionResult SubmissionResult[]
 
@@ -369,15 +372,17 @@ model Assignment {
 }
 
 model AssignmentProblem {
-  order                   Int
-  assignment              Assignment                @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId            Int                       @map("assignment_id")
-  problem                 Problem                   @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId               Int                       @map("problem_id")
+  order        Int
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId Int        @map("assignment_id")
+  problem      Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId    Int        @map("problem_id")
   // 각 문제의 점수 (비율 아님)
-  score                   Int                       @default(0)
+  score        Int        @default(0)
+
   createTime              DateTime                  @default(now()) @map("create_time")
   updateTime              DateTime                  @updatedAt @map("update_time")
+  solutionReleaseTime     DateTime?                 @map("solution_release_time")
   assignmentProblemRecord AssignmentProblemRecord[]
 
   @@id([assignmentId, problemId])
@@ -450,6 +455,7 @@ model Contest {
   invitationCode             String?   @map("invitation_code")
   startTime                  DateTime  @map("start_time")
   endTime                    DateTime  @map("end_time")
+  registerDueTime            DateTime  @default(now()) @map("register_due_time")
   unfreeze                   Boolean   @default(false)
   freezeTime                 DateTime? @map("freeze_time")
   isJudgeResultVisible       Boolean   @default(true) @map("is_judge_result_visible") /// 이 Contest에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.

@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetAssignmentsByProblemId($problemId: Int!, $groupId: Int!) {
-    getAssignmentsByProblemId(problemId: $problemId, groupId: $groupId) {
+  query GetAssignmentsByProblemId($problemId: Int!) {
+    getAssignmentsByProblemId(problemId: $problemId) {
       upcoming {
         id
         title

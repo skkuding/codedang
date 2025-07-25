@@ -36,7 +36,7 @@ export default async function Contest({ searchParams }: ContestProps) {
 
       <ContestSubBanner />
 
-      <div className="mb-12 mt-[101px] flex w-full flex-col gap-12">
+      <div className="mb-12 mt-[101px] flex w-full max-w-[1440px] flex-col gap-12 px-[116px]">
         <div className="flex-col">
           <ErrorBoundary fallback={FetchErrorFallback}>
             <Suspense fallback={<FinishedContestTableFallback />}>

@@ -1,2 +1,23 @@
 packages:
   - apps/*
+
+injectWorkspacePackages: true
+
+onlyBuiltDependencies:
+  - '@apollo/protobufjs'
+  - '@nestjs/core'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@sentry/cli'
+  - '@swc/core'
+  - argon2
+  - core-js
+  - esbuild
+  - lefthook
+  - msw
+  - nestjs-pino
+  - oxc-resolver
+  - prisma
+  - protobufjs
+  - sharp
+  - unrs-resolver

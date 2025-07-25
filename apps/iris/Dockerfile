@@ -1,7 +1,7 @@
 ### BUILDER ###
 ARG app_env=production
 
-FROM golang:1.23 AS builder
+FROM golang:1.24 AS builder
 
 COPY . /build
 WORKDIR /build
@@ -13,8 +13,6 @@ FROM ubuntu:24.04
 ARG app_env
 
 ENV APP_ENV=${app_env}
-
-COPY --from=builder /build/iris .
 
 # Install dependencies
 RUN apt update && apt install -y \
@@ -36,6 +34,8 @@ RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" 
   curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.3/libjudger-amd64.so" -o "/app/sandbox/libjudger.so"; \
   fi
 RUN chmod 750 /app/sandbox/libjudger.so
+
+COPY --from=builder /build/iris .
 
 COPY ./entrypoint.sh .
 ENV JAVA_PATH /usr/bin/

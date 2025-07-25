@@ -81,7 +81,7 @@ services:
       - 6380:6379
 
   rabbitmq:
-    image: rabbitmq:4-management-alpine
+    image: rabbitmq:3.13-management-alpine
     container_name: codedang-rabbitmq
     ports:
       - 15672:15672 # Admin Management
@@ -94,7 +94,7 @@ services:
 
   caddy:
     profiles: ['deploy']
-    image: caddy:2.8.4-alpine
+    image: caddy:2.10.0-alpine
     container_name: caddy
     restart: always
     ports:
@@ -163,24 +163,6 @@ services:
         limits:
           cpus: '0.50'
           memory: 512M
-
-  promtail:
-    profiles: ['deploy']
-    image: grafana/promtail
-    container_name: grafana-promtail
-    restart: always
-    env_file: .env
-    depends_on:
-      - backend-client
-      - backend-admin
-      - iris
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - $PWD/apps/grafana-logs/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
-    command:
-      - -config.file=/etc/promtail/promtail-config.yml
-      - -config.expand-env=true
-    network_mode: host
 
   dozzle:
     profiles: ['deploy']

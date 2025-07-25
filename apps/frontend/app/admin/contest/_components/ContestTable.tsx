@@ -54,7 +54,7 @@ export function ContestTable() {
     <DataTableRoot
       data={contestsWithStatus}
       columns={columns}
-      defaultSortState={[{ id: 'startTime', desc: true }]}
+      defaultSortState={[{ id: 'status', desc: true }]}
     >
       <div className="mb-6 flex justify-between">
         <DataTableSearchBar columndId="title" />

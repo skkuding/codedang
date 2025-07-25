@@ -27,6 +27,8 @@ interface SwitchFieldProps {
   children?: React.ReactNode | React.ReactNode[]
   tooltip?: boolean
   description?: string
+  disabled?: boolean
+  invert?: boolean
 }
 
 export function SwitchField({
@@ -38,9 +40,13 @@ export function SwitchField({
   hasValue = false,
   children = null,
   tooltip = false,
-  description
+  description,
+  disabled = false,
+  invert = false
 }: SwitchFieldProps) {
-  const [isEnabled, setIsEnabled] = useState<boolean>(false)
+  const [isEnabled, setIsEnabled] = useState<boolean>(
+    invert ? !hasValue : hasValue
+  )
   const {
     register,
     setValue,
@@ -50,13 +56,19 @@ export function SwitchField({
   } = useFormContext()
 
   useEffect(() => {
-    setIsEnabled(hasValue)
-  }, [hasValue])
+    setIsEnabled(invert ? !hasValue : hasValue)
+  }, [hasValue, invert])
 
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-3">
-        <Label required={false}>{title}</Label>
+        <Label
+          disabled={disabled}
+          required={false}
+          className={cn(name === 'invitationCode' ? 'opacity-100' : '')}
+        >
+          {title}
+        </Label>
         {tooltip && (
           <TooltipProvider>
             <Tooltip>
@@ -76,6 +88,7 @@ export function SwitchField({
         )}
 
         <Switch
+          disabled={disabled}
           onCheckedChange={() => {
             if (name === 'invitationCode') {
               setValue(name, null)
@@ -95,6 +108,7 @@ export function SwitchField({
           if (formElement === 'input') {
             return (
               <Input
+                disabled={disabled}
                 id={name}
                 type={type}
                 placeholder={placeholder}
