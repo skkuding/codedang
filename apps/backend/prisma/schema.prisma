@@ -723,7 +723,6 @@ model PlagiarismCheck {
   problemId                 Int                         @map("problem_id")
   user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId         Int?        @map("user_id")
-  userIp         String?     @map("user_ip")
   language  Language
   checkPreviousSubmission Boolean @map("check_previous_submission")
   enableMerging Boolean @map("enable_merging")

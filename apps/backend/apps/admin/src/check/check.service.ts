@@ -7,7 +7,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { CheckPublicationService } from './check-pub.service'
-import type { CreatePlagiarismCheckDto } from './class/create-check.dto'
+import { CreatePlagiarismCheckInput } from './model/create-check.input'
 
 @Injectable()
 export class CheckService {
@@ -22,13 +22,11 @@ export class CheckService {
   @Span()
   async plagiarismCheckSubmissions({
     userId,
-    userIp,
-    checkDto,
+    checkInput,
     problemId
   }: {
     userId: number
-    userIp: string
-    checkDto: CreatePlagiarismCheckDto
+    checkInput: CreatePlagiarismCheckInput
     problemId: number
   }) {
     // 문제가 해당 언어를 지원하는지 확인해야 합니다.
@@ -44,7 +42,7 @@ export class CheckService {
     const submissionCount = await this.prisma.submission.count({
       where: {
         problemId: problemId,
-        language: checkDto.language
+        language: checkInput.language
       }
     })
     if (submissionCount < 2) {
@@ -58,7 +56,7 @@ export class CheckService {
       enableMerging,
       useJplagClustering,
       minTokens
-    } = checkDto
+    } = checkInput
 
     try {
       const check = await this.prisma.plagiarismCheck.create({
@@ -67,7 +65,6 @@ export class CheckService {
           problemId: problemId,
           result: CheckResultStatus.Pending,
           userId: userId,
-          userIp: userIp,
           language: language,
           checkPreviousSubmission: checkPreviousSubmissions,
           enableMerging: enableMerging,

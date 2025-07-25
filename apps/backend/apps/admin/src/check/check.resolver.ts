@@ -1,11 +1,11 @@
-import { Body, Controller, Post, Query, Req, Headers } from '@nestjs/common'
-import type { AuthenticatedRequest } from '@libs/auth'
-import { RequiredIntPipe } from '@libs/pipe'
+import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
+import { AuthenticatedRequest } from '@libs/auth'
+import { PlagiarismCheck } from '@admin/@generated'
 import { CheckService } from './check.service'
-import type { CreatePlagiarismCheckDto } from './class/create-check.dto'
+import { CreatePlagiarismCheckInput } from './model/create-check.input'
 
-@Controller('check')
-export class CheckController {
+@Resolver(() => PlagiarismCheck)
+export class CheckResolver {
   constructor(private readonly checkService: CheckService) {}
 
   /**
@@ -21,19 +21,22 @@ export class CheckController {
    * - useJplagClustering(옵션, 기본: true)
    * @param {number} problemId 검사를 수행할 문제 아이디
    * @returns {Promise} 생성된 검사 요청 기록을 반환합니다.
+   * - 요청 기록에 포함된 checkId로 검사 결과를 조회할 수 있습니다.
    */
   // 문제에 대해 표절 검사를 요청할 수 있는 유저인지 검증이 필요합니다.
-  @Post()
+  @Mutation(() => PlagiarismCheck)
   async checkProblemSubmissions(
-    @Req() req: AuthenticatedRequest,
-    @Headers('x-forwarded-for') userIp: string,
-    @Body() checkDto: CreatePlagiarismCheckDto,
-    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number
-  ) {
+    @Context('req') req: AuthenticatedRequest,
+    @Args('input', {
+      nullable: false,
+      type: () => CreatePlagiarismCheckInput
+    })
+    checkInput: CreatePlagiarismCheckInput,
+    @Args('problemId', { type: () => Int }) problemId: number
+  ): Promise<PlagiarismCheck> {
     return await this.checkService.plagiarismCheckSubmissions({
       userId: req.user.id,
-      userIp,
-      checkDto,
+      checkInput,
       problemId
     })
   }
