@@ -761,7 +761,7 @@ export class SubmissionService {
    * @param {number} problemId - 문제 ID
    * @param {Snippet[]} code - 제출된 코드 스니펫 배열
    * @param {Submission} testSubmission - 테스트 제출 객체
-   * @param {isGroupLeader} - Instructor 여부(Hidden TC 포함 여부)
+   * @param {boolean} containHiddenTestcases - Hidden Testcase 포함 여부
    * @returns {Promise<void>}
    */
   async publishTestMessage(
