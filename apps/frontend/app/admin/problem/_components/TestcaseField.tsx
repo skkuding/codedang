@@ -205,6 +205,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   }, 0)
 
   useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTC, testcaseFlag])
+
+  useEffect(() => {
     const newItems = watchedItems
       .map((item, originalIndex) => ({ ...item, originalIndex }))
       .filter((item) => (testcaseFlag === 0 ? !item.isHidden : item.isHidden))
@@ -213,8 +217,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   }, [watchedItems, testcaseFlag])
 
   useEffect(() => {
-    setCurrentPage(1)
-  }, [searchTC])
+    if (currentItems.length === 0) {
+      setCurrentPage(1)
+    }
+  }, [deleteSelectedTestcases])
 
   return (
     <div className="flex h-full w-full flex-col border-[1px] border-[#D8D8D8] bg-white px-10 pb-10 pt-[20px]">
