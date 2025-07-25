@@ -71,7 +71,7 @@ export function ServiceCards() {
               className="absolute bottom-0 right-0"
             />
             <div className="absolute left-[30px] right-[30px] top-[78px]">
-              <p className="pb-[14px] text-[30px] font-semibold leading-[36px] tracking-[-0.9px] text-white">
+              <p className="pb-[14px] text-[30px] font-normal leading-[36px] tracking-[-0.9px] text-white">
                 Practice with
                 <br />
                 Real problems
