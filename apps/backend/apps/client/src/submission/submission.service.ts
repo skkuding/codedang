@@ -672,7 +672,12 @@ export class SubmissionService {
           select: {
             contest: {
               select: {
-                userContest: true
+                userContest: {
+                  where: {
+                    userId: userId,
+                    role: { in: ['Admin', 'Manager', 'Reviewer'] }
+                  }
+                }
               }
             }
           }
@@ -723,14 +728,8 @@ export class SubmissionService {
     )
 
     // 해당 problem이 포함된 contest에 대한 Admin / Manager / Reviewer인지 확인
-    const isContestStaff = problem.contestProblem.some((contestProblem) =>
-      contestProblem.contest.userContest.some(
-        (userContest) =>
-          userContest.userId == userId &&
-          (userContest.role == 'Admin' ||
-            userContest.role == 'Manager' ||
-            userContest.role == 'Reviewer')
-      )
+    const isContestStaff = problem.contestProblem.some(
+      (contestProblem) => contestProblem.contest.userContest.length > 0
     )
 
     const containHiddenTestcases = isGroupLeader || isContestStaff
