@@ -3,12 +3,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
-  ResultStatus,
-  Submission,
   Language,
-  Problem,
-  Role,
   Prisma,
+  Problem,
+  ResultStatus,
+  Role,
+  Submission,
   TestSubmission
 } from '@prisma/client'
 import { AxiosRequestConfig } from 'axios'
@@ -654,6 +654,18 @@ export class SubmissionService {
     const problem = await this.prisma.problem.findFirst({
       where: {
         id: problemId
+      },
+      include: {
+        sharedGroups: {
+          select: {
+            userGroup: {
+              where: {
+                userId: userId,
+                isGroupLeader: true
+              }
+            }
+          }
+        }
       }
     })
 
@@ -693,13 +705,29 @@ export class SubmissionService {
       return testSubmission
     }
 
+    // problem.sharedGroups 중에서 userGroup들 중에서 userId가 주어진 userId이고,
+    // isGroupLeader = True인 userGroup이 존재하면
+    const isGroupLeader = problem.sharedGroups.some(
+      (sharedGroup) => sharedGroup.userGroup.length > 0
+    )
+
     // Open Testcase에 대한 TEST 요청인 경우
     const testSubmission = await this.createTestSubmission(
       { ...submissionDto, problemId, userId, userIp },
       code,
       false
     )
-    await this.publishTestMessage(problemId, submissionDto.code, testSubmission)
+    await this.publishTestMessage(
+      problemId,
+      submissionDto.code,
+      testSubmission,
+      isGroupLeader
+      /*
+      지금은 containHiddenTestcases = true로 설정할 경우가
+      isGroupLeader 밖에 없지만, 추후 contestAdmin, Manager 케이스도 추가할 예정
+      이렇게 되면 containHiddenTestcases를 isGroupLeader || isContestAdmin으로 수정
+      */
+    )
     return testSubmission
   }
 
@@ -715,17 +743,19 @@ export class SubmissionService {
    * @param {number} problemId - 문제 ID
    * @param {Snippet[]} code - 제출된 코드 스니펫 배열
    * @param {Submission} testSubmission - 테스트 제출 객체
+   * @param {isGroupLeader} - Instructor 여부(Hidden TC 포함 여부)
    * @returns {Promise<void>}
    */
   async publishTestMessage(
     problemId: number,
     code: Snippet[],
-    testSubmission: TestSubmission
+    testSubmission: TestSubmission,
+    containHiddenTestcases: boolean
   ): Promise<void> {
     const rawTestcases = await this.prisma.problemTestcase.findMany({
       where: {
         problemId,
-        isHidden: false
+        ...(containHiddenTestcases ? {} : { isHidden: false })
       }
     })
 
@@ -745,7 +775,8 @@ export class SubmissionService {
       code,
       submission: testSubmission,
       isTest: true,
-      stopOnNotAccepted: false
+      stopOnNotAccepted: false,
+      containHiddenTestcases
     })
   }
 

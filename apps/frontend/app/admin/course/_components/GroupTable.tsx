@@ -7,11 +7,7 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
-import {
-  DELETE_COURSE,
-  DUPLICATE_COURSE,
-  UPDATE_COURSE
-} from '@/graphql/course/mutation'
+import { DUPLICATE_COURSE, UPDATE_COURSE } from '@/graphql/course/mutation'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
@@ -32,7 +28,6 @@ const headerStyle = {
 
 export function GroupTable() {
   const client = useApolloClient()
-  const [deleteCourse] = useMutation(DELETE_COURSE)
   const [updateCourse] = useMutation(UPDATE_COURSE)
   const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
   const [semesters, setSemesters] = useState<string[]>([])
@@ -56,14 +51,6 @@ export function GroupTable() {
     )
     setSemesters(uniqueSemesters)
   }, [courses])
-
-  const deleteTarget = (id: number) => {
-    return deleteCourse({
-      variables: {
-        groupId: id
-      }
-    })
-  }
 
   const updateTarget = (id: number, courseInput: CourseInput) => {
     return updateCourse({
@@ -105,12 +92,7 @@ export function GroupTable() {
               duplicateTarget={duplicateTarget}
               onSuccess={onSuccess}
             />
-
-            <DeleteCourseButton
-              target="course"
-              deleteTarget={deleteTarget}
-              onSuccess={onSuccess}
-            />
+            <DeleteCourseButton />
           </div>
         </div>
         <DataTable

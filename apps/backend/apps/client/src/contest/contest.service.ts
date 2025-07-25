@@ -6,12 +6,14 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { ContestQnACreateDto } from './dto/contest-qna.dto'
 
 const contestSelectOption = {
   id: true,
   title: true,
   startTime: true,
   endTime: true,
+  registerDueTime: true,
   freezeTime: true,
   invitationCode: true,
   enableCopyPaste: true,
@@ -259,8 +261,7 @@ export class ContestService {
         id: contestId
       },
       select: {
-        startTime: true,
-        endTime: true,
+        registerDueTime: true,
         invitationCode: true
       }
     })
@@ -276,8 +277,10 @@ export class ContestService {
       throw new ConflictFoundException('Already participated this contest')
     }
     const now = new Date()
-    if (now >= contest.endTime) {
-      throw new ConflictFoundException('Cannot participate ended contest')
+    if (now >= contest.registerDueTime) {
+      throw new ConflictFoundException(
+        'Cannot participate in the contest after the registration deadline'
+      )
     }
     return await this.prisma.$transaction(async (prisma) => {
       const contestRecord = await prisma.contestRecord.create({
@@ -603,5 +606,167 @@ export class ContestService {
     })
 
     return userContests
+  }
+
+  async createContestQnA(
+    contestId: number,
+    userId: number,
+    data: ContestQnACreateDto
+  ) {
+    const contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const hasRegistered = await this.prisma.userContest.findFirst({
+      where: { userId, contestId }
+    })
+    if (!hasRegistered) {
+      throw new ForbiddenAccessException('Not registered in this contest')
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const maxOrder = await tx.contestQnA.aggregate({
+        where: { contestId },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _max: { order: true }
+      })
+      const order = (maxOrder._max?.order ?? 0) + 1
+      return await tx.contestQnA.create({
+        data: {
+          ...data,
+          contestId,
+          createdById: userId,
+          order
+        }
+      })
+    })
+  }
+
+  async getContestQnAs(userId: number | null, contestId: number) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const isPrivileged =
+      userId &&
+      (await this.prisma.userContest.findFirst({
+        where: {
+          userId,
+          contestId,
+          role: {
+            in: ['Admin', 'Manager', 'Reviewer']
+          }
+        }
+      }))
+
+    return (
+      await this.prisma.contestQnA.findMany({
+        select: {
+          id: true,
+          title: true,
+          answer: true,
+          createTime: true
+        },
+        where: {
+          contestId,
+          ...(isPrivileged
+            ? {}
+            : {
+                OR: [{ createdById: userId ?? -1 }, { isVisible: true }]
+              })
+        },
+        orderBy: {
+          order: 'asc'
+        }
+      })
+    ).map((qna) => {
+      const { answer, ...rest } = qna
+      return {
+        ...rest,
+        isAnswered: Boolean(answer)
+      }
+    })
+  }
+
+  /**
+   * 특정 대회의 특정 순번(order)에 해당하는 QnA를 조회합니다.
+   *
+   * 이 함수는 다음과 같은 조건에 따라 QnA를 조회하고 반환합니다:
+   * - 운영진(Admin, Manager, Reviewer)인 경우: 모든 QnA를 열람할 수 있습니다.
+   * - 일반 사용자:
+   *   - 로그인한 경우: 자신이 작성한 QnA 또는 공개된 QnA만 열람 가능합니다.
+   *   - 로그인하지 않은 경우: 공개된 QnA만 열람 가능합니다.
+   *
+   * QnA를 찾을 수 없거나 접근 권한이 없는 경우 예외를 발생시킵니다.
+   * - 운영진: QnA가 실제로 없으면 EntityNotExistException 발생
+   * - 일반 사용자: 권한이 없는 경우 ForbiddenAccessException 발생
+   *
+   * 사용자가 대회에 등록되어 있지 않으면 제한된 필드(id, title, 작성자, 작성 시간 등)만 반환합니다.
+   *
+   * @param userId - 요청자의 사용자 ID (로그인하지 않은 경우 null)
+   * @param contestId - 대상 대회의 ID
+   * @param order - QnA의 순번(order)
+   * @returns QnA 전체 정보 또는 제한된 정보
+   * @throws EntityNotExistException - 대회 또는 QnA가 존재하지 않을 경우
+   * @throws ForbiddenAccessException - 접근 권한이 없을 경우
+   */
+  async getContestQnA(userId: number | null, contestId: number, order: number) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId }
+    })
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const userContest = userId
+      ? await this.prisma.userContest.findFirst({
+          where: { userId, contestId }
+        })
+      : null
+
+    const isPrivileged =
+      userContest && ['Admin', 'Manager', 'Reviewer'].includes(userContest.role)
+
+    const qna = await this.prisma.contestQnA.findFirst({
+      where: {
+        order,
+        contestId,
+        ...(isPrivileged
+          ? {}
+          : {
+              OR: [{ createdById: userId ?? -1 }, { isVisible: true }]
+            })
+      },
+      include: {
+        createdBy: { select: { username: true } },
+        answeredBy: { select: { username: true } }
+      }
+    })
+
+    if (!qna) {
+      if (isPrivileged) {
+        throw new EntityNotExistException('ContestQnA')
+      } else {
+        throw new ForbiddenAccessException(
+          'You are not allowed to view this QnA'
+        )
+      }
+    }
+
+    if (!userContest) {
+      const { id, title, createdBy, createdById, createTime } = qna
+      return { id, title, createdBy, createdById, createTime }
+    }
+    return qna
   }
 }

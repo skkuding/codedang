@@ -181,7 +181,7 @@ export function HeaderAuthPanel({
               onClick={() => showSignIn()}
               variant={'outline'}
               className={cn(
-                'border-primary text-primary mr-3 hidden bg-transparent px-5 py-1 text-sm font-semibold hover:bg-[#EAF3FF] active:bg-[#D7E5FE] md:block',
+                'border-primary text-primary mr-3 hidden bg-transparent px-5 py-1 text-sm font-semibold hover:bg-[#EAF3FF] active:bg-[#D7E5FE] lg:block',
                 isEditor &&
                   'h-8 border-none bg-[#EAF3FF] text-[11px] hover:bg-[#D7E5FE]'
               )}
@@ -195,7 +195,7 @@ export function HeaderAuthPanel({
                 showSignUp()
               }}
               className={cn(
-                'hidden px-5 py-1 text-sm font-semibold md:block',
+                'hidden px-5 py-1 text-sm font-semibold lg:block',
                 isEditor && 'h-8 text-[11px]'
               )}
             >
@@ -216,10 +216,10 @@ export function HeaderAuthPanel({
         </Dialog>
       )}
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex gap-2 px-4 py-1 md:hidden">
+        <DropdownMenuTrigger className="flex gap-2 px-4 py-1 lg:hidden">
           <RxHamburgerMenu size="30" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="md:hidden">
+        <DropdownMenuContent className="lg:hidden">
           {session && (
             <>
               <DropdownMenuItem className="text-primary pointer-events-none flex select-none items-center gap-1 font-semibold">

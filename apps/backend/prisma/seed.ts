@@ -1053,6 +1053,7 @@ const createContests = async () => {
       summary: Prisma.InputJsonValue
       startTime: Date
       endTime: Date
+      registerDueTime: Date
       freezeTime: Date | null
       invitationCode: string | null
       evaluateWithSampleTestcase: boolean
@@ -1104,6 +1105,7 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2023-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1124,6 +1126,7 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2023-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
@@ -1144,6 +1147,7 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2023-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1164,6 +1168,7 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2023-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
@@ -1185,6 +1190,7 @@ const createContests = async () => {
         },
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2023-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
@@ -1205,6 +1211,7 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1226,6 +1233,7 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1247,6 +1255,7 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1267,6 +1276,7 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1287,6 +1297,7 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1307,6 +1318,7 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1327,6 +1339,7 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1348,6 +1361,7 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
@@ -1368,6 +1382,7 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
@@ -1389,6 +1404,7 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1409,6 +1425,7 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1429,6 +1446,7 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1449,6 +1467,7 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
@@ -1469,6 +1488,7 @@ const createContests = async () => {
         },
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1489,6 +1509,7 @@ const createContests = async () => {
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
         freezeTime: new Date('3024-01-01T00:00:00.000Z'),
         invitationCode: null,
         enableCopyPaste: true,
@@ -2603,6 +2624,47 @@ const createContestProblemRecords = async () => {
   return contestProblemRecords
 }
 
+const createContestQnA = async () => {
+  await prisma.contestQnA.createMany({
+    data: [
+      {
+        contestId: 1,
+        createdById: 2,
+        title: 'QnA 1',
+        order: 1,
+        content: 'visible not answered QnA',
+        isVisible: true
+      },
+      {
+        contestId: 1,
+        createdById: 2,
+        order: 2,
+        title: 'QnA 2',
+        content: 'not visible not answered QnA'
+      },
+      {
+        contestId: 1,
+        createdById: 2,
+        order: 3,
+        title: 'QnA 3',
+        content: 'visible answered QnA',
+        answer: 'QnA 3 Answer',
+        answeredById: 2,
+        isVisible: true
+      },
+      {
+        contestId: 1,
+        createdById: 2,
+        order: 4,
+        title: 'QnA 4',
+        content: 'not visible answered QnA',
+        answer: 'QnA 4 Answer',
+        answeredById: 2
+      }
+    ]
+  })
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -2618,6 +2680,7 @@ const main = async () => {
   await createAnnouncements()
   await createAssignmentRecords()
   await createContestProblemRecords()
+  await createContestQnA()
 }
 
 main()

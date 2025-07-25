@@ -10,6 +10,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { UpdateContestQnAInput } from './model/contest-qna.input'
 import type { ContestWithScores } from './model/contest-with-scores.model'
 import type {
   CreateContestInput,
@@ -188,6 +189,11 @@ export class ContestService {
         'The start time must be earlier than the end time'
       )
     }
+    if (contest.registerDueTime >= contest.startTime) {
+      throw new UnprocessableDataException(
+        'The register due time must be earlier than the start time'
+      )
+    }
     if (contest.summary) {
       for (const [, val] of Object.entries(contest.summary)) {
         if (typeof val !== 'string') {
@@ -282,6 +288,7 @@ export class ContestService {
       select: {
         startTime: true,
         endTime: true,
+        registerDueTime: true,
         unfreeze: true,
         freezeTime: true,
         contestProblem: {
@@ -308,9 +315,16 @@ export class ContestService {
       contest.endTime && contest.endTime !== contestFound.endTime
     contest.startTime = contest.startTime || contestFound.startTime
     contest.endTime = contest.endTime || contestFound.endTime
+    contest.registerDueTime =
+      contest.registerDueTime || contestFound.registerDueTime
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
+      )
+    }
+    if (contest.registerDueTime >= contest.startTime) {
+      throw new UnprocessableDataException(
+        'The register due time must be earlier than the start time'
       )
     }
     if (contest.summary) {
@@ -740,6 +754,17 @@ export class ContestService {
     return contestProblems
   }
 
+  /**
+   * 특정 Contest의 Contest Admin / Manager가 참가한 User를 참가 취소합니다.
+   * @param contestId 대회 Id
+   * @param userId 참가 취소할 User의 Id
+   * @param reqId Contest Admin / Manager Id
+   * @throws {EntityNotExistException} 해당 contestId를 가지는 Contest가 존재하지 않을 경우
+   * @throws {EntityNotExistException} 해당 Contest에 참여하고 있지 않은 userId인 경우
+   * @throws {ForbiddenAccessException} ContestAdmin 또는 ContestManager가 아닌 reqId인 경우
+   * @throws {ForbiddenAccessException} 진행 중이거나 종료된 Contest인 경우
+   * @returns
+   */
   async removeUserFromContest(
     contestId: number,
     userId: number,
@@ -1352,5 +1377,48 @@ export class ContestService {
     })
 
     return userContests
+  }
+
+  async updateContestQnA(
+    userId: number,
+    contestId: number,
+    qna: UpdateContestQnAInput
+  ) {
+    const { order, ...rest } = qna
+    const data = rest as Prisma.ContestQnAUncheckedUpdateInput
+    if (data.answer) {
+      data.answeredById = userId
+    }
+
+    return await this.prisma.contestQnA.update({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_order: {
+          order,
+          contestId
+        }
+      },
+      data
+    })
+  }
+
+  async getContestQnAs(contestId: number) {
+    return await this.prisma.contestQnA.findMany({
+      where: {
+        contestId
+      },
+      orderBy: {
+        order: 'asc'
+      }
+    })
+  }
+
+  async getContestQnA(contestId: number, order: number) {
+    return await this.prisma.contestQnA.findFirst({
+      where: {
+        contestId,
+        order
+      }
+    })
   }
 }

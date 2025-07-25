@@ -10,7 +10,7 @@ export async function ContestCards() {
 
   return (
     contests.length > 0 && (
-      <div className="flex w-full flex-col gap-6">
+      <div className="flex w-full max-w-[1440px] flex-col gap-6 px-[116px]">
         <div className="flex items-center justify-between text-gray-700">
           <p className="text-2xl font-bold">Contest 🏆</p>
           <Link href={'/contest'}>

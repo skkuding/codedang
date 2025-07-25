@@ -106,9 +106,8 @@ export function LeaderboardPaginatedTable({
     queries: [
       {
         queryKey: ['leaderboard', contestId, refreshTrigger],
-        queryFn: () => {
-          return fetchContestLeaderboard(contestId)
-        }
+        queryFn: () => fetchContestLeaderboard(contestId),
+        refetchInterval: 5 * 1000 // 5 seconds
       }
     ]
   })
