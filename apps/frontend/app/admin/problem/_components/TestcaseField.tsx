@@ -148,7 +148,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     setValue('testcases', updatedTestcases)
   }
 
-  const PAGE_SIZE = 2
+  const PAGE_SIZE = 5
   const [currentPage, setCurrentPage] = useState(1)
 
   const [filteredItems, setFilteredItems] = useState<
