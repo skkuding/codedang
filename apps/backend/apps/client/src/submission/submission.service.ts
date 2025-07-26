@@ -662,7 +662,7 @@ export class SubmissionService {
           select: {
             userGroup: {
               where: {
-                userId: userId,
+                userId,
                 isGroupLeader: true
               }
             }
@@ -674,7 +674,7 @@ export class SubmissionService {
               select: {
                 userContest: {
                   where: {
-                    userId: userId,
+                    userId,
                     role: { in: ['Admin', 'Manager', 'Reviewer'] }
                   }
                 }

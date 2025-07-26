@@ -1,7 +1,7 @@
 meta {
-  name: Succeed
+  name: [403] Access to others QnA during Contest
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
@@ -11,7 +11,7 @@ get {
 }
 
 script:pre-request {
-  await require("./login").loginUser2nd(req);
+  await require("./login").loginUser(req);
 }
 
 docs {
