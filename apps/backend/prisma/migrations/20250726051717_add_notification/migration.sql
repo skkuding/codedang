@@ -25,7 +25,7 @@ CREATE TABLE "notification_record" (
 );
 
 -- CreateIndex
-CREATE INDEX "notification_record_user_id_create_time_idx" ON "notification_record"("user_id", "create_time");
+CREATE INDEX "notification_record_user_id_create_time_id_idx" ON "notification_record"("user_id", "create_time", "id");
 
 -- AddForeignKey
 ALTER TABLE "notification_record" ADD CONSTRAINT "notification_record_notification_id_fkey" FOREIGN KEY ("notification_id") REFERENCES "notification"("id") ON DELETE CASCADE ON UPDATE CASCADE;

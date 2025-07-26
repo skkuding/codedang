@@ -766,6 +766,6 @@ model NotificationRecord {
   isRead         Boolean      @default(false) @map("is_read")
   createTime     DateTime     @default(now()) @map("create_time")
 
-  @@index([userId, createTime])
+  @@index([userId, createTime, id])
   @@map("notification_record")
 }
