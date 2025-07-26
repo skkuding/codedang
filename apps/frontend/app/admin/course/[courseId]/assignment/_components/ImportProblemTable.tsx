@@ -1,3 +1,5 @@
+// import { ImportProblemButton } from './ImportProblemButton'
+import { ImportProblemButton } from '@/app/admin/_components/ImportProblemButton'
 import { ImportProblemDescription } from '@/app/admin/_components/ImportProblemDescription'
 import {
   DataTable,
@@ -12,7 +14,6 @@ import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { toast } from 'sonner'
 import type { AssignmentProblem } from '../../_libs/type'
-import { ImportProblemButton } from './ImportProblemButton'
 import {
   columns,
   DEFAULT_PAGE_SIZE,

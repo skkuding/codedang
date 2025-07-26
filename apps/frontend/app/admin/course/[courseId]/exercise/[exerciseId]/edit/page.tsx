@@ -21,7 +21,7 @@ import { AssignmentProblemListLabel } from '../../../_components/AssignmentProbl
 import { AssignmentProblemTable } from '../../../_components/AssignmentProblemTable'
 import { AssignmentSolutionTable } from '../../../_components/AssignmentSolutionTable'
 import { EditAssignmentForm } from '../../../_components/EditAssignmentForm'
-import { ImportDialog } from '../../../_components/ImportDialog'
+import { ImportDialog } from '../../../_components/ImportProblemDialog'
 import { WeekComboBox } from '../../../_components/WeekComboBox'
 import { editSchema } from '../../../_libs/schemas'
 import type { AssignmentProblem } from '../../../_libs/type'

@@ -7,23 +7,23 @@ import { Button } from '@/components/shadcn/button'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense, useState } from 'react'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
-import type { AssignmentProblem } from '../_libs/type'
 import {
   ImportProblemTable,
   ImportProblemTableFallback
-} from '../assignment/_components/ImportProblemTable'
+} from '../_components/ImportProblemTable'
+import type { ContestProblem } from '../_libs/schemas'
 
-interface ImportDialogProps {
-  problems: AssignmentProblem[]
-  setProblems: (problems: AssignmentProblem[]) => void
-  target: string
+interface ImportProblemDialogProps {
+  problems: ContestProblem[]
+  setProblems: (problems: ContestProblem[]) => void
+  contestId?: string | null
 }
 
-export function ImportDialog({
+export function ImportProblemDialog({
   problems,
   setProblems,
-  target
-}: ImportDialogProps) {
+  contestId = null
+}: ImportProblemDialogProps) {
   const [showImportDialog, setShowImportDialog] = useState(false)
   return (
     <>
@@ -39,8 +39,7 @@ export function ImportDialog({
         }
         type="confirm"
         title="Importing from Problem List"
-        description={`If ${target} problems are imported from the ‘All Problem List’, the problems will automatically become invisible state.
-These problems will be shared with your course’s instructors.`}
+        description="If contest problems are imported from the ‘All Problem List’, the problems will automatically become invisible state."
         primaryButton={{ text: 'OK', onClick: () => setShowImportDialog(true) }}
       />
       <Modal
@@ -53,6 +52,7 @@ These problems will be shared with your course’s instructors.`}
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<ImportProblemTableFallback />}>
             <ImportProblemTable
+              contestId={contestId}
               checkedProblems={problems}
               onSelectedExport={(problems) => {
                 setProblems(problems)

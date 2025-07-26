@@ -18,7 +18,7 @@ import { AssignmentProblemListLabel } from '../../_components/AssignmentProblemL
 import { AssignmentProblemTable } from '../../_components/AssignmentProblemTable'
 import { AssignmentSolutionTable } from '../../_components/AssignmentSolutionTable'
 import { CreateAssignmentForm } from '../../_components/CreateAssignmentForm'
-import { ImportDialog } from '../../_components/ImportDialog'
+import { ImportDialog } from '../../_components/ImportProblemDialog'
 import { WeekComboBox } from '../../_components/WeekComboBox'
 import type { AssignmentProblem } from '../../_libs/type'
 

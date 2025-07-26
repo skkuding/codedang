@@ -1,7 +1,7 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
-import type { Level } from '@/types/type'
+import type { BaseDataTableProblem, Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 import { CiShare1 } from 'react-icons/ci'
@@ -9,16 +9,21 @@ import { FaCheck } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import type { Solution } from '../../_libs/type'
 
-export interface DataTableProblem {
-  id: number
-  title: string
-  updateTime: string
-  difficulty: string
-  submissionCount: number
-  acceptedRate: number
-  languages: string[]
-  score?: number
-  order?: number
+// export interface DataTableProblem {
+//   id: number
+//   title: string
+//   updateTime: string
+//   difficulty: string
+//   submissionCount: number
+//   acceptedRate: number
+//   languages: string[]
+//   score?: number
+//   order?: number
+//   solutionReleaseTime: Date | null
+//   solution: Solution[]
+// }
+
+export interface AssignmentProblem extends BaseDataTableProblem {
   solutionReleaseTime: Date | null
   solution: Solution[]
 }
@@ -26,7 +31,7 @@ export interface DataTableProblem {
 export const DEFAULT_PAGE_SIZE = 5
 export const MAX_SELECTED_ROW_COUNT = 20
 export const ERROR_MESSAGE = `You can only import up to ${MAX_SELECTED_ROW_COUNT} problems in a assignment`
-export const columns: ColumnDef<DataTableProblem>[] = [
+export const columns: ColumnDef<AssignmentProblem>[] = [
   {
     accessorKey: 'select',
     header: ({ table }) => (
