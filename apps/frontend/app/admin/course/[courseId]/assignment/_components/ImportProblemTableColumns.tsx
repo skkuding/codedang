@@ -73,15 +73,11 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Title"
-        className="w-[32%] justify-start"
-      />
+      <DataTableColumnHeader column={column} title="Title" />
     ),
     cell: ({ row }) => {
       return (
-        <div className="w-[32%] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        <div className="flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
           {row.getValue('title')}
         </div>
       )
@@ -92,41 +88,27 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'updateTime',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Update"
-        className="w-[23%]"
-      />
+      <DataTableColumnHeader column={column} title="Update" />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="w-[23%]">
-          {row.original.updateTime.substring(2, 10)}
-        </div>
-      )
+      return <div>{row.original.updateTime.substring(2, 10)}</div>
     }
   },
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Level"
-        className="w-[14%]"
-      />
+      <DataTableColumnHeader column={column} title="Level" />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
       const formattedLevel = `Level ${level.slice(-1)}`
       return (
-        <div className="flex w-[14%] justify-end">
-          <Badge
-            variant={level as Level}
-            className="whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
-          >
-            {formattedLevel}
-          </Badge>
-        </div>
+        <Badge
+          variant={level as Level}
+          className="whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
+        >
+          {formattedLevel}
+        </Badge>
       )
     },
     filterFn: (row, id, value) => {
@@ -136,15 +118,11 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'solution',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Solution"
-        className="flex w-[14%] justify-center"
-      />
+      <DataTableColumnHeader column={column} title="Solution" />
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex w-[14%] justify-center">
+        <div className="flex justify-center">
           {row.original.solution.some((solution) => solution.code !== '') ? (
             <FaCheck />
           ) : (
@@ -158,18 +136,14 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'preview',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Preview"
-        className="flex w-[13%] justify-center"
-      />
+      <DataTableColumnHeader column={column} title="Preview" />
     ),
     cell: ({ row }) => {
       return (
         <Link
           href={`/admin/problem/${row.original.id}/preview`}
           target="_blank"
-          className="flex w-[13%] justify-center"
+          className="flex justify-center"
           onClick={(e) => e.stopPropagation()}
         >
           <CiShare1 size={20} />

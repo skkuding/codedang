@@ -45,9 +45,12 @@ export function ImportProblemButton({
   }
 
   return (
-    <Button onClick={handleImportProblems} className="ml-auto w-full">
-      <HiCheckCircle className="text-lg" />
-      <span className="ml-[6px] font-bold">Confirm</span>
+    <Button
+      onClick={handleImportProblems}
+      className="h-[36px] w-[120px] gap-[8px] p-[8px]"
+    >
+      <HiCheckCircle className="text-sm" />
+      <span className="text-sm">Import</span>
     </Button>
   )
 }

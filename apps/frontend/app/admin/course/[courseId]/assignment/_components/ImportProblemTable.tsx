@@ -86,11 +86,15 @@ export function ImportProblemTable({
       defaultSortState={[{ id: 'select', desc: true }]}
     >
       <ImportProblemDescription />
-      <div className="flex gap-[6px] pb-1">
-        <DataTableSearchBar columndId="title" className="lg:w-[308px]" />
-        <DataTableLevelFilter />
+      <div className="flex justify-between">
+        <div className="flex gap-[8px]">
+          <DataTableSearchBar columndId="title" size="sm" />
+          <DataTableLevelFilter />
+        </div>
+        <ImportProblemButton onSelectedExport={onSelectedExport} />
       </div>
       <DataTable
+        size="sm"
         isModalDataTable={true}
         headerStyle={{
           select: 'rounded-l-full',
@@ -111,8 +115,6 @@ export function ImportProblemTable({
       />
       <div className="h-[12px]" />
       <DataTablePagination showRowsPerPage={false} />
-      <div className="h-[20px]" />
-      <ImportProblemButton onSelectedExport={onSelectedExport} />
     </DataTableRoot>
   )
 }
