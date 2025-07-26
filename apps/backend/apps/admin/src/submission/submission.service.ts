@@ -4,13 +4,13 @@ import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
 import {
-  mkdirSync,
-  writeFile,
-  createWriteStream,
   createReadStream,
+  createWriteStream,
   existsSync,
+  mkdirSync,
+  rm,
   unlink,
-  rm
+  writeFile
 } from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
@@ -344,7 +344,9 @@ export class SubmissionService {
             problemTestcase: {
               select: {
                 input: true,
-                output: true
+                output: true,
+                isHidden: true,
+                scoreWeight: true
               }
             }
           }
@@ -421,7 +423,9 @@ export class SubmissionService {
         cpuTime:
           result.cpuTime || result.cpuTime === BigInt(0)
             ? result.cpuTime.toString()
-            : null
+            : null,
+        isHidden: result.problemTestcase.isHidden,
+        scoreWeight: result.problemTestcase.scoreWeight
       }
     })
     results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
