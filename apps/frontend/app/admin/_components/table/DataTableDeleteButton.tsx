@@ -92,33 +92,33 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   }
 
   return (
-    <>
-      <Button
-        variant="outline"
-        type="button"
-        onClick={handleDeleteButtonClick}
-        className={className}
-      >
-        <FaTrash fontSize={13} color={'#8A8A8A'} />
-      </Button>
-      <AlertModal
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        type={'warning'}
-        showWarningIcon={!children}
-        title={`Delete ${target}?`}
-        primaryButton={{
-          text: 'Delete',
-          onClick: handleDeleteRows
-        }}
-        {...(children
-          ? {}
-          : {
-              description: `Are you sure you want to permanently delete ${table.getSelectedRowModel().rows.length} ${target}(s)?`
-            })}
-      >
-        {children && <ModalList>{children}</ModalList>}
-      </AlertModal>
-    </>
+    <AlertModal
+      trigger={
+        <Button
+          variant="outline"
+          type="button"
+          onClick={handleDeleteButtonClick}
+          className={className}
+        >
+          <FaTrash fontSize={13} color={'#8A8A8A'} />
+        </Button>
+      }
+      open={isDialogOpen}
+      onOpenChange={setIsDialogOpen}
+      type={'warning'}
+      showWarningIcon={!children}
+      title={`Delete ${target}?`}
+      primaryButton={{
+        text: 'Delete',
+        onClick: handleDeleteRows
+      }}
+      {...(children
+        ? {}
+        : {
+            description: `Are you sure you want to permanently delete ${table.getSelectedRowModel().rows.length} ${target}(s)?`
+          })}
+    >
+      {children && <ModalList>{children}</ModalList>}
+    </AlertModal>
   )
 }

@@ -1,17 +1,17 @@
 import { useDataTable } from '@/app/admin/_components/table/context'
 import { Button } from '@/components/shadcn/button'
-import { HiCheckCircle } from 'react-icons/hi2'
-import type { AssignmentProblem } from '../../_libs/type'
-import type { DataTableProblem } from './ImportProblemTableColumns'
+import { HiCheckCircle } from 'react-icons/hi'
+import type { ContestProblem } from '../contest/_libs/schemas'
+import type { AssignmentProblem } from '../course/[courseId]/_libs/type'
 
-interface ImportProblemButtonProps {
-  onSelectedExport: (data: AssignmentProblem[]) => void
+interface ImportProblemButtonProps<T> {
+  onSelectedExport: (data: T[]) => void
 }
 
-export function ImportProblemButton({
-  onSelectedExport
-}: ImportProblemButtonProps) {
-  const { table } = useDataTable<DataTableProblem>()
+export function ImportProblemButton<
+  T extends AssignmentProblem | ContestProblem
+>({ onSelectedExport }: ImportProblemButtonProps<T>) {
+  const { table } = useDataTable<T>()
 
   const handleImportProblems = () => {
     const selectedRows = table
@@ -30,7 +30,6 @@ export function ImportProblemButton({
     const exportedProblems = problems.map((problem, index, arr) => {
       if (
         index > 0 &&
-        // NOTE: 만약 현재 요소가 새로 추가된 문제이거나 새로 추가된 문제가 아니라면 이전 문제와 기존 순서가 다를 때
         (arr[index].order === Number.MAX_SAFE_INTEGER ||
           arr[index - 1].order !== arr[index].order)
       ) {
@@ -45,9 +44,12 @@ export function ImportProblemButton({
   }
 
   return (
-    <Button onClick={handleImportProblems} className="ml-auto w-full">
-      <HiCheckCircle className="text-lg" />
-      <span className="ml-[6px] font-bold">Confirm</span>
+    <Button
+      onClick={handleImportProblems}
+      className="h-[36px] w-[120px] gap-[8px] p-[8px]"
+    >
+      <HiCheckCircle className="text-sm" />
+      <span className="text-sm">Import</span>
     </Button>
   )
 }

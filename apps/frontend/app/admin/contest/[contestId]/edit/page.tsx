@@ -23,7 +23,7 @@ import { ContestProblemTable } from '../../_components/ContestProblemTable'
 import { CreateEditContestLabel } from '../../_components/CreateEditContestLabel'
 import { DisableCopyPasteForm } from '../../_components/DisableCopyPasteForm'
 import { FreezeForm } from '../../_components/FreezeForm'
-import { ImportDialog } from '../../_components/ImportDialog'
+import { ImportProblemDialog } from '../../_components/ImportProblemDialog'
 import { PosterUploadForm } from '../../_components/PosterUploadForm'
 import { SampleTestcaseForm } from '../../_components/SampleTestcaseForm'
 import {
@@ -226,7 +226,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
                   title="Contest Problem List"
                   content={`If contest problems are imported from the ‘All Problem List’,<br>the problems will automatically become invisible state.<br>After the contests are all over, you can manually make the problem visible again.`}
                 />
-                <ImportDialog
+                <ImportProblemDialog
                   problems={problems}
                   setProblems={setProblems}
                   contestId={contestId}

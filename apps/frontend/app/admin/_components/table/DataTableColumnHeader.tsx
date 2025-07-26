@@ -33,7 +33,7 @@ export function DataTableColumnHeader<TData, TValue>({
     return (
       <div
         className={cn(
-          'text-left text-sm font-normal text-[#8A8A8A]',
+          'text-center text-sm font-normal text-[#8A8A8A]',
           className
         )}
       >
@@ -46,31 +46,35 @@ export function DataTableColumnHeader<TData, TValue>({
     <div className={cn('flex items-center space-x-2', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              'data-[state=open]:bg-accent ml-3 flex h-8 justify-center text-neutral-400',
-              column.getIsSorted() ? 'text-black' : ''
-            )}
-          >
-            <span className="font-normal text-[#8A8A8A]">{title}</span>
-            {(() => {
-              const sort = column.getIsSorted()
-              if (sort === 'desc') {
-                return <TriangleDownIcon className="ml-2 h-4 w-4" />
-              }
-              if (sort === 'asc') {
-                return <TriangleUpIcon className="ml-2 h-4 w-4" />
-              }
-              return (
-                <div>
-                  <TriangleUpIcon className="-mb-2.5 ml-2 h-4 w-4" />
-                  <TriangleDownIcon className="-mt- ml-2 h-4 w-4" />
-                </div>
-              )
-            })()}
-          </Button>
+          <div className="flex w-full justify-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                'data-[state=open]:bg-accent flex h-8 justify-center text-neutral-400',
+                column.getIsSorted() ? 'text-black' : ''
+              )}
+            >
+              <span className="text-sm font-normal text-[#8A8A8A]">
+                {title}
+              </span>
+              {(() => {
+                const sort = column.getIsSorted()
+                if (sort === 'desc') {
+                  return <TriangleDownIcon className="ml-2 h-4 w-4" />
+                }
+                if (sort === 'asc') {
+                  return <TriangleUpIcon className="ml-2 h-4 w-4" />
+                }
+                return (
+                  <div>
+                    <TriangleUpIcon className="-mb-2.5 ml-2 h-4 w-4" />
+                    <TriangleDownIcon className="-mt- ml-2 h-4 w-4" />
+                  </div>
+                )
+              })()}
+            </Button>
+          </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>

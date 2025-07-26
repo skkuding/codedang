@@ -90,20 +90,19 @@ export function RegisterCourseButton() {
 
   return (
     <>
-      <Button
-        variant="outline"
-        onClick={() => setIsRegisterDialogOpen(true)}
-        className="border-primary flex h-8 w-[127px] items-center justify-center gap-2 rounded-full border hover:bg-[#EAF3FF]"
-      >
-        <Image src={plusCircleIcon} alt="plusIcon" />
-        <span className="text-primary text-lg font-semibold">Register</span>
-      </Button>
       <Modal
+        trigger={
+          <Button
+            variant="outline"
+            className="border-primary flex h-8 w-[127px] items-center justify-center gap-2 rounded-full border hover:bg-[#EAF3FF]"
+          >
+            <Image src={plusCircleIcon} alt="plusIcon" />
+            <span className="text-primary text-lg font-semibold">Register</span>
+          </Button>
+        }
         open={isRegisterDialogOpen}
-        onOpenChange={setIsRegisterDialogOpen}
         size="sm"
         title="Course Register"
-        onClose={() => setIsRegisterDialogOpen(false)}
         primaryButton={{
           text: 'Register',
           onClick: handleFindCourseByInvitation
