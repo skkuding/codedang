@@ -8,6 +8,8 @@ import {
   Delete,
   Body
 } from '@nestjs/common'
+import { ID } from '@nestjs/graphql'
+import { parameter } from 'sql-formatter/dist/cjs/lexer/regexFactory'
 import {
   AuthenticatedRequest,
   AuthNotNeededIfPublic,
@@ -16,7 +18,11 @@ import {
 import { IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { problemId } from '@admin/problem/mock/mock'
 import { ContestService } from './contest.service'
-import { ContestQnACreateDto } from './dto/contest-qna.dto'
+import {
+  ContestQnACreateDto,
+  type ContestQnACommentCreateDto,
+  type GetContestQnAsFilter
+} from './dto/contest-qna.dto'
 
 @Controller('contest')
 export class ContestController {
@@ -104,11 +110,16 @@ export class ContestController {
 
   @Get(':id/qna')
   @UserNullWhenAuthFailedIfPublic()
-  async getContestQnA(
+  async getContestQnAs(
     @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) contestId: number
+    @Param('id', IDValidationPipe) contestId: number,
+    @Body() filter: GetContestQnAsFilter
   ) {
-    return await this.contestService.getContestQnAs(req.user?.id, contestId)
+    return await this.contestService.getContestQnAs(
+      req.user?.id,
+      contestId,
+      filter
+    )
   }
 
   @Get(':id/qna/:order')
@@ -122,6 +133,19 @@ export class ContestController {
       req.user?.id,
       contestId,
       order
+    )
+  }
+
+  @Post(':id/qna/comment')
+  async createContestQnAComment(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestQnAId: number,
+    @Body() contentQnACommentCreateDto: ContestQnACommentCreateDto
+  ) {
+    return await this.contestService.createContestQnAComment(
+      req.user.id,
+      contestQnAId,
+      contentQnACommentCreateDto.content
     )
   }
 }
