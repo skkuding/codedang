@@ -7,7 +7,7 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { cn, getResultColor } from '@/libs/utils'
-import type { TestResultDetail } from '@/types/type'
+import type { TabbedTestResult } from '@/types/type'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 
@@ -15,8 +15,8 @@ export function TestcaseTable({
   data,
   moveToDetailTab
 }: {
-  data: TestResultDetail[]
-  moveToDetailTab: (tab: TestResultDetail) => void
+  data: TabbedTestResult[]
+  moveToDetailTab: (tab: TabbedTestResult) => void
 }) {
   const isTesting = useTestPollingStore((state) => state.isTesting)
   return (

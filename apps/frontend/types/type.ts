@@ -298,6 +298,9 @@ export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
   isUserTestcase: boolean
+}
+
+export interface TabbedTestResult extends TestResultDetail {
   originalId: number
 }
 
