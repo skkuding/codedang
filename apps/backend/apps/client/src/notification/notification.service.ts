@@ -59,7 +59,7 @@ export class NotificationService {
       })
 
       return updated
-    } catch (error) {
+    } catch (_error) {
       throw new EntityNotExistException('NotificationRecord')
     }
   }
@@ -104,7 +104,7 @@ export class NotificationService {
       })
 
       return recordDeleted
-    } catch (error) {
+    } catch (_error) {
       throw new EntityNotExistException('NotificationRecord')
     }
   }

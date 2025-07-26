@@ -1117,8 +1117,8 @@ export class AssignmentService {
   async isAllAssignmentProblemGraded(assignmentId: number, userId: number) {
     const problemRecords = await this.prisma.assignmentProblemRecord.findMany({
       where: {
-        assignmentId: assignmentId,
-        userId: userId
+        assignmentId,
+        userId
       },
       select: {
         finalScore: true

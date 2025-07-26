@@ -1,10 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
-import type {
-  Assignment,
-  Notification,
-  NotificationRecord
-} from '@prisma/client'
+import type { Assignment, Notification } from '@prisma/client'
 import { NotificationType } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
