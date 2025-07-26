@@ -30,7 +30,7 @@ export function SharedProblemTable() {
     }
   })
 
-  const problems = data.getProblems.map((problem) => ({
+  const problems = data.problems.map((problem) => ({
     ...problem,
     id: Number(problem.id),
     languages: problem.languages ?? [],

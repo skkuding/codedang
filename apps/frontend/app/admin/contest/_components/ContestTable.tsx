@@ -27,7 +27,7 @@ export function ContestTable() {
     }
   })
 
-  const contests = data.getContests.map((contest) => ({
+  const contests = data.contests.map((contest) => ({
     ...contest,
     id: Number(contest.id)
   }))
