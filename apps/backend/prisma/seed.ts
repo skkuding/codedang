@@ -1,26 +1,27 @@
 import {
-  PrismaClient,
-  Role,
-  Level,
+  ContestRole,
   Language,
+  Level,
+  PrismaClient,
+  QnACategory,
   ResultStatus,
-  type Group,
-  type User,
-  type Problem,
-  type Tag,
-  type Assignment,
-  type Workbook,
-  type Submission,
-  type ProblemTestcase,
+  Role,
   type Announcement,
+  type Assignment,
   type AssignmentRecord,
   type Contest,
-  type ContestRecord,
   type ContestProblemRecord,
-  type UserContest,
-  ContestRole,
+  type ContestRecord,
+  type Group,
+  type Prisma,
+  type Problem,
+  type ProblemTestcase,
+  type Submission,
+  type Tag,
   type UpdateHistory,
-  type Prisma
+  type User,
+  type UserContest,
+  type Workbook
 } from '@prisma/client'
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
@@ -2629,37 +2630,54 @@ const createContestQnA = async () => {
     data: [
       {
         contestId: 1,
-        createdById: 2,
+        createdById: 8,
         title: 'QnA 1',
         order: 1,
-        content: 'visible not answered QnA',
-        isVisible: true
+        content: '질문의 내용',
+        category: QnACategory.General
       },
       {
         contestId: 1,
-        createdById: 2,
+        createdById: 7,
         order: 2,
-        title: 'QnA 2',
-        content: 'not visible not answered QnA'
+        title: '1번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.General
       },
       {
         contestId: 1,
-        createdById: 2,
+        createdById: 7,
         order: 3,
-        title: 'QnA 3',
-        content: 'visible answered QnA',
-        answer: 'QnA 3 Answer',
-        answeredById: 2,
-        isVisible: true
+        title: '1번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.Problem,
+        problemId: 1
       },
       {
         contestId: 1,
-        createdById: 2,
+        createdById: 7,
         order: 4,
-        title: 'QnA 4',
-        content: 'not visible answered QnA',
-        answer: 'QnA 4 Answer',
-        answeredById: 2
+        title: '1번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.Problem,
+        problemId: 1
+      },
+      {
+        contestId: 1,
+        createdById: 7,
+        order: 5,
+        title: '1번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.General
+      },
+      {
+        contestId: 1,
+        createdById: 7,
+        order: 6,
+        title: '1번 대회에 대한 질문',
+        content: '2번 문제에 대한 질문',
+        category: QnACategory.Problem,
+        problemId: 2
       }
     ]
   })
