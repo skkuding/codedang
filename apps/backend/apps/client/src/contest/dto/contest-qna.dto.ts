@@ -34,7 +34,7 @@ export class GetContestQnAsFilter {
   @IsOptional()
   @IsArray()
   @IsNumber({}, { each: true })
-  problemIds?: number[]
+  problemOrders?: number[]
 
   @IsOptional()
   @IsIn(['asc', 'desc'])
