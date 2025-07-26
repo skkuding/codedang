@@ -40,7 +40,7 @@ export function LoadButton({ code }: LoadButtonProps) {
             Load submission code
           </AlertDialogTitle>
           <AlertDialogDescription className="font-size-4 text-slate-300">
-            Are you sure you want to load the submission code?
+            Your current code will be lost if you load the submission.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex gap-2">
