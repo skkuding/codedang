@@ -37,8 +37,8 @@ export function ImportProblemDialog({
         }
         type="confirm"
         title="Importing from Problem List"
-        description={`If assignment problems are imported from the ‘All Problem List’, the problems will automatically become invisible state.
-These problems will be shared with your course’s instructors.`}
+        description="If assignment problems are imported from the ‘All Problem List’, the problems will automatically become invisible state.
+These problems will be shared with your course’s instructors."
         primaryButton={{ text: 'OK', onClick: () => setShowImportDialog(true) }}
       />
       <Modal
