@@ -14,14 +14,16 @@ SKKUDING에 contribution 해주셔서 감사합니다! 이 글은 contribute 시
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/skkuding/next)
 
-## Issue(ticket) 🎫
+## Task / Issue 🎫
 
-- Issue는 모든 업무의 기본 단위입니다.
-- 어떠한 작업이든 작업 전에 해당 내용을 issue로 등록합니다.
-- 기존에 올라온 issue와 중복되지 않았는지 확인 후 등록합니다.
+모든 업무는 **Notion Task(내부)** 또는 **GitHub Issue(외부)** 형태로 등록되어야 합니다. 아래의 작성 원칙은 두 경우에 공통으로 적용됩니다.
+- 모든 작업은 시작 전에 해당 내용을 등록합니다.
+- 기존에 올라온 작업과 중복되지 않았는지 확인 후 등록합니다.
 - 버그 등록 시 reproduction 방법을 구체적으로 적습니다.
-- Issue 내용은 template에 따라 작성합니다.
+- 내용은 정해진 template에 따라 작성합니다.
 - 구현 방법보다는 구현 동기와 이유를 중심으로 작성합니다.
+- 내부 기여자의 경우 Notion에 Task를 등록하고
+- 외부 기여자는 GitHub Issue를 생성합니다
 
 ## <a name="pr-and-branch"></a> Pull Request & Branch 🌲
 
@@ -33,18 +35,23 @@ SKKUDING에 contribution 해주셔서 감사합니다! 이 글은 contribute 시
 
 ### Pull Request
 
-- 하나의 PR은 한 개 이상의 issue를 해결해야 합니다.
+- 하나의 PR은 한 개 이상의 task / issue를 해결해야 합니다.
 - PR을 squash and merge할 경우 PR이 곧 commit이므로 PR의 제목은 [commit convention](#commit-convention)을 따라야 합니다.
 - 각 PR의 코드 수정량은 300줄 이하로 합니다. (단, `feat` branch 예외)
 - 기능을 구현하거나 버그를 수정하는 PR은 해당 내용에 대한 테스트를 포함해야 합니다. PR 이전에는 통과되지 않는 테스트면 더 좋습니다.
-- PR의 설명문 마지막에 `Closes #0000` 키워드를 이용해 해결한 issue를 연결합니다.
-- 버그를 수정하는 PR은 제목의 마지막에 `(fix #0000)`을 덧붙입니다.
 - 모든 PR은 squash and merge를 기본으로 합니다. 따라서 PR에 사소한 수정사항이 생겼을 때 amend와 force push를 사용하는 대신, 별도의 commit을 만드는 것을 권장합니다. (어차피 squash하면 사라지니까요!)
+- 내부 기여자는 PR의 설명문 마지막에 `Closes TAS-0000` 키워드를 이용해 Task를 연결합니다.
+- 외부 기여자는 PR의 설명문 마지막에 `Closes #0000` 키워드를 이용해 해결한 issue를 연결합니다.
 
 ### Branch
 
-- Branch의 이름은 `<issue>-<name>` 형식으로 짓습니다. 모든 글자는 숫자, 소문자, 그리고 `-`로만 이루어져야 합니다. 예를 들어 profile API를 구현하는 345번 issue와 연결된 branch는 `345-profile-api`로 이름 짓습니다.
-- 불가피하게 하나의 기능 구현에 아주 많은 코드를 작성해야하는 경우, `feat/<issue>-<name>`을 이름으로 branch를 만듭니다. 이 branch 위에 여러 branch를 만들어 해당 기능에 필요한 commit을 각각 PR로 올립니다. `feat` branch를 `main`에 merge할 때에는 이미 code review가 됐다는 전제 하에 전반적인 logic 등만 review합니다. 이후 `main`에 rebase and merge합니다.
+- Branch 이름의 모든 글자는 숫자, 소문자, 그리고 `-`로만 이루어져야 합니다. 
+- 내부 기여자는 Branch 이름을 t{task-id}-{description} 형식으로 짓습니다.
+예를 들어 로그인 페이지를 구현하는 `TAS-123` task와 연결된 branch는 `t123-login-page`로 이름 짓습니다.
+사용 가능한 문자는 숫자, 영문 소문자, 그리고 -만 허용됩니다.
+- 외부 기여자는 Branch 이름을 {issue-id}-{description} 형식으로 짓습니다.
+예를 들어 profile API를 구현하는 345번 issue와 연결된 branch는 `345-profile-api`로 이름 짓습니다.
+- 불가피하게 하나의 기능 구현에 아주 많은 코드를 작성해야하는 경우, `feat/{task-or-issue-id}-{description}`을 이름으로 branch를 만듭니다. 이 branch 위에 여러 branch를 만들어 해당 기능에 필요한 commit을 각각 PR로 올립니다. `feat` branch를 `main`에 merge할 때에는 이미 code review가 됐다는 전제 하에 전반적인 logic 등만 review합니다. 이후 `main`에 rebase and merge합니다.
 
 ## <a name="commit-convention"></a> Commit Convention ✒️
 
@@ -95,7 +102,7 @@ Header는 commit message의 중심이며, `<scope>` 부분은 선택으로 포�
 
 ### Message Footer
 
-이전과 호환되지 않는 breaking change가 있을 경우 `BREAKING CHANGE:`로 시작하는 설명을 적어야 합니다. 또는 이 commit이 해결하는 issue가 있을 경우 `Closes #000`으로 명시합니다.
+이전과 호환되지 않는 breaking change가 있을 경우 `BREAKING CHANGE:`로 시작하는 설명을 적어야 합니다.
 
 ### Example
 
@@ -104,8 +111,6 @@ fix(fe): redirect authenticated user from login page to home
 
 이미 로그인한 유저는 Log In 페이지에 접근해선 안된다.
 Vue Router의 navigation guard를 이용해 redirect한다.
-
-Closes #276
 ```
 
 ```
