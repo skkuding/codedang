@@ -89,7 +89,11 @@ export function ImportProblemTable({
       <ImportProblemDescription />
       <div className="flex justify-between">
         <div className="flex gap-[8px]">
-          <DataTableSearchBar columndId="title" size="sm" />
+          <DataTableSearchBar
+            columndId="title"
+            size="sm"
+            className="!w-[322px]"
+          />
           <DataTableLevelFilter />
         </div>
         <ImportProblemButton onSelectedExport={onSelectedExport} />

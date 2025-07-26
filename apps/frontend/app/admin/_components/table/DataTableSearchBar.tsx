@@ -11,9 +11,9 @@ interface SearchBarProps extends Omit<InputProps, 'size'> {
 }
 
 const sizeClassMap = {
-  sm: '!w-[322px] !h-[36px]', // 디자인 확정이 안된듯 합니다.
-  md: '!w-[190px] !h-[40px] ',
-  lg: '!w-[190px] !h-[46px] '
+  sm: '!h-[36px]',
+  md: '!h-[40px]',
+  lg: '!h-[46px]'
 }
 
 /**
@@ -45,8 +45,9 @@ export function DataTableSearchBar({
         value={typeof filterValue === 'string' ? filterValue : ''}
         onChange={(e) => onChangeValue(e.currentTarget.value)}
         className={cn(
+          'bg-transparent pl-8',
           sizeClassMap[size],
-          'bg-transparent pl-8 lg:w-[390px]',
+          'min-w-[184px] max-w-[580px] lg:w-[390px]',
           className
         )}
         {...props}
