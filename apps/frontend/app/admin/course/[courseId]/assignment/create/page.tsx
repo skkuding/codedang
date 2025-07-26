@@ -43,15 +43,18 @@ export default function Page({ params }: { params: { courseId: string } }) {
             problems={problems}
             setIsCreating={setIsCreating}
           >
-            <FormSection
-              isFlexColumn={false}
-              title="Title"
-              className="gap-[77px]"
-            >
-              <TitleForm placeholder="Name your Assignment" />
-            </FormSection>
+            <div className="flex w-[901px] flex-col gap-[28px]">
+              <FormSection
+                isFlexColumn={false}
+                title="Title"
+                className="gap-[67px]"
+              >
+                <TitleForm
+                  placeholder="Name your Assignment"
+                  className="max-w-[767px]"
+                />
+              </FormSection>
 
-            <div className="flex flex-col gap-6">
               <div className="flex justify-between">
                 <FormSection
                   title="Week"
@@ -63,7 +66,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <FormSection
                   title="Due Time"
                   isJustifyBetween={false}
-                  className="gap-[18px]"
+                  className="gap-[40px]"
                   isLabeled={false}
                 >
                   <TimeFormPopover />
@@ -88,7 +91,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <FormSection
                   title="End Time"
                   isJustifyBetween={false}
-                  className="gap-[50px]"
+                  className="gap-[71px]"
                   isLabeled={false}
                 >
                   <TimeForm

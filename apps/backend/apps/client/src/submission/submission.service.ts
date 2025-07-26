@@ -632,7 +632,9 @@ export class SubmissionService {
    * 5. `isUserTest` 플래그에 따라 사용자 테스트 케이스와 공개 테스트 케이스를 구분하여 채점 요청 큐에 적절한 메시지를 발행
    *    - 사용자 테스트 케이스인 경우: `publishUserTestMessage`를 호출하여 사용자 테스트 케이스에 대해 제출을 처리
    *    - 공개 테스트 케이스인 경우: `publishTestMessage`를 호출하여 공개 테스트 케이스에 대해 제출을 처리
-   *
+   * 6. `containHiddenTestcases` 플래그에 따라 히든 테스트 케이스에 대한 결과를 포함할 지 결정
+   *    - isGroupLeader: 해당 문제가 속한 UserGroup의 GroupLeader인 경우 포함
+   *    - isContestStaff: 해당 문제가 속한 Contest의 Admin / Manager / Reviewer인 경우 포함
    * @param {number} userId - 테스트 제출 기록을 생성할 사용자의 ID
    * @param {number} problemId - 테스트 제출 기록을 생성할 문제의 ID
    * @param {CreateSubmissionDto} submissionDto - 제출할 코드 및 관련 데이터
@@ -662,6 +664,20 @@ export class SubmissionService {
               where: {
                 userId: userId,
                 isGroupLeader: true
+              }
+            }
+          }
+        },
+        contestProblem: {
+          select: {
+            contest: {
+              select: {
+                userContest: {
+                  where: {
+                    userId: userId,
+                    role: { in: ['Admin', 'Manager', 'Reviewer'] }
+                  }
+                }
               }
             }
           }
@@ -711,6 +727,13 @@ export class SubmissionService {
       (sharedGroup) => sharedGroup.userGroup.length > 0
     )
 
+    // 해당 problem이 포함된 contest에 대한 Admin / Manager / Reviewer인지 확인
+    const isContestStaff = problem.contestProblem.some(
+      (contestProblem) => contestProblem.contest.userContest.length > 0
+    )
+
+    const containHiddenTestcases = isGroupLeader || isContestStaff
+
     // Open Testcase에 대한 TEST 요청인 경우
     const testSubmission = await this.createTestSubmission(
       { ...submissionDto, problemId, userId, userIp },
@@ -721,12 +744,7 @@ export class SubmissionService {
       problemId,
       submissionDto.code,
       testSubmission,
-      isGroupLeader
-      /*
-      지금은 containHiddenTestcases = true로 설정할 경우가
-      isGroupLeader 밖에 없지만, 추후 contestAdmin, Manager 케이스도 추가할 예정
-      이렇게 되면 containHiddenTestcases를 isGroupLeader || isContestAdmin으로 수정
-      */
+      containHiddenTestcases
     )
     return testSubmission
   }
@@ -743,7 +761,7 @@ export class SubmissionService {
    * @param {number} problemId - 문제 ID
    * @param {Snippet[]} code - 제출된 코드 스니펫 배열
    * @param {Submission} testSubmission - 테스트 제출 객체
-   * @param {isGroupLeader} - Instructor 여부(Hidden TC 포함 여부)
+   * @param {boolean} containHiddenTestcases - Hidden Testcase 포함 여부
    * @returns {Promise<void>}
    */
   async publishTestMessage(
