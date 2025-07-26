@@ -884,7 +884,7 @@ export class ContestService {
 
     const staffUserContest = await this.prisma.userContest.findFirst({
       where: {
-        userId: userId,
+        userId,
         role: { in: ['Admin', 'Manager', 'Reviewer'] }
       }
     })
