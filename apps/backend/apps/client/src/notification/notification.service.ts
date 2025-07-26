@@ -47,21 +47,21 @@ export class NotificationService {
    * @param notificationRecordId - 알림 레코드 ID
    */
   async markAsRead(userId: number, notificationRecordId: number) {
-    const updated = await this.prisma.notificationRecord.update({
-      where: {
-        id: notificationRecordId,
-        userId
-      },
-      data: {
-        isRead: true
-      }
-    })
+    try {
+      const updated = await this.prisma.notificationRecord.update({
+        where: {
+          id: notificationRecordId,
+          userId
+        },
+        data: {
+          isRead: true
+        }
+      })
 
-    if (!updated) {
+      return updated
+    } catch (error) {
       throw new EntityNotExistException('NotificationRecord')
     }
-
-    return updated
   }
 
   /**
@@ -88,24 +88,24 @@ export class NotificationService {
    * @param notificationRecordId - 알림 레코드 ID
    */
   async deleteNotification(userId: number, notificationRecordId: number) {
-    const recordDeleted = await this.prisma.notificationRecord.delete({
-      where: {
-        id: notificationRecordId,
-        userId
-      }
-    })
+    try {
+      const recordDeleted = await this.prisma.notificationRecord.delete({
+        where: {
+          id: notificationRecordId,
+          userId
+        }
+      })
 
-    if (!recordDeleted) {
+      await this.prisma.notification.deleteMany({
+        where: {
+          id: recordDeleted.notificationId,
+          NotificationRecord: { none: {} }
+        }
+      })
+
+      return recordDeleted
+    } catch (error) {
       throw new EntityNotExistException('NotificationRecord')
     }
-
-    await this.prisma.notification.deleteMany({
-      where: {
-        id: recordDeleted.notificationId,
-        NotificationRecord: { none: {} }
-      }
-    })
-
-    return recordDeleted
   }
 }
