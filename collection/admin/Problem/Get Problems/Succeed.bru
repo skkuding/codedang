@@ -52,8 +52,8 @@ body:graphql:vars {
     },
     "cursor": null,
     "take": 10,
-    "mode": "my",
-    "contestId": null
+    "mode": "contest",
+    "contestId": 20
   }
 }
 
@@ -65,11 +65,11 @@ docs {
     # Get Problems
     조건에 맞는 Problem들을 가져옵니다.
     조건에 맞는 Problem이 없다면, 빈 배열을 반환합니다.
-
+  
     ## Query
-
+  
     > 필수 query는 * 표시하였습니다.
-
+  
     | 이름 | 타입 | 설명 |
     |-----|-----|-----|
     |input*|FilterProblemsInput|문제 필터링 조건|
@@ -77,15 +77,17 @@ docs {
     |take*|Integer|가져올 문제 수 (default: 10)|
     |mode*| 'my', 'shared', 'contest'|문제 조회 방식 선택|
     |contestId|Integer|문제가 속한 대회 ID (default: null)|
-
+  
+    > 단, SuperAdmin의 경우 mode에 관계 없이 my와 모든 contest의 문제들 조회 가능
+    
     ## mode 설명
-
+  
   | mode 값 | 설명 |
   |-----|-----|
   |'my'|본인이 만든 문제만 조회|
   |'contest'|본인 또는 contestId 대회의 Admin/Manager가 만든 문제를 조회 (이 경우 contestId 필수)|
   |'shared'|사용자가 그룹 리더로 있는 그룹에 공유된 문제 조회|
-
+  
   ## 예시 조건별 응답 요약
   |mode|contestId|결과|
   |-----|-----|-----|
@@ -94,5 +96,5 @@ docs {
   |contest|❌|본인이 만든 해당 대회 문제(대회 생성시)|
   |shared|무시됨|공유된 문제만 (리더인 그룹 기준)|
   |잘못된 조합|❌|예외 발생 (예: contest인데 contestId 없음)|
-
+  
 }
