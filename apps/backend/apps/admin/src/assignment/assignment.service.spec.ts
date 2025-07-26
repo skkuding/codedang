@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
   AssignmentProblem,
@@ -278,6 +279,7 @@ describe('AssignmentService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AssignmentService,
+        EventEmitter2,
         { provide: PrismaService, useValue: db },
         {
           provide: CACHE_MANAGER,

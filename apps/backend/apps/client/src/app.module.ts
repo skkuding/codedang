@@ -22,6 +22,7 @@ import { EmailModule } from './email/email.module'
 import { MailerConfigService } from './email/mailerConfig.service'
 import { GroupModule } from './group/group.module'
 import { NoticeModule } from './notice/notice.module'
+import { NotificationModule } from './notification/notification.module'
 import { ProblemModule } from './problem/problem.module'
 import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
@@ -50,6 +51,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     EmailModule,
     AnnouncementModule,
     AssignmentModule,
+    NotificationModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
     OpenTelemetryModule.forRoot(openTelemetryModuleOption)
   ],
