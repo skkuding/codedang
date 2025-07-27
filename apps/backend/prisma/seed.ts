@@ -2624,6 +2624,47 @@ const createContestProblemRecords = async () => {
   return contestProblemRecords
 }
 
+const createContestQnA = async () => {
+  await prisma.contestQnA.createMany({
+    data: [
+      {
+        contestId: 1,
+        createdById: 2,
+        title: 'QnA 1',
+        order: 1,
+        content: 'visible not answered QnA',
+        isVisible: true
+      },
+      {
+        contestId: 1,
+        createdById: 2,
+        order: 2,
+        title: 'QnA 2',
+        content: 'not visible not answered QnA'
+      },
+      {
+        contestId: 1,
+        createdById: 2,
+        order: 3,
+        title: 'QnA 3',
+        content: 'visible answered QnA',
+        answer: 'QnA 3 Answer',
+        answeredById: 2,
+        isVisible: true
+      },
+      {
+        contestId: 1,
+        createdById: 2,
+        order: 4,
+        title: 'QnA 4',
+        content: 'not visible answered QnA',
+        answer: 'QnA 4 Answer',
+        answeredById: 2
+      }
+    ]
+  })
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -2639,6 +2680,7 @@ const main = async () => {
   await createAnnouncements()
   await createAssignmentRecords()
   await createContestProblemRecords()
+  await createContestQnA()
 }
 
 main()
