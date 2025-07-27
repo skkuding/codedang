@@ -6,9 +6,9 @@ import Link from 'next/link'
 
 export function MiddleContestBanner() {
   return (
-    <div className="relative flex max-h-[578px] w-full max-w-[1860px]">
-      <TextBox className={'z-10'} />
-      <ImageBox />
+    <div className="relative flex h-[578px] w-full max-w-[1860px]">
+      <TextBox className={'shirink-0 z-10 h-full min-w-[38%]'} />
+      <ImageBox className={'h-full flex-1'} />
     </div>
   )
 }
@@ -16,10 +16,10 @@ export function MiddleContestBanner() {
 function TextBox({ className }: { className: string }) {
   return (
     <div
-      className={`flex w-full max-w-[707px] items-center rounded-l-[20px] bg-[#182E56] ${className}`}
+      className={`flex items-center rounded-l-[20px] bg-[#182E56] px-[86px] ${className}`}
     >
       {/* 글자 + 버튼 */}
-      <div className="text-background ms-[86px] flex h-full max-h-[264px] w-full max-w-[446px] flex-col justify-between">
+      <div className="text-background flex h-full max-h-[264px] w-full max-w-[446px] flex-col justify-between">
         {/* 글자 부분 */}
         <div className="flex h-full max-h-[164px] flex-col justify-between">
           <Text className="max-h-[96px] text-[40px] font-semibold leading-[120%]">
@@ -84,7 +84,7 @@ function BarButton() {
   )
 }
 
-function ImageBox() {
+function ImageBox({ className }: { className: string }) {
   return (
     <>
       <ImageMask className="h-full max-h-[183px] w-full max-w-[1153px]" />
