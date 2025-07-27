@@ -13,11 +13,11 @@ export default function Page() {
   const client = useApolloClient()
   const params = useParams() // 경로에서 params 가져오기
   const groupId = Number(params.courseId) // 문자열이므로 숫자로 변환
-  const onSuccess = () => {
+  const refetchGroupMembers = () => {
     client.refetchQueries({
       include: [GET_GROUP_MEMBERS]
     })
-  } // 변수 넣어야하나??
+  }
   return (
     <ErrorBoundary fallback={FetchErrorFallback}>
       <Suspense fallback={<GroupTableFallback />}>
@@ -25,7 +25,7 @@ export default function Page() {
           <div className="flex justify-between">
             <h1 className="text-4xl font-bold">MEMBER LIST</h1>
             <InviteButton
-              onSuccess={onSuccess}
+              onSuccess={refetchGroupMembers}
               params={{
                 courseId: groupId
               }}
