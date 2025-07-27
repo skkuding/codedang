@@ -121,10 +121,10 @@ describe('getResultColor', () => {
     expect(utils.getResultColor('Accepted')).toBe('!text-green-500')
   })
   it('should return neutral for Judging/Blind/null/undefined', () => {
-    expect(utils.getResultColor('Judging')).toBe('!text-neutral-400')
-    expect(utils.getResultColor('Blind')).toBe('!text-neutral-400')
-    expect(utils.getResultColor(null)).toBe('!text-neutral-400')
-    expect(utils.getResultColor(undefined)).toBe('!text-neutral-400')
+    const neutralStatuses = ['Judging', 'Blind', null, undefined]
+    neutralStatuses.forEach((status) => {
+      expect(utils.getResultColor(status)).toBe('!text-neutral-400')
+    })
   })
   it('should return red for others', () => {
     expect(utils.getResultColor('Wrong')).toBe('!text-red-500')
