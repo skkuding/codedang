@@ -86,19 +86,18 @@ function BarButton() {
 
 function ImageBox({ className }: { className: string }) {
   return (
-    <>
-      <ImageMask className="h-full max-h-[183px] w-full max-w-[1153px]" />
+    <div className={`relative ${className}`}>
+      <ImageMask className="h-full max-h-[183px] w-full" />
       <Image
         src={'/banners/mainpage_middle_banner.png'}
         alt="middle_banner"
-        width={1153}
-        height={928}
+        fill
         style={{
           objectFit: 'cover'
         }}
         className="-z-10 rounded-r-[20px] sm:relative sm:bottom-0 sm:left-0 sm:pl-0"
       />
-    </>
+    </div>
   )
 }
 
