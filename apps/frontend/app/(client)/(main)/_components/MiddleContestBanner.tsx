@@ -16,7 +16,7 @@ export function MiddleContestBanner() {
 function TextBox({ className }: { className: string }) {
   return (
     <div
-      className={`flex items-center rounded-l-[20px] bg-[#182E56] px-[86px] ${className}`}
+      className={`flex items-center rounded-l-[20px] bg-[#182E56] pe-[140px] ps-[86px] ${className}`}
     >
       {/* 글자 + 버튼 */}
       <div className="text-background flex h-full max-h-[264px] w-full max-w-[446px] flex-col justify-between">
