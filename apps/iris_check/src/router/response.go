@@ -3,8 +3,9 @@ package router
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"strconv"
+
+	"github.com/skkuding/codedang/apps/iris_check/src/handler"
 )
 
 type Response struct {
@@ -59,32 +60,5 @@ func (r *Response) Marshal() []byte {
 }
 
 func ErrorToResultCode(err error) handler.ResultCode {
-	if errors.Is(err, handler.ErrWrongAnswer) {
-		return handler.WRONG_ANSWER
-	}
-	if errors.Is(err, handler.ErrCpuTimeLimitExceed) {
-		return handler.CPU_TIME_LIMIT_EXCEEDED
-	}
-	if errors.Is(err, handler.ErrRealTimeLimitExceed) {
-		return handler.REAL_TIME_LIMIT_EXCEEDED
-	}
-	if errors.Is(err, handler.ErrMemoryLimitExceed) {
-		return handler.MEMORY_LIMIT_EXCEEDED
-	}
-	if errors.Is(err, handler.ErrRuntime) {
-		return handler.RUNTIME_ERROR
-	}
-	if errors.Is(err, handler.ErrCompile) {
-		return handler.COMPILE_ERROR
-	}
-	if errors.Is(err, handler.ErrTestcaseGet) {
-		return handler.TESTCASE_ERROR
-	}
-	if errors.Is(err, handler.ErrSegFault) {
-		return handler.SEGMENTATION_FAULT_ERROR
-	}
-	if errors.Is(err, handler.ErrCanceled) {
-		return handler.CANCELED
-	}
 	return handler.SERVER_ERROR
 }

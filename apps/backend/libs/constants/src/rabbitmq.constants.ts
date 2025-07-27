@@ -29,7 +29,6 @@ export const CHECK_PUBLISH_CHANNEL = 'check-publish-channel'
 export const CHECK_CONSUME_CHANNEL = 'check-result-consume-channel'
 
 // 이거 추가해도 되는지 모르겠어요
-//export const CHECK_EXCHANGE = 'iris.e.direct.check' 이거 exchange 없대요 에러나요 ㅏ아ㅏㅏㅏㅏㅏ
 
 export const CHECK_KEY = 'check.submission'
 export const CHECK_RESULT_KEY = 'check.result'

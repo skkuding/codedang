@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/skkuding/codedang/apps/iris/src/service/logger"
+	"github.com/skkuding/codedang/apps/iris_check/src/service/logger"
 )
 
 type HandlerError struct {
@@ -43,14 +43,4 @@ var (
 	ErrTypeAssertionFail   = errors.New("type assertion failed")
 	ErrMarshalJson         = errors.New("json marshal error")
 	ErrValidate            = errors.New("validation error")
-	ErrSandbox             = errors.New("sandbox error")
-	ErrTestcaseGet         = errors.New("testcase get error")
-	ErrCompile             = errors.New("compile error")
-	ErrWrongAnswer         = errors.New("wrong answer")
-	ErrCpuTimeLimitExceed  = errors.New("cputime limit exceeded")
-	ErrRealTimeLimitExceed = errors.New("realtime limit exceeded")
-	ErrMemoryLimitExceed   = errors.New("memory limit exceeded")
-	ErrRuntime             = errors.New("runtime error")
-	ErrSegFault            = errors.New("segmentation fault")
-	ErrCanceled            = errors.New("execution canceled")
 )

@@ -38,6 +38,7 @@ export class CheckPublicationService {
 
     await this.amqpConnection.publish(EXCHANGE, CHECK_KEY, checkRequest, {
       messageId: check.checkId,
+      type: 0,
       persistent: true
     })
     span.end()
