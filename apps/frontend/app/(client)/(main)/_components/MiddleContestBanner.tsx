@@ -22,7 +22,7 @@ function TextBox({ className }: { className: string }) {
       <div className="text-background flex h-full max-h-[264px] w-full max-w-[446px] flex-col justify-between">
         {/* 글자 부분 */}
         <div className="flex h-full max-h-[164px] flex-col justify-between">
-          <Text className="max-h-[96px] text-[40px] font-semibold leading-[120%]">
+          <Text className="max-h-[96px] w-fit whitespace-nowrap text-[40px] font-semibold leading-[120%]">
             <p>
               {' '}
               TAKE PART IN REAL-TIME
