@@ -1,14 +1,4 @@
 import { AlertModal } from '@/components/AlertModal'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { Switch } from '@/components/shadcn/switch'
 import { CREATE_WHITE_LIST, DELETE_WHITE_LIST } from '@/graphql/course/mutation'
@@ -244,7 +234,6 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                 <span className="text-sm text-[#5C5C5C]">
                   Only approved accounts can enter
                 </span>
-
                 <Switch
                   checked={isApprovalRequired}
                   onCheckedChange={(checked) => {
@@ -259,42 +248,25 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                     }
                   }}
                 />
-                <AlertDialog
+                <AlertModal
                   open={isDeleteWhitelistModalOpen}
                   onOpenChange={setIsDeleteWhitelistModalOpen}
-                >
-                  <AlertDialogContent className="max-w-lg p-8">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="mb-4 text-xl">
-                        Disable Student Whitelist
-                      </AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <AlertDialogDescription>
-                      The student ID whitelist will be deleted, and anyone will
-                      be able to join the course with an invitation code.
-                    </AlertDialogDescription>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel className="px-4 py-2 text-neutral-400">
-                        Cancel
-                      </AlertDialogCancel>
-                      <AlertDialogAction asChild>
-                        <Button
-                          type="button"
-                          onClick={async () => {
-                            await deleteWhitelist({
-                              variables: { groupId: Number(courseId) }
-                            })
-                            setstudentIds([])
-                            setIsApprovalRequired(false)
-                            setIsDeleteWhitelistModalOpen(false)
-                          }}
-                        >
-                          Ok
-                        </Button>
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                  type="warning"
+                  title="Disable Student Whitelist"
+                  description="The student ID whitelist will be deleted, and anyone will be able to join the course with an invitation code."
+                  primaryButton={{
+                    text: 'Ok',
+                    onClick: async () => {
+                      await deleteWhitelist({
+                        variables: { groupId: Number(courseId) }
+                      })
+                      setstudentIds([])
+                      setIsApprovalRequired(false)
+                      setIsDeleteWhitelistModalOpen(false)
+                    },
+                    variant: 'default'
+                  }}
+                />
               </div>
 
               {isApprovalRequired && (
