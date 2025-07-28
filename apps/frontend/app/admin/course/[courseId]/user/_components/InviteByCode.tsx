@@ -1,3 +1,4 @@
+import { AlertModal } from '@/components/AlertModal'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -182,41 +183,24 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
             }} // 상태 토글
           />
         </div>
-        <AlertDialog
+        <AlertModal
+          type="warning"
+          title=" Disable Invitation Code"
+          description=" Students will no longer be able to join the course using the invitation code."
+          primaryButton={{
+            text: 'Ok',
+            onClick: async () => {
+              await revokeInvitation({
+                variables: { groupId: Number(courseId) }
+              })
+              setIsInviteByCodeEnabled(false)
+              setIsRevokeInvitationModalOpen(false)
+            },
+            variant: 'default'
+          }}
           open={isRevokeInvitationModalOpen}
           onOpenChange={setIsRevokeInvitationModalOpen}
-        >
-          <AlertDialogContent className="p-8">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="mb-4 text-xl">
-                Disable Invitation Code
-              </AlertDialogTitle>
-            </AlertDialogHeader>
-            <AlertDialogDescription>
-              Students will no longer be able to join the course using the
-              invitation code.
-            </AlertDialogDescription>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="px-4 py-2 text-neutral-400">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction asChild>
-                <Button
-                  type="button"
-                  onClick={async () => {
-                    await revokeInvitation({
-                      variables: { groupId: Number(courseId) }
-                    })
-                    setIsInviteByCodeEnabled(false)
-                    setIsRevokeInvitationModalOpen(false)
-                  }}
-                >
-                  Ok
-                </Button>
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        />
 
         {isInviteByCodeEnabled && (
           <div className="flex flex-col gap-4">
