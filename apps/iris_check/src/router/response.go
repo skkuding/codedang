@@ -9,14 +9,14 @@ import (
 )
 
 type Response struct {
-	SubmissionId    int                `json:"submissionId"`
-	JudgeResultCode handler.ResultCode `json:"resultCode"`
-	JudgeResult     json.RawMessage    `json:"judgeResult"`
+	CheckId         int                `json:"submissionId"`
+	CheckResultCode handler.ResultCode `json:"resultCode"`
+	CheckResult     json.RawMessage    `json:"judgeResult"`
 	Error           string             `json:"error"`
 }
 
 func NewResponse(id string, data json.RawMessage, err error) *Response {
-	resultCode := handler.ACCEPTED
+	resultCode := handler.CHECKED
 	errMessage := ""
 
 	if err != nil {
@@ -30,9 +30,9 @@ func NewResponse(id string, data json.RawMessage, err error) *Response {
 
 	_id, _ := strconv.Atoi(id)
 	return &Response{
-		SubmissionId:    _id,
-		JudgeResultCode: resultCode,
-		JudgeResult:     data,
+		CheckId:    _id,
+		CheckResultCode: resultCode,
+		CheckResult:     data,
 		Error:           errMessage,
 	}
 }

@@ -35,6 +35,11 @@ func NewRouter(
 }
 
 func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx context.Context) {
+  println("***")
+  println(path)
+  println(id)
+  println(data)
+  println("***")
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.GetTracerProvider().Tracer("Router Tracer")
 	newCtx, childSpan := tracer.Start(

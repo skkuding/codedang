@@ -124,14 +124,14 @@ func main() {
 		rabbitmq.ConsumerConfig{
 			AmqpURI:        uri,
 			ConnectionName: utils.Getenv("RABBITMQ_CONSUMER_CONNECTION_NAME", "iris-consumer"),
-			QueueName:      utils.Getenv("RABBITMQ_CONSUMER_QUEUE_NAME", "client.q.judge.submission"),
-			Ctag:           utils.Getenv("RABBITMQ_CONSUMER_TAG", "consumer-tag"),
+			QueueName:      utils.Getenv("RABBITMQ_CONSUMER_QUEUE_NAME", "client.q.check.submission"), // 큐 네임 설정
+			Ctag:           "consumer-check",//utils.Getenv("RABBITMQ_CONSUMER_TAG", "consumer-tag"),
 		},
 		rabbitmq.ProducerConfig{
 			AmqpURI:        uri,
 			ConnectionName: utils.Getenv("RABBITMQ_PRODUCER_CONNECTION_NAME", "iris-producer"),
 			ExchangeName:   utils.Getenv("RABBITMQ_PRODUCER_EXCHANGE_NAME", "iris.e.direct.judge"),
-			RoutingKey:     utils.Getenv("RABBITMQ_PRODUCER_ROUTING_KEY", "judge.result"),
+			RoutingKey:     "check.submission",//utils.Getenv("RABBITMQ_PRODUCER_ROUTING_KEY", "judge.result"),
 		},
 	).Connect(context.Background())
 
