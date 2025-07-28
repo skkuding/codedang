@@ -29,7 +29,6 @@ import {
 import { UserService } from '@admin/user/user.service'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
-import { UpdateContestQnAInput } from './model/contest-qna.input'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
 import { ContestUpdateHistories } from './model/contest-update-histories.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
