@@ -1,3 +1,4 @@
+import { Analytics } from '@/components/Analytics'
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import { Toaster } from '@/components/shadcn/sonner'
 import { auth } from '@/libs/auth'
@@ -5,8 +6,8 @@ import { metaBaseUrl } from '@/libs/constants'
 import { getBootstrapData } from '@/libs/posthog.server'
 import type { Metadata, Viewport } from 'next'
 import { IBM_Plex_Mono } from 'next/font/google'
-import Script from 'next/script'
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
+import { Suspense } from 'react'
 import './globals.css'
 import { PostHogProvider } from './posthog'
 
@@ -44,24 +45,9 @@ export default async function RootLayout({
   return (
     <html lang="en" className={mono.variable}>
       <body>
-        <Script
-          strategy="afterInteractive"
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
-        />
-        <Script
-          id="gtag-init"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
-                page_path: window.location.pathname,
-              });
-            `
-          }}
-        />
+        <Suspense>
+          <Analytics />
+        </Suspense>
         <PostHogProvider bootstrap={bootstrapData}>
           {/**NOTE: remove comment if you want to track page view of users */}
           {/* <PostHogPageView /> */}
