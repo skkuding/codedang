@@ -2506,11 +2506,13 @@ type TestCaseResult {
   cpuTime: String
   createTime: DateTime!
   id: Int!
+  isHidden: Boolean!
   memoryUsage: Int
   output: String
   problemTestcase: ProblemTestcaseResult!
   problemTestcaseId: Int!
   result: ResultStatus!
+  scoreWeight: Int!
   submissionId: Int!
   updateTime: DateTime!
 }
