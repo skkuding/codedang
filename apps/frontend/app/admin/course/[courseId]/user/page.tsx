@@ -4,7 +4,7 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { GroupTable, GroupTableFallback } from './_components/GroupTable'
-import { InviteButton } from './_components/InviteButton'
+import { InviteUserButton } from './_components/InviteUserButton'
 
 export default function Page() {
   return (
@@ -13,7 +13,7 @@ export default function Page() {
         <div className="container mx-auto space-y-2 py-10">
           <div className="flex justify-between">
             <h1 className="text-4xl font-bold">MEMBER LIST</h1>
-            <InviteButton />
+            <InviteUserButton />
           </div>
           <GroupTable />
         </div>
