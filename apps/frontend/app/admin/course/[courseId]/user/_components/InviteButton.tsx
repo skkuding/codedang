@@ -29,10 +29,12 @@ import {
   ISSUE_INVITATION,
   REVOKE_INVITATION
 } from '@/graphql/user/mutation'
+import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { MemberRole } from '@/types/type'
-import { useMutation, useQuery } from '@apollo/client'
+import { useApolloClient, useMutation, useQuery } from '@apollo/client'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { useForm, type SubmitHandler } from 'react-hook-form'
@@ -43,22 +45,23 @@ import { toast } from 'sonner'
 import * as XLSX from 'xlsx'
 import { findUserSchema, inviteUserSchema } from '../_libs/schema'
 
-interface InviteButtonProps {
-  onSuccess: () => void
-  params: {
-    courseId: number
-  }
-}
+export function InviteButton() {
+  const client = useApolloClient()
+  const { courseId } = useParams<{ courseId: string }>()
 
-export function InviteButton({ onSuccess, params }: InviteButtonProps) {
-  const { courseId } = params
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
 
-  const handleOpenChange = (isOpen: boolean) => {
-    setIsAlertDialogOpen(isOpen)
-    if (!isOpen) {
-      onSuccess()
-    }
+  // const handleOpenChange = (isOpen: boolean) => {
+  //   setIsAlertDialogOpen(isOpen)
+  //   if (!isOpen) {
+  //     refetchGroupMembers()
+  //   }
+  // }
+
+  const refetchGroupMembers = () => {
+    client.refetchQueries({
+      include: [GET_GROUP_MEMBERS]
+    })
   }
 
   return (
@@ -66,8 +69,8 @@ export function InviteButton({ onSuccess, params }: InviteButtonProps) {
       size="lg"
       type="custom"
       title="Invite Member"
-      open={isAlertDialogOpen}
-      onOpenChange={handleOpenChange}
+      // open={isAlertDialogOpen}
+      onOpenChange={refetchGroupMembers}
       trigger={
         <Button type="button" variant="default" className="w-[120px]">
           <HiMiniPlusCircle className="mr-2 h-5 w-5" />
@@ -97,7 +100,7 @@ interface FindUserInput {
 }
 
 interface InviteManuallyProps {
-  courseId: number
+  courseId: string
 }
 
 interface UserInfo {
@@ -146,7 +149,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
       try {
         const result = await inviteUser({
           variables: {
-            groupId: courseId,
+            groupId: Number(courseId),
             isGroupLeader: data.isGroupLeader,
             userId
           }
@@ -196,7 +199,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
     resolver: valibotResolver(inviteUserSchema),
     defaultValues: {
       userId,
-      groupId: courseId,
+      groupId: Number(courseId),
       isGroupLeader: false
     }
   })
@@ -291,7 +294,7 @@ function InviteManually({ courseId }: InviteManuallyProps) {
 }
 
 interface InviteByCodeProps {
-  courseId: number
+  courseId: string
   isAlertDialogOpen: boolean
 }
 
@@ -324,14 +327,14 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
     useState(false)
 
   const { refetch: refetchWhiteList } = useQuery(GET_WHITE_LIST, {
-    variables: { groupId: courseId },
+    variables: { groupId: Number(courseId) },
     onCompleted: (data) => {
       setstudentIds(data?.getWhitelist)
       setIsApprovalRequired(data?.getWhitelist.length > 0)
     }
   })
   const { refetch: refetchInvitationCode } = useQuery(GET_COURSE, {
-    variables: { groupId: courseId },
+    variables: { groupId: Number(courseId) },
     onCompleted: (data) => {
       setIsInviteByCodeEnabled(Boolean(data?.getCourse.invitation))
       if (data?.getCourse.invitation) {
@@ -353,7 +356,9 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
 
   const handleUpdateButtonClick = async () => {
     try {
-      const result = await issueInvitation({ variables: { groupId: courseId } })
+      const result = await issueInvitation({
+        variables: { groupId: Number(courseId) }
+      })
 
       if (result.data) {
         const data = result.data.issueInvitation
@@ -410,7 +415,7 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
       /** 화이트리스트 생성 요청 */
       try {
         const { data } = await createWhitelist({
-          variables: { groupId: courseId, studentIds: studentIdList }
+          variables: { groupId: Number(courseId), studentIds: studentIdList }
         })
         setWhitelistCount(data?.createWhitelist ?? 0)
         setIsUploaded(true)
@@ -474,7 +479,9 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
                 <Button
                   type="button"
                   onClick={async () => {
-                    await revokeInvitation({ variables: { groupId: courseId } })
+                    await revokeInvitation({
+                      variables: { groupId: Number(courseId) }
+                    })
                     setIsInviteByCodeEnabled(false)
                     setIsRevokeInvitationModalOpen(false)
                   }}
@@ -566,7 +573,7 @@ function InviteByCode({ courseId, isAlertDialogOpen }: InviteByCodeProps) {
                           type="button"
                           onClick={async () => {
                             await deleteWhitelist({
-                              variables: { groupId: courseId }
+                              variables: { groupId: Number(courseId) }
                             })
                             setstudentIds([])
                             setIsApprovalRequired(false)
