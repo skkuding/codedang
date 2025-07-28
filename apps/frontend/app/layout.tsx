@@ -40,7 +40,6 @@ export default async function RootLayout({
 }) {
   const bootstrapData = await getBootstrapData()
   const session = await auth()
-  // ✅ 1. 환경 변수를 변수에 할당합니다.
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
   return (
@@ -57,8 +56,6 @@ export default async function RootLayout({
             duration={2000}
           />
         </PostHogProvider>
-
-        {/* ✅ 2. gaId가 존재할 때만 GoogleAnalytics 컴포넌트를 렌더링합니다. */}
         {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
