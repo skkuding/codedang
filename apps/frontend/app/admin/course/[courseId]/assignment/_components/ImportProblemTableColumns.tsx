@@ -9,20 +9,6 @@ import { FaCheck } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import type { Solution } from '../../_libs/type'
 
-// export interface DataTableProblem {
-//   id: number
-//   title: string
-//   updateTime: string
-//   difficulty: string
-//   submissionCount: number
-//   acceptedRate: number
-//   languages: string[]
-//   score?: number
-//   order?: number
-//   solutionReleaseTime: Date | null
-//   solution: Solution[]
-// }
-
 export interface AssignmentProblem extends BaseDataTableProblem {
   solutionReleaseTime: Date | null
   solution: Solution[]
@@ -82,7 +68,7 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        <div className="flex-col truncate text-left font-medium">
           {row.getValue('title')}
         </div>
       )

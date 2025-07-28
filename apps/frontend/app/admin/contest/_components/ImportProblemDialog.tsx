@@ -16,13 +16,13 @@ import type { ContestProblem } from '../_libs/schemas'
 interface ImportProblemDialogProps {
   problems: ContestProblem[]
   setProblems: (problems: ContestProblem[]) => void
-  contestId?: string | null
+  contestId?: string
 }
 
 export function ImportProblemDialog({
   problems,
   setProblems,
-  contestId = null
+  contestId
 }: ImportProblemDialogProps) {
   const [showImportDialog, setShowImportDialog] = useState(false)
   return (

@@ -5,19 +5,6 @@ import type { BaseDataTableProblem, Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'
 
-// export interface DataTableProblem {
-//   id: number
-//   title: string
-//   updateTime: string
-//   difficulty: string
-//   submissionCount: number
-//   acceptedRate: number
-//   languages: string[]
-//   createdBy: string
-//   score?: number
-//   order?: number
-// }
-
 export interface ContestProblem extends BaseDataTableProblem {
   createdBy: string
 }
