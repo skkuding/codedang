@@ -1,13 +1,12 @@
-import { Analytics } from '@/components/Analytics'
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import { Toaster } from '@/components/shadcn/sonner'
 import { auth } from '@/libs/auth'
 import { metaBaseUrl } from '@/libs/constants'
 import { getBootstrapData } from '@/libs/posthog.server'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import type { Metadata, Viewport } from 'next'
 import { IBM_Plex_Mono } from 'next/font/google'
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
-import { Suspense } from 'react'
 import './globals.css'
 import { PostHogProvider } from './posthog'
 
@@ -41,13 +40,12 @@ export default async function RootLayout({
 }) {
   const bootstrapData = await getBootstrapData()
   const session = await auth()
+  // ✅ 1. 환경 변수를 변수에 할당합니다.
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
   return (
     <html lang="en" className={mono.variable}>
       <body>
-        <Suspense>
-          <Analytics />
-        </Suspense>
         <PostHogProvider bootstrap={bootstrapData}>
           {/**NOTE: remove comment if you want to track page view of users */}
           {/* <PostHogPageView /> */}
@@ -59,6 +57,9 @@ export default async function RootLayout({
             duration={2000}
           />
         </PostHogProvider>
+
+        {/* ✅ 2. gaId가 존재할 때만 GoogleAnalytics 컴포넌트를 렌더링합니다. */}
+        {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
   )
