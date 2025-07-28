@@ -10,7 +10,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { UpdateContestQnAInput } from './model/contest-qna.input'
 import type { ContestWithScores } from './model/contest-with-scores.model'
 import type {
   CreateContestInput,
