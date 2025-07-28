@@ -2,7 +2,7 @@ import { gql } from '@generated'
 
 const GET_ASSIGNMENT = gql(`
   query GetAssignment($groupId: Int!, $assignmentId: Int!) {
-    getAssignment(groupId: $groupId,assignmentId: $assignmentId) {
+    assignment(groupId: $groupId,assignmentId: $assignmentId) {
       id
       enableCopyPaste
       isJudgeResultVisible
@@ -20,7 +20,7 @@ const GET_ASSIGNMENT = gql(`
 
 const GET_ASSIGNMENTS = gql(`
   query GetAssignments($groupId: Int!, $cursor: Int, $take: Int!, $isExercise: Boolean) {
-    getAssignments(groupId: $groupId, cursor: $cursor, take: $take, isExercise: $isExercise) {
+    assignments(groupId: $groupId, cursor: $cursor, take: $take, isExercise: $isExercise) {
       id
       title
       startTime

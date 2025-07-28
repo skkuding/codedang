@@ -49,7 +49,7 @@ export class ContestResolver {
 
   @Query(() => [ContestWithParticipants])
   @UseDisableContestRolesGuard()
-  async getContests(
+  async contests(
     @Args(
       'take',
       { type: () => Int, defaultValue: 10 },
@@ -64,8 +64,8 @@ export class ContestResolver {
   }
 
   @Query(() => ContestWithParticipants)
-  async getContest(
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+  async contest(
+    @Args('id', { type: () => Int }, new RequiredIntPipe('id'))
     contestId: number
   ) {
     return await this.contestService.getContest(contestId)
@@ -177,6 +177,12 @@ export class ContestResolver {
    * Contest Overall 페이지의 Participants 탭의 정보
    * @see https://github.com/skkuding/codedang/pull/2029
    */
+  // TODO: Put this query under contest resolver as @ResolveField
+  // contest(id: number) {
+  //   participants {
+  //     ...
+  //   }
+  // }
   @Query(() => [UserContestScoreSummaryWithUserInfo])
   async getContestScoreSummaries(
     @Args('contestId', { type: () => Int, nullable: false }, IDValidationPipe)
@@ -196,6 +202,12 @@ export class ContestResolver {
     })
   }
 
+  // TODO: Put this query under problem resolver as @ResolveField
+  // problem(id: number) {
+  //   contests {
+  //     ...
+  //   }
+  // }
   @Query(() => ContestsGroupedByStatus)
   @UseDisableContestRolesGuard()
   async getContestsByProblemId(
@@ -204,6 +216,12 @@ export class ContestResolver {
     return await this.contestService.getContestsByProblemId(problemId)
   }
 
+  // TODO: Put this query under contest resolver as @ResolveField
+  // contest(id: number) {
+  //   leaderboard {
+  //     ...
+  //   }
+  // }
   @Query(() => ContestLeaderboard)
   async getContestLeaderboard(
     @Args('contestId', { type: () => Int }) contestId: number
@@ -211,6 +229,12 @@ export class ContestResolver {
     return this.contestService.getContestLeaderboard(contestId)
   }
 
+  // TODO: Put this query under contest resolver as @ResolveField
+  // contest(id: number) {
+  //   updateHistories {
+  //     ...
+  //   }
+  // }
   @Query(() => ContestUpdateHistories)
   async getContestUpdateHistories(
     @Args('contestId', { type: () => Int }) contestId: number
@@ -218,14 +242,20 @@ export class ContestResolver {
     return await this.contestService.getContestUpdateHistories(contestId)
   }
 
+  // TODO: Put this query under contest resolver as @ResolveField
+  // contest(id: number) {
+  //   roles {
+  //     ...
+  //   }
+  // }
   @Query(() => [UserContest])
   @UseDisableContestRolesGuard()
   async getContestRoles(@Context('req') req: AuthenticatedRequest) {
     return await this.contestService.getContestRoles(req.user.id)
   }
 
-  @ResolveField('createdBy', () => User, { nullable: true })
-  async getUser(@Parent() contest: Contest) {
+  @ResolveField(() => User, { nullable: true })
+  async createdBy(@Parent() contest: Contest) {
     const { createdById } = contest
     if (createdById == null) {
       return null

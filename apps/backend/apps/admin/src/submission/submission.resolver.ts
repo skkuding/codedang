@@ -36,6 +36,12 @@ export class SubmissionResolver {
    * @param take 불러올 제출 내역의 수
    * @returns {SubmissionsWithTotal}
    */
+  // TODO: move to ProblemResolver @ResolveField
+  // problem(id: number) {
+  //   submissions {
+  //     ...
+  //   }
+  // }
   @Query(() => SubmissionsWithTotal)
   async getSubmissions(
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
@@ -54,6 +60,12 @@ export class SubmissionResolver {
    * Contest Overall page의 'All submission' 탭에서 보여지는 정보를 불러오는 API
    * @see {@link https://github.com/skkuding/codedang/pull/1924}
    */
+  // TODO: move to ContestResolver @ResolveField
+  // contest(id: number) {
+  //   submissions {
+  //     ...
+  //   }
+  // }
   @Query(() => [ContestSubmission])
   @UseContestRolesGuard(ContestRole.Manager)
   async getContestSubmissions(
@@ -86,6 +98,16 @@ export class SubmissionResolver {
    * Assignment Overall page의 'All submission' 탭에서 보여지는 정보를 불러오는 API
    * https://github.com/skkuding/codedang/pull/1924
    */
+  // TODO: move to AssignmentResolver @ResolveField
+  // group(id: number) {
+  //   assignment(id: number) {
+  //     problem(id: number) {
+  //       submissions {
+  //         ...
+  //       }
+  //     }
+  //   }
+  // }
   @Query(() => [AssignmentSubmission])
   @UseGroupLeaderGuard()
   async getAssignmentSubmissions(
@@ -132,7 +154,7 @@ export class SubmissionResolver {
    */
   @Query(() => SubmissionDetail)
   @UseDisableAdminGuard()
-  async getSubmission(
+  async submission(
     @Args('id', { type: () => Int }) id: number,
     @Context('req') req: AuthenticatedRequest
   ): Promise<SubmissionDetail> {
@@ -146,6 +168,14 @@ export class SubmissionResolver {
    * @param problemId AssignmentProblemRecode을 조회할 problemID
    * @returns {string} 압축 파일을 다운로드 할 수 있는 URL
    */
+  // TODO: move to AssignmentResolver @ResolveField
+  // group(id: number) {
+  //   assignment(id: number) {
+  //     problem(id: number) {
+  //       submissionZipUrl
+  //     }
+  //   }
+  // }
   @Query(() => String, { nullable: true })
   @UseGroupLeaderGuard()
   async compressSourceCodes(
