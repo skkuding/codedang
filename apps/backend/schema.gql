@@ -853,7 +853,6 @@ type ContestProblemSumAggregate {
 
 type ContestQnA {
   _count: ContestQnACount!
-  answeredBy: User
   category: QnACategory!
   comments: [ContestQnAComment!]
   content: String!
@@ -888,6 +887,7 @@ type ContestQnAComment {
   createdById: Int
   createdTime: DateTime!
   id: ID!
+  isContestStaff: Boolean!
   order: Int!
   updatedTime: DateTime!
 }
@@ -906,6 +906,7 @@ type ContestQnACommentCountAggregate {
   createdById: Int!
   createdTime: Int!
   id: Int!
+  isContestStaff: Int!
   order: Int!
   updatedTime: Int!
 }
@@ -916,6 +917,7 @@ type ContestQnACommentMaxAggregate {
   createdById: Int
   createdTime: DateTime
   id: Int
+  isContestStaff: Boolean
   order: Int
   updatedTime: DateTime
 }
@@ -926,6 +928,7 @@ type ContestQnACommentMinAggregate {
   createdById: Int
   createdTime: DateTime
   id: Int
+  isContestStaff: Boolean
   order: Int
   updatedTime: DateTime
 }
@@ -1691,7 +1694,6 @@ type Mutation {
   updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
-  updateContestQnA(contestId: Int!, input: UpdateContestQnAInput!): ContestQnA!
   updateCourse(groupId: Int!, input: CourseInput!): Group!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
@@ -2667,12 +2669,6 @@ input UpdateContestInput {
   title: String
   unfreeze: Boolean
   userContest: [UserContestInput!]
-}
-
-input UpdateContestQnAInput {
-  answer: String
-  isVisible: Boolean
-  order: Int!
 }
 
 type UpdateCreationPermissionResult {
