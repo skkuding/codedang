@@ -61,6 +61,7 @@ export default function Page({
             setProblems={setProblems}
             setIsLoading={setIsLoading}
             methods={methods}
+            isExercise={true}
           >
             <div className="flex w-[901px] flex-col gap-[28px]">
               <FormSection title="Title">
@@ -121,9 +122,7 @@ export default function Page({
               </div>
 
               <FormSection isFlexColumn title="Description" isLabeled={false}>
-                {methods.getValues('description') && (
-                  <DescriptionForm name="description" />
-                )}
+                {!isLoading && <DescriptionForm name="description" />}
               </FormSection>
 
               {/* NOTE: 최근 기획에서 해당기능을 없애기로 했는데, 혹시 revert할까봐 주석처리해놨어요 */}
