@@ -3,6 +3,7 @@ import { CacheModule } from '@nestjs/cache-manager'
 import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_GUARD, HttpAdapterHost } from '@nestjs/core'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 import { GraphQLModule } from '@nestjs/graphql'
 import type { Server } from 'http'
 import { OpenTelemetryModule } from 'nestjs-otel'
@@ -27,6 +28,7 @@ import { AnnouncementModule } from './announcement/announcement.module'
 import { AssignmentModule } from './assignment/assignment.module'
 import { ContestModule } from './contest/contest.module'
 import { GroupModule } from './group/group.module'
+import { NotificationModule } from './notification/notification.module'
 import { ProblemModule } from './problem/problem.module'
 import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
@@ -64,8 +66,10 @@ import { WorkbookModule } from './workbook/workbook.module'
     AnnouncementModule,
     NoticeModule,
     SubmissionModule,
+    NotificationModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
-    OpenTelemetryModule.forRoot(openTelemetryModuleOption)
+    OpenTelemetryModule.forRoot(openTelemetryModuleOption),
+    EventEmitterModule.forRoot()
   ],
   controllers: [AdminController],
   providers: [
