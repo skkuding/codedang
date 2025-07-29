@@ -30,7 +30,9 @@ export const CHECK_CONSUME_CHANNEL = 'check-result-consume-channel'
 
 // 이거 추가해도 되는지 모르겠어요
 
-export const CHECK_KEY = 'check.submission'
+export const CHECK_KEY = 'check.request'
 export const CHECK_RESULT_KEY = 'check.result'
 
 export const CHECK_RESULT_QUEUE = 'iris.q.check.result'
+
+export const CHECK_MESSAGE_TYPE = 'check'

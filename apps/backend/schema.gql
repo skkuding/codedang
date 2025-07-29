@@ -512,6 +512,12 @@ type AssignmentsGroupedByStatus {
   upcoming: [AssignmentWithScores!]!
 }
 
+type CheckResultOutput {
+  plagiarismRate: Float!
+  userId1: Int!
+  userId2: Int!
+}
+
 enum CheckResultStatus {
   Completed
   Failed
@@ -2211,6 +2217,7 @@ type Query {
   getUsers(cursor: Int, take: Int! = 10): [User!]!
   getWhitelist(groupId: Int!): [String!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
+  overviewPlagiarismCheck(checkId: Int!, limit: Int!): [CheckResultOutput!]!
 }
 
 enum ResultStatus {

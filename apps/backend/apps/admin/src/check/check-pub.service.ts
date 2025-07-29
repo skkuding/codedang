@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { PlagiarismCheck } from '@prisma/client'
 import { Span, TraceService } from 'nestjs-otel'
-import { EXCHANGE, CHECK_KEY, SUBMISSION_KEY } from '@libs/constants'
+import {
+  EXCHANGE,
+  CHECK_KEY,
+  SUBMISSION_KEY,
+  CHECK_MESSAGE_TYPE
+} from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import { CheckRequest } from './model/check-request'
 
@@ -27,7 +32,10 @@ export class CheckPublicationService {
       check.minTokens,
       check.checkPreviousSubmission,
       check.enableMerging,
-      check.useJplagClustering
+      check.useJplagClustering,
+      check.assignmentId ? check.assignmentId : undefined,
+      check.contestId ? check.contestId : undefined,
+      check.workbookId ? check.workbookId : undefined
     )
 
     const span = this.traceService.startSpan(
@@ -38,7 +46,7 @@ export class CheckPublicationService {
 
     await this.amqpConnection.publish(EXCHANGE, CHECK_KEY, checkRequest, {
       messageId: check.checkId,
-      type: 0,
+      type: CHECK_MESSAGE_TYPE,
       persistent: true
     })
     span.end()

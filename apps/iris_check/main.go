@@ -18,7 +18,9 @@ import (
 	"github.com/skkuding/codedang/apps/iris_check/src/connector/rabbitmq"
 	"github.com/skkuding/codedang/apps/iris_check/src/handler"
 	"github.com/skkuding/codedang/apps/iris_check/src/router"
+  "github.com/skkuding/codedang/apps/iris_check/src/loader"
 	"github.com/skkuding/codedang/apps/iris_check/src/service/file"
+  "github.com/skkuding/codedang/apps/iris_check/src/service/check"
 	"github.com/skkuding/codedang/apps/iris_check/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris_check/src/utils"
 	"go.opentelemetry.io/otel"
@@ -52,7 +54,7 @@ func main() {
 		logProvider.Log(logger.INFO, "Running in stage mode")
 		http.HandleFunc("/health", healthCheckHandler)
 		go func() {
-			if err := http.ListenAndServe("0.0.0.0:3404", nil); err != nil {
+			if err := http.ListenAndServe("0.0.0.0:3405", nil); err != nil { // 3405 포트 사용
 				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start health checker: %v", err))
 			}
 		}()
@@ -77,24 +79,23 @@ func main() {
 	}
 	defaultTracer := otel.Tracer("default")
 
-	/*bucket := utils.Getenv("TESTCASE_BUCKET_NAME", "")
+	bucket := "check-bucket"//utils.Getenv("TESTCASE_BUCKET_NAME", "")
 	s3reader, err := loader.NewS3DataSource(bucket)
 	if err != nil {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
 		return
-	}*/
-	/*database, err := loader.NewPostgresDataSource(ctx)
+	}
+	database, err := loader.NewPostgresDataSource(ctx)
 	if err != nil {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
 		return
 	}
-	testcaseManager := testcase.NewTestcaseManager(s3reader, database)
-
-	sandbox := judger.NewJudgerSandboxImpl(fileManager, logProvider)*/
+	checkManager := check.NewCheckManager(s3reader, database)
 
   fileManager := file.NewFileManager("/app/sandbox/results")
 
 	checkHandler := handler.NewCheckHandler(
+    checkManager,
     fileManager,
 		logProvider,
 		defaultTracer,

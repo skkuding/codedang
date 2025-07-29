@@ -13,6 +13,7 @@ import (
 	"github.com/skkuding/codedang/apps/iris_check/src/service/file"
   "github.com/skkuding/codedang/apps/iris_check/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris_check/src/service/logger"
+  "github.com/skkuding/codedang/apps/iris_check/src/service/check"
 	"github.com/skkuding/codedang/apps/iris_check/src/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -26,6 +27,9 @@ type Request struct {
 	CheckPreviousSubmission  bool              `json:"checkPreviousSubmission"`
 	EnableMerging            bool              `json:"enableMerging"`
 	UseJplagClustering       bool              `json:"useJplagClustering"`
+	AssignmentId             *int               `json:"assignmentId,omitempty"`
+	ContestId                *int               `json:"contestId,omitempty"`
+	WorkbookId               *int               `json:"workbookId,omitempty"`
 }
 
 func (r Request) Validate() (*Request, error) {
@@ -59,17 +63,20 @@ type CheckResultMessage struct {
 var ErrCheckEnd = errors.New("check handle end")
 
 type CheckHandler struct {
+  check           check.CheckManager
   file            file.FileManager
 	logger          logger.Logger
 	tracer          trace.Tracer
 }
 
 func NewCheckHandler(
+  check check.CheckManager,
   file file.FileManager,
 	logger logger.Logger,
 	tracer trace.Tracer,
 ) *CheckHandler {
 	return &CheckHandler{
+    check,
 		file,
 		logger,
 		tracer,
@@ -94,6 +101,21 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	req := Request{}
 
 	err := json.Unmarshal(data, &req) // json 파싱...?
+
+  // <Test Code>
+  err = nil
+  assignmentId := 1
+  req = Request{
+    CheckId: "202503321020",
+    ProblemId: 1,
+    Language: "C",
+    MinimumTokens: 12,
+    CheckPreviousSubmission: true,
+    EnableMerging: false,
+    UseJplagClustering: true,
+    AssignmentId: &assignmentId,
+  }
+
 	if err != nil {
 		out <- CheckResultMessage{nil, &HandlerError{
 			caller:  "handle",
@@ -135,7 +157,27 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		return
 	}
 
+  if err := c.check.CheckPlagiarismRate(
+    fmt.Sprint(req.ProblemId),
+    req.Language,
+    check.CheckSettings{
+      MinTokens: req.MinimumTokens,
+      CheckPreviousSubmission: req.CheckPreviousSubmission,
+      EnableMerging: req.EnableMerging,
+      UseJplagClustering: req.UseJplagClustering,
+    },
+  ); err != nil { // 작업용 임시 디렉토리 생성
+		out <- CheckResultMessage{nil, &HandlerError{
+			caller:  "handle",
+			err:     fmt.Errorf("creating base directory: %w", err),
+			level:   logger.ERROR,
+			Message: err.Error(),
+		}}
+		return
+	}
+
   /*
   * 표절 검사 서버에 맞춰서 handler 구성 예정
+  *
   */
 }

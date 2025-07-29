@@ -12,7 +12,9 @@ import (
 )
 
 const (
-	Check = "check"
+	AssignmentCheck = "assignment_check"
+  ContestCheck = "contest_check"
+  WorkbookCheck = "workbook_check"
 )
 
 type Router interface {
@@ -35,11 +37,15 @@ func NewRouter(
 }
 
 func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx context.Context) {
+  // <Test Code>
   println("***")
   println(path)
   println(id)
   println(data)
+  path = AssignmentCheck // type이 들어옵니다.
+  id = "202503321020" // checkId가 들어옵니다.
   println("***")
+
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.GetTracerProvider().Tracer("Router Tracer")
 	newCtx, childSpan := tracer.Start(
@@ -57,8 +63,12 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 	// var err error
 
 	checkChan := make(chan handler.CheckResultMessage)
-	switch path {
-    case Check:
+	switch path { // 나중에 추가 작업을 지정할 수 있도록 각 메시지 타입을 구분
+    case AssignmentCheck:
+      go r.checkHandler.Handle(id, data, checkChan, newCtx)
+    case ContestCheck:
+      go r.checkHandler.Handle(id, data, checkChan, newCtx)
+    case WorkbookCheck:
       go r.checkHandler.Handle(id, data, checkChan, newCtx)
     default:
       err := fmt.Errorf("invalid request type: %s", path)

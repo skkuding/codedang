@@ -8,6 +8,9 @@ export class CheckRequest {
   enableMerging: boolean
   useJplagClustering: boolean
   minTokens: number
+  assignmentId?: number
+  contestId?: number
+  workbookId?: number
 
   constructor(
     checkId: string,
@@ -16,7 +19,10 @@ export class CheckRequest {
     minTokens: number,
     checkPreviousSubmission = true,
     enableMerging = false,
-    useJplagClustering = true
+    useJplagClustering = true,
+    assignmentId?: number,
+    contestId?: number,
+    workbookId?: number
   ) {
     this.checkId = checkId
     this.problemId = problemId
@@ -25,5 +31,8 @@ export class CheckRequest {
     this.checkPreviousSubmission = checkPreviousSubmission
     this.enableMerging = enableMerging
     this.useJplagClustering = useJplagClustering
+    this.assignmentId = assignmentId
+    this.contestId = contestId
+    this.workbookId = workbookId
   }
 }

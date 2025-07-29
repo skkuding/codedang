@@ -372,6 +372,7 @@ model Assignment {
 
   @@index([groupId, week])
   @@map("assignment")
+  PlagiarismCheck PlagiarismCheck[]
 }
 
 model AssignmentProblem {
@@ -476,6 +477,7 @@ model Contest {
   ContestQnA     ContestQnA[]
 
   @@map("contest")
+  PlagiarismCheck PlagiarismCheck[]
 }
 
 enum ContestRole {
@@ -624,6 +626,7 @@ model Workbook {
   testSubmission  TestSubmission[]
 
   @@map("workbook")
+  PlagiarismCheck PlagiarismCheck[]
 }
 
 model WorkbookProblem {
@@ -752,6 +755,12 @@ model PlagiarismCheck {
   enableMerging Boolean @map("enable_merging")
   minTokens Int @map("min_tokens")
   useJplagClustering  Boolean @map("use_jplag_clustering")
+  assignment     Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId   Int?        @map("assignment_id")
+  contest        Contest?    @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId      Int?        @map("contest_id")
+  workbook       Workbook?   @relation(fields: [workbookId], references: [id])
+  workbookId     Int?        @map("workbook_id")
   createTime DateTime @default(now()) @map("create_time")
   result       CheckResultStatus
   @@map("plagiarism_check")
