@@ -26,6 +26,7 @@ interface AlertModalProps {
   trigger?: React.ReactNode
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  size?: 'sm' | 'md' | 'lg'
   type: 'confirm' | 'warning'
   showWarningIcon?: boolean
   title: string
@@ -35,10 +36,17 @@ interface AlertModalProps {
   onClose?: () => void
 }
 
+const sizeClassMap = {
+  sm: '!w-[424px] !h-[280px] !p-[40px]',
+  md: '!w-[600px] !h-[580px] !py-[50px] !px-[40px]',
+  lg: '!w-[800px] !h-[620px] !py-[50px] !px-[40px]'
+}
+
 export function AlertModal({
   trigger,
   open,
   onOpenChange,
+  size = 'sm',
   type,
   showWarningIcon = true,
   title,
@@ -55,7 +63,10 @@ export function AlertModal({
     <AlertDialog open={actualOpen} onOpenChange={handleOpenChange}>
       {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
       <AlertDialogContent
-        className="flex h-[280px] w-[424px] flex-col items-center justify-center !rounded-2xl p-[40px]"
+        className={cn(
+          sizeClassMap[size],
+          'flex flex-col items-center justify-center !rounded-2xl'
+        )}
         onEscapeKeyDown={onClose}
       >
         <AlertDialogHeader className="flex flex-col items-center justify-center">
