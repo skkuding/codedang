@@ -2,6 +2,7 @@
 
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
 import { useApolloClient } from '@apollo/client'
 import { useParams } from 'next/navigation'
@@ -25,6 +26,7 @@ export function InviteUserButton() {
       type="custom"
       title="Invite Member"
       headerDescription="Invite members to your course by email or invite code."
+      open={true}
       onOpenChange={refetchGroupMembers}
       trigger={
         <Button type="button" variant="default" className="w-[120px]">
@@ -33,10 +35,12 @@ export function InviteUserButton() {
         </Button>
       }
     >
-      <div className="flex flex-col gap-6">
-        <InviteByCode courseId={courseId} />
-        <InviteManually courseId={courseId} />
-      </div>
+      <ScrollArea className="h-full w-full">
+        <div className="flex flex-col gap-6">
+          <InviteByCode courseId={courseId} />
+          <InviteManually courseId={courseId} />
+        </div>
+      </ScrollArea>
     </Modal>
   )
 }

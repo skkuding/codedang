@@ -150,7 +150,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
           findHandleSubmit(onFind)()
         }}
         aria-label="Invite user"
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-6 rounded-lg border p-[30px]"
       >
         <span className="text-base font-bold">Invite Manually</span>
 
