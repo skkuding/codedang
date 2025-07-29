@@ -1,7 +1,6 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
-import type { request } from 'http'
 import { UseGroupLeaderGuard } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
