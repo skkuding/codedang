@@ -123,6 +123,7 @@ export class GroupMemberResolver {
    * @param {number} userId - 역할을 업데이트 할 사용자의 ID.
    * @param {number} groupId - 업데이트 대상 그룹의 ID.
    * @param {boolean} toGroupLeader - 사용자를 리더로 설정할지에 대한 플래그
+   * @param {number} requesterId - 요청하는 사용자의 ID
    * @returns {Promise<UserGroup>} 업데이트된 그룹 멤버 객체를 리턴.
    */
   @Mutation(() => UserGroup)
