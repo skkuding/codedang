@@ -26,7 +26,7 @@ export function InviteUserButton() {
       type="custom"
       title="Invite Member"
       headerDescription="Invite members to your course by email or invite code."
-      open={true}
+      // open={true}
       onOpenChange={refetchGroupMembers}
       trigger={
         <Button type="button" variant="default" className="w-[120px]">

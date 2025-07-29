@@ -143,69 +143,62 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
   }, [inviteHandleSubmit, onInvite, userId])
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
-      <form
-        onSubmit={(event) => {
-          event.preventDefault()
-          findHandleSubmit(onFind)()
-        }}
-        aria-label="Invite user"
-        className="flex flex-col gap-6 rounded-lg border p-[30px]"
-      >
-        <span className="text-base font-bold">Invite Manually</span>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        findHandleSubmit(onFind)()
+      }}
+      aria-label="Invite user"
+      className="flex flex-col gap-[20px] rounded-lg border p-[30px]"
+    >
+      <span className="text-lg">Invite Manually</span>
+      <div className="flex w-full flex-col gap-4">
+        <div className="flex h-[40px] items-center rounded-full border border-gray-300 px-4 py-2">
+          <MdOutlineEmail className="h-5 w-5 text-gray-400" />
 
-        <div className="flex w-full max-w-[500px] flex-col gap-4">
-          <div className="flex h-[44px] items-center rounded-full border border-gray-300 px-4 py-2">
-            <MdOutlineEmail className="h-5 w-5 text-gray-400" />
+          <Input
+            id="email"
+            {...findRegister('email')}
+            placeholder="Email Address"
+            className="flex-1 border-none !bg-transparent pl-2 text-sm placeholder:text-gray-400 autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
+          />
 
-            <Input
-              id="email"
-              {...findRegister('email')}
-              placeholder="Email Address"
-              className="flex-1 border-none !bg-transparent pl-2 text-sm placeholder:text-gray-400 autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
-            />
-
-            <Select
-              value={inviteWatch('isGroupLeader') ? 'Instructor' : 'Student'}
-              onValueChange={(value) => {
-                inviteSetValue('isGroupLeader', value === 'Instructor')
-              }}
-            >
-              <SelectTrigger className="w-auto min-w-[80px] border-none bg-transparent text-sm text-gray-500 focus:outline-none">
-                <SelectValue placeholder="Student" />
-              </SelectTrigger>
-              <SelectContent className="rounded-lg bg-white shadow-md">
-                {roles.map((role) => (
-                  <SelectItem key={role} value={role}>
-                    {role}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button
-            type="submit"
-            className="bg-primary hover:bg-primary-strong h-[44px] w-full rounded-full text-sm font-semibold text-white"
+          <Select
+            value={inviteWatch('isGroupLeader') ? 'Instructor' : 'Student'}
+            onValueChange={(value) => {
+              inviteSetValue('isGroupLeader', value === 'Instructor')
+            }}
           >
-            Invite
-          </Button>
+            <SelectTrigger className="w-auto min-w-[80px] border-none bg-transparent text-sm text-gray-500 focus:outline-none">
+              <SelectValue placeholder="Student" />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg bg-white shadow-md">
+              {roles.map((role) => (
+                <SelectItem key={role} value={role}>
+                  {role}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        {findErrors.email && (
-          <ErrorMessage message={findErrors.email.message} />
-        )}
-        {inviteErrors.groupId && (
-          <ErrorMessage message={inviteErrors.groupId.message} />
-        )}
-        {inviteErrors.userId && (
-          <ErrorMessage message={inviteErrors.userId.message} />
-        )}
-        {inviteErrors.isGroupLeader && (
-          <ErrorMessage message={inviteErrors.isGroupLeader.message} />
-        )}
-      </form>
-
+        <Button
+          type="submit"
+          className="bg-primary hover:bg-primary-strong h-[44px] w-full rounded-full text-sm font-semibold text-white"
+        >
+          Invite
+        </Button>
+      </div>
+      {findErrors.email && <ErrorMessage message={findErrors.email.message} />}
+      {inviteErrors.groupId && (
+        <ErrorMessage message={inviteErrors.groupId.message} />
+      )}
+      {inviteErrors.userId && (
+        <ErrorMessage message={inviteErrors.userId.message} />
+      )}
+      {inviteErrors.isGroupLeader && (
+        <ErrorMessage message={inviteErrors.isGroupLeader.message} />
+      )}
       {invitedList.length === 0 && <div className="mt-[60px]" />}
 
       {invitedList.length > 0 && (
@@ -221,6 +214,6 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
           ))}
         </div>
       )}
-    </div>
+    </form>
   )
 }
