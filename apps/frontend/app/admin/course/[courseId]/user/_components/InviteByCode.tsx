@@ -22,26 +22,19 @@ interface InvitationCodeInput {
 
 export function InviteByCode({ courseId }: InviteByCodeProps) {
   const { getValues, reset } = useForm<InvitationCodeInput>()
-
-  const [isInviteByCodeEnabled, setIsInviteByCodeEnabled] = useState(false)
   const [issueInvitation] = useMutation(ISSUE_INVITATION)
   const [revokeInvitation] = useMutation(REVOKE_INVITATION)
-  const [createWhitelist] = useMutation(CREATE_WHITE_LIST, {
-    refetchQueries: [
-      { query: GET_WHITE_LIST, variables: { groupId: courseId } }
-    ]
-  })
-  const [deleteWhitelist] = useMutation(DELETE_WHITE_LIST, {
-    refetchQueries: [
-      { query: GET_WHITE_LIST, variables: { groupId: courseId } }
-    ]
-  })
+
+  const [isCodeInvitationEnabled, setIsCodeInvitationEnabled] = useState(false)
+  const [isWhiteListEnabled, setIsWhiteListEnabled] = useState(false)
+  const [isRevokeInvitationModalOpen, setIsRevokeInvitationModalOpen] =
+    useState(false)
+
   const [isUploaded, setIsUploaded] = useState(false)
   const [whiteListStudentIds, setWhiteListStudentIds] = useState<string[]>([])
   const [whitelistCount, setWhitelistCount] = useState<number | null>(null)
   const [fileName, setFileName] = useState<string>('Whitelist.csv')
-  const [isRevokeInvitationModalOpen, setIsRevokeInvitationModalOpen] =
-    useState(false)
+
   const [isDeleteWhitelistModalOpen, setIsDeleteWhitelistModalOpen] =
     useState(false)
 
@@ -49,16 +42,16 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
     variables: { groupId: Number(courseId) },
     onCompleted: (data) => {
       setWhiteListStudentIds(data?.getWhitelist)
+      setIsWhiteListEnabled(Boolean(data?.getWhitelist?.length))
     },
     onError: (error) => {
       toast.error(`Failed to fetch whitelist: ${error.message}`)
     }
   })
-
   const { refetch: fetchInvitationCode } = useQuery(GET_COURSE, {
     variables: { groupId: Number(courseId) },
     onCompleted: (data) => {
-      setIsInviteByCodeEnabled(Boolean(data?.getCourse.invitation))
+      setIsCodeInvitationEnabled(Boolean(data?.getCourse.invitation))
       if (data?.getCourse.invitation) {
         reset({
           invitationCode: data.getCourse.invitation
@@ -69,28 +62,29 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
       toast.error(`Failed to fetch invitation code: ${error.message}`)
     }
   })
-
-  useEffect(() => {
-    fetchWhiteList()
-    fetchInvitationCode()
-  }, [])
-
-  const handleUpdateButtonClick = async () => {
+  const updateInvitationCode = async () => {
     try {
-      const result = await issueInvitation({
+      const { data } = await issueInvitation({
         variables: { groupId: Number(courseId) }
       })
-
-      if (result.data) {
-        const data = result.data.issueInvitation
-        reset({
-          invitationCode: data
-        })
+      if (data?.issueInvitation) {
+        reset({ invitationCode: data.issueInvitation })
       }
     } catch (error) {
-      console.error('Issue invitation error:', error)
+      console.error('Failed to update invitation code:', error)
     }
   }
+
+  const [createWhitelist] = useMutation(CREATE_WHITE_LIST, {
+    refetchQueries: [
+      { query: GET_WHITE_LIST, variables: { groupId: courseId } }
+    ]
+  })
+  const [deleteWhitelist] = useMutation(DELETE_WHITE_LIST, {
+    refetchQueries: [
+      { query: GET_WHITE_LIST, variables: { groupId: courseId } }
+    ]
+  })
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -152,6 +146,11 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
   }
 
   useEffect(() => {
+    fetchWhiteList()
+    fetchInvitationCode()
+  }, [])
+
+  useEffect(() => {
     if (isUploaded && whitelistCount) {
       toast.success(`${whitelistCount} whiteListStudentIds are registered.`)
     }
@@ -159,162 +158,159 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
 
   return (
     <form
-      onSubmit={(event) => {
-        event.preventDefault()
-        handleUpdateButtonClick()
-      }}
       aria-label="Invite user"
-      className="flex flex-col gap-6 rounded-lg border p-[30px]"
+      className="flex flex-col gap-[30px] rounded-lg border p-[30px]"
     >
-      <div className="flex flex-col gap-[30px]">
-        <div className="flex items-center gap-[10px]">
-          <span className="text-lg">Invite by Invitation Code</span>
-          <Switch
-            checked={isInviteByCodeEnabled}
-            onCheckedChange={(checked) => {
-              if (!checked) {
-                setIsRevokeInvitationModalOpen(true)
-              } else {
-                handleUpdateButtonClick()
-                setIsInviteByCodeEnabled(true)
-              }
-            }}
-          />
-        </div>
-        {isInviteByCodeEnabled && (
-          <>
-            <div className="flex items-center justify-center gap-2 pl-10">
-              {getValues('invitationCode')
-                ?.split('')
-                .map((char, index) => (
-                  <div
-                    key={index}
-                    className="flex h-[42px] w-[42px] items-center justify-center rounded bg-gray-100 text-lg text-[#5C5C5C]"
-                  >
-                    {char}
-                  </div>
-                ))}
-              <Button
-                type="button"
-                className="bg-primary flex h-[36px] w-[72px] rounded-full"
-                onClick={() => {
-                  const invitationCode = getValues('invitationCode')
-                  toast.success('Copied Successfully !', {
-                    style: {
-                      background: '#F0F8FF',
-                      color: '#0973DC',
-                      borderRadius: '1000px',
-                      border: '1px solid rgba(255, 255, 255, 0.10)',
-                      maxWidth: '200px'
-                    },
-                    closeButton: false
-                  })
-                  navigator.clipboard.writeText(invitationCode)
-                }}
-              >
-                <IoCopyOutline size={20} className="text-white" />
-              </Button>
-            </div>
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-[10px]">
-                <span className="text-base text-[#5C5C5C]">
-                  Only approved accounts can enter
-                </span>
-                <Switch
-                  checked={whiteListStudentIds.length > 0}
-                  onCheckedChange={(checked) => {
-                    if (!checked) {
-                      if (whiteListStudentIds.length > 0) {
-                        setIsDeleteWhitelistModalOpen(true)
-                      }
-                    }
-                  }}
-                />
-                <AlertModal
-                  open={isDeleteWhitelistModalOpen}
-                  onOpenChange={setIsDeleteWhitelistModalOpen}
-                  type="warning"
-                  title="Disable Student Whitelist"
-                  description="The student ID whitelist will be deleted, and anyone will be able to join the course with an invitation code."
-                  primaryButton={{
-                    text: 'Ok',
-                    onClick: async () => {
-                      await deleteWhitelist({
-                        variables: { groupId: Number(courseId) }
-                      })
-                      setWhiteListStudentIds([])
-                      setIsDeleteWhitelistModalOpen(false)
-                    },
-                    variant: 'default'
-                  }}
-                />
-              </div>
-              {whiteListStudentIds.length > 0 && (
-                <div className="bg-fill flex flex-col gap-[18px] rounded-lg p-[20px]">
-                  <ul className="list-inside list-disc text-sm text-[#8A8A8A]">
-                    <li>
-                      When you upload a new file, the existing whitelist is
-                      deleted and replaced.
-                      <div className="pl-4">
-                        You can download the sample file{' '}
-                        <a
-                          href="/Whitelist_Sample.csv"
-                          className="text-primary underline"
-                        >
-                          here
-                        </a>
-                      </div>
-                    </li>
-                    <li>
-                      Current Whitelist:{' '}
-                      <CSVLink
-                        data={whiteListStudentIds.map((id) => ({
-                          studentId: id
-                        }))}
-                        headers={[{ label: 'studentId', key: 'studentId' }]}
-                        filename={fileName}
-                        className="text-primary underline"
-                      >
-                        {fileName}
-                      </CSVLink>
-                    </li>
-                  </ul>
-                  <label className="flex h-[40px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-full border border-[#D8D8D8] bg-white px-[28px] py-[12px]">
-                    <IoCloudUpload size={20} className="text-gray-700" />
-                    <span className="text-sm font-medium text-gray-700">
-                      Upload File (Excel)
-                    </span>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".csv, .xlsx, .xls"
-                      onChange={handleFileUpload}
-                    />
-                  </label>
-                </div>
-              )}
-            </div>
-          </>
-        )}
-        <AlertModal
-          type="warning"
-          title=" Disable Invitation Code"
-          description=" Students will no longer be able to join the course using the invitation code."
-          primaryButton={{
-            text: 'Ok',
-            onClick: async () => {
-              await revokeInvitation({
-                variables: { groupId: Number(courseId) }
-              })
-              setIsInviteByCodeEnabled(false)
-              setIsRevokeInvitationModalOpen(false)
-            },
-            variant: 'default'
+      <div className="flex items-center gap-[10px]">
+        <span className="text-lg">Invite by Invitation Code</span>
+        <Switch
+          checked={isCodeInvitationEnabled}
+          onCheckedChange={(checked) => {
+            if (!checked) {
+              setIsRevokeInvitationModalOpen(true)
+            } else {
+              updateInvitationCode()
+              setIsCodeInvitationEnabled(true)
+            }
           }}
-          open={isRevokeInvitationModalOpen}
-          onOpenChange={setIsRevokeInvitationModalOpen}
         />
       </div>
+      {isCodeInvitationEnabled && (
+        <>
+          <div className="flex items-center justify-center gap-2 pl-10">
+            {getValues('invitationCode')
+              ?.split('')
+              .map((char, index) => (
+                <div
+                  key={index}
+                  className="flex h-[42px] w-[42px] items-center justify-center rounded bg-gray-100 text-lg text-[#5C5C5C]"
+                >
+                  {char}
+                </div>
+              ))}
+            <Button
+              type="button"
+              className="bg-primary flex h-[36px] w-[72px] rounded-full"
+              onClick={() => {
+                const invitationCode = getValues('invitationCode')
+                toast.success('Copied Successfully !', {
+                  style: {
+                    background: '#F0F8FF',
+                    color: '#0973DC',
+                    borderRadius: '1000px',
+                    border: '1px solid rgba(255, 255, 255, 0.10)',
+                    maxWidth: '200px'
+                  },
+                  closeButton: false
+                })
+                navigator.clipboard.writeText(invitationCode)
+              }}
+            >
+              <IoCopyOutline size={20} className="text-white" />
+            </Button>
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-[10px]">
+              <span className="text-base text-[#5C5C5C]">
+                Only approved accounts can enter
+              </span>
+              <Switch
+                checked={isWhiteListEnabled}
+                onCheckedChange={(checked) => {
+                  if (!checked) {
+                    if (whiteListStudentIds.length > 0) {
+                      setIsDeleteWhitelistModalOpen(true)
+                    } else {
+                      setIsWhiteListEnabled(false)
+                    }
+                  } else {
+                    setIsWhiteListEnabled(true)
+                  }
+                }}
+              />
+              <AlertModal
+                open={isDeleteWhitelistModalOpen}
+                onOpenChange={setIsDeleteWhitelistModalOpen}
+                type="warning"
+                title="Disable Student Whitelist"
+                description="The student ID whitelist will be deleted, and anyone will be able to join the course with an invitation code."
+                primaryButton={{
+                  text: 'Ok',
+                  onClick: async () => {
+                    await deleteWhitelist({
+                      variables: { groupId: Number(courseId) }
+                    })
+                    setWhiteListStudentIds([])
+                    setIsWhiteListEnabled(false)
+                  },
+                  variant: 'default'
+                }}
+              />
+            </div>
+            {isWhiteListEnabled && (
+              <div className="bg-fill flex flex-col gap-[18px] rounded-lg p-[20px]">
+                <ul className="list-inside list-disc text-sm text-[#8A8A8A]">
+                  <li>
+                    When you upload a new file, the existing whitelist is
+                    deleted and replaced.
+                    <div className="pl-4">
+                      You can download the sample file{' '}
+                      <a
+                        href="/Whitelist_Sample.csv"
+                        className="text-primary underline"
+                      >
+                        here
+                      </a>
+                    </div>
+                  </li>
+                  <li>
+                    Current Whitelist:{' '}
+                    <CSVLink
+                      data={whiteListStudentIds.map((id) => ({
+                        studentId: id
+                      }))}
+                      headers={[{ label: 'studentId', key: 'studentId' }]}
+                      filename={fileName}
+                      className="text-primary underline"
+                    >
+                      {fileName}
+                    </CSVLink>
+                  </li>
+                </ul>
+                <label className="flex h-[40px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-full border border-[#D8D8D8] bg-white px-[28px] py-[12px]">
+                  <IoCloudUpload size={20} className="text-gray-700" />
+                  <span className="text-sm font-medium text-gray-700">
+                    Upload File (Excel)
+                  </span>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".csv, .xlsx, .xls"
+                    onChange={handleFileUpload}
+                  />
+                </label>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+      <AlertModal
+        type="warning"
+        title=" Disable Invitation Code"
+        description=" Students will no longer be able to join the course using the invitation code."
+        primaryButton={{
+          text: 'Ok',
+          onClick: async () => {
+            await revokeInvitation({
+              variables: { groupId: Number(courseId) }
+            })
+            setIsCodeInvitationEnabled(false)
+          },
+          variant: 'default'
+        }}
+        open={isRevokeInvitationModalOpen}
+        onOpenChange={setIsRevokeInvitationModalOpen}
+      />
     </form>
   )
 }
