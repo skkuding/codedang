@@ -1,6 +1,5 @@
-import Image from 'next/image'
-import Link from 'next/link'
 import { Badge } from '@/components/shadcn/badge'
+import { Card, CardContent } from '@/components/shadcn/card'
 import {
   Carousel,
   CarouselContent,
@@ -8,10 +7,11 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/shadcn/carousel'
-import { Card, CardContent } from '@/components/shadcn/card'
-import type { Level } from '@/types/type'
 import GrayRightArrow from '@/public/icons/GrayRightArrow.svg'
 import RightArrow from '@/public/icons/RightArrow.svg'
+import type { Level } from '@/types/type'
+import Image from 'next/image'
+import Link from 'next/link'
 import { getProblemList } from '../../_libs/apis/problem'
 
 const { data: problems } = await getProblemList({
@@ -21,7 +21,7 @@ const { data: problems } = await getProblemList({
 export function NewProblemCards() {
   return (
     problems.length > 0 && (
-      <div className="flex flex-col items-start gap-5 pl-[116px] w-screen 2xl:ml-[240px]">
+      <div className="flex w-screen flex-col items-start gap-5 pl-[116px] 2xl:ml-[240px]">
         <Carousel className="flex w-full flex-col gap-10">
           <div className="flex w-full justify-between pr-[116px]">
             <p className="text-3xl font-semibold leading-[36px] tracking-[-0.9px]">
@@ -35,8 +35,8 @@ export function NewProblemCards() {
 
           {/* NOTE: Outer div wrapper added to prevent card shadow from being clipped */}
           {/* Set z-index to negative to ensure that elements remain clickable */}
-          <div className="-ml-24 -my-24 z-[-10]">
-            <CarouselContent className="ml-20 my-24">
+          <div className="z-[-10] -my-24 -ml-24">
+            <CarouselContent className="my-24 ml-20">
               {problems.map((problem) => (
                 <CarouselItem key={problem.id}>
                   <NewProblemCard problem={problem} />
@@ -46,8 +46,8 @@ export function NewProblemCards() {
           </div>
         </Carousel>
 
-        <Link href={'/problem'}>
-          <div className="flex items-center justify-center gap-[2px] py-[4px] border-b border-[#B0B0B0]">
+        <Link href={'/problem'} className="relative z-20">
+          <div className="flex items-center justify-center gap-[2px] border-b border-[#B0B0B0] py-[4px]">
             <p className="font-pretendard flex h-8 items-center text-[16px] font-medium leading-[22.4px] tracking-[-0.48px] text-[#5C5C5C]">
               Go to Problem
             </p>
@@ -76,11 +76,13 @@ function NewProblemCard({
           >
             Level {problem.difficulty.slice(-1)}
           </Badge>
-          <h3 className="text-lg font-semibold line-clamp-2 break-normal break-keep">{problem.title}</h3>
+          <h3 className="line-clamp-2 break-normal break-keep text-lg font-semibold">
+            {problem.title}
+          </h3>
         </div>
 
         <Link href={`/problem/${problem.id}`}>
-          <div className="flex h-12 items-center justify-between rounded-full bg-[#F5F5F5] pr-1 py-1 pl-[50px]">
+          <div className="flex h-12 items-center justify-between rounded-full bg-[#F5F5F5] py-1 pl-[50px] pr-1">
             <p className="text-[18px] font-medium leading-[140%] tracking-[-0.54px] text-[#737373]">
               Go to Problem
             </p>
