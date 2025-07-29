@@ -235,6 +235,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       <div className="mb-[40px] flex w-full items-center justify-between">
         <button
           className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 1 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
+          type="button"
           onClick={() => {
             setDataChangeTrigger(0)
             setTestcaseFlag(0)
@@ -244,6 +245,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
         </button>
         <button
           className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 0 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
+          type="button"
           onClick={() => {
             setDataChangeTrigger(0)
             setTestcaseFlag(1)
@@ -276,7 +278,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
               />
             </div>
             <div className="flex items-center justify-between gap-2">
-              <button className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]">
+              <button
+                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
+                type="button"
+              >
                 <img
                   src="/icons/upload.svg"
                   alt="upload Icon"
@@ -289,6 +294,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   deleteSelectedTestcases()
                   setDataChangeTrigger((prev) => prev + 1)
                 }}
+                type="button"
                 className={cn(
                   'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
                   selectedTestcases.length > 0
@@ -313,6 +319,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                     addTestcase(false)
                     setDataChangeTrigger((prev) => prev + 1)
                   }}
+                  type="button"
                   className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
                 >
                   <img
@@ -374,7 +381,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
               />
             </div>
             <div className="flex items-center justify-between gap-2">
-              <button className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]">
+              <button
+                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
+                type="button"
+              >
                 <img
                   src="/icons/upload.svg"
                   alt="upload Icon"
@@ -386,6 +396,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   deleteSelectedTestcases()
                   setDataChangeTrigger((prev) => prev + 1)
                 }}
+                type="button"
                 className={cn(
                   'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
                   selectedTestcases.length > 0
@@ -410,6 +421,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                     addTestcase(true)
                     setDataChangeTrigger((prev) => prev + 1)
                   }}
+                  type="button"
                   className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
                 >
                   <img
