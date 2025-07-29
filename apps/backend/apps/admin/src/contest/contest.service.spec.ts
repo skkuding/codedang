@@ -5,7 +5,6 @@ import { Problem } from '@generated'
 import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
 import { ContestRole, ResultStatus, Role } from '@prisma/client'
-import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
@@ -207,8 +206,8 @@ const input = {
 } satisfies CreateContestInput
 
 const updateInput = {
-  startTime: faker.date.recent(),
-  endTime: faker.date.future(),
+  startTime,
+  endTime,
   registerDueTime: faker.date.past(),
   freezeTime: faker.date.between({
     from: startTime,
@@ -290,7 +289,6 @@ const db = {
 
 describe('ContestService', () => {
   let service: ContestService
-  let cache: Cache
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -312,8 +310,6 @@ describe('ContestService', () => {
     }).compile()
 
     service = module.get<ContestService>(ContestService)
-    cache = module.get<Cache>(CACHE_MANAGER)
-    stub(cache.store, 'keys').resolves(['contest:1:publicize'])
   })
 
   it('should be defined', () => {

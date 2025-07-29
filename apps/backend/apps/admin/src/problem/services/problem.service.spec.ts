@@ -2,12 +2,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Level } from '@generated'
+import { Role } from '@prisma/client'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { S3MediaProvider, S3Provider } from '@admin/storage/s3.provider'
-import { StorageService } from '@admin/storage/storage.service'
+import { S3MediaProvider, S3Provider, StorageService } from '@libs/storage'
 import {
   fileUploadInput,
   user,
@@ -27,6 +27,15 @@ import { FileService, ProblemService, TagService, TestcaseService } from './'
  */
 
 const db = {
+  user: {
+    findUnique: stub().resolves({ role: Role.User })
+  },
+  userGroup: {
+    findMany: stub().resolves([])
+  },
+  userContest: {
+    findUnique: stub().resolves(null)
+  },
   problem: {
     findMany: stub(),
     findFirstOrThrow: stub(),

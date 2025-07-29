@@ -14,7 +14,7 @@ export default function Layout({ children, params }: CourseLayoutProps) {
         title="COURSE"
         description="Structured Learning, Real-World Coding"
       />
-      <div className="flex h-full w-full flex-col">
+      <div className="flex h-full w-full max-w-[1440px] flex-col">
         <div className="flex flex-row">
           <CourseSidebar courseId={courseId} />
           <article className="w-full">

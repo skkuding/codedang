@@ -1,5 +1,7 @@
 'use client'
 
+import { AlertModal } from '@/components/AlertModal'
+import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import personFillIcon from '@/public/icons/person-fill.svg'
@@ -9,7 +11,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Modal } from '../../_components/Modal'
 
 export function RegisterCourseButton() {
   const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false)
@@ -83,25 +84,25 @@ export function RegisterCourseButton() {
       }
       setIsVerified(false)
       setInvitationCode('')
+      setIsVerifyDialogOpen(true)
     }
   }
 
   return (
     <>
-      <Button
-        variant="outline"
-        onClick={() => setIsRegisterDialogOpen(true)}
-        className="border-primary flex h-8 w-[127px] items-center justify-center gap-2 rounded-full border hover:bg-[#EAF3FF]"
-      >
-        <Image src={plusCircleIcon} alt="plusIcon" />
-        <span className="text-primary text-lg font-semibold">Register</span>
-      </Button>
       <Modal
+        trigger={
+          <Button
+            variant="outline"
+            className="border-primary flex h-8 w-[127px] items-center justify-center gap-2 rounded-full border hover:bg-[#EAF3FF]"
+          >
+            <Image src={plusCircleIcon} alt="plusIcon" />
+            <span className="text-primary text-lg font-semibold">Register</span>
+          </Button>
+        }
         open={isRegisterDialogOpen}
-        onOpenChange={setIsRegisterDialogOpen}
         size="sm"
         title="Course Register"
-        onClose={() => setIsRegisterDialogOpen(false)}
         primaryButton={{
           text: 'Register',
           onClick: handleFindCourseByInvitation
@@ -114,21 +115,15 @@ export function RegisterCourseButton() {
         }}
         type="input"
       />
-      <Modal
+      <AlertModal
         open={isVerifyDialogOpen && isVerified}
         onOpenChange={setIsVerifyDialogOpen}
-        size="sm"
         title="Verified"
         description="Are you sure you want to register this course?"
         onClose={() => setIsVerifyDialogOpen(false)}
         primaryButton={{
           text: 'Register',
           onClick: handleRegisterCourse
-        }}
-        secondaryButton={{
-          text: 'Cancel',
-          onClick: () => setIsVerifyDialogOpen(false),
-          variant: 'outline'
         }}
         type="confirm"
       >
@@ -152,7 +147,7 @@ export function RegisterCourseButton() {
             </p>
           </div>
         </div>
-      </Modal>
+      </AlertModal>
       <Modal
         open={isVerifyDialogOpen && !isVerified}
         onOpenChange={setIsVerifyDialogOpen}

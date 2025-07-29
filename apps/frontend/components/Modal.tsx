@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
@@ -8,7 +10,9 @@ import {
 } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
 import infoIcon from '@/public/icons/info.svg'
+import { DialogTrigger } from '@radix-ui/react-dialog'
 import Image from 'next/image'
+import { useState } from 'react'
 import { ModalInput } from './ModalInput'
 
 export interface InputProps {
@@ -25,10 +29,11 @@ interface ButtonProps {
 }
 
 interface ModalProps {
-  open: boolean
+  trigger?: React.ReactNode
+  open?: boolean
   onOpenChange?: (open: boolean) => void
   size: 'sm' | 'md' | 'lg'
-  type: 'confirm' | 'input' | 'warning' | 'custom'
+  type: 'input' | 'warning' | 'custom'
   title: string
   description?: string
   inputProps?: InputProps
@@ -39,12 +44,13 @@ interface ModalProps {
 }
 
 const sizeClassMap = {
-  sm: 'w-[424px] h-[280px] p-[40px]',
-  md: 'w-[600px] h-[580px] p-[50px]',
-  lg: 'w-[800px] h-[620px] p-[50px]'
+  sm: '!w-[424px] !h-[280px] !p-[40px]',
+  md: '!w-[600px] !h-[580px] !py-[50px] !px-[40px]',
+  lg: '!w-[800px] !h-[620px] !py-[50px] !px-[40px]'
 }
 
 export function Modal({
+  trigger,
   open,
   onOpenChange,
   size,
@@ -57,8 +63,13 @@ export function Modal({
   children,
   onClose
 }: ModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlled = open !== undefined && onOpenChange !== undefined
+  const actualOpen = isControlled ? open : internalOpen
+  const handleOpenChange = isControlled ? onOpenChange : setInternalOpen
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={actualOpen} onOpenChange={handleOpenChange}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         className={cn(
           sizeClassMap[size],

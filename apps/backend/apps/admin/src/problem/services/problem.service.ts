@@ -15,7 +15,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { StorageService } from '@admin/storage/storage.service'
+import { StorageService } from '@libs/storage'
 import { ImportedProblemHeader } from '../model/problem.constants'
 import type {
   CreateProblemInput,
@@ -320,6 +320,22 @@ export class ProblemService {
     mode: 'my' | 'shared' | 'contest',
     contestId?: number | null
   ): Promise<ProblemWhereInput> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    })
+    const isSuper = user?.role === Role.SuperAdmin
+
+    // SuperAdmin의 경우 mode에 관계 없이 my와 모든 contest의 문제들 조회 가능
+    if (isSuper) {
+      return {
+        OR: [
+          { createdById: { equals: userId } },
+          { contestProblem: { some: {} } }
+        ]
+      }
+    }
+
     switch (mode) {
       case 'my':
         return { createdById: { equals: userId } }

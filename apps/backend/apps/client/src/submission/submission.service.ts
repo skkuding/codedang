@@ -3,12 +3,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
-  ResultStatus,
-  Submission,
   Language,
-  Problem,
-  Role,
   Prisma,
+  Problem,
+  ResultStatus,
+  Role,
+  Submission,
   TestSubmission
 } from '@prisma/client'
 import { AxiosRequestConfig } from 'axios'
@@ -632,7 +632,9 @@ export class SubmissionService {
    * 5. `isUserTest` 플래그에 따라 사용자 테스트 케이스와 공개 테스트 케이스를 구분하여 채점 요청 큐에 적절한 메시지를 발행
    *    - 사용자 테스트 케이스인 경우: `publishUserTestMessage`를 호출하여 사용자 테스트 케이스에 대해 제출을 처리
    *    - 공개 테스트 케이스인 경우: `publishTestMessage`를 호출하여 공개 테스트 케이스에 대해 제출을 처리
-   *
+   * 6. `containHiddenTestcases` 플래그에 따라 히든 테스트 케이스에 대한 결과를 포함할 지 결정
+   *    - isGroupLeader: 해당 문제가 속한 UserGroup의 GroupLeader인 경우 포함
+   *    - isContestStaff: 해당 문제가 속한 Contest의 Admin / Manager / Reviewer인 경우 포함
    * @param {number} userId - 테스트 제출 기록을 생성할 사용자의 ID
    * @param {number} problemId - 테스트 제출 기록을 생성할 문제의 ID
    * @param {CreateSubmissionDto} submissionDto - 제출할 코드 및 관련 데이터
@@ -654,6 +656,32 @@ export class SubmissionService {
     const problem = await this.prisma.problem.findFirst({
       where: {
         id: problemId
+      },
+      include: {
+        sharedGroups: {
+          select: {
+            userGroup: {
+              where: {
+                userId: userId,
+                isGroupLeader: true
+              }
+            }
+          }
+        },
+        contestProblem: {
+          select: {
+            contest: {
+              select: {
+                userContest: {
+                  where: {
+                    userId: userId,
+                    role: { in: ['Admin', 'Manager', 'Reviewer'] }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     })
 
@@ -693,13 +721,31 @@ export class SubmissionService {
       return testSubmission
     }
 
+    // problem.sharedGroups 중에서 userGroup들 중에서 userId가 주어진 userId이고,
+    // isGroupLeader = True인 userGroup이 존재하면
+    const isGroupLeader = problem.sharedGroups.some(
+      (sharedGroup) => sharedGroup.userGroup.length > 0
+    )
+
+    // 해당 problem이 포함된 contest에 대한 Admin / Manager / Reviewer인지 확인
+    const isContestStaff = problem.contestProblem.some(
+      (contestProblem) => contestProblem.contest.userContest.length > 0
+    )
+
+    const containHiddenTestcases = isGroupLeader || isContestStaff
+
     // Open Testcase에 대한 TEST 요청인 경우
     const testSubmission = await this.createTestSubmission(
       { ...submissionDto, problemId, userId, userIp },
       code,
       false
     )
-    await this.publishTestMessage(problemId, submissionDto.code, testSubmission)
+    await this.publishTestMessage(
+      problemId,
+      submissionDto.code,
+      testSubmission,
+      containHiddenTestcases
+    )
     return testSubmission
   }
 
@@ -715,17 +761,19 @@ export class SubmissionService {
    * @param {number} problemId - 문제 ID
    * @param {Snippet[]} code - 제출된 코드 스니펫 배열
    * @param {Submission} testSubmission - 테스트 제출 객체
+   * @param {boolean} containHiddenTestcases - Hidden Testcase 포함 여부
    * @returns {Promise<void>}
    */
   async publishTestMessage(
     problemId: number,
     code: Snippet[],
-    testSubmission: TestSubmission
+    testSubmission: TestSubmission,
+    containHiddenTestcases: boolean
   ): Promise<void> {
     const rawTestcases = await this.prisma.problemTestcase.findMany({
       where: {
         problemId,
-        isHidden: false
+        ...(containHiddenTestcases ? {} : { isHidden: false })
       }
     })
 
@@ -745,7 +793,8 @@ export class SubmissionService {
       code,
       submission: testSubmission,
       isTest: true,
-      stopOnNotAccepted: false
+      stopOnNotAccepted: false,
+      containHiddenTestcases
     })
   }
 
