@@ -5,6 +5,7 @@ import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { baseUrl } from '@/libs/constants'
+import { safeFetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { TestResultDetail } from '@/types/type'
 import { useQuery, useSuspenseQuery, useLazyQuery } from '@apollo/client'
@@ -14,6 +15,56 @@ import Link from 'next/link'
 import { useCallback, useState, useEffect } from 'react'
 import { AssignmentProblemDropdown } from './AssignmentProblemDropdown'
 import { EditorMainResizablePanel } from './EditorResizablePanel'
+
+async function submitCodeForTesting(
+  problemId: number,
+  language: string,
+  code: string
+) {
+  await safeFetcherWithAuth.post('submission/test', {
+    json: {
+      language,
+      code: [
+        {
+          id: 1,
+          text: code,
+          locked: false
+        }
+      ]
+    },
+    searchParams: {
+      problemId
+    }
+  })
+}
+
+async function pollTestResults(problemId: number) {
+  let attempts = 0
+  const maxAttempts = 10
+  const interval = 2000
+
+  while (attempts < maxAttempts) {
+    const pollData = await safeFetcherWithAuth
+      .get('submission/test', {
+        searchParams: {
+          problemId
+        }
+      })
+      .json()
+
+    if (
+      Array.isArray(pollData) &&
+      pollData.every((r) => r.result !== 'Judging')
+    ) {
+      return pollData
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, interval))
+    attempts++
+  }
+
+  return null
+}
 
 interface EditorLayoutProps {
   courseId: number
@@ -83,48 +134,10 @@ export function EditorLayout({
     try {
       const { data: testcaseResult } = await fetchTestcase()
 
-      await fetch(`${baseUrl}/submission/test?problemId=${problemId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: session?.token?.accessToken || ''
-        },
-        body: JSON.stringify({
-          language,
-          code: [
-            {
-              id: 1,
-              text: editorCode,
-              locked: false
-            }
-          ]
-        })
-      })
-      let attempts = 0
-      const maxAttempts = 10
-      const interval = 2000
-      let finalResult = null
-      while (attempts < maxAttempts) {
-        const pollRes = await fetch(
-          `${baseUrl}/submission/test?problemId=${problemId}`,
-          {
-            method: 'GET',
-            headers: {
-              Authorization: session?.token?.accessToken || ''
-            }
-          }
-        )
-        const pollData = await pollRes.json()
-        if (
-          Array.isArray(pollData) &&
-          pollData.every((r) => r.result !== 'Judging')
-        ) {
-          finalResult = pollData
-          break
-        }
-        await new Promise((resolve) => setTimeout(resolve, interval))
-        attempts++
-      }
+      await submitCodeForTesting(problemId, language, editorCode)
+
+      const finalResult = await pollTestResults(problemId)
+
       if (finalResult) {
         const testcases = testcaseResult?.getProblem?.testcase || []
         const resultMap = new Map(finalResult.map((r) => [Number(r.id), r]))
@@ -150,7 +163,7 @@ export function EditorLayout({
     } finally {
       setIsTesting(false)
     }
-  }, [language, editorCode, problemId, session, fetchTestcase])
+  }, [language, editorCode, problemId, fetchTestcase])
 
   return (
     // Admin Layout의 Sidebar를 무시하기 위한 fixed
