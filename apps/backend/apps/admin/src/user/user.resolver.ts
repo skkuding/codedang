@@ -1,6 +1,7 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
+import type { request } from 'http'
 import { UseGroupLeaderGuard } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
@@ -132,7 +133,12 @@ export class GroupMemberResolver {
     userId: number,
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('toGroupLeader') toGroupLeader: boolean,
-    @Args('requesterId', { type: () => Int }) requesterId: number // 요청하는 사용자의 ID
+    @Args(
+      'requesterId',
+      { type: () => Int },
+      new RequiredIntPipe('requesterId')
+    )
+    requesterId: number
   ) {
     // 자기 자신의 role을 변경하려는 경우 에러 발생
     if (requesterId === userId) {
