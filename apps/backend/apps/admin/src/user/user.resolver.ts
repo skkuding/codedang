@@ -117,21 +117,21 @@ export class GroupMemberResolver {
     return await this.groupMemberService.getGroupMember(groupId, userId)
   }
 
-  /**
-   * 특정 그룹 멤버를 리더로 업데이트함
-   *
-   * @param {number} userId - 역할을 업데이트 할 사용자의 ID.
-   * @param {number} groupId - 업데이트 대상 그룹의 ID.
-   * @param {boolean} toGroupLeader - 사용자를 리더로 설정할지에 대한 플래그
-   * @returns {Promise<UserGroup>} 업데이트된 그룹 멤버 객체를 리턴.
-   */
   @Mutation(() => UserGroup)
   async updateGroupMember(
     @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
     userId: number,
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('toGroupLeader') toGroupLeader: boolean
+    @Args('toGroupLeader') toGroupLeader: boolean,
+    @Args('requesterId', { type: () => Int }) requesterId: number // 요청하는 사용자의 ID
   ) {
+    // 자기 자신의 role을 변경하려는 경우 에러 발생
+    if (requesterId === userId) {
+      throw new UnprocessableDataException(
+        'You cannot change your own role. Please ask another instructor to change your role.'
+      )
+    }
+
     return await this.groupMemberService.updateGroupRole(
       userId,
       groupId,
