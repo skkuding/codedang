@@ -13,7 +13,9 @@ spec:
     path: apps/k8s/redis
     repoURL: https://github.com/skkuding/codedang
     targetRevision: main
-    kustomize:
+    helm:
+      valueFiles:
+        - values.yaml
   project: default
   syncPolicy:
     automated:
