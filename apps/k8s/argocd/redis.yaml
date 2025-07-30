@@ -12,10 +12,10 @@ spec:
   source:
     path: apps/k8s/redis
     repoURL: https://github.com/skkuding/codedang
-    targetRevision: main # TODO: `prod`로 변경
+    targetRevision: main
     helm:
       valueFiles:
-        - values-prod.yaml
+        - values.yaml
   project: default
   syncPolicy:
     automated:
