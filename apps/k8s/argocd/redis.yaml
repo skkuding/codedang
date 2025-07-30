@@ -8,13 +8,12 @@ metadata:
 spec:
   destination:
     namespace: redis
-    server: https://kubernetes.default.svc  # TODO: 실제 Stage 클러스터 API 서버 주소로 변경
+    server: https://kubernetes.default.svc
   source:
-    path: apps/k8s/redis/overlays/stage
+    path: apps/k8s/redis
     repoURL: https://github.com/skkuding/codedang
     targetRevision: main
     kustomize:
-      namespace: redis
   project: default
   syncPolicy:
     automated:
