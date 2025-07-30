@@ -427,7 +427,7 @@ export function EditorHeader({
         const cleanHref = href
           .replace('?force=true', '')
           .replace('&force=true', '')
-        originalPush(cleanHref, ...args)
+        originalPush(cleanHref as Route, ...args)
         return
       }
 
