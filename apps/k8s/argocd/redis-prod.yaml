@@ -15,6 +15,7 @@ spec:
     targetRevision: main # TODO: `prod`로 변경
     helm:
       valueFiles:
+        - values.yaml
         - values-prod.yaml
   project: default
   syncPolicy:
