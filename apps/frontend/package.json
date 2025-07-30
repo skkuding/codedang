@@ -101,6 +101,7 @@
     "highlight.js": "^11.11.1",
     "isomorphic-dompurify": "^2.26.0",
     "js-confetti": "^0.12.0",
+    "jszip": "^3.10.1",
     "jwt-decode": "^4.0.0",
     "katex": "^0.16.22",
     "ky": "^1.8.2",

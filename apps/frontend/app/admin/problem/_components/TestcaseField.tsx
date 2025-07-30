@@ -19,6 +19,7 @@ import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { Label } from '../../_components/Label'
 import { isInvalid } from '../_libs/utils'
 import { TestcaseItem } from './TestcaseItem'
+import { TestcaseUploadModal } from './TestcaseUploadModal'
 
 export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const {
@@ -40,6 +41,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const [searchTC, setsearchTC] = useState('')
   const [selectedTestcases, setSelectedTestcases] = useState<number[]>([])
   const [dataChangeTrigger, setDataChangeTrigger] = useState<number>(0)
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false)
 
   useEffect(() => {
     const allFilled = watchedItems.every((item) => !isInvalid(item.scoreWeight))
@@ -53,6 +55,23 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       ...getValues('testcases'),
       { input: '', output: '', isHidden, scoreWeight: '' }
     ])
+  }
+
+  const handleUploadTestcases = (
+    uploadedTestcases: Array<{ input: string; output: string }>
+  ) => {
+    const currentTestcases = getValues('testcases')
+    const isHidden = testcaseFlag === 1
+
+    const newTestcases = uploadedTestcases.map((testcase) => ({
+      input: testcase.input,
+      output: testcase.output,
+      isHidden,
+      scoreWeight: ''
+    }))
+
+    setValue('testcases', [...currentTestcases, ...newTestcases])
+    setDataChangeTrigger((prev) => prev + 1)
   }
   const handleSelectTestcase = (index: number, isSelected: boolean) => {
     setSelectedTestcases((prev) =>
@@ -178,28 +197,35 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     return filteredTC.slice(startIndex, startIndex + PAGE_SIZE)
   }, [filteredTC, currentPage])
 
+  const currentGroup = Math.floor((currentPage - 1) / 10)
+  const groupStartPage = currentGroup * 10 + 1
+  const groupEndPage = Math.min(groupStartPage + 9, totalPages)
+  const totalGroups = Math.ceil(totalPages / 10)
+
   const paginatorProps = {
     page: {
       current: currentPage,
-      first: 1,
-      count: totalPages,
+      first: groupStartPage,
+      count: groupEndPage - groupStartPage + 1,
       goto: (page: number) => {
-        if (page >= 1 && page <= totalPages) {
+        if (page >= groupStartPage && page <= groupEndPage) {
           setDataChangeTrigger((prev) => prev + 1)
           setCurrentPage(page)
         }
       }
     },
     slot: {
-      prev: currentPage > 1 ? 'prev' : '',
-      next: currentPage < totalPages ? 'next' : '',
+      prev: currentGroup > 0 ? 'prev' : '',
+      next: currentGroup < totalGroups - 1 ? 'next' : '',
       goto: (direction: 'prev' | 'next') => {
-        if (direction === 'prev' && currentPage > 1) {
+        if (direction === 'prev' && currentGroup > 0) {
+          const targetPage = currentGroup * 10
           setDataChangeTrigger((prev) => prev + 1)
-          setCurrentPage((p) => p - 1)
-        } else if (direction === 'next' && currentPage < totalPages) {
+          setCurrentPage(targetPage)
+        } else if (direction === 'next' && currentGroup < totalGroups - 1) {
+          const targetPage = (currentGroup + 1) * 10 + 1
           setDataChangeTrigger((prev) => prev + 1)
-          setCurrentPage((p) => p + 1)
+          setCurrentPage(targetPage)
         }
       }
     }
@@ -258,7 +284,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             Sample Testcase
           </Label>
           <div className="flex w-full items-center justify-between">
-            <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[1px] border-[#D8D8D8] bg-white py-2 pl-3">
+            <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
               <Image
                 src="/icons/search.svg"
                 alt="Search Icon"
@@ -278,8 +304,9 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             </div>
             <div className="flex items-center justify-between gap-2">
               <button
-                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
+                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
                 type="button"
+                onClick={() => setIsUploadModalOpen(true)}
               >
                 <Image
                   src="/icons/upload.svg"
@@ -287,7 +314,6 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   width={20}
                   height={20}
                 />
-                {/* 테스트케이스 업로드하는 함수 추가 해주시면 될 것 같아요 */}
               </button>
               <button
                 onClick={() => {
@@ -365,7 +391,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             Hidden Testcase
           </Label>
           <div className="flex w-full items-center justify-between">
-            <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[1px] border-[#D8D8D8] bg-white py-2 pl-3">
+            <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
               <Image
                 src="/icons/search.svg"
                 alt="Search Icon"
@@ -385,8 +411,9 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             </div>
             <div className="flex items-center justify-between gap-2">
               <button
-                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
+                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
                 type="button"
+                onClick={() => setIsUploadModalOpen(true)}
               >
                 <Image
                   src="/icons/upload.svg"
@@ -473,7 +500,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 className={cn(
                   'flex h-10 w-[133px] items-center gap-2 px-3 py-2',
                   isScoreNull &&
-                    'bg-#FFFFFF border border-[1px] border-[#D8D8D8] text-[#9B9B9B] !opacity-100'
+                    'bg-#FFFFFF border border-[#D8D8D8] text-[#9B9B9B] !opacity-100'
                 )}
                 onClick={() => {
                   initializeScore()
@@ -498,7 +525,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           <span className="ml-1 mr-5 font-medium text-[#3581FA]">
             {filteredItems.length}
           </span>
-          <div className="hide-spin-button mr-1 flex h-7 w-20 items-center justify-center rounded-[1000px] border border-[1px] border-[#D8D8D8] bg-[#F5F5F5] px-2 py-1 text-center text-base font-medium text-[#000000]">
+          <div className="hide-spin-button mr-1 flex h-7 w-20 items-center justify-center rounded-[1000px] border border-[#D8D8D8] bg-[#F5F5F5] px-2 py-1 text-center text-base font-medium text-[#000000]">
             {totalScore}
           </div>
           <span className="text-sm font-semibold text-[#737373]">(%)</span>
@@ -542,6 +569,12 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
         headerDescription={dialogDescription}
         onClose={() => setDialogOpen(false)}
         type="warning"
+      />
+      <TestcaseUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onUpload={handleUploadTestcases}
+        isHidden={testcaseFlag === 1}
       />
     </div>
   )
