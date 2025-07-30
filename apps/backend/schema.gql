@@ -66,6 +66,7 @@ type AnnouncementWithProblemOrder {
 }
 
 type Assignment {
+  PlagiarismCheck: [PlagiarismCheck!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
@@ -101,6 +102,7 @@ type AssignmentAvgAggregate {
 }
 
 type AssignmentCount {
+  PlagiarismCheck: Int!
   assignmentProblem: Int!
   assignmentRecord: Int!
   submission: Int!
@@ -448,6 +450,7 @@ type AssignmentSumAggregate {
 
 """assignmentWithParticipants"""
 type AssignmentWithParticipants {
+  PlagiarismCheck: [PlagiarismCheck!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
@@ -477,6 +480,7 @@ type AssignmentWithParticipants {
 }
 
 type AssignmentWithScores {
+  PlagiarismCheck: [PlagiarismCheck!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
@@ -533,6 +537,7 @@ input Config {
 
 type Contest {
   ContestQnA: [ContestQnA!]
+  PlagiarismCheck: [PlagiarismCheck!]
   _count: ContestCount!
   announcement: [Announcement!]
   contestProblem: [ContestProblem!]
@@ -587,6 +592,7 @@ type ContestAvgAggregate {
 
 type ContestCount {
   ContestQnA: Int!
+  PlagiarismCheck: Int!
   announcement: Int!
   contestProblem: Int!
   contestRecord: Int!
@@ -1087,6 +1093,7 @@ type ContestUpdateHistories {
 """contestWithParticipants"""
 type ContestWithParticipants {
   ContestQnA: [ContestQnA!]
+  PlagiarismCheck: [PlagiarismCheck!]
   _count: ContestCount!
   announcement: [Announcement!]
   contestProblem: [ContestProblem!]
@@ -1136,6 +1143,7 @@ type ContestWithParticipants {
 
 type ContestWithScores {
   ContestQnA: [ContestQnA!]
+  PlagiarismCheck: [PlagiarismCheck!]
   _count: ContestCount!
   announcement: [Announcement!]
   contestProblem: [ContestProblem!]
@@ -1605,7 +1613,7 @@ enum Level {
 }
 
 type Mutation {
-  checkProblemSubmissions(input: CreatePlagiarismCheckInput!, problemId: Int!): PlagiarismCheck!
+  checkAssignmentSubmissions(assignmentId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): PlagiarismCheck!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!
@@ -1715,8 +1723,12 @@ type NoticeSumAggregate {
 }
 
 type PlagiarismCheck {
+  assignment: Assignment
+  assignmentId: Int
   checkId: String!
   checkPreviousSubmission: Boolean!
+  contest: Contest
+  contestId: Int
   createTime: DateTime!
   enableMerging: Boolean!
   id: ID!
@@ -1728,19 +1740,26 @@ type PlagiarismCheck {
   useJplagClustering: Boolean!
   user: User
   userId: Int
+  workbook: Workbook
+  workbookId: Int
 }
 
 type PlagiarismCheckAvgAggregate {
+  assignmentId: Float
+  contestId: Float
   id: Float
   minTokens: Float
   problemId: Float
   userId: Float
+  workbookId: Float
 }
 
 type PlagiarismCheckCountAggregate {
   _all: Int!
+  assignmentId: Int!
   checkId: Int!
   checkPreviousSubmission: Int!
+  contestId: Int!
   createTime: Int!
   enableMerging: Int!
   id: Int!
@@ -1750,11 +1769,14 @@ type PlagiarismCheckCountAggregate {
   result: Int!
   useJplagClustering: Int!
   userId: Int!
+  workbookId: Int!
 }
 
 type PlagiarismCheckMaxAggregate {
+  assignmentId: Int
   checkId: String
   checkPreviousSubmission: Boolean
+  contestId: Int
   createTime: DateTime
   enableMerging: Boolean
   id: Int
@@ -1764,11 +1786,14 @@ type PlagiarismCheckMaxAggregate {
   result: CheckResultStatus
   useJplagClustering: Boolean
   userId: Int
+  workbookId: Int
 }
 
 type PlagiarismCheckMinAggregate {
+  assignmentId: Int
   checkId: String
   checkPreviousSubmission: Boolean
+  contestId: Int
   createTime: DateTime
   enableMerging: Boolean
   id: Int
@@ -1778,13 +1803,17 @@ type PlagiarismCheckMinAggregate {
   result: CheckResultStatus
   useJplagClustering: Boolean
   userId: Int
+  workbookId: Int
 }
 
 type PlagiarismCheckSumAggregate {
+  assignmentId: Int
+  contestId: Int
   id: Int
   minTokens: Int
   problemId: Int
   userId: Int
+  workbookId: Int
 }
 
 type Problem {
@@ -3139,6 +3168,7 @@ type UserSumAggregate {
 }
 
 type Workbook {
+  PlagiarismCheck: [PlagiarismCheck!]
   _count: WorkbookCount!
   createTime: DateTime!
   createdBy: User
@@ -3162,6 +3192,7 @@ type WorkbookAvgAggregate {
 }
 
 type WorkbookCount {
+  PlagiarismCheck: Int!
   submission: Int!
   testSubmission: Int!
   workbookProblem: Int!

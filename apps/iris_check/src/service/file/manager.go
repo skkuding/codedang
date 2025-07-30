@@ -14,6 +14,7 @@ type FileManager interface {
 	CreateFile(path string, data string) error
 	ReadFile(path string) ([]byte, error)
 	MakeFilePath(dir string, fileName string) *bytes.Buffer
+  GetBasePath(path string) string
 }
 
 type fileManager struct {
@@ -24,6 +25,10 @@ func NewFileManager(baseDir string) *fileManager {
 	fileManager := fileManager{}
 	fileManager.baseDir = baseDir
 	return &fileManager
+}
+
+func (f *fileManager) GetBasePath(dir string) string {
+	return f.baseDir+"/"+dir
 }
 
 func (f *fileManager) CreateDir(dir string) error {

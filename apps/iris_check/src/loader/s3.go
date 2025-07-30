@@ -3,9 +3,9 @@ package loader
 import (
 	"context"
 	"fmt"
-	"io"
+	//"io"
 	"os"
-	"strconv"
+	//"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -51,7 +51,7 @@ func NewS3DataSource(bucket string) (*S3reader, error) {
 	return &S3reader{client: client, bucket: bucket}, nil
 }
 
-func (s *S3reader) Get(problemId string) ([]Element, error) {
+/*func (s *S3reader) Get(problemId string) ([]Element, error) {
 	output, err := s.client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 		Bucket: aws.String(s.bucket),
 		Prefix: aws.String(problemId + "/"),
@@ -175,4 +175,4 @@ func (s *S3reader) Get(problemId string) ([]Element, error) {
 	}
 
 	return results, nil
-}
+}*/

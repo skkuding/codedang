@@ -20,11 +20,11 @@ import { CheckService } from './check.service'
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => {
         const channels = {
-          [CHECK_PUBLISH_CHANNEL]: {
+          [PUBLISH_CHANNEL]: {
             prefetchCount: 1,
             default: true
           },
-          [CHECK_CONSUME_CHANNEL]: {
+          [CONSUME_CHANNEL]: {
             prefetchCount: 1
           }
         }

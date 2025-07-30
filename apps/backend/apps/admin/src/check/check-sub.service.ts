@@ -6,7 +6,10 @@ import {
   EXCHANGE,
   CHECK_RESULT_KEY,
   CHECK_RESULT_QUEUE,
-  ORIGIN_HANDLER_NAME
+  ORIGIN_HANDLER_NAME,
+  CONSUME_CHANNEL,
+  RESULT_KEY,
+  RESULT_QUEUE
 } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 
@@ -28,10 +31,10 @@ export class CheckSubscriptionService implements OnModuleInit {
       },
       {
         exchange: EXCHANGE,
-        routingKey: CHECK_RESULT_KEY,
-        queue: CHECK_RESULT_QUEUE,
+        routingKey: RESULT_KEY,
+        queue: RESULT_QUEUE,
         queueOptions: {
-          channel: CHECK_CONSUME_CHANNEL
+          channel: CONSUME_CHANNEL
         }
       },
       ORIGIN_HANDLER_NAME

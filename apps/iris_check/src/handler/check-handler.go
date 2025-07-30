@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -10,10 +11,11 @@ import (
 
 	instrumentation "github.com/skkuding/codedang/apps/iris_check/src"
 	"github.com/skkuding/codedang/apps/iris_check/src/common/constants"
+	"github.com/skkuding/codedang/apps/iris_check/src/common/result"
+	"github.com/skkuding/codedang/apps/iris_check/src/service/check"
 	"github.com/skkuding/codedang/apps/iris_check/src/service/file"
-  "github.com/skkuding/codedang/apps/iris_check/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris_check/src/service/logger"
-  "github.com/skkuding/codedang/apps/iris_check/src/service/check"
+	"github.com/skkuding/codedang/apps/iris_check/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris_check/src/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -86,7 +88,7 @@ func NewCheckHandler(
 // handle top layer logical flow
 func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessage, ctx context.Context) {
 	startedAt := time.Now()
-	_, childSpan := c.tracer.Start( //handleCtx is unused until now...
+	handleCtx, childSpan := c.tracer.Start( //handleCtx is unused until now...
 		ctx,
 		instrumentation.GetSemanticSpanName("check-handler", "handle"),
 		trace.WithAttributes(attribute.Int("checkId", func() int {
@@ -157,27 +159,160 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		return
 	}
 
-  if err := c.check.CheckPlagiarismRate(
-    fmt.Sprint(req.ProblemId),
-    req.Language,
-    check.CheckSettings{
-      MinTokens: req.MinimumTokens,
-      CheckPreviousSubmission: req.CheckPreviousSubmission,
-      EnableMerging: req.EnableMerging,
-      UseJplagClustering: req.UseJplagClustering,
-    },
-  ); err != nil { // 작업용 임시 디렉토리 생성
+  checkInputCh := make(chan result.ChResult)
+	go c.getCheckInput(handleCtx, checkInputCh, req)
+
+  checkInput := <-checkInputCh
+  if checkInput.Err != nil {
+    out <- CheckResultMessage{nil, &HandlerError{
+      caller:  "handle",
+      err:     fmt.Errorf("getCheckInput error: %s", checkInput.Err),
+      level:   logger.ERROR,
+      Message: checkInput.Err.Error(),
+    }}
+    return
+  }
+
+  var ok bool
+  var chIn check.CheckInput
+  chIn, ok = checkInput.Data.(check.CheckInput)
+  if !ok {
+    out <- CheckResultMessage{nil, &HandlerError{
+      caller: "handle",
+      err:    fmt.Errorf("%w: CheckInput", ErrTypeAssertionFail),
+      level:  logger.ERROR,
+    }}
+    return
+  }
+
+  langExt := sandbox.Language(req.Language).GetLangExt()
+
+  subDir := dir+"/submissions"
+  if err := c.file.CreateDir(subDir); err != nil { // 작업용 임시 디렉토리 생성
 		out <- CheckResultMessage{nil, &HandlerError{
 			caller:  "handle",
-			err:     fmt.Errorf("creating base directory: %w", err),
+			err:     fmt.Errorf("creating submissions directory: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
 		return
 	}
 
-  /*
-  * 표절 검사 서버에 맞춰서 handler 구성 예정
-  *
-  */
+  for _, sub := range chIn.Elements {
+    fileName := getSubmissionFileName(fmt.Sprint(sub.Id), langExt)
+    srcPath := c.file.MakeFilePath(subDir, fileName).String()//submission 저장
+    code, err := utils.ParseRawCode(sub.Code)
+
+    if err != nil {
+      out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("parsing code: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      }}
+      return
+    }
+
+    if err := c.file.CreateFile(srcPath, code); err != nil {
+      out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("creating submission file: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      }}
+      return
+    }
+  }
+
+  fileName := getSubmissionFileName("baseCode", langExt)
+  var baseCodePath *string
+  if chIn.HasBase {
+    path := c.file.MakeFilePath(dir, fileName).String() // base code 저장
+
+    bP := c.file.GetBasePath(path)
+    baseCodePath = &bP
+
+    if err := c.file.CreateFile(path, chIn.BaseCode); err != nil {
+      out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("creating base code file: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      }}
+      return
+    }
+  }
+
+  if err := c.check.CheckPlagiarismRate(
+    c.file.GetBasePath(subDir),
+    baseCodePath,
+    "app/result", // <Test Code>
+    sandbox.Language(req.Language).GetLangExt(),
+    check.CheckSettings{
+      MinTokens: req.MinimumTokens,
+      CheckPreviousSubmission: req.CheckPreviousSubmission,
+      EnableMerging: req.EnableMerging,
+      UseJplagClustering: req.UseJplagClustering,
+    },
+  ); err != nil {
+		out <- CheckResultMessage{nil, &HandlerError{
+			caller:  "handle",
+			err:     fmt.Errorf("running check: %w", err),
+			level:   logger.ERROR,
+			Message: err.Error(),
+		}}
+		return
+	}
+}
+
+func (c *CheckHandler) getCheckInput(ctx context.Context, out chan <- result.ChResult, req Request){
+	_, childSpan := c.tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("check-handler", "getCheckInput"),
+	)
+	defer childSpan.End()
+
+  isAssignmentRequest := req.AssignmentId != nil
+  isContestRequest := req.ContestId != nil
+  isWorkbookRequest := req.WorkbookId != nil
+
+  var res check.CheckInput
+  var err error
+  if isAssignmentRequest && !isContestRequest && !isWorkbookRequest {
+    res, err = c.check.GetAssignmentCheckInput(
+      fmt.Sprint(*req.AssignmentId),
+      fmt.Sprint(req.ProblemId),
+      req.Language,
+    );
+  } else if !isAssignmentRequest && isContestRequest && !isWorkbookRequest {
+    res, err = c.check.GetContestCheckInput(
+      fmt.Sprint(*req.ContestId),
+      fmt.Sprint(req.ProblemId),
+      req.Language,
+    );
+  } else if !isAssignmentRequest && !isContestRequest && isWorkbookRequest {
+    res, err = c.check.GetWorkbookCheckInput(
+      fmt.Sprint(*req.WorkbookId),
+      fmt.Sprint(req.ProblemId),
+      req.Language,
+    );
+  } else {
+    out <- result.ChResult{Err: fmt.Errorf("cannot inference dependent of problem")}
+		return
+  }
+
+  if err != nil {
+		out <- result.ChResult{Err: err}
+		return
+	}
+
+  out <- result.ChResult{Data: res}
+}
+
+func getSubmissionFileName(id string, langExt string) (string){
+  var b bytes.Buffer
+  b.WriteString(id)
+  b.WriteString(".")
+  b.WriteString(langExt)
+  return b.String()
 }

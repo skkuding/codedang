@@ -44,7 +44,7 @@ export class CheckPublicationService {
 
     span.setAttributes({ checkId: check.checkId })
 
-    await this.amqpConnection.publish(EXCHANGE, CHECK_KEY, checkRequest, {
+    await this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, checkRequest, {
       messageId: check.checkId,
       type: CHECK_MESSAGE_TYPE,
       persistent: true

@@ -7,6 +7,12 @@ package main
 * <Judge 기능 완전히 제거 -> 아무 기능이 없는 Iris 서버 -> Check 기능 이식> 의 과정을 순차적으로 밟아 나갈 것입니다.
 */
 
+/*
+* checkId는 그냥 id로 대체해도 무방합니다.
+* 테스트 코드를 제거하십시오
+* previousSubmissionsPath 기능은 구현되지 않았습니다.
+*/
+
 import (
 	"context"
 	"fmt"
@@ -79,7 +85,7 @@ func main() {
 	}
 	defaultTracer := otel.Tracer("default")
 
-	bucket := "check-bucket"//utils.Getenv("TESTCASE_BUCKET_NAME", "")
+	bucket := utils.Getenv("TESTCASE_BUCKET_NAME", "")
 	s3reader, err := loader.NewS3DataSource(bucket)
 	if err != nil {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
@@ -90,9 +96,9 @@ func main() {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
 		return
 	}
-	checkManager := check.NewCheckManager(s3reader, database)
+	checkManager := check.NewCheckManager(s3reader, database, "lib/jplag-6.1.0-jar-with-dependencies.jar")
 
-  fileManager := file.NewFileManager("/app/sandbox/results")
+  fileManager := file.NewFileManager("app/inputs")
 
 	checkHandler := handler.NewCheckHandler(
     checkManager,
@@ -126,13 +132,13 @@ func main() {
 			AmqpURI:        uri,
 			ConnectionName: utils.Getenv("RABBITMQ_CONSUMER_CONNECTION_NAME", "iris-consumer"),
 			QueueName:      utils.Getenv("RABBITMQ_CONSUMER_QUEUE_NAME", "client.q.check.submission"), // 큐 네임 설정
-			Ctag:           "consumer-check",//utils.Getenv("RABBITMQ_CONSUMER_TAG", "consumer-tag"),
+			Ctag:           utils.Getenv("RABBITMQ_CONSUMER_TAG", "consumer-tag"),
 		},
 		rabbitmq.ProducerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.Getenv("RABBITMQ_PRODUCER_CONNECTION_NAME", "iris-producer"),
+			ConnectionName: "iris_check-producer",//utils.Getenv("RABBITMQ_PRODUCER_CONNECTION_NAME", "iris-producer"),
 			ExchangeName:   utils.Getenv("RABBITMQ_PRODUCER_EXCHANGE_NAME", "iris.e.direct.judge"),
-			RoutingKey:     "check.submission",//utils.Getenv("RABBITMQ_PRODUCER_ROUTING_KEY", "judge.result"),
+			RoutingKey:     "check-result",//utils.Getenv("RABBITMQ_PRODUCER_ROUTING_KEY", "judge.result"),
 		},
 	).Connect(context.Background())
 
