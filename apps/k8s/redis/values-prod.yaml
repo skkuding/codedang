@@ -1,8 +1,27 @@
 architecture: replication
 
-# replica:
-#   replicaCount: 2 # 1개의 마스터, 2개의 레플리카
-
 auth:
   enabled: false
-  existingSecret: "" # TODO: Sealed Secret을 통해 추가
+  # existingSecret: "" # TODO: Sealed Secret을 통해 추가
+
+master:
+  count: 1
+
+replica:
+  replicaCount: 2
+
+sentinel:
+  enabled: true
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    additionalLabels:
+      "service.name": "redis"
+      "service.environment": "production"
+  podMonitor:
+    enabled: true
+    additionalLabels:
+      "service.name": "redis"
+      "service.environment": "production"
