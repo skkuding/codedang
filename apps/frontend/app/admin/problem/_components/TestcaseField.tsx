@@ -12,7 +12,7 @@ import {
 import { cn } from '@/libs/utils'
 import type { Testcase } from '@generated/graphql'
 import Image from 'next/image'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowRotateLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -539,7 +539,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
         onOpenChange={setDialogOpen}
         title="Warning"
         size="sm"
-        description={dialogDescription}
+        headerDescription={dialogDescription}
         onClose={() => setDialogOpen(false)}
         type="warning"
       />
