@@ -2,24 +2,34 @@
 
 import { CodeEditor } from '@/components/CodeEditor'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/shadcn/dropdown-menu'
+import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
-import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
+import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
+import { cn } from '@/libs/utils'
 import type { Language, TestcaseItem, TestResultDetail } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
-import { useState } from 'react'
+import type { Route } from 'next'
+import Link from 'next/link'
 import { BiSolidUser } from 'react-icons/bi'
-import { IoChevronDown, IoChevronUp } from 'react-icons/io5'
+import { FaSortDown } from 'react-icons/fa'
 import { TestcasePanel } from './TestcasePanel'
 
 interface ProblemEditorProps {
   code: string
   language: string
   courseId: number
+  assignmentId: number
   userId: number
+  problemId: number
   setEditorCode: (code: string) => void
   isTesting: boolean
   onTest: () => void
@@ -33,7 +43,9 @@ export function EditorMainResizablePanel({
   code,
   language,
   courseId,
+  assignmentId,
   userId,
+  problemId,
   setEditorCode,
   isTesting,
   onTest,
@@ -42,12 +54,16 @@ export function EditorMainResizablePanel({
   children,
   onReset
 }: ProblemEditorProps) {
-  const member = useSuspenseQuery(GET_GROUP_MEMBER, {
-    variables: {
-      groupId: courseId,
-      userId
-    }
-  }).data?.getGroupMember
+  const members =
+    useSuspenseQuery(GET_GROUP_MEMBERS, {
+      variables: {
+        groupId: courseId,
+        take: 1000,
+        leaderOnly: false
+      }
+    }).data?.getGroupMembers ?? []
+
+  const currentMember = members.find((member) => member.userId === userId)
 
   return (
     <ResizablePanelGroup
@@ -62,9 +78,34 @@ export function EditorMainResizablePanel({
         <div className="grid-rows-editor grid h-full grid-cols-1">
           <div className="flex h-12 w-full items-center gap-2 border-b border-slate-700 bg-[#222939] px-6">
             <BiSolidUser className="size-6 rounded-none text-gray-300" />
-            <p className="text-[18px] font-medium">
-              {member?.name}({member?.studentId})
-            </p>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
+                <h1>
+                  {currentMember?.name}({currentMember?.studentId})
+                </h1>
+                <FaSortDown />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="border-slate-700 bg-slate-900">
+                {members.map((member) => (
+                  <Link
+                    href={
+                      `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${member.userId}/problem/${problemId}` as Route
+                    }
+                    key={member.userId}
+                  >
+                    <DropdownMenuItem
+                      className={cn(
+                        'flex justify-between text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white',
+                        currentMember?.userId === member.userId &&
+                          'text-primary-light focus:text-primary-light'
+                      )}
+                    >
+                      {member.name}({member.studentId})
+                    </DropdownMenuItem>
+                  </Link>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="flex-1 bg-[#222939]">
             <ScrollArea className="h-full">

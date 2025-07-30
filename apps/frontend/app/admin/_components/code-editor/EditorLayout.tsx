@@ -232,7 +232,9 @@ export function EditorLayout({
         language={language}
         code={editorCode}
         courseId={courseId}
+        assignmentId={assignmentId}
         userId={userId}
+        problemId={problemId}
         setEditorCode={setEditorCode}
         isTesting={isTesting}
         onTest={handleTest}
