@@ -1,6 +1,5 @@
 import { cn } from '@/libs/utils'
 import type { Testcase } from '@generated/graphql'
-import { use, useEffect } from 'react'
 import {
   type FieldErrorsImpl,
   useController,

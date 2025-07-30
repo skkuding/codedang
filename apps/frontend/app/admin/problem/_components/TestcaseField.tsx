@@ -1,8 +1,7 @@
 'use client'
 
-import { CautionDialog } from '@/app/admin/_components/CautionDialog'
+import { Modal } from '@/components/Modal'
 import { Paginator } from '@/components/Paginator'
-import { Badge } from '@/components/shadcn/badge'
 import { Button } from '@/components/shadcn/button'
 import {
   Tooltip,
@@ -12,14 +11,13 @@ import {
 } from '@/components/shadcn/tooltip'
 import { cn } from '@/libs/utils'
 import type { Testcase } from '@generated/graphql'
-import { watch } from 'fs'
+import Image from 'next/image'
 import { useEffect, useState, useMemo } from 'react'
 import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowRotateLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { Label } from '../../_components/Label'
 import { isInvalid } from '../_libs/utils'
-// import { AddBadge } from './AddBadge'
 import { TestcaseItem } from './TestcaseItem'
 
 export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
@@ -261,10 +259,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           </Label>
           <div className="flex w-full items-center justify-between">
             <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[1px] border-[#D8D8D8] bg-white py-2 pl-3">
-              <img
+              <Image
                 src="/icons/search.svg"
                 alt="Search Icon"
-                className="h-4 w-4"
+                width={16}
+                height={16}
               />
               <input
                 type="text"
@@ -282,10 +281,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
                 type="button"
               >
-                <img
+                <Image
                   src="/icons/upload.svg"
                   alt="upload Icon"
-                  className="h-[20px] w-[20px]"
+                  width={20}
+                  height={20}
                 />
                 {/* 테스트케이스 업로드하는 함수 추가 해주시면 될 것 같아요 */}
               </button>
@@ -303,10 +303,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 )}
                 disabled={selectedTestcases.length === 0}
               >
-                <img
+                <Image
                   src="/icons/trashcan.svg"
                   alt="trashcan Icon"
-                  className="h-[18px] w-[18px]"
+                  width={18}
+                  height={18}
                 />
                 <span className="ml-[6px] flex items-center text-center text-white">
                   Delete
@@ -322,10 +323,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   type="button"
                   className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
                 >
-                  <img
+                  <Image
                     src="/icons/plus-circle-white.svg"
                     alt="plus circle white Icon"
-                    className="h-[18px] w-[18px]"
+                    width={18}
+                    height={18}
                   />
                   <span className="ml-[6px] flex items-center text-center text-white">
                     Add
@@ -335,7 +337,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             </div>
           </div>
           <div className="flex min-h-[400px] flex-col gap-4">
-            {currentItems.map((item, index) => {
+            {currentItems.map((item) => {
               return (
                 !item.isHidden && (
                   <TestcaseItem
@@ -364,10 +366,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           </Label>
           <div className="flex w-full items-center justify-between">
             <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[1px] border-[#D8D8D8] bg-white py-2 pl-3">
-              <img
+              <Image
                 src="/icons/search.svg"
                 alt="Search Icon"
-                className="h-4 w-4"
+                width={16}
+                height={16}
               />
               <input
                 type="text"
@@ -385,10 +388,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
                 type="button"
               >
-                <img
+                <Image
                   src="/icons/upload.svg"
                   alt="upload Icon"
-                  className="h-[20px] w-[20px]"
+                  width={20}
+                  height={20}
                 />
               </button>
               <button
@@ -405,10 +409,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 )}
                 disabled={selectedTestcases.length === 0}
               >
-                <img
+                <Image
                   src="/icons/trashcan.svg"
                   alt="trashcan Icon"
-                  className="h-[18px] w-[18px]"
+                  width={18}
+                  height={18}
                 />
                 <span className="ml-[6px] flex items-center text-center text-white">
                   Delete
@@ -424,10 +429,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   type="button"
                   className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
                 >
-                  <img
+                  <Image
                     src="/icons/plus-circle-white.svg"
                     alt="plus circle white Icon"
-                    className="h-[18px] w-[18px]"
+                    width={18}
+                    height={18}
                   />
                   <span className="ml-[6px] flex items-center text-center text-white">
                     Add
@@ -437,7 +443,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             </div>
           </div>
           <div className="flex min-h-[400px] flex-col gap-4">
-            {currentItems.map((item, index) => {
+            {currentItems.map((item) => {
               return (
                 item.isHidden && (
                   <TestcaseItem
@@ -528,10 +534,14 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           </Tooltip>
         </TooltipProvider>
       </div>
-      <CautionDialog
-        isOpen={isDialogOpen}
-        onClose={() => setDialogOpen(false)}
+      <Modal
+        open={isDialogOpen}
+        onOpenChange={setDialogOpen}
+        title="Warning"
+        size="sm"
         description={dialogDescription}
+        onClose={() => setDialogOpen(false)}
+        type="warning"
       />
     </div>
   )
