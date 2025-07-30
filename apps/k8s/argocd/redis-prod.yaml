@@ -15,7 +15,6 @@ spec:
     targetRevision: t1937-migrate-redis-to-on-premise-k8s
     helm:
       valueFiles:
-        - values.yaml
         - values-prod.yaml
   project: default
   syncPolicy:
