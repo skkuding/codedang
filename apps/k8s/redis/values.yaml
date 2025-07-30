@@ -144,14 +144,14 @@ architecture: replication
 auth:
   ## @param auth.enabled Enable password authentication
   ##
-  enabled: true
+  enabled: false  # TODO: enable by default in the future
   ## @param auth.sentinel Enable authentication on sentinels too
   ##
   sentinel: true
   ## @param auth.password Redis(R) password
   ## Defaults to a random 10-character alphanumeric string if not set
   ##
-  password: ""
+  # password: ""  # TODO: enable by default in the future
   ## @param auth.existingSecret The name of an existing secret with Redis(R) credentials
   ## NOTE: When it's set, the previous `auth.password` parameter is ignored
   ##
