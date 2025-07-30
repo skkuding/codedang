@@ -1,0 +1,61 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/notification?take=8
+  body: none
+  auth: none
+}
+
+query {
+  take: 8
+  ~cursor: 1
+}
+
+assert {
+  res.status: eq 200
+  res.body.data: isArray
+  res.body.data[0].id: isNumber
+  res.body.data[0].notificationId: isNumber
+  res.body.data[0].title: isString
+  res.body.data[0].message: isString
+  res.body.data[0].type: isString
+  res.body.data[0].isRead: isBoolean
+  res.body.data[0].createTime: isString
+  res.body.total: isNumber
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Notifications
+
+  사용자의 알림 목록을 가져옵니다.
+
+  ## Query Parameters
+
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  | take | Integer | 가져올 알림 수 (기본값: 8) |
+  | cursor | Integer | 커서 기반 페이징을 위한 마지막 알림 ID |
+
+  ## Response
+
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  | data | Array | 알림 목록 |
+  | data[].id | Integer | 알림 레코드 ID |
+  | data[].notificationId | Integer | 알림 ID |
+  | data[].title | String | 알림 제목 |
+  | data[].message | String | 알림 메시지 |
+  | data[].url | String | 관련 URL (nullable) |
+  | data[].type | String | 알림 타입 |
+  | data[].isRead | Boolean | 읽음 여부 |
+  | data[].createTime | String | 생성 시간 |
+  | total | Integer | 전체 알림 수 |
+}
