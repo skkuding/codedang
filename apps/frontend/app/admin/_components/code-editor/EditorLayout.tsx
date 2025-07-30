@@ -125,11 +125,21 @@ export function EditorLayout({
       )
       const problemTestcases = testcaseData.getProblem.testcase
 
-      const mappedResults = problemTestcases.map((tc, idx) => {
+      let sampleCount = 0
+      let hiddenCount = 0
+
+      const mappedResults = problemTestcases.map((tc) => {
         const submissionResult = submissionResultsMap.get(Number(tc.id))
+
+        if (tc.isHidden) {
+          hiddenCount++
+        } else {
+          sampleCount++
+        }
+
         return {
           id: Number(tc.id),
-          order: idx + 1,
+          order: tc.isHidden ? hiddenCount : sampleCount,
           type: tc.isHidden ? 'Hidden' : 'Sample',
           input: tc.input ?? '',
           expectedOutput: tc.output ?? '',
@@ -165,7 +175,6 @@ export function EditorLayout({
 
   const handleTest = useCallback(async () => {
     setIsTesting(true)
-    setTestResults([])
     try {
       const { data: testcaseResult } = await fetchTestcase()
 
@@ -176,11 +185,21 @@ export function EditorLayout({
       if (finalResult) {
         const testcases = testcaseResult?.getProblem?.testcase || []
         const resultMap = new Map(finalResult.map((r) => [Number(r.id), r]))
-        const mappedResults = testcases.map((testcase, idx) => {
+        let sampleCount = 0
+        let hiddenCount = 0
+
+        const mappedResults = testcases.map((testcase) => {
           const testResult = resultMap.get(Number(testcase.id))
+
+          if (testcase.isHidden) {
+            hiddenCount++
+          } else {
+            sampleCount++
+          }
+
           return {
             id: Number(testcase.id),
-            order: idx + 1,
+            order: testcase.isHidden ? hiddenCount : sampleCount,
             type: testcase.isHidden ? 'Hidden' : 'Sample',
             input: testcase.input ?? '',
             expectedOutput: testcase.output ?? '',

@@ -151,18 +151,15 @@ export function EditorMainResizablePanel({
             <ResizablePanel defaultSize={40} minSize={20}>
               <TestcasePanel
                 data={(() => {
+                  if (isTesting) {
+                    return testResults.map((result) => ({
+                      ...result,
+                      output: '',
+                      result: 'Judging'
+                    }))
+                  }
                   if (testResults.length > 0) {
                     return testResults
-                  }
-                  if (isTesting) {
-                    return testcases.map((tc: TestcaseItem) => ({
-                      id: Number(tc.id),
-                      input: tc.input ?? '',
-                      expectedOutput: tc.output ?? '',
-                      output: '',
-                      result: 'Judging',
-                      isUserTestcase: false
-                    }))
                   }
                   return []
                 })()}
