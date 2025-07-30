@@ -8,13 +8,15 @@ interface RenderProblemListProps {
   isRegistered: boolean
   problemData: ProblemDataTop
   isPrivilegedRole: boolean
+  linked?: boolean
 }
 
 export function RenderProblemList({
   state,
   isRegistered,
   problemData,
-  isPrivilegedRole
+  isPrivilegedRole,
+  linked = true
 }: RenderProblemListProps) {
   if (state === 'Upcoming' && !isPrivilegedRole) {
     return (
@@ -69,7 +71,7 @@ export function RenderProblemList({
             title: 'text-[#8A8A8A] text-left w-[100px] p-0 md:w-[832px] px-6',
             score: 'text-[#8A8A8A] w-4/10 p-0 md:w-[296px] px-4'
           }}
-          linked
+          linked={linked}
         />
       )
     }
