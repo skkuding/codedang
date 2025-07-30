@@ -35,7 +35,8 @@ interface ModalProps {
   size: 'sm' | 'md' | 'lg'
   type: 'input' | 'warning' | 'custom'
   title: string
-  description?: string
+  headerDescription?: string
+  footerDescription?: string
   inputProps?: InputProps
   primaryButton?: ButtonProps
   secondaryButton?: ButtonProps
@@ -56,7 +57,8 @@ export function Modal({
   size,
   type,
   title,
-  description,
+  headerDescription,
+  footerDescription,
   inputProps,
   primaryButton,
   secondaryButton,
@@ -100,15 +102,25 @@ export function Modal({
             onChange={inputProps.onChange}
           />
         )}
-        {children}
-        {description && (
+        {headerDescription && (
           <p
             className={cn(
               'w-full text-center text-sm font-normal text-[#737373]',
               children && 'text-left'
             )}
           >
-            {description}
+            {headerDescription}
+          </p>
+        )}
+        {children}
+        {footerDescription && (
+          <p
+            className={cn(
+              'w-full text-center text-sm font-normal text-[#737373]',
+              children && 'text-left'
+            )}
+          >
+            {footerDescription}
           </p>
         )}
         <DialogFooter className="flex w-full justify-center gap-[4px]">
