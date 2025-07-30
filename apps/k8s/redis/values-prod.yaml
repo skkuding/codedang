@@ -1,0 +1,11 @@
+architecture: replication
+
+replica:
+  replicaCount: 2 # 1개의 마스터, 2개의 레플리카
+
+auth:
+  enabled: false
+  existingSecret: "" # TODO: Sealed Secret을 통해 추가
+
+sentinel:
+  enabled: true
