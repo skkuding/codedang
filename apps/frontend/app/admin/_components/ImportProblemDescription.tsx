@@ -8,7 +8,8 @@ export function ImportProblemDescription() {
   return (
     <p className="pb-2 text-sm font-normal">
       <span className="text-primary">
-        {table.getFilteredSelectedRowModel().rows.length} problem(s) selected:{' '}
+        {table.getFilteredSelectedRowModel().rows.length} problem(s)
+        selected:{' '}
       </span>
       <span className="text-[#8A8A8A]">
         {table

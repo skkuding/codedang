@@ -34,9 +34,8 @@ export function NewProblemCards() {
           </div>
 
           {/* NOTE: Outer div wrapper added to prevent card shadow from being clipped */}
-          {/* Set z-index to negative to ensure that elements remain clickable */}
-          <div className="z-[-10] -my-24 -ml-24">
-            <CarouselContent className="my-24 ml-20">
+          <div className="-my-8 -ml-8">
+            <CarouselContent className="my-8 ml-4">
               {problems.map((problem) => (
                 <CarouselItem key={problem.id}>
                   <NewProblemCard problem={problem} />
