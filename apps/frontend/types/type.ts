@@ -476,3 +476,14 @@ export interface BaseDataTableProblem {
   score?: number
   order?: number
 }
+
+export interface Notification {
+  id: number
+  notificationId: number
+  title: string
+  message: string
+  url: string | null
+  type: string
+  isRead: boolean
+  createTime: string
+}

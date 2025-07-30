@@ -1,5 +1,6 @@
 'use client'
 
+import { NotificationDropdown } from '@/components/notification/NotificationDropdown'
 import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
@@ -165,6 +166,7 @@ export function HeaderAuthPanel({
               />
             </DropdownMenuContent>
           </DropdownMenu>
+          <NotificationDropdown isEditor={isEditor} />
           <Dialog open={shouldUpdateUserInfo}>
             <DialogContent
               className="min-h-[30rem] max-w-[20.5rem]"
