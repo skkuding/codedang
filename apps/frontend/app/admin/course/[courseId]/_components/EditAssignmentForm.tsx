@@ -2,7 +2,7 @@
 
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
 import { AlertModal } from '@/components/AlertModal'
-import { ModalList } from '@/components/ModalList'
+import { ModalSection } from '@/components/ModalSection'
 import {
   IMPORT_PROBLEMS_TO_ASSIGNMENT,
   REMOVE_PROBLEMS_FROM_ASSIGNMENT,
@@ -284,43 +284,23 @@ export function EditAssignmentForm({
           variant: 'default'
         }}
       >
-        <div className="flex h-full flex-col gap-[20px]">
+        <div className="flex h-full w-full flex-col gap-[20px]">
           {deletedProblemTitles.length > 0 && (
-            <ProblemSection
+            <ModalSection
               title="Delete Problems"
               description="Deleting a problem will remove all previous submissions."
-              problems={deletedProblemTitles}
+              items={deletedProblemTitles}
             />
           )}
           {scoreUpdatedProblemTitles.length > 0 && (
-            <ProblemSection
+            <ModalSection
               title="Score Updated Problems"
               description="Modifying scores may result in inconsistency between the scores of existing submissions and new submissions."
-              problems={scoreUpdatedProblemTitles}
+              items={scoreUpdatedProblemTitles}
             />
           )}
         </div>
       </AlertModal>
     </form>
-  )
-}
-
-interface ProblemSectionProps {
-  title: string
-  description: string
-  problems: string[]
-}
-
-export function ProblemSection({
-  title,
-  description,
-  problems
-}: ProblemSectionProps) {
-  return (
-    <div className="flex h-full flex-col">
-      <p className="text-primary text-lg">{title}</p>
-      <p className="mb-[16px] text-sm text-gray-500">{description}</p>
-      <ModalList items={problems} />
-    </div>
   )
 }

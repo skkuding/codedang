@@ -1,7 +1,7 @@
 'use client'
 
 import { Modal } from '@/components/Modal'
-import { ModalList } from '@/components/ModalList'
+import { ModalSection } from '@/components/ModalSection'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import {
   Tooltip,
@@ -15,24 +15,6 @@ import fileInfoIcon from '@/public/icons/file-info.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import { useState } from 'react'
-
-interface ProblemSectionProps {
-  title: string
-  contests?: { id: string; title: string }[]
-  assignments?: { id: string; title: string }[]
-}
-
-function ProblemSection({ title, contests, assignments }: ProblemSectionProps) {
-  return (
-    <div>
-      <p className="text-primary mb-2 text-base">{title}</p>
-      <ModalList items={contests?.map((contest) => contest.title) ?? []} />
-      <ModalList
-        items={assignments?.map((assignment) => assignment.title) ?? []}
-      />
-    </div>
-  )
-}
 
 interface ProblemUsageProps {
   problemId: number
@@ -113,21 +95,26 @@ export function ProblemUsage({
         type={'custom'}
         title={getModalTitle()}
       >
-        <ProblemSection
+        <ModalSection
           title="Upcoming"
-          contests={
-            (contestDataResult?.upcoming, assignmentDataResult?.upcoming)
-          }
+          items={[
+            ...(contestDataResult?.upcoming ?? []).map((item) => item.title),
+            ...(assignmentDataResult?.upcoming ?? []).map((item) => item.title)
+          ]}
         />
-        <ProblemSection
+        <ModalSection
           title="Ongoing"
-          contests={(contestDataResult?.ongoing, assignmentDataResult?.ongoing)}
+          items={[
+            ...(contestDataResult?.ongoing ?? []).map((item) => item.title),
+            ...(assignmentDataResult?.ongoing ?? []).map((item) => item.title)
+          ]}
         />
-        <ProblemSection
+        <ModalSection
           title="Finished"
-          contests={
-            (contestDataResult?.finished, assignmentDataResult?.finished)
-          }
+          items={[
+            ...(contestDataResult?.finished ?? []).map((item) => item.title),
+            ...(assignmentDataResult?.finished ?? []).map((item) => item.title)
+          ]}
         />
       </Modal>
     </>
