@@ -3,45 +3,56 @@
 import { AlertModal } from '@/components/AlertModal'
 import { ModalSection } from '@/components/ModalSection'
 import { Button } from '@/components/shadcn/button'
+import { DUPLICATE_COURSE } from '@/graphql/course/mutation'
+import { useMutation } from '@apollo/client'
 import { useState } from 'react'
 import { IoCopy } from 'react-icons/io5'
 import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
 
-interface DuplicateCourseButtonProps<TPromise> {
-  duplicateTarget: (id: number) => Promise<TPromise>
-  onSuccess?: () => void
+interface DuplicateCourseButtonProps {
+  onSuccess: () => void
 }
 
-export function DuplicateCourseButton<TData extends { id: number }, TPromise>({
-  onSuccess,
-  duplicateTarget
-}: DuplicateCourseButtonProps<TPromise>) {
-  const { table } = useDataTable<TData>()
+export function DuplicateCourseButton({
+  onSuccess
+}: DuplicateCourseButtonProps) {
+  const { table } = useDataTable<{ id: number }>()
+  const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleDuplicateButtonClick = () => {
     if (table.getSelectedRowModel().rows.length === 0) {
       return
+    } else {
+      console.log(table.getSelectedRowModel().rows.length)
     }
     setIsDialogOpen(true)
   }
 
   const handleDuplicateRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows
-    const deletePromises = selectedRows.map((row) =>
+    const duplicatePromises = selectedRows.map((row) =>
       duplicateTarget(row.original.id)
     )
 
     try {
-      await Promise.all(deletePromises)
+      await Promise.all(duplicatePromises)
       table.resetRowSelection()
       table.resetPageIndex()
-      onSuccess?.()
+      onSuccess()
     } catch {
-      toast.error(`Failed to duplicate course`)
+      toast.error('Failed to duplicate course')
     }
+  }
+
+  const duplicateTarget = (id: number) => {
+    return duplicateCourse({
+      variables: {
+        groupId: id
+      }
+    })
   }
 
   return (

@@ -10,6 +10,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -84,16 +85,18 @@ export function AlertModal({
           </AlertDialogTitle>
         </AlertDialogHeader>
         {children}
-        {description && (
-          <p
-            className={cn(
-              'w-full text-center text-sm font-normal text-[#737373]',
-              children && 'text-left'
-            )}
-          >
-            {description}
-          </p>
-        )}
+        <AlertDialogDescription>
+          {description && (
+            <p
+              className={cn(
+                'w-full text-center text-sm font-normal text-[#737373]',
+                children && 'text-left'
+              )}
+            >
+              {description}
+            </p>
+          )}
+        </AlertDialogDescription>
         <AlertDialogFooter className="flex w-full justify-center gap-[4px]">
           <AlertDialogCancel className="h-[46px] w-full">
             Cancel
