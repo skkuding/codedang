@@ -206,8 +206,8 @@ const input = {
 } satisfies CreateContestInput
 
 const updateInput = {
-  startTime: faker.date.recent(),
-  endTime: faker.date.future(),
+  startTime,
+  endTime,
   registerDueTime: faker.date.past(),
   freezeTime: faker.date.between({
     from: startTime,

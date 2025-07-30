@@ -43,6 +43,7 @@ export class SubmissionPublicationService {
    * @param {{ id: number; in: string; out: string }[]} [params.userTestcases] - 사용자 정의 테스트 케이스 배열
    * @param {boolean} [params.stopOnNotAccepted=false] - 테스트 케이스 실패 시 중단 여부 (기본값=false)
    * @param {boolean} [params.judgeOnlyHiddenTestcases=false] - 숨김 테스트 케이스만 채점 여부 (기본값=false)
+   * @param {boolean} [params.containHiddenTestcases=false] - 숨김 테스트 케이스 결과의 포함 여부 (기본값=false)
    * @returns {Promise<void>}
    * @throws {EntityNotExistException} 제출 기록에 해당하는 문제를 찾을 수 없는 경우
    */
@@ -54,7 +55,8 @@ export class SubmissionPublicationService {
     isUserTest = false,
     userTestcases,
     stopOnNotAccepted = false,
-    judgeOnlyHiddenTestcases = false
+    judgeOnlyHiddenTestcases = false,
+    containHiddenTestcases = false
   }: {
     code: Snippet[]
     submission: Submission | TestSubmission
@@ -63,6 +65,7 @@ export class SubmissionPublicationService {
     userTestcases?: { id: number; in: string; out: string }[]
     stopOnNotAccepted?: boolean
     judgeOnlyHiddenTestcases?: boolean
+    containHiddenTestcases?: boolean
   }): Promise<void> {
     const problem = await this.prisma.problem.findUnique({
       where: { id: submission.problemId },
@@ -90,7 +93,8 @@ export class SubmissionPublicationService {
           submission.language,
           problem,
           stopOnNotAccepted,
-          judgeOnlyHiddenTestcases
+          judgeOnlyHiddenTestcases,
+          containHiddenTestcases
         )
 
     const span = this.traceService.startSpan(

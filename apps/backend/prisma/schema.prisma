@@ -60,21 +60,24 @@ model User {
   canCreateCourse  Boolean   @default(false) @map("can_create_course")
   canCreateContest Boolean   @default(false) @map("can_create_contest")
 
-  userProfile      UserProfile?
-  userGroup        UserGroup[]
-  notice           Notice[]
-  problem          Problem[]
-  assignment       Assignment[]
-  assignmentRecord AssignmentRecord[]
-  contest          Contest[]
-  userContest      UserContest[]
-  contestRecord    ContestRecord[]
-  workbook         Workbook[]
-  submission       Submission[]
-  useroauth        UserOAuth?
-  file             File[]
-  testSubmission   TestSubmission[]
-  UpdateHistory    UpdateHistory[]
+  userProfile        UserProfile?
+  userGroup          UserGroup[]
+  notice             Notice[]
+  problem            Problem[]
+  assignment         Assignment[]
+  assignmentRecord   AssignmentRecord[]
+  contest            Contest[]
+  userContest        UserContest[]
+  contestRecord      ContestRecord[]
+  workbook           Workbook[]
+  submission         Submission[]
+  useroauth          UserOAuth?
+  file               File[]
+  testSubmission     TestSubmission[]
+  UpdateHistory      UpdateHistory[]
+  createdQnAs        ContestQnA[]         @relation("CreatedByUser")
+  answeredQnAs       ContestQnA[]         @relation("AnsweredByUser")
+  NotificationRecord NotificationRecord[]
 
   @@map("user")
 }
@@ -468,6 +471,7 @@ model Contest {
   announcement   Announcement[]
   testSubmission TestSubmission[]
   userContest    UserContest[]
+  ContestQnA     ContestQnA[]
 
   @@map("contest")
 }
@@ -564,6 +568,27 @@ model ContestRecord {
 
   @@unique([contestId, userId])
   @@map("contest_record")
+}
+
+model ContestQnA {
+  id           Int      @id @default(autoincrement())
+  // contest 내부에서의 numbering
+  order        Int
+  createdBy    User?    @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: SetNull)
+  createdById  Int?     @map("created_by_id")
+  answeredBy   User?    @relation("AnsweredByUser", fields: [answeredById], references: [id], onDelete: SetNull)
+  answeredById Int?     @map("answered_by_id")
+  contest      Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId    Int      @map("contest_id")
+  title        String
+  content      String
+  answer       String?
+  isVisible    Boolean  @default(false) @map("is_visible")
+  createTime   DateTime @default(now()) @map("create_time")
+  updateTime   DateTime @updatedAt @map("update_time")
+
+  @@unique([contestId, order])
+  @@map("contest_qna")
 }
 
 model Announcement {
@@ -709,4 +734,38 @@ model TestSubmission {
   updateTime DateTime @updatedAt @map("update_time")
 
   @@map("test_submission")
+}
+
+enum NotificationType {
+  Announcement
+  Assignment
+  Contest
+  Course
+  Other
+}
+
+model Notification {
+  id      Int              @id @default(autoincrement())
+  title   String
+  message String
+  url     String?
+  type    NotificationType @default(Other)
+
+  createTime         DateTime             @default(now()) @map("create_time")
+  NotificationRecord NotificationRecord[]
+
+  @@map("notification")
+}
+
+model NotificationRecord {
+  id             Int          @id @default(autoincrement())
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notificationId Int          @map("notification_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int          @map("user_id")
+  isRead         Boolean      @default(false) @map("is_read")
+  createTime     DateTime     @default(now()) @map("create_time")
+
+  @@index([userId, createTime, id])
+  @@map("notification_record")
 }

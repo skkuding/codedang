@@ -461,3 +461,15 @@ export interface UpdateContestInfo extends UpdateContestInput {
     }
   }[]
 }
+
+export interface BaseDataTableProblem {
+  id: number
+  title: string
+  updateTime: string
+  difficulty: string
+  submissionCount: number
+  acceptedRate: number
+  languages: string[]
+  score?: number
+  order?: number
+}
