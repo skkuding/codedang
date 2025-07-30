@@ -38,7 +38,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
   const [isDeleteWhitelistModalOpen, setIsDeleteWhitelistModalOpen] =
     useState(false)
 
-  const { refetch: fetchWhiteList } = useQuery(GET_WHITE_LIST, {
+  useQuery(GET_WHITE_LIST, {
     variables: { groupId: Number(courseId) },
     onCompleted: (data) => {
       setWhiteListStudentIds(data?.getWhitelist)
@@ -48,7 +48,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
       toast.error(`Failed to fetch whitelist: ${error.message}`)
     }
   })
-  const { refetch: fetchInvitationCode } = useQuery(GET_COURSE, {
+  useQuery(GET_COURSE, {
     variables: { groupId: Number(courseId) },
     onCompleted: (data) => {
       setIsCodeInvitationEnabled(Boolean(data?.getCourse.invitation))
@@ -62,6 +62,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
       toast.error(`Failed to fetch invitation code: ${error.message}`)
     }
   })
+
   const updateInvitationCode = async () => {
     try {
       const { data } = await issueInvitation({
@@ -146,21 +147,13 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
   }
 
   useEffect(() => {
-    fetchWhiteList()
-    fetchInvitationCode()
-  }, [])
-
-  useEffect(() => {
     if (isUploaded && whitelistCount) {
       toast.success(`${whitelistCount} whiteListStudentIds are registered.`)
     }
   }, [courseId, isUploaded, whitelistCount])
 
   return (
-    <form
-      aria-label="Invite user"
-      className="flex flex-col gap-[30px] rounded-lg border p-[30px]"
-    >
+    <div className="flex flex-col gap-[30px] rounded-lg border p-[30px]">
       <div className="flex items-center gap-[10px]">
         <span className="text-lg">Invite by Invitation Code</span>
         <Switch
@@ -311,6 +304,6 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
         open={isRevokeInvitationModalOpen}
         onOpenChange={setIsRevokeInvitationModalOpen}
       />
-    </form>
+    </div>
   )
 }
