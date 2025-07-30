@@ -4,7 +4,6 @@ import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
-import { baseUrl } from '@/libs/constants'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { TestResultDetail } from '@/types/type'
@@ -116,17 +115,53 @@ export function EditorLayout({
   const [isTesting, setIsTesting] = useState(false)
   const [testResults, setTestResults] = useState<TestResultDetail[]>([])
 
+  const initializeTestResults = useCallback(() => {
+    if (submissionData?.testcaseResult && testcaseData?.getProblem?.testcase) {
+      const submissionResultsMap = new Map(
+        submissionData.testcaseResult.map((r) => [
+          Number(r.problemTestcaseId),
+          r
+        ])
+      )
+      const problemTestcases = testcaseData.getProblem.testcase
+
+      const mappedResults = problemTestcases.map((tc, idx) => {
+        const submissionResult = submissionResultsMap.get(Number(tc.id))
+        return {
+          id: Number(tc.id),
+          order: idx + 1,
+          type: tc.isHidden ? 'Hidden' : 'Sample',
+          input: tc.input ?? '',
+          expectedOutput: tc.output ?? '',
+          output: submissionResult?.output ?? '',
+          result: submissionResult?.result ?? 'Not Judged',
+          isUserTestcase: false
+        }
+      })
+      setTestResults(mappedResults)
+    } else {
+      setTestResults([])
+    }
+  }, [submissionData, testcaseData])
+
   useEffect(() => {
-    if (submissionData?.code) {
+    if (submissionData) {
       setEditorCode(submissionData.code)
       setInitialCode(submissionData.code)
+      if (submissionData.testcaseResult) {
+        fetchTestcase()
+      }
     }
-  }, [submissionData])
+  }, [submissionData, fetchTestcase])
+
+  useEffect(() => {
+    initializeTestResults()
+  }, [initializeTestResults])
 
   const handleReset = useCallback(() => {
     setEditorCode(initialCode)
-    setTestResults([])
-  }, [initialCode])
+    initializeTestResults()
+  }, [initialCode, initializeTestResults])
 
   const handleTest = useCallback(async () => {
     setIsTesting(true)

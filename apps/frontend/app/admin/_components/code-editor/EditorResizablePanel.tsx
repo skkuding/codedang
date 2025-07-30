@@ -49,8 +49,6 @@ export function EditorMainResizablePanel({
     }
   }).data?.getGroupMember
 
-  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false)
-
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -108,50 +106,28 @@ export function EditorMainResizablePanel({
                 onChange={setEditorCode}
               />
             </ResizablePanel>
-            {!isPanelCollapsed && (isTesting || testResults.length > 0) && (
-              <>
-                <ResizableHandle className="border-[0.5px] border-slate-700" />
-                <ResizablePanel defaultSize={40} minSize={20}>
-                  <div className="flex justify-end px-2 pt-1">
-                    <button
-                      onClick={() => setIsPanelCollapsed(true)}
-                      className="rounded p-1 text-slate-400 hover:bg-slate-700"
-                    >
-                      <IoChevronDown size={20} />
-                    </button>
-                  </div>
-                  <TestcasePanel
-                    data={(() => {
-                      if (testResults.length > 0) {
-                        return testResults
-                      }
-                      if (isTesting) {
-                        return testcases.map((tc: TestcaseItem) => ({
-                          id: Number(tc.id),
-                          input: tc.input ?? '',
-                          expectedOutput: tc.output ?? '',
-                          output: '',
-                          result: 'Judging',
-                          isUserTestcase: false
-                        }))
-                      }
-                      return []
-                    })()}
-                    isTesting={isTesting}
-                  />
-                </ResizablePanel>
-              </>
-            )}
-            {isPanelCollapsed && (
-              <div className="absolute bottom-2 right-4 z-50">
-                <button
-                  onClick={() => setIsPanelCollapsed(false)}
-                  className="rounded bg-[#222939] p-2 text-slate-400 shadow hover:bg-slate-700"
-                >
-                  <IoChevronUp size={22} />
-                </button>
-              </div>
-            )}
+            <ResizableHandle className="border-[0.5px] border-slate-700" />
+            <ResizablePanel defaultSize={40} minSize={20}>
+              <TestcasePanel
+                data={(() => {
+                  if (testResults.length > 0) {
+                    return testResults
+                  }
+                  if (isTesting) {
+                    return testcases.map((tc: TestcaseItem) => ({
+                      id: Number(tc.id),
+                      input: tc.input ?? '',
+                      expectedOutput: tc.output ?? '',
+                      output: '',
+                      result: 'Judging',
+                      isUserTestcase: false
+                    }))
+                  }
+                  return []
+                })()}
+                isTesting={isTesting}
+              />
+            </ResizablePanel>
           </ResizablePanelGroup>
         </div>
       </ResizablePanel>

@@ -14,19 +14,22 @@ interface SubmissionAssessmentProps {
   assignmentId: number
   userId: number
   problemId: number
+  autoGradedScore: number
 }
 
 export function SubmissionAssessment({
   groupId,
   assignmentId,
   userId,
-  problemId
+  problemId,
+  autoGradedScore
 }: SubmissionAssessmentProps) {
-  const maxScore = useSuspenseQuery(GET_ASSIGNMENT_PROBLEM_MAX_SCORE, {
-    variables: { groupId, assignmentId }
-  }).data.getAssignmentProblems.find(
-    (problem) => problem.problemId === problemId
-  )?.score
+  const maxScore =
+    useSuspenseQuery(GET_ASSIGNMENT_PROBLEM_MAX_SCORE, {
+      variables: { groupId, assignmentId }
+    }).data.getAssignmentProblems.find(
+      (problem) => problem.problemId === problemId
+    )?.score || 0
 
   return (
     <UpdateAssignmentProblemRecordForm
@@ -39,7 +42,8 @@ export function SubmissionAssessment({
         <h2 className="text-xl font-bold">Assessment</h2>
         <div className="flex flex-col gap-2">
           <p className="text-sm font-semibold">
-            Final Score (Max score: {maxScore})
+            Final Score (Max score: {maxScore}, Auto graded score:{' '}
+            {maxScore * autoGradedScore * 0.01})
           </p>
           <FinalScoreForm />
         </div>
