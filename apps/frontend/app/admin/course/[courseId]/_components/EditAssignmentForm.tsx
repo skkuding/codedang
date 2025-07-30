@@ -32,6 +32,7 @@ interface EditAssigmentFormProps {
   setProblems: (problems: AssignmentProblem[]) => void
   setIsLoading: (isLoading: boolean) => void
   methods: UseFormReturn<UpdateAssignmentInput>
+  isExercise?: boolean
 }
 
 interface ProblemIdScoreAndTitle {
@@ -47,7 +48,8 @@ export function EditAssignmentForm({
   problems,
   setProblems,
   setIsLoading,
-  methods
+  methods,
+  isExercise = false
 }: EditAssigmentFormProps) {
   const [prevProblems, setPrevProblems] = useState<ProblemIdScoreAndTitle[]>([])
   const [isUpcoming, setIsUpcoming] = useState(true)
@@ -255,8 +257,16 @@ export function EditAssignmentForm({
     })
 
     setShouldSkipWarning(true)
-    toast.success('Assignment updated successfully')
-    router.push(`/admin/course/${courseId}/assignment` as Route)
+    toast.success(
+      isExercise
+        ? 'Exercise updated successfully'
+        : 'Assignment updated successfully'
+    )
+    router.push(
+      isExercise
+        ? (`/admin/course/${courseId}/exercise` as const)
+        : (`/admin/course/${courseId}/assignment` as const)
+    )
     router.refresh()
   }
 
