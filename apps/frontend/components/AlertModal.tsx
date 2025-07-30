@@ -94,7 +94,7 @@ export function AlertModal({
             {description}
           </p>
         )}
-        <AlertDialogFooter className="mt-auto flex w-full justify-center gap-[4px]">
+        <AlertDialogFooter className="flex w-full justify-center gap-[4px]">
           <AlertDialogCancel className="h-[46px] w-full">
             Cancel
           </AlertDialogCancel>

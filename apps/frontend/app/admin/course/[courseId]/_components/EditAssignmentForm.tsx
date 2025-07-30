@@ -284,7 +284,7 @@ export function EditAssignmentForm({
           variant: 'default'
         }}
       >
-        <div className="w-full">
+        <div className="flex h-full flex-col gap-[20px]">
           {deletedProblemTitles.length > 0 && (
             <ProblemSection
               title="Delete Problems"
@@ -317,9 +317,9 @@ export function ProblemSection({
   problems
 }: ProblemSectionProps) {
   return (
-    <div>
-      <p className="text-primary mb-2 text-base">{title}</p>
-      <p className="text-sm text-gray-500">{description}</p>
+    <div className="flex h-full flex-col">
+      <p className="text-primary text-lg">{title}</p>
+      <p className="mb-[16px] text-sm text-gray-500">{description}</p>
       <ModalList items={problems} />
     </div>
   )

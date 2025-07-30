@@ -119,12 +119,10 @@ export function ProblemUsage({
             (contestDataResult?.upcoming, assignmentDataResult?.upcoming)
           }
         />
-
         <ProblemSection
           title="Ongoing"
           contests={(contestDataResult?.ongoing, assignmentDataResult?.ongoing)}
         />
-
         <ProblemSection
           title="Finished"
           contests={
