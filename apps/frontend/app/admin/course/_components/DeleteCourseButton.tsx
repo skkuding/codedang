@@ -29,14 +29,11 @@ export function DeleteCourseButton() {
       deleteTarget={deleteTarget}
       onSuccess={onSuccess}
       className="ml-auto"
-    >
-      <ul className="list-disc space-y-2 pl-5">
-        {table.getSelectedRowModel().rows.map((row) => (
-          <li key={row.id} className="text-base font-normal text-neutral-500">
-            {row.getValue('title')} [{row.getValue('code')}]
-          </li>
-        ))}
-      </ul>
-    </DataTableDeleteButton>
+      deleteItems={table
+        .getSelectedRowModel()
+        .rows.map(
+          (row) => `${row.getValue('title')} [${row.getValue('code')}]`
+        )}
+    />
   )
 }

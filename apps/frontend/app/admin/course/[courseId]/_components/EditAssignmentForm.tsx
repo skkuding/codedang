@@ -2,6 +2,7 @@
 
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
 import { AlertModal } from '@/components/AlertModal'
+import { ModalList } from '@/components/ModalList'
 import {
   IMPORT_PROBLEMS_TO_ASSIGNMENT,
   REMOVE_PROBLEMS_FROM_ASSIGNMENT,
@@ -283,17 +284,21 @@ export function EditAssignmentForm({
           variant: 'default'
         }}
       >
-        <div>
-          <ProblemSection
-            title="Delete Problems"
-            description="Deleting a problem will remove all previous submissions."
-            problems={deletedProblemTitles}
-          />
-          <ProblemSection
-            title="Score Updated Problems"
-            description="Modifying scores may result in inconsistency between the scores of existing submissions and new submissions."
-            problems={scoreUpdatedProblemTitles}
-          />
+        <div className="w-full">
+          {deletedProblemTitles.length > 0 && (
+            <ProblemSection
+              title="Delete Problems"
+              description="Deleting a problem will remove all previous submissions."
+              problems={deletedProblemTitles}
+            />
+          )}
+          {scoreUpdatedProblemTitles.length > 0 && (
+            <ProblemSection
+              title="Score Updated Problems"
+              description="Modifying scores may result in inconsistency between the scores of existing submissions and new submissions."
+              problems={scoreUpdatedProblemTitles}
+            />
+          )}
         </div>
       </AlertModal>
     </form>
@@ -315,13 +320,7 @@ export function ProblemSection({
     <div>
       <p className="text-primary mb-2 text-base">{title}</p>
       <p className="text-sm text-gray-500">{description}</p>
-      <ul className="list-disc space-y-2 pl-5">
-        {problems.map((problem) => (
-          <li key={problem} className="text-xs text-black">
-            {problem}
-          </li>
-        ))}
-      </ul>
+      <ModalList items={problems} />
     </div>
   )
 }

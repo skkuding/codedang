@@ -26,18 +26,10 @@ function ProblemSection({ title, contests, assignments }: ProblemSectionProps) {
   return (
     <div>
       <p className="text-primary mb-2 text-base">{title}</p>
-      <ul className="list-disc space-y-2 pl-5">
-        {contests?.map((contest) => (
-          <li key={contest.id} className="text-xs text-black">
-            {contest.title}
-          </li>
-        ))}
-        {assignments?.map((assignment) => (
-          <li key={assignment.id} className="text-xs text-black">
-            {assignment.title}
-          </li>
-        ))}
-      </ul>
+      <ModalList items={contests?.map((contest) => contest.title) ?? []} />
+      <ModalList
+        items={assignments?.map((assignment) => assignment.title) ?? []}
+      />
     </div>
   )
 }
@@ -121,30 +113,24 @@ export function ProblemUsage({
         type={'custom'}
         title={getModalTitle()}
       >
-        <ModalList>
-          <ProblemSection
-            title="Upcoming"
-            contests={
-              (contestDataResult?.upcoming, assignmentDataResult?.upcoming)
-            }
-          />
-        </ModalList>
-        <ModalList>
-          <ProblemSection
-            title="Ongoing"
-            contests={
-              (contestDataResult?.ongoing, assignmentDataResult?.ongoing)
-            }
-          />
-        </ModalList>
-        <ModalList>
-          <ProblemSection
-            title="Finished"
-            contests={
-              (contestDataResult?.finished, assignmentDataResult?.finished)
-            }
-          />
-        </ModalList>
+        <ProblemSection
+          title="Upcoming"
+          contests={
+            (contestDataResult?.upcoming, assignmentDataResult?.upcoming)
+          }
+        />
+
+        <ProblemSection
+          title="Ongoing"
+          contests={(contestDataResult?.ongoing, assignmentDataResult?.ongoing)}
+        />
+
+        <ProblemSection
+          title="Finished"
+          contests={
+            (contestDataResult?.finished, assignmentDataResult?.finished)
+          }
+        />
       </Modal>
     </>
   ) : null
