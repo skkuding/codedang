@@ -9,3 +9,4 @@ schema.gql
 collection/
 .next/
 components.json
+apps/k8s/**/*.yaml
