@@ -14,7 +14,7 @@ spec:
     repoURL: https://github.com/skkuding/codedang
     targetRevision: main
     helm:
-      valueFiles:
+      valuesFiles:
         - values.yaml
         - values-prod.yaml
   project: default
