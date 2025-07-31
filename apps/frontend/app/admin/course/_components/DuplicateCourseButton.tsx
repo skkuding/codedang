@@ -17,7 +17,7 @@ interface DuplicateCourseButtonProps {
 export function DuplicateCourseButton({
   onSuccess
 }: DuplicateCourseButtonProps) {
-  const { table } = useDataTable<{ id: number }>()
+  const { table } = useDataTable<{ id: number; title: string }>()
   const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -78,8 +78,18 @@ export function DuplicateCourseButton({
     >
       <ModalSection
         title="Contents that will be Copied"
-        description="Are you sure you want to duplicate the selected Course?"
+        description="Make sure to review the contents that will be duplicated."
         items={['Title', 'Description', 'Assignments']}
+      />
+      <ModalSection
+        title="Courses that will be Copied"
+        description="Make sure to review the courses that will be duplicated."
+        items={[
+          table
+            .getSelectedRowModel()
+            .rows.map((row) => row.original.title)
+            .join(', ')
+        ]}
       />
     </AlertModal>
   )
