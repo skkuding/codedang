@@ -6,8 +6,8 @@ auth:
 replica:
   replicaCount: 1
 
-# sentinel:
-#   enabled: false
+sentinel:
+  enabled: false
 
 # metrics:
 #   enabled: true
