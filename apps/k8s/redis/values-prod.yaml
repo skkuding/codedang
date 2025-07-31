@@ -8,7 +8,7 @@ replica:
   replicaCount: 2
 
 sentinel:
-  enabled: true
+  enabled: false
 
 # TODO: 모니터링 설정 추가
 # metrics:
