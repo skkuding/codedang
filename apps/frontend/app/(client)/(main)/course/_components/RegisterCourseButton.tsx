@@ -153,7 +153,7 @@ export function RegisterCourseButton() {
         onOpenChange={setIsVerifyDialogOpen}
         size="sm"
         title={verificationFailedTitle}
-        description={verificationFailedDescription}
+        footerDescription={verificationFailedDescription}
         onClose={() => setIsVerifyDialogOpen(false)}
         type="warning"
       />

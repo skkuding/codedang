@@ -5,7 +5,7 @@ import {
   PrismaClient,
   QnACategory,
   ResultStatus,
-  Role,
+  NotificationType,
   type Announcement,
   type Assignment,
   type AssignmentRecord,
@@ -188,14 +188,23 @@ const createUsers = async () => {
 const createGroups = async () => {
   privateGroup1 = await prisma.group.create({
     data: {
-      groupName: 'Example Group',
+      groupName: '컴퓨터프로그래밍',
       description:
-        'This is an example group just for testing. This group should not be shown on production environment.',
+        'C/C++ 언어를 이용한 프로그래밍 기초를 학습합니다. 알고리즘과 자료구조의 기본 개념을 익힙니다.',
       config: {
         showOnList: false,
         allowJoinFromSearch: false,
         allowJoinWithURL: false,
         requireApprovalBeforeJoin: false
+      },
+      courseInfo: {
+        create: {
+          courseNum: 'SWE2016',
+          classNum: 1,
+          professor: '안철수',
+          semester: '2025 Spring',
+          email: 'woojoo@spacekim.org'
+        }
       }
     }
   })
@@ -230,17 +239,26 @@ const createGroups = async () => {
     }
   })
 
-  // create empty private group
-  // 'showOnList'가 true
   let tempGroup = await prisma.group.create({
     data: {
-      groupName: 'Example Private Group 2',
-      description: 'This is an example private group just for testing.',
+      groupName: '자료구조',
+      description:
+        '배열, 링크드리스트, 스택, 큐, 트리, 그래프 등 기본적인 자료구조와 알고리즘을 학습합니다.',
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
         allowJoinWithURL: true,
         requireApprovalBeforeJoin: false
+      },
+      courseInfo: {
+        create: {
+          courseNum: 'SWE2017',
+          classNum: 2,
+          professor: '박영희',
+          semester: '2025 Spring',
+          email: 'example@skku.edu',
+          website: 'https://skku.edu'
+        }
       }
     }
   })
@@ -252,17 +270,26 @@ const createGroups = async () => {
     }
   })
 
-  // create empty private group
-  // 'showOnList'가 true
   tempGroup = await prisma.group.create({
     data: {
-      groupName: 'Example Private Group 3',
-      description: 'This is an example private group just for testing.',
+      groupName: '알고리즘',
+      description:
+        '정렬, 탐색, 동적계획법, 그리디 알고리즘 등 다양한 알고리즘 설계 기법을 학습합니다.',
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
         allowJoinWithURL: true,
         requireApprovalBeforeJoin: false
+      },
+      courseInfo: {
+        create: {
+          courseNum: 'SWE3018',
+          classNum: 1,
+          professor: '이민수',
+          semester: '2025 Spring',
+          email: 'ms.lee@skku.edu',
+          website: 'https://algorithm.skku.edu'
+        }
       }
     }
   })
@@ -2683,6 +2710,68 @@ const createContestQnA = async () => {
   })
 }
 
+const createNotifications = async () => {
+  const notification1 = await prisma.notification.create({
+    data: {
+      title: '정보보호개론',
+      message: 'A new assignment "Homework 1" has been created.',
+      type: NotificationType.Assignment,
+      url: '/assignment/1'
+    }
+  })
+
+  const notification2 = await prisma.notification.create({
+    data: {
+      title: '정보보호개론',
+      message: 'Your assignment "Homework 1" has been graded.',
+      type: NotificationType.Assignment
+    }
+  })
+
+  const notification3 = await prisma.notification.create({
+    data: {
+      title: 'System Notice',
+      message: 'Platform maintenance scheduled for tomorrow.',
+      type: NotificationType.Other
+    }
+  })
+
+  await prisma.notificationRecord.createMany({
+    data: [
+      {
+        notificationId: notification1.id,
+        userId: users[0].id,
+        isRead: false
+      },
+      {
+        notificationId: notification2.id,
+        userId: users[0].id,
+        isRead: false
+      },
+      {
+        notificationId: notification3.id,
+        userId: users[0].id,
+        isRead: false
+      },
+      {
+        notificationId: notification1.id,
+        userId: users[1].id,
+        isRead: true
+      },
+      {
+        notificationId: notification2.id,
+        userId: users[1].id,
+        isRead: false
+      },
+      {
+        notificationId: notification3.id,
+        userId: users[1].id,
+        isRead: true
+      }
+    ]
+  })
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -2699,6 +2788,7 @@ const main = async () => {
   await createAssignmentRecords()
   await createContestProblemRecords()
   await createContestQnA()
+  await createNotifications()
 }
 
 main()
