@@ -1,7 +1,7 @@
 architecture: standalone
 
-# auth:
-#   enabled: false
+auth:
+  enabled: false
 
 # replica:
 #   replicaCount: 1
