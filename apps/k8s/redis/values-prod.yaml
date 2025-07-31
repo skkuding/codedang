@@ -13,15 +13,16 @@ replica:
 sentinel:
   enabled: true
 
-metrics:
-  enabled: true
-  serviceMonitor:
-    enabled: true
-    additionalLabels:
-      "service.name": "redis"
-      "service.environment": "production"
-  podMonitor:
-    enabled: true
-    additionalLabels:
-      "service.name": "redis"
-      "service.environment": "production"
+# TODO: 모니터링 설정 추가
+# metrics:
+#   enabled: true
+#   serviceMonitor:
+#     enabled: true
+#     additionalLabels:
+#       "service.name": "redis"
+#       "service.environment": "production"
+#   podMonitor:
+#     enabled: true
+#     additionalLabels:
+#       "service.name": "redis"
+#       "service.environment": "production"
