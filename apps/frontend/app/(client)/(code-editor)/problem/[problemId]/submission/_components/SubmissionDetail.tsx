@@ -1,3 +1,4 @@
+import { LoadButton } from '@/app/(client)/(code-editor)/_components/LoadButton'
 import { dataIfError } from '@/app/(client)/(code-editor)/_libs/dataIfError'
 import { CodeEditor } from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
@@ -58,7 +59,10 @@ export async function SubmissionDetail({ problemId, submissionId }: Props) {
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
       <div>
-        <h2 className="mb-3 text-lg font-bold">Source Code</h2>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-lg font-bold">Source Code</h2>
+          <LoadButton code={submission.code} />
+        </div>
         <CodeEditor
           value={submission.code}
           language={submission.language}
