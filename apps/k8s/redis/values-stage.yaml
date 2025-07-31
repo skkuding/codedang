@@ -1,23 +1,23 @@
 architecture: standalone
 
-auth:
-  enabled: false
+# auth:
+#   enabled: false
 
-replica:
-  replicaCount: 1
+# replica:
+#   replicaCount: 1
 
-sentinel:
-  enabled: false
+# sentinel:
+#   enabled: false
 
-metrics:
-  enabled: true
-  serviceMonitor:
-    enabled: true
-    additionalLabels:
-      "service.name": "redis"
-      "service.environment": "stage"
-  podMonitor:
-    enabled: true
-    additionalLabels:
-      "service.name": "redis"
-      "service.environment": "stage"
+# metrics:
+#   enabled: true
+#   serviceMonitor:
+#     enabled: true
+#     additionalLabels:
+#       "service.name": "redis"
+#       "service.environment": "stage"
+#   podMonitor:
+#     enabled: true
+#     additionalLabels:
+#       "service.name": "redis"
+#       "service.environment": "stage"
