@@ -4,9 +4,6 @@ auth:
   enabled: false
   # existingSecret: "" # TODO: Sealed Secret을 통해 추가
 
-master:
-  count: 1
-
 replica:
   replicaCount: 2
 
