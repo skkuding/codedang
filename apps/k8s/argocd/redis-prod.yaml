@@ -15,7 +15,6 @@ spec:
     targetRevision: 21.2.13
     helm:
       valueFiles:
-        - ../redis/values.yaml
         - ../redis/values-prod.yaml
   project: default
   syncPolicy:
