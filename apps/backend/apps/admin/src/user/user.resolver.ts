@@ -1,7 +1,8 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
 import { UseGroupLeaderGuard } from '@libs/auth'
+import { AuthenticatedRequest } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { UpdateCreationPermissionsInput } from './model/creationPermission.model'
@@ -123,7 +124,6 @@ export class GroupMemberResolver {
    * @param {number} userId - 역할을 업데이트 할 사용자의 ID.
    * @param {number} groupId - 업데이트 대상 그룹의 ID.
    * @param {boolean} toGroupLeader - 사용자를 리더로 설정할지에 대한 플래그
-   * @param {number} requesterId - 요청하는 사용자의 ID
    * @returns {Promise<UserGroup>} 업데이트된 그룹 멤버 객체를 리턴.
    */
   @Mutation(() => UserGroup)
@@ -132,15 +132,13 @@ export class GroupMemberResolver {
     userId: number,
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('toGroupLeader') toGroupLeader: boolean,
-    @Args(
-      'requesterId',
-      { type: () => Int },
-      new RequiredIntPipe('requesterId')
-    )
-    requesterId: number
+    @Context('req') req: AuthenticatedRequest
   ) {
+    // 요청 객체에서 현재 사용자 ID 가져오기
+    const currentUserId = req.user.id
+
     // 자기 자신의 role을 변경하려는 경우 에러 발생
-    if (requesterId === userId) {
+    if (currentUserId === userId) {
       throw new UnprocessableDataException(
         'You cannot change your own role. Please ask another instructor to change your role.'
       )
