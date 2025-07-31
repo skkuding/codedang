@@ -13,11 +13,13 @@ import {
   ResizablePanelGroup
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
-import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
+import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
 import { cn } from '@/libs/utils'
+import checkIcon from '@/public/icons/check-green.svg'
 import type { Language, TestcaseItem, TestResultDetail } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
 import type { Route } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { BiSolidUser } from 'react-icons/bi'
 import { FaSortDown } from 'react-icons/fa'
@@ -54,16 +56,16 @@ export function EditorMainResizablePanel({
   children,
   onReset
 }: ProblemEditorProps) {
-  const members =
-    useSuspenseQuery(GET_GROUP_MEMBERS, {
+  const summaries =
+    useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
       variables: {
+        assignmentId,
         groupId: courseId,
-        take: 1000,
-        leaderOnly: false
+        take: 1000
       }
-    }).data?.getGroupMembers ?? []
+    }).data?.getAssignmentScoreSummaries ?? []
 
-  const currentMember = members.find((member) => member.userId === userId)
+  const currentMember = summaries.find((member) => member.userId === userId)
 
   return (
     <ResizablePanelGroup
@@ -81,26 +83,40 @@ export function EditorMainResizablePanel({
             <DropdownMenu>
               <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
                 <h1>
-                  {currentMember?.name}({currentMember?.studentId})
+                  {currentMember?.realName}({currentMember?.studentId})
                 </h1>
                 <FaSortDown />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="border-slate-700 bg-slate-900">
-                {members.map((member) => (
+                {summaries.map((summary) => (
                   <Link
                     href={
-                      `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${member.userId}/problem/${problemId}` as Route
+                      `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${summary.userId}/problem/${problemId}` as Route
                     }
-                    key={member.userId}
+                    key={summary.userId}
                   >
                     <DropdownMenuItem
                       className={cn(
                         'flex justify-between text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white',
-                        currentMember?.userId === member.userId &&
+                        currentMember?.userId === summary.userId &&
                           'text-primary-light focus:text-primary-light'
                       )}
                     >
-                      {member.name}({member.studentId})
+                      {summary.realName}({summary.studentId})
+                      {summary.problemScores.some(
+                        (score) =>
+                          score.problemId === problemId &&
+                          score.finalScore !== null
+                      ) && (
+                        <div className="flex items-center justify-center pl-2">
+                          <Image
+                            src={checkIcon}
+                            alt="check"
+                            width={16}
+                            height={16}
+                          />
+                        </div>
+                      )}
                     </DropdownMenuItem>
                   </Link>
                 ))}
