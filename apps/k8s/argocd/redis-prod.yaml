@@ -10,13 +10,13 @@ spec:
     namespace: redis
     server: https://kubernetes.default.svc
   source:
-    path: apps/k8s/redis
-    repoURL: https://github.com/skkuding/codedang
-    targetRevision: main
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: redis
+    targetRevision: 21.2.13
     helm:
       valueFiles:
-        - values.yaml
-        - values-prod.yaml
+        - ../redis/values.yaml
+        - ../redis/values-prod.yaml
   project: default
   syncPolicy:
     automated:
