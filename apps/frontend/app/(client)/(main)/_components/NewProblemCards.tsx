@@ -7,18 +7,18 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/shadcn/carousel'
-import GrayRightArrow from '@/public/icons/GrayRightArrow.svg'
-import RightArrow from '@/public/icons/RightArrow.svg'
+import GrayRightArrow from '@/public/icons/arrow-right-gray.svg'
+import RightArrow from '@/public/icons/arrow-right.svg'
 import type { Problem } from '@/types/type'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getProblemList } from '../../_libs/apis/problem'
 
-const { data: problems } = await getProblemList({
-  order: 'id-asc'
-})
+export async function NewProblemCards() {
+  const { data: problems } = await getProblemList({
+    order: 'submit-desc'
+  })
 
-export function NewProblemCards() {
   return (
     problems.length > 0 && (
       <div className="flex w-full max-w-[1440px] flex-col items-start gap-5 px-[116px]">
@@ -33,19 +33,20 @@ export function NewProblemCards() {
             </div>
           </div>
 
-          {/* NOTE: Outer div wrapper added to prevent card shadow from being clipped */}
-          <div className="-my-8 -ml-8 w-screen">
-            <CarouselContent className="my-8 ml-4 max-w-[1224px]">
-              {problems.map((problem) => (
-                <CarouselItem key={problem.id}>
-                  <NewProblemCard problem={problem} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
+          <div className="px-[30px]">
+            <div className="relative left-1/2 -my-8 w-screen -translate-x-1/2">
+              <CarouselContent className="mx-[38px] my-8 max-w-[1440px] pl-[100px] 2xl:mx-auto">
+                {problems.map((problem) => (
+                  <CarouselItem key={problem.id}>
+                    <NewProblemCard problem={problem} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </div>
           </div>
         </Carousel>
 
-        <Link href={'/problem'} className="relative z-20">
+        <Link href={'/problem'}>
           <div className="flex items-center justify-center gap-[2px] border-b border-[#B0B0B0] py-[4px]">
             <p className="font-pretendard flex h-8 items-center text-[16px] font-medium leading-[22.4px] tracking-[-0.48px] text-[#5C5C5C]">
               Go to Problem
