@@ -4,7 +4,6 @@ import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
-import { baseUrl } from '@/libs/constants'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { TestResultDetail } from '@/types/type'
@@ -116,21 +115,66 @@ export function EditorLayout({
   const [isTesting, setIsTesting] = useState(false)
   const [testResults, setTestResults] = useState<TestResultDetail[]>([])
 
+  const initializeTestResults = useCallback(() => {
+    if (submissionData?.testcaseResult && testcaseData?.getProblem?.testcase) {
+      const submissionResultsMap = new Map(
+        submissionData.testcaseResult.map((r) => [
+          Number(r.problemTestcaseId),
+          r
+        ])
+      )
+      const problemTestcases = testcaseData.getProblem.testcase
+
+      let sampleCount = 0
+      let hiddenCount = 0
+
+      const mappedResults = problemTestcases.map((tc) => {
+        const submissionResult = submissionResultsMap.get(Number(tc.id))
+
+        if (tc.isHidden) {
+          hiddenCount++
+        } else {
+          sampleCount++
+        }
+
+        return {
+          id: Number(tc.id),
+          order: tc.isHidden ? hiddenCount : sampleCount,
+          type: tc.isHidden ? 'Hidden' : 'Sample',
+          input: tc.input ?? '',
+          expectedOutput: tc.output ?? '',
+          output: submissionResult?.output ?? '',
+          result: submissionResult?.result ?? 'Not Judged',
+          isUserTestcase: false
+        }
+      })
+      setTestResults(mappedResults)
+    } else {
+      setTestResults([])
+    }
+  }, [submissionData, testcaseData])
+
   useEffect(() => {
-    if (submissionData?.code) {
+    if (submissionData) {
       setEditorCode(submissionData.code)
       setInitialCode(submissionData.code)
+      if (submissionData.testcaseResult) {
+        fetchTestcase()
+      }
     }
-  }, [submissionData])
+  }, [submissionData, fetchTestcase])
+
+  useEffect(() => {
+    initializeTestResults()
+  }, [initializeTestResults])
 
   const handleReset = useCallback(() => {
     setEditorCode(initialCode)
-    setTestResults([])
-  }, [initialCode])
+    initializeTestResults()
+  }, [initialCode, initializeTestResults])
 
   const handleTest = useCallback(async () => {
     setIsTesting(true)
-    setTestResults([])
     try {
       const { data: testcaseResult } = await fetchTestcase()
 
@@ -141,11 +185,21 @@ export function EditorLayout({
       if (finalResult) {
         const testcases = testcaseResult?.getProblem?.testcase || []
         const resultMap = new Map(finalResult.map((r) => [Number(r.id), r]))
-        const mappedResults = testcases.map((testcase, idx) => {
+        let sampleCount = 0
+        let hiddenCount = 0
+
+        const mappedResults = testcases.map((testcase) => {
           const testResult = resultMap.get(Number(testcase.id))
+
+          if (testcase.isHidden) {
+            hiddenCount++
+          } else {
+            sampleCount++
+          }
+
           return {
             id: Number(testcase.id),
-            order: idx + 1,
+            order: testcase.isHidden ? hiddenCount : sampleCount,
             type: testcase.isHidden ? 'Hidden' : 'Sample',
             input: testcase.input ?? '',
             expectedOutput: testcase.output ?? '',
@@ -197,7 +251,9 @@ export function EditorLayout({
         language={language}
         code={editorCode}
         courseId={courseId}
+        assignmentId={assignmentId}
         userId={userId}
+        problemId={problemId}
         setEditorCode={setEditorCode}
         isTesting={isTesting}
         onTest={handleTest}

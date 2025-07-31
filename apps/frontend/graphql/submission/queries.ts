@@ -156,6 +156,9 @@ const GET_ASSIGNMENT_LATEST_SUBMISSION = gql(`
         problemTestcaseId
         result
         memoryUsage
+        isHidden
+        scoreWeight
+        output
       }
       user {
         id
