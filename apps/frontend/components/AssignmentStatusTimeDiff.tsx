@@ -94,14 +94,14 @@ export function AssignmentStatusTimeDiff({
         )
       }
 
-if (newStatus === 'ongoing' && days === 0) {
-    if (hours === 0 && minutes === 5 && seconds === 0) {
-        toast.error('Assignment ends in 5 minutes.', { duration: 10000 })
-    }
-    if (hours === 0 && minutes === 1 && seconds === 0) {
-        toast.error('Assignment ends in 1 minute.', { duration: 10000 })
-    }
-}
+      if (newStatus === 'ongoing' && days === 0) {
+        if (hours === 0 && minutes === 5 && seconds === 0) {
+          toast.error('Assignment ends in 5 minutes.', { duration: 10000 })
+        }
+        if (hours === 0 && minutes === 1 && seconds === 0) {
+          toast.error('Assignment ends in 1 minute.', { duration: 10000 })
+        }
+      }
     }
   }, 1000)
 
