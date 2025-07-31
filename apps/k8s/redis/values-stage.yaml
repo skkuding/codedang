@@ -3,8 +3,8 @@ architecture: standalone
 auth:
   enabled: false
 
-# replica:
-#   replicaCount: 1
+replica:
+  replicaCount: 1
 
 # sentinel:
 #   enabled: false
