@@ -49,15 +49,16 @@ export class AuthService {
 
     await this.userService.updateLastLogin(user.username)
 
-    return await this.createJwtTokens(user.id, user.username)
+    return await this.createJwtTokens(user.id, user.username, user.role)
   }
 
   async updateJwtTokens(refreshToken: string) {
-    const { userId, username } = await this.verifyJwtToken(refreshToken)
+    const { userId, username, userRole } =
+      await this.verifyJwtToken(refreshToken)
     if (!(await this.isValidRefreshToken(refreshToken, userId))) {
       throw new InvalidJwtTokenException('Unidentified refresh token')
     }
-    return await this.createJwtTokens(userId, username)
+    return await this.createJwtTokens(userId, username, userRole)
   }
 
   async verifyJwtToken(token: string, options: JwtVerifyOptions = {}) {
@@ -82,8 +83,8 @@ export class AuthService {
     return true
   }
 
-  async createJwtTokens(userId: number, username: string) {
-    const payload: JwtPayload = { userId, username }
+  async createJwtTokens(userId: number, username: string, userRole: string) {
+    const payload: JwtPayload = { userId, username, userRole }
     const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: ACCESS_TOKEN_EXPIRE_TIME
     })
