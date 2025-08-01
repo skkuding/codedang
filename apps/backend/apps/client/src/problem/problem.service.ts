@@ -438,7 +438,13 @@ export class ContestProblemService {
             problemTestcase: {
               ...(contest.isPrivilegedRole
                 ? {}
-                : { where: { isHidden: false } })
+                : { where: { isHidden: false } }),
+              select: {
+                id: true,
+                input: true,
+                output: true,
+                isHidden: true
+              }
             }
           }
         }
