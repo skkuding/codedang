@@ -2,6 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
+import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import type { Response } from 'express'
 import { JwtAuthService, type JwtPayload } from '@libs/auth'
@@ -45,6 +46,13 @@ export class AuthService {
 
     if (!isValidUser) {
       throw new UnidentifiedException('username or password')
+    }
+
+    const isValidRole =
+      user.role && Object.values(Role).includes(user.role as Role)
+
+    if (!isValidRole) {
+      throw new UnidentifiedException('invalid or empty role')
     }
 
     await this.userService.updateLastLogin(user.username)
