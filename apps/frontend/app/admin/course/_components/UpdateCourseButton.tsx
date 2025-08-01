@@ -2,12 +2,12 @@
 
 import {
   AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogCancel,
-  AlertDialogAction
+  AlertDialogTitle
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
@@ -19,9 +19,10 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
+import { UPDATE_COURSE } from '@/graphql/course/mutation'
 import { GET_COURSE } from '@/graphql/course/queries'
 import type { SemesterSeason } from '@/types/type'
-import { useQuery } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useEffect, useState } from 'react'
@@ -32,29 +33,28 @@ import { ErrorMessage } from '../../_components/ErrorMessage'
 import { useDataTable } from '../../_components/table/context'
 import { courseSchema } from '../_libs/schema'
 
-interface UpdateCourseButtonProps<TPromise> {
+interface UpdateCourseButtonProps {
   onSuccess?: () => void
-  updateTarget: (id: number, courseInput: CourseInput) => Promise<TPromise>
 }
 
-/**
- * 어드민 테이블의 삭제 버튼 컴포넌트
- * @desctiption 선택된 행들을 삭제하는 기능
- * @param target
- * 삭제 대상 (problem or contest)
- * @param deleteTarget
- * 아이디를 전달받아 삭제 요청하는 함수
- * @param getCanDelete
- * 선택된 행들이 삭제 가능한지를 반환하는 함수
- * @param onSuccess
- * 삭제 성공 시 호출되는 함수
- * @param className
- * tailwind 클래스명
- */
-export function UpdateCourseButton<TData extends { id: number }, TPromise>({
-  updateTarget,
-  onSuccess
-}: UpdateCourseButtonProps<TPromise>) {
+interface TableRowData {
+  id: number
+  groupName: string
+  courseInfo: {
+    courseNum: string
+    classNum: number
+    professor: string
+    semester: string
+    week: number
+    email: string
+    website: string
+    office: string
+    phoneNum: string
+  }
+}
+
+export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
+  const [updateCourse] = useMutation(UPDATE_COURSE)
   const {
     handleSubmit,
     register,
@@ -73,7 +73,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
       }
     }
   })
-  const { table } = useDataTable<TData>()
+  const { table } = useDataTable<TableRowData>()
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
   const [prefix, setPrefix] = useState('')
   const [courseCode, setCourseCode] = useState('')
@@ -82,14 +82,22 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
   const currentYear = new Date().getFullYear()
   const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
 
+  const updateTarget = (id: number, courseInput: CourseInput) => {
+    return updateCourse({
+      variables: {
+        groupId: id,
+        input: courseInput
+      }
+    })
+  }
+
   useEffect(() => {
     setValue('courseNum', `${prefix}${courseCode}`)
   }, [prefix, courseCode, setValue])
 
   const handleUpdateRow: SubmitHandler<CourseInput> = async (data) => {
     const selectedRow = table.getSelectedRowModel().rows[0]
-    console.log('Updating row...', selectedRow.original)
-    const updatePromise = updateTarget(Number(selectedRow.id), {
+    const updatePromise = updateTarget(Number(selectedRow.original.id), {
       courseTitle: data.courseTitle,
       courseNum: `${prefix}${courseCode}`,
       classNum: Number(data.classNum),
@@ -115,25 +123,22 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
   }
 
   const handlePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toUpperCase() // 대문자로 변환
+    const value = e.target.value.toUpperCase()
     setPrefix(value)
-    // setValue('courseNum', prefix + courseCode)
   }
 
   const handleCourseCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
+    const value = e.target.value.replace(/\D/g, '')
     setCourseCode(value)
-    // setValue('courseNum', prefix + courseCode)
   }
 
   const { refetch } = useQuery(GET_COURSE, {
     variables: { groupId: 0 },
-    skip: true // 처음에는 실행되지 않음
+    skip: true
   })
 
   const handleUpdateButtonClick = async () => {
     const selectedRow = table.getSelectedRowModel().rows[0]
-    console.log('Selected Row:', selectedRow)
 
     if (table.getSelectedRowModel().rows.length !== 1) {
       console.warn('Row selection condition not met')
@@ -141,7 +146,6 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
     }
 
     const groupId = selectedRow?.original?.id
-    console.log('Extracted groupId:', groupId)
 
     if (!groupId) {
       console.error('groupId is undefined')
@@ -150,12 +154,10 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
 
     try {
       const result = await refetch({ groupId })
-      console.log('Refetch result:', result)
 
       if (result.data) {
         const data = result.data.getCourse
 
-        console.log('Updated Course Data:', data)
         setPrefix(data.courseInfo?.courseNum.substring(0, 3) ?? '')
         setCourseCode(data.courseInfo?.courseNum.substring(3) ?? '')
         setSemester(data.courseInfo?.semester ?? '')
@@ -179,7 +181,6 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
           }
         })
 
-        // 상태 업데이트 후 Dialog 열기
         setIsAlertDialogOpen(true)
       }
     } catch (error) {
@@ -400,7 +401,6 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                 </AlertDialogAction>
               </AlertDialogFooter>
             </form>
-            <div className="h-8" />
           </ScrollArea>
         </AlertDialogContent>
       </AlertDialog>

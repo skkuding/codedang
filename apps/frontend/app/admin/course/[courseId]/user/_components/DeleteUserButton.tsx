@@ -41,14 +41,11 @@ export function DeleteUserButton() {
       onSuccess={onSuccess}
       className="ml-auto"
       extraArg={groupId}
-    >
-      <ul className="list-disc space-y-2 pl-5">
-        {table.getSelectedRowModel().rows.map((row) => (
-          <li key={row.id}>
-            {row.getValue('name')} [{row.getValue('studentId')}]
-          </li>
-        ))}
-      </ul>
-    </DataTableDeleteButton>
+      deleteItems={table
+        .getSelectedRowModel()
+        .rows.map(
+          (row) => `${row.getValue('name')} [${row.getValue('studentId')}]`
+        )}
+    />
   )
 }

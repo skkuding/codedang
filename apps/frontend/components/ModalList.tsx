@@ -1,13 +1,17 @@
-import type { ReactNode } from 'react'
-
 export interface ModalListProps {
-  children: ReactNode
+  items: string[]
 }
 
-export function ModalList({ children }: ModalListProps) {
+export function ModalList({ items }: ModalListProps) {
   return (
-    <div className="bg-background-alternative h-full w-full overflow-y-auto px-[12px] py-[14px]">
-      {children}
+    <div className="bg-background-alternative h-full w-full overflow-y-auto rounded-lg px-[12px] py-[14px]">
+      <ul className="list-disc space-y-2 pl-5">
+        {items.map((item) => (
+          <li key={item} className="text-sm text-[#8A8A8A]">
+            {item}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

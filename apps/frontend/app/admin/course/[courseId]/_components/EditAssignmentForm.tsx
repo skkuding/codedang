@@ -1,6 +1,8 @@
 'use client'
 
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
+import { AlertModal } from '@/components/AlertModal'
+import { ModalSection } from '@/components/ModalSection'
 import {
   IMPORT_PROBLEMS_TO_ASSIGNMENT,
   REMOVE_PROBLEMS_FROM_ASSIGNMENT,
@@ -22,7 +24,6 @@ import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import type { AssignmentProblem } from '../_libs/type'
 import { isOptionAfterDeadline } from '../_libs/utils'
-import { ConfirmModal } from '../assignment/[assignmentId]/edit/_components/ConfirmModal'
 
 interface EditAssigmentFormProps {
   courseId: number
@@ -271,13 +272,35 @@ export function EditAssignmentForm({
       onSubmit={methods.handleSubmit(isSubmittable)}
     >
       <FormProvider {...methods}>{children}</FormProvider>
-      <ConfirmModal
+      <AlertModal
         open={isModalOpen}
-        handleClose={() => setIsModalOpen(false)}
-        confirmAction={handleConfirm}
-        deletedProblemTitles={deletedProblemTitles}
-        scoreUpdatedProblemTitles={scoreUpdatedProblemTitles}
-      />
+        onOpenChange={setIsModalOpen}
+        type="confirm"
+        size="md"
+        title="Are you sure to save the change?"
+        primaryButton={{
+          text: 'Confirm',
+          onClick: handleConfirm,
+          variant: 'default'
+        }}
+      >
+        <div className="flex h-full w-full flex-col gap-[20px]">
+          {deletedProblemTitles.length > 0 && (
+            <ModalSection
+              title="Delete Problems"
+              description="Deleting a problem will remove all previous submissions."
+              items={deletedProblemTitles}
+            />
+          )}
+          {scoreUpdatedProblemTitles.length > 0 && (
+            <ModalSection
+              title="Score Updated Problems"
+              description="Modifying scores may result in inconsistency between the scores of existing submissions and new submissions."
+              items={scoreUpdatedProblemTitles}
+            />
+          )}
+        </div>
+      </AlertModal>
     </form>
   )
 }
