@@ -423,6 +423,14 @@ export function EditorHeader({
     const originalPush = router.push
 
     router.push = (href, ...args) => {
+      if (typeof href === 'string' && href.includes('force=true')) {
+        const cleanHref = href
+          .replace('?force=true', '')
+          .replace('&force=true', '')
+        originalPush(cleanHref as Route, ...args)
+        return
+      }
+
       if (checkSaved() || isModalConfrimed.current) {
         originalPush(href, ...args)
         return
