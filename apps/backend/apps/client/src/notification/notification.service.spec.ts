@@ -109,7 +109,7 @@ describe('NotificationService', () => {
         notificationRecordWithNotification
       ])
 
-      const result = await service.getNotifications(userId, null, 8, null)
+      const result = await service.getNotifications(userId, null, 8)
 
       expect(result).to.deep.equal([formattedNotification])
     })
@@ -117,47 +117,9 @@ describe('NotificationService', () => {
     it('should return empty array when no notifications exist', async () => {
       db.notificationRecord.findMany.resolves([])
 
-      const result = await service.getNotifications(userId, null, 8, null)
+      const result = await service.getNotifications(userId, null, 8)
 
       expect(result).to.deep.equal([])
-    })
-
-    it('should filter by isRead when provided', async () => {
-      db.notificationRecord.findMany.resolves([
-        notificationRecordWithNotification
-      ])
-
-      const result = await service.getNotifications(userId, null, 8, false)
-
-      expect(result).to.deep.equal([formattedNotification])
-    })
-
-    it('should return all notifications when isRead is null', async () => {
-      db.notificationRecord.findMany.resolves([
-        notificationRecordWithNotification
-      ])
-
-      const result = await service.getNotifications(userId, null, 8, null)
-
-      expect(result).to.deep.equal([formattedNotification])
-    })
-  })
-
-  describe('getUnreadCount', () => {
-    it('should return unread notification count', async () => {
-      db.notificationRecord.count.resolves(5)
-
-      const result = await service.getUnreadCount(userId)
-
-      expect(result).to.equal(5)
-    })
-
-    it('should return zero when no unread notifications exist', async () => {
-      db.notificationRecord.count.resolves(0)
-
-      const result = await service.getUnreadCount(userId)
-
-      expect(result).to.equal(0)
     })
   })
 

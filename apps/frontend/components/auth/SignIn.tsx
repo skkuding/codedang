@@ -46,11 +46,7 @@ export function SignIn() {
         posthog.identify(data.username) // Set new distinct ID
         router.refresh()
         hideModal()
-        toast.success(`Welcome back, ${data.username}!`, {
-          style: {
-            transform: 'translateY(30px)'
-          }
-        })
+        toast.success(`Welcome back, ${data.username}!`)
       } else {
         toast.error('Failed to log in')
       }

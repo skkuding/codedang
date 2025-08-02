@@ -3,7 +3,6 @@ import { Toaster } from '@/components/shadcn/sonner'
 import { auth } from '@/libs/auth'
 import { metaBaseUrl } from '@/libs/constants'
 import { getBootstrapData } from '@/libs/posthog.server'
-import { GoogleAnalytics } from '@next/third-parties/google'
 import type { Metadata, Viewport } from 'next'
 import { IBM_Plex_Mono } from 'next/font/google'
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
@@ -40,7 +39,6 @@ export default async function RootLayout({
 }) {
   const bootstrapData = await getBootstrapData()
   const session = await auth()
-  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
   return (
     <html lang="en" className={mono.variable}>
@@ -56,7 +54,6 @@ export default async function RootLayout({
             duration={2000}
           />
         </PostHogProvider>
-        {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
   )

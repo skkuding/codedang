@@ -5,9 +5,9 @@ import {
   Delete,
   Param,
   Query,
+  ParseIntPipe,
   Req,
-  DefaultValuePipe,
-  ParseBoolPipe
+  DefaultValuePipe
 } from '@nestjs/common'
 import { AuthenticatedRequest } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
@@ -25,24 +25,9 @@ export class NotificationController {
     @Req() req: AuthenticatedRequest,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(8), new RequiredIntPipe('take'))
-    take: number,
-    @Query('isRead', new ParseBoolPipe({ optional: true }))
-    isRead: boolean | null
+    take: number
   ) {
-    return await this.notificationService.getNotifications(
-      req.user.id,
-      cursor,
-      take,
-      isRead
-    )
-  }
-
-  /**
-   * 사용자의 읽지 않은 알림 개수를 조회합니다.
-   */
-  @Get('unread-count')
-  async getUnreadCount(@Req() req: AuthenticatedRequest) {
-    return await this.notificationService.getUnreadCount(req.user.id)
+    return this.notificationService.getNotifications(req.user.id, cursor, take)
   }
 
   /**
@@ -51,10 +36,9 @@ export class NotificationController {
   @Patch(':id/read')
   async markAsRead(
     @Req() req: AuthenticatedRequest,
-    @Param('id', new RequiredIntPipe('notificationRecordId'))
-    notificationRecordId: number
+    @Param('id', ParseIntPipe) notificationRecordId: number
   ) {
-    return await this.notificationService.markAsRead(
+    return this.notificationService.markAsRead(
       req.user.id,
       notificationRecordId
     )
@@ -65,7 +49,7 @@ export class NotificationController {
    */
   @Patch('read-all')
   async markAllAsRead(@Req() req: AuthenticatedRequest) {
-    return await this.notificationService.markAllAsRead(req.user.id)
+    return this.notificationService.markAllAsRead(req.user.id)
   }
 
   /**
@@ -74,10 +58,9 @@ export class NotificationController {
   @Delete(':id')
   async deleteNotification(
     @Req() req: AuthenticatedRequest,
-    @Param('id', new RequiredIntPipe('notificationRecordId'))
-    notificationRecordId: number
+    @Param('id', ParseIntPipe) notificationRecordId: number
   ) {
-    return await this.notificationService.deleteNotification(
+    return this.notificationService.deleteNotification(
       req.user.id,
       notificationRecordId
     )

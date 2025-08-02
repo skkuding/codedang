@@ -23,11 +23,11 @@ export function ExampleTextarea({
   return (
     <div
       className={cn(
-        'relative flex min-h-[164px] w-full justify-between gap-2 bg-white font-mono',
+        'relative flex min-h-[120px] w-full rounded-md border border-gray-200 bg-gray-50 py-3 font-mono shadow-sm',
         className
       )}
     >
-      {/* {!blockEdit && (
+      {!blockEdit && (
         <button
           type="button"
           className="absolute right-2 top-2 w-3 p-0 text-gray-400"
@@ -35,11 +35,11 @@ export function ExampleTextarea({
         >
           <RxCross2 />
         </button>
-      )} */
-      /* <Textarea
+      )}
+      <Textarea
         disabled={blockEdit}
         placeholder="Input"
-        className="resize-none border-0 px-0 py-0 shadow-none focus-visible:ring-0"
+        className="resize-none border-0 px-4 py-0 shadow-none focus-visible:ring-0"
         {...register(inputName)}
       />
       <Textarea
@@ -47,23 +47,7 @@ export function ExampleTextarea({
         placeholder="Output"
         className="min-h-[120px] rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 shadow-none focus-visible:ring-0"
         {...register(outputName)}
-      /> */}
-      <div className="relative flex min-h-[164px] w-full justify-between gap-2 rounded-xl border border-[1px] border-[#D8D8D8] bg-white px-6 py-4 font-mono shadow-sm">
-        <Textarea
-          disabled={blockEdit}
-          placeholder="Input"
-          className="resize-none border-0 px-0 py-0 shadow-none focus-visible:ring-0"
-          {...register(inputName)}
-        />
-      </div>
-      <div className="relative flex min-h-[164px] w-full justify-between gap-2 rounded-xl border border-[1px] border-[#D8D8D8] bg-white px-6 py-4 font-mono shadow-sm">
-        <Textarea
-          disabled={blockEdit}
-          placeholder="Output"
-          className="resize-none border-0 px-0 py-0 shadow-none focus-visible:ring-0"
-          {...register(outputName)}
-        />
-      </div>
+      />
     </div>
   )
 }
