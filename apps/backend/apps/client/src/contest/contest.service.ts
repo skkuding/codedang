@@ -723,14 +723,14 @@ export class ContestService {
 
     let isPrivileged = false
     if (userId) {
-      const staff = await this.prisma.userContest.findFirst({
+      const contestStaff = await this.prisma.userContest.findFirst({
         where: {
           userId,
           contestId,
           role: { in: ['Admin', 'Manager', 'Reviewer'] }
         }
       })
-      isPrivileged = staff ? true : false
+      isPrivileged = contestStaff ? true : false
     }
 
     let visibleCondition = {}
@@ -882,14 +882,14 @@ export class ContestService {
     const contestQnAId = contestQnA.id
     const isResolved = contestQnA.isResolved
 
-    const staffUserContest = await this.prisma.userContest.findFirst({
+    const contestStaff = await this.prisma.userContest.findFirst({
       where: {
         userId,
         role: { in: ['Admin', 'Manager', 'Reviewer'] }
       }
     })
 
-    const isContestStaff = staffUserContest !== null
+    const isContestStaff = contestStaff !== null
     const isWriter = contestQnA?.createdById == userId
 
     // 해당 QnA의 작성자 또는 대회 스태프만 댓글 작성 가능
