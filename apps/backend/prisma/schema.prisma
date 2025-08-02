@@ -75,8 +75,8 @@ model User {
   file               File[]
   testSubmission     TestSubmission[]
   UpdateHistory      UpdateHistory[]
-  createdQnAs        ContestQnA[]        @relation("CreatedByUser")
-  createdQnAComments ContestQnAComment[] @relation("CreatedByUser")
+  createdQnAs        ContestQnA[]         @relation("CreatedByUser")
+  createdQnAComments ContestQnAComment[]  @relation("CreatedByUser")
   NotificationRecord NotificationRecord[]
 
   @@map("user")
@@ -592,7 +592,6 @@ model ContestQnA {
   isVisible   Boolean             @default(false) @map("is_visible")
   isResolved  Boolean             @default(false) @map("is_resolved")
   createTime  DateTime            @default(now()) @map("create_time")
-  updateTime  DateTime            @updatedAt @map("update_time")
   comments    ContestQnAComment[]
 
   @@unique([contestId, order])
@@ -610,7 +609,6 @@ model ContestQnAComment {
   contestQnA     ContestQnA @relation(fields: [contestQnAId], references: [id], onDelete: Cascade)
   contestQnAId   Int        @map("contest_qna_id")
   createdTime    DateTime   @default(now()) @map("create_time")
-  updatedTime    DateTime   @updatedAt @map("update_time")
 
   @@unique([contestQnAId, order])
   @@map("contest_qna_comment")
