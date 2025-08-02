@@ -75,20 +75,20 @@ export class TestcaseService {
 
   /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
   async createTestcasesLegacy(problemId: number, testcases: Array<Testcase>) {
-    await Promise.all(
-      testcases.map(async (tc, index) => {
-        const problemTestcase = await this.prisma.problemTestcase.create({
-          data: {
-            problemId,
-            input: tc.input,
-            output: tc.output,
-            scoreWeight: tc.scoreWeight,
-            isHidden: tc.isHidden
-          }
-        })
-        return { index, id: problemTestcase.id }
+    const results: Array<{ index: number; id: number }> = []
+    for (const [index, tc] of testcases.entries()) {
+      const problemTestcase = await this.prisma.problemTestcase.create({
+        data: {
+          problemId,
+          input: tc.input,
+          output: tc.output,
+          scoreWeight: tc.scoreWeight,
+          isHidden: tc.isHidden
+        }
       })
-    )
+      results.push({ index, id: problemTestcase.id })
+    }
+    return results
   }
 
   /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
