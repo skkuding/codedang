@@ -1,8 +1,9 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
-import { MIN_DATE, MAX_DATE } from '@libs/constants'
+import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -13,13 +14,16 @@ import { PrismaService } from '@libs/prisma'
 import type { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
 import type { AssignmentProblemInput } from './model/assignment-problem.input'
 import type { AssignmentWithScores } from './model/assignment-with-scores.model'
-import type { CreateAssignmentInput } from './model/assignment.input'
-import type { UpdateAssignmentInput } from './model/assignment.input'
+import type {
+  CreateAssignmentInput,
+  UpdateAssignmentInput
+} from './model/assignment.input'
 
 @Injectable()
 export class AssignmentService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -119,6 +123,10 @@ export class AssignmentService {
       })
 
       this.inviteAllCourseMembersToAssignment(createdAssignment.id, groupId)
+
+      this.eventEmitter.emit('assignment.created', {
+        assignmentId: createdAssignment.id
+      })
 
       return createdAssignment
     } catch (error) {
@@ -1052,6 +1060,11 @@ export class AssignmentService {
       }
     )
 
+    this.eventEmitter.emit('assignment.graded', {
+      assignmentId: input.assignmentId,
+      userId: input.userId
+    })
+
     return updatedProblemRecord
   }
 
@@ -1099,6 +1112,24 @@ export class AssignmentService {
     }
 
     return assignmentProblemRecord
+  }
+
+  async isAllAssignmentProblemGraded(assignmentId: number, userId: number) {
+    const problemRecords = await this.prisma.assignmentProblemRecord.findMany({
+      where: {
+        assignmentId,
+        userId
+      },
+      select: {
+        finalScore: true
+      }
+    })
+
+    const isAllProblemGraded = problemRecords.every(
+      (record) => record.finalScore !== null && record.finalScore !== undefined
+    )
+
+    return isAllProblemGraded
   }
 
   private async inviteAllCourseMembersToAssignment(

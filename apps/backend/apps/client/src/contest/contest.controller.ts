@@ -1,19 +1,30 @@
 import {
+  Body,
   Controller,
-  Param,
-  Post,
-  Req,
+  Delete,
   Get,
+  Param,
+  ParseIntPipe,
+  Post,
   Query,
-  Delete
+  Req
 } from '@nestjs/common'
 import {
   AuthenticatedRequest,
   AuthNotNeededIfPublic,
   UserNullWhenAuthFailedIfPublic
 } from '@libs/auth'
-import { IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import {
+  IDValidationPipe,
+  OptionalParseIntPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import { ContestService } from './contest.service'
+import {
+  ContestQnACreateDto,
+  type ContestQnACommentCreateDto,
+  type GetContestQnAsFilter
+} from './dto/contest-qna.dto'
 
 @Controller('contest')
 export class ContestController {
@@ -81,6 +92,64 @@ export class ContestController {
       contestId,
       req.user?.id,
       search
+    )
+  }
+
+  @Get(':id/qna/:order')
+  @UserNullWhenAuthFailedIfPublic()
+  async getContestQnAById(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number,
+    @Param('order', ParseIntPipe) order: number
+  ) {
+    return await this.contestService.getContestQnA(
+      req.user?.id,
+      contestId,
+      order
+    )
+  }
+
+  @Post(':id/qna')
+  async createContestQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number,
+    @Body() contestQnACreateDto: ContestQnACreateDto,
+    @Query('problem-order', OptionalParseIntPipe) order?: number
+  ) {
+    return await this.contestService.createContestQnA(
+      contestId,
+      req.user.id,
+      contestQnACreateDto,
+      order
+    )
+  }
+
+  @Get(':id/qna')
+  @UserNullWhenAuthFailedIfPublic()
+  async getContestQnAs(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number,
+    @Body() filter: GetContestQnAsFilter
+  ) {
+    return await this.contestService.getContestQnAs(
+      req.user?.id,
+      contestId,
+      filter
+    )
+  }
+
+  @Post(':id/qna/:order/comment')
+  async createContestQnAComment(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number,
+    @Param('order', ParseIntPipe) order: number,
+    @Body() contentQnACommentCreateDto: ContestQnACommentCreateDto
+  ) {
+    return await this.contestService.createContestQnAComment(
+      req.user.id,
+      contestId,
+      order,
+      contentQnACommentCreateDto.content
     )
   }
 }

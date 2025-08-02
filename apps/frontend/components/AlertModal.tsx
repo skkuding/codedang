@@ -1,7 +1,10 @@
+'use client'
+
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
 import infoIcon from '@/public/icons/info.svg'
 import Image from 'next/image'
+import { useState } from 'react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,7 +12,8 @@ import {
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
+  AlertDialogTrigger
 } from './shadcn/alert-dialog'
 
 interface ButtonProps {
@@ -19,8 +23,9 @@ interface ButtonProps {
 }
 
 interface AlertModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  trigger?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
   type: 'confirm' | 'warning'
   showWarningIcon?: boolean
   title: string
@@ -31,6 +36,7 @@ interface AlertModalProps {
 }
 
 export function AlertModal({
+  trigger,
   open,
   onOpenChange,
   type,
@@ -41,10 +47,15 @@ export function AlertModal({
   children,
   onClose
 }: AlertModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlled = open !== undefined && onOpenChange !== undefined
+  const actualOpen = isControlled ? open : internalOpen
+  const handleOpenChange = isControlled ? onOpenChange : setInternalOpen
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={actualOpen} onOpenChange={handleOpenChange}>
+      {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
       <AlertDialogContent
-        className="flex h-[280px] w-[424px] flex-col items-center justify-between !rounded-2xl p-[40px]"
+        className="flex h-[280px] w-[424px] flex-col items-center justify-center !rounded-2xl p-[40px]"
         onEscapeKeyDown={onClose}
       >
         <AlertDialogHeader className="flex flex-col items-center justify-center">
@@ -62,15 +73,17 @@ export function AlertModal({
           </AlertDialogTitle>
         </AlertDialogHeader>
         {children}
-        <p
-          className={cn(
-            'w-full text-center text-sm font-normal text-[#737373]',
-            children && 'text-left'
-          )}
-        >
-          {description}
-        </p>
-        <AlertDialogFooter className="flex w-full justify-center gap-[4px]">
+        {description && (
+          <p
+            className={cn(
+              'w-full text-center text-sm font-normal text-[#737373]',
+              children && 'text-left'
+            )}
+          >
+            {description}
+          </p>
+        )}
+        <AlertDialogFooter className="mt-auto flex w-full justify-center gap-[4px]">
           <AlertDialogCancel className="h-[46px] w-full">
             Cancel
           </AlertDialogCancel>

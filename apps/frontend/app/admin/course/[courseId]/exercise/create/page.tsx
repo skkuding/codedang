@@ -18,7 +18,7 @@ import { AssignmentProblemListLabel } from '../../_components/AssignmentProblemL
 import { AssignmentProblemTable } from '../../_components/AssignmentProblemTable'
 import { AssignmentSolutionTable } from '../../_components/AssignmentSolutionTable'
 import { CreateAssignmentForm } from '../../_components/CreateAssignmentForm'
-import { ImportDialog } from '../../_components/ImportDialog'
+import { ImportProblemDialog } from '../../_components/ImportProblemDialog'
 import { WeekComboBox } from '../../_components/WeekComboBox'
 import type { AssignmentProblem } from '../../_libs/type'
 
@@ -44,15 +44,13 @@ export default function Page({ params }: { params: { courseId: string } }) {
             setIsCreating={setIsCreating}
             isExercise={true}
           >
-            <FormSection
-              isFlexColumn={false}
-              title="Title"
-              className="gap-[77px]"
-            >
-              <TitleForm placeholder="Name your Exercise" />
-            </FormSection>
-
-            <div className="flex flex-col gap-6">
+            <div className="flex w-[901px] flex-col gap-[28px]">
+              <FormSection title="Title">
+                <TitleForm
+                  placeholder="Name your Exercise"
+                  className="max-w-[767px]"
+                />
+              </FormSection>
               <div className="flex justify-between">
                 <FormSection
                   title="Week"
@@ -64,7 +62,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <FormSection
                   title="Due Time"
                   isJustifyBetween={false}
-                  className="gap-[18px]"
+                  className="gap-[40px]"
                   isLabeled={false}
                 >
                   <TimeFormPopover />
@@ -78,6 +76,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                   />
                 </FormSection>
               </div>
+
               <div className="flex justify-between">
                 <FormSection
                   title="Start Time"
@@ -89,7 +88,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <FormSection
                   title="End Time"
                   isJustifyBetween={false}
-                  className="gap-[50px]"
+                  className="gap-[71px]"
                   isLabeled={false}
                 >
                   <TimeForm
@@ -110,10 +109,9 @@ export default function Page({ params }: { params: { courseId: string } }) {
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <AssignmentProblemListLabel />
-                  <ImportDialog
+                  <ImportProblemDialog
                     problems={problems}
                     setProblems={setProblems}
-                    target="exercise"
                   />
                 </div>
                 <AssignmentProblemTable

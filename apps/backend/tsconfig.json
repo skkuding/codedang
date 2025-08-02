@@ -29,7 +29,8 @@
       "@libs/constants": ["./libs/constants/src/index.ts"],
       "@libs/logger": ["./libs/logger/src/index.ts"],
       "@libs/types": ["./libs/types/src/index.ts"],
-      "@libs/instrumentation": ["./libs/instrumentation.ts"]
+      "@libs/instrumentation": ["./libs/instrumentation.ts"],
+      "@libs/storage": ["./libs/storage/src/index.ts"]
     }
   }
 }

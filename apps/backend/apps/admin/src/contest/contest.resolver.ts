@@ -8,7 +8,13 @@ import {
   ResolveField,
   Resolver
 } from '@nestjs/graphql'
-import { Contest, ContestProblem, User, UserContest } from '@generated'
+import {
+  Contest,
+  ContestProblem,
+  ContestQnA,
+  User,
+  UserContest
+} from '@generated'
 import { ContestRole } from '@prisma/client'
 import {
   AuthenticatedRequest,
@@ -112,6 +118,12 @@ export class ContestResolver {
     )
   }
 
+  /**
+   * 특정 Contest의 Contest Admin / Manager가 참가한 User를 참가 취소합니다.
+   * @param contestId 대회 Id
+   * @param userId 참가 취소할 User의 Id
+   * @param req AuthenticatedRequest
+   */
   @Mutation(() => UserContest)
   @UseDisableContestRolesGuard()
   async removeUserFromContest(
@@ -219,4 +231,61 @@ export class ContestResolver {
     }
     return await this.userService.getUser(createdById)
   }
+}
+
+@Resolver(() => ContestQnA)
+@UseContestRolesGuard(ContestRole.Manager)
+export class ContestQnAResolver {
+  constructor(
+    private readonly contestService: ContestService,
+    private readonly userService: UserService
+  ) {}
+
+  @Query(() => [ContestQnA])
+  async getContestQnAs(
+    @Args('contestId', { type: () => Int }) contestId: number
+  ) {
+    return await this.contestService.getContestQnAs(contestId)
+  }
+
+  @Query(() => ContestQnA)
+  async getContestQnA(
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('order', { type: () => Int }, IDValidationPipe) order: number
+  ) {
+    return await this.contestService.getContestQnA(contestId, order)
+  }
+
+  // @Mutation(() => ContestQnA)
+  // async updateContestQnA(
+  //   @Args('contestId', { type: () => Int }) contestId: number,
+  //   @Args('input') input: UpdateContestQnAInput,
+  //   @Context('req') req: AuthenticatedRequest
+  // ) {
+  //   return await this.contestService.updateContestQnA(
+  //     req.user.id,
+  //     contestId,
+  //     input
+  //   )
+  // }
+
+  // TODO: update with data loader when n+1 query issue is fixed
+  @ResolveField('createdBy', () => User, { nullable: true })
+  async getUser(@Parent() contestQnA: ContestQnA) {
+    const { createdById } = contestQnA
+    if (createdById == null) {
+      return null
+    }
+    return await this.userService.getUser(createdById)
+  }
+
+  // TODO: update with data loader when n+1 query issue is fixed
+  // @ResolveField('answeredBy', () => User, { nullable: true })
+  // async getAnsweredBy(@Parent() contestQnA: ContestQnA) {
+  //   const { answeredById } = contestQnA
+  //   if (answeredById == null) {
+  //     return null
+  //   }
+  //   return await this.userService.getUser(answeredById)
+  // }
 }
