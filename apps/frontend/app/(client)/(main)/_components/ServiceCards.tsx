@@ -2,107 +2,94 @@
 
 export function ServiceCards() {
   return (
-    <section className="font-pretendard flex w-full flex-col items-start gap-[40px] pt-[80px]">
-      <div className="flex flex-col items-start gap-[40px]">
+    <section className="font-pretendard flex w-full flex-col items-center gap-[40px] px-4">
+      <div className="flex w-full max-w-[1184px] flex-col items-start gap-[40px]">
         <h2 className="text-[30px] font-semibold leading-[36px] tracking-[-0.9px] text-black">
           SERVICE WE PROVIDE
         </h2>
 
-        <div className="grid grid-cols-[502px_360px_322px] grid-rows-[338px_292px] gap-[12px]">
-          <div className="relative row-span-2 h-[642px] w-[502px] text-white">
-            <div className="bg-primary-light border-common-white absolute left-[30px] top-[30px] flex h-[34px] items-center justify-center rounded-full border px-[12px] py-[4px] text-[16px] font-normal">
+        <div className="grid w-full auto-rows-[330px] grid-cols-2 gap-[12px] [@media(min-width:1140px)]:grid-cols-[41%_29%_30%]">
+          <div className="bg-primary-light relative row-span-2 h-full w-full overflow-hidden rounded-[20px] text-white will-change-transform">
+            <div className="absolute left-[20px] top-[20px] flex h-[34px] items-center justify-center rounded-full border border-white px-[12px] py-[4px] text-[16px]">
               CONTEST
             </div>
-
             <img
               src="/banners/about-contest.svg"
               alt="About Contest"
-              className="bg-primary-light rounded-[20px]"
+              className="absolute inset-0 h-full w-full rounded-[20px] object-cover"
             />
-
-            <div className="absolute bottom-[40px] left-[30px] right-[30px]">
-              <p className="pb-[14px] text-[30px] font-semibold leading-[22.4px] leading-[36px] tracking-[-0.48px] tracking-[-0.9px]">
+            <div className="absolute bottom-[30px] left-[20px] right-[20px]">
+              <p className="pb-[10px] text-[24px] font-semibold leading-[32px]">
                 About Contest
               </p>
-
-              <p className="text-[16px] font-normal leading-[22.4px] tracking-[-0.48px]">
-                Professors and students can host coding contests, <br />
-                and rankings help enhance learning and motivation.
+              <p className="text-[14px] leading-[20px]">
+                Professors and students can host coding contests,
+                <br /> and rankings help enhance learning and motivation.
               </p>
             </div>
           </div>
 
-          <div className="bg-background-normal relative h-[338px] w-[360px] rounded-[20px]">
-            <div className="border-primary text-primary absolute left-[30px] top-[30px] z-10 flex h-[34px] items-center justify-center rounded-full border px-[12px] py-[4px] text-[16px] leading-[22.4px] tracking-[-0.48px]">
+          <div className="bg-background-normal relative h-full w-full overflow-hidden rounded-[20px] will-change-transform">
+            <div className="border-primary text-primary absolute left-[20px] top-[20px] z-10 flex h-[34px] items-center justify-center rounded-full border px-[12px] py-[4px] text-[16px]">
               NOTICE
             </div>
-
             <img
               src="/banners/stay-informed.svg"
               alt="Stay Informed"
-              className="absolute bottom-0 right-0 z-0"
+              className="absolute inset-0 h-full w-full rounded-[20px] object-cover"
             />
-
-            <div className="absolute left-[30px] right-[30px] top-[78px]">
-              <p className="text-primary-strong pb-[14px] text-[30px] font-semibold leading-[22.4px] leading-[36px] tracking-[-0.48px] tracking-[-0.9px]">
+            <div className="absolute left-[20px] right-[20px] top-[70px]">
+              <p className="text-primary-strong pb-[10px] text-[24px] font-semibold leading-[32px]">
                 Stay Informed
               </p>
-              <p className="text-primary text-[16px] font-normal leading-[22.4px] tracking-[-0.48px]">
-                Explore coding challenges <br />
-                by level and topic.
+              <p className="text-primary text-[14px] leading-[20px]">
+                Explore coding challenges <br /> by level and topic.
               </p>
             </div>
           </div>
 
-          <div className="relative h-[338px] w-[322px] rounded-[20px]">
-            <div className="bg-primary border-common-white absolute left-[30px] top-[30px] z-10 flex h-[34px] items-center justify-center rounded-full border px-[12px] py-[4px] text-[16px] leading-[22.4px] tracking-[-0.48px] text-white">
+          <div className="bg-primary relative h-full w-full overflow-hidden rounded-[20px] text-white will-change-transform">
+            <div className="absolute left-[20px] top-[20px] z-10 flex h-[34px] items-center justify-center rounded-full border border-white px-[12px] py-[4px] text-[16px]">
               PROBLEM
             </div>
-
             <img
               src="/banners/practice-with-real-problems-bg.svg"
               alt="Background pattern"
-              className="bg-primary abolute z-0 rounded-[20px]"
+              className="absolute inset-0 h-full w-full rounded-[20px] object-cover"
             />
-
             <img
               src="/banners/practice-with-real-problems.svg"
               alt="Practice with Real problems"
-              className="absolute bottom-0 right-0"
+              className="absolute bottom-0 right-0 max-h-full max-w-full object-contain"
             />
-            <div className="absolute left-[30px] right-[30px] top-[78px]">
-              <p className="pb-[14px] text-[30px] font-semibold leading-[36px] tracking-[-0.9px] text-white">
+            <div className="absolute left-[20px] right-[20px] top-[70px]">
+              <p className="pb-[10px] text-[24px] font-semibold leading-[32px]">
                 Practice with
-                <br />
-                Real problems
+                <br /> Real problems
               </p>
-              <p className="text-[16px] font-normal leading-[22.4px] tracking-[-0.48px] text-white">
+              <p className="text-[14px] leading-[20px]">
                 Explore coding challenges
-                <br />
-                by level and topic.
+                <br /> by level and topic.
               </p>
             </div>
           </div>
 
-          <div className="relative col-span-2 h-[292px] w-[694px] rounded-[20px] bg-[#00183E]">
-            <div className="border-common-white absolute left-[30px] top-[30px] flex h-[34px] items-center justify-center rounded-full border bg-[#00183E] px-[12px] py-[4px] text-[16px] leading-[22.4px] tracking-[-0.48px] text-white">
+          <div className="relative col-span-2 h-full w-full overflow-hidden rounded-[20px] bg-[#00183E] text-white will-change-transform">
+            <div className="absolute left-[20px] top-[20px] flex h-[34px] items-center justify-center rounded-full border border-white bg-[#00183E] px-[12px] py-[4px] text-[16px]">
               COURSE
             </div>
-
             <img
               src="/banners/learn-with-courses.svg"
               alt="Learn with Courses"
-              className="absolute bottom-0 right-0 rounded-[20px]"
+              className="absolute bottom-0 right-0 rounded-[20px] object-cover"
             />
-
-            <div className="absolute bottom-[40px] left-[30px] right-[30px]">
-              <p className="pb-[14px] text-[30px] font-semibold leading-[36px] tracking-[-0.9px] text-white">
+            <div className="absolute bottom-[30px] left-[20px] right-[20px]">
+              <p className="pb-[10px] text-[24px] font-semibold leading-[32px]">
                 Learn with Courses
               </p>
-              <p className="text-[16px] font-normal leading-[22.4px] tracking-[-0.48px] text-white">
+              <p className="text-[14px] leading-[20px]">
                 Access course-linked assignments and exercises.
-                <br />
-                Learn through professor-curated problem.
+                <br /> Learn through professor-curated problem.
               </p>
             </div>
           </div>
