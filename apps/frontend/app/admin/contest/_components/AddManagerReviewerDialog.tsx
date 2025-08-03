@@ -48,7 +48,7 @@ interface AddManagerReviewerDialogProps {
 interface UserResInterface {
   username: string
   id: number
-  userProfile: {
+  userProfile?: {
     realName: string
   }
 }
@@ -178,14 +178,15 @@ export function AddManagerReviewerDialog({
         return
       }
 
-      // 존재하는 이메일이고, participants로 등록된 유저가 아닐 경우에만 추가
+      // 존재하는 이메일이고, participants로 등록된 유저가 아니고, 이미 users에 포함되지 않은 경우에만 추가
+      // userProfile이 존재하지 않다면 realName 값을 ''로 지정.
       setUsers((prevUsers) => [
         ...prevUsers,
         {
           id: res.id,
           email,
           username: res.username,
-          realName: res.userProfile.realName,
+          realName: res.userProfile ? res.userProfile.realName : '',
           type: dropdownValue
         }
       ])
