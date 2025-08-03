@@ -29,6 +29,7 @@ import {
 import { UserService } from '@admin/user/user.service'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
+import { UpdateContestQnAInput } from './model/contest-qna.input'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
 import { ContestUpdateHistories } from './model/contest-update-histories.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
@@ -256,18 +257,18 @@ export class ContestQnAResolver {
     return await this.contestService.getContestQnA(contestId, order)
   }
 
-  // @Mutation(() => ContestQnA)
-  // async updateContestQnA(
-  //   @Args('contestId', { type: () => Int }) contestId: number,
-  //   @Args('input') input: UpdateContestQnAInput,
-  //   @Context('req') req: AuthenticatedRequest
-  // ) {
-  //   return await this.contestService.updateContestQnA(
-  //     req.user.id,
-  //     contestId,
-  //     input
-  //   )
-  // }
+  @Mutation(() => ContestQnA)
+  async updateContestQnA(
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('input') input: UpdateContestQnAInput,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.contestService.updateContestQnA(
+      req.user.id,
+      contestId,
+      input
+    )
+  }
 
   // TODO: update with data loader when n+1 query issue is fixed
   @ResolveField('createdBy', () => User, { nullable: true })
@@ -280,12 +281,12 @@ export class ContestQnAResolver {
   }
 
   // TODO: update with data loader when n+1 query issue is fixed
-  // @ResolveField('answeredBy', () => User, { nullable: true })
-  // async getAnsweredBy(@Parent() contestQnA: ContestQnA) {
-  //   const { answeredById } = contestQnA
-  //   if (answeredById == null) {
-  //     return null
-  //   }
-  //   return await this.userService.getUser(answeredById)
-  // }
+  @ResolveField('answeredBy', () => User, { nullable: true })
+  async getAnsweredBy(@Parent() contestQnA: ContestQnA) {
+    const { answeredById } = contestQnA
+    if (answeredById == null) {
+      return null
+    }
+    return await this.userService.getUser(answeredById)
+  }
 }
