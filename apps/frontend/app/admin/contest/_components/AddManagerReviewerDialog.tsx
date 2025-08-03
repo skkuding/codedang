@@ -177,6 +177,20 @@ export function AddManagerReviewerDialog({
         )
         return
       }
+      // 이미 선택된 유저인지 확인
+      if (hasDuplicate(email, id)) {
+        setInputFields((prevFields) =>
+          prevFields.map((field) =>
+            field.id === id
+              ? {
+                  ...field,
+                  error: 'This email is already selected'
+                }
+              : field
+          )
+        )
+        return
+      }
 
       // 존재하는 이메일이고, participants로 등록된 유저가 아니고, 이미 users에 포함되지 않은 경우에만 추가
       // userProfile이 존재하지 않다면 realName 값을 ''로 지정.
