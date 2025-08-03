@@ -995,7 +995,8 @@ export class ContestService {
    * @param contestId - 대회 Id
    * @param qnAOrder - 해당 대회 내에서의 QnA의 순서
    * @param commentOrder - 해당 QnA 내에서 삭제할 댓글의 순서
-   * @throws { EntityNotExistException } - 입력받은 contestId와 qnAOrder에 해당하는 QnA가 존재하지 않을 시
+   * @throws { EntityNotExistException } - contestId에 해당하는 Contest가 존재하지 않을 시
+   * @throws { EntityNotExistException } - qnAOrder에 해당하는 QnA가 존재하지 않을 시
    * @throws { EntityNotExistException } - 해당 QnA의 commentOrder에 해당하는 댓글이 존재하지 않을 시
    * @throws { ForbiddenAccessException } - 해당 댓글의 작성자 또는 대회 관리자 이외의 사용자가 요청할 시
    * @returns
@@ -1006,6 +1007,14 @@ export class ContestService {
     qnAOrder: number,
     commentOrder: number
   ) {
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
     const contestQnA = await this.prisma.contestQnA.findFirst({
       where: {
         contestId,
