@@ -851,6 +851,57 @@ export class ContestService {
   }
 
   /**
+   * 특정 Contest의 order에 해당하는 QnA를 삭제합니다.
+   * @param userId - 요청하는 사용자의 Id
+   * @param contestId - 대회 Id
+   * @param order - 삭제하려는 QnA의 대회 내에서의 순번
+   * @throws { EntityNotExistException } - 입력받은 contestId에 해당하는 Contest가 존재하지 않을 시
+   * @throws { EntityNotExistException } - 해당 Contest의 order에 해당하는 QnA가 존재하지 않을 시
+   * @throws { ForbiddenAccessException } - 해당 QnA의 작성자 또는 대회 관리자 이외의 사용자가 요청할 시
+   * @returns
+   */
+  async deleteContestQnA(userId: number, contestId: number, order: number) {
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const contestQnA = await this.prisma.contestQnA.findFirst({
+      where: {
+        contestId,
+        order
+      }
+    })
+
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    const contestStaff = await this.prisma.userContest.findFirst({
+      where: {
+        userId,
+        contestId,
+        role: { in: ['Admin', 'Manager', 'Reviewer'] }
+      }
+    })
+
+    const isContestStaff = contestStaff !== null
+
+    if (!isContestStaff && contestQnA.createdById != userId) {
+      throw new ForbiddenAccessException(
+        'Only Writer or Contest Staff can delete QnA.'
+      )
+    }
+
+    return await this.prisma.contestQnA.delete({
+      where: { id: contestQnA.id }
+    })
+  }
+
+  /**
    * ContestQnA에 대한 댓글을 작성합니다
    *
    *
@@ -935,6 +986,66 @@ export class ContestService {
       }
 
       return comment
+    })
+  }
+
+  /**
+   * ContestQnA에 대한 댓글을 삭제합니다.
+   * @param userId - 요청한 사용자의 Id
+   * @param contestId - 대회 Id
+   * @param qnAOrder - 해당 대회 내에서의 QnA의 순서
+   * @param commentOrder - 해당 QnA 내에서 삭제할 댓글의 순서
+   * @throws { EntityNotExistException } - 입력받은 contestId와 qnAOrder에 해당하는 QnA가 존재하지 않을 시
+   * @throws { EntityNotExistException } - 해당 QnA의 commentOrder에 해당하는 댓글이 존재하지 않을 시
+   * @throws { ForbiddenAccessException } - 해당 댓글의 작성자 또는 대회 관리자 이외의 사용자가 요청할 시
+   * @returns
+   */
+  async deleteContestQnAComment(
+    userId: number,
+    contestId: number,
+    qnAOrder: number,
+    commentOrder: number
+  ) {
+    const contestQnA = await this.prisma.contestQnA.findFirst({
+      where: {
+        contestId,
+        order: qnAOrder
+      }
+    })
+
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    const contestQnAComment = await this.prisma.contestQnAComment.findFirst({
+      where: {
+        contestQnAId: contestQnA.id,
+        order: commentOrder
+      }
+    })
+
+    if (!contestQnAComment) {
+      throw new EntityNotExistException('ContestQnAComment')
+    }
+
+    const contestStaff = await this.prisma.userContest.findFirst({
+      where: {
+        userId,
+        contestId,
+        role: { in: ['Admin', 'Manager', 'Reviewer'] }
+      }
+    })
+
+    const isContestStaff = contestStaff !== null
+
+    if (!isContestStaff && contestQnAComment.createdById != userId) {
+      throw new ForbiddenAccessException(
+        'Only Writer or Contest Staff can delete comment.'
+      )
+    }
+
+    return await this.prisma.contestQnAComment.delete({
+      where: { id: contestQnAComment.id }
     })
   }
 }
