@@ -852,9 +852,9 @@ type ContestProblemSumAggregate {
 }
 
 type ContestQnA {
-  _count: ContestQnACount!
-  category: QnACategory!
-  comments: [ContestQnAComment!]
+  answer: String
+  answeredBy: User
+  answeredById: Int
   content: String!
   contest: Contest!
   contestId: Int!
@@ -862,132 +862,69 @@ type ContestQnA {
   createdBy: User
   createdById: Int
   id: ID!
-  isResolved: Boolean!
   isVisible: Boolean!
   order: Int!
-  problem: Problem
-  problemId: Int
   title: String!
+  updateTime: DateTime!
 }
 
 type ContestQnAAvgAggregate {
+  answeredById: Float
   contestId: Float
   createdById: Float
   id: Float
   order: Float
-  problemId: Float
-}
-
-type ContestQnAComment {
-  content: String!
-  contestQnA: ContestQnA!
-  contestQnAId: Int!
-  createdBy: User
-  createdById: Int
-  createdTime: DateTime!
-  id: ID!
-  isContestStaff: Boolean!
-  order: Int!
-}
-
-type ContestQnACommentAvgAggregate {
-  contestQnAId: Float
-  createdById: Float
-  id: Float
-  order: Float
-}
-
-type ContestQnACommentCountAggregate {
-  _all: Int!
-  content: Int!
-  contestQnAId: Int!
-  createdById: Int!
-  createdTime: Int!
-  id: Int!
-  isContestStaff: Int!
-  order: Int!
-}
-
-type ContestQnACommentMaxAggregate {
-  content: String
-  contestQnAId: Int
-  createdById: Int
-  createdTime: DateTime
-  id: Int
-  isContestStaff: Boolean
-  order: Int
-}
-
-type ContestQnACommentMinAggregate {
-  content: String
-  contestQnAId: Int
-  createdById: Int
-  createdTime: DateTime
-  id: Int
-  isContestStaff: Boolean
-  order: Int
-}
-
-type ContestQnACommentSumAggregate {
-  contestQnAId: Int
-  createdById: Int
-  id: Int
-  order: Int
-}
-
-type ContestQnACount {
-  comments: Int!
 }
 
 type ContestQnACountAggregate {
   _all: Int!
-  category: Int!
+  answer: Int!
+  answeredById: Int!
   content: Int!
   contestId: Int!
   createTime: Int!
   createdById: Int!
   id: Int!
-  isResolved: Int!
   isVisible: Int!
   order: Int!
-  problemId: Int!
   title: Int!
+  updateTime: Int!
 }
 
 type ContestQnAMaxAggregate {
-  category: QnACategory
+  answer: String
+  answeredById: Int
   content: String
   contestId: Int
   createTime: DateTime
   createdById: Int
   id: Int
-  isResolved: Boolean
   isVisible: Boolean
   order: Int
-  problemId: Int
   title: String
+  updateTime: DateTime
 }
 
 type ContestQnAMinAggregate {
-  category: QnACategory
+  answer: String
+  answeredById: Int
   content: String
   contestId: Int
   createTime: DateTime
   createdById: Int
   id: Int
-  isResolved: Boolean
   isVisible: Boolean
   order: Int
-  problemId: Int
   title: String
+  updateTime: DateTime
 }
 
 type ContestQnASumAggregate {
+  answeredById: Int
   contestId: Int
   createdById: Int
   id: Int
   order: Int
-  problemId: Int
 }
 
 type ContestRecord {
@@ -1686,6 +1623,7 @@ type Mutation {
   updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
+  updateContestQnA(contestId: Int!, input: UpdateContestQnAInput!): ContestQnA!
   updateCourse(groupId: Int!, input: CourseInput!): Group!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
@@ -1868,7 +1806,6 @@ type Problem {
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
   contestProblem: [ContestProblem!]
-  contestQnA: [ContestQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -1928,7 +1865,6 @@ type ProblemCount {
   announcement: Int!
   assignmentProblem: Int!
   contestProblem: Int!
-  contestQnA: Int!
   problemTag: Int!
   problemTestcase: Int!
   sharedGroups: Int!
@@ -2194,7 +2130,6 @@ type ProblemWithIsVisible {
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
   contestProblem: [ContestProblem!]
-  contestQnA: [ContestQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -2247,11 +2182,6 @@ enum Provider {
   google
   kakao
   naver
-}
-
-enum QnACategory {
-  General
-  Problem
 }
 
 type Query {
@@ -2771,6 +2701,12 @@ input UpdateContestInput {
   userContest: [UserContestInput!]
 }
 
+input UpdateContestQnAInput {
+  answer: String
+  isVisible: Boolean
+  order: Int!
+}
+
 type UpdateCreationPermissionResult {
   canCreateContest: Boolean!
   canCreateCourse: Boolean!
@@ -2888,6 +2824,7 @@ type User {
   NotificationRecord: [NotificationRecord!]
   UpdateHistory: [UpdateHistory!]
   _count: UserCount!
+  answeredQnAs: [ContestQnA!]
   assignment: [Assignment!]
   assignmentRecord: [AssignmentRecord!]
   canCreateContest: Boolean!
@@ -2895,7 +2832,6 @@ type User {
   contest: [Contest!]
   contestRecord: [ContestRecord!]
   createTime: DateTime!
-  createdQnAComments: [ContestQnAComment!]
   createdQnAs: [ContestQnA!]
   email: String!
   file: [File!]
@@ -3016,11 +2952,11 @@ type UserContestSumAggregate {
 type UserCount {
   NotificationRecord: Int!
   UpdateHistory: Int!
+  answeredQnAs: Int!
   assignment: Int!
   assignmentRecord: Int!
   contest: Int!
   contestRecord: Int!
-  createdQnAComments: Int!
   createdQnAs: Int!
   file: Int!
   notice: Int!
