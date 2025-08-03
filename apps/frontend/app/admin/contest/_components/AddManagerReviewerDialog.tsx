@@ -81,7 +81,15 @@ export function AddManagerReviewerDialog({
   const handleValueChange = (id: string, value: string) => {
     setInputFields((prevFields) =>
       prevFields.map((field) =>
-        field.id === id ? { ...field, value, error: '' } : field
+        field.id === id
+          ? {
+              ...field,
+              value,
+              error: hasDuplicate(value, id)
+                ? 'This email address has already been added'
+                : ''
+            }
+          : field
       )
     )
   }
@@ -178,13 +186,14 @@ export function AddManagerReviewerDialog({
         return
       }
       // 이미 선택된 유저인지 확인
-      if (hasDuplicate(email, id)) {
+      const alreadySelected = users.some((user) => user.email === email)
+      if (alreadySelected) {
         setInputFields((prevFields) =>
           prevFields.map((field) =>
             field.id === id
               ? {
                   ...field,
-                  error: 'This email is already selected'
+                  error: 'This email has already been selected'
                 }
               : field
           )
@@ -364,14 +373,6 @@ export function AddManagerReviewerDialog({
                 <div className="flex items-center gap-1">
                   <PiWarningFill size={14} className="text-error" />
                   <p className="text-error mt-1 text-xs">{inputField.error}</p>
-                </div>
-              )}
-              {hasDuplicate(inputField.value, inputField.id) && (
-                <div className="flex items-center gap-1">
-                  <PiWarningFill size={14} className="text-error" />
-                  <p className="text-error text-xs">
-                    This email address has already been added
-                  </p>
                 </div>
               )}
             </div>
