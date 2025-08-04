@@ -146,12 +146,13 @@ export function EditorLayout({
           return {
             id: Number(testcase.id),
             order: idx + 1,
-            type: testcase.isHidden ? 'Hidden' : 'Sample',
+            type: (testcase.isHidden ? 'hidden' : 'sample') as
+              | 'hidden'
+              | 'sample',
             input: testcase.input ?? '',
             expectedOutput: testcase.output ?? '',
             output: testResult?.output ?? '',
-            result: testResult?.result ?? '',
-            isUserTestcase: false
+            result: testResult?.result ?? ''
           }
         })
         setTestResults(mappedResults)
