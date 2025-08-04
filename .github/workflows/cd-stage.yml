@@ -28,6 +28,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # TODO: add a custom tag(e.g. 2025.1) like other images, maybe after refactoring those steps
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
@@ -48,6 +49,7 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
+      # TODO: refactor this step to a reusable action
       - name: Determine next image tag
         id: tag
         env:
