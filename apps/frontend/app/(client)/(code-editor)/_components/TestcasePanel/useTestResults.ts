@@ -15,7 +15,8 @@ const useGetTestResult = (type: 'non-user' | 'user') => {
   const setIsTesting = useTestPollingStore((state) => state.setIsTesting)
   const stopPolling = useTestPollingStore((state) => state.stopPolling)
 
-  const baseUrl = type === 'sample' ? 'submission/test' : 'submission/user-test'
+  const baseUrl =
+    type === 'non-user' ? 'submission/test' : 'submission/user-test'
 
   const getTestResult = async () => {
     const res = await safeFetcherWithAuth.get(baseUrl, {
@@ -53,10 +54,10 @@ const useGetTestResult = (type: 'non-user' | 'user') => {
 }
 
 export const useTestResults = () => {
-  const getSampleTestResult = useGetTestResult('sample')
+  const getNonUserTestResult = useGetTestResult('non-user')
   const getUserTestResult = useGetTestResult('user')
   const {
-    samplePollingEnabled,
+    nonUserPollingEnabled,
     userPollingEnabled,
     setIsTesting,
     stopPolling
@@ -70,10 +71,10 @@ export const useTestResults = () => {
     queries: [
       {
         queryKey: ['submission', 'test'],
-        queryFn: getSampleTestResult,
+        queryFn: getNonUserTestResult,
         throwOnError: false,
         refetchInterval: REFETCH_INTERVAL,
-        enabled: samplePollingEnabled
+        enabled: nonUserPollingEnabled
       },
       {
         queryKey: ['submission', 'user-test'],
@@ -123,7 +124,7 @@ export const useTestResults = () => {
     if (isError) {
       toast.error('Failed to execute some testcases. Please try again later.')
       setIsTesting(false)
-      stopPolling('sample')
+      stopPolling('non-user')
       stopPolling('user')
     }
   }, [isError])
