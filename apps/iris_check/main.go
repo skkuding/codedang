@@ -1,16 +1,11 @@
 package main
 
 /*
-* iris_check 서버는 표절 검사를 위한 서버입니다.
-* 기존 채점용 iris 서버를 기반으로 제작되었습니다.
-* 현재는 기존 iris 서버에서 judge 기능만을 제거한 채 RabbitMQ 메시지를 받기만 하는 것을 목표로 하고 있습니다.
-* <Judge 기능 완전히 제거 -> 아무 기능이 없는 Iris 서버 -> Check 기능 이식> 의 과정을 순차적으로 밟아 나갈 것입니다.
-*/
-
-/*
 * checkId는 그냥 id로 대체해도 무방합니다.
 * 테스트 코드를 제거하십시오
 * previousSubmissionsPath 기능은 구현되지 않았습니다.
+* jdk 21이 필요합니다.
+*
 */
 
 import (
@@ -96,9 +91,9 @@ func main() {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
 		return
 	}
-	checkManager := check.NewCheckManager(s3reader, database, "lib/jplag-6.1.0-jar-with-dependencies.jar")
+	checkManager := check.NewCheckManager(s3reader, database, "app/sandbox/jplag.jar")
 
-  fileManager := file.NewFileManager("app/inputs")
+  fileManager := file.NewFileManager("app/sandbox/checks")
 
 	checkHandler := handler.NewCheckHandler(
     checkManager,

@@ -109,10 +109,11 @@ func (c *checkManager) CheckPlagiarismRate( // 요청된 설정에 맞춰 실제
     resultDir,
   )
   jplagCmd += fmt.Sprintf(` -t %d`, settings.MinTokens);
-  if settings.CheckPreviousSubmission {
+
+  /*if settings.CheckPreviousSubmission {
     //jplagCmd += ` -old "${previousSubmissionsPath}"`;
     // not prepared
-  }
+  }*/
 
   if basePath != nil {
     jplagCmd += fmt.Sprintf(` -bc "%s"`, *basePath);

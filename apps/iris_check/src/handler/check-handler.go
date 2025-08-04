@@ -159,6 +159,28 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		return
 	}
 
+  subDir := dir+"/submission"
+  if err := c.file.CreateDir(subDir); err != nil { // 작업용 임시 디렉토리 생성
+		out <- CheckResultMessage{nil, &HandlerError{
+			caller:  "handle",
+			err:     fmt.Errorf("creating submission directory: %w", err),
+			level:   logger.ERROR,
+			Message: err.Error(),
+		}}
+		return
+	}
+
+  resDir := dir+"/result"
+  if err := c.file.CreateDir(resDir); err != nil { // 작업용 임시 디렉토리 생성
+		out <- CheckResultMessage{nil, &HandlerError{
+			caller:  "handle",
+			err:     fmt.Errorf("creating result directory: %w", err),
+			level:   logger.ERROR,
+			Message: err.Error(),
+		}}
+		return
+	}
+
   checkInputCh := make(chan result.ChResult)
 	go c.getCheckInput(handleCtx, checkInputCh, req)
 
@@ -186,17 +208,6 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
   }
 
   langExt := sandbox.Language(req.Language).GetLangExt()
-
-  subDir := dir+"/submissions"
-  if err := c.file.CreateDir(subDir); err != nil { // 작업용 임시 디렉토리 생성
-		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("creating submissions directory: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}}
-		return
-	}
 
   for _, sub := range chIn.Elements {
     fileName := getSubmissionFileName(fmt.Sprint(sub.Id), langExt)
@@ -246,7 +257,7 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
   if err := c.check.CheckPlagiarismRate(
     c.file.GetBasePath(subDir),
     baseCodePath,
-    "app/result", // <Test Code>
+    c.file.GetBasePath(resDir), // <Test Code>
     sandbox.Language(req.Language).GetLangExt(),
     check.CheckSettings{
       MinTokens: req.MinimumTokens,
