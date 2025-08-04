@@ -110,6 +110,7 @@ export interface TestcaseItem {
   id: number
   input: string
   output: string
+  isHidden?: boolean
   order?: number
 }
 
