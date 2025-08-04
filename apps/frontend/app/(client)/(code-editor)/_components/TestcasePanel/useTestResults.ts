@@ -106,6 +106,7 @@ export const useTestResults = () => {
             type = 'hidden'
           } else {
             testcase.id = sampleTestcaseCount++
+            type = 'sample'
           }
           return {
             id: testcase.id,
