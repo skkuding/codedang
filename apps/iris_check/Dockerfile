@@ -16,7 +16,7 @@ ENV APP_ENV=${app_env}
 
 # Install dependencies
 RUN apt update && apt install -y \
-  curl gcc g++ openjdk-21-jdk \
+  curl openjdk-21-jdk \
   software-properties-common \
   && apt update \
   && rm -rf /var/lib/apt/lists/*
