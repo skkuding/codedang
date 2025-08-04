@@ -131,9 +131,9 @@ func main() {
 		},
 		rabbitmq.ProducerConfig{
 			AmqpURI:        uri,
-			ConnectionName: "iris_check-producer",//utils.Getenv("RABBITMQ_PRODUCER_CONNECTION_NAME", "iris-producer"),
+			ConnectionName: utils.Getenv("RABBITMQ_PRODUCER_CONNECTION_NAME", "iris-producer"),
 			ExchangeName:   utils.Getenv("RABBITMQ_PRODUCER_EXCHANGE_NAME", "iris.e.direct.judge"),
-			RoutingKey:     "check-result",//utils.Getenv("RABBITMQ_PRODUCER_ROUTING_KEY", "judge.result"),
+			RoutingKey:     utils.Getenv("RABBITMQ_PRODUCER_ROUTING_KEY", "judge.result"),
 		},
 	).Connect(context.Background())
 
