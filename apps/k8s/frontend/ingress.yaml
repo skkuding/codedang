@@ -10,7 +10,7 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - k8s-test-frontend.codedang.com
+        - k8s-test-frontend.codedang.com # TODO: replace this with actual domain
       secretName: frontend-tls
   rules:
     - host: k8s-test-frontend.codedang.com
