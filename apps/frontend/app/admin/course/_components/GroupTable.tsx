@@ -13,6 +13,7 @@ import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
 import { useEffect, useMemo, useState } from 'react'
 import { DataTableSemesterFilter } from '../../_components/table/DataTableSemesterFilter'
+import { useDataTable } from '../../_components/table/context'
 import { columns } from './Columns'
 import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
@@ -99,9 +100,26 @@ export function GroupTable() {
           headerStyle={headerStyle}
           getHref={(data) => `/admin/course/${data.id}`}
         />
-        <DataTablePagination />
+        <div className="mt-2 flex items-center justify-between">
+          <RowCount />
+          <DataTablePagination />
+        </div>
       </DataTableRoot>
     </div>
+  )
+}
+
+function RowCount() {
+  const { table } = useDataTable()
+  const selected = table
+    .getPaginationRowModel()
+    .rows.filter((r) => r.getIsSelected()).length
+  const total = table.getPaginationRowModel().rows.length
+
+  return (
+    <p className="text-xs text-neutral-600">
+      {selected} of {total} row(s) selected
+    </p>
   )
 }
 

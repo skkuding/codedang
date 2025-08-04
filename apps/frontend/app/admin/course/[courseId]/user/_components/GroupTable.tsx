@@ -7,6 +7,7 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
+import { useDataTable } from '@/app/admin/_components/table/context'
 import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { useParams } from 'next/navigation'
@@ -55,9 +56,26 @@ export function GroupTable() {
           <DeleteUserButton />
         </div>
         <DataTable headerStyle={headerStyle} />
-        <DataTablePagination />
+        <div className="mt-2 flex items-center justify-between">
+          <RowCount />
+          <DataTablePagination />
+        </div>
       </DataTableRoot>
     </div>
+  )
+}
+
+function RowCount() {
+  const { table } = useDataTable()
+  const selected = table
+    .getPaginationRowModel()
+    .rows.filter((r) => r.getIsSelected()).length
+  const total = table.getPaginationRowModel().rows.length
+
+  return (
+    <p className="text-xs text-neutral-600">
+      {selected} of {total} row(s) selected
+    </p>
   )
 }
 
