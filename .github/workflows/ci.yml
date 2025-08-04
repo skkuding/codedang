@@ -99,8 +99,14 @@ jobs:
       - name: Generate Prisma Client
         run: pnpm --filter="@codedang/backend" exec prisma generate
 
-      - name: Check types
-        run: pnpm exec tsc --noEmit
+      - name: Check types (backend)
+        run: pnpm --filter="@codedang/backend" exec tsc --noEmit
+
+      - name: Compile GraphQL schema
+        run: pnpm --filter="@codedang/frontend" run compile
+
+      - name: Check types (frontend)
+        run: pnpm --filter="@codedang/frontend" exec tsc --noEmit
 
   lint:
     name: Lint
