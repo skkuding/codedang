@@ -240,7 +240,7 @@ model Problem {
   contestProblem    ContestProblem[]
   submission        Submission[]
   announcement      Announcement[]
-  contestQnA        ContestQnA[]
+  ContestQnA        ContestQnA[]
 
   updateHistory UpdateHistory[]
 

@@ -853,6 +853,7 @@ type ContestProblemSumAggregate {
 
 type ContestQnA {
   _count: ContestQnACount!
+  answeredBy: User
   category: QnACategory!
   comments: [ContestQnAComment!]
   content: String!
@@ -1686,6 +1687,7 @@ type Mutation {
   updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
+  updateContestQnA(contestId: Int!, input: UpdateContestQnAInput!): ContestQnA!
   updateCourse(groupId: Int!, input: CourseInput!): Group!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
@@ -1862,13 +1864,13 @@ enum NotificationType {
 }
 
 type Problem {
+  ContestQnA: [ContestQnA!]
   _count: ProblemCount!
   acceptedCount: Int!
   acceptedRate: Float!
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
   contestProblem: [ContestProblem!]
-  contestQnA: [ContestQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -1925,10 +1927,10 @@ type ProblemAvgAggregate {
 }
 
 type ProblemCount {
+  ContestQnA: Int!
   announcement: Int!
   assignmentProblem: Int!
   contestProblem: Int!
-  contestQnA: Int!
   problemTag: Int!
   problemTestcase: Int!
   sharedGroups: Int!
@@ -2188,13 +2190,13 @@ type ProblemTestcaseSumAggregate {
 }
 
 type ProblemWithIsVisible {
+  ContestQnA: [ContestQnA!]
   _count: ProblemCount!
   acceptedCount: Int!
   acceptedRate: Float!
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
   contestProblem: [ContestProblem!]
-  contestQnA: [ContestQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -2769,6 +2771,12 @@ input UpdateContestInput {
   title: String
   unfreeze: Boolean
   userContest: [UserContestInput!]
+}
+
+input UpdateContestQnAInput {
+  answer: String
+  isVisible: Boolean
+  order: Int!
 }
 
 type UpdateCreationPermissionResult {
