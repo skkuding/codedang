@@ -114,11 +114,19 @@ export const useTestResults = () => {
             expectedOutput: testcase.output,
             output: testResult?.output ?? '',
             result: testResult?.result ?? '',
-            // isUserTestcase: testcase.isUserTestcase
             type: type
           }
         })
       : []
+
+  // type에 따라 testResults 정렬 hidden - sample - user 순으로
+  const PRIOR_TESTCASE = {
+    hidden: 0,
+    sample: 1,
+    user: 2
+  }
+
+  testResults.sort((a, b) => PRIOR_TESTCASE[a.type] - PRIOR_TESTCASE[b.type])
 
   useEffect(() => {
     if (isError) {
