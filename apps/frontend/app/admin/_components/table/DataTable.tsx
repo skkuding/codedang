@@ -58,15 +58,15 @@ interface DataTableProps<TData extends { id: number }, TRoute extends string> {
  */
 
 const headerSizeMap = {
-  sm: '!h-[30px]',
-  md: '!h-[39px]',
-  lg: '!h-[40px]'
+  sm: 'h-[30px]!',
+  md: 'h-[39px]!',
+  lg: 'h-[40px]!'
 }
 
 const bodySizeMap = {
-  sm: '!h-[40px]',
-  md: '!h-[57px]',
-  lg: '!h-[76px]'
+  sm: 'h-[40px]!',
+  md: 'h-[57px]!',
+  lg: 'h-[76px]!'
 }
 
 export function DataTable<TData extends { id: number }, TRoute extends string>({
@@ -84,7 +84,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
   if (isCardView) {
     // isCardView가 true일 때 반환
     return (
-      <ScrollArea className="max-w-full rounded">
+      <ScrollArea className="max-w-full rounded-sm">
         <Table>
           <TableBody className="[&_td]:border-transparent">
             {table.getRowModel().rows.length > 0 ? (
@@ -133,7 +133,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
 
   // isCardView가 false일 때 반환
   return (
-    <ScrollArea className="max-w-full rounded">
+    <ScrollArea className="max-w-full rounded-sm">
       <Table>
         <TableHeader
           className={cn(
