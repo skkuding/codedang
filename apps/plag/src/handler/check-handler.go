@@ -22,7 +22,6 @@ import (
 )
 
 type Request struct {
-	CheckId                  string            `json:"checkId"`
 	ProblemId                int               `json:"problemId"`
   Language                 string            `json:"language"`
 	MinimumTokens            int               `json:"minTokens"`
@@ -108,7 +107,6 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
   err = nil
   assignmentId := 1
   req = Request{
-    CheckId: "202503321020",
     ProblemId: 1,
     Language: "C",
     MinimumTokens: 12,

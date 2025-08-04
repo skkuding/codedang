@@ -9,9 +9,9 @@ import (
 )
 
 type Response struct {
-	CheckId         int                `json:"submissionId"`
+	CheckId         int                `json:"checkId"`
 	CheckResultCode handler.ResultCode `json:"resultCode"`
-	CheckResult     json.RawMessage    `json:"judgeResult"`
+	CheckResult     json.RawMessage    `json:"checkResult"`
 	Error           string             `json:"error"`
 }
 

@@ -2,12 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { PlagiarismCheck } from '@prisma/client'
 import { Span, TraceService } from 'nestjs-otel'
-import {
-  EXCHANGE,
-  CHECK_KEY,
-  SUBMISSION_KEY,
-  CHECK_MESSAGE_TYPE
-} from '@libs/constants'
+import { EXCHANGE, SUBMISSION_KEY, CHECK_MESSAGE_TYPE } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import { CheckRequest } from './model/check-request'
 
@@ -26,7 +21,6 @@ export class CheckPublicationService {
     check: PlagiarismCheck
   }): Promise<void> {
     const checkRequest = new CheckRequest(
-      check.checkId,
       check.problemId,
       check.language,
       check.minTokens,

@@ -1,7 +1,6 @@
 import type { Language } from '@prisma/client'
 
 export class CheckRequest {
-  checkId: string
   problemId: number
   language: Language
   checkPreviousSubmission: boolean
@@ -13,7 +12,6 @@ export class CheckRequest {
   workbookId?: number
 
   constructor(
-    checkId: string,
     problemId: number,
     language: Language,
     minTokens: number,
@@ -24,7 +22,6 @@ export class CheckRequest {
     contestId?: number,
     workbookId?: number
   ) {
-    this.checkId = checkId
     this.problemId = problemId
     this.language = language
     this.minTokens = minTokens
