@@ -204,7 +204,8 @@ export function EditorLayout({
         testcases={(testcaseData?.getProblem?.testcase || []).map((tc) => ({
           id: Number(tc.id),
           input: tc.input ?? '',
-          output: tc.output ?? ''
+          output: tc.output ?? '',
+          isHidden: tc.isHidden ?? 'sample'
         }))}
         onReset={handleReset}
       >
