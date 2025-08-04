@@ -146,9 +146,7 @@ export function EditorLayout({
           return {
             id: Number(testcase.id),
             order: idx + 1,
-            type: (testcase.isHidden ? 'hidden' : 'sample') as
-              | 'hidden'
-              | 'sample',
+            type: testcase.isHidden ? ('hidden' as const) : ('sample' as const),
             input: testcase.input ?? '',
             expectedOutput: testcase.output ?? '',
             output: testResult?.output ?? '',
