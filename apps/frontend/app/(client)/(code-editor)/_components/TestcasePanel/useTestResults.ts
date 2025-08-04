@@ -10,7 +10,7 @@ import { useTestcaseStore } from '../context/TestcaseStoreProvider'
 const MAX_ATTEMPTS = 10
 const REFETCH_INTERVAL = 2000
 
-const useGetTestResult = (type: 'sample' | 'user') => {
+const useGetTestResult = (type: 'non-user' | 'user') => {
   const attempts = useRef(0)
   const setIsTesting = useTestPollingStore((state) => state.setIsTesting)
   const stopPolling = useTestPollingStore((state) => state.stopPolling)
@@ -91,12 +91,18 @@ export const useTestResults = () => {
 
   let userTestcaseCount = 1
   let sampleTestcaseCount = 1
+  let hiddenTestcaseCount = 1
   const testResults =
     data.length > 0
       ? testcases.map((testcase, index) => {
           const testResult = data.find((item) => item.id === testcase.id)
+          let type: 'user' | 'sample' | 'hidden' = 'sample'
           if (testcase.isUserTestcase) {
             testcase.id = userTestcaseCount++
+            type = 'user'
+          } else if (testcase.isHidden === true) {
+            testcase.id = hiddenTestcaseCount++
+            type = 'hidden'
           } else {
             testcase.id = sampleTestcaseCount++
           }
@@ -107,7 +113,8 @@ export const useTestResults = () => {
             expectedOutput: testcase.output,
             output: testResult?.output ?? '',
             result: testResult?.result ?? '',
-            isUserTestcase: testcase.isUserTestcase
+            // isUserTestcase: testcase.isUserTestcase
+            type: type
           }
         })
       : []
