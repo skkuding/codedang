@@ -127,9 +127,7 @@ export function EditorMainResizablePanel({
                       }
                       if (isTesting) {
                         return testcases.map((tc: TestcaseItem) => {
-                          const type =
-                            testResults.find((tr) => tr.id === tc.id)?.type ??
-                            'sample'
+                          const type = tc.isHidden ? 'hidden' : 'sample'
 
                           return {
                             id: Number(tc.id),
