@@ -53,6 +53,12 @@ interface UserResInterface {
   }
 }
 
+const DUPLICATE_SELECT_ERROR: string =
+  'This email address has already been selected'
+const DUPLICATE_ADD_ERROR: string = 'This email address has already been added'
+const PARTICIPANT_ERROR: string =
+  'This email is already registered as contest participant'
+
 const generateUniqueId = () => {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 }
@@ -85,9 +91,7 @@ export function AddManagerReviewerDialog({
           ? {
               ...field,
               value,
-              error: hasDuplicate(value, id)
-                ? 'This email address has already been added'
-                : ''
+              error: hasDuplicate(value, id) ? DUPLICATE_ADD_ERROR : ''
             }
           : field
       )
@@ -127,7 +131,11 @@ export function AddManagerReviewerDialog({
     const validInputFields: ContestManagerReviewer[] = inputFields
       .map((inputField) => {
         const user = users.find((user) => user.email === inputField.value)
-        if (!user || inputField.error || !inputField.value.trim()) {
+        if (
+          !user ||
+          (inputField.error && inputField.error !== DUPLICATE_SELECT_ERROR) ||
+          !inputField.value.trim()
+        ) {
           return null
         }
         return {
@@ -177,8 +185,7 @@ export function AddManagerReviewerDialog({
             field.id === id
               ? {
                   ...field,
-                  error:
-                    'This email is already registered as contest participant'
+                  error: PARTICIPANT_ERROR
                 }
               : field
           )
@@ -193,7 +200,7 @@ export function AddManagerReviewerDialog({
             field.id === id
               ? {
                   ...field,
-                  error: 'This email has already been selected'
+                  error: DUPLICATE_SELECT_ERROR
                 }
               : field
           )
