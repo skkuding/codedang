@@ -11,7 +11,7 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
-import type { SubmissionDetail, ContestSubmission } from '@/types/type'
+import type { ContestSubmission, SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
 

@@ -433,7 +433,20 @@ export class ContestProblemService {
       select: {
         order: true,
         problem: {
-          select: problemSelectOption
+          select: {
+            ...problemSelectOption,
+            problemTestcase: {
+              ...(contest.isPrivilegedRole
+                ? {}
+                : { where: { isHidden: false } }),
+              select: {
+                id: true,
+                input: true,
+                output: true,
+                isHidden: true
+              }
+            }
+          }
         }
       }
     })

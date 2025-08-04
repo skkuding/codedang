@@ -520,6 +520,7 @@ input Config {
 }
 
 type Contest {
+  ContestQnA: [ContestQnA!]
   _count: ContestCount!
   announcement: [Announcement!]
   contestProblem: [ContestProblem!]
@@ -573,6 +574,7 @@ type ContestAvgAggregate {
 }
 
 type ContestCount {
+  ContestQnA: Int!
   announcement: Int!
   contestProblem: Int!
   contestRecord: Int!
@@ -849,6 +851,82 @@ type ContestProblemSumAggregate {
   score: Int
 }
 
+type ContestQnA {
+  answer: String
+  answeredBy: User
+  answeredById: Int
+  content: String!
+  contest: Contest!
+  contestId: Int!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  id: ID!
+  isVisible: Boolean!
+  order: Int!
+  title: String!
+  updateTime: DateTime!
+}
+
+type ContestQnAAvgAggregate {
+  answeredById: Float
+  contestId: Float
+  createdById: Float
+  id: Float
+  order: Float
+}
+
+type ContestQnACountAggregate {
+  _all: Int!
+  answer: Int!
+  answeredById: Int!
+  content: Int!
+  contestId: Int!
+  createTime: Int!
+  createdById: Int!
+  id: Int!
+  isVisible: Int!
+  order: Int!
+  title: Int!
+  updateTime: Int!
+}
+
+type ContestQnAMaxAggregate {
+  answer: String
+  answeredById: Int
+  content: String
+  contestId: Int
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  isVisible: Boolean
+  order: Int
+  title: String
+  updateTime: DateTime
+}
+
+type ContestQnAMinAggregate {
+  answer: String
+  answeredById: Int
+  content: String
+  contestId: Int
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  isVisible: Boolean
+  order: Int
+  title: String
+  updateTime: DateTime
+}
+
+type ContestQnASumAggregate {
+  answeredById: Int
+  contestId: Int
+  createdById: Int
+  id: Int
+  order: Int
+}
+
 type ContestRecord {
   ContestProblemFirstSolver: [ContestProblemFirstSolver!]
   _count: ContestRecordCount!
@@ -996,6 +1074,7 @@ type ContestUpdateHistories {
 
 """contestWithParticipants"""
 type ContestWithParticipants {
+  ContestQnA: [ContestQnA!]
   _count: ContestCount!
   announcement: [Announcement!]
   contestProblem: [ContestProblem!]
@@ -1044,6 +1123,7 @@ type ContestWithParticipants {
 }
 
 type ContestWithScores {
+  ContestQnA: [ContestQnA!]
   _count: ContestCount!
   announcement: [Announcement!]
   contestProblem: [ContestProblem!]
@@ -1543,6 +1623,7 @@ type Mutation {
   updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
+  updateContestQnA(contestId: Int!, input: UpdateContestQnAInput!): ContestQnA!
   updateCourse(groupId: Int!, input: CourseInput!): Group!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
@@ -1610,6 +1691,112 @@ type NoticeMinAggregate {
 type NoticeSumAggregate {
   createdById: Int
   id: Int
+}
+
+type Notification {
+  NotificationRecord: [NotificationRecord!]
+  _count: NotificationCount!
+  createTime: DateTime!
+  id: ID!
+  message: String!
+  title: String!
+  type: NotificationType!
+  url: String
+}
+
+type NotificationAvgAggregate {
+  id: Float
+}
+
+type NotificationCount {
+  NotificationRecord: Int!
+}
+
+type NotificationCountAggregate {
+  _all: Int!
+  createTime: Int!
+  id: Int!
+  message: Int!
+  title: Int!
+  type: Int!
+  url: Int!
+}
+
+type NotificationMaxAggregate {
+  createTime: DateTime
+  id: Int
+  message: String
+  title: String
+  type: NotificationType
+  url: String
+}
+
+type NotificationMinAggregate {
+  createTime: DateTime
+  id: Int
+  message: String
+  title: String
+  type: NotificationType
+  url: String
+}
+
+type NotificationRecord {
+  createTime: DateTime!
+  id: ID!
+  isRead: Boolean!
+  notification: Notification!
+  notificationId: Int!
+  user: User!
+  userId: Int!
+}
+
+type NotificationRecordAvgAggregate {
+  id: Float
+  notificationId: Float
+  userId: Float
+}
+
+type NotificationRecordCountAggregate {
+  _all: Int!
+  createTime: Int!
+  id: Int!
+  isRead: Int!
+  notificationId: Int!
+  userId: Int!
+}
+
+type NotificationRecordMaxAggregate {
+  createTime: DateTime
+  id: Int
+  isRead: Boolean
+  notificationId: Int
+  userId: Int
+}
+
+type NotificationRecordMinAggregate {
+  createTime: DateTime
+  id: Int
+  isRead: Boolean
+  notificationId: Int
+  userId: Int
+}
+
+type NotificationRecordSumAggregate {
+  id: Int
+  notificationId: Int
+  userId: Int
+}
+
+type NotificationSumAggregate {
+  id: Int
+}
+
+enum NotificationType {
+  Announcement
+  Assignment
+  Contest
+  Course
+  Other
 }
 
 type Problem {
@@ -2013,6 +2200,8 @@ type Query {
   getContest(contestId: Int!): ContestWithParticipants!
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestProblems(contestId: Int!): [ContestProblem!]!
+  getContestQnA(contestId: Int!, order: Int!): ContestQnA!
+  getContestQnAs(contestId: Int!): [ContestQnA!]!
   getContestRoles: [UserContest!]!
   getContestScoreSummaries(contestId: Int!, cursor: Int, searchingName: String, take: Int! = 10): [UserContestScoreSummaryWithUserInfo!]!
   getContestSubmissionSummaryByUserId(contestId: Int!, cursor: Int, problemId: Int, take: Int! = 10, userId: Int!): ContestSubmissionSummaryForUser!
@@ -2332,11 +2521,13 @@ type TestCaseResult {
   cpuTime: String
   createTime: DateTime!
   id: Int!
+  isHidden: Boolean!
   memoryUsage: Int
   output: String
   problemTestcase: ProblemTestcaseResult!
   problemTestcaseId: Int!
   result: ResultStatus!
+  scoreWeight: Int!
   submissionId: Int!
   updateTime: DateTime!
 }
@@ -2510,6 +2701,12 @@ input UpdateContestInput {
   userContest: [UserContestInput!]
 }
 
+input UpdateContestQnAInput {
+  answer: String
+  isVisible: Boolean
+  order: Int!
+}
+
 type UpdateCreationPermissionResult {
   canCreateContest: Boolean!
   canCreateCourse: Boolean!
@@ -2624,8 +2821,10 @@ input UploadTestcaseZipInput {
 }
 
 type User {
+  NotificationRecord: [NotificationRecord!]
   UpdateHistory: [UpdateHistory!]
   _count: UserCount!
+  answeredQnAs: [ContestQnA!]
   assignment: [Assignment!]
   assignmentRecord: [AssignmentRecord!]
   canCreateContest: Boolean!
@@ -2633,6 +2832,7 @@ type User {
   contest: [Contest!]
   contestRecord: [ContestRecord!]
   createTime: DateTime!
+  createdQnAs: [ContestQnA!]
   email: String!
   file: [File!]
   id: ID!
@@ -2750,11 +2950,14 @@ type UserContestSumAggregate {
 }
 
 type UserCount {
+  NotificationRecord: Int!
   UpdateHistory: Int!
+  answeredQnAs: Int!
   assignment: Int!
   assignmentRecord: Int!
   contest: Int!
   contestRecord: Int!
+  createdQnAs: Int!
   file: Int!
   notice: Int!
   problem: Int!
