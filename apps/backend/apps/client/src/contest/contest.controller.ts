@@ -166,12 +166,12 @@ export class ContestController {
     )
   }
 
-  @Delete(':id/qna/:qna-order/comment/:comment-order')
+  @Delete(':id/qna/:qnaOrder/comment/:commentOrder')
   async deleteContestQnAComment(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number,
-    @Param('qna-order', ParseIntPipe) qnAOrder: number,
-    @Param('comment-order', ParseIntPipe) commentOrder: number
+    @Param('qnaOrder', ParseIntPipe) qnAOrder: number,
+    @Param('commentOrder', ParseIntPipe) commentOrder: number
   ) {
     return await this.contestService.deleteContestQnAComment(
       req.user.id,
