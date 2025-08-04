@@ -2,7 +2,6 @@
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true'
 })
-/** @type {import('next').NextConfig} */
 const MEDIA_BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
 
 // const domains =
@@ -25,6 +24,7 @@ const remotePatterns = [
   }
 ]
 
+/** * @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     typedRoutes: process.env.NODE_ENV !== 'development'
@@ -34,6 +34,9 @@ const nextConfig = {
     remotePatterns
   },
   output: 'standalone',
+  eslint: {
+    ignoreDuringBuilds: true
+  },
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL
   }

@@ -18,7 +18,7 @@ COPY apps/backend/schema.gql apps/backend/
 
 WORKDIR /build/apps/frontend
 
-RUN pnpm build --no-lint
+RUN pnpm build
 
 ### INSTALL PACKAGES ###
 FROM node:22.17.1-alpine AS install
