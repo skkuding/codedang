@@ -242,51 +242,51 @@ export class ContestQnAResolver {
     private readonly userService: UserService
   ) {}
 
-  @Query(() => [ContestQnA])
-  async getContestQnAs(
-    @Args('contestId', { type: () => Int }) contestId: number
-  ) {
-    return await this.contestService.getContestQnAs(contestId)
-  }
+  // @Query(() => [ContestQnA])
+  // async getContestQnAs(
+  //   @Args('contestId', { type: () => Int }) contestId: number
+  // ) {
+  //   return await this.contestService.getContestQnAs(contestId)
+  // }
 
-  @Query(() => ContestQnA)
-  async getContestQnA(
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('order', { type: () => Int }, IDValidationPipe) order: number
-  ) {
-    return await this.contestService.getContestQnA(contestId, order)
-  }
+  // @Query(() => ContestQnA)
+  // async getContestQnA(
+  //   @Args('contestId', { type: () => Int }) contestId: number,
+  //   @Args('order', { type: () => Int }, IDValidationPipe) order: number
+  // ) {
+  //   return await this.contestService.getContestQnA(contestId, order)
+  // }
 
-  @Mutation(() => ContestQnA)
-  async updateContestQnA(
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('input') input: UpdateContestQnAInput,
-    @Context('req') req: AuthenticatedRequest
-  ) {
-    return await this.contestService.updateContestQnA(
-      req.user.id,
-      contestId,
-      input
-    )
-  }
-
-  // TODO: update with data loader when n+1 query issue is fixed
-  @ResolveField('createdBy', () => User, { nullable: true })
-  async getUser(@Parent() contestQnA: ContestQnA) {
-    const { createdById } = contestQnA
-    if (createdById == null) {
-      return null
-    }
-    return await this.userService.getUser(createdById)
-  }
+  // @Mutation(() => ContestQnA)
+  // async updateContestQnA(
+  //   @Args('contestId', { type: () => Int }) contestId: number,
+  //   @Args('input') input: UpdateContestQnAInput,
+  //   @Context('req') req: AuthenticatedRequest
+  // ) {
+  //   return await this.contestService.updateContestQnA(
+  //     req.user.id,
+  //     contestId,
+  //     input
+  //   )
+  // }
 
   // TODO: update with data loader when n+1 query issue is fixed
-  @ResolveField('answeredBy', () => User, { nullable: true })
-  async getAnsweredBy(@Parent() contestQnA: ContestQnA) {
-    const { answeredById } = contestQnA
-    if (answeredById == null) {
-      return null
-    }
-    return await this.userService.getUser(answeredById)
-  }
+  // @ResolveField('createdBy', () => User, { nullable: true })
+  // async getUser(@Parent() contestQnA: ContestQnA) {
+  //   const { createdById } = contestQnA
+  //   if (createdById == null) {
+  //     return null
+  //   }
+  //   return await this.userService.getUser(createdById)
+  // }
+
+  // TODO: update with data loader when n+1 query issue is fixed
+  // @ResolveField('answeredBy', () => User, { nullable: true })
+  // async getAnsweredBy(@Parent() contestQnA: ContestQnA) {
+  //   const { answeredById } = contestQnA
+  //   if (answeredById == null) {
+  //     return null
+  //   }
+  //   return await this.userService.getUser(answeredById)
+  // }
 }
