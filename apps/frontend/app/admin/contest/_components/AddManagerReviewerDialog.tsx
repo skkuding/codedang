@@ -115,7 +115,7 @@ export function AddManagerReviewerDialog({
       onClose={() => setOpen(false)}
     >
       {/* children으로 넣을 부분 */}
-      <ScrollArea className="h-full w-full">
+      <ScrollArea className="w-full">
         {/* 인풋 필드 */}
         <InputFieldTab
           users={users}
@@ -245,7 +245,7 @@ function InputFieldTab({
 
   // TODO: 해당되는 컴포넌트 작성
   return (
-    <Command className="h-full gap-[6px]">
+    <Command className="gap-[6px]">
       <div className="flex flex-col">
         <div className="flex gap-2">
           <div className="relative w-full max-w-[346px] gap-2">
@@ -351,7 +351,7 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   }
 
   return (
-    <div className="flex h-full gap-2">
+    <div className="ml-1 h-10 w-[300px] text-sm">
       {/* email 표시 */}
       <div
         key={curUser.email}
@@ -361,7 +361,7 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
         {/* 삭제버튼 */}
         <Button
           variant="ghost"
-          className="h-10 w-10 p-0"
+          className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 text-sm font-normal"
           onClick={() => handleDeleteUser()}
         >
           <FaTrash className="h-5 w-5 text-[#9B9B9B]" />
