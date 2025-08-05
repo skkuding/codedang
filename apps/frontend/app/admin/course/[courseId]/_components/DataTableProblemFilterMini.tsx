@@ -111,7 +111,7 @@ export function DataTableProblemFilterMini({
   return (
     <div className="relative">
       <button
-        className="flex h-9 min-w-[180px] items-center gap-2 rounded-full border border-gray-300 bg-white px-4 shadow-sm"
+        className="shadow-xs flex h-9 min-w-[180px] items-center gap-2 rounded-full border border-gray-300 bg-white px-4"
         onClick={() => setOpen((v) => !v)}
         type="button"
       >
@@ -140,7 +140,7 @@ export function DataTableProblemFilterMini({
           >
             <Checkbox
               checked={tempSelected.length === options.length}
-              className="h-4 w-4 rounded border-gray-300"
+              className="h-4 w-4 rounded-sm border-gray-300"
             />
             <span
               className={cn(
@@ -166,7 +166,7 @@ export function DataTableProblemFilterMini({
             >
               <Checkbox
                 checked={tempSelected.includes(problem.value)}
-                className="h-4 w-4 rounded border-gray-300"
+                className="h-4 w-4 rounded-sm border-gray-300"
               />
               <span
                 className={cn(
