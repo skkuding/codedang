@@ -30,7 +30,7 @@ RUN curl -L "https://github.com/jplag/JPlag/releases/download/v6.2.0/jplag-6.2.0
 
 RUN chmod 750 /app/sandbox/jplag.jar
 
-COPY --from=builder /build/iris_check .
+COPY --from=builder /build/plag .
 
 COPY ./entrypoint.sh .
 ENV JAVA_PATH /usr/bin/

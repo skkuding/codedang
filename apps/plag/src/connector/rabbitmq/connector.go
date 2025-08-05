@@ -6,9 +6,9 @@ import (
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	instrumentation "github.com/skkuding/codedang/apps/iris_check/src"
-	"github.com/skkuding/codedang/apps/iris_check/src/router"
-	"github.com/skkuding/codedang/apps/iris_check/src/service/logger"
+	instrumentation "github.com/skkuding/codedang/apps/plag/src"
+	"github.com/skkuding/codedang/apps/plag/src/router"
+	"github.com/skkuding/codedang/apps/plag/src/service/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )

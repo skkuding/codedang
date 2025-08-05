@@ -35,7 +35,7 @@ source ~/.bashrc
 
 if [[ -n "$APP_ENV" && $APP_ENV = "production" ]]
     then ECS_CONTAINER_ID=$(head -1 /proc/self/cgroup | cut -d/ -f4)
-    ./iris_check $ECS_CONTAINER_ID
+    ./plag $ECS_CONTAINER_ID
 else
-    ./iris_check
+    ./plag
 fi

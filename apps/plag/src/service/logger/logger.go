@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/skkuding/codedang/apps/iris_check/src/common/constants"
+	"github.com/skkuding/codedang/apps/plag/src/common/constants"
 	"go.opentelemetry.io/contrib/bridges/otelzap"
 	"go.opentelemetry.io/otel/log/global"
 	"go.opentelemetry.io/otel/trace"

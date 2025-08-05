@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	instrumentation "github.com/skkuding/codedang/apps/iris_check/src"
-	"github.com/skkuding/codedang/apps/iris_check/src/handler"
-	"github.com/skkuding/codedang/apps/iris_check/src/service/logger"
+	instrumentation "github.com/skkuding/codedang/apps/plag/src"
+	"github.com/skkuding/codedang/apps/plag/src/handler"
+	"github.com/skkuding/codedang/apps/plag/src/service/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -35,14 +35,14 @@ func NewRouter(
 }
 
 func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx context.Context) {
-  // <Test Code>
-  println("***")
-  println(path)
-  println(id)
-  println(data)
-  path = Check // type이 들어옵니다.
-  id = "202503321020" // checkId가 들어옵니다.
-  println("***")
+	// <Test Code>
+	println("***")
+	println(path)
+	println(id)
+	println(data)
+	path = Check        // type이 들어옵니다.
+	id = "202503321020" // checkId가 들어옵니다.
+	println("***")
 
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.GetTracerProvider().Tracer("Router Tracer")
@@ -62,12 +62,12 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 
 	checkChan := make(chan handler.CheckResultMessage)
 	switch path { // 나중에 추가 작업을 지정할 수 있도록 각 메시지 타입을 구분
-    case Check:
-      go r.checkHandler.Handle(id, data, checkChan, newCtx)
-    default:
-      err := fmt.Errorf("invalid request type: %s", path)
-      r.errHandle(err)
-      out <- NewResponse(id, nil, err).Marshal()
+	case Check:
+		go r.checkHandler.Handle(id, data, checkChan, newCtx)
+	default:
+		err := fmt.Errorf("invalid request type: %s", path)
+		r.errHandle(err)
+		out <- NewResponse(id, nil, err).Marshal()
 	}
 
 	for result := range checkChan {

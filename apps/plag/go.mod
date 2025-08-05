@@ -1,4 +1,4 @@
-module github.com/skkuding/codedang/apps/iris_check
+module github.com/skkuding/codedang/apps/plag
 
 go 1.23.0
 

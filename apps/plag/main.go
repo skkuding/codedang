@@ -5,8 +5,9 @@ package main
 * 테스트 코드를 제거하십시오
 * previousSubmissionsPath 기능은 구현되지 않았습니다.
 * jdk 21이 필요합니다.
+* submission 코드를 얻는 과정이 불안정합니다.
 *
-*/
+ */
 
 import (
 	"context"
@@ -14,16 +15,16 @@ import (
 	"net/http"
 	"time"
 
-	instrumentation "github.com/skkuding/codedang/apps/iris_check/src"
-	"github.com/skkuding/codedang/apps/iris_check/src/connector"
-	"github.com/skkuding/codedang/apps/iris_check/src/connector/rabbitmq"
-	"github.com/skkuding/codedang/apps/iris_check/src/handler"
-	"github.com/skkuding/codedang/apps/iris_check/src/router"
-  "github.com/skkuding/codedang/apps/iris_check/src/loader"
-	"github.com/skkuding/codedang/apps/iris_check/src/service/file"
-  "github.com/skkuding/codedang/apps/iris_check/src/service/check"
-	"github.com/skkuding/codedang/apps/iris_check/src/service/logger"
-	"github.com/skkuding/codedang/apps/iris_check/src/utils"
+	instrumentation "github.com/skkuding/codedang/apps/plag/src"
+	"github.com/skkuding/codedang/apps/plag/src/connector"
+	"github.com/skkuding/codedang/apps/plag/src/connector/rabbitmq"
+	"github.com/skkuding/codedang/apps/plag/src/handler"
+	"github.com/skkuding/codedang/apps/plag/src/loader"
+	"github.com/skkuding/codedang/apps/plag/src/router"
+	"github.com/skkuding/codedang/apps/plag/src/service/check"
+	"github.com/skkuding/codedang/apps/plag/src/service/file"
+	"github.com/skkuding/codedang/apps/plag/src/service/logger"
+	"github.com/skkuding/codedang/apps/plag/src/utils"
 	"go.opentelemetry.io/otel"
 )
 
@@ -93,11 +94,11 @@ func main() {
 	}
 	checkManager := check.NewCheckManager(s3reader, database, "app/sandbox/jplag.jar")
 
-  fileManager := file.NewFileManager("app/sandbox/checks")
+	fileManager := file.NewFileManager("app/sandbox/checks")
 
 	checkHandler := handler.NewCheckHandler(
-    checkManager,
-    fileManager,
+		checkManager,
+		fileManager,
 		logProvider,
 		defaultTracer,
 	)

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/skkuding/codedang/apps/iris_check/src/service/logger"
+	"github.com/skkuding/codedang/apps/plag/src/service/logger"
 )
 
 type HandlerError struct {
@@ -40,7 +40,7 @@ func (h *HandlerError) Level() logger.Level {
 // }
 
 var (
-	ErrTypeAssertionFail   = errors.New("type assertion failed")
-	ErrMarshalJson         = errors.New("json marshal error")
-	ErrValidate            = errors.New("validation error")
+	ErrTypeAssertionFail = errors.New("type assertion failed")
+	ErrMarshalJson       = errors.New("json marshal error")
+	ErrValidate          = errors.New("validation error")
 )

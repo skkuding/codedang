@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/skkuding/codedang/apps/iris_check/src/common/constants"
+	"github.com/skkuding/codedang/apps/plag/src/common/constants"
 )
 
 type FileManager interface {
@@ -18,9 +18,9 @@ type FileManager interface {
 	CreateFile(path string, data string) error
 	ReadFile(path string) ([]byte, error)
 	MakeFilePath(dir string, fileName string) *bytes.Buffer
-  GetBasePath(path string) string
-  Unzip(path string, resultDir string) error
-  CollectFiles(dir string) ([]string, error)
+	GetBasePath(path string) string
+	Unzip(path string, resultDir string) error
+	CollectFiles(dir string) ([]string, error)
 }
 
 type fileManager struct {
@@ -34,7 +34,7 @@ func NewFileManager(baseDir string) *fileManager {
 }
 
 func (f *fileManager) GetBasePath(dir string) string {
-	return f.baseDir+"/"+dir
+	return f.baseDir + "/" + dir
 }
 
 func (f *fileManager) CreateDir(dir string) error {
@@ -68,16 +68,16 @@ func (f *fileManager) ReadFile(path string) ([]byte, error) {
 
 func (f *fileManager) CollectFiles(dir string) ([]string, error) {
 	entries, err := os.ReadDir(dir)
-  if err != nil {
-    return nil, fmt.Errorf("failed to collect files: %s: %w", dir, err)
-  }
+	if err != nil {
+		return nil, fmt.Errorf("failed to collect files: %s: %w", dir, err)
+	}
 
-  fileNames := []string{}
-  for _, e := range entries {
-    fileNames = append(fileNames, e.Name())
-  }
+	fileNames := []string{}
+	for _, e := range entries {
+		fileNames = append(fileNames, e.Name())
+	}
 
-  return fileNames, nil
+	return fileNames, nil
 }
 
 func (f *fileManager) MakeFilePath(dir string, fileName string) *bytes.Buffer {
@@ -91,45 +91,45 @@ func (f *fileManager) MakeFilePath(dir string, fileName string) *bytes.Buffer {
 }
 
 func (f *fileManager) Unzip(path string, resultDir string) error {
-  r, err := zip.OpenReader(path)
-  if err != nil {
-    return fmt.Errorf("zip.OpenReader: %w", err)
-  }
-  defer r.Close()
-  for _, f := range r.File {
-    // 압축 취약점 방지 (ZipSlip)
-    fpath := resultDir+"/"+f.Name
-    if !strings.HasPrefix(fpath, filepath.Clean(resultDir)+string(os.PathSeparator)) {
-      return fmt.Errorf("illegal file path: %s", fpath)
-    }
+	r, err := zip.OpenReader(path)
+	if err != nil {
+		return fmt.Errorf("zip.OpenReader: %w", err)
+	}
+	defer r.Close()
+	for _, f := range r.File {
+		// 압축 취약점 방지 (ZipSlip)
+		fpath := resultDir + "/" + f.Name
+		if !strings.HasPrefix(fpath, filepath.Clean(resultDir)+string(os.PathSeparator)) {
+			return fmt.Errorf("illegal file path: %s", fpath)
+		}
 
-    if f.FileInfo().IsDir() {
-      if err := os.MkdirAll(fpath, f.Mode()); err != nil {
-        return err
-      }
-      continue
-    }
+		if f.FileInfo().IsDir() {
+			if err := os.MkdirAll(fpath, f.Mode()); err != nil {
+				return err
+			}
+			continue
+		}
 
-    if err := os.MkdirAll(filepath.Dir(fpath), 0755); err != nil {
-      return err
-    }
+		if err := os.MkdirAll(filepath.Dir(fpath), 0755); err != nil {
+			return err
+		}
 
-    dstFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-    if err != nil {
-      return err
-    }
-    defer dstFile.Close()
+		dstFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		if err != nil {
+			return err
+		}
+		defer dstFile.Close()
 
-    srcFile, err := f.Open()
-    if err != nil {
-      return err
-    }
-    defer srcFile.Close()
+		srcFile, err := f.Open()
+		if err != nil {
+			return err
+		}
+		defer srcFile.Close()
 
-    if _, err := io.Copy(dstFile, srcFile); err != nil {
-      return err
-    }
-  }
+		if _, err := io.Copy(dstFile, srcFile); err != nil {
+			return err
+		}
+	}
 
-  return nil
+	return nil
 }

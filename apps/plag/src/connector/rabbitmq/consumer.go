@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/skkuding/codedang/apps/iris_check/src/service/logger"
+	"github.com/skkuding/codedang/apps/plag/src/service/logger"
 )
 
 type Consumer interface {

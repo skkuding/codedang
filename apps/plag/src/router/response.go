@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/skkuding/codedang/apps/iris_check/src/handler"
+	"github.com/skkuding/codedang/apps/plag/src/handler"
 )
 
 type Response struct {
@@ -30,7 +30,7 @@ func NewResponse(id string, data json.RawMessage, err error) *Response {
 
 	_id, _ := strconv.Atoi(id)
 	return &Response{
-		CheckId:    _id,
+		CheckId:         _id,
 		CheckResultCode: resultCode,
 		CheckResult:     data,
 		Error:           errMessage,

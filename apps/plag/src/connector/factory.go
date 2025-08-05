@@ -3,9 +3,9 @@ package connector
 import (
 	"fmt"
 
-	"github.com/skkuding/codedang/apps/iris_check/src/connector/rabbitmq"
-	"github.com/skkuding/codedang/apps/iris_check/src/router"
-	"github.com/skkuding/codedang/apps/iris_check/src/service/logger"
+	"github.com/skkuding/codedang/apps/plag/src/connector/rabbitmq"
+	"github.com/skkuding/codedang/apps/plag/src/router"
+	"github.com/skkuding/codedang/apps/plag/src/service/logger"
 )
 
 type Providers struct {
