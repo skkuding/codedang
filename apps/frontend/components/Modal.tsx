@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
@@ -8,7 +10,9 @@ import {
 } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
 import infoIcon from '@/public/icons/info.svg'
+import { DialogTrigger } from '@radix-ui/react-dialog'
 import Image from 'next/image'
+import { useState } from 'react'
 import { ModalInput } from './ModalInput'
 
 export interface InputProps {
@@ -25,12 +29,14 @@ interface ButtonProps {
 }
 
 interface ModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  trigger?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
   size: 'sm' | 'md' | 'lg'
   type: 'input' | 'warning' | 'custom'
   title: string
-  description?: string
+  headerDescription?: string
+  footerDescription?: string
   inputProps?: InputProps
   primaryButton?: ButtonProps
   secondaryButton?: ButtonProps
@@ -39,30 +45,37 @@ interface ModalProps {
 }
 
 const sizeClassMap = {
-  sm: 'w-[424px] h-[280px] p-[40px]',
-  md: 'w-[600px] h-[580px] py-[50px] px-[40px]',
-  lg: 'w-[800px] h-[620px] p-[50px]'
+  sm: 'w-[424px]! h-[280px]! p-[40px]!',
+  md: 'w-[600px]! h-[580px]! py-[50px]! px-[40px]!',
+  lg: 'w-[800px]! h-[620px]! py-[50px]! px-[40px]!'
 }
 
 export function Modal({
+  trigger,
   open,
   onOpenChange,
   size,
   type,
   title,
-  description,
+  headerDescription,
+  footerDescription,
   inputProps,
   primaryButton,
   secondaryButton,
   children,
   onClose
 }: ModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlled = open !== undefined && onOpenChange !== undefined
+  const actualOpen = isControlled ? open : internalOpen
+  const handleOpenChange = isControlled ? onOpenChange : setInternalOpen
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={actualOpen} onOpenChange={handleOpenChange}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         className={cn(
           sizeClassMap[size],
-          'flex flex-col items-center justify-center !rounded-2xl'
+          'rounded-2xl! flex flex-col items-center justify-center'
         )}
         onPointerDownOutside={onClose}
         onEscapeKeyDown={onClose}
@@ -89,15 +102,25 @@ export function Modal({
             onChange={inputProps.onChange}
           />
         )}
-        {children}
-        {description && (
+        {headerDescription && (
           <p
             className={cn(
               'w-full text-center text-sm font-normal text-[#737373]',
               children && 'text-left'
             )}
           >
-            {description}
+            {headerDescription}
+          </p>
+        )}
+        {children}
+        {footerDescription && (
+          <p
+            className={cn(
+              'w-full text-center text-sm font-normal text-[#737373]',
+              children && 'text-left'
+            )}
+          >
+            {footerDescription}
           </p>
         )}
         <DialogFooter className="flex w-full justify-center gap-[4px]">

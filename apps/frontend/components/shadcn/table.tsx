@@ -10,7 +10,7 @@ const Table = React.forwardRef<
       'relative w-full overflow-auto',
       className
         ?.split(' ')
-        .map((c) => (c.includes('border') || c.includes('rounded') ? c : ''))
+        .map((c) => (c.includes('border') || c.includes('rounded-xs') ? c : ''))
         .join(' ')
     )}
   >
@@ -20,7 +20,9 @@ const Table = React.forwardRef<
         'w-full caption-bottom text-sm',
         className
           ?.split(' ')
-          .map((c) => (c.includes('border') || c.includes('rounded') ? '' : c))
+          .map((c) =>
+            c.includes('border') || c.includes('rounded-xs') ? '' : c
+          )
           .join(' ')
       )}
       {...props}
@@ -93,7 +95,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      'h-12 px-4 text-center align-middle font-medium text-gray-500 dark:text-gray-400 [&:has([role=checkbox])]:pr-0',
+      'px-4 text-center align-middle font-medium text-gray-500 dark:text-gray-400 [&:has([role=checkbox])]:pr-0',
       className
     )}
     {...props}
@@ -130,11 +132,11 @@ TableCaption.displayName = 'TableCaption'
 
 export {
   Table,
-  TableHeader,
   TableBody,
+  TableCaption,
+  TableCell,
   TableFooter,
   TableHead,
-  TableRow,
-  TableCell,
-  TableCaption
+  TableHeader,
+  TableRow
 }
