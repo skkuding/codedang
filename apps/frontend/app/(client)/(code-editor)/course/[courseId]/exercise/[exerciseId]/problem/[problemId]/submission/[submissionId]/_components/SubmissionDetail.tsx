@@ -1,3 +1,4 @@
+import { LoadButton } from '@/app/(client)/(code-editor)/_components/LoadButton'
 import { dataIfError } from '@/app/(client)/(code-editor)/_libs/dataIfError'
 import { CodeEditor } from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
@@ -10,7 +11,7 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
-import type { SubmissionDetail, ContestSubmission } from '@/types/type'
+import type { ContestSubmission, SubmissionDetail } from '@/types/type'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
 
@@ -26,7 +27,7 @@ export async function SubmissionDetail({
   exerciseId
 }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
-    searchParams: { problemId, exerciseId },
+    searchParams: { problemId, assignmentId: exerciseId },
     next: {
       tags: [`submission/${submissionId}`]
     }
@@ -73,7 +74,10 @@ export async function SubmissionDetail({
       </ScrollArea>
       <div className="-ml-16 mt-[10px] h-2 min-w-[100%] bg-[#121728]" />
       <div className="my-3 px-6">
-        <h2 className="mb-[18px] text-base font-bold">Source Code</h2>
+        <div className="mb-[18px] flex items-center justify-between">
+          <h2 className="text-base font-bold">Source Code</h2>
+          <LoadButton code={submission.code} />
+        </div>
         <CodeEditor
           value={submission.code}
           language={submission.language}
