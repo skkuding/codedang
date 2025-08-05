@@ -68,7 +68,7 @@ function NewProblemCard({ problem }: { problem: Problem }) {
         <div className="flex flex-col items-start gap-10">
           <Badge
             variant={problem.difficulty}
-            className="mb-2 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium capitalize"
+            className="mb-2 whitespace-nowrap rounded-full px-2 py-1 text-xs font-medium capitalize"
           >
             Level {problem.difficulty.slice(-1)}
           </Badge>
