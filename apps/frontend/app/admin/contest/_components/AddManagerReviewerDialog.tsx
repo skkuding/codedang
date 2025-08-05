@@ -96,7 +96,15 @@ export function AddManagerReviewerDialog({
 
   return (
     <Modal
-      trigger={<TriggerButton />}
+      trigger={
+        <Button
+          type="button"
+          className="flex h-[36px] w-[100px] items-center gap-1 px-0"
+        >
+          <HiMiniPlusCircle className="h-5 w-5" />
+          <div className="text-sm font-bold">Add</div>
+        </Button>
+      }
       open={open}
       onOpenChange={setOpen}
       size="lg"
