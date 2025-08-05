@@ -11,7 +11,7 @@ export function ServiceCards() {
           SERVICE WE PROVIDE
         </h2>
 
-        <div className="grid w-full auto-rows-[330px] grid-cols-2 gap-3 [@media(min-width:1140px)]:grid-cols-[41%_29%_30%]">
+        <div className="grid w-full auto-rows-[330px] grid-cols-2 gap-3 [@media(min-width:1140px)]:grid-cols-[41%_29%_28%]">
           <Link
             href="/contest"
             className="bg-primary-light relative row-span-2 h-full w-full rounded-[20px] text-white duration-500 hover:scale-[1.02]"
@@ -29,7 +29,7 @@ export function ServiceCards() {
               <p className="pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
                 About Contest
               </p>
-              <p className="text-xs font-normal leading-[22.4px] tracking-[-0.48px]">
+              <p className="text-s font-normal leading-[22.4px] tracking-[-0.48px]">
                 Professors and students can host coding contests,
                 <br /> and rankings help enhance learning and motivation.
               </p>
@@ -53,7 +53,7 @@ export function ServiceCards() {
               <p className="text-primary-strong pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
                 Stay Informed
               </p>
-              <p className="text-primary text-xs font-normal leading-[22.4px] tracking-[-0.48px]">
+              <p className="text-primary text-s font-normal leading-[22.4px] tracking-[-0.48px]">
                 Explore coding challenges <br /> by level and topic.
               </p>
             </div>
@@ -72,17 +72,19 @@ export function ServiceCards() {
               className="absolute inset-0 h-full w-full rounded-[20px] object-cover"
               fill
             />
-            <img
+            <Image
               src="/banners/practice-with-real-problems.svg"
               alt="Practice with Real problems"
-              className="absolute bottom-0 right-0 max-h-full max-w-full object-contain"
+              className="absolute bottom-0 right-0 object-contain"
+              width={350}
+              height={350}
             />
             <div className="absolute left-[30px] right-[30px] top-[78px]">
               <p className="pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
                 Practice with
                 <br /> Real problems
               </p>
-              <p className="text-xs font-normal leading-[22.4px] tracking-[-0.48px]">
+              <p className="text-s font-normal leading-[22.4px] tracking-[-0.48px]">
                 Explore coding challenges
                 <br /> by level and topic.
               </p>
@@ -96,16 +98,18 @@ export function ServiceCards() {
             <div className="absolute left-[30px] top-[30px] flex h-[34px] items-center justify-center rounded-full border border-white bg-[#00183E] px-3 py-1 text-xs leading-[22.4px] tracking-[-0.48px]">
               COURSE
             </div>
-            <img
+            <Image
               src="/banners/learn-with-courses.svg"
               alt="Learn with Courses"
               className="absolute bottom-0 right-0 rounded-[20px] object-cover"
+              width={350}
+              height={350}
             />
             <div className="absolute bottom-10 left-[30px] right-[30px]">
               <p className="pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
                 Learn with Courses
               </p>
-              <p className="text-xs font-normal leading-[22.4px] tracking-[-0.48px]">
+              <p className="text-s font-normal leading-[22.4px] tracking-[-0.48px]">
                 Access course-linked assignments and exercises.
                 <br /> Learn through professor-curated problem.
               </p>
