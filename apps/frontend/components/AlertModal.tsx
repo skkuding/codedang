@@ -80,7 +80,12 @@ export function AlertModal({
               // className="mb-3"
             />
           )}
-          <AlertDialogTitle className="text-center text-2xl font-semibold">
+          <AlertDialogTitle
+            className={cn(
+              'w-full text-2xl font-semibold',
+              size === 'lg' ? 'text-left' : 'text-center'
+            )}
+          >
             {title}
           </AlertDialogTitle>
         </AlertDialogHeader>

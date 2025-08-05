@@ -6,6 +6,7 @@ import { Button } from '@/components/shadcn/button'
 import { DUPLICATE_COURSE } from '@/graphql/course/mutation'
 import { useMutation } from '@apollo/client'
 import { useState } from 'react'
+import { GoAlertFill } from 'react-icons/go'
 import { IoCopy } from 'react-icons/io5'
 import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
@@ -76,11 +77,11 @@ export function DuplicateCourseButton({
         onClick: handleDuplicateRows
       }}
     >
-      <ModalSection
+      {/* <ModalSection
         title="Contents that will be Copied"
         description="Make sure to review the contents that will be duplicated."
         items={['Title', 'Description', 'Assignments']}
-      />
+      /> */}
       <ModalSection
         title="Courses that will be Copied"
         description="Make sure to review the courses that will be duplicated."
@@ -91,6 +92,12 @@ export function DuplicateCourseButton({
             .join(', ')
         ]}
       />
+      <div className="flex h-[37px] w-full items-center gap-[6px] bg-[#FFEBEE] px-[18px] py-[8px]">
+        <GoAlertFill size={16} color="#FF3B2F" />
+        <span className="text-sm text-[#FF3B2F]">
+          Course Info, Assignements and Exercises will be duplicated.
+        </span>
+      </div>
     </AlertModal>
   )
 }
