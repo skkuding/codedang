@@ -276,8 +276,8 @@ function InputFieldTab({
                         variant="ghost"
                         className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 text-sm font-normal"
                         onClick={() => {
-                          handleValueChange(inputField.value)
-                          fetchUserData(inputField.value, inputField.dropdown)
+                          handleValueChange(emailSuggestion)
+                          fetchUserData(emailSuggestion, inputField.dropdown)
                         }}
                       >
                         <HiMiniPlusCircle className="h-5 w-5 text-[#9B9B9B]" />
