@@ -8,7 +8,7 @@ import {
   CarouselPrevious
 } from '@/components/shadcn/carousel'
 import GrayRightArrow from '@/public/icons/arrow-right-gray.svg'
-import RightArrow from '@/public/icons/arrow-right.svg'
+import RightArrow from '@/public/icons/arrow-right-white.svg'
 import type { Problem } from '@/types/type'
 import Image from 'next/image'
 import Link from 'next/link'
