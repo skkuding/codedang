@@ -7,7 +7,6 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
-import { useDataTable } from '@/app/admin/_components/table/context'
 import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { useParams } from 'next/navigation'
