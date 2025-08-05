@@ -63,7 +63,10 @@ function Text({
 
 function BarButton() {
   return (
-    <Button className="h-full max-h-[54px] w-full max-w-[291px] p-0">
+    <Button
+      variant={'outline'}
+      className="h-full max-h-[54px] w-full max-w-[291px] p-0"
+    >
       <Link
         href={`/notice/${contestNoticeId}`}
         className="flex h-full w-full items-center justify-between px-[4px] py-0"

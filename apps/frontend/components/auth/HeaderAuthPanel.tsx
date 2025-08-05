@@ -179,7 +179,7 @@ export function HeaderAuthPanel({
           <DialogTrigger asChild>
             <Button
               onClick={() => showSignIn()}
-              variant={'outline-solid'}
+              variant={'outline'}
               className={cn(
                 'border-primary text-primary mr-3 hidden bg-transparent px-5 py-1 text-sm font-semibold hover:bg-[#EAF3FF] active:bg-[#D7E5FE] lg:block',
                 isEditor &&

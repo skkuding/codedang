@@ -19,7 +19,7 @@ import {
 interface ButtonProps {
   text: string
   onClick: () => void
-  variant?: 'default' | 'outline-solid'
+  variant?: 'default' | 'outline'
 }
 
 interface AlertModalProps {

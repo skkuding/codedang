@@ -46,7 +46,7 @@ export const DateTimePickerDemo = ({
     >
       <PopoverTrigger asChild>
         <Button
-          variant={'outline-solid'}
+          variant={'outline'}
           className={cn(
             'h-[36px] justify-start text-left font-normal',
             isContest ? 'w-[492px]' : 'w-[255px]',
