@@ -52,16 +52,37 @@ export class AssignmentService {
    *
    * @param {number} groupId 그룹 아이디
    * @param {boolean} isExercise exercise를 가져올지 assignment를 가져올지 여부
+   * @param {number} month 조회할 월 (1-12, 선택적)
+   * @param {number} year 조회할 년도 (선택적)
    * @returns 특정 그룹의 모든 assignment를 문제 개수와 함께 반환합니다.
    * 아직 시작되지 않은 assignment의 경우 문제 개수는 0이 됩니다.
+   * month와 year가 제공되면 해당 월에 dueTime이 속한 assignment만 반환합니다.
    */
-  async getAssignments(groupId: number, isExercise: boolean) {
+  async getAssignments(
+    groupId: number,
+    isExercise: boolean,
+    month?: number,
+    year?: number
+  ) {
+    const whereCondition: Record<string, unknown> = {
+      groupId,
+      isVisible: true
+    }
+
+    if (month !== undefined && year !== undefined) {
+      const startOfMonth = new Date(year, month - 1, 1)
+      const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999)
+
+      whereCondition.dueTime = {
+        gte: startOfMonth,
+        lte: endOfMonth
+      }
+    } else {
+      whereCondition.isExercise = isExercise
+    }
+
     const assignments = await this.prisma.assignment.findMany({
-      where: {
-        groupId,
-        isExercise,
-        isVisible: true
-      },
+      where: whereCondition,
       select: {
         ...assignmentSelectOption
       },
