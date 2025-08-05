@@ -10,7 +10,7 @@ export const columns: ColumnDef<OverallSubmission>[] = [
     accessorKey: 'username',
     header: () => null,
     cell: ({ row }) => (
-      <div className="shadow-xs flex flex-col rounded-2xl border bg-white px-[30px] py-[18px]">
+      <div className="shadow-2xs flex flex-col rounded-2xl border bg-white px-[30px] py-[18px]">
         <div className="text-primary flex items-center gap-2">
           <div className="rounded-full bg-[#e1ecfe] px-4 py-1">User ID</div>
           <div>{row.original.username}</div>

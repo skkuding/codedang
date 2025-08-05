@@ -61,7 +61,7 @@ export default function Information({ params }: InformationProps) {
               <span className="font-bold">Included Problem</span>
               <button
                 type="button"
-                className="flex h-7 w-7 items-center justify-center rounded-sm transition hover:bg-transparent"
+                className="rounded-xs flex h-7 w-7 items-center justify-center transition hover:bg-transparent"
                 onClick={() => setProblemsOpen((prev) => !prev)}
               >
                 <ChevronDownIcon
