@@ -1378,46 +1378,40 @@ export class ContestService {
     return userContests
   }
 
-  // async updateContestQnA(
-  //   userId: number,
-  //   contestId: number,
-  //   qna: UpdateContestQnAInput
-  // ) {
-  //   const { order, ...rest } = qna
-  //   const data = rest as Prisma.ContestQnAUncheckedUpdateInput
-  //   if (data.answer) {
-  //     data.answeredById = userId
-  //   }
+  async getContestQnAs(contestId: number) {
+    return await this.prisma.contestQnA.findMany({
+      where: {
+        contestId
+      },
+      orderBy: {
+        order: 'asc'
+      }
+    })
+  }
 
-  //   return await this.prisma.contestQnA.update({
-  //     where: {
-  //       // eslint-disable-next-line @typescript-eslint/naming-convention
-  //       contestId_order: {
-  //         order,
-  //         contestId
-  //       }
-  //     },
-  //     data
-  //   })
-  // }
+  async getContestQnA(contestId: number, order: number) {
+    return await this.prisma.contestQnA.findFirst({
+      where: {
+        contestId,
+        order
+      }
+    })
+  }
 
-  // async getContestQnAs(contestId: number) {
-  //   return await this.prisma.contestQnA.findMany({
-  //     where: {
-  //       contestId
-  //     },
-  //     orderBy: {
-  //       order: 'asc'
-  //     }
-  //   })
-  // }
+  async deleteContestQnA(contestId: number, order: number) {
+    const contestQnA = await this.prisma.contestQnA.findFirst({
+      where: {
+        contestId,
+        order
+      }
+    })
 
-  // async getContestQnA(contestId: number, order: number) {
-  //   return await this.prisma.contestQnA.findFirst({
-  //     where: {
-  //       contestId,
-  //       order
-  //     }
-  //   })
-  // }
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    return await this.prisma.contestQnA.delete({
+      where: { id: contestQnA.id }
+    })
+  }
 }
