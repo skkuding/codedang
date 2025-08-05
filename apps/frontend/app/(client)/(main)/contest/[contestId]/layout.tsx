@@ -1,3 +1,4 @@
+import { ChannelIO } from '@/components/ChannelIO'
 import { Button } from '@/components/shadcn/button'
 import { auth } from '@/libs/auth'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
@@ -31,6 +32,7 @@ export default async function Layout({ params, tabs }: ContestDetailProps) {
           <ContestTabs contestId={contestId} />
           {tabs}
         </article>
+        <ChannelIO />
       </>
     )
   }

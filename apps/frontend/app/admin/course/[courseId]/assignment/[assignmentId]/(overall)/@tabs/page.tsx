@@ -54,14 +54,14 @@ export default function Information({ params }: InformationProps) {
             />
           </div>
 
-          <Separator className="my-2 h-[1px] bg-[#E5E5E5]" />
+          <Separator className="my-2 h-px bg-[#E5E5E5]" />
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center">
               <span className="font-bold">Included Problem</span>
               <button
                 type="button"
-                className="flex h-7 w-7 items-center justify-center rounded transition hover:bg-transparent"
+                className="rounded-xs flex h-7 w-7 items-center justify-center transition hover:bg-transparent"
                 onClick={() => setProblemsOpen((prev) => !prev)}
               >
                 <ChevronDownIcon
@@ -133,7 +133,7 @@ export default function Information({ params }: InformationProps) {
             )}
           </div>
 
-          <Separator className="my-2 h-[1px] bg-[#E5E5E5]" />
+          <Separator className="my-2 h-px bg-[#E5E5E5]" />
 
           <div className="flex flex-col gap-2">
             <span className="text-left text-[16px] font-bold leading-[1.4] tracking-[-3%] text-black">
@@ -152,12 +152,12 @@ export default function Information({ params }: InformationProps) {
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-[16px] font-semibold">
-                  Disable Copy/Paste
+                  Enable Copy/Paste
                 </span>
                 <span
-                  className={`rounded-[12px] px-4 py-1 text-xs font-bold text-white ${!assignmentData?.enableCopyPaste ? 'bg-primary' : 'bg-gray-300'}`}
+                  className={`rounded-[12px] px-4 py-1 text-xs font-bold text-white ${assignmentData?.enableCopyPaste ? 'bg-primary' : 'bg-gray-300'}`}
                 >
-                  {!assignmentData?.enableCopyPaste ? 'ON' : 'OFF'}
+                  {assignmentData?.enableCopyPaste ? 'ON' : 'OFF'}
                 </span>
               </div>
             </div>

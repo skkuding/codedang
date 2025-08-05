@@ -2,13 +2,14 @@ import { MailerModule } from '@nestjs-modules/mailer'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
+import { APP_FILTER, APP_GUARD, HttpAdapterHost } from '@nestjs/core'
 import type { Server } from 'http'
 import { OpenTelemetryModule } from 'nestjs-otel'
 import { LoggerModule } from 'nestjs-pino'
-import { JwtAuthModule, JwtAuthGuard } from '@libs/auth'
+import { JwtAuthGuard, JwtAuthModule } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
 import { ClientExceptionFilter } from '@libs/exception'
+import { openTelemetryModuleOption } from '@libs/instrumentation'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { AnnouncementModule } from './announcement/announcement.module'
@@ -21,6 +22,7 @@ import { EmailModule } from './email/email.module'
 import { MailerConfigService } from './email/mailerConfig.service'
 import { GroupModule } from './group/group.module'
 import { NoticeModule } from './notice/notice.module'
+import { NotificationModule } from './notification/notification.module'
 import { ProblemModule } from './problem/problem.module'
 import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
@@ -49,8 +51,9 @@ import { WorkbookModule } from './workbook/workbook.module'
     EmailModule,
     AnnouncementModule,
     AssignmentModule,
+    NotificationModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
-    OpenTelemetryModule.forRoot()
+    OpenTelemetryModule.forRoot(openTelemetryModuleOption)
   ],
   controllers: [AppController],
   providers: [

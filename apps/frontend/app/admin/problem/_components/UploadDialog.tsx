@@ -77,16 +77,16 @@ export function UploadDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <UploadIcon className="mr-2 h-4 w-4" />
-          Upload
+        <Button variant="outline" className="w-[120px]">
+          <UploadIcon className="mr-2 h-5 w-5" />
+          <span className="text-lg font-medium">Upload</span>
         </Button>
       </DialogTrigger>
       <DialogContent
         onInteractOutside={(e) => {
           e.preventDefault()
         }}
-        className="flex h-[24rem] w-[32rem] flex-col"
+        className="w-lg flex h-96 flex-col"
       >
         <h1 className="my-2 text-2xl font-bold">Upload Problem</h1>
         <p className="text-sm">
@@ -152,7 +152,7 @@ export function UploadDialog() {
         {state.over &&
           typeof window === 'object' &&
           createPortal(
-            <div className="fixed left-0 top-0 z-50 grid h-dvh w-dvw place-items-center bg-slate-500/50 text-5xl font-bold backdrop-blur">
+            <div className="backdrop-blur-xs fixed left-0 top-0 z-50 grid h-dvh w-dvw place-items-center bg-slate-500/50 text-5xl font-bold">
               Drop file here
             </div>,
             document.body

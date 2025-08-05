@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-3xl text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-3xl text-base font-medium ring-offset-white transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300',
   {
     variants: {
       variant: {
@@ -13,7 +13,7 @@ const buttonVariants = cva(
         destructive:
           'bg-red-500 text-gray-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-gray-50 dark:hover:bg-red-900/90',
         outline:
-          'rounded-full border  bg-white hover:bg-[#EBEBEB] dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-[#EBEBEB] dark:hover:text-gray-50',
+          'rounded-full border  bg-white hover:bg-[#EBEBEB] dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-[#EBEBEB] dark:hover:text-gray-50 text-[#8A8A8A]',
         secondary:
           'rounded-full border border-primary bg-gray-100 text-gray-900 hover:bg-gray-100/80 dark:bg-primary/20 dark:text-gray-50 dark:hover:bg-gray-800/80',
         ghost:

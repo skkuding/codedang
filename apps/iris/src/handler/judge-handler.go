@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/common/result"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
@@ -17,7 +18,6 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -31,6 +31,7 @@ type Request struct {
 	UserTestcases            *[]loader.Element `json:"userTestcases,omitempty"`            // 사용자 테스트 케이스
 	StopOnNotAccepted        bool              `json:"stopOnNotAccepted,omitempty"`        // 테스트 케이스가 틀리면 이후 테스트 케이스 실행 중단
 	JudgeOnlyHiddenTestcases bool              `json:"judgeOnlyHiddenTestcases,omitempty"` // Hidden 테스트 케이스만 채점
+	ContainHiddenTestcases   bool              `json:"containHiddenTestcases,omitempty"`   // Hidden 테스트 케이스도 포함하여 채점(Run의 경우)
 }
 
 func (r Request) Validate() (*Request, error) {
@@ -88,6 +89,7 @@ type JudgeHandler[C any, E any] struct {
 	testcaseManager testcase.TestcaseManager
 	file            file.FileManager
 	logger          logger.Logger
+	tracer          trace.Tracer
 }
 
 func NewJudgeHandler[C any, E any](
@@ -95,29 +97,30 @@ func NewJudgeHandler[C any, E any](
 	testcaseManager testcase.TestcaseManager,
 	file file.FileManager,
 	logger logger.Logger,
+	tracer trace.Tracer,
 ) *JudgeHandler[C, E] {
 	return &JudgeHandler[C, E]{
 		sandbox,
 		testcaseManager,
 		file,
 		logger,
+		tracer,
 	}
 }
 
 // handle top layer logical flow
-func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage) {
+func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage, ctx context.Context) {
 	startedAt := time.Now()
-	tracer := otel.Tracer("Handle Tracer")
-	handleCtx, span := tracer.Start(
-		context.Background(),
-		"JUDGE Handler",
+	handleCtx, childSpan := j.tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("judge-handler", "handle"),
 		trace.WithAttributes(attribute.Int("submissionId", func() int {
 			submissionId, _ := strconv.Atoi(id)
 			return submissionId
 		}()),
 		),
 	)
-	defer span.End()
+	defer childSpan.End()
 
 	//TODO: validation logic here
 	req := Request{}
@@ -262,7 +265,7 @@ func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out cha
 
 	tcNum := tc.Count()
 	for i := range tcNum {
-		judgeResultCode := j.judgeTestcase(i, dir, validReq, tc.Elements[i], out)
+		judgeResultCode := j.judgeTestcase(ctx, i, dir, validReq, tc.Elements[i], out)
 		if validReq.StopOnNotAccepted && judgeResultCode != ACCEPTED {
 			for idxToCancel := i + 1; idxToCancel < tcNum; idxToCancel++ {
 				j.sendCancelResult(tc.Elements[idxToCancel], out)
@@ -273,10 +276,12 @@ func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out cha
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler[C, E]) compile(traceCtx context.Context, out chan<- result.ChResult, dto sandbox.CompileRequest) {
-	tracer := otel.Tracer("Compile Tracer")
-	_, span := tracer.Start(traceCtx, "go:goroutine:compile")
-	defer span.End()
+func (j *JudgeHandler[C, E]) compile(ctx context.Context, out chan<- result.ChResult, dto sandbox.CompileRequest) {
+	_, childSpan := j.tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("judge-handler", "compile"),
+	)
+	defer childSpan.End()
 
 	res, err := j.sandbox.Compile(dto)
 	if err != nil {
@@ -287,10 +292,12 @@ func (j *JudgeHandler[C, E]) compile(traceCtx context.Context, out chan<- result
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler[C, E]) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string, hidden bool) {
-	tracer := otel.Tracer("GetTestcase Tracer")
-	_, span := tracer.Start(traceCtx, "go:goroutine:getTestcase")
-	defer span.End()
+func (j *JudgeHandler[C, E]) getTestcase(ctx context.Context, out chan<- result.ChResult, problemId string, hidden bool) {
+	_, childSpan := j.tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("judge-handler", "getTestcase"),
+	)
+	defer childSpan.End()
 
 	res, err := j.testcaseManager.GetTestcase(problemId, hidden)
 
@@ -301,8 +308,13 @@ func (j *JudgeHandler[C, E]) getTestcase(traceCtx context.Context, out chan<- re
 	out <- result.ChResult{Data: res}
 }
 
-func (j *JudgeHandler[C, E]) judgeTestcase(idx int, dir string, validReq *Request,
+func (j *JudgeHandler[C, E]) judgeTestcase(ctx context.Context, idx int, dir string, validReq *Request,
 	tc loader.Element, out chan JudgeResultMessage) ResultCode {
+	_, childSpan := j.tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("judge-handler", "judgeTestcase"),
+	)
+	defer childSpan.End()
 
 	res := JudgeResult{}
 

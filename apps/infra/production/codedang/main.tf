@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.82"
+      version = "~> 5.100"
     }
 
     rabbitmq = {
@@ -31,4 +31,27 @@ provider "rabbitmq" {
   endpoint = aws_mq_broker.judge_queue.instances.0.console_url
   username = var.rabbitmq_username
   password = random_password.rabbitmq_password.result
+}
+
+data "terraform_remote_state" "storage" {
+  backend = "s3"
+  config = {
+    bucket = "codedang-tf-state"
+    key    = "terraform/storage.tfstate"
+    region = "ap-northeast-2"
+  }
+}
+
+data "terraform_remote_state" "network" {
+  backend = "s3"
+  config = {
+    bucket = "codedang-tf-state"
+    key    = "terraform/network.tfstate"
+    region = "ap-northeast-2"
+  }
+}
+
+locals {
+  storage = data.terraform_remote_state.storage.outputs
+  network = data.terraform_remote_state.network.outputs
 }

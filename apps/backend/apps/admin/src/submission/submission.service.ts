@@ -4,12 +4,12 @@ import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
 import {
-  mkdirSync,
-  createWriteStream,
   createReadStream,
+  createWriteStream,
   existsSync,
-  unlink,
+  mkdirSync,
   rm,
+  unlink,
   writeFileSync,
   rmSync
 } from 'fs'
@@ -152,6 +152,15 @@ export class SubmissionService {
     return results
   }
 
+  /**
+   * 특정 Assignment의 특정 Problem에 대한 제출 내역을 지정된 개수만큼 불러옵니다.
+   *
+   * @param {GetAssignmentSubmissionsInput} input 검색할 제출 내역의 정보
+   * @param {number} take 가져올 제출 내역의 개수
+   * @param {(number | null)} cursor Pagination을 위한 커서
+   * @param {(SubmissionOrder | null)} order 검색 결과의 정렬 기준
+   * @returns 찾은 제출 내역들을 반환합니다
+   */
   async getAssignmentSubmissions(
     input: GetAssignmentSubmissionsInput,
     take: number,
@@ -335,7 +344,9 @@ export class SubmissionService {
             problemTestcase: {
               select: {
                 input: true,
-                output: true
+                output: true,
+                isHidden: true,
+                scoreWeight: true
               }
             }
           }
@@ -412,7 +423,9 @@ export class SubmissionService {
         cpuTime:
           result.cpuTime || result.cpuTime === BigInt(0)
             ? result.cpuTime.toString()
-            : null
+            : null,
+        isHidden: result.problemTestcase.isHidden,
+        scoreWeight: result.problemTestcase.scoreWeight
       }
     })
     results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
@@ -529,7 +542,6 @@ export class SubmissionService {
       const formattedCode = code.map((snippet) => snippet.text).join('\n')
       const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
       const filePath = path.join(dirPath, filename)
-
       try {
         writeFileSync(filePath, formattedCode)
       } catch (err) {
@@ -555,7 +567,7 @@ export class SubmissionService {
       this.logger.error(`Finalization failed: ${err}`)
       output.end()
       throw new UnprocessableFileDataException(
-        'failed to create zip file',
+        'Failed to create zip file',
         zipFilename
       )
     })

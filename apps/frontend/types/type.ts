@@ -110,6 +110,7 @@ export interface TestcaseItem {
   id: number
   input: string
   output: string
+  order?: number
 }
 
 export interface ProblemDetail {
@@ -297,6 +298,9 @@ export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
   isUserTestcase: boolean
+}
+
+export interface TabbedTestResult extends TestResultDetail {
   originalId: number
 }
 
@@ -354,6 +358,7 @@ export interface Assignment {
   title: string
   startTime: Date
   endTime: Date
+  dueTime: Date
   group: {
     id: string
     groupName: string
@@ -458,4 +463,16 @@ export interface UpdateContestInfo extends UpdateContestInput {
       email: string
     }
   }[]
+}
+
+export interface BaseDataTableProblem {
+  id: number
+  title: string
+  updateTime: string
+  difficulty: string
+  submissionCount: number
+  acceptedRate: number
+  languages: string[]
+  score?: number
+  order?: number
 }

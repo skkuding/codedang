@@ -1,7 +1,7 @@
 meta {
   name: [ERR] Freeze Time Earlier than the Previous Value
   type: graphql
-  seq: 4
+  seq: 5
 }
 
 post {
@@ -40,4 +40,8 @@ body:graphql:vars {
 
 assert {
   res.body.errors: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
 }

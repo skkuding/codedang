@@ -2,21 +2,24 @@ import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
+import { APP_FILTER, APP_GUARD, HttpAdapterHost } from '@nestjs/core'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 import { GraphQLModule } from '@nestjs/graphql'
 import type { Server } from 'http'
+import { OpenTelemetryModule } from 'nestjs-otel'
 import { LoggerModule } from 'nestjs-pino'
 import {
-  JwtAuthModule,
+  AdminGuard,
   JwtAuthGuard,
-  RolesModule,
-  AdminGuard
+  JwtAuthModule,
+  RolesModule
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
-import { AdminExceptionFilter } from '@libs/exception'
-import { apolloErrorFormatter } from '@libs/exception'
+import { AdminExceptionFilter, apolloErrorFormatter } from '@libs/exception'
+import { openTelemetryModuleOption } from '@libs/instrumentation'
 import { LoggingPlugin, pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
+import { StorageModule } from '@libs/storage'
 import { NoticeModule } from '@admin/notice/notice.module'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
@@ -24,8 +27,8 @@ import { AnnouncementModule } from './announcement/announcement.module'
 import { AssignmentModule } from './assignment/assignment.module'
 import { ContestModule } from './contest/contest.module'
 import { GroupModule } from './group/group.module'
+import { NotificationModule } from './notification/notification.module'
 import { ProblemModule } from './problem/problem.module'
-import { StorageModule } from './storage/storage.module'
 import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
 import { WorkbookModule } from './workbook/workbook.module'
@@ -61,7 +64,10 @@ import { WorkbookModule } from './workbook/workbook.module'
     AnnouncementModule,
     NoticeModule,
     SubmissionModule,
-    LoggerModule.forRoot(pinoLoggerModuleOption)
+    NotificationModule,
+    LoggerModule.forRoot(pinoLoggerModuleOption),
+    OpenTelemetryModule.forRoot(openTelemetryModuleOption),
+    EventEmitterModule.forRoot()
   ],
   controllers: [AdminController],
   providers: [

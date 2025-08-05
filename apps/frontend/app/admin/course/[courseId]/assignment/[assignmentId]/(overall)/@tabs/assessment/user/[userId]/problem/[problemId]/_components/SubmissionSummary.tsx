@@ -24,7 +24,7 @@ export function SubmissionSummary({ submission }: SubmissionSummaryProps) {
 
   return (
     <ScrollArea className="shrink-0 rounded-md">
-      <div className="flex items-center justify-around gap-5 bg-[#384151] p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-3 [&_*]:whitespace-nowrap [&_p]:text-[#B0B0B0]">
+      <div className="**:whitespace-nowrap flex items-center justify-around gap-5 bg-[#384151] p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-3 [&_p]:text-[#B0B0B0]">
         <div>
           <h2>User ID</h2>
           <p>{submission.user?.username}</p>

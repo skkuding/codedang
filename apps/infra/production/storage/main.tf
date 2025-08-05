@@ -2,11 +2,11 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.82"
+      version = "~> 5.100"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.6"
+      version = "~> 3.7"
     }
   }
 
@@ -27,4 +27,17 @@ data "aws_vpc" "main" {
   tags = {
     Name = "Codedang-VPC"
   }
+}
+
+data "terraform_remote_state" "network" {
+  backend = "s3"
+  config = {
+    bucket = "codedang-tf-state"
+    key    = "terraform/network.tfstate"
+    region = "ap-northeast-2"
+  }
+}
+
+locals {
+  network = data.terraform_remote_state.network.outputs
 }

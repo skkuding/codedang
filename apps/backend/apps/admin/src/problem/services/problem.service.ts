@@ -1,12 +1,12 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
+import type {} from '@generated'
 import {
   Language,
-  Problem,
   Level,
+  Problem,
   ProblemWhereInput,
   UpdateHistory
 } from '@generated'
-import type {} from '@generated'
 import { ContestRole, ProblemField, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
@@ -15,13 +15,13 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { StorageService } from '@admin/storage/storage.service'
+import { StorageService } from '@libs/storage'
 import { ImportedProblemHeader } from '../model/problem.constants'
 import type {
   CreateProblemInput,
-  UploadFileInput,
   FilterProblemsInput,
-  UpdateProblemInput
+  UpdateProblemInput,
+  UploadFileInput
 } from '../model/problem.input'
 import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Solution } from '../model/solution.input'
@@ -66,7 +66,7 @@ export class ProblemService {
       )
     }
 
-    // Check if the problem supports the language in the template
+    // 문제가 탬플릿의 언어를 지원하는지 확인합니다.
     const seen = new Set<Language>()
     template.forEach((template: Template) => {
       const lang = template.language as Language
@@ -83,7 +83,7 @@ export class ProblemService {
       seen.add(lang)
     })
 
-    // Check if the problem supports the language in the solution
+    // 문제가 솔루션의 언어를 지원하는지 확인합니다.
     seen.clear()
     solution.forEach((solution: Solution) => {
       const lang = solution.language as Language
@@ -103,6 +103,7 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
+        solution,
         visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
         createdById: userId,
         languages,
@@ -128,7 +129,7 @@ export class ProblemService {
       ].includes(mimetype) === false
     )
       throw new UnprocessableDataException(
-        'Extensions except Excel(.xlsx, .xls) are not supported.'
+        'Extensions except Excel(.xlsx, .xls) are not supported'
       )
     const header = {}
     const problems: CreateProblemInput[] = []
@@ -319,6 +320,22 @@ export class ProblemService {
     mode: 'my' | 'shared' | 'contest',
     contestId?: number | null
   ): Promise<ProblemWhereInput> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    })
+    const isSuper = user?.role === Role.SuperAdmin
+
+    // SuperAdmin의 경우 mode에 관계 없이 my와 모든 contest의 문제들 조회 가능
+    if (isSuper) {
+      return {
+        OR: [
+          { createdById: { equals: userId } },
+          { contestProblem: { some: {} } }
+        ]
+      }
+    }
+
     switch (mode) {
       case 'my':
         return { createdById: { equals: userId } }
@@ -339,7 +356,7 @@ export class ProblemService {
           (user.role !== ContestRole.Admin && user.role !== ContestRole.Manager)
         ) {
           throw new ForbiddenException(
-            'You must be Admin/Manager of this contest.'
+            'You must be Admin/Manager of this contest'
           )
         }
         const contestManagers = await this.prisma.userContest.findMany({
@@ -438,10 +455,38 @@ export class ProblemService {
       ...data
     } = input
 
-    if (userRole == Role.User && isVisible == true) {
-      throw new UnprocessableDataException(
-        'User cannot set a problem to public'
+    // Admin 이상 권한이 있으면 항상 visible 설정 가능
+    if (
+      userRole !== Role.SuperAdmin &&
+      userRole !== Role.Admin &&
+      isVisible == true
+    ) {
+      // Contest의 Admin/Manager인 경우에만 visible 설정 가능
+      const contestProblems = await this.prisma.contestProblem.findMany({
+        where: { problemId: id },
+        include: {
+          contest: {
+            include: {
+              userContest: {
+                where: {
+                  userId,
+                  role: {
+                    in: [ContestRole.Admin, ContestRole.Manager]
+                  }
+                }
+              }
+            }
+          }
+        }
+      })
+      const hasPermission = contestProblems.some(
+        (contestProblem) => contestProblem.contest.userContest.length > 0
       )
+      if (!hasPermission) {
+        throw new UnprocessableDataException(
+          'Only SuperAdmin/Admin or Contest Admin/Manager can set a problem to public'
+        )
+      }
     }
 
     const problem = await this.prisma.problem.findFirstOrThrow({

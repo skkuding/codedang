@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/libs/utils'
-import clockIcon from '@/public/icons/clock.svg'
+import clockIcon from '@/public/icons/clock_blue.svg'
 import type { Contest } from '@/types/type'
 import type { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'
@@ -93,7 +93,7 @@ export function ContestStatusTimeDiff({
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-2 whitespace-nowrap opacity-80',
+        'inline-flex items-center gap-2 whitespace-nowrap text-base tracking-[-0.48px] text-[#333333e6] opacity-80',
         textStyle
       )}
     >
@@ -110,7 +110,7 @@ export function ContestStatusTimeDiff({
         </>
       ) : (
         <>
-          <Image src={clockIcon} alt="clock" width={16} height={16} />
+          <Image src={clockIcon} alt="clock" width={20} height={20} />
           {contestStatus === 'ongoing' || contestStatus === 'registeredOngoing'
             ? 'Ends in'
             : 'Starts in'}

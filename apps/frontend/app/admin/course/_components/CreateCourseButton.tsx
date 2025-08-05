@@ -27,8 +27,8 @@ import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
-import { FaCirclePlus } from 'react-icons/fa6'
 import { FiX } from 'react-icons/fi'
+import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { toast } from 'sonner'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { courseSchema } from '../_libs/schema'
@@ -121,11 +121,12 @@ export function CreateCourseButton() {
     <>
       <Button
         type="button"
+        variant="default"
         onClick={() => setIsAlertDialogOpen(true)}
-        className="flex gap-2"
+        className="w-[120px]"
       >
-        <FaCirclePlus />
-        Create
+        <HiMiniPlusCircle className="mr-2 h-5 w-5" />
+        <span className="text-lg">Create</span>
       </Button>
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
         <AlertDialogContent className="px-2 py-0">
@@ -140,7 +141,7 @@ export function CreateCourseButton() {
             <form
               onSubmit={handleSubmit(onSubmit)}
               aria-label="Create course"
-              className="flex flex-col gap-3 [&>*]:px-1"
+              className="flex flex-col gap-3 *:px-1"
             >
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2">
@@ -149,7 +150,7 @@ export function CreateCourseButton() {
                 </div>
                 <Input
                   id="professor"
-                  className="w-full rounded border p-2"
+                  className="rounded-xs w-full border p-2"
                   {...register('professor')}
                 />
                 {errors.professor && <ErrorMessage />}
@@ -163,7 +164,7 @@ export function CreateCourseButton() {
 
                 <Input
                   id="courseTitle"
-                  className="w-full rounded border p-2"
+                  className="rounded-xs w-full border p-2"
                   {...register('courseTitle')}
                 />
                 {errors.courseTitle && <ErrorMessage />}
@@ -183,7 +184,7 @@ export function CreateCourseButton() {
                       value={prefix}
                       onChange={handlePrefixChange}
                       maxLength={3}
-                      className="w-full rounded border p-2"
+                      className="rounded-xs w-full border p-2"
                     />
                     <Input
                       type="text"
@@ -191,7 +192,7 @@ export function CreateCourseButton() {
                       value={courseCode}
                       onChange={handleCourseCodeChange}
                       maxLength={4}
-                      className="w-full rounded border p-2"
+                      className="rounded-xs w-full border p-2"
                     />
                   </div>
                   {errors.courseNum && <ErrorMessage />}
@@ -207,7 +208,7 @@ export function CreateCourseButton() {
                     })}
                     type="number"
                     maxLength={2}
-                    className="w-full rounded border p-2"
+                    className="rounded-xs w-full border p-2"
                   />
 
                   {errors.classNum && (
@@ -279,7 +280,7 @@ export function CreateCourseButton() {
                   <Input
                     {...register('email')}
                     type="emailemail"
-                    className="w-full rounded border p-2"
+                    className="rounded-xs w-full border p-2"
                   />
                   {errors.email && (
                     <ErrorMessage message={errors.email.message} />
@@ -290,7 +291,7 @@ export function CreateCourseButton() {
                   <Input
                     {...register('phoneNum')}
                     type="text"
-                    className="w-full rounded border p-2"
+                    className="rounded-xs w-full border p-2"
                   />
                   {errors.phoneNum && <ErrorMessage />}
                 </div>
@@ -299,7 +300,7 @@ export function CreateCourseButton() {
                   <Input
                     {...register('office')}
                     type="text"
-                    className="w-full rounded border p-2"
+                    className="rounded-xs w-full border p-2"
                   />
                   {errors.office && <ErrorMessage />}
                 </div>
@@ -308,7 +309,7 @@ export function CreateCourseButton() {
                   <Input
                     {...register('website')}
                     type="text"
-                    className="w-full rounded border p-2"
+                    className="rounded-xs w-full border p-2"
                   />
                   {errors.website && (
                     <ErrorMessage message={errors.website.message} />

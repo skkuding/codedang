@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
   AssignmentProblem,
@@ -10,7 +11,6 @@ import { Problem } from '@generated'
 import { Assignment } from '@generated'
 import { faker } from '@faker-js/faker'
 import { ResultStatus } from '@prisma/client'
-import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
@@ -274,12 +274,12 @@ const db = {
 
 describe('AssignmentService', () => {
   let service: AssignmentService
-  let cache: Cache
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AssignmentService,
+        EventEmitter2,
         { provide: PrismaService, useValue: db },
         {
           provide: CACHE_MANAGER,
@@ -296,8 +296,6 @@ describe('AssignmentService', () => {
     }).compile()
 
     service = module.get<AssignmentService>(AssignmentService)
-    cache = module.get<Cache>(CACHE_MANAGER)
-    stub(cache.store, 'keys').resolves(['assignment:1:publicize'])
   })
 
   it('should be defined', () => {

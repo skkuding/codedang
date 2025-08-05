@@ -20,6 +20,7 @@ interface FreezeFormProps {
   isEdit?: boolean
   isOngoing?: boolean
   diffTime?: number | null
+  isFinished?: boolean
 }
 
 const options = ['90', '75', '60', '45', '30', '15']
@@ -29,6 +30,7 @@ export function FreezeForm({
   hasValue = false,
   isEdit = false,
   isOngoing = false,
+  isFinished = false,
   diffTime
 }: FreezeFormProps) {
   const [isEnabled, setIsEnabled] = useState<boolean>(hasValue)
@@ -94,7 +96,12 @@ export function FreezeForm({
   }
 
   return (
-    <div className="flex h-[114px] w-[641px] flex-col justify-evenly rounded-xl border border-[#80808040] bg-[#80808014] px-7">
+    <div
+      className={cn(
+        'flex h-[114px] w-[641px] flex-col justify-evenly rounded-xl border border-[#80808040] bg-[#80808014] px-7',
+        isFinished && 'pointer-events-none'
+      )}
+    >
       <div className="flex items-center gap-[54px]">
         <h1 className="text-base font-semibold">Leaderboard Freeze</h1>
         <Switch

@@ -37,15 +37,15 @@ import { fetcherWithAuth } from '@/libs/utils'
 import submitIcon from '@/public/icons/submit.svg'
 import { useAuthModalStore } from '@/stores/authModal'
 import {
-  useLanguageStore,
-  useCodeStore,
+  getCodeFromLocalStorage,
   getStorageKey,
-  getCodeFromLocalStorage
+  useCodeStore,
+  useLanguageStore
 } from '@/stores/editor'
 import {
-  useTestcaseTabStore,
+  RUN_CODE_TAB,
   useSidePanelTabStore,
-  RUN_CODE_TAB
+  useTestcaseTabStore
 } from '@/stores/editorTabs'
 import type {
   Language,
@@ -332,6 +332,8 @@ export function EditorHeader({
       if (res.status === 401) {
         showSignIn()
         toast.error('Log in first to submit your code')
+      } else if (res.status === 404) {
+        toast.error('The assignment submission period has ended.')
       } else {
         toast.error('Please try again later.')
       }
@@ -421,6 +423,14 @@ export function EditorHeader({
     const originalPush = router.push
 
     router.push = (href, ...args) => {
+      if (typeof href === 'string' && href.includes('force=true')) {
+        const cleanHref = href
+          .replace('?force=true', '')
+          .replace('&force=true', '')
+        originalPush(cleanHref as Route, ...args)
+        return
+      }
+
       if (checkSaved() || isModalConfrimed.current) {
         originalPush(href, ...args)
         return
@@ -483,7 +493,7 @@ export function EditorHeader({
           }}
           value={language}
         >
-          <SelectTrigger className="h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
+          <SelectTrigger className="focus:outline-hidden h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:ring-0 focus:ring-offset-0">
             <p className="px-1">
               <SelectValue />
             </p>
@@ -538,21 +548,23 @@ export function EditorHeader({
         </AlertDialog>
 
         <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant="secondary"
-                className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
-                onClick={run}
-              >
-                <IoPlayCircleOutline size={22} />
-                Run
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Ctrl/Cmd + Enter | Run your code in interactive terminal.</p>
-            </TooltipContent>
-          </Tooltip>
+          {contestId === undefined && (
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  variant="secondary"
+                  className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
+                  onClick={run}
+                >
+                  <IoPlayCircleOutline size={22} />
+                  Run
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Ctrl/Cmd + Enter | Run your code in interactive terminal.</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           <Tooltip>
             <TooltipTrigger>

@@ -2,14 +2,12 @@
 
 import { Button } from '@/components/shadcn/button'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
-import { formatDateRange } from '@/libs/utils'
-import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@apollo/client'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
 import { AssignmentOverallTabs } from '../../../_components/AssignmentOverallTabs'
+import { AssignmentStatus } from '../../../_components/AssignmentStatus'
 
 export default function Layout({ tabs }: { tabs: React.ReactNode }) {
   const { courseId, assignmentId } = useParams()
@@ -41,19 +39,13 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
           </Button>
         </Link>
       </div>
-      <div className="flex justify-between">
-        <div className="flex items-center gap-2">
-          <Image src={calendarIcon} alt="calendar" width={22} />
-          {assignmentData && (
-            <p className="font-semibold">
-              {formatDateRange(
-                assignmentData?.startTime,
-                assignmentData?.endTime
-              )}
-            </p>
-          )}
-        </div>
-      </div>
+      {assignmentData && (
+        <AssignmentStatus
+          startTime={assignmentData?.startTime}
+          endTime={assignmentData?.endTime}
+          dueTime={assignmentData?.dueTime}
+        />
+      )}
 
       <AssignmentOverallTabs
         groupId={Number(courseId)}

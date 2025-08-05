@@ -13,11 +13,12 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
+import { TimeFormPopover } from '../../../_components/TimeFormPopover'
 import { AssignmentProblemListLabel } from '../../_components/AssignmentProblemListLabel'
 import { AssignmentProblemTable } from '../../_components/AssignmentProblemTable'
 import { AssignmentSolutionTable } from '../../_components/AssignmentSolutionTable'
 import { CreateAssignmentForm } from '../../_components/CreateAssignmentForm'
-import { ImportDialog } from '../../_components/ImportDialog'
+import { ImportProblemDialog } from '../../_components/ImportProblemDialog'
 import { WeekComboBox } from '../../_components/WeekComboBox'
 import type { AssignmentProblem } from '../../_libs/type'
 
@@ -43,22 +44,39 @@ export default function Page({ params }: { params: { courseId: string } }) {
             setIsCreating={setIsCreating}
             isExercise={true}
           >
-            <FormSection
-              isFlexColumn={false}
-              title="Title"
-              className="gap-[77px]"
-            >
-              <TitleForm placeholder="Name your Exercise" />
-            </FormSection>
-
-            <div className="flex flex-col gap-6">
-              <FormSection
-                title="Week"
-                isJustifyBetween={false}
-                className="gap-[67px]"
-              >
-                <WeekComboBox name="week" courseId={Number(courseId)} />
+            <div className="flex w-[901px] flex-col gap-[28px]">
+              <FormSection title="Title">
+                <TitleForm
+                  placeholder="Name your Exercise"
+                  className="max-w-[767px]"
+                />
               </FormSection>
+              <div className="flex justify-between">
+                <FormSection
+                  title="Week"
+                  isJustifyBetween={false}
+                  className="gap-[67px]"
+                >
+                  <WeekComboBox name="week" courseId={Number(courseId)} />
+                </FormSection>
+                <FormSection
+                  title="Due Time"
+                  isJustifyBetween={false}
+                  className="gap-[40px]"
+                  isLabeled={false}
+                >
+                  <TimeFormPopover />
+                  <TimeForm
+                    name="dueTime"
+                    defaultTimeOnSelect={{
+                      hours: 23,
+                      minutes: 59,
+                      seconds: 59
+                    }}
+                  />
+                </FormSection>
+              </div>
+
               <div className="flex justify-between">
                 <FormSection
                   title="Start Time"
@@ -70,7 +88,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <FormSection
                   title="End Time"
                   isJustifyBetween={false}
-                  className="gap-[50px]"
+                  className="gap-[71px]"
                   isLabeled={false}
                 >
                   <TimeForm
@@ -91,28 +109,24 @@ export default function Page({ params }: { params: { courseId: string } }) {
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <AssignmentProblemListLabel />
-                  <ImportDialog
+                  <ImportProblemDialog
                     problems={problems}
                     setProblems={setProblems}
-                    target="exercise"
                   />
                 </div>
                 <AssignmentProblemTable
                   problems={problems}
                   setProblems={setProblems}
                   disableInput={false}
+                  isExercise={true}
                 />
               </div>
 
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-3">
                   <Label required={false}>Solution</Label>
-                  <p className="text-[11px] font-normal text-[#9B9B9B]">
-                    하단 리스트는 Solution이 존재하는 문제만 표시됩니다.
-                    <span className="font-semibold">
-                      Only problems with solutions
-                    </span>
-                    are listed below.
+                  <p className="text-[11px] text-[#9B9B9B]">
+                    Only problems with solutions are listed below.
                   </p>
                 </div>
                 <AssignmentSolutionTable
@@ -123,17 +137,17 @@ export default function Page({ params }: { params: { courseId: string } }) {
 
               <div className="flex flex-col gap-1 rounded-md border bg-white p-[20px]">
                 <SwitchField
+                  hasValue={true}
                   name="isJudgeResultVisible"
-                  title="Hide Hidden Testcase Result"
-                  description="When enabled, hidden testcase results will be hidden from students."
-                  invert={true}
+                  title="Reveal Hidden Testcase Result"
+                  description="When enabled, hidden testcase results will be revealed from students."
                 />
 
                 <SwitchField
+                  hasValue={true}
                   name="enableCopyPaste"
-                  title="Disable Copy/Paste"
-                  description="When enabled, students will not be able to copy from or paste into the code editor."
-                  invert={true}
+                  title="Enable Participants Copy/Pasting"
+                  description="When enabled, students will be able to copy from or paste into the code editor."
                 />
               </div>
 

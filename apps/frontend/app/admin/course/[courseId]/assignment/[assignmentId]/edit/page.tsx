@@ -21,7 +21,7 @@ import { AssignmentProblemListLabel } from '../../../_components/AssignmentProbl
 import { AssignmentProblemTable } from '../../../_components/AssignmentProblemTable'
 import { AssignmentSolutionTable } from '../../../_components/AssignmentSolutionTable'
 import { EditAssignmentForm } from '../../../_components/EditAssignmentForm'
-import { ImportDialog } from '../../../_components/ImportDialog'
+import { ImportProblemDialog } from '../../../_components/ImportProblemDialog'
 import { WeekComboBox } from '../../../_components/WeekComboBox'
 import { editSchema } from '../../../_libs/schemas'
 import type { AssignmentProblem } from '../../../_libs/type'
@@ -121,9 +121,7 @@ export default function Page({
               </div>
 
               <FormSection isFlexColumn title="Description" isLabeled={false}>
-                {methods.getValues('description') && (
-                  <DescriptionForm name="description" />
-                )}
+                {!isLoading && <DescriptionForm name="description" />}
               </FormSection>
 
               {/* NOTE: 최근 기획에서 해당기능을 없애기로 했는데, 혹시 revert할까봐 주석처리해놨어요 */}
@@ -141,10 +139,9 @@ export default function Page({
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <AssignmentProblemListLabel />
-                  <ImportDialog
+                  <ImportProblemDialog
                     problems={problems}
                     setProblems={setProblems}
-                    target="assignment"
                   />
                 </div>
                 <AssignmentProblemTable
@@ -157,11 +154,8 @@ export default function Page({
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-3">
                   <Label required={false}>Solution</Label>
-                  <p className="text-[11px] font-normal text-[#9B9B9B]">
-                    <span className="font-semibold">
-                      Only problems with solutions
-                    </span>
-                    are listed below.
+                  <p className="text-[11px] text-[#9B9B9B]">
+                    Only problems with solutions are listed below.
                   </p>
                 </div>
                 <AssignmentSolutionTable
@@ -174,18 +168,16 @@ export default function Page({
               <div className="flex flex-col gap-1 rounded-md border bg-white p-[20px]">
                 <SwitchField
                   name="isJudgeResultVisible"
-                  title="Hide Hidden Testcase Result"
-                  description="When enabled, hidden testcase results will be hidden from students."
-                  invert={true}
-                  hasValue={methods.getValues('isJudgeResultVisible') || true}
+                  title="Reveal Hidden Testcase Result"
+                  description="When enabled, hidden testcase results will be revealed from students."
+                  hasValue={methods.getValues('isJudgeResultVisible') || false}
                 />
 
                 <SwitchField
                   name="enableCopyPaste"
-                  title="Disable Copy/Paste"
-                  description="When enabled, students will not be able to copy from or paste into the code editor."
-                  hasValue={methods.getValues('enableCopyPaste') || true}
-                  invert={true}
+                  description="When enabled, students will be able to copy from or paste into the code editor."
+                  title="Enable Participants Copy/Pasting"
+                  hasValue={methods.getValues('enableCopyPaste') || false}
                 />
               </div>
 

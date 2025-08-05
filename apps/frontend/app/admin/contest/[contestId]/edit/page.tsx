@@ -23,7 +23,7 @@ import { ContestProblemTable } from '../../_components/ContestProblemTable'
 import { CreateEditContestLabel } from '../../_components/CreateEditContestLabel'
 import { DisableCopyPasteForm } from '../../_components/DisableCopyPasteForm'
 import { FreezeForm } from '../../_components/FreezeForm'
-import { ImportDialog } from '../../_components/ImportDialog'
+import { ImportProblemDialog } from '../../_components/ImportProblemDialog'
 import { PosterUploadForm } from '../../_components/PosterUploadForm'
 import { SampleTestcaseForm } from '../../_components/SampleTestcaseForm'
 import {
@@ -55,7 +55,8 @@ export default function Page({ params }: { params: { contestId: string } }) {
     endTime &&
     now >= new Date(startTime).getTime() &&
     now <= new Date(endTime).getTime()
-
+  // Check if the contest is Finished
+  const isFinished = endTime && now > new Date(endTime).getTime()
   // Calculate the difference between the end time and the freeze time
   const diffTime =
     endTime && freezeTime
@@ -87,22 +88,33 @@ export default function Page({ params }: { params: { contestId: string } }) {
           >
             <div className="flex justify-between gap-[26px]">
               {methods.getValues('posterUrl') !== undefined && (
-                <PosterUploadForm name="posterUrl" disabled={isOngoing} />
+                <PosterUploadForm
+                  name="posterUrl"
+                  disabled={isOngoing || isFinished}
+                />
               )}
 
               <div className="flex flex-col justify-between">
-                <FormSection title="Title" disabled={isOngoing}>
+                <FormSection
+                  title="Title"
+                  isOngoing={isOngoing}
+                  isFinished={isFinished}
+                >
                   <TitleForm
                     placeholder="Name your contest"
                     className="max-w-[492px]"
                   />
                 </FormSection>
-                <FormSection title="Start Time" disabled={isOngoing}>
+                <FormSection
+                  title="Start Time"
+                  isOngoing={isOngoing}
+                  isFinished={isFinished}
+                >
                   {methods.getValues('startTime') && (
                     <TimeForm isContest name="startTime" />
                   )}
                 </FormSection>
-                <FormSection title="End Time">
+                <FormSection title="End Time" isFinished={isFinished}>
                   {methods.getValues('endTime') && (
                     <ContestEditEndTimeForm
                       name="endTime"
@@ -118,6 +130,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
                     isEdit={true}
                     isOngoing={isOngoing}
                     diffTime={diffTime}
+                    isFinished={isFinished}
                   />
                 )}
               </div>
@@ -127,7 +140,8 @@ export default function Page({ params }: { params: { contestId: string } }) {
               title="Summary"
               isLabeled={false}
               isFlexColumn
-              disabled={isOngoing}
+              isOngoing={isOngoing}
+              isFinished={isFinished}
             >
               <SummaryForm name="summary" />
             </FormSection>
@@ -136,7 +150,8 @@ export default function Page({ params }: { params: { contestId: string } }) {
               title="More Description"
               isLabeled={false}
               isFlexColumn={true}
-              disabled={isOngoing}
+              isOngoing={isOngoing}
+              isFinished={isFinished}
             >
               {methods.getValues('description') !== undefined && (
                 <DescriptionForm name="description" />
@@ -152,7 +167,8 @@ export default function Page({ params }: { params: { contestId: string } }) {
                   hasValue={
                     methods.getValues('evaluateWithSampleTestcase') !== false
                   }
-                  disabled={isOngoing}
+                  isOngoing={isOngoing}
+                  isFinished={isFinished}
                 />
               )}
               <SwitchField
@@ -162,14 +178,14 @@ export default function Page({ params }: { params: { contestId: string } }) {
                 formElement="input"
                 placeholder="Enter a invitation code"
                 hasValue={methods.getValues('invitationCode') !== null}
-                disabled={isOngoing}
+                disabled={isOngoing || isFinished}
               />
               {methods.getValues('enableCopyPaste') !== undefined && (
                 <DisableCopyPasteForm
                   name="enableCopyPaste"
                   title="Disable Copy/Paste"
                   hasValue={methods.getValues('enableCopyPaste') !== false}
-                  disabled={isOngoing}
+                  disabled={isOngoing || isFinished}
                 />
               )}
             </div>
@@ -177,7 +193,8 @@ export default function Page({ params }: { params: { contestId: string } }) {
             <div
               className={cn(
                 'flex flex-col gap-1',
-                isOngoing && 'pointer-events-none opacity-50'
+                isOngoing && 'pointer-events-none opacity-50',
+                isFinished && 'pointer-events-none'
               )}
             >
               <div className="flex items-center justify-between">
@@ -200,7 +217,8 @@ export default function Page({ params }: { params: { contestId: string } }) {
             <div
               className={cn(
                 'flex flex-col gap-1',
-                isOngoing && 'pointer-events-none opacity-50'
+                isOngoing && 'pointer-events-none opacity-50',
+                isFinished && 'pointer-events-none'
               )}
             >
               <div className="flex items-center justify-between">
@@ -208,7 +226,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
                   title="Contest Problem List"
                   content={`If contest problems are imported from the ‘All Problem List’,<br>the problems will automatically become invisible state.<br>After the contests are all over, you can manually make the problem visible again.`}
                 />
-                <ImportDialog
+                <ImportProblemDialog
                   problems={problems}
                   setProblems={setProblems}
                   contestId={contestId}
@@ -241,11 +259,16 @@ export default function Page({ params }: { params: { contestId: string } }) {
                   .
                 </p>
               )}
+              {isFinished && (
+                <p className="text-error text-sm">
+                  * You cannot edit the contest after it is finished.
+                </p>
+              )}
 
               <Button
                 type="submit"
                 className="flex h-[36px] w-full items-center gap-2 px-0"
-                disabled={isLoading}
+                disabled={isLoading || isFinished}
               >
                 <IoMdCheckmarkCircleOutline fontSize={20} />
                 <div className="mb-[2px] text-base">Edit</div>

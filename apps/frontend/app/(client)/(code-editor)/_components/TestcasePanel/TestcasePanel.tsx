@@ -8,7 +8,7 @@ import {
   RUN_CODE_TAB,
   TESTCASE_RESULT_TAB
 } from '@/stores/editorTabs'
-import type { TestResultDetail } from '@/types/type'
+import type { TabbedTestResult } from '@/types/type'
 import { DiffMatchPatch } from 'diff-match-patch-typescript'
 import { useEffect, useState, type ReactNode } from 'react'
 import { IoMdClose } from 'react-icons/io'
@@ -33,11 +33,11 @@ function getWidthClass(length: number) {
 }
 
 export function TestcasePanel({ isContest }: TestcasePanelProps) {
-  const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
+  const [testcaseTabList, setTestcaseTabList] = useState<TabbedTestResult[]>([])
   const { activeTab, setActiveTab } = useTestcaseTabStore()
   const [detailTabId, setDetailTabId] = useState<number | null>(null)
 
-  const moveToDetailTab = (result: TestResultDetail) => {
+  const moveToDetailTab = (result: TabbedTestResult) => {
     setTestcaseTabList((state) =>
       state
         .concat(result)
@@ -59,6 +59,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
     }
   }
 
+  // Hide 'run' feature in contest, because it is not stable yet
   // TODO: remove this after 'run' feature gets stable
   useEffect(() => {
     if (isContest) {
@@ -100,7 +101,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
             isLeftmost
             isRightOfActive={currentVisibleTab === TESTCASE_RESULT_TAB}
             className={cn(
-              'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+              'h-full shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
               getWidthClass(testcaseTabList.length)
             )}
           >
@@ -129,7 +130,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
           isLeftOfActive={currentVisibleTab === RUN_CODE_TAB}
           isRightOfActive={currentVisibleTabIndex === 0}
           className={cn(
-            'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+            'h-full shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
             getWidthClass(testcaseTabList.length)
           )}
         >
@@ -163,7 +164,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
                   currentVisibleTab === testcaseTabList[index + 1]?.originalId
                 }
                 className={cn(
-                  'h-12 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+                  'h-12 shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
                   getWidthClass(testcaseTabList.length)
                 )}
               >
@@ -194,7 +195,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
         </ScrollArea>
         <div
           className={cn(
-            'flex flex-shrink-0 items-center bg-[#121728] px-2 py-2',
+            'flex shrink-0 items-center bg-[#121728] px-2 py-2',
             currentVisibleTab === RUN_CODE_TAB && 'hidden'
           )}
         >
@@ -335,7 +336,7 @@ function TestSummary({
   )
 }
 
-function TestResultDetail({ data }: { data: TestResultDetail | undefined }) {
+function TestResultDetail({ data }: { data: TabbedTestResult | undefined }) {
   if (data === undefined) {
     return null
   }

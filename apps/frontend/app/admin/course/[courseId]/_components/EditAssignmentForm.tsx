@@ -15,7 +15,6 @@ import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import dayjs from 'dayjs'
-import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
@@ -32,6 +31,7 @@ interface EditAssigmentFormProps {
   setProblems: (problems: AssignmentProblem[]) => void
   setIsLoading: (isLoading: boolean) => void
   methods: UseFormReturn<UpdateAssignmentInput>
+  isExercise?: boolean
 }
 
 interface ProblemIdScoreAndTitle {
@@ -47,7 +47,8 @@ export function EditAssignmentForm({
   problems,
   setProblems,
   setIsLoading,
-  methods
+  methods,
+  isExercise = false
 }: EditAssigmentFormProps) {
   const [prevProblems, setPrevProblems] = useState<ProblemIdScoreAndTitle[]>([])
   const [isUpcoming, setIsUpcoming] = useState(true)
@@ -157,12 +158,12 @@ export function EditAssignmentForm({
 
   const isSubmittable = (input: UpdateAssignmentInput) => {
     if (input.startTime >= input.dueTime) {
-      toast.error('Start time must be less than due time')
+      toast.error('Start time must be earlier than due time')
       return
     }
 
-    if (input.dueTime >= input.endTime) {
-      toast.error('Due time must be less than end time')
+    if (input.dueTime > input.endTime) {
+      toast.error('End time cannot be earlier than due time')
       return
     }
 
@@ -255,8 +256,16 @@ export function EditAssignmentForm({
     })
 
     setShouldSkipWarning(true)
-    toast.success('Assignment updated successfully')
-    router.push(`/admin/course/${courseId}/assignment` as Route)
+    toast.success(
+      isExercise
+        ? 'Exercise updated successfully'
+        : 'Assignment updated successfully'
+    )
+    router.push(
+      isExercise
+        ? (`/admin/course/${courseId}/exercise` as const)
+        : (`/admin/course/${courseId}/assignment` as const)
+    )
     router.refresh()
   }
 

@@ -1,0 +1,24 @@
+meta {
+  name: [409] Registration closed
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/contest/10/participation?invitationCode=123456
+  body: none
+  auth: none
+}
+
+params:query {
+  invitationCode: 123456
+}
+
+assert {
+  res.status: eq 409
+  res("message"): eq Cannot participate in the contest after the registration deadline
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

@@ -2,15 +2,15 @@ import typography from '@tailwindcss/typography'
 import type { Config } from 'tailwindcss'
 import animate from 'tailwindcss-animate'
 import defaultTheme from 'tailwindcss/defaultTheme'
-import type { PluginAPI } from 'tailwindcss/types/config'
 
 export default {
-  darkMode: ['class'],
+  darkMode: 'class',
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}'
+    './src/**/*.{ts,tsx}',
+    './libs/**/*.{ts,tsx}'
   ],
   theme: {
     container: {
@@ -31,9 +31,21 @@ export default {
       colors: {
         primary: {
           DEFAULT: '#3581FA',
-          light: '#5FA4F5',
+          light: '#619CFB',
           strong: '#0760EF',
           heavy: '#0348B2'
+        },
+        background: {
+          DEFAULT: '#FFF',
+          alternative: '#FAFAFA'
+        },
+        line: {
+          DEFAULT: '#D8D8D8',
+          neutral: '#E1E1E1'
+        },
+        fill: {
+          DEFAULT: '#F0F0F0',
+          neutral: '#E5E5E5'
         },
         secondary: '#30D7AE',
         level: {
@@ -50,7 +62,12 @@ export default {
             3: '#FEEACC',
             4: '#E0D9FC',
             5: '#FED7DE'
-          }
+          },
+          1: '#FED7DE',
+          2: '#FFF5CC',
+          3: '#D8F4DE',
+          4: '#C4F6FF',
+          5: '#E0D9FC'
         },
         error: '#FF3B2F'
       },
@@ -76,19 +93,20 @@ export default {
   plugins: [
     animate,
     typography,
-    function ({ addUtilities }: { addUtilities: PluginAPI['addUtilities'] }) {
-      addUtilities({
-        '.hide-spin-button': {
-          appearance: 'textfield',
-          '&::-webkit-inner-spin-button': {
-            appearance: 'none'
-          },
-          '&::-webkit-outer-spin-button': {
-            appearance: 'none'
+    {
+      handler: ({ addUtilities }) => {
+        addUtilities({
+          '.hide-spin-button': {
+            appearance: 'textfield',
+            '&::-webkit-inner-spin-button': {
+              appearance: 'none'
+            },
+            '&::-webkit-outer-spin-button': {
+              appearance: 'none'
+            }
           }
-        }
-      })
+        })
+      }
     }
-  ],
-  safelist: ['!text-green-500', '!text-neutral-400', '!text-red-500']
+  ]
 } satisfies Config

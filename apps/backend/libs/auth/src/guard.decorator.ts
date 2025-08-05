@@ -3,6 +3,7 @@ import type { ContestRole } from '@prisma/client'
 import { CONTEST_ROLES_KEY } from './roles/contest-roles.decorator'
 import { ContestRolesGuard } from './roles/contest-roles.guard'
 import { GroupLeaderGuard } from './roles/group-leader.guard'
+import { ManagerGuard } from './roles/manager.guard'
 
 export const AUTH_NOT_NEEDED_KEY = 'auth-not-needed'
 export const AuthNotNeededIfPublic = () =>
@@ -24,6 +25,11 @@ export const UseGroupLeaderGuard = () => {
   )
 }
 
+export const GROUP_LEADER_NOT_NEEDED_KEY = 'group-leader-not-needed'
+export const UseDisableGroupLeaderGuard = () => {
+  return applyDecorators(SetMetadata(GROUP_LEADER_NOT_NEEDED_KEY, true))
+}
+
 export const CONTEST_ROLES_DISABLE_KEY = 'contest-roles-not-needed'
 export const UseContestRolesGuard = (role: ContestRole) => {
   return applyDecorators(
@@ -34,4 +40,11 @@ export const UseContestRolesGuard = (role: ContestRole) => {
 }
 export const UseDisableContestRolesGuard = () => {
   return applyDecorators(SetMetadata(CONTEST_ROLES_DISABLE_KEY, true))
+}
+
+export const UseManagerGuard = () => {
+  return applyDecorators(
+    SetMetadata(ADMIN_NOT_NEEDED_KEY, true),
+    UseGuards(ManagerGuard)
+  )
 }

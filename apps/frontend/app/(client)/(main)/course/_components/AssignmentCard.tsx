@@ -8,10 +8,10 @@ import Image from 'next/image'
 import { StatusBadge } from '../../../(main)/_components/StatusBadge'
 
 const bgVariants = {
-  ongoing: 'bg-gradient-to-b from-blue-100 to-white',
+  ongoing: 'bg-linear-to-b from-blue-100 to-white',
   upcoming: 'bg-white',
   finished: 'bg-gray-500',
-  registeredOngoing: 'bg-gradient-to-b from-blue-100 to-white',
+  registeredOngoing: 'bg-linear-to-b from-blue-100 to-white',
   registeredUpcoming: 'bg-white'
 }
 
@@ -28,7 +28,7 @@ interface AssignmentCardProps {
 
 export function AssignmentCard({ assignment }: AssignmentCardProps) {
   const startTime = dateFormatter(assignment.startTime, 'YYYY-MM-DD')
-  const endTime = dateFormatter(assignment.endTime, 'YYYY-MM-DD')
+  const dueTime = dateFormatter(assignment.dueTime, 'YYYY-MM-DD')
 
   return (
     <div
@@ -53,7 +53,7 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
           <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
             <Image src={calendarIcon} alt="calendar" width={16} height={16} />
             <p className="overflow-hidden text-ellipsis whitespace-pre-wrap">
-              {startTime} ~ {endTime}
+              {startTime} ~ {dueTime}
             </p>
           </div>
           <AssignmentStatusTimeDiff

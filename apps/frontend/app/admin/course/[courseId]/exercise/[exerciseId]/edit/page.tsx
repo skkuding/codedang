@@ -7,6 +7,7 @@ import { Label } from '@/app/admin/_components/Label'
 import { SwitchField } from '@/app/admin/_components/SwitchField'
 import { TimeForm } from '@/app/admin/_components/TimeForm'
 import { TitleForm } from '@/app/admin/_components/TitleForm'
+import { TimeFormPopover } from '@/app/admin/course/_components/TimeFormPopover'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
@@ -20,7 +21,7 @@ import { AssignmentProblemListLabel } from '../../../_components/AssignmentProbl
 import { AssignmentProblemTable } from '../../../_components/AssignmentProblemTable'
 import { AssignmentSolutionTable } from '../../../_components/AssignmentSolutionTable'
 import { EditAssignmentForm } from '../../../_components/EditAssignmentForm'
-import { ImportDialog } from '../../../_components/ImportDialog'
+import { ImportProblemDialog } from '../../../_components/ImportProblemDialog'
 import { WeekComboBox } from '../../../_components/WeekComboBox'
 import { editSchema } from '../../../_libs/schemas'
 import type { AssignmentProblem } from '../../../_libs/type'
@@ -50,7 +51,7 @@ export default function Page({
             <Link href={`/admin/course/${courseId}/exercise` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-4xl font-bold">Edit Exercise</span>
+            <span className="text-[32px] font-bold">EDIT EXERCISE</span>
           </div>
 
           <EditAssignmentForm
@@ -60,6 +61,7 @@ export default function Page({
             setProblems={setProblems}
             setIsLoading={setIsLoading}
             methods={methods}
+            isExercise={true}
           >
             <div className="flex w-[901px] flex-col gap-[28px]">
               <FormSection title="Title">
@@ -69,15 +71,35 @@ export default function Page({
                 />
               </FormSection>
 
-              <FormSection
-                title="Week"
-                isJustifyBetween={false}
-                className="gap-[67px]"
-              >
-                {methods.getValues('week') && (
-                  <WeekComboBox name="week" courseId={Number(courseId)} />
-                )}
-              </FormSection>
+              <div className="flex justify-between">
+                <FormSection
+                  title="Week"
+                  isJustifyBetween={false}
+                  className="gap-[67px]"
+                >
+                  {methods.getValues('week') && (
+                    <WeekComboBox name="week" courseId={Number(courseId)} />
+                  )}
+                </FormSection>
+                <FormSection
+                  title="Due Time"
+                  isJustifyBetween={false}
+                  className="gap-[40px]"
+                  isLabeled={false}
+                >
+                  <TimeFormPopover />
+                  {methods.getValues('dueTime') && (
+                    <TimeForm
+                      name="dueTime"
+                      defaultTimeOnSelect={{
+                        hours: 23,
+                        minutes: 59,
+                        seconds: 59
+                      }}
+                    />
+                  )}
+                </FormSection>
+              </div>
 
               <div className="flex justify-between">
                 <FormSection
@@ -100,9 +122,7 @@ export default function Page({
               </div>
 
               <FormSection isFlexColumn title="Description" isLabeled={false}>
-                {methods.getValues('description') && (
-                  <DescriptionForm name="description" />
-                )}
+                {!isLoading && <DescriptionForm name="description" />}
               </FormSection>
 
               {/* NOTE: 최근 기획에서 해당기능을 없애기로 했는데, 혹시 revert할까봐 주석처리해놨어요 */}
@@ -120,28 +140,24 @@ export default function Page({
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <AssignmentProblemListLabel />
-                  <ImportDialog
+                  <ImportProblemDialog
                     problems={problems}
                     setProblems={setProblems}
-                    target="exercise"
                   />
                 </div>
                 <AssignmentProblemTable
                   problems={problems}
                   setProblems={setProblems}
                   disableInput={false}
+                  isExercise={true}
                 />
               </div>
 
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-3">
                   <Label required={false}>Solution</Label>
-                  <p className="text-[11px] font-normal text-[#9B9B9B]">
-                    하단 리스트는 Solution이 존재하는 문제만 표시됩니다.
-                    <span className="font-semibold">
-                      Only problems with solutions
-                    </span>
-                    are listed below.
+                  <p className="text-[11px] text-[#9B9B9B]">
+                    Only problems with solutions are listed below.
                   </p>
                 </div>
                 <AssignmentSolutionTable
@@ -154,17 +170,16 @@ export default function Page({
               <div className="flex flex-col gap-1 rounded-md border bg-white p-[20px]">
                 <SwitchField
                   name="isJudgeResultVisible"
-                  title="Hide Hidden Testcase Result"
-                  description="When enabled, hidden testcase results will be hidden from students."
-                  invert={true}
-                  hasValue={methods.getValues('isJudgeResultVisible') || true}
+                  title="Reveal Hidden Testcase Result"
+                  description="When enabled, hidden testcase results will be revealed from students."
+                  hasValue={methods.getValues('isJudgeResultVisible') || false}
                 />
+
                 <SwitchField
                   name="enableCopyPaste"
-                  title="Disable Copy/Paste"
-                  description="When enabled, students will not be able to copy from or paste into the code editor."
-                  hasValue={methods.getValues('enableCopyPaste') || true}
-                  invert={true}
+                  description="When enabled, students will be able to copy from or paste into the code editor."
+                  title="Enable Participants Copy/Pasting"
+                  hasValue={methods.getValues('enableCopyPaste') || false}
                 />
               </div>
 

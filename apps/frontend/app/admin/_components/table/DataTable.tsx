@@ -40,6 +40,7 @@ interface DataTableProps<TData extends { id: number }, TRoute extends string> {
    * row instance
    */
   onRowClick?: (table: TanstackTable<TData>, row: Row<TData>) => void
+  size?: 'sm' | 'md' | 'lg'
 }
 
 /**
@@ -55,53 +56,113 @@ interface DataTableProps<TData extends { id: number }, TRoute extends string> {
  * @param onRowClick
  * 행 클릭 시 호출되는 함수
  */
+
+const headerSizeMap = {
+  sm: 'h-[30px]!',
+  md: 'h-[39px]!',
+  lg: 'h-[40px]!'
+}
+
+const bodySizeMap = {
+  sm: 'h-[40px]!',
+  md: 'h-[57px]!',
+  lg: 'h-[76px]!'
+}
+
 export function DataTable<TData extends { id: number }, TRoute extends string>({
   headerStyle = {},
   showFooter = false,
   isModalDataTable = false,
   isCardView = false,
   getHref,
-  onRowClick
+  onRowClick,
+  size = 'md'
 }: DataTableProps<TData, TRoute>) {
   const router = useRouter()
   const { table } = useDataTable<TData>()
 
-  return (
-    <ScrollArea className="max-w-full rounded">
-      <Table>
-        {!isCardView && (
-          <TableHeader
-            className={cn(
-              '[&_td]:border-[#80808040]',
-              isModalDataTable && 'h-10 border-b-0'
-            )}
-          >
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow
-                key={headerGroup.id}
-                className={cn(isModalDataTable && 'bg-neutral-200/30')}
-              >
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className={headerStyle[header.id]}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
+  if (isCardView) {
+    // isCardView가 true일 때 반환
+    return (
+      <ScrollArea className="rounded-xs max-w-full">
+        <Table>
+          <TableBody className="[&_td]:border-transparent">
+            {table.getRowModel().rows.length > 0 ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className="cursor-pointer hover:bg-transparent"
+                  onClick={() => {
+                    onRowClick?.(table, row)
+                    const href = getHref?.(row.original)
+                    if (href) {
+                      router.push(href)
+                    }
+                  }}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      className="h-[40px] text-center md:px-0 md:py-2"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={Number(table.getAllColumns().length)}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
               </TableRow>
-            ))}
-          </TableHeader>
-        )}
-        <TableBody
+            )}
+          </TableBody>
+        </Table>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    )
+  }
+
+  // isCardView가 false일 때 반환
+  return (
+    <ScrollArea className="rounded-xs max-w-full">
+      <Table>
+        <TableHeader
           className={cn(
-            isCardView
-              ? '[&_td]:border-transparent'
-              : '[&_td]:border-[#80808040]'
+            '[&_td]:border-[#80808040]',
+            isModalDataTable && 'border-b-0'
           )}
         >
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow
+              key={headerGroup.id}
+              className={cn(isModalDataTable && 'bg-neutral-200/30')}
+            >
+              {headerGroup.headers.map((header) => (
+                <TableHead
+                  key={header.id}
+                  className={cn(headerStyle[header.id], headerSizeMap[size])}
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody className="[&_td]:border-[#80808040]">
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
@@ -111,46 +172,24 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                   'cursor-pointer',
                   isModalDataTable &&
                     'hover:bg-white data-[state=selected]:bg-white',
-                  isCardView
-                    ? 'hover:bg-transparent'
-                    : 'hover:bg-neutral-200/30'
+                  'hover:bg-neutral-200/30'
                 )}
                 onClick={() => {
                   onRowClick?.(table, row)
-
                   const href = getHref?.(row.original)
-
                   if (href) {
                     router.push(href)
                   }
                 }}
               >
-                {row.getVisibleCells().map((cell) => {
-                  const meta = cell.column.columnDef.meta as {
-                    link: (row: TData) => string
-                  }
-                  const href = meta?.link(row.original)
-                  return (
-                    <TableCell
-                      key={cell.id}
-                      className={cn(
-                        'text-center',
-                        isCardView ? 'md:px-0 md:py-2' : 'md:p-4'
-                      )}
-                      onClick={(e) => {
-                        if (href) {
-                          e.stopPropagation()
-                          router.push(href as Route)
-                        }
-                      }}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  )
-                })}
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className={cn(bodySizeMap[size], 'text-center md:p-4')}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
               </TableRow>
             ))
           ) : (
