@@ -125,7 +125,7 @@ export function AddManagerReviewerDialog({
           participants={participants}
         />
         {/* selected users 블록 */}
-        <div className="flex flex-col rounded-2xl border border-solid border-[#D8D8D8] p-[30px]">
+        <div className="flex flex-col gap-[10px] rounded-2xl border border-solid border-[#D8D8D8] p-[30px]">
           {/* ~ user(s) selected */}
           <div
             className={cn(
@@ -136,7 +136,7 @@ export function AddManagerReviewerDialog({
             {`${users.length} user(s) selected`}
           </div>
           {/* 유저탭 */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-[8px]">
             {users.map((user) => (
               <SelectedUserTab
                 key={user.email}
