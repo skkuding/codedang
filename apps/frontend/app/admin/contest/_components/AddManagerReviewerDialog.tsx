@@ -11,14 +11,6 @@ import {
   CommandList
 } from '@/components/shadcn/command'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/shadcn/dialog'
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
@@ -27,10 +19,9 @@ import {
 import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { cn, isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
-import { ChevronDown, Plus } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { FaTrash } from 'react-icons/fa6'
-import { HiCheckCircle } from 'react-icons/hi'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { PiWarningFill } from 'react-icons/pi'
 import type { ContestManagerReviewer } from '../_libs/schemas'
@@ -139,7 +130,11 @@ export function AddManagerReviewerDialog({
           {/* 유저탭 */}
           <div className="flex flex-col gap-2">
             {users.map((user) => (
-              <SelectedUserTab curUser={user} setUsers={setUsers} />
+              <SelectedUserTab
+                key={user.email}
+                curUser={user}
+                setUsers={setUsers}
+              />
             ))}
           </div>
         </div>
@@ -361,7 +356,6 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
     setUsers((prevUsers) => prevUsers.filter((user) => user.id !== curUser.id))
   }
 
-  // TODO: 해당되는 컴포넌트 작성
   return (
     <div className="flex h-full gap-2">
       {/* email 표시 */}
