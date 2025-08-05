@@ -19,7 +19,7 @@
     "studio:test": "cross-env DATABASE_URL=$TEST_DATABASE_URL npx prisma studio"
   },
   "dependencies": {
-    "@apollo/server": "^4.12.2",
+    "@apollo/server": "^5.0.0",
     "@aws-sdk/client-s3": "^3.859.0",
     "@aws-sdk/client-ses": "^3.859.0",
     "@aws-sdk/credential-provider-node": "^3.859.0",
