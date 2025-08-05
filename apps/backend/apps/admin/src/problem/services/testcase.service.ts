@@ -83,7 +83,8 @@ export class TestcaseService {
             input: tc.input,
             output: tc.output,
             scoreWeight: tc.scoreWeight,
-            isHidden: tc.isHidden
+            isHidden: tc.isHidden,
+            order: index + 1
           }
         })
         return { index, id: problemTestcase.id }
@@ -353,7 +354,7 @@ export class TestcaseService {
         problemId
       },
       orderBy: {
-        id: 'asc'
+        order: 'asc'
       }
     })
   }
