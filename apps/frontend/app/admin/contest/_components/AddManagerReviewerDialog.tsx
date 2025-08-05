@@ -232,8 +232,8 @@ function InputFieldTab({
         },
         ...prevUsers
       ])
-      // 정상적으로 추가됐으면 error 없애기
-      setInputField((prevField) => ({ ...prevField, error: '' }))
+      // 정상적으로 추가됐으면 InputField 비우기
+      setInputField((prevField) => ({ ...prevField, value: '', error: '' }))
     } catch (error) {
       const errorMessage =
         isHttpError(error) && error.response.status === 404
@@ -351,7 +351,7 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   }
 
   return (
-    <div className="ml-1 flex gap-2 text-sm">
+    <div className="ml-1 flex gap-[10px] text-sm">
       {/* email 표시 */}
       <div className="relative mt-1 h-10 w-full max-w-[530px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black">
         <span className="ml-5">{curUser.email}</span>
