@@ -408,7 +408,6 @@ export class ProblemService {
         sharedGroups: true
       }
     })
-    console.log(problem)
     if (userRole != Role.Admin) {
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({

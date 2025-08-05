@@ -12,7 +12,6 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
-import { testcase } from '@client/submission/mock/testcase.mock'
 import type { UploadFileInput } from '../model/problem.input'
 import { ImportedTestcaseHeader } from '../model/testcase.constants'
 import type { Testcase } from '../model/testcase.input'
@@ -90,20 +89,6 @@ export class TestcaseService {
         return { index, id: problemTestcase.id }
       })
     )
-    // const results: Array<{ index: number; id: number }> = []
-    // for (const [index, tc] of testcases.entries()) {
-    //   const problemTestcase = await this.prisma.problemTestcase.create({
-    //     data: {
-    //       problemId,
-    //       input: tc.input,
-    //       output: tc.output,
-    //       scoreWeight: tc.scoreWeight,
-    //       isHidden: tc.isHidden
-    //     }
-    //   })
-    //   results.push({ index, id: problemTestcase.id })
-    // }
-    // return results
   }
 
   /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
