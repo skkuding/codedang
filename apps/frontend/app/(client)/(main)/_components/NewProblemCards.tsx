@@ -33,16 +33,14 @@ export async function NewProblemCards() {
             </div>
           </div>
 
-          <div className="px-[30px]">
-            <div className="relative left-1/2 -my-8 w-screen -translate-x-1/2">
-              <CarouselContent className="mx-[38px] my-8 max-w-[1440px] pl-[100px] 2xl:mx-auto">
-                {problems.map((problem) => (
-                  <CarouselItem key={problem.id}>
-                    <NewProblemCard problem={problem} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </div>
+          <div className="-my-8 -ml-4 w-screen">
+            <CarouselContent className="my-8 ml-0">
+              {problems.map((problem) => (
+                <CarouselItem key={problem.id}>
+                  <NewProblemCard problem={problem} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
           </div>
         </Carousel>
 
