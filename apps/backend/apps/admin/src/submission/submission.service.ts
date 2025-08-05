@@ -567,11 +567,11 @@ export class SubmissionService {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Disposition': `attachment; filename=assignment${assignmentId}_problem${problemId}.zip; filename*=UTF-8''${encodedFilename}.zip`
     })
-    const fileStream = createReadStream(`${zipFilename}.zip`)
+    const fileStream = createReadStream(zipPath)
     fileStream.pipe(res)
 
     fileStream.on('finish', () => {
-      unlink(`${zipFilename}.zip`, (err) => {
+      unlink(zipPath, (err) => {
         if (err) this.logger.error('Error on deleting file: ', err)
       })
       rm(zipFilename, { recursive: true, force: true }, (err) => {
@@ -580,7 +580,7 @@ export class SubmissionService {
       res.end()
     })
     fileStream.on('error', (err) => {
-      unlink(`${zipFilename}.zip`, (err) => {
+      unlink(zipPath, (err) => {
         if (err) this.logger.error('Error on deleting file: ', err)
       })
       rm(zipFilename, { recursive: true, force: true }, (err) => {
