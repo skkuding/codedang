@@ -250,7 +250,7 @@ function ContestSummary({
   return (
     <div className="flex w-full flex-row items-start">
       <Button
-        variant={'outline'}
+        variant={'outline-solid'}
         className="text-primary border-primary-light pointer-events-none mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block"
       >
         {buttonName}

@@ -88,7 +88,7 @@ function SidebarLink({
       className={cn(
         'flex items-center px-4 py-2 transition',
         isActive ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100',
-        isExpanded ? 'rounded-full' : 'rounded-sm'
+        isExpanded ? 'rounded-full' : 'rounded-xs'
       )}
     >
       <item.icon

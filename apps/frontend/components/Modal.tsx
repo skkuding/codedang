@@ -25,7 +25,7 @@ export interface InputProps {
 interface ButtonProps {
   text: string
   onClick: () => void
-  variant?: 'default' | 'outline'
+  variant?: 'default' | 'outline-solid'
 }
 
 interface ModalProps {

@@ -64,7 +64,7 @@ function Text({
 function BarButton() {
   return (
     <Button
-      variant={'outline'}
+      variant={'outline-solid'}
       className="h-full max-h-[54px] w-full max-w-[291px] p-0"
     >
       <Link

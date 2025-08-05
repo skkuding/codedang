@@ -82,7 +82,7 @@ export function DateTimePickerContest({
     >
       <PopoverTrigger asChild>
         <Button
-          variant={'outline'}
+          variant={'outline-solid'}
           className={cn(
             'h-[36px] w-[492px] justify-start text-left font-normal',
             !date && 'text-muted-foreground'
