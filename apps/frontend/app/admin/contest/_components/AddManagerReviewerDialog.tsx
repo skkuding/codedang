@@ -125,7 +125,7 @@ export function AddManagerReviewerDialog({
           participants={participants}
         />
         {/* selected users 블록 */}
-        <div className="flex flex-col">
+        <div className="p-30 flex flex-col border-neutral-300">
           {/* ~ user(s) selected */}
           <div
             className={cn(
@@ -248,7 +248,7 @@ function InputFieldTab({
     <Command className="gap-[6px]">
       <div className="flex flex-col">
         <div className="flex gap-2">
-          <div className="relative w-full max-w-[346px] gap-2">
+          <div className="relative w-full max-w-[590px] gap-2">
             <CommandInput
               className="ml-1 h-10 w-[300px] text-sm placeholder:text-neutral-300"
               placeholder="Please enter the e-mail"
@@ -351,9 +351,9 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   }
 
   return (
-    <div className="ml-1 flex h-10 w-[300px] text-sm">
+    <div className="ml-1 flex h-10 text-sm">
       {/* email 표시 */}
-      <div className="relative mt-1 w-full cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black">
+      <div className="relative mt-1 w-full max-w-[530px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black">
         <span className="ml-5">{curUser.email}</span>
         {/* 삭제버튼 */}
         <Button
