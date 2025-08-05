@@ -245,7 +245,7 @@ function InputFieldTab({
 
   // TODO: 해당되는 컴포넌트 작성
   return (
-    <Command className="gap-[6px]">
+    <Command className="h-auto gap-[6px]">
       <div className="flex flex-col">
         <div className="flex gap-2">
           <div className="relative w-full max-w-[590px] gap-2">
