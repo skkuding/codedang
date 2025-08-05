@@ -103,7 +103,6 @@ export const getStatusWithStartEnd = (startTime: string, endTime: string) => {
  *   - 'text-green-500!' for 'Accepted'.
  *   - 'text-neutral-400!' for 'Judging' or 'Blind' or null or undefined.
  *   - 'text-red-500!' for any other result status.
- * @see tailwind.config.ts - Refer to the safelist section in the TailwindCSS configuration file.
  */
 export const getResultColor = (result: string | null | undefined): string => {
   if (result === 'Accepted') {
