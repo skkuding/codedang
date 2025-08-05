@@ -12,6 +12,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
+import { testcase } from '@client/submission/mock/testcase.mock'
 import type { UploadFileInput } from '../model/problem.input'
 import { ImportedTestcaseHeader } from '../model/testcase.constants'
 import type { Testcase } from '../model/testcase.input'
@@ -75,20 +76,34 @@ export class TestcaseService {
 
   /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
   async createTestcasesLegacy(problemId: number, testcases: Array<Testcase>) {
-    const results: Array<{ index: number; id: number }> = []
-    for (const [index, tc] of testcases.entries()) {
-      const problemTestcase = await this.prisma.problemTestcase.create({
-        data: {
-          problemId,
-          input: tc.input,
-          output: tc.output,
-          scoreWeight: tc.scoreWeight,
-          isHidden: tc.isHidden
-        }
+    await Promise.all(
+      testcases.map(async (tc, index) => {
+        const problemTestcase = await this.prisma.problemTestcase.create({
+          data: {
+            problemId,
+            input: tc.input,
+            output: tc.output,
+            scoreWeight: tc.scoreWeight,
+            isHidden: tc.isHidden
+          }
+        })
+        return { index, id: problemTestcase.id }
       })
-      results.push({ index, id: problemTestcase.id })
-    }
-    return results
+    )
+    // const results: Array<{ index: number; id: number }> = []
+    // for (const [index, tc] of testcases.entries()) {
+    //   const problemTestcase = await this.prisma.problemTestcase.create({
+    //     data: {
+    //       problemId,
+    //       input: tc.input,
+    //       output: tc.output,
+    //       scoreWeight: tc.scoreWeight,
+    //       isHidden: tc.isHidden
+    //     }
+    //   })
+    //   results.push({ index, id: problemTestcase.id })
+    // }
+    // return results
   }
 
   /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
@@ -351,6 +366,9 @@ export class TestcaseService {
     return await this.prisma.problemTestcase.findMany({
       where: {
         problemId
+      },
+      orderBy: {
+        id: 'asc'
       }
     })
   }
