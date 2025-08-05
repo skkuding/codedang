@@ -22,7 +22,7 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
       {submission.testcaseResult.length !== 0 && (
         <div>
           <h2 className="text-lg font-bold">Testcase</h2>
-          <Table className="**:text-center **:text-sm hover:**:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
+          <Table className="**:text-center **:text-sm **:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
             <TableHeader className="**:text-slate-100">
               <TableRow>
                 <TableHead>#</TableHead>

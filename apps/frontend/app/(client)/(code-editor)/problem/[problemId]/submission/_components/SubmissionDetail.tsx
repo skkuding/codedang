@@ -73,7 +73,7 @@ export async function SubmissionDetail({ problemId, submissionId }: Props) {
       {submission.testcaseResult.length !== 0 && (
         <div>
           <h2 className="text-lg font-bold">Test case</h2>
-          <Table className="**:text-center **:text-sm hover:**:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
+          <Table className="**:text-center **:text-sm **:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
             <TableHeader className="**:text-slate-100">
               <TableRow>
                 <TableHead>#</TableHead>
@@ -100,7 +100,7 @@ export async function SubmissionDetail({ problemId, submissionId }: Props) {
         </div>
       )}
       {res.ok ? null : (
-        <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1 backdrop-blur-sm">
+        <div className="backdrop-blur-xs absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1">
           <p className="mt-4 font-mono text-xl font-semibold">Access Denied</p>
           <p className="w-10/12 text-center">
             {`To view other users' code,

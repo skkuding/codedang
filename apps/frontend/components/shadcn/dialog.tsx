@@ -37,7 +37,7 @@ const DialogOverlay = React.forwardRef<
       className,
       {
         // Different Overlay background color
-        'bg-slate-950/30 backdrop-blur-sm': showDarkOverlay
+        'backdrop-blur-xs bg-slate-950/30': showDarkOverlay
       }
     )}
     {...props}

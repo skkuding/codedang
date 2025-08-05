@@ -488,7 +488,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 <p>Reset Ratio</p>
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="shadow-xs bg-white text-black">
+            <TooltipContent className="shadow-2xs bg-white text-black">
               Click to discard all of the scores of testcases.
             </TooltipContent>
           </Tooltip>
@@ -527,7 +527,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 <p>Equal Distribution</p>
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="shadow-xs bg-white text-black">
+            <TooltipContent className="shadow-2xs bg-white text-black">
               Click to equally distribute the scoring ratio for testcases where
               the percentage is not specified.
             </TooltipContent>

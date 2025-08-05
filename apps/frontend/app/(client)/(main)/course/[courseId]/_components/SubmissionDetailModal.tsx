@@ -102,7 +102,7 @@ export function SubmissionDetailModal({
 
         <div className="flex flex-col gap-2">
           <span className="text-sm font-medium">Comment</span>
-          <div className="flex-col rounded-sm border p-4">
+          <div className="rounded-xs flex-col border p-4">
             <span className="text-xs">
               {assignmentProblemRecord?.problems.find(
                 (problem) => problem.id === problemId
