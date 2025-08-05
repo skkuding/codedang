@@ -53,6 +53,15 @@ type ComparisonWithID struct {
 }
 
 type Cluster struct {
+  AvgSimilarity  float32      `json:"averageSimilarity"`
+	Strength       float32      `json:"strength"`
+	Members        []string     `json:"members"`
+}
+
+type ClusterWithID struct {
+  AvgSimilarity  float32      `json:"averageSimilarity"`
+	Strength       float32      `json:"strength"`
+	Members        []int        `json:"members"`
 }
 
 func (s *CheckInput) Count() int {
@@ -75,5 +84,23 @@ func (c *Comparison) ToComparisonWithID() (ComparisonWithID, error) {
 		c.Matches,
 		c.Similarity1,
 		c.Similarity2,
+	}, nil
+}
+
+func (c *Cluster) ToClusterWithID() (ClusterWithID, error) {
+	ids := []int{}
+
+  for _, m := range c.Members{
+    id, err := strconv.Atoi(strings.Split(m, ".")[0])
+    if err != nil {
+      return ClusterWithID{}, err
+    }
+    ids = append(ids, id)
+  }
+
+	return ClusterWithID{
+		c.AvgSimilarity,
+    c.Strength,
+    ids,
 	}, nil
 }

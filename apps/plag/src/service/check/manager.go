@@ -1,6 +1,7 @@
 package check
 
 import (
+	"encoding/json"
 	"fmt"
 	"os/exec"
 
@@ -32,9 +33,9 @@ type CheckManager interface {
 		language string,
 	) (CheckInput, error)
 	SaveResult(
+    checkId string,
 		comparisons []ComparisonWithID,
-		clusters []Cluster,
-		checkSettings CheckSettings,
+		clusters []ClusterWithID,
 	) error
 }
 
@@ -144,9 +145,32 @@ func (c *checkManager) CheckPlagiarismRate( // 요청된 설정에 맞춰 실제
 }
 
 func (c *checkManager) SaveResult(
+  checkId string,
 	comparisons []ComparisonWithID,
-	clusters []Cluster,
-	checkSettings CheckSettings,
+	clusters []ClusterWithID,
 ) error {
+  compJson, err := json.Marshal(comparisons)
+  if err != nil {
+    return fmt.Errorf("json-parsing comparison error: %w", err)
+  }
+  if err := c.s3reader.Save(
+    compJson,
+    fmt.Sprintf("comparison%s.json", checkId),
+  ); err != nil{
+    return fmt.Errorf("comparsion object upload error: %w", err)
+  }
+
+  if clusters != nil{
+    clusJson, err := json.Marshal(clusters)
+    if err != nil {
+      return fmt.Errorf("json-parsing clusters error: %w", err)
+    }
+    if err := c.s3reader.Save(
+      clusJson,
+      fmt.Sprintf("cluster%s.json", checkId),
+    ); err != nil{
+      return fmt.Errorf("clusters object upload error: %w", err)
+    }
+  }
 	return nil
 }

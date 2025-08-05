@@ -300,21 +300,7 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		return
 	}
 
-	clustersCh := make(chan result.ChResult)
-	go c.readClusters(handleCtx, clustersCh, resDir)
-
-	clusters := <-clustersCh
-	if clusters.Err != nil {
-		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("readClusters error: %s", clusters.Err),
-			level:   logger.ERROR,
-			Message: clusters.Err.Error(),
-		}}
-		return
-	}
-
-	comps, ok := comparison.Data.([]check.ComparisonWithID)
+  comps, ok := comparison.Data.([]check.ComparisonWithID)
 	if !ok {
 		out <- CheckResultMessage{nil, &HandlerError{
 			caller: "handle",
@@ -324,20 +310,37 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		return
 	}
 
-	clus, ok := clusters.Data.([]check.Cluster)
-	if !ok {
-		out <- CheckResultMessage{nil, &HandlerError{
-			caller: "handle",
-			err:    fmt.Errorf("%w: Cluster", ErrTypeAssertionFail),
-			level:  logger.ERROR,
-		}}
-		return
-	}
+  var clus []check.ClusterWithID = nil
+  if req.UseJplagClustering {
+    clustersCh := make(chan result.ChResult)
+    go c.readClusters(handleCtx, clustersCh, resDir)
+
+    clusters := <-clustersCh
+    if clusters.Err != nil {
+      out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("readClusters error: %s", clusters.Err),
+        level:   logger.ERROR,
+        Message: clusters.Err.Error(),
+      }}
+      return
+    }
+
+    clus, ok = clusters.Data.([]check.ClusterWithID)
+    if !ok {
+      out <- CheckResultMessage{nil, &HandlerError{
+        caller: "handle",
+        err:    fmt.Errorf("%w: Cluster", ErrTypeAssertionFail),
+        level:  logger.ERROR,
+      }}
+      return
+    }
+  }
 
 	if err := c.check.SaveResult(
+    id,
 		comps,
 		clus,
-		checkSetting,
 	); err != nil {
 		out <- CheckResultMessage{nil, &HandlerError{
 			caller:  "handle",
@@ -457,7 +460,17 @@ func (c *CheckHandler) readClusters(ctx context.Context, out chan<- result.ChRes
 		return
 	}
 
-	out <- result.ChResult{Data: clusters}
+  clustersWID := []check.ClusterWithID{}
+  for _, cluster := range clusters {
+    cwi, err := cluster.ToClusterWithID()
+    if err != nil {
+      out <- result.ChResult{Err: err}
+      return
+    }
+    clustersWID = append(clustersWID, cwi)
+  }
+
+	out <- result.ChResult{Data: clustersWID}
 }
 
 func getSubmissionFileName(id string, langExt string) string {

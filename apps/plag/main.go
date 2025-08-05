@@ -6,7 +6,8 @@ package main
 * previousSubmissionsPath 기능은 구현되지 않았습니다.
 * jdk 21이 필요합니다.
 * submission 코드를 얻는 과정이 불안정합니다.
-*
+* cluster.json의 구조를 파악하지 못했습니다.
+* java 명령어가 실행되지 않습니다. (no such dir of file)
  */
 
 import (
@@ -81,7 +82,7 @@ func main() {
 	}
 	defaultTracer := otel.Tracer("default")
 
-	bucket := utils.Getenv("TESTCASE_BUCKET_NAME", "")
+	bucket := utils.Getenv("CHECK_BUCKET_NAME", "")
 	s3reader, err := loader.NewS3DataSource(bucket)
 	if err != nil {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
