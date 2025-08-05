@@ -125,7 +125,7 @@ export function AddManagerReviewerDialog({
           participants={participants}
         />
         {/* selected users 블록 */}
-        <div className="flex flex-col rounded-2xl border-solid border-[#D8D8D8] p-[30px]">
+        <div className="flex flex-col rounded-2xl border border-solid border-[#D8D8D8] p-[30px]">
           {/* ~ user(s) selected */}
           <div
             className={cn(
@@ -351,9 +351,9 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   }
 
   return (
-    <div className="ml-1 flex h-10 gap-2 text-sm">
+    <div className="ml-1 flex gap-2 text-sm">
       {/* email 표시 */}
-      <div className="relative mt-1 w-full max-w-[530px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black">
+      <div className="relative mt-1 h-10 w-full max-w-[530px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black">
         <span className="ml-5">{curUser.email}</span>
         {/* 삭제버튼 */}
         <Button
