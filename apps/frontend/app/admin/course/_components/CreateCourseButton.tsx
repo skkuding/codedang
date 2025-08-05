@@ -2,15 +2,7 @@
 
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
-import { Input } from '@/components/shadcn/input'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/shadcn/select'
 import { CREATE_COURSE } from '@/graphql/course/mutation'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import type { SemesterSeason } from '@/types/type'
@@ -21,12 +13,11 @@ import { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { toast } from 'sonner'
-import { DescriptionForm } from '../../_components/DescriptionForm'
-import { ErrorMessage } from '../../_components/ErrorMessage'
 import { FormSection } from '../../_components/FormSection'
-import { TitleForm } from '../../_components/TitleForm'
 import { courseSchema } from '../_libs/schema'
 import { CreateCourseForm } from './CreateCourseForm'
+import { DropdownForm } from './DropdownForm'
+import { InputForm } from './InputForm'
 
 export function CreateCourseButton() {
   const {
@@ -109,166 +100,85 @@ export function CreateCourseButton() {
           <span className="text-lg">Create</span>
         </Button>
       }
+      className="!pb-0 !pr-[20px]"
     >
-      <ScrollArea className="h-full w-full">
+      <ScrollArea className="h-full w-full pr-[16px]">
         <CreateCourseForm>
-          <div className="flex w-[901px] flex-col gap-[28px]">
-            <FormSection isFlexColumn={true} title="Title">
-              <TitleForm
-                placeholder="Name your Assignment"
-                className="max-w-[767px]"
+          <div className="flex flex-col gap-[10px]">
+            <FormSection
+              isFlexColumn={true}
+              title="Professor"
+              className="gap-[6px]"
+            >
+              <InputForm placeholder="홍길동" name="professor" type="text" />
+            </FormSection>
+            <FormSection
+              isFlexColumn={true}
+              title="Course Title"
+              className="gap-[6px]"
+            >
+              <InputForm
+                placeholder="홍길동개론"
+                name="courseTitle"
+                type="text"
               />
             </FormSection>
-
-            {/* <div className="flex justify-between">
-                <FormSection
-                  title="Week"
-                  isJustifyBetween={false}
-                  className="gap-[67px]"
-                >
-                  <WeekComboBox name="week" courseId={Number(courseId)} />
-                </FormSection>
-                <FormSection
-                  title="Due Time"
-                  isJustifyBetween={false}
-                  className="gap-[40px]"
-                  isLabeled={false}
-                >
-                  <TimeFormPopover />
-                  <TimeForm
-                    name="dueTime"
-                    defaultTimeOnSelect={{
-                      hours: 23,
-                      minutes: 59,
-                      seconds: 59
-                    }}
-                  />
-                </FormSection>
-              </div> */}
-            <div className="flex justify-between">
-              {/* <FormSection
-                  title="Start Time"
-                  isJustifyBetween={false}
-                  className="gap-[27px]"
-                >
-                  <TimeForm name="startTime" />
-                </FormSection>
-                <FormSection
-                  title="End Time"
-                  isJustifyBetween={false}
-                  className="gap-[71px]"
-                  isLabeled={false}
-                >
-                  <TimeForm
-                    name="endTime"
-                    defaultTimeOnSelect={{
-                      hours: 23,
-                      minutes: 59,
-                      seconds: 59
-                    }}
-                  />
-                </FormSection> */}
-            </div>
-
-            <FormSection isFlexColumn title="Description" isLabeled={false}>
-              <DescriptionForm name="description" />
-            </FormSection>
-
-            {/* <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <AssignmentProblemListLabel />
-                  <ImportProblemDialog
-                    problems={problems}
-                    setProblems={setProblems}
-                  />
-                </div>
-                <AssignmentProblemTable
-                  problems={problems}
-                  setProblems={setProblems}
-                  disableInput={false}
-                />
-              </div> */}
-
-            {/* <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-3">
-                  <Label required={false}>Solution</Label>
-                  <p className="text-[11px] text-[#9B9B9B]">
-                    Only problems with solutions are listed below.
-                  </p>
-                </div>
-                <AssignmentSolutionTable
-                  problems={problems}
-                  setProblems={setProblems}
-                />
-              </div> */}
-
-            {/* <div className="flex flex-col gap-1 rounded-md border bg-white p-[20px]">
-                <SwitchField
-                  hasValue={true}
-                  name="isJudgeResultVisible"
-                  title="Reveal Hidden Testcase Result"
-                  description="When enabled, hidden testcase results will be revealed from students."
-                />
-
-                <SwitchField
-                  hasValue={true}
-                  name="enableCopyPaste"
-                  title="Enable Participants Copy/Pasting"
-                  description="When enabled, students will be able to copy from or paste into the code editor."
-                />
-              </div>
-
-              {/* <SwitchField
-                          name="autoFinalizeScore"
-                          title="Automatically Finalize Score"
-                          tooltip={true}
-                        >
-                          <p className="text-xs font-normal text-black">
-                            Automatically Finalize Score without manual grading
-                          </p>
-                        </SwitchField> */}
-
-            {/* <Button
-                type="submit"
-                className="flex h-[36px] w-full items-center gap-2 px-0"
-                disabled={isCreating}
+            <div className="flex justify-between gap-[6px]">
+              <FormSection
+                isFlexColumn={true}
+                title="Course Code"
+                className="w-full gap-[6px]"
               >
-                <IoMdCheckmarkCircleOutline fontSize={20} />
-                <div className="mb-[2px] text-base">Create</div>
-              </Button> */}
+                <InputForm
+                  placeholder="SWE"
+                  name="courseCodePrefix"
+                  type="text"
+                />
+              </FormSection>
+              <FormSection
+                isFlexColumn={true}
+                title=""
+                className="w-full gap-[6px]"
+                isLabeled={false}
+              >
+                <InputForm
+                  placeholder="1234"
+                  name="courseCodeSuffix"
+                  type="text"
+                />
+              </FormSection>
+            </div>
+            <FormSection
+              isFlexColumn={true}
+              title="Course Section"
+              className="gap-[6px]"
+            >
+              <InputForm placeholder="01" name="classNum" type="number" />
+            </FormSection>
+            <FormSection isFlexColumn={true} title="Week" className="gap-[6px]">
+              <DropdownForm
+                name="weekNum"
+                items={Array.from({ length: 17 }, (_, i) => (i + 1).toString())}
+              />
+            </FormSection>
+            <FormSection
+              isFlexColumn={true}
+              title="Semester"
+              className="gap-[6px]"
+            >
+              <DropdownForm
+                name="semester"
+                items={Array.from({ length: 17 }, (_, i) => (i + 1).toString())}
+              />
+            </FormSection>
           </div>
         </CreateCourseForm>
-        <form
+        {/* <form
           onSubmit={handleSubmit(onSubmit)}
           aria-label="Create course"
           className="flex flex-col gap-3 [&>*]:px-1"
         >
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <span className="font-bold">Professor</span>
-              <span className="text-red-500">*</span>
-            </div>
-            <Input
-              id="professor"
-              className="w-full rounded border p-2"
-              {...register('professor')}
-            />
-            {errors.professor && <ErrorMessage />}
-          </div>
 
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <span className="font-bold">Course Title</span>
-              <span className="text-red-500">*</span>
-            </div>
-
-            <Input
-              id="courseTitle"
-              className="w-full rounded border p-2"
-              {...register('courseTitle')}
-            />
-            {errors.courseTitle && <ErrorMessage />}
-          </div>
 
           <div className="flex justify-between gap-4">
             <div className="flex w-2/3 flex-col gap-2">
@@ -414,7 +324,7 @@ export function CreateCourseButton() {
               )}
             </div>
           </div>
-        </form>
+        </form> */}
       </ScrollArea>
     </Modal>
   )
