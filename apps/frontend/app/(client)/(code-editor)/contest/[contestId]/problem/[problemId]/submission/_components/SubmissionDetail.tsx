@@ -49,24 +49,24 @@ export async function SubmissionDetail({
   return (
     <>
       <ScrollArea className="shrink-0 rounded-lg px-6">
-        <div className="flex items-center justify-around gap-3 bg-[#384151] p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
+        <div className="**:whitespace-nowrap flex items-center justify-around gap-3 bg-[#384151] p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
           <div>
             <h2>Result</h2>
             <p className={getResultColor(submission.result)}>
               {submission.result}
             </p>
           </div>
-          <div className="h-10 w-[1px] bg-[#616060]" />
+          <div className="h-10 w-px bg-[#616060]" />
           <div>
             <h2>Language</h2>
             <p>{submission.language !== 'Cpp' ? submission.language : 'C++'}</p>
           </div>
-          <div className="h-10 w-[1px] bg-[#616060]" />
+          <div className="h-10 w-px bg-[#616060]" />
           <div>
             <h2>Submission Time</h2>
             <p>{dateFormatter(submission.createTime, 'YYYY-MM-DD HH:mm:ss')}</p>
           </div>
-          <div className="h-10 w-[1px] bg-[#616060]" />
+          <div className="h-10 w-px bg-[#616060]" />
           <div>
             <h2>Code Size</h2>
             <p>{targetSubmission && targetSubmission.codeSize} B</p>
@@ -74,7 +74,7 @@ export async function SubmissionDetail({
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-      <div className="-ml-16 mt-[10px] h-2 min-w-[100%] bg-[#121728]" />
+      <div className="-ml-16 mt-[10px] h-2 min-w-full bg-[#121728]" />
       <div className="my-3 px-6">
         <div className="mb-[18px] flex items-center justify-between">
           <h2 className="text-base font-bold">Source Code</h2>
@@ -87,10 +87,10 @@ export async function SubmissionDetail({
           className="max-h-96 min-h-16 w-full rounded-lg"
         />
       </div>
-      <div className="-ml-16 h-2 min-w-[100%] bg-[#121728]" />
+      <div className="-ml-16 h-2 min-w-full bg-[#121728]" />
 
       {res.ok ? null : (
-        <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1 backdrop-blur">
+        <div className="backdrop-blur-xs absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1">
           <IoIosLock size={100} />
           <p className="mt-4 text-xl font-semibold">Access Denied</p>
           <p className="w-10/12 text-center">
