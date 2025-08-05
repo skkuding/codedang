@@ -1,5 +1,8 @@
 'use client'
 
+import Image from 'next/image'
+import Link from 'next/link'
+
 export function ServiceCards() {
   return (
     <section className="font-pretendard flex w-full flex-col items-center gap-10">
@@ -9,14 +12,18 @@ export function ServiceCards() {
         </h2>
 
         <div className="grid w-full auto-rows-[330px] grid-cols-2 gap-3 [@media(min-width:1140px)]:grid-cols-[41%_29%_30%]">
-          <div className="bg-primary-light relative row-span-2 h-full w-full rounded-[20px] text-white">
+          <Link
+            href="/contest"
+            className="bg-primary-light relative row-span-2 h-full w-full rounded-[20px] text-white transition-transform duration-500 ease-out hover:scale-[1.02]"
+          >
             <div className="absolute left-[30px] top-[30px] flex h-[34px] items-center justify-center rounded-full border border-white px-3 py-1 text-xs font-normal">
               CONTEST
             </div>
-            <img
+            <Image
               src="/banners/about-contest.svg"
               alt="About Contest"
               className="absolute h-full w-full rounded-[20px] object-cover"
+              fill
             />
             <div className="absolute bottom-10 left-[30px] right-[30px]">
               <p className="pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
@@ -27,16 +34,20 @@ export function ServiceCards() {
                 <br /> and rankings help enhance learning and motivation.
               </p>
             </div>
-          </div>
+          </Link>
 
-          <div className="bg-background-normal relative h-full w-full rounded-[20px]">
+          <Link
+            href="/notice"
+            className="bg-background-normal relative h-full w-full rounded-[20px] transition-transform duration-500 ease-out hover:scale-[1.02]"
+          >
             <div className="border-primary text-primary absolute left-[30px] top-[30px] z-10 flex h-[34px] items-center justify-center rounded-full border px-3 py-1 text-xs leading-[22.4px] tracking-[-0.48px]">
               NOTICE
             </div>
-            <img
+            <Image
               src="/banners/stay-informed.svg"
               alt="Stay Informed"
               className="absolute inset-0 h-full w-full rounded-[20px] object-cover"
+              fill
             />
             <div className="absolute left-[30px] right-[30px] top-[78px]">
               <p className="text-primary-strong pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
@@ -46,16 +57,20 @@ export function ServiceCards() {
                 Explore coding challenges <br /> by level and topic.
               </p>
             </div>
-          </div>
+          </Link>
 
-          <div className="bg-primary relative h-full w-full rounded-[20px] text-white">
+          <Link
+            href="/problem"
+            className="bg-primary relative h-full w-full rounded-[20px] text-white transition-transform duration-500 ease-out hover:scale-[1.02]"
+          >
             <div className="absolute left-[30px] top-[30px] z-10 flex h-[34px] items-center justify-center rounded-full border border-white px-3 py-1 text-xs leading-[22.4px] tracking-[-0.48px]">
               PROBLEM
             </div>
-            <img
+            <Image
               src="/banners/practice-with-real-problems-bg.svg"
               alt="Background pattern"
               className="absolute inset-0 h-full w-full rounded-[20px] object-cover"
+              fill
             />
             <img
               src="/banners/practice-with-real-problems.svg"
@@ -72,9 +87,12 @@ export function ServiceCards() {
                 <br /> by level and topic.
               </p>
             </div>
-          </div>
+          </Link>
 
-          <div className="relative col-span-2 h-full w-full rounded-[20px] bg-[#00183E] text-white">
+          <Link
+            href="/course"
+            className="relative col-span-2 h-full w-full rounded-[20px] bg-[#00183E] text-white transition-transform duration-500 ease-out hover:scale-[1.02]"
+          >
             <div className="absolute left-[30px] top-[30px] flex h-[34px] items-center justify-center rounded-full border border-white bg-[#00183E] px-3 py-1 text-xs leading-[22.4px] tracking-[-0.48px]">
               COURSE
             </div>
@@ -92,7 +110,7 @@ export function ServiceCards() {
                 <br /> Learn through professor-curated problem.
               </p>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </section>
