@@ -115,7 +115,7 @@ export function AddManagerReviewerDialog({
       onClose={() => setOpen(false)}
     >
       {/* children으로 넣을 부분 */}
-      <ScrollArea className="w-full">
+      <ScrollArea className="h-full w-full">
         {/* 인풋 필드 */}
         <InputFieldTab
           users={users}
