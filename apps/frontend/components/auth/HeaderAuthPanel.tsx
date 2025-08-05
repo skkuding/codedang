@@ -150,7 +150,7 @@ export function HeaderAuthPanel({
               className={cn(
                 'hidden md:block',
                 isEditor &&
-                  'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
+                  'rounded-xs mr-5 border-none bg-[#4C5565] px-0 font-normal text-white'
               )}
             >
               <AccountItems
@@ -167,7 +167,7 @@ export function HeaderAuthPanel({
           </DropdownMenu>
           <Dialog open={shouldUpdateUserInfo}>
             <DialogContent
-              className="min-h-[30rem] max-w-[20.5rem]"
+              className="min-h-120 max-w-82"
               hideCloseButton={true}
             >
               <UpdateInformation />
@@ -209,7 +209,7 @@ export function HeaderAuthPanel({
             onInteractOutside={(e) => {
               e.preventDefault()
             }}
-            className="min-h-[30rem] max-w-[20.5rem]"
+            className="min-h-120 max-w-82"
           >
             <AuthModal />
           </DialogContent>

@@ -116,7 +116,7 @@ function ScoreEditableCell({
           type="number"
           min={0}
           max={problemScore?.maxScore ?? 0}
-          className="hide-spin-button w-8 rounded border px-1 py-0.5 text-center text-xs"
+          className="hide-spin-button w-8 rounded-sm border px-1 py-0.5 text-center text-xs"
           value={inputValue}
           autoFocus
           disabled={loading}
@@ -149,7 +149,7 @@ function ScoreEditableCell({
   return (
     <div
       className={cn(
-        'cursor-pointer rounded px-1 text-xs hover:bg-gray-100',
+        'cursor-pointer rounded-sm px-1 text-xs hover:bg-gray-100',
         editing && 'bg-gray-100'
       )}
       onClick={() => {
