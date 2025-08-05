@@ -215,4 +215,4 @@ export const UNLIMITED_DATE = '2999-12-31T14:59:59.000Z'
  * The list of allowed domains for email verification.
  * @constant
  */
-export const ALLOWED_DOMAINS = ['skku.edu']
+export const ALLOWED_DOMAINS = ['skku.edu', 'example.com']
