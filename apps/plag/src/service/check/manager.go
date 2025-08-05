@@ -31,6 +31,11 @@ type CheckManager interface {
     problemId string,
     language string,
   ) (CheckInput, error)
+  SaveResult(
+    comparisons []ComparisonWithID,
+    clusters []Cluster,
+    checkSettings CheckSettings,
+  ) (error)
 }
 
 type checkManager struct {
@@ -102,7 +107,7 @@ func (c *checkManager) CheckPlagiarismRate( // 요청된 설정에 맞춰 실제
   settings CheckSettings,
   ) (error){
   jplagCmd := fmt.Sprintf(
-    `java -jar "%s" -l %s "%s" -r "%s" -M RUN`,
+    `java -jar "%s" -l --mode run %s "%s" -r "%s"`,
     c.jplagPath,
     langExt,
     subDir,
@@ -135,5 +140,13 @@ func (c *checkManager) CheckPlagiarismRate( // 요청된 설정에 맞춰 실제
     return fmt.Errorf("running jplag command error: %w", err)
   }
 
+  return nil
+}
+
+func (c *checkManager) SaveResult(
+  comparisons []ComparisonWithID,
+  clusters []Cluster,
+  checkSettings CheckSettings,
+  ) (error) {
   return nil
 }

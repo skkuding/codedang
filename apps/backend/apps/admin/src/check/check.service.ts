@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common'
 import type { Language } from '@prisma/client'
 import { CheckResultStatus, Prisma } from '@prisma/client'
 import { Span } from 'nestjs-otel'
@@ -36,15 +36,6 @@ export class CheckService {
     problemId: number
     language: Language
   }) {
-    const problem = await this.prisma.problem.findFirst({
-      where: {
-        id: problemId
-      }
-    })
-    if (!problem) {
-      throw new EntityNotExistException('Problem')
-    }
-
     const submissionCount = await this.prisma.submission.count({
       where: {
         problemId: problemId,
@@ -63,7 +54,32 @@ export class CheckService {
   }: {
     assignmentId: number
     problemId: number
-  }) {}
+  }) {
+    const assignmentProblem = await this.prisma.assignmentProblem.findFirst({
+      where: {
+        assignmentId: assignmentId,
+        problemId: problemId
+      }
+    })
+    if (!assignmentProblem) {
+      throw new EntityNotExistException('AssignmentProblem')
+    }
+
+    const assignmentDueTime = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        dueTime: true
+      }
+    })
+    if (!assignmentDueTime) {
+      throw new EntityNotExistException('AssignmentDueTime')
+    }
+    if (assignmentDueTime.dueTime.getTime() > Date.now()) {
+      throw new ForbiddenException('Before the Due Time has passed yet.')
+    }
+  }
 
   @Span()
   async checkAssignmentProblem({
@@ -109,7 +125,6 @@ export class CheckService {
       language: checkInput.language
     })
 
-    const checkId = Date.now().toString()
     const {
       language,
       checkPreviousSubmissions,
@@ -121,7 +136,6 @@ export class CheckService {
     try {
       const check = await this.prisma.plagiarismCheck.create({
         data: {
-          checkId: checkId,
           problemId: problemId,
           result: CheckResultStatus.Pending,
           userId: userId,

@@ -746,7 +746,6 @@ model PlagiarismCheck {
   id             Int         @id @default(autoincrement())
   // 검사 결과는 S3에 저장되며 checkId가 폴더명이 됩니다
   // 따라서 S3 경로는 저장하지 않습니다
-  checkId        String      @unique @map("check_id")
   problem       Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId                 Int                         @map("problem_id")
   user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)

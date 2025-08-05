@@ -1831,7 +1831,6 @@ enum NotificationType {
 type PlagiarismCheck {
   assignment: Assignment
   assignmentId: Int
-  checkId: String!
   checkPreviousSubmission: Boolean!
   contest: Contest
   contestId: Int
@@ -1863,7 +1862,6 @@ type PlagiarismCheckAvgAggregate {
 type PlagiarismCheckCountAggregate {
   _all: Int!
   assignmentId: Int!
-  checkId: Int!
   checkPreviousSubmission: Int!
   contestId: Int!
   createTime: Int!
@@ -1880,7 +1878,6 @@ type PlagiarismCheckCountAggregate {
 
 type PlagiarismCheckMaxAggregate {
   assignmentId: Int
-  checkId: String
   checkPreviousSubmission: Boolean
   contestId: Int
   createTime: DateTime
@@ -1897,7 +1894,6 @@ type PlagiarismCheckMaxAggregate {
 
 type PlagiarismCheckMinAggregate {
   assignmentId: Int
-  checkId: String
   checkPreviousSubmission: Boolean
   contestId: Int
   createTime: DateTime

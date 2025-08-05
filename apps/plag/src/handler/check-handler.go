@@ -101,7 +101,7 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	//TODO: validation logic here
 	req := Request{}
 
-	err := json.Unmarshal(data, &req) // json 파싱...?
+	err := json.Unmarshal(data, &req) // json 파싱
 
   // <Test Code>
   err = nil
@@ -158,7 +158,7 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	}
 
   subDir := dir+"/submission"
-  if err := c.file.CreateDir(subDir); err != nil { // 작업용 임시 디렉토리 생성
+  if err := c.file.CreateDir(subDir); err != nil { // 작업용 임시 제출물 디렉토리 생성
 		out <- CheckResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("creating submission directory: %w", err),
@@ -169,7 +169,7 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	}
 
   resDir := dir+"/result"
-  if err := c.file.CreateDir(resDir); err != nil { // 작업용 임시 디렉토리 생성
+  if err := c.file.CreateDir(resDir); err != nil { // 작업용 임시 결과물 디렉토리 생성
 		out <- CheckResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("creating result directory: %w", err),
@@ -193,9 +193,7 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
     return
   }
 
-  var ok bool
-  var chIn check.CheckInput
-  chIn, ok = checkInput.Data.(check.CheckInput)
+  chIn, ok := checkInput.Data.(check.CheckInput) // 검사 입력 데이터
   if !ok {
     out <- CheckResultMessage{nil, &HandlerError{
       caller: "handle",
@@ -205,9 +203,9 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
     return
   }
 
-  langExt := sandbox.Language(req.Language).GetLangExt()
+  langExt := sandbox.Language(req.Language).GetLangExt() // 언어 확장자
 
-  for _, sub := range chIn.Elements {
+  for _, sub := range chIn.Elements { // 제출물 코드 파일 생성
     fileName := getSubmissionFileName(fmt.Sprint(sub.Id), langExt)
     srcPath := c.file.MakeFilePath(subDir, fileName).String()//submission 저장
     code, err := utils.ParseRawCode(sub.Code)
@@ -252,21 +250,98 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
     }
   }
 
-  if err := c.check.CheckPlagiarismRate(
+  checkSetting := check.CheckSettings{
+    MinTokens: req.MinimumTokens,
+    CheckPreviousSubmission: req.CheckPreviousSubmission,
+    EnableMerging: req.EnableMerging,
+    UseJplagClustering: req.UseJplagClustering,
+  }
+  if err := c.check.CheckPlagiarismRate( // 표절 검사
     c.file.GetBasePath(subDir),
     baseCodePath,
     c.file.GetBasePath(resDir), // <Test Code>
     sandbox.Language(req.Language).GetLangExt(),
-    check.CheckSettings{
-      MinTokens: req.MinimumTokens,
-      CheckPreviousSubmission: req.CheckPreviousSubmission,
-      EnableMerging: req.EnableMerging,
-      UseJplagClustering: req.UseJplagClustering,
-    },
+    checkSetting,
   ); err != nil {
 		out <- CheckResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("running check: %w", err),
+			level:   logger.ERROR,
+			Message: err.Error(),
+		}}
+		return
+	}
+
+  //<Test Code> JPLAGTEST20250804
+  if err := c.file.Unzip( // 검사 결과물 압축 해제
+    c.file.MakeFilePath(dir, "result.jplag").String(),
+    c.file.GetBasePath(resDir),
+  ); err != nil { // 파일 압축 해제 실패 시
+		out <- CheckResultMessage{nil, &HandlerError{
+			caller:  "handle",
+			err:     fmt.Errorf("unzip jplag file: %w", err),
+			level:   logger.ERROR,
+			Message: err.Error(),
+		}}
+		return
+	}
+
+  comparisonCh := make(chan result.ChResult)
+  go c.readComparisons(handleCtx, comparisonCh, resDir)
+
+  comparison := <-comparisonCh
+  if comparison.Err != nil {
+    out <- CheckResultMessage{nil, &HandlerError{
+      caller:  "handle",
+      err:     fmt.Errorf("readComparisons error: %s", comparison.Err),
+      level:   logger.ERROR,
+      Message: comparison.Err.Error(),
+    }}
+    return
+  }
+
+  clustersCh := make(chan result.ChResult)
+  go c.readClusters(handleCtx, clustersCh, resDir)
+
+  clusters := <-clustersCh
+  if clusters.Err != nil {
+    out <- CheckResultMessage{nil, &HandlerError{
+      caller:  "handle",
+      err:     fmt.Errorf("readClusters error: %s", clusters.Err),
+      level:   logger.ERROR,
+      Message: clusters.Err.Error(),
+    }}
+    return
+  }
+
+  comps, ok := comparison.Data.([]check.ComparisonWithID)
+  if !ok {
+    out <- CheckResultMessage{nil, &HandlerError{
+      caller: "handle",
+      err:    fmt.Errorf("%w: ComparisonWithID", ErrTypeAssertionFail),
+      level:  logger.ERROR,
+    }}
+    return
+  }
+
+  clus, ok := clusters.Data.([]check.Cluster)
+  if !ok {
+    out <- CheckResultMessage{nil, &HandlerError{
+      caller: "handle",
+      err:    fmt.Errorf("%w: Cluster", ErrTypeAssertionFail),
+      level:  logger.ERROR,
+    }}
+    return
+  }
+
+  if err := c.check.SaveResult(
+    comps,
+    clus,
+    checkSetting,
+  ); err != nil {
+		out <- CheckResultMessage{nil, &HandlerError{
+			caller:  "handle",
+			err:     fmt.Errorf("save check result in bucket: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
@@ -316,6 +391,73 @@ func (c *CheckHandler) getCheckInput(ctx context.Context, out chan <- result.ChR
 	}
 
   out <- result.ChResult{Data: res}
+}
+
+func (c *CheckHandler) readComparisons(ctx context.Context, out chan <-result.ChResult, resDir string) {
+	_, childSpan := c.tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("check-handler", "readComparisons"),
+	)
+	defer childSpan.End()
+
+  comparisonDir := resDir+"/comparisons"
+  fileNames, err := c.file.CollectFiles(comparisonDir)
+  if err != nil {
+		out <- result.ChResult{Err: err}
+		return
+	}
+
+  comps := []check.ComparisonWithID{}
+
+  for _, fileName := range fileNames {
+    filePath := c.file.MakeFilePath(comparisonDir, fileName).String()
+    data, err := c.file.ReadFile(filePath)
+    if err != nil {
+      out <- result.ChResult{Err: err}
+		  return
+    }
+
+    comparison := check.Comparison{}
+    err = json.Unmarshal(data, &comparison)
+    if err != nil {
+      out <- result.ChResult{Err: err}
+		  return
+    }
+
+    comp, err := comparison.ToComparisonWithID()
+    if err != nil {
+      out <- result.ChResult{Err: err}
+		  return
+    }
+
+    comps = append(comps, comp)
+  }
+
+  out <- result.ChResult{Data: comps}
+}
+
+func (c *CheckHandler) readClusters(ctx context.Context, out chan <-result.ChResult, resDir string) {
+	_, childSpan := c.tracer.Start(
+		ctx,
+		instrumentation.GetSemanticSpanName("check-handler", "readClusters"),
+	)
+	defer childSpan.End()
+
+  filePath := c.file.MakeFilePath(resDir, "cluster.json").String()
+  data, err := c.file.ReadFile(filePath)
+  if err != nil {
+    out <- result.ChResult{Err: err}
+    return
+  }
+
+  clusters := []check.Cluster{}
+  err = json.Unmarshal(data, &clusters)
+  if err != nil {
+    out <- result.ChResult{Err: err}
+    return
+  }
+
+  out <- result.ChResult{Data: clusters}
 }
 
 func getSubmissionFileName(id string, langExt string) (string){
