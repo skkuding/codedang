@@ -37,7 +37,7 @@ export function ExerciseProblemDropdown({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
+      <DropdownMenuTrigger className="outline-hidden flex gap-1 text-lg text-white">
         <h1>{`${convertToLetter(problem.order)}. ${problem.title}`}</h1>
         <FaSortDown />
       </DropdownMenuTrigger>

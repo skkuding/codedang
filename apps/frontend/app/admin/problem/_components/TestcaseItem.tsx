@@ -86,7 +86,7 @@ export function TestcaseItem({
             type="number"
             min={0}
             className={cn(
-              'hide-spin-button h-7 w-20 rounded-[1000px] border border-[1px] px-2 py-1 text-center text-base font-medium',
+              'hide-spin-button h-7 w-20 rounded-[1000px] border px-2 py-1 text-center text-base font-medium',
               isInvalid(getValues('testcases')[index].scoreWeight)
                 ? 'border-gray-[#D8D8D8]'
                 : 'border-gray-300'

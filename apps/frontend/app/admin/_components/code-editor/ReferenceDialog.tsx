@@ -30,7 +30,7 @@ export function ReferenceDialog() {
               Compiler Version Document
             </DialogTitle>
           </DialogHeader>
-          <div className="overflow-x-auto rounded border border-slate-600">
+          <div className="overflow-x-auto rounded-sm border border-slate-600">
             <table className="min-w-full bg-slate-900 text-left text-sm">
               <thead className="border-b border-slate-600 bg-slate-800 text-xs">
                 <tr>

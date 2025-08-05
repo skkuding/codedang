@@ -229,10 +229,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   }, [currentItems])
 
   return (
-    <div className="flex h-full w-full flex-col border-[1px] border-[#D8D8D8] bg-white px-10 pb-10 pt-[20px]">
+    <div className="flex h-full w-full flex-col border border-[#D8D8D8] bg-white px-10 pb-10 pt-[20px]">
       <div className="mb-[40px] flex w-full items-center justify-between">
         <button
-          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 1 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
+          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 1 ? 'border-b-4 border-b-white' : 'border-b-primary border-b-4 font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
           type="button"
           onClick={() => {
             setDataChangeTrigger(0)
@@ -242,7 +242,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           SAMPLE
         </button>
         <button
-          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 0 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
+          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 0 ? 'border-b-4 border-b-white' : 'border-b-primary border-b-4 font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
           type="button"
           onClick={() => {
             setDataChangeTrigger(0)
@@ -258,7 +258,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             Sample Testcase
           </Label>
           <div className="flex w-full items-center justify-between">
-            <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[1px] border-[#D8D8D8] bg-white py-2 pl-3">
+            <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
               <Image
                 src="/icons/search.svg"
                 alt="Search Icon"
@@ -273,12 +273,12 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   setsearchTC(e.target.value)
                   setDataChangeTrigger((prev) => prev + 1)
                 }}
-                className="!focus:outline-none w-[300px] text-lg font-normal text-[#5C5C5C] !outline-none placeholder:text-[#C4C4C4]"
+                className="!focus:outline-none outline-hidden! w-[300px] text-lg font-normal text-[#5C5C5C] placeholder:text-[#C4C4C4]"
               />
             </div>
             <div className="flex items-center justify-between gap-2">
               <button
-                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
+                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
                 type="button"
               >
                 <Image
@@ -365,7 +365,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             Hidden Testcase
           </Label>
           <div className="flex w-full items-center justify-between">
-            <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[1px] border-[#D8D8D8] bg-white py-2 pl-3">
+            <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
               <Image
                 src="/icons/search.svg"
                 alt="Search Icon"
@@ -380,12 +380,12 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   setsearchTC(e.target.value)
                   setDataChangeTrigger((prev) => prev + 1)
                 }}
-                className="!focus:outline-none w-[300px] text-lg font-normal text-[#5C5C5C] !outline-none placeholder:text-[#C4C4C4]"
+                className="!focus:outline-none outline-hidden! w-[300px] text-lg font-normal text-[#5C5C5C] placeholder:text-[#C4C4C4]"
               />
             </div>
             <div className="flex items-center justify-between gap-2">
               <button
-                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[1px] border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
+                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
                 type="button"
               >
                 <Image
@@ -473,7 +473,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 className={cn(
                   'flex h-10 w-[133px] items-center gap-2 px-3 py-2',
                   isScoreNull &&
-                    'bg-#FFFFFF border border-[1px] border-[#D8D8D8] text-[#9B9B9B] !opacity-100'
+                    'bg-#FFFFFF opacity-100! border border-[#D8D8D8] text-[#9B9B9B]'
                 )}
                 onClick={() => {
                   initializeScore()
@@ -488,7 +488,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 <p>Reset Ratio</p>
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="bg-white text-black shadow-sm">
+            <TooltipContent className="shadow-xs bg-white text-black">
               Click to discard all of the scores of testcases.
             </TooltipContent>
           </Tooltip>
@@ -498,7 +498,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           <span className="ml-1 mr-5 font-medium text-[#3581FA]">
             {filteredItems.length}
           </span>
-          <div className="hide-spin-button mr-1 flex h-7 w-20 items-center justify-center rounded-[1000px] border border-[1px] border-[#D8D8D8] bg-[#F5F5F5] px-2 py-1 text-center text-base font-medium text-[#000000]">
+          <div className="hide-spin-button mr-1 flex h-7 w-20 items-center justify-center rounded-[1000px] border border-[#D8D8D8] bg-[#F5F5F5] px-2 py-1 text-center text-base font-medium text-[#000000]">
             {totalScore}
           </div>
           <span className="text-sm font-semibold text-[#737373]">(%)</span>
@@ -527,7 +527,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 <p>Equal Distribution</p>
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="bg-white text-black shadow-sm">
+            <TooltipContent className="shadow-xs bg-white text-black">
               Click to equally distribute the scoring ratio for testcases where
               the percentage is not specified.
             </TooltipContent>

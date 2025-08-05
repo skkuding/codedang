@@ -104,7 +104,7 @@ function ImageBox({ className }: { className: string }) {
 function ImageMask({ className }: { className: string }) {
   return (
     <div
-      className={`from-background/50 to-background/0 absolute right-0 top-[-48px] bg-gradient-to-b ${className}`}
+      className={`from-background/50 to-background/0 bg-linear-to-b absolute right-0 top-[-48px] ${className}`}
     />
   )
 }

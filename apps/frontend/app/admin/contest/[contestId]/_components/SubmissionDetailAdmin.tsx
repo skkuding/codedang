@@ -85,7 +85,7 @@ export function SubmissionDetailAdmin({
             </span>
           </h1>
           <ScrollArea className="mt-4 max-w-full shrink-0 rounded-md">
-            <div className="flex items-center justify-around gap-5 bg-gray-100 p-7 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
+            <div className="**:whitespace-nowrap flex items-center justify-around gap-5 bg-gray-100 p-7 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
               <div>
                 <h2 className="mb-[14px]">User ID</h2>
                 <p>{submission?.user?.username}</p>
@@ -148,7 +148,7 @@ export function SubmissionDetailAdmin({
                   )}
                 </tbody>
               </table>
-              <Table className="table-fixed rounded-lg [&_*]:text-center [&_*]:text-sm [&_td]:p-2 [&_th]:text-white [&_tr]:!border-neutral-200">
+              <Table className="**:text-center **:text-sm [&_tr]:border-neutral-200! table-fixed rounded-lg [&_td]:p-2 [&_th]:text-white">
                 <TableHeader>
                   <TableRow className="bg-[#619cfb] hover:bg-[#619cfb] dark:hover:bg-[#619cfb]">
                     <TableHead className="w-32 px-2" />
@@ -186,7 +186,7 @@ export function SubmissionDetailAdmin({
                         return (
                           <>
                             <TableRow key={testcase.id}>
-                              <TableCell className="border-y-[#619cfb] bg-[#619cfb] !py-4 font-semibold text-white">
+                              <TableCell className="py-4! border-y-[#619cfb] bg-[#619cfb] font-semibold text-white">
                                 {label}
                               </TableCell>
                               <TableCell className="flex items-center justify-center">
@@ -236,7 +236,7 @@ export function SubmissionDetailAdmin({
                                 key={testcase.id}
                                 className="bg-neutral-100 hover:bg-neutral-100"
                               >
-                                <TableCell className="border-y-[#619cfb] bg-[#619cfb] !py-4 text-white" />
+                                <TableCell className="py-4! border-y-[#619cfb] bg-[#619cfb] text-white" />
                                 <TableCell colSpan={6}>
                                   <div className="flex items-center justify-center">
                                     <div className="px-5 py-[10px]">

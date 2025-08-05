@@ -36,7 +36,7 @@ export function EditorSampleField({ problemTestCase }: EditorSampleFieldProps) {
                   </h3>
                   <CopyButton value={output} />
                 </div>
-                <div className="rounded-md border-[1px] border-[#555C66]">
+                <div className="rounded-md border border-[#555C66]">
                   <WhitespaceVisualizer text={output} className="px-4 py-2" />
                 </div>
               </div>

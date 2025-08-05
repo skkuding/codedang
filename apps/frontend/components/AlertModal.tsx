@@ -55,7 +55,7 @@ export function AlertModal({
     <AlertDialog open={actualOpen} onOpenChange={handleOpenChange}>
       {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
       <AlertDialogContent
-        className="flex h-[280px] w-[424px] flex-col items-center justify-center !rounded-2xl p-[40px]"
+        className="rounded-2xl! flex h-[280px] w-[424px] flex-col items-center justify-center p-[40px]"
         onEscapeKeyDown={onClose}
       >
         <AlertDialogHeader className="flex flex-col items-center justify-center">

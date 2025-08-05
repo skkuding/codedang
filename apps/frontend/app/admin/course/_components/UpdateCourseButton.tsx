@@ -241,7 +241,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                       value={prefix}
                       onChange={handlePrefixChange}
                       maxLength={3}
-                      className="w-full rounded border p-2"
+                      className="w-full rounded-sm border p-2"
                     />
                     <Input
                       type="text"
@@ -249,7 +249,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                       value={courseCode}
                       onChange={handleCourseCodeChange}
                       maxLength={4}
-                      className="w-full rounded border p-2"
+                      className="w-full rounded-sm border p-2"
                     />
                   </div>
                   {errors.courseNum && (
@@ -267,7 +267,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                     })}
                     type="number"
                     maxLength={2}
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                   />
                   {errors.classNum && (
                     <ErrorMessage message={errors.classNum.message} />
@@ -338,7 +338,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                   <Input
                     {...register('email')}
                     type="email"
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                     // defaultValue=""
                   />
                   {errors.email && (
@@ -350,7 +350,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                   <Input
                     {...register('phoneNum')}
                     type="text"
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                     // defaultValue=""
                   />
                   {errors.phoneNum && (
@@ -362,7 +362,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                   <Input
                     {...register('office')}
                     type="text"
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                     // defaultValue=""
                   />
                   {errors.office && (
@@ -374,7 +374,7 @@ export function UpdateCourseButton<TData extends { id: number }, TPromise>({
                   <Input
                     {...register('website')}
                     type="text"
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                     // defaultValue=""
                   />
                   {errors.website && (

@@ -253,7 +253,7 @@ export function AddManagerReviewerDialog({
                   />
                   <Button
                     variant="ghost"
-                    className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 text-sm font-normal"
+                    className="absolute right-0 top-px mr-[2px] mt-[2px] h-9 w-9 p-1 text-sm font-normal"
                     onClick={() => {
                       handleValueChange(inputField.id, inputField.value)
                       setFocusedInputId(null)

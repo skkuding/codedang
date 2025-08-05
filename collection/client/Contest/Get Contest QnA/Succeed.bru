@@ -5,24 +5,39 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/1/qna
+  url: {{baseUrl}}/contest/1/qna/1
   body: none
-  auth: inherit
+  auth: none
+}
+
+script:pre-request {
+  await require("./login").loginUser2nd(req);
 }
 
 docs {
-  # 📘 Get Contest QnA List
+  # 📘 Get Contest QnA
   
-  **GET** `/contest/:id/qna`
+  **GET** `/contest/:id/qna/:order`
   
-  Retrieve a list of QnA entries for a specific contest.
+  Retrieve a single QnA for a specific contest.
   
-  > 특정 대회의 QnA 목록을 조회합니다.  
-  > 사용자의 권한에 따라 조회되는 QnA의 범위가 달라집니다:
-  >
-  > - 운영진(Admin, Manager, Reviewer)은 모든 QnA를 볼 수 있습니다.
-  > - 일반 사용자는 본인이 작성한 QnA 또는 공개된 QnA만 볼 수 있습니다.
-  > - 로그인하지 않은 경우 공개된 QnA만 조회됩니다.
+  특정 대회의 특정 order에 해당하는 QnA를 조회합니다.
+  
+  이 함수는 다음과 같은 조건에 따라 QnA를 조회하고 반환합니다.
+  
+  1. 운영진(Admin, Manager, Reviewer)
+  - 모든 QnA를 열람할 수 있습니다.
+  2. 일반 사용자
+   > 대회가 진행중인 경우
+     - 본인이 작성한 QnA만 열람할 수 있습니다.
+   > 대회가 진행중이지 않은 경우
+     - 모든 QnA를 열람할 수 있습니다.
+  
+  QnA를 찾을 수 없거나 접근 권한이 없는 경우 예외를 발생시킵니다.
+  
+  - 운영진: QnA가 실제로 없으면 EntityNotExistException 발생
+  
+  - 일반 사용자: 권한이 없는 경우 ForbiddenAccessException 발생
   
   ### 🔒 Authentication
   
@@ -36,5 +51,7 @@ docs {
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `id` | number | ✅       | ID of the target contest |
+  | `order` | number | ✅    | order of target QnA in contest |
+  
   
 }

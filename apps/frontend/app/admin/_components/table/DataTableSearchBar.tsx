@@ -11,9 +11,9 @@ interface SearchBarProps extends Omit<InputProps, 'size'> {
 }
 
 const sizeClassMap = {
-  sm: '!h-[36px]',
-  md: '!h-[40px]',
-  lg: '!h-[46px]'
+  sm: 'h-[36px]!',
+  md: 'h-[40px]!',
+  lg: 'h-[46px]!'
 }
 
 /**

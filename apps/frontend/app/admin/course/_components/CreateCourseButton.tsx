@@ -141,7 +141,7 @@ export function CreateCourseButton() {
             <form
               onSubmit={handleSubmit(onSubmit)}
               aria-label="Create course"
-              className="flex flex-col gap-3 [&>*]:px-1"
+              className="flex flex-col gap-3 *:px-1"
             >
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2">
@@ -150,7 +150,7 @@ export function CreateCourseButton() {
                 </div>
                 <Input
                   id="professor"
-                  className="w-full rounded border p-2"
+                  className="w-full rounded-sm border p-2"
                   {...register('professor')}
                 />
                 {errors.professor && <ErrorMessage />}
@@ -164,7 +164,7 @@ export function CreateCourseButton() {
 
                 <Input
                   id="courseTitle"
-                  className="w-full rounded border p-2"
+                  className="w-full rounded-sm border p-2"
                   {...register('courseTitle')}
                 />
                 {errors.courseTitle && <ErrorMessage />}
@@ -184,7 +184,7 @@ export function CreateCourseButton() {
                       value={prefix}
                       onChange={handlePrefixChange}
                       maxLength={3}
-                      className="w-full rounded border p-2"
+                      className="w-full rounded-sm border p-2"
                     />
                     <Input
                       type="text"
@@ -192,7 +192,7 @@ export function CreateCourseButton() {
                       value={courseCode}
                       onChange={handleCourseCodeChange}
                       maxLength={4}
-                      className="w-full rounded border p-2"
+                      className="w-full rounded-sm border p-2"
                     />
                   </div>
                   {errors.courseNum && <ErrorMessage />}
@@ -208,7 +208,7 @@ export function CreateCourseButton() {
                     })}
                     type="number"
                     maxLength={2}
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                   />
 
                   {errors.classNum && (
@@ -280,7 +280,7 @@ export function CreateCourseButton() {
                   <Input
                     {...register('email')}
                     type="emailemail"
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                   />
                   {errors.email && (
                     <ErrorMessage message={errors.email.message} />
@@ -291,7 +291,7 @@ export function CreateCourseButton() {
                   <Input
                     {...register('phoneNum')}
                     type="text"
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                   />
                   {errors.phoneNum && <ErrorMessage />}
                 </div>
@@ -300,7 +300,7 @@ export function CreateCourseButton() {
                   <Input
                     {...register('office')}
                     type="text"
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                   />
                   {errors.office && <ErrorMessage />}
                 </div>
@@ -309,7 +309,7 @@ export function CreateCourseButton() {
                   <Input
                     {...register('website')}
                     type="text"
-                    className="w-full rounded border p-2"
+                    className="w-full rounded-sm border p-2"
                   />
                   {errors.website && (
                     <ErrorMessage message={errors.website.message} />

@@ -62,8 +62,8 @@ function ActiveLink<T extends string>({
       className={cn(
         'flex h-[50px] w-[420px] items-center justify-center rounded-full text-lg font-semibold',
         activeCondition && 'text-primary border-primary border',
-        '-translate-y-[1px] transform',
-        isLeft ? '-translate-x-[1px]' : 'translate-x-[1px]'
+        '-translate-y-px transform',
+        isLeft ? '-translate-x-px' : 'translate-x-px'
       )}
     >
       {text}

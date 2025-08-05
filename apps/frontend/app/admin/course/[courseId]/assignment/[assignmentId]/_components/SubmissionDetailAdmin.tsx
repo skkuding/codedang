@@ -85,7 +85,7 @@ export function SubmissionDetailAdmin({
           </h1>
           <h2 className="font-bold">Summary</h2>
           <ScrollArea className="max-w-full shrink-0 rounded-md">
-            <div className="flex items-center justify-around gap-5 bg-gray-100 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
+            <div className="**:whitespace-nowrap flex items-center justify-around gap-5 bg-gray-100 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
               <div>
                 <h2>Name</h2>
                 <p>{submission?.user?.userProfile?.realName}</p>
@@ -152,17 +152,17 @@ export function SubmissionDetailAdmin({
                   )}
                 </tbody>
               </table>
-              <Table className="[&_*]:text-center [&_*]:text-xs [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:!border-neutral-200">
+              <Table className="**:text-center **:text-xs hover:**:bg-transparent [&_tr]:border-neutral-200! [&_td]:p-2">
                 <TableHeader>
                   <TableRow>
                     <TableHead />
-                    <TableHead className="!text-sm text-black">
+                    <TableHead className="text-sm! text-black">
                       Result
                     </TableHead>
-                    <TableHead className="!text-sm text-black">
+                    <TableHead className="text-sm! text-black">
                       Runtime
                     </TableHead>
-                    <TableHead className="!text-sm text-black">
+                    <TableHead className="text-sm! text-black">
                       Memory
                     </TableHead>
                   </TableRow>
@@ -182,7 +182,7 @@ export function SubmissionDetailAdmin({
 
                         return (
                           <TableRow key={testcase.id}>
-                            <TableCell className="!py-4">{label}</TableCell>
+                            <TableCell className="py-4!">{label}</TableCell>
                             <TableCell
                               className={getResultColor(matchingResult?.result)}
                             >

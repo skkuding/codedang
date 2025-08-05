@@ -17,7 +17,7 @@ export function EditorSkeleton() {
             <p className="mx-2"> / </p>
             <button
               type="button"
-              className="flex gap-1 text-lg text-white outline-none"
+              className="outline-hidden flex gap-1 text-lg text-white"
             >
               <h1>A. 정수 더하기</h1>
             </button>
