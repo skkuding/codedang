@@ -125,7 +125,7 @@ export function AddManagerReviewerDialog({
           participants={participants}
         />
         {/* selected users 블록 */}
-        <div className="p-30 flex flex-col border-neutral-300">
+        <div className="flex flex-col rounded-2xl border-solid border-[#D8D8D8] p-[30px]">
           {/* ~ user(s) selected */}
           <div
             className={cn(
@@ -289,7 +289,7 @@ function InputFieldTab({
             </CommandList>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild className="w-full">
+            <DropdownMenuTrigger asChild className="grow">
               <Button
                 variant="outline"
                 className="h-10 pl-4 pr-2 text-sm font-normal"
@@ -351,7 +351,7 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   }
 
   return (
-    <div className="ml-1 flex h-10 text-sm">
+    <div className="ml-1 flex h-10 gap-2 text-sm">
       {/* email 표시 */}
       <div className="relative mt-1 w-full max-w-[530px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black">
         <span className="ml-5">{curUser.email}</span>
@@ -366,7 +366,7 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
       </div>
       {/* 드롭다운 */}
       <DropdownMenu>
-        <DropdownMenuTrigger asChild className="w-full">
+        <DropdownMenuTrigger asChild className="grow">
           <Button
             variant="outline"
             className="h-10 pl-4 pr-2 text-sm font-normal"
