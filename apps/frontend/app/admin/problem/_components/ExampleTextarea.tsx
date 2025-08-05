@@ -48,7 +48,7 @@ export function ExampleTextarea({
         className="min-h-[120px] rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 shadow-none focus-visible:ring-0"
         {...register(outputName)}
       /> */}
-      <div className="relative flex min-h-[164px] w-full justify-between gap-2 rounded-xl border border-[1px] border-[#D8D8D8] bg-white px-6 py-4 font-mono shadow-sm">
+      <div className="shadow-xs relative flex min-h-[164px] w-full justify-between gap-2 rounded-xl border border-[#D8D8D8] bg-white px-6 py-4 font-mono">
         <Textarea
           disabled={blockEdit}
           placeholder="Input"
@@ -56,7 +56,7 @@ export function ExampleTextarea({
           {...register(inputName)}
         />
       </div>
-      <div className="relative flex min-h-[164px] w-full justify-between gap-2 rounded-xl border border-[1px] border-[#D8D8D8] bg-white px-6 py-4 font-mono shadow-sm">
+      <div className="shadow-xs relative flex min-h-[164px] w-full justify-between gap-2 rounded-xl border border-[#D8D8D8] bg-white px-6 py-4 font-mono">
         <Textarea
           disabled={blockEdit}
           placeholder="Output"

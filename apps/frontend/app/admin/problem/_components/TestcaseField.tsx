@@ -255,10 +255,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   }, [currentItems])
 
   return (
-    <div className="flex h-full w-full flex-col border-[1px] border-[#D8D8D8] bg-white px-10 pb-10 pt-[20px]">
+    <div className="flex h-full w-full flex-col border border-[#D8D8D8] bg-white px-10 pb-10 pt-[20px]">
       <div className="mb-[40px] flex w-full items-center justify-between">
         <button
-          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 1 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
+          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 1 ? 'border-b-4 border-b-white' : 'border-b-primary border-b-4 font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
           type="button"
           onClick={() => {
             setDataChangeTrigger(0)
@@ -268,7 +268,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           SAMPLE
         </button>
         <button
-          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 0 ? 'border-b-[4px] border-b-white' : 'border-b-primary border-b-[4px] font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
+          className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 0 ? 'border-b-4 border-b-white' : 'border-b-primary border-b-4 font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
           type="button"
           onClick={() => {
             setDataChangeTrigger(0)
@@ -299,7 +299,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   setsearchTC(e.target.value)
                   setDataChangeTrigger((prev) => prev + 1)
                 }}
-                className="!focus:outline-none w-[300px] text-lg font-normal text-[#5C5C5C] !outline-none placeholder:text-[#C4C4C4]"
+                className="!focus:outline-none outline-hidden! w-[300px] text-lg font-normal text-[#5C5C5C] placeholder:text-[#C4C4C4]"
               />
             </div>
             <div className="flex items-center justify-between gap-2">
@@ -406,7 +406,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   setsearchTC(e.target.value)
                   setDataChangeTrigger((prev) => prev + 1)
                 }}
-                className="!focus:outline-none w-[300px] text-lg font-normal text-[#5C5C5C] !outline-none placeholder:text-[#C4C4C4]"
+                className="!focus:outline-none outline-hidden! w-[300px] text-lg font-normal text-[#5C5C5C] placeholder:text-[#C4C4C4]"
               />
             </div>
             <div className="flex items-center justify-between gap-2">
@@ -500,7 +500,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 className={cn(
                   'flex h-10 w-[133px] items-center gap-2 px-3 py-2',
                   isScoreNull &&
-                    'bg-#FFFFFF border border-[#D8D8D8] text-[#9B9B9B] !opacity-100'
+                    'bg-#FFFFFF opacity-100! border border-[#D8D8D8] text-[#9B9B9B]'
                 )}
                 onClick={() => {
                   initializeScore()
@@ -515,7 +515,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 <p>Reset Ratio</p>
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="bg-white text-black shadow-sm">
+            <TooltipContent className="shadow-xs bg-white text-black">
               Click to discard all of the scores of testcases.
             </TooltipContent>
           </Tooltip>
@@ -554,7 +554,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                 <p>Equal Distribution</p>
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="bg-white text-black shadow-sm">
+            <TooltipContent className="shadow-xs bg-white text-black">
               Click to equally distribute the scoring ratio for testcases where
               the percentage is not specified.
             </TooltipContent>

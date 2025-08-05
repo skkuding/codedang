@@ -88,7 +88,7 @@ function SidebarLink({
       className={cn(
         'flex items-center px-4 py-2 transition',
         isActive ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100',
-        isExpanded ? 'rounded-full' : 'rounded'
+        isExpanded ? 'rounded-full' : 'rounded-sm'
       )}
     >
       <item.icon
@@ -262,7 +262,7 @@ export function ManagementSidebar() {
                         href={`/admin/course/${course.id}`}
                         onClick={() => setIsCourseSidebarOpened(true)}
                         className={cn(
-                          'overflow-hidden overflow-ellipsis text-xs transition-colors',
+                          'overflow-hidden text-ellipsis text-xs transition-colors',
                           params.courseId === course.id.toString()
                             ? 'text-primary'
                             : 'hover:text-primary text-gray-600'

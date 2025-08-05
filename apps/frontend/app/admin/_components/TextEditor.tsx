@@ -347,7 +347,7 @@ export function TextEditor({
           </BubbleMenu>
           <div className="flex flex-wrap items-center border bg-white p-1">
             <TextStyleBar editor={editor} />
-            <div className="mx-1 h-6 flex-shrink-0 border-r" />
+            <div className="mx-1 h-6 shrink-0 border-r" />
             <Toggle
               pressed={editor.isActive('heading', { level: 1 })}
               onPressedChange={() => {
@@ -612,7 +612,7 @@ export function TextEditor({
                 </Button>
               </PopoverContent>
             </Popover>
-            <div className="mx-1 h-6 flex-shrink-0 border-r" />
+            <div className="mx-1 h-6 shrink-0 border-r" />
             <Button
               variant="ghost"
               type="button"
@@ -871,7 +871,7 @@ function MathPreview(props: NodeViewWrapperProps) {
         <span
           dangerouslySetInnerHTML={{ __html: preview }}
           contentEditable={false}
-          className={`inline-block rounded-sm border px-1 ${
+          className={`rounded-xs inline-block border px-1 ${
             props.selected
               ? 'border-blue-600 bg-blue-100'
               : 'border-transparent bg-transparent'
