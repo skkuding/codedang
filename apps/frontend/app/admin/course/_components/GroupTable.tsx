@@ -100,26 +100,9 @@ export function GroupTable() {
           headerStyle={headerStyle}
           getHref={(data) => `/admin/course/${data.id}`}
         />
-        <div className="mt-2 flex items-center justify-between">
-          <RowCount />
-          <DataTablePagination />
-        </div>
+        <DataTablePagination showSelection />
       </DataTableRoot>
     </div>
-  )
-}
-
-function RowCount() {
-  const { table } = useDataTable()
-  const selected = table
-    .getPaginationRowModel()
-    .rows.filter((r) => r.getIsSelected()).length
-  const total = table.getPaginationRowModel().rows.length
-
-  return (
-    <p className="text-xs text-neutral-600">
-      {selected} of {total} row(s) selected
-    </p>
   )
 }
 
