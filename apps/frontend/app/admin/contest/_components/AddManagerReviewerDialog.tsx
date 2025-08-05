@@ -150,20 +150,6 @@ export function AddManagerReviewerDialog({
     </Modal>
   )
 }
-
-// 트리거 버튼
-function TriggerButton() {
-  return (
-    <Button
-      type="button"
-      className="flex h-[36px] w-[100px] items-center gap-1 px-0"
-    >
-      <HiMiniPlusCircle className="h-5 w-5" />
-      <div className="text-sm font-bold">Add</div>
-    </Button>
-  )
-}
-
 interface InputFieldTabProps {
   users: ContestManagerReviewer[]
   inputField: InputFieldInterface
