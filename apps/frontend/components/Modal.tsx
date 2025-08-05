@@ -45,9 +45,9 @@ interface ModalProps {
 }
 
 const sizeClassMap = {
-  sm: '!w-[424px] !h-[280px] !p-[40px]',
-  md: '!w-[600px] !h-[580px] !py-[50px] !px-[40px]',
-  lg: '!w-[800px] !h-[620px] !py-[50px] !px-[40px]'
+  sm: 'w-[424px]! h-[280px]! p-[40px]!',
+  md: 'w-[600px]! h-[580px]! py-[50px]! px-[40px]!',
+  lg: 'w-[800px]! h-[620px]! py-[50px]! px-[40px]!'
 }
 
 export function Modal({
@@ -75,7 +75,7 @@ export function Modal({
       <DialogContent
         className={cn(
           sizeClassMap[size],
-          'flex flex-col items-center justify-center !rounded-2xl'
+          'rounded-2xl! flex flex-col items-center justify-center'
         )}
         onPointerDownOutside={onClose}
         onEscapeKeyDown={onClose}

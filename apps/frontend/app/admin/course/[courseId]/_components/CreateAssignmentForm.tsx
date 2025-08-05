@@ -133,7 +133,11 @@ export function CreateAssignmentForm({
     })
 
     setShouldSkipWarning(true)
-    toast.success('Assignment created successfully')
+    toast.success(
+      isExercise
+        ? 'Exercise created successfully'
+        : 'Assignment created successfully'
+    )
     router.push(
       isExercise
         ? (`/admin/course/${groupId}/exercise` as const)
