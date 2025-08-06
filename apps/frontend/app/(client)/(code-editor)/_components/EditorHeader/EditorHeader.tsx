@@ -59,7 +59,7 @@ import { Save } from 'lucide-react'
 import type { Route } from 'next'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval, useKey } from 'react-use'
@@ -86,36 +86,43 @@ export function EditorHeader({
   courseId,
   templateString
 }: ProblemEditorProps) {
+  const session = useSession()
+  const userName = session?.user.username || ''
+
+  useEffect(() => {
+    if (session === null) {
+      // id guarantees that the toast is shown only once
+      toast.info('Log in to use submission & save feature', {
+        id: 'login-info'
+      })
+    }
+  }, [session])
+
   const { language, setLanguage } = useLanguageStore(
     problem.id,
     contestId,
     assignmentId,
     exerciseId
   )()
-  const setCode = useCodeStore((state) => state.setCode)
-  const getCode = useCodeStore((state) => state.getCode)
+  const { setCode, code } = useCodeStore()
 
   const isTesting = useTestPollingStore((state) => state.isTesting)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const loading = isTesting || isSubmitting
 
   const [submissionId, setSubmissionId] = useState<number | null>(null)
-  const [templateCode, setTemplateCode] = useState<string>('')
-  const [userName, setUserName] = useState('')
   const router = useRouter()
   const pathname = usePathname()
   const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
-  const storageKey = useRef(
-    getStorageKey(
-      language,
-      problem.id,
-      userName,
-      contestId,
-      assignmentId,
-      exerciseId
-    )
+  const storageKey = getStorageKey(
+    language,
+    problem.id,
+    userName,
+    contestId,
+    assignmentId,
+    exerciseId
   )
-  const session = useSession()
+
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
   const [showModal, setShowModal] = useState<boolean>(false)
   //const pushed = useRef(false)
@@ -180,64 +187,31 @@ export function EditorHeader({
     isSubmitting && submissionId ? 500 : null
   )
 
-  useEffect(() => {
-    if (!session) {
-      setTimeout(() => {
-        toast.info('Log in to use submission & save feature')
-      })
-    } else {
-      setUserName(session.user.username)
-    }
-  }, [session])
+  const parsedTemplates = JSON.parse(templateString)
+  const filteredTemplate = parsedTemplates.filter(
+    (template: Template) => template.language === language
+  )
+  const templateCode =
+    filteredTemplate.length > 0 ? filteredTemplate[0].code[0].text : ''
 
-  useEffect(() => {
-    if (!templateString) {
-      return
-    }
-    const parsedTemplates = JSON.parse(templateString)
-    const filteredTemplate = parsedTemplates.filter(
-      (template: Template) => template.language === language
-    )
-    if (filteredTemplate.length === 0) {
-      return
-    }
-    setTemplateCode(filteredTemplate[0].code[0].text)
-  }, [language])
-
-  useEffect(() => {
-    storageKey.current = getStorageKey(
-      language,
-      problem.id,
-      userName,
-      contestId,
-      assignmentId,
-      exerciseId
-    )
-    if (storageKey.current !== undefined) {
-      const storedCode = getCodeFromLocalStorage(storageKey.current)
+  useMemo(() => {
+    if (storageKey !== null) {
+      const storedCode = getCodeFromLocalStorage(storageKey)
       setCode(storedCode || templateCode)
+    } else {
+      setCode(templateCode)
     }
-  }, [
-    userName,
-    problem,
-    contestId,
-    assignmentId,
-    exerciseId,
-    language,
-    templateCode
-  ])
+  }, [storageKey, setCode, templateCode])
 
   const storeCodeToLocalStorage = (code: string) => {
-    if (storageKey.current !== undefined) {
-      localStorage.setItem(storageKey.current, code)
+    if (storageKey !== null) {
+      localStorage.setItem(storageKey, code)
     } else {
       toast.error('Failed to save the code')
     }
   }
 
   const run = () => {
-    const code = getCode()
-
     if (code === '') {
       toast.error('Please write code before run')
       return
@@ -249,8 +223,6 @@ export function EditorHeader({
   }
 
   const submit = async () => {
-    const code = getCode()
-
     if (session === null) {
       showSignIn()
       toast.error('Log in first to submit your code')
@@ -341,13 +313,11 @@ export function EditorHeader({
   }
 
   const saveCode = () => {
-    const code = getCode()
-
     if (session === null) {
       toast.error('Log in first to save your code')
       showSignIn()
-    } else if (storageKey.current !== undefined) {
-      localStorage.setItem(storageKey.current, code)
+    } else if (storageKey !== null) {
+      localStorage.setItem(storageKey, code)
       toast.success('Successfully saved the code')
     } else {
       toast.error('Failed to save the code')
@@ -355,8 +325,8 @@ export function EditorHeader({
   }
 
   const resetCode = () => {
-    if (storageKey.current !== undefined) {
-      localStorage.setItem(storageKey.current, templateCode)
+    if (storageKey !== null) {
+      localStorage.setItem(storageKey, templateCode)
       setCode(templateCode)
       toast.success('Successfully reset the code')
     } else {
@@ -364,10 +334,9 @@ export function EditorHeader({
     }
   }
 
-  const checkSaved = () => {
-    const code = getCode()
-    if (storageKey.current !== undefined) {
-      const storedCode = getCodeFromLocalStorage(storageKey.current)
+  const checkSaved = useCallback(() => {
+    if (storageKey !== null) {
+      const storedCode = getCodeFromLocalStorage(storageKey)
       if (storedCode && storedCode === code) {
         return true
       } else if (!storedCode && templateCode === code) {
@@ -377,25 +346,19 @@ export function EditorHeader({
       }
     }
     return true
-  }
+  }, [code, storageKey, templateCode])
 
-  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-    if (!checkSaved()) {
-      e.preventDefault()
-      whereToPush.current = pathname
-    }
-  }
+  const handleBeforeUnload = useCallback(
+    (e: BeforeUnloadEvent) => {
+      if (!checkSaved()) {
+        e.preventDefault()
+        whereToPush.current = pathname
+      }
+    },
+    [checkSaved, pathname]
+  )
 
   useEffect(() => {
-    storageKey.current = getStorageKey(
-      language,
-      problem.id,
-      userName,
-      contestId,
-      assignmentId,
-      exerciseId
-    )
-
     // TODO: 배포 후 뒤로 가기 로직 재구현
 
     // const handlePopState = () => {
@@ -417,7 +380,7 @@ export function EditorHeader({
       window.removeEventListener('beforeunload', handleBeforeUnload)
       //window.removeEventListener('popstate', handlePopState)
     }
-  }, [])
+  }, [handleBeforeUnload])
 
   useEffect(() => {
     const originalPush = router.push
@@ -447,7 +410,7 @@ export function EditorHeader({
     return () => {
       router.push = originalPush
     }
-  }, [router])
+  }, [router, checkSaved])
 
   useKey(
     's',
