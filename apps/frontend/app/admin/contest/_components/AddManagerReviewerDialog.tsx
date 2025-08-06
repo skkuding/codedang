@@ -141,7 +141,7 @@ export function AddManagerReviewerDialog({
               {`${users.length} user(s) selected`}
             </div>
             {/* 유저탭 */}
-            <div className="flex flex-col gap-[8px]">
+            <div className="mb-[2px] flex flex-col gap-[8px]">
               {users.map((user) => (
                 <SelectedUserTab
                   key={user.email}
@@ -368,9 +368,9 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   }
 
   return (
-    <div className="ml-1 flex gap-[10px] text-base">
+    <div className="mt-[8px] flex gap-[10px] text-base">
       {/* email 표시 박스 */}
-      <div className="relative mt-1 flex h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full border border-solid border-[#D8D8D8] px-[10px] py-[10px] text-black">
+      <div className="relative flex h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full border border-solid border-[#D8D8D8] px-[10px] py-[10px] text-black">
         <div className="ml-[10px] flex items-center gap-[10px]">
           <HiOutlineEnvelope className="h-5 w-5 text-[#9B9B9B]" />
           <span>{curUser.email}</span>
