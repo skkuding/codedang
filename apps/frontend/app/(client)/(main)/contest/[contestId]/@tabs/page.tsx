@@ -125,7 +125,7 @@ export default async function ContestTop({
   const imageUrl = posterUrl || '/logos/welcome.png'
   const prev = true
   return (
-    <div>
+    <div className="flex w-full flex-col justify-center">
       <h1 className="mt-24 w-[1208px] text-2xl font-semibold tracking-[-0.72px]">
         {data?.title}
       </h1>
