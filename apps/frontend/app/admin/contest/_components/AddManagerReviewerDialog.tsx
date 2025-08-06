@@ -272,9 +272,9 @@ function InputFieldTab({
                     <CommandItem
                       key={emailSuggestion}
                       value={emailSuggestion}
-                      className="justify-beween mt-1 flex w-[720px] bg-gray-100 text-sm text-black"
+                      className="relative mt-1 bg-gray-100 text-sm text-black"
                     >
-                      <div className="w-full max-w-[590px] justify-between rounded-full py-[10px]">
+                      <div className="w-[590px] justify-between rounded-full py-[10px]">
                         <span className="ml-5">{emailSuggestion}</span>
                         <Button
                           variant="ghost"
@@ -287,7 +287,7 @@ function InputFieldTab({
                           <HiMiniPlusCircle className="h-5 w-5 text-[#9B9B9B]" />
                         </Button>
                       </div>
-                      <div className="w-full max-w-[120px] items-center justify-center rounded-full">
+                      <div className="absolute left-[-130px] items-center justify-center rounded-full">
                         {inputField.dropdown}
                       </div>
                     </CommandItem>
