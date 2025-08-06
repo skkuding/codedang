@@ -7,10 +7,13 @@ import {
   Query,
   Req,
   DefaultValuePipe,
-  ParseBoolPipe
+  ParseBoolPipe,
+  Post,
+  Body
 } from '@nestjs/common'
 import { AuthenticatedRequest } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import { CreatePushSubscriptionDto } from './dto/create-push-subscription.dto'
 import { NotificationService } from './notification.service'
 
 @Controller('notification')
@@ -80,6 +83,31 @@ export class NotificationController {
     return await this.notificationService.deleteNotification(
       req.user.id,
       notificationRecordId
+    )
+  }
+
+  /**
+   * Push subscription을 생성합니다
+   */
+  @Post('push-subscription')
+  async createPushSubscription(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: CreatePushSubscriptionDto
+  ) {
+    return this.notificationService.createPushSubscription(req.user.id, dto)
+  }
+
+  /**
+   * Push subscription을 삭제합니다
+   */
+  @Delete('push-subscription')
+  async deletePushSubscription(
+    @Req() req: AuthenticatedRequest,
+    @Query('endpoint') endpoint: string
+  ) {
+    return this.notificationService.deletePushSubscription(
+      req.user.id,
+      endpoint
     )
   }
 }

@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  ConflictFoundException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { CreatePushSubscriptionDto } from './dto/create-push-subscription.dto'
 
 @Injectable()
 export class NotificationService {
@@ -127,6 +131,47 @@ export class NotificationService {
       return recordDeleted
     } catch (_error) {
       throw new EntityNotExistException('NotificationRecord')
+    }
+  }
+
+  /**
+   * Push subscription을 생성합니다
+   */
+  async createPushSubscription(userId: number, dto: CreatePushSubscriptionDto) {
+    try {
+      return await this.prisma.pushSubscription.create({
+        data: {
+          userId,
+          endpoint: dto.endpoint,
+          p256dh: dto.keys.p256dh,
+          auth: dto.keys.auth,
+          userAgent: dto.userAgent
+        }
+      })
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new ConflictFoundException('Push subscription already exists')
+      }
+      throw error
+    }
+  }
+
+  /**
+   * Push subscription을 삭제합니다
+   */
+  async deletePushSubscription(userId: number, endpoint: string) {
+    try {
+      return await this.prisma.pushSubscription.delete({
+        where: {
+          //eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_endpoint: { userId, endpoint }
+        }
+      })
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new EntityNotExistException('PushSubscription')
+      }
+      throw error
     }
   }
 }
