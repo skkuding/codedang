@@ -265,7 +265,9 @@ function InputFieldTab({
                   )
                     ? inputField.value
                     : `${inputField.value.replace(/@.*/, '')}@${domain}`
-                  if (inputField.value === '') return
+                  if (inputField.value === '') {
+                    return
+                  }
                   return (
                     <CommandItem
                       key={emailSuggestion}
