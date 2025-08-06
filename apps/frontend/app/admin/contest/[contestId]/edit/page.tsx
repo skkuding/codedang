@@ -122,7 +122,17 @@ export default function Page({ params }: { params: { contestId: string } }) {
                     />
                   )}
                 </FormSection>
-
+                <FormSection
+                  title="Deadline"
+                  isOngoing={isOngoing}
+                  isFinished={isFinished}
+                >
+                  <TimeForm isContest name="deadline" />
+                  {/* query에 deadline 추가되면 이거 사용하면 될 것 같아요
+                   {methods.getValues('deadline') && (
+                    <TimeForm isContest name="deadline" />
+                  )} */}
+                </FormSection>
                 {methods.getValues('freezeTime') !== undefined && (
                   <FreezeForm
                     name="freezeTime"

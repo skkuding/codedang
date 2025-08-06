@@ -62,6 +62,9 @@ export default function Page() {
                 <FormSection title="End Time">
                   <TimeForm isContest name="endTime" />
                 </FormSection>
+                <FormSection title="Deadline">
+                  <TimeForm isContest name="deadline" />
+                </FormSection>
 
                 <FreezeForm name="freezeTime" />
               </div>

@@ -11,6 +11,7 @@ import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar_blue.svg'
+import emergencyIcon from '@/public/icons/emergency.svg'
 import type {
   Contest,
   ContestStatus,
@@ -31,6 +32,7 @@ export interface ContestTop {
   description: string
   startTime: string
   endTime: string
+  deadline: string
   isJudgeResultVisible: boolean
   posterUrl?: string
   summary: {
@@ -92,11 +94,13 @@ export default async function ContestTop({
   const contest: Contest = {
     ...data,
     startTime: new Date(data.startTime),
-    endTime: new Date(data.endTime)
+    endTime: new Date(data.endTime),
+    deadline: new Date(data.deadline)
   }
 
   const startTime = new Date(data.startTime)
   const endTime = new Date(data.endTime)
+  const deadline = new Date(data.deadline)
   const currentTime = new Date()
   const state = (() => {
     if (currentTime >= endTime) {
@@ -114,6 +118,7 @@ export default async function ContestTop({
     'YYYY-MM-DD HH:mm:ss'
   )
   const formattedEndTime = dateFormatter(data.endTime, 'YYYY-MM-DD HH:mm:ss')
+  const formattedDeadline = dateFormatter(data.deadline, 'YYYY-MM-DD HH:mm:ss')
 
   const { posterUrl, summary, description, id: currentContestId } = data
 
@@ -136,6 +141,12 @@ export default async function ContestTop({
           textStyle="text-[#333333e6] font-normal opacity-100"
           inContestEditor={false}
         />
+        <div className="flex gap-2">
+          <Image src={emergencyIcon} alt="emergency" width={20} height={20} />
+          <p className="text-base font-normal tracking-[-0.48px] text-[#333333e6]">
+            {formattedDeadline}
+          </p>
+        </div>
       </div>
       <div className="flex flex-row items-start gap-[34px]">
         <div className="relative mt-[34px] flex shrink-0 rounded-xl">
