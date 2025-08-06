@@ -116,34 +116,36 @@ export function AddManagerReviewerDialog({
     >
       {/* children으로 넣을 부분 */}
       <ScrollArea className="h-full w-full">
-        {/* 인풋 필드 */}
-        <InputFieldTab
-          users={users}
-          inputField={inputField}
-          setUsers={setUsers}
-          setInputField={setInputField}
-          participants={participants}
-        />
-        {/* selected users 블록 */}
-        <div className="flex flex-col gap-[10px] rounded-2xl border border-solid border-[#D8D8D8] p-[30px]">
-          {/* ~ user(s) selected */}
-          <div
-            className={cn(
-              'mt-1',
-              users.length > 0 ? 'text-primary' : 'text-[#9B9B9B]'
-            )}
-          >
-            {`${users.length} user(s) selected`}
-          </div>
-          {/* 유저탭 */}
-          <div className="flex flex-col gap-[8px]">
-            {users.map((user) => (
-              <SelectedUserTab
-                key={user.email}
-                curUser={user}
-                setUsers={setUsers}
-              />
-            ))}
+        <div className="flex flex-col gap-[30px]">
+          {/* 인풋 필드 */}
+          <InputFieldTab
+            users={users}
+            inputField={inputField}
+            setUsers={setUsers}
+            setInputField={setInputField}
+            participants={participants}
+          />
+          {/* selected users 블록 */}
+          <div className="flex flex-col gap-[10px] rounded-2xl border border-solid border-[#D8D8D8] p-[30px]">
+            {/* ~ user(s) selected */}
+            <div
+              className={cn(
+                'mt-1',
+                users.length > 0 ? 'text-primary' : 'text-[#9B9B9B]'
+              )}
+            >
+              {`${users.length} user(s) selected`}
+            </div>
+            {/* 유저탭 */}
+            <div className="flex flex-col gap-[8px]">
+              {users.map((user) => (
+                <SelectedUserTab
+                  key={user.email}
+                  curUser={user}
+                  setUsers={setUsers}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </ScrollArea>
