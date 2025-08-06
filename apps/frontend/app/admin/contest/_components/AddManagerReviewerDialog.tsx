@@ -261,6 +261,9 @@ function InputFieldTab({
               emailType={true}
               value={inputField.value}
               onValueChange={(value) => handleValueChange(value)}
+              emailIcon={
+                <HiOutlineEnvelope className="h-5 w-5 text-[#9B9B9B]" />
+              }
             />
             <CommandList>
               <CommandEmpty>
