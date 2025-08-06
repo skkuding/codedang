@@ -21,8 +21,11 @@ import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { cn, isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import { ChevronDown } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { FaTrash } from 'react-icons/fa6'
-import { HiMiniPlusCircle } from 'react-icons/hi2'
+import {
+  HiMiniPlusCircle,
+  HiMiniXCircle,
+  HiOutlineEnvelope
+} from 'react-icons/hi2'
 import { PiWarningFill } from 'react-icons/pi'
 import type { ContestManagerReviewer } from '../_libs/schemas'
 
@@ -260,7 +263,9 @@ function InputFieldTab({
               onValueChange={(value) => handleValueChange(value)}
             />
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>
+                {inputField.value && `No results found.`}
+              </CommandEmpty>
               <CommandGroup className="mt-[12px] px-0 pt-0">
                 {ALLOWED_DOMAINS.map((domain) => {
                   const emailSuggestion = inputField.value.endsWith(
@@ -277,7 +282,10 @@ function InputFieldTab({
                       value={emailSuggestion}
                       className="relative mt-[8px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-base text-black"
                     >
-                      <span className="ml-5">{emailSuggestion}</span>
+                      <div className="flex items-center gap-[10px]">
+                        <HiOutlineEnvelope className="h-5 w-5 text-[#9B9B9B]" />
+                        <span className="ml-5">{emailSuggestion}</span>
+                      </div>
                       <Button
                         variant="ghost"
                         className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 text-sm font-normal"
@@ -358,16 +366,20 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
 
   return (
     <div className="ml-1 flex gap-[10px] text-base">
-      {/* email 표시 */}
-      <div className="relative mt-1 h-10 w-full max-w-[530px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-black">
-        <span className="ml-5">{curUser.email}</span>
+      {/* email 표시 박스 */}
+      <div className="mt-1 flex h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full border border-solid border-[#D8D8D8] px-[20px] py-[10px] text-black">
+        <div className="flex items-center gap-[10px]">
+          <HiOutlineEnvelope className="h-5 w-5 text-[#9B9B9B]" />
+          <span className="ml-5">{curUser.email}</span>
+        </div>
+
         {/* 삭제버튼 */}
         <Button
           variant="ghost"
-          className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 font-normal"
+          className="top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 font-normal"
           onClick={() => handleDeleteUser()}
         >
-          <FaTrash className="h-5 w-5 text-[#9B9B9B]" />
+          <HiMiniXCircle className="h-5 w-5 text-[#B0B0B0]" />
         </Button>
       </div>
       {/* 드롭다운 */}
