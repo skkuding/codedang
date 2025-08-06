@@ -87,10 +87,10 @@ export async function SubmissionDetail({
           className="max-h-96 min-h-16 w-full rounded-lg"
         />
       </div>
-      <div className="-ml-16 h-2 min-w-[100%] bg-[#121728]" />
+      <div className="-ml-16 h-2 min-w-full bg-[#121728]" />
 
       {res.ok ? null : (
-        <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1 backdrop-blur-sm">
+        <div className="backdrop-blur-xs absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1">
           <IoIosLock size={100} />
           <p className="mt-4 text-xl font-semibold">Access Denied</p>
           <p className="w-10/12 text-center">

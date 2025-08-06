@@ -84,7 +84,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
   if (isCardView) {
     // isCardView가 true일 때 반환
     return (
-      <ScrollArea className="max-w-full rounded-sm">
+      <ScrollArea className="rounded-xs max-w-full">
         <Table>
           <TableBody className="[&_td]:border-transparent">
             {table.getRowModel().rows.length > 0 ? (
@@ -133,7 +133,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
 
   // isCardView가 false일 때 반환
   return (
-    <ScrollArea className="max-w-full rounded-sm">
+    <ScrollArea className="rounded-xs max-w-full">
       <Table>
         <TableHeader
           className={cn(

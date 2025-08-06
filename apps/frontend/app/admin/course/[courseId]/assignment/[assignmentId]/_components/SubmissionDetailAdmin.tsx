@@ -152,7 +152,7 @@ export function SubmissionDetailAdmin({
                   )}
                 </tbody>
               </table>
-              <Table className="**:text-center **:text-xs hover:**:bg-transparent [&_tr]:border-neutral-200! [&_td]:p-2">
+              <Table className="**:text-center **:text-xs **:hover:bg-transparent [&_tr]:border-neutral-200! [&_td]:p-2">
                 <TableHeader>
                   <TableRow>
                     <TableHead />

@@ -176,7 +176,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
               .map((char, index) => (
                 <div
                   key={index}
-                  className="flex h-[42px] w-[42px] items-center justify-center rounded-sm bg-gray-100 text-lg text-[#5C5C5C]"
+                  className="rounded-xs flex h-[42px] w-[42px] items-center justify-center bg-gray-100 text-lg text-[#5C5C5C]"
                 >
                   {char}
                 </div>

@@ -89,7 +89,7 @@ export async function SubmissionDetail({
       {submission.testcaseResult.length !== 0 && (
         <div className="my-3 px-6">
           <h2 className="mb-[18px] text-base font-bold">Test case</h2>
-          <Table className="**:text-center **:text-sm hover:**:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
+          <Table className="**:text-center **:text-sm **:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
             <TableHeader className="**:text-slate-100">
               <TableRow>
                 <TableHead>#</TableHead>
@@ -134,7 +134,7 @@ export async function SubmissionDetail({
         </div>
       )}
       {res.ok ? null : (
-        <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1 backdrop-blur-sm">
+        <div className="backdrop-blur-xs absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1">
           <IoIosLock size={100} />
           <p className="mt-4 text-xl font-semibold">Access Denied</p>
           <p className="w-10/12 text-center">

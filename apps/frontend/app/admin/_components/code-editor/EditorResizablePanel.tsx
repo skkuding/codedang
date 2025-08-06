@@ -146,7 +146,7 @@ export function EditorMainResizablePanel({
               <div className="absolute bottom-2 right-4 z-50">
                 <button
                   onClick={() => setIsPanelCollapsed(false)}
-                  className="rounded bg-[#222939] p-2 text-slate-400 shadow-sm hover:bg-slate-700"
+                  className="shadow-xs rounded bg-[#222939] p-2 text-slate-400 hover:bg-slate-700"
                 >
                   <IoChevronUp size={22} />
                 </button>
