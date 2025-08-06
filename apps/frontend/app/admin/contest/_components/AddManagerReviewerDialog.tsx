@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem
 } from '@/components/shadcn/dropdown-menu'
-import { ScrollArea } from '@/components/shadcn/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { cn, isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import { ChevronDown } from 'lucide-react'
@@ -152,6 +152,7 @@ export function AddManagerReviewerDialog({
             </div>
           </div>
         </div>
+        <ScrollBar className="ml-[16px] w-[4px]" />
       </ScrollArea>
     </Modal>
   )
