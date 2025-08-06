@@ -16,9 +16,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem
 } from '@/components/shadcn/dropdown-menu'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { cn, isHttpError, safeFetcherWithAuth } from '@/libs/utils'
-import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { ChevronDown } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { FaTrash } from 'react-icons/fa6'
@@ -250,7 +250,7 @@ function InputFieldTab({
     <Command className="h-auto gap-[6px]">
       <div className="flex flex-col">
         <div className="flex gap-2">
-          <div className="relative w-full max-w-[590px] gap-2">
+          <div className="relative w-full max-w-[590px] gap-[20px]">
             <CommandInput
               className="ml-1 h-10 w-[300px] text-sm placeholder:text-neutral-300"
               placeholder="Please enter the e-mail"
@@ -260,7 +260,7 @@ function InputFieldTab({
             />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup className="px-0 pt-0">
+              <CommandGroup className="gap-[8px] px-0 pt-0">
                 {ALLOWED_DOMAINS.map((domain) => {
                   const emailSuggestion = inputField.value.endsWith(
                     `@${domain}`
@@ -274,7 +274,7 @@ function InputFieldTab({
                     <CommandItem
                       key={emailSuggestion}
                       value={emailSuggestion}
-                      className="relative mt-1 w-full cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black"
+                      className="relative mt-1 w-[] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black"
                     >
                       <span className="ml-5">{emailSuggestion}</span>
                       <Button
