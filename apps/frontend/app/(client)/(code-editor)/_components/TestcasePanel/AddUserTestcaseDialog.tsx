@@ -87,7 +87,7 @@ export function AddUserTestcaseDialog() {
                   </p>
                   <div
                     className={cn(
-                      'relative flex min-h-[80px] w-full rounded-md border border-[#DFDFDF] bg-white py-3 font-mono text-[#C2C2C2] shadow-sm',
+                      'shadow-2xs relative flex min-h-[80px] w-full rounded-md border border-[#DFDFDF] bg-white py-3 font-mono text-[#C2C2C2]',
                       formState.errors?.testcases?.[index] && 'border-error'
                     )}
                   >
@@ -162,7 +162,7 @@ function SampleTestcaseItem({
   return (
     <div
       className={cn(
-        'flex min-h-[80px] w-full rounded-md border border-[#313744] bg-[#222939] font-mono shadow-sm'
+        'shadow-2xs flex min-h-[80px] w-full rounded-md border border-[#313744] bg-[#222939] font-mono'
       )}
     >
       <div className="relative flex-1">
