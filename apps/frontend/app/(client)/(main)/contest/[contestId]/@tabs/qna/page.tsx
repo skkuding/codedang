@@ -1,9 +1,14 @@
+import { Button } from '@/components/shadcn/button'
 import comingSoonLogo from '@/public/logos/coming-soon.png'
 import Image from 'next/image'
+import { DetailQna } from './_components/DetailQna'
 
 export default function ContestQna() {
   return (
     <div className="flex flex-col items-center justify-center py-[218px]">
+      <Button>
+        <DetailQna />
+      </Button>
       <Image
         className="pb-10"
         src={comingSoonLogo}
