@@ -9,7 +9,6 @@ replica:
 
 sentinel:
   enabled: true
-
 # TODO: 모니터링 설정 추가
 # metrics:
 #   enabled: true
