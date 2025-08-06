@@ -131,6 +131,7 @@ export function AddManagerReviewerDialog({
             <div
               className={cn(
                 'mt-1',
+                'text-xs',
                 users.length > 0 ? 'text-primary' : 'text-[#9B9B9B]'
               )}
             >
@@ -252,7 +253,7 @@ function InputFieldTab({
         <div className="flex gap-2">
           <div className="relative w-full max-w-[590px] gap-[20px]">
             <CommandInput
-              className="ml-1 h-10 w-[300px] text-sm placeholder:text-neutral-300"
+              className="ml-1 h-10 w-[300px] text-base placeholder:text-neutral-300"
               placeholder="Please enter the e-mail"
               emailType={true}
               value={inputField.value}
@@ -260,7 +261,7 @@ function InputFieldTab({
             />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup className="gap-[8px] px-0 pt-0">
+              <CommandGroup className="mt-[12px] px-0 pt-0">
                 {ALLOWED_DOMAINS.map((domain) => {
                   const emailSuggestion = inputField.value.endsWith(
                     `@${domain}`
@@ -274,7 +275,7 @@ function InputFieldTab({
                     <CommandItem
                       key={emailSuggestion}
                       value={emailSuggestion}
-                      className="relative mt-1 w-[] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black"
+                      className="text-bse relative mt-[8px] w-[] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-black"
                     >
                       <span className="ml-5">{emailSuggestion}</span>
                       <Button
@@ -297,7 +298,7 @@ function InputFieldTab({
             <DropdownMenuTrigger asChild className="grow">
               <Button
                 variant="outline"
-                className="h-10 pl-4 pr-2 text-sm font-normal"
+                className="h-10 pl-4 pr-2 text-base font-normal"
               >
                 {inputField.dropdown}
                 <ChevronDown
@@ -356,14 +357,14 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   }
 
   return (
-    <div className="ml-1 flex gap-[10px] text-sm">
+    <div className="ml-1 flex gap-[10px] text-base">
       {/* email 표시 */}
-      <div className="relative mt-1 h-10 w-full max-w-[530px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black">
+      <div className="relative mt-1 h-10 w-full max-w-[530px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-black">
         <span className="ml-5">{curUser.email}</span>
         {/* 삭제버튼 */}
         <Button
           variant="ghost"
-          className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 text-sm font-normal"
+          className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 font-normal"
           onClick={() => handleDeleteUser()}
         >
           <FaTrash className="h-5 w-5 text-[#9B9B9B]" />
@@ -372,10 +373,7 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
       {/* 드롭다운 */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild className="grow">
-          <Button
-            variant="outline"
-            className="h-10 pl-4 pr-2 text-sm font-normal"
-          >
+          <Button variant="outline" className="h-10 pl-4 pr-2 font-normal">
             {curUser.type}
             <ChevronDown
               className="ml-[10px] h-5 w-5 text-[#B0B0B0]"
