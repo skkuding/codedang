@@ -256,13 +256,13 @@ function InputFieldTab({
         <div className="flex gap-2">
           <div className="relative w-full max-w-[590px] gap-[20px]">
             <CommandInput
-              className="ml-1 h-10 w-[300px] text-base placeholder:text-neutral-300"
+              className="ml-[10px] h-10 w-[300px] text-base placeholder:text-neutral-300"
               placeholder="Please enter the e-mail"
               emailType={true}
               value={inputField.value}
               onValueChange={(value) => handleValueChange(value)}
               emailIcon={
-                <HiOutlineEnvelope className="h-5 w-5 text-[#9B9B9B]" />
+                <HiOutlineEnvelope className="ml-[8px] h-5 w-5 text-[#9B9B9B]" />
               }
             />
             <CommandList>
@@ -283,9 +283,9 @@ function InputFieldTab({
                     <CommandItem
                       key={emailSuggestion}
                       value={emailSuggestion}
-                      className="relative mt-[8px] cursor-pointer justify-between rounded-full bg-gray-100 px-[20px] py-[10px] text-base text-black"
+                      className="relative mt-[8px] cursor-pointer justify-between rounded-full bg-gray-100 px-[10px] py-[10px] text-base text-black"
                     >
-                      <div className="flex items-center gap-[10px]">
+                      <div className="ml-[10px] flex items-center gap-[10px]">
                         <HiOutlineEnvelope className="h-5 w-5 text-[#9B9B9B]" />
                         <span>{emailSuggestion}</span>
                       </div>
@@ -370,8 +370,8 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   return (
     <div className="ml-1 flex gap-[10px] text-base">
       {/* email 표시 박스 */}
-      <div className="mt-1 flex h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full border border-solid border-[#D8D8D8] px-[20px] py-[10px] text-black">
-        <div className="flex items-center gap-[10px]">
+      <div className="relative mt-1 flex h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full border border-solid border-[#D8D8D8] px-[10px] py-[10px] text-black">
+        <div className="ml-[10px] flex items-center gap-[10px]">
           <HiOutlineEnvelope className="h-5 w-5 text-[#9B9B9B]" />
           <span>{curUser.email}</span>
         </div>
@@ -379,7 +379,7 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
         {/* 삭제버튼 */}
         <Button
           variant="ghost"
-          className="top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 font-normal"
+          className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 text-sm font-normal"
           onClick={() => handleDeleteUser()}
         >
           <HiMiniXCircle className="h-5 w-5 text-[#B0B0B0]" />
