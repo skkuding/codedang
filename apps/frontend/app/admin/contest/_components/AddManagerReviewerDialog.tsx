@@ -275,7 +275,7 @@ function InputFieldTab({
                     <CommandItem
                       key={emailSuggestion}
                       value={emailSuggestion}
-                      className="text-bse relative mt-[8px] w-[] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-black"
+                      className="relative mt-[8px] w-[720px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-base text-black"
                     >
                       <span className="ml-5">{emailSuggestion}</span>
                       <Button
@@ -359,7 +359,7 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   return (
     <div className="ml-1 flex gap-[10px] text-base">
       {/* email 표시 */}
-      <div className="relative mt-1 h-10 w-full max-w-[530px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-black">
+      <div className="relative mt-1 h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full bg-gray-100 py-[10px] text-black">
         <span className="ml-5">{curUser.email}</span>
         {/* 삭제버튼 */}
         <Button
