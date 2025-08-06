@@ -261,7 +261,7 @@ function InputFieldTab({
             />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup className="mt-[12px] w-[720px] px-0 pt-0">
+              <CommandGroup className="mt-[12px] px-0 pt-0">
                 {ALLOWED_DOMAINS.map((domain) => {
                   const emailSuggestion = inputField.value.endsWith(
                     `@${domain}`
@@ -275,24 +275,19 @@ function InputFieldTab({
                     <CommandItem
                       key={emailSuggestion}
                       value={emailSuggestion}
-                      className="relative mt-[8px] cursor-pointer py-[10px] text-base text-black"
+                      className="relative mt-[8px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-base text-black"
                     >
-                      <div className="flex w-full max-w-[590px] justify-between rounded-full bg-gray-100">
-                        <span className="ml-5">{emailSuggestion}</span>
-                        <Button
-                          variant="ghost"
-                          className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 text-sm font-normal"
-                          onClick={() => {
-                            handleValueChange(emailSuggestion)
-                            fetchUserData(emailSuggestion, inputField.dropdown)
-                          }}
-                        >
-                          <HiMiniPlusCircle className="h-5 w-5 rounded-full bg-gray-100 text-[#9B9B9B]" />
-                        </Button>
-                      </div>
-                      <div className="absolute right-[-130px] flex items-center justify-center">
-                        <span>{inputField.dropdown}</span>
-                      </div>
+                      <span className="ml-5">{emailSuggestion}</span>
+                      <Button
+                        variant="ghost"
+                        className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 text-sm font-normal"
+                        onClick={() => {
+                          handleValueChange(emailSuggestion)
+                          fetchUserData(emailSuggestion, inputField.dropdown)
+                        }}
+                      >
+                        <HiMiniPlusCircle className="h-5 w-5 text-[#9B9B9B]" />
+                      </Button>
                     </CommandItem>
                   )
                 })}
@@ -364,7 +359,7 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   return (
     <div className="ml-1 flex gap-[10px] text-base">
       {/* email 표시 */}
-      <div className="relative mt-1 h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full bg-gray-100 py-[10px] text-black">
+      <div className="relative mt-1 h-10 w-full max-w-[530px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-black">
         <span className="ml-5">{curUser.email}</span>
         {/* 삭제버튼 */}
         <Button
