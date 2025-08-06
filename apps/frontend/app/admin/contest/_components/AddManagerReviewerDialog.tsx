@@ -280,11 +280,11 @@ function InputFieldTab({
                     <CommandItem
                       key={emailSuggestion}
                       value={emailSuggestion}
-                      className="relative mt-[8px] cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-base text-black"
+                      className="relative mt-[8px] cursor-pointer justify-between rounded-full bg-gray-100 px-[20px] py-[10px] text-base text-black"
                     >
                       <div className="flex items-center gap-[10px]">
                         <HiOutlineEnvelope className="h-5 w-5 text-[#9B9B9B]" />
-                        <span className="ml-5">{emailSuggestion}</span>
+                        <span>{emailSuggestion}</span>
                       </div>
                       <Button
                         variant="ghost"
@@ -370,7 +370,7 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
       <div className="mt-1 flex h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full border border-solid border-[#D8D8D8] px-[20px] py-[10px] text-black">
         <div className="flex items-center gap-[10px]">
           <HiOutlineEnvelope className="h-5 w-5 text-[#9B9B9B]" />
-          <span className="ml-5">{curUser.email}</span>
+          <span>{curUser.email}</span>
         </div>
 
         {/* 삭제버튼 */}
