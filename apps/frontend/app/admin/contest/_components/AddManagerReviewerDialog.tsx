@@ -248,7 +248,7 @@ function InputFieldTab({
     <Command className="h-auto gap-[6px]">
       <div className="flex flex-col">
         <div className="flex gap-2">
-          <div className="w-full max-w-[590px] gap-2">
+          <div className="relative w-full max-w-[590px] gap-2">
             <CommandInput
               className="ml-1 h-10 w-[300px] text-sm placeholder:text-neutral-300"
               placeholder="Please enter the e-mail"
@@ -258,38 +258,30 @@ function InputFieldTab({
             />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup className="mt-[20px] px-0 pt-0">
+              <CommandGroup className="px-0 pt-0">
                 {ALLOWED_DOMAINS.map((domain) => {
                   const emailSuggestion = inputField.value.endsWith(
                     `@${domain}`
                   )
                     ? inputField.value
                     : `${inputField.value.replace(/@.*/, '')}@${domain}`
-                  if (inputField.value === '') {
-                    return
-                  }
                   return (
                     <CommandItem
                       key={emailSuggestion}
                       value={emailSuggestion}
-                      className="relative mt-1 bg-gray-100 text-sm text-black"
+                      className="relative mt-1 w-full cursor-pointer justify-between rounded-full bg-gray-100 py-[10px] text-sm text-black"
                     >
-                      <div className="w-[590px] justify-between rounded-full py-[10px]">
-                        <span className="ml-5">{emailSuggestion}</span>
-                        <Button
-                          variant="ghost"
-                          className="top-[1px] h-9 w-9 cursor-pointer p-1 text-sm font-normal"
-                          onClick={() => {
-                            handleValueChange(emailSuggestion)
-                            fetchUserData(emailSuggestion, inputField.dropdown)
-                          }}
-                        >
-                          <HiMiniPlusCircle className="h-5 w-5 text-[#9B9B9B]" />
-                        </Button>
-                      </div>
-                      <div className="absolute left-[-130px] items-center justify-center rounded-full">
-                        {inputField.dropdown}
-                      </div>
+                      <span className="ml-5">{emailSuggestion}</span>
+                      <Button
+                        variant="ghost"
+                        className="absolute right-0 top-[1px] mr-[2px] mt-[2px] h-9 w-9 p-1 text-sm font-normal"
+                        onClick={() => {
+                          handleValueChange(emailSuggestion)
+                          fetchUserData(emailSuggestion, inputField.dropdown)
+                        }}
+                      >
+                        <HiMiniPlusCircle className="h-5 w-5 text-[#9B9B9B]" />
+                      </Button>
                     </CommandItem>
                   )
                 })}
