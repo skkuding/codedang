@@ -144,7 +144,9 @@ export default async function ContestTop({
         <div className="flex gap-2">
           <Image src={emergencyIcon} alt="emergency" width={20} height={20} />
           <p className="text-base font-normal tracking-[-0.48px] text-[#333333e6]">
-            {formattedDeadline}
+            {/* query에 deadline 추가되면 이거 사용하면 될 것 같아요
+            {formattedDeadline} */}
+            {'2025-08-06 14:50:00'}
           </p>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
+import emergencyIcon from '@/public/icons/emergency.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -64,7 +65,16 @@ export default function Layout({
           textStyle="font-normal text-[#333333E5] opacity-100"
           inContestEditor={false}
         />
+        <div className="flex items-center gap-2">
+          <Image src={emergencyIcon} alt="emergency" width={16} />
+          <p className="font-normal text-[#333333E5]">
+            {/* 여기도 쿼리 필드로 추가되면 이거 사용하면 될 것 같아요 !
+            {dateFormatter(contestData?.deadline, 'YY-MM-DD HH:mm')} */}
+            {'25-08-06 14:50'}
+          </p>
+        </div>
       </div>
+
       <ContestOverallTabs contestId={contestId} />
       {tabs}
     </main>
