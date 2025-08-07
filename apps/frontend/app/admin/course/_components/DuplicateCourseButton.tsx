@@ -26,8 +26,6 @@ export function DuplicateCourseButton({
   const handleDuplicateButtonClick = () => {
     if (table.getSelectedRowModel().rows.length === 0) {
       return
-    } else {
-      console.log(table.getSelectedRowModel().rows.length)
     }
     setIsDialogOpen(true)
   }
