@@ -241,8 +241,8 @@ importers:
         specifier: ^4.4.0
         version: 4.4.0
       express:
-        specifier: ^4.21.2
-        version: 4.21.2
+        specifier: ^5.1.0
+        version: 5.1.0
       generate-password:
         specifier: ^1.7.1
         version: 1.7.1
