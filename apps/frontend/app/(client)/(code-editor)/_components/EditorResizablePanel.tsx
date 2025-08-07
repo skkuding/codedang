@@ -171,7 +171,7 @@ export function EditorMainResizablePanel({
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
-            <Tabs value={tabValue} className="flex-grow">
+            <Tabs value={tabValue} className="grow">
               <TabsList className="rounded bg-slate-900">
                 <Link replace href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
@@ -273,7 +273,7 @@ export function EditorMainResizablePanel({
               </div>
             )}
           </div>
-          <ScrollArea className="[&>div>div]:!block">
+          <ScrollArea className="[&>div>div]:block!">
             <Suspense fallback={<Loading />}>{children}</Suspense>
           </ScrollArea>
         </div>
@@ -313,7 +313,7 @@ export function EditorMainResizablePanel({
               <ResizablePanelGroup direction="vertical" className="h-32">
                 <ResizablePanel
                   defaultSize={60}
-                  className="relative !overflow-x-auto overflow-y-auto"
+                  className="overflow-x-auto! relative overflow-y-auto"
                 >
                   <HidePanelButton
                     isPanelHidden={isBottomPanelHidden}
@@ -393,8 +393,8 @@ function HidePanelButton({
     <div
       className={cn(
         direction === 'horizontal'
-          ? '-left-2 top-[40%] h-[89px] w-[29px] px-[1px] py-[2px]'
-          : '-bottom-2 left-1/2 h-[29px] w-[121px] px-[2px] py-[1px]',
+          ? '-left-2 top-[40%] h-[89px] w-[29px] px-px py-[2px]'
+          : '-bottom-2 left-1/2 h-[29px] w-[121px] px-[2px] py-px',
         'absolute z-20 inline-block bg-[#4C5565]',
         direction === 'horizontal'
           ? '[clip-path:polygon(0%_0%,100%_17%,100%_83%,0%_100%)]'
