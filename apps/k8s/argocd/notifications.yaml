@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-notifications-cm
+  namespace: argocd
+data:
+  service.github: |
+    appID: $github-app-secret:githubAppID
+    installationID: $github-app-secret:githubAppInstallationID
+    privateKey: $github-app-secret:githubAppPrivateKey
+
+  template.app-deployed: |
+    message: |
+      Application {{.app.metadata.name}} deployed successfully!
+      See details: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}
+    github:
+      pullRequestComment:
+        content: |
+          🚀 **Deployment Complete**
+          Application: {{.app.metadata.name}}
+          Status: {{.app.status.sync.status}}
+          [View in ArgoCD]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
