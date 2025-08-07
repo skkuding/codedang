@@ -138,7 +138,7 @@ export default async function ContestTop({
         />
       </div>
       <div className="flex flex-row items-start gap-[34px]">
-        <div className="relative mt-[34px] flex flex-shrink-0 rounded-xl">
+        <div className="relative mt-[34px] flex shrink-0 rounded-xl">
           <Image
             src={imageUrl}
             alt="Contest Poster"

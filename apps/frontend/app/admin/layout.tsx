@@ -87,7 +87,7 @@ export default async function Layout({
           {/*TODO: role이 groupAdmin인지 확인하고 아니면 그냥 SideBar를 보여주도록 할 예정 */}
           {/* <Link
             href={'/' as Route}
-            className="mt-auto rounded px-4 py-2 text-slate-600 transition hover:bg-slate-100"
+            className="mt-auto rounded-xs px-4 py-2 text-slate-600 transition hover:bg-slate-100"
           >
             <FaArrowRightFromBracket className="mr-2 inline-block" />
             Quit
