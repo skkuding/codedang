@@ -1,0 +1,6 @@
+**/.env
+**/.next
+**/Dockerfile
+**/Dockerfile.dockerignore
+**/__generated__/
+**/node_modules/
