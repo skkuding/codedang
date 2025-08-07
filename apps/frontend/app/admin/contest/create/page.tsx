@@ -56,11 +56,11 @@ export default function Page() {
                     className="max-w-[492px]"
                   />
                 </FormSection>
-                <FormSection title="Start Time">
-                  <TimeForm isContest name="startTime" />
-                </FormSection>
                 <FormSection title="Join DueTime">
                   <TimeForm isContest name="registerDueTime" />
+                </FormSection>
+                <FormSection title="Start Time">
+                  <TimeForm isContest name="startTime" />
                 </FormSection>
                 <FormSection title="End Time">
                   <TimeForm isContest name="endTime" />

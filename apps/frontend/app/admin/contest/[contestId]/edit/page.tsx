@@ -65,7 +65,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
             (1000 * 60)
         )
       : null
-  console.log(methods.getValues())
+  // console.log(methods.getValues())
   return (
     <ConfirmNavigation>
       <ScrollArea className="w-full">
@@ -106,21 +106,21 @@ export default function Page({ params }: { params: { contestId: string } }) {
                   />
                 </FormSection>
                 <FormSection
-                  title="Start Time"
-                  isOngoing={isOngoing}
-                  isFinished={isFinished}
-                >
-                  {methods.getValues('startTime') && (
-                    <TimeForm isContest name="startTime" />
-                  )}
-                </FormSection>
-                <FormSection
                   title="Join DueTime"
                   isOngoing={isOngoing}
                   isFinished={isFinished}
                 >
                   {methods.getValues('registerDueTime') && (
                     <TimeForm isContest name="registerDueTime" />
+                  )}
+                </FormSection>
+                <FormSection
+                  title="Start Time"
+                  isOngoing={isOngoing}
+                  isFinished={isFinished}
+                >
+                  {methods.getValues('startTime') && (
+                    <TimeForm isContest name="startTime" />
                   )}
                 </FormSection>
                 <FormSection title="End Time" isFinished={isFinished}>
