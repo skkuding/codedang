@@ -54,7 +54,7 @@ export function ServiceCards() {
                 Stay Informed
               </p>
               <p className="text-primary text-s font-normal leading-[22.4px] tracking-[-0.48px]">
-                Explore coding challenges <br /> by level and topic.
+                Stay updated with the latest news <br /> and announcements.
               </p>
             </div>
           </Link>
