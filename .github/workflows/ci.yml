@@ -190,7 +190,7 @@ jobs:
         volumes:
           - minio-storage:/data
       redis:
-        image: redis:7-alpine
+        image: redis:8-alpine
         ports:
           - 6380:6379
 
