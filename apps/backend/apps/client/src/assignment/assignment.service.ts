@@ -60,31 +60,27 @@ export class AssignmentService {
    */
   async getAssignments(
     groupId: number,
-    isExercise: boolean,
+    isExercise?: boolean,
     month?: number,
     year?: number
   ) {
-    const whereCondition: Record<string, unknown> = {
-      groupId,
-      isVisible: true
-    }
-
-    if (month !== undefined && year !== undefined) {
-      const startOfMonth = new Date(year, month - 1, 1)
-      const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999)
-
-      whereCondition.dueTime = {
-        gte: startOfMonth,
-        lte: endOfMonth
-      }
-    } else {
-      whereCondition.isExercise = isExercise
-    }
-
     const assignments = await this.prisma.assignment.findMany({
-      where: whereCondition,
+      where: {
+        ...(isExercise !== undefined ? { isExercise } : {}),
+        groupId,
+        isVisible: true,
+        ...(month !== undefined && year !== undefined
+          ? {
+              dueTime: {
+                gte: new Date(year, month - 1, 1),
+                lte: new Date(year, month, 0, 23, 59, 59, 999)
+              }
+            }
+          : {})
+      },
       select: {
-        ...assignmentSelectOption
+        ...assignmentSelectOption,
+        isExercise: true
       },
       orderBy: [{ week: 'asc' }, { startTime: 'asc' }]
     })

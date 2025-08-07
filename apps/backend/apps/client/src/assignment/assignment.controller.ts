@@ -30,12 +30,8 @@ export class AssignmentController {
   @Get('')
   async getAssignments(
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Query(
-      'isExercise',
-      new ParseBoolPipe({ optional: true }),
-      new DefaultValuePipe(false)
-    )
-    isExercise: boolean,
+    @Query('isExercise', new ParseBoolPipe({ optional: true }))
+    isExercise?: boolean,
     @Query('month', new ParseIntPipe({ optional: true }))
     month?: number,
     @Query('year', new ParseIntPipe({ optional: true }))
