@@ -10,6 +10,7 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
+        # k8s.stage.codedang.com
         - k8s.codedang.com
       secretName: dashboard-tls
   rules:
