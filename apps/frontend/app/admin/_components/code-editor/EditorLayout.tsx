@@ -8,6 +8,7 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { TestResultDetail } from '@/types/type'
 import { useQuery, useSuspenseQuery, useLazyQuery } from '@apollo/client'
+import type { ProblemTestcase, TestCaseResult } from '@generated/graphql'
 import type { Session } from 'next-auth'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -65,6 +66,38 @@ async function pollTestResults(problemId: number) {
   return null
 }
 
+function mapTestResults(
+  testcases: ProblemTestcase[],
+  results: TestCaseResult[]
+) {
+  const resultMap = new Map(
+    results.map((r) => [Number(r.problemTestcaseId), r])
+  )
+  let sampleCount = 0
+  let hiddenCount = 0
+  console.log(testcases)
+  console.log(results)
+  console.log(resultMap)
+  return testcases.map((testcase) => {
+    const testResult = resultMap.get(Number(testcase.id))
+    if (testcase.isHidden) {
+      hiddenCount++
+    } else {
+      sampleCount++
+    }
+    return {
+      id: Number(testcase.id),
+      order: testcase.isHidden ? hiddenCount : sampleCount,
+      type: testcase.isHidden ? 'Hidden' : 'Sample',
+      input: testcase.input ?? '',
+      expectedOutput: testcase.output ?? '',
+      output: testResult?.output ?? '',
+      result: testResult?.result ?? '',
+      isUserTestcase: false
+    }
+  })
+}
+
 interface EditorLayoutProps {
   courseId: number
   assignmentId: number
@@ -117,37 +150,10 @@ export function EditorLayout({
 
   const initializeTestResults = useCallback(() => {
     if (submissionData?.testcaseResult && testcaseData?.getProblem?.testcase) {
-      const submissionResultsMap = new Map(
-        submissionData.testcaseResult.map((r) => [
-          Number(r.problemTestcaseId),
-          r
-        ])
+      const mappedResults = mapTestResults(
+        testcaseData.getProblem.testcase as ProblemTestcase[],
+        submissionData.testcaseResult as TestCaseResult[]
       )
-      const problemTestcases = testcaseData.getProblem.testcase
-
-      let sampleCount = 0
-      let hiddenCount = 0
-
-      const mappedResults = problemTestcases.map((tc) => {
-        const submissionResult = submissionResultsMap.get(Number(tc.id))
-
-        if (tc.isHidden) {
-          hiddenCount++
-        } else {
-          sampleCount++
-        }
-
-        return {
-          id: Number(tc.id),
-          order: tc.isHidden ? hiddenCount : sampleCount,
-          type: tc.isHidden ? 'Hidden' : 'Sample',
-          input: tc.input ?? '',
-          expectedOutput: tc.output ?? '',
-          output: submissionResult?.output ?? '',
-          result: submissionResult?.result ?? 'Not Judged',
-          isUserTestcase: false
-        }
-      })
       setTestResults(mappedResults)
     } else {
       setTestResults([])
@@ -176,38 +182,18 @@ export function EditorLayout({
   const handleTest = useCallback(async () => {
     setIsTesting(true)
     try {
-      const { data: testcaseResult } = await fetchTestcase()
-
       await submitCodeForTesting(problemId, language, editorCode)
 
       const finalResult = await pollTestResults(problemId)
 
       if (finalResult) {
-        const testcases = testcaseResult?.getProblem?.testcase || []
-        const resultMap = new Map(finalResult.map((r) => [Number(r.id), r]))
-        let sampleCount = 0
-        let hiddenCount = 0
-
-        const mappedResults = testcases.map((testcase) => {
-          const testResult = resultMap.get(Number(testcase.id))
-
-          if (testcase.isHidden) {
-            hiddenCount++
-          } else {
-            sampleCount++
-          }
-
-          return {
-            id: Number(testcase.id),
-            order: testcase.isHidden ? hiddenCount : sampleCount,
-            type: testcase.isHidden ? 'Hidden' : 'Sample',
-            input: testcase.input ?? '',
-            expectedOutput: testcase.output ?? '',
-            output: testResult?.output ?? '',
-            result: testResult?.result ?? '',
-            isUserTestcase: false
-          }
-        })
+        const mappedResults = mapTestResults(
+          testcaseData?.getProblem?.testcase as ProblemTestcase[],
+          finalResult.map((result) => ({
+            ...result,
+            problemTestcaseId: result.id
+          })) as TestCaseResult[]
+        )
         setTestResults(mappedResults)
       } else {
         setTestResults([])
@@ -217,7 +203,7 @@ export function EditorLayout({
     } finally {
       setIsTesting(false)
     }
-  }, [language, editorCode, problemId, fetchTestcase])
+  }, [language, editorCode, problemId, testcaseData])
 
   return (
     // Admin Layout의 Sidebar를 무시하기 위한 fixed
