@@ -94,7 +94,7 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 	if err != nil {
 		out <- &HandlerError{
 			caller:  "handle",
-			err:     fmt.Errorf("%w: %s", ErrValidate, err),
+			err:     fmt.Errorf("%w: %s", ErrMarshalJson, err),
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}

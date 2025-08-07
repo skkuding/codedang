@@ -49,8 +49,8 @@ func GetAllCodes(rows *sql.Rows, problemId string) ([]Element, error) {
 		})
 	}
 
-	if len(result) == 0 {
-		return nil, fmt.Errorf("no submission found for problemId: %s", problemId)
+	if len(result) < 2 {
+		return nil, fmt.Errorf("not enough submissions found for problemId: %s, submissionCount: %d", problemId, len(result))
 	}
 
 	return result, nil
@@ -71,7 +71,7 @@ func (p *Postgres) GetRawBaseCode(problemId string) (string, error) {
 }
 
 func (p *Postgres) GetAllCodesFromAssignment(problemId string, language string, assignmentId string) (string, []Element, error) {
-  rows, err := p.client.Query(`SELECT id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND assignment_id = $3`, problemId, language, assignmentId)
+  rows, err := p.client.Query(`SELECT DISTINCT ON (user_id) id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND assignment_id = $3 ORDER BY user_id, update_time DESC`, problemId, language, assignmentId)
   if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
@@ -94,7 +94,7 @@ func (p *Postgres) GetAllCodesFromAssignment(problemId string, language string, 
 }
 
 func (p *Postgres) GetAllCodesFromContest(problemId string, language string, contestId string) (string, []Element, error) {
-  rows, err := p.client.Query(`SELECT id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND contest_id = $3`, problemId, language, contestId)
+  rows, err := p.client.Query(`SELECT DISTINCT ON (user_id) id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND contest_id = $3 ORDER BY user_id, update_time DESC`, problemId, language, contestId)
   if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
@@ -117,7 +117,7 @@ func (p *Postgres) GetAllCodesFromContest(problemId string, language string, con
 }
 
 func (p *Postgres) GetAllCodesFromWorkbook(problemId string, language string, workbookId string) (string, []Element, error) {
-  rows, err := p.client.Query(`SELECT id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND workbook_id = $3`, problemId, language, workbookId)
+  rows, err := p.client.Query(`SELECT DISTINCT ON (user_id) id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND workbook_id = $3 ORDER BY user_id, update_time DESC`, problemId, language, workbookId)
   if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
