@@ -298,6 +298,9 @@ export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
   isUserTestcase: boolean
+}
+
+export interface TabbedTestResult extends TestResultDetail {
   originalId: number
 }
 
@@ -460,4 +463,16 @@ export interface UpdateContestInfo extends UpdateContestInput {
       email: string
     }
   }[]
+}
+
+export interface BaseDataTableProblem {
+  id: number
+  title: string
+  updateTime: string
+  difficulty: string
+  submissionCount: number
+  acceptedRate: number
+  languages: string[]
+  score?: number
+  order?: number
 }

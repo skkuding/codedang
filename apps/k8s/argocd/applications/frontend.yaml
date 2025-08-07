@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: frontend
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: frontend
+    server: https://kubernetes.default.svc
+  source:
+    path: apps/k8s/frontend/overlays/production
+    repoURL: https://github.com/skkuding/codedang
+    targetRevision: main
+    directory:
+      # kustomization.yaml is ignored if recurse is true
+      recurse: false
+  sources: []
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground

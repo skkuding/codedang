@@ -36,6 +36,7 @@ export default async function Course() {
             <p>Click the button below to login.</p>
           </div>
           <LoginButton className="mt-6 flex h-[46px] w-60 items-center justify-center text-base font-bold" />
+          <div className="py-5" />
         </div>
       </>
     )

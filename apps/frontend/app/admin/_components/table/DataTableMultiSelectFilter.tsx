@@ -52,13 +52,9 @@ export function DataTableMultiSelectFilter<TData, TValue>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          size={'sm'}
-          className="h-10 rounded-full border p-5 hover:bg-gray-50"
-        >
-          <IoFilter className="mr-2 h-4 w-4" />
-          <p className="font-normal">{title}</p>
+        <Button variant="outline" className="h-[36px]">
+          <IoFilter className="mr-2" />
+          <p className="text-xs font-normal">{title}</p>
           {selectedValues.size > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
@@ -66,7 +62,7 @@ export function DataTableMultiSelectFilter<TData, TValue>({
                 {selectedValues.size === options.length ? (
                   <Badge
                     variant="secondary"
-                    className="rounded-sm px-1 font-normal"
+                    className="rounded-xs px-1 font-normal"
                   >
                     All
                   </Badge>
@@ -78,7 +74,7 @@ export function DataTableMultiSelectFilter<TData, TValue>({
                         <Badge
                           key={option.value}
                           variant="secondary"
-                          className="rounded-sm px-1 font-normal"
+                          className="rounded-xs px-1 font-normal"
                         >
                           {option.label}
                         </Badge>

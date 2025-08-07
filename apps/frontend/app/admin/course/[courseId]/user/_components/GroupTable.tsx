@@ -55,7 +55,7 @@ export function GroupTable() {
           <DeleteUserButton />
         </div>
         <DataTable headerStyle={headerStyle} />
-        <DataTablePagination />
+        <DataTablePagination showSelection />
       </DataTableRoot>
     </div>
   )

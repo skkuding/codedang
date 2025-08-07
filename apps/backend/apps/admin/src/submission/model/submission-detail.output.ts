@@ -1,4 +1,4 @@
-import { ObjectType, Field, Int, OmitType } from '@nestjs/graphql'
+import { Field, Int, ObjectType, OmitType } from '@nestjs/graphql'
 import type { $Enums } from '@prisma/client'
 import { ResultStatus, Submission } from '@admin/@generated'
 
@@ -41,6 +41,12 @@ class TestCaseResult {
 
   @Field(() => Date)
   updateTime: Date
+
+  @Field(() => Boolean)
+  isHidden: boolean
+
+  @Field(() => Int)
+  scoreWeight: number
 }
 
 @ObjectType()

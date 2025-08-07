@@ -1,0 +1,32 @@
+meta {
+  name: [404] NotificationRecord Not Found
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{baseUrl}}/notification/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 99999
+}
+
+assert {
+  res.status: eq 200
+  res.body: isNull
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Delete Notification - Not Found
+  
+  존재하지 않는 알림 ID에 대한 삭제 시도입니다.
+  
+  해당 알림이 없는 경우 `null`을 반환합니다.
+}
