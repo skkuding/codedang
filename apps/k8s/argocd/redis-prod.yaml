@@ -1,21 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd
+  name: redis
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: argocd
-    name: production
+    namespace: redis
+    server: https://kubernetes.default.svc
   source:
-    path: apps/k8s/argocd
-    repoURL: https://github.com/skkuding/codedang
-    targetRevision: main
-    directory:
-      recurse: true
-  sources: []
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: redis
+    targetRevision: 21.2.13
+    helm:
+      valueFiles:
+        - ../redis/values-prod.yaml
   project: default
   syncPolicy:
     automated:
