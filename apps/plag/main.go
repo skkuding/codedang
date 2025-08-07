@@ -80,7 +80,7 @@ func main() {
 	}
 	defaultTracer := otel.Tracer("default")
 
-	bucket := utils.Getenv("CHECK_BUCKET_NAME", "")
+	bucket := utils.Getenv("CHECK_RESULT_BUCKET_NAME", "")
 	s3reader, err := loader.NewS3DataSource(bucket)
 	if err != nil {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
@@ -125,15 +125,15 @@ func main() {
 		connector.Providers{Router: routeProvider, Logger: logProvider},
 		rabbitmq.ConsumerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.Getenv("RABBITMQ_CONSUMER_CONNECTION_NAME", "iris-consumer"),
-			QueueName:      utils.Getenv("RABBITMQ_CONSUMER_QUEUE_NAME", "client.q.check.submission"), // 큐 네임 설정
-			Ctag:           utils.Getenv("RABBITMQ_CONSUMER_TAG", "consumer-tag"),
+			ConnectionName: utils.Getenv("RABBITMQ_CHECK_CONSUMER_CONNECTION_NAME", "plag-consumer-connection"),
+			QueueName:      utils.Getenv("RABBITMQ_CHECK_CONSUMER_QUEUE_NAME", "client.q.check.request"), // 큐 네임 설정
+			Ctag:           utils.Getenv("RABBITMQ_CHECK_CONSUMER_TAG", "check-consumer"),
 		},
 		rabbitmq.ProducerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.Getenv("RABBITMQ_PRODUCER_CONNECTION_NAME", "iris-producer"),
-			ExchangeName:   utils.Getenv("RABBITMQ_PRODUCER_EXCHANGE_NAME", "iris.e.direct.judge"),
-			RoutingKey:     utils.Getenv("RABBITMQ_PRODUCER_ROUTING_KEY", "judge.result"),
+			ConnectionName: utils.Getenv("RABBITMQ_CHECK_PRODUCER_CONNECTION_NAME", "plag-producer"),
+			ExchangeName:   utils.Getenv("RABBITMQ_CHECK_PRODUCER_EXCHANGE_NAME", "plag.e.direct.check"),
+			RoutingKey:     utils.Getenv("RABBITMQ_CHECK_PRODUCER_ROUTING_KEY", "check.result"),
 		},
 	).Connect(context.Background())
 

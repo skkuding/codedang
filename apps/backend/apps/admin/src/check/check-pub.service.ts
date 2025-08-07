@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { CheckRequest } from '@prisma/client'
 import { Span, TraceService } from 'nestjs-otel'
-import { EXCHANGE, SUBMISSION_KEY, CHECK_MESSAGE_TYPE } from '@libs/constants'
+import { CHECK_MESSAGE_TYPE, CHECK_EXCHANGE, CHECK_KEY } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import { CheckRequestMsg } from './model/check-request'
 
@@ -38,7 +38,7 @@ export class CheckPublicationService {
 
     span.setAttributes({ checkId: check.id })
 
-    await this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, checkRequest, {
+    await this.amqpConnection.publish(CHECK_EXCHANGE, CHECK_KEY, checkRequest, {
       messageId: check.id,
       type: CHECK_MESSAGE_TYPE,
       persistent: true

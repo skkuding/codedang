@@ -22,17 +22,17 @@ export const MESSAGE_PRIORITY_MIDDLE = 2
 export const MESSAGE_PRIORITY_LOW = 1
 
 /**
- * 표절 검사 요청 메시지 관련 (임시)
+ * 표절 검사 요청 메시지 관련
  */
 
 export const CHECK_PUBLISH_CHANNEL = 'check-publish-channel'
 export const CHECK_CONSUME_CHANNEL = 'check-result-consume-channel'
 
-// 이거 추가해도 되는지 모르겠어요
+export const CHECK_EXCHANGE = 'plag.e.direct.check'
 
 export const CHECK_KEY = 'check.request'
 export const CHECK_RESULT_KEY = 'check.result'
 
-export const CHECK_RESULT_QUEUE = 'iris.q.check.result'
+export const CHECK_RESULT_QUEUE = 'plag.q.check.result'
 
 export const CHECK_MESSAGE_TYPE = 'check'

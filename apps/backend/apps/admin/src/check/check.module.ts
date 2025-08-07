@@ -2,12 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { RolesModule } from '@libs/auth'
-import {
-  CHECK_CONSUME_CHANNEL,
-  CHECK_PUBLISH_CHANNEL,
-  CONSUME_CHANNEL,
-  PUBLISH_CHANNEL
-} from '@libs/constants'
+import { CHECK_CONSUME_CHANNEL, CHECK_PUBLISH_CHANNEL } from '@libs/constants'
 import { CheckPublicationService } from './check-pub.service'
 import { CheckSubscriptionService } from './check-sub.service'
 import { CheckResolver } from './check.resolver'
@@ -20,11 +15,11 @@ import { CheckService } from './check.service'
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => {
         const channels = {
-          [PUBLISH_CHANNEL]: {
+          [CHECK_PUBLISH_CHANNEL]: {
             prefetchCount: 1,
             default: true
           },
-          [CONSUME_CHANNEL]: {
+          [CHECK_CONSUME_CHANNEL]: {
             prefetchCount: 1
           }
         }
@@ -56,7 +51,6 @@ import { CheckService } from './check.service'
     CheckPublicationService,
     CheckSubscriptionService,
     CheckResolver
-  ],
-  controllers: []
+  ]
 })
 export class CheckModule {}
