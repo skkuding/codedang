@@ -2,15 +2,15 @@ import typography from '@tailwindcss/typography'
 import type { Config } from 'tailwindcss'
 import animate from 'tailwindcss-animate'
 import defaultTheme from 'tailwindcss/defaultTheme'
-import type { PluginAPI } from 'tailwindcss/types/config'
 
 export default {
-  darkMode: ['class'],
+  darkMode: 'class',
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}'
+    './src/**/*.{ts,tsx}',
+    './libs/**/*.{ts,tsx}'
   ],
   theme: {
     container: {
@@ -231,146 +231,20 @@ export default {
   plugins: [
     animate,
     typography,
-    function ({ addUtilities }: { addUtilities: PluginAPI['addUtilities'] }) {
-      addUtilities({
-        '.hide-spin-button': {
-          appearance: 'textfield',
-          '&::-webkit-inner-spin-button': {
-            appearance: 'none'
-          },
-          '&::-webkit-outer-spin-button': {
-            appearance: 'none'
+    {
+      handler: ({ addUtilities }) => {
+        addUtilities({
+          '.hide-spin-button': {
+            appearance: 'textfield',
+            '&::-webkit-inner-spin-button': {
+              appearance: 'none'
+            },
+            '&::-webkit-outer-spin-button': {
+              appearance: 'none'
+            }
           }
-        }
-      })
+        })
+      }
     }
-  ],
-  // safelist: ['!text-green-500', '!text-neutral-400', '!text-red-500']
-  safelist: [
-    // common 계열
-    'bg-color-common-100',
-    'bg-color-common-0',
-    // neutral 계열
-    'bg-color-neutral-99',
-    'bg-color-neutral-95',
-    'bg-color-neutral-90',
-    'bg-color-neutral-80',
-    'bg-color-neutral-70',
-    'bg-color-neutral-60',
-    'bg-color-neutral-50',
-    'bg-color-neutral-40',
-    'bg-color-neutral-30',
-    'bg-color-neutral-20',
-    'bg-color-neutral-15',
-    'bg-color-neutral-10',
-    'bg-color-neutral-5',
-    // red 계열
-    'bg-color-red-95',
-    'bg-color-red-90',
-    'bg-color-red-80',
-    'bg-color-red-70',
-    'bg-color-red-60',
-    'bg-color-red-50',
-    'bg-color-red-40',
-    'bg-color-red-30',
-    'bg-color-red-20',
-    'bg-color-red-10',
-    'bg-color-red-5',
-    // orange 계열
-    'bg-color-orange-95',
-    'bg-color-orange-90',
-    'bg-color-orange-80',
-    'bg-color-orange-70',
-    'bg-color-orange-60',
-    'bg-color-orange-50',
-    'bg-color-orange-40',
-    'bg-color-orange-30',
-    'bg-color-orange-20',
-    'bg-color-orange-10',
-    'bg-color-orange-5',
-    // yellow 계열
-    'bg-color-yellow-95',
-    'bg-color-yellow-90',
-    'bg-color-yellow-80',
-    'bg-color-yellow-70',
-    'bg-color-yellow-60',
-    'bg-color-yellow-50',
-    'bg-color-yellow-40',
-    'bg-color-yellow-30',
-    'bg-color-yellow-20',
-    'bg-color-yellow-10',
-    'bg-color-yellow-5',
-    // lime 계열
-    'bg-color-lime-95',
-    'bg-color-lime-90',
-    'bg-color-lime-80',
-    'bg-color-lime-70',
-    'bg-color-lime-60',
-    'bg-color-lime-50',
-    'bg-color-lime-40',
-    'bg-color-lime-30',
-    'bg-color-lime-20',
-    'bg-color-lime-10',
-    'bg-color-lime-5',
-    // green 계열
-    'bg-color-green-95',
-    'bg-color-green-90',
-    'bg-color-green-80',
-    'bg-color-green-70',
-    'bg-color-green-60',
-    'bg-color-green-50',
-    'bg-color-green-40',
-    'bg-color-green-30',
-    'bg-color-green-20',
-    'bg-color-green-10',
-    'bg-color-green-5',
-    // cyan 계열
-    'bg-color-cyan-95',
-    'bg-color-cyan-90',
-    'bg-color-cyan-80',
-    'bg-color-cyan-70',
-    'bg-color-cyan-60',
-    'bg-color-cyan-50',
-    'bg-color-cyan-40',
-    'bg-color-cyan-30',
-    'bg-color-cyan-20',
-    'bg-color-cyan-10',
-    'bg-color-cyan-5',
-    // blue 계열
-    'bg-color-blue-95',
-    'bg-color-blue-90',
-    'bg-color-blue-80',
-    'bg-color-blue-70',
-    'bg-color-blue-60',
-    'bg-color-blue-50',
-    'bg-color-blue-40',
-    'bg-color-blue-30',
-    'bg-color-blue-20',
-    'bg-color-blue-10',
-    'bg-color-blue-5',
-    // violet 계열
-    'bg-color-violet-95',
-    'bg-color-violet-90',
-    'bg-color-violet-80',
-    'bg-color-violet-70',
-    'bg-color-violet-60',
-    'bg-color-violet-50',
-    'bg-color-violet-40',
-    'bg-color-violet-30',
-    'bg-color-violet-20',
-    'bg-color-violet-10',
-    'bg-color-violet-5',
-    // pink 계열
-    'bg-color-pink-95',
-    'bg-color-pink-90',
-    'bg-color-pink-80',
-    'bg-color-pink-70',
-    'bg-color-pink-60',
-    'bg-color-pink-50',
-    'bg-color-pink-40',
-    'bg-color-pink-30',
-    'bg-color-pink-20',
-    'bg-color-pink-10',
-    'bg-color-pink-5'
   ]
 } satisfies Config

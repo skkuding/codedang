@@ -7,10 +7,10 @@ interface CoverProps {
 }
 
 const bgColors: { [key: string]: string } = {
-  contest: 'bg-gradient-to-r from-white via-white to-[#7EAFFF]',
-  problem: 'bg-gradient-to-r from-white via-white to-[#D1A9E7]',
-  notice: 'bg-gradient-to-r from-white via-white to-[#6976FF]',
-  course: 'bg-gradient-to-r from-white via-white to-[#AD96FF]'
+  contest: 'bg-linear-to-r from-white via-white to-[#7EAFFF]',
+  problem: 'bg-linear-to-r from-white via-white to-[#D1A9E7]',
+  notice: 'bg-linear-to-r from-white via-white to-[#6976FF]',
+  course: 'bg-linear-to-r from-white via-white to-[#AD96FF]'
 }
 
 const bgImg: { [key: string]: string } = {

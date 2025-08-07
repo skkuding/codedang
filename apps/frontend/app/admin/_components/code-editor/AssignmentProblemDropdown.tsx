@@ -46,7 +46,7 @@ export function AssignmentProblemDropdown({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
+      <DropdownMenuTrigger className="outline-hidden flex gap-1 text-lg text-white">
         <h1>{`${convertToLetter(currentProblem?.order ?? 0)}. ${currentProblem?.problem.title}`}</h1>
         <FaSortDown />
       </DropdownMenuTrigger>
