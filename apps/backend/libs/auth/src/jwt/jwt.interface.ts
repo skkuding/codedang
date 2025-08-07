@@ -1,6 +1,7 @@
 export interface JwtPayload {
   userId: number
   username: string
+  userRole: string
 }
 
 export interface JwtObject extends JwtPayload {
