@@ -227,7 +227,6 @@ export function EditorLayout({
               assignmentId={assignmentId}
               courseId={courseId}
               userId={userId}
-              isSubmitted={submissionData !== undefined}
             />
           </div>
         </div>
