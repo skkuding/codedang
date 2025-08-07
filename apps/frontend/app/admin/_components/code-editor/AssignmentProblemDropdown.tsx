@@ -43,7 +43,7 @@ export function AssignmentProblemDropdown({
         groupId: courseId,
         assignmentId,
         userId,
-        take: 100
+        take: 1000
       }
     }).data?.getAssignmentSubmissionSummaryByUserId.scoreSummary
       .problemScores ?? []

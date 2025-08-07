@@ -52,7 +52,6 @@ export function EditorMainResizablePanel({
   isTesting,
   onTest,
   testResults,
-  testcases,
   children,
   onReset
 }: ProblemEditorProps) {
