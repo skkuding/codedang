@@ -9,6 +9,10 @@ data:
     installationID: $github-app-secret:githubAppInstallationID
     privateKey: $github-app-secret:githubAppPrivateKey
 
+  trigger.on-sync-succeeded: |
+    when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+    send: [app-deployed]
+
   template.app-deployed: |
     message: |
       Application {{.app.metadata.name}} deployed successfully!
