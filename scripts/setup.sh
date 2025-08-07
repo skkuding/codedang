@@ -131,21 +131,34 @@ source ~/.bashrc
 while ! nc -z "$RABBITMQ_HOST" "$RABBITMQ_PORT"; do sleep 3; done
 echo "rabbitmq is up - server running..."
 
-# Make an Exchange
+# Make an Exchange for Iris
 rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
   declare exchange name=$JUDGE_EXCHANGE_NAME type=direct
+# Make an Exchange for Plag
+rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
+  declare exchange name=$CHECK_EXCHANGE_NAME type=direct
 
-# Make queues
+# Make queues for Iris
 rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
   declare queue name="$JUDGE_RESULT_QUEUE_NAME" durable=true
 rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
   declare queue name="$JUDGE_SUBMISSION_QUEUE_NAME" durable=true arguments='{"x-max-priority": 3}'
+# Make queues for Plag
+rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
+  declare queue name="$CHECK_REQUEST_QUEUE_NAME" durable=true
+rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
+  declare queue name="$CHECK_RESULT_QUEUE_NAME" durable=true
 
-# Make bindings
+# Make bindings for Iris
 rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
   declare binding source="$JUDGE_EXCHANGE_NAME" destination_type=queue destination="$JUDGE_RESULT_QUEUE_NAME" routing_key="$JUDGE_RESULT_ROUTING_KEY"
 rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
   declare binding source="$JUDGE_EXCHANGE_NAME" destination_type=queue destination="$JUDGE_SUBMISSION_QUEUE_NAME" routing_key="$JUDGE_SUBMISSION_ROUTING_KEY"
+# Make queues for Plag
+rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
+  declare binding source="$CHECK_EXCHANGE_NAME" destination_type=queue destination="$CHECK_RESULT_QUEUE_NAME" routing_key="$CHECK_RESULT_ROUTING_KEY"
+rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
+  declare binding source="$CHECK_EXCHANGE_NAME" destination_type=queue destination="$CHECK_REQUEST_QUEUE_NAME" routing_key="$CHECK_REQUEST_ROUTING_KEY"
 
 # Allow direnv
 cd $BASEDIR
