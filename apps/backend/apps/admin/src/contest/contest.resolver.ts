@@ -241,20 +241,20 @@ export class ContestQnAResolver {
     private readonly userService: UserService
   ) {}
 
-  @Query(() => [ContestQnA])
-  async getContestQnAs(
-    @Args('contestId', { type: () => Int }) contestId: number
-  ) {
-    return await this.contestService.getContestQnAs(contestId)
-  }
+  // @Query(() => [ContestQnA])
+  // async getContestQnAs(
+  //   @Args('contestId', { type: () => Int }) contestId: number
+  // ) {
+  //   return await this.contestService.getContestQnAs(contestId)
+  // }
 
-  @Query(() => ContestQnA)
-  async getContestQnA(
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('order', { type: () => Int }, IDValidationPipe) order: number
-  ) {
-    return await this.contestService.getContestQnA(contestId, order)
-  }
+  // @Query(() => ContestQnA)
+  // async getContestQnA(
+  //   @Args('contestId', { type: () => Int }) contestId: number,
+  //   @Args('order', { type: () => Int }, IDValidationPipe) order: number
+  // ) {
+  //   return await this.contestService.getContestQnA(contestId, order)
+  // }
 
   // @Mutation(() => ContestQnA)
   // async updateContestQnA(
@@ -270,14 +270,14 @@ export class ContestQnAResolver {
   // }
 
   // TODO: update with data loader when n+1 query issue is fixed
-  @ResolveField('createdBy', () => User, { nullable: true })
-  async getUser(@Parent() contestQnA: ContestQnA) {
-    const { createdById } = contestQnA
-    if (createdById == null) {
-      return null
-    }
-    return await this.userService.getUser(createdById)
-  }
+  // @ResolveField('createdBy', () => User, { nullable: true })
+  // async getUser(@Parent() contestQnA: ContestQnA) {
+  //   const { createdById } = contestQnA
+  //   if (createdById == null) {
+  //     return null
+  //   }
+  //   return await this.userService.getUser(createdById)
+  // }
 
   // TODO: update with data loader when n+1 query issue is fixed
   // @ResolveField('answeredBy', () => User, { nullable: true })

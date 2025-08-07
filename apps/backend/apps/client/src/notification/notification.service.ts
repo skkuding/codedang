@@ -12,15 +12,23 @@ export class NotificationService {
    * @param cursor - 커서 기반 페이징을 위한 마지막 알림 ID
    * @param take - 가져올 알림 수 (기본값: 8)
    */
-  async getNotifications(userId: number, cursor: number | null, take: number) {
+  async getNotifications(
+    userId: number,
+    cursor: number | null,
+    take: number,
+    isRead: boolean | null
+  ) {
     const paginator = this.prisma.getPaginator(cursor)
+
+    const whereOptions = {
+      userId,
+      isRead: isRead !== null ? isRead : undefined
+    }
 
     const notificationRecords = await this.prisma.notificationRecord.findMany({
       ...paginator,
       take,
-      where: {
-        userId
-      },
+      where: whereOptions,
       include: {
         notification: true
       },
@@ -39,6 +47,19 @@ export class NotificationService {
       isRead: record.isRead,
       createTime: record.createTime
     }))
+  }
+
+  /**
+   * 사용자의 읽지 않은 알림 개수를 조회합니다
+   * @param userId - 사용자 ID
+   */
+  async getUnreadCount(userId: number) {
+    return this.prisma.notificationRecord.count({
+      where: {
+        userId,
+        isRead: false
+      }
+    })
   }
 
   /**

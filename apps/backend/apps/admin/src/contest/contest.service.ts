@@ -1401,23 +1401,23 @@ export class ContestService {
   //   })
   // }
 
-  async getContestQnAs(contestId: number) {
-    return await this.prisma.contestQnA.findMany({
-      where: {
-        contestId
-      },
-      orderBy: {
-        order: 'asc'
-      }
-    })
-  }
+  // async getContestQnAs(contestId: number) {
+  //   return await this.prisma.contestQnA.findMany({
+  //     where: {
+  //       contestId
+  //     },
+  //     orderBy: {
+  //       order: 'asc'
+  //     }
+  //   })
+  // }
 
-  async getContestQnA(contestId: number, order: number) {
-    return await this.prisma.contestQnA.findFirst({
-      where: {
-        contestId,
-        order
-      }
-    })
-  }
+  // async getContestQnA(contestId: number, order: number) {
+  //   return await this.prisma.contestQnA.findFirst({
+  //     where: {
+  //       contestId,
+  //       order
+  //     }
+  //   })
+  // }
 }

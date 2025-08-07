@@ -1862,13 +1862,13 @@ enum NotificationType {
 }
 
 type Problem {
+  ContestQnA: [ContestQnA!]
   _count: ProblemCount!
   acceptedCount: Int!
   acceptedRate: Float!
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
   contestProblem: [ContestProblem!]
-  contestQnA: [ContestQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -1925,10 +1925,10 @@ type ProblemAvgAggregate {
 }
 
 type ProblemCount {
+  ContestQnA: Int!
   announcement: Int!
   assignmentProblem: Int!
   contestProblem: Int!
-  contestQnA: Int!
   problemTag: Int!
   problemTestcase: Int!
   sharedGroups: Int!
@@ -2188,13 +2188,13 @@ type ProblemTestcaseSumAggregate {
 }
 
 type ProblemWithIsVisible {
+  ContestQnA: [ContestQnA!]
   _count: ProblemCount!
   acceptedCount: Int!
   acceptedRate: Float!
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
   contestProblem: [ContestProblem!]
-  contestQnA: [ContestQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -2270,8 +2270,6 @@ type Query {
   getContest(contestId: Int!): ContestWithParticipants!
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestProblems(contestId: Int!): [ContestProblem!]!
-  getContestQnA(contestId: Int!, order: Int!): ContestQnA!
-  getContestQnAs(contestId: Int!): [ContestQnA!]!
   getContestRoles: [UserContest!]!
   getContestScoreSummaries(contestId: Int!, cursor: Int, searchingName: String, take: Int! = 10): [UserContestScoreSummaryWithUserInfo!]!
   getContestSubmissionSummaryByUserId(contestId: Int!, cursor: Int, problemId: Int, take: Int! = 10, userId: Int!): ContestSubmissionSummaryForUser!
@@ -2714,6 +2712,7 @@ type TestSubmissionSumAggregate {
 input Testcase {
   input: String!
   isHidden: Boolean!
+  order: Int
   output: String!
   scoreWeight: IntScore
 }

@@ -208,7 +208,7 @@ const CarouselPrevious = React.forwardRef<
       className={cn(
         'flex h-8 w-8 items-center justify-center disabled:opacity-100',
         orientation === 'horizontal'
-          ? '-right-12 -translate-y-[0px]'
+          ? '-right-12 translate-y-[0px]'
           : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
         className
       )}
@@ -246,7 +246,7 @@ const CarouselNext = React.forwardRef<
       className={cn(
         'flex h-8 w-8 items-center justify-center disabled:opacity-100',
         orientation === 'horizontal'
-          ? '-right-12 top-1/2 -translate-y-[0px]'
+          ? '-right-12 top-1/2 translate-y-[0px]'
           : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
         className
       )}
@@ -273,7 +273,7 @@ const CarouselNextGradient = () => {
   const { canScrollNext } = useCarousel()
 
   return canScrollNext ? (
-    <div className="absolute bottom-[4px] right-0 h-[130px] w-[120px] self-end bg-gradient-to-r from-transparent to-white/70" />
+    <div className="bg-linear-to-r absolute bottom-[4px] right-0 h-[130px] w-[120px] self-end from-transparent to-white/70" />
   ) : (
     <div />
   )
@@ -284,7 +284,7 @@ const CarouselPrevGradient = () => {
   const { canScrollPrev } = useCarousel()
 
   return canScrollPrev ? (
-    <div className="absolute bottom-[4px] left-0 h-[130px] w-[120px] self-start bg-gradient-to-r from-white/70 to-transparent" />
+    <div className="bg-linear-to-r absolute bottom-[4px] left-0 h-[130px] w-[120px] self-start from-white/70 to-transparent" />
   ) : (
     <div />
   )
