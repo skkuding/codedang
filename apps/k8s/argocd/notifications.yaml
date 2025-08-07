@@ -10,7 +10,7 @@ data:
     privateKey: $github-app-secret:githubAppPrivateKey
 
   trigger.on-sync-succeeded: |
-    when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+    when: true
     send: [app-deployed]
 
   template.app-deployed: |
