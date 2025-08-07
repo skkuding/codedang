@@ -59,13 +59,12 @@ export default function Page() {
                 <FormSection title="Start Time">
                   <TimeForm isContest name="startTime" />
                 </FormSection>
+                <FormSection title="Join DueTime">
+                  <TimeForm isContest name="registerDueTime" />
+                </FormSection>
                 <FormSection title="End Time">
                   <TimeForm isContest name="endTime" />
                 </FormSection>
-                <FormSection title="Deadline">
-                  <TimeForm isContest name="deadline" />
-                </FormSection>
-
                 <FreezeForm name="freezeTime" />
               </div>
             </div>

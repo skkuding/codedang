@@ -27,7 +27,6 @@ export default function Layout({
       contestId: Number(contestId)
     }
   }).data?.getContest
-
   return (
     <main className="flex flex-col px-20 py-16">
       <div className="mb-10 flex items-center justify-between">
@@ -68,9 +67,7 @@ export default function Layout({
         <div className="flex items-center gap-2">
           <Image src={emergencyIcon} alt="emergency" width={16} />
           <p className="font-normal text-[#333333E5]">
-            {/* 여기도 쿼리 필드로 추가되면 이거 사용하면 될 것 같아요 !
-            {dateFormatter(contestData?.deadline, 'YY-MM-DD HH:mm')} */}
-            {'25-08-06 14:50'}
+            {dateFormatter(contestData?.registerDueTime, 'YY-MM-DD HH:mm')}
           </p>
         </div>
       </div>

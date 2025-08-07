@@ -65,7 +65,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
             (1000 * 60)
         )
       : null
-
+  console.log(methods.getValues())
   return (
     <ConfirmNavigation>
       <ScrollArea className="w-full">
@@ -114,6 +114,15 @@ export default function Page({ params }: { params: { contestId: string } }) {
                     <TimeForm isContest name="startTime" />
                   )}
                 </FormSection>
+                <FormSection
+                  title="Join DueTime"
+                  isOngoing={isOngoing}
+                  isFinished={isFinished}
+                >
+                  {methods.getValues('registerDueTime') && (
+                    <TimeForm isContest name="registerDueTime" />
+                  )}
+                </FormSection>
                 <FormSection title="End Time" isFinished={isFinished}>
                   {methods.getValues('endTime') && (
                     <ContestEditEndTimeForm
@@ -122,17 +131,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
                     />
                   )}
                 </FormSection>
-                <FormSection
-                  title="Deadline"
-                  isOngoing={isOngoing}
-                  isFinished={isFinished}
-                >
-                  <TimeForm isContest name="deadline" />
-                  {/* query에 deadline 추가되면 이거 사용하면 될 것 같아요
-                   {methods.getValues('deadline') && (
-                    <TimeForm isContest name="deadline" />
-                  )} */}
-                </FormSection>
+
                 {methods.getValues('freezeTime') !== undefined && (
                   <FreezeForm
                     name="freezeTime"
