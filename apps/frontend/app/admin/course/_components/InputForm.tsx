@@ -38,10 +38,10 @@ export function InputForm({
   const inputCount = (value ?? watchedValue ?? '').length
 
   return (
-    <div className={cn(className, 'flex w-full flex-col')}>
+    <div className={cn(className, 'flex w-full flex-col gap-1')}>
       <div className="flex items-center rounded-full border bg-white pr-4">
         <Input
-          id={name} // key 대신 name 사용
+          id={name}
           type={type}
           disabled={disabled}
           value={value}
@@ -57,7 +57,6 @@ export function InputForm({
           onChange={(e) => {
             if (onChange) {
               onChange(e)
-              return
             }
             if (maxLength && e.target.value.length > maxLength) {
               e.preventDefault()

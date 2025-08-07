@@ -3,85 +3,56 @@
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
-import { CREATE_COURSE } from '@/graphql/course/mutation'
-import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import type { SemesterSeason } from '@/types/type'
-import { useApolloClient, useMutation } from '@apollo/client'
-import type { CourseInput } from '@generated/graphql'
-import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useState } from 'react'
-import { useForm, type SubmitHandler } from 'react-hook-form'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
-import { toast } from 'sonner'
 import { FormSection } from '../../_components/FormSection'
-import { courseSchema } from '../_libs/schema'
 import { CreateCourseForm } from './CreateCourseForm'
 import { DropdownForm } from './DropdownForm'
 import { InputForm } from './InputForm'
 
 export function CreateCourseButton() {
-  const { handleSubmit, setValue } = useForm<CourseInput>({
-    resolver: valibotResolver(courseSchema),
-    defaultValues: {
-      config: {
-        showOnList: true,
-        allowJoinFromSearch: true,
-        allowJoinWithURL: true,
-        requireApprovalBeforeJoin: false
-      }
-    }
-  })
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [coursePrefix, setCoursePrefix] = useState('')
   const [courseCode, setCourseCode] = useState('')
   const [courseSection, setCourseSection] = useState('')
-  const [createCourse] = useMutation(CREATE_COURSE)
+
   const currentYear = new Date().getFullYear()
   const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
 
-  const client = useApolloClient()
+  // 현재 월 기준으로 현재 계절 인덱스 구하기
+  const month = new Date().getMonth() + 1
+  let currentSeasonIdx = 0
+  if (month >= 3 && month <= 5) {
+    currentSeasonIdx = 0
+  } // Spring
+  else if (month >= 6 && month <= 8) {
+    currentSeasonIdx = 1
+  } // Summer
+  else if (month >= 9 && month <= 11) {
+    currentSeasonIdx = 2
+  } // Fall
+  else {
+    currentSeasonIdx = 3
+  } // Winter
 
-  const onSubmit: SubmitHandler<CourseInput> = async (data) => {
-    try {
-      await createCourse({
-        variables: {
-          input: {
-            courseTitle: data.courseTitle,
-            courseNum: `${coursePrefix}${courseCode}`,
-            classNum: Number(courseSection),
-            professor: data.professor,
-            semester: data.semester,
-            week: data.week,
-            email: data.email,
-            website: data.website,
-            office: data.office,
-            phoneNum: data.phoneNum,
-            config: data.config
-          }
-        }
-      })
-
-      toast.success('Course created successfully!')
-      client.refetchQueries({
-        include: [GET_COURSES_USER_LEAD]
-      })
-    } catch (error) {
-      //TODO: error handling
-      console.error('Error creating course:', error)
-      toast.error('An unexpected error occurred')
-    }
-  }
+  // 5개 계절 생성 (연도 포함)
+  const semesterItems = Array.from({ length: 5 }, (_, i) => {
+    const seasonIdx = (currentSeasonIdx + i) % 4
+    const yearOffset = Math.floor((currentSeasonIdx + i) / 4)
+    return `${currentYear + yearOffset} ${seasons[seasonIdx]}`
+  })
 
   const handleCoursePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toUpperCase() // 대문자로 변환
+    const value = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase() // 영어만 남기고 대문자로 변환
     setCoursePrefix(value)
-    setValue('courseNum', coursePrefix + courseCode)
+    // setValue('courseNum', value + courseCode)
   }
 
   const handleCourseCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
     setCourseCode(value)
-    setValue('courseNum', coursePrefix + courseCode)
+    // setValue('courseNum', coursePrefix + courseCode)
   }
 
   const handleCourseSectionChange = (
@@ -89,7 +60,7 @@ export function CreateCourseButton() {
   ) => {
     const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
     setCourseSection(value)
-    setValue('classNum', Number(value)) // value로 변경
+    // setValue('classNum', Number(value)) // value로 변경
   }
 
   return (
@@ -185,10 +156,7 @@ export function CreateCourseButton() {
               title="Semester"
               className="gap-[6px]"
             >
-              <DropdownForm
-                name="semester"
-                items={Array.from({ length: 17 }, (_, i) => (i + 1).toString())}
-              />
+              <DropdownForm name="semester" items={semesterItems} />
             </FormSection>
             <span className="whitespace-nowrap text-lg">Contact</span>
             <div className="bg-color-neutral-99 flex flex-col gap-[10px] rounded-[10px] p-5">
@@ -255,7 +223,7 @@ export function CreateCourseButton() {
               </Button>
               <Button
                 variant="default"
-                onClick={() => handleSubmit(onSubmit)()}
+                type="submit"
                 className="h-[46px] w-full"
               >
                 Create

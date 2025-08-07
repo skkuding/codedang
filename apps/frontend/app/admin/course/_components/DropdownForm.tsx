@@ -11,19 +11,14 @@ interface DropdownFormProps {
 
 export function DropdownForm({ name, items }: DropdownFormProps) {
   const {
-    watch,
-    control,
     getValues,
     formState: { errors },
     setValue
   } = useFormContext()
 
-  const watchedValue = watch(name)
-
   const { field } = useController({
     name,
-    control,
-    defaultValue: ''
+    defaultValue: getValues(name)
   })
 
   return (
@@ -31,10 +26,18 @@ export function DropdownForm({ name, items }: DropdownFormProps) {
       <OptionSelect
         className="w-full"
         options={items}
-        value={field.value as string}
-        onChange={field.onChange}
+        value={field.value ?? ''}
+        onChange={(value) => {
+          field.onChange(value)
+          setValue(name, value)
+        }}
       />
-      {errors[name] && <ErrorMessage />}
+      {errors[name] &&
+        (errors[name]?.type === 'required' ? (
+          <ErrorMessage />
+        ) : (
+          <ErrorMessage message={errors[name].message?.toString()} />
+        ))}
     </div>
   )
 }
