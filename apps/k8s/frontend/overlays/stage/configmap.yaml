@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-env
+  namespace: frontend
+data:
+  NEXT_URL: 'https://k8s-test.stage.codedang.com'
+  NEXTAUTH_URL: 'https://k8s-test.stage.codedang.com/next-auth/api/auth'
+  NEXT_PUBLIC_BASEURL: 'https://stage.codedang.com/api'
+  NEXT_PUBLIC_GQL_BASEURL: 'https://stage.codedang.com/graphql'

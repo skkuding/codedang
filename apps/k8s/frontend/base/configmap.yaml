@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-env
+  namespace: frontend
+data:
+  NEXT_URL: 'https://codedang.com'
+  NEXTAUTH_URL: 'https://codedang.com/next-auth/api/auth'
+  NEXT_PUBLIC_BASEURL: 'https://codedang.com/api'
+  NEXT_PUBLIC_CHANNEL_PLUGIN_KEY: '2f5b48ae-a587-431f-8106-2842c4403bc7'
+  NEXT_PUBLIC_GQL_BASEURL: 'https://codedang.com/graphql'
+  NEXT_PUBLIC_RUNNER_BASEURL: 'wss://run.codedang.com/run'
