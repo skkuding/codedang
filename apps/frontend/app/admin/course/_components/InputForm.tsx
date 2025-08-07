@@ -2,7 +2,6 @@
 
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
-import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { inputStyle } from '../../_libs/utils'
@@ -13,6 +12,9 @@ interface InputFormProps {
   name: string
   maxLength?: number
   type: 'text' | 'email' | 'number'
+  value?: string
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  disabled?: boolean
 }
 
 export function InputForm({
@@ -20,7 +22,10 @@ export function InputForm({
   className,
   name,
   maxLength,
-  type
+  type,
+  value,
+  onChange,
+  disabled = false
 }: InputFormProps) {
   const {
     register,
@@ -28,12 +33,9 @@ export function InputForm({
     watch,
     setValue
   } = useFormContext()
-  const [inputCount, setInputCount] = useState(0)
-  const watchedValue = watch(name)
 
-  useEffect(() => {
-    setInputCount(watchedValue?.length || 0)
-  }, [watchedValue])
+  const watchedValue = watch(name)
+  const inputCount = (value ?? watchedValue ?? '').length
 
   return (
     <div className={cn(className, 'flex w-full flex-col')}>
@@ -41,6 +43,8 @@ export function InputForm({
         <Input
           id={name} // key 대신 name 사용
           type={type}
+          disabled={disabled}
+          value={value}
           placeholder={placeholder}
           className={cn(
             inputStyle,
@@ -51,11 +55,15 @@ export function InputForm({
             required: true
           })}
           onChange={(e) => {
-            if (e.target.value.length > (maxLength || 120)) {
+            if (onChange) {
+              onChange(e)
+              return
+            }
+            if (maxLength && e.target.value.length > maxLength) {
               e.preventDefault()
               return
             }
-            setValue(name, e.target.value) // key 대신 name 사용
+            setValue(name, e.target.value)
           }}
         />
         {maxLength && (

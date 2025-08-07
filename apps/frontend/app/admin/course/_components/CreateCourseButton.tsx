@@ -37,8 +37,9 @@ export function CreateCourseButton() {
     }
   })
 
-  const [prefix, setPrefix] = useState('')
+  const [coursePrefix, setCoursePrefix] = useState('')
   const [courseCode, setCourseCode] = useState('')
+  const [courseSection, setCourseSection] = useState('')
   const [createCourse] = useMutation(CREATE_COURSE)
   const currentYear = new Date().getFullYear()
   const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
@@ -51,8 +52,8 @@ export function CreateCourseButton() {
         variables: {
           input: {
             courseTitle: data.courseTitle,
-            courseNum: `${prefix}${courseCode}`,
-            classNum: Number(data.classNum),
+            courseNum: `${coursePrefix}${courseCode}`,
+            classNum: Number(courseSection),
             professor: data.professor,
             semester: data.semester,
             week: data.week,
@@ -76,16 +77,24 @@ export function CreateCourseButton() {
     }
   }
 
-  const handlePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoursePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toUpperCase() // 대문자로 변환
-    setPrefix(value)
-    setValue('courseNum', prefix + courseCode)
+    setCoursePrefix(value)
+    setValue('courseNum', coursePrefix + courseCode)
   }
 
   const handleCourseCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
     setCourseCode(value)
-    setValue('courseNum', prefix + courseCode)
+    setValue('courseNum', coursePrefix + courseCode)
+  }
+
+  const handleCourseSectionChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
+    setCourseSection(value)
+    setValue('classNum', Number(courseSection))
   }
 
   return (
@@ -100,6 +109,8 @@ export function CreateCourseButton() {
           <span className="text-lg">Create</span>
         </Button>
       }
+      open={true}
+      onOpenChange={() => {}}
       className="!pb-0 !pr-[20px]"
     >
       <ScrollArea className="h-full w-full pr-[16px]">
@@ -133,6 +144,9 @@ export function CreateCourseButton() {
                   placeholder="SWE"
                   name="courseCodePrefix"
                   type="text"
+                  maxLength={3}
+                  value={coursePrefix}
+                  onChange={handleCoursePrefixChange}
                 />
               </FormSection>
               <FormSection
@@ -142,9 +156,12 @@ export function CreateCourseButton() {
                 isLabeled={false}
               >
                 <InputForm
-                  placeholder="1234"
+                  placeholder="0000"
                   name="courseCodeSuffix"
                   type="text"
+                  maxLength={4}
+                  value={courseCode}
+                  onChange={handleCourseCodeChange}
                 />
               </FormSection>
             </div>
@@ -153,7 +170,14 @@ export function CreateCourseButton() {
               title="Course Section"
               className="gap-[6px]"
             >
-              <InputForm placeholder="01" name="classNum" type="number" />
+              <InputForm
+                placeholder="00"
+                name="classNum"
+                type="text"
+                maxLength={2}
+                value={courseSection}
+                onChange={handleCourseSectionChange}
+              />
             </FormSection>
             <FormSection isFlexColumn={true} title="Week" className="gap-[6px]">
               <DropdownForm
@@ -171,6 +195,53 @@ export function CreateCourseButton() {
                 items={Array.from({ length: 17 }, (_, i) => (i + 1).toString())}
               />
             </FormSection>
+            <span className="whitespace-nowrap text-base">Contact</span>
+            <div className="flex flex-col gap-[10px] p-5">
+              <FormSection
+                isFlexColumn={true}
+                title="Email"
+                className="gap-[6px]"
+              >
+                <InputForm
+                  placeholder="example@skku.edu"
+                  name="email"
+                  type="text"
+                />
+              </FormSection>
+              <FormSection
+                isFlexColumn={true}
+                title="Phone Number"
+                className="gap-[6px]"
+              >
+                <InputForm
+                  placeholder="010-1234-5678"
+                  name="phoneNum"
+                  type="text"
+                />
+              </FormSection>
+              <FormSection
+                isFlexColumn={true}
+                title="Office"
+                className="gap-[6px]"
+              >
+                <InputForm
+                  placeholder="100주년기념관 101호"
+                  name="office"
+                  type="text"
+                />
+              </FormSection>
+              <FormSection
+                isFlexColumn={true}
+                title="Website"
+                className="gap-[6px]"
+              >
+                <InputForm
+                  placeholder="https://example.com"
+                  name="website"
+                  type="text"
+                />
+              </FormSection>
+            </div>
           </div>
         </CreateCourseForm>
         {/* <form
@@ -181,32 +252,8 @@ export function CreateCourseButton() {
 
 
           <div className="flex justify-between gap-4">
-            <div className="flex w-2/3 flex-col gap-2">
-              <div className="flex gap-2">
-                <span className="font-bold">Course Code</span>
-                <span className="text-red-500">*</span>
-              </div>
 
-              <div className="flex gap-2">
-                <Input
-                  type="text"
-                  placeholder="SWE"
-                  value={prefix}
-                  onChange={handlePrefixChange}
-                  maxLength={3}
-                  className="w-full rounded border p-2"
-                />
-                <Input
-                  type="text"
-                  placeholder="0000"
-                  value={courseCode}
-                  onChange={handleCourseCodeChange}
-                  maxLength={4}
-                  className="w-full rounded border p-2"
-                />
-              </div>
-              {errors.courseNum && <ErrorMessage />}
-            </div>
+
             <div className="flex w-1/3 flex-col gap-2">
               <div className="flex gap-2">
                 <span className="font-bold">Class Section</span>

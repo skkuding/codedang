@@ -40,7 +40,7 @@ export function OptionSelect({
       >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent className="w-[115px] bg-white">
+      <SelectContent className={cn('w-[115px] bg-white', className)}>
         <ScrollArea>
           <SelectGroup className="max-h-40">
             {options.map((option) => (

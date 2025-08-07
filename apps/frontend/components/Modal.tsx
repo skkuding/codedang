@@ -87,7 +87,12 @@ export function Modal({
           {type === 'warning' && (
             <Image src={infoIcon} alt="info" width={42} height={42} />
           )}
-          <DialogTitle className="text-center text-2xl font-semibold">
+          <DialogTitle
+            className={cn(
+              'w-full text-center text-2xl font-semibold',
+              size === 'lg' && 'text-left'
+            )}
+          >
             {title}
           </DialogTitle>
           {size === 'lg' && headerDescription && (
