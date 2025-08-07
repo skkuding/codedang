@@ -3,7 +3,7 @@ import {
   Injectable,
   type PipeTransform
 } from '@nestjs/common'
-import { ProblemOrder } from '@client/problem/enum/problem-order.enum'
+import { ProblemOrder } from '../enum/problem-order.enum'
 
 @Injectable()
 export class ProblemOrderPipe implements PipeTransform {
