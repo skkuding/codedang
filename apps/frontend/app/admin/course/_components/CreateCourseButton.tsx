@@ -20,12 +20,7 @@ import { DropdownForm } from './DropdownForm'
 import { InputForm } from './InputForm'
 
 export function CreateCourseButton() {
-  const {
-    handleSubmit,
-    register,
-    setValue,
-    formState: { errors }
-  } = useForm<CourseInput>({
+  const { handleSubmit, setValue } = useForm<CourseInput>({
     resolver: valibotResolver(courseSchema),
     defaultValues: {
       config: {
@@ -36,7 +31,7 @@ export function CreateCourseButton() {
       }
     }
   })
-
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [coursePrefix, setCoursePrefix] = useState('')
   const [courseCode, setCourseCode] = useState('')
   const [courseSection, setCourseSection] = useState('')
@@ -94,7 +89,7 @@ export function CreateCourseButton() {
   ) => {
     const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
     setCourseSection(value)
-    setValue('classNum', Number(courseSection))
+    setValue('classNum', Number(value)) // value로 변경
   }
 
   return (
@@ -109,8 +104,8 @@ export function CreateCourseButton() {
           <span className="text-lg">Create</span>
         </Button>
       }
-      open={true}
-      onOpenChange={() => {}}
+      open={isModalOpen}
+      onOpenChange={setIsModalOpen}
       className="!pb-0 !pr-[20px]"
     >
       <ScrollArea className="h-full w-full pr-[16px]">
@@ -195,12 +190,14 @@ export function CreateCourseButton() {
                 items={Array.from({ length: 17 }, (_, i) => (i + 1).toString())}
               />
             </FormSection>
-            <span className="whitespace-nowrap text-base">Contact</span>
-            <div className="flex flex-col gap-[10px] p-5">
+            <span className="whitespace-nowrap text-lg">Contact</span>
+            <div className="bg-color-neutral-99 flex flex-col gap-[10px] rounded-[10px] p-5">
               <FormSection
                 isFlexColumn={true}
+                isLabeled={false}
                 title="Email"
                 className="gap-[6px]"
+                titleSize="base"
               >
                 <InputForm
                   placeholder="example@skku.edu"
@@ -212,6 +209,8 @@ export function CreateCourseButton() {
                 isFlexColumn={true}
                 title="Phone Number"
                 className="gap-[6px]"
+                titleSize="base"
+                isLabeled={false}
               >
                 <InputForm
                   placeholder="010-1234-5678"
@@ -223,9 +222,11 @@ export function CreateCourseButton() {
                 isFlexColumn={true}
                 title="Office"
                 className="gap-[6px]"
+                titleSize="base"
+                isLabeled={false}
               >
                 <InputForm
-                  placeholder="100주년기념관 101호"
+                  placeholder="제2공학관 26B12A호"
                   name="office"
                   type="text"
                 />
@@ -234,6 +235,8 @@ export function CreateCourseButton() {
                 isFlexColumn={true}
                 title="Website"
                 className="gap-[6px]"
+                titleSize="base"
+                isLabeled={false}
               >
                 <InputForm
                   placeholder="https://example.com"
@@ -242,136 +245,24 @@ export function CreateCourseButton() {
                 />
               </FormSection>
             </div>
+            <div className="mb-[50px] mt-[20px] flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsModalOpen(false)}
+                className="h-[46px] w-full"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="default"
+                onClick={() => handleSubmit(onSubmit)()}
+                className="h-[46px] w-full"
+              >
+                Create
+              </Button>
+            </div>
           </div>
         </CreateCourseForm>
-        {/* <form
-          onSubmit={handleSubmit(onSubmit)}
-          aria-label="Create course"
-          className="flex flex-col gap-3 [&>*]:px-1"
-        >
-
-
-          <div className="flex justify-between gap-4">
-
-
-            <div className="flex w-1/3 flex-col gap-2">
-              <div className="flex gap-2">
-                <span className="font-bold">Class Section</span>
-              </div>
-
-              <Input
-                {...register('classNum', {
-                  setValueAs: (v) => parseInt(v)
-                })}
-                type="number"
-                maxLength={2}
-                className="w-full rounded border p-2"
-              />
-
-              {errors.classNum && (
-                <ErrorMessage message={errors.classNum.message} />
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <span className="font-bold">Semester</span>
-              <span className="text-red-500">*</span>
-            </div>
-            <Select
-              onValueChange={(value) => {
-                setValue('semester', value)
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Choose" />
-              </SelectTrigger>
-              <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
-                {seasons.map((season) => (
-                  <SelectItem
-                    key={`${currentYear} ${season}`}
-                    value={`${currentYear} ${season}`}
-                  >
-                    {currentYear} {season}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.semester && (
-              <ErrorMessage message={errors.semester.message} />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <span className="font-bold">Week</span>
-              <span className="text-red-500">*</span>
-            </div>
-            <Select
-              onValueChange={(weekCount) => {
-                const parsedWeekCount = parseInt(weekCount, 10)
-                setValue('week', parsedWeekCount)
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Choose" />
-              </SelectTrigger>
-              <SelectContent className="rounded-md border border-gray-200 bg-white shadow-md">
-                {[3, 6, 16].map((week) => (
-                  <SelectItem key={week} value={week.toString()}>
-                    {week} {week === 1 ? 'Week' : 'Weeks'}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.week && <ErrorMessage message={errors.week.message} />}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <span className="font-bold">Contact</span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-normal">Email</span>
-              <Input
-                {...register('email')}
-                type="emailemail"
-                className="w-full rounded border p-2"
-              />
-              {errors.email && <ErrorMessage message={errors.email.message} />}
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-normal">Phone Number</span>
-              <Input
-                {...register('phoneNum')}
-                type="text"
-                className="w-full rounded border p-2"
-              />
-              {errors.phoneNum && <ErrorMessage />}
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-normal">Office</span>
-              <Input
-                {...register('office')}
-                type="text"
-                className="w-full rounded border p-2"
-              />
-              {errors.office && <ErrorMessage />}
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-normal">Website</span>
-              <Input
-                {...register('website')}
-                type="text"
-                className="w-full rounded border p-2"
-              />
-              {errors.website && (
-                <ErrorMessage message={errors.website.message} />
-              )}
-            </div>
-          </div>
-        </form> */}
       </ScrollArea>
     </Modal>
   )
