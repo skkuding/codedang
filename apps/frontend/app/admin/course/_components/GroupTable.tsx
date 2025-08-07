@@ -99,7 +99,7 @@ export function GroupTable() {
           headerStyle={headerStyle}
           getHref={(data) => `/admin/course/${data.id}`}
         />
-        <DataTablePagination />
+        <DataTablePagination showSelection />
       </DataTableRoot>
     </div>
   )
