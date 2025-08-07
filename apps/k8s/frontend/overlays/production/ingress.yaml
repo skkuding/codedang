@@ -1,19 +1,17 @@
+# Currently this patch is only for overriding domain to 'k8s-test.codedang.com'
+# One day 'codedang.com' takes place, this patch file can be removed.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: frontend-ingress
-  namespace: frontend
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
-    traefik.ingress.kubernetes.io/redirect-entry-point: https
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - k8s-test-frontend.codedang.com # TODO: replace this with actual domain
+        - k8s-test.codedang.com # TODO: Replace this with actual domain
       secretName: frontend-tls
   rules:
-    - host: k8s-test-frontend.codedang.com
+    - host: k8s-test.codedang.com
       http:
         paths:
           - path: /
