@@ -6,6 +6,7 @@ import {
   Query,
   Req
 } from '@nestjs/common'
+import { ApiQuery } from '@nestjs/swagger'
 import {
   AuthNotNeededIfPublic,
   AuthenticatedRequest,
@@ -18,9 +19,9 @@ import {
   IDValidationPipe,
   RequiredIntPipe,
   ProblemOrderPipe,
-  NullableGroupIDPipe
+  NullableGroupIDPipe,
+  ProblemOrder
 } from '@libs/pipe'
-import { ProblemOrder } from './enum/problem-order.enum'
 import {
   ContestProblemService,
   AssignmentProblemService,
@@ -35,6 +36,11 @@ export class ProblemController {
     private readonly workbookProblemService: WorkbookProblemService
   ) {}
 
+  @ApiQuery({
+    name: 'order',
+    enum: ProblemOrder,
+    enumName: 'ProblemOrder'
+  })
   @Get()
   @AuthNotNeededIfPublic()
   async getProblems(
