@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
-import { PlagiarismCheck } from '@prisma/client'
+import { CheckRequest } from '@prisma/client'
 import { Span, TraceService } from 'nestjs-otel'
 import { EXCHANGE, SUBMISSION_KEY, CHECK_MESSAGE_TYPE } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
-import { CheckRequest } from './model/check-request'
+import { CheckRequestMsg } from './model/check-request'
 
 @Injectable()
 export class CheckPublicationService {
@@ -18,9 +18,9 @@ export class CheckPublicationService {
   async publishCheckRequestMessage({
     check
   }: {
-    check: PlagiarismCheck
+    check: CheckRequest
   }): Promise<void> {
-    const checkRequest = new CheckRequest(
+    const checkRequest = new CheckRequestMsg(
       check.problemId,
       check.language,
       check.minTokens,

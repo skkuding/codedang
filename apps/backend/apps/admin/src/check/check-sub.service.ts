@@ -19,7 +19,7 @@ import {
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { CheckResponse } from './model/check-response.dto'
+import { CheckResponseMsg } from './model/check-response.dto'
 
 @Injectable()
 export class CheckSubscriptionService implements OnModuleInit {
@@ -65,15 +65,15 @@ export class CheckSubscriptionService implements OnModuleInit {
   }
 
   @Span()
-  async validateCheckResponse(msg: object): Promise<CheckResponse> {
-    const res: CheckResponse = plainToInstance(CheckResponse, msg)
+  async validateCheckResponse(msg: object): Promise<CheckResponseMsg> {
+    const res: CheckResponseMsg = plainToInstance(CheckResponseMsg, msg)
     await validateOrReject(res)
 
     return res
   }
 
   @Span()
-  async handleCheckMessage(msg: CheckResponse): Promise<void> {
+  async handleCheckMessage(msg: CheckResponseMsg): Promise<void> {
     const status = CheckStatus(msg.resultCode)
 
     if (
@@ -90,7 +90,7 @@ export class CheckSubscriptionService implements OnModuleInit {
   @Span()
   async handleCheckError(
     status: CheckResultStatus,
-    msg: CheckResponse
+    msg: CheckResponseMsg
   ): Promise<void> {
     const checkRequest = await this.prisma.checkRequest.findUnique({
       where: {

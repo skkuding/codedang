@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator'
 
-export class CheckResponse {
+export class CheckResponseMsg {
   @Max(2)
   @Min(0)
   @IsNotEmpty()

@@ -134,7 +134,7 @@ export class CheckService {
     } = checkInput
 
     try {
-      const check = await this.prisma.plagiarismCheck.create({
+      const check = await this.prisma.checkRequest.create({
         data: {
           problemId: problemId,
           result: CheckResultStatus.Pending,

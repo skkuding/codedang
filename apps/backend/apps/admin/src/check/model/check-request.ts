@@ -1,6 +1,6 @@
 import type { Language } from '@prisma/client'
 
-export class CheckRequest {
+export class CheckRequestMsg {
   problemId: number
   language: Language
   checkPreviousSubmission: boolean

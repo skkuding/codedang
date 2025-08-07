@@ -1,11 +1,11 @@
 import { Args, Context, Int, Mutation, Resolver, Query } from '@nestjs/graphql'
 import { AuthenticatedRequest } from '@libs/auth'
-import { PlagiarismCheck } from '@admin/@generated'
+import { CheckRequest } from '@admin/@generated'
 import { CheckService } from './check.service'
 import { CheckResultOutput } from './model/check-result.output'
 import { CreatePlagiarismCheckInput } from './model/create-check.input'
 
-@Resolver(() => PlagiarismCheck)
+@Resolver(() => CheckRequest)
 export class CheckResolver {
   constructor(private readonly checkService: CheckService) {}
 
@@ -25,7 +25,7 @@ export class CheckResolver {
    */
   // 문제에 대해 표절 검사를 요청할 수 있는 유저인지 검증이 필요합니다.
   // GQL에서 POST, GET 구분은 어떻게 하나요?
-  @Mutation(() => PlagiarismCheck)
+  @Mutation(() => CheckRequest)
   async checkAssignmentSubmissions(
     @Context('req') req: AuthenticatedRequest,
     @Args('input', {
@@ -35,7 +35,7 @@ export class CheckResolver {
     checkInput: CreatePlagiarismCheckInput,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
     @Args('problemId', { type: () => Int }) problemId: number
-  ): Promise<PlagiarismCheck> {
+  ): Promise<CheckRequest> {
     return await this.checkService.checkAssignmentProblem({
       userId: req.user.id,
       checkInput,
