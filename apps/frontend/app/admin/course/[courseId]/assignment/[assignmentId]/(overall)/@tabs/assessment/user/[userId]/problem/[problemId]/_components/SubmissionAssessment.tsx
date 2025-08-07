@@ -100,7 +100,7 @@ export function SubmissionAssessment({
                 {nextStudent && (
                   <Link
                     href={`/admin/course/${groupId}/assignment/${assignmentId}/assessment/user/${nextStudent.userId}/problem/${problemId}`}
-                    className="text-blue-600 underline hover:text-blue-800"
+                    className="text-color-blue-40 hover:text-color-blue-30 underline"
                   >
                     Move to next student
                   </Link>
