@@ -1,20 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd
+  name: frontend-stage
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: argocd
-    name: production
+    namespace: frontend
+    name: stage
   source:
-    path: apps/k8s/argocd
+    path: apps/k8s/frontend/overlays/stage
     repoURL: https://github.com/skkuding/codedang
-    targetRevision: main
+    targetRevision: 1972-k8s-stage-frontend
     directory:
-      recurse: true
+      # kustomization.yaml is ignored if recurse is true
+      recurse: false
   sources: []
   project: default
   syncPolicy:

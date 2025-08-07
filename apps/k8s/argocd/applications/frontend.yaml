@@ -8,7 +8,7 @@ metadata:
 spec:
   destination:
     namespace: frontend
-    server: https://kubernetes.default.svc
+    name: production
   source:
     path: apps/k8s/frontend/overlays/production
     repoURL: https://github.com/skkuding/codedang
