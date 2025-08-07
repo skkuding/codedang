@@ -12,9 +12,9 @@ spec:
     - list:
         elements:
           - env: stage
-            branch: 1972-k8s-stage-frontend # TODO: change back to main
+            branch: main
           - env: production
-            branch: 1972-k8s-stage-frontend # TODO: change back to main
+            branch: main # TODO: change to release branch
   template:
     metadata:
       name: frontend-{{.env}}
