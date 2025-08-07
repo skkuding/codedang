@@ -17,7 +17,7 @@ spec:
             branch: main # TODO: change to release branch
   template:
     metadata:
-      name: frontend-{{.env}}
+      name: 'frontend-{{.env}}'
     spec:
       project: default
       source:
