@@ -8,7 +8,7 @@ metadata:
 spec:
   destination:
     namespace: iris
-    server: https://kubernetes.default.svc
+    name: production
   source:
     path: apps/k8s/iris
     repoURL: https://github.com/skkuding/codedang
