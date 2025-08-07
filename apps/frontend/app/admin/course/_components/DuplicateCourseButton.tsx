@@ -75,11 +75,6 @@ export function DuplicateCourseButton({
         onClick: handleDuplicateRows
       }}
     >
-      {/* <ModalSection
-        title="Contents that will be Copied"
-        description="Make sure to review the contents that will be duplicated."
-        items={['Title', 'Description', 'Assignments']}
-      /> */}
       <ModalSection
         title="Courses that will be Copied"
         description="Make sure to review the courses that will be duplicated."
