@@ -107,7 +107,7 @@ export function Carousel({ slides }: Props) {
       <div className="absolute right-[94px] top-[560px] z-20 flex h-[28px] w-[57px] items-center justify-center rounded-full bg-black/40 px-4 py-1 backdrop-blur-md">
         <p className="font-pretendard flex items-center gap-1 text-sm font-medium leading-[140%] tracking-[-0.03em] text-white">
           <span>{facade + 1}</span>
-          <span className="opacity-70">/</span>
+          <span>/</span>
           <span>{slides.length}</span>
         </p>
       </div>
