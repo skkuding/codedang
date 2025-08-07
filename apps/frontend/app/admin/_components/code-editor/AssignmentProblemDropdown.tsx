@@ -19,15 +19,13 @@ interface AssignmentProblemDropdownProps {
   assignmentId: number
   courseId: number
   userId: number
-  isSubmitted: boolean
 }
 
 export function AssignmentProblemDropdown({
   problemId,
   assignmentId,
   courseId,
-  userId,
-  isSubmitted
+  userId
 }: AssignmentProblemDropdownProps) {
   const assignmentProblems =
     useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {
