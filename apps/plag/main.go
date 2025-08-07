@@ -1,13 +1,11 @@
 package main
 
 /*
-* checkId는 그냥 id로 대체해도 무방합니다.
-* 테스트 코드를 제거하십시오
 * previousSubmissionsPath 기능은 구현되지 않았습니다.
 * jdk 21이 필요합니다.
 * submission 코드를 얻는 과정이 불안정합니다.
-* cluster.json의 구조를 파악하지 못했습니다.
 * java 명령어가 실행되지 않습니다. (no such dir of file)
+* CheckResult가 항상 nil입니다. 삭제해야 합니다.
  */
 
 import (

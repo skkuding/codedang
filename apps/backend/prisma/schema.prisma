@@ -773,7 +773,8 @@ model CheckRequest {
 enum CheckResultStatus {
   Pending
   Completed
-  Failed
+  JplagError
+  ServerError
 }
 
 model CheckResult {
@@ -827,6 +828,7 @@ model PlagiarismCluster {
 
   UserCluster            UserCluster[]
   CheckResult            CheckResult[]
+  @@map("plagiarism_cluster")
 }
 
 model UserCluster {
@@ -835,6 +837,7 @@ model UserCluster {
   userId                 Int                @map("user_id")
   cluster                PlagiarismCluster  @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   clusterId              Int                @map("cluster_id")
+  @@map("user_Cluster")
 }
 
 enum NotificationType {

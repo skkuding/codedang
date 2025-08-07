@@ -3,6 +3,7 @@ package router
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"strconv"
 
 	"github.com/skkuding/codedang/apps/plag/src/handler"
@@ -11,11 +12,10 @@ import (
 type Response struct {
 	CheckId         int                `json:"checkId"`
 	CheckResultCode handler.ResultCode `json:"resultCode"`
-	CheckResult     json.RawMessage    `json:"checkResult"`
 	Error           string             `json:"error"`
 }
 
-func NewResponse(id string, data json.RawMessage, err error) *Response {
+func NewResponse(id string, err error) *Response {
 	resultCode := handler.CHECKED
 	errMessage := ""
 
@@ -32,7 +32,6 @@ func NewResponse(id string, data json.RawMessage, err error) *Response {
 	return &Response{
 		CheckId:         _id,
 		CheckResultCode: resultCode,
-		CheckResult:     data,
 		Error:           errMessage,
 	}
 }
@@ -60,5 +59,8 @@ func (r *Response) Marshal() []byte {
 }
 
 func ErrorToResultCode(err error) handler.ResultCode {
+  if errors.Is(err, handler.ErrRunJPlag) {
+		return handler.JPLAG_ERROR
+	}
 	return handler.SERVER_ERROR
 }

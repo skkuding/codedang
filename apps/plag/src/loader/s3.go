@@ -63,7 +63,7 @@ func (s *S3reader) Save(data []byte, fileName string) error {
   _, err := s.client.PutObject(context.TODO(), input)
 
   if err != nil {
-    return fmt.Errorf("cannot write in S3 bucket: %w", err)
+    return fmt.Errorf("cannot write in bucket: %w", err)
   }
 
   return nil

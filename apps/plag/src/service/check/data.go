@@ -45,7 +45,8 @@ type Comparison struct {
 }
 
 type ComparisonWithID struct {
-	SubmissionIds []int        `json:"Ids"`
+	FirstSubmissionId  int        `json:"firstSubmissionId"`
+	SecondSubmissionId int        `json:"secondSubmissionId"`
 	Similarities  Similarities `json:"similarities"`
 	Matches       []Match      `json:"matches"`
 	Similarity1   float32      `json:"firstSimilarity"`
@@ -79,7 +80,8 @@ func (c *Comparison) ToComparisonWithID() (ComparisonWithID, error) {
 	}
 
 	return ComparisonWithID{
-		[]int{submissionId1, submissionId2},
+		submissionId1,
+    submissionId2,
 		c.Similarities,
 		c.Matches,
 		c.Similarity1,

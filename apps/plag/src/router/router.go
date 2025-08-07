@@ -35,15 +35,6 @@ func NewRouter(
 }
 
 func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx context.Context) {
-	// <Test Code>
-	println("***")
-	println(path)
-	println(id)
-	println(data)
-	path = Check        // type이 들어옵니다.
-	id = "202503321020" // checkId가 들어옵니다.
-	println("***")
-
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.GetTracerProvider().Tracer("Router Tracer")
 	newCtx, childSpan := tracer.Start(
@@ -60,19 +51,19 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 	// var handlerResult json.RawMessage
 	// var err error
 
-	checkChan := make(chan handler.CheckResultMessage)
+	checkErrorChan := make(chan error)
 	switch path { // 나중에 추가 작업을 지정할 수 있도록 각 메시지 타입을 구분
 	case Check:
-		go r.checkHandler.Handle(id, data, checkChan, newCtx)
+		go r.checkHandler.Handle(id, data, checkErrorChan, newCtx)
 	default:
 		err := fmt.Errorf("invalid request type: %s", path)
 		r.errHandle(err)
-		out <- NewResponse(id, nil, err).Marshal()
+		out <- NewResponse(id, err).Marshal()
 	}
 
-	for result := range checkChan {
-		r.errHandle(result.Err)
-		out <- NewResponse(id, result.Result, result.Err).Marshal()
+	for checkError := range checkErrorChan {
+		r.errHandle(checkError)
+		out <- NewResponse(id, checkError).Marshal()
 		// break
 	}
 	// return NewResponse(id, handlerResult, err).Marshal()

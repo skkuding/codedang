@@ -43,4 +43,5 @@ var (
 	ErrTypeAssertionFail = errors.New("type assertion failed")
 	ErrMarshalJson       = errors.New("json marshal error")
 	ErrValidate          = errors.New("validation error")
+  ErrRunJPlag          = errors.New("fail to run jplag")
 )

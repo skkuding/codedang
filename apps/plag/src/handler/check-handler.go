@@ -49,18 +49,6 @@ func (r Request) Validate() (*Request, error) {
 	return &r, nil
 }
 
-type CheckResult struct {
-	Signal    int    `json:"signal"`
-	ExitCode  int    `json:"exitCode"`
-	ErrorCode int    `json:"errorCode"`
-	Error     string `json:"error"`
-}
-
-type CheckResultMessage struct {
-	Result json.RawMessage
-	Err    error
-}
-
 var ErrCheckEnd = errors.New("check handle end")
 
 type CheckHandler struct {
@@ -85,7 +73,7 @@ func NewCheckHandler(
 }
 
 // handle top layer logical flow
-func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessage, ctx context.Context) {
+func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx context.Context) {
 	startedAt := time.Now()
 	handleCtx, childSpan := c.tracer.Start( //handleCtx is unused until now...
 		ctx,
@@ -103,26 +91,13 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 
 	err := json.Unmarshal(data, &req) // json 파싱
 
-	// <Test Code>
-	err = nil
-	assignmentId := 1
-	req = Request{
-		ProblemId:               1,
-		Language:                "C",
-		MinimumTokens:           12,
-		CheckPreviousSubmission: true,
-		EnableMerging:           false,
-		UseJplagClustering:      true,
-		AssignmentId:            &assignmentId,
-	}
-
 	if err != nil {
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("%w: %s", ErrValidate, err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}}
+		}
 		close(out)
 		return
 	}
@@ -130,12 +105,12 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	_, err = req.Validate() // 요청 검증
 	//validReq is unused util now...
 	if err != nil {
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller:  "request validate",
 			err:     fmt.Errorf("%w: %s", ErrValidate, err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}}
+		}
 		close(out)
 		return
 	}
@@ -148,34 +123,34 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	}()
 
 	if err := c.file.CreateDir(dir); err != nil { // 작업용 임시 디렉토리 생성
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("creating base directory: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}}
+		}
 		return
 	}
 
 	subDir := dir + "/submission"
 	if err := c.file.CreateDir(subDir); err != nil { // 작업용 임시 제출물 디렉토리 생성
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("creating submission directory: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}}
+		}
 		return
 	}
 
 	resDir := dir + "/result"
 	if err := c.file.CreateDir(resDir); err != nil { // 작업용 임시 결과물 디렉토리 생성
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("creating result directory: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}}
+		}
 		return
 	}
 
@@ -184,22 +159,22 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 
 	checkInput := <-checkInputCh
 	if checkInput.Err != nil {
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("getCheckInput error: %s", checkInput.Err),
 			level:   logger.ERROR,
 			Message: checkInput.Err.Error(),
-		}}
+		}
 		return
 	}
 
 	chIn, ok := checkInput.Data.(check.CheckInput) // 검사 입력 데이터
 	if !ok {
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller: "handle",
 			err:    fmt.Errorf("%w: CheckInput", ErrTypeAssertionFail),
 			level:  logger.ERROR,
-		}}
+		}
 		return
 	}
 
@@ -211,22 +186,22 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		code, err := utils.ParseRawCode(sub.Code)
 
 		if err != nil {
-			out <- CheckResultMessage{nil, &HandlerError{
+			out <- &HandlerError{
 				caller:  "handle",
 				err:     fmt.Errorf("parsing code: %w", err),
 				level:   logger.ERROR,
 				Message: err.Error(),
-			}}
+			}
 			return
 		}
 
 		if err := c.file.CreateFile(srcPath, code); err != nil {
-			out <- CheckResultMessage{nil, &HandlerError{
+			out <- &HandlerError{
 				caller:  "handle",
 				err:     fmt.Errorf("creating submission file: %w", err),
 				level:   logger.ERROR,
 				Message: err.Error(),
-			}}
+			}
 			return
 		}
 	}
@@ -240,12 +215,12 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		baseCodePath = &bP
 
 		if err := c.file.CreateFile(path, chIn.BaseCode); err != nil {
-			out <- CheckResultMessage{nil, &HandlerError{
+			out <- &HandlerError{
 				caller:  "handle",
 				err:     fmt.Errorf("creating base code file: %w", err),
 				level:   logger.ERROR,
 				Message: err.Error(),
-			}}
+			}
 			return
 		}
 	}
@@ -259,30 +234,28 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	if err := c.check.CheckPlagiarismRate( // 표절 검사
 		c.file.GetBasePath(subDir),
 		baseCodePath,
-		c.file.GetBasePath(resDir), // <Test Code>
+		c.file.GetBasePath(resDir),
 		sandbox.Language(req.Language).GetLangExt(),
 		checkSetting,
 	); err != nil {
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller:  "handle",
-			err:     fmt.Errorf("running check: %w", err),
+			err:     fmt.Errorf("%w: %s", ErrRunJPlag, err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}}
+		}
 		return
 	}
-
-	//<Test Code> JPLAGTEST20250804
 	if err := c.file.Unzip( // 검사 결과물 압축 해제
 		c.file.MakeFilePath(dir, "result.jplag").String(),
 		c.file.GetBasePath(resDir),
 	); err != nil { // 파일 압축 해제 실패 시
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("unzip jplag file: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}}
+		}
 		return
 	}
 
@@ -291,22 +264,22 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 
 	comparison := <-comparisonCh
 	if comparison.Err != nil {
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("readComparisons error: %s", comparison.Err),
 			level:   logger.ERROR,
 			Message: comparison.Err.Error(),
-		}}
+		}
 		return
 	}
 
   comps, ok := comparison.Data.([]check.ComparisonWithID)
 	if !ok {
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller: "handle",
 			err:    fmt.Errorf("%w: ComparisonWithID", ErrTypeAssertionFail),
 			level:  logger.ERROR,
-		}}
+		}
 		return
 	}
 
@@ -317,22 +290,22 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 
     clusters := <-clustersCh
     if clusters.Err != nil {
-      out <- CheckResultMessage{nil, &HandlerError{
+      out <- &HandlerError{
         caller:  "handle",
         err:     fmt.Errorf("readClusters error: %s", clusters.Err),
         level:   logger.ERROR,
         Message: clusters.Err.Error(),
-      }}
+      }
       return
     }
 
     clus, ok = clusters.Data.([]check.ClusterWithID)
     if !ok {
-      out <- CheckResultMessage{nil, &HandlerError{
+      out <- &HandlerError{
         caller: "handle",
         err:    fmt.Errorf("%w: Cluster", ErrTypeAssertionFail),
         level:  logger.ERROR,
-      }}
+      }
       return
     }
   }
@@ -342,14 +315,16 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		comps,
 		clus,
 	); err != nil {
-		out <- CheckResultMessage{nil, &HandlerError{
+		out <- &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("save check result in bucket: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}}
+		}
 		return
 	}
+
+  //CheckResult가 항상 nil입니다. 삭제해야 합니다.
 }
 
 func (c *CheckHandler) getCheckInput(ctx context.Context, out chan<- result.ChResult, req Request) {

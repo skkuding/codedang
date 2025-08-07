@@ -1,6 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
+import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
+import { ValidationError } from 'class-validator'
 import {
   CHECK_CONSUME_CHANNEL,
   EXCHANGE,
@@ -11,6 +12,7 @@ import {
   RESULT_KEY,
   RESULT_QUEUE
 } from '@libs/constants'
+import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 @Injectable()
@@ -27,7 +29,23 @@ export class CheckSubscriptionService implements OnModuleInit {
     this.amqpConnection.createSubscriber(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       async (msg: object, raw: any) => {
-        return
+        try {
+          const res = await this.validateJudgerResponse(msg)
+
+          await this.handleJudgerMessage(res)
+        } catch (error) {
+          if (
+            Array.isArray(error) &&
+            error.every((e) => e instanceof ValidationError)
+          ) {
+            this.logger.error(error, 'Message format error')
+          } else if (error instanceof UnprocessableDataException) {
+            this.logger.error(error, 'Iris exception')
+          } else {
+            this.logger.error(error, 'Unexpected error')
+          }
+          return new Nack()
+        }
       },
       {
         exchange: EXCHANGE,
