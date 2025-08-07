@@ -1,26 +1,39 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: frontend
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  destination:
-    namespace: frontend
-    server: https://kubernetes.default.svc
-  source:
-    path: apps/k8s/frontend
-    repoURL: https://github.com/skkuding/codedang
-    targetRevision: main
-    directory:
-      recurse: true
-  sources: []
-  project: default
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - PrunePropagationPolicy=foreground
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: main # TODO: change to release branch
+  template:
+    metadata:
+      name: 'frontend-{{.env}}'
+    spec:
+      project: default
+      source:
+        path: 'apps/k8s/frontend/overlays/{{.env}}'
+        repoURL: https://github.com/skkuding/codedang
+        targetRevision: '{{.branch}}'
+        directory:
+          # kustomization.yaml is ignored if recurse is true
+          recurse: false
+      destination:
+        namespace: frontend
+        name: '{{.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground

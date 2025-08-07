@@ -89,8 +89,8 @@ export function Modal({
           )}
           <DialogTitle
             className={cn(
-              'w-full text-center text-2xl font-semibold',
-              size === 'lg' && 'text-left'
+              'w-full text-2xl font-semibold',
+              size === 'lg' ? 'text-left' : 'text-center'
             )}
           >
             {title}
@@ -139,7 +139,7 @@ export function Modal({
           {secondaryButton && (
             <Button
               onClick={secondaryButton.onClick}
-              className="h-[46px] w-full"
+              className="h-[46px] w-full text-base"
               variant={secondaryButton.variant}
             >
               {secondaryButton.text}
@@ -148,7 +148,7 @@ export function Modal({
           {primaryButton && (
             <Button
               onClick={primaryButton.onClick}
-              className="h-[46px] w-full"
+              className="h-[46px] w-full text-base"
               variant={primaryButton.variant}
             >
               {primaryButton.text}
