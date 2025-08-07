@@ -14,7 +14,8 @@ spec:
     repoURL: https://github.com/skkuding/codedang
     targetRevision: main
     directory:
-      recurse: true
+      # kustomization.yaml is ignored if recurse is true
+      recurse: false
   sources: []
   project: default
   syncPolicy:
