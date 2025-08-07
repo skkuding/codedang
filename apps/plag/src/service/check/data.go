@@ -3,6 +3,7 @@ package check
 import (
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/skkuding/codedang/apps/plag/src/loader"
 )
@@ -15,8 +16,8 @@ type CheckInput struct {
 }
 
 type Position struct {
-	Line   string `json:"line"`
-	Column string `json:"column"`
+	Line   int `json:"line"`
+	Column int `json:"column"`
 }
 
 type Match struct {
@@ -24,15 +25,15 @@ type Match struct {
 	EndInFirst     Position `json:"endInFirst"`
 	StartInSecond  Position `json:"startInSecond"`
 	EndInSecond    Position `json:"endInSecond"`
-	LengthOfFirst  string   `json:"lengthOfFirst"`
-	LengthOfSecond string   `json:"lengthOfSecond"`
+	LengthOfFirst  int      `json:"lengthOfFirst"`
+	LengthOfSecond int      `json:"lengthOfSecond"`
 }
 
 type Similarities struct {
 	Average       float32 `json:"AVG"`
 	Maximum       float32 `json:"MAX"`
-	MaximumLength int     `json:"MAXIMUM_LENGTH"`
-	LongestMatch  int     `json:"LONGEST_MATCH"`
+	MaximumLength float32 `json:"MAXIMUM_LENGTH"`
+	LongestMatch  float32 `json:"LONGEST_MATCH"`
 }
 
 type Comparison struct {
@@ -69,12 +70,22 @@ func (s *CheckInput) Count() int {
 	return len(s.Elements)
 }
 
+func keepDigits(input string) string {
+    var b strings.Builder
+    for _, r := range input {
+        if unicode.IsDigit(r) {
+            b.WriteRune(r)
+        }
+    }
+    return b.String()
+}
+
 func (c *Comparison) ToComparisonWithID() (ComparisonWithID, error) {
-	submissionId1, err := strconv.Atoi(strings.Split(c.SubmissionName1, ".")[0])
+	submissionId1, err := strconv.Atoi(keepDigits(c.SubmissionName1))
 	if err != nil {
 		return ComparisonWithID{}, err
 	}
-	submissionId2, err := strconv.Atoi(strings.Split(c.SubmissionName2, ".")[0])
+	submissionId2, err := strconv.Atoi(keepDigits(c.SubmissionName2))
 	if err != nil {
 		return ComparisonWithID{}, err
 	}
@@ -93,7 +104,7 @@ func (c *Cluster) ToClusterWithID() (ClusterWithID, error) {
 	ids := []int{}
 
   for _, m := range c.Members{
-    id, err := strconv.Atoi(strings.Split(m, ".")[0])
+    id, err := strconv.Atoi(keepDigits(m))
     if err != nil {
       return ClusterWithID{}, err
     }

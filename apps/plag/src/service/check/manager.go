@@ -107,41 +107,39 @@ func (c *checkManager) CheckPlagiarismRate( // 요청된 설정에 맞춰 실제
 	langExt string,
 	settings CheckSettings,
 ) error {
-	jplagCmd := fmt.Sprintf(
-		`java -jar "%s" -l --mode run %s "%s" -r "%s"`,
-		c.jplagPath,
-		langExt,
-		subDir,
-		resultDir,
-	)
-	jplagCmd += fmt.Sprintf(` -t %d`, settings.MinTokens)
+  jplagCommandArgs := []string{
+    "-jar", c.jplagPath,
+    "--mode", "run",
+    "-l", langExt,
+    subDir,
+    "-r", resultDir,
+	"-t", fmt.Sprintf("%d", settings.MinTokens),
+  }
 
-	/*if settings.CheckPreviousSubmission {
-	  //jplagCmd += ` -old "${previousSubmissionsPath}"`;
+  if settings.CheckPreviousSubmission {
+    //jplagCommandArgs = append(jplagCommandArgs, "-old", previousSubmissionsPath)
 	  // not prepared
-	}*/
+	}
 
 	if basePath != nil {
-		jplagCmd += fmt.Sprintf(` -bc "%s"`, *basePath)
+    jplagCommandArgs = append(jplagCommandArgs, "-bc", *basePath)
 	}
 
 	if settings.EnableMerging {
-		jplagCmd += ` --match-merging`
+    jplagCommandArgs = append(jplagCommandArgs, "--match-merging")
 	}
 
 	if settings.UseJplagClustering {
-		jplagCmd += ` --cluster-alg spectral`
+    jplagCommandArgs = append(jplagCommandArgs, "--cluster-alg", "spectral")
 	}
 
-	println("Command:", jplagCmd)
-
-	cmd := exec.Command(jplagCmd)
+  cmd := exec.Command("java", jplagCommandArgs...)
 	err := cmd.Start()
 	if err != nil {
 		return fmt.Errorf("running jplag command error: %w", err)
 	}
 
-	return nil
+  return nil
 }
 
 func (c *checkManager) SaveResult(

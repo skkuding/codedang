@@ -55,7 +55,7 @@ func main() {
 		logProvider.Log(logger.INFO, "Running in stage mode")
 		http.HandleFunc("/health", healthCheckHandler)
 		go func() {
-			if err := http.ListenAndServe("0.0.0.0:3405", nil); err != nil { // 3405 포트 사용
+			if err := http.ListenAndServe("0.0.0.0:3403", nil); err != nil { // 3405 포트 사용
 				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start health checker: %v", err))
 			}
 		}()

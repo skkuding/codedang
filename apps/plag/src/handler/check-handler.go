@@ -246,6 +246,7 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 		}
 		return
 	}
+
 	if err := c.file.Unzip( // 검사 결과물 압축 해제
 		c.file.MakeFilePath(dir, "result.jplag").String(),
 		c.file.GetBasePath(resDir),
@@ -379,7 +380,9 @@ func (c *CheckHandler) readComparisons(ctx context.Context, out chan<- result.Ch
 	defer childSpan.End()
 
 	comparisonDir := resDir + "/comparisons"
-	fileNames, err := c.file.CollectFiles(comparisonDir)
+	fileNames, err := c.file.CollectFiles(
+    c.file.GetBasePath(comparisonDir),
+  )
 	if err != nil {
 		out <- result.ChResult{Err: err}
 		return

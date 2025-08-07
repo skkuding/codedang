@@ -2416,6 +2416,48 @@ int main(void) {
     },
     data: { result: ResultStatus.OutputLimitExceeded }
   })
+
+  users.forEach(async (user) => {
+    submissions.push(
+      await prisma.submission.create({
+        data: {
+          userId: user.id,
+          problemId: problems[3].id,
+          assignmentId: endedAssignments[0].id,
+          code: [
+            {
+              id: 1,
+              locked: false,
+              text: `class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}`
+            }
+          ],
+          language: Language.Java,
+          result: ResultStatus.Judging
+        }
+      })
+    )
+
+    await prisma.submissionResult.create({
+      data: {
+        submissionId: submissions[submissions.length - 1].id,
+        problemTestcaseId: problemTestcases[2].id,
+        result: ResultStatus.Accepted,
+        output: 'Hello, World!\n',
+        cpuTime: 12345,
+        memoryUsage: 12345
+      }
+    })
+    await prisma.submission.update({
+      where: {
+        id: submissions[submissions.length - 1].id
+      },
+      data: { result: ResultStatus.Accepted }
+    })
+  })
 }
 
 const createAnnouncements = async () => {
