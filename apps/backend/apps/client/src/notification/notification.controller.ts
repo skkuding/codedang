@@ -98,12 +98,21 @@ export class NotificationController {
   }
 
   /**
+   * VAPID public key를 반환합니다
+   */
+  @Get('vapid')
+  async getVapidPublicKey() {
+    return this.notificationService.getVapidPublicKey()
+  }
+
+  /**
    * Push subscription을 삭제합니다
+   * endpoint가 제공되지 않으면 해당 사용자의 모든 subscription을 삭제합니다
    */
   @Delete('push-subscription')
   async deletePushSubscription(
     @Req() req: AuthenticatedRequest,
-    @Query('endpoint') endpoint: string
+    @Query('endpoint') endpoint?: string
   ) {
     return this.notificationService.deletePushSubscription(
       req.user.id,

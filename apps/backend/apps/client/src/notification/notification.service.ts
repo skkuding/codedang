@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import {
   EntityNotExistException,
   ConflictFoundException
@@ -8,7 +9,10 @@ import { CreatePushSubscriptionDto } from './dto/create-push-subscription.dto'
 
 @Injectable()
 export class NotificationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService
+  ) {}
 
   /**
    * 사용자의 알림 목록을 조회합니다
@@ -84,7 +88,7 @@ export class NotificationService {
       })
 
       return updated
-    } catch (_error) {
+    } catch {
       throw new EntityNotExistException('NotificationRecord')
     }
   }
@@ -129,7 +133,7 @@ export class NotificationService {
       })
 
       return recordDeleted
-    } catch (_error) {
+    } catch {
       throw new EntityNotExistException('NotificationRecord')
     }
   }
@@ -157,16 +161,37 @@ export class NotificationService {
   }
 
   /**
-   * Push subscription을 삭제합니다
+   * VAPID public key를 반환합니다
    */
-  async deletePushSubscription(userId: number, endpoint: string) {
+  getVapidPublicKey() {
+    const publicKey = this.config.get<string>('VAPID_PUBLIC_KEY')
+    if (!publicKey) {
+      throw new Error('VAPID_PUBLIC_KEY is not configured')
+    }
+    return { publicKey }
+  }
+
+  /**
+   * Push subscription을 삭제합니다
+   * @param userId - 사용자 ID
+   * @param endpoint - Push subscription endpoint (없으면 모든 subscription 삭제)
+   */
+  async deletePushSubscription(userId: number, endpoint?: string) {
     try {
-      return await this.prisma.pushSubscription.delete({
-        where: {
-          //eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_endpoint: { userId, endpoint }
-        }
-      })
+      if (endpoint) {
+        const deleted = await this.prisma.pushSubscription.delete({
+          where: {
+            //eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_endpoint: { userId, endpoint }
+          }
+        })
+        return { deletedCount: 1, subscription: deleted }
+      } else {
+        const deleted = await this.prisma.pushSubscription.deleteMany({
+          where: { userId }
+        })
+        return { deletedCount: deleted.count }
+      }
     } catch (error) {
       if (error.code === 'P2025') {
         throw new EntityNotExistException('PushSubscription')
