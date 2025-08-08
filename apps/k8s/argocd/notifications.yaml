@@ -17,6 +17,11 @@ data:
       oncePer: app.status.sync.revision
       send: [github-failed]
 
+  trigger.on-sync-running: |
+    - when: app.status.sync.status == 'Syncing'
+      oncePer: app.status.sync.revision
+      send: [github-running]
+
   trigger.on-sync-succeeded: |
     - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Healthy'
       oncePer: app.status.sync.revision
@@ -24,6 +29,14 @@ data:
     - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Degraded'
       oncePer: app.status.sync.revision
       send: [github-failed]
+
+  template.github-running: |
+    message: 'Syncing {{ .app.metadata.name }}'
+    github:
+      status:
+        state: pending
+        label: "Argo CD / {{ .app.metadata.annotations.appName }}"
+        targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
 
   template.github-succeed: |
     message: 'Successfully synced {{ .app.metadata.name }}'
