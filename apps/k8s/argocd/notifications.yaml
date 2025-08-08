@@ -13,7 +13,7 @@ data:
     privateKey: $githubAppPrivateKey
 
   trigger.on-sync-succeeded: |
-    - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Healthy'
+    - when: app.status.sync.status == 'Synced'
       send: [github]
 
   template.github: |
