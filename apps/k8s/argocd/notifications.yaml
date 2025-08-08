@@ -14,14 +14,21 @@ data:
 
   trigger.on-sync-succeeded: |
     - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Healthy'
-      send: [app-deployed]
+      send: [github]
 
-  template.app-deployed: |
+  template.github: |
     message: 'Test message from ArgoCD Notifications'
     github:
       pullRequestComment:
         content: |
-          😎🚀 **Deployment Complete**
-          Application: {{.app.metadata.name}}
-          Status: {{.app.status.sync.status}}
-          [View in ArgoCD]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+          {{if eq .app.status.sync.status "Synced"}}
+          ✅ **Sync Succeeded**
+          {{else}}
+          ❌ **Sync Status: {{ .app.status.sync.status }}**
+          {{end}}
+
+          **Application:** `{{ .app.metadata.name }}`
+          **Health Status:** {{ .app.status.health.status }}
+          **Revision:** `{{ .app.status.sync.revision }}`
+
+          [View in Argo CD]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
