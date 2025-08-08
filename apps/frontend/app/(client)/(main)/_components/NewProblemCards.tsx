@@ -16,7 +16,8 @@ import { getProblemList } from '../../_libs/apis/problem'
 
 export async function NewProblemCards() {
   const { data: problems } = await getProblemList({
-    order: 'submit-desc'
+    order: 'submit-desc',
+    take: 6
   })
 
   return (
@@ -33,8 +34,8 @@ export async function NewProblemCards() {
             </div>
           </div>
 
-          <div className="-my-8 -ml-4 w-screen">
-            <CarouselContent className="my-8 ml-0">
+          <div className="relative left-1/2 -my-8 w-screen -translate-x-1/2 min-[1514px]:-ml-2">
+            <CarouselContent className="my-8 ml-[137px] mr-[153px] max-w-[1224px] min-[1514px]:mx-auto">
               {problems.map((problem) => (
                 <CarouselItem key={problem.id}>
                   <NewProblemCard problem={problem} />
