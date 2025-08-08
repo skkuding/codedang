@@ -2245,7 +2245,6 @@ enum Provider {
   naver
 }
 
-<<<<<<< HEAD
 type PushSubscription {
   auth: String!
   createTime: DateTime!
@@ -2300,11 +2299,9 @@ type PushSubscriptionMinAggregate {
 type PushSubscriptionSumAggregate {
   id: Int
   userId: Int
-=======
 enum QnACategory {
   General
   Problem
->>>>>>> origin/main
 }
 
 type Query {
