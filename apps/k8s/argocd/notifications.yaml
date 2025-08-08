@@ -12,28 +12,35 @@ data:
     installationID: $githubAppInstallationID
     privateKey: $githubAppPrivateKey
 
+  trigger.on-sync-failed: |
+    - when: app.status.sync.status != 'Synced'
+      oncePer: app.status.sync.revision
+      send: [github]
+
+  trigger.on-sync-running: |
+    - when: app.status.sync.status == 'Syncing'
+      oncePer: app.status.sync.revision
+      send: [github]
+
   trigger.on-sync-succeeded: |
     - when: app.status.sync.status == 'Synced'
       oncePer: app.status.sync.revision
       send: [github]
 
   template.github: |
-    message: 'Test message from ArgoCD Notifications'
+    message: 'Successfully synced {{ .app.metadata.name }}'
     github:
       status:
         state: success
-        label: "continuous-delivery/{{.app.metadata.name}}"
-        targetURL: "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true"
+        label: "Argo CD / {{ .app.metadata.name }}"
+        targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
       pullRequestComment:
         content: |
-          {{if eq .app.status.sync.status "Synced"}}
           ✅ **Sync Succeeded**
-          {{else}}
-          ❌ **Sync Status: {{ .app.status.sync.status }}**
-          {{end}}
 
           **Application:** `{{ .app.metadata.name }}`
-          **Health Status:** {{ .app.status.health.status }}
           **Revision:** `{{ .app.status.sync.revision }}`
+          **Health Status:** {{ .app.status.health.status }}
 
-          [View in Argo CD]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+          [Open Preview]({{ .app.status.summary.externalURLs[0] }})
+          [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})
