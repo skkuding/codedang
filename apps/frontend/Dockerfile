@@ -44,4 +44,4 @@ COPY --from=install /app/install/node_modules ./node_modules
 ENV NODE_ENV=production
 ENV PORT=5525
 
-CMD ["node", "apps/frontend/server.js"]
+CMD ["node", "apps/frontend/server.jsss"]
