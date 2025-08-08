@@ -18,7 +18,11 @@ spec:
   template:
     metadata:
       name: '{{.number}}-preview-frontend'
+      labels:
+        previewURL: 'https://{{.number}}.preview.codedang.com'
       annotations:
+        notifications.argoproj.io/subscribe.on-sync-failed.github: ''
+        notifications.argoproj.io/subscribe.on-sync-running.github: ''
         notifications.argoproj.io/subscribe.on-sync-succeeded.github: ''
     spec:
       project: default
