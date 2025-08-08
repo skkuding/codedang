@@ -20,6 +20,7 @@ interface UpdateAssignmentProblemRecordFormProps {
   assignmentId: number
   userId: number
   problemId: number
+  onCompleted: () => void
 }
 
 export function UpdateAssignmentProblemRecordForm({
@@ -27,7 +28,8 @@ export function UpdateAssignmentProblemRecordForm({
   groupId,
   assignmentId,
   userId,
-  problemId
+  problemId,
+  onCompleted
 }: UpdateAssignmentProblemRecordFormProps) {
   const [loading, setLoading] = useState(true)
 
@@ -63,6 +65,7 @@ export function UpdateAssignmentProblemRecordForm({
       },
       onCompleted: () => {
         toast.success('Assessment updated successfully')
+        onCompleted()
       },
       refetchQueries: [
         {

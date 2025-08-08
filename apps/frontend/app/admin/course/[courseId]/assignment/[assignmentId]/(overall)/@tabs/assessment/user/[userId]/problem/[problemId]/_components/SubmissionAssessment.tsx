@@ -66,6 +66,7 @@ export function SubmissionAssessment({
       assignmentId={assignmentId}
       userId={userId}
       problemId={problemId}
+      onCompleted={() => setShowTooltip(true)}
     >
       <div className="flex flex-col gap-6">
         <h2 className="text-xl font-bold">Assessment</h2>
@@ -86,7 +87,6 @@ export function SubmissionAssessment({
               <Button
                 className="my-4 mr-4 flex h-8 w-[75px] items-center self-end"
                 type="submit"
-                onClick={() => setShowTooltip(true)}
               >
                 <Image src={submitIcon} alt="submit" width={24} height={24} />
                 Save
