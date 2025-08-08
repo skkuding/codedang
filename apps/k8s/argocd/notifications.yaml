@@ -36,11 +36,11 @@ data:
         targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
       pullRequestComment:
         content: |
-          ✅ **Sync Succeeded**
+          ✅ **Preview Deployment Succeeded**
 
           **Application:** `{{ .app.metadata.name }}`
           **Revision:** `{{ .app.status.sync.revision }}`
           **Health Status:** {{ .app.status.health.status }}
 
-          [Open Preview]({{ .app.status.summary.externalURLs[0] }})
+          [Open Preview]({{ .app.metadata.annotations.previewURL }})
           [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})
