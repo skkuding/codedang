@@ -41,7 +41,6 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const [searchTC, setsearchTC] = useState('')
   const [selectedTestcases, setSelectedTestcases] = useState<number[]>([])
   const [dataChangeTrigger, setDataChangeTrigger] = useState<number>(0)
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false)
 
   useEffect(() => {
     const allFilled = watchedItems.every((item) => !isInvalid(item.scoreWeight))
@@ -303,18 +302,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
               />
             </div>
             <div className="flex items-center justify-between gap-2">
-              <button
-                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
-                type="button"
-                onClick={() => setIsUploadModalOpen(true)}
-              >
-                <Image
-                  src="/icons/upload.svg"
-                  alt="upload Icon"
-                  width={20}
-                  height={20}
-                />
-              </button>
+              <TestcaseUploadModal
+                onUpload={handleUploadTestcases}
+                isHidden={false}
+              />
               <button
                 onClick={() => {
                   deleteSelectedTestcases()
@@ -410,18 +401,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
               />
             </div>
             <div className="flex items-center justify-between gap-2">
-              <button
-                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
-                type="button"
-                onClick={() => setIsUploadModalOpen(true)}
-              >
-                <Image
-                  src="/icons/upload.svg"
-                  alt="upload Icon"
-                  width={20}
-                  height={20}
-                />
-              </button>
+              <TestcaseUploadModal
+                onUpload={handleUploadTestcases}
+                isHidden={true}
+              />
               <button
                 onClick={() => {
                   deleteSelectedTestcases()
@@ -569,12 +552,6 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
         headerDescription={dialogDescription}
         onClose={() => setDialogOpen(false)}
         type="warning"
-      />
-      <TestcaseUploadModal
-        isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        onUpload={handleUploadTestcases}
-        isHidden={testcaseFlag === 1}
       />
     </div>
   )

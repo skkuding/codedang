@@ -3,24 +3,22 @@
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import JSZip from 'jszip'
+import Image from 'next/image'
 import { useState, useRef } from 'react'
 import { toast } from 'sonner'
 
 interface TestcaseUploadModalProps {
-  isOpen: boolean
-  onClose: () => void
   onUpload: (testcases: Array<{ input: string; output: string }>) => void
   isHidden: boolean
 }
 
 export function TestcaseUploadModal({
-  isOpen,
-  onClose,
   onUpload,
   isHidden
 }: TestcaseUploadModalProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,17 +96,17 @@ export function TestcaseUploadModal({
 
   const handleClose = () => {
     setUploadedFile(null)
-    onClose()
+    setIsOpen(false)
   }
 
   return (
     <Modal
       open={isOpen}
-      onOpenChange={handleClose}
+      onOpenChange={setIsOpen}
       size="md"
       type="custom"
       title={`Upload Testcases via ZIP`}
-      headerDescription={`Upload ${isHidden ? 'Hidden' : 'Sample'} testcases from a single ZIP file.`}
+      headerDescription={`Upload ${isHidden ? 'hidden' : 'sample'} testcases from a single ZIP file.`}
       onClose={handleClose}
       primaryButton={{
         text: isProcessing ? 'Processing...' : 'Upload',
@@ -120,6 +118,20 @@ export function TestcaseUploadModal({
         onClick: handleClose,
         variant: 'outline'
       }}
+      trigger={
+        <button
+          className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
+          type="button"
+          onClick={() => setIsOpen(true)}
+        >
+          <Image
+            src="/icons/upload.svg"
+            alt="upload Icon"
+            width={20}
+            height={20}
+          />
+        </button>
+      }
     >
       <div className="flex flex-col gap-4 py-4">
         <strong>File Format:</strong>
