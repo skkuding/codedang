@@ -8,19 +8,19 @@ data:
     argocdUrl: https://argocd.codedang.com
 
   service.github: |
-    appID: $githubAppID
-    installationID: $githubAppInstallationID
-    privateKey: $githubAppPrivateKey
+    appID: $github-app-id
+    installationID: $github-installation-id
+    privateKey: $github-private-key
 
-  trigger.on-sync-failed: |
-    - when: app.status.sync.status != 'Synced'
-      oncePer: app.status.sync.revision
-      send: [github]
-
-  trigger.on-sync-running: |
-    - when: app.status.sync.status == 'Syncing'
-      oncePer: app.status.sync.revision
-      send: [github]
+  # trigger.on-sync-failed: |
+  #   - when: app.status.sync.status != 'Synced'
+  #     oncePer: app.status.sync.revision
+  #     send: [github]
+  #
+  # trigger.on-sync-running: |
+  #   - when: app.status.sync.status == 'Syncing'
+  #     oncePer: app.status.sync.revision
+  #     send: [github]
 
   trigger.on-sync-succeeded: |
     - when: app.status.sync.status == 'Synced'
@@ -32,13 +32,13 @@ data:
     github:
       status:
         state: success
-        label: "Argo CD / {{ .app.metadata.name }}"
+        label: "Argo CD / {{ .app.metadata.annotations.appName }}"
         targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
       pullRequestComment:
         content: |
-          ✅ **Preview Deployment Succeeded**
+          ✅ **Syncing Preview App Succeeded**
 
-          **Application:** `{{ .app.metadata.name }}`
+          **Application:** `{{ .app.metadata.annotations.appName }}`
           **Revision:** `{{ .app.status.sync.revision }}`
           **Health Status:** {{ .app.status.health.status }}
 
