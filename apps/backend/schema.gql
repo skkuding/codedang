@@ -2184,6 +2184,62 @@ enum Provider {
   naver
 }
 
+type PushSubscription {
+  auth: String!
+  createTime: DateTime!
+  endpoint: String!
+  id: ID!
+  p256dh: String!
+  updateTime: DateTime!
+  user: User!
+  userAgent: String
+  userId: Int!
+}
+
+type PushSubscriptionAvgAggregate {
+  id: Float
+  userId: Float
+}
+
+type PushSubscriptionCountAggregate {
+  _all: Int!
+  auth: Int!
+  createTime: Int!
+  endpoint: Int!
+  id: Int!
+  p256dh: Int!
+  updateTime: Int!
+  userAgent: Int!
+  userId: Int!
+}
+
+type PushSubscriptionMaxAggregate {
+  auth: String
+  createTime: DateTime
+  endpoint: String
+  id: Int
+  p256dh: String
+  updateTime: DateTime
+  userAgent: String
+  userId: Int
+}
+
+type PushSubscriptionMinAggregate {
+  auth: String
+  createTime: DateTime
+  endpoint: String
+  id: Int
+  p256dh: String
+  updateTime: DateTime
+  userAgent: String
+  userId: Int
+}
+
+type PushSubscriptionSumAggregate {
+  id: Int
+  userId: Int
+}
+
 type Query {
   announcement(contestId: Int!, id: Int!): Announcement!
   announcementByContestId(contestId: Int!): [AnnouncementWithProblemOrder!]!
@@ -2822,6 +2878,7 @@ input UploadTestcaseZipInput {
 
 type User {
   NotificationRecord: [NotificationRecord!]
+  PushSubscription: [PushSubscription!]
   UpdateHistory: [UpdateHistory!]
   _count: UserCount!
   answeredQnAs: [ContestQnA!]
@@ -2951,6 +3008,7 @@ type UserContestSumAggregate {
 
 type UserCount {
   NotificationRecord: Int!
+  PushSubscription: Int!
   UpdateHistory: Int!
   answeredQnAs: Int!
   assignment: Int!
