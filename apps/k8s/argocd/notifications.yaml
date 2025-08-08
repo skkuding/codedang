@@ -13,14 +13,12 @@ data:
     privateKey: $githubAppPrivateKey
 
   trigger.on-sync-succeeded: |
-    - when: app.status.operationState.phase == 'Succeeded'
+    - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Healthy'
       send:
-      - app-deployed           # Send the app deployed message
+      - app-deployed
 
   template.app-deployed: |
-    message: |
-      Application {{.app.metadata.name}} deployed successfully!
-      See details: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}
+    message: 'Test message from ArgoCD Notifications'
     github:
       pullRequestComment:
         content: |
