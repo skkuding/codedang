@@ -12,14 +12,10 @@ data:
     installationID: $githubAppInstallationID
     privateKey: $githubAppPrivateKey
 
-  # trigger.on-sync-succeeded: |
-  #   when: 'hi' == 'hi'
-  #   send: [app-deployed]
-
   trigger.on-sync-succeeded: |
     - when: app.status.operationState.phase == 'Succeeded'
       send:
-      - github-pr-comment      # Send the GitHub PR comment
+      - app-deployed           # Send the app deployed message
 
   template.app-deployed: |
     message: |
@@ -32,15 +28,3 @@ data:
           Application: {{.app.metadata.name}}
           Status: {{.app.status.sync.status}}
           [View in ArgoCD]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
-
-  template.github-pr-comment: |
-    message: |
-      ✅ **Sync Succeeded** to {{.app.spec.destination.name}}
-      The application `{{.app.metadata.name}}` has been successfully synced to the target destination.
-
-      **Application:** `{{.app.metadata.name}}`
-      **Sync Status:** `{{.app.status.sync.status}}`
-      **Health Status:** `{{.app.status.health.status}}`
-      **Revision:** `{{.app.status.sync.revision}}`
-
-      [View in Argo CD]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
