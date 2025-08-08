@@ -19,11 +19,9 @@ data:
   template.app-deployed: |
     message: 'Test message from ArgoCD Notifications'
     github:
-      status:
-        state: 'success'
       pullRequestComment:
         content: |
-          🚀 **Deployment Complete**
+          😎🚀 **Deployment Complete**
           Application: {{.app.metadata.name}}
           Status: {{.app.status.sync.status}}
           [View in ArgoCD]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
