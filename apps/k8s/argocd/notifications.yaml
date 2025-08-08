@@ -20,7 +20,7 @@ data:
   template.github: |
     message: 'Test message from ArgoCD Notifications'
     github:
-        status:
+      status:
         state: success
         label: "continuous-delivery/{{.app.metadata.name}}"
         targetURL: "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true"
