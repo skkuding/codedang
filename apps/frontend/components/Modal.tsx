@@ -45,9 +45,9 @@ interface ModalProps {
 }
 
 const sizeClassMap = {
-  sm: '!w-[424px] !h-[280px] !p-[40px]',
-  md: '!w-[600px] !h-[580px] !py-[50px] !px-[40px]',
-  lg: '!w-[800px] !h-[620px] !py-[50px] !px-[40px]'
+  sm: 'w-[424px]! h-[280px]! p-[40px]!',
+  md: 'w-[600px]! h-[580px]! py-[50px]! px-[40px]!',
+  lg: 'w-[800px]! h-[620px]! py-[50px]! px-[40px]!'
 }
 
 export function Modal({
@@ -75,7 +75,7 @@ export function Modal({
       <DialogContent
         className={cn(
           sizeClassMap[size],
-          'flex flex-col items-center justify-center !rounded-2xl'
+          'rounded-2xl! flex flex-col items-center justify-center'
         )}
         onPointerDownOutside={onClose}
         onEscapeKeyDown={onClose}
@@ -90,7 +90,12 @@ export function Modal({
               // className="mb-3"
             />
           )}
-          <DialogTitle className="text-center text-2xl font-semibold">
+          <DialogTitle
+            className={cn(
+              'w-full text-2xl font-semibold',
+              size === 'lg' ? 'text-left' : 'text-center'
+            )}
+          >
             {title}
           </DialogTitle>
         </DialogHeader>
@@ -127,7 +132,7 @@ export function Modal({
           {secondaryButton && (
             <Button
               onClick={secondaryButton.onClick}
-              className="h-[46px] w-full"
+              className="h-[46px] w-full text-base"
               variant={secondaryButton.variant}
             >
               {secondaryButton.text}
@@ -136,7 +141,7 @@ export function Modal({
           {primaryButton && (
             <Button
               onClick={primaryButton.onClick}
-              className="h-[46px] w-full"
+              className="h-[46px] w-full text-base"
               variant={primaryButton.variant}
             >
               {primaryButton.text}

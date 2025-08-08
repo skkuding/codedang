@@ -160,7 +160,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
             id="email"
             {...findRegister('email')}
             placeholder="Email Address"
-            className="flex-1 border-none !bg-transparent pl-2 text-sm placeholder:text-gray-400 autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
+            className="bg-transparent! autofill:bg-transparent! focus:outline-hidden focus-visible:outline-hidden flex-1 border-none pl-2 text-sm placeholder:text-gray-400 focus:ring-0 focus-visible:border-none focus-visible:ring-0"
           />
 
           <Select
@@ -169,7 +169,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
               inviteSetValue('isGroupLeader', value === 'Instructor')
             }}
           >
-            <SelectTrigger className="w-auto min-w-[80px] border-none bg-transparent text-sm text-gray-500 focus:outline-none">
+            <SelectTrigger className="focus:outline-hidden w-auto min-w-[80px] border-none bg-transparent text-sm text-gray-500">
               <SelectValue placeholder="Student" />
             </SelectTrigger>
             <SelectContent className="rounded-lg bg-white shadow-md">

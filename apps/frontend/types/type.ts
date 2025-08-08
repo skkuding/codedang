@@ -371,6 +371,7 @@ export interface Assignment {
   isRegistered: boolean
   problemCount: number
   submittedCount: number
+  isExercise: boolean
 }
 
 export interface AssignmentProblem {
