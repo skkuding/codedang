@@ -77,10 +77,10 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
         ? testcase.output.slice(0, MAX_OUTPUT_LENGTH)
         : testcase.output
   }))
-  const summaryData = processedData.map(({ id, result, isUserTestcase }) => ({
+  const summaryData = processedData.map(({ id, result, type }) => ({
     id,
     result,
-    isUserTestcase
+    type
   }))
 
   const currentVisibleTab = detailTabId !== null ? detailTabId : activeTab
@@ -172,9 +172,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
                   {
                     (testcaseTabList.length < 7
                       ? TAB_CONTENT
-                      : SHORTHAND_TAB_CONTENT)[
-                      testcase.isUserTestcase ? 'user' : 'sample'
-                    ]
+                      : SHORTHAND_TAB_CONTENT)[testcase.type]
                   }{' '}
                   #{testcase.id}
                 </div>
@@ -227,14 +225,16 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
   )
 }
 
-const TAB_CONTENT = {
+export const TAB_CONTENT = {
   sample: 'Sample',
-  user: 'User'
+  user: 'User',
+  hidden: 'Hidden'
 }
 
 const SHORTHAND_TAB_CONTENT = {
   sample: 'S',
-  user: 'U'
+  user: 'U',
+  hidden: 'H'
 }
 
 interface TestcaseTabProps {
@@ -296,7 +296,7 @@ function TestcaseTab({
 function TestSummary({
   data
 }: {
-  data: { id: number; result: string; isUserTestcase: boolean }[]
+  data: { id: number; result: string; type: 'user' | 'sample' | 'hidden' }[]
 }) {
   const acceptedCount = data.filter(
     (testcase) => testcase.result === 'Accepted'
@@ -307,7 +307,7 @@ function TestSummary({
   const notAcceptedTestcases = data
     .map((testcase) =>
       testcase.result !== 'Accepted' && testcase.result !== 'Judging'
-        ? `${testcase.isUserTestcase ? 'User' : 'Sample'} #${testcase.id}`
+        ? `${TAB_CONTENT[testcase.type]} #${testcase.id}`
         : undefined
     )
     .filter(Boolean)

@@ -146,12 +146,11 @@ export function EditorLayout({
           return {
             id: Number(testcase.id),
             order: idx + 1,
-            type: testcase.isHidden ? 'Hidden' : 'Sample',
+            type: testcase.isHidden ? ('hidden' as const) : ('sample' as const),
             input: testcase.input ?? '',
             expectedOutput: testcase.output ?? '',
             output: testResult?.output ?? '',
-            result: testResult?.result ?? '',
-            isUserTestcase: false
+            result: testResult?.result ?? ''
           }
         })
         setTestResults(mappedResults)
@@ -205,7 +204,8 @@ export function EditorLayout({
         testcases={(testcaseData?.getProblem?.testcase || []).map((tc) => ({
           id: Number(tc.id),
           input: tc.input ?? '',
-          output: tc.output ?? ''
+          output: tc.output ?? '',
+          isHidden: tc.isHidden ?? 'sample'
         }))}
         onReset={handleReset}
       >

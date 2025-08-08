@@ -126,14 +126,18 @@ export function EditorMainResizablePanel({
                         return testResults
                       }
                       if (isTesting) {
-                        return testcases.map((tc: TestcaseItem) => ({
-                          id: Number(tc.id),
-                          input: tc.input ?? '',
-                          expectedOutput: tc.output ?? '',
-                          output: '',
-                          result: 'Judging',
-                          isUserTestcase: false
-                        }))
+                        return testcases.map((tc: TestcaseItem) => {
+                          const type = tc.isHidden ? 'hidden' : 'sample'
+
+                          return {
+                            id: Number(tc.id),
+                            input: tc.input ?? '',
+                            expectedOutput: tc.output ?? '',
+                            output: '',
+                            result: 'Judging',
+                            type: type
+                          }
+                        })
                       }
                       return []
                     })()}
