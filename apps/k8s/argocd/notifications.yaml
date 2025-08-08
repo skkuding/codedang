@@ -20,6 +20,10 @@ data:
   template.github: |
     message: 'Test message from ArgoCD Notifications'
     github:
+        status:
+        state: success
+        label: "continuous-delivery/{{.app.metadata.name}}"
+        targetURL: "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true"
       pullRequestComment:
         content: |
           {{if eq .app.status.sync.status "Synced"}}
@@ -33,16 +37,3 @@ data:
           **Revision:** `{{ .app.status.sync.revision }}`
 
           [View in Argo CD]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
-      checkRun:
-        name: "argocd/{{.app.metadata.name}}"
-        details_url: "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true"
-        status: completed
-        conclusion: success
-        started_at: "YYYY-MM-DDTHH:MM:SSZ"
-        completed_at: "YYYY-MM-DDTHH:MM:SSZ"
-        output:
-          title: "Deployment of {{.app.metadata.name}} on ArgoCD"
-          summary: "Application {{.app.metadata.name}} is now running new version of deployments manifests."
-          text: |
-            Application {{.app.metadata.name}} is now running new version of deployments manifests.
-            See more here: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true
