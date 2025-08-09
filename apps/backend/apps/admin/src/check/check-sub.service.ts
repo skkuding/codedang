@@ -84,23 +84,13 @@ export class CheckSubscriptionService implements OnModuleInit {
       return
     }
 
-    this.logger.debug({}, 'Start upload results')
-
     const clusters = await this.fileService.getClustersFile(msg.checkId)
-
-    this.logger.debug(clusters.length, 'Get clusters from file')
 
     const clusterConnections = await this.createClusters(clusters)
 
-    this.logger.debug({}, 'Create cluster record in prisma')
-
     const comparisons = await this.fileService.getComparisonsFile(msg.checkId)
 
-    this.logger.debug(comparisons.length, 'Get comparison from file')
-
     await this.createCheckResults(msg.checkId, comparisons, clusterConnections)
-
-    this.logger.debug({}, 'Create check result record in prisma')
 
     await this.prisma.checkRequest.update({
       where: {
@@ -110,6 +100,8 @@ export class CheckSubscriptionService implements OnModuleInit {
         result: CheckResultStatus.Completed
       }
     })
+
+    //await this.fileService.clearFiles(msg.checkId)
   }
 
   @Span()
@@ -205,13 +197,6 @@ export class CheckSubscriptionService implements OnModuleInit {
         const clusterId =
           clusterConnection.length == 0 ? null : clusterConnection[0].clusterId
 
-        this.logger.debug(
-          {
-            firstCheckSubmissionId: comparison.firstSubmissionId,
-            secondCheckSubmissionId: comparison.secondSubmissionId
-          },
-          'Create Check Result'
-        )
         return {
           requestId: checkId,
           firstCheckSubmissionId: comparison.firstSubmissionId,

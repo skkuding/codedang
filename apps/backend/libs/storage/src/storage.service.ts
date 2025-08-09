@@ -128,9 +128,16 @@ export class StorageService {
    * @param filename 파일 이름
    * @param bucket Bucket type to delete from ('testcase' or 'media')
    */
-  async deleteObject(filename: string, bucket: 'testcase' | 'media') {
+  async deleteObject(
+    filename: string,
+    bucket: 'testcase' | 'media' | 'checkResult'
+  ) {
     const bucketName = this.config.get(
-      bucket == 'testcase' ? 'TESTCASE_BUCKET_NAME' : 'MEDIA_BUCKET_NAME'
+      bucket == 'testcase'
+        ? 'TESTCASE_BUCKET_NAME'
+        : bucket == 'media'
+          ? 'MEDIA_BUCKET_NAME'
+          : 'CHECK_RESULT_BUCKET_NAME'
     )
     await this.client.send(
       new DeleteObjectCommand({

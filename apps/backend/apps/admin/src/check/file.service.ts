@@ -37,4 +37,15 @@ export class FileService {
       plainToInstance(Cluster, rawCluster)
     )
   }
+
+  async clearFiles(checkId: number): Promise<void> {
+    await this.storageService.deleteObject(
+      `comparison${checkId}.json`,
+      'checkResult'
+    )
+    await this.storageService.deleteObject(
+      `cluster${checkId}.json`,
+      'checkResult'
+    )
+  }
 }
