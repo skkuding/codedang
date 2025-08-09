@@ -7,6 +7,7 @@ import { cn } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 // import KakaotalkLogo from '@/public/kakaotalk.svg'
 import { useAuthModalStore } from '@/stores/authModal'
+import type { Route } from 'next'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -49,7 +50,7 @@ export function SignIn() {
 
         const isLoginPage = pathname === '/login'
         if (isLoginPage) {
-          const redirectUrl = searchParams.get('redirectUrl')
+          const redirectUrl = searchParams.get('redirectUrl') as Route
           router.push(redirectUrl || '/')
         } else {
           hideModal()
