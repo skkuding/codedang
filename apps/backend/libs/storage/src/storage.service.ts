@@ -88,16 +88,14 @@ export class StorageService {
   }
 
   /**
-   * @deprecated testcase를 더 이상 S3에 저장하지 않습니다.
-   *
-   * Object(testcase)를 불러옵니다.
+   * Object(Check Result)를 불러옵니다.
    * @param filename 파일 이름
    * @returns S3에 저장된 Object
    */
   async readObject(filename: string) {
     const res = await this.client.send(
       new GetObjectCommand({
-        Bucket: this.config.get('TESTCASE_BUCKET_NAME'),
+        Bucket: this.config.get('CHECK_RESULT_BUCKET_NAME'),
         Key: filename
       })
     )

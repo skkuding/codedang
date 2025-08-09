@@ -32,8 +32,8 @@ type Match struct {
 type Similarities struct {
 	Average       float32 `json:"AVG"`
 	Maximum       float32 `json:"MAX"`
-	MaximumLength float32 `json:"MAXIMUM_LENGTH"`
-	LongestMatch  float32 `json:"LONGEST_MATCH"`
+	MaximumLength float32 `json:"MAXIMUMLENGTH"`
+	LongestMatch  float32 `json:"LONGESTMATCH"`
 }
 
 type Comparison struct {

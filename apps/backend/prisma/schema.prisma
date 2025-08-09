@@ -812,7 +812,7 @@ model CheckResult {
       "lengthOfSecond": Int
   }
   */
-  matches                Json[]        @map("matches") //하 모르겠다...
+  matches                Json[]        @map("matches")
   firstSimilarity        Float?        @map("first_similarity")
   secondSimilarity       Float?        @map("second_similarity")
 

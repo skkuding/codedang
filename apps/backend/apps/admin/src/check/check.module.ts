@@ -3,10 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { RolesModule } from '@libs/auth'
 import { CHECK_CONSUME_CHANNEL, CHECK_PUBLISH_CHANNEL } from '@libs/constants'
+import { StorageModule } from '@libs/storage'
 import { CheckPublicationService } from './check-pub.service'
 import { CheckSubscriptionService } from './check-sub.service'
 import { CheckResolver } from './check.resolver'
 import { CheckService } from './check.service'
+import { FileService } from './file.service'
 
 @Module({
   imports: [
@@ -44,13 +46,15 @@ import { CheckService } from './check.service'
       },
       inject: [ConfigService]
     }),
-    RolesModule
+    RolesModule,
+    StorageModule
   ],
   providers: [
     CheckService,
     CheckPublicationService,
     CheckSubscriptionService,
-    CheckResolver
+    CheckResolver,
+    FileService
   ]
 })
 export class CheckModule {}
