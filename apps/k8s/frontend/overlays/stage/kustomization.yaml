@@ -16,5 +16,5 @@ patches:
       name: frontend-ingress
   - path: secrets.yaml
     target:
-      kind: SealedSecret
+      kind: Secret
       name: frontend-secrets
