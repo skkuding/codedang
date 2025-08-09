@@ -122,7 +122,6 @@ export function TestcaseUploadModal({
         <button
           className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
           type="button"
-          onClick={() => setIsOpen(true)}
         >
           <Image
             src="/icons/upload.svg"
