@@ -21,7 +21,7 @@ const bgColors: { [key: string]: string } = {
 export function Cover({ title, description }: CoverProps) {
   return (
     <div className="w-screen">
-      <div className="absolute left-0 top-0 z-[10] h-14 w-full bg-white" />
+      <div className="absolute left-0 top-0 z-10 h-14 w-full bg-white" />
 
       <div
         className={cn(
@@ -45,26 +45,26 @@ export function Cover({ title, description }: CoverProps) {
         <OvalIcon
           position="left-[1%] -top-[60%]"
           additionalClasses="w-[800px] h-[600px] scale-y-[0.9]"
-          transform="rotate-[300deg]"
+          transform="rotate-300"
           backgroundColor="bg-[#CC99FF]"
         />
         <OvalIcon
           position="left-[40%] -top-[70%]"
           additionalClasses="w-[700px] h-[400px] scale-y-[0.9]"
-          transform="rotate-[310deg]"
+          transform="rotate-310"
           backgroundColor="bg-[#D0B5E8]"
         />
         <OvalIcon
-          position="left-[12%] top-[100%]"
+          position="left-[12%] top-full"
           additionalClasses="w-[700px] h-[400px] scale-y-[0.9]"
-          transform="rotate-[310deg]"
+          transform="rotate-310"
           backgroundColor="bg-[#E9DDF4]"
         />
 
         <OvalIcon
           position="-right-[22%] -top-[20%]"
           additionalClasses="w-[1000px] h-[700px] scale-y-[0.9]"
-          transform="rotate-[170deg]"
+          transform="rotate-170"
           backgroundColor="bg-[#E9D0FF]"
         />
       </div>

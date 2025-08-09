@@ -4,6 +4,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
+import { GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { cn, convertToLetter } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
@@ -18,15 +19,13 @@ interface AssignmentProblemDropdownProps {
   assignmentId: number
   courseId: number
   userId: number
-  isSubmitted: boolean
 }
 
 export function AssignmentProblemDropdown({
   problemId,
   assignmentId,
   courseId,
-  userId,
-  isSubmitted
+  userId
 }: AssignmentProblemDropdownProps) {
   const assignmentProblems =
     useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {
@@ -35,6 +34,17 @@ export function AssignmentProblemDropdown({
         assignmentId
       }
     }).data?.getAssignmentProblems ?? []
+
+  const problemsScores =
+    useSuspenseQuery(GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER, {
+      variables: {
+        groupId: courseId,
+        assignmentId,
+        userId,
+        take: 1000
+      }
+    }).data?.getAssignmentSubmissionSummaryByUserId.scoreSummary
+      .problemScores ?? []
 
   const sortedProblems = [...assignmentProblems].sort(
     (a, b) => a.order - b.order
@@ -46,7 +56,7 @@ export function AssignmentProblemDropdown({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
+      <DropdownMenuTrigger className="outline-hidden flex gap-1 text-lg text-white">
         <h1>{`${convertToLetter(currentProblem?.order ?? 0)}. ${currentProblem?.problem.title}`}</h1>
         <FaSortDown />
       </DropdownMenuTrigger>
@@ -67,7 +77,10 @@ export function AssignmentProblemDropdown({
               key={p.problemId}
             >
               {`${convertToLetter(p.order)}. ${p.problem.title}`}
-              {isSubmitted && (
+              {problemsScores.some(
+                (score) =>
+                  score.problemId === p.problemId && score.finalScore !== null
+              ) && (
                 <div className="flex items-center justify-center pl-2">
                   <Image src={checkIcon} alt="check" width={16} height={16} />
                 </div>

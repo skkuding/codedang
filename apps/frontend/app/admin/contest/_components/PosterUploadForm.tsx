@@ -92,7 +92,7 @@ export function PosterUploadForm({
         {isLoading ? (
           <div className="text-center text-[11px] font-normal">Loading...</div>
         ) : (
-          <div className="flex flex-shrink-0 rounded-xl">
+          <div className="flex shrink-0 rounded-xl">
             <Image
               src={field.value || imageUpload}
               alt="Contest Poster"
