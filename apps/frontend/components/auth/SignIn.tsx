@@ -9,7 +9,7 @@ import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import { useAuthModalStore } from '@/stores/authModal'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { usePostHog } from 'posthog-js/react'
 import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
@@ -31,6 +31,8 @@ export function SignIn() {
     (state) => state
   )
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const posthog = usePostHog()
 
   const { register, handleSubmit, watch } = useForm<Inputs>()
@@ -44,13 +46,25 @@ export function SignIn() {
       })
       if (!res?.error) {
         posthog.identify(data.username) // Set new distinct ID
-        router.refresh()
-        hideModal()
-        toast.success(`Welcome back, ${data.username}!`, {
-          style: {
-            transform: 'translateY(30px)'
-          }
-        })
+
+        const isLoginPage = pathname === '/login'
+        if (isLoginPage) {
+          const redirectUrl = searchParams.get('redirectUrl')
+          router.push(redirectUrl || '/')
+        } else {
+          hideModal()
+          router.refresh()
+        }
+        setTimeout(
+          () => {
+            toast.success(`Welcome back, ${data.username}!`, {
+              style: {
+                transform: 'translateY(30px)'
+              }
+            })
+          },
+          isLoginPage ? 500 : 0
+        )
       } else {
         toast.error('Failed to log in')
       }
