@@ -19,7 +19,7 @@ import { motion } from 'framer-motion'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState, type ComponentType } from 'react'
 import type { IconType } from 'react-icons'
 import {
@@ -101,6 +101,7 @@ function SidebarLink({
 
 export function ManagementSidebar() {
   const session = useSession()
+  const router = useRouter()
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isAnimationComplete, setIsAnimationComplete] = useState(true)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
@@ -181,10 +182,9 @@ export function ManagementSidebar() {
   const params = useParams()
 
   useEffect(() => {
-    if (params.courseId) {
-      setSelectedCourseId(params.courseId as string)
-      setIsCourseSidebarOpened(true)
-    }
+    const id = (params.courseId as string) || ''
+    setSelectedCourseId(id)
+    setIsCourseSidebarOpened(Boolean(id))
   }, [params.courseId])
 
   const courseItems =
@@ -242,6 +242,10 @@ export function ManagementSidebar() {
                 isExpanded={isMainSidebarExpanded}
                 onClick={() => {
                   if (item.path !== '/admin/course') {
+                    router.push('/admin/course' as Route)
+                    setSelectedCourseId('')
+                    setIsCourseSidebarOpened(false)
+                  } else {
                     setIsCourseSidebarOpened(false)
                   }
                 }}

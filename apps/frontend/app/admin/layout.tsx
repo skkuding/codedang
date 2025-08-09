@@ -96,7 +96,7 @@ export default async function Layout({
         </nav>
         <Separator orientation="vertical" />
         {/*NOTE: full width - sidebar width */}
-        <div className="relative w-[calc(100%-15rem)] overflow-y-auto">
+        <div className="relative w-[calc(100%-15rem)] flex-1 overflow-y-auto">
           {children}
         </div>
       </div>
