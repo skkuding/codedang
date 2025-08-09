@@ -28,8 +28,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: frontend-env
-            # - secretRef:
-            #     name: frontend-secrets
+            - secretRef:
+                name: frontend-secrets
           env:
             - name: APP_ENV
               value: 'production'

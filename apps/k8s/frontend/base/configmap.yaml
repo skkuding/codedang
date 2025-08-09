@@ -6,4 +6,3 @@ metadata:
 data:
   NEXT_URL: 'https://codedang.com'
   NEXTAUTH_URL: 'https://codedang.com/next-auth/api/auth'
-  NEXTAUTH_SECRET: 'uTHtcvA4gbvZJK9cO7Km7ehfFm94uzxOPTQnQIx045I='
