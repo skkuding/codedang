@@ -69,8 +69,6 @@ spec:
           - CreateNamespace=true
           - PrunePropagationPolicy=foreground
         retry:
-          limit: 10
+          limit: 3
           backoff:
             duration: 10s
-            factor: 2
-            maxDuration: 10m
