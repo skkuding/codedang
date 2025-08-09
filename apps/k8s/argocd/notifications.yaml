@@ -56,8 +56,7 @@ data:
           **Revision:** `{{ .app.status.sync.revision }}`
           **Health Status:** {{ .app.status.health.status }}
 
-          [Open Preview]({{ .app.metadata.annotations.previewURL }})
-          [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})
+          [Open Preview]({{ .app.metadata.annotations.previewURL }}) | [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})
 
   template.github-failed: |
     message: 'Failed to sync {{ .app.metadata.name }}'
@@ -74,5 +73,4 @@ data:
           **Revision:** `{{ .app.status.sync.revision }}`
           **Health Status:** {{ .app.status.health.status }}
 
-          [Open Preview]({{ .app.metadata.annotations.previewURL }})
-          [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})
+          [Open Preview]({{ .app.metadata.annotations.previewURL }}) | [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})

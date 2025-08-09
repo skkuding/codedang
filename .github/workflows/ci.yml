@@ -75,8 +75,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            BASEURL="https://stage.codedang.com/api"
-            GQL_BASEURL="https://stage.codedang.com/graphql"
+            BASEURL=https://stage.codedang.com/api
+            GQL_BASEURL=https://stage.codedang.com/graphql
 
   typecheck:
     name: Typecheck
