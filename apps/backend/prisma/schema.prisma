@@ -589,7 +589,6 @@ model ContestQnA {
   problem     Problem?            @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId   Int?                @map("problem_id")
   category    QnACategory         @default(General)
-  isVisible   Boolean             @default(false) @map("is_visible")
   isResolved  Boolean             @default(false) @map("is_resolved")
   createTime  DateTime            @default(now()) @map("create_time")
   comments    ContestQnAComment[]

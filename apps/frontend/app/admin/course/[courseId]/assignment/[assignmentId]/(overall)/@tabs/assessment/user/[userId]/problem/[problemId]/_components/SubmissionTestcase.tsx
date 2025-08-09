@@ -4,8 +4,10 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
+  TableFooter
 } from '@/components/shadcn/table'
+import { getResultColor } from '@/libs/utils'
 import type { SubmissionDetail } from '@generated/graphql'
 
 interface SubmissionTestcaseProps {
@@ -16,6 +18,10 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
   if (!submission) {
     return <div className="h-72" />
   }
+
+  const firstHiddenIndex = submission.testcaseResult.findIndex(
+    (item) => item.isHidden
+  )
 
   return (
     <div>
@@ -29,31 +35,57 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
                 <TableHead>Result</TableHead>
                 <TableHead>Runtime</TableHead>
                 <TableHead>Memory</TableHead>
+                <TableHead>ScoreWeight</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {submission.testcaseResult.map((item) => (
-                <TableRow
-                  className="text-[#9B9B9B]"
-                  key={item.problemTestcaseId}
-                >
-                  <TableCell>
-                    <div className="py-2">
-                      {item.problemTestcaseId.toString()}
-                    </div>
-                  </TableCell>
-                  <TableCell>{item.result}</TableCell>
-                  <TableCell>
-                    {item.cpuTime ? `${item.cpuTime} ms` : '-'}
-                  </TableCell>
-                  <TableCell>
-                    {item.memoryUsage
-                      ? `${(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
-                      : '-'}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {submission.testcaseResult.map((item, index) => {
+                const isHiddenTestCase =
+                  firstHiddenIndex !== -1 && index >= firstHiddenIndex
+
+                const caseLabel = isHiddenTestCase
+                  ? `Hidden #${index - firstHiddenIndex + 1}`
+                  : `Sample #${index + 1}`
+
+                return (
+                  <TableRow
+                    className="text-[#9B9B9B]"
+                    key={item.problemTestcaseId}
+                  >
+                    <TableCell>
+                      <div className="py-2">{caseLabel}</div>
+                    </TableCell>
+                    <TableCell className={getResultColor(item.result)}>
+                      {item.result}
+                    </TableCell>
+                    <TableCell>
+                      {item.cpuTime ? `${item.cpuTime} ms` : '-'}
+                    </TableCell>
+                    <TableCell>
+                      {item.memoryUsage
+                        ? `${(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
+                        : '-'}
+                    </TableCell>
+                    <TableCell>{`${item.scoreWeight}%`}</TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
+            <TableFooter className="bg-transparent">
+              <TableRow>
+                <TableCell>
+                  {(() => {
+                    const totalTestcases = submission.testcaseResult.length
+                    const correctTestcases = submission.testcaseResult.filter(
+                      (item) => item.result === 'Accepted'
+                    ).length
+                    return `${correctTestcases}/${totalTestcases}`
+                  })()}
+                </TableCell>
+                <TableCell colSpan={3} />
+                <TableCell>{`${submission.score}%`}</TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
         </div>
       )}

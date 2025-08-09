@@ -138,6 +138,19 @@ export class ContestController {
     )
   }
 
+  @Delete(':id/qna/:order')
+  async deleteContestQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number,
+    @Param('order', ParseIntPipe) order: number
+  ) {
+    return await this.contestService.deleteContestQnA(
+      req.user.id,
+      contestId,
+      order
+    )
+  }
+
   @Post(':id/qna/:order/comment')
   async createContestQnAComment(
     @Req() req: AuthenticatedRequest,
@@ -150,6 +163,21 @@ export class ContestController {
       contestId,
       order,
       contentQnACommentCreateDto.content
+    )
+  }
+
+  @Delete(':id/qna/:qnaOrder/comment/:commentOrder')
+  async deleteContestQnAComment(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number,
+    @Param('qnaOrder', ParseIntPipe) qnAOrder: number,
+    @Param('commentOrder', ParseIntPipe) commentOrder: number
+  ) {
+    return await this.contestService.deleteContestQnAComment(
+      req.user.id,
+      contestId,
+      qnAOrder,
+      commentOrder
     )
   }
 }

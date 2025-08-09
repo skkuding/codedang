@@ -8,7 +8,7 @@ metadata:
 spec:
   destination:
     namespace: argocd
-    server: https://kubernetes.default.svc
+    name: production
   source:
     path: apps/k8s/argocd
     repoURL: https://github.com/skkuding/codedang

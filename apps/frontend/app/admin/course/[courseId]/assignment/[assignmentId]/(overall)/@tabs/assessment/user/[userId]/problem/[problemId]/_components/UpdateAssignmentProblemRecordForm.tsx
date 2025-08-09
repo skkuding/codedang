@@ -1,7 +1,11 @@
 'use client'
 
 import { UPDATE_ASSIGNMENT_PROBLEM_RECORD } from '@/graphql/assignment/mutations'
-import { GET_ASSIGNMENT_PROBLEM_RECORD } from '@/graphql/assignment/queries'
+import {
+  GET_ASSIGNMENT_PROBLEM_RECORD,
+  GET_ASSIGNMENT_SCORE_SUMMARIES,
+  GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER
+} from '@/graphql/assignment/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateAssignmentProblemRecordInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
@@ -16,6 +20,7 @@ interface UpdateAssignmentProblemRecordFormProps {
   assignmentId: number
   userId: number
   problemId: number
+  onCompleted: () => void
 }
 
 export function UpdateAssignmentProblemRecordForm({
@@ -23,7 +28,8 @@ export function UpdateAssignmentProblemRecordForm({
   groupId,
   assignmentId,
   userId,
-  problemId
+  problemId,
+  onCompleted
 }: UpdateAssignmentProblemRecordFormProps) {
   const [loading, setLoading] = useState(true)
 
@@ -59,7 +65,27 @@ export function UpdateAssignmentProblemRecordForm({
       },
       onCompleted: () => {
         toast.success('Assessment updated successfully')
-      }
+        onCompleted()
+      },
+      refetchQueries: [
+        {
+          query: GET_ASSIGNMENT_SCORE_SUMMARIES,
+          variables: {
+            groupId,
+            assignmentId,
+            take: 1000
+          }
+        },
+        {
+          query: GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER,
+          variables: {
+            groupId,
+            assignmentId,
+            userId,
+            take: 1000
+          }
+        }
+      ]
     }
   )
 

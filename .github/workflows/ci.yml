@@ -94,29 +94,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check if source code has changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            backend:
-              - 'apps/backend/**'
-
       - uses: ./.github/actions/setup-pnpm
-        if: steps.filter.outputs.backend == 'true'
 
       - name: Generate Prisma Client
-        if: steps.filter.outputs.backend == 'true'
         run: pnpm --filter="@codedang/backend" exec prisma generate
 
-      - name: Check types (backend) # For spec files
-        if: steps.filter.outputs.backend == 'true'
+      - name: Check types (backend)
         run: pnpm --filter="@codedang/backend" exec tsc --noEmit
 
-      # Typecheck is not performed for frontend intentionally.
-      # Check: https://github.com/vercel/next.js/issues/53959
-      # Unlike backend, we don't have spec file to check types.
-      # So typechecking performed in the build step is enough.
+      - name: Compile GraphQL schema
+        run: pnpm --filter="@codedang/frontend" run compile
+
+      - name: Check types (frontend)
+        run: pnpm --filter="@codedang/frontend" exec tsc --noEmit
 
   lint:
     name: Lint

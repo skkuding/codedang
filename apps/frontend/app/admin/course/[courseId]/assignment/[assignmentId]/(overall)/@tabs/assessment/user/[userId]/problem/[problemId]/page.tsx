@@ -53,6 +53,7 @@ export default function Page({ params }: PageProps) {
             assignmentId={Number(assignmentId)}
             userId={Number(userId)}
             problemId={Number(problemId)}
+            autoGradedScore={0}
           />
         </div>
       </div>
@@ -94,6 +95,7 @@ export default function Page({ params }: PageProps) {
               assignmentId={Number(assignmentId)}
               userId={Number(userId)}
               problemId={Number(problemId)}
+              autoGradedScore={submission?.score ?? 0}
             />
           </div>
         </Suspense>
