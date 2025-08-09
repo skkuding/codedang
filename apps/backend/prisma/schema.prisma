@@ -78,6 +78,7 @@ model User {
   createdQnAs        ContestQnA[]         @relation("CreatedByUser")
   createdQnAComments ContestQnAComment[]  @relation("CreatedByUser")
   NotificationRecord NotificationRecord[]
+  PushSubscription   PushSubscription[]
 
   @@map("user")
 }
@@ -790,4 +791,19 @@ model NotificationRecord {
 
   @@index([userId, createTime, id])
   @@map("notification_record")
+}
+
+model PushSubscription {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      @map("user_id")
+  endpoint   String
+  p256dh     String
+  auth       String
+  userAgent  String?  @map("user_agent")
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@unique([userId, endpoint])
+  @@map("push_subscription")
 }

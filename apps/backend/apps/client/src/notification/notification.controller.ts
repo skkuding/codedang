@@ -7,10 +7,13 @@ import {
   Query,
   Req,
   DefaultValuePipe,
-  ParseBoolPipe
+  ParseBoolPipe,
+  Post,
+  Body
 } from '@nestjs/common'
 import { AuthenticatedRequest } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import { CreatePushSubscriptionDto } from './dto/create-push-subscription.dto'
 import { NotificationService } from './notification.service'
 
 @Controller('notification')
@@ -69,6 +72,21 @@ export class NotificationController {
   }
 
   /**
+   * Push subscription을 삭제합니다
+   * endpoint가 제공되지 않으면 해당 사용자의 모든 subscription을 삭제합니다
+   */
+  @Delete('/push-subscription')
+  async deletePushSubscription(
+    @Req() req: AuthenticatedRequest,
+    @Query('endpoint') endpoint?: string
+  ) {
+    return this.notificationService.deletePushSubscription(
+      req.user.id,
+      endpoint
+    )
+  }
+
+  /**
    * 특정 알림을 삭제합니다.
    */
   @Delete(':id')
@@ -81,5 +99,24 @@ export class NotificationController {
       req.user.id,
       notificationRecordId
     )
+  }
+
+  /**
+   * Push subscription을 생성합니다
+   */
+  @Post('/push-subscription')
+  async createPushSubscription(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: CreatePushSubscriptionDto
+  ) {
+    return this.notificationService.createPushSubscription(req.user.id, dto)
+  }
+
+  /**
+   * VAPID public key를 반환합니다
+   */
+  @Get('/vapid')
+  async getVapidPublicKey() {
+    return this.notificationService.getVapidPublicKey()
   }
 }

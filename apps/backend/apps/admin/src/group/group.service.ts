@@ -1,5 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import type { AuthenticatedUser } from '@libs/auth'
 import { invitationCodeKey, invitationGroupKey } from '@libs/cache'

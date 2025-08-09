@@ -10,6 +10,10 @@ patch {
   auth: none
 }
 
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
 assert {
   res.status: eq 200
   res.body: isNumber
