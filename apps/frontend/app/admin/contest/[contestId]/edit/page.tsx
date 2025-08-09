@@ -65,7 +65,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
             (1000 * 60)
         )
       : null
-
+  // console.log(methods.getValues())
   return (
     <ConfirmNavigation>
       <ScrollArea className="w-full">
@@ -104,6 +104,15 @@ export default function Page({ params }: { params: { contestId: string } }) {
                     placeholder="Name your contest"
                     className="max-w-[492px]"
                   />
+                </FormSection>
+                <FormSection
+                  title="Join DueTime"
+                  isOngoing={isOngoing}
+                  isFinished={isFinished}
+                >
+                  {methods.getValues('registerDueTime') && (
+                    <TimeForm isContest name="registerDueTime" />
+                  )}
                 </FormSection>
                 <FormSection
                   title="Start Time"
