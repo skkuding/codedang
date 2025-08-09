@@ -36,9 +36,6 @@ const nextConfig = {
   output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true
-  },
-  env: {
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL
   }
   /**
   // Custom Webpack Config
