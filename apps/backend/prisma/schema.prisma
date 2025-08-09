@@ -81,9 +81,6 @@ model User {
 
   @@map("user")
   CheckRequest CheckRequest[]
-  CheckResultAsFirst CheckResult[] @relation("FirstCheckUser")
-  CheckResultAsSecond CheckResult[] @relation("SecondCheckUser")
-  UserCluster UserCluster[]
 }
 
 model UserOAuth {
@@ -701,6 +698,9 @@ model Submission {
   submissionResult SubmissionResult[]
 
   @@map("submission")
+  SubmissionCluster SubmissionCluster[]
+  FirstCheckResult CheckResult[] @relation("FirstCheckSubmission")
+  SecondCheckResult CheckResult[] @relation("SecondCheckSubmission")
 }
 
 model SubmissionResult {
@@ -800,17 +800,17 @@ enum CheckResultStatus {
 }
 
 model CheckResult {
-  id                     Int           @id @default(autoincrement())
-  request                CheckRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  requestId              Int           @map("request_id")
-  firstCheckUser         User?         @relation("FirstCheckUser", fields: [firstCheckUserId], references: [id], onDelete: SetNull)
-  firstCheckUserId       Int?          @map("first_user_id")
-  secondCheckUser        User?         @relation("SecondCheckUser", fields: [secondCheckUserId], references: [id], onDelete: SetNull)
-  secondCheckUserId      Int?          @map("second_user_id")
-  averageSimilarity      Float?        @map("average_similarity")
-  maxSimilarity          Float?        @map("max_similarity")
-  maxLength              Int?          @map("max_length")
-  longestMatch           Int?          @map("longest_match")
+  id                           Int           @id @default(autoincrement())
+  request                      CheckRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId                    Int           @map("request_id")
+  firstCheckSubmission         Submission?   @relation("FirstCheckSubmission", fields: [firstCheckSubmissionId], references: [id], onDelete: SetNull)
+  firstCheckSubmissionId       Int?          @map("first_user_id")
+  secondCheckSubmission        Submission?   @relation("SecondCheckSubmission", fields: [secondCheckSubmissionId], references: [id], onDelete: SetNull)
+  secondCheckSubmissionId      Int?          @map("second_user_id")
+  averageSimilarity            Float?        @map("average_similarity")
+  maxSimilarity                Float?        @map("max_similarity")
+  maxLength                    Int?          @map("max_length")
+  longestMatch                 Int?          @map("longest_match")
 
   /* 1개 match의 structure
   {
@@ -848,18 +848,18 @@ model PlagiarismCluster {
   averageSimilarity      Float?        @map("average_similarity")
   strength               Float?        @map("second_user_id")
 
-  UserCluster            UserCluster[]
+  SubmissionCluster      SubmissionCluster[]
   CheckResult            CheckResult[]
   @@map("plagiarism_cluster")
 }
 
-model UserCluster {
+model SubmissionCluster {
   id                     Int                @id @default(autoincrement())
-  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId                 Int                @map("user_id")
+  submission             Submission         @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submissionId           Int                @map("submission_id")
   cluster                PlagiarismCluster  @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   clusterId              Int                @map("cluster_id")
-  @@map("user_Cluster")
+  @@map("submission_Cluster")
 }
 
 enum NotificationType {

@@ -35,6 +35,7 @@ export class CheckSubscriptionService implements OnModuleInit {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       async (msg: object, raw: any) => {
         try {
+          this.logger.debug(msg, 'Received Check Result Message')
           const res = await this.validateCheckResponse(msg)
           await this.handleCheckMessage(res)
         } catch (error) {
@@ -83,15 +84,25 @@ export class CheckSubscriptionService implements OnModuleInit {
       return
     }
 
+    this.logger.debug({}, 'Start upload results')
+
     const clusters = await this.fileService.getClustersFile(msg.checkId)
+
+    this.logger.debug(clusters.length, 'Get clusters from file')
 
     const clusterConnections = await this.createClusters(clusters)
 
+    this.logger.debug({}, 'Create cluster record in prisma')
+
     const comparisons = await this.fileService.getComparisonsFile(msg.checkId)
+
+    this.logger.debug(comparisons.length, 'Get comparison from file')
 
     await this.createCheckResults(msg.checkId, comparisons, clusterConnections)
 
-    this.prisma.checkRequest.update({
+    this.logger.debug({}, 'Create check result record in prisma')
+
+    await this.prisma.checkRequest.update({
       where: {
         id: msg.checkId
       },
@@ -109,7 +120,7 @@ export class CheckSubscriptionService implements OnModuleInit {
     const checkRequest = await this.prisma.checkRequest.findUnique({
       where: {
         id: msg.checkId,
-        result: status
+        result: CheckResultStatus.Pending
       },
       select: {
         id: true
@@ -151,9 +162,9 @@ export class CheckSubscriptionService implements OnModuleInit {
         })
 
         cluster.members.forEach(async (memberId) => {
-          await this.prisma.userCluster.create({
+          await this.prisma.submissionCluster.create({
             data: {
-              userId: memberId,
+              submissionId: memberId,
               clusterId: clusterId.id
             }
           })
@@ -176,7 +187,7 @@ export class CheckSubscriptionService implements OnModuleInit {
       memberIds: number[]
     }[]
   ): Promise<void> {
-    this.prisma.checkResult.createMany({
+    await this.prisma.checkResult.createMany({
       data: comparisons.map((comparison) => {
         const clusterConnection = clusterConnections.filter((conn) => {
           return (
@@ -194,10 +205,17 @@ export class CheckSubscriptionService implements OnModuleInit {
         const clusterId =
           clusterConnection.length == 0 ? null : clusterConnection[0].clusterId
 
+        this.logger.debug(
+          {
+            firstCheckSubmissionId: comparison.firstSubmissionId,
+            secondCheckSubmissionId: comparison.secondSubmissionId
+          },
+          'Create Check Result'
+        )
         return {
           requestId: checkId,
-          firstCheckUserId: comparison.firstSubmissionId,
-          secondCheckUserId: comparison.secondSubmissionId,
+          firstCheckSubmissionId: comparison.firstSubmissionId,
+          secondCheckSubmissionId: comparison.secondSubmissionId,
           averageSimilarity: comparison.similarities.AVG,
           maxSimilarity: comparison.similarities.MAX,
           maxLength: comparison.similarities.MAXIMUMLENGTH,
@@ -205,7 +223,7 @@ export class CheckSubscriptionService implements OnModuleInit {
           matches: comparison.matches.map((match) => JSON.stringify(match)),
           firstSimilarity: comparison.firstSimilarity,
           secondSimilarity: comparison.secondSimilarity,
-          clusterId: clusterId
+          clusterId
         }
       })
     })

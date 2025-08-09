@@ -616,8 +616,8 @@ type CheckResult {
   averageSimilarity: Float
   cluster: PlagiarismCluster
   clusterId: Int
-  firstCheckUser: User
-  firstCheckUserId: Int
+  firstCheckSubmission: Submission
+  firstCheckSubmissionId: Int
   firstSimilarity: Float
   id: ID!
   longestMatch: Int
@@ -650,22 +650,22 @@ type CheckResult {
   maxSimilarity: Float
   request: CheckRequest!
   requestId: Int!
-  secondCheckUser: User
-  secondCheckUserId: Int
+  secondCheckSubmission: Submission
+  secondCheckSubmissionId: Int
   secondSimilarity: Float
 }
 
 type CheckResultAvgAggregate {
   averageSimilarity: Float
   clusterId: Float
-  firstCheckUserId: Float
+  firstCheckSubmissionId: Float
   firstSimilarity: Float
   id: Float
   longestMatch: Float
   maxLength: Float
   maxSimilarity: Float
   requestId: Float
-  secondCheckUserId: Float
+  secondCheckSubmissionId: Float
   secondSimilarity: Float
 }
 
@@ -673,7 +673,7 @@ type CheckResultCountAggregate {
   _all: Int!
   averageSimilarity: Int!
   clusterId: Int!
-  firstCheckUserId: Int!
+  firstCheckSubmissionId: Int!
   firstSimilarity: Int!
   id: Int!
   longestMatch: Int!
@@ -681,35 +681,35 @@ type CheckResultCountAggregate {
   maxLength: Int!
   maxSimilarity: Int!
   requestId: Int!
-  secondCheckUserId: Int!
+  secondCheckSubmissionId: Int!
   secondSimilarity: Int!
 }
 
 type CheckResultMaxAggregate {
   averageSimilarity: Float
   clusterId: Int
-  firstCheckUserId: Int
+  firstCheckSubmissionId: Int
   firstSimilarity: Float
   id: Int
   longestMatch: Int
   maxLength: Int
   maxSimilarity: Float
   requestId: Int
-  secondCheckUserId: Int
+  secondCheckSubmissionId: Int
   secondSimilarity: Float
 }
 
 type CheckResultMinAggregate {
   averageSimilarity: Float
   clusterId: Int
-  firstCheckUserId: Int
+  firstCheckSubmissionId: Int
   firstSimilarity: Float
   id: Int
   longestMatch: Int
   maxLength: Int
   maxSimilarity: Float
   requestId: Int
-  secondCheckUserId: Int
+  secondCheckSubmissionId: Int
   secondSimilarity: Float
 }
 
@@ -729,14 +729,14 @@ enum CheckResultStatus {
 type CheckResultSumAggregate {
   averageSimilarity: Float
   clusterId: Int
-  firstCheckUserId: Int
+  firstCheckSubmissionId: Int
   firstSimilarity: Float
   id: Int
   longestMatch: Int
   maxLength: Int
   maxSimilarity: Float
   requestId: Int
-  secondCheckUserId: Int
+  secondCheckSubmissionId: Int
   secondSimilarity: Float
 }
 
@@ -1896,6 +1896,7 @@ type Mutation {
   createWhitelist(groupId: Int!, studentIds: [String!]!): Float!
   deleteAssignment(assignmentId: Int!, groupId: Int!): Assignment!
   deleteContest(contestId: Int!): Contest!
+  deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
   deleteCourse(groupId: Int!): Group!
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
@@ -1992,7 +1993,160 @@ type NoticeSumAggregate {
   id: Int
 }
 
+type Notification {
+  NotificationRecord: [NotificationRecord!]
+  _count: NotificationCount!
+  createTime: DateTime!
+  id: ID!
+  message: String!
+  title: String!
+  type: NotificationType!
+  url: String
+}
+
+type NotificationAvgAggregate {
+  id: Float
+}
+
+type NotificationCount {
+  NotificationRecord: Int!
+}
+
+type NotificationCountAggregate {
+  _all: Int!
+  createTime: Int!
+  id: Int!
+  message: Int!
+  title: Int!
+  type: Int!
+  url: Int!
+}
+
+type NotificationMaxAggregate {
+  createTime: DateTime
+  id: Int
+  message: String
+  title: String
+  type: NotificationType
+  url: String
+}
+
+type NotificationMinAggregate {
+  createTime: DateTime
+  id: Int
+  message: String
+  title: String
+  type: NotificationType
+  url: String
+}
+
+type NotificationRecord {
+  createTime: DateTime!
+  id: ID!
+  isRead: Boolean!
+  notification: Notification!
+  notificationId: Int!
+  user: User!
+  userId: Int!
+}
+
+type NotificationRecordAvgAggregate {
+  id: Float
+  notificationId: Float
+  userId: Float
+}
+
+type NotificationRecordCountAggregate {
+  _all: Int!
+  createTime: Int!
+  id: Int!
+  isRead: Int!
+  notificationId: Int!
+  userId: Int!
+}
+
+type NotificationRecordMaxAggregate {
+  createTime: DateTime
+  id: Int
+  isRead: Boolean
+  notificationId: Int
+  userId: Int
+}
+
+type NotificationRecordMinAggregate {
+  createTime: DateTime
+  id: Int
+  isRead: Boolean
+  notificationId: Int
+  userId: Int
+}
+
+type NotificationRecordSumAggregate {
+  id: Int
+  notificationId: Int
+  userId: Int
+}
+
+type NotificationSumAggregate {
+  id: Int
+}
+
+enum NotificationType {
+  Announcement
+  Assignment
+  Contest
+  Course
+  Other
+}
+
+type PlagiarismCluster {
+  CheckResult: [CheckResult!]
+  SubmissionCluster: [SubmissionCluster!]
+  _count: PlagiarismClusterCount!
+  averageSimilarity: Float
+  id: ID!
+  strength: Float
+}
+
+type PlagiarismClusterAvgAggregate {
+  averageSimilarity: Float
+  id: Float
+  strength: Float
+}
+
+type PlagiarismClusterCount {
+  CheckResult: Int!
+  SubmissionCluster: Int!
+}
+
+type PlagiarismClusterCountAggregate {
+  _all: Int!
+  averageSimilarity: Int!
+  id: Int!
+  strength: Int!
+}
+
+type PlagiarismClusterMaxAggregate {
+  averageSimilarity: Float
+  id: Int
+  strength: Float
+}
+
+type PlagiarismClusterMinAggregate {
+  averageSimilarity: Float
+  id: Int
+  strength: Float
+}
+
+type PlagiarismClusterSumAggregate {
+  averageSimilarity: Float
+  id: Int
+  strength: Float
+}
+
 type Problem {
+  CheckRequest: [CheckRequest!]
+  ContestQnA: [ContestQnA!]
   _count: ProblemCount!
   acceptedCount: Int!
   acceptedRate: Float!
@@ -2055,6 +2209,8 @@ type ProblemAvgAggregate {
 }
 
 type ProblemCount {
+  CheckRequest: Int!
+  ContestQnA: Int!
   announcement: Int!
   assignmentProblem: Int!
   contestProblem: Int!
@@ -2317,6 +2473,8 @@ type ProblemTestcaseSumAggregate {
 }
 
 type ProblemWithIsVisible {
+  CheckRequest: [CheckRequest!]
+  ContestQnA: [ContestQnA!]
   _count: ProblemCount!
   acceptedCount: Int!
   acceptedRate: Float!
@@ -2398,6 +2556,8 @@ type Query {
   getContest(contestId: Int!): ContestWithParticipants!
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestProblems(contestId: Int!): [ContestProblem!]!
+  getContestQnA(contestId: Int!, order: Int!): ContestQnA!
+  getContestQnAs(contestId: Int!): [ContestQnA!]!
   getContestRoles: [UserContest!]!
   getContestScoreSummaries(contestId: Int!, cursor: Int, searchingName: String, take: Int! = 10): [UserContestScoreSummaryWithUserInfo!]!
   getContestSubmissionSummaryByUserId(contestId: Int!, cursor: Int, problemId: Int, take: Int! = 10, userId: Int!): ContestSubmissionSummaryForUser!
@@ -2459,6 +2619,9 @@ input Solution {
 }
 
 type Submission {
+  FirstCheckResult: [CheckResult!]
+  SecondCheckResult: [CheckResult!]
+  SubmissionCluster: [SubmissionCluster!]
   _count: SubmissionCount!
   assignment: Assignment
   assignmentId: Int
@@ -2504,7 +2667,49 @@ type SubmissionAvgAggregate {
   workbookId: Float
 }
 
+type SubmissionCluster {
+  cluster: PlagiarismCluster!
+  clusterId: Int!
+  id: ID!
+  submission: Submission!
+  submissionId: Int!
+}
+
+type SubmissionClusterAvgAggregate {
+  clusterId: Float
+  id: Float
+  submissionId: Float
+}
+
+type SubmissionClusterCountAggregate {
+  _all: Int!
+  clusterId: Int!
+  id: Int!
+  submissionId: Int!
+}
+
+type SubmissionClusterMaxAggregate {
+  clusterId: Int
+  id: Int
+  submissionId: Int
+}
+
+type SubmissionClusterMinAggregate {
+  clusterId: Int
+  id: Int
+  submissionId: Int
+}
+
+type SubmissionClusterSumAggregate {
+  clusterId: Int
+  id: Int
+  submissionId: Int
+}
+
 type SubmissionCount {
+  FirstCheckResult: Int!
+  SecondCheckResult: Int!
+  SubmissionCluster: Int!
   submissionResult: Int!
 }
 
@@ -2527,6 +2732,9 @@ type SubmissionCountAggregate {
 }
 
 type SubmissionDetail {
+  FirstCheckResult: [CheckResult!]
+  SecondCheckResult: [CheckResult!]
+  SubmissionCluster: [SubmissionCluster!]
   assignment: Assignment
   assignmentId: Int
   code: String!
@@ -2841,7 +3049,6 @@ type TestSubmissionSumAggregate {
 input Testcase {
   input: String!
   isHidden: Boolean!
-  order: Int
   output: String!
   scoreWeight: IntScore
 }
@@ -3013,8 +3220,9 @@ input UploadTestcaseZipInput {
 }
 
 type User {
+  CheckRequest: [CheckRequest!]
+  NotificationRecord: [NotificationRecord!]
   UpdateHistory: [UpdateHistory!]
-  UserCluster: [UserCluster!]
   _count: UserCount!
   assignment: [Assignment!]
   assignmentRecord: [AssignmentRecord!]
@@ -3070,45 +3278,6 @@ type UserAssignmentScoreSummaryWithUserInfo {
 
 type UserAvgAggregate {
   id: Float
-}
-
-type UserCluster {
-  cluster: PlagiarismCluster!
-  clusterId: Int!
-  id: ID!
-  user: User!
-  userId: Int!
-}
-
-type UserClusterAvgAggregate {
-  clusterId: Float
-  id: Float
-  userId: Float
-}
-
-type UserClusterCountAggregate {
-  _all: Int!
-  clusterId: Int!
-  id: Int!
-  userId: Int!
-}
-
-type UserClusterMaxAggregate {
-  clusterId: Int
-  id: Int
-  userId: Int
-}
-
-type UserClusterMinAggregate {
-  clusterId: Int
-  id: Int
-  userId: Int
-}
-
-type UserClusterSumAggregate {
-  clusterId: Int
-  id: Int
-  userId: Int
 }
 
 type UserContest {
@@ -3181,8 +3350,9 @@ type UserContestSumAggregate {
 }
 
 type UserCount {
+  CheckRequest: Int!
+  NotificationRecord: Int!
   UpdateHistory: Int!
-  answeredQnAs: Int!
   assignment: Int!
   assignmentRecord: Int!
   contest: Int!

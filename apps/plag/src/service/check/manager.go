@@ -16,7 +16,7 @@ type CheckManager interface {
 		resultDir string,
 		langExt string,
 		settings CheckSettings,
-	) error
+	) ([]byte, error)
 	GetAssignmentCheckInput(
 		assignmentId string,
 		problemId string,
@@ -106,7 +106,7 @@ func (c *checkManager) CheckPlagiarismRate( // 요청된 설정에 맞춰 실제
 	resultDir string,
 	langExt string,
 	settings CheckSettings,
-) error {
+) ([]byte, error) {
   jplagCommandArgs := []string{
     "-jar", c.jplagPath,
     "--mode", "run",
@@ -134,12 +134,12 @@ func (c *checkManager) CheckPlagiarismRate( // 요청된 설정에 맞춰 실제
 	}
 
   cmd := exec.Command("java", jplagCommandArgs...)
-	err := cmd.Start()
+	out, err := cmd.Output()
 	if err != nil {
-		return fmt.Errorf("running jplag command error: %w", err)
+		return out, fmt.Errorf("running jplag command error: %w, out: %s", err, string(out))
 	}
 
-  return nil
+  return out, nil
 }
 
 func (c *checkManager) SaveResult(

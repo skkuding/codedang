@@ -33,6 +33,15 @@ type Request struct {
 	WorkbookId              *int   `json:"workbookId,omitempty"`
 }
 
+type CheckResult struct {
+	JplagOut                string `json:"jplagOutput"`
+}
+
+type CheckResultMessage struct {
+	Result json.RawMessage
+	Err    error
+}
+
 func (r Request) Validate() (*Request, error) {
 	if r.ProblemId == 0 {
 		return nil, fmt.Errorf("problemId must not be empty or zero")
@@ -73,7 +82,7 @@ func NewCheckHandler(
 }
 
 // handle top layer logical flow
-func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx context.Context) {
+func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessage, ctx context.Context) {
 	startedAt := time.Now()
 	handleCtx, childSpan := c.tracer.Start( //handleCtx is unused until now...
 		ctx,
@@ -92,12 +101,13 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 	err := json.Unmarshal(data, &req) // json 파싱
 
 	if err != nil {
-		out <- &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("%w: %s", ErrMarshalJson, err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("%w: %s", ErrMarshalJson, err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		close(out)
 		return
 	}
@@ -105,12 +115,13 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 	_, err = req.Validate() // 요청 검증
 	//validReq is unused util now...
 	if err != nil {
-		out <- &HandlerError{
-			caller:  "request validate",
-			err:     fmt.Errorf("%w: %s", ErrValidate, err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "request validate",
+        err:     fmt.Errorf("%w: %s", ErrValidate, err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		close(out)
 		return
 	}
@@ -123,34 +134,37 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 	}()
 
 	if err := c.file.CreateDir(dir); err != nil { // 작업용 임시 디렉토리 생성
-		out <- &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("creating base directory: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("creating base directory: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
 	subDir := dir + "/submission"
 	if err := c.file.CreateDir(subDir); err != nil { // 작업용 임시 제출물 디렉토리 생성
-		out <- &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("creating submission directory: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("creating submission directory: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
 	resDir := dir + "/result"
 	if err := c.file.CreateDir(resDir); err != nil { // 작업용 임시 결과물 디렉토리 생성
-		out <- &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("creating result directory: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("creating result directory: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
@@ -159,22 +173,24 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 
 	checkInput := <-checkInputCh
 	if checkInput.Err != nil {
-		out <- &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("getCheckInput error: %s", checkInput.Err),
-			level:   logger.ERROR,
-			Message: checkInput.Err.Error(),
-		}
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("getCheckInput error: %s", checkInput.Err),
+        level:   logger.ERROR,
+        Message: checkInput.Err.Error(),
+      },
+    }
 		return
 	}
 
 	chIn, ok := checkInput.Data.(check.CheckInput) // 검사 입력 데이터
 	if !ok {
-		out <- &HandlerError{
-			caller: "handle",
-			err:    fmt.Errorf("%w: CheckInput", ErrTypeAssertionFail),
-			level:  logger.ERROR,
-		}
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller: "handle",
+        err:    fmt.Errorf("%w: CheckInput", ErrTypeAssertionFail),
+        level:  logger.ERROR,
+      },
+    }
 		return
 	}
 
@@ -186,22 +202,24 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 		code, err := utils.ParseRawCode(sub.Code)
 
 		if err != nil {
-			out <- &HandlerError{
-				caller:  "handle",
-				err:     fmt.Errorf("parsing code: %w", err),
-				level:   logger.ERROR,
-				Message: err.Error(),
-			}
+			out <- CheckResultMessage{nil, &HandlerError{
+          caller:  "handle",
+          err:     fmt.Errorf("parsing code: %w", err),
+          level:   logger.ERROR,
+          Message: err.Error(),
+        },
+      }
 			return
 		}
 
 		if err := c.file.CreateFile(srcPath, code); err != nil {
-			out <- &HandlerError{
-				caller:  "handle",
-				err:     fmt.Errorf("creating submission file: %w", err),
-				level:   logger.ERROR,
-				Message: err.Error(),
-			}
+			out <- CheckResultMessage{nil, &HandlerError{
+          caller:  "handle",
+          err:     fmt.Errorf("creating submission file: %w", err),
+          level:   logger.ERROR,
+          Message: err.Error(),
+        },
+      }
 			return
 		}
 	}
@@ -215,12 +233,13 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 		baseCodePath = &bP
 
 		if err := c.file.CreateFile(path, chIn.BaseCode); err != nil {
-			out <- &HandlerError{
-				caller:  "handle",
-				err:     fmt.Errorf("creating base code file: %w", err),
-				level:   logger.ERROR,
-				Message: err.Error(),
-			}
+			out <- CheckResultMessage{nil, &HandlerError{
+          caller:  "handle",
+          err:     fmt.Errorf("creating base code file: %w", err),
+          level:   logger.ERROR,
+          Message: err.Error(),
+        },
+      }
 			return
 		}
 	}
@@ -231,19 +250,23 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 		EnableMerging:           req.EnableMerging,
 		UseJplagClustering:      req.UseJplagClustering,
 	}
-	if err := c.check.CheckPlagiarismRate( // 표절 검사
+
+	jplagOut, err := c.check.CheckPlagiarismRate( // 표절 검사
 		c.file.GetBasePath(subDir),
 		baseCodePath,
 		c.file.GetBasePath(resDir),
 		sandbox.Language(req.Language).GetLangExt(),
 		checkSetting,
-	); err != nil {
-		out <- &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("%w: %s", ErrRunJPlag, err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}
+	)
+
+  if err != nil {
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("%w: %s", ErrRunJPlag, err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
@@ -251,12 +274,13 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 		c.file.MakeFilePath(dir, "result.jplag").String(),
 		c.file.GetBasePath(resDir),
 	); err != nil { // 파일 압축 해제 실패 시
-		out <- &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("unzip jplag file: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("unzip jplag file: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
@@ -265,22 +289,24 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 
 	comparison := <-comparisonCh
 	if comparison.Err != nil {
-		out <- &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("readComparisons error: %s", comparison.Err),
-			level:   logger.ERROR,
-			Message: comparison.Err.Error(),
-		}
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("readComparisons error: %s", comparison.Err),
+        level:   logger.ERROR,
+        Message: comparison.Err.Error(),
+      },
+    }
 		return
 	}
 
   comps, ok := comparison.Data.([]check.ComparisonWithID)
 	if !ok {
-		out <- &HandlerError{
-			caller: "handle",
-			err:    fmt.Errorf("%w: ComparisonWithID", ErrTypeAssertionFail),
-			level:  logger.ERROR,
-		}
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller: "handle",
+        err:    fmt.Errorf("%w: ComparisonWithID", ErrTypeAssertionFail),
+        level:  logger.ERROR,
+      },
+    }
 		return
 	}
 
@@ -291,21 +317,23 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 
     clusters := <-clustersCh
     if clusters.Err != nil {
-      out <- &HandlerError{
+      out <- CheckResultMessage{nil, &HandlerError{
         caller:  "handle",
         err:     fmt.Errorf("readClusters error: %s", clusters.Err),
         level:   logger.ERROR,
         Message: clusters.Err.Error(),
-      }
+      },
+    }
       return
     }
 
     clus, ok = clusters.Data.([]check.ClusterWithID)
     if !ok {
-      out <- &HandlerError{
-        caller: "handle",
-        err:    fmt.Errorf("%w: Cluster", ErrTypeAssertionFail),
-        level:  logger.ERROR,
+      out <- CheckResultMessage{nil, &HandlerError{
+          caller: "handle",
+          err:    fmt.Errorf("%w: Cluster", ErrTypeAssertionFail),
+          level:  logger.ERROR,
+        },
       }
       return
     }
@@ -316,16 +344,31 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan error, ctx contex
 		comps,
 		clus,
 	); err != nil {
-		out <- &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("save check result in bucket: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("save check result in bucket: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
-  //CheckResult가 항상 nil입니다. 삭제해야 합니다.
+  result := CheckResult{string(jplagOut)}
+  r, err := json.Marshal(result)
+
+  if err != nil {
+		out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("%w: %s", ErrMarshalJson, err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
+		return
+	}
+
+  out <- CheckResultMessage{r, nil}
 }
 
 func (c *CheckHandler) getCheckInput(ctx context.Context, out chan<- result.ChResult, req Request) {

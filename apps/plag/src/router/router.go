@@ -51,19 +51,19 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 	// var handlerResult json.RawMessage
 	// var err error
 
-	checkErrorChan := make(chan error)
+	checkChan := make(chan handler.CheckResultMessage)
 	switch path { // 나중에 추가 작업을 지정할 수 있도록 각 메시지 타입을 구분
 	case Check:
-		go r.checkHandler.Handle(id, data, checkErrorChan, newCtx)
+		go r.checkHandler.Handle(id, data, checkChan, newCtx)
 	default:
 		err := fmt.Errorf("invalid request type: %s", path)
 		r.errHandle(err)
-		out <- NewResponse(id, err).Marshal()
+		out <- NewResponse(id, nil, err).Marshal()
 	}
 
-	for checkError := range checkErrorChan {
-		r.errHandle(checkError)
-		out <- NewResponse(id, checkError).Marshal()
+	for result := range checkChan {
+		r.errHandle(result.Err)
+		out <- NewResponse(id, result.Result, result.Err).Marshal()
 		// break
 	}
 	// return NewResponse(id, handlerResult, err).Marshal()
