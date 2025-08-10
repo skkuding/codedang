@@ -807,10 +807,10 @@ model CheckResult {
   firstCheckSubmissionId       Int?          @map("first_user_id")
   secondCheckSubmission        Submission?   @relation("SecondCheckSubmission", fields: [secondCheckSubmissionId], references: [id], onDelete: SetNull)
   secondCheckSubmissionId      Int?          @map("second_user_id")
-  averageSimilarity            Float?        @map("average_similarity")
-  maxSimilarity                Float?        @map("max_similarity")
-  maxLength                    Int?          @map("max_length")
-  longestMatch                 Int?          @map("longest_match")
+  averageSimilarity            Float         @map("average_similarity")
+  maxSimilarity                Float         @map("max_similarity")
+  maxLength                    Int           @map("max_length")
+  longestMatch                 Int           @map("longest_match")
 
   /* 1개 match의 structure
   {
@@ -835,8 +835,8 @@ model CheckResult {
   }
   */
   matches                Json[]        @map("matches")
-  firstSimilarity        Float?        @map("first_similarity")
-  secondSimilarity       Float?        @map("second_similarity")
+  firstSimilarity        Float         @map("first_similarity")
+  secondSimilarity       Float         @map("second_similarity")
 
   cluster                PlagiarismCluster?         @relation(fields: [clusterId], references: [id], onDelete: SetNull)
   clusterId              Int?          @map("cluster_id")
@@ -845,8 +845,8 @@ model CheckResult {
 
 model PlagiarismCluster {
   id                     Int           @id @default(autoincrement())
-  averageSimilarity      Float?        @map("average_similarity")
-  strength               Float?        @map("second_user_id")
+  averageSimilarity      Float         @map("average_similarity")
+  strength               Float         @map("second_user_id")
 
   SubmissionCluster      SubmissionCluster[]
   CheckResult            CheckResult[]
@@ -854,11 +854,12 @@ model PlagiarismCluster {
 }
 
 model SubmissionCluster {
-  id                     Int                @id @default(autoincrement())
   submission             Submission         @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   submissionId           Int                @map("submission_id")
   cluster                PlagiarismCluster  @relation(fields: [clusterId], references: [id], onDelete: Cascade)
   clusterId              Int                @map("cluster_id")
+
+  @@id([submissionId, clusterId])
   @@map("submission_Cluster")
 }
 

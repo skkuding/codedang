@@ -1,8 +1,13 @@
 import { Args, Context, Int, Mutation, Resolver, Query } from '@nestjs/graphql'
 import { AuthenticatedRequest } from '@libs/auth'
-import { CheckRequest } from '@admin/@generated'
+import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import { CheckRequest, CheckResult } from '@admin/@generated'
 import { CheckService } from './check.service'
-import { CheckResultOutput } from './model/check-result.output'
+import {
+  GetCheckResultDetailOutput,
+  GetCheckResultSummaryOutput,
+  GetClusterOutput
+} from './model/check-result.output'
 import { CreatePlagiarismCheckInput } from './model/create-check.input'
 
 @Resolver(() => CheckRequest)
@@ -44,14 +49,40 @@ export class CheckResolver {
     })
   }
 
-  @Query(() => [CheckResultOutput])
-  async overviewPlagiarismCheck(
+  @Query(() => [GetCheckResultSummaryOutput])
+  async overviewPlagiarismChecks(
     @Args('checkId', { type: () => Int }) checkId: number,
-    @Args('limit', { type: () => Int }) limit: number
-  ): Promise<CheckResultOutput[]> {
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 50 },
+      new RequiredIntPipe('take')
+    )
+    take: number,
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null
+  ): Promise<GetCheckResultSummaryOutput[]> {
     return await this.checkService.getCheckResults({
       checkId,
-      limit
+      take,
+      cursor
+    })
+  }
+
+  @Query(() => GetClusterOutput)
+  async getCluster(
+    @Args('clusterId', { type: () => Int }) clusterId: number
+  ): Promise<GetClusterOutput> {
+    return await this.checkService.getCluster({
+      clusterId
+    })
+  }
+
+  @Query(() => GetCheckResultDetailOutput)
+  async getCheckResultDetails(
+    @Args('resultId', { type: () => Int }) resultId: number
+  ): Promise<GetCheckResultDetailOutput> {
+    return await this.checkService.getDetails({
+      resultId
     })
   }
 }

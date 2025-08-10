@@ -1,3 +1,4 @@
+import { Field, Int, ObjectType } from '@nestjs/graphql'
 import { Type } from 'class-transformer'
 import {
   IsArray,
@@ -7,43 +8,53 @@ import {
   ValidateNested
 } from 'class-validator'
 
+@ObjectType()
 export class Position {
   @IsInt()
   @IsNotEmpty()
+  @Field(() => Int, { nullable: false })
   line: number
 
   @IsInt()
   @IsNotEmpty()
+  @Field(() => Int, { nullable: false })
   column: number
 }
 
+@ObjectType()
 export class Match {
   @ValidateNested()
-  @Type(() => Similarities)
+  @Type(() => Position)
   @IsNotEmpty()
+  @Field(() => Position, { nullable: false })
   startInFirst: Position
 
   @ValidateNested()
-  @Type(() => Similarities)
+  @Type(() => Position)
   @IsNotEmpty()
+  @Field(() => Position, { nullable: false })
   endInFirst: Position
 
   @ValidateNested()
-  @Type(() => Similarities)
+  @Type(() => Position)
   @IsNotEmpty()
+  @Field(() => Position, { nullable: false })
   startInSecond: Position
 
   @ValidateNested()
-  @Type(() => Similarities)
+  @Type(() => Position)
   @IsNotEmpty()
+  @Field(() => Position, { nullable: false })
   endInSecond: Position
 
   @IsNumber()
   @IsNotEmpty()
+  @Field(() => Int, { nullable: false })
   lengthOfFirst: number
 
   @IsNumber()
   @IsNotEmpty()
+  @Field(() => Int, { nullable: false })
   lengthOfSecond: number
 }
 

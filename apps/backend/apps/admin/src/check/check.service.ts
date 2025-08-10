@@ -1,6 +1,12 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException
+} from '@nestjs/common'
 import type { Language } from '@prisma/client'
 import { CheckResultStatus, Prisma } from '@prisma/client'
+import { plainToInstance } from 'class-transformer'
 import { Span } from 'nestjs-otel'
 import {
   EntityNotExistException,
@@ -8,7 +14,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { CheckPublicationService } from './check-pub.service'
-import { CheckResultOutput } from './model/check-result.output'
+import { Match } from './model/check-result.dto'
 import { CreatePlagiarismCheckInput } from './model/create-check.input'
 
 @Injectable()
@@ -38,8 +44,8 @@ export class CheckService {
   }) {
     const submissionCount = await this.prisma.submission.count({
       where: {
-        problemId: problemId,
-        language: language
+        problemId,
+        language
       }
     })
     if (submissionCount < 2) {
@@ -57,8 +63,8 @@ export class CheckService {
   }) {
     const assignmentProblem = await this.prisma.assignmentProblem.findFirst({
       where: {
-        assignmentId: assignmentId,
-        problemId: problemId
+        assignmentId,
+        problemId
       }
     })
     if (!assignmentProblem) {
@@ -99,7 +105,7 @@ export class CheckService {
       checkInput,
       problemId,
       idOptions: {
-        assignmentId: assignmentId
+        assignmentId
       }
     })
   }
@@ -121,7 +127,7 @@ export class CheckService {
     }
   }) {
     this.validateRequest({
-      problemId: problemId,
+      problemId,
       language: checkInput.language
     })
 
@@ -136,14 +142,14 @@ export class CheckService {
     try {
       const check = await this.prisma.checkRequest.create({
         data: {
-          problemId: problemId,
+          problemId,
           result: CheckResultStatus.Pending,
-          userId: userId,
-          language: language,
+          userId,
+          language,
           checkPreviousSubmission: checkPreviousSubmissions,
-          enableMerging: enableMerging,
-          useJplagClustering: useJplagClustering,
-          minTokens: minTokens,
+          enableMerging,
+          useJplagClustering,
+          minTokens,
           ...idOptions
         }
       })
@@ -163,14 +169,134 @@ export class CheckService {
   @Span()
   async getCheckResults({
     checkId,
-    limit
+    take,
+    cursor
   }: {
     checkId: number
-    limit: number
+    take: number
+    cursor: number | null
   }) {
-    return [
-      // dummy data
-      new CheckResultOutput()
-    ]
+    const request = await this.prisma.checkRequest.findUnique({
+      where: {
+        id: checkId
+      },
+      select: {
+        result: true
+      }
+    })
+
+    if (!request) {
+      throw new NotFoundException('Request not found')
+    }
+    if (request.result === CheckResultStatus.Pending) {
+      throw new NotFoundException(
+        'Result not found as it is still being evaluated'
+      )
+    }
+    if (request.result !== CheckResultStatus.Completed) {
+      throw new NotFoundException(`Result not found: ${request.result}`)
+    }
+
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const results = await this.prisma.checkResult.findMany({
+      ...paginator,
+      take,
+      where: {
+        requestId: checkId
+      },
+      select: {
+        id: true,
+        firstCheckSubmissionId: true,
+        secondCheckSubmissionId: true,
+        averageSimilarity: true,
+        maxSimilarity: true,
+        maxLength: true,
+        longestMatch: true,
+        firstSimilarity: true,
+        secondSimilarity: true,
+        clusterId: true,
+        cluster: {
+          select: {
+            averageSimilarity: true,
+            strength: true
+          }
+        }
+      },
+      orderBy: {
+        averageSimilarity: 'desc'
+      }
+    })
+
+    return results
+  }
+
+  @Span()
+  async getCluster({ clusterId }: { clusterId: number }) {
+    const cluster = await this.prisma.plagiarismCluster.findUnique({
+      where: {
+        id: clusterId
+      },
+      include: {
+        SubmissionCluster: true
+      }
+    })
+
+    if (!cluster) throw new NotFoundException('Cluster not found')
+
+    return {
+      id: cluster.id,
+      averageSimilarity: cluster.averageSimilarity,
+      strength: cluster.strength,
+      submissionCluster: cluster.SubmissionCluster
+    }
+  }
+
+  @Span()
+  async getDetails({ resultId }: { resultId: number }) {
+    const result = await this.prisma.checkResult.findUnique({
+      where: {
+        id: resultId
+      },
+      select: {
+        requestId: true,
+        firstCheckSubmissionId: true,
+        secondCheckSubmissionId: true,
+        averageSimilarity: true,
+        maxSimilarity: true,
+        maxLength: true,
+        longestMatch: true,
+        matches: true,
+        firstSimilarity: true,
+        secondSimilarity: true,
+        clusterId: true
+      }
+    })
+
+    if (!result) throw new NotFoundException('Result not found')
+
+    const matches = result.matches
+      .map((match) => {
+        const matchString = match?.toString()
+        if (!matchString) return null
+        return plainToInstance(Match, JSON.parse(matchString))
+      })
+      .filter((match) => match !== null)
+
+    this.logger.debug(matches)
+
+    return {
+      requestId: result.requestId,
+      firstCheckSubmissionId: result.firstCheckSubmissionId,
+      secondCheckSubmissionId: result.secondCheckSubmissionId,
+      averageSimilarity: result.averageSimilarity,
+      maxSimilarity: result.maxSimilarity,
+      maxLength: result.maxLength,
+      longestMatch: result.longestMatch,
+      matches,
+      firstSimilarity: result.firstSimilarity,
+      secondSimilarity: result.secondSimilarity,
+      clusterId: result.clusterId
+    }
   }
 }

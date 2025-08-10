@@ -613,14 +613,14 @@ type CheckRequestSumAggregate {
 }
 
 type CheckResult {
-  averageSimilarity: Float
+  averageSimilarity: Float!
   cluster: PlagiarismCluster
   clusterId: Int
   firstCheckSubmission: Submission
   firstCheckSubmissionId: Int
-  firstSimilarity: Float
+  firstSimilarity: Float!
   id: ID!
-  longestMatch: Int
+  longestMatch: Int!
 
   """
   1개 match의 structure
@@ -646,13 +646,13 @@ type CheckResult {
     }
   """
   matches: [JSON!]
-  maxLength: Int
-  maxSimilarity: Float
+  maxLength: Int!
+  maxSimilarity: Float!
   request: CheckRequest!
   requestId: Int!
   secondCheckSubmission: Submission
   secondCheckSubmissionId: Int
-  secondSimilarity: Float
+  secondSimilarity: Float!
 }
 
 type CheckResultAvgAggregate {
@@ -713,12 +713,6 @@ type CheckResultMinAggregate {
   secondSimilarity: Float
 }
 
-type CheckResultOutput {
-  plagiarismRate: Float!
-  userId1: Int!
-  userId2: Int!
-}
-
 enum CheckResultStatus {
   Completed
   JplagError
@@ -738,6 +732,11 @@ type CheckResultSumAggregate {
   requestId: Int
   secondCheckSubmissionId: Int
   secondSimilarity: Float
+}
+
+type ClusterSummary {
+  averageSimilarity: Float!
+  strength: Float!
 }
 
 input Config {
@@ -1726,6 +1725,41 @@ input GetAssignmentSubmissionsInput {
   searchingName: String
 }
 
+type GetCheckResultDetailOutput {
+  averageSimilarity: Float!
+  clusterId: Int
+  firstCheckSubmissionId: Int
+  firstSimilarity: Float!
+  longestMatch: Int!
+  matches: [Match!]!
+  maxLength: Int!
+  maxSimilarity: Float!
+  requestId: Int!
+  secondCheckSubmissionId: Int
+  secondSimilarity: Float!
+}
+
+type GetCheckResultSummaryOutput {
+  averageSimilarity: Float!
+  cluster: ClusterSummary
+  clusterId: Int
+  firstCheckSubmissionId: Int
+  firstSimilarity: Float!
+  id: Int!
+  longestMatch: Int!
+  maxLength: Int!
+  maxSimilarity: Float!
+  secondCheckSubmissionId: Int
+  secondSimilarity: Float!
+}
+
+type GetClusterOutput {
+  averageSimilarity: Float!
+  id: Int!
+  strength: Float!
+  submissionCluster: [SubmissionCluster!]!
+}
+
 input GetContestSubmissionsInput {
   problemId: Int
   searchingName: String
@@ -1881,6 +1915,15 @@ enum Level {
   Level3
   Level4
   Level5
+}
+
+type Match {
+  endInFirst: Position!
+  endInSecond: Position!
+  lengthOfFirst: Int!
+  lengthOfSecond: Int!
+  startInFirst: Position!
+  startInSecond: Position!
 }
 
 type Mutation {
@@ -2103,9 +2146,9 @@ type PlagiarismCluster {
   CheckResult: [CheckResult!]
   SubmissionCluster: [SubmissionCluster!]
   _count: PlagiarismClusterCount!
-  averageSimilarity: Float
+  averageSimilarity: Float!
   id: ID!
-  strength: Float
+  strength: Float!
 }
 
 type PlagiarismClusterAvgAggregate {
@@ -2142,6 +2185,11 @@ type PlagiarismClusterSumAggregate {
   averageSimilarity: Float
   id: Int
   strength: Float
+}
+
+type Position {
+  column: Int!
+  line: Int!
 }
 
 type Problem {
@@ -2553,6 +2601,8 @@ type Query {
   getAssignmentSubmissions(cursor: Int, groupId: Int!, input: GetAssignmentSubmissionsInput!, order: String, take: Int = 10): [AssignmentSubmission!]!
   getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
+  getCheckResultDetails(resultId: Int!): GetCheckResultDetailOutput!
+  getCluster(clusterId: Int!): GetClusterOutput!
   getContest(contestId: Int!): ContestWithParticipants!
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestProblems(contestId: Int!): [ContestProblem!]!
@@ -2582,7 +2632,7 @@ type Query {
   getUsers(cursor: Int, take: Int! = 10): [User!]!
   getWhitelist(groupId: Int!): [String!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
-  overviewPlagiarismCheck(checkId: Int!, limit: Int!): [CheckResultOutput!]!
+  overviewPlagiarismChecks(checkId: Int!, cursor: Int, take: Int! = 50): [GetCheckResultSummaryOutput!]!
 }
 
 enum ResultStatus {
@@ -2670,39 +2720,33 @@ type SubmissionAvgAggregate {
 type SubmissionCluster {
   cluster: PlagiarismCluster!
   clusterId: Int!
-  id: ID!
   submission: Submission!
   submissionId: Int!
 }
 
 type SubmissionClusterAvgAggregate {
   clusterId: Float
-  id: Float
   submissionId: Float
 }
 
 type SubmissionClusterCountAggregate {
   _all: Int!
   clusterId: Int!
-  id: Int!
   submissionId: Int!
 }
 
 type SubmissionClusterMaxAggregate {
   clusterId: Int
-  id: Int
   submissionId: Int
 }
 
 type SubmissionClusterMinAggregate {
   clusterId: Int
-  id: Int
   submissionId: Int
 }
 
 type SubmissionClusterSumAggregate {
   clusterId: Int
-  id: Int
   submissionId: Int
 }
 
