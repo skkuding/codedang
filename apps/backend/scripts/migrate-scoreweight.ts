@@ -17,6 +17,12 @@ type ValidationRow = {
   testcaseCount: number
 }
 
+const gcd = (a: number, b: number): number => {
+  const aa = Math.abs(a)
+  const bb = Math.abs(b)
+  return bb === 0 ? aa : gcd(bb, aa % bb)
+}
+
 const main = async (): Promise<void> => {
   console.log('Starting migration...')
 
@@ -112,9 +118,6 @@ const main = async (): Promise<void> => {
             tc.scoreWeightDenominator === null
           ) {
             const weight = tc.scoreWeight ?? 1
-
-            const gcd = (a: number, b: number): number =>
-              b === 0 ? a : gcd(b, a % b)
             const divisor = gcd(weight, 100)
 
             await prisma.$executeRaw`
