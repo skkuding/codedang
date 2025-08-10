@@ -137,7 +137,7 @@ export function CreateCourseButton() {
               className="gap-[6px]"
             >
               <InputForm
-                placeholder="00"
+                placeholder="1"
                 name="classNum"
                 type="number"
                 maxLength={2}

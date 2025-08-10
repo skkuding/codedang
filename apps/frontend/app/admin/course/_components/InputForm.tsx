@@ -30,8 +30,7 @@ export function InputForm({
   const {
     register,
     formState: { errors },
-    watch,
-    setValue
+    watch
   } = useFormContext()
 
   const watchedValue = watch(name)
@@ -52,7 +51,8 @@ export function InputForm({
           )}
           maxLength={maxLength || 120}
           {...register(name, {
-            required: true
+            required: true,
+            setValueAs: (value) => (type === 'number' ? Number(value) : value)
           })}
           onChange={(e) => {
             if (onChange) {
@@ -62,7 +62,6 @@ export function InputForm({
               e.preventDefault()
               return
             }
-            setValue(name, e.target.value)
           }}
         />
         {maxLength && (
