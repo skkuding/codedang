@@ -90,7 +90,6 @@ export default function QnaDetailPage({ params }: QnaDetailProps) {
 
   // 질문 삭제 버튼 로직: 대회 관리자인지 여부 확인 -no-> 질문 작성자인지 확인 -no-> 일반 유저.
   // 답글 삭제 버튼 로직:
-  // TODO: 5초마다 댓글이나 qna 페이지 정보를 갱신하도록.
   // TODO: contest/${contestId}/qna/${order}: qna에 대한 정보 가져오기
   const dummyAuthor: User = { id: 1, username: 'skkudinguser' }
   const dummyUser1: User = { id: 2, username: 'admin1234' }
@@ -141,7 +140,7 @@ export default function QnaDetailPage({ params }: QnaDetailProps) {
     },
     {
       contestId: 20,
-      role: 'Admin'
+      role: 'Participant'
     }
   ]
   // TODO: /user: 현재 로그인된 계정의 정보 가져오기 -> /user/email?email=user02@example.com: 해당 이메일의 유저id 가져오기 -> 작성자 여부 확인.
