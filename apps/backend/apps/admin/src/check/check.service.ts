@@ -283,8 +283,6 @@ export class CheckService {
       })
       .filter((match) => match !== null)
 
-    this.logger.debug(matches)
-
     return {
       requestId: result.requestId,
       firstCheckSubmissionId: result.firstCheckSubmissionId,
