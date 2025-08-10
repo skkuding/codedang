@@ -3,6 +3,7 @@
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
+import { fetcherWithAuth } from '@/libs/utils'
 import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { BiSolidPencil } from 'react-icons/bi'
@@ -22,33 +23,55 @@ export function CommentArea({
   curUserId: number
   isContestStaff: boolean
 }) {
+  const { contestId, order, comments } = data
   // 질문 작성자 혹은 관리자면 댓글 게시 가능.
   const canPost = isContestStaff || curUserId === data.createdBy.id
   return (
     <div className="flex flex-col gap-[40px]">
       <QnaComments
-        data={data}
+        contestId={contestId}
+        order={order}
+        initialComments={comments}
         curUserId={curUserId}
         isContestStaff={isContestStaff}
       />
-      {canPost && <CommentPostArea curUser={curUser} />}
+      {canPost && (
+        <CommentPostArea
+          contestId={contestId}
+          order={order}
+          curUser={curUser}
+        />
+      )}
     </div>
   )
 }
 
 // 댓글들
 function QnaComments({
-  data,
+  contestId,
+  order,
+  initialComments,
   curUserId,
   isContestStaff
 }: {
-  data: Qna
+  contestId: number
+  order: number
+  initialComments: ContestQnAComment[]
   curUserId: number
   isContestStaff: boolean
 }) {
   // TODO: initial data를 state로 저장하고, 해당 state를 interval fetch로 계속 업데이트 해주기. (comments)
-  const [comments, setComments] = useState(data.comments)
-
+  const [comments, setComments] = useState(initialComments)
+  // setInterval(async () => {
+  //   try {
+  //     const res: Qna = await fetcherWithAuth
+  //       .get(`contest/${contestId}/qna/${order}`)
+  //       .json()
+  //     setComments(res.comments)
+  //   } catch {
+  //     console.log('Error in re-fetching comments!')
+  //   }
+  // }, 3000)
   return (
     <div className="flex flex-col gap-[10px]">
       {comments.map((comment) => (
@@ -94,7 +117,7 @@ function SingleComment({
           )}
           <div className="absolute right-0 top-0">
             {canDelete && (
-              <DeleteButton subject="comment" comment_order={comment.order} />
+              <DeleteButton subject="comment" commentOrder={comment.order} />
             )}
           </div>
         </div>
@@ -116,7 +139,15 @@ function SingleComment({
 }
 
 // 댓글 게시 영역
-function CommentPostArea({ curUser }: { curUser: GetCurrentUser }) {
+function CommentPostArea({
+  contestId,
+  order,
+  curUser
+}: {
+  contestId: number
+  order: number
+  curUser: GetCurrentUser
+}) {
   const [text, setText] = useState('')
   const [showModal, setShowModal] = useState(false)
 
@@ -132,9 +163,22 @@ function CommentPostArea({ curUser }: { curUser: GetCurrentUser }) {
   }
 
   // TODO: 댓글 POST 시 로직 구현.
-  const onPost = (): void => {
-    console.log(`${text} is posted!`)
-    return
+  const onPost = async (): Promise<void> => {
+    try {
+      const res = await fetcherWithAuth(
+        `contest/${contestId}/qna/${order}/comment`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            content: text
+          })
+        }
+      )
+      console.log(`${text} is posted!`)
+      console.log(`${res.status}`)
+    } catch {
+      console.log('Error in posting comment!')
+    }
   }
 
   return (

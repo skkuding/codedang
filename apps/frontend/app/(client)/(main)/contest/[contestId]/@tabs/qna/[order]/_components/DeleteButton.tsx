@@ -2,37 +2,68 @@
 
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
+import { fetcherWithAuth } from '@/libs/utils'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { FaTrash } from 'react-icons/fa6'
 
 export function DeleteButton({
   subject,
-  comment_order
+  commentOrder
 }: {
   subject: 'question' | 'comment'
-  comment_order?: number
+  commentOrder?: number
 }) {
   const [showModal, setShowModal] = useState(false)
   const params = useParams()
   // TODO: qna delete & comment 구현.
   const handleDelete =
     subject === 'question'
-      ? (): void => {
+      ? // Qna 삭제
+        async () => {
           const [contestId, order] = [
             Number(params.contestId),
             Number(params.order)
           ]
-          console.log(`${contestId}번 대회의 ${order}번째 qna 삭제`)
+
+          try {
+            const res = await fetcherWithAuth(
+              `contest/${contestId}/qna/${order}`,
+              {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+              }
+            )
+
+            // TODO: status code에 따라 에러 구현
+            console.log(`${contestId}번 대회의 ${order}번째 qna 삭제`)
+            console.log(`status: ${res.status}`)
+          } catch {
+            console.log(`Error!`)
+          }
         }
-      : () => {
+      : // Qna 댓글 삭제
+        async () => {
           const [contestId, order] = [
             Number(params.contestId),
             Number(params.order)
           ]
-          console.log(
-            `${contestId}번 대회의 ${order}번째 qna의 ${comment_order}번쨰 댓글 삭제`
-          )
+          try {
+            const res = await fetcherWithAuth(
+              `/contest/${contestId}/qna/${order}/comment/${commentOrder}`,
+              {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+              }
+            )
+
+            console.log(
+              `${contestId}번 대회의 ${order}번째 qna의 ${commentOrder}번쨰 댓글 삭제`
+            )
+            console.log(`status: ${res.status}`)
+          } catch {
+            console.log('Error!')
+          }
         }
   return (
     <Modal
