@@ -1,3 +1,4 @@
+import { fetcherWithAuth } from '@/libs/utils'
 import { CommentArea } from './_components/CommentArea'
 import { QnaContentArea } from './_components/QnaContentArea'
 
@@ -78,11 +79,9 @@ interface ContestRole {
   role: Role
 }
 
-type GetContestRoles = ContestRole[]
-
 type Role = 'Admin' | 'Manager' | 'Participant' | 'Reviewer'
 
-export default function QnaDetailPage({ params }: QnaDetailProps) {
+export default async function QnaDetailPage({ params }: QnaDetailProps) {
   // const { contestId, order } = params
   // const data: ContestQnA = await fetcherWithAuth
   //   .get(`contest/${contestId}/qna/${order}`)
@@ -91,8 +90,8 @@ export default function QnaDetailPage({ params }: QnaDetailProps) {
   // 질문 삭제 버튼 로직: 대회 관리자인지 여부 확인 -no-> 질문 작성자인지 확인 -no-> 일반 유저.
   // 답글 삭제 버튼 로직:
   // TODO: contest/${contestId}/qna/${order}: qna에 대한 정보 가져오기
-  const dummyAuthor: User = { id: 1, username: 'skkudinguser' }
-  const dummyUser1: User = { id: 2, username: 'admin1234' }
+  const dummyAuthor: User = { id: 7, username: 'user01' }
+  const dummyUser1: User = { id: 2, username: 'admin' }
   // contest/${contestId}/qna/${order}로 가져온 정보 예시
   const data: Qna = {
     id: 1,
@@ -133,34 +132,48 @@ export default function QnaDetailPage({ params }: QnaDetailProps) {
   }
 
   // TODO: /contest/role: 현재 로그인된 계정의 각 대회 별 권한 가져오기 -> 현재 대회의 권한 확인
-  const GetContestRoles: GetContestRoles = [
-    {
-      contestId: 1,
-      role: 'Participant'
-    },
-    {
-      contestId: 20,
-      role: 'Participant'
-    }
-  ]
+  // TODO: response error handling
+  const MyContestRoles: ContestRole[] = await fetcherWithAuth
+    .get('contest/role')
+    .json()
+  // const myContestRoles: GetContestRoles = [
+  //   {
+  //     contestId: 1,
+  //     role: 'Participant'
+  //   },
+  //   {
+  //     contestId: 20,
+  //     role: 'Participant'
+  //   }
+  // ]
   // TODO: /user: 현재 로그인된 계정의 정보 가져오기 -> /user/email?email=user02@example.com: 해당 이메일의 유저id 가져오기 -> 작성자 여부 확인.
-  const GetCurUserInfo: GetCurrentUser = {
-    username: 'skkudinguser',
-    email: 'skkudinguser@skku.com'
-  }
+  // TODO: response error handling
+  const userInfo: { username: string; email: string } = await fetcherWithAuth
+    .get('user')
+    .json()
+  // const GetCurUserInfo: GetCurrentUser = {
+  //   username: 'skkudinguser',
+  //   email: 'skkudinguser@skku.com'
+  // }
   // 위에서 얻은 이메일로 현재 로그인 중인 유저 id 가져옴.
-  const curUserId = 1
+  const res: { id: number } = await fetcherWithAuth
+    .get('user/email', {
+      searchParams: { email: userInfo.email }
+    })
+    .json()
+  const userId: number = res.id
+  // const curUserId = 1
 
   // 현재 유저가 현재 contest의 관리자인지 판별
   const isContestStaff: boolean = new Set(['Admin', 'Manager']).has(
-    GetContestRoles.find(
+    MyContestRoles.find(
       (ContestRole) => ContestRole.contestId === data.contestId
     )?.role ?? 'nothing'
   )
   // 아니라면 현재 유저가 작성자인지 판별
   let isCreator = false
   if (!isContestStaff) {
-    if (curUserId === data.createdBy.id) {
+    if (userId === data.createdBy.id) {
       isCreator = true
     }
   }
@@ -174,8 +187,8 @@ export default function QnaDetailPage({ params }: QnaDetailProps) {
       />
       <CommentArea
         data={data}
-        curUser={GetCurUserInfo}
-        curUserId={curUserId}
+        userInfo={userInfo}
+        userId={userId}
         isContestStaff={isContestStaff}
       />
     </div>

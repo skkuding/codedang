@@ -27,6 +27,7 @@ export function DeleteButton({
           ]
 
           try {
+            // TODO: response error handling
             const res = await fetcherWithAuth(
               `contest/${contestId}/qna/${order}`,
               {
@@ -49,6 +50,7 @@ export function DeleteButton({
             Number(params.order)
           ]
           try {
+            // TODO: response error handling
             const res = await fetcherWithAuth(
               `/contest/${contestId}/qna/${order}/comment/${commentOrder}`,
               {

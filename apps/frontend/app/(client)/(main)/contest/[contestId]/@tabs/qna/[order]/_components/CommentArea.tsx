@@ -8,38 +8,38 @@ import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { BiSolidPencil } from 'react-icons/bi'
 import { FaCircleCheck, FaClock } from 'react-icons/fa6'
-import type { ContestQnAComment, GetCurrentUser, Qna } from '../page'
+import type { ContestQnAComment, Qna } from '../page'
 import { DeleteButton } from './DeleteButton'
 
 // 전반적인 댓글 영역 (댓글, 댓글 게시 영역 등)
 export function CommentArea({
   data,
-  curUser,
-  curUserId,
+  userInfo,
+  userId,
   isContestStaff
 }: {
   data: Qna
-  curUser: GetCurrentUser
-  curUserId: number
+  userInfo: { username: string; email: string }
+  userId: number
   isContestStaff: boolean
 }) {
   const { contestId, order, comments } = data
   // 질문 작성자 혹은 관리자면 댓글 게시 가능.
-  const canPost = isContestStaff || curUserId === data.createdBy.id
+  const canPost = isContestStaff || userId === data.createdBy.id
   return (
     <div className="flex flex-col gap-[40px]">
       <QnaComments
         contestId={contestId}
         order={order}
         initialComments={comments}
-        curUserId={curUserId}
+        userId={userId}
         isContestStaff={isContestStaff}
       />
       {canPost && (
         <CommentPostArea
           contestId={contestId}
           order={order}
-          curUser={curUser}
+          userInfo={userInfo}
         />
       )}
     </div>
@@ -51,13 +51,13 @@ function QnaComments({
   contestId,
   order,
   initialComments,
-  curUserId,
+  userId,
   isContestStaff
 }: {
   contestId: number
   order: number
   initialComments: ContestQnAComment[]
-  curUserId: number
+  userId: number
   isContestStaff: boolean
 }) {
   // TODO: initial data를 state로 저장하고, 해당 state를 interval fetch로 계속 업데이트 해주기. (comments)
@@ -78,7 +78,7 @@ function QnaComments({
         <SingleComment
           key={comment.order}
           comment={comment}
-          curUserId={curUserId}
+          userId={userId}
           isContestStaff={isContestStaff}
         />
       ))}
@@ -89,16 +89,16 @@ function QnaComments({
 // 각각의 댓글
 function SingleComment({
   comment,
-  curUserId,
+  userId,
   isContestStaff
 }: {
   comment: ContestQnAComment
-  curUserId: number
+  userId: number
   isContestStaff: boolean
 }) {
   // 작성자 = 로그인 계정 or (로그인 계정 = 관리자 and 댓글 = 관리자 댓글)
   const canDelete =
-    curUserId === comment.createdBy.id ||
+    userId === comment.createdBy.id ||
     (comment.isContestStaff && isContestStaff)
   return (
     <div
@@ -142,11 +142,11 @@ function SingleComment({
 function CommentPostArea({
   contestId,
   order,
-  curUser
+  userInfo
 }: {
   contestId: number
   order: number
-  curUser: GetCurrentUser
+  userInfo: { username: string; email: string }
 }) {
   const [text, setText] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -165,6 +165,7 @@ function CommentPostArea({
   // TODO: 댓글 POST 시 로직 구현.
   const onPost = async (): Promise<void> => {
     try {
+      // TODO: response error handling
       const res = await fetcherWithAuth(
         `contest/${contestId}/qna/${order}/comment`,
         {
@@ -196,7 +197,7 @@ function CommentPostArea({
       )}
       {/* 작성자 이름과 input field */}
       <div className="flex flex-col gap-[12px]">
-        <p className="text-xl font-medium capitalize">{curUser.username}</p>
+        <p className="text-xl font-medium capitalize">{userInfo.username}</p>
         <div className="flex flex-col gap-[15px]">
           <Textarea
             value={text}
