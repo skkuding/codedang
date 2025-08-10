@@ -3508,7 +3508,6 @@ type UserCount {
   NotificationRecord: Int!
   UpdateHistory: Int!
   UserCluster: Int!
-  answeredQnAs: Int!
   assignment: Int!
   assignmentRecord: Int!
   contest: Int!

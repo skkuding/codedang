@@ -12,7 +12,7 @@ const main = async () => {
   await Promise.all([
     setupTestcaseBucket(),
     setupMediaBucket(),
-    setupCheckResultBucket()
+    setupCheckResultBucket
   ]).then(() => {
     console.log('All buckets are set up')
   })
@@ -137,8 +137,8 @@ const setupCheckResultBucket = async () => {
     endpoint: process.env.STORAGE_BUCKET_ENDPOINT_URL,
     forcePathStyle: true, // required for minio
     credentials: {
-      accessKeyId: process.env.TESTCASE_ACCESS_KEY || '',
-      secretAccessKey: process.env.TESTCASE_SECRET_KEY || ''
+      accessKeyId: process.env.CHECK_RESULT_ACCESS_KEY || '',
+      secretAccessKey: process.env.CHECK_RESULT_SECRET_KEY || ''
     }
   })
 
@@ -166,7 +166,7 @@ const setupCheckResultBucket = async () => {
               Sid: 'AddPerm',
               Effect: 'Allow',
               Principal: '*',
-              Action: ['s3:GetObject', 's3:PutObject'],
+              Action: ['s3:GetObject'],
               Resource: [`arn:aws:s3:::${bucketName}/*`]
             }
           ]
