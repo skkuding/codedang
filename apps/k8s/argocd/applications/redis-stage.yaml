@@ -8,14 +8,14 @@ metadata:
 spec:
   destination:
     namespace: redis
-    server: https://kubernetes.default.svc
+    name: stage
   sources:
     - repoURL: https://charts.bitnami.com/bitnami
       chart: redis
       targetRevision: 21.2.13
       helm:
         valueFiles:
-          - $codedang/apps/k8s/redis/values-staging.yaml
+          - $codedang/apps/k8s/redis/values-stage.yaml
     - repoURL: https://github.com/skkuding/codedang
       targetRevision: main
       ref: codedang
