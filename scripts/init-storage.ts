@@ -12,7 +12,7 @@ const main = async () => {
   await Promise.all([
     setupTestcaseBucket(),
     setupMediaBucket(),
-    setupCheckResultBucket
+    setupCheckResultBucket()
   ]).then(() => {
     console.log('All buckets are set up')
   })
