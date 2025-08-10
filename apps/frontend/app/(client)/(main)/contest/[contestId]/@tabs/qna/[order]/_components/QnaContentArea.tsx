@@ -5,7 +5,7 @@ import { FaClock } from 'react-icons/fa6'
 import type { QnaContent } from '../page'
 import { DeleteButton } from './DeleteButton'
 
-const maxTitleLength = 60
+const maxTitleLength = 35
 
 export function QnaContentArea({
   data,
@@ -32,7 +32,7 @@ export function QnaContentArea({
             <p className="h-[36px] w-full max-w-[1078px] overflow-hidden text-2xl font-semibold">
               {TitleText.length <= maxTitleLength
                 ? TitleText
-                : TitleText.slice(0, maxTitleLength).concat('...')}
+                : TitleText.slice(0, maxTitleLength)}
             </p>
             {canDelete && <DeleteButton subject="question" />}
           </div>
