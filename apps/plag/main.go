@@ -1,13 +1,5 @@
 package main
 
-/*
-* previousSubmissionsPath 기능은 구현되지 않았습니다.
-* jdk 21이 필요합니다.
-* submission 코드를 얻는 과정이 불안정합니다.
-* java 명령어가 실행되지 않습니다. (no such dir of file)
-* CheckResult가 항상 nil입니다. 삭제해야 합니다.
- */
-
 import (
 	"context"
 	"fmt"
