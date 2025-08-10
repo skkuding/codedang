@@ -7,9 +7,9 @@ import {
   type AuthenticatedRequest
 } from '@libs/auth'
 import {
-  SubmissionOrderPipe,
   CursorValidationPipe,
-  RequiredIntPipe
+  RequiredIntPipe,
+  SubmissionOrderPipe
 } from '@libs/pipe'
 import { Submission } from '@admin/@generated'
 import { SubmissionOrder } from './enum/submission-order.enum'
@@ -37,6 +37,7 @@ export class SubmissionResolver {
    * @returns {SubmissionsWithTotal}
    */
   @Query(() => SubmissionsWithTotal)
+  @UseDisableAdminGuard()
   async getSubmissions(
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
     problemId: number,
