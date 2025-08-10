@@ -27,7 +27,16 @@ spec:
             - secretRef:
                 name: client-api-secrets
             - secretRef:
+                name: client-api-aws-secrets
+            - secretRef:
                 name: aws-credentials
           env:
+            - name: REDIS_HOST
+              value: 'redis-master.redis.svc.cluster.local'
+            - name: REDIS_PORT
+              value: '6379'
             - name: RABBITMQ_SSL
               value: 'true'
+            # TODO: connect after observability services are implemented
+            # - name: OTEL_EXPORTER_OTLP_ENDPOINT_URL
+            #   value: 'otel-collector.observability.svc.cluster.local:4317'
