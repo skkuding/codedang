@@ -139,17 +139,14 @@ export function CreateCourseButton() {
               <InputForm
                 placeholder="00"
                 name="classNum"
-                type="text"
+                type="number"
                 maxLength={2}
                 value={courseSection}
                 onChange={handleCourseSectionChange}
               />
             </FormSection>
             <FormSection isFlexColumn={true} title="Week" className="gap-[6px]">
-              <DropdownForm
-                name="weekNum"
-                items={Array.from({ length: 17 }, (_, i) => (i + 1).toString())}
-              />
+              <DropdownForm name="week" items={[3, 6, 15]} />
             </FormSection>
             <FormSection
               isFlexColumn={true}

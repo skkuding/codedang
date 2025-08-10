@@ -6,7 +6,7 @@ import { ErrorMessage } from '../../_components/ErrorMessage'
 
 interface DropdownFormProps {
   name: string
-  items: string[]
+  items: (string | number)[]
 }
 
 export function DropdownForm({ name, items }: DropdownFormProps) {
@@ -25,7 +25,7 @@ export function DropdownForm({ name, items }: DropdownFormProps) {
     <div className="flex flex-col gap-1">
       <OptionSelect
         className="w-full"
-        options={items}
+        options={items.map(String)}
         value={field.value ?? ''}
         onChange={(value) => {
           field.onChange(value)

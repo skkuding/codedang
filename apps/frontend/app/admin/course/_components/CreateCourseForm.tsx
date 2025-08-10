@@ -49,7 +49,7 @@ export function CreateCourseForm({ children }: { children: ReactNode }) {
             classNum: data.classNum,
             professor: data.professor,
             semester: data.semester,
-            week: data.week,
+            week: Number(data.week),
             email: data.email,
             website: data.website,
             office: data.office,

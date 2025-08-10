@@ -5,17 +5,13 @@ export const courseSchema = v.object({
   courseTitle: v.pipe(v.string(), v.minLength(1, 'Required')),
   courseCodePrefix: v.pipe(v.string(), v.minLength(1, 'Required')),
   courseCodeSuffix: v.pipe(v.string(), v.minLength(1, 'Required')),
-  courseNum: v.pipe(
-    v.string(),
-    v.regex(/^[A-Za-z]{1,3}\d{1,4}$/, 'Invalid course number format')
-  ),
-  classNum: v.pipe(
-    v.string(),
-    v.minLength(1, 'Required'),
-    v.regex(/^(?:[1-9]|[1-9][0-9])$/, 'Must be between 1 and 99')
-  ),
+  // courseNum: v.pipe(
+  //   v.string(),
+  //   v.regex(/^[A-Za-z]{1,3}\d{1,4}$/, 'Invalid course number format')
+  // ),
+  classNum: v.pipe(v.number(), v.minValue(1, 'Required')),
   semester: v.pipe(v.string('Required'), v.minLength(1, 'Required')),
-  week: v.pipe(v.number('Required'), v.minValue(1, 'Must be at least 1')),
+  week: v.pipe(v.number('Required'), v.minValue(1, 'Required')),
   email: v.optional(v.string()),
   phoneNum: v.optional(v.string()),
   office: v.optional(v.string()),
