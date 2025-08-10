@@ -51,7 +51,6 @@ export function InputForm({
           )}
           maxLength={maxLength || 120}
           {...register(name, {
-            required: true,
             setValueAs: (value) => (type === 'number' ? Number(value) : value)
           })}
           onChange={(e) => {

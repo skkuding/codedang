@@ -11,14 +11,12 @@ interface DropdownFormProps {
 
 export function DropdownForm({ name, items }: DropdownFormProps) {
   const {
-    getValues,
-    formState: { errors },
-    setValue
+    formState: { errors }
   } = useFormContext()
 
   const { field } = useController({
     name,
-    defaultValue: getValues(name)
+    defaultValue: ''
   })
 
   return (
@@ -26,10 +24,17 @@ export function DropdownForm({ name, items }: DropdownFormProps) {
       <OptionSelect
         className="w-full"
         options={items.map(String)}
-        value={field.value ?? ''}
+        value={
+          items.every((item) => typeof item === 'number')
+            ? String(field.value ?? '')
+            : (field.value ?? '')
+        }
         onChange={(value) => {
-          field.onChange(value)
-          setValue(name, value)
+          field.onChange(
+            items.every((item) => typeof item === 'number')
+              ? Number(value)
+              : value
+          )
         }}
       />
       {errors[name] &&
