@@ -2699,13 +2699,40 @@ const createContestQnA = async () => {
         category: QnACategory.General
       },
       {
-        contestId: 1,
+        contestId: 19,
         createdById: 7,
-        order: 6,
-        title: '1번 대회에 대한 질문',
-        content: '2번 문제에 대한 질문',
-        category: QnACategory.Problem,
-        problemId: 2
+        order: 1,
+        title: '19번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.General
+      }
+    ]
+  })
+}
+
+const createContestQnAComment = async () => {
+  await prisma.contestQnAComment.createMany({
+    data: [
+      {
+        contestQnAId: 1,
+        content: '1번 질문에 대한 답변',
+        order: 1,
+        createdById: 7,
+        isContestStaff: false
+      },
+      {
+        contestQnAId: 6,
+        content: '6번 질문에 대한 답변',
+        order: 1,
+        createdById: 7,
+        isContestStaff: false
+      },
+      {
+        contestQnAId: 6,
+        content: '6번 질문에 대한 답변',
+        order: 2,
+        createdById: 4,
+        isContestStaff: true
       }
     ]
   })
@@ -2790,6 +2817,7 @@ const main = async () => {
   await createContestProblemRecords()
   await createContestQnA()
   await createNotifications()
+  await createContestQnAComment()
 }
 
 main()
