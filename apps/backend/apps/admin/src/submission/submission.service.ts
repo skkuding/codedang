@@ -296,6 +296,29 @@ export class SubmissionService {
     return submissionInfo
   }
 
+  async getAssignmentProblemTestcaseResults(
+    assignmentId: number,
+    problemId: number
+  ) {
+    const assignmentSubmissions = await this.prisma.submission.findMany({
+      where: {
+        assignmentId,
+        problemId
+      },
+      select: {
+        result: true
+      }
+    })
+
+    const results = assignmentSubmissions.map((c) => {
+      return {
+        result: c.result as ResultStatus
+      }
+    })
+
+    return results
+  }
+
   getOrderBy(
     order: SubmissionOrder
   ): Prisma.SubmissionOrderByWithRelationInput {

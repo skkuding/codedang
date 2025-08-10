@@ -310,6 +310,10 @@ type AssignmentProblemSumAggregate {
   score: Int
 }
 
+type AssignmentProblemTestcaseResult {
+  result: ResultStatus
+}
+
 input AssignmentProblemUpdateInput {
   problemId: Int!
   score: IntScore
@@ -2258,6 +2262,7 @@ type Query {
   getAssignment(assignmentId: Int!, groupId: Int!): AssignmentWithParticipants!
   getAssignmentLatestSubmission(assignmentId: Int!, groupId: Int!, problemId: Int!, userId: Int!): SubmissionDetail!
   getAssignmentProblemRecord(assignmentId: Int!, groupId: Int!, problemId: Int!, userId: Int!): AssignmentProblemRecord!
+  getAssignmentProblemTestcaseResults(assignmentId: Int!, groupId: Int!, problemId: Int!): [AssignmentProblemTestcaseResult!]!
   getAssignmentProblems(assignmentId: Int!, groupId: Int!): [AssignmentProblem!]!
   getAssignmentScoreSummaries(assignmentId: Int!, cursor: Int, groupId: Int!, searchingName: String, take: Int! = 10): [UserAssignmentScoreSummaryWithUserInfo!]!
   getAssignmentSubmissionSummaryByUserId(assignmentId: Int!, cursor: Int, groupId: Int!, problemId: Int, take: Int! = 10, userId: Int!): AssignmentSubmissionSummaryForUser!
