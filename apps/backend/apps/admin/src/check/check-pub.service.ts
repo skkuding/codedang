@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { CheckRequest } from '@prisma/client'
 import { Span, TraceService } from 'nestjs-otel'
 import { CHECK_MESSAGE_TYPE, CHECK_EXCHANGE, CHECK_KEY } from '@libs/constants'
-import { PrismaService } from '@libs/prisma'
 import { CheckRequestMsg } from './model/check-request'
 
 @Injectable()
 export class CheckPublicationService {
+  private readonly logger = new Logger(CheckPublicationService.name)
+
   constructor(
-    private readonly prisma: PrismaService,
     private readonly amqpConnection: AmqpConnection,
     private readonly traceService: TraceService
   ) {}
@@ -39,7 +39,7 @@ export class CheckPublicationService {
     span.setAttributes({ checkId: check.id })
 
     await this.amqpConnection.publish(CHECK_EXCHANGE, CHECK_KEY, checkRequest, {
-      messageId: check.id,
+      messageId: String(check.id),
       type: CHECK_MESSAGE_TYPE,
       persistent: true
     })

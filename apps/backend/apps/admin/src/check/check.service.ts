@@ -1,6 +1,12 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException
+} from '@nestjs/common'
 import type { Language } from '@prisma/client'
 import { CheckResultStatus, Prisma } from '@prisma/client'
+import { plainToInstance } from 'class-transformer'
 import { Span } from 'nestjs-otel'
 import {
   EntityNotExistException,
@@ -8,7 +14,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { CheckPublicationService } from './check-pub.service'
-import { CheckResultOutput } from './model/check-result.output'
+import { Match } from './model/check-result.dto'
 import { CreatePlagiarismCheckInput } from './model/create-check.input'
 
 @Injectable()
@@ -19,15 +25,15 @@ export class CheckService {
     private readonly prisma: PrismaService,
     private readonly publish: CheckPublicationService
   ) {}
-  // 문제의 제출 기한이 끝났을 때 검사가 가능하게 합니다. (dueTime 이후)
-  // 한 학생의 최종 submission을 기준으로 검사합니다.
-  // 두 학생이 제출을 완료했는지 확인합니다.
 
-  // dueTime 확인 어떻게 하나요?
-  // 과제 문제로 한정?
-  // 과제에 대한 학생들의 제출물로 제한할 수 있나요?
-  // 모든 학생들에게 적용?
-
+  /**
+   * 표절 검사 요청이 수행 가능한지 확인합니다.
+   *
+   * @param {number} problemId
+   * @param {Language} language
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 유저 간의 중복이 없을 때, 제출물의 수가 1개 이하인 경우
+   */
   @Span()
   async validateRequest({
     problemId,
@@ -36,17 +42,35 @@ export class CheckService {
     problemId: number
     language: Language
   }) {
-    const submissionCount = await this.prisma.submission.count({
+    const submissions = await this.prisma.submission.findMany({
       where: {
-        problemId: problemId,
-        language: language
+        problemId,
+        language
+      },
+      select: {
+        userId: true
       }
     })
-    if (submissionCount < 2) {
+
+    const uniqueUserSubmissions = submissions.filter(
+      (value, index, self) => value !== null && self.indexOf(value) === index
+    )
+    if (uniqueUserSubmissions.length < 2) {
       throw new EntityNotExistException('There are not enough submissions')
     }
   }
 
+  /**
+   * 표절 검사를 수행할 수 있는 과제인지 검증합니다.
+   *
+   * @param {number} assignmentId
+   * @param {number} problemId
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 주어진 아이디의 AssignmentProblem가 존재하지 않을 때
+   * - AssignmentDueTime이 존재하지 않을 때
+   * @throws {NotFoundException} 아래와 같은 경우 발생합니다.
+   * - 과제의 dueTime이 지나기 전일 때
+   */
   @Span()
   async validateAssignment({
     assignmentId,
@@ -57,8 +81,8 @@ export class CheckService {
   }) {
     const assignmentProblem = await this.prisma.assignmentProblem.findFirst({
       where: {
-        assignmentId: assignmentId,
-        problemId: problemId
+        assignmentId,
+        problemId
       }
     })
     if (!assignmentProblem) {
@@ -81,6 +105,15 @@ export class CheckService {
     }
   }
 
+  /**
+   * 한 assignment의 problem에 대해 표절 검사를 요청합니다.
+   *
+   * @param {number} userId 검사를 요청한 유저의 아이디
+   * @param {CreatePlagiarismCheckInput} checkInput 표절 검사 설정
+   * @param {number} assignmentId 과제 아이디
+   * @param {number} problemId 문제 아이디
+   * @returns {CheckRequest} 표절 검사를 요청한 기록을 반환합니다.
+   */
   @Span()
   async checkAssignmentProblem({
     userId,
@@ -99,11 +132,23 @@ export class CheckService {
       checkInput,
       problemId,
       idOptions: {
-        assignmentId: assignmentId
+        assignmentId
       }
     })
   }
 
+  /**
+   * 한 Problem에 대해 표절 검사를 요청합니다.
+   *
+   * @param {number} userId 검사를 요청한 유저 아이디
+   * @param {CreatePlagiarismCheckInput} checkInput 표절 검사 설정
+   * @param {number} problemId 문제 아이디
+   * @param idOptions 과제, 대회, 워크북 중 하나의 아이디를 담은 객체
+   * @returns {CheckRequest} 표절 검사를 요청한 기록을 반환합니다.
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - Prisma에 요청을 기록할 수 없을 때
+   * @throws Publish 과정에서 오류가 발생할 수 있습니다.
+   */
   @Span()
   async checkProblem({
     userId,
@@ -121,7 +166,7 @@ export class CheckService {
     }
   }) {
     this.validateRequest({
-      problemId: problemId,
+      problemId,
       language: checkInput.language
     })
 
@@ -136,14 +181,14 @@ export class CheckService {
     try {
       const check = await this.prisma.checkRequest.create({
         data: {
-          problemId: problemId,
+          problemId,
           result: CheckResultStatus.Pending,
-          userId: userId,
-          language: language,
+          userId,
+          language,
           checkPreviousSubmission: checkPreviousSubmissions,
-          enableMerging: enableMerging,
-          useJplagClustering: useJplagClustering,
-          minTokens: minTokens,
+          enableMerging,
+          useJplagClustering,
+          minTokens,
           ...idOptions
         }
       })
@@ -160,17 +205,163 @@ export class CheckService {
     }
   }
 
+  /**
+   * 완료된 표절 검사의 결과 일부를 요약하여 가져옵니다.
+   *
+   * @param {number} checkId 표절 검사 요청 아이디
+   * @param {number} take 조회할 제출물 쌍의 비교 결과 개수
+   * @param {number | null} cursor 페이지 커서
+   * @returns {GetCheckResultSummaryOutput[]} 여러 제출물 쌍의 비교 결과를 평균 유사도 기준으로 내림차순 정렬하여 반환합니다.
+   * @throws {NotFoundException} 아래와 같은 경우 발생합니다.
+   * - 검사 요청 기록이 없을 때
+   * - 아직 검사 중일 때
+   * - 표절 검사 중 오류가 발생했을 때
+   */
   @Span()
   async getCheckResults({
     checkId,
-    limit
+    take,
+    cursor
   }: {
     checkId: number
-    limit: number
+    take: number
+    cursor: number | null
   }) {
-    return [
-      // dummy data
-      new CheckResultOutput()
-    ]
+    const request = await this.prisma.checkRequest.findUnique({
+      where: {
+        id: checkId
+      },
+      select: {
+        result: true
+      }
+    })
+
+    if (!request) {
+      throw new NotFoundException('Request not found')
+    }
+    if (request.result === CheckResultStatus.Pending) {
+      throw new NotFoundException(
+        'Result not found as it is still being evaluated'
+      )
+    }
+    if (request.result !== CheckResultStatus.Completed) {
+      throw new NotFoundException(`Result not found: ${request.result}`)
+    }
+
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const results = await this.prisma.checkResult.findMany({
+      ...paginator,
+      take,
+      where: {
+        requestId: checkId
+      },
+      select: {
+        id: true,
+        firstCheckSubmissionId: true,
+        secondCheckSubmissionId: true,
+        averageSimilarity: true,
+        maxSimilarity: true,
+        maxLength: true,
+        longestMatch: true,
+        firstSimilarity: true,
+        secondSimilarity: true,
+        clusterId: true,
+        cluster: {
+          select: {
+            averageSimilarity: true,
+            strength: true
+          }
+        }
+      },
+      orderBy: {
+        averageSimilarity: 'desc'
+      }
+    })
+
+    return results
+  }
+
+  /**
+   * 표절이 강하게 의심되는 제출물 집단을 제공합니다.
+   *
+   * @param {number} clusterId 클러스터 아이디
+   * @returns {GetClusterOutput} 제출물 아이디를 포함한 클러스터를 반환합니다.
+   * @throws {NotFoundException} 아래와 같은 경우 발생합니다.
+   * - 주어진 아이디를 가진 클러스터가 없을 때
+   */
+  @Span()
+  async getCluster({ clusterId }: { clusterId: number }) {
+    const cluster = await this.prisma.plagiarismCluster.findUnique({
+      where: {
+        id: clusterId
+      },
+      include: {
+        SubmissionCluster: true
+      }
+    })
+
+    if (!cluster) throw new NotFoundException('Cluster not found')
+
+    return {
+      id: cluster.id,
+      averageSimilarity: cluster.averageSimilarity,
+      strength: cluster.strength,
+      submissionCluster: cluster.SubmissionCluster
+    }
+  }
+
+  /**
+   * 제출물 쌍의 비교 결과를 자세하게 제공합니다.
+   *
+   * @param {number} resultId 제출물 쌍의 비교 결과 아이디
+   * @returns {GetCheckResultDetailOutput} 한 검사 결과의 정보를 자세하게 제공합니다.
+   * @throws {NotFoundException} 아래와 같은 경우 발생합니다.
+   * - 주어진 아이디를 가진 결과가 존재하지 않을 때
+   */
+  @Span()
+  async getDetails({ resultId }: { resultId: number }) {
+    const result = await this.prisma.checkResult.findUnique({
+      where: {
+        id: resultId
+      },
+      select: {
+        requestId: true,
+        firstCheckSubmissionId: true,
+        secondCheckSubmissionId: true,
+        averageSimilarity: true,
+        maxSimilarity: true,
+        maxLength: true,
+        longestMatch: true,
+        matches: true,
+        firstSimilarity: true,
+        secondSimilarity: true,
+        clusterId: true
+      }
+    })
+
+    if (!result) throw new NotFoundException('Result not found')
+
+    const matches = result.matches
+      .map((match) => {
+        const matchString = match?.toString()
+        if (!matchString) return null
+        return plainToInstance(Match, JSON.parse(matchString))
+      })
+      .filter((match) => match !== null)
+
+    return {
+      requestId: result.requestId,
+      firstCheckSubmissionId: result.firstCheckSubmissionId,
+      secondCheckSubmissionId: result.secondCheckSubmissionId,
+      averageSimilarity: result.averageSimilarity,
+      maxSimilarity: result.maxSimilarity,
+      maxLength: result.maxLength,
+      longestMatch: result.longestMatch,
+      matches,
+      firstSimilarity: result.firstSimilarity,
+      secondSimilarity: result.secondSimilarity,
+      clusterId: result.clusterId
+    }
   }
 }

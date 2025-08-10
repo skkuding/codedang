@@ -12,10 +12,11 @@ import (
 type Response struct {
 	CheckId         int                `json:"checkId"`
 	CheckResultCode handler.ResultCode `json:"resultCode"`
+  CheckResult     json.RawMessage    `json:"checkResult"`
 	Error           string             `json:"error"`
 }
 
-func NewResponse(id string, err error) *Response {
+func NewResponse(id string,	result json.RawMessage, err error) *Response {
 	resultCode := handler.CHECKED
 	errMessage := ""
 
@@ -32,6 +33,7 @@ func NewResponse(id string, err error) *Response {
 	return &Response{
 		CheckId:         _id,
 		CheckResultCode: resultCode,
+    CheckResult:     result,
 		Error:           errMessage,
 	}
 }

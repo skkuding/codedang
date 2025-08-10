@@ -7,9 +7,9 @@ export class CheckRequestMsg {
   enableMerging: boolean
   useJplagClustering: boolean
   minTokens: number
-  assignmentId?: number
-  contestId?: number
-  workbookId?: number
+  assignmentId: number | null
+  contestId: number | null
+  workbookId: number | null
 
   constructor(
     problemId: number,
@@ -28,8 +28,8 @@ export class CheckRequestMsg {
     this.checkPreviousSubmission = checkPreviousSubmission
     this.enableMerging = enableMerging
     this.useJplagClustering = useJplagClustering
-    this.assignmentId = assignmentId
-    this.contestId = contestId
-    this.workbookId = workbookId
+    this.assignmentId = assignmentId !== undefined ? assignmentId : null
+    this.contestId = contestId !== undefined ? contestId : null
+    this.workbookId = workbookId !== undefined ? workbookId : null
   }
 }
