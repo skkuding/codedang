@@ -25,16 +25,116 @@ export class TestcaseService {
     private readonly storageService: StorageService
   ) {}
 
+  /**
+   * 분수 형태로 scoreWeight를 변환하는 헬퍼 함수
+   * 기존 scoreWeight 값이 있으면 그것을 분자로, 100을 분모로 설정
+   * 새로운 분자/분모 값이 있으면 그것을 사용
+   */
+  private convertToFraction(testcase: Testcase): {
+    numerator: number
+    denominator: number
+  } {
+    // 새로운 분수 형태가 제공된 경우
+    if (
+      testcase.scoreWeightNumerator !== undefined &&
+      testcase.scoreWeightDenominator !== undefined
+    ) {
+      return {
+        numerator: testcase.scoreWeightNumerator,
+        denominator: testcase.scoreWeightDenominator
+      }
+    }
+
+    // 기존 scoreWeight만 있는 경우 (하위 호환성)
+    if (testcase.scoreWeight !== undefined) {
+      return {
+        numerator: testcase.scoreWeight,
+        denominator: 100
+      }
+    }
+
+    // 아무것도 제공되지 않은 경우 기본값
+    return {
+      numerator: 1,
+      denominator: 1
+    }
+  }
+
+  /**
+   * Equal distribution 계산 함수
+   * 일부 테스트케이스는 수동 지정, 나머지는 equal distribution
+   */
+  private calculateEqualDistribution(
+    totalTestcases: number,
+    manualTestcases: { numerator: number; denominator: number }[]
+  ): { numerator: number; denominator: number }[] {
+    if (manualTestcases.length === 0) {
+      // 모든 테스트케이스가 equal distribution
+      const result: { numerator: number; denominator: number }[] = []
+      for (let i = 0; i < totalTestcases; i++) {
+        result.push({ numerator: 1, denominator: totalTestcases })
+      }
+      return result
+    }
+
+    // 수동 지정된 가중치의 합 계산 (분수 덧셈)
+    let sumNumerator = 0
+    let lcmDenominator = 1
+
+    // LCM 계산을 위한 GCD 함수
+    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
+    const lcm = (a: number, b: number): number => (a * b) / gcd(a, b)
+
+    // 모든 분모의 LCM 계산
+    manualTestcases.forEach((tc) => {
+      lcmDenominator = lcm(lcmDenominator, tc.denominator)
+    })
+
+    // LCM을 기준으로 분자 합 계산
+    manualTestcases.forEach((tc) => {
+      sumNumerator += tc.numerator * (lcmDenominator / tc.denominator)
+    })
+
+    // 남은 가중치 계산
+    const remainingNumerator = lcmDenominator - sumNumerator
+    const remainingCount = totalTestcases - manualTestcases.length
+
+    if (remainingNumerator <= 0 || remainingCount <= 0) {
+      throw new UnprocessableDataException('Invalid weight distribution')
+    }
+
+    // 남은 테스트케이스들의 가중치
+    const result: { numerator: number; denominator: number }[] = [
+      ...manualTestcases
+    ]
+    const equalDenominator = lcmDenominator * remainingCount
+
+    for (let i = 0; i < remainingCount; i++) {
+      result.push({
+        numerator: remainingNumerator,
+        denominator: equalDenominator
+      })
+    }
+
+    return result
+  }
+
   async createTestcases(testcases: Testcase[], problemId: number) {
     // Before upload, clean up all the original testcases
     await this.removeAllTestcaseFiles(problemId)
 
     const promises = testcases.map(async (testcase, index) => {
       try {
+        const fraction = this.convertToFraction(testcase)
+
         const { id } = await this.prisma.problemTestcase.create({
           data: {
             problemId,
-            scoreWeight: testcase.scoreWeight,
+            scoreWeightNumerator: fraction.numerator,
+            scoreWeightDenominator: fraction.denominator,
+            scoreWeight: Math.round(
+              (fraction.numerator / fraction.denominator) * 100
+            ), // 하위 호환성
             isHidden: testcase.isHidden,
             order: index + 1
           }
@@ -77,12 +177,18 @@ export class TestcaseService {
   async createTestcasesLegacy(problemId: number, testcases: Array<Testcase>) {
     await Promise.all(
       testcases.map(async (tc, index) => {
+        const fraction = this.convertToFraction(tc)
+
         const problemTestcase = await this.prisma.problemTestcase.create({
           data: {
             problemId,
             input: tc.input,
             output: tc.output,
-            scoreWeight: tc.scoreWeight,
+            scoreWeightNumerator: fraction.numerator,
+            scoreWeightDenominator: fraction.denominator,
+            scoreWeight: Math.round(
+              (fraction.numerator / fraction.denominator) * 100
+            ), // 하위 호환성
             isHidden: tc.isHidden,
             order: index + 1
           }
@@ -95,12 +201,18 @@ export class TestcaseService {
   /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
   async createTestcaseLegacy(problemId: number, testcase: Testcase) {
     try {
+      const fraction = this.convertToFraction(testcase)
+
       const problemTestcase = await this.prisma.problemTestcase.create({
         data: {
           problem: { connect: { id: problemId } },
           input: testcase.input,
           output: testcase.output,
-          scoreWeight: testcase.scoreWeight,
+          scoreWeightNumerator: fraction.numerator,
+          scoreWeightDenominator: fraction.denominator,
+          scoreWeight: Math.round(
+            (fraction.numerator / fraction.denominator) * 100
+          ), // 하위 호환성
           isHidden: testcase.isHidden
         }
       })
@@ -126,12 +238,18 @@ export class TestcaseService {
     ])
 
     for (const tc of testcases) {
+      const fraction = this.convertToFraction(tc)
+
       await this.prisma.problemTestcase.create({
         data: {
           problemId,
           input: tc.input,
           output: tc.output,
-          scoreWeight: tc.scoreWeight,
+          scoreWeightNumerator: fraction.numerator,
+          scoreWeightDenominator: fraction.denominator,
+          scoreWeight: Math.round(
+            (fraction.numerator / fraction.denominator) * 100
+          ), // 하위 호환성
           isHidden: tc.isHidden
         }
       })
