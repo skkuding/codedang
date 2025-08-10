@@ -2103,7 +2103,14 @@ type ProblemTestcase {
   output: String
   problem: Problem!
   problemId: Int!
-  scoreWeight: Int!
+
+  # 분수 형태의 점수 가중치
+  scoreWeightNumerator: Int!
+  scoreWeightDenominator: Int!
+
+  # @deprecated - Use scoreWeightNumerator and scoreWeightDenominator instead
+  scoreWeight: Int @deprecated(reason: "Use scoreWeightNumerator and scoreWeightDenominator for accurate fraction representation")
+
   submissionCount: Int!
   submissionResult: [SubmissionResult!]
   updateTime: DateTime!
@@ -2581,6 +2588,7 @@ input Template {
   language: Language!
 }
 
+# TestCaseResult 타입 업데이트
 type TestCaseResult {
   cpuTime: String
   createTime: DateTime!
@@ -2591,7 +2599,14 @@ type TestCaseResult {
   problemTestcase: ProblemTestcaseResult!
   problemTestcaseId: Int!
   result: ResultStatus!
-  scoreWeight: Int!
+
+  # 분수 형태로 표시
+  scoreWeightNumerator: Int!
+  scoreWeightDenominator: Int!
+
+  # @deprecated
+  scoreWeight: Int! @deprecated(reason: "Use scoreWeightNumerator and scoreWeightDenominator instead")
+
   submissionId: Int!
   updateTime: DateTime!
 }
@@ -2710,7 +2725,13 @@ input Testcase {
   isHidden: Boolean!
   order: Int
   output: String!
-  scoreWeight: IntScore
+
+  # 분수 형태의 점수 가중치 (optional, 기본값 1/1)
+  scoreWeightNumerator: Int
+  scoreWeightDenominator: Int
+
+  # @deprecated - 하위 호환성을 위해 유지
+  scoreWeight: Int @deprecated(reason: "Use scoreWeightNumerator and scoreWeightDenominator instead")
 }
 
 input UpdateAnnouncementInput {
