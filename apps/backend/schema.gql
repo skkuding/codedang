@@ -311,7 +311,8 @@ type AssignmentProblemSumAggregate {
 }
 
 type AssignmentProblemTestcaseResult {
-  result: ResultStatus
+  testcaseResult: [TestCaseResult!]!
+  userId: Int
 }
 
 input AssignmentProblemUpdateInput {

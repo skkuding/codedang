@@ -300,21 +300,77 @@ export class SubmissionService {
     assignmentId: number,
     problemId: number
   ) {
-    const assignmentSubmissions = await this.prisma.submission.findMany({
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const latestSubmissions = await this.prisma.submission.groupBy({
+      by: ['userId'],
       where: {
         assignmentId,
         problemId
       },
-      select: {
-        result: true
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      _max: {
+        createTime: true
       }
     })
 
-    const results = assignmentSubmissions.map((c) => {
-      return {
-        result: c.result as ResultStatus
-      }
-    })
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const detailedSubmissions = await Promise.all(
+      latestSubmissions.map(async (submission) => {
+        if (!submission._max.createTime) {
+          return null
+        }
+        return this.prisma.submission.findFirst({
+          where: {
+            userId: submission.userId,
+            createTime: submission._max.createTime
+          },
+          include: {
+            user: {
+              select: {
+                studentId: true
+              }
+            },
+            submissionResult: {
+              include: {
+                problemTestcase: {
+                  select: {
+                    input: true,
+                    output: true,
+                    isHidden: true,
+                    scoreWeight: true
+                  }
+                }
+              }
+            }
+          }
+        })
+      })
+    )
+
+    const results = detailedSubmissions
+      .filter((submission) => submission !== null)
+      .map((submission) => {
+        return {
+          userId: submission.userId,
+          testcaseResult: submission.submissionResult.map((result) => ({
+            ...result,
+            problemTestcase: {
+              input: result.problemTestcase.input ?? '',
+              output: result.problemTestcase.output ?? ''
+            },
+            cpuTime:
+              result.cpuTime || result.cpuTime === BigInt(0)
+                ? result.cpuTime.toString()
+                : null,
+            isHidden: result.problemTestcase.isHidden,
+            scoreWeight: result.problemTestcase.scoreWeight
+          }))
+        }
+      })
+
+    if (results.length === 0) {
+      throw new EntityNotExistException('Submission')
+    }
 
     return results
   }
