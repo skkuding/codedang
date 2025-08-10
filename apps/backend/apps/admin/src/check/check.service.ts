@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException
 } from '@nestjs/common'
-import type { CheckRequest, Language } from '@prisma/client'
+import type { Language } from '@prisma/client'
 import { CheckResultStatus, Prisma } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { Span } from 'nestjs-otel'

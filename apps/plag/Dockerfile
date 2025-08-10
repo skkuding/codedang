@@ -15,6 +15,7 @@ ARG app_env
 ENV APP_ENV=${app_env}
 
 # Install dependencies
+# JDK21이 필요합니다.
 RUN apt update && apt install -y \
   curl openjdk-21-jdk \
   software-properties-common \
