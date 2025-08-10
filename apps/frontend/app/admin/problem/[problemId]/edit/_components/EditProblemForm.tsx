@@ -48,7 +48,7 @@ export function EditProblemForm({
       id: Number(problemId)
     },
     onCompleted: (problemData) => {
-      const data = problemData.getProblem
+      const data = problemData.problem
 
       // HACK: This is a workaround for migrating testcase to separated query/mutation.
       // After migration, testcase input/output is not going to passed through 'getProblem' and 'updateProblem'

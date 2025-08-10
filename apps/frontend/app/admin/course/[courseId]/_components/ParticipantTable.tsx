@@ -125,7 +125,7 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
     }) || []
 
   // 5. 과제 제목 → 파일명 생성
-  const assignmentTitle = assignmentData?.getAssignments.find(
+  const assignmentTitle = assignmentData?.assignments.find(
     (assignment) => assignment.id === assignmentId.toString()
   )?.title
 

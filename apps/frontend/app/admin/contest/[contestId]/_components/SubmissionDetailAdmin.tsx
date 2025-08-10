@@ -43,7 +43,7 @@ export function SubmissionDetailAdmin({
     useLazyQuery(GET_PROBLEM_TESTCASE)
 
   const { correctTestcases, wrongTestcases } = (() => {
-    if (!testcaseData?.getProblem?.testcase || !submission?.testcaseResult) {
+    if (!testcaseData?.problem?.testcase || !submission?.testcaseResult) {
       return { correctTestcases: [], wrongTestcases: [] }
     }
 
@@ -53,7 +53,7 @@ export function SubmissionDetailAdmin({
     const correct: string[] = []
     const wrong: string[] = []
 
-    testcaseData.getProblem.testcase.forEach((testcase, index) => {
+    testcaseData.problem.testcase.forEach((testcase, index) => {
       const label = testcase.isHidden
         ? `Hidden #${hiddenIndex++}`
         : `Sample #${sampleIndex++}`
@@ -133,7 +133,7 @@ export function SubmissionDetailAdmin({
                     <td className="w-52 py-1">Correct Testcase:</td>
                     <td className="py-1 text-slate-500">
                       {correctTestcases.length}/
-                      {testcaseData?.getProblem?.testcase?.length || 0}
+                      {testcaseData?.problem?.testcase?.length || 0}
                     </td>
                   </tr>
                   {wrongTestcases.length > 0 && (
@@ -175,7 +175,7 @@ export function SubmissionDetailAdmin({
                     let sampleIndex = 1
                     let hiddenIndex = 1
 
-                    return testcaseData?.getProblem?.testcase?.map(
+                    return testcaseData?.problem?.testcase?.map(
                       (testcase, index) => {
                         const matchingResult = submission?.testcaseResult[index]
                         const label = testcase.isHidden

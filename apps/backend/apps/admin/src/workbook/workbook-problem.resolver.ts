@@ -23,6 +23,12 @@ export class WorkbookProblemResolver {
     private readonly problemService: ProblemService
   ) {}
 
+  // TODO: move to workbook resolver
+  // workbook(id: number) {
+  //   problems {
+  //     ...
+  //   }
+  // }
   @Query(() => [WorkbookProblem], { name: 'getWorkbookProblems' })
   async getWorkbookProblems(
     @Args('groupId', { type: () => Int }, GroupIDPipe)
@@ -50,8 +56,8 @@ export class WorkbookProblemResolver {
     )
   }
 
-  @ResolveField('problem', () => ProblemWithIsVisible)
-  async getProblem(@Parent() workbookProblem: WorkbookProblem) {
+  @ResolveField(() => ProblemWithIsVisible)
+  async problem(@Parent() workbookProblem: WorkbookProblem) {
     return await this.problemService.getProblemById(workbookProblem.problemId)
   }
 }

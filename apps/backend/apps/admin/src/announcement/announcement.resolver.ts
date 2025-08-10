@@ -20,17 +20,27 @@ export class AnnouncementResolver {
     return await this.announcementService.createAnnouncement(contestId, input)
   }
 
-  @Query(() => [AnnouncementWithProblemOrder], {
-    name: 'announcementByContestId'
-  })
-  async getAnnouncementsByContestId(
+  // TODO: Put this query under contest resolver as @ResolveField
+  // contest(id: number) {
+  //   announcements {
+  //     ...
+  //   }
+  // }
+  @Query(() => [AnnouncementWithProblemOrder])
+  async announcements(
     @Args('contestId', { type: () => Int }) contestId: number
   ) {
     return await this.announcementService.getAnnouncementsByContestId(contestId)
   }
 
-  @Query(() => Announcement, { name: 'announcement' })
-  async getAnnouncementById(
+  // TODO: Put this query under contest resolver as @ResolveField
+  // contest(id: number) {
+  //   announcement(id: number) {
+  //     ...
+  //   }
+  // }
+  @Query(() => Announcement)
+  async announcement(
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('id', { type: () => Int }) id: number
   ) {

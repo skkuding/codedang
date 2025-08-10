@@ -20,7 +20,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
     variables: {
       id: Number(problemId)
     }
-  }).data?.getProblem
+  }).data?.problem
 
   const { items, paginator } = usePagination<SubmissionItem>(
     `submission?problemId=${problemId}`,

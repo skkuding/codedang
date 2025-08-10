@@ -2210,7 +2210,7 @@ type ProblemWithIsVisible {
   outputDescription: String!
   problemTag: [ProblemTag!]
   problemTestcase: [ProblemTestcase!]
-  sharedGroups: [Group!]!
+  sharedGroups: [Group!]
   solution: [JSON!]
   source: String!
   submission: [Submission!]
@@ -2233,7 +2233,7 @@ type ProblemWithIsVisible {
   testcase: [ProblemTestcase!]!
   timeLimit: Int!
   title: String!
-  updateHistory: [UpdateHistory!]!
+  updateHistory: [UpdateHistory!]
   updateTime: DateTime!
   workbookProblem: [WorkbookProblem!]
 }
@@ -2253,17 +2253,18 @@ enum QnACategory {
 type Query {
   announcement(contestId: Int!, id: Int!): Announcement!
   announcementByContestId(contestId: Int!): [AnnouncementWithProblemOrder!]!
+  assignment(assignmentId: Int!, groupId: Int!): AssignmentWithParticipants!
+  assignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   compressSourceCodes(assignmentId: Int!, groupId: Int!, problemId: Int!): String
-  getAssignment(assignmentId: Int!, groupId: Int!): AssignmentWithParticipants!
+  contest(id: Int!): ContestWithParticipants!
+  contests(cursor: Int, take: Int! = 10): [ContestWithParticipants!]!
   getAssignmentLatestSubmission(assignmentId: Int!, groupId: Int!, problemId: Int!, userId: Int!): SubmissionDetail!
   getAssignmentProblemRecord(assignmentId: Int!, groupId: Int!, problemId: Int!, userId: Int!): AssignmentProblemRecord!
   getAssignmentProblems(assignmentId: Int!, groupId: Int!): [AssignmentProblem!]!
   getAssignmentScoreSummaries(assignmentId: Int!, cursor: Int, groupId: Int!, searchingName: String, take: Int! = 10): [UserAssignmentScoreSummaryWithUserInfo!]!
   getAssignmentSubmissionSummaryByUserId(assignmentId: Int!, cursor: Int, groupId: Int!, problemId: Int, take: Int! = 10, userId: Int!): AssignmentSubmissionSummaryForUser!
   getAssignmentSubmissions(cursor: Int, groupId: Int!, input: GetAssignmentSubmissionsInput!, order: String, take: Int = 10): [AssignmentSubmission!]!
-  getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
-  getContest(contestId: Int!): ContestWithParticipants!
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestProblems(contestId: Int!): [ContestProblem!]!
   getContestRoles: [UserContest!]!
@@ -2271,7 +2272,6 @@ type Query {
   getContestSubmissionSummaryByUserId(contestId: Int!, cursor: Int, problemId: Int, take: Int! = 10, userId: Int!): ContestSubmissionSummaryForUser!
   getContestSubmissions(contestId: Int!, cursor: Int, input: GetContestSubmissionsInput!, order: String, take: Int = 10): [ContestSubmission!]!
   getContestUpdateHistories(contestId: Int!): ContestUpdateHistories!
-  getContests(cursor: Int, take: Int! = 10): [ContestWithParticipants!]!
   getContestsByProblemId(problemId: Int!): ContestsGroupedByStatus!
   getCourse(groupId: Int!): FindGroup!
   getCourses(cursor: Int, take: Int! = 10): [FindGroup!]!
@@ -2281,15 +2281,15 @@ type Query {
   getJoinRequests(groupId: Int!): [User!]!
   getNotice(noticeId: Int!): Notice!
   getNotices(cursor: Int, take: Int! = 10): [Notice]!
-  getProblem(id: Int!): ProblemWithIsVisible!
-  getProblems(contestId: Int, cursor: Int, input: FilterProblemsInput!, mode: String!, take: Int! = 10): [ProblemWithIsVisible!]!
   getSubmission(id: Int!): SubmissionDetail!
   getSubmissions(cursor: Int, problemId: Int!, take: Int = 10): SubmissionsWithTotal!
-  getTags: [Tag!]!
   getUserByEmailOrStudentId(email: String, groupId: Int!, studentId: String): [User!]!
   getUsers(cursor: Int, take: Int! = 10): [User!]!
   getWhitelist(groupId: Int!): [String!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
+  problem(id: Int!): ProblemWithIsVisible!
+  problems(contestId: Int, cursor: Int, input: FilterProblemsInput!, mode: String!, take: Int! = 10): [ProblemWithIsVisible!]!
+  tags: [Tag!]!
 }
 
 enum ResultStatus {

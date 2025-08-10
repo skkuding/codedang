@@ -63,6 +63,7 @@ jobs:
             frontend:
               - 'apps/frontend/**'
               - 'pnpm-lock.yaml'
+              - 'apps/backend/schema.gql'
 
       - uses: ./.github/actions/setup-pnpm
         if: steps.filter.outputs.frontend == 'true'

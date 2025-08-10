@@ -48,7 +48,7 @@ export class UserResolver {
   }
 
   @Query(() => [User])
-  async getUsers(
+  async users(
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
     @Args(
@@ -79,6 +79,12 @@ export class GroupMemberResolver {
    * @param {boolean} leaderOnly - 그룹의 리더만 필터링 해주는 플래그. 기본 값은 false
    * @returns {Promise<GroupMember[]>} - 그룹 멤버 리스트를 리턴함.
    */
+  // TODO: move to GroupResolver @ResolveField
+  // group(id: number) {
+  //   users {
+  //     ...
+  //   }
+  // }
   @Query(() => [GroupMember])
   async getGroupMembers(
     @Args('groupId', { type: () => Int }, GroupIDPipe)
@@ -108,6 +114,12 @@ export class GroupMemberResolver {
    * @param {number} userId - 조회할 사용자의 ID.
    * @returns {Promise<GroupMember>} 그룹 멤버 객체를 리턴함.
    */
+  // TODO: move to GroupResolver @ResolveField
+  // group(id: number) {
+  //   user(id: number) {
+  //     ...
+  //   }
+  // }
   @Query(() => GroupMember)
   async getGroupMember(
     @Args('groupId', { type: () => Int }, GroupIDPipe)
@@ -171,6 +183,12 @@ export class GroupMemberResolver {
    * @param {number} groupId - 특정 그룹의 id.
    * @returns {Promise<User[]>} 가입 요청한 유저 리스트를 리턴.
    */
+  // TODO: move to GroupResolver @ResolveField
+  // group(id: number) {
+  //   joinRequests {
+  //     ...
+  //   }
+  // }
   @Query(() => [User])
   async getJoinRequests(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number

@@ -58,13 +58,13 @@ export function EditContestForm({
   methods.setValue('userContest', formattedManagers)
 
   const { data: contestData } = useQuery(GET_CONTEST, {
-    variables: { contestId }
+    variables: { id: contestId }
   })
   // NOTE: 기존 useQuery의 onCompleted 대신 useEffect를 사용하여 managers와 problems를 업데이트.
   // useQuery는 내부적으로 비동기 처리이기 때문에, 컴포넌트가 렌더링되기도 전에 onCompleted 콜백이 실행될 수 있음(콘솔 경고 뜸).
   useEffect(() => {
     if (contestData) {
-      const data = contestData.getContest
+      const data = contestData.contest
       methods.reset({
         title: data.title,
         description: data.description,

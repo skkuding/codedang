@@ -120,7 +120,7 @@ export function EditorLayout({
       groupId: courseId,
       assignmentId
     }
-  }).data.getAssignment
+  }).data.assignment
 
   const { data } = useQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
     variables: {

@@ -34,8 +34,14 @@ import { UserAssignmentScoreSummaryWithUserInfo } from './model/score-summary'
 export class AssignmentResolver {
   constructor(private readonly assignmentService: AssignmentService) {}
 
+  // TODO: Put this query under group resolver as @ResolveField
+  // group(id: number) {
+  //   assignments {
+  //     ...
+  //   }
+  // }
   @Query(() => [AssignmentWithParticipants])
-  async getAssignments(
+  async assignments(
     @Args(
       'take',
       { type: () => Int, defaultValue: 10 },
@@ -60,8 +66,14 @@ export class AssignmentResolver {
     )
   }
 
+  // TODO: Put this query under group resolver as @ResolveField
+  // group(id: number) {
+  //   assignment(id: number) {
+  //     ...
+  //   }
+  // }
   @Query(() => AssignmentWithParticipants)
-  async getAssignment(
+  async assignment(
     @Args(
       'assignmentId',
       { type: () => Int },
@@ -138,6 +150,14 @@ export class AssignmentResolver {
    * Assignment Overall 페이지에서 특정 유저를 선택했을 때 사용
    * @see https://github.com/skkuding/codedang/pull/1894
    */
+  // TODO: Put this query under group resolver as @ResolveField
+  // group(id: number) {
+  //   user(id: number) {
+  //     assignment(id: number) {
+  //       ...
+  //     }
+  //   }
+  // }
   @Query(() => AssignmentSubmissionSummaryForUser)
   async getAssignmentSubmissionSummaryByUserId(
     @Args('assignmentId', { type: () => Int }, IDValidationPipe)
@@ -184,6 +204,14 @@ export class AssignmentResolver {
    * Assignment Overall 페이지의 Participants 탭의 정보
    * @see https://github.com/skkuding/codedang/pull/2029
    */
+  // TODO: Put this query under group resolver as @ResolveField
+  // group(id: number) {
+  //   assignment(id: number) {
+  //     scoreSummaries {
+  //       ...
+  //     }
+  //   }
+  // }
   @Query(() => [UserAssignmentScoreSummaryWithUserInfo])
   async getAssignmentScoreSummaries(
     @Args(
@@ -209,6 +237,12 @@ export class AssignmentResolver {
     )
   }
 
+  // TODO: Put this query under problem resolver as @ResolveField
+  // problem(id: number) {
+  //   assignments {
+  //     ...
+  //   }
+  // }
   @Query(() => AssignmentsGroupedByStatus)
   @UseDisableGroupLeaderGuard()
   async getAssignmentsByProblemId(
@@ -232,6 +266,18 @@ export class AssignmentResolver {
     )
   }
 
+  // TODO: Put this query under group resolver as @ResolveField
+  // group(id: number) {
+  //   user(id: number) {
+  //     assignment(id: number) {
+  //       problem(id: number) {
+  //         record(id: number) {
+  //           ...
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
   @Query(() => AssignmentProblemRecord)
   async getAssignmentProblemRecord(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,

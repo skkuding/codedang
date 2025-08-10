@@ -59,7 +59,7 @@ export function ImportProblemTable({
     }
   })
 
-  const combinedProblems = [...myData.getProblems, ...sharedData.getProblems]
+  const combinedProblems = [...myData.problems, ...sharedData.problems]
 
   const uniqueProblemsMap = new Map()
   combinedProblems.forEach((problem) => {
