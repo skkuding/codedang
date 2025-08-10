@@ -149,7 +149,7 @@ export default function QnaDetailPage({ params }: QnaDetailProps) {
     email: 'skkudinguser@skku.com'
   }
   // 위에서 얻은 이메일로 현재 로그인 중인 유저 id 가져옴.
-  const curUserId = 5
+  const curUserId = 1
 
   // 현재 유저가 현재 contest의 관리자인지 판별
   const isContestStaff: boolean = new Set(['Admin', 'Manager']).has(
