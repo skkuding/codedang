@@ -608,6 +608,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     })
   }
 
+  /**
+   * Assignment 제출 점수 계산 (분수 기반)
+   */
   @Span()
   async calculateAssignmentSubmissionScore(
     submission: Pick<
@@ -621,7 +624,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     let toBeAddedScore = 0,
       toBeAddedAcceptedProblemNum = 0
-    // isFinishTimeToBeUpdated = false
 
     const assignmentRecord =
       await this.prisma.assignmentRecord.findUniqueOrThrow({
@@ -641,26 +643,22 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       })
 
-    const submissionRecord = await this.prisma.submission.findUnique({
-      where: {
-        id: submission.id
-      },
+    const submissionRecord = await this.prisma.submission.findUniqueOrThrow({
+      where: { id: submission.id },
       select: {
         updateTime: true,
         score: true
       }
     })
 
-    const { _sum: totalScoreWeight } =
-      await this.prisma.problemTestcase.aggregate({
-        where: {
-          problemId: submission.problemId
-        },
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        _sum: {
-          scoreWeight: true
-        }
-      })
+    // 분수 기반으로 총 가중치 계산
+    const testcases = await this.prisma.problemTestcase.findMany({
+      where: { problemId: submission.problemId },
+      select: {
+        scoreWeightNumerator: true,
+        scoreWeightDenominator: true
+      }
+    })
 
     const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
       where: {
@@ -670,28 +668,26 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           problemId: submission.problemId
         }
       },
-      select: {
-        score: true
-      }
+      select: { score: true }
     })
 
-    const realSubmissionScore =
-      submissionRecord!.score *
-      (assignmentProblem!.score / totalScoreWeight.scoreWeight!)
+    // assignmentProblem 이 없을 경우 (비정상 상태) 조용히 종료
+    if (!assignmentProblem) return
+
+    // 분수 기반 스케일링 계산 (submissionRecord.score 는 0~100 범위)
+    // scaleScoreWithFraction: 100점 만점 기준 submissionScore 를 assignmentProblem.score 로 스케일링 (소수 둘째 자리 반올림)
+    const realSubmissionScore = this.scaleScoreWithFraction(
+      submissionRecord!.score,
+      assignmentProblem.score,
+      testcases
+    )
 
     const assignmentProblemRecord =
-      await this.prisma.assignmentProblemRecord.findUnique({
+      await this.prisma.assignmentProblemRecord.findFirst({
         where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentId_userId_problemId: {
-            assignmentId,
-            userId,
-            problemId: submission.problemId
-          }
-        },
-        select: {
-          score: true,
-          isAccepted: true
+          assignmentId,
+          problemId: submission.problemId,
+          userId
         }
       })
 
@@ -721,9 +717,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       toBeAddedAcceptedProblemNum = assignmentProblemRecord?.isAccepted ? -1 : 0
     }
     await this.prisma.assignmentRecord.update({
-      where: {
-        id: assignmentRecord.id
-      },
+      where: { id: assignmentRecord.id },
       data: {
         acceptedProblemNum: { increment: toBeAddedAcceptedProblemNum },
         score: { increment: toBeAddedScore },
@@ -734,9 +728,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   async updateSubmissionScore(id: number) {
     const submission = await this.prisma.submission.findUniqueOrThrow({
-      where: {
-        id
-      },
+      where: { id },
       select: {
         submissionResult: {
           select: {
@@ -768,52 +760,66 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       submission.submissionResult = submission.submissionResult.filter((sr) =>
         problemTestcaseIds.has(sr.problemTestcase.id)
       )
-
-      // 총 점수 가중치 계산
-      const scoreWeightSum = submission.submissionResult.reduce(
-        (acc, sr) => acc + sr.problemTestcase.scoreWeight,
-        0
-      )
-
-      if (scoreWeightSum > 0) {
-        // (1) 정수 변환을 위한 가중치 계산
-        let totalRounded = 0
-        const weights = submission.submissionResult.map((sr) => {
-          const raw = (sr.problemTestcase.scoreWeight / scoreWeightSum) * 100
-          const rounded = Math.round(raw)
-          totalRounded += rounded
-          return { sr, raw, rounded }
-        })
-
-        // (2) 오차 계산 및 보정
-        const diff = 100 - totalRounded
-        weights
-          .sort((a, b) => (b.raw % 1) - (a.raw % 1)) // 소수점 큰 순 정렬
-          .slice(0, Math.abs(diff)) // 필요한 개수만큼 조정
-          .forEach((w) => (w.rounded += Math.sign(diff)))
-
-        // (3) 최종 값 반영 (기존 submissionResult 배열 그대로 사용)
-        weights.forEach((w) => {
-          w.sr.problemTestcase.scoreWeight = w.rounded
-        })
-      }
     }
 
-    let score = 0
-    submission.submissionResult.map((submissionResult) => {
-      if (submissionResult.result === 'Accepted') {
-        score += submissionResult.problemTestcase.scoreWeight
+    // 분수 기반 점수 계산
+    const totalScore = this.calculateFractionalScore(
+      submission.submissionResult
+    )
+
+    await this.prisma.submission.update({
+      where: { id },
+      data: { score: totalScore }
+    })
+  }
+
+  /**
+   * 분수 기반 점수 계산 헬퍼 함수
+   */
+  private calculateFractionalScore(
+    submissionResults: Array<{
+      problemTestcase: {
+        id: number
+        scoreWeightNumerator?: number | null
+        scoreWeightDenominator?: number | null
+      }
+      result: 'Accepted' | string
+    }>
+  ): number {
+    // GCD와 LCM 계산 함수
+    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
+    const lcm = (a: number, b: number): number => (a * b) / gcd(a, b)
+
+    // 모든 테스트케이스의 분모의 LCM 계산
+    let lcmDenominator = 1
+    submissionResults.forEach((sr) => {
+      const denominator = sr.problemTestcase.scoreWeightDenominator || 1
+      lcmDenominator = lcm(lcmDenominator, denominator)
+    })
+
+    // 맞은 테스트케이스의 분자 합 계산
+    let acceptedNumeratorSum = 0
+    let totalNumeratorSum = 0
+
+    submissionResults.forEach((sr) => {
+      const numerator = sr.problemTestcase.scoreWeightNumerator || 1
+      const denominator = sr.problemTestcase.scoreWeightDenominator || 1
+      const adjustedNumerator = numerator * (lcmDenominator / denominator)
+
+      totalNumeratorSum += adjustedNumerator
+
+      if (sr.result === 'Accepted') {
+        acceptedNumeratorSum += adjustedNumerator
       }
     })
 
-    await this.prisma.submission.update({
-      where: {
-        id
-      },
-      data: {
-        score
-      }
-    })
+    // 최종 점수 계산 (100점 만점 기준)
+    if (totalNumeratorSum === 0) {
+      return 0
+    }
+
+    const score = Math.round((acceptedNumeratorSum / totalNumeratorSum) * 100)
+    return score
   }
 
   @Span()
@@ -822,27 +828,19 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       submissionCount: { increment: number }
       acceptedCount?: { increment: number }
     } = {
-      submissionCount: {
-        increment: 1
-      }
+      submissionCount: { increment: 1 }
     }
 
     if (isAccepted) {
-      data.acceptedCount = {
-        increment: 1
-      }
+      data.acceptedCount = { increment: 1 }
     }
 
     const problem = await this.prisma.problem.findFirstOrThrow({
-      where: {
-        id
-      }
+      where: { id }
     })
 
     await this.prisma.problem.update({
-      where: {
-        id
-      },
+      where: { id },
       data: {
         ...data,
         acceptedRate: isAccepted
@@ -850,5 +848,25 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           : problem.acceptedCount / (problem.submissionCount + 1)
       }
     })
+  }
+
+  /**
+   * 분수 기반 점수 스케일링 헬퍼 함수
+   */
+  private scaleScoreWithFraction(
+    submissionScore: number,
+    assignmentProblemScore: number,
+    testcases: {
+      scoreWeightNumerator: number
+      scoreWeightDenominator: number
+    }[]
+  ): number {
+    if (testcases.length === 0) {
+      return submissionScore
+    }
+
+    // submissionScore는 100점 만점 기준이므로 assignmentProblemScore로 스케일링
+    const scaledScore = (submissionScore / 100) * assignmentProblemScore
+    return Math.round(scaledScore * 100) / 100 // 소수점 2자리까지
   }
 }
