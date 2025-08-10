@@ -86,7 +86,8 @@ export function CopyButton({
                     icon: <Image src={copyBlueIcon} alt="copy" />,
                     style: { backgroundColor: '#f0f8ff' },
                     classNames: {
-                      toast: 'inline-flex items-center py-2 px-3 rounded gap-2',
+                      toast:
+                        'inline-flex items-center py-2 px-3 rounded-xs gap-2',
                       title: 'text-primary font-medium'
                     }
                   })

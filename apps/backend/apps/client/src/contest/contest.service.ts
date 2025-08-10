@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common'
-import { ContestRole, Prisma, type Contest } from '@prisma/client'
+import { ContestRole, Prisma, QnACategory, type Contest } from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { ContestQnACreateDto } from './dto/contest-qna.dto'
+import type {
+  ContestQnACreateDto,
+  GetContestQnAsFilter
+} from './dto/contest-qna.dto'
 
 const contestSelectOption = {
   id: true,
@@ -608,10 +611,22 @@ export class ContestService {
     return userContests
   }
 
+  /**
+   * Contest에 대한 QnA를 생성합니다.
+   * @param contestId - 대회 Id
+   * @param userId - QnA를 생성하려는 User의 Id
+   * @param data - 질문의 제목(title)과 내용(content)
+   * @param problemId - 해당 QnA와 연관된 Problem의 Id(optional) -> 주어지지 않으면 카테고리 General로 설정
+   * @throws { EntityNotExistException } - contestId에 대한 대회가 없는 경우
+   * @throws { EntityNotExistException } - problemId가 해당 Contest에 등록되어있지 않은 경우
+   * @throws { ForbiddenAccessException } - userId가 해당 Contest에 등록되어있지 않은 경우
+   * @returns ContestQnA
+   */
   async createContestQnA(
     contestId: number,
     userId: number,
-    data: ContestQnACreateDto
+    data: ContestQnACreateDto,
+    order: number | undefined
   ) {
     const contest = await this.prisma.contest.findUnique({
       where: {
@@ -623,11 +638,36 @@ export class ContestService {
       throw new EntityNotExistException('Contest')
     }
 
-    const hasRegistered = await this.prisma.userContest.findFirst({
-      where: { userId, contestId }
-    })
-    if (!hasRegistered) {
-      throw new ForbiddenAccessException('Not registered in this contest')
+    const now = new Date()
+    const isOngoing = contest.startTime <= now && now <= contest.endTime
+
+    // 대회 진행 중인 경우 대회에 등록한 참가자 또는 관리자만 질문 게시 가능
+    if (isOngoing) {
+      const hasRegistered = await this.prisma.userContest.findFirst({
+        where: { userId, contestId }
+      })
+      if (!hasRegistered) {
+        throw new ForbiddenAccessException('Not registered in this contest')
+      }
+    }
+
+    // 대회가 진행중이지 않은 경우 누구나 질문 게시 가능
+
+    let categoryValue: QnACategory
+    let problemId: number | null
+    if (order === undefined) {
+      categoryValue = QnACategory.General
+      problemId = null
+    } else {
+      categoryValue = QnACategory.Problem
+      const contestProblem = await this.prisma.contestProblem.findFirst({
+        where: {
+          contestId,
+          order
+        }
+      })
+      if (!contestProblem) throw new EntityNotExistException('ContestProblem')
+      problemId = contestProblem.problemId
     }
 
     return await this.prisma.$transaction(async (tx) => {
@@ -642,13 +682,37 @@ export class ContestService {
           ...data,
           contestId,
           createdById: userId,
-          order
+          order,
+          category: categoryValue,
+          ...(problemId !== null && { problemId })
         }
       })
     })
   }
 
-  async getContestQnAs(userId: number | null, contestId: number) {
+  /**
+   * 특정 대회에 대한 QnA들을 조회합니다.
+   *
+   * 대회가 진행중인 경우:
+   *   - 대회 운영진은 모든 글을 열람할 수 있습니다.
+   *   - 일반 사용자는 본인이 작성한 글만 열람할 수 있습니다.
+   * 대회가 진행중이지 않은 경우:
+   *   - 모든 사용자가 모든 글을 열람할 수 있습니다.
+   *
+   * @param userId - 요청하는 사용자의 Id(로그인하지 않으면 null)
+   * @param contestId - Contest의 Id
+   * @param filter - 조회 필터
+   *   - categories: QnACategory Enum의 값을 배열로 저장합니다.
+   *   - problemOrders: QnA를 조회할 문제들의 대회에서의 order를 배열로 저장합니다.
+   *   - orderBy: 조회할 QnA의 정렬 순서를 저장합니다. (asc: 오름차순 / desc: 내림차순)
+   * @throws { EntityNotExistException } - contestId에 해당하는 Contest가 존재하지 않으면 반환합니다.
+   * @returns ContestQnA[]
+   */
+  async getContestQnAs(
+    userId: number | null,
+    contestId: number,
+    filter: GetContestQnAsFilter
+  ) {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId }
     })
@@ -657,116 +721,391 @@ export class ContestService {
       throw new EntityNotExistException('Contest')
     }
 
-    const isPrivileged =
-      userId &&
-      (await this.prisma.userContest.findFirst({
+    let isPrivileged = false
+    if (userId) {
+      const contestStaff = await this.prisma.userContest.findFirst({
         where: {
           userId,
           contestId,
-          role: {
-            in: ['Admin', 'Manager', 'Reviewer']
-          }
-        }
-      }))
-
-    return (
-      await this.prisma.contestQnA.findMany({
-        select: {
-          id: true,
-          title: true,
-          answer: true,
-          createTime: true
-        },
-        where: {
-          contestId,
-          ...(isPrivileged
-            ? {}
-            : {
-                OR: [{ createdById: userId ?? -1 }, { isVisible: true }]
-              })
-        },
-        orderBy: {
-          order: 'asc'
+          role: { in: ['Admin', 'Manager', 'Reviewer'] }
         }
       })
-    ).map((qna) => {
-      const { answer, ...rest } = qna
-      return {
-        ...rest,
-        isAnswered: Boolean(answer)
+      isPrivileged = contestStaff ? true : false
+    }
+
+    const now = new Date()
+    const isOngoing = contest.startTime <= now && now <= contest.endTime
+
+    let visibleCondition = {}
+    if (isOngoing) {
+      if (!isPrivileged) {
+        // 대회 운영진이 아닌 경우 전체 공개이거나 본인이 작성한 글만 볼 수 있음
+        visibleCondition = {
+          createdById: userId
+        }
+      }
+    }
+
+    // 대회 진행 중이 아니면 별도의 조건 필요 없음
+
+    const where: Prisma.ContestQnAWhereInput = {
+      contestId,
+      ...visibleCondition
+    }
+
+    if (filter.categories && filter.categories.length > 0) {
+      where.category = { in: filter.categories }
+    }
+    if (
+      filter.categories &&
+      filter.categories.includes(QnACategory.Problem) &&
+      filter.problemOrders &&
+      filter.problemOrders.length > 0
+    ) {
+      const problemIds = await this.prisma.contestProblem
+        .findMany({
+          where: {
+            contestId,
+            order: { in: filter.problemOrders }
+          }
+        })
+        .then((results) => results.map((cp) => cp.problemId))
+      where.problemId = { in: problemIds }
+    }
+
+    return await this.prisma.contestQnA.findMany({
+      select: {
+        id: true,
+        order: true,
+        createdById: true,
+        title: true,
+        isResolved: true,
+        category: true,
+        problemId: true,
+        createTime: true,
+        comments: true
+      },
+      where,
+      orderBy: {
+        order: filter.orderBy || 'asc' // default는 asc
       }
     })
   }
 
   /**
-   * 특정 대회의 특정 순번(order)에 해당하는 QnA를 조회합니다.
+   * 특정 대회의 특정 order에 해당하는 QnA를 조회합니다.
    *
    * 이 함수는 다음과 같은 조건에 따라 QnA를 조회하고 반환합니다:
-   * - 운영진(Admin, Manager, Reviewer)인 경우: 모든 QnA를 열람할 수 있습니다.
+   * - 운영진(Admin, Manager, Reviewer): 모든 QnA를 열람할 수 있습니다.
    * - 일반 사용자:
-   *   - 로그인한 경우: 자신이 작성한 QnA 또는 공개된 QnA만 열람 가능합니다.
-   *   - 로그인하지 않은 경우: 공개된 QnA만 열람 가능합니다.
+   *   - 대회가 진행중인 경우: 본인이 작성한 QnA만 열람할 수 있습니다.
+   *   - 대회가 진행중이지 않은 경우: 모든 QnA를 열람할 수 있습니다.
    *
    * QnA를 찾을 수 없거나 접근 권한이 없는 경우 예외를 발생시킵니다.
    * - 운영진: QnA가 실제로 없으면 EntityNotExistException 발생
    * - 일반 사용자: 권한이 없는 경우 ForbiddenAccessException 발생
    *
-   * 사용자가 대회에 등록되어 있지 않으면 제한된 필드(id, title, 작성자, 작성 시간 등)만 반환합니다.
    *
    * @param userId - 요청자의 사용자 ID (로그인하지 않은 경우 null)
-   * @param contestId - 대상 대회의 ID
-   * @param order - QnA의 순번(order)
-   * @returns QnA 전체 정보 또는 제한된 정보
+   * @param contestId - Contest의 ID
+   * @param order - Contest에서의 QnA 순서
+   * @returns QnA 전체 정보
    * @throws EntityNotExistException - 대회 또는 QnA가 존재하지 않을 경우
    * @throws ForbiddenAccessException - 접근 권한이 없을 경우
    */
   async getContestQnA(userId: number | null, contestId: number, order: number) {
     const contest = await this.prisma.contest.findUnique({
-      where: { id: contestId }
+      where: {
+        id: contestId
+      }
     })
+
     if (!contest) {
       throw new EntityNotExistException('Contest')
     }
 
-    const userContest = userId
-      ? await this.prisma.userContest.findFirst({
-          where: { userId, contestId }
-        })
-      : null
-
-    const isPrivileged =
-      userContest && ['Admin', 'Manager', 'Reviewer'].includes(userContest.role)
-
-    const qna = await this.prisma.contestQnA.findFirst({
+    const contestQnA = await this.prisma.contestQnA.findFirst({
       where: {
-        order,
         contestId,
-        ...(isPrivileged
-          ? {}
-          : {
-              OR: [{ createdById: userId ?? -1 }, { isVisible: true }]
-            })
-      },
-      include: {
-        createdBy: { select: { username: true } },
-        answeredBy: { select: { username: true } }
+        order
       }
     })
 
-    if (!qna) {
-      if (isPrivileged) {
-        throw new EntityNotExistException('ContestQnA')
-      } else {
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    const userContest = userId
+      ? await this.prisma.userContest.findFirst({
+          where: {
+            userId,
+            contestId
+          }
+        })
+      : null
+
+    const isContestStaff =
+      userContest && ['Admin', 'Manager', 'Reviewer'].includes(userContest.role)
+
+    const now = new Date()
+    const isOngoing = contest.startTime <= now && now <= contest.endTime
+
+    // 대회 진행 중에는 대회 관리자가 아닌 경우 본인이 작성한 글에만 접근 가능함
+    if (isOngoing && !isContestStaff && contestQnA.createdById != userId) {
+      throw new ForbiddenAccessException(
+        'Only writer or contest staff can access during contest.'
+      )
+    }
+
+    return contestQnA
+  }
+
+  /**
+   * 특정 Contest의 order에 해당하는 QnA를 삭제합니다.
+   * @param userId - 요청하는 사용자의 Id
+   * @param contestId - 대회 Id
+   * @param order - 삭제하려는 QnA의 대회 내에서의 순번
+   * @throws { EntityNotExistException } - 입력받은 contestId에 해당하는 Contest가 존재하지 않을 시
+   * @throws { EntityNotExistException } - 해당 Contest의 order에 해당하는 QnA가 존재하지 않을 시
+   * @throws { ForbiddenAccessException } - 해당 QnA의 작성자 또는 대회 관리자 이외의 사용자가 요청할 시
+   * @returns
+   */
+  async deleteContestQnA(userId: number, contestId: number, order: number) {
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const contestQnA = await this.prisma.contestQnA.findFirst({
+      where: {
+        contestId,
+        order
+      }
+    })
+
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    const contestStaff = await this.prisma.userContest.findFirst({
+      where: {
+        userId,
+        contestId,
+        role: { in: ['Admin', 'Manager', 'Reviewer'] }
+      }
+    })
+
+    const isContestStaff = contestStaff !== null
+
+    if (!isContestStaff && contestQnA.createdById != userId) {
+      throw new ForbiddenAccessException(
+        'Only Writer or Contest Staff can delete QnA.'
+      )
+    }
+
+    return await this.prisma.contestQnA.delete({
+      where: { id: contestQnA.id }
+    })
+  }
+
+  /**
+   * ContestQnA에 대한 댓글을 작성합니다
+   * 대회가 진행중이면 QnA 작성자와 대회 운영진만 댓글을 작성할 수 있습니다.
+   * 대회가 진행중이지 않으면 누구나 작성할 수 있습니다.
+   * @param userId - 댓글을 작성하려는 User의 Id
+   * @param contestId - Contest의 Id
+   * @param order - contest 내에서 QnA의 order
+   * @param content - 댓글 내용
+   * @throws { ForbiddenAccessException } - 해당 QnA의 Writer 또는 Contest의 Staff(Admin/Manager/Reviewer)가 아닌 경우 반환합니다.
+   * @throws { EntityNotExistException } - contestId에 해당하는 Contest가 존재하지 않는 경우 반환합니다.
+   * @throws { EntityNotExistException } - contestQnAId에 해당하는 ContestQnA가 존재하지 않는 경우 반환합니다.
+   * @returns ContestQnAComment
+   */
+  async createContestQnAComment(
+    userId: number,
+    contestId: number,
+    order: number,
+    content: string
+  ) {
+    const contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const contestQnA = await this.prisma.contestQnA.findFirst({
+      where: {
+        contestId,
+        order
+      }
+    })
+
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    const contestQnAId = contestQnA.id
+    const isResolved = contestQnA.isResolved
+
+    const contestStaff = await this.prisma.userContest.findFirst({
+      where: {
+        userId,
+        contestId,
+        role: { in: ['Admin', 'Manager', 'Reviewer'] }
+      }
+    })
+
+    const isContestStaff = contestStaff !== null
+    const isWriter = contestQnA?.createdById == userId
+    const isPrivileged = isWriter || isContestStaff
+
+    const now = new Date()
+    const isOngoing = contest.startTime <= now && now <= contest.endTime
+
+    if (isOngoing) {
+      // 대회 진행 중에는 해당 QnA의 작성자 또는 대회 스태프만 댓글 작성 가능
+      if (!isPrivileged) {
         throw new ForbiddenAccessException(
-          'You are not allowed to view this QnA'
+          'Only writer or contest staff can comment during contest.'
         )
       }
     }
 
-    if (!userContest) {
-      const { id, title, createdBy, createdById, createTime } = qna
-      return { id, title, createdBy, createdById, createTime }
+    return await this.prisma.$transaction(async (tx) => {
+      const maxOrder = await tx.contestQnAComment.aggregate({
+        where: { contestQnAId },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _max: { order: true }
+      })
+      const order = (maxOrder._max?.order ?? 0) + 1
+      const comment = await tx.contestQnAComment.create({
+        data: {
+          content,
+          contestQnAId,
+          createdById: userId,
+          isContestStaff,
+          order
+        }
+      })
+
+      // 댓글 작성자에 따라 QnA의 isResolved를 변경
+      if (isContestStaff) {
+        if (!isResolved) {
+          await this.prisma.contestQnA.update({
+            where: { id: contestQnAId },
+            data: { isResolved: true }
+          })
+        }
+      } else {
+        if (isResolved) {
+          await this.prisma.contestQnA.update({
+            where: { id: contestQnAId },
+            data: { isResolved: false }
+          })
+        }
+      }
+
+      return comment
+    })
+  }
+
+  /**
+   * ContestQnA에 대한 댓글을 삭제합니다.
+   * @param userId - 요청한 사용자의 Id
+   * @param contestId - 대회 Id
+   * @param qnAOrder - 해당 대회 내에서의 QnA의 순서
+   * @param commentOrder - 해당 QnA 내에서 삭제할 댓글의 순서
+   * @throws { EntityNotExistException } - contestId에 해당하는 Contest가 존재하지 않을 시
+   * @throws { EntityNotExistException } - qnAOrder에 해당하는 QnA가 존재하지 않을 시
+   * @throws { EntityNotExistException } - 해당 QnA의 commentOrder에 해당하는 댓글이 존재하지 않을 시
+   * @throws { ForbiddenAccessException } - 해당 댓글의 작성자 또는 대회 관리자 이외의 사용자가 요청할 시
+   * @returns
+   */
+  async deleteContestQnAComment(
+    userId: number,
+    contestId: number,
+    qnAOrder: number,
+    commentOrder: number
+  ) {
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
     }
-    return qna
+
+    const contestQnA = await this.prisma.contestQnA.findFirst({
+      where: {
+        contestId,
+        order: qnAOrder
+      }
+    })
+
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    const contestQnAComment = await this.prisma.contestQnAComment.findFirst({
+      where: {
+        contestQnAId: contestQnA.id,
+        order: commentOrder
+      }
+    })
+
+    if (!contestQnAComment) {
+      throw new EntityNotExistException('ContestQnAComment')
+    }
+
+    const contestStaff = await this.prisma.userContest.findFirst({
+      where: {
+        userId,
+        contestId,
+        role: { in: ['Admin', 'Manager', 'Reviewer'] }
+      }
+    })
+
+    const isContestStaff = contestStaff !== null
+
+    if (!isContestStaff && contestQnAComment.createdById != userId) {
+      throw new ForbiddenAccessException(
+        'Only writer or contest staff can delete comment.'
+      )
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const deletedComment = await tx.contestQnAComment.delete({
+        where: { id: contestQnAComment.id }
+      })
+
+      const lastComment = await tx.contestQnAComment.findFirst({
+        where: {
+          contestQnAId: contestQnA.id
+        },
+        orderBy: {
+          order: 'desc'
+        },
+        select: {
+          isContestStaff: true
+        }
+      })
+
+      // 남은 댓글이 있으면 해당 댓글의 작성자가 운영진일 시 true, 운영진이 아니거나 남은 댓글이 없으면 false
+      const isResolved = lastComment ? lastComment.isContestStaff : false
+
+      await tx.contestQnA.update({
+        where: { id: contestQnA.id },
+        data: { isResolved }
+      })
+
+      return deletedComment
+    })
   }
 }

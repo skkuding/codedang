@@ -164,7 +164,7 @@ export function GradeStatisticsModal({
                   <td className="bg-primary-light flex w-[80px] flex-col items-center rounded-bl-md px-2 py-2 text-xs text-white">
                     Graded
                     {assignmentProblemRecord.autoFinalizeScore && (
-                      <span className="text-primary mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium shadow-sm">
+                      <span className="text-primary shadow-2xs mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium">
                         Auto
                       </span>
                     )}
@@ -188,7 +188,7 @@ export function GradeStatisticsModal({
               )}
             </tbody>
           </table>
-          <div className="-ml-9 flex h-[281px] w-[600px] flex-col items-center rounded">
+          <div className="rounded-xs -ml-9 flex h-[281px] w-[600px] flex-col items-center">
             <div className="min-h-0 flex-1 overflow-auto">
               <ChartContainer config={chartConfig} className="h-full">
                 <BarChart data={chartData} barCategoryGap={10}>
