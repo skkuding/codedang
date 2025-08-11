@@ -144,7 +144,7 @@
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-csv": "^1.1.10",
     "@types/react-dom": "^18.3.7",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^5.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "eslint-plugin-react-hooks": "^5.2.0",
