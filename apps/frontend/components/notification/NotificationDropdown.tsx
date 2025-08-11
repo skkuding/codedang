@@ -57,10 +57,7 @@ export function NotificationDropdown({
     if (currentPermission === 'default') {
       const newPermission = await Notification.requestPermission()
       if (newPermission === 'granted') {
-        alert('Notification permission granted! We will now keep you updated.')
         await subscribeToPush()
-      } else {
-        alert('Notification permission was not granted.')
       }
     }
   }
