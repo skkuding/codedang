@@ -85,7 +85,7 @@ export function NotificationDropdown({
       })
 
       await safeFetcherWithAuth.post('notification/push-subscription', {
-        body: JSON.stringify(subscription)
+        json: subscription
       })
 
       console.log('Push subscription successfully registered.')
