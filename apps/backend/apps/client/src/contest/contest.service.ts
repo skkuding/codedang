@@ -783,7 +783,12 @@ export class ContestService {
         category: true,
         problemId: true,
         createTime: true,
-        comments: true
+        comments: true,
+        createdBy: {
+          select: {
+            username: true
+          }
+        }
       },
       where,
       orderBy: {
@@ -828,6 +833,14 @@ export class ContestService {
       where: {
         contestId,
         order
+      },
+      include: {
+        comments: true,
+        createdBy: {
+          select: {
+            username: true
+          }
+        }
       }
     })
 
