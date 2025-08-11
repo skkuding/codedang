@@ -32,6 +32,78 @@ export function NotificationDropdown({
   const [cursor, setCursor] = useState<number | null>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
 
+  const handleRequestPermissionAndSubscribe = async () => {
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      alert(
+        'This browser does not support desktop notifications. Please use a different browser.'
+      )
+      return
+    }
+
+    const currentPermission = Notification.permission
+
+    if (currentPermission === 'granted') {
+      await subscribeToPush()
+      return
+    }
+
+    if (currentPermission === 'denied') {
+      alert(
+        'Notification permission has been blocked. Please allow it in your browser settings.'
+      )
+      return
+    }
+
+    if (currentPermission === 'default') {
+      const newPermission = await Notification.requestPermission()
+      if (newPermission === 'granted') {
+        alert('Notification permission granted! We will now keep you updated.')
+        await subscribeToPush()
+      } else {
+        alert('Notification permission was not granted.')
+      }
+    }
+  }
+
+  const subscribeToPush = async () => {
+    try {
+      interface VapidKeyResponse {
+        publicKey: string
+      }
+
+      const response: VapidKeyResponse = await safeFetcherWithAuth
+        .get('notification/vapid')
+        .json()
+
+      const { publicKey } = response
+
+      if (!publicKey) {
+        throw new Error('Could not retrieve VAPID public key from the server.')
+      }
+
+      const registration = await navigator.serviceWorker.ready
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: publicKey
+      })
+
+      await safeFetcherWithAuth.post('notification/push-subscription', {
+        body: JSON.stringify(subscription)
+      })
+
+      console.log('Push subscription successfully registered.')
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('already exists')) {
+        console.log('Push subscription already exists.')
+      } else {
+        console.error(
+          'An error occurred during the push subscription process:',
+          error
+        )
+      }
+    }
+  }
+
   const fetchMoreNotifications = useCallback(async () => {
     if (isLoading || !hasMore || !cursor) {
       return
@@ -78,6 +150,8 @@ export function NotificationDropdown({
 
   useEffect(() => {
     if (isOpen) {
+      handleRequestPermissionAndSubscribe()
+
       const fetchInitialNotifications = async () => {
         setIsLoading(true)
         setNotifications([])

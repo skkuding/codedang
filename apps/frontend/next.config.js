@@ -59,6 +59,19 @@ const nextConfig = {
   }
   */
 }
+
+const withPWA = require('@ducanh2912/next-pwa').default({
+  dest: 'public',
+  register: true,
+  disable: process.env.NODE_ENV === 'development',
+  customWorkerDir: 'worker',
+  register: true,
+  skipWaiting: true,
+  cacheOnFrontEndNav: true,
+  aggressiveCaching: true,
+  reloadOnOnline: true
+})
+
 /**
 const sentryConfig = {
   // For all available options, see:
@@ -98,4 +111,4 @@ process.env.NODE_ENV === 'development'
 ? withBundleAnalyzer(nextConfig)
 : withSentryConfig(withBundleAnalyzer(nextConfig), sentryConfig)
 */
-module.exports = withBundleAnalyzer(nextConfig)
+module.exports = withBundleAnalyzer(withPWA(nextConfig))
