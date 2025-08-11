@@ -1,6 +1,0 @@
-.dockerignore
-.env
-.next
-Dockerfile
-node_modules/
-__generated__/
