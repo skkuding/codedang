@@ -1,5 +1,5 @@
-// apps/backend/scripts/migrate-scoreweight-fix.ts
 import { PrismaClient } from '@prisma/client'
+import { TOLERANCE_THRESHOLD } from '@libs/constants'
 
 const prisma = new PrismaClient()
 
@@ -39,7 +39,7 @@ const main = async (): Promise<void> => {
       WHERE score_weight_numerator IS NOT NULL
         AND score_weight_denominator IS NOT NULL
       GROUP BY problem_id
-      HAVING ABS(SUM(score_weight_numerator::float / NULLIF(score_weight_denominator, 0)) - 1.0) > 0.001
+      HAVING ABS(SUM(score_weight_numerator::float / NULLIF(score_weight_denominator, 0)) - 1.0) > ${TOLERANCE_THRESHOLD}
     `
 
     if (problemsWithIncorrectWeights.length === 0) {

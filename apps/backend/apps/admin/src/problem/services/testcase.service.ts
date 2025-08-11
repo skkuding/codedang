@@ -4,7 +4,7 @@ import { isEqual } from 'es-toolkit'
 import { Workbook } from 'exceljs'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { Parse } from 'unzipper'
-import { MAX_ZIP_SIZE } from '@libs/constants'
+import { MAX_ZIP_SIZE, LEGACY_SCORE_SCALE } from '@libs/constants'
 import {
   EntityNotExistException,
   UnprocessableDataException,
@@ -49,7 +49,7 @@ export class TestcaseService {
     if (testcase.scoreWeight !== undefined) {
       return {
         numerator: testcase.scoreWeight,
-        denominator: 100
+        denominator: LEGACY_SCORE_SCALE
       }
     }
 
@@ -99,8 +99,16 @@ export class TestcaseService {
     const remainingNumerator = lcmDenominator - sumNumerator
     const remainingCount = totalTestcases - manualTestcases.length
 
-    if (remainingNumerator <= 0 || remainingCount <= 0) {
-      throw new UnprocessableDataException('Invalid weight distribution')
+    if (remainingNumerator <= 0) {
+      throw new UnprocessableDataException(
+        'Weight distribution exceeds 100% - manual testcase weights sum to more than the total available weight'
+      )
+    }
+
+    if (remainingCount <= 0) {
+      throw new UnprocessableDataException(
+        'Not enough testcases for remaining weight - all testcases have manual weights assigned'
+      )
     }
 
     // 남은 테스트케이스들의 가중치
@@ -133,7 +141,7 @@ export class TestcaseService {
             scoreWeightNumerator: fraction.numerator,
             scoreWeightDenominator: fraction.denominator,
             scoreWeight: Math.round(
-              (fraction.numerator / fraction.denominator) * 100
+              (fraction.numerator / fraction.denominator) * LEGACY_SCORE_SCALE
             ), // 하위 호환성
             isHidden: testcase.isHidden,
             order: index + 1
