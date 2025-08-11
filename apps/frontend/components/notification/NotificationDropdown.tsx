@@ -1,5 +1,6 @@
 'use client'
 
+import { Badge } from '@/components/shadcn/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,12 +9,17 @@ import {
 } from '@/components/shadcn/dropdown-menu'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import CheckIcon from '@/public/icons/check.svg'
+import MoreIcon from '@/public/icons/more.svg'
+import NotiIcon from '@/public/icons/notification.svg'
+import SettingsIcon from '@/public/icons/settings.svg'
 import type { Notification } from '@/types/type'
-import { Bell, ChevronDown, X } from 'lucide-react'
+import { X } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useState, useEffect, useRef, useCallback } from 'react'
 
-const INITIAL_FETCH_COUNT = 3
-const SUBSEQUENT_FETCH_COUNT = 10
+const FETCH_COUNT = 10
 
 interface NotificationDropdownProps {
   isEditor?: boolean
@@ -27,7 +33,6 @@ export function NotificationDropdown({
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [isLoading, setIsLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [showAll, setShowAll] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [cursor, setCursor] = useState<number | null>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -108,7 +113,7 @@ export function NotificationDropdown({
 
     setIsLoading(true)
     try {
-      const take = SUBSEQUENT_FETCH_COUNT
+      const take = FETCH_COUNT
       let url = `notification?take=${take}&cursor=${cursor}`
       if (filter === 'unread') {
         url += '&isRead=false'
@@ -153,11 +158,10 @@ export function NotificationDropdown({
         setIsLoading(true)
         setNotifications([])
         setCursor(null)
-        setShowAll(false)
         setHasMore(true)
 
         try {
-          const take = INITIAL_FETCH_COUNT
+          const take = FETCH_COUNT
           let url = `notification?take=${take}`
           if (filter === 'unread') {
             url += '&isRead=false'
@@ -255,11 +259,6 @@ export function NotificationDropdown({
     }
   }
 
-  const handleViewAll = () => {
-    setShowAll(true)
-    fetchMoreNotifications()
-  }
-
   const lastElementRef = useCallback(
     (node: HTMLDivElement) => {
       if (isLoading) {
@@ -270,7 +269,7 @@ export function NotificationDropdown({
       }
 
       observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore && showAll) {
+        if (entries[0].isIntersecting && hasMore) {
           fetchMoreNotifications()
         }
       })
@@ -279,7 +278,7 @@ export function NotificationDropdown({
         observerRef.current.observe(node)
       }
     },
-    [isLoading, hasMore, showAll, fetchMoreNotifications]
+    [isLoading, hasMore, fetchMoreNotifications]
   )
 
   useEffect(() => {
@@ -319,11 +318,9 @@ export function NotificationDropdown({
           isEditor ? 'text-gray-300 hover:text-white' : 'text-primary'
         )}
       >
-        <Bell className="h-5 w-5" />
+        <Image src={NotiIcon} alt="notification" width={18} height={21} />
         {unreadApiCount > 0 && (
-          <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-md">
-            {unreadApiCount}
-          </div>
+          <div className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-red-500 shadow-md" />
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -334,66 +331,82 @@ export function NotificationDropdown({
         )}
         align="end"
       >
-        <div className="py-4 pl-4">
-          <div className="mb-3 flex items-center justify-between pr-4">
-            <div className="flex items-center gap-3">
-              <h3
-                className={cn(
-                  'font-semibold',
-                  isEditor ? 'text-white' : 'text-gray-900'
-                )}
-              >
-                Notification
-              </h3>
-              <button
-                className={cn(
-                  'text-xs font-medium underline underline-offset-2',
-                  isEditor
-                    ? 'text-gray-300 hover:text-white'
-                    : 'hover:text-primary text-gray-500',
-                  (unreadApiCount === 0 || isLoading) &&
-                    'cursor-not-allowed opacity-50'
-                )}
-                onClick={handleMarkAllAsRead}
-                disabled={unreadApiCount === 0 || isLoading}
-                type="button"
-              >
-                Mark all as read
-              </button>
+        <div className="pl-4 pt-4">
+          <div className="mb-2 flex items-center justify-between pr-4">
+            <div
+              className={cn(
+                'text-xl font-semibold',
+                isEditor ? 'text-white' : 'text-gray-900'
+              )}
+            >
+              Notification
             </div>
-
             <DropdownMenu>
-              <DropdownMenuTrigger
-                className={cn(
-                  'flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium focus:outline-none',
-                  'bg-gray-200 text-gray-600 hover:bg-gray-300',
-                  isEditor && 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                )}
-                disabled={isLoading}
-              >
-                <span>{filter === 'all' ? 'All' : 'Unread'}</span>
-                <ChevronDown className="h-3 w-3" />
+              <DropdownMenuTrigger disabled={isLoading}>
+                <Image src={MoreIcon} alt="filter" width={24} height={24} />
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
                 className={cn(
+                  'w-52 py-2',
                   isEditor && 'border-slate-600 bg-slate-700 text-white'
                 )}
               >
                 <DropdownMenuItem
-                  onSelect={() => setFilter('all')}
-                  className={cn(isEditor && 'focus:bg-slate-600')}
+                  onSelect={handleMarkAllAsRead}
+                  className={cn(
+                    'flex cursor-pointer gap-2',
+                    'hover:bg-color-neutral-99',
+                    isEditor && 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                  )}
                 >
-                  All
+                  <Image src={CheckIcon} alt="check" width={16} height={16} />
+                  Mark all as read
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() => setFilter('unread')}
-                  className={cn(isEditor && 'focus:bg-slate-600')}
+                  className={cn(
+                    'ml-[1px] flex gap-2.5',
+                    'hover:bg-color-neutral-99',
+                    isEditor && 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                  )}
                 >
-                  Unread
+                  <Image
+                    src={SettingsIcon}
+                    alt="settings"
+                    width={13}
+                    height={12}
+                  />
+                  <Link onClick={() => setIsOpen(false)} href="/settings">
+                    Notification settings
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
+          <div className="bg-color-neutral-99 mb-5 flex w-[168px] rounded-full p-1">
+            <button
+              className={cn(
+                'h-6 w-20 rounded-full text-sm font-medium transition-colors',
+                filter === 'all'
+                  ? 'text-primary bg-white'
+                  : 'bg-transparent text-gray-700'
+              )}
+              onClick={() => setFilter('all')}
+            >
+              All
+            </button>
+            <button
+              className={cn(
+                'h-6 w-20 rounded-full text-sm font-medium transition-colors',
+                filter === 'unread'
+                  ? 'text-primary bg-white'
+                  : 'bg-transparent text-gray-700'
+              )}
+              onClick={() => setFilter('unread')}
+            >
+              Unread
+            </button>
           </div>
 
           {isLoading && notifications.length === 0 && (
@@ -420,18 +433,16 @@ export function NotificationDropdown({
                   <div
                     key={notification.id}
                     ref={
-                      showAll && index === notifications.length - 1
-                        ? lastElementRef
-                        : null
+                      index === notifications.length - 1 ? lastElementRef : null
                     }
                     className={cn(
-                      'group relative cursor-pointer rounded-lg bg-neutral-50 p-3 transition-colors hover:bg-gray-100',
+                      'group relative h-[106px] cursor-pointer rounded-lg bg-white p-3 shadow-[0_4px_20px_rgba(53,78,116,0.10)] transition-colors',
                       !notification.isRead &&
-                        'bg-blue-100 font-semibold hover:bg-blue-200',
+                        'bg-color-neutral-99 hover:bg-color-neutral-95 shadow-none',
                       isEditor && 'bg-slate-700 text-white hover:bg-[#293548]',
                       isEditor &&
                         !notification.isRead &&
-                        'bg-slate-500 font-semibold hover:bg-[#56657a]'
+                        'bg-slate-500 hover:bg-[#56657a]'
                     )}
                     role="button"
                     tabIndex={0}
@@ -443,7 +454,7 @@ export function NotificationDropdown({
                     }}
                   >
                     <button
-                      className="notification-delete-btn absolute right-2 top-2 z-10 rounded p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-700 focus:outline-none"
+                      className="notification-delete-btn absolute right-2 top-2 z-10 rounded p-1 text-gray-400 hover:text-gray-700 focus:outline-none"
                       aria-label="Delete notification"
                       onClick={(e) => {
                         e.stopPropagation()
@@ -456,20 +467,28 @@ export function NotificationDropdown({
                     >
                       <X className="h-4 w-4" />
                     </button>
-                    <div className="flex items-start justify-between">
+                    <div className="flex h-full flex-col justify-between">
                       <div className="flex-1">
-                        <h4
+                        <div
                           className={cn(
-                            'text-sm font-medium',
+                            'flex items-center gap-1.5 text-sm font-medium',
                             !notification.isRead && 'font-semibold',
                             isEditor ? 'text-white' : 'text-gray-900'
                           )}
                         >
+                          <Badge className="bg-color-violet-95 text-color-violet-60 rounded-sm">
+                            {notification.type === 'Assignment'
+                              ? 'Course'
+                              : notification.type}
+                          </Badge>
                           {notification.title}
-                        </h4>
+                          {!notification.isRead && (
+                            <div className="bg-primary h-2 w-2 rounded-full" />
+                          )}
+                        </div>
                         <p
                           className={cn(
-                            'mt-1 overflow-hidden text-xs',
+                            'mt-1.5 overflow-hidden text-xs',
                             isEditor ? 'text-gray-300' : 'text-gray-600'
                           )}
                           style={{
@@ -480,47 +499,30 @@ export function NotificationDropdown({
                         >
                           {notification.message}
                         </p>
-                        <div
-                          className={cn(
-                            'mt-2 text-xs',
-                            isEditor ? 'text-gray-400' : 'text-gray-500'
-                          )}
-                        >
-                          {formatTime(notification.createTime)}
-                        </div>
+                      </div>
+                      <div
+                        className={cn(
+                          'text-xs',
+                          isEditor ? 'text-gray-400' : 'text-gray-500'
+                        )}
+                      >
+                        {formatTime(notification.createTime)}
                       </div>
                     </div>
                   </div>
                 ))}
-                {!showAll && hasMore && (
-                  <div className="flex justify-center pt-2">
-                    <button
-                      className={cn(
-                        'hover:text-primary text-xs font-medium underline underline-offset-2',
-                        isEditor
-                          ? 'text-gray-300 hover:text-white'
-                          : 'hover:text-primary text-gray-500'
-                      )}
-                      onClick={handleViewAll}
-                      type="button"
-                    >
-                      View All
-                    </button>
-                  </div>
-                )}
-                {showAll && (
-                  <div className="flex justify-center pt-2 text-center">
-                    <p
-                      className={cn(
-                        'text-xs',
-                        isEditor ? 'text-gray-400' : 'text-gray-500'
-                      )}
-                    >
-                      Notifications older than 30 days are automatically deleted
-                    </p>
-                  </div>
-                )}
-                {showAll && isLoading && (
+                <div className="flex justify-center pt-8 text-center">
+                  <p
+                    className={cn(
+                      'text-xs',
+                      isEditor ? 'text-gray-400' : 'text-gray-500'
+                    )}
+                  >
+                    You&apos;ve viewed all notifications from the past 30 days.
+                  </p>
+                  <div className="h-14" />
+                </div>
+                {isLoading && (
                   <div className="flex justify-center py-4">
                     <div className="border-t-primary h-4 w-4 animate-spin rounded-full border-2 border-gray-300" />
                   </div>
@@ -528,6 +530,14 @@ export function NotificationDropdown({
               </div>
             </ScrollArea>
           )}
+          <div
+            className={cn(
+              'pointer-events-none absolute bottom-0 left-0 right-4 z-10 h-16',
+              isEditor
+                ? 'from-slate-80 bg-gradient-to-t to-transparent'
+                : 'bg-gradient-to-t from-white to-transparent'
+            )}
+          />
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
