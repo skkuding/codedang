@@ -34,13 +34,13 @@ export function OptionSelect({
     >
       <SelectTrigger
         className={cn(
-          'focus:outline-hidden tex-sm w-full rounded-full bg-white hover:bg-gray-50 focus:ring-0 focus:ring-offset-0',
+          'focus:outline-hidden w-full rounded-full bg-white p-4 text-sm font-semibold hover:bg-gray-50 focus:ring-0 focus:ring-offset-0',
           className
         )}
       >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent className="w-[115px] bg-white">
+      <SelectContent className="w-full bg-white">
         <ScrollArea>
           <SelectGroup className="max-h-40">
             {options.map((option) => (

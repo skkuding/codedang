@@ -2,8 +2,9 @@
 
 import { cn } from '@/libs/utils'
 import * as SelectPrimitive from '@radix-ui/react-select'
-import { Check, ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import * as React from 'react'
+import { IoIosRadioButtonOff, IoIosRadioButtonOn } from 'react-icons/io'
 
 const Select = SelectPrimitive.Root
 
@@ -140,8 +141,9 @@ const SelectItem = React.forwardRef<
   >
     {showCheckIcon && (
       <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-        <SelectPrimitive.ItemIndicator>
-          <Check className="h-4 w-4" />
+        <IoIosRadioButtonOff className="h-5 w-5 text-gray-400" />
+        <SelectPrimitive.ItemIndicator className="absolute">
+          <IoIosRadioButtonOn className="text-primary h-4 w-4" />
         </SelectPrimitive.ItemIndicator>
       </span>
     )}
@@ -164,13 +166,13 @@ SelectSeparator.displayName = SelectPrimitive.Separator.displayName
 
 export {
   Select,
-  SelectGroup,
-  SelectValue,
-  SelectTrigger,
   SelectContent,
-  SelectLabel,
+  SelectGroup,
   SelectItem,
-  SelectSeparator,
+  SelectLabel,
+  SelectScrollDownButton,
   SelectScrollUpButton,
-  SelectScrollDownButton
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue
 }
