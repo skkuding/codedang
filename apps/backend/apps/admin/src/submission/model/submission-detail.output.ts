@@ -45,8 +45,21 @@ class TestCaseResult {
   @Field(() => Boolean)
   isHidden: boolean
 
-  @Field(() => Int)
-  scoreWeight: number
+  // @Field(() => Int)
+  // scoreWeight: number
+
+  @Field(() => Int, { nullable: true })
+  scoreWeightNumerator?: number | null
+
+  @Field(() => Int, { nullable: true })
+  scoreWeightDenominator?: number | null
+
+  @Field(() => Int, {
+    nullable: true,
+    deprecationReason:
+      'Use scoreWeightNumerator and scoreWeightDenominator instead'
+  })
+  scoreWeight?: number | null
 }
 
 @ObjectType()
