@@ -11,7 +11,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
@@ -26,7 +25,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { BiSolidUser } from 'react-icons/bi'
-import { RxHamburgerMenu } from 'react-icons/rx'
 import { AuthModal } from './AuthModal'
 import { UpdateInformation } from './UpdateInformation'
 
@@ -128,7 +126,7 @@ export function HeaderAuthPanel({
           <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
             <DropdownMenuTrigger
               className={cn(
-                'hidden items-center gap-2 rounded-md px-4 py-1 md:flex',
+                'hidden items-center gap-2 rounded-md px-4 py-1 lg:flex',
                 isEditor ? 'border-0 ring-offset-0' : 'bg-primary text-white'
               )}
             >
@@ -149,7 +147,7 @@ export function HeaderAuthPanel({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className={cn(
-                'hidden md:block',
+                'hidden lg:block',
                 isEditor &&
                   'rounded-xs mr-5 border-none bg-[#4C5565] px-0 font-normal text-white'
               )}
@@ -217,38 +215,11 @@ export function HeaderAuthPanel({
           </DialogContent>
         </Dialog>
       )}
-      <DropdownMenu>
-        <DropdownMenuTrigger className="flex gap-2 px-4 py-1 lg:hidden">
-          <RxHamburgerMenu size="30" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="lg:hidden">
-          {session && (
-            <>
-              <DropdownMenuItem className="text-primary pointer-events-none flex select-none items-center gap-1 font-semibold">
-                {session.user.username}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-gray-300" />
-            </>
-          )}
-          <NavItems />
-          <DropdownMenuSeparator className="bg-gray-300" />
-          <AccountItems
-            session={session}
-            isAnyGroupLeader={isAnyGroupLeader}
-            isAnyContestAdmin={isAnyContestAdmin}
-            hasCreatePermission={hasCreatePermission}
-            isUser={isUser}
-            isEditor={isEditor}
-            showSignIn={showSignIn}
-            showSignUp={showSignUp}
-          />
-        </DropdownMenuContent>
-      </DropdownMenu>
     </div>
   )
 }
 
-function NavItems() {
+export function NavItems() {
   const navItems = ['notice', 'contest', 'problem', 'course']
   return navItems.map((navItem) => (
     <Link href={`/${navItem}` as Route} key={navItem}>
@@ -270,7 +241,7 @@ interface AccountItemsProps {
   showSignUp: () => void
 }
 
-function AccountItems({
+export function AccountItems({
   session,
   isAnyGroupLeader,
   isAnyContestAdmin,
