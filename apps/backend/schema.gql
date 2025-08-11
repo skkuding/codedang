@@ -2708,7 +2708,6 @@ type TestSubmissionSumAggregate {
 input Testcase {
   input: String!
   isHidden: Boolean!
-  order: Int
   output: String!
   scoreWeight: IntScore
 }
