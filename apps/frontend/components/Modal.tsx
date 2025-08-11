@@ -35,7 +35,7 @@ interface ModalProps {
   size: 'sm' | 'md' | 'lg'
   type: 'input' | 'warning' | 'custom'
   title: string
-  headerDescription?: string
+  headerDescription?: string | React.ReactNode
   footerDescription?: string
   inputProps?: InputProps
   primaryButton?: ButtonProps
@@ -108,14 +108,13 @@ export function Modal({
           />
         )}
         {headerDescription && (
-          <p
+          <div
             className={cn(
               'w-full text-center text-sm font-normal text-[#737373]',
               children && 'text-left'
             )}
-          >
-            {headerDescription}
-          </p>
+            dangerouslySetInnerHTML={{ __html: headerDescription }}
+          />
         )}
         {children}
         {footerDescription && (
