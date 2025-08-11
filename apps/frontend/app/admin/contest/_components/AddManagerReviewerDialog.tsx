@@ -3,30 +3,28 @@
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList
-} from '@/components/shadcn/command'
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  DropdownMenuCheckboxItem
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem
 } from '@/components/shadcn/dropdown-menu'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { Textarea } from '@/components/shadcn/textarea'
 import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { cn, isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import { ChevronDown } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
+import { FaChevronDown, FaCircleExclamation } from 'react-icons/fa6'
+import { HiChevronDown } from 'react-icons/hi'
 import {
+  HiMiniAtSymbol,
+  HiMiniPlus,
   HiMiniPlusCircle,
   HiMiniXCircle,
   HiOutlineEnvelope
 } from 'react-icons/hi2'
-import { PiWarningFill } from 'react-icons/pi'
 import type { ContestManagerReviewer } from '../_libs/schemas'
 
 interface AddManagerReviewerDialogProps {
@@ -42,7 +40,8 @@ interface AddManagerReviewerDialogProps {
 }
 interface InputFieldInterface {
   value: string
-  dropdown: string
+  domain: string
+  role: string
   error: string
 }
 
@@ -64,7 +63,8 @@ export function AddManagerReviewerDialog({
   const [users, setUsers] = useState<ContestManagerReviewer[]>([]) // State to manage the list of selected users
   const [inputField, setInputField] = useState({
     value: '',
-    dropdown: 'Manager',
+    domain: `${ALLOWED_DOMAINS[0]}`,
+    role: 'Manager',
     error: ''
   })
 
@@ -72,7 +72,8 @@ export function AddManagerReviewerDialog({
     if (open) {
       setInputField({
         value: '',
-        dropdown: 'Manager',
+        domain: `${ALLOWED_DOMAINS[0]}`,
+        role: 'Manager',
         error: ''
       })
       setUsers([]) // Reset users when the dialog opens
@@ -118,7 +119,7 @@ export function AddManagerReviewerDialog({
       onClose={() => setOpen(false)}
     >
       {/* children으로 넣을 부분 */}
-      <ScrollArea className="h-full w-full">
+      <ScrollArea className="h-full w-full tracking-[-3%]">
         <div className="flex flex-col gap-[30px]">
           {/* 인풋 필드 */}
           <InputFieldTab
@@ -129,27 +130,30 @@ export function AddManagerReviewerDialog({
             participants={participants}
           />
           {/* selected users 블록 */}
-          <div className="flex flex-col gap-[10px] rounded-2xl border border-solid border-[#D8D8D8] p-[30px]">
+          <div className="flex min-h-[293px] flex-col gap-[10px] rounded-2xl border border-solid border-[#D8D8D8] p-[30px]">
             {/* ~ user(s) selected */}
-            <div
-              className={cn(
-                'mt-1',
-                'text-xs',
-                users.length > 0 ? 'text-primary' : 'text-[#9B9B9B]'
-              )}
-            >
+            <div className="text-primary mt-1 text-sm">
               {`${users.length} user(s) selected`}
             </div>
             {/* 유저탭 */}
-            <div className="mb-[2px] flex flex-col gap-[8px]">
-              {users.map((user) => (
-                <SelectedUserTab
-                  key={user.email}
-                  curUser={user}
-                  setUsers={setUsers}
-                />
-              ))}
-            </div>
+            {users.length === 0 ? (
+              <div className="bg-color-neutral-99 text-color-neutral-80 flex flex-col gap-[6.4px] rounded-lg">
+                <div className="grid size-[25.2px] place-content-center">
+                  <FaCircleExclamation />
+                </div>
+                <p>No users have been selected yet</p>
+              </div>
+            ) : (
+              <div className="mb-[2px] flex flex-col gap-[8px]">
+                {users.map((user) => (
+                  <SelectedUserTab
+                    key={user.email}
+                    curUser={user}
+                    setUsers={setUsers}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <ScrollBar className="ml-[16px] w-[4px]" />
@@ -172,7 +176,7 @@ interface InputFieldTabProps {
 }
 
 // TODO: 하단 추천 바 구현 시 inputField에 error가 있으면 추천 바가 뜨지 않도록 설정! (자동적으로 유저 추가 불가)
-// 인풋 필드 + 드롭다운 메뉴 + 하단 추천 바
+// 인풋 필드 + 드롭다운 메뉴
 function InputFieldTab({
   users,
   inputField,
@@ -180,14 +184,25 @@ function InputFieldTab({
   setInputField,
   participants
 }: InputFieldTabProps) {
+  const [isDirect, setIsDirect] = useState(false)
   // 인풋 필드 내에 이메일 변경 시
   const handleValueChange = (value: string) => {
     setInputField((prevField) => ({ ...prevField, value, error: '' }))
   }
+  // 도메인 드롭다운 메뉴 변경 시 실행 함수
+  const handleDomainDropdownChange = (value: string) => {
+    if (value === 'Enter directly') {
+      setInputField((prevField) => ({ ...prevField, domain: '' }))
+      setIsDirect(true)
+    } else {
+      setInputField((prevField) => ({ ...prevField, domain: value }))
+      setIsDirect(false)
+    }
+  }
 
-  // 드롭다운 메뉴 변경 시 실행 함수
-  const handleInputDropdownChange = (value: string) => {
-    setInputField((prevField) => ({ ...prevField, dropdown: value }))
+  // 역할 드롭다운 메뉴 변경 시 실행 함수
+  const handleRoleDropdownChange = (value: string) => {
+    setInputField((prevField) => ({ ...prevField, role: value }))
   }
 
   // inputField의 값이 valid하면 users에 추가하는 함수 (추천 이메일 옆에 + 버튼)
@@ -252,98 +267,165 @@ function InputFieldTab({
 
   // TODO: 해당되는 컴포넌트 작성
   return (
-    <Command className="h-auto gap-[6px]">
-      <div className="flex flex-col">
-        <div className="flex gap-2">
-          <div className="w-full max-w-[590px] gap-[20px]">
-            <CommandInput
-              className="ml-[10px] h-10 w-[300px] text-base placeholder:text-neutral-300"
-              placeholder="Please enter the e-mail"
-              emailType={true}
-              value={inputField.value}
-              onValueChange={(value) => handleValueChange(value)}
-              emailIcon={
-                <HiOutlineEnvelope className="ml-[8px] h-5 w-5 text-[#9B9B9B]" />
-              }
-            />
-            <CommandList>
-              <CommandEmpty>
-                {inputField.value && `No results found.`}
-              </CommandEmpty>
-              <CommandGroup className="mt-[12px] px-0 pt-0">
-                {ALLOWED_DOMAINS.map((domain) => {
-                  const emailSuggestion = inputField.value.endsWith(
-                    `@${domain}`
-                  )
-                    ? inputField.value
-                    : `${inputField.value.replace(/@.*/, '')}@${domain}`
-                  if (inputField.value === '') {
-                    return
-                  }
-                  return (
-                    <CommandItem
-                      key={emailSuggestion}
-                      value={emailSuggestion}
-                      className="mt-[8px] flex h-10 cursor-pointer items-center justify-between rounded-full bg-gray-100 px-[10px] py-[10px] text-base text-black"
-                    >
-                      <div className="ml-[10px] flex items-center gap-[10px]">
-                        <HiOutlineEnvelope className="h-5 w-5 text-[#9B9B9B]" />
-                        <span>{emailSuggestion}</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        className="h-9 w-9 p-1 text-sm font-normal"
-                        onClick={() => {
-                          handleValueChange(emailSuggestion)
-                          fetchUserData(emailSuggestion, inputField.dropdown)
-                        }}
-                      >
-                        <HiMiniPlusCircle className="h-5 w-5 text-[#9B9B9B]" />
-                      </Button>
-                    </CommandItem>
-                  )
-                })}
-              </CommandGroup>
-            </CommandList>
+    <div className="flex w-full justify-between gap-[10px]">
+      {/* input + email dropdown + role dropdown */}
+      <div className="flex w-full gap-[4px]">
+        {/* email input */}
+        <div className="border-color-line-default flex items-center gap-[10px] rounded-full border-[1px] border-solid px-[20px]">
+          <div className="grid size-[18px] place-content-center">
+            <HiOutlineEnvelope className="text-color-neutral-70" />
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild className="grow">
-              <Button
-                variant="outline"
-                className="h-10 pl-4 pr-2 text-base font-normal"
-              >
-                {inputField.dropdown}
-                <ChevronDown
-                  className="ml-[10px] h-5 w-5 text-[#B0B0B0]"
-                  width={24}
-                  height={24}
+          <Textarea
+            value={inputField.value}
+            placeholder="Enter the e-mail"
+            className="min-h-none placeholder:text-color-neutral-90 max-h-[24px] resize-none truncate border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
+            onChange={(value) =>
+              setInputField((prevField) => ({
+                ...prevField,
+                value: value.target.value
+              }))
+            }
+          />
+        </div>
+
+        {/* email dropdown */}
+        <DropdownMenu>
+          {isDirect ? (
+            <div className="border-color-line-default flex h-[40px] w-full max-w-[246px] items-center gap-[6px] rounded-full border-[1px] border-solid pl-4 pr-2 text-base font-normal">
+              <div className="grid size-[20px] place-content-center">
+                <HiMiniAtSymbol
+                  size={16.67}
+                  className="text-color-neutral-30"
                 />
+              </div>
+              <div className="min-w-[170px]">
+                <Textarea
+                  value={inputField.domain}
+                  placeholder="Enter directly"
+                  className="min-h-none placeholder:text-color-neutral-90 z-100 max-h-[24px] resize-none truncate border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
+                  onChange={(value) =>
+                    setInputField((prevField) => ({
+                      ...prevField,
+                      domain: value.target.value
+                    }))
+                  }
+                />
+              </div>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="p-0">
+                  <FaChevronDown className="text-color-neutral-90" />
+                </Button>
+              </DropdownMenuTrigger>
+            </div>
+          ) : (
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className="text-color-common-0 flex h-[40px] w-full max-w-[246px] gap-[6px] pl-4 pr-2 text-base font-normal"
+              >
+                <div className="flex items-center gap-[6px]">
+                  <div className="grid size-[20px] place-content-center">
+                    <HiMiniAtSymbol
+                      size={16.67}
+                      className="text-color-neutral-30"
+                    />
+                  </div>
+                  <div className="min-w-[170px]">
+                    {isDirect ? (
+                      <Textarea
+                        value={inputField.domain}
+                        placeholder="Enter directly"
+                        className="min-h-none placeholder:text-color-neutral-90 z-100 max-h-[24px] resize-none truncate border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
+                        onChange={(value) =>
+                          setInputField((prevField) => ({
+                            ...prevField,
+                            domain: value.target.value
+                          }))
+                        }
+                      />
+                    ) : (
+                      <p className="text-color-common-0 text-left text-base">
+                        {inputField.domain}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="grid size-[16px] place-content-center">
+                  <FaChevronDown className="text-color-neutral-90" />
+                </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-full">
-              <DropdownMenuCheckboxItem
-                checked={inputField.dropdown === 'Manager'}
-                onCheckedChange={() => handleInputDropdownChange('Manager')}
+          )}
+          <DropdownMenuContent
+            className={`w-[246px] ${isDirect && '-translate-x-[101px]'}`}
+          >
+            <DropdownMenuRadioGroup
+              value={inputField.domain}
+              onValueChange={handleDomainDropdownChange}
+            >
+              {ALLOWED_DOMAINS.map((domain) => (
+                <DropdownMenuRadioItem key={domain} value={domain}>
+                  {domain}
+                </DropdownMenuRadioItem>
+              ))}
+              <DropdownMenuRadioItem
+                key={'Enter directly'}
+                value="Enter directly"
               >
-                Manager
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={inputField.dropdown === 'Reviewer'}
-                onCheckedChange={() => handleInputDropdownChange('Reviewer')}
-              >
-                Reviewer
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        {inputField.error && (
-          <div className="flex items-center gap-1">
-            <PiWarningFill size={14} className="text-error" />
-            <p className="text-error mt-1 text-xs">{inputField.error}</p>
-          </div>
-        )}
+                Enter directly
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        {/* role dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              className="text-color-common-0 flex h-[40px] items-center gap-[4px] px-[19.5px] text-base font-normal"
+            >
+              <p className="min-w-[67px] text-center">{inputField.role}</p>
+              <div className="grid size-[16px] place-content-center">
+                <FaChevronDown className="text-color-neutral-90" />
+              </div>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-full">
+            <DropdownMenuCheckboxItem
+              checked={inputField.role === 'Manager'}
+              onCheckedChange={() => handleRoleDropdownChange('Manager')}
+            >
+              Manager
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={inputField.role === 'Reviewer'}
+              onCheckedChange={() => handleRoleDropdownChange('Reviewer')}
+            >
+              Reviewer
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-    </Command>
+      {/* + 버튼 */}
+      <Button
+        variant="outline"
+        className="border-color-blue-50 hover:bg-color-blue-80 h-full cursor-pointer border-[1px]"
+        asChild
+        onClick={() =>
+          fetchUserData(
+            `${inputField.value}@${inputField.domain}`,
+            inputField.role
+          )
+        }
+      >
+        <div className="text-color-blue-50 flex h-full items-center gap-[4px] px-[22px]">
+          <HiMiniPlus size={16} />
+          <p className="text-sm font-medium">Add</p>
+        </div>
+      </Button>
+    </div>
   )
 }
 
@@ -390,12 +472,10 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild className="grow">
           <Button variant="outline" className="h-10 pl-4 pr-2 font-normal">
-            {curUser.type}
-            <ChevronDown
-              className="ml-[10px] h-5 w-5 text-[#B0B0B0]"
-              width={24}
-              height={24}
-            />
+            <p className="min-w-[67px] text-center">{curUser.type}</p>
+            <div className="grid size-[16px] place-content-center">
+              <FaChevronDown className="text-color-neutral-90" />
+            </div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-full">
