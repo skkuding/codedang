@@ -25,7 +25,9 @@ import {
   RUN_MESSAGE_TYPE,
   Status,
   TEST_SUBMISSION_EXPIRE_TIME,
-  USER_TESTCASE_MESSAGE_TYPE
+  USER_TESTCASE_MESSAGE_TYPE,
+  PERCENTAGE_SCALE,
+  DECIMAL_PRECISION_FACTOR
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -199,7 +201,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
 
     if (!msg.judgeResult) {
-      throw new UnprocessableDataException('JudgeResult is empty')
+      throw new UnprocessableDataException(
+        'JudgeResult is missing for submission ${msg.submissionId} - cannot process judge response'
+      )
     }
 
     const submissionResult = {
@@ -428,7 +432,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     if (!contestId || !userId)
       throw new UnprocessableDataException(
-        `The contestId: ${contestId}, userId: ${userId} is empty`
+        `Contest record update failed - missing required fields: contestId=${contestId}, userId=${userId}`
       )
 
     const [contest, contestProblem, contestRecord, submissions] =
@@ -668,8 +672,10 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     // submissionScore는 이미 0~100 범위로 계산되어 있음 (분수 기반으로)
     const realSubmissionScore =
       Math.round(
-        (submissionRecord.score / 100) * assignmentProblem.score * 100
-      ) / 100
+        (submissionRecord.score / PERCENTAGE_SCALE) *
+          assignmentProblem.score *
+          DECIMAL_PRECISION_FACTOR
+      ) / DECIMAL_PRECISION_FACTOR
 
     const assignmentProblemRecord =
       await this.prisma.assignmentProblemRecord.findFirst({
@@ -807,7 +813,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       return 0
     }
 
-    const score = Math.round((acceptedNumeratorSum / totalNumeratorSum) * 100)
+    const score = Math.round(
+      (acceptedNumeratorSum / totalNumeratorSum) * PERCENTAGE_SCALE
+    )
     return score
   }
 
