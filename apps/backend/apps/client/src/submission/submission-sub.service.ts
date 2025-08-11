@@ -781,15 +781,11 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       result: 'Accepted' | string
     }>
   ): number {
-    // GCD와 LCM 계산 함수
-    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
-    const lcm = (a: number, b: number): number => (a * b) / gcd(a, b)
-
     // 모든 테스트케이스의 분모의 LCM 계산
     let lcmDenominator = 1
     submissionResults.forEach((sr) => {
       const denominator = sr.problemTestcase.scoreWeightDenominator || 1
-      lcmDenominator = lcm(lcmDenominator, denominator)
+      lcmDenominator = this.lcm(lcmDenominator, denominator)
     })
 
     // 맞은 테스트케이스의 분자 합 계산
