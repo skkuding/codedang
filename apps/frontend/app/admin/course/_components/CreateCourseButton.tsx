@@ -5,6 +5,7 @@ import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { SemesterSeason } from '@/types/type'
 import { useState } from 'react'
+import { useFormContext } from 'react-hook-form'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { FormSection } from '../../_components/FormSection'
 import { CreateCourseForm } from './CreateCourseForm'
@@ -15,6 +16,7 @@ export function CreateCourseButton() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [coursePrefix, setCoursePrefix] = useState('')
   const [courseCode, setCourseCode] = useState('')
+  const [courseNumber, setCourseNumber] = useState('')
   const [courseSection, setCourseSection] = useState('')
 
   const currentYear = new Date().getFullYear()
@@ -46,21 +48,21 @@ export function CreateCourseButton() {
   const handleCoursePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase() // 영어만 남기고 대문자로 변환
     setCoursePrefix(value)
+    setCourseNumber(value + courseCode) // courseNum 업데이트
     // setValue('courseNum', value + courseCode)
   }
 
   const handleCourseCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
     setCourseCode(value)
-    // setValue('courseNum', coursePrefix + courseCode)
+    setCourseNumber(coursePrefix + value)
   }
 
   const handleCourseSectionChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
+    const value = e.target.value.replace(/\D/g, '')
     setCourseSection(value)
-    // setValue('classNum', Number(value)) // value로 변경
   }
 
   return (
@@ -130,6 +132,7 @@ export function CreateCourseButton() {
                   onChange={handleCourseCodeChange}
                 />
               </FormSection>
+              <CourseInput value={courseNumber} />
             </div>
             <FormSection
               isFlexColumn={true}
@@ -221,6 +224,7 @@ export function CreateCourseButton() {
               <Button
                 variant="default"
                 type="submit"
+                onClick={() => setIsModalOpen(false)}
                 className="h-[46px] w-full"
               >
                 Create
@@ -231,4 +235,16 @@ export function CreateCourseButton() {
       </ScrollArea>
     </Modal>
   )
+}
+
+interface CourseInputProps {
+  value: string
+}
+
+function CourseInput({ value }: CourseInputProps) {
+  const { setValue } = useFormContext()
+
+  setValue('courseNum', value)
+
+  return <> </>
 }

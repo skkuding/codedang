@@ -33,18 +33,15 @@ export function CreateCourseForm({ children }: { children: ReactNode }) {
     }
   })
 
-  const [createCourse, { error }] = useMutation(CREATE_COURSE)
+  const [createCourse] = useMutation(CREATE_COURSE)
   const client = useApolloClient()
 
   const onSubmit: SubmitHandler<CourseInput> = async (data) => {
-    console.log('Form data:', data)
     try {
       await createCourse({
         variables: {
           input: {
             courseTitle: data.courseTitle,
-            // courseNum: `${coursePrefix}${courseCode}`,
-            // classNum: Number(courseSection),
             courseNum: data.courseNum,
             classNum: data.classNum,
             professor: data.professor,
@@ -63,7 +60,6 @@ export function CreateCourseForm({ children }: { children: ReactNode }) {
         include: [GET_COURSES_USER_LEAD]
       })
     } catch (error) {
-      //TODO: error handling
       console.error('Error creating course:', error)
       toast.error('An unexpected error occurred')
     }
