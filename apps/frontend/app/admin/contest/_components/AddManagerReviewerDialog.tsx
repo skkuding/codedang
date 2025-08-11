@@ -137,7 +137,7 @@ export function AddManagerReviewerDialog({
             </div>
             {/* 유저탭 */}
             {users.length === 0 ? (
-              <div className="bg-color-neutral-99 text-color-neutral-80 flex flex-col gap-[6.4px] rounded-lg">
+              <div className="bg-color-neutral-99 text-color-neutral-80 flex grow flex-col items-center justify-center gap-[6.4px] rounded-lg">
                 <div className="grid size-[25.2px] place-content-center">
                   <FaCircleExclamation />
                 </div>
@@ -451,7 +451,7 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   }
 
   return (
-    <div className="mt-[8px] flex gap-[10px] text-base">
+    <div className="flex gap-[10px] text-base">
       {/* email 표시 박스 */}
       <div className="flex h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full border border-solid border-[#D8D8D8] px-[10px] py-[10px] text-black">
         <div className="ml-[10px] flex items-center gap-[10px]">
