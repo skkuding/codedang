@@ -40,14 +40,14 @@ export function OptionSelect({
       >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent className="w-full bg-white">
+      <SelectContent className="w-[var(--radix-select-trigger-width)] rounded-xl bg-white">
         <ScrollArea>
-          <SelectGroup className="max-h-40">
+          <SelectGroup className="max-h-40 p-4">
             {options.map((option) => (
               <SelectItem
                 key={option}
                 value={option}
-                className="cursor-pointer hover:bg-gray-100/80"
+                className="cursor-pointer text-base hover:bg-gray-100/80"
               >
                 {option}
               </SelectItem>

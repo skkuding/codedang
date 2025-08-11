@@ -140,10 +140,10 @@ const SelectItem = React.forwardRef<
     {...props}
   >
     {showCheckIcon && (
-      <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+      <span className="absolute left-0 flex items-center justify-center">
         <IoIosRadioButtonOff className="h-5 w-5 text-gray-400" />
         <SelectPrimitive.ItemIndicator className="absolute">
-          <IoIosRadioButtonOn className="text-primary h-4 w-4" />
+          <IoIosRadioButtonOn className="text-primary h-5 w-5" />
         </SelectPrimitive.ItemIndicator>
       </span>
     )}
