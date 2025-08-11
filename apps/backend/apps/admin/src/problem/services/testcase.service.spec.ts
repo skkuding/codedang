@@ -4,7 +4,6 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import * as archiver from 'archiver'
 import { expect } from 'chai'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
-import { spy, stub } from 'sinon'
 import sinon from 'sinon'
 import { Readable } from 'stream'
 import {
@@ -25,14 +24,14 @@ import { TestcaseService } from './testcase.service'
 
 const db = {
   problem: {
-    findFirstOrThrow: stub()
+    findFirstOrThrow: sinon.stub()
   },
   problemTestcase: {
-    create: stub(),
-    createMany: stub(),
-    deleteMany: stub(),
-    findMany: stub(),
-    update: stub()
+    create: sinon.stub(),
+    createMany: sinon.stub(),
+    deleteMany: sinon.stub(),
+    findMany: sinon.stub(),
+    update: sinon.stub()
   }
 }
 
@@ -228,7 +227,7 @@ describe('TestcaseService', () => {
   describe('uploadTestcase', () => {
     it('should return imported testcase', async () => {
       const problemId = 2
-      const createTestcaseSpy = spy(service, 'createTestcaseLegacy')
+      const createTestcaseSpy = sinon.spy(service, 'createTestcaseLegacy')
       db.problemTestcase.create.resetHistory()
       db.problemTestcase.create.resolves(testcaseData)
 
