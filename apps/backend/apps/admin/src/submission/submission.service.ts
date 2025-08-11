@@ -300,7 +300,6 @@ export class SubmissionService {
     assignmentId: number,
     problemId: number
   ) {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const latestSubmissions = await this.prisma.submission.groupBy({
       by: ['userId'],
       where: {
@@ -313,7 +312,6 @@ export class SubmissionService {
       }
     })
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const detailedSubmissions = await Promise.all(
       latestSubmissions.map(async (submission) => {
         if (!submission._max.createTime) {
