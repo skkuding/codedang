@@ -76,7 +76,7 @@ model User {
   testSubmission     TestSubmission[]
   UpdateHistory      UpdateHistory[]
   createdQnAs        ContestQnA[]         @relation("CreatedByUser")
-  answeredQnAs       ContestQnA[]         @relation("AnsweredByUser")
+  createdQnAComments ContestQnAComment[]  @relation("CreatedByUser")
   NotificationRecord NotificationRecord[]
 
   @@map("user")
@@ -240,6 +240,7 @@ model Problem {
   contestProblem    ContestProblem[]
   submission        Submission[]
   announcement      Announcement[]
+  ContestQnA        ContestQnA[]
 
   updateHistory UpdateHistory[]
 
@@ -570,25 +571,46 @@ model ContestRecord {
   @@map("contest_record")
 }
 
+enum QnACategory {
+  General
+  Problem
+}
+
 model ContestQnA {
-  id           Int      @id @default(autoincrement())
+  id          Int                 @id @default(autoincrement())
   // contest 내부에서의 numbering
-  order        Int
-  createdBy    User?    @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: SetNull)
-  createdById  Int?     @map("created_by_id")
-  answeredBy   User?    @relation("AnsweredByUser", fields: [answeredById], references: [id], onDelete: SetNull)
-  answeredById Int?     @map("answered_by_id")
-  contest      Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId    Int      @map("contest_id")
-  title        String
-  content      String
-  answer       String?
-  isVisible    Boolean  @default(false) @map("is_visible")
-  createTime   DateTime @default(now()) @map("create_time")
-  updateTime   DateTime @updatedAt @map("update_time")
+  order       Int
+  createdBy   User?               @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?                @map("created_by_id")
+  contest     Contest             @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId   Int                 @map("contest_id")
+  title       String
+  content     String
+  problem     Problem?            @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId   Int?                @map("problem_id")
+  category    QnACategory         @default(General)
+  isResolved  Boolean             @default(false) @map("is_resolved")
+  createTime  DateTime            @default(now()) @map("create_time")
+  comments    ContestQnAComment[]
 
   @@unique([contestId, order])
   @@map("contest_qna")
+}
+
+model ContestQnAComment {
+  id             Int        @id @default(autoincrement())
+  // QnA 내부에서의 순서
+  order          Int
+  createdBy      User?      @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: SetNull)
+  createdById    Int?       @map("created_by_id")
+  isContestStaff Boolean    @default(false) @map("is_contest_staff")
+  content        String
+  contestQnA     ContestQnA @relation(fields: [contestQnAId], references: [id], onDelete: Cascade)
+  contestQnAId   Int        @map("contest_qna_id")
+  createdTime    DateTime   @default(now()) @map("create_time")
+
+  @@unique([contestQnAId, order])
+  @@map("contest_qna_comment")
 }
 
 model Announcement {
