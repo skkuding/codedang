@@ -43,8 +43,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   onModuleInit() {
     this.amqpConnection.createSubscriber(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async (msg: object, raw: any) => {
+      async (msg: object, raw: { properties: { type: string } }) => {
         try {
           const res = await this.validateJudgerResponse(msg)
 
@@ -651,15 +650,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
 
-    // 분수 기반으로 총 가중치 계산
-    const testcases = await this.prisma.problemTestcase.findMany({
-      where: { problemId: submission.problemId },
-      select: {
-        scoreWeightNumerator: true,
-        scoreWeightDenominator: true
-      }
-    })
-
     const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -674,13 +664,12 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     // assignmentProblem 이 없을 경우 (비정상 상태) 조용히 종료
     if (!assignmentProblem) return
 
-    // 분수 기반 스케일링 계산 (submissionRecord.score 는 0~100 범위)
-    // scaleScoreWithFraction: 100점 만점 기준 submissionScore 를 assignmentProblem.score 로 스케일링 (소수 둘째 자리 반올림)
-    const realSubmissionScore = this.scaleScoreWithFraction(
-      submissionRecord!.score,
-      assignmentProblem.score,
-      testcases
-    )
+    // Assignment 점수 계산 공식: (AssignmentProblemScore / 100) * submissionScore
+    // submissionScore는 이미 0~100 범위로 계산되어 있음 (분수 기반으로)
+    const realSubmissionScore =
+      Math.round(
+        (submissionRecord.score / 100) * assignmentProblem.score * 100
+      ) / 100
 
     const assignmentProblemRecord =
       await this.prisma.assignmentProblemRecord.findFirst({
@@ -848,25 +837,5 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           : problem.acceptedCount / (problem.submissionCount + 1)
       }
     })
-  }
-
-  /**
-   * 분수 기반 점수 스케일링 헬퍼 함수
-   */
-  private scaleScoreWithFraction(
-    submissionScore: number,
-    assignmentProblemScore: number,
-    testcases: {
-      scoreWeightNumerator: number
-      scoreWeightDenominator: number
-    }[]
-  ): number {
-    if (testcases.length === 0) {
-      return submissionScore
-    }
-
-    // submissionScore는 100점 만점 기준이므로 assignmentProblemScore로 스케일링
-    const scaledScore = (submissionScore / 100) * assignmentProblemScore
-    return Math.round(scaledScore * 100) / 100 // 소수점 2자리까지
   }
 }
