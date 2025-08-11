@@ -34,7 +34,7 @@ export function OptionSelect({
     >
       <SelectTrigger
         className={cn(
-          'focus:outline-hidden w-[115px] rounded-full bg-white font-bold hover:bg-gray-50 focus:ring-0 focus:ring-offset-0',
+          'focus:outline-hidden tex-sm w-full rounded-full bg-white hover:bg-gray-50 focus:ring-0 focus:ring-offset-0',
           className
         )}
       >
