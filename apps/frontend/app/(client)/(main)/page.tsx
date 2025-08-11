@@ -56,6 +56,7 @@ export default function Home() {
           variant: 'default'
         }}
         showIcon={true}
+        showCancelButton={false}
         trigger={<Button className="btn">Submit Question</Button>}
       />
       <Carousel slides={slides} />
