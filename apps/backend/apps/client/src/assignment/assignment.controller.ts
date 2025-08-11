@@ -1,13 +1,14 @@
 import {
   Controller,
-  Param,
-  Post,
-  Req,
-  Get,
-  Query,
+  DefaultValuePipe,
   Delete,
+  Get,
+  Param,
   ParseBoolPipe,
-  DefaultValuePipe
+  ParseIntPipe,
+  Post,
+  Query,
+  Req
 } from '@nestjs/common'
 import { AuthenticatedRequest } from '@libs/auth'
 import { GroupIDPipe, IDValidationPipe, RequiredIntPipe } from '@libs/pipe'
@@ -22,19 +23,26 @@ export class AssignmentController {
    *
    * @param {number} groupId 조회할 그룹 아이디
    * @param {boolean} isExercise exercise를 가져올지 혹은 assignment를 가져올지 여부
+   * @param {number} month 조회할 월 (1-12, 선택적, 기본값: 현재 월)
+   * @param {number} year 조회할 년도 (선택적, 기본값: 현재 년도)
    * @returns 조회된 모든 assignment
    */
   @Get('')
   async getAssignments(
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Query(
-      'isExercise',
-      new ParseBoolPipe({ optional: true }),
-      new DefaultValuePipe(false)
-    )
-    isExercise: boolean
+    @Query('isExercise', new ParseBoolPipe({ optional: true }))
+    isExercise?: boolean,
+    @Query('month', new ParseIntPipe({ optional: true }))
+    month?: number,
+    @Query('year', new ParseIntPipe({ optional: true }))
+    year?: number
   ) {
-    return await this.assignmentService.getAssignments(groupId, isExercise)
+    return await this.assignmentService.getAssignments(
+      groupId,
+      isExercise,
+      month,
+      year
+    )
   }
 
   /**

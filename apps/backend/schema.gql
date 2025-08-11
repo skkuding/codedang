@@ -853,7 +853,6 @@ type ContestProblemSumAggregate {
 
 type ContestQnA {
   _count: ContestQnACount!
-  answeredBy: User
   category: QnACategory!
   comments: [ContestQnAComment!]
   content: String!
@@ -864,7 +863,6 @@ type ContestQnA {
   createdById: Int
   id: ID!
   isResolved: Boolean!
-  isVisible: Boolean!
   order: Int!
   problem: Problem
   problemId: Int
@@ -949,7 +947,6 @@ type ContestQnACountAggregate {
   createdById: Int!
   id: Int!
   isResolved: Int!
-  isVisible: Int!
   order: Int!
   problemId: Int!
   title: Int!
@@ -963,7 +960,6 @@ type ContestQnAMaxAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
-  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
@@ -977,7 +973,6 @@ type ContestQnAMinAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
-  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
@@ -1687,7 +1682,6 @@ type Mutation {
   updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
-  updateContestQnA(contestId: Int!, input: UpdateContestQnAInput!): ContestQnA!
   updateCourse(groupId: Int!, input: CourseInput!): Group!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
@@ -2272,8 +2266,6 @@ type Query {
   getContest(contestId: Int!): ContestWithParticipants!
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestProblems(contestId: Int!): [ContestProblem!]!
-  getContestQnA(contestId: Int!, order: Int!): ContestQnA!
-  getContestQnAs(contestId: Int!): [ContestQnA!]!
   getContestRoles: [UserContest!]!
   getContestScoreSummaries(contestId: Int!, cursor: Int, searchingName: String, take: Int! = 10): [UserContestScoreSummaryWithUserInfo!]!
   getContestSubmissionSummaryByUserId(contestId: Int!, cursor: Int, problemId: Int, take: Int! = 10, userId: Int!): ContestSubmissionSummaryForUser!
@@ -2716,6 +2708,7 @@ type TestSubmissionSumAggregate {
 input Testcase {
   input: String!
   isHidden: Boolean!
+  order: Int
   output: String!
   scoreWeight: IntScore
 }
@@ -2771,12 +2764,6 @@ input UpdateContestInput {
   title: String
   unfreeze: Boolean
   userContest: [UserContestInput!]
-}
-
-input UpdateContestQnAInput {
-  answer: String
-  isVisible: Boolean
-  order: Int!
 }
 
 type UpdateCreationPermissionResult {

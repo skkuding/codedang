@@ -1,15 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: k8s-internal
+  name: iris
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    server: https://kubernetes.default.svc
+    namespace: iris
+    name: production
   source:
-    path: apps/k8s/internal
+    path: apps/k8s/iris
     repoURL: https://github.com/skkuding/codedang
     targetRevision: main
     directory:
