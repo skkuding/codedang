@@ -9,6 +9,7 @@ const GET_CONTEST = gql(`
       description
       endTime
       startTime
+      registerDueTime
       title
       invitationCode
       posterUrl
@@ -48,6 +49,7 @@ const GET_CONTESTS = gql(`
       title
       startTime
       endTime
+      registerDueTime
       description
       participants
     }
