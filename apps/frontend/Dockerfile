@@ -6,8 +6,10 @@ ARG GQL_BASEURL="https://codedang.com/graphql"
 ARG RUNNER_BASEURL="wss://run.codedang.com/run"
 ARG CHANNEL_TALK_KEY="2f5b48ae-a587-431f-8106-2842c4403bc7"
 
+FROM node:22.18.0-alpine AS base
+
 ### BUILD ###
-FROM node:22.18.0-alpine AS build
+FROM base AS build
 
 WORKDIR /build
 
@@ -36,26 +38,23 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN pnpm build
 
-### INSTALL PACKAGES ###
-FROM node:22.18.0-alpine AS install
-
-WORKDIR /app
-COPY pnpm-workspace.yaml .
-COPY package.json .
-COPY pnpm-lock.yaml .
-COPY apps/frontend/package.json apps/frontend/
-
-RUN corepack enable && pnpm deploy --filter=@codedang/frontend --prod /app/install
-
 ### PRODUCTION ###
-FROM node:22.18.0-alpine AS production
+FROM base AS production
 
 WORKDIR /app
 
-COPY --from=build /build/apps/frontend/.next/standalone ./
-COPY --from=build /build/apps/frontend/.next/static ./apps/frontend/.next/static
-COPY --from=build /build/apps/frontend/public ./apps/frontend/public
-COPY --from=install /app/install/node_modules ./node_modules
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Set the correct permission for prerender cache
+RUN mkdir -p apps/frontend/.next
+RUN chown nextjs:nodejs apps/frontend/.next
+
+COPY --from=build --chown=nextjs:nodejs /build/apps/frontend/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /build/apps/frontend/.next/static ./apps/frontend/.next/static
+COPY --from=build --chown=nextjs:nodejs /build/apps/frontend/public ./apps/frontend/public
+
+USER nextjs
 
 ENV NODE_ENV=production
 ENV PORT=5525
