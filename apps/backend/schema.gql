@@ -311,7 +311,7 @@ type AssignmentProblemSumAggregate {
 }
 
 type AssignmentProblemTestcaseResult {
-  result: ResultStatus!
+  result: [TestcaseResult!]!
   userId: Int!
 }
 
@@ -868,7 +868,6 @@ type ContestQnA {
   createdById: Int
   id: ID!
   isResolved: Boolean!
-  isVisible: Boolean!
   order: Int!
   problem: Problem
   problemId: Int
@@ -953,7 +952,6 @@ type ContestQnACountAggregate {
   createdById: Int!
   id: Int!
   isResolved: Int!
-  isVisible: Int!
   order: Int!
   problemId: Int!
   title: Int!
@@ -967,7 +965,6 @@ type ContestQnAMaxAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
-  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
@@ -981,7 +978,6 @@ type ContestQnAMinAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
-  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
@@ -2255,6 +2251,62 @@ enum Provider {
   naver
 }
 
+type PushSubscription {
+  auth: String!
+  createTime: DateTime!
+  endpoint: String!
+  id: ID!
+  p256dh: String!
+  updateTime: DateTime!
+  user: User!
+  userAgent: String
+  userId: Int!
+}
+
+type PushSubscriptionAvgAggregate {
+  id: Float
+  userId: Float
+}
+
+type PushSubscriptionCountAggregate {
+  _all: Int!
+  auth: Int!
+  createTime: Int!
+  endpoint: Int!
+  id: Int!
+  p256dh: Int!
+  updateTime: Int!
+  userAgent: Int!
+  userId: Int!
+}
+
+type PushSubscriptionMaxAggregate {
+  auth: String
+  createTime: DateTime
+  endpoint: String
+  id: Int
+  p256dh: String
+  updateTime: DateTime
+  userAgent: String
+  userId: Int
+}
+
+type PushSubscriptionMinAggregate {
+  auth: String
+  createTime: DateTime
+  endpoint: String
+  id: Int
+  p256dh: String
+  updateTime: DateTime
+  userAgent: String
+  userId: Int
+}
+
+type PushSubscriptionSumAggregate {
+  id: Int
+  userId: Int
+}
+
 enum QnACategory {
   General
   Problem
@@ -2725,6 +2777,12 @@ input Testcase {
   scoreWeight: IntScore
 }
 
+type TestcaseResult {
+  id: Int!
+  isHidden: Boolean!
+  result: ResultStatus!
+}
+
 input UpdateAnnouncementInput {
   """content of announcement"""
   content: String!
@@ -2893,6 +2951,7 @@ input UploadTestcaseZipInput {
 
 type User {
   NotificationRecord: [NotificationRecord!]
+  PushSubscription: [PushSubscription!]
   UpdateHistory: [UpdateHistory!]
   _count: UserCount!
   assignment: [Assignment!]
@@ -3022,6 +3081,7 @@ type UserContestSumAggregate {
 
 type UserCount {
   NotificationRecord: Int!
+  PushSubscription: Int!
   UpdateHistory: Int!
   assignment: Int!
   assignmentRecord: Int!

@@ -338,8 +338,27 @@ export class SubmissionService {
       where: {
         id: { in: submissionIds }
       },
-      include: {
-        submissionResult: true
+      select: {
+        userId: true,
+        submissionResult: {
+          select: {
+            problemTestcase: {
+              select: {
+                id: true,
+                isHidden: true,
+                submissionResult: {
+                  orderBy: {
+                    id: 'desc'
+                  },
+                  take: 1,
+                  select: {
+                    result: true
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     })
 
@@ -347,7 +366,11 @@ export class SubmissionService {
       .filter((submission) => submission.userId !== null)
       .map((submission) => ({
         userId: submission.userId!,
-        result: submission.submissionResult[0].result
+        result: submission.submissionResult.map((sr) => ({
+          id: sr.problemTestcase.id,
+          isHidden: sr.problemTestcase.isHidden!,
+          result: sr.problemTestcase.submissionResult[0].result
+        }))
       }))
 
     return results

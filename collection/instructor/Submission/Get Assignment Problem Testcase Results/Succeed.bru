@@ -22,9 +22,14 @@ body:graphql {
       problemId: $problemId
     ) {
       userId
-      result
+      result {
+        id
+        isHidden
+        result
+      }
     }
   }
+  
 }
 
 body:graphql:vars {
@@ -37,7 +42,7 @@ body:graphql:vars {
 }
 
 script:pre-request {
-  await require("./login").loginInstructor(req);
+  await require("./login").loginUser(req);
 }
 
 settings {
