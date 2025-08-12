@@ -38,7 +38,6 @@ export class SubmissionResolver {
    * @returns {SubmissionsWithTotal}
    */
   @Query(() => SubmissionsWithTotal)
-  @UseGroupLeaderGuard()
   async getSubmissions(
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
     problemId: number,
@@ -138,7 +137,8 @@ export class SubmissionResolver {
   ): Promise<AssignmentProblemTestcaseResult[]> {
     return await this.submissionService.getAssignmentProblemTestcaseResults(
       assignmentId,
-      problemId
+      problemId,
+      _groupId
     )
   }
 

@@ -298,9 +298,22 @@ export class SubmissionService {
 
   async getAssignmentProblemTestcaseResults(
     assignmentId: number,
-    problemId: number
+    problemId: number,
+    groupId: number
   ) {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: { groupId: true }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (assignment.groupId !== groupId) {
+      throw new ForbiddenAccessException('Only allowed to access your course')
+    }
+
     const latestSubmissions = await this.prisma.submission.groupBy({
       by: ['userId'],
       where: {
@@ -309,68 +322,33 @@ export class SubmissionService {
       },
       // eslint-disable-next-line @typescript-eslint/naming-convention
       _max: {
-        createTime: true
+        id: true
       }
     })
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const detailedSubmissions = await Promise.all(
-      latestSubmissions.map(async (submission) => {
-        if (!submission._max.createTime) {
-          return null
-        }
-        return this.prisma.submission.findFirst({
-          where: {
-            userId: submission.userId,
-            createTime: submission._max.createTime
-          },
-          include: {
-            user: {
-              select: {
-                studentId: true
-              }
-            },
-            submissionResult: {
-              include: {
-                problemTestcase: {
-                  select: {
-                    input: true,
-                    output: true,
-                    isHidden: true,
-                    scoreWeight: true
-                  }
-                }
-              }
-            }
-          }
-        })
-      })
-    )
+    const submissionIds = latestSubmissions
+      .map((submission) => submission._max.id)
+      .filter((id) => id !== null)
 
-    const results = detailedSubmissions
-      .filter((submission) => submission !== null)
-      .map((submission) => {
-        return {
-          userId: submission.userId,
-          testcaseResult: submission.submissionResult.map((result) => ({
-            ...result,
-            problemTestcase: {
-              input: result.problemTestcase.input ?? '',
-              output: result.problemTestcase.output ?? ''
-            },
-            cpuTime:
-              result.cpuTime || result.cpuTime === BigInt(0)
-                ? result.cpuTime.toString()
-                : null,
-            isHidden: result.problemTestcase.isHidden,
-            scoreWeight: result.problemTestcase.scoreWeight
-          }))
-        }
-      })
-
-    if (results.length === 0) {
+    if (submissionIds.length === 0) {
       throw new EntityNotExistException('Submission')
     }
+
+    const detailedSubmissions = await this.prisma.submission.findMany({
+      where: {
+        id: { in: submissionIds }
+      },
+      include: {
+        submissionResult: true
+      }
+    })
+
+    const results = detailedSubmissions
+      .filter((submission) => submission.userId !== null)
+      .map((submission) => ({
+        userId: submission.userId!,
+        result: submission.submissionResult[0].result
+      }))
 
     return results
   }

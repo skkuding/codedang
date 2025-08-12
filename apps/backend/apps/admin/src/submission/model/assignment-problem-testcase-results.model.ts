@@ -1,11 +1,11 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql'
-import { TestCaseResult } from './submission-detail.output'
+import { ResultStatus } from '@admin/@generated'
 
 @ObjectType()
 export class AssignmentProblemTestcaseResult {
-  @Field(() => Int, { nullable: true })
-  userId!: number | null
+  @Field(() => Int, { nullable: false })
+  userId!: number
 
-  @Field(() => [TestCaseResult])
-  testcaseResult: TestCaseResult[]
+  @Field(() => ResultStatus, { nullable: false })
+  result!: `${ResultStatus}`
 }

@@ -311,8 +311,8 @@ type AssignmentProblemSumAggregate {
 }
 
 type AssignmentProblemTestcaseResult {
-  testcaseResult: [TestCaseResult!]!
-  userId: Int
+  result: ResultStatus!
+  userId: Int!
 }
 
 input AssignmentProblemUpdateInput {
@@ -868,6 +868,7 @@ type ContestQnA {
   createdById: Int
   id: ID!
   isResolved: Boolean!
+  isVisible: Boolean!
   order: Int!
   problem: Problem
   problemId: Int
@@ -952,6 +953,7 @@ type ContestQnACountAggregate {
   createdById: Int!
   id: Int!
   isResolved: Int!
+  isVisible: Int!
   order: Int!
   problemId: Int!
   title: Int!
@@ -965,6 +967,7 @@ type ContestQnAMaxAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
+  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
@@ -978,6 +981,7 @@ type ContestQnAMinAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
+  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
