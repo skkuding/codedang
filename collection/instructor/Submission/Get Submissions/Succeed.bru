@@ -13,13 +13,11 @@ post {
 body:graphql {
   query GetSubmissions(
     $problemId: Int!
-    $groupId: Int
     $cursor: Int
     $take: Int
   ) {
     getSubmissions(
       problemId: $problemId
-      groupId: $groupId
       cursor: $cursor
       take: $take
     ) {
@@ -46,7 +44,6 @@ body:graphql {
 body:graphql:vars {
   {
     "problemId": 1,
-    "groupId": 1,
     "cursor": null,
     "take": 10
   }
