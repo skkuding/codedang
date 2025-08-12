@@ -1,10 +1,7 @@
-import { StatusTimeDiff } from '@/components/StatusTimeDiff'
-import { UNLIMITED_DATE } from '@/libs/constants'
-import { formatDateRange } from '@/libs/utils'
-import calendarIcon from '@/public/icons/calendar.svg'
-import clockIcon from '@/public/icons/clock.svg'
+import { CountdownStatus } from '@/components/CountdownStatus'
+import { DateRangeDisplay } from '@/components/DateRangeDisplay'
+import { hasDueDate } from '@/libs/utils'
 import dayjs from 'dayjs'
-import Image from 'next/image'
 import { FaCirclePlay } from 'react-icons/fa6'
 
 interface AssignmentStatusProps {
@@ -19,7 +16,7 @@ export function AssignmentStatus({
   dueTime
 }: AssignmentStatusProps) {
   const now = dayjs()
-  const isDueDefault = new Date(dueTime).toISOString() === UNLIMITED_DATE
+
   return (
     <div className="flex flex-col gap-1">
       {now.isAfter(startTime) && (
@@ -28,19 +25,9 @@ export function AssignmentStatus({
           <p>ONGOING</p>
         </div>
       )}
-      <div className="flex items-center gap-2 text-sm font-normal">
-        <Image src={calendarIcon} alt="calendar" width={14} />
-        <p>{formatDateRange(startTime, endTime)}</p>
-      </div>
-      {!isDueDefault && (
-        <div className="flex items-center gap-2">
-          <Image src={clockIcon} alt="calendar" width={14} />
-          <StatusTimeDiff
-            baseTime={dueTime}
-            textStyle="text-sm font-medium text-[#FF3B2F]"
-            target="Submission"
-          />
-        </div>
+      <DateRangeDisplay startTime={startTime} endTime={endTime} />
+      {hasDueDate(dueTime) && (
+        <CountdownStatus baseTime={dueTime} target="Submission" />
       )}
     </div>
   )
