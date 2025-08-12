@@ -14,7 +14,7 @@ spec:
           owner: skkuding
           repo: codedang
           appSecretName: github-app-secret # Required for higher API rate limit
-        requeueAfterSeconds: 30
+        requeueAfterSeconds: 10
   template:
     metadata:
       name: '{{.number}}-preview-frontend'
