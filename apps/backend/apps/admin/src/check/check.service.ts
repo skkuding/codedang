@@ -172,7 +172,7 @@ export class CheckService {
 
     const {
       language,
-      checkPreviousSubmissions,
+      //checkPreviousSubmissions,
       enableMerging,
       useJplagClustering,
       minTokens
@@ -185,7 +185,7 @@ export class CheckService {
           result: CheckResultStatus.Pending,
           userId,
           language,
-          checkPreviousSubmission: checkPreviousSubmissions,
+          checkPreviousSubmission: false, //checkPreviousSubmissions,
           enableMerging,
           useJplagClustering,
           minTokens,

@@ -6,8 +6,8 @@ export class CreatePlagiarismCheckInput {
   @Field(() => Language, { nullable: false })
   language!: keyof typeof Language
 
-  @Field(() => Boolean, { nullable: false, defaultValue: true })
-  checkPreviousSubmissions: boolean
+  /*@Field(() => Boolean, { nullable: false, defaultValue: true })
+  checkPreviousSubmissions: boolean*/
 
   @Field(() => Int, { nullable: false, defaultValue: 12 })
   minTokens: number

@@ -10,6 +10,12 @@ import { CheckResolver } from './check.resolver'
 import { CheckService } from './check.service'
 import { FileService } from './file.service'
 
+/**
+ * TODO:
+ * Jplag 최소 토큰이 너무 큰 경우 에러 발생
+ * previous submissions 확인 기능 없음
+ */
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
