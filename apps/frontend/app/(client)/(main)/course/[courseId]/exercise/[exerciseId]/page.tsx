@@ -3,17 +3,11 @@
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
-import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
+import { AssignmentStatus } from '@/app/admin/course/[courseId]/_components/AssignmentStatus'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
-import {
-  dateFormatter,
-  formatDateRange,
-  getStatusWithStartEnd
-} from '@/libs/utils'
-import calendarIcon from '@/public/icons/calendar.svg'
+import { dateFormatter, getStatusWithStartEnd } from '@/libs/utils'
 import { useQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import { columns } from './_components/Columns'
 
 interface ExerciseDetailProps {
@@ -72,24 +66,11 @@ export default function ExerciseDetail({ params }: ExerciseDetailProps) {
               <span className="text-primary">[Week {exercise.week}] </span>
               {exercise.title}
             </p>
-            <div className="flex min-w-[150px] flex-col gap-[6px]">
-              <div className="flex gap-2">
-                <Image
-                  src={calendarIcon}
-                  alt="calendar"
-                  width={16}
-                  height={16}
-                />
-                <p className="text-sm font-medium text-[#333333e6]">
-                  {formatDateRange(exercise.startTime, exercise.endTime, false)}
-                </p>
-              </div>
-              <AssignmentStatusTimeDiff
-                assignment={exercise}
-                textStyle="text-[#333333e6] font-medium opacity-100 text-sm"
-                inAssignmentEditor={false}
-              />
-            </div>
+            <AssignmentStatus
+              startTime={exercise.startTime}
+              endTime={exercise.endTime}
+              dueTime={exercise.dueTime}
+            />
           </div>
         </div>
         <Separator className="my-0" />
