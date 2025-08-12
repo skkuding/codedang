@@ -74,7 +74,6 @@ export function ProblemsUploadButton() {
       size={'sm'}
       type={'custom'}
       title="Upload Problems"
-      headerDescription={`Please upload Excel file containing problem data. If you are looking for the required schema, you can download <a href='/sample.xlsx' download class='text-primary underline'>the sample file here.</a>`}
       trigger={
         <Button variant="outline" className="w-[120px]">
           <UploadIcon className="mr-2 h-5 w-5" />
@@ -82,6 +81,12 @@ export function ProblemsUploadButton() {
         </Button>
       }
     >
+      <span className="w-full text-center text-sm font-normal text-[#737373]">
+        {`Please upload Excel file containing problem data. If you are looking for the required schema, you can download `}
+        <a href="/sample.xlsx" download className="text-primary underline">
+          {`the sample file here.`}
+        </a>
+      </span>
       <input
         hidden
         type="file"
@@ -91,24 +96,24 @@ export function ProblemsUploadButton() {
       />
       {file ? (
         <section className="relative flex h-full w-full flex-col items-center justify-center gap-4">
-          <div className="flex min-w-60 items-center justify-center gap-2 border-4 border-dotted p-8 text-sm">
+          <div className="flex min-w-60 items-center justify-center gap-2 text-sm">
             <RiFileExcel2Fill size={20} className="text-[#1D6F42]" />
             {file.name}
           </div>
-          <div className="flex gap-4">
+          <div className="flex w-full justify-center gap-[4px]">
             <Button
-              variant="ghost"
-              size="sm"
               onClick={resetFile}
               disabled={loading}
+              className="h-[46px] w-full text-base"
+              variant="outline"
             >
               Reset
             </Button>
             <Button
-              variant="default"
-              size="sm"
               onClick={uploadFile}
               disabled={loading}
+              className="h-[46px] w-full text-base"
+              variant="default"
             >
               Upload
             </Button>
@@ -120,14 +125,12 @@ export function ProblemsUploadButton() {
           )}
         </section>
       ) : (
-        <section className="flex h-full w-full flex-col items-center justify-center rounded-lg bg-slate-100">
+        <section className="flex items-center justify-center gap-3 rounded-lg">
           <UploadCloudIcon className="h-16 w-16 text-slate-800" />
-          <p className="text-sm font-semibold">Drag and Drop</p>
-          <p className="text-sm">or</p>
+          <p className="text-sm font-semibold">Drag and Drop or</p>
           <Button
             variant="outline"
-            className="mt-2 text-sm"
-            size="sm"
+            className="text-sm"
             onClick={openFileBrowser}
           >
             Browse
