@@ -4,7 +4,7 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import * as archiver from 'archiver'
 import { expect } from 'chai'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
-import sinon from 'sinon'
+import { spy, stub, createSandbox } from 'sinon'
 import { Readable } from 'stream'
 import {
   EntityNotExistException,
@@ -24,14 +24,14 @@ import { TestcaseService } from './testcase.service'
 
 const db = {
   problem: {
-    findFirstOrThrow: sinon.stub()
+    findFirstOrThrow: stub()
   },
   problemTestcase: {
-    create: sinon.stub(),
-    createMany: sinon.stub(),
-    deleteMany: sinon.stub(),
-    findMany: sinon.stub(),
-    update: sinon.stub()
+    create: stub(),
+    createMany: stub(),
+    deleteMany: stub(),
+    findMany: stub(),
+    update: stub()
   }
 }
 
@@ -227,7 +227,7 @@ describe('TestcaseService', () => {
   describe('uploadTestcase', () => {
     it('should return imported testcase', async () => {
       const problemId = 2
-      const createTestcaseSpy = sinon.spy(service, 'createTestcaseLegacy')
+      const createTestcaseSpy = spy(service, 'createTestcaseLegacy')
       db.problemTestcase.create.resetHistory()
       db.problemTestcase.create.resolves(testcaseData)
 
@@ -319,7 +319,7 @@ describe('TestcaseService - Fraction ScoreWeight', () => {
   let sandbox: sinon.SinonSandbox
 
   beforeEach(async () => {
-    sandbox = sinon.createSandbox()
+    sandbox = createSandbox()
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
