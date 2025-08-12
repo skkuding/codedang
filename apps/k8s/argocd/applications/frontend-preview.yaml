@@ -18,6 +18,8 @@ spec:
   template:
     metadata:
       name: '{{.number}}-preview-frontend'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
       annotations:
         appName: 'frontend'
         previewURL: 'https://{{.number}}.preview.codedang.com'
