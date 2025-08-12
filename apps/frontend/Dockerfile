@@ -2,7 +2,7 @@
 # ex) `docker build -f apps/frontend/Dockerfile .`
 
 ### BUILD ###
-FROM node:22.17.1-alpine AS build
+FROM node:22.18.0-alpine AS build
 
 WORKDIR /build
 
@@ -21,7 +21,7 @@ WORKDIR /build/apps/frontend
 RUN pnpm build
 
 ### INSTALL PACKAGES ###
-FROM node:22.17.1-alpine AS install
+FROM node:22.18.0-alpine AS install
 
 WORKDIR /app
 COPY pnpm-workspace.yaml .
@@ -32,7 +32,7 @@ COPY apps/frontend/package.json apps/frontend/
 RUN corepack enable && pnpm deploy --filter=@codedang/frontend --prod /app/install
 
 ### PRODUCTION ###
-FROM node:22.17.1-alpine AS production
+FROM node:22.18.0-alpine AS production
 
 WORKDIR /app
 
