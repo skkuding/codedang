@@ -16,7 +16,7 @@ spec:
     - host: test-k8s.codedang.com
       http:
         paths:
-          - path: /
+          - path: /api/
             pathType: Prefix
             backend:
               service:
