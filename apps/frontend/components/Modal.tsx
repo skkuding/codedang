@@ -98,6 +98,16 @@ export function Modal({
           >
             {title}
           </DialogTitle>
+          {headerDescription && (
+            <p
+              className={cn(
+                'w-full text-center text-sm font-normal text-[#737373]',
+                children && 'text-left'
+              )}
+            >
+              {headerDescription}
+            </p>
+          )}
         </DialogHeader>
         {type === 'input' && inputProps && (
           <ModalInput
@@ -107,16 +117,7 @@ export function Modal({
             onChange={inputProps.onChange}
           />
         )}
-        {headerDescription && (
-          <p
-            className={cn(
-              'w-full text-center text-sm font-normal text-[#737373]',
-              children && 'text-left'
-            )}
-          >
-            {headerDescription}
-          </p>
-        )}
+
         {children}
         {footerDescription && (
           <p
