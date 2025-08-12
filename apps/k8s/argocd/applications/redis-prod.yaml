@@ -8,7 +8,7 @@ metadata:
 spec:
   destination:
     namespace: redis
-    server: https://kubernetes.default.svc
+    name: production
   sources:
     - repoURL: https://charts.bitnami.com/bitnami
       chart: redis
