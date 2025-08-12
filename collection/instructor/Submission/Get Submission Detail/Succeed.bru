@@ -66,7 +66,7 @@ body:graphql:vars {
 }
 
 script:pre-request {
-  await require("./login").loginUser(req);
+  await require("./login").loginInstructor(req);
 }
 
 docs {

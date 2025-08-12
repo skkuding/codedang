@@ -21,18 +21,8 @@ body:graphql {
       assignmentId: $assignmentId
       problemId: $problemId
     ) {
-      title
-      studentId
-      realname
-      username
+      userId
       result
-      language
-      submissionTime
-      codeSize
-      problemId
-      order
-      ip
-      id
     }
   }
 }
@@ -47,7 +37,7 @@ body:graphql:vars {
 }
 
 script:pre-request {
-  await require("./login").loginUser(req);
+  await require("./login").loginInstructor(req);
 }
 
 settings {
