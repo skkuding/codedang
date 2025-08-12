@@ -19,5 +19,5 @@ class TestcaseResult {
   isHidden!: boolean
 
   @Field(() => ResultStatus, { nullable: false })
-  result!: ResultStatus
+  result!: `${ResultStatus}`
 }
