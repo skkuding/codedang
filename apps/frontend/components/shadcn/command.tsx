@@ -140,7 +140,7 @@ const CommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      'rounded-xs outline-hidden relative flex cursor-default select-none items-center px-2 py-1.5 text-sm aria-selected:bg-gray-100 aria-selected:text-gray-900 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 dark:aria-selected:bg-gray-800 dark:aria-selected:text-gray-50',
+      'rounded-xs outline-hidden = relative flex cursor-default select-none items-center p-2 text-base data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 dark:aria-selected:bg-gray-800 dark:aria-selected:text-gray-50',
       className
     )}
     {...props}
@@ -168,11 +168,11 @@ CommandShortcut.displayName = 'CommandShortcut'
 export {
   Command,
   CommandDialog,
-  CommandInput,
-  CommandList,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
-  CommandShortcut,
-  CommandSeparator
+  CommandList,
+  CommandSeparator,
+  CommandShortcut
 }

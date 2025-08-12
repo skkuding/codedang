@@ -1,10 +1,18 @@
+import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
-import type { Notification, NotificationRecord } from '@prisma/client'
+import type {
+  Notification,
+  NotificationRecord,
+  PushSubscription
+} from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  ConflictFoundException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { NotificationService } from './notification.service'
 
@@ -27,6 +35,17 @@ const notificationRecord: NotificationRecord = {
   notificationId,
   isRead: false,
   createTime: faker.date.past()
+}
+
+const pushSubscription: PushSubscription = {
+  id: 1,
+  userId,
+  endpoint: 'https://fcm.googleapis.com/fcm/send/test',
+  p256dh: 'test-p256dh-key',
+  auth: 'test-auth-key',
+  userAgent: 'Mozilla/5.0',
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const readNotificationRecord = {
@@ -67,7 +86,16 @@ const db = {
     delete: stub(),
     deleteMany: stub()
   },
+  pushSubscription: {
+    create: stub(),
+    delete: stub(),
+    deleteMany: stub()
+  },
   getPaginator: PrismaService.prototype.getPaginator
+}
+
+const mockConfigService = {
+  get: stub()
 }
 
 const recordNotFoundPrismaError = new PrismaClientKnownRequestError(
@@ -78,12 +106,24 @@ const recordNotFoundPrismaError = new PrismaClientKnownRequestError(
   }
 )
 
+const duplicateRecordPrismaError = new PrismaClientKnownRequestError(
+  'Unique constraint failed.',
+  {
+    code: 'P2002',
+    clientVersion: '5.8.1'
+  }
+)
+
 describe('NotificationService', () => {
   let service: NotificationService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [NotificationService, { provide: PrismaService, useValue: db }]
+      providers: [
+        NotificationService,
+        { provide: PrismaService, useValue: db },
+        { provide: ConfigService, useValue: mockConfigService }
+      ]
     }).compile()
 
     service = module.get<NotificationService>(NotificationService)
@@ -97,6 +137,10 @@ describe('NotificationService', () => {
     db.notificationRecord.count.reset()
     db.notification.delete.reset()
     db.notification.deleteMany.reset()
+    db.pushSubscription.create.reset()
+    db.pushSubscription.delete.reset()
+    db.pushSubscription.deleteMany.reset()
+    mockConfigService.get.reset()
   })
 
   it('should be defined', () => {
@@ -221,6 +265,104 @@ describe('NotificationService', () => {
       await expect(
         service.deleteNotification(userId, notificationRecordId)
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('createPushSubscription', () => {
+    const dto = {
+      endpoint: 'https://fcm.googleapis.com/fcm/send/test',
+      keys: { p256dh: 'test-p256dh-key', auth: 'test-auth-key' },
+      userAgent: 'Mozilla/5.0'
+    }
+
+    it('should create push subscription successfully', async () => {
+      db.pushSubscription.create.resolves(pushSubscription)
+
+      const result = await service.createPushSubscription(userId, dto)
+
+      expect(result).to.deep.equal(pushSubscription)
+      expect(
+        db.pushSubscription.create.calledWith({
+          data: {
+            userId,
+            endpoint: dto.endpoint,
+            p256dh: dto.keys.p256dh,
+            auth: dto.keys.auth,
+            userAgent: dto.userAgent
+          }
+        })
+      ).to.be.true
+    })
+
+    it('should throw ConflictFoundException when subscription already exists', async () => {
+      db.pushSubscription.create.rejects(duplicateRecordPrismaError)
+
+      await expect(
+        service.createPushSubscription(userId, dto)
+      ).to.be.rejectedWith(ConflictFoundException)
+    })
+  })
+
+  describe('deletePushSubscription', () => {
+    const endpoint = 'https://fcm.googleapis.com/fcm/send/test'
+
+    it('should delete specific push subscription', async () => {
+      db.pushSubscription.delete.resolves(pushSubscription)
+
+      const result = await service.deletePushSubscription(userId, endpoint)
+
+      expect(result).to.deep.equal({
+        deletedCount: 1,
+        subscription: pushSubscription
+      })
+      expect(
+        db.pushSubscription.delete.calledWith({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_endpoint: { userId, endpoint }
+          }
+        })
+      ).to.be.true
+    })
+
+    it('should delete all push subscriptions when endpoint not provided', async () => {
+      db.pushSubscription.deleteMany.resolves({ count: 3 })
+
+      const result = await service.deletePushSubscription(userId)
+
+      expect(result).to.deep.equal({ deletedCount: 3 })
+      expect(
+        db.pushSubscription.deleteMany.calledWith({
+          where: { userId }
+        })
+      ).to.be.true
+    })
+
+    it('should throw EntityNotExistException when subscription not found', async () => {
+      db.pushSubscription.delete.rejects(recordNotFoundPrismaError)
+
+      await expect(
+        service.deletePushSubscription(userId, endpoint)
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('getVapidPublicKey', () => {
+    it('should return VAPID public key', () => {
+      const publicKey = 'test-vapid-public-key'
+      mockConfigService.get.withArgs('VAPID_PUBLIC_KEY').returns(publicKey)
+
+      const result = service.getVapidPublicKey()
+
+      expect(result).to.deep.equal({ publicKey })
+    })
+
+    it('should throw error when VAPID public key not configured', () => {
+      mockConfigService.get.withArgs('VAPID_PUBLIC_KEY').returns(undefined)
+
+      expect(() => service.getVapidPublicKey()).to.throw(
+        'VAPID_PUBLIC_KEY is not configured'
+      )
     })
   })
 })

@@ -1655,6 +1655,7 @@ type Mutation {
   createWhitelist(groupId: Int!, studentIds: [String!]!): Float!
   deleteAssignment(assignmentId: Int!, groupId: Int!): Assignment!
   deleteContest(contestId: Int!): Contest!
+  deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
   deleteCourse(groupId: Int!): Group!
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
@@ -2245,6 +2246,62 @@ enum Provider {
   naver
 }
 
+type PushSubscription {
+  auth: String!
+  createTime: DateTime!
+  endpoint: String!
+  id: ID!
+  p256dh: String!
+  updateTime: DateTime!
+  user: User!
+  userAgent: String
+  userId: Int!
+}
+
+type PushSubscriptionAvgAggregate {
+  id: Float
+  userId: Float
+}
+
+type PushSubscriptionCountAggregate {
+  _all: Int!
+  auth: Int!
+  createTime: Int!
+  endpoint: Int!
+  id: Int!
+  p256dh: Int!
+  updateTime: Int!
+  userAgent: Int!
+  userId: Int!
+}
+
+type PushSubscriptionMaxAggregate {
+  auth: String
+  createTime: DateTime
+  endpoint: String
+  id: Int
+  p256dh: String
+  updateTime: DateTime
+  userAgent: String
+  userId: Int
+}
+
+type PushSubscriptionMinAggregate {
+  auth: String
+  createTime: DateTime
+  endpoint: String
+  id: Int
+  p256dh: String
+  updateTime: DateTime
+  userAgent: String
+  userId: Int
+}
+
+type PushSubscriptionSumAggregate {
+  id: Int
+  userId: Int
+}
+
 enum QnACategory {
   General
   Problem
@@ -2266,6 +2323,8 @@ type Query {
   getContest(contestId: Int!): ContestWithParticipants!
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestProblems(contestId: Int!): [ContestProblem!]!
+  getContestQnA(contestId: Int!, order: Int!): ContestQnA!
+  getContestQnAs(contestId: Int!): [ContestQnA!]!
   getContestRoles: [UserContest!]!
   getContestScoreSummaries(contestId: Int!, cursor: Int, searchingName: String, take: Int! = 10): [UserContestScoreSummaryWithUserInfo!]!
   getContestSubmissionSummaryByUserId(contestId: Int!, cursor: Int, problemId: Int, take: Int! = 10, userId: Int!): ContestSubmissionSummaryForUser!
@@ -2708,7 +2767,6 @@ type TestSubmissionSumAggregate {
 input Testcase {
   input: String!
   isHidden: Boolean!
-  order: Int
   output: String!
   scoreWeight: IntScore
 }
@@ -2881,6 +2939,7 @@ input UploadTestcaseZipInput {
 
 type User {
   NotificationRecord: [NotificationRecord!]
+  PushSubscription: [PushSubscription!]
   UpdateHistory: [UpdateHistory!]
   _count: UserCount!
   assignment: [Assignment!]
@@ -3010,6 +3069,7 @@ type UserContestSumAggregate {
 
 type UserCount {
   NotificationRecord: Int!
+  PushSubscription: Int!
   UpdateHistory: Int!
   assignment: Int!
   assignmentRecord: Int!
