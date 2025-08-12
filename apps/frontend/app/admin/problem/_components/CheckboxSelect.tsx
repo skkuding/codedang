@@ -112,6 +112,20 @@ export function CheckboxSelect<T extends string>({
             </CommandGroup>
           </CommandList>
         </Command>
+        <Button
+          variant="default"
+          className="h-9 w-full"
+          onClick={() => {
+            const popoverTrigger = document.querySelector('[data-state="open"]')
+            if (popoverTrigger) {
+              popoverTrigger.dispatchEvent(
+                new Event('click', { bubbles: true })
+              )
+            }
+          }}
+        >
+          Apply
+        </Button>
       </PopoverContent>
     </Popover>
   )
