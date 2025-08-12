@@ -19,6 +19,7 @@ import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { Label } from '../../_components/Label'
 import { isInvalid } from '../_libs/utils'
 import { TestcaseItem } from './TestcaseItem'
+import { TestcaseUploadModal } from './TestcaseUploadModal'
 
 export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const {
@@ -53,6 +54,23 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       ...getValues('testcases'),
       { input: '', output: '', isHidden, scoreWeight: '' }
     ])
+  }
+
+  const handleUploadTestcases = (
+    uploadedTestcases: Array<{ input: string; output: string }>
+  ) => {
+    const currentTestcases = getValues('testcases')
+    const isHidden = testcaseFlag === 1
+
+    const newTestcases = uploadedTestcases.map((testcase) => ({
+      input: testcase.input,
+      output: testcase.output,
+      isHidden,
+      scoreWeight: ''
+    }))
+
+    setValue('testcases', [...currentTestcases, ...newTestcases])
+    setDataChangeTrigger((prev) => prev + 1)
   }
   const handleSelectTestcase = (index: number, isSelected: boolean) => {
     setSelectedTestcases((prev) =>
@@ -178,28 +196,35 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     return filteredTC.slice(startIndex, startIndex + PAGE_SIZE)
   }, [filteredTC, currentPage])
 
+  const currentGroup = Math.floor((currentPage - 1) / 10)
+  const groupStartPage = currentGroup * 10 + 1
+  const groupEndPage = Math.min(groupStartPage + 9, totalPages)
+  const totalGroups = Math.ceil(totalPages / 10)
+
   const paginatorProps = {
     page: {
       current: currentPage,
-      first: 1,
-      count: totalPages,
+      first: groupStartPage,
+      count: groupEndPage - groupStartPage + 1,
       goto: (page: number) => {
-        if (page >= 1 && page <= totalPages) {
+        if (page >= groupStartPage && page <= groupEndPage) {
           setDataChangeTrigger((prev) => prev + 1)
           setCurrentPage(page)
         }
       }
     },
     slot: {
-      prev: currentPage > 1 ? 'prev' : '',
-      next: currentPage < totalPages ? 'next' : '',
+      prev: currentGroup > 0 ? 'prev' : '',
+      next: currentGroup < totalGroups - 1 ? 'next' : '',
       goto: (direction: 'prev' | 'next') => {
-        if (direction === 'prev' && currentPage > 1) {
+        if (direction === 'prev' && currentGroup > 0) {
+          const targetPage = currentGroup * 10
           setDataChangeTrigger((prev) => prev + 1)
-          setCurrentPage((p) => p - 1)
-        } else if (direction === 'next' && currentPage < totalPages) {
+          setCurrentPage(targetPage)
+        } else if (direction === 'next' && currentGroup < totalGroups - 1) {
+          const targetPage = (currentGroup + 1) * 10 + 1
           setDataChangeTrigger((prev) => prev + 1)
-          setCurrentPage((p) => p + 1)
+          setCurrentPage(targetPage)
         }
       }
     }
@@ -277,18 +302,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
               />
             </div>
             <div className="flex items-center justify-between gap-2">
-              <button
-                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
-                type="button"
-              >
-                <Image
-                  src="/icons/upload.svg"
-                  alt="upload Icon"
-                  width={20}
-                  height={20}
-                />
-                {/* 테스트케이스 업로드하는 함수 추가 해주시면 될 것 같아요 */}
-              </button>
+              <TestcaseUploadModal
+                onUpload={handleUploadTestcases}
+                isHidden={false}
+              />
               <button
                 onClick={() => {
                   deleteSelectedTestcases()
@@ -384,17 +401,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
               />
             </div>
             <div className="flex items-center justify-between gap-2">
-              <button
-                className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
-                type="button"
-              >
-                <Image
-                  src="/icons/upload.svg"
-                  alt="upload Icon"
-                  width={20}
-                  height={20}
-                />
-              </button>
+              <TestcaseUploadModal
+                onUpload={handleUploadTestcases}
+                isHidden={true}
+              />
               <button
                 onClick={() => {
                   deleteSelectedTestcases()
