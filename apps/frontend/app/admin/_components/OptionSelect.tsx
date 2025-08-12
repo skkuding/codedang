@@ -42,12 +42,12 @@ export function OptionSelect({
       </SelectTrigger>
       <SelectContent className="w-[var(--radix-select-trigger-width)] rounded-xl bg-white">
         <ScrollArea>
-          <SelectGroup className="max-h-40 p-4">
+          <SelectGroup className="flex flex-col gap-1 px-3 py-5">
             {options.map((option) => (
               <SelectItem
                 key={option}
                 value={option}
-                className="cursor-pointer text-base hover:bg-gray-100/80"
+                className="cursor-pointer hover:bg-gray-100/80"
               >
                 {option}
               </SelectItem>

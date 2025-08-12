@@ -127,27 +127,28 @@ SelectLabel.displayName = SelectPrimitive.Label.displayName
 const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & {
-    showCheckIcon?: boolean
+    showSelectIcon?: boolean
   }
->(({ className, children, showCheckIcon = true, ...props }, ref) => (
+>(({ className, children, showSelectIcon = true, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'focus:bg-accent focus:text-accent-foreground rounded-xs outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 relative flex w-full cursor-default select-none items-center py-1.5 pr-2 text-sm',
-      showCheckIcon ? 'pl-8' : 'pl-2',
+      'focus:bg-accent focus:text-accent-foreground rounded-xs outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 flex w-full cursor-default select-none items-center p-2 text-base',
       className
     )}
     {...props}
   >
-    {showCheckIcon && (
-      <span className="absolute left-0 flex items-center justify-center">
+    {showSelectIcon && (
+      <span className="mr-[14px] flex items-center justify-center">
         <IoIosRadioButtonOff className="h-5 w-5 text-gray-400" />
         <SelectPrimitive.ItemIndicator className="absolute">
           <IoIosRadioButtonOn className="text-primary h-5 w-5" />
         </SelectPrimitive.ItemIndicator>
       </span>
     )}
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    <SelectPrimitive.ItemText className="ml-3.5">
+      {children}
+    </SelectPrimitive.ItemText>
   </SelectPrimitive.Item>
 ))
 SelectItem.displayName = SelectPrimitive.Item.displayName

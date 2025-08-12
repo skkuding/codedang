@@ -90,16 +90,16 @@ export function CheckboxSelect<T extends string>({
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] rounded-xl p-5">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] rounded-xl px-3 py-5">
         <Command>
-          <CommandList>
+          <CommandList className="p-0">
             <CommandEmpty>No language found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem
                   key={option}
                   value={option}
-                  className="gap-x-2 text-base"
+                  className="gap-x-2 hover:bg-gray-100/80"
                 >
                   <Checkbox
                     className="rounded-sm"
