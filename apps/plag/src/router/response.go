@@ -64,5 +64,8 @@ func ErrorToResultCode(err error) handler.ResultCode {
   if errors.Is(err, handler.ErrRunJPlag) {
 		return handler.JPLAG_ERROR
 	}
+  if errors.Is(err, handler.ErrSmallTokens) {
+		return handler.TOKEN_ERROR
+	}
 	return handler.SERVER_ERROR
 }

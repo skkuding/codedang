@@ -796,6 +796,7 @@ enum CheckResultStatus {
   Pending
   Completed
   JplagError
+  TokenError
   ServerError
 }
 

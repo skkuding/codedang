@@ -718,6 +718,7 @@ enum CheckResultStatus {
   JplagError
   Pending
   ServerError
+  TokenError
 }
 
 type CheckResultSumAggregate {
@@ -1599,7 +1600,6 @@ input CreateNoticeInput {
 }
 
 input CreatePlagiarismCheckInput {
-  checkPreviousSubmissions: Boolean! = true
   enableMerging: Boolean! = false
   language: Language!
   minTokens: Int! = 12

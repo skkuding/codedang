@@ -78,6 +78,7 @@ export class CheckSubscriptionService implements OnModuleInit {
 
     if (
       status === CheckResultStatus.ServerError ||
+      status === CheckResultStatus.TokenError ||
       status === CheckResultStatus.JplagError
     ) {
       await this.handleCheckError(status, msg)

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strings"
 
 	"github.com/skkuding/codedang/apps/plag/src/loader"
 	"github.com/skkuding/codedang/apps/plag/src/utils"
@@ -37,6 +38,7 @@ type CheckManager interface {
 		comparisons []ComparisonWithID,
 		clusters []ClusterWithID,
 	) error
+  AnalyzeJplagOut(out []byte) error
 }
 
 type checkManager struct {
@@ -138,8 +140,17 @@ func (c *checkManager) CheckPlagiarismRate( // 요청된 설정에 맞춰 실제
 	if err != nil {
 		return out, fmt.Errorf("running jplag command error: %w, out: %s", err, string(out))
 	}
-
   return out, nil
+}
+
+func (c *checkManager) AnalyzeJplagOut(out []byte) error {
+  outStr := string(out)
+  for _, outLine := range strings.Split(outStr, "\n") {
+    if strings.Contains(outLine, "[ERROR]") {
+      return fmt.Errorf("error detected in jplag output: %s", outLine)
+    }
+  }
+  return nil
 }
 
 func (c *checkManager) SaveResult(

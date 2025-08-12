@@ -270,6 +270,17 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		return
 	}
 
+  if err := c.check.AnalyzeJplagOut(jplagOut); err != nil {
+    out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("%w: %s", ErrSmallTokens, err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
+		return
+  }
+
 	if err := c.file.Unzip( // 검사 결과물 압축 해제
 		c.file.MakeFilePath(dir, "result.jplag").String(),
 		c.file.GetBasePath(resDir),

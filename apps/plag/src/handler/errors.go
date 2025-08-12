@@ -44,4 +44,5 @@ var (
 	ErrMarshalJson       = errors.New("json marshal error")
 	ErrValidate          = errors.New("validation error")
   ErrRunJPlag          = errors.New("fail to run jplag")
+  ErrSmallTokens       = errors.New("small tokens in submissions")
 )
