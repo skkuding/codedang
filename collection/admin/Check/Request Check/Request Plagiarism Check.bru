@@ -1,0 +1,57 @@
+meta {
+  name: Request Plagiarism Check
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation CheckAssignmentSubmissions(
+    $input: CreatePlagiarismCheckInput!,
+    $assignmentId: Int!,
+    $problemId: Int!
+  ) {
+    checkAssignmentSubmissions(
+      input: $input,
+      assignmentId: $assignmentId,
+      problemId: $problemId
+    ) {
+      id
+      problemId
+      userId
+      language
+      checkPreviousSubmission
+      enableMerging
+      minTokens
+      useJplagClustering
+      assignmentId
+      contestId
+      workbookId
+      createTime
+      result
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "language": "Java",
+      "checkPreviousSubmissions": true,
+      "enableMerging": false,
+      "minTokens":  2,
+      "useJplagClustering": true
+    },
+    "problemId": 4,
+    "assignmentId": 6
+  }
+}
+
+settings {
+  encodeUrl: true
+}

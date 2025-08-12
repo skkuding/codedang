@@ -1,0 +1,52 @@
+meta {
+  name: Get Overview
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  query OverviewPlagiarismChecks(
+    $checkId: Int!,
+    $take: Int!,
+    $cursor: Int
+  ) {
+    overviewPlagiarismChecks(
+      checkId: $checkId,
+      take: $take,
+      cursor: $cursor
+    ) {
+      id
+      firstCheckSubmissionId
+      secondCheckSubmissionId
+      averageSimilarity
+      maxSimilarity
+      maxLength
+      longestMatch
+      firstSimilarity
+      secondSimilarity
+      clusterId
+      cluster {
+        averageSimilarity
+  	 		strength
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "checkId": 1,
+    "take": 10,
+    "cursor": null
+  }
+}
+
+settings {
+  encodeUrl: true
+}

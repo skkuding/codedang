@@ -1,0 +1,38 @@
+meta {
+  name: Get Cluster
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  query GetCluster(
+    $clusterId: Int!
+  ) {
+    getCluster(
+      clusterId: $clusterId
+    ) {
+      id
+      averageSimilarity
+      strength
+      submissionCluster {
+        submissionId
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "clusterId": 5
+  }
+}
+
+settings {
+  encodeUrl: true
+}

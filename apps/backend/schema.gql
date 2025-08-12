@@ -2192,112 +2192,6 @@ type Position {
   line: Int!
 }
 
-type Notification {
-  NotificationRecord: [NotificationRecord!]
-  _count: NotificationCount!
-  createTime: DateTime!
-  id: ID!
-  message: String!
-  title: String!
-  type: NotificationType!
-  url: String
-}
-
-type NotificationAvgAggregate {
-  id: Float
-}
-
-type NotificationCount {
-  NotificationRecord: Int!
-}
-
-type NotificationCountAggregate {
-  _all: Int!
-  createTime: Int!
-  id: Int!
-  message: Int!
-  title: Int!
-  type: Int!
-  url: Int!
-}
-
-type NotificationMaxAggregate {
-  createTime: DateTime
-  id: Int
-  message: String
-  title: String
-  type: NotificationType
-  url: String
-}
-
-type NotificationMinAggregate {
-  createTime: DateTime
-  id: Int
-  message: String
-  title: String
-  type: NotificationType
-  url: String
-}
-
-type NotificationRecord {
-  createTime: DateTime!
-  id: ID!
-  isRead: Boolean!
-  notification: Notification!
-  notificationId: Int!
-  user: User!
-  userId: Int!
-}
-
-type NotificationRecordAvgAggregate {
-  id: Float
-  notificationId: Float
-  userId: Float
-}
-
-type NotificationRecordCountAggregate {
-  _all: Int!
-  createTime: Int!
-  id: Int!
-  isRead: Int!
-  notificationId: Int!
-  userId: Int!
-}
-
-type NotificationRecordMaxAggregate {
-  createTime: DateTime
-  id: Int
-  isRead: Boolean
-  notificationId: Int
-  userId: Int
-}
-
-type NotificationRecordMinAggregate {
-  createTime: DateTime
-  id: Int
-  isRead: Boolean
-  notificationId: Int
-  userId: Int
-}
-
-type NotificationRecordSumAggregate {
-  id: Int
-  notificationId: Int
-  userId: Int
-}
-
-type NotificationSumAggregate {
-  id: Int
-}
-
-enum NotificationType {
-  Announcement
-  Assignment
-  Contest
-  Course
-  Other
-}
-
 type Problem {
   CheckRequest: [CheckRequest!]
   ContestQnA: [ContestQnA!]
@@ -3371,8 +3265,6 @@ input UploadTestcaseZipInput {
 
 type User {
   CheckRequest: [CheckRequest!]
-  CheckResultAsFirst: [CheckResult!]
-  CheckResultAsSecond: [CheckResult!]
   NotificationRecord: [NotificationRecord!]
   UpdateHistory: [UpdateHistory!]
   _count: UserCount!
@@ -3503,11 +3395,8 @@ type UserContestSumAggregate {
 
 type UserCount {
   CheckRequest: Int!
-  CheckResultAsFirst: Int!
-  CheckResultAsSecond: Int!
   NotificationRecord: Int!
   UpdateHistory: Int!
-  UserCluster: Int!
   assignment: Int!
   assignmentRecord: Int!
   contest: Int!
