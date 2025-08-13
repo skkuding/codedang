@@ -29,7 +29,7 @@ spec:
               - $codedang/apps/k8s/redis/values-{{.env}}.yaml
         - repoURL: https://github.com/skkuding/codedang
           # targetRevision: '{{.branch}}'
-          targetRevision: hotfix-correct-redis-k8s-configs
+          targetRevision: feat-configure-redis-for-each-environment
           ref: codedang
       destination:
         namespace: redis
