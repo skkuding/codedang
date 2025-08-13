@@ -18,7 +18,7 @@ interface CountdownStatusProps {
   inEditor?: boolean
   textStyle?: string
   baseTime: Date
-  target: string
+  target?: string
 }
 
 export function CountdownStatus({
@@ -31,7 +31,10 @@ export function CountdownStatus({
 }: CountdownStatusProps) {
   const router = useRouter()
   const { problemId, courseId, assignmentId, exerciseId } = useParams()
-  const [isFinished, setIsFinished] = useState(false)
+  const [isFinished, setIsFinished] = useState(() => {
+    const now = dayjs()
+    return now.isAfter(baseTime)
+  })
   const [timeDiff, setTimeDiff] = useState({
     days: 0,
     hours: '00',
@@ -79,11 +82,20 @@ export function CountdownStatus({
       }
     }
     setIsFinished(isCurrentlyFinished)
-  }, [baseTime])
+  }, [
+    baseTime,
+    inEditor,
+    isFinished,
+    assignmentId,
+    exerciseId,
+    router,
+    courseId,
+    problemId
+  ])
 
   useEffect(() => {
     updateStatus()
-  }, [])
+  }, [updateStatus])
 
   useInterval(updateStatus, 1000)
 
@@ -95,8 +107,8 @@ export function CountdownStatus({
       )}
     >
       {showIcon && <Image src={clockIcon} alt="calendar" width={14} />}
-      {showTarget && capitalizeFirstLetter(target)}
-      {showTarget ? ' submission ' : 'Submission '}
+      {target && showTarget && capitalizeFirstLetter(target)}
+      {target && showTarget ? ' submission ' : 'Submission '}
       {isFinished ? 'has ended' : 'ends in'}
       {!isFinished && (
         <p className="overflow-hidden text-ellipsis whitespace-nowrap">

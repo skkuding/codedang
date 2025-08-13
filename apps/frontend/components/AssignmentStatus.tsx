@@ -26,9 +26,7 @@ export function AssignmentStatus({
         </div>
       )}
       <DateRangeDisplay startTime={startTime} endTime={endTime} />
-      {hasDueDate(dueTime) && (
-        <CountdownStatus baseTime={dueTime} target="Submission" />
-      )}
+      {hasDueDate(dueTime) && <CountdownStatus baseTime={dueTime} />}
     </div>
   )
 }

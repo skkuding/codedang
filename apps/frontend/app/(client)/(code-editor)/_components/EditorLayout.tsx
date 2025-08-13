@@ -278,11 +278,6 @@ const renderTimediff = ({
         showTarget={false}
         inEditor={true}
       />
-      // <AssignmentStatusTimeDiff
-      //   assignment={item}
-      //   textStyle="text-sm text-error"
-      //   inAssignmentEditor={true}
-      // />
     )
   }
 
