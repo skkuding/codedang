@@ -69,7 +69,6 @@ export default function AssignmentDetail({ params }: AssignmentDetailProps) {
           </div>
           <AssignmentStatus
             startTime={assignment.startTime}
-            endTime={assignment.endTime}
             dueTime={assignment.dueTime}
           />
         </div>

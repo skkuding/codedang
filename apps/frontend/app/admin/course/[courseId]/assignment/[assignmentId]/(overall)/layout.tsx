@@ -42,7 +42,6 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
       {assignmentData && (
         <AssignmentStatus
           startTime={assignmentData?.startTime}
-          endTime={assignmentData?.endTime}
           dueTime={assignmentData?.dueTime}
         />
       )}

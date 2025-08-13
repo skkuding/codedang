@@ -68,7 +68,6 @@ export default function ExerciseDetail({ params }: ExerciseDetailProps) {
             </p>
             <AssignmentStatus
               startTime={exercise.startTime}
-              endTime={exercise.endTime}
               dueTime={exercise.dueTime}
             />
           </div>
