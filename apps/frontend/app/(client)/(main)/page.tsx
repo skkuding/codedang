@@ -61,10 +61,10 @@ export default function Home() {
       />
       <Carousel slides={slides} />
       <ErrorBoundary fallback={FetchErrorFallback}>
-        <ContestCards />
+        <ServiceCards />
       </ErrorBoundary>
       <ErrorBoundary fallback={FetchErrorFallback}>
-        <ServiceCards />
+        <ContestCards />
       </ErrorBoundary>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <NewProblemCards />

@@ -7,12 +7,13 @@ import {
   type AuthenticatedRequest
 } from '@libs/auth'
 import {
-  SubmissionOrderPipe,
   CursorValidationPipe,
-  RequiredIntPipe
+  RequiredIntPipe,
+  SubmissionOrderPipe
 } from '@libs/pipe'
 import { Submission } from '@admin/@generated'
 import { SubmissionOrder } from './enum/submission-order.enum'
+import { AssignmentProblemTestcaseResult } from './model/assignment-problem-testcase-results.model'
 import { AssignmentSubmission } from './model/assignment-submission.model'
 import { ContestSubmission } from './model/contest-submission.model'
 import {
@@ -124,6 +125,20 @@ export class SubmissionResolver {
       userId,
       problemId,
       req.user.id
+    )
+  }
+
+  @Query(() => [AssignmentProblemTestcaseResult])
+  @UseGroupLeaderGuard()
+  async getAssignmentProblemTestcaseResults(
+    @Args('groupId', { type: () => Int }) _groupId: number,
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('problemId', { type: () => Int }) problemId: number
+  ): Promise<AssignmentProblemTestcaseResult[]> {
+    return await this.submissionService.getAssignmentProblemTestcaseResults(
+      assignmentId,
+      problemId,
+      _groupId
     )
   }
 
