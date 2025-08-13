@@ -145,6 +145,7 @@ export interface Contest {
   title: string
   startTime: Date
   endTime: Date
+  registerDueTime: null | Date
   summary: {
     문제형태?: string
     순위산정?: string
@@ -167,6 +168,7 @@ export interface ContestTop {
   description: string
   startTime: Date
   endTime: Date
+  registerDueTime: Date
   isJudgeResultVisible: boolean
   posterUrl?: string
   summary: {
@@ -217,6 +219,7 @@ export interface ContestPreview {
   title: string
   startTime: Date
   endTime: Date
+  registerDueTime: Date
   summary: {
     문제형태?: string
     순위산정?: string
@@ -236,13 +239,6 @@ export interface ContestPreview {
     acceptedRate: number
     score: null | number
   }[]
-}
-
-export interface ContestStatusTimeDifftype {
-  id: number
-  status: ContestStatus
-  startTime: Date
-  endTime: Date
 }
 
 export interface Standings {
@@ -368,6 +364,9 @@ export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
   isUserTestcase: boolean
+}
+
+export interface TabbedTestResult extends TestResultDetail {
   originalId: number
 }
 
@@ -438,6 +437,7 @@ export interface Assignment {
   isRegistered: boolean
   problemCount: number
   submittedCount: number
+  isExercise: boolean
 }
 
 export interface AssignmentProblem {
@@ -530,4 +530,16 @@ export interface UpdateContestInfo extends UpdateContestInput {
       email: string
     }
   }[]
+}
+
+export interface BaseDataTableProblem {
+  id: number
+  title: string
+  updateTime: string
+  difficulty: string
+  submissionCount: number
+  acceptedRate: number
+  languages: string[]
+  score?: number
+  order?: number
 }

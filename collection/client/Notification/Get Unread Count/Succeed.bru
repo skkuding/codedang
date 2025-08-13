@@ -1,0 +1,39 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/notification/unread-count
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+assert {
+  res.status: eq 200
+  res.body: isNumber
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Unread Count
+
+  사용자의 읽지 않은 알림 개수를 가져옵니다.
+
+  ## Response
+
+  읽지 않은 알림의 개수를 나타내는 숫자를 반환합니다.
+
+  **Example Response:**
+  ```
+  5
+  ```
+}

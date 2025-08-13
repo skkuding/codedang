@@ -216,3 +216,9 @@ export const UNLIMITED_DATE = '2999-12-31T14:59:59.000Z'
  * @constant
  */
 export const ALLOWED_DOMAINS = ['skku.edu']
+
+/**
+ * The key for the Channel Talk plugin. Works only with codedang.com domain.
+ * @constant
+ */
+export const CHANNEL_TALK_KEY = '2f5b48ae-a587-431f-8106-2842c4403bc7'

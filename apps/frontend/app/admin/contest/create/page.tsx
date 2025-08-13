@@ -26,7 +26,7 @@ import { ContestProblemTable } from '../_components/ContestProblemTable'
 import { CreateEditContestLabel } from '../_components/CreateEditContestLabel'
 import { DisableCopyPasteForm } from '../_components/DisableCopyPasteForm'
 import { FreezeForm } from '../_components/FreezeForm'
-import { ImportDialog } from '../_components/ImportDialog'
+import { ImportProblemDialog } from '../_components/ImportProblemDialog'
 import { PosterUploadForm } from '../_components/PosterUploadForm'
 import { PreviewOverviewLayout } from '../_components/PreviewOverviewLayout'
 import { SampleTestcaseForm } from '../_components/SampleTestcaseForm'
@@ -100,13 +100,15 @@ export default function Page() {
                     className="max-w-[492px]"
                   />
                 </FormSection>
+                <FormSection title="Join DueTime">
+                  <TimeForm isContest name="registerDueTime" />
+                </FormSection>
                 <FormSection title="Start Time">
                   <TimeForm isContest name="startTime" />
                 </FormSection>
                 <FormSection title="End Time">
                   <TimeForm isContest name="endTime" />
                 </FormSection>
-
                 <FreezeForm name="freezeTime" />
               </div>
             </div>
@@ -164,7 +166,10 @@ export default function Page() {
                   title="Contest Problem List"
                   content={`If contest problems are imported from the ‘All Problem List’,<br>the problems will automatically become invisible state.<br>After the contests are all over, you can manually make the problem visible again.`}
                 />
-                <ImportDialog problems={problems} setProblems={setProblems} />
+                <ImportProblemDialog
+                  problems={problems}
+                  setProblems={setProblems}
+                />
               </div>
               <ContestProblemTable
                 problems={problems}

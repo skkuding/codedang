@@ -33,7 +33,8 @@ export default async function ContestTop({
   const contest: ContestTop = {
     ...data,
     startTime: new Date(data.startTime),
-    endTime: new Date(data.endTime)
+    endTime: new Date(data.endTime),
+    registerDueTime: new Date(data.registerDueTime)
   }
 
   return (

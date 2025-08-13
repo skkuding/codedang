@@ -8,7 +8,7 @@ import { NavLink } from './NavLink'
 export async function Header() {
   const session = await auth()
   return (
-    <header className="fixed left-0 z-40 grid h-[60px] w-full max-w-[1920px] place-items-center bg-white/80 px-[30px] backdrop-blur-sm">
+    <header className="backdrop-blur-xs fixed left-0 z-40 grid h-[60px] w-full place-items-center bg-white/80 px-[30px]">
       <div className="flex w-full max-w-[1440px] items-center justify-between gap-5 px-[116px]">
         {/* FIXME: If you uncomment a group tab, you have to remove a pr-20 tailwind class */}
         <div className="flex min-w-fit items-center justify-between gap-8 text-[16px]">

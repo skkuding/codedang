@@ -1,0 +1,36 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/notification/read-all
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+assert {
+  res.status: eq 200
+  res.body: isNumber
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Mark All Notifications As Read
+  
+  사용자의 모든 읽지 않은 알림을 읽음으로 표시합니다.
+  
+  ## Response
+  
+  읽음 처리된 알림의 개수를 숫자로 반환합니다.
+  
+  예시: `3` (3개의 알림이 읽음 처리됨)
+}
