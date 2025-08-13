@@ -13,6 +13,7 @@ import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { MdTextSnippet } from 'react-icons/md'
+import { toast } from 'sonner'
 import { ConfirmNavigation } from '../../_components/ConfirmNavigation'
 import { DescriptionForm } from '../../_components/DescriptionForm'
 import { FormSection } from '../../_components/FormSection'
@@ -187,6 +188,8 @@ export default function Page() {
                   const isValid = await methods.trigger()
                   if (isValid) {
                     setIsPreviewing(true)
+                  } else {
+                    toast.error('Please fill in all required fields.')
                   }
                 }}
               >

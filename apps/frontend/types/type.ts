@@ -178,12 +178,6 @@ export interface ContestTop {
     참여대상?: string
     참여혜택?: string
   }
-  contestProblem: {
-    order: number
-    problem: {
-      title: string
-    }
-  }[]
   enableCopyPaste: boolean
   status: ContestStatus
   participants: number

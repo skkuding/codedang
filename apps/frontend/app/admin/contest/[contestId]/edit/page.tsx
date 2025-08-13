@@ -19,6 +19,7 @@ import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { MdTextSnippet } from 'react-icons/md'
+import { toast } from 'sonner'
 import { TimeForm } from '../../../_components/TimeForm'
 import { AddManagerReviewerDialog } from '../../_components/AddManagerReviewerDialog'
 import { ContestManagerReviewerTable } from '../../_components/ContestManagerReviewerTable'
@@ -311,6 +312,8 @@ export default function Page({ params }: { params: { contestId: string } }) {
                     const isValid = await methods.trigger()
                     if (isValid) {
                       setIsPreviewing(true)
+                    } else {
+                      toast.error('Please fill in all required fields.')
                     }
                   }}
                 >
