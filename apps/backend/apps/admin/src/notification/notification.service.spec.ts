@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
 import type { Assignment, Notification } from '@prisma/client'
@@ -67,11 +68,19 @@ const db = {
   },
   notificationRecord: {
     createMany: stub()
+  },
+  pushSubscription: {
+    findMany: stub(),
+    delete: stub()
   }
 }
 
 const assignmentService = {
   isAllAssignmentProblemGraded: stub()
+}
+
+const mockConfigService = {
+  get: stub()
 }
 
 describe('NotificationService', () => {
@@ -82,7 +91,8 @@ describe('NotificationService', () => {
       providers: [
         NotificationService,
         { provide: PrismaService, useValue: db },
-        { provide: AssignmentService, useValue: assignmentService }
+        { provide: AssignmentService, useValue: assignmentService },
+        { provide: ConfigService, useValue: mockConfigService }
       ]
     }).compile()
 
@@ -93,7 +103,10 @@ describe('NotificationService', () => {
     db.assignment.findUnique.reset()
     db.notification.create.reset()
     db.notificationRecord.createMany.reset()
+    db.pushSubscription.findMany.reset()
+    db.pushSubscription.delete.reset()
     assignmentService.isAllAssignmentProblemGraded.reset()
+    mockConfigService.get.reset()
   })
 
   it('should be defined', () => {
@@ -106,6 +119,7 @@ describe('NotificationService', () => {
       db.assignment.findUnique.resolves(assignmentInfoForGraded)
       db.notification.create.resolves(notification)
       db.notificationRecord.createMany.resolves({ count: 1 })
+      db.pushSubscription.findMany.resolves([])
 
       await service.notifyAssignmentGraded(assignmentId, userId)
 
@@ -141,6 +155,7 @@ describe('NotificationService', () => {
       db.assignment.findUnique.resolves(null)
       db.notification.create.resolves(notification)
       db.notificationRecord.createMany.resolves({ count: 1 })
+      db.pushSubscription.findMany.resolves([])
 
       await service.notifyAssignmentGraded(assignmentId, userId)
 
@@ -158,6 +173,7 @@ describe('NotificationService', () => {
       db.assignment.findUnique.resolves(assignmentInfo)
       db.notification.create.resolves(notification)
       db.notificationRecord.createMany.resolves({ count: 3 })
+      db.pushSubscription.findMany.resolves([])
 
       await service.notifyAssignmentCreated(assignmentId)
 
@@ -238,6 +254,31 @@ describe('NotificationService', () => {
 
       expect(db.notification.create.called).to.be.false
       expect(db.notificationRecord.createMany.called).to.be.false
+    })
+  })
+
+  describe('sendPushNotification', () => {
+    it('should call findMany when notifying assignment graded', async () => {
+      assignmentService.isAllAssignmentProblemGraded.resolves(true)
+      db.assignment.findUnique.resolves(assignmentInfoForGraded)
+      db.notification.create.resolves(notification)
+      db.notificationRecord.createMany.resolves({ count: 1 })
+      db.pushSubscription.findMany.resolves([])
+
+      await service.notifyAssignmentGraded(assignmentId, userId)
+
+      expect(db.pushSubscription.findMany.calledOnce).to.be.true
+    })
+
+    it('should call findMany when notifying assignment created', async () => {
+      db.assignment.findUnique.resolves(assignmentInfo)
+      db.notification.create.resolves(notification)
+      db.notificationRecord.createMany.resolves({ count: 3 })
+      db.pushSubscription.findMany.resolves([])
+
+      await service.notifyAssignmentCreated(assignmentId)
+
+      expect(db.pushSubscription.findMany.calledOnce).to.be.true
     })
   })
 })

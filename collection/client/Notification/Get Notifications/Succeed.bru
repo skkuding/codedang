@@ -10,6 +10,10 @@ get {
   auth: none
 }
 
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
 query {
   take: 8
   ~cursor: 1
