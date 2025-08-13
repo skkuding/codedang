@@ -1,25 +1,57 @@
 'use client'
 
 import { Modal } from '@/components/Modal'
-import { ModalSection } from '@/components/ModalSection'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { Skeleton } from '@/components/shadcn/skeleton'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/shadcn/tooltip'
+//import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { GET_BELONGED_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import fileInfoIcon from '@/public/icons/file-info.svg'
+import filePen from '@/public/icons/file-pen.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useState } from 'react'
 
 interface ProblemUsageProps {
   problemId: number
   showContest?: boolean
   showAssignment?: boolean
+}
+
+interface ProblemSectionProps {
+  contents?: { id: string; title: string }[]
+}
+
+function HeaderSection({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-[6px] self-stretch">
+      <div className="bg-primary w-[6px] self-stretch rounded-[1px]" />
+      <span className="font-pretendard text-[18px] font-medium leading-[140%] tracking-[-0.54px] text-black">
+        {label}
+      </span>
+    </div>
+  )
+}
+
+function ProblemSection({ contents }: ProblemSectionProps) {
+  console.log(contents)
+  return (
+    <div className="flex flex-col items-start gap-[10px] self-stretch">
+      {contents?.map((content) => (
+        <div
+          key={content.id}
+          className="flex items-center self-stretch rounded-[10px] bg-[#F5F5F5] px-[20px] py-[18px]"
+        >
+          <div className="flex items-start gap-[10px]">
+            <Image src={filePen} alt="filewithpen" />
+            <Link href="/course">[Weekly Assignment] Week</Link>
+            {content.title}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 export function ProblemUsage({
@@ -49,74 +81,51 @@ export function ProblemUsage({
   const contestDataResult = contestData?.getContestsByProblemId
   const assignmentDataResult = assignmentData?.getAssignmentsByProblemId
 
-  const getModalTitle = () => {
-    const parts = []
-    if (showContest) {
-      parts.push('Contests')
-    }
-    if (showAssignment) {
-      parts.push('Assignments')
-    }
-
-    return parts.length > 0
-      ? `${parts.join('/')} with this problem`
-      : 'Usage of this problem'
-  }
-
   if (contestLoading || assignmentLoading) {
     return <Skeleton className="size-[25px]" />
   }
-  return contestDataResult && assignmentDataResult ? (
-    <>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              className="flex items-center justify-center"
-              onClick={() => {
-                setIsModalOpen(true)
-              }}
-            >
-              <Image src={fileInfoIcon} alt="fileinfo" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent className="mr-4 bg-white">
-            <p className="text-xs text-neutral-900">
-              Click to check which contests include this problem.
-            </p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <Modal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        size={'md'}
-        type={'custom'}
-        title={getModalTitle()}
-      >
-        <ModalSection
-          title="Upcoming"
-          items={[
-            ...(contestDataResult?.upcoming ?? []).map((item) => item.title),
-            ...(assignmentDataResult?.upcoming ?? []).map((item) => item.title)
-          ]}
-        />
-        <ModalSection
-          title="Ongoing"
-          items={[
-            ...(contestDataResult?.ongoing ?? []).map((item) => item.title),
-            ...(assignmentDataResult?.ongoing ?? []).map((item) => item.title)
-          ]}
-        />
-        <ModalSection
-          title="Finished"
-          items={[
-            ...(contestDataResult?.finished ?? []).map((item) => item.title),
-            ...(assignmentDataResult?.finished ?? []).map((item) => item.title)
-          ]}
-        />
-      </Modal>
-    </>
-  ) : null
+
+  return (
+    <Modal
+      size="lg"
+      type="custom"
+      title="Using this problem"
+      headerDescription="This problem is used in the following contexts"
+      trigger={<Image src={fileInfoIcon} alt="fileinfo" />}
+    >
+      <ScrollArea className="h-full w-full">
+        <div className="border-line flex h-full flex-col items-start gap-[30px] self-stretch rounded-[16px] border bg-white p-[30px]">
+          <div className="flex flex-col items-start gap-3 self-stretch">
+            {assignmentData && <HeaderSection label="Assignment" />}
+            {assignmentData && (
+              <ProblemSection
+                contents={
+                  (assignmentDataResult?.upcoming,
+                  assignmentDataResult?.ongoing,
+                  assignmentDataResult?.finished)
+                }
+              />
+            )}
+          </div>
+          {contestData && (
+            <div className="flex flex-col items-start gap-3 self-stretch">
+              {contestData && <HeaderSection label="Contest" />}
+              {contestData && (
+                <ProblemSection
+                  contents={
+                    (contestDataResult?.upcoming,
+                    contestDataResult?.ongoing,
+                    contestDataResult?.finished)
+                  }
+                />
+              )}
+            </div>
+          )}
+          <div className="flex flex-col items-start gap-3 self-stretch">
+            <HeaderSection label="Exercise" />
+          </div>
+        </div>
+      </ScrollArea>
+    </Modal>
+  )
 }
