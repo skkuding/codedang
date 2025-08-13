@@ -1,28 +1,31 @@
+'use client'
+
 import { Button } from '@/components/shadcn/button'
-import comingSoonLogo from '@/public/logos/coming-soon.png'
-import Image from 'next/image'
+import { useState } from 'react'
 import { DetailQna } from './_components/DetailQna'
 
-export default function ContestQna() {
+export default function QnaPage() {
+  const [showDetailQna, setShowDetailQna] = useState(false)
+
+  const handleBackToList = () => {
+    setShowDetailQna(false)
+  }
+
+  if (showDetailQna) {
+    return <DetailQna onBackToList={handleBackToList} />
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center py-[218px]">
-      <Button>
-        <DetailQna />
+    <div className="flex w-full flex-col items-center justify-center p-8">
+      <h2 className="mb-6 text-2xl font-medium text-black">Q&A</h2>
+      <Button
+        onClick={() => setShowDetailQna(true)}
+        className="h-[46px] px-6 py-3"
+      >
+        <span className="text-base font-medium text-white">
+          Post New Question
+        </span>
       </Button>
-      <Image
-        className="pb-10"
-        src={comingSoonLogo}
-        alt="coming-soon"
-        width={300}
-        height={300}
-      />
-      <div className="flex flex-col items-center">
-        <h2 className="pb-2 text-xl font-semibold">COMING SOON!</h2>
-        <p className="text-center text-base text-neutral-500">
-          This page is being prepared.
-          <br /> We will provide an update as soon as possible.
-        </p>
-      </div>
     </div>
   )
 }
