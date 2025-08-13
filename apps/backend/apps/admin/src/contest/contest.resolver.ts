@@ -12,6 +12,7 @@ import {
   Contest,
   ContestProblem,
   ContestQnA,
+  ContestQnAComment,
   User,
   UserContest
 } from '@generated'
@@ -233,7 +234,7 @@ export class ContestResolver {
 }
 
 @Resolver(() => ContestQnA)
-@UseContestRolesGuard(ContestRole.Manager)
+@UseDisableContestRolesGuard()
 export class ContestQnAResolver {
   constructor(
     private readonly contestService: ContestService,
@@ -261,5 +262,20 @@ export class ContestQnAResolver {
     @Args('order', { type: () => Int }, IDValidationPipe) order: number
   ) {
     return await this.contestService.deleteContestQnA(contestId, order)
+  }
+
+  @Mutation(() => ContestQnAComment)
+  async createContestQnAComment(
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('order', { type: () => Int }) order: number,
+    @Args('content', { type: () => String }) content: string,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.contestService.createContestQnAComment(
+      contestId,
+      order,
+      content,
+      req.user.id
+    )
   }
 }
