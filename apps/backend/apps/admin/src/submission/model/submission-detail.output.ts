@@ -48,10 +48,10 @@ class TestCaseResult {
   // @Field(() => Int)
   // scoreWeight: number
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Int, { nullable: true, description: '점수 가중치 분자' })
   scoreWeightNumerator?: number | null
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Int, { nullable: true, description: '점수 가중치 분모' })
   scoreWeightDenominator?: number | null
 
   @Field(() => Int, {
