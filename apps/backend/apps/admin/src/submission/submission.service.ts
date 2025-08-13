@@ -345,18 +345,10 @@ export class SubmissionService {
             problemTestcase: {
               select: {
                 id: true,
-                isHidden: true,
-                submissionResult: {
-                  orderBy: {
-                    id: 'desc'
-                  },
-                  take: 1,
-                  select: {
-                    result: true
-                  }
-                }
+                isHidden: true
               }
-            }
+            },
+            result: true
           }
         }
       }
@@ -369,7 +361,7 @@ export class SubmissionService {
         result: submission.submissionResult.map((sr) => ({
           id: sr.problemTestcase.id,
           isHidden: sr.problemTestcase.isHidden!,
-          result: sr.problemTestcase.submissionResult[0].result
+          result: sr.result
         }))
       }))
 
