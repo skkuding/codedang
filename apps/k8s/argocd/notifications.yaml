@@ -24,13 +24,13 @@ data:
 
   trigger.on-sync-succeeded: |
     - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Progressing'
-      oncePer: app.status.sync.revision
+      oncePer: app.status.operationState.syncResult.revision
       send: [github-running]
     - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Healthy'
-      oncePer: app.status.sync.revision
+      oncePer: app.status.operationState.syncResult.revision
       send: [github-succeed]
     - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Degraded'
-      oncePer: app.status.sync.revision
+      oncePer: app.status.operationState.syncResult.revision
       send: [github-failed]
 
   template.github-running: |
