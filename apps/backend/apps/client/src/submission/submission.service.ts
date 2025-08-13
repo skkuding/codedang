@@ -29,6 +29,7 @@ import {
   ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
+import { CodePolicyService } from '@libs/policy'
 import { PrismaService } from '@libs/prisma'
 import {
   CreateSubmissionDto,
@@ -48,7 +49,8 @@ export class SubmissionService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly publish: SubmissionPublicationService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly codePolicy: CodePolicyService
   ) {}
 
   // setRequest(req: Request) {
@@ -475,6 +477,10 @@ export class SubmissionService {
         `This problem does not support language ${submissionDto.language}`
       )
     }
+
+    // Code Policy 검사
+    this.codePolicy.validate(submissionDto.language, submissionDto.code)
+
     const { code, ...data } = submissionDto
     if (
       !this.isValidCode(
@@ -694,6 +700,10 @@ export class SubmissionService {
         `This problem does not support language ${submissionDto.language}`
       )
     }
+
+    // Code Policy 검사
+    this.codePolicy.validate(submissionDto.language, submissionDto.code)
+
     const { code } = submissionDto
     if (
       !this.isValidCode(
