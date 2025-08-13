@@ -1661,6 +1661,7 @@ type Mutation {
   deleteAssignment(assignmentId: Int!, groupId: Int!): Assignment!
   deleteContest(contestId: Int!): Contest!
   deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
+  deleteContestQnAComment(commentOrder: Int!, contestId: Int!, qnAOrder: Int!): ContestQnAComment!
   deleteCourse(groupId: Int!): Group!
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!

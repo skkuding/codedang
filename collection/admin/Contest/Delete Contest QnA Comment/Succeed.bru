@@ -1,0 +1,29 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    deleteContestQnAComment(
+      contestId: 1
+      qnAOrder: 1
+      commentOrder: 1
+    ) {
+      id
+      content
+      isContestStaff
+      order
+      contestQnAId
+      createdTime
+    }
+  }
+}
+

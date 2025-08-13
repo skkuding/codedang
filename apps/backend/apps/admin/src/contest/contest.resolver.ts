@@ -278,4 +278,17 @@ export class ContestQnAResolver {
       req.user.id
     )
   }
+
+  @Mutation(() => ContestQnAComment)
+  async deleteContestQnAComment(
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('qnAOrder', { type: () => Int }) qnAOrder: number,
+    @Args('commentOrder', { type: () => Int }) commentOrder: number
+  ) {
+    return await this.contestService.deleteContestQnAComment(
+      contestId,
+      qnAOrder,
+      commentOrder
+    )
+  }
 }

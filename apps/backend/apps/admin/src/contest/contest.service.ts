@@ -1489,4 +1489,67 @@ export class ContestService {
       return comment
     })
   }
+
+  async deleteContestQnAComment(
+    contestId: number,
+    qnAOrder: number,
+    commentOrder: number
+  ) {
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const contestQnA = await this.prisma.contestQnA.findFirst({
+      where: {
+        contestId,
+        order: qnAOrder
+      }
+    })
+
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    const contestQnAComment = await this.prisma.contestQnAComment.findFirst({
+      where: {
+        contestQnAId: contestQnA.id,
+        order: commentOrder
+      }
+    })
+
+    if (!contestQnAComment) {
+      throw new EntityNotExistException('ContestQnAComment')
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const deletedComment = await tx.contestQnAComment.delete({
+        where: { id: contestQnAComment.id }
+      })
+
+      const lastComment = await tx.contestQnAComment.findFirst({
+        where: {
+          contestQnAId: contestQnA.id
+        },
+        orderBy: {
+          order: 'desc'
+        },
+        select: {
+          isContestStaff: true
+        }
+      })
+
+      const isResolved = lastComment ? lastComment.isContestStaff : false
+
+      await tx.contestQnA.update({
+        where: { id: contestQnA.id },
+        data: { isResolved }
+      })
+
+      return deletedComment
+    })
+  }
 }
