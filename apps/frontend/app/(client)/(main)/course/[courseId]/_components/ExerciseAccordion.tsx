@@ -123,7 +123,6 @@ function ExerciseAccordionItem({
             {exercise && hasDueDate(exercise.dueTime) && (
               <CountdownStatus
                 baseTime={exercise.dueTime}
-                target="Submission"
                 textStyle="text-color-neutral-50"
                 showIcon={false}
               />

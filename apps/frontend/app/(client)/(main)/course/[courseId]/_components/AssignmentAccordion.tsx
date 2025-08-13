@@ -123,7 +123,6 @@ function AssignmentAccordionItem({
             {assignment && hasDueDate(assignment.dueTime) && (
               <CountdownStatus
                 baseTime={assignment.dueTime}
-                target="Submission"
                 textStyle="text-color-neutral-50"
                 showIcon={false}
               />
