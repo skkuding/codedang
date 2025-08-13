@@ -1,9 +1,7 @@
 import { encode, getToken } from 'next-auth/jwt'
 import { NextResponse, type NextRequest } from 'next/server'
-import { useEffect, useState } from 'react'
 import { getJWTFromResponse } from './libs/auth/getJWTFromResponse'
 import { baseUrl } from './libs/constants'
-import { safeFetcherWithAuth } from './libs/utils'
 
 const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
   ? '__Secure-next-auth.session-token'

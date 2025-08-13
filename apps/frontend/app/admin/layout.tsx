@@ -7,6 +7,9 @@ import { redirect } from 'next/navigation'
 import { ClientApolloProvider } from './_components/ApolloProvider'
 import { ManagementSidebar } from './_components/ManagementSidebar'
 
+// API calls depend on session, so this layout must be dynamic
+export const dynamic = 'force-dynamic'
+
 async function fetchGroupLeaderRole() {
   try {
     const response: Course[] = await safeFetcherWithAuth
