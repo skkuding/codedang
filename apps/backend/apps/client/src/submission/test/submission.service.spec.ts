@@ -3,7 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
-import type { Contest, User, Assignment } from '@prisma/client'
+import type { Assignment, Contest, User } from '@prisma/client'
 import { Language, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
@@ -15,10 +15,11 @@ import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
+import { CodePolicyService } from '@libs/policy'
 import { PrismaService } from '@libs/prisma'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
-import { submissions, submissionDto } from '../mock/submission.mock'
+import { submissionDto, submissions } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
 import { SubmissionPublicationService } from '../submission-pub.service'
 import { SubmissionService } from '../submission.service'
@@ -162,7 +163,8 @@ describe('SubmissionService', () => {
               keys: () => []
             }
           })
-        }
+        },
+        CodePolicyService
       ]
     }).compile()
 
