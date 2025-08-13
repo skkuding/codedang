@@ -23,7 +23,7 @@ import { useDataTable } from './context'
 interface DataTableProps<TData extends { id: number }, TRoute extends string> {
   headerStyle?: Record<string, string>
   showFooter?: boolean
-  isModalDataTable?: boolean
+  isHeaderGrouped?: boolean
   isCardView?: boolean
   /**
    * 각 행의 데이터에 따라 href를 반환하는 함수
@@ -72,7 +72,7 @@ const bodySizeMap = {
 export function DataTable<TData extends { id: number }, TRoute extends string>({
   headerStyle = {},
   showFooter = false,
-  isModalDataTable = false,
+  isHeaderGrouped = false,
   isCardView = false,
   getHref,
   onRowClick,
@@ -135,28 +135,31 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
   return (
     <ScrollArea className="rounded-xs max-w-full">
       <Table>
-        <TableHeader
-          className={cn(
-            '[&_td]:border-[#80808040]',
-            isModalDataTable && 'border-b-0'
-          )}
-        >
+        <TableHeader className="border-b-0">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
-              className={cn(isModalDataTable && 'bg-neutral-200/30')}
+              className={cn(isHeaderGrouped && 'bg-background-alternative')}
             >
               {headerGroup.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  className={cn(headerStyle[header.id], headerSizeMap[size])}
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                <TableHead key={header.id}>
+                  <div
+                    className={cn(
+                      headerStyle[header.id],
+                      headerSizeMap[size],
+                      !isHeaderGrouped &&
+                        header.id !== 'select' &&
+                        'rounded-full bg-neutral-200/30',
+                      'flex items-center justify-center'
+                    )}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </div>
                 </TableHead>
               ))}
             </TableRow>
@@ -168,12 +171,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className={cn(
-                  'cursor-pointer',
-                  isModalDataTable &&
-                    'hover:bg-white data-[state=selected]:bg-white',
-                  'hover:bg-neutral-200/30'
-                )}
+                className={cn('cursor-pointer', 'hover:bg-neutral-200/30')}
                 onClick={() => {
                   onRowClick?.(table, row)
                   const href = getHref?.(row.original)

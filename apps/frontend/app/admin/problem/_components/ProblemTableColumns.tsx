@@ -60,7 +60,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   }, [fetched, getContestsByProblemId, row.original])
 
   return (
-    <div className="ml-8 flex items-center space-x-2">
+    <div className="flex items-center justify-center space-x-2">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -127,7 +127,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         aria-label="Select row"
-        className="translate-y-[2px]"
+        className="mr-2 translate-y-[2px]"
       />
     ),
     enableSorting: false,

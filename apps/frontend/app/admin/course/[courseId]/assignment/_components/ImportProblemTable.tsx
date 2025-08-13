@@ -100,7 +100,7 @@ export function ImportProblemTable({
       </div>
       <DataTable
         size="sm"
-        isModalDataTable={true}
+        isHeaderGrouped={true}
         headerStyle={{
           select: 'rounded-l-full',
           preview: 'rounded-r-full'
