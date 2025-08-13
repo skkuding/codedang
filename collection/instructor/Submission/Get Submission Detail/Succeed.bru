@@ -65,10 +65,6 @@ body:graphql:vars {
   }
 }
 
-script:pre-request {
-  await require("./login").loginInstructor(req);
-}
-
 docs {
   ## Get Submission by id
   
