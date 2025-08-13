@@ -24,7 +24,8 @@ export default eslintTS.config(
       '**/collection',
       '**/.next',
       '**/codegen.ts',
-      '**/*.config.{js,mjs,ts}'
+      '**/*.config.{js,mjs,ts}',
+      '**/worker/**/*.js'
     ]
   },
 
