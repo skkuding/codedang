@@ -1,17 +1,21 @@
 'use client'
 
-import { cn } from '@/libs/utils'
+import { capitalizeFirstLetter, cn } from '@/libs/utils'
 import clockIcon from '@/public/icons/clock.svg'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import Image from 'next/image'
+import { useParams, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { useInterval } from 'react-use'
+import { toast } from 'sonner'
 
 dayjs.extend(duration)
 
 interface CountdownStatusProps {
   showIcon?: boolean
+  showTarget?: boolean
+  inEditor?: boolean
   textStyle?: string
   baseTime: Date
   target: string
@@ -19,10 +23,14 @@ interface CountdownStatusProps {
 
 export function CountdownStatus({
   showIcon = true,
+  showTarget = true,
+  inEditor = false,
   baseTime,
   target,
   textStyle
 }: CountdownStatusProps) {
+  const router = useRouter()
+  const { problemId, courseId, assignmentId, exerciseId } = useParams()
   const [isFinished, setIsFinished] = useState(false)
   const [timeDiff, setTimeDiff] = useState({
     days: 0,
@@ -33,16 +41,44 @@ export function CountdownStatus({
 
   const updateStatus = useCallback(() => {
     const now = dayjs()
-    const isFinished = now.isAfter(baseTime)
-    setIsFinished(isFinished)
+    const isCurrentlyFinished = now.isAfter(baseTime)
 
     const diff = dayjs.duration(Math.abs(dayjs(baseTime).diff(now)))
+    const days = Math.floor(diff.asDays())
+    const hours = Math.floor(diff.asHours() % 24)
+    const minutes = Math.floor(diff.asMinutes() % 60)
+    const seconds = Math.floor(diff.asSeconds() % 60)
+
     setTimeDiff({
-      days: Math.floor(diff.asDays()),
-      hours: diff.hours().toString().padStart(2, '0'),
-      minutes: diff.minutes().toString().padStart(2, '0'),
-      seconds: diff.seconds().toString().padStart(2, '0')
+      days,
+      hours: hours.toString().padStart(2, '0'),
+      minutes: minutes.toString().padStart(2, '0'),
+      seconds: seconds.toString().padStart(2, '0')
     })
+
+    if (inEditor) {
+      if (isCurrentlyFinished && !isFinished) {
+        if (assignmentId) {
+          router.push(
+            `/course/${courseId}/assignment/${assignmentId}/finished/problem/${problemId}?force=true` as const
+          )
+        } else if (exerciseId) {
+          router.push(
+            `/course/${courseId}/exercise/${exerciseId}/finished/problem/${problemId}?force=true` as const
+          )
+        }
+      }
+
+      if (!isCurrentlyFinished && days === 0 && hours === 0) {
+        if (minutes === 5 && seconds === 0) {
+          toast.error('Submission ends in 5 minutes.', { duration: 10000 })
+        }
+        if (minutes === 1 && seconds === 0) {
+          toast.error('Submission ends in 1 minute.', { duration: 10000 })
+        }
+      }
+    }
+    setIsFinished(isCurrentlyFinished)
   }, [baseTime])
 
   useEffect(() => {
@@ -59,7 +95,9 @@ export function CountdownStatus({
       )}
     >
       {showIcon && <Image src={clockIcon} alt="calendar" width={14} />}
-      {target} {isFinished ? 'ended' : 'ends in'}
+      {showTarget && capitalizeFirstLetter(target)}
+      {showTarget ? ' submission ' : 'Submission '}
+      {isFinished ? 'has ended' : 'ends in'}
       {!isFinished && (
         <p className="overflow-hidden text-ellipsis whitespace-nowrap">
           {timeDiff.days > 0
