@@ -57,7 +57,7 @@ function SidebarLink({ item, isActive, isExpanded }: SidebarLinkProps) {
       className={cn(
         'flex items-center px-4 py-2 transition',
         isActive ? 'bg-primary text-white' : 'text-[#474747] hover:bg-gray-100',
-        isExpanded ? 'w-48 rounded-full' : 'rounded'
+        isExpanded ? 'w-48 rounded-full' : 'rounded-xs'
       )}
     >
       <item.icon

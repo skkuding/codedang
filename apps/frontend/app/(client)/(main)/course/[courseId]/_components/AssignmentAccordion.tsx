@@ -37,7 +37,7 @@ interface AssignmentAccordianProps {
 
 export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
   const { data: assignments } = useQuery(
-    assignmentQueries.muliple({ courseId })
+    assignmentQueries.muliple({ courseId, isExercise: false })
   )
   const { data: grades } = useQuery(assignmentQueries.grades({ courseId }))
 

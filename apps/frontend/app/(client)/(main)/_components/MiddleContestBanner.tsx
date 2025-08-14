@@ -3,6 +3,7 @@ import { contestNoticeId } from '@/libs/constants'
 import RightIcon from '@/public/icons/arrow-right-white.svg'
 import Image from 'next/image'
 import Link from 'next/link'
+import type { JSX } from 'react'
 
 export function MiddleContestBanner() {
   return (
@@ -104,7 +105,7 @@ function ImageBox({ className }: { className: string }) {
 function ImageMask({ className }: { className: string }) {
   return (
     <div
-      className={`from-background/50 to-background/0 absolute right-0 top-[-48px] bg-gradient-to-b ${className}`}
+      className={`from-background/50 to-background/0 bg-linear-to-b absolute right-0 top-[-48px] ${className}`}
     />
   )
 }
