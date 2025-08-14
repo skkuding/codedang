@@ -77,6 +77,7 @@ export function DetailQna({ onBackToList }: DetailQnaProps) {
             id="title"
             placeholder="Enter a question title"
             value={title}
+            maxLength={70}
             onChange={(e) => setTitle(e.target.value)}
             className="font-pretendard truncate border-none p-0 text-base font-normal leading-[24px] tracking-[-0.48px] text-[#5C5C5C] caret-transparent ring-0 placeholder:text-[#C4C4C4] focus:placeholder:text-transparent focus-visible:ring-0"
           />
@@ -114,6 +115,7 @@ export function DetailQna({ onBackToList }: DetailQnaProps) {
           id="content"
           placeholder="Enter a question"
           value={content}
+          maxLength={400}
           onChange={(e) => setContent(e.target.value)}
           className="font-pretendard h-full min-h-[188px] resize-none !border-none !p-0 text-base font-normal not-italic leading-normal tracking-[-0.48px] text-[#5C5C5C] shadow-none placeholder:text-[#C4C4C4] focus:placeholder:text-transparent focus-visible:ring-0"
         />
