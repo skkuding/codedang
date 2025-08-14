@@ -2,13 +2,13 @@ import { EditorSkeleton } from '@/app/(client)/(code-editor)/_components/EditorS
 import { FinishedNoticePanel } from '@/app/(client)/(code-editor)/_components/FinishedNoticePanel'
 
 interface ExerciseFinishedPageProps {
-  params: { problemId: string; exerciseId: string; courseId: string }
+  params: Promise<{ problemId: string; exerciseId: string; courseId: string }>
 }
 
-export default function ExerciseFinishedPage({
-  params
-}: ExerciseFinishedPageProps) {
-  const { problemId, exerciseId, courseId } = params
+export default async function ExerciseFinishedPage(
+  props: ExerciseFinishedPageProps
+) {
+  const { problemId, exerciseId, courseId } = await props.params
 
   return (
     <>

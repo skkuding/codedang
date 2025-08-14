@@ -5,12 +5,12 @@ import Link from 'next/link'
 import { RxHamburgerMenu } from 'react-icons/rx'
 
 interface NoticeDetailProps {
-  params: {
+  params: Promise<{
     noticeId: string
-  }
-  searchParams: {
+  }>
+  searchParams: Promise<{
     page: string | undefined
-  }
+  }>
 }
 
 interface NoticeIdProps {
@@ -31,12 +31,9 @@ interface NoticeIdProps {
   }
 }
 
-export default async function NoticeDetail({
-  params,
-  searchParams
-}: NoticeDetailProps) {
-  const { noticeId } = params
-  const { page } = searchParams
+export default async function NoticeDetail(props: NoticeDetailProps) {
+  const { noticeId } = await props.params
+  const { page } = await props.searchParams
 
   const noticeIdRes: NoticeIdProps = await fetcher
     .get(`notice/${noticeId}`)
