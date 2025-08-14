@@ -106,7 +106,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       open={isDialogOpen}
       onOpenChange={setIsDialogOpen}
       type={'warning'}
-      showWarningIcon={!deleteItems}
+      showIcon={!deleteItems}
       title={`Delete ${target}?`}
       primaryButton={{
         text: 'Delete',
