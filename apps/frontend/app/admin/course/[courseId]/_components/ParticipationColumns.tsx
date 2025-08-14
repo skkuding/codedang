@@ -17,37 +17,27 @@ export const createColumns = (
   return [
     {
       accessorKey: 'studentId',
-      header: () => <p className="font-mono text-sm">Student ID</p>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Student ID" />
+      ),
       cell: ({ row }) => (
-        <div className="whitespace-nowrap text-center text-xs font-medium">
-          {row.getValue('studentId')}
-        </div>
+        <div className="whitespace-nowrap">{row.getValue('studentId')}</div>
       )
     },
     {
       accessorKey: 'realName',
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Name"
-          className="flex justify-center"
-        />
+        <DataTableColumnHeader column={column} title="Name" />
       ),
       cell: ({ row }) => (
-        <div className="whitespace-nowrap text-center text-xs font-medium">
-          {row.original.realName}
-        </div>
+        <div className="whitespace-nowrap">{row.original.realName}</div>
       ),
       filterFn: 'includesString'
     },
     {
       accessorKey: 'submittedProblemCount',
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Submit"
-          className="flex justify-center border-x"
-        />
+        <DataTableColumnHeader column={column} title="Submit" />
       ),
       cell: ({ row }) => (
         <div className="flex justify-center border-x">
@@ -58,11 +48,7 @@ export const createColumns = (
     {
       accessorKey: 'userAssignmentScore',
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Total"
-          className="flex justify-center"
-        />
+        <DataTableColumnHeader column={column} title="Total" />
       ),
       cell: ({ row }) => (
         <div>

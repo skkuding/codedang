@@ -158,6 +158,10 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
     ...problemHeaders
   ]
 
+  const headerStyle = {
+    title: 'w-2/5'
+  }
+
   return (
     <div>
       <DataTableRoot
@@ -197,6 +201,7 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
           getHref={(data) =>
             `/admin/course/${courseId}/assignment/${assignmentId}/participant/${data.id}` as const
           }
+          headerStyle={headerStyle}
         />
         <DataTablePagination />
       </DataTableRoot>

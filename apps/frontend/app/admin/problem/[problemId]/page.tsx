@@ -9,7 +9,7 @@ import { usePagination } from '@/libs/hooks/usePagination'
 import type { SubmissionItem } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
-import { FaAngleLeft, FaPencil, FaEye } from 'react-icons/fa6'
+import { FaAngleLeft, FaEye, FaPencil } from 'react-icons/fa6'
 import { columns } from './_components/Columns'
 import { DataTable } from './_components/DataTable'
 

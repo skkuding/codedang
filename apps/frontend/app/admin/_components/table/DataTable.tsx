@@ -21,7 +21,7 @@ import { useRouter } from 'next/navigation'
 import { useDataTable } from './context'
 
 interface DataTableProps<TData extends { id: number }, TRoute extends string> {
-  headerStyle?: Record<string, string>
+  bodyStyle?: Record<string, string>
   showFooter?: boolean
   isHeaderGrouped?: boolean
   isCardView?: boolean
@@ -57,31 +57,20 @@ interface DataTableProps<TData extends { id: number }, TRoute extends string> {
  * 행 클릭 시 호출되는 함수
  */
 
-const headerSizeMap = {
-  sm: 'h-[30px]!',
-  md: 'h-[39px]!',
-  lg: 'h-[40px]!'
+const headerStyleMap = {
+  sm: 'h-[30px]! text-sm font-medium',
+  md: 'h-[39px]! text-sm font-normal',
+  lg: 'h-[40px]! text-base font-medium'
 }
 
-const headerFontMap = {
-  sm: 'text-sm font-medium',
-  md: 'text-sm font-normal',
-  lg: 'text-base font-medium'
-}
-
-const bodySizeMap = {
-  sm: 'h-[40px]!',
-  md: 'h-[57px]!',
-  lg: 'h-[76px]!'
-}
-const bodyFontmap = {
-  sm: 'text-sm font-normal',
-  md: 'text-sm font-normal',
-  lg: 'text-base font-normal'
+const bodyStyleMap = {
+  sm: 'h-[40px]! text-sm font-normal',
+  md: 'h-[57px]! text-sm font-normal',
+  lg: 'h-[76px]! text-base font-normal'
 }
 
 export function DataTable<TData extends { id: number }, TRoute extends string>({
-  headerStyle = {},
+  bodyStyle = {},
   showFooter = false,
   isHeaderGrouped = false,
   isCardView = false,
@@ -156,9 +145,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                 <TableHead key={header.id}>
                   <div
                     className={cn(
-                      headerStyle[header.id],
-                      headerSizeMap[size],
-                      headerFontMap[size],
+                      headerStyleMap[size],
                       !isHeaderGrouped &&
                         'flex items-center justify-center rounded-full bg-neutral-200/30 [&:has([role=checkbox])]:w-14 [&:has([role=checkbox])]:bg-transparent'
                     )}
@@ -194,13 +181,21 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                   <TableCell
                     key={cell.id}
                     className={cn(
-                      headerStyle[cell.column.id],
-                      bodySizeMap[size],
-                      bodyFontmap[size],
-                      'text-center md:p-4 [&:has([role=checkbox])]:w-14'
+                      bodyStyleMap[size],
+                      'md:p-4 [&:has([role=checkbox])]:w-14'
                     )}
                   >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    <div
+                      className={cn(
+                        'flex justify-center',
+                        bodyStyle[cell.column.id]
+                      )}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </div>
                   </TableCell>
                 ))}
               </TableRow>
@@ -221,12 +216,10 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
             {table.getFooterGroups().map((footerGroup) => (
               <TableRow key={footerGroup.id}>
                 {footerGroup.headers.map((footer) => (
-                  <TableHead key={footer.id} className={headerStyle[footer.id]}>
+                  <TableHead key={footer.id}>
                     <div
                       className={cn(
-                        headerStyle[footer.id],
-                        headerSizeMap[size],
-                        headerFontMap[size],
+                        headerStyleMap[size],
                         !isHeaderGrouped && 'flex items-center justify-center'
                       )}
                     >
