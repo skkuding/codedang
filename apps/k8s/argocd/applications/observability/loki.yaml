@@ -4,6 +4,8 @@ metadata:
   name: loki
   namespace: argocd
 spec:
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
   generators:
     - git:
         repoURL: https://github.com/skkuding/codedang
