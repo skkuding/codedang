@@ -3,6 +3,8 @@ kind: ApplicationSet
 metadata:
   name: minio
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
@@ -15,15 +17,12 @@ spec:
   template:
     metadata:
       name: 'minio-{{.env}}'
-      namespace: argocd
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       sources:
-        - repoURL: https://charts.min.io/
+        - repoURL: https://charts.bitnami.com/bitnami
           chart: minio
-          targetRevision: 5.0.9
+          targetRevision: 17.0.19
           helm:
             valueFiles:
               - $codedang/apps/k8s/observability/minio/values-{{.env}}.yaml
@@ -31,8 +30,8 @@ spec:
           targetRevision: '{{.branch}}'
           ref: codedang
       destination:
-        name: {{.env}}
-        namespace: 'minio-{{.env}}'
+        namespace: minio
+        name: '{{.env}}'
       syncPolicy:
         automated:
           prune: true
