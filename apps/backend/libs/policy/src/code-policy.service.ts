@@ -26,9 +26,7 @@ export class CodePolicyService {
       }
     } else if (lang === 'Java') {
       for (const pkg of rule.bannedImports ?? []) {
-        const r = new RegExp(
-          `\\bimport\\s+${esc(pkg).replaceAll('\\.', '\\.')}[\\.;]`
-        )
+        const r = new RegExp(`\\bimport\\s+${esc(pkg)}[\\.;]`)
         if (r.test(src)) violations.push(`import ${pkg}`)
       }
     } else {

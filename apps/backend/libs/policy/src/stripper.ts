@@ -4,14 +4,14 @@ export const strip = (language: string, src: string): string => {
     case 'Python3':
     case 'PyPy3':
       return src
-        .replace(/#.*(?=(?:\r?\n|\\n)|$)/g, '')
+        .replace(/#.*?(?=\\n|$)/g, '')
         .replace(/(\"\"\"[\s\S]*?\"\"\")|(\'\'\'[\s\S]*?\'\'\')/g, '')
         .replace(/(\"(?:\\.|[^"\\])*\"|\'(?:\\.|[^'\\])*\')/g, '')
     case 'Java':
     case 'C':
     case 'Cpp':
       return src
-        .replace(/\/\/.*(?=(?:\r?\n|\\n)|$)/g, '')
+        .replace(/\/\/.*?(?=\\n|$)/g, '')
         .replace(/\/\*[\s\S]*?\*\//g, '')
         .replace(/(\"(?:\\.|[^"\\])*\"|\'(?:\\.|[^'\\])*\')/g, '')
     default:
