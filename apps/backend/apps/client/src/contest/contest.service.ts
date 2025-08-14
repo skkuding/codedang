@@ -783,7 +783,6 @@ export class ContestService {
         category: true,
         problemId: true,
         createTime: true,
-        comments: true,
         createdBy: {
           select: {
             username: true

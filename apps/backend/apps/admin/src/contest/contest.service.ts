@@ -1453,15 +1453,6 @@ export class ContestService {
       throw new EntityNotExistException('ContestQnA')
     }
 
-    const now = new Date()
-    const isOngoing = contest.startTime <= now && now <= contest.endTime
-
-    if (!isOngoing) {
-      throw new ForbiddenAccessException(
-        'Comments can only be created during ongoing contests'
-      )
-    }
-
     return await this.prisma.$transaction(async (tx) => {
       const maxOrder = await tx.contestQnAComment.aggregate({
         where: { contestQnAId: contestQnA.id },

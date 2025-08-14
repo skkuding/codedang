@@ -1,7 +1,7 @@
 meta {
-  name: [404] Contest Not Found
+  name: [404] Nonexistent ContestQnA
   type: graphql
-  seq: 2
+  seq: 3
 }
 
 post {
@@ -13,8 +13,8 @@ post {
 body:graphql {
   mutation {
     deleteContestQnAComment(
-      contestId: 999
-      qnAOrder: 1
+      contestId: 1
+      qnAOrder: 999
       commentOrder: 1
     ) {
       id
@@ -26,4 +26,3 @@ body:graphql {
     }
   }
 }
-

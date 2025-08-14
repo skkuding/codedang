@@ -266,8 +266,8 @@ export class ContestQnAResolver {
 
   @Mutation(() => ContestQnAComment)
   async createContestQnAComment(
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('order', { type: () => Int }) order: number,
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('order', { type: () => Int }, IDValidationPipe) order: number,
     @Args('content', { type: () => String }) content: string,
     @Context('req') req: AuthenticatedRequest
   ) {
@@ -281,9 +281,10 @@ export class ContestQnAResolver {
 
   @Mutation(() => ContestQnAComment)
   async deleteContestQnAComment(
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('qnAOrder', { type: () => Int }) qnAOrder: number,
-    @Args('commentOrder', { type: () => Int }) commentOrder: number
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('qnAOrder', { type: () => Int }, IDValidationPipe) qnAOrder: number,
+    @Args('commentOrder', { type: () => Int }, IDValidationPipe)
+    commentOrder: number
   ) {
     return await this.contestService.deleteContestQnAComment(
       contestId,
