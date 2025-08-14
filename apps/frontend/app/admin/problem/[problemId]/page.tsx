@@ -7,6 +7,7 @@ import { GET_PROBLEM_DETAIL } from '@/graphql/problem/queries'
 import { GET_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { FaAngleLeft, FaEye, FaPencil } from 'react-icons/fa6'
 import {
   DataTable,
@@ -16,10 +17,8 @@ import {
 } from '../../_components/table'
 import { columns } from './_components/Columns'
 
-export default function Page(props: {
-  params: Promise<{ problemId: string }>
-}) {
-  const params = use(props.params)
+export default function Page() {
+  const params = useParams()
   const { problemId } = params
 
   const problemData = useQuery(GET_PROBLEM_DETAIL, {
