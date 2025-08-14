@@ -139,15 +139,24 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
-              className={cn(isHeaderGrouped && 'bg-background-alternative')}
+              // className={cn(isHeaderGrouped && 'bg-background-alternative')}
             >
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
+              {headerGroup.headers.map((header, index) => (
+                <TableHead
+                  key={header.id}
+                  className={cn(isHeaderGrouped && 'p-0')}
+                >
                   <div
                     className={cn(
                       headerStyleMap[size],
-                      !isHeaderGrouped &&
-                        'flex items-center justify-center whitespace-nowrap rounded-full bg-neutral-200/30 [&:has([role=checkbox])]:w-14 [&:has([role=checkbox])]:bg-transparent'
+                      !isHeaderGrouped
+                        ? 'rounded-full bg-neutral-200/30 [&:has([role=checkbox])]:bg-transparent'
+                        : 'bg-background-alternative',
+                      isHeaderGrouped && index === 0 && 'rounded-l-full',
+                      isHeaderGrouped &&
+                        index === headerGroup.headers.length - 1 &&
+                        'rounded-r-full',
+                      'flex items-center justify-center whitespace-nowrap [&:has([role=checkbox])]:w-14'
                     )}
                   >
                     {header.isPlaceholder
