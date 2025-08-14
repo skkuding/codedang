@@ -14,10 +14,10 @@ export const columns: ColumnDef<OverallSubmission>[] = [
       <DataTableColumnHeader column={column} title="Problem Title" />
     ),
     cell: ({ row }) => (
-      <div className="whitespace-nowrap">
+      <>
         {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
         {row.getValue('problemTitle')}
-      </div>
+      </>
     ),
     filterFn: 'arrIncludesSome'
   },
@@ -26,18 +26,14 @@ export const columns: ColumnDef<OverallSubmission>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student ID" />
     ),
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap">{row.getValue('studentId')}</div>
-    )
+    cell: ({ row }) => row.getValue('studentId')
   },
   {
     accessorKey: 'realname',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
     ),
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap">{row.getValue('realname')}</div>
-    )
+    cell: ({ row }) => row.getValue('realname')
   },
   {
     accessorKey: 'result',
@@ -60,41 +56,33 @@ export const columns: ColumnDef<OverallSubmission>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Language" />
     ),
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap">{row.getValue('language')}</div>
-    )
+    cell: ({ row }) => row.getValue('language')
   },
   {
     accessorKey: 'submissionTime',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Submission Time" />
     ),
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap">
-        {dayjs(new Date(parseInt(row.getValue('submissionTime'), 10))).format(
-          'MMM DD, YYYY HH:mm'
-        )}
-      </div>
-    )
+    cell: ({ row }) => {
+      return dayjs(
+        new Date(parseInt(row.getValue('submissionTime'), 10))
+      ).format('MMM DD, YYYY HH:mm')
+    }
   },
   {
     accessorKey: 'codeSize',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Code Size" />
     ),
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap">
-        {row.getValue('codeSize') ? `${row.getValue('codeSize')} B` : 'N/A'}
-      </div>
-    )
+    cell: ({ row }) => {
+      return row.getValue('codeSize') ? `${row.getValue('codeSize')} B` : 'N/A'
+    }
   },
   {
     accessorKey: 'ip',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="IP" />
     ),
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap">{row.getValue('ip')}</div>
-    )
+    cell: ({ row }) => row.getValue('ip')
   }
 ]

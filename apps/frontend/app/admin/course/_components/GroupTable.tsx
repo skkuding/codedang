@@ -55,6 +55,10 @@ export function GroupTable() {
     })
   }
 
+  const bodyStyle = {
+    title: 'justify-start'
+  }
+
   return (
     <div>
       <DataTableRoot data={courses} columns={columns}>
@@ -70,7 +74,7 @@ export function GroupTable() {
           </div>
         </div>
         <DataTable
-          // headerStyle={headerStyle}
+          bodyStyle={bodyStyle}
           getHref={(data) => `/admin/course/${data.id}`}
         />
         <DataTablePagination showSelection />

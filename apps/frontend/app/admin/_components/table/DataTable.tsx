@@ -104,7 +104,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="h-[40px] text-center md:px-0 md:py-2"
+                      className="h-[40px] whitespace-nowrap text-center md:px-0 md:py-2"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -147,7 +147,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                     className={cn(
                       headerStyleMap[size],
                       !isHeaderGrouped &&
-                        'flex items-center justify-center rounded-full bg-neutral-200/30 [&:has([role=checkbox])]:w-14 [&:has([role=checkbox])]:bg-transparent'
+                        'flex items-center justify-center whitespace-nowrap rounded-full bg-neutral-200/30 [&:has([role=checkbox])]:w-14 [&:has([role=checkbox])]:bg-transparent'
                     )}
                   >
                     {header.isPlaceholder
@@ -187,7 +187,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                   >
                     <div
                       className={cn(
-                        'flex justify-center',
+                        'flex justify-center whitespace-nowrap',
                         bodyStyle[cell.column.id]
                       )}
                     >

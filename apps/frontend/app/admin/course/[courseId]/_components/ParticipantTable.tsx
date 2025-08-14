@@ -158,10 +158,6 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
     ...problemHeaders
   ]
 
-  const headerStyle = {
-    title: 'w-2/5'
-  }
-
   return (
     <div>
       <DataTableRoot

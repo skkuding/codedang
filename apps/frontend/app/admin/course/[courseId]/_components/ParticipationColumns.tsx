@@ -20,18 +20,14 @@ export const createColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Student ID" />
       ),
-      cell: ({ row }) => (
-        <div className="whitespace-nowrap">{row.getValue('studentId')}</div>
-      )
+      cell: ({ row }) => row.getValue('studentId')
     },
     {
       accessorKey: 'realName',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Name" />
       ),
-      cell: ({ row }) => (
-        <div className="whitespace-nowrap">{row.original.realName}</div>
-      ),
+      cell: ({ row }) => row.getValue('realName'),
       filterFn: 'includesString'
     },
     {
@@ -40,9 +36,9 @@ export const createColumns = (
         <DataTableColumnHeader column={column} title="Submit" />
       ),
       cell: ({ row }) => (
-        <div className="flex justify-center border-x">
+        <>
           {row.original.submittedProblemCount}/{row.original.totalProblemCount}
-        </div>
+        </>
       )
     },
     {
@@ -51,10 +47,10 @@ export const createColumns = (
         <DataTableColumnHeader column={column} title="Total" />
       ),
       cell: ({ row }) => (
-        <div>
+        <>
           {row.original.userAssignmentScore}/
           {row.original.assignmentPerfectScore}
-        </div>
+        </>
       )
     },
     ...problemData.map((problem, i) => ({

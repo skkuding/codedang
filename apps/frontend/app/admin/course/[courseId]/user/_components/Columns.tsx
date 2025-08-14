@@ -55,9 +55,7 @@ export const createColumns = (
   {
     accessorKey: 'studentId',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Student ID" />
-      </div>
+      <DataTableColumnHeader column={column} title="Student ID" />
     ),
     cell: ({ row }) => {
       return row.getValue('studentId')

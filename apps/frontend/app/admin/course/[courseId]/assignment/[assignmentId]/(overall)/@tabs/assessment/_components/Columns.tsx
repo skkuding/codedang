@@ -190,11 +190,9 @@ export const createColumns = (
     },
     ...problemData.map((problem, i) => ({
       accessorKey: `${String.fromCharCode(Number(65 + i))}`,
-      header: () => (
-        <p className="font-mono text-xs">
-          {String.fromCharCode(Number(65 + i))}
-        </p>
-      ),
+      header: () => {
+        return String.fromCharCode(Number(65 + i))
+      },
       cell: ({ row }: { row: Row<DataTableScoreSummary> }) => {
         const problemScore = row.original.problemScores.find(
           (ps) => ps.problemId === problem.problemId

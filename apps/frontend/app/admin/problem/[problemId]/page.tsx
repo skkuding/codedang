@@ -78,7 +78,7 @@ export default function Page({ params }: { params: { problemId: string } }) {
           <div className="flex gap-4">
             <DataTableSearchBar columndId="title" />
           </div>
-          <DataTable getHref={(data) => `/admin/problem/${data.id}`} />
+          <DataTable />
           <DataTablePagination showSelection />
         </DataTableRoot>
       </main>
