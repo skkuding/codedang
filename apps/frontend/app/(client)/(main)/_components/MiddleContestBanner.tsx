@@ -3,6 +3,7 @@ import { contestNoticeId } from '@/libs/constants'
 import RightIcon from '@/public/icons/arrow-right-white.svg'
 import Image from 'next/image'
 import Link from 'next/link'
+import type { JSX } from 'react'
 
 export function MiddleContestBanner() {
   return (

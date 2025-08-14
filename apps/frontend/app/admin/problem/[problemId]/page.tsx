@@ -16,7 +16,10 @@ import {
 } from '../../_components/table'
 import { columns } from './_components/Columns'
 
-export default function Page({ params }: { params: { problemId: string } }) {
+export default function Page(props: {
+  params: Promise<{ problemId: string }>
+}) {
+  const params = use(props.params)
   const { problemId } = params
 
   const problemData = useQuery(GET_PROBLEM_DETAIL, {
