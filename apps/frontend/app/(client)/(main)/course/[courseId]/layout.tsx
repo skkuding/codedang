@@ -3,11 +3,12 @@ import { CourseSidebar } from './_components/CourseSidebar'
 
 interface CourseLayoutProps {
   children: React.ReactNode
-  params: { courseId: string }
+  params: Promise<{ courseId: string }>
 }
 
-export default function Layout({ children, params }: CourseLayoutProps) {
-  const { courseId } = params
+export default async function Layout(props: CourseLayoutProps) {
+  const { children } = props
+  const { courseId } = await props.params
   return (
     <>
       <Cover

@@ -13,7 +13,7 @@ import type { UpdateContestInfo } from '@/types/type'
 import type { ContestPreview } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -39,7 +39,10 @@ import {
 import { ContestEditEndTimeForm } from './_components/ContestEditEndTimeForm'
 import { EditContestForm } from './_components/EditContestForm'
 
-export default function Page({ params }: { params: { contestId: string } }) {
+export default function Page(props: {
+  params: Promise<{ contestId: string }>
+}) {
+  const params = use(props.params)
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [managers, setManagers] = useState<ContestManagerReviewer[]>([])
   const [isLoading, setIsLoading] = useState(true)

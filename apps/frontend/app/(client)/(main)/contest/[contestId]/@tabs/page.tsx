@@ -5,21 +5,19 @@ import { getOngoingUpcomingContests } from '../_libs/apis'
 import { ContestOverviewLayout } from './_components/ContestOverviewLayout'
 
 interface ContestTopProps {
-  params: {
+  params: Promise<{
     contestId: string
-  }
-  searchParams: {
+  }>
+  searchParams: Promise<{
     search: string
-  }
+  }>
 }
 
-export default async function ContestTop({
-  params,
-  searchParams
-}: ContestTopProps) {
+export default async function ContestTop(props: ContestTopProps) {
+  const searchParams = await props.searchParams
   const session = await auth()
   const search = searchParams.search ?? ''
-  const { contestId } = params
+  const { contestId } = await props.params
   const data: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
     .json()
