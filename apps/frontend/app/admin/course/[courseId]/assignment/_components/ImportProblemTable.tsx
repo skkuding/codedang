@@ -101,10 +101,6 @@ export function ImportProblemTable({
       <DataTable
         size="sm"
         isHeaderGrouped={true}
-        headerStyle={{
-          select: 'rounded-l-full',
-          preview: 'rounded-r-full'
-        }}
         onRowClick={(table, row) => {
           const selectedRowCount = table.getSelectedRowModel().rows.length
           if (
