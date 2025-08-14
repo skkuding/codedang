@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: minio
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/skkuding/codedang
+        revision: t1802-migrate-observability-services-to-k8s # TODO: use main
+        files:
+          - path: 'apps/k8s/environments.json'
+  template:
+    metadata:
+      name: 'minio-{{.env}}'
+      namespace: argocd
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      sources:
+        - repoURL: https://charts.min.io/
+          chart: minio
+          targetRevision: 5.0.9
+          helm:
+            valueFiles:
+              - $codedang/apps/k8s/observability/minio/values-{{.env}}.yaml
+        - repoURL: https://github.com/skkuding/codedang.git
+          targetRevision: '{{.branch}}'
+          ref: codedang
+      destination:
+        name: {{.env}}
+        namespace: 'minio-{{.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: prometheus-stack
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/skkuding/codedang
+        revision: t1802-migrate-observability-services-to-k8s # TODO: use main
+        files:
+          - path: 'apps/k8s/environments.json'
+  template:
+    metadata:
+      name: 'prometheus-stack-{{.env}}'
+      namespace: argocd
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      sources:
+        - repoURL: https://prometheus-community.github.io/helm-charts
+          chart: kube-prometheus-stack
+          targetRevision: 57.2.1
+          helm:
+            valueFiles:
+              - $codedang/apps/k8s/observability/prometheus/values-{{.env}}.yaml
+        - repoURL: https://github.com/skkuding/codedang.git
+          targetRevision: '{{.branch}}'
+          ref: codedang
+      destination:
+        name: {{.env}}
+        namespace: 'prometheus-{{.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

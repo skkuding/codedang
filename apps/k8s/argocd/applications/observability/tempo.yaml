@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: tempo
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/skkuding/codedang
+        revision: t1802-migrate-observability-services-to-k8s # TODO: use main
+        files:
+          - path: 'apps/k8s/environments.json'
+  template:
+    metadata:
+      name: 'tempo-{{.env}}'
+      namespace: argocd
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      sources:
+        - repoURL: https://grafana.github.io/helm-charts
+          chart: tempo
+          targetRevision: 1.10.1
+          helm:
+            valueFiles:
+              - $codedang/apps/k8s/observability/tempo/values-{{.env}}.yaml
+        - repoURL: https://github.com/skkuding/codedang.git
+          targetRevision: '{{.branch}}'
+          ref: codedang
+      destination:
+        name: {{.env}}
+        namespace: 'tempo-{{.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

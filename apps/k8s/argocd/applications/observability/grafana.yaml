@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: grafana
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/skkuding/codedang
+        revision: t1802-migrate-observability-services-to-k8s # TODO: use main
+        files:
+          - path: 'apps/k8s/environments.json'
+  template:
+    metadata:
+      name: 'grafana-{{.env}}'
+      namespace: argocd
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      sources:
+        - repoURL: https://grafana.github.io/helm-charts
+          chart: grafana
+          targetRevision: 7.3.11
+          helm:
+            valueFiles:
+              - $codedang/apps/k8s/observability/grafana/values-{{.env}}.yaml
+        - repoURL: https://github.com/skkuding/codedang.git
+          targetRevision: '{{.branch}}'
+          ref: codedang
+      destination:
+        name: {{.env}}
+        namespace: 'grafana-{{.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

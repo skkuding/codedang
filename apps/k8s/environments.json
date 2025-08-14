@@ -1,0 +1,10 @@
+[
+  {
+    "env": "stage",
+    "branch": "t1802-migrate-observability-services-to-k8s"
+  },
+  {
+    "env": "production",
+    "branch": "t1802-migrate-observability-services-to-k8s"
+  }
+]
