@@ -2,7 +2,7 @@ import { fetcherWithAuth } from '@/libs/utils'
 import { CommentArea } from './_components/CommentArea'
 import { QnaContentArea } from './_components/QnaContentArea'
 
-interface QnaDetailProps {
+type PageProps = {
   params: {
     contestId: string
     order: string
@@ -81,7 +81,7 @@ interface ContestRole {
 
 type Role = 'Admin' | 'Manager' | 'Participant' | 'Reviewer'
 
-export default async function QnaDetailPage({ params }: QnaDetailProps) {
+export default async function QnaDetailPage({ params }: PageProps) {
   // const { contestId, order } = params
   // const data: ContestQnA = await fetcherWithAuth
   //   .get(`contest/${contestId}/qna/${order}`)
