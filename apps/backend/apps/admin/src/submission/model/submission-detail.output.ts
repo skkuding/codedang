@@ -11,7 +11,7 @@ class ProblemTestcaseResult {
   output: string
 }
 @ObjectType()
-class TestCaseResult {
+export class TestCaseResult {
   @Field(() => String, { nullable: true })
   cpuTime: string | null
 

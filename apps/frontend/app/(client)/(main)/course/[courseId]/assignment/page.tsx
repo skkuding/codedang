@@ -3,11 +3,11 @@ import { ErrorBoundary } from '@suspensive/react'
 import { AssignmentAccordion } from '../_components/AssignmentAccordion'
 
 interface AssignmentProps {
-  params: { courseId: string }
+  params: Promise<{ courseId: string }>
 }
 
-export default function Assignment({ params }: AssignmentProps) {
-  const { courseId } = params
+export default async function Assignment(props: AssignmentProps) {
+  const { courseId } = await props.params
 
   return (
     <div className="mb-12 mt-20 flex w-full flex-col px-6">
