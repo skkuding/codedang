@@ -14,16 +14,18 @@ import {
 import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
+import { use } from 'react'
 import { columns } from './_components/Columns'
 
 interface ExerciseDetailProps {
-  params: {
+  params: Promise<{
     exerciseId: number
     courseId: number
-  }
+  }>
 }
 
-export default function ExerciseDetail({ params }: ExerciseDetailProps) {
+export default function ExerciseDetail(props: ExerciseDetailProps) {
+  const params = use(props.params)
   const { exerciseId, courseId } = params
 
   const { data: exercise } = useQuery(

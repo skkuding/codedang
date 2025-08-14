@@ -181,10 +181,9 @@ export function ManagementSidebar() {
   const params = useParams()
 
   useEffect(() => {
-    if (params.courseId) {
-      setSelectedCourseId(params.courseId as string)
-      setIsCourseSidebarOpened(true)
-    }
+    const id = (params.courseId as string) || ''
+    setSelectedCourseId(id)
+    setIsCourseSidebarOpened(Boolean(id))
   }, [params.courseId])
 
   const courseItems =
@@ -241,9 +240,7 @@ export function ManagementSidebar() {
                 }
                 isExpanded={isMainSidebarExpanded}
                 onClick={() => {
-                  if (item.path !== '/admin/course') {
-                    setIsCourseSidebarOpened(false)
-                  }
+                  setIsCourseSidebarOpened(false)
                 }}
               />
               {item.path === '/admin/course' &&

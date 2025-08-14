@@ -7,6 +7,9 @@ import { redirect } from 'next/navigation'
 import { ClientApolloProvider } from './_components/ApolloProvider'
 import { ManagementSidebar } from './_components/ManagementSidebar'
 
+// API calls depend on session, so this layout must be dynamic
+export const dynamic = 'force-dynamic'
+
 async function fetchGroupLeaderRole() {
   try {
     const response: Course[] = await safeFetcherWithAuth
@@ -96,7 +99,7 @@ export default async function Layout({
         </nav>
         <Separator orientation="vertical" />
         {/*NOTE: full width - sidebar width */}
-        <div className="relative w-[calc(100%-15rem)] overflow-y-auto">
+        <div className="relative w-[calc(100%-15rem)] flex-1 overflow-y-auto">
           {children}
         </div>
       </div>
