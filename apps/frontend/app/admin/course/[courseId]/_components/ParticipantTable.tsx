@@ -201,7 +201,6 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
           getHref={(data) =>
             `/admin/course/${courseId}/assignment/${assignmentId}/participant/${data.id}` as const
           }
-          headerStyle={headerStyle}
         />
         <DataTablePagination />
       </DataTableRoot>
