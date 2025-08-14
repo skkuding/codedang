@@ -3,10 +3,10 @@ import { CommentArea } from './_components/CommentArea'
 import { QnaContentArea } from './_components/QnaContentArea'
 
 type PageProps = {
-  params: {
+  params: Promise<{
     contestId: string
     order: string
-  }
+  }>
 }
 // get으로 가져오는 정보
 // type ContestQnA {
