@@ -21,15 +21,15 @@ spec:
       sources:
         - repoURL: https://grafana.github.io/helm-charts
           chart: loki
-          targetRevision: 5.42.0
+          targetRevision: 6.34.0
           helm:
             valueFiles:
-              - $codedang/apps/k8s/observability/loki/values-{{.env}}.yaml
+              - '$codedang/apps/k8s/observability/loki/values-{{.env}}.yaml'
         - repoURL: https://github.com/skkuding/codedang.git
           targetRevision: '{{.branch}}'
           ref: codedang
       destination:
-        name: {{.env}}
+        name: '{{.env}}'
         namespace: 'loki-{{.env}}'
       syncPolicy:
         automated:
