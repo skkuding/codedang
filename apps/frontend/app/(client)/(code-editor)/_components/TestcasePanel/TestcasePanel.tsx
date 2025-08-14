@@ -10,7 +10,7 @@ import {
 } from '@/stores/editorTabs'
 import type { TabbedTestResult } from '@/types/type'
 import { DiffMatchPatch } from 'diff-match-patch-typescript'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode, type JSX } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'

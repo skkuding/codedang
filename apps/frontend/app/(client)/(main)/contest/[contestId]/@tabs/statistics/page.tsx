@@ -11,15 +11,13 @@ import { getContest } from '../leaderboard/_libs/apis/getContest'
 import { getContestLeaderboard } from '../leaderboard/_libs/apis/getContestLeaderboard'
 
 interface ContestStatisticsProps {
-  params: {
+  params: Promise<{
     contestId: string
-  }
+  }>
 }
 
-export default async function ContestStatistics({
-  params
-}: ContestStatisticsProps) {
-  const { contestId } = params
+export default async function ContestStatistics(props: ContestStatisticsProps) {
+  const { contestId } = await props.params
   const session = await auth()
   const username = session?.user?.username
 
