@@ -62,7 +62,6 @@ export function ContestTable() {
       </div>
       <div className="space-y-[42px]">
         <DataTable
-          headerStyle={headerStyle}
           getHref={(data) => `/admin/contest/${data.id}/leaderboard`}
         />
         <DataTablePagination showSelection />
