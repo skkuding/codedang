@@ -8,7 +8,7 @@ import type { ProblemDetail } from '@/types/type'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -25,7 +25,10 @@ import { TestcaseField } from '../../_components/TestcaseField'
 import { editSchema } from '../../_libs/schemas'
 import { EditProblemForm } from './_components/EditProblemForm'
 
-export default function Page({ params }: { params: { problemId: string } }) {
+export default function Page(props: {
+  params: Promise<{ problemId: string }>
+}) {
+  const params = use(props.params)
   const [isPreviewing, setIsPreviewing] = useState(false)
   const { problemId } = params
 
