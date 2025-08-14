@@ -21,7 +21,7 @@ spec:
       project: default
       sources:
         - repoURL: https://charts.bitnami.com/bitnami
-          chart: minio
+          chart: bitnami/minio
           targetRevision: 17.0.19
           helm:
             valueFiles:
