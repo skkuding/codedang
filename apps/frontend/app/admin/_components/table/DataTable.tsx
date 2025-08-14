@@ -63,10 +63,21 @@ const headerSizeMap = {
   lg: 'h-[40px]!'
 }
 
+const headerFontMap = {
+  sm: 'text-sm font-medium',
+  md: 'text-sm font-normal',
+  lg: 'text-base font-medium'
+}
+
 const bodySizeMap = {
   sm: 'h-[40px]!',
   md: 'h-[57px]!',
   lg: 'h-[76px]!'
+}
+const bodyFontmap = {
+  sm: 'text-sm font-normal',
+  md: 'text-sm font-normal',
+  lg: 'text-base font-normal'
 }
 
 export function DataTable<TData extends { id: number }, TRoute extends string>({
@@ -147,10 +158,9 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                     className={cn(
                       headerStyle[header.id],
                       headerSizeMap[size],
+                      headerFontMap[size],
                       !isHeaderGrouped &&
-                        header.id !== 'select' &&
-                        'rounded-full bg-neutral-200/30',
-                      'flex items-center justify-center'
+                        'flex items-center justify-center rounded-full bg-neutral-200/30 [&:has([role=checkbox])]:w-14 [&:has([role=checkbox])]:bg-transparent'
                     )}
                   >
                     {header.isPlaceholder
@@ -183,7 +193,12 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className={cn(bodySizeMap[size], 'text-center md:p-4')}
+                    className={cn(
+                      headerStyle[cell.column.id],
+                      bodySizeMap[size],
+                      bodyFontmap[size],
+                      'text-center md:p-4 [&:has([role=checkbox])]:w-14'
+                    )}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
@@ -207,12 +222,21 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
               <TableRow key={footerGroup.id}>
                 {footerGroup.headers.map((footer) => (
                   <TableHead key={footer.id} className={headerStyle[footer.id]}>
-                    {footer.isPlaceholder
-                      ? null
-                      : flexRender(
-                          footer.column.columnDef.footer,
-                          footer.getContext()
-                        )}
+                    <div
+                      className={cn(
+                        headerStyle[footer.id],
+                        headerSizeMap[size],
+                        headerFontMap[size],
+                        !isHeaderGrouped && 'flex items-center justify-center'
+                      )}
+                    >
+                      {footer.isPlaceholder
+                        ? null
+                        : flexRender(
+                            footer.column.columnDef.footer,
+                            footer.getContext()
+                          )}
+                    </div>
                   </TableHead>
                 ))}
               </TableRow>

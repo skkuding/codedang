@@ -16,13 +16,13 @@ import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
 import { UpdateCourseButton } from './UpdateCourseButton'
 
-const headerStyle = {
-  select: '',
-  title: 'w-9/12',
-  code: 'w-1/12',
-  semester: 'w-1/12',
-  studentCount: 'w-1/12'
-}
+// const headerStyle = {
+//   select: '',
+//   title: 'w-9/12',
+//   code: 'w-1/12',
+//   semester: 'w-1/12',
+//   studentCount: 'w-1/12'
+// }
 
 export function GroupTable() {
   const client = useApolloClient()
@@ -70,7 +70,7 @@ export function GroupTable() {
           </div>
         </div>
         <DataTable
-          headerStyle={headerStyle}
+          // headerStyle={headerStyle}
           getHref={(data) => `/admin/course/${data.id}`}
         />
         <DataTablePagination showSelection />

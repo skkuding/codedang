@@ -127,7 +127,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         aria-label="Select row"
-        className="mr-2 translate-y-[2px]"
+        className="translate-y-[2px]"
       />
     ),
     enableSorting: false,
