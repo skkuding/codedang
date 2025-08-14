@@ -1,0 +1,24 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/notification/vapid
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+tests {
+  test("should get VAPID public key", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.have.property('publicKey');
+    expect(res.getBody().publicKey).to.be.a('string');
+    expect(res.getBody().publicKey.length).to.be.greaterThan(0);
+  });
+}

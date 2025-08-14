@@ -31,6 +31,7 @@ export interface ContestTop {
   description: string
   startTime: string
   endTime: string
+  registerDueTime: string
   isJudgeResultVisible: boolean
   posterUrl?: string
   summary: {
@@ -63,21 +64,19 @@ export interface ContestTop {
 }
 
 interface ContestTopProps {
-  params: {
+  params: Promise<{
     contestId: string
-  }
-  searchParams: {
+  }>
+  searchParams: Promise<{
     search: string
-  }
+  }>
 }
 
-export default async function ContestTop({
-  params,
-  searchParams
-}: ContestTopProps) {
+export default async function ContestTop(props: ContestTopProps) {
+  const searchParams = await props.searchParams
   const session = await auth()
   const search = searchParams.search ?? ''
-  const { contestId } = params
+  const { contestId } = await props.params
   const data: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
     .json()
@@ -92,7 +91,8 @@ export default async function ContestTop({
   const contest: Contest = {
     ...data,
     startTime: new Date(data.startTime),
-    endTime: new Date(data.endTime)
+    endTime: new Date(data.endTime),
+    registerDueTime: new Date(data.registerDueTime)
   }
 
   const startTime = new Date(data.startTime)
@@ -120,7 +120,7 @@ export default async function ContestTop({
   const imageUrl = posterUrl || '/logos/welcome.png'
   const prev = true
   return (
-    <div>
+    <div className="flex w-full flex-col justify-center">
       <h1 className="mt-24 w-[1208px] text-2xl font-semibold tracking-[-0.72px]">
         {data?.title}
       </h1>

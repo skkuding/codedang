@@ -310,6 +310,11 @@ type AssignmentProblemSumAggregate {
   score: Int
 }
 
+type AssignmentProblemTestcaseResult {
+  result: [TestcaseResult!]!
+  userId: Int!
+}
+
 input AssignmentProblemUpdateInput {
   problemId: Int!
   score: IntScore
@@ -2252,6 +2257,62 @@ enum Provider {
   naver
 }
 
+type PushSubscription {
+  auth: String!
+  createTime: DateTime!
+  endpoint: String!
+  id: ID!
+  p256dh: String!
+  updateTime: DateTime!
+  user: User!
+  userAgent: String
+  userId: Int!
+}
+
+type PushSubscriptionAvgAggregate {
+  id: Float
+  userId: Float
+}
+
+type PushSubscriptionCountAggregate {
+  _all: Int!
+  auth: Int!
+  createTime: Int!
+  endpoint: Int!
+  id: Int!
+  p256dh: Int!
+  updateTime: Int!
+  userAgent: Int!
+  userId: Int!
+}
+
+type PushSubscriptionMaxAggregate {
+  auth: String
+  createTime: DateTime
+  endpoint: String
+  id: Int
+  p256dh: String
+  updateTime: DateTime
+  userAgent: String
+  userId: Int
+}
+
+type PushSubscriptionMinAggregate {
+  auth: String
+  createTime: DateTime
+  endpoint: String
+  id: Int
+  p256dh: String
+  updateTime: DateTime
+  userAgent: String
+  userId: Int
+}
+
+type PushSubscriptionSumAggregate {
+  id: Int
+  userId: Int
+}
+
 enum QnACategory {
   General
   Problem
@@ -2264,6 +2325,7 @@ type Query {
   getAssignment(assignmentId: Int!, groupId: Int!): AssignmentWithParticipants!
   getAssignmentLatestSubmission(assignmentId: Int!, groupId: Int!, problemId: Int!, userId: Int!): SubmissionDetail!
   getAssignmentProblemRecord(assignmentId: Int!, groupId: Int!, problemId: Int!, userId: Int!): AssignmentProblemRecord!
+  getAssignmentProblemTestcaseResults(assignmentId: Int!, groupId: Int!, problemId: Int!): [AssignmentProblemTestcaseResult!]!
   getAssignmentProblems(assignmentId: Int!, groupId: Int!): [AssignmentProblem!]!
   getAssignmentScoreSummaries(assignmentId: Int!, cursor: Int, groupId: Int!, searchingName: String, take: Int! = 10): [UserAssignmentScoreSummaryWithUserInfo!]!
   getAssignmentSubmissionSummaryByUserId(assignmentId: Int!, cursor: Int, groupId: Int!, problemId: Int, take: Int! = 10, userId: Int!): AssignmentSubmissionSummaryForUser!
@@ -2721,6 +2783,12 @@ input Testcase {
   scoreWeight: IntScore
 }
 
+type TestcaseResult {
+  id: Int!
+  isHidden: Boolean!
+  result: ResultStatus!
+}
+
 input UpdateAnnouncementInput {
   """content of announcement"""
   content: String!
@@ -2889,6 +2957,7 @@ input UploadTestcaseZipInput {
 
 type User {
   NotificationRecord: [NotificationRecord!]
+  PushSubscription: [PushSubscription!]
   UpdateHistory: [UpdateHistory!]
   _count: UserCount!
   assignment: [Assignment!]
@@ -3018,6 +3087,7 @@ type UserContestSumAggregate {
 
 type UserCount {
   NotificationRecord: Int!
+  PushSubscription: Int!
   UpdateHistory: Int!
   assignment: Int!
   assignmentRecord: Int!
