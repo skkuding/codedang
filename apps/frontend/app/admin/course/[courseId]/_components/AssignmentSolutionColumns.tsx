@@ -1,5 +1,6 @@
 'use client'
 
+import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { DateTimePickerDemo } from '@/components/shadcn/date-time-picker-demo'
 import { Switch } from '@/components/shadcn/switch'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -16,10 +17,12 @@ export const createColumns = (
   return [
     {
       accessorKey: 'title',
-      header: () => <p className="w-64 text-left text-sm">Title</p>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Title" />
+      ),
       cell: ({ row }) => (
         <div>
-          <p className="w-72 overflow-hidden text-ellipsis whitespace-nowrap text-left">
+          <p className="w-[469px] overflow-hidden text-ellipsis whitespace-nowrap text-left">
             {row.getValue('title')}
           </p>
         </div>
@@ -27,9 +30,11 @@ export const createColumns = (
     },
     {
       accessorKey: 'reveal',
-      header: () => <p className="w-12 text-center text-sm">Reveal</p>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Reveal" />
+      ),
       cell: ({ row }) => (
-        <div className="flex w-12 justify-center">
+        <div className="flex w-[70px] justify-center">
           <Switch
             checked={revealedStates[row.index] || false}
             onCheckedChange={() => handleSwitchChange(row.index)}
@@ -41,11 +46,13 @@ export const createColumns = (
     },
     {
       accessorKey: 'options',
-      header: () => <p className="w-[280px] text-center text-sm">Options</p>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Options" />
+      ),
       cell: ({ row }) => {
         const selectedOption = optionStates[row.index]
         return revealedStates[row.index] ? (
-          <div className="flex w-[340px] gap-2">
+          <div className="flex w-[270px] gap-2">
             <label className="flex items-center gap-1">
               <input
                 type="radio"
@@ -74,7 +81,9 @@ export const createColumns = (
               )}
             </div>
           </div>
-        ) : null
+        ) : (
+          <div className="w-[270px]" />
+        )
       },
       enableSorting: false,
       enableHiding: false
