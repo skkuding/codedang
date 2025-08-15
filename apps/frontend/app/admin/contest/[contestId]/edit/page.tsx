@@ -12,7 +12,7 @@ import { cn } from '@/libs/utils'
 import type { UpdateContestInfo } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -34,7 +34,10 @@ import {
 import { ContestEditEndTimeForm } from './_components/ContestEditEndTimeForm'
 import { EditContestForm } from './_components/EditContestForm'
 
-export default function Page({ params }: { params: { contestId: string } }) {
+export default function Page(props: {
+  params: Promise<{ contestId: string }>
+}) {
+  const params = use(props.params)
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [managers, setManagers] = useState<ContestManagerReviewer[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -65,7 +68,7 @@ export default function Page({ params }: { params: { contestId: string } }) {
             (1000 * 60)
         )
       : null
-
+  // console.log(methods.getValues())
   return (
     <ConfirmNavigation>
       <ScrollArea className="w-full">
@@ -104,6 +107,15 @@ export default function Page({ params }: { params: { contestId: string } }) {
                     placeholder="Name your contest"
                     className="max-w-[492px]"
                   />
+                </FormSection>
+                <FormSection
+                  title="Join DueTime"
+                  isOngoing={isOngoing}
+                  isFinished={isFinished}
+                >
+                  {methods.getValues('registerDueTime') && (
+                    <TimeForm isContest name="registerDueTime" />
+                  )}
                 </FormSection>
                 <FormSection
                   title="Start Time"

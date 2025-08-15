@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -26,11 +26,10 @@ import { WeekComboBox } from '../../../_components/WeekComboBox'
 import { editSchema } from '../../../_libs/schemas'
 import type { AssignmentProblem } from '../../../_libs/type'
 
-export default function Page({
-  params
-}: {
-  params: { courseId: string; exerciseId: string }
+export default function Page(props: {
+  params: Promise<{ courseId: string; exerciseId: string }>
 }) {
+  const params = use(props.params)
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { courseId, exerciseId } = params
@@ -61,6 +60,7 @@ export default function Page({
             setProblems={setProblems}
             setIsLoading={setIsLoading}
             methods={methods}
+            isExercise={true}
           >
             <div className="flex w-[901px] flex-col gap-[28px]">
               <FormSection title="Title">
@@ -121,9 +121,7 @@ export default function Page({
               </div>
 
               <FormSection isFlexColumn title="Description" isLabeled={false}>
-                {methods.getValues('description') && (
-                  <DescriptionForm name="description" />
-                )}
+                {!isLoading && <DescriptionForm name="description" />}
               </FormSection>
 
               {/* NOTE: 최근 기획에서 해당기능을 없애기로 했는데, 혹시 revert할까봐 주석처리해놨어요 */}

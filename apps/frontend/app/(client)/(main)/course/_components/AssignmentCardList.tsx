@@ -5,9 +5,8 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/shadcn/carousel'
-import { cn, fetcher, fetcherWithAuth } from '@/libs/utils'
+import { cn, fetcher } from '@/libs/utils'
 import type { Assignment } from '@/types/type'
-import type { Route } from 'next'
 import Link from 'next/link'
 import { AssignmentCard } from '../_components/AssignmentCard'
 
@@ -67,7 +66,7 @@ function AssignmentCardCarousel({
               <Link
                 key={assignment.id}
                 href={
-                  `/course/${assignment.group.id}/assignment/${assignment.id}` as Route
+                  `/course/${assignment.group.id}/assignment/${assignment.id}` as const
                 }
                 className={cn(
                   'block overflow-hidden p-2',

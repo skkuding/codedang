@@ -10,7 +10,7 @@ import {
 } from '@/stores/editorTabs'
 import type { TabbedTestResult } from '@/types/type'
 import { DiffMatchPatch } from 'diff-match-patch-typescript'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode, type JSX } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
@@ -101,7 +101,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
             isLeftmost
             isRightOfActive={currentVisibleTab === TESTCASE_RESULT_TAB}
             className={cn(
-              'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+              'h-full shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
               getWidthClass(testcaseTabList.length)
             )}
           >
@@ -130,7 +130,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
           isLeftOfActive={currentVisibleTab === RUN_CODE_TAB}
           isRightOfActive={currentVisibleTabIndex === 0}
           className={cn(
-            'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+            'h-full shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
             getWidthClass(testcaseTabList.length)
           )}
         >
@@ -164,7 +164,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
                   currentVisibleTab === testcaseTabList[index + 1]?.originalId
                 }
                 className={cn(
-                  'h-12 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+                  'h-12 shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
                   getWidthClass(testcaseTabList.length)
                 )}
               >
@@ -193,7 +193,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
         </ScrollArea>
         <div
           className={cn(
-            'flex flex-shrink-0 items-center bg-[#121728] px-2 py-2',
+            'flex shrink-0 items-center bg-[#121728] px-2 py-2',
             currentVisibleTab === RUN_CODE_TAB && 'hidden'
           )}
         >

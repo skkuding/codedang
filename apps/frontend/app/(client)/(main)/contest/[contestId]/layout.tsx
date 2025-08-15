@@ -8,14 +8,15 @@ import { Cover } from '../../_components/Cover'
 import { ContestTabs } from '../_components/ContestTabs'
 
 interface ContestDetailProps {
-  params: {
+  params: Promise<{
     contestId: string
-  }
+  }>
   tabs: React.ReactNode
 }
 
-export default async function Layout({ params, tabs }: ContestDetailProps) {
-  const { contestId } = params
+export default async function Layout(props: ContestDetailProps) {
+  const { tabs } = props
+  const { contestId } = await props.params
   const session = await auth()
 
   const res = await (session ? fetcherWithAuth : fetcher).get(

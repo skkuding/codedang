@@ -1,5 +1,4 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { NotFoundException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { GroupType, type Group } from '@generated'
 import type { User } from '@generated'

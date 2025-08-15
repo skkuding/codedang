@@ -5,9 +5,11 @@ import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_NOTICE } from '@/graphql/notice/queries'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
+import { use } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
 
-export default function Page({ params }: { params: { noticeId: string } }) {
+export default function Page(props: { params: Promise<{ noticeId: string }> }) {
+  const params = use(props.params)
   const { noticeId } = params
 
   const noticeData = useQuery(GET_NOTICE, {
