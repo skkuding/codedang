@@ -864,7 +864,7 @@ export class ContestService {
     }
 
     // readBy 배열에 해당 userId가 들어있지 않은 경우 추가
-    if (userId != null && !(userId in contestQnA.readBy)) {
+    if (userId != null && !contestQnA.readBy.includes(userId)) {
       await this.prisma.contestQnA.update({
         where: { id: contestQnA.id },
         data: {
@@ -969,7 +969,6 @@ export class ContestService {
     }
 
     const contestQnAId = contestQnA.id
-    const isResolved = contestQnA.isResolved
 
     const contestStaff = await this.prisma.userContest.findFirst({
       where: {
@@ -1012,27 +1011,9 @@ export class ContestService {
         }
       })
 
-      // 댓글 작성자에 따라 QnA의 isResolved를 변경
-      if (isContestStaff) {
-        if (!isResolved) {
-          await this.prisma.contestQnA.update({
-            where: { id: contestQnAId },
-            data: { isResolved: true }
-          })
-        }
-      } else {
-        if (isResolved) {
-          await this.prisma.contestQnA.update({
-            where: { id: contestQnAId },
-            data: { isResolved: false }
-          })
-        }
-      }
-
-      // 댓글 작성자를 제외하고 readBy 초기화
-      await this.prisma.contestQnA.update({
+      await tx.contestQnA.update({
         where: { id: contestQnAId },
-        data: { readBy: { set: [userId] } }
+        data: { isResolved: isContestStaff, readBy: { set: [userId] } }
       })
 
       return comment
