@@ -27,7 +27,7 @@ export function CodeBlockComponent(props: NodeViewProps) {
           onValueChange={(value) => updateAttributes({ language: value })}
         >
           <SelectTrigger className="h-6 w-24">
-            <SelectValue placeholder="언어 선택" />
+            <SelectValue placeholder="Select Language" />
           </SelectTrigger>
           <SelectContent className="bg-white">
             <SelectItem value="auto">auto</SelectItem>

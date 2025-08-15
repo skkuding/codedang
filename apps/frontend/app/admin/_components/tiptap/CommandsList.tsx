@@ -1,10 +1,14 @@
+import { cn } from '@/libs/utils'
 import type { Range } from '@tiptap/core'
 import type { Editor } from '@tiptap/react'
+import Image from 'next/image'
+import type { StaticImageData } from 'next/image'
 import type { KeyboardEvent } from 'react'
 import React, { Component } from 'react'
 
 export interface CommandItem {
   title: string
+  icon: StaticImageData
   command: (options: { editor: Editor; range: Range }) => void
   element?: React.ReactNode
 }
@@ -76,17 +80,32 @@ class CommandList extends Component<CommandListProps, CommandListState> {
     }
   }
 
+  handleMouseEnter(index: number) {
+    this.setState({ selectedIndex: index })
+  }
+
   render() {
     const { items } = this.props
 
+    if (!items || items.length === 0) {
+      return null
+    }
+
     return (
-      <div className="items">
+      <div className="relative overflow-hidden rounded border border-gray-200 bg-white p-1 text-sm text-black shadow-lg">
         {items.map((item, index) => (
           <button
-            className={`item ${index === this.state.selectedIndex ? 'is-selected' : ''}`}
+            className={cn(
+              'flex h-9 w-36 items-center rounded border-none bg-transparent py-0.5 pl-1 text-left',
+              index === this.state.selectedIndex && 'bg-gray-100'
+            )}
             key={index}
             onClick={() => this.selectItem(index)}
+            onMouseEnter={() => this.handleMouseEnter(index)}
           >
+            <div className="flex h-9 w-9 items-center justify-center">
+              <Image src={item.icon} alt={item.title} className="h-4 w-4" />
+            </div>
             {item.element || item.title}
           </button>
         ))}
