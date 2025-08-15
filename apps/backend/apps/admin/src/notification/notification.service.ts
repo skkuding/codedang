@@ -38,21 +38,28 @@ export class NotificationService {
         where: { id: assignmentId },
         select: {
           title: true,
-          group: { select: { groupName: true } }
+          group: {
+            select: {
+              id: true,
+              groupName: true
+            }
+          }
         }
       })
 
       const title = assignmentInfo?.group.groupName ?? 'Assignment'
       const message = `Your assignment "${assignmentInfo?.title ?? ''}" has been graded.`
+      const url = `/course/${assignmentInfo?.group.id}/assignment/${assignmentId}`
 
       await this.saveNotification(
         [userId],
         title,
         message,
-        NotificationType.Assignment
+        NotificationType.Assignment,
+        url
       )
 
-      await this.sendPushNotification([userId], title, message)
+      await this.sendPushNotification([userId], title, message, url)
     }
   }
 
@@ -63,6 +70,7 @@ export class NotificationService {
         title: true,
         group: {
           select: {
+            id: true,
             groupName: true,
             userGroup: { select: { userId: true } }
           }
@@ -75,15 +83,17 @@ export class NotificationService {
 
     const title = assignmentInfo?.group.groupName ?? 'Assignment'
     const message = `A new assignment "${assignmentInfo?.title ?? ''}" has been created.`
+    const url = `/course/${assignmentInfo?.group.id}/assignment/${assignmentId}`
 
     await this.saveNotification(
       receivers,
       title,
       message,
-      NotificationType.Assignment
+      NotificationType.Assignment,
+      url
     )
 
-    await this.sendPushNotification(receivers, title, message)
+    await this.sendPushNotification(receivers, title, message, url)
   }
 
   private async saveNotification(
@@ -138,9 +148,9 @@ export class NotificationService {
     const payload = JSON.stringify({
       title,
       body: message,
-      url,
       icon: 'https://codedang.com/apple-icon.png',
-      badge: 'https://codedang.com/icon.png'
+      badge: 'https://codedang.com/icon.png',
+      data: { url }
     })
 
     const sendPromises = subscriptions.map(async (subscription) => {
