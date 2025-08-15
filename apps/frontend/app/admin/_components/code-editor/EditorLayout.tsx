@@ -88,7 +88,7 @@ function mapTestResults(
     return {
       id: Number(testcase.id),
       order: testcase.isHidden ? hiddenCount : sampleCount,
-      type: testcase.isHidden ? 'Hidden' : 'Sample',
+      type: testcase.isHidden ? ('hidden' as const) : ('sample' as const),
       input: testcase.input ?? '',
       expectedOutput: testcase.output ?? '',
       output: testResult?.output ?? '',
