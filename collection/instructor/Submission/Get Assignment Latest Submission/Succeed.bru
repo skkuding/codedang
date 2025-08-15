@@ -69,16 +69,12 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "groupId": 2,
+    "groupId": 1,
     "assignmentId": 1,
     "userId": 7, 
     "problemId": 1
   }
   
-}
-
-script:pre-request {
-  await require("./login").loginUser(req);
 }
 
 docs {
