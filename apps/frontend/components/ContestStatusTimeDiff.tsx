@@ -3,7 +3,6 @@
 import { cn } from '@/libs/utils'
 import clockIcon from '@/public/icons/clock_blue.svg'
 import emergencyIcon from '@/public/icons/emergency.svg'
-import type { Contest } from '@/types/type'
 import type { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
@@ -15,12 +14,20 @@ import { toast } from 'sonner'
 
 dayjs.extend(duration)
 
+interface ContestStatusTimeDifftype {
+  id: number
+  status: ContestStatus
+  startTime: Date
+  endTime: Date
+  registerDueTime: Date
+}
+
 export function ContestStatusTimeDiff({
   contest,
   textStyle,
   inContestEditor
 }: {
-  contest: Contest
+  contest: ContestStatusTimeDifftype
   textStyle: string
   inContestEditor: boolean
 }) {
