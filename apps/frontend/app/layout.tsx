@@ -45,6 +45,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={mono.variable}>
       <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         <link
           rel="apple-touch-startup-image"
           media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
