@@ -1,0 +1,62 @@
+meta {
+  name: Get Result Detail
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  query GetCheckResultDetails(
+    $resultId: Int!
+  ) {
+    getCheckResultDetails(
+      resultId: $resultId
+    ) {
+      requestId
+      firstCheckSubmissionId
+      secondCheckSubmissionId
+      averageSimilarity
+      maxSimilarity
+      maxLength
+      longestMatch
+      matches {
+        startInFirst {
+          line
+          column
+        }
+        endInFirst {
+          line
+          column
+        }
+        startInSecond {
+          line
+          column
+        }
+        endInSecond {
+          line
+          column
+        }
+        lengthOfFirst
+        lengthOfSecond
+      }
+      firstSimilarity
+      secondSimilarity
+      clusterId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "resultId": 54
+  }
+}
+
+settings {
+  encodeUrl: true
+}
