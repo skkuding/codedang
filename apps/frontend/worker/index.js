@@ -3,7 +3,7 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'New Notification'
   const options = {
     body: data.body || 'Check the details.',
-    icon: data.icon,
+    icon: data.icon ?? '/android-chrome-192x192.png',
     badge: data.badge
   }
   event.waitUntil(self.registration.showNotification(title, options))
