@@ -38,6 +38,7 @@ const assignment: Assignment = {
 const assignmentInfo = {
   title: assignment.title,
   group: {
+    id: groupId,
     groupName: 'Test Group',
     userGroup: [{ userId: 1 }, { userId: 2 }, { userId: 3 }]
   }
@@ -184,6 +185,7 @@ describe('NotificationService', () => {
             title: true,
             group: {
               select: {
+                id: true,
                 groupName: true,
                 userGroup: { select: { userId: true } }
               }
@@ -213,6 +215,7 @@ describe('NotificationService', () => {
       const assignmentInfoEmpty = {
         title: assignment.title,
         group: {
+          id: groupId,
           groupName: 'Test Group',
           userGroup: []
         }
