@@ -684,7 +684,8 @@ export class ContestService {
           createdById: userId,
           order,
           category: categoryValue,
-          ...(problemId !== null && { problemId })
+          ...(problemId !== null && { problemId }),
+          readBy: [userId]
         }
       })
     })
@@ -773,7 +774,7 @@ export class ContestService {
       where.problemId = { in: problemIds }
     }
 
-    return await this.prisma.contestQnA.findMany({
+    const qnas = await this.prisma.contestQnA.findMany({
       select: {
         id: true,
         order: true,
@@ -783,13 +784,18 @@ export class ContestService {
         category: true,
         problemId: true,
         createTime: true,
-        comments: true
+        readBy: true
       },
       where,
       orderBy: {
         order: filter.orderBy || 'asc' // default는 asc
       }
     })
+
+    return qnas.map(({ readBy, ...rest }) => ({
+      ...rest,
+      isRead: userId == null || readBy.includes(userId)
+    }))
   }
 
   /**
@@ -857,6 +863,17 @@ export class ContestService {
       )
     }
 
+    // readBy 배열에 해당 userId가 들어있지 않은 경우 추가
+    if (userId != null && !(userId in contestQnA.readBy)) {
+      await this.prisma.contestQnA.update({
+        where: { id: contestQnA.id },
+        data: {
+          readBy: {
+            push: userId
+          }
+        }
+      })
+    }
     return contestQnA
   }
 
@@ -1011,6 +1028,12 @@ export class ContestService {
           })
         }
       }
+
+      // 댓글 작성자를 제외하고 readBy 초기화
+      await this.prisma.contestQnA.update({
+        where: { id: contestQnAId },
+        data: { readBy: { set: [userId] } }
+      })
 
       return comment
     })
