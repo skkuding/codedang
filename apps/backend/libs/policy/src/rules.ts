@@ -17,7 +17,7 @@ export const POLICY_RULES: Record<Lang, PolicyRule> = {
       'shutil',
       'pathlib'
     ],
-    bannedTokens: ['__import__', 'eval', 'exec', 'open'] // 필요시 조정
+    bannedTokens: ['__import__', 'eval', 'exec', 'open']
   },
   PyPy3: {
     bannedImports: [
@@ -39,12 +39,12 @@ export const POLICY_RULES: Record<Lang, PolicyRule> = {
       'java.lang.reflect',
       'java.net',
       'java.nio.file',
-      'java.io' // 필요 시 세분화
+      'java.io'
     ],
-    bannedTokens: [] // ex) 'System.setSecurityManager' 등
+    bannedTokens: []
   },
   C: {
-    bannedImports: ['sys/socket.h', 'unistd.h'], // 등
+    bannedImports: ['sys/socket.h', 'unistd.h'],
     bannedTokens: ['system', 'popen', 'fork', 'execve', 'ptrace', 'socket']
   },
   Cpp: {
