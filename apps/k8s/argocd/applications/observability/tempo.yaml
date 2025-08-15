@@ -31,8 +31,8 @@ spec:
           targetRevision: '{{.branch}}'
           ref: codedang
       destination:
+        namespace: observability
         name: {{.env}}
-        namespace: 'tempo-{{.env}}'
       syncPolicy:
         automated:
           prune: true
