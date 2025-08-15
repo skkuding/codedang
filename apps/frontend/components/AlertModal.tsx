@@ -72,13 +72,7 @@ export function AlertModal({
       >
         <AlertDialogHeader className="flex flex-col items-center justify-center">
           {type === 'warning' && showWarningIcon && (
-            <Image
-              src={infoIcon}
-              alt="info"
-              width={42}
-              height={42}
-              // className="mb-3"
-            />
+            <Image src={infoIcon} alt="info" width={42} height={42} />
           )}
           <AlertDialogTitle
             className={cn(
