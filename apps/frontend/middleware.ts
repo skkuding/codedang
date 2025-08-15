@@ -10,6 +10,16 @@ const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
 export const middleware = async (req: NextRequest) => {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
 
+  const { pathname } = req.nextUrl
+
+  const isCourseDetailPath = /^\/course\/.+/.test(pathname)
+
+  if (isCourseDetailPath && !token) {
+    const loginUrl = new URL('/login', req.url)
+    loginUrl.searchParams.set('redirectUrl', pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+
   // Handle unauthorized access to admin page
   // if (
   //   req.nextUrl.pathname.startsWith('/admin') &&
