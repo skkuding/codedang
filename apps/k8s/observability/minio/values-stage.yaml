@@ -1,6 +1,7 @@
 mode: standalone
-rootUser: minioadmin
-rootPassword: minioadmin
+auth:
+  rootUser: minioadmin
+  rootPassword: minioadmin
 persistence:
   enable: true
   size: 8Gi
@@ -14,10 +15,10 @@ console:
     type: ClusterIP
     ports:
       http: 9001
-defaultBuckets:
-  - name: loki-chunk
-    policy: none
-  - name: loki-ruler
-    policy: none
-  - name: loki-admin
-    policy: none
+# defaultBuckets:
+#   - name: loki-chunk
+#     policy: none
+#   - name: loki-ruler
+#     policy: none
+#   - name: loki-admin
+#     policy: none

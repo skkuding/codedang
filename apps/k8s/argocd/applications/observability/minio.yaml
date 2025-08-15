@@ -21,8 +21,8 @@ spec:
       project: default
       sources:
         - repoURL: https://charts.bitnami.com/bitnami
-          chart: bitnami/minio
-          targetRevision: 17.0.19
+          chart: minio
+          targetRevision: 17.0.21
           helm:
             valueFiles:
               - $codedang/apps/k8s/observability/minio/values-{{.env}}.yaml
