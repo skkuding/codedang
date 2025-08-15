@@ -590,6 +590,7 @@ describe('SubmissionService', () => {
         createTime: new Date(),
         updateTime: new Date(),
         studentId: '2020000000',
+        affiliation: null,
         major: null,
         canCreateCourse: false,
         canCreateContest: false
@@ -650,6 +651,7 @@ describe('SubmissionService', () => {
         createTime: new Date(),
         updateTime: new Date(),
         studentId: '2020000000',
+        affiliation: null,
         major: null,
         canCreateCourse: false,
         canCreateContest: false
