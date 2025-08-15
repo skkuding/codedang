@@ -23,11 +23,12 @@ spec:
       sources:
         - repoURL: https://grafana.github.io/helm-charts
           chart: grafana
-          targetRevision: 7.3.11
+          targetRevision: 9.3.2
           helm:
             valueFiles:
               - $codedang/apps/k8s/observability/grafana/values-{{.env}}.yaml
         - repoURL: https://github.com/skkuding/codedang.git
+          path: 'apps/k8s/observability/grafana'
           targetRevision: '{{.branch}}'
           ref: codedang
       destination:

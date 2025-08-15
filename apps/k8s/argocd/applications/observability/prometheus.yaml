@@ -28,6 +28,7 @@ spec:
             valueFiles:
               - $codedang/apps/k8s/observability/prometheus/values-{{.env}}.yaml
         - repoURL: https://github.com/skkuding/codedang.git
+          path: 'apps/k8s/observability/prometheus'
           targetRevision: '{{.branch}}'
           ref: codedang
       destination:

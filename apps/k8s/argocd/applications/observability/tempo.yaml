@@ -28,6 +28,7 @@ spec:
             valueFiles:
               - $codedang/apps/k8s/observability/tempo/values-{{.env}}.yaml
         - repoURL: https://github.com/skkuding/codedang.git
+          path: 'apps/k8s/observability/tempo'
           targetRevision: '{{.branch}}'
           ref: codedang
       destination:
