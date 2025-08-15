@@ -148,8 +148,8 @@ export class NotificationService {
     const payload = JSON.stringify({
       title,
       body: message,
-      icon: 'https://codedang.com/apple-icon.png',
-      badge: 'https://codedang.com/icon.png',
+      icon: '/logos/transparent.png',
+      badge: '/logos/codedang-badge.png',
       data: { url }
     })
 
