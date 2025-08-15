@@ -311,7 +311,8 @@ const createGroups = async () => {
       data: {
         userId: user.id,
         groupId: privateGroup1.id,
-        isGroupLeader: user.username === 'user01'
+        isGroupLeader:
+          user.username === 'user01' || user.username === 'instructor'
       }
     })
   }

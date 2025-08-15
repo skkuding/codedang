@@ -6,21 +6,22 @@ import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { useQuery } from '@apollo/client'
 import type { SubmissionDetail } from '@generated/graphql'
 import { ErrorBoundary } from '@suspensive/react'
-import { Suspense } from 'react'
+import { Suspense, use } from 'react'
 import { SubmissionAssessment } from './_components/SubmissionAssessment'
 import { SubmissionSummary } from './_components/SubmissionSummary'
 import { SubmissionTestcase } from './_components/SubmissionTestcase'
 
 interface PageProps {
-  params: {
+  params: Promise<{
     courseId: string
     assignmentId: string
     userId: string
     problemId: string
-  }
+  }>
 }
 
-export default function Page({ params }: PageProps) {
+export default function Page(props: PageProps) {
+  const params = use(props.params)
   const { courseId, assignmentId, userId, problemId } = params
 
   const { data, error } = useQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {

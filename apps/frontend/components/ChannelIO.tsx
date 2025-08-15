@@ -1,5 +1,6 @@
 'use client'
 
+import { CHANNEL_TALK_KEY } from '@/libs/constants'
 import { useSession } from '@/libs/hooks/useSession'
 import * as ChannelService from '@channel.io/channel-web-sdk-loader'
 import { useEffect } from 'react'
@@ -9,15 +10,9 @@ export function ChannelIO() {
   const username = session?.user.username ?? null
 
   useEffect(() => {
-    const pluginKey = process.env.NEXT_PUBLIC_CHANNEL_PLUGIN_KEY
-    if (!pluginKey) {
-      console.warn('Channel plugin key is not defined.')
-      return
-    }
-
     ChannelService.loadScript()
     ChannelService.boot({
-      pluginKey,
+      pluginKey: CHANNEL_TALK_KEY,
       profile: {
         name: username
       }
