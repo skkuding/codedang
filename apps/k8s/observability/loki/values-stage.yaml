@@ -10,11 +10,18 @@ loki:
         index:
           prefix: loki_index_
           period: 24h
-  # storage_config:
-  #   aws:
-  #     region: ap-northeast-2
-  #     bucketnames: {{.bucketnames}}
-  #     s3forcepathstyle: false
+  storage:
+    type: s3
+    bucketNames:
+      chunks: loki-chunk
+      ruler: loki-ruler
+      admin: loki-admin
+    s3:
+      endpoint: http://minio.minio.svc.cluster.local
+      accessKeyId: minioadmin
+      secretAccessKey: minioadmin
+      s3ForcePathStyle: true
+      insecure: true
   pattern_ingester:
     enabled: true
   limits_config:
