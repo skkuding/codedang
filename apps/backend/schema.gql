@@ -871,6 +871,7 @@ type ContestQnA {
   order: Int!
   problem: Problem
   problemId: Int
+  readBy: [Int!]
   title: String!
 }
 
@@ -880,6 +881,7 @@ type ContestQnAAvgAggregate {
   id: Float
   order: Float
   problemId: Float
+  readBy: Float
 }
 
 type ContestQnAComment {
@@ -954,6 +956,7 @@ type ContestQnACountAggregate {
   isResolved: Int!
   order: Int!
   problemId: Int!
+  readBy: Int!
   title: Int!
 }
 
@@ -989,6 +992,7 @@ type ContestQnASumAggregate {
   id: Int
   order: Int
   problemId: Int
+  readBy: [Int!]
 }
 
 type ContestRecord {
