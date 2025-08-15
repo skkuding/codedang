@@ -418,7 +418,9 @@ export class SubmissionService {
                 input: true,
                 output: true,
                 isHidden: true,
-                scoreWeight: true
+                scoreWeight: true,
+                scoreWeightNumerator: true,
+                scoreWeightDenominator: true
               }
             }
           }
@@ -497,7 +499,9 @@ export class SubmissionService {
             ? result.cpuTime.toString()
             : null,
         isHidden: result.problemTestcase.isHidden,
-        scoreWeight: result.problemTestcase.scoreWeight
+        scoreWeight: result.problemTestcase.scoreWeight,
+        scoreWeightNumerator: result.problemTestcase.scoreWeightNumerator,
+        scoreWeightDenominator: result.problemTestcase.scoreWeightDenominator
       }
     })
     results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
