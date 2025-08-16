@@ -289,35 +289,48 @@ function InputFieldTab({
         </div>
 
         {/* email dropdown */}
-        <Select onValueChange={handleDomainDropdownChange}>
-          {isDirect ? (
-            <div className="border-color-line-default flex h-[40px] w-full max-w-[246px] items-center gap-[6px] rounded-full border-[1px] border-solid pl-4 pr-2 text-base font-normal">
-              <div className="grid size-[20px] place-content-center">
-                <HiMiniAtSymbol
-                  size={16.67}
-                  className="text-color-neutral-30"
-                />
-              </div>
-              <div className="min-w-[170px]">
-                <Textarea
-                  value={inputField.domain}
-                  placeholder="Enter directly"
-                  className="min-h-none placeholder:text-color-neutral-90 z-100 max-h-[24px] resize-none truncate border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
-                  onChange={(value) =>
-                    setInputField((prevField) => ({
-                      ...prevField,
-                      domain: value.target.value
-                    }))
-                  }
-                />
-              </div>
+        {isDirect ? (
+          <div className="border-color-line-default flex h-[40px] w-full max-w-[246px] items-center gap-[6px] rounded-full border-[1px] border-solid pl-4 pr-2 text-base font-normal">
+            <div className="grid size-[20px] place-content-center">
+              <HiMiniAtSymbol size={16.67} className="text-color-neutral-30" />
+            </div>
+            <div className="min-w-[170px]">
+              <Textarea
+                value={inputField.domain}
+                placeholder="Enter directly"
+                className="min-h-none placeholder:text-color-neutral-90 z-100 max-h-[24px] resize-none truncate border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
+                onChange={(value) =>
+                  setInputField((prevField) => ({
+                    ...prevField,
+                    domain: value.target.value
+                  }))
+                }
+              />
+            </div>
+            <Select onValueChange={handleDomainDropdownChange}>
               <SelectTrigger asChild>
                 <Button variant="ghost" className="p-0">
                   <FaChevronDown className="text-color-neutral-90" />
                 </Button>
               </SelectTrigger>
-            </div>
-          ) : (
+              <SelectContent
+                className={`w-[246px] ${isDirect && '-translate-x-[101px]'}`}
+              >
+                <SelectGroup>
+                  {ALLOWED_DOMAINS.map((domain) => (
+                    <SelectItem key={domain} value={domain}>
+                      {domain}
+                    </SelectItem>
+                  ))}
+                  <SelectItem key={'Enter directly'} value="Enter directly">
+                    Enter directly
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+        ) : (
+          <Select onValueChange={handleDomainDropdownChange}>
             <SelectTrigger asChild>
               <Button
                 type="button"
@@ -342,22 +355,23 @@ function InputFieldTab({
                 </div>
               </Button>
             </SelectTrigger>
-          )}
-          <SelectContent
-            className={`w-[246px] ${isDirect && '-translate-x-[101px]'}`}
-          >
-            <SelectGroup>
-              {ALLOWED_DOMAINS.map((domain) => (
-                <SelectItem key={domain} value={domain}>
-                  {domain}
+            <SelectContent
+              className={`w-[246px] ${isDirect && '-translate-x-[101px]'}`}
+            >
+              <SelectGroup>
+                {ALLOWED_DOMAINS.map((domain) => (
+                  <SelectItem key={domain} value={domain}>
+                    {domain}
+                  </SelectItem>
+                ))}
+                <SelectItem key={'Enter directly'} value="Enter directly">
+                  Enter directly
                 </SelectItem>
-              ))}
-              <SelectItem key={'Enter directly'} value="Enter directly">
-                Enter directly
-              </SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        )}
+
         {/* role dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
