@@ -5,9 +5,10 @@ export class AuthenticatedUser {
   #username: string
   #role: Role
 
-  constructor(id, username) {
+  constructor(id, username, role) {
     this.#id = id
     this.#username = username
+    this.#role = role
   }
 
   get id() {
