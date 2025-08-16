@@ -784,6 +784,11 @@ export class ContestService {
         category: true,
         problemId: true,
         createTime: true,
+        createdBy: {
+          select: {
+            username: true
+          }
+        },
         readBy: true
       },
       where,
@@ -834,6 +839,14 @@ export class ContestService {
       where: {
         contestId,
         order
+      },
+      include: {
+        comments: true,
+        createdBy: {
+          select: {
+            username: true
+          }
+        }
       }
     })
 
