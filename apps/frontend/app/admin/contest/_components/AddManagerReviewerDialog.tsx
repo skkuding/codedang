@@ -392,7 +392,6 @@ function InputFieldTab({
       <Button
         variant="outline"
         className="border-color-blue-50 hover:bg-color-blue-80 h-full cursor-pointer border-[1px]"
-        asChild
         onClick={() =>
           fetchUserData(
             `${inputField.value}@${inputField.domain}`,
