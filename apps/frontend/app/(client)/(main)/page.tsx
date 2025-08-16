@@ -11,30 +11,12 @@ import { ServiceCards } from './_components/ServiceCards'
 const slides = [
   {
     type: 'codedang',
-    topTitle: 'Welcome to',
-    bottomTitle: 'CODEDANG',
-    sub: 'Online Judge Platform for SKKU',
-    img: '/banners/codedang-carousel.png',
+    topTitle: 'Your Coding Journey',
+    bottomTitle: 'Starts Here',
+    sub: "Practice real problems, compete with peers.\nGrow your skills on SKKU's coding platform.",
+    img: '/banners/main_banner.svg',
     imgAlt: 'Codedang',
-    href: '/problem'
-  },
-  {
-    type: 'github',
-    topTitle: 'Contribute to',
-    bottomTitle: 'Codedang on GitHub',
-    sub: 'Our project is open source',
-    img: '/banners/github.png',
-    imgAlt: 'GitHub',
-    href: 'https://github.com/skkuding/codedang'
-  },
-  {
-    type: 'skkuding',
-    topTitle: 'SKKUDING',
-    bottomTitle: 'Beta Service',
-    sub: "Feel free to contact us if there's any bug",
-    img: '/banners/bug.png',
-    imgAlt: 'Bug',
-    href: 'https://pf.kakao.com/_UKraK/chat'
+    href: 'https://about-codedang.framer.website'
   }
 ]
 
