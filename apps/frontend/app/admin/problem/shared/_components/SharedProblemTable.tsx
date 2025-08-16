@@ -42,6 +42,7 @@ export function SharedProblemTable() {
       }
     }))
   }))
+  const bodyStyle = { title: 'justify-start' }
 
   return (
     <DataTableRoot
@@ -54,7 +55,10 @@ export function SharedProblemTable() {
         <DataTableLangFilter />
         <DataTableLevelFilter />
       </div>
-      <DataTable getHref={(data) => `/admin/problem/${data.id}`} />
+      <DataTable
+        getHref={(data) => `/admin/problem/${data.id}`}
+        bodyStyle={bodyStyle}
+      />
       <DataTablePagination showSelection />
     </DataTableRoot>
   )

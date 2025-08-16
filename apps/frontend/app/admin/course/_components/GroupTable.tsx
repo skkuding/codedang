@@ -16,14 +16,6 @@ import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
 import { UpdateCourseButton } from './UpdateCourseButton'
 
-const headerStyle = {
-  select: '',
-  title: 'w-9/12',
-  code: 'w-1/12',
-  semester: 'w-1/12',
-  studentCount: 'w-1/12'
-}
-
 export function GroupTable() {
   const client = useApolloClient()
 
@@ -55,6 +47,10 @@ export function GroupTable() {
     })
   }
 
+  const bodyStyle = {
+    title: 'justify-start'
+  }
+
   return (
     <div>
       <DataTableRoot data={courses} columns={columns}>
@@ -70,7 +66,7 @@ export function GroupTable() {
           </div>
         </div>
         <DataTable
-          headerStyle={headerStyle}
+          bodyStyle={bodyStyle}
           getHref={(data) => `/admin/course/${data.id}`}
         />
         <DataTablePagination showSelection />

@@ -151,52 +151,30 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
-        {row.getValue('title')}
-      </p>
-    ),
+    cell: ({ row }) => {
+      return row.getValue('title')
+    },
     enableSorting: false,
     enableHiding: false
   },
   {
     accessorKey: 'startTime',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader
-          column={column}
-          title="Period"
-          className="text-center"
-        />
-      </div>
+      <DataTableColumnHeader column={column} title="Period" />
     ),
-    cell: ({ row }) => (
-      <div className="flex justify-center">
-        <div className="max-w-[270px] flex-1 text-left">
-          <p className="overflow-hidden whitespace-nowrap">
-            {formatDateRange(row.original.startTime, row.original.endTime)}
-          </p>
-        </div>
-      </div>
-    ),
+    cell: ({ row }) => {
+      return formatDateRange(row.original.startTime, row.original.endTime)
+    },
     size: 250
   },
   {
     accessorKey: 'week',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader
-          column={column}
-          title="Week"
-          className="text-center"
-        />
-      </div>
+      <DataTableColumnHeader column={column} title="Week" />
     ),
-    cell: ({ row }) => (
-      <p className="overflow-hidden whitespace-nowrap text-center font-normal">
-        {`Week ${row.original.week}`}
-      </p>
-    )
+    cell: ({ row }) => {
+      return `Week ${row.original.week}`
+    }
   },
   {
     accessorKey: 'isVisible',

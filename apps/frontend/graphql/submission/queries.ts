@@ -178,10 +178,41 @@ const GET_ASSIGNMENT_LATEST_SUBMISSION = gql(`
   }
 `)
 
+const GET_SUBMISSIONS = gql(`
+  query GetSubmissions(
+  $problemId: Int!
+  $cursor: Int
+  $take: Int
+  ) {
+    getSubmissions(
+      problemId: $problemId
+      cursor: $cursor
+      take: $take
+    ) {
+      data {
+        id
+        user {
+          id
+          username
+          studentId
+        }
+        userIp
+        codeSize
+        createTime
+        language
+        result
+        score
+      }
+      total
+    }
+  }
+`)
+
 export {
-  GET_CONTEST_SUBMISSIONS_COUNT,
-  GET_CONTEST_SUBMISSIONS,
   GET_ASSIGNMENT_LATEST_SUBMISSION,
   GET_ASSIGNMENT_SUBMISSIONS,
-  GET_SUBMISSION
+  GET_CONTEST_SUBMISSIONS,
+  GET_CONTEST_SUBMISSIONS_COUNT,
+  GET_SUBMISSION,
+  GET_SUBMISSIONS
 }
