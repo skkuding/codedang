@@ -13,20 +13,20 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectTrigger
+  SelectTrigger,
+  SelectGroup
 } from '@/components/shadcn/select'
 import { Textarea } from '@/components/shadcn/textarea'
 import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
-import { SelectGroup } from '@radix-ui/react-select'
 import React, { useEffect, useState } from 'react'
+import { BiEnvelope } from 'react-icons/bi'
 import { FaChevronDown, FaCircleExclamation } from 'react-icons/fa6'
 import {
   HiMiniAtSymbol,
   HiMiniPlus,
   HiMiniPlusCircle,
-  HiMiniXCircle,
-  HiOutlineEnvelope
+  HiMiniXCircle
 } from 'react-icons/hi2'
 import type { ContestManagerReviewer } from '../_libs/schemas'
 
@@ -122,7 +122,7 @@ export function AddManagerReviewerDialog({
       onClose={() => setOpen(false)}
     >
       {/* children으로 넣을 부분 */}
-      <ScrollArea className="h-full w-full tracking-[-3%]">
+      <ScrollArea className="relative h-full w-full p-0 tracking-[-3%]">
         <div className="flex flex-col gap-[30px]">
           {/* 인풋 필드 */}
           <InputFieldTab
@@ -133,7 +133,7 @@ export function AddManagerReviewerDialog({
             participants={participants}
           />
           {/* selected users 블록 */}
-          <div className="flex min-h-[293px] flex-col gap-[10px] rounded-2xl border border-solid border-[#D8D8D8] p-[30px]">
+          <div className="border-color-line-default flex min-h-[293px] flex-col gap-[10px] rounded-2xl border border-solid p-[30px]">
             {/* ~ user(s) selected */}
             <div className="text-primary mt-1 text-sm">
               {`${users.length} user(s) selected`}
@@ -159,7 +159,11 @@ export function AddManagerReviewerDialog({
             )}
           </div>
         </div>
-        <ScrollBar className="ml-[16px] w-[4px]" />
+        <ScrollBar
+          orientation="vertical"
+          className="absolute right-4"
+          style={{ width: '4px' }}
+        />
       </ScrollArea>
     </Modal>
   )
@@ -271,11 +275,19 @@ function InputFieldTab({
       {/* input + email dropdown + role dropdown */}
       <div className="flex w-full gap-[4px]">
         {/* email input */}
-        <div className="border-color-line-default flex items-center gap-[10px] rounded-full border-[1px] border-solid px-[20px]">
-          <div className="grid size-[18px] place-content-center">
-            <HiOutlineEnvelope className="text-color-neutral-70" />
+        <div className="border-color-line-default flex max-w-[245px] flex-1 items-center gap-[10px] rounded-full border-[1px] border-solid px-[20px]">
+          <div className="grid place-content-center">
+            <BiEnvelope
+              size={18}
+              className={
+                inputField.value
+                  ? `text-color-neutral-30`
+                  : `text-color-neutral-70`
+              }
+            />
           </div>
           <Textarea
+            id="email-input"
             value={inputField.value}
             placeholder="Enter the e-mail"
             className="min-h-none placeholder:text-color-neutral-90 max-h-[24px] resize-none truncate border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
@@ -290,7 +302,7 @@ function InputFieldTab({
 
         {/* email dropdown */}
         {isDirect ? (
-          <div className="border-color-line-default flex h-[40px] w-full max-w-[246px] items-center gap-[6px] rounded-full border-[1px] border-solid pl-4 pr-2 text-base font-normal">
+          <div className="border-color-line-default flex h-[40px] max-w-[245px] flex-1 items-center gap-[6px] rounded-full border-[1px] border-solid pl-4 pr-2 text-base font-normal">
             <div className="grid size-[20px] place-content-center">
               <HiMiniAtSymbol size={16.67} className="text-color-neutral-30" />
             </div>
@@ -307,14 +319,17 @@ function InputFieldTab({
                 }
               />
             </div>
-            <Select onValueChange={handleDomainDropdownChange}>
-              <SelectTrigger asChild>
-                <Button variant="ghost" className="p-0">
-                  <FaChevronDown className="text-color-neutral-90" />
-                </Button>
+            <Select
+              onValueChange={handleDomainDropdownChange}
+              value="Enter directly"
+            >
+              <SelectTrigger className="max-w-[16px] border-none bg-transparent p-0 focus:ring-0 focus:ring-offset-0">
+                <div className="grid place-content-center">
+                  <FaChevronDown size={16} className="text-color-neutral-90" />
+                </div>
               </SelectTrigger>
               <SelectContent
-                className={`w-[246px] ${isDirect && '-translate-x-[101px]'}`}
+                className={`max-w-[245px] -translate-x-[218px] bg-white`}
               >
                 <SelectGroup>
                   {ALLOWED_DOMAINS.map((domain) => (
@@ -330,33 +345,30 @@ function InputFieldTab({
             </Select>
           </div>
         ) : (
-          <Select onValueChange={handleDomainDropdownChange}>
-            <SelectTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                className="text-color-common-0 flex h-[40px] w-full max-w-[246px] gap-[6px] pl-4 pr-2 text-base font-normal"
-              >
-                <div className="flex items-center gap-[6px]">
-                  <div className="grid size-[20px] place-content-center">
-                    <HiMiniAtSymbol
-                      size={16.67}
-                      className="text-color-neutral-30"
-                    />
-                  </div>
-                  <div className="min-w-[170px]">
-                    <p className="text-color-common-0 text-left text-base">
-                      {inputField.domain}
-                    </p>
-                  </div>
+          <Select
+            value={ALLOWED_DOMAINS[0]}
+            onValueChange={handleDomainDropdownChange}
+          >
+            <SelectTrigger className="text-color-common-0 flex h-[40px] max-w-[245px] flex-1 gap-[6px] rounded-full pl-4 pr-2 text-base font-normal focus:ring-0 focus:ring-offset-0">
+              <div className="flex items-center gap-[6px]">
+                <div className="grid size-[20px] place-content-center">
+                  <HiMiniAtSymbol
+                    size={16.67}
+                    className="text-color-neutral-30"
+                  />
                 </div>
-                <div className="grid size-[16px] place-content-center">
-                  <FaChevronDown className="text-color-neutral-90" />
+                <div className="min-w-[170px]">
+                  <p className="text-color-common-0 text-left text-base">
+                    {inputField.domain}
+                  </p>
                 </div>
-              </Button>
+              </div>
+              <div className="grid place-content-center">
+                <FaChevronDown size={16} className="text-color-neutral-90" />
+              </div>
             </SelectTrigger>
             <SelectContent
-              className={`w-[246px] ${isDirect && '-translate-x-[101px]'}`}
+              className={`max-w-[245px] bg-white ${isDirect && '-translate-x-[101px]'}`}
             >
               <SelectGroup>
                 {ALLOWED_DOMAINS.map((domain) => (
@@ -378,7 +390,7 @@ function InputFieldTab({
             <Button
               type="button"
               variant="outline"
-              className="text-color-common-0 flex h-[40px] items-center gap-[4px] px-[19.5px] text-base font-normal"
+              className="text-color-common-0 flex h-[40px] max-w-[120px] flex-none items-center gap-[4px] px-[19.5px] text-base font-normal"
             >
               <p className="min-w-[67px] text-center">{inputField.role}</p>
               <div className="grid size-[16px] place-content-center">
@@ -405,7 +417,7 @@ function InputFieldTab({
       {/* + 버튼 */}
       <Button
         variant="outline"
-        className="border-color-blue-50 hover:bg-color-blue-80 h-full cursor-pointer border-[1px]"
+        className="border-color-blue-50 hover:bg-color-blue-80 h-full w-full max-w-[90px] cursor-pointer border-[1px]"
         onClick={() =>
           fetchUserData(
             `${inputField.value}@${inputField.domain}`,
@@ -446,9 +458,11 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   return (
     <div className="flex gap-[10px] text-base">
       {/* email 표시 박스 */}
-      <div className="flex h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full border border-solid border-[#D8D8D8] px-[10px] py-[10px] text-black">
+      <div className="border-color-line-default flex h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full border border-solid px-[10px] py-[10px] text-black">
         <div className="ml-[10px] flex items-center gap-[10px]">
-          <HiOutlineEnvelope className="h-5 w-5 text-[#9B9B9B]" />
+          <div className="grid place-content-center">
+            <BiEnvelope size={18} className="text-color-neutral-70" />
+          </div>
           <span>{curUser.email}</span>
         </div>
 
@@ -458,20 +472,23 @@ function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
           className="h-9 w-9 p-1 text-sm font-normal"
           onClick={() => handleDeleteUser()}
         >
-          <HiMiniXCircle className="h-5 w-5 text-[#B0B0B0]" />
+          <HiMiniXCircle className="text-color-neutral-80 h-5 w-5" />
         </Button>
       </div>
       {/* 드롭다운 */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild className="grow">
-          <Button variant="outline" className="h-10 pl-4 pr-2 font-normal">
+          <Button
+            variant="outline"
+            className="text-color-common-0 h-10 pl-4 pr-2 font-normal"
+          >
             <p className="min-w-[67px] text-center">{curUser.type}</p>
             <div className="grid size-[16px] place-content-center">
               <FaChevronDown className="text-color-neutral-90" />
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-full">
+        <DropdownMenuContent className="w-full text-base font-normal">
           <DropdownMenuCheckboxItem
             checked={curUser.type === 'Manager'}
             onCheckedChange={() => handleUserDropdownChange('Manager')}
