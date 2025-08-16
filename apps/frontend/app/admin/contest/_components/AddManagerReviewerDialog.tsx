@@ -6,18 +6,21 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  DropdownMenuCheckboxItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem
+  DropdownMenuCheckboxItem
 } from '@/components/shadcn/dropdown-menu'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger
+} from '@/components/shadcn/select'
 import { Textarea } from '@/components/shadcn/textarea'
 import { ALLOWED_DOMAINS } from '@/libs/constants'
-import { cn, isHttpError, safeFetcherWithAuth } from '@/libs/utils'
-import { ChevronDown } from 'lucide-react'
+import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
+import { SelectGroup } from '@radix-ui/react-select'
 import React, { useEffect, useState } from 'react'
 import { FaChevronDown, FaCircleExclamation } from 'react-icons/fa6'
-import { HiChevronDown } from 'react-icons/hi'
 import {
   HiMiniAtSymbol,
   HiMiniPlus,
@@ -185,10 +188,7 @@ function InputFieldTab({
   participants
 }: InputFieldTabProps) {
   const [isDirect, setIsDirect] = useState(false)
-  // 인풋 필드 내에 이메일 변경 시
-  const handleValueChange = (value: string) => {
-    setInputField((prevField) => ({ ...prevField, value, error: '' }))
-  }
+
   // 도메인 드롭다운 메뉴 변경 시 실행 함수
   const handleDomainDropdownChange = (value: string) => {
     if (value === 'Enter directly') {
@@ -289,7 +289,7 @@ function InputFieldTab({
         </div>
 
         {/* email dropdown */}
-        <DropdownMenu>
+        <Select onValueChange={handleDomainDropdownChange}>
           {isDirect ? (
             <div className="border-color-line-default flex h-[40px] w-full max-w-[246px] items-center gap-[6px] rounded-full border-[1px] border-solid pl-4 pr-2 text-base font-normal">
               <div className="grid size-[20px] place-content-center">
@@ -311,14 +311,14 @@ function InputFieldTab({
                   }
                 />
               </div>
-              <DropdownMenuTrigger asChild>
+              <SelectTrigger asChild>
                 <Button variant="ghost" className="p-0">
                   <FaChevronDown className="text-color-neutral-90" />
                 </Button>
-              </DropdownMenuTrigger>
+              </SelectTrigger>
             </div>
           ) : (
-            <DropdownMenuTrigger asChild>
+            <SelectTrigger asChild>
               <Button
                 type="button"
                 variant="outline"
@@ -332,52 +332,32 @@ function InputFieldTab({
                     />
                   </div>
                   <div className="min-w-[170px]">
-                    {isDirect ? (
-                      <Textarea
-                        value={inputField.domain}
-                        placeholder="Enter directly"
-                        className="min-h-none placeholder:text-color-neutral-90 z-100 max-h-[24px] resize-none truncate border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
-                        onChange={(value) =>
-                          setInputField((prevField) => ({
-                            ...prevField,
-                            domain: value.target.value
-                          }))
-                        }
-                      />
-                    ) : (
-                      <p className="text-color-common-0 text-left text-base">
-                        {inputField.domain}
-                      </p>
-                    )}
+                    <p className="text-color-common-0 text-left text-base">
+                      {inputField.domain}
+                    </p>
                   </div>
                 </div>
                 <div className="grid size-[16px] place-content-center">
                   <FaChevronDown className="text-color-neutral-90" />
                 </div>
               </Button>
-            </DropdownMenuTrigger>
+            </SelectTrigger>
           )}
-          <DropdownMenuContent
+          <SelectContent
             className={`w-[246px] ${isDirect && '-translate-x-[101px]'}`}
           >
-            <DropdownMenuRadioGroup
-              value={inputField.domain}
-              onValueChange={handleDomainDropdownChange}
-            >
+            <SelectGroup>
               {ALLOWED_DOMAINS.map((domain) => (
-                <DropdownMenuRadioItem key={domain} value={domain}>
+                <SelectItem key={domain} value={domain}>
                   {domain}
-                </DropdownMenuRadioItem>
+                </SelectItem>
               ))}
-              <DropdownMenuRadioItem
-                key={'Enter directly'}
-                value="Enter directly"
-              >
+              <SelectItem key={'Enter directly'} value="Enter directly">
                 Enter directly
-              </DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              </SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
         {/* role dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
