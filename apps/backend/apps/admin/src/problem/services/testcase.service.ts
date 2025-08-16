@@ -27,10 +27,6 @@ export class TestcaseService {
 
   /**
    * 분수 형태로 scoreWeight를 변환하는 헬퍼 함수
-   * 리뷰 반영: 사용자로부터 분모를 직접 입력받지 않습니다.
-   * 가중치는 scoreWeightNumerator 또는 기존 scoreWeight 필드를 통해 '분자'로만 간주하며,
-   * 분모는 항상 고정된 값(LEGACY_SCORE_SCALE = 100)을 사용합니다.
-   * 이로써 분모가 0이 되는 오류를 원천적으로 방지합니다.
    */
   private convertToFraction(testcase: Testcase): {
     numerator: number
@@ -46,8 +42,6 @@ export class TestcaseService {
       }
     }
 
-    // 가중치가 지정되지 않은 경우 (주로 equal distribution 시나리오)
-    // 기본값으로 1/1을 반환하여 이후 계산에서 제외되지 않도록 합니다.
     return {
       numerator: 1,
       denominator: 1
@@ -56,7 +50,6 @@ export class TestcaseService {
 
   /**
    * Equal distribution 계산 함수
-   * 일부 테스트케이스는 수동 지정, 나머지는 equal distribution
    */
   private calculateEqualDistribution(
     totalTestcases: number,
