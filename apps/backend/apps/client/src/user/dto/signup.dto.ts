@@ -31,5 +31,9 @@ export class SignUpDto {
 
   @IsOptional()
   @IsString()
+  readonly affiliation?: string
+
+  @IsOptional()
+  @IsString()
   readonly major?: string
 }

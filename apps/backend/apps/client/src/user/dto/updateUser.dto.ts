@@ -20,5 +20,9 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
+  readonly affiliation?: string
+
+  @IsOptional()
+  @IsString()
   readonly major?: string
 }
