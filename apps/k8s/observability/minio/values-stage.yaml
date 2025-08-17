@@ -1,24 +1,27 @@
 mode: standalone
-auth:
-  rootUser: minioadmin
-  rootPassword: minioadmin
+
+accessKey: minioadmin
+secretKey: minioadmin
+
 persistence:
-  enable: true
+  enabled: true
   size: 8Gi
-  # existingClaim: minio-dynamic-pvc
+  accessMode: ReadWriteOnce
+
+# TODO: add Minio console
 service:
   type: ClusterIP
-  ports:
-    api: 9000
-console:
-  service:
-    type: ClusterIP
-    ports:
-      http: 9001
-# defaultBuckets:
-#   - name: loki-chunk
-#     policy: none
-#   - name: loki-ruler
-#     policy: none
-#   - name: loki-admin
-#     policy: none
+  port: 9000
+
+# list of default buckets created after Minio install
+buckets:
+  - name: loki-chunk
+  - name: loki-ruler
+  - name: loki-admin
+
+metrics:
+  serviceMonitor:
+    enabled: true
+    additionalLabels:
+      service.name: minio
+      interval: 15s
