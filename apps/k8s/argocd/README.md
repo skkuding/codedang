@@ -74,3 +74,18 @@ data:
     p, role:admin, repositories, *, *, allow
   policy.default: role:admin
 ```
+
+## How to test a change
+
+By default, applications/argocd.yaml tries to sync all applications to main branch's yaml manifests.
+
+To test a change, you should disable the auto-sync feature of the application, and then `kubectl apply -f` your modified yaml manifests to the cluster.
+
+```yaml
+# applications/argocd.yaml
+
+spec:
+  syncPolicy: null  # Disable auto-sync
+    # prune: true
+    # selfHeal: true
+```
