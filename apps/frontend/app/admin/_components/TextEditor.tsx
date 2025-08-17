@@ -1,40 +1,10 @@
 'use client'
 
-import { InsertDialog } from '@/components/InsertDialog'
 import { Button } from '@/components/shadcn/button'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@/components/shadcn/dialog'
-import { Input } from '@/components/shadcn/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/shadcn/popover'
-import { Toggle } from '@/components/shadcn/toggle'
-import { UPLOAD_IMAGE, UPLOAD_FILE } from '@/graphql/problem/mutations'
+import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
-import BulletList from '@/public/icons/texteditor-bulletlist.svg'
-import CodeBlock from '@/public/icons/texteditor-codeblock.svg'
-import SquareRadical from '@/public/icons/texteditor-equation.svg'
 import Expand from '@/public/icons/texteditor-expand.svg'
-import Paperclip from '@/public/icons/texteditor-file.svg'
-import Heading1 from '@/public/icons/texteditor-h1.svg'
-import Heading2 from '@/public/icons/texteditor-h2.svg'
-import Heading3 from '@/public/icons/texteditor-h3.svg'
-import ImagePlus from '@/public/icons/texteditor-image.svg'
-import NumberedList from '@/public/icons/texteditor-numberedlist.svg'
-import Redo from '@/public/icons/texteditor-redo.svg'
 import Shrink from '@/public/icons/texteditor-shrink.svg'
-import TableIcon from '@/public/icons/texteditor-table.svg'
-import Undo from '@/public/icons/texteditor-undo.svg'
-import { useMutation } from '@apollo/client'
 import type { Range } from '@tiptap/core'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Heading from '@tiptap/extension-heading'
@@ -62,19 +32,18 @@ import 'highlight.js/styles/github-dark.css'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import { common, createLowlight } from 'lowlight'
-import {
-  Trash,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  ArrowRightToLine,
-  ArrowLeftFromLine
-} from 'lucide-react'
 import Image from 'next/image'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { CautionDialog } from './CautionDialog'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { CodeBlockComponent } from './tiptap/CodeBlockComponent'
 import { FileDownloadNode } from './tiptap/FileDownloadNode'
+import { HeadingStyleBar } from './tiptap/HeadingStyleBar'
+import {
+  InsertNodeBar,
+  type InsertNodeBarHandles
+} from './tiptap/InsertNodeBar'
+import { ListStyleBar } from './tiptap/ListStyleBar'
 import { TextStyleBar } from './tiptap/TextStyleBar'
+import { UndoRedoBar } from './tiptap/UndoRedoBar'
 import { Commands, type CommandProps } from './tiptap/commands'
 import { getSuggestionItems } from './tiptap/items'
 import { renderItems } from './tiptap/renderItems'
@@ -97,6 +66,8 @@ export function TextEditor({
   onShrink
 }: TextEditorProps) {
   const lowlight = createLowlight(common)
+
+  const insertNodeRef = useRef<InsertNodeBarHandles>(null)
 
   const editor = useEditor({
     extensions: [
@@ -211,9 +182,9 @@ export function TextEditor({
           }[] => {
             return getSuggestionItems(
               query,
-              () => setIsImageDialogOpen(true),
-              () => setIsFileDialogOpen(true),
-              () => setIsTableDialogOpen(true)
+              () => insertNodeRef.current?.openImageDialog(),
+              () => insertNodeRef.current?.openFileDialog(),
+              () => insertNodeRef.current?.openTableDialog()
             )
           }
         }
@@ -232,95 +203,7 @@ export function TextEditor({
     immediatelyRender: false,
     content: defaultValue
   })
-
-  const [uploadImage] = useMutation(UPLOAD_IMAGE)
-  const [uploadFile] = useMutation(UPLOAD_FILE)
-
-  const [imageUrl, setImageUrl] = useState<string | undefined>('')
-  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false)
-  const [fileUrl, setFileUrl] = useState<string | undefined>('')
-  const [fileName, setFileName] = useState<string | undefined>('')
-  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false)
-  const [tableSize, setTableSize] = useState({ rowCount: 0, columnCount: 0 })
-  const [isTableDialogOpen, setIsTableDialogOpen] = useState(false)
-  const [isTablePopoverOpen, setIsTablePopoverOpen] = useState(false)
-  const [isCautionDialogOpen, setIsCautionDialogOpen] = useState(false)
-  const [dialogDescription, setDialogDescription] = useState<string>('')
   const [isExpandedScreenOpen, setIsExpandedScreenOpen] = useState(false)
-
-  const addImage = useCallback(
-    (imageUrl?: string) => {
-      if (!editor || !imageUrl) {
-        return
-      }
-      editor.chain().focus().setImage({ src: imageUrl }).run()
-    },
-    [editor]
-  )
-
-  const handleUploadPhoto = async (files: FileList | null) => {
-    if (files === null) {
-      return
-    }
-    const file = files[0]
-    try {
-      const { data } = await uploadImage({
-        variables: {
-          input: { file }
-        }
-      })
-      setImageUrl(data?.uploadImage.src ?? '')
-    } catch (error) {
-      if (error instanceof Error) {
-        const errorMessage = error.message
-        if (errorMessage === 'File size exceeds maximum limit') {
-          setDialogDescription('Images larger than 5MB cannot be uploaded.')
-          setIsCautionDialogOpen(true)
-        }
-      }
-    }
-  }
-
-  const addFile = useCallback(
-    (fileUrl?: string, fileName?: string) => {
-      if (!editor || !fileUrl) {
-        return
-      }
-      editor
-        .chain()
-        .focus()
-        .insertContent({
-          type: 'fileDownload',
-          attrs: { href: fileUrl, fileName: fileName ?? 'File' }
-        })
-        .run()
-    },
-    [editor]
-  )
-
-  const handleUploadFile = async (files: FileList | null) => {
-    if (files === null) {
-      return
-    }
-    const file = files[0]
-    try {
-      const { data } = await uploadFile({
-        variables: {
-          input: { file }
-        }
-      })
-      console.log(data?.uploadFile.src)
-      setFileUrl(data?.uploadFile.src ?? '')
-    } catch (error) {
-      if (error instanceof Error) {
-        const errorMessage = error.message
-        if (errorMessage === 'File size exceeds maximum limit') {
-          setDialogDescription('Files larger than 30MB cannot be uploaded.')
-          setIsCautionDialogOpen(true)
-        }
-      }
-    }
-  }
 
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border">
@@ -328,317 +211,14 @@ export function TextEditor({
         <div className="flex flex-wrap items-center gap-1 border-b bg-white p-1">
           <TextStyleBar editor={editor} />
           <div className="mx-1 h-8 shrink-0 border-r" />
-          <Toggle
-            pressed={editor.isActive('heading', { level: 1 })}
-            onPressedChange={() => {
-              editor.commands.toggleHeading({ level: 1 })
-              editor.commands.focus()
-            }}
-            className="h-9 w-9 p-1"
-          >
-            <Image
-              src={Heading1}
-              alt="Heading 1"
-              className="h-[18px] w-[18px]"
-            />
-          </Toggle>
-          <Toggle
-            pressed={editor.isActive('heading', { level: 2 })}
-            onPressedChange={() => {
-              editor.commands.toggleHeading({ level: 2 })
-              editor.commands.focus()
-            }}
-            className="h-9 w-9 p-1"
-          >
-            <Image
-              src={Heading2}
-              alt="Heading 2"
-              className="h-[18px] w-[18px]"
-            />
-          </Toggle>
-          <Toggle
-            pressed={editor.isActive('heading', { level: 3 })}
-            onPressedChange={() => {
-              editor.commands.toggleHeading({ level: 3 })
-              editor.commands.focus()
-            }}
-            className="h-9 w-9 p-1"
-          >
-            <Image
-              src={Heading3}
-              alt="Heading 3"
-              className="h-[18px] w-[18px]"
-            />
-          </Toggle>
+          <HeadingStyleBar editor={editor} />
           <div className="mx-1 h-8 shrink-0 border-r" />
-          <Toggle
-            pressed={editor.isActive('bulletList')}
-            onPressedChange={() => {
-              editor.chain().focus().toggleBulletList().run()
-              editor.commands.focus()
-            }}
-            className="h-9 w-9 p-1"
-          >
-            <Image src={BulletList} alt="Bullet List" className="h-5 w-5" />
-          </Toggle>
-          <Toggle
-            pressed={editor.isActive('orderedList')}
-            onPressedChange={() => {
-              editor.chain().focus().toggleOrderedList().run()
-              editor.commands.focus()
-            }}
-            className="h-9 w-9 p-1"
-          >
-            <Image src={NumberedList} alt="Numbered List" className="h-5 w-5" />
-          </Toggle>
+          <ListStyleBar editor={editor} />
           <div className="mx-1 h-8 shrink-0 border-r" />
-          <InsertDialog
-            open={isFileDialogOpen}
-            editor={editor}
-            activeType="file"
-            title="Upload File"
-            description={
-              <>
-                <Input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={(e) => {
-                    handleUploadFile(e.target.files)
-                    setFileName(e.target.files?.[0].name ?? '')
-                  }}
-                />
-                <p className="text-sm"> * File must be under 30MB</p>
-              </>
-            }
-            triggerIcon={
-              <Image src={Paperclip} alt="File" className="h-[18px] w-[18px]" />
-            }
-            onOpenChange={(open) => {
-              setIsFileDialogOpen(open)
-              if (!open) {
-                setTimeout(() => {
-                  editor.commands.focus()
-                }, 200)
-              }
-            }}
-            onInsert={() => addFile(fileUrl, fileName)}
-            onToggleClick={() => setIsFileDialogOpen(true)}
-          />
-          <InsertDialog
-            open={isImageDialogOpen}
-            editor={editor}
-            activeType="image"
-            title="Upload Image"
-            description={
-              <>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    handleUploadPhoto(e.target.files)
-                  }}
-                />
-                <p className="text-sm"> * Image must be under 5MB</p>
-              </>
-            }
-            triggerIcon={
-              <Image
-                src={ImagePlus}
-                alt="Image"
-                className="h-[18px] w-[18px]"
-              />
-            }
-            onOpenChange={(open) => {
-              setIsImageDialogOpen(open)
-              if (!open) {
-                setTimeout(() => {
-                  editor.commands.focus()
-                }, 200)
-              }
-            }}
-            onInsert={() => addImage(imageUrl)}
-            onToggleClick={() => setIsImageDialogOpen(true)}
-          />
-          <Toggle
-            type="button"
-            onClick={() => {
-              editor
-                .chain()
-                .focus()
-                .insertContent(`<math-component content=""></math-component>`)
-                .blur()
-                .run()
-            }}
-            className="h-9 w-9 p-1 text-black"
-          >
-            <Image
-              src={SquareRadical}
-              alt="Equation"
-              className="h-[17px] w-[17px]"
-            />
-          </Toggle>
-          <Toggle
-            type="button"
-            onClick={() => {
-              editor.chain().focus().setCodeBlock().run()
-              editor.commands.focus()
-            }}
-            className="h-9 w-9 p-1 text-black"
-          >
-            <Image src={CodeBlock} alt="Code Block" className="h-[18px] w-5" />
-          </Toggle>
-          <Dialog
-            open={isTableDialogOpen}
-            onOpenChange={(open) => {
-              setIsTableDialogOpen(open)
-              if (!open) {
-                setTimeout(() => {
-                  editor.commands.focus()
-                }, 200)
-              }
-            }}
-          >
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Insert Table</DialogTitle>
-              </DialogHeader>
-              <DialogDescription>
-                <div className="my-4 flex w-32 items-center justify-between">
-                  <p>Row: </p>
-                  <Input
-                    type="number"
-                    className="h-8 w-16"
-                    placeholder="Enter row"
-                    value={tableSize.rowCount}
-                    onChange={(e) =>
-                      setTableSize({
-                        rowCount: Number(e.target.value),
-                        columnCount: tableSize.columnCount
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex w-32 items-center justify-between">
-                  <p>Column: </p>
-                  <Input
-                    type="number"
-                    className="h-8 w-16"
-                    placeholder="Enter column"
-                    value={tableSize.columnCount}
-                    onChange={(e) =>
-                      setTableSize({
-                        rowCount: tableSize.rowCount,
-                        columnCount: Number(e.target.value)
-                      })
-                    }
-                  />
-                </div>
-              </DialogDescription>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button
-                    onClick={() => {
-                      editor.commands.insertTable({
-                        rows: tableSize.rowCount,
-                        cols: tableSize.columnCount
-                      })
-                    }}
-                  >
-                    Insert
-                  </Button>
-                </DialogClose>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Popover
-            open={isTablePopoverOpen}
-            onOpenChange={setIsTablePopoverOpen}
-          >
-            <PopoverTrigger className="flex items-center">
-              <Toggle
-                pressed={editor.isActive('table')}
-                className="h-9 w-9 p-1"
-                onPressedChange={() => {
-                  if (!editor.isActive('table')) {
-                    setIsTableDialogOpen(true)
-                  } else {
-                    setIsTablePopoverOpen(true)
-                  }
-                }}
-              >
-                <Image src={TableIcon} alt="Table" className="h-5 w-5" />
-              </Toggle>
-            </PopoverTrigger>
-            <PopoverContent className="flex gap-2 rounded-lg border bg-white p-2">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  editor.commands.selectParentNode()
-                  editor.commands.addRowAfter()
-                }}
-                className="h-7 w-7 p-1"
-              >
-                <ArrowDownToLine className="text-neutral-600" />
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => editor.commands.deleteRow()}
-                className="h-7 w-7 p-1"
-              >
-                <ArrowUpFromLine className="text-neutral-600" />
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  editor.commands.selectParentNode()
-                  editor.commands.addColumnAfter()
-                }}
-                className="h-7 w-7 p-1"
-              >
-                <ArrowRightToLine className="text-neutral-600" />
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => editor.commands.deleteColumn()}
-                className="h-7 w-7 p-1"
-              >
-                <ArrowLeftFromLine className="text-neutral-600" />
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  editor.commands.deleteTable()
-                  setIsTablePopoverOpen(false)
-                }}
-                className="h-7 w-7 p-1"
-              >
-                <Trash className="text-neutral-600" />
-              </Button>
-            </PopoverContent>
-          </Popover>
+
+          <InsertNodeBar ref={insertNodeRef} editor={editor} />
           <div className="mx-1 h-6 shrink-0 border-r" />
-          <Button
-            variant="ghost"
-            type="button"
-            className="h-9 w-9 p-1"
-            disabled={!editor.can().undo()}
-            onClick={() => {
-              editor.commands.undo()
-            }}
-          >
-            <Image src={Undo} alt="Undo" className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            type="button"
-            className="h-9 w-9 p-1"
-            disabled={!editor.can().redo()}
-            onClick={() => {
-              editor.commands.redo()
-            }}
-          >
-            <Image src={Redo} alt="Redo" className="h-4 w-4" />
-          </Button>
+          <UndoRedoBar editor={editor} />
           {isExpanded ? (
             <div className="ml-auto flex space-x-2">
               <Button
@@ -674,11 +254,6 @@ export function TextEditor({
           )}
         </div>
       )}
-      <CautionDialog
-        isOpen={isCautionDialogOpen}
-        onClose={() => setIsCautionDialogOpen(false)}
-        description={dialogDescription}
-      />
       <EditorContent
         editor={editor}
         className={cn(
