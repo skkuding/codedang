@@ -27,13 +27,19 @@ args:
 - --insecure  # Add this line
 ```
 
-### 3. Assign Cluster
+and then apply the ingress manifest:
+
+```
+kubectl apply -f ingress.yaml
+```
+
+### 4. Assign Cluster
 
 Open the Argo CD UI, and go to `Settings` > `Clusters`.
 
 Add two clusters: production and stage, with appropriate URL.
 
-### 4. Enable GitHub Login
+### 5. Enable GitHub Login
 
 To enable GitHub login, type following command to edit the Argo CD config map:
 
