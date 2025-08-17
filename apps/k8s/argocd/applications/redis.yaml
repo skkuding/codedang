@@ -18,6 +18,8 @@ spec:
   template:
     metadata:
       name: 'redis-{{.env}}'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       sources:
