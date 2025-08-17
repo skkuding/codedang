@@ -6,6 +6,7 @@ import { cn } from '@/libs/utils'
 import Expand from '@/public/icons/texteditor-expand.svg'
 import Shrink from '@/public/icons/texteditor-shrink.svg'
 import type { Range } from '@tiptap/core'
+import Code from '@tiptap/extension-code'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Heading from '@tiptap/extension-heading'
 import { Image as ImageExtension } from '@tiptap/extension-image'
@@ -73,7 +74,13 @@ export function TextEditor({
     extensions: [
       StarterKit.configure({
         codeBlock: false,
+        code: false,
         heading: false
+      }),
+      Code.configure({
+        HTMLAttributes: {
+          class: 'bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded font-medium'
+        }
       }),
       CodeBlockLowlight.extend({
         addNodeView() {
@@ -257,7 +264,7 @@ export function TextEditor({
       <EditorContent
         editor={editor}
         className={cn(
-          'prose max-w-5xl overflow-hidden bg-white',
+          'prose max-w-5xl overflow-hidden bg-white [&_code::after]:content-none [&_code::before]:content-none',
           isDarkMode && 'prose-invert bg-transparent'
         )}
       />
