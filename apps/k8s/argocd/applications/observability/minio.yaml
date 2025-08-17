@@ -22,9 +22,9 @@ spec:
     spec:
       project: default
       sources:
-        - repoURL: https://helm.min.io/
+        - repoURL: https://charts.min.io/
           chart: minio
-          targetRevision: 8.0.10
+          targetRevision: 5.4.0
           helm:
             valueFiles:
               - $codedang/apps/k8s/observability/minio/values-{{.env}}.yaml
