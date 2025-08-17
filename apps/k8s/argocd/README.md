@@ -1,4 +1,4 @@
-## Prerequisites
+## How to setup Argo CD to a new cluster
 
 ### 1. Argo CD
 
