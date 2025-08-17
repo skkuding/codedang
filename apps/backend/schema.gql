@@ -868,6 +868,7 @@ type ContestQnA {
   createdById: Int
   id: ID!
   isResolved: Boolean!
+  isVisible: Boolean!
   order: Int!
   problem: Problem
   problemId: Int
@@ -954,6 +955,7 @@ type ContestQnACountAggregate {
   createdById: Int!
   id: Int!
   isResolved: Int!
+  isVisible: Int!
   order: Int!
   problemId: Int!
   readBy: Int!
@@ -968,6 +970,7 @@ type ContestQnAMaxAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
+  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
@@ -981,6 +984,7 @@ type ContestQnAMinAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
+  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
@@ -1656,6 +1660,7 @@ type Mutation {
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!
+  createContestQnAComment(content: String!, contestId: Int!, order: Int!): ContestQnAComment!
   createCourse(input: CourseInput!): Group!
   createNotice(input: CreateNoticeInput!): Notice!
   createProblem(input: CreateProblemInput!): ProblemWithIsVisible!
@@ -1665,6 +1670,7 @@ type Mutation {
   deleteAssignment(assignmentId: Int!, groupId: Int!): Assignment!
   deleteContest(contestId: Int!): Contest!
   deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
+  deleteContestQnAComment(commentOrder: Int!, contestId: Int!, qnAOrder: Int!): ContestQnAComment!
   deleteCourse(groupId: Int!): Group!
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
