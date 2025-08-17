@@ -17,6 +17,8 @@ spec:
   template:
     metadata:
       name: 'minio-{{.env}}'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       sources:
