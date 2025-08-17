@@ -593,6 +593,7 @@ model ContestQnA {
   isResolved  Boolean             @default(false) @map("is_resolved")
   createTime  DateTime            @default(now()) @map("create_time")
   comments    ContestQnAComment[]
+  readBy      Int[]               @map("read_by")
 
   @@unique([contestId, order])
   @@map("contest_qna")
