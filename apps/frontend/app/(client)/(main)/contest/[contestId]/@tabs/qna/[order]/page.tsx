@@ -8,41 +8,21 @@ type PageProps = {
     order: string
   }>
 }
-// get으로 가져오는 정보
-// type ContestQnA {
-//   _count: ContestQnACount!
-//   category: QnACategory!
-//   comments: [ContestQnAComment!]
-//   content: String!
-//   contest: Contest!
-//   contestId: Int!
-//   createTime: DateTime!
-//   createdBy: User
-//   createdById: Int
-//   id: ID!
-//   isResolved: Boolean!
-//   isVisible: Boolean!
-//   order: Int!
-//   problem: Problem
-//   problemId: Int
-//   title: String!
-// }
-
 export interface QnaContent {
-  id: number
-  order: number
-  createdBy: User
-  contestId: number
-  title: string
-  content: string
+  id?: number
+  order?: number
+  createdBy?: User
+  contestId?: number
+  title?: string
+  content?: string
   problemId?: number
-  category: string
-  isResolved: boolean
-  createTime: Date
+  category?: string
+  isResolved?: boolean
+  createTime?: Date
 }
 
 export interface Qna extends QnaContent {
-  comments: ContestQnAComment[]
+  comments?: ContestQnAComment[]
 }
 
 export interface ContestQnAComment {
@@ -58,17 +38,6 @@ interface User {
   username: string
 }
 
-interface UserProfile {
-  user?: User
-  userId: number
-}
-
-interface GetUserbyEmail {
-  username: string
-  id: number
-  userProfile?: UserProfile
-}
-
 export interface GetCurrentUser {
   username: string
   email: string
@@ -82,98 +51,56 @@ interface ContestRole {
 type Role = 'Admin' | 'Manager' | 'Participant' | 'Reviewer'
 
 export default async function QnaDetailPage({ params }: PageProps) {
-  // const { contestId, order } = params
-  // const data: ContestQnA = await fetcherWithAuth
-  //   .get(`contest/${contestId}/qna/${order}`)
-  //   .json()
+  const { contestId, order } = await params
+  // QnA 데이터 가져오기
+  const QnaRes = await fetcherWithAuth.get(`contest/${contestId}/qna/${order}`)
 
-  // 질문 삭제 버튼 로직: 대회 관리자인지 여부 확인 -no-> 질문 작성자인지 확인 -no-> 일반 유저.
-  // 답글 삭제 버튼 로직:
-  // TODO: contest/${contestId}/qna/${order}: qna에 대한 정보 가져오기
-  const dummyAuthor: User = { id: 7, username: 'user01' }
-  const dummyUser1: User = { id: 2, username: 'admin' }
-  // contest/${contestId}/qna/${order}로 가져온 정보 예시
-  const data: Qna = {
-    id: 1,
-    content: `삐딱하게 단소 악보
-      비딱하게 단소 악보 한글로 알려주세요.
-      내공100드림
-      딱하게 단소 악보
-      비딱하게 단소 악보 한글로 알려주세요.
-      내공100드림
-      내공100드림
-      내공100드림`,
-    createTime: new Date('2024-05-01 00:00:00'),
-    createdBy: dummyAuthor,
-    contestId: 20,
-    category: '말머리',
-    isResolved: false,
-    order: 1,
-    title:
-      '오버뷰와 달리 Semibold임. 제목은 한줄까지만 제한하는거 어떤가요? 60자 제한 어떤가요 60자가 넘으면은,,,,,,,',
-    comments: [
-      {
-        content: `황황황황 황황황황 황황황태 황황태
-영원한건 절대없어 결국에넌 변했지`,
-        createdBy: dummyUser1,
-        createdTime: new Date('2024-05-03 00:00:00'),
-        isContestStaff: true,
-        order: 1
-      },
-      {
-        content: `황황황황 황황황황 황황황태 황황태
-영원한건 절대없어 결국에넌 변했지`,
-        createdBy: dummyAuthor,
-        createdTime: new Date('2024-05-05 02:00:00'),
-        isContestStaff: false,
-        order: 2
-      }
-    ]
+  // 현재 로그인된 유저의 정보 가져오기
+  const userInfoRes = await fetcherWithAuth.get('user')
+
+  //  현재 로그인된 유저의 대회 권한 가져오기
+  const MyContestRolesRes = await fetcherWithAuth.get('contest/role')
+
+  // data 중 하나라도 제대로 받아오지 못했다면 에러 페이지
+  if (!QnaRes.ok || !userInfoRes.ok || !MyContestRolesRes.ok) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <h1 className="text-2xl font-bold">Error loading QnA</h1>
+      </div>
+    )
   }
 
-  // TODO: /contest/role: 현재 로그인된 계정의 각 대회 별 권한 가져오기 -> 현재 대회의 권한 확인
-  // TODO: response error handling
-  const MyContestRoles: ContestRole[] = await fetcherWithAuth
-    .get('contest/role')
-    .json()
-  // const myContestRoles: GetContestRoles = [
-  //   {
-  //     contestId: 1,
-  //     role: 'Participant'
-  //   },
-  //   {
-  //     contestId: 20,
-  //     role: 'Participant'
-  //   }
-  // ]
-  // TODO: /user: 현재 로그인된 계정의 정보 가져오기 -> /user/email?email=user02@example.com: 해당 이메일의 유저id 가져오기 -> 작성자 여부 확인.
-  // TODO: response error handling
-  const userInfo: { username: string; email: string } = await fetcherWithAuth
-    .get('user')
-    .json()
-  // const GetCurUserInfo: GetCurrentUser = {
-  //   username: 'skkudinguser',
-  //   email: 'skkudinguser@skku.com'
-  // }
-  // 위에서 얻은 이메일로 현재 로그인 중인 유저 id 가져옴.
-  const res: { id: number } = await fetcherWithAuth
-    .get('user/email', {
-      searchParams: { email: userInfo.email }
-    })
-    .json()
-  const userId: number = res.id
-  // const curUserId = 1
+  // QnA 데이터와 유저 정보, 대회 권한, 유저 ID 가져오기
+  const QnaData: Qna = await QnaRes.json()
+  const userInfo: { username?: string; email?: string } =
+    await userInfoRes.json()
+  const MyContestRoles: ContestRole[] = await MyContestRolesRes.json()
+
+  // 현재 로그인된 유저의 id 가져오기 (userInfo의 이메일을 통해서)
+  const res = await fetcherWithAuth.get('user/email', {
+    searchParams: { email: userInfo?.email || '' }
+  })
+  if (!res.ok) {
+    console.error('Failed to fetch user ID by email')
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <h1 className="text-2xl font-bold">Error fetching user ID</h1>
+      </div>
+    )
+  }
+  const userInfoByEmail: { id: number } = await res.json()
+  const userId: number = userInfoByEmail.id
 
   // 현재 유저가 현재 contest의 관리자인지 판별
   const isContestStaff: boolean = new Set(['Admin', 'Manager']).has(
     MyContestRoles.find(
-      (ContestRole) => ContestRole.contestId === data.contestId
+      (ContestRole) => ContestRole.contestId === QnaData.contestId
     )?.role ?? 'nothing'
   )
   // 아니라면 현재 유저가 작성자인지 판별
   let isCreator = false
   if (!isContestStaff) {
-    if (userId === data.createdBy.id) {
+    if (userId === QnaData.createdBy?.id) {
       isCreator = true
     }
   }
@@ -181,12 +108,12 @@ export default async function QnaDetailPage({ params }: PageProps) {
   return (
     <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 gap-[50px] px-[116px] leading-[150%] tracking-[-3%]">
       <QnaContentArea
-        data={data}
+        data={QnaData}
         className={''}
         canDelete={isCreator || isContestStaff}
       />
       <CommentArea
-        data={data}
+        data={QnaData}
         userInfo={userInfo}
         userId={userId}
         isContestStaff={isContestStaff}

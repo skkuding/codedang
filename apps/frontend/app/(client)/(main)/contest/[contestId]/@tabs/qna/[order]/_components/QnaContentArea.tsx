@@ -43,20 +43,22 @@ export function QnaContentArea({
             <div className="size-[16px]">
               <Image src={PersonFillIcon} alt="person" />
             </div>
-            <p className="text-sm uppercase">{data.createdBy.username}</p>
+            <p className="text-sm uppercase">{data.createdBy?.username}</p>
           </div>
           <div className="flex items-center gap-[10px]">
             <FaClock className="text-color-blue-50" size={13} />
             <div className="flex items-center gap-[4px] text-sm">
-              <p>{format(data.createTime, 'yyyy-MM-dd')}</p>
-              <p>{format(data.createTime, 'HH:mm:ss')}</p>
+              <p>
+                {format(data.createTime ? data.createTime : 0, 'yyyy-MM-dd')}
+              </p>
+              <p>{format(data.createTime ? data.createTime : 0, 'HH:mm:ss')}</p>
             </div>
           </div>
         </div>
       </div>
       {/* content 부분 */}
       <div className="whitespace-pre-line font-normal">
-        {data.content.trim()}
+        {data.content?.trim()}
       </div>
     </div>
   )

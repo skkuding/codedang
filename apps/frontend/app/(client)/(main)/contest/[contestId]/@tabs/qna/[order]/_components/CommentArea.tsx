@@ -19,13 +19,13 @@ export function CommentArea({
   isContestStaff
 }: {
   data: Qna
-  userInfo: { username: string; email: string }
+  userInfo: { username?: string; email?: string }
   userId: number
   isContestStaff: boolean
 }) {
   const { contestId, order, comments } = data
   // 질문 작성자 혹은 관리자면 댓글 게시 가능.
-  const canPost = isContestStaff || userId === data.createdBy.id
+  const canPost = isContestStaff || userId === data.createdBy?.id
   return (
     <div className="flex flex-col gap-[40px]">
       <QnaComments
@@ -54,27 +54,27 @@ function QnaComments({
   userId,
   isContestStaff
 }: {
-  contestId: number
-  order: number
-  initialComments: ContestQnAComment[]
+  contestId?: number
+  order?: number
+  initialComments?: ContestQnAComment[]
   userId: number
   isContestStaff: boolean
 }) {
-  // TODO: initial data를 state로 저장하고, 해당 state를 interval fetch로 계속 업데이트 해주기. (comments)
   const [comments, setComments] = useState(initialComments)
-  // setInterval(async () => {
-  //   try {
-  //     const res: Qna = await fetcherWithAuth
-  //       .get(`contest/${contestId}/qna/${order}`)
-  //       .json()
-  //     setComments(res.comments)
-  //   } catch {
-  //     console.log('Error in re-fetching comments!')
-  //   }
-  // }, 3000)
+  setInterval(async () => {
+    try {
+      const QnaRes = await fetcherWithAuth.get(
+        `contest/${contestId}/qna/${order}`
+      )
+      const QnaData: Qna = QnaRes.ok ? await QnaRes.json() : {}
+      setComments(QnaData.comments)
+    } catch {
+      console.log('Error in re-fetching comments!')
+    }
+  }, 5000)
   return (
     <div className="flex flex-col gap-[10px]">
-      {comments.map((comment) => (
+      {comments?.map((comment) => (
         <SingleComment
           key={comment.order}
           comment={comment}
@@ -144,9 +144,9 @@ function CommentPostArea({
   order,
   userInfo
 }: {
-  contestId: number
-  order: number
-  userInfo: { username: string; email: string }
+  contestId?: number
+  order?: number
+  userInfo: { username?: string; email?: string }
 }) {
   const [text, setText] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -162,7 +162,7 @@ function CommentPostArea({
     setText(value)
   }
 
-  // TODO: 댓글 POST 시 로직 구현.
+  // TODO: 댓글 POST 시 로직 구현. => useForm으로 구현.
   const onPost = async (): Promise<void> => {
     try {
       // TODO: response error handling
