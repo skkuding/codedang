@@ -18,10 +18,9 @@ buckets:
   - name: loki-chunk
   - name: loki-ruler
   - name: loki-admin
-
-metrics:
-  serviceMonitor:
-    enabled: true
-    additionalLabels:
-      service.name: minio
-      interval: 15s
+# metrics:
+#   serviceMonitor:
+#     enabled: true
+#     additionalLabels:
+#       service.name: minio
+#       interval: 15s
