@@ -313,10 +313,12 @@ describe('GroupService', () => {
   })
 
   describe('deleteGroup', () => {
-    const userReq = new AuthenticatedUser(userId, user.username, Role.User)
-
     it('should throw error when either user is not group leader or their role is higher than Admin', async () => {
-      const userReq = new AuthenticatedUser(2, user.username, Role.SuperAdmin)
+      const userReq = new AuthenticatedUser(
+        userId,
+        user.username,
+        Role.SuperAdmin
+      )
       db.userGroup.findUnique.resolves(null)
 
       await expect(
