@@ -1,13 +1,6 @@
 import { authOptions } from '@/libs/auth/authOptions'
 import NextAuth from 'next-auth'
-import type { NextRequest } from 'next/server'
 
-interface RouteHandlerContext {
-  params: { nextauth: string[] }
-}
-
-const handler = (req: NextRequest, res: RouteHandlerContext) => {
-  return NextAuth(req, res, authOptions)
-}
+const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }

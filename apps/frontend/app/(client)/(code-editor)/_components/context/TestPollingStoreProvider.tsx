@@ -42,7 +42,7 @@ export function TestPollingStoreProvider({
 }: {
   children: ReactNode
 }) {
-  const storeRef = useRef<TestPollingStore>()
+  const storeRef = useRef<TestPollingStore>(undefined)
   if (!storeRef.current) {
     storeRef.current = createTestPollingStore()
   }

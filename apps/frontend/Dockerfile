@@ -1,8 +1,14 @@
 # [NOTE] Build image from the root directory of this repository.
 # ex) `docker build -f apps/frontend/Dockerfile .`
 
+ARG BASEURL="https://codedang.com/api"
+ARG GQL_BASEURL="https://codedang.com/graphql"
+ARG RUNNER_BASEURL="wss://run.codedang.com/run"
+
+FROM node:22.18.0-alpine AS base
+
 ### BUILD ###
-FROM node:22.17.1-alpine AS build
+FROM base AS build
 
 WORKDIR /build
 
@@ -18,30 +24,47 @@ COPY apps/backend/schema.gql apps/backend/
 
 WORKDIR /build/apps/frontend
 
+ARG BASEURL
+ARG GQL_BASEURL
+ARG RUNNER_BASEURL
+
+ENV NEXT_PUBLIC_BASEURL=${BASEURL}
+ENV NEXT_PUBLIC_GQL_BASEURL=${GQL_BASEURL}
+ENV NEXT_PUBLIC_RUNNER_BASEURL=${RUNNER_BASEURL}
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# TODO: use cache mount
+# RUN --mount=type=cache,target=/build/apps/frontend/.next/cache pnpm build
 RUN pnpm build
 
-### INSTALL PACKAGES ###
-FROM node:22.17.1-alpine AS install
-
-WORKDIR /app
-COPY pnpm-workspace.yaml .
-COPY package.json .
-COPY pnpm-lock.yaml .
-COPY apps/frontend/package.json apps/frontend/
-
-RUN corepack enable && pnpm deploy --filter=@codedang/frontend --prod /app/install
-
 ### PRODUCTION ###
-FROM node:22.17.1-alpine AS production
+FROM base AS production
 
 WORKDIR /app
 
-COPY --from=build /build/apps/frontend/.next/standalone ./
-COPY --from=build /build/apps/frontend/.next/static ./apps/frontend/.next/static
-COPY --from=build /build/apps/frontend/public ./apps/frontend/public
-COPY --from=install /app/install/node_modules ./node_modules
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Set the correct permission for prerender cache
+RUN mkdir -p apps/frontend/.next
+RUN chown nextjs:nodejs apps/frontend/.next
+
+COPY --from=build --chown=nextjs:nodejs /build/apps/frontend/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /build/apps/frontend/.next/static ./apps/frontend/.next/static
+COPY --from=build --chown=nextjs:nodejs /build/apps/frontend/public ./apps/frontend/public
+
+USER nextjs
 
 ENV NODE_ENV=production
 ENV PORT=5525
+
+ARG BASEURL
+ARG GQL_BASEURL
+ARG RUNNER_BASEURL
+
+ENV NEXT_PUBLIC_BASEURL=${BASEURL}
+ENV NEXT_PUBLIC_GQL_BASEURL=${GQL_BASEURL}
+ENV NEXT_PUBLIC_RUNNER_BASEURL=${RUNNER_BASEURL}
+ENV NEXT_TELEMETRY_DISABLED=1
 
 CMD ["node", "apps/frontend/server.js"]

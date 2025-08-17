@@ -7,10 +7,11 @@ import { SearchBar } from '../_components/SearchBar'
 import { NoticeTable } from './_components/NoticeTable'
 
 interface NoticeProps {
-  searchParams: { search: string }
+  searchParams: Promise<{ search: string }>
 }
 
-export default function Notice({ searchParams }: NoticeProps) {
+export default async function Notice(props: NoticeProps) {
+  const searchParams = await props.searchParams
   const search = searchParams.search ?? ''
 
   return (
