@@ -2706,6 +2706,22 @@ const createContestQnA = async () => {
         title: '19번 대회에 대한 질문',
         content: '7번 유저가 작성함',
         category: QnACategory.General
+      },
+      {
+        contestId: 20,
+        createdById: 7,
+        order: 1,
+        title: '20번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.General
+      },
+      {
+        contestId: 20,
+        createdById: 8,
+        order: 2,
+        title: '20번 대회에 대한 질문',
+        content: '8번 유저가 작성함',
+        category: QnACategory.General
       }
     ]
   })
@@ -2734,6 +2750,34 @@ const createContestQnAComment = async () => {
         order: 2,
         createdById: 4,
         isContestStaff: true
+      },
+      {
+        contestQnAId: 7,
+        content: '7번 질문에 대한 관리자 답변',
+        order: 1,
+        createdById: 4,
+        isContestStaff: true
+      },
+      {
+        contestQnAId: 7,
+        content: '7번 질문에 대한 작성자 답변',
+        order: 2,
+        createdById: 7,
+        isContestStaff: false
+      },
+      {
+        contestQnAId: 8,
+        content: '8번 질문에 대한 관리자 답변',
+        order: 1,
+        createdById: 4,
+        isContestStaff: true
+      },
+      {
+        contestQnAId: 8,
+        content: '8번 질문에 대한 작성자 답변',
+        order: 2,
+        createdById: 8,
+        isContestStaff: false
       }
     ]
   })
