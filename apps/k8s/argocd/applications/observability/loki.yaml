@@ -3,6 +3,8 @@ kind: ApplicationSet
 metadata:
   name: loki
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
@@ -15,9 +17,6 @@ spec:
   template:
     metadata:
       name: 'loki-{{.env}}'
-      namespace: argocd
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       sources:

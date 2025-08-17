@@ -3,6 +3,8 @@ kind: ApplicationSet
 metadata:
   name: grafana
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
@@ -15,9 +17,6 @@ spec:
   template:
     metadata:
       name: 'grafana-{{.env}}'
-      namespace: argocd
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       sources:
@@ -33,7 +32,7 @@ spec:
           ref: codedang
       destination:
         namespace: observability
-        name: {{.env}}
+        name: '{{.env}}'
       syncPolicy:
         automated:
           prune: true

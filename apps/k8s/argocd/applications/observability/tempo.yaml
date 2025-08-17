@@ -3,6 +3,8 @@ kind: ApplicationSet
 metadata:
   name: tempo
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
