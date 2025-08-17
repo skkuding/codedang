@@ -1,23 +1,16 @@
 'use client'
 
 import { Badge } from '@/components/shadcn/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/shadcn/dropdown-menu'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import CheckIcon from '@/public/icons/check.svg'
-import MoreIcon from '@/public/icons/more.svg'
+import { formatTimeAgo } from '@/libs/utils'
 import NotiIcon from '@/public/icons/notification.svg'
-import SettingsIcon from '@/public/icons/settings.svg'
 import type { Notification } from '@/types/type'
 import { X } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { Popover, PopoverContent, PopoverTrigger } from '../shadcn/popover'
+import { NotificationOptionsMenu } from './NotificationOptionsMenu'
 
 const FETCH_COUNT = 10
 
@@ -289,30 +282,9 @@ export function NotificationDropdown({
     }
   }, [])
 
-  const formatTime = (timeString: string) => {
-    const date = new Date(timeString)
-    const now = new Date()
-    const diffInMinutes = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60)
-    )
-
-    if (diffInMinutes < 1) {
-      return 'Just now'
-    }
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`
-    }
-    if (diffInMinutes < 1440) {
-      return `${Math.floor(diffInMinutes / 60)} hour${
-        Math.floor(diffInMinutes / 60) > 1 ? 's' : ''
-      } ago`
-    }
-    return date.toLocaleDateString('en-US')
-  }
-
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger
         className={cn(
           'relative flex items-center justify-center rounded-md p-2 transition-colors',
           isEditor ? 'text-gray-300 hover:text-white' : 'text-primary'
@@ -322,17 +294,17 @@ export function NotificationDropdown({
         {unreadApiCount > 0 && (
           <div className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-red-500 shadow-md" />
         )}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
+      </PopoverTrigger>
+      <PopoverContent
         className={cn(
-          'w-[360px]',
+          'w-[360px] py-1 pl-0 pr-1',
           isEditor &&
             'mr-5 rounded-sm border-none bg-slate-800 px-0 font-normal text-white'
         )}
         align="end"
       >
-        <div className="pl-4 pt-4">
-          <div className="mb-2 flex items-center justify-between pr-4">
+        <div className="pt-4">
+          <div className="mb-2 flex items-center justify-between px-4">
             <div
               className={cn(
                 'text-xl font-semibold',
@@ -341,50 +313,14 @@ export function NotificationDropdown({
             >
               Notification
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger disabled={isLoading}>
-                <Image src={MoreIcon} alt="filter" width={24} height={24} />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className={cn(
-                  'w-52 py-2',
-                  isEditor && 'border-slate-600 bg-slate-700 text-white'
-                )}
-              >
-                <DropdownMenuItem
-                  onSelect={handleMarkAllAsRead}
-                  className={cn(
-                    'flex cursor-pointer gap-2',
-                    'hover:bg-color-neutral-99',
-                    isEditor && 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                  )}
-                >
-                  <Image src={CheckIcon} alt="check" width={16} height={16} />
-                  Mark all as read
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onSelect={() => setFilter('unread')}
-                  className={cn(
-                    'ml-[1px] flex gap-2.5',
-                    'hover:bg-color-neutral-99',
-                    isEditor && 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                  )}
-                >
-                  <Image
-                    src={SettingsIcon}
-                    alt="settings"
-                    width={13}
-                    height={12}
-                  />
-                  <Link onClick={() => setIsOpen(false)} href="/settings">
-                    Notification settings
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <NotificationOptionsMenu
+              isLoading={isLoading}
+              isEditor={isEditor}
+              setIsOpen={setIsOpen}
+              handleMarkAllAsRead={handleMarkAllAsRead}
+            />
           </div>
-          <div className="bg-color-neutral-99 mb-5 flex w-[168px] rounded-full p-1">
+          <div className="bg-color-neutral-99 mb-1 ml-4 flex w-[168px] rounded-full p-1">
             <button
               className={cn(
                 'h-6 w-20 rounded-full text-sm font-medium transition-colors',
@@ -427,8 +363,8 @@ export function NotificationDropdown({
           )}
 
           {notifications.length > 0 && (
-            <ScrollArea className="h-[360px]">
-              <div className="space-y-3 pr-4">
+            <ScrollArea className="h-[426px]" bottomFade={true} topFade={true}>
+              <div className="space-y-3 px-4 pt-2">
                 {notifications.map((notification, index) => (
                   <div
                     key={notification.id}
@@ -436,9 +372,7 @@ export function NotificationDropdown({
                       index === notifications.length - 1 ? lastElementRef : null
                     }
                     className={cn(
-                      'group relative h-[106px] cursor-pointer rounded-lg bg-white p-3 shadow-[0_4px_20px_rgba(53,78,116,0.10)] transition-colors',
-                      !notification.isRead &&
-                        'bg-color-neutral-99 hover:bg-color-neutral-95 shadow-none',
+                      'hover:bg-color-neutral-99 group relative h-[114px] cursor-pointer rounded-lg bg-white p-3 shadow-[0_4px_20px_0_rgba(53,78,116,0.10)]',
                       isEditor && 'bg-slate-700 text-white hover:bg-[#293548]',
                       isEditor &&
                         !notification.isRead &&
@@ -447,14 +381,9 @@ export function NotificationDropdown({
                     role="button"
                     tabIndex={0}
                     onClick={() => handleNotificationClick(notification)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        handleNotificationClick(notification)
-                      }
-                    }}
                   >
                     <button
-                      className="notification-delete-btn absolute right-2 top-2 z-10 rounded p-1 text-gray-400 hover:text-gray-700 focus:outline-none"
+                      className="notification-delete-btn absolute right-2 top-3 z-10 rounded text-gray-400 hover:text-gray-700 focus:outline-none"
                       aria-label="Delete notification"
                       onClick={(e) => {
                         e.stopPropagation()
@@ -465,18 +394,23 @@ export function NotificationDropdown({
                       }}
                       type="button"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-6 w-6" />
                     </button>
                     <div className="flex h-full flex-col justify-between">
                       <div className="flex-1">
                         <div
                           className={cn(
-                            'flex items-center gap-1.5 text-sm font-medium',
-                            !notification.isRead && 'font-semibold',
+                            'flex items-center gap-1.5 font-medium',
                             isEditor ? 'text-white' : 'text-gray-900'
                           )}
                         >
-                          <Badge className="bg-color-violet-95 text-color-violet-60 rounded-sm">
+                          <Badge
+                            variant={
+                              notification.type === 'Assignment'
+                                ? 'Course'
+                                : 'Contest'
+                            }
+                          >
                             {notification.type === 'Assignment'
                               ? 'Course'
                               : notification.type}
@@ -488,7 +422,7 @@ export function NotificationDropdown({
                         </div>
                         <p
                           className={cn(
-                            'mt-1.5 overflow-hidden text-xs',
+                            'mt-1.5 overflow-hidden text-sm',
                             isEditor ? 'text-gray-300' : 'text-gray-600'
                           )}
                           style={{
@@ -506,7 +440,7 @@ export function NotificationDropdown({
                           isEditor ? 'text-gray-400' : 'text-gray-500'
                         )}
                       >
-                        {formatTime(notification.createTime)}
+                        {formatTimeAgo(notification.createTime)}
                       </div>
                     </div>
                   </div>
@@ -530,16 +464,8 @@ export function NotificationDropdown({
               </div>
             </ScrollArea>
           )}
-          <div
-            className={cn(
-              'pointer-events-none absolute bottom-0 left-0 right-4 z-10 h-16',
-              isEditor
-                ? 'from-slate-80 bg-gradient-to-t to-transparent'
-                : 'bg-gradient-to-t from-white to-transparent'
-            )}
-          />
         </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </PopoverContent>
+    </Popover>
   )
 }
