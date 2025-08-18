@@ -140,7 +140,7 @@ export function EditorMainResizablePanel({
     } else {
       setTabValue('Description')
     }
-  }, [pathname])
+  }, [pathname, base, problem.id])
 
   useEffect(() => {
     if (!problem.languages.includes(language)) {
@@ -219,6 +219,21 @@ export function EditorMainResizablePanel({
                       className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                     >
                       Leaderboard
+                    </TabsTrigger>
+                  </Link>
+                )}
+                {contestId && (
+                  <Link
+                    replace
+                    href={
+                      `/contest/${contestId}/problem/${problem.id}/qna` as Route
+                    }
+                  >
+                    <TabsTrigger
+                      value="Qna"
+                      className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
+                    >
+                      Q&A
                     </TabsTrigger>
                   </Link>
                 )}
