@@ -22,7 +22,9 @@ const badgeVariants = cva(
         Spring: 'bg-level-light-1 text-level-dark-1 border-0',
         Summer: 'bg-level-light-2 text-level-dark-2 border-0',
         Fall: 'bg-level-light-3 text-level-dark-3 border-0',
-        Winter: 'bg-level-light-4 text-level-dark-4 border-0'
+        Winter: 'bg-level-light-4 text-level-dark-4 border-0',
+        Course: 'bg-color-violet-95 text-color-violet-60 rounded-sm border-0',
+        Contest: 'bg-color-blue-95 text-color-blue-50 rounded-sm border-0'
       },
       textColors: {
         Level1: 'text-level-light-1',
