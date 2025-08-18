@@ -1125,7 +1125,7 @@ const createContests = async () => {
   아니하고는 처벌·보안처분 또는 강제노역을 받지 아니한다.
 </p>`,
         createdById: superAdminUser.id,
-        posterUrl: `https://skkuding.dev/open-graph.png`,
+        posterUrl: null,
         summary: {
           참여대상: '성균관대 재학생이라면 누구나',
           진행방식: '온라인으로 진행',
@@ -1168,7 +1168,7 @@ const createContests = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 테스트2',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        posterUrl: `https://skkuding.dev/open-graph.png`,
+        posterUrl: null,
         summary: {
           참여대상: '성균관대학교 24학번 신입생',
           진행방식: '강의실에서 오프라인으로 진행',
@@ -1189,7 +1189,7 @@ const createContests = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 테스트3',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        posterUrl: `https://skkuding.dev/open-graph.png`,
+        posterUrl: null,
         summary: {
           참여대상: '성균관대학교 24학번 신입생',
           진행방식: '강의실에서 오프라인으로 진행',
@@ -1467,7 +1467,7 @@ const createContests = async () => {
         title: '2024 스꾸딩 프로그래밍 대회',
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
-        posterUrl: `https://skkuding.dev/open-graph.png`,
+        posterUrl: null,
         summary: {
           참여대상: '소프트웨어학과 원전공/복수전공',
           진행방식: '온라인 진행 예정...?',
