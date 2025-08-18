@@ -53,9 +53,7 @@ const endedAssignments: Assignment[] = []
 const ongoingAssignments: Assignment[] = []
 const upcomingAssignments: Assignment[] = []
 const contests: Contest[] = []
-const endedContests: Contest[] = []
 const ongoingContests: Contest[] = []
-const upcomingContests: Contest[] = []
 const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
@@ -1554,36 +1552,23 @@ const createContests = async () => {
       data: obj.data
     })
     contests.push(contest)
-    if (now < obj.data.startTime) {
-      upcomingContests.push(contest)
-    } else if (obj.data.endTime < now) {
-      endedContests.push(contest)
-    } else {
+    if (obj.data.startTime <= now && now <= obj.data.endTime) {
       ongoingContests.push(contest)
     }
   }
 
-  // add problems to ongoing contest
-  for (const [index, problem] of problems.slice(0, 3).entries()) {
-    await prisma.contestProblem.create({
-      data: {
-        order: index,
-        contestId: ongoingContests[0].id,
-        problemId: problem.id,
-        score: problem.id * 10
-      }
-    })
-  }
-
-  // add problems to finished contest
-  for (const [index, problem] of problems.slice(3, 5).entries()) {
-    await prisma.contestProblem.create({
-      data: {
-        order: index,
-        contestId: endedContests[0].id,
-        problemId: problem.id
-      }
-    })
+  // add problems to contest
+  for (const contest of contests) {
+    for (const [index, problem] of problems.slice(0, 3).entries()) {
+      await prisma.contestProblem.create({
+        data: {
+          order: index,
+          contestId: contest.id,
+          problemId: problem.id,
+          score: problem.id * 10
+        }
+      })
+    }
   }
 
   // TODO: add records and ranks
