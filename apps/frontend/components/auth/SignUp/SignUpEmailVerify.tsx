@@ -1,11 +1,13 @@
+import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { baseUrl } from '@/libs/constants'
 import { cn, isHttpError, safeFetcher } from '@/libs/utils'
+import { useAuthModalStore } from '@/stores/authModal'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import React, { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as v from 'valibot'
 
@@ -27,6 +29,7 @@ const schema = v.object({
 })
 
 const timeLimit = 300
+const DOMAIN_OPTIONS = ['@skku.edu', '@g.skku.edu', '@naver.com']
 
 export function SignUpEmailVerify() {
   const [timer, setTimer] = useState(timeLimit)
@@ -51,7 +54,8 @@ export function SignUpEmailVerify() {
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
   const [sendButtonDisabled, setSendButtonDisabled] = useState<boolean>(false)
-
+  const [domain, setDomain] = useState<string>(DOMAIN_OPTIONS[0])
+  const { showSignIn } = useAuthModalStore((state) => state)
   useEffect(() => {
     if (sentEmail && !expired) {
       previousTimeRef.current = Date.now()
@@ -96,7 +100,7 @@ export function SignUpEmailVerify() {
   }
   const sendEmail = async () => {
     const { email } = getValues()
-    const fullEmail = `${email}@skku.edu` // Only accept skku.edu emails
+    const fullEmail = `${email}${domain}`
 
     setEmailContent(fullEmail)
     setEmailError('')
@@ -156,27 +160,25 @@ export function SignUpEmailVerify() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex w-full flex-col gap-1.5"
+      className="flex h-full flex-col justify-between pb-10"
     >
       {!sentEmail && (
-        <>
-          <p className="text-left text-lg font-semibold text-black">
-            Join us to grow! 🌱
-          </p>
-          <p className="mb-5 text-left text-xs font-normal text-neutral-500">
+        <div>
+          <p className="text-xl font-medium">Join us to grow! 🌱</p>
+          <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
             You can only use <span className="text-blue-500">@skku.edu</span>{' '}
             emails
           </p>
-          <div className="flex flex-row gap-4">
+          <div className="flex gap-1">
             <Input
               id="email"
               type="text"
               className={cn(
-                'focus-visible:border-primary w-full rounded-full placeholder:text-gray-400 focus-visible:ring-0',
+                'focus-visible:border-primary rounded-full placeholder:text-gray-400 focus-visible:ring-0',
                 (emailError || errors.email) &&
                   'border-red-500 focus-visible:border-red-500'
               )}
-              placeholder="Your Kingo ID"
+              placeholder="Enter the e-mail"
               {...register('email')}
               onFocus={() => clearErrors('email')}
               onKeyDown={(e) => {
@@ -187,7 +189,11 @@ export function SignUpEmailVerify() {
                 }
               }}
             />
-            <p className="content-center">@skku.edu</p>
+            <OptionSelect
+              options={DOMAIN_OPTIONS}
+              value={domain}
+              onChange={setDomain}
+            />
           </div>
           {errors.email && (
             <p className="mt-1 text-xs text-red-500">{errors.email?.message}</p>
@@ -195,7 +201,7 @@ export function SignUpEmailVerify() {
           {emailError && (
             <p className="mt-1 text-xs text-red-500">{emailError}</p>
           )}
-        </>
+        </div>
       )}
       {sentEmail && (
         <>
@@ -254,52 +260,64 @@ export function SignUpEmailVerify() {
           )}
         </>
       )}
-      {(() => {
-        if (!sentEmail) {
+      <div className="text-color-neutral-50 flex flex-col gap-[12.5px] text-sm font-normal">
+        <div className="flex items-center justify-center">
+          <span>Already have account?</span>
+          <Button
+            onClick={() => showSignIn()}
+            variant={'link'}
+            className="text-sm font-normal underline"
+          >
+            Log In
+          </Button>
+        </div>
+        {(() => {
+          if (!sentEmail) {
+            return (
+              <Button
+                type="button"
+                className="w-full text-base font-medium"
+                disabled={sendButtonDisabled}
+                onClick={() => {
+                  setSendButtonDisabled(true)
+                  sendEmail()
+                }}
+              >
+                Send the Email
+              </Button>
+            )
+          }
+
+          if (!expired) {
+            return (
+              <Button
+                type="submit"
+                className={cn(
+                  'w-full text-base font-medium',
+                  (!emailVerified || Boolean(errors.verificationCode)) &&
+                    'bg-gray-400'
+                )}
+                disabled={!emailVerified || Boolean(errors.verificationCode)}
+              >
+                Next
+              </Button>
+            )
+          }
+
           return (
             <Button
-              type="button"
-              className="mt-4 w-full font-semibold"
-              disabled={sendButtonDisabled}
+              className="mt-2 w-full font-semibold"
               onClick={() => {
-                setSendButtonDisabled(true)
+                setExpired(false)
+                setTimer(timeLimit)
                 sendEmail()
               }}
             >
-              Send Email
+              Resend Email
             </Button>
           )
-        }
-
-        if (!expired) {
-          return (
-            <Button
-              type="submit"
-              className={cn(
-                'mt-2 w-full font-semibold',
-                (!emailVerified || Boolean(errors.verificationCode)) &&
-                  'bg-gray-400'
-              )}
-              disabled={!emailVerified || Boolean(errors.verificationCode)}
-            >
-              Next
-            </Button>
-          )
-        }
-
-        return (
-          <Button
-            className="mt-2 w-full font-semibold"
-            onClick={() => {
-              setExpired(false)
-              setTimer(timeLimit)
-              sendEmail()
-            }}
-          >
-            Resend Email
-          </Button>
-        )
-      })()}
+        })()}
+      </div>
     </form>
   )
 }

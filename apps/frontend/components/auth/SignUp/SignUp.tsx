@@ -1,20 +1,16 @@
 'use client'
 
-import { Button } from '@/components/shadcn/button'
-import codedangLogo from '@/public/logos/codedang-with-text.svg'
-import { useAuthModalStore } from '@/stores/authModal'
+import { Progress } from '@/components/shadcn/progress'
 import { useSignUpModalStore } from '@/stores/signUpModal'
-import Image from 'next/image'
 import { IoMdArrowBack } from 'react-icons/io'
 import { SignUpEmailVerify } from './SignUpEmailVerify'
 import { SignUpRegister } from './SignUpRegister'
 
 export function SignUp() {
-  const { showSignIn } = useAuthModalStore((state) => state)
   const { modalPage, backModal } = useSignUpModalStore((state) => state)
 
   return (
-    <div className="flex h-full flex-col items-center justify-center">
+    <div className="flex h-full flex-col">
       {!(modalPage === 0) && (
         <button
           onClick={backModal}
@@ -24,30 +20,10 @@ export function SignUp() {
         </button>
       )}
 
-      <Image
-        className="absolute top-4"
-        src={codedangLogo}
-        alt="codedang"
-        width={100}
-      />
+      <Progress value={(modalPage + 1 / 3) * 100} className="h-1" />
 
       {modalPage === 0 && <SignUpEmailVerify />}
       {modalPage === 1 && <SignUpRegister />}
-
-      {modalPage === 0 && (
-        <div className="absolute bottom-6 flex items-center justify-center">
-          <span className="h-5 w-fit text-xs leading-5 text-gray-500">
-            Already have account?
-          </span>
-          <Button
-            onClick={() => showSignIn()}
-            variant={'link'}
-            className="h-5 w-fit text-xs text-gray-500"
-          >
-            Log In
-          </Button>
-        </div>
-      )}
     </div>
   )
 }

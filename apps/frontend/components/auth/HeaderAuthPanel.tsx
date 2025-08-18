@@ -206,7 +206,7 @@ export function HeaderAuthPanel({
             onInteractOutside={(e) => {
               e.preventDefault()
             }}
-            className="min-h-120 max-w-82"
+            className="min-h-[620px] max-w-[380px]"
           >
             <AuthModal />
           </DialogContent>
