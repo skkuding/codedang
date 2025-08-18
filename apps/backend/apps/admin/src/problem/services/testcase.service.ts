@@ -44,62 +44,6 @@ export class TestcaseService {
     }
   }
 
-  private calculateEqualDistribution(
-    totalTestcases: number,
-    manualTestcases: { numerator: number; denominator: number }[]
-  ): { numerator: number; denominator: number }[] {
-    if (manualTestcases.length === 0) {
-      const result: { numerator: number; denominator: number }[] = []
-      for (let i = 0; i < totalTestcases; i++) {
-        result.push({ numerator: 1, denominator: totalTestcases })
-      }
-      return result
-    }
-
-    let sumNumerator = 0
-    let lcmDenominator = 1
-
-    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
-    const lcm = (a: number, b: number): number => (a * b) / gcd(a, b)
-
-    manualTestcases.forEach((tc) => {
-      lcmDenominator = lcm(lcmDenominator, tc.denominator)
-    })
-
-    manualTestcases.forEach((tc) => {
-      sumNumerator += tc.numerator * (lcmDenominator / tc.denominator)
-    })
-
-    const remainingNumerator = lcmDenominator - sumNumerator
-    const remainingCount = totalTestcases - manualTestcases.length
-
-    if (remainingNumerator <= 0) {
-      throw new UnprocessableDataException(
-        'Weight distribution exceeds 100% - manual testcase weights sum to more than the total available weight'
-      )
-    }
-
-    if (remainingCount <= 0) {
-      throw new UnprocessableDataException(
-        'Not enough testcases for remaining weight - all testcases have manual weights assigned'
-      )
-    }
-
-    const result: { numerator: number; denominator: number }[] = [
-      ...manualTestcases
-    ]
-    const equalDenominator = lcmDenominator * remainingCount
-
-    for (let i = 0; i < remainingCount; i++) {
-      result.push({
-        numerator: remainingNumerator,
-        denominator: equalDenominator
-      })
-    }
-
-    return result
-  }
-
   async createTestcases(testcases: Testcase[], problemId: number) {
     await this.removeAllTestcaseFiles(problemId)
 
