@@ -5,6 +5,17 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true'
 })
 
+const withPWA = require('@ducanh2912/next-pwa').default({
+  dest: 'public',
+  register: true,
+  disable: process.env.NODE_ENV === 'development',
+  customWorkerDir: 'worker',
+  skipWaiting: true,
+  cacheOnFrontEndNav: true,
+  aggressiveCaching: true,
+  reloadOnOnline: true
+})
+
 const BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
 
 const nextConfig = {
@@ -20,4 +31,4 @@ const nextConfig = {
   }
 } satisfies NextConfig
 
-export default withBundleAnalyzer(nextConfig)
+export default withBundleAnalyzer(withPWA(nextConfig))
