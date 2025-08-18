@@ -12,7 +12,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
 
-  const urlToOpen = event.notification.data.url
+  const urlToOpen = event.notification.data.data.url
 
   event.waitUntil(
     clients
