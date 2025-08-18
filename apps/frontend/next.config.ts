@@ -16,7 +16,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   reloadOnOnline: true,
   workboxOptions: {
     disableDevLogs: true,
-    exclude: [/_next\/static\/chunks\/app\/\(client\)\/\(main\)\/contest\/.*/]
+    exclude: [/.*/]
   }
 })
 
