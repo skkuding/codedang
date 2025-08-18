@@ -25,14 +25,10 @@ export class TestcaseService {
     private readonly storageService: StorageService
   ) {}
 
-  /**
-   * 분수 형태로 scoreWeight를 변환하는 헬퍼 함수
-   */
   private convertToFraction(testcase: Testcase): {
     numerator: number
     denominator: number
   } {
-    // 우선순위: scoreWeightNumerator > scoreWeight
     const numerator = testcase.scoreWeightNumerator ?? testcase.scoreWeight
 
     if (numerator !== undefined) {
@@ -48,15 +44,11 @@ export class TestcaseService {
     }
   }
 
-  /**
-   * Equal distribution 계산 함수
-   */
   private calculateEqualDistribution(
     totalTestcases: number,
     manualTestcases: { numerator: number; denominator: number }[]
   ): { numerator: number; denominator: number }[] {
     if (manualTestcases.length === 0) {
-      // 모든 테스트케이스가 equal distribution
       const result: { numerator: number; denominator: number }[] = []
       for (let i = 0; i < totalTestcases; i++) {
         result.push({ numerator: 1, denominator: totalTestcases })
@@ -64,25 +56,20 @@ export class TestcaseService {
       return result
     }
 
-    // 수동 지정된 가중치의 합 계산 (분수 덧셈)
     let sumNumerator = 0
     let lcmDenominator = 1
 
-    // LCM 계산을 위한 GCD 함수
     const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
     const lcm = (a: number, b: number): number => (a * b) / gcd(a, b)
 
-    // 모든 분모의 LCM 계산
     manualTestcases.forEach((tc) => {
       lcmDenominator = lcm(lcmDenominator, tc.denominator)
     })
 
-    // LCM을 기준으로 분자 합 계산
     manualTestcases.forEach((tc) => {
       sumNumerator += tc.numerator * (lcmDenominator / tc.denominator)
     })
 
-    // 남은 가중치 계산
     const remainingNumerator = lcmDenominator - sumNumerator
     const remainingCount = totalTestcases - manualTestcases.length
 
@@ -98,7 +85,6 @@ export class TestcaseService {
       )
     }
 
-    // 남은 테스트케이스들의 가중치
     const result: { numerator: number; denominator: number }[] = [
       ...manualTestcases
     ]
@@ -115,7 +101,6 @@ export class TestcaseService {
   }
 
   async createTestcases(testcases: Testcase[], problemId: number) {
-    // Before upload, clean up all the original testcases
     await this.removeAllTestcaseFiles(problemId)
 
     const promises = testcases.map(async (testcase, index) => {
@@ -129,7 +114,7 @@ export class TestcaseService {
             scoreWeightDenominator: fraction.denominator,
             scoreWeight: Math.round(
               (fraction.numerator / fraction.denominator) * LEGACY_SCORE_SCALE
-            ), // 하위 호환성
+            ),
             isHidden: testcase.isHidden,
             order: index + 1
           }
@@ -183,7 +168,7 @@ export class TestcaseService {
             scoreWeightDenominator: fraction.denominator,
             scoreWeight: Math.round(
               (fraction.numerator / fraction.denominator) * 100
-            ), // 하위 호환성
+            ),
             isHidden: tc.isHidden,
             order: index + 1
           }
@@ -207,7 +192,7 @@ export class TestcaseService {
           scoreWeightDenominator: fraction.denominator,
           scoreWeight: Math.round(
             (fraction.numerator / fraction.denominator) * 100
-          ), // 하위 호환성
+          ),
           isHidden: testcase.isHidden
         }
       })
@@ -244,7 +229,7 @@ export class TestcaseService {
           scoreWeightDenominator: fraction.denominator,
           scoreWeight: Math.round(
             (fraction.numerator / fraction.denominator) * 100
-          ), // 하위 호환성
+          ),
           isHidden: tc.isHidden
         }
       })
@@ -349,7 +334,6 @@ export class TestcaseService {
       throw new UnprocessableDataException('Only zip files are accepted')
     }
 
-    // Just check if the file size is less than maximum size
     await this.fileService.getFileSize(createReadStream(), MAX_ZIP_SIZE)
 
     // Testcase files are uploaded under s3://{bucketName}/{problemId}/{testcaseId}.{in|out}
@@ -418,7 +402,6 @@ export class TestcaseService {
         )
       }
 
-      // Check if all .in/.out files have corresponding .out/.in files
       if (!isEqual(inFiles, outFiles)) {
         throw new UnprocessableDataException(
           'Testcase files must have corresponding .in/.out files'
