@@ -289,9 +289,9 @@ export const InsertNodeBar = forwardRef<
             className="h-9 w-9 p-1"
             onPressedChange={(pressed) => {
               if (pressed) {
-                setIsTablePopoverOpen(true)
-              } else {
                 setIsTableDialogOpen(true)
+              } else {
+                setIsTablePopoverOpen(true)
               }
             }}
           >
