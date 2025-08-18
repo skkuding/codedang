@@ -29,11 +29,8 @@ spec:
             valueFiles:
               - '$codedang/apps/k8s/observability/loki/values-{{.env}}.yaml'
         - repoURL: https://github.com/skkuding/codedang.git
-          path: 'apps/k8s/observability/loki'
           targetRevision: '{{.branch}}'
           ref: codedang
-          directory:
-            recurse: false
       destination:
         namespace: observability
         name: '{{.env}}'

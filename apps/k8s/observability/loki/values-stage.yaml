@@ -86,11 +86,9 @@ loki:
       admin: loki-admin
     type: s3
     s3:
-      s3: null
-      endpoint: null
-      region: null
-      secretAccessKey: null
-      accessKeyId: null
+      s3: http://minio-stage:9000
+      secretAccessKey: minioadmin
+      accessKeyId: minioadmin
       s3ForcePathStyle: true
       insecure: true
 
