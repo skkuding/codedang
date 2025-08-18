@@ -25,6 +25,10 @@ export class TestcaseService {
     private readonly storageService: StorageService
   ) {}
 
+  private gcd(a: number, b: number): number {
+    return b === 0 ? a : this.gcd(b, a % b)
+  }
+
   private convertToFraction(testcase: Testcase): {
     numerator: number
     denominator: number
@@ -32,9 +36,16 @@ export class TestcaseService {
     const numerator = testcase.scoreWeightNumerator ?? testcase.scoreWeight
 
     if (numerator !== undefined) {
+      if (numerator === 0) {
+        return {
+          numerator: 0,
+          denominator: 1
+        }
+      }
+      const commonDivisor = this.gcd(numerator, LEGACY_SCORE_SCALE)
       return {
-        numerator,
-        denominator: LEGACY_SCORE_SCALE
+        numerator: numerator / commonDivisor,
+        denominator: LEGACY_SCORE_SCALE / commonDivisor
       }
     }
 
