@@ -23,7 +23,6 @@ deploymentMode: SingleBinary
 # -- Configuration for running Loki
 # @default -- See values.yaml
 loki:
-  deploymentMode: SingleBinary
   readinessProbe:
     httpGet:
       path: /ready
