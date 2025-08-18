@@ -140,10 +140,10 @@ export const majors = [
 ] as const
 
 /**
- * The list of affiliations and their majors that students can choose.
+ * The list of colleges and their majors that students can choose.
  * @constant
  */
-export const affiliations = [
+export const colleges = [
   {
     name: 'University College / 학부대학',
     majors: [
@@ -196,7 +196,7 @@ export const affiliations = [
     ]
   },
   {
-    name: 'Business School / 경영대학',
+    name: 'School of Business / 경영대학',
     majors: [
       'Business Administration / 경영학과',
       'Global Business Administration / 글로벌경영학과'
@@ -289,7 +289,7 @@ export const affiliations = [
     ]
   },
   {
-    name: 'Institute for Convergence / 성균융합원',
+    name: 'Institute for Cross-disciplinary Studies (ICS) / 성균융합원',
     majors: [
       'Global Biomedical Engineering / 글로벌바이오메디컬공학과',
       'Applied AI Convergence / 응용AI융합학부',
@@ -303,7 +303,7 @@ export const affiliations = [
  * A flat list of all available majors.
  * @constant
  */
-export const allMajors = affiliations.flatMap((a) => a.majors)
+export const allMajors = colleges.flatMap((c) => c.majors)
 
 /**
  * Statuses of the contests.
