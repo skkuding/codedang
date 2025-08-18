@@ -11,9 +11,12 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   disable: process.env.NODE_ENV === 'development',
   customWorkerDir: 'worker',
   skipWaiting: true,
+  cacheOnFrontEndNav: true,
+  aggressiveCaching: true,
+  reloadOnOnline: true,
   workboxOptions: {
     disableDevLogs: true,
-    exclude: [/.*/]
+    exclude: [/_next\/static\/chunks\/app\/\(client\)\/\(main\)\/contest\/.*/]
   }
 })
 
