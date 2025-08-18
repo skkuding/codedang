@@ -59,7 +59,14 @@ func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byt
 
 	judgeChan := make(chan handler.JudgeResultMessage)
 	switch path {
-	case Judge, Run:
+	case Judge:
+		filter := testcase.ALL
+		var req handler.Request
+		if err := json.Unmarshal(data, &req); err == nil && req.JudgeOnlyHiddenTestcases {
+			filter = testcase.HIDDEN_ONLY
+		}
+		go r.judgeHandler.Handle(id, data, filter, judgeChan, newCtx)
+	case Run:
 		filter := testcase.PUBLIC_ONLY
 		var req handler.Request
 		if err := json.Unmarshal(data, &req); err == nil && req.ContainHiddenTestcases {
