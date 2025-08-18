@@ -149,7 +149,11 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader
+        column={column}
+        title="Title"
+        className="w-[400px]"
+      />
     ),
     cell: ({ row }) => {
       return row.getValue('title')
@@ -164,8 +168,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
     ),
     cell: ({ row }) => {
       return formatDateRange(row.original.startTime, row.original.endTime)
-    },
-    size: 250
+    }
   },
   {
     accessorKey: 'week',
@@ -183,7 +186,6 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
     ),
     cell: ({ row }) => {
       return <VisibleCell row={row} />
-    },
-    size: 100
+    }
   }
 ]

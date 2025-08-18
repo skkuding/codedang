@@ -51,6 +51,7 @@ export function AssignmentTable({
             ? (`/admin/course/${groupId}/exercise/${data.id}` as const)
             : (`/admin/course/${groupId}/assignment/${data.id}` as const)
         }
+        bodyStyle={{ title: 'justify-start' }}
       />
       <DataTablePagination showSelection />
     </DataTableRoot>

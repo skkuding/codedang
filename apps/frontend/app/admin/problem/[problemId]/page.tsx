@@ -78,7 +78,7 @@ export default function Page() {
           defaultSortState={[{ id: 'updateTime', desc: true }]}
         >
           <div className="flex gap-4">
-            <DataTableSearchBar columndId="title" />
+            <DataTableSearchBar columndId="username" />
           </div>
           <DataTable />
           <DataTablePagination showSelection />
