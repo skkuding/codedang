@@ -32,6 +32,8 @@ spec:
           path: 'apps/k8s/observability/loki'
           targetRevision: '{{.branch}}'
           ref: codedang
+          directory:
+            recurse: false
       destination:
         namespace: observability
         name: '{{.env}}'
