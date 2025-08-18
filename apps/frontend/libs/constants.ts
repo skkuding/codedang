@@ -301,7 +301,6 @@ export const affiliations = [
 
 /**
  * A flat list of all available majors.
- * Useful for simple dropdowns or validation lists.
  * @constant
  */
 export const allMajors = affiliations.flatMap((a) => a.majors)
