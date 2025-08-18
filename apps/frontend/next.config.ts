@@ -10,10 +10,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   register: true,
   disable: process.env.NODE_ENV === 'development',
   customWorkerDir: 'worker',
-  skipWaiting: true,
-  cacheOnFrontEndNav: true,
-  aggressiveCaching: true,
-  reloadOnOnline: true
+  skipWaiting: true
 })
 
 const BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
