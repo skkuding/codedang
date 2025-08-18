@@ -10,7 +10,11 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   register: true,
   disable: process.env.NODE_ENV === 'development',
   customWorkerDir: 'worker',
-  skipWaiting: true
+  skipWaiting: true,
+  workboxOptions: {
+    disableDevLogs: true,
+    exclude: [/_next\/static\/chunks\/app\/\(client\)\/\(main\)\/contest\/.*/]
+  }
 })
 
 const BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
