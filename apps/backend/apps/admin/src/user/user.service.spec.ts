@@ -26,7 +26,7 @@ const user1: User = {
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   studentId: '2020000000',
-  affiliation: null,
+  college: null,
   major: null,
   canCreateCourse: false,
   canCreateContest: false
@@ -42,7 +42,7 @@ const user2: User = {
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   studentId: '2020000000',
-  affiliation: null,
+  college: null,
   major: null,
   canCreateCourse: false,
   canCreateContest: false
@@ -58,7 +58,7 @@ const user3: User = {
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   studentId: '2020000000',
-  affiliation: null,
+  college: null,
   major: null,
   canCreateCourse: false,
   canCreateContest: false
@@ -267,7 +267,7 @@ describe('GroupMemberService', () => {
             },
             email: user1.email,
             studentId: 2020000000,
-            affiliation: 'College of Computing and Informatics',
+            college: 'College of Computing and Informatics',
             major: 'Computer Science',
             role: Role.User
           }
@@ -289,7 +289,7 @@ describe('GroupMemberService', () => {
           name: '',
           email: user1.email,
           studentId: 2020000000,
-          affiliation: 'College of Computing and Informatics',
+          college: 'College of Computing and Informatics',
           major: 'Computer Science',
           role: Role.User
         }
@@ -308,7 +308,7 @@ describe('GroupMemberService', () => {
             },
             email: user2.email,
             studentId: 2020000000,
-            affiliation: 'College of Computing and Informatics',
+            college: 'College of Computing and Informatics',
             major: 'Computer Science',
             role: Role.User
           }
@@ -330,7 +330,7 @@ describe('GroupMemberService', () => {
           name: '',
           email: user2.email,
           studentId: 2020000000,
-          affiliation: 'College of Computing and Informatics',
+          college: 'College of Computing and Informatics',
           major: 'Computer Science',
           role: Role.User
         }

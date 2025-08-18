@@ -119,7 +119,7 @@ export class GroupMemberService {
             },
             email: true,
             studentId: true,
-            affiliation: true,
+            college: true,
             major: true,
             role: true
           }
@@ -135,7 +135,7 @@ export class GroupMemberService {
         name: userGroup.user.userProfile?.realName ?? '',
         email: userGroup.user.email,
         studentId: userGroup.user.studentId,
-        affiliation: userGroup.user.affiliation,
+        college: userGroup.user.college,
         major: userGroup.user.major,
         role: userGroup.user.role
       }
@@ -161,7 +161,7 @@ export class GroupMemberService {
             },
             email: true,
             studentId: true,
-            affiliation: true,
+            college: true,
             major: true,
             role: true
           }
@@ -178,7 +178,7 @@ export class GroupMemberService {
       name: userGroup.user.userProfile?.realName ?? '',
       email: userGroup.user.email,
       studentId: userGroup.user.studentId,
-      affiliation: userGroup.user.affiliation,
+      college: userGroup.user.college,
       major: userGroup.user.major,
       role: userGroup.user.role
     }

@@ -14,7 +14,7 @@ const user: User = {
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   studentId: '2020000000',
-  affiliation: null,
+  college: null,
   major: null,
   canCreateCourse: false,
   canCreateContest: false

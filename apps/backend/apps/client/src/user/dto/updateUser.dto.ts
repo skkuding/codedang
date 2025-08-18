@@ -20,7 +20,7 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  readonly affiliation?: string
+  readonly college?: string
 
   @IsOptional()
   @IsString()

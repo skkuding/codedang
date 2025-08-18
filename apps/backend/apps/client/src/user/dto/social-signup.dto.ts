@@ -34,7 +34,7 @@ export class SocialSignUpDto {
 
   @IsString()
   @IsOptional()
-  readonly affiliation?: string
+  readonly college?: string
 
   @IsString()
   @IsOptional()

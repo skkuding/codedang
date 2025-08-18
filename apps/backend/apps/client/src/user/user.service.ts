@@ -319,7 +319,7 @@ export class UserService {
       realName: socialSignUpDto.realName,
       email: socialSignUpDto.email,
       studentId: socialSignUpDto.studentId,
-      affiliation: socialSignUpDto.affiliation,
+      college: socialSignUpDto.college,
       major: socialSignUpDto.major
     })
     const profile: CreateUserProfileData = {
@@ -358,7 +358,7 @@ export class UserService {
         password: encryptedPassword,
         email: signUpDto.email,
         studentId: signUpDto.studentId,
-        affiliation: signUpDto.affiliation,
+        college: signUpDto.college,
         major: signUpDto.major
       }
     })
@@ -481,7 +481,7 @@ export class UserService {
         lastLogin: true,
         updateTime: true,
         studentId: true,
-        affiliation: true,
+        college: true,
         major: true,
         userProfile: {
           select: {
@@ -549,7 +549,7 @@ export class UserService {
     }
   }
 
-  // update user field (password, studentId, affiliation, major, realName)
+  // update user field (password, studentId, college, major, realName)
   async updateUser(req: AuthenticatedRequest, updateUserDto: UpdateUserDto) {
     let encryptedNewPassword: string | undefined = undefined
 
@@ -585,7 +585,7 @@ export class UserService {
     const updateData = {
       password: encryptedNewPassword,
       studentId: updateUserDto.studentId,
-      affiliation: updateUserDto.affiliation,
+      college: updateUserDto.college,
       major: updateUserDto.major,
       userProfile: {
         update: { realName: updateUserDto.realName }
@@ -598,7 +598,7 @@ export class UserService {
       select: {
         // don't select password for security
         studentId: true,
-        affiliation: true,
+        college: true,
         major: true,
         userProfile: {
           select: {
