@@ -15,11 +15,10 @@ import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
-import { IoIosLock } from 'react-icons/io'
-import { IoPerson } from 'react-icons/io5'
 // import { FaGithub } from 'react-icons/fa'
 // import { FcGoogle } from 'react-icons/fc'
 import { toast } from 'sonner'
+import { IDLabel, PasswordLabel } from './AuthLabel'
 
 interface Inputs {
   username: string
@@ -76,12 +75,7 @@ export function SignIn() {
       >
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-[6px]">
-            <div className="flex items-center gap-1">
-              <IoPerson className="text-primary h-4 w-4" />
-              <span className="text-color-neutral-30 text-base font-normal">
-                User ID
-              </span>
-            </div>
+            <IDLabel />
             <Input
               placeholder="User ID"
               type="text"
@@ -93,12 +87,7 @@ export function SignIn() {
             />
           </div>
           <div className="flex flex-col gap-[6px]">
-            <div className="flex items-center gap-1">
-              <IoIosLock className="text-primary h-4 w-4" />
-              <span className="text-color-neutral-30 text-base font-normal">
-                Password
-              </span>
-            </div>
+            <PasswordLabel />
             <div className="relative flex justify-between gap-1">
               <Input
                 placeholder="Password"

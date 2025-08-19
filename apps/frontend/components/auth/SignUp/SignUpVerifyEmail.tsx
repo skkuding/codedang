@@ -122,7 +122,7 @@ export function SignUpVerifyEmail() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mt-[50px] flex h-full flex-col justify-between"
+      className="flex h-full flex-col justify-between"
     >
       <div>
         <p className="text-xl font-medium">We’ve Sent an Email</p>
