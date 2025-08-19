@@ -1,10 +1,11 @@
 self.addEventListener('push', (event) => {
-  const data = event.data.json()
-  const title = data.title || 'New Notification'
+  const payload = event.data.json()
+  const title = payload.title || 'New Notification'
   const options = {
-    body: data.body || 'Check the details.',
-    icon: data.icon ?? '/logos/transparent.png',
-    badge: data.badge ?? '/logos/codedang-badge.png'
+    body: payload.body || 'Check the details.',
+    icon: payload.icon ?? '/logos/transparent.png',
+    badge: payload.badge ?? '/logos/codedang-badge.png',
+    data: { url: payload.data.url || '' }
   }
   event.waitUntil(self.registration.showNotification(title, options))
 })

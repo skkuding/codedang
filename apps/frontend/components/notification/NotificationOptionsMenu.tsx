@@ -25,7 +25,7 @@ export function NotificationOptionsMenu({
   handleMarkAllAsRead
 }: NotificationOptionsMenuProps) {
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger disabled={isLoading}>
         <Image src={MoreIcon} alt="filter" width={24} height={24} />
       </DropdownMenuTrigger>
