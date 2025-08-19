@@ -7,7 +7,7 @@ import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { TestResultDetail } from '@/types/type'
-import { useQuery, useSuspenseQuery, useLazyQuery } from '@apollo/client'
+import { useQuery, useLazyQuery } from '@apollo/client'
 import type { ProblemTestcase, TestCaseResult } from '@generated/graphql'
 import type { Session } from 'next-auth'
 import Image from 'next/image'
@@ -115,12 +115,15 @@ export function EditorLayout({
   session,
   children
 }: EditorLayoutProps) {
-  const assignment = useSuspenseQuery(GET_ASSIGNMENT, {
-    variables: {
-      groupId: courseId,
-      assignmentId
+  const { data: assignmentData, loading: assignmentLoading } = useQuery(
+    GET_ASSIGNMENT,
+    {
+      variables: {
+        groupId: courseId,
+        assignmentId
+      }
     }
-  }).data.getAssignment
+  )
 
   const { data } = useQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
     variables: {
@@ -205,6 +208,16 @@ export function EditorLayout({
     }
   }, [language, editorCode, problemId, testcaseData])
 
+  if (assignmentLoading) {
+    return (
+      <div className="fixed left-0 top-0 grid h-dvh w-full place-items-center bg-slate-800 text-white">
+        Loading Editor...
+      </div>
+    )
+  }
+
+  const assignment = assignmentData?.getAssignment
+
   return (
     // Admin Layout의 Sidebar를 무시하기 위한 fixed
     <div className="grid-rows-editor fixed left-0 top-0 grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
@@ -218,7 +231,7 @@ export function EditorLayout({
               `/admin/course/${courseId}/assignment/${assignmentId}` as const
             }
           >
-            {assignment.title}
+            {assignment?.title}
           </Link>
           <div className="flex items-center gap-1 font-medium">
             <p className="mx-2"> / </p>
