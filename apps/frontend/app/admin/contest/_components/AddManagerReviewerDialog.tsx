@@ -19,7 +19,7 @@ import {
 import { Textarea } from '@/components/shadcn/textarea'
 import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { BiEnvelope } from 'react-icons/bi'
 import { FaChevronDown, FaCircleExclamation } from 'react-icons/fa6'
 import {
@@ -28,6 +28,7 @@ import {
   HiMiniPlusCircle,
   HiMiniXCircle
 } from 'react-icons/hi2'
+import { toast } from 'sonner'
 import type { ContestManagerReviewer } from '../_libs/schemas'
 
 interface AddManagerReviewerDialogProps {
@@ -45,7 +46,6 @@ interface InputFieldInterface {
   value: string
   domain: string
   role: string
-  error: string
 }
 
 // TODO: handle strictly null userProfile
@@ -67,8 +67,7 @@ export function AddManagerReviewerDialog({
   const [inputField, setInputField] = useState({
     value: '',
     domain: `${ALLOWED_DOMAINS[0]}`,
-    role: 'Manager',
-    error: ''
+    role: 'Manager'
   })
 
   useEffect(() => {
@@ -76,8 +75,7 @@ export function AddManagerReviewerDialog({
       setInputField({
         value: '',
         domain: `${ALLOWED_DOMAINS[0]}`,
-        role: 'Manager',
-        error: ''
+        role: 'Manager'
       })
       setUsers([]) // Reset users when the dialog opens
     }
@@ -85,9 +83,7 @@ export function AddManagerReviewerDialog({
 
   // users에 저장된 유저들을 매니저에 추가
   const handleInvite = () => {
-    const validUsers: ContestManagerReviewer[] = users.filter(
-      (user) => user !== null
-    )
+    const validUsers = users.filter((user) => user !== null)
 
     // 중복 이메일 제거
     const existingEmails = new Set(managers.map((manager) => manager.email))
@@ -109,7 +105,7 @@ export function AddManagerReviewerDialog({
           className="flex h-[36px] w-[100px] items-center gap-1 px-0"
         >
           <HiMiniPlusCircle className="h-5 w-5" />
-          <div className="text-sm font-bold">Add</div>
+          <span className="text-sm font-bold">Add</span>
         </Button>
       }
       open={open}
@@ -122,17 +118,17 @@ export function AddManagerReviewerDialog({
       onClose={() => setOpen(false)}
     >
       {/* children으로 넣을 부분 */}
-      <ScrollArea className="relative h-full w-full p-0 tracking-[-3%]">
-        <div className="flex flex-col gap-[30px]">
-          {/* 인풋 필드 */}
-          <InputFieldTab
-            users={users}
-            inputField={inputField}
-            setUsers={setUsers}
-            setInputField={setInputField}
-            participants={participants}
-          />
-          {/* selected users 블록 */}
+      <div className="flex h-full flex-col gap-[30px]">
+        {/* 인풋 필드 */}
+        <InputFieldTab
+          users={users}
+          inputField={inputField}
+          setUsers={setUsers}
+          setInputField={setInputField}
+          participants={participants}
+        />
+        {/* selected users 블록 */}
+        <ScrollArea className="relative max-h-[293px] w-full p-0 tracking-[-3%]">
           <div className="border-color-line-default flex min-h-[293px] flex-col gap-[10px] rounded-2xl border border-solid p-[30px]">
             {/* ~ user(s) selected */}
             <div className="text-primary mt-1 text-sm">
@@ -158,13 +154,9 @@ export function AddManagerReviewerDialog({
               </div>
             )}
           </div>
-        </div>
-        <ScrollBar
-          orientation="vertical"
-          className="absolute right-4"
-          style={{ width: '4px' }}
-        />
-      </ScrollArea>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+      </div>
     </Modal>
   )
 }
@@ -192,6 +184,14 @@ function InputFieldTab({
   participants
 }: InputFieldTabProps) {
   const [isDirect, setIsDirect] = useState(false)
+  const inputDirectRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    // inputField의 domain이 'Enter directly'일 때 inputDirectRef에 focus를 맞추기
+    if (isDirect && inputDirectRef.current) {
+      inputDirectRef.current.focus()
+    }
+  }, [isDirect])
 
   // 도메인 드롭다운 메뉴 변경 시 실행 함수
   const handleDomainDropdownChange = (value: string) => {
@@ -213,8 +213,10 @@ function InputFieldTab({
   // 1. 실제 존재하는 이메일(유저)인지 확인
   // 2. participants로 등록된 유저가 아닌지 확인
   // 3. 이미 users에 포함된 유저가 아닌지 확인
-  const fetchUserData = async (email: string, dropdownValue: string) => {
+  const fetchUserData = async () => {
     try {
+      const email = `${inputField.value}@${inputField.domain}`
+      const role = inputField.role
       const res: UserResInterface = await safeFetcherWithAuth
         .get('user/email', {
           searchParams: {
@@ -228,22 +230,14 @@ function InputFieldTab({
         (participant) => participant.user.email === email
       )
       if (isParticipant) {
-        setInputField((prevField) => ({
-          ...prevField,
-          error: 'This email is already registered as contest participant'
-        }))
-
+        toast.error('This email is already registered as contest participant')
         return
       }
 
       // 이미 users에 포함된 유저인지 확인
       const isSelected = users.some((user) => user.email === email)
       if (isSelected) {
-        setInputField((prevField) => ({
-          ...prevField,
-          error: 'This email is already selected'
-        }))
-
+        toast.error('This email is already selected')
         return
       }
 
@@ -254,24 +248,25 @@ function InputFieldTab({
           email,
           username: res.username,
           realName: res.userProfile?.realName ?? '',
-          type: dropdownValue
+          type: role
         },
         ...prevUsers
       ])
       // 정상적으로 추가됐으면 InputField 비우기
-      setInputField((prevField) => ({ ...prevField, value: '', error: '' }))
+      setInputField((prevField) => ({ ...prevField, value: '' }))
     } catch (error) {
       const errorMessage =
         isHttpError(error) && error.response.status === 404
           ? 'No user exists with this email'
           : 'Invalid email format'
-      setInputField((prevField) => ({ ...prevField, error: errorMessage }))
+      toast.error(errorMessage)
+      return
     }
   }
 
   // TODO: 해당되는 컴포넌트 작성
   return (
-    <div className="flex w-full justify-between gap-[10px]">
+    <div className="flex w-full justify-between">
       {/* input + email dropdown + role dropdown */}
       <div className="flex w-full gap-[4px]">
         {/* email input */}
@@ -297,6 +292,12 @@ function InputFieldTab({
                 value: value.target.value
               }))
             }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                fetchUserData()
+              }
+            }}
           />
         </div>
 
@@ -308,6 +309,7 @@ function InputFieldTab({
             </div>
             <div className="min-w-[170px]">
               <Textarea
+                ref={inputDirectRef}
                 value={inputField.domain}
                 placeholder="Enter directly"
                 className="min-h-none placeholder:text-color-neutral-90 z-100 max-h-[24px] resize-none truncate border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
@@ -317,6 +319,12 @@ function InputFieldTab({
                     domain: value.target.value
                   }))
                 }
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    fetchUserData()
+                  }
+                }}
               />
             </div>
             <Select
@@ -329,7 +337,7 @@ function InputFieldTab({
                 </div>
               </SelectTrigger>
               <SelectContent
-                className={`max-w-[245px] -translate-x-[218px] bg-white`}
+                className={`w-[245px] -translate-x-[218px] bg-white`}
               >
                 <SelectGroup>
                   {ALLOWED_DOMAINS.map((domain) => (
@@ -418,12 +426,7 @@ function InputFieldTab({
       <Button
         variant="outline"
         className="border-color-blue-50 hover:bg-color-blue-80 h-full w-full max-w-[90px] cursor-pointer border-[1px]"
-        onClick={() =>
-          fetchUserData(
-            `${inputField.value}@${inputField.domain}`,
-            inputField.role
-          )
-        }
+        onClick={() => fetchUserData()}
       >
         <div className="text-color-blue-50 flex h-full items-center gap-[4px] px-[22px]">
           <HiMiniPlus size={16} />
