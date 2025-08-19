@@ -47,3 +47,9 @@ playwright/.auth
 
 # Next.js Bundle Analyzer
 analyze
+
+# pwa
+public/sw.js*
+public/swe-worker-*.js*
+public/workbox-*.js*
+public/worker-*.js*
