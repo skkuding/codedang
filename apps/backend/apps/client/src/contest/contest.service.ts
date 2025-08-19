@@ -684,7 +684,8 @@ export class ContestService {
           createdById: userId,
           order,
           category: categoryValue,
-          ...(problemId !== null && { problemId })
+          ...(problemId !== null && { problemId }),
+          readBy: [userId]
         }
       })
     })
@@ -773,7 +774,7 @@ export class ContestService {
       where.problemId = { in: problemIds }
     }
 
-    return await this.prisma.contestQnA.findMany({
+    const qnas = await this.prisma.contestQnA.findMany({
       select: {
         id: true,
         order: true,
@@ -783,13 +784,23 @@ export class ContestService {
         category: true,
         problemId: true,
         createTime: true,
-        comments: true
+        createdBy: {
+          select: {
+            username: true
+          }
+        },
+        readBy: true
       },
       where,
       orderBy: {
         order: filter.orderBy || 'asc' // default는 asc
       }
     })
+
+    return qnas.map(({ readBy, ...rest }) => ({
+      ...rest,
+      isRead: userId == null || readBy.includes(userId)
+    }))
   }
 
   /**
@@ -828,6 +839,14 @@ export class ContestService {
       where: {
         contestId,
         order
+      },
+      include: {
+        comments: true,
+        createdBy: {
+          select: {
+            username: true
+          }
+        }
       }
     })
 
@@ -857,6 +876,17 @@ export class ContestService {
       )
     }
 
+    // readBy 배열에 해당 userId가 들어있지 않은 경우 추가
+    if (userId != null && !contestQnA.readBy.includes(userId)) {
+      await this.prisma.contestQnA.update({
+        where: { id: contestQnA.id },
+        data: {
+          readBy: {
+            push: userId
+          }
+        }
+      })
+    }
     return contestQnA
   }
 
@@ -952,7 +982,6 @@ export class ContestService {
     }
 
     const contestQnAId = contestQnA.id
-    const isResolved = contestQnA.isResolved
 
     const contestStaff = await this.prisma.userContest.findFirst({
       where: {
@@ -995,22 +1024,10 @@ export class ContestService {
         }
       })
 
-      // 댓글 작성자에 따라 QnA의 isResolved를 변경
-      if (isContestStaff) {
-        if (!isResolved) {
-          await this.prisma.contestQnA.update({
-            where: { id: contestQnAId },
-            data: { isResolved: true }
-          })
-        }
-      } else {
-        if (isResolved) {
-          await this.prisma.contestQnA.update({
-            where: { id: contestQnAId },
-            data: { isResolved: false }
-          })
-        }
-      }
+      await tx.contestQnA.update({
+        where: { id: contestQnAId },
+        data: { isResolved: isContestStaff, readBy: { set: [userId] } }
+      })
 
       return comment
     })
