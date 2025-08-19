@@ -3,7 +3,6 @@
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
 import ArrowIcon from '@/public/icons/arrow-icon.svg'
-import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
