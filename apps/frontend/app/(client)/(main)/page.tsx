@@ -1,11 +1,9 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
 import { Carousel } from './_components/Carousel'
-import { ContestCards } from './_components/ContestCards'
 import { InstagramCards } from './_components/InstagramCards'
 import { MiddleContestBanner } from './_components/MiddleContestBanner'
 import { NewProblemCards } from './_components/NewProblemCards'
-import { ProblemCards } from './_components/ProblemCards'
 import { ServiceCards } from './_components/ServiceCards'
 
 const slides = [
@@ -29,9 +27,6 @@ export default function Home() {
         <ServiceCards />
       </ErrorBoundary>
       <ErrorBoundary fallback={FetchErrorFallback}>
-        <ContestCards />
-      </ErrorBoundary>
-      <ErrorBoundary fallback={FetchErrorFallback}>
         <NewProblemCards />
       </ErrorBoundary>
       <ErrorBoundary fallback={FetchErrorFallback}>
@@ -39,9 +34,6 @@ export default function Home() {
       </ErrorBoundary>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <InstagramCards />
-      </ErrorBoundary>
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <ProblemCards />
       </ErrorBoundary>
     </div>
   )
