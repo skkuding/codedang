@@ -16,27 +16,35 @@ export function Header() {
     <header className="backdrop-blur-xs fixed left-0 z-40 grid h-[60px] w-full place-items-center bg-white px-[30px] lg:bg-white/80">
       <div className="flex w-full max-w-[1440px] items-center justify-between gap-5 lg:px-[116px]">
         {/* FIXME: If you uncomment a group tab, you have to remove a pr-20 tailwind class */}
-        <div className="flex min-w-fit items-center justify-between gap-8 text-[16px] lg:w-fit">
+        <div className="flex w-full min-w-fit items-center justify-between gap-8 text-[16px] lg:w-fit">
           <MobileMenu session={session} headerTitle={headerTitle} />
 
-          {headerTitle ? (
-            <div className="lg:hidden">
+          <div className="lg:hidden">
+            {headerTitle ? (
               <span className="max-w-[200px] truncate font-semibold">
                 {headerTitle}
               </span>
-            </div>
-          ) : (
-            <Link href="/">
-              <Image
-                src={codedangLogo}
-                alt="코드당"
-                width={135.252}
-                height={28}
-                className="cursor-pointer"
-              />
-            </Link>
-          )}
-
+            ) : (
+              <Link href="/">
+                <Image
+                  src={codedangLogo}
+                  alt="코드당"
+                  width={135.252}
+                  height={28}
+                  className="cursor-pointer"
+                />
+              </Link>
+            )}
+          </div>
+          <Link className="hidden lg:block" href="/">
+            <Image
+              src={codedangLogo}
+              alt="코드당"
+              width={135.252}
+              height={28}
+              className="cursor-pointer"
+            />
+          </Link>
           <nav className="hidden font-semibold capitalize lg:flex lg:gap-10">
             <NavLink href="/notice" text="NOTICE" />
             <NavLink href="/contest" text="CONTEST" />
