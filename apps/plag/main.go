@@ -83,9 +83,9 @@ func main() {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
 		return
 	}
-	checkManager := check.NewCheckManager(s3reader, database, "app/sandbox/jplag.jar")
+	checkManager := check.NewCheckManager(s3reader, database, "/app/sandbox/jplag.jar")
 
-	fileManager := file.NewFileManager("app/sandbox/checks")
+	fileManager := file.NewFileManager("/app/sandbox/checks")
 
 	checkHandler := handler.NewCheckHandler(
 		checkManager,
