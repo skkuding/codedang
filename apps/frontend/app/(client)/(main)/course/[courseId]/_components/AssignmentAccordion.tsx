@@ -138,7 +138,7 @@ function AssignmentAccordionItem({
           {assignment && (
             <div className="flex w-[30%] justify-center">
               <div className="max-w-[250px] flex-1 text-left">
-                <p className="text-color-neutral-60 overflow-hidden whitespace-nowrap text-base font-normal">
+                <p className="text-color-neutral-60 overflow-hidden whitespace-nowrap text-center text-base font-normal">
                   {formatDateRange(
                     assignment.startTime,
                     assignment.dueTime,
@@ -216,7 +216,7 @@ function AssignmentAccordionItem({
 
                   <div className="w-[30%]">
                     {submission[index].submission?.submissionTime && (
-                      <div className="flex w-full justify-center text-sm font-normal text-[#8A8A8A]">
+                      <div className="text-primary flex w-full justify-center text-sm font-normal">
                         Last Submission :{' '}
                         {dateFormatter(
                           submission[index].submission.submissionTime,
