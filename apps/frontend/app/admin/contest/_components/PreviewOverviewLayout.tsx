@@ -33,7 +33,7 @@ export function PreviewOverviewLayout({
         </Button>
       </header>
 
-      <ContestOverviewLayout contest={contest} isRealPage={false} />
+      <ContestOverviewLayout contest={contest} isPreview={true} />
     </div>
   )
 }

@@ -38,7 +38,7 @@ export default async function ContestTop(props: ContestTopProps) {
   return (
     <ContestOverviewLayout
       contest={contest}
-      isRealPage={true}
+      isPreview={false}
       problemData={problemData}
       orderedContests={orderedContests}
       session={session}

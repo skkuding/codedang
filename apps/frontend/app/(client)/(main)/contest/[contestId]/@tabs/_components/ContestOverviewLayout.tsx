@@ -26,7 +26,7 @@ import { RenderProblemList } from './RenderProblemList'
 
 interface ContestOverviewLayoutProps {
   contest: ContestTop | ContestPreview
-  isRealPage: boolean
+  isPreview: boolean
   problemData?: ProblemDataTop
   orderedContests?: ContestOrder[]
   session?: Session | null
@@ -38,7 +38,7 @@ export function ContestOverviewLayout({
   problemData,
   orderedContests,
   session,
-  isRealPage,
+  isPreview,
   search = ''
 }: ContestOverviewLayoutProps) {
   const formattedStartTime = dateFormatter(
@@ -49,7 +49,7 @@ export function ContestOverviewLayout({
 
   let previewProblemData: ProblemDataTop
 
-  if (isRealPage) {
+  if (!isPreview) {
     previewProblemData = problemData ?? { data: [], total: 0 }
   } else {
     previewProblemData = {
@@ -68,11 +68,11 @@ export function ContestOverviewLayout({
     }
   }
 
-  const problenDataToUse: ProblemDataTop =
-    isRealPage && problemData ? problemData : previewProblemData
+  const problemDataToUse: ProblemDataTop =
+    !isPreview && problemData ? problemData : previewProblemData
 
   const state = (() => {
-    if (!isRealPage) {
+    if (isPreview) {
       return 'Ongoing' // 미리보기는 항상 Ongoing으로 가정
     }
     const currentTime = new Date()
@@ -87,18 +87,18 @@ export function ContestOverviewLayout({
 
   const imageUrl = contest.posterUrl || '/logos/welcome.png'
 
-  const actualIsRegistered = isRealPage
+  const actualIsRegistered = !isPreview
     ? (contest as ContestTop).isRegistered
     : false
-  const actualIsPrivilegedRole = isRealPage
+  const actualIsPrivilegedRole = !isPreview
     ? (contest as ContestTop).isPrivilegedRole
     : false
-  const actualInvitationCodeExists = isRealPage
+  const actualInvitationCodeExists = !isPreview
     ? (contest as ContestTop).invitationCodeExists
     : false
 
   return (
-    <ScrollArea className={!isRealPage ? 'h-full w-full' : ''}>
+    <ScrollArea className={isPreview ? 'h-full w-full' : ''}>
       {' '}
       <div className="flex w-[1208px] flex-col justify-self-center">
         <h1 className="mt-24 w-[1208px] text-2xl font-semibold tracking-[-0.72px]">
@@ -165,12 +165,12 @@ export function ContestOverviewLayout({
             </div>
 
             <div className="h-[48px] w-[940px]">
-              {!isRealPage && (
+              {isPreview && (
                 <Button className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white">
                   Register Now!
                 </Button>
               )}
-              {isRealPage && session && state !== 'Finished' && (
+              {!isPreview && session && state !== 'Finished' && (
                 <div>
                   {actualIsRegistered ? (
                     <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#F0F0F0] font-medium text-[#9B9B9B]">
@@ -212,17 +212,17 @@ export function ContestOverviewLayout({
             </AccordionTrigger>
             <AccordionContent className="mb-10 pb-0 pt-[3px] text-base text-[#00000080]">
               <RenderProblemList
-                state={isRealPage ? state : 'Ongoing'}
-                isRegistered={isRealPage ? actualIsRegistered : true}
-                problemData={problenDataToUse}
-                isPrivilegedRole={isRealPage ? actualIsPrivilegedRole : false}
-                linked={isRealPage}
+                state={!isPreview ? state : 'Ongoing'}
+                isRegistered={!isPreview ? actualIsRegistered : true}
+                problemData={problemDataToUse}
+                isPrivilegedRole={!isPreview ? actualIsPrivilegedRole : false}
+                linked={!isPreview}
               />
             </AccordionContent>
           </AccordionItem>
         </Accordion>
 
-        {isRealPage && orderedContests && (
+        {!isPreview && orderedContests && (
           <>
             <PrevNextProblemButton
               contestData={orderedContests}
