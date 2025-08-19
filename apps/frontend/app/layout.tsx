@@ -22,6 +22,7 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: 'Codedang 코드당',
   description: 'Codedang, Online Judge for SKKU',
+  manifest: '/manifest.webmanifest',
   metadataBase: metaBaseUrl
     ? new URL(
         !metaBaseUrl.startsWith('http') ? `https://${metaBaseUrl}` : metaBaseUrl
