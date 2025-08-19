@@ -1565,8 +1565,8 @@ const createContests = async () => {
     }
   }
 
-  // add problem 1, 2 to upcoming contest
-  for (const contest of upcomingContests) {
+  // add problem 1, 2 to ongoing contest
+  for (const contest of ongoingContests) {
     for (const [index, problem] of problems.slice(0, 2).entries()) {
       await prisma.contestProblem.create({
         data: {
@@ -1579,8 +1579,8 @@ const createContests = async () => {
     }
   }
 
-  // add problem 3, 4 to ongoing contest
-  for (const contest of ongoingContests) {
+  // add problem 3, 4 to upcoming contest
+  for (const contest of upcomingContests) {
     for (const [index, problem] of problems.slice(2, 4).entries()) {
       await prisma.contestProblem.create({
         data: {
