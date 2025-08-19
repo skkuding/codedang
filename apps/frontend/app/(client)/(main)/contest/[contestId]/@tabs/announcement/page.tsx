@@ -4,13 +4,13 @@ import type { ContestAnnouncement } from '@/types/type'
 import { columns } from './_components/Columns'
 
 interface ContestAnnouncementProps {
-  params: { contestId: string }
+  params: Promise<{ contestId: string }>
 }
 
-export default async function ContestAnnouncement({
-  params
-}: ContestAnnouncementProps) {
-  const { contestId } = params
+export default async function ContestAnnouncement(
+  props: ContestAnnouncementProps
+) {
+  const { contestId } = await props.params
   const contestAnnouncements: ContestAnnouncement[] = await fetcher
     .get('announcement', {
       searchParams: {

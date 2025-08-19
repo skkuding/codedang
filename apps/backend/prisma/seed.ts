@@ -73,6 +73,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.SuperAdmin,
       studentId: '2024000000',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -86,6 +87,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.Admin,
       studentId: '2024000001',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -99,6 +101,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.User,
       studentId: '2024000002',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science',
       canCreateCourse: true,
       canCreateContest: true
@@ -115,6 +118,7 @@ const createUsers = async () => {
       role: Role.User,
       canCreateContest: true,
       studentId: '2024000003',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -128,6 +132,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.User,
       studentId: '2024000004',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -141,6 +146,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.User,
       studentId: '2024000005',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -156,6 +162,7 @@ const createUsers = async () => {
         lastLogin: new Date(),
         role: Role.User,
         studentId: `20241000${i.toString().padStart(2, '0')}`,
+        college: 'College of Computing and Informatics',
         major: 'Computer Science'
       }
     })
@@ -311,7 +318,8 @@ const createGroups = async () => {
       data: {
         userId: user.id,
         groupId: privateGroup1.id,
-        isGroupLeader: user.username === 'user01'
+        isGroupLeader:
+          user.username === 'user01' || user.username === 'instructor'
       }
     })
   }
@@ -2699,13 +2707,84 @@ const createContestQnA = async () => {
         category: QnACategory.General
       },
       {
-        contestId: 1,
+        contestId: 19,
         createdById: 7,
-        order: 6,
-        title: '1번 대회에 대한 질문',
-        content: '2번 문제에 대한 질문',
-        category: QnACategory.Problem,
-        problemId: 2
+        order: 1,
+        title: '19번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.General
+      },
+      {
+        contestId: 20,
+        createdById: 7,
+        order: 1,
+        title: '20번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.General
+      },
+      {
+        contestId: 20,
+        createdById: 8,
+        order: 2,
+        title: '20번 대회에 대한 질문',
+        content: '8번 유저가 작성함',
+        category: QnACategory.General
+      }
+    ]
+  })
+}
+
+const createContestQnAComment = async () => {
+  await prisma.contestQnAComment.createMany({
+    data: [
+      {
+        contestQnAId: 1,
+        content: '1번 질문에 대한 답변',
+        order: 1,
+        createdById: 7,
+        isContestStaff: false
+      },
+      {
+        contestQnAId: 6,
+        content: '6번 질문에 대한 답변',
+        order: 1,
+        createdById: 7,
+        isContestStaff: false
+      },
+      {
+        contestQnAId: 6,
+        content: '6번 질문에 대한 답변',
+        order: 2,
+        createdById: 4,
+        isContestStaff: true
+      },
+      {
+        contestQnAId: 7,
+        content: '7번 질문에 대한 관리자 답변',
+        order: 1,
+        createdById: 4,
+        isContestStaff: true
+      },
+      {
+        contestQnAId: 7,
+        content: '7번 질문에 대한 작성자 답변',
+        order: 2,
+        createdById: 7,
+        isContestStaff: false
+      },
+      {
+        contestQnAId: 8,
+        content: '8번 질문에 대한 관리자 답변',
+        order: 1,
+        createdById: 4,
+        isContestStaff: true
+      },
+      {
+        contestQnAId: 8,
+        content: '8번 질문에 대한 작성자 답변',
+        order: 2,
+        createdById: 8,
+        isContestStaff: false
       }
     ]
   })
@@ -2790,6 +2869,7 @@ const main = async () => {
   await createContestProblemRecords()
   await createContestQnA()
   await createNotifications()
+  await createContestQnAComment()
 }
 
 main()

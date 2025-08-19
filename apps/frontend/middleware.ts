@@ -1,9 +1,7 @@
 import { encode, getToken } from 'next-auth/jwt'
 import { NextResponse, type NextRequest } from 'next/server'
-import { useEffect, useState } from 'react'
 import { getJWTFromResponse } from './libs/auth/getJWTFromResponse'
 import { baseUrl } from './libs/constants'
-import { safeFetcherWithAuth } from './libs/utils'
 
 const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
   ? '__Secure-next-auth.session-token'
@@ -11,6 +9,16 @@ const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
 
 export const middleware = async (req: NextRequest) => {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+
+  const { pathname } = req.nextUrl
+
+  const isCourseDetailPath = /^\/course\/.+/.test(pathname)
+
+  if (isCourseDetailPath && !token) {
+    const loginUrl = new URL('/login', req.url)
+    loginUrl.searchParams.set('redirectUrl', pathname)
+    return NextResponse.redirect(loginUrl)
+  }
 
   // Handle unauthorized access to admin page
   // if (

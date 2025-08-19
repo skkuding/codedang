@@ -145,6 +145,7 @@ export interface Contest {
   title: string
   startTime: Date
   endTime: Date
+  registerDueTime: null | Date
   summary: {
     문제형태?: string
     순위산정?: string
@@ -371,6 +372,7 @@ export interface Assignment {
   isRegistered: boolean
   problemCount: number
   submittedCount: number
+  isExercise: boolean
 }
 
 export interface AssignmentProblem {
@@ -475,4 +477,15 @@ export interface BaseDataTableProblem {
   languages: string[]
   score?: number
   order?: number
+}
+
+export interface Notification {
+  id: number
+  notificationId: number
+  title: string
+  message: string
+  url: string | null
+  type: string
+  isRead: boolean
+  createTime: string
 }

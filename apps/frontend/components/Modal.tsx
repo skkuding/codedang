@@ -42,6 +42,7 @@ interface ModalProps {
   secondaryButton?: ButtonProps
   children?: React.ReactNode
   onClose?: () => void
+  className?: string
 }
 
 const sizeClassMap = {
@@ -63,7 +64,8 @@ export function Modal({
   primaryButton,
   secondaryButton,
   children,
-  onClose
+  onClose,
+  className
 }: ModalProps) {
   const [internalOpen, setInternalOpen] = useState(false)
   const isControlled = open !== undefined && onOpenChange !== undefined
@@ -75,24 +77,34 @@ export function Modal({
       <DialogContent
         className={cn(
           sizeClassMap[size],
-          'rounded-2xl! flex flex-col items-center justify-center'
+          'flex flex-col items-center justify-center !rounded-2xl',
+          className
         )}
         onPointerDownOutside={onClose}
         onEscapeKeyDown={onClose}
       >
-        <DialogHeader className="flex flex-col items-center justify-center">
+        <DialogHeader className="flex flex-col items-center justify-center space-y-0">
           {type === 'warning' && (
-            <Image
-              src={infoIcon}
-              alt="info"
-              width={42}
-              height={42}
-              // className="mb-3"
-            />
+            <Image src={infoIcon} alt="info" width={42} height={42} />
           )}
-          <DialogTitle className="text-center text-2xl font-semibold">
+          <DialogTitle
+            className={cn(
+              'w-full text-2xl font-semibold',
+              size === 'lg' ? 'text-left' : 'text-center'
+            )}
+          >
             {title}
           </DialogTitle>
+          {size === 'lg' && headerDescription && (
+            <p
+              className={cn(
+                'w-full text-center text-sm font-normal text-[#737373]',
+                children && 'text-left'
+              )}
+            >
+              {headerDescription}
+            </p>
+          )}
         </DialogHeader>
         {type === 'input' && inputProps && (
           <ModalInput
@@ -102,7 +114,7 @@ export function Modal({
             onChange={inputProps.onChange}
           />
         )}
-        {headerDescription && (
+        {size !== 'lg' && headerDescription && (
           <p
             className={cn(
               'w-full text-center text-sm font-normal text-[#737373]',
@@ -127,7 +139,7 @@ export function Modal({
           {secondaryButton && (
             <Button
               onClick={secondaryButton.onClick}
-              className="h-[46px] w-full"
+              className="h-[46px] w-full text-base"
               variant={secondaryButton.variant}
             >
               {secondaryButton.text}
@@ -136,7 +148,7 @@ export function Modal({
           {primaryButton && (
             <Button
               onClick={primaryButton.onClick}
-              className="h-[46px] w-full"
+              className="h-[46px] w-full text-base"
               variant={primaryButton.variant}
             >
               {primaryButton.text}

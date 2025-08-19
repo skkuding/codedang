@@ -53,6 +53,7 @@ model User {
   role             Role      @default(User)
   email            String    @unique
   studentId        String    @default("0000000000") @map("student_id")
+  college          String?   @default("none")
   major            String?   @default("none")
   lastLogin        DateTime? @map("last_login")
   createTime       DateTime  @default(now()) @map("create_time")
@@ -78,6 +79,7 @@ model User {
   createdQnAs        ContestQnA[]         @relation("CreatedByUser")
   createdQnAComments ContestQnAComment[]  @relation("CreatedByUser")
   NotificationRecord NotificationRecord[]
+  PushSubscription   PushSubscription[]
 
   @@map("user")
 }
@@ -589,10 +591,10 @@ model ContestQnA {
   problem     Problem?            @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId   Int?                @map("problem_id")
   category    QnACategory         @default(General)
-  isVisible   Boolean             @default(false) @map("is_visible")
   isResolved  Boolean             @default(false) @map("is_resolved")
   createTime  DateTime            @default(now()) @map("create_time")
   comments    ContestQnAComment[]
+  readBy      Int[]               @map("read_by")
 
   @@unique([contestId, order])
   @@map("contest_qna")
@@ -791,4 +793,19 @@ model NotificationRecord {
 
   @@index([userId, createTime, id])
   @@map("notification_record")
+}
+
+model PushSubscription {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      @map("user_id")
+  endpoint   String
+  p256dh     String
+  auth       String
+  userAgent  String?  @map("user_agent")
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@unique([userId, endpoint])
+  @@map("push_subscription")
 }
