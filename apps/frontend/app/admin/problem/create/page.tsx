@@ -109,8 +109,8 @@ export default function Page() {
               <DescriptionForm name="description" />
             </FormSection>
 
-            <div className="flex justify-between">
-              <div className="w-[360px]">
+            <div className="flex justify-between gap-2">
+              <div>
                 <FormSection
                   isLabeled={false}
                   isFlexColumn
@@ -119,7 +119,7 @@ export default function Page() {
                   <DescriptionForm name="inputDescription" />
                 </FormSection>
               </div>
-              <div className="w-[360px]">
+              <div>
                 <FormSection
                   isLabeled={false}
                   isFlexColumn

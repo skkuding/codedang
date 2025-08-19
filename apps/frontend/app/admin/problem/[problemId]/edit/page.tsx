@@ -97,8 +97,8 @@ export default function Page(props: {
               )}
             </FormSection>
 
-            <div className="flex justify-between">
-              <div className="w-[360px]">
+            <div className="flex justify-between gap-2">
+              <div>
                 <FormSection
                   isFlexColumn
                   title="Input Description"
@@ -109,7 +109,7 @@ export default function Page(props: {
                   )}
                 </FormSection>
               </div>
-              <div className="w-[360px]">
+              <div>
                 <FormSection
                   isFlexColumn
                   title="Output Description"
