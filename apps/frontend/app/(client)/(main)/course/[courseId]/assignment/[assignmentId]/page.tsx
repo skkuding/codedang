@@ -8,17 +8,19 @@ import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter, getStatusWithStartEnd } from '@/libs/utils'
 import { useQuery } from '@tanstack/react-query'
+import { use } from 'react'
 import { columns } from './_components/Columns'
 import { TotalScoreLabel } from './_components/TotalScoreLabel'
 
 interface AssignmentDetailProps {
-  params: {
+  params: Promise<{
     assignmentId: number
     courseId: number
-  }
+  }>
 }
 
-export default function AssignmentDetail({ params }: AssignmentDetailProps) {
+export default function AssignmentDetail(props: AssignmentDetailProps) {
+  const params = use(props.params)
   const { assignmentId, courseId } = params
 
   const { data: assignment } = useQuery(

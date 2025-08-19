@@ -1,6 +1,7 @@
 'use client'
 
 import type { Session } from 'next-auth'
+import { SessionProvider } from 'next-auth/react'
 import { createContext, type ReactNode } from 'react'
 
 export const SessionContext = createContext<Session | null | undefined>(
@@ -15,7 +16,9 @@ interface AuthProviderProps {
 export function AuthProvider({ children, session }: AuthProviderProps) {
   return (
     <SessionContext.Provider value={session}>
-      {children}
+      <SessionProvider basePath="/next-auth/api/auth">
+        {children}
+      </SessionProvider>
     </SessionContext.Provider>
   )
 }

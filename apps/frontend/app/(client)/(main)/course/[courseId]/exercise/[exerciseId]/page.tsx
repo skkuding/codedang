@@ -8,16 +8,18 @@ import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter, getStatusWithStartEnd } from '@/libs/utils'
 import { useQuery } from '@tanstack/react-query'
+import { use } from 'react'
 import { columns } from './_components/Columns'
 
 interface ExerciseDetailProps {
-  params: {
+  params: Promise<{
     exerciseId: number
     courseId: number
-  }
+  }>
 }
 
-export default function ExerciseDetail({ params }: ExerciseDetailProps) {
+export default function ExerciseDetail(props: ExerciseDetailProps) {
+  const params = use(props.params)
   const { exerciseId, courseId } = params
 
   const { data: exercise } = useQuery(
