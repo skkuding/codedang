@@ -25,9 +25,9 @@ export function CreateCourseForm({ children }: { children: ReactNode }) {
       office: '',
       website: '',
       config: {
-        showOnList: false,
-        allowJoinFromSearch: false,
-        allowJoinWithURL: false,
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: true,
         requireApprovalBeforeJoin: false
       }
     }
