@@ -11,13 +11,12 @@ type PageProps = {
 export interface QnaContent {
   id?: number
   order?: number
+  createdById?: number
   createdBy?: User
   contestId?: number
   title?: string
   content?: string
-  problemId?: number
   category?: string
-  isResolved?: boolean
   createTime?: Date
 }
 
@@ -27,14 +26,13 @@ export interface Qna extends QnaContent {
 
 export interface ContestQnAComment {
   content: string
-  createdBy: User
+  createdById: number
   createdTime: Date
   isContestStaff: boolean
   order: number
 }
 
 interface User {
-  id: number
   username: string
 }
 
@@ -64,8 +62,11 @@ export default async function QnaDetailPage({ params }: PageProps) {
   // data 중 하나라도 제대로 받아오지 못했다면 에러 페이지
   if (!QnaRes.ok || !userInfoRes.ok || !MyContestRolesRes.ok) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center">
+      <div className="flex h-screen w-screen flex-col items-center justify-center">
         <h1 className="text-2xl font-bold">Error loading QnA</h1>
+        <span className="text-sm text-gray-500">
+          {`Error Code: ${QnaRes.status} - ${userInfoRes.status} - ${MyContestRolesRes.status}`}
+        </span>
       </div>
     )
   }
@@ -75,6 +76,11 @@ export default async function QnaDetailPage({ params }: PageProps) {
   const userInfo: { username?: string; email?: string } =
     await userInfoRes.json()
   const MyContestRoles: ContestRole[] = await MyContestRolesRes.json()
+
+  // TODO: delete theses lines
+  console.log('QnaData:', QnaData)
+  console.log('userInfo:', userInfo)
+  console.log('MyContestRoles:', MyContestRoles)
 
   // 현재 로그인된 유저의 id 가져오기 (userInfo의 이메일을 통해서)
   const res = await fetcherWithAuth.get('user/email', {
@@ -89,6 +95,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
     )
   }
   const userInfoByEmail: { id: number } = await res.json()
+  console.log('userInfoByEmail:', userInfoByEmail)
   const userId: number = userInfoByEmail.id
 
   // 현재 유저가 현재 contest의 관리자인지 판별
@@ -100,7 +107,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
   // 아니라면 현재 유저가 작성자인지 판별
   let isCreator = false
   if (!isContestStaff) {
-    if (userId === QnaData.createdBy?.id) {
+    if (userId === QnaData.createdById) {
       isCreator = true
     }
   }

@@ -25,7 +25,7 @@ export function CommentArea({
 }) {
   const { contestId, order, comments } = data
   // 질문 작성자 혹은 관리자면 댓글 게시 가능.
-  const canPost = isContestStaff || userId === data.createdBy?.id
+  const canPost = isContestStaff || userId === data.createdById
   return (
     <div className="flex flex-col gap-[40px]">
       <QnaComments
@@ -98,8 +98,7 @@ function SingleComment({
 }) {
   // 작성자 = 로그인 계정 or (로그인 계정 = 관리자 and 댓글 = 관리자 댓글)
   const canDelete =
-    userId === comment.createdBy.id ||
-    (comment.isContestStaff && isContestStaff)
+    userId === comment.createdById || (comment.isContestStaff && isContestStaff)
   return (
     <div
       className={`border-color-line-default flex flex-col gap-[20px] rounded-xl border border-[1px] border-solid p-[30px]`}
@@ -108,7 +107,8 @@ function SingleComment({
         {/* 답변자 이름과 인증 마크 */}
         <div className="relative flex items-center gap-[4px]">
           <p className="text-xl font-semibold capitalize">
-            {comment.createdBy.username}
+            {/* TODO: username 가져올 수 있는 방법이 없음... */}
+            {`유저 네임...`}
           </p>
           {comment.isContestStaff && (
             <div className="grid h-[24px] w-[24px] place-content-center">
