@@ -8,6 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
+import { Badge } from '@/components/shadcn/badge'
 import { Dialog } from '@/components/shadcn/dialog'
 import { UNLIMITED_DATE } from '@/libs/constants'
 import {
@@ -109,16 +110,22 @@ function AssignmentAccordionItem({
       >
         <AccordionTrigger
           className={cn(
-            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-8 py-5 text-left text-sm shadow-md',
+            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-8 py-6 text-left text-sm shadow-md',
             'data-[state=open]:-mb-6 data-[state=open]:mt-[24px]',
             'relative',
             'hover:no-underline'
           )}
           iconStyle="w-5 h-5 absolute right-[3%]"
         >
-          <p className="text-primary mr-3 w-[10%] text-left font-normal">
-            [Week {assignment.week}]
-          </p>
+          <div className="mr-4 w-[10%]">
+            <Badge
+              variant="Course"
+              className="px-[10px] py-1 text-sm font-medium"
+            >
+              Week {assignment.week.toString().padStart(2, '0')}
+            </Badge>
+          </div>
+
           <div className="flex w-[30%] flex-col">
             <AssignmentLink
               key={assignment.id}
@@ -127,10 +134,11 @@ function AssignmentAccordionItem({
             />
             {assignment && <AssignmentStatusTimeDiff assignment={assignment} />}
           </div>
+
           {assignment && (
             <div className="flex w-[30%] justify-center">
-              <div className="max-w-[200px] flex-1 text-left">
-                <p className="overflow-hidden whitespace-nowrap font-normal text-[#8A8A8A]">
+              <div className="max-w-[250px] flex-1 text-left">
+                <p className="text-color-neutral-60 overflow-hidden whitespace-nowrap text-center text-base font-normal">
                   {formatDateRange(
                     assignment.startTime,
                     assignment.dueTime,
@@ -140,13 +148,8 @@ function AssignmentAccordionItem({
               </div>
             </div>
           )}
-          <div className="flex w-[13%] justify-center">
-            {dayjs().isAfter(dayjs(assignment.startTime)) && (
-              <SubmissionBadge grade={grade} />
-            )}
-          </div>
 
-          <div className="flex w-[10%] justify-center gap-1 font-medium">
+          <div className="flex w-[10%] justify-center gap-1 text-base font-medium">
             {dayjs().isAfter(assignment.startTime) && (
               <p>
                 {grade.submittedCount > 0
@@ -155,6 +158,13 @@ function AssignmentAccordionItem({
               </p>
             )}
           </div>
+
+          <div className="flex w-[13%] justify-center">
+            {dayjs().isAfter(dayjs(assignment.startTime)) && (
+              <SubmissionBadge grade={grade} />
+            )}
+          </div>
+
           <div className="flex w-[5%] justify-center">
             <Dialog
               open={isAssignmentDialogOpen}
@@ -174,6 +184,7 @@ function AssignmentAccordionItem({
               )}
             </Dialog>
           </div>
+
           <div className="w-[1%]" />
         </AccordionTrigger>
         <AccordionContent className="-mb-4 w-full">
@@ -185,22 +196,27 @@ function AssignmentAccordionItem({
                   key={problem.id}
                   className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
                 >
-                  <div className="text-primary mr-3 flex w-[10%] justify-center font-normal">
-                    <p> {convertToLetter(problem.order)}</p>
+                  <div className="mr-4 flex w-[10%]">
+                    <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
+                      {' '}
+                      {convertToLetter(problem.order)}
+                    </div>
                   </div>
+
                   <div className="flex w-[30%]">
                     <Link
                       href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
                       // onClick={handleClick}
                     >
-                      <span className="line-clamp-1 font-medium text-[#171717]">
+                      <span className="line-clamp-1 text-base font-medium text-[#171717]">
                         {problem.title}
                       </span>
                     </Link>
                   </div>
+
                   <div className="w-[30%]">
                     {submission[index].submission?.submissionTime && (
-                      <div className="flex w-full justify-center text-xs font-normal text-[#8A8A8A]">
+                      <div className="text-primary flex w-full justify-center text-sm font-normal">
                         Last Submission :{' '}
                         {dateFormatter(
                           submission[index].submission.submissionTime,
@@ -209,13 +225,15 @@ function AssignmentAccordionItem({
                       </div>
                     )}
                   </div>
-                  <div className="flex w-[13%] justify-center" />
-                  <div className="flex w-[10%] justify-center font-medium">
+
+                  <div className="flex w-[10%] justify-center text-base font-medium">
                     {dayjs().isAfter(dayjs(assignment.endTime))
                       ? (problem.problemRecord?.finalScore ?? '-')
                       : '-'}{' '}
                     / {problem.maxScore}
                   </div>
+
+                  <div className="flex w-[13%] justify-center" />
 
                   <div className="w-[6%]" />
                 </div>
@@ -327,12 +345,12 @@ function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
   return (
     <div
       className={cn(
-        'flex h-[34px] w-[100px] items-center justify-center rounded-full border',
+        'flex h-[36px] w-[120px] items-center justify-center rounded-full border',
         badgeStyle,
         className
       )}
     >
-      <div className="flex gap-2 text-sm font-medium">
+      <div className="flex gap-2 text-base font-medium">
         <p> {grade.submittedCount}</p>
         <p> /</p>
         <p> {grade.problemCount}</p>
