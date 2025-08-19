@@ -31,7 +31,7 @@ const schema = v.object({
 const timeLimit = 300
 const DOMAIN_OPTIONS = ['@skku.edu', '@g.skku.edu', '@naver.com']
 
-export function SignUpEmailVerify() {
+export function SignUpSendEmail() {
   const [timer, setTimer] = useState(timeLimit)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const previousTimeRef = useRef(Date.now())
@@ -160,7 +160,7 @@ export function SignUpEmailVerify() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex h-full flex-col justify-between pb-10"
+      className="mt-[50px] flex h-full flex-col justify-between"
     >
       {!sentEmail && (
         <div>
@@ -276,7 +276,7 @@ export function SignUpEmailVerify() {
             return (
               <Button
                 type="button"
-                className="w-full text-base font-medium"
+                className="w-full px-[22px] py-[9px] text-base font-medium"
                 disabled={sendButtonDisabled}
                 onClick={() => {
                   setSendButtonDisabled(true)

@@ -5,6 +5,8 @@ import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import {
@@ -19,6 +21,7 @@ import { ContestRole, type UserContest } from '@generated/graphql'
 import { ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { usePathname } from 'next/navigation'
+import { VisuallyHidden } from 'radix-ui'
 import { useEffect, useState } from 'react'
 import { BiSolidUser } from 'react-icons/bi'
 import { AccountItems } from './AccountItems'
@@ -206,8 +209,13 @@ export function HeaderAuthPanel({
             onInteractOutside={(e) => {
               e.preventDefault()
             }}
-            className="min-h-[620px] max-w-[380px]"
+            className="!py-15 min-h-[620px] max-w-[380px] !rounded-[10px] !px-5"
           >
+            <VisuallyHidden.Root>
+              <DialogHeader>
+                <DialogTitle> Sign Up</DialogTitle>
+              </DialogHeader>
+            </VisuallyHidden.Root>
             <AuthModal />
           </DialogContent>
         </Dialog>

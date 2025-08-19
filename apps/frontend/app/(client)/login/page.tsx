@@ -1,11 +1,17 @@
 'use client'
 
 import { AuthModal } from '@/components/auth/AuthModal'
-import { Dialog, DialogContent } from '@/components/shadcn/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/shadcn/dialog'
 import { useSession } from '@/libs/hooks/useSession'
 import { useAuthModalStore } from '@/stores/authModal'
 import type { Route } from 'next'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { VisuallyHidden } from 'radix-ui'
 import { useEffect } from 'react'
 
 export default function LoginPage() {
@@ -46,6 +52,11 @@ export default function LoginPage() {
         hideCloseButton={true}
         className="min-h-[620px] max-w-[380px]"
       >
+        <VisuallyHidden.Root>
+          <DialogHeader>
+            <DialogTitle> Log in</DialogTitle>
+          </DialogHeader>
+        </VisuallyHidden.Root>
         <AuthModal />
       </DialogContent>
     </Dialog>
