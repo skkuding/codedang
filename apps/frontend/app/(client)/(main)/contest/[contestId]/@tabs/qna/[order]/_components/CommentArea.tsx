@@ -8,6 +8,7 @@ import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { BiSolidPencil } from 'react-icons/bi'
 import { FaCircleCheck, FaClock } from 'react-icons/fa6'
+import { toast } from 'sonner'
 import type { ContestQnAComment, Qna } from '../page'
 import { DeleteButton } from './DeleteButton'
 
@@ -61,17 +62,39 @@ function QnaComments({
   isContestStaff: boolean
 }) {
   const [comments, setComments] = useState(initialComments)
-  setInterval(async () => {
-    try {
-      const QnaRes = await fetcherWithAuth.get(
-        `contest/${contestId}/qna/${order}`
-      )
-      const QnaData: Qna = QnaRes.ok ? await QnaRes.json() : {}
-      setComments(QnaData.comments)
-    } catch {
-      console.log('Error in re-fetching comments!')
+  useEffect(() => {
+    let isMounted = true
+
+    async function poll() {
+      try {
+        const QnaRes = await fetcherWithAuth.get(
+          `contest/${contestId}/qna/${order}`
+        )
+
+        if (!QnaRes.ok) {
+          const errorRes: { message: string } = await QnaRes.json()
+          toast.error(errorRes.message)
+        } else {
+          const QnaData: Qna = await QnaRes.json()
+          if (isMounted) {
+            setComments(QnaData.comments)
+          }
+        }
+      } catch (error) {
+        toast.error(`Error in re-fetching comments!: ${error}`)
+      } finally {
+        if (isMounted) {
+          setTimeout(poll)
+        }
+      }
     }
-  }, 5000)
+    poll()
+
+    return () => {
+      isMounted = false
+    }
+  }, [contestId, order])
+
   return (
     <div className="flex flex-col gap-[10px]">
       {comments?.map((comment) => (
@@ -86,7 +109,6 @@ function QnaComments({
   )
 }
 
-// 각각의 댓글
 function SingleComment({
   comment,
   userId,
@@ -96,19 +118,18 @@ function SingleComment({
   userId: number
   isContestStaff: boolean
 }) {
-  // 작성자 = 로그인 계정 or (로그인 계정 = 관리자 and 댓글 = 관리자 댓글)
   const canDelete =
     userId === comment.createdById || (comment.isContestStaff && isContestStaff)
+
   return (
     <div
       className={`border-color-line-default flex flex-col gap-[20px] rounded-xl border border-[1px] border-solid p-[30px]`}
     >
       <div className="flex flex-col gap-[4px]">
-        {/* 답변자 이름과 인증 마크 */}
         <div className="relative flex items-center gap-[4px]">
           <p className="text-xl font-semibold capitalize">
             {/* TODO: username 가져올 수 있는 방법이 없음... */}
-            {`유저 네임...`}
+            {`userId: ${comment.createdById}의 유저 이름`}
           </p>
           {comment.isContestStaff && (
             <div className="grid h-[24px] w-[24px] place-content-center">
@@ -121,7 +142,6 @@ function SingleComment({
             )}
           </div>
         </div>
-        {/* 날짜 마크와 날짜 */}
         <div className="flex items-center gap-[8px]">
           <FaClock className="text-color-blue-50" size={13} />
           <div className="flex items-center gap-[4px] text-sm font-medium text-[#787E80]">
@@ -130,7 +150,6 @@ function SingleComment({
           </div>
         </div>
       </div>
-      {/* 내용 */}
       <div className="whitespace-pre-line text-base font-normal">
         {comment.content.trim()}
       </div>
@@ -138,7 +157,6 @@ function SingleComment({
   )
 }
 
-// 댓글 게시 영역
 function CommentPostArea({
   contestId,
   order,
@@ -162,23 +180,25 @@ function CommentPostArea({
     setText(value)
   }
 
-  // TODO: 댓글 POST 시 로직 구현. => useForm으로 구현.
   const onPost = async (): Promise<void> => {
     try {
-      // TODO: response error handling
-      const res = await fetcherWithAuth(
+      const res = await fetcherWithAuth.post(
         `contest/${contestId}/qna/${order}/comment`,
         {
-          method: 'POST',
-          body: JSON.stringify({
+          json: {
             content: text
-          })
+          }
         }
       )
-      console.log(`${text} is posted!`)
-      console.log(`${res.status}`)
+      if (!res.ok) {
+        const errorRes: { message: string } = await res.json()
+        toast.error(errorRes.message)
+      } else {
+        toast.success('Posted successfully!')
+        setText('')
+      }
     } catch {
-      console.log('Error in posting comment!')
+      toast.error('Error in posting comment!')
     }
   }
 

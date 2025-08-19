@@ -6,6 +6,7 @@ import { fetcherWithAuth } from '@/libs/utils'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { FaTrash } from 'react-icons/fa6'
+import { toast } from 'sonner'
 
 export function DeleteButton({
   subject,
@@ -16,55 +17,48 @@ export function DeleteButton({
 }) {
   const [showModal, setShowModal] = useState(false)
   const params = useParams()
-  // TODO: qna delete & comment 구현.
+
   const handleDelete =
     subject === 'question'
-      ? // Qna 삭제
-        async () => {
+      ? async () => {
           const [contestId, order] = [
             Number(params.contestId),
             Number(params.order)
           ]
 
           try {
-            // TODO: response error handling
-            const res = await fetcherWithAuth(
-              `contest/${contestId}/qna/${order}`,
-              {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' }
-              }
+            const res = await fetcherWithAuth.delete(
+              `contest/${contestId}/qna/${order}`
             )
-
+            if (!res.ok) {
+              const errorRes: { message: string } = await res.json()
+              toast.error(errorRes.message)
+            } else {
+              toast.success('Qna is deleted successfully!')
+            }
             // TODO: status code에 따라 에러 구현
-            console.log(`${contestId}번 대회의 ${order}번째 qna 삭제`)
-            console.log(`status: ${res.status}`)
-          } catch {
-            console.log(`Error!`)
+          } catch (error) {
+            toast.error(`Error in deleting qna!: ${error}`)
           }
         }
-      : // Qna 댓글 삭제
-        async () => {
+      : async () => {
           const [contestId, order] = [
             Number(params.contestId),
             Number(params.order)
           ]
           try {
             // TODO: response error handling
-            const res = await fetcherWithAuth(
-              `/contest/${contestId}/qna/${order}/comment/${commentOrder}`,
-              {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' }
-              }
+            const res = await fetcherWithAuth.delete(
+              `contest/${contestId}/qna/${order}/comment/${commentOrder}`
             )
-
-            console.log(
-              `${contestId}번 대회의 ${order}번째 qna의 ${commentOrder}번쨰 댓글 삭제`
-            )
-            console.log(`status: ${res.status}`)
-          } catch {
-            console.log('Error!')
+            if (!res.ok) {
+              const errorRes: { message: string } = await res.json()
+              toast.error(errorRes.message)
+            } else {
+              toast.success('A qna comment is deleted successfully!')
+            }
+          } catch (error) {
+            toast.error(`Error in deleting a qna comment!: ${error}`)
           }
         }
   return (
