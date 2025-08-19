@@ -8,7 +8,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-interface Props {
+interface CarouselProps {
   slides: {
     type: string
     topTitle: string
@@ -20,7 +20,7 @@ interface Props {
   }[]
 }
 
-export function Carousel({ slides }: Props) {
+export function Carousel({ slides }: CarouselProps) {
   const [facade, setFacade] = useState(0)
 
   useEffect(() => {
@@ -37,8 +37,7 @@ export function Carousel({ slides }: Props) {
   return (
     <div className="relative my-1 h-[640px] w-full max-w-[1380px] overflow-hidden rounded-[20px] md:max-w-[1860px]">
       {slides.map((slide, index) => (
-        <Link
-          href={slide.href as Route}
+        <div
           key={slide.href + slide.topTitle}
           className={cn(
             'absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ease-in-out',
@@ -80,7 +79,7 @@ export function Carousel({ slides }: Props) {
               </Button>
             </div>
           </div>
-        </Link>
+        </div>
       ))}
       <div className="absolute left-[20px] top-0 z-20 flex h-[640px] w-[80px] items-center justify-center">
         <Button
