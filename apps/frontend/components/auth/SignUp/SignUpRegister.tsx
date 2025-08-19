@@ -197,7 +197,7 @@ export function SignUpRegister() {
           studentId: data.studentId,
           major: majorValue,
           username: data.username,
-          email: formData.email,
+          email: `${formData.emailId}@${formData.emailDomain}`,
           verificationCode: formData.verificationCode
         }
       })

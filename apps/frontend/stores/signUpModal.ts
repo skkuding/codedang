@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 
 interface FormData {
-  email: string
+  emailId: string
+  emailDomain: string
   verificationCode: string
   headers: {
     'email-auth': string
@@ -19,7 +20,8 @@ interface SignUpModalStore {
 export const useSignUpModalStore = create<SignUpModalStore>((set) => ({
   modalPage: 0,
   formData: {
-    email: '',
+    emailId: '',
+    emailDomain: '',
     verificationCode: '',
     headers: {
       'email-auth': ''

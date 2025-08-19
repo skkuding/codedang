@@ -1,38 +1,36 @@
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
-import { cn, isHttpError, safeFetcher } from '@/libs/utils'
+import { cn, isHttpError } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { SignUpApi } from './api'
 
-const DOMAIN_OPTIONS = [
-  '@skku.edu',
-  '@g.skku.edu',
-  '@naver.com',
-  '@example.com'
-]
+const DOMAIN_OPTIONS = ['skku.edu', 'g.skku.edu', 'naver.com', 'example.com']
 interface SendEmailInput {
-  email: string
+  emailId: string
+  emailDomain: string
 }
 
 export function SignUpSendEmail() {
   const { nextModal, setFormData } = useSignUpModalStore((state) => state)
-
-  const { handleSubmit, register, getValues, clearErrors, watch } =
-    useForm<SendEmailInput>()
+  const { showSignIn } = useAuthModalStore((state) => state)
+  const { handleSubmit, register, clearErrors, watch, setValue } =
+    useForm<SendEmailInput>({
+      defaultValues: { emailDomain: DOMAIN_OPTIONS[0] }
+    })
 
   const [emailError, setEmailError] = useState<string>('')
-  const [domain, setDomain] = useState<string>(DOMAIN_OPTIONS[0])
-  const { showSignIn } = useAuthModalStore((state) => state)
 
-  const emailValue = watch('email', '')
-  const isButtonDisabled = emailValue.trim().length === 0
+  const emailIdValue = watch('emailId', '')
+  const emailDomainValue = watch('emailDomain')
+  const isSendButtonDisabled = emailIdValue.trim().length === 0
 
   const onSubmit = async (data: SendEmailInput) => {
     try {
-      await sendEmail()
+      await SignUpApi.sendEmail(`${data.emailId}@${data.emailDomain}`)
       setFormData({
         ...data,
         verificationCode: '',
@@ -50,19 +48,10 @@ export function SignUpSendEmail() {
     }
   }
 
-  const sendEmail = async () => {
-    const { email } = getValues()
-    const fullEmail = `${email}${domain}`
-
-    await safeFetcher.post('email-auth/send-email/register-new', {
-      json: { email: fullEmail }
-    })
-  }
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex h-full flex-col justify-between"
+      className="mt-[50px] flex h-full flex-col justify-between"
     >
       <div>
         <p className="text-xl font-medium">Join us to grow! 🌱</p>
@@ -79,8 +68,8 @@ export function SignUpSendEmail() {
               emailError && 'border-red-500 focus-visible:border-red-500'
             )}
             placeholder="Enter the e-mail"
-            {...register('email')}
-            onFocus={() => clearErrors('email')}
+            {...register('emailId')}
+            onFocus={() => clearErrors('emailId')}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault()
@@ -89,9 +78,11 @@ export function SignUpSendEmail() {
             }}
           />
           <OptionSelect
-            options={DOMAIN_OPTIONS}
-            value={domain}
-            onChange={setDomain}
+            options={DOMAIN_OPTIONS.map((domain) => `@${domain}`)}
+            value={`@${emailDomainValue}`}
+            onChange={(value) => {
+              setValue('emailDomain', value.replace(/^@/, ''))
+            }}
           />
         </div>
         {emailError && <p className="text-error mt-1 text-xs">{emailError}</p>}
@@ -110,7 +101,7 @@ export function SignUpSendEmail() {
         <Button
           type="submit"
           className="w-full px-[22px] py-[9px] text-base font-medium"
-          disabled={isButtonDisabled}
+          disabled={isSendButtonDisabled}
         >
           Send the Email
         </Button>
