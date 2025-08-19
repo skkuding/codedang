@@ -157,7 +157,7 @@ function ExerciseAccordionItem({
             {dayjs().isAfter(dayjs(exercise.startTime)) && (
               <SubmissionBadge
                 grade={grade}
-                className="h-8 w-16 text-xs lg:h-[38px] lg:w-[140px] lg:text-base"
+                className="h-8 w-24 text-xs lg:h-[38px] lg:w-[140px] lg:text-base"
               />
             )}
           </div>

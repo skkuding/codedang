@@ -139,9 +139,16 @@ function AssignmentAccordionItem({
               <AssignmentStatusTimeDiff assignment={assignment} />
             </div>
             <Separator className="my-2" />
-            <div className="flex items-center justify-between text-xs text-gray-600">
+            <div
+              className={cn(
+                'flex items-center text-xs text-gray-600',
+                dayjs().isAfter(dayjs(assignment.startTime))
+                  ? 'justify-between'
+                  : 'justify-end'
+              )}
+            >
               {dayjs().isAfter(dayjs(assignment.startTime)) && (
-                <SubmissionBadge grade={grade} className="h-8 w-16 text-xs" />
+                <SubmissionBadge grade={grade} className="h-8 w-24 text-xs" />
               )}
               {dayjs().isAfter(assignment.startTime) && (
                 <p className="text-sm font-medium">
