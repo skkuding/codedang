@@ -50,7 +50,7 @@ export default function LoginPage() {
           e.preventDefault()
         }}
         hideCloseButton={true}
-        className="min-h-[620px] max-w-[380px]"
+        className="!py-15 min-h-[620px] max-w-[380px] !rounded-[10px] !px-5"
       >
         <VisuallyHidden.Root>
           <DialogHeader>

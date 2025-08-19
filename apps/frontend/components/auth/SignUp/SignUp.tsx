@@ -21,7 +21,7 @@ export function SignUp() {
         </button>
       )}
 
-      <Progress value={(modalPage + 1 / 4) * 100} className="h-1" />
+      <Progress value={(modalPage + 1 / 4) * 100} className="mb-[50px] h-1" />
 
       {modalPage === 0 && <SignUpSendEmail />}
       {modalPage === 1 && <SignUpVerifyEmail />}
