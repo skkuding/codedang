@@ -29,9 +29,7 @@ interface Inputs {
 export function SignIn() {
   const [disableButton, setDisableButton] = useState(false)
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
-  const { hideModal, showSignUp, showRecoverAccount } = useAuthModalStore(
-    (state) => state
-  )
+  const { hideModal, showRecoverAccount } = useAuthModalStore((state) => state)
   const router = useRouter()
   const posthog = usePostHog()
 

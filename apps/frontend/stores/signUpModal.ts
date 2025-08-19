@@ -9,13 +9,7 @@ interface FormData {
 }
 interface SignUpModalStore {
   modalPage: number
-  formData: {
-    email: string
-    verificationCode: string
-    headers: {
-      'email-auth': string
-    }
-  }
+  formData: FormData
   setModalPage: (page: number) => void
   setFormData: (data: FormData) => void
   nextModal: () => void

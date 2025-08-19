@@ -4,75 +4,59 @@ import { Input } from '@/components/shadcn/input'
 import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { useSignUpModalStore } from '@/stores/signUpModal'
-import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import * as v from 'valibot'
 
+const DOMAIN_OPTIONS = [
+  '@skku.edu',
+  '@g.skku.edu',
+  '@naver.com',
+  '@example.com'
+]
 interface SendEmailInput {
   email: string
 }
 
-const schema = v.object({
-  email: v.pipe(v.string())
-})
-
-const DOMAIN_OPTIONS = ['@skku.edu', '@g.skku.edu', '@naver.com']
-
 export function SignUpSendEmail() {
   const { nextModal, setFormData } = useSignUpModalStore((state) => state)
-  const {
-    handleSubmit,
-    register,
-    getValues,
-    trigger,
-    clearErrors,
-    formState: { errors }
-  } = useForm<SendEmailInput>({
-    resolver: valibotResolver(schema)
-  })
+
+  const { handleSubmit, register, getValues, clearErrors, watch } =
+    useForm<SendEmailInput>()
+
   const [emailError, setEmailError] = useState<string>('')
-  const [sendButtonDisabled, setSendButtonDisabled] = useState<boolean>(false)
   const [domain, setDomain] = useState<string>(DOMAIN_OPTIONS[0])
   const { showSignIn } = useAuthModalStore((state) => state)
 
-  const onSubmit = (data: SendEmailInput) => {
-    setFormData({
-      ...data,
-      verificationCode: '',
-      headers: {
-        'email-auth': ''
-      }
-    })
-    nextModal()
-  }
+  const emailValue = watch('email', '')
+  const isButtonDisabled = emailValue.trim().length === 0
 
-  const sendEmail = async () => {
-    const { email } = getValues()
-    const fullEmail = `${email}${domain}`
-
-    setEmailError('')
-    await trigger('email')
-
-    if (errors.email) {
-      setSendButtonDisabled(false)
-      return
-    }
-
+  const onSubmit = async (data: SendEmailInput) => {
     try {
-      await safeFetcher.post('email-auth/send-email/register-new', {
-        json: { email: fullEmail }
+      await sendEmail()
+      setFormData({
+        ...data,
+        verificationCode: '',
+        headers: {
+          'email-auth': ''
+        }
       })
-      setEmailError('')
+      nextModal()
     } catch (error) {
       if (isHttpError(error) && error.response.status === 409) {
         setEmailError('You have already signed up')
       } else {
         setEmailError('Something went wrong!')
       }
-    } finally {
-      setSendButtonDisabled(false)
     }
+  }
+
+  const sendEmail = async () => {
+    const { email } = getValues()
+    const fullEmail = `${email}${domain}`
+
+    await safeFetcher.post('email-auth/send-email/register-new', {
+      json: { email: fullEmail }
+    })
   }
 
   return (
@@ -92,17 +76,15 @@ export function SignUpSendEmail() {
             type="text"
             className={cn(
               'focus-visible:border-primary rounded-full placeholder:text-gray-400 focus-visible:ring-0',
-              (emailError || errors.email) &&
-                'border-red-500 focus-visible:border-red-500'
+              emailError && 'border-red-500 focus-visible:border-red-500'
             )}
             placeholder="Enter the e-mail"
             {...register('email')}
             onFocus={() => clearErrors('email')}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !sendButtonDisabled) {
+              if (e.key === 'Enter') {
                 e.preventDefault()
-                setSendButtonDisabled(true)
-                sendEmail()
+                handleSubmit(onSubmit)()
               }
             }}
           />
@@ -112,12 +94,7 @@ export function SignUpSendEmail() {
             onChange={setDomain}
           />
         </div>
-        {errors.email && (
-          <p className="mt-1 text-xs text-red-500">{errors.email?.message}</p>
-        )}
-        {emailError && (
-          <p className="mt-1 text-xs text-red-500">{emailError}</p>
-        )}
+        {emailError && <p className="text-error mt-1 text-xs">{emailError}</p>}
       </div>
       <div className="flex flex-col gap-[12.5px]">
         <div className="text-color-neutral-50 flex items-center justify-center">
@@ -131,13 +108,9 @@ export function SignUpSendEmail() {
           </Button>
         </div>
         <Button
-          type="button"
+          type="submit"
           className="w-full px-[22px] py-[9px] text-base font-medium"
-          disabled={sendButtonDisabled}
-          onClick={() => {
-            setSendButtonDisabled(true)
-            sendEmail()
-          }}
+          disabled={isButtonDisabled}
         >
           Send the Email
         </Button>
