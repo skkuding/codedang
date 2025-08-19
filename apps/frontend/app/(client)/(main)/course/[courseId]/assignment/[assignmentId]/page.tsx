@@ -15,6 +15,7 @@ import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { use } from 'react'
+import { SubmissionOverviewModal } from '../../_components/SubmissionOverviewModal'
 import { columns } from './_components/Columns'
 import { TotalScoreLabel } from './_components/TotalScoreLabel'
 
@@ -66,9 +67,9 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
 
   return (
     assignment && (
-      <div className="flex flex-col gap-[45px] px-[100px] py-[80px]">
-        <div className="flex justify-between">
-          <div className="flex flex-col gap-[30px]">
+      <div className="flex flex-col gap-[45px] px-4 py-[80px] lg:px-[100px]">
+        <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
+          <div className="flex flex-col gap-4 lg:gap-7">
             <p className="text-2xl font-semibold">
               <span className="text-primary">[Week {assignment.week}] </span>
               {assignment.title}
@@ -107,7 +108,7 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
         {record && (
           <div>
             <p className="mb-[16px] text-2xl font-semibold">PROBLEM(S)</p>
-            <div className="mb-[42px] flex gap-1 text-base font-semibold">
+            <div className="flex gap-1 text-base font-semibold lg:mb-[42px]">
               <span>Total</span>
               <span className="text-primary">{record.problems.length}</span>
               <span>Submit</span>
@@ -122,19 +123,102 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
           </div>
         )}
         {record && submissions && (
-          <DataTable
-            data={record.problems}
-            columns={columns(record, assignment, courseId, submissions)}
-            headerStyle={{
-              order: 'w-[10%]',
-              title: 'text-left w-[40%]',
-              submissions: 'w-[20%]',
-              tc_result: 'w-[20%]',
-              detail: 'w-[10%]'
-            }}
-            linked
-            pathSegment={'problem'}
-          />
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block">
+              <DataTable
+                data={record.problems}
+                columns={columns(record, assignment, courseId, submissions)}
+                headerStyle={{
+                  order: 'w-[10%]',
+                  title: 'text-left w-[40%]',
+                  submissions: 'w-[20%]',
+                  tc_result: 'w-[20%]',
+                  detail: 'w-[10%]'
+                }}
+                linked
+                pathSegment={'problem'}
+              />
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="lg:hidden">
+              <div className="space-y-3">
+                {record.problems.map((problem, index) => {
+                  const submission = submissions?.find(
+                    (s) => s.problemId === problem.id
+                  )
+                  const hasSubmission = submission?.submission !== null
+                  const isAccepted =
+                    submission?.submission?.submissionResult === 'Accepted'
+
+                  return (
+                    <div
+                      key={problem.id}
+                      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:bg-gray-50"
+                      onClick={() => {
+                        window.location.href = `${window.location.pathname}/problem/${problem.id}`
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-white">
+                            {String.fromCharCode(65 + index)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="truncate text-sm font-medium text-gray-900">
+                              {problem.title}
+                            </h3>
+                            <p className="text-xs text-gray-500">
+                              {hasSubmission
+                                ? `Submitted on ${new Date(
+                                    submission?.submission?.submissionTime || ''
+                                  ).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric'
+                                  })}`
+                                : 'Not submitted'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          {hasSubmission && (
+                            <div className="text-right">
+                              <div className="flex items-center gap-1">
+                                <div className="h-2 w-12 rounded-full bg-gray-200">
+                                  <div
+                                    className="bg-primary h-full rounded-full transition-all"
+                                    style={{
+                                      width: isAccepted ? '100%' : '0%'
+                                    }}
+                                  />
+                                </div>
+                                <span className="text-primary text-xs font-medium">
+                                  {submission?.submission
+                                    ?.acceptedTestcaseCount || 0}
+                                  /{submission?.submission?.testcaseCount || 0}
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-500">
+                                {isAccepted ? 'Accepted' : 'Wrong Answer'}
+                              </p>
+                            </div>
+                          )}
+
+                          <SubmissionOverviewModal
+                            problem={problem}
+                            assignment={assignment}
+                            submissions={submissions}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </>
         )}
       </div>
     )

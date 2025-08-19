@@ -7,14 +7,17 @@ import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
 import {
+  cn,
   dateFormatter,
   formatDateRange,
+  getResultColor,
   getStatusWithStartEnd
 } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { use } from 'react'
+import { SubmissionOverviewModal } from '../../_components/SubmissionOverviewModal'
 import { columns } from './_components/Columns'
 
 interface ExerciseDetailProps {
@@ -67,31 +70,24 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
 
   return (
     exercise && (
-      <div className="flex flex-col gap-[45px] px-[100px] py-[80px]">
-        <div className="flex justify-between">
-          <div className="flex flex-col gap-[30px]">
-            <p className="text-2xl font-semibold">
-              <span className="text-primary">[Week {exercise.week}] </span>
-              {exercise.title}
-            </p>
-            <div className="flex min-w-[150px] flex-col gap-[6px]">
-              <div className="flex gap-2">
-                <Image
-                  src={calendarIcon}
-                  alt="calendar"
-                  width={16}
-                  height={16}
-                />
-                <p className="text-sm font-medium text-[#333333e6]">
-                  {formatDateRange(exercise.startTime, exercise.endTime, false)}
-                </p>
-              </div>
-              <AssignmentStatusTimeDiff
-                assignment={exercise}
-                textStyle="text-[#333333e6] font-medium opacity-100 text-sm"
-                inAssignmentEditor={false}
-              />
+      <div className="flex flex-col gap-[45px] px-4 py-[80px] lg:px-[100px]">
+        <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
+          <p className="text-2xl font-semibold">
+            <span className="text-primary">[Week {exercise.week}] </span>
+            {exercise.title}
+          </p>
+          <div className="flex min-w-[150px] flex-col gap-[6px]">
+            <div className="flex gap-2">
+              <Image src={calendarIcon} alt="calendar" width={16} height={16} />
+              <p className="text-sm font-medium text-[#333333e6]">
+                {formatDateRange(exercise.startTime, exercise.endTime, false)}
+              </p>
             </div>
+            <AssignmentStatusTimeDiff
+              assignment={exercise}
+              textStyle="text-[#333333e6] font-medium opacity-100 text-sm"
+              inAssignmentEditor={false}
+            />
           </div>
         </div>
         <Separator className="my-0" />
@@ -108,7 +104,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
         {record && (
           <div>
             <p className="mb-[16px] text-2xl font-semibold">PROBLEMS</p>
-            <div className="mb-[42px] flex gap-[30px]">
+            <div className="flex gap-[30px] lg:mb-[42px]">
               <div className="flex gap-[6px]">
                 <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
                   Total
@@ -133,19 +129,91 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
           </div>
         )}
         {record && submissions && (
-          <DataTable
-            data={record.problems}
-            columns={columns(record, exercise, courseId, submissions)}
-            headerStyle={{
-              order: 'w-[10%]',
-              title: 'text-left w-[40%]',
-              submissions: 'w-[20%]',
-              tc_result: 'w-[20%]',
-              detail: 'w-[10%]'
-            }}
-            linked
-            pathSegment={'problem'}
-          />
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block">
+              <DataTable
+                data={record.problems}
+                columns={columns(record, exercise, courseId, submissions)}
+                headerStyle={{
+                  order: 'w-[10%]',
+                  title: 'text-left w-[40%]',
+                  submissions: 'w-[20%]',
+                  tc_result: 'w-[20%]',
+                  detail: 'w-[10%]'
+                }}
+                linked
+                pathSegment={'problem'}
+              />
+            </div>
+            {/* Mobile Card View */}
+            <div className="lg:hidden">
+              <div className="space-y-3">
+                {record.problems.map((problem, index) => {
+                  const submission = submissions?.find(
+                    (s) => s.problemId === problem.id
+                  )
+                  const hasSubmission = submission?.submission !== null
+                  const isAccepted =
+                    submission?.submission?.submissionResult === 'Accepted'
+
+                  return (
+                    <div
+                      key={problem.id}
+                      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:bg-gray-50"
+                      onClick={() => {
+                        window.location.href = `${window.location.pathname}/problem/${problem.id}`
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-white">
+                            {String.fromCharCode(65 + index)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="truncate text-sm font-medium text-gray-900">
+                              {problem.title}
+                            </h3>
+                            <p className="text-xs text-gray-500">
+                              {hasSubmission
+                                ? `Submitted on ${new Date(
+                                    submission?.submission?.submissionTime || ''
+                                  ).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric'
+                                  })}`
+                                : 'Not submitted'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          {hasSubmission && (
+                            <p
+                              className={cn(
+                                'text-right text-xs text-gray-500',
+                                getResultColor(
+                                  isAccepted ? 'Accepted' : 'Wrong Answer'
+                                )
+                              )}
+                            >
+                              {isAccepted ? 'Accepted' : 'Wrong Answer'}
+                            </p>
+                          )}
+
+                          <SubmissionOverviewModal
+                            problem={problem}
+                            assignment={exercise}
+                            submissions={submissions}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </>
         )}
       </div>
     )

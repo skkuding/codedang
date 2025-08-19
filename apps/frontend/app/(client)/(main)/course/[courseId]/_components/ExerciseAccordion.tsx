@@ -45,7 +45,7 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
   const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
 
   return (
-    <div className="mt-8">
+    <div className="mt-4 lg:mt-8">
       {exercises?.map((exercise) => (
         <ExerciseAccordionItem
           key={exercise.id}
@@ -109,34 +109,42 @@ function ExerciseAccordionItem({
       >
         <AccordionTrigger
           className={cn(
-            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-[60px] py-6 text-left text-sm shadow-md',
+            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-3 py-6 text-left text-sm shadow-md lg:px-[60px]',
             'data-[state=open]:-mb-6 data-[state=open]:mt-[24px]',
             'relative',
             'hover:no-underline'
           )}
-          iconStyle="w-5 h-5 absolute right-[3%]"
+          iconStyle="w-5 h-5 absolute right-3 top-[15%] lg:right-[3%] lg:top-auto"
         >
-          <div className="mr-4 w-[10%]">
+          <div className="mr-4 hidden lg:block lg:w-[10%]">
             <Badge
               variant="Course"
-              className="px-[10px] py-1 text-sm font-medium"
+              className="px-2 py-1 text-sm font-medium lg:px-[10px]"
             >
               Week {exercise.week.toString().padStart(2, '0')}
             </Badge>
           </div>
 
-          <div className="flex w-[45%] flex-col">
-            <AssignmentLink
-              key={exercise.id}
-              assignment={exercise}
-              courseId={courseId}
-              isExercise
-            />
+          <div className="flex flex-col gap-2 lg:w-[45%] lg:gap-0">
+            <div className="flex items-center gap-3 lg:flex-col lg:items-start lg:gap-0">
+              <Badge
+                variant="Course"
+                className="px-2 py-1 text-sm font-medium lg:hidden"
+              >
+                Week {exercise.week.toString().padStart(2, '0')}
+              </Badge>
+              <AssignmentLink
+                key={exercise.id}
+                assignment={exercise}
+                courseId={courseId}
+                isExercise
+              />
+            </div>
             {exercise && <AssignmentStatusTimeDiff assignment={exercise} />}
           </div>
 
           {exercise && (
-            <div className="flex w-[25%] justify-center">
+            <div className="hidden w-[25%] justify-center lg:flex">
               <div className="max-w-[250px] flex-1 text-left">
                 <p className="text-color-neutral-60 overflow-hidden whitespace-nowrap text-center text-base font-normal">
                   {formatDateRange(exercise.startTime, exercise.endTime, false)}
@@ -145,9 +153,12 @@ function ExerciseAccordionItem({
             </div>
           )}
 
-          <div className="flex w-[20%] justify-center">
+          <div className="lg-mt-0 mt-8 flex justify-center lg:w-[20%]">
             {dayjs().isAfter(dayjs(exercise.startTime)) && (
-              <SubmissionBadge grade={grade} />
+              <SubmissionBadge
+                grade={grade}
+                className="h-8 w-16 text-xs lg:h-[38px] lg:w-[140px] lg:text-base"
+              />
             )}
           </div>
         </AccordionTrigger>
