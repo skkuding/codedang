@@ -5,17 +5,17 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/99/qna
+  url: {{baseUrl}}/contest/99/qna?categories=General
   body: json
   auth: none
 }
 
-body:json {
-  {
-    "categories" : ["Problem"],
-    "problemOrders" : [0,1],
-    "orderBy": "asc"
-  }
+params:query {
+  categories: General
+  ~categories: Problem
+  ~problemOrders: 0
+  ~problemOrders: 1
+  ~orderBy: asc
 }
 
 script:pre-request {
