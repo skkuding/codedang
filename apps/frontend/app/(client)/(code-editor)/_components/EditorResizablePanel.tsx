@@ -137,6 +137,8 @@ export function EditorMainResizablePanel({
       setTabValue('Leaderboard')
     } else if (pathname.startsWith(`${base}/problem/${problem.id}/solution`)) {
       setTabValue('Solution')
+    } else if (pathname.startsWith(`${base}/problem/${problem.id}/qna`)) {
+      setTabValue('Qna')
     } else {
       setTabValue('Description')
     }
