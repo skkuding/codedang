@@ -7,6 +7,9 @@ import { redirect } from 'next/navigation'
 import { ClientApolloProvider } from './_components/ApolloProvider'
 import { ManagementSidebar } from './_components/ManagementSidebar'
 
+// API calls depend on session, so this layout must be dynamic
+export const dynamic = 'force-dynamic'
+
 async function fetchGroupLeaderRole() {
   try {
     const response: Course[] = await safeFetcherWithAuth
@@ -87,7 +90,7 @@ export default async function Layout({
           {/*TODO: role이 groupAdmin인지 확인하고 아니면 그냥 SideBar를 보여주도록 할 예정 */}
           {/* <Link
             href={'/' as Route}
-            className="mt-auto rounded px-4 py-2 text-slate-600 transition hover:bg-slate-100"
+            className="mt-auto rounded-xs px-4 py-2 text-slate-600 transition hover:bg-slate-100"
           >
             <FaArrowRightFromBracket className="mr-2 inline-block" />
             Quit
@@ -96,7 +99,7 @@ export default async function Layout({
         </nav>
         <Separator orientation="vertical" />
         {/*NOTE: full width - sidebar width */}
-        <div className="relative w-[calc(100%-15rem)] overflow-y-auto">
+        <div className="relative w-[calc(100%-15rem)] flex-1 overflow-y-auto">
           {children}
         </div>
       </div>

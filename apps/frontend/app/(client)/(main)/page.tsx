@@ -26,10 +26,10 @@ export default function Home() {
     <div className="mt-14 flex w-full flex-col gap-16 lg:items-center">
       <Carousel slides={slides} />
       <ErrorBoundary fallback={FetchErrorFallback}>
-        <ContestCards />
+        <ServiceCards />
       </ErrorBoundary>
       <ErrorBoundary fallback={FetchErrorFallback}>
-        <ServiceCards />
+        <ContestCards />
       </ErrorBoundary>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <NewProblemCards />

@@ -1,0 +1,9 @@
+{
+  "client": {
+    "includes": ["./apps/frontend/**/*.ts", "./apps/frontend/**/*.tsx"],
+    "excludes": ["**/__generated__/**"],
+    "service": {
+      "localSchemaFile": "./apps/backend/schema.gql"
+    }
+  }
+}
