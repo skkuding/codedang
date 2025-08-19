@@ -20,6 +20,7 @@ export default async function QnaPage(props: {
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
       <Suspense>
         <CreateQnaTextArea problemOrder={order} contestId={Number(contestId)} />
+        <hr className="border-4 border-[#121728]" />
       </Suspense>
     </TanstackQueryErrorBoundary>
   )

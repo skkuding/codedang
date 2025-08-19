@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@/components/shadcn/button'
+import { AlertModal } from '@/components/AlertModal'
 import { Input } from '@/components/shadcn/input'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
@@ -23,6 +23,7 @@ export function CreateQnaTextArea({
     content: ''
   })
   const [loading, setLoading] = useState(false)
+  const [postModalOpen, setPostModalOpen] = useState(false)
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -33,8 +34,8 @@ export function CreateQnaTextArea({
       [name]: value
     }))
   }
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
+    //e.preventDefault()
     setLoading(true)
     const apiUrl =
       problemOrder === null
@@ -64,6 +65,7 @@ export function CreateQnaTextArea({
       toast.error('Failed to submit question')
     } finally {
       setLoading(false)
+      setPostModalOpen(false)
     }
   }
 
@@ -71,8 +73,21 @@ export function CreateQnaTextArea({
     <div className="rounded-lg bg-[#222939] p-5 text-white">
       <div className="mb-5 flex items-center justify-between">
         <h3 className="text-xl font-semibold">Post a Question</h3>
+        <AlertModal
+          open={postModalOpen}
+          onOpenChange={setPostModalOpen}
+          size="sm"
+          title="Do you want to register question?"
+          description="Pranky questions, swear words, and accusations can be sanctioned. Do you really want to register your questions?"
+          primaryButton={{
+            text: 'Register',
+            onClick: handleSubmit
+          }}
+          onClose={() => setPostModalOpen(false)}
+          type="confirm"
+        />
         <button
-          onClick={handleSubmit}
+          onClick={() => setPostModalOpen(true)}
           className={cn(
             'h-9 w-20 rounded px-4 py-2 text-sm font-semibold text-white transition duration-300 ease-in-out hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
             loading || !qnaFormdata.title || !qnaFormdata.content
@@ -91,7 +106,7 @@ export function CreateQnaTextArea({
           <Input
             type="text"
             name="title"
-            placeholder="Enter a Question Title"
+            placeholder="Enter the Title"
             value={qnaFormdata.title}
             onChange={handleInputChange}
             maxLength={80}
@@ -101,7 +116,7 @@ export function CreateQnaTextArea({
         <div className="relative">
           <Textarea
             name="content"
-            placeholder="Type your question here..."
+            placeholder="Enter a Question"
             value={qnaFormdata.content}
             onChange={handleInputChange}
             maxLength={400}
