@@ -1,0 +1,55 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/contest/1/qna/1/comment/1
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  # 📘 Delete Contest QnA Comment
+  
+  **DELETE** `/contest/:id/qna/:qnaOrder/comment/:commentOrder`
+  
+  Delete a single QnA Comment for a specific contest.
+  
+  특정 QnA의 특정 order에 해당하는 Comment를 삭제합니다.
+  
+  이 함수는 다음과 같은 조건에 따라 Comment를 삭제하고 반환합니다.
+  
+  1. 운영진(Admin, Manager, Reviewer)
+  - 모든 Comment를 삭제할 수 있습니다.
+  2. 일반 사용자
+  - 본인이 작성한 Comment만 삭제할 수 있습니다.
+  
+  Comment를 찾을 수 없거나 접근 권한이 없는 경우 예외를 발생시킵니다.
+  
+  - Contest, QnA, Comment가 실제로 없으면 EntityNotExistException 발생
+  - 작성자 또는 대회 운영진 이외의 사용자가 요청하는 경우 ForbiddenAccessException 발생
+  
+  ### 🔒 Authentication
+  
+  ### 📥 Request Parameters
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `id` | number | ✅       | ID of the target contest |
+  | `qnaOrder` | number | ✅    | order of target QnA in contest |
+  | `commentOrder` | number | ✅ | order of target Comment in QnA |
+  
+  
+}

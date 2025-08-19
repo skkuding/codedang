@@ -2,24 +2,36 @@
 
 import { CodeEditor } from '@/components/CodeEditor'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/shadcn/dropdown-menu'
+import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
-import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
+import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
+import { cn } from '@/libs/utils'
+import checkIcon from '@/public/icons/check-green.svg'
 import type { Language, TestcaseItem, TestResultDetail } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
-import { useState } from 'react'
+import type { Route } from 'next'
+import Image from 'next/image'
+import Link from 'next/link'
 import { BiSolidUser } from 'react-icons/bi'
-import { IoChevronDown, IoChevronUp } from 'react-icons/io5'
+import { FaSortDown } from 'react-icons/fa'
 import { TestcasePanel } from './TestcasePanel'
 
 interface ProblemEditorProps {
   code: string
   language: string
   courseId: number
+  assignmentId: number
   userId: number
+  problemId: number
   setEditorCode: (code: string) => void
   isTesting: boolean
   onTest: () => void
@@ -33,23 +45,26 @@ export function EditorMainResizablePanel({
   code,
   language,
   courseId,
+  assignmentId,
   userId,
+  problemId,
   setEditorCode,
   isTesting,
   onTest,
   testResults,
-  testcases,
   children,
   onReset
 }: ProblemEditorProps) {
-  const member = useSuspenseQuery(GET_GROUP_MEMBER, {
-    variables: {
-      groupId: courseId,
-      userId
-    }
-  }).data?.getGroupMember
+  const summaries =
+    useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
+      variables: {
+        assignmentId,
+        groupId: courseId,
+        take: 1000
+      }
+    }).data?.getAssignmentScoreSummaries ?? []
 
-  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false)
+  const currentMember = summaries.find((member) => member.userId === userId)
 
   return (
     <ResizablePanelGroup
@@ -64,9 +79,48 @@ export function EditorMainResizablePanel({
         <div className="grid-rows-editor grid h-full grid-cols-1">
           <div className="flex h-12 w-full items-center gap-2 border-b border-slate-700 bg-[#222939] px-6">
             <BiSolidUser className="size-6 rounded-none text-gray-300" />
-            <p className="text-[18px] font-medium">
-              {member?.name}({member?.studentId})
-            </p>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
+                <h1>
+                  {currentMember?.realName}({currentMember?.studentId})
+                </h1>
+                <FaSortDown />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="border-slate-700 bg-slate-900">
+                {summaries.map((summary) => (
+                  <Link
+                    href={
+                      `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${summary.userId}/problem/${problemId}` as Route
+                    }
+                    key={summary.userId}
+                  >
+                    <DropdownMenuItem
+                      className={cn(
+                        'flex justify-between text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white',
+                        currentMember?.userId === summary.userId &&
+                          'text-primary-light focus:text-primary-light'
+                      )}
+                    >
+                      {summary.realName}({summary.studentId})
+                      {summary.problemScores.some(
+                        (score) =>
+                          score.problemId === problemId &&
+                          score.finalScore !== null
+                      ) && (
+                        <div className="flex items-center justify-center pl-2">
+                          <Image
+                            src={checkIcon}
+                            alt="check"
+                            width={16}
+                            height={16}
+                          />
+                        </div>
+                      )}
+                    </DropdownMenuItem>
+                  </Link>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="flex-1 bg-[#222939]">
             <ScrollArea className="h-full">
@@ -108,50 +162,25 @@ export function EditorMainResizablePanel({
                 onChange={setEditorCode}
               />
             </ResizablePanel>
-            {!isPanelCollapsed && (isTesting || testResults.length > 0) && (
-              <>
-                <ResizableHandle className="border-[0.5px] border-slate-700" />
-                <ResizablePanel defaultSize={40} minSize={20}>
-                  <div className="flex justify-end px-2 pt-1">
-                    <button
-                      onClick={() => setIsPanelCollapsed(true)}
-                      className="rounded p-1 text-slate-400 hover:bg-slate-700"
-                    >
-                      <IoChevronDown size={20} />
-                    </button>
-                  </div>
-                  <TestcasePanel
-                    data={(() => {
-                      if (testResults.length > 0) {
-                        return testResults
-                      }
-                      if (isTesting) {
-                        return testcases.map((tc: TestcaseItem) => ({
-                          id: Number(tc.id),
-                          input: tc.input ?? '',
-                          expectedOutput: tc.output ?? '',
-                          output: '',
-                          result: 'Judging',
-                          isUserTestcase: false
-                        }))
-                      }
-                      return []
-                    })()}
-                    isTesting={isTesting}
-                  />
-                </ResizablePanel>
-              </>
-            )}
-            {isPanelCollapsed && (
-              <div className="absolute bottom-2 right-4 z-50">
-                <button
-                  onClick={() => setIsPanelCollapsed(false)}
-                  className="rounded bg-[#222939] p-2 text-slate-400 shadow hover:bg-slate-700"
-                >
-                  <IoChevronUp size={22} />
-                </button>
-              </div>
-            )}
+            <ResizableHandle className="border-[0.5px] border-slate-700" />
+            <ResizablePanel defaultSize={40} minSize={20}>
+              <TestcasePanel
+                data={(() => {
+                  if (isTesting) {
+                    return testResults.map((result) => ({
+                      ...result,
+                      output: '',
+                      result: 'Judging'
+                    }))
+                  }
+                  if (testResults.length > 0) {
+                    return testResults
+                  }
+                  return []
+                })()}
+                isTesting={isTesting}
+              />
+            </ResizablePanel>
           </ResizablePanelGroup>
         </div>
       </ResizablePanel>

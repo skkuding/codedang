@@ -47,6 +47,7 @@ const PaginationButton = ({
   <PaginationItem>
     <button
       aria-current={isActive ? 'page' : undefined}
+      type="button"
       className={cn(
         buttonVariants({ variant: 'ghost', size }),
         'text-base',

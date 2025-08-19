@@ -12,6 +12,7 @@ import {
   Contest,
   ContestProblem,
   ContestQnA,
+  ContestQnAComment,
   User,
   UserContest
 } from '@generated'
@@ -32,8 +33,7 @@ import { ContestLeaderboard } from './model/contest-leaderboard.model'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
 import { ContestUpdateHistories } from './model/contest-update-histories.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
-import { CreateContestInput } from './model/contest.input'
-import { UpdateContestInput } from './model/contest.input'
+import { CreateContestInput, UpdateContestInput } from './model/contest.input'
 import { ContestsGroupedByStatus } from './model/contests-grouped-by-status.output'
 import { ProblemScoreInput } from './model/problem-score.input'
 import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
@@ -234,58 +234,62 @@ export class ContestResolver {
 }
 
 @Resolver(() => ContestQnA)
-@UseContestRolesGuard(ContestRole.Manager)
+@UseDisableContestRolesGuard()
 export class ContestQnAResolver {
   constructor(
     private readonly contestService: ContestService,
     private readonly userService: UserService
   ) {}
 
-  // @Query(() => [ContestQnA])
-  // async getContestQnAs(
-  //   @Args('contestId', { type: () => Int }) contestId: number
-  // ) {
-  //   return await this.contestService.getContestQnAs(contestId)
-  // }
+  @Query(() => [ContestQnA])
+  async getContestQnAs(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number
+  ) {
+    return await this.contestService.getContestQnAs(contestId)
+  }
 
-  // @Query(() => ContestQnA)
-  // async getContestQnA(
-  //   @Args('contestId', { type: () => Int }) contestId: number,
-  //   @Args('order', { type: () => Int }, IDValidationPipe) order: number
-  // ) {
-  //   return await this.contestService.getContestQnA(contestId, order)
-  // }
+  @Query(() => ContestQnA)
+  async getContestQnA(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('order', { type: () => Int }, IDValidationPipe) order: number
+  ) {
+    return await this.contestService.getContestQnA(contestId, order)
+  }
 
-  // @Mutation(() => ContestQnA)
-  // async updateContestQnA(
-  //   @Args('contestId', { type: () => Int }) contestId: number,
-  //   @Args('input') input: UpdateContestQnAInput,
-  //   @Context('req') req: AuthenticatedRequest
-  // ) {
-  //   return await this.contestService.updateContestQnA(
-  //     req.user.id,
-  //     contestId,
-  //     input
-  //   )
-  // }
+  @Mutation(() => ContestQnA)
+  async deleteContestQnA(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('order', { type: () => Int }, IDValidationPipe) order: number
+  ) {
+    return await this.contestService.deleteContestQnA(contestId, order)
+  }
 
-  // TODO: update with data loader when n+1 query issue is fixed
-  // @ResolveField('createdBy', () => User, { nullable: true })
-  // async getUser(@Parent() contestQnA: ContestQnA) {
-  //   const { createdById } = contestQnA
-  //   if (createdById == null) {
-  //     return null
-  //   }
-  //   return await this.userService.getUser(createdById)
-  // }
+  @Mutation(() => ContestQnAComment)
+  async createContestQnAComment(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('order', { type: () => Int }, IDValidationPipe) order: number,
+    @Args('content', { type: () => String }) content: string,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.contestService.createContestQnAComment(
+      contestId,
+      order,
+      content,
+      req.user.id
+    )
+  }
 
-  // TODO: update with data loader when n+1 query issue is fixed
-  // @ResolveField('answeredBy', () => User, { nullable: true })
-  // async getAnsweredBy(@Parent() contestQnA: ContestQnA) {
-  //   const { answeredById } = contestQnA
-  //   if (answeredById == null) {
-  //     return null
-  //   }
-  //   return await this.userService.getUser(answeredById)
-  // }
+  @Mutation(() => ContestQnAComment)
+  async deleteContestQnAComment(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('qnAOrder', { type: () => Int }, IDValidationPipe) qnAOrder: number,
+    @Args('commentOrder', { type: () => Int }, IDValidationPipe)
+    commentOrder: number
+  ) {
+    return await this.contestService.deleteContestQnAComment(
+      contestId,
+      qnAOrder,
+      commentOrder
+    )
+  }
 }
