@@ -110,6 +110,7 @@ const user: User = {
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   studentId: '0000000000',
+  college: 'none',
   major: 'none',
   canCreateContest: true,
   canCreateCourse: true
@@ -205,7 +206,7 @@ describe('GroupService', () => {
   })
 
   describe('createCourse', () => {
-    const userReq = new AuthenticatedUser(userId, user.username)
+    const userReq = new AuthenticatedUser(userId, user.username, user.role)
     it('should return created group', async () => {
       db.user.findUnique.resolves(user)
 
@@ -313,11 +314,12 @@ describe('GroupService', () => {
   })
 
   describe('deleteGroup', () => {
-    const userReq = new AuthenticatedUser(userId, user.username)
-    userReq.role = Role.User
-
     it('should throw error when either user is not group leader or their role is higher than Admin', async () => {
-      const userReq = new AuthenticatedUser(2, user.username)
+      const userReq = new AuthenticatedUser(
+        userId,
+        user.username,
+        Role.SuperAdmin
+      )
       db.userGroup.findUnique.resolves(null)
 
       await expect(
@@ -327,9 +329,6 @@ describe('GroupService', () => {
   })
 
   describe('duplicateCourse', () => {
-    const userReq = new AuthenticatedUser(userId, user.username)
-    userReq.role = Role.User
-
     it('should throw NotFoundException if user does not exist', async () => {
       db.user.findUnique.resolves(null)
 

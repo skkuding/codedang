@@ -56,7 +56,8 @@ const users: User[] = [
     email: 'manager@skkuding.dev',
     lastLogin: new Date('2023-02-22T10:00:00.000Z'),
     studentId: '2024139898',
-    major: 'chemistry',
+    college: 'College of Science',
+    major: 'Chemistry',
     canCreateCourse: false,
     canCreateContest: false
   },
@@ -70,7 +71,8 @@ const users: User[] = [
     email: 'user01@skkuding.dev',
     lastLogin: new Date('2023-02-22T10:00:00.000Z'),
     studentId: '2024123456',
-    major: 'chemistry',
+    college: 'College of Science',
+    major: 'Chemistry',
     canCreateCourse: false,
     canCreateContest: false
   },
@@ -84,7 +86,8 @@ const users: User[] = [
     email: 'user02@skkuding.dev',
     lastLogin: new Date('2023-02-22T10:00:00.000Z'),
     studentId: '2024654321',
-    major: 'chemistry',
+    college: 'College of Science',
+    major: 'Chemistry',
     canCreateCourse: false,
     canCreateContest: false
   },
@@ -98,7 +101,8 @@ const users: User[] = [
     email: 'user03@skkuding.dev',
     lastLogin: new Date('2023-02-22T10:00:00.000Z'),
     studentId: '2024312123',
-    major: 'chemistry',
+    college: 'College of Science',
+    major: 'Chemistry',
     canCreateCourse: false,
     canCreateContest: false
   }
