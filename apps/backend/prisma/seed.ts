@@ -73,6 +73,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.SuperAdmin,
       studentId: '2024000000',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -86,6 +87,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.Admin,
       studentId: '2024000001',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -99,6 +101,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.User,
       studentId: '2024000002',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science',
       canCreateCourse: true,
       canCreateContest: true
@@ -115,6 +118,7 @@ const createUsers = async () => {
       role: Role.User,
       canCreateContest: true,
       studentId: '2024000003',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -128,6 +132,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.User,
       studentId: '2024000004',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -141,6 +146,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.User,
       studentId: '2024000005',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -156,6 +162,7 @@ const createUsers = async () => {
         lastLogin: new Date(),
         role: Role.User,
         studentId: `20241000${i.toString().padStart(2, '0')}`,
+        college: 'College of Computing and Informatics',
         major: 'Computer Science'
       }
     })
