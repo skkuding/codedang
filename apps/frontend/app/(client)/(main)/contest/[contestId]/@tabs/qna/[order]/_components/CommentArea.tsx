@@ -129,7 +129,7 @@ function SingleComment({
         <div className="relative flex items-center gap-[4px]">
           <p className="text-xl font-semibold capitalize">
             {/* TODO: username 가져올 수 있는 방법이 없음... */}
-            {`userId: ${comment.createdById}의 유저 이름`}
+            {comment.createdBy.username}
           </p>
           {comment.isContestStaff && (
             <div className="grid h-[24px] w-[24px] place-content-center">

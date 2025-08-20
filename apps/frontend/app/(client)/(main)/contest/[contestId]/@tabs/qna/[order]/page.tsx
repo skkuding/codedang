@@ -9,15 +9,15 @@ type PageProps = {
   }>
 }
 export interface QnaContent {
-  id?: number
-  order?: number
-  createdById?: number
-  createdBy?: User
-  contestId?: number
-  title?: string
-  content?: string
-  category?: string
-  createTime?: Date
+  id: number
+  order: number
+  createdById: number
+  createdBy: User
+  contestId: number
+  title: string
+  content: string
+  category: string
+  createTime: Date
 }
 
 export interface Qna extends QnaContent {
@@ -27,6 +27,7 @@ export interface Qna extends QnaContent {
 export interface ContestQnAComment {
   content: string
   createdById: number
+  createdBy: User
   createdTime: Date
   isContestStaff: boolean
   order: number
