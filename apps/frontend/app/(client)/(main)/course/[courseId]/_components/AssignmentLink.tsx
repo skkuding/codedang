@@ -55,7 +55,7 @@ export function AssignmentLink({
     e.preventDefault()
 
     if (assignmentStatus === 'upcoming') {
-      toast.error('This assignment is not started yet!')
+      toast.error('This assignment has not started yet!')
       return
     }
 

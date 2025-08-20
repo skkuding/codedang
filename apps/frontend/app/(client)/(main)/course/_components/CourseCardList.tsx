@@ -91,12 +91,23 @@ export function CourseCardList({ title }: CourseCardListProps) {
       return
     }
 
-    setCount(carouselApi.scrollSnapList().length)
-    setCurrent(carouselApi.selectedScrollSnap() + 1)
-
-    carouselApi.on('select', () => {
+    const onInit = () => {
+      setCount(carouselApi.scrollSnapList().length)
       setCurrent(carouselApi.selectedScrollSnap() + 1)
-    })
+    }
+
+    const onSelect = () => {
+      setCurrent(carouselApi.selectedScrollSnap() + 1)
+    }
+
+    onInit()
+    carouselApi.on('reInit', onInit)
+    carouselApi.on('select', onSelect)
+
+    return () => {
+      carouselApi.off('reInit', onInit)
+      carouselApi.off('select', onSelect)
+    }
   }, [carouselApi])
 
   if (courses.length === 0) {
@@ -118,7 +129,11 @@ export function CourseCardList({ title }: CourseCardListProps) {
 
   return (
     <>
-      <Carousel setApi={setCarouselApi} className="flex w-full flex-col gap-6">
+      <Carousel
+        setApi={setCarouselApi}
+        opts={{ align: 'start' }}
+        className="flex w-full flex-col gap-6"
+      >
         <div className="flex w-full items-center justify-center sm:justify-between">
           <div className="flex gap-4 text-2xl font-semibold text-black">
             {title}
@@ -131,12 +146,15 @@ export function CourseCardList({ title }: CourseCardListProps) {
             <CarouselNext />
           </div>
         </div>
-        <div className="-mx-4 sm:-mx-24">
-          <CarouselContent className="mx-[calc((100%-310px)/2)] my-[14px] gap-4 sm:ml-24 sm:mr-3">
+        <div className="-mx-4 sm:-mx-[116px]">
+          <CarouselContent className="mx-[calc((100%-310px)/2)] my-[14px] sm:ml-28 sm:mr-3">
             {courses.map((course, index) => (
               <CarouselItem
                 key={course.groupName}
-                className="flex pl-0 transition hover:scale-105 hover:opacity-80"
+                className={cn(
+                  'flex pl-0 pr-4 transition hover:scale-105 hover:opacity-80',
+                  index === courses.length - 1 && 'sm:pr-0'
+                )}
               >
                 <Link
                   key={course.id}
@@ -151,8 +169,8 @@ export function CourseCardList({ title }: CourseCardListProps) {
                 </Link>
               </CarouselItem>
             ))}
-            <CarouselItem className="flex pl-0 transition hover:scale-105 hover:opacity-80 sm:hidden">
-              <div className="flex h-[300px] w-[310px] items-center justify-center rounded-lg border">
+            <CarouselItem className="flex pl-0 transition hover:scale-105 hover:opacity-80">
+              <div className="flex h-[300px] w-[310px] items-center justify-center rounded-lg border sm:-ml-4 sm:hidden">
                 <RegisterCourseButton />
               </div>
             </CarouselItem>
