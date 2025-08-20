@@ -1,4 +1,6 @@
 import { fetcherWithAuth } from '@/libs/utils'
+import errorImage from '@/public/logos/error.webp'
+import Image from 'next/image'
 import { CommentArea } from './_components/CommentArea'
 import { QnaContentArea } from './_components/QnaContentArea'
 
@@ -56,26 +58,29 @@ export default async function QnaDetailPage({ params }: PageProps) {
   const MyContestRolesRes = await fetcherWithAuth.get('contest/role')
 
   if (!QnaRes.ok || !userInfoRes.ok || !MyContestRolesRes.ok) {
-    let errorMessage = ''
+    let errorRes: { message: string; statusCode: number }
     if (!QnaRes.ok) {
-      const errorRes: { message: string; statusCode: number } =
-        await QnaRes.json()
-      errorMessage = errorRes.message
+      errorRes = await QnaRes.json()
     } else if (!userInfoRes.ok) {
-      const errorRes: { message: string; statusCode: number } =
-        await userInfoRes.json()
-      errorMessage = errorRes.message
+      errorRes = await userInfoRes.json()
     } else {
-      const errorRes: { message: string; statusCode: number } =
-        await MyContestRolesRes.json()
-      errorMessage = errorRes.message
+      errorRes = await MyContestRolesRes.json()
     }
     return (
-      <div className="flex h-screen w-screen flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold">{errorMessage}</h1>
-        <span className="text-sm text-gray-500">
-          {`Error Code: ${QnaRes.status} - ${userInfoRes.status} - ${MyContestRolesRes.status}`}
-        </span>
+      <div className="flex flex-col items-center justify-center py-[218px]">
+        <Image
+          className="pb-10"
+          src={errorImage}
+          alt="coming-soon"
+          width={300}
+          height={300}
+        />
+        <div className="flex flex-col items-center">
+          <h2 className="pb-2 text-xl font-semibold">{errorRes.message}</h2>
+          <p className="text-center text-base text-neutral-500">
+            {`${errorRes.statusCode ?? 'Unknown'} Error`}
+          </p>
+        </div>
       </div>
     )
   }
