@@ -124,7 +124,7 @@ function AssignmentAccordionItem({
               <div className="flex items-center gap-2">
                 <Badge
                   variant="Course"
-                  className="px-2 py-1 text-xs font-medium lg:px-[10px] lg:text-sm"
+                  className="min-w-fit px-2 py-1 text-xs font-medium lg:px-[10px] lg:text-sm"
                 >
                   Week {assignment.week.toString().padStart(2, '0')}
                 </Badge>

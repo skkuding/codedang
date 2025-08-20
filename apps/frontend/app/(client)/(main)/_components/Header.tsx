@@ -13,7 +13,7 @@ export function Header() {
   const session = useSession()
   const { headerTitle } = useHeaderTitle()
   return (
-    <header className="backdrop-blur-xs fixed left-0 z-40 grid h-[60px] w-full place-items-center bg-white px-[30px] lg:bg-white/80">
+    <header className="backdrop-blur-xs fixed left-0 z-40 grid h-[60px] w-full place-items-center bg-white px-5 lg:bg-white/80 lg:px-[30px]">
       <div className="flex w-full max-w-[1440px] items-center justify-between gap-5 lg:px-[116px]">
         {/* FIXME: If you uncomment a group tab, you have to remove a pr-20 tailwind class */}
         <div className="flex w-full min-w-fit items-center justify-between gap-8 text-[16px] lg:w-fit">

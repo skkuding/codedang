@@ -68,7 +68,9 @@ export function AssignmentLink({
       onClick={handleClick}
       className="w-fit"
     >
-      <p className="line-clamp-1 text-base font-normal">{assignment.title}</p>
+      <p className="line-clamp-1 text-sm font-normal lg:text-base">
+        {assignment.title}
+      </p>
     </Link>
   )
 }

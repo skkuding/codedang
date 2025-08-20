@@ -4,6 +4,7 @@ import { SideBar } from '@/components/SideBar'
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
@@ -43,7 +44,7 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
             {navItems.map((item) => {
               const isActive = pathname.includes(item.path)
               return (
-                <a
+                <Link
                   key={item.name}
                   href={item.path}
                   className={cn(
@@ -60,7 +61,7 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
                       isActive ? 'bg-primary' : 'bg-transparent'
                     )}
                   />
-                </a>
+                </Link>
               )
             })}
           </nav>
