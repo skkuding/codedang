@@ -9,11 +9,15 @@ import { usePagination } from '@/libs/hooks/usePagination'
 import type { SubmissionItem } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
+import { use } from 'react'
 import { FaAngleLeft, FaPencil, FaEye } from 'react-icons/fa6'
 import { columns } from './_components/Columns'
 import { DataTable } from './_components/DataTable'
 
-export default function Page({ params }: { params: { problemId: string } }) {
+export default function Page(props: {
+  params: Promise<{ problemId: string }>
+}) {
+  const params = use(props.params)
   const { problemId } = params
 
   const problemData = useQuery(GET_PROBLEM_DETAIL, {

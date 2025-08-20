@@ -3,7 +3,7 @@ import type { RefObject } from 'react'
 
 export const renderKatex = (
   html: string | undefined,
-  katexRef: RefObject<HTMLDivElement>
+  katexRef: RefObject<HTMLDivElement | null>
 ) => {
   if (katexRef.current) {
     katexRef.current.innerHTML = html ?? ''
