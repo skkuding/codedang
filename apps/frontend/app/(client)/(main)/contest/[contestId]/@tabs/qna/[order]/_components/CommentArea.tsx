@@ -127,10 +127,9 @@ function SingleComment({
     >
       <div className="flex flex-col gap-[4px]">
         <div className="relative flex items-center gap-[4px]">
-          <p className="text-xl font-semibold capitalize">
-            {/* TODO: username 가져올 수 있는 방법이 없음... */}
+          <span className="text-xl font-semibold capitalize">
             {comment.createdBy.username}
-          </p>
+          </span>
           {comment.isContestStaff && (
             <div className="grid h-[24px] w-[24px] place-content-center">
               <FaCircleCheck size={21} className="text-color-blue-50" />
@@ -145,14 +144,14 @@ function SingleComment({
         <div className="flex items-center gap-[8px]">
           <FaClock className="text-color-blue-50" size={13} />
           <div className="flex items-center gap-[4px] text-sm font-medium text-[#787E80]">
-            <p>{format(comment.createdTime, 'yyyy-MM-dd')}</p>
-            <p>{format(comment.createdTime, 'HH:mm:ss')}</p>
+            <span>{format(comment.createdTime, 'yyyy-MM-dd')}</span>
+            <span>{format(comment.createdTime, 'HH:mm:ss')}</span>
           </div>
         </div>
       </div>
-      <div className="whitespace-pre-line text-base font-normal">
+      <span className="whitespace-pre-wrap break-all text-base font-normal">
         {comment.content.trim()}
-      </div>
+      </span>
     </div>
   )
 }
@@ -221,17 +220,19 @@ function CommentPostArea({
       )}
       {/* 작성자 이름과 input field */}
       <div className="flex flex-col gap-[12px]">
-        <p className="text-xl font-medium capitalize">{userInfo.username}</p>
+        <span className="text-xl font-medium capitalize">
+          {userInfo.username}
+        </span>
         <div className="flex flex-col gap-[15px]">
           <Textarea
             value={text}
             id="textarea"
-            className="placeholder:text-color-neutral-90 min-h-[120px] resize-none whitespace-pre-line border-none p-0 text-base shadow-none focus-visible:ring-0"
+            className="placeholder:text-color-neutral-90 min-h-[120px] resize-none whitespace-pre-wrap border-none p-0 text-base shadow-none focus-visible:ring-0"
             placeholder="Enter Your Answer"
             onChange={(value) => onTextChange(value.target.value)}
           />
           <div className="text-color-neutral-90 text-abse right-0 flex justify-end font-medium">
-            <p className="px-[10px]">{`${text.length}/400`}</p>
+            <span className="px-[10px]">{`${text.length}/400`}</span>
           </div>
         </div>
       </div>
