@@ -1,0 +1,57 @@
+meta {
+  name: [400] Nonexistent Contest QnA Comments
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    toggleContestQnAResolved(
+      contestId: 1
+      qnAOrder: 2
+    ) {
+      id
+      order
+      isResolved
+    }
+  }
+}
+
+script:pre-request {
+  await require("../login").loginAdmin(req);
+}
+
+docs {
+  # [400] Contest QnA Has No Comments
+
+  ## Description
+  댓글이 없는 QnA의 해결완료 상태를 토글하려고 할 때 발생하는 에러를 테스트합니다.
+
+  ## 에러 상황
+  - QnA에 댓글이 하나도 없는 경우
+  - 토글할 수 있는 상태가 아닌 경우
+
+  ## 에러 메시지
+  ```
+  BadRequestException: ContestQnA has no comments
+  ```
+
+  ## 원인
+  - QnA가 생성되었지만 아직 댓글이 작성되지 않음
+  - 모든 댓글이 삭제되어 댓글이 없는 상태
+
+  ## 해결 방법
+  1. QnA에 댓글을 먼저 작성
+  2. 운영진이 답글을 작성하여 자동으로 해결완료 처리
+  3. 그 후에 토글 기능 사용
+
+  ## 테스트 목적
+  - 댓글이 없는 QnA에 대한 토글 시도 방지
+  - 비즈니스 로직 검증
+}

@@ -6,7 +6,13 @@ import {
   BadRequestException
 } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
-import { ContestRole, Prisma, Role, type ContestProblem } from '@prisma/client'
+import {
+  ContestRole,
+  Prisma,
+  Role,
+  QnACategory,
+  type ContestProblem
+} from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
@@ -1383,13 +1389,64 @@ export class ContestService {
     return userContests
   }
 
-  async getContestQnAs(contestId: number) {
+  async getContestQnAs(
+    contestId: number,
+    filter?: {
+      categories?: QnACategory[]
+      problemOrders?: number[]
+      orderBy?: 'asc' | 'desc'
+      isResolved?: boolean
+    }
+  ) {
+    const where: Prisma.ContestQnAWhereInput = {
+      contestId
+    }
+
+    // 카테고리 필터링
+    if (filter?.categories && filter.categories.length > 0) {
+      where.category = { in: filter.categories }
+    }
+
+    // 문제별 필터링
+    if (
+      filter?.categories &&
+      filter.categories.includes(QnACategory.Problem) &&
+      filter.problemOrders &&
+      filter.problemOrders.length > 0
+    ) {
+      const problemIds = await this.prisma.contestProblem
+        .findMany({
+          where: {
+            contestId,
+            order: { in: filter.problemOrders }
+          }
+        })
+        .then((results) => results.map((cp) => cp.problemId))
+      where.problemId = { in: problemIds }
+    }
+
+    // 해결 상태 필터링
+    if (filter?.isResolved !== undefined) {
+      where.isResolved = filter.isResolved
+    }
+
     return await this.prisma.contestQnA.findMany({
-      where: {
-        contestId
-      },
+      where,
       orderBy: {
-        order: 'asc'
+        order: filter?.orderBy || 'asc'
+      },
+      include: {
+        createdBy: {
+          select: {
+            username: true
+          }
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            comments: true
+          }
+        }
       }
     })
   }
@@ -1542,5 +1599,54 @@ export class ContestService {
 
       return deletedComment
     })
+  }
+
+  async toggleContestQnAResolved(contestId: number, qnAOrder: number) {
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const contestQnA = await this.prisma.contestQnA.findFirst({
+      where: {
+        contestId,
+        order: qnAOrder
+      }
+    })
+
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    const commentCount = await this.prisma.contestQnAComment.count({
+      where: {
+        contestQnAId: contestQnA.id
+      }
+    })
+
+    if (commentCount === 0) {
+      throw new BadRequestException('ContestQnA has no comments')
+    }
+
+    // 해결완료 상태 토글 (동시성 고려)
+    const updatedContestQnA = await this.prisma.$transaction(async (tx) => {
+      // 토글 시점에 다시 한번 상태 확인
+      const currentQnA = await tx.contestQnA.findUnique({
+        where: { id: contestQnA.id },
+        select: { isResolved: true }
+      })
+
+      return await tx.contestQnA.update({
+        where: { id: contestQnA.id },
+        data: {
+          isResolved: !currentQnA!.isResolved
+        }
+      })
+    })
+
+    return updatedContestQnA
   }
 }

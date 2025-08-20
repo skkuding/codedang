@@ -1,4 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
+import { QnACategory } from '@prisma/client'
 
 @InputType()
 export class UpdateContestQnAInput {
@@ -10,4 +11,19 @@ export class UpdateContestQnAInput {
 
   @Field(() => String, { nullable: true })
   answer?: string
+}
+
+@InputType()
+export class GetContestQnAsFilterInput {
+  @Field(() => [QnACategory], { nullable: true })
+  categories?: QnACategory[]
+
+  @Field(() => [Int], { nullable: true })
+  problemOrders?: number[]
+
+  @Field(() => String, { nullable: true })
+  orderBy?: 'asc' | 'desc'
+
+  @Field(() => Boolean, { nullable: true })
+  isResolved?: boolean
 }

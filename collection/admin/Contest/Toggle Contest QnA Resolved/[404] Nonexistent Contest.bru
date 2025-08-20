@@ -1,0 +1,66 @@
+meta {
+  name: [404] Nonexistent Contest
+  type: graphql
+  seq: 5
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    toggleContestQnAResolved(
+      contestId: 99999
+      qnAOrder: 1
+    ) {
+      id
+      order
+      isResolved
+    }
+  }
+}
+
+script:pre-request {
+  await require("../login").loginAdmin(req);
+}
+
+docs {
+  # [404] Contest Not Found
+
+  ## Description
+  존재하지 않는 대회에 대해 토글을 시도하는 경우 발생하는 에러를 테스트합니다.
+
+  ## 에러 상황
+  - `contestId`가 존재하지 않는 값
+  - 데이터베이스에 해당 대회가 없음
+
+  ## 에러 메시지
+  ```
+  EntityNotExistException: Contest
+  ```
+
+  ## 원인
+  - 잘못된 대회 ID 입력
+  - 삭제된 대회
+  - 데이터베이스 연결 문제
+
+  ## 해결 방법
+  1. 올바른 대회 ID 확인
+  2. 대회가 실제로 존재하는지 확인
+  3. 대회가 삭제되지 않았는지 확인
+
+  ## 테스트 목적
+  - 존재하지 않는 리소스에 대한 요청 처리
+  - 에러 응답 형식 검증
+  - 보안 및 데이터 무결성 검증
+
+  ## HTTP 상태 코드
+  - 404 Not Found
+
+  ## 보안 고려사항
+  - 존재하지 않는 리소스 정보 노출 방지
+  - 적절한 에러 메시지 제공
+}

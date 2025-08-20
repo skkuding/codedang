@@ -1,0 +1,67 @@
+meta {
+  name: [404] Nonexistent Contest QnA
+  type: graphql
+  seq: 6
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    toggleContestQnAResolved(
+      contestId: 1
+      qnAOrder: 99999
+    ) {
+      id
+      order
+      isResolved
+    }
+  }
+}
+
+script:pre-request {
+  await require("../login").loginAdmin(req);
+}
+
+docs {
+  # [404] Contest QnA Not Found
+
+  ## Description
+  존재하지 않는 QnA에 대해 토글을 시도하는 경우 발생하는 에러를 테스트합니다.
+
+  ## 에러 상황
+  - `qnAOrder`가 존재하지 않는 값
+  - 해당 대회에 해당 순서의 QnA가 없음
+
+  ## 에러 메시지
+  ```
+  EntityNotExistException: ContestQnA
+  ```
+
+  ## 원인
+  - 잘못된 QnA 순서 입력
+  - 삭제된 QnA
+  - 대회에 해당 순서의 QnA가 생성되지 않음
+
+  ## 해결 방법
+  1. 올바른 QnA 순서 확인
+  2. QnA가 실제로 존재하는지 확인
+  3. QnA가 삭제되지 않았는지 확인
+
+  ## 테스트 목적
+  - 존재하지 않는 리소스에 대한 요청 처리
+  - 에러 응답 형식 검증
+  - 데이터 무결성 검증
+
+  ## HTTP 상태 코드
+  - 404 Not Found
+
+  ## 비즈니스 로직
+  - QnA 순서는 대회 내에서 고유해야 함
+  - 삭제된 QnA에 대한 접근 방지
+  - 데이터 일관성 유지
+}
