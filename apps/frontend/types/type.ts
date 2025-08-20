@@ -489,3 +489,18 @@ export interface Notification {
   isRead: boolean
   createTime: string
 }
+
+export interface MultipleQnaData {
+  id: number
+  order: number
+  createdById: number
+  title: string
+  isResolved: boolean
+  category: string
+  problemId: number | null
+  createTime: Date
+  createdBy: {
+    username: string
+  }
+  isRead: boolean
+}
