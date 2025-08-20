@@ -181,6 +181,10 @@ function CommentPostArea({
   }
 
   const onPost = async (): Promise<void> => {
+    if (text === '') {
+      toast.error('Please enter your answer.')
+      return
+    }
     try {
       const res = await fetcherWithAuth.post(
         `contest/${contestId}/qna/${order}/comment`,
