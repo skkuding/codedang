@@ -853,7 +853,15 @@ export class ContestService {
         order
       },
       include: {
-        comments: true,
+        comments: {
+          include: {
+            createdBy: {
+              select: {
+                username: true
+              }
+            }
+          }
+        },
         createdBy: {
           select: {
             username: true
