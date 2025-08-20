@@ -1,0 +1,68 @@
+meta {
+  name: Filter by Specific Problems
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getContestQnAs(
+      contestId: 1
+      filter: {
+        categories: [Problem]
+        problemOrders: [1, 2, 3]
+        orderBy: "asc"
+      }
+    ) {
+      id
+      order
+      title
+      category
+      problemId
+      isResolved
+      createTime
+      createdBy {
+        username
+      }
+      _count {
+        comments
+      }
+    }
+  }
+}
+
+assert {
+  res.body.data.getContestQnAs: isDefined
+}
+
+docs {
+  # Filter by Specific Problems
+
+  ## Description
+  특정 문제들(1번, 2번, 3번)에 대한 QnA만 필터링하여 조회합니다.
+
+  ## 필터 설정
+  - `categories: [Problem]`: Problem 카테고리 필수
+  - `problemOrders: [1, 2, 3]`: 1번, 2번, 3번 문제의 QnA만 조회
+  - `orderBy: "asc"`: 순서대로 정렬
+
+  ## 사용 목적
+  - 특정 문제들에 대한 질문들을 집중적으로 관리
+  - 문제별 QnA 통계 및 분석
+  - 문제 난이도별 QnA 패턴 분석
+
+  ## 주의사항
+  - `problemOrders`는 `categories`에 `Problem`이 포함된 경우에만 유효
+  - 문제 순서는 대회에서 설정된 순서를 따름
+
+  ## 응답 데이터
+  - 지정된 문제들의 QnA 목록
+  - 각 QnA의 문제 ID 및 순서
+  - 댓글 개수 및 해결 상태
+}

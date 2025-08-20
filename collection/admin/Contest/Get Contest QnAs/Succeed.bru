@@ -1,59 +1,118 @@
 meta {
   name: Succeed
-  type: graphql
+  type: http
   seq: 1
 }
 
 post {
-  url: {{gqlUrl}}
-  body: graphql
+  url: {{baseUrl}}/graphql
+  body: json
   auth: none
 }
 
-body:graphql {
-  query {
-    getContestQnAs(
-      contestId: 1
-    ) {
-      id
-      title
-      content
-      createTime
-      createdById
-      createdBy {
-        username
+body:json {
+  {
+    "query": "query GetContestQnAs($contestId: Int!, $filter: GetContestQnAsFilterInput) { getContestQnAs(contestId: $contestId, filter: $filter) { id order title content category isResolved createTime createdBy { username } _count { comments } } }",
+    "variables": {
+      "contestId": 1,
+      "filter": {
+        "categories": ["Problem"],
+        "problemOrders": [0, 1],
+        "orderBy": "asc",
+        "isResolved": false
       }
     }
   }
 }
 
-assert {
-  res.body.data.getContests: isDefined
+script:pre-request {
+  await require("./login").loginAdmin(req);
 }
 
 docs {
-  # Get Contest QnAs
+  ## 📘 Get Contest QnAs (Admin)
 
-  ## Description
-  관리자가 특정 콘테스트의 모든 QnA를 조회할 수 있도록 합니다.
+  **POST** `/graphql`
 
-  ## 요청 필드
-  | 필드명 | 타입 | 필수 여부 | 설명 |
-  |--------|------|----------|------|
-  | contestId | Int | 필수 | 콘테스트 ID |
+  Admin 단에서 대회의 QnA들을 조회합니다. 다양한 필터링 옵션을 지원합니다.
 
-  ## 응답 필드
-  | 필드명 | 타입 | 설명 |
-  |--------|------|------|
-  | id | Int | QnA ID |
-  | title | String | QnA 제목 |
-  | content | String | QnA 내용 |
-  | createTime | GraphQLISODateTime | 생성 시간 |
-  | createdById | Int | 작성자 ID |
-  | createdBy | User | 작성자 정보 |
-  | createdBy.username | String | 작성자 사용자명 |
+  ### 🔒 Authentication
 
-  ## 제약사항
-  - `contestId`는 존재하는 콘테스트여야 합니다.
+  🔸 Required
+  - Admin 권한이 필요합니다
+  - `loginAdmin` 스크립트를 통해 인증을 처리합니다
 
+  ### 📥 Request Parameters
+
+  #### GraphQL Query Variables
+
+  | Name      | Type   | Required | Description                      |
+  |-----------|--------|----------|----------------------------------|
+  | `contestId` | Int   | ✅       | 조회할 대회의 ID                |
+  | `filter`    | GetContestQnAsFilterInput | ❌ | 필터링 옵션 (선택사항)        |
+
+  #### Filter Options
+
+  | Name           | Type                    | Description                    |
+  |----------------|-------------------------|--------------------------------|
+  | `categories`   | QnACategory[]           | QnA 카테고리 필터링 (General, Problem) |
+  | `problemOrders`| Int[]                   | 특정 문제들의 order 배열 (Problem 카테고리와 함께 사용) |
+  | `orderBy`      | 'asc' \| 'desc'         | 정렬 순서 (기본값: 'asc')      |
+  | `isResolved`   | Boolean                 | 해결 상태 필터링 (true: 해결됨, false: 미해결) |
+
+  ### 📤 Response
+
+  ```json
+  {
+    "data": {
+      "getContestQnAs": [
+        {
+          "id": 1,
+          "order": 1,
+          "title": "1번 문제 질문",
+          "content": "1번 문제에서 시간 초과가 발생합니다",
+          "category": "Problem",
+          "isResolved": false,
+          "createTime": "2024-01-01T00:00:00Z",
+          "createdBy": {
+            "username": "user123"
+          },
+          "_count": {
+            "comments": 2
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+  ### 💡 사용 예시
+
+  #### 답변해야 할 QnA만 조회
+  ```json
+  {
+    "filter": {
+      "isResolved": false
+    }
+  }
+  ```
+
+  #### 특정 문제의 QnA만 조회
+  ```json
+  {
+    "filter": {
+      "categories": ["Problem"],
+      "problemOrders": [0, 1]
+    }
+  }
+  ```
+
+  #### 일반 질문만 조회
+  ```json
+  {
+    "filter": {
+      "categories": ["General"]
+    }
+  }
+  ```
 }

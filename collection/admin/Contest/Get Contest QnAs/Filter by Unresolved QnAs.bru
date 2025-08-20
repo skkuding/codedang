@@ -1,0 +1,60 @@
+meta {
+  name: Filter by Unresolved QnAs
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getContestQnAs(
+      contestId: 1
+      filter: {
+        isResolved: false
+        orderBy: "desc"
+      }
+    ) {
+      id
+      order
+      title
+      category
+      isResolved
+      createTime
+      createdBy {
+        username
+      }
+      _count {
+        comments
+      }
+    }
+  }
+}
+
+assert {
+  res.body.data.getContestQnAs: isDefined
+}
+
+docs {
+  # Filter by Unresolved QnAs
+
+  ## Description
+  답변해야 할 QnA만 필터링하여 조회합니다.
+
+  ## 필터 설정
+  - `isResolved: false`: 해결되지 않은 QnA만 조회
+  - `orderBy: "desc"`: 최신 QnA부터 정렬
+
+  ## 사용 목적
+  - Admin이 답변해야 할 QnA를 빠르게 찾아서 처리
+  - 대기 중인 질문들을 우선순위로 관리
+
+  ## 응답 데이터
+  - 해결되지 않은 QnA 목록
+  - 각 QnA의 댓글 개수
+  - 최신 순으로 정렬된 결과
+}

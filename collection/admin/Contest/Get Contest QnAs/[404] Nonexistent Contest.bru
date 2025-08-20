@@ -1,0 +1,69 @@
+meta {
+  name: [404] Nonexistent Contest
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/graphql
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "query": "query GetContestQnAs($contestId: Int!) { getContestQnAs(contestId: $contestId) { id order title content category isResolved createTime createdBy { username } _count { comments } } }",
+    "variables": {
+      "contestId": 99999
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginAdmin(req);
+}
+
+docs {
+  ## 📘 Get Contest QnAs - Nonexistent Contest
+
+  **POST** `/graphql`
+
+  존재하지 않는 대회 ID로 QnA를 조회할 때 발생하는 에러 케이스입니다.
+
+  ### 🔒 Authentication
+
+  🔸 Required
+  - Admin 권한이 필요합니다
+
+  ### 📥 Request Parameters
+
+  | Name      | Type   | Required | Description                      |
+  |-----------|--------|----------|----------------------------------|
+  | `contestId` | Int   | ✅       | 존재하지 않는 대회의 ID (예: 99999) |
+
+  ### 📤 Error Response
+
+  ```json
+  {
+    "errors": [
+      {
+        "message": "Contest not found",
+        "extensions": {
+          "code": "ENTITY_NOT_EXIST"
+        }
+      }
+    ]
+  }
+  ```
+
+  ### 💡 에러 원인
+
+  - `contestId`에 해당하는 대회가 데이터베이스에 존재하지 않음
+  - 잘못된 대회 ID를 입력했을 때 발생
+
+  ### 🔧 해결 방법
+
+  1. 올바른 대회 ID를 확인
+  2. 대회가 실제로 존재하는지 확인
+  3. 데이터베이스 연결 상태 확인
+}
