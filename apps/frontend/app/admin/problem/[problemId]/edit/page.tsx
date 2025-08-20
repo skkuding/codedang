@@ -12,7 +12,8 @@ import { useState, use } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { IoIosCheckmarkCircle, IoIosEye } from 'react-icons/io'
+import { IoIosCheckmarkCircle } from 'react-icons/io'
+import { MdTextSnippet } from 'react-icons/md'
 import { DescriptionForm } from '../../../_components/DescriptionForm'
 import { FormSection } from '../../../_components/FormSection'
 import { SwitchField } from '../../../_components/SwitchField'
@@ -96,8 +97,8 @@ export default function Page(props: {
               )}
             </FormSection>
 
-            <div className="flex justify-between">
-              <div className="w-[360px]">
+            <div className="flex justify-between gap-2">
+              <div>
                 <FormSection
                   isFlexColumn
                   title="Input Description"
@@ -108,7 +109,7 @@ export default function Page(props: {
                   )}
                 </FormSection>
               </div>
-              <div className="w-[360px]">
+              <div>
                 <FormSection
                   isFlexColumn
                   title="Output Description"
@@ -152,22 +153,27 @@ export default function Page(props: {
               formElement="input"
               hasValue={methods.getValues('source') !== ''}
             />
-            <div className="flex gap-2">
-              <Button
-                type="submit"
-                className="flex h-[36px] w-[90px] items-center gap-2 px-0"
-              >
-                <IoIosCheckmarkCircle fontSize={20} />
-                <div className="text-base">Edit</div>
-              </Button>
+            <div className="flex flex-col gap-5">
               <Button
                 type="button"
-                variant="slate"
-                className="flex h-[36px] w-[120px] items-center gap-2 bg-slate-200 px-0"
-                onClick={() => setIsPreviewing(true)}
+                variant={'slate'}
+                className="bg-fill hover:bg-fill-neutral flex h-[48px] w-full items-center gap-2 px-0"
+                onClick={async () => {
+                  const isValid = await methods.trigger()
+                  if (isValid) {
+                    setIsPreviewing(true)
+                  }
+                }}
               >
-                <IoIosEye fontSize={20} />
-                <div className="text-base">Preview</div>
+                <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
+                <div className="text-base text-[#8a8a8a]">Show Preview</div>
+              </Button>
+              <Button
+                type="submit"
+                className="flex h-12 w-full items-center gap-2 px-0"
+              >
+                <IoIosCheckmarkCircle fontSize={20} />
+                <div className="mb-[2px] text-lg font-bold">Edit</div>
               </Button>
             </div>
           </EditProblemForm>
