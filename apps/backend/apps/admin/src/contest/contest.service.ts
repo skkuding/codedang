@@ -1631,9 +1631,8 @@ export class ContestService {
       throw new BadRequestException('ContestQnA has no comments')
     }
 
-    // 해결완료 상태 토글 (동시성 고려)
+    // 해결완료 상태 토글 (동시성 고려하여 트랜잭션 사용)
     const updatedContestQnA = await this.prisma.$transaction(async (tx) => {
-      // 토글 시점에 다시 한번 상태 확인
       const currentQnA = await tx.contestQnA.findUnique({
         where: { id: contestQnA.id },
         select: { isResolved: true }
