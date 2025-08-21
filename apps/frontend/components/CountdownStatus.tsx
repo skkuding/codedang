@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 
@@ -35,6 +35,7 @@ export function CountdownStatus({
     const now = dayjs()
     return now.isAfter(baseTime)
   })
+  const isFinishedRef = useRef(isFinished)
   const [timeDiff, setTimeDiff] = useState({
     days: 0,
     hours: '00',
@@ -60,7 +61,7 @@ export function CountdownStatus({
     })
 
     if (inEditor) {
-      if (isCurrentlyFinished && !isFinished) {
+      if (isCurrentlyFinished && !isFinishedRef.current) {
         if (assignmentId) {
           router.push(
             `/course/${courseId}/assignment/${assignmentId}/finished/problem/${problemId}?force=true` as const
@@ -82,10 +83,11 @@ export function CountdownStatus({
       }
     }
     setIsFinished(isCurrentlyFinished)
+    isFinishedRef.current = isCurrentlyFinished
   }, [
     baseTime,
     inEditor,
-    isFinished,
+    isFinishedRef,
     assignmentId,
     exerciseId,
     router,
