@@ -6,9 +6,9 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type {
-  ContestQnACreateDto,
-  GetContestQnAsFilter
+import {
+  GetContestQnAsFilter,
+  type ContestQnACreateDto
 } from './dto/contest-qna.dto'
 
 const contestSelectOption = {
@@ -749,30 +749,42 @@ export class ContestService {
 
     // 대회 진행 중이 아니면 별도의 조건 필요 없음
 
-    const where: Prisma.ContestQnAWhereInput = {
+    const baseWhere: Prisma.ContestQnAWhereInput = {
       contestId,
       ...visibleCondition
     }
 
-    if (filter.categories && filter.categories.length > 0) {
-      where.category = { in: filter.categories }
-    }
-    if (
-      filter.categories &&
-      filter.categories.includes(QnACategory.Problem) &&
-      filter.problemOrders &&
-      filter.problemOrders.length > 0
-    ) {
-      const problemIds = await this.prisma.contestProblem
-        .findMany({
-          where: {
-            contestId,
-            order: { in: filter.problemOrders }
-          }
+    const categories = filter.categories ?? []
+    const includeProblem = categories.includes(QnACategory.Problem)
+    const general = categories.filter((c) => c !== QnACategory.Problem)
+
+    const orConds: Prisma.ContestQnAWhereInput[] = []
+
+    if (includeProblem) {
+      if (filter.problemOrders?.length) {
+        const problemIds = await this.prisma.contestProblem
+          .findMany({
+            where: { contestId, order: { in: filter.problemOrders } },
+            select: { problemId: true }
+          })
+          .then((rs) => rs.map((r) => r.problemId))
+
+        orConds.push({
+          category: QnACategory.Problem,
+          problemId: { in: problemIds }
         })
-        .then((results) => results.map((cp) => cp.problemId))
-      where.problemId = { in: problemIds }
+      } else {
+        orConds.push({ category: QnACategory.Problem })
+      }
     }
+
+    if (general.length) {
+      orConds.push({ category: { in: general } })
+    }
+
+    const where: Prisma.ContestQnAWhereInput = orConds.length
+      ? { AND: [baseWhere, { OR: orConds }] }
+      : baseWhere
 
     const qnas = await this.prisma.contestQnA.findMany({
       select: {
@@ -841,7 +853,15 @@ export class ContestService {
         order
       },
       include: {
-        comments: true,
+        comments: {
+          include: {
+            createdBy: {
+              select: {
+                username: true
+              }
+            }
+          }
+        },
         createdBy: {
           select: {
             username: true
