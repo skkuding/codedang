@@ -1,9 +1,9 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import {
+  BadRequestException,
   Inject,
   Injectable,
-  UnauthorizedException,
-  BadRequestException
+  UnauthorizedException
 } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
 import { ContestRole, Prisma, Role, type ContestProblem } from '@prisma/client'
@@ -15,6 +15,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { ContestNotificationScheduler } from '@admin/notification/contest-notification.scheduler'
 import type { ContestWithScores } from './model/contest-with-scores.model'
 import type {
   CreateContestInput,
@@ -26,7 +27,8 @@ import type { ProblemScoreInput } from './model/problem-score.input'
 export class ContestService {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly contestScheduler: ContestNotificationScheduler
   ) {}
 
   async getContests(userId: number, take: number, cursor: number | null) {
@@ -237,7 +239,7 @@ export class ContestService {
       }
     }
 
-    return await this.prisma.$transaction(async (tx) => {
+    const created = await this.prisma.$transaction(async (tx) => {
       const createdContest = await tx.contest.create({
         data: {
           createdById: userId,
@@ -279,6 +281,14 @@ export class ContestService {
         userContest: newUserContests
       }
     })
+
+    // Contest 시작 전 알림 추가
+    await this.contestScheduler.scheduleStartReminder(
+      created.id,
+      created.startTime
+    )
+
+    return created
   }
 
   async updateContest(
@@ -501,7 +511,7 @@ export class ContestService {
       ])
     }
 
-    return await this.prisma.contest.update({
+    const updated = await this.prisma.contest.update({
       where: {
         id: contestId
       },
@@ -519,6 +529,14 @@ export class ContestService {
         }
       }
     })
+
+    // Contest 시작 전 알림 재스케줄링
+    await this.contestScheduler.rescheduleStartReminder(
+      updated.id,
+      updated.startTime
+    )
+
+    return updated
   }
 
   async deleteContest(contestId: number) {
@@ -545,8 +563,10 @@ export class ContestService {
       await this.removeProblemsFromContest(contestId, problemIds)
     }
 
+    let deleted: Contest
+
     try {
-      return await this.prisma.contest.delete({
+      deleted = await this.prisma.contest.delete({
         where: {
           id: contestId
         }
@@ -554,6 +574,8 @@ export class ContestService {
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
+    // 대회 시작 전 알림 삭제
+    await this.contestScheduler.cancelStartReminder(deleted.id)
   }
 
   async importProblemsToContest(
