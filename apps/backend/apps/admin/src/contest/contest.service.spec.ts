@@ -7,6 +7,7 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { ContestNotificationScheduler } from '@admin/notification/contest-notification.scheduler'
 import { solution } from '@admin/problem/mock/mock'
 import { ContestService } from './contest.service'
 import type { ContestWithParticipants } from './model/contest-with-participants.model'
@@ -303,6 +304,14 @@ describe('ContestService', () => {
               keys: () => []
             }
           })
+        },
+        {
+          provide: ContestNotificationScheduler,
+          useValue: {
+            scheduleStartReminder: stub().resolves(),
+            cancelStartReminder: stub().resolves(),
+            rescheduleStartReminder: stub().resolves()
+          }
         }
       ]
     }).compile()
