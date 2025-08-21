@@ -53,21 +53,11 @@ func (c *connector) Connect(ctx context.Context) {
 		c.logger.Panic(fmt.Sprintf("failed to subscribe: %s", err))
 	}
 
-	// [mq.ingress]     consume -> handle -> 														  produce
-	// [mq.controller]							| controller -> 	controller(result) -> |
-	// [handler]													  | handler -> |
-	// i.consume(messageCh, i.Done)
 	for message := range messageCh {
 		go c.handle(message, connectorCtx)
 	}
 
 	c.logger.Log(logger.DEBUG, "connector done")
-	// running until Consumer is done
-	// <-i.Done
-
-	// if err := i.consumer.CleanUp(); err != nil {
-	// 	i.logger.Error(fmt.Sprintf("failed to clean up the consumer: %s", err))
-	// }
 }
 
 func (c *connector) Disconnect() {}

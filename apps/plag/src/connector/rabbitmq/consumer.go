@@ -104,11 +104,3 @@ func (c *consumer) CleanUp() error {
 	return <-c.Done
 }
 
-// func (c *consumer) Ack(channelName string, tag uint64) error {
-// 	channel, exist := c.channels[channelName]
-// 	if !exist {
-// 		return fmt.Errorf("consumer: Ack: channel does not exist")
-// 	}
-// 	err := channel.Ack(tag, false)
-// 	return err
-// }
