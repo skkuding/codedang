@@ -19,23 +19,21 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { IDLabel, PasswordLabel } from './AuthLabel'
 
-interface Inputs {
+interface SignInInput {
   username: string
   password: string
 }
 
 export function SignIn() {
-  const [disableButton, setDisableButton] = useState(false)
-  const [passwordShow, setPasswordShow] = useState<boolean>(false)
-  const { hideModal, showSignUp, showRecoverAccount } = useAuthModalStore(
-    (state) => state
-  )
+  const [isSignInDisabled, setIsSignInDisabled] = useState(false)
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const { hideModal, showRecoverAccount } = useAuthModalStore((state) => state)
   const router = useRouter()
   const posthog = usePostHog()
+  const { register, handleSubmit } = useForm<SignInInput>()
 
-  const { register, handleSubmit, watch } = useForm<Inputs>()
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    setDisableButton(true)
+  const onSubmit: SubmitHandler<SignInInput> = async (data) => {
+    setIsSignInDisabled(true)
     try {
       const res = await signIn('credentials', {
         username: data.username,
@@ -58,8 +56,60 @@ export function SignIn() {
       console.error('Error during login:', error)
       toast.error('An unexpected error occurred')
     } finally {
-      setDisableButton(false)
+      setIsSignInDisabled(false)
     }
+  }
+
+  function renderIDField() {
+    return (
+      <div className="flex flex-col gap-[6px]">
+        <IDLabel />
+        <Input placeholder="User ID" type="text" {...register('username')} />
+      </div>
+    )
+  }
+
+  function renderPasswordField() {
+    return (
+      <div className="flex flex-col gap-[6px]">
+        <PasswordLabel />
+        <div className="relative flex justify-between gap-1">
+          <Input
+            placeholder="Password"
+            type={isPasswordVisible ? 'text' : 'password'}
+            {...register('password')}
+          />
+          <button
+            className="absolute inset-y-0 right-[21.67px] flex items-center"
+            onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+          >
+            {isPasswordVisible ? (
+              <FaEye className="text-gray-400" />
+            ) : (
+              <FaEyeSlash className="text-gray-400" />
+            )}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  function renderRecoverAccountField() {
+    return (
+      <div className="flex flex-col items-center gap-2">
+        <Button
+          onClick={showRecoverAccount}
+          type="button"
+          variant={'link'}
+          className="text-color-neutral-70 text-sm font-normal underline"
+        >
+          Forgot ID / Password
+        </Button>
+        <Button className="w-full" type="submit" disabled={isSignInDisabled}>
+          Log In
+        </Button>
+      </div>
+    )
   }
 
   return (
@@ -75,47 +125,10 @@ export function SignIn() {
         aria-label="Log in"
       >
         <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-[6px]">
-            <IDLabel />
-            <Input
-              placeholder="User ID"
-              type="text"
-              {...register('username')}
-            />
-          </div>
-          <div className="flex flex-col gap-[6px]">
-            <PasswordLabel />
-            <div className="relative flex justify-between gap-1">
-              <Input
-                placeholder="Password"
-                type={passwordShow ? 'text' : 'password'}
-                {...register('password')}
-              />
-              <span
-                className="absolute inset-y-0 right-[21.67px] flex items-center"
-                onClick={() => setPasswordShow(!passwordShow)}
-              >
-                {passwordShow ? (
-                  <FaEye className="text-gray-400" />
-                ) : (
-                  <FaEyeSlash className="text-gray-400" />
-                )}
-              </span>
-            </div>
-          </div>
+          {renderIDField()}
+          {renderPasswordField()}
         </div>
-        <div className="flex flex-col items-center gap-2">
-          <Button
-            onClick={showRecoverAccount}
-            variant={'link'}
-            className="text-color-neutral-70 text-sm font-normal underline"
-          >
-            Forgot ID / Password
-          </Button>
-          <Button className="w-full" type="submit" disabled={disableButton}>
-            Log In
-          </Button>
-        </div>
+        {renderRecoverAccountField()}
       </form>
       {/* <div className="flex items-center justify-center gap-5">
         <Separator className="flex-1" />
