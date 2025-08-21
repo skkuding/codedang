@@ -49,7 +49,7 @@ export default function LoginPage() {
           e.preventDefault()
         }}
         hideCloseButton={true}
-        className="min-h-120 max-w-82"
+        className="!h-[620px] !w-[380px]"
       >
         <DialogHeader className="hidden">
           <DialogTitle />
