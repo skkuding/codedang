@@ -25,7 +25,7 @@ export interface InputProps {
 interface ButtonProps {
   text: string
   onClick: () => void
-  variant?: 'default' | 'outline' | 'destructive'
+  variant?: 'default' | 'outline'
 }
 
 interface ModalProps {
@@ -117,7 +117,7 @@ export function Modal({
         {size !== 'lg' && headerDescription && (
           <p
             className={cn(
-              'w-full whitespace-pre-line text-center text-sm font-normal text-[#737373]',
+              'w-full text-center text-sm font-normal text-[#737373]',
               children && 'text-left'
             )}
           >
