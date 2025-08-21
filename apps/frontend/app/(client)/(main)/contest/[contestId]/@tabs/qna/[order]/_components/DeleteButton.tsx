@@ -1,7 +1,6 @@
 'use client'
 
 import { AlertModal } from '@/components/AlertModal'
-import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { fetcherWithAuth } from '@/libs/utils'
 import { useParams } from 'next/navigation'

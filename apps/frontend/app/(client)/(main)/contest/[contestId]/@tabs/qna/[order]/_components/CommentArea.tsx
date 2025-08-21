@@ -1,7 +1,5 @@
 'use client'
 
-import { AlertModal } from '@/components/AlertModal'
-import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
 import { fetcherWithAuth } from '@/libs/utils'
