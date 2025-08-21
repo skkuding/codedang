@@ -1,8 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { ContestProblem, ContestRecord } from '@generated'
-import { Problem } from '@generated'
-import { Contest } from '@generated'
+import { Contest, ContestProblem, ContestRecord, Problem } from '@generated'
 import { faker } from '@faker-js/faker'
 import { ContestRole, ResultStatus, Role } from '@prisma/client'
 import { expect } from 'chai'
@@ -206,8 +204,8 @@ const input = {
 } satisfies CreateContestInput
 
 const updateInput = {
-  startTime: faker.date.recent(),
-  endTime: faker.date.future(),
+  startTime,
+  endTime,
   registerDueTime: faker.date.past(),
   freezeTime: faker.date.between({
     from: startTime,

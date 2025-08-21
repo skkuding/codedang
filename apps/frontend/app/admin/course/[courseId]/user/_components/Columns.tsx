@@ -1,4 +1,5 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
+import { AlertModal } from '@/components/AlertModal'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import {
   Select,
@@ -145,35 +146,63 @@ interface RoleSelectProps {
 function RoleSelect({ groupId, userId, role }: RoleSelectProps) {
   const [selectedRole, setSelectedRole] = useState(role)
   const [updateGroupMember] = useMutation(UPDATE_GROUP_MEMBER)
-  return (
-    <Select
-      value={selectedRole}
-      onValueChange={async (value) => {
-        try {
-          await updateGroupMember({
-            variables: {
-              groupId,
-              userId,
-              toGroupLeader: value === 'Instructor'
-            }
-          })
-          setSelectedRole(value)
-          toast.success('Successfully changed role')
-        } catch (error) {
-          toast.error('Failed to change role')
-          console.error(error)
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+  const [pendingRole, setPendingRole] = useState('')
+
+  const handleRoleChange = (value: string) => {
+    setPendingRole(value)
+    setIsConfirmModalOpen(true)
+  }
+
+  const handleConfirm = async () => {
+    try {
+      await updateGroupMember({
+        variables: {
+          groupId,
+          userId,
+          toGroupLeader: pendingRole === 'Instructor'
         }
-      }}
-    >
-      <SelectTrigger className="w-min border-0 font-semibold focus:ring-0 focus:ring-offset-0">
-        <SelectValue placeholder={role} />
-      </SelectTrigger>
-      <SelectContent className="bg-white font-semibold">
-        <SelectGroup>
-          <SelectItem value="Instructor">Instructor</SelectItem>
-          <SelectItem value="Student">Student</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+      })
+      setSelectedRole(pendingRole)
+      toast.success('Successfully changed role')
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error &&
+        error.message.includes('You cannot change your own role')
+          ? 'You cannot change your own role'
+          : 'Failed to change role'
+
+      toast.error(errorMessage)
+      console.error(error)
+    } finally {
+      setIsConfirmModalOpen(false)
+    }
+  }
+  return (
+    <>
+      <Select value={selectedRole} onValueChange={handleRoleChange}>
+        <SelectTrigger className="w-min border-0 bg-transparent font-semibold focus:ring-0 focus:ring-offset-0">
+          <SelectValue placeholder={role} />
+        </SelectTrigger>
+        <SelectContent className="bg-white font-semibold">
+          <SelectGroup>
+            <SelectItem value="Instructor">Instructor</SelectItem>
+            <SelectItem value="Student">Student</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+
+      <AlertModal
+        open={isConfirmModalOpen}
+        onOpenChange={setIsConfirmModalOpen}
+        type="warning"
+        title="Confirm Role Change"
+        description={`Are you sure you want to change the role to ${pendingRole}?`}
+        primaryButton={{
+          text: 'Confirm',
+          onClick: handleConfirm
+        }}
+      />
+    </>
   )
 }

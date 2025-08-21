@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -21,16 +21,15 @@ import { AssignmentProblemListLabel } from '../../../_components/AssignmentProbl
 import { AssignmentProblemTable } from '../../../_components/AssignmentProblemTable'
 import { AssignmentSolutionTable } from '../../../_components/AssignmentSolutionTable'
 import { EditAssignmentForm } from '../../../_components/EditAssignmentForm'
-import { ImportDialog } from '../../../_components/ImportDialog'
+import { ImportProblemDialog } from '../../../_components/ImportProblemDialog'
 import { WeekComboBox } from '../../../_components/WeekComboBox'
 import { editSchema } from '../../../_libs/schemas'
 import type { AssignmentProblem } from '../../../_libs/type'
 
-export default function Page({
-  params
-}: {
-  params: { courseId: string; assignmentId: string }
+export default function Page(props: {
+  params: Promise<{ courseId: string; assignmentId: string }>
 }) {
+  const params = use(props.params)
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { courseId, assignmentId } = params
@@ -121,9 +120,7 @@ export default function Page({
               </div>
 
               <FormSection isFlexColumn title="Description" isLabeled={false}>
-                {methods.getValues('description') && (
-                  <DescriptionForm name="description" />
-                )}
+                {!isLoading && <DescriptionForm name="description" />}
               </FormSection>
 
               {/* NOTE: 최근 기획에서 해당기능을 없애기로 했는데, 혹시 revert할까봐 주석처리해놨어요 */}
@@ -141,10 +138,9 @@ export default function Page({
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <AssignmentProblemListLabel />
-                  <ImportDialog
+                  <ImportProblemDialog
                     problems={problems}
                     setProblems={setProblems}
-                    target="assignment"
                   />
                 </div>
                 <AssignmentProblemTable

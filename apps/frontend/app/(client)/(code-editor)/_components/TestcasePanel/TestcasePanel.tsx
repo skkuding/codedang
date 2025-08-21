@@ -8,9 +8,9 @@ import {
   RUN_CODE_TAB,
   TESTCASE_RESULT_TAB
 } from '@/stores/editorTabs'
-import type { TestResultDetail } from '@/types/type'
+import type { TabbedTestResult } from '@/types/type'
 import { DiffMatchPatch } from 'diff-match-patch-typescript'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode, type JSX } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
@@ -33,11 +33,11 @@ function getWidthClass(length: number) {
 }
 
 export function TestcasePanel({ isContest }: TestcasePanelProps) {
-  const [testcaseTabList, setTestcaseTabList] = useState<TestResultDetail[]>([])
+  const [testcaseTabList, setTestcaseTabList] = useState<TabbedTestResult[]>([])
   const { activeTab, setActiveTab } = useTestcaseTabStore()
   const [detailTabId, setDetailTabId] = useState<number | null>(null)
 
-  const moveToDetailTab = (result: TestResultDetail) => {
+  const moveToDetailTab = (result: TabbedTestResult) => {
     setTestcaseTabList((state) =>
       state
         .concat(result)
@@ -77,10 +77,10 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
         ? testcase.output.slice(0, MAX_OUTPUT_LENGTH)
         : testcase.output
   }))
-  const summaryData = processedData.map(({ id, result, isUserTestcase }) => ({
+  const summaryData = processedData.map(({ id, result, type }) => ({
     id,
     result,
-    isUserTestcase
+    type
   }))
 
   const currentVisibleTab = detailTabId !== null ? detailTabId : activeTab
@@ -101,7 +101,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
             isLeftmost
             isRightOfActive={currentVisibleTab === TESTCASE_RESULT_TAB}
             className={cn(
-              'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+              'h-full shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
               getWidthClass(testcaseTabList.length)
             )}
           >
@@ -130,7 +130,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
           isLeftOfActive={currentVisibleTab === RUN_CODE_TAB}
           isRightOfActive={currentVisibleTabIndex === 0}
           className={cn(
-            'h-full flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+            'h-full shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
             getWidthClass(testcaseTabList.length)
           )}
         >
@@ -164,7 +164,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
                   currentVisibleTab === testcaseTabList[index + 1]?.originalId
                 }
                 className={cn(
-                  'h-12 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
+                  'h-12 shrink-0 overflow-hidden text-ellipsis whitespace-nowrap',
                   getWidthClass(testcaseTabList.length)
                 )}
               >
@@ -172,9 +172,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
                   {
                     (testcaseTabList.length < 7
                       ? TAB_CONTENT
-                      : SHORTHAND_TAB_CONTENT)[
-                      testcase.isUserTestcase ? 'user' : 'sample'
-                    ]
+                      : SHORTHAND_TAB_CONTENT)[testcase.type]
                   }{' '}
                   #{testcase.id}
                 </div>
@@ -195,7 +193,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
         </ScrollArea>
         <div
           className={cn(
-            'flex flex-shrink-0 items-center bg-[#121728] px-2 py-2',
+            'flex shrink-0 items-center bg-[#121728] px-2 py-2',
             currentVisibleTab === RUN_CODE_TAB && 'hidden'
           )}
         >
@@ -227,14 +225,16 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
   )
 }
 
-const TAB_CONTENT = {
+export const TAB_CONTENT = {
   sample: 'Sample',
-  user: 'User'
+  user: 'User',
+  hidden: 'Hidden'
 }
 
 const SHORTHAND_TAB_CONTENT = {
   sample: 'S',
-  user: 'U'
+  user: 'U',
+  hidden: 'H'
 }
 
 interface TestcaseTabProps {
@@ -296,7 +296,7 @@ function TestcaseTab({
 function TestSummary({
   data
 }: {
-  data: { id: number; result: string; isUserTestcase: boolean }[]
+  data: { id: number; result: string; type: 'user' | 'sample' | 'hidden' }[]
 }) {
   const acceptedCount = data.filter(
     (testcase) => testcase.result === 'Accepted'
@@ -307,7 +307,7 @@ function TestSummary({
   const notAcceptedTestcases = data
     .map((testcase) =>
       testcase.result !== 'Accepted' && testcase.result !== 'Judging'
-        ? `${testcase.isUserTestcase ? 'User' : 'Sample'} #${testcase.id}`
+        ? `${TAB_CONTENT[testcase.type]} #${testcase.id}`
         : undefined
     )
     .filter(Boolean)
@@ -336,7 +336,7 @@ function TestSummary({
   )
 }
 
-function TestResultDetail({ data }: { data: TestResultDetail | undefined }) {
+function TestResultDetail({ data }: { data: TabbedTestResult | undefined }) {
   if (data === undefined) {
     return null
   }

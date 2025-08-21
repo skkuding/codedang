@@ -4,13 +4,13 @@ import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
 import {
-  mkdirSync,
-  writeFile,
-  createWriteStream,
   createReadStream,
+  createWriteStream,
   existsSync,
+  mkdirSync,
+  rm,
   unlink,
-  rm
+  writeFile
 } from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
@@ -296,6 +296,78 @@ export class SubmissionService {
     return submissionInfo
   }
 
+  async getAssignmentProblemTestcaseResults(
+    assignmentId: number,
+    problemId: number,
+    groupId: number
+  ) {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: { groupId: true }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (assignment.groupId !== groupId) {
+      throw new ForbiddenAccessException('Only allowed to access your course')
+    }
+
+    const latestSubmissions = await this.prisma.submission.groupBy({
+      by: ['userId'],
+      where: {
+        assignmentId,
+        problemId
+      },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      _max: {
+        id: true
+      }
+    })
+
+    const submissionIds = latestSubmissions
+      .map((submission) => submission._max.id)
+      .filter((id) => id !== null)
+
+    if (submissionIds.length === 0) {
+      throw new EntityNotExistException('Submission')
+    }
+
+    const detailedSubmissions = await this.prisma.submission.findMany({
+      where: {
+        id: { in: submissionIds }
+      },
+      select: {
+        userId: true,
+        submissionResult: {
+          select: {
+            problemTestcase: {
+              select: {
+                id: true,
+                isHidden: true
+              }
+            },
+            result: true
+          }
+        }
+      }
+    })
+
+    const results = detailedSubmissions
+      .filter((submission) => submission.userId !== null)
+      .map((submission) => ({
+        userId: submission.userId!,
+        result: submission.submissionResult.map((sr) => ({
+          id: sr.problemTestcase.id,
+          isHidden: sr.problemTestcase.isHidden!,
+          result: sr.result
+        }))
+      }))
+
+    return results
+  }
+
   getOrderBy(
     order: SubmissionOrder
   ): Prisma.SubmissionOrderByWithRelationInput {
@@ -344,7 +416,9 @@ export class SubmissionService {
             problemTestcase: {
               select: {
                 input: true,
-                output: true
+                output: true,
+                isHidden: true,
+                scoreWeight: true
               }
             }
           }
@@ -421,7 +495,9 @@ export class SubmissionService {
         cpuTime:
           result.cpuTime || result.cpuTime === BigInt(0)
             ? result.cpuTime.toString()
-            : null
+            : null,
+        isHidden: result.problemTestcase.isHidden,
+        scoreWeight: result.problemTestcase.scoreWeight
       }
     })
     results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)

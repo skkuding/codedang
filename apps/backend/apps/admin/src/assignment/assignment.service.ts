@@ -1,5 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
@@ -22,6 +23,7 @@ import type {
 export class AssignmentService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -121,6 +123,10 @@ export class AssignmentService {
       })
 
       this.inviteAllCourseMembersToAssignment(createdAssignment.id, groupId)
+
+      this.eventEmitter.emit('assignment.created', {
+        assignmentId: createdAssignment.id
+      })
 
       return createdAssignment
     } catch (error) {
@@ -895,7 +901,26 @@ export class AssignmentService {
         problemId
       },
       select: {
-        assignment: true,
+        assignment: {
+          select: {
+            id: true,
+            title: true,
+            isExercise: true,
+            startTime: true,
+            endTime: true,
+            group: {
+              select: {
+                groupName: true,
+                courseInfo: {
+                  select: {
+                    courseNum: true,
+                    classNum: true
+                  }
+                }
+              }
+            }
+          }
+        },
         score: true
       }
     })
@@ -928,9 +953,9 @@ export class AssignmentService {
         return acc
       },
       {
-        upcoming: [] as AssignmentWithScores[],
-        ongoing: [] as AssignmentWithScores[],
-        finished: [] as AssignmentWithScores[]
+        upcoming: [] as typeof assignments,
+        ongoing: [] as typeof assignments,
+        finished: [] as typeof assignments
       }
     )
 
@@ -1054,6 +1079,11 @@ export class AssignmentService {
       }
     )
 
+    this.eventEmitter.emit('assignment.graded', {
+      assignmentId: input.assignmentId,
+      userId: input.userId
+    })
+
     return updatedProblemRecord
   }
 
@@ -1101,6 +1131,24 @@ export class AssignmentService {
     }
 
     return assignmentProblemRecord
+  }
+
+  async isAllAssignmentProblemGraded(assignmentId: number, userId: number) {
+    const problemRecords = await this.prisma.assignmentProblemRecord.findMany({
+      where: {
+        assignmentId,
+        userId
+      },
+      select: {
+        finalScore: true
+      }
+    })
+
+    const isAllProblemGraded = problemRecords.every(
+      (record) => record.finalScore !== null && record.finalScore !== undefined
+    )
+
+    return isAllProblemGraded
   }
 
   private async inviteAllCourseMembersToAssignment(

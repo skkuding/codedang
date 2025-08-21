@@ -8,7 +8,14 @@ import {
   ResolveField,
   Resolver
 } from '@nestjs/graphql'
-import { Contest, ContestProblem, User, UserContest } from '@generated'
+import {
+  Contest,
+  ContestProblem,
+  ContestQnA,
+  ContestQnAComment,
+  User,
+  UserContest
+} from '@generated'
 import { ContestRole } from '@prisma/client'
 import {
   AuthenticatedRequest,
@@ -26,8 +33,7 @@ import { ContestLeaderboard } from './model/contest-leaderboard.model'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
 import { ContestUpdateHistories } from './model/contest-update-histories.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
-import { CreateContestInput } from './model/contest.input'
-import { UpdateContestInput } from './model/contest.input'
+import { CreateContestInput, UpdateContestInput } from './model/contest.input'
 import { ContestsGroupedByStatus } from './model/contests-grouped-by-status.output'
 import { ProblemScoreInput } from './model/problem-score.input'
 import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
@@ -224,5 +230,66 @@ export class ContestResolver {
       return null
     }
     return await this.userService.getUser(createdById)
+  }
+}
+
+@Resolver(() => ContestQnA)
+@UseDisableContestRolesGuard()
+export class ContestQnAResolver {
+  constructor(
+    private readonly contestService: ContestService,
+    private readonly userService: UserService
+  ) {}
+
+  @Query(() => [ContestQnA])
+  async getContestQnAs(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number
+  ) {
+    return await this.contestService.getContestQnAs(contestId)
+  }
+
+  @Query(() => ContestQnA)
+  async getContestQnA(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('order', { type: () => Int }, IDValidationPipe) order: number
+  ) {
+    return await this.contestService.getContestQnA(contestId, order)
+  }
+
+  @Mutation(() => ContestQnA)
+  async deleteContestQnA(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('order', { type: () => Int }, IDValidationPipe) order: number
+  ) {
+    return await this.contestService.deleteContestQnA(contestId, order)
+  }
+
+  @Mutation(() => ContestQnAComment)
+  async createContestQnAComment(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('order', { type: () => Int }, IDValidationPipe) order: number,
+    @Args('content', { type: () => String }) content: string,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.contestService.createContestQnAComment(
+      contestId,
+      order,
+      content,
+      req.user.id
+    )
+  }
+
+  @Mutation(() => ContestQnAComment)
+  async deleteContestQnAComment(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('qnAOrder', { type: () => Int }, IDValidationPipe) qnAOrder: number,
+    @Args('commentOrder', { type: () => Int }, IDValidationPipe)
+    commentOrder: number
+  ) {
+    return await this.contestService.deleteContestQnAComment(
+      contestId,
+      qnAOrder,
+      commentOrder
+    )
   }
 }

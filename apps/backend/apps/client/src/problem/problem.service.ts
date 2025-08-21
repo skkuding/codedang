@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
 import { MIN_DATE } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
+import { ProblemOrder } from '@libs/pipe'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
@@ -9,7 +10,6 @@ import { WorkbookService } from '@client/workbook/workbook.service'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
-import { ProblemOrder } from './enum/problem-order.enum'
 
 const problemsSelectOption: Prisma.ProblemSelect = {
   id: true,
@@ -433,7 +433,20 @@ export class ContestProblemService {
       select: {
         order: true,
         problem: {
-          select: problemSelectOption
+          select: {
+            ...problemSelectOption,
+            problemTestcase: {
+              ...(contest.isPrivilegedRole
+                ? {}
+                : { where: { isHidden: false } }),
+              select: {
+                id: true,
+                input: true,
+                output: true,
+                isHidden: true
+              }
+            }
+          }
         }
       }
     })

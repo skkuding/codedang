@@ -30,6 +30,12 @@
         "parser": "html",
         "printWidth": 120
       }
+    },
+    {
+      "files": ["*.yaml", "*.yml"],
+      "options": {
+        "bracketSpacing": false
+      }
     }
   ]
 }

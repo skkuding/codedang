@@ -16,7 +16,8 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { Separator } from '@/components/shadcn/separator'
-import { useState, useEffect } from 'react'
+import { ChevronDown } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { IoFilter } from 'react-icons/io5'
 
 interface DataProps<T> {
@@ -53,51 +54,55 @@ export function CheckboxSelect<T extends string>({
   return (
     <Popover onOpenChange={() => onChange(selectedValues)}>
       <PopoverTrigger asChild>
-        <Button
-          variant="filter"
-          size={'sm'}
-          className="h-10 border px-5 hover:bg-gray-50"
-        >
-          <IoFilter className="mr-2 h-4 w-4" />
-          <p className="font-semibold">{title}</p>
-          {selectedValues.length > 0 && (
-            <>
-              <Separator orientation="vertical" className="mx-2 h-4" />
-              <div className="space-x-1">
-                {selectedValues.length === options.length ? (
-                  <Badge
-                    variant="secondary"
-                    className="rounded-sm px-1 font-normal"
-                  >
-                    All
-                  </Badge>
-                ) : (
-                  <div className="flex space-x-1">
-                    {selectedValues.map((value) => (
-                      <Badge
-                        key={value}
-                        variant="secondary"
-                        className="rounded-sm px-1 font-normal"
-                      >
-                        {value}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </>
-          )}
+        <Button variant="filter" className="flex justify-between">
+          <div className="flex items-center">
+            <IoFilter className="mr-4 h-4 w-4" />
+            <p className="text-sm">{title}</p>
+            {selectedValues.length > 0 && (
+              <>
+                <Separator orientation="vertical" className="mx-2 h-4" />
+                <div className="space-x-1">
+                  {selectedValues.length === options.length ? (
+                    <Badge
+                      variant="secondary"
+                      className="rounded-xs px-1 font-normal"
+                    >
+                      All
+                    </Badge>
+                  ) : (
+                    <div className="flex space-x-1">
+                      {selectedValues.map((value) => (
+                        <Badge
+                          key={value}
+                          variant="secondary"
+                          className="rounded-xs px-1 font-normal"
+                        >
+                          {value}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+          <ChevronDown className="h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[115px] p-0" align="start">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] rounded-xl px-3 py-5">
         <Command>
-          <CommandList>
+          <CommandList className="p-0">
             <CommandEmpty>No language found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
-                <CommandItem key={option} value={option} className="gap-x-2">
+                <CommandItem
+                  key={option}
+                  value={option}
+                  className="gap-x-2 hover:bg-gray-100/80"
+                >
                   <Checkbox
+                    className="rounded-sm"
                     checked={selectedValues.includes(option)}
                     onCheckedChange={() => handleCheckboxChange(option)}
                   />
@@ -107,6 +112,20 @@ export function CheckboxSelect<T extends string>({
             </CommandGroup>
           </CommandList>
         </Command>
+        <Button
+          variant="default"
+          className="h-9 w-full"
+          onClick={() => {
+            const popoverTrigger = document.querySelector('[data-state="open"]')
+            if (popoverTrigger) {
+              popoverTrigger.dispatchEvent(
+                new Event('click', { bubbles: true })
+              )
+            }
+          }}
+        >
+          Apply
+        </Button>
       </PopoverContent>
     </Popover>
   )

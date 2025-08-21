@@ -10,7 +10,7 @@ import { TitleForm } from '@/app/admin/_components/TitleForm'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { TimeFormPopover } from '../../../_components/TimeFormPopover'
@@ -18,11 +18,12 @@ import { AssignmentProblemListLabel } from '../../_components/AssignmentProblemL
 import { AssignmentProblemTable } from '../../_components/AssignmentProblemTable'
 import { AssignmentSolutionTable } from '../../_components/AssignmentSolutionTable'
 import { CreateAssignmentForm } from '../../_components/CreateAssignmentForm'
-import { ImportDialog } from '../../_components/ImportDialog'
+import { ImportProblemDialog } from '../../_components/ImportProblemDialog'
 import { WeekComboBox } from '../../_components/WeekComboBox'
 import type { AssignmentProblem } from '../../_libs/type'
 
-export default function Page({ params }: { params: { courseId: string } }) {
+export default function Page(props: { params: Promise<{ courseId: string }> }) {
+  const params = use(props.params)
   const { courseId } = params
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isCreating, setIsCreating] = useState(false)
@@ -43,15 +44,18 @@ export default function Page({ params }: { params: { courseId: string } }) {
             problems={problems}
             setIsCreating={setIsCreating}
           >
-            <FormSection
-              isFlexColumn={false}
-              title="Title"
-              className="gap-[77px]"
-            >
-              <TitleForm placeholder="Name your Assignment" />
-            </FormSection>
+            <div className="flex w-[901px] flex-col gap-[28px]">
+              <FormSection
+                isFlexColumn={false}
+                title="Title"
+                className="gap-[67px]"
+              >
+                <TitleForm
+                  placeholder="Name your Assignment"
+                  className="max-w-[767px]"
+                />
+              </FormSection>
 
-            <div className="flex flex-col gap-6">
               <div className="flex justify-between">
                 <FormSection
                   title="Week"
@@ -63,7 +67,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <FormSection
                   title="Due Time"
                   isJustifyBetween={false}
-                  className="gap-[18px]"
+                  className="gap-[40px]"
                   isLabeled={false}
                 >
                   <TimeFormPopover />
@@ -88,7 +92,7 @@ export default function Page({ params }: { params: { courseId: string } }) {
                 <FormSection
                   title="End Time"
                   isJustifyBetween={false}
-                  className="gap-[50px]"
+                  className="gap-[71px]"
                   isLabeled={false}
                 >
                   <TimeForm
@@ -109,10 +113,9 @@ export default function Page({ params }: { params: { courseId: string } }) {
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <AssignmentProblemListLabel />
-                  <ImportDialog
+                  <ImportProblemDialog
                     problems={problems}
                     setProblems={setProblems}
-                    target="assignment"
                   />
                 </div>
                 <AssignmentProblemTable

@@ -5,8 +5,15 @@ import { cn } from '@/libs/utils'
 import { IoSearch } from 'react-icons/io5'
 import { useDataTable } from './context'
 
-interface SearchBarProps extends InputProps {
+interface SearchBarProps extends Omit<InputProps, 'size'> {
   columndId: string
+  size?: 'sm' | 'md' | 'lg'
+}
+
+const sizeClassMap = {
+  sm: 'h-[36px]!',
+  md: 'h-[40px]!',
+  lg: 'h-[46px]!'
 }
 
 /**
@@ -19,6 +26,7 @@ export function DataTableSearchBar({
   placeholder,
   className,
   columndId,
+  size = 'md',
   ...props
 }: SearchBarProps) {
   const { table } = useDataTable()
@@ -37,7 +45,9 @@ export function DataTableSearchBar({
         value={typeof filterValue === 'string' ? filterValue : ''}
         onChange={(e) => onChangeValue(e.currentTarget.value)}
         className={cn(
-          'h-10 w-[150px] bg-transparent pl-8 lg:w-[390px]',
+          'bg-transparent pl-8',
+          sizeClassMap[size],
+          'min-w-[184px] max-w-[580px] lg:w-[390px]',
           className
         )}
         {...props}

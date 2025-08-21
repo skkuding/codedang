@@ -632,7 +632,9 @@ export class SubmissionService {
    * 5. `isUserTest` 플래그에 따라 사용자 테스트 케이스와 공개 테스트 케이스를 구분하여 채점 요청 큐에 적절한 메시지를 발행
    *    - 사용자 테스트 케이스인 경우: `publishUserTestMessage`를 호출하여 사용자 테스트 케이스에 대해 제출을 처리
    *    - 공개 테스트 케이스인 경우: `publishTestMessage`를 호출하여 공개 테스트 케이스에 대해 제출을 처리
-   *
+   * 6. `containHiddenTestcases` 플래그에 따라 히든 테스트 케이스에 대한 결과를 포함할 지 결정
+   *    - isGroupLeader: 해당 문제가 속한 UserGroup의 GroupLeader인 경우 포함
+   *    - isContestStaff: 해당 문제가 속한 Contest의 Admin / Manager / Reviewer인 경우 포함
    * @param {number} userId - 테스트 제출 기록을 생성할 사용자의 ID
    * @param {number} problemId - 테스트 제출 기록을 생성할 문제의 ID
    * @param {CreateSubmissionDto} submissionDto - 제출할 코드 및 관련 데이터
@@ -660,8 +662,22 @@ export class SubmissionService {
           select: {
             userGroup: {
               where: {
-                userId: userId,
+                userId,
                 isGroupLeader: true
+              }
+            }
+          }
+        },
+        contestProblem: {
+          select: {
+            contest: {
+              select: {
+                userContest: {
+                  where: {
+                    userId,
+                    role: { in: ['Admin', 'Manager', 'Reviewer'] }
+                  }
+                }
               }
             }
           }
@@ -711,6 +727,13 @@ export class SubmissionService {
       (sharedGroup) => sharedGroup.userGroup.length > 0
     )
 
+    // 해당 problem이 포함된 contest에 대한 Admin / Manager / Reviewer인지 확인
+    const isContestStaff = problem.contestProblem.some(
+      (contestProblem) => contestProblem.contest.userContest.length > 0
+    )
+
+    const containHiddenTestcases = isGroupLeader || isContestStaff
+
     // Open Testcase에 대한 TEST 요청인 경우
     const testSubmission = await this.createTestSubmission(
       { ...submissionDto, problemId, userId, userIp },
@@ -721,12 +744,7 @@ export class SubmissionService {
       problemId,
       submissionDto.code,
       testSubmission,
-      isGroupLeader
-      /*
-      지금은 containHiddenTestcases = true로 설정할 경우가
-      isGroupLeader 밖에 없지만, 추후 contestAdmin, Manager 케이스도 추가할 예정
-      이렇게 되면 containHiddenTestcases를 isGroupLeader || isContestAdmin으로 수정
-      */
+      containHiddenTestcases
     )
     return testSubmission
   }
@@ -743,7 +761,7 @@ export class SubmissionService {
    * @param {number} problemId - 문제 ID
    * @param {Snippet[]} code - 제출된 코드 스니펫 배열
    * @param {Submission} testSubmission - 테스트 제출 객체
-   * @param {isGroupLeader} - Instructor 여부(Hidden TC 포함 여부)
+   * @param {boolean} containHiddenTestcases - Hidden Testcase 포함 여부
    * @returns {Promise<void>}
    */
   async publishTestMessage(
@@ -1126,91 +1144,96 @@ export class SubmissionService {
       throw new EntityNotExistException('Submission')
     }
 
+    // 본인이나 관리자가 아닐 경우
     if (
-      contest &&
-      contest.startTime <= now &&
-      contest.endTime > now &&
       submission.userId !== userId &&
-      userRole === Role.User
+      userRole !== Role.Admin &&
+      userRole !== Role.SuperAdmin
     ) {
-      throw new ForbiddenAccessException(
-        "Contest should end first before you browse other people's submissions"
-      )
-    } else if (
-      assignment &&
-      assignment.startTime <= now &&
-      assignment.endTime > now &&
-      submission.userId !== userId &&
-      userRole === Role.User
-    ) {
-      throw new ForbiddenAccessException(
-        "Assignment should end first before you browse other people's submissions"
-      )
-    }
-
-    if (
-      submission.userId === userId ||
-      userRole === Role.Admin ||
-      userRole === Role.SuperAdmin ||
-      (contestId &&
-        (await this.prisma.submission.count({
-          where: {
-            userId,
-            problemId,
-            result: 'Accepted'
-          }
-        })))
-    ) {
-      const code = plainToInstance(Snippet, submission.code)
-      const results = submission.submissionResult
-        .filter(
-          (result) =>
-            !assignmentId ||
-            isHiddenTestcaseVisible ||
-            !result.problemTestcase.isHidden
+      if (
+        contest &&
+        contest.startTime <= now &&
+        contest.endTime > now &&
+        userRole === Role.User
+      ) {
+        // 진행 중인 contest에서 다른 사람의 제출을 볼 수 없음
+        throw new ForbiddenAccessException(
+          "Contest should end first before you browse other people's submissions"
         )
-        .map((result) => {
-          return {
-            ...result,
-            // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
-            cpuTime:
-              result.cpuTime || result.cpuTime === BigInt(0)
-                ? result.cpuTime.toString()
-                : null
-          }
-        })
-
-      results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
-
-      if (contestId && !isJudgeResultVisible) {
-        results.map((r) => {
-          r.result = 'Blind'
-          r.cpuTime = null
-          r.memoryUsage = null
-        })
-      }
-
-      if (assignmentId && !isHiddenTestcaseVisible) {
-        submission.result = this.getSampleTestcaseSubmissionResult(
-          submission.submissionResult
+      } else if (
+        assignment &&
+        assignment.startTime <= now &&
+        assignment.endTime > now &&
+        userRole === Role.User
+      ) {
+        // 진행 중인 assignment에서 다른 사람의 제출을 볼 수 없음
+        throw new ForbiddenAccessException(
+          "Assignment should end first before you browse other people's submissions"
         )
       }
 
-      return {
-        problemId,
-        username: submission.user?.username,
-        code: code.map((snippet) => snippet.text).join('\n'),
-        language: submission.language,
-        createTime: submission.createTime,
-        result:
-          !contestId || isJudgeResultVisible ? submission.result : 'Blind',
-        testcaseResult: results
+      // contest/assignment가 종료되었거나 일반 problem인 경우, 문제를 풀었는지 확인
+      if (contestId || (!contestId && !assignmentId)) {
+        const acceptedCount = await this.prisma.submission.count({
+          where: { userId, problemId, result: 'Accepted' }
+        })
+        if (acceptedCount === 0) {
+          throw new ForbiddenAccessException(
+            "You must pass the problem first to browse other people's submissions"
+          )
+        }
+      } else {
+        // assignment의 경우 문제를 풀어도 다른 사람의 코드를 볼 수 없음
+        throw new ForbiddenAccessException(
+          "You cannot view other people's submissions for an assignment."
+        )
       }
     }
 
-    throw new ForbiddenAccessException(
-      "You must pass the problem first to browse other people's submissions"
-    )
+    const code = plainToInstance(Snippet, submission.code)
+    const results = submission.submissionResult
+      .filter(
+        (result) =>
+          !assignmentId ||
+          isHiddenTestcaseVisible ||
+          !result.problemTestcase.isHidden
+      )
+      .map((result) => {
+        return {
+          ...result,
+          // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
+          cpuTime:
+            result.cpuTime || result.cpuTime === BigInt(0)
+              ? result.cpuTime.toString()
+              : null
+        }
+      })
+
+    results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
+
+    if (contestId && !isJudgeResultVisible) {
+      results.map((r) => {
+        r.result = 'Blind'
+        r.cpuTime = null
+        r.memoryUsage = null
+      })
+    }
+
+    if (assignmentId && !isHiddenTestcaseVisible) {
+      submission.result = this.getSampleTestcaseSubmissionResult(
+        submission.submissionResult
+      )
+    }
+
+    return {
+      problemId,
+      username: submission.user?.username,
+      code: code.map((snippet) => snippet.text).join('\n'),
+      language: submission.language,
+      createTime: submission.createTime,
+      result: !contestId || isJudgeResultVisible ? submission.result : 'Blind',
+      testcaseResult: results
+    }
   }
 
   // FIXME: Workbook 구분
