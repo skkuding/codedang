@@ -1,61 +1,26 @@
 'use client'
 
 import { Button } from '@/components/shadcn/button'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem
-} from '@/components/shadcn/command'
 import { Input } from '@/components/shadcn/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/shadcn/popover'
-import { ScrollArea } from '@/components/shadcn/scroll-area'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/shadcn/tooltip'
-import { majors } from '@/libs/constants'
 import { cn, isHttpError, safeFetcher } from '@/libs/utils'
-import checkIcon from '@/public/icons/check-white.svg'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { CommandList } from 'cmdk'
-import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { FaCheck, FaChevronDown, FaEye, FaEyeSlash } from 'react-icons/fa'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { IoWarningOutline } from 'react-icons/io5'
-import { toast } from 'sonner'
 import * as v from 'valibot'
+import { IDLabel, PasswordLabel } from '../AuthLabel'
 
 interface SignUpFormInput {
   username: string
   email: string
   verificationCode: string
-  firstName: string
-  lastName: string
-  studentId: string
-  major: string
   password: string
   passwordAgain: string
 }
 
-const FIELD_NAMES = [
-  'username',
-  'password',
-  'passwordAgain',
-  'firstName',
-  'lastName',
-  'studentId',
-  'major'
-] as const
+const FIELD_NAMES = ['username', 'password', 'passwordAgain'] as const
 type Field = (typeof FIELD_NAMES)[number]
 const fields: Field[] = [...FIELD_NAMES]
 
@@ -75,22 +40,7 @@ const schema = v.pipe(
         return !invalidPassword.test(data)
       })
     ),
-    passwordAgain: v.pipe(v.string(), v.minLength(1, 'Required')),
-    studentId: v.pipe(
-      v.string(),
-      v.minLength(1, 'Required'),
-      v.regex(/^[0-9]{10}$/, 'only 10 numbers')
-    ),
-    firstName: v.pipe(
-      v.string(),
-      v.minLength(1, 'Required'),
-      v.regex(/^[가-힣a-zA-Z ]*$/, 'only English and Korean supported')
-    ),
-    lastName: v.pipe(
-      v.string(),
-      v.minLength(1, 'Required'),
-      v.regex(/^[가-힣a-zA-Z ]*$/, 'only English and Korean supported')
-    )
+    passwordAgain: v.pipe(v.string(), v.minLength(1, 'Required'))
   }),
   v.forward(
     v.partialCheck(
@@ -111,31 +61,7 @@ export function requiredMessage(message?: string) {
   )
 }
 
-export function SignUpRegister() {
-  const formData = useSignUpModalStore((state) => state.formData)
-  const [passwordShow, setPasswordShow] = useState<boolean>(false)
-  const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
-  const [inputFocus, setInputFocus] = useState<number>(0)
-  const [focusedList, setFocusedList] = useState<Array<boolean>>([
-    true,
-    ...Array(7).fill(false)
-  ])
-  const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean>(false)
-  const [checkedUsername, setCheckedUsername] = useState<string>('')
-  const [signUpDisable, setSignUpDisable] = useState<boolean>(false)
-  const [majorOpen, setMajorOpen] = React.useState<boolean>(false)
-  const [majorValue, setMajorValue] = React.useState<string>('')
-
-  const updateFocus = (n: number) => {
-    setInputFocus(n)
-    setFocusedList((prevList) =>
-      prevList.map((focused, index) => (index === n ? true : focused))
-    )
-    if (n > 0) {
-      trigger(fields[n - 1])
-    }
-  }
-
+export function SignUpRegisterAccount() {
   const {
     handleSubmit,
     register,
@@ -151,6 +77,17 @@ export function SignUpRegister() {
     },
     shouldFocusError: false
   })
+  const formData = useSignUpModalStore((state) => state.formData)
+  const [passwordShow, setPasswordShow] = useState<boolean>(false)
+  const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
+  const [inputFocus, setInputFocus] = useState<number>(0)
+  const [focusedList, setFocusedList] = useState<Array<boolean>>([
+    true,
+    ...Array(7).fill(false)
+  ])
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean>(false)
+  const [checkedUsername, setCheckedUsername] = useState<string>('')
+  const [signUpDisable, setSignUpDisable] = useState<boolean>(false)
 
   const watchedPassword = watch('password')
   const watchedPasswordAgain = watch('passwordAgain')
@@ -161,7 +98,17 @@ export function SignUpRegister() {
     }
   }, [watchedPassword, watchedPasswordAgain, trigger])
 
-  function onSubmitClick() {
+  const updateFocus = (n: number) => {
+    setInputFocus(n)
+    setFocusedList((prevList) =>
+      prevList.map((focused, index) => (index === n ? true : focused))
+    )
+    if (n > 0) {
+      trigger(fields[n - 1])
+    }
+  }
+
+  const onSubmitClick = () => {
     setInputFocus(0)
     setFocusedList(Array(8).fill(true))
     fields.map((field) => {
@@ -169,43 +116,13 @@ export function SignUpRegister() {
     })
   }
 
-  const onSubmit = async (data: {
+  const onSubmit = (data: {
     password: string
     passwordAgain: string
-    firstName: string
-    lastName: string
-    studentId: string
     username: string
   }) => {
-    if (
-      !(data.username === checkedUsername && isUsernameAvailable) ||
-      !majorValue
-    ) {
+    if (!(data.username === checkedUsername && isUsernameAvailable)) {
       return
-    }
-    const fullName = `${data.firstName} ${data.lastName}`
-    try {
-      setSignUpDisable(true)
-      await safeFetcher.post('user/sign-up', {
-        headers: {
-          ...formData.headers
-        },
-        json: {
-          password: data.password,
-          passwordAgain: data.passwordAgain,
-          realName: fullName,
-          studentId: data.studentId,
-          major: majorValue,
-          username: data.username,
-          email: formData.email,
-          verificationCode: formData.verificationCode
-        }
-      })
-      document.getElementById('closeDialog')?.click()
-      toast.success('Sign up succeeded!')
-    } catch (error) {
-      toast.error('Sign up failed!')
-      setSignUpDisable(false)
     }
   }
   const validation = async (field: string) => {
@@ -232,6 +149,19 @@ export function SignUpRegister() {
       }
     }
   }
+  const getInputBorderClassname = (
+    isFocus: boolean,
+    error: boolean,
+    value: string
+  ) => {
+    let className = 'border-primary'
+
+    if (error && (value || !isFocus)) {
+      className = 'border-red-500 focus-visible:border-red-500'
+    }
+
+    return className
+  }
 
   const isRequiredError =
     errors.username && errors.username.message === 'Required'
@@ -247,13 +177,24 @@ export function SignUpRegister() {
     !isUsernameChecked && !errors.username && getValues('username')
 
   return (
-    <div className="mb-5 mt-12 flex w-[278px] flex-col py-4">
-      <form
-        className="flex w-full flex-col gap-4"
-        onSubmit={handleSubmit(onSubmit)}
-      >
+    <form
+      className="flex h-full flex-col justify-between"
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <div>
+        <p className="mb-[30px] text-xl font-medium">Create Your Account</p>
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
+          <IDLabel />
+          <div className="flex items-center gap-1">
+            <Input
+              placeholder="User ID"
+              type="text"
+              {...register('username')}
+              className={cn(
+                'focus-visible:ring-1',
+                watch('username') && 'ring-primary ring-1'
+              )}
+            />
             <Input
               placeholder="User ID"
               className={cn(
@@ -286,10 +227,9 @@ export function SignUpRegister() {
               }}
             />
             <Button
-              onClick={() => {
-                checkUserName()
-              }}
+              onClick={checkUserName}
               type="button"
+              variant={'outline'}
               className={cn(
                 ((isUsernameAvailable &&
                   checkedUsername === getValues('username')) ||
@@ -304,7 +244,7 @@ export function SignUpRegister() {
               )}
               size="icon"
             >
-              <Image src={checkIcon} alt="check" />
+              Check
             </Button>
           </div>
           <div className="text-xs">
@@ -349,8 +289,8 @@ export function SignUpRegister() {
               ))}
           </div>
         </div>
-
         <div className="flex flex-col gap-1">
+          <PasswordLabel />
           <div className="relative flex justify-between gap-2">
             <Input
               placeholder="Password"
@@ -410,7 +350,6 @@ export function SignUpRegister() {
               </ul>
             ))}
         </div>
-
         <div className="flex flex-col gap-1">
           <div className="relative flex justify-between gap-2">
             <Input
@@ -447,176 +386,15 @@ export function SignUpRegister() {
             (getValues('passwordAgain') || inputFocus !== 3) &&
             requiredMessage(errors.passwordAgain.message)}
         </div>
-        <div className="my-2 border-b" />
-        <div className="flex justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <Input
-              placeholder="First name (이름)"
-              {...register('firstName', {
-                onChange: () => validation('firstName')
-              })}
-              className={cn(
-                'focus-visible:ring-0',
-                focusedList[4] &&
-                  getInputBorderClassname(
-                    inputFocus === 4,
-                    Boolean(errors.firstName),
-                    getValues('firstName')
-                  )
-              )}
-              onFocus={() => {
-                updateFocus(4)
-              }}
-            />
-            {errors.firstName &&
-              (getValues('firstName') || inputFocus !== 4) &&
-              requiredMessage(errors.firstName.message)}
-          </div>
-          <div className="flex flex-col gap-1">
-            <Input
-              placeholder="Last name (성)"
-              {...register('lastName', {
-                onChange: () => validation('lastName')
-              })}
-              className={cn(
-                'focus-visible:ring-0',
-                focusedList[5] &&
-                  getInputBorderClassname(
-                    inputFocus === 5,
-                    Boolean(errors.lastName),
-                    getValues('lastName')
-                  )
-              )}
-              onFocus={() => {
-                updateFocus(5)
-              }}
-            />
-            {errors.lastName &&
-              (getValues('lastName') || inputFocus !== 5) &&
-              requiredMessage(errors.lastName.message)}
-          </div>
-        </div>
-        <div className="flex flex-col gap-1">
-          <Input
-            placeholder="Student ID (2024123456)"
-            {...register('studentId', {
-              onChange: () => validation('studentId')
-            })}
-            className={cn(
-              'focus-visible:ring-0',
-              focusedList[6] &&
-                getInputBorderClassname(
-                  inputFocus === 6,
-                  Boolean(errors.studentId),
-                  getValues('studentId')
-                )
-            )}
-            onFocus={() => {
-              updateFocus(6)
-            }}
-          />
-          {errors.studentId &&
-            (getValues('studentId') || inputFocus !== 6) &&
-            requiredMessage(errors.studentId.message)}
-        </div>
-        <div className="flex flex-col gap-1">
-          <Popover open={majorOpen} onOpenChange={setMajorOpen} modal={true}>
-            <PopoverTrigger asChild>
-              <Button
-                aria-expanded={majorOpen}
-                variant="outline"
-                role="combobox"
-                onClick={() => {
-                  updateFocus(7)
-                }}
-                className={cn(
-                  'justify-between border-gray-200 font-normal text-black',
-                  !majorValue
-                    ? 'text-gray-500'
-                    : 'ring-primary border-0 ring-1',
-                  !majorValue &&
-                    focusedList[7] &&
-                    !majorOpen &&
-                    'border-0 ring-1 ring-red-500'
-                )}
-              >
-                <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-                  {!majorValue ? 'First Major' : majorValue}
-                </p>
-                <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0">
-              <Command>
-                <CommandInput placeholder="Search major..." />
-                <ScrollArea className="h-40">
-                  <CommandEmpty>No major found.</CommandEmpty>
-                  <CommandGroup>
-                    <TooltipProvider>
-                      <CommandList>
-                        {majors?.map((major) => (
-                          <Tooltip key={major}>
-                            <TooltipTrigger>
-                              <CommandItem
-                                value={major}
-                                onSelect={(currentValue) => {
-                                  setMajorValue(currentValue)
-                                  setMajorOpen(false)
-                                }}
-                              >
-                                <FaCheck
-                                  className={cn(
-                                    'mr-2 h-4 w-4',
-                                    majorValue === major
-                                      ? 'opacity-100'
-                                      : 'opacity-0'
-                                  )}
-                                />
-                                <p className="w-[230px] overflow-hidden text-ellipsis whitespace-nowrap text-left">
-                                  {major}
-                                </p>
-                              </CommandItem>
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-blue-600">
-                              <p>{major}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        ))}
-                      </CommandList>
-                    </TooltipProvider>
-                  </CommandGroup>
-                </ScrollArea>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          {!majorValue &&
-            focusedList[7] &&
-            !majorOpen &&
-            requiredMessage('Required')}
-        </div>
+      </div>
 
-        <Button
-          disabled={signUpDisable || !isDirty}
-          type="submit"
-          onClick={onSubmitClick}
-        >
-          Register
-        </Button>
-      </form>
-    </div>
+      <Button
+        disabled={signUpDisable || !isDirty}
+        type="submit"
+        onClick={onSubmitClick}
+      >
+        Next
+      </Button>
+    </form>
   )
-}
-
-const getInputBorderClassname = (
-  isFocus: boolean,
-  error: boolean,
-  value: string
-) => {
-  let className = 'border-primary'
-
-  if (error && (value || !isFocus)) {
-    className = 'border-red-500 focus-visible:border-red-500'
-  }
-
-  return className
 }
