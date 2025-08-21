@@ -6,9 +6,10 @@ import { useAuthModalStore } from '@/stores/authModal'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { AuthMessage } from '../AuthMessage'
 import { SignUpApi } from './api'
 
-const DOMAIN_OPTIONS = ['skku.edu', 'g.skku.edu', 'naver.com', 'example.com']
+const DOMAIN_OPTIONS = ['skku.edu']
 interface SendEmailInput {
   emailId: string
   emailDomain: string
@@ -22,17 +23,19 @@ export function SignUpSendEmail() {
       defaultValues: { emailDomain: DOMAIN_OPTIONS[0] }
     })
 
-  const [emailError, setEmailError] = useState<string>('')
+  const [emailError, setEmailError] = useState('')
 
-  const emailIdValue = watch('emailId', '')
-  const emailDomainValue = watch('emailDomain')
-  const isSendButtonDisabled = emailIdValue.trim().length === 0
+  const watchEmailId = watch('emailId', '')
+  const watchEmailDomain = watch('emailDomain')
+  const isSendButtonDisabled = watchEmailId.trim().length === 0
 
   const onSubmit = async (data: SendEmailInput) => {
+    const email = `${data.emailId}@${data.emailDomain}`
     try {
-      await SignUpApi.sendEmail(`${data.emailId}@${data.emailDomain}`)
+      await SignUpApi.sendEmail(email)
       setFormData({
         ...data,
+        email,
         verificationCode: '',
         headers: {
           'email-auth': ''
@@ -48,23 +51,26 @@ export function SignUpSendEmail() {
     }
   }
 
-  return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex h-full flex-col justify-between"
-    >
-      <div>
-        <p className="text-xl font-medium">Join us to grow! 🌱</p>
+  function renderFormHeader() {
+    return (
+      <>
+        <p className="text-xl font-medium">Join us to grow!</p>
         <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
           You can only use <span className="text-primary">@skku.edu</span>{' '}
           emails
         </p>
+      </>
+    )
+  }
+
+  function renderFormBody() {
+    return (
+      <>
         <div className="flex gap-1">
           <Input
-            id="email"
+            id="emailId"
             type="text"
             className={cn(
-              'focus-visible:border-primary rounded-full placeholder:text-gray-400 focus-visible:ring-0',
               emailError && 'border-red-500 focus-visible:border-red-500'
             )}
             placeholder="Enter the e-mail"
@@ -78,15 +84,21 @@ export function SignUpSendEmail() {
             }}
           />
           <OptionSelect
-            options={DOMAIN_OPTIONS.map((domain) => `@${domain}`)}
-            value={`@${emailDomainValue}`}
+            options={DOMAIN_OPTIONS.map((domain) => `@ ${domain}`)}
+            value={`@ ${watchEmailDomain}`}
             onChange={(value) => {
-              setValue('emailDomain', value.replace(/^@/, ''))
+              setValue('emailDomain', value.replace(/^@\s*/, ''))
             }}
+            className="text-base font-normal"
           />
         </div>
-        {emailError && <p className="text-error mt-1 text-xs">{emailError}</p>}
-      </div>
+        {emailError && <AuthMessage isError message={emailError} />}
+      </>
+    )
+  }
+
+  function renderFormFooter() {
+    return (
       <div className="flex flex-col gap-[12.5px]">
         <div className="text-color-neutral-50 flex items-center justify-center">
           <span className="text-sm font-normal">Already have account?</span>
@@ -95,7 +107,7 @@ export function SignUpSendEmail() {
             variant="link"
             className="text-sm font-normal underline"
           >
-            Log In
+            Log in
           </Button>
         </div>
         <Button
@@ -106,6 +118,19 @@ export function SignUpSendEmail() {
           Send the Email
         </Button>
       </div>
+    )
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex h-full flex-col justify-between"
+    >
+      <div>
+        {renderFormHeader()}
+        {renderFormBody()}
+      </div>
+      {renderFormFooter()}
     </form>
   )
 }

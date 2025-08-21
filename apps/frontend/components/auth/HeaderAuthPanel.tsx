@@ -208,7 +208,7 @@ export function HeaderAuthPanel({
             onInteractOutside={(e) => {
               e.preventDefault()
             }}
-            className="!h-[620px] !w-[380px]"
+            className="!h-[620px] !w-[380px] rounded-[10px]"
           >
             <DialogHeader className="hidden">
               <DialogTitle />

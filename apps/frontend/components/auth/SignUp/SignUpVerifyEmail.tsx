@@ -4,14 +4,14 @@ import { baseUrl } from '@/libs/constants'
 import { cn } from '@/libs/utils'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as v from 'valibot'
+import { AuthMessage } from '../AuthMessage'
 import { SignUpApi } from './api'
 
 interface VerifyEmailInput {
-  emailId: string
-  emailDomain: string
+  email: string
   verificationCode: string
 }
 
@@ -22,18 +22,22 @@ const schema = v.object({
   )
 })
 
-const timeLimit = 300
+const TIME_LIMIT = 300
 
 export function SignUpVerifyEmail() {
-  const [timer, setTimer] = useState(timeLimit)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const previousTimeRef = useRef(Date.now())
+  const [endTime, setEndTime] = useState(() => Date.now() + TIME_LIMIT * 1000)
+  const [remaining, setRemaining] = useState(() =>
+    Math.max(0, Math.round((endTime - Date.now()) / 1000))
+  )
 
-  const [expired, setExpired] = useState(false)
+  const [codeExpired, setCodeExpired] = useState(false)
   const [emailVerified, setEmailVerified] = useState(false)
   const { nextModal, setFormData, formData } = useSignUpModalStore(
     (state) => state
   )
+  const [codeError, setCodeError] = useState<string | null>(null)
+  const [emailAuthToken, setEmailAuthToken] = useState('')
+
   const {
     handleSubmit,
     register,
@@ -43,40 +47,24 @@ export function SignUpVerifyEmail() {
   } = useForm<VerifyEmailInput>({
     resolver: valibotResolver(schema)
   })
-  const email = `${formData.emailId}@${formData.emailDomain}`
-  const [codeError, setCodeError] = useState<string>('')
-  const [emailAuthToken, setEmailAuthToken] = useState<string>('')
 
   useEffect(() => {
-    if (!expired) {
-      previousTimeRef.current = Date.now()
-      intervalRef.current = setInterval(() => {
-        const currentTime = Date.now()
-        const elapsedTime = (currentTime - previousTimeRef.current) / 1000
-        previousTimeRef.current = currentTime
-
-        setTimer((prevTimer) => {
-          const updatedTimer = Math.max(prevTimer - Math.round(elapsedTime), 0)
-          if (updatedTimer === 0) {
-            setExpired(true)
-            if (intervalRef.current) {
-              clearInterval(intervalRef.current)
-            }
-          }
-          return updatedTimer
-        })
-      }, 1000)
+    if (codeExpired || emailVerified) {
+      return
     }
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
+    const id = setInterval(() => {
+      const rem = Math.max(0, Math.round((endTime - Date.now()) / 1000))
+      setRemaining(rem)
+      if (rem === 0) {
+        setCodeExpired(true)
       }
-    }
-  }, [expired])
+    }, 1000)
+    return () => clearInterval(id)
+  }, [codeExpired, emailVerified])
 
-  const formatTimer = () => {
-    const minutes = Math.floor(timer / 60)
-    const seconds = timer % 60
+  const renderTimer = () => {
+    const minutes = Math.floor(remaining / 60)
+    const seconds = remaining % 60
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
   }
 
@@ -101,7 +89,7 @@ export function SignUpVerifyEmail() {
           credentials: 'include',
           body: JSON.stringify({
             pin: verificationCode,
-            email
+            email: formData.email
           })
         })
         if (response.status === 201) {
@@ -119,23 +107,27 @@ export function SignUpVerifyEmail() {
     }
   }
 
-  return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex h-full flex-col justify-between"
-    >
-      <div>
+  function renderFormHeader() {
+    return (
+      <>
         <p className="text-xl font-medium">We’ve Sent an Email</p>
         <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
-          Please check an email to <span className="text-primary">{email}</span>
+          Please check your inbox{' '}
+          <span className="text-primary">{formData.email}</span>
         </p>
+      </>
+    )
+  }
+
+  function renderFormBody() {
+    return (
+      <div>
         <div className="relative">
           <Input
             type="number"
             className={cn(
               'hide-spin-button',
-              'focus-visible:border-primary w-full rounded-full focus-visible:ring-0',
-              (errors.verificationCode || expired || codeError) &&
+              (errors.verificationCode || codeExpired || codeError) &&
                 'border-red-500 focus-visible:border-red-500'
             )}
             placeholder="Verification Code"
@@ -143,38 +135,57 @@ export function SignUpVerifyEmail() {
               onChange: () => verifyCode()
             })}
           />
-          {!expired && (
-            <span className="text-error absolute right-[14px] top-2">
-              {formatTimer()}
+          {!codeExpired && (
+            <span
+              className={cn(
+                'absolute right-[14px] top-2',
+                emailVerified ? 'text-color-neutral-70' : 'text-error'
+              )}
+            >
+              {renderTimer()}
             </span>
           )}
         </div>
-        {expired ? (
-          <p className="text-error mt-1 text-xs">
-            Verification code expired
-            <br />
-            Please resend an email and try again
-          </p>
+        {codeExpired ? (
+          <div className="flex flex-col gap-[2px]">
+            <AuthMessage isError message={'Verification code expired.'} />
+            <AuthMessage
+              isError
+              message={'Please resend an email and try again.'}
+            />
+          </div>
         ) : (
-          <p className="text-error mt-1 text-xs">
-            {errors.verificationCode
-              ? errors.verificationCode?.message
-              : codeError}
-          </p>
+          <div>
+            {(() => {
+              if (errors.verificationCode?.message) {
+                return (
+                  <AuthMessage
+                    isError
+                    message={errors.verificationCode?.message}
+                  />
+                )
+              }
+              if (codeError) {
+                return <AuthMessage isError message={codeError} />
+              } else if (emailVerified) {
+                return <AuthMessage message={'Verification code is valid'} />
+              }
+            })()}
+          </div>
         )}
       </div>
+    )
+  }
 
+  function renderFormFooter() {
+    return (
       <div className="text-color-neutral-50 flex flex-col gap-[12.5px] text-sm font-normal">
         {(() => {
-          if (!expired) {
+          if (!codeExpired || emailVerified) {
             return (
               <Button
                 type="submit"
-                className={cn(
-                  'w-full text-base font-medium',
-                  (!emailVerified || Boolean(errors.verificationCode)) &&
-                    'bg-gray-400'
-                )}
+                className={cn('w-full text-base font-medium')}
                 disabled={!emailVerified || Boolean(errors.verificationCode)}
               >
                 Next
@@ -185,9 +196,10 @@ export function SignUpVerifyEmail() {
             <Button
               className="mt-2 w-full font-semibold"
               onClick={() => {
-                setExpired(false)
-                setTimer(timeLimit)
-                SignUpApi.sendEmail(email)
+                setCodeExpired(false)
+                setRemaining(TIME_LIMIT)
+                setEndTime(Date.now() + TIME_LIMIT * 1000)
+                SignUpApi.sendEmail(formData.email)
               }}
             >
               Resend Email
@@ -195,6 +207,19 @@ export function SignUpVerifyEmail() {
           )
         })()}
       </div>
+    )
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex h-full flex-col justify-between"
+    >
+      <div>
+        {renderFormHeader()}
+        {renderFormBody()}
+      </div>
+      {renderFormFooter()}
     </form>
   )
 }
