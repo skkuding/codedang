@@ -576,6 +576,8 @@ export class ContestService {
     }
     // 대회 시작 전 알림 삭제
     await this.contestScheduler.cancelStartReminder(deleted.id)
+
+    return deleted
   }
 
   async importProblemsToContest(
