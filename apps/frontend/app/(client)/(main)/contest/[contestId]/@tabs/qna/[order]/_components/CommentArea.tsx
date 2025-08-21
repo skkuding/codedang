@@ -1,5 +1,6 @@
 'use client'
 
+import { AlertModal } from '@/components/AlertModal'
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
@@ -166,14 +167,6 @@ function CommentPostArea({
   userInfo: { username?: string; email?: string }
 }) {
   const [text, setText] = useState('')
-  const [showModal, setShowModal] = useState(false)
-
-  useEffect(() => {
-    if (text.length > 400) {
-      setShowModal(true)
-      setText(text.slice(0, 400))
-    }
-  }, [text])
 
   const onTextChange = (value: string): void => {
     setText(value)
@@ -207,17 +200,6 @@ function CommentPostArea({
 
   return (
     <div className="border-color-line-default flex flex-col gap-[20px] rounded-xl border border-solid p-[30px]">
-      {showModal && (
-        <Modal
-          open={showModal}
-          onOpenChange={(open) => setShowModal(open)}
-          size="sm"
-          type="warning"
-          title="Answer length exceed"
-          headerDescription="Please enter your answer within 400 characters."
-          onClose={() => setShowModal(false)}
-        />
-      )}
       {/* 작성자 이름과 input field */}
       <div className="flex flex-col gap-[12px]">
         <span className="text-xl font-medium capitalize">
@@ -230,6 +212,7 @@ function CommentPostArea({
             className="placeholder:text-color-neutral-90 min-h-[120px] resize-none whitespace-pre-wrap border-none p-0 text-base shadow-none focus-visible:ring-0"
             placeholder="Enter Your Answer"
             onChange={(value) => onTextChange(value.target.value)}
+            maxLength={400}
           />
           <div className="text-color-neutral-90 text-abse right-0 flex justify-end font-medium">
             <span className="px-[10px]">{`${text.length}/400`}</span>
@@ -239,6 +222,7 @@ function CommentPostArea({
       {/* Post Button */}
       <Button
         type="submit"
+        disabled={text.length === 0}
         onClick={onPost}
         className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-[6px]"
       >

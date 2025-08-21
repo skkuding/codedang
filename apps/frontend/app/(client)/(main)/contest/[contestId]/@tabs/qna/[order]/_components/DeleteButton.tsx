@@ -1,5 +1,6 @@
 'use client'
 
+import { AlertModal } from '@/components/AlertModal'
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { fetcherWithAuth } from '@/libs/utils'
@@ -62,7 +63,7 @@ export function DeleteButton({
           }
         }
   return (
-    <Modal
+    <AlertModal
       trigger={
         <Button
           variant="outline"
@@ -80,20 +81,14 @@ export function DeleteButton({
       size="sm"
       type="warning"
       title={`Delete ${subject.toUpperCase().slice(0, 1).concat(subject.toLowerCase().slice(1))}?`}
-      headerDescription={`Are you sure you want to delete this ${subject.toLowerCase()}?
-      Once deleted, it cannot be recovered.`}
+      description={`Are you sure you want to delete this ${subject.toLowerCase()}?\nOnce deleted, it cannot be recovered.`}
       primaryButton={{
         text: 'Delete',
         onClick: () => {
           handleDelete()
           setShowModal(false)
         },
-        variant: 'destructive'
-      }}
-      secondaryButton={{
-        text: 'Cancle',
-        onClick: () => setShowModal(false),
-        variant: 'outline'
+        variant: 'default'
       }}
       onClose={() => setShowModal(false)}
     />
