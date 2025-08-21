@@ -1,4 +1,5 @@
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
+import { BullModule } from '@nestjs/bullmq'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -47,6 +48,14 @@ import { WorkbookModule } from './workbook/workbook.module'
       introspection: true,
       formatError: apolloErrorFormatter
     }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST!,
+        port: Number(process.env.REDIS_PORT!)
+      },
+      prefix: 'bull'
+    }),
+    BullModule.registerQueue({ name: 'contest' }),
     CacheModule.registerAsync({
       isGlobal: true,
       useClass: CacheConfigService
