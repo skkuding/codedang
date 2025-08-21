@@ -779,7 +779,6 @@ model CheckRequest {
   user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId         Int?        @map("user_id")
   language  Language
-  checkPreviousSubmission Boolean @map("check_previous_submission")
   enableMerging Boolean @map("enable_merging")
   minTokens Int @map("min_tokens")
   useJplagClustering  Boolean @map("use_jplag_clustering")

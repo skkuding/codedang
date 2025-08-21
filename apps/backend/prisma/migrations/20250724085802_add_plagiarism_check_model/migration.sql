@@ -7,7 +7,6 @@ CREATE TABLE "check_request" (
     "problem_id" INTEGER NOT NULL,
     "user_id" INTEGER,
     "language" "Language" NOT NULL,
-    "check_previous_submission" BOOLEAN NOT NULL,
     "enable_merging" BOOLEAN NOT NULL,
     "min_tokens" INTEGER NOT NULL,
     "use_jplag_clustering" BOOLEAN NOT NULL,

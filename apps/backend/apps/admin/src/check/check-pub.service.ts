@@ -24,7 +24,6 @@ export class CheckPublicationService {
       check.problemId,
       check.language,
       check.minTokens,
-      check.checkPreviousSubmission,
       check.enableMerging,
       check.useJplagClustering,
       check.assignmentId ? check.assignmentId : undefined,

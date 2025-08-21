@@ -49,7 +49,6 @@ type checkManager struct {
 
 type CheckSettings struct {
 	MinTokens               int
-	CheckPreviousSubmission bool
 	EnableMerging           bool
 	UseJplagClustering      bool
 }
@@ -118,10 +117,10 @@ func (c *checkManager) CheckPlagiarismRate( // 요청된 설정에 맞춰 실제
 	"-t", fmt.Sprintf("%d", settings.MinTokens),
   }
 
-  if settings.CheckPreviousSubmission {
-    //jplagCommandArgs = append(jplagCommandArgs, "-old", previousSubmissionsPath)
-	  // not prepared
-	}
+  // TODO: 이전 학기 혹은 이전 대회에서 해당 문제에 대해 제출된 코드도 참고해 표절 여부를 검사해야 합니다.
+  /*if settings.CheckPreviousSubmission {
+    jplagCommandArgs = append(jplagCommandArgs, "-old", previousSubmissionsPath)
+	}*/
 
 	if basePath != nil {
     jplagCommandArgs = append(jplagCommandArgs, "-bc", *basePath)

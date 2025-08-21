@@ -25,7 +25,6 @@ type Request struct {
 	ProblemId               int    `json:"problemId"`
 	Language                string `json:"language"`
 	MinimumTokens           int    `json:"minTokens"`
-	CheckPreviousSubmission bool   `json:"checkPreviousSubmission"`
 	EnableMerging           bool   `json:"enableMerging"`
 	UseJplagClustering      bool   `json:"useJplagClustering"`
 	AssignmentId            *int   `json:"assignmentId,omitempty"`
@@ -246,7 +245,6 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 
 	checkSetting := check.CheckSettings{
 		MinTokens:               req.MinimumTokens,
-		CheckPreviousSubmission: req.CheckPreviousSubmission,
 		EnableMerging:           req.EnableMerging,
 		UseJplagClustering:      req.UseJplagClustering,
 	}

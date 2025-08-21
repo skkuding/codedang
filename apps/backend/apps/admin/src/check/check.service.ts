@@ -170,13 +170,8 @@ export class CheckService {
       language: checkInput.language
     })
 
-    const {
-      language,
-      //checkPreviousSubmissions,
-      enableMerging,
-      useJplagClustering,
-      minTokens
-    } = checkInput
+    const { language, enableMerging, useJplagClustering, minTokens } =
+      checkInput
 
     try {
       const check = await this.prisma.checkRequest.create({
@@ -185,7 +180,6 @@ export class CheckService {
           result: CheckResultStatus.Pending,
           userId,
           language,
-          checkPreviousSubmission: false, //checkPreviousSubmissions,
           enableMerging,
           useJplagClustering,
           minTokens,

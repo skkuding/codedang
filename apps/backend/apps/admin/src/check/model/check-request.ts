@@ -3,7 +3,6 @@ import type { Language } from '@prisma/client'
 export class CheckRequestMsg {
   problemId: number
   language: Language
-  checkPreviousSubmission: boolean
   enableMerging: boolean
   useJplagClustering: boolean
   minTokens: number
@@ -15,7 +14,6 @@ export class CheckRequestMsg {
     problemId: number,
     language: Language,
     minTokens: number,
-    checkPreviousSubmission = true,
     enableMerging = false,
     useJplagClustering = true,
     assignmentId?: number,
@@ -25,7 +23,6 @@ export class CheckRequestMsg {
     this.problemId = problemId
     this.language = language
     this.minTokens = minTokens
-    this.checkPreviousSubmission = checkPreviousSubmission
     this.enableMerging = enableMerging
     this.useJplagClustering = useJplagClustering
     this.assignmentId = assignmentId !== undefined ? assignmentId : null
