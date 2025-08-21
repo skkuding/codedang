@@ -10,6 +10,7 @@ import { cn, getResultColor } from '@/libs/utils'
 import type { TabbedTestResult } from '@/types/type'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
+import { TAB_CONTENT } from './TestcasePanel'
 
 export function TestcaseTable({
   data,
@@ -38,7 +39,7 @@ export function TestcaseTable({
             onClick={() => moveToDetailTab(testResult)}
           >
             <TableCell className="p-3 text-left md:p-3">
-              {testResult.isUserTestcase ? 'User' : 'Sample'} #{testResult.id}
+              {TAB_CONTENT[testResult.type]} #{testResult.id}
             </TableCell>
             <TableCell className="max-w-96 truncate p-3 md:p-3">
               <WhitespaceVisualizer

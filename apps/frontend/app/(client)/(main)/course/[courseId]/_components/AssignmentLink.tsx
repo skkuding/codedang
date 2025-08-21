@@ -66,8 +66,9 @@ export function AssignmentLink({
     <Link
       href={`/course/${courseId}/${type}/${assignment.id}`}
       onClick={handleClick}
+      className="w-fit"
     >
-      <p className="line-clamp-1 font-normal">{assignment.title}</p>
+      <p className="line-clamp-1 text-base font-normal">{assignment.title}</p>
     </Link>
   )
 }
