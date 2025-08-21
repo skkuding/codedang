@@ -16,9 +16,6 @@ export class ContestNotificationProcessor extends WorkerHost {
     switch (job.name) {
       case 'contest-start-reminder': {
         const { contestId } = job.data
-        this.logger.log(
-          `Sending contest start reminder: contestId=${contestId}`
-        )
         await this.notificationService.notifyContestStartingSoon(contestId)
         return { ok: true }
       }
