@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-import { QnACategory } from '@prisma/client'
+import { QnACategory } from '@generated'
 
 @InputType()
 export class UpdateContestQnAInput {
