@@ -2474,29 +2474,28 @@ int main(void) {
     data: { result: ResultStatus.OutputLimitExceeded }
   })
 
-  users.forEach(async (user) => {
-    submissions.push(
-      await prisma.submission.create({
-        data: {
-          userId: user.id,
-          problemId: problems[3].id,
-          assignmentId: endedAssignments[0].id,
-          code: [
-            {
-              id: 1,
-              locked: false,
-              text: `class Main {
-    public static void main(String[] args) {
-        System.out.println("Hello, World!");
-    }
+  const checkSeeds = users.map(async (user) => {
+    const newSubmission = await prisma.submission.create({
+      data: {
+        userId: user.id,
+        problemId: problems[3].id,
+        assignmentId: endedAssignments[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `class Main {
+  public static void main(String[] args) {
+      System.out.println("Hello, World!");
+  }
 }`
-            }
-          ],
-          language: Language.Java,
-          result: ResultStatus.Judging
-        }
-      })
-    )
+          }
+        ],
+        language: Language.Java,
+        result: ResultStatus.Judging
+      }
+    })
+    submissions.push(newSubmission)
 
     await prisma.submissionResult.create({
       data: {
@@ -2510,11 +2509,13 @@ int main(void) {
     })
     await prisma.submission.update({
       where: {
-        id: submissions[submissions.length - 1].id
+        id: newSubmission.id
       },
       data: { result: ResultStatus.Accepted }
     })
   })
+
+  await Promise.all(checkSeeds)
 }
 
 const createAnnouncements = async () => {
