@@ -125,6 +125,7 @@ export function SignUpVerifyEmail() {
         <div className="relative">
           <Input
             type="number"
+            disabled={emailVerified}
             className={cn(
               'hide-spin-button',
               (errors.verificationCode || codeExpired || codeError) &&

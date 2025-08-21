@@ -3,8 +3,7 @@
 import { Progress } from '@/components/shadcn/progress'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { IoMdArrowBack } from 'react-icons/io'
-import { SignUpRegisterAccount } from './SignUpRegisterAccount'
-import { SignUpRegisterInfo } from './SignUpRegisterInfo'
+import { SignUpRegister } from './SignUpRegister'
 import { SignUpSendEmail } from './SignUpSendEmail'
 import { SignUpVerifyEmail } from './SignUpVerifyEmail'
 import { SignUpWelcome } from './SignUpWelcome'
@@ -23,18 +22,17 @@ export function SignUp() {
         </button>
       )}
 
-      {modalPage !== 4 && (
+      {modalPage !== 3 && (
         <Progress
-          value={((modalPage + 1) / 4) * 100}
+          value={((modalPage + 1) / 3) * 100}
           className="mb-[50px] h-1"
         />
       )}
 
       {modalPage === 0 && <SignUpSendEmail />}
       {modalPage === 1 && <SignUpVerifyEmail />}
-      {modalPage === 2 && <SignUpRegisterAccount />}
-      {modalPage === 3 && <SignUpRegisterInfo />}
-      {modalPage === 4 && <SignUpWelcome />}
+      {modalPage === 2 && <SignUpRegister />}
+      {modalPage === 3 && <SignUpWelcome />}
     </div>
   )
 }
