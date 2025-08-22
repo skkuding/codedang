@@ -19,6 +19,6 @@ import { NotificationService } from './notification.service'
     NotificationProcessor,
     NotificationScheduler
   ],
-  exports: [NotificationListener, NotificationScheduler]
+  exports: []
 })
 export class NotificationModule {}
