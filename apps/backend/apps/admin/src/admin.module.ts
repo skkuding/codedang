@@ -59,7 +59,7 @@ import { WorkbookModule } from './workbook/workbook.module'
       }),
       inject: [ConfigService]
     }),
-    BullModule.registerQueue({ name: 'contest' }),
+    BullModule.registerQueue({ name: 'notification' }),
     CacheModule.registerAsync({
       isGlobal: true,
       useClass: CacheConfigService

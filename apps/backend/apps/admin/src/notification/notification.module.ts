@@ -11,7 +11,7 @@ import { NotificationService } from './notification.service'
   imports: [
     AssignmentModule,
     PrismaModule,
-    BullModule.registerQueue({ name: 'contest' })
+    BullModule.registerQueue({ name: 'notification' })
   ],
   providers: [
     NotificationService,

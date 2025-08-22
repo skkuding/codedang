@@ -14,7 +14,7 @@ import { ContestService } from './contest.service'
     RolesModule,
     ProblemModule,
     UserModule,
-    BullModule.registerQueue({ name: 'contest' }),
+    BullModule.registerQueue({ name: 'notification' }),
     NotificationModule
   ],
   providers: [
