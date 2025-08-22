@@ -7,7 +7,6 @@ export type ContestStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 
-// TODO: registeredOngoing registeredUpcoming 삭제하기
 export type AssignmentStatus = 'ongoing' | 'upcoming' | 'finished'
 
 export type RecentUpdateType = 'Assignment' | 'Grade' | 'QnA' | 'Exam'
@@ -110,6 +109,7 @@ export interface TestcaseItem {
   id: number
   input: string
   output: string
+  isHidden?: boolean
   order?: number
 }
 
@@ -357,7 +357,7 @@ export interface TestResult {
 export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
-  isUserTestcase: boolean
+  type: 'user' | 'sample' | 'hidden'
 }
 
 export interface TabbedTestResult extends TestResultDetail {

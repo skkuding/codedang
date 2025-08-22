@@ -2,6 +2,7 @@
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
+import { CountdownStatus } from '@/components/CountdownStatus'
 import {
   Accordion,
   AccordionContent,
@@ -10,24 +11,18 @@ import {
 } from '@/components/shadcn/accordion'
 import { Badge } from '@/components/shadcn/badge'
 import { Separator } from '@/components/shadcn/separator'
-import { UNLIMITED_DATE } from '@/libs/constants'
 import {
   cn,
   convertToLetter,
   dateFormatter,
-  formatDateRange
+  formatDateRange,
+  hasDueDate
 } from '@/libs/utils'
-import type {
-  Assignment,
-  AssignmentStatus,
-  AssignmentSummary
-} from '@/types/type'
+import type { Assignment, AssignmentSummary } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useInterval } from 'react-use'
+import { useState } from 'react'
 import { AssignmentLink } from './AssignmentLink'
 import { ResultBadge } from './ResultBadge'
 
@@ -136,7 +131,13 @@ function ExerciseAccordionItem({
                   />
                 </div>
               </div>
-              <AssignmentStatusTimeDiff assignment={exercise} />
+              {exercise && hasDueDate(exercise.dueTime) && (
+                <CountdownStatus
+                  baseTime={exercise.dueTime}
+                  textStyle="text-color-neutral-50"
+                  showIcon={false}
+                />
+              )}
             </div>
             <Separator className="my-2" />
             <div
@@ -171,7 +172,13 @@ function ExerciseAccordionItem({
                 courseId={courseId}
                 isExercise
               />
-              {exercise && <AssignmentStatusTimeDiff assignment={exercise} />}
+              {exercise && hasDueDate(exercise.dueTime) && (
+                <CountdownStatus
+                  baseTime={exercise.dueTime}
+                  textStyle="text-color-neutral-50"
+                  showIcon={false}
+                />
+              )}
             </div>
 
             {exercise && (
@@ -289,92 +296,6 @@ function ExerciseAccordionItem({
         </AccordionContent>
       </AccordionItem>
     </Accordion>
-  )
-}
-
-dayjs.extend(duration)
-interface AssignmentStatusTimeDiffProps {
-  assignment: Assignment
-}
-
-export function AssignmentStatusTimeDiff({
-  assignment
-}: AssignmentStatusTimeDiffProps) {
-  const [assignmentStatus, setAssignmentStatus] = useState<
-    AssignmentStatus | undefined | null
-  >(assignment.status)
-  const [timeDiff, setTimeDiff] = useState({
-    days: 0,
-    hours: '00',
-    minutes: '00',
-    seconds: '00'
-  })
-
-  const updateAssignmentStatus = () => {
-    const now = dayjs()
-    if (now.isAfter(assignment.endTime)) {
-      setAssignmentStatus('finished')
-    } else if (now.isAfter(assignment.startTime)) {
-      setAssignmentStatus('ongoing')
-    } else {
-      setAssignmentStatus('upcoming')
-    }
-
-    const timeRef =
-      assignmentStatus === 'ongoing' ? assignment.endTime : assignment.startTime
-
-    const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
-    const days = Math.floor(diff.asDays())
-    const hours = Math.floor(diff.asHours() % 24)
-    const hourStr = hours.toString().padStart(2, '0')
-    const minutes = Math.floor(diff.asMinutes() % 60)
-    const minuteStr = minutes.toString().padStart(2, '0')
-    const seconds = Math.floor(diff.asSeconds() % 60)
-    const secondStr = seconds.toString().padStart(2, '0')
-
-    setTimeDiff({
-      days,
-      hours: hourStr,
-      minutes: minuteStr,
-      seconds: secondStr
-    })
-  }
-
-  useEffect(() => {
-    updateAssignmentStatus()
-  }, [])
-
-  useInterval(() => {
-    updateAssignmentStatus()
-  }, 1000)
-
-  if (dayjs(assignment.endTime).isSame(dayjs(UNLIMITED_DATE))) {
-    return null
-  }
-
-  return (
-    <div className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-normal text-[#8A8A8A] opacity-80">
-      {assignmentStatus === 'finished' ? (
-        <>
-          Ended
-          <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-            {timeDiff.days > 0
-              ? `${timeDiff.days} days`
-              : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`}
-          </p>
-          ago
-        </>
-      ) : (
-        <>
-          {assignmentStatus === 'ongoing' ? 'Ends in' : 'Starts in'}
-          <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-            {timeDiff.days > 0
-              ? `${timeDiff.days} days`
-              : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`}
-          </p>
-        </>
-      )}
-    </div>
   )
 }
 
