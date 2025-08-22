@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import type { ContestStartReminderData } from './interface/notification.interface'
-import type { NotificationScheduler } from './notification.scheduler'
+import { NotificationScheduler } from './notification.scheduler'
 import { NotificationService } from './notification.service'
 
 @Injectable()

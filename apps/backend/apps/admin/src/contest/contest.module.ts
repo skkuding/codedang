@@ -1,5 +1,6 @@
 import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RolesModule } from '@libs/auth'
 import { NotificationModule } from '@admin/notification/notification.module'
 import { ProblemModule } from '@admin/problem/problem.module'
@@ -15,7 +16,8 @@ import { ContestService } from './contest.service'
     ProblemModule,
     UserModule,
     BullModule.registerQueue({ name: 'notification' }),
-    NotificationModule
+    NotificationModule,
+    EventEmitter2
   ],
   providers: [
     ContestService,

@@ -5,7 +5,7 @@ import {
   Injectable,
   UnauthorizedException
 } from '@nestjs/common'
-import type { EventEmitter2 } from '@nestjs/event-emitter'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Contest, ResultStatus, Submission } from '@generated'
 import { ContestRole, Prisma, Role, type ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
