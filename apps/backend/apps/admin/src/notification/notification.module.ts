@@ -2,9 +2,9 @@ import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { PrismaModule } from '@libs/prisma'
 import { AssignmentModule } from '@admin/assignment/assignment.module'
-import { ContestNotificationProcessor } from './contest-notification.processor'
-import { ContestNotificationScheduler } from './contest-notification.scheduler'
 import { NotificationListener } from './notification.listener'
+import { NotificationProcessor } from './notification.processor'
+import { NotificationScheduler } from './notification.scheduler'
 import { NotificationService } from './notification.service'
 
 @Module({
@@ -16,9 +16,9 @@ import { NotificationService } from './notification.service'
   providers: [
     NotificationService,
     NotificationListener,
-    ContestNotificationProcessor,
-    ContestNotificationScheduler
+    NotificationProcessor,
+    NotificationScheduler
   ],
-  exports: [ContestNotificationScheduler]
+  exports: [NotificationListener, NotificationScheduler]
 })
 export class NotificationModule {}
