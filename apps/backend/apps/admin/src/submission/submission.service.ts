@@ -43,7 +43,8 @@ export class SubmissionService {
   async getSubmissions(
     problemId: number,
     cursor: number | null,
-    take: number
+    take: number,
+    reqUserId: number
   ): Promise<SubmissionsWithTotal> {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -56,21 +57,80 @@ export class SubmissionService {
       throw new EntityNotExistException('Problem')
     }
 
-    const submissions = await this.prisma.submission.findMany({
-      ...paginator,
-      take,
-      where: {
-        problemId
-      },
-      include: {
-        user: true
-      },
-      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
-    })
+    // user가 관리하는 그룹과 Contest들을 병렬로 가져오기
+    const [leaderGroups, userContests] = await Promise.all([
+      this.prisma.userGroup.findMany({
+        where: {
+          userId: reqUserId,
+          isGroupLeader: true
+        },
+        select: {
+          groupId: true
+        }
+      }),
+      this.prisma.userContest.findMany({
+        where: {
+          userId: reqUserId,
+          role: {
+            in: [ContestRole.Admin, ContestRole.Manager]
+          }
+        },
+        select: {
+          contestId: true
+        }
+      })
+    ])
 
-    const total = await this.prisma.submission.count({
-      where: { problemId }
-    })
+    const leaderGroupIds = leaderGroups.map((g) => g.groupId)
+    const contestIds = userContests.map((c) => c.contestId)
+
+    // 접근 가능한 submission들만 쿼리
+    const whereCondition = {
+      problemId,
+      OR: [
+        ...(leaderGroupIds.length > 0
+          ? [
+              {
+                assignment: {
+                  groupId: {
+                    in: leaderGroupIds
+                  }
+                }
+              }
+            ]
+          : []),
+        ...(contestIds.length > 0
+          ? [
+              {
+                contestId: {
+                  in: contestIds
+                }
+              }
+            ]
+          : [])
+      ]
+    }
+
+    const [submissions, total] = await Promise.all([
+      this.prisma.submission.findMany({
+        ...paginator,
+        take,
+        where: whereCondition,
+        include: {
+          user: true
+        },
+        orderBy: [{ id: 'desc' }]
+      }),
+      this.prisma.submission.count({
+        where: whereCondition
+      })
+    ])
+
+    if (total === 0) {
+      throw new ForbiddenAccessException(
+        'Only allowed to access submissions included in your group'
+      )
+    }
 
     return { data: submissions, total }
   }
