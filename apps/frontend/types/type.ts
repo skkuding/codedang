@@ -563,3 +563,31 @@ export interface MultipleQnaData {
   }
   isRead: boolean
 }
+
+export interface SingleQnaData {
+  id: number
+  order: number
+  createdById: number
+  title: string
+  content: string
+  problemId: number | null
+  category: string
+  isResolved: boolean
+  createTime: Date
+  readby: number[]
+  comments: {
+    id: number
+    order: number
+    createdById: number
+    isContestStaff: false
+    content: string
+    contestQnAId: number
+    createdTime: Date
+    createdBy: {
+      username: string
+    }
+  }[]
+  createdBy: {
+    username: string
+  }
+}
