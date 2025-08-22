@@ -1,4 +1,3 @@
-// frontend/libs/instagram.ts
 import {
   SecretsManagerClient,
   GetSecretValueCommand
@@ -15,7 +14,7 @@ export const getInstagramToken = cache(async () => {
   const response = await client.send(command)
   const secret = JSON.parse(response.SecretString || '{}')
 
-  const token = secret.Instagram_Access_Token
+  const token = secret.access_token
   if (!token) {
     throw new Error('Instagram_Access_Token not found in secret.')
   }
@@ -29,7 +28,7 @@ export async function fetchInstagramMedia() {
   }
   const url = `https://graph.instagram.com/v23.0/24748516551450633/media?access_token=${token}&fields=id,caption,media_url,permalink,timestamp,media_type`
 
-  const res = await fetch(url)
+  const res = await fetch(url, { cache: 'force-cache' })
   if (!res.ok) {
     throw new Error(`Instagram API failed: ${res.status}`)
   }

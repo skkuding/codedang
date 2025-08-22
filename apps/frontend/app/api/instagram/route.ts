@@ -1,4 +1,3 @@
-// frontend/app/api/instagram/route.ts
 import { fetchInstagramMedia } from '@/libs/instagram'
 import { NextResponse } from 'next/server'
 
