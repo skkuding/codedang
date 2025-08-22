@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Contest, ContestProblem, ContestRecord, Problem } from '@generated'
 import { faker } from '@faker-js/faker'
@@ -7,7 +8,6 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { NotificationScheduler } from '@admin/notification/notification.scheduler'
 import { solution } from '@admin/problem/mock/mock'
 import { ContestService } from './contest.service'
 import type { ContestWithParticipants } from './model/contest-with-participants.model'
@@ -295,6 +295,12 @@ describe('ContestService', () => {
         ContestService,
         { provide: PrismaService, useValue: db },
         {
+          provide: EventEmitter2,
+          useValue: {
+            emit: stub().returns(undefined)
+          }
+        },
+        {
           provide: CACHE_MANAGER,
           useFactory: () => ({
             set: () => [],
@@ -304,14 +310,6 @@ describe('ContestService', () => {
               keys: () => []
             }
           })
-        },
-        {
-          provide: NotificationScheduler,
-          useValue: {
-            scheduleStartReminder: stub().resolves(),
-            cancelStartReminder: stub().resolves(),
-            rescheduleStartReminder: stub().resolves()
-          }
         }
       ]
     }).compile()
