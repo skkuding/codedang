@@ -1,18 +1,16 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import type { Job } from 'bullmq'
 import { NotificationService } from './notification.service'
 
-@Processor('contest')
+@Processor('notification')
 @Injectable()
-export class ContestNotificationProcessor extends WorkerHost {
-  private readonly logger = new Logger(ContestNotificationProcessor.name)
-
+export class NotificationProcessor extends WorkerHost {
   constructor(private readonly notificationService: NotificationService) {
     super()
   }
 
-  async process(job: Job<{ contestId: number }>) {
+  async process(job: Job) {
     switch (job.name) {
       case 'contest-start-reminder': {
         const { contestId } = job.data
