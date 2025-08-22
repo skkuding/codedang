@@ -84,11 +84,12 @@ export function SignUpSendEmail() {
             }}
           />
           <OptionSelect
-            options={DOMAIN_OPTIONS.map((domain) => `@ ${domain}`)}
-            value={`@ ${watchEmailDomain}`}
+            options={DOMAIN_OPTIONS}
+            value={watchEmailDomain}
             onChange={(value) => {
-              setValue('emailDomain', value.replace(/^@\s*/, ''))
+              setValue('emailDomain', value)
             }}
+            prefix="@"
             className="text-base font-normal"
           />
         </div>
