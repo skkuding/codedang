@@ -5,6 +5,7 @@ import {
   Injectable,
   UnauthorizedException
 } from '@nestjs/common'
+import type { EventEmitter2 } from '@nestjs/event-emitter'
 import { Contest, ResultStatus, Submission } from '@generated'
 import { ContestRole, Prisma, Role, type ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
@@ -15,7 +16,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { ContestNotificationScheduler } from '@admin/notification/contest-notification.scheduler'
 import type { ContestWithScores } from './model/contest-with-scores.model'
 import type {
   CreateContestInput,
@@ -27,8 +27,8 @@ import type { ProblemScoreInput } from './model/problem-score.input'
 export class ContestService {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly contestScheduler: ContestNotificationScheduler
+    private readonly eventEmitter: EventEmitter2,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   async getContests(userId: number, take: number, cursor: number | null) {
@@ -283,10 +283,15 @@ export class ContestService {
     })
 
     // Contest 시작 전 알림 추가
-    await this.contestScheduler.scheduleStartReminder(
-      created.id,
-      created.startTime
-    )
+    // await this.contestScheduler.scheduleStartReminder(
+    //   created.id,
+    //   created.startTime
+    // )
+
+    this.eventEmitter.emit('contest.created', {
+      contestId: created.id,
+      startTime: created.startTime
+    })
 
     return created
   }
@@ -324,6 +329,9 @@ export class ContestService {
         }
       }
     })
+
+    const isStartTimeChanged =
+      contest.startTime && contest.startTime !== contestFound.startTime
 
     const isEndTimeChanged =
       contest.endTime && contest.endTime !== contestFound.endTime
@@ -530,11 +538,13 @@ export class ContestService {
       }
     })
 
-    // Contest 시작 전 알림 재스케줄링
-    await this.contestScheduler.rescheduleStartReminder(
-      updated.id,
-      updated.startTime
-    )
+    // startTime이 변경되었으면 알림 재스케줄링
+    if (isStartTimeChanged) {
+      this.eventEmitter.emit('contest.updated', {
+        contestId: updated.id,
+        startTime: updated.startTime
+      })
+    }
 
     return updated
   }
@@ -574,8 +584,9 @@ export class ContestService {
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
-    // 대회 시작 전 알림 삭제
-    await this.contestScheduler.cancelStartReminder(deleted.id)
+
+    // Contest 시작 전 알림 삭제
+    this.eventEmitter.emit('contest.deleted', deleted.id)
 
     return deleted
   }
