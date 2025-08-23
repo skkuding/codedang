@@ -9,7 +9,7 @@ import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter, getStatusWithStartEnd } from '@/libs/utils'
 import { useQuery } from '@tanstack/react-query'
 import { use } from 'react'
-import { SubmissionOverviewModal } from '../../_components/SubmissionOverviewModal'
+import { ProblemCard } from '../../_components/ProblemCard'
 import { columns } from './_components/Columns'
 import { TotalScoreLabel } from './_components/TotalScoreLabel'
 
@@ -125,78 +125,17 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
             {/* Mobile Card View */}
             <div className="lg:hidden">
               <div className="space-y-3">
-                {record.problems.map((problem, index) => {
-                  const submission = submissions?.find(
-                    (s) => s.problemId === problem.id
-                  )
-                  const hasSubmission = submission?.submission !== null
-                  const isAccepted =
-                    submission?.submission?.submissionResult === 'Accepted'
-
-                  return (
-                    <div
-                      key={problem.id}
-                      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:bg-gray-50"
-                      onClick={() => {
-                        window.location.href = `${window.location.pathname}/problem/${problem.id}`
-                      }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-white">
-                            {String.fromCharCode(65 + index)}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <h3 className="truncate text-sm font-medium text-gray-900">
-                              {problem.title}
-                            </h3>
-                            <p className="text-xs text-gray-500">
-                              {hasSubmission
-                                ? `Submitted on ${new Date(
-                                    submission?.submission?.submissionTime || ''
-                                  ).toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric'
-                                  })}`
-                                : 'Not submitted'}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          {hasSubmission && (
-                            <div className="text-right">
-                              <div className="flex items-center gap-1">
-                                <div className="h-2 w-12 rounded-full bg-gray-200">
-                                  <div
-                                    className="bg-primary h-full rounded-full transition-all"
-                                    style={{
-                                      width: isAccepted ? '100%' : '0%'
-                                    }}
-                                  />
-                                </div>
-                                <span className="text-primary text-xs font-medium">
-                                  {submission?.submission
-                                    ?.acceptedTestcaseCount || 0}
-                                  /{submission?.submission?.testcaseCount || 0}
-                                </span>
-                              </div>
-                              <p className="text-xs text-gray-500">
-                                {isAccepted ? 'Accepted' : 'Wrong Answer'}
-                              </p>
-                            </div>
-                          )}
-
-                          <SubmissionOverviewModal
-                            problem={problem}
-                            assignment={assignment}
-                            submissions={submissions}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
+                {record.problems.map((problem, index) => (
+                  <ProblemCard
+                    key={problem.id}
+                    problem={problem}
+                    parentItem={assignment}
+                    submissions={submissions}
+                    index={index}
+                    courseId={courseId}
+                    type="assignment"
+                  />
+                ))}
               </div>
             </div>
           </>
