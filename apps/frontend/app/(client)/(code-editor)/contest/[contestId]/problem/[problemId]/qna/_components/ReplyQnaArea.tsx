@@ -3,7 +3,7 @@
 import { fetcherWithAuth } from '@/libs/utils'
 import type { MultipleQnaData, SingleQnaData } from '@/types/type'
 import { useState, useEffect } from 'react'
-import { FaExclamationCircle } from 'react-icons/fa'
+import { FaCircleExclamation } from 'react-icons/fa6'
 import { QnaAccordian } from './QnaAccordian'
 
 //뭘 받아야 하지...
@@ -66,18 +66,18 @@ export function ReplyQnaArea({ contestId, problemId }: ReplyQnaAreaProps) {
   }
   if (!dataExsist) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-[#34495e] bg-[#2c3e50] p-10 text-center font-sans text-[#ecf0f1]">
-        <div className="mb-4 text-5xl text-[#f39c12]">
-          <FaExclamationCircle />
+      <div className="mx-5 mb-[38px] mt-5 flex flex-col items-center justify-center gap-[6px] rounded-lg bg-[#121728] px-5 pb-10 pt-[30px] text-center font-sans text-[#787E80]">
+        <div className="text-[#787E80]">
+          <FaCircleExclamation className="h-[30px] w-[30px]" />
         </div>
-        <p className="m-0 text-lg">Question not registered</p>
+        <p className="m-0 text-base">Question not registered</p>
       </div>
     )
   }
   console.log('QnA Details:', qnaDetails)
 
   return (
-    <div className="qna-list-container">
+    <div className="flex h-full flex-col">
       {qnaDetails.map((qna) => (
         <QnaAccordian key={qna.id} qnaData={qna} />
       ))}

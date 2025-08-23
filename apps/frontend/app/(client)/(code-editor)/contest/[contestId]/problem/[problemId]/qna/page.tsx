@@ -21,16 +21,18 @@ export default async function QnaPage(props: {
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
       <Suspense>
-        <div className="flex flex-col">
-          <CreateQnaTextArea
-            problemOrder={problemorder}
-            contestId={Number(contestId)}
-          />
-          <hr className="border-4 border-[#121728]" />
-          <ReplyQnaArea
-            contestId={Number(contestId)}
-            problemId={Number(problemId)}
-          />
+        <div className="h-full bg-[#222939]">
+          <div className="flex flex-col">
+            <CreateQnaTextArea
+              problemOrder={problemorder}
+              contestId={Number(contestId)}
+            />
+            <hr className="border-4 border-[#121728]" />
+            <ReplyQnaArea
+              contestId={Number(contestId)}
+              problemId={Number(problemId)}
+            />
+          </div>
         </div>
       </Suspense>
     </TanstackQueryErrorBoundary>
