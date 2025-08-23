@@ -706,6 +706,7 @@ export class ContestService {
    *   - categories: QnACategory Enum의 값을 배열로 저장합니다.
    *   - problemOrders: QnA를 조회할 문제들의 대회에서의 order를 배열로 저장합니다.
    *   - orderBy: 조회할 QnA의 정렬 순서를 저장합니다. (asc: 오름차순 / desc: 내림차순)
+   *   - search: 검색어를 저장합니다.
    * @throws { EntityNotExistException } - contestId에 해당하는 Contest가 존재하지 않으면 반환합니다.
    * @returns ContestQnA[]
    */
@@ -782,9 +783,21 @@ export class ContestService {
       orConds.push({ category: { in: general } })
     }
 
+    const searchFilter = filter.search
+      ? {
+          title: { contains: filter.search, mode: Prisma.QueryMode.insensitive }
+        }
+      : {}
+
     const where: Prisma.ContestQnAWhereInput = orConds.length
-      ? { AND: [baseWhere, { OR: orConds }] }
-      : baseWhere
+      ? {
+          AND: [
+            baseWhere,
+            ...(filter.search ? [searchFilter] : []),
+            { OR: orConds }
+          ]
+        }
+      : { AND: [baseWhere, ...(filter.search ? [searchFilter] : [])] }
 
     const qnas = await this.prisma.contestQnA.findMany({
       select: {
