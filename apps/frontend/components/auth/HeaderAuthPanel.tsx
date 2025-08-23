@@ -5,6 +5,8 @@ import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import {
@@ -206,8 +208,11 @@ export function HeaderAuthPanel({
             onInteractOutside={(e) => {
               e.preventDefault()
             }}
-            className="min-h-120 max-w-82"
+            className="!h-[620px] !w-[380px] rounded-[10px]"
           >
+            <DialogHeader className="hidden">
+              <DialogTitle />
+            </DialogHeader>
             <AuthModal />
           </DialogContent>
         </Dialog>
