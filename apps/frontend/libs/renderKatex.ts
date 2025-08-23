@@ -1,3 +1,4 @@
+import DOMPurify from 'isomorphic-dompurify'
 import katex from 'katex'
 import type { RefObject } from 'react'
 
@@ -6,7 +7,7 @@ export const renderKatex = (
   katexRef: RefObject<HTMLDivElement | null>
 ) => {
   if (katexRef.current) {
-    katexRef.current.innerHTML = html ?? ''
+    katexRef.current.innerHTML = DOMPurify.sanitize(html ?? '')
     const div = katexRef.current
     div.querySelectorAll('math-component').forEach((el) => {
       const content = el.getAttribute('content') || ''
