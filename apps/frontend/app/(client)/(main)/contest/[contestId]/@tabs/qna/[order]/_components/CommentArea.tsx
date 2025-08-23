@@ -4,7 +4,7 @@ import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
 import { fetcherWithAuth } from '@/libs/utils'
 import { format } from 'date-fns'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { BiSolidPencil } from 'react-icons/bi'
 import { FaCircleCheck, FaClock } from 'react-icons/fa6'
 import { toast } from 'sonner'
@@ -23,44 +23,10 @@ export function CommentArea({
   userId: number
   isContestStaff: boolean
 }) {
-  const { contestId, order, comments } = data
-  // 질문 작성자 혹은 관리자면 댓글 게시 가능.
-  const canPost = isContestStaff || userId === data.createdById
-  return (
-    <div className="flex flex-col gap-[40px]">
-      <QnaComments
-        contestId={contestId}
-        order={order}
-        initialComments={comments}
-        userId={userId}
-        isContestStaff={isContestStaff}
-      />
-      {canPost && (
-        <CommentPostArea
-          contestId={contestId}
-          order={order}
-          userInfo={userInfo}
-        />
-      )}
-    </div>
-  )
-}
-
-// 댓글들
-function QnaComments({
-  contestId,
-  order,
-  initialComments,
-  userId,
-  isContestStaff
-}: {
-  contestId?: number
-  order?: number
-  initialComments?: ContestQnAComment[]
-  userId: number
-  isContestStaff: boolean
-}) {
+  const { contestId, order, comments: initialComments } = data
   const [comments, setComments] = useState(initialComments)
+  const [text, setText] = useState('')
+
   useEffect(() => {
     let isMounted = true
 
@@ -94,6 +60,59 @@ function QnaComments({
     }
   }, [contestId, order])
 
+  const onPost = async (): Promise<void> => {
+    try {
+      const res = await fetcherWithAuth.post(
+        `contest/${contestId}/qna/${order}/comment`,
+        {
+          json: {
+            content: text
+          }
+        }
+      )
+      if (!res.ok) {
+        const errorRes: { message: string } = await res.json()
+        toast.error(errorRes.message)
+      } else {
+        toast.success('Posted successfully!')
+        setText('')
+      }
+    } catch {
+      toast.error('Error in posting comment!')
+    }
+  }
+
+  // 질문 작성자 혹은 관리자면 댓글 게시 가능.
+  const canPost = isContestStaff || userId === data.createdById
+  return (
+    <div className="flex flex-col gap-[40px]">
+      <QnaComments
+        comments={comments}
+        userId={userId}
+        isContestStaff={isContestStaff}
+      />
+      {canPost && (
+        <CommentPostArea
+          userInfo={userInfo}
+          text={text}
+          setText={setText}
+          onPost={onPost}
+        />
+      )}
+    </div>
+  )
+}
+
+// 댓글들
+function QnaComments({
+  comments,
+  userId,
+  isContestStaff
+}: {
+  comments?: ContestQnAComment[]
+  userId: number
+  isContestStaff: boolean
+}) {
   return (
     <div className="flex flex-col gap-[10px]">
       {comments?.map((comment) => (
@@ -156,46 +175,16 @@ function SingleComment({
 }
 
 function CommentPostArea({
-  contestId,
-  order,
-  userInfo
+  userInfo,
+  text,
+  setText,
+  onPost
 }: {
-  contestId?: number
-  order?: number
   userInfo: { username?: string; email?: string }
+  text: string
+  setText: Dispatch<SetStateAction<string>>
+  onPost: (text: string, setText: Dispatch<SetStateAction<string>>) => void
 }) {
-  const [text, setText] = useState('')
-
-  const onTextChange = (value: string): void => {
-    setText(value)
-  }
-
-  const onPost = async (): Promise<void> => {
-    if (text === '') {
-      toast.error('Please enter your answer.')
-      return
-    }
-    try {
-      const res = await fetcherWithAuth.post(
-        `contest/${contestId}/qna/${order}/comment`,
-        {
-          json: {
-            content: text
-          }
-        }
-      )
-      if (!res.ok) {
-        const errorRes: { message: string } = await res.json()
-        toast.error(errorRes.message)
-      } else {
-        toast.success('Posted successfully!')
-        setText('')
-      }
-    } catch {
-      toast.error('Error in posting comment!')
-    }
-  }
-
   return (
     <div className="border-color-line-default flex flex-col gap-[20px] rounded-xl border border-solid p-[30px]">
       {/* 작성자 이름과 input field */}
@@ -209,7 +198,7 @@ function CommentPostArea({
             id="textarea"
             className="placeholder:text-color-neutral-90 min-h-[120px] resize-none whitespace-pre-wrap border-none p-0 text-base shadow-none focus-visible:ring-0"
             placeholder="Enter Your Answer"
-            onChange={(value) => onTextChange(value.target.value)}
+            onChange={(value) => setText(value.target.value)}
             maxLength={400}
           />
           <div className="text-color-neutral-90 text-abse right-0 flex justify-end font-medium">
@@ -221,7 +210,7 @@ function CommentPostArea({
       <Button
         type="submit"
         disabled={text.length === 0}
-        onClick={onPost}
+        onClick={() => onPost(text, setText)}
         className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-[6px]"
       >
         <BiSolidPencil className="white" />
