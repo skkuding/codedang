@@ -18,49 +18,39 @@ export function DeleteButton({
   const [showModal, setShowModal] = useState(false)
   const params = useParams()
 
-  const handleDelete =
-    subject === 'question'
-      ? async () => {
-          const [contestId, order] = [
-            Number(params.contestId),
-            Number(params.order)
-          ]
-
-          try {
-            const res = await fetcherWithAuth.delete(
-              `contest/${contestId}/qna/${order}`
-            )
-            if (!res.ok) {
-              const errorRes: { message: string } = await res.json()
-              toast.error(errorRes.message)
-            } else {
-              toast.success('Qna is deleted successfully!')
-            }
-            // TODO: status code에 따라 에러 구현
-          } catch (error) {
-            toast.error(`Error in deleting qna!: ${error}`)
-          }
+  const handleDelete = async (subject: 'question' | 'comment') => {
+    if (subject === 'question') {
+      try {
+        const res = await fetcherWithAuth.delete(
+          `contest/${params.contestId}/qna/${params.order}`
+        )
+        if (!res.ok) {
+          const errorRes: { message: string } = await res.json()
+          toast.error(errorRes.message)
+        } else {
+          toast.success('Qna is deleted successfully!')
         }
-      : async () => {
-          const [contestId, order] = [
-            Number(params.contestId),
-            Number(params.order)
-          ]
-          try {
-            // TODO: response error handling
-            const res = await fetcherWithAuth.delete(
-              `contest/${contestId}/qna/${order}/comment/${commentOrder}`
-            )
-            if (!res.ok) {
-              const errorRes: { message: string } = await res.json()
-              toast.error(errorRes.message)
-            } else {
-              toast.success('A qna comment is deleted successfully!')
-            }
-          } catch (error) {
-            toast.error(`Error in deleting a qna comment!: ${error}`)
-          }
+        // TODO: status code에 따라 에러 구현
+      } catch (error) {
+        toast.error(`Error in deleting qna!: ${error}`)
+      }
+    } else if (subject === 'comment') {
+      try {
+        // TODO: response error handling
+        const res = await fetcherWithAuth.delete(
+          `contest/${params.contestId}/qna/${params.order}/comment/${commentOrder}`
+        )
+        if (!res.ok) {
+          const errorRes: { message: string } = await res.json()
+          toast.error(errorRes.message)
+        } else {
+          toast.success('A qna comment is deleted successfully!')
         }
+      } catch (error) {
+        toast.error(`Error in deleting a qna comment!: ${error}`)
+      }
+    }
+  }
   return (
     <AlertModal
       trigger={
@@ -84,7 +74,7 @@ export function DeleteButton({
       primaryButton={{
         text: 'Delete',
         onClick: () => {
-          handleDelete()
+          handleDelete(subject)
           setShowModal(false)
         },
         variant: 'default'
