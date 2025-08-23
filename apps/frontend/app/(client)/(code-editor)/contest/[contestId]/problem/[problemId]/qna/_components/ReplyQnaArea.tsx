@@ -4,7 +4,7 @@ import { fetcherWithAuth } from '@/libs/utils'
 import type { MultipleQnaData, SingleQnaData } from '@/types/type'
 import { useState, useEffect } from 'react'
 import { FaCircleExclamation } from 'react-icons/fa6'
-import { QnaAccordian } from './QnaAccordian'
+import { QnaAccordion } from './QnaAccordion'
 
 //뭘 받아야 하지...
 //일단 contestId, problemId 둘다 number
@@ -17,9 +17,14 @@ import { QnaAccordian } from './QnaAccordian'
 interface ReplyQnaAreaProps {
   contestId: number
   problemId: number
+  qnaInputHeight: number
 }
 
-export function ReplyQnaArea({ contestId, problemId }: ReplyQnaAreaProps) {
+export function ReplyQnaArea({
+  contestId,
+  problemId,
+  qnaInputHeight
+}: ReplyQnaAreaProps) {
   const [dataExsist, setDataExsist] = useState(false)
   const [qnaDetails, setQnaDetails] = useState<SingleQnaData[]>([])
   const [loading, setLoading] = useState(true)
@@ -76,11 +81,5 @@ export function ReplyQnaArea({ contestId, problemId }: ReplyQnaAreaProps) {
   }
   console.log('QnA Details:', qnaDetails)
 
-  return (
-    <div className="flex h-full flex-col">
-      {qnaDetails.map((qna) => (
-        <QnaAccordian key={qna.id} qnaData={qna} />
-      ))}
-    </div>
-  )
+  return <QnaAccordion qnaData={qnaDetails} qnaInputHeight={qnaInputHeight} />
 }

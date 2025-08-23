@@ -5,7 +5,7 @@ import { Input } from '@/components/shadcn/input'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
 import { safeFetcherWithAuth } from '@/libs/utils'
-import React, { useState } from 'react'
+import React, { useState, forwardRef } from 'react'
 import { FaPen } from 'react-icons/fa6'
 import { toast } from 'sonner'
 

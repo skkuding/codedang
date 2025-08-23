@@ -3,8 +3,7 @@ import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBound
 import { fetcherWithAuth } from '@/libs/utils'
 import type { ProblemDataTop } from '@/types/type'
 import { Suspense } from 'react'
-import { CreateQnaTextArea } from './_components/CreateQnaTextArea'
-import { ReplyQnaArea } from './_components/ReplyQnaArea'
+import { QnaLayout } from './_components/QnaLayout'
 
 export default async function QnaPage(props: {
   params: Promise<{ problemId: string; contestId: string }>
@@ -21,19 +20,11 @@ export default async function QnaPage(props: {
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
       <Suspense>
-        <div className="h-full bg-[#222939]">
-          <div className="flex flex-col">
-            <CreateQnaTextArea
-              problemOrder={problemorder}
-              contestId={Number(contestId)}
-            />
-            <hr className="border-4 border-[#121728]" />
-            <ReplyQnaArea
-              contestId={Number(contestId)}
-              problemId={Number(problemId)}
-            />
-          </div>
-        </div>
+        <QnaLayout
+          contestId={Number(contestId)}
+          problemId={Number(problemId)}
+          problemOrder={problemorder}
+        />
       </Suspense>
     </TanstackQueryErrorBoundary>
   )
