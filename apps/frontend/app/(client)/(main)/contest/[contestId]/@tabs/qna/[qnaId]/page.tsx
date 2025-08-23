@@ -7,7 +7,7 @@ import { QnaContentArea } from './_components/QnaContentArea'
 type PageProps = {
   params: Promise<{
     contestId: string
-    order: string
+    qnaId: string
   }>
 }
 export interface QnaContent {
@@ -52,8 +52,8 @@ interface ContestRole {
 type Role = 'Admin' | 'Manager' | 'Participant' | 'Reviewer'
 
 export default async function QnaDetailPage({ params }: PageProps) {
-  const { contestId, order } = await params
-  const QnaRes = await fetcherWithAuth.get(`contest/${contestId}/qna/${order}`)
+  const { contestId, qnaId } = await params
+  const QnaRes = await fetcherWithAuth.get(`contest/${contestId}/qna/${qnaId}`)
   const userInfoRes = await fetcherWithAuth.get('user')
   const MyContestRolesRes = await fetcherWithAuth.get('contest/role')
 

@@ -23,7 +23,7 @@ export function CommentArea({
   userId: number
   isContestStaff: boolean
 }) {
-  const { contestId, order, comments: initialComments } = data
+  const { contestId, order: qnaId, comments: initialComments } = data
   const [comments, setComments] = useState(initialComments)
   const [text, setText] = useState('')
 
@@ -33,7 +33,7 @@ export function CommentArea({
     async function poll() {
       try {
         const QnaRes = await fetcherWithAuth.get(
-          `contest/${contestId}/qna/${order}`
+          `contest/${contestId}/qna/${qnaId}`
         )
 
         if (!QnaRes.ok) {
@@ -58,12 +58,12 @@ export function CommentArea({
     return () => {
       isMounted = false
     }
-  }, [contestId, order])
+  }, [contestId, qnaId])
 
   const onPost = async (): Promise<void> => {
     try {
       const res = await fetcherWithAuth.post(
-        `contest/${contestId}/qna/${order}/comment`,
+        `contest/${contestId}/qna/${qnaId}/comment`,
         {
           json: {
             content: text

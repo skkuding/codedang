@@ -22,7 +22,7 @@ export function DeleteButton({
     if (subject === 'question') {
       try {
         const res = await fetcherWithAuth.delete(
-          `contest/${params.contestId}/qna/${params.order}`
+          `contest/${params.contestId}/qna/${params.qnaId}`
         )
         if (!res.ok) {
           const errorRes: { message: string } = await res.json()
@@ -38,7 +38,7 @@ export function DeleteButton({
       try {
         // TODO: response error handling
         const res = await fetcherWithAuth.delete(
-          `contest/${params.contestId}/qna/${params.order}/comment/${commentOrder}`
+          `contest/${params.contestId}/qna/${params.qnaId}/comment/${commentOrder}`
         )
         if (!res.ok) {
           const errorRes: { message: string } = await res.json()
