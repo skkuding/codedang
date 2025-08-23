@@ -43,7 +43,7 @@ export class NotificationService {
     })
 
     if (!assignmentInfo) {
-      console.error(`Assignment with ID ${assignmentId} not found`)
+      //console.error(`Assignment with ID ${assignmentId} not found`)
       return
     }
 
@@ -56,7 +56,7 @@ export class NotificationService {
     const url = `/course/${assignmentInfo.group.id}/assignment/${assignmentId}`
 
     if (receivers.length === 0) {
-      console.error(`No users found for assignment ID ${assignmentId}`)
+      //console.error(`No users found for assignment ID ${assignmentId}`)
       return
     }
 
@@ -87,7 +87,7 @@ export class NotificationService {
     })
 
     if (!assignmentInfo) {
-      console.error(`Assignment with ID ${assignmentId} not found`)
+      //console.error(`Assignment with ID ${assignmentId} not found`)
       return
     }
 
@@ -139,9 +139,6 @@ export class NotificationService {
     })
   }
 
-  /**
-   * 사용자들에게 푸시 알림을 전송합니다
-   */
   private async sendPushNotification(
     userIds: number[],
     title: string,
