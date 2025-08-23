@@ -117,7 +117,7 @@ export function Modal({
         {size !== 'lg' && headerDescription && (
           <p
             className={cn(
-              'w-full text-center text-sm font-normal text-[#737373]',
+              'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
               children && 'text-left'
             )}
           >
@@ -128,7 +128,7 @@ export function Modal({
         {footerDescription && (
           <p
             className={cn(
-              'w-full text-center text-sm font-normal text-[#737373]',
+              'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
               children && 'text-left'
             )}
           >
