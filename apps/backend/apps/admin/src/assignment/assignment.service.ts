@@ -13,7 +13,6 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
 import type { AssignmentProblemInput } from './model/assignment-problem.input'
-import type { AssignmentWithScores } from './model/assignment-with-scores.model'
 import type {
   CreateAssignmentInput,
   UpdateAssignmentInput
@@ -1149,6 +1148,29 @@ export class AssignmentService {
     )
 
     return isAllProblemGraded
+  }
+
+  async autoFinalizeScore(groupId: number, assignmentId: number) {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: { groupId: true }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (assignment.groupId !== groupId) {
+      throw new ForbiddenAccessException(
+        'You can only access assignment in your own group'
+      )
+    }
+
+    return await this.prisma.$executeRaw`
+      UPDATE "assignment_problem_record"
+      SET "final_score" = "score"
+      WHERE "assignmentId" = ${assignmentId};
+    `
   }
 
   private async inviteAllCourseMembersToAssignment(
