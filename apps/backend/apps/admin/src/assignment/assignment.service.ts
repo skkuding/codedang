@@ -13,7 +13,6 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
 import type { AssignmentProblemInput } from './model/assignment-problem.input'
-import type { AssignmentWithScores } from './model/assignment-with-scores.model'
 import type {
   CreateAssignmentInput,
   UpdateAssignmentInput
