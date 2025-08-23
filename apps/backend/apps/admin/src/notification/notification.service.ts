@@ -3,13 +3,11 @@ import { ConfigService } from '@nestjs/config'
 import { NotificationType } from '@prisma/client'
 import * as webpush from 'web-push'
 import { PrismaService } from '@libs/prisma'
-import { AssignmentService } from '@admin/assignment/assignment.service'
 
 @Injectable()
 export class NotificationService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly assignmentService: AssignmentService,
     private readonly config: ConfigService
   ) {
     const vapidKeys = {
@@ -26,41 +24,51 @@ export class NotificationService {
     }
   }
 
-  async notifyAssignmentGraded(assignmentId: number, userId: number) {
-    const isGradingDone =
-      await this.assignmentService.isAllAssignmentProblemGraded(
-        assignmentId,
-        userId
-      )
-
-    if (isGradingDone) {
-      const assignmentInfo = await this.prisma.assignment.findUnique({
-        where: { id: assignmentId },
-        select: {
-          title: true,
-          group: {
-            select: {
-              id: true,
-              groupName: true
-            }
+  async notifyAssignmentGraded(assignmentId: number) {
+    const assignmentInfo = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: {
+        title: true,
+        group: {
+          select: {
+            id: true,
+            groupName: true
           }
+        },
+        assignmentRecord: {
+          where: { userId: { not: null } },
+          select: { userId: true }
         }
-      })
+      }
+    })
 
-      const title = assignmentInfo?.group.groupName ?? 'Assignment'
-      const message = `Your assignment "${assignmentInfo?.title ?? ''}" has been graded.`
-      const url = `/course/${assignmentInfo?.group.id}/assignment/${assignmentId}`
-
-      await this.saveNotification(
-        [userId],
-        title,
-        message,
-        NotificationType.Assignment,
-        url
-      )
-
-      await this.sendPushNotification([userId], title, message, url)
+    if (!assignmentInfo) {
+      console.error(`Assignment with ID ${assignmentId} not found`)
+      return
     }
+
+    const receivers = assignmentInfo.assignmentRecord.map(
+      (record) => record.userId!
+    )
+
+    const title = assignmentInfo.group.groupName ?? 'Assignment'
+    const message = `Your assignment "${assignmentInfo.title}" has been graded.`
+    const url = `/course/${assignmentInfo.group.id}/assignment/${assignmentId}`
+
+    if (receivers.length === 0) {
+      console.error(`No users found for assignment ID ${assignmentId}`)
+      return
+    }
+
+    await this.saveNotification(
+      receivers,
+      title,
+      message,
+      NotificationType.Assignment,
+      url
+    )
+
+    await this.sendPushNotification(receivers, title, message, url)
   }
 
   async notifyAssignmentCreated(assignmentId: number) {
@@ -78,12 +86,17 @@ export class NotificationService {
       }
     })
 
+    if (!assignmentInfo) {
+      console.error(`Assignment with ID ${assignmentId} not found`)
+      return
+    }
+
     const receivers =
       assignmentInfo?.group.userGroup.map((user) => user.userId) ?? []
 
-    const title = assignmentInfo?.group.groupName ?? 'Assignment'
-    const message = `A new assignment "${assignmentInfo?.title ?? ''}" has been created.`
-    const url = `/course/${assignmentInfo?.group.id}/assignment/${assignmentId}`
+    const title = assignmentInfo.group.groupName ?? 'Assignment'
+    const message = `A new assignment "${assignmentInfo.title}" has been created.`
+    const url = `/course/${assignmentInfo.group.id}/assignment/${assignmentId}`
 
     await this.saveNotification(
       receivers,
