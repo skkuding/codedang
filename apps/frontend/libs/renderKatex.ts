@@ -7,7 +7,10 @@ export const renderKatex = (
   katexRef: RefObject<HTMLDivElement | null>
 ) => {
   if (katexRef.current) {
-    katexRef.current.innerHTML = DOMPurify.sanitize(html ?? '')
+    katexRef.current.innerHTML = DOMPurify.sanitize(html ?? '', {
+      ADD_TAGS: ['math-component'],
+      ADD_ATTR: ['content']
+    })
     const div = katexRef.current
     div.querySelectorAll('math-component').forEach((el) => {
       const content = el.getAttribute('content') || ''
