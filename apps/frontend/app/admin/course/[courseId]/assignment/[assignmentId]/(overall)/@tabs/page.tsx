@@ -13,7 +13,7 @@ import {
 } from '@/components/shadcn/table'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
-import { useQuery, useSuspenseQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import { ChevronDownIcon } from '@radix-ui/react-icons'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense, useState, use } from 'react'
@@ -34,7 +34,7 @@ export default function Information(props: InformationProps) {
   }).data?.getAssignment
 
   const problemsData =
-    useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {
+    useQuery(GET_ASSIGNMENT_PROBLEMS, {
       variables: {
         groupId: Number(params.courseId),
         assignmentId: Number(params.assignmentId)
