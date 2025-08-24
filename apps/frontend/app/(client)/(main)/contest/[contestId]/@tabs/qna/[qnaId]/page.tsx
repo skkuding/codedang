@@ -1,8 +1,9 @@
 import { fetcherWithAuth } from '@/libs/utils'
 import errorImage from '@/public/logos/error.webp'
 import Image from 'next/image'
-import { CommentArea } from './_components/CommentArea'
+import { QnaCommentArea } from './_components/QnaCommentArea'
 import { QnaContentArea } from './_components/QnaContentArea'
+import { QnaDeleteButton } from './_components/QnaDeleteButton'
 
 type PageProps = {
   params: Promise<{
@@ -52,6 +53,7 @@ interface ContestRole {
 type Role = 'Admin' | 'Manager' | 'Participant' | 'Reviewer'
 
 export default async function QnaDetailPage({ params }: PageProps) {
+  // Get data
   const { contestId, qnaId } = await params
   const QnaRes = await fetcherWithAuth.get(`contest/${contestId}/qna/${qnaId}`)
   const userInfoRes = await fetcherWithAuth.get('user')
@@ -103,6 +105,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
   const userInfoByEmail: { id: number } = await res.json()
   const userId = userInfoByEmail.id
 
+  // Define authority
   const isContestStaff = new Set(['Admin', 'Manager']).has(
     MyContestRoles.find(
       (ContestRole) => ContestRole.contestId === QnaData.contestId
@@ -110,10 +113,20 @@ export default async function QnaDetailPage({ params }: PageProps) {
   )
   const canDelete = isContestStaff || userId === QnaData.createdById
 
+  // Content Delete handler
+  const deleteContentUrl = `contest/${contestId}/qna/${qnaId}`
+
   return (
     <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 gap-[50px] px-[116px] leading-[150%] tracking-[-3%]">
-      <QnaContentArea data={QnaData} className={''} canDelete={canDelete} />
-      <CommentArea
+      <QnaContentArea
+        data={QnaData}
+        className={''}
+        canDelete={canDelete}
+        DeleteButtonComponent={
+          <QnaDeleteButton subject="question" DeleteUrl={deleteContentUrl} />
+        }
+      />
+      <QnaCommentArea
         data={QnaData}
         userInfo={userInfo}
         userId={userId}
