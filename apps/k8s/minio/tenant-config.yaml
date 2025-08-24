@@ -1,0 +1,16 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: tenant-config
+  namespace: minio
+spec:
+  encryptedData:
+    config.env: AgACTLQ9YiGEPrCzMbTkHFSKjXRWWbSY+YSeucg5528gKwSqfsgGAEQkCV1WaWUkvWlLCtLUx9UH+V1CVzu+NOG9vOwreKqD9gbXAW7Y1LECqVWQd0hi12byhh25v7bYSmozU9r5KF4/qpDo8rynK9R5pWGhAOPVYNp7GZuGdvobJBH+YInI8z1YRJl77uPmHXMJoM5tgyIEhInVxUKh7Y+Q75+F3u0CVZOuMolRmq+tHBT4b/P/KOAPSoJu59uGvyvfKEiRZ7mVSbhD/IIHa3azyHeW9c8fUoQBC3OdQCIng7sYAvADOgPtYGw1obKiW3ewFKj3qEct9uLgwnQFdDKFxbDCN/yXp/4DUDkkuTE1UFkkMdaMwJ7F8eL+nZOSXje1Rep4/EaqpAojUNAf1iXCiS9CZFoj3DKvG7ZY+T+s6ZYJk0s8Vk+zVf+N0PORkI/YCEnV5ldFrQVv5FvD0nGG49AbkoWhEFivx1Jf114K7QwMTItqeSIftjl8SaXmPaod0/56wAPEF+pYI9S7ldy8acr+51Nk6g5/pN/jGp+RP/W6CCmceIrNC9xNAQq9ZAMr2b1/jyTToe3t9MB8oord3dsviUcdUs08aLAIPXHXvo8B1PKuqPKvxoFtD5eVmWgcKwmr73/TrB+BXtxWzPrs/c5IZUBCKvlMQyssB9aOfT6w7LgeCmlSt68rAW27nA0n3odLxS1qDs347rRb73uCnDOO/5Eri2u0kdy0Rg2ffPOF97X+vBpQSzYsvpaZXnoGuAVZwSm78pLJRfrkMKQpkax5QWSeMHor3AhHVH5jxg==
+  template:
+    metadata:
+      creationTimestamp: null
+      name: tenant-config
+      namespace: minio
+    type: Opaque
