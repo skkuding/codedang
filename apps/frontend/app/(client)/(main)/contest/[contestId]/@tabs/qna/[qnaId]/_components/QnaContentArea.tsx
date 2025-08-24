@@ -7,21 +7,28 @@ import type { QnaContent } from '../page'
 
 const maxTitleLength = 35
 
+/**
+ * Qna 상세 페이지의 글 내용 UI 컴포넌트
+ * @param data
+ * Qna 정보
+ * @param canDelete
+ * Qna 글 삭제 권한
+ * @param DeleteButtonComponent
+ * Qna 글 삭제 버튼
+ */
 export function QnaContentArea({
   data,
-  className,
   canDelete,
   DeleteButtonComponent
 }: {
   data: QnaContent
-  className: string
   canDelete: boolean
   DeleteButtonComponent: ReactElement
 }) {
   const TitleText = `[${data.category}] ${data.title}`
 
   return (
-    <div className={`flex flex-col gap-[40px] ${className}`}>
+    <div className={`flex flex-col gap-[40px]`}>
       <div className="flex flex-col gap-[12px]">
         <div className="flex flex-col gap-[14px]">
           <div className="round-full text-color-neutral-60 flex w-fit items-center rounded-xl bg-[#F5F5F5] px-[16px] py-[4px] text-sm font-medium">

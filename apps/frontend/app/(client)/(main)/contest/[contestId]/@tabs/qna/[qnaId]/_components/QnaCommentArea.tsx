@@ -8,6 +8,17 @@ import { QnaCommentPostArea } from './QnaCommentPostArea'
 import { QnaDeleteButton } from './QnaDeleteButton'
 import { QnaSingleComment } from './QnaSingleComment'
 
+/**
+ * Qna 댓글 목록, 댓글 작성 영역 컴포넌트
+ * @param data
+ * Qna 정보
+ * @param userInfo
+ * 현재 로그인 중인 유저 정보 (username과 email 포함)
+ * @param userId
+ * 현재 로그인 중인 유저의 id
+ * @param isContestStaff
+ * 해당 contest의 관리자 여부
+ */
 export function QnaCommentArea({
   data,
   userInfo,
