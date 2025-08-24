@@ -8,8 +8,6 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { DashboardCalendar } from './DashboardCalendar'
 
-/* ---------- Types ---------- */
-
 type WorkStatus = 'upcoming' | 'ongoing' | 'finished'
 type WorkKind = 'assignment' | 'exercise'
 
@@ -37,8 +35,6 @@ interface GroupedRows {
   rows: WorkItem[]
 }
 
-/* ---------- Helpers ---------- */
-
 const toGroupInfo = (group: Assignment['group'] | undefined): GroupInfo => ({
   id: Number.isFinite(Number(group?.id)) ? Number(group?.id) : 0,
   groupName: group?.groupName ?? 'Unknown'
@@ -61,8 +57,6 @@ const isWorkOpenOnDate = (target: Date | undefined, w: WorkItem) => {
   const b = w.dueTime.getTime()
   return !(b < beg || a > end)
 }
-
-/* ---------- Component ---------- */
 
 export function Dashboard({ courseIds }: { courseIds: number[] }) {
   const validCourseIds = (courseIds ?? []).filter(
@@ -228,8 +222,6 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
     </section>
   )
 }
-
-/* ---------- Presentational ---------- */
 
 function CardSection({
   icon,
