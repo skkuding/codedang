@@ -72,22 +72,22 @@ export default async function ContestQna({
 
 function QnATableFallback() {
   return (
-    <div className="w-[1133px] self-stretch">
+    <div className="w-[1133px]">
       <Skeleton className="h-[34px] w-[235px] gap-4" />
       <div className="mt-[140px] flex">
-        <span className="w-1/12">
+        <span className="w-2/12">
           <Skeleton className="h-6 w-20" />
         </span>
         <span className="w-2/12">
           <Skeleton className="mx-auto h-6 w-20" />
         </span>
-        <span className="w-5/12">
+        <span className="w-4/12">
           <Skeleton className="mx-auto h-6 w-20" />
         </span>
-        <span className="w-1/12">
+        <span className="w-2/12">
           <Skeleton className="mx-auto h-6 w-20" />
         </span>
-        <span className="w-3/12">
+        <span className="w-2/12">
           <Skeleton className="mx-auto h-6 w-20" />
         </span>
       </div>
