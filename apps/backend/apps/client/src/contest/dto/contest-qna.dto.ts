@@ -61,4 +61,7 @@ export class GetContestQnAsFilter {
   @IsOptional()
   @IsIn(['asc', 'desc'])
   orderBy?: 'asc' | 'desc' = 'asc'
+
+  @IsOptional()
+  search?: string
 }

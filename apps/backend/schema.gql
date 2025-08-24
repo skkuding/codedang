@@ -1098,7 +1098,6 @@ type ContestQnA {
   createdById: Int
   id: ID!
   isResolved: Boolean!
-  isVisible: Boolean!
   order: Int!
   problem: Problem
   problemId: Int
@@ -1185,7 +1184,6 @@ type ContestQnACountAggregate {
   createdById: Int!
   id: Int!
   isResolved: Int!
-  isVisible: Int!
   order: Int!
   problemId: Int!
   readBy: Int!
@@ -1200,7 +1198,6 @@ type ContestQnAMaxAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
-  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
@@ -1214,7 +1211,6 @@ type ContestQnAMinAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
-  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
@@ -3351,6 +3347,7 @@ type User {
   assignmentRecord: [AssignmentRecord!]
   canCreateContest: Boolean!
   canCreateCourse: Boolean!
+  college: String
   contest: [Contest!]
   contestRecord: [ContestRecord!]
   createTime: DateTime!
@@ -3497,6 +3494,7 @@ type UserCountAggregate {
   _all: Int!
   canCreateContest: Int!
   canCreateCourse: Int!
+  college: Int!
   createTime: Int!
   email: Int!
   id: Int!
@@ -3556,6 +3554,7 @@ type UserGroupSumAggregate {
 type UserMaxAggregate {
   canCreateContest: Boolean
   canCreateCourse: Boolean
+  college: String
   createTime: DateTime
   email: String
   id: Int
@@ -3570,6 +3569,7 @@ type UserMaxAggregate {
 type UserMinAggregate {
   canCreateContest: Boolean
   canCreateCourse: Boolean
+  college: String
   createTime: DateTime
   email: String
   id: Int
