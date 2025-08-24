@@ -17,7 +17,6 @@ interface ContestProps {
     categories?: string
     problemOrders?: string
   }
-  resetPageIndex: () => void
 }
 
 export default async function ContestQna({
