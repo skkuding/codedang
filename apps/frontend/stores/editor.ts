@@ -44,15 +44,13 @@ export const useLanguageStore = (
 interface CodeState {
   code: string
   setCode: (code: string) => void
-  getCode: () => string
 }
 
-export const useCodeStore = create<CodeState>((set, get) => ({
+export const useCodeStore = create<CodeState>((set) => ({
   code: '',
   setCode: (code) => {
     set({ code })
-  },
-  getCode: () => get().code
+  }
 }))
 
 export const getStorageKey = (
@@ -64,21 +62,19 @@ export const getStorageKey = (
   exerciseId?: number
 ) => {
   if (userName === '') {
-    return undefined
+    return null
   }
 
-  let problemKey = `${userName}_${problemId}`
+  const key = new URLSearchParams({
+    userName,
+    language,
+    problemId: problemId.toString(),
+    contestId: contestId?.toString() ?? '',
+    assignmentId: assignmentId?.toString() ?? '',
+    exerciseId: exerciseId?.toString() ?? ''
+  }).toString()
 
-  if (contestId) {
-    problemKey += `_contest_${contestId}_language`
-  } else if (assignmentId) {
-    problemKey += `_assignment_${assignmentId}_language`
-  } else if (exerciseId) {
-    problemKey += `_exercise_${exerciseId}_language`
-  } else {
-    problemKey += '_language'
-  }
-  return problemKey
+  return `code_${key}`
 }
 
 export const getCodeFromLocalStorage = (key: string) => {
