@@ -901,7 +901,26 @@ export class AssignmentService {
         problemId
       },
       select: {
-        assignment: true,
+        assignment: {
+          select: {
+            id: true,
+            title: true,
+            isExercise: true,
+            startTime: true,
+            endTime: true,
+            group: {
+              select: {
+                groupName: true,
+                courseInfo: {
+                  select: {
+                    courseNum: true,
+                    classNum: true
+                  }
+                }
+              }
+            }
+          }
+        },
         score: true
       }
     })
@@ -934,9 +953,9 @@ export class AssignmentService {
         return acc
       },
       {
-        upcoming: [] as AssignmentWithScores[],
-        ongoing: [] as AssignmentWithScores[],
-        finished: [] as AssignmentWithScores[]
+        upcoming: [] as typeof assignments,
+        ongoing: [] as typeof assignments,
+        finished: [] as typeof assignments
       }
     )
 

@@ -3,17 +3,11 @@
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
-import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
+import { AssignmentStatus } from '@/components/AssignmentStatus'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
-import {
-  dateFormatter,
-  formatDateRange,
-  getStatusWithStartEnd
-} from '@/libs/utils'
-import calendarIcon from '@/public/icons/calendar.svg'
+import { dateFormatter, getStatusWithStartEnd } from '@/libs/utils'
 import { useQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import { use } from 'react'
 import { columns } from './_components/Columns'
 import { TotalScoreLabel } from './_components/TotalScoreLabel'
@@ -75,23 +69,10 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
             </p>
             {record && <TotalScoreLabel record={record} />}
           </div>
-          <div className="flex min-w-[150px] flex-col gap-[16px]">
-            <div className="flex gap-2">
-              <Image src={calendarIcon} alt="calendar" width={16} height={16} />
-              <p className="text-sm font-medium text-[#333333e6]">
-                {formatDateRange(
-                  assignment.startTime,
-                  assignment.dueTime,
-                  false
-                )}
-              </p>
-            </div>
-            <AssignmentStatusTimeDiff
-              assignment={assignment}
-              textStyle="text-[#333333e6] font-medium opacity-100 text-sm"
-              inAssignmentEditor={false}
-            />
-          </div>
+          <AssignmentStatus
+            startTime={assignment.startTime}
+            dueTime={assignment.dueTime}
+          />
         </div>
         <Separator className="my-0" />
         <div className="flex flex-col gap-[30px]">

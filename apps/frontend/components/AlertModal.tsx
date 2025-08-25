@@ -88,7 +88,7 @@ export function AlertModal({
           {description && (
             <p
               className={cn(
-                'w-full text-center text-sm font-normal text-[#737373]',
+                'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
                 children && 'text-left'
               )}
             >

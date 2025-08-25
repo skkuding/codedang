@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { NotificationType } from '@prisma/client'
+import { ContestRole, NotificationType } from '@prisma/client'
 import * as webpush from 'web-push'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@admin/assignment/assignment.service'
@@ -180,5 +180,37 @@ export class NotificationService {
     })
 
     await Promise.allSettled(sendPromises)
+  }
+
+  async notifyContestStartingSoon(contestId: number) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId },
+      select: {
+        title: true,
+        userContest: {
+          where: {
+            role: ContestRole.Participant // 대회 참가자에게만 발송
+          },
+          select: { userId: true }
+        }
+      }
+    })
+    if (!contest) return
+
+    const receivers = contest.userContest
+      .map((r) => r.userId)
+      .filter((id): id is number => typeof id === 'number')
+    const title = 'Contest Start Reminder'
+    const message = `The contest "${contest.title ?? ''}" will start in 1 hour.`
+    const url = `/contest/${contestId}`
+
+    await this.saveNotification(
+      receivers,
+      title,
+      message,
+      NotificationType.Contest,
+      url
+    )
+    await this.sendPushNotification(receivers, title, message, url)
   }
 }

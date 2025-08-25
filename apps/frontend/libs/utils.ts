@@ -184,3 +184,7 @@ export const getStatusColor = (status: string): string => {
  */
 export const capitalizeFirstLetter = (text: string) =>
   text.charAt(0).toUpperCase() + text.slice(1)
+
+export const hasDueDate = (dueTime: Date) => {
+  return new Date(dueTime).toISOString() !== UNLIMITED_DATE
+}
