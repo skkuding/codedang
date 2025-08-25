@@ -8,10 +8,9 @@ import {
   createWriteStream,
   existsSync,
   mkdirSync,
-  rm,
-  unlink,
   writeFileSync,
-  rmSync
+  rmSync,
+  unlinkSync
 } from 'fs'
 import path from 'path'
 import {
@@ -477,27 +476,10 @@ export class SubmissionService {
     return problem.title
   }
 
-  async compressSourceCodes(
-    groupId: number,
+  private async compressSourceCodes(
     assignmentId: number,
-    problemId: number,
-    res: Response
-  ) {
-    const assignmentGroupId = await this.prisma.assignment.findFirst({
-      where: {
-        id: assignmentId
-      },
-      select: {
-        groupId: true
-      }
-    })
-
-    if (assignmentGroupId?.groupId != groupId) {
-      throw new ForbiddenAccessException(
-        'Only Group Leader can download source codes.'
-      )
-    }
-
+    problemId: number
+  ): Promise<{ zipPath: string; zipFilename: string }> {
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
         where: {
@@ -514,16 +496,14 @@ export class SubmissionService {
     }
 
     const submissionInfos = await Promise.all(
-      assignmentProblemRecords.map(async (record) => {
-        const submissionInfo = await this.getAssignmentLatestSubmissionInfo(
+      assignmentProblemRecords.map((record) =>
+        this.getAssignmentLatestSubmissionInfo(
           assignmentId,
           record.userId,
           problemId
         )
-        return submissionInfo
-      })
+      )
     )
-
     if (submissionInfos.length === 0) {
       throw new EntityNotExistException('Submission')
     }
@@ -544,36 +524,57 @@ export class SubmissionService {
       const formattedCode = code.map((snippet) => snippet.text).join('\n')
       const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
       const filePath = path.join(dirPath, filename)
-      try {
-        writeFileSync(filePath, formattedCode)
-      } catch (err) {
-        this.logger.error(err)
-        throw new UnprocessableFileDataException(
-          'Failed to handle source code file.',
-          filename
-        )
-      }
+      writeFileSync(filePath, formattedCode)
     })
 
     const output = createWriteStream(zipPath)
     const archive = archiver.create('zip', { zlib: { level: 9 } })
 
     archive.on('error', (err) => {
+      // TODO: remove unncessary log
       this.logger.error(err)
       output.end()
     })
     archive.pipe(output)
     archive.directory(dirPath, problemTitle!)
 
-    await archive.finalize().catch((err) => {
+    try {
+      await archive.finalize()
+    } catch (err) {
       this.logger.error(`Finalization failed: ${err}`)
-      output.end()
       throw new UnprocessableFileDataException(
         'Failed to create zip file',
         zipFilename
       )
-    })
+    }
 
+    return { zipPath, zipFilename }
+  }
+
+  async downloadSourceCodes(
+    groupId: number,
+    assignmentId: number,
+    problemId: number,
+    res: Response
+  ) {
+    const assignmentGroupId = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        groupId: true
+      }
+    })
+    if (assignmentGroupId?.groupId != groupId) {
+      throw new ForbiddenAccessException(
+        'Only Group Leader can download source codes.'
+      )
+    }
+
+    const { zipPath, zipFilename } = await this.compressSourceCodes(
+      assignmentId,
+      problemId
+    )
     const encodedFilename = encodeURIComponent(zipFilename)
     res.set({
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -585,21 +586,21 @@ export class SubmissionService {
     fileStream.pipe(res)
 
     fileStream.on('finish', () => {
-      unlink(zipPath, (err) => {
-        if (err) this.logger.error('Error on deleting file: ', err)
-      })
-      rm(zipFilename, { recursive: true, force: true }, (err) => {
-        if (err) this.logger.error('Error on deleting folder: ', err)
-      })
+      if (existsSync(zipPath)) {
+        unlinkSync(zipPath)
+      }
+      if (existsSync(zipFilename)) {
+        rmSync(zipFilename, { recursive: true, force: true })
+      }
       res.end()
     })
     fileStream.on('error', (err) => {
-      unlink(zipPath, (err) => {
-        if (err) this.logger.error('Error on deleting file: ', err)
-      })
-      rm(zipFilename, { recursive: true, force: true }, (err) => {
-        if (err) this.logger.error('Error on deleting folder: ', err)
-      })
+      if (existsSync(zipPath)) {
+        unlinkSync(zipPath)
+      }
+      if (existsSync(zipFilename)) {
+        rmSync(zipFilename, { recursive: true, force: true })
+      }
       res.status(500).json({ error: 'File download failed: ', err })
     })
   }
