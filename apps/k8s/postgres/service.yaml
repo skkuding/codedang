@@ -7,8 +7,5 @@ spec:
   type: ClusterIP
   ports:
     - port: 5432
-      name: postgres
-    - port: 80
-      name: pgadmin
   selector:
     app: postgres

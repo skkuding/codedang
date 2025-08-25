@@ -28,15 +28,6 @@ spec:
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
-        - name: pgadmin
-          image: dpage/pgadmin4:9.6.0
-          ports:
-            - containerPort: 80
-          env:
-            - name: PGADMIN_DEFAULT_EMAIL
-              value: 'skkuding@gmail.com'
-            - name: PGADMIN_DEFAULT_PASSWORD
-              value: '1234'
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
