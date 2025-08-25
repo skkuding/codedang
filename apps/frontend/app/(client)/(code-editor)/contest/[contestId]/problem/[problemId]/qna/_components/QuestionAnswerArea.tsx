@@ -14,17 +14,15 @@ import { QnaAccordion } from './QnaAccordion'
 //그담에 /contest/3/qna/3/comment 해서 댓글달게 하면 됨
 //먼저 질문 보여주고, 그담에 댓글 보여줄 예정. 질문자가 작성한 comment와 관리자가 작성한 comment는 따로 구분해야함.
 
-interface ReplyQnaAreaProps {
+interface QuestionAnswerAreaProps {
   contestId: number
   problemId: number
-  qnaInputHeight: number
 }
 
-export function ReplyQnaArea({
+export function QuestionAnswerArea({
   contestId,
-  problemId,
-  qnaInputHeight
-}: ReplyQnaAreaProps) {
+  problemId
+}: QuestionAnswerAreaProps) {
   const [dataExsist, setDataExsist] = useState(false)
   const [qnaDetails, setQnaDetails] = useState<SingleQnaData[]>([])
   const [loading, setLoading] = useState(true)
@@ -81,5 +79,5 @@ export function ReplyQnaArea({
   }
   console.log('QnA Details:', qnaDetails)
 
-  return <QnaAccordion qnaData={qnaDetails} qnaInputHeight={qnaInputHeight} />
+  return <QnaAccordion qnaData={qnaDetails} />
 }

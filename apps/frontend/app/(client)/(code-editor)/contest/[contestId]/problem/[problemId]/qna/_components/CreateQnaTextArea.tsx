@@ -71,7 +71,7 @@ export function CreateQnaTextArea({
 
   return (
     <div className="rounded-lg bg-[#222939] p-5 text-white">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between">
         <h3 className="text-xl font-semibold">Post a Question</h3>
         <AlertModal
           open={postModalOpen}
@@ -102,7 +102,7 @@ export function CreateQnaTextArea({
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
+        <div className="mb-2">
           <Input
             type="text"
             name="title"
@@ -110,7 +110,7 @@ export function CreateQnaTextArea({
             value={qnaFormdata.title}
             onChange={handleInputChange}
             maxLength={80}
-            className="h-[46px] w-full rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
+            className="h-[46px] w-full rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder-amber-200 focus:border-blue-500 focus:outline-none"
           />
         </div>
         <div className="relative">
