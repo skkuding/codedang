@@ -43,7 +43,6 @@ export class NotificationService {
     })
 
     if (!assignmentInfo) {
-      //console.error(`Assignment with ID ${assignmentId} not found`)
       return
     }
 
@@ -56,7 +55,6 @@ export class NotificationService {
     const url = `/course/${assignmentInfo.group.id}/assignment/${assignmentId}`
 
     if (receivers.length === 0) {
-      //console.error(`No users found for assignment ID ${assignmentId}`)
       return
     }
 
@@ -87,16 +85,17 @@ export class NotificationService {
     })
 
     if (!assignmentInfo) {
-      //console.error(`Assignment with ID ${assignmentId} not found`)
       return
     }
 
-    const receivers =
-      assignmentInfo?.group.userGroup.map((user) => user.userId) ?? []
-
+    const receivers = assignmentInfo.group.userGroup.map((user) => user.userId)
     const title = assignmentInfo.group.groupName ?? 'Assignment'
     const message = `A new assignment "${assignmentInfo.title}" has been created.`
     const url = `/course/${assignmentInfo.group.id}/assignment/${assignmentId}`
+
+    if (receivers.length === 0) {
+      return
+    }
 
     await this.saveNotification(
       receivers,

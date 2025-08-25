@@ -7,10 +7,7 @@ export class NotificationListener {
   constructor(private readonly notificationService: NotificationService) {}
 
   @OnEvent('assignment.graded')
-  async handleAssignmentGraded(payload: {
-    assignmentId: number
-    userId: number
-  }) {
+  async handleAssignmentGraded(payload: { assignmentId: number }) {
     this.notificationService.notifyAssignmentGraded(payload.assignmentId)
   }
 
