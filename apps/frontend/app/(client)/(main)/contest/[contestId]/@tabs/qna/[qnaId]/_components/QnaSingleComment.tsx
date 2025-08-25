@@ -1,7 +1,11 @@
+import type { GetContestQnaQuery } from '@generated/graphql'
 import { format } from 'date-fns'
 import React, { type ReactElement } from 'react'
 import { FaCircleCheck, FaClock } from 'react-icons/fa6'
-import type { ContestQnAComment } from '../page'
+
+export type QnaCommentFromQuery = NonNullable<
+  NonNullable<GetContestQnaQuery['getContestQnA']['comments']>
+>[number]
 
 export function QnaSingleComment({
   comment,
@@ -9,7 +13,7 @@ export function QnaSingleComment({
   isContestStaff,
   DeleteButtonComponent
 }: {
-  comment: ContestQnAComment
+  comment: QnaCommentFromQuery
   userId: number
   isContestStaff: boolean
   DeleteButtonComponent: ReactElement
@@ -24,7 +28,7 @@ export function QnaSingleComment({
       <div className="flex flex-col gap-[4px]">
         <div className="relative flex items-center gap-[4px]">
           <span className="text-xl font-semibold capitalize">
-            {comment.createdBy.username}
+            {comment.createdBy?.username}
           </span>
           {comment.isContestStaff && (
             <div className="grid h-[24px] w-[24px] place-content-center">
