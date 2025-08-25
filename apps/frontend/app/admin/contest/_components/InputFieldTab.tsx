@@ -146,7 +146,7 @@ export function InputFieldTab({
             id="email-input"
             value={inputField.value}
             placeholder="Enter the e-mail"
-            className="min-h-none placeholder:text-color-neutral-90 max-h-[24px] resize-none truncate border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
+            className="min-h-none placeholder:text-color-neutral-90 max-h-[24px] resize-none truncate rounded-none border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
             onChange={(value) =>
               setInputField((prevField) => ({
                 ...prevField,
@@ -161,7 +161,6 @@ export function InputFieldTab({
             }}
           />
         </div>
-        {/* If user choose to enter domain directly, change Select component to Textarea + Select component */}
         {isDirect ? (
           <div className="border-color-line-default flex h-[40px] max-w-[245px] flex-1 items-center gap-[6px] rounded-full border-[1px] border-solid pl-4 pr-2 text-base font-normal">
             <div className="grid size-[20px] place-content-center">
@@ -172,7 +171,7 @@ export function InputFieldTab({
                 ref={inputDirectRef}
                 value={inputField.domain}
                 placeholder="Enter directly"
-                className="min-h-none placeholder:text-color-neutral-90 z-100 max-h-[24px] resize-none truncate border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
+                className="min-h-none placeholder:text-color-neutral-90 z-100 max-h-[24px] resize-none truncate rounded-none border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
                 onChange={(value) =>
                   setInputField((prevField) => ({
                     ...prevField,
