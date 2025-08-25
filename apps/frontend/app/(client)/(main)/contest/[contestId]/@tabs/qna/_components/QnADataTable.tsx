@@ -1,6 +1,5 @@
 'use client'
 
-import type { GetContestProblemListResponse } from '@/app/(client)/_libs/apis/contestProblem'
 import {
   Table,
   TableBody,
@@ -10,6 +9,7 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { cn } from '@/libs/utils'
+import type { ProblemDataTop } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -42,7 +42,7 @@ interface QnADataTableProps<TData, TValue> {
   categories: string
   problemOrders: string
   QnADataWithCategory: TData[]
-  contestProblems: GetContestProblemListResponse
+  contestProblems: ProblemDataTop
   headerStyle: {
     [key: string]: string
   }

@@ -1,6 +1,5 @@
 'use client'
 
-import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
 import {
   PageNavigation,
   Paginator,
@@ -8,6 +7,7 @@ import {
 } from '@/components/PaginatorV2'
 import { usePagination } from '@/libs/hooks/usePaginationV2'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
+import type { ProblemDataTop } from '@/types/type'
 import { useSuspenseQueries } from '@tanstack/react-query'
 import type { Session } from 'next-auth'
 import { useEffect, useState } from 'react'
@@ -20,6 +20,7 @@ const ITEMS_PER_PAGE = 12
 
 interface QnAMainTableProps {
   contestId: string
+  contestProblems: ProblemDataTop
   search: string
   orderBy: string
   categories: string
@@ -31,6 +32,7 @@ interface QnAMainTableProps {
 
 export function QnAMainTable({
   contestId,
+  contestProblems,
   search,
   orderBy,
   categories,
@@ -39,7 +41,7 @@ export function QnAMainTable({
   isPrivilegedRole,
   canCreateQnA
 }: QnAMainTableProps) {
-  const [{ data: QnAData }, { data: contestProblems }] = useSuspenseQueries({
+  const [{ data: QnAData }] = useSuspenseQueries({
     queries: [
       {
         queryKey: [
@@ -62,13 +64,6 @@ export function QnAMainTable({
             problemOrders,
             session
           )
-      },
-      {
-        ...contestProblemQueries.list({
-          contestId: Number(contestId),
-          take: 20
-        }),
-        retry: false
       }
     ]
   })

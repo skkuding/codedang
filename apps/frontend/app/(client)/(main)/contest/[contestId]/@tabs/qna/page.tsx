@@ -2,7 +2,7 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
-import type { ContestTop } from '@/types/type'
+import type { ContestTop, ProblemDataTop } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
@@ -31,6 +31,9 @@ export default async function ContestQna(props: ContestQnAProps) {
   const contest: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
     .json()
+  const contestProblems: ProblemDataTop = await fetcherWithAuth
+    .get(`contest/${contestId}/problem`)
+    .json()
   const state = (() => {
     const currentTime = new Date()
     if (currentTime >= contest.endTime) {
@@ -53,6 +56,7 @@ export default async function ContestQna(props: ContestQnAProps) {
         <Suspense fallback={<QnATableFallback />}>
           <QnAMainTable
             contestId={contestId}
+            contestProblems={contestProblems}
             search={search}
             orderBy={orderBy}
             categories={categories}
