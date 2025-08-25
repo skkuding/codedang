@@ -20,10 +20,7 @@ export class NotificationListener {
     assignmentId: number
     userId: number
   }) {
-    this.notificationService.notifyAssignmentGraded(
-      payload.assignmentId,
-      payload.userId
-    )
+    this.notificationService.notifyAssignmentGraded(payload.assignmentId)
   }
 
   @OnEvent('assignment.created')

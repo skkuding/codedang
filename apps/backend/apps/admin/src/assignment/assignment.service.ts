@@ -13,7 +13,6 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
 import type { AssignmentProblemInput } from './model/assignment-problem.input'
-import type { AssignmentWithScores } from './model/assignment-with-scores.model'
 import type {
   CreateAssignmentInput,
   UpdateAssignmentInput
@@ -147,6 +146,7 @@ export class AssignmentService {
         startTime: true,
         endTime: true,
         dueTime: true,
+        isFinalScoreVisible: true,
         assignmentProblem: {
           select: {
             problemId: true
@@ -164,6 +164,10 @@ export class AssignmentService {
         'You can only access assignment in your own group'
       )
     }
+
+    const revealFinalScore =
+      assignment.isFinalScoreVisible &&
+      assignment.isFinalScoreVisible !== assignmentFound.isFinalScoreVisible
 
     const isEndTimeChanged =
       assignment.endTime && assignment.endTime !== assignmentFound.endTime
@@ -238,7 +242,7 @@ export class AssignmentService {
     }
 
     try {
-      return await this.prisma.assignment.update({
+      const updatedAssignment = await this.prisma.assignment.update({
         where: {
           id: assignment.id
         },
@@ -247,6 +251,14 @@ export class AssignmentService {
           ...assignment
         }
       })
+
+      if (revealFinalScore) {
+        this.eventEmitter.emit('assignment.graded', {
+          assignmentId: assignment.id
+        })
+      }
+
+      return updatedAssignment
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
@@ -1078,11 +1090,6 @@ export class AssignmentService {
         return updatedRecord
       }
     )
-
-    this.eventEmitter.emit('assignment.graded', {
-      assignmentId: input.assignmentId,
-      userId: input.userId
-    })
 
     return updatedProblemRecord
   }
