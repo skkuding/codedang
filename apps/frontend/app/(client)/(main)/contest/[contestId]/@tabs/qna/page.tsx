@@ -1,23 +1,19 @@
-import comingSoonLogo from '@/public/logos/coming-soon.png'
-import Image from 'next/image'
+'use client'
 
-export default function ContestQna() {
+import { Button } from '@/components/shadcn/button'
+import Link from 'next/link'
+
+export default function QnaPage() {
   return (
-    <div className="flex flex-col items-center justify-center py-[218px]">
-      <Image
-        className="pb-10"
-        src={comingSoonLogo}
-        alt="coming-soon"
-        width={300}
-        height={300}
-      />
-      <div className="flex flex-col items-center">
-        <h2 className="pb-2 text-xl font-semibold">COMING SOON!</h2>
-        <p className="text-center text-base text-neutral-500">
-          This page is being prepared.
-          <br /> We will provide an update as soon as possible.
-        </p>
-      </div>
+    <div className="flex w-full flex-col items-center justify-center p-8">
+      <h2 className="mb-6 text-2xl font-medium text-black">Q&A</h2>
+      <Button className="h-[46px] px-6 py-3">
+        <Link href="./qna/create">
+          <span className="text-base font-medium text-white">
+            Post New Question
+          </span>
+        </Link>
+      </Button>
     </div>
   )
 }
