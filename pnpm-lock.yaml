@@ -8,6 +8,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      web-push:
+        specifier: ^3.6.7
+        version: 3.6.7
     devDependencies:
       '@aws-sdk/client-s3':
         specifier: ^3.864.0
