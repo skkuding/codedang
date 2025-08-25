@@ -9,6 +9,7 @@ import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter, getStatusWithStartEnd } from '@/libs/utils'
 import { useQuery } from '@tanstack/react-query'
 import { use } from 'react'
+import { ProblemCard } from '../../_components/ProblemCard'
 import { columns } from './_components/Columns'
 import { TotalScoreLabel } from './_components/TotalScoreLabel'
 
@@ -60,9 +61,9 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
 
   return (
     assignment && (
-      <div className="flex flex-col gap-[45px] px-[100px] py-[80px]">
-        <div className="flex justify-between">
-          <div className="flex flex-col gap-[30px]">
+      <div className="flex flex-col gap-[45px] px-4 py-[80px] lg:px-[100px]">
+        <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
+          <div className="flex flex-col gap-4 lg:gap-7">
             <p className="text-2xl font-semibold">
               <span className="text-primary">[Week {assignment.week}] </span>
               {assignment.title}
@@ -88,7 +89,7 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
         {record && (
           <div>
             <p className="mb-[16px] text-2xl font-semibold">PROBLEM(S)</p>
-            <div className="mb-[42px] flex gap-1 text-base font-semibold">
+            <div className="flex gap-1 text-base font-semibold lg:mb-[42px]">
               <span>Total</span>
               <span className="text-primary">{record.problems.length}</span>
               <span>Submit</span>
@@ -103,19 +104,41 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
           </div>
         )}
         {record && submissions && (
-          <DataTable
-            data={record.problems}
-            columns={columns(record, assignment, courseId, submissions)}
-            headerStyle={{
-              order: 'w-[10%]',
-              title: 'text-left w-[40%]',
-              submissions: 'w-[20%]',
-              tc_result: 'w-[20%]',
-              detail: 'w-[10%]'
-            }}
-            linked
-            pathSegment={'problem'}
-          />
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block">
+              <DataTable
+                data={record.problems}
+                columns={columns(record, assignment, courseId, submissions)}
+                headerStyle={{
+                  order: 'w-[10%]',
+                  title: 'text-left w-[40%]',
+                  submissions: 'w-[20%]',
+                  tc_result: 'w-[20%]',
+                  detail: 'w-[10%]'
+                }}
+                linked
+                pathSegment={'problem'}
+              />
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="lg:hidden">
+              <div className="space-y-3">
+                {record.problems.map((problem, index) => (
+                  <ProblemCard
+                    key={problem.id}
+                    problem={problem}
+                    parentItem={assignment}
+                    submissions={submissions}
+                    index={index}
+                    courseId={courseId}
+                    type="assignment"
+                  />
+                ))}
+              </div>
+            </div>
+          </>
         )}
       </div>
     )

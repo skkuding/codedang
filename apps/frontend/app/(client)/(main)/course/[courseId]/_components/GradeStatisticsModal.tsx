@@ -65,14 +65,17 @@ export function GradeStatisticsModal({
         const label = `${lowerBound.toFixed(1)}-${upperBound.toFixed(1)}`
 
         const count = scores.filter(
-          (score) => score >= lowerBound && score < upperBound
+          (score) =>
+            score >= lowerBound &&
+            (index === 9 ? score <= upperBound : score < upperBound)
         ).length
 
         return {
           score: label,
           count,
           fill:
-            userScore >= lowerBound && userScore < upperBound
+            userScore >= lowerBound &&
+            (index === 9 ? userScore <= upperBound : userScore < upperBound)
               ? '#3b82f6'
               : '#C3C3C3'
         }
