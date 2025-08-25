@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { FaTrash } from 'react-icons/fa6'
 import { AlertModal } from './AlertModal'
