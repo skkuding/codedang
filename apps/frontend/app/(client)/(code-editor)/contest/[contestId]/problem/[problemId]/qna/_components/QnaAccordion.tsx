@@ -46,13 +46,6 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
   return (
     <ScrollArea className="h-full" ref={scrollRef}>
       <div className="flex-1 overflow-hidden">
-        {/* 전체 Refresh 버튼 */}
-        <div className="flex justify-end p-2">
-          <Button size="sm" variant="outline" onClick={handleRefresh}>
-            Refresh
-          </Button>
-        </div>
-
         <Accordion
           type="single"
           collapsible

@@ -1,5 +1,6 @@
 'use client'
 
+import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
 import { CodeEditor } from '@/components/CodeEditor'
 import { Button } from '@/components/shadcn/button'
 import {
@@ -101,6 +102,7 @@ export function EditorMainResizablePanel({
   const triggerSubmissionDetailRefresh = useSubmissionDetailSync(
     (state) => state.triggerRefresh
   )
+  const triggerQnaRefresh = useQnaCommentsSync((state) => state.triggerRefresh)
   const {
     isSidePanelHidden,
     toggleSidePanelVisibility
@@ -285,6 +287,18 @@ export function EditorMainResizablePanel({
                     isSubmissionDetail
                       ? triggerSubmissionDetailRefresh()
                       : triggerSubmissionRefresh()
+                  }}
+                />
+              </div>
+            )}
+            {tabValue === 'Qna' && contestId && (
+              <div className="flex gap-x-4">
+                <Image
+                  src={syncIcon}
+                  alt="Sync"
+                  className={'ml-4 cursor-pointer'}
+                  onClick={() => {
+                    triggerQnaRefresh()
                   }}
                 />
               </div>
