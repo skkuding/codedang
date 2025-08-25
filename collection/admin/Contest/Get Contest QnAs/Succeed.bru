@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetContestQnAs($contestId: Int, $filter: GetContestQnAsFilterInput) {
-    getContestQnAs(contestId: $contestId, filter: $filter) {
+  query GetContestQnAs($contestId: Int, $filter: GetContestQnAsFilterInput, $search: String) {
+    getContestQnAs(contestId: $contestId, filter: $filter, search: $search) {
       id
       order
       title
@@ -37,7 +37,8 @@ body:graphql:vars {
     "filter": {
       "isResolved": false,
       "orderBy": "desc"
-    }
+    },
+    "search": "algorithm"
   }
 }
 
@@ -55,6 +56,7 @@ docs {
   |------|------|----------|-------------|
   | contestId | Int | x | 조회할 대회 ID (제공하지 않으면 모든 대회) |
   | filter | GetContestQnAsFilterInput | x | 필터링 옵션 |
+  | search | String | x | QnA 제목 검색 (대소문자 구분 없음) |
 
   ### Filter Options
 
@@ -62,6 +64,19 @@ docs {
   |------|------|-------------|
   | isResolved | Boolean | 해결 상태 필터링 (true: 해결됨, false: 미해결) |
   | orderBy | String | 정렬 순서 ("asc" 또는 "desc", 기본값: "desc") |
+
+  ### Search Functionality
+
+  - **제목 기반 검색**: QnA 제목에 특정 키워드가 포함된 글만 조회
+  - **대소문자 무시**: "Algorithm", "algorithm", "ALGORITHM" 모두 동일하게 검색
+  - **부분 일치**: 제목의 일부만 입력해도 검색 가능
+  - **필터와 조합**: 검색과 필터를 동시에 사용하여 더 정확한 결과 도출
+
+  ### Search Examples
+
+  - `"버그"` → "버그가 발생합니다", "이 버그는 언제 수정되나요?" 등
+  - `"runtime"` → "Runtime Error 발생", "Runtime 문제 해결" 등
+  - `"2024"` → "2024년 대회 관련", "2024 Winter Contest 문제" 등
 
   ### Response Fields
 

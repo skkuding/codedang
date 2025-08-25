@@ -1394,7 +1394,8 @@ export class ContestService {
     filter?: {
       orderBy?: 'asc' | 'desc'
       isResolved?: boolean
-    }
+    },
+    search?: string
   ) {
     const where: Prisma.ContestQnAWhereInput = {}
 
@@ -1412,6 +1413,11 @@ export class ContestService {
     // 해결 상태 필터링
     if (filter?.isResolved !== undefined) {
       where.isResolved = filter.isResolved
+    }
+
+    // search 필터 적용
+    if (search) {
+      where.title = { contains: search, mode: Prisma.QueryMode.insensitive }
     }
 
     return await this.prisma.contestQnA.findMany({
