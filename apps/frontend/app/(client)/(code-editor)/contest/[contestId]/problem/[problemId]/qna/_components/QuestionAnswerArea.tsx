@@ -1,59 +1,88 @@
+'use client'
+
+import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
+import { Button } from '@/components/shadcn/button'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { MultipleQnaData, SingleQnaData } from '@/types/type'
 import Image from 'next/image'
+import { useEffect, useState, useCallback } from 'react'
 import { FaCircleExclamation } from 'react-icons/fa6'
 import { QnaAccordion } from './QnaAccordion'
-
-export const revalidate = 0
 
 interface QuestionAnswerAreaProps {
   contestId: number
   problemId: number
 }
 
-export async function QuestionAnswerArea({
+export function QuestionAnswerArea({
   contestId,
   problemId
 }: QuestionAnswerAreaProps) {
-  try {
-    const allqnaData = await fetcherWithAuth
-      .get(`contest/${contestId}/qna`, { cache: 'no-store' })
-      .json<MultipleQnaData[]>()
+  const [loading, setLoading] = useState(true)
+  const [qnaDetails, setQnaDetails] = useState<SingleQnaData[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const refreshTrigger = useQnaCommentsSync((s) => s.refreshTrigger)
 
-    const filtered = allqnaData
-      .filter((qna) => qna.problemId === problemId)
-      .sort((a, b) => a.order - b.order)
+  const fetchQnaData = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const allqnaData = await fetcherWithAuth
+        .get(`contest/${contestId}/qna`, { cache: 'no-store' })
+        .json<MultipleQnaData[]>()
 
-    if (!filtered.length) {
-      return (
-        <div className="mx-5 mb-[38px] mt-5 flex flex-col items-center justify-center gap-[6px] rounded-lg bg-[#121728] px-5 pb-10 pt-[30px] text-center font-sans text-[#787E80]">
-          <div className="text-[#787E80]">
-            <FaCircleExclamation className="h-[30px] w-[30px]" />
-          </div>
-          <p className="m-0 text-base">Question not registered</p>
-        </div>
+      const filtered = allqnaData
+        .filter((qna) => qna.problemId === problemId)
+        .sort((a, b) => a.order - b.order)
+
+      if (!filtered.length) {
+        setQnaDetails([])
+        return
+      }
+
+      const details = await Promise.all(
+        filtered.map(({ order }) =>
+          fetcherWithAuth
+            .get(`contest/${contestId}/qna/${order}`, { cache: 'no-store' })
+            .json<SingleQnaData>()
+        )
       )
+
+      setQnaDetails(details)
+    } catch (err) {
+      console.error('API 호출 중 오류 발생:', err)
+      setError('Something Wrong... Try Again!')
+    } finally {
+      setLoading(false)
     }
+  }, [contestId, problemId])
 
-    const qnaDetails = await Promise.all(
-      filtered.map(({ order }) =>
-        fetcherWithAuth
-          .get(`contest/${contestId}/qna/${order}`, { cache: 'no-store' })
-          .json<SingleQnaData>()
-      )
-    )
+  useEffect(() => {
+    fetchQnaData()
+  }, [fetchQnaData, refreshTrigger])
 
-    return <QnaAccordion qnaData={qnaDetails} />
-  } catch (error) {
-    console.error('API 호출 중 오류가 발생했습니다:', error)
+  if (loading) {
+    return <div className="py-10 text-center">Loading...</div>
+  }
+
+  if (error) {
     return (
-      <div className="mx-5 mb-[38px] mt-5 flex flex-col items-center justify-center gap-[6px] rounded-lg bg-[#121728] px-5 pb-10 pt-[30px] text-center font-sans text-[#787E80]">
-        <div className="text-[#787E80]">
-          <FaCircleExclamation className="h-[30px] w-[30px]" />
-        </div>
-        <p className="m-0 text-base">Something Wrong... Try Again!</p>
+      <div className="mx-5 mb-[38px] mt-5 flex flex-col items-center justify-center gap-[10px] rounded-lg bg-[#121728] px-5 pb-10 pt-[30px] text-center font-sans text-[#787E80]">
+        <FaCircleExclamation className="h-[30px] w-[30px]" />
+        <p className="text-base">{error}</p>
         <Image src={'/logos/error.webp'} alt="error" width={150} height={150} />
       </div>
     )
   }
+
+  if (!qnaDetails.length) {
+    return (
+      <div className="mx-5 mb-[38px] mt-5 flex flex-col items-center justify-center gap-[6px] rounded-lg bg-[#121728] px-5 pb-10 pt-[30px] text-center font-sans text-[#787E80]">
+        <FaCircleExclamation className="h-[30px] w-[30px]" />
+        <p className="text-base">Question not registered</p>
+      </div>
+    )
+  }
+
+  return <QnaAccordion qnaData={qnaDetails} />
 }

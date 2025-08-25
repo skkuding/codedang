@@ -1,5 +1,6 @@
 'use client'
 
+import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
 import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
 import { safeFetcherWithAuth } from '@/libs/utils'
@@ -31,8 +32,6 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      const result = await response.json()
-      console.log('Success:', result)
       setCommentData('')
       toast.success('Comment created successfully')
     } catch (error) {
@@ -55,11 +54,11 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
           value={commentData}
           onChange={handleInputChange}
           maxLength={400}
-          className="placeholder:text-bas h-[56px] w-full rounded-full border border-neutral-600 bg-[#FFFFFF1A] p-3 text-white placeholder-gray-400 focus:outline-none"
+          className="h-[56px] w-full rounded-full border border-neutral-600 bg-[#FFFFFF1A] p-3 text-white placeholder-gray-400 placeholder:text-base focus:outline-none"
         />
         <Button
           onClick={handleSubmit}
-          className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-[#121728]"
+          className="absolute right-[10px] top-1/2 flex h-10 w-10 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-[#121728]"
           disabled={loading || !commentData}
         >
           <BsFillCaretRightFill className="h-10 w-10" />
