@@ -1,0 +1,64 @@
+meta {
+  name: [succeed] Get All Contest QnAs
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetAllContestQnAs($filter: GetContestQnAsFilterInput) {
+    getContestQnAs(filter: $filter) {
+      id
+      order
+      title
+      content
+      category
+      isResolved
+      createTime
+      contestId
+      createdBy {
+        username
+      }
+      _count {
+        comments
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "filter": {
+      "orderBy": "desc"
+    }
+  }
+}
+
+docs {
+  ## [succeed] Get All Contest QnAs
+
+  - 모든 대회의 QnA를 조회합니다.
+  - contestId를 제공하지 않아 모든 대회의 QnA가 조회됩니다.
+  - 기본적으로 최신순으로 정렬됩니다.
+
+  ### Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | filter | GetContestQnAsFilterInput | x | 필터링 옵션 (기본값: 최신순) |
+
+  ### Use Cases
+
+  - **Admin 대시보드**: 모든 대회에서 QnA 현황 모니터링
+  - **전체 현황 파악**: 여러 대회의 QnA 처리 현황 확인
+  - **우선순위 결정**: 가장 긴급한 QnA부터 처리
+
+  ### Response
+
+  모든 대회의 QnA가 `contestId`와 함께 반환됩니다.
+}

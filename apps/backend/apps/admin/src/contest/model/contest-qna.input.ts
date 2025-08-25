@@ -15,12 +15,6 @@ export class UpdateContestQnAInput {
 
 @InputType()
 export class GetContestQnAsFilterInput {
-  @Field(() => [QnACategory], { nullable: true })
-  categories?: QnACategory[]
-
-  @Field(() => [Int], { nullable: true })
-  problemOrders?: number[]
-
   @Field(() => String, { nullable: true })
   orderBy?: 'asc' | 'desc'
 

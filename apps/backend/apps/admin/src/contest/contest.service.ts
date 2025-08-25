@@ -1390,39 +1390,23 @@ export class ContestService {
   }
 
   async getContestQnAs(
-    contestId: number,
+    contestId?: number,
     filter?: {
-      categories?: QnACategory[]
-      problemOrders?: number[]
       orderBy?: 'asc' | 'desc'
       isResolved?: boolean
     }
   ) {
-    const where: Prisma.ContestQnAWhereInput = {
-      contestId
-    }
+    const where: Prisma.ContestQnAWhereInput = {}
 
-    // 카테고리 필터링
-    if (filter?.categories && filter.categories.length > 0) {
-      where.category = { in: filter.categories }
-    }
-
-    // 문제별 필터링
-    if (
-      filter?.categories &&
-      filter.categories.includes(QnACategory.Problem) &&
-      filter.problemOrders &&
-      filter.problemOrders.length > 0
-    ) {
-      const problemIds = await this.prisma.contestProblem
-        .findMany({
-          where: {
-            contestId,
-            order: { in: filter.problemOrders }
-          }
-        })
-        .then((results) => results.map((cp) => cp.problemId))
-      where.problemId = { in: problemIds }
+    // 대회 존재 확인
+    if (contestId) {
+      const contest = await this.prisma.contest.findUnique({
+        where: { id: contestId }
+      })
+      if (!contest) {
+        throw new EntityNotExistException('Contest')
+      }
+      where.contestId = contestId
     }
 
     // 해결 상태 필터링
@@ -1433,7 +1417,7 @@ export class ContestService {
     return await this.prisma.contestQnA.findMany({
       where,
       orderBy: {
-        order: filter?.orderBy || 'asc'
+        order: filter?.orderBy || 'desc' // 최신 질문부터 표시
       },
       include: {
         createdBy: {

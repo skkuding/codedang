@@ -1,0 +1,65 @@
+meta {
+  name: [succeed] Get Unresolved QnAs
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetUnresolvedQnAs($filter: GetContestQnAsFilterInput) {
+    getContestQnAs(filter: $filter) {
+      id
+      order
+      title
+      content
+      category
+      isResolved
+      createTime
+      contestId
+      createdBy {
+        username
+      }
+      _count {
+        comments
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "filter": {
+      "isResolved": false,
+      "orderBy": "desc"
+    }
+  }
+}
+
+docs {
+  ## [succeed] Get Unresolved QnAs
+
+  - 답변해야 할 QnA만 조회합니다.
+  - `isResolved: false`로 설정하여 미해결 QnA만 필터링합니다.
+  - 최신순으로 정렬하여 긴급한 QnA부터 처리할 수 있습니다.
+
+  ### Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | filter | GetContestQnAsFilterInput | x | 필터링 옵션 (isResolved: false, orderBy: desc) |
+
+  ### Use Cases
+
+  - **Admin 대시보드**: 답변해야 할 QnA 모니터링
+  - **우선순위 처리**: 가장 긴급한 QnA부터 답변
+  - **작업량 파악**: 처리해야 할 QnA 개수 확인
+
+  ### Response
+
+  `isResolved: false`인 QnA만 반환되며, 최신순으로 정렬됩니다.
+}

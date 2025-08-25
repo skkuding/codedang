@@ -1,0 +1,65 @@
+meta {
+  name: [succeed] Get Resolved QnAs
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetResolvedQnAs($filter: GetContestQnAsFilterInput) {
+    getContestQnAs(filter: $filter) {
+      id
+      order
+      title
+      content
+      category
+      isResolved
+      createTime
+      contestId
+      createdBy {
+        username
+      }
+      _count {
+        comments
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "filter": {
+      "isResolved": true,
+      "orderBy": "desc"
+    }
+  }
+}
+
+docs {
+  ## [succeed] Get Resolved QnAs
+
+  - 해결된 QnA만 조회합니다.
+  - `isResolved: true`로 설정하여 해결 완료된 QnA만 필터링합니다.
+  - 최신순으로 정렬하여 최근에 해결된 QnA부터 확인할 수 있습니다.
+
+  ### Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | filter | GetContestQnAsFilterInput | x | 필터링 옵션 (isResolved: true, orderBy: desc) |
+
+  ### Use Cases
+
+  - **처리 완료 확인**: 해결된 QnA 현황 모니터링
+  - **품질 관리**: 답변 품질과 처리 시간 확인
+  - **통계 분석**: 해결된 QnA 패턴 분석
+
+  ### Response
+
+  `isResolved: true`인 QnA만 반환되며, 최신순으로 정렬됩니다.
+}

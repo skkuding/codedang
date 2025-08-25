@@ -1,118 +1,80 @@
 meta {
   name: Succeed
-  type: http
+  type: graphql
   seq: 1
 }
 
 post {
-  url: {{baseUrl}}/graphql
-  body: json
+  url: {{gqlUrl}}
+  body: graphql
   auth: none
 }
 
-body:json {
-  {
-    "query": "query GetContestQnAs($contestId: Int!, $filter: GetContestQnAsFilterInput) { getContestQnAs(contestId: $contestId, filter: $filter) { id order title content category isResolved createTime createdBy { username } _count { comments } } }",
-    "variables": {
-      "contestId": 1,
-      "filter": {
-        "categories": ["Problem"],
-        "problemOrders": [0, 1],
-        "orderBy": "asc",
-        "isResolved": false
+body:graphql {
+  query GetContestQnAs($contestId: Int, $filter: GetContestQnAsFilterInput) {
+    getContestQnAs(contestId: $contestId, filter: $filter) {
+      id
+      order
+      title
+      content
+      category
+      isResolved
+      createTime
+      contestId
+      createdBy {
+        username
+      }
+      _count {
+        comments
       }
     }
   }
 }
 
-script:pre-request {
-  await require("./login").loginAdmin(req);
+body:graphql:vars {
+  {
+    "contestId": 1,
+    "filter": {
+      "isResolved": false,
+      "orderBy": "desc"
+    }
+  }
 }
 
 docs {
-  ## 📘 Get Contest QnAs (Admin)
+  ## Get Contest QnAs
 
-  **POST** `/graphql`
+  - 특정 대회의 QnA들을 조회하거나, 모든 대회의 QnA를 조회할 수 있습니다.
+  - contestId가 제공되면 해당 대회의 QnA만 조회합니다.
+  - contestId가 제공되지 않으면 모든 대회의 QnA를 조회합니다.
+  - 필터링 옵션을 통해 해결 상태와 정렬 순서를 지정할 수 있습니다.
 
-  Admin 단에서 대회의 QnA들을 조회합니다. 다양한 필터링 옵션을 지원합니다.
+  ### Parameters
 
-  ### 🔒 Authentication
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | contestId | Int | x | 조회할 대회 ID (제공하지 않으면 모든 대회) |
+  | filter | GetContestQnAsFilterInput | x | 필터링 옵션 |
 
-  🔸 Required
-  - Admin 권한이 필요합니다
-  - `loginAdmin` 스크립트를 통해 인증을 처리합니다
+  ### Filter Options
 
-  ### 📥 Request Parameters
+  | Name | Type | Description |
+  |------|------|-------------|
+  | isResolved | Boolean | 해결 상태 필터링 (true: 해결됨, false: 미해결) |
+  | orderBy | String | 정렬 순서 ("asc" 또는 "desc", 기본값: "desc") |
 
-  #### GraphQL Query Variables
+  ### Response Fields
 
-  | Name      | Type   | Required | Description                      |
-  |-----------|--------|----------|----------------------------------|
-  | `contestId` | Int   | ✅       | 조회할 대회의 ID                |
-  | `filter`    | GetContestQnAsFilterInput | ❌ | 필터링 옵션 (선택사항)        |
-
-  #### Filter Options
-
-  | Name           | Type                    | Description                    |
-  |----------------|-------------------------|--------------------------------|
-  | `categories`   | QnACategory[]           | QnA 카테고리 필터링 (General, Problem) |
-  | `problemOrders`| Int[]                   | 특정 문제들의 order 배열 (Problem 카테고리와 함께 사용) |
-  | `orderBy`      | 'asc' \| 'desc'         | 정렬 순서 (기본값: 'asc')      |
-  | `isResolved`   | Boolean                 | 해결 상태 필터링 (true: 해결됨, false: 미해결) |
-
-  ### 📤 Response
-
-  ```json
-  {
-    "data": {
-      "getContestQnAs": [
-        {
-          "id": 1,
-          "order": 1,
-          "title": "1번 문제 질문",
-          "content": "1번 문제에서 시간 초과가 발생합니다",
-          "category": "Problem",
-          "isResolved": false,
-          "createTime": "2024-01-01T00:00:00Z",
-          "createdBy": {
-            "username": "user123"
-          },
-          "_count": {
-            "comments": 2
-          }
-        }
-      ]
-    }
-  }
-  ```
-
-  ### 💡 사용 예시
-
-  #### 답변해야 할 QnA만 조회
-  ```json
-  {
-    "filter": {
-      "isResolved": false
-    }
-  }
-  ```
-
-  #### 특정 문제의 QnA만 조회
-  ```json
-  {
-    "filter": {
-      "categories": ["Problem"],
-      "problemOrders": [0, 1]
-    }
-  }
-  ```
-
-  #### 일반 질문만 조회
-  ```json
-  {
-    "filter": {
-      "categories": ["General"]
-    }
-  }
-  ```
+  | Name | Type | Description |
+  |------|------|-------------|
+  | id | Int | QnA ID |
+  | order | Int | 대회 내 QnA 순서 |
+  | title | String | QnA 제목 |
+  | content | String | QnA 내용 |
+  | category | QnACategory | QnA 카테고리 |
+  | isResolved | Boolean | 해결 완료 여부 |
+  | createTime | DateTime | 생성 시간 |
+  | contestId | Int | 대회 ID |
+  | createdBy.username | String | 작성자 사용자명 |
+  | _count.comments | Int | 댓글 개수 |
 }

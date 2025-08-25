@@ -1496,10 +1496,8 @@ input GetAssignmentSubmissionsInput {
 }
 
 input GetContestQnAsFilterInput {
-  categories: [QnACategory!]
   isResolved: Boolean
   orderBy: String
-  problemOrders: [Int!]
 }
 
 input GetContestSubmissionsInput {

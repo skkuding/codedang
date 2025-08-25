@@ -31,14 +31,14 @@ body:graphql {
 }
 
 script:pre-request {
-  await require("../login").loginAdmin(req);
+  await require("./login").loginAdmin(req);
 }
 
 docs {
   # Succeed - Toggle to Unresolved
 
   ## Description
-  운영진이 이미 해결완료된 QnA의 상태를 미해결로 토글하는 케이스를 테스트합니다.
+  운영진이 QnA의 해결완료 상태(해결 -> 미해결)를 수동으로 변경할 수 있게 합니다.
 
   ## 성공 조건
   - 운영진 권한을 가진 사용자로 로그인

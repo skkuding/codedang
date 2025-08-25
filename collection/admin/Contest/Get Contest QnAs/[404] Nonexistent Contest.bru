@@ -1,47 +1,55 @@
 meta {
   name: [404] Nonexistent Contest
-  type: http
-  seq: 2
+  type: graphql
+  seq: 3
 }
 
 post {
-  url: {{baseUrl}}/graphql
-  body: json
+  url: {{gqlUrl}}
+  body: graphql
   auth: none
 }
 
-body:json {
-  {
-    "query": "query GetContestQnAs($contestId: Int!) { getContestQnAs(contestId: $contestId) { id order title content category isResolved createTime createdBy { username } _count { comments } } }",
-    "variables": {
-      "contestId": 99999
+body:graphql {
+  query GetContestQnAs($contestId: Int!) {
+    getContestQnAs(contestId: $contestId) {
+      id
+      order
+      title
+      content
+      category
+      isResolved
+      createTime
+      contestId
+      createdBy {
+        username
+      }
+      _count {
+        comments
+      }
     }
   }
 }
 
-script:pre-request {
-  await require("./login").loginAdmin(req);
+body:graphql:vars {
+  {
+    "contestId": 99999
+  }
 }
 
 docs {
-  ## 📘 Get Contest QnAs - Nonexistent Contest
+  ## [404] Nonexistent Contest
 
-  **POST** `/graphql`
+  - 존재하지 않는 대회 ID로 QnA를 조회할 때 발생하는 에러 케이스입니다.
+  - contestId가 제공되면 해당 대회의 존재 여부를 먼저 확인합니다.
 
-  존재하지 않는 대회 ID로 QnA를 조회할 때 발생하는 에러 케이스입니다.
+  ### Parameters
 
-  ### 🔒 Authentication
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | contestId | Int | ✅ | 존재하지 않는 대회의 ID (예: 99999) |
 
-  🔸 Required
-  - Admin 권한이 필요합니다
-
-  ### 📥 Request Parameters
-
-  | Name      | Type   | Required | Description                      |
-  |-----------|--------|----------|----------------------------------|
-  | `contestId` | Int   | ✅       | 존재하지 않는 대회의 ID (예: 99999) |
-
-  ### 📤 Error Response
+  ### Error Response
 
   ```json
   {
@@ -56,14 +64,22 @@ docs {
   }
   ```
 
-  ### 💡 에러 원인
+  ### Error Causes
 
   - `contestId`에 해당하는 대회가 데이터베이스에 존재하지 않음
   - 잘못된 대회 ID를 입력했을 때 발생
+  - 삭제된 대회의 ID를 사용했을 때 발생
 
-  ### 🔧 해결 방법
+  ### Solutions
 
   1. 올바른 대회 ID를 확인
   2. 대회가 실제로 존재하는지 확인
   3. 데이터베이스 연결 상태 확인
+  4. 대회가 삭제되지 않았는지 확인
+
+  ### Notes
+
+  - Admin 단에서는 대회 존재 여부를 먼저 확인해야 함
+  - 존재하지 않는 대회 ID로 조회 시 404 에러 발생
+  - Client 단과 달리 Admin 단에서는 더 엄격한 검증 필요
 }
