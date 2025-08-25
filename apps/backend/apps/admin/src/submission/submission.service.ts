@@ -10,10 +10,10 @@ import {
   mkdirSync,
   rm,
   unlink,
-  writeFile
+  writeFileSync,
+  rmSync
 } from 'fs'
 import path from 'path'
-import sanitize from 'sanitize-filename'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -511,7 +511,9 @@ export class SubmissionService {
     }
   }
 
-  async getAssignmentTitle(assignmentId: number): Promise<string | null> {
+  private async getAssignmentTitle(
+    assignmentId: number
+  ): Promise<string | null> {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
         id: assignmentId
@@ -526,10 +528,10 @@ export class SubmissionService {
     if (assignment.title === '') {
       return `Assignment_${assignmentId}`
     }
-    return encodeURIComponent(assignment.title)
+    return assignment.title
   }
 
-  async getProblemTitle(problemId: number): Promise<string | null> {
+  private async getProblemTitle(problemId: number): Promise<string | null> {
     const problem = await this.prisma.problem.findUnique({
       where: {
         id: problemId
@@ -544,10 +546,30 @@ export class SubmissionService {
     if (problem.title === '') {
       return `Problem_${problemId}`
     }
-    return encodeURIComponent(problem.title)
+    return problem.title
   }
 
-  async compressSourceCodes(assignmentId: number, problemId: number) {
+  async compressSourceCodes(
+    groupId: number,
+    assignmentId: number,
+    problemId: number,
+    res: Response
+  ) {
+    const assignmentGroupId = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (assignmentGroupId?.groupId != groupId) {
+      throw new ForbiddenAccessException(
+        'Only Group Leader can download source codes.'
+      )
+    }
+
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
         where: {
@@ -575,13 +597,18 @@ export class SubmissionService {
     )
 
     if (submissionInfos.length === 0) {
-      throw new EntityNotExistException('Submssion')
+      throw new EntityNotExistException('Submission')
     }
 
     const problemTitle = await this.getProblemTitle(problemId)
     const assignmentTitle = await this.getAssignmentTitle(assignmentId)
+    const zipFilename = `${assignmentTitle}_${problemId}`
+    const zipPath = path.join(__dirname, `${zipFilename}.zip`)
+    const dirPath = path.join(__dirname, `${zipFilename}`)
 
-    const dirPath = path.join(__dirname, `${assignmentTitle!}_${problemId}`)
+    if (existsSync(dirPath)) {
+      rmSync(dirPath, { recursive: true, force: true })
+    }
     mkdirSync(dirPath, { recursive: true })
 
     submissionInfos.forEach((info) => {
@@ -589,18 +616,17 @@ export class SubmissionService {
       const formattedCode = code.map((snippet) => snippet.text).join('\n')
       const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
       const filePath = path.join(dirPath, filename)
-      writeFile(filePath, formattedCode, (err) => {
-        if (err) {
-          this.logger.error(err)
-          throw new UnprocessableFileDataException(
-            'Failed to handle source code file',
-            filename
-          )
-        }
-      })
+      try {
+        writeFileSync(filePath, formattedCode)
+      } catch (err) {
+        this.logger.error(err)
+        throw new UnprocessableFileDataException(
+          'Failed to handle source code file.',
+          filename
+        )
+      }
     })
-    const zipFilename = `${assignmentTitle}_${problemId}`
-    const zipPath = path.join(__dirname, `${zipFilename}.zip`)
+
     const output = createWriteStream(zipPath)
     const archive = archiver.create('zip', { zlib: { level: 9 } })
 
@@ -620,32 +646,18 @@ export class SubmissionService {
       )
     })
 
-    const downloadSrc = `/submission/download/${zipFilename}`
-    return downloadSrc
-  }
-
-  async downloadCodes(filename: string, res: Response) {
-    const sanitizedFilename = sanitize(filename)
-    const encodedFilename = encodeURIComponent(sanitizedFilename)
-    const zipFilename = path.resolve(__dirname, encodedFilename)
-    if (
-      !zipFilename.startsWith(__dirname) ||
-      !existsSync(`${zipFilename}.zip`)
-    ) {
-      res.status(404).json({ error: 'File not found' })
-    }
-
+    const encodedFilename = encodeURIComponent(zipFilename)
     res.set({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/zip',
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'Content-Disposition': `attachment; filename*=UTF-8''${encodedFilename}.zip`
+      'Content-Disposition': `attachment; filename=assignment${assignmentId}_problem${problemId}.zip; filename*=UTF-8''${encodedFilename}.zip`
     })
-    const fileStream = createReadStream(`${zipFilename}.zip`)
+    const fileStream = createReadStream(zipPath)
     fileStream.pipe(res)
 
-    fileStream.on('close', () => {
-      unlink(`${zipFilename}.zip`, (err) => {
+    fileStream.on('finish', () => {
+      unlink(zipPath, (err) => {
         if (err) this.logger.error('Error on deleting file: ', err)
       })
       rm(zipFilename, { recursive: true, force: true }, (err) => {
@@ -653,14 +665,14 @@ export class SubmissionService {
       })
       res.end()
     })
-    fileStream.on('error', () => {
-      unlink(`${zipFilename}.zip`, (err) => {
+    fileStream.on('error', (err) => {
+      unlink(zipPath, (err) => {
         if (err) this.logger.error('Error on deleting file: ', err)
       })
       rm(zipFilename, { recursive: true, force: true }, (err) => {
         if (err) this.logger.error('Error on deleting folder: ', err)
       })
-      res.status(500).json({ error: 'File download failed' })
+      res.status(500).json({ error: 'File download failed: ', err })
     })
   }
 }
