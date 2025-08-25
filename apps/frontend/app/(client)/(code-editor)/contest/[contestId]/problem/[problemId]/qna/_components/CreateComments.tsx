@@ -16,6 +16,8 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
   const contestId = Number(usePathname().split('/')[2])
   const [commentData, setCommentData] = useState('')
   const [loading, setLoading] = useState(false)
+  const triggerQnaRefresh = useQnaCommentsSync((state) => state.triggerRefresh)
+
   const handleSubmit = async () => {
     setLoading(true)
     try {
@@ -32,6 +34,7 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
+      triggerQnaRefresh()
       setCommentData('')
       toast.success('Comment created successfully')
     } catch (error) {
@@ -54,7 +57,7 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
           value={commentData}
           onChange={handleInputChange}
           maxLength={400}
-          className="h-[56px] w-full rounded-full border border-neutral-600 bg-[#FFFFFF1A] p-3 text-white placeholder-gray-400 placeholder:text-base focus:outline-none"
+          className="h-[56px] w-full rounded-full border border-neutral-600 bg-[#FFFFFF1A] p-3 text-base text-white placeholder-gray-400 placeholder:text-base focus:outline-none"
         />
         <Button
           onClick={handleSubmit}

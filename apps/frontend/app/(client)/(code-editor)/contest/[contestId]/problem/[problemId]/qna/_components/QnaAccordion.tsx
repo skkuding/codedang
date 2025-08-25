@@ -1,13 +1,11 @@
 'use client'
 
-import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
-import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { SingleQnaData } from '@/types/type'
 import { useState, useRef, useEffect } from 'react'
@@ -22,66 +20,78 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
   const [openAccordion, setOpenAccordion] = useState<string | undefined>(
     undefined
   )
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const prevScrollTopRef = useRef<number>(0)
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
-  const { triggerRefresh, refreshTrigger } = useQnaCommentsSync()
-
-  // soft refresh 시 스크롤 복원
-  const handleRefresh = () => {
-    prevScrollTopRef.current = scrollRef.current?.scrollTop ?? 0
-    triggerRefresh()
+  const handleValueChange = (value: string | undefined) => {
+    setOpenAccordion(value)
   }
 
-  // refreshTrigger가 바뀌면 스크롤 위치 복원
   useEffect(() => {
-    // 약간의 delay를 줘야 ScrollArea가 렌더링된 후 위치 복원 가능
-    setTimeout(() => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollTo({ top: prevScrollTopRef.current })
-      }
-    }, 50)
-  }, [refreshTrigger])
+    if (!openAccordion) {
+      return
+    }
+
+    const triggerEl = triggerRefs.current[openAccordion]
+    if (!triggerEl) {
+      return
+    }
+
+    const scrollOptions: ScrollIntoViewOptions = {
+      behavior: 'smooth',
+      block: 'start'
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      triggerEl.scrollIntoView(scrollOptions)
+    }, 350)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [openAccordion])
 
   return (
-    <ScrollArea className="h-full" ref={scrollRef}>
+    <ScrollArea className="h-full">
       <div className="flex-1 overflow-hidden">
         <Accordion
           type="single"
           collapsible
           value={openAccordion}
-          onValueChange={setOpenAccordion}
+          onValueChange={handleValueChange}
           className="flex h-full flex-col"
         >
-          {qnaData.map((qna) => (
-            <AccordionItem
-              key={qna.id}
-              value={`item-${qna.id}`}
-              className="border-[#FFFFFF1A]"
-            >
-              <AccordionTrigger className="px-5 text-[20px] font-semibold">
-                <p>{qna.title}</p>
-              </AccordionTrigger>
-              <AccordionContent className="h-[700px] pb-0">
-                <div className="flex h-full flex-col">
-                  {/* 질문 본문 */}
-                  <div className="border-1 mx-5 mb-5 rounded-lg border-[#FFFFFF33] px-5 py-[14px] text-base">
-                    {qna.content}
+          {qnaData.map((qna) => {
+            const value = `item-${qna.id}`
+            return (
+              <AccordionItem
+                key={qna.id}
+                value={value}
+                className="border-[#FFFFFF1A]"
+              >
+                <AccordionTrigger
+                  ref={(el) => {
+                    triggerRefs.current[value] = el
+                  }}
+                  className="px-5 text-[20px] font-semibold"
+                >
+                  <p>{qna.title}</p>
+                </AccordionTrigger>
+                <AccordionContent className="h-[700px] pb-0">
+                  <div className="flex h-full flex-col">
+                    <div className="border-1 mx-5 mb-5 rounded-lg border-[#FFFFFF33] px-5 py-[14px] text-base">
+                      {qna.content}
+                    </div>
+                    <div className="flex-1 overflow-y-auto">
+                      <CommentsArea comments={qna.comments} />
+                    </div>
+                    <div>
+                      <CreateComments qnaOrder={qna.order} />
+                    </div>
                   </div>
-
-                  {/* 댓글 영역 */}
-                  <div className="flex-1 overflow-y-auto">
-                    <CommentsArea comments={qna.comments} />
-                  </div>
-
-                  {/* 댓글 작성 영역 */}
-                  <div>
-                    <CreateComments qnaOrder={qna.order} />
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
+                </AccordionContent>
+              </AccordionItem>
+            )
+          })}
         </Accordion>
       </div>
     </ScrollArea>

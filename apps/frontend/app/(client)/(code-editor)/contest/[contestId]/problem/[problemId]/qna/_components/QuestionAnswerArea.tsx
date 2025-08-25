@@ -1,7 +1,6 @@
 'use client'
 
 import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
-import { Button } from '@/components/shadcn/button'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { MultipleQnaData, SingleQnaData } from '@/types/type'
 import Image from 'next/image'
