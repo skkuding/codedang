@@ -1,0 +1,29 @@
+meta {
+  name: [404] Nonexistent Assignment
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation AutoFinalizeScore($groupId: Int!, $assignmentId: Int!) {
+    autoFinalizeScore(groupId: $groupId, assignmentId: $assignmentId)
+  }
+}
+
+body:graphql:vars {
+  {
+    "assignmentId": 99999999,
+    "groupId": 1
+  }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq "NOT_FOUND"
+}
+
