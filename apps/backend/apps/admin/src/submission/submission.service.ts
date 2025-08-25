@@ -439,7 +439,9 @@ export class SubmissionService {
     }
   }
 
-  async getAssignmentTitle(assignmentId: number): Promise<string | null> {
+  private async getAssignmentTitle(
+    assignmentId: number
+  ): Promise<string | null> {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
         id: assignmentId
@@ -457,7 +459,7 @@ export class SubmissionService {
     return assignment.title
   }
 
-  async getProblemTitle(problemId: number): Promise<string | null> {
+  private async getProblemTitle(problemId: number): Promise<string | null> {
     const problem = await this.prisma.problem.findUnique({
       where: {
         id: problemId
