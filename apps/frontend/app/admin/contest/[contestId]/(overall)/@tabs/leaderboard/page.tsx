@@ -4,7 +4,7 @@ import { Input } from '@/components/shadcn/input'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { GET_CONTEST_LEADERBOARD } from '@/graphql/leaderboard/queries'
 import searchIcon from '@/public/icons/search.svg'
-import { useSuspenseQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -35,28 +35,25 @@ export default function ContestLeaderBoard() {
   const pathname = usePathname()
   const contestId = Number(pathname.split('/')[3])
 
-  const { data: contestLeaderboard } = useSuspenseQuery(
-    GET_CONTEST_LEADERBOARD,
-    {
-      variables: { contestId }
-    }
-  )
+  const { data: contestLeaderboard } = useQuery(GET_CONTEST_LEADERBOARD, {
+    variables: { contestId }
+  })
 
   const [disableLeaderboard, setDisableLeaderboard] = useState<boolean>(true)
-  const { data: fetchedContest } = useSuspenseQuery(GET_CONTEST, {
+  const { data: fetchedContest } = useQuery(GET_CONTEST, {
     variables: { contestId }
   })
 
   const now = new Date()
   useEffect(() => {
-    const endTime = new Date(fetchedContest.getContest.endTime)
+    const endTime = new Date(fetchedContest?.getContest.endTime)
     if (endTime > now) {
       setDisableLeaderboard(true)
     } else {
       setDisableLeaderboard(false)
     }
   }, [fetchedContest])
-  const isUnfrozen = !contestLeaderboard.getContestLeaderboard.isFrozen
+  const isUnfrozen = !contestLeaderboard?.getContestLeaderboard.isFrozen
 
   const [problemSize, setProblemSize] = useState(0)
   const [leaderboardUsers, setLeaderboardUsers] = useState([
@@ -64,8 +61,10 @@ export default function ContestLeaderBoard() {
   ])
 
   useEffect(() => {
-    if (contestLeaderboard.getContestLeaderboard.leaderboard[0] === undefined) {
-      const contestStartTime = new Date(fetchedContest.getContest.startTime)
+    if (
+      contestLeaderboard?.getContestLeaderboard.leaderboard[0] === undefined
+    ) {
+      const contestStartTime = new Date(fetchedContest?.getContest.startTime)
       if (contestStartTime > now) {
         throw new Error(
           'Error(before start): There is no data in leaderboard yet.'
@@ -119,9 +118,10 @@ export default function ContestLeaderBoard() {
       <div className="mb-[62px] mt-[60px] flex w-full flex-row justify-between pl-[14px] pr-[9px]">
         <div className="flex flex-row text-2xl font-semibold text-black">
           <div className="text-[#3581FA]">
-            {contestLeaderboard.getContestLeaderboard.participatedNum}
+            {contestLeaderboard?.getContestLeaderboard.participatedNum}
           </div>
-          /{contestLeaderboard.getContestLeaderboard.registeredNum} Participants
+          /{contestLeaderboard?.getContestLeaderboard.registeredNum}{' '}
+          Participants
         </div>
         <div className="relative">
           <Image
