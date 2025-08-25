@@ -8,28 +8,26 @@ import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { QnAMainTable } from './_components/QnAMainTable'
 
-interface ContestProps {
-  params: { contestId: string }
-  searchParams: {
+interface ContestQnAProps {
+  params: Promise<{ contestId: string }>
+  searchParams: Promise<{
     registered: string
     search: string
     orderBy: string
     categories?: string
     problemOrders?: string
-  }
+  }>
 }
 
-export default async function ContestQna({
-  params,
-  searchParams
-}: ContestProps) {
-  const { contestId } = params
+export default async function ContestQna(props: ContestQnAProps) {
+  const { contestId } = await props.params
+  const { searchParams } = props
   const session = await auth()
-  const registered = searchParams.registered === 'true'
-  const search = searchParams.search ?? ''
-  const orderBy = searchParams.orderBy ?? 'desc'
-  const categories = searchParams.categories ?? ''
-  const problemOrders = searchParams.problemOrders ?? ''
+  const registered = (await searchParams).registered === 'true'
+  const search = (await searchParams).search ?? ''
+  const orderBy = (await searchParams).orderBy ?? 'desc'
+  const categories = (await searchParams).categories ?? ''
+  const problemOrders = (await searchParams).problemOrders ?? ''
   const contest: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
     .json()
