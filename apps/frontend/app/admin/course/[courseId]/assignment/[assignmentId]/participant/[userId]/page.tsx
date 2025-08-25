@@ -7,7 +7,7 @@ import { useQuery } from '@apollo/client'
 import { ErrorBoundary } from '@suspensive/react'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { Suspense } from 'react'
+import { Suspense, use } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { ScoreTable, ScoreTableFallback } from './_components/ScoreTable'
 import {
@@ -15,11 +15,10 @@ import {
   SubmissionTableFallback
 } from './_components/SubmissionTable'
 
-export default function Page({
-  params
-}: {
-  params: { courseId: string; assignmentId: string; userId: string }
+export default function Page(props: {
+  params: Promise<{ courseId: string; assignmentId: string; userId: string }>
 }) {
+  const params = use(props.params)
   const groupId = Number(params.courseId)
   const assignmentId = Number(params.assignmentId)
   const userId = Number(params.userId)

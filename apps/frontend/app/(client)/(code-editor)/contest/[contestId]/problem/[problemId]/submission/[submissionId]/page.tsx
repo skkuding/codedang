@@ -6,23 +6,22 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { ErrorBoundary } from '@suspensive/react'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { Suspense } from 'react'
+import { Suspense, use } from 'react'
 import { SubmissionDetail } from '../_components/SubmissionDetail'
 import { SubmissionDetailTitle } from './_components/SubmissionDetailTitle'
 
-export default function Page({
-  params,
-  searchParams
-}: {
-  params: {
+export default function Page(props: {
+  params: Promise<{
     problemId: string
     contestId: string
     submissionId: string
-  }
-  searchParams: {
+  }>
+  searchParams: Promise<{
     cellProblemId?: string
-  }
+  }>
 }) {
+  const searchParams = use(props.searchParams)
+  const params = use(props.params)
   const { problemId, submissionId, contestId } = params
   const { cellProblemId } = searchParams
   const refreshTrigger = useSubmissionDetailSync(

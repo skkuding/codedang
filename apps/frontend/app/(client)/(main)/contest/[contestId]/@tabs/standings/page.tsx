@@ -355,11 +355,10 @@ const myRecord: Standings | undefined = dummyData.find(
   (data) => data.userId === myUserId
 )
 
-export default function ContestStandings({
-  searchParams
-}: {
-  searchParams: { page: string | undefined }
+export default async function ContestStandings(props: {
+  searchParams: Promise<{ page: string | undefined }>
 }) {
+  const searchParams = await props.searchParams
   const take = 10
   const currentPage = searchParams.page ? Number(searchParams.page) : 1
   const maxPagesPerSlot = 5

@@ -50,6 +50,7 @@ resource "aws_secretsmanager_secret_version" "judge_queue" {
   secret_string = jsonencode({
     username = var.rabbitmq_username
     password = random_password.rabbitmq_password.result
+    api_url  = aws_mq_broker.judge_queue.instances.0.console_url,
     host     = trimprefix(aws_mq_broker.judge_queue.instances.0.console_url, "https://"),
     port     = var.rabbitmq_port,
     vhost    = rabbitmq_vhost.vh.name

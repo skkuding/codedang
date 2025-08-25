@@ -6,7 +6,7 @@ import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
 import { useQuery } from '@apollo/client'
 import { ErrorBoundary } from '@suspensive/react'
 import Link from 'next/link'
-import { Suspense } from 'react'
+import { Suspense, use } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { ScoreTable, ScoreTableFallback } from './_components/ScoreTable'
 import {
@@ -14,11 +14,10 @@ import {
   SubmissionTableFallback
 } from './_components/SubmissionTable'
 
-export default function Page({
-  params
-}: {
-  params: { contestId: string; userId: string }
+export default function Page(props: {
+  params: Promise<{ contestId: string; userId: string }>
 }) {
+  const params = use(props.params)
   const contestId = Number(params.contestId)
   const userId = Number(params.userId)
 

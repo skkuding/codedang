@@ -105,7 +105,7 @@ export function TestcaseStoreProvider({
   problemTestcase,
   children
 }: TestcaseStoreProviderProps) {
-  const storeRef = useRef<TestcaseStore>()
+  const storeRef = useRef<TestcaseStore>(undefined)
   if (!storeRef.current) {
     storeRef.current = createTestcaseStore(
       problemId,
