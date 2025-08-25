@@ -525,7 +525,7 @@ export class SubmissionService {
     )
 
     if (submissionInfos.length === 0) {
-      throw new EntityNotExistException('Submssion')
+      throw new EntityNotExistException('Submission')
     }
 
     const problemTitle = await this.getProblemTitle(problemId)
