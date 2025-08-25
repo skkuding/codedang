@@ -20,7 +20,7 @@ export default async function QnaPage(props: {
 
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
-      <Suspense>
+      <Suspense fallback={<div>Loading...</div>}>
         <div className="flex h-full flex-col bg-[#222939]">
           <CreateQnaTextArea
             problemOrder={problemorder}

@@ -11,9 +11,10 @@ interface CommentsAreaProps {
 }
 
 export function CommentsArea({ comments }: CommentsAreaProps) {
+  comments.sort((a, b) => a.order - b.order)
   return (
     <ScrollArea className="h-full">
-      <div className="flex h-full flex-col gap-2 overflow-y-auto bg-[#121728] px-5 pt-5">
+      <div className="flex h-full flex-col gap-2 bg-[#121728] px-5 pt-5">
         {comments && comments.length > 0 ? (
           comments.map((comment) => (
             <div
