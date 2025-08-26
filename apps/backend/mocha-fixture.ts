@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common'
 import { use } from 'chai'
-import chaiAsPromised from 'chai-as-promised'
+import * as chaiAsPromised from 'chai-as-promised'
 
 // Keep originals to restore after tests
 const originalConsole: Partial<typeof console> = {}
