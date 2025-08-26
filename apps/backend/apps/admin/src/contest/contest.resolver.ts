@@ -244,13 +244,12 @@ export class ContestQnAResolver {
 
   @Query(() => [ContestQnA])
   async getContestQnAs(
-    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
     @Args('filter', { type: () => GetContestQnAsFilterInput, nullable: true })
     filter?: GetContestQnAsFilterInput,
     @Args('search', { type: () => String, nullable: true })
     search?: string
   ) {
-    return await this.contestService.getContestQnAs(contestId, filter, search)
+    return await this.contestService.getContestQnAs(filter, search)
   }
 
   @Query(() => ContestQnA)

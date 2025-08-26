@@ -1,5 +1,5 @@
 meta {
-  name: [succeed] Search QnAs by Title
+  name: [succeed] Get QnAs by Search Title
   type: graphql
   seq: 1
 }
@@ -11,7 +11,7 @@ post {
 }
 
 body:graphql {
-  query SearchQnAsByTitle($filter: GetContestQnAsFilterInput, $search: String) {
+  query GetQnAsBySearchTitle($filter: GetContestQnAsFilterInput, $search: String) {
     getContestQnAs(filter: $filter, search: $search) {
       id
       order

@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetAllContestQnAs($filter: GetContestQnAsFilterInput) {
-    getContestQnAs(filter: $filter) {
+  query GetAllContestQnAs {
+    getContestQnAs {
       id
       order
       title
@@ -31,26 +31,12 @@ body:graphql {
   }
 }
 
-body:graphql:vars {
-  {
-    "filter": {
-      "orderBy": "desc"
-    }
-  }
-}
 
 docs {
   ## [succeed] Get All Contest QnAs
 
   - 대회 상관 없이 모든 대회의 QnA를 조회합니다.
-  - contestId를 제공하지 않아 모든 대회의 QnA가 조회됩니다.
   - 기본적으로 최신순으로 정렬됩니다.
-
-  ### Parameters
-
-  | Name | Type | Required | Description |
-  |------|------|----------|-------------|
-  | filter | GetContestQnAsFilterInput | x | 필터링 옵션 (기본값: 최신순) |
 
   ### Use Cases
 
@@ -60,5 +46,5 @@ docs {
 
   ### Response
 
-  모든 대회의 QnA가 `contestId`와 함께 반환됩니다.
+  모든 대회의 QnA가 `contestId`와 함께 반환되며, 기본적으로 최신순으로 정렬됩니다.
 }

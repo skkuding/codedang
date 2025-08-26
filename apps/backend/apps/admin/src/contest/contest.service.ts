@@ -6,13 +6,7 @@ import {
   BadRequestException
 } from '@nestjs/common'
 import { Contest, ResultStatus, Submission } from '@generated'
-import {
-  ContestRole,
-  Prisma,
-  Role,
-  QnACategory,
-  type ContestProblem
-} from '@prisma/client'
+import { ContestRole, Prisma, Role, type ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
@@ -1390,7 +1384,6 @@ export class ContestService {
   }
 
   async getContestQnAs(
-    contestId?: number,
     filter?: {
       orderBy?: 'asc' | 'desc'
       isResolved?: boolean
@@ -1398,17 +1391,6 @@ export class ContestService {
     search?: string
   ) {
     const where: Prisma.ContestQnAWhereInput = {}
-
-    // 대회 존재 확인
-    if (contestId) {
-      const contest = await this.prisma.contest.findUnique({
-        where: { id: contestId }
-      })
-      if (!contest) {
-        throw new EntityNotExistException('Contest')
-      }
-      where.contestId = contestId
-    }
 
     // 해결 상태 필터링
     if (filter?.isResolved !== undefined) {

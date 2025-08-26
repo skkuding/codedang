@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetContestQnAs($contestId: Int, $filter: GetContestQnAsFilterInput, $search: String) {
-    getContestQnAs(contestId: $contestId, filter: $filter, search: $search) {
+  query GetContestQnAs($filter: GetContestQnAsFilterInput, $search: String) {
+    getContestQnAs(filter: $filter, search: $search) {
       id
       order
       title
@@ -33,7 +33,6 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 1,
     "filter": {
       "isResolved": false,
       "orderBy": "desc"
@@ -45,18 +44,16 @@ body:graphql:vars {
 docs {
   ## Get Contest QnAs
 
-  - 특정 대회의 QnA들을 조회하거나, 모든 대회의 QnA를 조회할 수 있습니다.
-  - contestId가 제공되면 해당 대회의 QnA만 조회합니다.
-  - contestId가 제공되지 않으면 모든 대회의 QnA를 조회합니다.
+  - 모든 대회의 QnA들을 조회합니다.
+  - 관리자가 전체 시스템에서 해결되지 않은 질문들을 관리할 수 있습니다.
   - 필터링 옵션을 통해 해결 상태와 정렬 순서를 지정할 수 있습니다.
 
   ### Parameters
 
   | Name | Type | Required | Description |
   |------|------|----------|-------------|
-  | contestId | Int | x | 조회할 대회 ID (제공하지 않으면 모든 대회) |
-  | filter | GetContestQnAsFilterInput | x | 필터링 옵션 |
-  | search | String | x | QnA 제목 검색 (대소문자 구분 없음) |
+  | filter | GetContestQnAsFilterInput | ❌ | 필터링 옵션 |
+  | search | String | ❌ | QnA 제목 검색 (대소문자 구분 없음) |
 
   ### Filter Options
 
@@ -92,4 +89,10 @@ docs {
   | contestId | Int | 대회 ID |
   | createdBy.username | String | 작성자 사용자명 |
   | _count.comments | Int | 댓글 개수 |
+
+  ### Use Case
+
+  - **관리자 대시보드**: 전체 시스템에서 해결되지 않은 질문 개수 확인
+  - **일괄 관리**: 여러 대회의 질문을 한 번에 처리
+  - **우선순위 설정**: 전체적으로 중요한 질문들을 식별하여 우선 처리
 }
