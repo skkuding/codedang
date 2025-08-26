@@ -10,12 +10,13 @@ import { useTestcaseStore } from '../context/TestcaseStoreProvider'
 const MAX_ATTEMPTS = 10
 const REFETCH_INTERVAL = 2000
 
-const useGetTestResult = (type: 'sample' | 'user') => {
+const useGetTestResult = (type: 'non-user' | 'user') => {
   const attempts = useRef(0)
   const setIsTesting = useTestPollingStore((state) => state.setIsTesting)
   const stopPolling = useTestPollingStore((state) => state.stopPolling)
 
-  const baseUrl = type === 'sample' ? 'submission/test' : 'submission/user-test'
+  const baseUrl =
+    type === 'non-user' ? 'submission/test' : 'submission/user-test'
 
   const getTestResult = async () => {
     const res = await safeFetcherWithAuth.get(baseUrl, {
@@ -53,10 +54,10 @@ const useGetTestResult = (type: 'sample' | 'user') => {
 }
 
 export const useTestResults = () => {
-  const getSampleTestResult = useGetTestResult('sample')
+  const getNonUserTestResult = useGetTestResult('non-user')
   const getUserTestResult = useGetTestResult('user')
   const {
-    samplePollingEnabled,
+    nonUserPollingEnabled,
     userPollingEnabled,
     setIsTesting,
     stopPolling
@@ -70,10 +71,10 @@ export const useTestResults = () => {
     queries: [
       {
         queryKey: ['submission', 'test'],
-        queryFn: getSampleTestResult,
+        queryFn: getNonUserTestResult,
         throwOnError: false,
         refetchInterval: REFETCH_INTERVAL,
-        enabled: samplePollingEnabled
+        enabled: nonUserPollingEnabled
       },
       {
         queryKey: ['submission', 'user-test'],
@@ -91,14 +92,21 @@ export const useTestResults = () => {
 
   let userTestcaseCount = 1
   let sampleTestcaseCount = 1
+  let hiddenTestcaseCount = 1
   const testResults =
     data.length > 0
       ? testcases.map((testcase, index) => {
           const testResult = data.find((item) => item.id === testcase.id)
+          let type: 'user' | 'sample' | 'hidden' = 'sample'
           if (testcase.isUserTestcase) {
             testcase.id = userTestcaseCount++
+            type = 'user'
+          } else if (testcase.isHidden === true) {
+            testcase.id = hiddenTestcaseCount++
+            type = 'hidden'
           } else {
             testcase.id = sampleTestcaseCount++
+            type = 'sample'
           }
           return {
             id: testcase.id,
@@ -107,16 +115,25 @@ export const useTestResults = () => {
             expectedOutput: testcase.output,
             output: testResult?.output ?? '',
             result: testResult?.result ?? '',
-            isUserTestcase: testcase.isUserTestcase
+            type: type
           }
         })
       : []
+
+  // type에 따라 testResults 정렬 hidden - sample - user 순으로
+  const PRIOR_TESTCASE = {
+    hidden: 0,
+    sample: 1,
+    user: 2
+  }
+
+  testResults.sort((a, b) => PRIOR_TESTCASE[a.type] - PRIOR_TESTCASE[b.type])
 
   useEffect(() => {
     if (isError) {
       toast.error('Failed to execute some testcases. Please try again later.')
       setIsTesting(false)
-      stopPolling('sample')
+      stopPolling('non-user')
       stopPolling('user')
     }
   }, [isError])

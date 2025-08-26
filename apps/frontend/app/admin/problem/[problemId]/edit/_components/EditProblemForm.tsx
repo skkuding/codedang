@@ -178,7 +178,7 @@ export function EditProblemForm({
 
   return (
     <>
-      <form className="flex w-[760px] flex-col gap-6" onSubmit={onSubmit}>
+      <form className="flex w-[1004px] flex-col gap-6" onSubmit={onSubmit}>
         <FormProvider {...methods}>{children}</FormProvider>
       </form>
       <CautionDialog

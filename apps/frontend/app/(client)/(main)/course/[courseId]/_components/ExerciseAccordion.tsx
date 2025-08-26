@@ -2,30 +2,26 @@
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
+import { CountdownStatus } from '@/components/CountdownStatus'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
-import { UNLIMITED_DATE } from '@/libs/constants'
+import { Badge } from '@/components/shadcn/badge'
 import {
   cn,
   convertToLetter,
   dateFormatter,
-  formatDateRange
+  formatDateRange,
+  hasDueDate
 } from '@/libs/utils'
-import type {
-  Assignment,
-  AssignmentStatus,
-  AssignmentSummary
-} from '@/types/type'
+import type { Assignment, AssignmentSummary } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useInterval } from 'react-use'
+import { useState } from 'react'
 import { AssignmentLink } from './AssignmentLink'
 import { ResultBadge } from './ResultBadge'
 
@@ -108,16 +104,22 @@ function ExerciseAccordionItem({
       >
         <AccordionTrigger
           className={cn(
-            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-[60px] py-5 text-left text-sm shadow-md',
+            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-[60px] py-6 text-left text-sm shadow-md',
             'data-[state=open]:-mb-6 data-[state=open]:mt-[24px]',
             'relative',
             'hover:no-underline'
           )}
           iconStyle="w-5 h-5 absolute right-[3%]"
         >
-          <p className="text-primary w-[10%] text-left font-normal">
-            [Week {exercise.week}]
-          </p>
+          <div className="mr-4 w-[10%]">
+            <Badge
+              variant="Course"
+              className="px-[10px] py-1 text-sm font-medium"
+            >
+              Week {exercise.week.toString().padStart(2, '0')}
+            </Badge>
+          </div>
+
           <div className="flex w-[45%] flex-col">
             <AssignmentLink
               key={exercise.id}
@@ -125,17 +127,25 @@ function ExerciseAccordionItem({
               courseId={courseId}
               isExercise
             />
-            {exercise && <AssignmentStatusTimeDiff assignment={exercise} />}
+            {exercise && hasDueDate(exercise.dueTime) && (
+              <CountdownStatus
+                baseTime={exercise.dueTime}
+                textStyle="text-color-neutral-50"
+                showIcon={false}
+              />
+            )}
           </div>
+
           {exercise && (
             <div className="flex w-[25%] justify-center">
-              <div className="max-w-[200px] flex-1 text-left">
-                <p className="overflow-hidden whitespace-nowrap font-normal text-[#8A8A8A]">
+              <div className="max-w-[250px] flex-1 text-left">
+                <p className="text-color-neutral-60 overflow-hidden whitespace-nowrap text-center text-base font-normal">
                   {formatDateRange(exercise.startTime, exercise.endTime, false)}
                 </p>
               </div>
             </div>
           )}
+
           <div className="flex w-[20%] justify-center">
             {dayjs().isAfter(dayjs(exercise.startTime)) && (
               <SubmissionBadge grade={grade} />
@@ -151,9 +161,12 @@ function ExerciseAccordionItem({
                   key={problem.id}
                   className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-[60px] py-6 last:border-none"
                 >
-                  <div className="text-primary flex w-[10%] justify-center font-normal">
-                    <p> {convertToLetter(problem.order)}</p>
+                  <div className="mr-4 flex w-[10%]">
+                    <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
+                      {convertToLetter(problem.order)}
+                    </div>
                   </div>
+
                   <div className="flex w-[45%]">
                     <Link
                       href={
@@ -161,14 +174,15 @@ function ExerciseAccordionItem({
                       }
                       // onClick={handleClick}
                     >
-                      <span className="line-clamp-1 font-medium text-[#171717]">
+                      <span className="line-clamp-1 text-base font-medium text-[#171717]">
                         {problem.title}
                       </span>
                     </Link>
                   </div>
+
                   <div className="w-[25%]">
                     {submission[index].submission?.submissionTime && (
-                      <div className="flex w-full justify-center text-xs font-normal text-[#8A8A8A]">
+                      <div className="text-primary flex w-full justify-center text-sm font-normal">
                         Last Submission :{' '}
                         {dateFormatter(
                           submission[index].submission.submissionTime,
@@ -191,92 +205,6 @@ function ExerciseAccordionItem({
   )
 }
 
-dayjs.extend(duration)
-interface AssignmentStatusTimeDiffProps {
-  assignment: Assignment
-}
-
-export function AssignmentStatusTimeDiff({
-  assignment
-}: AssignmentStatusTimeDiffProps) {
-  const [assignmentStatus, setAssignmentStatus] = useState<
-    AssignmentStatus | undefined | null
-  >(assignment.status)
-  const [timeDiff, setTimeDiff] = useState({
-    days: 0,
-    hours: '00',
-    minutes: '00',
-    seconds: '00'
-  })
-
-  const updateAssignmentStatus = () => {
-    const now = dayjs()
-    if (now.isAfter(assignment.endTime)) {
-      setAssignmentStatus('finished')
-    } else if (now.isAfter(assignment.startTime)) {
-      setAssignmentStatus('ongoing')
-    } else {
-      setAssignmentStatus('upcoming')
-    }
-
-    const timeRef =
-      assignmentStatus === 'ongoing' ? assignment.endTime : assignment.startTime
-
-    const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
-    const days = Math.floor(diff.asDays())
-    const hours = Math.floor(diff.asHours() % 24)
-    const hourStr = hours.toString().padStart(2, '0')
-    const minutes = Math.floor(diff.asMinutes() % 60)
-    const minuteStr = minutes.toString().padStart(2, '0')
-    const seconds = Math.floor(diff.asSeconds() % 60)
-    const secondStr = seconds.toString().padStart(2, '0')
-
-    setTimeDiff({
-      days,
-      hours: hourStr,
-      minutes: minuteStr,
-      seconds: secondStr
-    })
-  }
-
-  useEffect(() => {
-    updateAssignmentStatus()
-  }, [])
-
-  useInterval(() => {
-    updateAssignmentStatus()
-  }, 1000)
-
-  if (dayjs(assignment.endTime).isSame(dayjs(UNLIMITED_DATE))) {
-    return null
-  }
-
-  return (
-    <div className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-normal text-[#8A8A8A] opacity-80">
-      {assignmentStatus === 'finished' ? (
-        <>
-          Ended
-          <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-            {timeDiff.days > 0
-              ? `${timeDiff.days} days`
-              : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`}
-          </p>
-          ago
-        </>
-      ) : (
-        <>
-          {assignmentStatus === 'ongoing' ? 'Ends in' : 'Starts in'}
-          <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-            {timeDiff.days > 0
-              ? `${timeDiff.days} days`
-              : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`}
-          </p>
-        </>
-      )}
-    </div>
-  )
-}
-
 interface SubmissionBadgeProps {
   className?: string
   grade: AssignmentSummary
@@ -295,9 +223,9 @@ function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
         className
       )}
     >
-      <div className="text-sm font-medium">
+      <div className="text-base font-medium">
         <p>
-          {grade.submittedCount}/{grade.problemCount}
+          {grade.submittedCount} / {grade.problemCount}
         </p>
       </div>
     </div>
