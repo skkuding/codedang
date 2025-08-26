@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ContestRole, NotificationType } from '@prisma/client'
 import * as webpush from 'web-push'
@@ -7,6 +7,7 @@ import { PrismaService } from '@libs/prisma'
 
 @Injectable()
 export class NotificationService {
+  private readonly logger = new Logger(NotificationService.name)
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService
@@ -244,12 +245,11 @@ export class NotificationService {
           payload
         )
       } catch (error) {
-        console.error(
-          `Failed to send push notification to user ${subscription.userId}:`,
-          error
+        this.logger.error(
+          `Failed to send push notification to user ${subscription.userId}: ${error.message ?? String(error)}`
         )
 
-        if (error?.statusCode === 410) {
+        if (error.statusCode === 410 || error.statusCode === 404) {
           await this.prisma.pushSubscription.delete({
             where: { id: subscription.id }
           })
