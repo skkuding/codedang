@@ -9,17 +9,19 @@ import emergencyIcon from '@/public/icons/emergency.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
+import { use } from 'react'
 import { FaAngleLeft, FaPencil, FaUser } from 'react-icons/fa6'
 import { IoKey } from 'react-icons/io5'
 import { ContestOverallTabs } from '../_components/ContestOverallTabs'
 
-export default function Layout({
-  params,
-  tabs
-}: {
-  params: { contestId: string }
+export default function Layout(props: {
+  params: Promise<{ contestId: string }>
   tabs: React.ReactNode
 }) {
+  const params = use(props.params)
+
+  const { tabs } = props
+
   const { contestId } = params
 
   const contestData = useQuery(GET_CONTEST, {

@@ -38,6 +38,7 @@ const assignment: Assignment = {
 const assignmentInfo = {
   title: assignment.title,
   group: {
+    id: groupId,
     groupName: 'Test Group',
     userGroup: [{ userId: 1 }, { userId: 2 }, { userId: 3 }]
   }
@@ -46,8 +47,10 @@ const assignmentInfo = {
 const assignmentInfoForGraded = {
   title: assignment.title,
   group: {
+    id: groupId,
     groupName: 'Test Group'
-  }
+  },
+  assignmentRecord: [{ userId: 1 }, { userId: 2 }]
 }
 
 const notification: Notification = {
@@ -114,57 +117,55 @@ describe('NotificationService', () => {
   })
 
   describe('notifyAssignmentGraded', () => {
-    it('should create notification when assignment grading is completed', async () => {
-      assignmentService.isAllAssignmentProblemGraded.resolves(true)
+    it('should create notification for all graded users', async () => {
       db.assignment.findUnique.resolves(assignmentInfoForGraded)
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 1 })
+      db.notificationRecord.createMany.resolves({ count: 2 })
       db.pushSubscription.findMany.resolves([])
 
-      await service.notifyAssignmentGraded(assignmentId, userId)
+      await service.notifyAssignmentGraded(assignmentId)
 
       expect(
-        assignmentService.isAllAssignmentProblemGraded.calledWith(
-          assignmentId,
-          userId
-        )
+        db.assignment.findUnique.calledWith({
+          where: { id: assignmentId },
+          select: {
+            title: true,
+            group: { select: { id: true, groupName: true } },
+            assignmentRecord: {
+              where: { userId: { not: null } },
+              select: { userId: true }
+            }
+          }
+        })
       ).to.be.true
-      expect(db.assignment.findUnique.calledOnce).to.be.true
       expect(db.notification.create.calledOnce).to.be.true
       expect(db.notificationRecord.createMany.calledOnce).to.be.true
+      const createManyCall = db.notificationRecord.createMany.getCall(0)
+      expect(createManyCall.args[0].data).to.have.lengthOf(2)
     })
 
-    it('should not create notification when assignment grading is not completed', async () => {
-      assignmentService.isAllAssignmentProblemGraded.resolves(false)
+    it('should not create notification when no receivers found', async () => {
+      db.assignment.findUnique.resolves({
+        title: assignment.title,
+        group: { id: groupId, groupName: 'Test Group' },
+        assignmentRecord: []
+      })
 
-      await service.notifyAssignmentGraded(assignmentId, userId)
+      await service.notifyAssignmentGraded(assignmentId)
 
-      expect(
-        assignmentService.isAllAssignmentProblemGraded.calledWith(
-          assignmentId,
-          userId
-        )
-      ).to.be.true
-      expect(db.assignment.findUnique.called).to.be.false
+      expect(db.assignment.findUnique.calledOnce).to.be.true
       expect(db.notification.create.called).to.be.false
       expect(db.notificationRecord.createMany.called).to.be.false
     })
 
     it('should handle missing assignment info gracefully', async () => {
-      assignmentService.isAllAssignmentProblemGraded.resolves(true)
       db.assignment.findUnique.resolves(null)
-      db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 1 })
-      db.pushSubscription.findMany.resolves([])
 
-      await service.notifyAssignmentGraded(assignmentId, userId)
+      await service.notifyAssignmentGraded(assignmentId)
 
-      expect(db.notification.create.calledOnce).to.be.true
-      const createCall = db.notification.create.getCall(0)
-      expect(createCall.args[0].data.title).to.equal('Assignment')
-      expect(createCall.args[0].data.message).to.equal(
-        'Your assignment "" has been graded.'
-      )
+      expect(db.assignment.findUnique.calledOnce).to.be.true
+      expect(db.notification.create.called).to.be.false
+      expect(db.notificationRecord.createMany.called).to.be.false
     })
   })
 
@@ -184,6 +185,7 @@ describe('NotificationService', () => {
             title: true,
             group: {
               select: {
+                id: true,
                 groupName: true,
                 userGroup: { select: { userId: true } }
               }
@@ -213,6 +215,7 @@ describe('NotificationService', () => {
       const assignmentInfoEmpty = {
         title: assignment.title,
         group: {
+          id: groupId,
           groupName: 'Test Group',
           userGroup: []
         }
@@ -259,13 +262,12 @@ describe('NotificationService', () => {
 
   describe('sendPushNotification', () => {
     it('should call findMany when notifying assignment graded', async () => {
-      assignmentService.isAllAssignmentProblemGraded.resolves(true)
       db.assignment.findUnique.resolves(assignmentInfoForGraded)
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 1 })
+      db.notificationRecord.createMany.resolves({ count: 2 })
       db.pushSubscription.findMany.resolves([])
 
-      await service.notifyAssignmentGraded(assignmentId, userId)
+      await service.notifyAssignmentGraded(assignmentId)
 
       expect(db.pushSubscription.findMany.calledOnce).to.be.true
     })
