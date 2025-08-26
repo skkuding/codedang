@@ -85,6 +85,17 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
     setEmailDomain(`@${typedValue}`)
   }
 
+  const handleRoleChange = (
+    userId: number,
+    newRole: 'Instructor' | 'Student'
+  ) => {
+    setSelectedList((currentList) =>
+      currentList.map((user) =>
+        user.userId === userId ? { ...user, role: newRole } : user
+      )
+    )
+  }
+
   const onFind: SubmitHandler<FindUserInput> = async (data) => {
     const emailRevised = data.email + emailDomain
 
@@ -305,7 +316,25 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                 </div>
 
                 <div className="border-line flex h-10 w-[120px] items-center justify-center gap-1 rounded-full border bg-white px-5">
-                  <span className="text-base">{user.role}</span>
+                  <span className="text-base">
+                    <Select
+                      value={user.role}
+                      onValueChange={(value: 'Instructor' | 'Student') => {
+                        handleRoleChange(user.userId, value)
+                      }}
+                    >
+                      <SelectTrigger className="flex w-auto items-center gap-2 border-none bg-transparent text-base leading-[150%] tracking-[-0.48px] text-black focus:outline-none">
+                        <SelectValue placeholder="Student" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-lg bg-white shadow-md">
+                        {roles.map((role) => (
+                          <SelectItem key={role} value={role}>
+                            {role}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </span>
                 </div>
               </div>
             ))}
