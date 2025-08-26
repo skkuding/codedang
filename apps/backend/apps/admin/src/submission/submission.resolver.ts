@@ -52,7 +52,7 @@ export class SubmissionResolver {
       problemId,
       cursor,
       take,
-      req.user.id
+      req.user
     )
   }
 
