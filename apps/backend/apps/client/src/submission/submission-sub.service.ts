@@ -45,7 +45,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   onModuleInit() {
     this.amqpConnection.createSubscriber(
-      async (msg: object, raw: { properties: { type: string } }) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async (msg: object, raw: any) => {
         try {
           const res = await this.validateJudgerResponse(msg)
 
