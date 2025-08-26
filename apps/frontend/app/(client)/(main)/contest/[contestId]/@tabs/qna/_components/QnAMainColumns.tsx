@@ -48,7 +48,7 @@ export const QnAColumns: ColumnDef<QnAItemWithCategory>[] = [
     cell: ({ row }) => row.original.title
   },
   {
-    accessorKey: 'createdBy.username',
+    accessorKey: 'writer',
     header: 'Writer',
     cell: ({ row }) => row.original.createdBy.username
   },

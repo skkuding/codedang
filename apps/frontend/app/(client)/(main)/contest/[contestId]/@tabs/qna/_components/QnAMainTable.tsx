@@ -117,8 +117,8 @@ export function QnAMainTable({
         headerStyle={{
           id: 'w-[118px]',
           category: 'w-[190px]',
-          title: 'flex-1 w-[500px]',
-          'createdBy.username': 'w-[190px]',
+          title: 'w-[500px]',
+          writer: 'w-[190px]',
           createTime: 'w-[190px]'
         }}
         linked={true}
