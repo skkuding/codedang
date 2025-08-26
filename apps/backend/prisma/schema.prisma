@@ -53,6 +53,7 @@ model User {
   role             Role      @default(User)
   email            String    @unique
   studentId        String    @default("0000000000") @map("student_id")
+  college          String?   @default("none")
   major            String?   @default("none")
   lastLogin        DateTime? @map("last_login")
   createTime       DateTime  @default(now()) @map("create_time")
@@ -597,6 +598,7 @@ model ContestQnA {
   isResolved  Boolean             @default(false) @map("is_resolved")
   createTime  DateTime            @default(now()) @map("create_time")
   comments    ContestQnAComment[]
+  readBy      Int[]               @map("read_by")
 
   @@unique([contestId, order])
   @@map("contest_qna")
