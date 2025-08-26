@@ -3,13 +3,12 @@
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { AssignmentIcon, ExerciseIcon } from '@/components/Icons'
 import type { Assignment, AssignmentSummary } from '@/types/type'
-import { useQueries } from '@tanstack/react-query'
+import { useQueries, type UseQueryOptions } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { DashboardCalendar } from './DashboardCalendar'
 
 type WorkStatus = 'upcoming' | 'ongoing' | 'finished'
-type WorkKind = 'assignment' | 'exercise'
 
 interface GroupInfo {
   id: number
@@ -19,7 +18,7 @@ interface GroupInfo {
 interface WorkItem {
   id: number
   title: string
-  kind: WorkKind
+  isExercise: boolean
   startTime: Date
   endTime: Date
   dueTime: Date
@@ -35,55 +34,111 @@ interface GroupedRows {
   rows: WorkItem[]
 }
 
+interface CardSectionProps {
+  icon: React.ReactNode
+  title: string
+  groups: GroupedRows[]
+  selectedDate?: Date
+}
+
+const startOfDay = (date: Date) => {
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+const todayAtMidnight = () => startOfDay(new Date())
+
+const sameDay = (a: Date, b: Date) =>
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate()
+
+const isActiveOnDate = (selectedDate: Date | undefined, workItem: WorkItem) => {
+  if (!selectedDate) {
+    return true
+  }
+  const selectedStart = startOfDay(selectedDate).getTime()
+  const selectedEnd = selectedStart + 86_400_000 - 1
+  const startTime = workItem.startTime.getTime()
+  const dueTime = workItem.dueTime.getTime()
+  return !(dueTime < selectedStart || startTime > selectedEnd)
+}
+
+const formatDueMd = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
+const progressPct = (submitted: number, total: number) =>
+  total > 0 ? Math.min(100, Math.round((submitted / total) * 100)) : 0
+
+const isDueToday = (selectedDate?: Date, dueDate?: Date) =>
+  Boolean(selectedDate && dueDate && sameDay(selectedDate, dueDate))
+
 const toGroupInfo = (group: Assignment['group'] | undefined): GroupInfo => ({
   id: Number.isFinite(Number(group?.id)) ? Number(group?.id) : 0,
   groupName: group?.groupName ?? 'Unknown'
 })
 
-const dayRange = (d: Date) => {
-  const s = new Date(d)
-  s.setHours(0, 0, 0, 0)
-  const e = new Date(d)
-  e.setHours(23, 59, 59, 999)
-  return [s.getTime(), e.getTime()] as const
-}
-
-const isWorkOpenOnDate = (target: Date | undefined, w: WorkItem) => {
-  if (!target) {
-    return true
-  }
-  const [beg, end] = dayRange(target)
-  const a = w.startTime.getTime()
-  const b = w.dueTime.getTime()
-  return !(b < beg || a > end)
-}
+const makeAssignmentQueries = (
+  courseIds: number[],
+  isExercise: boolean
+): UseQueryOptions<Assignment[], Error>[] =>
+  courseIds.map((courseId) => {
+    const base = assignmentQueries.muliple({ courseId, isExercise })
+    const queryFn: UseQueryOptions<Assignment[], Error>['queryFn'] = async (
+      ctx
+    ) => {
+      type Ctx = { queryKey: readonly unknown[]; signal?: AbortSignal }
+      const fn = base.queryFn as unknown as (c?: Ctx) => Promise<unknown>
+      return (await fn(ctx as Ctx)) as Assignment[]
+    }
+    return {
+      queryKey: [
+        ...(base.queryKey as readonly unknown[]),
+        isExercise ? 'exercise' : 'assignment'
+      ] as const,
+      queryFn,
+      refetchOnWindowFocus: false,
+      staleTime: 30_000
+    }
+  })
 
 export function Dashboard({ courseIds }: { courseIds: number[] }) {
   const validCourseIds = (courseIds ?? []).filter(
     (n) => Number.isFinite(n) && n > 0
   )
 
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
-  const [monthInView, setMonthInView] = useState<Date>(() => {
-    const base = selectedDate ?? new Date()
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    todayAtMidnight()
+  )
+  const [viewMonth, setViewMonth] = useState<Date>(() => {
+    const base = selectedDate ?? todayAtMidnight()
     return new Date(base.getFullYear(), base.getMonth(), 1)
   })
 
-  const makeAssignmentQueries = (isExercise: boolean) =>
-    validCourseIds.map((id) => ({
-      ...assignmentQueries.muliple({ courseId: id, isExercise }),
-      refetchOnWindowFocus: false,
-      staleTime: 30_000
-    }))
+  const onSelectDate = (nextDate: Date | undefined) => {
+    const today = todayAtMidnight()
+    if (!nextDate) {
+      setSelectedDate(today)
+      setViewMonth(new Date(today.getFullYear(), today.getMonth(), 1))
+      return
+    }
+    const normalized = startOfDay(nextDate)
+    if (selectedDate && sameDay(selectedDate, normalized)) {
+      setSelectedDate(today)
+      setViewMonth(new Date(today.getFullYear(), today.getMonth(), 1))
+    } else {
+      setSelectedDate(normalized)
+      setViewMonth(new Date(normalized.getFullYear(), normalized.getMonth(), 1))
+    }
+  }
 
-  const assignmentListResults = useQueries({
-    queries: makeAssignmentQueries(false)
+  const assignmentQueriesResult = useQueries({
+    queries: makeAssignmentQueries(validCourseIds, false)
   })
-  const exerciseListResults = useQueries({
-    queries: makeAssignmentQueries(true)
+  const exerciseQueriesResult = useQueries({
+    queries: makeAssignmentQueries(validCourseIds, true)
   })
 
-  const summaryListResults = useQueries({
+  const summaryQueriesResult = useQueries({
     queries: validCourseIds.map((id) => ({
       ...assignmentQueries.grades({ courseId: id }),
       refetchOnWindowFocus: false,
@@ -91,27 +146,22 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
     }))
   })
 
-  const assignmentsAll = useMemo(
-    () =>
-      assignmentListResults.flatMap(
-        (q) => (q.data as Assignment[] | undefined) ?? []
-      ),
-    [assignmentListResults]
-  )
-  const exercisesAll = useMemo(
-    () =>
-      exerciseListResults.flatMap(
-        (q) => (q.data as Assignment[] | undefined) ?? []
-      ),
-    [exerciseListResults]
+  const assignments = useMemo<Assignment[]>(
+    () => assignmentQueriesResult.flatMap((q) => q.data ?? []),
+    [assignmentQueriesResult]
   )
 
-  const summaryById = useMemo(() => {
+  const exercises = useMemo<Assignment[]>(
+    () => exerciseQueriesResult.flatMap((q) => q.data ?? []),
+    [exerciseQueriesResult]
+  )
+
+  const summaryByAssignmentId = useMemo(() => {
     const map = new Map<
       number,
       { problemCount: number; submittedCount: number }
     >()
-    for (const q of summaryListResults) {
+    for (const q of summaryQueriesResult) {
       for (const s of (q.data as AssignmentSummary[] | undefined) ?? []) {
         map.set(s.id, {
           problemCount: s.problemCount,
@@ -120,10 +170,10 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
       }
     }
     return map
-  }, [summaryListResults])
+  }, [summaryQueriesResult])
 
-  const rowsAll = useMemo<WorkItem[]>(() => {
-    const toRows = (list: Assignment[] | undefined, kind: WorkKind) =>
+  const allRows = useMemo<WorkItem[]>(() => {
+    const toRows = (list: Assignment[] | undefined, isExercise: boolean) =>
       (list ?? []).flatMap((a) => {
         const startTime = new Date(a.startTime)
         const endTime = new Date(a.endTime)
@@ -133,59 +183,58 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
         ) {
           return []
         }
-
-        const sum = summaryById.get(a.id)
+        const summary = summaryByAssignmentId.get(a.id)
         return [
           {
             id: a.id,
             title: a.title,
-            kind,
+            isExercise,
             startTime,
             endTime,
             dueTime,
             group: toGroupInfo(a.group),
-            problemCount: sum?.problemCount ?? a.problemCount ?? 0,
-            submittedCount: sum?.submittedCount ?? 0,
+            problemCount: summary?.problemCount ?? a.problemCount ?? 0,
+            submittedCount: summary?.submittedCount ?? 0,
             week: a.week,
             status: a.status
           } satisfies WorkItem
         ]
       })
+    return [...toRows(assignments, false), ...toRows(exercises, true)]
+  }, [assignments, exercises, summaryByAssignmentId])
 
-    return [
-      ...toRows(assignmentsAll, 'assignment'),
-      ...toRows(exercisesAll, 'exercise')
-    ]
-  }, [assignmentsAll, exercisesAll, summaryById])
-
-  const rowsOnSelectedDate = useMemo(
-    () => rowsAll.filter((w) => isWorkOpenOnDate(selectedDate, w)),
-    [rowsAll, selectedDate]
+  const visibleRows = useMemo(
+    () => allRows.filter((workItem) => isActiveOnDate(selectedDate, workItem)),
+    [allRows, selectedDate]
   )
 
-  const rowsGroupedByCourse = useMemo<GroupedRows[]>(() => {
+  const groupedByCourse: GroupedRows[] = useMemo(() => {
     const map = new Map<string, WorkItem[]>()
-    for (const r of rowsOnSelectedDate) {
-      const key = r.group.groupName || 'Unknown'
-      const list = map.get(key) ?? []
-      list.push(r)
-      map.set(key, list)
+    for (const row of visibleRows) {
+      const key = row.group.groupName || 'Unknown'
+      let bucket = map.get(key)
+      if (!bucket) {
+        bucket = []
+        map.set(key, bucket)
+      }
+      bucket.push(row)
     }
-    return Array.from(map, ([courseTitle, rows]) => ({ courseTitle, rows }))
-  }, [rowsOnSelectedDate])
+    return [...map]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([courseTitle, rows]) => ({ courseTitle, rows }))
+  }, [visibleRows])
 
   const deadlineDateList = useMemo(() => {
     const uniq = new Set<number>()
-    for (const r of rowsAll) {
-      const d = new Date(r.dueTime)
-      d.setHours(0, 0, 0, 0)
-      uniq.add(d.getTime())
+    for (const row of allRows) {
+      const t = startOfDay(new Date(row.dueTime)).getTime()
+      uniq.add(t)
     }
-    return Array.from(uniq).map((t) => new Date(t))
-  }, [rowsAll])
+    return [...uniq].map((t) => new Date(t))
+  }, [allRows])
 
   return (
-    <section className="font-pretendard mx-auto max-w-[1208px]">
+    <section className="mx-auto max-w-[1208px]">
       <div className="pb-[30px]">
         <h2 className="text-[30px] font-semibold leading-9 tracking-[-0.9px] text-black">
           DASHBOARD
@@ -196,44 +245,38 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
         <CardSection
           icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
           title="Assignment"
-          groups={rowsGroupedByCourse.map(({ courseTitle, rows }) => ({
+          groups={groupedByCourse.map(({ courseTitle, rows }) => ({
             courseTitle,
-            rows: rows.filter((x) => x.kind === 'assignment')
+            rows: rows.filter((r) => !r.isExercise)
           }))}
+          selectedDate={selectedDate}
         />
 
         <CardSection
           icon={<ExerciseIcon className="h-7 w-7 fill-violet-600" />}
           title="Exercise"
-          groups={rowsGroupedByCourse.map(({ courseTitle, rows }) => ({
+          groups={groupedByCourse.map(({ courseTitle, rows }) => ({
             courseTitle,
-            rows: rows.filter((x) => x.kind === 'exercise')
+            rows: rows.filter((r) => r.isExercise)
           }))}
+          selectedDate={selectedDate}
         />
 
         <DashboardCalendar
           selectedDate={selectedDate}
-          onSelect={setSelectedDate}
+          onSelect={onSelectDate}
           deadlineDateList={deadlineDateList}
-          viewMonth={monthInView}
-          setViewMonth={setMonthInView}
+          viewMonth={viewMonth}
+          setViewMonth={setViewMonth}
         />
       </div>
     </section>
   )
 }
 
-function CardSection({
-  icon,
-  title,
-  groups
-}: {
-  icon: React.ReactNode
-  title: string
-  groups: GroupedRows[]
-}) {
+function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
   return (
-    <section className="font-pretendard rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
+    <section className="rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
       <div className="pb-[38px] pl-6 pr-6 pt-[30px]">
         <div className="mb-6 flex items-center gap-2">
           {icon}
@@ -244,6 +287,16 @@ function CardSection({
 
         <div className="flex flex-col gap-5">
           {groups
+            .slice()
+            .sort(
+              (groupA, groupB) =>
+                Number(
+                  groupB.rows.some((r) => isDueToday(selectedDate, r.dueTime))
+                ) -
+                Number(
+                  groupA.rows.some((r) => isDueToday(selectedDate, r.dueTime))
+                )
+            )
             .filter((g) => g.rows.length)
             .map((group, idx) => (
               <div key={group.courseTitle}>
@@ -253,27 +306,67 @@ function CardSection({
                 </p>
 
                 <div className="flex flex-col gap-2">
-                  {group.rows.map((row) => (
-                    <Link
-                      key={row.id}
-                      href={`/course/${row.group.id}/${row.kind === 'assignment' ? 'assignment' : 'exercise'}/${row.id}`}
-                      className="group rounded-md bg-neutral-100 transition hover:bg-neutral-200"
-                    >
-                      <div className="flex items-center justify-between py-[10px]">
-                        <div className="flex items-center">
-                          <div className="pl-[18px] pr-[10px]">
-                            <span className="inline-block h-2 w-2 items-center rounded-full bg-violet-500" />
+                  {group.rows
+                    .slice()
+                    .sort((a, b) => {
+                      const dueRank =
+                        Number(isDueToday(selectedDate, b.dueTime)) -
+                        Number(isDueToday(selectedDate, a.dueTime))
+                      if (dueRank !== 0) {
+                        return dueRank
+                      }
+                      const dueA = a.dueTime.getTime()
+                      const dueB = b.dueTime.getTime()
+                      if (dueA !== dueB) {
+                        return dueA - dueB
+                      }
+                      return a.title.localeCompare(b.title)
+                    })
+                    .map((row) => {
+                      const showDueBadge = isDueToday(selectedDate, row.dueTime)
+                      const progress = progressPct(
+                        row.submittedCount,
+                        row.problemCount
+                      )
+
+                      return (
+                        <Link
+                          key={row.id}
+                          href={`/course/${row.group.id}/${row.isExercise ? 'exercise' : 'assignment'}/${row.id}`}
+                          className="group relative overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
+                          aria-label={`${row.title}, due ${formatDueMd(row.dueTime)}, progress ${progress}%`}
+                        >
+                          <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-neutral-200/40" />
+                          <div
+                            className="pointer-events-none absolute inset-y-0 left-0 rounded-r-md bg-violet-200"
+                            style={{ width: `${progress}%` }}
+                          />
+
+                          <div className="relative flex items-center py-[10px]">
+                            <div className="flex min-w-0 flex-1 items-center">
+                              <div className="pl-[18px] pr-[10px]">
+                                <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-violet-500" />
+                              </div>
+                              <p
+                                className="truncate text-sm font-normal leading-6 tracking-[-0.48px] text-neutral-800"
+                                title={row.title}
+                              >
+                                {row.title}
+                                {showDueBadge && (
+                                  <span className="ml-2 rounded bg-rose-50 px-1.5 py-0.5 align-middle text-[11px] font-semibold text-rose-600">
+                                    DUE
+                                  </span>
+                                )}
+                              </p>
+                            </div>
+                            <span className="ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm tabular-nums text-violet-600">
+                              {'~ '}
+                              {formatDueMd(row.dueTime)}
+                            </span>
                           </div>
-                          <p className="truncate text-sm font-normal leading-6 tracking-[-0.48px] text-neutral-800">
-                            {row.title}
-                          </p>
-                        </div>
-                        <span className="pl-[30px] pr-[18px] text-sm text-violet-500">
-                          {row.submittedCount}/{row.problemCount}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
+                        </Link>
+                      )
+                    })}
                 </div>
 
                 {idx < groups.length - 1 && (
