@@ -59,34 +59,39 @@ export class SubmissionService {
       throw new EntityNotExistException('Problem')
     }
 
-    // user가 관리하는 Group들과 Contest들을 병렬로 가져오기
-    const [accessibleGroups, accessibleContests] = await Promise.all([
-      this.prisma.userGroup.findMany({
-        where: {
-          userId: reqUser.id,
-          isGroupLeader: true
-        },
-        select: {
-          groupId: true
-        }
-      }),
-      this.prisma.userContest.findMany({
-        where: {
-          userId: reqUser.id,
-          role: {
-            in: [ContestRole.Admin, ContestRole.Manager]
-          }
-        },
-        select: {
-          contestId: true
-        }
-      })
-    ])
-
-    const accessibleGroupIds = accessibleGroups.map((g) => g.groupId)
-    const accessibleContestIds = accessibleContests.map((c) => c.contestId)
-
     const hasPrivilege = reqUser.isAdmin() || reqUser.isSuperAdmin()
+
+    // user가 관리하는 Group들과 Contest들을 병렬로 가져오기
+    let accessibleGroupIds: number[] = []
+    let accessibleContestIds: number[] = []
+
+    // hasPrivilege가 false일 때만 쿼리 실행
+    if (!hasPrivilege) {
+      const [groups, contests] = await Promise.all([
+        this.prisma.userGroup.findMany({
+          where: {
+            userId: reqUser.id,
+            isGroupLeader: true
+          },
+          select: {
+            groupId: true
+          }
+        }),
+        this.prisma.userContest.findMany({
+          where: {
+            userId: reqUser.id,
+            role: {
+              in: [ContestRole.Admin, ContestRole.Manager]
+            }
+          },
+          select: {
+            contestId: true
+          }
+        })
+      ])
+      accessibleGroupIds = groups.map((g) => g.groupId)
+      accessibleContestIds = contests.map((c) => c.contestId)
+    }
 
     // 접근 가능한 submission들만 쿼리
     const whereCondition = hasPrivilege
