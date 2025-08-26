@@ -17,6 +17,11 @@ export class NotificationProcessor extends WorkerHost {
         await this.notificationService.notifyContestStartingSoon(contestId)
         return { ok: true }
       }
+      case 'assignment-due-reminder': {
+        const { assignmentId } = job.data
+        await this.notificationService.notifyAssignmentDue(assignmentId)
+        return { ok: true }
+      }
     }
   }
 }
