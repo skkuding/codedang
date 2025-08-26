@@ -127,7 +127,11 @@ export function QnADataTable<TData extends Item, TValue>({
           </p>
         </div>
         <div className="flex h-[46px] items-center items-stretch gap-2.5 self-stretch">
-          <SearchBar className="!w-full" height="lg" fontSize="lg" />
+          <SearchBar
+            className="!w-full !max-w-none"
+            height="lg"
+            fontSize="lg"
+          />
           <QnACategoryFilter
             column={table.getColumn('category')}
             contestId={Number(contestId)}
@@ -137,7 +141,7 @@ export function QnADataTable<TData extends Item, TValue>({
           <QnAPostButton
             canCreateQnA={canCreateQnA}
             href={`/contest/${contestId}/qna/create`}
-            className="flex h-[46px] flex-[1_0_0] items-center justify-center gap-[6px] px-6 py-3 text-base font-medium tracking-[-0.48px]"
+            className="flex h-[46px] w-[120px] flex-[1_0_0] items-center justify-center gap-[6px] px-6 py-3 text-base font-medium tracking-[-0.48px]"
           />
         </div>
       </div>

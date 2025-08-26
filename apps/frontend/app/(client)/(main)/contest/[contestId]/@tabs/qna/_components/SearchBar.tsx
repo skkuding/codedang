@@ -26,7 +26,7 @@ const heightClassMap = {
 
 export function SearchBar({
   className,
-  height = 'md',
+  height = 'sm',
   fontSize
 }: SearchBarProps) {
   const router = useRouter()
@@ -60,8 +60,7 @@ export function SearchBar({
 
   return (
     <form
-      // 디자인 가이드: min-w-[184px] max-w-[580px]
-      className={cn('relative', className)}
+      className={cn('relative min-w-[184px] max-w-[580px]', className)}
       onSubmit={handleSubmit(onSubmit)}
     >
       <IoSearch
@@ -71,7 +70,7 @@ export function SearchBar({
       <Input
         placeholder="Search"
         className={cn(
-          'h-9 rounded-full px-8 placeholder:text-[#8A8A8A]',
+          'h-9 rounded-full px-8 placeholder:text-[#C4C4C4]',
           heightClassMap[height],
           fontSize === 'lg'
             ? 'text-lg placeholder:text-lg'
