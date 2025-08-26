@@ -6,9 +6,9 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type {
-  ContestQnACreateDto,
-  GetContestQnAsFilter
+import {
+  GetContestQnAsFilter,
+  type ContestQnACreateDto
 } from './dto/contest-qna.dto'
 
 const contestSelectOption = {
@@ -684,7 +684,8 @@ export class ContestService {
           createdById: userId,
           order,
           category: categoryValue,
-          ...(problemId !== null && { problemId })
+          ...(problemId !== null && { problemId }),
+          readBy: [userId]
         }
       })
     })
@@ -705,6 +706,7 @@ export class ContestService {
    *   - categories: QnACategory Enum의 값을 배열로 저장합니다.
    *   - problemOrders: QnA를 조회할 문제들의 대회에서의 order를 배열로 저장합니다.
    *   - orderBy: 조회할 QnA의 정렬 순서를 저장합니다. (asc: 오름차순 / desc: 내림차순)
+   *   - search: 검색어를 저장합니다.
    * @throws { EntityNotExistException } - contestId에 해당하는 Contest가 존재하지 않으면 반환합니다.
    * @returns ContestQnA[]
    */
@@ -748,32 +750,56 @@ export class ContestService {
 
     // 대회 진행 중이 아니면 별도의 조건 필요 없음
 
-    const where: Prisma.ContestQnAWhereInput = {
+    const baseWhere: Prisma.ContestQnAWhereInput = {
       contestId,
       ...visibleCondition
     }
 
-    if (filter.categories && filter.categories.length > 0) {
-      where.category = { in: filter.categories }
-    }
-    if (
-      filter.categories &&
-      filter.categories.includes(QnACategory.Problem) &&
-      filter.problemOrders &&
-      filter.problemOrders.length > 0
-    ) {
-      const problemIds = await this.prisma.contestProblem
-        .findMany({
-          where: {
-            contestId,
-            order: { in: filter.problemOrders }
-          }
+    const categories = filter.categories ?? []
+    const includeProblem = categories.includes(QnACategory.Problem)
+    const general = categories.filter((c) => c !== QnACategory.Problem)
+
+    const orConds: Prisma.ContestQnAWhereInput[] = []
+
+    if (includeProblem) {
+      if (filter.problemOrders?.length) {
+        const problemIds = await this.prisma.contestProblem
+          .findMany({
+            where: { contestId, order: { in: filter.problemOrders } },
+            select: { problemId: true }
+          })
+          .then((rs) => rs.map((r) => r.problemId))
+
+        orConds.push({
+          category: QnACategory.Problem,
+          problemId: { in: problemIds }
         })
-        .then((results) => results.map((cp) => cp.problemId))
-      where.problemId = { in: problemIds }
+      } else {
+        orConds.push({ category: QnACategory.Problem })
+      }
     }
 
-    return await this.prisma.contestQnA.findMany({
+    if (general.length) {
+      orConds.push({ category: { in: general } })
+    }
+
+    const searchFilter = filter.search
+      ? {
+          title: { contains: filter.search, mode: Prisma.QueryMode.insensitive }
+        }
+      : {}
+
+    const where: Prisma.ContestQnAWhereInput = orConds.length
+      ? {
+          AND: [
+            baseWhere,
+            ...(filter.search ? [searchFilter] : []),
+            { OR: orConds }
+          ]
+        }
+      : { AND: [baseWhere, ...(filter.search ? [searchFilter] : [])] }
+
+    const qnas = await this.prisma.contestQnA.findMany({
       select: {
         id: true,
         order: true,
@@ -783,13 +809,23 @@ export class ContestService {
         category: true,
         problemId: true,
         createTime: true,
-        comments: true
+        createdBy: {
+          select: {
+            username: true
+          }
+        },
+        readBy: true
       },
       where,
       orderBy: {
         order: filter.orderBy || 'asc' // default는 asc
       }
     })
+
+    return qnas.map(({ readBy, ...rest }) => ({
+      ...rest,
+      isRead: userId == null || readBy.includes(userId)
+    }))
   }
 
   /**
@@ -828,6 +864,22 @@ export class ContestService {
       where: {
         contestId,
         order
+      },
+      include: {
+        comments: {
+          include: {
+            createdBy: {
+              select: {
+                username: true
+              }
+            }
+          }
+        },
+        createdBy: {
+          select: {
+            username: true
+          }
+        }
       }
     })
 
@@ -857,6 +909,17 @@ export class ContestService {
       )
     }
 
+    // readBy 배열에 해당 userId가 들어있지 않은 경우 추가
+    if (userId != null && !contestQnA.readBy.includes(userId)) {
+      await this.prisma.contestQnA.update({
+        where: { id: contestQnA.id },
+        data: {
+          readBy: {
+            push: userId
+          }
+        }
+      })
+    }
     return contestQnA
   }
 
@@ -952,7 +1015,6 @@ export class ContestService {
     }
 
     const contestQnAId = contestQnA.id
-    const isResolved = contestQnA.isResolved
 
     const contestStaff = await this.prisma.userContest.findFirst({
       where: {
@@ -995,22 +1057,10 @@ export class ContestService {
         }
       })
 
-      // 댓글 작성자에 따라 QnA의 isResolved를 변경
-      if (isContestStaff) {
-        if (!isResolved) {
-          await this.prisma.contestQnA.update({
-            where: { id: contestQnAId },
-            data: { isResolved: true }
-          })
-        }
-      } else {
-        if (isResolved) {
-          await this.prisma.contestQnA.update({
-            where: { id: contestQnAId },
-            data: { isResolved: false }
-          })
-        }
-      }
+      await tx.contestQnA.update({
+        where: { id: contestQnAId },
+        data: { isResolved: isContestStaff, readBy: { set: [userId] } }
+      })
 
       return comment
     })
