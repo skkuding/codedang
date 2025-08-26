@@ -678,11 +678,18 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       ) / DECIMAL_PRECISION_FACTOR
 
     const assignmentProblemRecord =
-      await this.prisma.assignmentProblemRecord.findFirst({
+      await this.prisma.assignmentProblemRecord.findUnique({
         where: {
-          assignmentId,
-          problemId: submission.problemId,
-          userId
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_userId_problemId: {
+            assignmentId,
+            userId,
+            problemId: submission.problemId
+          }
+        },
+        select: {
+          score: true,
+          isAccepted: true
         }
       })
 
