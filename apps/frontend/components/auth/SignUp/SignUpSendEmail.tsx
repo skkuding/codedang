@@ -4,7 +4,6 @@ import { Input } from '@/components/shadcn/input'
 import { cn, isHttpError } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { useSignUpModalStore } from '@/stores/signUpModal'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { AuthMessage } from '../AuthMessage'
 import { SignUpApi } from './api'
@@ -18,13 +17,17 @@ interface SendEmailInput {
 export function SignUpSendEmail() {
   const { nextModal, setFormData } = useSignUpModalStore((state) => state)
   const { showSignIn } = useAuthModalStore((state) => state)
-  const { handleSubmit, register, clearErrors, watch, setValue } =
-    useForm<SendEmailInput>({
-      defaultValues: { emailDomain: DOMAIN_OPTIONS[0] }
-    })
-
-  const [emailError, setEmailError] = useState('')
-
+  const {
+    handleSubmit,
+    register,
+    clearErrors,
+    watch,
+    setValue,
+    setError,
+    formState: { errors }
+  } = useForm<SendEmailInput>({
+    defaultValues: { emailDomain: DOMAIN_OPTIONS[0] }
+  })
   const watchEmailId = watch('emailId', '')
   const watchEmailDomain = watch('emailDomain')
   const isSendButtonDisabled = watchEmailId.trim().length === 0
@@ -44,9 +47,13 @@ export function SignUpSendEmail() {
       nextModal()
     } catch (error) {
       if (isHttpError(error) && error.response.status === 409) {
-        setEmailError('You have already signed up')
+        setError('emailId', {
+          message: 'You have already signed up'
+        })
       } else {
-        setEmailError('Something went wrong!')
+        setError('emailId', {
+          message: 'Something went wrong!'
+        })
       }
     }
   }
@@ -71,7 +78,7 @@ export function SignUpSendEmail() {
             id="emailId"
             type="text"
             className={cn(
-              emailError && 'border-red-500 focus-visible:border-red-500'
+              errors.emailId && 'border-red-500 focus-visible:border-red-500'
             )}
             placeholder="Enter the e-mail"
             {...register('emailId')}
@@ -93,7 +100,9 @@ export function SignUpSendEmail() {
             className="text-base font-normal"
           />
         </div>
-        {emailError && <AuthMessage isError message={emailError} />}
+        {errors.emailId && (
+          <AuthMessage isError message={errors.emailId.message ?? ''} />
+        )}
       </>
     )
   }

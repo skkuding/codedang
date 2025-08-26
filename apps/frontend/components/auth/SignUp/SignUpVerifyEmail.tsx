@@ -1,7 +1,6 @@
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
-import { baseUrl } from '@/libs/constants'
-import { cn } from '@/libs/utils'
+import { cn, safeFetcher } from '@/libs/utils'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useEffect, useState } from 'react'
@@ -35,7 +34,6 @@ export function SignUpVerifyEmail() {
   const { nextModal, setFormData, formData } = useSignUpModalStore(
     (state) => state
   )
-  const [codeError, setCodeError] = useState<string | null>(null)
   const [emailAuthToken, setEmailAuthToken] = useState('')
 
   const {
@@ -43,6 +41,8 @@ export function SignUpVerifyEmail() {
     register,
     getValues,
     trigger,
+    setError,
+    clearErrors,
     formState: { errors }
   } = useForm<VerifyEmailInput>({
     resolver: valibotResolver(schema)
@@ -83,7 +83,7 @@ export function SignUpVerifyEmail() {
     await trigger('verificationCode')
     if (!errors.verificationCode) {
       try {
-        const response = await fetch(`${baseUrl}/email-auth/verify-pin`, {
+        const response = await safeFetcher.post(`email-auth/verify-pin`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -94,15 +94,19 @@ export function SignUpVerifyEmail() {
         })
         if (response.status === 201) {
           setEmailVerified(true)
-          setCodeError('')
+          clearErrors('verificationCode')
           setEmailAuthToken(response.headers.get('email-auth') || '')
         } else {
-          setCodeError('Verification code is not valid')
+          setError('verificationCode', {
+            message: 'Verification code is not valid'
+          })
           setEmailVerified(false)
         }
       } catch {
         setEmailVerified(false)
-        setCodeError('Email verification failed')
+        setError('verificationCode', {
+          message: 'Email verification failed'
+        })
       }
     }
   }
@@ -128,7 +132,7 @@ export function SignUpVerifyEmail() {
             disabled={emailVerified}
             className={cn(
               'hide-spin-button',
-              (errors.verificationCode || codeExpired || codeError) &&
+              (errors.verificationCode || codeExpired) &&
                 'border-red-500 focus-visible:border-red-500'
             )}
             placeholder="Verification Code"
@@ -166,9 +170,7 @@ export function SignUpVerifyEmail() {
                   />
                 )
               }
-              if (codeError) {
-                return <AuthMessage isError message={codeError} />
-              } else if (emailVerified) {
+              if (emailVerified) {
                 return <AuthMessage message={'Verification code is valid'} />
               }
             })()}
