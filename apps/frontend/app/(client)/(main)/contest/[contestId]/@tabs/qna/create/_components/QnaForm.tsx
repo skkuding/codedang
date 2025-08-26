@@ -212,6 +212,7 @@ export function QnaForm() {
         onOpenChange={setModalOpen}
         size="sm"
         title="Question Submit"
+        showCancelButton={true}
         description={`Are you sure you want to submit this question?\nAfter submission, you can edit it again.`}
         onClose={() => setModalOpen(false)}
         primaryButton={{
