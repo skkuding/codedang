@@ -157,7 +157,8 @@ const GET_ASSIGNMENT_LATEST_SUBMISSION = gql(`
         result
         memoryUsage
         isHidden
-        scoreWeight
+        scoreWeightNumerator
+        scoreWeightDenominator
         output
       }
       user {
