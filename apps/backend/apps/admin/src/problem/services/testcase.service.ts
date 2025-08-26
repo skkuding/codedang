@@ -56,6 +56,7 @@ export class TestcaseService {
   }
 
   async createTestcases(testcases: Testcase[], problemId: number) {
+    // Before upload, clean up all the original testcases
     await this.removeAllTestcaseFiles(problemId)
 
     const promises = testcases.map(async (testcase, index) => {
@@ -289,6 +290,7 @@ export class TestcaseService {
       throw new UnprocessableDataException('Only zip files are accepted')
     }
 
+    // Just check if the file size is less than maximum size
     await this.fileService.getFileSize(createReadStream(), MAX_ZIP_SIZE)
 
     // Testcase files are uploaded under s3://{bucketName}/{problemId}/{testcaseId}.{in|out}
@@ -357,6 +359,7 @@ export class TestcaseService {
         )
       }
 
+      // Check if all .in/.out files have corresponding .out/.in files
       if (!isEqual(inFiles, outFiles)) {
         throw new UnprocessableDataException(
           'Testcase files must have corresponding .in/.out files'
