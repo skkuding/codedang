@@ -114,26 +114,26 @@ export function Modal({
             onChange={inputProps.onChange}
           />
         )}
-        {headerDescription && (
-          <span
+        {size !== 'lg' && headerDescription && (
+          <p
             className={cn(
               'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
               children && 'text-left'
             )}
           >
             {headerDescription}
-          </span>
+          </p>
         )}
         {children}
         {footerDescription && (
-          <span
+          <p
             className={cn(
               'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
               children && 'text-left'
             )}
           >
             {footerDescription}
-          </span>
+          </p>
         )}
         <DialogFooter className="flex w-full justify-center gap-[4px]">
           {secondaryButton && (
