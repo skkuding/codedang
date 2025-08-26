@@ -785,7 +785,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         scoreWeightNumerator?: number | null
         scoreWeightDenominator?: number | null
       }
-      result: 'Accepted' | string
+      result: ResultStatus
     }>
   ): number {
     // GCD와 LCM 계산 함수
@@ -810,7 +810,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
       totalNumeratorSum += adjustedNumerator
 
-      if (sr.result === 'Accepted') {
+      if (sr.result === ResultStatus.Accepted) {
         acceptedNumeratorSum += adjustedNumerator
       }
     })
