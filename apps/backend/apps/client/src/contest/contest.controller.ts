@@ -7,7 +7,8 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  Req
+  Req,
+  ValidationPipe
 } from '@nestjs/common'
 import {
   AuthenticatedRequest,
@@ -22,8 +23,8 @@ import {
 import { ContestService } from './contest.service'
 import {
   ContestQnACreateDto,
-  type ContestQnACommentCreateDto,
-  type GetContestQnAsFilter
+  GetContestQnAsFilter,
+  type ContestQnACommentCreateDto
 } from './dto/contest-qna.dto'
 
 @Controller('contest')
@@ -129,7 +130,7 @@ export class ContestController {
   async getContestQnAs(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number,
-    @Body() filter: GetContestQnAsFilter
+    @Query(new ValidationPipe({ transform: true })) filter: GetContestQnAsFilter
   ) {
     return await this.contestService.getContestQnAs(
       req.user?.id,

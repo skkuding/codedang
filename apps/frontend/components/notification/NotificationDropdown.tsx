@@ -85,8 +85,6 @@ export function NotificationDropdown({
       await safeFetcherWithAuth.post('notification/push-subscription', {
         json: subscription
       })
-
-      console.log('Push subscription successfully registered.')
     } catch (error) {
       if (error instanceof Error && error.message.includes('already exists')) {
         console.log('Push subscription already exists.')
@@ -286,11 +284,17 @@ export function NotificationDropdown({
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger
         className={cn(
-          'relative flex items-center justify-center rounded-md p-2 transition-colors',
+          'relative flex min-w-fit items-center justify-center rounded-md p-2 transition-colors',
           isEditor ? 'text-gray-300 hover:text-white' : 'text-primary'
         )}
       >
-        <Image src={NotiIcon} alt="notification" width={18} height={21} />
+        <Image
+          className="min-w-fit"
+          src={NotiIcon}
+          alt="notification"
+          width={18}
+          height={21}
+        />
         {unreadApiCount > 0 && (
           <div className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-red-500 shadow-md" />
         )}
