@@ -35,7 +35,9 @@ export function QnAPostButton({
         size="sm"
         type="warning"
         title="Access Denied"
-        description="You are not authorized to access this page.\nPlease check your account permissions."
+        description={
+          'You are not authorized to access this page.\nPlease check your account permissions.'
+        }
         primaryButton={{
           text: 'Delete',
           onClick: () => setModalOpen(false),
