@@ -30,7 +30,7 @@ export function Content({ control, watch }: ContentProps) {
             {...field}
             id="content"
             placeholder="Enter a question"
-            className="font-pretendard h-full min-h-[188px] resize-none !border-none !p-0 text-base font-normal not-italic leading-normal tracking-[-0.48px] text-[#5C5C5C] shadow-none placeholder:text-[#C4C4C4] focus:placeholder:text-transparent focus-visible:ring-0"
+            className="font-pretendard h-full min-h-[188px] resize-none rounded-none !border-none !p-0 text-base font-normal not-italic leading-normal tracking-[-0.48px] text-[#5C5C5C] shadow-none placeholder:text-[#C4C4C4] focus:placeholder:text-transparent focus-visible:ring-0"
             maxLength={400}
           />
         )}

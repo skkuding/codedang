@@ -179,12 +179,17 @@ export function QnaForm() {
         <ProblemSelector
           watch={watch}
           isLoadingProblems={isLoadingProblems}
-          isContestStarted={isContestStarted}
           isDropdownOpen={isDropdownOpen}
           onToggleDropdown={() => setIsDropdownOpen(!isDropdownOpen)}
         />
         <Title control={control} />
       </div>
+
+      {!isContestStarted && !isLoadingProblems && (
+        <div className="mb-2 text-xs text-gray-500">
+          Contest has not started yet. Only General questions are available.
+        </div>
+      )}
 
       <ProblemDropdown
         watch={watch}
@@ -207,7 +212,7 @@ export function QnaForm() {
         onOpenChange={setModalOpen}
         size="sm"
         title="Question Submit"
-        description="Your question has been successfully submitted.\nOur team will review it and respond shortly."
+        description={`Are you sure you want to submit this question?\nOnce submitted, you cannot edit it.`}
         onClose={() => setModalOpen(false)}
         primaryButton={{
           text: isSubmitting ? 'Submitting...' : 'Confirm',
