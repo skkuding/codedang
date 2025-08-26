@@ -52,8 +52,11 @@ CREATE TABLE "public"."submission_Cluster" (
     "submission_id" INTEGER NOT NULL,
     "cluster_id" INTEGER NOT NULL,
 
-    CONSTRAINT "submission_Cluster_pkey" PRIMARY KEY ("submission_id", "cluster_id")
+    CONSTRAINT "submission_Cluster_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "submission_Cluster" DROP CONSTRAINT "submission_Cluster_pkey",
+DROP COLUMN "id",
+ADD CONSTRAINT "submission_Cluster_pkey" PRIMARY KEY ("submission_id", "cluster_id");
 
 -- AddForeignKey
 ALTER TABLE "check_request" ADD CONSTRAINT "check_request_problem_id_fkey" FOREIGN KEY ("problem_id") REFERENCES "problem"("id") ON DELETE CASCADE ON UPDATE CASCADE;

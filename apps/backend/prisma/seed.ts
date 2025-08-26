@@ -220,7 +220,7 @@ const createGroups = async () => {
   privateGroup2 = await prisma.group.create({
     data: {
       groupName: '정보보호개론',
-      groupType: 'Course', //GroupType.Course,
+      groupType: GroupType.Course,
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
