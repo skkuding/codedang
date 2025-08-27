@@ -11,38 +11,6 @@ type PageProps = {
     qnaId: string
   }>
 }
-export interface QnaContent {
-  order: number
-  createdById?: number
-  createdBy?: User
-  contestId: number
-  title: string
-  content: string
-  category: string
-  createTime: Date
-}
-
-export interface Qna extends QnaContent {
-  comments?: ContestQnAComment[]
-}
-
-export interface ContestQnAComment {
-  content: string
-  createdById?: number
-  createdBy?: User
-  createdTime: Date
-  isContestStaff: boolean
-  order: number
-}
-
-interface User {
-  username: string
-}
-
-export interface GetCurrentUser {
-  username: string
-  email: string
-}
 
 interface ContestRole {
   contestId: number
