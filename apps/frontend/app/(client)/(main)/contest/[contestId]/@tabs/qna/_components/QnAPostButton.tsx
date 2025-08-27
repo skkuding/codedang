@@ -7,24 +7,23 @@ import { useState } from 'react'
 import { BiSolidPencil } from 'react-icons/bi'
 
 type QnAPostButtonProps = {
+  contestId: number
   canCreateQnA: boolean | null
-  href: string
-  className?: string
 }
 
-export function QnAPostButton({
-  canCreateQnA,
-  href,
-  className
-}: QnAPostButtonProps) {
+export function QnAPostButton({ contestId, canCreateQnA }: QnAPostButtonProps) {
   const router = useRouter()
   const [modalOpen, setModalOpen] = useState(false)
   return (
     <>
       <Button
         type="button"
-        onClick={() => (canCreateQnA ? router.push(href) : setModalOpen(true))}
-        className={className}
+        onClick={() =>
+          canCreateQnA
+            ? router.push(`/contest/${contestId}/qna/create`)
+            : setModalOpen(true)
+        }
+        className="flex h-[46px] w-[120px] flex-[1_0_0] items-center justify-center gap-[6px] px-6 py-3 text-base font-medium tracking-[-0.48px]"
       >
         <BiSolidPencil className="white w-4" />
         Post

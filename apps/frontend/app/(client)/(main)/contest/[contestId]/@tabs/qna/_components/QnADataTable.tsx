@@ -18,59 +18,44 @@ import {
   getPaginationRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import type { Route } from 'next'
 import type { Session } from 'next-auth'
-import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { QnACategoryFilter } from './QnACategoryFilter'
-import type { QnAItem } from './QnAMainColumns'
+import type { QnAItem } from './QnAMainTable'
 import { QnAPostButton } from './QnAPostButton'
 import { SearchBar } from './SearchBar'
 
-interface Item extends QnAItem {
-  order: number
-  status?: string
-  id: number
-}
-
 interface QnADataTableProps<TData, TValue> {
-  contestId: string
+  session: Session | null
+  contestId: number
   columns: ColumnDef<TData, TValue>[]
-  search: string
-  orderBy: string
-  categories: string
-  problemOrders: string
   QnADataWithCategory: TData[]
   contestProblems: ProblemDataTop
   headerStyle: {
     [key: string]: string
   }
-  linked?: boolean
   emptyMessage?: string
   itemsPerPage: number
   currentPage: number
   setFilteredData: (data: TData[]) => void
   resetPageIndex: () => void
-  session: Session | null
   isPrivilegedRole: boolean
   canCreateQnA: boolean | null
 }
 
-export function QnADataTable<TData extends Item, TValue>({
+export function QnADataTable<TData extends QnAItem, TValue>({
+  session,
   contestId,
   columns,
   QnADataWithCategory,
   contestProblems,
-  search,
   headerStyle,
-  linked = true,
-  emptyMessage = 'No results.',
+  emptyMessage,
   itemsPerPage,
   currentPage,
   setFilteredData,
   resetPageIndex,
-  session,
   isPrivilegedRole,
   canCreateQnA
 }: QnADataTableProps<TData, TValue>) {
@@ -82,7 +67,6 @@ export function QnADataTable<TData extends Item, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel()
   })
-
   const router = useRouter()
   const currentPath = usePathname()
 
@@ -134,15 +118,11 @@ export function QnADataTable<TData extends Item, TValue>({
           />
           <QnACategoryFilter
             column={table.getColumn('category')}
-            contestId={Number(contestId)}
+            contestId={contestId}
             options={options}
             resetPageIndex={resetPageIndex}
           />
-          <QnAPostButton
-            canCreateQnA={canCreateQnA}
-            href={`/contest/${contestId}/qna/create`}
-            className="flex h-[46px] w-[120px] flex-[1_0_0] items-center justify-center gap-[6px] px-6 py-3 text-base font-medium tracking-[-0.48px]"
-          />
+          <QnAPostButton contestId={contestId} canCreateQnA={canCreateQnA} />
         </div>
       </div>
       <Table className="table-fixed !border-separate border-spacing-y-[10px]">
@@ -179,36 +159,25 @@ export function QnADataTable<TData extends Item, TValue>({
         <TableBody>
           {paginatedItems.length ? (
             paginatedItems.map((row) => {
-              const href =
-                `${currentPath}/${row.original.order}${search ? `?search=${search}` : ''}` as Route
-
-              const handleClick = linked
-                ? () => router.push(href)
-                : (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => {
-                    e.currentTarget.classList.toggle('expanded')
-                  }
-
               return (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                   className={`cursor-pointer border-b-[1.5px] border-neutral-200`}
-                  onClick={handleClick}
+                  onClick={() =>
+                    router.push(`${currentPath}/${row.original.order}`)
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="align-top">
                       <div
                         className={cn(
-                          'font-pretendard flex items-center gap-[10px] overflow-hidden text-ellipsis text-[16px] text-xs font-normal leading-[150%] tracking-[-0.48px] text-black [-webkit-box-orient:vertical] [-webkit-line-clamp:1] [display:-webkit-box] md:text-sm',
+                          'flex items-center gap-[10px] overflow-hidden text-ellipsis text-[16px] text-xs font-normal leading-[150%] tracking-[-0.48px] text-black [-webkit-box-orient:vertical] [-webkit-line-clamp:1] [display:-webkit-box] md:text-sm',
                           cell.column.id === 'title'
                             ? 'text-left'
                             : 'justify-center text-center',
-                          [
-                            'category',
-                            'createTime',
-                            'createdBy.username'
-                          ].includes(
-                            (cell.column.columnDef as { accessorKey?: string })
+                          ['category', 'createTime', 'writer'].includes(
+                            (cell.column.columnDef as { accessorKey: string })
                               .accessorKey ?? ''
                           )
                             ? 'text-[#808080]'
@@ -229,7 +198,6 @@ export function QnADataTable<TData extends Item, TValue>({
                                 <div className="bg-primary h-2 w-2 rounded-full" />
                               ))}
                       </div>
-                      <Link href={href} />
                     </TableCell>
                   ))}
                 </TableRow>

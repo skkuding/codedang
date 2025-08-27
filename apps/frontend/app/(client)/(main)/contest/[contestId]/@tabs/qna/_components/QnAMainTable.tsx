@@ -8,68 +8,81 @@ import {
 import { usePagination } from '@/libs/hooks/usePaginationV2'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import type { ProblemDataTop } from '@/types/type'
-import { useSuspenseQueries } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import type { Session } from 'next-auth'
 import { useEffect, useState } from 'react'
 import { QnADataTable } from './QnADataTable'
-import type { QnAItem } from './QnAMainColumns'
-import type { QnAItemWithCategory } from './QnAMainColumns'
 import { QnAColumns } from './QnAMainColumns'
 
 const ITEMS_PER_PAGE = 12
 
 interface QnAMainTableProps {
-  contestId: string
+  session: Session | null
+  contestId: number
   contestProblems: ProblemDataTop
   search: string
   orderBy: string
   categories: string
   problemOrders: string
-  session: Session | null
   isPrivilegedRole: boolean
   canCreateQnA: boolean | null
 }
 
+export interface QnAItem {
+  id: number
+  order: number
+  createdById: number
+  title: string
+  isResolved: boolean
+  category: string
+  problemId: number
+  createTime: string
+  createdBy: {
+    username: string
+  }
+  isRead: boolean
+}
+
+export interface QnAItemWithCategory extends QnAItem {
+  categoryName?: string
+}
+
 export function QnAMainTable({
+  session,
   contestId,
   contestProblems,
   search,
   orderBy,
   categories,
   problemOrders,
-  session,
   isPrivilegedRole,
   canCreateQnA
 }: QnAMainTableProps) {
-  const [{ data: QnAData }] = useSuspenseQueries({
-    queries: [
-      {
-        queryKey: [
-          'QnA',
-          contestId,
-          search,
-          orderBy,
-          categories,
-          problemOrders,
-          session,
-          isPrivilegedRole,
-          canCreateQnA
-        ],
-        queryFn: () =>
-          getFilteredQnAs(
-            contestId,
-            search,
-            orderBy,
-            categories,
-            problemOrders,
-            session
-          )
-      }
-    ]
+  const { data: QnAData } = useSuspenseQuery({
+    queryKey: [
+      'QnA',
+      session,
+      contestId,
+      search,
+      orderBy,
+      categories,
+      problemOrders,
+      isPrivilegedRole,
+      canCreateQnA
+    ],
+    queryFn: () =>
+      getFilteredQnAs(
+        session,
+        contestId,
+        search,
+        orderBy,
+        categories,
+        problemOrders
+      )
   })
 
   const QnADataWithCategory: QnAItemWithCategory[] = QnAData.map((qna) => {
-    const matchedProblem = contestProblems?.data?.find(
+    const matchedProblem = contestProblems.data?.find(
       (problem) => problem.id === qna.problemId
     )
 
@@ -106,14 +119,11 @@ export function QnAMainTable({
   return (
     <>
       <QnADataTable
+        session={session}
         contestId={contestId}
         columns={QnAColumns}
         QnADataWithCategory={QnADataWithCategory}
         contestProblems={contestProblems}
-        search={''}
-        orderBy={'desc'}
-        categories={''}
-        problemOrders={''}
         headerStyle={{
           id: 'w-[118px]',
           category: 'w-[190px]',
@@ -121,13 +131,11 @@ export function QnAMainTable({
           writer: 'w-[190px]',
           createTime: 'w-[190px]'
         }}
-        linked={true}
         emptyMessage="No results."
         itemsPerPage={ITEMS_PER_PAGE}
         currentPage={currentPage}
         setFilteredData={setFilteredData}
         resetPageIndex={resetPageIndex}
-        session={session}
         isPrivilegedRole={isPrivilegedRole}
         canCreateQnA={canCreateQnA}
       />
@@ -154,12 +162,12 @@ export function QnAMainTable({
 }
 
 const getFilteredQnAs = async (
-  contestId: string,
+  session: Session | null,
+  contestId: number,
   search: string,
   orderBy: string,
   categories: string,
-  problemOrders: string,
-  session: Session | null
+  problemOrders: string
 ) => {
   const data = await (session ? fetcherWithAuth : fetcher)
     .get(`contest/${contestId}/qna`, {

@@ -9,7 +9,7 @@ import { Suspense } from 'react'
 import { QnAMainTable } from './_components/QnAMainTable'
 
 interface ContestQnAProps {
-  params: Promise<{ contestId: string }>
+  params: Promise<{ contestId: number }>
   searchParams: Promise<{
     registered: string
     search: string
@@ -22,47 +22,50 @@ interface ContestQnAProps {
 export default async function ContestQna(props: ContestQnAProps) {
   const { contestId } = await props.params
   const { searchParams } = props
+
   const session = await auth()
+
   const registered = (await searchParams).registered === 'true'
   const search = (await searchParams).search ?? ''
   const orderBy = (await searchParams).orderBy ?? 'desc'
   const categories = (await searchParams).categories ?? ''
   const problemOrders = (await searchParams).problemOrders ?? ''
+
   const contest: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
     .json()
   const contestProblems: ProblemDataTop = await fetcherWithAuth
     .get(`contest/${contestId}/problem`)
     .json()
+
   const state = (() => {
     const currentTime = new Date()
-    if (currentTime >= contest.endTime) {
-      return 'Finished'
+    if (currentTime >= contest.startTime && currentTime < contest.endTime) {
+      return 'Ongoing'
     }
-    if (currentTime < contest.startTime) {
-      return 'Upcoming'
-    }
-    return 'Ongoing'
   })()
+
   const canCreateQnA =
     session &&
     (contest.isRegistered || contest.isPrivilegedRole || state !== 'Ongoing')
   const isPrivilegedRole = contest.isPrivilegedRole
+
   if (!session && registered) {
     redirect(`/contest/${contestId}/qna`)
   }
+
   return (
     <div className="mb-[88px] mt-[80px] max-w-[1440px] px-[116px]">
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<QnATableFallback />}>
           <QnAMainTable
+            session={session}
             contestId={contestId}
             contestProblems={contestProblems}
             search={search}
             orderBy={orderBy}
             categories={categories}
             problemOrders={problemOrders}
-            session={session}
             isPrivilegedRole={isPrivilegedRole}
             canCreateQnA={canCreateQnA}
           />

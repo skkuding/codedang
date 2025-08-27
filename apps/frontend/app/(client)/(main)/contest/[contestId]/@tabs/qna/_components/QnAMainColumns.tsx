@@ -2,25 +2,7 @@
 
 import { dateFormatter } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
-
-export interface QnAItem {
-  id: number
-  order: number
-  createdById: number
-  title: string
-  isResolved: boolean
-  category: string
-  problemId: number
-  createTime: string
-  createdBy: {
-    username: string
-  }
-  isRead: boolean
-}
-
-export interface QnAItemWithCategory extends QnAItem {
-  categoryName?: string
-}
+import type { QnAItemWithCategory } from './QnAMainTable'
 
 export const QnAColumns: ColumnDef<QnAItemWithCategory>[] = [
   {
