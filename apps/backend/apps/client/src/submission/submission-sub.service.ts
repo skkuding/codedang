@@ -796,7 +796,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     // 모든 테스트케이스의 분모의 LCM 계산
     let lcmDenominator = 1
     submissionResults.forEach((sr) => {
-      const denominator = sr.problemTestcase.scoreWeightDenominator || 100
+      const denominator = sr.problemTestcase.scoreWeightDenominator
       lcmDenominator = lcm(lcmDenominator, denominator)
     })
 
@@ -806,7 +806,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     submissionResults.forEach((sr) => {
       const numerator = sr.problemTestcase.scoreWeightNumerator
-      const denominator = sr.problemTestcase.scoreWeightDenominator || 100
+      const denominator = sr.problemTestcase.scoreWeightDenominator
       const adjustedNumerator = numerator * (lcmDenominator / denominator)
 
       totalNumeratorSum += adjustedNumerator
