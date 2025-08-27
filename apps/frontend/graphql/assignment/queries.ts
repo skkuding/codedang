@@ -24,6 +24,7 @@ const GET_ASSIGNMENTS = gql(`
       id
       title
       startTime
+      dueTime
       endTime
       description
       participants
