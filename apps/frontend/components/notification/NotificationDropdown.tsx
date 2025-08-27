@@ -77,10 +77,12 @@ export function NotificationDropdown({
       }
 
       const registration = await navigator.serviceWorker.ready
+      console.log('service worker ready')
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: publicKey
       })
+      console.log('pushManager success')
 
       await safeFetcherWithAuth.post('notification/push-subscription', {
         json: subscription
