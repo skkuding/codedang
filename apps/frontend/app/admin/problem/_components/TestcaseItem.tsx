@@ -28,7 +28,7 @@ export function TestcaseItem({
   onSelect,
   isSelected
 }: TestcaseItemProps) {
-  const { control, getValues, register } = useFormContext()
+  const { control, getValues, register, setValue } = useFormContext()
 
   const { field: isHiddenField } = useController({
     name: `testcases.${index}.isHidden`,
@@ -78,24 +78,53 @@ export function TestcaseItem({
               </p>
             </label>
           </div>
-          <input
-            disabled={blockEdit}
-            {...register(`testcases.${index}.scoreWeight`, {
-              setValueAs: (value) => (isInvalid(value) ? null : Number(value))
-            })}
-            type="number"
-            min={0}
-            className={cn(
-              'hide-spin-button h-7 w-20 rounded-[1000px] border px-2 py-1 text-center text-base font-medium',
-              isInvalid(getValues('testcases')[index].scoreWeight)
-                ? 'border-gray-[#D8D8D8]'
-                : 'border-gray-300'
-            )}
-            onWheel={(event) => {
-              event.currentTarget.blur()
-            }}
-            {...register(`testcases.${index}.scoreWeight`)}
-          />{' '}
+          {getValues(`testcases.${index}.scoreWeightNumerator`) ? (
+            <div className="relative flex items-center">
+              <input
+                readOnly
+                type="text"
+                value={`${(
+                  (getValues(`testcases.${index}.scoreWeightNumerator`) /
+                    getValues(`testcases.${index}.scoreWeightDenominator`)) *
+                  100
+                ).toFixed(2)}`}
+                className="hide-spin-button h-7 w-24 rounded-[1000px] border px-2 py-1 text-center"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setValue(`testcases.${index}.scoreWeight`, null)
+                  setValue(`testcases.${index}.scoreWeightNumerator`, null)
+                  setValue(`testcases.${index}.scoreWeightDenominator`, null)
+                }}
+                className="absolute right-2 text-gray-500 hover:text-red-500"
+              >
+                &#x2715;
+              </button>
+            </div>
+          ) : (
+            <input
+              disabled={blockEdit}
+              {...register(`testcases.${index}.scoreWeight`, {
+                setValueAs: (value) => {
+                  if (isInvalid(value)) {
+                    return null
+                  }
+                  return Number(value)
+                },
+                onChange: (e) => {
+                  const numericValue = e.target.value.replace(/\D/g, '')
+                  e.target.value = numericValue
+
+                  setValue(`testcases.${index}.scoreWeightNumerator`, null)
+                  setValue(`testcases.${index}.scoreWeightDenominator`, null)
+                }
+              })}
+              type="text"
+              inputMode="numeric"
+              className="hide-spin-button h-7 w-24 rounded-[1000px] border px-2 py-1 text-center"
+            />
+          )}{' '}
           <span className="text-sm font-semibold text-[#737373]">(%)</span>
         </div>
       </div>
