@@ -324,13 +324,17 @@ export function NotificationDropdown({
               handleMarkAllAsRead={handleMarkAllAsRead}
             />
           </div>
-          <div className="bg-color-neutral-99 mb-1 ml-4 flex w-[168px] rounded-full p-1">
+          <div
+            className={cn(
+              'bg-color-neutral-99 mb-1 ml-4 flex w-[168px] rounded-full p-1',
+              isEditor && 'bg-[#121728]'
+            )}
+          >
             <button
               className={cn(
-                'h-6 w-20 rounded-full text-sm font-medium transition-colors',
-                filter === 'all'
-                  ? 'text-primary bg-white'
-                  : 'bg-transparent text-gray-700'
+                'text-color-neutral-80 h-6 w-20 rounded-full bg-transparent text-sm font-medium transition-colors',
+                filter === 'all' && !isEditor && 'text-primary bg-white',
+                filter === 'all' && isEditor && 'text-primary bg-[#334155]'
               )}
               onClick={() => setFilter('all')}
             >
@@ -338,10 +342,9 @@ export function NotificationDropdown({
             </button>
             <button
               className={cn(
-                'h-6 w-20 rounded-full text-sm font-medium transition-colors',
-                filter === 'unread'
-                  ? 'text-primary bg-white'
-                  : 'bg-transparent text-gray-700'
+                'text-color-neutral-80 h-6 w-20 rounded-full bg-transparent text-sm font-medium transition-colors',
+                filter === 'unread' && !isEditor && 'text-primary bg-white',
+                filter === 'unread' && isEditor && 'text-primary bg-[#334155]'
               )}
               onClick={() => setFilter('unread')}
             >
@@ -367,7 +370,11 @@ export function NotificationDropdown({
           )}
 
           {notifications.length > 0 && (
-            <ScrollArea className="h-[426px]" bottomFade={true} topFade={true}>
+            <ScrollArea
+              className="h-[426px]"
+              bottomFade={!isEditor}
+              topFade={!isEditor}
+            >
               <div className="space-y-3 px-4 pt-2">
                 {notifications.map((notification, index) => (
                   <div
@@ -377,10 +384,7 @@ export function NotificationDropdown({
                     }
                     className={cn(
                       'hover:bg-color-neutral-99 group relative h-[114px] cursor-pointer rounded-lg bg-white p-3 shadow-[0_4px_20px_0_rgba(53,78,116,0.10)]',
-                      isEditor && 'bg-slate-700 text-white hover:bg-[#293548]',
-                      isEditor &&
-                        !notification.isRead &&
-                        'bg-slate-500 hover:bg-[#56657a]'
+                      isEditor && 'bg-[#334155] text-white hover:bg-[#293548]'
                     )}
                     role="button"
                     tabIndex={0}
@@ -409,6 +413,7 @@ export function NotificationDropdown({
                           )}
                         >
                           <Badge
+                            className={cn(isEditor && 'bg-[#41526A]')}
                             variant={
                               notification.type === 'Assignment'
                                 ? 'Course'
