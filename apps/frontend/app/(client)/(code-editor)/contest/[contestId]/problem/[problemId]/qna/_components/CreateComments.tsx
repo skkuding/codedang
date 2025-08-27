@@ -53,7 +53,7 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
       <div className="relative">
         <Textarea
           name="content"
-          placeholder="     Please enter your reply"
+          placeholder="Please enter your reply"
           value={commentData}
           onChange={handleInputChange}
           maxLength={400}

@@ -109,7 +109,7 @@ export function CreateQnaTextArea({
             value={qnaFormdata.title}
             onChange={handleInputChange}
             maxLength={80}
-            className="h-[46px] w-full rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder-amber-200 focus:border-blue-500 focus:outline-none"
+            className="placeholder-amber-20 h-[46px] w-full rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder:text-base placeholder:text-gray-400 focus-visible:ring-0"
           />
         </div>
         <div className="relative">
@@ -119,7 +119,7 @@ export function CreateQnaTextArea({
             value={qnaFormdata.content}
             onChange={handleInputChange}
             maxLength={400}
-            className="h-[127px] w-full rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
+            className="min-h-[127px] w-full rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder:text-base placeholder:text-gray-400 focus-visible:ring-0"
           />
           <span className="absolute bottom-2 right-2 text-sm text-gray-400">
             {qnaFormdata.content.length}/400
