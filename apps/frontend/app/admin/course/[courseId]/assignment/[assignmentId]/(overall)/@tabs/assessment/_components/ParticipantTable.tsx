@@ -160,7 +160,7 @@ export function ParticipantTable({
     }
   ]
 
-  const csvData = summaries.data.getAssignmentScoreSummaries.map((user) => {
+  const csvData = summaries.data?.getAssignmentScoreSummaries.map((user) => {
     const userProblemScores = problemList.map((problem) => {
       const scoreData = user.problemScores.find(
         (ps) => ps.problemId === problem.problemId
