@@ -53,7 +53,7 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Codedang" />
         <link
           rel="apple-touch-startup-image"
-          href="/apple_splash_screens/iPhone_16_Pro_Max_portrait.png"
+          href="/iPhone_16_Pro_Max_portrait.png"
         />
         <link
           rel="apple-touch-startup-image"
