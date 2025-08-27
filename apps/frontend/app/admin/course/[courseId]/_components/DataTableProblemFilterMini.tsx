@@ -1,4 +1,4 @@
-import { PROBLEM_COLUMN_ID } from '@/app/admin/_components/table/constants'
+import { SUBMISSION_PROBLEM_COLUMN_ID } from '@/app/admin/_components/table/constants'
 import { useDataTable } from '@/app/admin/_components/table/context'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import {
@@ -22,7 +22,7 @@ export function DataTableProblemFilterMini({
   assignmentId?: number
 }) {
   const { table } = useDataTable()
-  const column = table.getColumn(PROBLEM_COLUMN_ID)
+  const column = table.getColumn(SUBMISSION_PROBLEM_COLUMN_ID)
   const selectedValues = (column?.getFilterValue() as string[]) || []
 
   const [options, setOptions] = useState<

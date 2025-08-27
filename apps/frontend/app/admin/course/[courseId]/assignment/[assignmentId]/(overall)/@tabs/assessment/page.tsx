@@ -9,6 +9,7 @@ export default function Assessment() {
   return (
     <div>
       <ParticipantTable
+        courseId={Number(courseId)}
         groupId={Number(courseId)}
         assignmentId={Number(assignmentId)}
       />

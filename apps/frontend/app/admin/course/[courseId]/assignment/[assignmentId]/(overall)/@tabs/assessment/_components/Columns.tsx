@@ -10,6 +10,7 @@ import { SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { CommentCell } from './CommentCell'
 
 interface DataTableScoreSummary {
   id: number
@@ -26,6 +27,7 @@ interface DataTableScoreSummary {
     score: number
     maxScore: number
   }[]
+  testcaseResults?: { id: number; isHidden: boolean; result: string }[]
 }
 
 function ScoreEditableCell({
@@ -165,10 +167,102 @@ function ScoreEditableCell({
   )
 }
 
+function TestcaseCell({
+  results
+}: {
+  results: { id: number; isHidden: boolean; result: string }[]
+}) {
+  return (
+    <div className="whitespace-nowrap">
+      {results.length === 0 ? (
+        <span className="text-xs text-gray-400">No testcases</span>
+      ) : (
+        results.map((r, i) => {
+          const isPass = r.result === 'Accepted'
+          return (
+            <span
+              key={r.id ?? i}
+              className="inline-block select-none px-1 font-mono text-sm"
+              title={`TC ${r.id || i + 1}`}
+            >
+              {isPass ? 'O' : 'X'}
+            </span>
+          )
+        })
+      )}
+    </div>
+  )
+}
+
+function TestcaseEditableCell({
+  results,
+  total
+}: {
+  results: { id: number; isHidden: boolean; result: string }[]
+  total: number
+}) {
+  const [editing, setEditing] = useState(false)
+  const passed = results.filter((r) => r.result === 'Accepted').length
+  const [inputValue, setInputValue] = useState(String(passed))
+
+  const handleSave = () => {
+    const num = Number(inputValue)
+    if (isNaN(num) || num < 0 || num > total) {
+      toast.error(`Only integers between 0 and ${total} are allowed.`)
+      setInputValue(String(passed))
+      setEditing(false)
+      return
+    }
+
+    // UI만 갱신 (row.original 업데이트 대신 여기서는 그냥 표시만 갱신)
+    setInputValue(String(num))
+    setEditing(false)
+    toast.success('Saved successfully.')
+  }
+
+  if (editing) {
+    return (
+      <div className="flex items-center justify-center gap-1">
+        <input
+          type="number"
+          min={0}
+          max={total}
+          className="hide-spin-button w-12 rounded border px-1 py-0.5 text-center text-xs"
+          value={inputValue}
+          autoFocus
+          onChange={(e) => setInputValue(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSave()
+            }
+            if (e.key === 'Escape') {
+              setInputValue(String(passed))
+              setEditing(false)
+            }
+          }}
+        />
+        <span className="text-xs">/{total}</span>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className="cursor-pointer text-center text-xs hover:bg-gray-100"
+      onClick={() => setEditing(true)}
+    >
+      {inputValue} / {total}
+    </div>
+  )
+}
+
 export const createColumns = (
   problemData: ProblemData[],
+  selectedProblemId: number | null,
   courseId: number,
   assignmentId: number,
+  groupId: number,
   isAssignmentFinished: boolean,
   refetch: () => void
 ): ColumnDef<DataTableScoreSummary>[] => {
@@ -183,57 +277,64 @@ export const createColumns = (
       )
     },
     {
-      accessorKey: 'realName',
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Name"
-          className="flex justify-center border-r"
-        />
-      ),
-      cell: ({ row }) => (
-        <div className="border-r text-center text-xs font-medium">
-          {row.original.realName}
-        </div>
-      ),
-      filterFn: 'includesString'
-    },
-    ...problemData.map((problem, i) => ({
-      accessorKey: `${String.fromCharCode(Number(65 + i))}`,
-      header: () => (
-        <p className="font-mono text-xs">
-          {String.fromCharCode(Number(65 + i))}
-        </p>
-      ),
-      cell: ({ row }: { row: Row<DataTableScoreSummary> }) => {
-        const problemScore = row.original.problemScores.find(
-          (ps) => ps.problemId === problem.problemId
-        )
+      id: 'testcases',
+      header: () => <p className="text-center font-mono text-xs">Testcase</p>,
+      cell: ({ row, table }) => {
+        const isFirstRow = table.getRowModel().rows[0].id === row.id
+        const results = row.original.testcaseResults ?? []
+
+        const contentWidth = results.length * 16
+
         return (
-          <ScoreEditableCell
-            problemScore={problemScore}
-            groupId={courseId}
-            assignmentId={assignmentId}
-            userId={row.original.id}
-            refetch={refetch}
-            isAssignmentFinished={isAssignmentFinished}
-          />
+          <div className="mx-auto w-[600px]">
+            {isFirstRow && (
+              <div
+                className="line-scrollbar mx-auto w-[600px] overflow-x-auto"
+                onScroll={(e) => {
+                  const left = e.currentTarget.scrollLeft
+                  document
+                    .querySelectorAll('.tc-scroll')
+                    .forEach((el: unknown) => {
+                      ;(el as HTMLElement).scrollLeft = left
+                    })
+                }}
+              >
+                <div style={{ width: contentWidth, height: 1 }} />
+              </div>
+            )}
+
+            <div className="tc-scroll mx-auto w-[600px] overflow-x-hidden">
+              <div
+                className="inline-flex justify-start"
+                style={{ width: contentWidth }}
+              >
+                <TestcaseCell results={results} />
+              </div>
+            </div>
+          </div>
         )
       }
-    })),
+    },
     {
-      accessorKey: 'userAssignmentFinalScore',
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Total"
-          className="flex justify-center"
-        />
-      ),
+      id: 'testcase-total',
+      header: () => <p className="text-center font-mono text-xs">Total</p>,
+      cell: ({ row }) => {
+        const results = row.original.testcaseResults ?? []
+        const total = results.length
+        return <TestcaseEditableCell results={results} total={total} />
+      }
+    },
+    {
+      id: 'comment',
+      header: () => <p className="text-center font-mono text-xs">Comment</p>,
       cell: ({ row }) => (
-        <div className="text-xs">
-          {row.original.userAssignmentFinalScore}/
-          {row.original.assignmentPerfectScore}
+        <div className="flex justify-center">
+          <CommentCell
+            groupId={groupId}
+            assignmentId={assignmentId}
+            userId={row.original.id}
+            problemId={selectedProblemId ?? problemData[0].problemId}
+          />
         </div>
       )
     },
@@ -244,11 +345,19 @@ export const createColumns = (
         if (!problemData || problemData.length === 0) {
           return null
         }
+        const pid = selectedProblemId ?? problemData[0].problemId
+        if (!pid) {
+          return (
+            <button className="flex w-full justify-center">
+              <SquareArrowOutUpRight className="h-4 w-4 text-gray-300" />
+            </button>
+          )
+        }
         if (isAssignmentFinished) {
           return (
             <Link
               href={
-                `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${row.original.id}/problem/${problemData[0].problemId}` as const
+                `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${row.original.id}/problem/${pid}` as const
               }
               target="_blank"
               className="flex justify-center"

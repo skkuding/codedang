@@ -12,22 +12,27 @@ import { Switch } from '@/components/shadcn/switch'
 import { UPDATE_ASSIGNMENT } from '@/graphql/assignment/mutations'
 import {
   GET_ASSIGNMENT,
-  GET_ASSIGNMENT_SCORE_SUMMARIES
+  GET_ASSIGNMENT_SCORE_SUMMARIES,
+  GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
+import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import dayjs from 'dayjs'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
 import { createColumns } from './Columns'
+import { ProblemSelectDropdown } from './DataTableProblemFilterSingle'
 
 interface ParticipantTableProps {
+  courseId: number
   groupId: number
   assignmentId: number
 }
 
 export function ParticipantTable({
+  courseId,
   groupId,
   assignmentId
 }: ParticipantTableProps) {
@@ -58,13 +63,57 @@ export function ParticipantTable({
     .slice()
     .sort((a, b) => a.order - b.order)
 
-  const [revealFinalScore, setRevealFinalScore] = useState(
-    assignmentData?.isFinalScoreVisible
+  const [selectedProblemId, setSelectedProblemId] = useState<number | null>(
+    null
   )
 
   useEffect(() => {
-    setRevealFinalScore(assignmentData?.isFinalScoreVisible)
-  }, [assignmentData?.isFinalScoreVisible])
+    if (problemData?.length && !selectedProblemId) {
+      setSelectedProblemId(problemData[0].problemId)
+    }
+  }, [problemData, selectedProblemId])
+
+  const selectedPid = selectedProblemId ?? problemData?.[0]?.problemId
+  const tcResults = useSuspenseQuery(GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS, {
+    variables: { groupId, assignmentId, problemId: selectedPid },
+    errorPolicy: 'all'
+  })
+
+  const tcData = tcResults.data?.getAssignmentProblemTestcaseResults ?? []
+  const problemTestcaseData = useSuspenseQuery(GET_PROBLEM_TESTCASE, {
+    variables: { id: selectedPid }
+  })
+  const totalTestcases =
+    problemTestcaseData.data?.getProblem?.testcase?.length ?? 0
+
+  const tcByUser = useMemo(() => {
+    const m = new Map<
+      number,
+      { id: number; isHidden: boolean; result: string }[]
+    >()
+    for (const row of tcData) {
+      m.set(Number(row.userId), row.result ?? [])
+    }
+    return m
+  }, [tcResults.data])
+
+  const tableData = useMemo(() => {
+    return summariesData.map((item) => {
+      const results = tcByUser.get(Number(item.userId))
+      if (results && results.length > 0) {
+        return { ...item, testcaseResults: results }
+      } else {
+        const dummyResults = Array.from({ length: totalTestcases }).map(
+          (_, i) => ({
+            id: i + 1,
+            isHidden: false,
+            result: 'WrongAnswer'
+          })
+        )
+        return { ...item, testcaseResults: dummyResults }
+      }
+    })
+  }, [summariesData, tcByUser, totalTestcases])
 
   const formatScore = (score: number): string => {
     const fixedScore = Math.floor(score * 1000) / 1000
@@ -100,38 +149,42 @@ export function ParticipantTable({
   const headers = [
     { label: 'Student Id', key: 'studentId' },
     { label: 'Name', key: 'realName' },
+    ...problemList.map((problem, index) => {
+      const problemLabel = String.fromCharCode(65 + index)
+      return {
+        label: `Testcase(${problemLabel})`,
+        key: `Testcase(${problemLabel})`
+      }
+    }),
     {
-      label: `Total Score(MAX ${summaries?.data.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
+      label: `Total Score(MAX ${
+        summaries?.data.getAssignmentScoreSummaries[0]
+          ?.assignmentPerfectScore || 0
+      })`,
       key: 'finalScore'
-    },
-
-    ...problemHeaders
+    }
   ]
 
-  const csvData =
-    summaries.data.getAssignmentScoreSummaries.map((user) => {
-      const userProblemScores = problemList.map((problem) => {
-        const scoreData = user.problemScores.find(
-          (ps) => ps.problemId === problem.problemId
-        )
-
-        return {
-          maxScore: scoreData ? formatScore(scoreData.score) : '-'
-        }
-      })
-
+  const csvData = summaries.data.getAssignmentScoreSummaries.map((user) => {
+    const userProblemScores = problemList.map((problem) => {
+      const scoreData = user.problemScores.find(
+        (ps) => ps.problemId === problem.problemId
+      )
       return {
-        studentId: user.studentId,
-        realName: user.realName,
-        rawScore: user.userAssignmentScore
-          ? `${user.userAssignmentScore}`
-          : '-',
-        finalScore: user.userAssignmentFinalScore
-          ? `${user.userAssignmentFinalScore}`
-          : '-',
-        problems: userProblemScores
+        maxScore: scoreData ? formatScore(scoreData.score) : '-',
+        testcases: (tcByUser.get(user.userId) ?? [])
+          .map((tc) => (tc.result === 'Accepted' ? 'O' : 'X'))
+          .join('')
       }
-    }) || []
+    })
+
+    return {
+      studentId: user.studentId,
+      realName: user.realName,
+      finalScore: user.userAssignmentFinalScore ?? '-',
+      problems: userProblemScores
+    }
+  })
 
   return (
     <div className="flex flex-col gap-6">
@@ -142,7 +195,6 @@ export function ParticipantTable({
         >
           <Switch
             onCheckedChange={async (checked) => {
-              setRevealFinalScore(checked)
               await updateAssignment({
                 variables: {
                   groupId,
@@ -156,13 +208,12 @@ export function ParticipantTable({
                 }
               })
             }}
-            checked={revealFinalScore}
             className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
           />
         </UtilityPanel>
         <UtilityPanel
           title="Download as a CSV"
-          description="Download grading results, showing scores by student and problem"
+          description="Download grading results by students and problem to see all."
         >
           <CSVLink
             data={csvData}
@@ -174,21 +225,39 @@ export function ParticipantTable({
           </CSVLink>
         </UtilityPanel>
       </div>
-      <p className="mb-3 font-medium">
-        <span className="text-primary font-bold">{summariesData.length}</span>{' '}
-        Participants
-      </p>
       <DataTableRoot
-        data={summariesData}
+        data={tableData}
         columns={createColumns(
           problemData,
-          groupId,
+          selectedPid,
+          courseId,
           assignmentId,
+          groupId,
           isAssignmentFinished,
           summaries.refetch
         )}
       >
-        <DataTableSearchBar columndId="realName" placeholder="Search Name" />
+        <div className="mb-3 flex items-center gap-4">
+          <p className="font-medium">
+            <span className="text-primary font-bold">
+              {summariesData.length}
+            </span>
+            Participants
+          </p>
+          <ProblemSelectDropdown
+            problems={problemData.map((p) => ({
+              problemId: p.problemId,
+              title: p.problem.title,
+              order: p.order
+            }))}
+            selectedProblemId={selectedProblemId}
+            onSelect={(pid) => setSelectedProblemId(pid)}
+          />
+        </div>
+        <DataTableSearchBar
+          columndId="studentId"
+          placeholder="Search Student Id"
+        />
         <DataTable />
         <DataTablePagination />
       </DataTableRoot>
@@ -200,7 +269,9 @@ export function ParticipantTableFallback() {
   return (
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
-      <DataTableFallback columns={createColumns([], 0, 0, true, () => {})} />
+      <DataTableFallback
+        columns={createColumns([], null, 0, 0, 0, true, () => {})}
+      />
     </div>
   )
 }
