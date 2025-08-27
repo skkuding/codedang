@@ -17,7 +17,7 @@ export function Header() {
       <div className="flex w-full max-w-[1440px] items-center justify-between gap-5 lg:px-[116px]">
         {/* FIXME: If you uncomment a group tab, you have to remove a pr-20 tailwind class */}
         <div className="flex w-full min-w-fit items-center justify-between gap-8 text-[16px] lg:w-fit">
-          <MobileMenu session={session} headerTitle={headerTitle} />
+          <MobileMenu session={session} />
 
           <div className="lg:hidden">
             {headerTitle ? (

@@ -7,9 +7,10 @@ interface HeaderTitleContextType {
   setHeaderTitle: (title: string | null) => void
 }
 
-const HeaderTitleContext = createContext<HeaderTitleContextType | undefined>(
-  undefined
-)
+const HeaderTitleContext = createContext<HeaderTitleContextType>({
+  headerTitle: null,
+  setHeaderTitle: () => {}
+})
 
 export function HeaderTitleProvider({
   children
@@ -26,9 +27,5 @@ export function HeaderTitleProvider({
 }
 
 export function useHeaderTitle() {
-  const context = useContext(HeaderTitleContext)
-  if (context === undefined) {
-    throw new Error('useHeaderTitle must be used within a HeaderTitleProvider')
-  }
-  return context
+  return useContext(HeaderTitleContext)
 }
