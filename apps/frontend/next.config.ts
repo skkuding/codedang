@@ -14,7 +14,15 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   workboxOptions: {
     disableDevLogs: true,
     exclude: [/sw\.js$/, /workbox-(.)*\.js$/, /\.webmanifest$/]
-  }
+  },
+  runtimeCaching: [
+    {
+      urlPattern: ({ url }: { url: URL }) =>
+        url.pathname === '/sw.js' || url.pathname.endsWith('.webmanifest'),
+      handler: 'NetworkOnly',
+      method: 'GET'
+    }
+  ]
 })
 
 const BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
