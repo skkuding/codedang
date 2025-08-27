@@ -23,7 +23,7 @@ export function QnaCommentPostArea({
           <Textarea
             value={text}
             id="textarea"
-            className="placeholder:text-color-neutral-90 min-h-[120px] resize-none whitespace-pre-wrap border-none p-0 text-base shadow-none focus-visible:ring-0"
+            className="placeholder:text-color-neutral-90 min-h-[120px] resize-none whitespace-pre-wrap rounded-none border-none p-0 text-base shadow-none focus-visible:ring-0"
             placeholder="Enter Your Answer"
             onChange={(value) => setText(value.target.value)}
             maxLength={400}
