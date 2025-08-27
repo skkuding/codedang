@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: iris-prod
-  namespace: iris
+  name: iris
+  namespace: iris-legacy
 spec:
-  replicas: 20
+  replicas: 5
   selector:
     matchLabels:
-      app: iris-prod
+      app: iris
   template:
     metadata:
       labels:
-        app: iris-prod
+        app: iris
     spec:
       containers:
-        - name: iris-prod
+        - name: iris
           image: ghcr.io/skkuding/codedang-iris:latest
           resources:
             limits:
