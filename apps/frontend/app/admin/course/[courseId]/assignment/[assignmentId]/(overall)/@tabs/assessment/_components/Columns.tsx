@@ -170,6 +170,7 @@ export const createColumns = (
   courseId: number,
   assignmentId: number,
   isAssignmentFinished: boolean,
+  currentView: 'final' | 'auto',
   refetch: () => void
 ): ColumnDef<DataTableScoreSummary>[] => {
   return [
@@ -209,6 +210,13 @@ export const createColumns = (
         const problemScore = row.original.problemScores.find(
           (ps) => ps.problemId === problem.problemId
         )
+        if (currentView === 'auto') {
+          return (
+            <div className="text-xs">
+              {problemScore?.score ?? '-'} / {problemScore?.maxScore ?? 0}
+            </div>
+          )
+        }
         return (
           <ScoreEditableCell
             problemScore={problemScore}
