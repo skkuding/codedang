@@ -20,9 +20,15 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_USER
-              value: 'postgres'
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: username
             - name: POSTGRES_PASSWORD
-              value: '1234'
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: password
             - name: POSTGRES_DB
               value: 'skkuding'
           volumeMounts:
