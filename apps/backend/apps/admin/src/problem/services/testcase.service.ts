@@ -36,7 +36,6 @@ export class TestcaseService {
     // Frontend provide score weight in two ways
     // 1. only scoreWeight(User enters specific value) - use 100 as denominator and entered value as numerator
     // 2. numerator and denominator(User use Equal Distribution feature)
-
     const { scoreWeightNumerator, scoreWeightDenominator } = testcase
 
     if (testcase.scoreWeight !== undefined) {
@@ -50,6 +49,13 @@ export class TestcaseService {
       scoreWeightNumerator !== undefined &&
       scoreWeightDenominator !== undefined
     ) {
+      if (scoreWeightDenominator === 0) {
+        return {
+          numerator: scoreWeightNumerator,
+          denominator: 100
+        }
+      }
+
       // const commonDivisor = this.gcd(numerator, LEGACY_SCORE_SCALE)
       return {
         numerator: scoreWeightNumerator,
