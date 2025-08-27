@@ -1,6 +1,7 @@
 'use client'
 
 import { fetcherWithAuth } from '@/libs/utils'
+import type { GetContestQnaQuery } from '@generated/graphql'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import type { Qna } from '../page'
@@ -25,7 +26,7 @@ export function QnaCommentArea({
   userId,
   isContestStaff
 }: {
-  data: Qna
+  data: GetContestQnaQuery['getContestQnA']
   userInfo: { username?: string; email?: string }
   userId: number
   isContestStaff: boolean
@@ -94,24 +95,26 @@ export function QnaCommentArea({
   return (
     <div className="flex flex-col gap-[40px]">
       <div className="flex flex-col gap-[10px]">
-        {comments?.map((comment) => (
-          <QnaSingleComment
-            key={comment.order}
-            comment={comment}
-            userId={userId}
-            isContestStaff={isContestStaff}
-            DeleteButtonComponent={
-              <QnaDeleteButton
-                subject="comment"
-                DeleteUrl={`contest/${contestId}/qna/${qnaId}/comment/${comment.order}`}
-              />
-            }
-          />
-        ))}
+        {comments
+          ?.sort((a, b) => a.order - b.order)
+          .map((comment) => (
+            <QnaSingleComment
+              key={comment.order}
+              comment={comment}
+              userId={userId}
+              isContestStaff={isContestStaff}
+              DeleteButtonComponent={
+                <QnaDeleteButton
+                  subject="comment"
+                  DeleteUrl={`contest/${contestId}/qna/${qnaId}/comment/${comment.order}`}
+                />
+              }
+            />
+          ))}
       </div>
       {canPost && (
         <QnaCommentPostArea
-          userInfo={userInfo}
+          username={userInfo.username}
           text={text}
           setText={setText}
           onPost={onPost}

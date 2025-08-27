@@ -1,9 +1,9 @@
 import PersonFillIcon from '@/public/icons/person-fill.svg'
+import type { GetContestQnaQuery } from '@generated/graphql'
 import { format } from 'date-fns'
 import Image from 'next/image'
 import type { ReactElement } from 'react'
 import { FaClock } from 'react-icons/fa6'
-import type { QnaContent } from '../page'
 
 const maxTitleLength = 35
 
@@ -21,7 +21,7 @@ export function QnaContentArea({
   canDelete,
   DeleteButtonComponent
 }: {
-  data: QnaContent
+  data: GetContestQnaQuery['getContestQnA']
   canDelete: boolean
   DeleteButtonComponent: ReactElement
 }) {
@@ -63,7 +63,7 @@ export function QnaContentArea({
         </div>
       </div>
       <div className="whitespace-pre-line font-normal">
-        {data.content?.trim()}
+        {data.content.trim()}
       </div>
     </div>
   )

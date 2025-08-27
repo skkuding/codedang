@@ -1,5 +1,6 @@
 import { fetcherWithAuth } from '@/libs/utils'
 import errorImage from '@/public/logos/error.webp'
+import type { GetContestQnaQuery } from '@generated/graphql'
 import Image from 'next/image'
 import { QnaCommentArea } from './_components/QnaCommentArea'
 import { QnaContentArea } from './_components/QnaContentArea'
@@ -12,10 +13,9 @@ type PageProps = {
   }>
 }
 export interface QnaContent {
-  id: number
   order: number
-  createdById: number
-  createdBy: User
+  createdById?: number
+  createdBy?: User
   contestId: number
   title: string
   content: string
@@ -29,8 +29,8 @@ export interface Qna extends QnaContent {
 
 export interface ContestQnAComment {
   content: string
-  createdById: number
-  createdBy: User
+  createdById?: number
+  createdBy?: User
   createdTime: Date
   isContestStaff: boolean
   order: number
@@ -87,7 +87,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
     )
   }
 
-  const QnaData: Qna = await QnaRes.json()
+  const QnaData: GetContestQnaQuery['getContestQnA'] = await QnaRes.json()
   const userInfo: { username?: string; email?: string } =
     await userInfoRes.json()
   const MyContestRoles: ContestRole[] = await MyContestRolesRes.json()
@@ -108,7 +108,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
   // Define authority
   const isContestStaff = new Set(['Admin', 'Manager']).has(
     MyContestRoles.find(
-      (ContestRole) => ContestRole.contestId === QnaData.contestId
+      (ContestRole) => ContestRole.contestId === Number(contestId)
     )?.role ?? 'nothing'
   )
   const canDelete = isContestStaff || userId === QnaData.createdById
