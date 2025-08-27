@@ -127,15 +127,21 @@ export function QnADataTable<TData extends QnAItem, TValue>({
           <QnAPostButton contestId={contestId} canCreateQnA={canCreateQnA} />
         </div>
       </div>
-      <Table className="table-fixed !border-separate border-spacing-y-[10px]">
-        <TableHeader className="!border-b-0 bg-[#F5F5F5]">
+      <Table className="mb-7 table-fixed">
+        <TableHeader className="h-10 !border-b-0">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
                   className={cn(
-                    'rounded-full bg-[#F5F5F5] px-4 py-2 text-[16px] font-medium leading-[140%] tracking-[-0.48px] text-[#8A8A8A]',
+                    header.id === 'id' ||
+                      header.id === 'category' ||
+                      header.id === 'title' ||
+                      header.id === 'writer' ||
+                      header.id === 'createTime'
+                      ? 'rounded-full bg-[#F5F5F5] px-4 py-2 text-[16px] font-medium leading-[140%] tracking-[-0.48px] text-[#8A8A8A]'
+                      : 'w-[4px] bg-white px-0',
                     headerStyle[header.id]
                   )}
                 >
@@ -171,13 +177,13 @@ export function QnADataTable<TData extends QnAItem, TValue>({
                   }
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="align-top">
+                    <TableCell className="!px-0" key={cell.id}>
                       <div
                         className={cn(
-                          'flex items-center gap-[10px] overflow-hidden text-ellipsis text-[16px] text-xs font-normal leading-[150%] tracking-[-0.48px] text-black [-webkit-box-orient:vertical] [-webkit-line-clamp:1] [display:-webkit-box] md:text-sm',
+                          'items-center gap-[10px] !text-base tracking-[-0.48px] md:!text-sm',
                           cell.column.id === 'title'
-                            ? 'text-left'
-                            : 'justify-center text-center',
+                            ? 'flex text-left'
+                            : 'text-center',
                           ['category', 'createTime', 'writer'].includes(
                             (cell.column.columnDef as { accessorKey: string })
                               .accessorKey ?? ''
@@ -186,10 +192,20 @@ export function QnADataTable<TData extends QnAItem, TValue>({
                             : 'text-black'
                         )}
                       >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        <div
+                          className={cn(
+                            'truncate',
+                            cell.column.id === 'title' ||
+                              cell.column.id === 'createTime'
+                              ? 'max-w-[482px]'
+                              : 'max-w-[190px] px-[35px]'
+                          )}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </div>
                         {cell.column.id === 'title' &&
                           session &&
                           (isPrivilegedRole

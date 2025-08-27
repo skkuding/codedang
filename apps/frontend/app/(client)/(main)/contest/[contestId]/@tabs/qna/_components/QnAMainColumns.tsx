@@ -13,6 +13,10 @@ export const QnAColumns: ColumnDef<QnAItemWithCategory>[] = [
     sortDescFirst: true
   },
   {
+    accessorKey: 'a',
+    header: ''
+  },
+  {
     accessorKey: 'category',
     header: 'Category',
     cell: ({ row }) => row.original.categoryName || row.original.category,
@@ -25,14 +29,26 @@ export const QnAColumns: ColumnDef<QnAItemWithCategory>[] = [
     }
   },
   {
+    accessorKey: 'b',
+    header: ''
+  },
+  {
     accessorKey: 'title',
     header: 'Question',
     cell: ({ row }) => row.original.title
   },
   {
+    accessorKey: 'c',
+    header: ''
+  },
+  {
     accessorKey: 'writer',
     header: 'Writer',
     cell: ({ row }) => row.original.createdBy.username
+  },
+  {
+    accessorKey: 'd',
+    header: ''
   },
   {
     accessorKey: 'createTime',
