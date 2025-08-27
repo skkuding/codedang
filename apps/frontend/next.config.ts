@@ -13,7 +13,12 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   skipWaiting: true,
   workboxOptions: {
     disableDevLogs: true,
-    exclude: [/sw\.js$/, /workbox-(.)*\.js$/, /\.webmanifest$/]
+    exclude: [
+      /sw\.js$/,
+      /workbox-(.)*\.js$/,
+      /\.webmanifest$/,
+      /\/_next\/static\/chunks\/app\/.*\/page-.*\.js$/
+    ]
   },
   runtimeCaching: [
     {
@@ -37,27 +42,6 @@ const nextConfig = {
   output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true
-  },
-  async headers() {
-    return [
-      {
-        source: '/sw.js',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate'
-          },
-          { key: 'Pragma', value: 'no-cache' },
-          { key: 'Expires', value: '0' }
-        ]
-      },
-      {
-        source: '/:path*.webmanifest',
-        headers: [
-          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }
-        ]
-      }
-    ]
   }
 } satisfies NextConfig
 
