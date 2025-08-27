@@ -52,6 +52,10 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href="/apple-icon.png" />
         <link
           rel="apple-touch-startup-image"
+          href="/apple_splash_screens/iPhone_16_Pro_Max_portrait.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
           media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
           href="/apple_splash_screens/iPhone_16_Pro_portrait.png"
         />
@@ -89,11 +93,6 @@ export default async function RootLayout({
           rel="apple-touch-startup-image"
           media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
           href="/apple_splash_screens/iPhone_16__iPhone_15_Pro__iPhone_15__iPhone_14_Pro_landscape.png"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-          href="/apple_splash_screens/iPhone_16_Pro_Max_portrait.png"
         />
         <link
           rel="apple-touch-startup-image"
