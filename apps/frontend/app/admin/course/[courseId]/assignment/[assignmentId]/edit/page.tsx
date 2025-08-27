@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -26,11 +26,10 @@ import { WeekComboBox } from '../../../_components/WeekComboBox'
 import { editSchema } from '../../../_libs/schemas'
 import type { AssignmentProblem } from '../../../_libs/type'
 
-export default function Page({
-  params
-}: {
-  params: { courseId: string; assignmentId: string }
+export default function Page(props: {
+  params: Promise<{ courseId: string; assignmentId: string }>
 }) {
+  const params = use(props.params)
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { courseId, assignmentId } = params
@@ -66,24 +65,19 @@ export default function Page({
               <FormSection title="Title">
                 <TitleForm
                   placeholder="Name your Assignment"
-                  className="max-w-[767px]"
+                  className="max-w-[760px]"
                 />
               </FormSection>
 
               <div className="flex justify-between">
-                <FormSection
-                  title="Week"
-                  isJustifyBetween={false}
-                  className="gap-[67px]"
-                >
+                <FormSection title="Week" className="w-[420px]">
                   {methods.getValues('week') && (
                     <WeekComboBox name="week" courseId={Number(courseId)} />
                   )}
                 </FormSection>
                 <FormSection
                   title="Due Time"
-                  isJustifyBetween={false}
-                  className="gap-[40px]"
+                  className="w-[420px]"
                   isLabeled={false}
                 >
                   <TimeFormPopover />
@@ -101,19 +95,14 @@ export default function Page({
               </div>
 
               <div className="flex justify-between">
-                <FormSection
-                  title="Start Time"
-                  isJustifyBetween={false}
-                  className="gap-[27px]"
-                >
+                <FormSection title="Start Time" className="w-[420px]">
                   {methods.getValues('startTime') && (
                     <TimeForm name="startTime" />
                   )}
                 </FormSection>
                 <FormSection
                   title="End Time"
-                  isJustifyBetween={false}
-                  className="gap-[71px]"
+                  className="w-[420px]"
                   isLabeled={false}
                 >
                   {methods.getValues('endTime') && <TimeForm name="endTime" />}

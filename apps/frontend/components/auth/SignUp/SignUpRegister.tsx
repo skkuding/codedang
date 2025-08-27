@@ -247,7 +247,7 @@ export function SignUpRegister() {
     !isUsernameChecked && !errors.username && getValues('username')
 
   return (
-    <div className="mb-5 mt-12 flex w-[278px] flex-col py-4">
+    <div className="flex flex-col py-4">
       <form
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}

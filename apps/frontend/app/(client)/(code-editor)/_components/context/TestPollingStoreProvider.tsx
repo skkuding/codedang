@@ -4,30 +4,30 @@ import { create, useStore } from 'zustand'
 interface TestPollingState {
   isTesting: boolean
   setIsTesting: (v: boolean) => void
-  samplePollingEnabled: boolean
+  nonUserPollingEnabled: boolean
   userPollingEnabled: boolean
   startPolling: () => void
-  stopPolling: (type: 'sample' | 'user') => void
+  stopPolling: (type: 'non-user' | 'user') => void
 }
 
 const createTestPollingStore = () =>
   create<TestPollingState>((set) => ({
     isTesting: false,
     setIsTesting: (isTesting) => set((state) => ({ ...state, isTesting })),
-    samplePollingEnabled: false,
+    nonUserPollingEnabled: false,
     userPollingEnabled: false,
     startPolling: () => {
       set((state) => ({
         ...state,
-        samplePollingEnabled: true,
+        nonUserPollingEnabled: true,
         userPollingEnabled: true
       }))
     },
     stopPolling: (type) => {
       set((state) => ({
         ...state,
-        samplePollingEnabled:
-          type === 'sample' ? false : state.samplePollingEnabled,
+        nonUserPollingEnabled:
+          type === 'non-user' ? false : state.nonUserPollingEnabled,
         userPollingEnabled: type === 'user' ? false : state.userPollingEnabled
       }))
     }
@@ -42,7 +42,7 @@ export function TestPollingStoreProvider({
 }: {
   children: ReactNode
 }) {
-  const storeRef = useRef<TestPollingStore>()
+  const storeRef = useRef<TestPollingStore>(undefined)
   if (!storeRef.current) {
     storeRef.current = createTestPollingStore()
   }

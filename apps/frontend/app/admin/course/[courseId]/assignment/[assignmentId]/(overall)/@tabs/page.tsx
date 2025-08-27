@@ -13,18 +13,19 @@ import {
 } from '@/components/shadcn/table'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
-import { useQuery, useSuspenseQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import { ChevronDownIcon } from '@radix-ui/react-icons'
 import { ErrorBoundary } from '@suspensive/react'
-import { Suspense, useState } from 'react'
+import { Suspense, useState, use } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { ParticipantTableFallback } from '../../../../_components/ParticipantTable'
 
 interface InformationProps {
-  params: { courseId: string; assignmentId: string }
+  params: Promise<{ courseId: string; assignmentId: string }>
 }
 
-export default function Information({ params }: InformationProps) {
+export default function Information(props: InformationProps) {
+  const params = use(props.params)
   const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
       groupId: Number(params.courseId),
@@ -33,7 +34,7 @@ export default function Information({ params }: InformationProps) {
   }).data?.getAssignment
 
   const problemsData =
-    useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {
+    useQuery(GET_ASSIGNMENT_PROBLEMS, {
       variables: {
         groupId: Number(params.courseId),
         assignmentId: Number(params.assignmentId)

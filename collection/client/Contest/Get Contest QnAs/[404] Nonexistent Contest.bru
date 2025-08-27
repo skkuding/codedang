@@ -5,17 +5,17 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/99/qna
+  url: {{baseUrl}}/contest/99/qna?categories=General
   body: json
   auth: none
 }
 
-body:json {
-  {
-    "categories" : ["Problem"],
-    "problemOrders" : [0,1],
-    "orderBy": "asc"
-  }
+params:query {
+  categories: General
+  ~categories: Problem
+  ~problemOrders: 0
+  ~problemOrders: 1
+  ~orderBy: asc
 }
 
 script:pre-request {
@@ -52,14 +52,13 @@ docs {
   |-----------|--------|----------|----------------------------------|
   | `id`      | number | ✅       | ID of the target contest         |
   
-  #### Request Body
-  > problemOrders
+  #### Query Parameters
   - categories에 Problem을 추가해야 문제에 속한 QnA를 필터링 할 수 있습니다
   
   | Name      | Type    | Required  | Description
   |-----------|---------|-----------|------------|
-  | categories | array  |           | General 또는 Problem을 선택할 수 있습니다.|
-  | problemOrders | array  |           | 보여줄 문제의 대회에서의 order를 배열로 요청합니다.|
+  | categories |   |           | General 또는 Problem을 선택할 수 있습니다.|
+  | problemOrders |   |           | 보여줄 문제의 대회에서의 order를 배열로 요청합니다.|
   | orderBy    | string  |          | 정렬 기준을 선택합니다. |
   
   
