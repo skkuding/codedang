@@ -79,7 +79,10 @@ export function ParticipantTable({
     errorPolicy: 'all'
   })
 
-  const tcData = tcResults.data?.getAssignmentProblemTestcaseResults ?? []
+  const tcData = useMemo(
+    () => tcResults.data?.getAssignmentProblemTestcaseResults ?? [],
+    [tcResults.data]
+  )
   const problemTestcaseData = useSuspenseQuery(GET_PROBLEM_TESTCASE, {
     variables: { id: selectedPid }
   })
@@ -95,7 +98,7 @@ export function ParticipantTable({
       m.set(Number(row.userId), row.result ?? [])
     }
     return m
-  }, [tcResults.data])
+  }, [tcData])
 
   const tableData = useMemo(() => {
     return summariesData.map((item) => {
@@ -137,14 +140,6 @@ export function ParticipantTable({
       title: problem.problem.title,
       order: problem.order
     })) || []
-
-  const problemHeaders = problemList.map((problem, index) => {
-    const problemLabel = String.fromCharCode(65 + index)
-    return {
-      label: `${problemLabel}(MAX ${problem.maxScore})`,
-      key: `problems[${index}].maxScore`
-    }
-  })
 
   const headers = [
     { label: 'Student Id', key: 'studentId' },

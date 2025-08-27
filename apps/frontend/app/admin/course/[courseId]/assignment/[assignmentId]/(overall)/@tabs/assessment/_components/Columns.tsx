@@ -1,11 +1,10 @@
 'use client'
 
-import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import type { ProblemData } from '@/app/admin/contest/_libs/schemas'
 import { UPDATE_ASSIGNMENT_PROBLEM_RECORD } from '@/graphql/assignment/mutations'
 import { cn } from '@/libs/utils'
 import { useMutation } from '@apollo/client'
-import type { ColumnDef, Row } from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 import { SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -214,7 +213,6 @@ function TestcaseEditableCell({
       return
     }
 
-    // UI만 갱신 (row.original 업데이트 대신 여기서는 그냥 표시만 갱신)
     setInputValue(String(num))
     setEditing(false)
     toast.success('Saved successfully.')
