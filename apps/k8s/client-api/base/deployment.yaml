@@ -28,7 +28,6 @@ spec:
                 name: client-api-env
             - secretRef:
                 name: aws-credentials
-                optional: true # not used in stage env
             - secretRef:
                 name: database-credentials
             - secretRef:
