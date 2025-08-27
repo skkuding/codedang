@@ -65,17 +65,17 @@ export function NotificationDropdown({
       interface VapidKeyResponse {
         publicKey: string
       }
-
+      console.log('fetching public key')
       const response: VapidKeyResponse = await safeFetcherWithAuth
         .get('notification/vapid')
         .json()
 
       const { publicKey } = response
-
+      console.log('got public key')
       if (!publicKey) {
         throw new Error('Could not retrieve VAPID public key from the server.')
       }
-
+      console.log('successfully got public key')
       const registration = await navigator.serviceWorker.ready
       console.log('service worker ready')
       const subscription = await registration.pushManager.subscribe({
