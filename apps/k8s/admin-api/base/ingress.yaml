@@ -16,7 +16,7 @@ spec:
     - host: k8s-test.codedang.com
       http:
         paths:
-          - path: /graphql/
+          - path: /graphql
             pathType: Prefix
             backend:
               service:
