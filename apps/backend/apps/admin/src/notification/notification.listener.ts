@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { MILLISECONDS_PER_DAY, MILLISECONDS_PER_HOUR } from '@libs/constants'
-import type { NotificationSchedulerData } from './interface/notification.interface'
 import { NotificationScheduler } from './notification.scheduler'
 import { NotificationService } from './notification.service'
 
@@ -9,8 +8,6 @@ const ASSIGNMENT_REMINDER = [
   { id: '1d', offset: -MILLISECONDS_PER_DAY },
   { id: '3h', offset: -3 * MILLISECONDS_PER_HOUR }
 ]
-
-const MIN_DELAY_MS = 5 * 1000
 
 @Injectable()
 export class NotificationListener {
@@ -50,7 +47,7 @@ export class NotificationListener {
     this.notificationService.notifyAssignmentCreated(payload.assignmentId)
 
     const title = 'assignment-due-reminder'
-    const data: NotificationSchedulerData = { id: payload.assignmentId }
+    const data = { assignmentId: payload.assignmentId }
 
     const reminders = ASSIGNMENT_REMINDER.map((reminder) => {
       const jobId = this.assignmentDueReminderJobId(
@@ -58,7 +55,7 @@ export class NotificationListener {
         reminder.id
       )
       const delay = this.calculateDelay(payload.dueTime, reminder.offset)
-      if (delay <= MIN_DELAY_MS) {
+      if (delay <= 0) {
         return null
       }
       return this.notificationScheduler.scheduleJob(title, data, jobId, delay)
@@ -82,7 +79,7 @@ export class NotificationListener {
     )
 
     const title = 'assignment-due-reminder'
-    const data: NotificationSchedulerData = { id: payload.assignmentId }
+    const data = { assignmentId: payload.assignmentId }
 
     const reminders = ASSIGNMENT_REMINDER.map((reminder) => {
       const jobId = this.assignmentDueReminderJobId(
@@ -90,7 +87,7 @@ export class NotificationListener {
         reminder.id
       )
       const delay = this.calculateDelay(payload.dueTime, reminder.offset)
-      if (delay <= MIN_DELAY_MS) {
+      if (delay <= 0) {
         return null
       }
       return this.notificationScheduler.scheduleJob(title, data, jobId, delay)
@@ -112,11 +109,11 @@ export class NotificationListener {
   @OnEvent('contest.created')
   async handleContestCreated(payload: { contestId: number; startTime: Date }) {
     const title = 'contest-start-reminder'
-    const data: NotificationSchedulerData = { id: payload.contestId }
+    const data = { contestId: payload.contestId }
     const jobId = this.contestStartReminderJobId(payload.contestId)
     const delay = this.calculateDelay(payload.startTime, -MILLISECONDS_PER_HOUR)
 
-    if (delay <= MIN_DELAY_MS) {
+    if (delay <= 0) {
       console.log(
         `[Scheduler] Skipping contest ${payload.contestId} - too soon`
       )

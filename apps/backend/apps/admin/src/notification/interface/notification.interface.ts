@@ -1,3 +1,4 @@
 export interface NotificationSchedulerData {
-  id: number
+  assignmentId?: number
+  contestId?: number
 }

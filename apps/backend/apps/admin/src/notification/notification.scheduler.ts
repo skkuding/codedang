@@ -1,6 +1,7 @@
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import { Queue } from 'bullmq'
+import { UnprocessableDataException } from '@libs/exception'
 import type { NotificationSchedulerData } from './interface/notification.interface'
 
 @Injectable()
@@ -13,6 +14,10 @@ export class NotificationScheduler {
     jobId: string,
     delay: number
   ) {
+    if (data.assignmentId === undefined && data.contestId === undefined) {
+      throw new UnprocessableDataException('Invalid notification data')
+    }
+
     const job = await this.queue.add(title, data, {
       jobId,
       delay,
