@@ -27,7 +27,7 @@ interface QnAMainTableProps {
   problemOrders: string
   session: Session | null
   isPrivilegedRole: boolean
-  canCreateQnA: boolean
+  canCreateQnA: boolean | null
 }
 
 export function QnAMainTable({

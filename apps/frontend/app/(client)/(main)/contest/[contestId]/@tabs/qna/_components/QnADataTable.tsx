@@ -54,7 +54,7 @@ interface QnADataTableProps<TData, TValue> {
   resetPageIndex: () => void
   session: Session | null
   isPrivilegedRole: boolean
-  canCreateQnA: boolean
+  canCreateQnA: boolean | null
 }
 
 export function QnADataTable<TData extends Item, TValue>({

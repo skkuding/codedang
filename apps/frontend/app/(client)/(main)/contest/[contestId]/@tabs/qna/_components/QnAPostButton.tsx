@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { BiSolidPencil } from 'react-icons/bi'
 
 type QnAPostButtonProps = {
-  canCreateQnA: boolean
+  canCreateQnA: boolean | null
   href: string
   className?: string
 }

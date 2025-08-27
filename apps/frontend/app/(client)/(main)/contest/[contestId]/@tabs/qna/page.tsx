@@ -45,7 +45,8 @@ export default async function ContestQna(props: ContestQnAProps) {
     return 'Ongoing'
   })()
   const canCreateQnA =
-    contest.isRegistered || contest.isPrivilegedRole || state !== 'Ongoing'
+    session &&
+    (contest.isRegistered || contest.isPrivilegedRole || state !== 'Ongoing')
   const isPrivilegedRole = contest.isPrivilegedRole
   if (!session && registered) {
     redirect(`/contest/${contestId}/qna`)
