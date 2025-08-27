@@ -8,6 +8,7 @@ import type { Qna } from '../page'
 import { QnaCommentPostArea } from './QnaCommentPostArea'
 import { QnaDeleteButton } from './QnaDeleteButton'
 import { QnaSingleComment } from './QnaSingleComment'
+import { useQnaCommentSync } from './context/QnaCommentStoreProvider'
 
 /**
  * Qna 댓글 목록, 댓글 작성 영역 컴포넌트
@@ -35,10 +36,12 @@ export function QnaCommentArea({
   const [comments, setComments] = useState(initialComments)
   const [text, setText] = useState('')
 
+  const {
+    refreshTrigger: CommentRefreshTrigger,
+    triggerRefresh: TriggerCommentRefresh
+  } = useQnaCommentSync()
   useEffect(() => {
-    let isMounted = true
-
-    async function poll() {
+    async function pollComment() {
       try {
         const QnaRes = await fetcherWithAuth.get(
           `contest/${contestId}/qna/${qnaId}`
@@ -49,24 +52,14 @@ export function QnaCommentArea({
           toast.error(errorRes.message)
         } else {
           const QnaData: Qna = await QnaRes.json()
-          if (isMounted) {
-            setComments(QnaData.comments)
-          }
+          setComments(QnaData.comments)
         }
       } catch (error) {
         toast.error(`Error in re-fetching comments!: ${error}`)
-      } finally {
-        if (isMounted) {
-          setTimeout(poll)
-        }
       }
     }
-    poll()
-
-    return () => {
-      isMounted = false
-    }
-  }, [contestId, qnaId])
+    pollComment()
+  }, [contestId, qnaId, CommentRefreshTrigger])
 
   const onPost = async (): Promise<void> => {
     try {
@@ -82,6 +75,7 @@ export function QnaCommentArea({
         const errorRes: { message: string } = await res.json()
         toast.error(errorRes.message)
       } else {
+        TriggerCommentRefresh()
         toast.success('Posted successfully!')
         setText('')
       }
