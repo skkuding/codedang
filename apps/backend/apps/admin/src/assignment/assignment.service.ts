@@ -124,7 +124,8 @@ export class AssignmentService {
       this.inviteAllCourseMembersToAssignment(createdAssignment.id, groupId)
 
       this.eventEmitter.emit('assignment.created', {
-        assignmentId: createdAssignment.id
+        assignmentId: createdAssignment.id,
+        dueTime: createdAssignment.dueTime
       })
 
       return createdAssignment
@@ -165,12 +166,9 @@ export class AssignmentService {
       )
     }
 
-    const revealFinalScore =
-      assignment.isFinalScoreVisible &&
-      assignment.isFinalScoreVisible !== assignmentFound.isFinalScoreVisible
-
     const isEndTimeChanged =
       assignment.endTime && assignment.endTime !== assignmentFound.endTime
+
     assignment.startTime = assignment.startTime || assignmentFound.startTime
     assignment.endTime = assignment.endTime || assignmentFound.endTime
     if (assignment.startTime >= assignment.endTime) {
@@ -252,9 +250,23 @@ export class AssignmentService {
         }
       })
 
-      if (revealFinalScore) {
+      const isRevealingFinalScore =
+        assignment.isFinalScoreVisible &&
+        assignment.isFinalScoreVisible !== assignmentFound.isFinalScoreVisible
+
+      if (isRevealingFinalScore) {
         this.eventEmitter.emit('assignment.graded', {
           assignmentId: assignment.id
+        })
+      }
+
+      const isDueTimeChanged =
+        assignment.dueTime && assignment.dueTime !== assignmentFound.dueTime
+
+      if (isDueTimeChanged) {
+        this.eventEmitter.emit('assignment.updated', {
+          assignmentId: assignment.id,
+          dueTime: assignment.dueTime
         })
       }
 
@@ -297,11 +309,15 @@ export class AssignmentService {
     }
 
     try {
-      return await this.prisma.assignment.delete({
+      const deletedAssignment = await this.prisma.assignment.delete({
         where: {
           id: assignmentId
         }
       })
+
+      this.eventEmitter.emit('assignment.deleted', deletedAssignment.id)
+
+      return deletedAssignment
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
@@ -1156,6 +1172,29 @@ export class AssignmentService {
     )
 
     return isAllProblemGraded
+  }
+
+  async autoFinalizeScore(groupId: number, assignmentId: number) {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: { groupId: true }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (assignment.groupId !== groupId) {
+      throw new ForbiddenAccessException(
+        'You can only access assignment in your own group'
+      )
+    }
+
+    return await this.prisma.$executeRaw`
+      UPDATE "assignment_problem_record"
+      SET "final_score" = "score"
+      WHERE "assignmentId" = ${assignmentId};
+    `
   }
 
   private async inviteAllCourseMembersToAssignment(
