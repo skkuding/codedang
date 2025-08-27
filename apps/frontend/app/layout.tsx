@@ -53,7 +53,7 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <link
           rel="apple-touch-startup-image"
-          href="/iPhone_16_Pro_Max_portrait.png"
+          href="/apple_splash_screens/iPhone_16_Pro_Max_portrait.png"
         />
         <link
           rel="apple-touch-startup-image"
