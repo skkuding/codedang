@@ -8,9 +8,3 @@ resources:
   - secrets/database-credentials.yaml
   - secrets/oauth-credentials.yaml
   - secrets/security-keys.yaml
-
-patches:
-  - path: configmap.yaml
-    target:
-      kind: ConfigMap
-      name: client-api-env
