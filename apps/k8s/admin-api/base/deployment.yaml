@@ -33,3 +33,6 @@ spec:
                 name: database-credentials
             - secretRef:
                 name: security-keys
+            - secretRef:
+                name: object-storage-credentials
+                optional: true # not used in production env

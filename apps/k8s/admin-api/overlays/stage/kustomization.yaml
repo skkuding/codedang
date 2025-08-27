@@ -5,6 +5,7 @@ namespace: admin-api
 resources:
   - ../../base
   - secrets/database-credentials.yaml
+  - secrets/object-storage.yaml
   - secrets/security-keys.yaml
 
 patches:
