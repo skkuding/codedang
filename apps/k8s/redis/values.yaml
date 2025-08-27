@@ -1,0 +1,23 @@
+# for simplicity we decided to use standalone mode
+# if redis is used for caching, it might be acceptable
+# however, for critical data, a clustered setup is recommended
+
+# Docs: https://ot-container-kit.github.io/redis-operator/guide/redis-config.html#helm-parameters
+redisStandalone:
+  enabled: true
+  image: quay.io/opstree/redis
+  tag: v7.0.15
+  imagePullPolicy: IfNotPresent
+# TODO: setup serviceMonitor and redis exporter for monitoring
+# # used by Prometheus Operator as a guidance
+# serviceMonitor:
+#   enabled: true
+#   interval: 30s
+#   namespace: monitoring # Namespace in which Prometheus operator is running
+
+# # interpret redis data as Prometheus metrics
+# redisExporter:
+#   enabled: true
+#   image: quay.io/opstree/redis-exporter
+#   tag: v1.75.0
+#   imagePullPolicy: IfNotPresent
