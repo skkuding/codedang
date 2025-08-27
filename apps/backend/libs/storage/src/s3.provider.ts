@@ -8,12 +8,13 @@ export const S3Provider = {
   import: [ConfigModule],
   inject: [ConfigService],
   useFactory: async (config: ConfigService) => {
-    // If production, assume that the service is running on AWS
-    // and use the default credentials
-    const isProduction = config.get('APP_ENV') === 'production'
-    if (isProduction) {
+    // TODO: In local environment, inject AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+    // for credentials, and MINIO_ENDPOINT_URL for endpoint.
+    const appEnv = config.get<string>('APP_ENV')
+    if (appEnv === 'stage' || appEnv === 'production') {
       return new S3Client({
-        region: 'ap-northeast-2'
+        region: 'ap-northeast-2',
+        endpoint: config.get<string>('MINIO_ENDPOINT_URL') // for stage environment
       })
     }
 

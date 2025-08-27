@@ -52,7 +52,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const addTestcase = (isHidden: boolean) => {
     setValue('testcases', [
       ...getValues('testcases'),
-      { input: '', output: '', isHidden, scoreWeight: '' }
+      { input: '', output: '', isHidden, scoreWeight: null }
     ])
   }
 
@@ -66,7 +66,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       input: testcase.input,
       output: testcase.output,
       isHidden,
-      scoreWeight: ''
+      scoreWeight: null
     }))
 
     setValue('testcases', [...currentTestcases, ...newTestcases])
@@ -109,7 +109,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     const currentValues: Testcase[] = getValues('testcases')
 
     const totalAssignedScore = currentValues
-      .map((tc) => tc.scoreWeight)
+      .map((tc) => tc.scoreWeight ?? 0)
       .filter((score) => !isInvalid(score))
       .reduce((acc: number, score) => {
         if (score < 0) {
@@ -231,7 +231,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   }
 
   const totalScore = filteredTC.reduce((acc, tc) => {
-    const weight = Number(tc.scoreWeight)
+    const weight = Number(tc.scoreWeight ?? 0)
     return acc + (isNaN(weight) ? 0 : weight)
   }, 0)
 

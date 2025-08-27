@@ -3,17 +3,14 @@ kind: Ingress
 metadata:
   name: client-api-server-ingress
   namespace: client-api
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
-    traefik.ingress.kubernetes.io/redirect-entry-point: https
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - test-k8s.codedang.com
+        - k8s-test.stage.codedang.com
       secretName: client-api-server-tls
   rules:
-    - host: test-k8s.codedang.com
+    - host: k8s-test.stage.codedang.com
       http:
         paths:
           - path: /api/
