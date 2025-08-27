@@ -17,14 +17,8 @@ import DownArrow from '@/public/icons/arrow-down.svg'
 import type { Column } from '@tanstack/react-table'
 import Image from 'next/image'
 import React, { type ReactNode } from 'react'
-import { useState } from 'react'
 
-export interface BasicMultiSelectOption {
-  value: string
-  label: React.ReactNode
-}
-
-export interface QnATableMultiSelectFilterProps<TData, TValue> {
+export interface QnACategoryFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
   contestId: number
   options: {
@@ -38,19 +32,8 @@ export function QnACategoryFilter<TData, TValue>({
   column,
   options,
   resetPageIndex
-}: QnATableMultiSelectFilterProps<TData, TValue>) {
-  const [selectedValues] = useState<Set<string>>(new Set())
-
-  const handleFilterSelect = (value: string) => {
-    if (selectedValues.has(value)) {
-      selectedValues.delete(value)
-    } else {
-      selectedValues.add(value)
-    }
-    const filterValues = Array.from(selectedValues)
-    column?.setFilterValue(filterValues.length ? filterValues : undefined)
-    resetPageIndex()
-  }
+}: QnACategoryFilterProps<TData, TValue>) {
+  const selectedValues = getSelectedValues(column?.getFilterValue())
 
   const showAll =
     selectedValues.size === 0 ||
@@ -72,7 +55,7 @@ export function QnACategoryFilter<TData, TValue>({
             ) : (
               <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[16px] font-medium tracking-[-0.48px] text-[#737373]">
                 {options
-                  .filter((o) => selectedValues.has(o.value))
+                  .filter((option) => selectedValues.has(option.value))
                   .map((option) => option.label)
                   .join(', ')}
               </span>
@@ -94,7 +77,20 @@ export function QnACategoryFilter<TData, TValue>({
                 <CommandItem
                   key={value}
                   value={value}
-                  onSelect={() => handleFilterSelect(value)}
+                  onSelect={() => {
+                    if (selectedValues.has(value)) {
+                      selectedValues.delete(value)
+                    } else {
+                      selectedValues.add(value)
+                    }
+                    const selectedValuesArray = Array.from(selectedValues)
+                    column?.setFilterValue(
+                      selectedValuesArray.length
+                        ? selectedValuesArray
+                        : undefined
+                    )
+                    resetPageIndex()
+                  }}
                   className="gap-x-2"
                 >
                   <Checkbox checked={selectedValues.has(value)} />
@@ -115,4 +111,14 @@ export function QnACategoryFilter<TData, TValue>({
       </PopoverContent>
     </Popover>
   )
+}
+
+const getSelectedValues = (data: unknown): Set<string> => {
+  if (!Array.isArray(data)) {
+    return new Set()
+  }
+  if (data.every((item) => typeof item === 'string')) {
+    return new Set(data)
+  }
+  return new Set()
 }

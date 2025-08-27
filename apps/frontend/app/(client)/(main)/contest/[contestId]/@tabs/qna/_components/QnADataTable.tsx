@@ -67,17 +67,19 @@ export function QnADataTable<TData extends QnAItem, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel()
   })
+
   const router = useRouter()
   const currentPath = usePathname()
 
+  const filteredRows = table.getFilteredRowModel().rows
+  const filteredData = filteredRows.map((row) => row.original)
   useEffect(() => {
-    setFilteredData(table.getFilteredRowModel().rows.map((row) => row.original))
-  }, [setFilteredData, table])
+    setFilteredData(filteredData)
+  }, [filteredData.length, setFilteredData])
 
   const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedItems = table
-    .getFilteredRowModel()
-    .rows.slice(startIndex, startIndex + itemsPerPage)
+  const endIndex = startIndex + itemsPerPage
+  const paginatedItems = filteredRows.slice(startIndex, endIndex)
 
   const [options, setOptions] = useState<
     { value: string; label: React.ReactNode }[]
@@ -90,7 +92,7 @@ export function QnADataTable<TData extends QnAItem, TValue>({
         label: `${String.fromCharCode(65 + index)}. ${item.title}`
       }))
       setOptions((prev) => [
-        ...prev.filter((o) => o.value === 'General'),
+        ...prev.filter((option) => option.value === 'General'),
         ...problemOptions
       ])
     }
