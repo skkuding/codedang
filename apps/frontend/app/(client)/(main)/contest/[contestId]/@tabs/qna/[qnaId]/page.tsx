@@ -1,10 +1,9 @@
 import { fetcherWithAuth } from '@/libs/utils'
-import errorImage from '@/public/logos/error.webp'
 import type { GetContestQnaQuery } from '@generated/graphql'
-import Image from 'next/image'
 import { QnaCommentArea } from './_components/QnaCommentArea'
 import { QnaContentArea } from './_components/QnaContentArea'
 import { QnaDeleteButton } from './_components/QnaDeleteButton'
+import { ErrorPage } from './_components/QnaErrorPage'
 
 type PageProps = {
   params: Promise<{
@@ -68,25 +67,8 @@ export default async function QnaDetailPage({ params }: PageProps) {
     } else {
       errorRes = await MyContestRolesRes.json()
     }
-    return (
-      <div className="flex flex-col items-center justify-center py-[218px]">
-        <Image
-          className="pb-10"
-          src={errorImage}
-          alt="coming-soon"
-          width={300}
-          height={300}
-        />
-        <div className="flex flex-col items-center">
-          <h2 className="pb-2 text-xl font-semibold">{errorRes.message}</h2>
-          <p className="text-center text-base text-neutral-500">
-            {`${errorRes.statusCode ?? 'Unknown'} Error`}
-          </p>
-        </div>
-      </div>
-    )
+    return <ErrorPage errorRes={errorRes} />
   }
-
   const QnaData: GetContestQnaQuery['getContestQnA'] = await QnaRes.json()
   const userInfo: { username?: string; email?: string } =
     await userInfoRes.json()
