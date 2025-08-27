@@ -50,6 +50,7 @@ export default async function RootLayout({
     <html lang="en" className={mono.variable}>
       <head>
         <link rel="apple-touch-icon" href="/apple-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="Codedang" />
         <link
           rel="apple-touch-startup-image"
           href="/apple_splash_screens/iPhone_16_Pro_Max_portrait.png"
