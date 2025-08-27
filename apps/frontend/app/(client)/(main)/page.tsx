@@ -1,5 +1,3 @@
-'use client'
-
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
 import { Carousel } from './_components/Carousel'
