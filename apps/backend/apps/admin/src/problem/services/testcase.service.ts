@@ -4,7 +4,7 @@ import { isEqual } from 'es-toolkit'
 import { Workbook } from 'exceljs'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { Parse } from 'unzipper'
-import { MAX_ZIP_SIZE, LEGACY_SCORE_SCALE } from '@libs/constants'
+import { MAX_ZIP_SIZE } from '@libs/constants'
 import {
   EntityNotExistException,
   UnprocessableDataException,
@@ -83,7 +83,7 @@ export class TestcaseService {
             scoreWeightNumerator: fraction.numerator,
             scoreWeightDenominator: fraction.denominator,
             scoreWeight: Math.round(
-              (fraction.numerator / fraction.denominator) * LEGACY_SCORE_SCALE
+              (fraction.numerator / fraction.denominator) * 100
             ),
             isHidden: testcase.isHidden,
             order: index + 1
