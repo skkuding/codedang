@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertModal } from '@/components/AlertModal'
+//import { AlertModal } from '@/components/AlertModal'
 import { Input } from '@/components/shadcn/input'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
@@ -23,7 +23,7 @@ export function CreateQnaTextArea({
     content: ''
   })
   const [loading, setLoading] = useState(false)
-  const [postModalOpen, setPostModalOpen] = useState(false)
+  //const [postModalOpen, setPostModalOpen] = useState(false)
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -35,7 +35,6 @@ export function CreateQnaTextArea({
     }))
   }
   const handleSubmit = async () => {
-    //e.preventDefault()
     setLoading(true)
     const apiUrl =
       problemOrder === null
@@ -65,7 +64,7 @@ export function CreateQnaTextArea({
       toast.error('Failed to submit question')
     } finally {
       setLoading(false)
-      setPostModalOpen(false)
+      //setPostModalOpen(false)
     }
   }
 
@@ -73,7 +72,7 @@ export function CreateQnaTextArea({
     <div className="rounded-lg bg-[#222939] p-5 text-white">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-xl font-semibold">Post a Question</h3>
-        <AlertModal
+        {/* <AlertModal
           open={postModalOpen}
           onOpenChange={setPostModalOpen}
           size="sm"
@@ -85,9 +84,9 @@ export function CreateQnaTextArea({
           }}
           onClose={() => setPostModalOpen(false)}
           type="confirm"
-        />
+        /> */}
         <button
-          onClick={() => setPostModalOpen(true)}
+          onClick={() => handleSubmit()}
           className={cn(
             'h-9 w-20 rounded px-4 py-2 text-sm font-semibold text-white transition duration-300 ease-in-out hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
             loading || !qnaFormdata.title || !qnaFormdata.content
@@ -116,7 +115,7 @@ export function CreateQnaTextArea({
         <div className="relative">
           <Textarea
             name="content"
-            placeholder="Enter a Question"
+            placeholder="Inappropriate questions can be deleted."
             value={qnaFormdata.content}
             onChange={handleInputChange}
             maxLength={400}

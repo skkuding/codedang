@@ -49,7 +49,7 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
   }
 
   return (
-    <div className="min-h-[106px] w-full bg-[#121728] p-5 pb-[30px]">
+    <div className="h-[106px] w-full bg-[#121728] p-5 pb-[30px]">
       <div className="relative">
         <Textarea
           name="content"
@@ -57,7 +57,7 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
           value={commentData}
           onChange={handleInputChange}
           maxLength={400}
-          className="h-[56px] w-full rounded-full border border-neutral-600 bg-[#FFFFFF1A] p-3 text-base text-white placeholder-gray-400 placeholder:text-base focus:outline-none"
+          className="h-[56px] w-full resize-none rounded-full border border-neutral-600 bg-[#FFFFFF1A] p-3 text-base text-white placeholder-gray-400 placeholder:text-base/loose focus:outline-none"
         />
         <Button
           onClick={handleSubmit}
