@@ -42,3 +42,29 @@ resource "aws_iam_user_policy" "admin_api_s3_read" {
   user   = aws_iam_user.admin_api.name
   policy = data.aws_iam_policy_document.admin_api_s3_read.json
 }
+
+data "aws_iam_policy_document" "admin_api_s3_write" {
+  statement {
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectTagging",
+      "s3:DeleteObject",
+    ]
+    resources = [
+      "arn:aws:s3:::codedang-testcase",
+      "arn:aws:s3:::codedang-testcase/*",
+      "arn:aws:s3:::codedang-media",
+      "arn:aws:s3:::codedang-media/*",
+    ]
+  }
+}
+
+resource "aws_iam_user_policy" "admin_api_s3_write" {
+  name   = "codedang-admin-api-s3-write"
+  user   = aws_iam_user.admin_api.name
+  policy = data.aws_iam_policy_document.admin_api_s3_write.json
+}
+
+output "aws_iam_user_policy" {
+  value = aws_iam_user_policy.admin_api_s3_write.id
+}
