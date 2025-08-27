@@ -9,12 +9,20 @@ resource "aws_iam_access_key" "client_api" {
   user = aws_iam_user.client_api.name
 }
 
-data "aws_iam_policy_document" "client_api" {
+data "aws_iam_policy_document" "client_api_secret_read" {
   statement {
     actions   = ["secretsmanager:GetSecretValue"]
     resources = [local.storage.database_secret_arn]
   }
+}
 
+resource "aws_iam_user_policy" "client_api_secret_read" {
+  name   = "codedang-client-api-secretmanager-read"
+  user   = aws_iam_user.client_api.name
+  policy = data.aws_iam_policy_document.client_api_secret_read.json
+}
+
+data "aws_iam_policy_document" "client_api_s3_read" {
   statement {
     actions = [
       "s3:ListBucket", # required to read objects
@@ -29,8 +37,8 @@ data "aws_iam_policy_document" "client_api" {
   }
 }
 
-resource "aws_iam_user_policy" "client_api" {
-  name   = "codedang-client-api-secretsmanager"
+resource "aws_iam_user_policy" "client_api_s3_read" {
+  name   = "codedang-client-api-s3-read"
   user   = aws_iam_user.client_api.name
-  policy = data.aws_iam_policy_document.client_api_secret_read.json
+  policy = data.aws_iam_policy_document.client_api_s3_read.json
 }
