@@ -11,13 +11,15 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   disable: process.env.NODE_ENV === 'development',
   customWorkerDir: 'worker',
   skipWaiting: true,
+  buildExcludes: [/\/_next\/static\/chunks\/app\/.*\/page-.*\.js$/],
   workboxOptions: {
     disableDevLogs: true,
     exclude: [
       /sw\.js$/,
       /workbox-(.)*\.js$/,
       /\.webmanifest$/,
-      /\/_next\/static\/chunks\/app\/.*\/page-.*\.js$/
+      /\/_next\/static\/chunks\/app\/.*\/page-.*\.js$/,
+      /\/worker-.*\.js$/
     ]
   },
   runtimeCaching: [
