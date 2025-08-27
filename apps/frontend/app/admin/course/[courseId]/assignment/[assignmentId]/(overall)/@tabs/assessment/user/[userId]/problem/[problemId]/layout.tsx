@@ -1,20 +1,17 @@
 import { EditorLayout } from '@/app/admin/_components/code-editor/EditorLayout'
 import { auth } from '@/libs/auth'
-import React from 'react'
 
-export default async function Layout({
-  params,
-  children
-}: {
-  params: {
+export default async function layout(props: {
+  params: Promise<{
     courseId: string
     assignmentId: string
     userId: string
     problemId: string
-  }
+  }>
   children: React.ReactNode
 }) {
-  const { courseId, assignmentId, userId, problemId } = params
+  const { children } = props
+  const { courseId, assignmentId, userId, problemId } = await props.params
   const session = await auth()
 
   return (
@@ -25,7 +22,7 @@ export default async function Layout({
       userId={Number(userId)}
       session={session}
     >
-      {React.Children.toArray(children)}
+      {children}
     </EditorLayout>
   )
 }
