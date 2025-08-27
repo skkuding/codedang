@@ -2,7 +2,7 @@
 
 import { fetcherWithAuth } from '@/libs/utils'
 import type { GetContestQnaQuery } from '@generated/graphql'
-import React, { useEffect, useState, type ReactElement } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { QnaCommentPostArea } from './QnaCommentPostArea'
 import { QnaDeleteButton } from './QnaDeleteButton'
