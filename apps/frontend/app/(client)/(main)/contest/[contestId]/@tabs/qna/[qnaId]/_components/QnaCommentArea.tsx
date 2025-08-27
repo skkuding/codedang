@@ -2,9 +2,8 @@
 
 import { fetcherWithAuth } from '@/libs/utils'
 import type { GetContestQnaQuery } from '@generated/graphql'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, type ReactElement } from 'react'
 import { toast } from 'sonner'
-import type { Qna } from '../page'
 import { QnaCommentPostArea } from './QnaCommentPostArea'
 import { QnaDeleteButton } from './QnaDeleteButton'
 import { QnaSingleComment } from './QnaSingleComment'
@@ -12,27 +11,32 @@ import { useQnaCommentSync } from './context/QnaCommentStoreProvider'
 
 /**
  * Qna 댓글 목록, 댓글 작성 영역 컴포넌트
- * @param data
+ * @param QnaData
  * Qna 정보
- * @param userInfo
- * 현재 로그인 중인 유저 정보 (username과 email 포함)
+ * @param username
+ * 현재 로그인 중인 유저의 이름
  * @param userId
  * 현재 로그인 중인 유저의 id
  * @param isContestStaff
  * 해당 contest의 관리자 여부
  */
 export function QnaCommentArea({
-  data,
-  userInfo,
+  QnaData,
+  username,
   userId,
   isContestStaff
 }: {
-  data: GetContestQnaQuery['getContestQnA']
-  userInfo: { username?: string; email?: string }
+  QnaData: GetContestQnaQuery['getContestQnA']
+  username?: string
   userId: number
   isContestStaff: boolean
 }) {
-  const { contestId, order: qnaId, comments: initialComments } = data
+  const {
+    contestId,
+    order: qnaId,
+    comments: initialComments,
+    createdById
+  } = QnaData
   const [comments, setComments] = useState(initialComments)
   const [text, setText] = useState('')
 
@@ -40,6 +44,9 @@ export function QnaCommentArea({
     refreshTrigger: CommentRefreshTrigger,
     triggerRefresh: TriggerCommentRefresh
   } = useQnaCommentSync()
+
+  const canPostComment = isContestStaff || userId === createdById
+
   useEffect(() => {
     async function pollComment() {
       try {
@@ -51,7 +58,8 @@ export function QnaCommentArea({
           const errorRes: { message: string } = await QnaRes.json()
           toast.error(errorRes.message)
         } else {
-          const QnaData: Qna = await QnaRes.json()
+          const QnaData: GetContestQnaQuery['getContestQnA'] =
+            await QnaRes.json()
           setComments(QnaData.comments)
         }
       } catch (error) {
@@ -84,31 +92,34 @@ export function QnaCommentArea({
     }
   }
 
-  const canPost = isContestStaff || userId === data.createdById
-
   return (
     <div className="flex flex-col gap-[40px]">
       <div className="flex flex-col gap-[10px]">
         {comments
           ?.sort((a, b) => a.order - b.order)
-          .map((comment) => (
-            <QnaSingleComment
-              key={comment.order}
-              comment={comment}
-              userId={userId}
-              isContestStaff={isContestStaff}
-              DeleteButtonComponent={
-                <QnaDeleteButton
-                  subject="comment"
-                  DeleteUrl={`contest/${contestId}/qna/${qnaId}/comment/${comment.order}`}
-                />
-              }
-            />
-          ))}
+          .map((comment) => {
+            const canDeleteComment =
+              userId === comment.createdById ||
+              (comment.isContestStaff && isContestStaff)
+            return (
+              <QnaSingleComment
+                key={comment.order}
+                comment={comment}
+                DeleteButtonComponent={
+                  canDeleteComment ? (
+                    <QnaDeleteButton
+                      subject="comment"
+                      DeleteUrl={`contest/${contestId}/qna/${qnaId}/comment/${comment.order}`}
+                    />
+                  ) : undefined
+                }
+              />
+            )
+          })}
       </div>
-      {canPost && (
+      {canPostComment && (
         <QnaCommentPostArea
-          username={userInfo.username}
+          username={username}
           text={text}
           setText={setText}
           onPost={onPost}

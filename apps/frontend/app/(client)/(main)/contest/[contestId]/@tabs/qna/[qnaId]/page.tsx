@@ -22,6 +22,17 @@ type Role = 'Admin' | 'Manager' | 'Participant' | 'Reviewer'
 export default async function QnaDetailPage({ params }: PageProps) {
   // Get data
   const { contestId, qnaId } = await params
+
+  const ContestData: { startTime: Date; endTime: Date } = await fetcherWithAuth
+    .get(`contest/${contestId}`)
+    .json()
+  const [startTime, endTime] = [
+    new Date(ContestData.startTime),
+    new Date(ContestData.endTime)
+  ]
+  const currentTime = new Date()
+  const notOngoing = startTime > currentTime || endTime < currentTime
+
   const QnaRes = await fetcherWithAuth.get(`contest/${contestId}/qna/${qnaId}`)
   const userInfoRes = await fetcherWithAuth.get('user')
   const MyContestRolesRes = await fetcherWithAuth.get('contest/role')
@@ -32,6 +43,24 @@ export default async function QnaDetailPage({ params }: PageProps) {
       errorRes = await QnaRes.json()
     } else if (!userInfoRes.ok) {
       errorRes = await userInfoRes.json()
+      // 로그인하지 않았고, onGoing이지 않은 대회의 경우
+      if (errorRes.statusCode === 401 && notOngoing) {
+        const QnaData: GetContestQnaQuery['getContestQnA'] = await QnaRes.json()
+        return (
+          <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 gap-[50px] px-[116px] leading-[150%] tracking-[-3%]">
+            <QnaContentArea
+              QnaData={QnaData}
+              DeleteButtonComponent={undefined}
+            />
+            <QnaCommentArea
+              QnaData={QnaData}
+              username={''}
+              userId={-1}
+              isContestStaff={false}
+            />
+          </div>
+        )
+      }
     } else {
       errorRes = await MyContestRolesRes.json()
     }
@@ -61,23 +90,22 @@ export default async function QnaDetailPage({ params }: PageProps) {
       (ContestRole) => ContestRole.contestId === Number(contestId)
     )?.role ?? 'nothing'
   )
-  const canDelete = isContestStaff || userId === QnaData.createdById
-
-  // Content Delete handler
-  const deleteContentUrl = `contest/${contestId}/qna/${qnaId}`
+  const canDeleteQna = isContestStaff || userId === QnaData.createdById
+  const deleteQnaUrl = `contest/${contestId}/qna/${qnaId}`
 
   return (
     <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 gap-[50px] px-[116px] leading-[150%] tracking-[-3%]">
       <QnaContentArea
-        data={QnaData}
-        canDelete={canDelete}
+        QnaData={QnaData}
         DeleteButtonComponent={
-          <QnaDeleteButton subject="question" DeleteUrl={deleteContentUrl} />
+          canDeleteQna ? (
+            <QnaDeleteButton subject="question" DeleteUrl={deleteQnaUrl} />
+          ) : undefined
         }
       />
       <QnaCommentArea
-        data={QnaData}
-        userInfo={userInfo}
+        QnaData={QnaData}
+        username={userInfo.username}
         userId={userId}
         isContestStaff={isContestStaff}
       />

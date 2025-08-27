@@ -10,18 +10,11 @@ export type QnaCommentFromQuery = NonNullable<
 
 export function QnaSingleComment({
   comment,
-  userId,
-  isContestStaff,
   DeleteButtonComponent
 }: {
   comment: QnaCommentFromQuery
-  userId: number
-  isContestStaff: boolean
-  DeleteButtonComponent: ReactElement
+  DeleteButtonComponent: ReactElement | undefined
 }) {
-  const canDelete =
-    userId === comment.createdById || (comment.isContestStaff && isContestStaff)
-
   return (
     <div
       className={`border-color-line-default flex flex-col gap-[20px] rounded-xl border border-[1px] border-solid p-[30px]`}
@@ -36,9 +29,7 @@ export function QnaSingleComment({
               <FaCircleCheck size={21} className="text-color-blue-50" />
             </div>
           )}
-          <div className="absolute right-0 top-0">
-            {canDelete && DeleteButtonComponent}
-          </div>
+          <div className="absolute right-0 top-0">{DeleteButtonComponent}</div>
         </div>
         <div className="flex items-center gap-[8px]">
           <FaClock className="text-color-blue-50" size={13} />
