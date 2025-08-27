@@ -1,7 +1,8 @@
 import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import { Queue } from 'bullmq'
-import type { ContestStartReminderData } from './interface/notification.interface'
+import { UnprocessableDataException } from '@libs/exception'
+import type { NotificationSchedulerData } from './interface/notification.interface'
 
 @Injectable()
 export class NotificationScheduler {
@@ -9,10 +10,14 @@ export class NotificationScheduler {
 
   async scheduleJob(
     title: string,
-    data: ContestStartReminderData, // 추후 Contest 이외의 다른 작업 생성 시 필요한 데이터를 인터페이스로 정의
+    data: NotificationSchedulerData, // 추후 다른 작업 생성 시 필요한 데이터를 인터페이스로 정의
     jobId: string,
     delay: number
   ) {
+    if (data.assignmentId === undefined && data.contestId === undefined) {
+      throw new UnprocessableDataException('Invalid notification data')
+    }
+
     const job = await this.queue.add(title, data, {
       jobId,
       delay,
