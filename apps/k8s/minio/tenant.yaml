@@ -9,7 +9,7 @@ metadata:
     app: minio
 spec:
   features:
-    bucketDNS: true
+    bucketDNS: false
   users:
     - name: admin-api-user
     - name: client-api-user
