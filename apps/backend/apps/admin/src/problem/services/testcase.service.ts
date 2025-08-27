@@ -55,7 +55,7 @@ export class TestcaseService {
           denominator: 100
         }
       }
-
+      // TODO: remove or reuse this line
       // const commonDivisor = this.gcd(numerator, LEGACY_SCORE_SCALE)
       return {
         numerator: scoreWeightNumerator,
