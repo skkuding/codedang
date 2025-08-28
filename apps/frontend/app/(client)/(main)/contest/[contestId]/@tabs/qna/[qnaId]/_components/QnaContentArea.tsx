@@ -53,13 +53,15 @@ export function QnaContentArea({
           <div className="flex items-center gap-[10px]">
             <FaClock className="text-color-blue-50" size={13} />
             <div className="flex items-center gap-[4px] text-sm">
-              <p>{format(createTime ? createTime : 0, 'yyyy-MM-dd')}</p>
-              <p>{format(createTime ? createTime : 0, 'HH:mm:ss')}</p>
+              <p>{format(createTime, 'yyyy-MM-dd')}</p>
+              <p>{format(createTime, 'HH:mm:ss')}</p>
             </div>
           </div>
         </div>
       </div>
-      <div className="whitespace-pre-line font-normal">{content.trim()}</div>
+      <div className="whitespace-pre-line break-all text-base font-normal">
+        {content.trim()}
+      </div>
     </div>
   )
 }
