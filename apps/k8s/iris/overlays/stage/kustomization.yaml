@@ -7,6 +7,10 @@ resources:
   - database-credentials.yaml
   - minio-credentials.yaml
 
+replicas:
+  - name: iris
+    count: 3
+
 patches:
   - path: configmap.yaml
     target:
