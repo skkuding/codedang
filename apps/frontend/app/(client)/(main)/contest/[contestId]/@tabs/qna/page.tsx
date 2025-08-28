@@ -2,9 +2,12 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
+import welcomeLogo from '@/public/logos/welcome.png'
 import type { ContestTop, ProblemDataTop } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
+import Image from 'next/image'
 import { Suspense } from 'react'
+import { LoginButton } from './_components/LoginButton'
 import { QnAMainTable } from './_components/QnAMainTable'
 
 interface ContestQnAProps {
@@ -38,7 +41,9 @@ export default async function ContestQna(props: ContestQnAProps) {
 
   const state = (() => {
     const currentTime = new Date()
-    if (currentTime >= contest.startTime && currentTime < contest.endTime) {
+    const contestStart = new Date(contest.startTime)
+    const contestEnd = new Date(contest.endTime)
+    if (currentTime >= contestStart && currentTime < contestEnd) {
       return 'Ongoing'
     }
   })()
@@ -47,6 +52,21 @@ export default async function ContestQna(props: ContestQnAProps) {
     session &&
     (contest.isRegistered || contest.isPrivilegedRole || state !== 'Ongoing')
   const isPrivilegedRole = contest.isPrivilegedRole
+
+  if (!session && state === 'Ongoing') {
+    return (
+      <div className="flex w-full max-w-7xl flex-col items-center justify-center p-5 py-48">
+        <Image src={welcomeLogo} alt="welcome" />
+        <p className="mt-10 text-2xl font-semibold">Please Login!</p>
+        <div className="mt-2 text-center text-base font-normal text-[#7F7F7F]">
+          <p>This page is only available to logged-in users.</p>
+          <p>Click the button below to login.</p>
+        </div>
+        <LoginButton className="mt-6 flex h-[46px] w-60 items-center justify-center text-base font-bold" />
+        <div className="py-5" />
+      </div>
+    )
+  }
 
   return (
     <div className="mb-[88px] mt-[80px] max-w-[1440px] px-[116px]">
