@@ -1,9 +1,7 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
-import { FaTrash } from 'react-icons/fa6'
 import { AlertModal } from './AlertModal'
-import { Button } from './shadcn/button'
 
 export function DeleteButton({
   subject,
@@ -37,14 +35,3 @@ export function DeleteButton({
     />
   )
 }
-
-// <Button
-//   variant="outline"
-//   className="cursor-pointer border-[1px] border-[#FC5555] hover:bg-red-100"
-//   asChild
-// >
-//   <div className="flex h-[36px] items-center gap-[6px] px-[24px] py-[8px] text-[#FC5555]">
-//     <FaTrash fontSize={16} />
-//     <p className="text-sm font-medium tracking-[-3%]">Delete</p>
-//   </div>
-// </Button>
