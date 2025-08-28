@@ -4,7 +4,6 @@ import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { ContestTop, ProblemDataTop } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
-import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { QnAMainTable } from './_components/QnAMainTable'
 
@@ -25,7 +24,6 @@ export default async function ContestQna(props: ContestQnAProps) {
 
   const session = await auth()
   const params = await searchParams
-  const registered = params.registered === 'true'
   const search = params.search ?? ''
   const orderBy = params.orderBy ?? 'desc'
   const categories = params.categories ?? ''
@@ -49,10 +47,6 @@ export default async function ContestQna(props: ContestQnAProps) {
     session &&
     (contest.isRegistered || contest.isPrivilegedRole || state !== 'Ongoing')
   const isPrivilegedRole = contest.isPrivilegedRole
-
-  if (!session && registered) {
-    redirect(`/contest/${contestId}/qna`)
-  }
 
   return (
     <div className="mb-[88px] mt-[80px] max-w-[1440px] px-[116px]">
