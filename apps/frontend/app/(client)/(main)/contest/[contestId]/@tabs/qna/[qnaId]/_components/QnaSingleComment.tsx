@@ -21,7 +21,7 @@ export function QnaSingleComment({
     >
       <div className="flex flex-col gap-[4px]">
         <div className="relative flex items-center gap-[4px]">
-          <span className="text-xl font-semibold capitalize">
+          <span className="text-xl font-semibold">
             {comment.createdBy?.username}
           </span>
           {comment.isContestStaff && (

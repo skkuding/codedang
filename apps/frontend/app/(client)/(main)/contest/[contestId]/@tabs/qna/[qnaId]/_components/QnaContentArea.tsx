@@ -48,7 +48,7 @@ export function QnaContentArea({
             <div className="size-[16px]">
               <Image src={PersonFillIcon} alt="person" />
             </div>
-            <p className="text-sm uppercase">{createdBy?.username}</p>
+            <p className="text-sm">{createdBy?.username}</p>
           </div>
           <div className="flex items-center gap-[10px]">
             <FaClock className="text-color-blue-50" size={13} />
