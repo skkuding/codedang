@@ -70,6 +70,15 @@ export function ParticipantTable({
     })
   )
 
+  useEffect(() => {
+    if (summariesData && summariesData.length > 0) {
+      const hasAnyFinalScore = summariesData.some((item) =>
+        item.problemScores.some((problem) => problem.finalScore !== null)
+      )
+      setCurrentView(hasAnyFinalScore ? 'final' : 'auto')
+    }
+  }, [summariesData?.length])
+
   const problems = useQuery(GET_ASSIGNMENT_PROBLEMS, {
     variables: { groupId, assignmentId }
   })
