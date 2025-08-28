@@ -4,6 +4,7 @@ namespace: client-api
 
 resources:
   - ../../base
+  - secrets/aws-credentials.yaml
   - secrets/database-credentials.yaml
   - secrets/oauth-credentials.yaml
   - secrets/security-keys.yaml
