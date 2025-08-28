@@ -24,19 +24,16 @@ export function QnaCommentArea({
   QnaData,
   username,
   userId,
-  isContestStaff
+  isContestStaff,
+  canPostComment
 }: {
   QnaData: GetContestQnaQuery['getContestQnA']
   username?: string
   userId: number
   isContestStaff: boolean
+  canPostComment: boolean
 }) {
-  const {
-    contestId,
-    order: qnaId,
-    comments: initialComments,
-    createdById
-  } = QnaData
+  const { contestId, order: qnaId, comments: initialComments } = QnaData
   const [comments, setComments] = useState(initialComments)
   const [text, setText] = useState('')
 
@@ -44,8 +41,6 @@ export function QnaCommentArea({
     refreshTrigger: CommentRefreshTrigger,
     triggerRefresh: TriggerCommentRefresh
   } = useQnaCommentSync()
-
-  const canPostComment = isContestStaff || userId === createdById
 
   useEffect(() => {
     async function pollComment() {

@@ -57,6 +57,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
               username={''}
               userId={-1}
               isContestStaff={false}
+              canPostComment={false}
             />
           </div>
         )
@@ -91,6 +92,8 @@ export default async function QnaDetailPage({ params }: PageProps) {
     )?.role ?? 'nothing'
   )
   const canDeleteQna = isContestStaff || userId === QnaData.createdById
+  const canPostComment =
+    isContestStaff || userId === QnaData.createdById || notOngoing
   const deleteQnaUrl = `contest/${contestId}/qna/${qnaId}`
 
   return (
@@ -108,6 +111,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
         username={userInfo.username}
         userId={userId}
         isContestStaff={isContestStaff}
+        canPostComment={canPostComment}
       />
     </div>
   )
