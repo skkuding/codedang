@@ -6,6 +6,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
+  # Required for argocd-image-updater to make changes to the Application
   ignoreApplicationDifferences:
     - jsonPointers:
         - /spec/source/kustomize/images
