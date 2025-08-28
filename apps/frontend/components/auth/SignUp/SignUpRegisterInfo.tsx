@@ -197,8 +197,7 @@ export function SignUpRegister() {
           studentId: data.studentId,
           major: majorValue,
           username: data.username,
-          email: formData.email,
-          verificationCode: formData.verificationCode
+          email: formData.email
         }
       })
       document.getElementById('closeDialog')?.click()

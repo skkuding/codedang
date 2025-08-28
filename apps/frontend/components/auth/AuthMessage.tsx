@@ -1,26 +1,30 @@
 import { cn } from '@/libs/utils'
-import successIcon from '@/public/icons/check-blue.svg'
-import errorIcon from '@/public/icons/info.svg'
-import Image from 'next/image'
+import { FaCircleCheck } from 'react-icons/fa6'
+import { IoAlertCircle } from 'react-icons/io5'
+import { MdInfo } from 'react-icons/md'
 
 interface AuthMessageProps {
   message: string
-  isError?: boolean
+  type: 'success' | 'error' | 'info'
 }
-export function AuthMessage({ message, isError = false }: AuthMessageProps) {
+export function AuthMessage({ message, type = 'info' }: AuthMessageProps) {
   return (
     <div
       className={cn(
         'mt-1 flex gap-1 text-xs',
-        isError ? 'text-error' : 'text-primary'
+        type === 'error' && 'text-error',
+        type === 'success' && 'text-primary',
+        type === 'info' && 'text-color-neutral-70'
       )}
     >
-      <Image
-        src={isError ? errorIcon : successIcon}
-        alt={isError ? 'Error' : 'Success'}
-        width={12.25}
-        height={12.25}
-      />
+      {type === 'success' && (
+        <FaCircleCheck className="text-primary h-3.5 w-3.5" />
+      )}
+      {type === 'info' && (
+        <MdInfo className="text-color-neutral-70 h-3.5 w-3.5" />
+      )}
+      {type === 'error' && <IoAlertCircle className="text-error h-3.5 w-3.5" />}
+
       {message}
     </div>
   )
