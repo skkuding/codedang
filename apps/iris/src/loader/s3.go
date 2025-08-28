@@ -24,6 +24,8 @@ func NewS3DataSource(bucket string) (*S3reader, error) {
 	}
 
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
+		// endpoint is only needed when using MinIO
+		// For AWS S3, this environment variable should be empty
 		endpoint := os.Getenv("MINIO_ENDPOINT_URL")
 		if endpoint != "" {
 			o.UsePathStyle = true
