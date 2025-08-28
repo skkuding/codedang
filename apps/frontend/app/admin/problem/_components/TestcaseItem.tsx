@@ -93,7 +93,7 @@ export function TestcaseItem({
               <button
                 type="button"
                 onClick={() => {
-                  setValue(`testcases.${index}.scoreWeight`, null)
+                  setValue(`testcases.${index}.scoreWeight`, undefined)
                   setValue(`testcases.${index}.scoreWeightNumerator`, null)
                   setValue(`testcases.${index}.scoreWeightDenominator`, null)
                 }}
@@ -108,7 +108,7 @@ export function TestcaseItem({
               {...register(`testcases.${index}.scoreWeight`, {
                 setValueAs: (value) => {
                   if (isInvalid(value)) {
-                    return null
+                    return undefined
                   }
                   return Number(value)
                 },

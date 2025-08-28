@@ -38,7 +38,7 @@ export class TestcaseService {
     // 2. numerator and denominator(User use Equal Distribution feature)
     const { scoreWeightNumerator, scoreWeightDenominator } = testcase
 
-    if (testcase.scoreWeight !== null && testcase.scoreWeight !== undefined) {
+    if (testcase.scoreWeight !== undefined) {
       return {
         numerator: testcase.scoreWeight,
         denominator: 100

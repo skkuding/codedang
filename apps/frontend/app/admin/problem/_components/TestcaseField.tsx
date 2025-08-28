@@ -58,7 +58,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const addTestcase = (isHidden: boolean) => {
     setValue('testcases', [
       ...getValues('testcases'),
-      { input: '', output: '', isHidden, scoreWeight: null }
+      { input: '', output: '', isHidden, scoreWeight: undefined }
     ])
   }
 
@@ -72,7 +72,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       input: testcase.input,
       output: testcase.output,
       isHidden,
-      scoreWeight: null
+      scoreWeight: undefined
     }))
 
     setValue('testcases', [...currentTestcases, ...newTestcases])
@@ -162,7 +162,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       if (isInvalid(tc.scoreWeight)) {
         return {
           ...tc,
-          scoreWeight: null,
+          scoreWeight: undefined,
           scoreWeightNumerator: finalNumerator,
           scoreWeightDenominator: finalDenominator
         }
@@ -178,7 +178,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     const updatedTestcases = currentValues.map((tc) => {
       return {
         ...tc,
-        scoreWeight: null,
+        scoreWeight: undefined,
         scoreWeightNumerator: null,
         scoreWeightDenominator: null
       }
