@@ -5,17 +5,18 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/environment: 'production'
 spec:
-  destination:
-    name: production
+  project: default
   source:
     path: apps/k8s/internal
     repoURL: https://github.com/skkuding/codedang
     targetRevision: main
     directory:
       recurse: true
-  sources: []
-  project: default
+  destination:
+    name: production
   syncPolicy:
     automated:
       prune: true

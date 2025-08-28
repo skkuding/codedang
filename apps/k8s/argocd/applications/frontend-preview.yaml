@@ -20,6 +20,8 @@ spec:
       name: '{{.number}}-preview-frontend'
       finalizers:
         - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: 'preview'
       annotations:
         appName: 'frontend'
         previewURL: 'https://{{.number}}.preview.codedang.com'
