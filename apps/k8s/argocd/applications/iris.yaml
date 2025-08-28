@@ -20,6 +20,8 @@ spec:
       name: 'iris-{{.env}}'
       finalizers:
         - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
       annotations:
         argocd-image-updater.argoproj.io/image-list: 'iris=ghcr.io/skkuding/codedang-iris:{{.env}}'
         argocd-image-updater.argoproj.io/iris.update-strategy: digest # Always pull the latest image of given tag
