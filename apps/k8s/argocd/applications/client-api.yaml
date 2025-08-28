@@ -6,6 +6,11 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
+  # Required for argocd-image-updater to make changes to the Application
+  # Otherwise, the changed image will be reverted to the original one by this ApplicationSet controller
+  ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/source/kustomize/images
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
   generators:
@@ -34,9 +39,6 @@ spec:
         directory:
           # kustomization.yaml is ignored if recurse is true
           recurse: false
-        kustomize:
-          images:
-            - 'ghcr.io/skkuding/codedang-client-api:{{.env}}'
       destination:
         namespace: client-api
         name: '{{.env}}'
