@@ -35,7 +35,7 @@ export function InputForm({
   } = useFormContext()
 
   const watchedValue = watch(name)
-  const inputCount = String(value ?? watchedValue ?? '').length
+  const inputCount = String(value || watchedValue || '').length
 
   return (
     <div className={cn(className, 'flex w-full flex-col gap-1')}>
