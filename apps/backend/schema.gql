@@ -526,7 +526,6 @@ type CheckRequest {
   _count: CheckRequestCount!
   assignment: Assignment
   assignmentId: Int
-  checkPreviousSubmission: Boolean!
   contest: Contest
   contestId: Int
   createTime: DateTime!
@@ -561,7 +560,6 @@ type CheckRequestCount {
 type CheckRequestCountAggregate {
   _all: Int!
   assignmentId: Int!
-  checkPreviousSubmission: Int!
   contestId: Int!
   createTime: Int!
   enableMerging: Int!
@@ -577,7 +575,6 @@ type CheckRequestCountAggregate {
 
 type CheckRequestMaxAggregate {
   assignmentId: Int
-  checkPreviousSubmission: Boolean
   contestId: Int
   createTime: DateTime
   enableMerging: Boolean
@@ -593,7 +590,6 @@ type CheckRequestMaxAggregate {
 
 type CheckRequestMinAggregate {
   assignmentId: Int
-  checkPreviousSubmission: Boolean
   contestId: Int
   createTime: DateTime
   enableMerging: Boolean

@@ -22,11 +22,6 @@ const PUBLISH_RESULT = "Publish"
 // const BASE_DIR = "./results"
 // const SANDBOX_BASE = "/app/sandbox" // for docker, FIXME: 환경변수로 설정
 
-const SANDBOX_BASE = "./lib/judger" // for local
-const RESULT_PATH = SANDBOX_BASE + "/results"
-const LIBJUDGER_PATH = SANDBOX_BASE + "/libjudger.so"
-const JAVA_POLICY_PATH = SANDBOX_BASE + "/policy/java_policy"
-
 // const BASE_DIR = "/go/src/workspace/results"
 const BASE_FILE_MODE = 0711
 
@@ -47,10 +42,10 @@ const (
 const MAX_MQ_CHANNEL = 10
 
 const TESTCASE_GET_TIMEOUT = 10
-const TOKEN_HEADER = "judge-server-token"
+const TOKEN_HEADER = "check-server-token"
 
 const (
-	EXCHANGE   = "judger-exchange"
+	EXCHANGE   = "check-exchange"
 	RESULT_KEY = "result"
 )
 
