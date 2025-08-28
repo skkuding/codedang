@@ -1,20 +1,19 @@
 'use client'
 
 import { Modal } from '@/components/Modal'
-import { ModalSection } from '@/components/ModalSection'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { Skeleton } from '@/components/shadcn/skeleton'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/shadcn/tooltip'
 import { GET_BELONGED_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
+import arrowRight from '@/public/icons/arrow-right.svg'
 import fileInfoIcon from '@/public/icons/file-info.svg'
+import filePen from '@/public/icons/file-pen.svg'
+import infoGray from '@/public/icons/info-gray.svg'
+import prize from '@/public/icons/prize.svg'
+import taskComplete from '@/public/icons/task-complete.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
-import { useState } from 'react'
+import Link from 'next/link'
 
 interface ProblemUsageProps {
   problemId: number
@@ -22,12 +21,178 @@ interface ProblemUsageProps {
   showAssignment?: boolean
 }
 
+interface ProblemSectionProps {
+  contents?:
+    | {
+        id: string
+        title: string
+        week: number
+        isExercise: boolean
+        group?: {
+          groupName?: string | null
+          courseInfo?: {
+            courseNum?: string | null
+            classNum?: number | null
+          } | null
+        } | null
+      }[]
+    | null
+}
+
+interface ContestSectionProps {
+  contents?: {
+    id: string
+    title: string
+  }[]
+}
+
+function HeaderSection({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-[6px] self-stretch">
+      <div className="bg-primary w-[6px] self-stretch rounded-[1px]" />
+      <span className="font-pretendard text-[18px] font-medium leading-[140%] tracking-[-0.54px] text-black">
+        {label}
+      </span>
+    </div>
+  )
+}
+
+function AssignmentProblemSection({ contents }: ProblemSectionProps) {
+  console.log(contents)
+  return (
+    <div className="flex flex-col gap-[10px]">
+      {contents?.map(
+        (content) =>
+          content.isExercise === false && (
+            <Link
+              key={content.id}
+              href={`/course/${content.group?.courseInfo?.classNum}/assignment`}
+            >
+              <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-[20px] py-[18px]">
+                <div className="flex items-start gap-[10px]">
+                  <Image src={filePen} alt="filePen" className="h-6 w-6" />
+
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-[2px]">
+                      <span className="font-pretendard">
+                        [Weekly Assignment] Week {content.week}
+                      </span>
+                      <Image
+                        src={arrowRight}
+                        alt="arrowRight"
+                        className="text-color-black h-3 w-3"
+                      />
+                    </div>
+
+                    <span className="text-color-neutral-50 text-sm">
+                      [{content.group?.courseInfo?.courseNum}-
+                      {content.group?.courseInfo?.classNum}]
+                      <span> {content.group?.groupName}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )
+      )}
+    </div>
+  )
+}
+
+function ContestProblemSection({ contents }: ContestSectionProps) {
+  console.log(contents)
+  return (
+    <div className="flex flex-col gap-[10px]">
+      {contents?.map((content) => (
+        <Link key={content.id} href={`/contest/${content.id}`}>
+          <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-[20px] py-[18px]">
+            <div className="flex items-start gap-[10px]">
+              <Image src={prize} alt="prize" />
+
+              <div className="flex items-center gap-[2px] self-stretch hover:brightness-110">
+                <span>{content.title}</span>
+                <Image
+                  src={arrowRight}
+                  alt="arrowRight"
+                  className="text-color-black h-3 w-3"
+                />
+              </div>
+            </div>
+          </div>
+        </Link>
+      ))}
+    </div>
+  )
+}
+
+function ExcerciseProblemSection({ contents }: ProblemSectionProps) {
+  console.log(contents)
+  return (
+    <div className="flex flex-col gap-[10px]">
+      {contents?.map(
+        (content) =>
+          content.isExercise === true && (
+            <Link
+              key={content.id}
+              href={`/course/${content.group?.courseInfo?.classNum}/excercise`}
+            >
+              <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-[20px] py-[18px]">
+                <div className="flex items-start gap-[10px]">
+                  <Image
+                    src={taskComplete}
+                    alt="taskComplete"
+                    className="h-6 w-6"
+                  />
+
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-[2px]">
+                      <span className="font-pretendard">
+                        [Weekly Assignment] Week {content.week}
+                      </span>
+                      <Image
+                        src={arrowRight}
+                        alt="arrowRight"
+                        className="text-color-black h-3 w-3"
+                      />
+                    </div>
+
+                    <span className="text-color-neutral-50 text-sm">
+                      [{content.group?.courseInfo?.courseNum}-
+                      {content.group?.courseInfo?.classNum}]
+                      <span> {content.group?.groupName}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )
+      )}
+    </div>
+  )
+}
+
+function NoContentsSection({ label }: { label: string }) {
+  return (
+    <div className="bg-color-neutral-99 flex flex-col items-center justify-center gap-1 self-stretch rounded-lg px-5 pb-10 pt-7">
+      <div className="text-color-neutral-80 relative h-7 w-7 overflow-hidden">
+        <Image
+          src={infoGray}
+          alt="infoIcon"
+          className="absolute left-[2.40px] top-[2.40px] h-6 w-6"
+        />
+      </div>
+      <div className="text-color-neutral-80 justify-start self-stretch text-center text-base font-medium">
+        No {label} have used this problem
+      </div>
+    </div>
+  )
+}
+
 export function ProblemUsage({
   problemId,
   showContest = false,
   showAssignment = false
 }: ProblemUsageProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const { data: contestData, loading: contestLoading } = useQuery(
     GET_BELONGED_CONTESTS,
     {
@@ -49,74 +214,92 @@ export function ProblemUsage({
   const contestDataResult = contestData?.getContestsByProblemId
   const assignmentDataResult = assignmentData?.getAssignmentsByProblemId
 
-  const getModalTitle = () => {
-    const parts = []
-    if (showContest) {
-      parts.push('Contests')
-    }
-    if (showAssignment) {
-      parts.push('Assignments')
-    }
+  const hasAssignments =
+    (assignmentDataResult?.upcoming?.filter((a) => !a.isExercise).length ?? 0) >
+      0 ||
+    (assignmentDataResult?.ongoing?.filter((a) => !a.isExercise).length ?? 0) >
+      0 ||
+    (assignmentDataResult?.finished?.filter((a) => !a.isExercise).length ?? 0) >
+      0
 
-    return parts.length > 0
-      ? `${parts.join('/')} with this problem`
-      : 'Usage of this problem'
-  }
+  const hasContests =
+    (contestDataResult?.upcoming?.length ?? 0) > 0 ||
+    (contestDataResult?.ongoing?.length ?? 0) > 0 ||
+    (contestDataResult?.finished?.length ?? 0) > 0
+
+  const hasExcercises =
+    (assignmentDataResult?.upcoming?.filter((a) => a.isExercise).length ?? 0) >
+      0 ||
+    (assignmentDataResult?.ongoing?.filter((a) => a.isExercise).length ?? 0) >
+      0 ||
+    (assignmentDataResult?.finished?.filter((a) => a.isExercise).length ?? 0) >
+      0
 
   if (contestLoading || assignmentLoading) {
     return <Skeleton className="size-[25px]" />
   }
-  return contestDataResult && assignmentDataResult ? (
-    <>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              className="flex items-center justify-center"
-              onClick={() => {
-                setIsModalOpen(true)
-              }}
-            >
-              <Image src={fileInfoIcon} alt="fileinfo" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent className="mr-4 bg-white">
-            <p className="text-xs text-neutral-900">
-              Click to check which contests include this problem.
-            </p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <Modal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        size={'md'}
-        type={'custom'}
-        title={getModalTitle()}
-      >
-        <ModalSection
-          title="Upcoming"
-          items={[
-            ...(contestDataResult?.upcoming ?? []).map((item) => item.title),
-            ...(assignmentDataResult?.upcoming ?? []).map((item) => item.title)
-          ]}
-        />
-        <ModalSection
-          title="Ongoing"
-          items={[
-            ...(contestDataResult?.ongoing ?? []).map((item) => item.title),
-            ...(assignmentDataResult?.ongoing ?? []).map((item) => item.title)
-          ]}
-        />
-        <ModalSection
-          title="Finished"
-          items={[
-            ...(contestDataResult?.finished ?? []).map((item) => item.title),
-            ...(assignmentDataResult?.finished ?? []).map((item) => item.title)
-          ]}
-        />
-      </Modal>
-    </>
-  ) : null
+  return (
+    <Modal
+      size="lg"
+      type="custom"
+      title="Using this problem"
+      headerDescription="This problem is used in the following contexts"
+      trigger={<Image src={fileInfoIcon} alt="fileinfo" />}
+    >
+      <ScrollArea className="h-full w-full">
+        <div className="border-line flex min-h-0 flex-col items-start gap-[30px] self-stretch rounded-[16px] border bg-white p-[30px]">
+          <div className="flex flex-col gap-3 self-stretch">
+            <HeaderSection label="Assignment" />
+            {hasAssignments ? (
+              <div className="flex w-full flex-col">
+                <AssignmentProblemSection
+                  contents={[
+                    ...(assignmentDataResult?.upcoming ?? []),
+                    ...(assignmentDataResult?.ongoing ?? []),
+                    ...(assignmentDataResult?.finished ?? [])
+                  ]}
+                />
+              </div>
+            ) : (
+              <NoContentsSection label="assignments" />
+            )}
+          </div>
+
+          <div className="flex flex-col items-start gap-3 self-stretch">
+            <HeaderSection label="Contest" />
+            {hasContests ? (
+              <div className="flex w-full flex-col">
+                <ContestProblemSection
+                  contents={[
+                    ...(contestDataResult?.upcoming ?? []),
+                    ...(contestDataResult?.ongoing ?? []),
+                    ...(contestDataResult?.finished ?? [])
+                  ]}
+                />
+              </div>
+            ) : (
+              <NoContentsSection label="contests" />
+            )}
+          </div>
+
+          <div className="flex flex-col items-start gap-3 self-stretch">
+            <HeaderSection label="Exercise" />
+            {hasExcercises ? (
+              <div className="flex w-full flex-col">
+                <ExcerciseProblemSection
+                  contents={[
+                    ...(assignmentDataResult?.upcoming ?? []),
+                    ...(assignmentDataResult?.ongoing ?? []),
+                    ...(assignmentDataResult?.finished ?? [])
+                  ]}
+                />
+              </div>
+            ) : (
+              <NoContentsSection label="excercises" />
+            )}
+          </div>
+        </div>
+      </ScrollArea>
+    </Modal>
+  )
 }

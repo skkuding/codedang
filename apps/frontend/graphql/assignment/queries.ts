@@ -36,27 +36,54 @@ const GET_ASSIGNMENTS = gql(`
 
 const GET_BELONGED_ASSIGNMENTS = gql(`
   query GetAssignmentsByProblemId($problemId: Int!) {
-    getAssignmentsByProblemId(problemId: $problemId) {
-      upcoming {
-        id
-        title
-        problemScore
-        totalScore
-      }
-      ongoing {
-        id
-        title
-        problemScore
-        totalScore
-      }
-      finished {
-        id
-        title
-        problemScore
-        totalScore
+  getAssignmentsByProblemId(problemId: $problemId) {
+        upcoming {
+          id
+          title
+          isExercise
+          week
+          problemScore
+          totalScore
+          group {
+            groupName
+            courseInfo {
+              courseNum
+              classNum
+            }
+          }
+        }
+        ongoing {
+          id
+          title
+          isExercise
+          week
+          problemScore
+          totalScore
+          group {
+            groupName
+            courseInfo {
+              courseNum
+              classNum
+            }
+          }
+        }
+        finished {
+          id
+          title
+          isExercise
+          week
+          problemScore
+          totalScore
+          group {
+            groupName
+            courseInfo {
+              courseNum
+              classNum
+            }
+          }
+        }
       }
     }
-  }
 `)
 
 const GET_ASSIGNMENT_SCORE_SUMMARIES = gql(`
