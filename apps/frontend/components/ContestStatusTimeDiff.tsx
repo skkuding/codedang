@@ -33,6 +33,7 @@ export function ContestStatusTimeDiff({
 }) {
   const router = useRouter()
   const { problemId } = useParams()
+  const now = dayjs()
 
   const [contestStatus, setContestStatus] = useState<
     ContestStatus | undefined | null
@@ -52,7 +53,6 @@ export function ContestStatusTimeDiff({
   })
 
   const updateContestStatus = () => {
-    const now = dayjs()
     if (now.isAfter(contest.endTime)) {
       setContestStatus('finished')
     } else if (now.isAfter(contest.startTime)) {
@@ -186,7 +186,7 @@ export function ContestStatusTimeDiff({
       >
         <Image src={emergencyIcon} alt="emergency" width={20} height={20} />
         <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-          {registerTimeDiff.days > 0
+          {now.isBefore(contest.registerDueTime)
             ? `Join within ${registerTimeDiff.hours}:${registerTimeDiff.minutes}:${registerTimeDiff.seconds}`
             : `Registration is closed !`}
         </p>
