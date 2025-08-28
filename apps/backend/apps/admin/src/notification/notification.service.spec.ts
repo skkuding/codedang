@@ -5,6 +5,7 @@ import type { Assignment, Notification } from '@prisma/client'
 import { NotificationType } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
+import * as webpush from 'web-push'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@admin/assignment/assignment.service'
 import { NotificationService } from './notification.service'
@@ -48,9 +49,9 @@ const assignmentInfoForGraded = {
   title: assignment.title,
   group: {
     id: groupId,
-    groupName: 'Test Group'
-  },
-  assignmentRecord: [{ userId: 1 }, { userId: 2 }]
+    groupName: 'Test Group',
+    userGroup: [{ userId: 1 }, { userId: 2 }]
+  }
 }
 
 const notification: Notification = {
@@ -64,6 +65,9 @@ const notification: Notification = {
 
 const db = {
   assignment: {
+    findUnique: stub()
+  },
+  contest: {
     findUnique: stub()
   },
   notification: {
@@ -104,6 +108,7 @@ describe('NotificationService', () => {
 
   afterEach(() => {
     db.assignment.findUnique.reset()
+    db.contest.findUnique.reset()
     db.notification.create.reset()
     db.notificationRecord.createMany.reset()
     db.pushSubscription.findMany.reset()
@@ -130,10 +135,12 @@ describe('NotificationService', () => {
           where: { id: assignmentId },
           select: {
             title: true,
-            group: { select: { id: true, groupName: true } },
-            assignmentRecord: {
-              where: { userId: { not: null } },
-              select: { userId: true }
+            group: {
+              select: {
+                id: true,
+                groupName: true,
+                userGroup: { select: { userId: true } }
+              }
             }
           }
         })
@@ -147,8 +154,7 @@ describe('NotificationService', () => {
     it('should not create notification when no receivers found', async () => {
       db.assignment.findUnique.resolves({
         title: assignment.title,
-        group: { id: groupId, groupName: 'Test Group' },
-        assignmentRecord: []
+        group: { id: groupId, groupName: 'Test Group', userGroup: [] }
       })
 
       await service.notifyAssignmentGraded(assignmentId)
@@ -246,6 +252,7 @@ describe('NotificationService', () => {
       const assignmentInfoEmpty = {
         title: assignment.title,
         group: {
+          id: groupId,
           groupName: 'Test Group',
           userGroup: []
         }
@@ -281,6 +288,113 @@ describe('NotificationService', () => {
       await service.notifyAssignmentCreated(assignmentId)
 
       expect(db.pushSubscription.findMany.calledOnce).to.be.true
+    })
+  })
+
+  describe('notifyAssignmentDue', () => {
+    it('should create notification with timing 1 day when dueTime is far', async () => {
+      const dueTime = new Date(Date.now() + 25 * 60 * 60 * 1000)
+      db.assignment.findUnique.resolves({
+        title: assignment.title,
+        dueTime,
+        group: {
+          id: groupId,
+          groupName: 'Test Group',
+          userGroup: [{ userId: 1 }, { userId: 2 }]
+        }
+      })
+      db.notification.create.resolves(notification)
+      db.notificationRecord.createMany.resolves({ count: 2 })
+      db.pushSubscription.findMany.resolves([])
+
+      await service.notifyAssignmentDue(assignmentId)
+
+      expect(db.notification.create.calledOnce).to.be.true
+      const createCall = db.notification.create.getCall(0)
+      expect(createCall.args[0].data.message).to.include('due in 1 day')
+      expect(createCall.args[0].data.type).to.equal(NotificationType.Assignment)
+    })
+
+    it('should create notification with timing 3 hours when dueTime is near', async () => {
+      const dueTime = new Date(Date.now() + 2 * 60 * 60 * 1000)
+      db.assignment.findUnique.resolves({
+        title: assignment.title,
+        dueTime,
+        group: {
+          id: groupId,
+          groupName: 'Test Group',
+          userGroup: [{ userId: 1 }]
+        }
+      })
+      db.notification.create.resolves(notification)
+      db.notificationRecord.createMany.resolves({ count: 1 })
+      db.pushSubscription.findMany.resolves([])
+
+      await service.notifyAssignmentDue(assignmentId)
+
+      const createCall = db.notification.create.getCall(0)
+      expect(createCall.args[0].data.message).to.include('due in 3 hours')
+    })
+
+    it('should handle missing assignment info gracefully', async () => {
+      db.assignment.findUnique.resolves(null)
+      await service.notifyAssignmentDue(assignmentId)
+      expect(db.notification.create.called).to.be.false
+      expect(db.notificationRecord.createMany.called).to.be.false
+    })
+  })
+
+  describe('notifyContestStartingSoon', () => {
+    it('should notify only participants and use contest type', async () => {
+      db.notification.create.resolves({
+        ...notification,
+        message: 'x',
+        type: NotificationType.Contest
+      })
+      db.notificationRecord.createMany.resolves({ count: 1 })
+      db.pushSubscription.findMany.resolves([])
+
+      db.contest.findUnique.resolves({
+        title: 'Contest Title',
+        userContest: [{ userId: 42 }, { userId: null }]
+      })
+
+      await service.notifyContestStartingSoon(99)
+
+      expect(db.contest.findUnique.calledOnce).to.be.true
+      const createCall = db.notification.create.getCall(0)
+      expect(createCall.args[0].data.type).to.equal(NotificationType.Contest)
+      expect(db.pushSubscription.findMany.calledOnce).to.be.true
+    })
+  })
+
+  describe('sendPushNotification deletion on 410', () => {
+    it('should delete expired subscription when webpush returns 410', async () => {
+      const sendStub = stub(webpush, 'sendNotification').rejects({
+        statusCode: 410
+      })
+
+      db.pushSubscription.findMany.resolves([
+        {
+          id: 99,
+          userId: 1,
+          endpoint: 'https://example.com/ep',
+          p256dh: 'p',
+          auth: 'a'
+        }
+      ])
+
+      db.assignment.findUnique.resolves(assignmentInfo)
+      db.notification.create.resolves(notification)
+      db.notificationRecord.createMany.resolves({ count: 3 })
+
+      await service.notifyAssignmentCreated(assignmentId)
+
+      expect(db.pushSubscription.delete.calledOnce).to.be.true
+      const delCall = db.pushSubscription.delete.getCall(0)
+      expect(delCall.args[0]).to.deep.equal({ where: { id: 99 } })
+
+      sendStub.restore()
     })
   })
 })

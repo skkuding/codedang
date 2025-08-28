@@ -49,7 +49,7 @@ export const DateTimePickerDemo = ({
           variant={'outline'}
           className={cn(
             'h-[36px] justify-start text-left font-normal',
-            isContest ? 'w-[492px]' : 'w-[255px]',
+            isContest ? 'w-[492px]' : 'w-[280px]',
             !date && 'text-muted-foreground'
           )}
         >
