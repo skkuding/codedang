@@ -5,6 +5,8 @@ metadata:
   namespace: minio
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/environment: 'stage'
 spec:
   project: default
   source:
