@@ -33,7 +33,7 @@ export function QnAPostButton({ contestId, canCreateQnA }: QnAPostButtonProps) {
         onOpenChange={setModalOpen}
         size="sm"
         type="warning"
-        // showCancelButton={false}
+        showCancelButton={false}
         title="Access Denied"
         description={
           'You are not authorized to access this page.\nPlease check your account permissions.'
