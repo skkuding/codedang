@@ -23,7 +23,7 @@ export class SubmissionController {
     @Param('assignmentId', IDValidationPipe) assignmentId: number,
     @Param('problemId', IDValidationPipe) problemId: number,
     @Req() req: AuthenticatedRequest,
-    @Res() res: Response
+    @Res({ passthrough: true }) res: Response
   ) {
     await this.submissionService.downloadSourceCodes(
       groupId,
