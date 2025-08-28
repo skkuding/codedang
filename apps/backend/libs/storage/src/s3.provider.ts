@@ -2,6 +2,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { S3Client } from '@aws-sdk/client-s3'
 
 export const S3Provider = {
+  provide: S3Client,
   import: [ConfigModule],
   inject: [ConfigService],
   useFactory: async (config: ConfigService) => {
