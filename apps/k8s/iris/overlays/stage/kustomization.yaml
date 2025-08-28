@@ -6,3 +6,9 @@ resources:
   - ../../base
   - database-credentials.yaml
   - minio-credentials.yaml
+
+patches:
+  - path: configmap.yaml
+    target:
+      kind: ConfigMap
+      name: iris-env
