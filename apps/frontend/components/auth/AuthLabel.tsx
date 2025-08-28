@@ -1,3 +1,4 @@
+import { GiGraduateCap } from 'react-icons/gi'
 import { IoIosLock } from 'react-icons/io'
 import { IoPerson } from 'react-icons/io5'
 
@@ -18,6 +19,28 @@ export function PasswordLabel() {
       <IoIosLock className="text-primary h-4 w-4" />
       <span className="text-color-neutral-30 text-base font-normal">
         Password
+      </span>
+    </div>
+  )
+}
+
+export function RealNameLabel() {
+  return (
+    <div className="flex items-center gap-1">
+      <IoPerson className="text-primary h-4 w-4" />
+      <span className="text-color-neutral-30 text-base font-normal">
+        Real Name
+      </span>
+    </div>
+  )
+}
+
+export function StudentIDLabel() {
+  return (
+    <div className="flex items-center gap-1">
+      <GiGraduateCap className="text-primary h-4 w-4" />
+      <span className="text-color-neutral-30 text-base font-normal">
+        Student ID
       </span>
     </div>
   )

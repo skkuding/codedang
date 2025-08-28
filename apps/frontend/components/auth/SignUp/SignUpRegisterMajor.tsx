@@ -122,7 +122,7 @@ function VisibleButton({ isVisible, setIsVisible }: VisibleButtonProps) {
   )
 }
 
-export function SignUpRegisterInfo() {
+export function SignUpRegisterMajor() {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true)
 
   return (

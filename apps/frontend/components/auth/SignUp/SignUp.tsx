@@ -4,6 +4,7 @@ import { Progress } from '@/components/shadcn/progress'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { IoMdArrowBack } from 'react-icons/io'
 import { SignUpRegisterAccount } from './SignUpRegisterAccount'
+import { SignUpRegisterInfo } from './SignUpRegisterInfo2'
 import { SignUpVerifyEmail } from './SignUpVerifyEmail'
 import { SignUpWelcome } from './SignUpWelcome'
 
@@ -30,7 +31,7 @@ export function SignUp() {
         />
       )}
 
-      {modalPage === 0 && <SignUpRegisterAccount />}
+      {modalPage === 0 && <SignUpRegisterInfo />}
       {modalPage === 1 && <SignUpVerifyEmail />}
       {modalPage === 2 && <SignUpRegisterAccount />}
       {modalPage === 3 && <SignUpWelcome />}
