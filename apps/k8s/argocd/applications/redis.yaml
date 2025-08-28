@@ -25,7 +25,7 @@ spec:
       sources:
         - repoURL: https://ot-container-kit.github.io/helm-charts
           chart: redis
-          targetRevision: 7.0.15
+          targetRevision: 0.16.5
           helm:
             valueFiles:
               - $codedang/apps/k8s/redis/values.yaml
