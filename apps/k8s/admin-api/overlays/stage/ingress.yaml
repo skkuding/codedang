@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: admin-api-server-ingress
+  namespace: admin-api
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - k8s-test.stage.codedang.com
+      secretName: admin-api-server-tls
+  rules:
+    - host: k8s-test.stage.codedang.com
+      http:
+        paths:
+          - path: /graphql
+            pathType: Prefix
+            backend:
+              service:
+                name: admin-api-server
+                port:
+                  number: 3000
