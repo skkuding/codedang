@@ -22,7 +22,7 @@ import dayjs from 'dayjs'
 import { useState, useEffect, useMemo } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
-import { createColumns } from './Columns'
+import { createColumns } from './ColumnsByProblem'
 import { ProblemSelectDropdown } from './DataTableProblemFilterSingle'
 
 interface ParticipantTableProps {
@@ -31,7 +31,7 @@ interface ParticipantTableProps {
   assignmentId: number
 }
 
-export function ParticipantTable({
+export function ParticipantTableByProblem({
   courseId,
   groupId,
   assignmentId
@@ -236,7 +236,7 @@ export function ParticipantTable({
           <p className="font-medium">
             <span className="text-primary font-bold">
               {summariesData.length}
-            </span>
+            </span>{' '}
             Participants
           </p>
           <ProblemSelectDropdown
