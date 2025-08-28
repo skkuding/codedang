@@ -1,8 +1,10 @@
+import { Button } from '@/components/shadcn/button'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { GetContestQnaQuery } from '@generated/graphql'
+import { HiTrash } from 'react-icons/hi'
 import { QnaCommentArea } from './_components/QnaCommentArea'
 import { QnaContentArea } from './_components/QnaContentArea'
-import { QnaDeleteButton } from './_components/QnaDeleteButton'
+import { QnaDetailDeleteButton } from './_components/QnaDetailDeleteButton'
 import { ErrorPage } from './_components/QnaErrorPage'
 
 type PageProps = {
@@ -96,13 +98,30 @@ export default async function QnaDetailPage({ params }: PageProps) {
     isContestStaff || userId === QnaData.createdById || notOngoing
   const deleteQnaUrl = `contest/${contestId}/qna/${qnaId}`
 
+  const QnaDeleteTrigger = (
+    <Button
+      variant="outline"
+      className="border-primary hover:bg-color-blue-90 cursor-pointer rounded-sm border-[1px]"
+      asChild
+    >
+      <div className="text-primary flex h-auto items-center justify-center gap-[4px] px-[10px] py-[6px]">
+        <HiTrash fontSize={20} />
+        <p className="text-sm font-medium tracking-[-3%]">Delete</p>
+      </div>
+    </Button>
+  )
+
   return (
     <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 gap-[50px] px-[116px] leading-[150%] tracking-[-3%]">
       <QnaContentArea
         QnaData={QnaData}
         DeleteButtonComponent={
           canDeleteQna ? (
-            <QnaDeleteButton subject="question" DeleteUrl={deleteQnaUrl} />
+            <QnaDetailDeleteButton
+              subject="question"
+              DeleteUrl={deleteQnaUrl}
+              trigger={QnaDeleteTrigger}
+            />
           ) : undefined
         }
       />
