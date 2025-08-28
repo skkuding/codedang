@@ -5,7 +5,6 @@ import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
-  ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
