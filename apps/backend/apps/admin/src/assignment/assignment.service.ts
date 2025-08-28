@@ -930,12 +930,7 @@ export class AssignmentService {
       },
       select: {
         assignment: {
-          select: {
-            id: true,
-            title: true,
-            isExercise: true,
-            startTime: true,
-            endTime: true,
+          include: {
             group: {
               select: {
                 groupName: true,
