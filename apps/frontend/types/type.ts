@@ -548,3 +548,14 @@ export interface Notification {
   isRead: boolean
   createTime: string
 }
+export interface QnaFormData {
+  title: string
+  content: string
+  selectedProblem: string
+  selectedProblemLabel: string
+}
+
+export interface ProblemOption {
+  value: string
+  label: string
+}
