@@ -82,6 +82,9 @@ model User {
   PushSubscription   PushSubscription[]
 
   @@map("user")
+  CourseNotice CourseNotice[]
+  CourseNoticeRecord CourseNoticeRecord[]
+  CourseNoticeComment CourseNoticeComment[]
 }
 
 model UserOAuth {
@@ -149,6 +152,7 @@ model Group {
   sharedProblems Problem[]
 
   @@map("group")
+  CourseNotice CourseNotice[]
 }
 
 model GroupWhitelist {
@@ -188,6 +192,59 @@ model Notice {
   updateTime  DateTime @updatedAt @map("update_time")
 
   @@map("notice")
+}
+
+model CourseNotice {
+  id          Int      @id @default(autoincrement())
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     Int      @map("group_id")
+  problem     Problem?    @relation(fields: [problemId], references: [id], onDelete: SetNull)
+  problemId   Int?     @map("problem_id")
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?     @map("created_by_id")
+  title       String
+  content     String
+  isVisible   Boolean  @default(true) @map("is_visible")
+  isFixed     Boolean  @default(false) @map("is_fixed")
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
+
+  @@map("course_notice")
+  CourseNoticeRecord CourseNoticeRecord[]
+  CourseNoticeComment CourseNoticeComment[]
+}
+
+model CourseNoticeRecord {
+  id             Int          @id @default(autoincrement())
+  courseNotice   CourseNotice @relation(fields: [courseNoticeId], references: [id], onDelete: Cascade)
+  courseNoticeId Int          @map("course_notice_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int          @map("user_id")
+  isRead         Boolean      @default(false) @map("is_read")
+  createTime     DateTime     @default(now()) @map("create_time")
+
+  @@index([userId, createTime, id])
+  @@map("course_notice_record")
+}
+
+model CourseNoticeComment {
+  id             Int          @id @default(autoincrement())
+  // Notice 내부 순서 (대댓글이 아닌 경우)
+  order          Int?
+  // Notice 및 대댓글 내부 순서 (대댓글인 경우)
+  nestedOrder    Int?         @map("nested_order")
+  createdBy      User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById    Int?         @map("created_by_id")
+  replyOn        CourseNoticeComment?        @relation("ReplyOn", fields: [replyOnId], references: [id], onDelete: SetNull)
+  replyOnId      Int?                        @map("reply_on_id")
+  content        String
+  courseNotice   CourseNotice @relation(fields: [courseNoticeId], references: [id], onDelete: Cascade)
+  courseNoticeId Int          @map("course_notice_id")
+  createdTime    DateTime     @default(now()) @map("create_time")
+
+  @@unique([courseNoticeId, order])
+  @@map("course_notice_comment")
+  CourseNoticeComment CourseNoticeComment[] @relation("ReplyOn")
 }
 
 model Problem {
@@ -249,6 +306,7 @@ model Problem {
   testSubmission TestSubmission[]
 
   @@map("problem")
+  CourseNotice CourseNotice[]
 }
 
 model UpdateHistory {
