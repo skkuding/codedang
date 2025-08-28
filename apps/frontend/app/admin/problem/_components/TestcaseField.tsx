@@ -26,7 +26,8 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     formState: { errors },
     getValues,
     setValue,
-    control
+    control,
+    trigger
   } = useFormContext()
 
   const watchedItems: Testcase[] = useWatch({ name: 'testcases', control })
@@ -169,7 +170,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       }
       return tc
     })
-
+    trigger('testcases')
     setValue('testcases', updatedTestcases)
   }
 

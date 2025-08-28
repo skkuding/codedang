@@ -1,5 +1,4 @@
 import { cn } from '@/libs/utils'
-import type { Testcase } from '@generated/graphql'
 import {
   type FieldErrorsImpl,
   useController,
@@ -28,16 +27,15 @@ export function TestcaseItem({
   onSelect,
   isSelected
 }: TestcaseItemProps) {
-  const { control, getValues, register, setValue } = useFormContext()
+  const { control, getValues, register, setValue, trigger } = useFormContext()
 
   const { field: isHiddenField } = useController({
     name: `testcases.${index}.isHidden`,
     control
   })
 
-  const scoreWeightError = (itemError?.[index] as FieldErrorsImpl<Testcase>)
-    ?.scoreWeight
-  const message = scoreWeightError?.message
+  const scoreWeightError = itemError?.[index]
+  const message = scoreWeightError?.root?.message
 
   return (
     <div className="flex flex-col gap-3">
@@ -88,19 +86,8 @@ export function TestcaseItem({
                     getValues(`testcases.${index}.scoreWeightDenominator`)) *
                   100
                 ).toFixed(2)}`}
-                className="hide-spin-button h-7 w-24 rounded-[1000px] border px-2 py-1 text-center"
+                className="hide-spin-button bg-color-neutral-99 h-7 w-24 rounded-[1000px] border px-2 py-1 text-center"
               />
-              <button
-                type="button"
-                onClick={() => {
-                  setValue(`testcases.${index}.scoreWeight`, undefined)
-                  setValue(`testcases.${index}.scoreWeightNumerator`, null)
-                  setValue(`testcases.${index}.scoreWeightDenominator`, null)
-                }}
-                className="absolute right-2 text-gray-500 hover:text-red-500"
-              >
-                &#x2715;
-              </button>
             </div>
           ) : (
             <input
@@ -115,7 +102,7 @@ export function TestcaseItem({
                 onChange: (e) => {
                   const numericValue = e.target.value.replace(/\D/g, '')
                   e.target.value = numericValue
-
+                  trigger(`testcases.${index}`)
                   setValue(`testcases.${index}.scoreWeightNumerator`, null)
                   setValue(`testcases.${index}.scoreWeightDenominator`, null)
                 }

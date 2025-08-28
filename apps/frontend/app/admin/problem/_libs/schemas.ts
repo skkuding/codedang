@@ -25,7 +25,9 @@ const commonSchema = v.object({
           input: v.string(),
           output: v.string(),
           isHidden: v.boolean(),
-          scoreWeight: v.undefinedable(v.pipe(v.number(), v.minValue(0))),
+          scoreWeight: v.optional(
+            v.pipe(v.number(), v.integer(), v.minValue(0))
+          ),
           scoreWeightNumerator: v.nullable(
             v.pipe(v.number(), v.integer(), v.minValue(0))
           ),
@@ -39,7 +41,7 @@ const commonSchema = v.object({
             typeof testcase.scoreWeightNumerator === 'number' &&
             typeof testcase.scoreWeightDenominator === 'number'
           return hasIntegerWeight || hasFractionalWeight
-        }, 'Each testcase must have either a score weight or a fractional weight.')
+        }, 'The scoring ratio must be specified.')
       )
     ),
     v.minLength(1)
