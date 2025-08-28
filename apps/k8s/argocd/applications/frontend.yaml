@@ -20,6 +20,8 @@ spec:
       name: 'frontend-{{.env}}'
       finalizers:
         - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
       annotations:
         # TODO: Let's consider using git write-back method.
         # Suppose we have stage/production branch, and new commits are pushed to the branch.

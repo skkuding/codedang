@@ -20,6 +20,8 @@ spec:
       name: 'redis-{{.env}}'
       finalizers:
         - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
     spec:
       project: default
       sources:

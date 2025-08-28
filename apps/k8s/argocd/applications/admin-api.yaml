@@ -20,6 +20,8 @@ spec:
       name: 'admin-api-{{.env}}'
       finalizers:
         - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
       annotations:
         argocd-image-updater.argoproj.io/image-list: 'admin-api=ghcr.io/skkuding/codedang-admin-api:{{.env}}'
         argocd-image-updater.argoproj.io/admin-api.update-strategy: digest # Always pull the latest image of given tag
