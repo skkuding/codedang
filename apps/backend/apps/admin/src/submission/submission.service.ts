@@ -633,7 +633,7 @@ export class SubmissionService {
     problemId: number,
     res: Response
   ) {
-    const assignmentGroupId = await this.prisma.assignment.findFirst({
+    const assignmentGroup = await this.prisma.assignment.findFirst({
       where: {
         id: assignmentId
       },
@@ -641,7 +641,10 @@ export class SubmissionService {
         groupId: true
       }
     })
-    if (assignmentGroupId?.groupId != groupId) {
+    if (!assignmentGroup) {
+      throw new EntityNotExistException('Assignment')
+    }
+    if (assignmentGroup.groupId !== groupId) {
       throw new ForbiddenAccessException(
         'Only Group Leader can download source codes.'
       )
