@@ -25,16 +25,65 @@ export class TestcaseService {
     private readonly storageService: StorageService
   ) {}
 
+  private gcd(a: number, b: number): number {
+    return b === 0 ? a : this.gcd(b, a % b)
+  }
+
+  private convertToFraction(testcase: Testcase): {
+    numerator: number
+    denominator: number
+  } {
+    // Frontend provide score weight in two ways
+    // 1. only scoreWeight(User enters specific value) - use 100 as denominator and entered value as numerator
+    // 2. numerator and denominator(User use Equal Distribution feature)
+    const { scoreWeightNumerator, scoreWeightDenominator } = testcase
+
+    if (testcase.scoreWeight !== undefined) {
+      return {
+        numerator: testcase.scoreWeight,
+        denominator: 100
+      }
+    }
+
+    if (
+      scoreWeightNumerator !== undefined &&
+      scoreWeightDenominator !== undefined
+    ) {
+      if (scoreWeightDenominator === 0) {
+        return {
+          numerator: scoreWeightNumerator,
+          denominator: 100
+        }
+      }
+
+      return {
+        numerator: scoreWeightNumerator,
+        denominator: scoreWeightDenominator
+      }
+    }
+
+    return {
+      numerator: 0,
+      denominator: 1
+    }
+  }
+
   async createTestcases(testcases: Testcase[], problemId: number) {
     // Before upload, clean up all the original testcases
     await this.removeAllTestcaseFiles(problemId)
 
     const promises = testcases.map(async (testcase, index) => {
       try {
+        const fraction = this.convertToFraction(testcase)
+
         const { id } = await this.prisma.problemTestcase.create({
           data: {
             problemId,
-            scoreWeight: testcase.scoreWeight,
+            scoreWeightNumerator: fraction.numerator,
+            scoreWeightDenominator: fraction.denominator,
+            scoreWeight: Math.round(
+              (fraction.numerator / fraction.denominator) * 100
+            ),
             isHidden: testcase.isHidden,
             order: index + 1
           }
@@ -77,12 +126,18 @@ export class TestcaseService {
   async createTestcasesLegacy(problemId: number, testcases: Array<Testcase>) {
     await Promise.all(
       testcases.map(async (tc, index) => {
+        const fraction = this.convertToFraction(tc)
+
         const problemTestcase = await this.prisma.problemTestcase.create({
           data: {
             problemId,
             input: tc.input,
             output: tc.output,
-            scoreWeight: tc.scoreWeight,
+            scoreWeightNumerator: fraction.numerator,
+            scoreWeightDenominator: fraction.denominator,
+            scoreWeight: Math.round(
+              (fraction.numerator / fraction.denominator) * 100
+            ),
             isHidden: tc.isHidden,
             order: index + 1
           }
@@ -95,12 +150,18 @@ export class TestcaseService {
   /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
   async createTestcaseLegacy(problemId: number, testcase: Testcase) {
     try {
+      const fraction = this.convertToFraction(testcase)
+
       const problemTestcase = await this.prisma.problemTestcase.create({
         data: {
           problem: { connect: { id: problemId } },
           input: testcase.input,
           output: testcase.output,
-          scoreWeight: testcase.scoreWeight,
+          scoreWeightNumerator: fraction.numerator,
+          scoreWeightDenominator: fraction.denominator,
+          scoreWeight: Math.round(
+            (fraction.numerator / fraction.denominator) * 100
+          ),
           isHidden: testcase.isHidden
         }
       })
@@ -126,12 +187,18 @@ export class TestcaseService {
     ])
 
     for (const tc of testcases) {
+      const fraction = this.convertToFraction(tc)
+
       await this.prisma.problemTestcase.create({
         data: {
           problemId,
           input: tc.input,
           output: tc.output,
-          scoreWeight: tc.scoreWeight,
+          scoreWeightNumerator: fraction.numerator,
+          scoreWeightDenominator: fraction.denominator,
+          scoreWeight: Math.round(
+            (fraction.numerator / fraction.denominator) * 100
+          ),
           isHidden: tc.isHidden
         }
       })

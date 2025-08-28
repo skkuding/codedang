@@ -24,6 +24,7 @@ export interface DataTableAssignment {
   id: number
   title: string
   startTime: string
+  dueTime: string
   endTime: string
   description: string
   participants: number
@@ -174,7 +175,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
       <div className="flex justify-center">
         <div className="max-w-[270px] flex-1 text-left">
           <p className="overflow-hidden whitespace-nowrap">
-            {formatDateRange(row.original.startTime, row.original.endTime)}
+            {formatDateRange(row.original.startTime, row.original.dueTime)}
           </p>
         </div>
       </div>
