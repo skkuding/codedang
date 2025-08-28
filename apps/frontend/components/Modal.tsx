@@ -114,7 +114,7 @@ export function Modal({
             onChange={inputProps.onChange}
           />
         )}
-        {headerDescription && (
+        {size !== 'lg' && headerDescription && (
           <span
             className={cn(
               'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',

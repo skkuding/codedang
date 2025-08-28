@@ -5,7 +5,6 @@ import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { SemesterSeason } from '@/types/type'
 import { useState } from 'react'
-import { useFormContext } from 'react-hook-form'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { FormSection } from '../../_components/FormSection'
 import { CreateCourseForm } from './CreateCourseForm'
@@ -14,10 +13,7 @@ import { InputForm } from './InputForm'
 
 export function CreateCourseButton() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [coursePrefix, setCoursePrefix] = useState('')
-  const [courseCode, setCourseCode] = useState('')
   const [courseNumber, setCourseNumber] = useState('')
-  const [courseSection, setCourseSection] = useState('')
 
   const currentYear = new Date().getFullYear()
   const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
@@ -45,26 +41,6 @@ export function CreateCourseButton() {
     return `${currentYear + yearOffset} ${seasons[seasonIdx]}`
   })
 
-  const handleCoursePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase() // 영어만 남기고 대문자로 변환
-    setCoursePrefix(value)
-    setCourseNumber(value + courseCode) // courseNum 업데이트
-    // setValue('courseNum', value + courseCode)
-  }
-
-  const handleCourseCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '') // 숫자만 남기기
-    setCourseCode(value)
-    setCourseNumber(coursePrefix + value)
-  }
-
-  const handleCourseSectionChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value.replace(/\D/g, '')
-    setCourseSection(value)
-  }
-
   return (
     <Modal
       size="lg"
@@ -82,7 +58,7 @@ export function CreateCourseButton() {
       className="!pb-0 !pr-[20px]"
     >
       <ScrollArea className="h-full w-full pr-[16px]">
-        <CreateCourseForm>
+        <CreateCourseForm onSuccess={() => setIsModalOpen(false)}>
           <div className="flex flex-col gap-[10px]">
             <FormSection
               isFlexColumn={true}
@@ -109,30 +85,18 @@ export function CreateCourseButton() {
                 className="w-full gap-[6px]"
               >
                 <InputForm
-                  placeholder="SWE"
-                  name="courseCodePrefix"
+                  placeholder="SWE1234"
+                  name="courseNum"
                   type="text"
-                  maxLength={3}
-                  value={coursePrefix}
-                  onChange={handleCoursePrefixChange}
+                  maxLength={7}
+                  value={courseNumber}
+                  onChange={(e) => {
+                    setCourseNumber(
+                      e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+                    )
+                  }}
                 />
               </FormSection>
-              <FormSection
-                isFlexColumn={true}
-                title=""
-                className="w-full gap-[6px]"
-                isLabeled={false}
-              >
-                <InputForm
-                  placeholder="0000"
-                  name="courseCodeSuffix"
-                  type="text"
-                  maxLength={4}
-                  value={courseCode}
-                  onChange={handleCourseCodeChange}
-                />
-              </FormSection>
-              <CourseInput value={courseNumber} />
             </div>
             <FormSection
               isFlexColumn={true}
@@ -144,8 +108,6 @@ export function CreateCourseButton() {
                 name="classNum"
                 type="number"
                 maxLength={2}
-                value={courseSection}
-                onChange={handleCourseSectionChange}
               />
             </FormSection>
             <FormSection isFlexColumn={true} title="Week" className="gap-[6px]">
@@ -224,7 +186,6 @@ export function CreateCourseButton() {
               <Button
                 variant="default"
                 type="submit"
-                onClick={() => setIsModalOpen(false)}
                 className="h-[46px] w-full"
               >
                 Create
@@ -235,16 +196,4 @@ export function CreateCourseButton() {
       </ScrollArea>
     </Modal>
   )
-}
-
-interface CourseInputProps {
-  value: string
-}
-
-function CourseInput({ value }: CourseInputProps) {
-  const { setValue } = useFormContext()
-
-  setValue('courseNum', value)
-
-  return <> </>
 }

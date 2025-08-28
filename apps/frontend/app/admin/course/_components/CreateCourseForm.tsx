@@ -10,14 +10,20 @@ import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form'
 import { toast } from 'sonner'
 import { courseSchema } from '../_libs/schema'
 
-export function CreateCourseForm({ children }: { children: ReactNode }) {
+export function CreateCourseForm({
+  children,
+  onSuccess
+}: {
+  children: ReactNode
+  onSuccess: () => void
+}) {
   const methods = useForm<CourseInput>({
     resolver: valibotResolver(courseSchema),
     defaultValues: {
       professor: '',
       courseTitle: '',
       courseNum: '',
-      classNum: 0,
+      classNum: 1,
       semester: '',
       week: 0,
       email: '',
@@ -37,6 +43,7 @@ export function CreateCourseForm({ children }: { children: ReactNode }) {
   const client = useApolloClient()
 
   const onSubmit: SubmitHandler<CourseInput> = async (data) => {
+    console.log('hi')
     try {
       await createCourse({
         variables: {
@@ -59,6 +66,7 @@ export function CreateCourseForm({ children }: { children: ReactNode }) {
       client.refetchQueries({
         include: [GET_COURSES_USER_LEAD]
       })
+      onSuccess()
     } catch (error) {
       console.error('Error creating course:', error)
       toast.error('An unexpected error occurred')
