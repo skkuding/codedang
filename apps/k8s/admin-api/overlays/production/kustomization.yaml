@@ -7,9 +7,3 @@ resources:
   - secrets/aws-credentials.yaml
   - secrets/database-credentials.yaml
   - secrets/security-keys.yaml
-
-patches:
-  - path: configmap.yaml
-    target:
-      kind: ConfigMap
-      name: admin-api-env

@@ -29,6 +29,7 @@ spec:
           chart: redis
           targetRevision: 0.16.5
           helm:
+            releaseName: redis
             valueFiles:
               - $codedang/apps/k8s/redis/values.yaml
         - repoURL: https://github.com/skkuding/codedang
