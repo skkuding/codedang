@@ -549,7 +549,6 @@ export interface Notification {
   createTime: string
 }
 
-
 export interface MultipleQnaData {
   id: number
   order: number
@@ -591,6 +590,7 @@ export interface SingleQnaData {
   createdBy: {
     username: string
   }
+}
 
 export interface QnaFormData {
   title: string
@@ -602,5 +602,4 @@ export interface QnaFormData {
 export interface ProblemOption {
   value: string
   label: string
-
 }
