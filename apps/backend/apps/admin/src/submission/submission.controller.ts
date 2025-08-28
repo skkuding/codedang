@@ -25,7 +25,7 @@ export class SubmissionController {
     @Req() req: AuthenticatedRequest,
     @Res() res: Response
   ) {
-    await this.submissionService.compressSourceCodes(
+    await this.submissionService.downloadSourceCodes(
       groupId,
       assignmentId,
       problemId,
