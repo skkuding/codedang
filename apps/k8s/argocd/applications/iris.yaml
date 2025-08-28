@@ -22,7 +22,7 @@ spec:
         - resources-finalizer.argocd.argoproj.io
       annotations:
         argocd-image-updater.argoproj.io/image-list: 'iris=ghcr.io/skkuding/codedang-iris:{{.env}}'
-        argocd-image-updater.argoproj.io/client-api.update-strategy: digest # Always pull the latest image of given tag
+        argocd-image-updater.argoproj.io/iris.update-strategy: digest # Always pull the latest image of given tag
     spec:
       project: default
       source:
