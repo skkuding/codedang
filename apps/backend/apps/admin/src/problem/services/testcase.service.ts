@@ -4,7 +4,7 @@ import { isEqual } from 'es-toolkit'
 import { Workbook } from 'exceljs'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { Parse } from 'unzipper'
-import { MAX_ZIP_SIZE, LEGACY_SCORE_SCALE } from '@libs/constants'
+import { MAX_ZIP_SIZE } from '@libs/constants'
 import {
   EntityNotExistException,
   UnprocessableDataException,
@@ -33,24 +33,37 @@ export class TestcaseService {
     numerator: number
     denominator: number
   } {
-    const numerator = testcase.scoreWeightNumerator ?? testcase.scoreWeight
+    // Frontend provide score weight in two ways
+    // 1. only scoreWeight(User enters specific value) - use 100 as denominator and entered value as numerator
+    // 2. numerator and denominator(User use Equal Distribution feature)
+    const { scoreWeightNumerator, scoreWeightDenominator } = testcase
 
-    if (numerator !== undefined) {
-      if (numerator === 0) {
+    if (testcase.scoreWeight !== undefined) {
+      return {
+        numerator: testcase.scoreWeight,
+        denominator: 100
+      }
+    }
+
+    if (
+      scoreWeightNumerator !== undefined &&
+      scoreWeightDenominator !== undefined
+    ) {
+      if (scoreWeightDenominator === 0) {
         return {
-          numerator: 0,
-          denominator: 1
+          numerator: scoreWeightNumerator,
+          denominator: 100
         }
       }
-      const commonDivisor = this.gcd(numerator, LEGACY_SCORE_SCALE)
+
       return {
-        numerator: numerator / commonDivisor,
-        denominator: LEGACY_SCORE_SCALE / commonDivisor
+        numerator: scoreWeightNumerator,
+        denominator: scoreWeightDenominator
       }
     }
 
     return {
-      numerator: 1,
+      numerator: 0,
       denominator: 1
     }
   }
@@ -69,7 +82,7 @@ export class TestcaseService {
             scoreWeightNumerator: fraction.numerator,
             scoreWeightDenominator: fraction.denominator,
             scoreWeight: Math.round(
-              (fraction.numerator / fraction.denominator) * LEGACY_SCORE_SCALE
+              (fraction.numerator / fraction.denominator) * 100
             ),
             isHidden: testcase.isHidden,
             order: index + 1
