@@ -6,6 +6,9 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
+  ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/source/kustomize/images
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
   generators:
@@ -34,9 +37,6 @@ spec:
         directory:
           # kustomization.yaml is ignored if recurse is true
           recurse: false
-        kustomize:
-          images:
-            - 'ghcr.io/skkuding/codedang-client-api:{{.env}}'
       destination:
         namespace: client-api
         name: '{{.env}}'
