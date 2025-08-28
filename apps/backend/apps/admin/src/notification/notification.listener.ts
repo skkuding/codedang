@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
-import type { ContestStartReminderData } from './interface/notification.interface'
+import { MILLISECONDS_PER_DAY, MILLISECONDS_PER_HOUR } from '@libs/constants'
 import { NotificationScheduler } from './notification.scheduler'
 import { NotificationService } from './notification.service'
+
+const ASSIGNMENT_REMINDER = [
+  { id: '1d', offset: -MILLISECONDS_PER_DAY },
+  { id: '3h', offset: -3 * MILLISECONDS_PER_HOUR }
+]
 
 @Injectable()
 export class NotificationListener {
@@ -15,23 +20,98 @@ export class NotificationListener {
     return `contest:${contestId}:start-reminder`
   }
 
+  private assignmentDueReminderJobId(assignmentId: number, reminderId: string) {
+    return `assignment:${assignmentId}:due-reminder:${reminderId}`
+  }
+
+  private everyAssignmentDueReminderJobId(assignmentId: number) {
+    return ASSIGNMENT_REMINDER.map((reminder) =>
+      this.assignmentDueReminderJobId(assignmentId, reminder.id)
+    )
+  }
+
+  private calculateDelay(fireAt: Date, offset: number) {
+    return fireAt.getTime() - Date.now() + offset
+  }
+
   @OnEvent('assignment.graded')
   async handleAssignmentGraded(payload: { assignmentId: number }) {
     this.notificationService.notifyAssignmentGraded(payload.assignmentId)
   }
 
   @OnEvent('assignment.created')
-  async handleAssignmentCreated(payload: { assignmentId: number }) {
+  async handleAssignmentCreated(payload: {
+    assignmentId: number
+    dueTime: Date
+  }) {
     this.notificationService.notifyAssignmentCreated(payload.assignmentId)
+
+    const title = 'assignment-due-reminder'
+    const data = { assignmentId: payload.assignmentId }
+
+    const reminders = ASSIGNMENT_REMINDER.map((reminder) => {
+      const jobId = this.assignmentDueReminderJobId(
+        payload.assignmentId,
+        reminder.id
+      )
+      const delay = this.calculateDelay(payload.dueTime, reminder.offset)
+      if (delay <= 0) {
+        return null
+      }
+      return this.notificationScheduler.scheduleJob(title, data, jobId, delay)
+    }).filter(Boolean)
+
+    await Promise.all(reminders)
+  }
+
+  @OnEvent('assignment.updated')
+  async handleAssignmentUpdated(payload: {
+    assignmentId: number
+    dueTime: Date
+  }) {
+    const prevJobIds = this.everyAssignmentDueReminderJobId(
+      payload.assignmentId
+    )
+    await Promise.all(
+      prevJobIds.map((jobId) =>
+        this.notificationScheduler.cancelScheduledJob(jobId)
+      )
+    )
+
+    const title = 'assignment-due-reminder'
+    const data = { assignmentId: payload.assignmentId }
+
+    const reminders = ASSIGNMENT_REMINDER.map((reminder) => {
+      const jobId = this.assignmentDueReminderJobId(
+        payload.assignmentId,
+        reminder.id
+      )
+      const delay = this.calculateDelay(payload.dueTime, reminder.offset)
+      if (delay <= 0) {
+        return null
+      }
+      return this.notificationScheduler.scheduleJob(title, data, jobId, delay)
+    }).filter(Boolean)
+
+    await Promise.all(reminders)
+  }
+
+  @OnEvent('assignment.deleted')
+  async handleAssignmentDeleted(assignmentId: number) {
+    const jobIds = this.everyAssignmentDueReminderJobId(assignmentId)
+    await Promise.all(
+      jobIds.map((jobId) =>
+        this.notificationScheduler.cancelScheduledJob(jobId)
+      )
+    )
   }
 
   @OnEvent('contest.created')
   async handleContestCreated(payload: { contestId: number; startTime: Date }) {
     const title = 'contest-start-reminder'
-    const data: ContestStartReminderData = { contestId: payload.contestId }
+    const data = { contestId: payload.contestId }
     const jobId = this.contestStartReminderJobId(payload.contestId)
-    const fireAt = new Date(payload.startTime.getTime() - 60 * 60 * 1000)
-    const delay = fireAt.getTime() - Date.now()
+    const delay = this.calculateDelay(payload.startTime, -MILLISECONDS_PER_HOUR)
 
     if (delay <= 0) {
       console.log(

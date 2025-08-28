@@ -26,12 +26,51 @@ body:graphql:vars {
         {
           "input": "1 2",
           "output": "3",
-          "isHidden": false
+          "isHidden": false,
+          "scoreWeightDenominator": 7,
+          "scoreWeightNumerator": 1
         },
         {
           "input": "hello",
           "output": "world",
-          "isHidden": true
+          "isHidden": true,
+          "scoreWeightDenominator": 7,
+          "scoreWeightNumerator": 1
+        },
+        {
+          "input": "1 2",
+          "output": "3",
+          "isHidden": false,
+          "scoreWeightDenominator": 7,
+          "scoreWeightNumerator": 1
+        },
+        {
+          "input": "1 2",
+          "output": "3",
+          "isHidden": false,
+          "scoreWeightDenominator": 7,
+          "scoreWeightNumerator": 1
+        },
+        {
+          "input": "1 2",
+          "output": "3",
+          "isHidden": false,
+          "scoreWeightDenominator": 7,
+          "scoreWeightNumerator": 1
+        },
+        {
+          "input": "1 2",
+          "output": "3",
+          "isHidden": false,
+          "scoreWeightDenominator": 7,
+          "scoreWeightNumerator": 1
+        },
+        {
+          "input": "1 2",
+          "output": "3",
+          "isHidden": false,
+          "scoreWeightDenominator": 7,
+          "scoreWeightNumerator": 1
         }
       ]
     }
@@ -40,22 +79,22 @@ body:graphql:vars {
 
 docs {
   ## Create Testcases
-
+  
   문제에 대한 테스트케이스를 생성합니다.
   기존에 존재하는 테스트케이스는 모두 삭제됩니다.
-
+  
   ### Request Body
-
+  
   - `problemId`: 문제 ID
   - `testcases`: 테스트케이스 리스트
     - `input`: 입력값
     - `output`: 출력값
     - `isHidden`: 숨김 여부 (default: false)
     - `scoreWeight`: 점수 비율 (default: 1)
-
+  
   ### Error Case
-
+  
   #### UNPROCESSABLE
-
+  
   - 문제 ID가 존재하지 않는 경우
 }
