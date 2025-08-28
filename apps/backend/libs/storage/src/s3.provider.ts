@@ -6,6 +6,8 @@ export const S3Provider = {
   import: [ConfigModule],
   inject: [ConfigService],
   useFactory: async (config: ConfigService) => {
+    // MINIO_ENDPOINT_URL is required only when accessing MINIO (stage, local)
+    // In production, use the default AWS S3 endpoint
     const endpoint = config.get<string>('MINIO_ENDPOINT_URL')
     if (endpoint) {
       return new S3Client({
