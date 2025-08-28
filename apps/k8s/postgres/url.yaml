@@ -1,0 +1,18 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: url
+  namespace: postgres
+spec:
+  encryptedData:
+    DATABASE_URL: AgDTRYvrx4/ybuoVist+4Qg54zk2ksd3CTFi/hSp54UvDemWUWc9f6St0QZ51MXYe7mVlB1UkcHqlYugtZFyJ70b9k3eo6sI7l+JVHFSW14gt2e9Y+J4CgjSfErN2Wsjc9/sLPDvmssMPPhxvYUMcouiHU0vz15r4YSeLIP7oDUt9Lr88zUp3u3Halour/tLwUWEtkftNTxawjQEsrtBb3tc6GXZPkaoEFWoxwHrGkWvynLKWZ1sfmDv6gH1XamgFjFNCbukGjDkkzEdeMHXnbdQHGud49QnQdhdr4Bpt8GIeH56gC5WxSoi6Dc63U/xFUO/2zml3dRI/rZaGNczfqvWb+Qd5wVgdW97yakpvivOFdTtG7SxwusfEexwMGLGL4ym6zqvuctQjG6eoi0XK1Pl+gvnxTN0F6DyEUNmgDbf+bQJSgSOS1Rson93PeW/EScjRg2FApLAPyiDmUTL8ZGzAeR8fYQWf8hkUTQzkZ55Fq2k8RF9POKXKJtknVr2Lb/XfIVayVh8g0HnjajLW23/ORnoorPKjAIe9r0QXvv2W1GirqDOoVp1XLDceG/JK6F/drWS74K7jbTStRiSzBnlt2C0tEPoxiMLai2O8a06LVZ0DqcHlCo/FBqGfiq6e/9i03RRSVL6iefq5ESwgQboGwle2W8Hf1krL4zaqyNnO03M416BPiRo8s2DKkv3w8fFSqOaT1fJ88CGOsw5Uf7vKSyDJvuTdaqadSrWlsElq7UDs7ViX3W9wB5Zu11ZHW+24opp0Euj1Yz3+PQabNrfybqaQimQQUKygG1XMWyYzEpQkj5RWgmb1qqX0d6Dqqo=
+  template:
+    metadata:
+      creationTimestamp: null
+      name: url
+      namespace: postgres
+      annotations:
+        reflector.v1.k8s.emberstack.com/reflection-allowed: 'true'
+    type: Opaque
