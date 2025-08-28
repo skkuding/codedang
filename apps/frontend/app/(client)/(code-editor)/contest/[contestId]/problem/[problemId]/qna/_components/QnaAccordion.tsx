@@ -8,7 +8,7 @@ import {
 } from '@/components/shadcn/accordion'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { SingleQnaData } from '@/types/type'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { CommentsArea } from './CommentsArea'
 import { CreateComments } from './CreateComments'
 
@@ -20,35 +20,18 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
   const [openAccordion, setOpenAccordion] = useState<string | undefined>(
     undefined
   )
-  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   const handleValueChange = (value: string | undefined) => {
     setOpenAccordion(value)
   }
 
-  useEffect(() => {
-    if (!openAccordion) {
-      return
+  function DecideAccordionHeight(value: string) {
+    if (openAccordion === value) {
+      return 'h-auto opacity-100'
+    } else {
+      return 'h-0 opacity-0'
     }
-
-    const triggerEl = triggerRefs.current[openAccordion]
-    if (!triggerEl) {
-      return
-    }
-
-    const scrollOptions: ScrollIntoViewOptions = {
-      behavior: 'smooth',
-      block: 'start'
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      triggerEl.scrollIntoView(scrollOptions)
-    }, 350)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [openAccordion])
+  }
 
   return (
     <ScrollArea className="h-full">
@@ -66,17 +49,16 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
               <AccordionItem
                 key={qna.id}
                 value={value}
-                className="border-[#FFFFFF1A]"
+                className={`overflow-hidden border-[#FFFFFF1A] transition-all duration-300 ${
+                  openAccordion
+                    ? DecideAccordionHeight(value)
+                    : 'h-auto opacity-100'
+                }`}
               >
-                <AccordionTrigger
-                  ref={(el) => {
-                    triggerRefs.current[value] = el
-                  }}
-                  className="px-5 text-[20px] font-semibold"
-                >
+                <AccordionTrigger className="px-5 text-[20px] font-semibold">
                   <p>{qna.title}</p>
                 </AccordionTrigger>
-                <AccordionContent className="h-[700px] pb-0">
+                <AccordionContent className="h-[684px] pb-0">
                   <div className="flex h-full flex-col">
                     <div className="border-1 mx-5 mb-5 rounded-lg border-[#FFFFFF33] px-5 py-[14px] text-base">
                       {qna.content}

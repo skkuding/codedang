@@ -119,7 +119,7 @@ export function CreateQnaTextArea({
             value={qnaFormdata.content}
             onChange={handleInputChange}
             maxLength={400}
-            className="min-h-[127px] w-full rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder:text-base placeholder:text-gray-400 focus-visible:ring-0"
+            className="min-h-[127px] w-full resize-none rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder:text-base placeholder:text-gray-400 focus-visible:ring-0"
           />
           <span className="absolute bottom-2 right-2 text-sm text-gray-400">
             {qnaFormdata.content.length}/400
