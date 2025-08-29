@@ -4,7 +4,7 @@ name: CD - Production
 
 on:
   push:
-    branches: [release, t2076-release-pipeline]
+    branches: [release]
 
 permissions:
   contents: read
