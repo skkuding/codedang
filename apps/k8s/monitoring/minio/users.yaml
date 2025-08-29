@@ -1,0 +1,17 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: monitoring-user
+  namespace: minio
+spec:
+  encryptedData:
+    CONSOLE_ACCESS_KEY: # TODO
+    CONSOLE_SECRET_KEY: # TODO
+  template:
+    metadata:
+      creationTimestamp: null
+      name: monitoring-user
+      namespace: minio
+    type: Opaque
