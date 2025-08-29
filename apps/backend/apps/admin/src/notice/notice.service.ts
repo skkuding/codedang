@@ -1,5 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '@libs/prisma'
+import type {
+  CreateCourseNoticeInput,
+  UpdateCourseNoticeInput
+} from './model/courseNotice.input'
 import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 
 @Injectable()
@@ -46,5 +50,122 @@ export class NoticeService {
       ...paginator,
       take
     })
+  }
+}
+
+@Injectable()
+export class CourseNoticeService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async markAsUnread(groupId: number, courseNoticeId: number) {
+    const userIds = await this.prisma.userGroup.findMany({
+      where: {
+        groupId
+      },
+      select: {
+        userId: true
+      }
+    })
+
+    if (userIds.length == 0) {
+      throw new NotFoundException('course user is not found')
+    }
+
+    const setRecord = userIds.map(async (userId) => {
+      return await this.prisma.courseNoticeRecord.upsert({
+        where: {
+          courseNoticeIdUserIdUnique: {
+            courseNoticeId,
+            userId: userId.userId
+          }
+        },
+        create: {
+          courseNoticeId,
+          userId: userId.userId
+        },
+        update: {
+          isRead: false
+        }
+      })
+    })
+
+    await Promise.all(setRecord)
+  }
+
+  async createNotice(
+    userId: number,
+    createCourseNoticeInput: CreateCourseNoticeInput
+  ) {
+    const courseNotice = await this.prisma.courseNotice.create({
+      data: {
+        createdById: userId,
+        ...createCourseNoticeInput
+      }
+    })
+
+    await this.markAsUnread(createCourseNoticeInput.groupId, courseNotice.id)
+
+    return courseNotice
+  }
+
+  async deleteNotice(courseNoticeId: number) {
+    return await this.prisma.courseNotice.delete({
+      where: {
+        id: courseNoticeId
+      }
+    })
+  }
+
+  async updateNotice(
+    courseNoticeId: number,
+    updateCourseNoticeInput: UpdateCourseNoticeInput
+  ) {
+    await this.markAsUnread(updateCourseNoticeInput.groupId, courseNoticeId)
+
+    return await this.prisma.courseNotice.update({
+      where: {
+        id: courseNoticeId
+      },
+      data: updateCourseNoticeInput
+    })
+  }
+
+  async cloneNotice(
+    userId: number,
+    courseNoticeId: number,
+    updateCourseNoticeInput: UpdateCourseNoticeInput,
+    cloneToId: number
+  ) {
+    const original = await this.prisma.courseNotice.findUnique({
+      where: {
+        id: courseNoticeId
+      },
+      select: {
+        title: true,
+        content: true,
+        isFixed: true,
+        isVisible: true
+      }
+    })
+
+    if (!original) {
+      throw new NotFoundException('original notice not found')
+    }
+
+    const clone = await this.prisma.courseNotice.create({
+      data: {
+        createdById: userId,
+        groupId: cloneToId,
+        problemId: updateCourseNoticeInput.problemId,
+        title: updateCourseNoticeInput.title ?? original.title,
+        content: updateCourseNoticeInput.content ?? original.content,
+        isFixed: updateCourseNoticeInput.isFixed ?? original.isFixed,
+        isVisible: updateCourseNoticeInput.isVisible ?? original.isVisible
+      }
+    })
+
+    await this.markAsUnread(cloneToId, clone.id)
+
+    return clone
   }
 }

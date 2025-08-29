@@ -1,14 +1,22 @@
 import {
+  Body,
   Controller,
   Get,
   Req,
   Query,
+  Post,
   Param,
   DefaultValuePipe,
-  ParseBoolPipe
+  ParseBoolPipe,
+  Delete,
+  Patch
 } from '@nestjs/common'
 import { AuthNotNeededIfPublic, AuthenticatedRequest } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import {
+  CreateCourseNoticeCommentDto,
+  UpdateCourseNoticeCommentDto
+} from './dto/courseNotice.dto'
 import { NoticeService, type CourseNoticeService } from './notice.service'
 
 @Controller('notice')
@@ -52,10 +60,12 @@ export class CourseNoticeController {
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
     @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
+    @Query('groupId', new RequiredIntPipe('groupId')) groupId: number,
     @Query('search') search?: string
   ) {
     return await this.courseNoticeService.getNotices({
       userId: req.user.id,
+      groupId,
       cursor,
       take,
       fixed,
@@ -63,7 +73,6 @@ export class CourseNoticeController {
     })
   }
 
-  // <TODO>: comment의 order가 null이면, orderBy의 기준으로 order를 설정하면 에러가 날까?
   @Get(':id')
   async getNoticeByID(
     @Req() req: AuthenticatedRequest,
@@ -77,6 +86,40 @@ export class CourseNoticeController {
       id,
       cursor,
       take
+    })
+  }
+
+  @Post('comment')
+  async createComment(
+    @Req() req: AuthenticatedRequest,
+    @Body() createCourseNoticeCommentDto: CreateCourseNoticeCommentDto
+  ) {
+    return await this.courseNoticeService.createComment({
+      userId: req.user.id,
+      createCourseNoticeCommentDto
+    })
+  }
+
+  @Patch('comment')
+  async updateComment(
+    @Req() req: AuthenticatedRequest,
+    @Body() updateCourseNoticeCommentDto: UpdateCourseNoticeCommentDto
+  ) {
+    return await this.courseNoticeService.updateComment({
+      userId: req.user.id,
+      updateCourseNoticeCommentDto
+    })
+  }
+
+  @Delete('comment')
+  async deleteComment(
+    @Req() req: AuthenticatedRequest,
+    @Param('commentId', new RequiredIntPipe('commentId'))
+    commentId: number
+  ) {
+    return await this.courseNoticeService.deleteComment({
+      userId: req.user.id,
+      commentId
     })
   }
 }

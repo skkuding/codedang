@@ -4,6 +4,10 @@ import {
   EntityNotExistException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type {
+  CreateCourseNoticeCommentDto,
+  UpdateCourseNoticeCommentDto
+} from './dto/courseNotice.dto'
 
 @Injectable()
 export class NoticeService {
@@ -122,12 +126,14 @@ export class CourseNoticeService {
 
   async getNotices({
     userId,
+    groupId,
     cursor,
     take,
     search,
     fixed = false
   }: {
     userId: number
+    groupId: number
     cursor: number | null
     take: number
     search?: string
@@ -142,7 +148,8 @@ export class CourseNoticeService {
         title: {
           contains: search,
           mode: 'insensitive'
-        }
+        },
+        groupId
       },
       take,
       select: {
@@ -150,6 +157,12 @@ export class CourseNoticeService {
         title: true,
         createTime: true,
         isFixed: true,
+        problem: {
+          select: {
+            id: true,
+            title: true
+          }
+        },
         createdBy: {
           select: {
             username: true
@@ -161,6 +174,12 @@ export class CourseNoticeService {
           },
           select: {
             isRead: true
+          }
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            CourseNoticeComment: true
           }
         }
       },
@@ -174,8 +193,9 @@ export class CourseNoticeService {
         )
       }
 
-      const { CourseNoticeRecord, ...notice } = {
+      const { CourseNoticeRecord, _count, ...notice } = {
         ...courseNotice,
+        commentCount: courseNotice._count.CourseNoticeComment,
         isRead: courseNotice.CourseNoticeRecord[0].isRead,
         createdBy: courseNotice.createdBy?.username
       }
@@ -299,7 +319,7 @@ export class CourseNoticeService {
       }
     }
 
-    await this.updateReadRecord({
+    await this.markAsRead({
       userId,
       courseNoticeId: id
     })
@@ -311,7 +331,7 @@ export class CourseNoticeService {
     }
   }
 
-  async updateReadRecord({
+  async markAsRead({
     userId,
     courseNoticeId
   }: {
@@ -335,5 +355,53 @@ export class CourseNoticeService {
     } catch {
       throw new EntityNotExistException('CourseNoticeRecord')
     }
+  }
+
+  async createComment({
+    userId,
+    createCourseNoticeCommentDto
+  }: {
+    userId: number
+    createCourseNoticeCommentDto: CreateCourseNoticeCommentDto
+  }) {
+    return await this.prisma.courseNoticeComment.create({
+      data: {
+        createdById: userId,
+        ...createCourseNoticeCommentDto
+      }
+    })
+  }
+
+  async updateComment({
+    userId,
+    updateCourseNoticeCommentDto
+  }: {
+    userId: number
+    updateCourseNoticeCommentDto: UpdateCourseNoticeCommentDto
+  }) {
+    return await this.prisma.courseNoticeComment.update({
+      where: {
+        id: updateCourseNoticeCommentDto.commentId,
+        createdById: userId
+      },
+      data: {
+        content: updateCourseNoticeCommentDto.content
+      }
+    })
+  }
+
+  async deleteComment({
+    userId,
+    commentId
+  }: {
+    userId: number
+    commentId: number
+  }) {
+    return await this.prisma.courseNoticeComment.delete({
+      where: {
+        id: commentId,
+        createdById: userId
+      }
+    })
   }
 }

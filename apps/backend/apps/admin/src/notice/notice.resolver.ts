@@ -9,13 +9,17 @@ import {
   ResolveField,
   Parent
 } from '@nestjs/graphql'
-import { Notice, User } from '@generated'
+import { CourseNotice, Notice, User } from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
 import { CursorValidationPipe, IDValidationPipe } from '@libs/pipe'
 import { GroupService } from '@admin/group/group.service'
 import { UserService } from '@admin/user/user.service'
-import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
-import { NoticeService } from './notice.service'
+import type {
+  CreateCourseNoticeInput,
+  UpdateCourseNoticeInput
+} from './model/courseNotice.input'
+import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
+import { CourseNoticeService, NoticeService } from './notice.service'
 
 @Resolver(() => Notice)
 export class NoticeResolver {
@@ -73,5 +77,54 @@ export class NoticeResolver {
       return null
     }
     return this.userService.getUser(createdById)
+  }
+}
+
+// <TODO>: 권한 검증이 필요합니다.
+@Resolver(() => CourseNotice)
+export class CourseNoticeResolver {
+  private readonly logger = new Logger(CourseNoticeService.name)
+  constructor(private readonly courseNoticeService: CourseNoticeService) {}
+
+  @Mutation(() => Notice)
+  async createNotice(
+    @Args('input') input: CreateCourseNoticeInput,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.courseNoticeService.createNotice(req.user.id, input)
+  }
+
+  @Mutation(() => Notice)
+  async deleteNotice(
+    @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
+    courseNoticeId: number
+  ) {
+    return await this.courseNoticeService.deleteNotice(courseNoticeId)
+  }
+
+  @Mutation(() => Notice)
+  async updateNotice(
+    @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
+    courseNoticeId: number,
+    @Args('input') input: UpdateCourseNoticeInput
+  ) {
+    return await this.courseNoticeService.updateNotice(courseNoticeId, input)
+  }
+
+  @Mutation(() => Notice)
+  async cloneNotice(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
+    courseNoticeId: number,
+    @Args('cloneToId', { type: () => Int }, IDValidationPipe)
+    cloneToId: number,
+    @Args('input', { defaultValue: {} }) input: UpdateCourseNoticeInput
+  ) {
+    return await this.courseNoticeService.cloneNotice(
+      req.user.id,
+      courseNoticeId,
+      input,
+      cloneToId
+    )
   }
 }
