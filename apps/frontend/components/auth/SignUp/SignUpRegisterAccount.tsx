@@ -108,6 +108,7 @@ function SignUpRegisterAccountContent() {
     formState: { errors, isValid }
   } = useFormContext<RegisterAccountInput>()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false)
   const watchUsername = watch('username')
   const watchPassword = watch('password')
   const watchPasswordConfirm = watch('passwordConfirm')
@@ -156,6 +157,7 @@ function SignUpRegisterAccountContent() {
               </div>
               <Button
                 type="button"
+                variant={'outline'}
                 className="w-[89px]"
                 disabled={watchUsername?.length === 0}
                 onClick={async () => {
@@ -187,33 +189,42 @@ function SignUpRegisterAccountContent() {
                 placeholder="Password"
                 type={isPasswordVisible ? 'text' : 'password'}
                 {...register('password')}
-                onFocus={() => clearErrors('password')}
+                onFocus={() => {
+                  clearErrors('password')
+                  setIsPasswordFocused(true)
+                }}
+                onBlur={() => {
+                  setIsPasswordFocused(false)
+                }}
               />
               <VisibleButton
                 isVisible={isPasswordVisible}
                 setIsVisible={setIsPasswordVisible}
               />
             </div>
-            {(() => {
-              if (errors.password) {
+            {isPasswordFocused &&
+              (() => {
+                if (errors.password) {
+                  return (
+                    <AuthMessage
+                      message={errors.password.message?.toString() ?? ''}
+                      type="error"
+                    />
+                  )
+                }
+                // valibot 검증이 통과하고 실제 비밀번호가 입력된 경우만 success 표시
+                if (!errors.password && watchPassword) {
+                  return (
+                    <AuthMessage message="Correct Password" type="success" />
+                  )
+                }
                 return (
                   <AuthMessage
-                    message={errors.password.message?.toString() ?? ''}
-                    type="error"
+                    message="8–20 characters, use 2 of: upper, lower, number"
+                    type="info"
                   />
                 )
-              }
-              // valibot 검증이 통과하고 실제 비밀번호가 입력된 경우만 success 표시
-              if (!errors.password && watchPassword) {
-                return <AuthMessage message="Correct Password" type="success" />
-              }
-              return (
-                <AuthMessage
-                  message="8–20 characters, use 2 of: upper, lower, number"
-                  type="info"
-                />
-              )
-            })()}
+              })()}
             <div className="relative">
               <Input
                 placeholder="Re-enter Password"

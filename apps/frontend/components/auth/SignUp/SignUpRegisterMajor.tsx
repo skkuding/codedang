@@ -36,21 +36,17 @@ function RegisterMajorForm({ children }: { children: ReactNode }) {
   })
 
   const onSubmit = async (data: RegisterMajorInput) => {
-    console.log('Form submitted with data:', data) // 디버깅용
-
-    // formData에 새로운 데이터 추가
     const updatedFormData = {
       ...formData,
       ...data
     }
 
     setFormData(updatedFormData)
-    console.log('Updated formData:', updatedFormData) // 디버깅용
 
     try {
       await safeFetcher.post('user/sign-up', {
         headers: {
-          ...updatedFormData.headers // formData 대신 updatedFormData 사용
+          ...updatedFormData.headers
         },
         json: {
           username: updatedFormData.username,
@@ -58,8 +54,8 @@ function RegisterMajorForm({ children }: { children: ReactNode }) {
           email: updatedFormData.email,
           realName: updatedFormData.realName,
           studentId: updatedFormData.studentId,
-          affiliation: updatedFormData.affiliation, // data.affiliation 대신
-          major: updatedFormData.major // data.major 대신
+          affiliation: updatedFormData.affiliation,
+          major: updatedFormData.major
         }
       })
       nextModal()
