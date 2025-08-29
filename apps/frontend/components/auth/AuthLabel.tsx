@@ -1,5 +1,5 @@
 import { GiGraduateCap } from 'react-icons/gi'
-import { IoIosLock } from 'react-icons/io'
+import { IoIosLock, IoMdListBox } from 'react-icons/io'
 import { IoPerson } from 'react-icons/io5'
 
 export function IDLabel() {
@@ -41,6 +41,17 @@ export function StudentIDLabel() {
       <GiGraduateCap className="text-primary h-4 w-4" />
       <span className="text-color-neutral-30 text-base font-normal">
         Student ID
+      </span>
+    </div>
+  )
+}
+
+export function MajorLabel() {
+  return (
+    <div className="flex items-center gap-1">
+      <IoMdListBox className="text-primary h-4 w-4" />
+      <span className="text-color-neutral-30 text-base font-normal">
+        First Major
       </span>
     </div>
   )
