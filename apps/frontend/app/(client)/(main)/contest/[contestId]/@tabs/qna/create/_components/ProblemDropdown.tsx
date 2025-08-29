@@ -32,7 +32,7 @@ export function ProblemDropdown({
   }
 
   return (
-    <Card className="mb-[10px] w-full">
+    <Card className="mt-[10px] w-full">
       <CardContent className="flex flex-col gap-3 rounded-[12px] p-5">
         {problemOptions.map((option) => (
           <div
@@ -46,12 +46,12 @@ export function ProblemDropdown({
               value={option.value}
               checked={watchedValues.selectedProblem === option.value}
               onChange={() => {}}
-              className="h-4 w-4 text-blue-600"
+              className="accent-primary h-5 w-5"
             />
             <label
               className={`font-pretendard cursor-pointer truncate text-sm font-normal not-italic leading-normal tracking-[-0.42px] ${
                 watchedValues.selectedProblem === option.value
-                  ? 'text-[#3581FA]'
+                  ? 'text-primary'
                   : 'text-black'
               }`}
             >

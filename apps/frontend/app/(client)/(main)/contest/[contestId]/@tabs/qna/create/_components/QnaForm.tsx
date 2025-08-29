@@ -2,6 +2,7 @@
 
 import { AlertModal } from '@/components/AlertModal'
 import { fetcherWithAuth } from '@/libs/utils'
+import infoBlueIcon from '@/public/icons/icon-info-blue.svg'
 import type {
   Contest,
   ProblemDataTop,
@@ -9,6 +10,7 @@ import type {
   QnaFormData
 } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -175,7 +177,7 @@ export function QnaForm() {
 
   return (
     <>
-      <div className="mb-[10px] flex min-h-[36px] w-full items-center gap-[14px] rounded-[1000px] border border-[#D8D8D8] bg-[#FFFFFF] px-[30px] py-[11px]">
+      <div className="flex min-h-[36px] w-full items-center gap-[14px] rounded-[1000px] border border-[#D8D8D8] bg-[#FFFFFF] px-[30px] py-[11px]">
         <ProblemSelector
           watch={watch}
           isLoadingProblems={isLoadingProblems}
@@ -186,8 +188,17 @@ export function QnaForm() {
       </div>
 
       {!isContestStarted && !isLoadingProblems && (
-        <div className="mb-2 text-xs text-gray-500">
-          Contest has not started yet. Only General questions are available.
+        <div className="mt-[4px] flex">
+          <Image
+            src={infoBlueIcon}
+            alt="info"
+            width={16}
+            height={16}
+            className="ml-2 mr-[2px]"
+          />
+          <span className="text-primary text-xs font-normal leading-[16.8px] tracking-[-0.36px]">
+            Contest has not started yet. Only General questions are available.
+          </span>
         </div>
       )}
 

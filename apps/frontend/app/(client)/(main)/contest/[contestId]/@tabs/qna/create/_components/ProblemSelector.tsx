@@ -22,7 +22,7 @@ export function ProblemSelector({
   return (
     <div className="flex">
       <div
-        className="flex max-w-[86px] cursor-pointer items-center border-r border-[#D8D8D8] bg-white pr-[10px]"
+        className="flex max-w-[94px] cursor-pointer items-center border-r border-[#D8D8D8] bg-white pr-[10px]"
         onClick={() => !isLoadingProblems && onToggleDropdown()}
       >
         <span className="font-pretendard mr-[6px] !w-[54px] overflow-hidden truncate text-base font-medium not-italic leading-[22.4px] tracking-[-0.48px] text-[#5C5C5C]">
