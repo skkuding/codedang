@@ -16,37 +16,34 @@ export class CodePolicyService {
 
     const text = snippets.map((s) => s.text ?? '').join('\n')
     const src = strip(language, text)
-    const violations: string[] = []
+    let isViolated = false
 
     // import 검사
     if (lang === 'Python3' || lang === 'PyPy3') {
       for (const mod of rule.bannedImports ?? []) {
         const r = new RegExp(`\\b(?:import|from)\\s+${esc(mod)}\\b`)
-        if (r.test(src)) violations.push(`import ${mod}`)
+        if (r.test(src)) isViolated = true
       }
     } else if (lang === 'Java') {
       for (const pkg of rule.bannedImports ?? []) {
         const r = new RegExp(`\\bimport\\s+${esc(pkg)}[\\.;]`)
-        if (r.test(src)) violations.push(`import ${pkg}`)
+        if (r.test(src)) isViolated = true
       }
     } else {
       for (const hdr of rule.bannedImports ?? []) {
         const r = new RegExp(`#\\s*include\\s*<${esc(hdr)}>`)
-        if (r.test(src)) violations.push(`#include <${hdr}>`)
+        if (r.test(src)) isViolated = true
       }
     }
 
     // 토큰 검사
     for (const token of rule.bannedTokens ?? []) {
       const r = new RegExp(`\\b${esc(token)}\\b`)
-      if (r.test(src)) violations.push(token)
+      if (r.test(src)) isViolated = true
     }
 
-    if (violations.length) {
-      const list = [...new Set(violations)].slice(0, 6).join(', ')
-      throw new UnprocessableDataException(
-        `Forbidden API usage detected: ${list}`
-      )
+    if (isViolated) {
+      throw new UnprocessableDataException(`Forbidden API usage detected`)
     }
   }
 }
