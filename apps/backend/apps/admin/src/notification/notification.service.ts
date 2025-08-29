@@ -212,7 +212,8 @@ export class NotificationService {
     const notice = await this.prisma.notice.findUnique({
       where: { id: noticeId },
       select: {
-        title: true
+        title: true,
+        content: true
       }
     })
 
@@ -225,8 +226,9 @@ export class NotificationService {
     })
 
     const receivers = codedangUsers.map((user) => user.id)
-    const title = 'New Notice Created'
-    const message = notice.title
+    const title = notice.title
+    const message =
+      (notice.content ?? 'New Notice Created.').slice(0, 100) + '...'
     const url = `/notice/${noticeId}`
 
     await this.saveNotification(
