@@ -10,13 +10,9 @@ import { QnaAccordion } from './QnaAccordion'
 
 interface QuestionAnswerAreaProps {
   contestId: number
-  problemId: number
 }
 
-export function QuestionAnswerArea({
-  contestId,
-  problemId
-}: QuestionAnswerAreaProps) {
+export function QuestionAnswerArea({ contestId }: QuestionAnswerAreaProps) {
   const [loading, setLoading] = useState(true)
   const [qnaDetails, setQnaDetails] = useState<SingleQnaData[]>([])
   const [error, setError] = useState<string | null>(null)

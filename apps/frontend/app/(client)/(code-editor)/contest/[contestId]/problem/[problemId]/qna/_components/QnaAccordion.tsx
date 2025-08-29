@@ -8,7 +8,7 @@ import {
 } from '@/components/shadcn/accordion'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { SingleQnaData } from '@/types/type'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { CommentsArea } from './CommentsArea'
 import { CreateComments } from './CreateComments'
 
@@ -20,8 +20,6 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
   const [openAccordion, setOpenAccordion] = useState<string | undefined>(
     undefined
   )
-  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
-
   const handleValueChange = (value: string | undefined) => {
     setOpenAccordion(value)
   }
@@ -30,33 +28,9 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
     if (openAccordion === value) {
       return 'h-auto opacity-100'
     } else {
-      return 'h-0 opacity-0'
+      return 'h-0 opacity-0 border-0 p-0 m-0 overflow-hidden'
     }
   }
-
-  useEffect(() => {
-    if (!openAccordion) {
-      return
-    }
-
-    const triggerEl = triggerRefs.current[openAccordion]
-    if (!triggerEl) {
-      return
-    }
-
-    const scrollOptions: ScrollIntoViewOptions = {
-      behavior: 'smooth',
-      block: 'start'
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      triggerEl.scrollIntoView(scrollOptions)
-    }, 350)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [openAccordion])
 
   return (
     <ScrollArea>
@@ -80,12 +54,7 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
                     : 'h-auto opacity-100'
                 }`}
               >
-                <AccordionTrigger
-                  ref={(el) => {
-                    triggerRefs.current[value] = el
-                  }}
-                  className="px-5 text-[20px] font-semibold"
-                >
+                <AccordionTrigger className="px-5 text-[20px] font-semibold">
                   <p>{qna.title}</p>
                 </AccordionTrigger>
                 <AccordionContent className="h-[calc(100vh-270px)] bg-[#121728] pb-0">
