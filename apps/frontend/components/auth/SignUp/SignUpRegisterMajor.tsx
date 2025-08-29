@@ -3,10 +3,12 @@
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { Button } from '@/components/shadcn/button'
 import { colleges } from '@/libs/constants'
+import { safeFetcher } from '@/libs/utils'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useEffect, useState, type ReactNode } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
+import { toast } from 'sonner'
 import * as v from 'valibot'
 import { MajorLabel } from '../AuthLabel'
 
@@ -15,7 +17,10 @@ interface RegisterMajorInput {
   major: string
 }
 
-const schema = v.object({})
+const schema = v.object({
+  affiliation: v.pipe(v.string(), v.minLength(1, 'Affiliation is required')),
+  major: v.pipe(v.string(), v.minLength(1, 'Major is required'))
+})
 
 function RegisterMajorForm({ children }: { children: ReactNode }) {
   const { nextModal, setFormData, formData } = useSignUpModalStore(
@@ -23,18 +28,44 @@ function RegisterMajorForm({ children }: { children: ReactNode }) {
   )
   const methods = useForm<RegisterMajorInput>({
     resolver: valibotResolver(schema),
+    mode: 'onChange', // 실시간 validation 추가
     defaultValues: {
       affiliation: '',
       major: ''
     }
   })
 
-  const onSubmit = (data: RegisterMajorInput) => {
-    setFormData({
+  const onSubmit = async (data: RegisterMajorInput) => {
+    console.log('Form submitted with data:', data) // 디버깅용
+
+    // formData에 새로운 데이터 추가
+    const updatedFormData = {
       ...formData,
       ...data
-    })
-    nextModal()
+    }
+
+    setFormData(updatedFormData)
+    console.log('Updated formData:', updatedFormData) // 디버깅용
+
+    try {
+      await safeFetcher.post('user/sign-up', {
+        headers: {
+          ...updatedFormData.headers // formData 대신 updatedFormData 사용
+        },
+        json: {
+          username: updatedFormData.username,
+          password: updatedFormData.password,
+          email: updatedFormData.email,
+          realName: updatedFormData.realName,
+          studentId: updatedFormData.studentId,
+          affiliation: updatedFormData.affiliation, // data.affiliation 대신
+          major: updatedFormData.major // data.major 대신
+        }
+      })
+      nextModal()
+    } catch {
+      toast.error('Failed to register. Please try again.')
+    }
   }
 
   return (
@@ -54,14 +85,15 @@ interface RegisterMajorFormFieldsProps {
 function RegisterMajorFormFields({
   setIsButtonDisabled
 }: RegisterMajorFormFieldsProps) {
-  const { register, watch, setValue } = useFormContext<RegisterMajorInput>()
+  const { watch, setValue } = useFormContext<RegisterMajorInput>()
   const watchAffiliation = watch('affiliation')
   const watchMajor = watch('major')
 
   useEffect(() => {
     const hasValues = watchAffiliation && watchMajor
     setIsButtonDisabled(!hasValues)
-  }, [watchAffiliation, watchMajor])
+  }, [watchAffiliation, watchMajor, setIsButtonDisabled])
+
   return (
     <div>
       <p className="text-xl font-medium">Tell us About You</p>
@@ -75,7 +107,7 @@ function RegisterMajorFormFields({
             options={colleges.map((college) => college.name)}
             value={watchAffiliation}
             onChange={(value) => {
-              setValue('affiliation', value)
+              setValue('affiliation', value, { shouldValidate: true })
             }}
             className="truncate text-base font-normal"
             placeholder="Affiliation"
@@ -86,7 +118,7 @@ function RegisterMajorFormFields({
               .flatMap((college) => college.majors)}
             value={watchMajor}
             onChange={(value) => {
-              setValue('major', value)
+              setValue('major', value, { shouldValidate: true })
             }}
             className="truncate text-base font-normal"
             placeholder="First Major"

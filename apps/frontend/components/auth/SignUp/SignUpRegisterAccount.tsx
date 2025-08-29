@@ -50,6 +50,7 @@ function RegisterAccountForm({ children }: { children: ReactNode }) {
   )
   const methods = useForm<RegisterAccountInput>({
     resolver: valibotResolver(schema),
+    mode: 'onChange',
     defaultValues: {
       username: '',
       password: '',
@@ -203,11 +204,7 @@ function SignUpRegisterAccountContent() {
                 )
               }
               // valibot 검증이 통과하고 실제 비밀번호가 입력된 경우만 success 표시
-              if (
-                !errors.password &&
-                watchPassword &&
-                watchPassword.length > 0
-              ) {
+              if (!errors.password && watchPassword) {
                 return <AuthMessage message="Correct Password" type="success" />
               }
               return (

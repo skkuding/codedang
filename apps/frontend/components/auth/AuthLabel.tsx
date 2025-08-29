@@ -28,9 +28,7 @@ export function RealNameLabel() {
   return (
     <div className="flex items-center gap-1">
       <IoPerson className="text-primary h-4 w-4" />
-      <span className="text-color-neutral-30 text-base font-normal">
-        Real Name
-      </span>
+      <span className="text-color-neutral-30 text-base font-normal">Name</span>
     </div>
   )
 }

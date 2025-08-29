@@ -14,7 +14,10 @@ interface RegisterInfoInput {
   studentId: string
 }
 
-const schema = v.object({})
+const schema = v.object({
+  realName: v.pipe(v.string(), v.minLength(1, 'Name is required')),
+  studentId: v.pipe(v.string(), v.minLength(1, 'Student ID is required'))
+})
 
 function RegisterInfoForm({ children }: { children: ReactNode }) {
   const { nextModal, setFormData, formData } = useSignUpModalStore(
