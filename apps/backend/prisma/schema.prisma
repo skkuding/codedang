@@ -312,9 +312,9 @@ model ProblemTestcase {
   input     String?
   output    String?
 
-  scoreWeight            Int? @default(1) @map("score_weight")
-  scoreWeightNumerator   Int  @default(1) @map("score_weight_numerator")
-  scoreWeightDenominator Int  @default(1) @map("score_weight_denominator")
+  scoreWeight            Int @default(1) @map("score_weight")
+  scoreWeightNumerator   Int @default(1) @map("score_weight_numerator")
+  scoreWeightDenominator Int @default(1) @map("score_weight_denominator")
 
   isHidden        Boolean  @default(false) @map("is_hidden_testcase")
   createTime      DateTime @default(now()) @map("create_time")

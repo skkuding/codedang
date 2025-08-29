@@ -17,13 +17,8 @@ const main = async () => {
 const setupMediaBucket = async () => {
   const client = new S3Client({
     region: 'ap-northeast-2',
-    // endpoint: process.env.TESTCASE_ENDPOINT_URL,
-    endpoint: process.env.STORAGE_BUCKET_ENDPOINT_URL,
-    forcePathStyle: true, // required for minio
-    credentials: {
-      accessKeyId: process.env.MEDIA_ACCESS_KEY || '',
-      secretAccessKey: process.env.MEDIA_SECRET_KEY || ''
-    }
+    endpoint: process.env.MINIO_ENDPOINT_URL,
+    forcePathStyle: true // required for minio
   })
 
   const bucketName = process.env.MEDIA_BUCKET_NAME
@@ -64,13 +59,8 @@ const setupMediaBucket = async () => {
 const setupTestcaseBucket = async () => {
   const client = new S3Client({
     region: 'ap-northeast-2',
-    // endpoint: process.env.TESTCASE_ENDPOINT_URL,
-    endpoint: process.env.STORAGE_BUCKET_ENDPOINT_URL,
-    forcePathStyle: true, // required for minio
-    credentials: {
-      accessKeyId: process.env.TESTCASE_ACCESS_KEY || '',
-      secretAccessKey: process.env.TESTCASE_SECRET_KEY || ''
-    }
+    endpoint: process.env.MINIO_ENDPOINT_URL,
+    forcePathStyle: true // required for minio
   })
 
   const bucketName = process.env.TESTCASE_BUCKET_NAME

@@ -39,10 +39,9 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/codedang-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          # TODO: change url back to stage.codedang.com
           build-args: |
-            BASEURL=https://k8s-test.stage.codedang.com/api
-            GQL_BASEURL=https://k8s-test.stage.codedang.com/graphql
+            BASEURL=https://stage.codedang.com/api
+            GQL_BASEURL=https://stage.codedang.com/graphql
 
   build-client-api:
     name: Build client-api image

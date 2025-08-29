@@ -4,5 +4,4 @@ metadata:
   name: client-api-env
   namespace: client-api
 data:
-  REDIS_HOST: 'redis-stage-master.redis.svc.cluster.local'
-  MINIO_ENDPOINT_URL: 'http://minio.svc.cluster.local'
+  MINIO_ENDPOINT_URL: 'http://minio.minio.svc.cluster.local'

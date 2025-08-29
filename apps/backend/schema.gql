@@ -2116,7 +2116,7 @@ type ProblemTestcase {
   output: String
   problem: Problem!
   problemId: Int!
-  scoreWeight: Int
+  scoreWeight: Int!
   scoreWeightDenominator: Int!
   scoreWeightNumerator: Int!
   submissionCount: Int!
@@ -2268,6 +2268,62 @@ enum Provider {
   google
   kakao
   naver
+}
+
+type PushSubscription {
+  auth: String!
+  createTime: DateTime!
+  endpoint: String!
+  id: ID!
+  p256dh: String!
+  updateTime: DateTime!
+  user: User!
+  userAgent: String
+  userId: Int!
+}
+
+type PushSubscriptionAvgAggregate {
+  id: Float
+  userId: Float
+}
+
+type PushSubscriptionCountAggregate {
+  _all: Int!
+  auth: Int!
+  createTime: Int!
+  endpoint: Int!
+  id: Int!
+  p256dh: Int!
+  updateTime: Int!
+  userAgent: Int!
+  userId: Int!
+}
+
+type PushSubscriptionMaxAggregate {
+  auth: String
+  createTime: DateTime
+  endpoint: String
+  id: Int
+  p256dh: String
+  updateTime: DateTime
+  userAgent: String
+  userId: Int
+}
+
+type PushSubscriptionMinAggregate {
+  auth: String
+  createTime: DateTime
+  endpoint: String
+  id: Int
+  p256dh: String
+  updateTime: DateTime
+  userAgent: String
+  userId: Int
+}
+
+type PushSubscriptionSumAggregate {
+  id: Int
+  userId: Int
 }
 
 enum QnACategory {
@@ -2926,6 +2982,7 @@ input UploadTestcaseZipInput {
 
 type User {
   NotificationRecord: [NotificationRecord!]
+  PushSubscription: [PushSubscription!]
   UpdateHistory: [UpdateHistory!]
   _count: UserCount!
   assignment: [Assignment!]
@@ -3056,6 +3113,7 @@ type UserContestSumAggregate {
 
 type UserCount {
   NotificationRecord: Int!
+  PushSubscription: Int!
   UpdateHistory: Int!
   assignment: Int!
   assignmentRecord: Int!
