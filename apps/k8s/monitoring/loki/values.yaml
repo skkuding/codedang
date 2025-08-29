@@ -1,16 +1,4 @@
 global:
-  # -- Common additional CLI arguments for all jobs (that is, -log.level debug, -config.expand-env=true or -log-config-reverse-order)
-  # scope: admin-api, backend, bloom-builder, bloom-gateway, bloom-planner, compactor, distributor, index-gateway, ingester, overrides-exporter, pattern-ingester, querier, query-frontend, query-scheduler, read, ruler, write.
-  extraArgs: []
-  # -- Common environment variables to add to all pods directly managed by this chart.
-  # scope: admin-api, backend, bloom-builder, bloom-gateway, bloom-planner, compactor, distributor, index-gateway, ingester, overrides-exporter, pattern-ingester, querier, query-frontend, query-scheduler, read, ruler, write.
-  extraEnv: []
-  # -- Common source of environment injections to add to all pods directly managed by this chart.
-  # scope: admin-api, backend, bloom-builder, bloom-gateway, bloom-planner, compactor, distributor, index-gateway, ingester, overrides-exporter, pattern-ingester, querier, query-frontend, query-scheduler, read, ruler, write.
-  # For example to inject values from a Secret, use:
-  # extraEnvFrom:
-  #   - secretRef:
-  #       name: mysecret
   # TODO: connect minio
   # extraEnvFrom:
   #   - secretRef:
