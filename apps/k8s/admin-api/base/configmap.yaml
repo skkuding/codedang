@@ -5,10 +5,11 @@ metadata:
   namespace: admin-api
 data:
   NODEMAILER_FROM: 'Codedang <noreply@codedang.com>'
-  REDIS_HOST: null # need to be set in overlays
+  REDIS_HOST: 'redis.redis.svc.cluster.local'
   REDIS_PORT: '6379'
   TESTCASE_BUCKET_NAME: 'codedang-testcase'
   MEDIA_BUCKET_NAME: 'codedang-media'
 
+  DISABLE_INSTRUMENTATION: 'true'
   # TODO: connect after observability services are implemented
   # OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'otel-collector.observability.svc.cluster.local:4317'

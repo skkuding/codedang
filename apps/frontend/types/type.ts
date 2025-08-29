@@ -548,3 +548,58 @@ export interface Notification {
   isRead: boolean
   createTime: string
 }
+
+export interface MultipleQnaData {
+  id: number
+  order: number
+  createdById: number
+  title: string
+  isResolved: boolean
+  category: string
+  problemId: number | null
+  createTime: Date
+  createdBy: {
+    username: string
+  }
+  isRead: boolean
+}
+
+export interface SingleQnaData {
+  id: number
+  order: number
+  createdById: number
+  title: string
+  content: string
+  problemId: number | null
+  category: string
+  isResolved: boolean
+  createTime: Date
+  readby: number[]
+  comments: {
+    id: number
+    order: number
+    createdById: number
+    isContestStaff: false
+    content: string
+    contestQnAId: number
+    createdTime: Date
+    createdBy: {
+      username: string
+    }
+  }[]
+  createdBy: {
+    username: string
+  }
+}
+
+export interface QnaFormData {
+  title: string
+  content: string
+  selectedProblem: string
+  selectedProblemLabel: string
+}
+
+export interface ProblemOption {
+  value: string
+  label: string
+}

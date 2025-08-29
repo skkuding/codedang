@@ -5,7 +5,6 @@ import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
-  ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
@@ -930,12 +929,7 @@ export class AssignmentService {
       },
       select: {
         assignment: {
-          select: {
-            id: true,
-            title: true,
-            isExercise: true,
-            startTime: true,
-            endTime: true,
+          include: {
             group: {
               select: {
                 groupName: true,
@@ -1043,9 +1037,9 @@ export class AssignmentService {
       )
     }
 
-    if (now <= assignment.dueTime) {
-      throw new ConflictFoundException(
-        'You can grade only finished assignments'
+    if (now < assignment.dueTime) {
+      throw new UnprocessableDataException(
+        'Assignments can only be graded after their due time'
       )
     }
 
@@ -1177,7 +1171,7 @@ export class AssignmentService {
   async autoFinalizeScore(groupId: number, assignmentId: number) {
     const assignment = await this.prisma.assignment.findUnique({
       where: { id: assignmentId },
-      select: { groupId: true }
+      select: { groupId: true, dueTime: true }
     })
 
     if (!assignment) {
@@ -1187,6 +1181,12 @@ export class AssignmentService {
     if (assignment.groupId !== groupId) {
       throw new ForbiddenAccessException(
         'You can only access assignment in your own group'
+      )
+    }
+
+    if (assignment.dueTime > new Date()) {
+      throw new UnprocessableDataException(
+        'Assignments can only be graded after their due time'
       )
     }
 
