@@ -39,7 +39,7 @@ export function QnAPostButton({ contestId, canCreateQnA }: QnAPostButtonProps) {
           'You are not authorized to access this page.\nPlease check your account permissions.'
         }
         primaryButton={{
-          text: 'Delete',
+          text: 'Confirm',
           onClick: () => setModalOpen(false),
           variant: 'default'
         }}
