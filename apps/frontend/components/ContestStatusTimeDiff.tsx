@@ -33,6 +33,7 @@ export function ContestStatusTimeDiff({
 }) {
   const router = useRouter()
   const { problemId } = useParams()
+  const now = dayjs()
 
   const [contestStatus, setContestStatus] = useState<
     ContestStatus | undefined | null
@@ -52,7 +53,6 @@ export function ContestStatusTimeDiff({
   })
 
   const updateContestStatus = () => {
-    const now = dayjs()
     if (now.isAfter(contest.endTime)) {
       setContestStatus('finished')
     } else if (now.isAfter(contest.startTime)) {
@@ -178,19 +178,21 @@ export function ContestStatusTimeDiff({
           </>
         )}
       </div>
-      <div
-        className={cn(
-          'inline-flex items-center gap-2 whitespace-nowrap text-base tracking-[-0.48px] text-[#333333e6] opacity-80',
-          textStyle
-        )}
-      >
-        <Image src={emergencyIcon} alt="emergency" width={20} height={20} />
-        <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-          {registerTimeDiff.days > 0
-            ? `Join within ${registerTimeDiff.hours}:${registerTimeDiff.minutes}:${registerTimeDiff.seconds}`
-            : `Registration is closed !`}
-        </p>
-      </div>
+      {!inContestEditor && (
+        <div
+          className={cn(
+            'inline-flex items-center gap-2 whitespace-nowrap text-base tracking-[-0.48px] text-[#333333e6] opacity-80',
+            textStyle
+          )}
+        >
+          <Image src={emergencyIcon} alt="emergency" width={20} height={20} />
+          <p className="overflow-hidden text-ellipsis whitespace-nowrap">
+            {now.isBefore(contest.registerDueTime)
+              ? `Join within ${registerTimeDiff.hours}:${registerTimeDiff.minutes}:${registerTimeDiff.seconds}`
+              : `Registration is closed !`}
+          </p>
+        </div>
+      )}
     </div>
   )
 }

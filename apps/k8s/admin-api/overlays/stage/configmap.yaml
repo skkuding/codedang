@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: admin-api-env
-  namespace: admin-api
-data:
-  REDIS_HOST: 'redis-stage-master.redis.svc.cluster.local'
