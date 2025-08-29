@@ -62,14 +62,14 @@ export function QnACategoryFilter<TData, TValue>({
             )}
           </div>
 
-          <div className="relative z-[-10] size-[18px]">
+          <div className="-z-1 relative size-[18px]">
             {' '}
             <Image src={DownArrow} alt="Bottom" fill />
           </div>
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[180px] p-0" align="start">
+      <PopoverContent className="z-0 w-[180px] p-0" align="start">
         <Command>
           <CommandList>
             <CommandGroup>
