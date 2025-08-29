@@ -9,6 +9,7 @@ export const isInvalid = (value: Invalid) => {
 export const validateScoreWeight = (testcases: Testcase[]): boolean => {
   const totalScore = testcases
     .map((tc: Testcase) => tc.scoreWeight)
+    .filter((score): score is number => score !== null && score !== undefined)
     .reduce((acc: number, score) => acc + score, 0)
 
   return totalScore === 100

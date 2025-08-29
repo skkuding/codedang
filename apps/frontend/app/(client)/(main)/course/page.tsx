@@ -98,7 +98,7 @@ export default async function Course() {
         <Dashboard courseIds={courseIds} />
       </div>
 
-      <div className="flex w-full max-w-[1440px] flex-col gap-5 px-[116px] pt-[100px]">
+      <div className="flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-[100px] sm:px-[116px]">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
             <CourseCardList title="MY COURSE" />
