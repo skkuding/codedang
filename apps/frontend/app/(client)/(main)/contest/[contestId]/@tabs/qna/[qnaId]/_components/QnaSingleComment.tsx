@@ -1,5 +1,5 @@
+import { dateFormatter } from '@/libs/utils'
 import type { GetContestQnaQuery } from '@generated/graphql'
-import { format } from 'date-fns'
 import React, { type ReactElement } from 'react'
 import { FaCircleCheck, FaClock } from 'react-icons/fa6'
 
@@ -34,8 +34,12 @@ export function QnaSingleComment({
         <div className="flex items-center gap-[8px]">
           <FaClock className="text-color-blue-50" size={13} />
           <div className="flex items-center gap-[4px] text-sm font-medium text-[#787E80]">
-            <span>{format(comment.createdTime, 'yyyy-MM-dd')}</span>
-            <span>{format(comment.createdTime, 'HH:mm:ss')}</span>
+            <span>
+              {dateFormatter(new Date(comment.createdTime), 'YYYY-MM-DD')}
+            </span>
+            <span>
+              {dateFormatter(new Date(comment.createdTime), 'HH:mm:ss')}
+            </span>
           </div>
         </div>
       </div>
