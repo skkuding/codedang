@@ -14,7 +14,7 @@ export class SubmissionController {
    * @param groupId 권한 검증을 위한 groupID
    * @param assignmentId AssignmentProblemRecode을 조회할 Assignment의 ID
    * @param problemId AssignmentProblemRecode을 조회할 problemID
-   * @returns 압축 파일을 다운로드 할 수 있는 URL
+   * @returns
    */
   @Get('/download/:groupId/:assignmentId/:problemId')
   @UseGroupLeaderGuard()
