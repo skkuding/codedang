@@ -1,8 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { ContestProblem, ContestRecord } from '@generated'
-import { Problem } from '@generated'
-import { Contest } from '@generated'
+import { Contest, ContestProblem, ContestRecord, Problem } from '@generated'
 import { faker } from '@faker-js/faker'
 import { ContestRole, ResultStatus, Role } from '@prisma/client'
 import { expect } from 'chai'
@@ -295,6 +294,12 @@ describe('ContestService', () => {
       providers: [
         ContestService,
         { provide: PrismaService, useValue: db },
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: stub().returns(undefined)
+          }
+        },
         {
           provide: CACHE_MANAGER,
           useFactory: () => ({

@@ -18,15 +18,9 @@ body:graphql {
       id
       title
       content
-      answer
-      isVisible
       createTime
       createdById
-      answeredById
       createdBy {
-        username
-      }
-      answeredBy {
         username
       }
     }
@@ -35,4 +29,31 @@ body:graphql {
 
 assert {
   res.body.data.getContests: isDefined
+}
+
+docs {
+  # Get Contest QnAs
+
+  ## Description
+  관리자가 특정 콘테스트의 모든 QnA를 조회할 수 있도록 합니다.
+
+  ## 요청 필드
+  | 필드명 | 타입 | 필수 여부 | 설명 |
+  |--------|------|----------|------|
+  | contestId | Int | 필수 | 콘테스트 ID |
+
+  ## 응답 필드
+  | 필드명 | 타입 | 설명 |
+  |--------|------|------|
+  | id | Int | QnA ID |
+  | title | String | QnA 제목 |
+  | content | String | QnA 내용 |
+  | createTime | GraphQLISODateTime | 생성 시간 |
+  | createdById | Int | 작성자 ID |
+  | createdBy | User | 작성자 정보 |
+  | createdBy.username | String | 작성자 사용자명 |
+
+  ## 제약사항
+  - `contestId`는 존재하는 콘테스트여야 합니다.
+
 }

@@ -105,7 +105,7 @@ describe('AssignmentService', () => {
 
     it('should return empty array when filtering by non-existent month/year', async () => {
       // Test with a future year that shouldn't have any assignments
-      const futureYear = new Date().getFullYear() + 10
+      const futureYear = new Date().getFullYear() + 1000
       const assignments = await service.getAssignments(
         groupId,
         false,

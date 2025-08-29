@@ -40,21 +40,21 @@ export function ParticipantTable({
 
   const [updateAssignment] = useMutation(UPDATE_ASSIGNMENT)
 
-  const summaries = useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
+  const summaries = useQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
     variables: { groupId, assignmentId, take: 300 }
   })
-  const summariesData = summaries.data.getAssignmentScoreSummaries.map(
+  const summariesData = summaries.data?.getAssignmentScoreSummaries.map(
     (item) => ({
       ...item,
       id: item.userId
     })
   )
 
-  const problems = useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {
+  const problems = useQuery(GET_ASSIGNMENT_PROBLEMS, {
     variables: { groupId, assignmentId }
   })
 
-  const problemData = problems.data.getAssignmentProblems
+  const problemData = problems.data?.getAssignmentProblems
     .slice()
     .sort((a, b) => a.order - b.order)
 
@@ -101,7 +101,7 @@ export function ParticipantTable({
     { label: 'Student Id', key: 'studentId' },
     { label: 'Name', key: 'realName' },
     {
-      label: `Total Score(MAX ${summaries?.data.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
+      label: `Total Score(MAX ${summaries?.data?.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
       key: 'finalScore'
     },
 
@@ -109,7 +109,7 @@ export function ParticipantTable({
   ]
 
   const csvData =
-    summaries.data.getAssignmentScoreSummaries.map((user) => {
+    summaries.data?.getAssignmentScoreSummaries.map((user) => {
       const userProblemScores = problemList.map((problem) => {
         const scoreData = user.problemScores.find(
           (ps) => ps.problemId === problem.problemId
@@ -175,13 +175,13 @@ export function ParticipantTable({
         </UtilityPanel>
       </div>
       <p className="mb-3 font-medium">
-        <span className="text-primary font-bold">{summariesData.length}</span>{' '}
+        <span className="text-primary font-bold">{summariesData?.length}</span>{' '}
         Participants
       </p>
       <DataTableRoot
-        data={summariesData}
+        data={summariesData || []}
         columns={createColumns(
-          problemData,
+          problemData || [],
           groupId,
           assignmentId,
           isAssignmentFinished,

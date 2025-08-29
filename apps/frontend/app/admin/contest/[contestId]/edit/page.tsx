@@ -10,12 +10,16 @@ import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { cn } from '@/libs/utils'
 import type { UpdateContestInfo } from '@/types/type'
+import type { ContestPreview } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
 import { useState, use } from 'react'
+import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
+import { IoIosCheckmarkCircle } from 'react-icons/io'
+import { MdTextSnippet } from 'react-icons/md'
+import { toast } from 'sonner'
 import { TimeForm } from '../../../_components/TimeForm'
 import { AddManagerReviewerDialog } from '../../_components/AddManagerReviewerDialog'
 import { ContestManagerReviewerTable } from '../../_components/ContestManagerReviewerTable'
@@ -25,6 +29,7 @@ import { DisableCopyPasteForm } from '../../_components/DisableCopyPasteForm'
 import { FreezeForm } from '../../_components/FreezeForm'
 import { ImportProblemDialog } from '../../_components/ImportProblemDialog'
 import { PosterUploadForm } from '../../_components/PosterUploadForm'
+import { PreviewOverviewLayout } from '../../_components/PreviewOverviewLayout'
 import { SampleTestcaseForm } from '../../_components/SampleTestcaseForm'
 import {
   type ContestManagerReviewer,
@@ -41,11 +46,36 @@ export default function Page(props: {
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [managers, setManagers] = useState<ContestManagerReviewer[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isPreviewing, setIsPreviewing] = useState(false)
+
   const { contestId } = params
 
   const methods = useForm<UpdateContestInfo>({
     resolver: valibotResolver(editSchema)
   })
+  const PreviewContestPortal = () => {
+    const contest = {
+      id: 1,
+      title: methods.getValues('title'),
+      startTime: methods.getValues('startTime'),
+      endTime: methods.getValues('endTime'),
+      summary: methods.getValues('summary'),
+      description: methods.getValues('description') ?? '',
+      posterUrl: methods.getValues('posterUrl') ?? '/logos/welcome.png',
+      status: 'upcoming',
+      problems
+    } as ContestPreview
+
+    return createPortal(
+      <div className="fixed inset-0 z-50 flex bg-white">
+        <PreviewOverviewLayout
+          contest={contest}
+          exitPreview={() => setIsPreviewing(false)}
+        />
+      </div>,
+      document.body
+    )
+  }
 
   const participants = methods.watch('contestRecord')
   const endTime = methods.getValues('endTime')
@@ -276,17 +306,35 @@ export default function Page(props: {
                   * You cannot edit the contest after it is finished.
                 </p>
               )}
-
-              <Button
-                type="submit"
-                className="flex h-[36px] w-full items-center gap-2 px-0"
-                disabled={isLoading || isFinished}
-              >
-                <IoMdCheckmarkCircleOutline fontSize={20} />
-                <div className="mb-[2px] text-base">Edit</div>
-              </Button>
+              <div className="flex flex-col gap-5">
+                <Button
+                  type="button"
+                  variant={'slate'}
+                  className="bg-fill hover:bg-fill-neutral flex h-[48px] w-full items-center gap-2 px-0"
+                  onClick={async () => {
+                    const isValid = await methods.trigger()
+                    if (isValid) {
+                      setIsPreviewing(true)
+                    } else {
+                      toast.error('Please fill in all required fields.')
+                    }
+                  }}
+                >
+                  <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
+                  <div className="text-base text-[#8a8a8a]">Show Preview</div>
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex h-12 w-full items-center gap-2 px-0"
+                  disabled={isLoading || isFinished}
+                >
+                  <IoIosCheckmarkCircle fontSize={20} />
+                  <div className="mb-[2px] text-lg font-bold">Edit</div>
+                </Button>
+              </div>
             </div>
           </EditContestForm>
+          {isPreviewing && <PreviewContestPortal />}
         </main>
       </ScrollArea>
     </ConfirmNavigation>

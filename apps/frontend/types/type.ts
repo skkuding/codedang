@@ -7,7 +7,6 @@ export type ContestStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 
-// TODO: registeredOngoing registeredUpcoming 삭제하기
 export type AssignmentStatus = 'ongoing' | 'upcoming' | 'finished'
 
 export type RecentUpdateType = 'Assignment' | 'Grade' | 'QnA' | 'Exam'
@@ -110,6 +109,7 @@ export interface TestcaseItem {
   id: number
   input: string
   output: string
+  isHidden?: boolean
   order?: number
 }
 
@@ -145,7 +145,7 @@ export interface Contest {
   title: string
   startTime: Date
   endTime: Date
-  registerDueTime: null | Date
+  registerDueTime: Date
   summary: {
     문제형태?: string
     순위산정?: string
@@ -162,6 +162,38 @@ export interface Contest {
   contestProblem: ProblemInContestInterface[]
 }
 
+export interface ContestTop {
+  id: number
+  title: string
+  description: string
+  startTime: Date
+  endTime: Date
+  registerDueTime: Date
+  isJudgeResultVisible: boolean
+  posterUrl?: string
+  summary: {
+    문제형태?: string
+    순위산정?: string
+    진행방식?: string
+    참여대상?: string
+    참여혜택?: string
+  }
+  enableCopyPaste: boolean
+  status: ContestStatus
+  participants: number
+  isRegistered: boolean
+  isPrivilegedRole: boolean
+  invitationCodeExists: boolean
+  prev: null | {
+    id: number
+    title: string
+  }
+  next: null | {
+    id: number
+    title: string
+  }
+}
+
 export interface ContestOrder {
   id: number
   title: string
@@ -174,6 +206,33 @@ export interface ContestAnnouncement {
   problemOrder: null | number
   createTime: string
   updateTime: string
+}
+
+export interface ContestPreview {
+  id: number
+  title: string
+  startTime: Date
+  endTime: Date
+  registerDueTime: Date
+  summary: {
+    문제형태?: string
+    순위산정?: string
+    진행방식?: string
+    참여대상?: string
+    참여혜택?: string
+  }
+  description: string
+  posterUrl: string
+  status: ContestStatus
+  problems: {
+    order: number
+    id: number | string
+    title: string
+    difficulty: string
+    submissionCount: number
+    acceptedRate: number
+    score: null | number
+  }[]
 }
 
 export interface Standings {
@@ -298,7 +357,7 @@ export interface TestResult {
 export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
-  isUserTestcase: boolean
+  type: 'user' | 'sample' | 'hidden'
 }
 
 export interface TabbedTestResult extends TestResultDetail {
@@ -477,4 +536,70 @@ export interface BaseDataTableProblem {
   languages: string[]
   score?: number
   order?: number
+}
+
+export interface Notification {
+  id: number
+  notificationId: number
+  title: string
+  message: string
+  url: string | null
+  type: string
+  isRead: boolean
+  createTime: string
+}
+
+export interface MultipleQnaData {
+  id: number
+  order: number
+  createdById: number
+  title: string
+  isResolved: boolean
+  category: string
+  problemId: number | null
+  createTime: Date
+  createdBy: {
+    username: string
+  }
+  isRead: boolean
+}
+
+export interface SingleQnaData {
+  id: number
+  order: number
+  createdById: number
+  title: string
+  content: string
+  problemId: number | null
+  category: string
+  isResolved: boolean
+  createTime: Date
+  readby: number[]
+  comments: {
+    id: number
+    order: number
+    createdById: number
+    isContestStaff: false
+    content: string
+    contestQnAId: number
+    createdTime: Date
+    createdBy: {
+      username: string
+    }
+  }[]
+  createdBy: {
+    username: string
+  }
+}
+
+export interface QnaFormData {
+  title: string
+  content: string
+  selectedProblem: string
+  selectedProblemLabel: string
+}
+
+export interface ProblemOption {
+  value: string
+  label: string
 }

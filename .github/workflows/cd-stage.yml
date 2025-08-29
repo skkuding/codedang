@@ -28,7 +28,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # TODO: add a custom tag(e.g. 2025.1) like other images, maybe after refactoring those steps
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
@@ -36,7 +35,13 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/codedang-frontend:${{github.sha}}
+            ghcr.io/${{ github.repository_owner }}/codedang-frontend:stage
             ghcr.io/${{ github.repository_owner }}/codedang-frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BASEURL=https://stage.codedang.com/api
+            GQL_BASEURL=https://stage.codedang.com/graphql
 
   build-client-api:
     name: Build client-api image
@@ -100,6 +105,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/codedang-client-api:${{env.IMAGE_TAG}}
             ghcr.io/${{ github.repository_owner }}/codedang-client-api:${{github.sha}}
+            ghcr.io/${{ github.repository_owner }}/codedang-client-api:stage
             ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
 
   build-admin-api:
@@ -163,6 +169,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/codedang-admin-api:${{env.IMAGE_TAG}}
             ghcr.io/${{ github.repository_owner }}/codedang-admin-api:${{github.sha}}
+            ghcr.io/${{ github.repository_owner }}/codedang-admin-api:stage
             ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
 
   build-iris:
@@ -223,6 +230,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/codedang-iris:${{env.IMAGE_TAG}}
             ghcr.io/${{ github.repository_owner }}/codedang-iris:${{github.sha}}
+            ghcr.io/${{ github.repository_owner }}/codedang-iris:stage
             ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
 
   run-server:

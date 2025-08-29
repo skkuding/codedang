@@ -6,12 +6,17 @@ import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 
 interface AdminTestResultDetail extends TestResultDetail {
   order?: number
-  type?: string
 }
 
 interface TestcasePanelProps {
   data: AdminTestResultDetail[]
   isTesting?: boolean
+}
+
+const TAB_CONTENT = {
+  sample: 'Sample',
+  user: 'User',
+  hidden: 'Hidden'
 }
 
 export function TestcasePanel({ data, isTesting = false }: TestcasePanelProps) {
@@ -68,7 +73,7 @@ export function TestcasePanel({ data, isTesting = false }: TestcasePanelProps) {
                     className="cursor-pointer border-b border-b-slate-600 text-left hover:bg-slate-700"
                   >
                     <td className="p-3 text-left">
-                      {testResult.type} #{testResult.order}
+                      {TAB_CONTENT[testResult.type]} #{testResult.order}
                     </td>
                     <td className="max-w-96 truncate p-3">
                       <WhitespaceVisualizer

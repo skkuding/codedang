@@ -9,6 +9,7 @@ interface FormSectionProps {
   className?: string
   isOngoing?: boolean
   isFinished?: boolean
+  titleSize?: 'base' | 'lg'
 }
 
 export function FormSection({
@@ -19,7 +20,8 @@ export function FormSection({
   isJustifyBetween = true,
   className,
   isOngoing = false,
-  isFinished = false
+  isFinished = false,
+  titleSize = 'lg'
 }: FormSectionProps) {
   const isChildrenArray = Array.isArray(children)
   const [badge, content] = isChildrenArray ? children : [null, children]
@@ -38,8 +40,16 @@ export function FormSection({
         className
       )}
     >
-      <div className="flex items-center gap-3 text-lg">
-        <span className="whitespace-nowrap font-semibold">{title}</span>
+      <div className="flex items-center gap-[4px] text-lg">
+        <span
+          className={cn(
+            'whitespace-nowrap',
+            titleSize === 'base' && 'text-base',
+            titleSize === 'lg' && 'text-lg'
+          )}
+        >
+          {title}
+        </span>
         {isLabeled && <span className="mt-1 text-red-500">*</span>}
         {badge}
       </div>
