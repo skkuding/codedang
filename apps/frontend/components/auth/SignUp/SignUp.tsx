@@ -19,7 +19,7 @@ export function SignUp() {
     <div className="flex h-full flex-col pb-9 pt-[46px]">
       {modalPage > 0 && modalPage < 5 && (
         <button
-          onClick={() => (modalPage < 2 ? backModal() : setModalPage(0))}
+          onClick={() => (modalPage === 2 ? setModalPage(0) : backModal())}
           className="focus:outline-hidden absolute left-5 top-[30px] h-5 w-5 opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500 dark:ring-offset-gray-950 dark:focus:ring-gray-300 dark:data-[state=open]:bg-gray-800 dark:data-[state=open]:text-gray-400"
         >
           <IoMdArrowBack />

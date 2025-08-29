@@ -92,7 +92,7 @@ function RegisterMajorFormFields({
 
   return (
     <div>
-      <p className="text-xl font-medium">Tell us About You</p>
+      <p className="text-xl font-medium">Tell Us About Yourself</p>
       <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
         Make sure to fill out the whole form
       </p>

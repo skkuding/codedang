@@ -22,7 +22,7 @@ export function SignUpWelcome() {
         className="w-full px-[22px] py-[9px] text-base font-medium"
         onClick={hideModal}
       >
-        Start the Codedang
+        Start Codedang
       </Button>
     </div>
   )

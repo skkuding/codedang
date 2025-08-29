@@ -86,7 +86,9 @@ function VisibleButton({ isVisible, setIsVisible }: VisibleButtonProps) {
     <button
       className="absolute inset-y-0 right-[21.67px] flex items-center"
       type="button"
+      tabIndex={-1}
       onClick={() => setIsVisible(!isVisible)}
+      aria-label={isVisible ? 'Hide password' : 'Show password'}
     >
       {isVisible ? (
         <FaEye className="text-gray-400" />
@@ -108,7 +110,8 @@ function SignUpRegisterAccountContent() {
     formState: { errors, isValid }
   } = useFormContext<RegisterAccountInput>()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false)
+  const [isPasswordConfirmVisible, setIsPasswordConfirmVisible] =
+    useState(false)
   const watchUsername = watch('username')
   const watchPassword = watch('password')
   const watchPasswordConfirm = watch('passwordConfirm')
@@ -190,11 +193,7 @@ function SignUpRegisterAccountContent() {
                 type={isPasswordVisible ? 'text' : 'password'}
                 {...register('password')}
                 onFocus={() => {
-                  clearErrors('password')
-                  setIsPasswordFocused(true)
-                }}
-                onBlur={() => {
-                  setIsPasswordFocused(false)
+                  trigger('password')
                 }}
               />
               <VisibleButton
@@ -202,39 +201,37 @@ function SignUpRegisterAccountContent() {
                 setIsVisible={setIsPasswordVisible}
               />
             </div>
-            {isPasswordFocused &&
-              (() => {
-                if (errors.password) {
-                  return (
-                    <AuthMessage
-                      message={errors.password.message?.toString() ?? ''}
-                      type="error"
-                    />
-                  )
-                }
-                // valibot 검증이 통과하고 실제 비밀번호가 입력된 경우만 success 표시
-                if (!errors.password && watchPassword) {
-                  return (
-                    <AuthMessage message="Correct Password" type="success" />
-                  )
-                }
+            {(() => {
+              if (errors.password) {
                 return (
                   <AuthMessage
-                    message="8–20 characters, use 2 of: upper, lower, number"
-                    type="info"
+                    message={errors.password.message?.toString() ?? ''}
+                    type="error"
                   />
                 )
-              })()}
+              }
+              if (!errors.password && watchPassword) {
+                return <AuthMessage message="Correct Password" type="success" />
+              }
+              return (
+                <AuthMessage
+                  message="8–20 characters, use 2 of: upper, lower, number"
+                  type="info"
+                />
+              )
+            })()}
             <div className="relative">
               <Input
                 placeholder="Re-enter Password"
-                type={isPasswordVisible ? 'text' : 'password'}
+                type={isPasswordConfirmVisible ? 'text' : 'password'}
                 {...register('passwordConfirm')}
-                onFocus={() => clearErrors('passwordConfirm')}
+                onFocus={() => {
+                  trigger('password')
+                }}
               />
               <VisibleButton
-                isVisible={isPasswordVisible}
-                setIsVisible={setIsPasswordVisible}
+                isVisible={isPasswordConfirmVisible}
+                setIsVisible={setIsPasswordConfirmVisible}
               />
             </div>
             {watchPasswordConfirm &&
