@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { cn } from '@/libs/utils'
 import infoIcon from '@/public/icons/info.svg'
 import { DialogTrigger } from '@radix-ui/react-dialog'
@@ -77,7 +78,7 @@ export function Modal({
       <DialogContent
         className={cn(
           sizeClassMap[size],
-          'flex flex-col items-center justify-center !rounded-2xl',
+          'flex flex-col !rounded-2xl',
           className
         )}
         onPointerDownOutside={onClose}
@@ -106,35 +107,39 @@ export function Modal({
             </p>
           )}
         </DialogHeader>
-        {type === 'input' && inputProps && (
-          <ModalInput
-            type={inputProps.type}
-            placeholder={inputProps.placeholder}
-            value={inputProps.value}
-            onChange={inputProps.onChange}
-          />
-        )}
-        {headerDescription && (
-          <span
-            className={cn(
-              'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
-              children && 'text-left'
-            )}
-          >
-            {headerDescription}
-          </span>
-        )}
-        {children}
-        {footerDescription && (
-          <span
-            className={cn(
-              'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
-              children && 'text-left'
-            )}
-          >
-            {footerDescription}
-          </span>
-        )}
+
+        <ScrollArea className="w-full flex-1 px-1">
+          {type === 'input' && inputProps && (
+            <ModalInput
+              type={inputProps.type}
+              placeholder={inputProps.placeholder}
+              value={inputProps.value}
+              onChange={inputProps.onChange}
+            />
+          )}
+          {headerDescription && (
+            <span
+              className={cn(
+                'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
+                children && 'text-left'
+              )}
+            >
+              {headerDescription}
+            </span>
+          )}
+          {children}
+          {footerDescription && (
+            <span
+              className={cn(
+                'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
+                children && 'text-left'
+              )}
+            >
+              {footerDescription}
+            </span>
+          )}
+        </ScrollArea>
+
         <DialogFooter className="flex w-full justify-center gap-[4px]">
           {secondaryButton && (
             <Button
