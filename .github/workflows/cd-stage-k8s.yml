@@ -4,7 +4,7 @@ name: CD - Stage
 
 on:
   push:
-    branches: [main]
+    branches: [main, hotfix-cd-stage]
 
 permissions:
   contents: read
