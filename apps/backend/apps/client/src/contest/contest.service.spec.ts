@@ -4,6 +4,7 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import {
   ContestRole,
   Prisma,
+  QnACategory,
   type Contest,
   type ContestRecord
 } from '@prisma/client'
@@ -54,64 +55,6 @@ const contest = {
   },
   invitationCode: '123456'
 } satisfies Contest
-
-// const ongoingContests = [
-//   {
-//     id: contest.id,
-//     title: contest.title,
-//     posterUrl: contest.posterUrl,
-//     summary: {
-//       참여대상: contest.summary?.참여대상,
-//       진행방식: contest.summary?.진행방식,
-//       순위산정: contest.summary?.순위산정,
-//       문제형태: contest.summary?.문제형태,
-//       참여혜택: contest.summary?.참여혜택
-//     },
-//     invitationCode: 'test',
-//     isJudgeResultVisible: true,
-//     startTime: now.add(-1, 'day').toDate(),
-//     endTime: now.add(1, 'day').toDate(),
-//     participants: 1,
-//     enableCopyPaste: true
-//   }
-// ] satisfies Partial<ContestResult>[]
-
-// const upcomingContests = [
-//   {
-//     id: contest.id + 6,
-//     title: contest.title,
-//     posterUrl: null,
-//     summary: {
-//       순위산정: contest.summary?.순위산정,
-//       문제형태: contest.summary?.문제형태,
-//       참여혜택: contest.summary?.참여혜택
-//     },
-//     invitationCode: 'test',
-//     isJudgeResultVisible: true,
-//     startTime: now.add(1, 'day').toDate(),
-//     endTime: now.add(2, 'day').toDate(),
-//     participants: 1,
-//     enableCopyPaste: true
-//   }
-// ] satisfies Partial<ContestResult>[]
-
-// const finishedContests = [
-//   {
-//     id: contest.id + 1,
-//     title: contest.title,
-//     posterUrl: contest.posterUrl,
-//     summary: {
-//       참여대상: contest.summary?.참여대상,
-//       진행방식: contest.summary?.진행방식
-//     },
-//     invitationCode: null,
-//     isJudgeResultVisible: true,
-//     startTime: now.add(-2, 'day').toDate(),
-//     endTime: now.add(-1, 'day').toDate(),
-//     participants: 1,
-//     enableCopyPaste: true
-//   }
-// ] satisfies Partial<ContestResult>[]
 
 describe('ContestService', () => {
   let service: ContestService
@@ -386,6 +329,193 @@ describe('ContestService', () => {
       expect(roles).to.be.an('array')
       expect(roles[0]).to.have.property('contestId')
       expect(roles[0]).to.have.property('role')
+    })
+  })
+
+  describe('createContestQnA', () => {
+    it('should create General QnA', async () => {
+      const created = await service.createContestQnA(
+        contestId,
+        user01Id,
+        { title: 'QnA general title', content: 'QnA general content' },
+        undefined
+      )
+      expect(created).to.have.property('id')
+      expect(created).to.have.property('order')
+      expect(created.title).to.equal('QnA general title')
+      expect(created.content).to.equal('QnA general content')
+      expect(created.contestId).to.equal(contestId)
+      expect(created.createdById).to.equal(user01Id)
+      expect(created.category).to.equal(QnACategory.General)
+      expect(created.readBy).to.include(user01Id)
+    })
+
+    it('should throw when contest does not exist', async () => {
+      await expect(
+        service.createContestQnA(
+          99,
+          user01Id,
+          { title: 'QnA title', content: 'QnA content' },
+          undefined
+        )
+      ).to.be.rejected
+    })
+
+    it('should forbid creating during contest if user is not registered', async () => {
+      await expect(
+        service.createContestQnA(
+          contestId,
+          99,
+          { title: 'QnA title', content: 'QnA content' },
+          undefined
+        )
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+
+  describe('getContestQnAs', () => {
+    it('should return QnA list', async () => {
+      const list = await service.getContestQnAs(null, contestId, {})
+      expect(list).to.be.an('array')
+    })
+
+    it('should support category filter', async () => {
+      const list = await service.getContestQnAs(null, contestId, {
+        categories: [QnACategory.General]
+      })
+      expect(list).to.be.an('array')
+    })
+  })
+
+  describe('getContestQnA', () => {
+    let createdOrder: number
+
+    beforeEach(async () => {
+      const created = await service.createContestQnA(
+        contestId,
+        user01Id,
+        { title: 'QnA title', content: 'QnA content' },
+        undefined
+      )
+      createdOrder = created.order
+    })
+
+    it('should allow own QnA during contest', async () => {
+      const qna = await service.getContestQnA(user01Id, contestId, createdOrder)
+      expect(qna).to.have.property('id')
+      expect(qna.order).to.equal(createdOrder)
+    })
+
+    it('should forbid non-writer non-staff during contest', async () => {
+      await expect(
+        service.getContestQnA(99, contestId, createdOrder)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+
+  describe('deleteContestQnA', () => {
+    it('writer can delete own QnA', async () => {
+      const created = await service.createContestQnA(
+        contestId,
+        user01Id,
+        { title: 'QnA title', content: 'QnA content' },
+        undefined
+      )
+      const deleted = await service.deleteContestQnA(
+        user01Id,
+        contestId,
+        created.order
+      )
+      expect(deleted.id).to.equal(created.id)
+    })
+
+    it('non-writer non-staff cannot delete QnA', async () => {
+      const created = await service.createContestQnA(
+        contestId,
+        user01Id,
+        { title: 'QnA title', content: 'QnA content' },
+        undefined
+      )
+      await expect(
+        service.deleteContestQnA(999, contestId, created.order)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+
+  describe('createContestQnAComment', () => {
+    it('should allow to create comment to own QnA during contest', async () => {
+      const created = await service.createContestQnA(
+        contestId,
+        user01Id,
+        { title: 'QnA title', content: 'QnA content' },
+        undefined
+      )
+      const comment = await service.createContestQnAComment(
+        user01Id,
+        contestId,
+        created.order,
+        'QnA comment'
+      )
+      expect(comment).to.have.property('id')
+    })
+
+    it('forbid non-privileged comment during contest', async () => {
+      const created = await service.createContestQnA(
+        contestId,
+        user01Id,
+        { title: 'QnA title', content: 'QnA content' },
+        undefined
+      )
+      await expect(
+        service.createContestQnAComment(99, contestId, created.order, 'comment')
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+
+  describe('deleteContestQnAComment', () => {
+    it('writer can delete own comment', async () => {
+      const created = await service.createContestQnA(
+        contestId,
+        user01Id,
+        { title: 'QnA title', content: 'QnA content' },
+        undefined
+      )
+      const comment = await service.createContestQnAComment(
+        user01Id,
+        contestId,
+        created.order,
+        'comment'
+      )
+      const deleted = await service.deleteContestQnAComment(
+        user01Id,
+        contestId,
+        created.order,
+        comment.order
+      )
+      expect(deleted.id).to.equal(comment.id)
+    })
+
+    it('non-writer non-staff cannot delete comment', async () => {
+      const created = await service.createContestQnA(
+        contestId,
+        user01Id,
+        { title: 'QnA title', content: 'QnA content' },
+        undefined
+      )
+      const comment = await service.createContestQnAComment(
+        user01Id,
+        contestId,
+        created.order,
+        'comment'
+      )
+      await expect(
+        service.deleteContestQnAComment(
+          99,
+          contestId,
+          created.order,
+          comment.order
+        )
+      ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
 })
