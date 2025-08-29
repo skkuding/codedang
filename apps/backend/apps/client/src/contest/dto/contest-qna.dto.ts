@@ -59,9 +59,5 @@ export class GetContestQnAsFilter {
   problemOrders?: number[]
 
   @IsOptional()
-  @IsIn(['asc', 'desc'])
-  orderBy?: 'asc' | 'desc' = 'asc'
-
-  @IsOptional()
   search?: string
 }
