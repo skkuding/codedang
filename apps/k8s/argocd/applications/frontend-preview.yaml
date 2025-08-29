@@ -61,6 +61,9 @@ spec:
                   path: /spec/tls/0/hosts/0
                   value: '*.preview.codedang.com'
                 - op: replace
+                  path: /spec/tls/0/secretName
+                  value: frontend-preview-tls
+                - op: replace
                   path: /spec/rules/0/host
                   value: '{{.number}}.preview.codedang.com'
       destination:
