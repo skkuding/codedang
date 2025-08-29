@@ -83,6 +83,10 @@ export function SignIn() {
         <div className="relative flex justify-between gap-1">
           <Input
             placeholder="Password"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            autoComplete="current-password"
             type={isPasswordVisible ? 'text' : 'password'}
             {...register('password')}
           />
