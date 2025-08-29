@@ -11,55 +11,62 @@ permissions:
   packages: write
 
 jobs:
-  build-and-push:
-    name: Build and Push Image
+  build-frontend:
+    name: Build Frontend
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        target:
-          - target: frontend
-            file: ./apps/frontend/Dockerfile
-            context: .
-            build-args: ''
-          - target: client-api
-            file: ./apps/backend/Dockerfile
-            context: .
-            build-args: |
-              target=client
-              app_env=production
-          - target: admin-api
-            file: ./apps/backend/Dockerfile
-            context: .
-            build-args: |
-              target=admin
-              app_env=production
-          - target: iris
-            file: ''
-            context: apps/iris
-            build-args: |
-              app_env=stage
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-and-push-image
+        with:
+          file: ./apps/frontend/Dockerfile
+          tags: |
+            ghcr.io/skkuding/codedang-frontend:production
+            ghcr.io/skkuding/codedang-frontend:${{github.sha}}
+
+  build-client-api:
+    name: Build Client API
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-and-push-image
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push image
-        uses: docker/build-push-action@v6
-        with:
-          file: ${{ matrix.target.file }}
-          context: '{{defaultContext}}:${{ matrix.target.context }}'
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          push: true
-          build-args: ${{ matrix.target.build-args }}
+          file: ./apps/backend/Dockerfile
+          build-args: |
+            target=client
+            app_env=production
           tags: |
-            ghcr.io/${{ github.repository_owner }}/codedang-${{ matrix.target.target }}:production
-            ghcr.io/${{ github.repository_owner }}/codedang-${{ matrix.target.target }}:${{github.sha}}
+            ghcr.io/skkuding/codedang-client-api:production
+            ghcr.io/skkuding/codedang-client-api:${{github.sha}}
+
+  build-admin-api:
+    name: Build Admin API
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-and-push-image
+        with:
+          file: ./apps/backend/Dockerfile
+          build-args: |
+            target=admin
+            app_env=production
+          tags: |
+            ghcr.io/skkuding/codedang-admin-api:production
+            ghcr.io/skkuding/codedang-admin-api:${{github.sha}}
+
+  build-iris:
+    name: Build Iris
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-and-push-image
+        with:
+          context: apps/iris
+          build-args: |
+            app_env=stage
+          tags: |
+            ghcr.io/skkuding/codedang-iris:production
+            ghcr.io/skkuding/codedang-iris:${{github.sha}}
