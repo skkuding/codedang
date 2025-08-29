@@ -115,25 +115,25 @@ export function Modal({
           />
         )}
         {size !== 'lg' && headerDescription && (
-          <p
+          <span
             className={cn(
               'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
               children && 'text-left'
             )}
           >
             {headerDescription}
-          </p>
+          </span>
         )}
         {children}
         {footerDescription && (
-          <p
+          <span
             className={cn(
               'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
               children && 'text-left'
             )}
           >
             {footerDescription}
-          </p>
+          </span>
         )}
         <DialogFooter className="flex w-full justify-center gap-[4px]">
           {secondaryButton && (

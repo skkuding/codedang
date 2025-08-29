@@ -10,6 +10,7 @@ import {
   AccordionTrigger
 } from '@/components/shadcn/accordion'
 import { Badge } from '@/components/shadcn/badge'
+import { Separator } from '@/components/shadcn/separator'
 import {
   cn,
   convertToLetter,
@@ -40,7 +41,7 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
   const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
 
   return (
-    <div className="mt-8">
+    <div className="mt-4 lg:mt-8">
       {exercises?.map((exercise) => (
         <ExerciseAccordionItem
           key={exercise.id}
@@ -104,99 +105,192 @@ function ExerciseAccordionItem({
       >
         <AccordionTrigger
           className={cn(
-            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-[60px] py-6 text-left text-sm shadow-md',
+            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-3 py-4 text-left text-sm shadow-md lg:px-[60px] lg:py-6',
             'data-[state=open]:-mb-6 data-[state=open]:mt-[24px]',
             'relative',
             'hover:no-underline'
           )}
-          iconStyle="w-5 h-5 absolute right-[3%]"
+          iconStyle="w-5 h-5 absolute right-3 top-[15%] lg:right-[3%] lg:top-auto"
         >
-          <div className="mr-4 w-[10%]">
-            <Badge
-              variant="Course"
-              className="px-[10px] py-1 text-sm font-medium"
-            >
-              Week {exercise.week.toString().padStart(2, '0')}
-            </Badge>
-          </div>
-
-          <div className="flex w-[45%] flex-col">
-            <AssignmentLink
-              key={exercise.id}
-              assignment={exercise}
-              courseId={courseId}
-              isExercise
-            />
-            {exercise && hasDueDate(exercise.dueTime) && (
-              <CountdownStatus
-                baseTime={exercise.dueTime}
-                textStyle="text-color-neutral-50"
-                showIcon={false}
-              />
-            )}
-          </div>
-
-          {exercise && (
-            <div className="flex w-[25%] justify-center">
-              <div className="max-w-[250px] flex-1 text-left">
-                <p className="text-color-neutral-60 overflow-hidden whitespace-nowrap text-center text-base font-normal">
-                  {formatDateRange(exercise.startTime, exercise.endTime, false)}
-                </p>
+          {/* Mobile Layout */}
+          <div className="flex w-full flex-col gap-2 lg:hidden">
+            <div className="mr-6 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant="Course"
+                  className="min-w-fit px-2 py-1 text-xs font-medium lg:px-[10px] lg:text-sm"
+                >
+                  Week {exercise.week.toString().padStart(2, '0')}
+                </Badge>
+                <div className="flex flex-col">
+                  <AssignmentLink
+                    key={exercise.id}
+                    assignment={exercise}
+                    courseId={courseId}
+                    isExercise
+                  />
+                </div>
               </div>
+              {exercise && hasDueDate(exercise.dueTime) && (
+                <CountdownStatus
+                  baseTime={exercise.dueTime}
+                  textStyle="text-color-neutral-50"
+                  showIcon={false}
+                />
+              )}
             </div>
-          )}
+            <Separator className="my-2" />
+            <div
+              className={cn(
+                'flex items-center text-xs text-gray-600',
+                dayjs().isAfter(dayjs(exercise.startTime))
+                  ? 'justify-between'
+                  : 'justify-end'
+              )}
+            >
+              {dayjs().isAfter(dayjs(exercise.startTime)) && (
+                <SubmissionBadge grade={grade} className="h-8 w-24 text-xs" />
+              )}
+            </div>
+          </div>
 
-          <div className="flex w-[20%] justify-center">
-            {dayjs().isAfter(dayjs(exercise.startTime)) && (
-              <SubmissionBadge grade={grade} />
+          {/* Desktop Layout */}
+          <div className="hidden w-full items-center lg:flex">
+            <div className="mr-4 w-[10%]">
+              <Badge
+                variant="Course"
+                className="px-[10px] py-1 text-sm font-medium"
+              >
+                Week {exercise.week.toString().padStart(2, '0')}
+              </Badge>
+            </div>
+
+            <div className="flex w-[45%] flex-col">
+              <AssignmentLink
+                key={exercise.id}
+                assignment={exercise}
+                courseId={courseId}
+                isExercise
+              />
+              {exercise && hasDueDate(exercise.dueTime) && (
+                <CountdownStatus
+                  baseTime={exercise.dueTime}
+                  textStyle="text-color-neutral-50"
+                  showIcon={false}
+                />
+              )}
+            </div>
+
+            {exercise && (
+              <div className="flex w-[25%] justify-center">
+                <div className="max-w-[250px] flex-1 text-left">
+                  <p className="text-color-neutral-60 overflow-hidden whitespace-nowrap text-center text-base font-normal">
+                    {formatDateRange(
+                      exercise.startTime,
+                      exercise.endTime,
+                      false
+                    )}
+                  </p>
+                </div>
+              </div>
             )}
+
+            <div className="flex w-[20%] justify-center">
+              {dayjs().isAfter(dayjs(exercise.startTime)) && (
+                <SubmissionBadge grade={grade} />
+              )}
+            </div>
           </div>
         </AccordionTrigger>
         <AccordionContent className="-mb-4 w-full">
           {isAccordionOpen && record && submission && (
             <div className="overflow-hidden rounded-2xl border">
               <div className="h-6 bg-[#F3F3F3]" />
-              {record.problems.map((problem, index) => (
-                <div
-                  key={problem.id}
-                  className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-[60px] py-6 last:border-none"
-                >
-                  <div className="mr-4 flex w-[10%]">
-                    <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
-                      {convertToLetter(problem.order)}
+
+              {/* Mobile Problem List */}
+              <div className="lg:hidden">
+                {record.problems.map((problem, index) => (
+                  <div
+                    key={problem.id}
+                    className="border-b bg-[#F8F8F8] px-4 py-4 last:border-none"
+                  >
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="text-color-violet-60 text-sm font-semibold">
+                          {convertToLetter(problem.order)}
+                        </div>
+                        <Link
+                          href={`/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}`}
+                          className="flex-1"
+                        >
+                          <span className="line-clamp-2 text-sm font-medium text-[#171717]">
+                            {problem.title}
+                          </span>
+                        </Link>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="flex w-[45%]">
-                    <Link
-                      href={
-                        `/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}` as const
-                      }
-                      // onClick={handleClick}
-                    >
-                      <span className="line-clamp-1 text-base font-medium text-[#171717]">
-                        {problem.title}
-                      </span>
-                    </Link>
-                  </div>
-
-                  <div className="w-[25%]">
-                    {submission[index].submission?.submissionTime && (
-                      <div className="text-primary flex w-full justify-center text-sm font-normal">
-                        Last Submission :{' '}
-                        {dateFormatter(
-                          submission[index].submission.submissionTime,
-                          'MMM D, HH:mm:ss'
+                    <div className="flex items-center justify-between text-xs text-gray-600">
+                      <div className="flex flex-col gap-1">
+                        {submission[index].submission?.submissionTime && (
+                          <span>
+                            Last Submission :{' '}
+                            {dateFormatter(
+                              submission[index].submission.submissionTime,
+                              'MMM D, HH:mm'
+                            )}
+                          </span>
                         )}
                       </div>
-                    )}
+                      <ResultBadge assignmentSubmission={submission[index]} />
+                    </div>
                   </div>
+                ))}
+              </div>
 
-                  <div className="flex w-[20%] justify-center font-medium">
-                    <ResultBadge assignmentSubmission={submission[index]} />
+              {/* Desktop Problem List */}
+              <div className="hidden lg:block">
+                {record.problems.map((problem, index) => (
+                  <div
+                    key={problem.id}
+                    className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
+                  >
+                    <div className="mr-4 flex w-[10%]">
+                      <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
+                        {convertToLetter(problem.order)}
+                      </div>
+                    </div>
+
+                    <div className="flex w-[30%]">
+                      <Link
+                        href={`/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}`}
+                      >
+                        <span className="line-clamp-1 text-base font-medium text-[#171717]">
+                          {problem.title}
+                        </span>
+                      </Link>
+                    </div>
+
+                    <div className="w-[30%]">
+                      {submission[index].submission?.submissionTime && (
+                        <div className="text-primary flex w-full justify-center text-sm font-normal">
+                          Last Submission :{' '}
+                          {dateFormatter(
+                            submission[index].submission.submissionTime,
+                            'MMM D, HH:mm:ss'
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex w-[13%] justify-center font-medium">
+                      <ResultBadge assignmentSubmission={submission[index]} />
+                    </div>
+
+                    <div className="w-[6%]" />
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </AccordionContent>

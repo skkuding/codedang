@@ -1,0 +1,28 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation AutoFinalizeScore($groupId: Int!, $assignmentId: Int!) {
+    autoFinalizeScore(groupId: $groupId, assignmentId: $assignmentId)
+  }
+}
+
+body:graphql:vars {
+  {
+    "assignmentId": 1,
+    "groupId": 1
+  }
+}
+
+assert {
+  res.body.data.autoFinalizeScore: isDefined
+}

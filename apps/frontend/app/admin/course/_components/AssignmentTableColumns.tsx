@@ -24,6 +24,7 @@ export interface DataTableAssignment {
   id: number
   title: string
   startTime: string
+  dueTime: string
   endTime: string
   description: string
   participants: number

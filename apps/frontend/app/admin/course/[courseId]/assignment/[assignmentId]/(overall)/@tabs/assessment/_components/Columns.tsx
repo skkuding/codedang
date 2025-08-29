@@ -142,14 +142,14 @@ function ScoreEditableCell({
             }
           }}
         />
-        <span className="text-xs">/{problemScore?.maxScore ?? 0}</span>
+        <span className="text-xs"> / {problemScore?.maxScore ?? 0}</span>
       </div>
     )
   }
   return (
     <div
       className={cn(
-        'rounded-xs cursor-pointer px-1 text-xs hover:bg-gray-100',
+        'rounded-xs cursor-pointer text-xs hover:bg-gray-100',
         editing && 'bg-gray-100'
       )}
       onClick={() => {
@@ -160,7 +160,7 @@ function ScoreEditableCell({
         setEditing(true)
       }}
     >
-      {problemScore?.finalScore ?? '-'}/{problemScore?.maxScore ?? 0}
+      {problemScore?.finalScore ?? '-'} / {problemScore?.maxScore ?? 0}
     </div>
   )
 }
@@ -170,6 +170,7 @@ export const createColumns = (
   courseId: number,
   assignmentId: number,
   isAssignmentFinished: boolean,
+  currentView: 'final' | 'auto',
   refetch: () => void
 ): ColumnDef<DataTableScoreSummary>[] => {
   return [
@@ -197,6 +198,13 @@ export const createColumns = (
         const problemScore = row.original.problemScores.find(
           (ps) => ps.problemId === problem.problemId
         )
+        if (currentView === 'auto') {
+          return (
+            <div className="text-xs">
+              {problemScore?.score ?? '-'} / {problemScore?.maxScore ?? 0}
+            </div>
+          )
+        }
         return (
           <ScoreEditableCell
             problemScore={problemScore}
