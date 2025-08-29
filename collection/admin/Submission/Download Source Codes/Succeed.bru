@@ -1,0 +1,24 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{adminRestUrl}}/submission/download/1/1/1
+  body: json
+  auth: none
+}
+
+docs {
+  ## Download Source Codes
+
+  - AssignmentId와 ProblemId에 해당하는 문제에 대해 제출된 코드들을 다운로드 합니다.
+
+  ### Request Body
+
+  - `groupId`: 과제가 속한 그룹 ID
+  - `assignmentId`: 과제 ID
+  - `problemId`: 문제 ID
+}
+
