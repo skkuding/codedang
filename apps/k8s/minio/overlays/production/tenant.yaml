@@ -11,9 +11,12 @@ spec:
   features:
     bucketDNS: true
   users:
-    - name: loki-user
+    - name: monitoring-user
   buckets:
-    - name: 'data-loki'
+    - name: 'loki'
+      region: 'ap-northeast-2'
+      objectLock: false
+    - name: 'tempo'
       region: 'ap-northeast-2'
       objectLock: false
   configuration:
