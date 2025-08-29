@@ -24,8 +24,8 @@ export function DashboardCalendar({
     d.getMonth() !== viewMonth.getMonth()
 
   return (
-    <section className="rounded- bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
-      <div className="pb-5 pl-[30px] pr-[30px] pt-[30px]">
+    <section className="rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
+      <div className="flex justify-center px-[30px] pb-5 pt-[30px]">
         <DayPicker
           className="m-0"
           mode="single"
@@ -118,8 +118,8 @@ export function DashboardCalendar({
             head_cell:
               'py-2 text-[16px] leading-6 tracking-[-0.48px] font-normal text-neutral-500 first:text-red-500',
             row: 'grid grid-cols-7',
-            cell: 'relative p-[2px] sm:p-1 text-center',
-            day: 'mx-auto my-1 flex hover:bg-violet-200 h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full font-normal transition',
+            cell: 'relative p-1 text-center',
+            day: 'mx-auto my-1 flex hover:bg-violet-200 h-9 w-9 items-center justify-center rounded-full font-normal transition',
             day_outside: 'text-neutral-400'
           }}
           modifiersClassNames={{
