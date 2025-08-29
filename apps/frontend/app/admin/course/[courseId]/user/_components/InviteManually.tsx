@@ -11,6 +11,7 @@ import {
   SelectValue
 } from '@/components/shadcn/select'
 import { INVITE_USER } from '@/graphql/user/mutation'
+import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { fetcherWithAuth } from '@/libs/utils'
 import emailIcon from '@/public/icons/email-symbol.svg'
 import plusIcon from '@/public/icons/plus-line.svg'
@@ -56,17 +57,11 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
   const [inviteUser] = useMutation(INVITE_USER)
   const [selectedList, setSelectedList] = useState<SelectedUserDisplay[]>([])
 
-  const [selectDomain, setSelectDomain] = useState('@skku.edu')
-  const [emailDomain, setEmailDomain] = useState('@skku.edu')
+  const [selectDomain, setSelectDomain] = useState(ALLOWED_DOMAINS[0])
+  const [emailDomain, setEmailDomain] = useState(ALLOWED_DOMAINS[0])
   const [isDirectInputMode, setIsDirectInputMode] = useState(false)
 
-  const emailDomains = [
-    '@gmail.com',
-    '@naver.com',
-    '@daum.com',
-    '@skku.edu',
-    'Enter directly'
-  ]
+  const emailDomains = [...ALLOWED_DOMAINS, 'Enter directly']
 
   const handleSelectChange = (value: string) => {
     setSelectDomain(value)
@@ -97,7 +92,9 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
   }
 
   const onFind: SubmitHandler<FindUserInput> = async (data) => {
-    const emailRevised = data.email + emailDomain
+    const emailRevised =
+      data.email +
+      (emailDomain.startsWith('@') ? emailDomain : `@${emailDomain}`)
 
     try {
       const res = await fetcherWithAuth('user/email', {
@@ -228,7 +225,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                       <Image src={emailIcon} alt="emailIcon" />
 
                       {selectDomain !== 'Enter directly' ? (
-                        <SelectValue placeholder="@skku.edu" />
+                        <SelectValue placeholder={ALLOWED_DOMAINS[0]} />
                       ) : (
                         <div className="flex-grow" />
                       )}
