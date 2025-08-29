@@ -5,6 +5,7 @@ resource "aws_route53_record" "rabbitmq" {
   zone_id = data.aws_route53_zone.codedang.zone_id
   type    = "A"
   records = local.prod_cluster_ip
+  ttl     = 300
 }
 
 resource "aws_route53_record" "rabbitmq_stage" {
@@ -12,4 +13,5 @@ resource "aws_route53_record" "rabbitmq_stage" {
   zone_id = data.aws_route53_zone.codedang.zone_id
   type    = "A"
   records = local.stage_cluster_ip
+  ttl     = 300
 }

@@ -6,4 +6,5 @@ resource "aws_route53_record" "docs" {
   zone_id = data.aws_route53_zone.codedang.zone_id
   type    = "CNAME"
   records = ["skkuding.github.io"]
+  ttl     = 300
 }

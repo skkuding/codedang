@@ -5,4 +5,5 @@ resource "aws_route53_record" "argocd" {
   zone_id = data.aws_route53_zone.codedang.zone_id
   type    = "A"
   records = local.prod_cluster_ip
+  ttl     = 300
 }
