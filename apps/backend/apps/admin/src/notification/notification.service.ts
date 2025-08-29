@@ -228,7 +228,8 @@ export class NotificationService {
     const receivers = codedangUsers.map((user) => user.id)
     const title = notice.title
     const message =
-      (notice.content ?? 'New Notice Created.').slice(0, 100) + '...'
+      (notice.content ?? 'New Notice Created.').slice(0, 100) +
+      (notice.content.length > 100 ? '...' : '')
     const url = `/notice/${noticeId}`
 
     await this.saveNotification(

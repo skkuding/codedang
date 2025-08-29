@@ -409,7 +409,10 @@ describe('NotificationService', () => {
   describe('notifyNoticeCreated', () => {
     it('should notify all users with the notice title and type Other', async () => {
       const noticeId = 55
-      db.notice.findUnique.resolves({ title: 'Important Update' })
+      db.notice.findUnique.resolves({
+        title: 'Important Update',
+        content: 'Body content here'
+      })
       db.user.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
       db.notification.create.resolves(notification)
       db.notificationRecord.createMany.resolves({ count: 3 })
@@ -420,15 +423,15 @@ describe('NotificationService', () => {
       expect(
         db.notice.findUnique.calledWith({
           where: { id: noticeId },
-          select: { title: true }
+          select: { title: true, content: true }
         })
       ).to.be.true
       expect(db.user.findMany.calledOnce).to.be.true
 
       expect(db.notification.create.calledOnce).to.be.true
       const createCall = db.notification.create.getCall(0)
-      expect(createCall.args[0].data.title).to.equal('New Notice Created')
-      expect(createCall.args[0].data.message).to.equal('Important Update')
+      expect(createCall.args[0].data.title).to.equal('Important Update')
+      expect(createCall.args[0].data.message).to.equal('Body content here')
       expect(createCall.args[0].data.type).to.equal(NotificationType.Other)
       expect(createCall.args[0].data.url).to.equal(`/notice/${noticeId}`)
 
