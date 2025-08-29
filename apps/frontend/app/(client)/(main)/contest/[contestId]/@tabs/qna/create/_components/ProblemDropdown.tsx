@@ -10,6 +10,8 @@ interface ProblemDropdownProps {
   problemOptions: ProblemOption[]
   isOpen: boolean
   onClose: () => void
+  isPrivilegedRole: boolean
+  isContestStarted: boolean
 }
 
 export function ProblemDropdown({
@@ -17,7 +19,9 @@ export function ProblemDropdown({
   setValue,
   problemOptions,
   isOpen,
-  onClose
+  onClose,
+  isPrivilegedRole,
+  isContestStarted
 }: ProblemDropdownProps) {
   const watchedValues = watch()
 
@@ -31,10 +35,26 @@ export function ProblemDropdown({
     return null
   }
 
+  // 표시할 문제 옵션 결정
+  const displayOptions = (() => {
+    // 운영진이면 항상 모든 문제 표시
+    if (isPrivilegedRole) {
+      return problemOptions
+    }
+
+    // 일반 사용자면 대회 시작 여부에 따라 결정
+    if (isContestStarted) {
+      return problemOptions
+    } else {
+      // 대회가 시작되지 않았으면 General만 표시
+      return problemOptions.filter((option) => option.value === '')
+    }
+  })()
+
   return (
     <Card className="mt-[10px] w-full">
       <CardContent className="flex flex-col gap-3 rounded-[12px] p-5">
-        {problemOptions.map((option) => (
+        {displayOptions.map((option) => (
           <div
             key={option.value}
             className="flex cursor-pointer items-center space-x-[14px] rounded p-1 hover:bg-gray-50"
@@ -46,7 +66,7 @@ export function ProblemDropdown({
               value={option.value}
               checked={watchedValues.selectedProblem === option.value}
               onChange={() => {}}
-              className="accent-primary h-5 w-5"
+              className="accent-primary h-4 w-4"
             />
             <label
               className={`font-pretendard cursor-pointer truncate text-sm font-normal not-italic leading-normal tracking-[-0.42px] ${

@@ -4,12 +4,13 @@ import { AlertModal } from '@/components/AlertModal'
 import { fetcherWithAuth } from '@/libs/utils'
 import infoBlueIcon from '@/public/icons/icon-info-blue.svg'
 import type {
-  Contest,
+  ContestTop,
   ProblemDataTop,
   ProblemOption,
   QnaFormData
 } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -33,6 +34,7 @@ export function QnaForm() {
   const params = useParams()
   const router = useRouter()
   const contestId = params.contestId as string
+  const { data: session } = useSession()
 
   const {
     control,
@@ -53,12 +55,16 @@ export function QnaForm() {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const [permissionModalOpen, setPermissionModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [problemOptions, setProblemOptions] = useState<ProblemOption[]>([
     { value: '', label: 'General' }
   ])
   const [isLoadingProblems, setIsLoadingProblems] = useState(true)
   const [isContestStarted, setIsContestStarted] = useState(false)
+  const [contest, setContest] = useState<ContestTop | null>(null)
+  const [canCreateQnA, setCanCreateQnA] = useState(false)
+  const [isPrivilegedRole, setIsPrivilegedRole] = useState(false)
 
   const watchedValues = watch()
 
@@ -68,40 +74,57 @@ export function QnaForm() {
     isValid
 
   useEffect(() => {
-    const fetchContestAndProblems = async () => {
-      try {
-        setIsLoadingProblems(true)
+    // 로그인하지 않은 사용자는 바로 리다이렉션
+    if (!session) {
+      router.push(`/contest/${contestId}/qna`)
+      return
+    }
 
+    const checkPermissionAndFetch = async () => {
+      try {
         const contestResponse = await fetcherWithAuth.get(
           `contest/${contestId}`
         )
 
         if (!contestResponse.ok) {
-          console.error('Failed to fetch contest info')
-          toast.error('Failed to load contest information')
+          router.push(`/contest/${contestId}/qna`)
           return
         }
 
-        const contestData: Contest = await contestResponse.json()
+        const contestData: ContestTop = await contestResponse.json()
+
         const now = new Date()
         const startTime = new Date(contestData.startTime)
+        const endTime = new Date(contestData.endTime)
         const contestStarted = now >= startTime
+        const isOngoing = now >= startTime && now < endTime
 
-        setIsContestStarted(contestStarted)
+        // 권한 체크
+        const canCreate =
+          session &&
+          (contestData.isRegistered ||
+            contestData.isPrivilegedRole ||
+            !isOngoing)
 
-        if (!contestStarted) {
-          setProblemOptions([{ value: '', label: 'General' }])
-          setIsLoadingProblems(false)
+        // 권한이 없으면 바로 리다이렉션 (에러 없이)
+        if (!canCreate) {
+          router.push(`/contest/${contestId}/qna`)
           return
         }
 
+        // 권한이 있는 경우에만 상태 설정 및 문제 로딩
+        setContest(contestData)
+        setIsContestStarted(contestStarted)
+        setCanCreateQnA(canCreate)
+        setIsPrivilegedRole(contestData.isPrivilegedRole)
+
+        // 문제 목록 가져오기
         const problemResponse = await fetcherWithAuth.get(
           `contest/${contestId}/problem`
         )
 
         if (problemResponse.ok) {
           const problemData: ProblemDataTop = await problemResponse.json()
-
           const options: ProblemOption[] = [
             { value: '', label: 'General' },
             ...problemData.data.map((problem, index) => ({
@@ -109,24 +132,27 @@ export function QnaForm() {
               label: `${String.fromCharCode(65 + index)}. ${problem.title}`
             }))
           ]
-
           setProblemOptions(options)
         } else {
-          console.error('Failed to fetch problems')
-          toast.error('Failed to load problems')
+          setProblemOptions([{ value: '', label: 'General' }])
         }
       } catch (error) {
-        console.error('Error fetching contest/problems:', error)
-        toast.error('An error occurred while loading data')
+        console.error('Error:', error)
+        router.push(`/contest/${contestId}/qna`)
       } finally {
         setIsLoadingProblems(false)
       }
     }
 
-    fetchContestAndProblems()
-  }, [contestId])
+    checkPermissionAndFetch()
+  }, [contestId, session, router])
 
   const handlePostClick = () => {
+    if (!canCreateQnA) {
+      setPermissionModalOpen(true)
+      return
+    }
+
     if (isFormValid) {
       setModalOpen(true)
     }
@@ -137,6 +163,11 @@ export function QnaForm() {
   }
 
   const handleSubmit = async () => {
+    if (!canCreateQnA) {
+      setPermissionModalOpen(true)
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -175,8 +206,23 @@ export function QnaForm() {
     }
   }
 
+  // 로딩 중이거나 로그인하지 않은 경우 (리다이렉션 처리 중)
+  if (!session || isLoadingProblems || !contest) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-2xl font-bold">Redirecting...</div>
+      </div>
+    )
+  }
+
   return (
     <>
+      <div className="mb-[30px] flex items-center">
+        <h1 className="font-pretendard text-2xl font-medium leading-[28.8px] tracking-[-0.72px] text-black">
+          Post New Question
+        </h1>
+      </div>
+
       <div className="flex min-h-[36px] w-full items-center gap-[14px] rounded-[1000px] border border-[#D8D8D8] bg-[#FFFFFF] px-[30px] py-[11px]">
         <ProblemSelector
           watch={watch}
@@ -187,7 +233,7 @@ export function QnaForm() {
         <Title control={control} />
       </div>
 
-      {!isContestStarted && !isLoadingProblems && (
+      {!isContestStarted && !isLoadingProblems && !isPrivilegedRole && (
         <div className="mt-[4px] flex">
           <Image
             src={infoBlueIcon}
@@ -208,6 +254,8 @@ export function QnaForm() {
         problemOptions={problemOptions}
         isOpen={isDropdownOpen && !isLoadingProblems}
         onClose={() => setIsDropdownOpen(false)}
+        isPrivilegedRole={isPrivilegedRole}
+        isContestStarted={isContestStarted}
       />
 
       <Content control={control} watch={watch} />
@@ -216,8 +264,10 @@ export function QnaForm() {
         isFormValid={isFormValid}
         isLoadingProblems={isLoadingProblems}
         onSubmit={handlePostClick}
+        canCreateQnA={canCreateQnA}
       />
 
+      {/* 질문 제출 확인 모달 */}
       <AlertModal
         open={modalOpen}
         onOpenChange={setModalOpen}
@@ -230,6 +280,21 @@ export function QnaForm() {
           onClick: handleSubmit
         }}
         type="confirm"
+      />
+
+      {/* 권한 없음 모달 */}
+      <AlertModal
+        open={permissionModalOpen}
+        onOpenChange={setPermissionModalOpen}
+        size="sm"
+        title="Permission Required"
+        description="You don't have permission to create questions in this contest. Please check your registration status or contact the contest organizer."
+        onClose={() => setPermissionModalOpen(false)}
+        primaryButton={{
+          text: 'Go to Q&A List',
+          onClick: gotoQuestionList
+        }}
+        type="warning"
       />
     </>
   )
