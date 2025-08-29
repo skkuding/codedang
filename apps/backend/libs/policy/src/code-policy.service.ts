@@ -22,24 +22,36 @@ export class CodePolicyService {
     if (lang === 'Python3' || lang === 'PyPy3') {
       for (const mod of rule.bannedImports ?? []) {
         const r = new RegExp(`\\b(?:import|from)\\s+${esc(mod)}\\b`)
-        if (r.test(src)) isViolated = true
+        if (r.test(src)) {
+          isViolated = true
+          break
+        }
       }
     } else if (lang === 'Java') {
       for (const pkg of rule.bannedImports ?? []) {
         const r = new RegExp(`\\bimport\\s+${esc(pkg)}[\\.;]`)
-        if (r.test(src)) isViolated = true
+        if (r.test(src)) {
+          isViolated = true
+          break
+        }
       }
     } else {
       for (const hdr of rule.bannedImports ?? []) {
         const r = new RegExp(`#\\s*include\\s*<${esc(hdr)}>`)
-        if (r.test(src)) isViolated = true
+        if (r.test(src)) {
+          isViolated = true
+          break
+        }
       }
     }
 
     // 토큰 검사
     for (const token of rule.bannedTokens ?? []) {
       const r = new RegExp(`\\b${esc(token)}\\b`)
-      if (r.test(src)) isViolated = true
+      if (r.test(src)) {
+        isViolated = true
+        break
+      }
     }
 
     if (isViolated) {
