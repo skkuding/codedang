@@ -16,7 +16,7 @@ spec:
         valueFiles:
           - $codedang/apps/k8s/monitoring/loki/values.yaml
     - repoURL: https://github.com/skkuding/codedang
-      targetRevision: main # TODO: update to release after merged
+      targetRevision: main
       ref: codedang
   destination:
     name: production

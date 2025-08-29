@@ -1,4 +1,5 @@
 global:
+  image: {}
   # TODO: connect minio
   # extraEnvFrom:
   #   - secretRef:
@@ -7,50 +8,15 @@ global:
 deploymentMode: SingleBinary
 ######################################################################################################################
 #
-# Base Loki Configs including kubernetes configurations and configurations for Loki itself,
-# see below for more specifics on Loki's configuration.
+# Base Loki Configs including kubernetes configurations and configurations for Loki itself
 #
 ######################################################################################################################
-# -- Configuration for running Loki
-# @default -- See values.yaml
 loki:
-  readinessProbe:
-    httpGet:
-      path: /ready
-      port: http-metrics
-    initialDelaySeconds: 30
-    timeoutSeconds: 1
   image:
     registry: docker.io
     repository: grafana/loki
     tag: 3.5.3
     pullPolicy: IfNotPresent
-  ######################################################################################################################
-  #
-  # Loki Configuration
-  #
-  # There are several ways to pass configuration to Loki, listing them here in order of our preference for how
-  # you should use this chart.
-  # 1. Use the templated value of loki.config below and the corresponding override sections which follow.
-  #    This allows us to set a lot of important Loki configurations and defaults and also allows us to maintain them
-  #    over time as Loki changes and evolves.
-  # 2. Use the loki.structuredConfig section.
-  #    This will completely override the templated value of loki.config, so you MUST provide the entire Loki config
-  #    including any configuration that we set in loki.config unless you explicitly are trying to change one of those
-  #    values and are not able to do so with the templated sections.
-  #    If you choose this approach the burden is on you to maintain any changes we make to the templated config.
-  # 3. Use an existing secret or configmap to provide the configuration.
-  #    This option is mostly provided for folks who have external processes which provide or modify the configuration.
-  #    When using this option you can specify a different name for loki.generatedConfigObjectName and configObjectName
-  #    if you have a process which takes the generated config and modifies it, or you can stop the chart from generating
-  #    a config entirely by setting loki.generatedConfigObjectName to
-  #
-  ######################################################################################################################
-
-  # -- Defines what kind of object stores the configuration, a ConfigMap or a Secret.
-  # In order to move sensitive information (such as credentials) from the ConfigMap/Secret to a more secure location (e.g. vault), it is possible to use [environment variables in the configuration](https://grafana.com/docs/loki/latest/configuration/#use-environment-variables-in-the-configuration).
-  # Such environment variables can be then stored in a separate Secret and injected via the global.extraEnvFrom value. For details about environment injection from a Secret please see [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/#use-case-as-container-environment-variables).
-  configStorageType: ConfigMap
   auth_enabled: false
 
   # -- Check https://grafana.com/docs/loki/latest/configuration/#server for more info on the server configuration.
@@ -79,33 +45,6 @@ loki:
       s3ForcePathStyle: true
       insecure: true
 
-  # -- Check https://grafana.com/docs/loki/latest/configuration/#ruler for more info on configuring ruler
-  rulerConfig:
-    wal:
-      dir: /var/loki/ruler-wal
-    # -- Storage for the ruler. If defining rules in `ruler.directories`, this must be configured to use local storage as shown below.
-    # storage:
-    #   type: local
-    #   local:
-    #     directory: /etc/loki/rules
-  # -- Structured loki configuration, takes precedence over `loki.config`, `loki.schemaConfig`, `loki.storageConfig`
-  structuredConfig: {}
-  # -- Additional query scheduler config
-  query_scheduler: {max_outstanding_requests_per_tenant: 4096}
-  # -- Additional storage config
-  storage_config:
-    boltdb_shipper:
-      index_gateway_client:
-        server_address: '{{ include "loki.indexGatewayAddress" . }}'
-    tsdb_shipper:
-      index_gateway_client:
-        server_address: '{{ include "loki.indexGatewayAddress" . }}'
-    bloom_shipper:
-      working_directory: /var/loki/data/bloomshipper
-    hedging:
-      at: '250ms'
-      max_per_second: 20
-      up_to: 3
   schemaConfig:
     configs:
       - from: 2025-08-15
@@ -115,21 +54,11 @@ loki:
         index:
           prefix: index_
           period: 24h
-  ui:
-    # Disabled by default for backwards compatibility. Enable to use the Loki UI.
-    enabled: false
-    gateway:
-      # enable gateway proxying to UI under /ui
-      enabled: true
-  # --  Optional querier configuration
   query_range:
     {
       results_cache:
         {cache: {embedded_cache: {enabled: true, max_size_mb: 100}}}
     }
-  # --  Optional querier configuration
-  querier: {}
-  # --  Optional ingester configuration
   ingester:
     {
       chunk_idle_period: 1m,
@@ -138,11 +67,6 @@ loki:
       chunk_retain_period: 30s,
       wal: {flush_on_shutdown: true}
     }
-  # --  Optional ingester client configuration
-  ingester_client: {}
-  # --  Optional block builder configuration
-  block_builder: {}
-  # --  Optional index gateway configuration
   index_gateway:
     mode: simple
   frontend:
@@ -150,7 +74,6 @@ loki:
     tail_proxy_url: '{{ include "loki.querierAddress" . }}'
   frontend_worker:
     scheduler_address: '{{ include "loki.querySchedulerAddress" . }}'
-  # -- Optional distributor configuration
   distributor:
     {
       otlp_config:
@@ -159,14 +82,8 @@ loki:
             ['service.name', 'service.version', 'service.environment']
         }
     }
-  # -- Enable tracing
   tracing:
     enabled: false
-######################################################################################################################
-#
-# Enterprise Loki Configs
-#
-######################################################################################################################
 
 ######################################################################################################################
 #
@@ -177,52 +94,28 @@ loki:
 # -- Section for configuring optional Helm test
 test:
   enabled: true
-  # -- Used to directly query the metrics endpoint of the canary for testing, this approach avoids needing prometheus for testing.
-  # This in a newer approach to using prometheusAddress such that tests do not have a dependency on prometheus
   canaryServiceAddress: 'http://loki-canary:3500/metrics'
-  # -- Address of the prometheus server to query for the test. This overrides any value set for canaryServiceAddress.
-  # This is kept for backward compatibility and may be removed in future releases. Previous value was 'http://prometheus:9090'
-  prometheusAddress: ''
-  # -- Number of times to retry the test before failing
   timeout: 1m
-  # -- Additional labels for the test pods
-  labels: {}
-  # -- Additional annotations for test pods
-  annotations: {}
-  # -- Image to use for loki canary
   image:
-    # -- The Docker registry
     registry: docker.io
-    # -- Docker image repository
     repository: grafana/loki-helm-test
-    # -- Overrides the image tag whose default is the chart's appVersion
     tag: 'ewelch-distributed-helm-chart-17db5ee'
-    # -- Overrides the image tag with an image digest
     digest: null
-    # -- Docker image pull policy
     pullPolicy: IfNotPresent
 # The Loki canary pushes logs to and queries from this loki installation to test
 # that it's working correctly
 lokiCanary:
   enabled: true
-  # -- The type of the loki canary k8s rollout. This can be a DaemonSet or Deployment.
   kind: DaemonSet
-  # -- If true, the canary will send directly to Loki via the address configured for verification --
-  # -- If false, it will write to stdout and an Agent will be needed to scrape and send the logs --
   push: true
-  # -- Image to use for loki canary
   image:
     registry: docker.io
     repository: grafana/loki-canary
     pullPolicy: IfNotPresent
+
 ######################################################################################################################
 #
 # Gateway and Ingress
-#
-# By default this chart will deploy a Nginx container to act as a gateway which handles routing of traffic
-# and can also do auth.
-#
-# If you would prefer you can optionally disable this and enable using k8s ingress to do the incoming routing.
 #
 ######################################################################################################################
 
@@ -241,14 +134,12 @@ gateway:
     tag: 1.29-alpine
     digest: null
     pullPolicy: IfNotPresent
-  # Gateway service configuration
   service:
     port: 80
     type: ClusterIP
-  # Gateway ingress configuration
   ingress:
-    # -- Specifies whether an ingress for the gateway should be created
     enabled: false # disabled as all telemetry data will have one gateway which is otel collector
+
 ######################################################################################################################
 #
 # Single Binary Deployment
@@ -257,24 +148,11 @@ gateway:
 #
 ######################################################################################################################
 
-# Configuration for the single binary node(s)
 singleBinary:
-  # -- Number of replicas for the single binary
   replicas: 0
   autoscaling:
-    # -- Enable autoscaling
     enabled: false
-    # -- Minimum autoscaling replicas for the single binary
     minReplicas: 1
-    # -- Maximum autoscaling replicas for the single binary
     maxReplicas: 3
-    # -- Target CPU utilisation percentage for the single binary
     targetCPUUtilizationPercentage: 60
-    # -- Target memory utilisation percentage for the single binary
     targetMemoryUtilizationPercentage: 60
-######################################################################################################################
-#
-# Subchart configurations
-#
-######################################################################################################################
-extraObjects: []
