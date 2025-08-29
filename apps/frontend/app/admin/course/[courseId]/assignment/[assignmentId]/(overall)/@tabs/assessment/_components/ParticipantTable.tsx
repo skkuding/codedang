@@ -144,7 +144,7 @@ export function ParticipantTable({
             onCheckedChange={async (checked) => {
               if (!isAssignmentFinished) {
                 toast.error(
-                  'Score cannot be revealed before the assignment is finished'
+                  'Score cannot be revealed before assignment due time.'
                 )
                 return
               }
