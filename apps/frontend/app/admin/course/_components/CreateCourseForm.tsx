@@ -43,7 +43,6 @@ export function CreateCourseForm({
   const client = useApolloClient()
 
   const onSubmit: SubmitHandler<CourseInput> = async (data) => {
-    console.log('hi')
     try {
       await createCourse({
         variables: {
