@@ -142,6 +142,12 @@ export function ParticipantTable({
         >
           <Switch
             onCheckedChange={async (checked) => {
+              if (!isAssignmentFinished) {
+                toast.error(
+                  'Score cannot be revealed before assignment due time.'
+                )
+                return
+              }
               setRevealFinalScore(checked)
               await updateAssignment({
                 variables: {
