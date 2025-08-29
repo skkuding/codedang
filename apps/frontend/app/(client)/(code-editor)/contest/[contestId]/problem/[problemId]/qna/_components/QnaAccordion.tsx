@@ -8,7 +8,7 @@ import {
 } from '@/components/shadcn/accordion'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { SingleQnaData } from '@/types/type'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { CommentsArea } from './CommentsArea'
 import { CreateComments } from './CreateComments'
 
@@ -20,6 +20,7 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
   const [openAccordion, setOpenAccordion] = useState<string | undefined>(
     undefined
   )
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   const handleValueChange = (value: string | undefined) => {
     setOpenAccordion(value)
@@ -32,6 +33,30 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
       return 'h-0 opacity-0'
     }
   }
+
+  useEffect(() => {
+    if (!openAccordion) {
+      return
+    }
+
+    const triggerEl = triggerRefs.current[openAccordion]
+    if (!triggerEl) {
+      return
+    }
+
+    const scrollOptions: ScrollIntoViewOptions = {
+      behavior: 'smooth',
+      block: 'start'
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      triggerEl.scrollIntoView(scrollOptions)
+    }, 350)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [openAccordion])
 
   return (
     <ScrollArea>
@@ -55,7 +80,12 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
                     : 'h-auto opacity-100'
                 }`}
               >
-                <AccordionTrigger className="px-5 text-[20px] font-semibold">
+                <AccordionTrigger
+                  ref={(el) => {
+                    triggerRefs.current[value] = el
+                  }}
+                  className="px-5 text-[20px] font-semibold"
+                >
                   <p>{qna.title}</p>
                 </AccordionTrigger>
                 <AccordionContent className="h-[684px] pb-0">
