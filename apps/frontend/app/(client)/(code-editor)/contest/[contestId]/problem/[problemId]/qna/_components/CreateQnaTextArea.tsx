@@ -108,7 +108,7 @@ export function CreateQnaTextArea({
             placeholder="Enter the Title"
             value={qnaFormdata.title}
             onChange={handleInputChange}
-            maxLength={80}
+            maxLength={70}
             className="placeholder-amber-20 h-[46px] w-full rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder:text-base placeholder:text-gray-400 focus-visible:ring-0"
           />
         </div>
