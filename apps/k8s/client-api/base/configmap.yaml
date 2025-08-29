@@ -13,7 +13,4 @@ data:
   REDIS_PORT: '6379'
   TESTCASE_BUCKET_NAME: 'codedang-testcase'
   MEDIA_BUCKET_NAME: 'codedang-media'
-
-  DISABLE_INSTRUMENTATION: 'true'
-  # TODO: connect after observability services are implemented
-  # OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'otel-collector.observability.svc.cluster.local:4317'
+  OTEL_EXPORTER_OTLP_ENDPOINT_URL: '115.145.160.239:4317'

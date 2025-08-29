@@ -9,3 +9,4 @@ data:
   RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local'
   RABBITMQ_PORT: '5672'
   RABBITMQ_DEFAULT_VHOST: 'vh'
+  OTEL_EXPORTER_OTLP_ENDPOINT_URL: '115.145.160.239:4317'
