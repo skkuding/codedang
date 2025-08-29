@@ -89,8 +89,8 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
                   <p>{qna.title}</p>
                 </AccordionTrigger>
                 <AccordionContent className="h-[684px] pb-0">
-                  <div className="flex h-full flex-col bg-[#121728]">
-                    <div className="flex-1 overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <div className="relative flex h-full flex-col bg-[#121728]">
+                    <div className="mb-[106px] flex-1 overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                       <div className="bg-[#222939] px-5 pb-5">
                         <div className="border-1 rounded-lg border-[#FFFFFF33] px-5 py-[14px] text-base">
                           {qna.content}
@@ -98,7 +98,7 @@ export function QnaAccordion({ qnaData }: QnaAccordionProps) {
                       </div>
                       <CommentsArea comments={qna.comments} />
                     </div>
-                    <div className="shrink-0">
+                    <div className="absolute bottom-0 w-full">
                       <CreateComments qnaOrder={qna.order} />
                     </div>
                   </div>
