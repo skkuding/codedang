@@ -111,7 +111,6 @@ export class ContestController {
   }
 
   @Post(':id/qna')
-  @UserNullWhenAuthFailedIfPublic()
   async createContestQnA(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number,
@@ -120,7 +119,7 @@ export class ContestController {
   ) {
     return await this.contestService.createContestQnA(
       contestId,
-      req.user?.id,
+      req.user.id,
       contestQnACreateDto,
       order
     )
@@ -141,21 +140,19 @@ export class ContestController {
   }
 
   @Delete(':id/qna/:order')
-  @UserNullWhenAuthFailedIfPublic()
   async deleteContestQnA(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number,
     @Param('order', ParseIntPipe) order: number
   ) {
     return await this.contestService.deleteContestQnA(
-      req.user?.id,
+      req.user.id,
       contestId,
       order
     )
   }
 
   @Post(':id/qna/:order/comment')
-  @UserNullWhenAuthFailedIfPublic()
   async createContestQnAComment(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number,
@@ -163,7 +160,7 @@ export class ContestController {
     @Body() contentQnACommentCreateDto: ContestQnACommentCreateDto
   ) {
     return await this.contestService.createContestQnAComment(
-      req.user?.id,
+      req.user.id,
       contestId,
       order,
       contentQnACommentCreateDto.content
@@ -171,7 +168,6 @@ export class ContestController {
   }
 
   @Delete(':id/qna/:qnaOrder/comment/:commentOrder')
-  @UserNullWhenAuthFailedIfPublic()
   async deleteContestQnAComment(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number,
@@ -179,7 +175,7 @@ export class ContestController {
     @Param('commentOrder', ParseIntPipe) commentOrder: number
   ) {
     return await this.contestService.deleteContestQnAComment(
-      req.user?.id,
+      req.user.id,
       contestId,
       qnAOrder,
       commentOrder

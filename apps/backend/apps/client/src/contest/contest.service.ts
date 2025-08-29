@@ -614,7 +614,7 @@ export class ContestService {
   /**
    * Contest에 대한 QnA를 생성합니다.
    * @param contestId - 대회 Id
-   * @param userId - QnA를 생성하려는 User의 Id(비로그인 상태에서는 null, 이 경우 질문 생성 불가)
+   * @param userId - QnA를 생성하려는 User의 Id(비로그인 상태에서는 질문 생성 불가)
    * @param data - 질문의 제목(title)과 내용(content)
    * @param problemId - 해당 QnA와 연관된 Problem의 Id(optional) -> 주어지지 않으면 카테고리 General로 설정
    * @throws { EntityNotExistException } - contestId에 대한 대회가 없는 경우
@@ -624,15 +624,10 @@ export class ContestService {
    */
   async createContestQnA(
     contestId: number,
-    userId: number | null,
+    userId: number,
     data: ContestQnACreateDto,
     order: number | undefined
   ) {
-    if (userId == null) {
-      throw new ForbiddenAccessException(
-        'Cannot post the QnA without logging in.'
-      )
-    }
     const contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId
@@ -935,7 +930,7 @@ export class ContestService {
 
   /**
    * 특정 Contest의 order에 해당하는 QnA를 삭제합니다.
-   * @param userId - 요청하는 사용자의 Id(비로그인 상태에서는 null, 이 경우 질문 삭제 불가)
+   * @param userId - 요청하는 사용자의 Id(비로그인 상태에서는 질문 삭제 불가)
    * @param contestId - 대회 Id
    * @param order - 삭제하려는 QnA의 대회 내에서의 순번
    * @throws { EntityNotExistException } - 입력받은 contestId에 해당하는 Contest가 존재하지 않을 시
@@ -943,17 +938,7 @@ export class ContestService {
    * @throws { ForbiddenAccessException } - 해당 QnA의 작성자 또는 대회 관리자 이외의 사용자가 요청할 시
    * @returns
    */
-  async deleteContestQnA(
-    userId: number | null,
-    contestId: number,
-    order: number
-  ) {
-    if (userId == null) {
-      throw new ForbiddenAccessException(
-        'Only Writer or Contest Staff can delete QnA.'
-      )
-    }
-
+  async deleteContestQnA(userId: number, contestId: number, order: number) {
     const contest = await this.prisma.contest.findFirst({
       where: { id: contestId }
     })
@@ -998,7 +983,7 @@ export class ContestService {
    * ContestQnA에 대한 댓글을 작성합니다
    * 대회가 진행중이면 QnA 작성자와 대회 운영진만 댓글을 작성할 수 있습니다.
    * 대회가 진행중이지 않으면 누구나 작성할 수 있습니다.
-   * @param userId - 댓글을 작성하려는 User의 Id(비로그인 상태에서는 null, 이 경우 질문 생성 불가)
+   * @param userId - 댓글을 작성하려는 User의 Id(비로그인 상태에서는 댓글 생성 불가)
    * @param contestId - Contest의 Id
    * @param order - contest 내에서 QnA의 order
    * @param content - 댓글 내용
@@ -1008,17 +993,11 @@ export class ContestService {
    * @returns ContestQnAComment
    */
   async createContestQnAComment(
-    userId: number | null,
+    userId: number,
     contestId: number,
     order: number,
     content: string
   ) {
-    if (userId == null) {
-      throw new ForbiddenAccessException(
-        'Cannot post the Comment without logging in.'
-      )
-    }
-
     const contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId
@@ -1094,7 +1073,7 @@ export class ContestService {
 
   /**
    * ContestQnA에 대한 댓글을 삭제합니다.
-   * @param userId - 요청한 사용자의 Id(비로그인 상태에서는 null, 이 경우 댓글 삭제 불가)
+   * @param userId - 요청한 사용자의 Id(비로그인 상태에서는 댓글 삭제 불가)
    * @param contestId - 대회 Id
    * @param qnAOrder - 해당 대회 내에서의 QnA의 순서
    * @param commentOrder - 해당 QnA 내에서 삭제할 댓글의 순서
@@ -1105,17 +1084,11 @@ export class ContestService {
    * @returns
    */
   async deleteContestQnAComment(
-    userId: number | null,
+    userId: number,
     contestId: number,
     qnAOrder: number,
     commentOrder: number
   ) {
-    if (userId == null) {
-      throw new ForbiddenAccessException(
-        'Only writer or contest staff can delete comment.'
-      )
-    }
-
     const contest = await this.prisma.contest.findFirst({
       where: { id: contestId }
     })
