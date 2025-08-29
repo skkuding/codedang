@@ -231,8 +231,12 @@ export function ParticipantTable({
 
                   summaries.refetch()
                   setCurrentView('final')
-                } catch {
-                  toast.error('Failed to apply auto grading')
+                } catch (error) {
+                  if (error instanceof Error) {
+                    toast.error(error.message)
+                  } else {
+                    toast.error('Failed to apply auto grading')
+                  }
                 }
               }}
             >
