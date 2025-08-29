@@ -2,6 +2,7 @@
 
 import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
 import { Button } from '@/components/shadcn/button'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { Textarea } from '@/components/shadcn/textarea'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import { usePathname } from 'next/navigation'
@@ -51,14 +52,16 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
   return (
     <div className="h-[106px] w-full bg-[#121728] p-5 pb-[30px]">
       <div className="relative">
-        <Textarea
-          name="content"
-          placeholder="Please enter your reply"
-          value={commentData}
-          onChange={handleInputChange}
-          maxLength={400}
-          className="h-[56px] w-full resize-none rounded-full border border-neutral-600 bg-[#FFFFFF1A] p-3 text-base text-white placeholder-gray-400 placeholder:text-base/loose focus:outline-none"
-        />
+        <ScrollArea>
+          <Textarea
+            name="content"
+            placeholder="Please enter your reply"
+            value={commentData}
+            onChange={handleInputChange}
+            maxLength={400}
+            className="h-[56px] w-full resize-none rounded-full border border-neutral-600 bg-[#FFFFFF1A] p-3 text-base text-white placeholder-gray-400 placeholder:text-base/loose focus:outline-none"
+          />
+        </ScrollArea>
         <Button
           onClick={handleSubmit}
           className="absolute right-[10px] top-1/2 flex h-10 w-10 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-[#121728]"
