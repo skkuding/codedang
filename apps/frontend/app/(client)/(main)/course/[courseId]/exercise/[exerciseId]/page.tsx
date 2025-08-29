@@ -9,6 +9,7 @@ import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter, getStatusWithStartEnd } from '@/libs/utils'
 import { useQuery } from '@tanstack/react-query'
 import { use } from 'react'
+import { ProblemCard } from '../../_components/ProblemCard'
 import { columns } from './_components/Columns'
 
 interface ExerciseDetailProps {
@@ -61,18 +62,16 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
 
   return (
     exercise && (
-      <div className="flex flex-col gap-[45px] px-[100px] py-[80px]">
-        <div className="flex justify-between">
-          <div className="flex flex-col gap-[30px]">
-            <p className="text-2xl font-semibold">
-              <span className="text-primary">[Week {exercise.week}] </span>
-              {exercise.title}
-            </p>
-            <AssignmentStatus
-              startTime={exercise.startTime}
-              dueTime={exercise.dueTime}
-            />
-          </div>
+      <div className="flex flex-col gap-[45px] px-4 py-[80px] lg:px-[100px]">
+        <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
+          <p className="text-2xl font-semibold">
+            <span className="text-primary">[Week {exercise.week}] </span>
+            {exercise.title}
+          </p>
+          <AssignmentStatus
+            startTime={exercise.startTime}
+            dueTime={exercise.dueTime}
+          />
         </div>
         <Separator className="my-0" />
         <div className="flex flex-col gap-[30px]">
@@ -88,7 +87,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
         {record && (
           <div>
             <p className="mb-[16px] text-2xl font-semibold">PROBLEMS</p>
-            <div className="mb-[42px] flex gap-[30px]">
+            <div className="flex gap-[30px] lg:mb-[42px]">
               <div className="flex gap-[6px]">
                 <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
                   Total
@@ -113,19 +112,40 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
           </div>
         )}
         {record && submissions && (
-          <DataTable
-            data={record.problems}
-            columns={columns(record, exercise, courseId, submissions)}
-            headerStyle={{
-              order: 'w-[10%]',
-              title: 'text-left w-[40%]',
-              submissions: 'w-[20%]',
-              tc_result: 'w-[20%]',
-              detail: 'w-[10%]'
-            }}
-            linked
-            pathSegment={'problem'}
-          />
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block">
+              <DataTable
+                data={record.problems}
+                columns={columns(record, exercise, courseId, submissions)}
+                headerStyle={{
+                  order: 'w-[10%]',
+                  title: 'text-left w-[40%]',
+                  submissions: 'w-[20%]',
+                  tc_result: 'w-[20%]',
+                  detail: 'w-[10%]'
+                }}
+                linked
+                pathSegment={'problem'}
+              />
+            </div>
+            {/* Mobile Card View */}
+            <div className="lg:hidden">
+              <div className="space-y-3">
+                {record.problems.map((problem, index) => (
+                  <ProblemCard
+                    key={problem.id}
+                    problem={problem}
+                    parentItem={exercise}
+                    submissions={submissions}
+                    index={index}
+                    courseId={courseId}
+                    type="exercise"
+                  />
+                ))}
+              </div>
+            </div>
+          </>
         )}
       </div>
     )

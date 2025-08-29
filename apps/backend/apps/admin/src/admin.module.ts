@@ -53,7 +53,8 @@ import { WorkbookModule } from './workbook/workbook.module'
       useFactory: (configService: ConfigService) => ({
         connection: {
           host: configService.get<string>('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT')
+          port: configService.get<number>('REDIS_PORT'),
+          db: 1 // use database 1 for BullMQ to avoid conflicts with other Redis clients
         },
         prefix: 'bull'
       }),
