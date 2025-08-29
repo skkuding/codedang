@@ -4,8 +4,8 @@ namespace: iris
 
 resources:
   - ../../base
+  - aws-credentials.yaml
   - database-credentials.yaml
-  - minio-credentials.yaml
 
 replicas:
   - name: iris
