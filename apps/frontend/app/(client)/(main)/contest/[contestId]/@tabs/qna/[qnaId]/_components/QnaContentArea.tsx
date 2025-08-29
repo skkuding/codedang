@@ -1,6 +1,6 @@
+import { dateFormatter } from '@/libs/utils'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
 import type { GetContestQnaQuery } from '@generated/graphql'
-import { format } from 'date-fns'
 import Image from 'next/image'
 import type { ReactElement } from 'react'
 import { FaClock } from 'react-icons/fa6'
@@ -51,8 +51,8 @@ export function QnaContentArea({
           <div className="flex items-center gap-[10px]">
             <FaClock className="text-color-blue-50" size={13} />
             <div className="flex items-center gap-[4px] text-sm">
-              <p>{format(createTime, 'yyyy-MM-dd')}</p>
-              <p>{format(createTime, 'HH:mm:ss')}</p>
+              <p>{dateFormatter(new Date(createTime), 'YYYY-MM-DD')}</p>
+              <p>{dateFormatter(new Date(createTime), 'HH:mm:ss')}</p>
             </div>
           </div>
         </div>
