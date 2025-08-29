@@ -224,25 +224,22 @@ model CourseNoticeRecord {
   createTime     DateTime     @default(now()) @map("create_time")
 
   @@index([userId, createTime, id])
+  @@unique([courseNoticeId, userId], name: "courseNoticeIdUserIdUnique")
   @@map("course_notice_record")
 }
 
 model CourseNoticeComment {
   id             Int          @id @default(autoincrement())
-  // Notice 내부 순서 (대댓글이 아닌 경우)
-  order          Int?
-  // Notice 및 대댓글 내부 순서 (대댓글인 경우)
-  nestedOrder    Int?         @map("nested_order")
   createdBy      User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById    Int?         @map("created_by_id")
-  replyOn        CourseNoticeComment?        @relation("ReplyOn", fields: [replyOnId], references: [id], onDelete: SetNull)
+  replyOn        CourseNoticeComment?        @relation("ReplyOn", fields: [replyOnId], references: [id], onDelete: Cascade)
   replyOnId      Int?                        @map("reply_on_id")
   content        String
   courseNotice   CourseNotice @relation(fields: [courseNoticeId], references: [id], onDelete: Cascade)
   courseNoticeId Int          @map("course_notice_id")
   createdTime    DateTime     @default(now()) @map("create_time")
+  updateTime     DateTime     @updatedAt @map("update_time")
 
-  @@unique([courseNoticeId, order])
   @@map("course_notice_comment")
   CourseNoticeComment CourseNoticeComment[] @relation("ReplyOn")
 }

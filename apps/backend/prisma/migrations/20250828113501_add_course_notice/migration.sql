@@ -28,13 +28,12 @@ CREATE TABLE "public"."course_notice_record" (
 -- CreateTable
 CREATE TABLE "public"."course_notice_comment" (
     "id" SERIAL NOT NULL,
-    "order" INTEGER,
-    "nested_order" INTEGER,
     "created_by_id" INTEGER,
     "reply_on_id" INTEGER,
     "content" TEXT NOT NULL,
     "course_notice_id" INTEGER NOT NULL,
     "create_time" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "update_time" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "course_notice_comment_pkey" PRIMARY KEY ("id")
 );
@@ -43,7 +42,7 @@ CREATE TABLE "public"."course_notice_comment" (
 CREATE INDEX "course_notice_record_user_id_create_time_id_idx" ON "public"."course_notice_record"("user_id", "create_time", "id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "course_notice_comment_course_notice_id_order_key" ON "public"."course_notice_comment"("course_notice_id", "order");
+CREATE UNIQUE INDEX "course_notice_record_course_notice_id_user_id_key" ON "public"."course_notice_record"("course_notice_id", "user_id");
 
 -- AddForeignKey
 ALTER TABLE "public"."course_notice" ADD CONSTRAINT "course_notice_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "public"."group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -64,7 +63,7 @@ ALTER TABLE "public"."course_notice_record" ADD CONSTRAINT "course_notice_record
 ALTER TABLE "public"."course_notice_comment" ADD CONSTRAINT "course_notice_comment_created_by_id_fkey" FOREIGN KEY ("created_by_id") REFERENCES "public"."user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."course_notice_comment" ADD CONSTRAINT "course_notice_comment_reply_on_id_fkey" FOREIGN KEY ("reply_on_id") REFERENCES "public"."course_notice_comment"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."course_notice_comment" ADD CONSTRAINT "course_notice_comment_reply_on_id_fkey" FOREIGN KEY ("reply_on_id") REFERENCES "public"."course_notice_comment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."course_notice_comment" ADD CONSTRAINT "course_notice_comment_course_notice_id_fkey" FOREIGN KEY ("course_notice_id") REFERENCES "public"."course_notice"("id") ON DELETE CASCADE ON UPDATE CASCADE;
