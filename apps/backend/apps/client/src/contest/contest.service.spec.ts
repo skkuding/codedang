@@ -375,12 +375,12 @@ describe('ContestService', () => {
 
   describe('getContestQnAs', () => {
     it('should return QnA list', async () => {
-      const list = await service.getContestQnAs(null, contestId, {})
+      const list = await service.getContestQnAs(user01Id, contestId, {})
       expect(list).to.be.an('array')
     })
 
     it('should support category filter', async () => {
-      const list = await service.getContestQnAs(null, contestId, {
+      const list = await service.getContestQnAs(user01Id, contestId, {
         categories: [QnACategory.General]
       })
       expect(list).to.be.an('array')
