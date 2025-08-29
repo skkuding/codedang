@@ -38,7 +38,8 @@ spec:
           # kustomization.yaml is ignored if recurse is true
           recurse: false
         kustomize:
-          namespace: 'frontend-preview-{{.number}}'
+          namespace: 'frontend-preview'
+          namePrefix: '{{.number}}-preview-'
           images:
             - 'ghcr.io/skkuding/codedang-frontend:{{.head_sha}}'
           patches:
@@ -58,7 +59,7 @@ spec:
               patch: |-
                 - op: replace
                   path: /spec/tls/0/hosts/0
-                  value: '{{.number}}.preview.codedang.com'
+                  value: '*.preview.codedang.com'
                 - op: replace
                   path: /spec/rules/0/host
                   value: '{{.number}}.preview.codedang.com'
