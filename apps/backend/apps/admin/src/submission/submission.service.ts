@@ -3,15 +3,8 @@ import { Prisma } from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
-import {
-  createReadStream,
-  createWriteStream,
-  existsSync,
-  mkdirSync,
-  writeFileSync,
-  rmSync,
-  unlinkSync
-} from 'fs'
+import { createReadStream, createWriteStream, existsSync, statSync } from 'fs'
+import { writeFile, rm, unlink, mkdir } from 'fs/promises'
 import path from 'path'
 import {
   EntityNotExistException,
@@ -555,7 +548,7 @@ export class SubmissionService {
   private async compressSourceCodes(
     assignmentId: number,
     problemId: number
-  ): Promise<{ zipPath: string; zipFilename: string }> {
+  ): Promise<{ zipPath: string; zipFilename: string; dirPath: string }> {
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
         where: {
@@ -591,40 +584,44 @@ export class SubmissionService {
     const dirPath = path.join(__dirname, `${zipFilename}`)
 
     if (existsSync(dirPath)) {
-      rmSync(dirPath, { recursive: true, force: true })
+      await rm(dirPath, { recursive: true, force: true })
     }
-    mkdirSync(dirPath, { recursive: true })
-
-    submissionInfos.forEach((info) => {
-      const code = plainToInstance(Snippet, info.code)
-      const formattedCode = code.map((snippet) => snippet.text).join('\n')
-      const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
-      const filePath = path.join(dirPath, filename)
-      writeFileSync(filePath, formattedCode)
-    })
-
-    const output = createWriteStream(zipPath)
-    const archive = archiver.create('zip', { zlib: { level: 9 } })
-
-    archive.on('error', (err) => {
-      // TODO: remove unncessary log
-      this.logger.error(err)
-      output.end()
-    })
-    archive.pipe(output)
-    archive.directory(dirPath, problemTitle!)
+    await mkdir(dirPath, { recursive: true })
 
     try {
-      await archive.finalize()
+      await Promise.all(
+        submissionInfos.map(async (info) => {
+          const code = plainToInstance(Snippet, info.code)
+          const formattedCode = code.map((snippet) => snippet.text).join('\n')
+          const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
+          const filePath = path.join(dirPath, filename)
+          await writeFile(filePath, formattedCode)
+        })
+      )
+
+      await new Promise<void>((resolve, reject) => {
+        const output = createWriteStream(zipPath)
+        const archive = archiver.create('zip', { zlib: { level: 9 } })
+
+        archive.on('error', reject)
+        output.on('close', resolve)
+        output.on('error', reject)
+
+        archive.pipe(output)
+        archive.directory(dirPath, problemTitle!)
+        archive.finalize()
+      })
+
+      return { zipPath, zipFilename, dirPath }
     } catch (err) {
-      this.logger.error(`Finalization failed: ${err}`)
+      if (existsSync(zipPath)) await unlink(zipPath)
+      if (existsSync(dirPath))
+        await rm(dirPath, { recursive: true, force: true })
       throw new UnprocessableFileDataException(
-        'Failed to create zip file',
-        zipFilename
+        'Failed to write source code files',
+        err
       )
     }
-
-    return { zipPath, zipFilename }
   }
 
   async downloadSourceCodes(
@@ -650,7 +647,7 @@ export class SubmissionService {
       )
     }
 
-    const { zipPath, zipFilename } = await this.compressSourceCodes(
+    const { zipPath, zipFilename, dirPath } = await this.compressSourceCodes(
       assignmentId,
       problemId
     )
@@ -661,26 +658,27 @@ export class SubmissionService {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Disposition': `attachment; filename=assignment${assignmentId}_problem${problemId}.zip; filename*=UTF-8''${encodedFilename}.zip`
     })
-    const fileStream = createReadStream(zipPath)
-    fileStream.pipe(res)
 
-    fileStream.on('finish', () => {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const stream = createReadStream(zipPath)
+        stream.pipe(res)
+        stream.on('end', resolve)
+        stream.on('error', reject)
+      })
+    } catch (err) {
+      if (!res.headersSent) {
+        throw new UnprocessableFileDataException('File download failed', err)
+      } else {
+        res.destroy(err)
+      }
+    } finally {
       if (existsSync(zipPath)) {
-        unlinkSync(zipPath)
+        await unlink(zipPath)
       }
-      if (existsSync(zipFilename)) {
-        rmSync(zipFilename, { recursive: true, force: true })
+      if (existsSync(dirPath)) {
+        await rm(dirPath, { recursive: true, force: true })
       }
-      res.end()
-    })
-    fileStream.on('error', (err) => {
-      if (existsSync(zipPath)) {
-        unlinkSync(zipPath)
-      }
-      if (existsSync(zipFilename)) {
-        rmSync(zipFilename, { recursive: true, force: true })
-      }
-      res.status(500).json({ error: 'File download failed: ', err })
-    })
+    }
   }
 }
