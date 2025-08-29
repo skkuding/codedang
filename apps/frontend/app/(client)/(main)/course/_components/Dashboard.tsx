@@ -2,6 +2,13 @@
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { AssignmentIcon, ExerciseIcon } from '@/components/Icons'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle
+} from '@/components/shadcn/drawer'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { Assignment, AssignmentSummary } from '@/types/type'
 import { useQueries, type UseQueryOptions } from '@tanstack/react-query'
 import Link from 'next/link'
@@ -131,6 +138,15 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
     }
   }
 
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
+  const onSelectDateMobile = (nextDate: Date | undefined) => {
+    onSelectDate(nextDate)
+    if (nextDate) {
+      setDrawerOpen(true)
+    }
+  }
+
   const assignmentQueriesResult = useQueries({
     queries: makeAssignmentQueries(validCourseIds, false)
   })
@@ -241,7 +257,8 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
         </h2>
       </div>
 
-      <div className="grid gap-[14px] md:grid-cols-2 lg:grid-cols-3">
+      {/* Desktop Layout */}
+      <div className="hidden gap-[14px] sm:grid md:grid-cols-2 lg:grid-cols-3">
         <CardSection
           icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
           title="Assignment"
@@ -270,14 +287,59 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
           setViewMonth={setViewMonth}
         />
       </div>
+
+      {/* Mobile Layout */}
+      <div className="sm:hidden">
+        <div className="w-full origin-top">
+          <DashboardCalendar
+            selectedDate={selectedDate}
+            onSelect={onSelectDateMobile}
+            deadlineDateList={deadlineDateList}
+            viewMonth={viewMonth}
+            setViewMonth={setViewMonth}
+          />
+        </div>
+
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+          <DrawerContent className="max-h-[90vh] pb-0">
+            <DrawerHeader>
+              <DrawerTitle>
+                {selectedDate?.toLocaleDateString() ?? ''}
+              </DrawerTitle>
+            </DrawerHeader>
+
+            <div className="mx-auto w-full items-center space-y-6">
+              <CardSection
+                icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
+                title="Assignment"
+                groups={groupedByCourse.map(({ courseTitle, rows }) => ({
+                  courseTitle,
+                  rows: rows.filter((r) => !r.isExercise)
+                }))}
+                selectedDate={selectedDate}
+              />
+
+              <CardSection
+                icon={<ExerciseIcon className="h-7 w-7 fill-violet-600" />}
+                title="Exercise"
+                groups={groupedByCourse.map(({ courseTitle, rows }) => ({
+                  courseTitle,
+                  rows: rows.filter((r) => r.isExercise)
+                }))}
+                selectedDate={selectedDate}
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      </div>
     </section>
   )
 }
 
 function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
   return (
-    <section className="rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
-      <div className="pb-[38px] pl-6 pr-6 pt-[30px]">
+    <section className="flex justify-center rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
+      <div className="flex max-h-[40vh] w-full max-w-[100vw] flex-col py-[30px] pl-6 pr-2 sm:max-h-[460px] sm:max-w-[390px]">
         <div className="mb-6 flex items-center gap-2">
           {icon}
           <div className="text-[24px] font-semibold leading-[33.6px] tracking-[-0.72px]">
@@ -285,7 +347,7 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-5">
+        <ScrollArea className="pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
           {groups
             .slice()
             .sort(
@@ -299,7 +361,7 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
             )
             .filter((g) => g.rows.length)
             .map((group, idx) => (
-              <div key={group.courseTitle}>
+              <div key={group.courseTitle} className="w-full">
                 <p className="mb-3 pl-[6px] text-[14px] font-semibold leading-[19.6px] tracking-[-0.42px] text-black">
                   <span className="mr-2 inline-block h-[22px] w-[6px] rounded-[1px] bg-violet-300 align-middle" />
                   {group.courseTitle}
@@ -333,7 +395,7 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
                         <Link
                           key={row.id}
                           href={`/course/${row.group.id}/${row.isExercise ? 'exercise' : 'assignment'}/${row.id}`}
-                          className="group relative overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
+                          className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
                           aria-label={`${row.title}, due ${formatDueMd(row.dueTime)}, progress ${progress}%`}
                         >
                           <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-neutral-200/40" />
@@ -370,11 +432,11 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
                 </div>
 
                 {idx < groups.length - 1 && (
-                  <hr className="mt-6 border-t-[0.5px] border-neutral-100" />
+                  <hr className="my-6 border-t-[0.5px] border-neutral-100" />
                 )}
               </div>
             ))}
-        </div>
+        </ScrollArea>
       </div>
     </section>
   )

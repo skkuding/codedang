@@ -823,7 +823,7 @@ export class ContestService {
       },
       where,
       orderBy: {
-        order: filter.orderBy || 'asc' // default는 asc
+        order: 'asc'
       }
     })
 
