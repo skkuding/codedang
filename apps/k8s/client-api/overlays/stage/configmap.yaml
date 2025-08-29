@@ -4,4 +4,4 @@ metadata:
   name: client-api-env
   namespace: client-api
 data:
-  MINIO_ENDPOINT_URL: 'http://minio.svc.cluster.local'
+  MINIO_ENDPOINT_URL: 'http://minio.minio.svc.cluster.local'

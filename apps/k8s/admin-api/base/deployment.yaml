@@ -21,8 +21,8 @@ spec:
               cpu: 1
               memory: 1.5Gi
             requests:
-              cpu: 1
-              memory: 500Mi
+              cpu: 0.2
+              memory: 200Mi
           envFrom:
             - configMapRef:
                 name: admin-api-env
