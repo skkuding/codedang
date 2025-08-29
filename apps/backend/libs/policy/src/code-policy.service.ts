@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import type { Language } from '@prisma/client'
-import { ConflictFoundException } from '@libs/exception'
+import { UnprocessableDataException } from '@libs/exception'
 import type { Snippet } from '@client/submission/class/create-submission.dto'
 import { POLICY_RULES, type Lang } from './rules'
 import { strip } from './stripper'
@@ -44,7 +44,9 @@ export class CodePolicyService {
 
     if (violations.length) {
       const list = [...new Set(violations)].slice(0, 6).join(', ')
-      throw new ConflictFoundException(`Disallowed APIs found: ${list}`)
+      throw new UnprocessableDataException(
+        `Forbidden API usage detected: ${list}`
+      )
     }
   }
 }
