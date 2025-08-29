@@ -868,7 +868,6 @@ type ContestQnA {
   createdById: Int
   id: ID!
   isResolved: Boolean!
-  isVisible: Boolean!
   order: Int!
   problem: Problem
   problemId: Int
@@ -955,7 +954,6 @@ type ContestQnACountAggregate {
   createdById: Int!
   id: Int!
   isResolved: Int!
-  isVisible: Int!
   order: Int!
   problemId: Int!
   readBy: Int!
@@ -970,7 +968,6 @@ type ContestQnAMaxAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
-  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
@@ -984,7 +981,6 @@ type ContestQnAMinAggregate {
   createdById: Int
   id: Int
   isResolved: Boolean
-  isVisible: Boolean
   order: Int
   problemId: Int
   title: String
@@ -1657,6 +1653,7 @@ enum Level {
 }
 
 type Mutation {
+  autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!
@@ -2120,6 +2117,8 @@ type ProblemTestcase {
   problem: Problem!
   problemId: Int!
   scoreWeight: Int!
+  scoreWeightDenominator: Int!
+  scoreWeightNumerator: Int!
   submissionCount: Int!
   submissionResult: [SubmissionResult!]
   updateTime: DateTime!
@@ -2131,6 +2130,8 @@ type ProblemTestcaseAvgAggregate {
   order: Float
   problemId: Float
   scoreWeight: Float
+  scoreWeightDenominator: Float
+  scoreWeightNumerator: Float
   submissionCount: Float
 }
 
@@ -2149,6 +2150,8 @@ type ProblemTestcaseCountAggregate {
   output: Int!
   problemId: Int!
   scoreWeight: Int!
+  scoreWeightDenominator: Int!
+  scoreWeightNumerator: Int!
   submissionCount: Int!
   updateTime: Int!
 }
@@ -2167,6 +2170,8 @@ type ProblemTestcaseMaxAggregate {
   output: String
   problemId: Int
   scoreWeight: Int
+  scoreWeightDenominator: Int
+  scoreWeightNumerator: Int
   submissionCount: Int
   updateTime: DateTime
 }
@@ -2181,6 +2186,8 @@ type ProblemTestcaseMinAggregate {
   output: String
   problemId: Int
   scoreWeight: Int
+  scoreWeightDenominator: Int
+  scoreWeightNumerator: Int
   submissionCount: Int
   updateTime: DateTime
 }
@@ -2196,6 +2203,8 @@ type ProblemTestcaseSumAggregate {
   order: Int
   problemId: Int
   scoreWeight: Int
+  scoreWeightDenominator: Int
+  scoreWeightNumerator: Int
   submissionCount: Int
 }
 
@@ -2666,7 +2675,13 @@ type TestCaseResult {
   problemTestcase: ProblemTestcaseResult!
   problemTestcaseId: Int!
   result: ResultStatus!
-  scoreWeight: Int!
+  scoreWeight: Int @deprecated(reason: "Use scoreWeightNumerator and scoreWeightDenominator instead")
+
+  """점수 가중치 분모"""
+  scoreWeightDenominator: Int
+
+  """점수 가중치 분자"""
+  scoreWeightNumerator: Int
   submissionId: Int!
   updateTime: DateTime!
 }
@@ -2784,7 +2799,13 @@ input Testcase {
   input: String!
   isHidden: Boolean!
   output: String!
-  scoreWeight: IntScore
+  scoreWeight: Int
+
+  """점수 가중치 분모"""
+  scoreWeightDenominator: Int
+
+  """점수 가중치 분자"""
+  scoreWeightNumerator: Int
 }
 
 type TestcaseResult {
@@ -2968,6 +2989,7 @@ type User {
   assignmentRecord: [AssignmentRecord!]
   canCreateContest: Boolean!
   canCreateCourse: Boolean!
+  college: String
   contest: [Contest!]
   contestRecord: [ContestRecord!]
   createTime: DateTime!
@@ -3113,6 +3135,7 @@ type UserCountAggregate {
   _all: Int!
   canCreateContest: Int!
   canCreateCourse: Int!
+  college: Int!
   createTime: Int!
   email: Int!
   id: Int!
@@ -3172,6 +3195,7 @@ type UserGroupSumAggregate {
 type UserMaxAggregate {
   canCreateContest: Boolean
   canCreateCourse: Boolean
+  college: String
   createTime: DateTime
   email: String
   id: Int
@@ -3186,6 +3210,7 @@ type UserMaxAggregate {
 type UserMinAggregate {
   canCreateContest: Boolean
   canCreateCourse: Boolean
+  college: String
   createTime: DateTime
   email: String
   id: Int

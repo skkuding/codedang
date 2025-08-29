@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/skkuding/codedang-frontend:latest
+          image: ghcr.io/skkuding/codedang-frontend
           ports:
             - containerPort: 5525
           resources:

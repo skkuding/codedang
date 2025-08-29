@@ -2,13 +2,12 @@
 
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
-import type { Route } from 'next'
+import ArrowIcon from '@/public/icons/arrow-icon.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { FaAngleLeft, FaAngleRight } from 'react-icons/fa6'
 
-interface Props {
+interface CarouselProps {
   slides: {
     type: string
     topTitle: string
@@ -20,14 +19,7 @@ interface Props {
   }[]
 }
 
-const bgColors: { [key: string]: string } = {
-  codedang:
-    'bg-[linear-gradient(325deg,rgba(79,86,162,0)_0%,rgba(79,86,162,0.5)_50%),linear-gradient(90deg,#3D63B8_0%,#0E1322_100%)]',
-  github: 'bg-linear-to-b from-[#161429] to-[#704FC3]',
-  skkuding: 'bg-linear-to-r from-[#41775D] to-[#123D29]'
-}
-
-export function Carousel({ slides }: Props) {
+export function Carousel({ slides }: CarouselProps) {
   const [facade, setFacade] = useState(0)
 
   useEffect(() => {
@@ -42,58 +34,81 @@ export function Carousel({ slides }: Props) {
   }
 
   return (
-    <div className="relative my-5 h-[466px] w-full overflow-hidden rounded-lg bg-gray-100 sm:h-[360px]">
+    <div className="relative my-1 h-[640px] w-full max-w-[1380px] overflow-hidden rounded-[20px] md:max-w-[1860px]">
       {slides.map((slide, index) => (
-        <Link
-          href={slide.href as Route}
+        <div
           key={slide.href + slide.topTitle}
           className={cn(
-            'absolute inset-0 z-10 flex flex-col-reverse items-center justify-between py-14 pl-6 text-white transition-opacity duration-1000 ease-in-out sm:flex-row md:pl-10',
-            facade !== index && 'z-0 opacity-0',
-            bgColors[slide.type]
+            'absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ease-in-out',
+            facade !== index && 'z-0 opacity-0'
           )}
         >
-          <div className="mb-10 w-full text-4xl font-bold">
-            <p className="font-mono md:text-nowrap">{slide.topTitle}</p>
-            <p className="font-mono md:text-nowrap">{slide.bottomTitle}</p>
-            <p className="mt-4 whitespace-nowrap text-base font-normal opacity-70 md:text-lg">
-              {slide.sub}
-            </p>
+          <Image
+            src={slide.img}
+            alt={slide.imgAlt}
+            fill
+            className="z-0 object-cover"
+            unoptimized
+            priority
+          />
+          <div className="font-pretendard absolute left-[130px] top-[150px] z-10 flex h-[344px] w-[539px] flex-col gap-[96px] tracking-[-0.03em] text-white">
+            <div className="flex flex-col">
+              <h1 className="text-[60px] font-medium leading-[110%] md:text-nowrap">
+                {slide.topTitle}
+              </h1>
+              <h2 className="text-[60px] font-medium leading-[110%] md:text-nowrap">
+                {slide.bottomTitle}
+              </h2>
+              <p className="mt-5 whitespace-pre-line text-[16px] font-normal leading-[150%] tracking-[-0.03em] text-[#E5E5E5]">
+                {slide.sub}
+              </p>
+            </div>
+            <div className="flex">
+              <Button className="h-[48px] w-[228px] rounded-[1000px] bg-black p-0 text-white">
+                <Link
+                  href={`http://about-codedang.framer.website`}
+                  className="flex h-full w-full items-center gap-[2px] pb-[10px] pl-[30px] pr-[24px] pt-[10px]"
+                >
+                  <span className="font-pretendard text-[18px] font-medium tracking-[-0.03em]">
+                    What is CODEDANG
+                  </span>
+                  <div className="relative flex size-[16px] scale-x-[-1] items-center justify-center">
+                    <Image src={ArrowIcon} alt="Right" fill />
+                  </div>
+                </Link>
+              </Button>
+            </div>
           </div>
-          <div>
-            <Image
-              src={slide.img}
-              alt={slide.imgAlt}
-              width={554}
-              height={554}
-              className="absolute -right-16 bottom-48 z-[-10] mr-5 size-[330px] object-contain sm:relative sm:bottom-0 sm:left-0 sm:size-[1024px] sm:pl-0"
-              priority
-            />
-          </div>
-        </Link>
-      ))}
-      <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center">
-        <div className="flex h-7 items-center rounded-full bg-white/60 px-2.5">
-          <Button
-            variant="ghost"
-            className="px-0 hover:bg-transparent active:bg-transparent"
-            onClick={() => handleClick(facade - 1 + slides.length)}
-          >
-            <FaAngleLeft className="h-4 fill-black opacity-70 hover:opacity-100" />
-          </Button>
-          <p className="mx-1 flex gap-1 text-sm text-black">
-            <span>{facade + 1}</span>
-            <span className="opacity-70">/</span>
-            <span>{slides.length}</span>
-          </p>
-          <Button
-            variant="ghost"
-            className="px-0 hover:bg-transparent active:bg-transparent"
-            onClick={() => handleClick(facade + 1)}
-          >
-            <FaAngleRight className="h-4 fill-black opacity-70 hover:opacity-100" />
-          </Button>
         </div>
+      ))}
+      <div className="absolute left-[20px] top-0 z-20 flex h-[640px] w-[80px] items-center justify-center">
+        <Button
+          variant="ghost"
+          className="h-10 p-0 hover:bg-transparent active:bg-transparent"
+          onClick={() => handleClick(facade - 1 + slides.length)}
+        >
+          <div className="relative flex h-[40px] w-[40px] items-center justify-center">
+            <Image src={ArrowIcon} alt="Left" fill />
+          </div>
+        </Button>
+      </div>
+      <div className="absolute right-[20px] top-0 z-20 flex h-[640px] w-[80px] items-center justify-center">
+        <Button
+          variant="ghost"
+          className="h-10 p-0 hover:bg-transparent active:bg-transparent"
+          onClick={() => handleClick(facade + 1)}
+        >
+          <div className="relative flex h-[40px] w-[40px] scale-x-[-1] items-center justify-center">
+            <Image src={ArrowIcon} alt="Right" fill />
+          </div>
+        </Button>
+      </div>
+      <div className="absolute right-[94px] top-[560px] z-20 flex h-[28px] w-[57px] items-center justify-center rounded-full bg-black/40 px-4 py-1 backdrop-blur-md">
+        <p className="font-pretendard flex items-center gap-1 text-sm font-medium leading-[140%] tracking-[-0.03em] text-white">
+          <span>{facade + 1}</span>
+          <span>/</span>
+          <span>{slides.length}</span>
+        </p>
       </div>
     </div>
   )

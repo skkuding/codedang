@@ -55,7 +55,7 @@ export function AssignmentLink({
     e.preventDefault()
 
     if (assignmentStatus === 'upcoming') {
-      toast.error('This assignment is not started yet!')
+      toast.error('This assignment has not started yet!')
       return
     }
 
@@ -66,8 +66,11 @@ export function AssignmentLink({
     <Link
       href={`/course/${courseId}/${type}/${assignment.id}`}
       onClick={handleClick}
+      className="w-fit"
     >
-      <p className="line-clamp-1 font-normal">{assignment.title}</p>
+      <p className="line-clamp-1 text-sm font-normal lg:text-base">
+        {assignment.title}
+      </p>
     </Link>
   )
 }

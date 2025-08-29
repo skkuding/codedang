@@ -1,7 +1,8 @@
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
+import { BullModule } from '@nestjs/bullmq'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module, type OnApplicationBootstrap } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_GUARD, HttpAdapterHost } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { GraphQLModule } from '@nestjs/graphql'
@@ -47,6 +48,19 @@ import { WorkbookModule } from './workbook/workbook.module'
       introspection: true,
       formatError: apolloErrorFormatter
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
+          db: 1 // use database 1 for BullMQ to avoid conflicts with other Redis clients
+        },
+        prefix: 'bull'
+      }),
+      inject: [ConfigService]
+    }),
+    BullModule.registerQueue({ name: 'notification' }),
     CacheModule.registerAsync({
       isGlobal: true,
       useClass: CacheConfigService

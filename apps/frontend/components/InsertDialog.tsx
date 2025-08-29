@@ -42,7 +42,7 @@ export function InsertDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild onClick={onToggleClick}>
         <Toggle
-          className="h-7 w-7 p-1"
+          className="h-9 w-9 p-1"
           pressed={editor?.isActive({ activeType })}
         >
           {triggerIcon}

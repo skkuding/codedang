@@ -30,18 +30,19 @@ export function InputForm({
   const {
     register,
     formState: { errors },
-    watch
+    watch,
+    setValue
   } = useFormContext()
 
   const watchedValue = watch(name)
-  const inputCount = (value ?? watchedValue ?? '').length
+  const inputCount = String(value || watchedValue || '').length
 
   return (
     <div className={cn(className, 'flex w-full flex-col gap-1')}>
       <div className="flex items-center rounded-full border bg-white pr-4">
         <Input
           id={name}
-          type={type}
+          type={type === 'number' ? 'text' : type}
           disabled={disabled}
           value={value}
           placeholder={placeholder}
@@ -51,17 +52,29 @@ export function InputForm({
           )}
           maxLength={maxLength || 120}
           {...register(name, {
-            setValueAs: (value) => (type === 'number' ? Number(value) : value)
+            setValueAs: (value) => {
+              if (type === 'number') {
+                return value === '' ? '' : Number(value)
+              }
+              return value
+            },
+            onChange: (e) => {
+              if (onChange) {
+                onChange(e)
+              }
+              if (type === 'number') {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '')
+              }
+              if (maxLength && e.target.value.length > maxLength) {
+                const trimmedValue = e.target.value.slice(0, maxLength)
+                setValue(
+                  name,
+                  type === 'number' ? Number(trimmedValue) : trimmedValue
+                )
+                return
+              }
+            }
           })}
-          onChange={(e) => {
-            if (onChange) {
-              onChange(e)
-            }
-            if (maxLength && e.target.value.length > maxLength) {
-              e.preventDefault()
-              return
-            }
-          }}
         />
         {maxLength && (
           <span className="text-sm text-[#8A8A8A]">
