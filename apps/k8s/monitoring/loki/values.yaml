@@ -6,45 +6,18 @@ global:
   #       name: monitoring-user
 
 deploymentMode: SingleBinary
-######################################################################################################################
-#
-# Base Loki Configs including kubernetes configurations and configurations for Loki itself
-#
-######################################################################################################################
 loki:
-  image:
-    registry: docker.io
-    repository: grafana/loki
-    tag: 3.5.3
-    pullPolicy: IfNotPresent
-  auth_enabled: false
-
-  # -- Check https://grafana.com/docs/loki/latest/configuration/#server for more info on the server configuration.
-  server:
-    http_listen_port: 3100
-    grpc_listen_port: 9095
-    http_server_read_timeout: 600s
-    http_server_write_timeout: 600s
-  # -- Limits config
-  limits_config:
-    reject_old_samples: true
-    reject_old_samples_max_age: 168h
-    max_cache_freshness_per_query: 10m
-    split_queries_by_interval: 15m
-    query_timeout: 300s
-    volume_enabled: true
-    allow_structured_metadata: true
-  # -- Storage config. Providing this will automatically populate all necessary storage configs in the templated config.
+  commonConfig:
+    replication_factor: 1
   storage:
     bucketNames:
       chunks: loki
       ruler: loki
     type: s3
     s3:
-      s3: http://minio.minio.svc.cluster.local:9000
+      endpoint: http://minio.minio.svc.cluster.local:9000
       s3ForcePathStyle: true
       insecure: true
-
   schemaConfig:
     configs:
       - from: 2025-08-15
@@ -52,107 +25,10 @@ loki:
         store: tsdb
         schema: v13
         index:
-          prefix: index_
+          prefix: loki_index_
           period: 24h
-  query_range:
-    {
-      results_cache:
-        {cache: {embedded_cache: {enabled: true, max_size_mb: 100}}}
-    }
-  ingester:
-    {
-      chunk_idle_period: 1m,
-      max_chunk_age: 1h,
-      chunk_target_size: 1048576,
-      chunk_retain_period: 30s,
-      wal: {flush_on_shutdown: true}
-    }
-  index_gateway:
-    mode: simple
-  frontend:
-    scheduler_address: '{{ include "loki.querySchedulerAddress" . }}'
-    tail_proxy_url: '{{ include "loki.querierAddress" . }}'
-  frontend_worker:
-    scheduler_address: '{{ include "loki.querySchedulerAddress" . }}'
-  distributor:
-    {
-      otlp_config:
-        {
-          default_resource_attributes_as_index_labels:
-            ['service.name', 'service.version', 'service.environment']
-        }
-    }
-  tracing:
-    enabled: false
-
-######################################################################################################################
-#
-# Chart Testing
-#
-######################################################################################################################
-
-# -- Section for configuring optional Helm test
-test:
-  enabled: true
-  canaryServiceAddress: 'http://loki-canary:3500/metrics'
-  timeout: 1m
-  image:
-    registry: docker.io
-    repository: grafana/loki-helm-test
-    tag: 'ewelch-distributed-helm-chart-17db5ee'
-    digest: null
-    pullPolicy: IfNotPresent
-# The Loki canary pushes logs to and queries from this loki installation to test
-# that it's working correctly
-lokiCanary:
-  enabled: true
-  kind: DaemonSet
-  push: true
-  image:
-    registry: docker.io
-    repository: grafana/loki-canary
-    pullPolicy: IfNotPresent
-
-######################################################################################################################
-#
-# Gateway and Ingress
-#
-######################################################################################################################
-
-# Configuration for the gateway
+  distributor: {otlp_config: {default_resource_attributes_as_index_labels:
+            # these keys will be indexed
+            ['service.name', 'service.version', 'service.environment']}}
 gateway:
-  enabled: true
-  replicas: 1
-  containerPort: 8080
-  # -- Enable logging of 2xx and 3xx HTTP requests
-  verboseLogging: true
-  autoscaling:
-    enabled: false
-  image:
-    registry: docker.io
-    repository: nginxinc/nginx-unprivileged
-    tag: 1.29-alpine
-    digest: null
-    pullPolicy: IfNotPresent
-  service:
-    port: 80
-    type: ClusterIP
-  ingress:
-    enabled: false # disabled as all telemetry data will have one gateway which is otel collector
-
-######################################################################################################################
-#
-# Single Binary Deployment
-#
-# For small Loki installations up to a few 10's of GB per day, or for testing and development.
-#
-######################################################################################################################
-
-singleBinary:
-  replicas: 0
-  autoscaling:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 60
-    targetMemoryUtilizationPercentage: 60
+  enabled: false
