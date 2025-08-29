@@ -112,7 +112,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
   const ContestProblems = await fetcherWithAuth
     .get(`contest/${contestId}/problem`)
     .json<{ data: { order: number; id: number; title: string }[] }>()
-  const matchedProblem = ContestProblems.data.find(
+  const matchedProblem = ContestProblems.data?.find(
     ({ id }) => id === QnaData.problemId
   )
   const categoryName = matchedProblem
