@@ -94,7 +94,7 @@ export default async function Course() {
   return (
     <>
       <CourseMainBanner course={null} />
-      <div className="px-[116px] pt-[100px]">
+      <div className="w-full px-6 pt-[100px] sm:px-[116px]">
         <Dashboard courseIds={courseIds} />
       </div>
 
