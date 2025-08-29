@@ -7,16 +7,33 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
+import { Button } from '@/components/shadcn/button'
+import {
+  Command,
+  CommandGroup,
+  CommandItem,
+  CommandList
+} from '@/components/shadcn/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/shadcn/popover'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { Switch } from '@/components/shadcn/switch'
-import { UPDATE_ASSIGNMENT } from '@/graphql/assignment/mutations'
+import {
+  AUTO_FINALIZE_SCORE,
+  UPDATE_ASSIGNMENT
+} from '@/graphql/assignment/mutations'
 import {
   GET_ASSIGNMENT,
   GET_ASSIGNMENT_SCORE_SUMMARIES
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
-import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
+import { cn } from '@/libs/utils'
+import { useMutation, useQuery } from '@apollo/client'
 import dayjs from 'dayjs'
+import { Check, ChevronsUpDown } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
@@ -38,7 +55,10 @@ export function ParticipantTable({
     }
   }).data?.getAssignment
 
+  const [currentView, setCurrentView] = useState<'final' | 'auto'>('final')
+  const [viewOpen, setViewOpen] = useState(false)
   const [updateAssignment] = useMutation(UPDATE_ASSIGNMENT)
+  const [autoFinalizeScore] = useMutation(AUTO_FINALIZE_SCORE)
 
   const summaries = useQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
     variables: { groupId, assignmentId, take: 300 }
@@ -49,6 +69,15 @@ export function ParticipantTable({
       id: item.userId
     })
   )
+
+  useEffect(() => {
+    if (summariesData && summariesData.length > 0) {
+      const hasAnyFinalScore = summariesData.some((item) =>
+        item.problemScores.some((problem) => problem.finalScore !== null)
+      )
+      setCurrentView(hasAnyFinalScore ? 'final' : 'auto')
+    }
+  }, [summariesData?.length])
 
   const problems = useQuery(GET_ASSIGNMENT_PROBLEMS, {
     variables: { groupId, assignmentId }
@@ -180,10 +209,98 @@ export function ParticipantTable({
           </CSVLink>
         </UtilityPanel>
       </div>
-      <p className="mb-3 font-medium">
-        <span className="text-primary font-bold">{summariesData?.length}</span>{' '}
-        Participants
-      </p>
+      <div className="flex items-end justify-between">
+        <p className="mb-3 font-medium">
+          <span className="text-primary font-bold">
+            {summariesData?.length}
+          </span>{' '}
+          Participants
+        </p>
+        <div className="flex gap-2">
+          {currentView === 'auto' && (
+            <Button
+              onClick={async () => {
+                try {
+                  const result = await autoFinalizeScore({
+                    variables: { groupId, assignmentId }
+                  })
+
+                  const gradedCount = result.data?.autoFinalizeScore
+                  const expectedCount =
+                    (summariesData?.length || 0) * (problemData?.length || 0)
+
+                  if (gradedCount === expectedCount) {
+                    toast.success('Successfully graded all submissions')
+                  } else {
+                    toast.success(`Graded ${gradedCount} submissions`)
+                  }
+
+                  summaries.refetch()
+                  setCurrentView('final')
+                } catch (error) {
+                  if (error instanceof Error) {
+                    toast.error(error.message)
+                  } else {
+                    toast.error('Failed to apply auto grading')
+                  }
+                }
+              }}
+            >
+              Apply to Final Score
+            </Button>
+          )}
+          <Popover open={viewOpen} onOpenChange={setViewOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                className="w-[200px] justify-between"
+              >
+                {currentView === 'final' ? 'Final Score' : 'Auto Graded Score'}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0">
+              <Command>
+                <CommandList>
+                  <CommandGroup>
+                    <CommandItem
+                      value="final"
+                      onSelect={() => {
+                        setCurrentView('final')
+                        setViewOpen(false)
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          'mr-2 h-4 w-4',
+                          currentView === 'final' ? 'opacity-100' : 'opacity-0'
+                        )}
+                      />
+                      Final Score
+                    </CommandItem>
+                    <CommandItem
+                      value="auto"
+                      onSelect={() => {
+                        setCurrentView('auto')
+                        setViewOpen(false)
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          'mr-2 h-4 w-4',
+                          currentView === 'auto' ? 'opacity-100' : 'opacity-0'
+                        )}
+                      />
+                      Auto Graded Score
+                    </CommandItem>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
       <DataTableRoot
         data={summariesData || []}
         columns={createColumns(
@@ -191,6 +308,7 @@ export function ParticipantTable({
           groupId,
           assignmentId,
           isAssignmentFinished,
+          currentView,
           summaries.refetch
         )}
       >
@@ -206,7 +324,9 @@ export function ParticipantTableFallback() {
   return (
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
-      <DataTableFallback columns={createColumns([], 0, 0, true, () => {})} />
+      <DataTableFallback
+        columns={createColumns([], 0, 0, true, 'final', () => {})}
+      />
     </div>
   )
 }
