@@ -2,13 +2,11 @@
 # Kustomization has its own ordering logic, so we don't need to worry about the order of resources.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: minio
+namespace: monitoring-minio
 
 resources:
-  - ingress.yaml
   - namespace.yaml
+  - ingress.yaml
   - tenant-config.yaml
   - tenant.yaml
-  - users/admin-api.yaml
-  - users/client-api.yaml
-  - users/iris.yaml
+  - users.yaml
