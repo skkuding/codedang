@@ -39,7 +39,7 @@ spec:
           recurse: false
         kustomize:
           namespace: 'frontend-preview' # reuse TLS certificate secret
-          namePrefix: '{{.number}}-preview-'
+          namePrefix: 'preview-{{.number}}-' # some resources must start with alphabetic character
           images:
             - 'ghcr.io/skkuding/codedang-frontend:{{.head_sha}}'
           patches:
