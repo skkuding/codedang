@@ -13,4 +13,4 @@ data:
   REDIS_PORT: '6379'
   TESTCASE_BUCKET_NAME: 'codedang-testcase'
   MEDIA_BUCKET_NAME: 'codedang-media'
-  OTEL_EXPORTER_OTLP_ENDPOINT_URL: '115.145.160.239:4317'
+  OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'otel.codedang.com'
