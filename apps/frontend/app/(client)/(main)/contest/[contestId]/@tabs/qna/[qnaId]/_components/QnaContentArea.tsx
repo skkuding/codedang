@@ -5,8 +5,6 @@ import Image from 'next/image'
 import type { ReactElement } from 'react'
 import { FaClock } from 'react-icons/fa6'
 
-const maxTitleLength = 35
-
 /**
  * Qna 상세 페이지의 글 내용 UI 컴포넌트
  * @param QnaData
@@ -18,13 +16,15 @@ const maxTitleLength = 35
  */
 export function QnaContentArea({
   QnaData,
+  categoryName,
   DeleteButtonComponent
 }: {
   QnaData: GetContestQnaQuery['getContestQnA']
+  categoryName: string
   DeleteButtonComponent: ReactElement | undefined
 }) {
-  const { category, title, order, createdBy, createTime, content } = QnaData
-  const TitleText = `[${category}] ${title}`
+  const { title, order, createdBy, createTime, content } = QnaData
+  const TitleText = `[${categoryName}] ${title}`
 
   return (
     <div className={`flex flex-col gap-[40px]`}>
@@ -34,10 +34,8 @@ export function QnaContentArea({
             {`No. ${order}`}
           </div>
           <div className="flex items-center justify-between gap-[20px]">
-            <p className="h-[36px] w-full max-w-[1078px] overflow-hidden text-2xl font-semibold">
-              {TitleText.length <= maxTitleLength
-                ? TitleText
-                : TitleText.slice(0, maxTitleLength)}
+            <p className="h-[36px] w-full max-w-[1078px] overflow-hidden truncate text-2xl font-semibold">
+              {TitleText}
             </p>
             {DeleteButtonComponent}
           </div>

@@ -48,10 +48,21 @@ export default async function QnaDetailPage({ params }: PageProps) {
       // 로그인하지 않았고, onGoing이지 않은 대회의 경우
       if (errorRes.statusCode === 401 && notOngoing) {
         const QnaData: GetContestQnaQuery['getContestQnA'] = await QnaRes.json()
+        const ContestProblems = await fetcherWithAuth
+          .get(`contest/${contestId}/problem`)
+          .json<{ data: { order: number; id: number; title: string }[] }>()
+        const matchedProblem = ContestProblems.data.find(
+          ({ id }) => id === QnaData.problemId
+        )
+        const categoryName = matchedProblem
+          ? `${String.fromCharCode(65 + matchedProblem.order)}. ${matchedProblem.title}`
+          : QnaData.category
+
         return (
           <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 gap-[50px] px-[116px] leading-[150%] tracking-[-3%]">
             <QnaContentArea
               QnaData={QnaData}
+              categoryName={categoryName}
               DeleteButtonComponent={undefined}
             />
             <QnaCommentArea
@@ -98,6 +109,16 @@ export default async function QnaDetailPage({ params }: PageProps) {
     isContestStaff || userId === QnaData.createdById || notOngoing
   const deleteQnaUrl = `contest/${contestId}/qna/${qnaId}`
 
+  const ContestProblems = await fetcherWithAuth
+    .get(`contest/${contestId}/problem`)
+    .json<{ data: { order: number; id: number; title: string }[] }>()
+  const matchedProblem = ContestProblems.data.find(
+    ({ id }) => id === QnaData.problemId
+  )
+  const categoryName = matchedProblem
+    ? `${String.fromCharCode(65 + matchedProblem.order)}. ${matchedProblem.title}`
+    : QnaData.category
+
   const QnaDeleteTrigger = (
     <Button
       variant="outline"
@@ -115,6 +136,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
     <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 gap-[50px] px-[116px] leading-[150%] tracking-[-3%]">
       <QnaContentArea
         QnaData={QnaData}
+        categoryName={categoryName}
         DeleteButtonComponent={
           canDeleteQna ? (
             <QnaDetailDeleteButton
