@@ -142,14 +142,14 @@ function ScoreEditableCell({
             }
           }}
         />
-        <span className="text-xs">/{problemScore?.maxScore ?? 0}</span>
+        <span className="text-xs"> / {problemScore?.maxScore ?? 0}</span>
       </div>
     )
   }
   return (
     <div
       className={cn(
-        'rounded-xs cursor-pointer px-1 text-xs hover:bg-gray-100',
+        'rounded-xs cursor-pointer text-xs hover:bg-gray-100',
         editing && 'bg-gray-100'
       )}
       onClick={() => {
@@ -160,7 +160,7 @@ function ScoreEditableCell({
         setEditing(true)
       }}
     >
-      {problemScore?.finalScore ?? '-'}/{problemScore?.maxScore ?? 0}
+      {problemScore?.finalScore ?? '-'} / {problemScore?.maxScore ?? 0}
     </div>
   )
 }
@@ -240,7 +240,7 @@ export const createColumns = (
       ),
       cell: ({ row }) => (
         <div className="text-xs">
-          {row.original.userAssignmentFinalScore}/
+          {row.original.userAssignmentFinalScore} /{' '}
           {row.original.assignmentPerfectScore}
         </div>
       )
