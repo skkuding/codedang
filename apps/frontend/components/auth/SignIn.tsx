@@ -64,7 +64,14 @@ export function SignIn() {
     return (
       <div className="flex flex-col gap-[6px]">
         <IDLabel />
-        <Input placeholder="User ID" type="text" {...register('username')} />
+        <Input
+          type="text"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          autoComplete="username"
+          {...register('username')}
+        />
       </div>
     )
   }
