@@ -347,10 +347,7 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
           </div>
         </div>
 
-        <ScrollArea
-          className="pr-4 [&>div>div]:!flex [&>div>div]:!flex-col"
-          type="always"
-        >
+        <ScrollArea className="pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
           {groups
             .slice()
             .sort(
