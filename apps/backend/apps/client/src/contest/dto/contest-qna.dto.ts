@@ -3,7 +3,6 @@ import { Transform } from 'class-transformer'
 import {
   IsArray,
   IsEnum,
-  IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
