@@ -23,14 +23,12 @@ interface ContestQnAProps {
 
 export default async function ContestQna(props: ContestQnAProps) {
   const { contestId } = await props.params
-  const { searchParams } = props
-
+  const searchParams = await props.searchParams
   const session = await auth()
-  const params = await searchParams
-  const search = params.search ?? ''
-  const orderBy = params.orderBy ?? 'desc'
-  const categories = params.categories ?? ''
-  const problemOrders = params.problemOrders ?? ''
+  const search = searchParams.search ?? ''
+  const orderBy = searchParams.orderBy ?? 'desc'
+  const categories = searchParams.categories ?? ''
+  const problemOrders = searchParams.problemOrders ?? ''
 
   const contest: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
