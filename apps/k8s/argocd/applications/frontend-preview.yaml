@@ -38,7 +38,7 @@ spec:
           # kustomization.yaml is ignored if recurse is true
           recurse: false
         kustomize:
-          namespace: 'frontend-preview'
+          namespace: 'frontend-preview' # reuse TLS certificate secret
           namePrefix: '{{.number}}-preview-'
           images:
             - 'ghcr.io/skkuding/codedang-frontend:{{.head_sha}}'
