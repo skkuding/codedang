@@ -9,7 +9,7 @@ resources:
 
 replicas:
   - name: iris
-    count: 3
+    count: 2
 
 patches:
   - path: configmap.yaml
