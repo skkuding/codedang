@@ -4,7 +4,7 @@ apiVersion: minio.min.io/v2
 kind: Tenant
 metadata:
   name: minio
-  namespace: minio
+  namespace: monitoring-minio
   labels:
     app: minio
 spec:
