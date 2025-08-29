@@ -2,7 +2,6 @@
 
 import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
 import { Button } from '@/components/shadcn/button'
-import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { Textarea } from '@/components/shadcn/textarea'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import { usePathname } from 'next/navigation'
@@ -58,7 +57,7 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
           value={commentData}
           onChange={handleInputChange}
           maxLength={400}
-          className="h-[56px] w-full resize-none rounded-full border border-neutral-600 bg-[#FFFFFF1A] p-3 text-base text-white placeholder-gray-400 placeholder:text-base/loose focus:outline-none"
+          className="h-[56px] w-full resize-none rounded-full border border-neutral-600 bg-[#FFFFFF1A] p-3 text-base text-white placeholder-gray-400 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-base/loose focus:outline-none [&::-webkit-scrollbar]:hidden"
         />
         <Button
           onClick={handleSubmit}

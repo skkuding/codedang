@@ -37,7 +37,6 @@ input:-webkit-autofill {
 ::-webkit-scrollbar-thumb {
   background-color: var(--color-gray-300);
   border-radius: 4px;
-  border: 7px solid transparent;
 }
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-gray-400);

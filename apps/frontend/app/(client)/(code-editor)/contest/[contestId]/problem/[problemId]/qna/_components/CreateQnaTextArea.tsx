@@ -2,7 +2,6 @@
 
 //import { AlertModal } from '@/components/AlertModal'
 import { Input } from '@/components/shadcn/input'
-import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
 import { safeFetcherWithAuth } from '@/libs/utils'
@@ -101,16 +100,14 @@ export function CreateQnaTextArea({
           />
         </div>
         <div className="relative">
-          <ScrollArea className="scrollbar-thumb:bg-yellow">
-            <Textarea
-              name="content"
-              placeholder="Inappropriate questions can be deleted."
-              value={qnaFormdata.content}
-              onChange={handleInputChange}
-              maxLength={400}
-              className="min-h-[127px] w-full resize-none rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder:text-base placeholder:text-gray-400 focus-visible:ring-0"
-            />
-          </ScrollArea>
+          <Textarea
+            name="content"
+            placeholder="Inappropriate questions can be deleted."
+            value={qnaFormdata.content}
+            onChange={handleInputChange}
+            maxLength={400}
+            className="min-h-[127px] w-full resize-none rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder:text-base placeholder:text-gray-400 focus-visible:ring-0"
+          />
           <span className="absolute bottom-2 right-2 text-sm text-gray-400">
             {qnaFormdata.content.length}/400
           </span>
