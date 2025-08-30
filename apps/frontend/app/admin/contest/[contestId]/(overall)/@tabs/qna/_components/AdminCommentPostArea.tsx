@@ -15,15 +15,14 @@ export function AdminCommentPostArea({
   onPost: () => void
 }) {
   return (
-    <div className="border-line-default flex flex-col gap-[20px] rounded-xl border border-solid p-[30px]">
+    <div className="border-line-default flex flex-col gap-[16px] rounded-xl border border-solid p-[24px]">
       {/* 작성자 이름과 input field */}
-      <div className="flex flex-col gap-[12px]">
+      <div className="flex flex-col gap-[8px]">
         <span className="text-xl font-medium">{username}</span>
         <div className="flex flex-col gap-[15px]">
           <Textarea
             value={text}
-            id="textarea"
-            className="placeholder:text-color-neutral-90 min-h-[120px] resize-none whitespace-pre-wrap rounded-none border-none p-0 text-base shadow-none focus-visible:ring-0"
+            className="placeholder:text-color-neutral-90 min-h-[72px] resize-none whitespace-pre-wrap rounded-none border-none p-0 text-base shadow-none focus-visible:ring-0"
             placeholder="Enter Your Answer"
             onChange={(value) => setText(value.target.value)}
             maxLength={400}

@@ -9,6 +9,7 @@ import { GET_CONTEST_QNA } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSession } from '@/libs/hooks/useSession'
 import { useMutation, useQuery } from '@apollo/client'
+import { QnACategory, type GetContestQnaQuery } from '@generated/graphql'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -20,13 +21,39 @@ export function QnaDetailButton({ qnaId }: { qnaId: string }) {
   const [showModal, setShowModal] = useState(false)
   const session = useSession()
 
-  const QnaData = useQuery(GET_CONTEST_QNA, {
-    variables: {
-      contestId: Number(contestId),
-      qnaId: Number(qnaId)
-    }
-  }).data?.getContestQnA
+  // const QnaData = useQuery(GET_CONTEST_QNA, {
+  //   variables: {
+  //     contestId: Number(contestId),
+  //     qnaId: Number(qnaId)
+  //   }
+  // }).data?.getContestQnA
 
+  const QnaData: GetContestQnaQuery['getContestQnA'] = {
+    order: 1,
+    createdById: 8,
+    createdBy: {
+      username: 'user'
+    },
+    contestId: 20,
+    title: 'QnA 1',
+    content: '질문의 내용',
+    problemId: null,
+    category: QnACategory.General,
+    isResolved: false,
+    createTime: '2025-08-28T18:08:00.123Z',
+    comments: [
+      {
+        order: 1,
+        createdById: 7,
+        isContestStaff: false,
+        content: '1번 질문에 대한 답변',
+        createdTime: '2025-08-28T18:08:00.133Z',
+        createdBy: {
+          username: 'user01'
+        }
+      }
+    ]
+  }
   const ContestProblems = useQuery(GET_CONTEST_PROBLEMS, {
     variables: {
       contestId: Number(contestId)
@@ -69,7 +96,7 @@ export function QnaDetailButton({ qnaId }: { qnaId: string }) {
     >
       <ScrollArea>
         {QnaData && (
-          <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 gap-[50px] px-[116px] leading-[150%] tracking-[-3%]">
+          <div className="flex w-full flex-col gap-[20px] leading-[150%] tracking-[-3%]">
             <AdminQnaContentArea
               QnaData={QnaData}
               categoryName={categoryName ?? 'undefined'}
