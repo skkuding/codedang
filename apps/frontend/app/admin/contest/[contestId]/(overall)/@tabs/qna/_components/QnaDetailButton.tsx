@@ -21,14 +21,17 @@ export function QnaDetailButton({ qnaId }: { qnaId: string }) {
   const [showModal, setShowModal] = useState(false)
   const session = useSession()
 
-  // const QnaData = useQuery(GET_CONTEST_QNA, {
-  //   variables: {
-  //     contestId: Number(contestId),
-  //     qnaId: Number(qnaId)
-  //   }
-  // }).data?.getContestQnA
+  const QnaData = useQuery(GET_CONTEST_QNA, {
+    variables: {
+      contestId: Number(contestId),
+      qnaId: Number(qnaId)
+    }
+  }).data?.getContestQnA
 
-  const QnaData: GetContestQnaQuery['getContestQnA'] = {
+  console.log(QnaData)
+  console.log(session?.user.username)
+
+  const QnaDataDummy: GetContestQnaQuery['getContestQnA'] = {
     order: 1,
     createdById: 8,
     createdBy: {
