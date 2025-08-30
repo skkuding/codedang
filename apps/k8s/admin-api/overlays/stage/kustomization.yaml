@@ -4,6 +4,7 @@ namespace: admin-api
 
 resources:
   - ../../base
+  - cors-middleware.yaml
   - secrets/database-credentials.yaml
   - secrets/object-storage.yaml
   - secrets/security-keys.yaml

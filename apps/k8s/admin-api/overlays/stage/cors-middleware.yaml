@@ -1,0 +1,21 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: cors
+  namespace: admin-api
+spec:
+  headers:
+    accessControlAllowOriginList:
+      - '*.preview.codedang.com'
+      - 'http://localhost:5525'
+    accessControlAllowMethods:
+      - 'GET'
+      - 'POST'
+      - 'PUT'
+      - 'PATCH'
+      - 'DELETE'
+    accessControlAllowHeaders:
+      - 'Content-Type'
+      - 'Authorization'
+      - 'Apollo-Require-Preflight'
+    accessControlAllowCredentials: true

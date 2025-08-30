@@ -12,19 +12,24 @@ post {
 
 body:graphql {
   mutation {
-    createContestQnAComment(
+    deleteContestQnA(
       contestId: 20
       order: 1
-      content: "해당 문제에 대한 답변입니다. 다음과 같이 해결할 수 있습니다."
     ) {
       id
+      title
       content
-      isContestStaff
-      order
-      contestQnAId
-      createdTime
+      createTime
+      createdById
+      createdBy {
+        username
+      }
     }
   }
+}
+
+assert {
+  res.body.data.getContests: isDefined
 }
 
 script:pre-request {
@@ -32,32 +37,30 @@ script:pre-request {
 }
 
 docs {
-  # Create Contest QnA Comment
+  # Delete Contest QnA
   
   ## Description
-  관리자가 콘테스트 QnA에 답글을 생성할 수 있도록 합니다.
+  관리자가 특정 콘테스트의 특정 순서 QnA를 삭제할 수 있도록 합니다.
   
   ## 요청 필드
   | 필드명 | 타입 | 필수 여부 | 설명 |
   |--------|------|----------|------|
   | contestId | Int | 필수 | 콘테스트 ID |
   | order | Int | 필수 | QnA 순서 (0 이상의 정수) |
-  | content | String | 필수 | 답글 내용 |
   
   ## 응답 필드
   | 필드명 | 타입 | 설명 |
   |--------|------|------|
-  | id | Int | 생성된 답글의 ID |
-  | contestId | Int | 콘테스트 ID |
-  | qnAOrder | Int | QnA 순서 |
-  | commentOrder | Int | 답글 순서 |
-  | content | String | 답글 내용 |
-  | createdById | Int | 답글 작성자 ID |
-  | createdAt | GraphQLISODateTime | 생성 시간 |
+  | id | Int | QnA ID |
+  | title | String | QnA 제목 |
+  | content | String | QnA 내용 |
+  | createTime | GraphQLISODateTime | 생성 시간 |
+  | createdById | Int | 작성자 ID |
+  | createdBy | User | 작성자 정보 |
+  | createdBy.username | String | 작성자 사용자명 |
   
   ## 제약사항
   - `contestId`는 존재하는 콘테스트여야 합니다.
   - `order`는 존재하는 QnA의 순서여야 합니다.
-  - `content`는 비어있지 않아야 합니다.
   
 }
