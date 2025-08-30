@@ -1423,6 +1423,13 @@ export class ContestService {
       where: {
         contestId
       },
+      include: {
+        createdBy: {
+          select: {
+            username: true
+          }
+        }
+      },
       orderBy: {
         order: 'asc'
       }
@@ -1434,6 +1441,22 @@ export class ContestService {
       where: {
         contestId,
         order
+      },
+      include: {
+        createdBy: {
+          select: {
+            username: true
+          }
+        },
+        comments: {
+          include: {
+            createdBy: {
+              select: {
+                username: true
+              }
+            }
+          }
+        }
       }
     })
   }
