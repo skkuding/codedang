@@ -1431,7 +1431,7 @@ export class ContestService {
         }
       },
       orderBy: {
-        order: 'asc'
+        order: 'desc'
       }
     })
   }
