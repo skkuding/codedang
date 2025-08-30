@@ -1,10 +1,6 @@
 # check default values.yaml
 # https://artifacthub.io/packages/helm/grafana/grafana?modal=values
 
-extraEnvFrom:
-  - secretRef:
-      name: grafana-credentials
-
 replicas: 1
 autoscaling:
   enabled: false
@@ -32,7 +28,7 @@ persistence:
     enabled: false
 
 admin:
-  existingSecret: grafana-credentials
+  existingSecret: grafana-admin-user
   userKey: ADMIN_USER
   passwordKey: ADMIN_PASSWORD
 
@@ -65,25 +61,5 @@ grafana.ini:
   log:
     mode: console
   server:
-    domain: 'grafana.codedang.com'
-    root_url: 'https://grafana.codedang.com'
-
-# https://grafana.com/docs/grafana/latest/auth/github/#enable-github-in-grafana
-auth.github:
-  enabled: true
-  allow_sign_up: true
-  auto_login: true
-  allowed_organizations: ['SKKUDING']
-  allowed_domains: ['codedang.com']
-  existingSecret: grafana-github-oauth
-  client_id: ${GH_CLIENT_ID}
-  client_secret: ${GH_CLIENT_SECRET}
-
-# http://docs.grafana.org/installation/configuration/#smtp
-smtp:
-  host: ${GF_SMTP_HOST}
-  user: ${GF_SMTP_USER}
-  password: ${GF_SMTP_PASSWORD}
-  from_address: 'grafana@codedang.com'
-  from_name: 'Grafana'
-  startTLS_policy: 'MandatoryStartTLS'
+    domain: 'grafana-test.codedang.com' # TODO: update with actual host
+    root_url: 'https://grafana-test.codedang.com' # TODO: update with actual host

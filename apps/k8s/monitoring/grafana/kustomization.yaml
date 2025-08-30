@@ -5,7 +5,6 @@ namespace: monitoring-grafana
 resources:
   - namespace.yaml
   - admin-user.yaml
-  - credentials.yaml
   - dashboards/all-service-logs.yaml
   - dashboards/hardware-metrics.yaml
   - dashboards/submission-detail.yaml
