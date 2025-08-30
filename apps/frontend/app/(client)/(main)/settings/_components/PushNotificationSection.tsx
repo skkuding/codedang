@@ -8,7 +8,6 @@ import { toast } from 'sonner'
 
 export function PushNotificationSection() {
   const [isSubscribed, setIsSubscribed] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const [showDisableModal, setShowDisableModal] = useState(false)
 
   useEffect(() => {
@@ -22,8 +21,6 @@ export function PushNotificationSection() {
       } catch (error) {
         console.error('Error fetching subscription status:', error)
         setIsSubscribed(false)
-      } finally {
-        setIsLoading(false)
       }
     }
     fetchIsSubscribed()
@@ -120,25 +117,10 @@ export function PushNotificationSection() {
     }
   }
 
-  if (isLoading) {
-    return (
-      <>
-        <label className="-mb-4 mt-2 text-xs">Push Notifications</label>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-neutral-600">Loading...</span>
-          <Switch disabled />
-        </div>
-      </>
-    )
-  }
-
   return (
     <>
-      <label className="-mb-4 mt-2 text-xs">Push Notifications</label>
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-neutral-600">
-          Receive push notifications about assignments
-        </span>
+      <div className="mt-2 flex items-center justify-between">
+        <label>Receive Push Notifications</label>
         <Switch checked={isSubscribed} onCheckedChange={handleToggle} />
       </div>
 
