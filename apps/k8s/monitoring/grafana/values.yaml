@@ -1,0 +1,96 @@
+# default: https://artifacthub.io/packages/helm/grafana/grafana?modal=values
+extraEnvFrom:
+  - secretRef:
+      name: grafana-credentials
+
+replicas: 1
+autoscaling:
+  enabled: false
+
+ingress:
+  enabled: true
+  path: /
+  pathType: Prefix
+  hosts:
+    - grafana.codedang.com
+
+limits:
+  cpu: 200m
+  memory: 256Mi
+requests:
+  cpu: 200m
+  memory: 256Mi
+
+## https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+# we will provision all data as code, so neither pvc and inMemory are needed
+persistence:
+  type: pvc
+  enabled: false
+  inMemory:
+    enabled: false
+
+admin:
+  existingSecret:
+    name: grafana-admin
+    userKey: ADMIN_USER
+    passwordKey: ADMIN_PASSWORD
+
+## ref: http://docs.grafana.org/administration/provisioning/#datasources
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    deleteDatasources: # auto delete if not provisioned
+      - name: Loki-production
+        orgId: 1
+    prune: true
+    datasources:
+      - name: Loki-production
+        type: loki
+        access: proxy
+        url: http://loki.monitoring-loki.svc.cluster.local:3100
+        editable: true # TODO: set false after testing
+
+## ref: https://docs.grafana.com/alerting/set-up/provision-alerting-resources/file-provisioning/
+alerting: {}
+## ref: http://docs.grafana.org/administration/provisioning/#alert-notification-channels
+notifiers: {}
+
+dashboardsConfigMaps:
+  default:
+    - all-service-logs
+    - hardware-metrics
+    - submission-detail
+
+# TODO: add public dashboards from https://grafana.com/grafana/dashboards/
+downloadDashboards:
+  env: {}
+
+## Grafana's primary configuration
+## ref: http://docs.grafana.org/installation/configuration/
+grafana.ini:
+  log:
+    mode: console
+  server:
+    domain: 'grafana.codedang.com'
+    root_url: 'https://grafana.codedang.com'
+
+# Auth
+# https://grafana.com/docs/grafana/latest/auth/github/#enable-github-in-grafana
+auth.github:
+  enabled: true
+  allow_sign_up: true
+  auto_login: true
+  allowed_organizations: ['SKKUDING']
+  allowed_domains: ['codedang.com']
+  existingSecret: grafana-github-oauth
+  client_id: ${GH_CLIENT_ID}
+  client_secret: ${GH_CLIENT_SECRET}
+
+## ref: http://docs.grafana.org/installation/configuration/#smtp
+smtp:
+  host: ${GF_SMTP_HOST}
+  user: ${GF_SMTP_USER}
+  password: ${GF_SMTP_PASSWORD}
+  from_address: 'grafana@codedang.com'
+  from_name: 'Grafana'
+  startTLS_policy: 'MandatoryStartTLS'
