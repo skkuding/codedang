@@ -82,8 +82,10 @@ export function CreateQnaTextArea({
           )}
           disabled={loading || !qnaFormdata.title || !qnaFormdata.content}
         >
-          <FaPen className="mr-1 inline h-3 w-3" />
-          Post
+          <div className="flex items-center justify-center">
+            <FaPen className="mr-1 inline h-3 w-3" />
+            <p>Post</p>
+          </div>
         </button>
       </div>
 
