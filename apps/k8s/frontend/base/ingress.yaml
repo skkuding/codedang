@@ -4,9 +4,7 @@ metadata:
   name: frontend-ingress
   namespace: frontend
   annotations:
-    cert-manager.io/acme-http01-edit-in-place: 'true'
     cert-manager.io/cluster-issuer: letsencrypt
-    cert-manager.io/issue-temporary-certificate: 'true'
     traefik.ingress.kubernetes.io/redirect-entry-point: https
 spec:
   ingressClassName: traefik
