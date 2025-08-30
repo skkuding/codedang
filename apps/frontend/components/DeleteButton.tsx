@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from 'react'
 import { HiTrash } from 'react-icons/hi'
 import { AlertModal } from './AlertModal'
+import { Button } from './shadcn/button'
 
 export function DeleteButton({
   subject,

@@ -89,18 +89,6 @@ export function QnaCommentArea({
     }
   }
 
-  const CommentDeleteTrigger = (
-    <Button
-      variant="outline"
-      className="bg-fill hover:bg-fill-neutral cursor-pointer border-none"
-      asChild
-    >
-      <div className="text-color-neutral-70 grid h-auto place-content-center px-[16px] py-[5px]">
-        <HiTrash fontSize={24} />
-      </div>
-    </Button>
-  )
-
   return (
     <div className="flex flex-col gap-[40px]">
       <div className="flex flex-col gap-[10px]">
@@ -119,7 +107,6 @@ export function QnaCommentArea({
                     <QnaDetailDeleteButton
                       subject="comment"
                       DeleteUrl={`contest/${contestId}/qna/${qnaId}/comment/${comment.order}`}
-                      trigger={CommentDeleteTrigger}
                     />
                   ) : undefined
                 }

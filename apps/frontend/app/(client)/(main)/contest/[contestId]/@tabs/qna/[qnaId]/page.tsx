@@ -1,7 +1,5 @@
-import { Button } from '@/components/shadcn/button'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { GetContestQnaQuery } from '@generated/graphql'
-import { HiTrash } from 'react-icons/hi'
 import { QnaCommentArea } from './_components/QnaCommentArea'
 import { QnaContentArea } from './_components/QnaContentArea'
 import { QnaDetailDeleteButton } from './_components/QnaDetailDeleteButton'
