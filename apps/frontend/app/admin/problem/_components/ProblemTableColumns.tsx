@@ -181,7 +181,11 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Level" />
+      <DataTableColumnHeader
+        column={column}
+        title="Level"
+        filterType="multi-select"
+      />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
@@ -204,7 +208,11 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
   {
     accessorKey: 'submissionCount',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Submission" />
+      <DataTableColumnHeader
+        column={column}
+        title="Submission"
+        filterType="number"
+      />
     ),
     cell: ({ row }) => {
       return <div>{row.getValue('submissionCount')}</div>
@@ -213,7 +221,11 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
   {
     accessorKey: 'acceptedRate',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Success Rate" />
+      <DataTableColumnHeader
+        column={column}
+        title="Success Rate"
+        filterType="number"
+      />
     ),
     cell: ({ row }) => {
       const acceptedRate: number = row.getValue('acceptedRate')
