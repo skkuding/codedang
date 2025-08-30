@@ -1,10 +1,10 @@
 'use client'
 
-import { AlertModal } from '@/components/AlertModal'
 import { Button } from '@/components/shadcn/button'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { BiSolidPencil } from 'react-icons/bi'
+import { AlertModal } from './QnAAlertModal'
 
 type QnAPostButtonProps = {
   contestId: number
@@ -32,7 +32,6 @@ export function QnAPostButton({ contestId, canCreateQnA }: QnAPostButtonProps) {
         open={modalOpen}
         onOpenChange={setModalOpen}
         size="sm"
-        type="warning"
         showCancelButton={false}
         title="Access Denied"
         description={
