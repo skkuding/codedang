@@ -1418,13 +1418,42 @@ export class ContestService {
     return userContests
   }
 
-  async getContestQnAs(contestId: number) {
+  async getContestQnAs(
+    filter?: {
+      orderBy?: 'asc' | 'desc'
+      isResolved?: boolean
+    },
+    search?: string
+  ) {
+    const where: Prisma.ContestQnAWhereInput = {}
+
+    // 해결 상태 필터링
+    if (filter?.isResolved !== undefined) {
+      where.isResolved = filter.isResolved
+    }
+
+    // search 필터 적용
+    if (search) {
+      where.title = { contains: search, mode: Prisma.QueryMode.insensitive }
+    }
+
     return await this.prisma.contestQnA.findMany({
-      where: {
-        contestId
-      },
+      where,
       orderBy: {
-        order: 'asc'
+        order: filter?.orderBy || 'desc' // 최신 질문부터 표시
+      },
+      include: {
+        createdBy: {
+          select: {
+            username: true
+          }
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            comments: true
+          }
+        }
       }
     })
   }
@@ -1577,5 +1606,53 @@ export class ContestService {
 
       return deletedComment
     })
+  }
+
+  async toggleContestQnAResolved(contestId: number, qnAOrder: number) {
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const contestQnA = await this.prisma.contestQnA.findFirst({
+      where: {
+        contestId,
+        order: qnAOrder
+      }
+    })
+
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    const commentCount = await this.prisma.contestQnAComment.count({
+      where: {
+        contestQnAId: contestQnA.id
+      }
+    })
+
+    if (commentCount === 0) {
+      throw new BadRequestException('ContestQnA has no comments')
+    }
+
+    // 해결완료 상태 토글 (동시성 고려하여 트랜잭션 사용)
+    const updatedContestQnA = await this.prisma.$transaction(async (tx) => {
+      const currentQnA = await tx.contestQnA.findUnique({
+        where: { id: contestQnA.id },
+        select: { isResolved: true }
+      })
+
+      return await tx.contestQnA.update({
+        where: { id: contestQnA.id },
+        data: {
+          isResolved: !currentQnA!.isResolved
+        }
+      })
+    })
+
+    return updatedContestQnA
   }
 }

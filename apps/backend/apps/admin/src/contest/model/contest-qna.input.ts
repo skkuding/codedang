@@ -1,4 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
+import { QnACategory } from '@generated'
 
 @InputType()
 export class UpdateContestQnAInput {
@@ -10,4 +11,13 @@ export class UpdateContestQnAInput {
 
   @Field(() => String, { nullable: true })
   answer?: string
+}
+
+@InputType()
+export class GetContestQnAsFilterInput {
+  @Field(() => String, { nullable: true })
+  orderBy?: 'asc' | 'desc'
+
+  @Field(() => Boolean, { nullable: true })
+  isResolved?: boolean
 }
