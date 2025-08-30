@@ -26,3 +26,7 @@ body:graphql {
     }
   }
 }
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
