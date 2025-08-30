@@ -6,19 +6,16 @@ metadata:
 spec:
   config:
     # https://opentelemetry.io/docs/collector/architecture/
+    # https://opentelemetry.io/docs/collector/configuration/
     receivers:
       otlp:
         protocols:
           grpc:
             endpoint: 0.0.0.0:4317
-
-    # https://opentelemetry.io/docs/collector/configuration/#processors
     processors:
       batch:
         timeout: 10s
         send_batch_size: 512
-
-    # https://opentelemetry.io/docs/collector/configuration/#exporters
     exporters:
       otlphttp/logs:
         endpoint: http://loki.monitoring-loki.svc.cluster.local:3100/otlp
@@ -33,8 +30,6 @@ spec:
       #   endpoint: tempo.monitoring-tempo.svc.cluster.local:4317
       #   tls:
       #     insecure: true
-
-    # https://opentelemetry.io/docs/collector/configuration/#service
     service:
       pipelines:
         logs:
