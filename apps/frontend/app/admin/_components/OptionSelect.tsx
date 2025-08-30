@@ -17,6 +17,7 @@ interface OptionSelectProps {
   className?: string
   disabled?: boolean
   prefix?: string
+  tabIndex?: number
 }
 
 export function OptionSelect({
@@ -26,7 +27,8 @@ export function OptionSelect({
   placeholder,
   className,
   disabled,
-  prefix
+  prefix,
+  tabIndex
 }: OptionSelectProps) {
   return (
     <Select
@@ -36,11 +38,12 @@ export function OptionSelect({
     >
       <SelectTrigger
         className={cn(
-          'focus:outline-hidden w-full rounded-full bg-white p-4 text-sm font-semibold hover:bg-gray-50 focus:ring-0 focus:ring-offset-0',
+          'focus:ring-primary w-full rounded-full bg-white p-4 text-sm font-semibold hover:bg-gray-50 focus:ring-offset-0',
           className
         )}
+        tabIndex={tabIndex}
       >
-        <div className="flex items-center gap-[6px]">
+        <div className="flex items-center gap-[6px] truncate">
           {prefix && <span className={className}>{prefix}</span>}
           <SelectValue placeholder={placeholder} />
         </div>

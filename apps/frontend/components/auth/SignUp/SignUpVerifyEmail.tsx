@@ -10,7 +10,6 @@ import { AuthMessage } from '../AuthMessage'
 import { SignUpApi } from './api'
 
 interface VerifyEmailInput {
-  email: string
   verificationCode: string
 }
 
@@ -70,7 +69,7 @@ export function SignUpVerifyEmail() {
 
   const onSubmit = (data: VerifyEmailInput) => {
     setFormData({
-      ...data,
+      ...formData,
       headers: {
         'email-auth': emailAuthToken
       }
@@ -137,7 +136,7 @@ export function SignUpVerifyEmail() {
             )}
             placeholder="Verification Code"
             {...register('verificationCode', {
-              onChange: () => verifyCode()
+              onChange: verifyCode
             })}
           />
           {!codeExpired && (
@@ -153,9 +152,12 @@ export function SignUpVerifyEmail() {
         </div>
         {codeExpired ? (
           <div className="flex flex-col gap-[2px]">
-            <AuthMessage isError message={'Verification code expired.'} />
             <AuthMessage
-              isError
+              type={'error'}
+              message={'Verification code expired.'}
+            />
+            <AuthMessage
+              type={'error'}
               message={'Please resend an email and try again.'}
             />
           </div>
@@ -165,13 +167,18 @@ export function SignUpVerifyEmail() {
               if (errors.verificationCode?.message) {
                 return (
                   <AuthMessage
-                    isError
+                    type={'error'}
                     message={errors.verificationCode?.message}
                   />
                 )
               }
               if (emailVerified) {
-                return <AuthMessage message={'Verification code is valid'} />
+                return (
+                  <AuthMessage
+                    type={'success'}
+                    message={'Verification code is valid'}
+                  />
+                )
               }
             })()}
           </div>
