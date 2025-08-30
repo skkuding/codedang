@@ -60,6 +60,9 @@ spec:
                 name: frontend-ingress
               patch: |-
                 - op: replace
+                  path: /metadata/annotations/cert-manager\.io/cluster-issuer
+                  value: letsencrypt-dns01
+                - op: replace
                   path: /spec/tls/0/hosts/0
                   value: '*.preview.codedang.com'
                 - op: replace
