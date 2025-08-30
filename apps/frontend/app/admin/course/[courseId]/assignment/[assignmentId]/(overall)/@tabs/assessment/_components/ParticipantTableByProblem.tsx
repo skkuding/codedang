@@ -228,8 +228,7 @@ export function ParticipantTableByProblem({
           courseId,
           assignmentId,
           groupId,
-          isAssignmentFinished,
-          summaries.refetch
+          isAssignmentFinished
         )}
       >
         <div className="mb-3 flex items-center gap-4">
@@ -264,9 +263,7 @@ export function ParticipantTableFallback() {
   return (
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
-      <DataTableFallback
-        columns={createColumns([], null, 0, 0, 0, true, () => {})}
-      />
+      <DataTableFallback columns={createColumns([], null, 0, 0, 0, true)} />
     </div>
   )
 }
