@@ -11,6 +11,7 @@ import { ContestRole, ProblemField, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
+  EntityNotExistException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
@@ -431,11 +432,12 @@ export class ProblemService {
   }
 
   async getProblemById(id: number) {
-    const problem = await this.prisma.problem.findFirstOrThrow({
+    const problem = await this.prisma.problem.findFirst({
       where: {
         id
       }
     })
+    if (!problem) throw new EntityNotExistException('Problem')
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
