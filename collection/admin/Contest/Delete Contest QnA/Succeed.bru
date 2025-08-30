@@ -11,9 +11,9 @@ post {
 }
 
 body:graphql {
-  query {
-    getContestQnA(
-      contestId: 1
+  mutation {
+    deleteContestQnA(
+      contestId: 20
       order: 1
     ) {
       id
@@ -32,11 +32,15 @@ assert {
   res.body.data.getContests: isDefined
 }
 
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
 docs {
-  # Get Contest QnA
+  # Delete Contest QnA
   
   ## Description
-  관리자가 특정 콘테스트의 특정 순서 QnA를 조회할 수 있도록 합니다.
+  관리자가 특정 콘테스트의 특정 순서 QnA를 삭제할 수 있도록 합니다.
   
   ## 요청 필드
   | 필드명 | 타입 | 필수 여부 | 설명 |
