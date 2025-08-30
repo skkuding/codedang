@@ -9,4 +9,6 @@ resources:
   - namespace.yaml
   - tenant-config.yaml
   - tenant.yaml
-  - users.yaml
+  - users/admin-api.yaml
+  - users/client-api.yaml
+  - users/iris.yaml
