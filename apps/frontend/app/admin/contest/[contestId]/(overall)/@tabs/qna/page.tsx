@@ -1,5 +1,6 @@
 import comingSoonLogo from '@/public/logos/coming-soon.png'
 import Image from 'next/image'
+import { QnaDetailButton } from './_components/QnaDetailButton'
 
 export default function AdminContestQna() {
   return (
@@ -17,6 +18,7 @@ export default function AdminContestQna() {
           This page is being prepared.
           <br /> We will provide an update as soon as possible.
         </p>
+        <QnaDetailButton qnaId="1" />
       </div>
     </div>
   )
