@@ -12,7 +12,7 @@ ingress:
   path: /
   pathType: Prefix
   hosts:
-    - grafana.codedang.com
+    - grafana-test.codedang.com # TODO: update with actual host
 
 limits:
   cpu: 200m
