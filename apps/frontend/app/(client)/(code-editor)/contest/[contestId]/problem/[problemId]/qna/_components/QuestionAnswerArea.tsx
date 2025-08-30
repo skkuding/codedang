@@ -10,13 +10,9 @@ import { QnaAccordion } from './QnaAccordion'
 
 interface QuestionAnswerAreaProps {
   contestId: number
-  problemId: number
 }
 
-export function QuestionAnswerArea({
-  contestId,
-  problemId
-}: QuestionAnswerAreaProps) {
+export function QuestionAnswerArea({ contestId }: QuestionAnswerAreaProps) {
   const [loading, setLoading] = useState(true)
   const [qnaDetails, setQnaDetails] = useState<SingleQnaData[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -30,17 +26,13 @@ export function QuestionAnswerArea({
         .get(`contest/${contestId}/qna`, { cache: 'no-store' })
         .json<MultipleQnaData[]>()
 
-      const filtered = allqnaData
-        .filter((qna) => qna.problemId === problemId)
-        .sort((a, b) => a.order - b.order)
-
-      if (!filtered.length) {
+      if (!allqnaData.length) {
         setQnaDetails([])
         return
       }
 
       const details = await Promise.all(
-        filtered.map(({ order }) =>
+        allqnaData.map(({ order }) =>
           fetcherWithAuth
             .get(`contest/${contestId}/qna/${order}`, { cache: 'no-store' })
             .json<SingleQnaData>()
@@ -54,7 +46,7 @@ export function QuestionAnswerArea({
     } finally {
       setLoading(false)
     }
-  }, [contestId, problemId])
+  }, [contestId])
 
   useEffect(() => {
     fetchQnaData()
@@ -82,6 +74,6 @@ export function QuestionAnswerArea({
       </div>
     )
   }
-
+  console.log(qnaDetails)
   return <QnaAccordion qnaData={qnaDetails} />
 }
