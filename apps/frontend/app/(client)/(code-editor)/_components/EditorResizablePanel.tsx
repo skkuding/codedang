@@ -124,9 +124,9 @@ export function EditorMainResizablePanel({
   const { language, setLanguage } = useLanguageStore(
     problem.id,
     contestId,
+    courseId,
     assignmentId,
-    exerciseId,
-    courseId
+    exerciseId
   )()
   const [tabValue, setTabValue] = useState('Description')
 
