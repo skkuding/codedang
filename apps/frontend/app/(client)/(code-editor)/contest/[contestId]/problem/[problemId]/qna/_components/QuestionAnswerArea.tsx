@@ -23,7 +23,7 @@ export function QuestionAnswerArea({ contestId }: QuestionAnswerAreaProps) {
     setError(null)
     try {
       const allqnaData = await fetcherWithAuth
-        .get(`contest/${contestId}/qna?orderBy=desc`, { cache: 'no-store' })
+        .get(`contest/${contestId}/qna`, { cache: 'no-store' })
         .json<MultipleQnaData[]>()
 
       if (!allqnaData.length) {
