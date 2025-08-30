@@ -1,10 +1,8 @@
 'use client'
 
-import { Button } from '@/components/shadcn/button'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { GetContestQnaQuery } from '@generated/graphql'
 import React, { useEffect, useState } from 'react'
-import { HiTrash } from 'react-icons/hi'
 import { toast } from 'sonner'
 import { QnaCommentPostArea } from './QnaCommentPostArea'
 import { QnaDetailDeleteButton } from './QnaDetailDeleteButton'
