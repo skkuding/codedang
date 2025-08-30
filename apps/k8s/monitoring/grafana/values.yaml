@@ -46,10 +46,17 @@ datasources:
         url: http://loki.monitoring-loki.svc.cluster.local:3100
         editable: true # TODO: set false after testing
 
+# help grafana to detect provisioned dashboards
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: '1'
+
 dashboardsConfigMaps:
-  default: all-service-logs
-  hardware: hardware-metrics
-  submission: submission-detail
+  default: 'all-service-logs'
+  hardware: 'hardware-metrics'
+  submission: 'submission-detail'
 
 # TODO: add public dashboards from https://grafana.com/grafana/dashboards/
 downloadDashboards:

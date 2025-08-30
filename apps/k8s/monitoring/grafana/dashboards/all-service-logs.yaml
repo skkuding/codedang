@@ -3,8 +3,10 @@ kind: ConfigMap
 metadata:
   name: all-service-logs
   namespace: monitoring-grafana
+  labels:
+    grafana_dashboard: '1'
 data:
-  all-service-logs.json: |
+  all-service-logs.json: |-
     {
       "annotations": {
         "list": [

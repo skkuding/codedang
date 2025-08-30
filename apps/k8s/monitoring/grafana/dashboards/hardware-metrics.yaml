@@ -3,8 +3,10 @@ kind: ConfigMap
 metadata:
   name: hardware-metrics
   namespace: monitoring-grafana
+  labels:
+    grafana_dashboard: '1'
 data:
-  hardware-metrics.json: |
+  hardware-metrics.json: |-
     {
       "annotations": {
         "list": [
