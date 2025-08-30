@@ -18,7 +18,7 @@ export default function AdminContestQna() {
           This page is being prepared.
           <br /> We will provide an update as soon as possible.
         </p>
-        <QnaDetailButton qnaId="1" />
+        <QnaDetailButton qnaId="2" />
       </div>
     </div>
   )

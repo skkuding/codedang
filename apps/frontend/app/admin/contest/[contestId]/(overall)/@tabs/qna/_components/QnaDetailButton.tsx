@@ -1,5 +1,6 @@
 'use client'
 
+import { ErrorPage } from '@/app/(client)/(main)/contest/[contestId]/@tabs/qna/[qnaId]/_components/QnaErrorPage'
 import { DeleteButton } from '@/components/DeleteButton'
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
@@ -9,9 +10,8 @@ import { GET_CONTEST_QNA } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSession } from '@/libs/hooks/useSession'
 import { useMutation, useQuery } from '@apollo/client'
-import { QnACategory, type GetContestQnaQuery } from '@generated/graphql'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { AdminQnaCommentArea } from './AdminQnaCommentArea'
 import { AdminQnaContentArea } from './AdminQnaContentArea'
@@ -21,42 +21,22 @@ export function QnaDetailButton({ qnaId }: { qnaId: string }) {
   const [showModal, setShowModal] = useState(false)
   const session = useSession()
 
-  const QnaData = useQuery(GET_CONTEST_QNA, {
+  const { data, refetch } = useQuery(GET_CONTEST_QNA, {
     variables: {
       contestId: Number(contestId),
       qnaId: Number(qnaId)
     }
-  }).data?.getContestQnA
+  })
+  const [QnaData, setQnaData] = useState(data?.getContestQnA)
 
-  console.log(QnaData)
-  console.log(session?.user.username)
+  useEffect(() => {
+    async function RefetchQna() {
+      const refetched = await refetch()
+      setQnaData(refetched.data.getContestQnA)
+    }
+    RefetchQna()
+  }, [refetch, showModal])
 
-  const QnaDataDummy: GetContestQnaQuery['getContestQnA'] = {
-    order: 1,
-    createdById: 8,
-    createdBy: {
-      username: 'user'
-    },
-    contestId: 20,
-    title: 'QnA 1',
-    content: '질문의 내용',
-    problemId: null,
-    category: QnACategory.General,
-    isResolved: false,
-    createTime: '2025-08-28T18:08:00.123Z',
-    comments: [
-      {
-        order: 1,
-        createdById: 7,
-        isContestStaff: false,
-        content: '1번 질문에 대한 답변',
-        createdTime: '2025-08-28T18:08:00.133Z',
-        createdBy: {
-          username: 'user01'
-        }
-      }
-    ]
-  }
   const ContestProblems = useQuery(GET_CONTEST_PROBLEMS, {
     variables: {
       contestId: Number(contestId)
@@ -79,9 +59,9 @@ export function QnaDetailButton({ qnaId }: { qnaId: string }) {
   }
 
   // TODO: 로직 확인
-  function handleDeleteQna() {
+  async function handleDeleteQna() {
     try {
-      deleteContestQna()
+      await deleteContestQna()
       setShowModal(false)
       toast.success(`question is deleted successfully!`)
     } catch (error) {
@@ -95,10 +75,12 @@ export function QnaDetailButton({ qnaId }: { qnaId: string }) {
       type="custom"
       trigger={<Button>Go to qna detail page</Button>}
       open={showModal}
+      onOpenChange={setShowModal}
       title=""
+      className="h-full! max-h-[1065px]! px-[20px]!"
     >
-      <ScrollArea>
-        {QnaData && (
+      <ScrollArea className="h-full max-h-[1065px] px-[20px]">
+        {QnaData ? (
           <div className="flex w-full flex-col gap-[20px] leading-[150%] tracking-[-3%]">
             <AdminQnaContentArea
               QnaData={QnaData}
@@ -117,6 +99,10 @@ export function QnaDetailButton({ qnaId }: { qnaId: string }) {
               username={session?.user.username}
             />
           </div>
+        ) : (
+          <ErrorPage
+            errorRes={{ message: 'There is no such Qna!', statusCode: 999 }}
+          />
         )}
       </ScrollArea>
     </Modal>

@@ -41,20 +41,21 @@ export function AdminQnaCommentArea({
     triggerRefresh: CommentTriggerRefresh
   } = useQnaCommentSync()
 
-  const { data, refetch } = useQuery(GET_CONTEST_QNA, {
+  const { refetch } = useQuery(GET_CONTEST_QNA, {
     variables: {
       contestId: Number(contestId),
       qnaId: Number(qnaId)
     }
   })
 
+  // TODO: 클라이언트 단에서 댓글 작성 혹은 삭제 시에도 최신화. (같은 zustand 상태 관리를 사용하는데 왜 동기화가 안되지...?)
   useEffect(() => {
-    refetch()
+    async function RefetchQna() {
+      const refetched = await refetch()
+      setComments(refetched.data.getContestQnA.comments)
+    }
+    RefetchQna()
   }, [CommentRefreshTrigger, refetch])
-
-  useEffect(() => {
-    setComments(data?.getContestQnA?.comments)
-  }, [data])
 
   const [postCommentMutate] = useMutation(CREATE_CONTEST_QNA_COMMENT)
 
@@ -68,9 +69,9 @@ export function AdminQnaCommentArea({
     })
   }
 
-  const onPost = () => {
+  const onPost = async () => {
     try {
-      createContestQnaComment()
+      await createContestQnaComment()
       CommentTriggerRefresh()
       toast.success('Posted successfully!')
       setText('')
@@ -91,9 +92,9 @@ export function AdminQnaCommentArea({
     })
   }
 
-  const handleDeleteComment = (commentOrder: number) => {
+  const handleDeleteComment = async (commentOrder: number) => {
     try {
-      deleteContestQnaComment(commentOrder)
+      await deleteContestQnaComment(commentOrder)
       CommentTriggerRefresh()
       toast.success(`comment is deleted successfully!`)
     } catch (error) {
@@ -105,7 +106,8 @@ export function AdminQnaCommentArea({
     <div className="flex flex-col gap-[20px]">
       <div className="flex flex-col gap-[8px]">
         {comments
-          ?.sort((a, b) => a.order - b.order)
+          ?.slice()
+          .sort((a, b) => a.order - b.order)
           .map((comment) => {
             const canDeleteComment = comment.isContestStaff
             return (
