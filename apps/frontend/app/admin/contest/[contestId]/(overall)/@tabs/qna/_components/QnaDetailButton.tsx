@@ -3,7 +3,6 @@
 import { ErrorPage } from '@/app/(client)/(main)/contest/[contestId]/@tabs/qna/[qnaId]/_components/QnaErrorPage'
 import { DeleteButton } from '@/components/DeleteButton'
 import { Modal } from '@/components/Modal'
-import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { DELETE_CONTEST_QNA } from '@/graphql/contest/mutations'
 import { GET_CONTEST_QNA } from '@/graphql/contest/queries'
@@ -11,12 +10,18 @@ import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSession } from '@/libs/hooks/useSession'
 import { useMutation, useQuery } from '@apollo/client'
 import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactElement } from 'react'
 import { toast } from 'sonner'
 import { AdminQnaCommentArea } from './AdminQnaCommentArea'
 import { AdminQnaContentArea } from './AdminQnaContentArea'
 
-export function QnaDetailButton({ qnaId }: { qnaId: string }) {
+export function QnaDetailButton({
+  trigger,
+  qnaId
+}: {
+  trigger: ReactElement
+  qnaId: string
+}) {
   const { contestId } = useParams<{ contestId: string }>()
   const [showModal, setShowModal] = useState(false)
   const session = useSession()
@@ -73,7 +78,7 @@ export function QnaDetailButton({ qnaId }: { qnaId: string }) {
     <Modal
       size="lg"
       type="custom"
-      trigger={<Button>Go to qna detail page</Button>}
+      trigger={trigger}
       open={showModal}
       onOpenChange={setShowModal}
       title=""
