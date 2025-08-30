@@ -18,6 +18,7 @@ import { LogoSection } from './_components/LogoSection'
 import { MajorSection } from './_components/MajorSection'
 import { NameSection } from './_components/NameSection'
 import { NewPwSection } from './_components/NewPwSection'
+import { PushNotificationSection } from './_components/PushNotificationSection'
 import { ReEnterNewPwSection } from './_components/ReEnterNewPwSection'
 import { SaveButton } from './_components/SaveButton'
 import { StudentIdSection } from './_components/StudentIdSection'
@@ -216,7 +217,7 @@ export default function Page() {
     updateNow: Boolean(updateNow)
   }
   return (
-    <div className="mt-[60px] flex w-full max-w-[1440px] gap-20 px-[116px] pb-6">
+    <div className="mt-[60px] flex w-full max-w-[1440px] gap-20 px-4 pb-6 sm:px-[116px]">
       {/* Logo */}
       <LogoSection />
 
@@ -224,7 +225,7 @@ export default function Page() {
         {/* Form */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex h-svh max-h-[846px] w-full flex-col justify-between gap-4 overflow-y-auto px-4"
+          className="flex h-svh max-h-[1000px] w-full flex-col justify-between gap-4 overflow-y-auto px-4"
         >
           {/* Topic */}
           <TopicSection />
@@ -262,6 +263,8 @@ export default function Page() {
           <StudentIdSection studentId={studentId} />
           {/* Major */}
           <MajorSection />
+          {/* Push Notifications */}
+          <PushNotificationSection />
           {/* Save Button */}
           <SaveButton
             saveAble={saveAble}
