@@ -1,6 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: monitoring-grafana
+
 resources:
   - namespace.yaml
+  - admin-user.yaml
   - credentials.yaml
   - dashboards/all-service-logs.yaml
   - dashboards/hardware-metrics.yaml
   - dashboards/submission-detail.yaml
+
+commonAnnotations:
+  managed-by: kustomize
