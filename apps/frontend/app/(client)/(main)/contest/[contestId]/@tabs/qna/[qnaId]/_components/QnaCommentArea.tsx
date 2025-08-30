@@ -1,8 +1,10 @@
 'use client'
 
+import { Button } from '@/components/shadcn/button'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { GetContestQnaQuery } from '@generated/graphql'
 import React, { useEffect, useState } from 'react'
+import { HiTrash } from 'react-icons/hi'
 import { toast } from 'sonner'
 import { QnaCommentPostArea } from './QnaCommentPostArea'
 import { QnaDetailDeleteButton } from './QnaDetailDeleteButton'
@@ -87,6 +89,18 @@ export function QnaCommentArea({
     }
   }
 
+  const CommentDeleteTrigger = (
+    <Button
+      variant="outline"
+      className="bg-fill hover:bg-fill-neutral cursor-pointer border-none"
+      asChild
+    >
+      <div className="text-color-neutral-70 grid h-auto place-content-center px-[16px] py-[5px]">
+        <HiTrash fontSize={24} />
+      </div>
+    </Button>
+  )
+
   return (
     <div className="flex flex-col gap-[40px]">
       <div className="flex flex-col gap-[10px]">
@@ -105,6 +119,7 @@ export function QnaCommentArea({
                     <QnaDetailDeleteButton
                       subject="comment"
                       DeleteUrl={`contest/${contestId}/qna/${qnaId}/comment/${comment.order}`}
+                      trigger={CommentDeleteTrigger}
                     />
                   ) : undefined
                 }

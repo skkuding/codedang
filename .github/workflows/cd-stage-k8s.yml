@@ -21,7 +21,9 @@ jobs:
           - target: frontend
             file: ./apps/frontend/Dockerfile
             context: .
-            build-args: ''
+            build-args: |
+              BASEURL=https://stage.codedang.com/api
+              GQL_BASEURL=https://stage.codedang.com/graphql
           - target: client-api
             file: ./apps/backend/Dockerfile
             context: .
