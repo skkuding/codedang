@@ -1,5 +1,6 @@
 'use client'
 
+import { AlertModal } from '@/components/AlertModal'
 import { Switch } from '@/components/shadcn/switch'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import { useState, useEffect } from 'react'
@@ -8,6 +9,7 @@ import { toast } from 'sonner'
 export function PushNotificationSection() {
   const [isSubscribed, setIsSubscribed] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [showDisableModal, setShowDisableModal] = useState(false)
 
   useEffect(() => {
     const fetchIsSubscribed = async () => {
@@ -87,7 +89,6 @@ export function PushNotificationSection() {
       toast.success('Push notifications enabled successfully!')
     } catch (error) {
       if (error instanceof Error && error.message.includes('already exists')) {
-        console.log('Push subscription already exists.')
         setIsSubscribed(true)
       } else {
         console.error(
@@ -103,16 +104,19 @@ export function PushNotificationSection() {
     if (checked) {
       await handleRequestPermissionAndSubscribe()
     } else {
-      try {
-        await safeFetcherWithAuth
-          .delete('notification/push-subscription')
-          .json()
-        setIsSubscribed(false)
-        toast.success('Push notifications disabled successfully!')
-      } catch (error) {
-        console.error('Failed to delete push subscription:', error)
-        toast.error('Failed to disable push notifications. Please try again.')
-      }
+      setShowDisableModal(true)
+    }
+  }
+
+  const handleDisablePushNotifications = async () => {
+    try {
+      await safeFetcherWithAuth.delete('notification/push-subscription').json()
+      setIsSubscribed(false)
+      setShowDisableModal(false)
+      toast.success('Push notifications are disabled.')
+    } catch (error) {
+      console.error('Failed to delete push subscription:', error)
+      toast.error('Failed to disable push notifications.')
     }
   }
 
@@ -133,10 +137,23 @@ export function PushNotificationSection() {
       <label className="-mb-4 mt-2 text-xs">Push Notifications</label>
       <div className="flex items-center justify-between">
         <span className="text-sm text-neutral-600">
-          Receive notifications about assignments
+          Receive push notifications about assignments
         </span>
         <Switch checked={isSubscribed} onCheckedChange={handleToggle} />
       </div>
+
+      <AlertModal
+        open={showDisableModal}
+        onOpenChange={setShowDisableModal}
+        type="warning"
+        title="Disable Push Notifications"
+        description="This will disable push notifications on all your devices. Are you sure you want to continue?"
+        primaryButton={{
+          text: 'Disable',
+          onClick: handleDisablePushNotifications,
+          variant: 'default'
+        }}
+      />
     </>
   )
 }

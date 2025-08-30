@@ -34,10 +34,16 @@ export function NotificationDropdown({
   const handleRequestPermissionAndSubscribe = async () => {
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
       alert(
-        'Install PWA to get notifications. Instructions can be found in notice.'
+        'Install PWA to get push notifications. Instructions can be found in notice.'
       )
       return
     }
+
+    const deviceKey = `notification_unsupported_${navigator.userAgent}_${screen.width}x${screen.height}`
+    if (localStorage.getItem(deviceKey)) {
+      return
+    }
+    localStorage.setItem(deviceKey, 'true')
 
     const currentPermission = Notification.permission
 
@@ -86,6 +92,7 @@ export function NotificationDropdown({
       await safeFetcherWithAuth.post('notification/push-subscription', {
         json: { ...subscription.toJSON(), userAgent: navigator.userAgent }
       })
+      setIsSubscribed(true)
     } catch (error) {
       if (error instanceof Error && error.message.includes('already exists')) {
         console.log('Push subscription already exists.')
