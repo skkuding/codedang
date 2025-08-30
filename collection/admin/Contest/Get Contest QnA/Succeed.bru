@@ -24,6 +24,13 @@ body:graphql {
       createdBy {
         username
       }
+      comments {
+        content
+        createdById
+        createdBy {
+          username
+        }
+      }
     }
   }
 }
