@@ -5,8 +5,8 @@ metadata:
   namespace: admin-api
 spec:
   headers:
-    accessControlAllowOriginListRegex:
-      - 'https://\d+\.preview\.codedang\.com'
+    accessControlAllowOriginList:
+      - '*.preview.codedang.com'
       - 'http://localhost:5525'
     accessControlAllowMethods:
       - 'GET'
