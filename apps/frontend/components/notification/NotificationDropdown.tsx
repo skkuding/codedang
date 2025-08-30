@@ -23,6 +23,7 @@ export function NotificationDropdown({
 }: NotificationDropdownProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadApiCount, setUnreadApiCount] = useState(0)
+  const [isSubscribed, setIsSubscribed] = useState(false)
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [isLoading, setIsLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
@@ -33,14 +34,14 @@ export function NotificationDropdown({
   const handleRequestPermissionAndSubscribe = async () => {
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
       alert(
-        'This browser does not support desktop notifications. Please use a different browser.'
+        'Install PWA to get notifications. Instructions can be found in notice.'
       )
       return
     }
 
     const currentPermission = Notification.permission
 
-    if (currentPermission === 'granted') {
+    if (currentPermission === 'granted' && !isSubscribed) {
       await subscribeToPush()
       return
     }
@@ -83,7 +84,7 @@ export function NotificationDropdown({
       })
 
       await safeFetcherWithAuth.post('notification/push-subscription', {
-        json: subscription
+        json: { ...subscription.toJSON(), userAgent: navigator.userAgent }
       })
     } catch (error) {
       if (error instanceof Error && error.message.includes('already exists')) {
@@ -139,6 +140,15 @@ export function NotificationDropdown({
       }
     }
     fetchInitialUnreadCount()
+
+    const fetchIsSubscribed = async () => {
+      const data = await safeFetcherWithAuth
+        .get('notification/push-subscription')
+        .json()
+      const isUserSubscribed = Array.isArray(data) && data.length > 0
+      setIsSubscribed(isUserSubscribed)
+    }
+    fetchIsSubscribed()
   }, [])
 
   useEffect(() => {
