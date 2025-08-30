@@ -65,6 +65,7 @@ export function SignIn() {
       <div className="flex flex-col gap-[6px]">
         <IDLabel />
         <Input
+          placeholder="User ID"
           type="text"
           autoCapitalize="none"
           autoCorrect="off"
