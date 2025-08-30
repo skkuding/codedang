@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: client-api
+
+resources:
+  - ../../base
+  - cors-middleware.yaml
+  - secrets/aws-credentials.yaml
+  - secrets/database-credentials.yaml
+  - secrets/oauth-credentials.yaml
+  - secrets/security-keys.yaml
+
+patches:
+  - path: configmap.yaml
+    target:
+      kind: ConfigMap
+      name: client-api-env
+  - path: ingress.yaml
+    target:
+      kind: Ingress
+      name: client-api-server-ingress

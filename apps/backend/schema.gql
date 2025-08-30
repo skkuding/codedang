@@ -1658,6 +1658,7 @@ enum Level {
 }
 
 type Mutation {
+  autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!
@@ -2122,6 +2123,8 @@ type ProblemTestcase {
   problem: Problem!
   problemId: Int!
   scoreWeight: Int!
+  scoreWeightDenominator: Int!
+  scoreWeightNumerator: Int!
   submissionCount: Int!
   submissionResult: [SubmissionResult!]
   updateTime: DateTime!
@@ -2133,6 +2136,8 @@ type ProblemTestcaseAvgAggregate {
   order: Float
   problemId: Float
   scoreWeight: Float
+  scoreWeightDenominator: Float
+  scoreWeightNumerator: Float
   submissionCount: Float
 }
 
@@ -2151,6 +2156,8 @@ type ProblemTestcaseCountAggregate {
   output: Int!
   problemId: Int!
   scoreWeight: Int!
+  scoreWeightDenominator: Int!
+  scoreWeightNumerator: Int!
   submissionCount: Int!
   updateTime: Int!
 }
@@ -2169,6 +2176,8 @@ type ProblemTestcaseMaxAggregate {
   output: String
   problemId: Int
   scoreWeight: Int
+  scoreWeightDenominator: Int
+  scoreWeightNumerator: Int
   submissionCount: Int
   updateTime: DateTime
 }
@@ -2183,6 +2192,8 @@ type ProblemTestcaseMinAggregate {
   output: String
   problemId: Int
   scoreWeight: Int
+  scoreWeightDenominator: Int
+  scoreWeightNumerator: Int
   submissionCount: Int
   updateTime: DateTime
 }
@@ -2198,6 +2209,8 @@ type ProblemTestcaseSumAggregate {
   order: Int
   problemId: Int
   scoreWeight: Int
+  scoreWeightDenominator: Int
+  scoreWeightNumerator: Int
   submissionCount: Int
 }
 
@@ -2342,7 +2355,7 @@ type Query {
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestProblems(contestId: Int!): [ContestProblem!]!
   getContestQnA(contestId: Int!, order: Int!): ContestQnA!
-  getContestQnAs(contestId: Int!, filter: GetContestQnAsFilterInput): [ContestQnA!]!
+  getContestQnAs(contestId: Int!, cursor: Int!, filter: GetContestQnAsFilterInput, take: Int! = 10): [ContestQnA!]!
   getContestRoles: [UserContest!]!
   getContestScoreSummaries(contestId: Int!, cursor: Int, searchingName: String, take: Int! = 10): [UserContestScoreSummaryWithUserInfo!]!
   getContestSubmissionSummaryByUserId(contestId: Int!, cursor: Int, problemId: Int, take: Int! = 10, userId: Int!): ContestSubmissionSummaryForUser!
@@ -2668,7 +2681,13 @@ type TestCaseResult {
   problemTestcase: ProblemTestcaseResult!
   problemTestcaseId: Int!
   result: ResultStatus!
-  scoreWeight: Int!
+  scoreWeight: Int @deprecated(reason: "Use scoreWeightNumerator and scoreWeightDenominator instead")
+
+  """점수 가중치 분모"""
+  scoreWeightDenominator: Int
+
+  """점수 가중치 분자"""
+  scoreWeightNumerator: Int
   submissionId: Int!
   updateTime: DateTime!
 }
@@ -2786,7 +2805,13 @@ input Testcase {
   input: String!
   isHidden: Boolean!
   output: String!
-  scoreWeight: IntScore
+  scoreWeight: Int
+
+  """점수 가중치 분모"""
+  scoreWeightDenominator: Int
+
+  """점수 가중치 분자"""
+  scoreWeightNumerator: Int
 }
 
 type TestcaseResult {

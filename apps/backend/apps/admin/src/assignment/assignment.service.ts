@@ -5,7 +5,6 @@ import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
-  ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
@@ -13,7 +12,6 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
 import type { AssignmentProblemInput } from './model/assignment-problem.input'
-import type { AssignmentWithScores } from './model/assignment-with-scores.model'
 import type {
   CreateAssignmentInput,
   UpdateAssignmentInput
@@ -125,7 +123,8 @@ export class AssignmentService {
       this.inviteAllCourseMembersToAssignment(createdAssignment.id, groupId)
 
       this.eventEmitter.emit('assignment.created', {
-        assignmentId: createdAssignment.id
+        assignmentId: createdAssignment.id,
+        dueTime: createdAssignment.dueTime
       })
 
       return createdAssignment
@@ -147,6 +146,7 @@ export class AssignmentService {
         startTime: true,
         endTime: true,
         dueTime: true,
+        isFinalScoreVisible: true,
         assignmentProblem: {
           select: {
             problemId: true
@@ -167,6 +167,7 @@ export class AssignmentService {
 
     const isEndTimeChanged =
       assignment.endTime && assignment.endTime !== assignmentFound.endTime
+
     assignment.startTime = assignment.startTime || assignmentFound.startTime
     assignment.endTime = assignment.endTime || assignmentFound.endTime
     if (assignment.startTime >= assignment.endTime) {
@@ -238,7 +239,7 @@ export class AssignmentService {
     }
 
     try {
-      return await this.prisma.assignment.update({
+      const updatedAssignment = await this.prisma.assignment.update({
         where: {
           id: assignment.id
         },
@@ -247,6 +248,28 @@ export class AssignmentService {
           ...assignment
         }
       })
+
+      const isRevealingFinalScore =
+        assignment.isFinalScoreVisible &&
+        assignment.isFinalScoreVisible !== assignmentFound.isFinalScoreVisible
+
+      if (isRevealingFinalScore) {
+        this.eventEmitter.emit('assignment.graded', {
+          assignmentId: assignment.id
+        })
+      }
+
+      const isDueTimeChanged =
+        assignment.dueTime && assignment.dueTime !== assignmentFound.dueTime
+
+      if (isDueTimeChanged) {
+        this.eventEmitter.emit('assignment.updated', {
+          assignmentId: assignment.id,
+          dueTime: assignment.dueTime
+        })
+      }
+
+      return updatedAssignment
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
@@ -285,11 +308,15 @@ export class AssignmentService {
     }
 
     try {
-      return await this.prisma.assignment.delete({
+      const deletedAssignment = await this.prisma.assignment.delete({
         where: {
           id: assignmentId
         }
       })
+
+      this.eventEmitter.emit('assignment.deleted', deletedAssignment.id)
+
+      return deletedAssignment
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
@@ -901,7 +928,21 @@ export class AssignmentService {
         problemId
       },
       select: {
-        assignment: true,
+        assignment: {
+          include: {
+            group: {
+              select: {
+                groupName: true,
+                courseInfo: {
+                  select: {
+                    courseNum: true,
+                    classNum: true
+                  }
+                }
+              }
+            }
+          }
+        },
         score: true
       }
     })
@@ -934,9 +975,9 @@ export class AssignmentService {
         return acc
       },
       {
-        upcoming: [] as AssignmentWithScores[],
-        ongoing: [] as AssignmentWithScores[],
-        finished: [] as AssignmentWithScores[]
+        upcoming: [] as typeof assignments,
+        ongoing: [] as typeof assignments,
+        finished: [] as typeof assignments
       }
     )
 
@@ -996,9 +1037,9 @@ export class AssignmentService {
       )
     }
 
-    if (now <= assignment.dueTime) {
-      throw new ConflictFoundException(
-        'You can grade only finished assignments'
+    if (now < assignment.dueTime) {
+      throw new UnprocessableDataException(
+        'Assignments can only be graded after their due time'
       )
     }
 
@@ -1059,11 +1100,6 @@ export class AssignmentService {
         return updatedRecord
       }
     )
-
-    this.eventEmitter.emit('assignment.graded', {
-      assignmentId: input.assignmentId,
-      userId: input.userId
-    })
 
     return updatedProblemRecord
   }
@@ -1130,6 +1166,35 @@ export class AssignmentService {
     )
 
     return isAllProblemGraded
+  }
+
+  async autoFinalizeScore(groupId: number, assignmentId: number) {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: { groupId: true, dueTime: true }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (assignment.groupId !== groupId) {
+      throw new ForbiddenAccessException(
+        'You can only access assignment in your own group'
+      )
+    }
+
+    if (assignment.dueTime > new Date()) {
+      throw new UnprocessableDataException(
+        'Assignments can only be graded after their due time'
+      )
+    }
+
+    return await this.prisma.$executeRaw`
+      UPDATE "assignment_problem_record"
+      SET "final_score" = "score"
+      WHERE "assignmentId" = ${assignmentId};
+    `
   }
 
   private async inviteAllCourseMembersToAssignment(

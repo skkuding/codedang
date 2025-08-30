@@ -2,5 +2,7 @@ export const ImportedTestcaseHeader: string[] = [
   'Input',
   'Output',
   'isHidden',
-  'scoreWeight'
+  'scoreWeight',
+  'scoreWeightNumerator',
+  'scoreWeightDenominator'
 ]

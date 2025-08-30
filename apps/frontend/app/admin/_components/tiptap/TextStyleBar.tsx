@@ -6,17 +6,15 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { Toggle } from '@/components/shadcn/toggle'
+import BoldIcon from '@/public/icons/texteditor-bold.svg'
+import CodeIcon from '@/public/icons/texteditor-code.svg'
+import ItalicIcon from '@/public/icons/texteditor-italic.svg'
+import LinkIcon from '@/public/icons/texteditor-link.svg'
+import StrikeIcon from '@/public/icons/texteditor-stikethrough.svg'
+import UnderlineIcon from '@/public/icons/texteditor-underline.svg'
 import type { Editor } from '@tiptap/core'
-import {
-  Bold as BoldIcon,
-  Italic as ItalicIcon,
-  Underline as UnderlineIcon,
-  Strikethrough as StrikeIcon,
-  Code as CodeIcon,
-  Link as LinkIcon,
-  Save as SaveIcon,
-  Trash as TrashIcon
-} from 'lucide-react'
+import { Save as SaveIcon, Trash as TrashIcon } from 'lucide-react'
+import Image from 'next/image'
 import { useCallback, useState } from 'react'
 
 interface TextStyleBarProps {
@@ -57,46 +55,46 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
       <Toggle
         pressed={editor?.isActive('bold')}
         onPressedChange={() => editor.chain().focus().toggleBold().run()}
-        className="h-7 w-7 p-1"
+        className="h-9 w-9 p-1"
       >
-        <BoldIcon className="text-neutral-600" />
+        <Image src={BoldIcon} alt="Bold" className="h-4 w-4" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('italic')}
         onPressedChange={() => editor.chain().focus().toggleItalic().run()}
-        className="h-7 w-7 p-1"
+        className="h-9 w-9 p-1"
       >
-        <ItalicIcon className="text-neutral-600" />
+        <Image src={ItalicIcon} alt="Italic" className="h-4 w-4" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('underline')}
         onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
-        className="h-7 w-7 p-1"
+        className="h-9 w-9 p-1"
       >
-        <UnderlineIcon className="text-neutral-600" />
+        <Image src={UnderlineIcon} alt="Underline" className="h-5 w-5" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('strike')}
         onPressedChange={() => editor.chain().focus().toggleStrike().run()}
-        className="h-7 w-7 p-1"
+        className="h-9 w-9 p-1"
       >
-        <StrikeIcon className="text-neutral-600" />
+        <Image src={StrikeIcon} alt="Strikethrough" className="h-6 w-6" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('code')}
         onPressedChange={() => editor.chain().focus().toggleCode().run()}
-        className="h-7 w-7 p-1"
+        className="h-9 w-9 p-1"
       >
-        <CodeIcon className="text-neutral-600" />
+        <Image src={CodeIcon} alt="Code" className="h-6 w-6" />
       </Toggle>
       <Popover open={isLinkPopoverOpen} onOpenChange={setIsLinkPopoverOpen}>
         <PopoverTrigger className="flex items-center">
           <Toggle
             pressed={isLinkPopoverOpen}
             onClick={handleSetLink}
-            className="h-7 w-7 p-1"
+            className="h-9 w-9 p-1"
           >
-            <LinkIcon className="text-neutral-600" />
+            <Image src={LinkIcon} alt="Link" className="h-4 w-4" />
           </Toggle>
         </PopoverTrigger>
         <PopoverContent className="flex gap-2 rounded-lg border bg-white p-2">

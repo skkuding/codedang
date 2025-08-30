@@ -235,21 +235,30 @@ export class ContestResolver {
 }
 
 @Resolver(() => ContestQnA)
-@UseDisableContestRolesGuard()
+@UseContestRolesGuard(ContestRole.Manager)
 export class ContestQnAResolver {
-  constructor(
-    private readonly contestService: ContestService,
-    private readonly userService: UserService
-  ) {}
+  constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestQnA])
   async getContestQnAs(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 10 },
+      new RequiredIntPipe('take')
+    )
+    take: number,
+    @Args('cursor', { type: () => Int }, CursorValidationPipe)
+    cursor: number | null,
     @Args('filter', { type: () => GetContestQnAsFilterInput, nullable: true })
-    filter?: GetContestQnAsFilterInput,
-    @Args('search', { type: () => String, nullable: true })
-    search?: string
+    filter?: GetContestQnAsFilterInput
   ) {
-    return await this.contestService.getContestQnAs(filter, search)
+    return await this.contestService.getContestQnAs(
+      contestId,
+      take,
+      cursor,
+      filter
+    )
   }
 
   @Query(() => ContestQnA)

@@ -6,9 +6,9 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type {
-  ContestQnACreateDto,
-  GetContestQnAsFilter
+import {
+  GetContestQnAsFilter,
+  type ContestQnACreateDto
 } from './dto/contest-qna.dto'
 
 const contestSelectOption = {
@@ -614,7 +614,7 @@ export class ContestService {
   /**
    * Contest에 대한 QnA를 생성합니다.
    * @param contestId - 대회 Id
-   * @param userId - QnA를 생성하려는 User의 Id
+   * @param userId - QnA를 생성하려는 User의 Id(비로그인 상태에서는 질문 생성 불가)
    * @param data - 질문의 제목(title)과 내용(content)
    * @param problemId - 해당 QnA와 연관된 Problem의 Id(optional) -> 주어지지 않으면 카테고리 General로 설정
    * @throws { EntityNotExistException } - contestId에 대한 대회가 없는 경우
@@ -700,12 +700,13 @@ export class ContestService {
    * 대회가 진행중이지 않은 경우:
    *   - 모든 사용자가 모든 글을 열람할 수 있습니다.
    *
-   * @param userId - 요청하는 사용자의 Id(로그인하지 않으면 null)
+   * @param userId - 요청하는 사용자의 Id(로그인하지 않으면 null, 이 경우 대회 진행 중 질문 조회 불가)
    * @param contestId - Contest의 Id
    * @param filter - 조회 필터
    *   - categories: QnACategory Enum의 값을 배열로 저장합니다.
    *   - problemOrders: QnA를 조회할 문제들의 대회에서의 order를 배열로 저장합니다.
    *   - orderBy: 조회할 QnA의 정렬 순서를 저장합니다. (asc: 오름차순 / desc: 내림차순)
+   *   - search: 검색어를 저장합니다.
    * @throws { EntityNotExistException } - contestId에 해당하는 Contest가 존재하지 않으면 반환합니다.
    * @returns ContestQnA[]
    */
@@ -739,6 +740,11 @@ export class ContestService {
 
     let visibleCondition = {}
     if (isOngoing) {
+      if (userId == null) {
+        throw new ForbiddenAccessException(
+          'Cannot access to QnA of an ongoing contest without logging in.'
+        )
+      }
       if (!isPrivileged) {
         // 대회 운영진이 아닌 경우 전체 공개이거나 본인이 작성한 글만 볼 수 있음
         visibleCondition = {
@@ -749,30 +755,54 @@ export class ContestService {
 
     // 대회 진행 중이 아니면 별도의 조건 필요 없음
 
-    const where: Prisma.ContestQnAWhereInput = {
+    const baseWhere: Prisma.ContestQnAWhereInput = {
       contestId,
       ...visibleCondition
     }
 
-    if (filter.categories && filter.categories.length > 0) {
-      where.category = { in: filter.categories }
-    }
-    if (
-      filter.categories &&
-      filter.categories.includes(QnACategory.Problem) &&
-      filter.problemOrders &&
-      filter.problemOrders.length > 0
-    ) {
-      const problemIds = await this.prisma.contestProblem
-        .findMany({
-          where: {
-            contestId,
-            order: { in: filter.problemOrders }
-          }
+    const categories = filter.categories ?? []
+    const includeProblem = categories.includes(QnACategory.Problem)
+    const general = categories.filter((c) => c !== QnACategory.Problem)
+
+    const orConds: Prisma.ContestQnAWhereInput[] = []
+
+    if (includeProblem) {
+      if (filter.problemOrders?.length) {
+        const problemIds = await this.prisma.contestProblem
+          .findMany({
+            where: { contestId, order: { in: filter.problemOrders } },
+            select: { problemId: true }
+          })
+          .then((rs) => rs.map((r) => r.problemId))
+
+        orConds.push({
+          category: QnACategory.Problem,
+          problemId: { in: problemIds }
         })
-        .then((results) => results.map((cp) => cp.problemId))
-      where.problemId = { in: problemIds }
+      } else {
+        orConds.push({ category: QnACategory.Problem })
+      }
     }
+
+    if (general.length) {
+      orConds.push({ category: { in: general } })
+    }
+
+    const searchFilter = filter.search
+      ? {
+          title: { contains: filter.search, mode: Prisma.QueryMode.insensitive }
+        }
+      : {}
+
+    const where: Prisma.ContestQnAWhereInput = orConds.length
+      ? {
+          AND: [
+            baseWhere,
+            ...(filter.search ? [searchFilter] : []),
+            { OR: orConds }
+          ]
+        }
+      : { AND: [baseWhere, ...(filter.search ? [searchFilter] : [])] }
 
     const qnas = await this.prisma.contestQnA.findMany({
       select: {
@@ -793,7 +823,7 @@ export class ContestService {
       },
       where,
       orderBy: {
-        order: filter.orderBy || 'asc' // default는 asc
+        order: 'asc'
       }
     })
 
@@ -817,7 +847,7 @@ export class ContestService {
    * - 일반 사용자: 권한이 없는 경우 ForbiddenAccessException 발생
    *
    *
-   * @param userId - 요청자의 사용자 ID (로그인하지 않은 경우 null)
+   * @param userId - 요청자의 사용자 ID (로그인하지 않은 경우 null, 이 경우 대회 진행 중 질문 조회 불가)
    * @param contestId - Contest의 ID
    * @param order - Contest에서의 QnA 순서
    * @returns QnA 전체 정보
@@ -841,7 +871,15 @@ export class ContestService {
         order
       },
       include: {
-        comments: true,
+        comments: {
+          include: {
+            createdBy: {
+              select: {
+                username: true
+              }
+            }
+          }
+        },
         createdBy: {
           select: {
             username: true
@@ -892,7 +930,7 @@ export class ContestService {
 
   /**
    * 특정 Contest의 order에 해당하는 QnA를 삭제합니다.
-   * @param userId - 요청하는 사용자의 Id
+   * @param userId - 요청하는 사용자의 Id(비로그인 상태에서는 질문 삭제 불가)
    * @param contestId - 대회 Id
    * @param order - 삭제하려는 QnA의 대회 내에서의 순번
    * @throws { EntityNotExistException } - 입력받은 contestId에 해당하는 Contest가 존재하지 않을 시
@@ -945,7 +983,7 @@ export class ContestService {
    * ContestQnA에 대한 댓글을 작성합니다
    * 대회가 진행중이면 QnA 작성자와 대회 운영진만 댓글을 작성할 수 있습니다.
    * 대회가 진행중이지 않으면 누구나 작성할 수 있습니다.
-   * @param userId - 댓글을 작성하려는 User의 Id
+   * @param userId - 댓글을 작성하려는 User의 Id(비로그인 상태에서는 댓글 생성 불가)
    * @param contestId - Contest의 Id
    * @param order - contest 내에서 QnA의 order
    * @param content - 댓글 내용
@@ -1035,7 +1073,7 @@ export class ContestService {
 
   /**
    * ContestQnA에 대한 댓글을 삭제합니다.
-   * @param userId - 요청한 사용자의 Id
+   * @param userId - 요청한 사용자의 Id(비로그인 상태에서는 댓글 삭제 불가)
    * @param contestId - 대회 Id
    * @param qnAOrder - 해당 대회 내에서의 QnA의 순서
    * @param commentOrder - 해당 QnA 내에서 삭제할 댓글의 순서

@@ -11,8 +11,13 @@ post {
 }
 
 body:graphql {
-  query GetContestQnAs($filter: GetContestQnAsFilterInput, $search: String) {
-    getContestQnAs(filter: $filter, search: $search) {
+  query GetContestQnAs($contestId: Int!, $take: Int!, $cursor: Int!, $filter: GetContestQnAsFilterInput) {
+    getContestQnAs(
+      contestId: $contestId,
+      take: $take,
+      cursor: $cursor,
+      filter: $filter
+    ) {
       id
       order
       title
@@ -33,52 +38,37 @@ body:graphql {
 
 body:graphql:vars {
   {
+    "contestId": 20,
+    "take": 10,
+    "cursor": 0,
     "filter": {
       "isResolved": false,
       "orderBy": "desc"
     },
-    "search": "algorithm"
   }
 }
 
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
 docs {
-  ## Get Contest QnAs
+  # Get Contest QnAs
 
-  - 모든 대회의 QnA들을 조회합니다.
-  - 관리자가 전체 시스템에서 해결되지 않은 질문들을 관리할 수 있습니다.
-  - 필터링 옵션을 통해 해결 상태와 정렬 순서를 지정할 수 있습니다.
+  ## Description
+  관리자가 특정 콘테스트의 QnA를 페이지네이션과 함께 조회할 수 있도록 합니다.
 
-  ### Parameters
+  ## 요청 필드
+  | 필드명 | 타입 | 필수 여부 | 설명 |
+  |--------|------|----------|------|
+  | contestId | Int! | 필수 | 콘테스트 ID |
+  | cursor | Int! | 필수 | 페이지네이션 커서 |
+  | filter | GetContestQnAsFilterInput | 선택 | 필터링 옵션 |
+  | take | Int! | 필수 | 가져올 개수 (기본값: 10) |
 
-  | Name | Type | Required | Description |
-  |------|------|----------|-------------|
-  | filter | GetContestQnAsFilterInput | ❌ | 필터링 옵션 |
-  | search | String | ❌ | QnA 제목 검색 (대소문자 구분 없음) |
-
-  ### Filter Options
-
-  | Name | Type | Description |
-  |------|------|-------------|
-  | isResolved | Boolean | 해결 상태 필터링 (true: 해결됨, false: 미해결) |
-  | orderBy | String | 정렬 순서 ("asc" 또는 "desc", 기본값: "desc") |
-
-  ### Search Functionality
-
-  - **제목 기반 검색**: QnA 제목에 특정 키워드가 포함된 글만 조회
-  - **대소문자 무시**: "Algorithm", "algorithm", "ALGORITHM" 모두 동일하게 검색
-  - **부분 일치**: 제목의 일부만 입력해도 검색 가능
-  - **필터와 조합**: 검색과 필터를 동시에 사용하여 더 정확한 결과 도출
-
-  ### Search Examples
-
-  - `"버그"` → "버그가 발생합니다", "이 버그는 언제 수정되나요?" 등
-  - `"runtime"` → "Runtime Error 발생", "Runtime 문제 해결" 등
-  - `"2024"` → "2024년 대회 관련", "2024 Winter Contest 문제" 등
-
-  ### Response Fields
-
-  | Name | Type | Description |
-  |------|------|-------------|
+  ## 응답 필드
+  | 필드명 | 타입 | 설명 |
+  |--------|------|------|
   | id | Int | QnA ID |
   | order | Int | 대회 내 QnA 순서 |
   | title | String | QnA 제목 |
@@ -90,9 +80,8 @@ docs {
   | createdBy.username | String | 작성자 사용자명 |
   | _count.comments | Int | 댓글 개수 |
 
-  ### Use Case
-
-  - **관리자 대시보드**: 전체 시스템에서 해결되지 않은 질문 개수 확인
-  - **일괄 관리**: 여러 대회의 질문을 한 번에 처리
-  - **우선순위 설정**: 전체적으로 중요한 질문들을 식별하여 우선 처리
+  ## 제약사항
+  - `contestId`는 존재하는 콘테스트여야 합니다.
+  - `take`는 1 이상의 값이어야 합니다.
+  - `cursor`는 이전 페이지의 마지막 항목 ID여야 합니다.
 }
