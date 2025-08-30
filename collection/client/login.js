@@ -15,6 +15,13 @@ const login = async (req, body) => {
   }
 }
 
+const loginSuper = async (req) => {
+  await login(req, {
+    username: 'super',
+    password: 'Supersuper'
+  })
+}
+
 const loginAdmin = async (req) => {
   await login(req, {
     username: 'admin',
@@ -65,6 +72,7 @@ const loginUser2nd = async (req) => {
 }
 
 module.exports = {
+  loginSuper,
   loginAdmin,
   loginContestAdmin,
   loginContestManager,
