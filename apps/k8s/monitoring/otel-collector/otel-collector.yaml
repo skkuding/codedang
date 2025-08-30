@@ -1,0 +1,52 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: simplest
+  namespace: monitoring-otel-collector
+spec:
+  config:
+    # https://opentelemetry.io/docs/collector/architecture/
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+
+    # https://opentelemetry.io/docs/collector/configuration/#processors
+    processors:
+      batch:
+        timeout: 10s
+        send_batch_size: 512
+
+    # https://opentelemetry.io/docs/collector/configuration/#exporters
+    exporters:
+      otlphttp/logs:
+        endpoint: http://loki.monitoring-loki.svc.cluster.local:3100/otlp
+        tls:
+          insecure: true
+      # TODO: uncomment when ready
+      # prometheus:
+      #   endpoint: '0.0.0.0:8889'
+      #   resource_to_telemetry_conversion:
+      #     enabled: true
+      # otlp/trace:
+      #   endpoint: tempo.monitoring-tempo.svc.cluster.local:4317
+      #   tls:
+      #     insecure: true
+
+    # https://opentelemetry.io/docs/collector/configuration/#service
+    service:
+      pipelines:
+        logs:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlphttp/logs]
+        # TODO: uncomment when ready
+        # metrics:
+        #   receivers: [otlp]
+        #   processors: [batch]
+        #   exporters: [prometheus]
+        # traces:
+        #   receivers: [otlp]
+        #   processors: [batch]
+        #   exporters: [otlp/trace]
