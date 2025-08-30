@@ -23,14 +23,12 @@ interface ContestQnAProps {
 
 export default async function ContestQna(props: ContestQnAProps) {
   const { contestId } = await props.params
-  const { searchParams } = props
-
+  const searchParams = await props.searchParams
   const session = await auth()
-  const params = await searchParams
-  const search = params.search ?? ''
-  const orderBy = params.orderBy ?? 'desc'
-  const categories = params.categories ?? ''
-  const problemOrders = params.problemOrders ?? ''
+  const search = searchParams.search ?? ''
+  const orderBy = searchParams.orderBy ?? 'desc'
+  const categories = searchParams.categories ?? ''
+  const problemOrders = searchParams.problemOrders ?? ''
 
   const contest: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
@@ -91,16 +89,16 @@ export default async function ContestQna(props: ContestQnAProps) {
 
 function QnATableFallback() {
   return (
-    <div className="w-[1133px]">
+    <div className="w-[1208px]">
       <Skeleton className="h-[34px] w-[235px] gap-4" />
-      <div className="mt-[140px] flex">
-        <span className="w-2/12">
+      <div className="mt-[148px] flex">
+        <span className="w-1/12">
           <Skeleton className="h-6 w-20" />
         </span>
         <span className="w-2/12">
           <Skeleton className="mx-auto h-6 w-20" />
         </span>
-        <span className="w-4/12">
+        <span className="w-5/12">
           <Skeleton className="mx-auto h-6 w-20" />
         </span>
         <span className="w-2/12">
