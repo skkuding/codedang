@@ -23,6 +23,9 @@ spec:
     - repoURL: https://github.com/skkuding/codedang
       targetRevision: main
       path: apps/k8s/monitoring/grafana
+      directory:
+        # kustomization.yaml is ignored if recurse is true
+        recurse: false
   destination:
     name: production
     namespace: monitoring-grafana
