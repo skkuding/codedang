@@ -76,7 +76,6 @@ stage.codedang.com {
 		reverse_proxy 127.0.0.1:9001
 	}
 
-
 	handle /logs* {
 		reverse_proxy 127.0.0.1:9999
 	}
@@ -110,4 +109,12 @@ stage.codedang.com {
 			header_up Host k8s-test.stage.codedang.com
 		}
 	}
+}
+
+grafana.codedang.com {
+	reverse_proxy 127.0.0.1:5000
+}
+
+otel.codedang.com {
+	reverse_proxy 127.0.0.1:4317
 }

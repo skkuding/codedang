@@ -34,10 +34,6 @@ spec:
                 name: iris-env
             - secretRef:
                 name: aws-credentials
-                optional: true # only for production environment
-            - secretRef:
-                name: minio-credentials
-                optional: true # only for stage environment
             - secretRef:
                 name: database-credentials
           env:
