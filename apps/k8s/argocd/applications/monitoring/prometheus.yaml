@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+  namespace: argocd
+  labels:
+    app.kubernetes.io/environment: production
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: prometheus
+      targetRevision: 27.32.0
+      helm:
+        releaseName: prometheus
+        valueFiles:
+          - $codedang/apps/k8s/monitoring/prometheus/values.yaml
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: main
+      ref: codedang
+  destination:
+    name: production
+    namespace: monitoring-prometheus
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
