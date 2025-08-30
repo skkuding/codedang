@@ -401,7 +401,7 @@ export class ProblemService {
   }
 
   async getProblem(id: number, userRole: Role, userId: number) {
-    const problem = await this.prisma.problem.findFirstOrThrow({
+    const problem = await this.prisma.problem.findFirst({
       where: {
         id
       },
@@ -409,6 +409,7 @@ export class ProblemService {
         sharedGroups: true
       }
     })
+    if (!problem) throw new EntityNotExistException('Problem')
     if (userRole != Role.Admin) {
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({
