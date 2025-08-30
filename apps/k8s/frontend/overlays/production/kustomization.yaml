@@ -4,9 +4,4 @@ namespace: frontend
 
 resources:
   - ../../base
-
-patches:
-  - path: secrets.yaml
-    target:
-      kind: SealedSecret
-      name: frontend-secrets
+  - secrets.yaml
