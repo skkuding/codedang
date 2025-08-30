@@ -8,8 +8,6 @@ import {
   DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { Skeleton } from '@/components/shadcn/skeleton'
-import { Switch } from '@/components/shadcn/switch'
-import { UPDATE_ASSIGNMENT } from '@/graphql/assignment/mutations'
 import {
   GET_ASSIGNMENT,
   GET_ASSIGNMENT_SCORE_SUMMARIES,
@@ -17,11 +15,10 @@ import {
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
-import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
+import { useQuery, useSuspenseQuery } from '@apollo/client'
 import dayjs from 'dayjs'
 import { useState, useEffect, useMemo } from 'react'
 import { CSVLink } from 'react-csv'
-import { toast } from 'sonner'
 import { createColumns } from './ColumnsByProblem'
 import { ProblemSelectDropdown } from './DataTableProblemFilterSingle'
 
@@ -42,8 +39,6 @@ export function ParticipantTableByProblem({
       assignmentId
     }
   }).data?.getAssignment
-
-  const [updateAssignment] = useMutation(UPDATE_ASSIGNMENT)
 
   const summaries = useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
     variables: { groupId, assignmentId, take: 300 }
@@ -118,94 +113,43 @@ export function ParticipantTableByProblem({
     })
   }, [summariesData, tcByUser, totalTestcases])
 
-  const formatScore = (score: number): string => {
-    const fixedScore = Math.floor(score * 1000) / 1000
-    return fixedScore.toString()
-  }
-
-  const assignmentTitle = assignmentData?.title
-
   const now = dayjs()
-
   const isAssignmentFinished = now.isAfter(dayjs(assignmentData?.dueTime))
 
+  const assignmentTitle = assignmentData?.title
+  const problemToDownload = problemData.find((p) => p.problemId === selectedPid)
+  const alphabet = String.fromCharCode(65 + (problemToDownload?.order ?? 0))
+  const problemLabel = `${alphabet}.${problemToDownload?.problem.title}`
   const fileName = assignmentTitle
-    ? `${assignmentTitle.replace(/\s+/g, '_')}.csv`
-    : `course-${groupId}/assignment-${assignmentId}-participants.csv`
-
-  const problemList =
-    problemData?.map((problem) => ({
-      problemId: problem.problemId,
-      maxScore: problem.score,
-      title: problem.problem.title,
-      order: problem.order
-    })) || []
+    ? `${assignmentTitle.replace(/\s+/g, '_')} - ${problemLabel}.csv`
+    : `course-${groupId}/assignment-${assignmentId}/problem-${selectedPid}.csv`
 
   const headers = [
-    { label: 'Student Id', key: 'studentId' },
-    { label: 'Name', key: 'realName' },
-    ...problemList.map((problem, index) => {
-      const problemLabel = String.fromCharCode(65 + index)
-      return {
-        label: `Testcase(${problemLabel})`,
-        key: `Testcase(${problemLabel})`
-      }
-    }),
-    {
-      label: `Total Score(MAX ${
-        summaries?.data.getAssignmentScoreSummaries[0]
-          ?.assignmentPerfectScore || 0
-      })`,
-      key: 'finalScore'
-    }
+    { label: 'Student ID', key: 'studentId' },
+    { label: 'Testcase', key: 'testcase' },
+    { label: 'Total', key: 'total' }
   ]
 
   const csvData = summaries.data?.getAssignmentScoreSummaries.map((user) => {
-    const userProblemScores = problemList.map((problem) => {
-      const scoreData = user.problemScores.find(
-        (ps) => ps.problemId === problem.problemId
-      )
-      return {
-        maxScore: scoreData ? formatScore(scoreData.score) : '-',
-        testcases: (tcByUser.get(user.userId) ?? [])
-          .map((tc) => (tc.result === 'Accepted' ? 'O' : 'X'))
-          .join('')
-      }
-    })
+    const userTestcases = (tcByUser.get(user.userId) ?? [])
+      .map((tc) => (tc.result === 'Accepted' ? 'O' : 'X'))
+      .join('')
+
+    const totalPassed = (tcByUser.get(user.userId) ?? []).filter(
+      (tc) => tc.result === 'Accepted'
+    ).length
+    const totalTestcases = (tcByUser.get(user.userId) ?? []).length
 
     return {
       studentId: user.studentId,
-      realName: user.realName,
-      finalScore: user.userAssignmentFinalScore ?? '-',
-      problems: userProblemScores
+      testcase: userTestcases,
+      total: `${totalPassed} / ${totalTestcases}`
     }
   })
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between gap-4">
-        <UtilityPanel
-          title="Show Scores to Students"
-          description="When enabled, students can view their scores for this assignment."
-        >
-          <Switch
-            onCheckedChange={async (checked) => {
-              await updateAssignment({
-                variables: {
-                  groupId,
-                  input: {
-                    id: assignmentId,
-                    isFinalScoreVisible: checked
-                  }
-                },
-                onCompleted: () => {
-                  toast.success('Successfully updated')
-                }
-              })
-            }}
-            className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
-          />
-        </UtilityPanel>
         <UtilityPanel
           title="Download as a CSV"
           description="Download grading results by students and problem to see all."

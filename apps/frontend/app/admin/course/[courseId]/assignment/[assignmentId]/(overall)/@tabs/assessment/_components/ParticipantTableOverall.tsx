@@ -171,7 +171,7 @@ export function ParticipantTableOverall({
         >
           <Switch
             onCheckedChange={async (checked) => {
-              if (!isAssignmentFinished) {
+              if (checked && !isAssignmentFinished) {
                 toast.error(
                   'Score cannot be revealed before assignment due time.'
                 )
