@@ -7,10 +7,10 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - k8s-test.stage.codedang.com
+        - stage.codedang.com
       secretName: client-api-server-tls
   rules:
-    - host: k8s-test.stage.codedang.com
+    - host: stage.codedang.com
       http:
         paths:
           - path: /api/
