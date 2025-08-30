@@ -21,7 +21,7 @@ export function Content({ control, watch }: ContentProps) {
   const contentLength = watchedValues.content?.length || 0
 
   return (
-    <div className="mb-[40px] flex min-h-[280px] w-full flex-col gap-[10px] rounded-[12px] border border-[#D8D8D8] p-[30px]">
+    <div className="mb-[40px] mt-[10px] flex min-h-[280px] w-full flex-col gap-[10px] rounded-[12px] border border-[#D8D8D8] p-[30px]">
       <Controller
         name="content"
         control={control}
