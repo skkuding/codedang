@@ -3,15 +3,18 @@
 import { DeleteButton } from '@/components/DeleteButton'
 import { fetcherWithAuth } from '@/libs/utils'
 import { useRouter } from 'next/navigation'
+import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 import { useQnaCommentSync } from './context/QnaCommentStoreProvider'
 
-export function QnaDeleteButton({
+export function QnaDetailDeleteButton({
   subject,
-  DeleteUrl
+  DeleteUrl,
+  trigger
 }: {
   subject: 'question' | 'comment'
   DeleteUrl: string
+  trigger: ReactNode
 }) {
   const contestId = DeleteUrl.split('/')[1]
   const router = useRouter()
@@ -39,5 +42,11 @@ export function QnaDeleteButton({
       toast.error(`Error in deleting ${subject}!: ${error}`)
     }
   }
-  return <DeleteButton subject={subject} handleDelete={handleDelete} />
+  return (
+    <DeleteButton
+      subject={subject}
+      handleDelete={handleDelete}
+      trigger={trigger}
+    />
+  )
 }

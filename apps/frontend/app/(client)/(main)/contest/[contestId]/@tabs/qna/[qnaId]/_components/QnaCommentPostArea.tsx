@@ -18,7 +18,7 @@ export function QnaCommentPostArea({
     <div className="border-color-line-default flex flex-col gap-[20px] rounded-xl border border-solid p-[30px]">
       {/* 작성자 이름과 input field */}
       <div className="flex flex-col gap-[12px]">
-        <span className="text-xl font-medium capitalize">{username}</span>
+        <span className="text-xl font-medium">{username}</span>
         <div className="flex flex-col gap-[15px]">
           <Textarea
             value={text}
