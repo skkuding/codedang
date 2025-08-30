@@ -1,0 +1,923 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: submission-detail
+  namespace: monitoring-grafana
+data:
+  submission-detail.json: |
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "description": "Client-API의 `/submission` API를 Log와 Trace를 기반으로 상세히 분석합니다.",
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": 8,
+      "links": [],
+      "panels": [
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 10,
+          "panels": [],
+          "title": "성능 지표(응답 시간)",
+          "type": "row"
+        },
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "description": "들어온 요청이 Client-API 서버부터 MQ, Iris를 거쳐 돌아오는데 걸리는 시간 평균",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "fieldMinMax": true,
+              "mappings": [],
+              "noValue": "없음",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 3,
+            "x": 0,
+            "y": 1
+          },
+          "id": 7,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "horizontal",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": ["mean"],
+              "fields": "/^Duration$/",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.0.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "datasource",
+                "uid": "-- Dashboard --"
+              },
+              "panelId": 6,
+              "refId": "A",
+              "withTransforms": false
+            }
+          ],
+          "title": "평균 제출 ~ 응답 시간",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": true,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMax": 1000,
+                "axisSoftMin": 0,
+                "fillOpacity": 65,
+                "gradientMode": "hue",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "fieldMinMax": false,
+              "mappings": [],
+              "noValue": "None",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 21,
+            "x": 3,
+            "y": 1
+          },
+          "id": 6,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.7,
+            "fullHighlight": true,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": ["mean"],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "orientation": "horizontal",
+            "showValue": "always",
+            "stacking": "none",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            },
+            "xField": "Start time",
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 200
+          },
+          "pluginVersion": "12.0.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "tempo",
+                "uid": "tempo"
+              },
+              "filters": [
+                {
+                  "id": "8b602cec",
+                  "operator": "=",
+                  "scope": "span",
+                  "tag": "http.method",
+                  "value": ["POST"],
+                  "valueType": "string"
+                },
+                {
+                  "id": "service-name",
+                  "operator": "=~",
+                  "scope": "resource",
+                  "tag": "service.name",
+                  "value": ["$ServiceName"],
+                  "valueType": "string"
+                },
+                {
+                  "id": "38f05353",
+                  "operator": "=",
+                  "scope": "span",
+                  "tag": "http.route",
+                  "value": ["/api/submission"]
+                }
+              ],
+              "limit": 20,
+              "metricsQueryType": "range",
+              "query": "{span.http.method=\"POST\" && resource.service.name=~\"$ServiceName\" && span.http.route=~\"/api/submission\"}",
+              "queryType": "traceql",
+              "refId": "A",
+              "tableType": "traces"
+            }
+          ],
+          "title": "Submission Graph",
+          "type": "barchart"
+        },
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 7
+          },
+          "id": 11,
+          "panels": [],
+          "title": "제출 현황",
+          "type": "row"
+        },
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 3,
+            "x": 0,
+            "y": 8
+          },
+          "id": 14,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [],
+              "fields": "/^id$/",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.0.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "datasource",
+                "uid": "-- Dashboard --"
+              },
+              "panelId": 9,
+              "refId": "A",
+              "withTransforms": false
+            }
+          ],
+          "title": "제출 개수",
+          "transformations": [
+            {
+              "id": "reduce",
+              "options": {
+                "includeTimeField": false,
+                "mode": "reduceFields",
+                "reducers": ["count"]
+              }
+            }
+          ],
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "description": "시간에 따른 `/api/submission` 요청 추이",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "bars",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "noValue": "없음",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Trace ID"
+                },
+                "properties": [
+                  {
+                    "id": "links",
+                    "value": [
+                      {
+                        "title": "Trace 분석",
+                        "url": "/d/a2ec7fe2-e1ac-43c4-b148-25f92b01ef16/submission-trace?orgId=1&var-TraceID=${__data.fields[\"Trace ID\"]}"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Level"
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "언어"
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "User ID"
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "User Name"
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Time"
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "URL"
+                },
+                "properties": []
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 21,
+            "x": 3,
+            "y": 8
+          },
+          "id": 13,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.0.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "direction": "backward",
+              "editorMode": "builder",
+              "expr": "sum(count_over_time({service_name=~\"$ServiceName\"} | req_params_0 =~ `submission` | req_method = `POST` [$__auto]))",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "제출 현황",
+          "type": "timeseries"
+        },
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 15
+          },
+          "id": 5,
+          "panels": [],
+          "title": "개별 상세 분석",
+          "type": "row"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "description": "Trace 대상",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": true,
+                "inspect": false
+              },
+              "mappings": [],
+              "noValue": "없음",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Trace ID"
+                },
+                "properties": [
+                  {
+                    "id": "links",
+                    "value": [
+                      {
+                        "title": "Trace 분석",
+                        "url": "/d/a2ec7fe2-e1ac-43c4-b148-25f92b01ef16/submission-trace?orgId=1&var-TraceID=${__data.fields[\"Trace ID\"]}"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 98
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Level"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 71
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "언어"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 73
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "User ID"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 85
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "User Name"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 112
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Time"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 128
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "URL"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 362
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "코드"
+                },
+                "properties": [
+                  {
+                    "id": "links",
+                    "value": [
+                      {
+                        "title": "코드 보기",
+                        "url": "/d/a2ec7fe2-e1ac-43c4-b148-25f92b01ef16/submission-trace?orgId=1&var-Code=${__data.fields[\"코드\"]}﻿&Language=${__data.fields[\"언어\"]}"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 17,
+            "w": 11,
+            "x": 0,
+            "y": 16
+          },
+          "id": 9,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "enablePagination": false,
+              "fields": "",
+              "reducer": ["sum"],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "12.0.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "direction": "backward",
+              "editorMode": "code",
+              "expr": "{service_name=~\"$ServiceName\"} | req_params_0 =~ `submission` | req_method = `POST`",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "제출 현황",
+          "transformations": [
+            {
+              "id": "extractFields",
+              "options": {
+                "delimiter": ",",
+                "format": "json",
+                "jsonPaths": [
+                  {
+                    "alias": "",
+                    "path": "req_body_code"
+                  },
+                  {
+                    "alias": "",
+                    "path": "req_body_language"
+                  },
+                  {
+                    "alias": "",
+                    "path": "req_url"
+                  },
+                  {
+                    "alias": "",
+                    "path": "trace_id"
+                  },
+                  {
+                    "alias": "",
+                    "path": "user_id"
+                  },
+                  {
+                    "alias": "",
+                    "path": "user_username"
+                  },
+                  {
+                    "path": "req_method"
+                  }
+                ],
+                "keepTime": false,
+                "replace": false,
+                "source": "labels"
+              }
+            },
+            {
+              "id": "extractFields",
+              "options": {
+                "delimiter": ",",
+                "format": "json",
+                "jsonPaths": [
+                  {
+                    "alias": "",
+                    "path": "0"
+                  }
+                ],
+                "source": "코드"
+              }
+            },
+            {
+              "id": "extractFields",
+              "options": {
+                "delimiter": ",",
+                "format": "json",
+                "jsonPaths": [
+                  {
+                    "alias": "",
+                    "path": "[0].text"
+                  }
+                ],
+                "keepTime": false,
+                "replace": false,
+                "source": "req_body_code"
+              }
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Line": true,
+                  "Time": false,
+                  "id": true,
+                  "labelTypes": true,
+                  "labels": true,
+                  "req_body_code": true,
+                  "req_method": true,
+                  "tsNs": true
+                },
+                "includeByName": {},
+                "indexByName": {
+                  "Line": 8,
+                  "Time": 5,
+                  "[0].text": 13,
+                  "id": 11,
+                  "labelTypes": 10,
+                  "labels": 7,
+                  "req_body_code": 3,
+                  "req_body_language": 4,
+                  "req_method": 12,
+                  "req_url": 6,
+                  "trace_id": 0,
+                  "tsNs": 9,
+                  "user_id": 2,
+                  "user_username": 1
+                },
+                "renameByName": {
+                  "[0].text": "코드",
+                  "detected_level": "Level",
+                  "id": "",
+                  "req_body_code": "",
+                  "req_body_language": "언어",
+                  "req_url": "URL",
+                  "trace_id": "Trace ID",
+                  "user_id": "User ID",
+                  "user_username": "User Name"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "Time"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "formatTime",
+              "options": {
+                "outputFormat": "M월 D일 HH:mm:SS",
+                "timeField": "Time",
+                "timezone": "Asia/Seoul",
+                "useTimezone": true
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "description": "선택된 `Trace ID`를 상세 분석합니다.",
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 17,
+            "w": 13,
+            "x": 11,
+            "y": 16
+          },
+          "id": 1,
+          "options": {
+            "spanFilters": {
+              "criticalPathOnly": false,
+              "matchesOnly": false,
+              "serviceNameOperator": "=",
+              "spanNameOperator": "=",
+              "tags": [
+                {
+                  "id": "4f2d2761-d25",
+                  "operator": "="
+                }
+              ]
+            }
+          },
+          "pluginVersion": "12.0.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "tempo",
+                "uid": "a4834aff-52d2-4d39-8567-316b2300c7a2"
+              },
+              "filters": [
+                {
+                  "id": "2eb37c61",
+                  "operator": "=",
+                  "scope": "span",
+                  "value": [],
+                  "valueType": "int"
+                },
+                {
+                  "id": "service-name",
+                  "operator": "=~",
+                  "scope": "resource",
+                  "tag": "service.name",
+                  "value": []
+                }
+              ],
+              "limit": 20,
+              "metricsQueryType": "range",
+              "query": "${TraceID}",
+              "queryType": "traceql",
+              "refId": "A",
+              "tableType": "traces"
+            }
+          ],
+          "title": "Trace 상세",
+          "type": "traces"
+        }
+      ],
+      "preload": false,
+      "refresh": "",
+      "schemaVersion": 41,
+      "tags": ["trace", "log"],
+      "templating": {
+        "list": [
+          {
+            "current": {
+              "text": "CLIENT-API",
+              "value": "CLIENT-API"
+            },
+            "definition": "",
+            "description": "",
+            "includeAll": true,
+            "label": "서비스 이름",
+            "name": "ServiceName",
+            "options": [],
+            "query": {
+              "label": "service.name",
+              "refId": "TempoDatasourceVariableQueryEditor-VariableQuery",
+              "type": 1
+            },
+            "refresh": 1,
+            "regex": "",
+            "type": "query"
+          },
+          {
+            "current": {
+              "text": "4f0b1f69f74242caee602aac50541a92",
+              "value": "4f0b1f69f74242caee602aac50541a92"
+            },
+            "description": "",
+            "includeAll": false,
+            "label": "Trace ID",
+            "name": "TraceID",
+            "options": [],
+            "query": "",
+            "type": "custom"
+          }
+        ]
+      },
+      "time": {
+        "from": "now/d",
+        "to": "now/d"
+      },
+      "timepicker": {},
+      "timezone": "",
+      "title": "Submission 상세",
+      "uid": "a2ec7fe2-e1ac-43c4-b148-25f92b01ef16",
+      "version": 20
+    }
