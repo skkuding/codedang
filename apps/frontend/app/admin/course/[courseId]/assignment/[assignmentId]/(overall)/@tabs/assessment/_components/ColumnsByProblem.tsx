@@ -1,14 +1,10 @@
 'use client'
 
 import type { ProblemData } from '@/app/admin/contest/_libs/schemas'
-import { UPDATE_ASSIGNMENT_PROBLEM_RECORD } from '@/graphql/assignment/mutations'
 import { cn, getResultColor } from '@/libs/utils'
-import { useMutation } from '@apollo/client'
 import type { ColumnDef } from '@tanstack/react-table'
 import { SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
-import { toast } from 'sonner'
 import { CommentCell } from './CommentCell'
 
 interface DataTableScoreSummary {
