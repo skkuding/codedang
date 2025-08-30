@@ -30,10 +30,9 @@ persistence:
     enabled: false
 
 admin:
-  existingSecret:
-    name: grafana-admin
-    userKey: ADMIN_USER
-    passwordKey: ADMIN_PASSWORD
+  existingSecret: grafana-credentials
+  userKey: ADMIN_USER
+  passwordKey: ADMIN_PASSWORD
 
 ## ref: http://docs.grafana.org/administration/provisioning/#datasources
 datasources:
@@ -56,10 +55,9 @@ alerting: {}
 notifiers: {}
 
 dashboardsConfigMaps:
-  default:
-    - all-service-logs
-    - hardware-metrics
-    - submission-detail
+  default: all-service-logs
+  hardware: hardware-metrics
+  submission: submission-detail
 
 # TODO: add public dashboards from https://grafana.com/grafana/dashboards/
 downloadDashboards:
