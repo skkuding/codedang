@@ -53,6 +53,8 @@ export function ProblemTable() {
     }))
   }))
 
+  const bodyStyle = { title: 'justify-start' }
+
   return (
     <DataTableRoot
       data={problems}
@@ -65,7 +67,10 @@ export function ProblemTable() {
         <DataTableLevelFilter />
         <ProblemsDeleteButton />
       </div>
-      <DataTable getHref={(data) => `/admin/problem/${data.id}`} />
+      <DataTable
+        getHref={(data) => `/admin/problem/${data.id}`}
+        bodyStyle={bodyStyle}
+      />
       <DataTablePagination showSelection />
     </DataTableRoot>
   )

@@ -71,6 +71,8 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
     },
     autoResetPageIndex: false,
     enableRowSelection: true,
+    enableMultiSort: true,
+    isMultiSortEvent: () => true,
     getRowId: (row) => String(row.id),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
