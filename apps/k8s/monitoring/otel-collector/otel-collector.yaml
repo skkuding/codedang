@@ -2,7 +2,7 @@ apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
   name: simplest
-  namespace: monitoring-otel-collector
+  namespace: monitoring-otel
 spec:
   config:
     # https://opentelemetry.io/docs/collector/architecture/

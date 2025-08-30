@@ -17,7 +17,7 @@ spec:
       # kustomization.yaml is ignored if recurse is true
       recurse: false
   destination:
-    namespace: monitoring-otel-collector
+    namespace: monitoring-otel
     name: production
   syncPolicy:
     automated:

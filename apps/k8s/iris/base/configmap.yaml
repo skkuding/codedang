@@ -9,4 +9,4 @@ data:
   RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local'
   RABBITMQ_PORT: '5672'
   RABBITMQ_DEFAULT_VHOST: 'vh'
-  OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'simplest-collector.monitoring-otel-collector.svc.cluster.local:4317'
+  OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'simplest-collector.monitoring-otel.svc.cluster.local:4317'
