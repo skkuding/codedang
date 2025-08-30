@@ -34,7 +34,7 @@ export function QnaForm() {
   const params = useParams()
   const router = useRouter()
   const contestId = params.contestId as string
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
 
   const {
     control,
@@ -55,7 +55,6 @@ export function QnaForm() {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
-  const [permissionModalOpen, setPermissionModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [problemOptions, setProblemOptions] = useState<ProblemOption[]>([
     { value: '', label: 'General' }
@@ -65,6 +64,7 @@ export function QnaForm() {
   const [contest, setContest] = useState<ContestTop | null>(null)
   const [canCreateQnA, setCanCreateQnA] = useState(false)
   const [isPrivilegedRole, setIsPrivilegedRole] = useState(false)
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   const watchedValues = watch()
 
@@ -74,8 +74,12 @@ export function QnaForm() {
     isValid
 
   useEffect(() => {
-    // 로그인하지 않은 사용자는 바로 리다이렉션
-    if (!session) {
+    if (status === 'loading') {
+      return
+    }
+
+    if (status === 'unauthenticated') {
+      setIsRedirecting(true)
       router.push(`/contest/${contestId}/qna`)
       return
     }
@@ -87,6 +91,7 @@ export function QnaForm() {
         )
 
         if (!contestResponse.ok) {
+          setIsRedirecting(true)
           router.push(`/contest/${contestId}/qna`)
           return
         }
@@ -99,26 +104,33 @@ export function QnaForm() {
         const contestStarted = now >= startTime
         const isOngoing = now >= startTime && now < endTime
 
-        // 권한 체크
-        const canCreate =
-          session &&
-          (contestData.isRegistered ||
-            contestData.isPrivilegedRole ||
-            !isOngoing)
+        const canCreate = (() => {
+          if (contestData.isPrivilegedRole) {
+            return true
+          }
 
-        // 권한이 없으면 바로 리다이렉션 (에러 없이)
-        if (!canCreate) {
-          router.push(`/contest/${contestId}/qna`)
-          return
-        }
+          if (contestData.isRegistered) {
+            return true
+          }
 
-        // 권한이 있는 경우에만 상태 설정 및 문제 로딩
+          if (isOngoing) {
+            return false
+          }
+
+          return true
+        })()
+
         setContest(contestData)
         setIsContestStarted(contestStarted)
         setCanCreateQnA(canCreate)
         setIsPrivilegedRole(contestData.isPrivilegedRole)
 
-        // 문제 목록 가져오기
+        if (!canCreate) {
+          setIsRedirecting(true)
+          router.push(`/contest/${contestId}/qna`)
+          return
+        }
+
         const problemResponse = await fetcherWithAuth.get(
           `contest/${contestId}/problem`
         )
@@ -135,24 +147,22 @@ export function QnaForm() {
           setProblemOptions(options)
         } else {
           setProblemOptions([{ value: '', label: 'General' }])
+          console.log('Before Ongoing, using General')
         }
       } catch (error) {
-        console.error('Error:', error)
+        console.error('Error in checkPermissionAndFetch:', error)
+        setIsRedirecting(true)
         router.push(`/contest/${contestId}/qna`)
       } finally {
         setIsLoadingProblems(false)
+        console.log('Finished loading')
       }
     }
 
     checkPermissionAndFetch()
-  }, [contestId, session, router])
+  }, [contestId, session, status, router])
 
   const handlePostClick = () => {
-    if (!canCreateQnA) {
-      setPermissionModalOpen(true)
-      return
-    }
-
     if (isFormValid) {
       setModalOpen(true)
     }
@@ -163,16 +173,10 @@ export function QnaForm() {
   }
 
   const handleSubmit = async () => {
-    if (!canCreateQnA) {
-      setPermissionModalOpen(true)
-      return
-    }
-
     setIsSubmitting(true)
 
     try {
       const formData = getValues()
-      console.log('Submitting form data:', formData)
 
       const requestBody = {
         title: formData.title.trim(),
@@ -206,14 +210,31 @@ export function QnaForm() {
     }
   }
 
-  // 로딩 중이거나 로그인하지 않은 경우 (리다이렉션 처리 중)
-  if (!session || isLoadingProblems || !contest) {
+  if (status === 'loading') {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-2xl font-bold">Loading...</div>
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated' || isRedirecting) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-2xl font-bold">Redirecting...</div>
       </div>
     )
   }
+
+  if (!contest) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-2xl font-bold">Loading...</div>
+      </div>
+    )
+  }
+
+  const showInfoMessage = !isContestStarted && !isPrivilegedRole
 
   return (
     <>
@@ -233,7 +254,7 @@ export function QnaForm() {
         <Title control={control} />
       </div>
 
-      {!isContestStarted && !isLoadingProblems && !isPrivilegedRole && (
+      {showInfoMessage && !isLoadingProblems && (
         <div className="mt-[4px] flex">
           <Image
             src={infoBlueIcon}
@@ -267,7 +288,6 @@ export function QnaForm() {
         canCreateQnA={canCreateQnA}
       />
 
-      {/* 질문 제출 확인 모달 */}
       <AlertModal
         open={modalOpen}
         onOpenChange={setModalOpen}
@@ -280,21 +300,6 @@ export function QnaForm() {
           onClick: handleSubmit
         }}
         type="confirm"
-      />
-
-      {/* 권한 없음 모달 */}
-      <AlertModal
-        open={permissionModalOpen}
-        onOpenChange={setPermissionModalOpen}
-        size="sm"
-        title="Permission Required"
-        description="You don't have permission to create questions in this contest. Please check your registration status or contact the contest organizer."
-        onClose={() => setPermissionModalOpen(false)}
-        primaryButton={{
-          text: 'Go to Q&A List',
-          onClick: gotoQuestionList
-        }}
-        type="warning"
       />
     </>
   )

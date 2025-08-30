@@ -26,9 +26,7 @@ export function ProblemSelector({
         onClick={() => !isLoadingProblems && onToggleDropdown()}
       >
         <span className="font-pretendard mr-[6px] !w-[54px] overflow-hidden truncate text-base font-medium not-italic leading-[22.4px] tracking-[-0.48px] text-[#5C5C5C]">
-          {isLoadingProblems
-            ? 'Loading...'
-            : watchedValues.selectedProblemLabel}
+          {isLoadingProblems ? 'Loading' : watchedValues.selectedProblemLabel}
         </span>
         <ChevronRight
           className={`h-4 w-4 text-[#C4C4C4] ${isDropdownOpen ? 'rotate-90' : ''} transition-transform ${isLoadingProblems ? 'opacity-50' : ''}`}
