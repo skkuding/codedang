@@ -37,14 +37,14 @@ import { Check, ChevronsUpDown } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
-import { createColumns } from './Columns'
+import { createColumns } from './ColumnsOverall'
 
 interface ParticipantTableProps {
   groupId: number
   assignmentId: number
 }
 
-export function ParticipantTable({
+export function ParticipantTableOverall({
   groupId,
   assignmentId
 }: ParticipantTableProps) {
