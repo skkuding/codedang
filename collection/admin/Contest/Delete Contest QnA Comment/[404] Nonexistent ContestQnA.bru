@@ -13,7 +13,7 @@ post {
 body:graphql {
   mutation {
     deleteContestQnAComment(
-      contestId: 1
+      contestId: 20
       qnAOrder: 999
       commentOrder: 1
     ) {
@@ -25,4 +25,8 @@ body:graphql {
       createdTime
     }
   }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
 }
