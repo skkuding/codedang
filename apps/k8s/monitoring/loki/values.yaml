@@ -7,6 +7,7 @@ global:
 
 deploymentMode: SingleBinary
 loki:
+  auth_enabled: false
   commonConfig:
     replication_factor: 1
   storage:
@@ -15,7 +16,7 @@ loki:
       ruler: loki
     type: s3
     s3:
-      endpoint: http://minio.minio.svc.cluster.local:9000
+      endpoint: http://minio.monitoring-minio.svc.cluster.local:9000
       s3ForcePathStyle: true
       insecure: true
   schemaConfig:
