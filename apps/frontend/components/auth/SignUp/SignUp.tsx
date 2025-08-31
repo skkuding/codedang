@@ -6,6 +6,7 @@ import { IoMdArrowBack } from 'react-icons/io'
 import { SignUpRegisterAccount } from './SignUpRegisterAccount'
 import { SignUpRegisterInfo } from './SignUpRegisterInfo'
 import { SignUpRegisterMajor } from './SignUpRegisterMajor'
+import { SignUpSendEmail } from './SignUpSendEmail'
 import { SignUpVerifyEmail } from './SignUpVerifyEmail'
 import { SignUpWelcome } from './SignUpWelcome'
 
@@ -32,8 +33,7 @@ export function SignUp() {
         />
       )}
 
-      {modalPage === 0 && <SignUpRegisterInfo />}
-      {/* {modalPage === 0 && <SignUpSendEmail />} */}
+      {modalPage === 0 && <SignUpSendEmail />}
       {modalPage === 1 && <SignUpVerifyEmail />}
       {modalPage === 2 && <SignUpRegisterAccount />}
       {modalPage === 3 && <SignUpRegisterInfo />}
