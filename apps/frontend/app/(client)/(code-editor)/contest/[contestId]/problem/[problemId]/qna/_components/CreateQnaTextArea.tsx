@@ -106,6 +106,11 @@ export function CreateQnaTextArea({
             type="text"
             name="title"
             placeholder="Enter the Title"
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault()
+              }
+            }}
             value={qnaFormdata.title}
             onChange={handleInputChange}
             maxLength={80}
