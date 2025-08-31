@@ -15,8 +15,8 @@ import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { CodePolicyService } from '@libs/policy'
 import { PrismaService } from '@libs/prisma'
+import { CodePolicyService } from '@client/submission/policy'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissionDto, submissions } from '../mock/submission.mock'

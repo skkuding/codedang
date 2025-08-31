@@ -29,8 +29,8 @@ import {
   ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
-import { CodePolicyService } from '@libs/policy'
 import { PrismaService } from '@libs/prisma'
+import { CodePolicyService } from '@client/submission/policy'
 import {
   CreateSubmissionDto,
   CreateUserTestSubmissionDto,

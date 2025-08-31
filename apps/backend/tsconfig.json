@@ -31,7 +31,7 @@
       "@libs/types": ["./libs/types/src/index.ts"],
       "@libs/instrumentation": ["./libs/instrumentation.ts"],
       "@libs/storage": ["./libs/storage/src/index.ts"],
-      "@libs/policy": ["./libs/policy/src/index.ts"]
+      "@libs/policy": ["apps/client/src/submission/policy/index.ts"]
     }
   }
 }
