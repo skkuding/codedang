@@ -42,6 +42,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const [searchTC, setsearchTC] = useState('')
   const [selectedTestcases, setSelectedTestcases] = useState<number[]>([])
   const [dataChangeTrigger, setDataChangeTrigger] = useState<number>(0)
+  const [showTooltip, setShowTooltip] = useState<boolean>(false)
+  const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0
+  })
 
   useEffect(() => {
     const isScoreAssigned = (tc: Testcase) =>
@@ -287,8 +292,42 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     }
   }, [currentItems])
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (blockEdit) {
+      setMousePosition({ x: e.clientX, y: e.clientY })
+    }
+  }
+
+  const handleMouseEnter = () => {
+    if (blockEdit) {
+      setShowTooltip(true)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (blockEdit) {
+      setShowTooltip(false)
+    }
+  }
+
   return (
-    <div className="flex h-full w-full flex-col border border-[#D8D8D8] bg-white px-10 pb-10 pt-[20px]">
+    <div
+      className="relative flex h-full w-full flex-col border border-[#D8D8D8] bg-white px-10 pb-10 pt-[20px]"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {blockEdit && showTooltip && (
+        <div
+          className="bg-color-neutral-95 pointer-events-none fixed z-50 rounded px-3 py-2 text-sm shadow-lg"
+          style={{
+            left: mousePosition.x + 10,
+            top: mousePosition.y - 30
+          }}
+        >
+          You cannot edit testcases if the problem has submissions.
+        </div>
+      )}
       <div className="mb-[40px] flex w-full items-center justify-between">
         <button
           className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 1 ? 'border-b-4 border-b-white' : 'border-b-primary border-b-4 font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
