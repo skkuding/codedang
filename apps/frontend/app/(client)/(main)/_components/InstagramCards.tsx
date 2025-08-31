@@ -8,7 +8,7 @@ export function InstagramCards() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch('/api/instagram')
+        const res = await fetch('/my_api/instagram')
 
         if (!res.ok) {
           throw new Error(`API 요청 실패: ${res.status} ${res.statusText}`)
