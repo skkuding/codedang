@@ -16,7 +16,10 @@ interface RegisterInfoInput {
 
 const schema = v.object({
   realName: v.pipe(v.string(), v.minLength(1, 'Name is required')),
-  studentId: v.pipe(v.string(), v.minLength(1, 'Student ID is required'))
+  studentId: v.pipe(
+    v.string(),
+    v.length(10, 'Student ID must be 10 characters long')
+  )
 })
 
 function RegisterInfoForm({ children }: { children: ReactNode }) {

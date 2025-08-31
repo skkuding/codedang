@@ -104,6 +104,7 @@ function RegisterMajorFormFields({
             value={watchAffiliation}
             onChange={(value) => {
               setValue('affiliation', value, { shouldValidate: true })
+              setValue('major', '', { shouldValidate: true })
             }}
             className="truncate text-base font-normal"
             placeholder="Affiliation"
