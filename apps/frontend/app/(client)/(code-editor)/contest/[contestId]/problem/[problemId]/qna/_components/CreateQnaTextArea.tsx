@@ -72,19 +72,6 @@ export function CreateQnaTextArea({
     <div className="rounded-lg bg-[#222939] p-5 text-white">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-xl font-semibold">Post a Question</h3>
-        {/* <AlertModal
-          open={postModalOpen}
-          onOpenChange={setPostModalOpen}
-          size="sm"
-          title="Do you want to register question?"
-          description="Pranky questions, swear words, and accusations can be sanctioned. Do you really want to register your questions?"
-          primaryButton={{
-            text: 'Register',
-            onClick: handleSubmit
-          }}
-          onClose={() => setPostModalOpen(false)}
-          type="confirm"
-        /> */}
         <button
           onClick={() => handleSubmit()}
           className={cn(
@@ -95,8 +82,10 @@ export function CreateQnaTextArea({
           )}
           disabled={loading || !qnaFormdata.title || !qnaFormdata.content}
         >
-          <FaPen className="mr-1 inline h-3 w-3" />
-          Post
+          <div className="flex items-center justify-center">
+            <FaPen className="mr-1 inline h-3 w-3" />
+            <p>Post</p>
+          </div>
         </button>
       </div>
 
@@ -113,7 +102,7 @@ export function CreateQnaTextArea({
             }}
             value={qnaFormdata.title}
             onChange={handleInputChange}
-            maxLength={80}
+            maxLength={35}
             className="placeholder-amber-20 h-[46px] w-full rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder:text-base placeholder:text-gray-400 focus-visible:ring-0"
           />
         </div>
