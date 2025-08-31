@@ -32,6 +32,7 @@ interface QnADataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   QnADataWithCategory: TData[]
   contestProblems: ProblemDataTop
+  contestStatus: string
   headerStyle: {
     [key: string]: string
   }
@@ -50,6 +51,7 @@ export function QnADataTable<TData extends QnAItem, TValue>({
   columns,
   QnADataWithCategory,
   contestProblems,
+  contestStatus,
   headerStyle,
   emptyMessage,
   itemsPerPage,
@@ -86,7 +88,7 @@ export function QnADataTable<TData extends QnAItem, TValue>({
   >([{ value: 'General', label: 'General' }])
 
   useEffect(() => {
-    if (contestProblems?.data) {
+    if (contestProblems?.data && contestStatus !== 'Upcoming') {
       const problemOptions = contestProblems.data.map((item, index) => ({
         value: `${String.fromCharCode(65 + index)}. ${item.title}`,
         label: `${String.fromCharCode(65 + index)}. ${item.title}`
@@ -120,7 +122,6 @@ export function QnADataTable<TData extends QnAItem, TValue>({
           />
           <QnACategoryFilter
             column={table.getColumn('category')}
-            contestId={contestId}
             options={options}
             resetPageIndex={resetPageIndex}
           />

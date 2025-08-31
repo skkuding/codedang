@@ -20,6 +20,7 @@ interface QnAMainTableProps {
   session: Session | null
   contestId: number
   contestProblems: ProblemDataTop
+  contestStatus: string
   search: string
   orderBy: string
   categories: string
@@ -51,6 +52,7 @@ export function QnAMainTable({
   session,
   contestId,
   contestProblems,
+  contestStatus,
   search,
   orderBy,
   categories,
@@ -124,6 +126,7 @@ export function QnAMainTable({
         columns={QnAColumns}
         QnADataWithCategory={QnADataWithCategory}
         contestProblems={contestProblems}
+        contestStatus={contestStatus}
         headerStyle={{
           id: 'w-[118px]',
           category: 'w-[190px]',
