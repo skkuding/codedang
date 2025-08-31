@@ -6,17 +6,7 @@ import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assign
 import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
 import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
 import { problemSubmissionQueries } from '@/app/(client)/_libs/queries/problemSubmission'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from '@/components/shadcn/alert-dialog'
+import { AlertModal } from '@/components/AlertModal'
 import { Button } from '@/components/shadcn/button'
 import {
   Select,
@@ -89,6 +79,7 @@ export function EditorHeader({
   const { language, setLanguage } = useLanguageStore(
     problem.id,
     contestId,
+    courseId,
     assignmentId,
     exerciseId
   )()
@@ -96,6 +87,8 @@ export function EditorHeader({
   const getCode = useCodeStore((state) => state.getCode)
 
   const isTesting = useTestPollingStore((state) => state.isTesting)
+  const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false)
+  const [selectedLanguage, setSelectedLanguage] = useState(language)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const loading = isTesting || isSubmitting
 
@@ -115,6 +108,7 @@ export function EditorHeader({
       exerciseId
     )
   )
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
   const session = useSession()
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
   const [showModal, setShowModal] = useState<boolean>(false)
@@ -483,16 +477,18 @@ export function EditorHeader({
       document.querySelector<HTMLButtonElement>('.test-button')?.click()
     }
   }
-
+  const handleLanguageChange = (newLanguage: Language) => {
+    setSelectedLanguage(newLanguage)
+    setIsLanguageModalOpen(true)
+  }
+  const handleConfirmLanguageChange = () => {
+    setLanguage(selectedLanguage)
+    setIsLanguageModalOpen(false)
+  }
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
       <div>
-        <Select
-          onValueChange={(language: Language) => {
-            setLanguage(language)
-          }}
-          value={language}
-        >
+        <Select onValueChange={handleLanguageChange} value={language}>
           <SelectTrigger className="focus:outline-hidden h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:ring-0 focus:ring-offset-0">
             <p className="px-1">
               <SelectValue />
@@ -512,40 +508,45 @@ export function EditorHeader({
             </SelectGroup>
           </SelectContent>
         </Select>
+        <AlertModal
+          open={isLanguageModalOpen}
+          onOpenChange={setIsLanguageModalOpen}
+          size="sm"
+          title="Change Language"
+          description={`Change language to ${selectedLanguage}?\nOnce you change it, Your code will be deleted.`}
+          onClose={() => setIsLanguageModalOpen(false)}
+          primaryButton={{
+            text: isSubmitting ? 'Changing...' : 'Confirm',
+            onClick: handleConfirmLanguageChange
+          }}
+          type="warning"
+        />
       </div>
       <div className="flex items-center gap-3">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              size="icon"
-              className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
-            >
-              <BsTrash3 size={17} />
-              Reset
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent className="h-[200px] w-[500px] rounded-2xl border border-slate-800 bg-slate-900 pb-7 pl-8 pr-[30px] pt-8 sm:rounded-2xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="font-size-5 text-slate-50">
-                Reset code
-              </AlertDialogTitle>
-              <AlertDialogDescription className="font-size-4 text-slate-300">
-                Are you sure you want to reset to the default code?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex gap-2">
-              <AlertDialogCancel className="self-end rounded-[1000px] border-none bg-[#DCE3E5] text-[#787E80] hover:bg-[#c9cfd1]">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                className="self-end rounded-[1000px] bg-red-500 hover:bg-red-600"
-                onClick={resetCode}
-              >
-                Reset
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <Button
+          size="icon"
+          className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
+          onClick={() => setIsResetModalOpen(true)}
+        >
+          <BsTrash3 size={17} />
+          Reset
+        </Button>
+        <AlertModal
+          open={isResetModalOpen}
+          onOpenChange={setIsResetModalOpen}
+          size="sm"
+          title="Reset code"
+          description="Are you sure you want to reset to the default code?"
+          onClose={() => setIsResetModalOpen(false)}
+          primaryButton={{
+            text: 'Reset',
+            onClick: () => {
+              resetCode()
+              setIsResetModalOpen(false)
+            }
+          }}
+          type="warning"
+        />
 
         <TooltipProvider>
           {contestId === undefined && (
