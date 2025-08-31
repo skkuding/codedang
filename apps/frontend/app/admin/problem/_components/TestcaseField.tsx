@@ -26,7 +26,8 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     formState: { errors },
     getValues,
     setValue,
-    control
+    control,
+    trigger
   } = useFormContext()
 
   const watchedItems: Testcase[] = useWatch({ name: 'testcases', control })
@@ -43,16 +44,22 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const [dataChangeTrigger, setDataChangeTrigger] = useState<number>(0)
 
   useEffect(() => {
-    const allFilled = watchedItems.every((item) => !isInvalid(item.scoreWeight))
+    const isScoreAssigned = (tc: Testcase) =>
+      typeof tc.scoreWeight === 'number' ||
+      (typeof tc.scoreWeightNumerator === 'number' &&
+        typeof tc.scoreWeightDenominator === 'number')
+
+    const allFilled = watchedItems.every(isScoreAssigned)
     setDisableDistribution(allFilled)
-    const allNull = watchedItems.every((item) => isInvalid(item.scoreWeight))
+
+    const allNull = watchedItems.every((tc) => !isScoreAssigned(tc))
     setIsScoreNull(allNull)
   }, [watchedItems])
 
   const addTestcase = (isHidden: boolean) => {
     setValue('testcases', [
       ...getValues('testcases'),
-      { input: '', output: '', isHidden, scoreWeight: null }
+      { input: '', output: '', isHidden, scoreWeight: undefined }
     ])
   }
 
@@ -66,7 +73,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       input: testcase.input,
       output: testcase.output,
       isHidden,
-      scoreWeight: null
+      scoreWeight: undefined
     }))
 
     setValue('testcases', [...currentTestcases, ...newTestcases])
@@ -105,6 +112,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     setValue('testcases', updatedValues)
   }
 
+  const gcd = (a: number, b: number): number => {
+    return b === 0 ? a : gcd(b, a % b)
+  }
+
   const equalDistribution = () => {
     const currentValues: Testcase[] = getValues('testcases')
 
@@ -140,26 +151,38 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       return
     }
 
-    const baseScore = Math.floor(remainingScore / unassignedCount)
-    const extraScore = remainingScore - baseScore * unassignedCount
+    const numerator = remainingScore
+    const denominator = 100 * unassignedCount
 
-    const lastUnassignedIndex = unassignedTestcases[unassignedCount - 1].index
+    const commonDivisor = gcd(numerator, denominator)
 
-    const updatedTestcases = currentValues.map((tc, index) => {
+    const finalNumerator = numerator / commonDivisor
+    const finalDenominator = denominator / commonDivisor
+
+    const updatedTestcases = currentValues.map((tc) => {
       if (isInvalid(tc.scoreWeight)) {
-        const newScore =
-          baseScore + (index === lastUnassignedIndex ? extraScore : 0)
-        return { ...tc, scoreWeight: newScore }
+        return {
+          ...tc,
+          scoreWeight: undefined,
+          scoreWeightNumerator: finalNumerator,
+          scoreWeightDenominator: finalDenominator
+        }
       }
       return tc
     })
-
+    trigger('testcases')
     setValue('testcases', updatedTestcases)
   }
+
   const initializeScore = () => {
     const currentValues: Testcase[] = getValues('testcases')
     const updatedTestcases = currentValues.map((tc) => {
-      return { ...tc, scoreWeight: null }
+      return {
+        ...tc,
+        scoreWeight: undefined,
+        scoreWeightNumerator: null,
+        scoreWeightDenominator: null
+      }
     })
     setValue('testcases', updatedTestcases)
   }
@@ -230,10 +253,21 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     }
   }
 
-  const totalScore = filteredTC.reduce((acc, tc) => {
-    const weight = Number(tc.scoreWeight ?? 0)
-    return acc + (isNaN(weight) ? 0 : weight)
-  }, 0)
+  const totalScore = useMemo(() => {
+    const score = watchedItems.reduce((acc, tc) => {
+      if (typeof tc.scoreWeight === 'number') {
+        return acc + tc.scoreWeight
+      }
+      if (tc.scoreWeightNumerator && tc.scoreWeightDenominator) {
+        const percentage =
+          (tc.scoreWeightNumerator / tc.scoreWeightDenominator) * 100
+        return acc + percentage
+      }
+      return acc
+    }, 0)
+
+    return score.toFixed(2)
+  }, [watchedItems])
 
   useEffect(() => {
     setCurrentPage(1)
