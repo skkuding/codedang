@@ -31,7 +31,7 @@ export const DateTimePickerDemo = ({
 
   useEffect(() => {
     if (defaultValue && defaultValue instanceof Date) {
-      setDate(defaultValue)
+      handleDateChange(defaultValue)
     }
   }, [defaultValue])
 
