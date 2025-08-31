@@ -10,9 +10,13 @@ import { QnaAccordion } from './QnaAccordion'
 
 interface QuestionAnswerAreaProps {
   contestId: number
+  problemId: number
 }
 
-export function QuestionAnswerArea({ contestId }: QuestionAnswerAreaProps) {
+export function QuestionAnswerArea({
+  contestId,
+  problemId
+}: QuestionAnswerAreaProps) {
   const [loading, setLoading] = useState(true)
   const [qnaDetails, setQnaDetails] = useState<SingleQnaData[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -26,13 +30,17 @@ export function QuestionAnswerArea({ contestId }: QuestionAnswerAreaProps) {
         .get(`contest/${contestId}/qna`, { cache: 'no-store' })
         .json<MultipleQnaData[]>()
 
-      if (!allqnaData.length) {
+      const filteredQnaData = allqnaData.filter(
+        (qna) => qna.problemId === problemId
+      )
+
+      if (!filteredQnaData.length) {
         setQnaDetails([])
         return
       }
 
       const details = await Promise.all(
-        allqnaData.map(({ order }) =>
+        filteredQnaData.map(({ order }) =>
           fetcherWithAuth
             .get(`contest/${contestId}/qna/${order}`, { cache: 'no-store' })
             .json<SingleQnaData>()

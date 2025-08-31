@@ -28,7 +28,10 @@ export default async function QnaPage(props: {
           />
 
           <hr className="border-4 border-[#121728]" />
-          <QuestionAnswerArea contestId={Number(contestId)} />
+          <QuestionAnswerArea
+            contestId={Number(contestId)}
+            problemId={Number(problemId)}
+          />
         </div>
       </Suspense>
     </TanstackQueryErrorBoundary>

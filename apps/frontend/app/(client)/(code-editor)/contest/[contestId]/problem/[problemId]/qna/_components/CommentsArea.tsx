@@ -30,7 +30,7 @@ export function CommentsArea({ comments }: CommentsAreaProps) {
                 </span>
               </div>
             )}
-            <div className="whitespace-pre-wrap text-base text-white">
+            <div className="whitespace-pre-wrap break-all text-base text-white">
               {comment.content}
             </div>
           </div>
