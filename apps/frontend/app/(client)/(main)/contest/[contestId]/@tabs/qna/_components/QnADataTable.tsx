@@ -41,7 +41,7 @@ interface QnADataTableProps<TData, TValue> {
   currentPage: number
   setFilteredData: (data: TData[]) => void
   resetPageIndex: () => void
-  isPrivilegedRole: boolean
+  isContestStaff: boolean
   canCreateQnA: boolean | null
 }
 
@@ -58,7 +58,7 @@ export function QnADataTable<TData extends QnAItem, TValue>({
   currentPage,
   setFilteredData,
   resetPageIndex,
-  isPrivilegedRole,
+  isContestStaff,
   canCreateQnA
 }: QnADataTableProps<TData, TValue>) {
   const table = useReactTable({
@@ -209,7 +209,7 @@ export function QnADataTable<TData extends QnAItem, TValue>({
                         </div>
                         {cell.column.id === 'title' &&
                           session &&
-                          (isPrivilegedRole
+                          (isContestStaff
                             ? !row.original.isResolved && (
                                 <div className="bg-primary h-2 w-2 rounded-full" />
                               )

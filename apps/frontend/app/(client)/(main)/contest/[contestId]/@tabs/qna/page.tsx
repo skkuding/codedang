@@ -21,6 +21,13 @@ interface ContestQnAProps {
   }>
 }
 
+interface ContestRole {
+  contestId: number
+  role: Role
+}
+
+type Role = 'Admin' | 'Manager' | 'Participant' | 'Reviewer'
+
 export default async function ContestQna(props: ContestQnAProps) {
   const { contestId } = await props.params
   const searchParams = await props.searchParams
@@ -36,6 +43,14 @@ export default async function ContestQna(props: ContestQnAProps) {
   const contestProblems: ProblemDataTop = await fetcherWithAuth
     .get(`contest/${contestId}/problem`)
     .json()
+
+  const MyContestRolesRes = await fetcherWithAuth.get('contest/role')
+  const MyContestRoles: ContestRole[] = await MyContestRolesRes.json()
+  const isContestStaff = new Set(['Admin', 'Manager']).has(
+    MyContestRoles.find(
+      (ContestRole) => ContestRole.contestId === Number(contestId)
+    )?.role ?? 'nothing'
+  )
 
   const contestStatus = (() => {
     const currentTime = new Date()
@@ -55,7 +70,6 @@ export default async function ContestQna(props: ContestQnAProps) {
     (contest.isRegistered ||
       contest.isPrivilegedRole ||
       contestStatus !== 'Ongoing')
-  const isPrivilegedRole = contest.isPrivilegedRole
 
   if (!session && contestStatus === 'Ongoing') {
     return (
@@ -85,7 +99,7 @@ export default async function ContestQna(props: ContestQnAProps) {
             orderBy={orderBy}
             categories={categories}
             problemOrders={problemOrders}
-            isPrivilegedRole={isPrivilegedRole}
+            isContestStaff={isContestStaff}
             canCreateQnA={canCreateQnA}
           />
         </Suspense>

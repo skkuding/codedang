@@ -25,7 +25,7 @@ interface QnAMainTableProps {
   orderBy: string
   categories: string
   problemOrders: string
-  isPrivilegedRole: boolean
+  isContestStaff: boolean
   canCreateQnA: boolean | null
 }
 
@@ -57,7 +57,7 @@ export function QnAMainTable({
   orderBy,
   categories,
   problemOrders,
-  isPrivilegedRole,
+  isContestStaff,
   canCreateQnA
 }: QnAMainTableProps) {
   const { data: QnAData } = useSuspenseQuery({
@@ -69,7 +69,6 @@ export function QnAMainTable({
       orderBy,
       categories,
       problemOrders,
-      isPrivilegedRole,
       canCreateQnA
     ],
     queryFn: () =>
@@ -139,7 +138,7 @@ export function QnAMainTable({
         currentPage={currentPage}
         setFilteredData={setFilteredData}
         resetPageIndex={resetPageIndex}
-        isPrivilegedRole={isPrivilegedRole}
+        isContestStaff={isContestStaff}
         canCreateQnA={canCreateQnA}
       />
       <Paginator>
