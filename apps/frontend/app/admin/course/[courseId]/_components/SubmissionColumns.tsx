@@ -1,6 +1,7 @@
 'use client'
 
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
+import { SUBMISSION_PROBLEM_COLUMN_ID } from '@/app/admin/_components/table/constants'
 import type { OverallSubmission } from '@/app/admin/contest/_libs/schemas'
 import { cn, getResultColor } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -9,14 +10,14 @@ import dayjs from 'dayjs'
 export const columns: ColumnDef<OverallSubmission>[] = [
   {
     accessorKey: 'title',
-    id: 'problemTitle',
+    id: SUBMISSION_PROBLEM_COLUMN_ID,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Problem Title" />
     ),
     cell: ({ row }) => (
       <>
         {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
-        {row.getValue('problemTitle')}
+        {row.original.title}
       </>
     ),
     filterFn: 'arrIncludesSome'

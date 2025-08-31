@@ -89,6 +89,7 @@ export function EditorHeader({
   const { language, setLanguage } = useLanguageStore(
     problem.id,
     contestId,
+    courseId,
     assignmentId,
     exerciseId
   )()

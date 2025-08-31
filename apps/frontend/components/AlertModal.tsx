@@ -40,7 +40,7 @@ interface AlertModalProps {
 }
 
 const sizeClassMap = {
-  sm: '!w-[424px] !h-[280px] !p-[40px]',
+  sm: '!w-[424px] !h-[300px] !p-[40px]',
   md: '!w-[600px] !h-[580px] !py-[50px] !px-[40px]',
   lg: '!w-[800px] !h-[620px] !py-[50px] !px-[40px]'
 }
