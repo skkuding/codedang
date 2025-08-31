@@ -27,6 +27,7 @@ function RegisterInfoForm({ children }: { children: ReactNode }) {
     (state) => state
   )
   const methods = useForm<RegisterInfoInput>({
+    mode: 'onChange',
     resolver: valibotResolver(schema),
     defaultValues: {
       realName: '',
@@ -59,18 +60,15 @@ interface RegisterInfoFormFieldsProps {
 function RegisterInfoFormFields({
   setIsButtonDisabled
 }: RegisterInfoFormFieldsProps) {
-  const { register, watch } = useFormContext<RegisterInfoInput>()
-  const watchRealName = watch('realName')
-  const watchStudentId = watch('studentId')
+  const {
+    register,
+    formState: { isValid }
+  } = useFormContext<RegisterInfoInput>()
 
   useEffect(() => {
-    const hasValues =
-      watchRealName &&
-      watchRealName.trim().length > 0 &&
-      watchStudentId &&
-      watchStudentId.trim().length > 0
-    setIsButtonDisabled(!hasValues)
-  }, [watchRealName, watchStudentId, setIsButtonDisabled])
+    setIsButtonDisabled(!isValid)
+  }, [isValid])
+
   return (
     <div>
       <p className="text-xl font-medium">Tell Us About Yourself</p>
