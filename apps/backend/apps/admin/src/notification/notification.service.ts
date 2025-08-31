@@ -208,6 +208,40 @@ export class NotificationService {
     })
   }
 
+  async notifyNoticeCreated(noticeId: number) {
+    const notice = await this.prisma.notice.findUnique({
+      where: { id: noticeId },
+      select: {
+        title: true,
+        content: true
+      }
+    })
+
+    if (!notice) {
+      return
+    }
+
+    const codedangUsers = await this.prisma.user.findMany({
+      select: { id: true }
+    })
+
+    const receivers = codedangUsers.map((user) => user.id)
+    const title = notice.title
+    const message =
+      (notice.content ?? 'New Notice Created.').slice(0, 100) +
+      (notice.content.length > 100 ? '...' : '')
+    const url = `/notice/${noticeId}`
+
+    await this.saveNotification(
+      receivers,
+      title,
+      message,
+      NotificationType.Other,
+      url
+    )
+    await this.sendPushNotification(receivers, title, message, url)
+  }
+
   private async sendPushNotification(
     userIds: number[],
     title: string,

@@ -4,5 +4,5 @@ metadata:
   name: frontend-env
   namespace: frontend
 data:
-  NEXT_URL: 'https://k8s-test.stage.codedang.com'
-  NEXTAUTH_URL: 'https://k8s-test.stage.codedang.com/next-auth/api/auth'
+  NEXT_URL: 'https://stage.codedang.com'
+  NEXTAUTH_URL: 'https://stage.codedang.com/next-auth/api/auth'
