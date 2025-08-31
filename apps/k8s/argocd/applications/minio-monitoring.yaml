@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio-monitoring
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/environment: 'production'
+spec:
+  project: default
+  source:
+    path: apps/k8s/monitoring/minio
+    repoURL: https://github.com/skkuding/codedang
+    targetRevision: main
+    directory:
+      # kustomization.yaml is ignored if recurse is true
+      recurse: false
+  destination:
+    namespace: monitoring-minio
+    name: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground

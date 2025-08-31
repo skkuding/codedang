@@ -80,6 +80,7 @@ export function SignIn() {
             {...register('password')}
           />
           <button
+            type="button"
             className="absolute inset-y-0 right-[21.67px] flex items-center"
             onClick={() => setIsPasswordVisible(!isPasswordVisible)}
           >
