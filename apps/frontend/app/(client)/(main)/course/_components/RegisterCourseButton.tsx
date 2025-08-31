@@ -126,11 +126,11 @@ export function RegisterCourseButton() {
           onClick: handleRegisterCourse
         }}
         type="confirm"
-        size="auto"
+        showIcon={false}
       >
         <div
           key="course-info"
-          className="flex w-full flex-col gap-2 rounded-[10px] bg-[#F2F6F7] px-6 py-8"
+          className="flex w-full flex-col gap-2 rounded-[10px] bg-[#F2F6F7] px-6 py-4"
         >
           <p className="text-primary text-base font-semibold">
             [{foundCourse?.courseInfo?.courseNum}-

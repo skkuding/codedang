@@ -56,7 +56,7 @@ export function DuplicateCourseButton({
 
   return (
     <AlertModal
-      size="auto"
+      size="md"
       type="confirm"
       title="Duplicate Course"
       trigger={
