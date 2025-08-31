@@ -4,7 +4,9 @@ import { ConfirmNavigation } from '@/app/admin/_components/ConfirmNavigation'
 import { PreviewEditorLayout } from '@/app/admin/_components/code-editor/PreviewEditorLayout'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { GET_SUBMISSIONS } from '@/graphql/submission/queries'
 import type { ProblemDetail } from '@/types/type'
+import { useQuery } from '@apollo/client'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
@@ -33,9 +35,23 @@ export default function Page(props: {
   const [isPreviewing, setIsPreviewing] = useState(false)
   const { problemId } = params
 
+  const [isTestcaseEditBlocked, setIsTestcaseEditBlocked] = useState(false)
+
   const methods = useForm<UpdateProblemInput>({
     resolver: valibotResolver(editSchema),
     defaultValues: { template: [], solution: [] }
+  })
+
+  useQuery(GET_SUBMISSIONS, {
+    variables: {
+      problemId: Number(problemId),
+      take: 1
+    },
+    onCompleted: (data) => {
+      if (data.getSubmissions && data.getSubmissions.total > 0) {
+        setIsTestcaseEditBlocked(true)
+      }
+    }
   })
 
   const PreviewPortal = () => {
@@ -86,7 +102,11 @@ export default function Page(props: {
             <span className="text-4xl font-bold">EDIT PROBLEM</span>
           </div>
 
-          <EditProblemForm problemId={Number(problemId)} methods={methods}>
+          <EditProblemForm
+            problemId={Number(problemId)}
+            methods={methods}
+            isTestcaseEditBlocked={isTestcaseEditBlocked}
+          >
             <FormSection isFlexColumn title="Title">
               <TitleForm placeholder="Enter a problem name" />
             </FormSection>
@@ -131,7 +151,7 @@ export default function Page(props: {
             <SolutionField />
 
             {methods.getValues('testcases') && (
-              <TestcaseField blockEdit={false} />
+              <TestcaseField blockEdit={isTestcaseEditBlocked} />
             )}
 
             <FormSection isFlexColumn title="Limit">
