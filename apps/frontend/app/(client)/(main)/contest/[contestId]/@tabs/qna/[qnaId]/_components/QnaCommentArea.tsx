@@ -1,11 +1,13 @@
 'use client'
 
+import { Button } from '@/components/shadcn/button'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { GetContestQnaQuery } from '@generated/graphql'
 import React, { useEffect, useState } from 'react'
+import { HiTrash } from 'react-icons/hi'
 import { toast } from 'sonner'
 import { QnaCommentPostArea } from './QnaCommentPostArea'
-import { QnaDeleteButton } from './QnaDeleteButton'
+import { QnaDetailDeleteButton } from './QnaDetailDeleteButton'
 import { QnaSingleComment } from './QnaSingleComment'
 import { useQnaCommentSync } from './context/QnaCommentStoreProvider'
 
@@ -24,19 +26,16 @@ export function QnaCommentArea({
   QnaData,
   username,
   userId,
-  isContestStaff
+  isContestStaff,
+  canPostComment
 }: {
   QnaData: GetContestQnaQuery['getContestQnA']
   username?: string
   userId: number
   isContestStaff: boolean
+  canPostComment: boolean
 }) {
-  const {
-    contestId,
-    order: qnaId,
-    comments: initialComments,
-    createdById
-  } = QnaData
+  const { contestId, order: qnaId, comments: initialComments } = QnaData
   const [comments, setComments] = useState(initialComments)
   const [text, setText] = useState('')
 
@@ -44,8 +43,6 @@ export function QnaCommentArea({
     refreshTrigger: CommentRefreshTrigger,
     triggerRefresh: TriggerCommentRefresh
   } = useQnaCommentSync()
-
-  const canPostComment = isContestStaff || userId === createdById
 
   useEffect(() => {
     async function pollComment() {
@@ -92,6 +89,18 @@ export function QnaCommentArea({
     }
   }
 
+  const CommentDeleteTrigger = (
+    <Button
+      variant="outline"
+      className="bg-fill hover:bg-fill-neutral cursor-pointer border-none"
+      asChild
+    >
+      <div className="text-color-neutral-70 grid h-auto place-content-center px-[16px] py-[5px]">
+        <HiTrash fontSize={24} />
+      </div>
+    </Button>
+  )
+
   return (
     <div className="flex flex-col gap-[40px]">
       <div className="flex flex-col gap-[10px]">
@@ -99,17 +108,17 @@ export function QnaCommentArea({
           ?.sort((a, b) => a.order - b.order)
           .map((comment) => {
             const canDeleteComment =
-              userId === comment.createdById ||
-              (comment.isContestStaff && isContestStaff)
+              userId === comment.createdById || isContestStaff
             return (
               <QnaSingleComment
                 key={comment.order}
                 comment={comment}
                 DeleteButtonComponent={
                   canDeleteComment ? (
-                    <QnaDeleteButton
+                    <QnaDetailDeleteButton
                       subject="comment"
                       DeleteUrl={`contest/${contestId}/qna/${qnaId}/comment/${comment.order}`}
+                      trigger={CommentDeleteTrigger}
                     />
                   ) : undefined
                 }

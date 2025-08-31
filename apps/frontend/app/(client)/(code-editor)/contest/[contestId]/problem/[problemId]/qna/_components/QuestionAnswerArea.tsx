@@ -30,17 +30,17 @@ export function QuestionAnswerArea({
         .get(`contest/${contestId}/qna`, { cache: 'no-store' })
         .json<MultipleQnaData[]>()
 
-      const filtered = allqnaData
-        .filter((qna) => qna.problemId === problemId)
-        .sort((a, b) => a.order - b.order)
+      const filteredQnaData = allqnaData.filter(
+        (qna) => qna.problemId === problemId
+      )
 
-      if (!filtered.length) {
+      if (!filteredQnaData.length) {
         setQnaDetails([])
         return
       }
 
       const details = await Promise.all(
-        filtered.map(({ order }) =>
+        filteredQnaData.map(({ order }) =>
           fetcherWithAuth
             .get(`contest/${contestId}/qna/${order}`, { cache: 'no-store' })
             .json<SingleQnaData>()
@@ -54,7 +54,7 @@ export function QuestionAnswerArea({
     } finally {
       setLoading(false)
     }
-  }, [contestId, problemId])
+  }, [contestId])
 
   useEffect(() => {
     fetchQnaData()
@@ -82,6 +82,6 @@ export function QuestionAnswerArea({
       </div>
     )
   }
-
+  console.log(qnaDetails)
   return <QnaAccordion qnaData={qnaDetails} />
 }

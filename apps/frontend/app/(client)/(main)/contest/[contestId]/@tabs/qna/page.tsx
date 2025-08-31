@@ -21,16 +21,21 @@ interface ContestQnAProps {
   }>
 }
 
+interface ContestRole {
+  contestId: number
+  role: Role
+}
+
+type Role = 'Admin' | 'Manager' | 'Participant' | 'Reviewer'
+
 export default async function ContestQna(props: ContestQnAProps) {
   const { contestId } = await props.params
-  const { searchParams } = props
-
+  const searchParams = await props.searchParams
   const session = await auth()
-  const params = await searchParams
-  const search = params.search ?? ''
-  const orderBy = params.orderBy ?? 'desc'
-  const categories = params.categories ?? ''
-  const problemOrders = params.problemOrders ?? ''
+  const search = searchParams.search ?? ''
+  const orderBy = searchParams.orderBy ?? 'desc'
+  const categories = searchParams.categories ?? ''
+  const problemOrders = searchParams.problemOrders ?? ''
 
   const contest: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
@@ -39,21 +44,34 @@ export default async function ContestQna(props: ContestQnAProps) {
     .get(`contest/${contestId}/problem`)
     .json()
 
-  const state = (() => {
+  const MyContestRolesRes = await fetcherWithAuth.get('contest/role')
+  const MyContestRoles: ContestRole[] = await MyContestRolesRes.json()
+  const isContestStaff = new Set(['Admin', 'Manager']).has(
+    MyContestRoles.find(
+      (ContestRole) => ContestRole.contestId === Number(contestId)
+    )?.role ?? 'nothing'
+  )
+
+  const contestStatus = (() => {
     const currentTime = new Date()
     const contestStart = new Date(contest.startTime)
     const contestEnd = new Date(contest.endTime)
-    if (currentTime >= contestStart && currentTime < contestEnd) {
+    if (currentTime < contestStart) {
+      return 'Upcoming'
+    } else if (currentTime < contestEnd) {
       return 'Ongoing'
+    } else {
+      return 'Finished'
     }
   })()
 
   const canCreateQnA =
     session &&
-    (contest.isRegistered || contest.isPrivilegedRole || state !== 'Ongoing')
-  const isPrivilegedRole = contest.isPrivilegedRole
+    (contest.isRegistered ||
+      contest.isPrivilegedRole ||
+      contestStatus !== 'Ongoing')
 
-  if (!session && state === 'Ongoing') {
+  if (!session && contestStatus === 'Ongoing') {
     return (
       <div className="flex w-full max-w-7xl flex-col items-center justify-center p-5 py-48">
         <Image src={welcomeLogo} alt="welcome" />
@@ -76,11 +94,12 @@ export default async function ContestQna(props: ContestQnAProps) {
             session={session}
             contestId={contestId}
             contestProblems={contestProblems}
+            contestStatus={contestStatus}
             search={search}
             orderBy={orderBy}
             categories={categories}
             problemOrders={problemOrders}
-            isPrivilegedRole={isPrivilegedRole}
+            isContestStaff={isContestStaff}
             canCreateQnA={canCreateQnA}
           />
         </Suspense>
@@ -91,16 +110,16 @@ export default async function ContestQna(props: ContestQnAProps) {
 
 function QnATableFallback() {
   return (
-    <div className="w-[1133px]">
+    <div className="w-[1208px]">
       <Skeleton className="h-[34px] w-[235px] gap-4" />
-      <div className="mt-[140px] flex">
-        <span className="w-2/12">
+      <div className="mt-[148px] flex">
+        <span className="w-1/12">
           <Skeleton className="h-6 w-20" />
         </span>
         <span className="w-2/12">
           <Skeleton className="mx-auto h-6 w-20" />
         </span>
-        <span className="w-4/12">
+        <span className="w-5/12">
           <Skeleton className="mx-auto h-6 w-20" />
         </span>
         <span className="w-2/12">

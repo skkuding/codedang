@@ -70,6 +70,12 @@ const db = {
   contest: {
     findUnique: stub()
   },
+  notice: {
+    findUnique: stub()
+  },
+  user: {
+    findMany: stub()
+  },
   notification: {
     create: stub()
   },
@@ -109,6 +115,8 @@ describe('NotificationService', () => {
   afterEach(() => {
     db.assignment.findUnique.reset()
     db.contest.findUnique.reset()
+    db.notice.findUnique.reset()
+    db.user.findMany.reset()
     db.notification.create.reset()
     db.notificationRecord.createMany.reset()
     db.pushSubscription.findMany.reset()
@@ -395,6 +403,54 @@ describe('NotificationService', () => {
       expect(delCall.args[0]).to.deep.equal({ where: { id: 99 } })
 
       sendStub.restore()
+    })
+  })
+
+  describe('notifyNoticeCreated', () => {
+    it('should notify all users with the notice title and type Other', async () => {
+      const noticeId = 55
+      db.notice.findUnique.resolves({
+        title: 'Important Update',
+        content: 'Body content here'
+      })
+      db.user.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
+      db.notification.create.resolves(notification)
+      db.notificationRecord.createMany.resolves({ count: 3 })
+      db.pushSubscription.findMany.resolves([])
+
+      await service.notifyNoticeCreated(noticeId)
+
+      expect(
+        db.notice.findUnique.calledWith({
+          where: { id: noticeId },
+          select: { title: true, content: true }
+        })
+      ).to.be.true
+      expect(db.user.findMany.calledOnce).to.be.true
+
+      expect(db.notification.create.calledOnce).to.be.true
+      const createCall = db.notification.create.getCall(0)
+      expect(createCall.args[0].data.title).to.equal('Important Update')
+      expect(createCall.args[0].data.message).to.equal('Body content here')
+      expect(createCall.args[0].data.type).to.equal(NotificationType.Other)
+      expect(createCall.args[0].data.url).to.equal(`/notice/${noticeId}`)
+
+      expect(db.notificationRecord.createMany.calledOnce).to.be.true
+      const createManyCall = db.notificationRecord.createMany.getCall(0)
+      expect(createManyCall.args[0].data).to.have.lengthOf(3)
+      expect(db.pushSubscription.findMany.calledOnce).to.be.true
+    })
+
+    it('should handle missing notice info gracefully', async () => {
+      const noticeId = 77
+      db.notice.findUnique.resolves(null)
+
+      await service.notifyNoticeCreated(noticeId)
+
+      expect(db.user.findMany.called).to.be.false
+      expect(db.notification.create.called).to.be.false
+      expect(db.notificationRecord.createMany.called).to.be.false
+      expect(db.pushSubscription.findMany.called).to.be.false
     })
   })
 })

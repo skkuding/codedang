@@ -34,6 +34,11 @@ export class NotificationListener {
     return fireAt.getTime() - Date.now() + offset
   }
 
+  @OnEvent('notice.created')
+  async handleNoticeCreated(payload: { noticeId: number }) {
+    this.notificationService.notifyNoticeCreated(payload.noticeId)
+  }
+
   @OnEvent('assignment.graded')
   async handleAssignmentGraded(payload: { assignmentId: number }) {
     this.notificationService.notifyAssignmentGraded(payload.assignmentId)

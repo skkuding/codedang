@@ -250,6 +250,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                       You can download the sample file{' '}
                       <a
                         href="/Whitelist_Sample.csv"
+                        download="Whitelist_Sample.csv"
                         className="text-primary underline"
                       >
                         here
