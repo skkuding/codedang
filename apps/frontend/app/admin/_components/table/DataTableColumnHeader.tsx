@@ -54,6 +54,10 @@ export function DataTableColumnHeader<TData, TValue>({
                 'data-[state=open]:bg-accent flex h-8 justify-center text-neutral-400',
                 column.getIsSorted() ? 'text-black' : ''
               )}
+              onClick={() => {
+                // 다중 정렬 유지
+                column.toggleSorting(column.getIsSorted() === 'desc', true)
+              }}
             >
               <span className="text-sm font-normal text-[#8A8A8A]">
                 {title}
@@ -77,11 +81,11 @@ export function DataTableColumnHeader<TData, TValue>({
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
+          <DropdownMenuItem onClick={() => column.toggleSorting(false, true)}>
             <TriangleUpIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
             {title === VISIBLE_COLUMN_TITLE ? 'Hidden first' : 'Asc'}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
+          <DropdownMenuItem onClick={() => column.toggleSorting(true, true)}>
             <TriangleDownIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
             {title === VISIBLE_COLUMN_TITLE ? 'Visible first' : 'Desc'}
           </DropdownMenuItem>
