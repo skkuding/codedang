@@ -125,7 +125,9 @@ export default function Page() {
   const saveAble =
     (saveAblePassword || saveAbleOthers) &&
     ((isPasswordsMatch && !errors.newPassword) ||
-      (!newPassword && !confirmPassword))
+      (!newPassword && !confirmPassword)) &&
+    majorValue !== 'none' &&
+    collegeValue !== 'none'
   const saveAbleUpdateNow =
     Boolean(studentId) &&
     majorValue !== 'none' &&
