@@ -6,6 +6,7 @@ import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assign
 import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
 import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
 import { problemSubmissionQueries } from '@/app/(client)/_libs/queries/problemSubmission'
+import { AlertModal } from '@/components/AlertModal'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -96,6 +97,8 @@ export function EditorHeader({
   const getCode = useCodeStore((state) => state.getCode)
 
   const isTesting = useTestPollingStore((state) => state.isTesting)
+  const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false)
+  const [selectedLanguage, setSelectedLanguage] = useState(language)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const loading = isTesting || isSubmitting
 
@@ -483,16 +486,18 @@ export function EditorHeader({
       document.querySelector<HTMLButtonElement>('.test-button')?.click()
     }
   }
-
+  const handleLanguageChange = (newLanguage: Language) => {
+    setSelectedLanguage(newLanguage)
+    setIsLanguageModalOpen(true)
+  }
+  const handleConfirmLanguageChange = () => {
+    setLanguage(selectedLanguage)
+    setIsLanguageModalOpen(false)
+  }
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
       <div>
-        <Select
-          onValueChange={(language: Language) => {
-            setLanguage(language)
-          }}
-          value={language}
-        >
+        <Select onValueChange={handleLanguageChange} value={language}>
           <SelectTrigger className="focus:outline-hidden h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:ring-0 focus:ring-offset-0">
             <p className="px-1">
               <SelectValue />
@@ -512,6 +517,19 @@ export function EditorHeader({
             </SelectGroup>
           </SelectContent>
         </Select>
+        <AlertModal
+          open={isLanguageModalOpen}
+          onOpenChange={setIsLanguageModalOpen}
+          size="sm"
+          title="Change Language"
+          description={`Change language to ${selectedLanguage}?\nOnce you change it, Your code will be deleted.`}
+          onClose={() => setIsLanguageModalOpen(false)}
+          primaryButton={{
+            text: isSubmitting ? 'Changing...' : 'Confirm',
+            onClick: handleConfirmLanguageChange
+          }}
+          type="confirm"
+        />
       </div>
       <div className="flex items-center gap-3">
         <AlertDialog>
