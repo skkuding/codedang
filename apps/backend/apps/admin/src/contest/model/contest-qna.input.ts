@@ -14,9 +14,6 @@ export class UpdateContestQnAInput {
 
 @InputType()
 export class GetContestQnAsFilterInput {
-  @Field(() => String, { nullable: true })
-  orderBy?: 'asc' | 'desc'
-
   @Field(() => Boolean, { nullable: true })
   isResolved?: boolean
 }

@@ -1497,7 +1497,6 @@ input GetAssignmentSubmissionsInput {
 
 input GetContestQnAsFilterInput {
   isResolved: Boolean
-  orderBy: String
 }
 
 input GetContestSubmissionsInput {

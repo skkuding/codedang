@@ -1423,11 +1423,21 @@ export class ContestService {
     take: number,
     cursor: number | null,
     filter?: {
-      orderBy?: 'asc' | 'desc'
       isResolved?: boolean
     }
   ) {
-    const where: Prisma.ContestQnAWhereInput = {}
+    // 대회가 존재하는지 확인
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const where: Prisma.ContestQnAWhereInput = {
+      contestId
+    }
 
     // 페이지네이션 설정
     const paginator = this.prisma.getPaginator(cursor)
@@ -1444,7 +1454,7 @@ export class ContestService {
         contestId
       },
       orderBy: {
-        order: filter?.orderBy || 'desc' // 최신 질문부터 표시
+        order: 'desc'
       },
       include: {
         createdBy: {

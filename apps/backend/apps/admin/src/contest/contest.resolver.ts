@@ -240,6 +240,7 @@ export class ContestQnAResolver {
   constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestQnA])
+  @UseDisableContestRolesGuard() // 임시 실행
   async getContestQnAs(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
     @Args(
