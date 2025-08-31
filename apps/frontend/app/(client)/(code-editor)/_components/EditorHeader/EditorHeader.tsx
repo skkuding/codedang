@@ -7,17 +7,6 @@ import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProbl
 import { contestSubmissionQueries } from '@/app/(client)/_libs/queries/contestSubmission'
 import { problemSubmissionQueries } from '@/app/(client)/_libs/queries/problemSubmission'
 import { AlertModal } from '@/components/AlertModal'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import {
   Select,
@@ -118,6 +107,7 @@ export function EditorHeader({
       exerciseId
     )
   )
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
   const session = useSession()
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
   const [showModal, setShowModal] = useState<boolean>(false)
@@ -532,38 +522,30 @@ export function EditorHeader({
         />
       </div>
       <div className="flex items-center gap-3">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              size="icon"
-              className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
-            >
-              <BsTrash3 size={17} />
-              Reset
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent className="h-[200px] w-[500px] rounded-2xl border border-slate-800 bg-slate-900 pb-7 pl-8 pr-[30px] pt-8 sm:rounded-2xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="font-size-5 text-slate-50">
-                Reset code
-              </AlertDialogTitle>
-              <AlertDialogDescription className="font-size-4 text-slate-300">
-                Are you sure you want to reset to the default code?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex gap-2">
-              <AlertDialogCancel className="self-end rounded-[1000px] border-none bg-[#DCE3E5] text-[#787E80] hover:bg-[#c9cfd1]">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                className="self-end rounded-[1000px] bg-red-500 hover:bg-red-600"
-                onClick={resetCode}
-              >
-                Reset
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <Button
+          size="icon"
+          className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
+          onClick={() => setIsResetModalOpen(true)}
+        >
+          <BsTrash3 size={17} />
+          Reset
+        </Button>
+        <AlertModal
+          open={isResetModalOpen}
+          onOpenChange={setIsResetModalOpen}
+          size="sm"
+          title="Reset code"
+          description="Are you sure you want to reset to the default code?"
+          onClose={() => setIsResetModalOpen(false)}
+          primaryButton={{
+            text: 'Reset',
+            onClick: () => {
+              resetCode()
+              setIsResetModalOpen(false)
+            }
+          }}
+          type="confirm"
+        />
 
         <TooltipProvider>
           {contestId === undefined && (
