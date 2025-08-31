@@ -30,8 +30,7 @@
       "@libs/logger": ["./libs/logger/src/index.ts"],
       "@libs/types": ["./libs/types/src/index.ts"],
       "@libs/instrumentation": ["./libs/instrumentation.ts"],
-      "@libs/storage": ["./libs/storage/src/index.ts"],
-      "@libs/policy": ["apps/client/src/submission/policy/index.ts"]
+      "@libs/storage": ["./libs/storage/src/index.ts"]
     }
   }
 }
