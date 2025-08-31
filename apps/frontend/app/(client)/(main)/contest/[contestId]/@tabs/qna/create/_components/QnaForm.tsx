@@ -234,8 +234,6 @@ export function QnaForm() {
     )
   }
 
-  const showInfoMessage = !isContestStarted && !isPrivilegedRole
-
   return (
     <>
       <div className="mb-[30px] flex items-center">
@@ -254,7 +252,7 @@ export function QnaForm() {
         <Title control={control} />
       </div>
 
-      {showInfoMessage && !isLoadingProblems && (
+      {!isContestStarted && !isLoadingProblems && (
         <div className="mt-[4px] flex">
           <Image
             src={infoBlueIcon}
@@ -275,7 +273,6 @@ export function QnaForm() {
         problemOptions={problemOptions}
         isOpen={isDropdownOpen && !isLoadingProblems}
         onClose={() => setIsDropdownOpen(false)}
-        isPrivilegedRole={isPrivilegedRole}
         isContestStarted={isContestStarted}
       />
 
