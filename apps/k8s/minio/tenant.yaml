@@ -9,7 +9,7 @@ metadata:
     app: minio
 spec:
   features:
-    bucketDNS: true
+    bucketDNS: false # use path-style access to be compatible with local environment
   users:
     - name: admin-api-user
     - name: client-api-user

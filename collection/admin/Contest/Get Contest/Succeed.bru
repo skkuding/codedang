@@ -48,12 +48,16 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 1
+    "contestId": 20
   }
 }
 
 assert {
   res.body.data.getContest: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
 }
 
 docs {

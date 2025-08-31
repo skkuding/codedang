@@ -20,6 +20,8 @@ spec:
       name: '{{.number}}-preview-frontend'
       finalizers:
         - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: 'preview'
       annotations:
         appName: 'frontend'
         previewURL: 'https://{{.number}}.preview.codedang.com'
@@ -36,7 +38,10 @@ spec:
           # kustomization.yaml is ignored if recurse is true
           recurse: false
         kustomize:
-          namespace: 'frontend-preview-{{.number}}'
+          namespace: 'frontend-preview' # reuse TLS certificate secret in the same namespace
+          namePrefix: 'preview-{{.number}}-' # some resources must start with alphabetic character
+          commonLabels:
+            app: 'preview-{{.number}}-frontend'
           images:
             - 'ghcr.io/skkuding/codedang-frontend:{{.head_sha}}'
           patches:
@@ -56,10 +61,27 @@ spec:
               patch: |-
                 - op: replace
                   path: /spec/tls/0/hosts/0
-                  value: '{{.number}}.preview.codedang.com'
+                  value: '*.preview.codedang.com'
+                - op: replace
+                  path: /spec/tls/0/secretName
+                  value: frontend-preview-tls
                 - op: replace
                   path: /spec/rules/0/host
                   value: '{{.number}}.preview.codedang.com'
+            - target:
+                kind: Deployment
+                name: frontend
+              patch: |-
+                - op: replace
+                  path: /spec/template/spec/containers/0/envFrom/1/secretRef/name
+                  value: 'preview-{{.number}}-frontend-secrets'
+            - target:
+                kind: Service
+                name: frontend
+              patch: |-
+                - op: replace
+                  path: /spec/selector/app
+                  value: 'preview-{{.number}}-frontend'
       destination:
         name: stage
         namespace: 'frontend-preview-{{.number}}'

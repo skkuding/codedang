@@ -4,15 +4,12 @@ namespace: admin-api
 
 resources:
   - ../../base
+  - cors-middleware.yaml
   - secrets/database-credentials.yaml
   - secrets/object-storage.yaml
   - secrets/security-keys.yaml
 
 patches:
-  - path: configmap.yaml
-    target:
-      kind: ConfigMap
-      name: admin-api-env
   - path: ingress.yaml
     target:
       kind: Ingress
