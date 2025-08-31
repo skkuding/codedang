@@ -154,9 +154,7 @@ function AssignmentAccordionItem({
               {dayjs().isAfter(assignment.startTime) && (
                 <p className="text-sm font-medium">
                   Score:{' '}
-                  {grade.submittedCount > 0
-                    ? `${grade.userAssignmentFinalScore ?? '-'} / ${grade.assignmentPerfectScore}`
-                    : `- / ${grade.assignmentPerfectScore}`}
+                  {`${grade.userAssignmentFinalScore ?? '-'} / ${grade.assignmentPerfectScore}`}
                 </p>
               )}
 
@@ -223,9 +221,7 @@ function AssignmentAccordionItem({
             <div className="flex w-[10%] justify-center gap-1 text-base font-medium">
               {dayjs().isAfter(assignment.startTime) && (
                 <p>
-                  {grade.submittedCount > 0
-                    ? `${grade.userAssignmentFinalScore ?? '-'} / ${grade.assignmentPerfectScore}`
-                    : `- / ${grade.assignmentPerfectScore}`}
+                  {`${grade.userAssignmentFinalScore ?? '-'} / ${grade.assignmentPerfectScore}`}
                 </p>
               )}
             </div>
@@ -300,7 +296,7 @@ function AssignmentAccordionItem({
                         )}
                         <span>
                           Score:{' '}
-                          {dayjs().isAfter(dayjs(assignment.endTime))
+                          {dayjs().isAfter(dayjs(assignment.dueTime))
                             ? (problem.problemRecord?.finalScore ?? '-')
                             : '-'}{' '}
                           / {problem.maxScore}
@@ -349,7 +345,7 @@ function AssignmentAccordionItem({
                     </div>
 
                     <div className="flex w-[10%] justify-center text-base font-medium">
-                      {dayjs().isAfter(dayjs(assignment.endTime))
+                      {dayjs().isAfter(dayjs(assignment.dueTime))
                         ? (problem.problemRecord?.finalScore ?? '-')
                         : '-'}{' '}
                       / {problem.maxScore}

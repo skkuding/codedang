@@ -107,7 +107,6 @@ export function Modal({
             </p>
           )}
         </DialogHeader>
-
         <ScrollArea className="w-full flex-1 px-1">
           {type === 'input' && inputProps && (
             <ModalInput
@@ -117,7 +116,7 @@ export function Modal({
               onChange={inputProps.onChange}
             />
           )}
-          {headerDescription && (
+          {size !== 'lg' && headerDescription && (
             <span
               className={cn(
                 'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
@@ -139,7 +138,6 @@ export function Modal({
             </span>
           )}
         </ScrollArea>
-
         <DialogFooter className="flex w-full justify-center gap-[4px]">
           {secondaryButton && (
             <Button

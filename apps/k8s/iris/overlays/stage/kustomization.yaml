@@ -4,12 +4,12 @@ namespace: iris
 
 resources:
   - ../../base
+  - aws-credentials.yaml
   - database-credentials.yaml
-  - minio-credentials.yaml
 
 replicas:
   - name: iris
-    count: 3
+    count: 2
 
 patches:
   - path: configmap.yaml

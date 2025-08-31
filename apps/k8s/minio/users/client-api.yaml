@@ -1,0 +1,21 @@
+# Specially, this is copied from AWS IAM user 'on-prem-client-api-stage' credentials.
+# Client API needs to access AWS SES service to send emails in stage environment.
+# To use single AWS credential in AWS SDK for both MinIO and AWS services,
+# MinIO access key and secret key must be the same as AWS access key and secret key.
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: client-api-user
+  namespace: minio
+spec:
+  encryptedData:
+    CONSOLE_ACCESS_KEY: AgBjgsfLN6ukRKSmiDbVayJJbnE1fFccevXpe5oijqPWyBYsgfZdBvm3dZtqdCIFnqihrQR+s2zw8eBRrFqR2E6BcZ9j6Oh8fw7Xud0wzlIwTlL2K3BkGOe06zv7pVSGfCoUzDq+435jxwMjci9kkv5sqhSEbmmRhS8myD5iSU00Q8FPQMyR8SHQRhZLhKznAMlfBu89jEkr3Y6JRp0AYirHTJOo9OkP3AOLrh6c2oDBcBQv/tJHtF1H4Pz4utVF9F5mRS/t8kE37ka8xidNn5/LBUq6pZDQbfSoELXtrhmTD7nSf9uVsr3qcWnF8X05c4ENIRLYgOuPijXYRK++jBc8Z2p7LbasEx+Ve+PgQSxFvbR2dH6SZJG+QbATXJKU2K52VF21u33FZvgnkaOh8HWTxpRPxFhGV3wwEdJv+68Yr5hOINBJvVqCEcCOxz/cQ4Za2adPkh6okNAtwgxObtSXtidAf0LHNLxrCEc542NvDZuFKUPl/Ehoi6TKYEKVC0tXE9O9Z6XNN93RB7Tr4Y/Nj6big2775PNp5/8jP96AuzZ0VeGzMZLe6swgKr1DCKNm/zT++a32k9fG7jSD3ot+nSL63oios3hBRbjiYvAjKwe3FafeHlutT72dXUmsR4HkXtrVyPVFnWsz/gH/OBFsj1/QkqTFOGrDnR/JduoFAhb5/LhBi3S1ouc+o7gqsAofSKn1Pvn75aNUxSZVCCrQH1BePA==
+    CONSOLE_SECRET_KEY: AgBrf1pqPbefLgdYLYNodX0Sfibi4roIIh3eEcONAeYiortwF6k7LwckN0WjbjlyaEQRnZu6ULv2tKGJz+n3rvEJAfImbBTCqKFp6rr5cdNskwpkUzk/ZfLpEYHh7+Y9QmduQ+NPSsmP342Hhy6RlnCrgshiVQ16P0nrzMF2nZVjI2eM+iaLfEs/Ag7PJ1hau1lWE8uTcyHZmr4olydBcPQRgsMB0lZ8yDutT1+ynj2u5GkhxgRCbaMPfjvJOAxsohy4fPQHQ4X8vKQCYCWclYi4llQwbVnsIcl2eR3np5n9YMRkez3oMofPF2CEmuiYNAHBpsEW1l6ifEbDybiVmZfXG4D/DZkM8S46m57vtKsAZK3YRZQriev2sIaX9huNMH5kl8U1O242nuPdyd91ltTQBOgB1ywPTC/k2QeJBQMrQ6303QxNgD5QLWqj/nd4nvfJhwPnShQXcmN+SAlKHnU2w1H9cpxcP0sZzvUUTiXJNUZ91oRFzK1/BVAaiw+BdMG0Vza/kGFlumn5tnWD+BZrXNGt+HwhM+e4cZYlRxnbUYcw3CyFvqaei7YbHV9Sue731U3YNjB79zVYOA3ERsR1faTXLKJFlo3swTIoj+YdgUCA+GHsjb04PQrhctXMaqRKWO06leEJtzj9kiy17VHCcgiTWpx4N4ucPBVpo4QzFF8qVlZRv3ZonGt9THWUIm2FpdZJ9Sb7OBdoq2oTFO/4528xPzvO/VOhc4Xyhe0O1RQDCX5zJHki
+  template:
+    metadata:
+      creationTimestamp: null
+      name: client-api-user
+      namespace: minio
+    type: Opaque
