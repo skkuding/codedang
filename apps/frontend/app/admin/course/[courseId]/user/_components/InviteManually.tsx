@@ -142,21 +142,29 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
     )
 
     try {
-      await Promise.all(invitePromises)
+      const results = await Promise.allSettled(invitePromises)
 
-      toast.success('Invited Successfully!', {
-        style: {
-          background: '#F0F8FF',
-          color: '#0973DC',
-          borderRadius: '1000px',
-          border: '1px solid rgba(255, 255, 255, 0.10)'
-        },
-        closeButton: false
-      })
+      const resultSuccess = results.some(
+        (result) => result.status === 'fulfilled'
+      )
 
-      setSelectedList([])
+      if (resultSuccess) {
+        toast.success('Invited Successfully!', {
+          style: {
+            background: '#F0F8FF',
+            color: '#0973DC',
+            borderRadius: '1000px',
+            border: '1px solid rgba(255, 255, 255, 0.10)'
+          },
+          closeButton: false
+        })
+
+        setSelectedList([])
+      } else {
+        toast.error('Failed to invite user')
+      }
     } catch {
-      toast.error('Failed to invite user')
+      toast.error('An unexpected error occurred')
     }
   }, [inviteUser, courseId, selectedList])
 
@@ -186,8 +194,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
   return (
     <div>
       <form
-        onSubmit={(event) => {
-          event.preventDefault()
+        onSubmit={() => {
           findHandleSubmit(onFind)()
         }}
         aria-label="Invite user"
@@ -198,7 +205,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
         <div className="border-line flex flex-col items-start self-stretch border-b pb-[30px]">
           <div className="flex items-center gap-[10px] self-stretch">
             <div className="flex flex-1 items-center gap-1">
-              <div className="flex h-10 w-[216px] items-center rounded-full border border-gray-300 px-5">
+              <div className="flex h-10 w-[216px] items-center gap-[10px] rounded-full border border-gray-300 px-5">
                 <MdOutlineEmail
                   className={
                     findWatch('email')
@@ -210,7 +217,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                   id="email"
                   {...findRegister('email')}
                   placeholder="Enter the e-mail"
-                  className="placeholder:text-color-neutral-90 border-none !bg-transparent text-base autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
+                  className="pl aceholder:text-color-neutral-90 rounded-none border-none !bg-transparent pl-0 text-base autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
                 />
               </div>
 
@@ -246,8 +253,9 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                   <div className="flex items-center rounded-lg text-base">
                     <Input
                       value={emailDomain.replace('@', '')}
+                      placeholder="Enter directly"
                       onChange={handleInputChange}
-                      className="w-35 absolute left-[30px] top-0 h-10 border-none bg-transparent text-base shadow-none focus-visible:ring-0"
+                      className="w-35 absolute left-[20px] h-10 border-none bg-transparent text-base shadow-none focus-visible:ring-0"
                     />
                   </div>
                 )}
