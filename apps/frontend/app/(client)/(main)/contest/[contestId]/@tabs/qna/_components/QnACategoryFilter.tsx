@@ -20,7 +20,6 @@ import React, { type ReactNode } from 'react'
 
 export interface QnACategoryFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
-  contestId: number
   options: {
     value: string
     label: ReactNode
@@ -45,15 +44,15 @@ export function QnACategoryFilter<TData, TValue>({
         <Button
           variant="outline"
           size="sm"
-          className="flex h-[46px] w-[215px] cursor-default items-center overflow-hidden rounded-full border border-[#D8D8D8] bg-transparent px-6 hover:bg-transparent"
+          className="flex h-[46px] w-[215px] cursor-default items-center gap-[10px] overflow-hidden rounded-full border border-[#D8D8D8] bg-transparent px-6 hover:bg-transparent"
         >
           <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
             {showAll ? (
-              <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[16px] font-medium tracking-[-0.48px] text-[#737373]">
+              <span className="ml-[6px] overflow-hidden text-ellipsis whitespace-nowrap text-[16px] font-medium tracking-[-0.48px] text-[#737373]">
                 All
               </span>
             ) : (
-              <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[16px] font-medium tracking-[-0.48px] text-[#737373]">
+              <span className="ml-[6px] overflow-hidden text-ellipsis whitespace-nowrap text-[16px] font-medium tracking-[-0.48px] text-[#737373]">
                 {options
                   .filter((option) => selectedValues.has(option.value))
                   .map((option) => option.label)
@@ -62,17 +61,17 @@ export function QnACategoryFilter<TData, TValue>({
             )}
           </div>
 
-          <div className="relative z-[-10] size-[18px]">
+          <div className="-z-1 relative size-[18px]">
             {' '}
             <Image src={DownArrow} alt="Bottom" fill />
           </div>
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[180px] p-0" align="start">
+      <PopoverContent className="z-0 w-[175px] p-0" align="start">
         <Command>
           <CommandList>
-            <CommandGroup>
+            <CommandGroup className="px-5 py-[14px]">
               {options.map(({ value, label }) => (
                 <CommandItem
                   key={value}
@@ -91,9 +90,12 @@ export function QnACategoryFilter<TData, TValue>({
                     )
                     resetPageIndex()
                   }}
-                  className="gap-x-2"
+                  className="gap-x-[14px] px-0 py-[6px]"
                 >
-                  <Checkbox checked={selectedValues.has(value)} />
+                  <Checkbox
+                    className="size-[18px]"
+                    checked={selectedValues.has(value)}
+                  />
                   <span
                     className={`w-full truncate ${
                       selectedValues.has(value)
