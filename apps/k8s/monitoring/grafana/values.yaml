@@ -19,13 +19,13 @@ requests:
   cpu: 200m
   memory: 256Mi
 
-## https://kubernetes.io/docs/concepts/storage/persistent-volumes/
-# we will provision all data as code, so neither pvc and inMemory are needed
+# https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+# in the beginning of grafana migration, we allow editing dashboards without provisioning
+# however, it is highly recommended to provision data as code
 persistence:
   type: pvc
-  enabled: false
-  inMemory:
-    enabled: false
+  enabled: true
+  size: 10Gi
 
 admin:
   existingSecret: grafana-admin-user
@@ -45,6 +45,11 @@ datasources:
         access: proxy
         url: http://loki.monitoring-loki.svc.cluster.local:3100
         editable: true # TODO: set false after testing
+      - name: Prometheus-production
+        type: prometheus
+        access: proxy
+        url: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090
+        editable: true # TODO: set false after testing
 
 # help grafana to detect provisioned dashboards
 sidecar:
@@ -53,10 +58,11 @@ sidecar:
     label: grafana_dashboard
     labelValue: '1'
 
-dashboardsConfigMaps:
-  default: 'all-service-logs'
-  hardware: 'hardware-metrics'
-  submission: 'submission-detail'
+# TODO: provision dashboard config maps
+# dashboardsConfigMaps:
+#   default: 'all-service-logs'
+#   hardware: 'hardware-metrics'
+#   submission: 'submission-detail'
 
 # TODO: add public dashboards from https://grafana.com/grafana/dashboards/
 downloadDashboards:
