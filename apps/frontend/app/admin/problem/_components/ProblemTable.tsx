@@ -59,7 +59,8 @@ export function ProblemTable() {
     <DataTableRoot
       data={problems}
       columns={createColumns()}
-      defaultSortState={[{ id: 'updateTime', desc: true }]}
+
+      // defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <div className="flex gap-4">
         <DataTableSearchBar columndId="title" />

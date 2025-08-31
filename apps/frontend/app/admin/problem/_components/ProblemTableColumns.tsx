@@ -176,6 +176,11 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
     ),
     cell: ({ row }) => {
       return row.original.updateTime.substring(2, 10)
+    },
+    sortingFn: (rowA, rowB) => {
+      const dateA = new Date(rowA.original.updateTime)
+      const dateB = new Date(rowB.original.updateTime)
+      return dateA.getTime() - dateB.getTime()
     }
   },
   {
@@ -199,6 +204,11 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
+    },
+    sortingFn: (rowA, rowB) => {
+      const levelA = parseInt(rowA.original.difficulty.slice(-1))
+      const levelB = parseInt(rowB.original.difficulty.slice(-1))
+      return levelA - levelB
     }
   },
   {
