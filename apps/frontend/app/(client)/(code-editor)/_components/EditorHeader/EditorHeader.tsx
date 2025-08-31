@@ -518,7 +518,7 @@ export function EditorHeader({
             text: isSubmitting ? 'Changing...' : 'Confirm',
             onClick: handleConfirmLanguageChange
           }}
-          type="confirm"
+          type="warning"
         />
       </div>
       <div className="flex items-center gap-3">
@@ -544,7 +544,7 @@ export function EditorHeader({
               setIsResetModalOpen(false)
             }
           }}
-          type="confirm"
+          type="warning"
         />
 
         <TooltipProvider>
