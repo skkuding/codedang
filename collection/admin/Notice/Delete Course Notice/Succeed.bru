@@ -1,0 +1,54 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation($courseNoticeId: Int! ) {
+    deleteCourseNotice(courseNoticeId: $courseNoticeId) {
+      title
+      content
+      isVisible
+      isFixed
+      createTime
+      updateTime
+      id
+      createdById
+      groupId
+      problemId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "courseNoticeId": 1
+  }
+}
+
+assert {
+  res.body.data.deleteCourseNotice: isDefined
+}
+
+docs {
+  ## Delete a Notice
+  강의 공지사항을 1개 삭제한다.
+
+  ### Args
+
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |courseNoticeId|int|삭제할 강의 공지사항의 id|
+
+  ### Error Case
+
+  #### NOT_FOUND
+  전달한 courseNoticeId에 맞는 공지사항이 없는 경우에 해당한다.
+}

@@ -124,7 +124,7 @@ export class NoticeService {
 export class CourseNoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getNotices({
+  async getCourseNotices({
     userId,
     groupId,
     cursor,
@@ -217,18 +217,7 @@ export class CourseNoticeService {
     return { data, total }
   }
 
-  async getNoticeByID({
-    userId,
-    id,
-    cursor,
-    take
-  }: {
-    userId: number
-    id: number
-    cursor: number | null
-    take: number
-  }) {
-    const paginator = this.prisma.getPaginator(cursor)
+  async getCourseNoticeByID({ userId, id }: { userId: number; id: number }) {
     const courseNotice = await this.prisma.courseNotice.findUniqueOrThrow({
       where: {
         id,
@@ -243,59 +232,13 @@ export class CourseNoticeService {
           select: {
             username: true
           }
-        },
-        CourseNoticeComment: {
-          ...paginator,
-          take,
-          select: {
-            id: true,
-            createdBy: {
-              select: {
-                username: true,
-                studentId: true
-              }
-            },
-            replyOnId: true,
-            content: true,
-            createdTime: true,
-            updateTime: true
-          },
-          orderBy: {
-            id: 'asc'
-          }
         }
       }
     })
 
-    type Comment = (typeof courseNotice.CourseNoticeComment)[number]
-    const commentDatas = courseNotice.CourseNoticeComment.reduce(
-      (acc, comment) => {
-        if (!comment.replyOnId) {
-          acc.push({
-            comment,
-            replys: []
-          })
-        } else {
-          const nestedOnId = acc.findIndex(
-            (data) => data.comment.id === comment.replyOnId
-          )
-          if (nestedOnId === -1) {
-            throw new UnprocessableDataException('CourseNoticeComment')
-          }
-          acc[nestedOnId].replys.push(comment)
-        }
-        return acc
-      },
-      [] as {
-        comment: Comment
-        replys: Comment[]
-      }[]
-    )
-
     const current = {
       ...courseNotice,
-      createdBy: courseNotice.createdBy?.username,
-      CourseNoticeComment: commentDatas.reverse()
+      createdBy: courseNotice.createdBy?.username
     }
 
     const navigate = (pos: 'prev' | 'next') => {
@@ -357,16 +300,81 @@ export class CourseNoticeService {
     }
   }
 
+  async getCourseNoticeComments({
+    id,
+    cursor,
+    take
+  }: {
+    id: number
+    cursor: number | null
+    take: number
+  }) {
+    const paginator = this.prisma.getPaginator(cursor)
+    const comments = await this.prisma.courseNoticeComment.findMany({
+      where: {
+        courseNoticeId: id
+      },
+      ...paginator,
+      take,
+      select: {
+        id: true,
+        createdBy: {
+          select: {
+            username: true,
+            studentId: true
+          }
+        },
+        replyOnId: true,
+        content: true,
+        createdTime: true,
+        updateTime: true
+      },
+      orderBy: {
+        id: 'asc'
+      }
+    })
+
+    type Comment = (typeof comments)[number]
+    const commentDatas = comments.reduce(
+      (acc, comment) => {
+        if (!comment.replyOnId) {
+          acc.push({
+            comment,
+            replys: []
+          })
+        } else {
+          const nestedOnId = acc.findIndex(
+            (data) => data.comment.id === comment.replyOnId
+          )
+          if (nestedOnId === -1) {
+            throw new UnprocessableDataException('CourseNoticeComment')
+          }
+          acc[nestedOnId].replys.push(comment)
+        }
+        return acc
+      },
+      [] as {
+        comment: Comment
+        replys: Comment[]
+      }[]
+    )
+
+    return commentDatas.reverse()
+  }
+
   async createComment({
     userId,
+    id,
     createCourseNoticeCommentDto
   }: {
     userId: number
+    id: number
     createCourseNoticeCommentDto: CreateCourseNoticeCommentDto
   }) {
     return await this.prisma.courseNoticeComment.create({
       data: {
         createdById: userId,
+        courseNoticeId: id,
         ...createCourseNoticeCommentDto
       }
     })
@@ -374,14 +382,19 @@ export class CourseNoticeService {
 
   async updateComment({
     userId,
+    id,
+    commentId,
     updateCourseNoticeCommentDto
   }: {
     userId: number
+    id: number
+    commentId: number
     updateCourseNoticeCommentDto: UpdateCourseNoticeCommentDto
   }) {
     return await this.prisma.courseNoticeComment.update({
       where: {
-        id: updateCourseNoticeCommentDto.commentId,
+        id: commentId,
+        courseNoticeId: id,
         createdById: userId
       },
       data: {
@@ -392,14 +405,17 @@ export class CourseNoticeService {
 
   async deleteComment({
     userId,
+    id,
     commentId
   }: {
     userId: number
+    id: number
     commentId: number
   }) {
     return await this.prisma.courseNoticeComment.delete({
       where: {
         id: commentId,
+        courseNoticeId: id,
         createdById: userId
       }
     })

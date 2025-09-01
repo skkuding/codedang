@@ -1,0 +1,71 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ($courseNoticeId: number, $cloneToId: number, $input: UpdateCourseNoticeInput!) {
+    cloneCourseNotice(courseNoticeId: $courseNoticeId, cloneToId: $cloneToId, input: $input) {
+      id
+      createdById
+      title
+      content
+      isVisible
+      isFixed
+      createTime
+      updateTime
+      groupId
+      problemId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "courseNoticeId": 1,
+    "cloneToId": 2,
+    "input": {
+      "title": "Notice cloned by bruno"
+    }
+  }
+}
+
+assert {
+  res.body.data.cloneCourseNotice: isDefined
+}
+
+docs {
+  ## Create a Notice
+  단일 공지사항을 복제한다.
+
+  ### Args
+
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |courseNoticeId|number|복제할 공지사항의 아이디|
+  |cloneToId|number|복제된 공지사항을 넣을 강의 아이디|
+  |input|object|공지사항을 구성하는 요소. groupId는 필수이고 그 외 값은 optional. 하단 참고|
+
+  #### input
+
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  | groupId | number | 강의 아이디 (필수) |
+  | problemId | number | 참조를 수정할 문제 아이디 |
+  | title | string | 수정할 공지사항 제목 |
+  | content | string | 수정할 공지사항 본문 |
+  | isVisible | boolean | 조회 가능 여부를 나타내는 값이다. 기본값은 true. |
+  | isFixed | boolean | 공지사항을 목록 최상단에 고정시키는 설정값이다. 기본값은 false. |
+
+  ### Error Case
+
+  #### NOT_FOUND
+  groupId에 해당하는 Group이 존재하지 않거나 courseNoticeId에 해당하는 공지가 없어 공지사항을 생성할 수 없는 경우에 해당한다.
+}

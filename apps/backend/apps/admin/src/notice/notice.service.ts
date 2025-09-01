@@ -3,7 +3,7 @@ import { PrismaService } from '@libs/prisma'
 import type {
   CreateCourseNoticeInput,
   UpdateCourseNoticeInput
-} from './model/courseNotice.input'
+} from './model/course_notice.input'
 import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 
 @Injectable()
@@ -92,7 +92,7 @@ export class CourseNoticeService {
     await Promise.all(setRecord)
   }
 
-  async createNotice(
+  async createCourseNotice(
     userId: number,
     createCourseNoticeInput: CreateCourseNoticeInput
   ) {
@@ -108,7 +108,7 @@ export class CourseNoticeService {
     return courseNotice
   }
 
-  async deleteNotice(courseNoticeId: number) {
+  async deleteCourseNotice(courseNoticeId: number) {
     return await this.prisma.courseNotice.delete({
       where: {
         id: courseNoticeId
@@ -116,7 +116,7 @@ export class CourseNoticeService {
     })
   }
 
-  async updateNotice(
+  async updateCourseNotice(
     courseNoticeId: number,
     updateCourseNoticeInput: UpdateCourseNoticeInput
   ) {
@@ -130,7 +130,7 @@ export class CourseNoticeService {
     })
   }
 
-  async cloneNotice(
+  async cloneCourseNotice(
     userId: number,
     courseNoticeId: number,
     updateCourseNoticeInput: UpdateCourseNoticeInput,

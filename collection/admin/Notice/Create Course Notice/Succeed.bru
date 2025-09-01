@@ -1,0 +1,74 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ($input: CreateCourseNoticeInput!) {
+    createCourseNotice(input: $input) {
+      id
+      createdById
+      title
+      content
+      isVisible
+      isFixed
+      createTime
+      updateTime
+      groupId
+      problemId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "groupId": 1,
+      "problemId": 1,
+      "title": "Notice created by bruno",
+      "content": "123",
+      "isFixed": false,
+      "isVisible": true
+    }
+  }
+}
+
+assert {
+  res.body.data.createCourseNotice: isDefined
+}
+
+docs {
+  ## Create a Notice
+  강의 공지사항 1개를 생성한다.
+
+  ### Args
+
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |input|object|공지사항 생성에 필요한 요소들|
+
+  #### input
+
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  | groupId | number | 강의 아이디 |
+  | problemId | number | 참조할 문제 아이디 |
+  | title | string | 공지사항 제목 |
+  | content | string | 공지사항 본문 |
+  | isVisible | boolean | 조회 가능 여부를 나타내는 값이다. 기본값은 true. |
+  | isFixed | boolean | 공지사항을 목록 최상단에 고정시키는 설정값이다. 기본값은 false. |
+
+
+  ### Error Case
+
+  #### NOT_FOUND
+  groupId에 해당하는 Group이 존재하지 않아 공지사항을 생성할 수 없는 경우에 해당한다.
+  problemId에 해당하는 문제가 존재하지 않는 경우에 해당한다.
+}

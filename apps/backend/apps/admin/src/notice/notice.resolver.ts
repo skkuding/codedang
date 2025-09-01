@@ -17,7 +17,7 @@ import { UserService } from '@admin/user/user.service'
 import type {
   CreateCourseNoticeInput,
   UpdateCourseNoticeInput
-} from './model/courseNotice.input'
+} from './model/course_notice.input'
 import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { CourseNoticeService, NoticeService } from './notice.service'
 
@@ -86,33 +86,36 @@ export class CourseNoticeResolver {
   private readonly logger = new Logger(CourseNoticeService.name)
   constructor(private readonly courseNoticeService: CourseNoticeService) {}
 
-  @Mutation(() => Notice)
-  async createNotice(
+  @Mutation(() => CourseNotice)
+  async createCourseNotice(
     @Args('input') input: CreateCourseNoticeInput,
     @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.courseNoticeService.createNotice(req.user.id, input)
+    return await this.courseNoticeService.createCourseNotice(req.user.id, input)
   }
 
-  @Mutation(() => Notice)
-  async deleteNotice(
+  @Mutation(() => CourseNotice)
+  async deleteCourseNotice(
     @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
     courseNoticeId: number
   ) {
-    return await this.courseNoticeService.deleteNotice(courseNoticeId)
+    return await this.courseNoticeService.deleteCourseNotice(courseNoticeId)
   }
 
-  @Mutation(() => Notice)
-  async updateNotice(
+  @Mutation(() => CourseNotice)
+  async updateCourseNotice(
     @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
     courseNoticeId: number,
     @Args('input') input: UpdateCourseNoticeInput
   ) {
-    return await this.courseNoticeService.updateNotice(courseNoticeId, input)
+    return await this.courseNoticeService.updateCourseNotice(
+      courseNoticeId,
+      input
+    )
   }
 
-  @Mutation(() => Notice)
-  async cloneNotice(
+  @Mutation(() => CourseNotice)
+  async cloneCourseNotice(
     @Context('req') req: AuthenticatedRequest,
     @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
     courseNoticeId: number,
@@ -120,7 +123,7 @@ export class CourseNoticeResolver {
     cloneToId: number,
     @Args('input', { defaultValue: {} }) input: UpdateCourseNoticeInput
   ) {
-    return await this.courseNoticeService.cloneNotice(
+    return await this.courseNoticeService.cloneCourseNotice(
       req.user.id,
       courseNoticeId,
       input,
