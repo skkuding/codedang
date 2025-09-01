@@ -44,38 +44,42 @@ export function TestcaseItem({
           <p className="text-lg font-medium text-[#5C5C5C]">
             #{(currentIndex + 1).toString().padStart(2, '0')}
           </p>
-          <input
-            type="checkbox"
-            className="text-primary-light h-5 w-5"
-            checked={isSelected}
-            onChange={(e) => onSelect(e.target.checked)}
-          />
+          {!blockEdit && (
+            <input
+              type="checkbox"
+              className="text-primary-light h-5 w-5"
+              checked={isSelected}
+              onChange={(e) => onSelect(e.target.checked)}
+            />
+          )}
         </div>
 
         <div className="flex items-center gap-1">
-          <div className="mr-2 flex">
-            <label className="flex items-center gap-1">
-              <input
-                type="checkbox"
-                className="text-primary-light h-4 w-4"
-                onBlur={isHiddenField.onBlur}
-                onChange={(e) => {
-                  isHiddenField.onChange(e.target.checked)
-                }}
-                checked={isHiddenField.value}
-              />
-              <p
-                className={cn(
-                  'text-base font-medium text-[#737373]',
-                  isHiddenField.value === true
-                    ? 'font-medium text-gray-500'
-                    : 'text-gray-400'
-                )}
-              >
-                Hidden
-              </p>
-            </label>
-          </div>
+          {!blockEdit && (
+            <div className="mr-2 flex">
+              <label className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  className="text-primary-light h-4 w-4"
+                  onBlur={isHiddenField.onBlur}
+                  onChange={(e) => {
+                    isHiddenField.onChange(e.target.checked)
+                  }}
+                  checked={isHiddenField.value}
+                />
+                <p
+                  className={cn(
+                    'text-base font-medium text-[#737373]',
+                    isHiddenField.value === true
+                      ? 'font-medium text-gray-500'
+                      : 'text-gray-400'
+                  )}
+                >
+                  Hidden
+                </p>
+              </label>
+            </div>
+          )}
           {getValues(`testcases.${index}.scoreWeightNumerator`) ? (
             <div className="relative flex items-center">
               <input

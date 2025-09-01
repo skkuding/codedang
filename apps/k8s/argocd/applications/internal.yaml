@@ -1,26 +1,42 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: k8s-internal
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
-  labels:
-    app.kubernetes.io/environment: 'production'
 spec:
-  project: default
-  source:
-    path: apps/k8s/internal
-    repoURL: https://github.com/skkuding/codedang
-    targetRevision: main
-    directory:
-      recurse: true
-  destination:
-    name: production
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - PrunePropagationPolicy=foreground
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: main # TODO: change to release branch
+  template:
+    metadata:
+      name: 'k8s-internal-{{.env}}'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+      project: default
+      source:
+        path: apps/k8s/internal/overlays/{{.env}}
+        repoURL: https://github.com/skkuding/codedang
+        targetRevision: '{{.branch}}'
+        directory:
+          # kustomization.yaml is ignored if recurse is true
+          recurse: false
+      destination:
+        name: '{{.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
