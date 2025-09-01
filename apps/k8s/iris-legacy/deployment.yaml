@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iris
+  namespace: iris-legacy
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: iris
+  template:
+    metadata:
+      labels:
+        app: iris
+    spec:
+      containers:
+        - name: iris
+          image: ghcr.io/skkuding/codedang-iris:latest
+          resources:
+            limits:
+              cpu: 1
+              memory: 1.5Gi
+            requests:
+              cpu: 1
+              memory: 1.5Gi
+          volumeMounts:
+            - name: cgroup
+              mountPath: /sys/fs/cgroup
+              readOnly: false
+          securityContext:
+            privileged: true
+          envFrom:
+            - secretRef:
+                name: iris-secrets
+            - secretRef:
+                name: aws-credentials
+          env:
+            - name: APP_ENV
+              value: 'stage'
+            - name: RABBITMQ_SSL
+              value: 'true'
+            - name: TESTCASE_BUCKET_NAME
+              value: 'codedang-testcase'
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT_URL
+              value: '211.214.111.9:4317'
+      volumes:
+        - name: cgroup
+          hostPath:
+            path: /sys/fs/cgroup
+            type: Directory

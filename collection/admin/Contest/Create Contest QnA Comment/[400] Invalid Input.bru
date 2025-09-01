@@ -13,7 +13,7 @@ post {
 body:graphql {
   mutation {
     createContestQnAComment(
-      contestId: 1
+      contestId: 20
       order: 1
       content: ""
     ) {
@@ -25,4 +25,8 @@ body:graphql {
       createdTime
     }
   }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
 }

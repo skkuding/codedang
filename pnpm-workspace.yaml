@@ -15,6 +15,7 @@ onlyBuiltDependencies:
   - core-js
   - esbuild
   - lefthook
+  - msgpackr-extract
   - msw
   - nestjs-pino
   - oxc-resolver
