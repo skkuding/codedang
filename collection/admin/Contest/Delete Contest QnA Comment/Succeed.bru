@@ -13,9 +13,9 @@ post {
 body:graphql {
   mutation {
     deleteContestQnAComment(
-      contestId: 1
+      contestId: 20
       qnAOrder: 1
-      commentOrder: 4
+      commentOrder: 1
     ) {
       id
       content
@@ -27,19 +27,23 @@ body:graphql {
   }
 }
 
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
 docs {
   # Delete Contest QnA Comment
-
+  
   ## Description
   관리자가 콘테스트 QnA의 답글을 삭제할 수 있도록 합니다.
-
+  
   ## 요청 필드
   | 필드명 | 타입 | 필수 여부 | 설명 |
   |--------|------|----------|------|
   | contestId | Int | 필수 | 콘테스트 ID |
   | qnAOrder | Int | 필수 | QnA 순서 (0 이상의 정수) |
   | commentOrder | Int | 필수 | 답글 순서 (0 이상의 정수) |
-
+  
   ## 응답 필드
   | 필드명 | 타입 | 설명 |
   |--------|------|------|
@@ -50,10 +54,10 @@ docs {
   | content | String | 답글 내용 |
   | createdById | Int | 답글 작성자 ID |
   | createdAt | GraphQLISODateTime | 생성 시간 |
-
+  
   ## 제약사항
   - `contestId`는 존재하는 콘테스트여야 합니다.
   - `qnAOrder`는 존재하는 QnA의 순서여야 합니다.
   - `commentOrder`는 존재하는 답글의 순서여야 합니다.
-
+  
 }
