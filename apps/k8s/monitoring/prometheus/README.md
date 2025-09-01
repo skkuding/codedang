@@ -16,7 +16,7 @@ It contains the following components:
 kube-prometheus-stack automatically deploys and configures all the components needed for a complete monitoring solution for Kubernetes clusters.
 With DaemonSets, it ensures that the Node Exporter is running on every node in the cluster, providing comprehensive hardware and OS metrics.
 
-# Why not Grafana?
+# Why is Grafana disabled?
 
 We use kube-prometheus-stack because it provides a complete monitoring solution for Kubernetes clusters.
 However, in order to separate concerns and manage resources more effectively, we can deploy Grafana as a standalone application.
