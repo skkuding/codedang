@@ -39,6 +39,7 @@ function InstagramCard({ post }: InstagramCardProps) {
           alt={'Instagram Post'}
           fill
           className="object-cover"
+          unoptimized
         />
       </div>
 
