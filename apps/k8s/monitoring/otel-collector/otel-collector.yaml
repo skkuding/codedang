@@ -23,7 +23,7 @@ spec:
           insecure: true
         # used to satisfy loki's multi-tenancy
         headers:
-          X-Scope-OrgID: 1
+          X-Scope-OrgID: '1'
       # TODO: uncomment when ready
       # prometheus:
       #   endpoint: '0.0.0.0:8889'
