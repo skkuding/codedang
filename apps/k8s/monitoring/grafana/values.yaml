@@ -45,6 +45,10 @@ datasources:
         access: proxy
         url: http://loki.monitoring-loki.svc.cluster.local:3100
         editable: true # TODO: set false after testing
+        jsonData:
+          httpHeaderName1: 'X-Scope-OrgID'
+        secureJsonData:
+          httpHeaderValue1: '1'
       - name: Prometheus-production
         type: prometheus
         access: proxy
