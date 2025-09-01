@@ -5,9 +5,6 @@ export class CreateCourseNoticeInput {
   @Field(() => Int, { nullable: false })
   groupId: number
 
-  @Field(() => Int, { nullable: true })
-  problemId: number
-
   @Field(() => String, { nullable: false })
   title: string
 
@@ -23,16 +20,5 @@ export class CreateCourseNoticeInput {
 
 @InputType()
 export class UpdateCourseNoticeInput extends PartialType(
-  CreateCourseNoticeInput
-) {
-  @Field(() => Int, { nullable: false })
-  groupId: number
-}
-
-@InputType()
-export class CloneCourseNoticeInput extends PartialType(
   OmitType(CreateCourseNoticeInput, ['groupId'])
-) {
-  @Field(() => Boolean, { nullable: true, defaultValue: false })
-  excludeProblem: boolean
-}
+) {}

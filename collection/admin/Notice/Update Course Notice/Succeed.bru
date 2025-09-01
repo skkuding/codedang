@@ -22,7 +22,6 @@ body:graphql {
       createTime
       updateTime
       groupId
-      problemId
     }
   }
 }
@@ -31,7 +30,6 @@ body:graphql:vars {
   {
     "courseNoticeId": 1,
     "input": {
-      "groupId": 1,
       "title": "updated title"
     }
   }
@@ -50,14 +48,12 @@ docs {
   | 이름 | 타입 | 설명 |
   |--|--|--|
   |courseNoticeId|int|수정할 강의 공지사항의 id |
-  |input|object|공지사항을 구성하는 요소. groupId는 필수이고 그 외 값은 optional. 하단 참고|
+  |input|object|공지사항을 구성하는 요소. 모든 값은 optional. 하단 참고|
 
   #### input
 
   | 이름 | 타입 | 설명 |
   |--|--|--|
-  | groupId | number | 강의 아이디 (필수) |
-  | problemId | number | 참조를 수정할 문제 아이디 |
   | title | string | 수정할 공지사항 제목 |
   | content | string | 수정할 공지사항 본문 |
   | isVisible | boolean | 조회 가능 여부를 나타내는 값이다. 기본값은 true. |

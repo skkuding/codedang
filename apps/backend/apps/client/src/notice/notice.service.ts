@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import {
   UnprocessableDataException,
   EntityNotExistException
@@ -8,6 +9,7 @@ import type {
   CreateCourseNoticeCommentDto,
   UpdateCourseNoticeCommentDto
 } from './dto/courseNotice.dto'
+import { CourseNoticeOrder } from './enum/course_notice-order.enum'
 
 @Injectable()
 export class NoticeService {
@@ -124,13 +126,29 @@ export class NoticeService {
 export class CourseNoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
+  getOrderBy(
+    order: CourseNoticeOrder
+  ): Prisma.CourseNoticeOrderByWithRelationInput {
+    switch (order) {
+      case CourseNoticeOrder.updateTimeASC:
+        return { updateTime: 'asc' }
+      case CourseNoticeOrder.updateTimeDESC:
+        return { updateTime: 'desc' }
+      case CourseNoticeOrder.createTimeASC:
+        return { createTime: 'asc' }
+      case CourseNoticeOrder.createTimeDESC:
+        return { createTime: 'desc' }
+    }
+  }
+
   async getCourseNotices({
     userId,
     groupId,
     cursor,
     take,
     search,
-    fixed = false
+    fixed = false,
+    order
   }: {
     userId: number
     groupId: number
@@ -138,6 +156,7 @@ export class CourseNoticeService {
     take: number
     search?: string
     fixed?: boolean
+    order: CourseNoticeOrder | undefined
   }) {
     const paginator = this.prisma.getPaginator(cursor)
     const courseNotices = await this.prisma.courseNotice.findMany({
@@ -157,12 +176,6 @@ export class CourseNoticeService {
         title: true,
         createTime: true,
         isFixed: true,
-        problem: {
-          select: {
-            id: true,
-            title: true
-          }
-        },
         createdBy: {
           select: {
             username: true
@@ -183,7 +196,7 @@ export class CourseNoticeService {
           }
         }
       },
-      orderBy: { id: 'desc' }
+      orderBy: order ? this.getOrderBy(order) : undefined
     })
 
     const data = courseNotices.map((courseNotice) => {

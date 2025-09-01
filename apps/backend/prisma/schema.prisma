@@ -198,8 +198,6 @@ model CourseNotice {
   id          Int      @id @default(autoincrement())
   group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId     Int      @map("group_id")
-  problem     Problem?    @relation(fields: [problemId], references: [id], onDelete: SetNull)
-  problemId   Int?     @map("problem_id")
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
   title       String
@@ -303,7 +301,6 @@ model Problem {
   testSubmission TestSubmission[]
 
   @@map("problem")
-  CourseNotice CourseNotice[]
 }
 
 model UpdateHistory {

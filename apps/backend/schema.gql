@@ -517,15 +517,6 @@ type AssignmentsGroupedByStatus {
   upcoming: [AssignmentWithScores!]!
 }
 
-input CloneCourseNoticeInput {
-  content: String
-  excludeProblem: Boolean = false
-  isFixed: Boolean = false
-  isVisible: Boolean = true
-  problemId: Int
-  title: String
-}
-
 input Config {
   allowJoinFromSearch: Boolean!
   allowJoinWithURL: Boolean!
@@ -1348,8 +1339,6 @@ type CourseNotice {
   id: ID!
   isFixed: Boolean!
   isVisible: Boolean!
-  problem: Problem
-  problemId: Int
   title: String!
   updateTime: DateTime!
 }
@@ -1358,7 +1347,6 @@ type CourseNoticeAvgAggregate {
   createdById: Float
   groupId: Float
   id: Float
-  problemId: Float
 }
 
 type CourseNoticeComment {
@@ -1439,7 +1427,6 @@ type CourseNoticeCountAggregate {
   id: Int!
   isFixed: Int!
   isVisible: Int!
-  problemId: Int!
   title: Int!
   updateTime: Int!
 }
@@ -1452,7 +1439,6 @@ type CourseNoticeMaxAggregate {
   id: Int
   isFixed: Boolean
   isVisible: Boolean
-  problemId: Int
   title: String
   updateTime: DateTime
 }
@@ -1465,7 +1451,6 @@ type CourseNoticeMinAggregate {
   id: Int
   isFixed: Boolean
   isVisible: Boolean
-  problemId: Int
   title: String
   updateTime: DateTime
 }
@@ -1521,7 +1506,6 @@ type CourseNoticeSumAggregate {
   createdById: Int
   groupId: Int
   id: Int
-  problemId: Int
 }
 
 input CreateAnnouncementInput {
@@ -1572,7 +1556,6 @@ input CreateCourseNoticeInput {
   groupId: Int!
   isFixed: Boolean! = false
   isVisible: Boolean! = true
-  problemId: Int
   title: String!
 }
 
@@ -1864,7 +1847,7 @@ enum Level {
 
 type Mutation {
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
-  cloneCourseNotice(cloneToId: Int!, courseNoticeId: Int!, input: CloneCourseNoticeInput! = {}): CourseNotice!
+  cloneCourseNotice(cloneToId: Int!, courseNoticeId: Int!, input: UpdateCourseNoticeInput! = {}): CourseNotice!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!
@@ -2086,7 +2069,6 @@ enum NotificationType {
 
 type Problem {
   ContestQnA: [ContestQnA!]
-  CourseNotice: [CourseNotice!]
   _count: ProblemCount!
   acceptedCount: Int!
   acceptedRate: Float!
@@ -2150,7 +2132,6 @@ type ProblemAvgAggregate {
 
 type ProblemCount {
   ContestQnA: Int!
-  CourseNotice: Int!
   announcement: Int!
   assignmentProblem: Int!
   contestProblem: Int!
@@ -2333,6 +2314,8 @@ type ProblemTestcase {
   problem: Problem!
   problemId: Int!
   scoreWeight: Int!
+  scoreWeightDenominator: Int!
+  scoreWeightNumerator: Int!
   submissionCount: Int!
   submissionResult: [SubmissionResult!]
   updateTime: DateTime!
@@ -2344,6 +2327,8 @@ type ProblemTestcaseAvgAggregate {
   order: Float
   problemId: Float
   scoreWeight: Float
+  scoreWeightDenominator: Float
+  scoreWeightNumerator: Float
   submissionCount: Float
 }
 
@@ -2362,6 +2347,8 @@ type ProblemTestcaseCountAggregate {
   output: Int!
   problemId: Int!
   scoreWeight: Int!
+  scoreWeightDenominator: Int!
+  scoreWeightNumerator: Int!
   submissionCount: Int!
   updateTime: Int!
 }
@@ -2380,6 +2367,8 @@ type ProblemTestcaseMaxAggregate {
   output: String
   problemId: Int
   scoreWeight: Int
+  scoreWeightDenominator: Int
+  scoreWeightNumerator: Int
   submissionCount: Int
   updateTime: DateTime
 }
@@ -2394,6 +2383,8 @@ type ProblemTestcaseMinAggregate {
   output: String
   problemId: Int
   scoreWeight: Int
+  scoreWeightDenominator: Int
+  scoreWeightNumerator: Int
   submissionCount: Int
   updateTime: DateTime
 }
@@ -2409,12 +2400,13 @@ type ProblemTestcaseSumAggregate {
   order: Int
   problemId: Int
   scoreWeight: Int
+  scoreWeightDenominator: Int
+  scoreWeightNumerator: Int
   submissionCount: Int
 }
 
 type ProblemWithIsVisible {
   ContestQnA: [ContestQnA!]
-  CourseNotice: [CourseNotice!]
   _count: ProblemCount!
   acceptedCount: Int!
   acceptedRate: Float!
@@ -3074,10 +3066,8 @@ input UpdateContestInput {
 
 input UpdateCourseNoticeInput {
   content: String
-  groupId: Int!
   isFixed: Boolean = false
   isVisible: Boolean = true
-  problemId: Int
   title: String
 }
 

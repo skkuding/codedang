@@ -14,8 +14,7 @@ import { CursorValidationPipe, IDValidationPipe } from '@libs/pipe'
 import { UserService } from '@admin/user/user.service'
 import {
   CreateCourseNoticeInput,
-  UpdateCourseNoticeInput,
-  CloneCourseNoticeInput
+  UpdateCourseNoticeInput
 } from './model/course_notice.input'
 import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { CourseNoticeService, NoticeService } from './notice.service'
@@ -117,7 +116,7 @@ export class CourseNoticeResolver {
     courseNoticeId: number,
     @Args('cloneToId', { type: () => Int }, IDValidationPipe)
     cloneToId: number,
-    @Args('input', { defaultValue: {} }) input: CloneCourseNoticeInput
+    @Args('input', { defaultValue: {} }) input: UpdateCourseNoticeInput
   ) {
     return await this.courseNoticeService.cloneCourseNotice(
       req.user.id,
