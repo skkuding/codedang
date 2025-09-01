@@ -12,11 +12,12 @@ import { CourseNotice, Notice, User } from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
 import { CursorValidationPipe, IDValidationPipe } from '@libs/pipe'
 import { UserService } from '@admin/user/user.service'
-import type {
+import {
   CreateCourseNoticeInput,
-  UpdateCourseNoticeInput
+  UpdateCourseNoticeInput,
+  CloneCourseNoticeInput
 } from './model/course_notice.input'
-import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
+import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { CourseNoticeService, NoticeService } from './notice.service'
 
 @Resolver(() => Notice)
@@ -79,7 +80,6 @@ export class NoticeResolver {
 // <TODO>: 권한 검증이 필요합니다.
 @Resolver(() => CourseNotice)
 export class CourseNoticeResolver {
-  private readonly logger = new Logger(CourseNoticeService.name)
   constructor(private readonly courseNoticeService: CourseNoticeService) {}
 
   @Mutation(() => CourseNotice)
@@ -117,7 +117,7 @@ export class CourseNoticeResolver {
     courseNoticeId: number,
     @Args('cloneToId', { type: () => Int }, IDValidationPipe)
     cloneToId: number,
-    @Args('input', { defaultValue: {} }) input: UpdateCourseNoticeInput
+    @Args('input', { defaultValue: {} }) input: CloneCourseNoticeInput
   ) {
     return await this.courseNoticeService.cloneCourseNotice(
       req.user.id,

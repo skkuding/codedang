@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type {
+  CloneCourseNoticeInput,
   CreateCourseNoticeInput,
   UpdateCourseNoticeInput
 } from './model/course_notice.input'
@@ -141,7 +144,7 @@ export class CourseNoticeService {
   async cloneCourseNotice(
     userId: number,
     courseNoticeId: number,
-    updateCourseNoticeInput: UpdateCourseNoticeInput,
+    cloneCourseNoticeInput: CloneCourseNoticeInput,
     cloneToId: number
   ) {
     const original = await this.prisma.courseNotice.findUnique({
@@ -152,7 +155,8 @@ export class CourseNoticeService {
         title: true,
         content: true,
         isFixed: true,
-        isVisible: true
+        isVisible: true,
+        problemId: true
       }
     })
 
@@ -160,15 +164,26 @@ export class CourseNoticeService {
       throw new NotFoundException('original notice not found')
     }
 
+    if (
+      cloneCourseNoticeInput.excludeProblem &&
+      cloneCourseNoticeInput.problemId
+    ) {
+      throw new UnprocessableDataException(
+        'problemId and excludeProblem are incompatible.'
+      )
+    }
+
     const clone = await this.prisma.courseNotice.create({
       data: {
         createdById: userId,
         groupId: cloneToId,
-        problemId: updateCourseNoticeInput.problemId,
-        title: updateCourseNoticeInput.title ?? original.title,
-        content: updateCourseNoticeInput.content ?? original.content,
-        isFixed: updateCourseNoticeInput.isFixed ?? original.isFixed,
-        isVisible: updateCourseNoticeInput.isVisible ?? original.isVisible
+        problemId: cloneCourseNoticeInput.excludeProblem
+          ? null
+          : original.problemId,
+        title: cloneCourseNoticeInput.title ?? original.title,
+        content: cloneCourseNoticeInput.content ?? original.content,
+        isFixed: cloneCourseNoticeInput.isFixed ?? original.isFixed,
+        isVisible: cloneCourseNoticeInput.isVisible ?? original.isVisible
       }
     })
 

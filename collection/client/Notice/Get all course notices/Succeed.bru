@@ -14,7 +14,7 @@ params:query {
   take: 5
   ~cursor: 1
   ~fixed: true
-  ~groupId: 1
+  groupId: 1
 }
 
 assert {
@@ -26,6 +26,10 @@ assert {
   res.body.data[0].createdBy: isString
   res.body.data[0].isRead: isBoolean
   res.body.data[0].commentCount: isNumber
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
 }
 
 docs {

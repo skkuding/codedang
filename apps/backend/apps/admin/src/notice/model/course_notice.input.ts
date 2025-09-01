@@ -1,4 +1,4 @@
-import { Field, InputType, Int, PartialType } from '@nestjs/graphql'
+import { Field, InputType, Int, OmitType, PartialType } from '@nestjs/graphql'
 
 @InputType()
 export class CreateCourseNoticeInput {
@@ -27,4 +27,12 @@ export class UpdateCourseNoticeInput extends PartialType(
 ) {
   @Field(() => Int, { nullable: false })
   groupId: number
+}
+
+@InputType()
+export class CloneCourseNoticeInput extends PartialType(
+  OmitType(CreateCourseNoticeInput, ['groupId'])
+) {
+  @Field(() => Boolean, { nullable: true, defaultValue: false })
+  excludeProblem: boolean
 }

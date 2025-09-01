@@ -17,7 +17,7 @@ body:json {
 }
 
 script:pre-request {
-  await require("./login").loginUser2nd(req);
+  await require("./login").loginUser(req);
 }
 
 settings {

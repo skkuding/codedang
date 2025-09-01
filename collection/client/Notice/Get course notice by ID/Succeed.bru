@@ -21,6 +21,10 @@ assert {
   res("next"): isDefined
 }
 
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
 docs {
   # Get Course Notice by ID
 
