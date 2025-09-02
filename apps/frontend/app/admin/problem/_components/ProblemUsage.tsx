@@ -21,22 +21,24 @@ interface ProblemUsageProps {
   showAssignment?: boolean
 }
 
+interface ProblemGroup {
+  groupName?: string
+  courseInfo?: {
+    courseNum?: string
+    classNum?: number
+  }
+}
+
+interface ProblemContent {
+  id: string
+  title: string
+  week: number
+  isExercise: boolean
+  group?: ProblemGroup
+}
+
 interface ProblemSectionProps {
-  contents?:
-    | {
-        id: string
-        title: string
-        week: number
-        isExercise: boolean
-        group?: {
-          groupName?: string | null
-          courseInfo?: {
-            courseNum?: string | null
-            classNum?: number | null
-          } | null
-        } | null
-      }[]
-    | null
+  contents?: ProblemContent[]
 }
 
 interface ContestSectionProps {
@@ -64,10 +66,7 @@ function AssignmentProblemSection({ contents }: ProblemSectionProps) {
       {contents?.map(
         (content) =>
           content.isExercise === false && (
-            <Link
-              key={content.id}
-              href={`/course/${content.group?.courseInfo?.classNum}/assignment`}
-            >
+            <Link key={content.id} href={`/course`}>
               <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-[20px] py-[18px]">
                 <div className="flex items-start gap-[10px]">
                   <Image src={filePen} alt="filePen" className="h-6 w-6" />
@@ -75,7 +74,7 @@ function AssignmentProblemSection({ contents }: ProblemSectionProps) {
                   <div className="flex flex-col">
                     <div className="flex items-center gap-[2px]">
                       <span className="font-pretendard">
-                        [Weekly Assignment] Week {content.week}
+                        [{content.title}] Week {content.week}
                       </span>
                       <Image
                         src={arrowRight}
@@ -125,7 +124,7 @@ function ContestProblemSection({ contents }: ContestSectionProps) {
   )
 }
 
-function ExcerciseProblemSection({ contents }: ProblemSectionProps) {
+function ExerciseProblemSection({ contents }: ProblemSectionProps) {
   console.log(contents)
   return (
     <div className="flex flex-col gap-[10px]">
@@ -134,7 +133,7 @@ function ExcerciseProblemSection({ contents }: ProblemSectionProps) {
           content.isExercise === true && (
             <Link
               key={content.id}
-              href={`/course/${content.group?.courseInfo?.classNum}/excercise`}
+              href={`/course/${content.group?.courseInfo?.classNum}/exercise`}
             >
               <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-[20px] py-[18px]">
                 <div className="flex items-start gap-[10px]">
@@ -188,11 +187,7 @@ function NoContentsSection({ label }: { label: string }) {
   )
 }
 
-export function ProblemUsage({
-  problemId,
-  showContest = false,
-  showAssignment = false
-}: ProblemUsageProps) {
+export function ProblemUsage({ problemId }: ProblemUsageProps) {
   const { data: contestData, loading: contestLoading } = useQuery(
     GET_BELONGED_CONTESTS,
     {
@@ -227,7 +222,7 @@ export function ProblemUsage({
     (contestDataResult?.ongoing?.length ?? 0) > 0 ||
     (contestDataResult?.finished?.length ?? 0) > 0
 
-  const hasExcercises =
+  const hasExercises =
     (assignmentDataResult?.upcoming?.filter((a) => a.isExercise).length ?? 0) >
       0 ||
     (assignmentDataResult?.ongoing?.filter((a) => a.isExercise).length ?? 0) >
@@ -284,9 +279,9 @@ export function ProblemUsage({
 
           <div className="flex flex-col items-start gap-3 self-stretch">
             <HeaderSection label="Exercise" />
-            {hasExcercises ? (
+            {hasExercises ? (
               <div className="flex w-full flex-col">
-                <ExcerciseProblemSection
+                <ExerciseProblemSection
                   contents={[
                     ...(assignmentDataResult?.upcoming ?? []),
                     ...(assignmentDataResult?.ongoing ?? []),
@@ -295,7 +290,7 @@ export function ProblemUsage({
                 />
               </div>
             ) : (
-              <NoContentsSection label="excercises" />
+              <NoContentsSection label="exercises" />
             )}
           </div>
         </div>
