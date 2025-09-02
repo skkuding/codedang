@@ -554,21 +554,6 @@ export class ProblemService {
       const existingTestcases = await this.prisma.problemTestcase.findMany({
         where: { problemId: id }
       })
-      console.log(
-        'Existing: ',
-        JSON.stringify(
-          existingTestcases.map((tc) => ({
-            id: tc.id,
-            input: tc.input,
-            isHidden: tc.isHidden,
-            output: tc.output,
-            scoreWeight: tc.scoreWeight,
-            scoreWeightDenominator: tc.scoreWeightDenominator,
-            scoreWeightNumerator: tc.scoreWeightNumerator
-          }))
-        )
-      )
-      console.log('Param: ', JSON.stringify(testcases))
       if (
         JSON.stringify(testcases) !==
         JSON.stringify(
