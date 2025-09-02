@@ -6,10 +6,10 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - k8s-test.stage.codedang.com # TODO: Replace this with stage.codedang.com
+        - stage.codedang.com
       secretName: frontend-tls
   rules:
-    - host: k8s-test.stage.codedang.com
+    - host: stage.codedang.com
       http:
         paths:
           - path: /

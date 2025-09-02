@@ -22,7 +22,8 @@ const GET_PROBLEM = gql(`
         input
         output
         isHidden
-        scoreWeight
+        scoreWeightNumerator
+        scoreWeightDenominator
       }
       timeLimit
       memoryLimit
@@ -131,7 +132,8 @@ const GET_PROBLEM_TESTCASE = gql(`
         input
         output
         isHidden
-        scoreWeight
+        scoreWeightNumerator
+        scoreWeightDenominator
       }
     }
   }

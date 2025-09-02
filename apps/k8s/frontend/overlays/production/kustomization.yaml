@@ -4,17 +4,4 @@ namespace: frontend
 
 resources:
   - ../../base
-
-patches:
-  - path: configmap.yaml
-    target:
-      kind: ConfigMap
-      name: frontend-env
-  - path: ingress.yaml
-    target:
-      kind: Ingress
-      name: frontend-ingress
-  - path: secrets.yaml
-    target:
-      kind: SealedSecret
-      name: frontend-secrets
+  - secrets.yaml
