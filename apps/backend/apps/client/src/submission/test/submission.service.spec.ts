@@ -13,13 +13,18 @@ import { spy, stub } from 'sinon'
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { CodePolicyService } from '@client/submission/policy'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
-import { submissionDto, submissions } from '../mock/submission.mock'
+import {
+  policyViolationSubmissionDto,
+  submissionDto,
+  submissions
+} from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
 import { SubmissionPublicationService } from '../submission-pub.service'
 import { SubmissionService } from '../submission.service'
@@ -236,6 +241,19 @@ describe('SubmissionService', () => {
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
+    })
+
+    it('should throw exception if input code violates code policy', async () => {
+      db.problem.findFirst.resolves(problems[0])
+
+      await expect(
+        service.submitToProblem({
+          submissionDto: policyViolationSubmissionDto,
+          userIp: USERIP,
+          userId: submissions[2].userId,
+          problemId: problems[0].id
+        })
+      ).to.be.rejectedWith(UnprocessableDataException)
     })
   })
 
