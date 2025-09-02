@@ -205,6 +205,77 @@ export class TestcaseService {
     }
   }
 
+  async syncTestcases(problemId: number, testcases: Array<Testcase>) {
+    // 기존에 존재하던 TC 모두 가져옴
+    const existing = await this.prisma.problemTestcase.findMany({
+      where: { problemId }
+    })
+    const existingMap = new Map(existing.map((tc) => [tc.id, tc]))
+
+    // 인자로 전달받은 TC 중 id 필드가 존재하는 TC(기존 TC)의 id만 필터링해서 가져옴
+    const updatedIds = new Set(
+      testcases.filter((tc) => tc.id).map((tc) => tc.id)
+    )
+
+    // 기존에 존재하던 TC의 id 중 전달 받은 TC인자에 포함되어 있지 않은 id(삭제되어야할 TC의 id)
+    const deleted = existing.filter((tc) => !updatedIds.has(tc.id))
+
+    if (deleted.length > 0) {
+      await this.prisma.problemTestcase.deleteMany({
+        where: {
+          id: {
+            in: deleted.map((tc) => tc.id)
+          }
+        }
+      })
+    }
+
+    for (const tc of testcases) {
+      const weightFraction = this.convertToFraction(tc)
+      const scoreWeight = Math.round(
+        (weightFraction.numerator / weightFraction.denominator) * 100
+      )
+      if (tc.id) {
+        // 전달받은 인자 중 id가 존재하는 경우 => 기존에 존재하던 TC이므로 바뀐 필드 있는지 확인 후 업데이트 수행
+        const existingTc = existingMap.get(tc.id)
+        if (
+          existingTc &&
+          (existingTc.input !== tc.input ||
+            existingTc.output !== tc.output ||
+            existingTc.isHidden !== tc.isHidden ||
+            existingTc.scoreWeightNumerator !== tc.scoreWeightNumerator ||
+            existingTc.scoreWeightDenominator !== tc.scoreWeightDenominator ||
+            existingTc.scoreWeight !== tc.scoreWeight)
+        ) {
+          await this.prisma.problemTestcase.update({
+            where: { id: tc.id },
+            data: {
+              input: tc.input,
+              output: tc.output,
+              isHidden: tc.isHidden,
+              scoreWeight,
+              scoreWeightNumerator: weightFraction.numerator,
+              scoreWeightDenominator: weightFraction.denominator
+            }
+          })
+        }
+      } else {
+        // 새로운 TC => 그냥 Create
+        await this.prisma.problemTestcase.create({
+          data: {
+            problemId,
+            input: tc.input,
+            output: tc.output,
+            isHidden: tc.isHidden,
+            scoreWeight,
+            scoreWeightNumerator: weightFraction.numerator,
+            scoreWeightDenominator: weightFraction.denominator
+          }
+        })
+      }
+    }
+  }
+
   async uploadTestcase(
     fileInput: UploadFileInput,
     problemId: number,
