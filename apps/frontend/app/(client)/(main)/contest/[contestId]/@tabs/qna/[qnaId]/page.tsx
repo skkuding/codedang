@@ -59,7 +59,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
           : QnaData.category
 
         return (
-          <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 gap-[50px] px-[116px] leading-[150%] tracking-[-3%]">
+          <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 px-[116px] leading-[150%] tracking-[-3%]">
             <QnaContentArea
               QnaData={QnaData}
               categoryName={categoryName}
@@ -133,7 +133,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
   )
 
   return (
-    <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 gap-[50px] px-[116px] leading-[150%] tracking-[-3%]">
+    <div className="mb-[120px] mt-[80px] flex w-screen max-w-[1440px] flex-col gap-5 px-[116px] leading-[150%] tracking-[-3%]">
       <QnaContentArea
         QnaData={QnaData}
         categoryName={categoryName}

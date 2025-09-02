@@ -20,7 +20,6 @@ import React, { type ReactNode } from 'react'
 
 export interface QnACategoryFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
-  contestId: number
   options: {
     value: string
     label: ReactNode
