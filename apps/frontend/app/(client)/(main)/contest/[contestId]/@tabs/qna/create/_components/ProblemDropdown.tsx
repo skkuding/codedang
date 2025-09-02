@@ -10,7 +10,6 @@ interface ProblemDropdownProps {
   problemOptions: ProblemOption[]
   isOpen: boolean
   onClose: () => void
-  isPrivilegedRole: boolean
   isContestStarted: boolean
 }
 
@@ -20,7 +19,6 @@ export function ProblemDropdown({
   problemOptions,
   isOpen,
   onClose,
-  isPrivilegedRole,
   isContestStarted
 }: ProblemDropdownProps) {
   const watchedValues = watch()
@@ -35,18 +33,10 @@ export function ProblemDropdown({
     return null
   }
 
-  // 표시할 문제 옵션 결정
   const displayOptions = (() => {
-    // 운영진이면 항상 모든 문제 표시
-    if (isPrivilegedRole) {
-      return problemOptions
-    }
-
-    // 일반 사용자면 대회 시작 여부에 따라 결정
     if (isContestStarted) {
       return problemOptions
     } else {
-      // 대회가 시작되지 않았으면 General만 표시
       return problemOptions.filter((option) => option.value === '')
     }
   })()

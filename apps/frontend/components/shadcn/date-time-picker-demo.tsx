@@ -30,16 +30,21 @@ export const DateTimePickerDemo = ({
   const [date, setDate] = useState<Date>()
 
   useEffect(() => {
-    if (defaultValue) {
-      setDate(defaultValue)
-      onChange(defaultValue)
+    if (defaultValue && defaultValue instanceof Date) {
+      handleDateChange(defaultValue)
     }
-  }, [])
+  }, [defaultValue])
+
+  const handleDateChange = (newDate: Date | undefined) => {
+    if (newDate && newDate instanceof Date) {
+      setDate(newDate)
+    }
+  }
 
   return (
     <Popover
-      onOpenChange={() => {
-        if (date) {
+      onOpenChange={(open) => {
+        if (!open && date) {
           onChange(date)
         }
       }}
@@ -73,21 +78,29 @@ export const DateTimePickerDemo = ({
         <Calendar
           mode="single"
           selected={date}
-          onSelect={(date) =>
-            setDate(
-              new Date(
-                date?.setHours(
+          onSelect={(date) => {
+            if (date) {
+              const newDate = new Date(
+                date.setHours(
                   defaultTimeOnSelect?.hours ?? 0,
                   defaultTimeOnSelect?.minutes ?? 0,
                   defaultTimeOnSelect?.seconds ?? 0
-                ) ?? new Date(new Date().setHours(0, 0, 0))
+                )
               )
-            )
-          }
+              handleDateChange(newDate)
+            }
+          }}
           initialFocus
         />
         <div className="border-border border-t p-3">
-          <TimePickerDemo setDate={setDate} date={date} />
+          <TimePickerDemo
+            setDate={(newDate) => {
+              if (newDate) {
+                handleDateChange(newDate)
+              }
+            }}
+            date={date}
+          />
         </div>
       </PopoverContent>
     </Popover>

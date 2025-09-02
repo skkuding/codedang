@@ -1,5 +1,6 @@
 'use client'
 
+import { SUBMISSION_PROBLEM_COLUMN_ID } from '@/app/admin/_components/table/constants'
 import type { OverallSubmission } from '@/app/admin/contest/_libs/schemas'
 import { cn, getResultColor } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -8,14 +9,14 @@ import dayjs from 'dayjs'
 export const columns: ColumnDef<OverallSubmission>[] = [
   {
     accessorKey: 'title',
-    id: 'problemTitle',
+    id: SUBMISSION_PROBLEM_COLUMN_ID,
     header: () => (
       <div className="border-r py-1 font-mono text-sm">Problem Title</div>
     ),
     cell: ({ row }) => (
       <div className="whitespace-nowrap border-r py-1 text-center text-xs">
         {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
-        {row.getValue('problemTitle')}
+        {row.original.title}
       </div>
     ),
     filterFn: 'arrIncludesSome'
