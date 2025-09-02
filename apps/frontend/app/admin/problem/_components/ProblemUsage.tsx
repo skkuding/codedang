@@ -22,6 +22,7 @@ interface ProblemUsageProps {
 }
 
 interface ProblemGroup {
+  id: string
   groupName?: string
   courseInfo?: {
     courseNum?: string
@@ -60,14 +61,16 @@ function HeaderSection({ label }: { label: string }) {
 }
 
 function AssignmentProblemSection({ contents }: ProblemSectionProps) {
-  console.log(contents)
   return (
     <div className="flex flex-col gap-[10px]">
       {contents?.map(
         (content) =>
           content.isExercise === false && (
-            <Link key={content.id} href={`/course`}>
-              <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-[20px] py-[18px]">
+            <Link
+              key={content.id}
+              href={`/course/${content.group?.id}/assignment/${content.id}`}
+            >
+              <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
                 <div className="flex items-start gap-[10px]">
                   <Image src={filePen} alt="filePen" className="h-6 w-6" />
 
@@ -104,7 +107,7 @@ function ContestProblemSection({ contents }: ContestSectionProps) {
     <div className="flex flex-col gap-[10px]">
       {contents?.map((content) => (
         <Link key={content.id} href={`/contest/${content.id}`}>
-          <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-[20px] py-[18px]">
+          <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
             <div className="flex items-start gap-[10px]">
               <Image src={prize} alt="prize" />
 
@@ -133,9 +136,9 @@ function ExerciseProblemSection({ contents }: ProblemSectionProps) {
           content.isExercise === true && (
             <Link
               key={content.id}
-              href={`/course/${content.group?.courseInfo?.classNum}/exercise`}
+              href={`/course/${content.group?.id}/exercise/${content.id}`}
             >
-              <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-[20px] py-[18px]">
+              <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
                 <div className="flex items-start gap-[10px]">
                   <Image
                     src={taskComplete}
@@ -146,7 +149,7 @@ function ExerciseProblemSection({ contents }: ProblemSectionProps) {
                   <div className="flex flex-col">
                     <div className="flex items-center gap-[2px]">
                       <span className="font-pretendard">
-                        [Weekly Assignment] Week {content.week}
+                        [{content.title}] Week {content.week}
                       </span>
                       <Image
                         src={arrowRight}

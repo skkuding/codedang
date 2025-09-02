@@ -46,6 +46,7 @@ const GET_BELONGED_ASSIGNMENTS = gql(`
           problemScore
           totalScore
           group {
+            id
             groupName
             courseInfo {
               courseNum
@@ -61,6 +62,7 @@ const GET_BELONGED_ASSIGNMENTS = gql(`
           problemScore
           totalScore
           group {
+            id
             groupName
             courseInfo {
               courseNum
@@ -76,6 +78,7 @@ const GET_BELONGED_ASSIGNMENTS = gql(`
           problemScore
           totalScore
           group {
+            id
             groupName
             courseInfo {
               courseNum
