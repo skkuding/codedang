@@ -25,8 +25,8 @@ interface ProblemGroup {
   groupName?: string
   courseInfo?: {
     courseNum?: string
-    classNum?: number
-  }
+    classNum?: number | null
+  } | null
 }
 
 interface ProblemContent {
