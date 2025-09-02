@@ -2116,7 +2116,7 @@ type ProblemTestcase {
   output: String
   problem: Problem!
   problemId: Int!
-  scoreWeight: Int!
+  scoreWeight: Int
   scoreWeightDenominator: Int!
   scoreWeightNumerator: Int!
   submissionCount: Int!
@@ -2796,6 +2796,8 @@ type TestSubmissionSumAggregate {
 }
 
 input Testcase {
+  """기존 TC 구분용 ID 필드"""
+  id: Int
   input: String!
   isHidden: Boolean!
   output: String!
