@@ -20,15 +20,18 @@ spec:
       name: 'redis-{{.env}}'
       finalizers:
         - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
     spec:
       project: default
       sources:
-        - repoURL: https://charts.bitnami.com/bitnami
+        - repoURL: https://ot-container-kit.github.io/helm-charts
           chart: redis
-          targetRevision: 21.2.13
+          targetRevision: 0.16.5
           helm:
+            releaseName: redis
             valueFiles:
-              - $codedang/apps/k8s/redis/values-{{.env}}.yaml
+              - $codedang/apps/k8s/redis/values.yaml
         - repoURL: https://github.com/skkuding/codedang
           targetRevision: '{{.branch}}'
           ref: codedang

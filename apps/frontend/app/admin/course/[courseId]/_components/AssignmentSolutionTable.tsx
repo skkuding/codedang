@@ -46,7 +46,10 @@ export function AssignmentSolutionTable({
       const newManualReleaseTimes: { [key: number]: Date | null } = {}
 
       problems.forEach((problem, index) => {
-        if (problem.solutionReleaseTime) {
+        if (
+          problem.solutionReleaseTime !== null &&
+          problem.solutionReleaseTime !== undefined
+        ) {
           newRevealedStates[index] = true
         }
 
@@ -59,8 +62,9 @@ export function AssignmentSolutionTable({
           newOptionStates[index] = 'After Due Date'
         } else {
           newOptionStates[index] = 'Manually'
-          newSolutionReleaseTimes[index] = problem.solutionReleaseTime
-          newManualReleaseTimes[index] = problem.solutionReleaseTime
+          const releaseTime = new Date(problem.solutionReleaseTime)
+          newSolutionReleaseTimes[index] = releaseTime
+          newManualReleaseTimes[index] = releaseTime
         }
       })
 

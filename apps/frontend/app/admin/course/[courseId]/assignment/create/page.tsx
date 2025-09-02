@@ -45,29 +45,20 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
             setIsCreating={setIsCreating}
           >
             <div className="flex w-[901px] flex-col gap-[28px]">
-              <FormSection
-                isFlexColumn={false}
-                title="Title"
-                className="gap-[67px]"
-              >
+              <FormSection title="Title">
                 <TitleForm
                   placeholder="Name your Assignment"
-                  className="max-w-[767px]"
+                  className="max-w-[760px]"
                 />
               </FormSection>
 
               <div className="flex justify-between">
-                <FormSection
-                  title="Week"
-                  isJustifyBetween={false}
-                  className="gap-[67px]"
-                >
+                <FormSection title="Week" className="w-[420px]">
                   <WeekComboBox name="week" courseId={Number(courseId)} />
                 </FormSection>
                 <FormSection
                   title="Due Time"
-                  isJustifyBetween={false}
-                  className="gap-[40px]"
+                  className="w-[420px]"
                   isLabeled={false}
                 >
                   <TimeFormPopover />
@@ -82,17 +73,12 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
                 </FormSection>
               </div>
               <div className="flex justify-between">
-                <FormSection
-                  title="Start Time"
-                  isJustifyBetween={false}
-                  className="gap-[27px]"
-                >
+                <FormSection title="Start Time" className="w-[420px]">
                   <TimeForm name="startTime" />
                 </FormSection>
                 <FormSection
                   title="End Time"
-                  isJustifyBetween={false}
-                  className="gap-[71px]"
+                  className="w-[420px]"
                   isLabeled={false}
                 >
                   <TimeForm

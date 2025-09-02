@@ -234,12 +234,9 @@ export class ContestResolver {
 }
 
 @Resolver(() => ContestQnA)
-@UseDisableContestRolesGuard()
+@UseContestRolesGuard(ContestRole.Manager)
 export class ContestQnAResolver {
-  constructor(
-    private readonly contestService: ContestService,
-    private readonly userService: UserService
-  ) {}
+  constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestQnA])
   async getContestQnAs(

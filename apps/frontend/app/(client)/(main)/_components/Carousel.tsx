@@ -48,6 +48,7 @@ export function Carousel({ slides }: CarouselProps) {
             alt={slide.imgAlt}
             fill
             className="z-0 object-cover"
+            unoptimized
             priority
           />
           <div className="font-pretendard absolute left-[130px] top-[150px] z-10 flex h-[344px] w-[539px] flex-col gap-[96px] tracking-[-0.03em] text-white">

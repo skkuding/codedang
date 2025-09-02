@@ -1,0 +1,22 @@
+# For domain-specific TLS certificates, use http01 challenge instead.
+# This ClusterIssuer uses DNS-01 challenge, for special use-cases like wildcard certificates.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-dns01
+spec:
+  acme:
+    email: skkuding@gmail.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-dns01
+    solvers:
+      - dns01:
+          route53:
+            region: ap-northeast-2
+            accessKeyIDSecretRef:
+              name: route53-credential
+              key: aws_access_key_id
+            secretAccessKeySecretRef:
+              name: route53-credential
+              key: aws_secret_access_key
