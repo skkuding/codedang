@@ -7,6 +7,8 @@ import { strip } from './stripper'
 
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
+const MAX_CODE_SIZE_BYTES = 2 * 1024 * 1024
+
 @Injectable()
 export class CodePolicyService {
   validate(language: Language, snippets: Snippet[]): void {
@@ -15,6 +17,14 @@ export class CodePolicyService {
     if (!rule) return
 
     const text = snippets.map((s) => s.text ?? '').join('\n')
+
+    const codeSizeBytes = new TextEncoder().encode(text).length
+    if (codeSizeBytes > MAX_CODE_SIZE_BYTES) {
+      throw new UnprocessableDataException(
+        `Code size exceeds the maximum limit of ${MAX_CODE_SIZE_BYTES / (1024 * 1024)}MB`
+      )
+    }
+
     const src = strip(language, text)
     let isViolated = false
 

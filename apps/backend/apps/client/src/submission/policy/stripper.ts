@@ -1,6 +1,6 @@
-const PYTHON_DOCSTRING = /("""[\s\S]{0,1000}?""")|('''[\s\S]{0,1000}?''')/g // Python에서의 docstring(""" """, ''' ''') 제거
-const C_BLOCK_COMMENT = /\/\*[\s\S]{0,1000}?\*\//g // C 계열에서의 Block 주석(/* */) 제거
-const STRING = /("(?:\\.|[^"\\]){0,1000}"|'(?:\\.|[^'\\]){0,1000}')/g // Python에서의 문자열(" ", ' ') 제거
+const PYTHON_DOCSTRING = /("""[\s\S]*?""")|('''[\s\S]*?''')/g // Python에서의 docstring(""" """, ''' ''') 제거
+const C_BLOCK_COMMENT = /\/\*[\s\S]*?\*\//g // C 계열에서의 Block 주석(/* */) 제거
+const STRING = /("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g // Python에서의 문자열(" ", ' ') 제거
 
 export const strip = (language: string, src: string): string => {
   switch (language) {
