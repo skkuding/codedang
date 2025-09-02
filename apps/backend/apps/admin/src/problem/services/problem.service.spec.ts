@@ -7,7 +7,7 @@ import { expect } from 'chai'
 import { spy, stub } from 'sinon'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { S3MediaProvider, S3Provider, StorageService } from '@libs/storage'
+import { S3Provider, StorageService } from '@libs/storage'
 import {
   fileUploadInput,
   user,
@@ -92,7 +92,6 @@ describe('ProblemService', () => {
         FileService,
         ConfigService,
         S3Provider,
-        S3MediaProvider,
         { provide: CACHE_MANAGER, useValue: { del: () => null } }
       ]
     }).compile()

@@ -7,9 +7,18 @@ export const isInvalid = (value: Invalid) => {
 }
 
 export const validateScoreWeight = (testcases: Testcase[]): boolean => {
-  const totalScore = testcases
-    .map((tc: Testcase) => tc.scoreWeight)
-    .reduce((acc: number, score) => acc + score, 0)
+  const totalScore = testcases.reduce((acc, tc) => {
+    if (typeof tc.scoreWeight === 'number') {
+      return acc + tc.scoreWeight
+    }
+    if (tc.scoreWeightNumerator && tc.scoreWeightDenominator) {
+      const percentage =
+        (tc.scoreWeightNumerator / tc.scoreWeightDenominator) * 100
+      return acc + percentage
+    }
+    return acc
+  }, 0)
 
-  return totalScore === 100
+  const tolerance = 0.001
+  return Math.abs(totalScore - 100) < tolerance
 }
