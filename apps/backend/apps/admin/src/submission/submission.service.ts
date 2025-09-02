@@ -547,8 +547,11 @@ export class SubmissionService {
 
   private async compressSourceCodes(
     assignmentId: number,
-    problemId: number
-  ): Promise<{ zipPath: string; zipFilename: string; dirPath: string }> {
+    problemId: number,
+    res: Response
+  ): Promise<
+    { zipPath: string; zipFilename: string; dirPath: string } | undefined
+  > {
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
         where: {
@@ -561,7 +564,12 @@ export class SubmissionService {
         }
       })
     if (assignmentProblemRecords.length === 0) {
-      throw new EntityNotExistException('AssignmentProblem')
+      // throw new EntityNotExistException('AssignmentProblem')
+      res.status(404).json({
+        statusCode: 404,
+        message: 'AssignmentProblem does not exist'
+      })
+      return
     }
 
     const submissionInfos = await Promise.all(
@@ -574,10 +582,29 @@ export class SubmissionService {
       )
     )
     if (submissionInfos.length === 0) {
-      throw new EntityNotExistException('Submission')
+      // throw new EntityNotExistException('Submission')
+      res.status(404).json({
+        statusCode: 404,
+        message: 'Submission does not exist'
+      })
     }
 
-    const problemTitle = await this.getProblemTitle(problemId)
+    const problem = await this.prisma.problem.findFirst({
+      where: {
+        id: problemId
+      },
+      select: {
+        title: true
+      }
+    })
+    if (!problem) {
+      res.status(404).json({
+        statusCode: 404,
+        message: 'Problem does not exist'
+      })
+    }
+
+    const problemTitle = problem!.title ?? `Problem_${problemId}`
     const assignmentTitle = await this.getAssignmentTitle(assignmentId)
     const zipFilename = `${assignmentTitle}_${problemId}`
     const zipPath = path.join(__dirname, `${zipFilename}.zip`)
@@ -614,13 +641,21 @@ export class SubmissionService {
 
       return { zipPath, zipFilename, dirPath }
     } catch (err) {
-      if (existsSync(zipPath)) await unlink(zipPath)
-      if (existsSync(dirPath))
+      if (existsSync(zipPath)) {
+        await unlink(zipPath)
+      }
+      if (existsSync(dirPath)) {
         await rm(dirPath, { recursive: true, force: true })
-      throw new UnprocessableFileDataException(
-        'Failed to write source code files',
-        err
-      )
+      }
+      // throw new UnprocessableFileDataException(
+      //   'Failed to write source code files',
+      //   err
+      // )
+      res.status(422).json({
+        statusCode: 422,
+        message: 'Failed to write source code files',
+        detail: err.message
+      })
     }
   }
 
@@ -630,27 +665,42 @@ export class SubmissionService {
     problemId: number,
     res: Response
   ) {
+    // TODO: Admin은 무조건 허용..이거 되는지 확인
     const assignmentGroup = await this.prisma.assignment.findFirst({
       where: {
         id: assignmentId
       },
       select: {
-        groupId: true
+        groupId: true,
+        title: true
       }
     })
     if (!assignmentGroup) {
-      throw new EntityNotExistException('Assignment')
+      // throw new EntityNotExistException('Assignment')
+      return res.status(404).json({
+        statusCode: 404,
+        message: 'Assignment does not exist'
+      })
     }
+    console.log('AssignmentGroupID', assignmentGroup.groupId)
+    console.log('Param GroupID', groupId)
     if (assignmentGroup.groupId !== groupId) {
-      throw new ForbiddenAccessException(
-        'Only Group Leader can download source codes.'
-      )
+      // throw new ForbiddenAccessException('Only Group Leader can download source codes.')
+      return res.status(403).json({
+        statusCode: 403,
+        message: 'Only Group Leader can download source codes.'
+      })
     }
 
-    const { zipPath, zipFilename, dirPath } = await this.compressSourceCodes(
+    const compressed = await this.compressSourceCodes(
       assignmentId,
-      problemId
+      problemId,
+      res
     )
+    if (!compressed) {
+      return
+    }
+    const { zipPath, zipFilename, dirPath } = compressed
     const encodedFilename = encodeURIComponent(zipFilename)
     res.set({
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -668,7 +718,12 @@ export class SubmissionService {
       })
     } catch (err) {
       if (!res.headersSent) {
-        throw new UnprocessableFileDataException('File download failed', err)
+        // throw new UnprocessableFileDataException('File download failed', err)
+        res.status(422).json({
+          statusCode: 422,
+          message: 'File download failed',
+          detail: err.message
+        })
       } else {
         res.destroy(err)
       }
