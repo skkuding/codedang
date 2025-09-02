@@ -52,7 +52,7 @@ export const createColumns = (
       cell: ({ row }) => {
         const selectedOption = optionStates[row.index]
         return revealedStates[row.index] ? (
-          <div className="flex w-[270px] gap-2">
+          <div className="flex w-[340px] items-start gap-2">
             <label className="flex items-center gap-1">
               <input
                 type="radio"
