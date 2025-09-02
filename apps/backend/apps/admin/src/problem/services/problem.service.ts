@@ -508,10 +508,12 @@ export class ProblemService {
           }
         })
       ).map((group) => group.groupId)
+
       const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
       const hasShared = sharedGroupIds.some((v) =>
         new Set(leaderGroupIds).has(v)
       )
+
       if (!hasShared) {
         throw new ForbiddenException(
           'User can only edit problems they created or were shared with'
@@ -653,7 +655,7 @@ export class ProblemService {
       : undefined
 
     if (testcases?.length) {
-      await this.testcaseService.updateTestcases(id, testcases)
+      await this.testcaseService.syncTestcases(id, testcases)
     }
 
     const updatedInfo = updatedInfos
