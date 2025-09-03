@@ -126,6 +126,12 @@ export class NoticeService {
 export class CourseNoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * 공지사항을 불러올 때 정렬 방식을 지정합니다.
+   *
+   * @param {CourseNoticeOrder} order 공지 정렬 방식
+   * @returns orderBy로 들어가는 객체를 반환합니다.
+   */
   getOrderBy(
     order: CourseNoticeOrder
   ): Prisma.CourseNoticeOrderByWithRelationInput {
@@ -141,6 +147,18 @@ export class CourseNoticeService {
     }
   }
 
+  /**
+   * 한 강의 내의 공지 목록을 가져옵니다.
+   *
+   * @param {number} userId 공지 목록을 요청한 유저 아이디
+   * @param {number} groupId 공지 목록을 받아오려는 강의 아이디
+   * @param {number | null} cursor 가져올 공지의 시작점
+   * @param {number} take 가져올 공지의 수
+   * @param {string} search 검색어
+   * @param {boolean} fixed 고정된 공지를 가져올지 여부
+   * @param {CourseNoticeOrder | undefined} order 공지 정렬 순서
+   * @returns 특정 강의 내의 공지 사항들에 대한 대략적인 정보를 반환합니다.
+   */
   async getCourseNotices({
     userId,
     groupId,
@@ -230,6 +248,13 @@ export class CourseNoticeService {
     return { data, total }
   }
 
+  /**
+   * 특정 강의 내의 한 공지에 대해 그 내용과 자세한 정보를 조회합니다.
+   *
+   * @param {number} userId 조회를 요청한 유저 아이디
+   * @param {number} id 강의 공지의 아이디
+   * @returns 현재 공지사항의 내용과 이전/이후 공지의 아이디
+   */
   async getCourseNoticeByID({ userId, id }: { userId: number; id: number }) {
     const courseNotice = await this.prisma.courseNotice.findUniqueOrThrow({
       where: {
@@ -287,6 +312,13 @@ export class CourseNoticeService {
     }
   }
 
+  /**
+   * 공지사항의 읽음 여부를 기록합니다.
+   *
+   * @param {number} userId 공지를 조회한 유저 아이디
+   * @param {number} courseNoticeId 강의 내 공지의 아이디
+   * @returns 공지사항 읽음 기록
+   */
   async markAsRead({
     userId,
     courseNoticeId
@@ -313,6 +345,15 @@ export class CourseNoticeService {
     }
   }
 
+  /**
+   * 한 공지사항 내의 댓글 목록을 가져옵니다.
+   * 댓글의 개수(take)는 대댓글을 포함한 댓글의 수입니다.
+   *
+   * @param {number} id 댓글을 조회하려는 강의 공지사항의 아이디
+   * @param {number | null} cursor 가져올 댓글의 시작점
+   * @param {number} take 가져올 댓글의 수
+   * @returns 댓글과 그 댓글에 대한 대댓글을 구분한 리스트를 반환합니다.
+   */
   async getCourseNoticeComments({
     id,
     cursor,
@@ -375,6 +416,14 @@ export class CourseNoticeService {
     return commentDatas.reverse()
   }
 
+  /**
+   * 댓글을 생성합니다.
+   *
+   * @param {number} userId 댓글을 작성하려는 유저 아이디
+   * @param {number} id 댓글을 달려는 강의 공지사항의 아이디
+   * @param {CreateCourseNoticeCommentDto} createCourseNoticeCommentDto 댓글의 내용과 대댓글을 달려는 원댓글의 아이디(없으면 대댓글 아님)
+   * @returns 생성된 댓글의 정보를 반환합니다.
+   */
   async createComment({
     userId,
     id,
@@ -393,6 +442,15 @@ export class CourseNoticeService {
     })
   }
 
+  /**
+   * 댓글을 수정합니다
+   *
+   * @param {number} userId 댓글을 수정하려는 유저 아이디
+   * @param {number} id 댓글이 달려있는 강의 공지사항의 아이디
+   * @param {number} commentId 수정하려는 댓글 아이디
+   * @param {UpdateCourseNoticeCommentDto} updateCourseNoticeCommentDto 수정할 댓글의 내용
+   * @returns 수정된 댓글의 내용
+   */
   async updateComment({
     userId,
     id,
@@ -416,6 +474,14 @@ export class CourseNoticeService {
     })
   }
 
+  /**
+   * 댓글을 삭제합니다.
+   *
+   * @param {number} userId 댓글을 삭제하려는 유저 아이디
+   * @param {number} id 댓글이 달려있는 강의 공지사항의 아이디
+   * @param {number} commentId 삭제하려는 댓글의 아이디
+   * @returns
+   */
   async deleteComment({
     userId,
     id,
