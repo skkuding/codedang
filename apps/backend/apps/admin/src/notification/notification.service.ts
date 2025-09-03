@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ContestRole, NotificationType } from '@prisma/client'
-import he from 'he'
+import * as he from 'he'
 import * as webpush from 'web-push'
 import { MILLISECONDS_PER_HOUR } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
