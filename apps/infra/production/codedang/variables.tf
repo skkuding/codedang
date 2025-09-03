@@ -31,6 +31,7 @@ variable "github_client_id" { sensitive = true }
 variable "github_client_secret" { sensitive = true }
 variable "kakao_client_id" { sensitive = true }
 variable "kakao_client_secret" { sensitive = true }
+variable "instagram_access_token" { sensitive = true }
 variable "otel_exporter_otlp_endpoint_url" { sensitive = true }
 
 variable "testcase_bucket_name" { sensitive = true }

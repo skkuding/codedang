@@ -28,6 +28,16 @@ data "terraform_remote_state" "storage" {
   }
 }
 
+data "terraform_remote_state" "codedang" {
+  backend = "s3"
+  config = {
+    bucket = "codedang-tf-state"
+    key    = "terraform/codedang.tfstate"
+    region = "ap-northeast-2"
+  }
+}
+
 locals {
-  storage = data.terraform_remote_state.storage.outputs
+  storage  = data.terraform_remote_state.storage.outputs
+  codedang = data.terraform_remote_state.codedang.outputs
 }
