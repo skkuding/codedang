@@ -1,5 +1,6 @@
 'use client'
 
+import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { SUBMISSION_PROBLEM_COLUMN_ID } from '@/app/admin/_components/table/constants'
 import type { OverallSubmission } from '@/app/admin/contest/_libs/schemas'
 import { cn, getResultColor } from '@/libs/utils'
@@ -10,42 +11,40 @@ export const columns: ColumnDef<OverallSubmission>[] = [
   {
     accessorKey: 'title',
     id: SUBMISSION_PROBLEM_COLUMN_ID,
-    header: () => (
-      <div className="border-r py-1 font-mono text-sm">Problem Title</div>
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Problem Title" />
     ),
     cell: ({ row }) => (
-      <div className="whitespace-nowrap border-r py-1 text-center text-xs">
+      <>
         {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
         {row.original.title}
-      </div>
+      </>
     ),
     filterFn: 'arrIncludesSome'
   },
   {
     accessorKey: 'studentId',
-    header: () => <p className="font-mono text-sm">Student ID</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs font-medium">
-        {row.getValue('studentId')}
-      </div>
-    )
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Student ID" />
+    ),
+    cell: ({ row }) => row.getValue('studentId')
   },
   {
     accessorKey: 'realname',
-    header: () => <p className="border-r py-1 font-mono text-sm">Name</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap border-r py-1 text-center text-xs font-medium">
-        {row.getValue('realname')}
-      </div>
-    )
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Name" />
+    ),
+    cell: ({ row }) => row.getValue('realname')
   },
   {
     accessorKey: 'result',
-    header: () => <p className="py-1 font-mono text-sm">Result</p>,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Result" />
+    ),
     cell: ({ row }) => (
       <div
         className={cn(
-          'whitespace-nowrap py-1 text-center text-xs',
+          'whitespace-nowrap',
           getResultColor(row.getValue('result'))
         )}
       >
@@ -55,40 +54,36 @@ export const columns: ColumnDef<OverallSubmission>[] = [
   },
   {
     accessorKey: 'language',
-    header: () => <p className="font-mono text-sm">Language</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
-        {row.getValue('language')}
-      </div>
-    )
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Language" />
+    ),
+    cell: ({ row }) => row.getValue('language')
   },
   {
     accessorKey: 'submissionTime',
-    header: () => <p className="font-mono text-sm">Submission Time</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
-        {dayjs(new Date(parseInt(row.getValue('submissionTime'), 10))).format(
-          'MMM DD, YYYY HH:mm'
-        )}
-      </div>
-    )
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Submission Time" />
+    ),
+    cell: ({ row }) => {
+      return dayjs(
+        new Date(parseInt(row.getValue('submissionTime'), 10))
+      ).format('MMM DD, YYYY HH:mm')
+    }
   },
   {
     accessorKey: 'codeSize',
-    header: () => <p className="font-mono text-sm">Code Size</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
-        {row.getValue('codeSize') ? `${row.getValue('codeSize')} B` : 'N/A'}
-      </div>
-    )
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Code Size" />
+    ),
+    cell: ({ row }) => {
+      return row.getValue('codeSize') ? `${row.getValue('codeSize')} B` : 'N/A'
+    }
   },
   {
     accessorKey: 'ip',
-    header: () => <p className="font-mono text-sm">IP</p>,
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
-        {row.getValue('ip')}
-      </div>
-    )
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="IP" />
+    ),
+    cell: ({ row }) => row.getValue('ip')
   }
 ]

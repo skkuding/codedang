@@ -10,7 +10,7 @@ ingress:
   path: /
   pathType: Prefix
   hosts:
-    - grafana-test.codedang.com # TODO: update with actual host
+    - grafana.codedang.com
 
 limits:
   cpu: 200m
@@ -44,16 +44,12 @@ datasources:
         type: loki
         access: proxy
         url: http://loki.monitoring-loki.svc.cluster.local:3100
-        editable: true # TODO: set false after testing
-        jsonData:
-          httpHeaderName1: 'X-Scope-OrgID'
-        secureJsonData:
-          httpHeaderValue1: '1'
+        editable: false
       - name: Prometheus-production
         type: prometheus
         access: proxy
         url: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090
-        editable: true # TODO: set false after testing
+        editable: false
 
 # help grafana to detect provisioned dashboards
 sidecar:
