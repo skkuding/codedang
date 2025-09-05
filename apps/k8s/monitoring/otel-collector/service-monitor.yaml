@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: otelcol-simplest-monitor
+  namespace: monitoring-otel
+  labels:
+    release: prometheus # release name of kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - monitoring-otel
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: monitoring-otel.simplest
+  endpoints:
+    - port: metrics
