@@ -1337,7 +1337,7 @@ input CreateAnnouncementInput {
 input CreateAssignmentInput {
   autoFinalizeScore: Boolean
   description: String!
-  dueTime: DateTime!
+  dueTime: DateTime
   enableCopyPaste: Boolean
   endTime: DateTime!
   invitationCode: String

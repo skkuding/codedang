@@ -114,7 +114,9 @@ export function ParticipantTableByProblem({
   }, [summariesData, tcByUser, totalTestcases])
 
   const now = dayjs()
-  const isAssignmentFinished = now.isAfter(dayjs(assignmentData?.dueTime))
+  const isAssignmentFinished = now.isAfter(
+    dayjs(assignmentData?.dueTime ?? assignmentData?.endTime)
+  )
 
   const assignmentTitle = assignmentData?.title
   const problemToDownload = problemData.find((p) => p.problemId === selectedPid)
