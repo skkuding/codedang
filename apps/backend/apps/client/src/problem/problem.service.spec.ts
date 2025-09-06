@@ -148,6 +148,7 @@ const mockAssignment = {
   week: 1,
   title: 'Sample Assignment',
   description: 'This is a sample assignment.',
+  isVisible: true,
   startTime: faker.date.past(),
   endTime: faker.date.future(),
   dueTime: faker.date.future(),
