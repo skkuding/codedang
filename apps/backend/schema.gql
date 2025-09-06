@@ -2112,6 +2112,7 @@ type ProblemTestcase {
   id: ID!
   input: String
   isHidden: Boolean!
+  isOutdated: Boolean!
   order: Int
   output: String
   problem: Problem!
@@ -2146,6 +2147,7 @@ type ProblemTestcaseCountAggregate {
   id: Int!
   input: Int!
   isHidden: Int!
+  isOutdated: Int!
   order: Int!
   output: Int!
   problemId: Int!
@@ -2166,6 +2168,7 @@ type ProblemTestcaseMaxAggregate {
   id: Int
   input: String
   isHidden: Boolean
+  isOutdated: Boolean
   order: Int
   output: String
   problemId: Int
@@ -2182,6 +2185,7 @@ type ProblemTestcaseMinAggregate {
   id: Int
   input: String
   isHidden: Boolean
+  isOutdated: Boolean
   order: Int
   output: String
   problemId: Int

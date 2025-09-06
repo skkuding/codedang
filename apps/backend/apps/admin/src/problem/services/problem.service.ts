@@ -550,7 +550,10 @@ export class ProblemService {
 
     if (testcases?.length) {
       const existingTestcases = await this.prisma.problemTestcase.findMany({
-        where: { problemId: id }
+        where: {
+          problemId: id,
+          isOutdated: false
+        }
       })
       if (
         JSON.stringify(testcases) !==

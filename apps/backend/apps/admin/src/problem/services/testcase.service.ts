@@ -179,9 +179,12 @@ export class TestcaseService {
 
   async updateTestcases(problemId: number, testcases: Array<Testcase>) {
     await Promise.all([
-      this.prisma.problemTestcase.deleteMany({
+      this.prisma.problemTestcase.updateMany({
         where: {
           problemId
+        },
+        data: {
+          isOutdated: true
         }
       })
     ])
@@ -390,7 +393,10 @@ export class TestcaseService {
     originalFileNames.forEach(async (name, index) => {
       const id = testcaseIdMapper[name]
       await this.prisma.problemTestcase.update({
-        where: { id },
+        where: {
+          id,
+          isOutdated: false
+        },
         data: { order: index + 1 }
       })
     })
@@ -410,15 +416,19 @@ export class TestcaseService {
         await this.storageService.deleteObject(file.Key, 'testcase')
       })
     )
-    await this.prisma.problemTestcase.deleteMany({
-      where: { problemId }
+    await this.prisma.problemTestcase.updateMany({
+      where: { problemId },
+      data: {
+        isOutdated: true
+      }
     })
   }
 
   async getProblemTestcases(problemId: number) {
     return await this.prisma.problemTestcase.findMany({
       where: {
-        problemId
+        problemId,
+        isOutdated: false
       },
       orderBy: {
         order: 'asc'
