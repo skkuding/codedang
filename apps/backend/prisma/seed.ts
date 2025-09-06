@@ -1,5 +1,6 @@
 import {
   ContestRole,
+  GroupType,
   Language,
   Level,
   NotificationType,
@@ -27,7 +28,6 @@ import {
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { GroupType } from '@admin/@generated'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
