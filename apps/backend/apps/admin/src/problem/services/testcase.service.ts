@@ -178,17 +178,15 @@ export class TestcaseService {
   }
 
   async updateTestcases(problemId: number, testcases: Array<Testcase>) {
-    await Promise.all([
-      this.prisma.problemTestcase.updateMany({
-        where: {
-          problemId
-        },
-        data: {
-          isOutdated: true,
-          outdateTime: new Date()
-        }
-      })
-    ])
+    await this.prisma.problemTestcase.updateMany({
+      where: {
+        problemId
+      },
+      data: {
+        isOutdated: true,
+        outdateTime: new Date()
+      }
+    })
 
     for (const tc of testcases) {
       const fraction = this.convertToFraction(tc)
