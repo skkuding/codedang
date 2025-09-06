@@ -8,6 +8,7 @@ import {
   QnACategory,
   ResultStatus,
   Role,
+  GroupType,
   type Announcement,
   type Assignment,
   type AssignmentRecord,

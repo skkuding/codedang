@@ -112,6 +112,7 @@ export class NotificationService {
       select: {
         title: true,
         dueTime: true,
+        endTime: true,
         group: {
           select: {
             id: true,
@@ -130,7 +131,9 @@ export class NotificationService {
     const title = assignmentInfo.group.groupName ?? 'Assignment Due Soon'
 
     const timing =
-      assignmentInfo.dueTime.getTime() - Date.now() > 3 * MILLISECONDS_PER_HOUR
+      (assignmentInfo.dueTime ?? assignmentInfo.endTime).getTime() -
+        Date.now() >
+      3 * MILLISECONDS_PER_HOUR
         ? '1 day'
         : '3 hours'
 

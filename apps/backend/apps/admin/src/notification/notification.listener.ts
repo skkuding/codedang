@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
-import { MILLISECONDS_PER_DAY, MILLISECONDS_PER_HOUR } from '@libs/constants'
+import {
+  MAX_DATE,
+  MILLISECONDS_PER_DAY,
+  MILLISECONDS_PER_HOUR
+} from '@libs/constants'
 import { NotificationScheduler } from './notification.scheduler'
 import { NotificationService } from './notification.service'
 
@@ -51,6 +55,8 @@ export class NotificationListener {
   }) {
     this.notificationService.notifyAssignmentCreated(payload.assignmentId)
 
+    if (payload.dueTime.getTime() === MAX_DATE.getTime()) return
+
     const title = 'assignment-due-reminder'
     const data = { assignmentId: payload.assignmentId }
 
@@ -82,6 +88,8 @@ export class NotificationListener {
         this.notificationScheduler.cancelScheduledJob(jobId)
       )
     )
+
+    if (payload.dueTime.getTime() === MAX_DATE.getTime()) return
 
     const title = 'assignment-due-reminder'
     const data = { assignmentId: payload.assignmentId }
