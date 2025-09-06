@@ -3,7 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
-import type { Contest, User, Assignment } from '@prisma/client'
+import type { Assignment, Contest, User } from '@prisma/client'
 import { Language, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
@@ -13,12 +13,18 @@ import { spy, stub } from 'sinon'
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { CodePolicyService } from '@client/submission/policy'
 import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
-import { submissions, submissionDto } from '../mock/submission.mock'
+import {
+  policyViolationSubmissionDto,
+  submissionDto,
+  submissions
+} from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
 import { SubmissionPublicationService } from '../submission-pub.service'
 import { SubmissionService } from '../submission.service'
@@ -162,7 +168,8 @@ describe('SubmissionService', () => {
               keys: () => []
             }
           })
-        }
+        },
+        CodePolicyService
       ]
     }).compile()
 
@@ -234,6 +241,19 @@ describe('SubmissionService', () => {
         })
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
+    })
+
+    it('should throw exception if input code violates code policy', async () => {
+      db.problem.findFirst.resolves(problems[0])
+
+      await expect(
+        service.submitToProblem({
+          submissionDto: policyViolationSubmissionDto,
+          userIp: USERIP,
+          userId: submissions[2].userId,
+          problemId: problems[0].id
+        })
+      ).to.be.rejectedWith(UnprocessableDataException)
     })
   })
 
