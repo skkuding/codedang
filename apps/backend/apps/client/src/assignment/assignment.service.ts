@@ -71,10 +71,25 @@ export class AssignmentService {
         isVisible: true,
         ...(month !== undefined && year !== undefined
           ? {
-              dueTime: {
-                gte: new Date(year, month - 1, 1),
-                lte: new Date(year, month, 0, 23, 59, 59, 999)
-              }
+              OR: [
+                {
+                  dueTime: {
+                    gte: new Date(year, month - 1, 1),
+                    lte: new Date(year, month, 0, 23, 59, 59, 999)
+                  }
+                },
+                {
+                  AND: [
+                    { dueTime: null },
+                    {
+                      endTime: {
+                        gte: new Date(year, month - 1, 1),
+                        lte: new Date(year, month, 0, 23, 59, 59, 999)
+                      }
+                    }
+                  ]
+                }
+              ]
             }
           : {})
       },
@@ -314,6 +329,7 @@ export class AssignmentService {
         groupId: true,
         title: true,
         dueTime: true,
+        endTime: true,
         isFinalScoreVisible: true,
         autoFinalizeScore: true
       }
@@ -330,7 +346,7 @@ export class AssignmentService {
     }
 
     const now = new Date()
-    if (now < assignment.dueTime) {
+    if (now < (assignment.dueTime ?? assignment.endTime)) {
       throw new ForbiddenAccessException(
         'Cannot view scores before assignment ends'
       )

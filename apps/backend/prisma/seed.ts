@@ -7,6 +7,7 @@ import {
   QnACategory,
   ResultStatus,
   Role,
+  GroupType,
   type Announcement,
   type Assignment,
   type AssignmentRecord,
@@ -27,7 +28,6 @@ import {
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { GroupType } from '@admin/@generated'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
