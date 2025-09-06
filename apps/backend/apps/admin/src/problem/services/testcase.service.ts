@@ -184,7 +184,8 @@ export class TestcaseService {
           problemId
         },
         data: {
-          isOutdated: true
+          isOutdated: true,
+          outdateTime: new Date()
         }
       })
     ])
@@ -419,7 +420,8 @@ export class TestcaseService {
     await this.prisma.problemTestcase.updateMany({
       where: { problemId },
       data: {
-        isOutdated: true
+        isOutdated: true,
+        outdateTime: new Date()
       }
     })
   }
