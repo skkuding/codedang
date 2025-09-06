@@ -293,7 +293,10 @@ describe('TestcaseService', () => {
       expect(existingFiles).to.be.empty
 
       const entries = await prismaService.problemTestcase.findMany({
-        where: { problemId }
+        where: {
+          problemId,
+          isOutdated: false
+        }
       })
       expect(entries).to.be.empty
     })

@@ -38,7 +38,8 @@ const problemSelectOption: Prisma.ProblemSelect = {
   template: true,
   problemTestcase: {
     where: {
-      isHidden: false
+      isHidden: false,
+      isOutdated: false
     },
     select: {
       id: true,
@@ -436,9 +437,10 @@ export class ContestProblemService {
           select: {
             ...problemSelectOption,
             problemTestcase: {
-              ...(contest.isPrivilegedRole
-                ? {}
-                : { where: { isHidden: false } }),
+              where: {
+                isOutdated: false,
+                ...(!contest.isPrivilegedRole && { isHidden: false })
+              },
               select: {
                 id: true,
                 input: true,

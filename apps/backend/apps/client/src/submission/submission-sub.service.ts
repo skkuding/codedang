@@ -753,7 +753,10 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       const problemTestcaseIds = new Set(
         (
           await this.prisma.problemTestcase.findMany({
-            where: { problemId: submission.problemId, isHidden: false },
+            where: {
+              problemId: submission.problemId,
+              isHidden: false
+            },
             select: { id: true }
           })
         ).map((tc) => tc.id)

@@ -322,6 +322,9 @@ model ProblemTestcase {
   acceptedCount   Int      @default(0) @map("accepted_count")
   submissionCount Int      @default(0) @map("submission_count")
 
+  isOutdated      Boolean  @default(false) @map("is_outdated")
+  outdateTime     DateTime? @map("outdate_time")
+
   submissionResult SubmissionResult[]
 
   @@map("problem_testcase")

@@ -539,7 +539,8 @@ export class SubmissionService {
   ): Promise<void> {
     let testcases = await this.prisma.problemTestcase.findMany({
       where: {
-        problemId: submission.problemId
+        problemId: submission.problemId,
+        isOutdated: false
       },
       select: { id: true, isHidden: true }
     })
@@ -773,6 +774,7 @@ export class SubmissionService {
     const rawTestcases = await this.prisma.problemTestcase.findMany({
       where: {
         problemId,
+        isOutdated: false,
         ...(containHiddenTestcases ? {} : { isHidden: false })
       }
     })
