@@ -2114,7 +2114,7 @@ type ProblemTestcase {
   isHidden: Boolean!
   isOutdated: Boolean!
   order: Int
-  outdateTime: DateTime!
+  outdateTime: DateTime
   output: String
   problem: Problem!
   problemId: Int!
