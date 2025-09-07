@@ -17,9 +17,9 @@ services:
     tty: true
     environment:
       DEVCONTAINER: '1'
+    network_mode: host
     privileged: true
     cgroup: host
-    network_mode: host
 
   storage:
     container_name: codedang-storage
