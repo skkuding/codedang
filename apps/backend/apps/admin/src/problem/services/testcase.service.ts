@@ -189,8 +189,8 @@ export class TestcaseService {
     })
 
     await Promise.all([
-      tcs.map((tc) => {
-        return this.prisma.problemTestcase.update({
+      tcs.map(async (tc) => {
+        return await this.prisma.problemTestcase.update({
           where: {
             id: tc.id
           },
