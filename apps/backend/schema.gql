@@ -2804,6 +2804,8 @@ type TestSubmissionSumAggregate {
 }
 
 input Testcase {
+  """기존 TC 구분용 ID 필드"""
+  id: Int
   input: String!
   isHidden: Boolean!
   output: String!

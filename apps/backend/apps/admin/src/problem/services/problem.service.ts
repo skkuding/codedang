@@ -559,10 +559,13 @@ export class ProblemService {
         JSON.stringify(testcases) !==
         JSON.stringify(
           existingTestcases.map((tc) => ({
+            id: tc.id,
             input: tc.input,
             output: tc.output,
+            isHidden: tc.isHidden,
             scoreWeight: tc.scoreWeight,
-            isHidden: tc.isHidden
+            scoreWeightDenominator: tc.scoreWeightDenominator,
+            scoreWeightNumerator: tc.scoreWeightNumerator
           }))
         )
       ) {
@@ -656,7 +659,7 @@ export class ProblemService {
       : undefined
 
     if (testcases?.length) {
-      await this.testcaseService.updateTestcases(id, testcases)
+      await this.testcaseService.syncTestcases(id, testcases)
     }
 
     const updatedInfo = updatedInfos
