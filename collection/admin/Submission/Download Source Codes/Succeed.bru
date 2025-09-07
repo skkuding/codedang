@@ -10,6 +10,10 @@ get {
   auth: none
 }
 
+script:pre-request {
+  await require("./login").loginUser2nd(req);
+}
+
 docs {
   ## Download Source Codes
   
@@ -17,7 +21,6 @@ docs {
   
   ### Request Body
   
-  - `groupId`: 과제가 속한 그룹 ID
   - `assignmentId`: 과제 ID
   - `problemId`: 문제 ID
 }
