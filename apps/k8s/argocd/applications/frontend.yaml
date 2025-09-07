@@ -14,7 +14,7 @@ spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
   generators:
-    # TODO: Use git generator
+    # TODO: replace with git generator
     - list:
         elements:
           - env: stage
