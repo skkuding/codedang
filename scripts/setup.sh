@@ -40,6 +40,10 @@ if [ ! -f apps/frontend/.env ]; then
   cp apps/frontend/.env.example apps/frontend/.env
 fi
 
+if [ ! -f apps/iris/.env ]; then
+  cp apps/iris/.env.example apps/iris/.env
+fi
+
 # Backward compatibility: remove old .env file
 rm -f .env
 

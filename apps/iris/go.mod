@@ -29,7 +29,10 @@ require (
 	go.uber.org/zap v1.27.0
 )
 
-require go.opentelemetry.io/otel/log v0.13.0
+require (
+	github.com/joho/godotenv v1.5.1
+	go.opentelemetry.io/otel/log v0.13.0
+)
 
 require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.0 // indirect
