@@ -16,14 +16,3 @@ prometheus:
       - hosts:
           - prometheus.codedang.com
         secretName: prometheus-tls
-    rules:
-      - host: prometheus.codedang.com
-        http:
-          paths:
-            - path: /
-              pathType: Prefix
-              backend:
-                service:
-                  name: prometheus
-                  port:
-                    number: 9090
