@@ -1,152 +1,85 @@
 #!/usr/bin/env bash
 
-set -ex
+# This script sets up the development environment for Codedang.
+# Should support both local machine(MacOS/Linux) and devcontainer.
 
-# Check requirements: npm
-if [ ! $(command -v npm) ]
-then
-  echo "Error: npm is not installed. Please install npm first."
-  exit 1
+set -e
+
+BASEDIR=$(dirname $(dirname $(realpath "$0")))
+cd "$BASEDIR"
+
+if [ -z "$DEVCONTAINER" ]; then
+  docker compose up -d
 fi
 
-BASEDIR=$(dirname $(dirname $(realpath $0)))
-
-cd $BASEDIR
-
-# Write .env file from .env.development
-if [ -f .env ]
-then
-  rm .env
+# Install nvm
+if [ -z "$NVM_DIR" ]; then
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+  NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 fi
 
-while IFS= read -r line
-do
-  # Skip empty lines or comments
-  if [[ -z "$line" || ${line:0:1} == '#' ]]
-  then
-    continue
-  fi
+# Install Node.js
+. "$NVM_DIR/nvm.sh" || true
+nvm install
 
-  name=${line%%=*}
-  value=${line#*=}
-
-  if [[ -v "$name" ]]
-  then
-      echo "$name=${!name}" >> .env
-  else
-      echo "$name=$value" >> .env
-  fi
-done < .env.development
-
-# Add APP_ENV=local to .env file
-echo "APP_ENV=local" >> .env
-
-# If dotenv schema is not updated, remove the file
-if [ -f apps/backend/.env ] && grep -q DATABASE_URL apps/backend/.env
-then
-  rm apps/backend/.env
+# Install direnv
+if [ ! $(command -v direnv) ]; then
+  curl -sfL https://direnv.net/install.sh | bash
+  echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
+  echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
 fi
+direnv allow .
+eval "$(direnv export bash)"
 
 # If .env does not exist, create one
-if [ ! -f apps/backend/.env ]
-then
-  echo "NODEMAILER_HOST=\"email-smtp.ap-northeast-2.amazonaws.com\"" >> apps/backend/.env
-  echo "NODEMAILER_USER=\"\"" >> apps/backend/.env
-  echo "NODEMAILER_PASS=\"\"" >> apps/backend/.env
-  echo "NODEMAILER_FROM=\"\"" >> apps/backend/.env
-  echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> apps/backend/.env
+if [ ! -f apps/backend/.env ] || ! grep -q "DATABASE_URL" apps/backend/.env; then
+  cp apps/backend/.env.example apps/backend/.env
+fi
+
+if [ ! -f apps/frontend/.env ]; then
+  cp apps/frontend/.env.example apps/frontend/.env
 fi
 
 # Install pnpm and Node.js packages
-npm install -g pnpm@latest
-pnpm install
+corepack enable
+COREPACK_ENABLE_DOWNLOAD_PROMPT=0 pnpm install
 
 # Install lefthook for git hook
 pnpm exec lefthook install
 
-# Init MinIO
-pnpm run init:storage
-
-# Set NODE_OPTIONS to increase memory limit for frontend build (next build)
-echo "export NODE_OPTIONS=--max-old-space-size=4096" >> ~/.bashrc
-
 # Enable git auto completion
-if ! grep -q "bash-completion/completions/git" ~/.bashrc
-then
+if [ "$DEVCONTAINER" = "1" ] && ! grep -q "source /usr/share/bash-completion/completions/git" ~/.bashrc; then
   echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
 fi
 
-# Set aws profile for terraform as skkuding
-echo "export AWS_PROFILE=skkuding" >> ~/.bashrc
-
 # Apply database migration
-for i in {1..5}
-do
+for _ in {1..5}; do
   pnpm --filter="@codedang/backend" exec prisma migrate dev && break # break if migration succeed
   echo -e '\n⚠️ Failed to migrate. Waiting for db to be ready...\n'
   sleep 5
 done
 
+# Initialize MinIO
+pnpm run init:storage
+
+# Initialize RabbitMQ
+pnpm run init:rabbitmq
+
 # Install Go dependencies
-cd $BASEDIR/apps/iris
+cd "$BASEDIR"/apps/iris
 go get
 
-# Setup sandbox
-cp $BASEDIR/apps/iris/lib/judger/policy/java_policy /app/sandbox/policy/
+# Setup sandbox (only for devcontainer)
+if [ "$DEVCONTAINER" = "1" ]; then
+  cp "$BASEDIR"/apps/iris/lib/judger/policy/java_policy /app/sandbox/policy/
 
-# 컨테이너 ID 추출 (예: /proc/self/cgroup에서 추출)
-CONTAINER_ID=$(head -1 /proc/self/cgroup | cut -d/ -f3)
-# docker- 접두사와 .scope 접미사 제거 (예: docker-5340af7...scope -> 5340af7...)
-CONTAINER_ID=$(echo "$CONTAINER_ID" | sed -e 's/docker-\(.*\)\.scope/\1/')
-echo "Container ID: $CONTAINER_ID"
+  SANDBOX_DIR="/sys/fs/cgroup/sandbox-${CONTAINER_ID}"
 
-# 고유 cgroup 디렉터리 생성 (예: /sys/fs/cgroup/sandbox-${CONTAINER_ID})
-SANDBOX_CG="/sys/fs/cgroup/sandbox-${CONTAINER_ID}"
-if [ ! -d "$SANDBOX_CG" ]; then
-    if [ "$(id -u)" -eq 0 ]; then
-        # 현재 사용자가 root인 경우 sudo 없이 생성
-        mkdir -p "$SANDBOX_CG" || { echo "Failed to create cgroup directory $SANDBOX_CG" >&2; exit 1; }
-        # 해당 cgroup의 하위 그룹들이 메모리 컨트롤러를 사용할 수 있도록 추가하도록 설정
-        echo "+memory" > "$SANDBOX_CG/cgroup.subtree_control"
-    else
-        # root가 아닌 경우, sudo가 있으면 sudo 사용
-        if command -v sudo >/dev/null 2>&1; then
-            sudo mkdir -p "$SANDBOX_CG" || { echo "Failed to create cgroup directory $SANDBOX_CG" >&2; exit 1; }
-            # 해당 cgroup의 하위 그룹들이 메모리 컨트롤러를 사용할 수 있도록 추가하도록 설정
-            sudo echo "+memory" | sudo tee "$SANDBOX_CG/cgroup.subtree_control"
-        else
-            echo "Error: not running as root and sudo is not available to create $SANDBOX_CG" >&2
-            exit 1
-        fi
-    fi
-    echo "Created cgroup directory $SANDBOX_CG"
+  SUDO=$([[ $UID -ne 0 ]] && echo "sudo")
+  $SUDO mkdir -p "$SANDBOX_DIR"
+  $SUDO echo "+memory" | $SUDO tee "$SANDBOX_DIR/cgroup.subtree_control"
 fi
 
-# CONTAINER_ID를 환경 변수로 설정하고 ~/.bashrc에 추가
-echo "export CONTAINER_ID=$CONTAINER_ID" >> ~/.bashrc
-export CONTAINER_ID=$CONTAINER_ID
-source ~/.bashrc
-
-# Check RabbitMQ connection
-while ! nc -z "$RABBITMQ_HOST" "$RABBITMQ_PORT"; do sleep 3; done
-echo "rabbitmq is up - server running..."
-
-# Make an Exchange
-rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
-  declare exchange name=$JUDGE_EXCHANGE_NAME type=direct
-
-# Make queues
-rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
-  declare queue name="$JUDGE_RESULT_QUEUE_NAME" durable=true
-rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
-  declare queue name="$JUDGE_SUBMISSION_QUEUE_NAME" durable=true arguments='{"x-max-priority": 3}'
-
-# Make bindings
-rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
-  declare binding source="$JUDGE_EXCHANGE_NAME" destination_type=queue destination="$JUDGE_RESULT_QUEUE_NAME" routing_key="$JUDGE_RESULT_ROUTING_KEY"
-rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
-  declare binding source="$JUDGE_EXCHANGE_NAME" destination_type=queue destination="$JUDGE_SUBMISSION_QUEUE_NAME" routing_key="$JUDGE_SUBMISSION_ROUTING_KEY"
-
-# Allow direnv
-cd $BASEDIR
-direnv allow
+echo ""
+echo "✅ Codedang setup has been completed!"
+echo ""
