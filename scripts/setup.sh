@@ -40,6 +40,9 @@ if [ ! -f apps/frontend/.env ]; then
   cp apps/frontend/.env.example apps/frontend/.env
 fi
 
+# Backward compatibility: remove old .env file
+rm -f .env
+
 # Install pnpm and Node.js packages
 corepack enable
 COREPACK_ENABLE_DOWNLOAD_PROMPT=0 pnpm install
