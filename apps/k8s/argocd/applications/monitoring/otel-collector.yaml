@@ -13,9 +13,6 @@ spec:
     path: apps/k8s/monitoring/otel-collector
     repoURL: https://github.com/skkuding/codedang
     targetRevision: main
-    directory:
-      # kustomization.yaml is ignored if recurse is true
-      recurse: false
   destination:
     namespace: monitoring-otel
     name: production
