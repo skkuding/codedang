@@ -1,7 +1,7 @@
 import { Controller, Req, Res, Get, Param } from '@nestjs/common'
 import { Response } from 'express'
-import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
-import { GroupIDPipe, IDValidationPipe } from '@libs/pipe'
+import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
+import { IDValidationPipe } from '@libs/pipe'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')
@@ -16,19 +16,18 @@ export class SubmissionController {
    * @param problemId AssignmentProblemRecode을 조회할 problemID
    * @returns
    */
-  @Get('/download/:groupId/:assignmentId/:problemId')
-  @UseGroupLeaderGuard()
+  @Get('/download/:assignmentId/:problemId')
+  @UseDisableAdminGuard()
   async downloadCodes(
-    @Param('groupId', GroupIDPipe) groupId: number,
     @Param('assignmentId', IDValidationPipe) assignmentId: number,
     @Param('problemId', IDValidationPipe) problemId: number,
     @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) res: Response
   ) {
     await this.submissionService.downloadSourceCodes(
-      groupId,
       assignmentId,
       problemId,
+      req.user.id,
       res
     )
   }

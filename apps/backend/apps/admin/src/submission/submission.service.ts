@@ -8,8 +8,7 @@ import { writeFile, rm, unlink, mkdir } from 'fs/promises'
 import path from 'path'
 import {
   EntityNotExistException,
-  ForbiddenAccessException,
-  UnprocessableFileDataException
+  ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
@@ -660,12 +659,11 @@ export class SubmissionService {
   }
 
   async downloadSourceCodes(
-    groupId: number,
     assignmentId: number,
     problemId: number,
+    userId: number,
     res: Response
   ) {
-    // TODO: Admin은 무조건 허용..이거 되는지 확인
     const assignmentGroup = await this.prisma.assignment.findFirst({
       where: {
         id: assignmentId
@@ -682,9 +680,29 @@ export class SubmissionService {
         message: 'Assignment does not exist'
       })
     }
-    console.log('AssignmentGroupID', assignmentGroup.groupId)
-    console.log('Param GroupID', groupId)
-    if (assignmentGroup.groupId !== groupId) {
+
+    const user = await this.prisma.user.findFirst({
+      select: {
+        role: true,
+        userGroup: {
+          where: {
+            isGroupLeader: true,
+            groupId: assignmentGroup.groupId
+          },
+          select: {
+            groupId: true
+          }
+        }
+      },
+      where: {
+        id: userId
+      }
+    })
+
+    const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin'
+    const isGroupLeader = (user?.userGroup?.length ?? 0) > 0
+
+    if (!isAdmin && !isGroupLeader) {
       // throw new ForbiddenAccessException('Only Group Leader can download source codes.')
       return res.status(403).json({
         statusCode: 403,
