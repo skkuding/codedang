@@ -40,7 +40,8 @@ export function CreateAssignmentForm({
       enableCopyPaste: true,
       isJudgeResultVisible: true,
       autoFinalizeScore: false,
-      description: ''
+      description: '',
+      startTime: null
     }
   })
 
