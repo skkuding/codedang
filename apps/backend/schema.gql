@@ -74,7 +74,7 @@ type Assignment {
   createdBy: User
   createdById: Int
   description: String!
-  dueTime: DateTime!
+  dueTime: DateTime
   enableCopyPaste: Boolean!
   endTime: DateTime!
   group: Group!
@@ -461,7 +461,7 @@ type AssignmentWithParticipants {
   createdBy: User
   createdById: Int
   description: String!
-  dueTime: DateTime!
+  dueTime: DateTime
   enableCopyPaste: Boolean!
   endTime: DateTime!
   group: Group!
@@ -490,7 +490,7 @@ type AssignmentWithScores {
   createdBy: User
   createdById: Int
   description: String!
-  dueTime: DateTime!
+  dueTime: DateTime
   enableCopyPaste: Boolean!
   endTime: DateTime!
   group: Group!
