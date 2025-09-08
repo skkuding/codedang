@@ -81,9 +81,10 @@ if [ "$DEVCONTAINER" = "1" ]; then
   cp "$BASEDIR"/apps/iris/lib/judger/policy/java_policy /app/sandbox/policy/
 
   SANDBOX_DIR="/sys/fs/cgroup/sandbox-${CONTAINER_ID}"
-
   SUDO=$([[ $UID -ne 0 ]] && echo "sudo")
   $SUDO mkdir -p "$SANDBOX_DIR"
+
+  # Allow subgroups to access memory controller
   $SUDO echo "+memory" | $SUDO tee "$SANDBOX_DIR/cgroup.subtree_control"
 fi
 
