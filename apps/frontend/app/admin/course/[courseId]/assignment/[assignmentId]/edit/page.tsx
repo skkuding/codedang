@@ -79,16 +79,14 @@ export default function Page() {
                   isLabeled={false}
                 >
                   <TimeFormPopover />
-                  {methods.getValues('dueTime') && (
-                    <TimeForm
-                      name="dueTime"
-                      defaultTimeOnSelect={{
-                        hours: 23,
-                        minutes: 59,
-                        seconds: 59
-                      }}
-                    />
-                  )}
+                  <TimeForm
+                    name="dueTime"
+                    defaultTimeOnSelect={{
+                      hours: 23,
+                      minutes: 59,
+                      seconds: 59
+                    }}
+                  />
                 </FormSection>
               </div>
 
@@ -148,7 +146,9 @@ export default function Page() {
                 <AssignmentSolutionTable
                   problems={problems}
                   setProblems={setProblems}
-                  dueTime={methods.getValues('dueTime')}
+                  dueTime={
+                    methods.getValues('dueTime') ?? methods.getValues('endTime')
+                  }
                 />
               </div>
 
