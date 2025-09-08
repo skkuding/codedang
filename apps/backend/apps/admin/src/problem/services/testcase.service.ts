@@ -194,7 +194,7 @@ export class TestcaseService {
 
     // 기존에 존재하던 TC의 id 중 전달 받은 TC인자에 포함되어 있지 않은 id(삭제되어야할 TC의 id)
     const outdated = existing.filter((tc) => !updatedIds.has(tc.id))
-
+    const outdatedTime = new Date()
     if (outdated.length > 0) {
       await Promise.all([
         outdated.map(async (tc) => {
@@ -204,7 +204,7 @@ export class TestcaseService {
             },
             data: {
               isOutdated: true,
-              outdateTime: new Date()
+              outdateTime: outdatedTime
             }
           })
         })
@@ -223,17 +223,23 @@ export class TestcaseService {
           existingTc &&
           (existingTc.input !== tc.input ||
             existingTc.output !== tc.output ||
-            existingTc.isHidden !== tc.isHidden ||
-            existingTc.scoreWeightNumerator !== tc.scoreWeightNumerator ||
-            existingTc.scoreWeightDenominator !== tc.scoreWeightDenominator ||
-            existingTc.scoreWeight !== tc.scoreWeight)
+            existingTc.isHidden !== tc.isHidden)
         ) {
+          console.log('Comparing:', {
+            inputOld: existingTc.input,
+            inputNew: tc.input,
+            outputOld: existingTc.output,
+            outputNew: tc.output,
+            isHiddenOld: existingTc.isHidden,
+            isHiddenNew: tc.isHidden
+          })
           await this.prisma.problemTestcase.update({
             where: {
               id: tc.id
             },
             data: {
-              isOutdated: true
+              isOutdated: true,
+              outdateTime: outdatedTime
             }
           })
 
