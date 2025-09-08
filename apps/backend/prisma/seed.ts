@@ -1,5 +1,6 @@
 import {
   ContestRole,
+  GroupType,
   Language,
   Level,
   NotificationType,

@@ -2,6 +2,9 @@ import { Field, InputType, Int } from '@nestjs/graphql'
 
 @InputType()
 export class Testcase {
+  @Field(() => Int, { nullable: true, description: '기존 TC 구분용 ID 필드' })
+  id?: number
+
   @Field(() => String)
   input!: string
 

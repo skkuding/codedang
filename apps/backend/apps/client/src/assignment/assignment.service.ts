@@ -122,7 +122,8 @@ export class AssignmentService {
   async getAssignment(id: number, userId: number) {
     const isRegistered = await this.prisma.assignmentRecord.findUnique({
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { assignmentId_userId: { assignmentId: id, userId } }
+      where: { assignmentId_userId: { assignmentId: id, userId } },
+      select: { id: true }
     })
 
     if (!isRegistered) {
@@ -132,16 +133,20 @@ export class AssignmentService {
     }
 
     const assignment = await this.prisma.assignment.findUnique({
-      where: {
-        id,
-        isVisible: true,
-        startTime: {
-          lte: new Date()
-        }
-      },
+      where: { id },
       select: {
         ...assignmentSelectOption,
-        description: true
+        description: true,
+        isVisible: true,
+        group: {
+          select: {
+            userGroup: {
+              where: { userId },
+              take: 1,
+              select: { isGroupLeader: true }
+            }
+          }
+        }
       }
     })
 
@@ -149,7 +154,16 @@ export class AssignmentService {
       throw new EntityNotExistException('Assignment')
     }
 
-    const { _count, ...assignmentDetails } = assignment
+    const { _count, group, ...assignmentDetails } = assignment
+
+    if (!group.userGroup[0].isGroupLeader) {
+      if (
+        !assignmentDetails.isVisible ||
+        assignmentDetails.startTime > new Date()
+      ) {
+        throw new EntityNotExistException('Assignment')
+      }
+    }
 
     return {
       ...assignmentDetails,
@@ -586,6 +600,11 @@ export class AssignmentService {
           select: {
             score: true,
             finalScore: true,
+            assignmentProblemRecord: {
+              select: {
+                finalScore: true
+              }
+            },
             // eslint-disable-next-line @typescript-eslint/naming-convention
             _count: {
               select: {
@@ -614,6 +633,11 @@ export class AssignmentService {
             'User not participated in the assignment'
           )
         }
+        assignmentRecord[0].finalScore =
+          assignmentRecord[0].assignmentProblemRecord.reduce(
+            (sum, { finalScore }) => sum + (finalScore ?? 0),
+            0
+          )
         const total = assignmentProblem.reduce(
           (sum, { score }) => sum + score,
           0

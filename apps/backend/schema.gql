@@ -2112,7 +2112,9 @@ type ProblemTestcase {
   id: ID!
   input: String
   isHidden: Boolean!
+  isOutdated: Boolean!
   order: Int
+  outdateTime: DateTime
   output: String
   problem: Problem!
   problemId: Int!
@@ -2146,7 +2148,9 @@ type ProblemTestcaseCountAggregate {
   id: Int!
   input: Int!
   isHidden: Int!
+  isOutdated: Int!
   order: Int!
+  outdateTime: Int!
   output: Int!
   problemId: Int!
   scoreWeight: Int!
@@ -2166,7 +2170,9 @@ type ProblemTestcaseMaxAggregate {
   id: Int
   input: String
   isHidden: Boolean
+  isOutdated: Boolean
   order: Int
+  outdateTime: DateTime
   output: String
   problemId: Int
   scoreWeight: Int
@@ -2182,7 +2188,9 @@ type ProblemTestcaseMinAggregate {
   id: Int
   input: String
   isHidden: Boolean
+  isOutdated: Boolean
   order: Int
+  outdateTime: DateTime
   output: String
   problemId: Int
   scoreWeight: Int
@@ -2796,6 +2804,8 @@ type TestSubmissionSumAggregate {
 }
 
 input Testcase {
+  """기존 TC 구분용 ID 필드"""
+  id: Int
   input: String!
   isHidden: Boolean!
   output: String!
