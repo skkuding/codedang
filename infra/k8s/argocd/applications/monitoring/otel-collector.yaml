@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: otel-collector
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/environment: production
+spec:
+  project: default
+  source:
+    path: infra/k8s/monitoring/otel-collector
+    repoURL: https://github.com/skkuding/codedang
+    targetRevision: main
+    directory:
+      # kustomization.yaml is ignored if recurse is true
+      recurse: false
+  destination:
+    namespace: monitoring-otel
+    name: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
