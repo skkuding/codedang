@@ -225,14 +225,6 @@ export class TestcaseService {
             existingTc.output !== tc.output ||
             existingTc.isHidden !== tc.isHidden)
         ) {
-          console.log('Comparing:', {
-            inputOld: existingTc.input,
-            inputNew: tc.input,
-            outputOld: existingTc.output,
-            outputNew: tc.output,
-            isHiddenOld: existingTc.isHidden,
-            isHiddenNew: tc.isHidden
-          })
           await this.prisma.problemTestcase.update({
             where: {
               id: tc.id
