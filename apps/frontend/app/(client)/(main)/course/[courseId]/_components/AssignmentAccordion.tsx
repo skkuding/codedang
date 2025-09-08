@@ -139,13 +139,14 @@ function AssignmentAccordionItem({
                   />
                 </div>
               </div>
-              {assignment && hasDueDate(assignment.dueTime) && (
-                <CountdownStatus
-                  baseTime={assignment.dueTime}
-                  textStyle="text-color-neutral-50"
-                  showIcon={false}
-                />
-              )}
+              {assignment &&
+                (assignment.dueTime ?? hasDueDate(assignment.endTime)) && (
+                  <CountdownStatus
+                    baseTime={assignment.dueTime ?? assignment.endTime}
+                    textStyle="text-color-neutral-50"
+                    showIcon={false}
+                  />
+                )}
             </div>
             <Separator className="my-2" />
             <div
@@ -203,13 +204,14 @@ function AssignmentAccordionItem({
                 assignment={assignment}
                 courseId={courseId}
               />
-              {assignment && hasDueDate(assignment.dueTime) && (
-                <CountdownStatus
-                  baseTime={assignment.dueTime}
-                  textStyle="text-color-neutral-50"
-                  showIcon={false}
-                />
-              )}
+              {assignment &&
+                (assignment.dueTime ?? hasDueDate(assignment.endTime)) && (
+                  <CountdownStatus
+                    baseTime={assignment.dueTime ?? assignment.endTime}
+                    textStyle="text-color-neutral-50"
+                    showIcon={false}
+                  />
+                )}
             </div>
 
             {assignment && (
@@ -218,7 +220,7 @@ function AssignmentAccordionItem({
                   <p className="text-color-neutral-60 overflow-hidden whitespace-nowrap text-center text-base font-normal">
                     {formatDateRange(
                       assignment.startTime,
-                      assignment.dueTime,
+                      assignment.dueTime ?? assignment.endTime,
                       false
                     )}
                   </p>
@@ -304,7 +306,9 @@ function AssignmentAccordionItem({
                           )}
                           <span>
                             Score:{' '}
-                            {dayjs().isAfter(dayjs(assignment.dueTime))
+                            {dayjs().isAfter(
+                              dayjs(assignment.dueTime ?? assignment.endTime)
+                            )
                               ? (record.problems[index].problemRecord
                                   ?.finalScore ?? '-')
                               : '-'}{' '}
@@ -355,7 +359,9 @@ function AssignmentAccordionItem({
                     </div>
 
                     <div className="flex w-[10%] justify-center text-base font-medium">
-                      {dayjs().isAfter(dayjs(assignment.dueTime)) && record
+                      {dayjs().isAfter(
+                        dayjs(assignment.dueTime ?? assignment.endTime)
+                      ) && record
                         ? (record.problems[index].problemRecord?.finalScore ??
                           '-')
                         : '-'}{' '}

@@ -53,7 +53,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
           </p>
           <AssignmentStatus
             startTime={exercise.startTime}
-            dueTime={exercise.dueTime}
+            dueTime={exercise.dueTime ?? exercise.endTime}
           />
         </div>
         <Separator className="my-0" />

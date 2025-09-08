@@ -139,13 +139,14 @@ function ExerciseAccordionItem({
                   />
                 </div>
               </div>
-              {exercise && hasDueDate(exercise.dueTime) && (
-                <CountdownStatus
-                  baseTime={exercise.dueTime}
-                  textStyle="text-color-neutral-50"
-                  showIcon={false}
-                />
-              )}
+              {exercise &&
+                (exercise.dueTime ?? hasDueDate(exercise.endTime)) && (
+                  <CountdownStatus
+                    baseTime={exercise.dueTime ?? exercise.endTime}
+                    textStyle="text-color-neutral-50"
+                    showIcon={false}
+                  />
+                )}
             </div>
             <Separator className="my-2" />
             <div
@@ -180,13 +181,14 @@ function ExerciseAccordionItem({
                 courseId={courseId}
                 isExercise
               />
-              {exercise && hasDueDate(exercise.dueTime) && (
-                <CountdownStatus
-                  baseTime={exercise.dueTime}
-                  textStyle="text-color-neutral-50"
-                  showIcon={false}
-                />
-              )}
+              {exercise &&
+                (exercise.dueTime ?? hasDueDate(exercise.endTime)) && (
+                  <CountdownStatus
+                    baseTime={exercise.dueTime ?? exercise.endTime}
+                    textStyle="text-color-neutral-50"
+                    showIcon={false}
+                  />
+                )}
             </div>
 
             {exercise && (
