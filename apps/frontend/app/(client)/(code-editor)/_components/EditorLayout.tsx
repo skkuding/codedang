@@ -270,10 +270,10 @@ const renderTimediff = ({
   }
   const item = assignment ?? exercise
 
-  if (item && hasDueDate(item.dueTime)) {
+  if (item && (item.dueTime ?? hasDueDate(item.endTime))) {
     return (
       <CountdownStatus
-        baseTime={item.dueTime}
+        baseTime={item.dueTime ?? item.endTime}
         target={assignment ? 'assignment' : 'exercise'}
         showTarget={false}
         inEditor={true}

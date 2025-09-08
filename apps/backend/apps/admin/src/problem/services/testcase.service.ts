@@ -177,31 +177,83 @@ export class TestcaseService {
     }
   }
 
-  async updateTestcases(problemId: number, testcases: Array<Testcase>) {
-    await Promise.all([
-      this.prisma.problemTestcase.deleteMany({
-        where: {
-          problemId
-        }
-      })
-    ])
+  async syncTestcases(problemId: number, testcases: Array<Testcase>) {
+    // 기존에 존재하던 유효한 TC 모두 가져옴
+    const existing = await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId,
+        isOutdated: false
+      }
+    })
+    const existingMap = new Map(existing.map((tc) => [tc.id, tc]))
+
+    // 인자로 전달받은 TC 중 id 필드가 존재하는 TC(기존 TC)의 id만 필터링해서 가져옴
+    const updatedIds = new Set(
+      testcases.filter((tc) => tc.id).map((tc) => tc.id)
+    )
+
+    // 기존에 존재하던 TC의 id 중 전달 받은 TC인자에 포함되어 있지 않은 id(삭제되어야할 TC의 id)
+    const outdated = existing.filter((tc) => !updatedIds.has(tc.id))
+
+    if (outdated.length > 0) {
+      await Promise.all([
+        outdated.map(async (tc) => {
+          return await this.prisma.problemTestcase.update({
+            where: {
+              id: tc.id
+            },
+            data: {
+              isOutdated: true,
+              outdateTime: new Date()
+            }
+          })
+        })
+      ])
+    }
 
     for (const tc of testcases) {
-      const fraction = this.convertToFraction(tc)
-
-      await this.prisma.problemTestcase.create({
-        data: {
-          problemId,
-          input: tc.input,
-          output: tc.output,
-          scoreWeightNumerator: fraction.numerator,
-          scoreWeightDenominator: fraction.denominator,
-          scoreWeight: Math.round(
-            (fraction.numerator / fraction.denominator) * 100
-          ),
-          isHidden: tc.isHidden
+      const weightFraction = this.convertToFraction(tc)
+      const scoreWeight = Math.round(
+        (weightFraction.numerator / weightFraction.denominator) * 100
+      )
+      if (tc.id) {
+        // 전달받은 인자 중 id가 존재하는 경우 => 기존에 존재하던 TC이므로 바뀐 필드 있는지 확인 후 업데이트 수행
+        const existingTc = existingMap.get(tc.id)
+        if (
+          existingTc &&
+          (existingTc.input !== tc.input ||
+            existingTc.output !== tc.output ||
+            existingTc.isHidden !== tc.isHidden ||
+            existingTc.scoreWeightNumerator !== tc.scoreWeightNumerator ||
+            existingTc.scoreWeightDenominator !== tc.scoreWeightDenominator ||
+            existingTc.scoreWeight !== tc.scoreWeight)
+        ) {
+          await this.prisma.problemTestcase.update({
+            where: { id: tc.id },
+            data: {
+              input: tc.input,
+              output: tc.output,
+              isHidden: tc.isHidden,
+              scoreWeight,
+              scoreWeightNumerator: weightFraction.numerator,
+              scoreWeightDenominator: weightFraction.denominator
+            }
+          })
         }
-      })
+      } else {
+        // 새로운 TC => 그냥 Create
+        await this.prisma.problemTestcase.create({
+          data: {
+            problemId,
+            input: tc.input,
+            output: tc.output,
+            isHidden: tc.isHidden,
+            scoreWeight,
+            scoreWeightNumerator: weightFraction.numerator,
+            scoreWeightDenominator: weightFraction.denominator
+          }
+        })
+      }
     }
   }
 
@@ -390,7 +442,10 @@ export class TestcaseService {
     originalFileNames.forEach(async (name, index) => {
       const id = testcaseIdMapper[name]
       await this.prisma.problemTestcase.update({
-        where: { id },
+        where: {
+          id,
+          isOutdated: false
+        },
         data: { order: index + 1 }
       })
     })
@@ -410,15 +465,20 @@ export class TestcaseService {
         await this.storageService.deleteObject(file.Key, 'testcase')
       })
     )
-    await this.prisma.problemTestcase.deleteMany({
-      where: { problemId }
+    await this.prisma.problemTestcase.updateMany({
+      where: { problemId },
+      data: {
+        isOutdated: true,
+        outdateTime: new Date()
+      }
     })
   }
 
   async getProblemTestcases(problemId: number) {
     return await this.prisma.problemTestcase.findMany({
       where: {
-        problemId
+        problemId,
+        isOutdated: false
       },
       orderBy: {
         order: 'asc'

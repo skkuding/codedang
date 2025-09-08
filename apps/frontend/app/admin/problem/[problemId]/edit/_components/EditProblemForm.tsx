@@ -56,6 +56,7 @@ export function EditProblemForm({
       // After migration, testcase input/output is not going to passed through 'getProblem' and 'updateProblem'
       const testcases = data.testcase.map((testcase) => ({
         ...testcase,
+        id: Number(testcase.id),
         input: testcase.input ?? '',
         output: testcase.output ?? ''
       }))
