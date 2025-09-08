@@ -12,7 +12,7 @@ import { cn } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import { format } from 'date-fns'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, forwardRef } from 'react'
 
 interface DateTimePickerDemoProps {
   onChange: (date: Date) => void
@@ -21,12 +21,10 @@ interface DateTimePickerDemoProps {
   defaultTimeOnSelect?: { hours: number; minutes: number; seconds: number }
 }
 
-export const DateTimePickerDemo = ({
-  onChange,
-  isContest = false,
-  defaultValue,
-  defaultTimeOnSelect
-}: DateTimePickerDemoProps) => {
+export const DateTimePickerDemo = forwardRef<
+  HTMLButtonElement,
+  DateTimePickerDemoProps
+>(({ onChange, isContest = false, defaultValue, defaultTimeOnSelect }, ref) => {
   const [date, setDate] = useState<Date>()
 
   useEffect(() => {
@@ -57,6 +55,7 @@ export const DateTimePickerDemo = ({
             isContest ? 'w-[492px]' : 'w-[280px]',
             !date && 'text-muted-foreground'
           )}
+          ref={ref}
         >
           <Image
             className="mr-2 h-4 w-4"
@@ -105,4 +104,6 @@ export const DateTimePickerDemo = ({
       </PopoverContent>
     </Popover>
   )
-}
+})
+
+DateTimePickerDemo.displayName = 'DateTimePickerDemo'
