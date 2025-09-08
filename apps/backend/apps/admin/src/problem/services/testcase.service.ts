@@ -229,8 +229,17 @@ export class TestcaseService {
             existingTc.scoreWeight !== tc.scoreWeight)
         ) {
           await this.prisma.problemTestcase.update({
-            where: { id: tc.id },
+            where: {
+              id: tc.id
+            },
             data: {
+              isOutdated: true
+            }
+          })
+
+          await this.prisma.problemTestcase.create({
+            data: {
+              problemId,
               input: tc.input,
               output: tc.output,
               isHidden: tc.isHidden,
