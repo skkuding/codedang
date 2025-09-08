@@ -1,15 +1,10 @@
 FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:22-bullseye
 
 # Install sandbox
-RUN mkdir -p /app/sandbox/policy /app/sandbox/results \
-  && mkdir -p /app/sandbox/logs/run /app/sandbox/logs/compile
+RUN mkdir -p /app/sandbox/policy /app/sandbox/results /app/sandbox/logs/run /app/sandbox/logs/compile
 RUN chmod -R 777 /app/sandbox
 
-RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" ]; then \
-  curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.3/libjudger-arm64.so" -o "/app/sandbox/libjudger.so"; \
-  else \
-  curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.3/libjudger-amd64.so" -o "/app/sandbox/libjudger.so"; \
-  fi
+RUN curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.3/libjudger-$(dpkg --print-architecture).so" -o "/app/sandbox/libjudger.so"
 RUN chmod 750 /app/sandbox/libjudger.so
 
 # Install dependencies
