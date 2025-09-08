@@ -14,12 +14,13 @@ spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
   generators:
+    # TODO: Use git generator
     - list:
         elements:
           - env: stage
             branch: main
           - env: production
-            branch: main # TODO: change to release branch
+            branch: release
   template:
     metadata:
       name: 'frontend-{{.env}}'
