@@ -216,6 +216,9 @@ jobs:
       - name: Initialize MinIO
         if: steps.filter.outputs.backend == 'true'
         run: pnpm run init:storage
+        env:
+          MINIO_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          MINIO_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
 
       - name: Test
         if: steps.filter.outputs.backend == 'true'
