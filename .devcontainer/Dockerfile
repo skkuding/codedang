@@ -14,7 +14,7 @@ RUN chmod 750 /app/sandbox/libjudger.so
 
 # Install dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-  && apt-get -y install --no-install-recommends netcat pypy3 \
+  && apt-get -y install --no-install-recommends pypy3 \
   && rm -rf /var/lib/apt/lists/*
 
 # Add go binaries to secure path
