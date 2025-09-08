@@ -64,7 +64,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const addTestcase = (isHidden: boolean) => {
     setValue('testcases', [
       ...getValues('testcases'),
-      { input: '', output: '', isHidden, scoreWeight: undefined }
+      { id: null, input: '', output: '', isHidden, scoreWeight: null }
     ])
   }
 
@@ -75,10 +75,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     const isHidden = testcaseFlag === 1
 
     const newTestcases = uploadedTestcases.map((testcase) => ({
+      id: null,
       input: testcase.input,
       output: testcase.output,
       isHidden,
-      scoreWeight: undefined
+      scoreWeight: null
     }))
 
     setValue('testcases', [...currentTestcases, ...newTestcases])
