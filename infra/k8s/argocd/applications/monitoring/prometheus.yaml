@@ -30,3 +30,4 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - PrunePropagationPolicy=foreground
+      - ServerSideApply=true # avoid "CustomResourceDefinition ... is invalid: metadata.annotations: Too long" issue
