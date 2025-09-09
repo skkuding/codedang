@@ -28,7 +28,7 @@ interface WorkItem {
   isExercise: boolean
   startTime: Date
   endTime: Date
-  dueTime: Date
+  dueTime?: Date
   group: GroupInfo
   problemCount: number
   submittedCount: number
@@ -68,7 +68,7 @@ const isActiveOnDate = (selectedDate: Date | undefined, workItem: WorkItem) => {
   const selectedStart = startOfDay(selectedDate).getTime()
   const selectedEnd = selectedStart + 86_400_000 - 1
   const startTime = workItem.startTime.getTime()
-  const dueTime = workItem.dueTime.getTime()
+  const dueTime = workItem.dueTime?.getTime() ?? workItem.endTime.getTime()
   return !(dueTime < selectedStart || startTime > selectedEnd)
 }
 
@@ -243,7 +243,7 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
   const deadlineDateList = useMemo(() => {
     const uniq = new Set<number>()
     for (const row of allRows) {
-      const t = startOfDay(new Date(row.dueTime)).getTime()
+      const t = startOfDay(new Date(row.dueTime ?? row.endTime)).getTime()
       uniq.add(t)
     }
     return [...uniq].map((t) => new Date(t))
@@ -353,10 +353,14 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
             .sort(
               (groupA, groupB) =>
                 Number(
-                  groupB.rows.some((r) => isDueToday(selectedDate, r.dueTime))
+                  groupB.rows.some((r) =>
+                    isDueToday(selectedDate, r.dueTime ?? r.endTime)
+                  )
                 ) -
                 Number(
-                  groupA.rows.some((r) => isDueToday(selectedDate, r.dueTime))
+                  groupA.rows.some((r) =>
+                    isDueToday(selectedDate, r.dueTime ?? r.endTime)
+                  )
                 )
             )
             .filter((g) => g.rows.length)
@@ -372,20 +376,25 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
                     .slice()
                     .sort((a, b) => {
                       const dueRank =
-                        Number(isDueToday(selectedDate, b.dueTime)) -
-                        Number(isDueToday(selectedDate, a.dueTime))
+                        Number(
+                          isDueToday(selectedDate, b.dueTime ?? b.endTime)
+                        ) -
+                        Number(isDueToday(selectedDate, a.dueTime ?? a.endTime))
                       if (dueRank !== 0) {
                         return dueRank
                       }
-                      const dueA = a.dueTime.getTime()
-                      const dueB = b.dueTime.getTime()
+                      const dueA = a.dueTime?.getTime() ?? a.endTime.getTime()
+                      const dueB = b.dueTime?.getTime() ?? b.endTime.getTime()
                       if (dueA !== dueB) {
                         return dueA - dueB
                       }
                       return a.title.localeCompare(b.title)
                     })
                     .map((row) => {
-                      const showDueBadge = isDueToday(selectedDate, row.dueTime)
+                      const showDueBadge = isDueToday(
+                        selectedDate,
+                        row.dueTime ?? row.endTime
+                      )
                       const progress = progressPct(
                         row.submittedCount,
                         row.problemCount
@@ -396,7 +405,9 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
                           key={row.id}
                           href={`/course/${row.group.id}/${row.isExercise ? 'exercise' : 'assignment'}/${row.id}`}
                           className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
-                          aria-label={`${row.title}, due ${formatDueMd(row.dueTime)}, progress ${progress}%`}
+                          aria-label={`${row.title}, due ${formatDueMd(
+                            row.dueTime ?? row.endTime
+                          )}, progress ${progress}%`}
                         >
                           <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-neutral-200/40" />
                           <div
@@ -423,7 +434,7 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
                             </div>
                             <span className="ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm tabular-nums text-violet-600">
                               {'~ '}
-                              {formatDueMd(row.dueTime)}
+                              {formatDueMd(row.dueTime ?? row.endTime)}
                             </span>
                           </div>
                         </Link>

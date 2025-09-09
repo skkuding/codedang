@@ -54,10 +54,13 @@ export function EditProblemForm({
 
       // HACK: This is a workaround for migrating testcase to separated query/mutation.
       // After migration, testcase input/output is not going to passed through 'getProblem' and 'updateProblem'
-      const testcases = data.testcase.map((testcase) => ({
-        ...testcase,
-        input: testcase.input ?? '',
-        output: testcase.output ?? ''
+      const testcases = data.testcase.map((tc) => ({
+        id: Number(tc.id),
+        input: tc.input ?? '',
+        output: tc.output ?? '',
+        isHidden: tc.isHidden,
+        scoreWeightNumerator: tc.scoreWeightNumerator,
+        scoreWeightDenominator: tc.scoreWeightDenominator
       }))
 
       const initialFormValues = {
@@ -146,7 +149,10 @@ export function EditProblemForm({
       }
       await updateProblem({
         variables: {
-          input: inputForMutation
+          input: {
+            ...pendingInput.current,
+            testcases: methods.getValues('testcases')
+          }
         }
       })
     }
