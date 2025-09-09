@@ -20,7 +20,9 @@ export function TimeForm({
     formState: { errors }
   } = useFormContext()
 
-  const { field } = useController({
+  const {
+    field: { onChange, value, ref }
+  } = useController({
     name,
     control
   })
@@ -28,8 +30,9 @@ export function TimeForm({
   return (
     <div>
       <DateTimePickerDemo
-        onChange={field.onChange}
-        defaultValue={defaultValue ?? field.value}
+        ref={ref}
+        onChange={onChange}
+        defaultValue={defaultValue ?? value}
         defaultTimeOnSelect={defaultTimeOnSelect}
         isContest={isContest}
       />

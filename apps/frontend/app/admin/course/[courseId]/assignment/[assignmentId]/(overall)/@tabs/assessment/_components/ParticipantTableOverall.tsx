@@ -104,7 +104,9 @@ export function ParticipantTableOverall({
 
   const now = dayjs()
 
-  const isAssignmentFinished = now.isAfter(dayjs(assignmentData?.dueTime))
+  const isAssignmentFinished = now.isAfter(
+    dayjs(assignmentData?.dueTime ?? assignmentData?.endTime)
+  )
 
   const fileName = assignmentTitle
     ? `${assignmentTitle.replace(/\s+/g, '_')}.csv`
