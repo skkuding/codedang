@@ -18,14 +18,11 @@ export const handler = async () => {
   // get new token
   const newToken = await fetchNewInstagramToken(oldToken)
 
-  // update Secrets Manager with new token and last modified time
-  const KR_TIMEZONE_OFFSET = 9 * 60 * 60 * 1000
-  const now = new Date(Date.now() + KR_TIMEZONE_OFFSET).toISOString()
+  // update Secrets Manager with new token
   const putCommand = new PutSecretValueCommand({
     SecretId: process.env.SECRET_ARN,
     SecretString: JSON.stringify({
-      access_token: newToken,
-      last_modified: now
+      access_token: newToken
     })
   })
   await client.send(putCommand)
