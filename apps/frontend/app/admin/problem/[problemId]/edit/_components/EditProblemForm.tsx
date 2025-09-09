@@ -28,7 +28,8 @@ interface EditProblemFormProps {
 export function EditProblemForm({
   problemId,
   children,
-  methods
+  methods,
+  isTestcaseEditBlocked
 }: EditProblemFormProps) {
   const [message, setMessage] = useState('')
   const [showCautionModal, setShowCautionModal] = useState(false)
@@ -142,6 +143,10 @@ export function EditProblemForm({
 
   const handleUpdate = async () => {
     if (pendingInput.current) {
+      const inputForMutation = { ...pendingInput.current }
+      if (isTestcaseEditBlocked) {
+        delete inputForMutation.testcases
+      }
       await updateProblem({
         variables: {
           input: {
