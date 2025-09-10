@@ -48,6 +48,7 @@ export function WeekComboBox({ name, courseId }: WeekComboBoxProps) {
           <Button
             variant="outline"
             className="flex h-[36px] w-[280px] justify-between font-normal"
+            ref={field.ref}
           >
             <p className={cn(!selectedWeek && 'text-[#C4C4C4]')}>
               {selectedWeek ? `Week ${selectedWeek}` : 'Select an option'}

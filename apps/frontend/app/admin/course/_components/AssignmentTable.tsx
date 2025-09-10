@@ -18,14 +18,6 @@ interface AssignmentTableProps {
   isExercise?: boolean
 }
 
-const headerStyle = {
-  select: '',
-  title: 'w-1/2',
-  startTime: 'px-0 w-2/5',
-  week: 'px-0 w-1/5',
-  isVisible: 'px-0 w-1/12'
-}
-
 export function AssignmentTable({
   groupId,
   isExercise = false
@@ -54,12 +46,12 @@ export function AssignmentTable({
         <AssignmentsDeleteButton groupId={groupId} isExercise={isExercise} />
       </div>
       <DataTable
-        headerStyle={headerStyle}
         getHref={(data) =>
           isExercise
             ? (`/admin/course/${groupId}/exercise/${data.id}` as const)
             : (`/admin/course/${groupId}/assignment/${data.id}` as const)
         }
+        bodyStyle={{ title: 'justify-start' }}
       />
       <DataTablePagination showSelection />
     </DataTableRoot>
@@ -103,5 +95,5 @@ function AssignmentsDeleteButton({
 }
 
 export function AssignmentTableFallback() {
-  return <DataTableFallback columns={columns} headerStyle={headerStyle} />
+  return <DataTableFallback columns={columns} />
 }

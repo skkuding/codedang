@@ -18,6 +18,12 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
   }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
 }
 
 @layer base {

@@ -100,11 +100,7 @@ export function ImportProblemTable({
       </div>
       <DataTable
         size="sm"
-        isModalDataTable={true}
-        headerStyle={{
-          select: 'rounded-l-full',
-          preview: 'rounded-r-full'
-        }}
+        isHeaderGrouped={true}
         onRowClick={(table, row) => {
           const selectedRowCount = table.getSelectedRowModel().rows.length
           if (
@@ -118,7 +114,7 @@ export function ImportProblemTable({
           }
         }}
       />
-      <div className="h-[12px]" />
+      <div className="h-1.5" />
       <DataTablePagination showRowsPerPage={false} />
     </DataTableRoot>
   )
