@@ -114,7 +114,7 @@ export function ImportProblemTable({
           }
         }}
       />
-      <div className="h-[12px]" />
+      <div className="h-1.5" />
       <DataTablePagination showRowsPerPage={false} />
     </DataTableRoot>
   )

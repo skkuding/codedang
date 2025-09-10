@@ -38,8 +38,7 @@
       "cwd": "${workspaceFolder}/apps/iris",
       "program": "${workspaceFolder}/apps/iris/main.go",
       "console": "integratedTerminal",
-      "asRoot": true,
-      "envFile": "${workspaceFolder}/.env"
+      "asRoot": true
     }
   ]
 }

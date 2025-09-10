@@ -1,6 +1,8 @@
 'use client'
 
+import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import type { Assignment, AssignmentStatus } from '@/types/type'
+import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -29,6 +31,9 @@ export function AssignmentLink({
       setType('exercise')
     }
   }
+  const { data: assignmentData } = useQuery(
+    assignmentQueries.single({ assignmentId: assignment.id })
+  )
 
   const updateAssignmentStatus = () => {
     // TODO: change to use server date
@@ -54,7 +59,7 @@ export function AssignmentLink({
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
 
-    if (assignmentStatus === 'upcoming') {
+    if (assignmentStatus === 'upcoming' && !assignmentData) {
       toast.error('This assignment has not started yet!')
       return
     }
