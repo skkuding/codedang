@@ -151,7 +151,7 @@ export default function Page(props: {
             <SolutionField />
 
             {methods.getValues('testcases') && (
-              <TestcaseField blockEdit={isTestcaseEditBlocked} />
+              <TestcaseField blockEdit={false} />
             )}
 
             <FormSection isFlexColumn title="Limit">
