@@ -15,7 +15,7 @@ spec:
       path: infra/k8s/monitoring/grafana
       helm:
         valueFiles:
-          - values.yaml
+          - $codedang/infra/k8s/monitoring/grafana/values.yaml
         releaseName: grafana
         chart: grafana
         version: '9.4.0'
@@ -26,6 +26,7 @@ spec:
       directory:
         # kustomization.yaml is ignored if recurse is true
         recurse: false
+      ref: codedang
   destination:
     name: production
     namespace: monitoring-grafana
