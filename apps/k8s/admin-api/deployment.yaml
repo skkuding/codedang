@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-api
+  namespace: admin-api
+  
+  # 클러스터 내에서는 namespace로 자원을 구별한다고 한다.
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: admin-api
+  template:
+    metadata:
+      labels:
+        app: admin-api
+    spec: 
+      containers:
+        - name: admin-api
+          image: ghcr.io/skkuding/codedang-admin-api:latest
+          resources:
+            limits:
+              cpu: 1
+              memory: 1.5Gi
+            requests:
+              cpu: 1
+              memory: 1.5Gi
+          envFrom:
+            - secretRef:
+                name: admin-api-secrets
+            - secretRef:
+                name: admin-api-aws-secrets
+            - secretRef:
+                name: aws-credentials
+          env:
+            - name: REDIS_HOST
+              value: 'redis-master.redis.svc.cluster.local'
+            - name: REDIS_PORT
+              value: '6379'
+            - name: RABBITMQ_SSL
+              value: 'true'
+            # TODO: connect after observability services are implemented
+            # - name: OTEL_EXPORTER_OTLP_ENDPOINT_URL
+            #   value: 'otel-collector.observability.svc.cluster.local:4317'
