@@ -240,7 +240,6 @@ export class ContestQnAResolver {
   constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestQnA])
-  @UseDisableContestRolesGuard() // 임시 실행
   async getContestQnAs(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
     @Args(
@@ -249,15 +248,15 @@ export class ContestQnAResolver {
       new RequiredIntPipe('take')
     )
     take: number,
-    @Args('cursor', { type: () => Int }, CursorValidationPipe)
-    cursor: number | null,
+    // @Args('cursor', { type: () => Int }, CursorValidationPipe)
+    // cursor: number | null,
     @Args('filter', { type: () => GetContestQnAsFilterInput, nullable: true })
     filter?: GetContestQnAsFilterInput
   ) {
     return await this.contestService.getContestQnAs(
       contestId,
-      take,
-      cursor,
+      // take,
+      // cursor,
       filter
     )
   }
@@ -308,6 +307,7 @@ export class ContestQnAResolver {
   }
 
   @Mutation(() => ContestQnA)
+  @UseDisableContestRolesGuard()
   async toggleContestQnAResolved(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
     @Args('qnAOrder', { type: () => Int }, IDValidationPipe) qnAOrder: number

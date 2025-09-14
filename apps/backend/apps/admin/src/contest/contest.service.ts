@@ -1420,13 +1420,12 @@ export class ContestService {
 
   async getContestQnAs(
     contestId: number,
-    take: number,
-    cursor: number | null,
+    // take: number,
+    // cursor: number | null,
     filter?: {
       isResolved?: boolean
     }
   ) {
-    // 대회가 존재하는지 확인
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId }
     })
@@ -1439,22 +1438,18 @@ export class ContestService {
       contestId
     }
 
-    // 페이지네이션 설정
-    const paginator = this.prisma.getPaginator(cursor)
+    // const paginator = this.prisma.getPaginator(cursor)
 
-    // 해결 상태 필터링
     if (filter?.isResolved !== undefined) {
       where.isResolved = filter.isResolved
     }
 
-    return await this.prisma.contestQnA.findMany({
-      ...paginator,
-      take,
-      where: {
-        contestId
-      },
+    const result = await this.prisma.contestQnA.findMany({
+      // ...paginator,
+      // take,
+      where,
       orderBy: {
-        order: 'desc'
+        id: 'desc'
       },
       include: {
         createdBy: {
@@ -1470,6 +1465,7 @@ export class ContestService {
         }
       }
     })
+    return result
   }
 
   async getContestQnA(contestId: number, order: number) {
