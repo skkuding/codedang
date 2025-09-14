@@ -932,6 +932,7 @@ export class AssignmentService {
           include: {
             group: {
               select: {
+                id: true,
                 groupName: true,
                 courseInfo: {
                   select: {

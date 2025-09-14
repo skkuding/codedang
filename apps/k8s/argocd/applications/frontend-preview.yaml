@@ -60,6 +60,9 @@ spec:
                 name: frontend-ingress
               patch: |-
                 - op: replace
+                  path: /metadata/annotations/cert-manager.io~1cluster-issuer
+                  value: letsencrypt-dns01
+                - op: replace
                   path: /spec/tls/0/hosts/0
                   value: '*.preview.codedang.com'
                 - op: replace
@@ -84,7 +87,7 @@ spec:
                   value: 'preview-{{.number}}-frontend'
       destination:
         name: stage
-        namespace: 'frontend-preview-{{.number}}'
+        namespace: 'frontend-preview'
       syncPolicy:
         automated:
           prune: true

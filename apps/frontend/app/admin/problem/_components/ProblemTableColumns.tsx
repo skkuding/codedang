@@ -13,9 +13,9 @@ import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
 import { useLazyQuery, useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
-import { SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { CiShare1 } from 'react-icons/ci'
 import { ProblemUsage } from './ProblemUsage'
 
 interface Tag {
@@ -60,7 +60,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   }, [fetched, getContestsByProblemId, row.original])
 
   return (
-    <div className="ml-8 flex items-center space-x-2">
+    <div className="flex items-center justify-center space-x-2">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -136,14 +136,14 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader
+        column={column}
+        title="Title"
+        className="w-[400px]"
+      />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="w-[400px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
-          {row.getValue('title')}
-        </div>
-      )
+      return row.getValue('title')
     },
     enableSorting: false,
     enableHiding: false
@@ -175,7 +175,12 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
       <DataTableColumnHeader column={column} title="Update" />
     ),
     cell: ({ row }) => {
-      return <div>{row.original.updateTime.substring(2, 10)}</div>
+      return row.original.updateTime.substring(2, 10)
+    },
+    sortingFn: (rowA, rowB) => {
+      const dateA = new Date(rowA.original.updateTime)
+      const dateB = new Date(rowB.original.updateTime)
+      return dateA.getTime() - dateB.getTime()
     }
   },
   {
@@ -190,7 +195,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
         <div>
           <Badge
             variant={level as Level}
-            className="mr-1 whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
+            className="mr-1 whitespace-nowrap px-2 py-1 font-normal"
           >
             {formattedLevel}
           </Badge>
@@ -199,6 +204,11 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
+    },
+    sortingFn: (rowA, rowB) => {
+      const levelA = parseInt(rowA.original.difficulty.slice(-1))
+      const levelB = parseInt(rowB.original.difficulty.slice(-1))
+      return levelA - levelB
     }
   },
   {
@@ -207,7 +217,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
       <DataTableColumnHeader column={column} title="Submission" />
     ),
     cell: ({ row }) => {
-      return <div>{row.getValue('submissionCount')}</div>
+      return row.getValue('submissionCount')
     }
   },
   {
@@ -218,7 +228,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
     cell: ({ row }) => {
       const acceptedRate: number = row.getValue('acceptedRate')
       const acceptedRateFloat = (acceptedRate * 100).toFixed(2)
-      return <div>{acceptedRateFloat}%</div>
+      return `${acceptedRateFloat}%`
     }
   },
 
@@ -234,7 +244,11 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
   {
     accessorKey: 'preview',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Preview" />
+      <DataTableColumnHeader
+        column={column}
+        title="Preview"
+        className="w-[80px]"
+      />
     ),
     cell: ({ row }) => {
       return (
@@ -243,7 +257,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
           className="flex justify-center"
           onClick={(e) => e.stopPropagation()}
         >
-          <SquareArrowOutUpRight />
+          <CiShare1 size={20} />
         </Link>
       )
     },

@@ -1,5 +1,6 @@
 'use client'
 
+import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import type { ProblemData } from '@/app/admin/contest/_libs/schemas'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 
@@ -56,7 +57,9 @@ export const createColumns = (
   return [
     {
       accessorKey: 'submittedProblemCount',
-      header: () => <p className="py-1 font-mono text-sm">Submit</p>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Submit" />
+      ),
       cell: ({ row }) => (
         <div className="flex justify-center">
           {row.original.submittedProblemCount}/{row.original.totalProblemCount}
@@ -65,7 +68,9 @@ export const createColumns = (
     },
     {
       accessorKey: 'userAssignmentScore',
-      header: () => <p className="py-1 font-mono text-sm">Total</p>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Total" />
+      ),
       cell: ({ row }) => (
         <div>
           {row.original.userAssignmentScore}/

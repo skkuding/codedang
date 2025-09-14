@@ -458,7 +458,7 @@ model AssignmentRecord {
   userId             Int?       @map("user_id")
   acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
   score              Int        @default(0) // Only used after assignment finished
-  finalScore         Int?       @map("final_score")
+  finalScore         Int?       @map("final_score") // TODO: finalScore는 assignmentProblemRecord에서만 관리하기
   comment            String     @default("")
 
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각

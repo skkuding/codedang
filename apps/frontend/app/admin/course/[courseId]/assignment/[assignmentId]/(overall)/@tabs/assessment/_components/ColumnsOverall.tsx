@@ -176,36 +176,24 @@ export const createColumns = (
   return [
     {
       accessorKey: 'studentId',
-      header: () => <p className="font-mono text-xs">Student ID</p>,
-      cell: ({ row }) => (
-        <div className="text-center text-xs font-medium">
-          {row.getValue('studentId')}
-        </div>
-      )
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Student ID" />
+      ),
+      cell: ({ row }) => row.getValue('studentId')
     },
     {
       accessorKey: 'realName',
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Name"
-          className="flex justify-center border-r"
-        />
+        <DataTableColumnHeader column={column} title="Name" />
       ),
-      cell: ({ row }) => (
-        <div className="border-r text-center text-xs font-medium">
-          {row.original.realName}
-        </div>
-      ),
+      cell: ({ row }) => row.getValue('realName'),
       filterFn: 'includesString'
     },
     ...problemData.map((problem, i) => ({
       accessorKey: `${String.fromCharCode(Number(65 + i))}`,
-      header: () => (
-        <p className="font-mono text-xs">
-          {String.fromCharCode(Number(65 + i))}
-        </p>
-      ),
+      header: () => {
+        return String.fromCharCode(Number(65 + i))
+      },
       cell: ({ row }: { row: Row<DataTableScoreSummary> }) => {
         const problemScore = row.original.problemScores.find(
           (ps) => ps.problemId === problem.problemId
@@ -232,22 +220,16 @@ export const createColumns = (
     {
       accessorKey: 'userAssignmentFinalScore',
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Total"
-          className="flex justify-center"
-        />
+        <DataTableColumnHeader column={column} title="Total" />
       ),
-      cell: ({ row }) => (
-        <div className="text-xs">
-          {row.original.userAssignmentFinalScore} /{' '}
-          {row.original.assignmentPerfectScore}
-        </div>
-      )
+      cell: ({ row }) =>
+        `${row.original.userAssignmentFinalScore}/${row.original.assignmentPerfectScore}`
     },
     {
       id: 'detail',
-      header: () => <span className="sr-only">Detail</span>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Detail" />
+      ),
       cell: ({ row }) => {
         if (!problemData || problemData.length === 0) {
           return null
@@ -265,11 +247,7 @@ export const createColumns = (
             </Link>
           )
         } else {
-          return (
-            <button className="flex w-full justify-center">
-              <SquareArrowOutUpRight className="h-4 w-4 text-gray-300" />
-            </button>
-          )
+          return <SquareArrowOutUpRight className="h-4 w-4 text-gray-300" />
         }
       }
     }

@@ -570,6 +570,11 @@ export class AssignmentService {
           select: {
             score: true,
             finalScore: true,
+            assignmentProblemRecord: {
+              select: {
+                finalScore: true
+              }
+            },
             // eslint-disable-next-line @typescript-eslint/naming-convention
             _count: {
               select: {
@@ -598,6 +603,11 @@ export class AssignmentService {
             'User not participated in the assignment'
           )
         }
+        assignmentRecord[0].finalScore =
+          assignmentRecord[0].assignmentProblemRecord.reduce(
+            (sum, { finalScore }) => sum + (finalScore ?? 0),
+            0
+          )
         const total = assignmentProblem.reduce(
           (sum, { score }) => sum + score,
           0
