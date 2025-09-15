@@ -153,35 +153,44 @@ export function EditProblemForm({
     }
   }
 
-  const onSubmit = methods.handleSubmit(async (input: UpdateProblemInput) => {
-    if (!validate()) {
-      return
-    }
-    pendingInput.current = input
-    if (initialValues.current) {
-      const currentValues = methods.getValues()
-      let scoreCalculationChanged = false
-
-      if (
-        JSON.stringify(currentValues.testcases) !==
-        JSON.stringify(initialValues.current.testcases)
-      ) {
-        scoreCalculationChanged = true
-      } else if (currentValues.timeLimit !== initialValues.current.timeLimit) {
-        scoreCalculationChanged = true
-      } else if (
-        currentValues.memoryLimit !== initialValues.current.memoryLimit
-      ) {
-        scoreCalculationChanged = true
-      }
-
-      if (scoreCalculationChanged) {
-        setShowScoreModal(true)
+  // React Hook Form의 errors 확인
+  const onSubmit = methods.handleSubmit(
+    async (input: UpdateProblemInput) => {
+      console.log('handleSubmit 성공', input)
+      if (!validate()) {
         return
       }
+      pendingInput.current = input
+      if (initialValues.current) {
+        const currentValues = methods.getValues()
+        let scoreCalculationChanged = false
+
+        if (
+          JSON.stringify(currentValues.testcases) !==
+          JSON.stringify(initialValues.current.testcases)
+        ) {
+          scoreCalculationChanged = true
+        } else if (
+          currentValues.timeLimit !== initialValues.current.timeLimit
+        ) {
+          scoreCalculationChanged = true
+        } else if (
+          currentValues.memoryLimit !== initialValues.current.memoryLimit
+        ) {
+          scoreCalculationChanged = true
+        }
+
+        if (scoreCalculationChanged) {
+          setShowScoreModal(true)
+          return
+        }
+      }
+      await handleUpdate()
+    },
+    (errors) => {
+      console.log('handleSubmit 실패 - validation errors:', errors)
     }
-    await handleUpdate()
-  })
+  )
 
   return (
     <>

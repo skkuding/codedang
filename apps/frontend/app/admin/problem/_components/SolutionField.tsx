@@ -24,16 +24,35 @@ export function SolutionField() {
       unregister(`solution.${index}`)
     }
 
-    // Filter out any empty solution objects
-    // Note: Even after unregistering, some solutions may remain as empty objects
-    const filteredSolutions = watchedSolutions.filter((solution) => {
-      return Object.keys(solution).length > 0
+    // 디버깅을 위한 로그 추가
+    console.log('watchedLanguages:', watchedLanguages)
+    console.log('current solutions before update:', getValues('solution'))
+
+    // Set language for each solution and ensure proper structure
+    watchedLanguages.forEach((language, index) => {
+      console.log(`Setting solution ${index} language to:`, language)
+
+      // 항상 language와 code를 명시적으로 설정
+      setValue(`solution.${index}.language`, language)
+
+      const currentCode = getValues(`solution.${index}.code`)
+      if (!currentCode) {
+        setValue(`solution.${index}.code`, '')
+      }
     })
 
-    setValue('solution', filteredSolutions)
+    // 전체 solution 배열을 다시 구성
+    const newSolutions = watchedLanguages.map((language, index) => ({
+      language,
+      code: getValues(`solution.${index}.code`) || ''
+    }))
+
+    setValue('solution', newSolutions)
+
+    console.log('final solutions after update:', getValues('solution'))
 
     previousLanguagesRef.current = watchedLanguages
-  }, [watchedLanguages, unregister])
+  }, [watchedLanguages, setValue, getValues, unregister])
 
   return (
     <div className="flex flex-col gap-6">
