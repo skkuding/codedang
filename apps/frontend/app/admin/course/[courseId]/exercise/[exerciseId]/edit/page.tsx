@@ -76,6 +76,14 @@ export default function Page(props: {
                     <WeekComboBox name="week" courseId={Number(courseId)} />
                   )}
                 </FormSection>
+                <FormSection title="Start Time" className="w-[420px]">
+                  {methods.getValues('startTime') && (
+                    <TimeForm name="startTime" />
+                  )}
+                </FormSection>
+              </div>
+
+              <div className="flex justify-between">
                 <FormSection
                   title="Due Time"
                   className="w-[420px]"
@@ -90,14 +98,6 @@ export default function Page(props: {
                       seconds: 59
                     }}
                   />
-                </FormSection>
-              </div>
-
-              <div className="flex justify-between">
-                <FormSection title="Start Time" className="w-[420px]">
-                  {methods.getValues('startTime') && (
-                    <TimeForm name="startTime" />
-                  )}
                 </FormSection>
                 <FormSection
                   title="End Time"
