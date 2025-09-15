@@ -117,7 +117,7 @@ jobs:
         run: pnpm install -w --filter frontend
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: apps/iris/go.mod
           cache-dependency-path: apps/iris/go.sum
@@ -241,7 +241,7 @@ jobs:
 
       - name: Set up Go
         if: steps.filter.outputs.iris == 'true'
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: apps/iris/go.mod
           cache-dependency-path: apps/iris/go.sum
