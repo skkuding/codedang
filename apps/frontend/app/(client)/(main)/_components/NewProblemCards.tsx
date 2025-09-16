@@ -67,9 +67,11 @@ function NewProblemCard({ problem }: { problem: Problem }) {
         <div className="flex flex-col items-start gap-10">
           <Badge
             variant={problem.difficulty}
-            className="whitespace-nowrap rounded-full px-2 py-1 text-xs font-medium capitalize"
+            className="flex w-[70px] items-center justify-center gap-[10px] px-2 py-1"
           >
-            Level {problem.difficulty.slice(-1)}
+            <p className="text-center text-[12px] font-semibold leading-[140%] tracking-[-0.36px]">
+              Level {problem.difficulty.slice(-1)}
+            </p>
           </Badge>
           <h3 className="line-clamp-2 break-normal break-keep text-xl font-semibold">
             {problem.title}
