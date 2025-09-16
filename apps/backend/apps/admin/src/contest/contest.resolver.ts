@@ -248,15 +248,15 @@ export class ContestQnAResolver {
       new RequiredIntPipe('take')
     )
     take: number,
-    @Args('cursor', { type: () => Int }, CursorValidationPipe)
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
     @Args('filter', { type: () => GetContestQnAsFilterInput, nullable: true })
     filter?: GetContestQnAsFilterInput
   ) {
     return await this.contestService.getContestQnAs(
       contestId,
-      // take,
-      // cursor,
+      take,
+      cursor,
       filter
     )
   }
