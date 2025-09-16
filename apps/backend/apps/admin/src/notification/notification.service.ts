@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ContestRole, NotificationType } from '@prisma/client'
+import * as he from 'he'
 import * as webpush from 'web-push'
 import { MILLISECONDS_PER_HOUR } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
@@ -111,6 +112,7 @@ export class NotificationService {
       select: {
         title: true,
         dueTime: true,
+        endTime: true,
         group: {
           select: {
             id: true,
@@ -129,7 +131,9 @@ export class NotificationService {
     const title = assignmentInfo.group.groupName ?? 'Assignment Due Soon'
 
     const timing =
-      assignmentInfo.dueTime.getTime() - Date.now() > 3 * MILLISECONDS_PER_HOUR
+      (assignmentInfo.dueTime ?? assignmentInfo.endTime).getTime() -
+        Date.now() >
+      3 * MILLISECONDS_PER_HOUR
         ? '1 day'
         : '3 hours'
 
@@ -227,9 +231,10 @@ export class NotificationService {
 
     const receivers = codedangUsers.map((user) => user.id)
     const title = notice.title
+    const processedContent = this.processNotificationText(notice.content)
     const message =
-      (notice.content ?? 'New Notice Created.').slice(0, 100) +
-      (notice.content.length > 100 ? '...' : '')
+      (processedContent ?? 'New Notice Created.').slice(0, 100) +
+      (processedContent.length > 100 ? '...' : '')
     const url = `/notice/${noticeId}`
 
     await this.saveNotification(
@@ -240,6 +245,14 @@ export class NotificationService {
       url
     )
     await this.sendPushNotification(receivers, title, message, url)
+  }
+
+  processNotificationText(input: string) {
+    if (!input) return ''
+    const removedTags = input.replace(/<[^>]*>/g, '')
+    const decoded = he.decode(removedTags)
+
+    return decoded
   }
 
   private async sendPushNotification(

@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { ContestRole, Prisma, QnACategory, type Contest } from '@prisma/client'
+import {
+  ContestRole,
+  Prisma,
+  QnACategory,
+  Role,
+  type Contest
+} from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -647,7 +653,15 @@ export class ContestService {
         where: { userId, contestId }
       })
       if (!hasRegistered) {
-        throw new ForbiddenAccessException('Not registered in this contest')
+        const user = await this.prisma.user.findFirst({
+          where: {
+            id: userId
+          }
+        })
+        const isSuperAdmin = user?.role == Role.SuperAdmin
+        if (!isSuperAdmin) {
+          throw new ForbiddenAccessException('Not registered in this contest')
+        }
       }
     }
 
@@ -733,6 +747,13 @@ export class ContestService {
         }
       })
       isPrivileged = contestStaff ? true : false
+      const user = await this.prisma.user.findFirst({
+        where: {
+          id: userId
+        }
+      })
+      const isSuperAdmin = user?.role == Role.SuperAdmin
+      if (isSuperAdmin) isPrivileged = true
     }
 
     const now = new Date()
@@ -823,7 +844,7 @@ export class ContestService {
       },
       where,
       orderBy: {
-        order: 'asc'
+        order: 'desc'
       }
     })
 
@@ -904,11 +925,26 @@ export class ContestService {
     const isContestStaff =
       userContest && ['Admin', 'Manager', 'Reviewer'].includes(userContest.role)
 
+    let isSuperAdmin = false
+    if (userId) {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          id: userId
+        }
+      })
+      isSuperAdmin = user?.role == Role.SuperAdmin
+    }
+
     const now = new Date()
     const isOngoing = contest.startTime <= now && now <= contest.endTime
 
     // 대회 진행 중에는 대회 관리자가 아닌 경우 본인이 작성한 글에만 접근 가능함
-    if (isOngoing && !isContestStaff && contestQnA.createdById != userId) {
+    if (
+      isOngoing &&
+      !isSuperAdmin &&
+      !isContestStaff &&
+      contestQnA.createdById != userId
+    ) {
       throw new ForbiddenAccessException(
         'Only writer or contest staff can access during contest.'
       )
@@ -968,7 +1004,14 @@ export class ContestService {
 
     const isContestStaff = contestStaff !== null
 
-    if (!isContestStaff && contestQnA.createdById != userId) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId
+      }
+    })
+    const isSuperAdmin = user?.role == Role.SuperAdmin
+
+    if (!isContestStaff && !isSuperAdmin && contestQnA.createdById != userId) {
       throw new ForbiddenAccessException(
         'Only Writer or Contest Staff can delete QnA.'
       )
@@ -1029,7 +1072,14 @@ export class ContestService {
       }
     })
 
-    const isContestStaff = contestStaff !== null
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId
+      }
+    })
+    const isSuperAdmin = user?.role == Role.SuperAdmin
+
+    const isContestStaff = contestStaff !== null || isSuperAdmin // Super도 대회 운영진 취급
     const isWriter = contestQnA?.createdById == userId
     const isPrivileged = isWriter || isContestStaff
 
@@ -1127,7 +1177,14 @@ export class ContestService {
       }
     })
 
-    const isContestStaff = contestStaff !== null
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId
+      }
+    })
+    const isSuperAdmin = user?.role == Role.SuperAdmin
+
+    const isContestStaff = contestStaff !== null || isSuperAdmin
 
     if (!isContestStaff && contestQnAComment.createdById != userId) {
       throw new ForbiddenAccessException(
