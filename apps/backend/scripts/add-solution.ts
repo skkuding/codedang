@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client'
-import type { Language } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -7,16 +6,18 @@ const main = async () => {
   console.log('Starting Solution Update Script.')
 
   const allProblems = await prisma.problem.findMany()
-  const targetProblems = allProblems.filter((p) => p.solution.length === 0)
-
-  console.log(
-    `Found ${targetProblems.length} problems with empty solution arrays.`
+  const problemWithoutSolutions = allProblems.filter(
+    (p) => p.solution.length === 0
   )
 
-  for (const problem of targetProblems) {
-    const newSolution = problem.languages.map((lang) => ({
+  console.log(
+    `Found ${problemWithoutSolutions.length} problems with empty solution arrays.`
+  )
+
+  for (const problem of problemWithoutSolutions) {
+    const newSolution = problem.languages.map((language) => ({
       code: '',
-      language: lang as keyof typeof Language
+      language
     }))
 
     await prisma.problem.update({
