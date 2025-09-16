@@ -242,14 +242,14 @@ export class ContestQnAResolver {
   @Query(() => [ContestQnA])
   async getContestQnAs(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
-    // @Args(
-    //   'take',
-    //   { type: () => Int, defaultValue: 10 },
-    //   new RequiredIntPipe('take')
-    // )
-    // take: number,
-    // @Args('cursor', { type: () => Int }, CursorValidationPipe)
-    // cursor: number | null,
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 10 },
+      new RequiredIntPipe('take')
+    )
+    take: number,
+    @Args('cursor', { type: () => Int }, CursorValidationPipe)
+    cursor: number | null,
     @Args('filter', { type: () => GetContestQnAsFilterInput, nullable: true })
     filter?: GetContestQnAsFilterInput
   ) {

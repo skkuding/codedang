@@ -1420,8 +1420,8 @@ export class ContestService {
 
   async getContestQnAs(
     contestId: number,
-    // take: number,
-    // cursor: number | null,
+    take: number,
+    cursor: number | null,
     filter?: {
       isResolved?: boolean
     }
@@ -1434,7 +1434,7 @@ export class ContestService {
       throw new EntityNotExistException('Contest')
     }
 
-    // const paginator = this.prisma.getPaginator(cursor)
+    const paginator = this.prisma.getPaginator(cursor)
 
     const where: Prisma.ContestQnAWhereInput = {
       contestId,
@@ -1442,8 +1442,8 @@ export class ContestService {
     }
 
     const result = await this.prisma.contestQnA.findMany({
-      // ...paginator,
-      // take,
+      ...paginator,
+      take,
       where,
       orderBy: {
         id: 'desc'
