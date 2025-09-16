@@ -11,7 +11,7 @@ post {
 }
 
 body:graphql {
-  query GetResolvedQnAs($contestId: Int!, $take: Int!, $cursor: Int!, $filter: GetContestQnAsFilterInput) {
+  query GetResolvedQnAs($contestId: Int!, $take: Int, $cursor: Int, $filter: GetContestQnAsFilterInput) {
     getContestQnAs(
       contestId: $contestId,
       take: $take,
@@ -52,29 +52,36 @@ script:pre-request {
 }
 
 docs {
-  ## [succeed] Get Resolved QnAs
+  # Get Resolved QnAs
 
-  - 특정 콘테스트의 해결된 QnA만 조회합니다.
-  - `isResolved: true`로 설정하여 해결 완료된 QnA만 필터링합니다.
-  - 페이지네이션을 지원하여 대량의 QnA도 효율적으로 처리할 수 있습니다.
+  ## Description
+  특정 콘테스트의 해결된 QnA만 조회합니다. `isResolved: true`로 설정하여 해결 완료된 QnA만 필터링합니다.
 
-  ### Parameters
-
-  | Name | Type | Required | Description |
-  |------|------|----------|-------------|
+  ## 요청 필드
+  | 필드명 | 타입 | 필수 여부 | 설명 |
+  |--------|------|----------|------|
   | contestId | Int! | 필수 | 콘테스트 ID |
-  | take | Int! | 필수 | 가져올 개수 (기본값: 10) |
+  | take | Int | 선택 | 가져올 QnA 개수 (기본값: 10) |
   | cursor | Int | 선택 | 페이지네이션 커서 |
   | filter | GetContestQnAsFilterInput | 선택 | 필터링 옵션 (isResolved: true) |
 
-  ### Use Cases
+  ## 응답 필드
+  | 필드명 | 타입 | 설명 |
+  |--------|------|------|
+  | id | Int | QnA ID |
+  | order | Int | 대회 내 QnA 순서 |
+  | title | String | QnA 제목 |
+  | content | String | QnA 내용 |
+  | category | QnACategory | QnA 카테고리 |
+  | isResolved | Boolean | 해결 완료 여부 (항상 true) |
+  | createTime | DateTime | 생성 시간 |
+  | contestId | Int | 대회 ID |
+  | createdBy.username | String | 작성자 사용자명 |
+  | _count.comments | Int | 댓글 개수 |
 
-  - **처리 완료 확인**: 해결된 QnA 현황 모니터링
-  - **품질 관리**: 답변 품질과 처리 시간 확인
-  - **통계 분석**: 해결된 QnA 패턴 분석
-
-  ### Response
-
-  `isResolved: true`인 QnA만 반환되며, 최신순으로 정렬됩니다.
-  페이지네이션을 통해 효율적으로 데이터를 가져올 수 있습니다.
+  ## 제약사항
+  - `contestId`는 존재하는 콘테스트여야 합니다.
+  - `filter.isResolved`는 반드시 `true`로 설정해야 합니다.
+  - `take`는 1 이상의 값이어야 합니다.
+  - `cursor`는 1 이상의 값이어야 합니다.
 }

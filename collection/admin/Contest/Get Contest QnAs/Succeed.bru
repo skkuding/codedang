@@ -11,7 +11,7 @@ post {
 }
 
 body:graphql {
-  query GetContestQnAs($contestId: Int!, $take: Int!, $cursor: Int!, $filter: GetContestQnAsFilterInput) {
+  query GetContestQnAs($contestId: Int!, $take: Int, $cursor: Int, $filter: GetContestQnAsFilterInput) {
     getContestQnAs(
       contestId: $contestId,
       take: $take,
@@ -52,15 +52,15 @@ docs {
   # Get Contest QnAs
 
   ## Description
-  관리자가 특정 콘테스트의 QnA를 페이지네이션과 함께 조회할 수 있도록 합니다.
+  관리자가 특정 콘테스트의 모든 QnA를 조회할 수 있도록 합니다.
 
   ## 요청 필드
   | 필드명 | 타입 | 필수 여부 | 설명 |
   |--------|------|----------|------|
   | contestId | Int! | 필수 | 콘테스트 ID |
-  | cursor | Int! | 필수 | 페이지네이션 커서 |
+  | take | Int | 선택 | 가져올 QnA 개수 (기본값: 10) |
+  | cursor | Int | 선택 | 페이지네이션 커서 |
   | filter | GetContestQnAsFilterInput | 선택 | 필터링 옵션 |
-  | take | Int! | 필수 | 가져올 개수 (기본값: 10) |
 
   ## 응답 필드
   | 필드명 | 타입 | 설명 |
@@ -79,5 +79,5 @@ docs {
   ## 제약사항
   - `contestId`는 존재하는 콘테스트여야 합니다.
   - `take`는 1 이상의 값이어야 합니다.
-  - `cursor`는 이전 페이지의 마지막 항목 ID여야 합니다.
+  - `cursor`는 1 이상의 값이어야 합니다.
 }
