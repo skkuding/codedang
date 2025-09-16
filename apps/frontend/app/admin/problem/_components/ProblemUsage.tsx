@@ -9,8 +9,8 @@ import arrowRightIcon from '@/public/icons/arrow-right.svg'
 import fileInfoIcon from '@/public/icons/file-info.svg'
 import filePenIcon from '@/public/icons/file-pen.svg'
 import infoGrayIcon from '@/public/icons/info-gray.svg'
-import prize from '@/public/icons/prize.svg'
-import taskComplete from '@/public/icons/task-complete.svg'
+import prizeIcon from '@/public/icons/prize.svg'
+import taskCompleteIcon from '@/public/icons/task-complete.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -112,7 +112,7 @@ function ContestProblemSection({ contents }: ContestSectionProps) {
         <Link key={content.id} href={`/contest/${content.id}`}>
           <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
             <div className="flex items-start gap-[10px]">
-              <Image src={prize} alt="prize" />
+              <Image src={prizeIcon} alt="prizeIcon" />
 
               <div className="flex items-center gap-[2px] self-stretch hover:brightness-110">
                 <span>{content.title}</span>
@@ -143,8 +143,8 @@ function ExerciseProblemSection({ contents }: ProblemSectionProps) {
               <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
                 <div className="flex items-start gap-[10px]">
                   <Image
-                    src={taskComplete}
-                    alt="taskComplete"
+                    src={taskCompleteIcon}
+                    alt="taskCompleteIcon"
                     className="h-6 w-6"
                   />
 
