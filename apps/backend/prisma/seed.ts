@@ -737,11 +737,11 @@ const createProblems = async () => {
           Language.PyPy3
         ],
         solution: [
-          { code: '', language: 'C' },
-          { code: '', language: 'Cpp' },
-          { code: '', language: 'Java' },
-          { code: '', language: 'Python3' },
-          { code: '', language: 'PyPy3' }
+          { code: '', language: Language.C },
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Java },
+          { code: '', language: Language.Python3 },
+          { code: '', language: Language.PyPy3 }
         ],
         hint: '',
         timeLimit: 2000,
@@ -771,7 +771,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.C],
-        solution: [{ code: '', language: 'C' }],
+        solution: [{ code: '', language: Language.C }],
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
@@ -800,7 +800,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.Cpp],
-        solution: [{ code: '', language: 'Cpp' }],
+        solution: [{ code: '', language: Language.Cpp }],
         hint: '',
         timeLimit: 1000,
         memoryLimit: 128,
@@ -829,7 +829,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.Java],
-        solution: [{ code: '', language: 'Java' }],
+        solution: [{ code: '', language: Language.Java }],
         hint: await readFile(join(fixturePath, 'problem/4-hint.html'), 'utf-8'),
         timeLimit: 1000,
         memoryLimit: 128,
@@ -858,7 +858,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.Python3],
-        solution: [{ code: '', language: 'Python3' }],
+        solution: [{ code: '', language: Language.Python3 }],
         hint: '',
         timeLimit: 1000,
         memoryLimit: 128,
@@ -888,8 +888,8 @@ const createProblems = async () => {
         ),
         languages: [Language.C, Language.Java],
         solution: [
-          { code: '', language: 'C' },
-          { code: '', language: 'Java' }
+          { code: '', language: Language.C },
+          { code: '', language: Language.Java }
         ],
         hint: await readFile(join(fixturePath, 'problem/6-hint.html'), 'utf-8'),
         timeLimit: 1000,
@@ -920,8 +920,8 @@ const createProblems = async () => {
         ),
         languages: [Language.Cpp, Language.Python3],
         solution: [
-          { code: '', language: 'Cpp' },
-          { code: '', language: 'Python3' }
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Python3 }
         ],
         hint: '',
         timeLimit: 2000,
@@ -952,10 +952,10 @@ const createProblems = async () => {
         ),
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
         solution: [
-          { code: '', language: 'C' },
-          { code: '', language: 'Cpp' },
-          { code: '', language: 'Java' },
-          { code: '', language: 'Python3' }
+          { code: '', language: Language.C },
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Java },
+          { code: '', language: Language.Python3 }
         ],
         hint: await readFile(join(fixturePath, 'problem/8-hint.html'), 'utf-8'),
         timeLimit: 2000,
@@ -977,10 +977,10 @@ const createProblems = async () => {
         outputDescription: `<p>비공개</p>`,
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
         solution: [
-          { code: '', language: 'C' },
-          { code: '', language: 'Cpp' },
-          { code: '', language: 'Java' },
-          { code: '', language: 'Python3' }
+          { code: '', language: Language.C },
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Java },
+          { code: '', language: Language.Python3 }
         ],
         hint: `<p>작성중</p>`,
         timeLimit: 2000,
