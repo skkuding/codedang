@@ -6,18 +6,16 @@ import { redirect } from 'next/navigation'
 import { use } from 'react'
 
 export default function SolutionPage(props: {
-  params: Promise<{ courseId: string; assignmentId: string; problemId: string }>
+  params: Promise<{ courseId: string; exerciseId: string; problemId: string }>
 }) {
   const params = use(props.params)
 
-  const { courseId, assignmentId, problemId } = params
+  const { courseId, exerciseId, problemId } = params
 
   const { problem } = useProblem()
 
   if (!problem.solution || problem.solution.length === 0) {
-    redirect(
-      `/course/${courseId}/assignment/${assignmentId}/problem/${problemId}`
-    )
+    redirect(`/course/${courseId}/exercise/${exerciseId}/problem/${problemId}`)
   }
 
   return (
