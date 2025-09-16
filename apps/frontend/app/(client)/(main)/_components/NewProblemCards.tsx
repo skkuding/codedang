@@ -71,7 +71,7 @@ function NewProblemCard({ problem }: { problem: Problem }) {
           >
             Level {problem.difficulty.slice(-1)}
           </Badge>
-          <h3 className="line-clamp-2 break-normal break-keep text-lg font-semibold">
+          <h3 className="line-clamp-2 break-normal break-keep text-xl font-semibold">
             {problem.title}
           </h3>
         </div>
