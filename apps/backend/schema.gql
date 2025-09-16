@@ -1495,6 +1495,10 @@ input GetAssignmentSubmissionsInput {
   searchingName: String
 }
 
+input GetContestQnAsFilterInput {
+  isResolved: Boolean
+}
+
 input GetContestSubmissionsInput {
   problemId: Int
   searchingName: String
@@ -1687,6 +1691,7 @@ type Mutation {
   removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
   removeUserFromContest(contestId: Int!, userId: Int!): UserContest!
   revokeInvitation(groupId: Int!): String!
+  toggleContestQnAResolved(contestId: Int!, qnAOrder: Int!): ContestQnA!
   updateAnnouncement(contestId: Int!, input: UpdateAnnouncementInput!): Announcement!
   updateAssignment(groupId: Int!, input: UpdateAssignmentInput!): Assignment!
   updateAssignmentProblemRecord(groupId: Int!, input: UpdateAssignmentProblemRecordInput!): AssignmentProblemRecord!
@@ -2357,7 +2362,7 @@ type Query {
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestProblems(contestId: Int!): [ContestProblem!]!
   getContestQnA(contestId: Int!, order: Int!): ContestQnA!
-  getContestQnAs(contestId: Int!): [ContestQnA!]!
+  getContestQnAs(contestId: Int!, cursor: Int, filter: GetContestQnAsFilterInput, take: Int! = 10): [ContestQnA!]!
   getContestRoles: [UserContest!]!
   getContestScoreSummaries(contestId: Int!, cursor: Int, searchingName: String, take: Int! = 10): [UserContestScoreSummaryWithUserInfo!]!
   getContestSubmissionSummaryByUserId(contestId: Int!, cursor: Int, problemId: Int, take: Int! = 10, userId: Int!): ContestSubmissionSummaryForUser!

@@ -60,5 +60,6 @@ module.exports = {
   loginContestAdmin,
   loginContestManager,
   loginContestReviewer,
-  loginInstructor,loginUser,
+  loginInstructor,
+  loginUser,
 }
