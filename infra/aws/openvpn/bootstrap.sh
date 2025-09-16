@@ -4,9 +4,10 @@
 sudo apt update && sudo apt upgrade -y
 
 # Install OpenVPN
-export ENDPOINT=$(curl ifconfig.me)
+export ENDPOINT="${ip_address}"
 export AUTO_INSTALL=y
 curl -fsSL https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh | sudo -E bash
 
-### NOTE: After the installation, client.ovpn file will be created in the /root directory.
-### You need to download it to your local machine to connect to the VPN server.
+# Push the client.ovpn file to AWS Secrets Manager
+sudo cp /root/client.ovpn $HOME/client.ovpn
+aws secretsmanager put-secret-value --secret-id "${secret_id}" --secret-string "file://$HOME/client.ovpn"
