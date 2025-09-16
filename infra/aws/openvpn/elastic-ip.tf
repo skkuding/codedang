@@ -19,6 +19,8 @@ data "aws_instances" "openvpn" {
   instance_state_names = ["running"]
 }
 
+# NOTE: If EC2 instance is terminated and replaced by ASG, the association will be lost.
+# In that case, you need to re-run `terraform apply` to re-associate the EIP to the new instance.
 resource "aws_eip_association" "openvpn" {
   instance_id   = data.aws_instances.openvpn.ids[0]
   allocation_id = aws_eip.openvpn.id
