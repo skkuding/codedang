@@ -1,4 +1,5 @@
 import { AuthProvider } from '@/components/auth/AuthProvider'
+import { PushPermissionModal } from '@/components/notification/PushPermissionModal'
 import { Toaster } from '@/components/shadcn/sonner'
 import { auth } from '@/libs/auth'
 import { metaBaseUrl } from '@/libs/constants'
@@ -273,6 +274,7 @@ export default async function RootLayout({
             closeButton={true}
             duration={2000}
           />
+          <PushPermissionModal />
         </PostHogProvider>
         {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
