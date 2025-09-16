@@ -5,6 +5,7 @@ namespace: monitoring-grafana
 resources:
   - namespace.yaml
   - admin-user.yaml
+  - github-credentials.yaml
 
 commonAnnotations:
   managed-by: kustomize
