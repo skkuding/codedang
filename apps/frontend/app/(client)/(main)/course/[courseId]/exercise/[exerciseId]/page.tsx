@@ -7,7 +7,9 @@ import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assign
 import { AssignmentStatus } from '@/components/AssignmentStatus'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
+import welcomeImage from '@/public/logos/welcome.png'
 import { useQuery } from '@tanstack/react-query'
+import Image from 'next/image'
 import { use } from 'react'
 import { ProblemCard } from '../../_components/ProblemCard'
 import { problemColumns } from '../../assignment/[assignmentId]/_components/Columns'
@@ -24,7 +26,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
   const params = use(props.params)
   const { exerciseId, courseId } = params
 
-  const { data: exercise } = useQuery(
+  const { data: exercise, isFetched: isExerciseFetched } = useQuery(
     assignmentQueries.single({ assignmentId: exerciseId })
   )
 
@@ -36,71 +38,139 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
     assignmentSubmissionQueries.summary({ assignmentId: exercise?.id ?? 0 })
   )
 
-  const { data: problems } = useQuery(
-    assignmentProblemQueries.list({
+  // instructor 판별: 시작 전에도 문제 리스트가 성공하면 접근 가능
+  const {
+    data: problems,
+    isFetched: isProblemsFetched,
+    isSuccess: isProblemsSuccess
+  } = useQuery({
+    ...assignmentProblemQueries.list({
       assignmentId: exerciseId,
       groupId: courseId
-    })
-  )
+    }),
+    retry: false
+  })
+
+  // 시작 전 판단
+  let startDate: Date | null = null
+  if (exercise?.startTime) {
+    startDate =
+      typeof exercise.startTime === 'string'
+        ? new Date(exercise.startTime)
+        : exercise.startTime
+  }
+  const isPreStartByTime =
+    startDate !== null && startDate.getTime() > Date.now()
+  const isPreStartByNoData = isExerciseFetched && exercise === undefined
+
+  // 접근 가능: (시작됨) 또는 (시작 전이어도 problems 성공 == instructor)
+  const canAccess =
+    (!isPreStartByTime && !isPreStartByNoData) || isProblemsSuccess
+
+  // 안내는 쿼리 완료 후에만
+  const showPreStart = isExerciseFetched && isProblemsFetched && !canAccess
 
   return (
-    exercise && (
-      <div className="flex flex-col gap-[45px] px-4 py-[80px] lg:px-[100px]">
-        <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
-          <p className="text-2xl font-semibold">
-            <span className="text-primary">[Week {exercise.week}] </span>
-            {exercise.title}
-          </p>
-          <AssignmentStatus
-            startTime={exercise.startTime}
-            dueTime={exercise.dueTime ?? exercise.endTime}
-          />
-        </div>
-        <Separator className="my-0" />
-        <div className="flex flex-col gap-[30px]">
-          <p className="text-2xl font-semibold">DESCRIPTION</p>
-          {exercise && (
+    <div className="flex flex-col gap-[45px] px-4 py-[80px] lg:px-[100px]">
+      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
+        {exercise && (
+          <>
+            <p className="text-2xl font-semibold">
+              <span className="text-primary">[Week {exercise.week}] </span>
+              {exercise.title}
+            </p>
+            <AssignmentStatus
+              startTime={exercise.startTime}
+              dueTime={exercise.dueTime ?? exercise.endTime}
+            />
+          </>
+        )}
+      </div>
+
+      <Separator className="my-0" />
+
+      {showPreStart && (
+        <>
+          <div className="flex flex-col items-center">
+            <Image src={welcomeImage} alt="welcome_image" />
+            <p className="text-center font-normal text-neutral-500">
+              This exercise hasn&apos;t started yet.
+              <br />
+              Please wait until the start time.
+            </p>
+          </div>
+          <Separator className="my-0" />
+        </>
+      )}
+
+      {!showPreStart && exercise && (
+        <>
+          <div className="flex flex-col gap-[30px]">
+            <p className="text-2xl font-semibold">DESCRIPTION</p>
             <KatexContent
               content={exercise.description}
               classname="text-[#7F7F7F] font-normal text-base"
             />
-          )}
-        </div>
-        <Separator className="my-0" />
-        {problems && (
-          <div>
-            <p className="mb-[16px] text-2xl font-semibold">PROBLEMS</p>
-            <div className="flex gap-[30px] lg:mb-[42px]">
+          </div>
+          <Separator className="my-0" />
+        </>
+      )}
+
+      {!showPreStart && problems && (
+        <div>
+          <p className="mb-[16px] text-2xl font-semibold">PROBLEMS</p>
+          <div className="flex gap-[30px] lg:mb-[42px]">
+            <div className="flex gap-[6px]">
+              <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
+                Total
+              </span>
+              <span className="text-primary text-base font-semibold">
+                {problems.total}
+              </span>
+            </div>
+            {record && (
               <div className="flex gap-[6px]">
                 <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
-                  Total
+                  Submit
                 </span>
                 <span className="text-primary text-base font-semibold">
-                  {problems.total}
+                  {
+                    (submissions ?? []).filter(
+                      (submission) => submission.submission !== null
+                    ).length
+                  }
                 </span>
               </div>
-              {record && (
-                <div className="flex gap-[6px]">
-                  <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
-                    Submit
-                  </span>
-                  <span className="text-primary text-base font-semibold">
-                    {
-                      submissions?.filter(
-                        (submission) => submission.submission !== null
-                      ).length
-                    }
-                  </span>
-                </div>
-              )}
-            </div>
+            )}
           </div>
-        )}
-        {!(record && submissions) && problems && (
+        </div>
+      )}
+
+      {!showPreStart && !(record && submissions) && problems && (
+        <div className="hidden lg:block">
+          <DataTable
+            data={problems.data}
+            columns={problemColumns()}
+            headerStyle={{
+              order: 'w-[10%]',
+              title: 'text-left w-[40%]',
+              submissions: 'w-[20%]',
+              tc_result: 'w-[20%]',
+              detail: 'w-[10%]'
+            }}
+            linked
+            pathSegment="problem"
+          />
+        </div>
+      )}
+
+      {!showPreStart && record && submissions && exercise && (
+        <>
+          {/* Desktop Table View */}
           <div className="hidden lg:block">
             <DataTable
-              data={problems.data}
-              columns={problemColumns()}
+              data={record.problems}
+              columns={columns(record, exercise, courseId, submissions)}
               headerStyle={{
                 order: 'w-[10%]',
                 title: 'text-left w-[40%]',
@@ -109,47 +179,28 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
                 detail: 'w-[10%]'
               }}
               linked
-              pathSegment={'problem'}
+              pathSegment="problem"
             />
           </div>
-        )}
-        {record && submissions && (
-          <>
-            {/* Desktop Table View */}
-            <div className="hidden lg:block">
-              <DataTable
-                data={record.problems}
-                columns={columns(record, exercise, courseId, submissions)}
-                headerStyle={{
-                  order: 'w-[10%]',
-                  title: 'text-left w-[40%]',
-                  submissions: 'w-[20%]',
-                  tc_result: 'w-[20%]',
-                  detail: 'w-[10%]'
-                }}
-                linked
-                pathSegment={'problem'}
-              />
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden">
+            <div className="space-y-3">
+              {record.problems.map((problem, index) => (
+                <ProblemCard
+                  key={problem.id}
+                  problem={problem}
+                  parentItem={exercise}
+                  submissions={submissions}
+                  index={index}
+                  courseId={courseId}
+                  type="exercise"
+                />
+              ))}
             </div>
-            {/* Mobile Card View */}
-            <div className="lg:hidden">
-              <div className="space-y-3">
-                {record.problems.map((problem, index) => (
-                  <ProblemCard
-                    key={problem.id}
-                    problem={problem}
-                    parentItem={exercise}
-                    submissions={submissions}
-                    index={index}
-                    courseId={courseId}
-                    type="exercise"
-                  />
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    )
+          </div>
+        </>
+      )}
+    </div>
   )
 }
