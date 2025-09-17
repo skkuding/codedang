@@ -26,14 +26,12 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
   const params = use(props.params)
   const { assignmentId, courseId } = params
 
-  // 상위 엔터티
   const { data: assignment, isFetched: isAssignmentFetched } = useQuery(
     assignmentQueries.single({ assignmentId })
   )
 
   const { data: record } = useQuery(assignmentQueries.record({ assignmentId }))
 
-  // 보호 리소스(문제 리스트): 시작 전에도 성공하면 instructor로 간주
   const {
     data: problems,
     isFetched: isProblemsFetched,
@@ -43,7 +41,6 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
     retry: false
   })
 
-  // 시작 전 판정 (string | Date | undefined 안전)
   let startDate: Date | null = null
   if (assignment?.startTime) {
     startDate =
@@ -55,14 +52,11 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
     startDate !== null && startDate.getTime() > Date.now()
   const isPreStartByNoData = isAssignmentFetched && assignment === undefined
 
-  // 접근 가능: (시작됨) 또는 (시작 전이라도 problems 성공 == instructor)
   const canAccess =
     (!isPreStartByTime && !isPreStartByNoData) || isProblemsSuccess
 
-  // 안내 화면은 쿼리 완료 후에만 표시(깜빡임 방지)
   const showPreStart = isAssignmentFetched && isProblemsFetched && !canAccess
 
-  // 하위(제출 요약)는 접근 가능할 때만
   const { data: submissions } = useQuery({
     ...assignmentSubmissionQueries.summary({
       assignmentId: assignment?.id ?? 0
@@ -94,7 +88,6 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
 
       <Separator className="my-0" />
 
-      {/* 시작 전 & 학생에게만 안내 노출 */}
       {showPreStart && (
         <>
           <div className="flex flex-col items-center">
@@ -109,7 +102,6 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
         </>
       )}
 
-      {/* DESCRIPTION: 접근 가능할 때만 */}
       {canAccess && assignment && (
         <>
           <div className="flex flex-col gap-[30px]">
@@ -123,7 +115,6 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
         </>
       )}
 
-      {/* PROBLEM(S): 접근 가능할 때만 */}
       {canAccess && problems && (
         <div>
           <p className="mb-[16px] text-2xl font-semibold">PROBLEM(S)</p>

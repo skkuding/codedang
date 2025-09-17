@@ -38,7 +38,6 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
     assignmentSubmissionQueries.summary({ assignmentId: exercise?.id ?? 0 })
   )
 
-  // instructor 판별: 시작 전에도 문제 리스트가 성공하면 접근 가능
   const {
     data: problems,
     isFetched: isProblemsFetched,
@@ -51,7 +50,6 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
     retry: false
   })
 
-  // 시작 전 판단
   let startDate: Date | null = null
   if (exercise?.startTime) {
     startDate =
@@ -63,11 +61,9 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
     startDate !== null && startDate.getTime() > Date.now()
   const isPreStartByNoData = isExerciseFetched && exercise === undefined
 
-  // 접근 가능: (시작됨) 또는 (시작 전이어도 problems 성공 == instructor)
   const canAccess =
     (!isPreStartByTime && !isPreStartByNoData) || isProblemsSuccess
 
-  // 안내는 쿼리 완료 후에만
   const showPreStart = isExerciseFetched && isProblemsFetched && !canAccess
 
   return (
