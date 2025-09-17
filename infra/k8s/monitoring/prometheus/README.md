@@ -21,3 +21,9 @@ With DaemonSets, it ensures that the Node Exporter is running on every node in t
 We use kube-prometheus-stack because it provides a complete monitoring solution for Kubernetes clusters.
 However, in order to separate concerns and manage resources more effectively, we can deploy Grafana as a standalone application.
 Grafana is not only for prometheus but also for other data sources, including Loki for logs and Tempo for traces.
+
+# How kube-prometheus-stack and OTel Collector are connected?: ServiceMonitor
+
+kube-prometheus-stack discovers targets by looking for a CRD(Custom Resource Definition), ServiceMonitors in the cluster.
+ServiceMonitors inside the kubernetes cluster are deployed by helm chart of kube-prometheus-stack.
+However in case of OTel Collector, which we defined through the OpenTelemetryCollector CRD, we need to create a ServiceMonitor manually to enable scraping because it is not automatically discovered by kube-prometheus-stack.
