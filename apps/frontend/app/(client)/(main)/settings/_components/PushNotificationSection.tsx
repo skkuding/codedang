@@ -2,6 +2,7 @@
 
 import { AlertModal } from '@/components/AlertModal'
 import { Switch } from '@/components/shadcn/switch'
+import { handleRequestPermissionAndSubscribe } from '@/libs/push-subscription'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
@@ -26,80 +27,13 @@ export function PushNotificationSection() {
     fetchIsSubscribed()
   }, [])
 
-  const handleRequestPermissionAndSubscribe = async () => {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      toast.error(
-        'Install PWA to get notifications. Instructions can be found in notice.'
-      )
-      return
-    }
-
-    const currentPermission = Notification.permission
-
-    if (currentPermission === 'granted' && !isSubscribed) {
-      await subscribeToPush()
-      return
-    }
-
-    if (currentPermission === 'denied') {
-      toast.error(
-        'Notification permission has been blocked. Please allow it in your browser settings.'
-      )
-      return
-    }
-
-    if (currentPermission === 'default') {
-      const newPermission = await Notification.requestPermission()
-      if (newPermission === 'granted') {
-        await subscribeToPush()
-      }
-    }
-  }
-
-  const subscribeToPush = async () => {
-    try {
-      interface VapidKeyResponse {
-        publicKey: string
-      }
-
-      const response: VapidKeyResponse = await safeFetcherWithAuth
-        .get('notification/vapid')
-        .json()
-
-      const { publicKey } = response
-
-      if (!publicKey) {
-        throw new Error('Could not retrieve VAPID public key from the server.')
-      }
-
-      const registration = await navigator.serviceWorker.ready
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: publicKey
-      })
-
-      await safeFetcherWithAuth.post('notification/push-subscription', {
-        json: { ...subscription.toJSON(), userAgent: navigator.userAgent }
-      })
-
-      setIsSubscribed(true)
-      toast.success('Push notifications enabled successfully!')
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('already exists')) {
-        setIsSubscribed(true)
-      } else {
-        console.error(
-          'An error occurred during the push subscription process:',
-          error
-        )
-        toast.error('Failed to enable push notifications. Please try again.')
-      }
-    }
-  }
-
   const handleToggle = async (checked: boolean) => {
     if (checked) {
-      await handleRequestPermissionAndSubscribe()
+      await handleRequestPermissionAndSubscribe(
+        isSubscribed,
+        setIsSubscribed,
+        true
+      )
     } else {
       setShowDisableModal(true)
     }

@@ -2,6 +2,7 @@
 
 import { Badge } from '@/components/shadcn/badge'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
+import { handleRequestPermissionAndSubscribe } from '@/libs/push-subscription'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { formatTimeAgo } from '@/libs/utils'
 import NotiIcon from '@/public/icons/notification.svg'
@@ -30,80 +31,6 @@ export function NotificationDropdown({
   const [hasMore, setHasMore] = useState(true)
   const [cursor, setCursor] = useState<number | null>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
-
-  const handleRequestPermissionAndSubscribe = async () => {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      alert(
-        'Install PWA to get push notifications. Instructions can be found in notice.'
-      )
-      return
-    }
-
-    const deviceKey = `notification_unsupported_${navigator.userAgent}_${screen.width}x${screen.height}`
-    if (localStorage.getItem(deviceKey)) {
-      return
-    }
-    localStorage.setItem(deviceKey, 'true')
-
-    const currentPermission = Notification.permission
-
-    if (currentPermission === 'granted' && !isSubscribed) {
-      await subscribeToPush()
-      return
-    }
-
-    if (currentPermission === 'denied') {
-      alert(
-        'Notification permission has been blocked. Please allow it in your browser settings.'
-      )
-      return
-    }
-
-    if (currentPermission === 'default') {
-      const newPermission = await Notification.requestPermission()
-      if (newPermission === 'granted') {
-        await subscribeToPush()
-      }
-    }
-  }
-
-  const subscribeToPush = async () => {
-    try {
-      interface VapidKeyResponse {
-        publicKey: string
-      }
-
-      const response: VapidKeyResponse = await safeFetcherWithAuth
-        .get('notification/vapid')
-        .json()
-
-      const { publicKey } = response
-
-      if (!publicKey) {
-        throw new Error('Could not retrieve VAPID public key from the server.')
-      }
-
-      const registration = await navigator.serviceWorker.ready
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: publicKey
-      })
-
-      await safeFetcherWithAuth.post('notification/push-subscription', {
-        json: { ...subscription.toJSON(), userAgent: navigator.userAgent }
-      })
-      setIsSubscribed(true)
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('already exists')) {
-        console.log('Push subscription already exists.')
-      } else {
-        console.error(
-          'An error occurred during the push subscription process:',
-          error
-        )
-      }
-    }
-  }
 
   const fetchMoreNotifications = useCallback(async () => {
     if (isLoading || !hasMore || !cursor) {
@@ -160,7 +87,7 @@ export function NotificationDropdown({
 
   useEffect(() => {
     if (isOpen) {
-      handleRequestPermissionAndSubscribe()
+      handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
 
       const fetchInitialNotifications = async () => {
         setIsLoading(true)
