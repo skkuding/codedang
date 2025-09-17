@@ -16,21 +16,21 @@ const messages: Record<
   'push:unsupported': {
     title: 'Push Notifications Unavailable',
     description:
-      "Your current browser doesn't support push notifications.\n\nPlease refer to the Notice and install the PWA to use this feature.",
+      "Your current browser doesn't support push notifications. Please refer to the Notice and install the PWA to use this feature.",
     showNoticeButton: true,
     isWarning: true
   },
   'push:denied': {
-    title: 'Push Notification Permission Denied',
+    title: 'Push Notification\nPermission Denied',
     description:
-      'Push notification permission has been denied in your browser.\n\nPlease allow permission in your settings and try again.',
+      'Push notification permission has been denied in your browser. Please allow permission in your settings and try again.',
     showNoticeButton: true,
     isWarning: true
   },
   'push:error': {
     title: 'Subscription Failed',
     description:
-      'Error occurred while subscribing to push notifications.\n\nPlease try again in a little while.',
+      'Error occurred while subscribing to push notifications. Please try again in a little while.',
     isWarning: true
   },
   'push:subscribed': {
@@ -45,6 +45,7 @@ export function PushPermissionModal() {
   const router = useRouter()
 
   const handleEvent = useCallback((key: string) => {
+    console.log('Push event triggered:', key) // 디버깅용
     setEventKey(key)
     setOpen(true)
   }, [])
@@ -54,6 +55,7 @@ export function PushPermissionModal() {
       handleEvent((e as CustomEvent).type)
     }
     const keys = Object.keys(messages)
+    console.log('Registering push event listeners for:', keys) // 디버깅용
     keys.forEach((k) => window.addEventListener(k, handler))
     return () => {
       keys.forEach((k) => window.removeEventListener(k, handler))
@@ -82,7 +84,7 @@ export function PushPermissionModal() {
       title={data?.title || ''}
       description={data?.description || ''}
       primaryButton={{
-        text: data?.showNoticeButton ? 'Read Notice' : '',
+        text: data?.showNoticeButton ? 'Read Notice' : 'OK',
         onClick: data?.showNoticeButton ? handleNoticeClick : handleClose
       }}
     />

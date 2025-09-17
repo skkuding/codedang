@@ -267,14 +267,16 @@ export default async function RootLayout({
         <PostHogProvider bootstrap={bootstrapData}>
           {/**NOTE: remove comment if you want to track page view of users */}
           {/* <PostHogPageView /> */}
-          <AuthProvider session={session}>{children}</AuthProvider>
+          <AuthProvider session={session}>
+            {session?.user && <PushPermissionModal />}
+            {children}
+          </AuthProvider>
           <Toaster
             richColors
             position="top-center"
             closeButton={true}
             duration={2000}
           />
-          <PushPermissionModal />
         </PostHogProvider>
         {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
