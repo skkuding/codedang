@@ -7,11 +7,11 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "codedang-tf-state"
-    key            = "terraform/vpc.tfstate"
-    region         = "ap-northeast-2"
-    encrypt        = true
-    dynamodb_table = "terraform-state-lock"
+    bucket       = "codedang-tf-state"
+    key          = "terraform/vpc.tfstate"
+    region       = "ap-northeast-2"
+    encrypt      = true
+    use_lockfile = true
   }
 }
 
