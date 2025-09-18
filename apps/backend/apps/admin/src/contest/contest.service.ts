@@ -1466,7 +1466,7 @@ export class ContestService {
   }
 
   async getContestQnA(contestId: number, order: number) {
-    return await this.prisma.contestQnA.findFirst({
+    const contestQnA = await this.prisma.contestQnA.findFirst({
       where: {
         contestId,
         order
@@ -1488,6 +1488,11 @@ export class ContestService {
         }
       }
     })
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    return contestQnA
   }
 
   async deleteContestQnA(contestId: number, order: number) {
