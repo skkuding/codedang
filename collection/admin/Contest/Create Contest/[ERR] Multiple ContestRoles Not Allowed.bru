@@ -1,0 +1,53 @@
+meta {
+  name: [ERR] Multiple ContestRoles Not Allowed
+  type: graphql
+  seq: 7
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateContest($input: CreateContestInput!) {
+    createContest(input: $input) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "title": "Multiple Roles for User",
+      "startTime": "2026-01-01T12:00:00.000Z",
+      "endTime": "2030-01-01T12:00:00.000Z",
+      "registerDueTime": "2025-12-31T12:00:00.000Z",
+      "isJudgeResultVisible": true,
+      "userContest": [
+        { "userId": 5, "contestRole": "Manager" },
+        { "userId": 5, "contestRole": "Reviewer" }
+      ]
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+assert {
+  res.body.errors[0].message: eq Multiple ContestRoles are not allowed
+}
+
+docs {
+  # 📙 [ERR] Multiple ContestRoles Not Allowed
+
+  **POST** `/graphql (mutation: createContest)`
+
+  User has multiple roles in this request.
+
+  `userContest` 배열 내에 동일한 `userId`가 여러 번 포함되어 한 명의 유저에게 중복으로 역할을 부여하려고 할 때 `UnprocessableDataException`이 발생합니다.
+}

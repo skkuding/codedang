@@ -192,12 +192,12 @@ export class ContestService {
     }
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
-        'The start time must be earlier than the end time'
+        'StartTime must be earlier than EndTime'
       )
     }
     if (contest.registerDueTime >= contest.startTime) {
       throw new UnprocessableDataException(
-        'The register due time must be earlier than the start time'
+        'RegisterDueTime must be earlier than StartTime'
       )
     }
     if (contest.summary) {

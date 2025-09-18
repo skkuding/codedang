@@ -1,7 +1,7 @@
 meta {
-  name: [ERR] Required Fields Not Entered
+  name: [ERR] Summary should be String
   type: graphql
-  seq: 3
+  seq: 5
 }
 
 post {
@@ -21,12 +21,15 @@ body:graphql {
 body:graphql:vars {
   {
     "input": {
-      "description": "new contest without title",
+      "title": "Invalid Summary Contest",
       "startTime": "2026-01-01T12:00:00.000Z",
       "endTime": "2030-01-01T12:00:00.000Z",
-      "registerDueTime": "2026-01-02T12:00:00.000Z",
+      "registerDueTime": "2025-12-31T12:00:00.000Z",
       "isJudgeResultVisible": true,
-      "userContest": []
+      "userContest": [],
+      "summary": {
+        "참여대상": 12345
+      }
     }
   }
 }
@@ -36,15 +39,15 @@ script:pre-request {
 }
 
 assert {
-  res.body.errors[0].message: eq Title was not provided
+  res.body.errors[0].message: Summary should be string
 }
 
 docs {
-  # 📙 [ERR] Required Fields Not Entered
+  # 📙 [ERR] Summary should be String
 
   **POST** `/graphql (mutation: createContest)`
 
-  Title String was not provided.
+  Summary must contain only strings.
 
-  필수 input(`title`)을 입력하지 않았을 때 `BAD_USER_INPUT`이 발생합니다.
+  `summary` 객체의 값(value) 중에 문자열이 아닌 타입이 포함되어 있을 때 `UnprocessableDataException`이 발생합니다.
 }

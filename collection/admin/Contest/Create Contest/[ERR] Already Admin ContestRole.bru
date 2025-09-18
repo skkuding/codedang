@@ -1,0 +1,52 @@
+meta {
+  name: [ERR] Already Admin ContestRole
+  type: graphql
+  seq: 7
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateContest($input: CreateContestInput!) {
+    createContest(input: $input) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "title": "Assign Role to Admin",
+      "startTime": "2026-01-01T12:00:00.000Z",
+      "endTime": "2030-01-01T12:00:00.000Z",
+      "registerDueTime": "2025-12-31T12:00:00.000Z",
+      "isJudgeResultVisible": true,
+      "userContest": [
+        { "userId": 4, "contestRole": "Manager" }
+      ]
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+assert {
+  res.body.errors[0].message: eq You are already assigned as Admin
+}
+
+docs {
+  # 📙 [ERR] Already Admin ContestRole
+
+  **POST** `/graphql (mutation: createContest)`
+
+  User is already assigned as Admin.
+
+  API를 요청한 사용자(자동으로 `Admin`이 됨)의 ID를 `userContest`에 포함하여 다른 역할을 부여하려고 시도할 때 `UnprocessableDataException`이 발생합니다.
+}

@@ -1,7 +1,7 @@
 meta {
-  name: [ERR] Required Fields Not Entered
+  name: [ERR] StartTime Earlier than RegisterDueTime
   type: graphql
-  seq: 3
+  seq: 4
 }
 
 post {
@@ -21,7 +21,7 @@ body:graphql {
 body:graphql:vars {
   {
     "input": {
-      "description": "new contest without title",
+      "title": "Invalid Time Contest",
       "startTime": "2026-01-01T12:00:00.000Z",
       "endTime": "2030-01-01T12:00:00.000Z",
       "registerDueTime": "2026-01-02T12:00:00.000Z",
@@ -36,15 +36,15 @@ script:pre-request {
 }
 
 assert {
-  res.body.errors[0].message: eq Title was not provided
+  res.body.errors[0].message: RegisterDueTime should be earlier than StartTime
 }
 
 docs {
-  # 📙 [ERR] Required Fields Not Entered
+  # 📙 [ERR] StartTime Earlier than RegisterDueTime
 
   **POST** `/graphql (mutation: createContest)`
 
-  Title String was not provided.
+  The register due time must be earlier than the start time.
 
-  필수 input(`title`)을 입력하지 않았을 때 `BAD_USER_INPUT`이 발생합니다.
+  대회 등록 마감 시간(`registerDueTime`)이 시작 시간(`startTime`)과 같거나 그 이후일 때 `UnprocessableDataException`이 발생합니다.
 }

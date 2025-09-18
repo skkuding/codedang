@@ -1,7 +1,7 @@
 meta {
-  name: [ERR] Required Fields Not Entered
+  name: [ERR] Invalid Contest Role
   type: graphql
-  seq: 3
+  seq: 6
 }
 
 post {
@@ -21,12 +21,14 @@ body:graphql {
 body:graphql:vars {
   {
     "input": {
-      "description": "new contest without title",
+      "title": "Invalid Role Contest",
       "startTime": "2026-01-01T12:00:00.000Z",
       "endTime": "2030-01-01T12:00:00.000Z",
-      "registerDueTime": "2026-01-02T12:00:00.000Z",
+      "registerDueTime": "2025-12-31T12:00:00.000Z",
       "isJudgeResultVisible": true,
-      "userContest": []
+      "userContest": [
+        { "userId": 5, "contestRole": "InvalidRole" }
+      ]
     }
   }
 }
@@ -36,15 +38,15 @@ script:pre-request {
 }
 
 assert {
-  res.body.errors[0].message: eq Title was not provided
+  res.body.errors[0].message: eq Invalid Contest Role is not allowed
 }
 
 docs {
-  # 📙 [ERR] Required Fields Not Entered
+  # 📙 [ERR] Invalid Contest Role
 
   **POST** `/graphql (mutation: createContest)`
 
-  Title String was not provided.
+  Invalid contest role.
 
-  필수 input(`title`)을 입력하지 않았을 때 `BAD_USER_INPUT`이 발생합니다.
+  `userContest` 배열에 `Manager` 또는 `Reviewer`가 아닌 유효하지 않은 역할(`contestRole`)을 포함하여 요청한 경우 `UnprocessableDataException`이 발생합니다.
 }

@@ -62,46 +62,99 @@ assert {
   res.body.data.createContest: isDefined
 }
 
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
 docs {
   # Create Contest
   
-  ## Description
-  사용자가 새로운 콘테스트를 생성할 수 있도록 합니다. 콘테스트 생성 권한이 있는 사용자만 사용할 수 있으며, 시작 및 종료 시간이 유효해야 합니다.
+  **POST** `/graphql (mutation: createContest)`
   
-  ## 요청 필드
-  | 필드명 | 타입 | 필수 여부 | 설명 |
-  |--------|------|----------|------|
-  | title | String | ✅ | 콘테스트 제목 |
-  | description | String | ❌ | 콘테스트 설명 |
-  | penalty | Int | ❌ | 패널티 점수 |
-  | lastPenalty | Boolean | ❌ | 마지막 패널티 적용 여부 |
-  | posterUrl | String | ❌ | 포스터 이미지 URL |
-  | invitationCode | String (6자리) | ❌ | 초대 코드 |
-  | startTime | GraphQLISODateTime | ✅ | 시작 시간 |
-  | endTime | GraphQLISODateTime | ✅ | 종료 시간 |
-  | registerDueTime | GraphQLISODateTime | ✅ | 등록 마감 시간 |
-  | freezeTime | GraphQLISODateTime | ❌ | 순위 공개 정지 시간 |
-  | isJudgeResultVisible | Boolean | ✅ | 채점 결과 공개 여부 |
-  | enableCopyPaste | Boolean | ❌ | 복사/붙여넣기 허용 여부 |
-  | evaluateWithSampleTestcase | Boolean | ❌ | 샘플 테스트케이스로 평가 여부 |
-  | userContest | [UserContestInput] | ❌ | Manager, Reviewer 역할 부여용 |
-  | summary | GraphQLJSON | ❌ | 다국어 요약 정보 |
+  Creates a new contest.
   
-  ## 응답 필드
-  | 필드명 | 타입 | 설명 |
-  |--------|------|------|
-  | id | Int | 생성된 콘테스트의 ID |
-  | title | String | 콘테스트 제목 |
-  | description | String | 콘테스트 설명 |
-  | startTime | GraphQLISODateTime | 시작 시간 |
-  | endTime | GraphQLISODateTime | 종료 시간 |
-  | registerDueTime | GraphQLISODateTime | 등록 마감 시간 |
-  | isJudgeResultVisible | Boolean | 채점 결과 공개 여부 |
-  | createdById | Int | 콘테스트 생성자 ID |
+  새로운 대회를 생성합니다.
   
-  ## 권한
-  - `canCreateContest` 권한이 있는 사용자만 사용할 수 있습니다.
-  - 권한이 없는 경우 `UnauthorizedException` 오류가 반환됩니다.
+  대회 생성은 `canCreateContest` 필드가 `true`인 사용자만 가능합니다.
   
+  `userContest` 필드를 통해 다른 유저에게 `Manager` 또는 `Reviewer` 역할을 부여할 수 있습니다. 요청자는 자동으로 해당 대회의 `Admin`이 됩니다.
   
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required
+  
+  ---
+  
+  ### 📥 Request Variables
+  
+  #### `input: CreateContestInput`
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `title` | String | ✅ | 대회 제목 |
+  | `description` | String | ❌ | 대회 설명 |
+  | `startTime` | GraphQLISODateTime | ✅ | 대회 시작 시간 |
+  | `endTime` | GraphQLISODateTime | ✅ | 대회 종료 시간 |
+  | `registerDueTime` | GraphQLISODateTime | ✅ | 참가 등록 마감 시간 |
+  | `isJudgeResultVisible` | Boolean | ✅ | 채점 결과 공개 여부 |
+  | `penalty` | Int | ❌ | 오답 제출 시 패널티 시간(분) |
+  | `lastPenalty` | Boolean | ❌ | 마지막 패널티 적용 여부 |
+  | `posterUrl` | String | ❌ | 포스터 이미지 URL |
+  | `invitationCode` | String | ❌ | 6자리 초대 코드 |
+  | `freezeTime`| GraphQLISODateTime | ❌ | 순위표 동결 시작 시간 |
+  | `enableCopyPaste` | Boolean | ❌ | 복사/붙여넣기 허용 여부 |
+  | `evaluateWithSampleTestcase` | Boolean | ❌ | 예제 테스트케이스로만 채점 여부 |
+  | `userContest` | [UserContestInput] | ❌ | 대회 관리자/리뷰어 역할 부여 |
+  | `summary` | GraphQLJSON | ❌ | 대회 관련 요약 정보 (Key-Value) |
+  
+  #### `userContest: UserContestInput`
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `userId` | Int | ✅ | 역할을 부여할 유저의 ID |
+  | `contestRole` | String | ✅ | 부여할 역할 (`Manager` 또는 `Reviewer`) |
+  
+  ---
+  
+  ### 📤 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "data": {
+      "createContest": {
+        "id": "21",
+        "title": "New Contest 1",
+        "description": "thisisnewcontest",
+        "startTime": "2026-01-01T00:00:00.000Z",
+        "endTime": "2030-01-01T00:00:00.000Z",
+        "registerDueTime": "2023-12-31T00:00:00.000Z",
+        "enableCopyPaste": true,
+        "isJudgeResultVisible": true,
+        "invitationCode": "123456",
+        "summary": {
+          "문제형태": "problemFormat",
+          "순위산정": "rankingMethod",
+          "진행방식": "competitionMethod",
+          "참여대상": "participationTarget",
+          "참여혜택": "benefits"
+        }
+      }
+    }
+  }
+  ```
+  
+  | Field | Type | Description |
+  |-------|------|-------------|
+  | `id` | Int | 생성된 대회의 고유 ID |
+  | `title` | String | 대회 제목 |
+  | `description` | String | 대회 설명 |
+  | `startTime` | GraphQLISODateTime | 대회 시작 시간 |
+  | `endTime` | GraphQLISODateTime | 대회 종료 시간 |
+  | `registerDueTime` | GraphQLISODateTime | 참가 등록 마감 시간 |
+  | `enableCopyPaste` | Boolean | 복사/붙여넣기 허용 여부 |
+  | `isJudgeResultVisible` | Boolean | 채점 결과 공개 여부 |
+  | `invitationCode` | String | 6자리 초대 코드 |
+  | `summary` | GraphQLJSON | 대회 관련 요약 정보 (Key-Value) |
 }
