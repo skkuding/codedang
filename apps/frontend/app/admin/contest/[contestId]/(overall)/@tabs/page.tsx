@@ -6,11 +6,10 @@ import {
   ParticipantTableFallback
 } from './_components/ParticipantTable'
 
-export default function Submission({
-  params
-}: {
-  params: { contestId: string }
+export default async function Submission(props: {
+  params: Promise<{ contestId: string }>
 }) {
+  const params = await props.params
   return (
     <ErrorBoundary fallback={FetchErrorFallback}>
       <Suspense fallback={<ParticipantTableFallback />}>

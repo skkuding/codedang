@@ -10,13 +10,14 @@ import { ContestMainTable } from './_components/ContestMainTable'
 import { ContestSubBanner } from './_components/ContestSubBanner'
 
 interface ContestProps {
-  searchParams: {
+  searchParams: Promise<{
     registered: string
     search: string
-  }
+  }>
 }
 
-export default async function Contest({ searchParams }: ContestProps) {
+export default async function Contest(props: ContestProps) {
+  const searchParams = await props.searchParams
   const session = await auth()
   const registered = searchParams.registered === 'true'
   if (!session && registered) {

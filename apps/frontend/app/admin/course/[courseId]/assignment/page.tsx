@@ -11,8 +11,10 @@ import {
 
 export const dynamic = 'force-dynamic'
 
-export default function Page({ params }: { params: { courseId: string } }) {
-  const { courseId } = params
+export default async function Page(props: {
+  params: Promise<{ courseId: string }>
+}) {
+  const { courseId } = await props.params
   return (
     <div className="container mx-auto space-y-5 py-10">
       <div className="flex justify-between">

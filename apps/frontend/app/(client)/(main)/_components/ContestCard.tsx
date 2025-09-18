@@ -9,10 +9,10 @@ import 'react-circular-progressbar/dist/styles.css'
 import { StatusBadge } from './StatusBadge'
 
 const bgVariants = {
-  ongoing: 'bg-gradient-to-b from-blue-100 to-white',
+  ongoing: 'bg-linear-to-b from-blue-100 to-white',
   upcoming: 'bg-white',
   finished: 'bg-gray-500',
-  registeredOngoing: 'bg-gradient-to-b from-blue-100 to-white',
+  registeredOngoing: 'bg-linear-to-b from-blue-100 to-white',
   registeredUpcoming: 'bg-white'
 }
 

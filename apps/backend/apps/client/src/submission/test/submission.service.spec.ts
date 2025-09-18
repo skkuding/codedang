@@ -576,6 +576,33 @@ describe('SubmissionService', () => {
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
+
+    it('should throw exception when trying to view others submission during a contest', async () => {
+      const ongoingContest = {
+        ...mockContest,
+        startTime: new Date(Date.now() - 10000),
+        endTime: new Date(Date.now() + 10000)
+      }
+      db.contestRecord.findUnique.resolves({
+        contest: ongoingContest
+      })
+      db.problem.findFirst.resolves(problems[0])
+      db.submission.findFirst.resolves({
+        ...submissions[0],
+        userId: 2
+      })
+
+      await expect(
+        service.getSubmission({
+          id: submissions[0].id,
+          problemId: problems[0].id,
+          userId: 1,
+          userRole: Role.User,
+          contestId: CONTEST_ID,
+          assignmentId: null
+        })
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
   })
 
   describe('getContestSubmissions', () => {
@@ -590,6 +617,7 @@ describe('SubmissionService', () => {
         createTime: new Date(),
         updateTime: new Date(),
         studentId: '2020000000',
+        college: null,
         major: null,
         canCreateCourse: false,
         canCreateContest: false
@@ -650,6 +678,7 @@ describe('SubmissionService', () => {
         createTime: new Date(),
         updateTime: new Date(),
         studentId: '2020000000',
+        college: null,
         major: null,
         canCreateCourse: false,
         canCreateContest: false

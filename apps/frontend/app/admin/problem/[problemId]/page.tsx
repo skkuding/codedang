@@ -1,19 +1,24 @@
 'use client'
 
 import { KatexContent } from '@/components/KatexContent'
-import { Paginator } from '@/components/Paginator'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_PROBLEM_DETAIL } from '@/graphql/problem/queries'
-import { usePagination } from '@/libs/hooks/usePagination'
-import type { SubmissionItem } from '@/types/type'
+import { GET_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
-import { FaAngleLeft, FaPencil, FaEye } from 'react-icons/fa6'
+import { useParams } from 'next/navigation'
+import { FaAngleLeft, FaEye, FaPencil } from 'react-icons/fa6'
+import {
+  DataTable,
+  DataTablePagination,
+  DataTableRoot,
+  DataTableSearchBar
+} from '../../_components/table'
 import { columns } from './_components/Columns'
-import { DataTable } from './_components/DataTable'
 
-export default function Page({ params }: { params: { problemId: string } }) {
+export default function Page() {
+  const params = useParams()
   const { problemId } = params
 
   const problemData = useQuery(GET_PROBLEM_DETAIL, {
@@ -22,10 +27,19 @@ export default function Page({ params }: { params: { problemId: string } }) {
     }
   }).data?.getProblem
 
-  const { items, paginator } = usePagination<SubmissionItem>(
-    `submission?problemId=${problemId}`,
-    20
-  )
+  const submissions =
+    useQuery(GET_SUBMISSIONS, {
+      variables: {
+        problemId: Number(problemId)
+      }
+    }).data?.getSubmissions?.data.map((submission) => ({
+      id: Number(submission.id),
+      username: submission.user?.username ?? '',
+      result: submission.result,
+      language: submission.language,
+      createTime: submission.createTime ?? '',
+      codeSize: submission.codeSize ?? 0
+    })) ?? []
 
   return (
     <ScrollArea className="shrink-0">
@@ -58,20 +72,17 @@ export default function Page({ params }: { params: { problemId: string } }) {
         />
 
         <p className="text-xl font-bold">Submission</p>
-        <DataTable
-          data={items ?? []}
+        <DataTableRoot
+          data={submissions}
           columns={columns}
-          headerStyle={{
-            id: 'w-[8%]',
-            username: 'w-[15%]',
-            result: 'w-[27%]',
-            language: 'w-[14%]',
-            createTime: 'w-[23%]',
-            codeSize: 'w-[13%]'
-          }}
-          problemId={Number(problemId)}
-        />
-        <Paginator page={paginator.page} slot={paginator.slot} />
+          defaultSortState={[{ id: 'updateTime', desc: true }]}
+        >
+          <div className="flex gap-4">
+            <DataTableSearchBar columndId="username" />
+          </div>
+          <DataTable />
+          <DataTablePagination showSelection />
+        </DataTableRoot>
       </main>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>

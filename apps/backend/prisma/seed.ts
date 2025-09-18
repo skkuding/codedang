@@ -1,31 +1,33 @@
 import {
-  PrismaClient,
-  Role,
-  Level,
+  ContestRole,
+  GroupType,
   Language,
+  Level,
+  NotificationType,
+  PrismaClient,
+  QnACategory,
   ResultStatus,
-  type Group,
-  type User,
-  type Problem,
-  type Tag,
-  type Assignment,
-  type Workbook,
-  type Submission,
-  type ProblemTestcase,
+  Role,
   type Announcement,
+  type Assignment,
   type AssignmentRecord,
   type Contest,
-  type ContestRecord,
   type ContestProblemRecord,
-  type UserContest,
-  ContestRole,
+  type ContestRecord,
+  type Group,
+  type Prisma,
+  type Problem,
+  type ProblemTestcase,
+  type Submission,
+  type Tag,
   type UpdateHistory,
-  type Prisma
+  type User,
+  type UserContest,
+  type Workbook
 } from '@prisma/client'
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { GroupType } from '@admin/@generated'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
@@ -51,8 +53,8 @@ const endedAssignments: Assignment[] = []
 const ongoingAssignments: Assignment[] = []
 const upcomingAssignments: Assignment[] = []
 const contests: Contest[] = []
-const endedContests: Contest[] = []
 const ongoingContests: Contest[] = []
+const endedContests: Contest[] = []
 const upcomingContests: Contest[] = []
 const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
@@ -71,6 +73,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.SuperAdmin,
       studentId: '2024000000',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -84,6 +87,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.Admin,
       studentId: '2024000001',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -97,6 +101,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.User,
       studentId: '2024000002',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science',
       canCreateCourse: true,
       canCreateContest: true
@@ -113,6 +118,7 @@ const createUsers = async () => {
       role: Role.User,
       canCreateContest: true,
       studentId: '2024000003',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -126,6 +132,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.User,
       studentId: '2024000004',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -139,6 +146,7 @@ const createUsers = async () => {
       lastLogin: new Date(),
       role: Role.User,
       studentId: '2024000005',
+      college: 'College of Computing and Informatics',
       major: 'Computer Science'
     }
   })
@@ -154,6 +162,7 @@ const createUsers = async () => {
         lastLogin: new Date(),
         role: Role.User,
         studentId: `20241000${i.toString().padStart(2, '0')}`,
+        college: 'College of Computing and Informatics',
         major: 'Computer Science'
       }
     })
@@ -187,14 +196,23 @@ const createUsers = async () => {
 const createGroups = async () => {
   privateGroup1 = await prisma.group.create({
     data: {
-      groupName: 'Example Group',
+      groupName: '컴퓨터프로그래밍',
       description:
-        'This is an example group just for testing. This group should not be shown on production environment.',
+        'C/C++ 언어를 이용한 프로그래밍 기초를 학습합니다. 알고리즘과 자료구조의 기본 개념을 익힙니다.',
       config: {
         showOnList: false,
         allowJoinFromSearch: false,
         allowJoinWithURL: false,
         requireApprovalBeforeJoin: false
+      },
+      courseInfo: {
+        create: {
+          courseNum: 'SWE2016',
+          classNum: 1,
+          professor: '안철수',
+          semester: '2025 Spring',
+          email: 'woojoo@spacekim.org'
+        }
       }
     }
   })
@@ -229,17 +247,26 @@ const createGroups = async () => {
     }
   })
 
-  // create empty private group
-  // 'showOnList'가 true
   let tempGroup = await prisma.group.create({
     data: {
-      groupName: 'Example Private Group 2',
-      description: 'This is an example private group just for testing.',
+      groupName: '자료구조',
+      description:
+        '배열, 링크드리스트, 스택, 큐, 트리, 그래프 등 기본적인 자료구조와 알고리즘을 학습합니다.',
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
         allowJoinWithURL: true,
         requireApprovalBeforeJoin: false
+      },
+      courseInfo: {
+        create: {
+          courseNum: 'SWE2017',
+          classNum: 2,
+          professor: '박영희',
+          semester: '2025 Spring',
+          email: 'example@skku.edu',
+          website: 'https://skku.edu'
+        }
       }
     }
   })
@@ -251,17 +278,26 @@ const createGroups = async () => {
     }
   })
 
-  // create empty private group
-  // 'showOnList'가 true
   tempGroup = await prisma.group.create({
     data: {
-      groupName: 'Example Private Group 3',
-      description: 'This is an example private group just for testing.',
+      groupName: '알고리즘',
+      description:
+        '정렬, 탐색, 동적계획법, 그리디 알고리즘 등 다양한 알고리즘 설계 기법을 학습합니다.',
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
         allowJoinWithURL: true,
         requireApprovalBeforeJoin: false
+      },
+      courseInfo: {
+        create: {
+          courseNum: 'SWE3018',
+          classNum: 1,
+          professor: '이민수',
+          semester: '2025 Spring',
+          email: 'ms.lee@skku.edu',
+          website: 'https://algorithm.skku.edu'
+        }
       }
     }
   })
@@ -282,7 +318,8 @@ const createGroups = async () => {
       data: {
         userId: user.id,
         groupId: privateGroup1.id,
-        isGroupLeader: user.username === 'user01'
+        isGroupLeader:
+          user.username === 'user01' || user.username === 'instructor'
       }
     })
   }
@@ -699,6 +736,13 @@ const createProblems = async () => {
           Language.Python3,
           Language.PyPy3
         ],
+        solution: [
+          { code: '', language: Language.C },
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Java },
+          { code: '', language: Language.Python3 },
+          { code: '', language: Language.PyPy3 }
+        ],
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
@@ -727,6 +771,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.C],
+        solution: [{ code: '', language: Language.C }],
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
@@ -755,6 +800,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.Cpp],
+        solution: [{ code: '', language: Language.Cpp }],
         hint: '',
         timeLimit: 1000,
         memoryLimit: 128,
@@ -783,6 +829,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.Java],
+        solution: [{ code: '', language: Language.Java }],
         hint: await readFile(join(fixturePath, 'problem/4-hint.html'), 'utf-8'),
         timeLimit: 1000,
         memoryLimit: 128,
@@ -811,6 +858,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.Python3],
+        solution: [{ code: '', language: Language.Python3 }],
         hint: '',
         timeLimit: 1000,
         memoryLimit: 128,
@@ -839,6 +887,10 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.C, Language.Java],
+        solution: [
+          { code: '', language: Language.C },
+          { code: '', language: Language.Java }
+        ],
         hint: await readFile(join(fixturePath, 'problem/6-hint.html'), 'utf-8'),
         timeLimit: 1000,
         memoryLimit: 128,
@@ -867,6 +919,10 @@ const createProblems = async () => {
           'utf8'
         ),
         languages: [Language.Cpp, Language.Python3],
+        solution: [
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Python3 }
+        ],
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
@@ -895,6 +951,12 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
+        solution: [
+          { code: '', language: Language.C },
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Java },
+          { code: '', language: Language.Python3 }
+        ],
         hint: await readFile(join(fixturePath, 'problem/8-hint.html'), 'utf-8'),
         timeLimit: 2000,
         memoryLimit: 256,
@@ -914,6 +976,12 @@ const createProblems = async () => {
         inputDescription: `<p>비공개</p>`,
         outputDescription: `<p>비공개</p>`,
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
+        solution: [
+          { code: '', language: Language.C },
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Java },
+          { code: '', language: Language.Python3 }
+        ],
         hint: `<p>작성중</p>`,
         timeLimit: 2000,
         memoryLimit: 256,
@@ -1095,7 +1163,7 @@ const createContests = async () => {
   아니하고는 처벌·보안처분 또는 강제노역을 받지 아니한다.
 </p>`,
         createdById: superAdminUser.id,
-        posterUrl: `https://skkuding.dev/open-graph.png`,
+        posterUrl: null,
         summary: {
           참여대상: '성균관대 재학생이라면 누구나',
           진행방식: '온라인으로 진행',
@@ -1138,7 +1206,7 @@ const createContests = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 테스트2',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        posterUrl: `https://skkuding.dev/open-graph.png`,
+        posterUrl: null,
         summary: {
           참여대상: '성균관대학교 24학번 신입생',
           진행방식: '강의실에서 오프라인으로 진행',
@@ -1159,7 +1227,7 @@ const createContests = async () => {
         title: '24년도 소프트웨어학과 신입생 입학 테스트3',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        posterUrl: `https://skkuding.dev/open-graph.png`,
+        posterUrl: null,
         summary: {
           참여대상: '성균관대학교 24학번 신입생',
           진행방식: '강의실에서 오프라인으로 진행',
@@ -1402,9 +1470,9 @@ const createContests = async () => {
           순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
           문제형태: '문제 형식은 다음과 같습니다.'
         },
-        startTime: new Date('3024-01-01T00:00:00.000Z'),
-        endTime: new Date('3025-01-01T23:59:59.000Z'),
-        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
+        startTime: new Date('2034-01-01T00:00:00.000Z'),
+        endTime: new Date('2035-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2034-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1423,9 +1491,9 @@ const createContests = async () => {
           순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
           문제형태: '문제 형식은 다음과 같습니다.'
         },
-        startTime: new Date('3024-01-01T00:00:00.000Z'),
-        endTime: new Date('3025-01-01T23:59:59.000Z'),
-        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
+        startTime: new Date('2034-01-01T00:00:00.000Z'),
+        endTime: new Date('2035-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2034-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1437,16 +1505,16 @@ const createContests = async () => {
         title: '2024 스꾸딩 프로그래밍 대회',
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
-        posterUrl: `https://skkuding.dev/open-graph.png`,
+        posterUrl: null,
         summary: {
           참여대상: '소프트웨어학과 원전공/복수전공',
           진행방식: '온라인 진행 예정...?',
           순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
           참여혜택: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘'
         },
-        startTime: new Date('3024-01-01T00:00:00.000Z'),
-        endTime: new Date('3025-01-01T23:59:59.000Z'),
-        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
+        startTime: new Date('2034-01-01T00:00:00.000Z'),
+        endTime: new Date('2035-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2034-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1465,9 +1533,9 @@ const createContests = async () => {
           순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
           참여혜택: '1등 10만원 / 2등 5만원 / 3등 3만원 상당 기프티콘'
         },
-        startTime: new Date('3024-01-01T00:00:00.000Z'),
-        endTime: new Date('3025-01-01T23:59:59.000Z'),
-        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
+        startTime: new Date('2034-01-01T00:00:00.000Z'),
+        endTime: new Date('2035-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2034-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: null,
         enableCopyPaste: true,
@@ -1486,9 +1554,9 @@ const createContests = async () => {
           순위산정: '맞춘 문제 수와 penalty를 기준으로 순위 산출',
           문제형태: '문제 형식은 다음과 같습니다.'
         },
-        startTime: new Date('3024-01-01T00:00:00.000Z'),
-        endTime: new Date('3025-01-01T23:59:59.000Z'),
-        registerDueTime: new Date('3023-12-31T00:00:00.000Z'),
+        startTime: new Date('2034-01-01T00:00:00.000Z'),
+        endTime: new Date('2035-01-01T23:59:59.000Z'),
+        registerDueTime: new Date('2034-12-31T00:00:00.000Z'),
         freezeTime: null,
         invitationCode: '123456',
         enableCopyPaste: true,
@@ -1508,9 +1576,9 @@ const createContests = async () => {
           문제형태: '문제 형식은 다음과 같습니다.'
         },
         startTime: new Date('2023-01-01T00:00:00.000Z'),
-        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        endTime: new Date('2035-01-01T23:59:59.000Z'),
         registerDueTime: new Date('2022-12-31T00:00:00.000Z'),
-        freezeTime: new Date('3024-01-01T00:00:00.000Z'),
+        freezeTime: new Date('2034-01-01T00:00:00.000Z'),
         invitationCode: null,
         enableCopyPaste: true,
         evaluateWithSampleTestcase: true
@@ -1524,36 +1592,56 @@ const createContests = async () => {
       data: obj.data
     })
     contests.push(contest)
-    if (now < obj.data.startTime) {
+    if (obj.data.startTime > now) {
       upcomingContests.push(contest)
-    } else if (obj.data.endTime < now) {
-      endedContests.push(contest)
     } else {
-      ongoingContests.push(contest)
+      if (obj.data.endTime < now) {
+        endedContests.push(contest)
+      } else {
+        ongoingContests.push(contest)
+      }
     }
   }
 
-  // add problems to ongoing contest
-  for (const [index, problem] of problems.slice(0, 3).entries()) {
-    await prisma.contestProblem.create({
-      data: {
-        order: index,
-        contestId: ongoingContests[0].id,
-        problemId: problem.id,
-        score: problem.id * 10
-      }
-    })
+  // add problem 1, 2 to ongoing contest
+  for (const contest of ongoingContests) {
+    for (const [index, problem] of problems.slice(0, 2).entries()) {
+      await prisma.contestProblem.create({
+        data: {
+          order: index,
+          contestId: contest.id,
+          problemId: problem.id,
+          score: problem.id * 10
+        }
+      })
+    }
   }
 
-  // add problems to finished contest
-  for (const [index, problem] of problems.slice(3, 5).entries()) {
-    await prisma.contestProblem.create({
-      data: {
-        order: index,
-        contestId: endedContests[0].id,
-        problemId: problem.id
-      }
-    })
+  // add problem 3, 4 to upcoming contest
+  for (const contest of upcomingContests) {
+    for (const [index, problem] of problems.slice(2, 4).entries()) {
+      await prisma.contestProblem.create({
+        data: {
+          order: index,
+          contestId: contest.id,
+          problemId: problem.id,
+          score: problem.id * 10
+        }
+      })
+    }
+  }
+  // add problem 5, 6 to ended contest
+  for (const contest of endedContests) {
+    for (const [index, problem] of problems.slice(4, 6).entries()) {
+      await prisma.contestProblem.create({
+        data: {
+          order: index,
+          contestId: contest.id,
+          problemId: problem.id,
+          score: problem.id * 10
+        }
+      })
+    }
   }
 
   // TODO: add records and ranks
@@ -1808,9 +1896,9 @@ const createAssignments = async () => {
         description: '<p>이 과제는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup1.id,
-        startTime: new Date('3024-01-01T00:00:00.000Z'),
-        endTime: new Date('3025-01-01T23:59:59.000Z'),
-        dueTime: new Date('3025-01-01T23:59:59.000Z'),
+        startTime: new Date('2034-01-01T00:00:00.000Z'),
+        endTime: new Date('2035-01-01T23:59:59.000Z'),
+        dueTime: new Date('2035-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1822,9 +1910,9 @@ const createAssignments = async () => {
         description: '<p>이 과제는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup1.id,
-        startTime: new Date('3024-01-01T00:00:00.000Z'),
-        endTime: new Date('3025-01-01T23:59:59.000Z'),
-        dueTime: new Date('3025-01-01T23:59:59.000Z'),
+        startTime: new Date('2034-01-01T00:00:00.000Z'),
+        endTime: new Date('2035-01-01T23:59:59.000Z'),
+        dueTime: new Date('2035-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1837,9 +1925,9 @@ const createAssignments = async () => {
           '<p>이 과제는 언젠가 열리겠죠...? isVisible이 false인 assignment입니다</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup1.id,
-        startTime: new Date('3024-01-01T00:00:00.000Z'),
-        endTime: new Date('3025-01-01T23:59:59.000Z'),
-        dueTime: new Date('3025-01-01T23:59:59.000Z'),
+        startTime: new Date('2034-01-01T00:00:00.000Z'),
+        endTime: new Date('2035-01-01T23:59:59.000Z'),
+        dueTime: new Date('2035-01-01T23:59:59.000Z'),
         isVisible: false,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1851,9 +1939,9 @@ const createAssignments = async () => {
         description: '<p>이 과제는 언젠가 열리겠죠...? (private group)</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup2.id,
-        startTime: new Date('3024-01-01T00:00:00.000Z'),
-        endTime: new Date('3025-01-01T23:59:59.000Z'),
-        dueTime: new Date('3025-01-01T23:59:59.000Z'),
+        startTime: new Date('2034-01-01T00:00:00.000Z'),
+        endTime: new Date('2035-01-01T23:59:59.000Z'),
+        dueTime: new Date('2035-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
         enableCopyPaste: true
@@ -1902,7 +1990,8 @@ const createAssignments = async () => {
       data: {
         order: problem.id - 1,
         assignmentId: endedAssignments[0].id,
-        problemId: problem.id
+        problemId: problem.id,
+        score: problem.id * 10
       }
     })
     await prisma.problem.update({
@@ -2346,6 +2435,127 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
+        userId: users[1].id,
+        problemId: problems[1].id,
+        assignmentId: ongoingAssignments[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <iostream>\nusing namespace std;\nint main(){ cout << 42 << endl; return 0; }`
+          }
+        ],
+        language: Language.Cpp,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[1].id,
+      result: ResultStatus.Accepted,
+      output: '42\n'
+    }
+  })
+  await prisma.submission.update({
+    where: { id: submissions[submissions.length - 1].id },
+    data: { result: ResultStatus.Accepted }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[2].id,
+        problemId: problems[2].id,
+        assignmentId: ongoingAssignments[0].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `class Main { public static void main(String[] args){ System.out.println(7); } }`
+          }
+        ],
+        language: Language.Java,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[2].id,
+      result: ResultStatus.Accepted,
+      output: '7\n'
+    }
+  })
+  await prisma.submission.update({
+    where: { id: submissions[submissions.length - 1].id },
+    data: { result: ResultStatus.Accepted }
+  })
+
+  if (endedAssignments.length > 0) {
+    const endedId = endedAssignments[0].id
+    submissions.push(
+      await prisma.submission.create({
+        data: {
+          userId: users[0].id,
+          problemId: problems[3].id,
+          assignmentId: endedId,
+          code: [{ id: 1, locked: false, text: `print(1+1)` }],
+          language: Language.Python3,
+          result: ResultStatus.Judging
+        }
+      })
+    )
+    await prisma.submissionResult.create({
+      data: {
+        submissionId: submissions[submissions.length - 1].id,
+        problemTestcaseId: problemTestcases[3].id,
+        result: ResultStatus.Accepted,
+        output: '2\n'
+      }
+    })
+    await prisma.submission.update({
+      where: { id: submissions[submissions.length - 1].id },
+      data: { result: ResultStatus.Accepted }
+    })
+
+    submissions.push(
+      await prisma.submission.create({
+        data: {
+          userId: users[1].id,
+          problemId: problems[4].id,
+          assignmentId: endedId,
+          code: [
+            {
+              id: 1,
+              locked: false,
+              text: `#include <stdio.h>\nint main(){ printf("OK\\n"); return 0; }`
+            }
+          ],
+          language: Language.C,
+          result: ResultStatus.Judging
+        }
+      })
+    )
+    await prisma.submissionResult.create({
+      data: {
+        submissionId: submissions[submissions.length - 1].id,
+        problemTestcaseId: problemTestcases[4].id,
+        result: ResultStatus.Accepted,
+        output: 'OK\n'
+      }
+    })
+    await prisma.submission.update({
+      where: { id: submissions[submissions.length - 1].id },
+      data: { result: ResultStatus.Accepted }
+    })
+  }
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
         userId: users[5].id,
         problemId: problems[5].id,
         workbookId: workbooks[0].id,
@@ -2466,6 +2676,18 @@ const createAssignmentRecords = async () => {
       }
     })
     assignmentRecords.push(assignmentRecord)
+  }
+
+  if (endedAssignments.length > 0) {
+    await prisma.assignmentRecord.createMany({
+      data: group1Users.map((ug) => ({
+        userId: ug.userId,
+        assignmentId: endedAssignments[0].id,
+        acceptedProblemNum: 0,
+        totalPenalty: 0
+      })),
+      skipDuplicates: true
+    })
   }
 
   // upcoming assignment에 참가한 User 1의 assignment register를 un-register하는 기능과,
@@ -2624,42 +2846,300 @@ const createContestProblemRecords = async () => {
   return contestProblemRecords
 }
 
+const createAssignmentProblemRecords = async () => {
+  const assignmentProblems = await prisma.assignmentProblem.findMany({
+    select: { assignmentId: true, problemId: true, score: true }
+  })
+
+  if (assignmentProblems.length === 0) return []
+
+  const assignmentIds = Array.from(
+    new Set(assignmentProblems.map((ap) => ap.assignmentId))
+  )
+
+  const scoreMapByAssignment: Record<number, Record<number, number>> = {}
+  for (const ap of assignmentProblems) {
+    if (!scoreMapByAssignment[ap.assignmentId]) {
+      scoreMapByAssignment[ap.assignmentId] = {}
+    }
+    scoreMapByAssignment[ap.assignmentId][ap.problemId] = ap.score ?? 0
+  }
+
+  const participants = await prisma.assignmentRecord.findMany({
+    where: { assignmentId: { in: assignmentIds }, userId: { not: null } },
+    select: { assignmentId: true, userId: true }
+  })
+
+  if (participants.length === 0) return []
+
+  const userIds = Array.from(
+    new Set(
+      participants.map((p) => p.userId!).filter((v): v is number => v !== null)
+    )
+  )
+  const problemIds = Array.from(
+    new Set(assignmentProblems.map((ap) => ap.problemId))
+  )
+
+  const submissions = await prisma.submission.findMany({
+    where: {
+      assignmentId: { in: assignmentIds },
+      userId: { in: userIds },
+      problemId: { in: problemIds }
+    },
+    select: { assignmentId: true, userId: true, problemId: true, result: true }
+  })
+
+  const submittedSet = new Set<string>()
+  const acceptedSet = new Set<string>()
+  for (const s of submissions) {
+    const key = `${s.assignmentId}:${s.userId}:${s.problemId}`
+    submittedSet.add(key)
+    if (s.result === ResultStatus.Accepted) {
+      acceptedSet.add(key)
+    }
+  }
+
+  const problemsByAssignment = assignmentProblems.reduce(
+    (acc, ap) => {
+      if (!acc[ap.assignmentId]) acc[ap.assignmentId] = []
+      acc[ap.assignmentId].push(ap.problemId)
+      return acc
+    },
+    {} as Record<number, number[]>
+  )
+
+  const createData: Array<{
+    assignmentId: number
+    userId: number
+    problemId: number
+    isSubmitted?: boolean
+    isAccepted?: boolean
+    score?: number
+  }> = []
+
+  for (const { assignmentId, userId } of participants) {
+    const problems = problemsByAssignment[assignmentId] ?? []
+    for (const problemId of problems) {
+      const key = `${assignmentId}:${userId}:${problemId}`
+      const isAccepted = acceptedSet.has(key)
+      const isSubmitted = submittedSet.has(key)
+      const base = {
+        assignmentId,
+        userId: userId!,
+        problemId
+      }
+      if (isAccepted) {
+        createData.push({
+          ...base,
+          isSubmitted: true,
+          isAccepted: true,
+          score: scoreMapByAssignment[assignmentId]?.[problemId] ?? 0
+        })
+      } else if (isSubmitted) {
+        createData.push({ ...base, isSubmitted: true })
+      } else {
+        createData.push(base)
+      }
+    }
+  }
+
+  if (createData.length === 0) return []
+
+  const result = await prisma.assignmentProblemRecord.createMany({
+    data: createData,
+    skipDuplicates: true
+  })
+
+  return result
+}
+
 const createContestQnA = async () => {
   await prisma.contestQnA.createMany({
     data: [
       {
         contestId: 1,
-        createdById: 2,
+        createdById: 8,
         title: 'QnA 1',
         order: 1,
-        content: 'visible not answered QnA',
-        isVisible: true
+        content: '질문의 내용',
+        category: QnACategory.General
       },
       {
         contestId: 1,
-        createdById: 2,
+        createdById: 7,
         order: 2,
-        title: 'QnA 2',
-        content: 'not visible not answered QnA'
+        title: '1번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.General
       },
       {
         contestId: 1,
-        createdById: 2,
+        createdById: 7,
         order: 3,
-        title: 'QnA 3',
-        content: 'visible answered QnA',
-        answer: 'QnA 3 Answer',
-        answeredById: 2,
-        isVisible: true
+        title: '1번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.Problem,
+        problemId: 1
       },
       {
         contestId: 1,
-        createdById: 2,
+        createdById: 7,
         order: 4,
-        title: 'QnA 4',
-        content: 'not visible answered QnA',
-        answer: 'QnA 4 Answer',
-        answeredById: 2
+        title: '1번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.Problem,
+        problemId: 1
+      },
+      {
+        contestId: 1,
+        createdById: 7,
+        order: 5,
+        title: '1번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.General
+      },
+      {
+        contestId: 19,
+        createdById: 7,
+        order: 1,
+        title: '19번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.General
+      },
+      {
+        contestId: 20,
+        createdById: 7,
+        order: 1,
+        title: '20번 대회에 대한 질문',
+        content: '7번 유저가 작성함',
+        category: QnACategory.General
+      },
+      {
+        contestId: 20,
+        createdById: 8,
+        order: 2,
+        title: '20번 대회에 대한 질문',
+        content: '8번 유저가 작성함',
+        category: QnACategory.General
+      }
+    ]
+  })
+}
+
+const createContestQnAComment = async () => {
+  await prisma.contestQnAComment.createMany({
+    data: [
+      {
+        contestQnAId: 1,
+        content: '1번 질문에 대한 답변',
+        order: 1,
+        createdById: 7,
+        isContestStaff: false
+      },
+      {
+        contestQnAId: 6,
+        content: '6번 질문에 대한 답변',
+        order: 1,
+        createdById: 7,
+        isContestStaff: false
+      },
+      {
+        contestQnAId: 6,
+        content: '6번 질문에 대한 답변',
+        order: 2,
+        createdById: 4,
+        isContestStaff: true
+      },
+      {
+        contestQnAId: 7,
+        content: '7번 질문에 대한 관리자 답변',
+        order: 1,
+        createdById: 4,
+        isContestStaff: true
+      },
+      {
+        contestQnAId: 7,
+        content: '7번 질문에 대한 작성자 답변',
+        order: 2,
+        createdById: 7,
+        isContestStaff: false
+      },
+      {
+        contestQnAId: 8,
+        content: '8번 질문에 대한 관리자 답변',
+        order: 1,
+        createdById: 4,
+        isContestStaff: true
+      },
+      {
+        contestQnAId: 8,
+        content: '8번 질문에 대한 작성자 답변',
+        order: 2,
+        createdById: 8,
+        isContestStaff: false
+      }
+    ]
+  })
+}
+
+const createNotifications = async () => {
+  const notification1 = await prisma.notification.create({
+    data: {
+      title: '정보보호개론',
+      message: 'A new assignment "Homework 1" has been created.',
+      type: NotificationType.Assignment,
+      url: '/assignment/1'
+    }
+  })
+
+  const notification2 = await prisma.notification.create({
+    data: {
+      title: '정보보호개론',
+      message: 'Your assignment "Homework 1" has been graded.',
+      type: NotificationType.Assignment
+    }
+  })
+
+  const notification3 = await prisma.notification.create({
+    data: {
+      title: 'System Notice',
+      message: 'Platform maintenance scheduled for tomorrow.',
+      type: NotificationType.Other
+    }
+  })
+
+  await prisma.notificationRecord.createMany({
+    data: [
+      {
+        notificationId: notification1.id,
+        userId: users[0].id,
+        isRead: false
+      },
+      {
+        notificationId: notification2.id,
+        userId: users[0].id,
+        isRead: false
+      },
+      {
+        notificationId: notification3.id,
+        userId: users[0].id,
+        isRead: false
+      },
+      {
+        notificationId: notification1.id,
+        userId: users[1].id,
+        isRead: true
+      },
+      {
+        notificationId: notification2.id,
+        userId: users[1].id,
+        isRead: false
+      },
+      {
+        notificationId: notification3.id,
+        userId: users[1].id,
+        isRead: true
       }
     ]
   })
@@ -2679,8 +3159,11 @@ const main = async () => {
   await createSubmissions()
   await createAnnouncements()
   await createAssignmentRecords()
+  await createAssignmentProblemRecords()
   await createContestProblemRecords()
   await createContestQnA()
+  await createNotifications()
+  await createContestQnAComment()
 }
 
 main()

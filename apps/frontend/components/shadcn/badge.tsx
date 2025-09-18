@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border border-gray-200 px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 dark:border-gray-800 dark:focus:ring-gray-300',
+  'inline-flex items-center rounded-full border border-gray-200 px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 dark:border-gray-800 dark:focus:ring-gray-300',
   {
     variants: {
       variant: {
@@ -22,7 +22,9 @@ const badgeVariants = cva(
         Spring: 'bg-level-light-1 text-level-dark-1 border-0',
         Summer: 'bg-level-light-2 text-level-dark-2 border-0',
         Fall: 'bg-level-light-3 text-level-dark-3 border-0',
-        Winter: 'bg-level-light-4 text-level-dark-4 border-0'
+        Winter: 'bg-level-light-4 text-level-dark-4 border-0',
+        Course: 'bg-color-violet-95 text-color-violet-60 rounded-sm border-0',
+        Contest: 'bg-color-blue-95 text-color-blue-50 rounded-sm border-0'
       },
       textColors: {
         Level1: 'text-level-light-1',

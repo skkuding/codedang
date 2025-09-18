@@ -5,20 +5,20 @@ export const courseSchema = v.object({
   courseTitle: v.pipe(v.string(), v.minLength(1, 'Required')),
   courseNum: v.pipe(
     v.string(),
-    v.regex(/^[A-Za-z]{1,3}\d{1,4}$/, 'Invalid course number format')
+    v.minLength(1, 'Required'),
+    v.length(7),
+    v.regex(
+      /^[A-Z]{3,4}\d{3,4}$/,
+      'Course number must start with 3-4 uppercase letters followed by 3-4 digits'
+    )
   ),
-  classNum: v.pipe(
-    v.number('Required'),
-    v.minValue(1, 'Class number must be at least 1'),
-    v.maxValue(99, 'Class number must be at most 99')
-  ),
+  classNum: v.pipe(v.number(), v.minValue(1, 'Required'), v.maxValue(99)),
   semester: v.pipe(v.string('Required'), v.minLength(1, 'Required')),
-  week: v.pipe(v.number('Required'), v.minValue(1, 'Must be at least 1')),
+  week: v.pipe(v.number('Required'), v.minValue(1, 'Required')),
   email: v.optional(v.string()),
   phoneNum: v.optional(v.string()),
   office: v.optional(v.string()),
   website: v.optional(v.string()),
-
   config: v.object({
     showOnList: v.boolean(),
     allowJoinFromSearch: v.boolean(),

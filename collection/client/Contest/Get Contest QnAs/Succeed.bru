@@ -5,24 +5,36 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/1/qna/1
-  body: none
-  auth: inherit
+  url: {{baseUrl}}/contest/20/qna
+  body: json
+  auth: none
+}
+
+params:query {
+  ~categories: General
+  ~categories: Problem
+  ~problemOrders: 0
+  ~problemOrders: 1
+  ~search: 1번
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
 }
 
 docs {
-  ## 📘 Get Contest QnA (by Order)
+  ## 📘 Get Contest QnAs
   
-  **GET** `/contest/:id/qna/:order`
+  **GET** `/contest/:id/qna`
   
-  Retrieve a single QnA entry by its order within the contest.
+  Retrieve a multiple QnA entry within the contest.
   
-  > 특정 대회에서 특정 순번(order)에 해당하는 QnA 하나를 조회합니다.  
-  > 사용자의 권한 및 로그인 여부에 따라 조회 가능 여부와 반환되는 필드가 달라집니다:
-  >
-  > - 운영진(Admin, Manager, Reviewer)은 모든 QnA를 열람할 수 있습니다.
-  > - 일반 사용자는 본인이 작성했거나 공개된 QnA만 조회할 수 있습니다.
-  > - 로그인하지 않은 경우 공개된 QnA만 조회할 수 있으며, 제한된 정보만 반환됩니다.
+  특정 대회에서 특정 필터를 만족하는 QnA들을 반환합니다. 
+  > 대회가 진행중인 경우:
+  - 대회 운영진은 모든 글을 열람할 수 있습니다.
+  - 일반 사용자는 본인이 작성한 글만 열람할 수 있습니다.
+  > 대회가 진행중이지 않은 경우:
+  - 모든 사용자가 모든 글을 열람할 수 있습니다.
   
   
   ### 🔒 Authentication
@@ -39,6 +51,16 @@ docs {
   | Name      | Type   | Required | Description                      |
   |-----------|--------|----------|----------------------------------|
   | `id`      | number | ✅       | ID of the target contest         |
-  | `order`   | number | ✅       | 순번 (order) of the QnA in contest |
+  
+  #### Query Parameters
+  - categories에 Problem을 추가해야 문제에 속한 QnA를 필터링 할 수 있습니다
+  
+  | Name      | Type    | Required  | Description
+  |-----------|---------|-----------|------------|
+  | categories |   |           | General 또는 Problem을 선택할 수 있습니다.|
+  | problemOrders |   |           | 보여줄 문제의 대회에서의 order를 배열로 요청합니다.|
+  | search    | string  |          | 포함하여 검색할 단어를 입력합니다. |
+  
+  
   
 }

@@ -59,7 +59,7 @@ function SummarySection({ buttonName, maxChar }: SummarySectionProps) {
         id={buttonName}
         type="text"
         className={cn(
-          'h-8 border-none placeholder:text-sm placeholder:text-[#9B9B9B] focus:outline-none',
+          'focus:outline-hidden h-8 border-none placeholder:text-sm placeholder:text-[#9B9B9B]',
           buttonName === '순위산정' &&
             'disabled:bg-none disabled:text-black disabled:opacity-100'
         )}

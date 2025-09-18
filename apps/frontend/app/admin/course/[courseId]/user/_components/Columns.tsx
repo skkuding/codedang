@@ -1,4 +1,5 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
+import { AlertModal } from '@/components/AlertModal'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import {
   Select,
@@ -55,61 +56,43 @@ export const createColumns = (
   {
     accessorKey: 'studentId',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Student ID" />
-      </div>
+      <DataTableColumnHeader column={column} title="Student ID" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-        {row.getValue('studentId')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('studentId')
+    }
   },
   {
     accessorKey: 'major',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Major" />
-      </div>
+      <DataTableColumnHeader column={column} title="Major" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-        {row.getValue('major')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('major')
+    }
   },
   {
     accessorKey: 'username',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="User ID" />
-      </div>
+      <DataTableColumnHeader column={column} title="User ID" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-        {row.getValue('username')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('username')
+    }
   },
   {
     accessorKey: 'name',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Name" />
-      </div>
+      <DataTableColumnHeader column={column} title="Name" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-        {row.getValue('name')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('name')
+    }
   },
   {
     accessorKey: 'role',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Role" />
-      </div>
+      <DataTableColumnHeader column={column} title="Role" />
     ),
     cell: ({ row }) => (
       <div className="flex justify-center">
@@ -124,15 +107,11 @@ export const createColumns = (
   {
     accessorKey: 'email',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Email" />
-      </div>
+      <DataTableColumnHeader column={column} title="Email" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-        {row.getValue('email')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('email')
+    }
   }
 ]
 
@@ -145,35 +124,63 @@ interface RoleSelectProps {
 function RoleSelect({ groupId, userId, role }: RoleSelectProps) {
   const [selectedRole, setSelectedRole] = useState(role)
   const [updateGroupMember] = useMutation(UPDATE_GROUP_MEMBER)
-  return (
-    <Select
-      value={selectedRole}
-      onValueChange={async (value) => {
-        try {
-          await updateGroupMember({
-            variables: {
-              groupId,
-              userId,
-              toGroupLeader: value === 'Instructor'
-            }
-          })
-          setSelectedRole(value)
-          toast.success('Successfully changed role')
-        } catch (error) {
-          toast.error('Failed to change role')
-          console.error(error)
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+  const [pendingRole, setPendingRole] = useState('')
+
+  const handleRoleChange = (value: string) => {
+    setPendingRole(value)
+    setIsConfirmModalOpen(true)
+  }
+
+  const handleConfirm = async () => {
+    try {
+      await updateGroupMember({
+        variables: {
+          groupId,
+          userId,
+          toGroupLeader: pendingRole === 'Instructor'
         }
-      }}
-    >
-      <SelectTrigger className="w-min border-0 font-semibold focus:ring-0 focus:ring-offset-0">
-        <SelectValue placeholder={role} />
-      </SelectTrigger>
-      <SelectContent className="bg-white font-semibold">
-        <SelectGroup>
-          <SelectItem value="Instructor">Instructor</SelectItem>
-          <SelectItem value="Student">Student</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+      })
+      setSelectedRole(pendingRole)
+      toast.success('Successfully changed role')
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error &&
+        error.message.includes('You cannot change your own role')
+          ? 'You cannot change your own role'
+          : 'Failed to change role'
+
+      toast.error(errorMessage)
+      console.error(error)
+    } finally {
+      setIsConfirmModalOpen(false)
+    }
+  }
+  return (
+    <>
+      <Select value={selectedRole} onValueChange={handleRoleChange}>
+        <SelectTrigger className="w-min border-0 bg-transparent font-semibold focus:ring-0 focus:ring-offset-0">
+          <SelectValue placeholder={role} />
+        </SelectTrigger>
+        <SelectContent className="bg-white font-semibold">
+          <SelectGroup>
+            <SelectItem value="Instructor">Instructor</SelectItem>
+            <SelectItem value="Student">Student</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+
+      <AlertModal
+        open={isConfirmModalOpen}
+        onOpenChange={setIsConfirmModalOpen}
+        type="warning"
+        title="Confirm Role Change"
+        description={`Are you sure you want to change the role to ${pendingRole}?`}
+        primaryButton={{
+          text: 'Confirm',
+          onClick: handleConfirm
+        }}
+      />
+    </>
   )
 }

@@ -1,3 +1,5 @@
+// import { ImportProblemButton } from './ImportProblemButton'
+import { ImportProblemButton } from '@/app/admin/_components/ImportProblemButton'
 import { ImportProblemDescription } from '@/app/admin/_components/ImportProblemDescription'
 import {
   DataTable,
@@ -12,7 +14,6 @@ import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { toast } from 'sonner'
 import type { AssignmentProblem } from '../../_libs/type'
-import { ImportProblemButton } from './ImportProblemButton'
 import {
   columns,
   DEFAULT_PAGE_SIZE,
@@ -86,16 +87,20 @@ export function ImportProblemTable({
       defaultSortState={[{ id: 'select', desc: true }]}
     >
       <ImportProblemDescription />
-      <div className="flex gap-[6px] pb-1">
-        <DataTableSearchBar columndId="title" className="lg:w-[308px]" />
-        <DataTableLevelFilter />
+      <div className="flex justify-between">
+        <div className="flex gap-[8px]">
+          <DataTableSearchBar
+            columndId="title"
+            size="sm"
+            className="w-[322px]!"
+          />
+          <DataTableLevelFilter />
+        </div>
+        <ImportProblemButton onSelectedExport={onSelectedExport} />
       </div>
       <DataTable
-        isModalDataTable={true}
-        headerStyle={{
-          select: 'rounded-l-full',
-          preview: 'rounded-r-full'
-        }}
+        size="sm"
+        isHeaderGrouped={true}
         onRowClick={(table, row) => {
           const selectedRowCount = table.getSelectedRowModel().rows.length
           if (
@@ -109,10 +114,8 @@ export function ImportProblemTable({
           }
         }}
       />
-      <div className="h-[12px]" />
+      <div className="h-1.5" />
       <DataTablePagination showRowsPerPage={false} />
-      <div className="h-[20px]" />
-      <ImportProblemButton onSelectedExport={onSelectedExport} />
     </DataTableRoot>
   )
 }

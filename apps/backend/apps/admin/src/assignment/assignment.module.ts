@@ -13,6 +13,7 @@ import { AssignmentService } from './assignment.service'
     AssignmentResolver,
     AssignmentProblemResolver,
     AssignmentProblemService
-  ]
+  ],
+  exports: [AssignmentService]
 })
 export class AssignmentModule {}

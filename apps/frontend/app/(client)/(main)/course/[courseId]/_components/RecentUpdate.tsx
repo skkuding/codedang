@@ -60,7 +60,7 @@ export function RecentUpdate() {
   }, [])
 
   return (
-    <div className="w-full rounded-xl p-4 shadow">
+    <div className="shadow-xs w-full rounded-xl p-4">
       <div className="mb-2 flex justify-between">
         <div>
           <span className="text-primary mr-4 font-semibold">RECENT UPDATE</span>

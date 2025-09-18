@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -21,16 +21,15 @@ import { AssignmentProblemListLabel } from '../../../_components/AssignmentProbl
 import { AssignmentProblemTable } from '../../../_components/AssignmentProblemTable'
 import { AssignmentSolutionTable } from '../../../_components/AssignmentSolutionTable'
 import { EditAssignmentForm } from '../../../_components/EditAssignmentForm'
-import { ImportDialog } from '../../../_components/ImportDialog'
+import { ImportProblemDialog } from '../../../_components/ImportProblemDialog'
 import { WeekComboBox } from '../../../_components/WeekComboBox'
 import { editSchema } from '../../../_libs/schemas'
 import type { AssignmentProblem } from '../../../_libs/type'
 
-export default function Page({
-  params
-}: {
-  params: { courseId: string; exerciseId: string }
+export default function Page(props: {
+  params: Promise<{ courseId: string; exerciseId: string }>
 }) {
+  const params = use(props.params)
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { courseId, exerciseId } = params
@@ -61,59 +60,48 @@ export default function Page({
             setProblems={setProblems}
             setIsLoading={setIsLoading}
             methods={methods}
+            isExercise={true}
           >
             <div className="flex w-[901px] flex-col gap-[28px]">
               <FormSection title="Title">
                 <TitleForm
                   placeholder="Name your Exercise"
-                  className="max-w-[767px]"
+                  className="max-w-[760px]"
                 />
               </FormSection>
 
               <div className="flex justify-between">
-                <FormSection
-                  title="Week"
-                  isJustifyBetween={false}
-                  className="gap-[67px]"
-                >
+                <FormSection title="Week" className="w-[420px]">
                   {methods.getValues('week') && (
                     <WeekComboBox name="week" courseId={Number(courseId)} />
                   )}
                 </FormSection>
-                <FormSection
-                  title="Due Time"
-                  isJustifyBetween={false}
-                  className="gap-[40px]"
-                  isLabeled={false}
-                >
-                  <TimeFormPopover />
-                  {methods.getValues('dueTime') && (
-                    <TimeForm
-                      name="dueTime"
-                      defaultTimeOnSelect={{
-                        hours: 23,
-                        minutes: 59,
-                        seconds: 59
-                      }}
-                    />
+                <FormSection title="Start Time" className="w-[420px]">
+                  {methods.getValues('startTime') && (
+                    <TimeForm name="startTime" />
                   )}
                 </FormSection>
               </div>
 
               <div className="flex justify-between">
                 <FormSection
-                  title="Start Time"
-                  isJustifyBetween={false}
-                  className="gap-[27px]"
+                  title="Due Time"
+                  className="w-[420px]"
+                  isLabeled={false}
                 >
-                  {methods.getValues('startTime') && (
-                    <TimeForm name="startTime" />
-                  )}
+                  <TimeFormPopover />
+                  <TimeForm
+                    name="dueTime"
+                    defaultTimeOnSelect={{
+                      hours: 23,
+                      minutes: 59,
+                      seconds: 59
+                    }}
+                  />
                 </FormSection>
                 <FormSection
                   title="End Time"
-                  isJustifyBetween={false}
-                  className="gap-[71px]"
+                  className="w-[420px]"
                   isLabeled={false}
                 >
                   {methods.getValues('endTime') && <TimeForm name="endTime" />}
@@ -121,9 +109,7 @@ export default function Page({
               </div>
 
               <FormSection isFlexColumn title="Description" isLabeled={false}>
-                {methods.getValues('description') && (
-                  <DescriptionForm name="description" />
-                )}
+                {!isLoading && <DescriptionForm name="description" />}
               </FormSection>
 
               {/* NOTE: 최근 기획에서 해당기능을 없애기로 했는데, 혹시 revert할까봐 주석처리해놨어요 */}
@@ -141,10 +127,9 @@ export default function Page({
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <AssignmentProblemListLabel />
-                  <ImportDialog
+                  <ImportProblemDialog
                     problems={problems}
                     setProblems={setProblems}
-                    target="exercise"
                   />
                 </div>
                 <AssignmentProblemTable
@@ -165,7 +150,9 @@ export default function Page({
                 <AssignmentSolutionTable
                   problems={problems}
                   setProblems={setProblems}
-                  dueTime={methods.getValues('dueTime')}
+                  dueTime={
+                    methods.getValues('dueTime') ?? methods.getValues('endTime')
+                  }
                 />
               </div>
 

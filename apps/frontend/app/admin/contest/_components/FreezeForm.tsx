@@ -9,8 +9,7 @@ import {
 import { Switch } from '@/components/shadcn/switch'
 // import { freezeMinuteOptions } from '@/libs/constants'
 import { cn } from '@/libs/utils'
-import React, { useRef, useState } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -150,7 +149,7 @@ export function FreezeForm({
                     key={option}
                     value={option}
                     className="cursor-pointer gap-2"
-                    showCheckIcon={false}
+                    showSelectIcon={false}
                   >
                     <span className={isEnabled ? '' : 'text-[#8A8A8A]'}>
                       {option} min&nbsp;

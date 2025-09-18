@@ -81,6 +81,39 @@ describe('AssignmentService', () => {
       expect(assignments[0].group).to.have.property('id')
       expect(assignments[0].group).to.have.property('groupName')
     })
+
+    it('should filter assignments by month and year when provided', async () => {
+      // Test with current month and year (should work with test data)
+      const currentDate = new Date()
+      const currentMonth = currentDate.getMonth() + 1
+      const currentYear = currentDate.getFullYear()
+
+      const filteredAssignments = await service.getAssignments(
+        groupId,
+        false,
+        currentMonth,
+        currentYear
+      )
+
+      // Check that all returned assignments have dueTime in the specified month/year
+      for (const assignment of filteredAssignments) {
+        const dueDate = new Date(assignment.dueTime ?? assignment.endTime)
+        expect(dueDate.getMonth() + 1).to.equal(currentMonth)
+        expect(dueDate.getFullYear()).to.equal(currentYear)
+      }
+    })
+
+    it('should return empty array when filtering by non-existent month/year', async () => {
+      // Test with a future year that shouldn't have any assignments
+      const futureYear = new Date().getFullYear() + 1000
+      const assignments = await service.getAssignments(
+        groupId,
+        false,
+        1,
+        futureYear
+      )
+      expect(assignments).to.have.lengthOf(0)
+    })
   })
 
   describe('getAssignment', () => {

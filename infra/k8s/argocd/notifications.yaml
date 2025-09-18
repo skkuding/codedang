@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-notifications-cm
+  namespace: argocd
+data:
+  context: |
+    argocdUrl: https://argocd.codedang.com
+
+  service.github: |
+    appID: $github-app-id
+    installationID: $github-installation-id
+    privateKey: $github-private-key
+
+  trigger.on-sync-failed: |
+    - when: app.status.sync.status != 'Synced'
+      oncePer: app.status.sync.revision
+      send: [github-failed]
+
+  trigger.on-sync-running: |
+    - when: app.status.sync.status == 'Syncing'
+      oncePer: app.status.sync.revision
+      send: [github-running]
+
+  trigger.on-sync-succeeded: |
+    - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Progressing'
+      oncePer: app.status.operationState.syncResult.revision
+      send: [github-running]
+    - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Healthy'
+      oncePer: app.status.operationState.syncResult.revision
+      send: [github-succeed]
+    - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Degraded'
+      oncePer: app.status.operationState.syncResult.revision
+      send: [github-failed]
+
+  template.github-running: |
+    message: 'Syncing {{ .app.metadata.name }}'
+    github:
+      status:
+        state: pending
+        label: "Argo CD / {{ .app.metadata.annotations.appName }}"
+        targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
+
+  template.github-succeed: |
+    message: 'Successfully synced {{ .app.metadata.name }}'
+    github:
+      status:
+        state: success
+        label: "Argo CD / {{ .app.metadata.annotations.appName }}"
+        targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
+      pullRequestComment:
+        content: |
+          ✅ **Syncing Preview App Succeeded**
+
+          **Application:** `{{ .app.metadata.annotations.appName }}`
+          **Revision:** `{{ .app.status.sync.revision }}`
+          **Health Status:** {{ .app.status.health.status }}
+
+          [Open Preview]({{ .app.metadata.annotations.previewURL }}) | [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})
+
+  template.github-failed: |
+    message: 'Failed to sync {{ .app.metadata.name }}'
+    github:
+      status:
+        state: failure
+        label: "Argo CD / {{ .app.metadata.annotations.appName }}"
+        targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
+      pullRequestComment:
+        content: |
+          ❗ **Syncing Preview App Failed**
+
+          **Application:** `{{ .app.metadata.annotations.appName }}`
+          **Revision:** `{{ .app.status.sync.revision }}`
+          **Health Status:** {{ .app.status.health.status }}
+
+          [Open Preview]({{ .app.metadata.annotations.previewURL }}) | [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})

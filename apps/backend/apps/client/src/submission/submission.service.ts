@@ -268,9 +268,14 @@ export class SubmissionService {
         startTime: {
           lte: now
         },
-        dueTime: {
-          gt: now
-        }
+        OR: [
+          {
+            dueTime: { gt: now }
+          },
+          {
+            AND: [{ dueTime: null }, { endTime: { gt: now } }]
+          }
+        ]
       }
     })
     if (!assignment) {
@@ -290,7 +295,8 @@ export class SubmissionService {
         assignment: {
           select: {
             startTime: true,
-            dueTime: true
+            dueTime: true,
+            endTime: true
           }
         }
       }
@@ -302,7 +308,8 @@ export class SubmissionService {
     }
     if (
       assignmentRecord.assignment.startTime > now ||
-      assignmentRecord.assignment.dueTime <= now
+      (assignmentRecord.assignment.dueTime ??
+        assignmentRecord.assignment.endTime) <= now
     ) {
       throw new ConflictFoundException(
         'Submission is only allowed to ongoing assignments'
@@ -539,7 +546,8 @@ export class SubmissionService {
   ): Promise<void> {
     let testcases = await this.prisma.problemTestcase.findMany({
       where: {
-        problemId: submission.problemId
+        problemId: submission.problemId,
+        isOutdated: false
       },
       select: { id: true, isHidden: true }
     })
@@ -662,7 +670,7 @@ export class SubmissionService {
           select: {
             userGroup: {
               where: {
-                userId: userId,
+                userId,
                 isGroupLeader: true
               }
             }
@@ -674,7 +682,7 @@ export class SubmissionService {
               select: {
                 userContest: {
                   where: {
-                    userId: userId,
+                    userId,
                     role: { in: ['Admin', 'Manager', 'Reviewer'] }
                   }
                 }
@@ -773,6 +781,7 @@ export class SubmissionService {
     const rawTestcases = await this.prisma.problemTestcase.findMany({
       where: {
         problemId,
+        isOutdated: false,
         ...(containHiddenTestcases ? {} : { isHidden: false })
       }
     })
@@ -1144,91 +1153,96 @@ export class SubmissionService {
       throw new EntityNotExistException('Submission')
     }
 
+    // 본인이나 관리자가 아닐 경우
     if (
-      contest &&
-      contest.startTime <= now &&
-      contest.endTime > now &&
       submission.userId !== userId &&
-      userRole === Role.User
+      userRole !== Role.Admin &&
+      userRole !== Role.SuperAdmin
     ) {
-      throw new ForbiddenAccessException(
-        "Contest should end first before you browse other people's submissions"
-      )
-    } else if (
-      assignment &&
-      assignment.startTime <= now &&
-      assignment.endTime > now &&
-      submission.userId !== userId &&
-      userRole === Role.User
-    ) {
-      throw new ForbiddenAccessException(
-        "Assignment should end first before you browse other people's submissions"
-      )
-    }
-
-    if (
-      submission.userId === userId ||
-      userRole === Role.Admin ||
-      userRole === Role.SuperAdmin ||
-      (contestId &&
-        (await this.prisma.submission.count({
-          where: {
-            userId,
-            problemId,
-            result: 'Accepted'
-          }
-        })))
-    ) {
-      const code = plainToInstance(Snippet, submission.code)
-      const results = submission.submissionResult
-        .filter(
-          (result) =>
-            !assignmentId ||
-            isHiddenTestcaseVisible ||
-            !result.problemTestcase.isHidden
+      if (
+        contest &&
+        contest.startTime <= now &&
+        contest.endTime > now &&
+        userRole === Role.User
+      ) {
+        // 진행 중인 contest에서 다른 사람의 제출을 볼 수 없음
+        throw new ForbiddenAccessException(
+          "Contest should end first before you browse other people's submissions"
         )
-        .map((result) => {
-          return {
-            ...result,
-            // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
-            cpuTime:
-              result.cpuTime || result.cpuTime === BigInt(0)
-                ? result.cpuTime.toString()
-                : null
-          }
-        })
-
-      results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
-
-      if (contestId && !isJudgeResultVisible) {
-        results.map((r) => {
-          r.result = 'Blind'
-          r.cpuTime = null
-          r.memoryUsage = null
-        })
-      }
-
-      if (assignmentId && !isHiddenTestcaseVisible) {
-        submission.result = this.getSampleTestcaseSubmissionResult(
-          submission.submissionResult
+      } else if (
+        assignment &&
+        assignment.startTime <= now &&
+        assignment.endTime > now &&
+        userRole === Role.User
+      ) {
+        // 진행 중인 assignment에서 다른 사람의 제출을 볼 수 없음
+        throw new ForbiddenAccessException(
+          "Assignment should end first before you browse other people's submissions"
         )
       }
 
-      return {
-        problemId,
-        username: submission.user?.username,
-        code: code.map((snippet) => snippet.text).join('\n'),
-        language: submission.language,
-        createTime: submission.createTime,
-        result:
-          !contestId || isJudgeResultVisible ? submission.result : 'Blind',
-        testcaseResult: results
+      // contest/assignment가 종료되었거나 일반 problem인 경우, 문제를 풀었는지 확인
+      if (contestId || (!contestId && !assignmentId)) {
+        const acceptedCount = await this.prisma.submission.count({
+          where: { userId, problemId, result: 'Accepted' }
+        })
+        if (acceptedCount === 0) {
+          throw new ForbiddenAccessException(
+            "You must pass the problem first to browse other people's submissions"
+          )
+        }
+      } else {
+        // assignment의 경우 문제를 풀어도 다른 사람의 코드를 볼 수 없음
+        throw new ForbiddenAccessException(
+          "You cannot view other people's submissions for an assignment."
+        )
       }
     }
 
-    throw new ForbiddenAccessException(
-      "You must pass the problem first to browse other people's submissions"
-    )
+    const code = plainToInstance(Snippet, submission.code)
+    const results = submission.submissionResult
+      .filter(
+        (result) =>
+          !assignmentId ||
+          isHiddenTestcaseVisible ||
+          !result.problemTestcase.isHidden
+      )
+      .map((result) => {
+        return {
+          ...result,
+          // TODO: 채점 속도가 너무 빠른경우에 대한 수정 필요 (0ms 미만)
+          cpuTime:
+            result.cpuTime || result.cpuTime === BigInt(0)
+              ? result.cpuTime.toString()
+              : null
+        }
+      })
+
+    results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)
+
+    if (contestId && !isJudgeResultVisible) {
+      results.map((r) => {
+        r.result = 'Blind'
+        r.cpuTime = null
+        r.memoryUsage = null
+      })
+    }
+
+    if (assignmentId && !isHiddenTestcaseVisible) {
+      submission.result = this.getSampleTestcaseSubmissionResult(
+        submission.submissionResult
+      )
+    }
+
+    return {
+      problemId,
+      username: submission.user?.username,
+      code: code.map((snippet) => snippet.text).join('\n'),
+      language: submission.language,
+      createTime: submission.createTime,
+      result: !contestId || isJudgeResultVisible ? submission.result : 'Blind',
+      testcaseResult: results
+    }
   }
 
   // FIXME: Workbook 구분

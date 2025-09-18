@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rabbitmq-console-ingress
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - rabbitmq.stage.codedang.com
+      secretName: rabbitmq-tls
+  rules:
+    - host: rabbitmq.stage.codedang.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rabbitmq
+                port:
+                  number: 15672

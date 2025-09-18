@@ -16,23 +16,50 @@ body:graphql {
       upcoming {
         id
         title
+        isExercise
         week
         problemScore
         totalScore
+        group{
+          id
+          groupName
+          courseInfo{
+            courseNum
+            classNum
+          }
+        }
       }
       ongoing {
         id
         title
+        isExercise
         week
         problemScore
         totalScore
+        group{
+          id
+          groupName
+          courseInfo{
+            courseNum
+            classNum
+          }
+        }
       }
       finished {
         id
         title
+        isExercise
         week
         problemScore
         totalScore
+        group{
+          id
+          groupName
+          courseInfo{
+            courseNum
+            classNum
+          }
+        }
       }
     }
   }

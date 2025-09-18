@@ -1,10 +1,10 @@
-import { AssignmentStatusTimeDiff } from '@/components/AssignmentStatusTimeDiff'
 import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
+import { CountdownStatus } from '@/components/CountdownStatus'
 import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { auth } from '@/libs/auth'
-import { fetcher, fetcherWithAuth, omitString } from '@/libs/utils'
+import { fetcher, fetcherWithAuth, hasDueDate, omitString } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
-import type { Assignment, Contest, ProblemDetail, Course } from '@/types/type'
+import type { Assignment, Contest, Course, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -88,7 +88,6 @@ export async function EditorLayout({
     if (courseRes.ok) {
       const courseData = await courseRes.json<Omit<Course, 'description'>>()
       courseName = courseData.groupName
-      console.log(courseData)
     }
 
     // for getting assignment info and problems list
@@ -270,12 +269,13 @@ const renderTimediff = ({
   }
   const item = assignment ?? exercise
 
-  if (item) {
+  if (item && (item.dueTime ?? hasDueDate(item.endTime))) {
     return (
-      <AssignmentStatusTimeDiff
-        assignment={item}
-        textStyle="text-sm text-error"
-        inAssignmentEditor={true}
+      <CountdownStatus
+        baseTime={item.dueTime ?? item.endTime}
+        target={assignment ? 'assignment' : 'exercise'}
+        showTarget={false}
+        inEditor={true}
       />
     )
   }

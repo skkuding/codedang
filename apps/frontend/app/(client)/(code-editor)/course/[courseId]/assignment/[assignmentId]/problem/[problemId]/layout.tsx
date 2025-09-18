@@ -1,13 +1,11 @@
 import { EditorLayout } from '@/app/(client)/(code-editor)/_components/EditorLayout'
 
-export default function layout({
-  params,
-  children
-}: {
-  params: { problemId: string; assignmentId: string; courseId: string }
+export default async function layout(props: {
+  params: Promise<{ problemId: string; assignmentId: string; courseId: string }>
   children: React.ReactNode
 }) {
-  const { problemId, assignmentId, courseId } = params
+  const { children } = props
+  const { problemId, assignmentId, courseId } = await props.params
 
   return (
     <EditorLayout

@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
   AssignmentProblem,
@@ -12,7 +13,10 @@ import { faker } from '@faker-js/faker'
 import { ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  ForbiddenAccessException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { solution } from '@admin/problem/mock/mock'
 import { AssignmentService } from './assignment.service'
@@ -268,6 +272,7 @@ const db = {
     const newAssignmentProblem = await db.assignmentProblem.create()
     return [newAssignmentProblem, updatedProblem]
   }),
+  $executeRaw: stub().resolves(1),
   getPaginator: PrismaService.prototype.getPaginator
 }
 
@@ -278,6 +283,7 @@ describe('AssignmentService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AssignmentService,
+        EventEmitter2,
         { provide: PrismaService, useValue: db },
         {
           provide: CACHE_MANAGER,
@@ -574,6 +580,37 @@ describe('AssignmentService', () => {
           ]
         }
       ])
+    })
+  })
+
+  describe('autoFinalizeScore', () => {
+    it('should finalize scores when assignment exists and group matches', async () => {
+      db.assignment.findUnique.resetHistory()
+      db.$executeRaw.resetHistory()
+      db.assignment.findUnique.resolves({ groupId })
+      db.$executeRaw.resolves(7)
+
+      const updated = await service.autoFinalizeScore(groupId, assignmentId)
+
+      expect(updated).to.equal(7)
+      expect(db.assignment.findUnique.calledOnce).to.be.true
+      expect(db.$executeRaw.calledOnce).to.be.true
+    })
+
+    it('should throw EntityNotExistException when assignment does not exist', async () => {
+      db.assignment.findUnique.resolves(null)
+
+      await expect(
+        service.autoFinalizeScore(groupId, assignmentId)
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should throw ForbiddenAccessException when groupId mismatches', async () => {
+      db.assignment.findUnique.resolves({ groupId: groupId + 1 })
+
+      await expect(
+        service.autoFinalizeScore(groupId, assignmentId)
+      ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
 

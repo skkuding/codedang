@@ -2,10 +2,9 @@
 
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { languages, levels } from '@/libs/constants'
-import type { Solution, Template } from '@generated/graphql'
-import type { Language } from '@generated/graphql'
+import type { Language, Solution, Template } from '@generated/graphql'
 import { useEffect } from 'react'
-import { useFormContext, useController } from 'react-hook-form'
+import { useController, useFormContext } from 'react-hook-form'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { CheckboxSelect } from './CheckboxSelect'
 
@@ -92,7 +91,7 @@ export function InfoForm() {
   })
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <CheckboxSelect
           title="Language"
@@ -110,6 +109,7 @@ export function InfoForm() {
           options={levels}
           value={difficultyField.value as string}
           onChange={difficultyField.onChange}
+          className="w-full"
         />
         {errors.difficulty && <ErrorMessage />}
       </div>

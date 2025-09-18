@@ -14,6 +14,7 @@ import {
 } from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
+import type { AuthenticatedUser } from '@libs/auth'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -43,7 +44,8 @@ export class SubmissionService {
   async getSubmissions(
     problemId: number,
     cursor: number | null,
-    take: number
+    take: number,
+    reqUser: AuthenticatedUser
   ): Promise<SubmissionsWithTotal> {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -52,25 +54,76 @@ export class SubmissionService {
         id: problemId
       }
     })
+
     if (!problem) {
       throw new EntityNotExistException('Problem')
     }
 
-    const submissions = await this.prisma.submission.findMany({
-      ...paginator,
-      take,
-      where: {
-        problemId
-      },
-      include: {
-        user: true
-      },
-      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
-    })
+    const hasPrivilege = reqUser.isAdmin() || reqUser.isSuperAdmin()
 
-    const total = await this.prisma.submission.count({
-      where: { problemId }
-    })
+    // user가 관리하는 Group들과 Contest들을 병렬로 가져오기
+    let accessibleGroupIds: number[] = []
+    let accessibleContestIds: number[] = []
+
+    // hasPrivilege가 false일 때만 쿼리 실행
+    if (!hasPrivilege) {
+      const [groups, contests] = await Promise.all([
+        this.prisma.userGroup.findMany({
+          where: {
+            userId: reqUser.id,
+            isGroupLeader: true
+          },
+          select: {
+            groupId: true
+          }
+        }),
+        this.prisma.userContest.findMany({
+          where: {
+            userId: reqUser.id,
+            role: {
+              in: [ContestRole.Admin, ContestRole.Manager]
+            }
+          },
+          select: {
+            contestId: true
+          }
+        })
+      ])
+      accessibleGroupIds = groups.map((g) => g.groupId)
+      accessibleContestIds = contests.map((c) => c.contestId)
+    }
+
+    // 접근 가능한 submission들만 쿼리
+    const whereCondition = hasPrivilege
+      ? { problemId }
+      : {
+          problemId,
+          OR: [
+            { assignment: { groupId: { in: accessibleGroupIds } } },
+            { contestId: { in: accessibleContestIds } }
+          ]
+        }
+
+    const [submissions, total] = await Promise.all([
+      this.prisma.submission.findMany({
+        ...paginator,
+        take,
+        where: whereCondition,
+        include: {
+          user: true
+        },
+        orderBy: [{ id: 'desc' }]
+      }),
+      this.prisma.submission.count({
+        where: whereCondition
+      })
+    ])
+
+    if (total === 0) {
+      throw new ForbiddenAccessException(
+        'Only allowed to access submissions included in your group'
+      )
+    }
 
     return { data: submissions, total }
   }
@@ -296,6 +349,78 @@ export class SubmissionService {
     return submissionInfo
   }
 
+  async getAssignmentProblemTestcaseResults(
+    assignmentId: number,
+    problemId: number,
+    groupId: number
+  ) {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: { groupId: true }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (assignment.groupId !== groupId) {
+      throw new ForbiddenAccessException('Only allowed to access your course')
+    }
+
+    const latestSubmissions = await this.prisma.submission.groupBy({
+      by: ['userId'],
+      where: {
+        assignmentId,
+        problemId
+      },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      _max: {
+        id: true
+      }
+    })
+
+    const submissionIds = latestSubmissions
+      .map((submission) => submission._max.id)
+      .filter((id) => id !== null)
+
+    if (submissionIds.length === 0) {
+      throw new EntityNotExistException('Submission')
+    }
+
+    const detailedSubmissions = await this.prisma.submission.findMany({
+      where: {
+        id: { in: submissionIds }
+      },
+      select: {
+        userId: true,
+        submissionResult: {
+          select: {
+            problemTestcase: {
+              select: {
+                id: true,
+                isHidden: true
+              }
+            },
+            result: true
+          }
+        }
+      }
+    })
+
+    const results = detailedSubmissions
+      .filter((submission) => submission.userId !== null)
+      .map((submission) => ({
+        userId: submission.userId!,
+        result: submission.submissionResult.map((sr) => ({
+          id: sr.problemTestcase.id,
+          isHidden: sr.problemTestcase.isHidden!,
+          result: sr.result
+        }))
+      }))
+
+    return results
+  }
+
   getOrderBy(
     order: SubmissionOrder
   ): Prisma.SubmissionOrderByWithRelationInput {
@@ -346,7 +471,9 @@ export class SubmissionService {
                 input: true,
                 output: true,
                 isHidden: true,
-                scoreWeight: true
+                scoreWeight: true,
+                scoreWeightNumerator: true,
+                scoreWeightDenominator: true
               }
             }
           }
@@ -425,7 +552,9 @@ export class SubmissionService {
             ? result.cpuTime.toString()
             : null,
         isHidden: result.problemTestcase.isHidden,
-        scoreWeight: result.problemTestcase.scoreWeight
+        scoreWeight: result.problemTestcase.scoreWeight,
+        scoreWeightNumerator: result.problemTestcase.scoreWeightNumerator,
+        scoreWeightDenominator: result.problemTestcase.scoreWeightDenominator
       }
     })
     results.sort((a, b) => a.problemTestcaseId - b.problemTestcaseId)

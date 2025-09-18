@@ -79,9 +79,14 @@ describe('GroupService', () => {
 
       expect(res).to.deep.equal({
         id: 3,
-        groupName: 'Example Private Group 2',
+        groupName: '자료구조',
         groupType: 'Course',
-        courseInfo: null,
+        courseInfo: {
+          courseNum: 'SWE2017',
+          classNum: 2,
+          professor: '박영희',
+          semester: '2025 Spring'
+        },
         isJoined: false
       })
     })
@@ -179,14 +184,16 @@ describe('GroupService', () => {
           },
           {
             id: 3,
-            groupName: 'Example Private Group 2',
-            description: 'This is an example private group just for testing.',
+            groupName: '자료구조',
+            description:
+              '배열, 링크드리스트, 스택, 큐, 트리, 그래프 등 기본적인 자료구조와 알고리즘을 학습합니다.',
             memberNum: 1
           },
           {
             id: 4,
-            groupName: 'Example Private Group 3',
-            description: 'This is an example private group just for testing.',
+            groupName: '알고리즘',
+            description:
+              '정렬, 탐색, 동적계획법, 그리디 알고리즘 등 다양한 알고리즘 설계 기법을 학습합니다.',
             memberNum: 2
           }
         ],

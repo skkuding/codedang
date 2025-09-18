@@ -12,6 +12,7 @@ import {
   Contest,
   ContestProblem,
   ContestQnA,
+  ContestQnAComment,
   User,
   UserContest
 } from '@generated'
@@ -29,12 +30,11 @@ import {
 import { UserService } from '@admin/user/user.service'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
-import { UpdateContestQnAInput } from './model/contest-qna.input'
+import { GetContestQnAsFilterInput } from './model/contest-qna.input'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
 import { ContestUpdateHistories } from './model/contest-update-histories.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
-import { CreateContestInput } from './model/contest.input'
-import { UpdateContestInput } from './model/contest.input'
+import { CreateContestInput, UpdateContestInput } from './model/contest.input'
 import { ContestsGroupedByStatus } from './model/contests-grouped-by-status.output'
 import { ProblemScoreInput } from './model/problem-score.input'
 import { UserContestScoreSummaryWithUserInfo } from './model/score-summary'
@@ -237,56 +237,84 @@ export class ContestResolver {
 @Resolver(() => ContestQnA)
 @UseContestRolesGuard(ContestRole.Manager)
 export class ContestQnAResolver {
-  constructor(
-    private readonly contestService: ContestService,
-    private readonly userService: UserService
-  ) {}
+  constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestQnA])
   async getContestQnAs(
-    @Args('contestId', { type: () => Int }) contestId: number
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 10 },
+      new RequiredIntPipe('take')
+    )
+    take: number,
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null,
+    @Args('filter', { type: () => GetContestQnAsFilterInput, nullable: true })
+    filter?: GetContestQnAsFilterInput
   ) {
-    return await this.contestService.getContestQnAs(contestId)
+    return await this.contestService.getContestQnAs(
+      contestId,
+      take,
+      cursor,
+      filter
+    )
   }
 
   @Query(() => ContestQnA)
   async getContestQnA(
-    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
     @Args('order', { type: () => Int }, IDValidationPipe) order: number
   ) {
     return await this.contestService.getContestQnA(contestId, order)
   }
 
   @Mutation(() => ContestQnA)
-  async updateContestQnA(
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('input') input: UpdateContestQnAInput,
+  async deleteContestQnA(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('order', { type: () => Int }, IDValidationPipe) order: number
+  ) {
+    return await this.contestService.deleteContestQnA(contestId, order)
+  }
+
+  @Mutation(() => ContestQnAComment)
+  async createContestQnAComment(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('order', { type: () => Int }, IDValidationPipe) order: number,
+    @Args('content', { type: () => String }) content: string,
     @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.contestService.updateContestQnA(
-      req.user.id,
+    return await this.contestService.createContestQnAComment(
       contestId,
-      input
+      order,
+      content,
+      req.user.id
     )
   }
 
-  // TODO: update with data loader when n+1 query issue is fixed
-  @ResolveField('createdBy', () => User, { nullable: true })
-  async getUser(@Parent() contestQnA: ContestQnA) {
-    const { createdById } = contestQnA
-    if (createdById == null) {
-      return null
-    }
-    return await this.userService.getUser(createdById)
+  @Mutation(() => ContestQnAComment)
+  async deleteContestQnAComment(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('qnAOrder', { type: () => Int }, IDValidationPipe) qnAOrder: number,
+    @Args('commentOrder', { type: () => Int }, IDValidationPipe)
+    commentOrder: number
+  ) {
+    return await this.contestService.deleteContestQnAComment(
+      contestId,
+      qnAOrder,
+      commentOrder
+    )
   }
 
-  // TODO: update with data loader when n+1 query issue is fixed
-  @ResolveField('answeredBy', () => User, { nullable: true })
-  async getAnsweredBy(@Parent() contestQnA: ContestQnA) {
-    const { answeredById } = contestQnA
-    if (answeredById == null) {
-      return null
-    }
-    return await this.userService.getUser(answeredById)
+  @Mutation(() => ContestQnA)
+  @UseDisableContestRolesGuard()
+  async toggleContestQnAResolved(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('qnAOrder', { type: () => Int }, IDValidationPipe) qnAOrder: number
+  ) {
+    return await this.contestService.toggleContestQnAResolved(
+      contestId,
+      qnAOrder
+    )
   }
 }

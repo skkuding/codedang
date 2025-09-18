@@ -3,7 +3,7 @@
 import { AlertModal } from '@/components/AlertModal'
 import { ModalList } from '@/components/ModalList'
 import { Button } from '@/components/shadcn/button'
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { FaTrash } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { useDataTable } from './context'
@@ -22,7 +22,7 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
   getCanDelete?: (selectedRows: TData[]) => Promise<boolean>
   onSuccess?: () => void
   className?: string
-  children?: ReactNode
+  deleteItems?: string[]
 }
 
 /**
@@ -48,7 +48,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   getCanDelete,
   onSuccess,
   className,
-  children
+  deleteItems
 }: DataTableDeleteButtonProps<TData, TPromise>) {
   const { table } = useDataTable<TData>()
 
@@ -92,33 +92,33 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   }
 
   return (
-    <>
-      <Button
-        variant="outline"
-        type="button"
-        onClick={handleDeleteButtonClick}
-        className={className}
-      >
-        <FaTrash fontSize={13} color={'#8A8A8A'} />
-      </Button>
-      <AlertModal
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        type={'warning'}
-        showWarningIcon={!children}
-        title={`Delete ${target}?`}
-        primaryButton={{
-          text: 'Delete',
-          onClick: handleDeleteRows
-        }}
-        {...(children
-          ? {}
-          : {
-              description: `Are you sure you want to permanently delete ${table.getSelectedRowModel().rows.length} ${target}(s)?`
-            })}
-      >
-        {children && <ModalList>{children}</ModalList>}
-      </AlertModal>
-    </>
+    <AlertModal
+      trigger={
+        <Button
+          variant="outline"
+          type="button"
+          onClick={handleDeleteButtonClick}
+          className={className}
+        >
+          <FaTrash fontSize={13} color={'#8A8A8A'} />
+        </Button>
+      }
+      open={isDialogOpen}
+      onOpenChange={setIsDialogOpen}
+      type={'warning'}
+      showIcon={!deleteItems}
+      title={`Delete ${target}?`}
+      primaryButton={{
+        text: 'Delete',
+        onClick: handleDeleteRows
+      }}
+      {...(deleteItems
+        ? {}
+        : {
+            description: `Are you sure you want to permanently delete ${table.getSelectedRowModel().rows.length} ${target}(s)?`
+          })}
+    >
+      {deleteItems && <ModalList items={deleteItems} />}
+    </AlertModal>
   )
 }

@@ -53,6 +53,7 @@ model User {
   role             Role      @default(User)
   email            String    @unique
   studentId        String    @default("0000000000") @map("student_id")
+  college          String?   @default("none")
   major            String?   @default("none")
   lastLogin        DateTime? @map("last_login")
   createTime       DateTime  @default(now()) @map("create_time")
@@ -60,23 +61,25 @@ model User {
   canCreateCourse  Boolean   @default(false) @map("can_create_course")
   canCreateContest Boolean   @default(false) @map("can_create_contest")
 
-  userProfile      UserProfile?
-  userGroup        UserGroup[]
-  notice           Notice[]
-  problem          Problem[]
-  assignment       Assignment[]
-  assignmentRecord AssignmentRecord[]
-  contest          Contest[]
-  userContest      UserContest[]
-  contestRecord    ContestRecord[]
-  workbook         Workbook[]
-  submission       Submission[]
-  useroauth        UserOAuth?
-  file             File[]
-  testSubmission   TestSubmission[]
-  UpdateHistory    UpdateHistory[]
-  createdQnAs      ContestQnA[]       @relation("CreatedByUser")
-  answeredQnAs     ContestQnA[]       @relation("AnsweredByUser")
+  userProfile        UserProfile?
+  userGroup          UserGroup[]
+  notice             Notice[]
+  problem            Problem[]
+  assignment         Assignment[]
+  assignmentRecord   AssignmentRecord[]
+  contest            Contest[]
+  userContest        UserContest[]
+  contestRecord      ContestRecord[]
+  workbook           Workbook[]
+  submission         Submission[]
+  useroauth          UserOAuth?
+  file               File[]
+  testSubmission     TestSubmission[]
+  UpdateHistory      UpdateHistory[]
+  createdQnAs        ContestQnA[]         @relation("CreatedByUser")
+  createdQnAComments ContestQnAComment[]  @relation("CreatedByUser")
+  NotificationRecord NotificationRecord[]
+  PushSubscription   PushSubscription[]
 
   @@map("user")
 }
@@ -239,6 +242,7 @@ model Problem {
   contestProblem    ContestProblem[]
   submission        Submission[]
   announcement      Announcement[]
+  ContestQnA        ContestQnA[]
 
   updateHistory UpdateHistory[]
 
@@ -296,23 +300,30 @@ enum Language {
 }
 
 model ProblemTestcase {
-  id              Int      @id @default(autoincrement())
-  problem         Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  problemId       Int      @map("problem_id")
-  order           Int?
+  id        Int     @id @default(autoincrement())
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  problemId Int     @map("problem_id")
+  order     Int?
   // NOTE: Actual input/output value is going to be stored in S3.
   // These fields are only for backward compatibility.
   // All the new testcases are going to be stored in S3.
   // These fields are expected to be null for new testcases.
   // In future these fields will be removed after migration to S3.
-  input           String?
-  output          String?
-  scoreWeight     Int      @default(1) @map("score_weight")
+  input     String?
+  output    String?
+
+  scoreWeight            Int @default(1) @map("score_weight")
+  scoreWeightNumerator   Int @default(1) @map("score_weight_numerator")
+  scoreWeightDenominator Int @default(1) @map("score_weight_denominator")
+
   isHidden        Boolean  @default(false) @map("is_hidden_testcase")
   createTime      DateTime @default(now()) @map("create_time")
   updateTime      DateTime @updatedAt @map("update_time")
   acceptedCount   Int      @default(0) @map("accepted_count")
   submissionCount Int      @default(0) @map("submission_count")
+
+  isOutdated      Boolean  @default(false) @map("is_outdated")
+  outdateTime     DateTime? @map("outdate_time")
 
   submissionResult SubmissionResult[]
 
@@ -341,26 +352,26 @@ model Tag {
 }
 
 model Assignment {
-  id                   Int      @id @default(autoincrement())
-  createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById          Int?     @map("created_by_id")
-  group                Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId              Int      @map("group_id")
-  week                 Int      @default(1)
+  id                   Int       @id @default(autoincrement())
+  createdBy            User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById          Int?      @map("created_by_id")
+  group                Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId              Int       @map("group_id")
+  week                 Int       @default(1)
   title                String
   description          String
-  startTime            DateTime @map("start_time")
-  endTime              DateTime @map("end_time")
-  dueTime              DateTime @map("due_time")
-  isVisible            Boolean  @default(true) @map("is_visible")
-  isRankVisible        Boolean  @default(true) @map("is_rank_visible")
-  isJudgeResultVisible Boolean  @default(true) @map("is_judge_result_visible") // 이 Assignment에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
-  enableCopyPaste      Boolean  @default(true) @map("enable_copy_paste") // 이 Assignment에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
-  createTime           DateTime @default(now()) @map("create_time")
-  updateTime           DateTime @updatedAt @map("update_time")
-  autoFinalizeScore    Boolean  @default(false) @map("auto_finalize_score") // Assignment이 종료되면 자동으로 finalScore를 계산합니다.
-  isFinalScoreVisible  Boolean  @default(false) @map("is_final_score_visible") // 이 Assignment에 포함된 문제의 최종 점수를 사용자에게 보여줄지 말지 결정합니다.
-  isExercise           Boolean  @default(false) @map("is_exercise")
+  startTime            DateTime  @map("start_time")
+  endTime              DateTime  @map("end_time")
+  dueTime              DateTime? @map("due_time")
+  isVisible            Boolean   @default(true) @map("is_visible")
+  isRankVisible        Boolean   @default(true) @map("is_rank_visible")
+  isJudgeResultVisible Boolean   @default(true) @map("is_judge_result_visible") // 이 Assignment에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
+  enableCopyPaste      Boolean   @default(true) @map("enable_copy_paste") // 이 Assignment에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
+  createTime           DateTime  @default(now()) @map("create_time")
+  updateTime           DateTime  @updatedAt @map("update_time")
+  autoFinalizeScore    Boolean   @default(false) @map("auto_finalize_score") // Assignment이 종료되면 자동으로 finalScore를 계산합니다.
+  isFinalScoreVisible  Boolean   @default(false) @map("is_final_score_visible") // 이 Assignment에 포함된 문제의 최종 점수를 사용자에게 보여줄지 말지 결정합니다.
+  isExercise           Boolean   @default(false) @map("is_exercise")
 
   assignmentProblem AssignmentProblem[]
   assignmentRecord  AssignmentRecord[]
@@ -398,7 +409,7 @@ model AssignmentRecord {
   userId             Int?       @map("user_id")
   acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
   score              Int        @default(0) // Only used after assignment finished
-  finalScore         Int?       @map("final_score")
+  finalScore         Int?       @map("final_score") // TODO: finalScore는 assignmentProblemRecord에서만 관리하기
   comment            String     @default("")
 
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
@@ -569,25 +580,47 @@ model ContestRecord {
   @@map("contest_record")
 }
 
+enum QnACategory {
+  General
+  Problem
+}
+
 model ContestQnA {
-  id           Int      @id @default(autoincrement())
+  id          Int                 @id @default(autoincrement())
   // contest 내부에서의 numbering
-  order        Int
-  createdBy    User?    @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: SetNull)
-  createdById  Int?     @map("created_by_id")
-  answeredBy   User?    @relation("AnsweredByUser", fields: [answeredById], references: [id], onDelete: SetNull)
-  answeredById Int?     @map("answered_by_id")
-  contest      Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId    Int      @map("contest_id")
-  title        String
-  content      String
-  answer       String?
-  isVisible    Boolean  @default(false) @map("is_visible")
-  createTime   DateTime @default(now()) @map("create_time")
-  updateTime   DateTime @updatedAt @map("update_time")
+  order       Int
+  createdBy   User?               @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?                @map("created_by_id")
+  contest     Contest             @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId   Int                 @map("contest_id")
+  title       String
+  content     String
+  problem     Problem?            @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId   Int?                @map("problem_id")
+  category    QnACategory         @default(General)
+  isResolved  Boolean             @default(false) @map("is_resolved")
+  createTime  DateTime            @default(now()) @map("create_time")
+  comments    ContestQnAComment[]
+  readBy      Int[]               @map("read_by")
 
   @@unique([contestId, order])
   @@map("contest_qna")
+}
+
+model ContestQnAComment {
+  id             Int        @id @default(autoincrement())
+  // QnA 내부에서의 순서
+  order          Int
+  createdBy      User?      @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: SetNull)
+  createdById    Int?       @map("created_by_id")
+  isContestStaff Boolean    @default(false) @map("is_contest_staff")
+  content        String
+  contestQnA     ContestQnA @relation(fields: [contestQnAId], references: [id], onDelete: Cascade)
+  contestQnAId   Int        @map("contest_qna_id")
+  createdTime    DateTime   @default(now()) @map("create_time")
+
+  @@unique([contestQnAId, order])
+  @@map("contest_qna_comment")
 }
 
 model Announcement {
@@ -733,4 +766,53 @@ model TestSubmission {
   updateTime DateTime @updatedAt @map("update_time")
 
   @@map("test_submission")
+}
+
+enum NotificationType {
+  Announcement
+  Assignment
+  Contest
+  Course
+  Other
+}
+
+model Notification {
+  id      Int              @id @default(autoincrement())
+  title   String
+  message String
+  url     String?
+  type    NotificationType @default(Other)
+
+  createTime         DateTime             @default(now()) @map("create_time")
+  NotificationRecord NotificationRecord[]
+
+  @@map("notification")
+}
+
+model NotificationRecord {
+  id             Int          @id @default(autoincrement())
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notificationId Int          @map("notification_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int          @map("user_id")
+  isRead         Boolean      @default(false) @map("is_read")
+  createTime     DateTime     @default(now()) @map("create_time")
+
+  @@index([userId, createTime, id])
+  @@map("notification_record")
+}
+
+model PushSubscription {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      @map("user_id")
+  endpoint   String
+  p256dh     String
+  auth       String
+  userAgent  String?  @map("user_agent")
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@unique([userId, endpoint])
+  @@map("push_subscription")
 }

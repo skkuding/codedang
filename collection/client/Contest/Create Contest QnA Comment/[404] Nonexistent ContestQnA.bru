@@ -1,0 +1,25 @@
+meta {
+  name: [404] Nonexistent ContestQnA
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/contest/1/qna/99/comment
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content" : "99번 QnA에 대한 댓글이예요"
+  }
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+settings {
+  encodeUrl: true
+}

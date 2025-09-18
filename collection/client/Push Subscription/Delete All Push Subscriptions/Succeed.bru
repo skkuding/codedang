@@ -1,0 +1,23 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/notification/push-subscription
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+tests {
+  test("should delete all push subscriptions", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.have.property('deletedCount');
+    expect(res.getBody().deletedCount).to.be.a('number');
+  });
+}

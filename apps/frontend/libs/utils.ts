@@ -91,6 +91,29 @@ export const formatDateRange = (
   return `${formattedStart}${isEndDefault ? ' ~ ' : ` ~ ${formattedEnd}`}`
 }
 
+export const formatTimeAgo = (timeString: string) => {
+  const date = new Date(timeString)
+  const now = new Date()
+  const diffInMinutes = Math.floor(
+    (now.getTime() - date.getTime()) / (1000 * 60)
+  )
+
+  if (diffInMinutes < 1) {
+    return 'Just now'
+  }
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`
+  }
+  if (diffInMinutes < 1440) {
+    return `${Math.floor(diffInMinutes / 60)} hour${
+      Math.floor(diffInMinutes / 60) > 1 ? 's' : ''
+    } ago`
+  }
+  return `${Math.floor(diffInMinutes / 1440)} day${
+    Math.floor(diffInMinutes / 1440) > 1 ? 's' : ''
+  } ago`
+}
+
 export const getStatusWithStartEnd = (startTime: string, endTime: string) => {
   const now = new Date()
   const start = dayjs(startTime, 'YYYY-MM-DD HH:mm:ss').toDate()
@@ -109,23 +132,22 @@ export const getStatusWithStartEnd = (startTime: string, endTime: string) => {
  *
  * @param {string} result - The result status to be evaluated.
  * @returns {string} The corresponding color class name based on the result status:
- *   - '!text-green-500' for 'Accepted'.
- *   - '!text-neutral-400' for 'Judging' or 'Blind' or null or undefined.
- *   - '!text-red-500' for any other result status.
- * @see tailwind.config.ts - Refer to the safelist section in the TailwindCSS configuration file.
+ *   - 'text-green-500!' for 'Accepted'.
+ *   - 'text-neutral-400!' for 'Judging' or 'Blind' or null or undefined.
+ *   - 'text-red-500!' for any other result status.
  */
 export const getResultColor = (result: string | null | undefined): string => {
   if (result === 'Accepted') {
-    return '!text-green-500'
+    return 'text-green-500!'
   } else if (
     result === 'Judging' ||
     result === 'Blind' ||
     result === null ||
     result === undefined
   ) {
-    return '!text-neutral-400'
+    return 'text-neutral-400!'
   } else {
-    return '!text-red-500'
+    return 'text-red-500!'
   }
 }
 
@@ -171,3 +193,7 @@ export const getStatusColor = (status: string): string => {
  */
 export const capitalizeFirstLetter = (text: string) =>
   text.charAt(0).toUpperCase() + text.slice(1)
+
+export const hasDueDate = (dueTime: Date) => {
+  return new Date(dueTime).toISOString() !== UNLIMITED_DATE
+}

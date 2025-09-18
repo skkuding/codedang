@@ -41,30 +41,41 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
     emailType?: boolean
+    emailIcon?: React.ReactNode
   }
->(({ className, emailType = false, ...props }, ref) => (
-  <div
-    className={cn(
-      'flex items-center border-b px-3',
-      emailType && 'rounded-full border'
-    )}
-    cmdk-input-wrapper=""
-  >
-    {emailType ? (
-      <FaAt color="#C4C4C4" />
-    ) : (
-      <MagnifyingGlassIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-    )}
-    <CommandPrimitive.Input
-      ref={ref}
+>(
+  (
+    {
+      className,
+      emailType = false,
+      emailIcon = <FaAt color="#C4C4C4" />,
+      ...props
+    },
+    ref
+  ) => (
+    <div
       className={cn(
-        'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-gray-400',
-        className
+        'flex items-center border-b px-3',
+        emailType && 'rounded-full border'
       )}
-      {...props}
-    />
-  </div>
-))
+      cmdk-input-wrapper=""
+    >
+      {emailType ? (
+        emailIcon
+      ) : (
+        <MagnifyingGlassIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+      )}
+      <CommandPrimitive.Input
+        ref={ref}
+        className={cn(
+          'outline-hidden flex h-10 w-full rounded-md bg-transparent py-3 text-sm placeholder:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-gray-400',
+          className
+        )}
+        {...props}
+      />
+    </div>
+  )
+)
 
 CommandInput.displayName = CommandPrimitive.Input.displayName
 
@@ -129,7 +140,7 @@ const CommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-gray-100 aria-selected:text-gray-900 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 dark:aria-selected:bg-gray-800 dark:aria-selected:text-gray-50',
+      'rounded-xs outline-hidden = relative flex cursor-default select-none items-center p-2 text-base data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 dark:aria-selected:bg-gray-800 dark:aria-selected:text-gray-50',
       className
     )}
     {...props}
@@ -157,11 +168,11 @@ CommandShortcut.displayName = 'CommandShortcut'
 export {
   Command,
   CommandDialog,
-  CommandInput,
-  CommandList,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
-  CommandShortcut,
-  CommandSeparator
+  CommandList,
+  CommandSeparator,
+  CommandShortcut
 }

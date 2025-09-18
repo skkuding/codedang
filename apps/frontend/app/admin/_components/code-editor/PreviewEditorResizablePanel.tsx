@@ -58,7 +58,7 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
       >
         <div className="grid-rows-editor grid h-full w-full grid-cols-1">
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
-            <Tabs value={tabValue} className="flex-grow">
+            <Tabs value={tabValue} className="grow">
               <TabsList className="rounded bg-slate-900">
                 <TabsTrigger
                   value="Description"
@@ -86,7 +86,7 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
               </TabsList>
             </Tabs>
           </div>
-          <ScrollArea className="[&>div>div]:!block">
+          <ScrollArea className="[&>div>div]:block!">
             {tabValue === 'Description' && (
               <EditorDescription problem={problem} />
             )}
@@ -109,7 +109,7 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
               }}
               value={language}
             >
-              <SelectTrigger className="h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
+              <SelectTrigger className="focus:outline-hidden h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:ring-0 focus:ring-offset-0">
                 <p className="px-1">
                   <SelectValue />
                 </p>
@@ -132,7 +132,7 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
           <ResizablePanelGroup direction="vertical" className="h-32">
             <ResizablePanel
               defaultSize={60}
-              className="!overflow-x-auto !overflow-y-auto"
+              className="overflow-x-auto! overflow-y-auto!"
             >
               <ScrollArea className="h-full bg-[#121728]">
                 <CodeEditor

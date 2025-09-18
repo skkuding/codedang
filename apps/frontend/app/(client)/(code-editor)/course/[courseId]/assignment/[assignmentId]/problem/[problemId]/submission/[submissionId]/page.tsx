@@ -7,17 +7,15 @@ import { Suspense } from 'react'
 import { SubmissionDetail } from './_components/SubmissionDetail'
 import { SubmissionDetailTitle } from './_components/SubmissionDetailTitle'
 
-export default function Page({
-  params
-}: {
-  params: {
+export default async function Page(props: {
+  params: Promise<{
     assignmentId: string
     courseId: string
     problemId: string
     submissionId: string
-  }
+  }>
 }) {
-  const { courseId, assignmentId, problemId, submissionId } = params
+  const { courseId, assignmentId, problemId, submissionId } = await props.params
 
   return (
     <div className="flex flex-col gap-5 overflow-auto py-6">

@@ -7,12 +7,13 @@ import {
   type AuthenticatedRequest
 } from '@libs/auth'
 import {
-  SubmissionOrderPipe,
   CursorValidationPipe,
-  RequiredIntPipe
+  RequiredIntPipe,
+  SubmissionOrderPipe
 } from '@libs/pipe'
 import { Submission } from '@admin/@generated'
 import { SubmissionOrder } from './enum/submission-order.enum'
+import { AssignmentProblemTestcaseResult } from './model/assignment-problem-testcase-results.model'
 import { AssignmentSubmission } from './model/assignment-submission.model'
 import { ContestSubmission } from './model/contest-submission.model'
 import {
@@ -36,6 +37,7 @@ export class SubmissionResolver {
    * @param take 불러올 제출 내역의 수
    * @returns {SubmissionsWithTotal}
    */
+  @UseDisableAdminGuard()
   @Query(() => SubmissionsWithTotal)
   async getSubmissions(
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
@@ -43,9 +45,15 @@ export class SubmissionResolver {
     @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { nullable: true, defaultValue: 10, type: () => Int })
-    take: number
+    take: number,
+    @Context('req') req: AuthenticatedRequest
   ): Promise<SubmissionsWithTotal> {
-    return this.submissionService.getSubmissions(problemId, cursor, take)
+    return this.submissionService.getSubmissions(
+      problemId,
+      cursor,
+      take,
+      req.user
+    )
   }
 
   /**
@@ -124,6 +132,20 @@ export class SubmissionResolver {
       userId,
       problemId,
       req.user.id
+    )
+  }
+
+  @Query(() => [AssignmentProblemTestcaseResult])
+  @UseGroupLeaderGuard()
+  async getAssignmentProblemTestcaseResults(
+    @Args('groupId', { type: () => Int }) _groupId: number,
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('problemId', { type: () => Int }) problemId: number
+  ): Promise<AssignmentProblemTestcaseResult[]> {
+    return await this.submissionService.getAssignmentProblemTestcaseResults(
+      assignmentId,
+      problemId,
+      _groupId
     )
   }
 

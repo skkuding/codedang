@@ -1,0 +1,66 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/notification?take=8
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+query {
+  take: 8
+  ~cursor: 1
+  ~isRead: true
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+  res.body[0].id: isNumber
+  res.body[0].notificationId: isNumber
+  res.body[0].title: isString
+  res.body[0].message: isString
+  res.body[0].type: isString
+  res.body[0].isRead: isBoolean
+  res.body[0].createTime: isString
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Notifications
+
+  사용자의 알림 목록을 가져옵니다.
+
+  ## Query Parameters
+
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  | take | Integer | 가져올 알림 수 (기본값: 8) |
+  | cursor | Integer | 커서 기반 페이징을 위한 마지막 알림 ID |
+  | isRead | Boolean | 읽음 여부 필터 (optional) |
+
+  ## Response
+
+  알림 객체의 배열을 반환합니다.
+
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  | id | Integer | 알림 레코드 ID |
+  | notificationId | Integer | 알림 ID |
+  | title | String | 알림 제목 |
+  | message | String | 알림 메시지 |
+  | url | String | 관련 URL (nullable) |
+  | type | String | 알림 타입 |
+  | isRead | Boolean | 읽음 여부 |
+  | createTime | String | 생성 시간 |
+}

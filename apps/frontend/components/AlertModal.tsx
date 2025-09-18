@@ -1,15 +1,21 @@
+'use client'
+
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
-import infoIcon from '@/public/icons/info.svg'
+import confirmIcon from '@/public/icons/check-blue.svg'
+import warningIcon from '@/public/icons/info.svg'
 import Image from 'next/image'
+import { useState } from 'react'
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
+  AlertDialogTrigger
 } from './shadcn/alert-dialog'
 
 interface ButtonProps {
@@ -19,10 +25,13 @@ interface ButtonProps {
 }
 
 interface AlertModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  trigger?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  size?: 'sm' | 'md' | 'lg'
   type: 'confirm' | 'warning'
-  showWarningIcon?: boolean
+  showIcon?: boolean
+  showCancelButton?: boolean
   title: string
   description?: string
   primaryButton: ButtonProps
@@ -30,52 +39,77 @@ interface AlertModalProps {
   onClose?: () => void
 }
 
+const sizeClassMap = {
+  sm: '!w-[424px] !h-[300px] !p-[40px]',
+  md: '!w-[600px] !h-[580px] !py-[50px] !px-[40px]',
+  lg: '!w-[800px] !h-[620px] !py-[50px] !px-[40px]'
+}
+
 export function AlertModal({
+  trigger,
   open,
   onOpenChange,
+  size = 'sm',
   type,
-  showWarningIcon = true,
+  showIcon = true,
+  showCancelButton = true,
   title,
   description,
   primaryButton,
   children,
   onClose
 }: AlertModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlled = open !== undefined && onOpenChange !== undefined
+  const actualOpen = isControlled ? open : internalOpen
+  const handleOpenChange = isControlled ? onOpenChange : setInternalOpen
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={actualOpen} onOpenChange={handleOpenChange}>
+      {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
       <AlertDialogContent
-        className="flex h-[280px] w-[424px] flex-col items-center justify-center !rounded-2xl p-[40px]"
+        className={cn(
+          sizeClassMap[size],
+          'flex flex-col items-center justify-center !rounded-2xl'
+        )}
         onEscapeKeyDown={onClose}
       >
         <AlertDialogHeader className="flex flex-col items-center justify-center">
-          {type === 'warning' && showWarningIcon && (
+          {showIcon && (
             <Image
-              src={infoIcon}
-              alt="info"
+              src={type === 'warning' ? warningIcon : confirmIcon}
+              alt={type === 'warning' ? 'warning' : 'confirm'}
               width={42}
               height={42}
-              // className="mb-3"
             />
           )}
-          <AlertDialogTitle className="text-center text-2xl font-semibold">
+          <AlertDialogTitle
+            className={cn(
+              'w-full text-2xl font-semibold',
+              size === 'lg' ? 'text-left' : 'text-center'
+            )}
+          >
             {title}
           </AlertDialogTitle>
         </AlertDialogHeader>
         {children}
-        {description && (
-          <p
-            className={cn(
-              'w-full text-center text-sm font-normal text-[#737373]',
-              children && 'text-left'
-            )}
-          >
-            {description}
-          </p>
-        )}
-        <AlertDialogFooter className="mt-auto flex w-full justify-center gap-[4px]">
-          <AlertDialogCancel className="h-[46px] w-full">
-            Cancel
-          </AlertDialogCancel>
+        <AlertDialogDescription>
+          {description && (
+            <p
+              className={cn(
+                'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
+                children && 'text-left'
+              )}
+            >
+              {description}
+            </p>
+          )}
+        </AlertDialogDescription>
+        <AlertDialogFooter className="flex w-full justify-center gap-[4px]">
+          {showCancelButton && (
+            <AlertDialogCancel className="h-[46px] w-full">
+              Cancel
+            </AlertDialogCancel>
+          )}
           <AlertDialogAction asChild>
             <Button
               onClick={primaryButton.onClick}

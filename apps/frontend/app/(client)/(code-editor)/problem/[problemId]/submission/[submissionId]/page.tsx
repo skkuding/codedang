@@ -6,15 +6,13 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { SubmissionDetail } from '../_components/SubmissionDetail'
 
-export default function Page({
-  params
-}: {
-  params: {
+export default async function Page(props: {
+  params: Promise<{
     problemId: string
     submissionId: string
-  }
+  }>
 }) {
-  const { submissionId, problemId } = params
+  const { submissionId, problemId } = await props.params
 
   return (
     <div className="flex flex-col gap-5 overflow-auto p-6">

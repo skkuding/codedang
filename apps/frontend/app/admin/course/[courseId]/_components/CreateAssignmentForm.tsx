@@ -40,7 +40,8 @@ export function CreateAssignmentForm({
       enableCopyPaste: true,
       isJudgeResultVisible: true,
       autoFinalizeScore: false,
-      description: ''
+      description: '',
+      startTime: null
     }
   })
 
@@ -56,7 +57,7 @@ export function CreateAssignmentForm({
   )
 
   const isSubmittable = (input: CreateAssignmentInput) => {
-    if (input.startTime >= input.dueTime) {
+    if (input.startTime >= (input.dueTime ?? input.endTime)) {
       toast.error('Start time must be earlier than due time')
       return
     }
@@ -82,9 +83,9 @@ export function CreateAssignmentForm({
     const finalInput = {
       ...input,
       isExercise: isExercise ?? false,
-      startTime: input.startTime ?? new Date(0),
-      endTime: input.endTime ?? new Date('2999-12-31T23:59:59'),
-      dueTime: input.dueTime ?? new Date('2999-12-31T23:59:59')
+      startTime: input.startTime,
+      dueTime: input.dueTime,
+      endTime: input.endTime ?? new Date('2999-12-31T23:59:59')
     }
 
     const { data } = await createAssignment({
@@ -113,7 +114,7 @@ export function CreateAssignmentForm({
             solutionReleaseTime: isOptionAfterDeadline(
               problem.solutionReleaseTime
             )
-              ? input.dueTime
+              ? (input.dueTime ?? input.endTime)
               : problem.solutionReleaseTime
           }
         })
@@ -133,7 +134,11 @@ export function CreateAssignmentForm({
     })
 
     setShouldSkipWarning(true)
-    toast.success('Assignment created successfully')
+    toast.success(
+      isExercise
+        ? 'Exercise created successfully'
+        : 'Assignment created successfully'
+    )
     router.push(
       isExercise
         ? (`/admin/course/${groupId}/exercise` as const)

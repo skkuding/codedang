@@ -1,27 +1,18 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
-import type { Level } from '@/types/type'
+import type { BaseDataTableProblem, Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'
 
-export interface DataTableProblem {
-  id: number
-  title: string
-  updateTime: string
-  difficulty: string
-  submissionCount: number
-  acceptedRate: number
-  languages: string[]
+export interface ContestProblem extends BaseDataTableProblem {
   createdBy: string
-  score?: number
-  order?: number
 }
 
 export const DEFAULT_PAGE_SIZE = 5
 export const MAX_SELECTED_ROW_COUNT = 20
 export const ERROR_MESSAGE = `You can only import up to ${MAX_SELECTED_ROW_COUNT} problems in a contest`
-export const columns: ColumnDef<DataTableProblem>[] = [
+export const columns: ColumnDef<ContestProblem>[] = [
   {
     accessorKey: 'select',
     header: ({ table }) => (

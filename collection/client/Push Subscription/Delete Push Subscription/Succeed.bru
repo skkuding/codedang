@@ -1,0 +1,27 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/notification/push-subscription?endpoint=https%3A%2F%2Ffcm.googleapis.com%2Ffcm%2Fsend%2Fexample-endpoint-123
+  body: none
+  auth: none
+}
+
+params:query {
+  endpoint: https%3A%2F%2Ffcm.googleapis.com%2Ffcm%2Fsend%2Fexample-endpoint-123
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+tests {
+  test("should delete push subscription", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.have.property('deletedCount');
+    expect(res.getBody().deletedCount).to.be.a('number');
+  });
+}

@@ -26,7 +26,7 @@ const slides = [
     subDescription: 'Structured Learning Course!',
     mainDescription: `CODEDANG\nCOURSE HUB`,
     buttonDescription: 'CHECK YOUR COURSE',
-    bgcolor: 'bg-[linear-gradient(95deg,_#E0D0FF_50.46%,_#9B99FF_82.55%)]',
+    bgcolor: 'bg-[linear-gradient(95deg,#E0D0FF_50.46%,#9B99FF_82.55%)]',
     mainDescriptionColor:
       'linear-gradient(100deg, #12134A -7.99%, #262799 23.9%, #4D3CCF 65.71%)',
     img: '/banners/notebook.png',

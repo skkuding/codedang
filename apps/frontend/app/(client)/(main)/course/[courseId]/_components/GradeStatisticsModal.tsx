@@ -65,14 +65,17 @@ export function GradeStatisticsModal({
         const label = `${lowerBound.toFixed(1)}-${upperBound.toFixed(1)}`
 
         const count = scores.filter(
-          (score) => score >= lowerBound && score < upperBound
+          (score) =>
+            score >= lowerBound &&
+            (index === 9 ? score <= upperBound : score < upperBound)
         ).length
 
         return {
           score: label,
           count,
           fill:
-            userScore >= lowerBound && userScore < upperBound
+            userScore >= lowerBound &&
+            (index === 9 ? userScore <= upperBound : userScore < upperBound)
               ? '#3b82f6'
               : '#C3C3C3'
         }
@@ -119,7 +122,7 @@ export function GradeStatisticsModal({
 
   return (
     <DialogContent
-      className="p-14 sm:max-w-2xl"
+      className="max-w-[95vw] p-4 sm:max-w-2xl sm:p-14"
       onClick={(e) => e.stopPropagation()}
     >
       <DialogHeader>
@@ -133,9 +136,9 @@ export function GradeStatisticsModal({
       </DialogHeader>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3">
-          <span className="text-sm font-medium">Statistic</span>
+          <span className="text-sm font-medium">Statistics</span>
           <table
-            className="w-[550px] border-separate text-center text-xs"
+            className="w-full min-w-[300px] max-w-[550px] border-separate text-center text-xs"
             style={{ borderSpacing: 0 }}
           >
             <thead className="bg-primary-light text-white">
@@ -161,10 +164,10 @@ export function GradeStatisticsModal({
             <tbody>
               {assignmentProblemRecord?.isFinalScoreVisible && (
                 <tr className="text-gray-500">
-                  <td className="bg-primary-light flex w-[80px] flex-col items-center rounded-bl-md px-2 py-2 text-xs text-white">
+                  <td className="bg-primary-light flex w-[60px] flex-col items-center rounded-bl-md px-1 py-2 text-xs text-white sm:w-[80px] sm:px-2">
                     Graded
                     {assignmentProblemRecord.autoFinalizeScore && (
-                      <span className="text-primary mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium shadow-sm">
+                      <span className="text-primary shadow-2xs mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium">
                         Auto
                       </span>
                     )}
@@ -188,7 +191,7 @@ export function GradeStatisticsModal({
               )}
             </tbody>
           </table>
-          <div className="-ml-9 flex h-[281px] w-[600px] flex-col items-center rounded">
+          <div className="rounded-xs flex h-[200px] w-full max-w-[600px] flex-col items-center sm:h-[281px]">
             <div className="min-h-0 flex-1 overflow-auto">
               <ChartContainer config={chartConfig} className="h-full">
                 <BarChart data={chartData} barCategoryGap={10}>

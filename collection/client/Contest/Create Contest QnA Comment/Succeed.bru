@@ -1,0 +1,72 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/contest/1/qna/1/comment
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content" : "1번 QnA에 대한 댓글이예요"
+  }
+}
+
+script:pre-request {
+  await require("./login").loginUser2nd(req);
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  # 📘 Create Contest QnA Comment
+  
+  **POST** `/contest/:id/qna/:order/comment`
+  
+  Create a new Comment entry for a specific QnA.
+  
+  특정 QnA에 새로운 댓글을 등록합니다.
+  
+  해당 QnA의 작성자 또는 대회의 운영진만 작성 가능합니다.
+  
+  저장 시, 해당 QnA의 댓글 목록 중 가장 마지막 순번(`order`) 이후 번호가 자동으로 부여됩니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `id` | number | ✅       | ID of the target contest |
+  | `order` | number |       | order of qna in contest |
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "content": "1번 QnA에 대한 댓글이예요"
+  }
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `content` | string | ✅       | QnA 본문 내용 |
+}

@@ -25,16 +25,65 @@ export class TestcaseService {
     private readonly storageService: StorageService
   ) {}
 
+  private gcd(a: number, b: number): number {
+    return b === 0 ? a : this.gcd(b, a % b)
+  }
+
+  private convertToFraction(testcase: Testcase): {
+    numerator: number
+    denominator: number
+  } {
+    // Frontend provide score weight in two ways
+    // 1. only scoreWeight(User enters specific value) - use 100 as denominator and entered value as numerator
+    // 2. numerator and denominator(User use Equal Distribution feature)
+    const { scoreWeightNumerator, scoreWeightDenominator } = testcase
+
+    if (testcase.scoreWeight !== undefined) {
+      return {
+        numerator: testcase.scoreWeight,
+        denominator: 100
+      }
+    }
+
+    if (
+      scoreWeightNumerator !== undefined &&
+      scoreWeightDenominator !== undefined
+    ) {
+      if (scoreWeightDenominator === 0) {
+        return {
+          numerator: scoreWeightNumerator,
+          denominator: 100
+        }
+      }
+
+      return {
+        numerator: scoreWeightNumerator,
+        denominator: scoreWeightDenominator
+      }
+    }
+
+    return {
+      numerator: 0,
+      denominator: 1
+    }
+  }
+
   async createTestcases(testcases: Testcase[], problemId: number) {
     // Before upload, clean up all the original testcases
     await this.removeAllTestcaseFiles(problemId)
 
     const promises = testcases.map(async (testcase, index) => {
       try {
+        const fraction = this.convertToFraction(testcase)
+
         const { id } = await this.prisma.problemTestcase.create({
           data: {
             problemId,
-            scoreWeight: testcase.scoreWeight,
+            scoreWeightNumerator: fraction.numerator,
+            scoreWeightDenominator: fraction.denominator,
+            scoreWeight: Math.round(
+              (fraction.numerator / fraction.denominator) * 100
+            ),
             isHidden: testcase.isHidden,
             order: index + 1
           }
@@ -77,13 +126,20 @@ export class TestcaseService {
   async createTestcasesLegacy(problemId: number, testcases: Array<Testcase>) {
     await Promise.all(
       testcases.map(async (tc, index) => {
+        const fraction = this.convertToFraction(tc)
+
         const problemTestcase = await this.prisma.problemTestcase.create({
           data: {
             problemId,
             input: tc.input,
             output: tc.output,
-            scoreWeight: tc.scoreWeight,
-            isHidden: tc.isHidden
+            scoreWeightNumerator: fraction.numerator,
+            scoreWeightDenominator: fraction.denominator,
+            scoreWeight: Math.round(
+              (fraction.numerator / fraction.denominator) * 100
+            ),
+            isHidden: tc.isHidden,
+            order: index + 1
           }
         })
         return { index, id: problemTestcase.id }
@@ -94,12 +150,18 @@ export class TestcaseService {
   /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
   async createTestcaseLegacy(problemId: number, testcase: Testcase) {
     try {
+      const fraction = this.convertToFraction(testcase)
+
       const problemTestcase = await this.prisma.problemTestcase.create({
         data: {
           problem: { connect: { id: problemId } },
           input: testcase.input,
           output: testcase.output,
-          scoreWeight: testcase.scoreWeight,
+          scoreWeightNumerator: fraction.numerator,
+          scoreWeightDenominator: fraction.denominator,
+          scoreWeight: Math.round(
+            (fraction.numerator / fraction.denominator) * 100
+          ),
           isHidden: testcase.isHidden
         }
       })
@@ -115,25 +177,90 @@ export class TestcaseService {
     }
   }
 
-  async updateTestcases(problemId: number, testcases: Array<Testcase>) {
-    await Promise.all([
-      this.prisma.problemTestcase.deleteMany({
-        where: {
-          problemId
-        }
-      })
-    ])
+  async syncTestcases(problemId: number, testcases: Array<Testcase>) {
+    // 기존에 존재하던 유효한 TC 모두 가져옴
+    const existing = await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId,
+        isOutdated: false
+      }
+    })
+    const existingMap = new Map(existing.map((tc) => [tc.id, tc]))
+
+    // 인자로 전달받은 TC 중 id 필드가 존재하는 TC(기존 TC)의 id만 필터링해서 가져옴
+    const updatedIds = new Set(
+      testcases.filter((tc) => tc.id).map((tc) => tc.id)
+    )
+
+    // 기존에 존재하던 TC의 id 중 전달 받은 TC인자에 포함되어 있지 않은 id(삭제되어야할 TC의 id)
+    const outdated = existing.filter((tc) => !updatedIds.has(tc.id))
+    const outdatedTime = new Date()
+    if (outdated.length > 0) {
+      await Promise.all([
+        outdated.map(async (tc) => {
+          return await this.prisma.problemTestcase.update({
+            where: {
+              id: tc.id
+            },
+            data: {
+              isOutdated: true,
+              outdateTime: outdatedTime
+            }
+          })
+        })
+      ])
+    }
 
     for (const tc of testcases) {
-      await this.prisma.problemTestcase.create({
-        data: {
-          problemId,
-          input: tc.input,
-          output: tc.output,
-          scoreWeight: tc.scoreWeight,
-          isHidden: tc.isHidden
+      const weightFraction = this.convertToFraction(tc)
+      const scoreWeight = Math.round(
+        (weightFraction.numerator / weightFraction.denominator) * 100
+      )
+      if (tc.id) {
+        // 전달받은 인자 중 id가 존재하는 경우 => 기존에 존재하던 TC이므로 바뀐 필드 있는지 확인 후 업데이트 수행
+        const existingTc = existingMap.get(tc.id)
+        if (
+          existingTc &&
+          (existingTc.input !== tc.input ||
+            existingTc.output !== tc.output ||
+            existingTc.isHidden !== tc.isHidden)
+        ) {
+          await this.prisma.problemTestcase.update({
+            where: {
+              id: tc.id
+            },
+            data: {
+              isOutdated: true,
+              outdateTime: outdatedTime
+            }
+          })
+
+          await this.prisma.problemTestcase.create({
+            data: {
+              problemId,
+              input: tc.input,
+              output: tc.output,
+              isHidden: tc.isHidden,
+              scoreWeight,
+              scoreWeightNumerator: weightFraction.numerator,
+              scoreWeightDenominator: weightFraction.denominator
+            }
+          })
         }
-      })
+      } else {
+        // 새로운 TC => 그냥 Create
+        await this.prisma.problemTestcase.create({
+          data: {
+            problemId,
+            input: tc.input,
+            output: tc.output,
+            isHidden: tc.isHidden,
+            scoreWeight,
+            scoreWeightNumerator: weightFraction.numerator,
+            scoreWeightDenominator: weightFraction.denominator
+          }
+        })
+      }
     }
   }
 
@@ -322,7 +449,10 @@ export class TestcaseService {
     originalFileNames.forEach(async (name, index) => {
       const id = testcaseIdMapper[name]
       await this.prisma.problemTestcase.update({
-        where: { id },
+        where: {
+          id,
+          isOutdated: false
+        },
         data: { order: index + 1 }
       })
     })
@@ -342,15 +472,23 @@ export class TestcaseService {
         await this.storageService.deleteObject(file.Key, 'testcase')
       })
     )
-    await this.prisma.problemTestcase.deleteMany({
-      where: { problemId }
+    await this.prisma.problemTestcase.updateMany({
+      where: { problemId },
+      data: {
+        isOutdated: true,
+        outdateTime: new Date()
+      }
     })
   }
 
   async getProblemTestcases(problemId: number) {
     return await this.prisma.problemTestcase.findMany({
       where: {
-        problemId
+        problemId,
+        isOutdated: false
+      },
+      orderBy: {
+        order: 'asc'
       }
     })
   }

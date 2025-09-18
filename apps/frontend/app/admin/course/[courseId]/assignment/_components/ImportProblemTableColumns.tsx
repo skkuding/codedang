@@ -1,7 +1,7 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
-import type { Level } from '@/types/type'
+import type { BaseDataTableProblem, Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 import { CiShare1 } from 'react-icons/ci'
@@ -9,16 +9,7 @@ import { FaCheck } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import type { Solution } from '../../_libs/type'
 
-export interface DataTableProblem {
-  id: number
-  title: string
-  updateTime: string
-  difficulty: string
-  submissionCount: number
-  acceptedRate: number
-  languages: string[]
-  score?: number
-  order?: number
+export interface AssignmentProblem extends BaseDataTableProblem {
   solutionReleaseTime: Date | null
   solution: Solution[]
 }
@@ -26,7 +17,7 @@ export interface DataTableProblem {
 export const DEFAULT_PAGE_SIZE = 5
 export const MAX_SELECTED_ROW_COUNT = 20
 export const ERROR_MESSAGE = `You can only import up to ${MAX_SELECTED_ROW_COUNT} problems in a assignment`
-export const columns: ColumnDef<DataTableProblem>[] = [
+export const columns: ColumnDef<AssignmentProblem>[] = [
   {
     accessorKey: 'select',
     header: ({ table }) => (
@@ -73,60 +64,34 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Title"
-        className="w-[250px] justify-start"
-      />
+      <DataTableColumnHeader column={column} title="Title" />
     ),
-    cell: ({ row }) => {
-      return (
-        <div className="w-[250px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
-          {row.getValue('title')}
-        </div>
-      )
-    },
+    cell: ({ row }) => row.getValue('title'),
     enableHiding: false,
     enableSorting: false
   },
   {
     accessorKey: 'updateTime',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Update"
-        className="w-[100px]"
-      />
+      <DataTableColumnHeader column={column} title="Update" />
     ),
-    cell: ({ row }) => {
-      return (
-        <div className="w-[100px]">
-          {row.original.updateTime.substring(2, 10)}
-        </div>
-      )
-    }
+    cell: ({ row }) => row.original.updateTime.substring(2, 10)
   },
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Level"
-        className="w-[70px]"
-      />
+      <DataTableColumnHeader column={column} title="Level" />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
       const formattedLevel = `Level ${level.slice(-1)}`
       return (
-        <div className="flex w-[70px] justify-end">
-          <Badge
-            variant={level as Level}
-            className="whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
-          >
-            {formattedLevel}
-          </Badge>
-        </div>
+        <Badge
+          variant={level as Level}
+          className="whitespace-nowrap px-2 py-1 font-normal"
+        >
+          {formattedLevel}
+        </Badge>
       )
     },
     filterFn: (row, id, value) => {
@@ -136,21 +101,13 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'solution',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Solution"
-        className="flex w-[70px] justify-center"
-      />
+      <DataTableColumnHeader column={column} title="Solution" />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="flex w-[70px] justify-center">
-          {row.original.solution.some((solution) => solution.code !== '') ? (
-            <FaCheck />
-          ) : (
-            '-'
-          )}
-        </div>
+      return row.original.solution.some((solution) => solution.code !== '') ? (
+        <FaCheck />
+      ) : (
+        '-'
       )
     },
     enableSorting: false
@@ -158,18 +115,14 @@ export const columns: ColumnDef<DataTableProblem>[] = [
   {
     accessorKey: 'preview',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Preview"
-        className="flex justify-center"
-      />
+      <DataTableColumnHeader column={column} title="Preview" />
     ),
     cell: ({ row }) => {
       return (
         <Link
           href={`/admin/problem/${row.original.id}/preview`}
           target="_blank"
-          className="flex w-[70px] justify-center"
+          className="flex justify-center"
           onClick={(e) => e.stopPropagation()}
         >
           <CiShare1 size={20} />

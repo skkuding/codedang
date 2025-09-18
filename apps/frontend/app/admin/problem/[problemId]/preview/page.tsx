@@ -9,14 +9,16 @@ import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { use } from 'react'
 
 interface PageProps {
-  params: {
+  params: Promise<{
     problemId: string
-  }
+  }>
 }
 
-export default function Page({ params }: PageProps) {
+export default function Page(props: PageProps) {
+  const params = use(props.params)
   const { problemId } = params
   const router = useRouter()
 

@@ -8,13 +8,12 @@ import {
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { cn } from '@/libs/utils'
 import { ErrorBoundary } from '@suspensive/react'
-import { Suspense, useState } from 'react'
+import { Suspense, useState, use } from 'react'
 
-export default function Submission({
-  params
-}: {
-  params: { courseId: string; exerciseId: string }
+export default function Submission(props: {
+  params: Promise<{ courseId: string; exerciseId: string }>
 }) {
+  const params = use(props.params)
   const [tab, setTab] = useState<'all' | 'students'>('all')
   const groupId = Number(params.courseId)
   const exerciseId = Number(params.exerciseId)

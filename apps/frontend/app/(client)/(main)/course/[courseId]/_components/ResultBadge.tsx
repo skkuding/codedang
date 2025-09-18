@@ -31,7 +31,7 @@ export function ResultBadge({
         className
       )}
     >
-      <p className="text-sm font-medium">{submissionResult}</p>
+      <p className="text-base font-medium">{submissionResult}</p>
     </div>
   )
 }

@@ -52,18 +52,50 @@ export class AssignmentService {
    *
    * @param {number} groupId 그룹 아이디
    * @param {boolean} isExercise exercise를 가져올지 assignment를 가져올지 여부
+   * @param {number} month 조회할 월 (1-12, 선택적)
+   * @param {number} year 조회할 년도 (선택적)
    * @returns 특정 그룹의 모든 assignment를 문제 개수와 함께 반환합니다.
    * 아직 시작되지 않은 assignment의 경우 문제 개수는 0이 됩니다.
+   * month와 year가 제공되면 해당 월에 dueTime이 속한 assignment만 반환합니다.
    */
-  async getAssignments(groupId: number, isExercise: boolean) {
+  async getAssignments(
+    groupId: number,
+    isExercise?: boolean,
+    month?: number,
+    year?: number
+  ) {
     const assignments = await this.prisma.assignment.findMany({
       where: {
+        ...(isExercise !== undefined ? { isExercise } : {}),
         groupId,
-        isExercise,
-        isVisible: true
+        isVisible: true,
+        ...(month !== undefined && year !== undefined
+          ? {
+              OR: [
+                {
+                  dueTime: {
+                    gte: new Date(year, month - 1, 1),
+                    lte: new Date(year, month, 0, 23, 59, 59, 999)
+                  }
+                },
+                {
+                  AND: [
+                    { dueTime: null },
+                    {
+                      endTime: {
+                        gte: new Date(year, month - 1, 1),
+                        lte: new Date(year, month, 0, 23, 59, 59, 999)
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          : {})
       },
       select: {
-        ...assignmentSelectOption
+        ...assignmentSelectOption,
+        isExercise: true
       },
       orderBy: [{ week: 'asc' }, { startTime: 'asc' }]
     })
@@ -90,7 +122,8 @@ export class AssignmentService {
   async getAssignment(id: number, userId: number) {
     const isRegistered = await this.prisma.assignmentRecord.findUnique({
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { assignmentId_userId: { assignmentId: id, userId } }
+      where: { assignmentId_userId: { assignmentId: id, userId } },
+      select: { id: true }
     })
 
     if (!isRegistered) {
@@ -100,16 +133,20 @@ export class AssignmentService {
     }
 
     const assignment = await this.prisma.assignment.findUnique({
-      where: {
-        id,
-        isVisible: true,
-        startTime: {
-          lte: new Date()
-        }
-      },
+      where: { id },
       select: {
         ...assignmentSelectOption,
-        description: true
+        description: true,
+        isVisible: true,
+        group: {
+          select: {
+            userGroup: {
+              where: { userId },
+              take: 1,
+              select: { isGroupLeader: true }
+            }
+          }
+        }
       }
     })
 
@@ -117,7 +154,16 @@ export class AssignmentService {
       throw new EntityNotExistException('Assignment')
     }
 
-    const { _count, ...assignmentDetails } = assignment
+    const { _count, group, ...assignmentDetails } = assignment
+
+    if (!group.userGroup[0].isGroupLeader) {
+      if (
+        !assignmentDetails.isVisible ||
+        assignmentDetails.startTime > new Date()
+      ) {
+        throw new EntityNotExistException('Assignment')
+      }
+    }
 
     return {
       ...assignmentDetails,
@@ -297,6 +343,7 @@ export class AssignmentService {
         groupId: true,
         title: true,
         dueTime: true,
+        endTime: true,
         isFinalScoreVisible: true,
         autoFinalizeScore: true
       }
@@ -313,7 +360,7 @@ export class AssignmentService {
     }
 
     const now = new Date()
-    if (now < assignment.dueTime) {
+    if (now < (assignment.dueTime ?? assignment.endTime)) {
       throw new ForbiddenAccessException(
         'Cannot view scores before assignment ends'
       )
@@ -553,6 +600,11 @@ export class AssignmentService {
           select: {
             score: true,
             finalScore: true,
+            assignmentProblemRecord: {
+              select: {
+                finalScore: true
+              }
+            },
             // eslint-disable-next-line @typescript-eslint/naming-convention
             _count: {
               select: {
@@ -581,6 +633,11 @@ export class AssignmentService {
             'User not participated in the assignment'
           )
         }
+        assignmentRecord[0].finalScore =
+          assignmentRecord[0].assignmentProblemRecord.reduce(
+            (sum, { finalScore }) => sum + (finalScore ?? 0),
+            0
+          )
         const total = assignmentProblem.reduce(
           (sum, { score }) => sum + score,
           0

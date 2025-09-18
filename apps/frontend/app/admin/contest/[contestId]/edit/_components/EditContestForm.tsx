@@ -70,6 +70,7 @@ export function EditContestForm({
         description: data.description,
         startTime: new Date(data.startTime),
         endTime: new Date(data.endTime),
+        registerDueTime: new Date(data.registerDueTime),
         isJudgeResultVisible: data.isJudgeResultVisible,
         invitationCode: data.invitationCode,
         summary: data.summary,

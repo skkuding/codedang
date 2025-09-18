@@ -21,9 +21,9 @@ import { useRouter } from 'next/navigation'
 import { useDataTable } from './context'
 
 interface DataTableProps<TData extends { id: number }, TRoute extends string> {
-  headerStyle?: Record<string, string>
+  bodyStyle?: Record<string, string>
   showFooter?: boolean
-  isModalDataTable?: boolean
+  isHeaderGrouped?: boolean
   isCardView?: boolean
   /**
    * 각 행의 데이터에 따라 href를 반환하는 함수
@@ -40,6 +40,7 @@ interface DataTableProps<TData extends { id: number }, TRoute extends string> {
    * row instance
    */
   onRowClick?: (table: TanstackTable<TData>, row: Row<TData>) => void
+  size?: 'sm' | 'md' | 'lg'
 }
 
 /**
@@ -55,102 +56,157 @@ interface DataTableProps<TData extends { id: number }, TRoute extends string> {
  * @param onRowClick
  * 행 클릭 시 호출되는 함수
  */
+
+const headerStyleMap = {
+  sm: 'h-[30px]! text-sm font-medium',
+  md: 'h-[39px]! text-sm font-normal',
+  lg: 'h-[40px]! text-base font-medium'
+}
+
+const bodyStyleMap = {
+  sm: 'h-[40px]! text-sm font-normal',
+  md: 'h-[57px]! text-sm font-normal',
+  lg: 'h-[76px]! text-base font-normal'
+}
+
 export function DataTable<TData extends { id: number }, TRoute extends string>({
-  headerStyle = {},
+  bodyStyle = {},
   showFooter = false,
-  isModalDataTable = false,
+  isHeaderGrouped = false,
   isCardView = false,
   getHref,
-  onRowClick
+  onRowClick,
+  size = 'md'
 }: DataTableProps<TData, TRoute>) {
   const router = useRouter()
   const { table } = useDataTable<TData>()
 
-  return (
-    <ScrollArea className="max-w-full rounded">
-      <Table>
-        {!isCardView && (
-          <TableHeader
-            className={cn(
-              '[&_td]:border-[#80808040]',
-              isModalDataTable && 'h-10 border-b-0'
-            )}
-          >
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow
-                key={headerGroup.id}
-                className={cn(isModalDataTable && 'bg-neutral-200/30')}
-              >
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className={headerStyle[header.id]}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-        )}
-        <TableBody
-          className={cn(
-            isCardView
-              ? '[&_td]:border-transparent'
-              : '[&_td]:border-[#80808040]'
-          )}
-        >
-          {table.getRowModel().rows.length > 0 ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-                className={cn(
-                  'cursor-pointer',
-                  isModalDataTable &&
-                    'hover:bg-white data-[state=selected]:bg-white',
-                  isCardView
-                    ? 'hover:bg-transparent'
-                    : 'hover:bg-neutral-200/30'
-                )}
-                onClick={() => {
-                  onRowClick?.(table, row)
-
-                  const href = getHref?.(row.original)
-
-                  if (href) {
-                    router.push(href)
-                  }
-                }}
-              >
-                {row.getVisibleCells().map((cell) => {
-                  const meta = cell.column.columnDef.meta as {
-                    link: (row: TData) => string
-                  }
-                  const href = meta?.link(row.original)
-                  return (
+  if (isCardView) {
+    // isCardView가 true일 때 반환
+    return (
+      <ScrollArea className="rounded-xs max-w-full">
+        <Table>
+          <TableBody className="[&_td]:border-transparent">
+            {table.getRowModel().rows.length > 0 ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className="cursor-pointer hover:bg-transparent"
+                  onClick={() => {
+                    onRowClick?.(table, row)
+                    const href = getHref?.(row.original)
+                    if (href) {
+                      router.push(href)
+                    }
+                  }}
+                >
+                  {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className={cn(
-                        'text-center',
-                        isCardView ? 'md:px-0 md:py-2' : 'md:p-4'
-                      )}
-                      onClick={(e) => {
-                        if (href) {
-                          e.stopPropagation()
-                          router.push(href as Route)
-                        }
-                      }}
+                      className="h-[40px] whitespace-nowrap text-center md:px-0 md:py-2"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
                       )}
                     </TableCell>
-                  )
-                })}
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={Number(table.getAllColumns().length)}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    )
+  }
+
+  // isCardView가 false일 때 반환
+  return (
+    <ScrollArea className="rounded-xs max-w-full">
+      <Table>
+        <TableHeader className="border-b-0">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow
+              key={headerGroup.id}
+              // className={cn(isHeaderGrouped && 'bg-background-alternative')}
+            >
+              {headerGroup.headers.map((header, index) => (
+                <TableHead
+                  key={header.id}
+                  className={cn(isHeaderGrouped && 'p-0')}
+                >
+                  <div
+                    className={cn(
+                      headerStyleMap[size],
+                      !isHeaderGrouped
+                        ? 'rounded-full bg-neutral-200/30 [&:has([role=checkbox])]:bg-transparent'
+                        : 'bg-background-alternative',
+                      isHeaderGrouped && index === 0 && 'rounded-l-full',
+                      isHeaderGrouped &&
+                        index === headerGroup.headers.length - 1 &&
+                        'rounded-r-full',
+                      'flex items-center justify-center whitespace-nowrap [&:has([role=checkbox])]:w-14'
+                    )}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </div>
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody className="[&_td]:border-[#80808040]">
+          {table.getRowModel().rows.length > 0 ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+                className={cn('cursor-pointer', 'hover:bg-neutral-200/30')}
+                onClick={() => {
+                  onRowClick?.(table, row)
+                  const href = getHref?.(row.original)
+                  if (href) {
+                    router.push(href)
+                  }
+                }}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className={cn(
+                      bodyStyleMap[size],
+                      'md:p-4 [&:has([role=checkbox])]:w-14'
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'flex justify-center whitespace-nowrap',
+                        bodyStyle[cell.column.id]
+                      )}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </div>
+                  </TableCell>
+                ))}
               </TableRow>
             ))
           ) : (
@@ -169,13 +225,20 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
             {table.getFooterGroups().map((footerGroup) => (
               <TableRow key={footerGroup.id}>
                 {footerGroup.headers.map((footer) => (
-                  <TableHead key={footer.id} className={headerStyle[footer.id]}>
-                    {footer.isPlaceholder
-                      ? null
-                      : flexRender(
-                          footer.column.columnDef.footer,
-                          footer.getContext()
-                        )}
+                  <TableHead key={footer.id}>
+                    <div
+                      className={cn(
+                        headerStyleMap[size],
+                        !isHeaderGrouped && 'flex items-center justify-center'
+                      )}
+                    >
+                      {footer.isPlaceholder
+                        ? null
+                        : flexRender(
+                            footer.column.columnDef.footer,
+                            footer.getContext()
+                          )}
+                    </div>
                   </TableHead>
                 ))}
               </TableRow>

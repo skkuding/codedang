@@ -1,0 +1,60 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/notification/:id/read
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+params:path {
+  id: 1
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: isNumber
+  res.body.notificationId: isNumber
+  res.body.title: isDefined
+  res.body.message: isDefined
+  res.body.isRead: eq true
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Mark Notification As Read
+  
+  특정 알림을 읽음으로 표시합니다.
+  
+  ## Path Parameters
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  | id | Integer | 알림 레코드 ID |
+  
+  ## Response
+  
+  읽음 처리된 알림 객체를 반환합니다. 해당 알림이 없거나 이미 읽음 상태인 경우 `null`을 반환합니다.
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  | id | Integer | 알림 레코드 ID |
+  | notificationId | Integer | 알림 ID |
+  | title | String | 알림 제목 |
+  | message | String | 알림 메시지 |
+  | url | String | 관련 URL (nullable) |
+  | type | String | 알림 타입 |
+  | isRead | Boolean | 읽음 여부 (항상 true) |
+  | createTime | String | 생성 시간 |
+  | notification | Object | 알림 상세 정보 |
+}

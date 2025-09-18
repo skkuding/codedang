@@ -11,8 +11,18 @@ post {
 }
 
 body:graphql {
-  query {
-    getAssignmentLatestSubmission(groupId: 2, assignmentId: 1, userId: 4, problemId: 1) {
+  query GetAssignmentLatestSubmission(
+    $groupId: Int!
+    $assignmentId: Int!
+    $userId: Int!
+    $problemId: Int!
+  ) {
+    getAssignmentLatestSubmission(
+      groupId: $groupId
+      assignmentId: $assignmentId
+      userId: $userId
+      problemId: $problemId
+    ) {
       id
       userId
       userIp
@@ -53,6 +63,16 @@ body:graphql {
         title
       }
     }
+  }
+
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "assignmentId": 1,
+    "userId": 7,
+    "problemId": 1
   }
 
 }

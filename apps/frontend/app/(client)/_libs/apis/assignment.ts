@@ -19,14 +19,14 @@ export const getAssignment = async ({ assignmentId }: GetAssignmentRequest) => {
 
 export interface GetAssignmentsRequest {
   courseId: number
-  isExercise?: boolean
+  isExercise: boolean
 }
 
 export type GetAssignmentsResponse = Assignment[]
 
 export const getAssignments = async ({
   courseId,
-  isExercise = false
+  isExercise
 }: GetAssignmentsRequest) => {
   const response = await safeFetcherWithAuth.get('assignment', {
     searchParams: { groupId: courseId, isExercise }

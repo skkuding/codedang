@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     types: [opened, edited, synchronize, reopened]
+  merge_group:
+    types: [checks_requested]
 
 jobs:
   build-backend:
@@ -49,41 +51,32 @@ jobs:
   build-frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Check if source code has changed
-        uses: dorny/paths-filter@v3
-        id: filter
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          filters: |
-            frontend:
-              - 'apps/frontend/**'
-              - 'pnpm-lock.yaml'
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: ./.github/actions/setup-pnpm
-        if: steps.filter.outputs.frontend == 'true'
-
-      - name: Setup Next.js build cache
-        uses: actions/cache@v4
-        if: steps.filter.outputs.frontend == 'true'
+      - name: Build and push image
+        uses: docker/build-push-action@v6
         with:
-          path: apps/frontend/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
-
-      - name: Load Next.js environment
-        if: steps.filter.outputs.frontend == 'true'
-        run: |
-          echo "NEXT_PUBLIC_BASEURL=https://stage-proxy.codedang.com/api" >> apps/frontend/.env
-          echo "NEXT_PUBLIC_GQL_BASEURL=https://stage-proxy.codedang.com/graphql" >> apps/frontend/.env
-          echo "NEXT_URL=https://stage-proxy.codedang.com" >> apps/frontend/.env
-
-      - name: Build
-        if: steps.filter.outputs.frontend == 'true'
-        run: pnpm --filter="@codedang/frontend" build
+          file: ./apps/frontend/Dockerfile # build with root context
+          push: true
+          tags: ghcr.io/skkuding/codedang-frontend:${{ github.event.pull_request.head.sha || github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BASEURL=https://stage.codedang.com/api
+            GQL_BASEURL=https://stage.codedang.com/graphql
 
   typecheck:
     name: Typecheck
@@ -92,29 +85,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check if source code has changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            backend:
-              - 'apps/backend/**'
-
       - uses: ./.github/actions/setup-pnpm
-        if: steps.filter.outputs.backend == 'true'
 
       - name: Generate Prisma Client
-        if: steps.filter.outputs.backend == 'true'
         run: pnpm --filter="@codedang/backend" exec prisma generate
 
-      - name: Check types (backend) # For spec files
-        if: steps.filter.outputs.backend == 'true'
+      - name: Check types (backend)
         run: pnpm --filter="@codedang/backend" exec tsc --noEmit
 
-      # Typecheck is not performed for frontend intentionally.
-      # Check: https://github.com/vercel/next.js/issues/53959
-      # Unlike backend, we don't have spec file to check types.
-      # So typechecking performed in the build step is enough.
+      - name: Compile GraphQL schema
+        run: pnpm --filter="@codedang/frontend" run compile
+
+      - name: Check types (frontend)
+        run: pnpm --filter="@codedang/frontend" exec tsc --noEmit
 
   lint:
     name: Lint
@@ -165,13 +148,11 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
       TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
-      STORAGE_BUCKET_ENDPOINT_URL: http://localhost:9000
+      MINIO_ENDPOINT_URL: http://localhost:9000
       TESTCASE_BUCKET_NAME: test-bucket
-      TESTCASE_ACCESS_KEY: abc123
-      TESTCASE_SECRET_KEY: xyz123456
       MEDIA_BUCKET_NAME: image-bucket
-      MEDIA_ACCESS_KEY: abc123
-      MEDIA_SECRET_KEY: xyz123456
+      AWS_ACCESS_KEY_ID: abc123
+      AWS_SECRET_ACCESS_KEY: xyz123456
       REDIS_HOST: localhost
       REDIS_PORT: 6380
 
@@ -188,13 +169,13 @@ jobs:
         # NOTE: GitHub Actions service containers do not support custom commands.
         # This image from Bitnami includes the command to run MinIO.
         # https://stackoverflow.com/questions/60849745/how-can-i-run-a-command-in-github-action-service-containers
-        image: bitnami/minio:2025.7.18
+        image: bitnami/minio:2025.7.23
         ports:
           - 9000:9000
           - 9001:9001
         env:
-          MINIO_ROOT_USER: ${{ env.TESTCASE_ACCESS_KEY }}
-          MINIO_ROOT_PASSWORD: ${{ env.TESTCASE_SECRET_KEY }}
+          MINIO_ROOT_USER: ${{ env.AWS_ACCESS_KEY_ID}}
+          MINIO_ROOT_PASSWORD: ${{ env.AWS_SECRET_ACCESS_KEY }}
         volumes:
           - minio-storage:/data
       redis:
@@ -235,6 +216,9 @@ jobs:
       - name: Initialize MinIO
         if: steps.filter.outputs.backend == 'true'
         run: pnpm run init:storage
+        env:
+          MINIO_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          MINIO_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
 
       - name: Test
         if: steps.filter.outputs.backend == 'true'

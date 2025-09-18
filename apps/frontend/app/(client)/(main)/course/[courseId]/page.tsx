@@ -4,10 +4,10 @@ import { RecentNotice } from './_components/RecentNotice'
 import { RecentUpdate } from './_components/RecentUpdate'
 
 interface DashboardProps {
-  params: { courseId: string }
+  params: Promise<{ courseId: string }>
 }
-export default function Dashboard({ params }: DashboardProps) {
-  const { courseId } = params
+export default async function Dashboard(props: DashboardProps) {
+  const { courseId } = await props.params
   redirect(`/course/${courseId}/assignment`)
 
   return (

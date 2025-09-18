@@ -1,6 +1,8 @@
 'use client'
 
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
+import { AlertModal } from '@/components/AlertModal'
+import { ModalSection } from '@/components/ModalSection'
 import {
   IMPORT_PROBLEMS_TO_ASSIGNMENT,
   REMOVE_PROBLEMS_FROM_ASSIGNMENT,
@@ -15,14 +17,12 @@ import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import dayjs from 'dayjs'
-import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import type { AssignmentProblem } from '../_libs/type'
 import { isOptionAfterDeadline } from '../_libs/utils'
-import { ConfirmModal } from '../assignment/[assignmentId]/edit/_components/ConfirmModal'
 
 interface EditAssigmentFormProps {
   courseId: number
@@ -32,6 +32,7 @@ interface EditAssigmentFormProps {
   setProblems: (problems: AssignmentProblem[]) => void
   setIsLoading: (isLoading: boolean) => void
   methods: UseFormReturn<UpdateAssignmentInput>
+  isExercise?: boolean
 }
 
 interface ProblemIdScoreAndTitle {
@@ -47,7 +48,8 @@ export function EditAssignmentForm({
   problems,
   setProblems,
   setIsLoading,
-  methods
+  methods,
+  isExercise = false
 }: EditAssigmentFormProps) {
   const [prevProblems, setPrevProblems] = useState<ProblemIdScoreAndTitle[]>([])
   const [isUpcoming, setIsUpcoming] = useState(true)
@@ -65,7 +67,7 @@ export function EditAssignmentForm({
         title: data.title,
         description: data.description,
         startTime: new Date(data.startTime),
-        dueTime: new Date(data.dueTime),
+        dueTime: data.dueTime ? new Date(data.dueTime) : null,
         endTime: new Date(data.endTime),
         enableCopyPaste: data.enableCopyPaste,
         isJudgeResultVisible: data.isJudgeResultVisible,
@@ -156,7 +158,7 @@ export function EditAssignmentForm({
     .map((problem) => problem.title)
 
   const isSubmittable = (input: UpdateAssignmentInput) => {
-    if (input.startTime >= input.dueTime) {
+    if (input.startTime >= (input.dueTime ?? input.endTime)) {
       toast.error('Start time must be earlier than due time')
       return
     }
@@ -247,7 +249,7 @@ export function EditAssignmentForm({
             solutionReleaseTime: isOptionAfterDeadline(
               problem.solutionReleaseTime
             )
-              ? input.dueTime
+              ? (input.dueTime ?? input.endTime)
               : problem.solutionReleaseTime
           }
         })
@@ -255,8 +257,16 @@ export function EditAssignmentForm({
     })
 
     setShouldSkipWarning(true)
-    toast.success('Assignment updated successfully')
-    router.push(`/admin/course/${courseId}/assignment` as Route)
+    toast.success(
+      isExercise
+        ? 'Exercise updated successfully'
+        : 'Assignment updated successfully'
+    )
+    router.push(
+      isExercise
+        ? (`/admin/course/${courseId}/exercise` as const)
+        : (`/admin/course/${courseId}/assignment` as const)
+    )
     router.refresh()
   }
 
@@ -271,13 +281,35 @@ export function EditAssignmentForm({
       onSubmit={methods.handleSubmit(isSubmittable)}
     >
       <FormProvider {...methods}>{children}</FormProvider>
-      <ConfirmModal
+      <AlertModal
         open={isModalOpen}
-        handleClose={() => setIsModalOpen(false)}
-        confirmAction={handleConfirm}
-        deletedProblemTitles={deletedProblemTitles}
-        scoreUpdatedProblemTitles={scoreUpdatedProblemTitles}
-      />
+        onOpenChange={setIsModalOpen}
+        type="confirm"
+        size="md"
+        title="Are you sure to save the change?"
+        primaryButton={{
+          text: 'Confirm',
+          onClick: handleConfirm,
+          variant: 'default'
+        }}
+      >
+        <div className="flex h-full w-full flex-col gap-[20px]">
+          {deletedProblemTitles.length > 0 && (
+            <ModalSection
+              title="Delete Problems"
+              description="Deleting a problem will remove all previous submissions."
+              items={deletedProblemTitles}
+            />
+          )}
+          {scoreUpdatedProblemTitles.length > 0 && (
+            <ModalSection
+              title="Score Updated Problems"
+              description="Modifying scores may result in inconsistency between the scores of existing submissions and new submissions."
+              items={scoreUpdatedProblemTitles}
+            />
+          )}
+        </div>
+      </AlertModal>
     </form>
   )
 }

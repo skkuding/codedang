@@ -11,28 +11,73 @@ post {
 }
 
 body:graphql {
-  query {
+  query GetContestQnAs($contestId: Int!, $take: Int, $cursor: Int, $filter: GetContestQnAsFilterInput) {
     getContestQnAs(
-      contestId: 1
+      contestId: $contestId,
+      take: $take,
+      cursor: $cursor,
+      filter: $filter
     ) {
       id
+      order
       title
       content
-      answer
-      isVisible
+      category
+      isResolved
       createTime
-      createdById
-      answeredById
+      contestId
       createdBy {
         username
       }
-      answeredBy {
-        username
+      _count {
+        comments
       }
     }
   }
 }
 
-assert {
-  res.body.data.getContests: isDefined
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "take": 10,
+    "cursor": 1
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # Get Contest QnAs
+
+  ## Description
+  관리자가 특정 콘테스트의 모든 QnA를 조회할 수 있도록 합니다.
+
+  ## 요청 필드
+  | 필드명 | 타입 | 필수 여부 | 설명 |
+  |--------|------|----------|------|
+  | contestId | Int! | 필수 | 콘테스트 ID |
+  | take | Int | 선택 | 가져올 QnA 개수 (기본값: 10) |
+  | cursor | Int | 선택 | 페이지네이션 커서 |
+  | filter | GetContestQnAsFilterInput | 선택 | 필터링 옵션 |
+
+  ## 응답 필드
+  | 필드명 | 타입 | 설명 |
+  |--------|------|------|
+  | id | Int | QnA ID |
+  | order | Int | 대회 내 QnA 순서 |
+  | title | String | QnA 제목 |
+  | content | String | QnA 내용 |
+  | category | QnACategory | QnA 카테고리 |
+  | isResolved | Boolean | 해결 완료 여부 |
+  | createTime | DateTime | 생성 시간 |
+  | contestId | Int | 대회 ID |
+  | createdBy.username | String | 작성자 사용자명 |
+  | _count.comments | Int | 댓글 개수 |
+
+  ## 제약사항
+  - `contestId`는 존재하는 콘테스트여야 합니다.
+  - `take`는 1 이상의 값이어야 합니다.
+  - `cursor`는 1 이상의 값이어야 합니다.
 }

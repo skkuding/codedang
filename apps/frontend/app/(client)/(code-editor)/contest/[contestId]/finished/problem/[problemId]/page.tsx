@@ -2,13 +2,13 @@ import { EditorSkeleton } from '@/app/(client)/(code-editor)/_components/EditorS
 import { FinishedNoticePanel } from '@/app/(client)/(code-editor)/_components/FinishedNoticePanel'
 
 interface ContestFinishedPageProps {
-  params: { problemId: string; contestId: string }
+  params: Promise<{ problemId: string; contestId: string }>
 }
 
-export default function ContestFinishedPage({
-  params
-}: ContestFinishedPageProps) {
-  const { problemId, contestId } = params
+export default async function ContestFinishedPage(
+  props: ContestFinishedPageProps
+) {
+  const { problemId, contestId } = await props.params
 
   return (
     <>

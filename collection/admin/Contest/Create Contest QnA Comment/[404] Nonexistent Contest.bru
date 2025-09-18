@@ -1,0 +1,32 @@
+meta {
+  name: [404] Nonexistent Contest
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createContestQnAComment(
+      contestId: 999
+      order: 1
+      content: "해당 질문에 대한 답변입니다."
+    ) {
+      id
+      content
+      isContestStaff
+      order
+      contestQnAId
+      createdTime
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}

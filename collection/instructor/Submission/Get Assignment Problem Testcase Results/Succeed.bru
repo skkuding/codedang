@@ -1,0 +1,46 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  query GetAssignmentProblemTestcaseResults(
+    $groupId: Int!
+    $assignmentId: Int!
+    $problemId: Int!
+  ) {
+    getAssignmentProblemTestcaseResults(
+      groupId: $groupId
+      assignmentId: $assignmentId
+      problemId: $problemId
+    ) {
+      userId
+      result {
+        id
+        isHidden
+        result
+      }
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "assignmentId": 1,
+    "problemId": 1
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+}

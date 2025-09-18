@@ -32,7 +32,7 @@ export function LeaderboardModalDialog() {
             <X className="h-6 w-6" />
           </DialogClose>
           <p className="flex flex-col gap-6 overflow-x-auto">
-            <p className="h-[26px] w-[226px] text-[18px] font-[600] text-white">
+            <p className="h-[26px] w-[226px] text-[18px] font-semibold text-white">
               Ranking System of Contest
             </p>
             <p className="flex text-gray-400">

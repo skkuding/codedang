@@ -7,7 +7,7 @@ import type { Contest } from '@/types/type'
 import { columns } from './_components/Columns'
 
 interface ContestProblemProps {
-  params: { contestId: string }
+  params: Promise<{ contestId: string }>
 }
 
 interface ContestApiResponse {
@@ -15,8 +15,8 @@ interface ContestApiResponse {
   total: number
 }
 
-export default async function ContestProblem({ params }: ContestProblemProps) {
-  const { contestId } = params
+export default async function ContestProblem(props: ContestProblemProps) {
+  const { contestId } = await props.params
 
   // TODO: use `getContestProblemList` from _libs/apis folder
   const res = await fetcherWithAuth.get(`contest/${contestId}/problem`, {

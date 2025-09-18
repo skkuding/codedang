@@ -355,11 +355,10 @@ const myRecord: Standings | undefined = dummyData.find(
   (data) => data.userId === myUserId
 )
 
-export default function ContestStandings({
-  searchParams
-}: {
-  searchParams: { page: string | undefined }
+export default async function ContestStandings(props: {
+  searchParams: Promise<{ page: string | undefined }>
 }) {
+  const searchParams = await props.searchParams
   const take = 10
   const currentPage = searchParams.page ? Number(searchParams.page) : 1
   const maxPagesPerSlot = 5
@@ -407,7 +406,7 @@ export default function ContestStandings({
                 }
               )}
             </div>
-            <div className="inline-flex h-10 w-10 items-center justify-center whitespace-nowrap rounded-md border border-gray-200 bg-white text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 md:hidden dark:border-gray-800 dark:bg-gray-950 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300">
+            <div className="focus-visible:outline-hidden inline-flex h-10 w-10 items-center justify-center whitespace-nowrap rounded-md border border-gray-200 bg-white text-sm font-medium ring-offset-white transition-colors focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 md:hidden dark:border-gray-800 dark:bg-gray-950 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300">
               {currentPage}
             </div>
             <PaginationNext

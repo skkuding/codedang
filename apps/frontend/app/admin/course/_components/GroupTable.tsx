@@ -7,10 +7,8 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
-import { DUPLICATE_COURSE, UPDATE_COURSE } from '@/graphql/course/mutation'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
-import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
-import type { CourseInput } from '@generated/graphql'
+import { useApolloClient, useSuspenseQuery } from '@apollo/client'
 import { useEffect, useMemo, useState } from 'react'
 import { DataTableSemesterFilter } from '../../_components/table/DataTableSemesterFilter'
 import { columns } from './Columns'
@@ -18,18 +16,9 @@ import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
 import { UpdateCourseButton } from './UpdateCourseButton'
 
-const headerStyle = {
-  select: '',
-  title: 'w-9/12',
-  code: 'w-1/12',
-  semester: 'w-1/12',
-  studentCount: 'w-1/12'
-}
-
 export function GroupTable() {
   const client = useApolloClient()
-  const [updateCourse] = useMutation(UPDATE_COURSE)
-  const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
+
   const [semesters, setSemesters] = useState<string[]>([])
 
   const { data } = useSuspenseQuery(GET_COURSES_USER_LEAD)
@@ -52,27 +41,14 @@ export function GroupTable() {
     setSemesters(uniqueSemesters)
   }, [courses])
 
-  const updateTarget = (id: number, courseInput: CourseInput) => {
-    return updateCourse({
-      variables: {
-        groupId: id,
-        input: courseInput
-      }
-    })
-  }
-
-  const duplicateTarget = (id: number) => {
-    return duplicateCourse({
-      variables: {
-        groupId: id
-      }
-    })
-  }
-
   const onSuccess = () => {
     client.refetchQueries({
       include: [GET_COURSES_USER_LEAD]
     })
+  }
+
+  const bodyStyle = {
+    title: 'justify-start'
   }
 
   return (
@@ -84,22 +60,16 @@ export function GroupTable() {
             <DataTableSemesterFilter semesters={semesters} />
           </div>
           <div className="flex gap-2">
-            <UpdateCourseButton
-              updateTarget={updateTarget}
-              onSuccess={onSuccess}
-            />
-            <DuplicateCourseButton
-              duplicateTarget={duplicateTarget}
-              onSuccess={onSuccess}
-            />
-            <DeleteCourseButton />
+            <UpdateCourseButton onSuccess={onSuccess} />
+            <DuplicateCourseButton onSuccess={onSuccess} />
+            <DeleteCourseButton onSuccess={onSuccess} />
           </div>
         </div>
         <DataTable
-          headerStyle={headerStyle}
+          bodyStyle={bodyStyle}
           getHref={(data) => `/admin/course/${data.id}`}
         />
-        <DataTablePagination />
+        <DataTablePagination showSelection />
       </DataTableRoot>
     </div>
   )

@@ -1,53 +1,44 @@
 'use client'
 
-import { Button } from '@/components/shadcn/button'
-import codedangLogo from '@/public/logos/codedang-with-text.svg'
-import { useAuthModalStore } from '@/stores/authModal'
+import { Progress } from '@/components/shadcn/progress'
 import { useSignUpModalStore } from '@/stores/signUpModal'
-import Image from 'next/image'
 import { IoMdArrowBack } from 'react-icons/io'
-import { SignUpEmailVerify } from './SignUpEmailVerify'
-import { SignUpRegister } from './SignUpRegister'
+import { SignUpRegisterAccount } from './SignUpRegisterAccount'
+import { SignUpRegisterInfo } from './SignUpRegisterInfo'
+import { SignUpRegisterMajor } from './SignUpRegisterMajor'
+import { SignUpSendEmail } from './SignUpSendEmail'
+import { SignUpVerifyEmail } from './SignUpVerifyEmail'
+import { SignUpWelcome } from './SignUpWelcome'
 
 export function SignUp() {
-  const { showSignIn } = useAuthModalStore((state) => state)
-  const { modalPage, backModal } = useSignUpModalStore((state) => state)
+  const { modalPage, backModal, setModalPage } = useSignUpModalStore(
+    (state) => state
+  )
 
   return (
-    <div className="flex h-full flex-col items-center justify-center">
-      {!(modalPage === 0) && (
+    <div className="flex h-full flex-col pb-9 pt-[46px]">
+      {modalPage > 0 && modalPage < 5 && (
         <button
-          onClick={backModal}
-          className="absolute left-4 top-4 h-4 w-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500 dark:ring-offset-gray-950 dark:focus:ring-gray-300 dark:data-[state=open]:bg-gray-800 dark:data-[state=open]:text-gray-400"
+          onClick={() => (modalPage === 2 ? setModalPage(0) : backModal())}
+          className="focus:outline-hidden absolute left-5 top-[30px] h-5 w-5 opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500 dark:ring-offset-gray-950 dark:focus:ring-gray-300 dark:data-[state=open]:bg-gray-800 dark:data-[state=open]:text-gray-400"
         >
           <IoMdArrowBack />
         </button>
       )}
 
-      <Image
-        className="absolute top-4"
-        src={codedangLogo}
-        alt="codedang"
-        width={100}
-      />
-
-      {modalPage === 0 && <SignUpEmailVerify />}
-      {modalPage === 1 && <SignUpRegister />}
-
-      {modalPage === 0 && (
-        <div className="absolute bottom-6 flex items-center justify-center">
-          <span className="h-5 w-fit text-xs leading-5 text-gray-500">
-            Already have account?
-          </span>
-          <Button
-            onClick={() => showSignIn()}
-            variant={'link'}
-            className="h-5 w-fit text-xs text-gray-500"
-          >
-            Log In
-          </Button>
-        </div>
+      {modalPage !== 5 && (
+        <Progress
+          value={((modalPage + 1) / 5) * 100}
+          className="mb-[50px] h-1"
+        />
       )}
+
+      {modalPage === 0 && <SignUpSendEmail />}
+      {modalPage === 1 && <SignUpVerifyEmail />}
+      {modalPage === 2 && <SignUpRegisterAccount />}
+      {modalPage === 3 && <SignUpRegisterInfo />}
+      {modalPage === 4 && <SignUpRegisterMajor />}
+      {modalPage === 5 && <SignUpWelcome />}
     </div>
   )
 }

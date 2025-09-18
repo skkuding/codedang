@@ -6,12 +6,10 @@ import {
   LeaderboardPaginatedTableFallback
 } from './_components/LeaderboardPaginatedTable'
 
-export default function LeaderboardPage({
-  params
-}: {
-  params: { problemId: string; contestId: string }
+export default async function LeaderboardPage(props: {
+  params: Promise<{ problemId: string; contestId: string }>
 }) {
-  const { contestId } = params
+  const { contestId } = await props.params
 
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>

@@ -1,0 +1,32 @@
+meta {
+  name: [404] Nonexistent ContestQnA
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    deleteContestQnAComment(
+      contestId: 20
+      qnAOrder: 999
+      commentOrder: 1
+    ) {
+      id
+      content
+      isContestStaff
+      order
+      contestQnAId
+      createdTime
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}

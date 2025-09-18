@@ -1,7 +1,8 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql'
 import { UserGroup } from '@generated'
 import { User } from '@generated'
 import { UseGroupLeaderGuard } from '@libs/auth'
+import { AuthenticatedRequest } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { UpdateCreationPermissionsInput } from './model/creationPermission.model'
@@ -130,8 +131,19 @@ export class GroupMemberResolver {
     @Args('userId', { type: () => Int }, new RequiredIntPipe('userId'))
     userId: number,
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('toGroupLeader') toGroupLeader: boolean
+    @Args('toGroupLeader') toGroupLeader: boolean,
+    @Context('req') req: AuthenticatedRequest
   ) {
+    // 요청 객체에서 현재 사용자 ID 가져오기
+    const currentUserId = req.user.id
+
+    // 자기 자신의 role을 변경하려는 경우 에러 발생
+    if (currentUserId === userId) {
+      throw new UnprocessableDataException(
+        'You cannot change your own role. Please ask another instructor to change your role.'
+      )
+    }
+
     return await this.groupMemberService.updateGroupRole(
       userId,
       groupId,

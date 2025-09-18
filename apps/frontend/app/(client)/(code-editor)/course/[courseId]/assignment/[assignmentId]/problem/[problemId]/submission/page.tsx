@@ -6,12 +6,10 @@ import {
   SubmissionPaginatedTableFallback
 } from './_components/SubmissionPaginatedTable'
 
-export default function SubmissionPage({
-  params
-}: {
-  params: { courseId: string; assignmentId: string; problemId: string }
+export default async function SubmissionPage(props: {
+  params: Promise<{ courseId: string; assignmentId: string; problemId: string }>
 }) {
-  const { courseId, assignmentId, problemId } = params
+  const { courseId, assignmentId, problemId } = await props.params
 
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>

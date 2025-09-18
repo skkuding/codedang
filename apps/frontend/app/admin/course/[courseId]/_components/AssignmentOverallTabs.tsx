@@ -1,17 +1,8 @@
 'use client'
 
-import {
-  GET_ASSIGNMENT_SCORE_SUMMARIES,
-  GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER
-} from '@/graphql/assignment/queries'
 import { cn } from '@/libs/utils'
-import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-
-interface SubmissionSummary {
-  problemId: number
-}
 
 interface AssignmentOverallTabsProps {
   groupId: number
@@ -25,20 +16,6 @@ export function AssignmentOverallTabs({
   isExercise
 }: AssignmentOverallTabsProps) {
   const pathname = usePathname()
-
-  const { data: userData } = useQuery<{
-    getUserIdByAssignment: { userId: number }
-  }>(GET_ASSIGNMENT_SCORE_SUMMARIES, {
-    variables: { groupId, assignmentId }
-  })
-
-  const userId = userData?.getUserIdByAssignment?.userId
-
-  useQuery<{
-    getAssignmentSubmissionSummaryByUserId: { submissions: SubmissionSummary[] }
-  }>(GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER, {
-    variables: { groupId, assignmentId, userId, take: 300 }
-  })
 
   const isCurrentTab = (tab: string) => {
     const basePath = `/admin/course/${groupId}/${isExercise ? 'exercise' : 'assignment'}/${assignmentId}`
@@ -89,19 +66,6 @@ export function AssignmentOverallTabs({
           ASSESSMENT
         </Link>
       )}
-      {/* <Link
-        href={
-          `/admin/course/${groupId}/${isExercise ? 'exercise' : 'assignment'}/${assignmentId}/statistics` as const
-        }
-        className={cn(
-          'flex h-12 flex-1 items-center justify-center font-semibold',
-          isCurrentTab('statistics')
-            ? 'border-b-2 border-[#3581FA] text-[#3581FA]'
-            : 'text-[#737373]'
-        )}
-      >
-        STATISTICS
-      </Link> */}
     </div>
   )
 }

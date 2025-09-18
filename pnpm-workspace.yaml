@@ -8,12 +8,14 @@ onlyBuiltDependencies:
   - '@nestjs/core'
   - '@prisma/client'
   - '@prisma/engines'
-  - '@sentry/cli'
+  - '@scarf/scarf'
   - '@swc/core'
+  - '@tailwindcss/oxide'
   - argon2
   - core-js
   - esbuild
   - lefthook
+  - msgpackr-extract
   - msw
   - nestjs-pino
   - oxc-resolver

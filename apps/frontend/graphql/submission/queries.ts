@@ -131,6 +131,36 @@ const GET_SUBMISSION = gql(`query GetSubmission(
   }
 }`)
 
+const GET_SUBMISSIONS = gql(`
+  query GetSubmissions(
+    $problemId: Int!
+    $cursor: Int
+    $take: Int
+  ) {
+    getSubmissions(
+      problemId: $problemId
+      cursor: $cursor
+      take: $take
+    ) {
+      data {
+        id
+        user {
+          id
+          username
+          studentId
+        }
+        userIp
+        codeSize
+        createTime
+        language
+        result
+        score
+      }
+      total
+    }
+  }
+`)
+
 const GET_ASSIGNMENT_LATEST_SUBMISSION = gql(`
   query GetAssignmentLatestSubmission(
     $groupId: Int!
@@ -156,6 +186,10 @@ const GET_ASSIGNMENT_LATEST_SUBMISSION = gql(`
         problemTestcaseId
         result
         memoryUsage
+        isHidden
+        scoreWeightNumerator
+        scoreWeightDenominator
+        output
       }
       user {
         id
@@ -176,9 +210,10 @@ const GET_ASSIGNMENT_LATEST_SUBMISSION = gql(`
 `)
 
 export {
-  GET_CONTEST_SUBMISSIONS_COUNT,
-  GET_CONTEST_SUBMISSIONS,
   GET_ASSIGNMENT_LATEST_SUBMISSION,
   GET_ASSIGNMENT_SUBMISSIONS,
-  GET_SUBMISSION
+  GET_CONTEST_SUBMISSIONS,
+  GET_CONTEST_SUBMISSIONS_COUNT,
+  GET_SUBMISSION,
+  GET_SUBMISSIONS
 }

@@ -1,31 +1,29 @@
 'use client'
 
+import { NotificationDropdown } from '@/components/notification/NotificationDropdown'
 import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import type { Course } from '@/types/type'
 import { ContestRole, type UserContest } from '@generated/graphql'
-import { ChevronDown, LogOut, UserRoundCog } from 'lucide-react'
-import type { Route } from 'next'
+import { ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
-import { signOut } from 'next-auth/react'
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { BiSolidUser } from 'react-icons/bi'
-import { RxHamburgerMenu } from 'react-icons/rx'
+import { AccountItems } from './AccountItems'
 import { AuthModal } from './AuthModal'
 import { UpdateInformation } from './UpdateInformation'
 
@@ -127,7 +125,7 @@ export function HeaderAuthPanel({
           <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
             <DropdownMenuTrigger
               className={cn(
-                'hidden items-center gap-2 rounded-md px-4 py-1 md:flex',
+                'hidden items-center gap-2 rounded-md px-4 py-1 lg:flex',
                 isEditor ? 'border-0 ring-offset-0' : 'bg-primary text-white'
               )}
             >
@@ -148,9 +146,9 @@ export function HeaderAuthPanel({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className={cn(
-                'hidden md:block',
+                'hidden lg:block',
                 isEditor &&
-                  'mr-5 rounded-sm border-none bg-[#4C5565] px-0 font-normal text-white'
+                  'rounded-xs mr-5 border-none bg-[#4C5565] px-0 font-normal text-white'
               )}
             >
               <AccountItems
@@ -165,9 +163,10 @@ export function HeaderAuthPanel({
               />
             </DropdownMenuContent>
           </DropdownMenu>
+          <NotificationDropdown isEditor={isEditor} />
           <Dialog open={shouldUpdateUserInfo}>
             <DialogContent
-              className="min-h-[30rem] max-w-[20.5rem]"
+              className="min-h-120 max-w-82"
               hideCloseButton={true}
             >
               <UpdateInformation />
@@ -209,140 +208,15 @@ export function HeaderAuthPanel({
             onInteractOutside={(e) => {
               e.preventDefault()
             }}
-            className="min-h-[30rem] max-w-[20.5rem]"
+            className="!h-[620px] !w-[380px] rounded-[10px]"
           >
+            <DialogHeader className="hidden">
+              <DialogTitle />
+            </DialogHeader>
             <AuthModal />
           </DialogContent>
         </Dialog>
       )}
-      <DropdownMenu>
-        <DropdownMenuTrigger className="flex gap-2 px-4 py-1 lg:hidden">
-          <RxHamburgerMenu size="30" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="lg:hidden">
-          {session && (
-            <>
-              <DropdownMenuItem className="text-primary pointer-events-none flex select-none items-center gap-1 font-semibold">
-                {session.user.username}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-gray-300" />
-            </>
-          )}
-          <NavItems />
-          <DropdownMenuSeparator className="bg-gray-300" />
-          <AccountItems
-            session={session}
-            isAnyGroupLeader={isAnyGroupLeader}
-            isAnyContestAdmin={isAnyContestAdmin}
-            hasCreatePermission={hasCreatePermission}
-            isUser={isUser}
-            isEditor={isEditor}
-            showSignIn={showSignIn}
-            showSignUp={showSignUp}
-          />
-        </DropdownMenuContent>
-      </DropdownMenu>
     </div>
-  )
-}
-
-function NavItems() {
-  const navItems = ['notice', 'contest', 'problem', 'course']
-  return navItems.map((navItem) => (
-    <Link href={`/${navItem}` as Route} key={navItem}>
-      <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-        {navItem.charAt(0).toUpperCase() + navItem.slice(1)}
-      </DropdownMenuItem>
-    </Link>
-  ))
-}
-
-interface AccountItemsProps {
-  session: Session | null
-  isAnyGroupLeader: boolean
-  isAnyContestAdmin: boolean
-  hasCreatePermission: boolean
-  isUser: boolean
-  isEditor: boolean
-  showSignIn: () => void
-  showSignUp: () => void
-}
-
-function AccountItems({
-  session,
-  isAnyGroupLeader,
-  isAnyContestAdmin,
-  hasCreatePermission,
-  isUser,
-  isEditor,
-  showSignIn,
-  showSignUp
-}: AccountItemsProps) {
-  if (session) {
-    return (
-      <>
-        {(isAnyGroupLeader ||
-          isAnyContestAdmin ||
-          hasCreatePermission ||
-          !isUser) && (
-          <Link href="/admin">
-            <DropdownMenuItem
-              className={cn(
-                'flex cursor-pointer items-center gap-1',
-                isEditor
-                  ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-                  : 'font-semibold'
-              )}
-            >
-              <UserRoundCog className="size-4" /> Management
-            </DropdownMenuItem>
-          </Link>
-        )}
-        <Link href="/settings">
-          <DropdownMenuItem
-            className={cn(
-              'flex cursor-pointer items-center gap-1',
-              isEditor
-                ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-                : 'font-semibold'
-            )}
-          >
-            <UserRoundCog className="size-4" /> Settings
-          </DropdownMenuItem>
-        </Link>
-        <DropdownMenuItem
-          className={cn(
-            'flex cursor-pointer items-center gap-1',
-            isEditor
-              ? 'rounded-none text-white focus:bg-[#222939] focus:text-white'
-              : 'font-semibold'
-          )}
-          onClick={() => {
-            signOut({ callbackUrl: '/', redirect: true })
-          }}
-        >
-          <LogOut className="size-4" /> LogOut
-        </DropdownMenuItem>
-      </>
-    )
-  }
-
-  return (
-    <>
-      <DropdownMenuItem
-        className="flex cursor-pointer items-center gap-1 font-semibold"
-        onClick={() => showSignIn()}
-      >
-        Log In
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        className="flex cursor-pointer items-center gap-1 font-semibold"
-        onClick={() => {
-          showSignUp()
-        }}
-      >
-        Sign Up
-      </DropdownMenuItem>
-    </>
   )
 }

@@ -100,7 +100,7 @@ export function LeaderboardRow({
                             className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
                           >
                             <div>{`${problem.submissionCount} sub`}</div>
-                            <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                            <div className="border-t-10 absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-x-transparent border-t-[#3581FA]" />
                           </motion.div>
                         </Tooltip.Content>
                       </Tooltip.Portal>
@@ -125,7 +125,7 @@ export function LeaderboardRow({
                             className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
                           >
                             <div>{`${problem.submissionCount} sub`}</div>
-                            <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                            <div className="border-t-10 absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-x-transparent border-t-[#3581FA]" />
                           </motion.div>
                         </Tooltip.Content>
                       </Tooltip.Portal>
@@ -209,7 +209,7 @@ export function LeaderboardRow({
                             className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
                           >
                             <div>{`${problem.submissionCount} sub`}</div>
-                            <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                            <div className="border-t-10 absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-x-transparent border-t-[#3581FA]" />
                           </motion.div>
                         </Tooltip.Content>
                       </Tooltip.Portal>
@@ -234,7 +234,7 @@ export function LeaderboardRow({
                             className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
                           >
                             <div>{`${problem.submissionCount} sub`}</div>
-                            <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-t-[10px] border-x-transparent border-t-[#3581FA]" />
+                            <div className="border-t-10 absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-x-transparent border-t-[#3581FA]" />
                           </motion.div>
                         </Tooltip.Content>
                       </Tooltip.Portal>
