@@ -1,7 +1,7 @@
 meta {
-  name: Succeed
+  name: [succeed] Get Resolved QnAs
   type: graphql
-  seq: 1
+  seq: 3
 }
 
 post {
@@ -11,7 +11,7 @@ post {
 }
 
 body:graphql {
-  query GetContestQnAs($contestId: Int!, $take: Int, $cursor: Int, $filter: GetContestQnAsFilterInput) {
+  query GetResolvedQnAs($contestId: Int!, $take: Int, $cursor: Int, $filter: GetContestQnAsFilterInput) {
     getContestQnAs(
       contestId: $contestId,
       take: $take,
@@ -40,7 +40,10 @@ body:graphql:vars {
   {
     "contestId": 20,
     "take": 10,
-    "cursor": 1
+    "cursor": 1,
+    "filter": {
+      "isResolved": true
+    }
   }
 }
 
@@ -49,10 +52,10 @@ script:pre-request {
 }
 
 docs {
-  # Get Contest QnAs
+  # Get Resolved QnAs
 
   ## Description
-  관리자가 특정 콘테스트의 모든 QnA를 조회할 수 있도록 합니다.
+  특정 콘테스트의 해결된 QnA만 조회합니다. `isResolved: true`로 설정하여 해결 완료된 QnA만 필터링합니다.
 
   ## 요청 필드
   | 필드명 | 타입 | 필수 여부 | 설명 |
@@ -60,7 +63,7 @@ docs {
   | contestId | Int! | 필수 | 콘테스트 ID |
   | take | Int | 선택 | 가져올 QnA 개수 (기본값: 10) |
   | cursor | Int | 선택 | 페이지네이션 커서 |
-  | filter | GetContestQnAsFilterInput | 선택 | 필터링 옵션 |
+  | filter | GetContestQnAsFilterInput | 선택 | 필터링 옵션 (isResolved: true) |
 
   ## 응답 필드
   | 필드명 | 타입 | 설명 |
@@ -70,7 +73,7 @@ docs {
   | title | String | QnA 제목 |
   | content | String | QnA 내용 |
   | category | QnACategory | QnA 카테고리 |
-  | isResolved | Boolean | 해결 완료 여부 |
+  | isResolved | Boolean | 해결 완료 여부 (항상 true) |
   | createTime | DateTime | 생성 시간 |
   | contestId | Int | 대회 ID |
   | createdBy.username | String | 작성자 사용자명 |
@@ -78,6 +81,7 @@ docs {
 
   ## 제약사항
   - `contestId`는 존재하는 콘테스트여야 합니다.
+  - `filter.isResolved`는 반드시 `true`로 설정해야 합니다.
   - `take`는 1 이상의 값이어야 합니다.
   - `cursor`는 1 이상의 값이어야 합니다.
 }

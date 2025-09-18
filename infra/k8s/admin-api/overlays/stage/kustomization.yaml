@@ -10,6 +10,10 @@ resources:
   - secrets/security-keys.yaml
 
 patches:
+  - path: configmap.yaml
+    target:
+      kind: ConfigMap
+      name: admin-api-env
   - path: ingress.yaml
     target:
       kind: Ingress
