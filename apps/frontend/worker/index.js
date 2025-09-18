@@ -30,3 +30,7 @@ self.addEventListener('notificationclick', (event) => {
       })
   )
 })
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim())
+})
