@@ -67,28 +67,28 @@ script:pre-request {
 }
 
 docs {
-  # Create Contest
-  
+  # 📘 Create Contest
+
   **POST** `/graphql (mutation: createContest)`
-  
+
   Creates a new contest.
-  
+
   새로운 대회를 생성합니다.
-  
+
   대회 생성은 `canCreateContest` 필드가 `true`인 사용자만 가능합니다.
-  
+
   `userContest` 필드를 통해 다른 유저에게 `Manager` 또는 `Reviewer` 역할을 부여할 수 있습니다. 요청자는 자동으로 해당 대회의 `Admin`이 됩니다.
-  
+
   ---
-  
+
   ### 🔒 Authentication
-  
+
   ✅ Required
-  
+
   ---
-  
+
   ### 📥 Request Variables
-  
+
   #### `input: CreateContestInput`
   | Name | Type | Required | Description |
   |------|------|----------|-------------|
@@ -107,19 +107,19 @@ docs {
   | `evaluateWithSampleTestcase` | Boolean | ❌ | 예제 테스트케이스로만 채점 여부 |
   | `userContest` | [UserContestInput] | ❌ | 대회 관리자/리뷰어 역할 부여 |
   | `summary` | GraphQLJSON | ❌ | 대회 관련 요약 정보 (Key-Value) |
-  
+
   #### `userContest: UserContestInput`
   | Name | Type | Required | Description |
   |---|---|---|---|
   | `userId` | Int | ✅ | 역할을 부여할 유저의 ID |
   | `contestRole` | String | ✅ | 부여할 역할 (`Manager` 또는 `Reviewer`) |
-  
+
   ---
-  
+
   ### 📤 Response Body
-  
+
   #### Content-Type: `application/json`
-  
+
   ```json
   {
     "data": {
@@ -144,7 +144,7 @@ docs {
     }
   }
   ```
-  
+
   | Field | Type | Description |
   |-------|------|-------------|
   | `id` | Int | 생성된 대회의 고유 ID |

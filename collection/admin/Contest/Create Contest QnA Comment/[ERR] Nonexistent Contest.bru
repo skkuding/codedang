@@ -1,0 +1,49 @@
+meta {
+  name: [ERR] Nonexistent Contest
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateContestQnAComment(
+    $contestId: Int!
+    $order: Int!
+    $content: String!
+  ) {
+    createContestQnAComment(
+      contestId: $contestId
+      order: $order
+      content: $content
+    ) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 999,
+    "order": 1,
+    "content": "Nonexistent Contest."
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent Contest
+
+  **POST** `/graphql (mutation: createContestQnAComment)`
+
+  Contest does not exist.
+
+  존재하지 않는 `contestId`를 포함하여 요청했을 때 `EntityNotExistException`이 발생합니다.
+}
