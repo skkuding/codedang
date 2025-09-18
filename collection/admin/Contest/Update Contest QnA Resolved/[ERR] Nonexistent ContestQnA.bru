@@ -11,15 +11,13 @@ post {
 }
 
 body:graphql {
-  mutation DeleteContestQnAComment(
-    $contestId: Int!
+  mutation ToggleContestQnAResolved(
+    $contestId: Int!,
     $qnAOrder: Int!
-    $commentOrder: Int!
   ) {
-    deleteContestQnAComment(
-      contestId: $contestId
+    toggleContestQnAResolved(
+      contestId: $contestId,
       qnAOrder: $qnAOrder
-      commentOrder: $commentOrder
     ) {
       id
     }
@@ -29,8 +27,7 @@ body:graphql {
 body:graphql:vars {
   {
     "contestId": 20,
-    "qnAOrder": 999,
-    "commentOrder": 1
+    "qnAOrder": 999
   }
 }
 
@@ -41,11 +38,11 @@ script:pre-request {
 docs {
   # 📙 [ERR] Nonexistent ContestQnA
 
-  **POST** `/graphql (mutation: deleteContestQnAComment)`
+  **POST** `/graphql (mutation: toggleContestQnAResolved)`
 
-  ContestQnA does not exist.
+  The requested QnA does not exist in the contest.
 
-  특정 대회(`contestId`)에 존재하지 않는 QnA 순번(`qnAOrder`)을 포함하여 댓글 삭제를 요청했을 때,
+  존재하지 않는 `qnAOrder`로 상태 변경을 요청했을 때,
 
   `EntityNotExistException`이 발생합니다.
 }

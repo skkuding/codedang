@@ -1,0 +1,92 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ToggleContestQnAResolved(
+    $contestId: Int!,
+    $qnAOrder: Int!
+  ) {
+    toggleContestQnAResolved(
+      contestId: $contestId,
+      qnAOrder: $qnAOrder
+    ) {
+      id
+      order
+      isResolved
+      title
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "qnAOrder": 1
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📘 Toggle Contest QnA Resolved Status
+
+  **POST** `/graphql (mutation: toggleContestQnAResolved)`
+
+  Toggles the resolved status of a contest QnA.
+
+  대회 QnA의 해결 상태(`isResolved`)를 토글(true <-> false)합니다.
+
+  이 기능은 해당 QnA에 댓글이 하나 이상 존재할 경우에만 사용할 수 있습니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Contest Staff)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `contestId` | Int | ✅ | QnA가 속한 대회의 ID |
+  | `qnAOrder` | Int | ✅ | 상태를 변경할 QnA의 순번 |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "data": {
+      "toggleContestQnAResolved": {
+        "id": "7",
+        "order": 1,
+        "isResolved": true,
+        "title": "20번 대회에 대한 질문"
+      }
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  |--------|------|------|
+  | `id` | Int | QnA ID |
+  | `order` | Int | 대회 내 QnA 순번 |
+  | `isResolved` | Boolean | 해결 상태 |
+  | `title` | String | QnA 제목 |
+}
