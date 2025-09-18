@@ -1,0 +1,49 @@
+meta {
+  name: [ERR] Nonexistent ContestQnAComment
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteContestQnAComment(
+    $contestId: Int!
+    $qnAOrder: Int!
+    $commentOrder: Int!
+  ) {
+    deleteContestQnAComment(
+      contestId: $contestId
+      qnAOrder: $qnAOrder
+      commentOrder: $commentOrder
+    ) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "qnAOrder": 1,
+    "commentOrder": 999
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent ContestQnAComment
+
+  **POST** `/graphql (mutation: deleteContestQnAComment)`
+
+  ContestQnAComment does not exist.
+
+  특정 QnA(`qnAOrder`)에 존재하지 않는 댓글 순번(`commentOrder`)을 포함하여 삭제를 요청했을 때 `EntityNotExistException`이 발생합니다.
+}
