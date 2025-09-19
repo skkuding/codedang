@@ -17,8 +17,7 @@ export function PushNotificationSection() {
         const data = await safeFetcherWithAuth
           .get('notification/push-subscription')
           .json()
-        const isUserSubscribed = Array.isArray(data) && data.length > 0
-        setIsSubscribed(isUserSubscribed)
+        setIsSubscribed(Array.isArray(data) && data.length > 0)
       } catch (error) {
         console.error('Error fetching subscription status:', error)
         setIsSubscribed(false)
@@ -29,11 +28,7 @@ export function PushNotificationSection() {
 
   const handleToggle = async (checked: boolean) => {
     if (checked) {
-      await handleRequestPermissionAndSubscribe(
-        isSubscribed,
-        setIsSubscribed,
-        true
-      )
+      await handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
     } else {
       setShowDisableModal(true)
     }
