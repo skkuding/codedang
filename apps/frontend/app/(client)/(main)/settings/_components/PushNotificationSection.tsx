@@ -2,7 +2,10 @@
 
 import { AlertModal } from '@/components/AlertModal'
 import { Switch } from '@/components/shadcn/switch'
-import { handleRequestPermissionAndSubscribe } from '@/libs/push-subscription'
+import {
+  fetchIsSubscribed,
+  handleRequestPermissionAndSubscribe
+} from '@/libs/push-subscription'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
@@ -12,18 +15,7 @@ export function PushNotificationSection() {
   const [showDisableModal, setShowDisableModal] = useState(false)
 
   useEffect(() => {
-    const fetchIsSubscribed = async () => {
-      try {
-        const data = await safeFetcherWithAuth
-          .get('notification/push-subscription')
-          .json()
-        setIsSubscribed(Array.isArray(data) && data.length > 0)
-      } catch (error) {
-        console.error('Error fetching subscription status:', error)
-        setIsSubscribed(false)
-      }
-    }
-    fetchIsSubscribed()
+    fetchIsSubscribed(setIsSubscribed)
   }, [])
 
   const handleToggle = async (checked: boolean) => {
@@ -40,8 +32,7 @@ export function PushNotificationSection() {
       setIsSubscribed(false)
       setShowDisableModal(false)
       toast.success('Push notifications are disabled.')
-    } catch (error) {
-      console.error('Failed to delete push subscription:', error)
+    } catch {
       toast.error('Failed to disable push notifications.')
     }
   }

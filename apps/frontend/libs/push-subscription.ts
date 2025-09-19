@@ -1,6 +1,15 @@
 import { toast } from 'sonner'
 import { safeFetcherWithAuth } from './utils'
 
+export const fetchIsSubscribed = async (
+  setIsSubscribed: (value: boolean) => void
+) => {
+  const data = await safeFetcherWithAuth
+    .get('notification/push-subscription')
+    .json()
+  setIsSubscribed(Array.isArray(data) && data.length > 0)
+}
+
 export const handleRequestPermissionAndSubscribe = async (
   isSubscribed: boolean,
   setIsSubscribed: (value: boolean) => void
@@ -59,7 +68,7 @@ const subscribeToPush = async (setIsSubscribed: (value: boolean) => void) => {
     })
 
     setIsSubscribed(true)
-    toast.success('Push notifications enabled successfully!')
+    window.dispatchEvent(new CustomEvent('push:subscribed'))
   } catch (error) {
     if (error instanceof Error && error.message.includes('already exists')) {
       setIsSubscribed(true)

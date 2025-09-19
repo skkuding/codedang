@@ -2,7 +2,10 @@
 
 import { Badge } from '@/components/shadcn/badge'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
-import { handleRequestPermissionAndSubscribe } from '@/libs/push-subscription'
+import {
+  fetchIsSubscribed,
+  handleRequestPermissionAndSubscribe
+} from '@/libs/push-subscription'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { formatTimeAgo } from '@/libs/utils'
 import NotiIcon from '@/public/icons/notification.svg'
@@ -75,53 +78,54 @@ export function NotificationDropdown({
     }
     fetchInitialUnreadCount()
 
-    const fetchIsSubscribed = async () => {
-      const data = await safeFetcherWithAuth
-        .get('notification/push-subscription')
-        .json()
-      const isUserSubscribed = Array.isArray(data) && data.length > 0
-      setIsSubscribed(isUserSubscribed)
-    }
-    fetchIsSubscribed()
+    fetchIsSubscribed(setIsSubscribed)
   }, [])
 
   useEffect(() => {
-    if (isOpen) {
-      handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
-
-      const fetchInitialNotifications = async () => {
-        setIsLoading(true)
-        setNotifications([])
-        setCursor(null)
-        setHasMore(true)
-
-        try {
-          const take = FETCH_COUNT
-          let url = `notification?take=${take}`
-          if (filter === 'unread') {
-            url += '&isRead=false'
-          }
-
-          const data = await safeFetcherWithAuth.get(url).json()
-          const initialNotifications = Array.isArray(data) ? data : []
-
-          setNotifications(initialNotifications)
-          setHasMore(initialNotifications.length === take)
-          if (initialNotifications.length > 0) {
-            setCursor(initialNotifications[initialNotifications.length - 1].id)
-          }
-        } catch (error) {
-          console.error('Error fetching initial notifications:', error)
-          setHasMore(false)
-        } finally {
-          setIsLoading(false)
-        }
+    const handlePermissionAndSubscribe = async () => {
+      try {
+        await handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
+      } catch (error) {
+        console.error('Permission request failed:', error)
       }
+    }
+
+    const fetchInitialNotifications = async () => {
+      setIsLoading(true)
+      setNotifications([])
+      setCursor(null)
+      setHasMore(true)
+
+      try {
+        const take = FETCH_COUNT
+        let url = `notification?take=${take}`
+        if (filter === 'unread') {
+          url += '&isRead=false'
+        }
+
+        const data = await safeFetcherWithAuth.get(url).json()
+        const initialNotifications = Array.isArray(data) ? data : []
+
+        setNotifications(initialNotifications)
+        setHasMore(initialNotifications.length === take)
+        if (initialNotifications.length > 0) {
+          setCursor(initialNotifications[initialNotifications.length - 1].id)
+        }
+      } catch (error) {
+        console.error('Error fetching initial notifications:', error)
+        setHasMore(false)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (isOpen) {
+      handlePermissionAndSubscribe()
       fetchInitialNotifications()
     } else {
       setFilter('all')
     }
-  }, [isOpen, filter])
+  }, [isOpen, filter, isSubscribed])
 
   const handleMarkAllAsRead = async () => {
     const originalUnreadCount = unreadApiCount

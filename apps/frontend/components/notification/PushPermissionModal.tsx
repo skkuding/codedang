@@ -16,21 +16,21 @@ const messages: Record<
   'push:unsupported': {
     title: 'Push Notifications Unavailable',
     description:
-      "Your current browser doesn't support push notifications. Please refer to the Notice and install the PWA to use this feature.",
+      'This browser doesn’t support push notifications.\nPlease check the Notice page and install the PWA.',
     showNoticeButton: true,
     isWarning: true
   },
   'push:denied': {
-    title: 'Push Notification\nPermission Denied',
+    title: 'Notifications Blocked',
     description:
-      'Push notification permission has been denied in your browser. Please allow permission in your settings and try again.',
+      'Notifications are blocked in this browser.\nPlease check the Notice page to enable them.',
     showNoticeButton: true,
     isWarning: true
   },
   'push:error': {
     title: 'Subscription Failed',
     description:
-      'Error occurred while subscribing to push notifications. Please try again in a little while.',
+      'Error occurred while subscribing to push notifications.\nPlease try again in a little while.',
     isWarning: true
   },
   'push:subscribed': {
