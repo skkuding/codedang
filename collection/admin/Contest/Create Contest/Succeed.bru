@@ -98,11 +98,11 @@ docs {
   | `endTime` | GraphQLISODateTime | ✅ | 대회 종료 시간 |
   | `registerDueTime` | GraphQLISODateTime | ✅ | 참가 등록 마감 시간 |
   | `isJudgeResultVisible` | Boolean | ✅ | 채점 결과 공개 여부 |
-  | `penalty` | Int | ❌ | 오답 제출 시 패널티 시간(분) |
+  | `penalty` | Int | ❌ | 대회 페널티 점수 |
   | `lastPenalty` | Boolean | ❌ | 마지막 패널티 적용 여부 |
   | `posterUrl` | String | ❌ | 포스터 이미지 URL |
   | `invitationCode` | String | ❌ | 6자리 초대 코드 |
-  | `freezeTime`| GraphQLISODateTime | ❌ | 순위표 동결 시작 시간 |
+  | `freezeTime`| GraphQLISODateTime | ❌ | 리더보드 동결 시작 시간 |
   | `enableCopyPaste` | Boolean | ❌ | 복사/붙여넣기 허용 여부 |
   | `evaluateWithSampleTestcase` | Boolean | ❌ | 예제 테스트케이스로만 채점 여부 |
   | `userContest` | [UserContestInput] | ❌ | 대회 관리자/리뷰어 역할 부여 |
