@@ -1,0 +1,37 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/course_notice/1/comment
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  # 📘 Get Course Notice Comments
+
+  **GET** `/course_notice/:id/comment`
+
+  한 강의 공지사항의 댓글들을 불러옵니다.
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `id` | number | ✅       | 강의 공지사항의 아이디 |
+  | `cursor` | number |     | 커서 |
+  | `take` | number |   | 가져올 댓글 수 |
+
+
+}

@@ -1,0 +1,56 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/course_notice/1/comment/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "수정된 댓글입니다."
+  }
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  # 📘 Patch Course Notice Comment
+
+  **PATCH** `/course_notice/:id/comment/:commentId`
+
+  특정 강의 공지사항의 특정 댓글 내용을 수정합니다
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `id` | number | ✅       | 강의 공지사항의 아이디 |
+  | `commentId` | number | ✅       | 댓글의 아이디 |
+
+  ---
+
+  ### 📝 Request Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "content": "수정된 댓글입니다."
+  }
+  ```
+
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `content` | string | ✅       | 수정할 댓글 내용 |
+}
