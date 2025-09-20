@@ -169,7 +169,7 @@ jobs:
         # NOTE: GitHub Actions service containers do not support custom commands.
         # This image from Bitnami includes the command to run MinIO.
         # https://stackoverflow.com/questions/60849745/how-can-i-run-a-command-in-github-action-service-containers
-        image: bitnami/minio:2025.7.23
+        image: bitnami/minio:latest
         ports:
           - 9000:9000
           - 9001:9001
