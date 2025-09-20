@@ -55,7 +55,7 @@ docs {
 
   Retrieves a paginated list of QnAs for a contest.
 
-  특정 대회의 QnA 목록을 페이지네이션하여 조회합니다.
+  특정 대회의 QnA 목록을 조회합니다.
 
   `take`와 `cursor`를 통해 가져올 QnA의 개수와 시작점을 지정할 수 있으며, `filter`를 통해 해결 여부(`isResolved`)에 따라 필터링할 수 있습니다.
 
@@ -63,7 +63,7 @@ docs {
 
   ### 🔒 Authentication
 
-  ✅ Required (Admin or Contest Staff)
+  ✅ Required (Contest Staff)
 
   ---
 
@@ -75,7 +75,7 @@ docs {
   | `take` | Int | ❌ | 가져올 개수 (기본값: 10) |
   | `cursor` | Int | ❌ | 페이지네이션 커서 (ID) |
   | `filter`| GetContestQnAsFilterInput | ❌ | 필터링 옵션 |
-  | `filter.isResolved` | Boolean | ❌ | `true`/`false`로 해결/미해결 필터링 |
+  | `filter.isResolved` | Boolean | ❌ | 해결/미해결 필터링 |
 
   ---
 

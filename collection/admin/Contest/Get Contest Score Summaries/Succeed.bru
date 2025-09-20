@@ -56,38 +56,40 @@ script:pre-request {
 
 docs {
   # 📘 Get Contest Score Summaries
-  
+
   **POST** `/graphql (query: getContestScoreSummaries)`
-  
+
   Retrieves paginated score summaries for contest participants.
-  
-  특정 대회 참가자들의 점수 요약 정보를 페이지네이션하여 조회합니다.
-  
-  사용자 정보와 함께 제출한 문제 수, 총 점수, 문제별 점수 등을 포함하여 반환합니다. `searchingName` 파라미터로 실명을 검색할 수 있습니다.
-  
+
+  특정 대회 참가자들의 점수 요약 정보를 조회합니다.
+
+  사용자 정보와 함께 제출한 문제 수, 총 점수, 문제별 점수 등을 포함하여 반환합니다.
+
+  `searchingName` 파라미터로 실명을 검색할 수 있습니다.
+
   ---
-  
+
   ### 🔒 Authentication
-  
+
   ✅ Required (Contest Staff)
-  
+
   ---
-  
+
   ### 📥 Request Variables
-  
+
   | Name | Type | Required | Description |
   |---|---|---|---|
   | `contestId` | Int | ✅ | 대회 ID |
   | `take` | Int | ❌ | 가져올 개수 (기본값: 10) |
   | `cursor` | Int | ❌ | 페이지네이션 커서 |
-  | `searchingName`| String | ❌ | 검색할 사용자의 `realName` |
-  
+  | `searchingName`| String | ❌ | 검색할 사용자의 실제 이름 |
+
   ---
-  
+
   ### 📤 Response Body
-  
+
   #### Content-Type: `application/json`
-  
+
   ```json
   {
     "data": {
@@ -114,7 +116,7 @@ docs {
     }
   }
   ```
-  
+
   | Field | Type | Description |
   |--------|------|------|
   | `userId` | Int | 사용자 ID |

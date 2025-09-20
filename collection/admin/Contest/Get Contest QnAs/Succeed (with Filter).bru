@@ -52,10 +52,10 @@ script:pre-request {
 
 docs {
   # 📘 Get Contest QnAs (with filter)
-  
+
   **POST** `/graphql (query: getContestQnAs)`
-  
+
   Retrieves a filtered list of QnAs.
-  
-  `filter` 파라미터를 사용하여 해결된(`isResolved: false`) QnA만 조회하는 케이스입니다.
+
+  `filter` 파라미터를 사용하여 미해결된(`isResolved: false`) QnA만 조회합니다.
 }

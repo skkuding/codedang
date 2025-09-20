@@ -77,7 +77,9 @@ docs {
 
   대회 생성은 `canCreateContest` 필드가 `true`인 사용자만 가능합니다.
 
-  `userContest` 필드를 통해 다른 유저에게 `Manager` 또는 `Reviewer` 역할을 부여할 수 있습니다. 요청자는 자동으로 해당 대회의 `Admin`이 됩니다.
+  `userContest` 필드를 통해 다른 유저에게 `Manager` 또는 `Reviewer` 역할을 부여할 수 있습니다.
+
+  요청자는 자동으로 해당 대회의 `Admin`이 됩니다.
 
   ---
 
@@ -146,7 +148,7 @@ docs {
   ```
 
   | Field | Type | Description |
-  |-------|------|-------------|
+  |---|---|---|---|
   | `id` | Int | 생성된 대회의 고유 ID |
   | `title` | String | 대회 제목 |
   | `description` | String | 대회 설명 |
