@@ -1,7 +1,7 @@
 meta {
-  name: [ERR] Has No Contest Id
+  name: [ERR] Nonexistent Problem
   type: graphql
-  seq: 2
+  seq: 4
 }
 
 post {
@@ -13,9 +13,9 @@ post {
 body:graphql {
   mutation {
     createAnnouncement(
-      contestId: 1
+      contestId: 20
       input: {
-      	problemOrder: 0
+      	problemOrder: 999
       	content: "test"
       }
     ) {
