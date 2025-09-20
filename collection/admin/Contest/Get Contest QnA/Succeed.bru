@@ -13,7 +13,7 @@ post {
 body:graphql {
   query {
     getContestQnA(
-      contestId: 1
+      contestId: 20
       order: 1
     ) {
       id
@@ -24,12 +24,23 @@ body:graphql {
       createdBy {
         username
       }
+      comments {
+        content
+        createdById
+        createdBy {
+          username
+        }
+      }
     }
   }
 }
 
 assert {
   res.body.data.getContests: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
 }
 
 docs {

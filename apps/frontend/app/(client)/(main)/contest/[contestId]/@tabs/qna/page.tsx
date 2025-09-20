@@ -1,19 +1,137 @@
-'use client'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { Skeleton } from '@/components/shadcn/skeleton'
+import { auth } from '@/libs/auth'
+import { fetcherWithAuth } from '@/libs/utils'
+import welcomeLogo from '@/public/logos/welcome.png'
+import type { ContestTop, ProblemDataTop } from '@/types/type'
+import { ErrorBoundary } from '@suspensive/react'
+import Image from 'next/image'
+import { Suspense } from 'react'
+import { LoginButton } from './_components/LoginButton'
+import { QnAMainTable } from './_components/QnAMainTable'
 
-import { Button } from '@/components/shadcn/button'
-import Link from 'next/link'
+interface ContestQnAProps {
+  params: Promise<{ contestId: number }>
+  searchParams: Promise<{
+    registered: string
+    search: string
+    orderBy: string
+    categories: string
+    problemOrders: string
+  }>
+}
 
-export default function QnaPage() {
+interface ContestRole {
+  contestId: number
+  role: Role
+}
+
+type Role = 'Admin' | 'Manager' | 'Participant' | 'Reviewer'
+
+export default async function ContestQna(props: ContestQnAProps) {
+  const { contestId } = await props.params
+  const searchParams = await props.searchParams
+  const session = await auth()
+  const search = searchParams.search ?? ''
+  const orderBy = searchParams.orderBy ?? 'desc'
+  const categories = searchParams.categories ?? ''
+  const problemOrders = searchParams.problemOrders ?? ''
+
+  const contest: ContestTop = await fetcherWithAuth
+    .get(`contest/${contestId}`)
+    .json()
+  const contestProblems: ProblemDataTop = await fetcherWithAuth
+    .get(`contest/${contestId}/problem`)
+    .json()
+
+  const MyContestRolesRes = await fetcherWithAuth.get('contest/role')
+  const MyContestRoles: ContestRole[] = await MyContestRolesRes.json()
+  const isContestStaff = new Set(['Admin', 'Manager']).has(
+    MyContestRoles.find(
+      (ContestRole) => ContestRole.contestId === Number(contestId)
+    )?.role ?? 'nothing'
+  )
+
+  const contestStatus = (() => {
+    const currentTime = new Date()
+    const contestStart = new Date(contest.startTime)
+    const contestEnd = new Date(contest.endTime)
+    if (currentTime < contestStart) {
+      return 'Upcoming'
+    } else if (currentTime < contestEnd) {
+      return 'Ongoing'
+    } else {
+      return 'Finished'
+    }
+  })()
+
+  const canCreateQnA =
+    session &&
+    (contest.isRegistered ||
+      contest.isPrivilegedRole ||
+      contestStatus !== 'Ongoing')
+
+  if (!session && contestStatus === 'Ongoing') {
+    return (
+      <div className="flex w-full max-w-7xl flex-col items-center justify-center p-5 py-48">
+        <Image src={welcomeLogo} alt="welcome" />
+        <p className="mt-10 text-2xl font-semibold">Please Login!</p>
+        <div className="mt-2 text-center text-base font-normal text-[#7F7F7F]">
+          <p>This page is only available to logged-in users.</p>
+          <p>Click the button below to login.</p>
+        </div>
+        <LoginButton className="mt-6 flex h-[46px] w-60 items-center justify-center text-base font-bold" />
+        <div className="py-5" />
+      </div>
+    )
+  }
+
   return (
-    <div className="flex w-full flex-col items-center justify-center p-8">
-      <h2 className="mb-6 text-2xl font-medium text-black">Q&A</h2>
-      <Button className="h-[46px] px-6 py-3">
-        <Link href="./qna/create">
-          <span className="text-base font-medium text-white">
-            Post New Question
-          </span>
-        </Link>
-      </Button>
+    <div className="mb-[88px] mt-[80px] max-w-[1440px] px-[116px]">
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <Suspense fallback={<QnATableFallback />}>
+          <QnAMainTable
+            session={session}
+            contestId={contestId}
+            contestProblems={contestProblems}
+            contestStatus={contestStatus}
+            search={search}
+            orderBy={orderBy}
+            categories={categories}
+            problemOrders={problemOrders}
+            isContestStaff={isContestStaff}
+            canCreateQnA={canCreateQnA}
+          />
+        </Suspense>
+      </ErrorBoundary>
+    </div>
+  )
+}
+
+function QnATableFallback() {
+  return (
+    <div className="w-[1208px]">
+      <Skeleton className="h-[34px] w-[235px] gap-4" />
+      <div className="mt-[148px] flex">
+        <span className="w-1/12">
+          <Skeleton className="h-6 w-20" />
+        </span>
+        <span className="w-2/12">
+          <Skeleton className="mx-auto h-6 w-20" />
+        </span>
+        <span className="w-5/12">
+          <Skeleton className="mx-auto h-6 w-20" />
+        </span>
+        <span className="w-2/12">
+          <Skeleton className="mx-auto h-6 w-20" />
+        </span>
+        <span className="w-2/12">
+          <Skeleton className="mx-auto h-6 w-20" />
+        </span>
+      </div>
+      {[...Array(5)].map((_, i) => (
+        <Skeleton key={i} className="my-10 flex h-8 w-full rounded-xl" />
+      ))}
     </div>
   )
 }

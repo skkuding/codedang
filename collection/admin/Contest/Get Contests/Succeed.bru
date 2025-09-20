@@ -33,6 +33,10 @@ assert {
   res.body.data.getContests: isDefined
 }
 
+script:pre-request {
+  await require("./login").loginAdmin(req);
+}
+
 docs {
   # Get Contests
   ---

@@ -124,9 +124,9 @@ export function EditorMainResizablePanel({
   const { language, setLanguage } = useLanguageStore(
     problem.id,
     contestId,
+    courseId,
     assignmentId,
-    exerciseId,
-    courseId
+    exerciseId
   )()
   const [tabValue, setTabValue] = useState('Description')
 
@@ -196,7 +196,7 @@ export function EditorMainResizablePanel({
                     Submissions
                   </TabsTrigger>
                 </Link>
-                {assignmentId &&
+                {(assignmentId || exerciseId) &&
                   problem.solution &&
                   problem.solution.length > 0 && (
                     <Link

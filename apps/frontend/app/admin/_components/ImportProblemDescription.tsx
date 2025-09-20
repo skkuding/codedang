@@ -6,7 +6,7 @@ export function ImportProblemDescription() {
   const { table } = useDataTable()
 
   return (
-    <p className="pb-2 text-sm font-normal">
+    <p className="text-sm font-normal">
       <span className="text-primary">
         {table.getFilteredSelectedRowModel().rows.length} problem(s)
         selected:{' '}
