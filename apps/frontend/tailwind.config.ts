@@ -188,16 +188,16 @@ export default {
         secondary: '#30D7AE',
         level: {
           dark: {
-            1: '#35C759',
-            2: '#3581FA',
-            3: '#FF9500',
+            1: '#FFCC02',
+            2: '#58CF05',
+            3: '#3581FA',
             4: '#6541F2',
             5: '#FF2C55'
           },
           light: {
-            1: '#D8F4DE',
-            2: '#D7E5FE',
-            3: '#FEEACC',
+            1: '#FFF5CC',
+            2: '#DBFEC2',
+            3: '#D7E5FE',
             4: '#E0D9FC',
             5: '#FED7DE'
           },
