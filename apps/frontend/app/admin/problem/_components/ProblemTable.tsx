@@ -16,6 +16,7 @@ import { createColumns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 
 export function ProblemTable() {
+  console.log('render page')
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       take: 500,
@@ -52,6 +53,7 @@ export function ProblemTable() {
       }
     }))
   }))
+  console.log('problems: ', problems)
 
   return (
     <DataTableRoot
