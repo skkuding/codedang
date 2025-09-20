@@ -11,10 +11,13 @@ post {
 }
 
 body:graphql {
-  mutation {
+  mutation RemoveUserFromContest(
+    $contestId: Int!,
+    $userId: Int!
+  ) {
     removeUserFromContest(
-      contestId: 19
-      userId: 7
+      contestId: $contestId,
+      userId: $userId
     ) {
       userId
       contestId
@@ -23,15 +26,70 @@ body:graphql {
   }
 }
 
+body:graphql:vars {
+  {
+    "contestId": 19,
+    "userId": 7
+  }
+}
+
 assert {
   res.body.data.removeProblemsFromContest: isDefined
 }
 
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
 docs {
-  # remove User from Contest
-  
-  - Contest에 속해있는 User를 삭제합니다.
-  - 해당 대회의 admin 또는 manager가 아닌 user의 요청인 경우 ForbiddenAccessException을 반환합니다.
-  - 해당 ContestId를 가진 Contest가 존재하지 않는 경우, 또는 해당 Contest에 UserId를 가진 user가 참가하지 않은 경우 각각 EntityNotExistException을 반환합니다.
-  - 이미 진행중이거나 종료된 Contest의 경우 ForbiddenAccessException을 반환합니다.
+  # 📘 Remove User From Contest
+
+  **POST** `/graphql (mutation: removeUserFromContest)`
+
+  Removes a user from a contest's registration list.
+
+  대회 참가자 명단에서 특정 사용자를 제거합니다.
+
+  이 작업은 대회의 **Admin** 또는 **Manager**만 수행할 수 있으며, **대회가 시작되기 전에만** 가능합니다.
+
+  작업 성공 시, 제거된 사용자의 대회 역할 정보가 반환됩니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Contest Staff)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `contestId` | Int | ✅ | 사용자를 제거할 대회의 ID |
+  | `userId` | Int | ✅ | 제거될 사용자의 ID |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "data": {
+      "removeUserFromContest": {
+        "userId": 7,
+        "contestId": 19,
+        "role": "Participant"
+      }
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  |--------|------|------|
+  | `userId` | Int | 사용자 ID |
+  | `contestId` | Int | 대회 ID |
+  | `role` | String | 제외된 사용자 역할 |
 }

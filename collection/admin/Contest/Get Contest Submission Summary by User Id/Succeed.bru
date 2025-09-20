@@ -1,0 +1,140 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestSubmissionSummaryByUserId(
+    $contestId: Int!
+    $userId: Int!
+    $take: Int!
+    $cursor: Int
+    $problemId: Int
+  ) {
+    getContestSubmissionSummaryByUserId(
+      contestId: $contestId
+      userId: $userId
+      take: $take
+      cursor: $cursor
+      problemId: $problemId
+    ) {
+      scoreSummary {
+        userContestScore
+        contestPerfectScore
+        submittedProblemCount
+        totalProblemCount
+        problemScores {
+          problemId
+          score
+        }
+      }
+      submissions {
+        id
+        order
+        problemId
+        problemTitle
+        username
+        studentId
+        submissionResult
+        language
+        submissionTime
+        codeSize
+        ip
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 1,
+    "userId": 7,
+    "take": 10
+    // "cursor": 1,
+    // "problemId": 1
+  }
+}
+
+docs {
+  # 📘 Get Contest Submission Summary By UserId
+
+  **POST** `/graphql (query: getContestSubmissionSummaryByUserId)`
+
+  Retrieves a user's score summary and their submissions for a contest.
+
+  특정 사용자의 대회 점수 요약 정보와 제출 기록 목록을 페이지네이션하여 조회합니다.
+
+  `problemId`를 통해 특정 문제에 대한 제출 기록만 필터링할 수 있습니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Contest Staff)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `contestId` | Int | ✅ | 조회할 대회의 ID |
+  | `userId` | Int | ✅ | 조회할 사용자의 ID |
+  | `take` | Int | ✅ | 가져올 제출 기록 개수 |
+  | `cursor` | Int | ❌ | 페이지네이션 커서 |
+  | `problemId`| Int | ❌ | 필터링할 문제의 ID |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "data": {
+      "getContestSubmissionSummaryByUserId": {
+        "scoreSummary": {
+          "userContestScore": 0,
+          "contestPerfectScore": 30,
+          "submittedProblemCount": 1,
+          "totalProblemCount": 2,
+          "problemScores": [
+            {
+              "problemId": 1,
+              "score": 0
+            }
+          ]
+        },
+        "submissions": [
+          {
+            "id": 1,
+            "order": 0,
+            "problemId": 1,
+            "problemTitle": "정수 더하기",
+            "username": "user01",
+            "studentId": "2024100001",
+            "submissionResult": "Accepted",
+            "language": "C",
+            "submissionTime": "1758179922858",
+            "codeSize": null,
+            "ip": null
+          }
+        ]
+      }
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  |--------|------|------|
+  | `scoreSummary` | ScoreSummary | 사용자의 점수 요약 정보 |
+  | `submissions` | [Submission] | 사용자의 제출 기록 목록 |
+}
