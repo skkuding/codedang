@@ -196,7 +196,7 @@ export function EditorMainResizablePanel({
                     Submissions
                   </TabsTrigger>
                 </Link>
-                {assignmentId &&
+                {(assignmentId || exerciseId) &&
                   problem.solution &&
                   problem.solution.length > 0 && (
                     <Link
