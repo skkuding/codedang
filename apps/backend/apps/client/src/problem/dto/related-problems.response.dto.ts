@@ -31,9 +31,6 @@ export class _RelatedProblemsResponseDto {
 
   @Expose()
   total: number
-
-  @Expose()
-  updateContentTime: Date
 }
 
 /**
