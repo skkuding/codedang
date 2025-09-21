@@ -121,7 +121,6 @@ export function NotificationDropdown({
         if (!('Notification' in window) || !('serviceWorker' in navigator)) {
           setIsSubscribed(false)
           window.dispatchEvent(new CustomEvent('push:unsupported'))
-          return
         }
         handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
         // 호출했다고 localStorage에 저장
