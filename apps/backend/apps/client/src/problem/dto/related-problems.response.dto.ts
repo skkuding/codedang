@@ -76,5 +76,6 @@ class _Problem {
 
   @Expose()
   @Transform(({ obj }) => obj.problem.updateContentTime, { toClassOnly: true })
+  @IsOptional()
   updateContentTime: Date
 }
