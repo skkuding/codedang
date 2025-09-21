@@ -118,6 +118,11 @@ export function NotificationDropdown({
       )
       // 한 번도 호출하지 않았고, 권한이 default 상태일 때만 호출
       if (!permissionRequested) {
+        if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+          setIsSubscribed(false)
+          window.dispatchEvent(new CustomEvent('push:unsupported'))
+          return
+        }
         handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
         // 호출했다고 localStorage에 저장
         localStorage.setItem('push_permission_requested', 'true')
