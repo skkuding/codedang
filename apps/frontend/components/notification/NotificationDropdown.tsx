@@ -115,6 +115,7 @@ export function NotificationDropdown({
       if (!('Notification' in window) || !('serviceWorker' in navigator)) {
         setIsSubscribed(false)
         window.dispatchEvent(new CustomEvent('push:unsupported'))
+        setIsOpen(true)
       }
 
       // localStorage에서 권한 요청 호출 여부 확인
