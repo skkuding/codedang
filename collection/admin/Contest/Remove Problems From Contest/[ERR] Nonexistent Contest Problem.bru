@@ -1,7 +1,7 @@
 meta {
-  name: [ERR] Nonexistent Contest
+  name: [ERR] Nonexistent Contest Problem
   type: graphql
-  seq: 2
+  seq: 3
 }
 
 post {
@@ -26,8 +26,8 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 999,
-    "problemIds": [2]
+    "contestId": 20,
+    "problemIds": [999]
   }
 }
 
@@ -36,13 +36,13 @@ script:pre-request {
 }
 
 docs {
-  # 📙 [ERR] Nonexistent Contest
+  # 📙 [ERR] Nonexistent Contest Problem
 
   **POST** `/graphql (mutation: removeProblemsFromContest)`
 
-  The requested contest does not exist.
+  The problem is not part of the contest.
 
-  존재하지 않는 `contestId`에서 문제를 제외하려고 할 때,
+  대회에 포함되어 있지 않은 `problemId`를 제외하려고 할 때,
 
   `EntityNotExistException`이 발생합니다.
 }

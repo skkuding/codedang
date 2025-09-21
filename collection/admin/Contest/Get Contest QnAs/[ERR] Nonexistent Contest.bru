@@ -1,7 +1,7 @@
 meta {
   name: [ERR] Nonexistent Contest
   type: graphql
-  seq: 2
+  seq: 3
 }
 
 post {
@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation DeleteContest($contestId: Int!) {
-    deleteContest(contestId: $contestId) {
+  query GetContestQnAs($contestId: Int!) {
+    getContestQnAs(contestId: $contestId) {
       id
     }
   }
@@ -24,14 +24,18 @@ body:graphql:vars {
   }
 }
 
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
 docs {
   # 📙 [ERR] Nonexistent Contest
 
-  **POST** `/graphql (mutation: deleteContest)`
+  **POST** `/graphql (query: getContestQnAs)`
 
   The requested contest does not exist.
 
-  존재하지 않는 `contestId`의 대회 삭제를 요청했을 때,
+  존재하지 않는 `contestId`를 포함하여 QnA 목록 조회를 요청했을 때,
 
   `EntityNotExistException`이 발생합니다.
 }

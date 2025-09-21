@@ -1,7 +1,7 @@
 meta {
-  name: [ERR] Nonexistent Contest
+  name: [ERR] Nonexistent Problem
   type: graphql
-  seq: 2
+  seq: 3
 }
 
 post {
@@ -26,9 +26,9 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 999,
+    "contestId": 20,
     "problemIdsWithScore": [
-      { "problemId": 7, "score": 100 }
+      { "problemId": 999, "score": 100 }
     ]
   }
 }
@@ -38,13 +38,13 @@ script:pre-request {
 }
 
 docs {
-  # 📙 [ERR] Nonexistent Contest
+  # 📙 [ERR] Nonexistent Problem
 
   **POST** `/graphql (mutation: importProblemsToContest)`
 
-  The requested contest does not exist.
+  The requested problem does not exist.
 
-  존재하지 않는 `contestId`에 문제를 추가하려고 할 때,
+  존재하지 않는 `problemId`를 대회에 추가하려고 할 때,
 
-  `EntityNotExistException`이 발생합니다.
+  데이터베이스 트랜잭션 실패로 인해 `UnprocessableDataException`이 발생합니다.
 }

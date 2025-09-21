@@ -1,7 +1,7 @@
 meta {
-  name: [ERR] Nonexistent Contest
+  name: [ERR] EndTime Earlier than StartTime
   type: graphql
-  seq: 2
+  seq: 4
 }
 
 post {
@@ -26,9 +26,10 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 999,
+    "contestId": 19,
     "input": {
-      "title": "Nonexistent Contest"
+      "startTime": "2030-01-02T00:00:00.000Z",
+      "endTime": "2030-01-01T00:00:00.000Z"
     }
   }
 }
@@ -38,13 +39,13 @@ script:pre-request {
 }
 
 docs {
-  # 📙 [ERR] Nonexistent Contest
+  # 📙 [ERR] EndTime Earlier than StartTime
 
   **POST** `/graphql (mutation: updateContest)`
 
-  The requested contest does not exist.
+  The start time must be earlier than the end time.
 
-  존재하지 않는 `contestId`의 정보 수정을 시도할 때,
+  등록 마감 시간이 시작 시간보다 늦거나 같을 때,
 
-  `findUniqueOrThrow`에 의해 NotFoundError가 발생합니다.
+  `UnprocessableDataException`이 발생합니다.
 }

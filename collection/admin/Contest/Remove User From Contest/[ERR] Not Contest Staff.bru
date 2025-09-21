@@ -1,7 +1,7 @@
 meta {
-  name: [ERR] Nonexistent ContestRecord
+  name: [ERR] Not Contest Staff
   type: graphql
-  seq: 5
+  seq: 2
 }
 
 post {
@@ -20,14 +20,16 @@ body:graphql {
       userId: $userId
     ) {
       userId
+      contestId
+      role
     }
   }
 }
 
 body:graphql:vars {
   {
-    "contestId": 19,
-    "userId": 999
+    "contestId": 1,
+    "userId": 7
   }
 }
 
@@ -35,14 +37,18 @@ script:pre-request {
   await require("./login").loginContestAdmin(req);
 }
 
+assert {
+  res.body.errors: isDefined
+}
+
 docs {
-  # 📙 [ERR] Nonexistent ContestRecord
+  [ERR] Not Contest Staff
 
   **POST** `/graphql (mutation: removeUserFromContest)`
 
-  The user is not registered for the contest.
+  Only Admin or Manager can remove users from contest.
 
-  제거하려는 대상(`userId`)이 해당 대회의 참가자 명단에 없을 때,
+  요청자가 해당 대회의 `Admin` 또는 `Manager`가 아닐 때,
 
-  `EntityNotExistException`이 발생합니다.
+  `ForbiddenAccessException`이 발생합니다.
 }
