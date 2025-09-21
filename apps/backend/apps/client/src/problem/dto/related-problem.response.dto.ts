@@ -22,4 +22,7 @@ export class _RelatedProblemResponseDto {
   @Expose()
   @Type(() => _ProblemResponseDto)
   problem: Problem
+
+  @Expose()
+  updateContentTime: Date
 }
