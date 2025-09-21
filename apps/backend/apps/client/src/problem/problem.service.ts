@@ -18,7 +18,6 @@ const problemsSelectOption: Prisma.ProblemSelect = {
   difficulty: true,
   acceptedRate: true,
   submissionCount: true,
-  updateContentTime: true,
   languages: true
 }
 
