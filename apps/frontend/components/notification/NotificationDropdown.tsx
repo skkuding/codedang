@@ -120,9 +120,18 @@ export function NotificationDropdown({
     }
 
     if (isOpen) {
-      if (Notification.permission === 'default') {
+      // localStorage에서 권한 요청 호출 여부 확인
+      const permissionRequested = localStorage.getItem(
+        'push_permission_requested'
+      )
+
+      // 한 번도 호출하지 않았고, 권한이 default 상태일 때만 호출
+      if (!permissionRequested && Notification.permission === 'default') {
         handlePermissionAndSubscribe()
+        // 호출했다고 localStorage에 저장
+        localStorage.setItem('push_permission_requested', 'true')
       }
+
       fetchInitialNotifications()
     } else {
       setFilter('all')
