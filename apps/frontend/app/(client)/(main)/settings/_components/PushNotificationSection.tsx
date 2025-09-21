@@ -20,6 +20,11 @@ export function PushNotificationSection() {
 
   const handleToggle = async (checked: boolean) => {
     if (checked) {
+      if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+        setIsSubscribed(false)
+        window.dispatchEvent(new CustomEvent('push:unsupported'))
+        return
+      }
       await handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
     } else {
       setShowDisableModal(true)

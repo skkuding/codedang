@@ -4,11 +4,6 @@ import { safeFetcherWithAuth } from './utils'
 export const fetchIsSubscribed = async (
   setIsSubscribed: (value: boolean) => void
 ) => {
-  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-    setIsSubscribed(false)
-    window.dispatchEvent(new CustomEvent('push:unsupported'))
-    return
-  }
   const data = await safeFetcherWithAuth
     .get('notification/push-subscription')
     .json()

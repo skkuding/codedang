@@ -65,18 +65,18 @@ export function NotificationDropdown({
   }, [isLoading, hasMore, cursor, filter])
 
   useEffect(() => {
-    // const fetchInitialUnreadCount = async () => {
-    //   try {
-    //     const textData = await safeFetcherWithAuth
-    //       .get('notification/unread-count')
-    //       .text()
-    //     setUnreadApiCount(parseInt(textData, 10) || 0)
-    //   } catch (error) {
-    //     console.error('Error fetching initial unread count:', error)
-    //     setUnreadApiCount(0)
-    //   }
-    // }
-    // fetchInitialUnreadCount()
+    const fetchInitialUnreadCount = async () => {
+      try {
+        const textData = await safeFetcherWithAuth
+          .get('notification/unread-count')
+          .text()
+        setUnreadApiCount(parseInt(textData, 10) || 0)
+      } catch (error) {
+        console.error('Error fetching initial unread count:', error)
+        setUnreadApiCount(0)
+      }
+    }
+    fetchInitialUnreadCount()
 
     fetchIsSubscribed(setIsSubscribed)
   }, [])
