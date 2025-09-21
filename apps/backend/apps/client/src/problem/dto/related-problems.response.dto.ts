@@ -78,5 +78,6 @@ class _Problem {
   submissionTime: Date | null
 
   @Expose()
+  @Transform(({ obj }) => obj.problem.updateContentTime, { toClassOnly: true })
   updateContentTime: Date
 }
