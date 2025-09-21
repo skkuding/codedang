@@ -1,7 +1,7 @@
 meta {
-  name: [ERR] Required Fields Not Entered
+  name: [ERR] Create Contest Not Allowed
   type: graphql
-  seq: 3
+  seq: 2
 }
 
 post {
@@ -21,10 +21,10 @@ body:graphql {
 body:graphql:vars {
   {
     "input": {
-      "description": "new contest without title",
+      "title": "Unauthorized Contest",
       "startTime": "2026-01-01T12:00:00.000Z",
       "endTime": "2030-01-01T12:00:00.000Z",
-      "registerDueTime": "2026-01-02T12:00:00.000Z",
+      "registerDueTime": "2025-12-31T12:00:00.000Z",
       "isJudgeResultVisible": true,
       "userContest": []
     }
@@ -32,21 +32,21 @@ body:graphql:vars {
 }
 
 script:pre-request {
-  await require("./login").loginContestAdmin(req);
+  await require("./login").loginUser(req);
 }
 
 assert {
-  res.body.errors[0].message: eq Title was not provided
+  res.body.errors[0].message: eq You are not allowed to create Contest
 }
 
 docs {
-  # 📙 [ERR] Required Fields Not Entered
+  # 📙 [ERR] Create Contest Not Allowed
 
   **POST** `/graphql (mutation: createContest)`
 
-  Title String was not provided.
+  Attempt to create a contest without permission.
 
-  필수 input(`title`)을 입력하지 않았을 때,
+  `canCreateContest` 필드가 `false`인 유저가 이 API를 호출하면,
 
-  `BAD_USER_INPUT`이 발생합니다.
+  `UnauthorizedException`이 발생합니다.
 }

@@ -1,7 +1,7 @@
 meta {
-  name: [ERR] Nonexistent Contest
+  name: [ERR] Invalid Unfreeze
   type: graphql
-  seq: 2
+  seq: 6
 }
 
 post {
@@ -26,9 +26,9 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 999,
+    "contestId": 20,
     "input": {
-      "title": "Nonexistent Contest"
+      "unfreeze": true
     }
   }
 }
@@ -38,13 +38,16 @@ script:pre-request {
 }
 
 docs {
-  # 📙 [ERR] Nonexistent Contest
+  # 📙 [ERR] Invalid Unfreeze
 
   **POST** `/graphql (mutation: updateContest)`
 
-  The requested contest does not exist.
+  The unfreeze attempt is invalid.
 
-  존재하지 않는 `contestId`의 정보 수정을 시도할 때,
+  - `freezeTime`이 설정된 적 없는 대회를 unfreeze 하려 할 때
+  - 이미 unfreeze 된 대회를 다시 unfreeze 하려 할 때
+  - 아직 `freezeTime`이 지나지 않았을 때
+  - 아직 대회가 종료되지 않았을 때
 
-  `findUniqueOrThrow`에 의해 NotFoundError가 발생합니다.
+  위 경우들에서 `UnprocessableDataException`이 발생합니다.
 }

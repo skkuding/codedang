@@ -1,7 +1,7 @@
 meta {
   name: [ERR] Nonexistent Contest
   type: graphql
-  seq: 2
+  seq: 3
 }
 
 post {
@@ -11,15 +11,17 @@ post {
 }
 
 body:graphql {
-  mutation ImportProblemsToContest(
+  mutation CreateContestQnAComment(
     $contestId: Int!
-    $problemIdsWithScore: [ProblemScoreInput!]!
+    $order: Int!
+    $content: String!
   ) {
-    importProblemsToContest(
+    createContestQnAComment(
       contestId: $contestId
-      problemIdsWithScore: $problemIdsWithScore
+      order: $order
+      content: $content
     ) {
-      problemId
+      id
     }
   }
 }
@@ -27,9 +29,8 @@ body:graphql {
 body:graphql:vars {
   {
     "contestId": 999,
-    "problemIdsWithScore": [
-      { "problemId": 7, "score": 100 }
-    ]
+    "order": 1,
+    "content": "Nonexistent Contest."
   }
 }
 
@@ -40,11 +41,11 @@ script:pre-request {
 docs {
   # 📙 [ERR] Nonexistent Contest
 
-  **POST** `/graphql (mutation: importProblemsToContest)`
+  **POST** `/graphql (mutation: createContestQnAComment)`
 
-  The requested contest does not exist.
+  Contest does not exist.
 
-  존재하지 않는 `contestId`에 문제를 추가하려고 할 때,
+  존재하지 않는 `contestId`를 포함하여 요청했을 때,
 
   `EntityNotExistException`이 발생합니다.
 }
