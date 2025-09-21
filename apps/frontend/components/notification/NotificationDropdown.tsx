@@ -82,14 +82,6 @@ export function NotificationDropdown({
   }, [])
 
   useEffect(() => {
-    const handlePermissionAndSubscribe = async () => {
-      try {
-        await handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
-      } catch (error) {
-        console.error('Permission request failed:', error)
-      }
-    }
-
     const fetchInitialNotifications = async () => {
       setIsLoading(true)
       setNotifications([])
@@ -124,14 +116,12 @@ export function NotificationDropdown({
       const permissionRequested = localStorage.getItem(
         'push_permission_requested'
       )
-
       // 한 번도 호출하지 않았고, 권한이 default 상태일 때만 호출
-      if (!permissionRequested && Notification.permission === 'default') {
-        handlePermissionAndSubscribe()
+      if (!permissionRequested) {
+        handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
         // 호출했다고 localStorage에 저장
         localStorage.setItem('push_permission_requested', 'true')
       }
-
       fetchInitialNotifications()
     } else {
       setFilter('all')
