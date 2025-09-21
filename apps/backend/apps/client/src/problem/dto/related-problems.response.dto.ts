@@ -75,13 +75,7 @@ class _Problem {
   submissionTime: Date | null
 
   @Expose()
-  @Transform(
-    ({ obj }) => {
-      // updateContentTime이 있으면 반환, 없으면 undefined
-      return obj.updateContentTime || undefined
-    },
-    { toClassOnly: true }
-  )
+  @Transform(({ obj }) => obj.problem.updateContentTime, { toClassOnly: true })
   @IsOptional()
   updateContentTime: Date
 }
