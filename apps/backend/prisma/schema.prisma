@@ -228,8 +228,10 @@ model CourseNoticeRecord {
 
 model CourseNoticeComment {
   id             Int          @id @default(autoincrement())
+  isVisible      Boolean      @map("is_visible")
   createdBy      User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById    Int?         @map("created_by_id")
+  isDeleted      Boolean      @default(false) @map("is_Deleted")
   replyOn        CourseNoticeComment?        @relation("ReplyOn", fields: [replyOnId], references: [id], onDelete: Cascade)
   replyOnId      Int?                        @map("reply_on_id")
   content        String

@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException
+} from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import {
   UnprocessableDataException,
@@ -192,7 +196,7 @@ export class CourseNoticeService {
       select: {
         id: true,
         title: true,
-        createTime: true,
+        updateTime: true,
         isFixed: true,
         createdBy: {
           select: {
@@ -269,6 +273,12 @@ export class CourseNoticeService {
         createdBy: {
           select: {
             username: true
+          }
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            CourseNoticeComment: true
           }
         }
       }
@@ -378,6 +388,8 @@ export class CourseNoticeService {
             studentId: true
           }
         },
+        isDeleted: true,
+        isVisible: true,
         replyOnId: true,
         content: true,
         createdTime: true,
@@ -423,6 +435,9 @@ export class CourseNoticeService {
    * @param {number} id 댓글을 달려는 강의 공지사항의 아이디
    * @param {CreateCourseNoticeCommentDto} createCourseNoticeCommentDto 댓글의 내용과 대댓글을 달려는 원댓글의 아이디(없으면 대댓글 아님)
    * @returns 생성된 댓글의 정보를 반환합니다.
+   * @throws {NotAcceptableException}
+   *  - 댓글 내용이 1000자를 넘어갈 때
+   *  - 답글에 다시 답글을 달려고 할 때
    */
   async createComment({
     userId,
@@ -433,6 +448,24 @@ export class CourseNoticeService {
     id: number
     createCourseNoticeCommentDto: CreateCourseNoticeCommentDto
   }) {
+    if (createCourseNoticeCommentDto.content.length > 1000) {
+      throw new NotAcceptableException('comment content limit is 1000')
+    }
+
+    if (createCourseNoticeCommentDto.replyOnId) {
+      const originalComment = await this.prisma.courseNoticeComment.findUnique({
+        where: {
+          id: createCourseNoticeCommentDto.replyOnId
+        },
+        select: {
+          replyOnId: true
+        }
+      })
+
+      if (originalComment?.replyOnId) {
+        throw new NotAcceptableException('double replies are not allowed.')
+      }
+    }
     return await this.prisma.courseNoticeComment.create({
       data: {
         createdById: userId,
@@ -481,6 +514,8 @@ export class CourseNoticeService {
    * @param {number} id 댓글이 달려있는 강의 공지사항의 아이디
    * @param {number} commentId 삭제하려는 댓글의 아이디
    * @returns
+   * @throws {NotFoundException}
+   * - 댓글 아이디, 강의 아이디, 유저 아이디가 일치하는 댓글이 없을 때
    */
   async deleteComment({
     userId,
@@ -491,6 +526,70 @@ export class CourseNoticeService {
     id: number
     commentId: number
   }) {
+    const comment = await this.prisma.courseNoticeComment.findUnique({
+      where: {
+        id: commentId,
+        courseNoticeId: id,
+        createdById: userId
+      },
+      select: {
+        replyOn: {
+          select: {
+            id: true,
+            isDeleted: true,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            _count: {
+              select: {
+                CourseNoticeComment: true
+              }
+            }
+          }
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            CourseNoticeComment: true
+          }
+        }
+      }
+    })
+
+    if (!comment) {
+      // comment가 존재하지 않을 때
+      throw new NotFoundException('CourseNoticeComment')
+    }
+
+    if (comment._count.CourseNoticeComment > 0) {
+      // 답글이 존재할 때
+      return await this.prisma.courseNoticeComment.update({
+        where: {
+          id: commentId,
+          courseNoticeId: id,
+          createdById: userId
+        },
+        data: {
+          isDeleted: true,
+          content: 'This is a deleted comment.',
+          createdById: null
+        }
+      })
+    }
+
+    if (comment.replyOn != null) {
+      if (
+        comment.replyOn._count.CourseNoticeComment == 1 &&
+        comment.replyOn.isDeleted
+      ) {
+        // 해당 댓글이 답글이고, 원댓글에 대한 답글이 1개 뿐이며 그 원댓글도 삭제되었을 때 (Cascade로 함께 삭제)
+        return await this.prisma.courseNoticeComment.delete({
+          where: {
+            id: comment.replyOn.id
+          }
+        })
+      }
+    }
+
+    // 어떤 경우에도 해당하지 않을 때 (답글이 존재하지 않거나 원댓글이 삭제된 마지막 답글이 아닐 때)
     return await this.prisma.courseNoticeComment.delete({
       where: {
         id: commentId,
