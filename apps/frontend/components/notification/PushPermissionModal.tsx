@@ -65,7 +65,7 @@ export function PushPermissionModal() {
   const data = eventKey ? messages[eventKey] : null
 
   const handleNoticeClick = () => {
-    router.push('/notice')
+    router.push('/notice/7')
     setOpen(false)
   }
 

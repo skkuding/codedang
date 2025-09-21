@@ -19,11 +19,6 @@ export const handleRequestPermissionAndSubscribe = async (
   isSubscribed: boolean,
   setIsSubscribed: (value: boolean) => void
 ) => {
-  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-    window.dispatchEvent(new CustomEvent('push:unsupported'))
-    return
-  }
-
   const currentPermission = Notification.permission
 
   if (currentPermission === 'granted' && !isSubscribed) {
