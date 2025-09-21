@@ -16,6 +16,11 @@ export const handleRequestPermissionAndSubscribe = async (
 ) => {
   const currentPermission = Notification.permission
 
+  if (currentPermission === 'denied') {
+    window.dispatchEvent(new CustomEvent('push:denied'))
+    return
+  }
+
   if (currentPermission === 'default') {
     const newPermission = await Notification.requestPermission()
     if (newPermission === 'granted') {
@@ -27,11 +32,6 @@ export const handleRequestPermissionAndSubscribe = async (
 
   if (currentPermission === 'granted' && !isSubscribed) {
     await subscribeToPush(setIsSubscribed)
-    return
-  }
-
-  if (currentPermission === 'denied') {
-    window.dispatchEvent(new CustomEvent('push:denied'))
     return
   }
 }
