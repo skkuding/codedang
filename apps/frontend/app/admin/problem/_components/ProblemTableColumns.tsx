@@ -27,6 +27,7 @@ export interface DataTableProblem {
   id: number
   title: string
   updateTime: string
+  updateContentTime: string
   difficulty: string
   submissionCount: number
   acceptedRate: number
@@ -145,7 +146,11 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
     cell: ({ row }) => {
       return row.getValue('title')
     },
-    enableSorting: false,
+    sortingFn: (rowA, rowB) => {
+      const titleA = rowA.original.title
+      const titleB = rowB.original.title
+      return titleA.localeCompare(titleB, ['ko', 'en'], { numeric: true })
+    },
     enableHiding: false
   },
   /**
