@@ -134,7 +134,7 @@ export function NotificationDropdown({
     } else {
       setFilter('all')
     }
-  }, [isOpen, filter, isSubscribed])
+  }, [isOpen, filter])
 
   const handleMarkAllAsRead = async () => {
     const originalUnreadCount = unreadApiCount
