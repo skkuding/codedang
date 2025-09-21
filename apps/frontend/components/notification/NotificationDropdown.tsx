@@ -120,7 +120,9 @@ export function NotificationDropdown({
     }
 
     if (isOpen) {
-      handlePermissionAndSubscribe()
+      if (Notification.permission === 'default') {
+        handlePermissionAndSubscribe()
+      }
       fetchInitialNotifications()
     } else {
       setFilter('all')
