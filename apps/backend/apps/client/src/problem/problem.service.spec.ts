@@ -14,22 +14,22 @@ import { GroupService } from '@client/group/group.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { _ProblemsResponseDto } from './dto/problems.response.dto'
-import { _RelatedProblemResponseDto } from './dto/related-problem.response.dto'
-import { _RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
+import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
+import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import {
   assignmentProblems,
-  contestProblems,
-  problemTag,
-  problems,
-  workbookProblems,
-  tag,
-  contestProblemsWithScore,
   assignmentProblemsWithScore,
-  mockUpdateHistory
+  contestProblems,
+  contestProblemsWithScore,
+  mockUpdateHistory,
+  problems,
+  problemTag,
+  tag,
+  workbookProblems
 } from './mock/problem.mock'
 import {
-  ContestProblemService,
   AssignmentProblemService,
+  ContestProblemService,
   ProblemService,
   WorkbookProblemService
 } from './problem.service'
@@ -364,7 +364,7 @@ describe('ContestProblemService', () => {
       // then
       expect(result).to.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemsResponseDto, {
+        plainToInstance(RelatedProblemsResponseDto, {
           data: mockContestProblemsWithScore,
           total: mockContestProblemsWithScore.length
         })
@@ -398,7 +398,7 @@ describe('ContestProblemService', () => {
       // then
       expect(result).to.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemsResponseDto, {
+        plainToInstance(RelatedProblemsResponseDto, {
           data: mockContestProblemsWithScore,
           total: mockContestProblemsWithScore.length
         })
@@ -777,7 +777,7 @@ describe('AssignmentProblemService', () => {
 
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
+        plainToInstance(RelatedProblemResponseDto, mockAssignmentProblem)
       )
     })
 
@@ -794,7 +794,7 @@ describe('AssignmentProblemService', () => {
 
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
+        plainToInstance(RelatedProblemResponseDto, mockAssignmentProblem)
       )
     })
 
@@ -880,7 +880,7 @@ describe('WorkbookProblemService', () => {
       // then
       expect(result).to.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemsResponseDto, {
+        plainToInstance(RelatedProblemsResponseDto, {
           data: mockWorkbookProblems,
           total: mockWorkbookProblems.length
         })
@@ -902,7 +902,7 @@ describe('WorkbookProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(_RelatedProblemsResponseDto, {
+        plainToInstance(RelatedProblemsResponseDto, {
           data: mockWorkbookProblems,
           total: 2
         })
@@ -941,7 +941,7 @@ describe('WorkbookProblemService', () => {
       // then
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockWorkbookProblem)
+        plainToInstance(RelatedProblemResponseDto, mockWorkbookProblem)
       )
     })
 
@@ -960,7 +960,7 @@ describe('WorkbookProblemService', () => {
       // then
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockWorkbookProblem)
+        plainToInstance(RelatedProblemResponseDto, mockWorkbookProblem)
       )
     })
 
