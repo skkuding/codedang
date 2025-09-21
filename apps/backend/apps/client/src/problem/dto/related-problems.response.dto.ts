@@ -76,4 +76,7 @@ class _Problem {
   @Expose()
   @IsOptional()
   submissionTime: Date | null
+
+  @Expose()
+  updateContentTime: Date
 }
