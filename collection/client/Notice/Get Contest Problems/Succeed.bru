@@ -5,40 +5,34 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/problem/6
+  url: {{baseUrl}}/contest/1/problem?take=5
   body: none
   auth: none
 }
 
 params:query {
-  ~groupId: 1
-  ~workbookId: 1
+  take: 5
+  ~cursor: 4
 }
 
 assert {
   res.status: eq 200
-  res("id"): isNumber 1
-  res("title"): isString
-  res("description"): isString
-  res("inputDescription"): isString
-  res("outputDescription"): isString
-  res("hint"): isString
-  res("languages"): isDefined
-  res("timeLimit"): isNumber
-  res("memoryLimit"): isNumber
-  res("difficulty"): isString
-  res("source"): isString
-  res("tags"): isDefined
-  res("updateHistory"): isDefined
+  res.body.problems[0].id: isNumber
+  res.body.problems[0].title: isString
+  res.body.problems[0].difficulty: isString
+  res.body.problems[0].submissionCount: isNumber
+  res.body.problems[0].acceptedRate: isNumber
+  res.body.problems[0].order: isNumber
+  res.body.total: isNumber
 }
 
 docs {
-  # 📘 Get Problem by ID
+  # Get Contest Problems
 
-  **GET** `/problem/6`
+  **GET** `/contest/1/problem?take=5`
 
-  이 함수는 다음과 같은 조건에 따라 하나의 문제 정보를 가져옵니다.
-  - groupId, workbookId에 해당하며, problemId == 6인 문제 정보를 가져옵니다.
+  이 함수는 다음과 같은 조건에 따라 대회 속 여러개의 문제 정보들을 가져옵니다.
+  - contestId == 1 속 문제 정보를 take 개수만큼 가져옵니다.
 
   1. 운영진 (Admin, Manager, Reviewer)
     - 대회 시점과 관계 없이 문제 목록을 열람할 수 있습니다.
@@ -52,7 +46,7 @@ docs {
 
   3. 예외 상황 발생
     - 대회 시작 전에 문제를 열람하는 경우 403 Registered but not started 예외 발생
-    - 존재하지 않는 problemId를 입력할 경우 PrismaClientKnownRequestError 예외 발생
+    - 존재하지 않는 contestId를 입력할 경우 ForbiddenAccessException 예외 발생
 
   ### 📥 Request Parameters
 
@@ -60,6 +54,6 @@ docs {
 
   | Name | Type | Required | Description |
   |------|------|----------|-------------|
-  | `groupId` | number | ✅ | 가져올 groupId 지정 |
-  | `workbookId` | number | ✅ | 가져올 workbookId 지정 |
+  | `take` | number | ✅ | 해당 contestId 속에서 가져올 problem 개수를 지정 |
+  | `cursor`  | number | ✅ | 문제 가져올 시작점 지정 -> cursor값 다음의 ID를 가진 문제들 반환 |
 }
