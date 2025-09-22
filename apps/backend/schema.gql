@@ -1359,6 +1359,8 @@ type CourseNoticeComment {
   createdById: Int
   createdTime: DateTime!
   id: ID!
+  isDeleted: Boolean!
+  isVisible: Boolean!
   replyOn: CourseNoticeComment
   replyOnId: Int
   updateTime: DateTime!
@@ -1382,6 +1384,8 @@ type CourseNoticeCommentCountAggregate {
   createdById: Int!
   createdTime: Int!
   id: Int!
+  isDeleted: Int!
+  isVisible: Int!
   replyOnId: Int!
   updateTime: Int!
 }
@@ -1392,6 +1396,8 @@ type CourseNoticeCommentMaxAggregate {
   createdById: Int
   createdTime: DateTime
   id: Int
+  isDeleted: Boolean
+  isVisible: Boolean
   replyOnId: Int
   updateTime: DateTime
 }
@@ -1402,6 +1408,8 @@ type CourseNoticeCommentMinAggregate {
   createdById: Int
   createdTime: DateTime
   id: Int
+  isDeleted: Boolean
+  isVisible: Boolean
   replyOnId: Int
   updateTime: DateTime
 }
@@ -2119,7 +2127,7 @@ type Problem {
   testSubmission: [TestSubmission!]
   timeLimit: Int!
   title: String!
-  updateContentTime: DateTime!
+  updateContentTime: DateTime
   updateHistory: [UpdateHistory!]
   updateTime: DateTime!
   visibleLockTime: DateTime!
@@ -2472,7 +2480,7 @@ type ProblemWithIsVisible {
   testcase: [ProblemTestcase!]!
   timeLimit: Int!
   title: String!
-  updateContentTime: DateTime!
+  updateContentTime: DateTime
   updateHistory: [UpdateHistory!]!
   updateTime: DateTime!
   workbookProblem: [WorkbookProblem!]

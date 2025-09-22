@@ -169,6 +169,7 @@ export class CourseNoticeService {
     cursor,
     take,
     search,
+    filter,
     fixed = false,
     order
   }: {
@@ -176,9 +177,10 @@ export class CourseNoticeService {
     groupId: number
     cursor: number | null
     take: number
+    filter: 'all' | 'unread'
     search?: string
     fixed?: boolean
-    order: CourseNoticeOrder | undefined
+    order?: CourseNoticeOrder
   }) {
     const paginator = this.prisma.getPaginator(cursor)
     const courseNotices = await this.prisma.courseNotice.findMany({
@@ -186,6 +188,15 @@ export class CourseNoticeService {
       where: {
         isVisible: true,
         isFixed: fixed,
+        CourseNoticeRecord:
+          filter == 'unread'
+            ? {
+                some: {
+                  userId,
+                  isRead: false
+                }
+              }
+            : undefined,
         title: {
           contains: search,
           mode: 'insensitive'
