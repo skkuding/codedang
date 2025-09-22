@@ -80,7 +80,7 @@ export function RegisteredButtonGroup({
                 className="bg-error h-[46px] w-full hover:bg-red-500/90"
                 variant="default"
               >
-                Confirm
+                Cancel
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
