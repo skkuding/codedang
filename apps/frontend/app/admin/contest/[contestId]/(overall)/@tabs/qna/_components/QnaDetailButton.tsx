@@ -20,7 +20,7 @@ export function QnaDetailButton({
   qnaId
 }: {
   trigger: ReactElement
-  qnaId: string
+  qnaId: number
 }) {
   const { contestId } = useParams<{ contestId: string }>()
   const [showModal, setShowModal] = useState(false)
