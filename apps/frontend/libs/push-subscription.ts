@@ -14,10 +14,19 @@ export const handleRequestPermissionAndSubscribe = async (
   isSubscribed: boolean,
   setIsSubscribed: (value: boolean) => void
 ) => {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+    setIsSubscribed(false)
+    window.dispatchEvent(new CustomEvent('push:unsupported'))
+  }
   const currentPermission = Notification.permission
 
   if (currentPermission === 'denied') {
     window.dispatchEvent(new CustomEvent('push:denied'))
+    return
+  }
+
+  if (currentPermission === 'granted' && !isSubscribed) {
+    await subscribeToPush(setIsSubscribed)
     return
   }
 
@@ -28,11 +37,6 @@ export const handleRequestPermissionAndSubscribe = async (
     } else if (newPermission === 'denied') {
       window.dispatchEvent(new CustomEvent('push:denied'))
     }
-  }
-
-  if (currentPermission === 'granted' && !isSubscribed) {
-    await subscribeToPush(setIsSubscribed)
-    return
   }
 }
 

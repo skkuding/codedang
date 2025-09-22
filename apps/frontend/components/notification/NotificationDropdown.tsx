@@ -112,24 +112,15 @@ export function NotificationDropdown({
     }
 
     if (isOpen) {
-      // 브라우저 지원하지 않는 경우
-      if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-        setIsSubscribed(false)
-        window.dispatchEvent(new CustomEvent('push:unsupported'))
-        // 여기서 return하지 말고 드롭다운은 열기
-      } else {
-        // 브라우저가 지원하는 경우에만 권한 요청 로직 실행
-        const permissionRequested = localStorage.getItem(
-          'push_permission_requested'
-        )
+      const permissionRequested = localStorage.getItem(
+        'push_permission_requested'
+      )
 
-        if (!permissionRequested && Notification.permission === 'default') {
-          handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
-          localStorage.setItem('push_permission_requested', 'true')
-        }
+      if (!permissionRequested) {
+        handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
       }
+      localStorage.setItem('push_permission_requested', 'true')
 
-      // 알림 목록은 브라우저 지원 여부와 관계없이 항상 가져오기
       fetchInitialNotifications()
     } else {
       setFilter('all')
