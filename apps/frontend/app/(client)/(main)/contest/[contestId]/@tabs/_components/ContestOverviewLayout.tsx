@@ -22,6 +22,7 @@ import { BiggerImageButton } from './BiggerImageButton'
 import { GotoContestListButton } from './GotoContestListButton'
 import { PrevNextProblemButton } from './PrevNextProblemButton'
 import { RegisterButton } from './RegisterButton'
+import { RegisteredButtonGroup } from './RegisteredButtonGroup'
 import { RenderProblemList } from './RenderProblemList'
 
 interface ContestOverviewLayoutProps {
@@ -173,9 +174,10 @@ export function ContestOverviewLayout({
               {!isPreview && session && state !== 'Finished' && (
                 <div>
                   {actualIsRegistered ? (
-                    <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#F0F0F0] font-medium text-[#9B9B9B]">
-                      Registered
-                    </Button>
+                    <RegisteredButtonGroup
+                      id={String(contest.id)}
+                      state={state}
+                    />
                   ) : (
                     <RegisterButton
                       id={String(contest.id)}
