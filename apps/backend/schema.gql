@@ -1859,7 +1859,7 @@ enum Level {
 
 type Mutation {
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
-  cloneCourseNotice(cloneToId: Int!, courseNoticeId: Int!, input: UpdateCourseNoticeInput! = {}): CourseNotice!
+  cloneCourseNotice(cloneToId: Int!, courseNoticeIds: [Int!]!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!

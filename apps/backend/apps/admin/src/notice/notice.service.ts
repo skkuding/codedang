@@ -150,13 +150,14 @@ export class CourseNoticeService {
 
   async cloneCourseNotice(
     userId: number,
-    courseNoticeId: number,
-    cloneCourseNoticeInput: UpdateCourseNoticeInput,
+    courseNoticeId: number[],
     cloneToId: number
   ) {
-    const original = await this.prisma.courseNotice.findUnique({
+    const originals = await this.prisma.courseNotice.findMany({
       where: {
-        id: courseNoticeId
+        id: {
+          in: courseNoticeId
+        }
       },
       select: {
         title: true,
@@ -166,23 +167,27 @@ export class CourseNoticeService {
       }
     })
 
-    if (!original) {
+    if (originals.length == 0) {
       throw new NotFoundException('original notice not found')
     }
 
-    const clone = await this.prisma.courseNotice.create({
-      data: {
-        createdById: userId,
-        groupId: cloneToId,
-        title: cloneCourseNoticeInput.title ?? original.title,
-        content: cloneCourseNoticeInput.content ?? original.content,
-        isFixed: cloneCourseNoticeInput.isFixed ?? original.isFixed,
-        isPublic: cloneCourseNoticeInput.isPublic ?? original.isPublic
-      }
+    const clones = await this.prisma.courseNotice.createManyAndReturn({
+      data: originals.map((original) => {
+        return {
+          createdById: userId,
+          groupId: cloneToId,
+          title: original.title,
+          content: original.content,
+          isFixed: original.isFixed,
+          isPublic: original.isPublic
+        }
+      })
     })
 
-    await this.markAsUnread(cloneToId, clone.id)
+    await Promise.all(
+      clones.map((clone) => this.markAsUnread(cloneToId, clone.id))
+    )
 
-    return clone
+    return clones
   }
 }

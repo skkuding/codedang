@@ -202,7 +202,7 @@ model CourseNotice {
   createdById Int?     @map("created_by_id")
   title       String
   content     String
-  isPublic    Boolean  @default(true) @map("is_public")
+  isPublic    Boolean  @default(false) @map("is_public")
   isFixed     Boolean  @default(false) @map("is_fixed")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
