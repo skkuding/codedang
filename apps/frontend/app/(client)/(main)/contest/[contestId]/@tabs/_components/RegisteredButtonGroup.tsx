@@ -22,7 +22,7 @@ export function RegisteredButtonGroup({
     try {
       await safeFetcherWithAuth.delete(`contest/${contestId}/participation`)
       toast.success(`Unregistered ${state} contest successfully`)
-      router.refresh() // to update register state
+      router.refresh()
     } catch (error) {
       console.error(error)
       toast.error(
@@ -41,7 +41,6 @@ export function RegisteredButtonGroup({
       <Button
         className="bg-primary border-primary h-[46px] w-full rounded-full px-12 py-6 text-[16px] font-bold text-white"
         onClick={() => setModalOpen(true)}
-        // disabled={disabled}
       >
         Cancel Registration
       </Button>
