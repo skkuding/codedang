@@ -52,6 +52,7 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
           <AssignmentStatus
             startTime={assignment.startTime}
             dueTime={assignment.dueTime ?? assignment.endTime}
+            endTime={assignment.endTime}
           />
         </div>
         <Separator className="my-0" />
