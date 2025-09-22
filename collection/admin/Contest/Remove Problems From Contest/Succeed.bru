@@ -11,18 +11,26 @@ post {
 }
 
 body:graphql {
-  mutation {
+  mutation RemoveProblemsFromContest(
+    $contestId: Int!,
+    $problemIds: [Int!]!
+  ) {
     removeProblemsFromContest(
-      contestId: 6
-      problemIds: [2]
+      contestId: $contestId,
+      problemIds: $problemIds
     ) {
       contestId
       problemId
-      createTime
-      updateTime
       order
       score
     }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "problemIds": [2]
   }
 }
 
@@ -30,9 +38,63 @@ assert {
   res.body.data.removeProblemsFromContest: isDefined
 }
 
-docs {
-  # remove Problems
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
 
-  - Contest에 포함된 문제들을 remove합니다..
-  - 입력된 problemId, contestId, groupId의 조합과 일치하는 문제가 없을 경우 무시됩니다.
+docs {
+  # 📘 Remove Problems From Contest
+
+  **POST** `/graphql (mutation: removeProblemsFromContest)`
+
+  Removes problems from a contest.
+
+  대회에 포함된 문제를 제외합니다.
+
+  대회에 남아있는 다른 문제들의 순번(`order`)이 재정렬되고,
+
+  제외된 문제의 `visibleLockTime`은 해당 문제가 포함된 다른 대회의 가장 늦은 종료 시간에 맞춰 재설정됩니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Contest Staff)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `contestId` | Int | ✅ | 문제를 제거할 대회의 ID |
+  | `problemIds` | [Int] | ✅ | 제거할 문제의 ID 배열 |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "data": {
+      "removeProblemsFromContest": [
+        {
+          "contestId": 20,
+          "problemId": 2,
+          "order": 1,
+          "score": 20
+        }
+      ]
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  |--------|------|------|
+  | `contestId` | Int | 대회 ID |
+  | `problemId` | Int | 제외된 문제 ID |
+  | `order` | Int | 제외되기 전 문제 순번 |
+  | `score` | Int | 제외되기 전 문제 점수 |
 }

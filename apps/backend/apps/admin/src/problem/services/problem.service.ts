@@ -692,7 +692,8 @@ export class ProblemService {
               }
             ]
           }
-        })
+        }),
+        updateContentTime: new Date()
       },
       include: {
         updateHistory: true // 항상 updateHistory 포함
