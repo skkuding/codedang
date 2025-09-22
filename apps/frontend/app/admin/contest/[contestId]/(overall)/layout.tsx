@@ -1,13 +1,10 @@
 'use client'
 
-import { AdminContestStatusTimeDiff } from '@/app/admin/_components/AdminContestStatusTimeDiff'
+import { DeadlineStatus } from '@/components/DeadlineStatus'
+import { RegistrationTimeStatus } from '@/components/RegistrationTimeStatus'
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
-import { dateFormatter } from '@/libs/utils'
-import calendarIcon from '@/public/icons/calendar.svg'
-import emergencyIcon from '@/public/icons/emergency.svg'
 import { useQuery } from '@apollo/client'
-import Image from 'next/image'
 import Link from 'next/link'
 import { use } from 'react'
 import { FaAngleLeft, FaPencil, FaUser } from 'react-icons/fa6'
@@ -54,24 +51,14 @@ export default function Layout(props: {
           <IoKey className="black self-center" color="#3581FA" />
           &nbsp; Invitation code : {contestData?.invitationCode}
         </div>
-        <div className="flex items-center gap-2">
-          <Image src={calendarIcon} alt="calendar" width={16} />
-          <p className="font-normal text-[#333333E5]">
-            {dateFormatter(contestData?.startTime, 'YY-MM-DD HH:mm')} ~{' '}
-            {dateFormatter(contestData?.endTime, 'YY-MM-DD HH:mm')}
-          </p>
-        </div>
-        <AdminContestStatusTimeDiff
-          contest={contestData}
-          textStyle="font-normal text-[#333333E5] opacity-100"
-          inContestEditor={false}
+        <RegistrationTimeStatus
+          startTime={contestData?.startTime}
+          registerDueTime={contestData?.registerDueTime}
         />
-        <div className="flex items-center gap-2">
-          <Image src={emergencyIcon} alt="emergency" width={16} />
-          <p className="font-normal text-[#333333E5]">
-            {dateFormatter(contestData?.registerDueTime, 'YY-MM-DD HH:mm')}
-          </p>
-        </div>
+        <DeadlineStatus
+          startTime={contestData?.startTime}
+          endTime={contestData?.endTime}
+        />
       </div>
 
       <ContestOverallTabs contestId={contestId} />
