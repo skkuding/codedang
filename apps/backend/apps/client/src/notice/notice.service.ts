@@ -457,6 +457,7 @@ export class CourseNoticeService {
       take,
       select: {
         id: true,
+        createdById: true,
         createdBy: {
           select: {
             username: true,
@@ -501,7 +502,11 @@ export class CourseNoticeService {
     type Comment = (typeof comments)[number]
     const commentDatas = comments.reduce(
       (acc, comment) => {
-        if (!isVisibleSecretComment && comment.isSecret) {
+        if (
+          !isVisibleSecretComment &&
+          userId != comment.createdById &&
+          comment.isSecret
+        ) {
           comment = {
             ...comment,
             content: '',
