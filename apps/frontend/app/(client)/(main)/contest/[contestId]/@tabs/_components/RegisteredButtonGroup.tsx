@@ -35,11 +35,11 @@ export function RegisteredButtonGroup({
 
   return (
     <div className="flex gap-[10px]">
-      <Button className="text pointer-events-none h-[48px] w-full rounded-[1000px] bg-[#F0F0F0] font-medium text-[#9B9B9B]">
+      <Button className="pointer-events-none h-[46px] flex-1 rounded-full bg-[#F0F0F0] text-base font-medium tracking-[-0.03em] text-[#9B9B9B]">
         Registered
       </Button>
       <Button
-        className="bg-primary border-primary h-[46px] w-full rounded-full px-12 py-6 text-[16px] font-bold text-white"
+        className="bg-primary border-primary h-[46px] flex-1 rounded-full text-base font-medium tracking-[-0.03em] text-white"
         onClick={() => setModalOpen(true)}
       >
         Cancel Registration
