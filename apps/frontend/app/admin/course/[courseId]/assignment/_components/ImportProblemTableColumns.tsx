@@ -67,8 +67,12 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
       <DataTableColumnHeader column={column} title="Title" />
     ),
     cell: ({ row }) => row.getValue('title'),
-    enableHiding: false,
-    enableSorting: false
+    sortingFn: (rowA, rowB) => {
+      const titleA = rowA.original.title
+      const titleB = rowB.original.title
+      return titleA.localeCompare(titleB, ['en', 'ko'], { numeric: true })
+    },
+    enableHiding: false
   },
   {
     accessorKey: 'updateTime',

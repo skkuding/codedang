@@ -1,6 +1,8 @@
 # check default values.yaml
 # https://artifacthub.io/packages/helm/grafana/grafana?modal=values
 
+envFromSecret: grafana-github-oauth
+
 replicas: 1
 autoscaling:
   enabled: false
@@ -8,9 +10,15 @@ autoscaling:
 ingress:
   enabled: true
   path: /
-  pathType: Prefix
   hosts:
     - grafana.codedang.com
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - grafana.codedang.com
+      secretName: grafana-tls
 
 limits:
   cpu: 200m
@@ -74,5 +82,18 @@ grafana.ini:
   log:
     mode: console
   server:
-    domain: 'grafana-test.codedang.com' # TODO: update with actual host
-    root_url: 'https://grafana-test.codedang.com' # TODO: update with actual host
+    domain: 'grafana.codedang.com'
+    root_url: 'https://grafana.codedang.com'
+  users:
+    default_language: 'ko-KR'
+    default_locale: ko
+  auth.github:
+    enabled: true
+    allow_sign_up: true
+    auto_login: false
+    role_attribute_path: "'Editor'" # all users are Editor
+    skip_org_role_sync: true
+  # TODO: setup git sync provisioning
+  # feature_toggles:
+  #   provisioning: true
+  #   kubernetesDashboards: true ; use k8s from browser
