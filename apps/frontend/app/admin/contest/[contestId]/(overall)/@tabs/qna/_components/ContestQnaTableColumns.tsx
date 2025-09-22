@@ -1,7 +1,6 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { dateFormatter } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
-import { QnaDetailButton } from './QnaDetailButton'
 
 export interface DataTableQna {
   id: number

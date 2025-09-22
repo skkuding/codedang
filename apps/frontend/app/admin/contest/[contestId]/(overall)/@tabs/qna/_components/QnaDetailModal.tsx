@@ -10,37 +10,28 @@ import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSession } from '@/libs/hooks/useSession'
 import { useMutation, useQuery } from '@apollo/client'
 import { useParams } from 'next/navigation'
-import { useEffect, useState, type ReactElement } from 'react'
 import { toast } from 'sonner'
 import { AdminQnaCommentArea } from './AdminQnaCommentArea'
 import { AdminQnaContentArea } from './AdminQnaContentArea'
 
-export function QnaDetailButton({
-  trigger,
-  qnaId
+export function QnaDetailModal({
+  open,
+  onOpenChange,
+  qnaOrder
 }: {
-  trigger: ReactElement
-  qnaId: number
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  qnaOrder: number
 }) {
   const { contestId } = useParams<{ contestId: string }>()
-  const [showModal, setShowModal] = useState(false)
   const session = useSession()
 
-  const { data, refetch } = useQuery(GET_CONTEST_QNA, {
+  const { data } = useQuery(GET_CONTEST_QNA, {
     variables: {
       contestId: Number(contestId),
-      qnaId: Number(qnaId)
+      qnaId: Number(qnaOrder)
     }
   })
-  const [QnaData, setQnaData] = useState(data?.getContestQnA)
-
-  useEffect(() => {
-    async function RefetchQna() {
-      const refetched = await refetch()
-      setQnaData(refetched.data.getContestQnA)
-    }
-    RefetchQna()
-  }, [refetch, showModal])
 
   const ContestProblems = useQuery(GET_CONTEST_PROBLEMS, {
     variables: {
@@ -49,25 +40,24 @@ export function QnaDetailButton({
   }).data?.getContestProblems
 
   const matchedProblem = ContestProblems?.find(
-    ({ problemId }) => problemId === QnaData?.problemId
+    ({ problemId }) => problemId === data?.getContestQnA?.problemId
   )
   const categoryName = matchedProblem
     ? `${String.fromCharCode(65 + matchedProblem.order)}. ${matchedProblem.problem.title}`
-    : QnaData?.category
+    : data?.getContestQnA?.category
 
   const [mutate] = useMutation(DELETE_CONTEST_QNA)
 
   const deleteContestQna = async () => {
     return await mutate({
-      variables: { contestId: Number(contestId), qnaId: Number(qnaId) }
+      variables: { contestId: Number(contestId), qnaId: Number(qnaOrder) }
     })
   }
 
-  // TODO: 로직 확인
   async function handleDeleteQna() {
     try {
       await deleteContestQna()
-      setShowModal(false)
+      onOpenChange(false)
       toast.success(`question is deleted successfully!`)
     } catch (error) {
       toast.error(`Error in deleting question!: ${error}`)
@@ -78,17 +68,16 @@ export function QnaDetailButton({
     <Modal
       size="lg"
       type="custom"
-      trigger={trigger}
-      open={showModal}
-      onOpenChange={setShowModal}
+      open={open}
+      onOpenChange={onOpenChange}
       title=""
       className="h-full! max-h-[1065px]! px-[20px]!"
     >
       <ScrollArea className="h-full max-h-[1065px] px-[20px]">
-        {QnaData ? (
+        {data?.getContestQnA ? (
           <div className="flex w-full flex-col gap-[20px] leading-[150%] tracking-[-3%]">
             <AdminQnaContentArea
-              QnaData={QnaData}
+              QnaData={data.getContestQnA}
               categoryName={categoryName ?? 'undefined'}
               DeleteButtonComponent={
                 <DeleteButton
@@ -100,7 +89,7 @@ export function QnaDetailButton({
               }
             />
             <AdminQnaCommentArea
-              QnaData={QnaData}
+              QnaData={data.getContestQnA}
               username={session?.user.username}
             />
           </div>

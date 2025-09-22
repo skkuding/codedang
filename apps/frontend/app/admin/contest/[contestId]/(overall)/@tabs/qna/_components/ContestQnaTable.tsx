@@ -3,7 +3,9 @@
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST_QNAS } from '@/graphql/contest/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import type { Row, Table } from '@tanstack/react-table'
 import { useParams } from 'next/navigation'
+import { useState } from 'react'
 import {
   DataTable,
   DataTableFallback,
@@ -13,10 +15,12 @@ import {
 } from '../../../../../../_components/table'
 import { createColumns } from './ContestQnaTableColumns'
 import type { DataTableQna } from './ContestQnaTableColumns'
-import { QnaDetailButton } from './QnaDetailButton'
+import { QnaDetailModal } from './QnaDetailModal'
 
 export function ContestQnaTable() {
   const { contestId } = useParams<{ contestId: string }>()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedQnaOrder, setSelectedQnaOrder] = useState<number | null>(null)
   const { data } = useSuspenseQuery(GET_CONTEST_QNAS, {
     variables: {
       contestId: Number(contestId)
@@ -30,31 +34,38 @@ export function ContestQnaTable() {
 
   const bodyStyle = { title: 'justify-start' }
 
-  const hanleRowclick = (row: DataTableQna) => {
-    return (
-      <QnaDetailButton
-        trigger={<div className="h-full w-full" />}
-        qnaId={row.id}
-      />
-    )
+  const handleRowClick = (
+    table: Table<{ id: number }>,
+    row: Row<{ id: number }>
+  ) => {
+    console.log(row.original)
+    const qnaData = row.original as DataTableQna
+    setSelectedQnaOrder(Number(qnaData.order))
+    setIsModalOpen(true)
   }
 
   return (
-    <DataTableRoot
-      data={qnaData}
-      columns={createColumns()}
+    <>
+      <DataTableRoot
+        data={qnaData}
+        columns={createColumns()}
 
-      // defaultSortState={[{ id: 'updateTime', desc: true }]}
-    >
-      <div className="flex gap-4">
-        <DataTableSearchBar columndId="title" />
-      </div>
-      <DataTable
-        onRowClick={(_, row) => hanleRowclick(row.original as DataTableQna)}
-        bodyStyle={bodyStyle}
-      />
-      <DataTablePagination showSelection />
-    </DataTableRoot>
+        // defaultSortState={[{ id: 'updateTime', desc: true }]}
+      >
+        <div className="flex gap-4">
+          <DataTableSearchBar columndId="title" />
+        </div>
+        <DataTable onRowClick={handleRowClick} bodyStyle={bodyStyle} />
+        <DataTablePagination showSelection />
+      </DataTableRoot>
+      {isModalOpen && selectedQnaOrder !== null && (
+        <QnaDetailModal
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          qnaOrder={selectedQnaOrder}
+        />
+      )}
+    </>
   )
 }
 
