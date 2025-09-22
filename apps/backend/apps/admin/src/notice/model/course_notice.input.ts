@@ -12,7 +12,7 @@ export class CreateCourseNoticeInput {
   content: string
 
   @Field(() => Boolean, { nullable: false, defaultValue: true })
-  isVisible: boolean
+  isPublic: boolean
 
   @Field(() => Boolean, { nullable: false, defaultValue: false })
   isFixed: boolean

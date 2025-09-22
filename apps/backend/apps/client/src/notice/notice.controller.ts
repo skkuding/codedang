@@ -18,7 +18,7 @@ import {
   CreateCourseNoticeCommentDto,
   UpdateCourseNoticeCommentDto
 } from './dto/courseNotice.dto'
-import { CourseNoticeOrder } from './enum/course_notice-order.enum'
+import type { CourseNoticeOrder } from './enum/course_notice-order.enum'
 import { NoticeService, CourseNoticeService } from './notice.service'
 
 @Controller('notice')
@@ -52,14 +52,14 @@ export class NoticeController {
 export class CourseNoticeController {
   constructor(private readonly courseNoticeService: CourseNoticeService) {}
 
-  @Get()
+  @Get('unreadCount')
   async getUnreadCourseNoticeCount(@Req() req: AuthenticatedRequest) {
     return await this.courseNoticeService.getUnreadCourseNoticeCount({
       userId: req.user.id
     })
   }
 
-  @Get()
+  @Get('latest')
   async getLatestCourseNotice(@Req() req: AuthenticatedRequest) {
     return await this.courseNoticeService.getLatestCourseNotice({
       userId: req.user.id
@@ -132,6 +132,7 @@ export class CourseNoticeController {
    */
   @Get(':id/comment') // course notice id
   async getComments(
+    @Req() req: AuthenticatedRequest,
     @Param('id', new RequiredIntPipe('id')) id: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
@@ -139,6 +140,8 @@ export class CourseNoticeController {
   ) {
     return await this.courseNoticeService.getCourseNoticeComments({
       id,
+      userId: req.user.id,
+      userRole: req.user.role,
       cursor,
       take
     })

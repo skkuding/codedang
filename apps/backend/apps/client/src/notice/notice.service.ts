@@ -3,10 +3,11 @@ import {
   NotAcceptableException,
   NotFoundException
 } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+import { Prisma, Role } from '@prisma/client'
 import {
   UnprocessableDataException,
-  EntityNotExistException
+  EntityNotExistException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type {
@@ -368,7 +369,7 @@ export class CourseNoticeService {
       return {
         where: {
           id: options.compare,
-          isVisible: true
+          isPublic: true
         },
         orderBy: {
           id: options.order
@@ -436,10 +437,14 @@ export class CourseNoticeService {
    */
   async getCourseNoticeComments({
     id,
+    userId,
+    userRole,
     cursor,
     take
   }: {
     id: number
+    userId: number
+    userRole: Role
     cursor: number | null
     take: number
   }) {
@@ -470,9 +475,42 @@ export class CourseNoticeService {
       }
     })
 
+    const myRoleInCourse = await this.prisma.userGroup.findFirst({
+      where: {
+        userId,
+        group: {
+          CourseNotice: {
+            some: {
+              id
+            }
+          }
+        }
+      },
+      select: {
+        isGroupLeader: true
+      }
+    })
+
+    if (!myRoleInCourse) {
+      throw new ForbiddenAccessException('it is not accessable course notice')
+    }
+
+    const isVisibleSecretComment =
+      userRole != Role.User || myRoleInCourse.isGroupLeader
+
     type Comment = (typeof comments)[number]
     const commentDatas = comments.reduce(
       (acc, comment) => {
+        if (!isVisibleSecretComment && comment.isSecret) {
+          comment = {
+            ...comment,
+            content: '',
+            createdBy: {
+              username: '',
+              studentId: ''
+            }
+          }
+        }
         if (!comment.replyOnId) {
           acc.push({
             comment,

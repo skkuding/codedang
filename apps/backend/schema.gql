@@ -1338,7 +1338,7 @@ type CourseNotice {
   groupId: Int!
   id: ID!
   isFixed: Boolean!
-  isVisible: Boolean!
+  isPublic: Boolean!
   title: String!
   updateTime: DateTime!
 }
@@ -1360,7 +1360,7 @@ type CourseNoticeComment {
   createdTime: DateTime!
   id: ID!
   isDeleted: Boolean!
-  isVisible: Boolean!
+  isSecret: Boolean!
   replyOn: CourseNoticeComment
   replyOnId: Int
   updateTime: DateTime!
@@ -1385,7 +1385,7 @@ type CourseNoticeCommentCountAggregate {
   createdTime: Int!
   id: Int!
   isDeleted: Int!
-  isVisible: Int!
+  isSecret: Int!
   replyOnId: Int!
   updateTime: Int!
 }
@@ -1397,7 +1397,7 @@ type CourseNoticeCommentMaxAggregate {
   createdTime: DateTime
   id: Int
   isDeleted: Boolean
-  isVisible: Boolean
+  isSecret: Boolean
   replyOnId: Int
   updateTime: DateTime
 }
@@ -1409,7 +1409,7 @@ type CourseNoticeCommentMinAggregate {
   createdTime: DateTime
   id: Int
   isDeleted: Boolean
-  isVisible: Boolean
+  isSecret: Boolean
   replyOnId: Int
   updateTime: DateTime
 }
@@ -1434,7 +1434,7 @@ type CourseNoticeCountAggregate {
   groupId: Int!
   id: Int!
   isFixed: Int!
-  isVisible: Int!
+  isPublic: Int!
   title: Int!
   updateTime: Int!
 }
@@ -1446,7 +1446,7 @@ type CourseNoticeMaxAggregate {
   groupId: Int
   id: Int
   isFixed: Boolean
-  isVisible: Boolean
+  isPublic: Boolean
   title: String
   updateTime: DateTime
 }
@@ -1458,7 +1458,7 @@ type CourseNoticeMinAggregate {
   groupId: Int
   id: Int
   isFixed: Boolean
-  isVisible: Boolean
+  isPublic: Boolean
   title: String
   updateTime: DateTime
 }
@@ -1563,7 +1563,7 @@ input CreateCourseNoticeInput {
   content: String!
   groupId: Int!
   isFixed: Boolean! = false
-  isVisible: Boolean! = true
+  isPublic: Boolean! = true
   title: String!
 }
 
@@ -3095,7 +3095,7 @@ input UpdateContestInput {
 input UpdateCourseNoticeInput {
   content: String
   isFixed: Boolean = false
-  isVisible: Boolean = true
+  isPublic: Boolean = true
   title: String
 }
 

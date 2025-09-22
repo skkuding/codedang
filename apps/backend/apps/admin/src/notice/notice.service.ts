@@ -162,7 +162,7 @@ export class CourseNoticeService {
         title: true,
         content: true,
         isFixed: true,
-        isVisible: true
+        isPublic: true
       }
     })
 
@@ -177,7 +177,7 @@ export class CourseNoticeService {
         title: cloneCourseNoticeInput.title ?? original.title,
         content: cloneCourseNoticeInput.content ?? original.content,
         isFixed: cloneCourseNoticeInput.isFixed ?? original.isFixed,
-        isVisible: cloneCourseNoticeInput.isVisible ?? original.isVisible
+        isPublic: cloneCourseNoticeInput.isPublic ?? original.isPublic
       }
     })
 
