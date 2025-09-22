@@ -8,5 +8,5 @@
 ALTER TABLE "public"."course_notice_comment" DROP CONSTRAINT "course_notice_comment_reply_on_id_fkey";
 
 -- AlterTable
-ALTER TABLE "public"."course_notice_comment" ADD COLUMN     "is_Deleted" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "is_visible" BOOLEAN NOT NULL;
+ALTER TABLE "public"."course_notice_comment" ADD COLUMN     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "is_secret" BOOLEAN NOT NULL DEFAULT false;

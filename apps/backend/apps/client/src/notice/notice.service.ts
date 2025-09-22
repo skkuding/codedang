@@ -131,6 +131,68 @@ export class CourseNoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
+   * 한 유저가 접근할 수 있는 공지 중 읽지 않은 공지의 수를 반환합니다.
+   *
+   * @param {number} userId 유저 아이디
+   */
+  async getUnreadCourseNoticeCount({ userId }: { userId: number }) {
+    return await this.prisma.courseNoticeRecord.count({
+      where: {
+        userId,
+        isRead: false
+      }
+    })
+  }
+
+  /**
+   * 한 유저가 접근할 수 있는 가장 최근 공지를 띄워줍니다.
+   *
+   * @param {number} userId 유저 아이디
+   */
+  async getLatestCourseNotice({ userId }: { userId: number }) {
+    return await this.prisma.courseNotice.findFirst({
+      where: {
+        OR: [
+          {
+            group: {
+              userGroup: {
+                some: {
+                  userId
+                }
+              }
+            }
+          },
+          {
+            isPublic: true
+          }
+        ]
+      },
+      select: {
+        id: true,
+        title: true,
+        groupId: true,
+        group: {
+          select: {
+            groupName: true
+          }
+        },
+        updateTime: true,
+        CourseNoticeRecord: {
+          where: {
+            userId
+          },
+          select: {
+            isRead: true
+          }
+        }
+      },
+      orderBy: {
+        updateTime: 'desc'
+      }
+    })
+  }
+
+  /**
    * 공지사항을 불러올 때 정렬 방식을 지정합니다.
    *
    * @param {CourseNoticeOrder} order 공지 정렬 방식
@@ -186,7 +248,6 @@ export class CourseNoticeService {
     const courseNotices = await this.prisma.courseNotice.findMany({
       ...paginator,
       where: {
-        isVisible: true,
         isFixed: fixed,
         CourseNoticeRecord:
           filter == 'unread'
@@ -251,7 +312,6 @@ export class CourseNoticeService {
 
     const total = await this.prisma.courseNotice.count({
       where: {
-        isVisible: true,
         isFixed: fixed,
         title: {
           contains: search,
@@ -273,8 +333,7 @@ export class CourseNoticeService {
   async getCourseNoticeByID({ userId, id }: { userId: number; id: number }) {
     const courseNotice = await this.prisma.courseNotice.findUniqueOrThrow({
       where: {
-        id,
-        isVisible: true
+        id
       },
       select: {
         title: true,
@@ -400,7 +459,7 @@ export class CourseNoticeService {
           }
         },
         isDeleted: true,
-        isVisible: true,
+        isSecret: true,
         replyOnId: true,
         content: true,
         createdTime: true,

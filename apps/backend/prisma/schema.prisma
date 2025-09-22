@@ -202,7 +202,7 @@ model CourseNotice {
   createdById Int?     @map("created_by_id")
   title       String
   content     String
-  isVisible   Boolean  @default(true) @map("is_visible")
+  isPublic    Boolean  @default(true) @map("is_public")
   isFixed     Boolean  @default(false) @map("is_fixed")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
@@ -228,7 +228,7 @@ model CourseNoticeRecord {
 
 model CourseNoticeComment {
   id             Int          @id @default(autoincrement())
-  isVisible      Boolean      @map("is_visible")
+  isSecret       Boolean      @default(false) @map("is_secret")
   createdBy      User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById    Int?         @map("created_by_id")
   isDeleted      Boolean      @default(false) @map("is_Deleted")

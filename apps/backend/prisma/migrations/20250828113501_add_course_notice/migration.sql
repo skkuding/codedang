@@ -6,7 +6,7 @@ CREATE TABLE "public"."course_notice" (
     "created_by_id" INTEGER,
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "is_visible" BOOLEAN NOT NULL DEFAULT true,
+    "is_public" BOOLEAN NOT NULL DEFAULT false,
     "is_fixed" BOOLEAN NOT NULL DEFAULT false,
     "create_time" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "update_time" TIMESTAMP(3) NOT NULL,

@@ -11,9 +11,9 @@ export class CreateCourseNoticeCommentDto {
   @IsString()
   content: string
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
-  isVisible: boolean
+  isSecret = false
 
   @IsOptional()
   @IsInt()

@@ -52,7 +52,19 @@ export class NoticeController {
 export class CourseNoticeController {
   constructor(private readonly courseNoticeService: CourseNoticeService) {}
 
-  // <TODO>: 권한 검증 추가하기
+  @Get()
+  async getUnreadCourseNoticeCount(@Req() req: AuthenticatedRequest) {
+    return await this.courseNoticeService.getUnreadCourseNoticeCount({
+      userId: req.user.id
+    })
+  }
+
+  @Get()
+  async getLatestCourseNotice(@Req() req: AuthenticatedRequest) {
+    return await this.courseNoticeService.getLatestCourseNotice({
+      userId: req.user.id
+    })
+  }
 
   /**
    * 특정 강의에 대하여 지정된 개수만큼의 강의 공지 목록을 가져옵니다.
@@ -93,6 +105,7 @@ export class CourseNoticeController {
 
   /**
    * 공지사항의 아이디를 기반으로 공지사항의 내용을 조회합니다.
+   * <TODO>: 그룹 멤버 가드 적용 안됨
    *
    * @param {AuthenticatedRequest} req
    * @param {number} id 조회하려는 강의 공지사항의 아이디
