@@ -90,7 +90,7 @@ function ImageBox({ className }: { className: string }) {
     <div className={`relative ${className}`}>
       <ImageMask className="h-full max-h-[183px] w-full" />
       <Image
-        src={'/banners/mainpage_middle_banner.png'}
+        src={'/banners/middle_banner.png'}
         alt="middle_banner"
         fill
         style={{
