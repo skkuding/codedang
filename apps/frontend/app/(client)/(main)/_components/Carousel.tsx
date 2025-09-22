@@ -87,7 +87,7 @@ export function Carousel({ slides }: CarouselProps) {
           className="h-10 p-0 hover:bg-transparent active:bg-transparent"
           onClick={() => handleClick(facade - 1 + slides.length)}
         >
-          <div className="relative flex h-full w-[40px] items-center justify-center">
+          <div className="relative flex h-[40px] w-[40px] items-center justify-center">
             <Image src={ArrowIcon} alt="Left" fill />
           </div>
         </Button>
