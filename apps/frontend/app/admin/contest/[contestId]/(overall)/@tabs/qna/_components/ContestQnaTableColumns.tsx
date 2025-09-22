@@ -19,7 +19,17 @@ interface CreatedByType {
   username: string
 }
 
-export const createColumns = (): ColumnDef<DataTableQna>[] => [
+interface ContestProblem {
+  problemId: number
+  order: number
+  problem: {
+    title: string
+  }
+}
+
+export const createColumns = (
+  contestProblems: ContestProblem[]
+): ColumnDef<DataTableQna>[] => [
   {
     accessorKey: 'order',
     header: ({ column }) => (
@@ -39,7 +49,19 @@ export const createColumns = (): ColumnDef<DataTableQna>[] => [
       />
     ),
     cell: ({ row }) => {
-      return row.getValue('category')
+      console.log(contestProblems)
+      const qna = row.original
+      if (qna.problemId === null || qna.problemId === undefined) {
+        return qna.category
+      }
+      const matchedProblem = contestProblems.find(
+        (problem) => problem.problemId === qna.problemId
+      )
+      const categoryName = matchedProblem
+        ? `${String.fromCharCode(65 + matchedProblem.order)}. ${matchedProblem.problem.title}`
+        : qna.category
+
+      return categoryName
     }
   },
   {

@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST_QNAS } from '@/graphql/contest/queries'
-import { useSuspenseQuery } from '@apollo/client'
+import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
+import { useSuspenseQuery, useQuery } from '@apollo/client'
 import type { Row, Table } from '@tanstack/react-table'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
@@ -21,7 +21,7 @@ export function ContestQnaTable() {
   const { contestId } = useParams<{ contestId: string }>()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedQnaOrder, setSelectedQnaOrder] = useState<number | null>(null)
-  const { data } = useSuspenseQuery(GET_CONTEST_QNAS, {
+  const { data, refetch } = useSuspenseQuery(GET_CONTEST_QNAS, {
     variables: {
       contestId: Number(contestId)
     }
@@ -31,6 +31,14 @@ export function ContestQnaTable() {
     id: Number(qna.id),
     createTime: String(qna.createTime)
   }))
+  const { data: problemsData } = useQuery(GET_CONTEST_PROBLEMS, {
+    variables: {
+      contestId: Number(contestId)
+    }
+  })
+  const contestProblems = problemsData?.getContestProblems || []
+
+  const columns = createColumns(contestProblems)
 
   const bodyStyle = { title: 'justify-start' }
 
@@ -48,7 +56,7 @@ export function ContestQnaTable() {
     <>
       <DataTableRoot
         data={qnaData}
-        columns={createColumns()}
+        columns={columns}
 
         // defaultSortState={[{ id: 'updateTime', desc: true }]}
       >
@@ -70,5 +78,6 @@ export function ContestQnaTable() {
 }
 
 export function ContestQnaTableFallback() {
-  return <DataTableFallback columns={createColumns()} />
+  const columns = createColumns([])
+  return <DataTableFallback columns={columns} />
 }
