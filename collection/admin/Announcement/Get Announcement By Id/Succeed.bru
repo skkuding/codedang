@@ -26,7 +26,33 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 1,
+    "contestId": 20,
     "id": 1
   }
+}
+
+docs {
+  # 📘 Get Announcement By Id
+  
+  Get a specific Announcement by contestId and Id.
+  
+  특정 Id에 해당하는 공지를 조회합니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `contestId` | number |   ✅     | Id of Contest |
+  | `id`  | number | ✅ | Id of Announcement |
+  
+  ---
 }

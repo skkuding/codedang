@@ -31,9 +31,11 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
     ),
     cell: ({ row }) => (
       <Checkbox
+        onClick={(e) => e.stopPropagation()}
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         aria-label="Select row"
         className="translate-y-[2px]"
-        disabled={true}
       />
     ),
     enableSorting: false,
@@ -42,14 +44,14 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader
+        column={column}
+        title="Title"
+        className="w-[300px]"
+      />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="w-[400px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
-          {row.getValue('title')}
-        </div>
-      )
+      return row.getValue('title')
     },
     enableSorting: false,
     enableHiding: false
@@ -78,11 +80,7 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
   {
     accessorKey: 'updateTime',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Update"
-        className="justify-center"
-      />
+      <DataTableColumnHeader column={column} title="Update" />
     ),
     cell: ({ row }) => {
       return <div>{row.original.updateTime.substring(2, 10)}</div>
@@ -91,24 +89,18 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Level"
-        className="justify-center"
-      />
+      <DataTableColumnHeader column={column} title="Level" />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
       const formattedLevel = `Level ${level.slice(-1)}`
       return (
-        <div>
-          <Badge
-            variant={level as Level}
-            className="mr-1 whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
-          >
-            {formattedLevel}
-          </Badge>
-        </div>
+        <Badge
+          variant={level as Level}
+          className="mr-1 whitespace-nowrap px-2 py-1 font-normal"
+        >
+          {formattedLevel}
+        </Badge>
       )
     },
     filterFn: (row, id, value) => {

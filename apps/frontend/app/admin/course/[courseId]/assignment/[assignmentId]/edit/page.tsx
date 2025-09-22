@@ -13,7 +13,8 @@ import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState, use } from 'react'
+import { useParams } from 'next/navigation'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -26,13 +27,10 @@ import { WeekComboBox } from '../../../_components/WeekComboBox'
 import { editSchema } from '../../../_libs/schemas'
 import type { AssignmentProblem } from '../../../_libs/type'
 
-export default function Page(props: {
-  params: Promise<{ courseId: string; assignmentId: string }>
-}) {
-  const params = use(props.params)
+export default function Page() {
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { courseId, assignmentId } = params
+  const { courseId, assignmentId } = useParams()
 
   const methods = useForm<UpdateAssignmentInput>({
     resolver: valibotResolver(editSchema),
@@ -75,30 +73,28 @@ export default function Page(props: {
                     <WeekComboBox name="week" courseId={Number(courseId)} />
                   )}
                 </FormSection>
+                <FormSection title="Start Time" className="w-[420px]">
+                  {methods.getValues('startTime') && (
+                    <TimeForm name="startTime" />
+                  )}
+                </FormSection>
+              </div>
+
+              <div className="flex justify-between">
                 <FormSection
                   title="Due Time"
                   className="w-[420px]"
                   isLabeled={false}
                 >
                   <TimeFormPopover />
-                  {methods.getValues('dueTime') && (
-                    <TimeForm
-                      name="dueTime"
-                      defaultTimeOnSelect={{
-                        hours: 23,
-                        minutes: 59,
-                        seconds: 59
-                      }}
-                    />
-                  )}
-                </FormSection>
-              </div>
-
-              <div className="flex justify-between">
-                <FormSection title="Start Time" className="w-[420px]">
-                  {methods.getValues('startTime') && (
-                    <TimeForm name="startTime" />
-                  )}
+                  <TimeForm
+                    name="dueTime"
+                    defaultTimeOnSelect={{
+                      hours: 23,
+                      minutes: 59,
+                      seconds: 59
+                    }}
+                  />
                 </FormSection>
                 <FormSection
                   title="End Time"
@@ -150,7 +146,9 @@ export default function Page(props: {
                 <AssignmentSolutionTable
                   problems={problems}
                   setProblems={setProblems}
-                  dueTime={methods.getValues('dueTime')}
+                  dueTime={
+                    methods.getValues('dueTime') ?? methods.getValues('endTime')
+                  }
                 />
               </div>
 

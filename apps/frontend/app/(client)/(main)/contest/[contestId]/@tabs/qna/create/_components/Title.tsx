@@ -29,6 +29,11 @@ export function Title({ control }: TitleInputProps) {
             className="font-pretendard h-[24px] min-h-[24px] resize-none truncate rounded-none border-none p-0 text-base font-normal leading-[22px] tracking-[-0.48px] text-[#5C5C5C] shadow-none ring-0 placeholder:text-[#C4C4C4] focus:placeholder:text-transparent focus-visible:ring-0"
             maxLength={35}
             rows={1}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+              }
+            }}
           />
         )}
       />

@@ -94,8 +94,7 @@ export function QnaCommentArea({
           ?.sort((a, b) => a.order - b.order)
           .map((comment) => {
             const canDeleteComment =
-              userId === comment.createdById ||
-              (comment.isContestStaff && isContestStaff)
+              userId === comment.createdById || isContestStaff
             return (
               <QnaSingleComment
                 key={comment.order}
