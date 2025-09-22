@@ -149,7 +149,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
     sortingFn: (rowA, rowB) => {
       const titleA = rowA.original.title
       const titleB = rowB.original.title
-      return titleA.localeCompare(titleB, ['ko', 'en'], { numeric: true })
+      return titleA.localeCompare(titleB, ['en', 'ko'], { numeric: true })
     },
     enableHiding: false
   },
