@@ -243,15 +243,20 @@ function ExerciseAccordionItem({
                     {record && submission && (
                       <div className="flex items-center justify-between text-xs text-gray-600">
                         <div className="flex flex-col gap-1">
-                          {submission[index].submission?.submissionTime && (
-                            <span>
-                              Last Submission :{' '}
-                              {dateFormatter(
-                                submission[index].submission.submissionTime,
-                                'MMM D, HH:mm'
-                              )}
-                            </span>
-                          )}
+                          {(() => {
+                            const problemSubmission = submission.find(
+                              (sub) => sub.problemId === problem.id
+                            )
+                            const submissionTime =
+                              problemSubmission?.submission?.submissionTime
+
+                            return submissionTime ? (
+                              <span>
+                                Last Submission :{' '}
+                                {dateFormatter(submissionTime, 'MMM D, HH:mm')}
+                              </span>
+                            ) : null
+                          })()}
                         </div>
                         <ResultBadge assignmentSubmission={submission[index]} />
                       </div>
@@ -284,15 +289,20 @@ function ExerciseAccordionItem({
                     </div>
 
                     <div className="w-[30%]">
-                      {submission?.[index].submission?.submissionTime && (
-                        <div className="text-primary flex w-full justify-center text-sm font-normal">
-                          Last Submission :{' '}
-                          {dateFormatter(
-                            submission[index].submission.submissionTime,
-                            'MMM D, HH:mm:ss'
-                          )}
-                        </div>
-                      )}
+                      {(() => {
+                        const problemSubmission = submission?.find(
+                          (sub) => sub.problemId === problem.id
+                        )
+                        const submissionTime =
+                          problemSubmission?.submission?.submissionTime
+
+                        return submissionTime ? (
+                          <div className="text-primary flex w-full justify-center text-sm font-normal">
+                            Last Submission :{' '}
+                            {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
+                          </div>
+                        ) : null
+                      })()}
                     </div>
 
                     <div className="flex w-[13%] justify-center font-medium">
