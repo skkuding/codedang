@@ -1,0 +1,51 @@
+meta {
+  name: [ERR] Empty Content
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateContestQnAComment(
+    $contestId: Int!
+    $order: Int!
+    $content: String!
+  ) {
+    createContestQnAComment(
+      contestId: $contestId
+      order: $order
+      content: $content
+    ) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "order": 1,
+    "content": ""
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Empty Content
+
+  **POST** `/graphql (mutation: createContestQnAComment)`
+
+  Content cannot be empty.
+
+  댓글 내용(`content`) 없이 요청했을 때,
+
+  `BadRequestException`이 발생합니다.
+}

@@ -1,0 +1,55 @@
+meta {
+  name: [ERR] Summary should be String
+  type: graphql
+  seq: 5
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateContest($input: CreateContestInput!) {
+    createContest(input: $input) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "title": "Invalid Summary Contest",
+      "startTime": "2026-01-01T12:00:00.000Z",
+      "endTime": "2030-01-01T12:00:00.000Z",
+      "registerDueTime": "2025-12-31T12:00:00.000Z",
+      "isJudgeResultVisible": true,
+      "userContest": [],
+      "summary": {
+        "참여대상": 12345
+      }
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+assert {
+  res.body.errors[0].message: Summary should be string
+}
+
+docs {
+  # 📙 [ERR] Summary should be String
+
+  **POST** `/graphql (mutation: createContest)`
+
+  Summary must contain only strings.
+
+  `summary` 객체의 값(value) 중에 문자열이 아닌 타입이 포함되어 있을 때,
+
+  `UnprocessableDataException`이 발생합니다.
+}

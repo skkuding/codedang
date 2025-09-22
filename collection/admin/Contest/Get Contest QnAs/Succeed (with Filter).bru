@@ -1,0 +1,61 @@
+meta {
+  name: Succeed (with Filter)
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestQnAs($contestId: Int!, $take: Int, $filter: GetContestQnAsFilterInput) {
+    getContestQnAs(
+      contestId: $contestId,
+      take: $take,
+      filter: $filter
+    ) {
+      id
+      order
+      title
+      content
+      category
+      isResolved
+      createTime
+      contestId
+      createdBy {
+        username
+      }
+      _count {
+        comments
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "take": 10,
+    // "cursor": 1,
+    "filter": {
+      "isResolved": false
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📘 Get Contest QnAs (with filter)
+
+  **POST** `/graphql (query: getContestQnAs)`
+
+  Retrieves a filtered list of QnAs.
+
+  `filter` 파라미터를 사용하여 미해결된(`isResolved: false`) QnA만 조회합니다.
+}
