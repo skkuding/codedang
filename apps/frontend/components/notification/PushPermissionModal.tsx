@@ -45,7 +45,6 @@ export function PushPermissionModal() {
   const router = useRouter()
 
   const handleEvent = useCallback((key: string) => {
-    console.log('Push event triggered:', key) // 디버깅용
     setEventKey(key)
     setOpen(true)
   }, [])
@@ -55,7 +54,6 @@ export function PushPermissionModal() {
       handleEvent((e as CustomEvent).type)
     }
     const keys = Object.keys(messages)
-    console.log('Registering push event listeners for:', keys) // 디버깅용
     keys.forEach((k) => window.addEventListener(k, handler))
     return () => {
       keys.forEach((k) => window.removeEventListener(k, handler))
