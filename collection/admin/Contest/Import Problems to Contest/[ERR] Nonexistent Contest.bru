@@ -11,21 +11,40 @@ post {
 }
 
 body:graphql {
-  mutation {
+  mutation ImportProblemsToContest(
+    $contestId: Int!
+    $problemIdsWithScore: [ProblemScoreInput!]!
+  ) {
     importProblemsToContest(
-      contestId: 99999
-      problemIds: [7, 8]
+      contestId: $contestId
+      problemIdsWithScore: $problemIdsWithScore
     ) {
-      contestId
       problemId
-      createTime
-      updateTime
-      order
-      score
     }
   }
 }
 
-assert {
-  res.body.errors: isDefined
+body:graphql:vars {
+  {
+    "contestId": 999,
+    "problemIdsWithScore": [
+      { "problemId": 7, "score": 100 }
+    ]
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent Contest
+
+  **POST** `/graphql (mutation: importProblemsToContest)`
+
+  The requested contest does not exist.
+
+  존재하지 않는 `contestId`에 문제를 추가하려고 할 때,
+
+  `EntityNotExistException`이 발생합니다.
 }

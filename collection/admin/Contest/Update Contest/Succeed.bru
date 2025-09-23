@@ -11,7 +11,10 @@ post {
 }
 
 body:graphql {
-  mutation UpdateContest($contestId: Int!, $input: UpdateContestInput!) {
+  mutation UpdateContest(
+    $contestId: Int!,
+    $input: UpdateContestInput!
+  ) {
     updateContest(
       contestId: $contestId
       input: $input
@@ -68,50 +71,88 @@ script:pre-request {
 }
 
 docs {
-  # Update Contest
+  # 📘 Update Contest
 
-  ## Description
-  기존 콘테스트 정보를 업데이트합니다. 콘테스트 관리 권한이 있는 사용자만 사용할 수 있으며, 유효한 입력값이 필요합니다.
+  **POST** `/graphql (mutation: updateContest)`
+
+  Updates the details of an existing contest.
+
+  기존 대회의 정보를 수정합니다.
+
+  대회 정보 외에 대회 스태프(`Manager`, `Reviewer`)도 이 API를 통해 추가, 수정, 삭제할 수 있습니다.
+
+  대회 시간이 변경될 경우, 연관된 문제들의 `visibleLockTime`도 함께 재계산되어 업데이트됩니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Contest Staff)
+
+  ---
 
   ## 요청 필드
   | 필드명 | 타입 | 필수 여부 | 설명 |
   |--------|------|----------|------|
-  | id | Int | ✅ | 업데이트할 콘테스트의 ID |
-  | title | String | ❌ | 콘테스트 제목 |
-  | description | String | ❌ | 콘테스트 설명 |
-  | penalty | Int | ❌ | 패널티 점수 |
-  | lastPenalty | Boolean | ❌ | 마지막 패널티 적용 여부(default false) |
-  | posterUrl | Boolean | ❌ | 포스터 이미지 URL |
-  | invitationCode | String (6자리) | ❌ | 초대 코드 |
-  | startTime | GraphQLISODateTime | ❌ | 시작 시간 |
-  | endTime | GraphQLISODateTime | ❌ | 종료 시간 |
-  | registerDueTime | GraphQLISODateTime | ❌ | 등록 마감 시간 |
-  | freezeTime | GraphQLISODateTime | ❌ | 순위 공개 정지 시간 |
-  | unfreeze | Boolean | ❌ | 콘테스트 순위 공개 해제 여부 |
-  | isJudgeResultVisible | Boolean | ❌ | 채점 결과 공개 여부 |
-  | enableCopyPaste | Boolean | ❌ | 복사/붙여넣기 허용 여부 |
-  | evaluateWithSampleTestcase | Boolean | ❌ | 샘플 테스트케이스로 평가 여부 |
-  | userContest | [UserContestRoleInput] | ❌ | Manager, Reviewer 역할 부여 및 수정 |
-  | summary | GraphQLJSON | ❌ | 다국어 요약 정보 |
+  | `id` | Int | ✅ | 업데이트할 콘테스트의 ID |
+  | `title` | String | ❌ | 대회 제목 |
+  | `description` | String | ❌ | 대회 설명 |
+  | `startTime` | GraphQLISODateTime | ❌ | 대회 시작 시간 |
+  | `endTime` | GraphQLISODateTime | ❌ | 대회 종료 시간 |
+  | `registerDueTime` | GraphQLISODateTime | ❌ | 참가 등록 마감 시간 |
+  | `isJudgeResultVisible` | Boolean | ❌ | 채점 결과 공개 여부 |
+  | `penalty` | Int | ❌ | 대회 페널티 점수 |
+  | `lastPenalty` | Boolean | ❌ | 마지막 패널티 적용 여부 |
+  | `posterUrl` | String | ❌ | 포스터 이미지 URL |
+  | `invitationCode` | String | ❌ | 6자리 초대 코드 |
+  | `freezeTime`| GraphQLISODateTime | ❌ | 리더보드 동결 시작 시간 |
+  | `enableCopyPaste` | Boolean | ❌ | 복사/붙여넣기 허용 여부 |
+  | `evaluateWithSampleTestcase` | Boolean | ❌ | 예제 테스트케이스로만 채점 여부 |
+  | `userContest` | [UserContestInput] | ❌ | 대회 관리자/리뷰어 역할 부여 |
+  | `summary` | GraphQLJSON | ❌ | 대회 관련 요약 정보 (Key-Value) |
 
-  ## 응답 필드
-  | 필드명 | 타입 | 설명 |
-  |--------|------|------|
-  | id | Int | 업데이트된 콘테스트의 ID |
-  | title | String | 콘테스트 제목 |
-  | description | String | 콘테스트 설명 |
-  | startTime | GraphQLISODateTime | 시작 시간 |
-  | endTime | GraphQLISODateTime | 종료 시간 |
-  | unfreeze | Boolean | 콘테스트 순위 공개 해제 여부 |
-  | freezeTime | GraphQLISODateTime | 순위 공개 정지 시간 |
-  | enableCopyPaste | Boolean | 복사/붙여넣기 허용 여부 |
-  | isJudgeResultVisible | Boolean | 채점 결과 공개 여부 |
-  | invitationCode | String (6자리) | 초대 코드 |
-  | summary | GraphQLJSON | 다국어 요약 정보 |
-  | userContest | [UserContestRole] | Manager, Reviewer 역할 목록 |
-  | createdById | Int | 콘테스트 생성자 ID |
+  *`UpdateContestInput`의 상세 필드는 `createContest`의 `input`과 대부분 동일합니다.*
 
-  ## 권한
-  - `Contest Manager`, `Contest Admin` 권한이 있는 사용자만 사용할 수 있습니다.
-  - 권한이 없는 경우 `UnauthorizedException` 오류가 반환됩니다.
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "data": {
+      "updateContest": {
+        "id": "19",
+        "title": "Updated Contest 2",
+        "description": "thisisupdatedcontest",
+        "startTime": "2025-01-01T00:00:00.000Z",
+        "endTime": "2030-01-01T00:00:00.000Z",
+        "registerDueTime": "2023-01-01T00:00:00.000Z",
+        "unfreeze": false,
+        "freezeTime": null,
+        "enableCopyPaste": true,
+        "isJudgeResultVisible": true,
+        "invitationCode": "123456",
+        "summary": {
+          "문제형태": "updatedproblemFormat",
+          "순위산정": "updatedrankingMethod",
+          "진행방식": "updatedcompetitionMethod",
+          "참여대상": "updatedparticipationTarget",
+          "참여혜택": "updatedbenefits"
+        },
+        "userContest": [
+          {
+            "userId": 5,
+            "role": "Manager"
+          },
+          {
+            "userId": 6,
+            "role": "Reviewer"
+          }
+        ]
+      }
+    }
+  }
+  ```
 }

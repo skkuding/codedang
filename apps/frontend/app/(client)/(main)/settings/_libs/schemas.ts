@@ -6,12 +6,12 @@ export const getSchema = (updateNow: boolean) =>
     newPassword: v.optional(
       v.pipe(
         v.string(),
-        v.minLength(8),
-        v.maxLength(20),
-        v.check((input) => {
-          const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
-          return !invalidPassword.test(input)
-        })
+        v.minLength(8, 'Password must be at least 8 characters'),
+        v.maxLength(20, 'Password must be at most 20 characters'),
+        v.regex(
+          /^(?=.*[a-z])(?=.*[A-Z])|(?=.*[a-z])(?=.*\d)|(?=.*[A-Z])(?=.*\d)/,
+          'Password must use 2 of: uppercase, lowercase, number'
+        )
       )
     ),
     confirmPassword: v.optional(v.string()),

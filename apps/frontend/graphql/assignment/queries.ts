@@ -24,6 +24,7 @@ const GET_ASSIGNMENTS = gql(`
       id
       title
       startTime
+      dueTime
       endTime
       description
       participants
@@ -36,27 +37,57 @@ const GET_ASSIGNMENTS = gql(`
 
 const GET_BELONGED_ASSIGNMENTS = gql(`
   query GetAssignmentsByProblemId($problemId: Int!) {
-    getAssignmentsByProblemId(problemId: $problemId) {
-      upcoming {
-        id
-        title
-        problemScore
-        totalScore
-      }
-      ongoing {
-        id
-        title
-        problemScore
-        totalScore
-      }
-      finished {
-        id
-        title
-        problemScore
-        totalScore
+  getAssignmentsByProblemId(problemId: $problemId) {
+        upcoming {
+          id
+          title
+          isExercise
+          week
+          problemScore
+          totalScore
+          group {
+            id
+            groupName
+            courseInfo {
+              courseNum
+              classNum
+            }
+          }
+        }
+        ongoing {
+          id
+          title
+          isExercise
+          week
+          problemScore
+          totalScore
+          group {
+            id
+            groupName
+            courseInfo {
+              courseNum
+              classNum
+            }
+          }
+        }
+        finished {
+          id
+          title
+          isExercise
+          week
+          problemScore
+          totalScore
+          group {
+            id
+            groupName
+            courseInfo {
+              courseNum
+              classNum
+            }
+          }
+        }
       }
     }
-  }
 `)
 
 const GET_ASSIGNMENT_SCORE_SUMMARIES = gql(`
@@ -129,11 +160,33 @@ const GET_ASSIGNMENT_PROBLEM_RECORD = gql(`
   }
 `)
 
+const GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS = gql(`
+  query GetAssignmentProblemTestcaseResults(
+    $groupId: Int!
+    $assignmentId: Int!
+    $problemId: Int!
+  ) {
+    getAssignmentProblemTestcaseResults(
+      groupId: $groupId
+      assignmentId: $assignmentId
+      problemId: $problemId
+    ) {
+      userId
+      result {
+        id
+        isHidden
+        result
+      }
+    }
+  }
+`)
+
 export {
   GET_ASSIGNMENT,
   GET_ASSIGNMENTS,
   GET_BELONGED_ASSIGNMENTS,
   GET_ASSIGNMENT_SCORE_SUMMARIES,
   GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER,
-  GET_ASSIGNMENT_PROBLEM_RECORD
+  GET_ASSIGNMENT_PROBLEM_RECORD,
+  GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS
 }

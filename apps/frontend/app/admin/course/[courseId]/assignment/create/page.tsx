@@ -10,7 +10,8 @@ import { TitleForm } from '@/app/admin/_components/TitleForm'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import Link from 'next/link'
-import { useState, use } from 'react'
+import { useParams } from 'next/navigation'
+import { useState } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { TimeFormPopover } from '../../../_components/TimeFormPopover'
@@ -22,9 +23,8 @@ import { ImportProblemDialog } from '../../_components/ImportProblemDialog'
 import { WeekComboBox } from '../../_components/WeekComboBox'
 import type { AssignmentProblem } from '../../_libs/type'
 
-export default function Page(props: { params: Promise<{ courseId: string }> }) {
-  const params = use(props.params)
-  const { courseId } = params
+export default function Page() {
+  const { courseId } = useParams()
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isCreating, setIsCreating] = useState(false)
 
@@ -40,34 +40,30 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
           </div>
 
           <CreateAssignmentForm
-            groupId={courseId}
+            groupId={courseId as string}
             problems={problems}
             setIsCreating={setIsCreating}
           >
             <div className="flex w-[901px] flex-col gap-[28px]">
-              <FormSection
-                isFlexColumn={false}
-                title="Title"
-                className="gap-[67px]"
-              >
+              <FormSection title="Title">
                 <TitleForm
                   placeholder="Name your Assignment"
-                  className="max-w-[767px]"
+                  className="max-w-[760px]"
                 />
               </FormSection>
 
               <div className="flex justify-between">
-                <FormSection
-                  title="Week"
-                  isJustifyBetween={false}
-                  className="gap-[67px]"
-                >
+                <FormSection title="Week" className="w-[420px]">
                   <WeekComboBox name="week" courseId={Number(courseId)} />
                 </FormSection>
+                <FormSection title="Start Time" className="w-[420px]">
+                  <TimeForm name="startTime" />
+                </FormSection>
+              </div>
+              <div className="flex justify-between">
                 <FormSection
                   title="Due Time"
-                  isJustifyBetween={false}
-                  className="gap-[40px]"
+                  className="w-[420px]"
                   isLabeled={false}
                 >
                   <TimeFormPopover />
@@ -80,19 +76,10 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
                     }}
                   />
                 </FormSection>
-              </div>
-              <div className="flex justify-between">
-                <FormSection
-                  title="Start Time"
-                  isJustifyBetween={false}
-                  className="gap-[27px]"
-                >
-                  <TimeForm name="startTime" />
-                </FormSection>
+
                 <FormSection
                   title="End Time"
-                  isJustifyBetween={false}
-                  className="gap-[71px]"
+                  className="w-[420px]"
                   isLabeled={false}
                 >
                   <TimeForm
@@ -143,7 +130,7 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
                   hasValue={true}
                   name="isJudgeResultVisible"
                   title="Reveal Hidden Testcase Result"
-                  description="When enabled, hidden testcase results will be revealed from students."
+                  description="When enabled, hidden testcase results will be revealed to students."
                 />
 
                 <SwitchField

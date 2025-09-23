@@ -35,3 +35,6 @@ export const MAX_ZIP_SIZE = 100 * MEGABYTE
 /* Problem isVisible setting Lock Time */
 export const MIN_DATE: Date = new Date('2000-01-01T00:00:00.000Z')
 export const MAX_DATE: Date = new Date('2999-12-31T00:00:00.000Z')
+
+export const MILLISECONDS_PER_HOUR = SECONDS_PER_HOUR * 1000
+export const MILLISECONDS_PER_DAY = MILLISECONDS_PER_HOUR * 24

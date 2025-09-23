@@ -13,7 +13,10 @@ import { faker } from '@faker-js/faker'
 import { ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  ForbiddenAccessException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { solution } from '@admin/problem/mock/mock'
 import { AssignmentService } from './assignment.service'
@@ -141,6 +144,7 @@ const problem: Problem = {
   visibleLockTime: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
+  updateContentTime: faker.date.past(),
   submissionCount: 0,
   acceptedCount: 0,
   acceptedRate: 0,
@@ -269,6 +273,7 @@ const db = {
     const newAssignmentProblem = await db.assignmentProblem.create()
     return [newAssignmentProblem, updatedProblem]
   }),
+  $executeRaw: stub().resolves(1),
   getPaginator: PrismaService.prototype.getPaginator
 }
 
@@ -576,6 +581,37 @@ describe('AssignmentService', () => {
           ]
         }
       ])
+    })
+  })
+
+  describe('autoFinalizeScore', () => {
+    it('should finalize scores when assignment exists and group matches', async () => {
+      db.assignment.findUnique.resetHistory()
+      db.$executeRaw.resetHistory()
+      db.assignment.findUnique.resolves({ groupId })
+      db.$executeRaw.resolves(7)
+
+      const updated = await service.autoFinalizeScore(groupId, assignmentId)
+
+      expect(updated).to.equal(7)
+      expect(db.assignment.findUnique.calledOnce).to.be.true
+      expect(db.$executeRaw.calledOnce).to.be.true
+    })
+
+    it('should throw EntityNotExistException when assignment does not exist', async () => {
+      db.assignment.findUnique.resolves(null)
+
+      await expect(
+        service.autoFinalizeScore(groupId, assignmentId)
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should throw ForbiddenAccessException when groupId mismatches', async () => {
+      db.assignment.findUnique.resolves({ groupId: groupId + 1 })
+
+      await expect(
+        service.autoFinalizeScore(groupId, assignmentId)
+      ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
 

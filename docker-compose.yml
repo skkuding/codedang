@@ -1,4 +1,4 @@
-version: '3'
+# NOTE: This docker-compose file is for local development environment only.
 
 services:
   app:
@@ -15,38 +15,22 @@ services:
       - database
     stdin_open: true
     tty: true
-    env_file: .env.development
     environment:
-      DEVCONTAINER: 1
+      DEVCONTAINER: '1'
     network_mode: host
     privileged: true
     cgroup: host
 
-  local-storage:
-    profiles: ['devcontainer']
-    container_name: codedang-local-storage
+  storage:
+    container_name: codedang-storage
     image: minio/minio
     ports:
       - 9000:9000
       - 9001:9001
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    volumes:
-      - codedang-storage:/data
-
-  deploy-storage:
-    profiles: ['deploy']
-    container_name: codedang-deploy-storage
-    image: minio/minio
-    ports:
-      - 9000:9000
-      - 9001:9001
-    command: server /data --console-address ":9001"
-    env_file: .env
-    environment:
-      MINIO_BROWSER_REDIRECT_URL: https://stage.codedang.com/console
+      MINIO_ROOT_USER: 'skku'
+      MINIO_ROOT_PASSWORD: 'skku1234'
     volumes:
       - codedang-storage:/data
 
@@ -56,9 +40,9 @@ services:
     ports:
       - 5433:5432
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: skkuding
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: '1234'
+      POSTGRES_DB: 'skkuding'
     volumes:
       - codedang-database:/var/lib/postgresql/data
 
@@ -68,9 +52,9 @@ services:
     ports:
       - 5434:5432
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: skkuding
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: '1234'
+      POSTGRES_DB: 'skkuding'
     volumes:
       - codedang-test-database:/var/lib/postgresql/data
 
@@ -81,113 +65,17 @@ services:
       - 6380:6379
 
   rabbitmq:
-    image: rabbitmq:3.13-management-alpine
     container_name: codedang-rabbitmq
+    image: rabbitmq:3.13-management-alpine
     ports:
       - 15672:15672 # Admin Management
       - 5672:5672
-    env_file: .env.development
     environment:
-      RABBITMQ_ERLANG_COOKIE: RabbitMQ-My-Cookies
+      RABBITMQ_DEFAULT_USER: 'skku'
+      RABBITMQ_DEFAULT_PASS: '1234'
+      RABBITMQ_DEFAULT_VHOST: 'vh'
     volumes:
       - codedang-rabbitmq:/var/lib/rabbitmq
-
-  caddy:
-    profiles: ['deploy']
-    image: caddy:2.10.0-alpine
-    container_name: caddy
-    restart: always
-    ports:
-      - '80:80'
-      - '443:443'
-    network_mode: host
-
-  backend-client:
-    profiles: ['deploy', 'update-target']
-    image: ghcr.io/skkuding/codedang-client-api:latest
-    container_name: backend-client
-    restart: always
-    depends_on:
-      setup:
-        condition: service_completed_successfully
-    env_file:
-      - .env.development
-      - .env
-    network_mode: host
-    deploy:
-      resources:
-        reservations:
-          cpus: '0.58'
-          memory: 512M
-        limits:
-          cpus: '2.0'
-          memory: 2G
-
-  backend-admin:
-    profiles: ['deploy', 'update-target']
-    image: ghcr.io/skkuding/codedang-admin-api:latest
-    container_name: backend-admin
-    restart: always
-    depends_on:
-      setup:
-        condition: service_completed_successfully
-    env_file:
-      - .env.development
-      - .env
-    network_mode: host
-    deploy:
-      resources:
-        reservations:
-          cpus: '0.58'
-          memory: 512M
-        limits:
-          cpus: '2.0'
-          memory: 2G
-
-  iris:
-    profiles: ['deploy', 'update-target']
-    image: ghcr.io/skkuding/codedang-iris:latest
-    container_name: iris
-    restart: always
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
-    depends_on:
-      setup:
-        condition: service_completed_successfully
-    env_file: .env.development
-    network_mode: host
-    privileged: true
-    cgroup: host
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 512M
-
-  dozzle:
-    profiles: ['deploy']
-    image: amir20/dozzle:latest
-    container_name: dozzle
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-      - 9999:8080
-    environment:
-      DOZZLE_BASE: /logs
-
-  setup:
-    profiles: ['deploy']
-    image: python:3-bullseye # Python for rabbitmqadmin
-    container_name: setup
-    depends_on:
-      - rabbitmq
-      - database
-      - deploy-storage
-    volumes:
-      - $PWD/scripts:/etc/scripts
-      # - $PWD/dist:/etc/dist:z
-    network_mode: host
-    command: ['/bin/bash', '/etc/scripts/deploy.sh']
 
 volumes:
   codedang-storage:

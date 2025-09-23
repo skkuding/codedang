@@ -11,20 +11,27 @@ post {
 }
 
 body:graphql {
-  mutation {
-    deleteContest(
-      contestId: 99999
-      groupId: 2
-    ) {
+  mutation DeleteContest($contestId: Int!) {
+    deleteContest(contestId: $contestId) {
       id
-      title
-      description
-      startTime
-      endTime
     }
   }
 }
 
-assert {
-  res.body.errors: isDefined
+body:graphql:vars {
+  {
+    "contestId": 999
+  }
+}
+
+docs {
+  # 📙 [ERR] Nonexistent Contest
+
+  **POST** `/graphql (mutation: deleteContest)`
+
+  The requested contest does not exist.
+
+  존재하지 않는 `contestId`의 대회 삭제를 요청했을 때,
+
+  `EntityNotExistException`이 발생합니다.
 }

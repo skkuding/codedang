@@ -12,7 +12,7 @@ const slides = [
     topTitle: 'Your Coding Journey',
     bottomTitle: 'Starts Here',
     sub: "Practice real problems, compete with peers.\nGrow your skills on SKKU's coding platform.",
-    img: '/banners/main_banner.svg',
+    img: '/banners/main_banner.png',
     imgAlt: 'Codedang',
     href: 'https://about-codedang.framer.website'
   }

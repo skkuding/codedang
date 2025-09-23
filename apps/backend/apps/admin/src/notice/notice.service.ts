@@ -1,18 +1,27 @@
 import { Injectable } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { PrismaService } from '@libs/prisma'
 import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 
 @Injectable()
 export class NoticeService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2
+  ) {}
 
   async createNotice(userId: number, createNoticeInput: CreateNoticeInput) {
-    return await this.prisma.notice.create({
+    const noticeCreated = await this.prisma.notice.create({
       data: {
         createdById: userId,
         ...createNoticeInput
       }
     })
+    this.eventEmitter.emit('notice.created', {
+      noticeId: noticeCreated.id
+    })
+
+    return noticeCreated
   }
 
   async deleteNotice(noticeId: number) {

@@ -87,6 +87,7 @@ const db = {
     deleteMany: stub()
   },
   pushSubscription: {
+    findMany: stub(),
     create: stub(),
     delete: stub(),
     deleteMany: stub()
@@ -137,6 +138,7 @@ describe('NotificationService', () => {
     db.notificationRecord.count.reset()
     db.notification.delete.reset()
     db.notification.deleteMany.reset()
+    db.pushSubscription.findMany.reset()
     db.pushSubscription.create.reset()
     db.pushSubscription.delete.reset()
     db.pushSubscription.deleteMany.reset()
@@ -344,6 +346,43 @@ describe('NotificationService', () => {
       await expect(
         service.deletePushSubscription(userId, endpoint)
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('getPushSubscriptions', () => {
+    it("should return user's push subscriptions with selected fields", async () => {
+      const selected = {
+        id: pushSubscription.id,
+        userId: pushSubscription.userId,
+        endpoint: pushSubscription.endpoint,
+        userAgent: pushSubscription.userAgent,
+        createTime: pushSubscription.createTime
+      }
+      db.pushSubscription.findMany.resolves([selected])
+
+      const result = await service.getPushSubscriptions(userId)
+
+      expect(result).to.deep.equal([selected])
+      expect(
+        db.pushSubscription.findMany.calledWith({
+          where: { userId },
+          select: {
+            id: true,
+            userId: true,
+            endpoint: true,
+            userAgent: true,
+            createTime: true
+          }
+        })
+      ).to.be.true
+    })
+
+    it('should return empty array when no subscriptions exist', async () => {
+      db.pushSubscription.findMany.resolves([])
+
+      const result = await service.getPushSubscriptions(userId)
+
+      expect(result).to.deep.equal([])
     })
   })
 

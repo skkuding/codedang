@@ -1,21 +1,20 @@
 import { create } from 'zustand'
 
 interface FormData {
+  username: string
+  password: string
   email: string
-  verificationCode: string
+  realName: string
+  studentId: string
+  affiliation: string
+  major: string
   headers: {
     'email-auth': string
   }
 }
 interface SignUpModalStore {
   modalPage: number
-  formData: {
-    email: string
-    verificationCode: string
-    headers: {
-      'email-auth': string
-    }
-  }
+  formData: FormData
   setModalPage: (page: number) => void
   setFormData: (data: FormData) => void
   nextModal: () => void
@@ -25,6 +24,12 @@ interface SignUpModalStore {
 export const useSignUpModalStore = create<SignUpModalStore>((set) => ({
   modalPage: 0,
   formData: {
+    username: '',
+    password: '',
+    realName: '',
+    studentId: '',
+    affiliation: '',
+    major: '',
     email: '',
     verificationCode: '',
     headers: {

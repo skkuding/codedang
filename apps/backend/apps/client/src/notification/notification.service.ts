@@ -139,6 +139,22 @@ export class NotificationService {
   }
 
   /**
+   * Push subscription 목록을 조회합니다
+   */
+  getPushSubscriptions(userId: number) {
+    return this.prisma.pushSubscription.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        userId: true,
+        endpoint: true,
+        userAgent: true,
+        createTime: true
+      }
+    })
+  }
+
+  /**
    * Push subscription을 생성합니다
    */
   async createPushSubscription(userId: number, dto: CreatePushSubscriptionDto) {

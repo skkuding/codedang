@@ -62,4 +62,5 @@ export class _ProblemResponseDto {
   @Expose() tags: Partial<Tag>[]
   @Expose() template: JSON[]
   @Expose() problemTestcase: Pick<ProblemTestcase, 'id' | 'input' | 'output'>[]
+  @Expose() updateContentTime: Date
 }

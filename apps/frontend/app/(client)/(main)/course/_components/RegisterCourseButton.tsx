@@ -126,6 +126,7 @@ export function RegisterCourseButton() {
           onClick: handleRegisterCourse
         }}
         type="confirm"
+        showIcon={false}
       >
         <div
           key="course-info"

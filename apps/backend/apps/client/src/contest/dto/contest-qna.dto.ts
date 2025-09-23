@@ -3,7 +3,6 @@ import { Transform } from 'class-transformer'
 import {
   IsArray,
   IsEnum,
-  IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -57,10 +56,6 @@ export class GetContestQnAsFilter {
     { toClassOnly: true }
   )
   problemOrders?: number[]
-
-  @IsOptional()
-  @IsIn(['asc', 'desc'])
-  orderBy?: 'asc' | 'desc' = 'asc'
 
   @IsOptional()
   search?: string

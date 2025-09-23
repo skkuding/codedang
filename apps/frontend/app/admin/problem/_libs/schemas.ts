@@ -20,12 +20,29 @@ const commonSchema = v.object({
 
   testcases: v.pipe(
     v.array(
-      v.object({
-        input: v.string(),
-        output: v.string(),
-        isHidden: v.boolean(),
-        scoreWeight: v.number('The scoring ratio must be specified.')
-      })
+      v.pipe(
+        v.object({
+          input: v.string(),
+          output: v.string(),
+          isHidden: v.boolean(),
+          scoreWeight: v.optional(
+            v.pipe(v.number(), v.integer(), v.minValue(0))
+          ),
+          scoreWeightNumerator: v.nullable(
+            v.pipe(v.number(), v.integer(), v.minValue(0))
+          ),
+          scoreWeightDenominator: v.nullable(
+            v.pipe(v.number(), v.integer(), v.minValue(1))
+          )
+        }),
+        v.check((testcase) => {
+          const hasIntegerWeight = typeof testcase.scoreWeight === 'number'
+          const hasFractionalWeight =
+            typeof testcase.scoreWeightNumerator === 'number' &&
+            typeof testcase.scoreWeightDenominator === 'number'
+          return hasIntegerWeight || hasFractionalWeight
+        }, 'The scoring ratio must be specified.')
+      )
     ),
     v.minLength(1)
   ),

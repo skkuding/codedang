@@ -18,18 +18,18 @@ import { _RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { _RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import {
   assignmentProblems,
-  contestProblems,
-  problemTag,
-  problems,
-  workbookProblems,
-  tag,
-  contestProblemsWithScore,
   assignmentProblemsWithScore,
-  mockUpdateHistory
+  contestProblems,
+  contestProblemsWithScore,
+  mockUpdateHistory,
+  problems,
+  problemTag,
+  tag,
+  workbookProblems
 } from './mock/problem.mock'
 import {
-  ContestProblemService,
   AssignmentProblemService,
+  ContestProblemService,
   ProblemService,
   WorkbookProblemService
 } from './problem.service'
@@ -148,6 +148,7 @@ const mockAssignment = {
   week: 1,
   title: 'Sample Assignment',
   description: 'This is a sample assignment.',
+  isVisible: true,
   startTime: faker.date.past(),
   endTime: faker.date.future(),
   dueTime: faker.date.future(),

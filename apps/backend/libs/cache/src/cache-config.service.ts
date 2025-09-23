@@ -14,12 +14,13 @@ export class CacheConfigService implements CacheOptionsFactory {
   async createCacheOptions(): Promise<CacheModuleOptions> {
     const host = this.config.get<string>('REDIS_HOST')
     const port = this.config.get<string>('REDIS_PORT')
+    const db = 0
 
     if (!host || !port) {
       throw new Error('Redis host and port must be configured')
     }
 
-    const store = createKeyv(`redis://${host}:${port}`, {
+    const store = createKeyv(`redis://${host}:${port}/${db}`, {
       throwOnErrors: true,
       throwOnConnectError: true
     })

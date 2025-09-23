@@ -25,7 +25,7 @@ export function InviteUserButton() {
       size="lg"
       type="custom"
       title="Invite Member"
-      headerDescription="Invite members to your course by email or invite code."
+      headerDescription="Invite new members to your team and start collaborating together."
       onOpenChange={refetchGroupMembers}
       trigger={
         <Button type="button" variant="default" className="w-[120px]">
@@ -34,7 +34,7 @@ export function InviteUserButton() {
         </Button>
       }
     >
-      <ScrollArea className="h-full w-full">
+      <ScrollArea className="h-full w-full pr-4">
         <div className="flex flex-col gap-6">
           <InviteByCode courseId={courseId} />
           <InviteManually courseId={courseId} />

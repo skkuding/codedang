@@ -30,6 +30,7 @@ import {
 import { UserService } from '@admin/user/user.service'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
+import { GetContestQnAsFilterInput } from './model/contest-qna.input'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
 import { ContestUpdateHistories } from './model/contest-update-histories.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
@@ -234,18 +235,30 @@ export class ContestResolver {
 }
 
 @Resolver(() => ContestQnA)
-@UseDisableContestRolesGuard()
+@UseContestRolesGuard(ContestRole.Manager)
 export class ContestQnAResolver {
-  constructor(
-    private readonly contestService: ContestService,
-    private readonly userService: UserService
-  ) {}
+  constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestQnA])
   async getContestQnAs(
-    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 10 },
+      new RequiredIntPipe('take')
+    )
+    take: number,
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null,
+    @Args('filter', { type: () => GetContestQnAsFilterInput, nullable: true })
+    filter?: GetContestQnAsFilterInput
   ) {
-    return await this.contestService.getContestQnAs(contestId)
+    return await this.contestService.getContestQnAs(
+      contestId,
+      take,
+      cursor,
+      filter
+    )
   }
 
   @Query(() => ContestQnA)
@@ -290,6 +303,18 @@ export class ContestQnAResolver {
       contestId,
       qnAOrder,
       commentOrder
+    )
+  }
+
+  @Mutation(() => ContestQnA)
+  @UseDisableContestRolesGuard()
+  async toggleContestQnAResolved(
+    @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Args('qnAOrder', { type: () => Int }, IDValidationPipe) qnAOrder: number
+  ) {
+    return await this.contestService.toggleContestQnAResolved(
+      contestId,
+      qnAOrder
     )
   }
 }

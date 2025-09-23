@@ -12,39 +12,114 @@ post {
 
 body:graphql {
   query GetContestLeaderboard($contestId: Int!) {
-      getContestLeaderboard(contestId: $contestId) {
-        maxScore
-        participatedNum
-        registeredNum
-        isFrozen
-        leaderboard {
-          rank
-          userId
-          username
-          finalScore
-          finalTotalPenalty
-          problemRecords {
-            order
-            problemId
-            score
-            penalty
-            submissionCount
-            isFirstSolver
-          }
+    getContestLeaderboard(contestId: $contestId) {
+      maxScore
+      participatedNum
+      registeredNum
+      isFrozen
+      leaderboard {
+        rank
+        userId
+        username
+        finalScore
+        finalTotalPenalty
+        problemRecords {
+          order
+          problemId
+          score
+          penalty
+          submissionCount
+          isFirstSolver
         }
       }
     }
+  }
 }
 
 body:graphql:vars {
   {
-      "contestId": 1
+    "contestId": 20
   }
 }
 
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
 docs {
-  ## Get Leaderboard
-  
-    - Contest의 최고점수, 참여자 수, 등록자 수, Freeze 여부를 가져옵니다.
-    - 리더보드의 정보를 가져옵니다.
+  # 📘 Get Contest Leaderboard
+
+  **POST** `/graphql (query: getContestLeaderboard)`
+
+  Retrieves the leaderboard for a specific contest.
+
+  특정 대회의 리더보드 정보를 조회합니다.
+
+  대회 정보와 함께 참가자 순위 목록을 반환합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Contest Staff)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `contestId` | Int | ✅ | 조회할 대회의 ID |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application:json`
+
+  ```json
+  {
+    "data": {
+      "getContestLeaderboard": {
+        "maxScore": 30,
+        "participatedNum": 5,
+        "registeredNum": 16,
+        "isFrozen": false,
+        "leaderboard": [
+          {
+            "rank": 2,
+            "userId": 2,
+            "username": "admin",
+            "finalScore": 0,
+            "finalTotalPenalty": 0,
+            "problemRecords": [
+              {
+                "order": 0,
+                "problemId": 1,
+                "score": 0,
+                "penalty": 0,
+                "submissionCount": 0,
+                "isFirstSolver": false
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  |---|---|---|---|
+  | `maxScore` | Int | 대회의 총점 |
+  | `participatedNum` | Int | 제출 기록이 있는 참가자 수 |
+  | `registeredNum` | Int | 대회 총 참가자 수 |
+  | `isFrozen` | Boolean | 리더보드 동결 여부 |
+  | `leaderboard` | [Leaderboard] | 참가자 순위 목록 |
+  | `leaderboard.rank` | Int | 사용자 순위 |
+  | `leaderboard.userId` | Int | 사용자 고유 ID |
+  | `leaderboard.username` | String | 사용자 이름 |
+  | `leaderboard.finalScore` | Int | 최종 점수 |
+  | `leaderboard.finalTotalPenalty` | Int | 최종 패널티 |
+  | `leaderboard.problemRecords` | [ProblemRecord] | 문제별 점수 기록 |
 }

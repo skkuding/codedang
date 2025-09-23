@@ -209,7 +209,8 @@ export class GroupService {
             }
           },
           isGroupLeader: true
-        }
+        },
+        orderBy: { createTime: 'desc' }
       })
     )
       .filter(({ group }) => groupType === group.groupType)

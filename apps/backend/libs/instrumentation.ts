@@ -30,7 +30,6 @@ import {
   ATTR_SERVICE_VERSION
 } from '@opentelemetry/semantic-conventions'
 import { PrismaInstrumentation } from '@prisma/instrumentation'
-import axios from 'axios'
 
 /**
  * Instrumentation는 OpenTelemetry SDK를 초기화하고 설정하는 클래스입니다.
@@ -43,48 +42,16 @@ class Instrumentation {
   private static sdk: NodeSDK | null = null
   static readonly logger: Logger = new Logger('Instrumentation')
 
-  /**
-   * AWS 환경에서의 Instance ID를 가져오는 함수입니다.
-   * [AWS EC2 Instance Metadata Service](https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html)를 사용하여 Instance ID를 가져옵니다.
-   * TODO: ADOT Collector를 사용하여 Instance ID를 가져오는 방법으로 변경해야 합니다.
-   * @returns {Promise<string>}
-   */
-  private static getAWSInstanceId = (): Promise<string> => {
-    /**
-     * AWS EC2 인스턴스 메타데이터 서비스의 호스트 주소
-     * EC2 인스턴스 내에서만 접근 가능한 특수 IP 주소
-     * @see https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html#instancedata-inside-access
-     */
-    const AWS_METADATA_HOSTNAME = '169.254.169.254'
-    /**
-     * EC2 인스턴스 ID를 가져오기 위한 메타데이터 경로
-     * 이 경로로 요청하면 현재 실행 중인 EC2 인스턴스의 고유 ID를 반환받음
-     */
-    const AWS_METADATA_INSTANCE_ID_PATH = '/latest/meta-data/instance-id'
-    const url = `http://${AWS_METADATA_HOSTNAME}${AWS_METADATA_INSTANCE_ID_PATH}`
-
-    return axios.get(url, {
-      timeout: 1000
-    })
-  }
-
   public static getResource = async (
     serviceName: string,
     serviceVersion: string
   ): Promise<Resource> => {
-    let instanceId: string
     const environment = process.env.APP_ENV || 'local'
-    if (environment == 'production' || environment == 'rc') {
-      instanceId = await Instrumentation.getAWSInstanceId()
-    }
-    instanceId = '1'
 
-    const ATTR_INSTANCE_ID = 'service.instance.id'
     const ATTR_DEPLOYMENT_ENVIRONMENT = 'deployment.environment'
     const baseResource = resourceFromAttributes({
       [ATTR_SERVICE_NAME]: serviceName,
       [ATTR_SERVICE_VERSION]: serviceVersion,
-      [ATTR_INSTANCE_ID]: instanceId,
       [ATTR_DEPLOYMENT_ENVIRONMENT]: environment
     })
 

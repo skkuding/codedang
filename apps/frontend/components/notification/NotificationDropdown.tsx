@@ -2,6 +2,10 @@
 
 import { Badge } from '@/components/shadcn/badge'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
+import {
+  fetchIsSubscribed,
+  handleRequestPermissionAndSubscribe
+} from '@/libs/push-subscription'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { formatTimeAgo } from '@/libs/utils'
 import NotiIcon from '@/public/icons/notification.svg'
@@ -23,79 +27,13 @@ export function NotificationDropdown({
 }: NotificationDropdownProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadApiCount, setUnreadApiCount] = useState(0)
+  const [isSubscribed, setIsSubscribed] = useState(false)
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [isLoading, setIsLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [cursor, setCursor] = useState<number | null>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
-
-  const handleRequestPermissionAndSubscribe = async () => {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      alert(
-        'This browser does not support desktop notifications. Please use a different browser.'
-      )
-      return
-    }
-
-    const currentPermission = Notification.permission
-
-    if (currentPermission === 'granted') {
-      await subscribeToPush()
-      return
-    }
-
-    if (currentPermission === 'denied') {
-      alert(
-        'Notification permission has been blocked. Please allow it in your browser settings.'
-      )
-      return
-    }
-
-    if (currentPermission === 'default') {
-      const newPermission = await Notification.requestPermission()
-      if (newPermission === 'granted') {
-        await subscribeToPush()
-      }
-    }
-  }
-
-  const subscribeToPush = async () => {
-    try {
-      interface VapidKeyResponse {
-        publicKey: string
-      }
-
-      const response: VapidKeyResponse = await safeFetcherWithAuth
-        .get('notification/vapid')
-        .json()
-
-      const { publicKey } = response
-
-      if (!publicKey) {
-        throw new Error('Could not retrieve VAPID public key from the server.')
-      }
-
-      const registration = await navigator.serviceWorker.ready
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: publicKey
-      })
-
-      await safeFetcherWithAuth.post('notification/push-subscription', {
-        json: subscription
-      })
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('already exists')) {
-        console.log('Push subscription already exists.')
-      } else {
-        console.error(
-          'An error occurred during the push subscription process:',
-          error
-        )
-      }
-    }
-  }
 
   const fetchMoreNotifications = useCallback(async () => {
     if (isLoading || !hasMore || !cursor) {
@@ -139,40 +77,50 @@ export function NotificationDropdown({
       }
     }
     fetchInitialUnreadCount()
+
+    fetchIsSubscribed(setIsSubscribed)
   }, [])
 
   useEffect(() => {
-    if (isOpen) {
-      handleRequestPermissionAndSubscribe()
+    const fetchInitialNotifications = async () => {
+      setIsLoading(true)
+      setNotifications([])
+      setCursor(null)
+      setHasMore(true)
 
-      const fetchInitialNotifications = async () => {
-        setIsLoading(true)
-        setNotifications([])
-        setCursor(null)
-        setHasMore(true)
-
-        try {
-          const take = FETCH_COUNT
-          let url = `notification?take=${take}`
-          if (filter === 'unread') {
-            url += '&isRead=false'
-          }
-
-          const data = await safeFetcherWithAuth.get(url).json()
-          const initialNotifications = Array.isArray(data) ? data : []
-
-          setNotifications(initialNotifications)
-          setHasMore(initialNotifications.length === take)
-          if (initialNotifications.length > 0) {
-            setCursor(initialNotifications[initialNotifications.length - 1].id)
-          }
-        } catch (error) {
-          console.error('Error fetching initial notifications:', error)
-          setHasMore(false)
-        } finally {
-          setIsLoading(false)
+      try {
+        const take = FETCH_COUNT
+        let url = `notification?take=${take}`
+        if (filter === 'unread') {
+          url += '&isRead=false'
         }
+
+        const data = await safeFetcherWithAuth.get(url).json()
+        const initialNotifications = Array.isArray(data) ? data : []
+
+        setNotifications(initialNotifications)
+        setHasMore(initialNotifications.length === take)
+        if (initialNotifications.length > 0) {
+          setCursor(initialNotifications[initialNotifications.length - 1].id)
+        }
+      } catch (error) {
+        console.error('Error fetching initial notifications:', error)
+        setHasMore(false)
+      } finally {
+        setIsLoading(false)
       }
+    }
+
+    if (isOpen) {
+      const permissionRequested = localStorage.getItem(
+        'push_permission_requested'
+      )
+
+      if (!permissionRequested) {
+        handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
+      }
+      localStorage.setItem('push_permission_requested', 'true')
+
       fetchInitialNotifications()
     } else {
       setFilter('all')
@@ -324,13 +272,17 @@ export function NotificationDropdown({
               handleMarkAllAsRead={handleMarkAllAsRead}
             />
           </div>
-          <div className="bg-color-neutral-99 mb-1 ml-4 flex w-[168px] rounded-full p-1">
+          <div
+            className={cn(
+              'bg-color-neutral-99 mb-1 ml-4 flex w-[168px] rounded-full p-1',
+              isEditor && 'bg-[#121728]'
+            )}
+          >
             <button
               className={cn(
-                'h-6 w-20 rounded-full text-sm font-medium transition-colors',
-                filter === 'all'
-                  ? 'text-primary bg-white'
-                  : 'bg-transparent text-gray-700'
+                'text-color-neutral-80 h-6 w-20 rounded-full bg-transparent text-sm font-medium transition-colors',
+                filter === 'all' && !isEditor && 'text-primary bg-white',
+                filter === 'all' && isEditor && 'text-primary bg-[#334155]'
               )}
               onClick={() => setFilter('all')}
             >
@@ -338,10 +290,9 @@ export function NotificationDropdown({
             </button>
             <button
               className={cn(
-                'h-6 w-20 rounded-full text-sm font-medium transition-colors',
-                filter === 'unread'
-                  ? 'text-primary bg-white'
-                  : 'bg-transparent text-gray-700'
+                'text-color-neutral-80 h-6 w-20 rounded-full bg-transparent text-sm font-medium transition-colors',
+                filter === 'unread' && !isEditor && 'text-primary bg-white',
+                filter === 'unread' && isEditor && 'text-primary bg-[#334155]'
               )}
               onClick={() => setFilter('unread')}
             >
@@ -367,7 +318,11 @@ export function NotificationDropdown({
           )}
 
           {notifications.length > 0 && (
-            <ScrollArea className="h-[426px]" bottomFade={true} topFade={true}>
+            <ScrollArea
+              className="h-[426px]"
+              bottomFade={!isEditor}
+              topFade={!isEditor}
+            >
               <div className="space-y-3 px-4 pt-2">
                 {notifications.map((notification, index) => (
                   <div
@@ -377,10 +332,7 @@ export function NotificationDropdown({
                     }
                     className={cn(
                       'hover:bg-color-neutral-99 group relative h-[114px] cursor-pointer rounded-lg bg-white p-3 shadow-[0_4px_20px_0_rgba(53,78,116,0.10)]',
-                      isEditor && 'bg-slate-700 text-white hover:bg-[#293548]',
-                      isEditor &&
-                        !notification.isRead &&
-                        'bg-slate-500 hover:bg-[#56657a]'
+                      isEditor && 'bg-[#334155] text-white hover:bg-[#293548]'
                     )}
                     role="button"
                     tabIndex={0}
@@ -409,6 +361,7 @@ export function NotificationDropdown({
                           )}
                         >
                           <Badge
+                            className={cn(isEditor && 'bg-[#41526A]')}
                             variant={
                               notification.type === 'Assignment'
                                 ? 'Course'

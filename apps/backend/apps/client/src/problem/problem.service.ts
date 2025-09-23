@@ -38,7 +38,8 @@ const problemSelectOption: Prisma.ProblemSelect = {
   template: true,
   problemTestcase: {
     where: {
-      isHidden: false
+      isHidden: false,
+      isOutdated: false
     },
     select: {
       id: true,
@@ -353,7 +354,8 @@ export class ContestProblemService {
           acceptedRate: problem.acceptedRate,
           maxScore: contest.isJudgeResultVisible ? contestProblem.score : null,
           score: null,
-          submissionTime: null
+          submissionTime: null,
+          updateContentTime: problem.updateContentTime
         }
       }
       return {
@@ -368,7 +370,8 @@ export class ContestProblemService {
         score: contest.isJudgeResultVisible
           ? ((submission.score * contestProblem.score) / 100).toFixed(0)
           : null,
-        submissionTime: submission.createTime ?? null
+        submissionTime: submission.createTime ?? null,
+        updateContentTime: problem.updateContentTime
       }
     })
 
@@ -436,9 +439,10 @@ export class ContestProblemService {
           select: {
             ...problemSelectOption,
             problemTestcase: {
-              ...(contest.isPrivilegedRole
-                ? {}
-                : { where: { isHidden: false } }),
+              where: {
+                isOutdated: false,
+                ...(!contest.isPrivilegedRole && { isHidden: false })
+              },
               select: {
                 id: true,
                 input: true,

@@ -7,7 +7,7 @@ meta {
 post {
   url: {{gqlUrl}}
   body: graphql
-  auth: inherit
+  auth: none
 }
 
 body:graphql {
@@ -17,11 +17,58 @@ body:graphql {
       role
     }
   }
-  
 }
 
-body:graphql:vars {
+script:pre-request {
+  await require("./login").loginContestManager(req);
+}
+
+docs {
+  # 📘 Get Contest Roles
+
+  **POST** `/graphql (query: getContestRoles)`
+
+  Retrieves all contest roles for the currently authenticated user.
+
+  현재 사용자가 어떤 대회에서 어떤 역할을 맡고 있는지 목록을 조회합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required
+
+  ---
+
+  ### 📥 Request Variables
+
+  이 쿼리는 별도의 변수를 받지 않으며, 인증된 사용자의 정보를 사용합니다.
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
   {
-    "userId": 1
+    "data": {
+      "getContestRoles": [
+        {
+          "contestId": 20,
+          "role": "Manager"
+        },
+        {
+          "contestId": 1,
+          "role": "Participant"
+        }
+      ]
+    }
   }
+  ```
+
+  | Field | Type | Description |
+  |--------|------|------|
+  | `contestId` | Int | 대회 ID |
+  | `role` | ContestRole | 해당 대회에서의 역할 |
 }

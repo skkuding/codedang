@@ -1,3 +1,0 @@
-# Codedang
-
-Project for Codedang

@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common'
 import {
   Args,
   Context,
@@ -12,18 +11,15 @@ import {
 import { Notice, User } from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
 import { CursorValidationPipe, IDValidationPipe } from '@libs/pipe'
-import { GroupService } from '@admin/group/group.service'
 import { UserService } from '@admin/user/user.service'
 import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { NoticeService } from './notice.service'
 
 @Resolver(() => Notice)
 export class NoticeResolver {
-  private readonly logger = new Logger(NoticeResolver.name)
   constructor(
     private readonly noticeService: NoticeService,
-    private readonly userService: UserService,
-    private readonly groupService: GroupService
+    private readonly userService: UserService
   ) {}
 
   @Mutation(() => Notice)
