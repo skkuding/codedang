@@ -13,7 +13,7 @@ post {
 body:graphql {
   mutation {
     createAnnouncement(
-      contestId: 20
+      contestId: 1
       input: {
       	problemOrder: 0
       	content: "test"
@@ -30,31 +30,12 @@ body:graphql {
 }
 
 docs {
-  # 📘 Create Announcement
-  
-  Create a new Announcement for a specific contest.
-  
-  특정 대회에 새로운 공지를 등록합니다.
-  
-  problem-order는 해당 대회에서의 문제의 순서를 0부터 나타내며, optional입니다.
-  
-  ---
-  
-  ### 🔒 Authentication
-  
-  ✅ Required  
-  
-  ---
-  
-  ### 📥 Request Parameters
-  
-  #### Query Parameters
-  | Name | Type   | Required | Description              |
-  |------|--------|----------|--------------------------|
-  | `problemOrder` | number |        | order of problem in contest |
-  | `content`  | string | ✅ | content of announcement |
-  
-  ---
-  
-  
+  # Create Announcement
+
+  ## `CreateAnnouncementInput`
+  | 필드명    | 타입    | 필수 여부 | 설명 |
+  |----------|--------|----------|-------------|
+  | contestId  | `Int`   | `true`       | 공지가 속한 콘테스트의 ID |
+  | problemOrder  | `Int`   | `false`   | 공지와 관련된 문제의 Order |
+  | content    | `String`   | `true`       | 공지 내용 |
 }

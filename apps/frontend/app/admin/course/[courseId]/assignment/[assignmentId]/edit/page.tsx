@@ -13,8 +13,7 @@ import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -27,10 +26,13 @@ import { WeekComboBox } from '../../../_components/WeekComboBox'
 import { editSchema } from '../../../_libs/schemas'
 import type { AssignmentProblem } from '../../../_libs/type'
 
-export default function Page() {
+export default function Page(props: {
+  params: Promise<{ courseId: string; assignmentId: string }>
+}) {
+  const params = use(props.params)
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { courseId, assignmentId } = useParams()
+  const { courseId, assignmentId } = params
 
   const methods = useForm<UpdateAssignmentInput>({
     resolver: valibotResolver(editSchema),
@@ -63,42 +65,54 @@ export default function Page() {
               <FormSection title="Title">
                 <TitleForm
                   placeholder="Name your Assignment"
-                  className="max-w-[760px]"
+                  className="max-w-[767px]"
                 />
               </FormSection>
 
               <div className="flex justify-between">
-                <FormSection title="Week" className="w-[420px]">
+                <FormSection
+                  title="Week"
+                  isJustifyBetween={false}
+                  className="gap-[67px]"
+                >
                   {methods.getValues('week') && (
                     <WeekComboBox name="week" courseId={Number(courseId)} />
                   )}
                 </FormSection>
-                <FormSection title="Start Time" className="w-[420px]">
-                  {methods.getValues('startTime') && (
-                    <TimeForm name="startTime" />
+                <FormSection
+                  title="Due Time"
+                  isJustifyBetween={false}
+                  className="gap-[40px]"
+                  isLabeled={false}
+                >
+                  <TimeFormPopover />
+                  {methods.getValues('dueTime') && (
+                    <TimeForm
+                      name="dueTime"
+                      defaultTimeOnSelect={{
+                        hours: 23,
+                        minutes: 59,
+                        seconds: 59
+                      }}
+                    />
                   )}
                 </FormSection>
               </div>
 
               <div className="flex justify-between">
                 <FormSection
-                  title="Due Time"
-                  className="w-[420px]"
-                  isLabeled={false}
+                  title="Start Time"
+                  isJustifyBetween={false}
+                  className="gap-[27px]"
                 >
-                  <TimeFormPopover />
-                  <TimeForm
-                    name="dueTime"
-                    defaultTimeOnSelect={{
-                      hours: 23,
-                      minutes: 59,
-                      seconds: 59
-                    }}
-                  />
+                  {methods.getValues('startTime') && (
+                    <TimeForm name="startTime" />
+                  )}
                 </FormSection>
                 <FormSection
                   title="End Time"
-                  className="w-[420px]"
+                  isJustifyBetween={false}
+                  className="gap-[71px]"
                   isLabeled={false}
                 >
                   {methods.getValues('endTime') && <TimeForm name="endTime" />}
@@ -146,9 +160,7 @@ export default function Page() {
                 <AssignmentSolutionTable
                   problems={problems}
                   setProblems={setProblems}
-                  dueTime={
-                    methods.getValues('dueTime') ?? methods.getValues('endTime')
-                  }
+                  dueTime={methods.getValues('dueTime')}
                 />
               </div>
 

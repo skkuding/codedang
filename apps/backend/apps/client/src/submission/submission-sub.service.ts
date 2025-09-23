@@ -25,9 +25,7 @@ import {
   RUN_MESSAGE_TYPE,
   Status,
   TEST_SUBMISSION_EXPIRE_TIME,
-  USER_TESTCASE_MESSAGE_TYPE,
-  PERCENTAGE_SCALE,
-  DECIMAL_PRECISION_FACTOR
+  USER_TESTCASE_MESSAGE_TYPE
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -202,9 +200,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
 
     if (!msg.judgeResult) {
-      throw new UnprocessableDataException(
-        'JudgeResult is missing for submission ${msg.submissionId} - cannot process judge response'
-      )
+      throw new UnprocessableDataException('JudgeResult is empty')
     }
 
     const submissionResult = {
@@ -433,7 +429,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     if (!contestId || !userId)
       throw new UnprocessableDataException(
-        `Contest record update failed - missing required fields: contestId=${contestId}, userId=${userId}`
+        `The contestId: ${contestId}, userId: ${userId} is empty`
       )
 
     const [contest, contestProblem, contestRecord, submissions] =
@@ -612,9 +608,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     })
   }
 
-  /**
-   * Assignment 제출 점수 계산 (분수 기반)
-   */
   @Span()
   async calculateAssignmentSubmissionScore(
     submission: Pick<
@@ -628,6 +621,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     let toBeAddedScore = 0,
       toBeAddedAcceptedProblemNum = 0
+    // isFinishTimeToBeUpdated = false
 
     const assignmentRecord =
       await this.prisma.assignmentRecord.findUniqueOrThrow({
@@ -647,13 +641,26 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       })
 
-    const submissionRecord = await this.prisma.submission.findUniqueOrThrow({
-      where: { id: submission.id },
+    const submissionRecord = await this.prisma.submission.findUnique({
+      where: {
+        id: submission.id
+      },
       select: {
         updateTime: true,
         score: true
       }
     })
+
+    const { _sum: totalScoreWeight } =
+      await this.prisma.problemTestcase.aggregate({
+        where: {
+          problemId: submission.problemId
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _sum: {
+          scoreWeight: true
+        }
+      })
 
     const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
       where: {
@@ -663,20 +670,14 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           problemId: submission.problemId
         }
       },
-      select: { score: true }
+      select: {
+        score: true
+      }
     })
 
-    // assignmentProblem 이 없을 경우 (비정상 상태) 조용히 종료
-    if (!assignmentProblem) return
-
-    // Assignment 점수 계산 공식: (AssignmentProblemScore / 100) * submissionScore
-    // submissionScore는 이미 0~100 범위로 계산되어 있음 (분수 기반으로)
     const realSubmissionScore =
-      Math.round(
-        (submissionRecord.score / PERCENTAGE_SCALE) *
-          assignmentProblem.score *
-          DECIMAL_PRECISION_FACTOR
-      ) / DECIMAL_PRECISION_FACTOR
+      submissionRecord!.score *
+      (assignmentProblem!.score / totalScoreWeight.scoreWeight!)
 
     const assignmentProblemRecord =
       await this.prisma.assignmentProblemRecord.findUnique({
@@ -720,7 +721,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       toBeAddedAcceptedProblemNum = assignmentProblemRecord?.isAccepted ? -1 : 0
     }
     await this.prisma.assignmentRecord.update({
-      where: { id: assignmentRecord.id },
+      where: {
+        id: assignmentRecord.id
+      },
       data: {
         acceptedProblemNum: { increment: toBeAddedAcceptedProblemNum },
         score: { increment: toBeAddedScore },
@@ -731,7 +734,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   async updateSubmissionScore(id: number) {
     const submission = await this.prisma.submission.findUniqueOrThrow({
-      where: { id },
+      where: {
+        id
+      },
       select: {
         submissionResult: {
           select: {
@@ -753,10 +758,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       const problemTestcaseIds = new Set(
         (
           await this.prisma.problemTestcase.findMany({
-            where: {
-              problemId: submission.problemId,
-              isHidden: false
-            },
+            where: { problemId: submission.problemId, isHidden: false },
             select: { id: true }
           })
         ).map((tc) => tc.id)
@@ -766,68 +768,52 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       submission.submissionResult = submission.submissionResult.filter((sr) =>
         problemTestcaseIds.has(sr.problemTestcase.id)
       )
+
+      // 총 점수 가중치 계산
+      const scoreWeightSum = submission.submissionResult.reduce(
+        (acc, sr) => acc + sr.problemTestcase.scoreWeight,
+        0
+      )
+
+      if (scoreWeightSum > 0) {
+        // (1) 정수 변환을 위한 가중치 계산
+        let totalRounded = 0
+        const weights = submission.submissionResult.map((sr) => {
+          const raw = (sr.problemTestcase.scoreWeight / scoreWeightSum) * 100
+          const rounded = Math.round(raw)
+          totalRounded += rounded
+          return { sr, raw, rounded }
+        })
+
+        // (2) 오차 계산 및 보정
+        const diff = 100 - totalRounded
+        weights
+          .sort((a, b) => (b.raw % 1) - (a.raw % 1)) // 소수점 큰 순 정렬
+          .slice(0, Math.abs(diff)) // 필요한 개수만큼 조정
+          .forEach((w) => (w.rounded += Math.sign(diff)))
+
+        // (3) 최종 값 반영 (기존 submissionResult 배열 그대로 사용)
+        weights.forEach((w) => {
+          w.sr.problemTestcase.scoreWeight = w.rounded
+        })
+      }
     }
 
-    // 분수 기반 점수 계산
-    const totalScore = this.calculateFractionalScore(
-      submission.submissionResult
-    )
+    let score = 0
+    submission.submissionResult.map((submissionResult) => {
+      if (submissionResult.result === 'Accepted') {
+        score += submissionResult.problemTestcase.scoreWeight
+      }
+    })
 
     await this.prisma.submission.update({
-      where: { id },
-      data: { score: totalScore }
-    })
-  }
-
-  /**
-   * 분수 기반 점수 계산 헬퍼 함수
-   */
-  private calculateFractionalScore(
-    submissionResults: Array<{
-      problemTestcase: {
-        id: number
-        scoreWeightNumerator: number
-        scoreWeightDenominator: number
-      }
-      result: ResultStatus
-    }>
-  ): number {
-    // GCD와 LCM 계산 함수
-    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
-    const lcm = (a: number, b: number): number => (a * b) / gcd(a, b)
-
-    // 모든 테스트케이스의 분모의 LCM 계산
-    let lcmDenominator = 1
-    submissionResults.forEach((sr) => {
-      const denominator = sr.problemTestcase.scoreWeightDenominator
-      lcmDenominator = lcm(lcmDenominator, denominator)
-    })
-
-    // 맞은 테스트케이스의 분자 합 계산
-    let acceptedNumeratorSum = 0
-    let totalNumeratorSum = 0
-
-    submissionResults.forEach((sr) => {
-      const numerator = sr.problemTestcase.scoreWeightNumerator
-      const denominator = sr.problemTestcase.scoreWeightDenominator
-      const adjustedNumerator = numerator * (lcmDenominator / denominator)
-
-      totalNumeratorSum += adjustedNumerator
-
-      if (sr.result === ResultStatus.Accepted) {
-        acceptedNumeratorSum += adjustedNumerator
+      where: {
+        id
+      },
+      data: {
+        score
       }
     })
-
-    // 최종 점수 계산 (100점 만점 기준)
-    if (totalNumeratorSum === 0) {
-      return 0
-    }
-
-    const score = Math.round(
-      (acceptedNumeratorSum / totalNumeratorSum) * PERCENTAGE_SCALE
-    )
-    return score
   }
 
   @Span()
@@ -836,19 +822,27 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       submissionCount: { increment: number }
       acceptedCount?: { increment: number }
     } = {
-      submissionCount: { increment: 1 }
+      submissionCount: {
+        increment: 1
+      }
     }
 
     if (isAccepted) {
-      data.acceptedCount = { increment: 1 }
+      data.acceptedCount = {
+        increment: 1
+      }
     }
 
     const problem = await this.prisma.problem.findFirstOrThrow({
-      where: { id }
+      where: {
+        id
+      }
     })
 
     await this.prisma.problem.update({
-      where: { id },
+      where: {
+        id
+      },
       data: {
         ...data,
         acceptedRate: isAccepted

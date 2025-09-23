@@ -45,18 +45,8 @@ export class TestCaseResult {
   @Field(() => Boolean)
   isHidden: boolean
 
-  @Field(() => Int, { nullable: true, description: '점수 가중치 분자' })
-  scoreWeightNumerator?: number
-
-  @Field(() => Int, { nullable: true, description: '점수 가중치 분모' })
-  scoreWeightDenominator?: number
-
-  @Field(() => Int, {
-    nullable: true,
-    deprecationReason:
-      'Use scoreWeightNumerator and scoreWeightDenominator instead'
-  })
-  scoreWeight?: number | null
+  @Field(() => Int)
+  scoreWeight: number
 }
 
 @ObjectType()

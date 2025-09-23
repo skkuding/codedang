@@ -88,14 +88,11 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
         <Image src={CodeIcon} alt="Code" className="h-6 w-6" />
       </Toggle>
       <Popover open={isLinkPopoverOpen} onOpenChange={setIsLinkPopoverOpen}>
-        <PopoverTrigger asChild>
+        <PopoverTrigger className="flex items-center">
           <Toggle
-            type="button"
             pressed={isLinkPopoverOpen}
             onClick={handleSetLink}
             className="h-9 w-9 p-1"
-            aria-haspopup="dialog"
-            aria-expanded={isLinkPopoverOpen}
           >
             <Image src={LinkIcon} alt="Link" className="h-4 w-4" />
           </Toggle>

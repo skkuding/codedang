@@ -1,12 +1,7 @@
 'use client'
 
 import { AuthModal } from '@/components/auth/AuthModal'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from '@/components/shadcn/dialog'
+import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { useSession } from '@/libs/hooks/useSession'
 import { useAuthModalStore } from '@/stores/authModal'
 import type { Route } from 'next'
@@ -49,11 +44,8 @@ export default function LoginPage() {
           e.preventDefault()
         }}
         hideCloseButton={true}
-        className="!h-[620px] !w-[380px] rounded-[10px]"
+        className="min-h-120 max-w-82"
       >
-        <DialogHeader className="hidden">
-          <DialogTitle />
-        </DialogHeader>
         <AuthModal />
       </DialogContent>
     </Dialog>

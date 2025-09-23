@@ -11,8 +11,11 @@ post {
 }
 
 body:graphql {
-  query GetContestQnA($contestId: Int!, $order: Int!) {
-    getContestQnA(contestId: $contestId, order: $order) {
+  query {
+    getContestQnA(
+      contestId: 1
+      order: 1
+    ) {
       id
       title
       content
@@ -21,100 +24,39 @@ body:graphql {
       createdBy {
         username
       }
-      comments {
-        content
-        createdById
-        createdBy {
-          username
-        }
-      }
     }
-  }
-}
-
-body:graphql:vars {
-  {
-    "contestId": 20,
-    "order": 1
   }
 }
 
 assert {
-  res.body.data.getContestQnA: isObject
-}
-
-script:pre-request {
-  await require("./login").loginContestAdmin(req);
+  res.body.data.getContests: isDefined
 }
 
 docs {
-  # 📘 Get Contest QnA
+  # Get Contest QnA
 
-  **POST** `/graphql (query: getContestQnA)`
+  ## Description
+  관리자가 특정 콘테스트의 특정 순서 QnA를 조회할 수 있도록 합니다.
 
-  Retrieves a single QnA with its comments from a contest.
+  ## 요청 필드
+  | 필드명 | 타입 | 필수 여부 | 설명 |
+  |--------|------|----------|------|
+  | contestId | Int | 필수 | 콘테스트 ID |
+  | order | Int | 필수 | QnA 순서 (0 이상의 정수) |
 
-  특정 대회의 특정 순번(`order`)에 해당하는 QnA를 조회합니다.
-
-  ---
-
-  ### 🔒 Authentication
-
-  ✅ Required (Contest Staff)
-
-  ---
-
-  ### 📥 Request Variables
-
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `contestId` | Int | ✅ | 조회할 QnA가 속한 대회의 ID |
-  | `order` | Int | ✅ | 조회할 QnA의 순번 |
-
-  ---
-
-### 📤 Response Body
-
-  #### Content-Type: `application/json`
-
-  ```json
-  {
-    "data": {
-      "getContestQnA": {
-        "id": "7",
-        "title": "20번 대회에 대한 질문",
-        "content": "7번 유저가 작성함",
-        "createTime": "2025-09-18T07:18:43.149Z",
-        "createdById": 7,
-        "createdBy": {
-          "username": "user01"
-        },
-        "comments": [
-          {
-            "content": "7번 질문에 대한 작성자 답변",
-            "createdById": 7,
-            "createdBy": {
-              "username": "user01"
-            }
-          }
-        ]
-      }
-    }
-  }
-  ```
-
-  | Field | Type | Description |
+  ## 응답 필드
+  | 필드명 | 타입 | 설명 |
   |--------|------|------|
-  | `id` | Int | QnA ID |
-  | `title` | String | QnA 제목 |
-  | `content` | String | QnA 내용 |
-  | `createTime` | GraphQLISODateTime | 생성 시간 |
-  | `createdById` | Int | 작성자 ID |
-  | `createdBy` | User | 작성자 정보 |
-  | `createdBy.username` | String | 작성자 사용자명 |
-  | `comments` | [Comment] | QnA에 달린 댓글 목록 |
-  | `comments.content` | String | 댓글 내용 |
-  | `comments.createdById` | String | 댓글 작성자 ID |
-  | `comments.createdBy` | User | 댓글 작성자 정보 |
-  | `comments.createdBy.username` | String | 댓글 작성자 사용자명 |
+  | id | Int | QnA ID |
+  | title | String | QnA 제목 |
+  | content | String | QnA 내용 |
+  | createTime | GraphQLISODateTime | 생성 시간 |
+  | createdById | Int | 작성자 ID |
+  | createdBy | User | 작성자 정보 |
+  | createdBy.username | String | 작성자 사용자명 |
+
+  ## 제약사항
+  - `contestId`는 존재하는 콘테스트여야 합니다.
+  - `order`는 존재하는 QnA의 순서여야 합니다.
+
 }

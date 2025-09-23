@@ -11,115 +11,49 @@ post {
 }
 
 body:graphql {
-  query GetContestQnAs($contestId: Int!, $take: Int, $cursor: Int, $filter: GetContestQnAsFilterInput) {
+  query {
     getContestQnAs(
-      contestId: $contestId,
-      take: $take,
-      cursor: $cursor,
-      filter: $filter
+      contestId: 1
     ) {
       id
-      order
       title
       content
-      category
-      isResolved
       createTime
-      contestId
+      createdById
       createdBy {
         username
       }
-      _count {
-        comments
-      }
     }
   }
 }
 
-body:graphql:vars {
-  {
-    "contestId": 20,
-    "take": 10
-    // "cursor": 1
-  }
-}
-
-script:pre-request {
-  await require("./login").loginContestAdmin(req);
+assert {
+  res.body.data.getContests: isDefined
 }
 
 docs {
-  # 📘 Get Contest QnAs
+  # Get Contest QnAs
 
-  **POST** `/graphql (query: getContestQnAs)`
+  ## Description
+  관리자가 특정 콘테스트의 모든 QnA를 조회할 수 있도록 합니다.
 
-  Retrieves a paginated list of QnAs for a contest.
+  ## 요청 필드
+  | 필드명 | 타입 | 필수 여부 | 설명 |
+  |--------|------|----------|------|
+  | contestId | Int | 필수 | 콘테스트 ID |
 
-  특정 대회의 QnA 목록을 조회합니다.
-
-  `take`와 `cursor`를 통해 가져올 QnA의 개수와 시작점을 지정할 수 있으며, `filter`를 통해 해결 여부(`isResolved`)에 따라 필터링할 수 있습니다.
-
-  ---
-
-  ### 🔒 Authentication
-
-  ✅ Required (Contest Staff)
-
-  ---
-
-  ### 📥 Request Variables
-
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `contestId` | Int | ✅ | 조회할 QnA가 속한 대회의 ID |
-  | `take` | Int | ❌ | 가져올 개수 (기본값: 10) |
-  | `cursor` | Int | ❌ | 페이지네이션 커서 (ID) |
-  | `filter`| GetContestQnAsFilterInput | ❌ | 필터링 옵션 |
-  | `filter.isResolved` | Boolean | ❌ | 해결/미해결 필터링 |
-
-  ---
-
-  ### 📤 Response Body
-
-  #### Content-Type: `application/json`
-
-  ```json
-  {
-    "data": {
-      "getContestQnAs": [
-        {
-          "id": "7",
-          "order": 1,
-          "title": "20번 대회에 대한 질문",
-          "content": "7번 유저가 작성함",
-          "category": "General",
-          "isResolved": false,
-          "createTime": "2025-09-18T07:18:43.149Z",
-          "contestId": 20,
-          "createdBy": {
-            "username": "user01"
-          },
-          "_count": {
-            "comments": 1
-          }
-        }
-      ]
-    }
-  }
-  ```
-
-  | Field | Type | Description |
+  ## 응답 필드
+  | 필드명 | 타입 | 설명 |
   |--------|------|------|
-  | `id` | Int | QnA ID |
-  | `order` | Int | 대회 내 QnA 순번 |
-  | `title` | String | QnA 제목 |
-  | `content` | String | QnA 내용 |
-  | `category` | QnACategory | QnA 카테고리 |
-  | `isResolved` | Boolean | 해결 완료 여부 |
-  | `createTime` | GraphQLISODateTime | 생성 시간 |
-  | `contestId` | Int | QnA가 속한 대회 ID |
-  | `createdBy` | User | 작성자 정보 |
-  | `createdBy.username` | String | 작성자 사용자명 |
-  | `_count` | Object | 관련 데이터 개수 |
-  | `_count.comments` | Int | 해당 QnA에 달린 댓글 개수 |
+  | id | Int | QnA ID |
+  | title | String | QnA 제목 |
+  | content | String | QnA 내용 |
+  | createTime | GraphQLISODateTime | 생성 시간 |
+  | createdById | Int | 작성자 ID |
+  | createdBy | User | 작성자 정보 |
+  | createdBy.username | String | 작성자 사용자명 |
+
+  ## 제약사항
+  - `contestId`는 존재하는 콘테스트여야 합니다.
+
 }

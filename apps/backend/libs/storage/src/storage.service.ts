@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   DeleteObjectCommand,
@@ -15,7 +15,8 @@ import { type ContentType, ContentTypes } from './content.type'
 export class StorageService {
   constructor(
     private readonly config: ConfigService,
-    private readonly client: S3Client
+    @Inject('S3_CLIENT') private readonly client: S3Client,
+    @Inject('S3_CLIENT_MEDIA') private readonly mediaClient: S3Client
   ) {}
 
   /**
@@ -75,7 +76,7 @@ export class StorageService {
     content: ReadStream
     type: string
   }) {
-    await this.client.send(
+    await this.mediaClient.send(
       new PutObjectCommand({
         Bucket: this.config.get('MEDIA_BUCKET_NAME'),
         Key: filename,
@@ -151,7 +152,7 @@ export class StorageService {
    * @param filename 파일 이름
    */
   async deleteFile(filename: string) {
-    await this.client.send(
+    await this.mediaClient.send(
       new DeleteObjectCommand({
         Bucket: this.config.get('MEDIA_BUCKET_NAME'),
         Key: filename

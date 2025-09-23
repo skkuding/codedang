@@ -1,6 +1,6 @@
 import { getContestSubmissionList } from '@/app/(client)/_libs/apis/contestSubmission'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
 interface UseSubmissionPollingProps {
@@ -103,7 +103,7 @@ const useSubmissionPolling = ({
           break
       }
     }, 1200)
-  }, [submissionList, enabled])
+  }, [submissionList])
 }
 
 export { useSubmissionPolling }

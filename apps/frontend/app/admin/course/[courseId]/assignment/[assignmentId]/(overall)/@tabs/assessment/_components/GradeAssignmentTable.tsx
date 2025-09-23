@@ -16,6 +16,12 @@ interface AssignmentTableProps {
   groupId: string
 }
 
+const headerStyle = {
+  week: 'w-1/12',
+  title: 'w-3/5',
+  startTime: 'w-2/5'
+}
+
 export function GradeAssignmentTable({ groupId }: AssignmentTableProps) {
   const { data } = useSuspenseQuery(GET_ASSIGNMENTS, {
     variables: {
@@ -39,6 +45,7 @@ export function GradeAssignmentTable({ groupId }: AssignmentTableProps) {
         <DataTableSearchBar columndId="title" />
       </div>
       <DataTable
+        headerStyle={headerStyle}
         getHref={(data) =>
           `/admin/course/${groupId}/grade/assignment/${data.id}` as Route
         }
@@ -49,5 +56,5 @@ export function GradeAssignmentTable({ groupId }: AssignmentTableProps) {
 }
 
 export function GradeAssignmentTableFallback() {
-  return <DataTableFallback columns={columns} />
+  return <DataTableFallback columns={columns} headerStyle={headerStyle} />
 }

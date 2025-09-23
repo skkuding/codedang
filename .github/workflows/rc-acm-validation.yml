@@ -1,0 +1,125 @@
+name: RC - ACM Validation
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECS_CLUSTER: Codedang-Api
+
+permissions: # permissions to the job (for the OpenID Connection)
+  id-token: write
+  contents: read
+
+jobs:
+  export-rc-ns-records:
+    name: Export RC NS Records
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      rc_ns_records: ${{ steps.exp-rc-ns.outputs.rc_ns_records }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Export RC NS Records
+        id: exp-rc-ns
+        working-directory: ./apps/infra/rc/network
+        run: |
+          terraform init -backend-config="bucket=codedang-tf-state-rc"
+          NS_RECORDS=$(terraform output -json rc_ns_records | jq -r '.[]' | tr '\n' ' ')
+          echo "rc_ns_records=$NS_RECORDS" >> $GITHUB_OUTPUT
+
+  rc-update-prod-route53:
+    name: RC - Update Production Route53 NS
+    runs-on: ubuntu-latest
+    needs: [export-rc-ns-records]
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Update Production Route53 NS Records
+        run: |
+          ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name "codedang.com" --query "HostedZones[0].Id" --output text | cut -d'/' -f3)
+          NS_RECORDS="${{ needs.export-rc-ns-records.outputs.rc_ns_records }}"
+          echo "NS_RECORDS is: [$NS_RECORDS]"
+          if [ -z "$NS_RECORDS" ]; then
+            echo "Error: rc_ns_records is empty"
+            exit 1
+          fi
+          # Trim trailing spaces and convert to JSON array, filtering out empty entries
+          NS_ARRAY=$(echo "$NS_RECORDS" | tr -s ' ' | sed 's/[[:space:]]*$//' | tr ' ' '\n' | grep -v '^$' | jq -R . | jq -s .)
+          echo "NS_ARRAY is: $NS_ARRAY"
+          CHANGE_BATCH=$(jq -n \
+            --arg name "rc.codedang.com" \
+            --argjson records "$NS_ARRAY" \
+            '{
+              "Changes": [{
+                "Action": "UPSERT",
+                "ResourceRecordSet": {
+                  "Name": $name,
+                  "Type": "NS",
+                  "TTL": 300,
+                  "ResourceRecords": ($records | map({"Value": .}))
+                }
+              }]
+            }')
+          echo "Change Batch: $CHANGE_BATCH"
+          aws route53 change-resource-record-sets \
+            --hosted-zone-id "$ZONE_ID" \
+            --change-batch "$CHANGE_BATCH"
+
+  rc-deploy-acm-validation:
+    name: RC - Deploy ACM Validation
+    runs-on: ubuntu-latest
+    needs: [rc-update-prod-route53]
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Create Terraform variable file
+        working-directory: ./apps/infra/rc/acm-validation
+        run: |
+          echo 'env = "rc"' >> terraform.tfvars
+
+      - name: Terraform Init ACM Validation
+        working-directory: ./apps/infra/rc/acm-validation
+        run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+
+      - name: Terraform Plan ACM Validation
+        working-directory: ./apps/infra/rc/acm-validation
+        run: terraform plan -input=false -out=plan.out
+
+      - name: Terraform Apply ACM Validation
+        working-directory: ./apps/infra/rc/acm-validation
+        run: terraform apply -input=false plan.out

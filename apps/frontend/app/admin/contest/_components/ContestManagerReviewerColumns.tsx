@@ -2,7 +2,6 @@ import { managerReviewerTypes } from '@/libs/constants'
 import type { ColumnDef } from '@tanstack/react-table'
 import { FaTrash } from 'react-icons/fa6'
 import { OptionSelect } from '../../_components/OptionSelect'
-import { DataTableColumnHeader } from '../../_components/table/DataTableColumnHeader'
 import type { ContestManagerReviewer } from '../_libs/schemas'
 
 export const createColumns = (
@@ -12,29 +11,27 @@ export const createColumns = (
 ): ColumnDef<ContestManagerReviewer>[] => [
   {
     accessorKey: 'username',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="User ID" />
+    header: () => <p className="text-center text-sm">User ID</p>,
+    cell: ({ row }) => (
+      <p className="overflow-hidden text-ellipsis whitespace-nowrap text-center">
+        {row.getValue('username')}
+      </p>
     ),
-    cell: ({ row }) => {
-      return row.getValue('username')
-    },
     enableSorting: false
   },
   {
     accessorKey: 'realName',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
+    header: () => <p className="text-center text-sm">Name</p>,
+    cell: ({ row }) => (
+      <p className="overflow-hidden text-ellipsis whitespace-nowrap text-center">
+        {row.getValue('realName')}
+      </p>
     ),
-    cell: ({ row }) => {
-      return row.getValue('realName')
-    },
     enableSorting: false
   },
   {
     accessorKey: 'type',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Role" />
-    ),
+    header: () => <p className="text-center text-sm">Role</p>,
     cell: ({ row }) => (
       <div className="flex justify-center">
         <OptionSelect

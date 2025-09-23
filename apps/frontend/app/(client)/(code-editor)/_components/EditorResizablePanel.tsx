@@ -1,6 +1,5 @@
 'use client'
 
-import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
 import { CodeEditor } from '@/components/CodeEditor'
 import { Button } from '@/components/shadcn/button'
 import {
@@ -102,7 +101,6 @@ export function EditorMainResizablePanel({
   const triggerSubmissionDetailRefresh = useSubmissionDetailSync(
     (state) => state.triggerRefresh
   )
-  const triggerQnaRefresh = useQnaCommentsSync((state) => state.triggerRefresh)
   const {
     isSidePanelHidden,
     toggleSidePanelVisibility
@@ -124,9 +122,9 @@ export function EditorMainResizablePanel({
   const { language, setLanguage } = useLanguageStore(
     problem.id,
     contestId,
-    courseId,
     assignmentId,
-    exerciseId
+    exerciseId,
+    courseId
   )()
   const [tabValue, setTabValue] = useState('Description')
 
@@ -139,12 +137,10 @@ export function EditorMainResizablePanel({
       setTabValue('Leaderboard')
     } else if (pathname.startsWith(`${base}/problem/${problem.id}/solution`)) {
       setTabValue('Solution')
-    } else if (pathname.startsWith(`${base}/problem/${problem.id}/qna`)) {
-      setTabValue('Qna')
     } else {
       setTabValue('Description')
     }
-  }, [pathname, base, problem.id])
+  }, [pathname])
 
   useEffect(() => {
     if (!problem.languages.includes(language)) {
@@ -196,7 +192,7 @@ export function EditorMainResizablePanel({
                     Submissions
                   </TabsTrigger>
                 </Link>
-                {(assignmentId || exerciseId) &&
+                {assignmentId &&
                   problem.solution &&
                   problem.solution.length > 0 && (
                     <Link
@@ -223,21 +219,6 @@ export function EditorMainResizablePanel({
                       className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                     >
                       Leaderboard
-                    </TabsTrigger>
-                  </Link>
-                )}
-                {contestId && (
-                  <Link
-                    replace
-                    href={
-                      `/contest/${contestId}/problem/${problem.id}/qna` as Route
-                    }
-                  >
-                    <TabsTrigger
-                      value="Qna"
-                      className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
-                    >
-                      Q&A
                     </TabsTrigger>
                   </Link>
                 )}
@@ -287,18 +268,6 @@ export function EditorMainResizablePanel({
                     isSubmissionDetail
                       ? triggerSubmissionDetailRefresh()
                       : triggerSubmissionRefresh()
-                  }}
-                />
-              </div>
-            )}
-            {tabValue === 'Qna' && contestId && (
-              <div className="flex gap-x-4">
-                <Image
-                  src={syncIcon}
-                  alt="Sync"
-                  className={'ml-4 cursor-pointer'}
-                  onClick={() => {
-                    triggerQnaRefresh()
                   }}
                 />
               </div>

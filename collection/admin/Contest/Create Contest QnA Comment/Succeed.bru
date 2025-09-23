@@ -11,15 +11,11 @@ post {
 }
 
 body:graphql {
-  mutation CreateContestQnAComment(
-    $contestId: Int!
-    $order: Int!
-    $content: String!
-  ) {
+  mutation {
     createContestQnAComment(
-      contestId: $contestId
-      order: $order
-      content: $content
+      contestId: 1
+      order: 1
+      content: "해당 문제에 대한 답변입니다. 다음과 같이 해결할 수 있습니다."
     ) {
       id
       content
@@ -31,72 +27,33 @@ body:graphql {
   }
 }
 
-body:graphql:vars {
-  {
-    "contestId": 20,
-    "order": 1,
-    "content": "해당 문제에 대한 답변입니다."
-  }
-}
-
-script:pre-request {
-  await require("./login").loginContestAdmin(req);
-}
-
 docs {
-  # 📘 Create Contest QnA Comment
+  # Create Contest QnA Comment
 
-  **POST** `/graphql (mutation: createContestQnAComment)`
+  ## Description
+  관리자가 콘테스트 QnA에 답글을 생성할 수 있도록 합니다.
 
-  Creates a comment on a contest QnA by a staff member.
+  ## 요청 필드
+  | 필드명 | 타입 | 필수 여부 | 설명 |
+  |--------|------|----------|------|
+  | contestId | Int | 필수 | 콘테스트 ID |
+  | order | Int | 필수 | QnA 순서 (0 이상의 정수) |
+  | content | String | 필수 | 답글 내용 |
 
-  대회 QnA에 스태프(운영진)의 답변 댓글을 생성합니다.
+  ## 응답 필드
+  | 필드명 | 타입 | 설명 |
+  |--------|------|------|
+  | id | Int | 생성된 답글의 ID |
+  | contestId | Int | 콘테스트 ID |
+  | qnAOrder | Int | QnA 순서 |
+  | commentOrder | Int | 답글 순서 |
+  | content | String | 답글 내용 |
+  | createdById | Int | 답글 작성자 ID |
+  | createdAt | GraphQLISODateTime | 생성 시간 |
 
-  이 함수는 특정 QnA에 댓글을 추가하고, 해당 QnA가 아직 해결되지 않은 상태(`isResolved: false`)였다면 해결된 상태(`isResolved: true`)로 업데이트합니다.
+  ## 제약사항
+  - `contestId`는 존재하는 콘테스트여야 합니다.
+  - `order`는 존재하는 QnA의 순서여야 합니다.
+  - `content`는 비어있지 않아야 합니다.
 
-  ---
-
-  ### 🔒 Authentication
-
-  ✅ Required (Contest Staff)
-
-  ---
-
-  ### 📥 Request Variables
-
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `contestId` | Int | ✅ | 댓글을 작성할 QnA가 속한 대회의 ID |
-  | `order` | Int | ✅ | 댓글을 작성할 QnA의 순번 |
-  | `content` | String | ✅ | 댓글 내용 |
-
-  ---
-
-  ### 📤 Response Body
-
-  #### Content-Type: `application/json`
-
-  ```json
-  {
-    "data": {
-      "createContestQnAComment": {
-        "id": "8",
-        "content": "해당 문제에 대한 답변입니다. 다음과 같이 해결할 수 있습니다.",
-        "isContestStaff": true,
-        "order": 3,
-        "contestQnAId": 7,
-        "createdTime": "2025-09-18T06:25:21.639Z"
-      }
-    }
-  }
-  ```
-
-  | Field | Type | Description |
-  |---|---|---|---|
-  | `id` | Int | 생성된 댓글의 ID |
-  | `content` | String | 답글 내용 |
-  | `isContestStaff` | Boolean | 스태프 작성 여부 (항상 `true`) |
-  | `order` | Int | QnA 내에서의 댓글 순서 |
-  | `contestQnAId` | Int | 댓글이 달린 QnA의 ID |
-  | `createdTime` | GraphQLISODateTime | 댓글 생성 시간 |
 }

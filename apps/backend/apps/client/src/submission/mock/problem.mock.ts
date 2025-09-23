@@ -32,7 +32,6 @@ export const problems: Problem[] = [
     visibleLockTime: MIN_DATE,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    updateContentTime: faker.date.past(),
     engTitle: null,
     engDescription: null,
     engHint: null,

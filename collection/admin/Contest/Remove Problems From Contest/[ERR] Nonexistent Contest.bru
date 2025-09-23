@@ -11,38 +11,21 @@ post {
 }
 
 body:graphql {
-  mutation RemoveProblemsFromContest(
-    $contestId: Int!,
-    $problemIds: [Int!]!
-  ) {
+  mutation {
     removeProblemsFromContest(
-      contestId: $contestId,
-      problemIds: $problemIds
+      contestId: 99999
+      problemIds: [7, 8]
     ) {
+      contestId
       problemId
+      createTime
+      updateTime
+      order
+      score
     }
   }
 }
 
-body:graphql:vars {
-  {
-    "contestId": 999,
-    "problemIds": [2]
-  }
-}
-
-script:pre-request {
-  await require("./login").loginContestAdmin(req);
-}
-
-docs {
-  # 📙 [ERR] Nonexistent Contest
-
-  **POST** `/graphql (mutation: removeProblemsFromContest)`
-
-  The requested contest does not exist.
-
-  존재하지 않는 `contestId`에서 문제를 제외하려고 할 때,
-
-  `EntityNotExistException`이 발생합니다.
+assert {
+  res.body.errors: isDefined
 }

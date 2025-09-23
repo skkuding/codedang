@@ -43,7 +43,6 @@ export function ProblemTable() {
     ...problem,
     id: Number(problem.id),
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
-    updateTime: problem.updateContentTime ?? problem.updateTime,
     languages: problem.languages ?? [],
     tag: problem.tag.map(({ id, tag }) => ({
       id: Number(id),
@@ -54,14 +53,11 @@ export function ProblemTable() {
     }))
   }))
 
-  const bodyStyle = { title: 'justify-start' }
-
   return (
     <DataTableRoot
       data={problems}
       columns={createColumns()}
-
-      // defaultSortState={[{ id: 'updateTime', desc: true }]}
+      defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <div className="flex gap-4">
         <DataTableSearchBar columndId="title" />
@@ -69,10 +65,7 @@ export function ProblemTable() {
         <DataTableLevelFilter />
         <ProblemsDeleteButton />
       </div>
-      <DataTable
-        getHref={(data) => `/admin/problem/${data.id}`}
-        bodyStyle={bodyStyle}
-      />
+      <DataTable getHref={(data) => `/admin/problem/${data.id}`} />
       <DataTablePagination showSelection />
     </DataTableRoot>
   )

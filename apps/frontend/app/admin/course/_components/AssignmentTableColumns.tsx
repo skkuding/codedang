@@ -24,7 +24,6 @@ export interface DataTableAssignment {
   id: number
   title: string
   startTime: string
-  dueTime?: string
   endTime: string
   description: string
   participants: number
@@ -150,35 +149,54 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Title"
-        className="w-[400px]"
-      />
+      <DataTableColumnHeader column={column} title="Title" />
     ),
-    cell: ({ row }) => {
-      return row.getValue('title')
-    },
+    cell: ({ row }) => (
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        {row.getValue('title')}
+      </p>
+    ),
     enableSorting: false,
     enableHiding: false
   },
   {
     accessorKey: 'startTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Period" />
+      <div className="flex justify-center">
+        <DataTableColumnHeader
+          column={column}
+          title="Period"
+          className="text-center"
+        />
+      </div>
     ),
-    cell: ({ row }) => {
-      return formatDateRange(row.original.startTime, row.original.endTime)
-    }
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <div className="max-w-[270px] flex-1 text-left">
+          <p className="overflow-hidden whitespace-nowrap">
+            {formatDateRange(row.original.startTime, row.original.endTime)}
+          </p>
+        </div>
+      </div>
+    ),
+    size: 250
   },
   {
     accessorKey: 'week',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Week" />
+      <div className="flex justify-center">
+        <DataTableColumnHeader
+          column={column}
+          title="Week"
+          className="text-center"
+        />
+      </div>
     ),
-    cell: ({ row }) => {
-      return `Week ${row.original.week}`
-    }
+    cell: ({ row }) => (
+      <p className="overflow-hidden whitespace-nowrap text-center font-normal">
+        {`Week ${row.original.week}`}
+      </p>
+    )
   },
   {
     accessorKey: 'isVisible',
@@ -187,6 +205,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
     ),
     cell: ({ row }) => {
       return <VisibleCell row={row} />
-    }
+    },
+    size: 100
   }
 ]

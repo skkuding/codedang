@@ -71,25 +71,10 @@ export class AssignmentService {
         isVisible: true,
         ...(month !== undefined && year !== undefined
           ? {
-              OR: [
-                {
-                  dueTime: {
-                    gte: new Date(year, month - 1, 1),
-                    lte: new Date(year, month, 0, 23, 59, 59, 999)
-                  }
-                },
-                {
-                  AND: [
-                    { dueTime: null },
-                    {
-                      endTime: {
-                        gte: new Date(year, month - 1, 1),
-                        lte: new Date(year, month, 0, 23, 59, 59, 999)
-                      }
-                    }
-                  ]
-                }
-              ]
+              dueTime: {
+                gte: new Date(year, month - 1, 1),
+                lte: new Date(year, month, 0, 23, 59, 59, 999)
+              }
             }
           : {})
       },
@@ -122,8 +107,7 @@ export class AssignmentService {
   async getAssignment(id: number, userId: number) {
     const isRegistered = await this.prisma.assignmentRecord.findUnique({
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { assignmentId_userId: { assignmentId: id, userId } },
-      select: { id: true }
+      where: { assignmentId_userId: { assignmentId: id, userId } }
     })
 
     if (!isRegistered) {
@@ -133,20 +117,16 @@ export class AssignmentService {
     }
 
     const assignment = await this.prisma.assignment.findUnique({
-      where: { id },
+      where: {
+        id,
+        isVisible: true,
+        startTime: {
+          lte: new Date()
+        }
+      },
       select: {
         ...assignmentSelectOption,
-        description: true,
-        isVisible: true,
-        group: {
-          select: {
-            userGroup: {
-              where: { userId },
-              take: 1,
-              select: { isGroupLeader: true }
-            }
-          }
-        }
+        description: true
       }
     })
 
@@ -154,16 +134,7 @@ export class AssignmentService {
       throw new EntityNotExistException('Assignment')
     }
 
-    const { _count, group, ...assignmentDetails } = assignment
-
-    if (!group.userGroup[0].isGroupLeader) {
-      if (
-        !assignmentDetails.isVisible ||
-        assignmentDetails.startTime > new Date()
-      ) {
-        throw new EntityNotExistException('Assignment')
-      }
-    }
+    const { _count, ...assignmentDetails } = assignment
 
     return {
       ...assignmentDetails,
@@ -343,7 +314,6 @@ export class AssignmentService {
         groupId: true,
         title: true,
         dueTime: true,
-        endTime: true,
         isFinalScoreVisible: true,
         autoFinalizeScore: true
       }
@@ -360,7 +330,7 @@ export class AssignmentService {
     }
 
     const now = new Date()
-    if (now < (assignment.dueTime ?? assignment.endTime)) {
+    if (now < assignment.dueTime) {
       throw new ForbiddenAccessException(
         'Cannot view scores before assignment ends'
       )
@@ -600,11 +570,6 @@ export class AssignmentService {
           select: {
             score: true,
             finalScore: true,
-            assignmentProblemRecord: {
-              select: {
-                finalScore: true
-              }
-            },
             // eslint-disable-next-line @typescript-eslint/naming-convention
             _count: {
               select: {
@@ -633,11 +598,6 @@ export class AssignmentService {
             'User not participated in the assignment'
           )
         }
-        assignmentRecord[0].finalScore =
-          assignmentRecord[0].assignmentProblemRecord.reduce(
-            (sum, { finalScore }) => sum + (finalScore ?? 0),
-            0
-          )
         const total = assignmentProblem.reduce(
           (sum, { score }) => sum + score,
           0

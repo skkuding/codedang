@@ -1,5 +1,6 @@
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
+import { RxCross2 } from 'react-icons/rx'
 
 interface ExampleTextareaProps {
   onRemove: () => void

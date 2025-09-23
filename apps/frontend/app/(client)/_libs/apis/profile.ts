@@ -6,7 +6,6 @@ export interface Profile {
     realName: string
   }
   studentId: string
-  college: string
   major: string
   email: string
 }

@@ -1,40 +1,28 @@
 'use client'
 
-import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { dateFormatter, getResultColor } from '@/libs/utils'
-import type { Submission } from '@generated/graphql'
+import type { SubmissionItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
-interface DataTableSubmission
-  extends Omit<
-    Submission,
-    'id' | 'problemId' | '_count' | 'score' | 'problem' | 'updateTime'
-  > {
-  id: number
-}
-
-export const columns: ColumnDef<DataTableSubmission>[] = [
+export const columns: ColumnDef<SubmissionItem>[] = [
   {
-    header: ({ column }) => <DataTableColumnHeader column={column} title="#" />,
+    header: '#',
     accessorKey: 'id',
-    cell: ({ row }) => row.original.id,
-    filterFn: (row, _, value) => {
-      const id = row.original.id
-      return id.toString().includes(value)
-    }
+    cell: ({ row }) => <p className="text-sm">{row.original.id}</p>
   },
   {
     id: 'username',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="User ID" />
-    ),
+    header: () => 'User ID',
     accessorKey: 'username',
-    cell: ({ row }) => row.original.user?.username
+    cell: ({ row }) => row.original.user.username,
+    // submission userID Search Filter
+    filterFn: (row, _, value) => {
+      const users = row.original.user
+      return users.username.includes(value)
+    }
   },
   {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Result" />
-    ),
+    header: () => 'Result',
     accessorKey: 'result',
     cell: ({ row }) => {
       return (
@@ -45,24 +33,18 @@ export const columns: ColumnDef<DataTableSubmission>[] = [
     }
   },
   {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Language" />
-    ),
+    header: () => 'Language',
     accessorKey: 'language',
     cell: ({ row }) => row.original.language
   },
   {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Submission Time" />
-    ),
+    header: () => 'Submission Time',
     accessorKey: 'createTime',
     cell: ({ row }) =>
       dateFormatter(row.original.createTime, 'MMM DD, YYYY HH:mm')
   },
   {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Code Size" />
-    ),
+    header: () => 'Code Size',
     accessorKey: 'codeSize',
     cell: ({ row }) => {
       return row.original.codeSize === null ? (

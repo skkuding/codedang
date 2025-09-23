@@ -11,18 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetContestScoreSummaries(
-    $contestId: Int!
-    $take: Int
-    $cursor: Int
-    $searchingName: String
-  ) {
-    getContestScoreSummaries(
-      contestId: $contestId
-      take: $take
-      cursor: $cursor
-      searchingName: $searchingName
-    ) {
+  query GetContestScoreSummaries($contestId: Int!, $take: Int, $cursor: Int) {
+    getContestScoreSummaries(contestId:$contestId, take: $take, cursor: $cursor) {
       userId
       username
       studentId
@@ -43,93 +33,20 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 20,
-    "take": 10
-    // "cursor": 1,
+    "contestId": 49
     // "searchingName": "lee"
   }
 }
 
-script:pre-request {
-  await require("./login").loginContestAdmin(req);
-}
-
 docs {
-  # 📘 Get Contest Score Summaries
-
-  **POST** `/graphql (query: getContestScoreSummaries)`
-
-  Retrieves paginated score summaries for contest participants.
-
-  특정 대회 참가자들의 점수 요약 정보를 조회합니다.
-
-  사용자 정보와 함께 제출한 문제 수, 총 점수, 문제별 점수 등을 포함하여 반환합니다.
-
-  `searchingName` 파라미터로 실명을 검색할 수 있습니다.
-
-  ---
-
-  ### 🔒 Authentication
-
-  ✅ Required (Contest Staff)
-
-  ---
-
-  ### 📥 Request Variables
-
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `contestId` | Int | ✅ | 대회 ID |
-  | `take` | Int | ❌ | 가져올 개수 (기본값: 10) |
-  | `cursor` | Int | ❌ | 페이지네이션 커서 |
-  | `searchingName`| String | ❌ | 검색할 사용자의 실제 이름 |
-
-  ---
-
-  ### 📤 Response Body
-
-  #### Content-Type: `application/json`
-
-  ```json
-  {
-    "data": {
-      "getContestScoreSummaries": [
-        {
-          "userId": 7,
-          "username": "user01",
-          "studentId": "2024100001",
-          "realName": "Myeongryun Lee",
-          "major": "Computer Science",
-          "submittedProblemCount": 1,
-          "totalProblemCount": 2,
-          "userContestScore": 0,
-          "contestPerfectScore": 30,
-          "problemScores": [
-            {
-              "problemId": 1,
-              "score": 0,
-              "maxScore": 10
-            }
-          ]
-        }
-      ]
-    }
-  }
-  ```
-
-  | Field | Type | Description |
-  |--------|------|------|
-  | `userId` | Int | 사용자 ID |
-  | `username` | String | 사용자 계정명 |
-  | `studentId` | String | 학번 |
-  | `realName` | String | 실명 |
-  | `major` | String | 전공 |
-  | `submittedProblemCount` | Int | 제출한 문제 개수 |
-  | `totalProblemCount` | Int | 대회의 총 문제 개수 |
-  | `userContestScore` | Int | 사용자의 대회 총점 |
-  | `contestPerfectScore` | Int | 대회의 만점 |
-  | `problemScores` | [ProblemScore] | 문제별 점수 목록 |
-  | `problemScores.problemId` | ContestRole | 문제 ID |
-  | `problemScores.score` | ContestRole | 사용자의 문제에서의 점수 |
-  | `problemScores.maxScore` | ContestRole | 문제 만점 |
+  ## Get Contest Submission Summaries of Users
+  
+  * Contest에 참여한 User와, 점수 요약을 함께 불러옵니다.
+  * Contest Overall 페이지의 Participants 탭의 정보
+  * https://github.com/skkuding/codedang/pull/2029
+  
+  #### 필요 인자
+  | `contestId` | `searchingName?` | `take?` | `cursor?` |
+  |----------|--------|----------|------------|
+  | 불러올 Contest의 id | 필터링할 User의 realName(없으면 모든 유저) | Pagination 구현을 위함(default: 10) | Pagination 구현을 위함(default: null) |
 }

@@ -11,9 +11,3 @@ export class UpdateContestQnAInput {
   @Field(() => String, { nullable: true })
   answer?: string
 }
-
-@InputType()
-export class GetContestQnAsFilterInput {
-  @Field(() => Boolean, { nullable: true })
-  isResolved?: boolean
-}

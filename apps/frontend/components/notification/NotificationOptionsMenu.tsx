@@ -39,8 +39,9 @@ export function NotificationOptionsMenu({
         <DropdownMenuItem
           onSelect={handleMarkAllAsRead}
           className={cn(
-            'hover:!bg-color-neutral-99 flex cursor-pointer gap-2',
-            isEditor && '!bg-slate-700 !text-gray-300 hover:!bg-slate-800'
+            'flex cursor-pointer gap-2',
+            'hover:bg-color-neutral-99',
+            isEditor && 'bg-slate-700 text-gray-300 hover:bg-slate-600'
           )}
         >
           <Image src={CheckIcon} alt="check" width={16} height={16} />
@@ -48,8 +49,9 @@ export function NotificationOptionsMenu({
         </DropdownMenuItem>
         <DropdownMenuItem
           className={cn(
-            'hover:!bg-color-neutral-99 ml-[1px] flex gap-2.5',
-            isEditor && '!bg-slate-700 !text-gray-300 hover:!bg-slate-800'
+            'ml-[1px] flex gap-2.5',
+            'hover:bg-color-neutral-99',
+            isEditor && 'bg-slate-700 text-gray-300 hover:bg-slate-600'
           )}
         >
           <Image src={SettingsIcon} alt="settings" width={13} height={12} />

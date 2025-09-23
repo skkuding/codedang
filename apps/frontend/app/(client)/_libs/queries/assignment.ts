@@ -18,7 +18,7 @@ export const assignmentQueries = {
     }),
   muliple: ({ courseId, isExercise }: GetAssignmentsRequest) =>
     queryOptions({
-      queryKey: ['assignments', courseId, isExercise],
+      queryKey: ['assignments', courseId],
       queryFn: () => getAssignments({ courseId, isExercise })
     }),
   record: ({ assignmentId }: GetAssignmentProblemRecordRequest) =>

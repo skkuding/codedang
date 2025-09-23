@@ -13,7 +13,7 @@ post {
 body:graphql {
   mutation {
     removeAnnouncement(
-      contestId: 20
+      contestId: 1
       id: 1
     ) {
       id
@@ -22,30 +22,4 @@ body:graphql {
       updateTime
     }
   }
-}
-
-docs {
-  # 📘 Remove Announcement
-  
-  Remove a specific Announcement by contestId and Id.
-  
-  특정 Id에 해당하는 공지를 삭제합니다.
-  
-  ---
-  
-  ### 🔒 Authentication
-  
-  ✅ Required  
-  
-  ---
-  
-  ### 📥 Request Parameters
-  
-  #### Query Parameters
-  | Name | Type   | Required | Description              |
-  |------|--------|----------|--------------------------|
-  | `contestId` | number |   ✅     | Id of Contest |
-  | `id`  | number | ✅ | Id of Announcement |
-  
-  ---
 }

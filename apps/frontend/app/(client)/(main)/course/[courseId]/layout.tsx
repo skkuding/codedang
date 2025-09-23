@@ -1,40 +1,23 @@
-'use client'
-
 import { Cover } from '@/app/(client)/(main)/_components/Cover'
-import { useHeaderTitle } from '@/app/(client)/(main)/_contexts/HeaderTitleContext'
-import { useParams } from 'next/navigation'
-import React from 'react'
 import { CourseSidebar } from './_components/CourseSidebar'
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const { setHeaderTitle } = useHeaderTitle()
-  const { courseId } = useParams()
+interface CourseLayoutProps {
+  children: React.ReactNode
+  params: Promise<{ courseId: string }>
+}
 
-  React.useEffect(() => {
-    return () => {
-      setHeaderTitle(null)
-    }
-  }, [setHeaderTitle])
-
+export default async function Layout(props: CourseLayoutProps) {
+  const { children } = props
+  const { courseId } = await props.params
   return (
     <>
-      <div className="hidden lg:flex">
-        <Cover
-          title="COURSE"
-          description="Structured Learning, Real-World Coding"
-        />
-      </div>
-      <div className="mt-14 flex h-full w-full max-w-[1440px] flex-col lg:mt-0">
-        {/* Mobile Navigation */}
-        <div className="lg:hidden">
-          <CourseSidebar courseId={courseId as string} />
-        </div>
-
+      <Cover
+        title="COURSE"
+        description="Structured Learning, Real-World Coding"
+      />
+      <div className="flex h-full w-full max-w-[1440px] flex-col">
         <div className="flex flex-row">
-          {/* Desktop Sidebar */}
-          <div className="hidden lg:block">
-            <CourseSidebar courseId={courseId as string} />
-          </div>
+          <CourseSidebar courseId={courseId} />
           <article className="w-full">
             <div>{children}</div>
           </article>

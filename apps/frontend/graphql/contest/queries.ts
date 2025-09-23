@@ -151,38 +151,6 @@ const GET_CONTEST_UPDATE_HISTORIES =
   }
 `)
 
-const GET_CONTEST_QNA =
-  gql(`query GetContestQna($contestId: Int!, $qnaId: Int!) {
-    getContestQnA(
-      contestId: $contestId,
-      order: $qnaId
-    ) {
-      order
-      createdById
-      createdBy {
-        username
-      }
-      contestId
-      title
-      content
-      problemId
-      category
-      isResolved
-      createTime
-      comments {
-        content
-        createdById
-        createdBy {
-          username
-        }
-        createdTime
-        isContestStaff
-        order
-      }
-    }
-  }
-`)
-
 const GET_CONTEST_ROLES = gql(`query GetContestRoles {
     getContestRoles {
       contestId
@@ -198,6 +166,5 @@ export {
   GET_CONTEST_SCORE_SUMMARIES,
   GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER,
   GET_CONTEST_UPDATE_HISTORIES,
-  GET_CONTEST_QNA,
   GET_CONTEST_ROLES
 }

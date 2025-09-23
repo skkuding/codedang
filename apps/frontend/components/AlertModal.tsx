@@ -2,8 +2,7 @@
 
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
-import confirmIcon from '@/public/icons/check-blue.svg'
-import warningIcon from '@/public/icons/info.svg'
+import infoIcon from '@/public/icons/info.svg'
 import Image from 'next/image'
 import { useState } from 'react'
 import {
@@ -30,8 +29,7 @@ interface AlertModalProps {
   onOpenChange?: (open: boolean) => void
   size?: 'sm' | 'md' | 'lg'
   type: 'confirm' | 'warning'
-  showIcon?: boolean
-  showCancelButton?: boolean
+  showWarningIcon?: boolean
   title: string
   description?: string
   primaryButton: ButtonProps
@@ -40,7 +38,7 @@ interface AlertModalProps {
 }
 
 const sizeClassMap = {
-  sm: '!w-[424px] !h-[300px] !p-[40px]',
+  sm: '!w-[424px] !h-[280px] !p-[40px]',
   md: '!w-[600px] !h-[580px] !py-[50px] !px-[40px]',
   lg: '!w-[800px] !h-[620px] !py-[50px] !px-[40px]'
 }
@@ -51,8 +49,7 @@ export function AlertModal({
   onOpenChange,
   size = 'sm',
   type,
-  showIcon = true,
-  showCancelButton = true,
+  showWarningIcon = true,
   title,
   description,
   primaryButton,
@@ -74,13 +71,8 @@ export function AlertModal({
         onEscapeKeyDown={onClose}
       >
         <AlertDialogHeader className="flex flex-col items-center justify-center">
-          {showIcon && (
-            <Image
-              src={type === 'warning' ? warningIcon : confirmIcon}
-              alt={type === 'warning' ? 'warning' : 'confirm'}
-              width={42}
-              height={42}
-            />
+          {type === 'warning' && showWarningIcon && (
+            <Image src={infoIcon} alt="info" width={42} height={42} />
           )}
           <AlertDialogTitle
             className={cn(
@@ -104,12 +96,10 @@ export function AlertModal({
             </p>
           )}
         </AlertDialogDescription>
-        <AlertDialogFooter className="flex w-full flex-row gap-[4px]">
-          {showCancelButton && (
-            <AlertDialogCancel className="h-[46px] w-full">
-              Cancel
-            </AlertDialogCancel>
-          )}
+        <AlertDialogFooter className="flex w-full justify-center gap-[4px]">
+          <AlertDialogCancel className="h-[46px] w-full">
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
               onClick={primaryButton.onClick}

@@ -88,6 +88,7 @@ export async function EditorLayout({
     if (courseRes.ok) {
       const courseData = await courseRes.json<Omit<Course, 'description'>>()
       courseName = courseData.groupName
+      console.log(courseData)
     }
 
     // for getting assignment info and problems list
@@ -269,10 +270,10 @@ const renderTimediff = ({
   }
   const item = assignment ?? exercise
 
-  if (item && (item.dueTime ?? hasDueDate(item.endTime))) {
+  if (item && hasDueDate(item.dueTime)) {
     return (
       <CountdownStatus
-        baseTime={item.dueTime ?? item.endTime}
+        baseTime={item.dueTime}
         target={assignment ? 'assignment' : 'exercise'}
         showTarget={false}
         inEditor={true}

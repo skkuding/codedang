@@ -3,7 +3,6 @@
 import { convertToLetter, dateFormatter } from '@/libs/utils'
 import type {
   Assignment,
-  AssignmentProblem,
   AssignmentProblemRecord,
   AssignmentSubmission,
   ProblemGrade
@@ -81,38 +80,5 @@ export const columns = (
         submissions={submissions}
       />
     )
-  }
-]
-
-export const problemColumns = (): ColumnDef<AssignmentProblem>[] => [
-  {
-    header: '#',
-    accessorKey: 'order',
-    cell: ({ row }) => (
-      <div className="h-full text-sm font-medium text-[#8A8A8A]">
-        {convertToLetter(row.original.order)}
-      </div>
-    )
-  },
-  {
-    header: 'Title',
-    accessorKey: 'title',
-    cell: ({ row }) => {
-      return (
-        <p className="w-[500px] text-left font-medium md:text-base">{`${row.original.title}`}</p>
-      )
-    }
-  },
-  {
-    header: 'Submission Time',
-    accessorKey: 'submission'
-  },
-  {
-    header: 'Submisison Result',
-    accessorKey: 'tc_result'
-  },
-  {
-    header: 'Detail',
-    accessorKey: 'detail'
   }
 ]

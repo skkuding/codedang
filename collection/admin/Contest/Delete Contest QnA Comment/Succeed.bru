@@ -11,15 +11,11 @@ post {
 }
 
 body:graphql {
-  mutation DeleteContestQnAComment(
-    $contestId: Int!
-    $qnAOrder: Int!
-    $commentOrder: Int!
-  ) {
+  mutation {
     deleteContestQnAComment(
-      contestId: $contestId
-      qnAOrder: $qnAOrder
-      commentOrder: $commentOrder
+      contestId: 1
+      qnAOrder: 1
+      commentOrder: 4
     ) {
       id
       content
@@ -31,74 +27,33 @@ body:graphql {
   }
 }
 
-body:graphql:vars {
-  {
-    "contestId": 20,
-    "qnAOrder": 1,
-    "commentOrder": 1
-  }
-}
-
-script:pre-request {
-  await require("./login").loginContestAdmin(req);
-}
-
 docs {
-  # 📘 Delete Contest QnA Comment
+  # Delete Contest QnA Comment
 
-  **POST** `/graphql (mutation: deleteContestQnAComment)`
+  ## Description
+  관리자가 콘테스트 QnA의 답글을 삭제할 수 있도록 합니다.
 
-  Deletes a specific comment from a contest QnA.
+  ## 요청 필드
+  | 필드명 | 타입 | 필수 여부 | 설명 |
+  |--------|------|----------|------|
+  | contestId | Int | 필수 | 콘테스트 ID |
+  | qnAOrder | Int | 필수 | QnA 순서 (0 이상의 정수) |
+  | commentOrder | Int | 필수 | 답글 순서 (0 이상의 정수) |
 
-  특정 QnA에 달린 댓글을 삭제합니다.
+  ## 응답 필드
+  | 필드명 | 타입 | 설명 |
+  |--------|------|------|
+  | id | Int | 삭제된 답글의 ID |
+  | contestId | Int | 콘테스트 ID |
+  | qnAOrder | Int | QnA 순서 |
+  | commentOrder | Int | 답글 순서 |
+  | content | String | 답글 내용 |
+  | createdById | Int | 답글 작성자 ID |
+  | createdAt | GraphQLISODateTime | 생성 시간 |
 
-  댓글 삭제 후, 해당 QnA에 남은 마지막 댓글이 스태프(운영진)에 의해 작성된 것이라면 QnA의 해결 상태(`isResolved`)를 `true`로, 그렇지 않다면 `false`로 업데이트합니다.
+  ## 제약사항
+  - `contestId`는 존재하는 콘테스트여야 합니다.
+  - `qnAOrder`는 존재하는 QnA의 순서여야 합니다.
+  - `commentOrder`는 존재하는 답글의 순서여야 합니다.
 
-  삭제된 댓글의 정보를 반환합니다.
-
-  ---
-
-  ### 🔒 Authentication
-
-  ✅ Required (Contest Staff)
-
-  ---
-
-  ### 📥 Request Variables
-
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `contestId` | Int | ✅ | 댓글이 속한 대회의 ID |
-  | `qnAOrder` | Int | ✅ | 댓글이 속한 QnA의 순번 |
-  | `commentOrder` | Int | ✅ | 삭제할 댓글의 순번 |
-
-  ---
-
-  ### 📤 Response Body
-
-  #### Content-Type: `application/json`
-
-  ```json
-  {
-    "data": {
-      "deleteContestQnAComment": {
-        "id": "4",
-        "content": "7번 질문에 대한 관리자 답변",
-        "isContestStaff": true,
-        "order": 1,
-        "contestQnAId": 7,
-        "createdTime": "2025-09-18T07:18:43.172Z"
-      }
-    }
-  }
-  ```
-
-  | Field | Type | Description |
-  |---|---|---|---|
-  | `id` | Int | 삭제된 댓글 ID |
-  | `content` | String | 댓글 내용 |
-  | `isContestStaff` | Boolean | 댓글 작성자의 Staff 여부 |
-  | `order` | Int | 삭제된 댓글의 순번 |
-  | `contestQnAId` | Int | QnA ID |
-  | `createdTime` | GraphQLISODateTime | 생성 시간 |
 }

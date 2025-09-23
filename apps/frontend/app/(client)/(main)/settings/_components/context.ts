@@ -9,7 +9,6 @@ export interface Profile {
     realName: string
   }
   studentId: string
-  college: string
   major: string
 }
 
@@ -29,13 +28,6 @@ interface MajorState {
   setMajorValue: React.Dispatch<React.SetStateAction<string>>
 }
 
-interface CollegeState {
-  collegeOpen: boolean
-  setCollegeOpen: React.Dispatch<React.SetStateAction<boolean>>
-  collegeValue: string
-  setCollegeValue: React.Dispatch<React.SetStateAction<string>>
-}
-
 interface FormState {
   register: UseFormRegister<SettingsFormat>
   errors: FieldErrors<SettingsFormat>
@@ -44,7 +36,6 @@ interface FormState {
 export type SettingsContextType = {
   defaultProfileValues: Profile
   passwordState: PasswordState
-  collegeState: CollegeState
   majorState: MajorState
   formState: FormState
   updateNow: boolean

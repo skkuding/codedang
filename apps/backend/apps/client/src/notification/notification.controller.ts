@@ -24,7 +24,7 @@ export class NotificationController {
    * 사용자의 알림 목록을 조회합니다.
    */
   @Get()
-  getNotifications(
+  async getNotifications(
     @Req() req: AuthenticatedRequest,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(8), new RequiredIntPipe('take'))
@@ -32,7 +32,7 @@ export class NotificationController {
     @Query('isRead', new ParseBoolPipe({ optional: true }))
     isRead: boolean | null
   ) {
-    return this.notificationService.getNotifications(
+    return await this.notificationService.getNotifications(
       req.user.id,
       cursor,
       take,
@@ -44,20 +44,20 @@ export class NotificationController {
    * 사용자의 읽지 않은 알림 개수를 조회합니다.
    */
   @Get('unread-count')
-  getUnreadCount(@Req() req: AuthenticatedRequest) {
-    return this.notificationService.getUnreadCount(req.user.id)
+  async getUnreadCount(@Req() req: AuthenticatedRequest) {
+    return await this.notificationService.getUnreadCount(req.user.id)
   }
 
   /**
    * 특정 알림을 읽음으로 표시합니다.
    */
   @Patch(':id/read')
-  markAsRead(
+  async markAsRead(
     @Req() req: AuthenticatedRequest,
     @Param('id', new RequiredIntPipe('notificationRecordId'))
     notificationRecordId: number
   ) {
-    return this.notificationService.markAsRead(
+    return await this.notificationService.markAsRead(
       req.user.id,
       notificationRecordId
     )
@@ -67,8 +67,8 @@ export class NotificationController {
    * 모든 알림을 읽음으로 표시합니다.
    */
   @Patch('read-all')
-  markAllAsRead(@Req() req: AuthenticatedRequest) {
-    return this.notificationService.markAllAsRead(req.user.id)
+  async markAllAsRead(@Req() req: AuthenticatedRequest) {
+    return await this.notificationService.markAllAsRead(req.user.id)
   }
 
   /**
@@ -76,7 +76,7 @@ export class NotificationController {
    * endpoint가 제공되지 않으면 해당 사용자의 모든 subscription을 삭제합니다
    */
   @Delete('/push-subscription')
-  deletePushSubscription(
+  async deletePushSubscription(
     @Req() req: AuthenticatedRequest,
     @Query('endpoint') endpoint?: string
   ) {
@@ -90,27 +90,22 @@ export class NotificationController {
    * 특정 알림을 삭제합니다.
    */
   @Delete(':id')
-  deleteNotification(
+  async deleteNotification(
     @Req() req: AuthenticatedRequest,
     @Param('id', new RequiredIntPipe('notificationRecordId'))
     notificationRecordId: number
   ) {
-    return this.notificationService.deleteNotification(
+    return await this.notificationService.deleteNotification(
       req.user.id,
       notificationRecordId
     )
-  }
-
-  @Get('/push-subscription')
-  getPushSubscriptions(@Req() req: AuthenticatedRequest) {
-    return this.notificationService.getPushSubscriptions(req.user.id)
   }
 
   /**
    * Push subscription을 생성합니다
    */
   @Post('/push-subscription')
-  createPushSubscription(
+  async createPushSubscription(
     @Req() req: AuthenticatedRequest,
     @Body() dto: CreatePushSubscriptionDto
   ) {
@@ -121,7 +116,7 @@ export class NotificationController {
    * VAPID public key를 반환합니다
    */
   @Get('/vapid')
-  getVapidPublicKey() {
+  async getVapidPublicKey() {
     return this.notificationService.getVapidPublicKey()
   }
 }

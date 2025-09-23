@@ -13,7 +13,7 @@ post {
 body:graphql {
   mutation {
     updateAnnouncement(
-      contestId: 20,
+      contestId: 1,
       input: {
         id: 1
         content: "Updated announcement content"
@@ -24,33 +24,4 @@ body:graphql {
       updateTime
     }
   }
-}
-
-docs {
-  # 📘 Update Announcement
-  
-  Update a specific Announcement by contestId and Id.
-  
-  특정 Id에 해당하는 공지를 수정합니다.
-  
-  ---
-  
-  ### 🔒 Authentication
-  
-  ✅ Required  
-  
-  ---
-  
-  ### 📥 Request Parameters
-  
-  #### Query Parameters
-  | Name | Type   | Required | Description              |
-  |------|--------|----------|--------------------------|
-  | `contestId` | number |   ✅     | id of contest |
-  | `id` | number |   ✅     | id of announcement |
-  | `content`  | string | ✅ | content of announcement |
-  
-  ---
-  
-  
 }

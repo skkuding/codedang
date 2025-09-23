@@ -1,4 +1,3 @@
-import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, type TestingModule } from '@nestjs/testing'
 import type { Notice } from '@generated'
 import { faker } from '@faker-js/faker'
@@ -54,10 +53,6 @@ const db = {
   getPaginator() {}
 }
 
-const eventEmitter = {
-  emit: stub()
-}
-
 const relatedRecordsNotFoundPrismaError = new PrismaClientKnownRequestError(
   'message',
   {
@@ -71,11 +66,7 @@ describe('NoticeService', () => {
 
   before(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        NoticeService,
-        { provide: PrismaService, useValue: db },
-        { provide: EventEmitter2, useValue: eventEmitter }
-      ]
+      providers: [NoticeService, { provide: PrismaService, useValue: db }]
     }).compile()
 
     service = module.get<NoticeService>(NoticeService)
@@ -88,7 +79,6 @@ describe('NoticeService', () => {
     db.notice.create.reset()
     db.notice.delete.reset()
     db.notice.update.reset()
-    eventEmitter.emit.reset()
   })
 
   it('should be defined', () => {

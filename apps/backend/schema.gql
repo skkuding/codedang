@@ -75,7 +75,7 @@ type Assignment {
   createdBy: User
   createdById: Int
   description: String!
-  dueTime: DateTime
+  dueTime: DateTime!
   enableCopyPaste: Boolean!
   endTime: DateTime!
   group: Group!
@@ -464,7 +464,7 @@ type AssignmentWithParticipants {
   createdBy: User
   createdById: Int
   description: String!
-  dueTime: DateTime
+  dueTime: DateTime!
   enableCopyPaste: Boolean!
   endTime: DateTime!
   group: Group!
@@ -494,7 +494,7 @@ type AssignmentWithScores {
   createdBy: User
   createdById: Int
   description: String!
-  dueTime: DateTime
+  dueTime: DateTime!
   enableCopyPaste: Boolean!
   endTime: DateTime!
   group: Group!
@@ -1565,7 +1565,7 @@ input CreateAnnouncementInput {
 input CreateAssignmentInput {
   autoFinalizeScore: Boolean
   description: String!
-  dueTime: DateTime
+  dueTime: DateTime!
   enableCopyPaste: Boolean
   endTime: DateTime!
   invitationCode: String
@@ -1728,10 +1728,6 @@ input GetAssignmentSubmissionsInput {
   assignmentId: Int!
   problemId: Int
   searchingName: String
-}
-
-input GetContestQnAsFilterInput {
-  isResolved: Boolean
 }
 
 type GetCheckResultDetailOutput {
@@ -1936,7 +1932,6 @@ type Match {
 }
 
 type Mutation {
-  autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
   checkAssignmentSubmissions(assignmentId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
@@ -1971,7 +1966,6 @@ type Mutation {
   removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
   removeUserFromContest(contestId: Int!, userId: Int!): UserContest!
   revokeInvitation(groupId: Int!): String!
-  toggleContestQnAResolved(contestId: Int!, qnAOrder: Int!): ContestQnA!
   updateAnnouncement(contestId: Int!, input: UpdateAnnouncementInput!): Announcement!
   updateAssignment(groupId: Int!, input: UpdateAssignmentInput!): Assignment!
   updateAssignmentProblemRecord(groupId: Int!, input: UpdateAssignmentProblemRecordInput!): AssignmentProblemRecord!
@@ -2253,7 +2247,6 @@ type Problem {
   testSubmission: [TestSubmission!]
   timeLimit: Int!
   title: String!
-  updateContentTime: DateTime!
   updateHistory: [UpdateHistory!]
   updateTime: DateTime!
   visibleLockTime: DateTime!
@@ -2310,7 +2303,6 @@ type ProblemCountAggregate {
   template: Int!
   timeLimit: Int!
   title: Int!
-  updateContentTime: Int!
   updateTime: Int!
   visibleLockTime: Int!
 }
@@ -2346,7 +2338,6 @@ type ProblemMaxAggregate {
   submissionCount: Int
   timeLimit: Int
   title: String
-  updateContentTime: DateTime
   updateTime: DateTime
   visibleLockTime: DateTime
 }
@@ -2372,7 +2363,6 @@ type ProblemMinAggregate {
   submissionCount: Int
   timeLimit: Int
   title: String
-  updateContentTime: DateTime
   updateTime: DateTime
   visibleLockTime: DateTime
 }
@@ -2453,15 +2443,11 @@ type ProblemTestcase {
   id: ID!
   input: String
   isHidden: Boolean!
-  isOutdated: Boolean!
   order: Int
-  outdateTime: DateTime
   output: String
   problem: Problem!
   problemId: Int!
   scoreWeight: Int!
-  scoreWeightDenominator: Int!
-  scoreWeightNumerator: Int!
   submissionCount: Int!
   submissionResult: [SubmissionResult!]
   updateTime: DateTime!
@@ -2473,8 +2459,6 @@ type ProblemTestcaseAvgAggregate {
   order: Float
   problemId: Float
   scoreWeight: Float
-  scoreWeightDenominator: Float
-  scoreWeightNumerator: Float
   submissionCount: Float
 }
 
@@ -2489,14 +2473,10 @@ type ProblemTestcaseCountAggregate {
   id: Int!
   input: Int!
   isHidden: Int!
-  isOutdated: Int!
   order: Int!
-  outdateTime: Int!
   output: Int!
   problemId: Int!
   scoreWeight: Int!
-  scoreWeightDenominator: Int!
-  scoreWeightNumerator: Int!
   submissionCount: Int!
   updateTime: Int!
 }
@@ -2511,14 +2491,10 @@ type ProblemTestcaseMaxAggregate {
   id: Int
   input: String
   isHidden: Boolean
-  isOutdated: Boolean
   order: Int
-  outdateTime: DateTime
   output: String
   problemId: Int
   scoreWeight: Int
-  scoreWeightDenominator: Int
-  scoreWeightNumerator: Int
   submissionCount: Int
   updateTime: DateTime
 }
@@ -2529,14 +2505,10 @@ type ProblemTestcaseMinAggregate {
   id: Int
   input: String
   isHidden: Boolean
-  isOutdated: Boolean
   order: Int
-  outdateTime: DateTime
   output: String
   problemId: Int
   scoreWeight: Int
-  scoreWeightDenominator: Int
-  scoreWeightNumerator: Int
   submissionCount: Int
   updateTime: DateTime
 }
@@ -2552,8 +2524,6 @@ type ProblemTestcaseSumAggregate {
   order: Int
   problemId: Int
   scoreWeight: Int
-  scoreWeightDenominator: Int
-  scoreWeightNumerator: Int
   submissionCount: Int
 }
 
@@ -2608,7 +2578,6 @@ type ProblemWithIsVisible {
   testcase: [ProblemTestcase!]!
   timeLimit: Int!
   title: String!
-  updateContentTime: DateTime!
   updateHistory: [UpdateHistory!]!
   updateTime: DateTime!
   workbookProblem: [WorkbookProblem!]
@@ -2702,7 +2671,7 @@ type Query {
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestProblems(contestId: Int!): [ContestProblem!]!
   getContestQnA(contestId: Int!, order: Int!): ContestQnA!
-  getContestQnAs(contestId: Int!, cursor: Int, filter: GetContestQnAsFilterInput, take: Int! = 10): [ContestQnA!]!
+  getContestQnAs(contestId: Int!): [ContestQnA!]!
   getContestRoles: [UserContest!]!
   getContestScoreSummaries(contestId: Int!, cursor: Int, searchingName: String, take: Int! = 10): [UserContestScoreSummaryWithUserInfo!]!
   getContestSubmissionSummaryByUserId(contestId: Int!, cursor: Int, problemId: Int, take: Int! = 10, userId: Int!): ContestSubmissionSummaryForUser!
@@ -3071,13 +3040,7 @@ type TestCaseResult {
   problemTestcase: ProblemTestcaseResult!
   problemTestcaseId: Int!
   result: ResultStatus!
-  scoreWeight: Int @deprecated(reason: "Use scoreWeightNumerator and scoreWeightDenominator instead")
-
-  """점수 가중치 분모"""
-  scoreWeightDenominator: Int
-
-  """점수 가중치 분자"""
-  scoreWeightNumerator: Int
+  scoreWeight: Int!
   submissionId: Int!
   updateTime: DateTime!
 }
@@ -3192,18 +3155,10 @@ type TestSubmissionSumAggregate {
 }
 
 input Testcase {
-  """기존 TC 구분용 ID 필드"""
-  id: Int
   input: String!
   isHidden: Boolean!
   output: String!
-  scoreWeight: Int
-
-  """점수 가중치 분모"""
-  scoreWeightDenominator: Int
-
-  """점수 가중치 분자"""
-  scoreWeightNumerator: Int
+  scoreWeight: IntScore
 }
 
 type TestcaseResult {

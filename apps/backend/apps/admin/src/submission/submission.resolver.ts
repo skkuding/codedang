@@ -37,7 +37,6 @@ export class SubmissionResolver {
    * @param take 불러올 제출 내역의 수
    * @returns {SubmissionsWithTotal}
    */
-  @UseDisableAdminGuard()
   @Query(() => SubmissionsWithTotal)
   async getSubmissions(
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
@@ -45,15 +44,9 @@ export class SubmissionResolver {
     @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { nullable: true, defaultValue: 10, type: () => Int })
-    take: number,
-    @Context('req') req: AuthenticatedRequest
+    take: number
   ): Promise<SubmissionsWithTotal> {
-    return this.submissionService.getSubmissions(
-      problemId,
-      cursor,
-      take,
-      req.user
-    )
+    return this.submissionService.getSubmissions(problemId, cursor, take)
   }
 
   /**

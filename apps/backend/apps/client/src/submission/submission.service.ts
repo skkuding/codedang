@@ -268,14 +268,9 @@ export class SubmissionService {
         startTime: {
           lte: now
         },
-        OR: [
-          {
-            dueTime: { gt: now }
-          },
-          {
-            AND: [{ dueTime: null }, { endTime: { gt: now } }]
-          }
-        ]
+        dueTime: {
+          gt: now
+        }
       }
     })
     if (!assignment) {
@@ -295,8 +290,7 @@ export class SubmissionService {
         assignment: {
           select: {
             startTime: true,
-            dueTime: true,
-            endTime: true
+            dueTime: true
           }
         }
       }
@@ -308,8 +302,7 @@ export class SubmissionService {
     }
     if (
       assignmentRecord.assignment.startTime > now ||
-      (assignmentRecord.assignment.dueTime ??
-        assignmentRecord.assignment.endTime) <= now
+      assignmentRecord.assignment.dueTime <= now
     ) {
       throw new ConflictFoundException(
         'Submission is only allowed to ongoing assignments'
@@ -546,8 +539,7 @@ export class SubmissionService {
   ): Promise<void> {
     let testcases = await this.prisma.problemTestcase.findMany({
       where: {
-        problemId: submission.problemId,
-        isOutdated: false
+        problemId: submission.problemId
       },
       select: { id: true, isHidden: true }
     })
@@ -781,7 +773,6 @@ export class SubmissionService {
     const rawTestcases = await this.prisma.problemTestcase.findMany({
       where: {
         problemId,
-        isOutdated: false,
         ...(containHiddenTestcases ? {} : { isHidden: false })
       }
     })
