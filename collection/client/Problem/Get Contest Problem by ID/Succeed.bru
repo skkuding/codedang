@@ -5,9 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/1/problem/1
+  url: {{baseUrl}}/contest/:contestId/problem/:problemId
   body: none
   auth: none
+}
+
+params:path {
+  problemId: 1
+  contestId: 1
 }
 
 assert {
@@ -23,15 +28,15 @@ script:pre-request {
 docs {
   # 📘 Get Contest Problem by ID
 
-  **GET** `/contest/1/problem/1`
+  **GET** `/contest/:contestId/problem/:problemId`
 
   이 함수는 다음과 같은 조건에 따라 대회 속 하나의 문제 정보를 가져옵니다.
 
   1. 운영진, 일반 사용자
-  - contestId == 1 속 problemId == 1인 문제 정보를 1개 가져옵니다.
+  - contestId 속 problemId의 문제 정보를 1개 가져옵니다.
 
   2. 예외 상황 발생
-    - 대회 시작 전에 문제를 열람하는 경우 403 Registered but not started 예외 발생
+    - 대회 시작 전에 문제를 열람하는 경우 ForbiddenAccessException 예외 발생
     - 존재하지 않는 problemId를 입력할 경우 PrismaClientKnownRequestError 예외 발생
 
   ### 🔒 Authentication
@@ -42,5 +47,10 @@ docs {
 
   ### 📥 Request Parameters
 
-  없습니다
+  #### Path Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `contestId` | number | ✅ | 가져올 대회 번호 |
+  | `problemId` | number | ✅ | 대회 속 가져올 문제 번호 |
 }

@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/assignment/6/problem?take=5&groupId=1
+  url: {{baseUrl}}/assignment/:assignmentId/problem?take=5&groupId=1
   body: none
   auth: none
 }
@@ -14,6 +14,10 @@ params:query {
   take: 5
   groupId: 1
   ~cursor: 4
+}
+
+params:path {
+  assignmentId: 6
 }
 
 assert {
@@ -34,7 +38,7 @@ script:pre-request {
 docs {
   # 📘 Get Assignment Problems
 
-  **GET** `/assignment/6/problem?take=5&groupId=1`
+  **GET** `/assignment/:assignmentId/problem`
 
   > 로그인이 필요한 API입니다.
 
@@ -64,4 +68,10 @@ docs {
   | `take`    | number | ✅ | 가져올 문제 개수 (default: 10) |
   | `groupId` | number | ✅ | 과제가 속한 Group ID (assignmentId 속에 있는 groupId를 지정해야 함) (default: 1) |
   | `cursor`  | number | ✅ | 문제 가져올 시작점 지정 -> cursor값 다음의 ID를 가진 문제들 반환 |
+
+  #### Path Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `assignmentId` | number | ✅ | 가져올 과제 ID |
 }

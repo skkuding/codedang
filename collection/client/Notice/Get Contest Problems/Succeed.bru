@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/1/problem?take=5
+  url: {{baseUrl}}/contest/:contestId/problem?take=5
   body: none
   auth: none
 }
@@ -13,6 +13,10 @@ get {
 params:query {
   take: 5
   ~cursor: 4
+}
+
+params:path {
+  contestId: 1
 }
 
 assert {
@@ -27,12 +31,12 @@ assert {
 }
 
 docs {
-  # Get Contest Problems
+  # 📘 Get Contest Problems
 
-  **GET** `/contest/1/problem?take=5`
+  **GET** `/contest/:contestId/problem?take=5`
 
   이 함수는 다음과 같은 조건에 따라 대회 속 여러개의 문제 정보들을 가져옵니다.
-  - contestId == 1 속 문제 정보를 take 개수만큼 가져옵니다.
+  - contestId 속 문제 정보를 take 개수만큼 가져옵니다.
 
   1. 운영진 (Admin, Manager, Reviewer)
     - 대회 시점과 관계 없이 문제 목록을 열람할 수 있습니다.
@@ -56,4 +60,10 @@ docs {
   |------|------|----------|-------------|
   | `take` | number | ✅ | 해당 contestId 속에서 가져올 problem 개수를 지정 |
   | `cursor`  | number | ✅ | 문제 가져올 시작점 지정 -> cursor값 다음의 ID를 가진 문제들 반환 |
+
+  #### Path Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `contestId` | number | ✅ | 가져올 대회 지정 |
 }
