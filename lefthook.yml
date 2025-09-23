@@ -3,8 +3,7 @@ pre-commit:
   commands:
     eslint:
       glob: '*.{js,ts,jsx,tsx}'
-      # run: pnpm eslint {staged_files}
-      run: NODE_OPTIONS="--max-old-space-size=4096" pnpm eslint {staged_files}
+      run: pnpm eslint {staged_files}
     prettier:
       glob: '*.{js,ts,css,yaml,yml,jsx,tsx}'
       run: pnpm prettier --check {staged_files}
