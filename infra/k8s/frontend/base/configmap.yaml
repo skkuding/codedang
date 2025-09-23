@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-env
+  namespace: frontend
+data:
+  # NEXT_PUBLIC_ envs are injected during Next.js build phase
+  # https://nextjs.org/docs/app/guides/environment-variables#bundling-environment-variables-for-the-browser
+  NEXT_URL: 'https://codedang.com'
+  NEXTAUTH_URL: 'https://codedang.com/next-auth/api/auth'

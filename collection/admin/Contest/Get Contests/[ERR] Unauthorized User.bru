@@ -1,0 +1,43 @@
+meta {
+  name: [ERR] Unauthorized User
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContests($take: Int) {
+    getContests(take: $take) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "take": 10
+  }
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # 📙 [ERR] Unauthorized User
+
+  **POST** `/graphql (query: getContests)`
+
+  Throws an error when a user without permission attempts to access.
+
+  대회 생성 권한(`canCreateContest: false`)이 없고,
+
+  특정 대회에 대한 역할도 없는 일반 유저가 대회 목록 조회를 시도할 때,
+
+  `UnauthorizedException`이 발생합니다.
+}

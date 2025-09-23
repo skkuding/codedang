@@ -1,0 +1,62 @@
+meta {
+  name: [403] Cannot access QnAs in ongoing contest without logging in
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/contest/1/qna?categories=General
+  body: json
+  auth: none
+}
+
+params:query {
+  categories: General
+  ~categories: Problem
+  ~problemOrders: 0
+  ~problemOrders: 1
+  ~orderBy: asc
+}
+
+docs {
+  ## 📘 Get Contest QnAs
+  
+  **GET** `/contest/:id/qna`
+  
+  Retrieve a multiple QnA entry within the contest.
+  
+  특정 대회에서 특정 필터를 만족하는 QnA들을 반환합니다. 
+  > 대회가 진행중인 경우:
+  - 대회 운영진은 모든 글을 열람할 수 있습니다.
+  - 일반 사용자는 본인이 작성한 글만 열람할 수 있습니다.
+  > 대회가 진행중이지 않은 경우:
+  - 모든 사용자가 모든 글을 열람할 수 있습니다.
+  
+  
+  ### 🔒 Authentication
+  
+  🔸 Optional  
+  - 로그인하지 않아도 공개된 QnA는 조회 가능  
+  - 인증 실패 시 `req.user`는 null이 됩니다
+  
+  
+  ### 📥 Request Parameters
+  
+  #### Path Parameters
+  
+  | Name      | Type   | Required | Description                      |
+  |-----------|--------|----------|----------------------------------|
+  | `id`      | number | ✅       | ID of the target contest         |
+  
+  #### Query Parameters
+  - categories에 Problem을 추가해야 문제에 속한 QnA를 필터링 할 수 있습니다
+  
+  | Name      | Type    | Required  | Description
+  |-----------|---------|-----------|------------|
+  | categories |   |           | General 또는 Problem을 선택할 수 있습니다.|
+  | problemOrders |   |           | 보여줄 문제의 대회에서의 order를 배열로 요청합니다.|
+  | orderBy    | string  |          | 정렬 기준을 선택합니다. |
+  
+  
+  
+}

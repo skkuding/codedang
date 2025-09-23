@@ -1,0 +1,116 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestsByProblemId($problemId: Int!) {
+    getContestsByProblemId(problemId: $problemId) {
+      upcoming {
+        id
+        title
+        problemScore
+        totalScore
+      }
+      ongoing {
+        id
+        title
+        problemScore
+        totalScore
+      }
+      finished {
+        id
+        title
+        problemScore
+        totalScore
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": 1
+  }
+}
+
+assert {
+  res.body.data.getContestsByProblemId: isDefined
+}
+
+docs {
+  # 📘 Get Contests By Problem ID
+
+  **POST** `/graphql (query: getContestsByProblemId)`
+
+  Retrieves contests containing a specific problem, grouped by status.
+
+  특정 문제가 포함된 모든 대회를 조회합니다.
+
+  조회된 대회는 `upcoming`(예정), `ongoing`(진행 중), `finished`(종료) 상태에 따라 그룹화되어 반환됩니다.
+
+  각 대회 정보에는 해당 문제의 배점(`problemScore`)과 대회의 총점(`totalScore`)이 포함됩니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `problemId` | Int | ✅ | 조회할 문제의 ID |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "data": {
+      "getContestsByProblemId": {
+        "upcoming": [
+          {
+            "id": 15,
+            "title": "Upcoming Contest",
+            "problemScore": 30,
+            "totalScore": 70
+          }
+        ],
+        "ongoing": [],
+        "finished": [
+          {
+            "id": 6,
+            "title": "Finished Contest",
+            "problemScore": 50,
+            "totalScore": 110
+          }
+        ]
+      }
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  |--------|------|------|
+  | `upcoming` | [Contest] | 예정된 대회 목록 |
+  | `ongoing` | [Contest] | 진행 중인 대회 목록 |
+  | `finished` | [Contest] | 종료된 대회 목록 |
+  | `id` | Int | 대회 ID |
+  | `title` | String | 대회 제목 |
+  | `problemScore` | Int | 해당 대회에서 이 문제에 배정된 점수 |
+  | `totalScore` | Int | 해당 대회의 총점 |
+}

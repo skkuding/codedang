@@ -1,0 +1,52 @@
+meta {
+  name: [ERR] Create Contest Not Allowed
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateContest($input: CreateContestInput!) {
+    createContest(input: $input) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "title": "Unauthorized Contest",
+      "startTime": "2026-01-01T12:00:00.000Z",
+      "endTime": "2030-01-01T12:00:00.000Z",
+      "registerDueTime": "2025-12-31T12:00:00.000Z",
+      "isJudgeResultVisible": true,
+      "userContest": []
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+assert {
+  res.body.errors[0].message: eq You are not allowed to create Contest
+}
+
+docs {
+  # 📙 [ERR] Create Contest Not Allowed
+
+  **POST** `/graphql (mutation: createContest)`
+
+  Attempt to create a contest without permission.
+
+  `canCreateContest` 필드가 `false`인 유저가 이 API를 호출하면,
+
+  `UnauthorizedException`이 발생합니다.
+}

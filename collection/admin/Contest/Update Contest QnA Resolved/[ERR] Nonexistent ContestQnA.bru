@@ -1,0 +1,48 @@
+meta {
+  name: [ERR] Nonexistent ContestQnA
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ToggleContestQnAResolved(
+    $contestId: Int!,
+    $qnAOrder: Int!
+  ) {
+    toggleContestQnAResolved(
+      contestId: $contestId,
+      qnAOrder: $qnAOrder
+    ) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "qnAOrder": 999
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent ContestQnA
+
+  **POST** `/graphql (mutation: toggleContestQnAResolved)`
+
+  The requested QnA does not exist in the contest.
+
+  존재하지 않는 `qnAOrder`로 상태 변경을 요청했을 때,
+
+  `EntityNotExistException`이 발생합니다.
+}

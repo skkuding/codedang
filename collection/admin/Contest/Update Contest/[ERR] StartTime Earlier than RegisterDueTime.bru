@@ -1,0 +1,51 @@
+meta {
+  name: [ERR] StartTime Earlier than RegisterDueTime
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateContest(
+    $contestId: Int!,
+    $input: UpdateContestInput!
+  ) {
+    updateContest(
+      contestId: $contestId
+      input: $input
+    ) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 19,
+    "input": {
+      "registerDueTime": "2030-01-02T00:00:00.000Z",
+      "startTime": "2030-01-01T00:00:00.000Z"
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] StartTime Earlier than RegisterDueTime
+
+  **POST** `/graphql (mutation: updateContest)`
+
+  The register due time must be earlier than the start time.
+
+  등록 마감 시간이 시작 시간보다 늦거나 같을 때,
+
+  `UnprocessableDataException`이 발생합니다.
+}

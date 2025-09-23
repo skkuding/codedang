@@ -1,0 +1,45 @@
+meta {
+  name: [ERR] Nonexistent Problem
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestsByProblemId($problemId: Int!) {
+    getContestsByProblemId(problemId: $problemId) {
+      upcoming {
+        id
+      }
+      ongoing {
+        id
+      }
+      finished {
+        id
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": 999
+  }
+}
+
+docs {
+  # 📙 [ERR] Nonexistent Problem
+
+  **POST** `/graphql (query: getContestsByProblemId)`
+
+  Returns empty array when the problem is not in any contest.
+
+  어떤 대회에도 포함되지 않은 `problemId`로 조회를 요청했을 때,
+
+  `upcoming`, `ongoing`, `finished` 모두 빈 배열(`[]`)로 반환합니다.
+}

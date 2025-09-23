@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloud-beaver
+  namespace: cloud-beaver
+spec:
+  selector:
+    app: cloud-beaver
+  ports:
+    - port: 8978
+      targetPort: 8978

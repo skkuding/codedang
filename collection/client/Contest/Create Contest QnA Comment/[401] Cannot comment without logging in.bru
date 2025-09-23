@@ -1,0 +1,21 @@
+meta {
+  name: [401] Cannot comment without logging in
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/contest/1/qna/1/comment
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content" : "1번 QnA에 대한 댓글이예요"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

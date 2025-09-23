@@ -1,0 +1,41 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: Exchange
+metadata:
+  name: iris
+  namespace: rabbitmq
+spec:
+  name: iris.e.direct.judge
+  type: direct
+  vhost: vh
+  autoDelete: false
+  durable: true
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: binding-submission
+  namespace: rabbitmq
+spec:
+  vhost: vh
+  source: iris.e.direct.judge
+  destination: client.q.judge.submission
+  destinationType: queue
+  routingKey: judge.submission
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: binding-result
+  namespace: rabbitmq
+spec:
+  vhost: vh
+  source: iris.e.direct.judge
+  destination: iris.q.judge.result
+  destinationType: queue
+  routingKey: judge.result
+  rabbitmqClusterReference:
+    name: rabbitmq

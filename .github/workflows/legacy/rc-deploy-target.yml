@@ -1,0 +1,145 @@
+name: RC - Deploy - Target
+
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_project:
+        description: 'Select Terraform Project to Deploy'
+        required: true
+        type: choice
+        options:
+          - 'network'
+          - 'storage'
+          - 'codedang'
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECS_CLUSTER: Codedang-Api
+
+permissions: # permissions to the job (for the OpenID Connection)
+  id-token: write
+  contents: read
+
+jobs:
+  rc-deploy-target-project:
+    if: github.event.inputs.terraform_project != 'codedang'
+    name: RC - Deploy Terraform targeted Project
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Create Terraform variable file
+        working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
+        run: |
+          echo "$TFVARS_RC" >> terraform.tfvars
+          echo "$OAUTH_GITHUB" >> terraform.tfvars
+          echo "$OAUTH_KAKAO" >> terraform.tfvars
+          echo 'env = "rc"' >> terraform.tfvars
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
+          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
+
+      - name: Terraform Init
+        working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
+        run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+
+      - name: Terraform Plan
+        working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
+        run: terraform plan -input=false -out=plan.out
+
+      - name: Terraform Apply
+        working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
+        run: terraform apply -input=false plan.out
+
+  rc-acm-validation:
+    if: github.event.inputs.terraform_project == 'network'
+    uses: ./.github/workflows/rc-acm-validation.yml
+    secrets: inherit
+    needs: [rc-deploy-target-project]
+
+  rc-build-image:
+    if: github.event.inputs.terraform_project == 'codedang'
+    uses: ./.github/workflows/rc-build-image.yml
+    secrets: inherit # Passes all aws credential secrets from the caller context
+
+  rc-deploy-codedang:
+    if: github.event.inputs.terraform_project == 'codedang'
+    name: RC - Deploy Terraform Codedang Project
+    runs-on: ubuntu-latest
+    needs: [rc-build-image]
+    environment: production
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY_RC }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Create Terraform variable file
+        working-directory: ./apps/infra/rc/${{ github.event.inputs.terraform_project }}
+        run: |
+          echo "$TFVARS_RC" >> terraform.tfvars
+          echo "$OAUTH_GITHUB" >> terraform.tfvars
+          echo "$OAUTH_KAKAO" >> terraform.tfvars
+          echo 'env = "rc"' >> terraform.tfvars
+        env:
+          TFVARS_RC: ${{ secrets.TFVARS_RC }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
+          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
+
+      - name: Terraform Init
+        working-directory: ./apps/infra/rc/codedang
+        run: terraform init -backend-config="bucket=codedang-tf-state-rc"
+
+      - name: Check Existing AWS Codedang Resources
+        working-directory: ./apps/infra/rc/codedang
+        run: |
+          if [ -n "$(terraform state list)" ]; then
+            echo "Resources found. Proceeding with destroy."
+            echo "CODEDANG_DESTROY_REQUIRED=true" >> $GITHUB_ENV
+          else
+            echo "No resources found. Skipping destroy."
+            echo "CODEDANG_DESTROY_REQUIRED=false" >> $GITHUB_ENV
+          fi
+      - name: Terraform Destroy If There's Existing Codedang Resources
+        if: env.CODEDANG_DESTROY_REQUIRED == 'true'
+        working-directory: ./apps/infra/rc/codedang
+        run: terraform destroy -auto-approve
+
+      - name: Terraform Plan
+        working-directory: ./apps/infra/rc/codedang
+        run: terraform plan -input=false -out=plan.out
+
+      - name: Terraform Apply
+        working-directory: ./apps/infra/rc/codedang
+        run: terraform apply -input=false plan.out
+
+  rc-mask-db:
+    if: github.event.inputs.terraform_project == 'storage'
+    uses: ./.github/workflows/rc-mask-db.yml
+    secrets: inherit
+    needs: [rc-deploy-target-project]

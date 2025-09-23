@@ -1,0 +1,46 @@
+meta {
+  name: [ERR] Nonexistent ContestQnA
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestQnA($contestId: Int!, $order: Int!) {
+    getContestQnA(contestId: $contestId, order: $order) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "order": 9999
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent ContestQnA
+
+  **POST** `/graphql (query: getContestQnA)`
+
+  Throws an error when the requested QnA does not exist.
+
+  존재하지 않는 `order` 번호로 QnA 조회를 요청했을 때,
+
+  `EntityNotExistException` 에러를 발생시킵니다.
+}

@@ -1,0 +1,52 @@
+meta {
+  name: [ERR] Started Contest
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation RemoveUserFromContest(
+    $contestId: Int!,
+    $userId: Int!
+  ) {
+    removeUserFromContest(
+      contestId: $contestId,
+      userId: $userId
+    ) {
+      userId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 1,
+    "userId": 7
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Started Contest
+
+  **POST** `/graphql (mutation: removeUserFromContest)`
+
+  Cannot unregister from ongoing or ended contest.
+
+  이미 시작되었거나 종료된 대회에서 사용자를 제외하려고 할 때,
+
+  `ForbiddenAccessException`이 발생합니다.
+}

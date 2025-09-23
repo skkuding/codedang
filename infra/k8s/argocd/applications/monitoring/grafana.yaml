@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/environment: 'production'
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: main
+      path: infra/k8s/monitoring/grafana
+      helm:
+        valueFiles:
+          - $codedang/infra/k8s/monitoring/grafana/values.yaml
+        releaseName: grafana
+        chart: grafana
+        version: '9.4.0'
+        repo: https://grafana.github.io/helm-charts
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: main
+      path: infra/k8s/monitoring/grafana
+      directory:
+        # kustomization.yaml is ignored if recurse is true
+        recurse: false
+      ref: codedang
+  destination:
+    name: production
+    namespace: monitoring-grafana
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground

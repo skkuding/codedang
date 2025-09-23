@@ -1,0 +1,39 @@
+meta {
+  name: [ERR] Nonexistent Contest
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestUpdateHistories($contestId: Int!) {
+    getContestUpdateHistories(contestId: $contestId) {
+      updateHistories {
+        id
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 999
+  }
+}
+
+docs {
+  # 📙 [ERR] Nonexistent Contest
+
+  **POST** `/graphql (query: getContestUpdateHistories)`
+
+  Returns empty array when the requested contest does not exist.
+
+  존재하지 않는 `contestId`로 조회를 요청했을 때,
+
+  `updateHistories`를 빈 배열(`[]`)로 반환합니다.
+}

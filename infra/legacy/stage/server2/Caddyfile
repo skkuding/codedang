@@ -1,0 +1,120 @@
+(cors) {
+	# 1. Preflight request
+	# Matcher: If Origin header equals to the argument and method is OPTIONS
+	# Handler: Set CORS headers and respond with 204
+	@cors-preflight{args[0]} {
+		header Origin {args[0]}
+		method OPTIONS
+	}
+
+	handle @cors-preflight{args[0]} {
+		header {
+			Access-Control-Allow-Credentials true
+			Access-Control-Allow-Origin "{header.Origin}"
+			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+			Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+			Access-Control-Expose-Headers "Email-Auth"
+		}
+		respond "" 204
+	}
+
+	# 2. Actual request
+	# Matcher: If Origin header equals to the argument
+	# Handler: Set CORS headers
+	@cors{args[0]} header Origin {args[0]}
+	handle @cors{args[0]} {
+		header {
+			Access-Control-Allow-Credentials true
+			Access-Control-Allow-Origin "{header.Origin}"
+			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+			Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+			Access-Control-Expose-Headers "Email-Auth"
+		}
+	}
+}
+
+# Global options
+{
+	# Keep-Alive timeout of reverse proxy must be longer than of the backend
+	# Set timeout of Caddy to 60s and of the backend to 61s to avoid timeout error
+	# https://adamcrowder.net/posts/node-express-api-and-aws-alb-502/
+	servers {
+		timeouts {
+			idle 1m
+		}
+	}
+}
+
+stage.codedang.com {
+	handle /api/* {
+		reverse_proxy 127.0.0.1:4000
+
+		# CORS rules
+		# frontend server (Next.js)
+		import cors http://localhost:5525
+
+		# Use wildcard matcher to allow all subdomains
+		# https://caddyserver.com/docs/caddyfile/matchers#header
+		import cors *.codedang.com
+		import cors *.gitpod.io
+		import cors *.vercel.app
+
+		# 캐시 설정
+		header {
+			Set-Cookie (.*) "$1; SameSite=None; Secure"
+			defer
+		}
+	}
+
+	handle /bucket* {
+		uri strip_prefix /bucket
+		reverse_proxy 127.0.0.1:9000
+	}
+
+	handle /console* {
+		uri strip_prefix /console
+		reverse_proxy 127.0.0.1:9001
+	}
+
+	handle /logs* {
+		reverse_proxy 127.0.0.1:9999
+	}
+
+	handle /graphql {
+		reverse_proxy 127.0.0.1:3000
+
+		import cors http://localhost:5525
+		import cors *.codedang.com
+		import cors *.gitpod.io
+		import cors *.vercel.app
+	}
+
+	handle /submission/download/* {
+		reverse_proxy 127.0.0.1:3000
+
+		import cors http://localhost:5525
+		import cors *.codedang.com
+		import cors *.gitpod.io
+		import cors *.vercel.app
+	}
+
+	handle /health {
+		reverse_proxy 127.0.0.1:3404
+
+		import cors *.codedang.com
+	}
+
+	handle {
+		reverse_proxy https://k8s-test.stage.codedang.com {
+			header_up Host k8s-test.stage.codedang.com
+		}
+	}
+}
+
+grafana.codedang.com {
+	reverse_proxy 127.0.0.1:5000
+}
+
+otel.codedang.com {
+	reverse_proxy 127.0.0.1:4317
+}

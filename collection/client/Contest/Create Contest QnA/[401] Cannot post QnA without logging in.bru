@@ -1,0 +1,76 @@
+meta {
+  name: [401] Cannot post QnA without logging in
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/contest/1/qna
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "2번 대회에 대한 질문",
+    "content": "진행 중인 대회지만 참가하지 않음"
+  }
+}
+
+docs {
+  # 📘 Create Contest QnA
+  
+  **POST** `/contest/:id/qna/problem-order?`
+  
+  Create a new QnA entry for a specific contest.
+  
+  특정 대회에 새로운 QnA 질문을 등록합니다.
+  
+  대회가 진행 중일 시 대회의 참가자 또는 운영진만 호출할 수 있습니다.
+  
+  대회가 진행 중이지 않을 시 누구나 호출할 수 있습니다.
+  
+  저장 시, 해당 대회의 QnA 목록 중 가장 마지막 순번(`order`) 이후 번호가 자동으로 부여됩니다.
+  
+  problem-order는 해당 대회에서의 문제의 순서를 0부터 나타내며, optional입니다.
+  > problem-order가 존재하지 않을 시 카테고리는 General로 설정됩니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problem-order` | number |        | order of problem in contest |
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `id` | number | ✅       | ID of the target contest |
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "title": "질문 제목 예시",
+    "content": "이 문제의 조건이 잘 이해되지 않습니다. 설명 부탁드립니다."
+  }
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `title` | string | ✅       | QnA 제목 |
+  | `content` | string | ✅       | QnA 본문 내용 |
+}

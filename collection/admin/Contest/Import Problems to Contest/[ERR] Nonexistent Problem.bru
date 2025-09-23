@@ -1,0 +1,50 @@
+meta {
+  name: [ERR] Nonexistent Problem
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ImportProblemsToContest(
+    $contestId: Int!
+    $problemIdsWithScore: [ProblemScoreInput!]!
+  ) {
+    importProblemsToContest(
+      contestId: $contestId
+      problemIdsWithScore: $problemIdsWithScore
+    ) {
+      problemId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "problemIdsWithScore": [
+      { "problemId": 999, "score": 100 }
+    ]
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent Problem
+
+  **POST** `/graphql (mutation: importProblemsToContest)`
+
+  The requested problem does not exist.
+
+  존재하지 않는 `problemId`를 대회에 추가하려고 할 때,
+
+  데이터베이스 트랜잭션 실패로 인해 `UnprocessableDataException`이 발생합니다.
+}
