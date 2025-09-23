@@ -20,17 +20,28 @@ settings {
 
 docs {
   # 📘 Delete Course Notice Comment
-  
+
   **DELETE** `/course_notice/:id/comment/:commentId`
-  
+
   특정 강의 공지사항의 한 댓글을 삭제합니다.
-  
+
+  이 함수는 다음과 같은 조건에 따라 댓글을 삭제하고 반환합니다.
+
+  2. 일반 사용자
+   - 본인이 작성한 댓글인 경우
+
+  접근 권한이 없는 경우 예외를 발생시킵니다.
+
+  - 일반 사용자: 본인이 작성한 댓글이 아닌 경우 ForbiddenAccessException 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
+
   #### Path Parameters
-  
+
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `id` | number | ✅       | 강의 공지사항의 아이디 |
   | `commentId` | number | ✅ | 댓글 아이디 |
-  
-  
 }

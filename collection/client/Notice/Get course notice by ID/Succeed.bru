@@ -26,13 +26,33 @@ script:pre-request {
 }
 
 docs {
-  # Get Course Notice by ID
+  # 📘 Get a Course Notice By ID
 
-  하나의 강의 공지사항을 가져옵니다.
+  **GET** `/course_notice/:id`
 
-  ## Query
+  Retrieve a single QnA for a specific contest.
 
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |id   |Integer|강의 공지사항 아이디 |
+  강의 공지사항을 1개 조회합니다.
+
+  이 함수는 다음과 같은 조건에 따라 강의 공지사항을 조회합니다.
+
+  1. 운영진(Admin, Manager)
+  - 모든 공지를 열람할 수 있습니다.
+  3. 일반 사용자
+   - 전체 공개인 공지를 열람할 수 있습니다.
+   - 자신이 참여한 강의의 공지를 열람할 수 있습니다.
+
+  접근 권한이 없는 경우 예외를 발생시킵니다.
+
+  - 일반 사용자: 본인이 참여하지 않은 강의의 공지사항의 경우 ForbiddenAccessException 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `id` | number | ✅    | 가져오고자 하는 공지 아이디 |
 }

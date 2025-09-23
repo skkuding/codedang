@@ -1,3 +1,4 @@
+import { OmitType } from '@nestjs/swagger'
 import {
   IsNotEmpty,
   IsString,
@@ -20,8 +21,7 @@ export class CreateCourseNoticeCommentDto {
   replyOnId?: number
 }
 
-export class UpdateCourseNoticeCommentDto {
-  @IsNotEmpty()
-  @IsString()
-  content: string
-}
+export class UpdateCourseNoticeCommentDto extends OmitType(
+  CreateCourseNoticeCommentDto,
+  ['replyOnId']
+) {}

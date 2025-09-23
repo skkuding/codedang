@@ -29,7 +29,22 @@ docs {
 
   **PATCH** `/course_notice/:id/comment/:commentId`
 
-  특정 강의 공지사항의 특정 댓글 내용을 수정합니다
+  Modify the content of a specific comment in a specific lecture announcement.
+
+  특정 강의 공지사항의 특정 댓글 내용을 수정합니다.
+
+  이 함수는 다음과 같은 조건에 따라 댓글을 수정하고 반환합니다.
+
+  2. 일반 사용자
+   - 본인이 작성한 댓글인 경우
+
+  접근 권한이 없는 경우 예외를 발생시킵니다.
+
+  - 일반 사용자: 본인이 작성한 댓글이 아닌 경우 ForbiddenAccessException 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
 
   #### Path Parameters
 
@@ -53,4 +68,5 @@ docs {
   | Field | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `content` | string | ✅       | 수정할 댓글 내용 |
+  | `isSecret` | boolean |         | 비밀 댓글 여부 |
 }

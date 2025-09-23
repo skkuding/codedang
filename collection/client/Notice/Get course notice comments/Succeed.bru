@@ -25,13 +25,29 @@ docs {
 
   한 강의 공지사항의 댓글들을 불러옵니다.
 
+  이 함수는 다음과 같은 조건에 따라 강의 공지사항의 댓글들을 조회합니다.
+
+  1. 운영진(Admin, Manager)
+  - 모든 댓글을 조회할 수 있습니다.
+  3. 일반 사용자
+    > 그룹 리더인 경우
+       - 모든 댓글을 조회할 수 있습니다.
+    > 그룹 리더가 아니고, 그룹에 참여한 경우
+       - 비밀 댓글을 제외한 모든 댓글을 볼 수 있습니다.
+
+  접근 권한이 없는 경우 예외를 발생시킵니다.
+
+  - 일반 사용자: 본인이 참여하지 않은 강의의 공지사항의 경우 ForbiddenAccessException 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
+
   #### Path Parameters
 
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
-  | `id` | number | ✅       | 강의 공지사항의 아이디 |
-  | `cursor` | number |     | 커서 |
-  | `take` | number |   | 가져올 댓글 수 |
-
-
+  | `id` | number | ✅    | 댓글을 가져오고자 하는 강의 공지사항의 아이디 |
+  | `cursor` | number |      | 댓글 페이지네이션을 위한 cursor |
+  | `take` | number |      | 가져올 댓글의 수 |
 }

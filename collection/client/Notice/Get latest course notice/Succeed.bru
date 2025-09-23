@@ -1,0 +1,55 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/course_notice/latest
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
+
+assert {
+  res.status: eq 200
+  res.body.data[0].id: isNumber
+  res.body.data[0].title: isString
+  res.body.data[0].updateTime: isString
+  res.body.data[0].groupId: isNumber
+  res.body.data[0].isRead: isBoolean
+  res.body.data[0].groupName: isString
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # 📘 Get Latest Course Notice
+
+  **GET** `/course_notice/latest`
+
+  Get a set number of lecture announcements that users can inquire about.
+
+  유저가 조회할 수 있는 강의 공지사항 중 가장 최근에 업데이트된 공지를 가져옵니다.
+
+  이 함수는 다음과 같은 조건에 따라 강의 공지사항을 조회합니다.
+
+  1. 일반 사용자
+   - 전체 공개 혹은 자신이 참여한 강의의 공지 중 가장 최근 공지를 조회합니다.
+
+  조건에 맞는 최근 공지가 없을 때 예외를 발생시킵니다.
+
+  - 일반 사용자: 조회 가능한 공지가 없을 때 NotFoundException 발생
+  - 일반 사용자: 공지 조회/미조회 기록이 발견되지 않았을 때 UnprocessableDataException 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
+
+   - 없습니다.
+}

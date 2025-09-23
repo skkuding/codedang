@@ -86,8 +86,8 @@ export class CourseNoticeController {
     take: number,
     @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('filter', new DefaultValuePipe('all'))
-    filter: 'all' | 'unread',
+    @Query('readFilter', new DefaultValuePipe('all'))
+    readFilter: 'all' | 'unread',
     @Query('search') search?: string,
     @Query('order', CourseNoticeOrderPipe) order?: CourseNoticeOrder
   ) {
@@ -97,7 +97,7 @@ export class CourseNoticeController {
       cursor,
       take,
       fixed,
-      filter,
+      readFilter,
       search,
       order
     })

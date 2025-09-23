@@ -137,12 +137,16 @@ export class CourseNoticeService {
    * @param {number} userId 유저 아이디
    */
   async getUnreadCourseNoticeCount({ userId }: { userId: number }) {
-    return await this.prisma.courseNoticeRecord.count({
+    const unreadCount = await this.prisma.courseNoticeRecord.count({
       where: {
         userId,
         isRead: false
       }
     })
+
+    return {
+      unreadCount
+    }
   }
 
   /**
@@ -151,7 +155,7 @@ export class CourseNoticeService {
    * @param {number} userId 유저 아이디
    */
   async getLatestCourseNotice({ userId }: { userId: number }) {
-    return await this.prisma.courseNotice.findFirst({
+    const latest = await this.prisma.courseNotice.findFirst({
       where: {
         OR: [
           {
@@ -191,6 +195,22 @@ export class CourseNoticeService {
         updateTime: 'desc'
       }
     })
+
+    if (!latest) {
+      throw new NotFoundException('CourseNotice')
+    }
+
+    const { CourseNoticeRecord, group, ...newLatest } = latest
+
+    if (CourseNoticeRecord.length != 1) {
+      throw new UnprocessableDataException('read record is not saved properly')
+    }
+
+    return {
+      ...newLatest,
+      groupName: group.groupName,
+      isRead: CourseNoticeRecord[0].isRead
+    }
   }
 
   /**
@@ -232,7 +252,7 @@ export class CourseNoticeService {
     cursor,
     take,
     search,
-    filter,
+    readFilter,
     fixed = false,
     order
   }: {
@@ -240,7 +260,7 @@ export class CourseNoticeService {
     groupId: number
     cursor: number | null
     take: number
-    filter: 'all' | 'unread'
+    readFilter: 'all' | 'unread'
     search?: string
     fixed?: boolean
     order?: CourseNoticeOrder
@@ -251,7 +271,7 @@ export class CourseNoticeService {
       where: {
         isFixed: fixed,
         CourseNoticeRecord:
-          filter == 'unread'
+          readFilter == 'unread'
             ? {
                 some: {
                   userId,
