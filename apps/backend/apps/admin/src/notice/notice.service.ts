@@ -150,13 +150,13 @@ export class CourseNoticeService {
 
   async cloneCourseNotice(
     userId: number,
-    courseNoticeId: number[],
+    courseNoticeIds: number[],
     cloneToId: number
   ) {
     const originals = await this.prisma.courseNotice.findMany({
       where: {
         id: {
-          in: courseNoticeId
+          in: courseNoticeIds
         }
       },
       select: {

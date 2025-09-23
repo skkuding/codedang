@@ -110,16 +110,16 @@ export class CourseNoticeResolver {
   }
 
   @Mutation(() => [CourseNotice])
-  async cloneCourseNotice(
+  async cloneCourseNotices(
     @Context('req') req: AuthenticatedRequest,
     @Args('courseNoticeIds', { type: () => [Int] })
-    courseNoticeId: number[],
+    courseNoticeIds: number[],
     @Args('cloneToId', { type: () => Int }, IDValidationPipe)
     cloneToId: number
   ) {
     return await this.courseNoticeService.cloneCourseNotice(
       req.user.id,
-      courseNoticeId,
+      courseNoticeIds,
       cloneToId
     )
   }

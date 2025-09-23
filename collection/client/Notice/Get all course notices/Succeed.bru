@@ -5,16 +5,17 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/course_notice?take=5
+  url: {{baseUrl}}/course_notice?take=5&groupId=1
   body: none
   auth: none
 }
 
 params:query {
   take: 5
+  groupId: 1
   ~cursor: 1
   ~fixed: true
-  groupId: 1
+  ~filter: unread
 }
 
 assert {
@@ -34,11 +35,11 @@ script:pre-request {
 
 docs {
   # Get Notices
-
+  
   공개된 강의 공지사항 목록을 가져옵니다.
-
+  
   ## Query
-
+  
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |take   |Integer |가져올 공지사항 개수 (default: 10)|
@@ -46,5 +47,5 @@ docs {
   |fixed  |Boolean |고정된 공지사항 (default: false)|
   |search |String  |검색 키워드|
   |groupId|Integer |강의 아이디|
-
+  
 }

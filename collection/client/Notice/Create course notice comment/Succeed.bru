@@ -12,7 +12,9 @@ post {
 
 body:json {
   {
-    "content": "첫 번째 댓글입니다."
+    "content": "다섯 번째 비밀 답글입니다.",
+    "replyOnId": 9,
+    "isSecret": true
   }
 }
 
@@ -26,29 +28,29 @@ settings {
 
 docs {
   # 📘 Create Course Notice Comment
-
+  
   **POST** `/course_notice/:id/comment`
-
+  
   강의 공지사항에 댓글을 추가합니다.
-
+  
   #### Path Parameters
-
+  
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `id` | number | ✅       | 강의 공지사항의 아이디 |
-
+  
   ---
-
+  
   ### 📝 Request Body
-
+  
   #### Content-Type: `application/json`
-
+  
   ```json
   {
     "content": "첫 번째 댓글입니다."
   }
   ```
-
+  
   | Field | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `content` | string | ✅       | 댓글 내용 |

@@ -11,16 +11,16 @@ post {
 }
 
 body:graphql {
-  mutation($courseNoticeId: Int! ) {
-    deleteCourseNotice(courseNoticeId: $courseNoticeId) {
+  mutation ($courseNoticeIds: [Int!]!, $cloneToId: Int!) {
+    cloneCourseNotices(courseNoticeIds: $courseNoticeIds, cloneToId: $cloneToId) {
+      id
+      createdById
       title
       content
       isPublic
       isFixed
       createTime
       updateTime
-      id
-      createdById
       groupId
     }
   }
@@ -28,27 +28,31 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "courseNoticeId": 1
+    "courseNoticeIds": [
+      1,2,3
+    ],
+    "cloneToId": 2
   }
 }
 
 assert {
-  res.body.data.deleteCourseNotice: isDefined
+  res.body.data.cloneCourseNotices: isDefined
 }
 
 docs {
-  # 📘 Delete a Course Notices
+  # 📘 Clone Course Notices
 
   **POST** `GraphQL`
 
   Replicate several lecture announcements from one lecture to another.
 
-  한 강의의 강의 공지사항 1개를 삭제합니다.
+  한 강의의 강의 공지사항 여러 개를 다른 강의에 복제합니다.
 
-  이 함수는 다음과 같은 조건에 따라 공지를 삭제하고 반환합니다.
+  이 함수는 다음과 같은 조건에 따라 공지를 복제하고 반환합니다.
 
   1. 운영진(Admin, Manager) 및 Instructor
-  - 입력된 아이디에 맞는 강의 공지사항 1개를 삭제합니다.
+  - 공지사항의 아이디 리스트를 넘기면 해당 공지들을 다른 강의에 복제합니다.
+
 
   접근 권한이 없는 경우 예외를 발생시킵니다.
 
@@ -62,5 +66,6 @@ docs {
 
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
-  | `courseNoticeId` | number | ✅       | 삭제할 강의 공지사항의 id |
+  | `courseNoticeIds` | number[] | ✅       | 복제할 공지사항의 아이디 리스트 |
+  | `cloneToId` | number | ✅       | 복제된 공지사항을 넣을 강의 아이디 |
 }
