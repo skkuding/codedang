@@ -233,6 +233,7 @@ model Problem {
   // MIN_DATE의 경우 모든 사용자에게 공개, 이외에는 비공개
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
+  updateContentTime DateTime? @map("update_content_time")
 
   sharedGroups      Group[]
   problemTestcase   ProblemTestcase[]
@@ -312,15 +313,18 @@ model ProblemTestcase {
   input     String?
   output    String?
 
-  scoreWeight            Int? @default(1) @map("score_weight")
-  scoreWeightNumerator   Int  @default(1) @map("score_weight_numerator")
-  scoreWeightDenominator Int  @default(1) @map("score_weight_denominator")
+  scoreWeight            Int @default(1) @map("score_weight")
+  scoreWeightNumerator   Int @default(1) @map("score_weight_numerator")
+  scoreWeightDenominator Int @default(1) @map("score_weight_denominator")
 
   isHidden        Boolean  @default(false) @map("is_hidden_testcase")
   createTime      DateTime @default(now()) @map("create_time")
   updateTime      DateTime @updatedAt @map("update_time")
   acceptedCount   Int      @default(0) @map("accepted_count")
   submissionCount Int      @default(0) @map("submission_count")
+
+  isOutdated      Boolean  @default(false) @map("is_outdated")
+  outdateTime     DateTime? @map("outdate_time")
 
   submissionResult SubmissionResult[]
 
@@ -349,26 +353,26 @@ model Tag {
 }
 
 model Assignment {
-  id                   Int      @id @default(autoincrement())
-  createdBy            User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById          Int?     @map("created_by_id")
-  group                Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId              Int      @map("group_id")
-  week                 Int      @default(1)
+  id                   Int       @id @default(autoincrement())
+  createdBy            User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById          Int?      @map("created_by_id")
+  group                Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId              Int       @map("group_id")
+  week                 Int       @default(1)
   title                String
   description          String
-  startTime            DateTime @map("start_time")
-  endTime              DateTime @map("end_time")
-  dueTime              DateTime @map("due_time")
-  isVisible            Boolean  @default(true) @map("is_visible")
-  isRankVisible        Boolean  @default(true) @map("is_rank_visible")
-  isJudgeResultVisible Boolean  @default(true) @map("is_judge_result_visible") // 이 Assignment에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
-  enableCopyPaste      Boolean  @default(true) @map("enable_copy_paste") // 이 Assignment에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
-  createTime           DateTime @default(now()) @map("create_time")
-  updateTime           DateTime @updatedAt @map("update_time")
-  autoFinalizeScore    Boolean  @default(false) @map("auto_finalize_score") // Assignment이 종료되면 자동으로 finalScore를 계산합니다.
-  isFinalScoreVisible  Boolean  @default(false) @map("is_final_score_visible") // 이 Assignment에 포함된 문제의 최종 점수를 사용자에게 보여줄지 말지 결정합니다.
-  isExercise           Boolean  @default(false) @map("is_exercise")
+  startTime            DateTime  @map("start_time")
+  endTime              DateTime  @map("end_time")
+  dueTime              DateTime? @map("due_time")
+  isVisible            Boolean   @default(true) @map("is_visible")
+  isRankVisible        Boolean   @default(true) @map("is_rank_visible")
+  isJudgeResultVisible Boolean   @default(true) @map("is_judge_result_visible") // 이 Assignment에 포함된 문제의 Judge Result를 사용자에게 보여줄지 말지 결정합니다.
+  enableCopyPaste      Boolean   @default(true) @map("enable_copy_paste") // 이 Assignment에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다.
+  createTime           DateTime  @default(now()) @map("create_time")
+  updateTime           DateTime  @updatedAt @map("update_time")
+  autoFinalizeScore    Boolean   @default(false) @map("auto_finalize_score") // Assignment이 종료되면 자동으로 finalScore를 계산합니다.
+  isFinalScoreVisible  Boolean   @default(false) @map("is_final_score_visible") // 이 Assignment에 포함된 문제의 최종 점수를 사용자에게 보여줄지 말지 결정합니다.
+  isExercise           Boolean   @default(false) @map("is_exercise")
 
   assignmentProblem AssignmentProblem[]
   assignmentRecord  AssignmentRecord[]
@@ -406,7 +410,7 @@ model AssignmentRecord {
   userId             Int?       @map("user_id")
   acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
   score              Int        @default(0) // Only used after assignment finished
-  finalScore         Int?       @map("final_score")
+  finalScore         Int?       @map("final_score") // TODO: finalScore는 assignmentProblemRecord에서만 관리하기
   comment            String     @default("")
 
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각

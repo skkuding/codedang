@@ -70,6 +70,7 @@ export function ImportProblemTable({
     ...problem,
     id: Number(problem.id),
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
+    updateTime: problem.updateContentTime ?? problem.updateTime,
     languages: problem.languages ?? [],
     score: checkedProblems.find((item) => item.id === Number(problem.id))
       ?.score,
@@ -100,11 +101,7 @@ export function ImportProblemTable({
       </div>
       <DataTable
         size="sm"
-        isModalDataTable={true}
-        headerStyle={{
-          select: 'rounded-l-full',
-          preview: 'rounded-r-full'
-        }}
+        isHeaderGrouped={true}
         onRowClick={(table, row) => {
           const selectedRowCount = table.getSelectedRowModel().rows.length
           if (
@@ -118,7 +115,7 @@ export function ImportProblemTable({
           }
         }}
       />
-      <div className="h-[12px]" />
+      <div className="h-1.5" />
       <DataTablePagination showRowsPerPage={false} />
     </DataTableRoot>
   )

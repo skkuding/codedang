@@ -1,5 +1,6 @@
 import {
   ContestRole,
+  GroupType,
   Language,
   Level,
   NotificationType,
@@ -27,7 +28,6 @@ import {
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { GroupType } from '@admin/@generated'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
@@ -736,6 +736,13 @@ const createProblems = async () => {
           Language.Python3,
           Language.PyPy3
         ],
+        solution: [
+          { code: '', language: Language.C },
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Java },
+          { code: '', language: Language.Python3 },
+          { code: '', language: Language.PyPy3 }
+        ],
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
@@ -764,6 +771,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.C],
+        solution: [{ code: '', language: Language.C }],
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
@@ -792,6 +800,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.Cpp],
+        solution: [{ code: '', language: Language.Cpp }],
         hint: '',
         timeLimit: 1000,
         memoryLimit: 128,
@@ -820,6 +829,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.Java],
+        solution: [{ code: '', language: Language.Java }],
         hint: await readFile(join(fixturePath, 'problem/4-hint.html'), 'utf-8'),
         timeLimit: 1000,
         memoryLimit: 128,
@@ -848,6 +858,7 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.Python3],
+        solution: [{ code: '', language: Language.Python3 }],
         hint: '',
         timeLimit: 1000,
         memoryLimit: 128,
@@ -876,6 +887,10 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.C, Language.Java],
+        solution: [
+          { code: '', language: Language.C },
+          { code: '', language: Language.Java }
+        ],
         hint: await readFile(join(fixturePath, 'problem/6-hint.html'), 'utf-8'),
         timeLimit: 1000,
         memoryLimit: 128,
@@ -904,6 +919,10 @@ const createProblems = async () => {
           'utf8'
         ),
         languages: [Language.Cpp, Language.Python3],
+        solution: [
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Python3 }
+        ],
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
@@ -932,6 +951,12 @@ const createProblems = async () => {
           'utf-8'
         ),
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
+        solution: [
+          { code: '', language: Language.C },
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Java },
+          { code: '', language: Language.Python3 }
+        ],
         hint: await readFile(join(fixturePath, 'problem/8-hint.html'), 'utf-8'),
         timeLimit: 2000,
         memoryLimit: 256,
@@ -951,6 +976,12 @@ const createProblems = async () => {
         inputDescription: `<p>비공개</p>`,
         outputDescription: `<p>비공개</p>`,
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
+        solution: [
+          { code: '', language: Language.C },
+          { code: '', language: Language.Cpp },
+          { code: '', language: Language.Java },
+          { code: '', language: Language.Python3 }
+        ],
         hint: `<p>작성중</p>`,
         timeLimit: 2000,
         memoryLimit: 256,

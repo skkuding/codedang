@@ -48,7 +48,7 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 1
+    "contestId": 20
   }
 }
 
@@ -56,11 +56,93 @@ assert {
   res.body.data.getContest: isDefined
 }
 
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
 docs {
-  ## Get Problem
-  참가자수 정보를 포함한 Problem 정보를 가져옵니다.
-  
-  ### Error Cases
-  #### NOT_FOUND
-  존재하는 contestId를 전달해야 합니다.
+  # 📘 Get Contest
+
+  **POST** `/graphql (query: getContest)`
+
+  Retrieves detailed information about a single contest.
+
+  특정 대회의 상세 정보를 조회합니다.
+
+  대회 정보와 함께 대회 참가자 목록(`contestRecord`), 대회 스태프 목록(`userContest`)을 포함하여 반환합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Contest Staff)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `contestId` | Int | ✅ | 조회할 대회의 ID |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application:json`
+
+  ```json
+  {
+    "data": {
+      "getContest": {
+        "id": "20",
+        "title": "2025 SKKU 프로그래밍 대회",
+        "participants": 0,
+        "invitationCode": null,
+        "description": "<p>sample testcase 확인을 위한 대회</p>",
+        "freezeTime": "2034-01-01T00:00:00.000Z",
+        "startTime": "2023-01-01T00:00:00.000Z",
+        "endTime": "2035-01-01T23:59:59.000Z",
+        "createdBy": {
+          "username": "contestAdmin"
+        },
+        "contestRecord": [],
+        "userContest": [
+          {
+            "userId": 5,
+            "role": "Manager",
+            "user": {
+              "username": "contestManager",
+              "email": "contestManager@example.com",
+              "userProfile": null
+            }
+          },
+          {
+            "userId": 6,
+            "role": "Reviewer",
+            "user": {
+              "username": "contestReviewer",
+              "email": "contestReviewer@example.com",
+              "userProfile": null
+            }
+          }
+        ]
+      }
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  |---|---|---|---|
+  | `id` | Int | 대회의 고유 ID |
+  | `title` | String | 대회 제목 |
+  | `participants` | Int | 대회 총 참가자 수 |
+  | `invitationCode` | String | 6자리 초대 코드 |
+  | `description` | String | 대회 설명 |
+  | `freezeTime` | GraphQLISODateTime | 리더보드 동결 시작 시간 |
+  | `startTime` | GraphQLISODateTime | 대회 시작 시간 |
+  | `endTime` | GraphQLISODateTime | 대회 종료 시간 |
+  | `createdBy` | User | 대회 생성 유저 정보 |
+  | `contestRecord` | [ContestRecord] | 대회 참가자 기록 |
+  | `userContest` | [UserContest] | 대회 관련 유저 목록 |
 }

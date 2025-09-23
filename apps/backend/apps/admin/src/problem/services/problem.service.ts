@@ -550,16 +550,22 @@ export class ProblemService {
 
     if (testcases?.length) {
       const existingTestcases = await this.prisma.problemTestcase.findMany({
-        where: { problemId: id }
+        where: {
+          problemId: id,
+          isOutdated: false
+        }
       })
       if (
         JSON.stringify(testcases) !==
         JSON.stringify(
           existingTestcases.map((tc) => ({
+            id: tc.id,
             input: tc.input,
             output: tc.output,
+            isHidden: tc.isHidden,
             scoreWeight: tc.scoreWeight,
-            isHidden: tc.isHidden
+            scoreWeightDenominator: tc.scoreWeightDenominator,
+            scoreWeightNumerator: tc.scoreWeightNumerator
           }))
         )
       ) {
@@ -653,7 +659,7 @@ export class ProblemService {
       : undefined
 
     if (testcases?.length) {
-      await this.testcaseService.updateTestcases(id, testcases)
+      await this.testcaseService.syncTestcases(id, testcases)
     }
 
     const updatedInfo = updatedInfos
@@ -686,7 +692,8 @@ export class ProblemService {
               }
             ]
           }
-        })
+        }),
+        updateContentTime: new Date()
       },
       include: {
         updateHistory: true // 항상 updateHistory 포함

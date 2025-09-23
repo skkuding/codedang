@@ -2,6 +2,9 @@ import { Field, InputType, Int } from '@nestjs/graphql'
 
 @InputType()
 export class Testcase {
+  @Field(() => Int, { nullable: true, description: '기존 TC 구분용 ID 필드' })
+  id?: number
+
   @Field(() => String)
   input!: string
 
@@ -18,11 +21,6 @@ export class Testcase {
   @Field(() => Int, { nullable: true, description: '점수 가중치 분모' })
   scoreWeightDenominator?: number
 
-  // @deprecated - 하위 호환성을 위해 유지, 추후 제거 예정
-  @Field(() => Int, {
-    nullable: true,
-    deprecationReason:
-      'Use scoreWeightNumerator and scoreWeightDenominator instead'
-  })
+  @Field(() => Int, { nullable: true })
   scoreWeight?: number
 }

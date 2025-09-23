@@ -11,7 +11,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { StorageService, S3MediaProvider, S3Provider } from '@libs/storage'
+import { StorageService, S3Provider } from '@libs/storage'
 import {
   exampleProblemTestcases,
   testcaseData,
@@ -51,7 +51,6 @@ describe('TestcaseService', () => {
         StorageService,
         ConfigService,
         S3Provider,
-        S3MediaProvider,
         { provide: CACHE_MANAGER, useValue: { del: () => null } }
       ]
     }).compile()
@@ -96,7 +95,6 @@ describe('TestcaseService', () => {
           FileService,
           ConfigService,
           S3Provider,
-          S3MediaProvider,
           { provide: CACHE_MANAGER, useValue: { del: () => null } }
         ]
       }).compile()
@@ -153,7 +151,6 @@ describe('TestcaseService', () => {
           StorageService,
           ConfigService,
           S3Provider,
-          S3MediaProvider,
           { provide: CACHE_MANAGER, useValue: { del: () => null } }
         ]
       }).compile()
@@ -255,7 +252,6 @@ describe('TestcaseService', () => {
           StorageService,
           ConfigService,
           S3Provider,
-          S3MediaProvider,
           { provide: CACHE_MANAGER, useValue: { del: () => null } }
         ]
       }).compile()
@@ -297,7 +293,10 @@ describe('TestcaseService', () => {
       expect(existingFiles).to.be.empty
 
       const entries = await prismaService.problemTestcase.findMany({
-        where: { problemId }
+        where: {
+          problemId,
+          isOutdated: false
+        }
       })
       expect(entries).to.be.empty
     })
