@@ -33,10 +33,10 @@ export class ContestRolesGuard implements CanActivate {
       return true
     }
     let request: AuthenticatedRequest
-    let contestId: number
+    let constestId: number
     if (context.getType<GqlContextType>() === 'graphql') {
       request = GqlExecutionContext.create(context).getContext().req
-      contestId = parseInt(
+      constestId = parseInt(
         context
           .getArgs()
           .find((arg) => typeof arg === 'object' && 'contestId' in arg)
@@ -44,7 +44,7 @@ export class ContestRolesGuard implements CanActivate {
       )
     } else {
       request = context.switchToHttp().getRequest()
-      contestId = parseInt(request.query.contestId as string)
+      constestId = parseInt(request.query.constestId as string)
     }
 
     const role =
@@ -62,7 +62,7 @@ export class ContestRolesGuard implements CanActivate {
       return true
     }
 
-    const userContest = await this.service.getUserContest(user.id, contestId)
+    const userContest = await this.service.getUserContest(user.id, constestId)
     if (
       userContest &&
       this.#rolesHierarchy[userContest.role] >= this.#rolesHierarchy[role]

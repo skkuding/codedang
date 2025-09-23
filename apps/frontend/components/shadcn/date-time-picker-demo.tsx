@@ -12,7 +12,7 @@ import { cn } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import { format } from 'date-fns'
 import Image from 'next/image'
-import { useEffect, useState, forwardRef } from 'react'
+import { useEffect, useState } from 'react'
 
 interface DateTimePickerDemoProps {
   onChange: (date: Date) => void
@@ -21,28 +21,25 @@ interface DateTimePickerDemoProps {
   defaultTimeOnSelect?: { hours: number; minutes: number; seconds: number }
 }
 
-export const DateTimePickerDemo = forwardRef<
-  HTMLButtonElement,
-  DateTimePickerDemoProps
->(({ onChange, isContest = false, defaultValue, defaultTimeOnSelect }, ref) => {
+export const DateTimePickerDemo = ({
+  onChange,
+  isContest = false,
+  defaultValue,
+  defaultTimeOnSelect
+}: DateTimePickerDemoProps) => {
   const [date, setDate] = useState<Date>()
 
   useEffect(() => {
-    if (defaultValue && defaultValue instanceof Date) {
-      handleDateChange(defaultValue)
+    if (defaultValue) {
+      setDate(defaultValue)
+      onChange(defaultValue)
     }
-  }, [defaultValue])
-
-  const handleDateChange = (newDate: Date | undefined) => {
-    if (newDate && newDate instanceof Date) {
-      setDate(newDate)
-    }
-  }
+  }, [])
 
   return (
     <Popover
-      onOpenChange={(open) => {
-        if (!open && date) {
+      onOpenChange={() => {
+        if (date) {
           onChange(date)
         }
       }}
@@ -52,10 +49,9 @@ export const DateTimePickerDemo = forwardRef<
           variant={'outline'}
           className={cn(
             'h-[36px] justify-start text-left font-normal',
-            isContest ? 'w-[492px]' : 'w-[280px]',
+            isContest ? 'w-[492px]' : 'w-[255px]',
             !date && 'text-muted-foreground'
           )}
-          ref={ref}
         >
           <Image
             className="mr-2 h-4 w-4"
@@ -77,33 +73,23 @@ export const DateTimePickerDemo = forwardRef<
         <Calendar
           mode="single"
           selected={date}
-          onSelect={(date) => {
-            if (date) {
-              const newDate = new Date(
-                date.setHours(
+          onSelect={(date) =>
+            setDate(
+              new Date(
+                date?.setHours(
                   defaultTimeOnSelect?.hours ?? 0,
                   defaultTimeOnSelect?.minutes ?? 0,
                   defaultTimeOnSelect?.seconds ?? 0
-                )
+                ) ?? new Date(new Date().setHours(0, 0, 0))
               )
-              handleDateChange(newDate)
-            }
-          }}
+            )
+          }
           initialFocus
         />
         <div className="border-border border-t p-3">
-          <TimePickerDemo
-            setDate={(newDate) => {
-              if (newDate) {
-                handleDateChange(newDate)
-              }
-            }}
-            date={date}
-          />
+          <TimePickerDemo setDate={setDate} date={date} />
         </div>
       </PopoverContent>
     </Popover>
   )
-})
-
-DateTimePickerDemo.displayName = 'DateTimePickerDemo'
+}

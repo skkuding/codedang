@@ -4,13 +4,14 @@
   "service": "app",
   "runServices": [
     "app",
-    "storage",
     "database",
-    "test-database",
     "cache",
-    "rabbitmq"
+    "rabbitmq",
+    "local-storage",
+    "test-database"
   ],
   "workspaceFolder": "/workspace",
+  "initializeCommand": "touch .env",
   "postCreateCommand": "scripts/setup.sh",
   "customizations": {
     "vscode": {

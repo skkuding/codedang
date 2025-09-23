@@ -6,9 +6,8 @@ import {
   type Language,
   type RunnerMessage
 } from '@/types/type'
-// Do not import xterm statically to avoid SSR issues
-// Only importing types from xterm is fine
-import type { Terminal } from '@xterm/xterm'
+import { FitAddon } from '@xterm/addon-fit'
+import { Terminal } from '@xterm/xterm'
 import { useState, useEffect } from 'react'
 
 const compileMessageGenerator = (
@@ -375,7 +374,7 @@ export const useRunner = () => {
     }
   }, [resizeObserver, fitTerminalFn])
 
-  const startRunner = async (code: string, language: Language) => {
+  const startRunner = (code: string, language: Language) => {
     if (ws) {
       ws.close()
       setWs(null)
@@ -406,7 +405,6 @@ export const useRunner = () => {
     if (element) {
       element.innerHTML = ''
 
-      const { Terminal } = await import('@xterm/xterm')
       const terminal = new Terminal({
         convertEol: true,
         disableStdin: false,
@@ -416,7 +414,6 @@ export const useRunner = () => {
         }
       })
 
-      const { FitAddon } = await import('@xterm/addon-fit')
       const fitAddon = new FitAddon()
       terminal.loadAddon(fitAddon)
 

@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: frontend-env
-  namespace: frontend
-data:
-  NEXT_URL: 'https://stage.codedang.com'
-  NEXTAUTH_URL: 'https://stage.codedang.com/next-auth/api/auth'

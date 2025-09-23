@@ -1,10 +1,8 @@
-import { Field, InputType, Int } from '@nestjs/graphql'
+import { Field, InputType } from '@nestjs/graphql'
+import { IntScoreScalar } from '../scalar/int-score.scalar'
 
 @InputType()
 export class Testcase {
-  @Field(() => Int, { nullable: true, description: '기존 TC 구분용 ID 필드' })
-  id?: number
-
   @Field(() => String)
   input!: string
 
@@ -14,13 +12,6 @@ export class Testcase {
   @Field(() => Boolean)
   isHidden!: boolean
 
-  // 분수로 저장하기 위한 새로운 필드들
-  @Field(() => Int, { nullable: true, description: '점수 가중치 분자' })
-  scoreWeightNumerator?: number
-
-  @Field(() => Int, { nullable: true, description: '점수 가중치 분모' })
-  scoreWeightDenominator?: number
-
-  @Field(() => Int, { nullable: true })
+  @Field(() => IntScoreScalar, { nullable: true })
   scoreWeight?: number
 }

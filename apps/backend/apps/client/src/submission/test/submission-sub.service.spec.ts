@@ -74,7 +74,6 @@ const mockFunc = (...args: object[]) => []
 const db = {
   submission: {
     findUnique: mockFunc,
-    findUniqueOrThrow: mockFunc,
     update: mockFunc,
     findFirst: mockFunc,
     findMany: mockFunc
@@ -102,6 +101,7 @@ const db = {
     findUniqueOrThrow: mockFunc,
     update: mockFunc
   },
+
   assignmentProblem: {
     findFirstOrThrow: mockFunc,
     findUnique: mockFunc
@@ -109,7 +109,6 @@ const db = {
   assignmentProblemRecord: {
     update: mockFunc,
     findUnique: mockFunc,
-    findFirst: mockFunc,
     upsert: mockFunc
   },
   problem: {
@@ -118,15 +117,7 @@ const db = {
   },
   problemTestcase: {
     findMany: mockFunc,
-    aggregate: mockFunc,
-    update: mockFunc
-  },
-  contestProblemFirstSolver: {
-    create: mockFunc
-  },
-  testSubmission: {
-    findUnique: mockFunc,
-    update: mockFunc
+    aggregate: mockFunc
   },
   $transaction: async (fn: (prisma: typeof db) => Promise<unknown>) => {
     return fn(db)

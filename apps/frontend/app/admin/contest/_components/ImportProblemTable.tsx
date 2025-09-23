@@ -93,7 +93,11 @@ export function ImportProblemTable({
       </div>
       <DataTable
         size="sm"
-        isHeaderGrouped={true}
+        isModalDataTable={true}
+        headerStyle={{
+          select: 'rounded-l-full',
+          difficulty: 'rounded-r-full'
+        }}
         onRowClick={(table, row) => {
           const selectedRowCount = table.getSelectedRowModel().rows.length
           if (

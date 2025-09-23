@@ -1,5 +1,4 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Contest, ContestProblem, ContestRecord, Problem } from '@generated'
 import { faker } from '@faker-js/faker'
@@ -139,7 +138,6 @@ const problem: Problem = {
   visibleLockTime: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  updateContentTime: faker.date.past(),
   submissionCount: 0,
   acceptedCount: 0,
   acceptedRate: 0,
@@ -295,12 +293,6 @@ describe('ContestService', () => {
       providers: [
         ContestService,
         { provide: PrismaService, useValue: db },
-        {
-          provide: EventEmitter2,
-          useValue: {
-            emit: stub().returns(undefined)
-          }
-        },
         {
           provide: CACHE_MANAGER,
           useFactory: () => ({

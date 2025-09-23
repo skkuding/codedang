@@ -22,7 +22,6 @@ interface EditProblemFormProps {
   problemId: number
   children: ReactNode
   methods: UseFormReturn<UpdateProblemInput>
-  isTestcaseEditBlocked: boolean
 }
 
 export function EditProblemForm({
@@ -53,13 +52,10 @@ export function EditProblemForm({
 
       // HACK: This is a workaround for migrating testcase to separated query/mutation.
       // After migration, testcase input/output is not going to passed through 'getProblem' and 'updateProblem'
-      const testcases = data.testcase.map((tc) => ({
-        id: Number(tc.id),
-        input: tc.input ?? '',
-        output: tc.output ?? '',
-        isHidden: tc.isHidden,
-        scoreWeightNumerator: tc.scoreWeightNumerator,
-        scoreWeightDenominator: tc.scoreWeightDenominator
+      const testcases = data.testcase.map((testcase) => ({
+        ...testcase,
+        input: testcase.input ?? '',
+        output: testcase.output ?? ''
       }))
 
       const initialFormValues = {
@@ -144,10 +140,7 @@ export function EditProblemForm({
     if (pendingInput.current) {
       await updateProblem({
         variables: {
-          input: {
-            ...pendingInput.current,
-            testcases: methods.getValues('testcases')
-          }
+          input: pendingInput.current
         }
       })
     }

@@ -24,47 +24,43 @@ export function AssignmentSolutionTable({
   dueTime
 }: AssignmentSolutionTableProps) {
   const [revealedStates, setRevealedStates] = useState<{
-    [problemId: number]: boolean
+    [key: number]: boolean
   }>({})
-  const [optionStates, setOptionStates] = useState<{
-    [problemId: number]: string
-  }>({})
+  const [optionStates, setOptionStates] = useState<{ [key: number]: string }>(
+    {}
+  )
   const [solutionReleaseTimes, setSolutionReleaseTimes] = useState<{
-    [problemId: number]: Date | null
+    [key: number]: Date | null
   }>({})
   const [manualReleaseTimes, setManualReleaseTimes] = useState<{
-    [problemId: number]: Date | null
+    [key: number]: Date | null
   }>({})
 
   const hasProblemsLoaded = useRef(false)
 
   useEffect(() => {
     if (!hasProblemsLoaded.current && problems.length > 0) {
-      const newRevealedStates: { [problemId: number]: boolean } = {}
-      const newOptionStates: { [problemId: number]: string } = {}
-      const newSolutionReleaseTimes: { [problemId: number]: Date | null } = {}
-      const newManualReleaseTimes: { [problemId: number]: Date | null } = {}
+      const newRevealedStates: { [key: number]: boolean } = {}
+      const newOptionStates: { [key: number]: string } = {}
+      const newSolutionReleaseTimes: { [key: number]: Date | null } = {}
+      const newManualReleaseTimes: { [key: number]: Date | null } = {}
 
-      problems.forEach((problem) => {
-        if (
-          problem.solutionReleaseTime !== null &&
-          problem.solutionReleaseTime !== undefined
-        ) {
-          newRevealedStates[problem.id] = true
+      problems.forEach((problem, index) => {
+        if (problem.solutionReleaseTime) {
+          newRevealedStates[index] = true
         }
 
         if (problem.solutionReleaseTime === null) {
-          newOptionStates[problem.id] = ''
+          newOptionStates[index] = ''
         } else if (
           dayjs(problem.solutionReleaseTime).toString() ===
           dayjs(dueTime)?.toString()
         ) {
-          newOptionStates[problem.id] = 'After Due Date'
+          newOptionStates[index] = 'After Due Date'
         } else {
-          newOptionStates[problem.id] = 'Manually'
-          const releaseTime = new Date(problem.solutionReleaseTime)
-          newSolutionReleaseTimes[problem.id] = releaseTime
-          newManualReleaseTimes[problem.id] = releaseTime
+          newOptionStates[index] = 'Manually'
+          newSolutionReleaseTimes[index] = problem.solutionReleaseTime
+          newManualReleaseTimes[index] = problem.solutionReleaseTime
         }
       })
 
@@ -78,35 +74,21 @@ export function AssignmentSolutionTable({
   }, [problems, dueTime])
 
   const handleSwitchChange = useCallback(
-    (problemId: number) => {
-      const newState = !revealedStates[problemId]
-      const prevOption = optionStates[problemId]
-      const prevManualTime = manualReleaseTimes[problemId]
+    (rowIndex: number) => {
+      const newState = !revealedStates[rowIndex]
+      const prevOption = optionStates[rowIndex]
+      const prevManualTime = manualReleaseTimes[rowIndex]
+
       if (newState) {
         if (!prevOption || prevOption === '') {
-          const dummyReleaseTime = new Date('2025-01-01')
           setOptionStates((prev) => ({
             ...prev,
-            [problemId]: 'After Due Date'
-          }))
-          setProblems((prevProblems) =>
-            prevProblems.map((problem) =>
-              problem.id === problemId
-                ? {
-                    ...problem,
-                    solutionReleaseTime: dummyReleaseTime
-                  }
-                : problem
-            )
-          )
-          setSolutionReleaseTimes((prev) => ({
-            ...prev,
-            [problemId]: dummyReleaseTime
+            [rowIndex]: 'After Due Date'
           }))
         } else if (prevOption === 'Manually' && prevManualTime) {
           setProblems((prevProblems) =>
-            prevProblems.map((problem) =>
-              problem.id === problemId
+            prevProblems.map((problem, index) =>
+              index === rowIndex
                 ? {
                     ...problem,
                     solutionReleaseTime: prevManualTime
@@ -116,37 +98,22 @@ export function AssignmentSolutionTable({
           )
           setSolutionReleaseTimes((prev) => ({
             ...prev,
-            [problemId]: prevManualTime
+            [rowIndex]: prevManualTime
           }))
           setOptionStates((prev) => ({
             ...prev,
-            [problemId]: 'Manually'
+            [rowIndex]: 'Manually'
           }))
         } else if (prevOption === 'After Due Date') {
-          const dummyReleaseTime = new Date('2025-01-01')
           setOptionStates((prev) => ({
             ...prev,
-            [problemId]: 'After Due Date'
-          }))
-          setProblems((prevProblems) =>
-            prevProblems.map((problem) =>
-              problem.id === problemId
-                ? {
-                    ...problem,
-                    solutionReleaseTime: dummyReleaseTime
-                  }
-                : problem
-            )
-          )
-          setSolutionReleaseTimes((prev) => ({
-            ...prev,
-            [problemId]: dummyReleaseTime
+            [rowIndex]: 'After Due Date'
           }))
         }
       } else {
         setProblems((prevProblems) =>
-          prevProblems.map((problem) =>
-            problem.id === problemId
+          prevProblems.map((problem, index) =>
+            index === rowIndex
               ? {
                   ...problem,
                   solutionReleaseTime: null
@@ -156,14 +123,13 @@ export function AssignmentSolutionTable({
         )
         setSolutionReleaseTimes((prev) => ({
           ...prev,
-          [problemId]: null
+          [rowIndex]: null
         }))
       }
       setRevealedStates((prev) => ({
         ...prev,
-        [problemId]: newState
+        [rowIndex]: newState
       }))
-      console.log(solutionReleaseTimes)
     },
     [
       revealedStates,
@@ -172,26 +138,25 @@ export function AssignmentSolutionTable({
       setProblems,
       setSolutionReleaseTimes,
       setOptionStates,
-      setRevealedStates,
-      solutionReleaseTimes
+      setRevealedStates
     ]
   )
 
   const handleOptionChange = useCallback(
-    (problemId: number, value: string) => {
+    (rowIndex: number, value: string) => {
       setOptionStates((prev) => {
-        const newState = { ...prev, [problemId]: value }
+        const newState = { ...prev, [rowIndex]: value }
         const dummyReleaseTime = new Date('2025-01-01')
 
         // 일단 2025-01-01로 해두고 Create 할 때 dueTime으로 갈아끼우기
         if (value === 'After Due Date') {
           setSolutionReleaseTimes((prev) => ({
             ...prev,
-            [problemId]: new Date('2025-01-01')
+            [rowIndex]: new Date('2025-01-01')
           }))
           setProblems((prevProblems) =>
-            prevProblems.map((problem) =>
-              problem.id === problemId
+            prevProblems.map((problem, index) =>
+              index === rowIndex
                 ? {
                     ...problem,
                     solutionReleaseTime: dummyReleaseTime
@@ -200,14 +165,14 @@ export function AssignmentSolutionTable({
             )
           )
         } else if (value === 'Manually') {
-          const manualTime = manualReleaseTimes[problemId] ?? new Date()
+          const manualTime = manualReleaseTimes[rowIndex] ?? new Date()
           setSolutionReleaseTimes((prev) => ({
             ...prev,
-            [problemId]: manualTime
+            [rowIndex]: manualTime
           }))
           setProblems((prevProblems) =>
-            prevProblems.map((problem) =>
-              problem.id === problemId
+            prevProblems.map((problem, index) =>
+              index === rowIndex
                 ? {
                     ...problem,
                     solutionReleaseTime: manualTime
@@ -217,7 +182,7 @@ export function AssignmentSolutionTable({
           )
           setManualReleaseTimes((prev) => ({
             ...prev,
-            [problemId]: manualTime
+            [rowIndex]: manualTime
           }))
         }
         return newState
@@ -233,12 +198,12 @@ export function AssignmentSolutionTable({
   )
 
   const handleTimeFormChange = useCallback(
-    (problemId: number, date: Date | null) => {
+    (rowIndex: number, date: Date | null) => {
       setSolutionReleaseTimes((prev) => {
-        const newState = { ...prev, [problemId]: date }
+        const newState = { ...prev, [rowIndex]: date }
         setProblems((prevProblems) =>
-          prevProblems.map((problem) =>
-            problem.id === problemId
+          prevProblems.map((problem, index) =>
+            index === rowIndex
               ? {
                   ...problem,
                   solutionReleaseTime: date
@@ -250,7 +215,7 @@ export function AssignmentSolutionTable({
         if (date) {
           setManualReleaseTimes((prev) => ({
             ...prev,
-            [problemId]: date
+            [rowIndex]: date
           }))
         }
         return newState

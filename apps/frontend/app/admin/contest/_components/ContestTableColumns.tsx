@@ -44,44 +44,54 @@ export const columns: ColumnDef<DataTableContest>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Title"
-        className="w-[400px]"
-      />
+      <DataTableColumnHeader column={column} title="Title" />
     ),
-    cell: ({ row }) => {
-      return row.getValue('title')
-    },
+    cell: ({ row }) => (
+      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-normal">
+        {row.getValue('title')}
+      </p>
+    ),
     enableSorting: false,
     enableHiding: false
   },
   {
     accessorKey: 'participants',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Participants" />
+      <div className="flex justify-center">
+        <DataTableColumnHeader column={column} title="Participants" />
+      </div>
     ),
-    cell: ({ row }) => {
-      return row.original.participants
-    }
+    cell: ({ row }) => (
+      <p className="text-center font-normal text-neutral-500">
+        {row.original.participants}
+      </p>
+    ),
+    size: 100
   },
   {
     accessorKey: 'startTime',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Period"
-        className="text-center"
-      />
+      <div className="flex justify-center">
+        <DataTableColumnHeader
+          column={column}
+          title="Period"
+          className="text-center"
+        />
+      </div>
     ),
-    cell: ({ row }) => {
-      return `${dateFormatter(row.original.startTime, 'YY-MM-DD HH:mm:ss')} ~ ${dateFormatter(row.original.endTime, 'YY-MM-DD HH:mm:ss')}`
-    }
+    cell: ({ row }) => (
+      <p className="overflow-hidden whitespace-nowrap text-center font-normal text-neutral-500">
+        {`${dateFormatter(row.original.startTime, 'YY-MM-DD HH:mm:ss')} ~ ${dateFormatter(row.original.endTime, 'YY-MM-DD HH:mm:ss')}`}
+      </p>
+    ),
+    size: 250
   },
   {
     accessorKey: 'status',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="State" />
+      <div className="flex justify-center">
+        <DataTableColumnHeader column={column} title="State" />
+      </div>
     ),
     cell: ({ row }) => (
       <p

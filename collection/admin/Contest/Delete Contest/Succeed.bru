@@ -11,8 +11,10 @@ post {
 }
 
 body:graphql {
-  mutation DeleteContest($contestId: Int!) {
-    deleteContest(contestId: $contestId) {
+  mutation {
+    deleteContest(
+      contestId: 22
+    ) {
       id
       title
       description
@@ -22,72 +24,12 @@ body:graphql {
   }
 }
 
-body:graphql:vars {
-  {
-    "contestId": 20
-  }
-}
-
 assert {
   res.body.data.deleteContest: isDefined
 }
 
-script:pre-request {
-  await require("./login").loginContestAdmin(req);
-}
-
 docs {
-  # 📘 Delete Contest
-
-  **POST** `/graphql (mutation: deleteContest)`
-
-  Deletes a specific contest.
-
-  특정 대회를 삭제합니다.
-
-  대회에 연결된 문제들이 있는 경우, 문제와의 연결을 먼저 해제한 후 대회를 삭제합니다.
-
-  삭제된 대회의 정보를 반환합니다.
-
+  # Delete Contest
   ---
-
-  ### 🔒 Authentication
-
-  ✅ Required
-
-  ---
-
-  ### 📥 Request Variables
-
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `contestId` | Int | ✅ | 삭제할 대회의 ID |
-
-  ---
-
-  ### 📤 Response Body
-
-  #### Content-Type: `application/json`
-
-  ```json
-  {
-    "data": {
-      "deleteContest": {
-        "id": "20",
-        "title": "2025 SKKU 프로그래밍 대회",
-        "description": "<p>sample testcase 확인을 위한 대회</p>",
-        "startTime": "2023-01-01T00:00:00.000Z",
-        "endTime": "2035-01-01T23:59:59.000Z"
-      }
-    }
-  }
-  ```
-
-  | Field | Type | Description |
-  |---|---|---|---|
-  | `id` | Int | 삭제된 대회 ID |
-  | `title` | String | 대회 제목 |
-  | `description` | String | 대회 설명 |
-  | `startTime` | GraphQLISODateTime | 대회 시작 시간 |
-  | `endTime` | GraphQLISODateTime | 대회 종료 시간 |
+  - Contest를 삭제하고 삭제된 Contest를 반환합니다.
 }

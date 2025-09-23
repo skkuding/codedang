@@ -66,42 +66,54 @@ export default function Page(props: {
               <FormSection title="Title">
                 <TitleForm
                   placeholder="Name your Exercise"
-                  className="max-w-[760px]"
+                  className="max-w-[767px]"
                 />
               </FormSection>
 
               <div className="flex justify-between">
-                <FormSection title="Week" className="w-[420px]">
+                <FormSection
+                  title="Week"
+                  isJustifyBetween={false}
+                  className="gap-[67px]"
+                >
                   {methods.getValues('week') && (
                     <WeekComboBox name="week" courseId={Number(courseId)} />
                   )}
                 </FormSection>
-                <FormSection title="Start Time" className="w-[420px]">
-                  {methods.getValues('startTime') && (
-                    <TimeForm name="startTime" />
+                <FormSection
+                  title="Due Time"
+                  isJustifyBetween={false}
+                  className="gap-[40px]"
+                  isLabeled={false}
+                >
+                  <TimeFormPopover />
+                  {methods.getValues('dueTime') && (
+                    <TimeForm
+                      name="dueTime"
+                      defaultTimeOnSelect={{
+                        hours: 23,
+                        minutes: 59,
+                        seconds: 59
+                      }}
+                    />
                   )}
                 </FormSection>
               </div>
 
               <div className="flex justify-between">
                 <FormSection
-                  title="Due Time"
-                  className="w-[420px]"
-                  isLabeled={false}
+                  title="Start Time"
+                  isJustifyBetween={false}
+                  className="gap-[27px]"
                 >
-                  <TimeFormPopover />
-                  <TimeForm
-                    name="dueTime"
-                    defaultTimeOnSelect={{
-                      hours: 23,
-                      minutes: 59,
-                      seconds: 59
-                    }}
-                  />
+                  {methods.getValues('startTime') && (
+                    <TimeForm name="startTime" />
+                  )}
                 </FormSection>
                 <FormSection
                   title="End Time"
-                  className="w-[420px]"
+                  isJustifyBetween={false}
+                  className="gap-[71px]"
                   isLabeled={false}
                 >
                   {methods.getValues('endTime') && <TimeForm name="endTime" />}
@@ -150,9 +162,7 @@ export default function Page(props: {
                 <AssignmentSolutionTable
                   problems={problems}
                   setProblems={setProblems}
-                  dueTime={
-                    methods.getValues('dueTime') ?? methods.getValues('endTime')
-                  }
+                  dueTime={methods.getValues('dueTime')}
                 />
               </div>
 

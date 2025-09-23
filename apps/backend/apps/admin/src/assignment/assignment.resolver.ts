@@ -246,12 +246,4 @@ export class AssignmentResolver {
       userId
     })
   }
-
-  @Mutation(() => Number)
-  async autoFinalizeScore(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('assignmentId', { type: () => Int }) assignmentId: number
-  ) {
-    return await this.assignmentService.autoFinalizeScore(groupId, assignmentId)
-  }
 }

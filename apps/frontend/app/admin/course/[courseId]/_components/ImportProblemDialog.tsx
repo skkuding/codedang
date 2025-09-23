@@ -47,7 +47,6 @@ These problems will be shared with your course’s instructors."
         title="Import / Edit Problem"
         open={showImportDialog}
         onOpenChange={setShowImportDialog}
-        className="!gap-0"
       >
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<ImportProblemTableFallback />}>

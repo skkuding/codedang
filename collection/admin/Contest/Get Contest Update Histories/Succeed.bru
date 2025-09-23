@@ -11,7 +11,7 @@ post {
 }
 
 body:graphql {
-  query GetContestUpdateHistories($contestId: Int!) {
+  query GetContestUpdateHistories($contestId: Int!){
     getContestUpdateHistories(contestId: $contestId) {
       updateHistories {
         id
@@ -27,73 +27,12 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 1
+      "contestId": 1
   }
 }
 
 docs {
-  # 📘 Get Contest Update Histories
-
-  **POST** `/graphql (query: getContestUpdateHistories)`
-
-  Retrieves problem update histories that occurred during a contest.
-
-  특정 대회 진행 중 발생한 문제 수정 내역 목록을 조회합니다.
-
+  # Get Contest Update Histories
   ---
-
-  ### 🔒 Authentication
-
-  ✅ Required
-
-  ---
-
-  ### 📥 Request Variables
-
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `contestId` | Int | ✅ | 조회할 대회의 ID |
-
-  ---
-
-  ### 📤 Response Body
-
-  #### Content-Type: `application/json`
-
-  ```json
-  {
-    "data": {
-      "getContestUpdateHistories": {
-        "updateHistories": [
-          {
-            "id": 1,
-            "order": 0,
-            "problemId": 1,
-            "updatedAt": "2025-09-18T07:18:41.910Z",
-            "updatedFields": [
-              "title"
-            ],
-            "updatedInfo": [
-              {
-                "current": "정수 더하기",
-                "previous": "정수 더하기 previous",
-                "updatedField": "title"
-              }
-            ]
-          }
-        ]
-      }
-    }
-  }
-  ```
-
-  | Field | Type | Description |
-  |--------|------|------|
-  | `updateHistories` | [UpdateHistory] | 수정 내역 목록 배열 |
-  | `id` | Int | 수정 내역 ID |
-  | `order` | Int | 대회 내 문제 순번 |
-  | `problemId` | Int | 수정된 문제 ID |
-  | `updatedAt` | GraphQLISODateTime | 수정 시각 |
-  | `updatedFields` | [ProblemField] | 수정된 필드명 목록 |
-  | `updatedInfo` | Json | 수정 내용 요약 |
+  - Contest에 포함되는 Problem의 모든 Update History들을 반환합니다.
 }

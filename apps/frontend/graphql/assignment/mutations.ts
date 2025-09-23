@@ -129,12 +129,6 @@ const UPDATE_ASSIGNMENT_PROBLEM_RECORD = gql(`
   }
 `)
 
-const AUTO_FINALIZE_SCORE = gql(`
-  mutation AutoFinalizeScore($groupId: Int!, $assignmentId: Int!) {
-    autoFinalizeScore(groupId: $groupId, assignmentId: $assignmentId)
-  }
-`)
-
 export {
   CREATE_ASSIGNMENT,
   DELETE_ASSIGNMENT,
@@ -143,6 +137,5 @@ export {
   REMOVE_PROBLEMS_FROM_ASSIGNMENT,
   UPDATE_ASSIGNMENT,
   UPDATE_ASSIGNMENT_PROBLEM_RECORD,
-  UPDATE_ASSIGNMENT_VISIBLE,
-  AUTO_FINALIZE_SCORE
+  UPDATE_ASSIGNMENT_VISIBLE
 }

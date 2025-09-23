@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   DeleteObjectCommand,
@@ -15,7 +15,8 @@ import { type ContentType, ContentTypes } from './content.type'
 export class StorageService {
   constructor(
     private readonly config: ConfigService,
-    private readonly client: S3Client
+    @Inject('S3_CLIENT') private readonly client: S3Client,
+    @Inject('S3_CLIENT_MEDIA') private readonly mediaClient: S3Client
   ) {}
 
   /**
@@ -75,7 +76,7 @@ export class StorageService {
     content: ReadStream
     type: string
   }) {
-    await this.client.send(
+    await this.mediaClient.send(
       new PutObjectCommand({
         Bucket: this.config.get('MEDIA_BUCKET_NAME'),
         Key: filename,
@@ -87,16 +88,14 @@ export class StorageService {
   }
 
   /**
-   * @deprecated testcase를 더 이상 S3에 저장하지 않습니다.
-   *
-   * Object(testcase)를 불러옵니다.
+   * Object(Check Result)를 불러옵니다.
    * @param filename 파일 이름
    * @returns S3에 저장된 Object
    */
   async readObject(filename: string) {
     const res = await this.client.send(
       new GetObjectCommand({
-        Bucket: this.config.get('TESTCASE_BUCKET_NAME'),
+        Bucket: this.config.get('CHECK_RESULT_BUCKET_NAME'),
         Key: filename
       })
     )
@@ -129,9 +128,16 @@ export class StorageService {
    * @param filename 파일 이름
    * @param bucket Bucket type to delete from ('testcase' or 'media')
    */
-  async deleteObject(filename: string, bucket: 'testcase' | 'media') {
+  async deleteObject(
+    filename: string,
+    bucket: 'testcase' | 'media' | 'checkResult'
+  ) {
     const bucketName = this.config.get(
-      bucket == 'testcase' ? 'TESTCASE_BUCKET_NAME' : 'MEDIA_BUCKET_NAME'
+      bucket == 'testcase'
+        ? 'TESTCASE_BUCKET_NAME'
+        : bucket == 'media'
+          ? 'MEDIA_BUCKET_NAME'
+          : 'CHECK_RESULT_BUCKET_NAME'
     )
     await this.client.send(
       new DeleteObjectCommand({
@@ -146,7 +152,7 @@ export class StorageService {
    * @param filename 파일 이름
    */
   async deleteFile(filename: string) {
-    await this.client.send(
+    await this.mediaClient.send(
       new DeleteObjectCommand({
         Bucket: this.config.get('MEDIA_BUCKET_NAME'),
         Key: filename

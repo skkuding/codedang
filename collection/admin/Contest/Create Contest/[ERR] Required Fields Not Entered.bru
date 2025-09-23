@@ -1,7 +1,7 @@
 meta {
   name: [ERR] Required Fields Not Entered
   type: graphql
-  seq: 3
+  seq: 2
 }
 
 post {
@@ -14,6 +14,15 @@ body:graphql {
   mutation CreateContest($input: CreateContestInput!) {
     createContest(input: $input) {
       id
+      title
+      description
+      startTime
+      endTime
+      registerDueTime
+      enableCopyPaste
+      isJudgeResultVisible
+      invitationCode
+      summary
     }
   }
 }
@@ -22,31 +31,22 @@ body:graphql:vars {
   {
     "input": {
       "description": "new contest without title",
-      "startTime": "2026-01-01T12:00:00.000Z",
-      "endTime": "2030-01-01T12:00:00.000Z",
-      "registerDueTime": "2026-01-02T12:00:00.000Z",
+      "startTime": "2024-01-01",
+      "endTime": "2030-01-01",
+      "enableCopyPaste": true,
       "isJudgeResultVisible": true,
-      "userContest": []
+      "invitationCode": "123456",
+      "summary": {
+        "참여대상": "participationTarget",
+        "진행방식": "competitionMethod",
+        "순위산정": "rankingMethod",
+        "문제형태": "problemFormat",
+        "참여혜택": "benefits"
+      }
     }
   }
 }
 
-script:pre-request {
-  await require("./login").loginContestAdmin(req);
-}
-
 assert {
-  res.body.errors[0].message: eq Title was not provided
-}
-
-docs {
-  # 📙 [ERR] Required Fields Not Entered
-
-  **POST** `/graphql (mutation: createContest)`
-
-  Title String was not provided.
-
-  필수 input(`title`)을 입력하지 않았을 때,
-
-  `BAD_USER_INPUT`이 발생합니다.
+  res.body.errors[0].message: eq Title String was not provided
 }

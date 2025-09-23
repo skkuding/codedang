@@ -1,7 +1,7 @@
 meta {
   name: [ERR] Nonexistent ContestRecord
   type: graphql
-  seq: 5
+  seq: 3
 }
 
 post {
@@ -11,38 +11,18 @@ post {
 }
 
 body:graphql {
-  mutation RemoveUserFromContest(
-    $contestId: Int!,
-    $userId: Int!
-  ) {
+  mutation {
     removeUserFromContest(
-      contestId: $contestId,
-      userId: $userId
+      contestId: 19
+      userId: 999
     ) {
       userId
+      contestId
+      role
     }
   }
 }
 
-body:graphql:vars {
-  {
-    "contestId": 19,
-    "userId": 999
-  }
-}
-
-script:pre-request {
-  await require("./login").loginContestAdmin(req);
-}
-
-docs {
-  # 📙 [ERR] Nonexistent ContestRecord
-
-  **POST** `/graphql (mutation: removeUserFromContest)`
-
-  The user is not registered for the contest.
-
-  제거하려는 대상(`userId`)이 해당 대회의 참가자 명단에 없을 때,
-
-  `EntityNotExistException`이 발생합니다.
+assert {
+  res.body.errors: isDefined
 }

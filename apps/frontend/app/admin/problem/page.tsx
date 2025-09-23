@@ -6,7 +6,7 @@ import { Suspense } from 'react'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
 import { ProblemTabs } from './_components/ProblemTabs'
-import { ProblemsUploadButton } from './_components/ProblemsUploadButton'
+import { UploadDialog } from './_components/UploadDialog'
 
 export default function Page() {
   return (
@@ -19,7 +19,7 @@ export default function Page() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ProblemsUploadButton />
+          <UploadDialog />
           <Button variant="default" className="w-[120px]" asChild>
             <Link href="/admin/problem/create">
               <HiMiniPlusCircle className="mr-2 h-5 w-5" />

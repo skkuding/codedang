@@ -21,9 +21,9 @@ import { useRouter } from 'next/navigation'
 import { useDataTable } from './context'
 
 interface DataTableProps<TData extends { id: number }, TRoute extends string> {
-  bodyStyle?: Record<string, string>
+  headerStyle?: Record<string, string>
   showFooter?: boolean
-  isHeaderGrouped?: boolean
+  isModalDataTable?: boolean
   isCardView?: boolean
   /**
    * 각 행의 데이터에 따라 href를 반환하는 함수
@@ -57,22 +57,22 @@ interface DataTableProps<TData extends { id: number }, TRoute extends string> {
  * 행 클릭 시 호출되는 함수
  */
 
-const headerStyleMap = {
-  sm: 'h-[30px]! text-sm font-medium',
-  md: 'h-[39px]! text-sm font-normal',
-  lg: 'h-[40px]! text-base font-medium'
+const headerSizeMap = {
+  sm: 'h-[30px]!',
+  md: 'h-[39px]!',
+  lg: 'h-[40px]!'
 }
 
-const bodyStyleMap = {
-  sm: 'h-[40px]! text-sm font-normal',
-  md: 'h-[57px]! text-sm font-normal',
-  lg: 'h-[76px]! text-base font-normal'
+const bodySizeMap = {
+  sm: 'h-[40px]!',
+  md: 'h-[57px]!',
+  lg: 'h-[76px]!'
 }
 
 export function DataTable<TData extends { id: number }, TRoute extends string>({
-  bodyStyle = {},
+  headerStyle = {},
   showFooter = false,
-  isHeaderGrouped = false,
+  isModalDataTable = false,
   isCardView = false,
   getHref,
   onRowClick,
@@ -104,7 +104,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="h-[40px] whitespace-nowrap text-center md:px-0 md:py-2"
+                      className="h-[40px] text-center md:px-0 md:py-2"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -135,37 +135,28 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
   return (
     <ScrollArea className="rounded-xs max-w-full">
       <Table>
-        <TableHeader className="border-b-0">
+        <TableHeader
+          className={cn(
+            '[&_td]:border-[#80808040]',
+            isModalDataTable && 'border-b-0'
+          )}
+        >
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
-              // className={cn(isHeaderGrouped && 'bg-background-alternative')}
+              className={cn(isModalDataTable && 'bg-neutral-200/30')}
             >
-              {headerGroup.headers.map((header, index) => (
+              {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className={cn(isHeaderGrouped && 'p-0')}
+                  className={cn(headerStyle[header.id], headerSizeMap[size])}
                 >
-                  <div
-                    className={cn(
-                      headerStyleMap[size],
-                      !isHeaderGrouped
-                        ? 'rounded-full bg-neutral-200/30 [&:has([role=checkbox])]:bg-transparent'
-                        : 'bg-background-alternative',
-                      isHeaderGrouped && index === 0 && 'rounded-l-full',
-                      isHeaderGrouped &&
-                        index === headerGroup.headers.length - 1 &&
-                        'rounded-r-full',
-                      'flex items-center justify-center whitespace-nowrap [&:has([role=checkbox])]:w-14'
-                    )}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </div>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                 </TableHead>
               ))}
             </TableRow>
@@ -177,7 +168,12 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className={cn('cursor-pointer', 'hover:bg-neutral-200/30')}
+                className={cn(
+                  'cursor-pointer',
+                  isModalDataTable &&
+                    'hover:bg-white data-[state=selected]:bg-white',
+                  'hover:bg-neutral-200/30'
+                )}
                 onClick={() => {
                   onRowClick?.(table, row)
                   const href = getHref?.(row.original)
@@ -189,22 +185,9 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className={cn(
-                      bodyStyleMap[size],
-                      'md:p-4 [&:has([role=checkbox])]:w-14'
-                    )}
+                    className={cn(bodySizeMap[size], 'text-center md:p-4')}
                   >
-                    <div
-                      className={cn(
-                        'flex justify-center whitespace-nowrap',
-                        bodyStyle[cell.column.id]
-                      )}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </div>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
               </TableRow>
@@ -225,20 +208,13 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
             {table.getFooterGroups().map((footerGroup) => (
               <TableRow key={footerGroup.id}>
                 {footerGroup.headers.map((footer) => (
-                  <TableHead key={footer.id}>
-                    <div
-                      className={cn(
-                        headerStyleMap[size],
-                        !isHeaderGrouped && 'flex items-center justify-center'
-                      )}
-                    >
-                      {footer.isPlaceholder
-                        ? null
-                        : flexRender(
-                            footer.column.columnDef.footer,
-                            footer.getContext()
-                          )}
-                    </div>
+                  <TableHead key={footer.id} className={headerStyle[footer.id]}>
+                    {footer.isPlaceholder
+                      ? null
+                      : flexRender(
+                          footer.column.columnDef.footer,
+                          footer.getContext()
+                        )}
                   </TableHead>
                 ))}
               </TableRow>

@@ -13,6 +13,14 @@ import { useParams } from 'next/navigation'
 import { createColumns } from './Columns'
 import { DeleteUserButton } from './DeleteUserButton'
 
+const headerStyle = {
+  select: '',
+  groupName: 'w-2/5',
+  courseNum: 'px-0 w-1/5',
+  semester: 'px-0 w-1/5',
+  members: 'px-0 w-1/6'
+}
+
 export function GroupTable() {
   const params = useParams() // 경로에서 params 가져오기
   const groupId = Number(params.courseId) // 문자열이므로 숫자로 변환
@@ -46,7 +54,7 @@ export function GroupTable() {
           <DataTableSearchBar columndId="name" className="rounded-full" />
           <DeleteUserButton />
         </div>
-        <DataTable />
+        <DataTable headerStyle={headerStyle} />
         <DataTablePagination showSelection />
       </DataTableRoot>
     </div>

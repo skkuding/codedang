@@ -55,10 +55,6 @@ export function CreateContestForm({
       toast.error('Start time must be earlier than end time')
       return
     }
-    if (input.registerDueTime >= input.startTime) {
-      toast.error('Join duetime must be earlier than start time')
-      return
-    }
 
     if (
       new Set(problems.map((problem) => problem.order)).size !== problems.length

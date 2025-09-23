@@ -40,38 +40,48 @@ export const columns: ColumnDef<DataTableCourse>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Title"
-        className="w-[400px]"
-      />
+      <div className="flex text-left">
+        <DataTableColumnHeader column={column} title="Title" />
+      </div>
     ),
-    cell: ({ row }) => {
-      return row.getValue('title')
-    },
+    cell: ({ row }) => (
+      <p className="overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        {row.getValue('title')}
+      </p>
+    ),
     enableSorting: false
   },
   {
     accessorKey: 'code',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Code" />
+      <div className="flex justify-center">
+        <DataTableColumnHeader column={column} title="Code" />
+      </div>
     ),
-    cell: ({ row }) => row.getValue('code')
+    cell: ({ row }) => (
+      <p className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+        {row.getValue('code')}
+      </p>
+    )
   },
   {
     accessorKey: 'semester',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Semester" />
+      <div className="flex justify-center">
+        <DataTableColumnHeader column={column} title="Semester" />
+      </div>
     ),
     cell: ({ row }) => {
       const yearSeason = row.original.semester
       return (
-        <div
-          className={cn(
-            'border-primary text-primary flex h-[30px] w-[116px] items-center justify-center rounded-full border'
-          )}
-        >
-          <p className="text-sm font-medium">{yearSeason}</p>
+        <div className="flex justify-center">
+          <div
+            className={cn(
+              'border-primary text-primary flex h-[30px] w-[116px] items-center justify-center rounded-full border'
+            )}
+          >
+            <p className="text-sm font-medium">{yearSeason}</p>
+          </div>
         </div>
       )
     }
@@ -79,9 +89,19 @@ export const columns: ColumnDef<DataTableCourse>[] = [
   {
     accessorKey: 'studentCount',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Members" />
+      <div className="flex justify-center">
+        <DataTableColumnHeader
+          column={column}
+          title="Members"
+          className="text-center"
+        />
+      </div>
     ),
-    cell: ({ row }) => row.getValue('studentCount'),
+    cell: ({ row }) => (
+      <p className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+        {row.getValue('studentCount')}
+      </p>
+    ),
     enableSorting: false
   }
 ]

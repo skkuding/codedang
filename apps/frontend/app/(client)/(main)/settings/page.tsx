@@ -4,7 +4,8 @@ import type { SettingsFormat } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { updateUserProfile } from '../../_libs/apis/profile'
@@ -17,7 +18,6 @@ import { LogoSection } from './_components/LogoSection'
 import { MajorSection } from './_components/MajorSection'
 import { NameSection } from './_components/NameSection'
 import { NewPwSection } from './_components/NewPwSection'
-import { PushNotificationSection } from './_components/PushNotificationSection'
 import { ReEnterNewPwSection } from './_components/ReEnterNewPwSection'
 import { SaveButton } from './_components/SaveButton'
 import { StudentIdSection } from './_components/StudentIdSection'
@@ -32,7 +32,6 @@ type UpdatePayload = Partial<{
   newPassword: string
   realName: string
   studentId: string
-  college: string
   major: string
 }>
 
@@ -50,7 +49,6 @@ export default function Page() {
         realName: ''
       },
       studentId: '',
-      college: '',
       major: '',
       email: ''
     },
@@ -58,16 +56,12 @@ export default function Page() {
   })
 
   const [majorValue, setMajorValue] = useState(defaultProfileValues.major)
-  const [collegeValue, setCollegeValue] = useState(defaultProfileValues.college)
 
   useEffect(() => {
     if (defaultProfileValues.major) {
       setMajorValue(defaultProfileValues.major)
     }
-    if (defaultProfileValues.college) {
-      setCollegeValue(defaultProfileValues.college)
-    }
-  }, [defaultProfileValues.major, defaultProfileValues.college])
+  }, [defaultProfileValues.major])
 
   const {
     register,
@@ -108,7 +102,6 @@ export default function Page() {
   const [newPasswordShow, setNewPasswordShow] = useState<boolean>(false)
   const [confirmPasswordShow, setConfirmPasswordShow] = useState<boolean>(false)
   const [majorOpen, setMajorOpen] = useState<boolean>(false)
-  const [collegeOpen, setCollegeOpen] = useState<boolean>(false)
 
   const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
   const saveAblePassword: boolean =
@@ -119,20 +112,13 @@ export default function Page() {
     newPasswordAble &&
     isPasswordsMatch
   const saveAbleOthers: boolean =
-    Boolean(realName) ||
-    Boolean(majorValue !== defaultProfileValues.major) ||
-    Boolean(collegeValue !== defaultProfileValues.college)
+    Boolean(realName) || Boolean(majorValue !== defaultProfileValues.major)
   const saveAble =
     (saveAblePassword || saveAbleOthers) &&
     ((isPasswordsMatch && !errors.newPassword) ||
-      (!newPassword && !confirmPassword)) &&
-    majorValue !== 'none' &&
-    collegeValue !== 'none'
+      (!newPassword && !confirmPassword))
   const saveAbleUpdateNow =
-    Boolean(studentId) &&
-    majorValue !== 'none' &&
-    collegeValue !== 'none' &&
-    !errors.studentId
+    Boolean(studentId) && majorValue !== 'none' && !errors.studentId
 
   useEffect(() => {
     if (isPasswordsMatch) {
@@ -171,9 +157,6 @@ export default function Page() {
     }
     if (majorValue !== defaultProfileValues.major) {
       updatePayload.major = majorValue
-    }
-    if (collegeValue !== defaultProfileValues.college) {
-      updatePayload.college = collegeValue
     }
     if (data.currentPassword !== 'tmppassword1') {
       updatePayload.password = data.currentPassword
@@ -226,12 +209,6 @@ export default function Page() {
       majorValue,
       setMajorValue
     },
-    collegeState: {
-      collegeOpen,
-      setCollegeOpen,
-      collegeValue,
-      setCollegeValue
-    },
     formState: {
       register,
       errors
@@ -239,7 +216,7 @@ export default function Page() {
     updateNow: Boolean(updateNow)
   }
   return (
-    <div className="mt-[60px] flex w-full max-w-[1440px] gap-20 px-4 pb-6 sm:px-[116px]">
+    <div className="mt-[60px] flex w-full max-w-[1440px] gap-20 px-[116px] pb-6">
       {/* Logo */}
       <LogoSection />
 
@@ -247,7 +224,7 @@ export default function Page() {
         {/* Form */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex h-svh max-h-[1000px] w-full flex-col justify-between gap-4 overflow-y-auto px-4"
+          className="flex h-svh max-h-[846px] w-full flex-col justify-between gap-4 overflow-y-auto px-4"
         >
           {/* Topic */}
           <TopicSection />
@@ -285,8 +262,6 @@ export default function Page() {
           <StudentIdSection studentId={studentId} />
           {/* Major */}
           <MajorSection />
-          {/* Push Notifications */}
-          <PushNotificationSection />
           {/* Save Button */}
           <SaveButton
             saveAble={saveAble}

@@ -17,40 +17,58 @@ export const createColumns = (
   return [
     {
       accessorKey: 'studentId',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Student ID" />
-      ),
-      cell: ({ row }) => row.getValue('studentId')
+      header: () => <p className="font-mono text-sm">Student ID</p>,
+      cell: ({ row }) => (
+        <div className="whitespace-nowrap text-center text-xs font-medium">
+          {row.getValue('studentId')}
+        </div>
+      )
     },
     {
       accessorKey: 'realName',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name" />
+        <DataTableColumnHeader
+          column={column}
+          title="Name"
+          className="flex justify-center"
+        />
       ),
-      cell: ({ row }) => row.getValue('realName'),
+      cell: ({ row }) => (
+        <div className="whitespace-nowrap text-center text-xs font-medium">
+          {row.original.realName}
+        </div>
+      ),
       filterFn: 'includesString'
     },
     {
       accessorKey: 'submittedProblemCount',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Submit" />
+        <DataTableColumnHeader
+          column={column}
+          title="Submit"
+          className="flex justify-center border-x"
+        />
       ),
       cell: ({ row }) => (
-        <>
+        <div className="flex justify-center border-x">
           {row.original.submittedProblemCount}/{row.original.totalProblemCount}
-        </>
+        </div>
       )
     },
     {
       accessorKey: 'userAssignmentScore',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Total" />
+        <DataTableColumnHeader
+          column={column}
+          title="Total"
+          className="flex justify-center"
+        />
       ),
       cell: ({ row }) => (
-        <>
+        <div>
           {row.original.userAssignmentScore}/
           {row.original.assignmentPerfectScore}
-        </>
+        </div>
       )
     },
     ...problemData.map((problem, i) => ({

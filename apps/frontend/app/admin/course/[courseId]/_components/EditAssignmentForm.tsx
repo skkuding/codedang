@@ -67,7 +67,7 @@ export function EditAssignmentForm({
         title: data.title,
         description: data.description,
         startTime: new Date(data.startTime),
-        dueTime: data.dueTime ? new Date(data.dueTime) : null,
+        dueTime: new Date(data.dueTime),
         endTime: new Date(data.endTime),
         enableCopyPaste: data.enableCopyPaste,
         isJudgeResultVisible: data.isJudgeResultVisible,
@@ -158,7 +158,7 @@ export function EditAssignmentForm({
     .map((problem) => problem.title)
 
   const isSubmittable = (input: UpdateAssignmentInput) => {
-    if (input.startTime >= (input.dueTime ?? input.endTime)) {
+    if (input.startTime >= input.dueTime) {
       toast.error('Start time must be earlier than due time')
       return
     }
@@ -249,7 +249,7 @@ export function EditAssignmentForm({
             solutionReleaseTime: isOptionAfterDeadline(
               problem.solutionReleaseTime
             )
-              ? (input.dueTime ?? input.endTime)
+              ? input.dueTime
               : problem.solutionReleaseTime
           }
         })

@@ -26,8 +26,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     formState: { errors },
     getValues,
     setValue,
-    control,
-    trigger
+    control
   } = useFormContext()
 
   const watchedItems: Testcase[] = useWatch({ name: 'testcases', control })
@@ -42,29 +41,18 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const [searchTC, setsearchTC] = useState('')
   const [selectedTestcases, setSelectedTestcases] = useState<number[]>([])
   const [dataChangeTrigger, setDataChangeTrigger] = useState<number>(0)
-  const [showTooltip, setShowTooltip] = useState<boolean>(false)
-  const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0
-  })
 
   useEffect(() => {
-    const isScoreAssigned = (tc: Testcase) =>
-      typeof tc.scoreWeight === 'number' ||
-      (typeof tc.scoreWeightNumerator === 'number' &&
-        typeof tc.scoreWeightDenominator === 'number')
-
-    const allFilled = watchedItems.every(isScoreAssigned)
+    const allFilled = watchedItems.every((item) => !isInvalid(item.scoreWeight))
     setDisableDistribution(allFilled)
-
-    const allNull = watchedItems.every((tc) => !isScoreAssigned(tc))
+    const allNull = watchedItems.every((item) => isInvalid(item.scoreWeight))
     setIsScoreNull(allNull)
   }, [watchedItems])
 
   const addTestcase = (isHidden: boolean) => {
     setValue('testcases', [
       ...getValues('testcases'),
-      { id: null, input: '', output: '', isHidden, scoreWeight: null }
+      { input: '', output: '', isHidden, scoreWeight: '' }
     ])
   }
 
@@ -75,11 +63,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     const isHidden = testcaseFlag === 1
 
     const newTestcases = uploadedTestcases.map((testcase) => ({
-      id: null,
       input: testcase.input,
       output: testcase.output,
       isHidden,
-      scoreWeight: null
+      scoreWeight: ''
     }))
 
     setValue('testcases', [...currentTestcases, ...newTestcases])
@@ -118,15 +105,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     setValue('testcases', updatedValues)
   }
 
-  const gcd = (a: number, b: number): number => {
-    return b === 0 ? a : gcd(b, a % b)
-  }
-
   const equalDistribution = () => {
     const currentValues: Testcase[] = getValues('testcases')
 
     const totalAssignedScore = currentValues
-      .map((tc) => tc.scoreWeight ?? 0)
+      .map((tc) => tc.scoreWeight)
       .filter((score) => !isInvalid(score))
       .reduce((acc: number, score) => {
         if (score < 0) {
@@ -157,38 +140,26 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       return
     }
 
-    const numerator = remainingScore
-    const denominator = 100 * unassignedCount
+    const baseScore = Math.floor(remainingScore / unassignedCount)
+    const extraScore = remainingScore - baseScore * unassignedCount
 
-    const commonDivisor = gcd(numerator, denominator)
+    const lastUnassignedIndex = unassignedTestcases[unassignedCount - 1].index
 
-    const finalNumerator = numerator / commonDivisor
-    const finalDenominator = denominator / commonDivisor
-
-    const updatedTestcases = currentValues.map((tc) => {
+    const updatedTestcases = currentValues.map((tc, index) => {
       if (isInvalid(tc.scoreWeight)) {
-        return {
-          ...tc,
-          scoreWeight: undefined,
-          scoreWeightNumerator: finalNumerator,
-          scoreWeightDenominator: finalDenominator
-        }
+        const newScore =
+          baseScore + (index === lastUnassignedIndex ? extraScore : 0)
+        return { ...tc, scoreWeight: newScore }
       }
       return tc
     })
-    trigger('testcases')
+
     setValue('testcases', updatedTestcases)
   }
-
   const initializeScore = () => {
     const currentValues: Testcase[] = getValues('testcases')
     const updatedTestcases = currentValues.map((tc) => {
-      return {
-        ...tc,
-        scoreWeight: undefined,
-        scoreWeightNumerator: null,
-        scoreWeightDenominator: null
-      }
+      return { ...tc, scoreWeight: null }
     })
     setValue('testcases', updatedTestcases)
   }
@@ -259,21 +230,10 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     }
   }
 
-  const totalScore = useMemo(() => {
-    const score = watchedItems.reduce((acc, tc) => {
-      if (typeof tc.scoreWeight === 'number') {
-        return acc + tc.scoreWeight
-      }
-      if (tc.scoreWeightNumerator && tc.scoreWeightDenominator) {
-        const percentage =
-          (tc.scoreWeightNumerator / tc.scoreWeightDenominator) * 100
-        return acc + percentage
-      }
-      return acc
-    }, 0)
-
-    return score.toFixed(2)
-  }, [watchedItems])
+  const totalScore = filteredTC.reduce((acc, tc) => {
+    const weight = Number(tc.scoreWeight)
+    return acc + (isNaN(weight) ? 0 : weight)
+  }, 0)
 
   useEffect(() => {
     setCurrentPage(1)
@@ -293,42 +253,8 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     }
   }, [currentItems])
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (blockEdit) {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-    }
-  }
-
-  const handleMouseEnter = () => {
-    if (blockEdit) {
-      setShowTooltip(true)
-    }
-  }
-
-  const handleMouseLeave = () => {
-    if (blockEdit) {
-      setShowTooltip(false)
-    }
-  }
-
   return (
-    <div
-      className="relative flex h-full w-full flex-col border border-[#D8D8D8] bg-white px-10 pb-10 pt-[20px]"
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      {blockEdit && showTooltip && (
-        <div
-          className="bg-color-neutral-95 pointer-events-none fixed z-50 rounded px-3 py-2 text-sm shadow-lg"
-          style={{
-            left: mousePosition.x + 10,
-            top: mousePosition.y - 30
-          }}
-        >
-          You cannot edit testcases if the problem has submissions.
-        </div>
-      )}
+    <div className="flex h-full w-full flex-col border border-[#D8D8D8] bg-white px-10 pb-10 pt-[20px]">
       <div className="mb-[40px] flex w-full items-center justify-between">
         <button
           className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 1 ? 'border-b-4 border-b-white' : 'border-b-primary border-b-4 font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
@@ -376,55 +302,54 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
               />
             </div>
             <div className="flex items-center justify-between gap-2">
+              <TestcaseUploadModal
+                onUpload={handleUploadTestcases}
+                isHidden={false}
+              />
+              <button
+                onClick={() => {
+                  deleteSelectedTestcases()
+                  setDataChangeTrigger((prev) => prev + 1)
+                }}
+                type="button"
+                className={cn(
+                  'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                  selectedTestcases.length > 0
+                    ? 'bg-[#FC5555] text-white'
+                    : 'bg-gray-300 text-gray-600'
+                )}
+                disabled={selectedTestcases.length === 0}
+              >
+                <Image
+                  src="/icons/trashcan.svg"
+                  alt="trashcan Icon"
+                  width={18}
+                  height={18}
+                />
+                <span className="ml-[6px] flex items-center text-center text-white">
+                  Delete
+                </span>
+              </button>
+
               {!blockEdit && (
-                <>
-                  <TestcaseUploadModal
-                    onUpload={handleUploadTestcases}
-                    isHidden={false}
+                <button
+                  onClick={() => {
+                    addTestcase(false)
+                    setDataChangeTrigger((prev) => prev + 1)
+                  }}
+                  type="button"
+                  className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
+                >
+                  <Image
+                    src="/icons/plus-circle-white.svg"
+                    alt="plus circle white Icon"
+                    width={18}
+                    height={18}
                   />
-                  <button
-                    onClick={() => {
-                      deleteSelectedTestcases()
-                      setDataChangeTrigger((prev) => prev + 1)
-                    }}
-                    type="button"
-                    className={cn(
-                      'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                      selectedTestcases.length > 0
-                        ? 'bg-[#FC5555] text-white'
-                        : 'bg-gray-300 text-gray-600'
-                    )}
-                    disabled={selectedTestcases.length === 0}
-                  >
-                    <Image
-                      src="/icons/trashcan.svg"
-                      alt="trashcan Icon"
-                      width={18}
-                      height={18}
-                    />
-                    <span className="ml-[6px] flex items-center text-center text-white">
-                      Delete
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      addTestcase(false)
-                      setDataChangeTrigger((prev) => prev + 1)
-                    }}
-                    type="button"
-                    className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
-                  >
-                    <Image
-                      src="/icons/plus-circle-white.svg"
-                      alt="plus circle white Icon"
-                      width={18}
-                      height={18}
-                    />
-                    <span className="ml-[6px] flex items-center text-center text-white">
-                      Add
-                    </span>
-                  </button>
-                </>
+                  <span className="ml-[6px] flex items-center text-center text-white">
+                    Add
+                  </span>
+                </button>
               )}
             </div>
           </div>
@@ -476,56 +401,54 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
               />
             </div>
             <div className="flex items-center justify-between gap-2">
-              {!blockEdit && (
-                <>
-                  <TestcaseUploadModal
-                    onUpload={handleUploadTestcases}
-                    isHidden={true}
-                  />
-                  <button
-                    onClick={() => {
-                      deleteSelectedTestcases()
-                      setDataChangeTrigger((prev) => prev + 1)
-                    }}
-                    type="button"
-                    className={cn(
-                      'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                      selectedTestcases.length > 0
-                        ? 'bg-[#FC5555] text-white'
-                        : 'bg-gray-300 text-gray-600'
-                    )}
-                    disabled={selectedTestcases.length === 0}
-                  >
-                    <Image
-                      src="/icons/trashcan.svg"
-                      alt="trashcan Icon"
-                      width={18}
-                      height={18}
-                    />
-                    <span className="ml-[6px] flex items-center text-center text-white">
-                      Delete
-                    </span>
-                  </button>
+              <TestcaseUploadModal
+                onUpload={handleUploadTestcases}
+                isHidden={true}
+              />
+              <button
+                onClick={() => {
+                  deleteSelectedTestcases()
+                  setDataChangeTrigger((prev) => prev + 1)
+                }}
+                type="button"
+                className={cn(
+                  'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                  selectedTestcases.length > 0
+                    ? 'bg-[#FC5555] text-white'
+                    : 'bg-gray-300 text-gray-600'
+                )}
+                disabled={selectedTestcases.length === 0}
+              >
+                <Image
+                  src="/icons/trashcan.svg"
+                  alt="trashcan Icon"
+                  width={18}
+                  height={18}
+                />
+                <span className="ml-[6px] flex items-center text-center text-white">
+                  Delete
+                </span>
+              </button>
 
-                  <button
-                    onClick={() => {
-                      addTestcase(true)
-                      setDataChangeTrigger((prev) => prev + 1)
-                    }}
-                    type="button"
-                    className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
-                  >
-                    <Image
-                      src="/icons/plus-circle-white.svg"
-                      alt="plus circle white Icon"
-                      width={18}
-                      height={18}
-                    />
-                    <span className="ml-[6px] flex items-center text-center text-white">
-                      Add
-                    </span>
-                  </button>
-                </>
+              {!blockEdit && (
+                <button
+                  onClick={() => {
+                    addTestcase(true)
+                    setDataChangeTrigger((prev) => prev + 1)
+                  }}
+                  type="button"
+                  className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
+                >
+                  <Image
+                    src="/icons/plus-circle-white.svg"
+                    alt="plus circle white Icon"
+                    width={18}
+                    height={18}
+                  />
+                  <span className="ml-[6px] flex items-center text-center text-white">
+                    Add
+                  </span>
+                </button>
               )}
             </div>
           </div>
@@ -566,7 +489,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   initializeScore()
                   setDataChangeTrigger((prev) => prev + 1)
                 }}
-                disabled={isScoreNull || blockEdit}
+                disabled={isScoreNull}
               >
                 <FaArrowRotateLeft
                   fontSize={20}
@@ -605,7 +528,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
                   equalDistribution()
                   setDataChangeTrigger((prev) => prev + 1)
                 }}
-                disabled={disableDistribution || blockEdit}
+                disabled={disableDistribution}
               >
                 <IoIosCheckmarkCircle
                   fontSize={20}

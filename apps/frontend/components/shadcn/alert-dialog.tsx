@@ -81,7 +81,7 @@ const AlertDialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Title
     ref={ref}
-    className={cn('whitespace-pre-wrap text-lg font-semibold', className)}
+    className={cn('text-lg font-semibold', className)}
     {...props}
   />
 ))
@@ -93,10 +93,7 @@ const AlertDialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Description
     ref={ref}
-    className={cn(
-      'whitespace-pre-wrap text-sm text-gray-500 dark:text-gray-400',
-      className
-    )}
+    className={cn('text-sm text-gray-500 dark:text-gray-400', className)}
     {...props}
   />
 ))
@@ -121,7 +118,11 @@ const AlertDialogCancel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Cancel
     ref={ref}
-    className={cn(buttonVariants({ variant: 'outline' }), 'sm:mt-0', className)}
+    className={cn(
+      buttonVariants({ variant: 'outline' }),
+      'mt-2 sm:mt-0',
+      className
+    )}
     {...props}
   />
 ))

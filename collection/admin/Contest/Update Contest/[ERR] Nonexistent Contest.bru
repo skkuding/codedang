@@ -1,7 +1,7 @@
 meta {
   name: [ERR] Nonexistent Contest
   type: graphql
-  seq: 2
+  seq: 4
 }
 
 post {
@@ -11,40 +11,39 @@ post {
 }
 
 body:graphql {
-  mutation UpdateContest(
-    $contestId: Int!,
-    $input: UpdateContestInput!
-  ) {
+  mutation UpdateContest($contestId: Int!, $input: UpdateContestInput!) {
     updateContest(
       contestId: $contestId
       input: $input
     ) {
       id
+      title
+      description
+      startTime
+      endTime
+      enableCopyPaste
+      isJudgeResultVisible
+      invitationCode
+      summary
     }
   }
 }
 
 body:graphql:vars {
   {
-    "contestId": 999,
+    "contestId": 99999,
     "input": {
-      "title": "Nonexistent Contest"
+      "title": "nonexistent Contest",
+      "description": "thisisnonexistentcontest",
+      "startTime": "2024-01-01",
+      "endTime": "2030-01-01",
+      "enableCopyPaste": true,
+      "isJudgeResultVisible": true,
+      "invitationCode": "123456"
     }
   }
 }
 
-script:pre-request {
-  await require("./login").loginContestAdmin(req);
-}
-
-docs {
-  # 📙 [ERR] Nonexistent Contest
-
-  **POST** `/graphql (mutation: updateContest)`
-
-  The requested contest does not exist.
-
-  존재하지 않는 `contestId`의 정보 수정을 시도할 때,
-
-  `findUniqueOrThrow`에 의해 NotFoundError가 발생합니다.
+assert {
+  res.body.errors: isDefined
 }
