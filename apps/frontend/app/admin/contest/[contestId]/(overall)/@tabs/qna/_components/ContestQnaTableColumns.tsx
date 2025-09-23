@@ -111,7 +111,7 @@ export const createColumns = (
       <DataTableColumnHeader column={column} title="Answer" />
     ),
     cell: ({ row }) => {
-      return <p>answer</p>
+      return row.original.isResolved ? 'Resolved' : 'Unresolved'
     }
   }
 ]
