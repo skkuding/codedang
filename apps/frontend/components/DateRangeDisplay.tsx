@@ -13,21 +13,30 @@ export function DateRangeDisplay({
 }: DateRangeDisplayProps) {
   return (
     <div className="flex items-center gap-2 whitespace-nowrap text-base">
-      <VisibleIcon className="fill-orange-500" />
-      <span className="font-medium text-orange-500">Visible : </span>
+      <div className="flex items-center gap-[6px]">
+        <VisibleIcon className="fill-orange-500" />
+        <span className="font-medium text-orange-500">Visible :</span>
+      </div>
       <span className="text-color-neutral-30 text-base">
         {dateFormatter(startTime, 'YYYY-MM-DD HH:mm')} ~{' '}
         {dateFormatter(endTime, 'YYYY-MM-DD HH:mm')}
       </span>
-      <div className="bg-color-orange-95 text-color-orange-50 flex h-6 w-auto flex-shrink-0 items-center justify-center rounded-full px-3 text-[14px] font-medium">
-        {dayjs().isAfter(endTime) && <span>Ended</span>}
-        {dayjs().isSame(dayjs(endTime), 'day') && <span>D-Day</span>}
-        {dayjs().isAfter(dayjs(startTime)) &&
-          dayjs().isBefore(dayjs(endTime), 'day') && (
-            <span>D-{dayjs(endTime).diff(dayjs(), 'day')}</span>
-          )}
-        {dayjs().isBefore(dayjs(startTime)) && <span>Upcoming</span>}
-      </div>
+      {dayjs().isAfter(endTime) && (
+        <div className="bg-color-pink-95 text-color-pink-50 flex h-7 w-20 flex-shrink-0 items-center justify-center rounded-[4px] px-[10px] py-[6px] text-[14px] font-medium tracking-[-0.42px]">
+          <span>ENDED</span>
+        </div>
+      )}
+      {dayjs().isAfter(dayjs(startTime)) &&
+        dayjs().isBefore(dayjs(endTime)) && (
+          <div className="bg-color-blue-95 text-primary flex h-7 w-20 flex-shrink-0 items-center justify-center rounded-[4px] px-[10px] py-[6px] text-[14px] font-medium tracking-[-0.42px]">
+            <span>ONGOING</span>
+          </div>
+        )}
+      {dayjs().isBefore(dayjs(startTime)) && (
+        <div className="bg-color-yellow-95 text-color-orange-50 flex h-7 w-auto flex-shrink-0 items-center justify-center rounded-[4px] px-[10px] py-[6px] text-[14px] font-medium tracking-[-0.42px]">
+          <span>UPCOMING</span>
+        </div>
+      )}
     </div>
   )
 }

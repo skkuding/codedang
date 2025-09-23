@@ -47,7 +47,7 @@ export default function Layout(props: {
           <FaUser className="black self-center" color="#3581FA" />
           &nbsp; Contest Admin : {contestData?.createdBy?.username}
         </div>
-        <div className="flex font-normal text-[#333333E5]">
+        <div className="text-primary flex font-medium">
           <IoKey className="black self-center" color="#3581FA" />
           &nbsp; Invitation code : {contestData?.invitationCode}
         </div>
