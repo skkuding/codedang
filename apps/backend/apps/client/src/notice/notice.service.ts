@@ -324,7 +324,21 @@ export class CourseNoticeService {
           contains: search,
           mode: 'insensitive'
         },
-        groupId
+        groupId,
+        OR: [
+          {
+            group: {
+              userGroup: {
+                some: {
+                  userId
+                }
+              }
+            }
+          },
+          {
+            isPublic: true
+          }
+        ]
       },
       take,
       select: {

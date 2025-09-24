@@ -9,9 +9,14 @@ import {
   DefaultValuePipe,
   ParseBoolPipe,
   Delete,
-  Patch
+  Patch,
+  UseGuards
 } from '@nestjs/common'
-import { AuthNotNeededIfPublic, AuthenticatedRequest } from '@libs/auth'
+import {
+  AuthNotNeededIfPublic,
+  AuthenticatedRequest,
+  GroupMemberGuard
+} from '@libs/auth'
 import { CourseNoticeOrderPipe } from '@libs/pipe'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import {
@@ -27,6 +32,7 @@ export class NoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
+  @UseGuards(GroupMemberGuard)
   async getNotices(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
@@ -43,6 +49,7 @@ export class NoticeController {
   }
 
   @Get(':id')
+  @UseGuards(GroupMemberGuard)
   async getNoticeByID(@Param('id', new RequiredIntPipe('id')) id: number) {
     return await this.noticeService.getNoticeByID(id)
   }
