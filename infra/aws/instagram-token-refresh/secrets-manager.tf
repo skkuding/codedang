@@ -17,6 +17,11 @@ resource "aws_secretsmanager_secret_version" "instagram_token" {
   secret_string = jsonencode({
     access_token = ""
   })
+
+  lifecycle {
+    # as secret rotation will update this value, we ignore changes to avoid unnecessary diffs
+    ignore_changes = [secret_string]
+  }
 }
 
 output "instagram_token_arn" {
