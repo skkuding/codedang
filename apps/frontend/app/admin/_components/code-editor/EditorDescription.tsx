@@ -35,9 +35,10 @@ export function EditorDescription({
           <h1 className="mb-3 overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${problem?.order !== undefined ? convertToLetter(problem.order) : problem.id}. ${problem.title}`}</h1>
           {!isContest && !isAssignment && (
             <Badge
-              className="h-6 w-[52px] whitespace-nowrap rounded-[4px] bg-neutral-500 p-[6px] text-xs font-medium hover:bg-neutral-500"
+              className="h-[25px] w-[70px] items-center justify-center bg-[#474747] px-2 py-1 text-xs font-semibold leading-[140%] tracking-[-0.36px] hover:bg-[#474747]"
               textColors={level}
             >
+              {/* dark level badge */}
               {`Level ${levelNumber}`}
             </Badge>
           )}

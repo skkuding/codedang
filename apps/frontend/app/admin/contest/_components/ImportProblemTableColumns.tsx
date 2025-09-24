@@ -158,7 +158,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
         <div>
           <Badge
             variant={level as Level}
-            className="w-[60px] whitespace-nowrap rounded-full py-1 font-normal"
+            className="w-[70px] items-center justify-center px-2 py-1 text-xs font-semibold leading-[140%] tracking-[-0.36px]"
           >
             {formattedLevel}
           </Badge>
