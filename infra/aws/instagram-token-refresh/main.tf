@@ -18,16 +18,3 @@ terraform {
 provider "aws" {
   region = "ap-northeast-2"
 }
-
-data "terraform_remote_state" "storage" {
-  backend = "s3"
-  config = {
-    bucket = "codedang-tf-state"
-    key    = "terraform/storage.tfstate"
-    region = "ap-northeast-2"
-  }
-}
-
-locals {
-  storage = data.terraform_remote_state.storage.outputs
-}
