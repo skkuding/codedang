@@ -93,7 +93,7 @@ export class CourseNoticeController {
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
     @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
-    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('courseId', GroupIDPipe) groupId: number,
     @Query('readFilter', new DefaultValuePipe('all'))
     readFilter: 'all' | 'unread',
     @Query('search') search?: string,
