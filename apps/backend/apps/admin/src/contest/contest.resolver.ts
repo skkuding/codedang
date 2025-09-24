@@ -31,6 +31,7 @@ import { UserService } from '@admin/user/user.service'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
 import { GetContestQnAsFilterInput } from './model/contest-qna.input'
+import { ContestQnAWithIsRead } from './model/contest-qna.model'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
 import { ContestUpdateHistories } from './model/contest-update-histories.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
@@ -239,7 +240,7 @@ export class ContestResolver {
 export class ContestQnAResolver {
   constructor(private readonly contestService: ContestService) {}
 
-  @Query(() => [ContestQnA])
+  @Query(() => [ContestQnAWithIsRead])
   async getContestQnAs(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
     @Context('req') req: AuthenticatedRequest,
