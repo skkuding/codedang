@@ -591,10 +591,8 @@ export class CourseNoticeService {
           comment = {
             ...comment,
             content: '',
-            createdBy: {
-              username: '',
-              studentId: ''
-            }
+            createdBy: null,
+            createdById: null
           }
         }
         if (!comment.replyOnId) {
