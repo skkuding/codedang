@@ -80,7 +80,7 @@ export const createColumns = (
         <div>
           <Badge
             variant={level as Level}
-            className="whitespace-nowrap px-2 py-1 font-normal"
+            className="w-[70px] items-center justify-center px-2 py-1 text-xs font-semibold leading-[140%] tracking-[-0.36px]"
           >
             {formattedLevel}
           </Badge>
