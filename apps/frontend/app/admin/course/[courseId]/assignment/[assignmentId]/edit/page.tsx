@@ -101,7 +101,16 @@ export default function Page() {
                   className="w-[420px]"
                   isLabeled={false}
                 >
-                  {methods.getValues('endTime') && <TimeForm name="endTime" />}
+                  {methods.getValues('endTime') && (
+                    <TimeForm
+                      name="endTime"
+                      defaultTimeOnSelect={{
+                        hours: 23,
+                        minutes: 59,
+                        seconds: 59
+                      }}
+                    />
+                  )}
                 </FormSection>
               </div>
 
