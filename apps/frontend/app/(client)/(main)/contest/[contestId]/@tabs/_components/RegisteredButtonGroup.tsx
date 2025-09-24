@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-interface UnregisteredButtonGroupProps {
+interface RegisteredButtonGroupProps {
   id: string
   state: string
 }
@@ -26,7 +26,7 @@ interface UnregisteredButtonGroupProps {
 export function RegisteredButtonGroup({
   id,
   state
-}: UnregisteredButtonGroupProps) {
+}: RegisteredButtonGroupProps) {
   const router = useRouter()
   const [modalOpen, setModalOpen] = useState(false)
   const clickUnregister = async (contestId: string) => {
