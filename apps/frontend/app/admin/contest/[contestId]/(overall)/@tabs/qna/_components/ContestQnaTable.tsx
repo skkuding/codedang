@@ -4,12 +4,9 @@ import { GET_CONTEST_QNAS } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery, useQuery } from '@apollo/client'
 import { useLazyQuery } from '@apollo/client'
-import type { GetContestQnasQuery } from '@generated/graphql'
 import type { Row, Table } from '@tanstack/react-table'
-import { filter } from 'jszip'
 import { useParams } from 'next/navigation'
-import { useState, useEffect, useCallback } from 'react'
-import { is } from 'valibot'
+import { useState, useEffect } from 'react'
 import {
   DataTable,
   DataTableFallback,
@@ -30,7 +27,7 @@ export function ContestQnaTable() {
   const [clickUnanswered, setClickUnanswered] = useState(false)
   const [dataCount, setDataCount] = useState(0)
   const filterUnanswered = clickUnanswered ? { isResolved: false } : {}
-  const { data, refetch } = useSuspenseQuery(GET_CONTEST_QNAS, {
+  const { data } = useSuspenseQuery(GET_CONTEST_QNAS, {
     variables: {
       contestId: Number(contestId),
       filter: filterUnanswered
@@ -81,12 +78,7 @@ export function ContestQnaTable() {
   }
   return (
     <>
-      <DataTableRoot
-        data={qnaData}
-        columns={columns}
-
-        // defaultSortState={[{ id: 'updateTime', desc: true }]}
-      >
+      <DataTableRoot data={qnaData} columns={columns}>
         <div className="mb-[30px] flex flex-col gap-4">
           <div className="flex items-center gap-[10px]">
             <p className="text-primary text-[30.6px] font-extrabold">

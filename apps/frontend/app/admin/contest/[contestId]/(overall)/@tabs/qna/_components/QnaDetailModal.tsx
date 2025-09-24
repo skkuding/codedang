@@ -13,6 +13,7 @@ import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { AdminQnaCommentArea } from './AdminQnaCommentArea'
 import { AdminQnaContentArea } from './AdminQnaContentArea'
+import { useQnaCommentsSync } from './context/RefetchingQnaStoreProvider'
 
 export function QnaDetailModal({
   open,
@@ -53,6 +54,7 @@ export function QnaDetailModal({
       variables: { contestId: Number(contestId), qnaId: Number(qnaOrder) }
     })
   }
+  const triggerRefresh = useQnaCommentsSync((s) => s.triggerRefresh)
 
   async function handleDeleteQna() {
     try {
@@ -61,6 +63,8 @@ export function QnaDetailModal({
       toast.success(`question is deleted successfully!`)
     } catch (error) {
       toast.error(`Error in deleting question!: ${error}`)
+    } finally {
+      triggerRefresh()
     }
   }
 
