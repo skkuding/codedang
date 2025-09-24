@@ -31,6 +31,7 @@ import { UserService } from '@admin/user/user.service'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
 import { GetContestQnAsFilterInput } from './model/contest-qna.input'
+import { ContestQnAWithIsRead } from './model/contest-qna.model'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
 import { ContestUpdateHistories } from './model/contest-update-histories.model'
 import { ContestWithParticipants } from './model/contest-with-participants.model'
@@ -239,9 +240,10 @@ export class ContestResolver {
 export class ContestQnAResolver {
   constructor(private readonly contestService: ContestService) {}
 
-  @Query(() => [ContestQnA])
+  @Query(() => [ContestQnAWithIsRead])
   async getContestQnAs(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Context('req') req: AuthenticatedRequest,
     @Args(
       'take',
       { type: () => Int, defaultValue: 10 },
@@ -255,6 +257,7 @@ export class ContestQnAResolver {
   ) {
     return await this.contestService.getContestQnAs(
       contestId,
+      req.user.id,
       take,
       cursor,
       filter
@@ -264,9 +267,14 @@ export class ContestQnAResolver {
   @Query(() => ContestQnA)
   async getContestQnA(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Context('req') req: AuthenticatedRequest,
     @Args('order', { type: () => Int }, IDValidationPipe) order: number
   ) {
-    return await this.contestService.getContestQnA(contestId, order)
+    return await this.contestService.getContestQnA(
+      contestId,
+      req.user.id,
+      order
+    )
   }
 
   @Mutation(() => ContestQnA)
@@ -280,15 +288,15 @@ export class ContestQnAResolver {
   @Mutation(() => ContestQnAComment)
   async createContestQnAComment(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Context('req') req: AuthenticatedRequest,
     @Args('order', { type: () => Int }, IDValidationPipe) order: number,
-    @Args('content', { type: () => String }) content: string,
-    @Context('req') req: AuthenticatedRequest
+    @Args('content', { type: () => String }) content: string
   ) {
     return await this.contestService.createContestQnAComment(
       contestId,
+      req.user.id,
       order,
-      content,
-      req.user.id
+      content
     )
   }
 
