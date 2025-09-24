@@ -146,6 +146,7 @@ export interface Contest {
   startTime: Date
   endTime: Date
   registerDueTime: Date
+  createTime: Date
   summary: {
     문제형태?: string
     순위산정?: string
