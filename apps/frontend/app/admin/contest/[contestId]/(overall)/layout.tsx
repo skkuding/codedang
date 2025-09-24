@@ -1,7 +1,7 @@
 'use client'
 
 import { DeadlineStatus } from '@/components/DeadlineStatus'
-import { RegistrationTimeStatus } from '@/components/RegistrationTimeStatus'
+import { TimeStatusBadge } from '@/components/TimeStatusBadge'
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { useQuery } from '@apollo/client'
@@ -47,14 +47,18 @@ export default function Layout(props: {
           <FaUser className="black self-center" color="#3581FA" />
           &nbsp; Contest Admin : {contestData?.createdBy?.username}
         </div>
-        <div className="text-primary flex font-medium">
+        <div className="text-primary flex items-center gap-2 font-medium">
           <IoKey className="black self-center" color="#3581FA" />
-          &nbsp; Invitation code : {contestData?.invitationCode}
+          <span>Invitation code :</span>
+          <span className="text-color-neutral-30 font-normal">
+            {contestData?.invitationCode}
+          </span>
+          <TimeStatusBadge
+            startTime={contestData?.startTime}
+            endTime={contestData?.registerDueTime}
+          />
         </div>
-        <RegistrationTimeStatus
-          startTime={contestData?.startTime}
-          registerDueTime={contestData?.registerDueTime}
-        />
+
         <DeadlineStatus
           startTime={contestData?.startTime}
           endTime={contestData?.endTime}

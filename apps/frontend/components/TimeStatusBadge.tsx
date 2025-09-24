@@ -1,7 +1,5 @@
 'use client'
 
-import { VisibleIcon } from '@/components/Icons'
-import { dateFormatter } from '@/libs/utils'
 import dayjs from 'dayjs'
 
 interface DateRangeDisplayProps {
@@ -9,20 +7,9 @@ interface DateRangeDisplayProps {
   endTime: Date
 }
 
-export function DateRangeDisplay({
-  startTime,
-  endTime
-}: DateRangeDisplayProps) {
+export function TimeStatusBadge({ startTime, endTime }: DateRangeDisplayProps) {
   return (
-    <div className="flex items-center gap-2 whitespace-nowrap text-base">
-      <div className="flex items-center gap-[6px]">
-        <VisibleIcon className="fill-orange-500" />
-        <span className="font-medium text-orange-500">Visible :</span>
-      </div>
-      <span className="text-color-neutral-30 text-base">
-        {dateFormatter(startTime, 'YYYY-MM-DD HH:mm')} ~{' '}
-        {dateFormatter(endTime, 'YYYY-MM-DD HH:mm')}
-      </span>
+    <div>
       {dayjs().isAfter(endTime) && (
         <div className="bg-color-pink-95 text-color-pink-50 flex h-7 w-20 flex-shrink-0 items-center justify-center rounded-[4px] px-[10px] py-[6px] text-[14px] font-medium tracking-[-0.42px]">
           <span>ENDED</span>
