@@ -11,31 +11,30 @@ post {
 }
 
 body:graphql {
-  mutation {
+  mutation ImportProblemsToContest(
+    $contestId: Int!
+    $problemIdsWithScore: [ProblemScoreInput!]!
+  ) {
     importProblemsToContest(
-      contestId: 20
-      problemIdsWithScore: [
-        {
-          problemId: 7,
-          score: 20
-        },
-        {
-        	problemId: 8,
-          score: 30
-        },
-        {
-          problemId: 9,
-          score: 50
-        }
-      ]
+      contestId: $contestId
+      problemIdsWithScore: $problemIdsWithScore
     ) {
       contestId
       problemId
-      createTime
-      updateTime
       order
       score
     }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "problemIdsWithScore": [
+      { "problemId": 7, "score": 20 },
+      { "problemId": 8, "score": 30 },
+      { "problemId": 9, "score": 50 }
+    ]
   }
 }
 
@@ -43,12 +42,81 @@ assert {
   res.body.data.importProblemsToContest: isDefined
 }
 
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
 docs {
-  # Import Problems
+  # 📘 Import Problems To Contest
+
+  **POST** `/graphql (mutation: importProblemsToContest)`
+
+  Imports a list of problems into a contest.
+
+  특정 대회에 문제를 추가합니다.
+
+  이미 대회에 포함된 문제는 건너뛰고, 각 문제에 대해 점수를 할당합니다.
+
+  문제의 `visibleLockTime`이 대회의 종료 시간으로 업데이트됩니다.
+
   ---
-  - Group에 속해있는 문제들을 Contest에 import합니다.
-  - `problemIdsWithScore`로 전달된 Problem들은 `groupId`로 전달된 Group에 속해 있는 경우에만 Contest에 import됩니다. 그렇지 않은 경우, 무시됩니다.
-  - 이미 Contest에 Problem이 속해있는 경우, 해당 Problem ID는 무시됩니다.
-  - 존재하지 않는 `problemId`를 전달하는 경우에도 해당 Problem Id는 무시됩니다.
-  - `score` 속성으로 Contest에서 해당 Problem이 갖게 될 점수를 설정할 수 있습니다.
+
+  ### 🔒 Authentication
+
+  ✅ Required (Contest Staff)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `contestId` | Int | ✅ | 대회 ID |
+  | `problemIdsWithScore`| [ProblemScoreInput] | ✅ | 추가할 문제의 ID와 점수 배열 |
+
+  #### `ProblemScoreInput`
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `problemId` | Int | ✅ | 추가할 문제 ID |
+  | `score` | Int | ✅ | 해당 문제에 부여할 점수 |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "data": {
+      "importProblemsToContest": [
+        {
+          "contestId": 20,
+          "problemId": 7,
+          "order": 2,
+          "score": 20
+        },
+        {
+          "contestId": 20,
+          "problemId": 8,
+          "order": 3,
+          "score": 30
+        },
+        {
+          "contestId": 20,
+          "problemId": 9,
+          "order": 4,
+          "score": 50
+        }
+      ]
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  |--------|------|------|
+  | `contestId` | Int | 대회 ID |
+  | `problemId` | Int | 추가된 문제 ID |
+  | `order` | Int | 대회에서의 문제 순번 |
+  | `score` | Int | 대회에서의 문제 점수 |
 }

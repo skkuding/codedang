@@ -192,12 +192,12 @@ export class ContestService {
     }
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
-        'The start time must be earlier than the end time'
+        'StartTime must be earlier than EndTime'
       )
     }
     if (contest.registerDueTime >= contest.startTime) {
       throw new UnprocessableDataException(
-        'The register due time must be earlier than the start time'
+        'RegisterDueTime must be earlier than StartTime'
       )
     }
     if (contest.summary) {
@@ -1466,7 +1466,7 @@ export class ContestService {
   }
 
   async getContestQnA(contestId: number, order: number) {
-    return await this.prisma.contestQnA.findFirst({
+    const contestQnA = await this.prisma.contestQnA.findFirst({
       where: {
         contestId,
         order
@@ -1488,6 +1488,11 @@ export class ContestService {
         }
       }
     })
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    return contestQnA
   }
 
   async deleteContestQnA(contestId: number, order: number) {

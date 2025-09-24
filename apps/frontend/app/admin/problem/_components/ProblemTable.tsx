@@ -43,6 +43,7 @@ export function ProblemTable() {
     ...problem,
     id: Number(problem.id),
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
+    updateTime: problem.updateContentTime ?? problem.updateTime,
     languages: problem.languages ?? [],
     tag: problem.tag.map(({ id, tag }) => ({
       id: Number(id),
