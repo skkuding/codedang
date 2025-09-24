@@ -867,6 +867,7 @@ type ContestQnA {
   createdBy: User
   createdById: Int
   id: ID!
+  isRead: Boolean!
   isResolved: Boolean!
   order: Int!
   problem: Problem
@@ -1922,7 +1923,7 @@ type Problem {
   testSubmission: [TestSubmission!]
   timeLimit: Int!
   title: String!
-  updateContentTime: DateTime!
+  updateContentTime: DateTime
   updateHistory: [UpdateHistory!]
   updateTime: DateTime!
   visibleLockTime: DateTime!
@@ -2275,7 +2276,7 @@ type ProblemWithIsVisible {
   testcase: [ProblemTestcase!]!
   timeLimit: Int!
   title: String!
-  updateContentTime: DateTime!
+  updateContentTime: DateTime
   updateHistory: [UpdateHistory!]!
   updateTime: DateTime!
   workbookProblem: [WorkbookProblem!]

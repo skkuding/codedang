@@ -242,6 +242,7 @@ export class ContestQnAResolver {
   @Query(() => [ContestQnA])
   async getContestQnAs(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Context('req') req: AuthenticatedRequest,
     @Args(
       'take',
       { type: () => Int, defaultValue: 10 },
@@ -255,6 +256,7 @@ export class ContestQnAResolver {
   ) {
     return await this.contestService.getContestQnAs(
       contestId,
+      req.user.id,
       take,
       cursor,
       filter
@@ -264,9 +266,14 @@ export class ContestQnAResolver {
   @Query(() => ContestQnA)
   async getContestQnA(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Context('req') req: AuthenticatedRequest,
     @Args('order', { type: () => Int }, IDValidationPipe) order: number
   ) {
-    return await this.contestService.getContestQnA(contestId, order)
+    return await this.contestService.getContestQnA(
+      contestId,
+      req.user.id,
+      order
+    )
   }
 
   @Mutation(() => ContestQnA)
@@ -280,15 +287,15 @@ export class ContestQnAResolver {
   @Mutation(() => ContestQnAComment)
   async createContestQnAComment(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
+    @Context('req') req: AuthenticatedRequest,
     @Args('order', { type: () => Int }, IDValidationPipe) order: number,
-    @Args('content', { type: () => String }) content: string,
-    @Context('req') req: AuthenticatedRequest
+    @Args('content', { type: () => String }) content: string
   ) {
     return await this.contestService.createContestQnAComment(
       contestId,
+      req.user.id,
       order,
-      content,
-      req.user.id
+      content
     )
   }
 
