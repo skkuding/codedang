@@ -2,7 +2,6 @@
 
 import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
 import { KatexContent } from '@/components/KatexContent'
-import { Modal } from '@/components/Modal'
 import {
   Accordion,
   AccordionContent,
@@ -23,7 +22,6 @@ import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import warningIcon from '@/public/icons/info.svg'
-import plusCircleIcon from '@/public/icons/plus-circle.svg'
 import type {
   ContestPreview,
   ProblemDataTop,
@@ -59,8 +57,6 @@ export function ContestOverviewLayout({
   search = ''
 }: ContestOverviewLayoutProps) {
   let previewProblemData: ProblemDataTop
-  const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false)
-  const [invitationCode, setInvitationCode] = useState('')
   const router = useRouter()
   if (!isPreview) {
     previewProblemData = problemData ?? { data: [], total: 0 }
