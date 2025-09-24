@@ -13,6 +13,21 @@ resource "aws_iam_policy" "secrets_manager_write_policy" {
   })
 }
 
+resource "aws_iam_policy" "associate_eip_policy" {
+  name        = "openvpn-eip-associate-policy"
+  description = "Allows associating the Elastic IP to the instance"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "ec2:AssociateAddress"
+        Effect   = "Allow"
+        Resource = "*",
+      },
+    ]
+  })
+}
+
 resource "aws_iam_role" "openvpn" {
   name = "openvpn-server-role"
   assume_role_policy = jsonencode({
@@ -32,6 +47,11 @@ resource "aws_iam_role" "openvpn" {
 resource "aws_iam_role_policy_attachment" "attach_sm_policy" {
   role       = aws_iam_role.openvpn.name
   policy_arn = aws_iam_policy.secrets_manager_write_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "attach_eip_policy" {
+  role       = aws_iam_role.openvpn.name
+  policy_arn = aws_iam_policy.associate_eip_policy.arn
 }
 
 resource "aws_iam_instance_profile" "openvpn" {

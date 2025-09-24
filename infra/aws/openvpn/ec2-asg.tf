@@ -36,8 +36,9 @@ resource "aws_launch_template" "openvpn" {
   }
 
   user_data = base64encode(templatefile("bootstrap.sh", {
-    ip_address = aws_eip.openvpn.public_ip,
-    secret_id  = aws_secretsmanager_secret.openvpn.id
+    ip_address        = aws_eip.openvpn.public_ip,
+    secret_id         = aws_secretsmanager_secret.openvpn.id,
+    eip_allocation_id = aws_eip.openvpn.allocation_id
   }))
 
   tag_specifications {
