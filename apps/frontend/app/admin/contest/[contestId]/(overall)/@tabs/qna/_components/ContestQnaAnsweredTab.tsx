@@ -1,14 +1,14 @@
 import type { Dispatch, SetStateAction } from 'react'
 
-interface ContestQnaResolvedTabProps {
+interface ContestQnaAnsweredTabProps {
   clickUnanswered: boolean
   setClickUnanswered: Dispatch<SetStateAction<boolean>>
 }
 
-export function ContestQnaResolvedTab({
+export function ContestQnaAnsweredTab({
   clickUnanswered,
   setClickUnanswered
-}: ContestQnaResolvedTabProps) {
+}: ContestQnaAnsweredTabProps) {
   const tabClass =
     'w-48 h-9 rounded-full flex justify-center items-center cursor-pointer'
   const activeClass = 'bg-primary text-white'

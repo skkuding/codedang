@@ -3,10 +3,12 @@
 import { GET_CONTEST_QNAS } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery, useQuery } from '@apollo/client'
+import { useLazyQuery } from '@apollo/client'
+import type { GetContestQnasQuery } from '@generated/graphql'
 import type { Row, Table } from '@tanstack/react-table'
 import { filter } from 'jszip'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { is } from 'valibot'
 import {
   DataTable,
@@ -15,23 +17,44 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '../../../../../../_components/table'
-import { ContestQnaResolvedTab } from './ContestQnaResolvedTab'
+import { ContestQnaAnsweredTab } from './ContestQnaAnsweredTab'
 import { createColumns } from './ContestQnaTableColumns'
 import type { DataTableQna } from './ContestQnaTableColumns'
 import { QnaDetailModal } from './QnaDetailModal'
+import { useQnaCommentsSync } from './context/RefetchingQnaStoreProvider'
 
 export function ContestQnaTable() {
   const { contestId } = useParams<{ contestId: string }>()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedQnaOrder, setSelectedQnaOrder] = useState<number | null>(null)
   const [clickUnanswered, setClickUnanswered] = useState(false)
+  const [dataCount, setDataCount] = useState(0)
   const filterUnanswered = clickUnanswered ? { isResolved: false } : {}
   const { data, refetch } = useSuspenseQuery(GET_CONTEST_QNAS, {
     variables: {
       contestId: Number(contestId),
       filter: filterUnanswered
-    }
+    },
+    fetchPolicy: 'cache-and-network'
   })
+  const [refetchQnas] = useLazyQuery(GET_CONTEST_QNAS, {
+    variables: {
+      contestId: Number(contestId),
+      filter: filterUnanswered
+    },
+    fetchPolicy: 'cache-and-network'
+  })
+  useEffect(() => {
+    setDataCount(data?.getContestQnAs?.length || 0)
+  }, [data])
+
+  const refreshTrigger = useQnaCommentsSync((s) => s.refreshTrigger)
+
+  useEffect(() => {
+    console.log('refreshTrigger', refreshTrigger)
+    refetchQnas()
+  }, [refreshTrigger, refetchQnas])
+
   const qnaData: DataTableQna[] = data.getContestQnAs.map((qna) => ({
     ...qna,
     id: Number(qna.id),
@@ -52,12 +75,10 @@ export function ContestQnaTable() {
     table: Table<{ id: number }>,
     row: Row<{ id: number }>
   ) => {
-    console.log(row.original)
     const qnaData = row.original as DataTableQna
     setSelectedQnaOrder(Number(qnaData.order))
     setIsModalOpen(true)
   }
-
   return (
     <>
       <DataTableRoot
@@ -69,12 +90,12 @@ export function ContestQnaTable() {
         <div className="mb-[30px] flex flex-col gap-4">
           <div className="flex items-center gap-[10px]">
             <p className="text-primary text-[30.6px] font-extrabold">
-              {qnaData.length}
+              {dataCount}
             </p>
             <p className="text-[26.22px] font-semibold">Questions</p>
           </div>
           <div className="flex justify-between">
-            <ContestQnaResolvedTab
+            <ContestQnaAnsweredTab
               clickUnanswered={clickUnanswered}
               setClickUnanswered={setClickUnanswered}
             />

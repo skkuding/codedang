@@ -1,6 +1,10 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
+import { TOGGLE_CONTEST_QNA_RESOLVED } from '@/graphql/contest/mutations'
 import { dateFormatter } from '@/libs/utils'
-import type { ColumnDef } from '@tanstack/react-table'
+import { useMutation } from '@apollo/client'
+import type { ColumnDef, Row } from '@tanstack/react-table'
+import { toast } from 'sonner'
+import { useQnaCommentsSync } from './context/RefetchingQnaStoreProvider'
 
 export interface DataTableQna {
   id: number
@@ -27,6 +31,41 @@ interface ContestProblem {
   }
 }
 
+function AnsweredCell({ row }: { row: Row<DataTableQna> }) {
+  const [toggleResolved] = useMutation(TOGGLE_CONTEST_QNA_RESOLVED)
+  const triggerRefresh = useQnaCommentsSync((s) => s.triggerRefresh)
+  return (
+    <div className="flex items-center">
+      <button
+        className={`${
+          row.original.isResolved
+            ? 'bg-color-neutral-99 border-color-neutral-90 text-color-neutral-70 border'
+            : 'text-primary border-primary border'
+        } h-9 w-[102px] rounded-full px-3 py-1 text-sm font-medium transition hover:opacity-80`}
+        onClick={async (e) => {
+          e.stopPropagation()
+          try {
+            await toggleResolved({
+              variables: {
+                contestId: Number(row.original.contestId),
+                qnAOrder: Number(row.original.order)
+              }
+            })
+          } catch (error) {
+            if (error instanceof Error) {
+              toast.error(error.message)
+            }
+          } finally {
+            triggerRefresh()
+          }
+        }}
+      >
+        {row.original.isResolved ? 'Answered' : 'Unanswer'}
+      </button>
+    </div>
+  )
+}
+
 export const createColumns = (
   contestProblems: ContestProblem[]
 ): ColumnDef<DataTableQna>[] => [
@@ -49,7 +88,6 @@ export const createColumns = (
       />
     ),
     cell: ({ row }) => {
-      console.log(contestProblems)
       const qna = row.original
       if (qna.problemId === null || qna.problemId === undefined) {
         return qna.category
@@ -111,7 +149,7 @@ export const createColumns = (
       <DataTableColumnHeader column={column} title="Answer" />
     ),
     cell: ({ row }) => {
-      return row.original.isResolved ? 'Resolved' : 'Unresolved'
+      return <AnsweredCell row={row} />
     }
   }
 ]
