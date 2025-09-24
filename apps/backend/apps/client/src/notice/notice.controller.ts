@@ -80,6 +80,7 @@ export class CourseNoticeController {
    */
   @Get()
   async getCourseNotices(
+    // <TODO>: GroupMember Guard 무시
     @Req() req: AuthenticatedRequest,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))

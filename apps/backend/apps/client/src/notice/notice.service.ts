@@ -131,6 +131,34 @@ export class NoticeService {
 export class CourseNoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async isAccessibleNotice({ id, userId }: { id: number; userId: number }) {
+    const courseNotice = await this.prisma.courseNotice.findUnique({
+      where: {
+        id
+      },
+      select: {
+        isPublic: true,
+        groupId: true
+      }
+    })
+
+    if (!courseNotice) {
+      throw new NotFoundException('CourseNotice')
+    }
+
+    const isUserInGroup = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId: courseNotice.groupId
+        }
+      }
+    })
+
+    return !isUserInGroup && !courseNotice.isPublic
+  }
+
   /**
    * 한 유저가 접근할 수 있는 공지 중 읽지 않은 공지의 수를 반환합니다.
    *
@@ -242,6 +270,7 @@ export class CourseNoticeService {
    * @param {number | null} cursor 가져올 공지의 시작점
    * @param {number} take 가져올 공지의 수
    * @param {string} search 검색어
+   * @param {'all' | 'unread'} readFilter 읽지 않은 공지만 가져올지 여부
    * @param {boolean} fixed 고정된 공지를 가져올지 여부
    * @param {CourseNoticeOrder | undefined} order 공지 정렬 순서
    * @returns 특정 강의 내의 공지 사항들에 대한 대략적인 정보를 반환합니다.
@@ -352,11 +381,13 @@ export class CourseNoticeService {
    * @returns 현재 공지사항의 내용과 이전/이후 공지의 아이디
    */
   async getCourseNoticeByID({ userId, id }: { userId: number; id: number }) {
-    const courseNotice = await this.prisma.courseNotice.findUniqueOrThrow({
+    const courseNotice = await this.prisma.courseNotice.findUnique({
       where: {
         id
       },
       select: {
+        groupId: true,
+        isPublic: true,
         title: true,
         content: true,
         createTime: true,
@@ -374,6 +405,24 @@ export class CourseNoticeService {
         }
       }
     })
+
+    if (!courseNotice) {
+      throw new NotFoundException('CourseNotice')
+    }
+
+    const isUserIn = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId: courseNotice.groupId
+        }
+      }
+    })
+
+    if (!isUserIn && !courseNotice.isPublic) {
+      throw new ForbiddenAccessException('it is not accessible course notice')
+    }
 
     const current = {
       ...courseNotice,
@@ -512,12 +561,21 @@ export class CourseNoticeService {
       }
     })
 
-    if (!myRoleInCourse) {
+    const isPublic = await this.prisma.courseNotice.findUnique({
+      where: {
+        id
+      },
+      select: {
+        isPublic: true
+      }
+    })
+
+    if (!myRoleInCourse && !isPublic?.isPublic) {
       throw new ForbiddenAccessException('it is not accessable course notice')
     }
 
     const isVisibleSecretComment =
-      userRole != Role.User || myRoleInCourse.isGroupLeader
+      userRole != Role.User || myRoleInCourse?.isGroupLeader
 
     type Comment = (typeof comments)[number]
     const commentDatas = comments.reduce(
@@ -585,6 +643,10 @@ export class CourseNoticeService {
       throw new NotAcceptableException('comment content limit is 1000')
     }
 
+    if (await this.isAccessibleNotice({ id, userId })) {
+      throw new ForbiddenAccessException('it is not accessible course notice')
+    }
+
     if (createCourseNoticeCommentDto.replyOnId) {
       const originalComment = await this.prisma.courseNoticeComment.findUnique({
         where: {
@@ -628,6 +690,10 @@ export class CourseNoticeService {
     commentId: number
     updateCourseNoticeCommentDto: UpdateCourseNoticeCommentDto
   }) {
+    if (await this.isAccessibleNotice({ id, userId })) {
+      throw new ForbiddenAccessException('it is not accessible course notice')
+    }
+
     return await this.prisma.courseNoticeComment.update({
       where: {
         id: commentId,
@@ -659,6 +725,10 @@ export class CourseNoticeService {
     id: number
     commentId: number
   }) {
+    if (await this.isAccessibleNotice({ id, userId })) {
+      throw new ForbiddenAccessException('it is not accessible course notice')
+    }
+
     const comment = await this.prisma.courseNoticeComment.findUnique({
       where: {
         id: commentId,
