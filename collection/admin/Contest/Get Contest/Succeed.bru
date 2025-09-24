@@ -18,6 +18,7 @@ body:graphql {
       participants
       invitationCode
       description
+      createTime
       freezeTime
       startTime
       endTime
@@ -62,35 +63,35 @@ script:pre-request {
 
 docs {
   # 📘 Get Contest
-
+  
   **POST** `/graphql (query: getContest)`
-
+  
   Retrieves detailed information about a single contest.
-
+  
   특정 대회의 상세 정보를 조회합니다.
-
+  
   대회 정보와 함께 대회 참가자 목록(`contestRecord`), 대회 스태프 목록(`userContest`)을 포함하여 반환합니다.
-
+  
   ---
-
+  
   ### 🔒 Authentication
-
+  
   ✅ Required (Contest Staff)
-
+  
   ---
-
+  
   ### 📥 Request Variables
-
+  
   | Name | Type | Required | Description |
   |---|---|---|---|
   | `contestId` | Int | ✅ | 조회할 대회의 ID |
-
+  
   ---
-
+  
   ### 📤 Response Body
-
+  
   #### Content-Type: `application:json`
-
+  
   ```json
   {
     "data": {
@@ -131,7 +132,7 @@ docs {
     }
   }
   ```
-
+  
   | Field | Type | Description |
   |---|---|---|---|
   | `id` | Int | 대회의 고유 ID |
