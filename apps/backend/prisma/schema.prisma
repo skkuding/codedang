@@ -218,7 +218,6 @@ model CourseNoticeRecord {
   courseNoticeId Int          @map("course_notice_id")
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId         Int          @map("user_id")
-  isRead         Boolean      @default(false) @map("is_read")
   createTime     DateTime     @default(now()) @map("create_time")
 
   @@index([userId, createTime, id])

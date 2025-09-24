@@ -1468,7 +1468,6 @@ type CourseNoticeRecord {
   courseNoticeId: Int!
   createTime: DateTime!
   id: ID!
-  isRead: Boolean!
   user: User!
   userId: Int!
 }
@@ -1484,7 +1483,6 @@ type CourseNoticeRecordCountAggregate {
   courseNoticeId: Int!
   createTime: Int!
   id: Int!
-  isRead: Int!
   userId: Int!
 }
 
@@ -1492,7 +1490,6 @@ type CourseNoticeRecordMaxAggregate {
   courseNoticeId: Int
   createTime: DateTime
   id: Int
-  isRead: Boolean
   userId: Int
 }
 
@@ -1500,7 +1497,6 @@ type CourseNoticeRecordMinAggregate {
   courseNoticeId: Int
   createTime: DateTime
   id: Int
-  isRead: Boolean
   userId: Int
 }
 
@@ -1859,7 +1855,7 @@ enum Level {
 
 type Mutation {
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
-  cloneCourseNotice(cloneToId: Int!, courseNoticeIds: [Int!]!): [CourseNotice!]!
+  cloneCourseNotices(cloneToId: Int!, courseNoticeIds: [Int!]!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!

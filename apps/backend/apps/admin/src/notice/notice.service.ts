@@ -80,25 +80,17 @@ export class CourseNoticeService {
       throw new NotFoundException('course user is not found')
     }
 
-    const setRecord = userIds.map(async (userId) => {
-      return await this.prisma.courseNoticeRecord.upsert({
-        where: {
-          courseNoticeIdUserIdUnique: {
-            courseNoticeId,
-            userId: userId.userId
-          }
+    await this.prisma.courseNoticeRecord.deleteMany({
+      where: {
+        userId: {
+          in: userIds.reduce((acc: number[], val) => {
+            acc.push(val.userId)
+            return acc
+          }, [])
         },
-        create: {
-          courseNoticeId,
-          userId: userId.userId
-        },
-        update: {
-          isRead: false
-        }
-      })
+        courseNoticeId
+      }
     })
-
-    await Promise.all(setRecord)
   }
 
   async createCourseNotice(

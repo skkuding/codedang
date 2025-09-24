@@ -165,15 +165,32 @@ export class CourseNoticeService {
    * @param {number} userId 유저 아이디
    */
   async getUnreadCourseNoticeCount({ userId }: { userId: number }) {
-    const unreadCount = await this.prisma.courseNoticeRecord.count({
+    const readableCount = await this.prisma.courseNotice.count({
       where: {
-        userId,
-        isRead: false
+        OR: [
+          {
+            isPublic: true
+          },
+          {
+            group: {
+              userGroup: {
+                some: {
+                  userId
+                }
+              }
+            }
+          }
+        ]
+      }
+    })
+    const readCount = await this.prisma.courseNoticeRecord.count({
+      where: {
+        userId
       }
     })
 
     return {
-      unreadCount
+      unreadCount: readableCount - readCount
     }
   }
 
@@ -215,7 +232,7 @@ export class CourseNoticeService {
             userId
           },
           select: {
-            isRead: true
+            id: true
           }
         }
       },
@@ -230,14 +247,10 @@ export class CourseNoticeService {
 
     const { CourseNoticeRecord, group, ...newLatest } = latest
 
-    if (CourseNoticeRecord.length != 1) {
-      throw new UnprocessableDataException('read record is not saved properly')
-    }
-
     return {
       ...newLatest,
       groupName: group.groupName,
-      isRead: CourseNoticeRecord[0].isRead
+      isRead: CourseNoticeRecord.length != 0
     }
   }
 
@@ -302,9 +315,8 @@ export class CourseNoticeService {
         CourseNoticeRecord:
           readFilter == 'unread'
             ? {
-                some: {
-                  userId,
-                  isRead: false
+                none: {
+                  userId
                 }
               }
             : undefined,
@@ -330,7 +342,7 @@ export class CourseNoticeService {
             userId
           },
           select: {
-            isRead: true
+            id: true
           }
         },
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -344,16 +356,10 @@ export class CourseNoticeService {
     })
 
     const data = courseNotices.map((courseNotice) => {
-      if (courseNotice.CourseNoticeRecord.length !== 1) {
-        throw new UnprocessableDataException(
-          'invalid notice read record has found'
-        )
-      }
-
       const { CourseNoticeRecord, _count, ...notice } = {
         ...courseNotice,
         commentCount: courseNotice._count.CourseNoticeComment,
-        isRead: courseNotice.CourseNoticeRecord[0].isRead,
+        isRead: courseNotice.CourseNoticeRecord.length !== 0,
         createdBy: courseNotice.createdBy?.username
       }
 
@@ -476,22 +482,19 @@ export class CourseNoticeService {
     userId: number
     courseNoticeId: number
   }) {
-    try {
-      const updated = await this.prisma.courseNoticeRecord.update({
-        where: {
-          courseNoticeIdUserIdUnique: {
-            courseNoticeId,
-            userId
-          }
-        },
+    const isRecordExist = await this.prisma.courseNoticeRecord.count({
+      where: {
+        userId,
+        courseNoticeId
+      }
+    })
+    if (isRecordExist === 0) {
+      await this.prisma.courseNoticeRecord.create({
         data: {
-          isRead: true
+          userId,
+          courseNoticeId
         }
       })
-
-      return updated
-    } catch {
-      throw new EntityNotExistException('CourseNoticeRecord')
     }
   }
 
@@ -657,7 +660,11 @@ export class CourseNoticeService {
         }
       })
 
-      if (originalComment?.replyOnId) {
+      if (!originalComment) {
+        throw new NotFoundException('CourseNoticeComment')
+      }
+
+      if (originalComment.replyOnId) {
         throw new NotAcceptableException('double replies are not allowed.')
       }
     }
