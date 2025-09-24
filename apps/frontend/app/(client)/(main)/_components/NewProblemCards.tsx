@@ -34,8 +34,8 @@ export async function NewProblemCards() {
             </div>
           </div>
 
-          <div className="relative left-1/2 -my-8 w-screen -translate-x-1/2 min-[1514px]:-ml-2">
-            <CarouselContent className="my-8 ml-[137px] mr-[153px] max-w-[1224px] min-[1514px]:mx-auto">
+          <div className="relative left-1/2 -my-8 -ml-2 w-screen -translate-x-1/2">
+            <CarouselContent className="mx-[116px] my-8 max-w-[1224px] lg:mx-auto">
               {problems.map((problem) => (
                 <CarouselItem key={problem.id}>
                   <NewProblemCard problem={problem} />
