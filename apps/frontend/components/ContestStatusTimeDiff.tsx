@@ -164,7 +164,7 @@ export function ContestStatusTimeDiff({
           <p className="ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px] text-[#3581FA]">
             Registeration :
           </p>
-          <p className="mr-2 overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px] text-[#474747]">
+          <p className="mr-2 w-[280px] overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px] text-[#474747]">
             {`${formattedTime(contest.createTime)} ~ ${formattedTime(contest.registerDueTime)}`}
           </p>
           {/* </p> */}
@@ -182,9 +182,9 @@ export function ContestStatusTimeDiff({
         >
           <Image src={clockRedIcon} alt="clock" width={20} height={20} />
           <p className="ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px] text-[#FF3B2F]">
-            Deadline :
+            Duration :
           </p>
-          <p className="mr-2 overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px] text-[#474747]">
+          <p className="mr-2 w-[280px] overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px] text-[#474747]">
             {`${formattedTime(contest.startTime)} ~ ${formattedTime(contest.endTime)}`}
           </p>
           <div className="flex h-7 w-[80px] items-center justify-center text-ellipsis whitespace-nowrap rounded-[4px] bg-[#FFEBEE] px-[10px] py-1 text-sm font-medium leading-[19.6px] tracking-[-0.42px] text-[#FF2C55]">

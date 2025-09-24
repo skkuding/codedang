@@ -281,7 +281,7 @@ export function ContestOverviewLayout({
           )}
           onEscapeKeyDown={() => setDeleteModalFlag(false)}
         >
-          <AlertDialogHeader className="my-[2px] flex flex-col items-center justify-center">
+          <AlertDialogHeader className="mt-[2px] flex flex-col items-center justify-center">
             <Image src={warningIcon} alt={'warning'} width={42} height={42} />
             <AlertDialogTitle
               className={cn('w-full text-center text-2xl font-semibold')}
