@@ -185,7 +185,16 @@ export class CourseNoticeService {
     })
     const readCount = await this.prisma.courseNoticeRecord.count({
       where: {
-        userId
+        userId,
+        courseNotice: {
+          group: {
+            userGroup: {
+              some: {
+                userId
+              }
+            }
+          }
+        }
       }
     })
 
