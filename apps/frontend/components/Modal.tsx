@@ -139,7 +139,7 @@ export function Modal({
           )}
         </ScrollArea>
         {(secondaryButton || primaryButton) && (
-          <DialogFooter className="flex w-full justify-center gap-[4px]">
+          <DialogFooter className="flex w-full flex-row justify-center gap-[4px]">
             {secondaryButton && (
               <Button
                 onClick={secondaryButton.onClick}

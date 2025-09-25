@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/problem/1
+  url: {{baseUrl}}/problem/:problemId
   body: none
   auth: none
 }
@@ -13,6 +13,10 @@ get {
 params:query {
   ~groupId: 1
   ~workbookId: 1
+}
+
+params:path {
+  problemId: 6
 }
 
 assert {
@@ -33,17 +37,39 @@ assert {
 }
 
 docs {
-  # Get Problem by ID
-  
-  하나의 문제 정보를 가져옵니다.
-  
-  ## Query
-  
-  
-  > workbookId가 주어진 경우, 워크북의 문제가 반환됩니다.
-  
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |groupId   |Integer|문제가 속한 Group ID|
-  |workbookId|Integer|문제가 속한 문제집 ID|
+  # 📘 Get Problem by ID
+
+  **GET** `/problem/:problemId`
+
+  이 함수는 다음과 같은 조건에 따라 하나의 문제 정보를 가져옵니다.
+  - groupId, workbookId에 해당하며, problemId의 문제 정보를 가져옵니다.
+
+  1. 운영진 (Admin, Manager, Reviewer)
+    - 대회 시점과 관계 없이 문제 목록을 열람할 수 있습니다.
+
+  2. 일반 사용자
+    > 대회가 진행중인 경우
+      - 대회에 등록한 사용자만 대회가 끝나기 전까지 문제를 열람할 수 있습니다.
+    > 대회가 진행중이지 않은 경우
+      - 대회에 등록한 사용자는 대회 시작 전까지 문제를 열람할 수 없습니다.
+      - 대회가 끝난 경우 로그인하지 않은 사용자도 문제 목록을 열람할 수 있습니다.
+
+  3. 예외 상황 발생
+    - 대회 시작 전에 문제를 열람하는 경우 403 Registered but not started 예외 발생
+    - 존재하지 않는 problemId를 입력할 경우 PrismaClientKnownRequestError 예외 발생
+
+  ### 📥 Request Parameters
+
+  #### Query Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `groupId` | number | ✅ | 가져올 groupId 지정 |
+  | `workbookId` | number | ✅ | 가져올 workbookId 지정 |
+
+  #### Path Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `problemId` | number | ✅ | 가져올 problemId 지정 |
 }

@@ -1,4 +1,5 @@
 import { AuthProvider } from '@/components/auth/AuthProvider'
+import { PushPermissionModal } from '@/components/notification/PushPermissionModal'
 import { Toaster } from '@/components/shadcn/sonner'
 import { auth } from '@/libs/auth'
 import { metaBaseUrl } from '@/libs/constants'
@@ -34,6 +35,8 @@ export const viewport: Viewport = {
   themeColor: '#3581FA',
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: 'cover'
 }
 
@@ -266,7 +269,10 @@ export default async function RootLayout({
         <PostHogProvider bootstrap={bootstrapData}>
           {/**NOTE: remove comment if you want to track page view of users */}
           {/* <PostHogPageView /> */}
-          <AuthProvider session={session}>{children}</AuthProvider>
+          <AuthProvider session={session}>
+            {session?.user && <PushPermissionModal />}
+            {children}
+          </AuthProvider>
           <Toaster
             richColors
             position="top-center"

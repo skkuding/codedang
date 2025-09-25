@@ -1,0 +1,54 @@
+meta {
+  name: [ERR] Invalid Contest Role
+  type: graphql
+  seq: 6
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateContest($input: CreateContestInput!) {
+    createContest(input: $input) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "title": "Invalid Role Contest",
+      "startTime": "2026-01-01T12:00:00.000Z",
+      "endTime": "2030-01-01T12:00:00.000Z",
+      "registerDueTime": "2025-12-31T12:00:00.000Z",
+      "isJudgeResultVisible": true,
+      "userContest": [
+        { "userId": 5, "contestRole": "InvalidRole" }
+      ]
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+assert {
+  res.body.errors[0].message: eq Invalid Contest Role is not allowed
+}
+
+docs {
+  # 📙 [ERR] Invalid Contest Role
+
+  **POST** `/graphql (mutation: createContest)`
+
+  Invalid contest role.
+
+  `userContest` 배열에 `Manager` 또는 `Reviewer`가 아닌 유효하지 않은 역할(`contestRole`)을 포함하여 요청한 경우,
+
+  `UnprocessableDataException`이 발생합니다.
+}

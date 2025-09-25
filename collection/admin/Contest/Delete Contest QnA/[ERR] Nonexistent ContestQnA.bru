@@ -1,0 +1,42 @@
+meta {
+  name: [ERR] Nonexistent ContestQnA
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteContestQnA($contestId: Int!, $order: Int!) {
+    deleteContestQnA(contestId: $contestId, order: $order) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "order": 999
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent ContestQnA
+
+  **POST** `/graphql (mutation: deleteContestQnA)`
+
+  The requested QnA does not exist in the contest.
+
+  특정 대회(`contestId`)에 존재하지 않는 QnA 순번(`order`) 삭제를 요청했을 때,
+
+  `EntityNotExistException`이 발생합니다.
+}

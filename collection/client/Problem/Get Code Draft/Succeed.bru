@@ -27,7 +27,9 @@ script:pre-request {
 docs {
   # Get CodeDraft by Problem ID
 
-  - `problemId`를 이용해 현재 유저가 풀고 있는 CodeDraft를 조회합니다.
-  - 이 request는 `user01`(`userId`: 4)로 로그인했을 때, `problemId` 2번에 대한 코드를 조회합니다.
+  **GET** `/user/problem/2`
 
+  `problemId`를 이용해 현재 유저가 풀고 있는 CodeDraft를 조회합니다.
+
+  - 이 request는 `user01`(`userId`: 4)로 로그인했을 때, `problemId` 2번에 대한 코드를 조회합니다.
 }

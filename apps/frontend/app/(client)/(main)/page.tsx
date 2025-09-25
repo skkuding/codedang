@@ -21,20 +21,22 @@ const slides = [
 export default function Home() {
   return (
     // NOTE: Temporary margin top for codedang main page carousel to avoid header overlap (until main page design is finalized)
-    <div className="mt-14 flex w-full flex-col gap-16 lg:items-center">
+    <div className="mt-14 flex w-full flex-col gap-20 lg:items-center">
       <Carousel slides={slides} />
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <ServiceCards />
-      </ErrorBoundary>
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <NewProblemCards />
-      </ErrorBoundary>
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <MiddleContestBanner />
-      </ErrorBoundary>
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <InstagramCards />
-      </ErrorBoundary>
+      <div className="flex flex-col [&>*]:mb-[140px]">
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <ServiceCards />
+        </ErrorBoundary>
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <NewProblemCards />
+        </ErrorBoundary>
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <MiddleContestBanner />
+        </ErrorBoundary>
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <InstagramCards />
+        </ErrorBoundary>
+      </div>
     </div>
   )
 }
