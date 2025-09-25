@@ -18,18 +18,18 @@ import { _RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { _RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import {
   assignmentProblems,
-  contestProblems,
-  problemTag,
-  problems,
-  workbookProblems,
-  tag,
-  contestProblemsWithScore,
   assignmentProblemsWithScore,
-  mockUpdateHistory
+  contestProblems,
+  contestProblemsWithScore,
+  mockUpdateHistory,
+  problems,
+  problemTag,
+  tag,
+  workbookProblems
 } from './mock/problem.mock'
 import {
-  ContestProblemService,
   AssignmentProblemService,
+  ContestProblemService,
   ProblemService,
   WorkbookProblemService
 } from './problem.service'
