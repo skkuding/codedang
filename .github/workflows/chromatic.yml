@@ -11,6 +11,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup-pnpm
       - run: pnpm install
+      # Publish to Chromatic
       - uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
