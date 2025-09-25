@@ -11,6 +11,9 @@ on:
 jobs:
   chromatic:
     runs-on: ubuntu-latest
+    defaults:
+    run:
+      working-directory: ./apps/frontend
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,4 +24,3 @@ jobs:
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
-        working-directory: ./apps/frontend
