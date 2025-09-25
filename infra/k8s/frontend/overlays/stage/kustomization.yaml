@@ -4,7 +4,8 @@ namespace: frontend
 
 resources:
   - ../../base
-  - secrets.yaml
+  - secrets/aws-credentials.yaml
+  - secrets/security-keys.yaml
 
 patches:
   - path: configmap.yaml

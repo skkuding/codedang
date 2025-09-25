@@ -29,7 +29,9 @@ spec:
             - configMapRef:
                 name: frontend-env
             - secretRef:
-                name: frontend-secrets
+                name: security-keys
+            - secretRef:
+                name: aws-credentials
           env:
             - name: APP_ENV
               value: 'production'
