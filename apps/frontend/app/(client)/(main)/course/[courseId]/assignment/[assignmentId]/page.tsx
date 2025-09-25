@@ -2,15 +2,15 @@
 
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
+import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { AssignmentStatus } from '@/components/AssignmentStatus'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
-import { dateFormatter, getStatusWithStartEnd } from '@/libs/utils'
 import { useQuery } from '@tanstack/react-query'
 import { use } from 'react'
 import { ProblemCard } from '../../_components/ProblemCard'
-import { columns } from './_components/Columns'
+import { columns, problemColumns } from './_components/Columns'
 import { TotalScoreLabel } from './_components/TotalScoreLabel'
 
 interface AssignmentDetailProps {
@@ -34,30 +34,9 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
     assignmentSubmissionQueries.summary({ assignmentId: assignment?.id ?? 0 })
   )
 
-  const formattedStartTime = assignment
-    ? dateFormatter(assignment.startTime, 'MMM DD, YYYY HH:mm')
-    : ''
-  const formattedEndTime = assignment
-    ? dateFormatter(assignment.endTime, 'MMM DD, YYYY HH:mm')
-    : ''
-
-  const assignmentStatus = getStatusWithStartEnd(
-    formattedStartTime,
-    formattedEndTime
+  const { data: problems } = useQuery(
+    assignmentProblemQueries.list({ assignmentId, groupId: courseId })
   )
-
-  if (assignmentStatus === 'upcoming') {
-    return (
-      <div className="flex h-44 translate-y-[22px] items-center justify-center gap-4">
-        <div className="flex flex-col items-center gap-1 font-mono">
-          <p className="text-xl font-semibold">Access Denied</p>
-          <p className="text-gray-500">
-            You can access after the assignment started
-          </p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     assignment && (
@@ -72,7 +51,7 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
           </div>
           <AssignmentStatus
             startTime={assignment.startTime}
-            dueTime={assignment.dueTime}
+            dueTime={assignment.dueTime ?? assignment.endTime}
           />
         </div>
         <Separator className="my-0" />
@@ -86,21 +65,42 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
           )}
         </div>
         <Separator className="my-0" />
-        {record && (
+        {problems && (
           <div>
             <p className="mb-[16px] text-2xl font-semibold">PROBLEM(S)</p>
             <div className="flex gap-1 text-base font-semibold lg:mb-[42px]">
               <span>Total</span>
-              <span className="text-primary">{record.problems.length}</span>
-              <span>Submit</span>
-              <span className="text-primary">
-                {
-                  submissions?.filter(
-                    (submission) => submission.submission !== null
-                  ).length
-                }
-              </span>
+              <span className="text-primary">{problems.total}</span>
+              {record && (
+                <>
+                  <span>Submit</span>
+                  <span className="text-primary">
+                    {
+                      submissions?.filter(
+                        (submission) => submission.submission !== null
+                      ).length
+                    }
+                  </span>
+                </>
+              )}
             </div>
+          </div>
+        )}
+        {!(record && submissions) && problems && (
+          <div className="hidden lg:block">
+            <DataTable
+              data={problems.data}
+              columns={problemColumns()}
+              headerStyle={{
+                order: 'w-[10%]',
+                title: 'text-left w-[40%]',
+                submissions: 'w-[20%]',
+                tc_result: 'w-[20%]',
+                detail: 'w-[10%]'
+              }}
+              linked
+              pathSegment={'problem'}
+            />
           </div>
         )}
         {record && submissions && (

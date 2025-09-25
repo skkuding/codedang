@@ -1,6 +1,7 @@
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
+import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { cn, isHttpError } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { useSignUpModalStore } from '@/stores/signUpModal'
@@ -8,14 +9,15 @@ import { useForm } from 'react-hook-form'
 import { AuthMessage } from '../AuthMessage'
 import { SignUpApi } from './api'
 
-const DOMAIN_OPTIONS = ['skku.edu']
 interface SendEmailInput {
   emailId: string
   emailDomain: string
 }
 
 export function SignUpSendEmail() {
-  const { nextModal, setFormData } = useSignUpModalStore((state) => state)
+  const { formData, nextModal, setFormData } = useSignUpModalStore(
+    (state) => state
+  )
   const { showSignIn } = useAuthModalStore((state) => state)
   const {
     handleSubmit,
@@ -26,7 +28,7 @@ export function SignUpSendEmail() {
     setError,
     formState: { errors }
   } = useForm<SendEmailInput>({
-    defaultValues: { emailDomain: DOMAIN_OPTIONS[0] }
+    defaultValues: { emailDomain: ALLOWED_DOMAINS[0] }
   })
   const watchEmailId = watch('emailId', '')
   const watchEmailDomain = watch('emailDomain')
@@ -37,12 +39,8 @@ export function SignUpSendEmail() {
     try {
       await SignUpApi.sendEmail(email)
       setFormData({
-        ...data,
-        email,
-        verificationCode: '',
-        headers: {
-          'email-auth': ''
-        }
+        ...formData,
+        email
       })
       nextModal()
     } catch (error) {
@@ -63,8 +61,8 @@ export function SignUpSendEmail() {
       <>
         <p className="text-xl font-medium">Join us to grow!</p>
         <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
-          You can only use <span className="text-primary">@skku.edu</span>{' '}
-          emails
+          You can only use{' '}
+          <span className="text-primary">{ALLOWED_DOMAINS[0]}</span> emails
         </p>
       </>
     )
@@ -91,7 +89,7 @@ export function SignUpSendEmail() {
             }}
           />
           <OptionSelect
-            options={DOMAIN_OPTIONS}
+            options={ALLOWED_DOMAINS}
             value={watchEmailDomain}
             onChange={(value) => {
               setValue('emailDomain', value)
@@ -101,7 +99,7 @@ export function SignUpSendEmail() {
           />
         </div>
         {errors.emailId && (
-          <AuthMessage isError message={errors.emailId.message ?? ''} />
+          <AuthMessage type={'error'} message={errors.emailId.message ?? ''} />
         )}
       </>
     )

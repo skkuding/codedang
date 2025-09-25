@@ -1,25 +1,28 @@
 'use client'
 
+import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { DateTimePickerDemo } from '@/components/shadcn/date-time-picker-demo'
 import { Switch } from '@/components/shadcn/switch'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { AssignmentProblem } from '../_libs/type'
 
 export const createColumns = (
-  revealedStates: { [key: number]: boolean },
-  handleSwitchChange: (rowIndex: number) => void,
-  optionStates: { [key: number]: string },
-  handleOptionChange: (rowIndex: number, value: string) => void,
-  handleTimeFormChange: (rowIndex: number, date: Date | null) => void,
-  solutionReleaseTimes: { [key: number]: Date | null }
+  revealedStates: { [problemId: number]: boolean },
+  handleSwitchChange: (problemId: number) => void,
+  optionStates: { [problemId: number]: string },
+  handleOptionChange: (problemId: number, value: string) => void,
+  handleTimeFormChange: (problemId: number, date: Date | null) => void,
+  solutionReleaseTimes: { [problemId: number]: Date | null }
 ): ColumnDef<AssignmentProblem>[] => {
   return [
     {
       accessorKey: 'title',
-      header: () => <p className="w-64 text-left text-sm">Title</p>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Title" />
+      ),
       cell: ({ row }) => (
         <div>
-          <p className="w-72 overflow-hidden text-ellipsis whitespace-nowrap text-left">
+          <p className="w-[469px] overflow-hidden text-ellipsis whitespace-nowrap text-left">
             {row.getValue('title')}
           </p>
         </div>
@@ -27,12 +30,14 @@ export const createColumns = (
     },
     {
       accessorKey: 'reveal',
-      header: () => <p className="w-12 text-center text-sm">Reveal</p>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Reveal" />
+      ),
       cell: ({ row }) => (
-        <div className="flex w-12 justify-center">
+        <div className="flex w-[70px] justify-center">
           <Switch
-            checked={revealedStates[row.index] || false}
-            onCheckedChange={() => handleSwitchChange(row.index)}
+            checked={revealedStates[row.original.id] || false}
+            onCheckedChange={() => handleSwitchChange(row.original.id)}
           />
         </div>
       ),
@@ -41,17 +46,21 @@ export const createColumns = (
     },
     {
       accessorKey: 'options',
-      header: () => <p className="w-[280px] text-center text-sm">Options</p>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Options" />
+      ),
       cell: ({ row }) => {
-        const selectedOption = optionStates[row.index]
-        return revealedStates[row.index] ? (
-          <div className="flex w-[340px] gap-2">
+        const selectedOption = optionStates[row.original.id]
+        return revealedStates[row.original.id] ? (
+          <div className="flex w-[340px] items-start gap-2">
             <label className="flex items-center gap-1">
               <input
                 type="radio"
                 className="text-primary-light text-xs"
                 checked={selectedOption === 'After Due Date'}
-                onChange={() => handleOptionChange(row.index, 'After Due Date')}
+                onChange={() =>
+                  handleOptionChange(row.original.id, 'After Due Date')
+                }
               />
               <p>After Due Date</p>
             </label>
@@ -61,20 +70,28 @@ export const createColumns = (
                   type="radio"
                   className="text-primary-light text-xs"
                   checked={selectedOption === 'Manually'}
-                  onChange={() => handleOptionChange(row.index, 'Manually')}
+                  onChange={() =>
+                    handleOptionChange(row.original.id, 'Manually')
+                  }
                 />
                 <p>Manually</p>
               </label>
 
               {selectedOption === 'Manually' && (
                 <DateTimePickerDemo
-                  onChange={(date) => handleTimeFormChange(row.index, date)}
-                  defaultValue={solutionReleaseTimes[row.index] || undefined}
+                  onChange={(date) =>
+                    handleTimeFormChange(row.original.id, date)
+                  }
+                  defaultValue={
+                    solutionReleaseTimes[row.original.id] || undefined
+                  }
                 />
               )}
             </div>
           </div>
-        ) : null
+        ) : (
+          <div className="w-[270px]" />
+        )
       },
       enableSorting: false,
       enableHiding: false

@@ -5,7 +5,6 @@ import { Assignment, AssignmentProblem } from '@generated'
 import { Cache } from 'cache-manager'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
-  ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
@@ -97,7 +96,10 @@ export class AssignmentService {
       )
     }
 
-    if (assignment.startTime >= assignment.dueTime) {
+    if (
+      assignment.dueTime !== null &&
+      assignment.startTime >= assignment.dueTime
+    ) {
       throw new UnprocessableDataException(
         'The startTime must be earlier than the dueTime'
       )
@@ -125,7 +127,7 @@ export class AssignmentService {
 
       this.eventEmitter.emit('assignment.created', {
         assignmentId: createdAssignment.id,
-        dueTime: createdAssignment.dueTime
+        dueTime: createdAssignment.dueTime ?? createdAssignment.endTime
       })
 
       return createdAssignment
@@ -178,7 +180,10 @@ export class AssignmentService {
     }
 
     assignment.dueTime = assignment.dueTime || assignmentFound.dueTime
-    if (assignment.startTime >= assignment.dueTime) {
+    if (
+      assignment.dueTime !== null &&
+      assignment.startTime >= assignment.dueTime
+    ) {
       throw new UnprocessableDataException(
         'The startTime must be earlier than the dueTime'
       )
@@ -261,12 +266,13 @@ export class AssignmentService {
       }
 
       const isDueTimeChanged =
-        assignment.dueTime && assignment.dueTime !== assignmentFound.dueTime
+        assignment.dueTime !== undefined &&
+        assignment.dueTime !== assignmentFound.dueTime
 
       if (isDueTimeChanged) {
         this.eventEmitter.emit('assignment.updated', {
           assignmentId: assignment.id,
-          dueTime: assignment.dueTime
+          dueTime: assignment.dueTime ?? assignment.endTime
         })
       }
 
@@ -933,6 +939,7 @@ export class AssignmentService {
           include: {
             group: {
               select: {
+                id: true,
                 groupName: true,
                 courseInfo: {
                   select: {
@@ -1020,7 +1027,8 @@ export class AssignmentService {
         assignment: {
           select: {
             groupId: true,
-            dueTime: true
+            dueTime: true,
+            endTime: true
           }
         }
       }
@@ -1038,9 +1046,9 @@ export class AssignmentService {
       )
     }
 
-    if (now <= assignment.dueTime) {
-      throw new ConflictFoundException(
-        'You can grade only finished assignments'
+    if (now < (assignment.dueTime ?? assignment.endTime)) {
+      throw new UnprocessableDataException(
+        'Assignments can only be graded after their due time'
       )
     }
 
@@ -1172,7 +1180,7 @@ export class AssignmentService {
   async autoFinalizeScore(groupId: number, assignmentId: number) {
     const assignment = await this.prisma.assignment.findUnique({
       where: { id: assignmentId },
-      select: { groupId: true }
+      select: { groupId: true, dueTime: true, endTime: true }
     })
 
     if (!assignment) {
@@ -1182,6 +1190,12 @@ export class AssignmentService {
     if (assignment.groupId !== groupId) {
       throw new ForbiddenAccessException(
         'You can only access assignment in your own group'
+      )
+    }
+
+    if ((assignment.dueTime ?? assignment.endTime) > new Date()) {
+      throw new UnprocessableDataException(
+        'Assignments can only be graded after their due time'
       )
     }
 

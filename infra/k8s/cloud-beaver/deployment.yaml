@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-beaver
+  namespace: cloud-beaver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-beaver
+  template:
+    metadata:
+      labels:
+        app: cloud-beaver
+    spec:
+      containers:
+        - name: cloud-beaver
+          image: dbeaver/cloudbeaver:25.2.0
+          ports:
+            - containerPort: 8978
+          volumeMounts:
+            - name: cloud-beaver-data
+              mountPath: /opt/cloudbeaver/workspace
+      volumes:
+        - name: cloud-beaver-data
+          persistentVolumeClaim:
+            claimName: cloud-beaver-pvc

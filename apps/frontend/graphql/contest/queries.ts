@@ -165,7 +165,9 @@ const GET_CONTEST_QNA =
       contestId
       title
       content
+      problemId
       category
+      isResolved
       createTime
       comments {
         content

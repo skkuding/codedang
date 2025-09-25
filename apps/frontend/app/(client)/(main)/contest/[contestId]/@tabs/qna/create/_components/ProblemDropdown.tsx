@@ -10,6 +10,7 @@ interface ProblemDropdownProps {
   problemOptions: ProblemOption[]
   isOpen: boolean
   onClose: () => void
+  isContestStarted: boolean
 }
 
 export function ProblemDropdown({
@@ -17,7 +18,8 @@ export function ProblemDropdown({
   setValue,
   problemOptions,
   isOpen,
-  onClose
+  onClose,
+  isContestStarted
 }: ProblemDropdownProps) {
   const watchedValues = watch()
 
@@ -31,10 +33,18 @@ export function ProblemDropdown({
     return null
   }
 
+  const displayOptions = (() => {
+    if (isContestStarted) {
+      return problemOptions
+    } else {
+      return problemOptions.filter((option) => option.value === '')
+    }
+  })()
+
   return (
-    <Card className="mb-[10px] w-full">
+    <Card className="mt-[10px] w-full">
       <CardContent className="flex flex-col gap-3 rounded-[12px] p-5">
-        {problemOptions.map((option) => (
+        {displayOptions.map((option) => (
           <div
             key={option.value}
             className="flex cursor-pointer items-center space-x-[14px] rounded p-1 hover:bg-gray-50"
@@ -46,12 +56,12 @@ export function ProblemDropdown({
               value={option.value}
               checked={watchedValues.selectedProblem === option.value}
               onChange={() => {}}
-              className="h-4 w-4 text-blue-600"
+              className="accent-primary h-4 w-4"
             />
             <label
               className={`font-pretendard cursor-pointer truncate text-sm font-normal not-italic leading-normal tracking-[-0.42px] ${
                 watchedValues.selectedProblem === option.value
-                  ? 'text-[#3581FA]'
+                  ? 'text-primary'
                   : 'text-black'
               }`}
             >

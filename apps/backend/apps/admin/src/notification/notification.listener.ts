@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
-import { MILLISECONDS_PER_DAY, MILLISECONDS_PER_HOUR } from '@libs/constants'
+import {
+  MAX_DATE,
+  MILLISECONDS_PER_DAY,
+  MILLISECONDS_PER_HOUR
+} from '@libs/constants'
 import { NotificationScheduler } from './notification.scheduler'
 import { NotificationService } from './notification.service'
 
@@ -34,6 +38,11 @@ export class NotificationListener {
     return fireAt.getTime() - Date.now() + offset
   }
 
+  @OnEvent('notice.created')
+  async handleNoticeCreated(payload: { noticeId: number }) {
+    this.notificationService.notifyNoticeCreated(payload.noticeId)
+  }
+
   @OnEvent('assignment.graded')
   async handleAssignmentGraded(payload: { assignmentId: number }) {
     this.notificationService.notifyAssignmentGraded(payload.assignmentId)
@@ -45,6 +54,8 @@ export class NotificationListener {
     dueTime: Date
   }) {
     this.notificationService.notifyAssignmentCreated(payload.assignmentId)
+
+    if (payload.dueTime.getTime() === MAX_DATE.getTime()) return
 
     const title = 'assignment-due-reminder'
     const data = { assignmentId: payload.assignmentId }
@@ -77,6 +88,8 @@ export class NotificationListener {
         this.notificationScheduler.cancelScheduledJob(jobId)
       )
     )
+
+    if (payload.dueTime.getTime() === MAX_DATE.getTime()) return
 
     const title = 'assignment-due-reminder'
     const data = { assignmentId: payload.assignmentId }
