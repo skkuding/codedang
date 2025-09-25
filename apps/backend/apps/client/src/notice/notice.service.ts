@@ -131,6 +131,14 @@ export class NoticeService {
 export class CourseNoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * 유저가 접근할 수 있는 강의 공지사항인지 검사합니다.
+   * public한 공지이거나 강의 수강자인 경우 true
+   *
+   * @param {number} id 강의 공지사항의 아이디
+   * @param {number} userId 접근하려는 유저 아이디
+   * @returns
+   */
   async isAccessibleNotice({ id, userId }: { id: number; userId: number }) {
     const courseNotice = await this.prisma.courseNotice.findUnique({
       where: {
