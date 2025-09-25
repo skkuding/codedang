@@ -737,7 +737,8 @@ export class CourseNoticeService {
         createdById: userId
       },
       data: {
-        content: updateCourseNoticeCommentDto.content
+        content: updateCourseNoticeCommentDto.content,
+        isSecret: updateCourseNoticeCommentDto.isSecret
       }
     })
   }
