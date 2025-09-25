@@ -1,6 +1,12 @@
 name: Chromatic Deployment
 
-on: push
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  merge_group:
+    types: [checks_requested]
 
 jobs:
   chromatic:
@@ -11,7 +17,6 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup-pnpm
       - run: pnpm install
-      # Publish to Chromatic
       - uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
