@@ -1,0 +1,17 @@
+meta {
+  name: Create Course Comment
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/course/2/qna/1/comment
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "content": "이것은 댓글입니다."
+  }
+}

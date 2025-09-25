@@ -18,6 +18,7 @@ import { AppService } from './app.service'
 import { AssignmentModule } from './assignment/assignment.module'
 import { AuthModule } from './auth/auth.module'
 import { ContestModule } from './contest/contest.module'
+import { CourseModule } from './course/course.module'
 import { EmailModule } from './email/email.module'
 import { MailerConfigService } from './email/mailerConfig.service'
 import { GroupModule } from './group/group.module'
@@ -47,6 +48,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     ProblemModule,
     SubmissionModule,
     UserModule,
+    CourseModule,
     WorkbookModule,
     EmailModule,
     AnnouncementModule,

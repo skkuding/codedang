@@ -1,0 +1,19 @@
+meta {
+  name: Create Course Question
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/course/1/qna
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "새로운 질문 제목입니다",
+    "content": "이것이 질문의 상세 내용입니다.",
+    "isPrivate": false
+  }
+}
