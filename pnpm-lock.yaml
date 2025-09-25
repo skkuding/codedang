@@ -855,6 +855,9 @@ importers:
       babel-loader:
         specifier: ^10.0.0
         version: 10.0.0(@babel/core@7.28.0)(webpack@5.100.2(@swc/core@1.13.3(@swc/helpers@0.5.17))(esbuild@0.25.7))
+      chromatic:
+        specifier: ^13.2.0
+        version: 13.2.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -7176,6 +7179,18 @@ packages:
 
   chromatic@12.2.0:
     resolution: {integrity: sha512-GswmBW9ZptAoTns1BMyjbm55Z7EsIJnUvYKdQqXIBZIKbGErmpA+p4c0BYA+nzw5B0M+rb3Iqp1IaH8TFwIQew==}
+    hasBin: true
+    peerDependencies:
+      '@chromatic-com/cypress': ^0.*.* || ^1.0.0
+      '@chromatic-com/playwright': ^0.*.* || ^1.0.0
+    peerDependenciesMeta:
+      '@chromatic-com/cypress':
+        optional: true
+      '@chromatic-com/playwright':
+        optional: true
+
+  chromatic@13.2.0:
+    resolution: {integrity: sha512-7ikJxdpLdYa6zmd+nLoP1U0HX6oCCtyj2eiAMd0rD4L9kbkWpl1pVIyI3CUQ/lQLtD3VKMTVi+bI3cWD+qz/IA==}
     hasBin: true
     peerDependencies:
       '@chromatic-com/cypress': ^0.*.* || ^1.0.0
@@ -21555,6 +21570,8 @@ snapshots:
   chownr@3.0.0: {}
 
   chromatic@12.2.0: {}
+
+  chromatic@13.2.0: {}
 
   chrome-trace-event@1.0.4: {}
 
