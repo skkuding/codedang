@@ -16,14 +16,19 @@ body:graphql {
       id
       title
       content
+      problemId
+      category
       createTime
       createdById
       createdBy {
         username
       }
       comments {
-        content
+        order
         createdById
+        isContestStaff
+        content
+        createdTime
         createdBy {
           username
         }
@@ -84,6 +89,8 @@ docs {
         "id": "7",
         "title": "20번 대회에 대한 질문",
         "content": "7번 유저가 작성함",
+        "problemId": null,
+        "category": "General",
         "createTime": "2025-09-18T07:18:43.149Z",
         "createdById": 7,
         "createdBy": {
@@ -91,10 +98,13 @@ docs {
         },
         "comments": [
           {
-            "content": "7번 질문에 대한 작성자 답변",
-            "createdById": 7,
+            "order": 1,
+            "createdById": 4,
+            "isContestStaff": true,
+            "content": "7번 질문에 대한 관리자 답변",
+            "createdTime": "2025-09-24T05:13:36.648Z",
             "createdBy": {
-              "username": "user01"
+              "username": "contestAdmin"
             }
           }
         ]
@@ -108,13 +118,18 @@ docs {
   | `id` | Int | QnA ID |
   | `title` | String | QnA 제목 |
   | `content` | String | QnA 내용 |
+  | `problemId` | Int | QnA에 해당하는 문제 ID (General인 경우 null) |
+  | `category` | QnACategory | QnA 카테고리 |
   | `createTime` | GraphQLISODateTime | 생성 시간 |
   | `createdById` | Int | 작성자 ID |
   | `createdBy` | User | 작성자 정보 |
   | `createdBy.username` | String | 작성자 사용자명 |
   | `comments` | [Comment] | QnA에 달린 댓글 목록 |
-  | `comments.content` | String | 댓글 내용 |
+  | `comments.order` | Int | QnA 내 댓글 순번 |
   | `comments.createdById` | String | 댓글 작성자 ID |
+  | `comments.isContestStaff` | Boolean | 대회 운영진 여부 |
+  | `comments.content` | String | 댓글 내용 |
   | `comments.createdBy` | User | 댓글 작성자 정보 |
+  | `comments.createdTime` | GraphQLISODateTime | 댓글 생성 시간 |
   | `comments.createdBy.username` | String | 댓글 작성자 사용자명 |
 }
