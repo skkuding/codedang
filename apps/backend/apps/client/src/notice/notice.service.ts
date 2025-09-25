@@ -195,13 +195,20 @@ export class CourseNoticeService {
       where: {
         userId,
         courseNotice: {
-          group: {
-            userGroup: {
-              some: {
-                userId
+          OR: [
+            {
+              group: {
+                userGroup: {
+                  some: {
+                    userId
+                  }
+                }
               }
+            },
+            {
+              isPublic: true
             }
-          }
+          ]
         }
       }
     })
