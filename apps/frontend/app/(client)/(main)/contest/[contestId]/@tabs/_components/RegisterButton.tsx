@@ -35,7 +35,7 @@ const schema = v.object({
 export function RegisterButton({
   id,
   state,
-  title,
+  // title,
   invitationCodeExists,
   disabled
 }: RegisterButtonProps) {
@@ -49,7 +49,7 @@ export function RegisterButton({
             }
           : {}
       })
-      toast.success(`Registered ${state} test successfully`)
+      toast.success(`Registered ${state} successfully`)
       router.refresh() // to update register state
     } catch (error) {
       console.error(error)
@@ -91,11 +91,16 @@ export function RegisterButton({
           Register Now!
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex w-[416px] flex-col gap-6 p-10">
+      <DialogContent className="flex !h-[280px] !w-[424px] flex-col gap-5 !p-10">
         <DialogHeader>
-          <DialogTitle className="line-clamp-2 text-xl">{title}</DialogTitle>
+          <DialogTitle className="line-clamp-2 pt-3 text-center text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
+            {'Invite Register'}
+          </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-[10px]"
+        >
           <div className="flex flex-col gap-1">
             <Input
               placeholder="Invitation Code"
