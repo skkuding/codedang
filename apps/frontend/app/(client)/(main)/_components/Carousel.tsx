@@ -68,7 +68,7 @@ export function Carousel({ slides }: CarouselProps) {
               <div className="flex">
                 <Button className="h-[48px] w-[228px] rounded-[1000px] bg-black p-0 text-white">
                   <Link
-                    href={`http://about-codedang.framer.website`}
+                    href={`https://what-is-codedang.framer.website`}
                     className="flex h-full w-full items-center gap-[2px] pb-[10px] pl-[30px] pr-[24px] pt-[10px]"
                   >
                     <span className="font-pretendard text-[18px] font-medium tracking-[-0.03em]">
