@@ -27,7 +27,7 @@ export interface DataTableProblem {
   id: number
   title: string
   updateTime: string
-  updateContentTime: string
+  updateContentTime?: string | null
   difficulty: string
   submissionCount: number
   acceptedRate: number
