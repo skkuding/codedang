@@ -3,22 +3,14 @@ import { Prisma } from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
-import {
-  createReadStream,
-  createWriteStream,
-  existsSync,
-  mkdirSync,
-  rm,
-  unlink,
-  writeFile
-} from 'fs'
+import { createReadStream, createWriteStream, existsSync } from 'fs'
+import { writeFile, rm, unlink, mkdir } from 'fs/promises'
 import path from 'path'
 import sanitize from 'sanitize-filename'
 import type { AuthenticatedUser } from '@libs/auth'
 import {
   EntityNotExistException,
-  ForbiddenAccessException,
-  UnprocessableFileDataException
+  ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
@@ -568,7 +560,9 @@ export class SubmissionService {
     }
   }
 
-  async getAssignmentTitle(assignmentId: number): Promise<string | null> {
+  private async getAssignmentTitle(
+    assignmentId: number
+  ): Promise<string | null> {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
         id: assignmentId
@@ -583,10 +577,10 @@ export class SubmissionService {
     if (assignment.title === '') {
       return `Assignment_${assignmentId}`
     }
-    return encodeURIComponent(assignment.title)
+    return assignment.title
   }
 
-  async getProblemTitle(problemId: number): Promise<string | null> {
+  private async getProblemTitle(problemId: number): Promise<string | null> {
     const problem = await this.prisma.problem.findUnique({
       where: {
         id: problemId
@@ -601,10 +595,16 @@ export class SubmissionService {
     if (problem.title === '') {
       return `Problem_${problemId}`
     }
-    return encodeURIComponent(problem.title)
+    return problem.title
   }
 
-  async compressSourceCodes(assignmentId: number, problemId: number) {
+  private async compressSourceCodes(
+    assignmentId: number,
+    problemId: number,
+    res: Response
+  ): Promise<
+    { zipPath: string; zipFilename: string; dirPath: string } | undefined
+  > {
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
         where: {
@@ -617,107 +617,195 @@ export class SubmissionService {
         }
       })
     if (assignmentProblemRecords.length === 0) {
-      throw new EntityNotExistException('AssignmentProblem')
+      // throw new EntityNotExistException('AssignmentProblem')
+      res.status(404).json({
+        statusCode: 404,
+        message: 'AssignmentProblem does not exist'
+      })
+      return
     }
 
     const submissionInfos = await Promise.all(
-      assignmentProblemRecords.map(async (record) => {
-        const submissionInfo = await this.getAssignmentLatestSubmissionInfo(
+      assignmentProblemRecords.map((record) =>
+        this.getAssignmentLatestSubmissionInfo(
           assignmentId,
           record.userId,
           problemId
         )
-        return submissionInfo
-      })
+      )
     )
-
     if (submissionInfos.length === 0) {
-      throw new EntityNotExistException('Submssion')
+      // throw new EntityNotExistException('Submission')
+      res.status(404).json({
+        statusCode: 404,
+        message: 'Submission does not exist'
+      })
     }
 
-    const problemTitle = await this.getProblemTitle(problemId)
-    const assignmentTitle = await this.getAssignmentTitle(assignmentId)
-
-    const dirPath = path.join(__dirname, `${assignmentTitle!}_${problemId}`)
-    mkdirSync(dirPath, { recursive: true })
-
-    submissionInfos.forEach((info) => {
-      const code = plainToInstance(Snippet, info.code)
-      const formattedCode = code.map((snippet) => snippet.text).join('\n')
-      const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
-      const filePath = path.join(dirPath, filename)
-      writeFile(filePath, formattedCode, (err) => {
-        if (err) {
-          this.logger.error(err)
-          throw new UnprocessableFileDataException(
-            'Failed to handle source code file',
-            filename
-          )
-        }
-      })
+    const problem = await this.prisma.problem.findFirst({
+      where: {
+        id: problemId
+      },
+      select: {
+        title: true
+      }
     })
+    if (!problem) {
+      res.status(404).json({
+        statusCode: 404,
+        message: 'Problem does not exist'
+      })
+    }
+
+    const problemTitle = problem!.title ?? `Problem_${problemId}`
+    const assignmentTitle = await this.getAssignmentTitle(assignmentId)
     const zipFilename = `${assignmentTitle}_${problemId}`
     const zipPath = path.join(__dirname, `${zipFilename}.zip`)
-    const output = createWriteStream(zipPath)
-    const archive = archiver.create('zip', { zlib: { level: 9 } })
+    const dirPath = path.join(__dirname, `${zipFilename}`)
 
-    archive.on('error', (err) => {
-      this.logger.error(err)
-      output.end()
-    })
-    archive.pipe(output)
-    archive.directory(dirPath, problemTitle!)
+    if (existsSync(dirPath)) {
+      await rm(dirPath, { recursive: true, force: true })
+    }
+    await mkdir(dirPath, { recursive: true })
 
-    await archive.finalize().catch((err) => {
-      this.logger.error(`Finalization failed: ${err}`)
-      output.end()
-      throw new UnprocessableFileDataException(
-        'Failed to create zip file',
-        zipFilename
+    try {
+      await Promise.all(
+        submissionInfos.map(async (info) => {
+          const code = plainToInstance(Snippet, info.code)
+          const formattedCode = code.map((snippet) => snippet.text).join('\n')
+          const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
+          const filePath = path.join(dirPath, filename)
+          await writeFile(filePath, formattedCode)
+        })
       )
-    })
 
-    const downloadSrc = `/submission/download/${zipFilename}`
-    return downloadSrc
+      await new Promise<void>((resolve, reject) => {
+        const output = createWriteStream(zipPath)
+        const archive = archiver.create('zip', { zlib: { level: 9 } })
+
+        archive.on('error', reject)
+        output.on('close', resolve)
+        output.on('error', reject)
+
+        archive.pipe(output)
+        archive.directory(dirPath, problemTitle!)
+        archive.finalize()
+      })
+
+      return { zipPath, zipFilename, dirPath }
+    } catch (err) {
+      if (existsSync(zipPath)) {
+        await unlink(zipPath)
+      }
+      if (existsSync(dirPath)) {
+        await rm(dirPath, { recursive: true, force: true })
+      }
+      // throw new UnprocessableFileDataException(
+      //   'Failed to write source code files',
+      //   err
+      // )
+      res.status(422).json({
+        statusCode: 422,
+        message: 'Failed to write source code files',
+        detail: err.message
+      })
+    }
   }
 
-  async downloadCodes(filename: string, res: Response) {
-    const sanitizedFilename = sanitize(filename)
-    const encodedFilename = encodeURIComponent(sanitizedFilename)
-    const zipFilename = path.resolve(__dirname, encodedFilename)
-    if (
-      !zipFilename.startsWith(__dirname) ||
-      !existsSync(`${zipFilename}.zip`)
-    ) {
-      res.status(404).json({ error: 'File not found' })
+  async downloadSourceCodes(
+    assignmentId: number,
+    problemId: number,
+    userId: number,
+    res: Response
+  ) {
+    const assignmentGroup = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        groupId: true,
+        title: true
+      }
+    })
+    if (!assignmentGroup) {
+      // throw new EntityNotExistException('Assignment')
+      return res.status(404).json({
+        statusCode: 404,
+        message: 'Assignment does not exist'
+      })
     }
 
+    const user = await this.prisma.user.findFirst({
+      select: {
+        role: true,
+        userGroup: {
+          where: {
+            isGroupLeader: true,
+            groupId: assignmentGroup.groupId
+          },
+          select: {
+            groupId: true
+          }
+        }
+      },
+      where: {
+        id: userId
+      }
+    })
+
+    const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin'
+    const isGroupLeader = (user?.userGroup?.length ?? 0) > 0
+
+    if (!isAdmin && !isGroupLeader) {
+      // throw new ForbiddenAccessException('Only Group Leader can download source codes.')
+      return res.status(403).json({
+        statusCode: 403,
+        message: 'Only Group Leader can download source codes.'
+      })
+    }
+
+    const compressed = await this.compressSourceCodes(
+      assignmentId,
+      problemId,
+      res
+    )
+    if (!compressed) {
+      return
+    }
+    const { zipPath, zipFilename, dirPath } = compressed
+    const encodedFilename = encodeURIComponent(zipFilename)
     res.set({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/zip',
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'Content-Disposition': `attachment; filename*=UTF-8''${encodedFilename}.zip`
+      'Content-Disposition': `attachment; filename=assignment${assignmentId}_problem${problemId}.zip; filename*=UTF-8''${encodedFilename}.zip`
     })
-    const fileStream = createReadStream(`${zipFilename}.zip`)
-    fileStream.pipe(res)
 
-    fileStream.on('close', () => {
-      unlink(`${zipFilename}.zip`, (err) => {
-        if (err) this.logger.error('Error on deleting file: ', err)
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const stream = createReadStream(zipPath)
+        stream.pipe(res)
+        stream.on('end', resolve)
+        stream.on('error', reject)
       })
-      rm(zipFilename, { recursive: true, force: true }, (err) => {
-        if (err) this.logger.error('Error on deleting folder: ', err)
-      })
-      res.end()
-    })
-    fileStream.on('error', () => {
-      unlink(`${zipFilename}.zip`, (err) => {
-        if (err) this.logger.error('Error on deleting file: ', err)
-      })
-      rm(zipFilename, { recursive: true, force: true }, (err) => {
-        if (err) this.logger.error('Error on deleting folder: ', err)
-      })
-      res.status(500).json({ error: 'File download failed' })
-    })
+    } catch (err) {
+      if (!res.headersSent) {
+        // throw new UnprocessableFileDataException('File download failed', err)
+        res.status(422).json({
+          statusCode: 422,
+          message: 'File download failed',
+          detail: err.message
+        })
+      } else {
+        res.destroy(err)
+      }
+    } finally {
+      if (existsSync(zipPath)) {
+        await unlink(zipPath)
+      }
+      if (existsSync(dirPath)) {
+        await rm(dirPath, { recursive: true, force: true })
+      }
+    }
   }
 }
