@@ -66,6 +66,12 @@ export class NoticeService {
 export class CourseNoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   *  한 강의 공지사항에 대해 모든 유저의 읽음 기록을 초기화합니다.
+   *
+   * @param {number} groupId
+   * @param {number} courseNoticeId
+   */
   async markAsUnread(groupId: number, courseNoticeId: number) {
     const userIds = await this.prisma.userGroup.findMany({
       where: {
@@ -93,6 +99,13 @@ export class CourseNoticeService {
     })
   }
 
+  /**
+   * 공지사항을 1개 만듭니다.
+   *
+   * @param {number} userId 접근하려는 유저 아이디
+   * @param {CreateCourseNoticeInput} createCourseNoticeInput 공지사항 내용 (groupId, title, content, isFixed, isPublic)
+   * @returns {CourseNotice}
+   */
   async createCourseNotice(
     userId: number,
     createCourseNoticeInput: CreateCourseNoticeInput
@@ -109,6 +122,12 @@ export class CourseNoticeService {
     return courseNotice
   }
 
+  /**
+   * 강의 내 공지 1개를 삭제합니다.
+   *
+   * @param {number} courseNoticeId 강의 공지 아이디
+   * @returns {CourseNotice}
+   */
   async deleteCourseNotice(courseNoticeId: number) {
     return await this.prisma.courseNotice.delete({
       where: {
@@ -117,6 +136,14 @@ export class CourseNoticeService {
     })
   }
 
+  /**
+   * 강의 내 공지 1개를 수정합니다.
+   * (읽음 기록을 초기화합니다.)
+   *
+   * @param {number} courseNoticeId 강의 공지 아이디
+   * @param {UpdateCourseNoticeInput} updateCourseNoticeInput 수정할 공지사항 내용 (title, content, isFixed, isPublic 등 옵셔널)
+   * @returns {CourseNotice}
+   */
   async updateCourseNotice(
     courseNoticeId: number,
     updateCourseNoticeInput: UpdateCourseNoticeInput
@@ -140,6 +167,14 @@ export class CourseNoticeService {
     })
   }
 
+  /**
+   * 한 강의 내 공지사항 여러 개를 다른 강의로 복제합니다.
+   *
+   * @param {number} userId 유저 아이디 (복제된 공지의 작성자로 설정됩니다.)
+   * @param {number[]} courseNoticeIds 복제할 공지 아이디 목록
+   * @param {number} cloneToId 복제해 넣을 강의 아이디
+   * @returns {CourseNotice[]}
+   */
   async cloneCourseNotice(
     userId: number,
     courseNoticeIds: number[],
