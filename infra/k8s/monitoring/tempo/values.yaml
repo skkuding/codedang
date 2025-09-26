@@ -1,0 +1,28 @@
+traces:
+  otlp:
+    http:
+      enabled: true
+    grpc:
+      enabled: true
+
+tempo:
+  structuredConfig:
+    ingester:
+      lifecycler:
+        ring:
+          replication_factor: 3
+      max_block_bytes: 104857600
+      max_block_duration: 10m
+      complete_block_timeout: 15m
+
+distributor:
+  replicas: 2
+  config:
+    log_received_spans:
+      enabled: true
+
+ingester:
+  replicas: 3
+  persistence:
+    enabled: true
+    size: 10Gi
