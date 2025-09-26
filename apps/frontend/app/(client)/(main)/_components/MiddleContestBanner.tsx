@@ -7,8 +7,8 @@ import type { JSX } from 'react'
 
 export function MiddleContestBanner() {
   return (
-    <div className="relative flex h-[578px] w-full max-w-[1860px]">
-      <TextBox className={'shirink-0 z-10 h-full min-w-[38%]'} />
+    <div className="relative flex h-[518px] w-full max-w-[1208px]">
+      <TextBox className={'z-10 h-full w-[609px] shrink-0'} />
       <ImageBox className={'h-full flex-1'} />
     </div>
   )
@@ -17,13 +17,13 @@ export function MiddleContestBanner() {
 function TextBox({ className }: { className: string }) {
   return (
     <div
-      className={`flex items-center rounded-l-[20px] bg-[#182E56] pe-[140px] ps-[86px] ${className}`}
+      className={`flex items-center rounded-l-[20px] bg-[#182E56] pe-[140px] ps-[60px] ${className}`}
     >
       {/* 글자 + 버튼 */}
       <div className="text-background flex h-full max-h-[264px] w-full max-w-[446px] flex-col justify-between">
         {/* 글자 부분 */}
         <div className="flex h-full max-h-[164px] flex-col justify-between">
-          <Text className="max-h-[96px] w-fit whitespace-nowrap text-[40px] font-semibold leading-[120%]">
+          <Text className="max-h-[96px] w-fit whitespace-nowrap text-4xl font-semibold leading-[120%]">
             <p>
               {' '}
               TAKE PART IN REAL-TIME
@@ -90,7 +90,7 @@ function ImageBox({ className }: { className: string }) {
     <div className={`relative ${className}`}>
       <ImageMask className="h-full max-h-[183px] w-full" />
       <Image
-        src={'/banners/mainpage_middle_banner.png'}
+        src={'/banners/middle_banner.png'}
         alt="middle_banner"
         fill
         style={{

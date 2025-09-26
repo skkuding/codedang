@@ -9,8 +9,8 @@ import { ServiceCards } from './_components/ServiceCards'
 const slides = [
   {
     type: 'codedang',
-    topTitle: 'Your Coding Journey',
-    bottomTitle: 'Starts Here',
+    topTitle: 'YOUR CODING JOURNEY',
+    bottomTitle: 'STARTS HERE',
     sub: "Practice real problems, compete with peers.\nGrow your skills on SKKU's coding platform.",
     img: '/banners/main_banner.png',
     imgAlt: 'Codedang',
