@@ -8,7 +8,10 @@ const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
   : 'next-auth.session-token'
 
 export const middleware = async (req: NextRequest) => {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET
+  })
 
   const { pathname } = req.nextUrl
 
@@ -20,16 +23,38 @@ export const middleware = async (req: NextRequest) => {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Handle unauthorized access to admin page
-  // if (
-  //   req.nextUrl.pathname.startsWith('/admin') &&
-  //   (!token || token.role === 'User')
-  // ) {
-  //   return NextResponse.redirect(new URL('/', req.url))
-  // }
+  if (req.nextUrl.searchParams.get('isPWA') === 'true') {
+    console.log(
+      JSON.stringify(
+        {
+          event: 'PWA',
+          timestamp: new Date().toISOString(),
+          path: pathname,
+          user: {
+            username: token?.username,
+            name: token?.name,
+            role: token?.role
+          },
+          ip: req.headers.get('x-real-ip'),
+          userAgent: req.headers.get('user-agent'),
+          referer: req.headers.get('referer')
+        },
+        null,
+        0
+      )
+    )
+  }
 
-  // Handle reissue of access token
   if (token && token.accessTokenExpires <= Date.now()) {
+    // Handle unauthorized access to admin page
+    // if (
+    //   req.nextUrl.pathname.startsWith('/admin') &&
+    //   (!token || token.role === 'User')
+    // ) {
+    //   return NextResponse.redirect(new URL('/', req.url))
+    // }
+
+    // Handle reissue of access token
     try {
       const reissueRes = await fetch(`${baseUrl}/auth/reissue`, {
         headers: {
