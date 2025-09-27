@@ -1,0 +1,52 @@
+meta {
+  name: [ERR] EndTime Earlier than StartTime
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateContest($input: CreateContestInput!) {
+    createContest(input: $input) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "title": "Invalid Time Contest",
+      "startTime": "2027-01-01T12:00:00.000Z",
+      "endTime": "2026-12-31T12:00:00.000Z",
+      "registerDueTime": "2025-12-31T12:00:00.000Z",
+      "isJudgeResultVisible": true,
+      "userContest": []
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+assert {
+  res.body.errors[0].message: eq StartTime should be earlier than EndTime
+}
+
+docs {
+  # 📙 [ERR] EndTime Earlier than StartTime
+
+  **POST** `/graphql (mutation: createContest)`
+
+  The startTime must be earlier than the endTime.
+
+  대회 시작 시간(`startTime`)이 종료 시간(`endTime`)과 같거나 그 이후일 때,
+
+  `UnprocessableDataException`가 발생합니다.
+}

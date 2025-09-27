@@ -56,6 +56,11 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
                 <FormSection title="Week" className="w-[420px]">
                   <WeekComboBox name="week" courseId={Number(courseId)} />
                 </FormSection>
+                <FormSection title="Start Time" className="w-[420px]">
+                  <TimeForm name="startTime" />
+                </FormSection>
+              </div>
+              <div className="flex justify-between">
                 <FormSection
                   title="Due Time"
                   className="w-[420px]"
@@ -71,11 +76,7 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
                     }}
                   />
                 </FormSection>
-              </div>
-              <div className="flex justify-between">
-                <FormSection title="Start Time" className="w-[420px]">
-                  <TimeForm name="startTime" />
-                </FormSection>
+
                 <FormSection
                   title="End Time"
                   className="w-[420px]"
@@ -130,7 +131,7 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
                   hasValue={true}
                   name="isJudgeResultVisible"
                   title="Reveal Hidden Testcase Result"
-                  description="When enabled, hidden testcase results will be revealed from students."
+                  description="When enabled, hidden testcase results will be revealed to students."
                 />
 
                 <SwitchField

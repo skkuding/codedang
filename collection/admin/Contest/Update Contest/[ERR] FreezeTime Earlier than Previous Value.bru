@@ -1,0 +1,52 @@
+meta {
+  name: [ERR] FreezeTime Earlier than Previous Value
+  type: graphql
+  seq: 5
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateContest(
+    $contestId: Int!,
+    $input: UpdateContestInput!
+  ) {
+    updateContest(
+      contestId: $contestId
+      input: $input
+    ) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "input": {
+      "freezeTime": "2025-01-01T00:00:00.000Z"
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [422] 잘못된 Freeze 설정
+
+  **POST** `/graphql (mutation: updateContest)`
+
+  The provided freeze time settings are invalid.
+
+  - `freezeTime`을 기존 시점보다 과거 시간으로 설정하려 할 때
+  - `freezeTime`을 대회 종료 시간 이후로 설정하려 할 때
+  - (`ongoing`) 이미 지난 `freezeTime`을 변경하려 할 때
+
+  위 경우들에서 `UnprocessableDataException`이 발생합니다.
+}
