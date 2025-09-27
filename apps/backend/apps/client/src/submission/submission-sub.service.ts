@@ -1,6 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
-import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
   type Submission,
@@ -17,20 +16,14 @@ import {
   userTestcasesKey
 } from '@libs/cache'
 import {
-  CONSUME_CHANNEL,
-  EXCHANGE,
-  ORIGIN_HANDLER_NAME,
-  RESULT_KEY,
-  RESULT_QUEUE,
-  RUN_MESSAGE_TYPE,
   Status,
   TEST_SUBMISSION_EXPIRE_TIME,
-  USER_TESTCASE_MESSAGE_TYPE,
   PERCENTAGE_SCALE,
   DECIMAL_PRECISION_FACTOR
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { MqttService } from '@libs/rabbitmq'
 import { JudgerResponse } from './class/judger-response.dto'
 
 @Injectable()
@@ -39,29 +32,34 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpConnection: AmqpConnection,
+    private readonly mqttService: MqttService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   onModuleInit() {
-    this.amqpConnection.createSubscriber(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async (msg: object, raw: any) => {
+    // MQTT 서비스에 메시지 핸들러를 등록
+    this.mqttService.setMessageHandlers({
+      onRunMessage: async (msg: object, isUserTest: boolean) => {
         try {
           const res = await this.validateJudgerResponse(msg)
-
+          await this.handleRunMessage(res, res.submissionId, isUserTest)
+        } catch (error) {
           if (
-            raw.properties.type === RUN_MESSAGE_TYPE ||
-            raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
+            Array.isArray(error) &&
+            error.every((e) => e instanceof ValidationError)
           ) {
-            await this.handleRunMessage(
-              res,
-              res.submissionId,
-              raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
-            )
-            return
+            this.logger.error(error, 'Message format error')
+          } else if (error instanceof UnprocessableDataException) {
+            this.logger.error(error, 'Iris exception')
+          } else {
+            this.logger.error(error, 'Unexpected error')
           }
-
+          throw error // MQTT 서비스에서 Nack 처리
+        }
+      },
+      onJudgeMessage: async (msg: object) => {
+        try {
+          const res = await this.validateJudgerResponse(msg)
           await this.handleJudgerMessage(res)
         } catch (error) {
           if (
@@ -74,19 +72,10 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           } else {
             this.logger.error(error, 'Unexpected error')
           }
-          return new Nack()
+          throw error // MQTT 서비스에서 Nack 처리
         }
-      },
-      {
-        exchange: EXCHANGE,
-        routingKey: RESULT_KEY,
-        queue: RESULT_QUEUE,
-        queueOptions: {
-          channel: CONSUME_CHANNEL
-        }
-      },
-      ORIGIN_HANDLER_NAME
-    )
+      }
+    })
   }
 
   @Span()

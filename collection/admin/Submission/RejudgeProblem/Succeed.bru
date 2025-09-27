@@ -1,0 +1,39 @@
+meta {
+  name: ReplaceExisting
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation RejudgeAssignmentProblem ($groupId: Int!, $input: RejudgeInput!) {
+    rejudgeAssignmentProblem (groupId: $groupId, input: $input) {
+      totalSubmissions
+      processedSubmissions
+      message
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "input": {
+      "assignmentId": 1,
+      "problemId": 3,
+      "mode": "REPLACE_EXISTING"
+    }
+  }
+}
+
+assert {
+  res.body.data.rejudgeAssignmentProblem: isDefined
+  res.body.data.rejudgeAssignmentProblem.totalSubmissions: isDefined
+  res.body.data.rejudgeAssignmentProblem.processedSubmissions: isDefined
+  res.body.data.rejudgeAssignmentProblem.message: isDefined
+}

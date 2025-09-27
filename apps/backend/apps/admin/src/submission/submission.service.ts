@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+import { Prisma, ResultStatus as PrismaResultStatus } from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
@@ -21,25 +21,32 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { MqttService } from '@libs/rabbitmq'
 import {
   ContestRole,
   Role,
   type Language,
-  type ResultStatus
+  ResultStatus
 } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
+import { JudgeRequest } from '@client/submission/class/judge-request'
 import { LanguageExtension } from './enum/language-extensions.enum'
 import { SubmissionOrder } from './enum/submission-order.enum'
 import type {
   GetAssignmentSubmissionsInput,
   GetContestSubmissionsInput
 } from './model/get-submissions.input'
+import { RejudgeResult } from './model/rejudge-result.output'
+import { RejudgeInput, RejudgeMode } from './model/rejudge.input'
 import type { SubmissionsWithTotal } from './model/submissions-with-total.output'
 
 @Injectable()
 export class SubmissionService {
   private readonly logger = new Logger(SubmissionService.name)
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mqttService: MqttService
+  ) {}
 
   async getSubmissions(
     problemId: number,
@@ -718,6 +725,310 @@ export class SubmissionService {
         if (err) this.logger.error('Error on deleting folder: ', err)
       })
       res.status(500).json({ error: 'File download failed' })
+    })
+  }
+
+  /**
+   * 특정 Assignment의 특정 Problem에 대한 모든 제출을 재채점합니다.
+   *
+   * @param input 재채점 옵션 (assignmentId, problemId, mode)
+   * @param reqUser 요청한 사용자
+   * @returns 재채점 결과
+   */
+  async rejudgeAssignmentProblem(
+    input: RejudgeInput,
+    reqUser: AuthenticatedUser
+  ): Promise<RejudgeResult> {
+    const { assignmentId, problemId, mode } = input
+
+    // Assignment 존재 확인 및 권한 검증
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: {
+        id: true,
+        groupId: true,
+        title: true
+      }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    // Problem 존재 여부 확인
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId },
+      select: {
+        id: true,
+        title: true,
+        timeLimit: true,
+        memoryLimit: true
+      }
+    })
+
+    if (!problem) {
+      throw new EntityNotExistException('Problem')
+    }
+
+    // 그룹 리더인지 확인
+    const isGroupLeader = await this.prisma.userGroup.findFirst({
+      where: {
+        userId: reqUser.id,
+        groupId: assignment.groupId,
+        isGroupLeader: true
+      }
+    })
+
+    if (!isGroupLeader && !reqUser.isAdmin() && !reqUser.isSuperAdmin()) {
+      throw new ForbiddenAccessException(
+        'Only group leaders can rejudge submissions'
+      )
+    }
+
+    // 해당 Assignment의 Problem에 대한 모든 제출 조회
+    const allSubmissions = await this.prisma.submission.findMany({
+      where: {
+        assignmentId,
+        problemId
+      },
+      select: {
+        id: true,
+        code: true,
+        language: true,
+        userId: true,
+        userIp: true,
+        result: true,
+        createTime: true
+      },
+      orderBy: { createTime: 'desc' }
+    })
+
+    // 각 user의 가장 최신 submission만 필터링
+    const submissions = this.filterLatestSubmissionsPerUser(allSubmissions)
+
+    if (submissions.length === 0) {
+      return {
+        totalSubmissions: allSubmissions.length,
+        processedSubmissions: 0,
+        message:
+          allSubmissions.length === 0
+            ? 'No submissions found for this assignment problem'
+            : 'No valid submissions found after filtering (all submissions may have null userId)'
+      }
+    }
+
+    let processedCount = 0
+
+    if (mode === RejudgeMode.REPLACE_EXISTING) {
+      // 기존 채점 기록을 모두 Judging으로 변경
+      await this.prisma.$transaction(async (prisma) => {
+        // Submission 결과를 Judging으로 변경
+        await prisma.submission.updateMany({
+          where: {
+            assignmentId,
+            problemId
+          },
+          data: {
+            result: PrismaResultStatus.Judging
+          }
+        })
+
+        // SubmissionResult 결과를 Judging으로 변경
+        await prisma.submissionResult.updateMany({
+          where: {
+            submission: {
+              assignmentId,
+              problemId
+            }
+          },
+          data: {
+            result: PrismaResultStatus.Judging
+          }
+        })
+      })
+
+      this.logger.log(
+        `Updated ${submissions.length} submissions to Judging status for rejudge`
+      )
+    }
+
+    // 각 제출에 대해 재채점 요청 발행
+    for (const submission of submissions) {
+      try {
+        const code = plainToInstance(Snippet, submission.code)
+
+        let submissionId = submission.id
+
+        if (mode === RejudgeMode.CREATE_NEW) {
+          const newSubmission = await this.createNewSubmissionForRejudge(
+            {
+              ...submission,
+              userIp: submission.userIp || '127.0.0.1'
+            },
+            problem,
+            assignmentId
+          )
+          submissionId = newSubmission.id
+          this.logger.log(
+            `Created new submission ${submissionId} for rejudge from original ${submission.id}`
+          )
+        }
+
+        // JudgeRequest 객체 생성
+        const judgeRequest = new JudgeRequest(
+          code,
+          submission.language,
+          {
+            id: problem.id,
+            timeLimit: problem.timeLimit,
+            memoryLimit: problem.memoryLimit
+          },
+          false, // stopOnNotAccepted
+          false, // judgeOnlyHiddenTestcases
+          false // containHiddenTestcases
+        )
+
+        // 채점 요청 메세지 발행
+        await this.mqttService.publishJudgeRequestMessage(
+          judgeRequest,
+          submissionId,
+          false, // isTest
+          false // isUserTest
+        )
+
+        processedCount++
+        this.logger.log(
+          `Published rejudge request for submission ${submissionId}`
+        )
+      } catch (error) {
+        this.logger.error(
+          `Failed to publish rejudge request for submission ${submission.id}:`,
+          error
+        )
+      }
+    }
+
+    const message =
+      mode === RejudgeMode.REPLACE_EXISTING
+        ? `Rejudge initiated for ${processedCount} latest submissions per user (${allSubmissions.length} total submissions found). All existing results have been reset to Judging.`
+        : `Rejudge initiated for ${processedCount} latest submissions per user (${allSubmissions.length} total submissions found). New results will be created alongside existing ones.`
+
+    return {
+      totalSubmissions: allSubmissions.length,
+      processedSubmissions: processedCount,
+      message
+    }
+  }
+
+  /**
+   * 재채점을 위해 새로운 submission을 생성합니다.
+   * client의 createSubmission 메서드를 참고하여 구현
+   */
+  private async createNewSubmissionForRejudge(
+    originalSubmission: {
+      id: number
+      code: Prisma.JsonValue[]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      language: any
+      userId: number | null
+      userIp: string | null
+      result: PrismaResultStatus
+    },
+    problem: {
+      id: number
+      title: string
+      timeLimit: number
+      memoryLimit: number
+    },
+    assignmentId: number
+  ) {
+    const submissionData = {
+      code: originalSubmission.code,
+      result: PrismaResultStatus.Judging,
+      userId: originalSubmission.userId,
+      userIp: originalSubmission.userIp,
+      problemId: problem.id,
+      assignmentId,
+      codeSize: new TextEncoder().encode(
+        plainToInstance(Snippet, originalSubmission.code)[0].text
+      ).length,
+      language: originalSubmission.language
+    }
+
+    // 새로운 submission 생성
+    const newSubmission = await this.prisma.submission.create({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: submissionData as any
+    })
+
+    // 새로운 submission에 대한 SubmissionResult 생성
+    await this.createSubmissionResultsForRejudge(newSubmission)
+
+    return newSubmission
+  }
+
+  /**
+   * 각 user의 가장 최신 submission만 필터링합니다.
+   *
+   * @param submissions 제출 목록
+   * @returns 각 user의 가장 최신 submission만 포함된 배열
+   */
+  private filterLatestSubmissionsPerUser(
+    submissions: Array<{
+      id: number
+      code: Prisma.JsonValue[]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      language: any
+      userId: number | null
+      userIp: string | null
+      result: PrismaResultStatus
+      createTime: Date
+    }>
+  ) {
+    // userId별로 그룹화하고 각 그룹에서 가장 최신 submission만 선택
+    const userLatestSubmissions = new Map<number, (typeof submissions)[0]>()
+
+    for (const submission of submissions) {
+      if (submission.userId === null) {
+        continue
+      }
+
+      const existingSubmission = userLatestSubmissions.get(submission.userId)
+
+      if (
+        !existingSubmission ||
+        submission.createTime > existingSubmission.createTime
+      ) {
+        userLatestSubmissions.set(submission.userId, submission)
+      }
+    }
+
+    return Array.from(userLatestSubmissions.values())
+  }
+
+  /**
+   * 재채점을 위한 새로운 submission의 SubmissionResult를 생성합니다.
+   */
+  private async createSubmissionResultsForRejudge(submission: {
+    id: number
+    problemId: number
+  }): Promise<void> {
+    const testcases = await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId: submission.problemId,
+        isOutdated: false
+      },
+      select: { id: true }
+    })
+
+    await this.prisma.submissionResult.createMany({
+      data: testcases.map((testcase) => {
+        return {
+          submissionId: submission.id,
+          result: PrismaResultStatus.Judging,
+          problemTestcaseId: testcase.id
+        }
+      })
     })
   }
 }
