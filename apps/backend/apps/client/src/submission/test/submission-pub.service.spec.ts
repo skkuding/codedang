@@ -1,20 +1,12 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import type { Submission, SubmissionResult } from '@prisma/client'
 import { expect } from 'chai'
 import { TraceService } from 'nestjs-otel'
 import * as sinon from 'sinon'
-import {
-  EXCHANGE,
-  JUDGE_MESSAGE_TYPE,
-  MESSAGE_PRIORITY_HIGH,
-  MESSAGE_PRIORITY_MIDDLE,
-  RUN_MESSAGE_TYPE,
-  SUBMISSION_KEY
-} from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { JudgeRequest } from '../class/judge-request'
+import { MqttService } from '@libs/rabbitmq'
+import { JudgeRequest, UserTestcaseJudgeRequest } from '../class/judge-request'
 import { problems } from '../mock/problem.mock'
 import { submissions } from '../mock/submission.mock'
 import { SubmissionPublicationService } from '../submission-pub.service'
@@ -37,7 +29,7 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
 
 describe('SubmissionPublicationService', () => {
   let service: SubmissionPublicationService
-  let amqpConnection: AmqpConnection
+  let mqttService: MqttService
 
   const sandbox = sinon.createSandbox()
 
@@ -50,9 +42,9 @@ describe('SubmissionPublicationService', () => {
           useValue: db
         },
         {
-          provide: AmqpConnection,
+          provide: MqttService,
           useFactory: () => ({
-            publish: () => []
+            publishJudgeRequestMessage: () => []
           })
         },
         TraceService
@@ -62,7 +54,7 @@ describe('SubmissionPublicationService', () => {
     service = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
     )
-    amqpConnection = module.get<AmqpConnection>(AmqpConnection)
+    mqttService = module.get<MqttService>(MqttService)
   })
 
   afterEach(() => {
@@ -74,11 +66,13 @@ describe('SubmissionPublicationService', () => {
   })
 
   describe('publishJudgeRequestMessage', () => {
-    it('should publish judge mssage to RabbitMQ', async () => {
+    it('should publish judge message to RabbitMQ', async () => {
       const findSpy = sandbox
         .stub(db.problem, 'findUnique')
         .resolves(problems[0])
-      const amqpSpy = sandbox.stub(amqpConnection, 'publish').resolves()
+      const mqttSpy = sandbox
+        .stub(mqttService, 'publishJudgeRequestMessage')
+        .resolves()
       const judgeRequest = new JudgeRequest(
         submissions[0].code,
         submission.language,
@@ -95,7 +89,7 @@ describe('SubmissionPublicationService', () => {
       expect(
         findSpy.calledOnceWith({
           where: {
-            id: submission.id
+            id: submission.problemId
           },
           select: {
             id: true,
@@ -104,25 +98,17 @@ describe('SubmissionPublicationService', () => {
           }
         })
       ).to.be.true
-      const result = amqpSpy.calledOnceWith(
-        EXCHANGE,
-        SUBMISSION_KEY,
-        judgeRequest,
-        {
-          messageId: String(submission.id),
-          persistent: true,
-          type: JUDGE_MESSAGE_TYPE,
-          priority: MESSAGE_PRIORITY_HIGH
-        }
-      )
-      expect(result).to.be.true
+      expect(mqttSpy.calledOnceWith(judgeRequest, submission.id, false, false))
+        .to.be.true
     })
 
-    it('should publish run mssage to RabbitMQ', async () => {
+    it('should publish run message to RabbitMQ', async () => {
       const findSpy = sandbox
         .stub(db.problem, 'findUnique')
         .resolves(problems[0])
-      const amqpSpy = sandbox.stub(amqpConnection, 'publish').resolves()
+      const mqttSpy = sandbox
+        .stub(mqttService, 'publishJudgeRequestMessage')
+        .resolves()
       const judgeRequest = new JudgeRequest(
         submissions[0].code,
         submission.language,
@@ -140,7 +126,7 @@ describe('SubmissionPublicationService', () => {
       expect(
         findSpy.calledOnceWith({
           where: {
-            id: submission.id
+            id: submission.problemId
           },
           select: {
             id: true,
@@ -149,14 +135,8 @@ describe('SubmissionPublicationService', () => {
           }
         })
       ).to.be.true
-      expect(
-        amqpSpy.calledOnceWith(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
-          messageId: String(submission.id),
-          persistent: true,
-          type: RUN_MESSAGE_TYPE,
-          priority: MESSAGE_PRIORITY_MIDDLE
-        })
-      ).to.be.true
+      expect(mqttSpy.calledOnceWith(judgeRequest, submission.id, true, false))
+        .to.be.true
     })
 
     it('should throw EntityNotExistException when problemId is invalid', async () => {
@@ -168,6 +148,99 @@ describe('SubmissionPublicationService', () => {
           submission
         })
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should create UserTestcaseJudgeRequest when isUserTest is true', async () => {
+      const findSpy = sandbox
+        .stub(db.problem, 'findUnique')
+        .resolves(problems[0])
+      const mqttSpy = sandbox
+        .stub(mqttService, 'publishJudgeRequestMessage')
+        .resolves()
+      const userTestcases = [
+        { id: 1, in: 'input1', out: 'output1' },
+        { id: 2, in: 'input2', out: 'output2' }
+      ]
+      const userTestcaseJudgeRequest = new UserTestcaseJudgeRequest(
+        submissions[0].code,
+        submission.language,
+        problems[0],
+        userTestcases,
+        true
+      )
+
+      await expect(
+        service.publishJudgeRequestMessage({
+          code: submissions[0].code,
+          submission,
+          isUserTest: true,
+          userTestcases,
+          stopOnNotAccepted: true
+        })
+      ).not.to.be.rejected
+
+      expect(
+        findSpy.calledOnceWith({
+          where: {
+            id: submission.problemId
+          },
+          select: {
+            id: true,
+            timeLimit: true,
+            memoryLimit: true
+          }
+        })
+      ).to.be.true
+      expect(
+        mqttSpy.calledOnceWith(
+          userTestcaseJudgeRequest,
+          submission.id,
+          false,
+          true
+        )
+      ).to.be.true
+    })
+
+    it('should create JudgeRequest with additional parameters', async () => {
+      const findSpy = sandbox
+        .stub(db.problem, 'findUnique')
+        .resolves(problems[0])
+      const mqttSpy = sandbox
+        .stub(mqttService, 'publishJudgeRequestMessage')
+        .resolves()
+      const judgeRequest = new JudgeRequest(
+        submissions[0].code,
+        submission.language,
+        problems[0],
+        true,
+        true,
+        true
+      )
+
+      await expect(
+        service.publishJudgeRequestMessage({
+          code: submissions[0].code,
+          submission,
+          stopOnNotAccepted: true,
+          judgeOnlyHiddenTestcases: true,
+          containHiddenTestcases: true
+        })
+      ).not.to.be.rejected
+
+      expect(
+        findSpy.calledOnceWith({
+          where: {
+            id: submission.problemId
+          },
+          select: {
+            id: true,
+            timeLimit: true,
+            memoryLimit: true
+          }
+        })
+      ).to.be.true
+      expect(mqttSpy.calledOnceWith(judgeRequest, submission.id, false, false))
+        .to.be.true
     })
   })
 })
