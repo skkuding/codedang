@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
 import { GroupMemberGuard, RolesModule } from '@libs/auth'
@@ -13,7 +14,7 @@ import {
 import { SubmissionService } from './submission.service'
 
 @Module({
-  imports: [RabbitMQLibModule, RolesModule, ProblemModule],
+  imports: [HttpModule, RabbitMQLibModule, RolesModule, ProblemModule],
   controllers: [
     SubmissionController,
     ContestSubmissionController,
