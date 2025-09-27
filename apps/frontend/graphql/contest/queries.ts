@@ -200,6 +200,7 @@ const GET_CONTEST_QNAS = gql(`query GetContestQnas($contestId: Int!
       problemId
       category
       isResolved
+      isRead
       createTime
       contestId
       createdBy {

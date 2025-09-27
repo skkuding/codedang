@@ -13,6 +13,7 @@ export interface DataTableQna {
   createTime: string
   category: string
   isResolved: boolean
+  isRead: boolean
   contestId: number
   problemId?: number | null
   createdBy?: { username: string } | null
@@ -112,7 +113,14 @@ export const createColumns = (
       />
     ),
     cell: ({ row }) => {
-      return row.getValue('title')
+      return (
+        <div>
+          {row.getValue('title')}
+          {!row.original.isRead && (
+            <span className="bg-primary ml-2 inline-block h-2 w-2 rounded-full" />
+          )}
+        </div>
+      )
     },
     enableSorting: false,
     enableHiding: false

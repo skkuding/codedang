@@ -6,7 +6,7 @@ import { useSuspenseQuery, useQuery } from '@apollo/client'
 import { useLazyQuery } from '@apollo/client'
 import type { Row, Table } from '@tanstack/react-table'
 import { useParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   DataTable,
   DataTableFallback,
@@ -23,6 +23,7 @@ import { useQnaCommentsSync } from './context/RefetchingQnaStoreProvider'
 export function ContestQnaTable() {
   const { contestId } = useParams<{ contestId: string }>()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const prevModalStatus = useRef(isModalOpen)
   const [selectedQnaOrder, setSelectedQnaOrder] = useState<number | null>(null)
   const [clickUnanswered, setClickUnanswered] = useState(false)
   const [dataCount, setDataCount] = useState(0)
@@ -48,7 +49,6 @@ export function ContestQnaTable() {
   const refreshTrigger = useQnaCommentsSync((s) => s.refreshTrigger)
 
   useEffect(() => {
-    console.log('refreshTrigger', refreshTrigger)
     refetchQnas()
   }, [refreshTrigger, refetchQnas])
 
@@ -57,6 +57,13 @@ export function ContestQnaTable() {
     id: Number(qna.id),
     createTime: String(qna.createTime)
   }))
+  useEffect(() => {
+    if (prevModalStatus.current === true && isModalOpen === false) {
+      refetchQnas()
+    }
+    prevModalStatus.current = isModalOpen
+  }, [isModalOpen, refetchQnas])
+
   const { data: problemsData } = useQuery(GET_CONTEST_PROBLEMS, {
     variables: {
       contestId: Number(contestId)
@@ -97,7 +104,7 @@ export function ContestQnaTable() {
         <DataTable onRowClick={handleRowClick} bodyStyle={bodyStyle} />
         <DataTablePagination />
       </DataTableRoot>
-      {isModalOpen && selectedQnaOrder !== null && (
+      {isModalOpen && selectedQnaOrder && (
         <QnaDetailModal
           open={isModalOpen}
           onOpenChange={setIsModalOpen}

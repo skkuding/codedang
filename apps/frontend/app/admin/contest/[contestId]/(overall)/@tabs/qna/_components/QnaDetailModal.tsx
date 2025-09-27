@@ -75,7 +75,6 @@ export function QnaDetailModal({
       open={open}
       onOpenChange={onOpenChange}
       title=""
-      className="h-[1065px]!"
     >
       <ScrollArea>
         {data?.getContestQnA ? (
