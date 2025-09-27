@@ -72,7 +72,8 @@ export class MqttService implements OnModuleInit {
     judgeRequest: object,
     submissionId: number,
     isTest = false,
-    isUserTest = false
+    isUserTest = false,
+    isRejudge = false
   ): Promise<void> {
     const span = this.traceService.startSpan(
       'publishJudgeRequestMessage.publish'
@@ -83,7 +84,7 @@ export class MqttService implements OnModuleInit {
       messageId: String(submissionId),
       persistent: true,
       type: this.calculateMessageType(isTest, isUserTest),
-      priority: this.calculateMessagePriority(isTest, isUserTest)
+      priority: this.calculateMessagePriority(isTest, isUserTest, isRejudge)
     })
     span.end()
   }
@@ -100,7 +101,16 @@ export class MqttService implements OnModuleInit {
   /**
    * 메시지 우선순위를 계산하여 반환
    */
-  private calculateMessagePriority(isTest: boolean, isUserTest: boolean) {
+  private calculateMessagePriority(
+    isTest: boolean,
+    isUserTest: boolean,
+    isRejudge: boolean
+  ) {
+    // 재채점인 경우 항상 LOW priority
+    if (isRejudge) {
+      return MESSAGE_PRIORITY_LOW
+    }
+
     const msgType = this.calculateMessageType(isTest, isUserTest)
 
     switch (msgType) {
