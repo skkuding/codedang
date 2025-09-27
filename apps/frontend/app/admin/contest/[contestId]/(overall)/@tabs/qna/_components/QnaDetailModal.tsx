@@ -75,9 +75,9 @@ export function QnaDetailModal({
       open={open}
       onOpenChange={onOpenChange}
       title=""
-      className="h-full! max-h-[1065px]! px-[20px]!"
+      className="h-[1065px]!"
     >
-      <ScrollArea className="h-full max-h-[1065px] px-[20px]">
+      <ScrollArea>
         {data?.getContestQnA ? (
           <div className="flex w-full flex-col gap-[20px] leading-[150%] tracking-[-3%]">
             <AdminQnaContentArea
