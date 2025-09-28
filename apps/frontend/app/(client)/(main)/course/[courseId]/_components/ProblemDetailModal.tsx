@@ -47,12 +47,12 @@ export function ProblemDetailModal({
   return (
     submission && (
       <DialogContent
-        className="max-h-[80vh] overflow-auto p-14 sm:max-w-2xl"
+        className="max-h-[80vh] overflow-auto overflow-hidden p-0 pb-[30px] pl-10 pt-11 sm:max-w-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle>
-            <div className="flex items-center gap-2 overflow-hidden truncate whitespace-nowrap text-lg font-medium">
+            <div className="flex items-center gap-[6px] overflow-hidden truncate whitespace-nowrap text-lg font-medium">
               <span
                 title={`Week ${assignment.week}`}
                 className="max-w-[80px] truncate"
@@ -82,9 +82,9 @@ export function ProblemDetailModal({
             </div>
           </DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 pr-10">
           {submission && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-[14px]">
               <span className="text-sm font-medium">Last Submission</span>
               <ScrollArea className="rounded-md">
                 <div className="**:whitespace-nowrap flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-[14px] [&_p]:text-slate-400">
@@ -127,7 +127,7 @@ export function ProblemDetailModal({
             </div>
           )}
           {testResults && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-[14px]">
               <span className="text-sm font-medium">Testcase Result</span>
               <table
                 className="w-full border-separate text-center text-sm"
@@ -184,7 +184,7 @@ export function ProblemDetailModal({
             </div>
           )}
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-[14px]">
             <span className="text-sm font-medium">Source Code</span>
             <CodeEditor
               value={testResults?.code ?? ''}

@@ -995,6 +995,26 @@ type ContestQnASumAggregate {
   readBy: [Int!]
 }
 
+type ContestQnAWithIsRead {
+  _count: ContestQnACount!
+  category: QnACategory!
+  comments: [ContestQnAComment!]
+  content: String!
+  contest: Contest!
+  contestId: Int!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  id: ID!
+  isRead: Boolean!
+  isResolved: Boolean!
+  order: Int!
+  problem: Problem
+  problemId: Int
+  readBy: [Int!]
+  title: String!
+}
+
 type ContestRecord {
   ContestProblemFirstSolver: [ContestProblemFirstSolver!]
   _count: ContestRecordCount!
@@ -1922,7 +1942,7 @@ type Problem {
   testSubmission: [TestSubmission!]
   timeLimit: Int!
   title: String!
-  updateContentTime: DateTime!
+  updateContentTime: DateTime
   updateHistory: [UpdateHistory!]
   updateTime: DateTime!
   visibleLockTime: DateTime!
@@ -2275,7 +2295,7 @@ type ProblemWithIsVisible {
   testcase: [ProblemTestcase!]!
   timeLimit: Int!
   title: String!
-  updateContentTime: DateTime!
+  updateContentTime: DateTime
   updateHistory: [UpdateHistory!]!
   updateTime: DateTime!
   workbookProblem: [WorkbookProblem!]
@@ -2366,7 +2386,7 @@ type Query {
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestProblems(contestId: Int!): [ContestProblem!]!
   getContestQnA(contestId: Int!, order: Int!): ContestQnA!
-  getContestQnAs(contestId: Int!, cursor: Int, filter: GetContestQnAsFilterInput, take: Int! = 10): [ContestQnA!]!
+  getContestQnAs(contestId: Int!, cursor: Int, filter: GetContestQnAsFilterInput, take: Int! = 10): [ContestQnAWithIsRead!]!
   getContestRoles: [UserContest!]!
   getContestScoreSummaries(contestId: Int!, cursor: Int, searchingName: String, take: Int! = 10): [UserContestScoreSummaryWithUserInfo!]!
   getContestSubmissionSummaryByUserId(contestId: Int!, cursor: Int, problemId: Int, take: Int! = 10, userId: Int!): ContestSubmissionSummaryForUser!
