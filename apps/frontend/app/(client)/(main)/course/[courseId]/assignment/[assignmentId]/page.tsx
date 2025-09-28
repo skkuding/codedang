@@ -177,6 +177,7 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
                 pathSegment={'problem'}
               />
             </div>
+
             {/* Mobile Card View */}
             <div className="lg:hidden">
               <div className="space-y-3">

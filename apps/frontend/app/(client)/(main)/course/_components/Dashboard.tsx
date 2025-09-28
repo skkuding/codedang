@@ -34,7 +34,7 @@ interface WorkItem {
   submittedCount: number
   week?: number
   status?: WorkStatus
-  raw: Assignment // ← 원본 Assignment 보관 (AssignmentLink로 전달)
+  raw: Assignment
 }
 
 interface GroupedRows {
@@ -251,8 +251,6 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
     }
     return [...uniq].map((t) => new Date(t))
   }, [allRows])
-
-  // 각 row에서 courseId를 얻는 방법: 여기서는 group.id를 사용
   const courseIdResolver = (row: WorkItem) => row.group.id
 
   return (
@@ -418,7 +416,6 @@ function CardSection({
                           key={row.id}
                           className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
                         >
-                          {/* 진행도 배경 */}
                           <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-neutral-200/40" />
                           <div
                             className="pointer-events-none absolute inset-y-0 left-0 rounded-r-md bg-violet-200"
@@ -431,7 +428,6 @@ function CardSection({
                                 <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-violet-500" />
                               </div>
 
-                              {/* 여기서 AssignmentLink 사용 */}
                               <div className="min-w-0">
                                 <AssignmentLink
                                   assignment={row.raw}
