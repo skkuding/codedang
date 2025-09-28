@@ -261,7 +261,6 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
         </h2>
       </div>
 
-      {/* Desktop Layout */}
       <div className="hidden gap-[14px] sm:grid md:grid-cols-2 lg:grid-cols-3">
         <CardSection
           icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
@@ -294,7 +293,6 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
         />
       </div>
 
-      {/* Mobile Layout */}
       <div className="sm:hidden">
         <div className="w-full origin-top">
           <DashboardCalendar

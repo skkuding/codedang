@@ -24,40 +24,50 @@ interface ExerciseDetailProps {
 
 export default function ExerciseDetail(props: ExerciseDetailProps) {
   const params = use(props.params)
-  const { exerciseId, courseId } = params
+  const exerciseId = Number(params.exerciseId)
+  const courseId = Number(params.courseId)
 
-  const invalidParams =
-    !Number.isFinite(exerciseId) ||
-    !Number.isFinite(courseId) ||
-    exerciseId <= 0 ||
-    courseId <= 0
+  const { data: exercise, isFetched: exerciseFetched } = useQuery(
+    assignmentQueries.single({ assignmentId: exerciseId })
+  )
 
-  const { data: exercise, isFetched: exerciseFetched } = useQuery({
-    ...assignmentQueries.single({ assignmentId: exerciseId }),
-    enabled: !invalidParams
-  })
-
-  const { data: record } = useQuery({
-    ...assignmentQueries.record({ assignmentId: exerciseId }),
-    enabled: !invalidParams
-  })
+  const { data: record } = useQuery(
+    assignmentQueries.record({ assignmentId: exerciseId })
+  )
 
   const { data: submissions } = useQuery({
     ...assignmentSubmissionQueries.summary({
-      assignmentId: exercise?.id ?? 0
+      assignmentId: (exercise?.id as number) ?? 0
     }),
-    enabled: !invalidParams && Boolean(exercise?.id)
+    enabled: Boolean(exercise?.id)
   })
 
-  const { data: problems } = useQuery({
-    ...assignmentProblemQueries.list({
+  const { data: problems } = useQuery(
+    assignmentProblemQueries.list({
       assignmentId: exerciseId,
       groupId: courseId
-    }),
-    enabled: !invalidParams
-  })
+    })
+  )
 
-  if (invalidParams) {
+  const invalidId =
+    !Number.isFinite(exerciseId) ||
+    exerciseId <= 0 ||
+    !Number.isFinite(courseId) ||
+    courseId <= 0
+
+  const notFound = exerciseFetched && !exercise
+
+  const endTimeMs = exercise ? new Date(exercise.endTime).getTime() : NaN
+  const isEnded = Number.isFinite(endTimeMs) && endTimeMs < Date.now()
+
+  const userHasAnySubmission =
+    Array.isArray(submissions) &&
+    submissions.some((s) => s && s.submission !== null)
+  const isUser = Boolean(record) && userHasAnySubmission
+
+  const shouldShowError = invalidId || notFound || (isUser && isEnded)
+
+  if (shouldShowError) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
         <Image
@@ -65,32 +75,13 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
           alt="Error"
           className="mx-auto block h-auto max-w-full"
         />
-        <p className="mt-4 text-[24px] font-semibold text-neutral-700">
-          This assignment is unavailable.
+        <p className="mt-4 text-[20px] font-semibold text-neutral-700">
+          This exercise is unavailable.
           <br />
           Please check the URL or try again later.
         </p>
       </div>
     )
-  }
-  if (exerciseFetched) {
-    const groupId = Number(exercise?.group?.id ?? 0)
-    if (!groupId || groupId !== Number(courseId)) {
-      return (
-        <div className="flex min-h-[60vh] flex-col items-center justify-center p-6 text-center">
-          <Image
-            src={errorImage}
-            alt="Error"
-            className="mx-auto block h-auto max-w-full"
-          />
-          <p className="mt-4 text-[24px] font-semibold text-neutral-700">
-            This assignment is unavailable.
-            <br />
-            Please check the URL or try again later.
-          </p>
-        </div>
-      )
-    }
   }
 
   return (
@@ -111,12 +102,10 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
 
         <div className="flex flex-col gap-[30px]">
           <p className="text-2xl font-semibold">DESCRIPTION</p>
-          {exercise && (
-            <KatexContent
-              content={exercise.description}
-              classname="text-[#7F7F7F] font-normal text-base"
-            />
-          )}
+          <KatexContent
+            content={exercise.description}
+            classname="text-[#7F7F7F] font-normal text-base"
+          />
         </div>
 
         <Separator className="my-0" />
@@ -140,7 +129,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
                   </span>
                   <span className="text-primary text-base font-semibold">
                     {
-                      submissions?.filter(
+                      (submissions || []).filter(
                         (submission) => submission.submission !== null
                       ).length
                     }
@@ -171,7 +160,6 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
 
         {record && submissions && (
           <>
-            {/* Desktop Table View */}
             <div className="hidden lg:block">
               <DataTable
                 data={record.problems}
@@ -188,7 +176,6 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
               />
             </div>
 
-            {/* Mobile Card View */}
             <div className="lg:hidden">
               <div className="space-y-3">
                 {record.problems.map((problem, index) => (
