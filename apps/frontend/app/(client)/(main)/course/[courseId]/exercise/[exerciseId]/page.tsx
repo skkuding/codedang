@@ -7,7 +7,7 @@ import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assign
 import { AssignmentStatus } from '@/components/AssignmentStatus'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
-import welcomeImage from '@/public/logos/welcome.png'
+import errorImage from '@/public/logos/error.webp'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { use } from 'react'
@@ -26,147 +26,136 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
   const params = use(props.params)
   const { exerciseId, courseId } = params
 
-  const { data: exercise, isFetched: isExerciseFetched } = useQuery(
-    assignmentQueries.single({ assignmentId: exerciseId })
-  )
+  const invalidParams =
+    !Number.isFinite(exerciseId) ||
+    !Number.isFinite(courseId) ||
+    exerciseId <= 0 ||
+    courseId <= 0
 
-  const { data: record } = useQuery(
-    assignmentQueries.record({ assignmentId: exerciseId })
-  )
+  const { data: exercise, isFetched: exerciseFetched } = useQuery({
+    ...assignmentQueries.single({ assignmentId: exerciseId }),
+    enabled: !invalidParams
+  })
 
-  const { data: submissions } = useQuery(
-    assignmentSubmissionQueries.summary({ assignmentId: exercise?.id ?? 0 })
-  )
+  const { data: record } = useQuery({
+    ...assignmentQueries.record({ assignmentId: exerciseId }),
+    enabled: !invalidParams
+  })
 
-  const {
-    data: problems,
-    isFetched: isProblemsFetched,
-    isSuccess: isProblemsSuccess
-  } = useQuery({
+  const { data: submissions } = useQuery({
+    ...assignmentSubmissionQueries.summary({
+      assignmentId: exercise?.id ?? 0
+    }),
+    enabled: !invalidParams && Boolean(exercise?.id)
+  })
+
+  const { data: problems } = useQuery({
     ...assignmentProblemQueries.list({
       assignmentId: exerciseId,
       groupId: courseId
     }),
-    retry: false
+    enabled: !invalidParams
   })
 
-  let startDate: Date | null = null
-  if (exercise?.startTime) {
-    startDate =
-      typeof exercise.startTime === 'string'
-        ? new Date(exercise.startTime)
-        : exercise.startTime
+  if (invalidParams) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
+        <Image
+          src={errorImage}
+          alt="Error"
+          className="mx-auto block h-auto max-w-full"
+        />
+        <p className="mt-4 text-[24px] font-semibold text-neutral-700">
+          This assignment is unavailable.
+          <br />
+          Please check the URL or try again later.
+        </p>
+      </div>
+    )
   }
-  const isPreStartByTime =
-    startDate !== null && startDate.getTime() > Date.now()
-  const isPreStartByNoData = isExerciseFetched && exercise === undefined
-
-  const canAccess =
-    (!isPreStartByTime && !isPreStartByNoData) || isProblemsSuccess
-
-  const showPreStart = isExerciseFetched && isProblemsFetched && !canAccess
+  if (exerciseFetched) {
+    const groupId = Number(exercise?.group?.id ?? 0)
+    if (!groupId || groupId !== Number(courseId)) {
+      return (
+        <div className="flex min-h-[60vh] flex-col items-center justify-center p-6 text-center">
+          <Image
+            src={errorImage}
+            alt="Error"
+            className="mx-auto block h-auto max-w-full"
+          />
+          <p className="mt-4 text-[24px] font-semibold text-neutral-700">
+            This assignment is unavailable.
+            <br />
+            Please check the URL or try again later.
+          </p>
+        </div>
+      )
+    }
+  }
 
   return (
-    <div className="flex flex-col gap-[45px] px-4 py-[80px] lg:px-[100px]">
-      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
-        {exercise && (
-          <>
-            <p className="text-2xl font-semibold">
-              <span className="text-primary">[Week {exercise.week}] </span>
-              {exercise.title}
-            </p>
-            <AssignmentStatus
-              startTime={exercise.startTime}
-              dueTime={exercise.dueTime ?? exercise.endTime}
-            />
-          </>
-        )}
-      </div>
+    exercise && (
+      <div className="flex flex-col gap-[45px] px-4 py-[80px] lg:px-[100px]">
+        <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
+          <p className="text-2xl font-semibold">
+            <span className="text-primary">[Week {exercise.week}] </span>
+            {exercise.title}
+          </p>
+          <AssignmentStatus
+            startTime={exercise.startTime}
+            dueTime={exercise.dueTime ?? exercise.endTime}
+          />
+        </div>
 
-      <Separator className="my-0" />
+        <Separator className="my-0" />
 
-      {showPreStart && (
-        <>
-          <div className="flex flex-col items-center">
-            <Image src={welcomeImage} alt="welcome_image" />
-            <p className="text-center font-normal text-neutral-500">
-              This exercise hasn&apos;t started yet.
-              <br />
-              Please wait until the start time.
-            </p>
-          </div>
-          <Separator className="my-0" />
-        </>
-      )}
-
-      {!showPreStart && exercise && (
-        <>
-          <div className="flex flex-col gap-[30px]">
-            <p className="text-2xl font-semibold">DESCRIPTION</p>
+        <div className="flex flex-col gap-[30px]">
+          <p className="text-2xl font-semibold">DESCRIPTION</p>
+          {exercise && (
             <KatexContent
               content={exercise.description}
               classname="text-[#7F7F7F] font-normal text-base"
             />
-          </div>
-          <Separator className="my-0" />
-        </>
-      )}
+          )}
+        </div>
 
-      {!showPreStart && problems && (
-        <div>
-          <p className="mb-[16px] text-2xl font-semibold">PROBLEMS</p>
-          <div className="flex gap-[30px] lg:mb-[42px]">
-            <div className="flex gap-[6px]">
-              <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
-                Total
-              </span>
-              <span className="text-primary text-base font-semibold">
-                {problems.total}
-              </span>
-            </div>
-            {record && (
+        <Separator className="my-0" />
+
+        {problems && (
+          <div>
+            <p className="mb-[16px] text-2xl font-semibold">PROBLEMS</p>
+            <div className="flex gap-[30px] lg:mb-[42px]">
               <div className="flex gap-[6px]">
                 <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
-                  Submit
+                  Total
                 </span>
                 <span className="text-primary text-base font-semibold">
-                  {
-                    (submissions ?? []).filter(
-                      (submission) => submission.submission !== null
-                    ).length
-                  }
+                  {problems.total}
                 </span>
               </div>
-            )}
+              {record && (
+                <div className="flex gap-[6px]">
+                  <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
+                    Submit
+                  </span>
+                  <span className="text-primary text-base font-semibold">
+                    {
+                      submissions?.filter(
+                        (submission) => submission.submission !== null
+                      ).length
+                    }
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {!showPreStart && !(record && submissions) && problems && (
-        <div className="hidden lg:block">
-          <DataTable
-            data={problems.data}
-            columns={problemColumns()}
-            headerStyle={{
-              order: 'w-[10%]',
-              title: 'text-left w-[40%]',
-              submissions: 'w-[20%]',
-              tc_result: 'w-[20%]',
-              detail: 'w-[10%]'
-            }}
-            linked
-            pathSegment="problem"
-          />
-        </div>
-      )}
-
-      {!showPreStart && record && submissions && exercise && (
-        <>
-          {/* Desktop Table View */}
+        {!(record && submissions) && problems && (
           <div className="hidden lg:block">
             <DataTable
-              data={record.problems}
-              columns={columns(record, exercise, courseId, submissions)}
+              data={problems.data}
+              columns={problemColumns()}
               headerStyle={{
                 order: 'w-[10%]',
                 title: 'text-left w-[40%]',
@@ -175,28 +164,49 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
                 detail: 'w-[10%]'
               }}
               linked
-              pathSegment="problem"
+              pathSegment={'problem'}
             />
           </div>
+        )}
 
-          {/* Mobile Card View */}
-          <div className="lg:hidden">
-            <div className="space-y-3">
-              {record.problems.map((problem, index) => (
-                <ProblemCard
-                  key={problem.id}
-                  problem={problem}
-                  parentItem={exercise}
-                  submissions={submissions}
-                  index={index}
-                  courseId={courseId}
-                  type="exercise"
-                />
-              ))}
+        {record && submissions && (
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block">
+              <DataTable
+                data={record.problems}
+                columns={columns(record, exercise, courseId, submissions)}
+                headerStyle={{
+                  order: 'w-[10%]',
+                  title: 'text-left w-[40%]',
+                  submissions: 'w-[20%]',
+                  tc_result: 'w-[20%]',
+                  detail: 'w-[10%]'
+                }}
+                linked
+                pathSegment={'problem'}
+              />
             </div>
-          </div>
-        </>
-      )}
-    </div>
+
+            {/* Mobile Card View */}
+            <div className="lg:hidden">
+              <div className="space-y-3">
+                {record.problems.map((problem, index) => (
+                  <ProblemCard
+                    key={problem.id}
+                    problem={problem}
+                    parentItem={exercise}
+                    submissions={submissions}
+                    index={index}
+                    courseId={courseId}
+                    type="exercise"
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    )
   )
 }
