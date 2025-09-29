@@ -77,7 +77,10 @@ spec:
               patch: |-
                 - op: replace
                   path: /spec/template/spec/containers/0/envFrom/1/secretRef/name
-                  value: 'preview-{{.number}}-frontend-secrets'
+                  value: 'preview-{{.number}}-security-keys'
+                - op: replace
+                  path: /spec/template/spec/containers/0/envFrom/2/secretRef/name
+                  value: 'preview-{{.number}}-aws-credentials'
             - target:
                 kind: Service
                 name: frontend
