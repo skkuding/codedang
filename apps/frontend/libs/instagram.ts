@@ -1,6 +1,6 @@
 import {
-  SecretsManagerClient,
-  GetSecretValueCommand
+  GetSecretValueCommand,
+  SecretsManagerClient
 } from '@aws-sdk/client-secrets-manager'
 import { cache } from 'react'
 import 'server-only'
@@ -9,16 +9,19 @@ const client = new SecretsManagerClient({ region: process.env.AWS_REGION })
 
 export const getInstagramToken = cache(async () => {
   const command = new GetSecretValueCommand({
-    SecretId: 'Instagram_Access_Token'
+    SecretId: 'Codedang-Instagram-Token'
   })
   const response = await client.send(command)
   const secret = JSON.parse(response.SecretString || '{}')
 
-  const token = secret.access_token
-  if (!token) {
-    throw new Error('Instagram_Access_Token not found in secret.')
+  if (!secret.access_token) {
+    console.error('access_token missing from secret - manual setup required')
+    throw new ReferenceError(
+      'No access_token found in the secret. If you just created the secret, please set an initial value manually.'
+    )
   }
-  return token
+
+  return secret.access_token
 })
 
 export async function fetchInstagramMedia() {
