@@ -38,7 +38,6 @@ export function EditorDescription({
               className="h-[25px] w-[70px] items-center justify-center bg-[#474747] px-2 py-1 text-xs font-semibold leading-[140%] tracking-[-0.36px] hover:bg-[#474747]"
               textColors={level}
             >
-              {/* dark level badge */}
               {`Level ${levelNumber}`}
             </Badge>
           )}
