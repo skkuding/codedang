@@ -408,7 +408,7 @@ export class ProblemService {
         sharedGroups: true
       }
     })
-    if (userRole != Role.Admin) {
+    if (userRole != Role.Admin && userRole != Role.SuperAdmin) {
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({
           where: {
@@ -692,7 +692,8 @@ export class ProblemService {
               }
             ]
           }
-        })
+        }),
+        updateContentTime: new Date()
       },
       include: {
         updateHistory: true // 항상 updateHistory 포함

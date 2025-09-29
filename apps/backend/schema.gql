@@ -1922,6 +1922,7 @@ type Problem {
   testSubmission: [TestSubmission!]
   timeLimit: Int!
   title: String!
+  updateContentTime: DateTime!
   updateHistory: [UpdateHistory!]
   updateTime: DateTime!
   visibleLockTime: DateTime!
@@ -1977,6 +1978,7 @@ type ProblemCountAggregate {
   template: Int!
   timeLimit: Int!
   title: Int!
+  updateContentTime: Int!
   updateTime: Int!
   visibleLockTime: Int!
 }
@@ -2012,6 +2014,7 @@ type ProblemMaxAggregate {
   submissionCount: Int
   timeLimit: Int
   title: String
+  updateContentTime: DateTime
   updateTime: DateTime
   visibleLockTime: DateTime
 }
@@ -2037,6 +2040,7 @@ type ProblemMinAggregate {
   submissionCount: Int
   timeLimit: Int
   title: String
+  updateContentTime: DateTime
   updateTime: DateTime
   visibleLockTime: DateTime
 }
@@ -2271,6 +2275,7 @@ type ProblemWithIsVisible {
   testcase: [ProblemTestcase!]!
   timeLimit: Int!
   title: String!
+  updateContentTime: DateTime!
   updateHistory: [UpdateHistory!]!
   updateTime: DateTime!
   workbookProblem: [WorkbookProblem!]
