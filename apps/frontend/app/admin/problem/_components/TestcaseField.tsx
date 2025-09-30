@@ -23,11 +23,13 @@ import { TestcaseUploadModal } from './TestcaseUploadModal'
 
 export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const {
-    formState: { errors },
+    formState: { errors, submitCount },
     getValues,
     setValue,
     control,
-    trigger
+    trigger,
+    setError,
+    clearErrors
   } = useFormContext()
 
   const watchedItems: Testcase[] = useWatch({ name: 'testcases', control })
@@ -259,8 +261,8 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
     }
   }
 
-  const totalScore = useMemo(() => {
-    const score = watchedItems.reduce((acc, tc) => {
+  const { totalScoreNum, totalScoreText } = useMemo(() => {
+    const total = watchedItems.reduce((acc, tc) => {
       if (typeof tc.scoreWeight === 'number') {
         return acc + tc.scoreWeight
       }
@@ -271,8 +273,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       }
       return acc
     }, 0)
-
-    return score.toFixed(2)
+    return { totalScoreNum: total, totalScoreText: total.toFixed(2) }
   }, [watchedItems])
 
   useEffect(() => {
@@ -310,6 +311,21 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
       setShowTooltip(false)
     }
   }
+
+  const EPS = 0.0001
+  const mustSumToHundred = Math.abs(totalScoreNum - 100) <= EPS
+  const showSumError = submitCount > 0 && !mustSumToHundred
+
+  useEffect(() => {
+    if (showSumError) {
+      setError('testcases', {
+        type: 'manual',
+        message: 'Testcase values must add up to 100'
+      })
+    } else {
+      clearErrors('testcases')
+    }
+  }, [showSumError, setError, clearErrors])
 
   return (
     <div
@@ -449,6 +465,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             })}
           </div>
           {totalPages > 1 && <Paginator {...paginatorProps} />}
+          {showSumError && (
+            <p className="mt-2 text-center text-sm font-semibold text-red-500">
+              Testcase values must add up to 100
+            </p>
+          )}
         </div>
       )}
       {testcaseFlag === 1 && (
@@ -550,6 +571,11 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             })}
           </div>
           {totalPages > 1 && <Paginator {...paginatorProps} />}
+          {showSumError && (
+            <p className="mt-2 text-sm font-semibold text-red-500">
+              Testcase values must add up to 100
+            </p>
+          )}
         </div>
       )}
       <div className="mt-10 flex w-full justify-between">
@@ -586,7 +612,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             {filteredItems.length}
           </span>
           <div className="hide-spin-button mr-1 flex h-7 w-20 items-center justify-center rounded-[1000px] border border-[#D8D8D8] bg-[#F5F5F5] px-2 py-1 text-center text-base font-medium text-[#000000]">
-            {totalScore}
+            {totalScoreText}
           </div>
           <span className="text-sm font-semibold text-[#737373]">(%)</span>
         </div>
