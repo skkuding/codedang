@@ -383,7 +383,7 @@ export class QnaService {
       }
     })
     if (!qna) {
-      throw new EntityNotExistException('QnA')
+      throw new EntityNotExistException('CourseQnA')
     }
 
     const comment = await this.prisma.courseQnAComment.findUnique({
@@ -393,7 +393,7 @@ export class QnaService {
       }
     })
     if (!comment) {
-      throw new EntityNotExistException('Comment')
+      throw new EntityNotExistException('CourseQnAComment')
     }
 
     const isCourseStaff =
