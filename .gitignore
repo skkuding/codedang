@@ -115,6 +115,9 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# Temporary .zip files for AWS Lambda
+*.tmp.zip
+
 # Docker Mount
 /mnt
 
@@ -141,7 +144,3 @@ coverage
 *.pkg
 
 .idea
-
-# Helm chart
-charts/
-*.tgz
