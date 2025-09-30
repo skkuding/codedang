@@ -120,33 +120,33 @@ export class QnaService {
       ]
     }
 
-    // 기획서 필터링 로직
     if (filter.isAnswered !== undefined) {
       baseWhere.isResolved = filter.isAnswered
     }
 
-    // 카테고리 및 문제 필터링 로직
-    const orConds: Prisma.CourseQnAWhereInput[] = []
+    // 카테고리 필터링 로직 수정
+    const orConditions: Prisma.CourseQnAWhereInput[] = []
     const categories = filter.categories ?? []
+
+    const includeGeneral = categories.includes(CourseQnACategory.General)
     const includeProblem = categories.includes(CourseQnACategory.Problem)
-    const general = categories.filter((c) => c !== CourseQnACategory.Problem)
+
+    if (includeGeneral) {
+      orConditions.push({ category: CourseQnACategory.General })
+    }
 
     if (includeProblem) {
-      if (filter.problemIds?.length) {
-        orConds.push({
-          category: CourseQnACategory.Problem,
-          problemId: { in: filter.problemIds }
-        })
-      } else {
-        orConds.push({ category: CourseQnACategory.Problem })
+      const problemCondition: Prisma.CourseQnAWhereInput = {
+        category: CourseQnACategory.Problem
       }
-    }
-    if (general.length) {
-      orConds.push({ category: { in: general } })
+      if (filter.problemIds?.length) {
+        problemCondition.problemId = { in: filter.problemIds }
+      }
+      orConditions.push(problemCondition)
     }
 
-    const where: Prisma.CourseQnAWhereInput = orConds.length
-      ? { AND: [baseWhere, { OR: orConds }] }
+    const where: Prisma.CourseQnAWhereInput = orConditions.length
+      ? { AND: [baseWhere, { OR: orConditions }] }
       : baseWhere
 
     if (filter.search) {
