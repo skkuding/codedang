@@ -217,7 +217,7 @@ export class QnaService {
     })
 
     if (!qna) {
-      throw new EntityNotExistException('CourseQnA')
+      throw new EntityNotExistException('QnA')
     }
 
     if (qna.isPrivate) {
@@ -232,16 +232,26 @@ export class QnaService {
       }
     }
 
+    // 👇 수정된 부분: 읽음 처리 로직을 트랜잭션으로 묶고, 업데이트된 데이터를 반환
     if (userId != null && !qna.readBy.includes(userId)) {
-      await this.prisma.courseQnA.update({
+      return await this.prisma.courseQnA.update({
         where: { id: qna.id },
         data: {
           readBy: {
             push: userId
           }
+        },
+        include: {
+          // 기존 include와 동일하게 맞춰주어야 반환 타입이 일치합니다.
+          comments: {
+            include: { createdBy: { select: { username: true } } },
+            orderBy: { order: 'asc' }
+          },
+          createdBy: { select: { username: true } }
         }
       })
     }
+
     return qna
   }
 
