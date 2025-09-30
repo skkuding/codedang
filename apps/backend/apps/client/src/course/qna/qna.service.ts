@@ -44,15 +44,6 @@ export class QnaService {
       throw new ForbiddenAccessException('Not a member of this course')
     }
 
-    const createInput: Prisma.CourseQnACreateInput = {
-      ...data,
-      createdBy: { connect: { id: userId } },
-      group: { connect: { id: group.id } },
-      order: 0, // Placeholder, will be replaced in transaction
-      category: CourseQnACategory.General,
-      readBy: [userId]
-    }
-
     if (problemId) {
       const problem = await this.prisma.problem.findUnique({
         where: { id: problemId }
@@ -60,8 +51,6 @@ export class QnaService {
       if (!problem) {
         throw new EntityNotExistException('Problem')
       }
-      createInput.category = CourseQnACategory.Problem
-      createInput.problem = { connect: { id: problemId } }
     }
 
     return await this.prisma.$transaction(async (tx) => {
@@ -70,11 +59,24 @@ export class QnaService {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _max: { order: true }
       })
-      const order = (maxOrder._max?.order ?? 0) + 1
-      createInput.order = order
+      const newOrder = (maxOrder._max?.order ?? 0) + 1
 
       return await tx.courseQnA.create({
-        data: createInput
+        data: {
+          ...data,
+          createdBy: { connect: { id: userId } },
+          group: { connect: { id: group.id } },
+          order: newOrder,
+          readBy: [userId],
+          ...(problemId
+            ? {
+                category: CourseQnACategory.Problem,
+                problem: { connect: { id: problemId } }
+              }
+            : {
+                category: CourseQnACategory.General
+              })
+        }
       })
     })
   }
