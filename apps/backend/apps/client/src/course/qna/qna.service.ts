@@ -12,9 +12,19 @@ import type { CreateCourseQnADto, GetCourseQnAsFilterDto } from './dto/qna.dto'
 export class QnaService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * @description Course Q&A를 생성합니다.
+   * @param userId 작성자 ID
+   * @param courseId Course의 group ID
+   * @param data Q&A 생성에 필요한 데이터
+   * @param problemId 연결할 문제 ID (선택 사항)
+   * @returns 생성된 CourseQnA
+   * @throws {EntityNotExistException} Course 또는 Problem이 존재하지 않을 때
+   * @throws {ForbiddenAccessException} Course의 멤버가 아닐 때
+   */
   async createCourseQnA(
     userId: number,
-    courseId: number, // groupId
+    courseId: number, // this is actually groupId from the URL
     data: CreateCourseQnADto,
     problemId?: number
   ) {
@@ -38,7 +48,7 @@ export class QnaService {
       ...data,
       createdBy: { connect: { id: userId } },
       group: { connect: { id: group.id } },
-      order: 0,
+      order: 0, // Placeholder, will be replaced in transaction
       category: CourseQnACategory.General,
       readBy: [userId]
     }
@@ -69,9 +79,17 @@ export class QnaService {
     })
   }
 
+  /**
+   * @description Course Q&A 목록을 필터링하여 조회합니다.
+   * @param userId 현재 요청을 보낸 사용자 ID
+   * @param courseId Course의 group ID
+   * @param filter 필터링 조건
+   * @returns 필터링된 CourseQnA 목록 (isRead 필드 포함)
+   * @throws {EntityNotExistException} Course가 존재하지 않을 때
+   */
   async getCourseQnAs(
     userId: number | null,
-    courseId: number, // groupId
+    courseId: number, // this is actually groupId
     filter: GetCourseQnAsFilterDto
   ) {
     const groupId = courseId
@@ -161,6 +179,15 @@ export class QnaService {
     }))
   }
 
+  /**
+   * @description 특정 Course Q&A를 상세 조회합니다.
+   * @param userId 현재 요청을 보낸 사용자 ID
+   * @param courseId Course의 group ID
+   * @param order 조회할 Q&A의 order 번호
+   * @returns Q&A 상세 정보 (댓글 포함)
+   * @throws {EntityNotExistException} Course 또는 QnA가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 비밀글에 접근 권한이 없을 때
+   */
   async getCourseQnA(userId: number | null, courseId: number, order: number) {
     const groupId = courseId
     const group = await this.prisma.group.findUnique({
@@ -216,6 +243,15 @@ export class QnaService {
     return qna
   }
 
+  /**
+   * @description Course Q&A를 삭제합니다.
+   * @param userId 현재 요청을 보낸 사용자 ID
+   * @param courseId Course의 group ID
+   * @param order 삭제할 Q&A의 order 번호
+   * @returns 삭제된 CourseQnA
+   * @throws {EntityNotExistException} Course 또는 QnA가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 삭제 권한이 없을 때
+   */
   async deleteCourseQnA(userId: number, courseId: number, order: number) {
     const groupId = courseId
     const group = await this.prisma.group.findUnique({
@@ -248,6 +284,15 @@ export class QnaService {
     return await this.prisma.courseQnA.delete({ where: { id: qna.id } })
   }
 
+  /**
+   * @description Course Q&A에 댓글을 생성합니다.
+   * @param userId 댓글 작성자 ID
+   * @param courseId Course의 group ID
+   * @param order 댓글을 작성할 Q&A의 order 번호
+   * @param content 댓글 내용
+   * @returns 생성된 CourseQnAComment
+   * @throws {EntityNotExistException} Course 또는 QnA가 존재하지 않을 때
+   */
   async createCourseQnAComment(
     userId: number,
     courseId: number,
@@ -307,6 +352,16 @@ export class QnaService {
     })
   }
 
+  /**
+   * @description Course Q&A의 댓글을 삭제합니다.
+   * @param userId 현재 요청을 보낸 사용자 ID
+   * @param courseId Course의 group ID
+   * @param qnaOrder 댓글이 속한 Q&A의 order 번호
+   * @param commentOrder 삭제할 댓글의 order 번호
+   * @returns 삭제된 CourseQnAComment
+   * @throws {EntityNotExistException} Course, QnA, 또는 Comment가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 삭제 권한이 없을 때
+   */
   async deleteCourseQnAComment(
     userId: number,
     courseId: number,
