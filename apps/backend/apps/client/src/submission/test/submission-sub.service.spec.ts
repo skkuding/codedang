@@ -145,7 +145,8 @@ describe('SubmissionSubscriptionService', () => {
         {
           provide: MqttService,
           useFactory: () => ({
-            setMessageHandlers: () => []
+            setMessageHandlers: () => [],
+            startSubscription: () => []
           })
         },
         {

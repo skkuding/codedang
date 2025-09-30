@@ -883,17 +883,18 @@ export class SubmissionService {
             timeLimit: problem.timeLimit,
             memoryLimit: problem.memoryLimit
           },
-          false, // stopOnNotAccepted
-          false, // judgeOnlyHiddenTestcases
-          false // containHiddenTestcases
+          false,
+          false,
+          false
         )
 
         // 채점 요청 메세지 발행
         await this.mqttService.publishJudgeRequestMessage(
           judgeRequest,
           submissionId,
-          false, // isTest
-          false // isUserTest
+          false,
+          false,
+          true // isRejudge
         )
 
         processedCount++
