@@ -2,13 +2,18 @@
 import { UseGuards } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { CourseQnA, CourseQnAComment } from '@generated'
-import { AdminGuard, AuthenticatedRequest } from '@libs/auth'
+// AdminGuard, GroupLeaderGuard, JwtAuthGuard import 수정
+import {
+  AuthenticatedRequest,
+  GroupLeaderGuard,
+  JwtAuthGuard
+} from '@libs/auth'
 import { IDValidationPipe } from '@libs/pipe'
 import { CourseService } from './course.service'
 import { UpdateCourseQnAInput } from './model/course-qna.input'
 
 @Resolver(() => CourseQnA)
-@UseGuards(AdminGuard)
+@UseGuards(JwtAuthGuard, GroupLeaderGuard)
 export class CourseResolver {
   constructor(private readonly courseService: CourseService) {}
 
