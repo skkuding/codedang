@@ -49,7 +49,7 @@ export function RegisterButton({
             }
           : {}
       })
-      toast.success(`Registered ${state} successfully`)
+      toast.success(`Successfully registered for ${state} contest!`)
       router.refresh() // to update register state
     } catch (error) {
       console.error(error)

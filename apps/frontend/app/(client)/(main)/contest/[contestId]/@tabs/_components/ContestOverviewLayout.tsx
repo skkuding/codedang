@@ -1,5 +1,3 @@
-'use client'
-
 import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
 import { KatexContent } from '@/components/KatexContent'
 import {
@@ -8,20 +6,8 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
-import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import warningIcon from '@/public/icons/info.svg'
 import type {
   ContestPreview,
   ProblemDataTop,
@@ -30,13 +16,11 @@ import type {
 } from '@/types/type'
 import type { Session } from 'next-auth'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { toast } from 'sonner'
 import { BiggerImageButton } from './BiggerImageButton'
 import { GotoContestListButton } from './GotoContestListButton'
 import { PrevNextProblemButton } from './PrevNextProblemButton'
 import { RegisterButton } from './RegisterButton'
+import { RegisterCancelButton } from './RegisterCancelButton'
 import { RenderProblemList } from './RenderProblemList'
 
 interface ContestOverviewLayoutProps {
@@ -57,7 +41,6 @@ export function ContestOverviewLayout({
   search = ''
 }: ContestOverviewLayoutProps) {
   let previewProblemData: ProblemDataTop
-  const router = useRouter()
   if (!isPreview) {
     previewProblemData = problemData ?? { data: [], total: 0 }
   } else {
@@ -77,7 +60,6 @@ export function ContestOverviewLayout({
     }
   }
 
-  const [deleteModalFlag, setDeleteModalFlag] = useState<boolean>(false)
   const problemDataToUse: ProblemDataTop =
     !isPreview && problemData ? problemData : previewProblemData
 
@@ -106,18 +88,6 @@ export function ContestOverviewLayout({
   const actualInvitationCodeExists = !isPreview
     ? (contest as ContestTop).invitationCodeExists
     : false
-
-  const OpenDeleteModal = () => setDeleteModalFlag(true)
-  const CancelRegister = async () => {
-    try {
-      await safeFetcherWithAuth.delete(`contest/${contest.id}/participation`)
-      toast.success(`Unregistered from ${state} contest successfully`)
-      router.refresh()
-      setDeleteModalFlag(false)
-    } catch (error) {
-      console.error('Registration cancellation failed:', error)
-    }
-  }
 
   return (
     <ScrollArea className={isPreview ? 'h-full w-full' : ''}>
@@ -193,12 +163,7 @@ export function ContestOverviewLayout({
                       <Button className="pointer-events-none h-[46px] w-[467px] rounded-[1000px] bg-[#F0F0F0] text-base font-medium leading-[22.4px] tracking-[-0.48px] text-[#9B9B9B]">
                         Registered
                       </Button>
-                      <Button
-                        onClick={OpenDeleteModal}
-                        className="bg-primary bg-primary h-[46px] w-[467px] rounded-[1000px] text-base font-medium leading-[22.4px] tracking-[-0.48px] text-white"
-                      >
-                        Cancel registration
-                      </Button>
+                      <RegisterCancelButton contest={contest} state={state} />
                     </div>
                   ) : (
                     <RegisterButton
@@ -270,48 +235,6 @@ export function ContestOverviewLayout({
           </>
         )}
       </div>
-      <AlertDialog open={deleteModalFlag} onOpenChange={setDeleteModalFlag}>
-        <AlertDialogContent
-          className={cn(
-            'flex !h-[300px] !w-[424px] flex-col items-center justify-center !rounded-2xl !p-[40px]'
-          )}
-          onEscapeKeyDown={() => setDeleteModalFlag(false)}
-        >
-          <AlertDialogHeader className="mt-[2px] flex flex-col items-center justify-center">
-            <Image src={warningIcon} alt={'warning'} width={42} height={42} />
-            <AlertDialogTitle
-              className={cn('w-full text-center text-2xl font-semibold')}
-            >
-              {'Cancel Registration?'}
-            </AlertDialogTitle>
-          </AlertDialogHeader>
-          <AlertDialogDescription>
-            <p
-              className={cn(
-                'w-full whitespace-pre-wrap text-center text-sm font-light leading-[21px] tracking-[-0.42px] text-[#737373]'
-              )}
-            >
-              {`Do you really want to cancel your registration?\nYou’ll need to register again if you change your mind.`}
-            </p>
-          </AlertDialogDescription>
-          <AlertDialogFooter className="flex w-full justify-center gap-[4px]">
-            <AlertDialogCancel className="!m-0 h-[46px] w-[170px] text-base font-medium leading-[22.4px] tracking-[-0.48px] text-[#8A8A8A]">
-              Go Back
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                onClick={CancelRegister}
-                className={cn(
-                  'bg-error h-[46px] w-[170px] text-base font-medium leading-[22.4px] tracking-[-0.48px] text-white hover:bg-red-500/90'
-                )}
-                variant={'default'}
-              >
-                {'Cancel'}
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </ScrollArea>
   )
 }
