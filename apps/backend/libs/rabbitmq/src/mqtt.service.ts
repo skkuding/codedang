@@ -1,4 +1,4 @@
-import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
 import { Span, TraceService } from 'nestjs-otel'
 import {
@@ -17,7 +17,7 @@ import {
 } from '@libs/constants'
 
 @Injectable()
-export class MqttService implements OnModuleInit {
+export class MqttService {
   private readonly logger = new Logger(MqttService.name)
 
   constructor(
@@ -25,7 +25,7 @@ export class MqttService implements OnModuleInit {
     private readonly traceService: TraceService
   ) {}
 
-  onModuleInit() {
+  startSubscription() {
     this.amqpConnection.createSubscriber(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       async (msg: object, raw: any) => {

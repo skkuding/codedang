@@ -76,6 +76,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       }
     })
+    this.mqttService.startSubscription()
   }
 
   @Span()
