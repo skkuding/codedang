@@ -171,7 +171,7 @@ jobs:
         # https://stackoverflow.com/questions/60849745/how-can-i-run-a-command-in-github-action-service-containers
         # NOTE: Bitnami images for community-tier users are restricted to the latest tag.
         # https://github.com/bitnami/charts/issues/35164
-        image: bitnami/minio:latest
+        image: bitnamilegacy/minio:latest
         ports:
           - 9000:9000
           - 9001:9001
