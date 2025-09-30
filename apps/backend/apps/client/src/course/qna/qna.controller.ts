@@ -4,13 +4,13 @@ import {
   Get,
   Post,
   Delete,
+  Patch,
   Body,
   Param,
   Query,
   Req,
   UseGuards,
-  ParseIntPipe,
-  ValidationPipe
+  ParseIntPipe
 } from '@nestjs/common'
 import {
   AuthenticatedRequest,
@@ -21,7 +21,8 @@ import { IDValidationPipe, OptionalParseIntPipe } from '@libs/pipe'
 import {
   CreateCourseQnADto,
   CreateCourseQnACommentDto,
-  GetCourseQnAsFilterDto
+  GetCourseQnAsFilterDto,
+  UpdateCourseQnADto // UpdateCourseQnADto 추가
 } from './dto/qna.dto'
 import { QnaService } from './qna.service'
 
@@ -50,8 +51,7 @@ export class QnaController {
   async getCourseQnAs(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) courseId: number,
-    @Query(new ValidationPipe({ transform: true }))
-    filter: GetCourseQnAsFilterDto
+    @Query() filter: GetCourseQnAsFilterDto
   ) {
     return await this.qnaService.getCourseQnAs(req.user?.id, courseId, filter)
   }
@@ -64,6 +64,23 @@ export class QnaController {
     @Param('order', ParseIntPipe) order: number
   ) {
     return await this.qnaService.getCourseQnA(req.user?.id, courseId, order)
+  }
+
+  // 아래 Patch 엔드포인트 추가
+  @Patch(':order')
+  @UseGuards(JwtAuthGuard)
+  async updateCourseQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) courseId: number,
+    @Param('order', ParseIntPipe) order: number,
+    @Body() updateCourseQnADto: UpdateCourseQnADto
+  ) {
+    return await this.qnaService.updateCourseQnA(
+      req.user.id,
+      courseId,
+      order,
+      updateCourseQnADto
+    )
   }
 
   @Delete(':order')

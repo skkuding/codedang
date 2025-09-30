@@ -6,7 +6,11 @@ import {
   EntityNotExistException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { CreateCourseQnADto, GetCourseQnAsFilterDto } from './dto/qna.dto'
+import type {
+  CreateCourseQnADto,
+  GetCourseQnAsFilterDto,
+  UpdateCourseQnADto
+} from './dto/qna.dto'
 
 @Injectable()
 export class QnaService {
@@ -112,7 +116,6 @@ export class QnaService {
       groupId
     }
 
-    // 비밀글 접근 제어
     if (!isCourseStaff) {
       baseWhere.OR = [
         { isPrivate: false },
@@ -124,7 +127,6 @@ export class QnaService {
       baseWhere.isResolved = filter.isAnswered
     }
 
-    // 카테고리 필터링 로직 수정
     const orConditions: Prisma.CourseQnAWhereInput[] = []
     const categories = filter.categories ?? []
 
@@ -232,7 +234,6 @@ export class QnaService {
       }
     }
 
-    // 👇 수정된 부분: 읽음 처리 로직을 트랜잭션으로 묶고, 업데이트된 데이터를 반환
     if (userId != null && !qna.readBy.includes(userId)) {
       return await this.prisma.courseQnA.update({
         where: { id: qna.id },
@@ -242,7 +243,6 @@ export class QnaService {
           }
         },
         include: {
-          // 기존 include와 동일하게 맞춰주어야 반환 타입이 일치합니다.
           comments: {
             include: { createdBy: { select: { username: true } } },
             orderBy: { order: 'asc' }
@@ -253,6 +253,52 @@ export class QnaService {
     }
 
     return qna
+  }
+
+  /**
+   * @description Course Q&A를 수정합니다.
+   * @param userId 현재 요청을 보낸 사용자 ID
+   * @param courseId Course의 group ID
+   * @param order 수정할 Q&A의 order 번호
+   * @param data 수정할 데이터
+   * @returns 수정된 CourseQnA
+   * @throws {EntityNotExistException} Course 또는 QnA가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 수정 권한이 없을 때
+   */
+  async updateCourseQnA(
+    userId: number,
+    courseId: number,
+    order: number,
+    data: UpdateCourseQnADto
+  ) {
+    const groupId = courseId
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId, courseInfo: { isNot: null } }
+    })
+    if (!group) {
+      throw new EntityNotExistException('Course')
+    }
+
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: { groupId, order }
+      },
+      select: { createdById: true, id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('QnA')
+    }
+
+    if (qna.createdById !== userId) {
+      throw new ForbiddenAccessException('You are not allowed to update')
+    }
+
+    return await this.prisma.courseQnA.update({
+      where: { id: qna.id },
+      data
+    })
   }
 
   /**
@@ -281,7 +327,7 @@ export class QnaService {
     })
 
     if (!qna) {
-      throw new EntityNotExistException('CourseQnA')
+      throw new EntityNotExistException('QnA')
     }
 
     const isCourseStaff =
@@ -326,7 +372,7 @@ export class QnaService {
       }
     })
     if (!qna) {
-      throw new EntityNotExistException('CourseQnA')
+      throw new EntityNotExistException('QnA')
     }
 
     const isCourseStaff =

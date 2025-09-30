@@ -1,4 +1,5 @@
 // apps/backend/apps/client/src/course/qna/dto/qna.dto.ts
+import { PartialType } from '@nestjs/mapped-types'
 import { CourseQnACategory } from '@prisma/client'
 import { Transform } from 'class-transformer'
 import {
@@ -24,6 +25,9 @@ export class CreateCourseQnADto {
   @IsOptional()
   isPrivate?: boolean
 }
+
+// UpdateCourseQnADto 클래스 추가
+export class UpdateCourseQnADto extends PartialType(CreateCourseQnADto) {}
 
 export class CreateCourseQnACommentDto {
   @IsString()
@@ -61,7 +65,7 @@ export class GetCourseQnAsFilterDto {
 
   @IsOptional()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => value === 'true' || value === '1')
   isAnswered?: boolean
 
   @IsOptional()
