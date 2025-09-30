@@ -31,7 +31,7 @@ export class CourseService {
       }
     })
     if (!qna) {
-      throw new EntityNotExistException('QnA')
+      throw new EntityNotExistException('CourseQnA')
     }
     return qna
   }
