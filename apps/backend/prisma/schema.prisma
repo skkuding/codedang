@@ -236,6 +236,7 @@ model Problem {
   // MIN_DATE의 경우 모든 사용자에게 공개, 이외에는 비공개
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
+  updateContentTime DateTime? @map("update_content_time")
 
   sharedGroups      Group[]
   problemTestcase   ProblemTestcase[]

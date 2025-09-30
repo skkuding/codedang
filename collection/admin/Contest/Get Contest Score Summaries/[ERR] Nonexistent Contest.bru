@@ -1,0 +1,51 @@
+meta {
+  name: [ERR] Nonexistent Contest
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestScoreSummaries(
+    $contestId: Int!
+    $take: Int
+    $cursor: Int
+    $searchingName: String
+  ) {
+    getContestScoreSummaries(
+      contestId: $contestId
+      take: $take
+      cursor: $cursor
+      searchingName: $searchingName
+    ) {
+      userId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 999
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent Contest
+
+  **POST** `/graphql (query: getContestScoreSummaries)`
+
+  The requested contest does not exist.
+
+  존재하지 않는 `contestId` 대회의 점수 요약 정보를 요청했을 때,
+
+  `ForbiddenException`이 발생합니다.
+}

@@ -1,0 +1,53 @@
+meta {
+  name: [ERR] Invalid Unfreeze
+  type: graphql
+  seq: 6
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateContest(
+    $contestId: Int!,
+    $input: UpdateContestInput!
+  ) {
+    updateContest(
+      contestId: $contestId
+      input: $input
+    ) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "input": {
+      "unfreeze": true
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Invalid Unfreeze
+
+  **POST** `/graphql (mutation: updateContest)`
+
+  The unfreeze attempt is invalid.
+
+  - `freezeTime`이 설정된 적 없는 대회를 unfreeze 하려 할 때
+  - 이미 unfreeze 된 대회를 다시 unfreeze 하려 할 때
+  - 아직 `freezeTime`이 지나지 않았을 때
+  - 아직 대회가 종료되지 않았을 때
+
+  위 경우들에서 `UnprocessableDataException`이 발생합니다.
+}

@@ -11,11 +11,8 @@ post {
 }
 
 body:graphql {
-  query {
-    getContests(
-      cursor: 1
-      take: 10
-    ) {
+  query GetContests($take: Int, $cursor: Int) {
+    getContests(take: $take, cursor: $cursor) {
       id
       title
       description
@@ -29,13 +26,82 @@ body:graphql {
   }
 }
 
+body:graphql:vars {
+  {
+    "take": 10
+    // "cursor": 1
+  }
+}
+
 assert {
   res.body.data.getContests: isDefined
 }
 
+script:pre-request {
+  await require("./login").loginAdmin(req);
+}
+
 docs {
-  # Get Contests
+  # 📘 Get Contests
+
+  **POST** `/graphql (query: getContests)`
+
+  Retrieves a paginated list of contests accessible to the user.
+
+  사용자가 접근할 수 있는 대회의 목록을 페이지네이션하여 조회합니다.
+
+  - **SuperAdmin**: 모든 대회
+  - **Admin/Manager/Reviewer**: 자신이 역할(Admin, Manager, Reviewer)을 맡은 대회
+  - **정렬 순서**: 진행 상태(진행 중 > 예정 > 종료), 시작 시간, 종료 시간, 생성 시간 순 정렬
+
   ---
-  - 주어진 Group에 속한 Contest들을 반환합니다.
-  - `cursor`을 생략하면 처음부터 `take`만큼의 Contest들을 반환합니다.
+
+  ### 🔒 Authentication
+
+  ✅ Required
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `take` | Int | ❌ | 가져올 개수 (기본값: 10) |
+  | `cursor` | Int | ❌ | 페이지네이션 커서 |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "data": {
+      "getContests": [
+        {
+          "id": "20",
+          "title": "2025 SKKU 프로그래밍 대회",
+          "description": "<p>sample testcase 확인을 위한 대회</p>",
+          "startTime": "2023-01-01T00:00:00.000Z",
+          "endTime": "2035-01-01T23:59:59.000Z",
+          "participants": 0,
+          "createdBy": {
+            "username": "contestAdmin"
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  |--------|------|------|
+  | `id` | Int | 대회 ID |
+  | `title` | String | 대회 제목 |
+  | `description` | String | 대회 설명 |
+  | `startTime` | GraphQLISODateTime | 대회 시작 시간 |
+  | `endTime` | GraphQLISODateTime | 대회 종료 시간 |
+  | `participants` | Int | 대회 총 참가자 수 |
+  | `createdBy` | User | 대회 생성 사용자 정보 |
 }
