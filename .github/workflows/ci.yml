@@ -171,15 +171,16 @@ jobs:
         # https://stackoverflow.com/questions/60849745/how-can-i-run-a-command-in-github-action-service-containers
         # NOTE: Bitnami images for community-tier users are restricted to the latest tag.
         # https://github.com/bitnami/charts/issues/35164
-        image: bitnamilegacy/minio:latest
+        # NOTE: due to instability of Bitnami image, switch to lazybit's image
+        # https://stackoverflow.com/questions/64031598/creating-a-minios3-container-inside-a-github-actions-yml-file
+        image: lazybit/minio:latest
         ports:
           - 9000:9000
           - 9001:9001
         env:
           MINIO_ROOT_USER: ${{ env.AWS_ACCESS_KEY_ID }}
           MINIO_ROOT_PASSWORD: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        volumes:
-          - minio-storage:/data
+          MINIO_BROWSER: 'off'
       redis:
         image: redis:7-alpine
         ports:
