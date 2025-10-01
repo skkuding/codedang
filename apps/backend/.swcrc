@@ -17,7 +17,8 @@
       "@libs/auth": ["./libs/auth/src/index.ts"],
       "@libs/exception": ["./libs/exception/src/index.ts"],
       "@libs/pipe": ["./libs/pipe/src/index.ts"],
-      "@libs/constants": ["./libs/constants/src/index.ts"]
+      "@libs/constants": ["./libs/constants/src/index.ts"],
+      "@libs/rabbitmq": ["./libs/rabbitmq/src/index.ts"]
     }
   }
 }
