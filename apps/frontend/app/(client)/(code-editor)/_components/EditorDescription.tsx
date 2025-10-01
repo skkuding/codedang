@@ -31,17 +31,17 @@ export function EditorDescription({
     <div className="dark flex h-full flex-col gap-6 bg-[#222939] py-6 text-lg">
       <div className="px-6">
         <div className="flex max-h-24 justify-between gap-4">
-          <h1 className="mb-3 overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${problem?.order !== undefined ? convertToLetter(problem.order) : problem.id}. ${problem.title}`}</h1>
+          <h1 className="overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${problem?.order !== undefined ? convertToLetter(problem.order) : problem.id}. ${problem.title}`}</h1>
           {!isContest && !isAssignment && (
             <Badge
-              className="h-[25px] w-[70px] items-center justify-center bg-[#474747] px-2 py-1 text-xs font-semibold leading-[140%] tracking-[-0.36px] hover:bg-[#474747]"
+              className="h-[25px] w-[70px] items-center justify-center self-center bg-[#474747] px-2 py-1 text-xs font-semibold leading-[140%] tracking-[-0.36px] hover:bg-[#474747]"
               textColors={level}
             >
               {`Level ${levelNumber}`}
             </Badge>
           )}
         </div>
-        <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
+        <div className="prose prose-invert mt-5 max-w-full text-sm leading-relaxed text-slate-300">
           <KatexContent content={problem.description} />
         </div>
         <hr className="border-slate-700" />
