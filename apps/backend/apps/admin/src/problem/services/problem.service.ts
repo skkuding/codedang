@@ -326,14 +326,9 @@ export class ProblemService {
     })
     const isSuper = user?.role === Role.SuperAdmin
 
-    // SuperAdmin의 경우 mode에 관계 없이 my와 모든 contest의 문제들 조회 가능
+    // SuperAdmin의 경우 mode에 관계 없이 모든 문제 조회 가능
     if (isSuper) {
-      return {
-        OR: [
-          { createdById: { equals: userId } },
-          { contestProblem: { some: {} } }
-        ]
-      }
+      return {}
     }
 
     switch (mode) {
@@ -408,7 +403,7 @@ export class ProblemService {
         sharedGroups: true
       }
     })
-    if (userRole != Role.Admin) {
+    if (userRole != Role.Admin && userRole != Role.SuperAdmin) {
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({
           where: {
@@ -692,7 +687,8 @@ export class ProblemService {
               }
             ]
           }
-        })
+        }),
+        updateContentTime: new Date()
       },
       include: {
         updateHistory: true // 항상 updateHistory 포함

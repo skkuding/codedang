@@ -1,0 +1,41 @@
+meta {
+  name: [ERR] Nonexistent Contest
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestLeaderboard($contestId: Int!) {
+    getContestLeaderboard(contestId: $contestId) {
+      maxScore
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 999
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [404] Contest 없음
+
+  **POST** `/graphql (query: getContestLeaderboard)`
+
+  The requested contest does not exist.
+
+  존재하지 않는 `contestId`를 포함하여 리더보드 조회를 요청했을 때,
+
+  `EntityNotExistException`이 발생합니다.
+}

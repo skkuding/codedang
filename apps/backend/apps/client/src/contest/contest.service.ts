@@ -210,7 +210,8 @@ export class ContestService {
         },
         select: {
           ...contestSelectOption,
-          description: true
+          description: true,
+          createTime: true
         }
       })
     } catch (error) {
