@@ -72,7 +72,7 @@ export function RegisterCancelButton({
                 'w-full whitespace-pre-wrap text-center text-sm font-light leading-[21px] tracking-[-0.42px] text-[#737373]'
               )}
             >
-              {`Do you really want to cancel your registration?\nYou’ll need to register again if you change your mind.`}
+              {`Do you really want to cancel your registration?\nYou can only re-register before the registration deadline.`}
             </p>
           </AlertDialogDescription>
           <AlertDialogFooter className="flex w-full justify-center gap-[4px]">
