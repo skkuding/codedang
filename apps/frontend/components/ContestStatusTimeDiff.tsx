@@ -162,7 +162,7 @@ export function ContestStatusTimeDiff({
         >
           <Image src={subtractIcon} alt="subtract" width={20} height={20} />
           <p className="ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px] text-[#3581FA]">
-            Registeration :
+            Registration :
           </p>
           <p className="mr-2 w-[280px] overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px] text-[#474747]">
             {`${formattedTime(contest.createTime)} ~ ${formattedTime(contest.registerDueTime)}`}
