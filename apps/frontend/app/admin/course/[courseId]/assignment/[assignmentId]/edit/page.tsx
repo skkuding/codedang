@@ -73,15 +73,37 @@ export default function Page() {
                     <WeekComboBox name="week" courseId={Number(courseId)} />
                   )}
                 </FormSection>
+                <FormSection title="Start Time" className="w-[420px]">
+                  {methods.getValues('startTime') && (
+                    <TimeForm name="startTime" />
+                  )}
+                </FormSection>
+              </div>
+
+              <div className="flex justify-between">
                 <FormSection
                   title="Due Time"
                   className="w-[420px]"
                   isLabeled={false}
                 >
                   <TimeFormPopover />
-                  {methods.getValues('dueTime') && (
+                  <TimeForm
+                    name="dueTime"
+                    defaultTimeOnSelect={{
+                      hours: 23,
+                      minutes: 59,
+                      seconds: 59
+                    }}
+                  />
+                </FormSection>
+                <FormSection
+                  title="End Time"
+                  className="w-[420px]"
+                  isLabeled={false}
+                >
+                  {methods.getValues('endTime') && (
                     <TimeForm
-                      name="dueTime"
+                      name="endTime"
                       defaultTimeOnSelect={{
                         hours: 23,
                         minutes: 59,
@@ -89,21 +111,6 @@ export default function Page() {
                       }}
                     />
                   )}
-                </FormSection>
-              </div>
-
-              <div className="flex justify-between">
-                <FormSection title="Start Time" className="w-[420px]">
-                  {methods.getValues('startTime') && (
-                    <TimeForm name="startTime" />
-                  )}
-                </FormSection>
-                <FormSection
-                  title="End Time"
-                  className="w-[420px]"
-                  isLabeled={false}
-                >
-                  {methods.getValues('endTime') && <TimeForm name="endTime" />}
                 </FormSection>
               </div>
 
@@ -148,7 +155,9 @@ export default function Page() {
                 <AssignmentSolutionTable
                   problems={problems}
                   setProblems={setProblems}
-                  dueTime={methods.getValues('dueTime')}
+                  dueTime={
+                    methods.getValues('dueTime') ?? methods.getValues('endTime')
+                  }
                 />
               </div>
 

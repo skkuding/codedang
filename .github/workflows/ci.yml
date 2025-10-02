@@ -169,15 +169,18 @@ jobs:
         # NOTE: GitHub Actions service containers do not support custom commands.
         # This image from Bitnami includes the command to run MinIO.
         # https://stackoverflow.com/questions/60849745/how-can-i-run-a-command-in-github-action-service-containers
-        image: bitnami/minio:2025.7.23
+        # NOTE: Bitnami images for community-tier users are restricted to the latest tag.
+        # https://github.com/bitnami/charts/issues/35164
+        # NOTE: due to instability of Bitnami image, switch to lazybit's image
+        # https://stackoverflow.com/questions/64031598/creating-a-minios3-container-inside-a-github-actions-yml-file
+        image: lazybit/minio:latest
         ports:
           - 9000:9000
           - 9001:9001
         env:
-          MINIO_ROOT_USER: ${{ env.AWS_ACCESS_KEY_ID}}
+          MINIO_ROOT_USER: ${{ env.AWS_ACCESS_KEY_ID }}
           MINIO_ROOT_PASSWORD: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        volumes:
-          - minio-storage:/data
+          MINIO_BROWSER: 'off'
       redis:
         image: redis:7-alpine
         ports:
@@ -216,6 +219,9 @@ jobs:
       - name: Initialize MinIO
         if: steps.filter.outputs.backend == 'true'
         run: pnpm run init:storage
+        env:
+          MINIO_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          MINIO_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
 
       - name: Test
         if: steps.filter.outputs.backend == 'true'

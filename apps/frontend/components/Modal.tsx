@@ -138,26 +138,28 @@ export function Modal({
             </span>
           )}
         </ScrollArea>
-        <DialogFooter className="flex w-full justify-center gap-[4px]">
-          {secondaryButton && (
-            <Button
-              onClick={secondaryButton.onClick}
-              className="h-[46px] w-full text-base"
-              variant={secondaryButton.variant}
-            >
-              {secondaryButton.text}
-            </Button>
-          )}
-          {primaryButton && (
-            <Button
-              onClick={primaryButton.onClick}
-              className="h-[46px] w-full text-base"
-              variant={primaryButton.variant}
-            >
-              {primaryButton.text}
-            </Button>
-          )}
-        </DialogFooter>
+        {(secondaryButton || primaryButton) && (
+          <DialogFooter className="flex w-full flex-row justify-center gap-[4px]">
+            {secondaryButton && (
+              <Button
+                onClick={secondaryButton.onClick}
+                className="h-[46px] w-full text-base"
+                variant={secondaryButton.variant}
+              >
+                {secondaryButton.text}
+              </Button>
+            )}
+            {primaryButton && (
+              <Button
+                onClick={primaryButton.onClick}
+                className="h-[46px] w-full text-base"
+                variant={primaryButton.variant}
+              >
+                {primaryButton.text}
+              </Button>
+            )}
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   )

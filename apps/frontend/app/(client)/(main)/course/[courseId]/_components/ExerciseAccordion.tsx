@@ -1,6 +1,7 @@
 'use client'
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
+import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { CountdownStatus } from '@/components/CountdownStatus'
 import {
@@ -88,6 +89,13 @@ function ExerciseAccordionItem({
     enabled: isAccordionOpen
   })
 
+  const { data: problems } = useQuery(
+    assignmentProblemQueries.list({
+      assignmentId: exercise.id,
+      groupId: courseId
+    })
+  )
+
   const handleAccordionOpenChange = (value: string) => {
     setIsAccordionOpen(value === exercise.id.toString())
   }
@@ -131,13 +139,14 @@ function ExerciseAccordionItem({
                   />
                 </div>
               </div>
-              {exercise && hasDueDate(exercise.dueTime) && (
-                <CountdownStatus
-                  baseTime={exercise.dueTime}
-                  textStyle="text-color-neutral-50"
-                  showIcon={false}
-                />
-              )}
+              {exercise &&
+                (exercise.dueTime ?? hasDueDate(exercise.endTime)) && (
+                  <CountdownStatus
+                    baseTime={exercise.dueTime ?? exercise.endTime}
+                    textStyle="text-color-neutral-50"
+                    showIcon={false}
+                  />
+                )}
             </div>
             <Separator className="my-2" />
             <div
@@ -172,13 +181,14 @@ function ExerciseAccordionItem({
                 courseId={courseId}
                 isExercise
               />
-              {exercise && hasDueDate(exercise.dueTime) && (
-                <CountdownStatus
-                  baseTime={exercise.dueTime}
-                  textStyle="text-color-neutral-50"
-                  showIcon={false}
-                />
-              )}
+              {exercise &&
+                (exercise.dueTime ?? hasDueDate(exercise.endTime)) && (
+                  <CountdownStatus
+                    baseTime={exercise.dueTime ?? exercise.endTime}
+                    textStyle="text-color-neutral-50"
+                    showIcon={false}
+                  />
+                )}
             </div>
 
             {exercise && (
@@ -203,13 +213,13 @@ function ExerciseAccordionItem({
           </div>
         </AccordionTrigger>
         <AccordionContent className="-mb-4 w-full">
-          {isAccordionOpen && record && submission && (
+          {isAccordionOpen && problems && (
             <div className="overflow-hidden rounded-2xl border">
               <div className="h-6 bg-[#F3F3F3]" />
 
               {/* Mobile Problem List */}
               <div className="lg:hidden">
-                {record.problems.map((problem, index) => (
+                {problems.data.map((problem, index) => (
                   <div
                     key={problem.id}
                     className="border-b bg-[#F8F8F8] px-4 py-4 last:border-none"
@@ -230,27 +240,34 @@ function ExerciseAccordionItem({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-gray-600">
-                      <div className="flex flex-col gap-1">
-                        {submission[index].submission?.submissionTime && (
-                          <span>
-                            Last Submission :{' '}
-                            {dateFormatter(
-                              submission[index].submission.submissionTime,
-                              'MMM D, HH:mm'
-                            )}
-                          </span>
-                        )}
+                    {record && submission && (
+                      <div className="flex items-center justify-between text-xs text-gray-600">
+                        <div className="flex flex-col gap-1">
+                          {(() => {
+                            const problemSubmission = submission.find(
+                              (sub) => sub.problemId === problem.id
+                            )
+                            const submissionTime =
+                              problemSubmission?.submission?.submissionTime
+
+                            return submissionTime ? (
+                              <span>
+                                Last Submission :{' '}
+                                {dateFormatter(submissionTime, 'MMM D, HH:mm')}
+                              </span>
+                            ) : null
+                          })()}
+                        </div>
+                        <ResultBadge assignmentSubmission={submission[index]} />
                       </div>
-                      <ResultBadge assignmentSubmission={submission[index]} />
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
 
               {/* Desktop Problem List */}
               <div className="hidden lg:block">
-                {record.problems.map((problem, index) => (
+                {problems.data.map((problem, index) => (
                   <div
                     key={problem.id}
                     className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
@@ -272,19 +289,26 @@ function ExerciseAccordionItem({
                     </div>
 
                     <div className="w-[30%]">
-                      {submission[index].submission?.submissionTime && (
-                        <div className="text-primary flex w-full justify-center text-sm font-normal">
-                          Last Submission :{' '}
-                          {dateFormatter(
-                            submission[index].submission.submissionTime,
-                            'MMM D, HH:mm:ss'
-                          )}
-                        </div>
-                      )}
+                      {(() => {
+                        const problemSubmission = submission?.find(
+                          (sub) => sub.problemId === problem.id
+                        )
+                        const submissionTime =
+                          problemSubmission?.submission?.submissionTime
+
+                        return submissionTime ? (
+                          <div className="text-primary flex w-full justify-center text-sm font-normal">
+                            Last Submission :{' '}
+                            {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
+                          </div>
+                        ) : null
+                      })()}
                     </div>
 
                     <div className="flex w-[13%] justify-center font-medium">
-                      <ResultBadge assignmentSubmission={submission[index]} />
+                      {record && submission && (
+                        <ResultBadge assignmentSubmission={submission[index]} />
+                      )}
                     </div>
 
                     <div className="w-[6%]" />

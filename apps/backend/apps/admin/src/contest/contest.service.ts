@@ -192,12 +192,12 @@ export class ContestService {
     }
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
-        'The start time must be earlier than the end time'
+        'StartTime must be earlier than EndTime'
       )
     }
     if (contest.registerDueTime >= contest.startTime) {
       throw new UnprocessableDataException(
-        'The register due time must be earlier than the start time'
+        'RegisterDueTime must be earlier than StartTime'
       )
     }
     if (contest.summary) {
@@ -1418,26 +1418,60 @@ export class ContestService {
     return userContests
   }
 
-  async getContestQnAs(contestId: number) {
-    return await this.prisma.contestQnA.findMany({
-      where: {
-        contestId
+  async getContestQnAs(
+    contestId: number,
+    userId: number,
+    take: number,
+    cursor: number | null,
+    filter?: {
+      isResolved?: boolean
+    }
+  ) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const where: Prisma.ContestQnAWhereInput = {
+      contestId,
+      ...(filter?.isResolved !== undefined && { isResolved: filter.isResolved })
+    }
+
+    const qnas = await this.prisma.contestQnA.findMany({
+      ...paginator,
+      take,
+      where,
+      orderBy: {
+        id: 'desc'
       },
       include: {
         createdBy: {
           select: {
             username: true
           }
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            comments: true
+          }
         }
-      },
-      orderBy: {
-        order: 'desc'
       }
     })
+
+    return qnas.map(({ readBy, ...rest }) => ({
+      ...rest,
+      isRead: readBy.includes(userId)
+    }))
   }
 
-  async getContestQnA(contestId: number, order: number) {
-    return await this.prisma.contestQnA.findFirst({
+  async getContestQnA(contestId: number, userId: number, order: number) {
+    const contestQnA = await this.prisma.contestQnA.findFirst({
       where: {
         contestId,
         order
@@ -1459,6 +1493,22 @@ export class ContestService {
         }
       }
     })
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    if (!contestQnA.readBy.includes(userId)) {
+      await this.prisma.contestQnA.update({
+        where: { id: contestQnA.id },
+        data: {
+          readBy: {
+            push: userId
+          }
+        }
+      })
+    }
+
+    return contestQnA
   }
 
   async deleteContestQnA(contestId: number, order: number) {
@@ -1480,9 +1530,9 @@ export class ContestService {
 
   async createContestQnAComment(
     contestId: number,
+    userId: number,
     order: number,
-    content: string,
-    staffUserId: number
+    content: string
   ) {
     if (!content || content.trim() === '') {
       throw new BadRequestException('Content cannot be empty')
@@ -1523,7 +1573,7 @@ export class ContestService {
         data: {
           content,
           contestQnAId: contestQnA.id,
-          createdById: staffUserId,
+          createdById: userId,
           isContestStaff: true,
           order: commentOrder
         }
@@ -1531,7 +1581,7 @@ export class ContestService {
       if (!contestQnA.isResolved) {
         await tx.contestQnA.update({
           where: { id: contestQnA.id },
-          data: { isResolved: true }
+          data: { isResolved: true, readBy: { set: [userId] } }
         })
       }
 
@@ -1544,18 +1594,10 @@ export class ContestService {
     qnAOrder: number,
     commentOrder: number
   ) {
-    const contest = await this.prisma.contest.findFirst({
-      where: { id: contestId }
-    })
-
-    if (!contest) {
-      throw new EntityNotExistException('Contest')
-    }
-
-    const contestQnA = await this.prisma.contestQnA.findFirst({
+    const contestQnA = await this.prisma.contestQnA.findUnique({
       where: {
-        contestId,
-        order: qnAOrder
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_order: { contestId, order: qnAOrder }
       }
     })
 
@@ -1600,5 +1642,45 @@ export class ContestService {
 
       return deletedComment
     })
+  }
+
+  async toggleContestQnAResolved(contestId: number, qnAOrder: number) {
+    const contestQnA = await this.prisma.contestQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_order: { contestId, order: qnAOrder }
+      }
+    })
+
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    const commentCount = await this.prisma.contestQnAComment.count({
+      where: {
+        contestQnAId: contestQnA.id
+      }
+    })
+
+    if (commentCount === 0) {
+      throw new BadRequestException('ContestQnA has no comments')
+    }
+
+    // 해결완료 상태 토글 (동시성 고려하여 트랜잭션 사용)
+    const updatedContestQnA = await this.prisma.$transaction(async (tx) => {
+      const currentQnA = await tx.contestQnA.findUnique({
+        where: { id: contestQnA.id },
+        select: { isResolved: true }
+      })
+
+      return await tx.contestQnA.update({
+        where: { id: contestQnA.id },
+        data: {
+          isResolved: !currentQnA!.isResolved
+        }
+      })
+    })
+
+    return updatedContestQnA
   }
 }

@@ -91,7 +91,7 @@ export function DataTableColumnHeader<TData, TValue>({
             </Button>
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
+        <DropdownMenuContent align="center">
           <DropdownMenuItem onClick={() => column.toggleSorting(false, true)}>
             <TriangleUpIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
             {title === VISIBLE_COLUMN_TITLE ? 'Hidden first' : 'Asc'}

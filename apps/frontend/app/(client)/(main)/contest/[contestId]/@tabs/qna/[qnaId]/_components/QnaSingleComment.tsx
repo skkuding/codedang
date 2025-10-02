@@ -17,7 +17,7 @@ export function QnaSingleComment({
 }) {
   return (
     <div
-      className={`border-color-line-default flex flex-col gap-[20px] rounded-xl border border-[1px] border-solid p-[30px]`}
+      className={`border-line-default flex flex-col gap-[20px] rounded-xl border border-[1px] border-solid p-[30px]`}
     >
       <div className="flex flex-col gap-[4px]">
         <div className="relative flex items-center gap-[4px]">
