@@ -28,6 +28,16 @@ data "terraform_remote_state" "storage" {
   }
 }
 
+data "terraform_remote_state" "instagram_token_refresh" {
+  backend = "s3"
+  config = {
+    bucket = "codedang-tf-state"
+    key    = "terraform/instagram-token-refresh.tfstate"
+    region = "ap-northeast-2"
+  }
+}
+
 locals {
-  storage = data.terraform_remote_state.storage.outputs
+  storage   = data.terraform_remote_state.storage.outputs
+  instagram = data.terraform_remote_state.instagram_token_refresh.outputs
 }
