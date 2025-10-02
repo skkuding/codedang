@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-api
+  namespace: admin-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-api
+  template:
+    metadata:
+      labels:
+        app: admin-api
+    spec:
+      containers:
+        - name: admin-api
+          image: ghcr.io/skkuding/codedang-admin-api
+          resources:
+            limits:
+              cpu: 1
+              memory: 1.5Gi
+            requests:
+              cpu: 0.2
+              memory: 200Mi
+          envFrom:
+            - configMapRef:
+                name: admin-api-env
+            - secretRef:
+                name: aws-credentials
+                optional: true # not used in stage env
+            - secretRef:
+                name: database-credentials
+            - secretRef:
+                name: security-keys
+            - secretRef:
+                name: object-storage-credentials
+                optional: true # not used in production env
+
+env:
+  - name : OTEL_EXPORTER_OTLP_ENDPOINT_URL 
+  - value : OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector.monitoring.svc.cluster.local:4317

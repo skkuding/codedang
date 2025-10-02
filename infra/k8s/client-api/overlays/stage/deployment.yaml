@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-api
+  namespace: client-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: client-api
+  template:
+    metadata:
+      labels:
+        app: client-api
+    spec:
+      containers:
+        - name: client-api
+          image: ghcr.io/skkuding/codedang-client-api
+          resources:
+            limits:
+              cpu: 1
+              memory: 1.5Gi
+            requests:
+              cpu: 0.2
+              memory: 200Mi
+          envFrom:
+            - configMapRef:
+                name: client-api-env
+            - secretRef:
+                name: aws-credentials
+            - secretRef:
+                name: database-credentials
+            - secretRef:
+                name: oauth-credentials
+            - secretRef:
+                name: security-keys
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: username
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: password
+
+env:
+  - name : OTEL_EXPORTER_OTLP_ENDPOINT_URL 
+  - value : OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector.monitoring.svc.cluster.local:4317
