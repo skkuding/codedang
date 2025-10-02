@@ -34,7 +34,7 @@ export function Carousel({ slides }: CarouselProps) {
   }
 
   return (
-    <div className="relative my-1 h-[640px] w-full max-w-[1380px] overflow-hidden rounded-[20px] md:max-w-[1860px]">
+    <div className="relative my-1 aspect-[1208/554] w-full max-w-[1208px] overflow-hidden rounded-[20px]">
       {slides.map((slide, index) => (
         <div
           key={slide.href + slide.topTitle}
@@ -51,15 +51,15 @@ export function Carousel({ slides }: CarouselProps) {
             unoptimized
             priority
           />
-          <div className="font-pretendard absolute left-[130px] top-[150px] z-10 flex h-[344px] w-[539px] flex-col gap-[96px] tracking-[-0.03em] text-white">
+          <div className="font-pretendard absolute left-[80px] top-[126px] z-10 flex h-[344px] w-[539px] flex-col gap-[90px] tracking-[-0.03em] text-white">
             <div className="flex flex-col">
-              <h1 className="text-[60px] font-medium leading-[110%] md:text-nowrap">
+              <h1 className="text-[48px] font-medium leading-[110%] md:text-nowrap">
                 {slide.topTitle}
               </h1>
-              <h2 className="text-[60px] font-medium leading-[110%] md:text-nowrap">
+              <h2 className="text-[48px] font-medium leading-[110%] md:text-nowrap">
                 {slide.bottomTitle}
               </h2>
-              <p className="mt-5 whitespace-pre-line text-[16px] font-normal leading-[150%] tracking-[-0.03em] text-[#E5E5E5]">
+              <p className="mt-3 whitespace-pre-line text-[16px] font-normal leading-[150%] tracking-[-0.03em] text-[#E5E5E5]">
                 {slide.sub}
               </p>
             </div>
@@ -81,7 +81,7 @@ export function Carousel({ slides }: CarouselProps) {
           </div>
         </div>
       ))}
-      <div className="absolute left-[20px] top-0 z-20 flex h-[640px] w-[80px] items-center justify-center">
+      <div className="absolute left-[30px] top-0 z-20 flex h-full items-center justify-center">
         <Button
           variant="ghost"
           className="h-10 p-0 hover:bg-transparent active:bg-transparent"
@@ -92,7 +92,7 @@ export function Carousel({ slides }: CarouselProps) {
           </div>
         </Button>
       </div>
-      <div className="absolute right-[20px] top-0 z-20 flex h-[640px] w-[80px] items-center justify-center">
+      <div className="absolute right-[30px] top-0 z-20 flex h-[554px] items-center justify-center">
         <Button
           variant="ghost"
           className="h-10 p-0 hover:bg-transparent active:bg-transparent"
@@ -103,7 +103,7 @@ export function Carousel({ slides }: CarouselProps) {
           </div>
         </Button>
       </div>
-      <div className="absolute right-[94px] top-[560px] z-20 flex h-[28px] w-[57px] items-center justify-center rounded-full bg-black/40 px-4 py-1 backdrop-blur-md">
+      <div className="absolute right-[115px] top-[483px] z-20 flex h-[28px] w-[57px] items-center justify-center rounded-full bg-black/40 px-4 py-1 backdrop-blur-md">
         <p className="font-pretendard flex items-center gap-1 text-sm font-medium leading-[140%] tracking-[-0.03em] text-white">
           <span>{facade + 1}</span>
           <span>/</span>

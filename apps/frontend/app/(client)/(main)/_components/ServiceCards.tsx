@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 export function ServiceCards() {
   return (
-    <section className="font-pretendard flex w-full flex-col items-center gap-10">
+    <section className="font-pretendard mt-4 flex w-full flex-col items-center gap-10">
       <div className="flex w-full max-w-[1208px] flex-col items-start gap-10">
         <h2 className="text-[30px] font-semibold leading-9 tracking-[-0.9px] text-black">
           SERVICE WE PROVIDE
