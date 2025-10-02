@@ -35,9 +35,8 @@ spec:
         endpoint: '0.0.0.0:8889'
         resource_to_telemetry_conversion:
           enabled: true
-
       otlp/trace:
-        endpoint: tempo.monitoring-tempo.svc.cluster.local:3200
+        endpoint: 'tempo.monitoring-tempo.svc.cluster.local:4317'
         tls:
           insecure: true
     service:
@@ -50,7 +49,6 @@ spec:
           receivers: [otlp]
           processors: [batch]
           exporters: [prometheus]
-
         traces:
           receivers: [otlp]
           processors: [batch]

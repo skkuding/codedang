@@ -1,7 +1,5 @@
 traces:
   otlp:
-    http:
-      enabled: true
     grpc:
       enabled: true
 
@@ -16,13 +14,13 @@ tempo:
       complete_block_timeout: 15m
 
 distributor:
-  replicas: 2
+  replicas: 1
   config:
     log_received_spans:
       enabled: true
 
 ingester:
-  replicas: 3
+  replicas: 1
   persistence:
     enabled: true
     size: 10Gi
