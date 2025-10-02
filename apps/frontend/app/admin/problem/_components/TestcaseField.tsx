@@ -467,7 +467,7 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           {totalPages > 1 && <Paginator {...paginatorProps} />}
           {showSumError && (
             <p className="mt-2 text-center text-sm font-semibold text-red-500">
-              Testcase values must add up to 100
+              Testcase values must eqaul 100
             </p>
           )}
         </div>
@@ -572,8 +572,8 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
           </div>
           {totalPages > 1 && <Paginator {...paginatorProps} />}
           {showSumError && (
-            <p className="mt-2 text-sm font-semibold text-red-500">
-              Testcase values must add up to 100
+            <p className="mt-2 text-center text-sm font-semibold text-red-500">
+              Testcase values must eqaul 100
             </p>
           )}
         </div>
