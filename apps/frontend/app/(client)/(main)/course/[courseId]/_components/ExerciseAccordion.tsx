@@ -41,9 +41,21 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
 
   const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
 
+  if (!exercises || exercises.length === 0) {
+    return (
+      <div className="mt-4 lg:mt-8">
+        <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">
+          <p className="text-color-neutral-60 text-base">
+            No exercises registered
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="mt-4 lg:mt-8">
-      {exercises?.map((exercise) => (
+      {exercises.map((exercise) => (
         <ExerciseAccordionItem
           key={exercise.id}
           exercise={exercise}
@@ -56,7 +68,7 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
               userAssignmentJudgeScore: 0,
               assignmentPerfectScore: 0
             }
-          } // 인덱스로 대응
+          }
           courseId={courseId}
         />
       ))}
@@ -193,15 +205,9 @@ function ExerciseAccordionItem({
 
             {exercise && (
               <div className="flex w-[25%] justify-center">
-                <div className="max-w-[250px] flex-1 text-left">
-                  <p className="text-color-neutral-60 overflow-hidden whitespace-nowrap text-center text-base font-normal">
-                    {formatDateRange(
-                      exercise.startTime,
-                      exercise.endTime,
-                      false
-                    )}
-                  </p>
-                </div>
+                <p className="text-color-neutral-60 truncate text-center text-base font-normal">
+                  {formatDateRange(exercise.startTime, exercise.endTime, false)}
+                </p>
               </div>
             )}
 
@@ -219,99 +225,112 @@ function ExerciseAccordionItem({
 
               {/* Mobile Problem List */}
               <div className="lg:hidden">
-                {problems.data.map((problem, index) => (
-                  <div
-                    key={problem.id}
-                    className="border-b bg-[#F8F8F8] px-4 py-4 last:border-none"
-                  >
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="text-color-violet-60 text-sm font-semibold">
-                          {convertToLetter(problem.order)}
+                {problems.data.map((problem) => {
+                  const problemSubmission = submission?.find(
+                    (sub) => sub.problemId === problem.id
+                  )
+
+                  return (
+                    <div
+                      key={problem.id}
+                      className="border-b bg-[#F8F8F8] px-4 py-4 last:border-none"
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="text-color-violet-60 text-sm font-semibold">
+                            {convertToLetter(problem.order)}
+                          </div>
+                          <Link
+                            href={`/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}`}
+                            className="flex-1"
+                          >
+                            <span className="line-clamp-2 text-sm font-medium text-[#171717]">
+                              {problem.title}
+                            </span>
+                          </Link>
                         </div>
-                        <Link
-                          href={`/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}`}
-                          className="flex-1"
-                        >
-                          <span className="line-clamp-2 text-sm font-medium text-[#171717]">
-                            {problem.title}
-                          </span>
-                        </Link>
                       </div>
+
+                      {record && submission && (
+                        <div className="flex items-center justify-between text-xs text-gray-600">
+                          <div className="flex flex-col gap-1">
+                            {(() => {
+                              const submissionTime =
+                                problemSubmission?.submission?.submissionTime
+
+                              return submissionTime ? (
+                                <span>
+                                  Last Submission :{' '}
+                                  {dateFormatter(
+                                    submissionTime,
+                                    'MMM D, HH:mm'
+                                  )}
+                                </span>
+                              ) : null
+                            })()}
+                          </div>
+                          {problemSubmission && (
+                            <ResultBadge
+                              assignmentSubmission={problemSubmission}
+                            />
+                          )}
+                        </div>
+                      )}
                     </div>
-
-                    {record && submission && (
-                      <div className="flex items-center justify-between text-xs text-gray-600">
-                        <div className="flex flex-col gap-1">
-                          {(() => {
-                            const problemSubmission = submission.find(
-                              (sub) => sub.problemId === problem.id
-                            )
-                            const submissionTime =
-                              problemSubmission?.submission?.submissionTime
-
-                            return submissionTime ? (
-                              <span>
-                                Last Submission :{' '}
-                                {dateFormatter(submissionTime, 'MMM D, HH:mm')}
-                              </span>
-                            ) : null
-                          })()}
-                        </div>
-                        <ResultBadge assignmentSubmission={submission[index]} />
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  )
+                })}
               </div>
 
               {/* Desktop Problem List */}
               <div className="hidden lg:block">
-                {problems.data.map((problem, index) => (
-                  <div
-                    key={problem.id}
-                    className="hidden w-full items-center px-14 py-6 lg:flex"
-                  >
-                    <div className="mr-4 flex w-[10%]">
-                      <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
-                        {convertToLetter(problem.order)}
+                {problems.data.map((problem) => {
+                  const problemSubmission = submission?.find(
+                    (sub) => sub.problemId === problem.id
+                  )
+                  return (
+                    <div
+                      key={problem.id}
+                      className="bg-background-alternative border-line-neutral hidden w-full items-center border-b px-14 py-6 lg:flex"
+                    >
+                      <div className="mr-4 flex w-[10%]">
+                        <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
+                          {convertToLetter(problem.order)}
+                        </div>
+                      </div>
+
+                      <div className="flex w-[45%] flex-col">
+                        <Link
+                          href={`/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}`}
+                        >
+                          <span className="line-clamp-1 text-base font-medium text-[#171717]">
+                            {problem.title}
+                          </span>
+                        </Link>
+                      </div>
+
+                      <div className="flex w-[25%] justify-center">
+                        {(() => {
+                          const submissionTime =
+                            problemSubmission?.submission?.submissionTime
+                          return submissionTime ? (
+                            <div className="text-primary flex w-full justify-center truncate text-sm font-normal">
+                              Last Submission :{' '}
+                              {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
+                            </div>
+                          ) : null
+                        })()}
+                      </div>
+
+                      <div className="flex w-[20%] justify-center">
+                        {problemSubmission && (
+                          <ResultBadge
+                            assignmentSubmission={problemSubmission}
+                          />
+                        )}
                       </div>
                     </div>
-
-                    <div className="flex w-[45%] flex-col">
-                      <Link
-                        href={`/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}`}
-                      >
-                        <span className="line-clamp-1 text-base font-medium text-[#171717]">
-                          {problem.title}
-                        </span>
-                      </Link>
-                    </div>
-
-                    <div className="flex w-[25%] justify-center">
-                      {(() => {
-                        const problemSubmission = submission?.find(
-                          (sub) => sub.problemId === problem.id
-                        )
-                        const submissionTime =
-                          problemSubmission?.submission?.submissionTime
-
-                        return submissionTime ? (
-                          <div className="text-primary flex w-full justify-center text-sm font-normal">
-                            Last Submission :{' '}
-                            {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
-                          </div>
-                        ) : null
-                      })()}
-                    </div>
-
-                    <div className="flex w-[20%] justify-center">
-                      {record && submission && (
-                        <ResultBadge assignmentSubmission={submission[index]} />
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )}

@@ -41,9 +41,21 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
 
   const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
 
+  if (!assignments || assignments.length === 0) {
+    return (
+      <div className="mt-4 lg:mt-8">
+        <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">
+          <p className="text-color-neutral-60 text-base">
+            No assignments registered
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="mt-4 lg:mt-8">
-      {assignments?.map((assignment) => (
+      {assignments.map((assignment) => (
         <AssignmentAccordionItem
           key={assignment.id}
           assignment={assignment}
@@ -216,15 +228,13 @@ function AssignmentAccordionItem({
 
             {assignment && (
               <div className="flex w-[30%] justify-center">
-                <div className="max-w-[250px] flex-1 text-left">
-                  <p className="text-color-neutral-60 overflow-hidden whitespace-nowrap text-center text-base font-normal">
-                    {formatDateRange(
-                      assignment.startTime,
-                      assignment.dueTime ?? assignment.endTime,
-                      false
-                    )}
-                  </p>
-                </div>
+                <p className="text-color-neutral-60 truncate text-center text-base font-normal">
+                  {formatDateRange(
+                    assignment.startTime,
+                    assignment.dueTime ?? assignment.endTime,
+                    false
+                  )}
+                </p>
               </div>
             )}
 
@@ -342,7 +352,6 @@ function AssignmentAccordionItem({
                     <div className="flex w-[30%]">
                       <Link
                         href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
-                        // onClick={handleClick}
                       >
                         <span className="line-clamp-1 text-base font-medium text-[#171717]">
                           {problem.title}
