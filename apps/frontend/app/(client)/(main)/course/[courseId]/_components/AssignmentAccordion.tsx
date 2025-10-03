@@ -28,6 +28,7 @@ import { useState } from 'react'
 import { AssignmentLink } from './AssignmentLink'
 import { DetailButton } from './DetailButton'
 import { GradeStatisticsModal } from './GradeStatisticsModal'
+import { ResultBadge } from './ResultBadge'
 
 interface AssignmentAccordianProps {
   courseId: number
@@ -59,16 +60,7 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
         <AssignmentAccordionItem
           key={assignment.id}
           assignment={assignment}
-          grade={
-            gradeMap.get(assignment.id) ?? {
-              id: 0,
-              submittedCount: 0,
-              problemCount: 0,
-              userAssignmentFinalScore: 0,
-              userAssignmentJudgeScore: 0,
-              assignmentPerfectScore: 0
-            }
-          } // 인덱스로 대응
+          grade={gradeMap.get(assignment.id)} // 인덱스로 대응
           courseId={courseId}
         />
       ))}
@@ -79,7 +71,7 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
 interface AssignmentAccordionItemProps {
   assignment: Assignment
   courseId: number
-  grade: AssignmentSummary
+  grade?: AssignmentSummary
 }
 
 function AssignmentAccordionItem({
@@ -111,6 +103,10 @@ function AssignmentAccordionItem({
 
   const handleAccordionOpenChange = (value: string) => {
     setIsAccordionOpen(value === assignment.id.toString())
+  }
+
+  if (!grade) {
+    return null
   }
 
   return (
@@ -338,59 +334,67 @@ function AssignmentAccordionItem({
 
               {/* Desktop Problem List */}
               <div className="hidden lg:block">
-                {problems.data.map((problem, index) => (
-                  <div
-                    key={problem.id}
-                    className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
-                  >
-                    <div className="mr-4 flex w-[10%]">
-                      <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
-                        {convertToLetter(problem.order)}
+                {problems.data.map((problem, index) => {
+                  const problemSubmission = submission?.find(
+                    (sub) => sub.problemId === problem.id
+                  )
+                  return (
+                    <div
+                      key={problem.id}
+                      className="hidden w-full items-center border-b bg-[#F8F8F8] px-8 py-6 last:border-none lg:flex"
+                    >
+                      <div className="mr-4 w-[10%]">
+                        <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
+                          {convertToLetter(problem.order)}
+                        </div>
                       </div>
+
+                      <div className="flex w-[30%] flex-col">
+                        <Link
+                          href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
+                        >
+                          <span className="line-clamp-1 text-base font-medium text-[#171717]">
+                            {problem.title}
+                          </span>
+                        </Link>
+                      </div>
+
+                      <div className="flex w-[30%] justify-center">
+                        {(() => {
+                          const submissionTime =
+                            problemSubmission?.submission?.submissionTime
+
+                          return submissionTime ? (
+                            <div className="text-primary flex w-full justify-center text-sm font-normal">
+                              Last Submission :{' '}
+                              {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
+                            </div>
+                          ) : null
+                        })()}
+                      </div>
+
+                      <div className="flex w-[10%] justify-center gap-1 text-base font-medium">
+                        {dayjs().isAfter(
+                          dayjs(assignment.dueTime ?? assignment.endTime)
+                        ) && record
+                          ? (record.problems[index].problemRecord?.finalScore ??
+                            '-')
+                          : '-'}{' '}
+                        / {problem.maxScore}
+                      </div>
+
+                      <div className="flex w-[13%] justify-center">
+                        {problemSubmission && (
+                          <ResultBadge
+                            assignmentSubmission={problemSubmission}
+                          />
+                        )}
+                      </div>
+
+                      <div className="w-[6%]" />
                     </div>
-
-                    <div className="flex w-[30%]">
-                      <Link
-                        href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
-                      >
-                        <span className="line-clamp-1 text-base font-medium text-[#171717]">
-                          {problem.title}
-                        </span>
-                      </Link>
-                    </div>
-
-                    <div className="w-[30%]">
-                      {(() => {
-                        const problemSubmission = submission?.find(
-                          (sub) => sub.problemId === problem.id
-                        )
-                        const submissionTime =
-                          problemSubmission?.submission?.submissionTime
-
-                        return submissionTime ? (
-                          <div className="text-primary flex w-full justify-center text-sm font-normal">
-                            Last Submission :{' '}
-                            {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
-                          </div>
-                        ) : null
-                      })()}
-                    </div>
-
-                    <div className="flex w-[10%] justify-center text-base font-medium">
-                      {dayjs().isAfter(
-                        dayjs(assignment.dueTime ?? assignment.endTime)
-                      ) && record
-                        ? (record.problems[index].problemRecord?.finalScore ??
-                          '-')
-                        : '-'}{' '}
-                      / {problem.maxScore}
-                    </div>
-
-                    <div className="flex w-[13%] justify-center" />
-
-                    <div className="w-[6%]" />
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )}
