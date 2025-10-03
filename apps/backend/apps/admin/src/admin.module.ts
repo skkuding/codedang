@@ -27,6 +27,7 @@ import { AdminService } from './admin.service'
 import { AnnouncementModule } from './announcement/announcement.module'
 import { AssignmentModule } from './assignment/assignment.module'
 import { ContestModule } from './contest/contest.module'
+import { CourseModule } from './course/course.module'
 import { GroupModule } from './group/group.module'
 import { NotificationModule } from './notification/notification.module'
 import { ProblemModule } from './problem/problem.module'
@@ -77,6 +78,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     UserModule,
     AnnouncementModule,
     NoticeModule,
+    CourseModule,
     SubmissionModule,
     NotificationModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
