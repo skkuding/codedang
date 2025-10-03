@@ -1,0 +1,30 @@
+daemonset:
+  enabled: true
+
+service:
+  enabled: true # required for ServiceMonitor
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# enable Promtail ServiceMonitor for Prometheus Operator
+serviceMonitor:
+  enabled: true
+  namespaceSelector:
+    matchNames:
+      - monitoring-promtail
+  labels:
+    release: prometheus # release name of kube-prometheus-stack
+
+config:
+  enabled: true # enable Promtail config from Helm chart
+  logLevel: info
+  logFormat: json
+  serverPort: 3101
+  clients:
+    - url: http://loki.monitoring-loki.svc.cluster.local:3100/loki/api/v1/push
