@@ -126,6 +126,20 @@ const DELETE_CONTEST_QNA_COMMENT = gql(`
   }
 `)
 
+const TOGGLE_CONTEST_QNA_RESOLVED = gql(`
+  mutation toggleContestQnAResolved($contestId: Int!, $qnAOrder: Int!) {
+    toggleContestQnAResolved(
+    contestId: $contestId,
+    qnAOrder: $qnAOrder
+  ) {
+    id
+    order
+    isResolved
+    title
+  }
+}
+`)
+
 export {
   CREATE_CONTEST,
   UPDATE_CONTEST,
@@ -136,5 +150,6 @@ export {
   CREATE_CONTEST_ANNOUNCEMENT,
   CREATE_CONTEST_QNA_COMMENT,
   DELETE_CONTEST_QNA,
-  DELETE_CONTEST_QNA_COMMENT
+  DELETE_CONTEST_QNA_COMMENT,
+  TOGGLE_CONTEST_QNA_RESOLVED
 }
