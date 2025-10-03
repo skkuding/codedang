@@ -23,7 +23,15 @@ const nextConfig = {
   images: {
     remotePatterns: [
       new URL(`https://${BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/**`), // production
-      new URL('https://stage.codedang.com/**') // development
+      new URL('https://stage.codedang.com/**'), // development
+      {
+        protocol: 'https',
+        hostname: '**.cdninstagram.com'
+      },
+      {
+        protocol: 'https',
+        hostname: '**.fbcdn.net'
+      }
     ]
   },
   output: 'standalone',
