@@ -1706,6 +1706,7 @@ type Mutation {
   importProblemsToContest(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
   inviteUser(groupId: Int!, isGroupLeader: Boolean!, userId: Int!): UserGroup!
   issueInvitation(groupId: Int!): String!
+  rejudgeAssignmentProblem(groupId: Int!, input: RejudgeInput!): RejudgeResult!
   removeAnnouncement(contestId: Int!, id: Int!): Announcement!
   removeProblemsFromAssignment(assignmentId: Int!, groupId: Int!, problemIds: [Int!]!): [AssignmentProblem!]!
   removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
@@ -2412,6 +2413,24 @@ type Query {
   getUsers(cursor: Int, take: Int! = 10): [User!]!
   getWhitelist(groupId: Int!): [String!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
+}
+
+input RejudgeInput {
+  assignmentId: Int!
+  mode: RejudgeMode!
+  problemId: Int!
+}
+
+"""재채점 모드"""
+enum RejudgeMode {
+  CREATE_NEW
+  REPLACE_EXISTING
+}
+
+type RejudgeResult {
+  message: String!
+  processedSubmissions: Int!
+  totalSubmissions: Int!
 }
 
 enum ResultStatus {
