@@ -335,7 +335,6 @@ function AssignmentAccordionItem({
                   >
                     <div className="mr-4 flex w-[10%]">
                       <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
-                        {' '}
                         {convertToLetter(problem.order)}
                       </div>
                     </div>

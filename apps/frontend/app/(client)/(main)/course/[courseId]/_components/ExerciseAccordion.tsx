@@ -270,7 +270,7 @@ function ExerciseAccordionItem({
                 {problems.data.map((problem, index) => (
                   <div
                     key={problem.id}
-                    className="flex w-full items-center justify-between border-b bg-[#F8F8F8] px-8 py-6 last:border-none"
+                    className="hidden w-full items-center px-14 py-6 lg:flex"
                   >
                     <div className="mr-4 flex w-[10%]">
                       <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
@@ -278,7 +278,7 @@ function ExerciseAccordionItem({
                       </div>
                     </div>
 
-                    <div className="flex w-[30%]">
+                    <div className="flex w-[45%] flex-col">
                       <Link
                         href={`/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}`}
                       >
@@ -288,7 +288,7 @@ function ExerciseAccordionItem({
                       </Link>
                     </div>
 
-                    <div className="w-[30%]">
+                    <div className="flex w-[25%] justify-center">
                       {(() => {
                         const problemSubmission = submission?.find(
                           (sub) => sub.problemId === problem.id
@@ -305,13 +305,11 @@ function ExerciseAccordionItem({
                       })()}
                     </div>
 
-                    <div className="flex w-[13%] justify-center font-medium">
+                    <div className="flex w-[20%] justify-center">
                       {record && submission && (
                         <ResultBadge assignmentSubmission={submission[index]} />
                       )}
                     </div>
-
-                    <div className="w-[6%]" />
                   </div>
                 ))}
               </div>
