@@ -1,0 +1,74 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/course_notice/1/comment
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "첫 번째 답글입니다.",
+    "replyOnId": 1,
+    "isSecret": false
+  }
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  # 📘 Create Course Notice Comment
+
+  **POST** `/course_notice/:id/comment`
+
+  Add 1 comment to a specific lecture announcement.
+
+  특정 강의 공지사항에 댓글을 1개 추가합니다.
+
+  이 함수는 다음과 같은 조건에 따라 댓글을 생성하고 반환합니다.
+
+  2. 일반 사용자
+   - 본인이 참여 중인 강의의 공지에만 댓글을 달 수 있습니다.
+
+  접근 권한이 없는 경우 예외를 발생시킵니다.
+
+  - 일반 사용자: 강의 수강자가 아닌 경우 ForbiddenAccessException 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `id` | number | ✅       | 댓글을 달려는 강의 공지사항 아이디 |
+
+  ### 📝 Request Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "content": "첫 번째 댓글입니다.",
+    "replyOnId": 1,
+    "isSecret": false
+  }
+  ```
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `content` | string | ✅       | 댓글 내용 |
+  | `isSecret` | boolean |         | 비밀 댓글 여부 |
+  | `replyOnId` | number |         | 답글을 달 댓글의 아이디 |
+}
