@@ -26,7 +26,6 @@ export function ContestQnaTable() {
   const prevModalStatus = useRef(isModalOpen)
   const [selectedQnaOrder, setSelectedQnaOrder] = useState<number | null>(null)
   const [clickUnanswered, setClickUnanswered] = useState(false)
-  const [dataCount, setDataCount] = useState(0)
   const filterUnanswered = clickUnanswered ? { isResolved: false } : {}
   const { data } = useSuspenseQuery(GET_CONTEST_QNAS, {
     variables: {
@@ -42,9 +41,6 @@ export function ContestQnaTable() {
     },
     fetchPolicy: 'cache-and-network'
   })
-  useEffect(() => {
-    setDataCount(data?.getContestQnAs?.length || 0)
-  }, [data])
 
   const refreshTrigger = useQnaCommentsSync((s) => s.refreshTrigger)
 
@@ -75,12 +71,8 @@ export function ContestQnaTable() {
 
   const bodyStyle = { title: 'justify-start' }
 
-  const handleRowClick = (
-    table: Table<{ id: number }>,
-    row: Row<{ id: number }>
-  ) => {
-    const qnaData = row.original as DataTableQna
-    setSelectedQnaOrder(Number(qnaData.order))
+  const handleRowClick = (_: Table<DataTableQna>, row: Row<DataTableQna>) => {
+    setSelectedQnaOrder(Number(row.original.order))
     setIsModalOpen(true)
   }
   return (
@@ -89,7 +81,7 @@ export function ContestQnaTable() {
         <div className="mb-[30px] flex flex-col gap-4">
           <div className="flex items-center gap-[10px]">
             <p className="text-primary text-[30.6px] font-extrabold">
-              {dataCount}
+              {data?.getContestQnAs?.length || 0}
             </p>
             <p className="text-[26.22px] font-semibold">Questions</p>
           </div>
