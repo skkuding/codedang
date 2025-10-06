@@ -3,7 +3,6 @@
 import { ErrorPage } from '@/app/(client)/(main)/contest/[contestId]/@tabs/qna/[qnaId]/_components/QnaErrorPage'
 import { DeleteButton } from '@/components/DeleteButton'
 import { Modal } from '@/components/Modal'
-import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { DELETE_CONTEST_QNA } from '@/graphql/contest/mutations'
 import { GET_CONTEST_QNA } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
@@ -75,8 +74,9 @@ export function QnaDetailModal({
       open={open}
       onOpenChange={onOpenChange}
       title=""
+      className="p-0"
     >
-      <ScrollArea>
+      <div className="pr-4">
         {data?.getContestQnA ? (
           <div className="flex w-full flex-col gap-[20px] leading-[150%] tracking-[-3%]">
             <AdminQnaContentArea
@@ -101,7 +101,7 @@ export function QnaDetailModal({
             errorRes={{ message: 'There is no such Qna!', statusCode: 999 }}
           />
         )}
-      </ScrollArea>
+      </div>
     </Modal>
   )
 }
