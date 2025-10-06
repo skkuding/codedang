@@ -76,7 +76,7 @@ export const createColumns = (
       <DataTableColumnHeader column={column} title="No" />
     ),
     cell: ({ row }) => {
-      return row.getValue('order')
+      return <p className="text-base">{row.getValue('order')}</p>
     }
   },
   {
@@ -85,22 +85,19 @@ export const createColumns = (
       <DataTableColumnHeader
         column={column}
         title="Category"
-        className="w-[200px]"
+        className="w-[178px]"
       />
     ),
     cell: ({ row }) => {
       const qna = row.original
-      if (qna.problemId === null || qna.problemId === undefined) {
-        return qna.category
-      }
       const matchedProblem = contestProblems.find(
         (problem) => problem.problemId === qna.problemId
       )
       const categoryName = matchedProblem
         ? `${String.fromCharCode(65 + matchedProblem.order)}. ${matchedProblem.problem.title}`
-        : qna.category
+        : 'General'
 
-      return categoryName
+      return <p className="truncate text-base text-[#808080]">{categoryName}</p>
     }
   },
   {
@@ -109,12 +106,12 @@ export const createColumns = (
       <DataTableColumnHeader
         column={column}
         title="Question"
-        className="w-[400px]"
+        className="w-[400px] text-base"
       />
     ),
     cell: ({ row }) => {
       return (
-        <div>
+        <div className="truncate text-base">
           {row.getValue('title')}
           {!row.original.isRead && (
             <span className="bg-primary ml-2 inline-block h-2 w-2 rounded-full" />
@@ -133,11 +130,15 @@ export const createColumns = (
   {
     accessorKey: 'createdBy',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Writer" />
+      <DataTableColumnHeader
+        column={column}
+        title="Writer"
+        className="text-base"
+      />
     ),
     cell: ({ row }) => {
       const createdBy: CreatedByType = row.getValue('createdBy')
-      return createdBy.username
+      return <p className="text-base text-[#808080]">{createdBy.username}</p>
     },
     enableSorting: false,
     enableHiding: false
@@ -148,7 +149,11 @@ export const createColumns = (
       <DataTableColumnHeader column={column} title="Date" />
     ),
     cell: ({ row }) => {
-      return dateFormatter(row.getValue('createTime'), 'YYYY-MM-DD HH:mm:ss')
+      return (
+        <p className="text-base text-[#808080]">
+          {dateFormatter(row.getValue('createTime'), 'YYYY-MM-DD HH:mm:ss')}
+        </p>
+      )
     }
   },
   {
