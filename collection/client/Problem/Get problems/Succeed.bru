@@ -12,6 +12,7 @@ get {
 
 params:query {
   take: 5
+  ~groupId: 1
   ~cursor: 4
   ~search: 정
   ~order: level-desc
@@ -36,26 +37,45 @@ script:pre-request {
 }
 
 docs {
-  # Get Problems
-  
-  공개된 문제 목록을 가져옵니다.
-  Login되어 있는 경우에는 각 problem을 pass했는지, 하지않았는지 그 상태 또한 전달합니다. (Script에 login 코드를 추가하였습니다.)
-  
-  ## Query
-  
-  > workbookId가 주어진 경우 워크북의 문제들이 반환됩니다.
-  
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |take      |Integer|가져올 문제 개수 (default: 10)|
-  |cursor    |Integer|cursor 값 다음의 ID를 가진 문제들을 반환|
-  |search    |String |검색 키워드|
-  |order     |String |정렬 기준 (아래 참고)|
-  |groupId   |Integer|문제가 속한 Group ID (public일시 groupId: null로 조회)|
-  |workbookId|Integer|문제가 속한 문제집 ID|
-  
+  # 📘 Get Problems
+
+  **GET** `/problem`
+
+  공개된 여러개의 문제들을 가져옵니다.
+  - Login되어 있는 경우에는 각 problem을 pass했는지, 하지않았는지 그 상태 또한 전달합니다.
+    (Script에 login 코드를 추가하였습니다)
+  - workbookId가 주어진 경우 워크북의 문제들이 반환됩니다.
+
+  1. 운영진 (Admin, Manager, Reviewer)
+    - 대회 시점과 관계 없이 문제 목록을 열람할 수 있습니다.
+
+  2. 일반 사용자
+    > 대회가 진행중인 경우
+      - 대회에 등록한 사용자만 대회가 끝나기 전까지 문제를 열람할 수 있습니다.
+    > 대회가 진행중이지 않은 경우
+      - 대회에 등록한 사용자는 대회 시작 전까지 문제를 열람할 수 없습니다.
+      - 대회가 끝난 경우 로그인하지 않은 사용자도 문제 목록을 열람할 수 있습니다.
+
+  3. 예외 상황 발생
+    - 대회 시작 전에 문제를 열람하는 경우 403 Registered but not started 예외 발생
+    - groupId를 입력하지 않고 workbookId만 입력했을 경우 UnprocessableDataException 예외 발생
+      (groupId만 입력하고 workbookId를 입력하지 않았을 경우에는 정상 작동)
+
+  ### 📥 Request Parameters
+
+  #### Query Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `take`       | number | ✅ | 가져올 문제 개수 (default: 10) |
+  | `groupId`    | number | ✅ | 문제가 속한 groupId (public일시 groupId == null로 조회) |
+  | `cursor`     | number | ✅ | cursor 값 다음의 ID를 가진 문제들을 반환 |
+  | `search`     | String | ✅ | 검색 키워드 지정 |
+  | `order`      | String | ✅ | 정렬 기준 지정 (아래 참고) |
+  | `workbookId` | number | ✅ | 문제가 속한 문제집 Id |
+
   ### 정렬 기준 옵션
-  
+
   - `id-asc`, `id-desc`
   - `title-asc`, `title-desc`
   - `level-asc`, `level-desc`

@@ -192,12 +192,12 @@ export class ContestService {
     }
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
-        'The start time must be earlier than the end time'
+        'StartTime must be earlier than EndTime'
       )
     }
     if (contest.registerDueTime >= contest.startTime) {
       throw new UnprocessableDataException(
-        'The register due time must be earlier than the start time'
+        'RegisterDueTime must be earlier than StartTime'
       )
     }
     if (contest.summary) {
@@ -1420,6 +1420,7 @@ export class ContestService {
 
   async getContestQnAs(
     contestId: number,
+    userId: number,
     take: number,
     cursor: number | null,
     filter?: {
@@ -1441,7 +1442,7 @@ export class ContestService {
       ...(filter?.isResolved !== undefined && { isResolved: filter.isResolved })
     }
 
-    const result = await this.prisma.contestQnA.findMany({
+    const qnas = await this.prisma.contestQnA.findMany({
       ...paginator,
       take,
       where,
@@ -1462,11 +1463,15 @@ export class ContestService {
         }
       }
     })
-    return result
+
+    return qnas.map(({ readBy, ...rest }) => ({
+      ...rest,
+      isRead: readBy.includes(userId)
+    }))
   }
 
-  async getContestQnA(contestId: number, order: number) {
-    return await this.prisma.contestQnA.findFirst({
+  async getContestQnA(contestId: number, userId: number, order: number) {
+    const contestQnA = await this.prisma.contestQnA.findFirst({
       where: {
         contestId,
         order
@@ -1488,6 +1493,22 @@ export class ContestService {
         }
       }
     })
+    if (!contestQnA) {
+      throw new EntityNotExistException('ContestQnA')
+    }
+
+    if (!contestQnA.readBy.includes(userId)) {
+      await this.prisma.contestQnA.update({
+        where: { id: contestQnA.id },
+        data: {
+          readBy: {
+            push: userId
+          }
+        }
+      })
+    }
+
+    return contestQnA
   }
 
   async deleteContestQnA(contestId: number, order: number) {
@@ -1509,9 +1530,9 @@ export class ContestService {
 
   async createContestQnAComment(
     contestId: number,
+    userId: number,
     order: number,
-    content: string,
-    staffUserId: number
+    content: string
   ) {
     if (!content || content.trim() === '') {
       throw new BadRequestException('Content cannot be empty')
@@ -1552,7 +1573,7 @@ export class ContestService {
         data: {
           content,
           contestQnAId: contestQnA.id,
-          createdById: staffUserId,
+          createdById: userId,
           isContestStaff: true,
           order: commentOrder
         }
@@ -1560,7 +1581,7 @@ export class ContestService {
       if (!contestQnA.isResolved) {
         await tx.contestQnA.update({
           where: { id: contestQnA.id },
-          data: { isResolved: true }
+          data: { isResolved: true, readBy: { set: [userId] } }
         })
       }
 

@@ -1,0 +1,41 @@
+meta {
+  name: [ERR] Nonexistent User
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestSubmissionSummaryByUserId($contestId: Int!, $userId: Int!, $take: Int!) {
+    getContestSubmissionSummaryByUserId(contestId: $contestId, userId: $userId, take: $take) {
+      submissions {
+        id
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 1,
+    "userId": 999,
+    "take": 10
+  }
+}
+
+docs {
+  # 📙 [ERR] Nonexistent User
+
+  **POST** `/graphql (query: getContestSubmissionSummaryByUserId)`
+
+  Returns empty data when the requested user does not exist.
+
+  존재하지 않는 `userId`로 조회를 요청했을 때,
+
+  `submissions`를 빈 배열(`[]`)로 반환합니다.
+}

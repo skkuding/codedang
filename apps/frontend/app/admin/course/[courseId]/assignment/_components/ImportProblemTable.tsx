@@ -70,6 +70,7 @@ export function ImportProblemTable({
     ...problem,
     id: Number(problem.id),
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
+    updateTime: problem.updateContentTime ?? problem.updateTime,
     languages: problem.languages ?? [],
     score: checkedProblems.find((item) => item.id === Number(problem.id))
       ?.score,
@@ -92,7 +93,7 @@ export function ImportProblemTable({
           <DataTableSearchBar
             columndId="title"
             size="sm"
-            className="w-[322px]!"
+            className="w-[322px]! ring-inset"
           />
           <DataTableLevelFilter />
         </div>

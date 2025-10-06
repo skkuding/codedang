@@ -5,15 +5,19 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/assignment/37/problem?take=5&groupId=2
+  url: {{baseUrl}}/assignment/:assignmentId/problem?take=5&groupId=1
   body: none
   auth: none
 }
 
 params:query {
   take: 5
-  groupId: 2
+  groupId: 1
   ~cursor: 4
+}
+
+params:path {
+  assignmentId: 6
 }
 
 assert {
@@ -32,22 +36,39 @@ script:pre-request {
 }
 
 docs {
-  # Get Assignment Problems
-  
+  # 📘 Get Assignment Problems
+
+  **GET** `/assignment/:assignmentId/problem`
+
   > 로그인이 필요한 API입니다.
-  
-  과제의 문제 목록을 가져옵니다.
-  
-  ## Query
-  
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |take      |Integer|가져올 문제 개수 (default: 10)|
-  |cursor    |Integer|cursor 값 다음의 ID를 가진 문제들을 반환|
-  |groupId   |Integer|과제가 속한 Group ID (default: 1)|
-  
-  ## Constraints
-  
+
+  이 함수는 다음과 같은 조건에 따라 과제의 문제 정보를 여러개 조회하고 반환합니다.
+
+  - assignment의 파라미터 숫자값은 'AssignmentRecord' 속에 적혀있는 assignmentId 값에 한해서 지정해야 합니다.
+  - 해당 assignmentId 속 groupId에 해당하는 과제를 가져옵니다.
+  - 해당 과제 그룹 속에서, cursor값 다음의 problemId 부터 take 개수만큼 문제를 가져옵니다.
+
+  > 예외 상황 발생
+    - assignmentId에 없는 groupId를 사용할 경우 Forbidden resource 예외 발생
+
+  ### 🔒 Authentication
+
   - 과제에 등록한 사용자는 과제 시작 전까지 문제를 열람할 수 없습니다.
   - 과제에 등록하지 않은 사용자는 과제가 끝나기 전까지 문제를 열람할 수 없습니다.
+
+  ### 📥 Request Parameters
+
+  #### Query Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `take`    | number | ✅ | 가져올 문제 개수 (default: 10) |
+  | `groupId` | number | ✅ | 과제가 속한 Group ID (assignmentId 속에 있는 groupId를 지정해야 함) (default: 1) |
+  | `cursor`  | number | ✅ | 문제 가져올 시작점 지정 -> cursor값 다음의 ID를 가진 문제들 반환 |
+
+  #### Path Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `assignmentId` | number | ✅ | 가져올 과제 ID |
 }

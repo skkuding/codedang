@@ -43,20 +43,22 @@ admin:
 datasources:
   datasources.yaml:
     apiVersion: 1
-    deleteDatasources: # auto delete if not provisioned
-      - name: Loki-production
-        orgId: 1
     prune: true
     datasources:
-      - name: Loki-production
+      - name: Loki
         type: loki
         access: proxy
         url: http://loki.monitoring-loki.svc.cluster.local:3100
         editable: false
-      - name: Prometheus-production
+      - name: Prometheus
         type: prometheus
         access: proxy
         url: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090
+        editable: false
+      - name: Tempo-production
+        type: tempo
+        access: proxy
+        url: http://tempo.monitoring-tempo.svc.cluster.local:3200
         editable: false
 
 # help grafana to detect provisioned dashboards
