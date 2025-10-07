@@ -103,7 +103,7 @@ export class CourseService {
     })
 
     if (!comment) {
-      throw new EntityNotExistException('Comment')
+      throw new EntityNotExistException('CourseQnAComment')
     }
 
     return await this.prisma.$transaction(async (tx) => {

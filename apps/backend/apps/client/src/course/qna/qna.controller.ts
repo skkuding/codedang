@@ -66,7 +66,6 @@ export class QnaController {
     return await this.qnaService.getCourseQnA(req.user?.id, courseId, order)
   }
 
-  // 아래 Patch 엔드포인트 추가
   @Patch(':order')
   @UseGuards(JwtAuthGuard)
   async updateCourseQnA(
