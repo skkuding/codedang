@@ -41,7 +41,6 @@
     "node": "^22.18.0"
   },
   "dependencies": {
-    "@nestjs/mapped-types": "^2.1.0",
     "web-push": "^3.6.7"
   }
 }

@@ -288,7 +288,7 @@ export class QnaService {
     })
 
     if (!qna) {
-      throw new EntityNotExistException('QnA')
+      throw new EntityNotExistException('CourseQnA')
     }
 
     if (qna.createdById !== userId) {
@@ -327,7 +327,7 @@ export class QnaService {
     })
 
     if (!qna) {
-      throw new EntityNotExistException('QnA')
+      throw new EntityNotExistException('CourseQnA')
     }
 
     const isCourseStaff =
@@ -372,7 +372,7 @@ export class QnaService {
       }
     })
     if (!qna) {
-      throw new EntityNotExistException('QnA')
+      throw new EntityNotExistException('CourseQnA')
     }
 
     const isCourseStaff =
