@@ -1,5 +1,10 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, NotAcceptableException } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotAcceptableException
+} from '@nestjs/common'
 import { GroupType, Role, type Prisma, type UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { invitationCodeKey, joinGroupCacheKey } from '@libs/cache'
@@ -1221,6 +1226,23 @@ export class GroupService {
   }) {
     if (await this.isForbiddenNotice({ id, userId })) {
       throw new ForbiddenAccessException('it is not accessible course notice')
+    }
+
+    const comment = await this.prisma.courseNoticeComment.findUnique({
+      where: {
+        id: commentId
+      },
+      select: {
+        createdById: true
+      }
+    })
+
+    if (!comment) {
+      throw new EntityNotExistException('CouseNoticeComment')
+    }
+
+    if (comment.createdById !== userId) {
+      throw new ForbiddenException('it is not accessible comment')
     }
 
     return await this.prisma.courseNoticeComment.update({
