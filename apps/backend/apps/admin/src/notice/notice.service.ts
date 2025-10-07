@@ -87,15 +87,14 @@ export class CourseNoticeService {
       throw new NotFoundException('course user is not found')
     }
 
-    await this.prisma.courseNoticeRecord.deleteMany({
+    await this.prisma.courseNotice.update({
       where: {
-        userId: {
-          in: userIds.reduce((acc: number[], val) => {
-            acc.push(val.userId)
-            return acc
-          }, [])
-        },
-        courseNoticeId
+        id: courseNoticeId
+      },
+      data: {
+        readBy: {
+          set: []
+        }
       }
     })
   }

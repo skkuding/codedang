@@ -1348,7 +1348,6 @@ input CourseInput {
 
 type CourseNotice {
   CourseNoticeComment: [CourseNoticeComment!]
-  CourseNoticeRecord: [CourseNoticeRecord!]
   _count: CourseNoticeCount!
   content: String!
   createTime: DateTime!
@@ -1359,6 +1358,7 @@ type CourseNotice {
   id: ID!
   isFixed: Boolean!
   isPublic: Boolean!
+  readBy: [Int!]
   title: String!
   updateTime: DateTime!
 }
@@ -1367,6 +1367,7 @@ type CourseNoticeAvgAggregate {
   createdById: Float
   groupId: Float
   id: Float
+  readBy: Float
 }
 
 type CourseNoticeComment {
@@ -1443,7 +1444,6 @@ type CourseNoticeCommentSumAggregate {
 
 type CourseNoticeCount {
   CourseNoticeComment: Int!
-  CourseNoticeRecord: Int!
 }
 
 type CourseNoticeCountAggregate {
@@ -1455,6 +1455,7 @@ type CourseNoticeCountAggregate {
   id: Int!
   isFixed: Int!
   isPublic: Int!
+  readBy: Int!
   title: Int!
   updateTime: Int!
 }
@@ -1483,53 +1484,11 @@ type CourseNoticeMinAggregate {
   updateTime: DateTime
 }
 
-type CourseNoticeRecord {
-  courseNotice: CourseNotice!
-  courseNoticeId: Int!
-  createTime: DateTime!
-  id: ID!
-  user: User!
-  userId: Int!
-}
-
-type CourseNoticeRecordAvgAggregate {
-  courseNoticeId: Float
-  id: Float
-  userId: Float
-}
-
-type CourseNoticeRecordCountAggregate {
-  _all: Int!
-  courseNoticeId: Int!
-  createTime: Int!
-  id: Int!
-  userId: Int!
-}
-
-type CourseNoticeRecordMaxAggregate {
-  courseNoticeId: Int
-  createTime: DateTime
-  id: Int
-  userId: Int
-}
-
-type CourseNoticeRecordMinAggregate {
-  courseNoticeId: Int
-  createTime: DateTime
-  id: Int
-  userId: Int
-}
-
-type CourseNoticeRecordSumAggregate {
-  courseNoticeId: Int
-  id: Int
-  userId: Int
-}
-
 type CourseNoticeSumAggregate {
   createdById: Int
   groupId: Int
   id: Int
+  readBy: [Int!]
 }
 
 input CreateAnnouncementInput {
@@ -3231,7 +3190,6 @@ input UploadTestcaseZipInput {
 type User {
   CourseNotice: [CourseNotice!]
   CourseNoticeComment: [CourseNoticeComment!]
-  CourseNoticeRecord: [CourseNoticeRecord!]
   NotificationRecord: [NotificationRecord!]
   PushSubscription: [PushSubscription!]
   UpdateHistory: [UpdateHistory!]
@@ -3365,7 +3323,6 @@ type UserContestSumAggregate {
 type UserCount {
   CourseNotice: Int!
   CourseNoticeComment: Int!
-  CourseNoticeRecord: Int!
   NotificationRecord: Int!
   PushSubscription: Int!
   UpdateHistory: Int!

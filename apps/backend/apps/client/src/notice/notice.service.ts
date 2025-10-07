@@ -191,25 +191,25 @@ export class CourseNoticeService {
         ]
       }
     })
-    const readCount = await this.prisma.courseNoticeRecord.count({
+    const readCount = await this.prisma.courseNotice.count({
       where: {
-        userId,
-        courseNotice: {
-          OR: [
-            {
-              group: {
-                userGroup: {
-                  some: {
-                    userId
-                  }
+        readBy: {
+          has: userId
+        },
+        OR: [
+          {
+            group: {
+              userGroup: {
+                some: {
+                  userId
                 }
               }
-            },
-            {
-              isPublic: true
             }
-          ]
-        }
+          },
+          {
+            isPublic: true
+          }
+        ]
       }
     })
 
@@ -251,14 +251,7 @@ export class CourseNoticeService {
           }
         },
         updateTime: true,
-        CourseNoticeRecord: {
-          where: {
-            userId
-          },
-          select: {
-            id: true
-          }
-        }
+        readBy: true
       },
       orderBy: {
         updateTime: 'desc'
@@ -269,12 +262,12 @@ export class CourseNoticeService {
       throw new EntityNotExistException('CourseNotice')
     }
 
-    const { CourseNoticeRecord, group, ...newLatest } = latest
+    const { readBy, group, ...newLatest } = latest
 
     return {
       ...newLatest,
       groupName: group.groupName,
-      isRead: CourseNoticeRecord.length != 0
+      isRead: readBy.includes(userId)
     }
   }
 
@@ -336,11 +329,11 @@ export class CourseNoticeService {
       ...paginator,
       where: {
         isFixed: fixed,
-        CourseNoticeRecord:
+        NOT:
           readFilter == 'unread'
             ? {
-                none: {
-                  userId
+                readBy: {
+                  has: userId
                 }
               }
             : undefined,
@@ -375,14 +368,7 @@ export class CourseNoticeService {
             username: true
           }
         },
-        CourseNoticeRecord: {
-          where: {
-            userId
-          },
-          select: {
-            id: true
-          }
-        },
+        readBy: true,
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: {
           select: {
@@ -394,10 +380,10 @@ export class CourseNoticeService {
     })
 
     const data = courseNotices.map((courseNotice) => {
-      const { CourseNoticeRecord, _count, ...notice } = {
+      const { readBy, _count, ...notice } = {
         ...courseNotice,
         commentCount: courseNotice._count.CourseNoticeComment,
-        isRead: courseNotice.CourseNoticeRecord.length !== 0,
+        isRead: courseNotice.readBy.includes(userId),
         createdBy: courseNotice.createdBy?.username
       }
 
@@ -520,17 +506,27 @@ export class CourseNoticeService {
     userId: number
     courseNoticeId: number
   }) {
-    const isRecordExist = await this.prisma.courseNoticeRecord.count({
+    const courseNotice = await this.prisma.courseNotice.findUnique({
       where: {
-        userId,
-        courseNoticeId
+        id: courseNoticeId
+      },
+      select: {
+        readBy: true
       }
     })
-    if (isRecordExist === 0) {
-      await this.prisma.courseNoticeRecord.create({
+    if (!courseNotice) {
+      throw new EntityNotExistException('CorseNotice')
+    }
+
+    if (!courseNotice.readBy.includes(userId)) {
+      await this.prisma.courseNotice.update({
+        where: {
+          id: courseNoticeId
+        },
         data: {
-          userId,
-          courseNoticeId
+          readBy: {
+            push: userId
+          }
         }
       })
     }
