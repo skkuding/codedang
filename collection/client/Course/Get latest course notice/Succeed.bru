@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/course_notice/latest
+  url: {{baseUrl}}/course/notice/latest
   body: none
   auth: inherit
 }
@@ -31,7 +31,7 @@ script:pre-request {
 docs {
   # 📘 Get Latest Course Notice
 
-  **GET** `/course_notice/latest`
+  **GET** `/course/notice/latest`
 
   Get a set number of lecture announcements that users can inquire about.
 

@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/course_notice?take=5&groupId=1
+  url: {{baseUrl}}/course/notice?take=5&groupId=1
   body: none
   auth: none
 }
@@ -36,7 +36,7 @@ script:pre-request {
 docs {
   # 📘 Get Course Notices
 
-  **GET** `/course_notice`
+  **GET** `/course/notice`
 
   Get a set number of lecture announcements that users can inquire about.
 

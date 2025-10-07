@@ -3,7 +3,7 @@ import {
   Injectable,
   type PipeTransform
 } from '@nestjs/common'
-import { CourseNoticeOrder } from '@client/notice/enum/course_notice-order.enum'
+import { CourseNoticeOrder } from '@client/group/enum/course-notice-order.enum'
 
 @Injectable()
 export class CourseNoticeOrderPipe implements PipeTransform {

@@ -8,16 +8,12 @@ import {
   ResolveField,
   Parent
 } from '@nestjs/graphql'
-import { CourseNotice, Notice, User } from '@generated'
+import { Notice, User } from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
 import { CursorValidationPipe, IDValidationPipe } from '@libs/pipe'
 import { UserService } from '@admin/user/user.service'
-import {
-  CreateCourseNoticeInput,
-  UpdateCourseNoticeInput
-} from './model/course-notice.input'
 import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
-import { CourseNoticeService, NoticeService } from './notice.service'
+import { NoticeService } from './notice.service'
 
 @Resolver(() => Notice)
 export class NoticeResolver {
@@ -73,54 +69,5 @@ export class NoticeResolver {
       return null
     }
     return this.userService.getUser(createdById)
-  }
-}
-
-// <TODO>: 권한 검증이 필요합니다.
-@Resolver(() => CourseNotice)
-export class CourseNoticeResolver {
-  constructor(private readonly courseNoticeService: CourseNoticeService) {}
-
-  @Mutation(() => CourseNotice)
-  async createCourseNotice(
-    @Args('input') input: CreateCourseNoticeInput,
-    @Context('req') req: AuthenticatedRequest
-  ) {
-    return await this.courseNoticeService.createCourseNotice(req.user.id, input)
-  }
-
-  @Mutation(() => CourseNotice)
-  async deleteCourseNotice(
-    @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
-    courseNoticeId: number
-  ) {
-    return await this.courseNoticeService.deleteCourseNotice(courseNoticeId)
-  }
-
-  @Mutation(() => CourseNotice)
-  async updateCourseNotice(
-    @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
-    courseNoticeId: number,
-    @Args('input') input: UpdateCourseNoticeInput
-  ) {
-    return await this.courseNoticeService.updateCourseNotice(
-      courseNoticeId,
-      input
-    )
-  }
-
-  @Mutation(() => [CourseNotice])
-  async cloneCourseNotices(
-    @Context('req') req: AuthenticatedRequest,
-    @Args('courseNoticeIds', { type: () => [Int] })
-    courseNoticeIds: number[],
-    @Args('cloneToId', { type: () => Int }, IDValidationPipe)
-    cloneToId: number
-  ) {
-    return await this.courseNoticeService.cloneCourseNotice(
-      req.user.id,
-      courseNoticeIds,
-      cloneToId
-    )
   }
 }

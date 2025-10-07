@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/course_notice/1
+  url: {{baseUrl}}/course/notice/1
   body: none
   auth: none
 }
@@ -28,7 +28,7 @@ script:pre-request {
 docs {
   # 📘 Get a Course Notice By ID
 
-  **GET** `/course_notice/:id`
+  **GET** `/course/notice/:id`
 
   Retrieve a single QnA for a specific contest.
 
