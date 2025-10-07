@@ -139,7 +139,7 @@ export class CourseNoticeService {
    * @param {number} userId 접근하려는 유저 아이디
    * @returns
    */
-  async isAccessibleNotice({ id, userId }: { id: number; userId: number }) {
+  async isForbiddenNotice({ id, userId }: { id: number; userId: number }) {
     const courseNotice = await this.prisma.courseNotice.findUnique({
       where: {
         id
@@ -266,7 +266,7 @@ export class CourseNoticeService {
     })
 
     if (!latest) {
-      throw new NotFoundException('CourseNotice')
+      throw new EntityNotExistException('CourseNotice')
     }
 
     const { CourseNoticeRecord, group, ...newLatest } = latest
@@ -682,7 +682,7 @@ export class CourseNoticeService {
       throw new NotAcceptableException('comment content limit is 1000')
     }
 
-    if (await this.isAccessibleNotice({ id, userId })) {
+    if (await this.isForbiddenNotice({ id, userId })) {
       throw new ForbiddenAccessException('it is not accessible course notice')
     }
 
@@ -697,7 +697,7 @@ export class CourseNoticeService {
       })
 
       if (!originalComment) {
-        throw new NotFoundException('CourseNoticeComment')
+        throw new EntityNotExistException('CourseNoticeComment')
       }
 
       if (originalComment.replyOnId) {
@@ -733,7 +733,7 @@ export class CourseNoticeService {
     commentId: number
     updateCourseNoticeCommentDto: UpdateCourseNoticeCommentDto
   }) {
-    if (await this.isAccessibleNotice({ id, userId })) {
+    if (await this.isForbiddenNotice({ id, userId })) {
       throw new ForbiddenAccessException('it is not accessible course notice')
     }
 
@@ -769,7 +769,7 @@ export class CourseNoticeService {
     id: number
     commentId: number
   }) {
-    if (await this.isAccessibleNotice({ id, userId })) {
+    if (await this.isForbiddenNotice({ id, userId })) {
       throw new ForbiddenAccessException('it is not accessible course notice')
     }
 

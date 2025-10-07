@@ -15,7 +15,7 @@ import { UserService } from '@admin/user/user.service'
 import {
   CreateCourseNoticeInput,
   UpdateCourseNoticeInput
-} from './model/course_notice.input'
+} from './model/course-notice.input'
 import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { CourseNoticeService, NoticeService } from './notice.service'
 

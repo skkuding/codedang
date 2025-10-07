@@ -80,11 +80,10 @@ model User {
   createdQnAComments ContestQnAComment[]  @relation("CreatedByUser")
   NotificationRecord NotificationRecord[]
   PushSubscription   PushSubscription[]
-
-  @@map("user")
   CourseNotice CourseNotice[]
-  CourseNoticeRecord CourseNoticeRecord[]
   CourseNoticeComment CourseNoticeComment[]
+  
+  @@map("user")
 }
 
 model UserOAuth {
@@ -150,9 +149,9 @@ model Group {
   workbook       Workbook[]
   GroupWhitelist GroupWhitelist[]
   sharedProblems Problem[]
+  CourseNotice CourseNotice[]
 
   @@map("group")
-  CourseNotice CourseNotice[]
 }
 
 model GroupWhitelist {
@@ -206,23 +205,11 @@ model CourseNotice {
   isFixed     Boolean  @default(false) @map("is_fixed")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
+  readBy      Int[]               @map("read_by")
+
+  CourseNoticeComment CourseNoticeComment[]
 
   @@map("course_notice")
-  CourseNoticeRecord CourseNoticeRecord[]
-  CourseNoticeComment CourseNoticeComment[]
-}
-
-model CourseNoticeRecord {
-  id             Int          @id @default(autoincrement())
-  courseNotice   CourseNotice @relation(fields: [courseNoticeId], references: [id], onDelete: Cascade)
-  courseNoticeId Int          @map("course_notice_id")
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         Int          @map("user_id")
-  createTime     DateTime     @default(now()) @map("create_time")
-
-  @@index([userId, createTime, id])
-  @@unique([courseNoticeId, userId], name: "courseNoticeIdUserIdUnique")
-  @@map("course_notice_record")
 }
 
 model CourseNoticeComment {
@@ -239,8 +226,9 @@ model CourseNoticeComment {
   createdTime    DateTime     @default(now()) @map("create_time")
   updateTime     DateTime     @updatedAt @map("update_time")
 
-  @@map("course_notice_comment")
   CourseNoticeComment CourseNoticeComment[] @relation("ReplyOn")
+
+  @@map("course_notice_comment")
 }
 
 model Problem {

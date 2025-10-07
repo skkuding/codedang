@@ -55,7 +55,7 @@ export class NoticeController {
   }
 }
 
-@Controller('course_notice')
+@Controller('course-notice')
 export class CourseNoticeController {
   constructor(private readonly courseNoticeService: CourseNoticeService) {}
 

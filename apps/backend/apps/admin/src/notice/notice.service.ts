@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type {
   CreateCourseNoticeInput,
   UpdateCourseNoticeInput
-} from './model/course_notice.input'
+} from './model/course-notice.input'
 import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 
 @Injectable()
@@ -117,8 +118,6 @@ export class CourseNoticeService {
       }
     })
 
-    await this.markAsUnread(createCourseNoticeInput.groupId, courseNotice.id)
-
     return courseNotice
   }
 
@@ -148,7 +147,7 @@ export class CourseNoticeService {
     courseNoticeId: number,
     updateCourseNoticeInput: UpdateCourseNoticeInput
   ) {
-    const groupId = await this.prisma.courseNotice.findUniqueOrThrow({
+    const courseNotice = await this.prisma.courseNotice.findUnique({
       where: {
         id: courseNoticeId
       },
@@ -157,7 +156,11 @@ export class CourseNoticeService {
       }
     })
 
-    await this.markAsUnread(groupId.groupId, courseNoticeId)
+    if (!courseNotice) {
+      throw new NotFoundException('CourseNotice')
+    }
+
+    await this.markAsUnread(courseNotice.groupId, courseNoticeId)
 
     return await this.prisma.courseNotice.update({
       where: {
@@ -195,7 +198,7 @@ export class CourseNoticeService {
     })
 
     if (originals.length == 0) {
-      throw new NotFoundException('original notice not found')
+      throw new EntityNotExistException('CourseNotice')
     }
 
     const clones = await this.prisma.courseNotice.createManyAndReturn({
@@ -210,10 +213,6 @@ export class CourseNoticeService {
         }
       })
     })
-
-    await Promise.all(
-      clones.map((clone) => this.markAsUnread(cloneToId, clone.id))
-    )
 
     return clones
   }
