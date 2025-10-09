@@ -875,11 +875,12 @@ export class GroupService {
     })
 
     const data = courseNotices.map((courseNotice) => {
-      const { readBy, _count, ...notice } = {
-        ...courseNotice,
-        commentCount: courseNotice._count.CourseNoticeComment,
-        isRead: courseNotice.readBy.includes(userId),
-        createdBy: courseNotice.createdBy?.username
+      const { _count, readBy, createdBy, ...rest } = courseNotice
+      const notice = {
+        ...rest,
+        commentCount: _count.CourseNoticeComment,
+        isRead: readBy.includes(userId),
+        createdBy: createdBy?.username
       }
 
       return notice
