@@ -5,14 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/course/notice?take=5&groupId=1
+  url: {{baseUrl}}/course/1/notice/all?take=5
   body: none
   auth: none
 }
 
 params:query {
   take: 5
-  groupId: 1
   ~cursor: 1
   ~fixed: true
   ~readFilter: all
@@ -65,7 +64,6 @@ docs {
   | `cursor` | number |         | 조회할 페이지 지정을 위한 cursor |
   | `take` | number |      | 가져올 공지의 개수 |
   | `fixed` | boolean |         | 고정된 공지를 가져올지, 고정되지 않은 공지를 가져올지 여부 |
-  | `groupId` | number | ✅    | 공지를 가져오고자 하는 강의 아이디 |
   | `readFilter` | string | ✅       | 읽은 공지를 가져올지, 읽지 않은 공지를 가져올지 결정하는 필터 (기본값은 all, unread/all 입력 가능) |
   | `search` | string | ✅    | 제목에서 검색할 문자열 |
   | `order` | enum | ✅       | 공지 정렬 기준 (생성/수정시간 기준 정렬 및 각각에 대한 오름차순, 내림차순 정렬 가능) |

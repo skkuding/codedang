@@ -144,7 +144,7 @@ export class CourseController {
    * @param {CourseNoticeOrder} order 공지 정렬 순서
    * @returns 공지에 대한 대략적인 정보와 총 개수
    */
-  @Get('notice/all/:groupId')
+  @Get(':groupId/notice/all')
   async getCourseNotices(
     // <TODO>: GroupMember Guard 무시
     @Req() req: AuthenticatedRequest,
