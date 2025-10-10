@@ -820,32 +820,33 @@ export class SubmissionService {
     let processedCount = 0
 
     if (mode === RejudgeMode.REPLACE_EXISTING) {
-      // 기존 채점 기록을 모두 Judging으로 변경
+      // 각 user의 가장 최신 submission만 Judging으로 변경
+      const submissionIds = submissions.map((s) => s.id)
+
       await this.prisma.$transaction(async (prisma) => {
-        // Submission 결과를 Judging으로 변경
         await prisma.submission.updateMany({
           where: {
-            assignmentId,
-            problemId
+            id: { in: submissionIds }
           },
           data: {
             result: PrismaResultStatus.Judging
           }
         })
 
-        // SubmissionResult 결과를 Judging으로 변경
-        await prisma.submissionResult.updateMany({
+        // 기존 SubmissionResult 삭제
+        await prisma.submissionResult.deleteMany({
           where: {
-            submission: {
-              assignmentId,
-              problemId
-            }
-          },
-          data: {
-            result: PrismaResultStatus.Judging
+            submissionId: { in: submissionIds }
           }
         })
       })
+
+      // 현재 테스트케이스 기준으로 SubmissionResult 재생성
+      await Promise.all(
+        submissionIds.map((id) =>
+          this.createSubmissionResultsForRejudge({ id, problemId })
+        )
+      )
 
       this.logger.log(
         `Updated ${submissions.length} submissions to Judging status for rejudge`
