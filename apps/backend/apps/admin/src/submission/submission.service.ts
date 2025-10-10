@@ -820,25 +820,23 @@ export class SubmissionService {
     let processedCount = 0
 
     if (mode === RejudgeMode.REPLACE_EXISTING) {
-      // 각 user의 가장 최신 submission만 Judging으로 변경
       const submissionIds = submissions.map((s) => s.id)
 
-      await this.prisma.$transaction(async (prisma) => {
-        await prisma.submission.updateMany({
-          where: {
-            id: { in: submissionIds }
-          },
-          data: {
-            result: PrismaResultStatus.Judging
-          }
-        })
+      // 각 user의 가장 최신 submission만 Judging으로 변경
+      await this.prisma.submission.updateMany({
+        where: {
+          id: { in: submissionIds }
+        },
+        data: {
+          result: PrismaResultStatus.Judging
+        }
+      })
 
-        // 기존 SubmissionResult 삭제
-        await prisma.submissionResult.deleteMany({
-          where: {
-            submissionId: { in: submissionIds }
-          }
-        })
+      // 기존 SubmissionResult 삭제
+      await this.prisma.submissionResult.deleteMany({
+        where: {
+          submissionId: { in: submissionIds }
+        }
       })
 
       // 현재 테스트케이스 기준으로 SubmissionResult 재생성
