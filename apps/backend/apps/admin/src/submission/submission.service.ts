@@ -14,6 +14,7 @@ import {
 } from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
+import { AMQPService } from '@libs/amqp'
 import type { AuthenticatedUser } from '@libs/auth'
 import {
   EntityNotExistException,
@@ -21,7 +22,6 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { MqttService } from '@libs/rabbitmq'
 import {
   ContestRole,
   Role,
@@ -45,7 +45,7 @@ export class SubmissionService {
   private readonly logger = new Logger(SubmissionService.name)
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mqttService: MqttService
+    private readonly amqpService: AMQPService
   ) {}
 
   async getSubmissions(
@@ -889,7 +889,7 @@ export class SubmissionService {
         )
 
         // 채점 요청 메세지 발행
-        await this.mqttService.publishJudgeRequestMessage(
+        await this.amqpService.publishJudgeRequestMessage(
           judgeRequest,
           submissionId,
           false,

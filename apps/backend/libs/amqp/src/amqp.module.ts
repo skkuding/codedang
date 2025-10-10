@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { CONSUME_CHANNEL, PUBLISH_CHANNEL } from '@libs/constants'
-import { MqttService } from './mqtt.service'
+import { AMQPService } from './amqp.service'
 
 @Module({
   imports: [
@@ -41,7 +41,7 @@ import { MqttService } from './mqtt.service'
       inject: [ConfigService]
     })
   ],
-  providers: [MqttService],
-  exports: [MqttService]
+  providers: [AMQPService],
+  exports: [AMQPService]
 })
-export class RabbitMQLibModule {}
+export class AMQPModule {}

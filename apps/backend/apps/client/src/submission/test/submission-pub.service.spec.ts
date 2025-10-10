@@ -3,9 +3,9 @@ import type { Submission, SubmissionResult } from '@prisma/client'
 import { expect } from 'chai'
 import { TraceService } from 'nestjs-otel'
 import * as sinon from 'sinon'
+import { AMQPService } from '@libs/amqp'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { MqttService } from '@libs/rabbitmq'
 import { JudgeRequest, UserTestcaseJudgeRequest } from '../class/judge-request'
 import { problems } from '../mock/problem.mock'
 import { submissions } from '../mock/submission.mock'
@@ -29,7 +29,7 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
 
 describe('SubmissionPublicationService', () => {
   let service: SubmissionPublicationService
-  let mqttService: MqttService
+  let amqpService: AMQPService
 
   const sandbox = sinon.createSandbox()
 
@@ -42,7 +42,7 @@ describe('SubmissionPublicationService', () => {
           useValue: db
         },
         {
-          provide: MqttService,
+          provide: AMQPService,
           useFactory: () => ({
             publishJudgeRequestMessage: () => []
           })
@@ -54,7 +54,7 @@ describe('SubmissionPublicationService', () => {
     service = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
     )
-    mqttService = module.get<MqttService>(MqttService)
+    amqpService = module.get<AMQPService>(AMQPService)
   })
 
   afterEach(() => {
@@ -71,7 +71,7 @@ describe('SubmissionPublicationService', () => {
         .stub(db.problem, 'findUnique')
         .resolves(problems[0])
       const mqttSpy = sandbox
-        .stub(mqttService, 'publishJudgeRequestMessage')
+        .stub(amqpService, 'publishJudgeRequestMessage')
         .resolves()
       const judgeRequest = new JudgeRequest(
         submissions[0].code,
@@ -107,7 +107,7 @@ describe('SubmissionPublicationService', () => {
         .stub(db.problem, 'findUnique')
         .resolves(problems[0])
       const mqttSpy = sandbox
-        .stub(mqttService, 'publishJudgeRequestMessage')
+        .stub(amqpService, 'publishJudgeRequestMessage')
         .resolves()
       const judgeRequest = new JudgeRequest(
         submissions[0].code,
@@ -155,7 +155,7 @@ describe('SubmissionPublicationService', () => {
         .stub(db.problem, 'findUnique')
         .resolves(problems[0])
       const mqttSpy = sandbox
-        .stub(mqttService, 'publishJudgeRequestMessage')
+        .stub(amqpService, 'publishJudgeRequestMessage')
         .resolves()
       const userTestcases = [
         { id: 1, in: 'input1', out: 'output1' },
@@ -206,7 +206,7 @@ describe('SubmissionPublicationService', () => {
         .stub(db.problem, 'findUnique')
         .resolves(problems[0])
       const mqttSpy = sandbox
-        .stub(mqttService, 'publishJudgeRequestMessage')
+        .stub(amqpService, 'publishJudgeRequestMessage')
         .resolves()
       const judgeRequest = new JudgeRequest(
         submissions[0].code,

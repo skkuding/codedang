@@ -1,8 +1,8 @@
 import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
+import { AMQPModule } from '@libs/amqp'
 import { GroupMemberGuard, RolesModule } from '@libs/auth'
-import { RabbitMQLibModule } from '@libs/rabbitmq'
 import { ProblemModule } from '@client/problem/problem.module'
 import { SubmissionPublicationService } from './submission-pub.service'
 import { SubmissionSubscriptionService } from './submission-sub.service'
@@ -14,7 +14,7 @@ import {
 import { SubmissionService } from './submission.service'
 
 @Module({
-  imports: [HttpModule, RabbitMQLibModule, RolesModule, ProblemModule],
+  imports: [HttpModule, AMQPModule, RolesModule, ProblemModule],
   controllers: [
     SubmissionController,
     ContestSubmissionController,

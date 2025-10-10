@@ -17,8 +17,8 @@ import {
 } from '@libs/constants'
 
 @Injectable()
-export class MqttService {
-  private readonly logger = new Logger(MqttService.name)
+export class AMQPService {
+  private readonly logger = new Logger(AMQPService.name)
 
   constructor(
     private readonly amqpConnection: AmqpConnection,

@@ -11,7 +11,9 @@
     "watchAssets": true,
     "webpack": true,
     "deleteOutDir": true,
-    "plugins": ["@nestjs/swagger"],
+    "plugins": [
+      "@nestjs/swagger"
+    ],
     "builder": {
       "type": "swc",
       "options": {
@@ -123,13 +125,13 @@
         "tsConfigPath": "libs/storage/tsconfig.lib.json"
       }
     },
-    "rabbitmq": {
+    "amqp": {
       "type": "library",
-      "root": "libs/rabbitmq",
+      "root": "libs/amqp",
       "entryFile": "index",
-      "sourceRoot": "libs/rabbitmq/src",
+      "sourceRoot": "libs/amqp/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/rabbitmq/tsconfig.lib.json"
+        "tsConfigPath": "libs/amqp/tsconfig.lib.json"
       }
     }
   }

@@ -9,6 +9,7 @@ import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { ValidationError, validateOrReject } from 'class-validator'
 import { Span } from 'nestjs-otel'
+import { AMQPService } from '@libs/amqp'
 import {
   testKey,
   testcasesKey,
@@ -23,7 +24,6 @@ import {
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { MqttService } from '@libs/rabbitmq'
 import { JudgerResponse } from './class/judger-response.dto'
 
 @Injectable()
@@ -32,13 +32,13 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mqttService: MqttService,
+    private readonly amqpService: AMQPService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   onModuleInit() {
     // MQTT 서비스에 메시지 핸들러를 등록
-    this.mqttService.setMessageHandlers({
+    this.amqpService.setMessageHandlers({
       onRunMessage: async (msg: object, isUserTest: boolean) => {
         try {
           const res = await this.validateJudgerResponse(msg)
@@ -76,7 +76,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       }
     })
-    this.mqttService.startSubscription()
+    this.amqpService.startSubscription()
   }
 
   @Span()

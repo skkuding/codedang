@@ -9,10 +9,10 @@ import {
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
+import { AMQPService } from '@libs/amqp'
 import { Status } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { MqttService } from '@libs/rabbitmq'
 import { problems } from '@admin/problem/mock/mock'
 import { assignmentRecord } from '../mock/assignmentRecord.mock'
 import { normalContest } from '../mock/contest.mock'
@@ -128,7 +128,7 @@ const db = {
 
 describe('SubmissionSubscriptionService', () => {
   let service: SubmissionSubscriptionService
-  let mqttService: MqttService
+  let amqpService: AMQPService
   let cache: Cache
 
   const sandbox = sinon.createSandbox()
@@ -143,7 +143,7 @@ describe('SubmissionSubscriptionService', () => {
         },
         ConfigService,
         {
-          provide: MqttService,
+          provide: AMQPService,
           useFactory: () => ({
             setMessageHandlers: () => [],
             startSubscription: () => []
@@ -166,7 +166,7 @@ describe('SubmissionSubscriptionService', () => {
     service = module.get<SubmissionSubscriptionService>(
       SubmissionSubscriptionService
     )
-    mqttService = module.get<MqttService>(MqttService)
+    amqpService = module.get<AMQPService>(AMQPService)
     cache = module.get<Cache>(CACHE_MANAGER)
     sandbox.stub(cache, 'get').resolves([])
     sandbox
@@ -188,7 +188,7 @@ describe('SubmissionSubscriptionService', () => {
 
   describe('onModuleInit', () => {
     it('should set message handlers', () => {
-      const mqttSpy = sandbox.stub(mqttService, 'setMessageHandlers')
+      const mqttSpy = sandbox.stub(amqpService, 'setMessageHandlers')
 
       service.onModuleInit()
 

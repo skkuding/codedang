@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import type { Submission, TestSubmission } from '@prisma/client'
 import { Span } from 'nestjs-otel'
+import { AMQPService } from '@libs/amqp'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { MqttService } from '@libs/rabbitmq'
 import { Snippet } from './class/create-submission.dto'
 import { JudgeRequest, UserTestcaseJudgeRequest } from './class/judge-request'
 
@@ -11,7 +11,7 @@ import { JudgeRequest, UserTestcaseJudgeRequest } from './class/judge-request'
 export class SubmissionPublicationService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mqttService: MqttService
+    private readonly amqpService: AMQPService
   ) {}
 
   /**
@@ -86,7 +86,7 @@ export class SubmissionPublicationService {
           containHiddenTestcases
         )
 
-    await this.mqttService.publishJudgeRequestMessage(
+    await this.amqpService.publishJudgeRequestMessage(
       judgeRequest,
       submission.id,
       isTest,
