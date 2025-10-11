@@ -1,0 +1,118 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetCourseQnA($groupId: Int!, $order: Int!) {
+    getCourseQnA(groupId: $groupId, order: $order) {
+      id
+      order
+      title
+      content
+      problemId
+      category
+      isResolved
+      isPrivate
+      createTime
+      groupId
+      createdBy {
+        username
+      }
+      comments {
+        id
+        order
+        content
+        isCourseStaff
+        createTime
+        createdBy {
+          username
+        }
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "order": 1
+  }
+}
+
+assert {
+  res.body.data.getCourseQnA: isObject
+}
+
+script:pre-request {
+  await require("./login").loginInstructor(req);
+}
+
+docs {
+  # 📘 Get Course QnA
+
+  **POST** `/graphql (query: getCourseQnA)`
+
+  Retrieves detailed information of a specific QnA including its comments.
+
+  특정 Q&A의 상세 정보를 댓글과 함께 조회합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Course Staff - Instructor or TA)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `groupId` | Int | ✅ | Q&A가 속한 코스(Group)의 ID |
+  | `order` | Int | ✅ | 조회할 Q&A의 순번 |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+```json
+  {
+    "data": {
+      "getCourseQnA": {
+        "id": 1,
+        "order": 1,
+        "title": "자료구조 과제 1 질문",
+        "content": "연결 리스트 구현에 대한 질문입니다.",
+        "problemId": null,
+        "category": "General",
+        "isResolved": true,
+        "isPrivate": false,
+        "createTime": "2025-09-18T07:18:43.149Z",
+        "groupId": 2,
+        "createdBy": {
+          "username": "user01"
+        },
+        "comments": [
+          {
+            "id": 1,
+            "order": 1,
+            "content": "연결 리스트는...",
+            "isCourseStaff": true,
+            "createTime": "2025-09-18T08:30:00.000Z",
+            "createdBy": {
+              "username": "instructor"
+            }
+          }
+        ]
+      }
+    }
+  }

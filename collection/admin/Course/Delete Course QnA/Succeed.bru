@@ -1,0 +1,82 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteCourseQnA($groupId: Int!, $order: Int!) {
+    deleteCourseQnA(groupId: $groupId, order: $order) {
+      id
+      order
+      title
+      content
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "order": 1
+  }
+}
+
+assert {
+  res.body.data.deleteCourseQnA: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginInstructor(req);
+}
+
+docs {
+  # 📘 Delete Course QnA
+
+  **POST** `/graphql (mutation: deleteCourseQnA)`
+
+  Deletes a specific QnA from a course.
+
+  특정 코스의 특정 순번(`order`)에 해당하는 Q&A를 삭제합니다.
+
+  삭제된 Q&A 객체를 반환합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Course Staff - Instructor or TA)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `groupId` | Int | ✅ | 삭제할 Q&A가 속한 코스의 ID |
+  | `order` | Int | ✅ | 삭제할 Q&A의 순번 |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+```json
+  {
+    "data": {
+      "deleteCourseQnA": {
+        "id": 1,
+        "order": 1,
+        "title": "자료구조 과제 1 질문",
+        "content": "연결 리스트 구현에 대한 질문입니다.",
+        "createTime": "2025-09-18T07:18:43.149Z"
+      }
+    }
+  }

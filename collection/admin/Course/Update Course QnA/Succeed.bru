@@ -1,0 +1,97 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateCourseQnA($groupId: Int!, $input: UpdateCourseQnAInput!) {
+    updateCourseQnA(groupId: $groupId, input: $input) {
+      id
+      order
+      title
+      content
+      isPrivate
+      isResolved
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "input": {
+      "order": 1,
+      "title": "Updated Question Title",
+      "content": "Updated question content",
+      "isPrivate": true,
+      "isResolved": false
+    }
+  }
+}
+
+assert {
+  res.body.data.updateCourseQnA: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginInstructor(req);
+}
+
+docs {
+  # 📘 Update Course QnA
+
+  **POST** `/graphql (mutation: updateCourseQnA)`
+
+  Updates the details of an existing course QnA.
+
+  특정 코스 Q&A의 정보를 수정합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Course Staff - Instructor or TA)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `groupId` | Int | ✅ | Q&A가 속한 코스(Group)의 ID |
+  | `input` | UpdateCourseQnAInput | ✅ | 수정할 Q&A 정보 |
+
+  #### `UpdateCourseQnAInput`
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `order` | Int | ✅ | 수정할 Q&A의 순번 |
+  | `title` | String | ❌ | Q&A 제목 |
+  | `content` | String | ❌ | Q&A 내용 |
+  | `isPrivate` | Boolean | ❌ | 비밀글 여부 |
+  | `isResolved` | Boolean | ❌ | 해결 완료 여부 |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+```json
+  {
+    "data": {
+      "updateCourseQnA": {
+        "id": 1,
+        "order": 1,
+        "title": "Updated Question Title",
+        "content": "Updated question content",
+        "isPrivate": true,
+        "isResolved": false
+      }
+    }
+  }

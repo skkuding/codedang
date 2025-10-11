@@ -1,0 +1,55 @@
+---
+
+### **파일: `6. Delete Course QnA Comment/[ERR] Nonexistent CourseQnA.bru`**
+```bruno
+meta {
+  name: [ERR] Nonexistent CourseQnA
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteCourseQnAComment(
+    $groupId: Int!
+    $qnaOrder: Int!
+    $commentOrder: Int!
+  ) {
+    deleteCourseQnAComment(
+      groupId: $groupId
+      qnaOrder: $qnaOrder
+      commentOrder: $commentOrder
+    ) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "qnaOrder": 999,
+    "commentOrder": 1
+  }
+}
+
+script:pre-request {
+  await require("./login").loginInstructor(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent CourseQnA
+
+  **POST** `/graphql (mutation: deleteCourseQnAComment)`
+
+  CourseQnA does not exist.
+
+  존재하지 않는 Q&A 순번(`qnaOrder`)에서 댓글 삭제를 요청했을 때,
+
+  `EntityNotExistException('CourseQnA')`이 발생합니다.
+}
