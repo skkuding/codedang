@@ -1,0 +1,38 @@
+meta {
+  name: [404] Nonexistent Question
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/course/1/qna/9999/comment
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "Comment on nonexistent question"
+  }
+}
+
+script:pre-request {
+  const login = require('../../../../login');
+  await login.loginUser(req);
+}
+
+settings {
+  encodeUrl: true
+}
+
+tests {
+  test("should return 404 Not Found", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}
+
+docs {
+  # 📘 Create Comment - Question Not Found
+
+  존재하지 않는 질문 order에 댓글을 작성하려고 하면 404 Not Found 에러가 발생합니다.
+}
