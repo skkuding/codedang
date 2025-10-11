@@ -12,7 +12,7 @@ get {
 
 script:pre-request {
   const login = require('../../../../login');
-  await login.loginCourseStaff(req);  // 교수/조교로 로그인
+  await login.loginInstructor(req);
 }
 
 tests {
