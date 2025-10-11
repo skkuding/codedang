@@ -1,0 +1,43 @@
+meta {
+  name: Succeed (With IsAnswered Filter)
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/course/1/qna?isAnswered=true
+  body: none
+  auth: none
+}
+
+params:query {
+  isAnswered: true
+}
+
+script:pre-request {
+  const login = require('../../../../login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return only answered questions", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(data).to.be.an('array');
+
+    // All questions should be resolved
+    if (data.length > 0) {
+      data.forEach(question => {
+        expect(question.isResolved).to.equal(true);
+      });
+    }
+  });
+}
+
+docs {
+  # 📘 Get Course Questions (Answered Filter)
+
+  답변이 달린 질문들만 필터링하여 조회합니다.
+
+  `isAnswered=false`로 설정하면 아직 답변이 달리지 않은 질문들만 조회할 수 있습니다.
+}

@@ -1,0 +1,42 @@
+meta {
+  name: Succeed (With Week Filter)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/course/1/qna?week=3
+  body: none
+  auth: none
+}
+
+params:query {
+  week: 3
+}
+
+script:pre-request {
+  const login = require('../../../../login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return questions filtered by week", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(data).to.be.an('array');
+
+    // All questions should be from week 3
+    if (data.length > 0) {
+      data.forEach(question => {
+        expect(question).to.have.property('week');
+        expect(question.week).to.equal(3);
+      });
+    }
+  });
+}
+
+docs {
+  # 📘 Get Course Questions (Week Filter)
+
+  3주차에 해당하는 질문들만 필터링하여 조회합니다.
+}

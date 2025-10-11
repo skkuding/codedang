@@ -1,0 +1,46 @@
+meta {
+  name: Succeed (With Category Filter)
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/course/1/qna?categories=general&categories=problem
+  body: none
+  auth: none
+}
+
+params:query {
+  categories: general
+  categories: problem
+}
+
+script:pre-request {
+  const login = require('../../../../login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return questions filtered by categories", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(data).to.be.an('array');
+
+    // All questions should be either general or problem category
+    if (data.length > 0) {
+      data.forEach(question => {
+        expect(question.category).to.be.oneOf(['general', 'problem']);
+      });
+    }
+  });
+}
+
+docs {
+  # 📘 Get Course Questions (Category Filter)
+
+  특정 카테고리의 질문들만 필터링하여 조회합니다.
+
+  - `categories=general`: 일반 질문만
+  - `categories=problem`: 문제 질문만
+  - 두 개를 동시에 지정하면 두 카테고리 모두 조회
+}
