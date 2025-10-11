@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/course/1/qna?problemId=1
+  url: {{baseUrl}}/course/2/qna?problemId=1
   body: json
   auth: none
 }
@@ -42,10 +42,10 @@ tests {
 
 docs {
   # 📘 Create Course Question (Problem)
-
+  
   **POST** `/course/:id/qna?problemId=:problemId`
-
+  
   특정 문제에 대한 질문을 등록합니다.
-
+  
   `problemId` 쿼리 파라미터를 전달하면 해당 문제와 연결된 질문으로 분류됩니다.
 }
