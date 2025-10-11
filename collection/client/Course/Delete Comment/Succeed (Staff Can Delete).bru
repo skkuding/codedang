@@ -1,0 +1,42 @@
+---
+
+## ✅ **2. `Succeed (Staff Can Delete).bru`**
+```bruno
+meta {
+  name: Succeed (Staff Can Delete)
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{baseUrl}}/course/1/qna/1/comment/1
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const login = require('../../../../login');
+  await login.loginCourseStaff(req);  // 교수/조교로 로그인
+}
+
+settings {
+  encodeUrl: true
+}
+
+tests {
+  test("should allow staff to delete any comment", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(data).to.have.property('id');
+    // Staff can delete any comment
+  });
+}
+
+docs {
+  # 📘 Staff Can Delete Any Comment
+
+  교수/조교는 모든 댓글을 삭제할 수 있습니다.
+
+  - 작성자가 아니더라도 교수/조교 권한으로 삭제 가능
+  - 부적절한 댓글이나 스팸 댓글을 관리할 때 사용
+}
