@@ -87,3 +87,30 @@ docs {
     "content": "질문 내용입니다.",
     "isPrivate": false
   }
+}```
+
+  | Name        | Type    | Required | Description                                                                 |
+  |-------------|---------|----------|-----------------------------------------------------------------------------|
+  | `title`     | string  | ✅       | Title of the question (max length: 100 characters)                         |
+  | `content`   | string  | ✅       | Content of the question (supports Markdown formatting)                      |
+  | `isPrivate` | boolean | ✅       | If set to `true`, the question is private and can only be viewed by the author and instructors/TAs |
+
+  ---
+
+  ### 📤 Response
+
+  #### Content-Type: `application/json`
+```json
+  {
+    "id": 1,
+    "order": 1,
+    "title": "질문 제목",
+    "content": "질문 내용입니다.",
+    "isPrivate": false,
+    "category": "general",
+    "problemId": null,
+    "createdById": 1,
+    "createdAt": "2023-10-05T12:34:56.789Z",
+    "updatedAt": "2023-10-05T12:34:56.789Z",
+    "readBy": [1]
+  }```

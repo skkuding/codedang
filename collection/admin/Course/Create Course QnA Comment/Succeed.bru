@@ -48,55 +48,21 @@ docs {
 
   **POST** `/graphql (mutation: createCourseQnAComment)`
 
-  Creates a comment on a course QnA by a staff member.
+  Creates a staff comment on a course QnA.
 
-  코스 Q&A에 스태프(교수/조교)의 답변 댓글을 생성합니다.
-
-  이 함수는 특정 QnA에 댓글을 추가하고, 해당 QnA의 `isResolved`를 `true`로 업데이트하며, 작성자를 `readBy`에 추가합니다.
-
-  Admin API에서는 항상 `isCourseStaff: true`로 설정됩니다.
+  코스 Q&A에 교수진 댓글을 작성합니다. 댓글 작성 시 Q&A의 `isResolved`가 `true`로 업데이트됩니다.
 
   ---
 
   ### 🔒 Authentication
 
-  ✅ Required (Course Staff - Instructor or TA)
+  ✅ Required (Course Staff)
 
   ---
 
   ### 📥 Request Variables
 
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `groupId` | Int | ✅ | 댓글을 작성할 Q&A가 속한 코스의 ID |
-  | `order` | Int | ✅ | 댓글을 작성할 Q&A의 순번 |
-  | `content` | String | ✅ | 댓글 내용 |
-
-  ---
-
-  ### 📤 Response Body
-
-  #### Content-Type: `application/json`
-```json
-  {
-    "data": {
-      "createCourseQnAComment": {
-        "id": 1,
-        "content": "해당 질문에 대한 답변입니다.",
-        "isCourseStaff": true,
-        "order": 1,
-        "courseQnAId": 1,
-        "createTime": "2025-09-18T08:30:00.000Z"
-      }
-    }
-  }
-
-  | Field | Type | Description |
-  |---|---|---|---|
-  | id | Int | 생성된 댓글의 ID |
-  | content | String | 댓글 내용 |
-  | isCourseStaff | Boolean | 스태프 작성 여부 (항상 true) |
-  | order | Int | QnA 내에서의 댓글 순서 |
-  | courseQnAId | Int | 댓글이 달린 QnA의 ID |
-  | createTime | GraphQLISODateTime | 댓글 생성 시간 |
+  - `groupId` (Int, required): 코스 ID
+  - `order` (Int, required): Q&A 순번
+  - `content` (String, required): 댓글 내용
 }

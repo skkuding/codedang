@@ -82,3 +82,24 @@ docs {
   {
     "content": "이 질문에 대한 댓글입니다."
   }
+}```
+
+  | Name      | Type   | Required | Description         |
+  |-----------|--------|----------|---------------------|
+  | `content` | string | ✅       | Content of comment  |
+
+  ---
+
+  ### 📤 Response
+
+  #### Content-Type: `application/json`
+```json
+  {
+    "id": 1,
+    "order": 1,
+    "content": "이 질문에 대한 댓글입니다.",
+    "courseQnAId": 1,
+    "createdById": 1,
+    "isStaff": false,
+    "createTime": "2023-10-05T12:34:56.789Z"
+  }```
