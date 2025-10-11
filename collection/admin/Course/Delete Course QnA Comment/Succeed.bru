@@ -48,45 +48,21 @@ docs {
 
   **POST** `/graphql (mutation: deleteCourseQnAComment)`
 
-  Deletes a specific comment from a course QnA.
+  Deletes a comment from a course QnA.
 
-  특정 Q&A에 달린 댓글을 삭제합니다.
-
-  댓글 삭제 후, 해당 QnA에 남은 마지막 댓글이 스태프(교수/조교)에 의해 작성된 것이라면 QnA의 해결 상태(`isResolved`)를 `true`로, 그렇지 않다면 `false`로 업데이트합니다.
-
-  삭제된 댓글의 정보를 반환합니다.
+  코스 Q&A의 댓글을 삭제합니다. 삭제 후 마지막 댓글의 `isCourseStaff` 값에 따라 Q&A의 `isResolved` 상태가 업데이트됩니다.
 
   ---
 
   ### 🔒 Authentication
 
-  ✅ Required (Course Staff - Instructor or TA)
+  ✅ Required (Course Staff)
 
   ---
 
   ### 📥 Request Variables
 
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `groupId` | Int | ✅ | 댓글이 속한 코스의 ID |
-  | `qnaOrder` | Int | ✅ | 댓글이 속한 Q&A의 순번 |
-  | `commentOrder` | Int | ✅ | 삭제할 댓글의 순번 |
-
-  ---
-
-  ### 📤 Response Body
-
-  #### Content-Type: `application/json`
-```json
-  {
-    "data": {
-      "deleteCourseQnAComment": {
-        "id": 1,
-        "content": "해당 질문에 대한 답변입니다.",
-        "isCourseStaff": true,
-        "order": 1,
-        "courseQnAId": 1,
-        "createTime": "2025-09-18T08:30:00.000Z"
-      }
-    }
-  }
+  - `groupId` (Int, required): 코스 ID
+  - `qnaOrder` (Int, required): Q&A 순번
+  - `commentOrder` (Int, required): 삭제할 댓글 순번
+}

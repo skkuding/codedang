@@ -47,53 +47,23 @@ docs {
 
   Retrieves all QnAs for a specific course.
 
-  특정 코스의 모든 Q&A 목록을 조회합니다.
-
-  Contest Q&A와 달리 Course Q&A는 `isPrivate` 필드를 포함하며, 비밀글 여부를 확인할 수 있습니다.
-
-  현재 버전에서는 페이지네이션 및 필터링 기능이 구현되지 않았으며, `order` 기준 오름차순으로 모든 Q&A를 반환합니다.
+  특정 코스의 모든 Q&A 목록을 조회합니다. Contest Q&A와 달리 `isPrivate` 필드를 포함합니다.
 
   ---
 
   ### 🔒 Authentication
 
-  ✅ Required (Course Staff - Instructor or TA)
-
-  교수 또는 조교 권한이 필요합니다. `GroupLeaderGuard`를 통해 권한을 확인합니다.
+  ✅ Required (Course Staff)
 
   ---
 
   ### 📥 Request Variables
 
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `groupId` | Int | ✅ | 조회할 Q&A가 속한 코스(Group)의 ID |
+  - `groupId` (Int, required): 조회할 코스의 ID
 
   ---
 
-  ### 📤 Response Body
+  ### 📤 Response
 
-  #### Content-Type: `application/json`
-```json
-  {
-    "data": {
-      "getCourseQnAs": [
-        {
-          "id": 1,
-          "order": 1,
-          "title": "자료구조 과제 1 질문",
-          "content": "연결 리스트 구현에 대한 질문입니다.",
-          "problemId": null,
-          "category": "General",
-          "isResolved": false,
-          "isPrivate": false,
-          "createTime": "2025-09-18T07:18:43.149Z",
-          "groupId": 2,
-          "createdBy": {
-            "username": "user01"
-          }
-        }
-      ]
-    }
-  }
-FieldTypeDescriptionidIntQ&A IDorderInt코스 내 Q&A 순번titleStringQ&A 제목contentStringQ&A 내용problemIdIntQ&A에 해당하는 문제 ID (null 가능)categoryQnACategoryQ&A 카테고리 (General 또는 Problem)isResolvedBoolean해결 완료 여부isPrivateBoolean비밀글 여부 (Course만의 특징)createTimeGraphQLISODateTime생성 시간groupIdIntQ&A가 속한 코스(Group) IDcreatedBy.usernameString작성자 사용자명}
+  Q&A 목록을 반환합니다. 각 항목은 `id`, `order`, `title`, `content`, `isPrivate`, `isResolved` 등의 필드를 포함합니다.
+}

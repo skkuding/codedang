@@ -60,7 +60,7 @@ docs {
 
   **POST** `/graphql (query: getCourseQnA)`
 
-  Retrieves detailed information of a specific QnA including its comments.
+  Retrieves detailed information of a specific QnA including comments.
 
   특정 Q&A의 상세 정보를 댓글과 함께 조회합니다.
 
@@ -68,51 +68,18 @@ docs {
 
   ### 🔒 Authentication
 
-  ✅ Required (Course Staff - Instructor or TA)
+  ✅ Required (Course Staff)
 
   ---
 
   ### 📥 Request Variables
 
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `groupId` | Int | ✅ | Q&A가 속한 코스(Group)의 ID |
-  | `order` | Int | ✅ | 조회할 Q&A의 순번 |
+  - `groupId` (Int, required): 코스 ID
+  - `order` (Int, required): Q&A 순번
 
   ---
 
-  ### 📤 Response Body
+  ### 📤 Response
 
-  #### Content-Type: `application/json`
-```json
-  {
-    "data": {
-      "getCourseQnA": {
-        "id": 1,
-        "order": 1,
-        "title": "자료구조 과제 1 질문",
-        "content": "연결 리스트 구현에 대한 질문입니다.",
-        "problemId": null,
-        "category": "General",
-        "isResolved": true,
-        "isPrivate": false,
-        "createTime": "2025-09-18T07:18:43.149Z",
-        "groupId": 2,
-        "createdBy": {
-          "username": "user01"
-        },
-        "comments": [
-          {
-            "id": 1,
-            "order": 1,
-            "content": "연결 리스트는...",
-            "isCourseStaff": true,
-            "createTime": "2025-09-18T08:30:00.000Z",
-            "createdBy": {
-              "username": "instructor"
-            }
-          }
-        ]
-      }
-    }
-  }
+  Q&A 상세 정보와 댓글 목록(`comments`)을 반환합니다.
+}

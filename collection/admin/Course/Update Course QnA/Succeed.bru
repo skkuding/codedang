@@ -49,49 +49,24 @@ docs {
 
   **POST** `/graphql (mutation: updateCourseQnA)`
 
-  Updates the details of an existing course QnA.
+  Updates course QnA details.
 
-  특정 코스 Q&A의 정보를 수정합니다.
+  코스 Q&A 정보를 수정합니다.
 
   ---
 
   ### 🔒 Authentication
 
-  ✅ Required (Course Staff - Instructor or TA)
+  ✅ Required (Course Staff)
 
   ---
 
   ### 📥 Request Variables
 
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `groupId` | Int | ✅ | Q&A가 속한 코스(Group)의 ID |
-  | `input` | UpdateCourseQnAInput | ✅ | 수정할 Q&A 정보 |
-
-  #### `UpdateCourseQnAInput`
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `order` | Int | ✅ | 수정할 Q&A의 순번 |
-  | `title` | String | ❌ | Q&A 제목 |
-  | `content` | String | ❌ | Q&A 내용 |
-  | `isPrivate` | Boolean | ❌ | 비밀글 여부 |
-  | `isResolved` | Boolean | ❌ | 해결 완료 여부 |
-
-  ---
-
-  ### 📤 Response Body
-
-  #### Content-Type: `application/json`
-```json
-  {
-    "data": {
-      "updateCourseQnA": {
-        "id": 1,
-        "order": 1,
-        "title": "Updated Question Title",
-        "content": "Updated question content",
-        "isPrivate": true,
-        "isResolved": false
-      }
-    }
-  }
+  - `groupId` (Int, required): 코스 ID
+  - `input.order` (Int, required): 수정할 Q&A 순번
+  - `input.title` (String, optional): 제목
+  - `input.content` (String, optional): 내용
+  - `input.isPrivate` (Boolean, optional): 비밀글 여부
+  - `input.isResolved` (Boolean, optional): 해결 여부
+}
