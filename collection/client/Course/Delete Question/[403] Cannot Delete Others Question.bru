@@ -1,0 +1,36 @@
+meta {
+  name: [403] Cannot Delete Others Question
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/course/1/qna/1
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const login = require('../../../../login');
+  await login.loginUser2nd(req);  // 다른 학생으로 로그인
+}
+
+settings {
+  encodeUrl: true
+}
+
+tests {
+  test("should return 403 Forbidden", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+}
+
+docs {
+  # 📘 Delete Question - Forbidden
+
+  다른 학생의 질문을 삭제하려고 하면 403 Forbidden 에러가 발생합니다.
+
+  질문 삭제 권한:
+  - 작성자 본인
+  - 교수/조교
+}
