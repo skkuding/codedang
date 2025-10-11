@@ -11,7 +11,7 @@ get {
 }
 
 script:pre-request {
-  const login = require('../../../../login');
+  const login = require('./login');
   await login.loginInstructor(req);
 }
 

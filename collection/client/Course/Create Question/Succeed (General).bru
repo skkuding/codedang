@@ -19,7 +19,7 @@ body:json {
 }
 
 script:pre-request {
-  const login = require('../../../../login');
+  const login = require('./login');
   await login.loginUser(req);
 }
 
