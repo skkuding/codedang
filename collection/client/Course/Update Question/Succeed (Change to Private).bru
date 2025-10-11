@@ -1,0 +1,39 @@
+meta {
+  name: Succeed (Change to Private)
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/course/1/qna/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "isPrivate": true
+  }
+}
+
+script:pre-request {
+  const login = require('../../../../login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should change question to private", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(data.isPrivate).to.equal(true);
+  });
+}
+
+docs {
+  # 📘 Update Question Privacy
+
+  질문의 공개/비공개 설정을 변경합니다.
+
+  - `isPrivate: true`: 공개 질문을 비밀글로 변경
+  - `isPrivate: false`: 비밀글을 공개 질문으로 변경
+}

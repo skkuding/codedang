@@ -1,0 +1,77 @@
+meta {
+  name: Succeed (Update Title and Content)
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/course/1/qna/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "수정된 질문 제목입니다",
+    "content": "질문 내용을 수정했습니다."
+  }
+}
+
+script:pre-request {
+  const login = require('../../../../login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return 200 OK with updated question", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(data).to.have.property('id');
+    expect(data.title).to.equal("수정된 질문 제목입니다");
+    expect(data.content).to.equal("질문 내용을 수정했습니다.");
+    expect(data).to.have.property('updateTime');
+  });
+}
+
+docs {
+  # 📘 Update Course Question
+
+  **PATCH** `/course/:id/qna/:order`
+
+  Update an existing question.
+
+  기존 질문의 제목과 내용을 수정합니다.
+
+  - 작성자 본인만 질문을 수정할 수 있습니다.
+  - 교수/조교는 모든 질문을 수정할 수 있습니다.
+  - 수정 가능한 필드: `title`, `content`, `isPrivate`
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required
+  작성자 본인 또는 교수/조교만 수정 가능
+
+  ---
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name    | Type   | Required | Description                     |
+  |---------|--------|----------|---------------------------------|
+  | `id`    | number | ✅       | ID of the target course         |
+  | `order` | number | ✅       | Order of target Q&A in course   |
+
+  ---
+
+  ### 📝 Request Body
+
+  #### Content-Type: `application/json`
+```json
+  {
+    "title": "수정된 질문 제목",
+    "content": "수정된 질문 내용",
+    "isPrivate": false
+  }

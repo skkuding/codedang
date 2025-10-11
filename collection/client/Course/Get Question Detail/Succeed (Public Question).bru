@@ -1,0 +1,120 @@
+meta {
+  name: Succeed (Public Question)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/course/1/qna/1
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const login = require('../../../../login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return 200 OK with question details", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+
+    // Question fields
+    expect(data).to.have.property('id');
+    expect(data).to.have.property('order');
+    expect(data).to.have.property('title');
+    expect(data).to.have.property('content');
+    expect(data).to.have.property('category');
+    expect(data).to.have.property('isPrivate');
+    expect(data).to.have.property('isResolved');
+    expect(data).to.have.property('readBy');
+    expect(data).to.have.property('createTime');
+
+    // Creator info
+    expect(data).to.have.property('createdBy');
+    expect(data.createdBy).to.have.property('username');
+
+    // Comments array
+    expect(data).to.have.property('comments');
+    expect(data.comments).to.be.an('array');
+
+    if (data.comments.length > 0) {
+      const comment = data.comments[0];
+      expect(comment).to.have.property('order');
+      expect(comment).to.have.property('content');
+      expect(comment).to.have.property('isStaff');
+      expect(comment).to.have.property('createdBy');
+    }
+  });
+}
+
+docs {
+  # 📘 Get Course Question Detail
+
+  **GET** `/course/:id/qna/:order`
+
+  Retrieve a single question with its details and comments.
+
+  특정 강의의 특정 order에 해당하는 질문을 상세 조회합니다.
+
+  - 공개 질문은 누구나 조회할 수 있습니다.
+  - 비밀글은 작성자와 교수/조교만 조회할 수 있습니다.
+  - 조회 시 해당 사용자의 ID가 `readBy` 배열에 자동으로 추가됩니다.
+  - 질문과 함께 모든 댓글이 반환됩니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  🔸 Optional
+  - 로그인하지 않아도 공개 질문은 조회 가능
+  - 비밀글 조회 시 로그인 필요
+
+  ---
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name    | Type   | Required | Description                     |
+  |---------|--------|----------|---------------------------------|
+  | `id`    | number | ✅       | ID of the target course         |
+  | `order` | number | ✅       | Order of target Q&A in course   |
+
+  ---
+
+  ### 📤 Response
+
+  #### Success Response (200 OK)
+```json
+  {
+    "id": 1,
+    "order": 1,
+    "createdById": 7,
+    "groupId": 1,
+    "title": "강의 전반에 대한 질문입니다",
+    "content": "이번 주차 과제 제출 기한이 언제인가요?",
+    "category": "general",
+    "isPrivate": false,
+    "isResolved": true,
+    "problemId": null,
+    "readBy": [7, 8, 9],
+    "createTime": "2025-01-15T10:30:00.000Z",
+    "updateTime": "2025-01-15T10:30:00.000Z",
+    "createdBy": {
+      "username": "user01"
+    },
+    "comments": [
+      {
+        "id": 1,
+        "order": 1,
+        "content": "1월 20일까지입니다.",
+        "isStaff": true,
+        "createTime": "2025-01-15T11:00:00.000Z",
+        "createdBy": {
+          "username": "professor01"
+        }
+      }
+    ]
+  }

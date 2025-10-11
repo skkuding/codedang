@@ -1,0 +1,41 @@
+meta {
+  name: Succeed (Staff Can Update)
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/course/1/qna/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "교수가 수정한 제목",
+    "content": "교수가 내용을 수정했습니다."
+  }
+}
+
+script:pre-request {
+  const login = require('../../../../login');
+  await login.loginCourseStaff(req);  // 교수/조교로 로그인
+}
+
+tests {
+  test("should allow staff to update any question", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(data.title).to.equal("교수가 수정한 제목");
+    expect(data.content).to.equal("교수가 내용을 수정했습니다.");
+  });
+}
+
+docs {
+  # 📘 Staff Can Update Any Question
+
+  교수/조교는 모든 질문을 수정할 수 있습니다.
+
+  - 작성자가 아니더라도 교수/조교 권한으로 수정 가능
+  - 학생의 질문을 명확하게 정리하거나 보완할 때 사용
+}

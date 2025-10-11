@@ -1,0 +1,33 @@
+meta {
+  name: [404] Nonexistent Question
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{baseUrl}}/course/1/qna/9999
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Updated title"
+  }
+}
+
+script:pre-request {
+  const login = require('../../../../login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return 404 Not Found", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}
+
+docs {
+  # 📘 Update Question - Question Not Found
+
+  존재하지 않는 질문 ID로 수정하려고 하면 404 Not Found 에러가 발생합니다.
