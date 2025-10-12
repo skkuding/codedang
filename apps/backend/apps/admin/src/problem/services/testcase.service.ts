@@ -225,6 +225,8 @@ export class TestcaseService {
           existingTc.output !== tc.output ||
           existingTc.isHidden !== tc.isHidden
         ) {
+          // 만약 input, output, isHidden 필드가 변경되었을 경우
+          // 기존 TC outdated 처리 후 새로운 TC 생성
           await this.prisma.problemTestcase.update({
             where: {
               id: tc.id
@@ -251,6 +253,8 @@ export class TestcaseService {
           existingTc.scoreWeightDenominator !== weightFraction.numerator ||
           existingTc.scoreWeightNumerator !== weightFraction.denominator
         ) {
+          // 만약 input, output, isHidden 필드는 그대로이고 다른 필드만 변경되었을 경우
+          // 기존 TC에 Update 처리
           await this.prisma.problemTestcase.update({
             where: {
               id: tc.id
