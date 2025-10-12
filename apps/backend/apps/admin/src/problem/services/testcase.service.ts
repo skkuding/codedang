@@ -219,11 +219,11 @@ export class TestcaseService {
       if (tc.id) {
         // 전달받은 인자 중 id가 존재하는 경우 => 기존에 존재하던 TC이므로 바뀐 필드 있는지 확인 후 업데이트 수행
         const existingTc = existingMap.get(tc.id)
+        if (!existingTc) continue
         if (
-          existingTc &&
-          (existingTc.input !== tc.input ||
-            existingTc.output !== tc.output ||
-            existingTc.isHidden !== tc.isHidden)
+          existingTc.input !== tc.input ||
+          existingTc.output !== tc.output ||
+          existingTc.isHidden !== tc.isHidden
         ) {
           await this.prisma.problemTestcase.update({
             where: {
@@ -241,6 +241,21 @@ export class TestcaseService {
               input: tc.input,
               output: tc.output,
               isHidden: tc.isHidden,
+              scoreWeight,
+              scoreWeightNumerator: weightFraction.numerator,
+              scoreWeightDenominator: weightFraction.denominator
+            }
+          })
+        } else if (
+          existingTc.scoreWeight !== tc.scoreWeight ||
+          existingTc.scoreWeightDenominator !== tc.scoreWeightDenominator ||
+          existingTc.scoreWeightNumerator !== tc.scoreWeightNumerator
+        ) {
+          await this.prisma.problemTestcase.update({
+            where: {
+              id: tc.id
+            },
+            data: {
               scoreWeight,
               scoreWeightNumerator: weightFraction.numerator,
               scoreWeightDenominator: weightFraction.denominator
