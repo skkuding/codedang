@@ -247,9 +247,9 @@ export class TestcaseService {
             }
           })
         } else if (
-          existingTc.scoreWeight !== tc.scoreWeight ||
-          existingTc.scoreWeightDenominator !== tc.scoreWeightDenominator ||
-          existingTc.scoreWeightNumerator !== tc.scoreWeightNumerator
+          existingTc.scoreWeight !== scoreWeight ||
+          existingTc.scoreWeightDenominator !== weightFraction.numerator ||
+          existingTc.scoreWeightNumerator !== weightFraction.denominator
         ) {
           await this.prisma.problemTestcase.update({
             where: {
