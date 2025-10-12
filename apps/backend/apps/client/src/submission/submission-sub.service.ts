@@ -50,8 +50,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         try {
           const res = await this.validateJudgerResponse(msg)
 
-          if (await this.isOutdatedTestcase(res)) return
-
           if (
             raw.properties.type === RUN_MESSAGE_TYPE ||
             raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
@@ -64,6 +62,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
             return
           }
 
+          if (await this.isOutdatedTestcase(res)) return
           await this.handleJudgerMessage(res)
         } catch (error) {
           if (
