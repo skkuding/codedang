@@ -97,7 +97,11 @@ export const createColumns = (
         ? `${String.fromCharCode(65 + matchedProblem.order)}. ${matchedProblem.problem.title}`
         : 'General'
 
-      return <p className="truncate text-base text-[#808080]">{categoryName}</p>
+      return (
+        <p className="max-w-[178px] truncate text-base text-[#808080]">
+          {categoryName}
+        </p>
+      )
     }
   },
   {
