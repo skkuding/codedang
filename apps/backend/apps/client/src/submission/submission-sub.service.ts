@@ -60,6 +60,10 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       onJudgeMessage: async (msg: object) => {
         try {
           const res = await this.validateJudgerResponse(msg)
+
+          const isOudated = await this.isOutdatedTestcase(res)
+          if (isOudated) return
+
           await this.handleJudgerMessage(res)
         } catch (error) {
           if (
@@ -177,6 +181,23 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     await validateOrReject(res)
 
     return res
+  }
+
+  @Span()
+  async isOutdatedTestcase(res: JudgerResponse): Promise<boolean> {
+    const testcase = await this.prisma.problemTestcase.findFirst({
+      where: {
+        id: res.judgeResult?.testcaseId,
+        isOutdated: false,
+        problem: {
+          submission: {
+            some: { id: res.submissionId }
+          }
+        }
+      }
+    })
+
+    return !testcase
   }
 
   @Span()
