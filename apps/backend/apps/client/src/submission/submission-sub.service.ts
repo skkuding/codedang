@@ -50,6 +50,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         try {
           const res = await this.validateJudgerResponse(msg)
 
+          if (await this.isOutdatedTestcase(res)) return
+
           if (
             raw.properties.type === RUN_MESSAGE_TYPE ||
             raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
@@ -190,6 +192,23 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   }
 
   @Span()
+  async isOutdatedTestcase(res: JudgerResponse): Promise<boolean> {
+    const testcase = await this.prisma.problemTestcase.findFirst({
+      where: {
+        id: res.judgeResult?.testcaseId,
+        isOutdated: false,
+        problem: {
+          submission: {
+            some: { id: res.submissionId }
+          }
+        }
+      }
+    })
+
+    return !testcase
+  }
+
+  @Span()
   async handleJudgerMessage(msg: JudgerResponse): Promise<void> {
     const status = Status(msg.resultCode)
 
@@ -203,7 +222,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     if (!msg.judgeResult) {
       throw new UnprocessableDataException(
-        'JudgeResult is missing for submission ${msg.submissionId} - cannot process judge response'
+        `JudgeResult is missing for submission ${msg.submissionId} - cannot process judge response`
       )
     }
 
