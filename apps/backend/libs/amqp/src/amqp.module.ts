@@ -6,7 +6,7 @@ import { AMQPService } from './amqp.service'
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule,
     RabbitMQModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => {
