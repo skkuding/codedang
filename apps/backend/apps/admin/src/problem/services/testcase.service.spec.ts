@@ -1,6 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { Role } from '@prisma/client'
 import * as archiver from 'archiver'
 import { expect } from 'chai'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
@@ -105,16 +106,20 @@ describe('TestcaseService', () => {
 
     it('should fail if problem id is not found', async () => {
       const problemId = 999
+      const userId = 1
+      const userRole = 'Admin' as Role
 
       await expect(
-        service.createTestcases(testcases, problemId)
+        service.createTestcases(testcases, problemId, userId, userRole)
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
     it('should create testcases', async () => {
       const problemId = 1
+      const userId = 1
+      const userRole = Role.Admin
 
-      await service.createTestcases(testcases, problemId)
+      await service.createTestcases(testcases, problemId, userId, userRole)
 
       const uploadedFiles = await storageService.listObjects(
         `${problemId}/`,
@@ -126,6 +131,8 @@ describe('TestcaseService', () => {
 
   describe('uploadTestcaseZip', () => {
     const problemId = 1
+    const userId = 1
+    const userRole = Role.Admin
 
     const file = {
       filename: 'testcase.zip',
@@ -163,7 +170,7 @@ describe('TestcaseService', () => {
       const nonZipFile = { ...file, mimetype: 'text/plain' }
 
       await expect(
-        service.uploadTestcaseZip(nonZipFile, problemId)
+        service.uploadTestcaseZip(nonZipFile, problemId, userId, userRole)
       ).to.be.rejectedWith(UnprocessableDataException)
     })
 
@@ -185,7 +192,7 @@ describe('TestcaseService', () => {
       } satisfies FileUpload
 
       await expect(
-        service.uploadTestcaseZip(invalidZipFile, problemId)
+        service.uploadTestcaseZip(invalidZipFile, problemId, userId, userRole)
       ).to.be.rejectedWith(UnprocessableDataException)
 
       const uploadedFiles = await storageService.listObjects(
@@ -211,13 +218,192 @@ describe('TestcaseService', () => {
         createReadStream: createZipStream
       } satisfies FileUpload
 
-      await service.uploadTestcaseZip(zipFile, problemId)
+      await service.uploadTestcaseZip(zipFile, problemId, userId, userRole)
 
       const uploadedFiles = await storageService.listObjects(
         `${problemId}/`,
         'testcase'
       )
       expect(uploadedFiles).to.have.lengthOf(4)
+    })
+  })
+
+  describe('uploadTestcaseZipLegacy', () => {
+    const problemId = 1
+    const userId = 1
+    const userRole = 'Admin' as Role
+    const isHidden = false
+
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          TestcaseService,
+          FileService,
+          PrismaService,
+          StorageService,
+          ConfigService,
+          S3Provider,
+          { provide: CACHE_MANAGER, useValue: { del: () => null } }
+        ]
+      }).compile()
+
+      service = module.get<TestcaseService>(TestcaseService)
+      prismaService = module.get<PrismaService>(PrismaService)
+    })
+
+    it('should not allow if given file is not zip', async () => {
+      const nonZipFile = {
+        filename: 'testcase.txt',
+        mimetype: 'text/plain',
+        encoding: 'utf-8',
+        createReadStream: () => new Readable()
+      } satisfies FileUpload
+
+      const scoreWeights = [
+        { scoreWeight: 20 },
+        { scoreWeight: 30 },
+        { scoreWeight: 50 }
+      ]
+
+      await expect(
+        service.uploadTestcaseZipLegacy({
+          file: nonZipFile,
+          problemId,
+          isHidden,
+          scoreWeights,
+          userId,
+          userRole
+        })
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
+    it('should upload testcase files with score weights', async () => {
+      const createZipStream = () => {
+        const archive = archiver('zip', { zlib: { level: 9 } })
+        archive.append('Content for 1.in', { name: '1.in' })
+        archive.append('Content for 1.out', { name: '1.out' })
+        archive.append('Content for 2.in', { name: '2.in' })
+        archive.append('Content for 2.out', { name: '2.out' })
+        archive.append('Content for 3.in', { name: '3.in' })
+        archive.append('Content for 3.out', { name: '3.out' })
+        archive.finalize()
+        return archive
+      }
+
+      const zipFile = {
+        filename: 'testcase.zip',
+        mimetype: 'application/zip',
+        encoding: 'utf-8',
+        createReadStream: createZipStream
+      } satisfies FileUpload
+
+      const scoreWeights = [
+        { scoreWeight: 20 },
+        { scoreWeight: 30 },
+        { scoreWeight: 50 }
+      ]
+
+      const result = await service.uploadTestcaseZipLegacy({
+        file: zipFile,
+        problemId,
+        isHidden,
+        scoreWeights,
+        userId,
+        userRole
+      })
+
+      expect(result).to.have.lengthOf(3)
+      expect(result[0]).to.have.property('testcaseId')
+
+      const testcases = await prismaService.problemTestcase.findMany({
+        where: { problemId, isOutdated: false, isHidden }
+      })
+      expect(testcases).to.have.lengthOf(3)
+      expect(testcases[0].scoreWeight).to.equal(20)
+      expect(testcases[1].scoreWeight).to.equal(30)
+      expect(testcases[2].scoreWeight).to.equal(50)
+    })
+
+    it('should fail if scoreWeights length does not match testcase count', async () => {
+      const createZipStream = () => {
+        const archive = archiver('zip', { zlib: { level: 9 } })
+        archive.append('Content for 1.in', { name: '1.in' })
+        archive.append('Content for 1.out', { name: '1.out' })
+        archive.append('Content for 2.in', { name: '2.in' })
+        archive.append('Content for 2.out', { name: '2.out' })
+        archive.finalize()
+        return archive
+      }
+
+      const zipFile = {
+        filename: 'testcase.zip',
+        mimetype: 'application/zip',
+        encoding: 'utf-8',
+        createReadStream: createZipStream
+      } satisfies FileUpload
+
+      const scoreWeights = [
+        { scoreWeight: 50 },
+        { scoreWeight: 50 },
+        { scoreWeight: 0 }
+      ]
+
+      await expect(
+        service.uploadTestcaseZipLegacy({
+          file: zipFile,
+          problemId,
+          isHidden,
+          scoreWeights,
+          userId,
+          userRole
+        })
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
+    it('should handle fraction score weights', async () => {
+      const createZipStream = () => {
+        const archive = archiver('zip', { zlib: { level: 9 } })
+        archive.append('Content for 1.in', { name: '1.in' })
+        archive.append('Content for 1.out', { name: '1.out' })
+        archive.append('Content for 2.in', { name: '2.in' })
+        archive.append('Content for 2.out', { name: '2.out' })
+        archive.finalize()
+        return archive
+      }
+
+      const zipFile = {
+        filename: 'testcase.zip',
+        mimetype: 'application/zip',
+        encoding: 'utf-8',
+        createReadStream: createZipStream
+      } satisfies FileUpload
+
+      const scoreWeights = [
+        { scoreWeightNumerator: 1, scoreWeightDenominator: 3 },
+        { scoreWeightNumerator: 2, scoreWeightDenominator: 3 }
+      ]
+
+      const result = await service.uploadTestcaseZipLegacy({
+        file: zipFile,
+        problemId,
+        isHidden,
+        scoreWeights,
+        userId,
+        userRole
+      })
+
+      expect(result).to.have.lengthOf(2)
+
+      const testcases = await prismaService.problemTestcase.findMany({
+        where: { problemId, isOutdated: false, isHidden },
+        orderBy: { order: 'asc' }
+      })
+      expect(testcases[0].scoreWeightNumerator).to.equal(1)
+      expect(testcases[0].scoreWeightDenominator).to.equal(3)
+      expect(testcases[0].scoreWeight).to.equal(33)
+      expect(testcases[1].scoreWeightNumerator).to.equal(2)
+      expect(testcases[1].scoreWeightDenominator).to.equal(3)
+      expect(testcases[1].scoreWeight).to.equal(67)
     })
   })
 
