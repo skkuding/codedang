@@ -6,7 +6,7 @@ import type { FileUpload } from 'graphql-upload/GraphQLUpload.mjs'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import { Solution } from './solution.input'
 import { Template } from './template.input'
-import { Testcase } from './testcase.input'
+import { ScoreWeights, Testcase } from './testcase.input'
 
 @InputType()
 export class CreateProblemInput {
@@ -78,6 +78,23 @@ export class UploadTestcaseZipInput {
   @Field(() => Int, { nullable: false })
   @Min(1)
   problemId: number
+}
+
+@InputType()
+export class UploadTestcaseZipLegacyInput {
+  @Field(() => GraphQLUpload, { nullable: false })
+  @ValidatePromise()
+  file: Promise<FileUpload>
+
+  @Field(() => Int, { nullable: false })
+  @Min(1)
+  problemId: number
+
+  @Field(() => Boolean, { nullable: false })
+  isHidden: boolean
+
+  @Field(() => [ScoreWeights], { nullable: false })
+  scoreWeights: ScoreWeights[]
 }
 
 @InputType()
