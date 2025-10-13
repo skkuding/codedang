@@ -10,8 +10,7 @@ data:
   TESTCASE_BUCKET_NAME: 'codedang-testcase'
   MEDIA_BUCKET_NAME: 'codedang-media'
   OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'simplest-collector.monitoring-otel.svc.cluster.local:4317'
-  RABBITMQ_DEFAULT_USER: 'skku'
-  RABBITMQ_DEFAULT_PASS: '1234'
-  RABBITMQ_HOST: '127.0.0.1'
-  RABBITMQ_PORT: '5672'
-  RABBITMQ_DEFAULT_VHOST: 'vh'
+  RABBITMQ_API_URL: 'http://rabbitmq.rabbitmq.svc.cluster.local:15672/api',
+  RABBITMQ_DEFAULT_VHOST: 'vh',
+  RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local',
+  RABBITMQ_PORT: '5672',
