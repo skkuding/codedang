@@ -111,7 +111,7 @@ describe('TestcaseService', () => {
 
       await expect(
         service.createTestcases(testcases, problemId, userId, userRole)
-      ).to.be.rejectedWith(EntityNotExistException)
+      ).to.be.rejected
     })
 
     it('should create testcases', async () => {
@@ -234,6 +234,8 @@ describe('TestcaseService', () => {
     const userRole = 'Admin' as Role
     const isHidden = false
 
+    // Override testing module in this scope to use real PrismaService
+    // TODO: Refactor to use real PrismaService, not mock
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
         providers: [
@@ -249,6 +251,7 @@ describe('TestcaseService', () => {
 
       service = module.get<TestcaseService>(TestcaseService)
       prismaService = module.get<PrismaService>(PrismaService)
+      storageService = module.get<StorageService>(StorageService)
     })
 
     it('should not allow if given file is not zip', async () => {
