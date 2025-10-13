@@ -6,7 +6,7 @@ import * as archiver from 'archiver'
 import { expect } from 'chai'
 import * as fs from 'fs'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
-import StreamZip from 'node-stream-zip'
+import * as StreamZipNs from 'node-stream-zip'
 import { spy, stub } from 'sinon'
 import type { SinonStub } from 'sinon'
 import { Readable } from 'stream'
@@ -22,6 +22,19 @@ import {
 import type { Testcase } from '../model/testcase.input'
 import { FileService } from './file.service'
 import { TestcaseService } from './testcase.service'
+
+interface StreamZipAsyncLike {
+  new (opts: { file: string }): {
+    entries(): Promise<Record<string, { isDirectory: boolean }>>
+    entryData(name: string): Promise<Buffer>
+    close(): Promise<void>
+  }
+}
+
+type StreamZipModuleWithDefault = { default: { async?: StreamZipAsyncLike } }
+type StreamZipModuleDirect = { async?: StreamZipAsyncLike }
+type StreamZipModule = StreamZipModuleWithDefault | StreamZipModuleDirect
+const StreamZipModuleRef = StreamZipNs as unknown as StreamZipModule
 
 const db = {
   problem: {
@@ -270,23 +283,16 @@ describe('TestcaseService', () => {
     type EntryMap = Record<string, { isDirectory: boolean }>
     let fakeEntries: EntryMap = {}
     let fakeContents: Record<string, string> = {}
-    interface StreamZipAsyncLike {
-      new (opts: { file: string }): {
-        entries(): Promise<Record<string, { isDirectory: boolean }>>
-        entryData(name: string): Promise<Buffer>
-        close(): Promise<void>
-      }
-    }
-
     let originalAsyncClass: StreamZipAsyncLike | undefined
     let fsCreateWriteStreamStub: SinonStub
     let fspMkdtempStub: SinonStub
 
     const installFakeStreamZipAndFs = () => {
-      const streamZipNs = StreamZip as unknown as {
-        async?: StreamZipAsyncLike
-      }
-      originalAsyncClass = streamZipNs?.async
+      const holder: StreamZipModuleDirect =
+        'default' in StreamZipModuleRef
+          ? StreamZipModuleRef.default
+          : (StreamZipModuleRef as StreamZipModuleDirect)
+      originalAsyncClass = holder?.async
       class FakeZipAsync {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         constructor(_: { file: string }) {}
@@ -302,7 +308,8 @@ describe('TestcaseService', () => {
           // no-op
         }
       }
-      streamZipNs.async = FakeZipAsync as unknown as StreamZipAsyncLike
+      ;(holder as { async?: StreamZipAsyncLike }).async =
+        FakeZipAsync as StreamZipAsyncLike
 
       // stub fs ops used by service to write temp zip file
       fsCreateWriteStreamStub = stub(fs, 'createWriteStream').callsFake(() => {
@@ -316,11 +323,12 @@ describe('TestcaseService', () => {
 
     const restoreStreamZipAndFs = () => {
       try {
-        const streamZipNs = StreamZip as unknown as {
-          async?: StreamZipAsyncLike
-        }
         if (originalAsyncClass) {
-          streamZipNs.async = originalAsyncClass
+          const holder: StreamZipModuleDirect =
+            'default' in StreamZipModuleRef
+              ? StreamZipModuleRef.default
+              : (StreamZipModuleRef as StreamZipModuleDirect)
+          ;(holder as { async?: StreamZipAsyncLike }).async = originalAsyncClass
         }
       } catch {
         // ignore restore errors

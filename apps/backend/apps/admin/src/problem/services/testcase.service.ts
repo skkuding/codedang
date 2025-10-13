@@ -464,8 +464,8 @@ export class TestcaseService {
     problemId: number
     isHidden: boolean
     scoreWeights: ScoreWeights[]
-    userId
-    userRole
+    userId: number
+    userRole: Role
   }) {
     await this.checkProblemEditPermission(problemId, userId, userRole)
 
@@ -489,7 +489,7 @@ export class TestcaseService {
           where: { id: { in: ids } },
           data: { isOutdated: true }
         })
-      return []
+      return ids
     })
 
     // ZIP을 임시파일에 저장
