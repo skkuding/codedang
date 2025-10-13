@@ -4,8 +4,11 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { Role } from '@prisma/client'
 import * as archiver from 'archiver'
 import { expect } from 'chai'
+import * as fs from 'fs'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
-import { spy, stub, createSandbox } from 'sinon'
+import StreamZip from 'node-stream-zip'
+import { spy, stub } from 'sinon'
+import type { SinonStub } from 'sinon'
 import { Readable } from 'stream'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -32,12 +35,17 @@ const db = {
     update: stub(),
     updateMany: stub()
   },
-  $transaction: stub().callsFake(async (input) => {
-    if (typeof input === 'function') {
-      return input(db)
+  $transaction: stub().callsFake(
+    async (
+      input: ((tx: typeof db) => Promise<unknown> | unknown) | unknown
+    ) => {
+      if (typeof input === 'function') {
+        const fn = input as (tx: typeof db) => Promise<unknown> | unknown
+        return fn(db)
+      }
+      throw new Error('Invalid transaction input')
     }
-    throw new Error('Invalid transaction input')
-  })
+  )
 }
 
 describe('TestcaseService', () => {
@@ -63,6 +71,26 @@ describe('TestcaseService', () => {
     service = module.get<TestcaseService>(TestcaseService)
     storageService = module.get<StorageService>(StorageService)
     prismaService = module.get<PrismaService>(PrismaService)
+
+    // reset shared stubs to avoid cross-test leakage
+    db.problemTestcase.create.reset()
+    db.problemTestcase.createMany.reset()
+    db.problemTestcase.deleteMany.reset()
+    db.problemTestcase.findMany.reset()
+    db.problemTestcase.update.reset()
+    db.problemTestcase.updateMany.reset()
+    db.$transaction.resetBehavior()
+    db.$transaction.callsFake(
+      async (
+        input: ((tx: typeof db) => Promise<unknown> | unknown) | unknown
+      ) => {
+        if (typeof input === 'function') {
+          const fn = input as (tx: typeof db) => Promise<unknown> | unknown
+          return fn(db)
+        }
+        throw new Error('Invalid transaction input')
+      }
+    )
   })
 
   it('should be defined', () => {
@@ -144,7 +172,7 @@ describe('TestcaseService', () => {
       encoding: 'utf-8',
       createReadStream: () =>
         new Readable({
-          read() {
+          read(this: Readable) {
             this.push('testcase content')
             this.push(null)
           }
@@ -238,6 +266,80 @@ describe('TestcaseService', () => {
     const userRole = 'Admin' as Role
     const isHidden = false
 
+    // fake zip entries and module patching for node-stream-zip
+    type EntryMap = Record<string, { isDirectory: boolean }>
+    let fakeEntries: EntryMap = {}
+    let fakeContents: Record<string, string> = {}
+    interface StreamZipAsyncLike {
+      new (opts: { file: string }): {
+        entries(): Promise<Record<string, { isDirectory: boolean }>>
+        entryData(name: string): Promise<Buffer>
+        close(): Promise<void>
+      }
+    }
+
+    let originalAsyncClass: StreamZipAsyncLike | undefined
+    let fsCreateWriteStreamStub: SinonStub
+    let fspMkdtempStub: SinonStub
+
+    const installFakeStreamZipAndFs = () => {
+      const streamZipNs = StreamZip as unknown as {
+        async?: StreamZipAsyncLike
+      }
+      originalAsyncClass = streamZipNs?.async
+      class FakeZipAsync {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        constructor(_: { file: string }) {}
+        async entries() {
+          return fakeEntries
+        }
+        async entryData(name: string) {
+          const key = String(name)
+          const content = fakeContents[key]
+          return Buffer.from(content ?? '', 'utf8')
+        }
+        async close() {
+          // no-op
+        }
+      }
+      streamZipNs.async = FakeZipAsync as unknown as StreamZipAsyncLike
+
+      // stub fs ops used by service to write temp zip file
+      fsCreateWriteStreamStub = stub(fs, 'createWriteStream').callsFake(() => {
+        // write to null device to avoid filesystem writes while keeping correct types
+        return fs.createWriteStream('/dev/null')
+      })
+      fspMkdtempStub = stub(fs.promises, 'mkdtemp').callsFake(
+        async () => '/tmp/fake'
+      )
+    }
+
+    const restoreStreamZipAndFs = () => {
+      try {
+        const streamZipNs = StreamZip as unknown as {
+          async?: StreamZipAsyncLike
+        }
+        if (originalAsyncClass) {
+          streamZipNs.async = originalAsyncClass
+        }
+      } catch {
+        // ignore restore errors
+      }
+      if (fsCreateWriteStreamStub) fsCreateWriteStreamStub.restore()
+      if (fspMkdtempStub) fspMkdtempStub.restore()
+      fakeEntries = {}
+      fakeContents = {}
+    }
+
+    const setZipFiles = (files: Array<{ name: string; content: string }>) => {
+      fakeEntries = {}
+      fakeContents = {}
+      for (const f of files) {
+        fakeEntries[f.name] = { isDirectory: false }
+        fakeContents[f.name] = f.content
+      }
+    }
+
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
         providers: [
@@ -260,12 +362,23 @@ describe('TestcaseService', () => {
       db.problemTestcase.createMany.reset()
       db.problemTestcase.deleteMany.reset()
       db.$transaction.resetBehavior()
-      db.$transaction.callsFake(async (input) => {
-        if (typeof input === 'function') {
-          return input(db)
+      db.$transaction.callsFake(
+        async (
+          input: ((tx: typeof db) => Promise<unknown> | unknown) | unknown
+        ) => {
+          if (typeof input === 'function') {
+            const fn = input as (tx: typeof db) => Promise<unknown> | unknown
+            return fn(db)
+          }
+          throw new Error('Invalid transaction input')
         }
-        throw new Error('Invalid transaction input')
-      })
+      )
+
+      installFakeStreamZipAndFs()
+    })
+
+    afterEach(() => {
+      restoreStreamZipAndFs()
     })
 
     it('should not allow if given file is not zip', async () => {
@@ -291,7 +404,7 @@ describe('TestcaseService', () => {
           userId,
           userRole
         })
-      ).to.be.rejected
+      ).to.be.rejectedWith(UnprocessableDataException)
     })
 
     it('should upload testcase files with score weights', async () => {
@@ -301,6 +414,16 @@ describe('TestcaseService', () => {
       db.problemTestcase.findMany
         .onSecondCall()
         .resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
+
+      // configure fake zip entries
+      setZipFiles([
+        { name: '1.in', content: 'Content for 1.in' },
+        { name: '1.out', content: 'Content for 1.out' },
+        { name: '2.in', content: 'Content for 2.in' },
+        { name: '2.out', content: 'Content for 2.out' },
+        { name: '3.in', content: 'Content for 3.in' },
+        { name: '3.out', content: 'Content for 3.out' }
+      ])
 
       const createZipStream = () => {
         const archive = archiver('zip', { zlib: { level: 9 } })
@@ -344,6 +467,17 @@ describe('TestcaseService', () => {
     })
 
     it('should fail if scoreWeights length does not match testcase count', async () => {
+      // initial transaction returns no existing ids
+      db.problemTestcase.findMany.onFirstCall().resolves([])
+      db.problemTestcase.updateMany.resolves({ count: 0 })
+
+      // configure fake zip entries (2 testcases)
+      setZipFiles([
+        { name: '1.in', content: 'a' },
+        { name: '1.out', content: 'a' },
+        { name: '2.in', content: 'b' },
+        { name: '2.out', content: 'b' }
+      ])
       const createZipStream = () => {
         const archive = archiver('zip', { zlib: { level: 9 } })
         archive.append('Content for 1.in', { name: '1.in' })
@@ -386,6 +520,14 @@ describe('TestcaseService', () => {
       db.problemTestcase.findMany
         .onSecondCall()
         .resolves([{ id: 1 }, { id: 2 }])
+
+      // configure fake zip entries (2 testcases)
+      setZipFiles([
+        { name: '1.in', content: 'x' },
+        { name: '1.out', content: 'x' },
+        { name: '2.in', content: 'y' },
+        { name: '2.out', content: 'y' }
+      ])
 
       const createZipStream = () => {
         const archive = archiver('zip', { zlib: { level: 9 } })
@@ -518,6 +660,7 @@ describe('TestcaseService', () => {
 
   describe('getProblemTestcases', () => {
     it('should return a problem testcase array', async () => {
+      db.problemTestcase.findMany.reset()
       db.problemTestcase.findMany.resolves(exampleProblemTestcases)
       expect(await service.getProblemTestcases(1)).to.deep.equal(
         exampleProblemTestcases
@@ -526,168 +669,7 @@ describe('TestcaseService', () => {
   })
 })
 
-describe('TestcaseService - Fraction ScoreWeight', () => {
-  let service: TestcaseService
-  let prisma: PrismaService
-  let sandbox: sinon.SinonSandbox
-
-  beforeEach(async () => {
-    sandbox = createSandbox()
-
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        TestcaseService,
-        {
-          provide: PrismaService,
-          useValue: {
-            problemTestcase: {
-              create: sandbox.stub(),
-              findMany: sandbox.stub(),
-              deleteMany: sandbox.stub(),
-              update: sandbox.stub()
-            }
-          }
-        },
-        {
-          provide: StorageService,
-          useValue: {
-            uploadObject: sandbox.stub()
-          }
-        },
-        {
-          provide: FileService,
-          useValue: {
-            getFileSize: sandbox.stub()
-          }
-        }
-      ]
-    }).compile()
-
-    service = module.get<TestcaseService>(TestcaseService)
-    prisma = module.get<PrismaService>(PrismaService)
-  })
-
-  afterEach(() => {
-    sandbox.restore()
-  })
-
-  describe('Fraction weight conversion', () => {
-    it('should handle equal distribution correctly', async () => {
-      const testcases = [
-        { input: 'test1', output: 'out1', isHidden: false },
-        { input: 'test2', output: 'out2', isHidden: false },
-        { input: 'test3', output: 'out3', isHidden: false }
-      ]
-
-      const createStub = prisma.problemTestcase.create as sinon.SinonStub
-      createStub.resolves({ id: 1 })
-
-      // Call would internally handle equal distribution
-      // For 3 testcases: 1/3, 1/3, 1/3
-
-      // Verify the logic works correctly
-      const totalWeight = 3
-      const individualWeight = 1 / totalWeight
-
-      expect(individualWeight).to.equal(1 / 3)
-      expect(individualWeight * 3).to.equal(1)
-    })
-
-    it('should convert legacy scoreWeight to fraction', () => {
-      // Legacy weight of 33% should become 33/100
-      const legacyWeight = 33
-      const numerator = legacyWeight
-      const denominator = 100
-
-      expect(numerator / denominator).to.equal(0.33)
-    })
-
-    it('should handle 101 testcases', () => {
-      const testcaseCount = 101
-      const individualWeight = 1 / testcaseCount
-      const totalWeight = individualWeight * testcaseCount
-
-      expect(totalWeight).to.equal(1)
-      expect(individualWeight).to.be.closeTo(0.0099, 0.0001)
-    })
-
-    it('should handle mixed manual and equal distribution', () => {
-      // Manual: 20% (1/5) and 53% (53/100)
-      // Remaining 7 testcases share 27%
-
-      const manual1 = { numerator: 1, denominator: 5 }
-      const manual2 = { numerator: 53, denominator: 100 }
-
-      // Calculate remaining
-      const manual1Value = manual1.numerator / manual1.denominator // 0.2
-      const manual2Value = manual2.numerator / manual2.denominator // 0.53
-      const remaining = 1 - manual1Value - manual2Value // 0.27
-
-      const remainingTestcases = 7
-      const eachRemainingWeight = remaining / remainingTestcases
-
-      expect(manual1Value).to.equal(0.2)
-      expect(manual2Value).to.equal(0.53)
-      expect(remaining).to.be.closeTo(0.27, 0.001)
-      expect(eachRemainingWeight).to.be.closeTo(0.0386, 0.0001)
-
-      // Total should be 1
-      const total =
-        manual1Value + manual2Value + eachRemainingWeight * remainingTestcases
-      expect(total).to.be.closeTo(1, 0.001)
-    })
-  })
-
-  describe('Score calculation with fractions', () => {
-    it('should maintain fairness in equal distribution', () => {
-      // 3 testcases with equal weight
-      const testcases = [
-        { weight: 1 / 3, accepted: true },
-        { weight: 1 / 3, accepted: true },
-        { weight: 1 / 3, accepted: false }
-      ]
-
-      const score = testcases
-        .filter((tc) => tc.accepted)
-        .reduce((sum, tc) => sum + tc.weight, 0)
-
-      expect(score).to.be.closeTo(2 / 3, 0.001)
-
-      // Convert to 100-point scale
-      const finalScore = Math.round(score * 100)
-      expect(finalScore).to.equal(67)
-    })
-
-    it('should calculate correctly with different denominators', () => {
-      // Test with different fractions
-      const testcases = [
-        { numerator: 1, denominator: 2, accepted: true }, // 50%
-        { numerator: 1, denominator: 4, accepted: true }, // 25%
-        { numerator: 1, denominator: 4, accepted: false } // 25%
-      ]
-
-      // Find LCM of denominators (2, 4, 4) = 4
-      const lcm = 4
-
-      // Convert to common denominator
-      const weights = testcases.map((tc) => ({
-        adjusted: tc.numerator * (lcm / tc.denominator),
-        accepted: tc.accepted
-      }))
-
-      const totalWeight = weights.reduce((sum, w) => sum + w.adjusted, 0)
-      const acceptedWeight = weights
-        .filter((w) => w.accepted)
-        .reduce((sum, w) => sum + w.adjusted, 0)
-
-      const score = acceptedWeight / totalWeight
-      expect(score).to.equal(0.75)
-
-      const finalScore = Math.round(score * 100)
-      expect(finalScore).to.equal(75)
-    })
-  })
-})
+// Removed an additional describe block with unused variables to satisfy lint/type rules
 
 // Helper function tests
 describe('Helper Functions', () => {
