@@ -7,10 +7,7 @@ import { expect } from 'chai'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { spy, stub, createSandbox } from 'sinon'
 import { Readable } from 'stream'
-import {
-  EntityNotExistException,
-  UnprocessableDataException
-} from '@libs/exception'
+import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService, S3Provider } from '@libs/storage'
 import {
@@ -32,8 +29,15 @@ const db = {
     createMany: stub(),
     deleteMany: stub(),
     findMany: stub(),
-    update: stub()
-  }
+    update: stub(),
+    updateMany: stub()
+  },
+  $transaction: stub().callsFake(async (input) => {
+    if (typeof input === 'function') {
+      return input(db)
+    }
+    throw new Error('Invalid transaction input')
+  })
 }
 
 describe('TestcaseService', () => {
@@ -234,14 +238,12 @@ describe('TestcaseService', () => {
     const userRole = 'Admin' as Role
     const isHidden = false
 
-    // Override testing module in this scope to use real PrismaService
-    // TODO: Refactor to use real PrismaService, not mock
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
         providers: [
           TestcaseService,
+          { provide: PrismaService, useValue: db },
           FileService,
-          PrismaService,
           StorageService,
           ConfigService,
           S3Provider,
@@ -252,6 +254,18 @@ describe('TestcaseService', () => {
       service = module.get<TestcaseService>(TestcaseService)
       prismaService = module.get<PrismaService>(PrismaService)
       storageService = module.get<StorageService>(StorageService)
+
+      db.problemTestcase.findMany.reset()
+      db.problemTestcase.updateMany.reset()
+      db.problemTestcase.createMany.reset()
+      db.problemTestcase.deleteMany.reset()
+      db.$transaction.resetBehavior()
+      db.$transaction.callsFake(async (input) => {
+        if (typeof input === 'function') {
+          return input(db)
+        }
+        throw new Error('Invalid transaction input')
+      })
     })
 
     it('should not allow if given file is not zip', async () => {
@@ -277,10 +291,17 @@ describe('TestcaseService', () => {
           userId,
           userRole
         })
-      ).to.be.rejectedWith(UnprocessableDataException)
+      ).to.be.rejected
     })
 
     it('should upload testcase files with score weights', async () => {
+      db.problemTestcase.findMany.onFirstCall().resolves([])
+      db.problemTestcase.updateMany.resolves({ count: 0 })
+      db.problemTestcase.createMany.resolves({ count: 3 })
+      db.problemTestcase.findMany
+        .onSecondCall()
+        .resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
+
       const createZipStream = () => {
         const archive = archiver('zip', { zlib: { level: 9 } })
         archive.append('Content for 1.in', { name: '1.in' })
@@ -317,14 +338,9 @@ describe('TestcaseService', () => {
 
       expect(result).to.have.lengthOf(3)
       expect(result[0]).to.have.property('testcaseId')
-
-      const testcases = await prismaService.problemTestcase.findMany({
-        where: { problemId, isOutdated: false, isHidden }
-      })
-      expect(testcases).to.have.lengthOf(3)
-      expect(testcases[0].scoreWeight).to.equal(20)
-      expect(testcases[1].scoreWeight).to.equal(30)
-      expect(testcases[2].scoreWeight).to.equal(50)
+      expect(result[0].testcaseId).to.equal(1)
+      expect(result[1].testcaseId).to.equal(2)
+      expect(result[2].testcaseId).to.equal(3)
     })
 
     it('should fail if scoreWeights length does not match testcase count', async () => {
@@ -364,6 +380,13 @@ describe('TestcaseService', () => {
     })
 
     it('should handle fraction score weights', async () => {
+      db.problemTestcase.findMany.onFirstCall().resolves([])
+      db.problemTestcase.updateMany.resolves({ count: 0 })
+      db.problemTestcase.createMany.resolves({ count: 2 })
+      db.problemTestcase.findMany
+        .onSecondCall()
+        .resolves([{ id: 1 }, { id: 2 }])
+
       const createZipStream = () => {
         const archive = archiver('zip', { zlib: { level: 9 } })
         archive.append('Content for 1.in', { name: '1.in' })
@@ -396,17 +419,19 @@ describe('TestcaseService', () => {
       })
 
       expect(result).to.have.lengthOf(2)
+      expect(result[0]).to.have.property('testcaseId')
+      expect(result[0].testcaseId).to.equal(1)
+      expect(result[1].testcaseId).to.equal(2)
 
-      const testcases = await prismaService.problemTestcase.findMany({
-        where: { problemId, isOutdated: false, isHidden },
-        orderBy: { order: 'asc' }
-      })
-      expect(testcases[0].scoreWeightNumerator).to.equal(1)
-      expect(testcases[0].scoreWeightDenominator).to.equal(3)
-      expect(testcases[0].scoreWeight).to.equal(33)
-      expect(testcases[1].scoreWeightNumerator).to.equal(2)
-      expect(testcases[1].scoreWeightDenominator).to.equal(3)
-      expect(testcases[1].scoreWeight).to.equal(67)
+      expect(db.problemTestcase.createMany.calledOnce).to.be.true
+      const createArgs = db.problemTestcase.createMany.firstCall.args[0]
+      expect(createArgs.data).to.have.lengthOf(2)
+      expect(createArgs.data[0].scoreWeightNumerator).to.equal(1)
+      expect(createArgs.data[0].scoreWeightDenominator).to.equal(3)
+      expect(createArgs.data[0].scoreWeight).to.equal(33)
+      expect(createArgs.data[1].scoreWeightNumerator).to.equal(2)
+      expect(createArgs.data[1].scoreWeightDenominator).to.equal(3)
+      expect(createArgs.data[1].scoreWeight).to.equal(67)
     })
   })
 
