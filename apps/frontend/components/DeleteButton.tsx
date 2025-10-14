@@ -56,10 +56,10 @@ const triggers = {
   compact: (
     <Button
       variant="outline"
-      className="bg-fill hover:bg-fill-neutral cursor-pointer border-none"
+      className="bg-color-neutral-99 hover:bg-fill-neutral border-color-neutral-90 w-13 h-10 cursor-pointer"
       asChild
     >
-      <div className="text-color-neutral-70 grid h-auto place-content-center px-[16px] py-[5px]">
+      <div className="text-color-neutral-70 grid place-content-center px-4 py-[10px]">
         <HiTrash fontSize={24} />
       </div>
     </Button>
