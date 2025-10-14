@@ -1732,6 +1732,7 @@ type Mutation {
   uploadProblems(input: UploadFileInput!): [ProblemWithIsVisible!]!
   uploadTestcase(input: UploadFileInput!, problemId: Int!): ProblemTestcase!
   uploadTestcaseZip(input: UploadTestcaseZipInput!): [ProblemTestcaseId!]!
+  uploadTestcaseZipLegacy(input: UploadTestcaseZipLegacyInput!): [ProblemTestcaseId!]!
 }
 
 type Notice {
@@ -2455,6 +2456,16 @@ enum Role {
   User
 }
 
+input ScoreWeights {
+  scoreWeight: Int
+
+  """점수 가중치 분모"""
+  scoreWeightDenominator: Int
+
+  """점수 가중치 분자"""
+  scoreWeightNumerator: Int
+}
+
 input Snippet {
   id: Int!
   locked: Boolean!
@@ -3037,6 +3048,13 @@ input UploadFileInput {
 input UploadTestcaseZipInput {
   file: Upload!
   problemId: Int!
+}
+
+input UploadTestcaseZipLegacyInput {
+  file: Upload!
+  isHidden: Boolean!
+  problemId: Int!
+  scoreWeights: [ScoreWeights!]!
 }
 
 type User {
