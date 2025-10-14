@@ -108,31 +108,38 @@ export class FileService {
 
   async getFileSize(readStream: Readable, maxSize: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      const chunks: Buffer[] = []
+      let total = 0
+      let settled = false
 
+      const onError = (err) => {
+        if (settled) return
+        settled = true
+        reject(
+          err ??
+            new UnprocessableDataException(
+              'Error occurred during calculating file size.'
+            )
+        )
+      }
+
+      readStream.once('error', onError)
       readStream.on('data', (chunk: Buffer) => {
-        chunks.push(chunk)
-
-        const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-        if (totalSize > maxSize) {
-          readStream.destroy()
+        total += chunk.length
+        if (total > maxSize && !settled) {
+          settled = true
+          readStream.destroy(new Error('MAX_SIZE_EXCEEDED'))
           reject(
             new UnprocessableDataException('File size exceeds maximum limit')
           )
         }
       })
-
-      readStream.on('end', () => {
-        const fileSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-        resolve(fileSize)
+      readStream.once('end', () => {
+        if (settled) return
+        settled = true
+        resolve(total)
       })
-
-      readStream.on('error', () => {
-        reject(
-          new UnprocessableDataException(
-            'Error occurred during calculating file size.'
-          )
-        )
+      readStream.once('close', () => {
+        if (!settled) onError(new Error('ERR_STREAM_PREMATURE_CLOSE'))
       })
     })
   }
