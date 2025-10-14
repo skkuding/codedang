@@ -36,12 +36,7 @@ export function DataTableColumnHeader<TData, TValue>({
   // Title column
   if (!column.getCanSort()) {
     return (
-      <div
-        className={cn(
-          'text-center text-sm font-normal text-[#8A8A8A]',
-          className
-        )}
-      >
+      <div className={cn('text-center font-normal text-[#8A8A8A]', className)}>
         {title}
       </div>
     )
@@ -64,9 +59,7 @@ export function DataTableColumnHeader<TData, TValue>({
                 column.getIsSorted() ? 'text-black' : ''
               )}
             >
-              <span className="text-sm font-normal text-[#8A8A8A]">
-                {title}
-              </span>
+              <span className="font-normal text-[#8A8A8A]">{title}</span>
               {(() => {
                 const sort = column.getIsSorted()
                 if (sort === 'desc') {
