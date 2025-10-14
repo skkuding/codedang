@@ -439,8 +439,17 @@ export class ProblemService {
     userRole: Role,
     userId: number
   ) {
-    const { id, languages, template, solution, testcases, isVisible, ...data } =
-      input
+    const {
+      id,
+      languages,
+      template,
+      solution,
+      testcases,
+      isVisible,
+      //eslint-disable-next-line @typescript-eslint/no-unused-vars
+      tags,
+      ...data
+    } = input
 
     // Admin 이상 권한이 있으면 항상 visible 설정 가능
     if (
