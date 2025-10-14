@@ -8,14 +8,16 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import { UPDATE_CONTEST_PROBLEMS_SCORES } from '@/graphql/problem/mutations'
+import { REJUDGE_ASSIGNMENT_PROBLEM } from '@/graphql/submission/mutations'
 import { useMutation } from '@apollo/client'
+import { RejudgeMode } from '@generated/graphql'
 import { ErrorBoundary } from '@suspensive/react'
-import { Suspense, useState } from 'react'
+import { Suspense, useCallback, useState } from 'react'
 import {
   BelongedContestTable,
   BelongedContestTableFallback
 } from './BelongedContestTable'
+import type { BelongedContest } from './BelongedContestTableColumns'
 
 interface ScoreCautionDialogProps {
   isOpen: boolean
@@ -30,11 +32,18 @@ export function ScoreCautionDialog({
   onConfirm,
   problemId
 }: ScoreCautionDialogProps) {
-  const [updateContestsProblemsScores] = useMutation(
-    UPDATE_CONTEST_PROBLEMS_SCORES
-  )
+  const [rejudge] = useMutation(REJUDGE_ASSIGNMENT_PROBLEM)
 
-  const [zeroSetContests, setZeroSetContests] = useState<number[]>([])
+  const [selectedAssignments, setSelectedAssignments] = useState<
+    BelongedContest[]
+  >([])
+
+  const handleSelectedAssignmentsChange = useCallback(
+    (assignments: BelongedContest[]) => {
+      setSelectedAssignments(assignments)
+    },
+    []
+  )
 
   return (
     <Dialog open={isOpen} onOpenChange={onCancel}>
@@ -62,25 +71,31 @@ export function ScoreCautionDialog({
               </li>
               <li className="marker:text-xs marker:font-bold marker:text-black">
                 <p className="text-xs font-bold text-black">
-                  This problem is part of the following contest.
+                  This problem is included in the following assignments.
                 </p>{' '}
                 <p className="text-xs font-bold text-black">
-                  <span className="underline">Please check</span> the contest
-                  for which you want to set its{' '}
-                  <span className="underline">score to zero(0)</span>.
+                  <span className="underline">Please select</span> the
+                  assignments for which you want to{' '}
+                  <span className="underline">rejudge submissions</span> after
+                  editing the problem.
                 </p>
                 <ul className="list-disc py-2 pl-4 text-xs marker:text-gray-500">
                   <li>
-                    Setting the score to ‘0’ will remove this problem’s impact
-                    on grading results.
+                    Rejudging will re-evaluate all submissions for this problem
+                    in the selected assignments.
+                  </li>
+                  <li>
+                    This ensures that submissions are graded based on the
+                    updated problem.
                   </li>
                 </ul>
                 <ErrorBoundary fallback={FetchErrorFallback}>
                   <Suspense fallback={<BelongedContestTableFallback />}>
                     <BelongedContestTable
                       problemId={problemId}
-                      onSetToZero={(contests) => setZeroSetContests(contests)}
-                      onRevertScore={() => setZeroSetContests([])}
+                      onSelectedAssignmentsChange={
+                        handleSelectedAssignmentsChange
+                      }
                     />
                   </Suspense>
                 </ErrorBoundary>
@@ -100,17 +115,26 @@ export function ScoreCautionDialog({
           </Button>
           <Button
             onClick={async () => {
-              await Promise.all(
-                zeroSetContests.map((contestId) =>
-                  updateContestsProblemsScores({
-                    variables: {
-                      contestId: Number(contestId),
-                      problemIdsWithScore: [{ problemId, score: 0 }]
-                    }
-                  })
-                )
-              )
               onConfirm()
+
+              if (selectedAssignments.length > 0) {
+                try {
+                  for (const assignment of selectedAssignments) {
+                    await rejudge({
+                      variables: {
+                        groupId: assignment.groupId,
+                        input: {
+                          assignmentId: assignment.id,
+                          problemId,
+                          mode: RejudgeMode.CreateNew
+                        }
+                      }
+                    })
+                  }
+                } catch (e) {
+                  console.error('재채점 실패:', e)
+                }
+              }
             }}
           >
             Confirm
