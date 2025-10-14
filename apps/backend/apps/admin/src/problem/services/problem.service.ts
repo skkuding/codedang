@@ -439,16 +439,8 @@ export class ProblemService {
     userRole: Role,
     userId: number
   ) {
-    const {
-      id,
-      languages,
-      template,
-      solution,
-      tags,
-      testcases,
-      isVisible,
-      ...data
-    } = input
+    const { id, languages, template, solution, testcases, isVisible, ...data } =
+      input
 
     // Admin 이상 권한이 있으면 항상 visible 설정 가능
     if (
@@ -649,9 +641,10 @@ export class ProblemService {
     //   )
     // }
 
-    const problemTag = tags
-      ? await this.tagService.updateProblemTag(id, tags)
-      : undefined
+    // TODO: fix problemTag duplication problem
+    // const problemTag = tags
+    //   ? await this.tagService.updateProblemTag(id, tags)
+    //   : undefined
 
     if (testcases?.length) {
       await this.testcaseService.syncTestcases(id, testcases)
@@ -675,7 +668,6 @@ export class ProblemService {
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
         ...(solution && { solution }),
-        problemTag,
         ...(updatedFields.length > 0 && {
           updateHistory: {
             create: [
