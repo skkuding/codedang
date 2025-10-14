@@ -15,7 +15,7 @@ headers {
 }
 
 body:multipart-form {
-  operations: { "query": "mutation($input: UploadTestcaseZipLegacyInput!) { uploadTestcaseZipLegacy(input: $input){testcaseId}}", "variables" : {"input": {"file": null, "problemId": 1, "isHidden": false, "scoreWeights": [{"scoreWeight": 20}, {"scoreWeight": 30}, {"scoreWeight": 50}]}}}
+  operations: { "query": "mutation($input: UploadTestcaseZipLegacyInput!) { uploadTestcaseZipLegacy(input: $input){testcaseId}}", "variables" : {"input": {"file": null, "problemId": 1, "isHidden": false, "scoreWeights": [{"scoreWeight": 50}, {"scoreWeight": 50}]}}}
   map: { "nfile" : ["variables.input.file"]}
   nfile: @file(Problem/Upload Testcase Zip/sample.zip)
 }
