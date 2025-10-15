@@ -49,7 +49,7 @@ interface ModalProps {
 const sizeClassMap = {
   sm: 'w-[424px]! h-[280px]! p-[40px]!',
   md: 'w-[600px]! h-[580px]! py-[50px]! px-[40px]!',
-  lg: 'w-[800px]! h-[620px]! pt-[40px]! pb-[50px]! pl-[40px]! pr-[20px]!'
+  lg: 'w-[800px]! h-[620px]! pt-[40px]! pb-[50px]! px-[40px]!'
 }
 
 export function Modal({
