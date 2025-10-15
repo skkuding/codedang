@@ -235,7 +235,10 @@ export class TestcaseService {
           existingTc &&
           (existingTc.input !== tc.input ||
             existingTc.output !== tc.output ||
-            existingTc.isHidden !== tc.isHidden)
+            existingTc.isHidden !== tc.isHidden ||
+            existingTc.scoreWeight !== tc.scoreWeight ||
+            existingTc.scoreWeightDenominator !== tc.scoreWeightDenominator ||
+            existingTc.scoreWeightNumerator !== tc.scoreWeightNumerator)
         ) {
           await this.prisma.problemTestcase.update({
             where: {
