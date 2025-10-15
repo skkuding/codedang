@@ -57,7 +57,7 @@ export function TestcaseItem({
         </div>
 
         <div className="flex items-center gap-1">
-          {!blockEdit && (
+          {!blockEdit && !isZipUploaded && (
             <div className="mr-2 flex">
               <label className="flex items-center gap-1">
                 <input
