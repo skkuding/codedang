@@ -36,6 +36,7 @@ export function ScoreCautionDialog({
   )
 
   const [zeroSetContests, setZeroSetContests] = useState<number[]>([])
+  const [isUpdating, setIsUpdating] = useState(false)
 
   return (
     <Modal
@@ -45,20 +46,28 @@ export function ScoreCautionDialog({
       open={isOpen}
       onOpenChange={onCancel}
       primaryButton={{
-        text: 'Confirm',
+        text: isUpdating ? 'Updating...' : 'Confirm',
         onClick: async () => {
-          await Promise.all(
-            zeroSetContests.map((contestId) =>
-              updateContestsProblemsScores({
-                variables: {
-                  contestId: Number(contestId),
-                  problemIdsWithScore: [{ problemId, score: 0 }]
-                }
-              })
+          setIsUpdating(true)
+          try {
+            await Promise.all(
+              zeroSetContests.map((contestId) =>
+                updateContestsProblemsScores({
+                  variables: {
+                    contestId: Number(contestId),
+                    problemIdsWithScore: [{ problemId, score: 0 }]
+                  }
+                })
+              )
             )
-          )
-          onConfirm()
-        }
+            await onConfirm()
+          } catch (error) {
+            console.error('Failed to update scores:', error)
+          } finally {
+            setIsUpdating(false)
+          }
+        },
+        disabled: isUpdating
       }}
       secondaryButton={{
         text: 'Cancel',
