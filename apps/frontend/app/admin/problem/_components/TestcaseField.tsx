@@ -219,6 +219,8 @@ export const TestcaseField = forwardRef<
     const unassignedTestcases = currentValues
       .map((tc, index) => ({ ...tc, index }))
       .filter((tc) => isInvalid(tc.scoreWeight))
+    console.log(unassignedTestcases.length)
+
     const unassignedCount = unassignedTestcases.length
 
     if (unassignedCount === 0) {
@@ -328,20 +330,22 @@ export const TestcaseField = forwardRef<
   }
 
   const totalScore = useMemo(() => {
-    const score = watchedItems.reduce((acc, tc) => {
-      if (typeof tc.scoreWeight === 'number') {
-        return acc + tc.scoreWeight
-      }
-      if (tc.scoreWeightNumerator && tc.scoreWeightDenominator) {
-        const percentage =
-          (tc.scoreWeightNumerator / tc.scoreWeightDenominator) * 100
-        return acc + percentage
-      }
-      return acc
-    }, 0)
+    const score = watchedItems
+      .filter((tc) => (testcaseFlag === 0 ? !tc.isHidden : tc.isHidden))
+      .reduce((acc, tc) => {
+        if (typeof tc.scoreWeight === 'number') {
+          return acc + tc.scoreWeight
+        }
+        if (tc.scoreWeightNumerator && tc.scoreWeightDenominator) {
+          const percentage =
+            (tc.scoreWeightNumerator / tc.scoreWeightDenominator) * 100
+          return acc + percentage
+        }
+        return acc
+      }, 0)
 
     return score.toFixed(2)
-  }, [watchedItems])
+  }, [watchedItems, testcaseFlag])
 
   useEffect(() => {
     setCurrentPage(1)
