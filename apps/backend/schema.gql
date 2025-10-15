@@ -1706,6 +1706,7 @@ type Mutation {
   importProblemsToContest(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
   inviteUser(groupId: Int!, isGroupLeader: Boolean!, userId: Int!): UserGroup!
   issueInvitation(groupId: Int!): String!
+  rejudgeAssignmentProblem(groupId: Int!, input: RejudgeInput!): RejudgeResult!
   removeAnnouncement(contestId: Int!, id: Int!): Announcement!
   removeProblemsFromAssignment(assignmentId: Int!, groupId: Int!, problemIds: [Int!]!): [AssignmentProblem!]!
   removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
@@ -1731,6 +1732,7 @@ type Mutation {
   uploadProblems(input: UploadFileInput!): [ProblemWithIsVisible!]!
   uploadTestcase(input: UploadFileInput!, problemId: Int!): ProblemTestcase!
   uploadTestcaseZip(input: UploadTestcaseZipInput!): [ProblemTestcaseId!]!
+  uploadTestcaseZipLegacy(input: UploadTestcaseZipLegacyInput!): [ProblemTestcaseId!]!
 }
 
 type Notice {
@@ -2414,6 +2416,24 @@ type Query {
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
 }
 
+input RejudgeInput {
+  assignmentId: Int!
+  mode: RejudgeMode!
+  problemId: Int!
+}
+
+"""재채점 모드"""
+enum RejudgeMode {
+  CREATE_NEW
+  REPLACE_EXISTING
+}
+
+type RejudgeResult {
+  message: String!
+  processedSubmissions: Int!
+  totalSubmissions: Int!
+}
+
 enum ResultStatus {
   Accepted
   Blind
@@ -2434,6 +2454,16 @@ enum Role {
   Manager
   SuperAdmin
   User
+}
+
+input ScoreWeights {
+  scoreWeight: Int
+
+  """점수 가중치 분모"""
+  scoreWeightDenominator: Int
+
+  """점수 가중치 분자"""
+  scoreWeightNumerator: Int
 }
 
 input Snippet {
@@ -3018,6 +3048,13 @@ input UploadFileInput {
 input UploadTestcaseZipInput {
   file: Upload!
   problemId: Int!
+}
+
+input UploadTestcaseZipLegacyInput {
+  file: Upload!
+  isHidden: Boolean!
+  problemId: Int!
+  scoreWeights: [ScoreWeights!]!
 }
 
 type User {
