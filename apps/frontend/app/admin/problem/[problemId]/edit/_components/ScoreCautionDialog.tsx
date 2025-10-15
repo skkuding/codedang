@@ -81,8 +81,8 @@ export function ScoreCautionDialog({
                 </p>
                 <ul className="list-disc py-2 pl-4 text-xs marker:text-gray-500">
                   <li>
-                    Rejudging will re-evaluate all submissions for this problem
-                    in the selected assignments.
+                    Re-evaluate all submissions for this problem in the selected
+                    assignments.
                   </li>
                   <li>
                     This ensures that submissions are graded based on the
