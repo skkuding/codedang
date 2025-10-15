@@ -50,8 +50,8 @@ const PaginationButton = ({
       type="button"
       className={cn(
         buttonVariants({ variant: 'ghost', size }),
-        'text-base, align-middle',
-        isActive ? 'text-primary-strong' : '',
+        'align-middle text-base',
+        isActive && 'text-primary-strong',
         className
       )}
       {...props}
