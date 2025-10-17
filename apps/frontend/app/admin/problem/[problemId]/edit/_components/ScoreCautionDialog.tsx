@@ -50,6 +50,7 @@ export function ScoreCautionDialog({
         variant: 'default',
         onClick: async () => {
           setIsUpdating(true)
+          await onConfirm()
 
           if (selectedAssignments.length > 0) {
             try {
@@ -65,7 +66,6 @@ export function ScoreCautionDialog({
                   }
                 })
               }
-              await onConfirm()
             } catch (e) {
               console.error('재채점 실패:', e)
             } finally {
