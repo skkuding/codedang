@@ -1,14 +1,5 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Modal } from '@/components/Modal'
-import { Button } from '@/components/shadcn/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@/components/shadcn/dialog'
 import { REJUDGE_ASSIGNMENT_PROBLEM } from '@/graphql/submission/mutations'
 import { useMutation } from '@apollo/client'
 import { RejudgeMode } from '@generated/graphql'
@@ -34,6 +25,7 @@ export function ScoreCautionDialog({
   problemId
 }: ScoreCautionDialogProps) {
   const [rejudge] = useMutation(REJUDGE_ASSIGNMENT_PROBLEM)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const [selectedAssignments, setSelectedAssignments] = useState<
     BelongedContest[]
@@ -54,10 +46,10 @@ export function ScoreCautionDialog({
       open={isOpen}
       onOpenChange={onCancel}
       primaryButton={{
-        text: 'Confirm',
+        text: isUpdating ? 'Updating...' : 'Confirm',
         variant: 'default',
         onClick: async () => {
-          onConfirm()
+          setIsUpdating(true)
 
           if (selectedAssignments.length > 0) {
             try {
@@ -73,11 +65,15 @@ export function ScoreCautionDialog({
                   }
                 })
               }
+              await onConfirm()
             } catch (e) {
               console.error('재채점 실패:', e)
+            } finally {
+              setIsUpdating(false)
             }
           }
-        }
+        },
+        disabled: isUpdating
       }}
     >
       <ul className="list-decimal space-y-4 pl-4">
