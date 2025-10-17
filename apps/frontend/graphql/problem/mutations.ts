@@ -138,6 +138,14 @@ const UPLOAD_FILE = gql(`
   }
 `)
 
+const UPLOAD_TESTCASE_ZIP_LEGACY = gql(`
+  mutation UploadTestcaseZipLegacy($input: UploadTestcaseZipLegacyInput!) {
+    uploadTestcaseZipLegacy(input: $input) {
+      testcaseId
+    }
+  }
+`)
+
 export {
   CREATE_PROBLEM,
   DELETE_PROBLEM,
@@ -149,5 +157,6 @@ export {
   UPDATE_PROBLEM_VISIBLE,
   UPLOAD_FILE,
   UPLOAD_IMAGE,
-  UPLOAD_PROBLEMS
+  UPLOAD_PROBLEMS,
+  UPLOAD_TESTCASE_ZIP_LEGACY
 }

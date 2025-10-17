@@ -2,7 +2,11 @@ import { ForbiddenException, Injectable } from '@nestjs/common'
 import { Prisma, Role } from '@prisma/client'
 import { isEqual } from 'es-toolkit'
 import { Workbook } from 'exceljs'
+import { promises as fsp, createWriteStream } from 'fs'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
+import StreamZip from 'node-stream-zip'
+import * as os from 'os'
+import * as path from 'path'
 import { Parse } from 'unzipper'
 import { MAX_ZIP_SIZE } from '@libs/constants'
 import {
@@ -14,7 +18,7 @@ import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
 import type { UploadFileInput } from '../model/problem.input'
 import { ImportedTestcaseHeader } from '../model/testcase.constants'
-import type { Testcase } from '../model/testcase.input'
+import type { ScoreWeights, Testcase } from '../model/testcase.input'
 import { FileService } from './file.service'
 
 @Injectable()
@@ -29,7 +33,9 @@ export class TestcaseService {
     return b === 0 ? a : this.gcd(b, a % b)
   }
 
-  private convertToFraction(testcase: Testcase): {
+  private convertToFraction<T extends ScoreWeights>(
+    testcase: T
+  ): {
     numerator: number
     denominator: number
   } {
@@ -68,7 +74,13 @@ export class TestcaseService {
     }
   }
 
-  async createTestcases(testcases: Testcase[], problemId: number) {
+  async createTestcases(
+    testcases: Testcase[],
+    problemId: number,
+    userId: number,
+    userRole: Role
+  ) {
+    await this.checkProblemEditPermission(problemId, userId, userRole)
     // Before upload, clean up all the original testcases
     await this.removeAllTestcaseFiles(problemId)
 
@@ -223,7 +235,10 @@ export class TestcaseService {
           existingTc &&
           (existingTc.input !== tc.input ||
             existingTc.output !== tc.output ||
-            existingTc.isHidden !== tc.isHidden)
+            existingTc.isHidden !== tc.isHidden ||
+            existingTc.scoreWeight !== tc.scoreWeight ||
+            existingTc.scoreWeightDenominator !== tc.scoreWeightDenominator ||
+            existingTc.scoreWeightNumerator !== tc.scoreWeightNumerator)
         ) {
           await this.prisma.problemTestcase.update({
             where: {
@@ -270,36 +285,7 @@ export class TestcaseService {
     userRole: Role,
     userId: number
   ) {
-    const problem = await this.prisma.problem.findFirstOrThrow({
-      where: { id: problemId },
-      include: {
-        sharedGroups: {
-          select: {
-            id: true
-          }
-        }
-      }
-    })
-
-    if (userRole == Role.User && problem.createdById != userId) {
-      const leaderGroupIds = (
-        await this.prisma.userGroup.findMany({
-          where: {
-            userId,
-            isGroupLeader: true
-          }
-        })
-      ).map((group) => group.groupId)
-      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
-      const hasShared = sharedGroupIds.some((v) =>
-        new Set(leaderGroupIds).has(v)
-      )
-      if (!hasShared) {
-        throw new ForbiddenException(
-          'User can only edit problems they created or were shared with'
-        )
-      }
-    }
+    await this.checkProblemEditPermission(problemId, userId, userRole)
 
     const { filename, mimetype, createReadStream } = await fileInput.file
     if (
@@ -355,7 +341,13 @@ export class TestcaseService {
     return await this.createTestcaseLegacy(problemId, testcase)
   }
 
-  async uploadTestcaseZip(file: FileUpload, problemId: number) {
+  async uploadTestcaseZip(
+    file: FileUpload,
+    problemId: number,
+    userId: number,
+    userRole: Role
+  ) {
+    await this.checkProblemEditPermission(problemId, userId, userRole)
     const { filename, mimetype, createReadStream } = file
 
     if (!filename.endsWith('.zip') || mimetype !== 'application/zip') {
@@ -461,6 +453,210 @@ export class TestcaseService {
       testcaseId: testcaseIdMapper[name]
     }))
     return testcaseIds
+  }
+
+  async uploadTestcaseZipLegacy({
+    file,
+    problemId,
+    isHidden,
+    scoreWeights,
+    userId,
+    userRole
+  }: {
+    file: FileUpload
+    problemId: number
+    isHidden: boolean
+    scoreWeights: ScoreWeights[]
+    userId: number
+    userRole: Role
+  }) {
+    await this.checkProblemEditPermission(problemId, userId, userRole)
+
+    const BATCH = 25
+    const { filename, mimetype, createReadStream } = file
+
+    if (!filename.endsWith('.zip') || mimetype !== 'application/zip') {
+      throw new UnprocessableDataException('Only zip files are accepted')
+    }
+    await this.fileService.getFileSize(createReadStream(), MAX_ZIP_SIZE)
+
+    const justOutdated = await this.prisma.$transaction(async (tx) => {
+      const ids = (
+        await tx.problemTestcase.findMany({
+          where: { problemId, isOutdated: false, isHidden },
+          select: { id: true }
+        })
+      ).map((r) => r.id)
+      if (ids.length)
+        await tx.problemTestcase.updateMany({
+          where: { id: { in: ids } },
+          data: { isOutdated: true }
+        })
+      return ids
+    })
+
+    // ZIP을 임시파일에 저장
+    const tmpDir = await fsp.mkdtemp(
+      path.join(os.tmpdir(), `testcases-${problemId}-`)
+    )
+    const tmpZip = path.join(tmpDir, 'upload.zip')
+    await new Promise<void>((res, rej) => {
+      const ws = createWriteStream(tmpZip)
+      createReadStream().pipe(ws).on('finish', res).on('error', rej)
+    })
+    const zip = new StreamZip.async({ file: tmpZip })
+
+    try {
+      const entries = await zip.entries()
+      const inFiles = new Map<number, string>()
+      const outFiles = new Map<number, string>()
+      let max = 0
+
+      for (const name of Object.keys(entries)) {
+        const e = entries[name]
+        if (e.isDirectory) continue
+        const filename = path.basename(name)
+        if (filename.startsWith('.')) continue
+        const dot = filename.lastIndexOf('.')
+        if (dot <= 0) continue
+        const ext = filename.slice(dot + 1).toLowerCase()
+        if (ext !== 'in' && ext !== 'out') continue
+
+        const n = Number(filename.slice(0, dot))
+        if (!Number.isInteger(n) || n <= 0)
+          throw new UnprocessableDataException(
+            `File name must be a positive integer: ${filename}`
+          )
+        max = Math.max(max, n)
+        if (ext === 'in') {
+          if (inFiles.has(n))
+            throw new UnprocessableDataException(`Duplicate ${n}.in`)
+          inFiles.set(n, name)
+        } else {
+          if (outFiles.has(n))
+            throw new UnprocessableDataException(`Duplicate ${n}.out`)
+          outFiles.set(n, name)
+        }
+      }
+
+      if (!max) throw new UnprocessableDataException('No testcase files found.')
+
+      for (let i = 1; i <= max; i++) {
+        if (!inFiles.has(i) || !outFiles.has(i)) {
+          throw new UnprocessableDataException(`Missing pair for index ${i}`)
+        }
+      }
+
+      if (scoreWeights?.length !== max) {
+        throw new UnprocessableDataException(
+          `scoreWeights length (${scoreWeights.length}) must match testcase count (${max})`
+        )
+      }
+
+      let batch: Array<Testcase & { problemId: number }> = []
+
+      const flush = async () => {
+        if (!batch.length) return
+        await this.prisma.problemTestcase.createMany({ data: batch })
+        batch = []
+      }
+
+      for (let i = 1; i <= max; i++) {
+        const [inputBuf, outputBuf] = await Promise.all([
+          zip.entryData(inFiles.get(i)!),
+          zip.entryData(outFiles.get(i)!)
+        ])
+
+        const fraction = this.convertToFraction(scoreWeights[i - 1])
+
+        const row = {
+          problemId,
+          input: inputBuf.toString('utf8'),
+          output: outputBuf.toString('utf8'),
+          order: i,
+          scoreWeightNumerator: fraction.numerator,
+          scoreWeightDenominator: fraction.denominator,
+          scoreWeight: Math.round(
+            (fraction.numerator / fraction.denominator) * 100
+          ),
+          isHidden
+        }
+        batch.push(row)
+        if (batch.length >= BATCH) await flush()
+      }
+      await flush()
+
+      const ids = await this.prisma.problemTestcase.findMany({
+        where: { problemId, isOutdated: false, isHidden },
+        orderBy: { order: 'asc' },
+        select: { id: true }
+      })
+      return ids.map(({ id }) => ({ testcaseId: id }))
+    } catch (e) {
+      //롤백
+      await this.prisma.problemTestcase.deleteMany({
+        where: { problemId, isOutdated: false, isHidden }
+      })
+      await this.prisma.problemTestcase.updateMany({
+        where: {
+          id: {
+            in: justOutdated
+          }
+        },
+        data: { isOutdated: false }
+      })
+      throw e
+    } finally {
+      await zip.close().catch(() => {})
+      //임시파일 삭제
+      try {
+        await fsp.unlink(tmpZip)
+      } catch {
+        console.log(`Failed to unlink ${tmpDir}`)
+      }
+      try {
+        await fsp.rmdir(tmpDir)
+      } catch {
+        console.log(`Failed to delete ${tmpDir}`)
+      }
+    }
+  }
+
+  private async checkProblemEditPermission(
+    problemId: number,
+    userId: number,
+    userRole: Role
+  ) {
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: { id: problemId },
+      include: {
+        sharedGroups: {
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    if (userRole == Role.User && problem.createdById != userId) {
+      const leaderGroupIds = (
+        await this.prisma.userGroup.findMany({
+          where: {
+            userId,
+            isGroupLeader: true
+          }
+        })
+      ).map((group) => group.groupId)
+      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
+      const hasShared = sharedGroupIds.some((v) =>
+        new Set(leaderGroupIds).has(v)
+      )
+      if (!hasShared) {
+        throw new ForbiddenException(
+          'User can only edit problems they created or were shared with'
+        )
+      }
+    }
   }
 
   async removeAllTestcaseFiles(problemId: number) {

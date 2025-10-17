@@ -1,24 +1,33 @@
 import {
-  SecretsManagerClient,
-  GetSecretValueCommand
+  GetSecretValueCommand,
+  SecretsManagerClient
 } from '@aws-sdk/client-secrets-manager'
 import { cache } from 'react'
 import 'server-only'
 
-const client = new SecretsManagerClient({ region: process.env.AWS_REGION })
+const client = new SecretsManagerClient({ region: 'ap-northeast-2' })
 
 export const getInstagramToken = cache(async () => {
-  const command = new GetSecretValueCommand({
-    SecretId: 'Instagram_Access_Token'
-  })
-  const response = await client.send(command)
-  const secret = JSON.parse(response.SecretString || '{}')
-
-  const token = secret.access_token
-  if (!token) {
-    throw new Error('Instagram_Access_Token not found in secret.')
+  let secret: { access_token?: string } = {}
+  try {
+    const command = new GetSecretValueCommand({
+      SecretId: 'Codedang-Instagram-Token'
+    })
+    const response = await client.send(command)
+    secret = JSON.parse(response.SecretString || '{}')
+  } catch (error) {
+    console.error('Error fetching secret from AWS Secrets Manager:', error)
+    throw new Error('Failed to fetch Instagram access token')
   }
-  return token
+
+  if (!secret.access_token) {
+    console.error('access_token missing from secret - manual setup required')
+    throw new ReferenceError(
+      'No access_token found in the secret. If you just created the secret, please set an initial value manually.'
+    )
+  }
+
+  return secret.access_token
 })
 
 export async function fetchInstagramMedia() {
@@ -26,7 +35,8 @@ export async function fetchInstagramMedia() {
   if (!token) {
     throw new Error('Instagram access token is not available')
   }
-  const url = `https://graph.instagram.com/v23.0/24748516551450633/media?access_token=${token}&fields=id,caption,media_url,permalink,timestamp,media_type`
+
+  const url = `https://graph.instagram.com/v23.0/24748516551450633/media?access_token=${token}&fields=id,caption,media_url,permalink,timestamp,media_type&limit=4`
 
   const res = await fetch(url, {
     next: { revalidate: 604800, tags: ['instagram-media'] }

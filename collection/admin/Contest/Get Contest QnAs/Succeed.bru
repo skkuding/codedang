@@ -22,10 +22,12 @@ body:graphql {
       order
       title
       content
+      problemId
       category
       isResolved
       createTime
       contestId
+      isRead
       createdBy {
         username
       }
@@ -92,10 +94,12 @@ docs {
           "order": 1,
           "title": "20번 대회에 대한 질문",
           "content": "7번 유저가 작성함",
+          "problemId": null,
           "category": "General",
           "isResolved": false,
           "createTime": "2025-09-18T07:18:43.149Z",
           "contestId": 20,
+          "isRead": false,
           "createdBy": {
             "username": "user01"
           },
@@ -114,10 +118,12 @@ docs {
   | `order` | Int | 대회 내 QnA 순번 |
   | `title` | String | QnA 제목 |
   | `content` | String | QnA 내용 |
+  | `problemId` | Int | QnA에 해당하는 문제 ID (General인 경우 null) |
   | `category` | QnACategory | QnA 카테고리 |
   | `isResolved` | Boolean | 해결 완료 여부 |
   | `createTime` | GraphQLISODateTime | 생성 시간 |
   | `contestId` | Int | QnA가 속한 대회 ID |
+  | `isRead` | Boolean | 읽음 여부 |
   | `createdBy` | User | 작성자 정보 |
   | `createdBy.username` | String | 작성자 사용자명 |
   | `_count` | Object | 관련 데이터 개수 |

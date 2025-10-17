@@ -286,6 +286,9 @@ importers:
       nestjs-pino:
         specifier: ^4.4.0
         version: 4.4.0(@nestjs/common@11.1.6(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(pino-http@10.5.0)(pino@9.7.0)(rxjs@7.8.2)
+      node-stream-zip:
+        specifier: ^1.15.0
+        version: 1.15.0
       nodemailer:
         specifier: ^6.10.1
         version: 6.10.1
@@ -9947,6 +9950,10 @@ packages:
 
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
+
+  node-stream-zip@1.15.0:
+    resolution: {integrity: sha512-LN4fydt9TqhZhThkZIVQnF9cwjU3qmUH9h78Mx/K7d3VvfRqqwthLwJEUOEL0QPZ0XQmNN7be5Ggit5+4dq3Bw==}
+    engines: {node: '>=0.12.0'}
 
   nodemailer@6.10.1:
     resolution: {integrity: sha512-Z+iLaBGVaSjbIzQ4pX6XV41HrooLsQ10ZWPUehGmuantvzWoDVBnmsdUcOIDM1t+yPor5pDhVlDESgOMEGxhHA==}
@@ -23727,6 +23734,8 @@ snapshots:
       process-on-spawn: 1.1.0
 
   node-releases@2.0.19: {}
+
+  node-stream-zip@1.15.0: {}
 
   nodemailer@6.10.1: {}
 
