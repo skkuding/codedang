@@ -50,7 +50,7 @@ jobs:
 
   build-frontend:
     name: Build Frontend
-    runs-on: [self-hosted, linux, X64]
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
