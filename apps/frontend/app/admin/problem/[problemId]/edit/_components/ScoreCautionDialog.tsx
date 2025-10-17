@@ -23,7 +23,7 @@ import type { BelongedContest } from './BelongedContestTableColumns'
 interface ScoreCautionDialogProps {
   isOpen: boolean
   onCancel: () => void
-  onConfirm: () => () => Promise<void>
+  onConfirm: () => Promise<void>
   problemId: number
 }
 
