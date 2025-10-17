@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -254,12 +255,7 @@ func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out cha
 		}}
 		return
 	}
-	// cgroup 경로 삭제
-	if compileResult.ExecResult.CgroupPath != "" {
-		if err := j.file.RemoveDir(compileResult.ExecResult.CgroupPath); err != nil {
-			j.logger.Log(logger.WARN, fmt.Sprintf("failed to clean up compile cgroup dir %s: %v", compileResult.ExecResult.CgroupPath, err))
-		}
-	}
+
 	if compileResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 		// 컴파일러를 실행했으나 컴파일에 실패한 경우
 		// FIXME: 함수로 분리
@@ -339,7 +335,7 @@ func (j *JudgeHandler[C, E]) judgeTestcase(ctx context.Context, idx int, dir str
 
 	// Cgroup 경로 삭제
 	if runResult.ExecResult.CgroupPath != "" {
-		if err := j.file.RemoveDir(runResult.ExecResult.CgroupPath); err != nil {
+		if err := os.RemoveAll(runResult.ExecResult.CgroupPath); err != nil {
 			j.logger.Log(logger.WARN, fmt.Sprintf("failed to clean up run cgroup dir %s: %v", runResult.ExecResult.CgroupPath, err))
 		}
 	}
