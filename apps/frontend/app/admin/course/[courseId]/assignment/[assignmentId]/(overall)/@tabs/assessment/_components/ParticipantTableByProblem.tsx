@@ -99,6 +99,8 @@ export function ParticipantTableByProblem({
   const selectedPid = selectedProblemId ?? problemData?.[0]?.problemId
   const tcResults = useSuspenseQuery(GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS, {
     variables: { groupId: courseId, assignmentId, problemId: selectedPid },
+    fetchPolicy: 'no-cache',
+    returnPartialData: false,
     errorPolicy: 'all'
   })
   const { refetch: refetchTcResults } = tcResults
