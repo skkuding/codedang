@@ -45,29 +45,25 @@ export const columns: ColumnDef<BelongedContest>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Contest Title" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium text-black">
-        {row.getValue('title')}
-      </p>
-    ),
+    cell: ({ row }) => {
+      return row.getValue('title')
+    },
     enableSorting: false,
     enableHiding: false
   },
   {
     accessorKey: 'state',
-    header: () => (
-      <p className="text-center font-mono text-sm font-medium">State</p>
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="State" />
     ),
-    cell: ({ row }) => (
-      <p className="text-center font-light text-black">
-        {row.getValue('state')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('state')
+    }
   },
   {
     accessorKey: 'problemScore',
-    header: () => (
-      <p className="text-center font-mono text-sm font-medium">Problem Score</p>
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Problem Score" />
     ),
     cell: ({ row }) => (
       <p
@@ -82,8 +78,8 @@ export const columns: ColumnDef<BelongedContest>[] = [
   },
   {
     accessorKey: 'totalScore',
-    header: () => (
-      <p className="text-center font-mono text-sm font-medium">Total Score</p>
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Total Score" />
     ),
     cell: ({ row }) => (
       <p

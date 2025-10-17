@@ -27,6 +27,7 @@ interface ButtonProps {
   text: string
   onClick: () => void
   variant?: 'default' | 'outline'
+  disabled?: boolean
 }
 
 interface ModalProps {
@@ -49,7 +50,7 @@ interface ModalProps {
 const sizeClassMap = {
   sm: 'w-[424px]! h-[280px]! p-[40px]!',
   md: 'w-[600px]! h-[580px]! py-[50px]! px-[40px]!',
-  lg: 'w-[800px]! h-[620px]! pt-[40px]! pb-[50px]! pl-[40px]! pr-[20px]!'
+  lg: 'w-[800px]! h-[620px]! pt-[40px]! pb-[50px]! px-[40px]!'
 }
 
 export function Modal({
@@ -145,6 +146,7 @@ export function Modal({
                 onClick={secondaryButton.onClick}
                 className="h-[46px] w-full text-base"
                 variant={secondaryButton.variant}
+                disabled={secondaryButton.disabled}
               >
                 {secondaryButton.text}
               </Button>
@@ -154,6 +156,7 @@ export function Modal({
                 onClick={primaryButton.onClick}
                 className="h-[46px] w-full text-base"
                 variant={primaryButton.variant}
+                disabled={primaryButton.disabled}
               >
                 {primaryButton.text}
               </Button>
