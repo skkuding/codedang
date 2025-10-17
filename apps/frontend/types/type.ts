@@ -48,6 +48,18 @@ export interface Snippet {
   text: string
 }
 
+export interface ZipUploadedTestcase {
+  id: number | null
+  input: string
+  output: string
+  isHidden: boolean
+  scoreWeight: number | null
+  scoreWeightNumerator?: number | null
+  scoreWeightDenominator?: number | null
+  isZipUploaded: true
+  zipKey: string
+}
+
 export interface Template {
   code: Snippet[]
   language: Language
