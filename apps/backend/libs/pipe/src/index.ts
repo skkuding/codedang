@@ -1,5 +1,6 @@
 export * from '../enum/problem-order.enum'
 export * from './contest-submission-order.pipe'
+export * from './course-notice-order.pipe'
 export * from './cursor-validation.pipe'
 export * from './group-id.pipe'
 export * from './id-validation.pipe'
