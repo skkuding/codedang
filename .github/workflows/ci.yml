@@ -87,7 +87,7 @@ jobs:
 
   typecheck:
     name: Typecheck
-    runs-on: [self-hosted, linux, X64, skkuding-4f-5]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -108,7 +108,7 @@ jobs:
 
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, X64, skkuding-4f-5]
 
     steps:
       - uses: actions/checkout@v4
@@ -150,7 +150,7 @@ jobs:
 
   test-backend:
     name: Test Backend
-    runs-on: [self-hosted, linux, X64, skkuding-4f-5]
+    runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
       TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
