@@ -51,7 +51,6 @@ export default function Assessment() {
         <Suspense fallback={<div>Loading By Problem...</div>}>
           <ParticipantTableByProblem
             courseId={Number(courseId)}
-            groupId={Number(courseId)}
             assignmentId={Number(assignmentId)}
           />
         </Suspense>

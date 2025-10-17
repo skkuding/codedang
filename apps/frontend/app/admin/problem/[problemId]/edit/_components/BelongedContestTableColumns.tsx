@@ -2,37 +2,48 @@
 
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { Checkbox } from '@/components/shadcn/checkbox'
-import { cn } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export interface BelongedContest {
   id: number
   title: string
-  state: string
-  problemScore: number
-  totalScore: number
-  isSetToZero: boolean
+  courseNum: string
+  groupId: number
 }
 
-export const columns: ColumnDef<BelongedContest>[] = [
+export const createColumns = (
+  onSelectedAssignmentsChange: (assignments: BelongedContest[]) => void
+): ColumnDef<BelongedContest>[] => [
   {
     id: 'select',
     header: ({ table }) => (
       <Checkbox
         onClick={(e) => e.stopPropagation()}
         checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) =>
+        onCheckedChange={(value) => {
           table.toggleAllPageRowsSelected(Boolean(value))
-        }
+          setTimeout(() => {
+            const selectedRows = table.getSelectedRowModel().rows
+            const selectedAssignments = selectedRows.map((r) => r.original)
+            onSelectedAssignmentsChange(selectedAssignments)
+          }, 0)
+        }}
         aria-label="Select all"
         className="translate-y-[2px]"
       />
     ),
-    cell: ({ row }) => (
+    cell: ({ row, table }) => (
       <Checkbox
         onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
+        onCheckedChange={(value) => {
+          row.toggleSelected(Boolean(value))
+          setTimeout(() => {
+            const selectedRows = table.getSelectedRowModel().rows
+            const selectedAssignments = selectedRows.map((r) => r.original)
+            onSelectedAssignmentsChange(selectedAssignments)
+          }, 0)
+        }}
         aria-label="Select row"
         className="translate-y-[2px]"
       />
@@ -43,7 +54,7 @@ export const columns: ColumnDef<BelongedContest>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Contest Title" />
+      <DataTableColumnHeader column={column} title="Assignment Title" />
     ),
     cell: ({ row }) => {
       return row.getValue('title')
@@ -52,48 +63,12 @@ export const columns: ColumnDef<BelongedContest>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'state',
+    accessorKey: 'courseNum',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="State" />
+      <DataTableColumnHeader column={column} title="Course" />
     ),
     cell: ({ row }) => {
-      return row.getValue('state')
+      return row.getValue('courseNum')
     }
-  },
-  {
-    accessorKey: 'problemScore',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Problem Score" />
-    ),
-    cell: ({ row }) => (
-      <p
-        className={cn(
-          'text-center font-light text-black',
-          row.original.isSetToZero && 'text-primary'
-        )}
-      >
-        {row.original.isSetToZero ? '0' : row.getValue('problemScore')}
-      </p>
-    )
-  },
-  {
-    accessorKey: 'totalScore',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Total Score" />
-    ),
-    cell: ({ row }) => (
-      <p
-        className={cn(
-          'text-center font-light text-black',
-          row.original.isSetToZero && 'text-primary'
-        )}
-      >
-        {row.original.isSetToZero ? '0' : row.getValue('problemScore')}/
-        {row.original.isSetToZero
-          ? Number(row.getValue('totalScore')) -
-            Number(row.getValue('problemScore'))
-          : row.getValue('totalScore')}
-      </p>
-    )
   }
 ]
