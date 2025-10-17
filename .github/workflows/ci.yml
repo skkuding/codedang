@@ -50,7 +50,7 @@ jobs:
 
   build-frontend:
     name: Build Frontend
-    runs-on: [self-hosted, linux, X64]
+    runs-on: [self-hosted, linux, X64, skkuding-2]
     permissions:
       contents: read
       packages: write
@@ -87,7 +87,7 @@ jobs:
 
   typecheck:
     name: Typecheck
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, X64, skkuding-4f-5]
 
     steps:
       - uses: actions/checkout@v4
@@ -150,7 +150,7 @@ jobs:
 
   test-backend:
     name: Test Backend
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, X64, skkuding-4f-5]
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
       TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
