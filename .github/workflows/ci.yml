@@ -72,8 +72,8 @@ jobs:
           file: ./apps/frontend/Dockerfile # build with root context
           push: true
           tags: ghcr.io/skkuding/codedang-frontend:${{ github.event.pull_request.head.sha || github.sha }}
-          cache-from: type=local,src=/home/actions-runner/.buildx-cache/frontend
-          cache-to: type=local,dest=/home/actions-runner/.buildx-cache/frontend,mode=max
+          cache-from: type=local,src=/home/skkuding/codedang-runner/.buildx-cache/frontend
+          cache-to: type=local,dest=/home/skkuding/codedang-runner/.buildx-cache/frontend,mode=max
           build-args: |
             BASEURL=https://stage.codedang.com/api
             GQL_BASEURL=https://stage.codedang.com/graphql
