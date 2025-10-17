@@ -23,7 +23,7 @@ import type { BelongedContest } from './BelongedContestTableColumns'
 interface ScoreCautionDialogProps {
   isOpen: boolean
   onCancel: () => void
-  onConfirm: () => void
+  onConfirm: () => () => Promise<void>
   problemId: number
 }
 
@@ -57,7 +57,7 @@ export function ScoreCautionDialog({
         text: 'Confirm',
         variant: 'default',
         onClick: async () => {
-          onConfirm()
+          await onConfirm()
 
           if (selectedAssignments.length > 0) {
             try {
