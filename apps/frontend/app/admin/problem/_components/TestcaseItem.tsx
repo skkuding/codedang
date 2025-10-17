@@ -16,6 +16,7 @@ interface TestcaseItemProps {
   onRemove: () => void
   onSelect: (isSelected: boolean) => void
   isSelected: boolean
+  isZipUploaded?: boolean
 }
 
 export function TestcaseItem({
@@ -25,7 +26,8 @@ export function TestcaseItem({
   itemError,
   onRemove,
   onSelect,
-  isSelected
+  isSelected,
+  isZipUploaded = false
 }: TestcaseItemProps) {
   const { control, getValues, register, setValue, trigger } = useFormContext()
 
@@ -44,7 +46,7 @@ export function TestcaseItem({
           <p className="text-lg font-medium text-[#5C5C5C]">
             #{(currentIndex + 1).toString().padStart(2, '0')}
           </p>
-          {!blockEdit && (
+          {!blockEdit && !isZipUploaded && (
             <input
               type="checkbox"
               className="text-primary-light h-5 w-5"
@@ -55,7 +57,7 @@ export function TestcaseItem({
         </div>
 
         <div className="flex items-center gap-1">
-          {!blockEdit && (
+          {!blockEdit && !isZipUploaded && (
             <div className="mr-2 flex">
               <label className="flex items-center gap-1">
                 <input
@@ -119,13 +121,23 @@ export function TestcaseItem({
           <span className="text-sm font-semibold text-[#737373]">(%)</span>
         </div>
       </div>
-      <ExampleTextarea
-        blockEdit={blockEdit}
-        onRemove={onRemove}
-        inputName={`testcases.${index}.input`}
-        outputName={`testcases.${index}.output`}
-        register={register}
-      />
+      {!isZipUploaded ? (
+        <ExampleTextarea
+          blockEdit={blockEdit}
+          onRemove={onRemove}
+          inputName={`testcases.${index}.input`}
+          outputName={`testcases.${index}.output`}
+          register={register}
+        />
+      ) : (
+        <div className="border-color-neutral-95 bg-color-neutral-99 flex items-center justify-between rounded border p-4">
+          <div className="flex items-center gap-2">
+            <span className="text-color-neutral-50 text-sm font-medium">
+              Uploaded via ZIP - Input/Output is handled by the server
+            </span>
+          </div>
+        </div>
+      )}
       {typeof message === 'string' && <ErrorMessage message={message} />}
     </div>
   )

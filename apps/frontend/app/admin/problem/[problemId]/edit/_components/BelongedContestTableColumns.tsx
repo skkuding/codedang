@@ -56,11 +56,9 @@ export const createColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Assignment Title" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium text-black">
-        {row.getValue('title')}
-      </p>
-    ),
+    cell: ({ row }) => {
+      return row.getValue('title')
+    },
     enableSorting: false,
     enableHiding: false
   },
@@ -69,10 +67,8 @@ export const createColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Course" />
     ),
-    cell: ({ row }) => (
-      <p className="text-center font-light text-black">
-        {row.getValue('courseNum')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('courseNum')
+    }
   }
 ]

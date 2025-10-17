@@ -35,7 +35,8 @@ export async function fetchInstagramMedia() {
   if (!token) {
     throw new Error('Instagram access token is not available')
   }
-  const url = `https://graph.instagram.com/v23.0/24748516551450633/media?access_token=${token}&fields=id,caption,media_url,permalink,timestamp,media_type`
+
+  const url = `https://graph.instagram.com/v23.0/24748516551450633/media?access_token=${token}&fields=id,caption,media_url,permalink,timestamp,media_type&limit=4`
 
   const res = await fetch(url, {
     next: { revalidate: 604800, tags: ['instagram-media'] }

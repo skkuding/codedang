@@ -10,7 +10,7 @@ import { useQuery } from '@apollo/client'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState, use } from 'react'
+import { useState, use, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -24,7 +24,10 @@ import { InfoForm } from '../../_components/InfoForm'
 import { LimitForm } from '../../_components/LimitForm'
 import { SolutionField } from '../../_components/SolutionField'
 import { TemplateField } from '../../_components/TemplateField'
-import { TestcaseField } from '../../_components/TestcaseField'
+import {
+  TestcaseField,
+  type TestcaseFieldRef
+} from '../../_components/TestcaseField'
 import { editSchema } from '../../_libs/schemas'
 import { EditProblemForm } from './_components/EditProblemForm'
 
@@ -36,6 +39,7 @@ export default function Page(props: {
   const { problemId } = params
 
   const [isTestcaseEditBlocked, setIsTestcaseEditBlocked] = useState(false)
+  const testcaseFieldRef = useRef<TestcaseFieldRef | null>(null)
 
   const methods = useForm<UpdateProblemInput>({
     resolver: valibotResolver(editSchema),
@@ -106,6 +110,7 @@ export default function Page(props: {
             problemId={Number(problemId)}
             methods={methods}
             isTestcaseEditBlocked={isTestcaseEditBlocked}
+            testcaseFieldRef={testcaseFieldRef}
           >
             <FormSection isFlexColumn title="Title">
               <TitleForm placeholder="Enter a problem name" />
@@ -151,7 +156,7 @@ export default function Page(props: {
             <SolutionField />
 
             {methods.getValues('testcases') && (
-              <TestcaseField blockEdit={false} />
+              <TestcaseField ref={testcaseFieldRef} blockEdit={false} />
             )}
 
             <FormSection isFlexColumn title="Limit">

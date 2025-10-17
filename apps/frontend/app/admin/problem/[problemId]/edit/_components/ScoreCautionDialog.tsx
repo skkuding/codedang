@@ -1,4 +1,5 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import {
   Dialog,
