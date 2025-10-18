@@ -1,0 +1,104 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: frontend-preview
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - pullRequest:
+        github:
+          owner: skkuding
+          repo: codedang
+          appSecretName: github-app-secret # Required for higher API rate limit
+        requeueAfterSeconds: 10
+  template:
+    metadata:
+      name: '{{.number}}-preview-frontend'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: 'preview'
+      annotations:
+        appName: 'frontend'
+        previewURL: 'https://{{.number}}.preview.codedang.com'
+        notifications.argoproj.io/subscribe.on-sync-failed.github: ''
+        notifications.argoproj.io/subscribe.on-sync-running.github: ''
+        notifications.argoproj.io/subscribe.on-sync-succeeded.github: ''
+    spec:
+      project: default
+      source:
+        path: infra/k8s/frontend/overlays/stage
+        repoURL: https://github.com/skkuding/codedang
+        targetRevision: '{{.branch}}'
+        directory:
+          # kustomization.yaml is ignored if recurse is true
+          recurse: false
+        kustomize:
+          namespace: 'frontend-preview' # reuse TLS certificate secret in the same namespace
+          namePrefix: 'preview-{{.number}}-' # some resources must start with alphabetic character
+          commonLabels:
+            app: 'preview-{{.number}}-frontend'
+          images:
+            - 'ghcr.io/skkuding/codedang-frontend:{{.head_sha}}'
+          patches:
+            - target:
+                kind: ConfigMap
+                name: frontend-env
+              patch: |-
+                - op: replace
+                  path: /data/NEXT_URL
+                  value: 'https://{{.number}}.preview.codedang.com'
+                - op: replace
+                  path: /data/NEXTAUTH_URL
+                  value: 'https://{{.number}}.preview.codedang.com/next-auth/api/auth'
+            - target:
+                kind: Ingress
+                name: frontend-ingress
+              patch: |-
+                - op: replace
+                  path: /metadata/annotations/cert-manager.io~1cluster-issuer
+                  value: letsencrypt-dns01
+                - op: replace
+                  path: /spec/tls/0/hosts/0
+                  value: '*.preview.codedang.com'
+                - op: replace
+                  path: /spec/tls/0/secretName
+                  value: frontend-preview-tls
+                - op: replace
+                  path: /spec/rules/0/host
+                  value: '{{.number}}.preview.codedang.com'
+            - target:
+                kind: Deployment
+                name: frontend
+              patch: |-
+                - op: replace
+                  path: /spec/template/spec/containers/0/envFrom/1/secretRef/name
+                  value: 'preview-{{.number}}-security-keys'
+                - op: replace
+                  path: /spec/template/spec/containers/0/envFrom/2/secretRef/name
+                  value: 'preview-{{.number}}-aws-credentials'
+            - target:
+                kind: Service
+                name: frontend
+              patch: |-
+                - op: replace
+                  path: /spec/selector/app
+                  value: 'preview-{{.number}}-frontend'
+      destination:
+        name: stage
+        namespace: 'frontend-preview'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+        retry:
+          limit: 3
+          backoff:
+            duration: 10s

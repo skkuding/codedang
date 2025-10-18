@@ -1,6 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
-import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
   type Submission,
@@ -10,6 +9,7 @@ import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { ValidationError, validateOrReject } from 'class-validator'
 import { Span } from 'nestjs-otel'
+import { AMQPService } from '@libs/amqp'
 import {
   testKey,
   testcasesKey,
@@ -17,15 +17,8 @@ import {
   userTestcasesKey
 } from '@libs/cache'
 import {
-  CONSUME_CHANNEL,
-  EXCHANGE,
-  ORIGIN_HANDLER_NAME,
-  RESULT_KEY,
-  RESULT_QUEUE,
-  RUN_MESSAGE_TYPE,
   Status,
   TEST_SUBMISSION_EXPIRE_TIME,
-  USER_TESTCASE_MESSAGE_TYPE,
   PERCENTAGE_SCALE,
   DECIMAL_PRECISION_FACTOR
 } from '@libs/constants'
@@ -39,28 +32,37 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpConnection: AmqpConnection,
+    private readonly amqpService: AMQPService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   onModuleInit() {
-    this.amqpConnection.createSubscriber(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async (msg: object, raw: any) => {
+    // MQTT 서비스에 메시지 핸들러를 등록
+    this.amqpService.setMessageHandlers({
+      onRunMessage: async (msg: object, isUserTest: boolean) => {
+        try {
+          const res = await this.validateJudgerResponse(msg)
+          await this.handleRunMessage(res, res.submissionId, isUserTest)
+        } catch (error) {
+          if (
+            Array.isArray(error) &&
+            error.every((e) => e instanceof ValidationError)
+          ) {
+            this.logger.error(error, 'Message format error')
+          } else if (error instanceof UnprocessableDataException) {
+            this.logger.error(error, 'Iris exception')
+          } else {
+            this.logger.error(error, 'Unexpected error')
+          }
+          throw error // MQTT 서비스에서 Nack 처리
+        }
+      },
+      onJudgeMessage: async (msg: object) => {
         try {
           const res = await this.validateJudgerResponse(msg)
 
-          if (
-            raw.properties.type === RUN_MESSAGE_TYPE ||
-            raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
-          ) {
-            await this.handleRunMessage(
-              res,
-              res.submissionId,
-              raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
-            )
-            return
-          }
+          const isOudated = await this.isOutdatedTestcase(res)
+          if (isOudated) return
 
           await this.handleJudgerMessage(res)
         } catch (error) {
@@ -74,19 +76,11 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           } else {
             this.logger.error(error, 'Unexpected error')
           }
-          return new Nack()
+          throw error // MQTT 서비스에서 Nack 처리
         }
-      },
-      {
-        exchange: EXCHANGE,
-        routingKey: RESULT_KEY,
-        queue: RESULT_QUEUE,
-        queueOptions: {
-          channel: CONSUME_CHANNEL
-        }
-      },
-      ORIGIN_HANDLER_NAME
-    )
+      }
+    })
+    this.amqpService.startSubscription()
   }
 
   @Span()
@@ -187,6 +181,23 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     await validateOrReject(res)
 
     return res
+  }
+
+  @Span()
+  async isOutdatedTestcase(res: JudgerResponse): Promise<boolean> {
+    const testcase = await this.prisma.problemTestcase.findFirst({
+      where: {
+        id: res.judgeResult?.testcaseId,
+        isOutdated: false,
+        problem: {
+          submission: {
+            some: { id: res.submissionId }
+          }
+        }
+      }
+    })
+
+    return !testcase
   }
 
   @Span()
@@ -753,7 +764,10 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       const problemTestcaseIds = new Set(
         (
           await this.prisma.problemTestcase.findMany({
-            where: { problemId: submission.problemId, isHidden: false },
+            where: {
+              problemId: submission.problemId,
+              isHidden: false
+            },
             select: { id: true }
           })
         ).map((tc) => tc.id)
@@ -783,8 +797,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     submissionResults: Array<{
       problemTestcase: {
         id: number
-        scoreWeightNumerator?: number | null
-        scoreWeightDenominator?: number | null
+        scoreWeightNumerator: number
+        scoreWeightDenominator: number
       }
       result: ResultStatus
     }>
@@ -796,7 +810,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     // 모든 테스트케이스의 분모의 LCM 계산
     let lcmDenominator = 1
     submissionResults.forEach((sr) => {
-      const denominator = sr.problemTestcase.scoreWeightDenominator || 1
+      const denominator = sr.problemTestcase.scoreWeightDenominator
       lcmDenominator = lcm(lcmDenominator, denominator)
     })
 
@@ -805,8 +819,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     let totalNumeratorSum = 0
 
     submissionResults.forEach((sr) => {
-      const numerator = sr.problemTestcase.scoreWeightNumerator || 1
-      const denominator = sr.problemTestcase.scoreWeightDenominator || 1
+      const numerator = sr.problemTestcase.scoreWeightNumerator
+      const denominator = sr.problemTestcase.scoreWeightDenominator
       const adjustedNumerator = numerator * (lcmDenominator / denominator)
 
       totalNumeratorSum += adjustedNumerator

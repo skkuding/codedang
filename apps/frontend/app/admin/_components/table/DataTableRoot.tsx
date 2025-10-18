@@ -71,6 +71,9 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
     },
     autoResetPageIndex: false,
     enableRowSelection: true,
+    enableMultiSort: true,
+    isMultiSortEvent: () => true,
+    maxMultiSortColCount: 3,
     getRowId: (row) => String(row.id),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -82,7 +85,7 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
 
   return (
     <Provider value={{ table }}>
-      <div className="space-y-4">{children}</div>
+      <div className="w-full space-y-4">{children}</div>
     </Provider>
   )
 }

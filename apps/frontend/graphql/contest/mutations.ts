@@ -103,6 +103,43 @@ const CREATE_CONTEST_ANNOUNCEMENT = gql(`
   }
 `)
 
+const CREATE_CONTEST_QNA_COMMENT = gql(`
+  mutation createContestQnaComment($contestId: Int!, $qnaId: Int!, $content: String!) {
+    createContestQnAComment(contestId: $contestId, order: $qnaId, content: $content) {
+      id
+    }
+  }`)
+
+const DELETE_CONTEST_QNA = gql(`
+  mutation deleteContestQna($contestId: Int!, $qnaId: Int!) {
+    deleteContestQnA(contestId: $contestId, order: $qnaId) {
+      id
+    }
+  }
+`)
+
+const DELETE_CONTEST_QNA_COMMENT = gql(`
+  mutation deleteContestQnaComment($contestId: Int!, $qnaId: Int!, $commentId: Int!) {
+    deleteContestQnAComment(contestId: $contestId, qnAOrder: $qnaId, commentOrder: $commentId) {
+      id
+    }
+  }
+`)
+
+const TOGGLE_CONTEST_QNA_RESOLVED = gql(`
+  mutation toggleContestQnAResolved($contestId: Int!, $qnAOrder: Int!) {
+    toggleContestQnAResolved(
+    contestId: $contestId,
+    qnAOrder: $qnAOrder
+  ) {
+    id
+    order
+    isResolved
+    title
+  }
+}
+`)
+
 export {
   CREATE_CONTEST,
   UPDATE_CONTEST,
@@ -110,5 +147,9 @@ export {
   DELETE_CONTEST,
   IMPORT_PROBLEMS_TO_CONTEST,
   REMOVE_PROBLEMS_FROM_CONTEST,
-  CREATE_CONTEST_ANNOUNCEMENT
+  CREATE_CONTEST_ANNOUNCEMENT,
+  CREATE_CONTEST_QNA_COMMENT,
+  DELETE_CONTEST_QNA,
+  DELETE_CONTEST_QNA_COMMENT,
+  TOGGLE_CONTEST_QNA_RESOLVED
 }

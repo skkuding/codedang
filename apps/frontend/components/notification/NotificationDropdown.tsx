@@ -2,6 +2,10 @@
 
 import { Badge } from '@/components/shadcn/badge'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
+import {
+  fetchIsSubscribed,
+  handleRequestPermissionAndSubscribe
+} from '@/libs/push-subscription'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { formatTimeAgo } from '@/libs/utils'
 import NotiIcon from '@/public/icons/notification.svg'
@@ -23,81 +27,13 @@ export function NotificationDropdown({
 }: NotificationDropdownProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadApiCount, setUnreadApiCount] = useState(0)
+  const [isSubscribed, setIsSubscribed] = useState(false)
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [isLoading, setIsLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [cursor, setCursor] = useState<number | null>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
-
-  const handleRequestPermissionAndSubscribe = async () => {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      alert(
-        'This browser does not support desktop notifications. Please use a different browser.'
-      )
-      return
-    }
-
-    const currentPermission = Notification.permission
-
-    if (currentPermission === 'granted') {
-      await subscribeToPush()
-      return
-    }
-
-    if (currentPermission === 'denied') {
-      alert(
-        'Notification permission has been blocked. Please allow it in your browser settings.'
-      )
-      return
-    }
-
-    if (currentPermission === 'default') {
-      const newPermission = await Notification.requestPermission()
-      if (newPermission === 'granted') {
-        await subscribeToPush()
-      }
-    }
-  }
-
-  const subscribeToPush = async () => {
-    try {
-      interface VapidKeyResponse {
-        publicKey: string
-      }
-      console.log('fetching public key')
-      const response: VapidKeyResponse = await safeFetcherWithAuth
-        .get('notification/vapid')
-        .json()
-
-      const { publicKey } = response
-      console.log('got public key')
-      if (!publicKey) {
-        throw new Error('Could not retrieve VAPID public key from the server.')
-      }
-      console.log('successfully got public key')
-      const registration = await navigator.serviceWorker.ready
-      console.log('service worker ready')
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: publicKey
-      })
-      console.log('pushManager success')
-
-      await safeFetcherWithAuth.post('notification/push-subscription', {
-        json: subscription
-      })
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('already exists')) {
-        console.log('Push subscription already exists.')
-      } else {
-        console.error(
-          'An error occurred during the push subscription process:',
-          error
-        )
-      }
-    }
-  }
 
   const fetchMoreNotifications = useCallback(async () => {
     if (isLoading || !hasMore || !cursor) {
@@ -141,40 +77,50 @@ export function NotificationDropdown({
       }
     }
     fetchInitialUnreadCount()
+
+    fetchIsSubscribed(setIsSubscribed)
   }, [])
 
   useEffect(() => {
-    if (isOpen) {
-      handleRequestPermissionAndSubscribe()
+    const fetchInitialNotifications = async () => {
+      setIsLoading(true)
+      setNotifications([])
+      setCursor(null)
+      setHasMore(true)
 
-      const fetchInitialNotifications = async () => {
-        setIsLoading(true)
-        setNotifications([])
-        setCursor(null)
-        setHasMore(true)
-
-        try {
-          const take = FETCH_COUNT
-          let url = `notification?take=${take}`
-          if (filter === 'unread') {
-            url += '&isRead=false'
-          }
-
-          const data = await safeFetcherWithAuth.get(url).json()
-          const initialNotifications = Array.isArray(data) ? data : []
-
-          setNotifications(initialNotifications)
-          setHasMore(initialNotifications.length === take)
-          if (initialNotifications.length > 0) {
-            setCursor(initialNotifications[initialNotifications.length - 1].id)
-          }
-        } catch (error) {
-          console.error('Error fetching initial notifications:', error)
-          setHasMore(false)
-        } finally {
-          setIsLoading(false)
+      try {
+        const take = FETCH_COUNT
+        let url = `notification?take=${take}`
+        if (filter === 'unread') {
+          url += '&isRead=false'
         }
+
+        const data = await safeFetcherWithAuth.get(url).json()
+        const initialNotifications = Array.isArray(data) ? data : []
+
+        setNotifications(initialNotifications)
+        setHasMore(initialNotifications.length === take)
+        if (initialNotifications.length > 0) {
+          setCursor(initialNotifications[initialNotifications.length - 1].id)
+        }
+      } catch (error) {
+        console.error('Error fetching initial notifications:', error)
+        setHasMore(false)
+      } finally {
+        setIsLoading(false)
       }
+    }
+
+    if (isOpen) {
+      const permissionRequested = localStorage.getItem(
+        'push_permission_requested'
+      )
+
+      if (!permissionRequested) {
+        handleRequestPermissionAndSubscribe(isSubscribed, setIsSubscribed)
+      }
+      localStorage.setItem('push_permission_requested', 'true')
+
       fetchInitialNotifications()
     } else {
       setFilter('all')

@@ -56,61 +56,43 @@ export const createColumns = (
   {
     accessorKey: 'studentId',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Student ID" />
-      </div>
+      <DataTableColumnHeader column={column} title="Student ID" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-        {row.getValue('studentId')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('studentId')
+    }
   },
   {
     accessorKey: 'major',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Major" />
-      </div>
+      <DataTableColumnHeader column={column} title="Major" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-        {row.getValue('major')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('major')
+    }
   },
   {
     accessorKey: 'username',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="User ID" />
-      </div>
+      <DataTableColumnHeader column={column} title="User ID" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-        {row.getValue('username')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('username')
+    }
   },
   {
     accessorKey: 'name',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Name" />
-      </div>
+      <DataTableColumnHeader column={column} title="Name" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-        {row.getValue('name')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('name')
+    }
   },
   {
     accessorKey: 'role',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Role" />
-      </div>
+      <DataTableColumnHeader column={column} title="Role" />
     ),
     cell: ({ row }) => (
       <div className="flex justify-center">
@@ -125,15 +107,11 @@ export const createColumns = (
   {
     accessorKey: 'email',
     header: ({ column }) => (
-      <div className="flex justify-center">
-        <DataTableColumnHeader column={column} title="Email" />
-      </div>
+      <DataTableColumnHeader column={column} title="Email" />
     ),
-    cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-        {row.getValue('email')}
-      </p>
-    )
+    cell: ({ row }) => {
+      return row.getValue('email')
+    }
   }
 ]
 

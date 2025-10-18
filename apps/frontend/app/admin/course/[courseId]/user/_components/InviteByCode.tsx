@@ -242,14 +242,15 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
             </div>
             {isWhiteListEnabled && (
               <div className="bg-fill flex flex-col gap-[18px] rounded-lg p-[20px]">
-                <ul className="list-inside list-disc text-sm text-[#8A8A8A]">
+                <ul className="list-inside list-disc space-y-2.5 text-sm text-[#8A8A8A]">
                   <li>
                     When you upload a new file, the existing whitelist is
                     deleted and replaced.
-                    <div className="pl-4">
+                    <div className="pl-5">
                       You can download the sample file{' '}
                       <a
                         href="/Whitelist_Sample.csv"
+                        download="Whitelist_Sample.csv"
                         className="text-primary underline"
                       >
                         here

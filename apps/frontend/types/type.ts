@@ -48,6 +48,18 @@ export interface Snippet {
   text: string
 }
 
+export interface ZipUploadedTestcase {
+  id: number | null
+  input: string
+  output: string
+  isHidden: boolean
+  scoreWeight: number | null
+  scoreWeightNumerator?: number | null
+  scoreWeightDenominator?: number | null
+  isZipUploaded: true
+  zipKey: string
+}
+
 export interface Template {
   code: Snippet[]
   language: Language
@@ -418,7 +430,7 @@ export interface Assignment {
   title: string
   startTime: Date
   endTime: Date
-  dueTime: Date
+  dueTime?: Date
   group: {
     id: string
     groupName: string
@@ -547,4 +559,59 @@ export interface Notification {
   type: string
   isRead: boolean
   createTime: string
+}
+
+export interface MultipleQnaData {
+  id: number
+  order: number
+  createdById: number
+  title: string
+  isResolved: boolean
+  category: string
+  problemId: number | null
+  createTime: Date
+  createdBy: {
+    username: string
+  }
+  isRead: boolean
+}
+
+export interface SingleQnaData {
+  id: number
+  order: number
+  createdById: number
+  title: string
+  content: string
+  problemId: number | null
+  category: string
+  isResolved: boolean
+  createTime: Date
+  readby: number[]
+  comments: {
+    id: number
+    order: number
+    createdById: number
+    isContestStaff: false
+    content: string
+    contestQnAId: number
+    createdTime: Date
+    createdBy: {
+      username: string
+    }
+  }[]
+  createdBy: {
+    username: string
+  }
+}
+
+export interface QnaFormData {
+  title: string
+  content: string
+  selectedProblem: string
+  selectedProblemLabel: string
+}
+
+export interface ProblemOption {
+  value: string
+  label: string
 }

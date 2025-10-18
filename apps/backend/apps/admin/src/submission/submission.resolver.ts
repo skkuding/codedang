@@ -1,4 +1,4 @@
-import { Args, Context, Int, Query, Resolver } from '@nestjs/graphql'
+import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { ContestRole } from '@prisma/client'
 import {
   UseContestRolesGuard,
@@ -20,6 +20,8 @@ import {
   GetAssignmentSubmissionsInput,
   GetContestSubmissionsInput
 } from './model/get-submissions.input'
+import { RejudgeResult } from './model/rejudge-result.output'
+import { RejudgeInput } from './model/rejudge.input'
 import { SubmissionDetail } from './model/submission-detail.output'
 import { SubmissionsWithTotal } from './model/submissions-with-total.output'
 import { SubmissionService } from './submission.service'
@@ -37,6 +39,7 @@ export class SubmissionResolver {
    * @param take 불러올 제출 내역의 수
    * @returns {SubmissionsWithTotal}
    */
+  @UseDisableAdminGuard()
   @Query(() => SubmissionsWithTotal)
   async getSubmissions(
     @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
@@ -44,9 +47,15 @@ export class SubmissionResolver {
     @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { nullable: true, defaultValue: 10, type: () => Int })
-    take: number
+    take: number,
+    @Context('req') req: AuthenticatedRequest
   ): Promise<SubmissionsWithTotal> {
-    return this.submissionService.getSubmissions(problemId, cursor, take)
+    return this.submissionService.getSubmissions(
+      problemId,
+      cursor,
+      take,
+      req.user
+    )
   }
 
   /**
@@ -173,6 +182,27 @@ export class SubmissionResolver {
     return await this.submissionService.compressSourceCodes(
       assignmentId,
       problemId
+    )
+  }
+
+  /**
+   * 특정 Assignment의 특정 Problem에 대한 모든 제출을 재채점합니다.
+   *
+   * @param input 재채점 옵션 (assignmentId, problemId, mode)
+   * @param req 요청한 사용자 정보
+   * @returns 재채점 결과
+   */
+  @Mutation(() => RejudgeResult)
+  @UseGroupLeaderGuard()
+  async rejudgeAssignmentProblem(
+    @Args('groupId', { type: () => Int }) _groupId: number,
+    @Args('input', { type: () => RejudgeInput })
+    input: RejudgeInput,
+    @Context('req') req: AuthenticatedRequest
+  ): Promise<RejudgeResult> {
+    return await this.submissionService.rejudgeAssignmentProblem(
+      input,
+      req.user
     )
   }
 }

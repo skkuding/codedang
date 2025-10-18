@@ -7,8 +7,5 @@ export const PERCENTAGE_SCALE = 100
 // 소수점 정밀도 팩터 (소수점 2자리까지)
 export const DECIMAL_PRECISION_FACTOR = 100
 
-// 기존 점수 시스템 호환용 스케일
-export const LEGACY_SCORE_SCALE = 100
-
 // 분수 계산에서 전체 가중치 합계 (1.0)
 export const TOTAL_WEIGHT_SUM = 1.0

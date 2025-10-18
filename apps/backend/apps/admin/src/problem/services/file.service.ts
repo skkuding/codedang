@@ -59,20 +59,15 @@ export class FileService {
       )
     }
 
-    const APP_ENV = this.config.get('APP_ENV')
-    const MEDIA_BUCKET_NAME = this.config.get('MEDIA_BUCKET_NAME')
-    const STORAGE_BUCKET_ENDPOINT_URL = this.config.get(
-      'STORAGE_BUCKET_ENDPOINT_URL'
-    )
+    // MINIO_ENDPOINT_URL is required only when accessing MINIO (stage, local)
+    // In production, use the default S3 endpoint
+    const endpoint = this.config.get<string>('MINIO_ENDPOINT_URL')
+    const bucket = this.config.get<string>('MEDIA_BUCKET_NAME')
+    const src = endpoint
+      ? `${endpoint}/${bucket}/${newFilename}`
+      : `https://${bucket}.s3.ap-northeast-2.amazonaws.com/${newFilename}`
 
-    return {
-      src:
-        APP_ENV === 'production'
-          ? `https://${MEDIA_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/${newFilename}`
-          : APP_ENV === 'stage'
-            ? `https://stage.codedang.com/bucket/${MEDIA_BUCKET_NAME}/${newFilename}`
-            : `${STORAGE_BUCKET_ENDPOINT_URL}/${MEDIA_BUCKET_NAME}/${newFilename}`
-    }
+    return { src }
   }
 
   async deleteFile(filename: string, userId: number) {
@@ -113,31 +108,38 @@ export class FileService {
 
   async getFileSize(readStream: Readable, maxSize: number): Promise<number> {
     return new Promise((resolve, reject) => {
-      const chunks: Buffer[] = []
+      let total = 0
+      let settled = false
 
+      const onError = (err) => {
+        if (settled) return
+        settled = true
+        reject(
+          err ??
+            new UnprocessableDataException(
+              'Error occurred during calculating file size.'
+            )
+        )
+      }
+
+      readStream.once('error', onError)
       readStream.on('data', (chunk: Buffer) => {
-        chunks.push(chunk)
-
-        const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-        if (totalSize > maxSize) {
-          readStream.destroy()
+        total += chunk.length
+        if (total > maxSize && !settled) {
+          settled = true
+          readStream.destroy(new Error('MAX_SIZE_EXCEEDED'))
           reject(
             new UnprocessableDataException('File size exceeds maximum limit')
           )
         }
       })
-
-      readStream.on('end', () => {
-        const fileSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
-        resolve(fileSize)
+      readStream.once('end', () => {
+        if (settled) return
+        settled = true
+        resolve(total)
       })
-
-      readStream.on('error', () => {
-        reject(
-          new UnprocessableDataException(
-            'Error occurred during calculating file size.'
-          )
-        )
+      readStream.once('close', () => {
+        if (!settled) onError(new Error('ERR_STREAM_PREMATURE_CLOSE'))
       })
     })
   }
