@@ -14,4 +14,5 @@ type ExecResult struct {
 	ExitCode   int        `json:"exit_code"`
 	ErrorCode  int        `json:"error"`
 	StatusCode StatusCode `json:"result"`
+	CgroupPath string     `json:"cgroup_path"`
 }
