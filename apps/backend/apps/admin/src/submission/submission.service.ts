@@ -24,9 +24,9 @@ import {
 import { PrismaService } from '@libs/prisma'
 import {
   ContestRole,
+  ResultStatus,
   Role,
-  type Language,
-  ResultStatus
+  type Language
 } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
 import { JudgeRequest } from '@client/submission/class/judge-request'
@@ -309,7 +309,7 @@ export class SubmissionService {
         userId,
         problemId
       },
-      orderBy: { createTime: 'desc' },
+      orderBy: [{ createTime: 'desc' }, { id: 'desc' }],
       select: {
         id: true
       }
@@ -333,7 +333,7 @@ export class SubmissionService {
         userId,
         problemId
       },
-      orderBy: { createTime: 'desc' },
+      orderBy: [{ createTime: 'desc' }, { id: 'desc' }],
       select: {
         id: true,
         code: true,
