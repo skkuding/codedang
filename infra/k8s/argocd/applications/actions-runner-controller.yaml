@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: actions-runner-controller
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://actions-runner-controller.github.io/actions-runner-controller
+    chart: actions-runner-controller
+    targetRevision: 0.23.6
+    helm:
+      values: |
+        fullnameOverride: actions-runner-controller
+        rbac:
+          create: true
+        scope:
+          singleNamespace: false
+        webhook:
+          enabled: true
+        githubWebhookServer:
+          enabled: true
+          service:
+            type: ClusterIP
+          secret:
+            name: github-webhook-secret
+  destination:
+    namespace: arc-runners
+    name: stage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground

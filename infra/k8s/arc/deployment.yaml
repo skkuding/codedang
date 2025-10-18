@@ -1,0 +1,39 @@
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  name: repo-runners
+  namespace: arc-runners
+  labels:
+    app.kubernetes.io/part-of: actions-runner-controller
+spec:
+  replicas: 1
+  template:
+    spec:
+      repository: skkuding/codedang
+      labels: []
+      image: ghcr.io/actions/actions-runner:2.329.0
+      dockerdWithinRunnerContainer: true
+      ephemeral: true
+---
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: HorizontalRunnerAutoscaler
+metadata:
+  name: repo-runners-hra
+  namespace: arc-runners
+spec:
+  scaleTargetRef:
+    kind: RunnerDeployment
+    name: repo-runners
+  minReplicas: 2
+  maxReplicas: 10
+  scaleUpTriggers:
+    - githubEvent:
+        workflowJob: {}
+      amount: 1
+      duration: '10m'
+      repositories:
+        - skkuding/codedang
+  metrics:
+    - type: TotalNumberOfQueuedAndInProgressWorkflowRuns
+      repositoryNames:
+        - skkuding/codedang
