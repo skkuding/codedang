@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Table,
   TableBody,
@@ -9,12 +11,17 @@ import {
 } from '@/components/shadcn/table'
 import { getResultColor } from '@/libs/utils'
 import type { SubmissionDetail } from '@generated/graphql'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 
 interface SubmissionTestcaseProps {
   submission: SubmissionDetail | null
 }
 
 export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   if (!submission) {
     return <div className="h-72" />
   }
@@ -22,6 +29,12 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
   const firstHiddenIndex = submission.testcaseResult.findIndex(
     (item) => item.isHidden
   )
+
+  const handleTestcaseSelect = (testcaseId: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('testcaseId', testcaseId.toString())
+    router.push(`${pathname}?${params.toString()}`, { scroll: false })
+  }
 
   return (
     <div>
@@ -49,8 +62,9 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
 
                 return (
                   <TableRow
-                    className="text-[#9B9B9B]"
+                    className="cursor-pointer text-[#9B9B9B] hover:bg-slate-800"
                     key={item.problemTestcaseId}
+                    onClick={() => handleTestcaseSelect(item.problemTestcaseId)}
                   >
                     <TableCell>
                       <div className="py-2">{caseLabel}</div>
