@@ -1,0 +1,44 @@
+meta {
+  name: Succeed (Other Student on Public)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/course/1/qna/1/comment
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "저도 같은 질문이 있었는데 도움이 되었습니다!"
+  }
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser2nd(req);  // 다른 학생으로 로그인
+}
+
+settings {
+  encodeUrl: true
+}
+
+tests {
+  test("should allow other students to comment on public questions", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(201);
+    expect(data.content).to.equal("저도 같은 질문이 있었는데 도움이 되었습니다!");
+    expect(data.isStaff).to.equal(false);
+  });
+}
+
+docs {
+  # 📘 Students Can Comment on Public Questions
+
+  공개 질문에는 모든 Course 멤버가 댓글을 작성할 수 있습니다.
+
+  - 질문 작성자가 아닌 다른 학생도 댓글 작성 가능
+  - 학생들끼리 서로 도움을 주고받을 수 있음
+}
