@@ -8,6 +8,7 @@ import {
   TableFooter
 } from '@/components/shadcn/table'
 import { getResultColor } from '@/libs/utils'
+import { useTestcaseStore } from '@/stores/testcaseStore'
 import type { SubmissionDetail } from '@generated/graphql'
 
 interface SubmissionTestcaseProps {
@@ -15,6 +16,15 @@ interface SubmissionTestcaseProps {
 }
 
 export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
+  const setSelectedTestcaseId = useTestcaseStore(
+    (state) => state.setSelectedTestcaseId
+  )
+
+  const handleTestcaseSelect = (testcaseId: number) => {
+    console.log('Selected testcaseId:', testcaseId)
+    setSelectedTestcaseId(testcaseId)
+  }
+
   if (!submission) {
     return <div className="h-72" />
   }
@@ -49,8 +59,9 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
 
                 return (
                   <TableRow
-                    className="text-[#9B9B9B]"
+                    className="cursor-pointer text-[#9B9B9B] hover:bg-slate-800"
                     key={item.problemTestcaseId}
+                    onClick={() => handleTestcaseSelect(item.problemTestcaseId)}
                   >
                     <TableCell>
                       <div className="py-2">{caseLabel}</div>
@@ -66,7 +77,21 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
                         ? `${(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
                         : '-'}
                     </TableCell>
-                    <TableCell>{`${item.scoreWeight}%`}</TableCell>
+                    <TableCell>
+                      {(() => {
+                        if (
+                          item.scoreWeightNumerator &&
+                          item.scoreWeightDenominator
+                        ) {
+                          const percentage =
+                            (item.scoreWeightNumerator /
+                              item.scoreWeightDenominator) *
+                            100
+                          return `${percentage.toFixed(2)}%`
+                        }
+                        return '-'
+                      })()}
+                    </TableCell>
                   </TableRow>
                 )
               })}

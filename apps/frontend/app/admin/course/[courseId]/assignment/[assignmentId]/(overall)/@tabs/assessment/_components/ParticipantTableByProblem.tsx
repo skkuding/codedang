@@ -218,6 +218,7 @@ export function ParticipantTableByProblem({
           courseId,
           isAssignmentFinished
         )}
+        enablePagination={false}
       >
         <div className="mb-3 flex items-center gap-4">
           <p className="font-medium">
@@ -241,7 +242,6 @@ export function ParticipantTableByProblem({
           placeholder="Search Student Id"
         />
         <DataTable />
-        <DataTablePagination />
       </DataTableRoot>
     </div>
   )

@@ -21,6 +21,7 @@ interface DataTableRootProps<TData extends { id: number }, TValue> {
   defaultPageSize?: number
   selectedRowIds?: number[]
   hiddenColumns?: string[]
+  enablePagination?: boolean // ✅ 추가
   children: ReactNode
 }
 
@@ -45,6 +46,7 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
   defaultSortState = [],
   selectedRowIds = [],
   hiddenColumns = [],
+  enablePagination = true,
   children
 }: DataTableRootProps<TData, TValue>) {
   const defaultRowSelection = Object.fromEntries(
@@ -61,9 +63,13 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
     },
     initialState: {
       sorting: defaultSortState,
-      pagination: {
-        pageSize: defaultPageSize
-      },
+      ...(enablePagination
+        ? {
+            pagination: {
+              pageSize: defaultPageSize
+            }
+          }
+        : {}),
       rowSelection: defaultRowSelection,
       columnVisibility: hiddenColumns.length
         ? Object.fromEntries(hiddenColumns.map((col) => [col, false]))
@@ -77,7 +83,9 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
     getRowId: (row) => String(row.id),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(enablePagination
+      ? { getPaginationRowModel: getPaginationRowModel() }
+      : {}),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues()

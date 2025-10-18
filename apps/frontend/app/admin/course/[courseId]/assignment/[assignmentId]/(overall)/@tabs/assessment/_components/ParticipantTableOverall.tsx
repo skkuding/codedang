@@ -313,10 +313,10 @@ export function ParticipantTableOverall({
           currentView,
           summaries.refetch
         )}
+        enablePagination={false}
       >
         <DataTableSearchBar columndId="realName" placeholder="Search Name" />
         <DataTable />
-        <DataTablePagination />
       </DataTableRoot>
     </div>
   )

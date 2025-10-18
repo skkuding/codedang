@@ -42,7 +42,7 @@ function TestcaseCell({
             <span
               key={i}
               className={cn(
-                'inline-block select-none px-1 font-mono text-sm',
+                'inline-block select-none py-1 font-mono text-sm',
                 isPass ? getResultColor('Accepted') : getResultColor('Wrong')
               )}
               title={`${r.isHidden ? 'Hidden' : 'Sample'} #${r.isHidden ? i - firstHiddenIndex + 1 : i + 1}`}
@@ -81,13 +81,11 @@ export const createColumns = (
         const isFirstRow = table.getRowModel().rows[0].id === row.id
         const results = row.original.testcaseResults ?? []
 
-        const contentWidth = results.length * 16
-
         return (
-          <div className="mx-auto w-[600px]">
+          <div className="w-full">
             {isFirstRow && (
               <div
-                className="line-scrollbar mx-auto w-[600px] overflow-x-auto"
+                className="line-scrollbar overflow-x-auto"
                 onScroll={(e) => {
                   const left = e.currentTarget.scrollLeft
                   document
@@ -97,18 +95,15 @@ export const createColumns = (
                     })
                 }}
               >
-                <div style={{ width: contentWidth, height: 1 }} />
+                <TestcaseCell results={results} />
               </div>
             )}
 
-            <div className="tc-scroll mx-auto w-[600px] overflow-x-hidden">
-              <div
-                className="inline-flex justify-start"
-                style={{ width: contentWidth }}
-              >
+            {!isFirstRow && (
+              <div className="tc-scroll overflow-x-hidden">
                 <TestcaseCell results={results} />
               </div>
-            </div>
+            )}
           </div>
         )
       }
