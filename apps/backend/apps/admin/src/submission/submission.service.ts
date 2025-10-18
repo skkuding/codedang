@@ -954,7 +954,8 @@ export class SubmissionService {
         codeSize: new TextEncoder().encode(
           plainToInstance(Snippet, submission.code)[0].text
         ).length,
-        language: submission.language
+        language: submission.language,
+        createTime: submission.createTime
       }
 
       const newSubmission = await this.prisma.submission.create({
