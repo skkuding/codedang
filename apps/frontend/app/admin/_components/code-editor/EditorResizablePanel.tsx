@@ -86,7 +86,7 @@ export function EditorMainResizablePanel({
                 </h1>
                 <FaSortDown />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="border-slate-700 bg-slate-900">
+              <DropdownMenuContent className="max-h-[400px] overflow-y-auto border-slate-700 bg-slate-900">
                 {summaries.map((summary) => (
                   <Link
                     href={
