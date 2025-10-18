@@ -1,5 +1,3 @@
-'use client'
-
 import {
   Table,
   TableBody,
@@ -10,17 +8,22 @@ import {
   TableFooter
 } from '@/components/shadcn/table'
 import { getResultColor } from '@/libs/utils'
+import { useTestcaseStore } from '@/stores/testcaseStore'
 import type { SubmissionDetail } from '@generated/graphql'
-import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 
 interface SubmissionTestcaseProps {
   submission: SubmissionDetail | null
 }
 
 export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const setSelectedTestcaseId = useTestcaseStore(
+    (state) => state.setSelectedTestcaseId
+  )
+
+  const handleTestcaseSelect = (testcaseId: number) => {
+    console.log('Selected testcaseId:', testcaseId)
+    setSelectedTestcaseId(testcaseId)
+  }
 
   if (!submission) {
     return <div className="h-72" />
@@ -29,12 +32,6 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
   const firstHiddenIndex = submission.testcaseResult.findIndex(
     (item) => item.isHidden
   )
-
-  const handleTestcaseSelect = (testcaseId: number) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('testcaseId', testcaseId.toString())
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
-  }
 
   return (
     <div>
@@ -80,7 +77,21 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
                         ? `${(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
                         : '-'}
                     </TableCell>
-                    <TableCell>{`${item.scoreWeight}%`}</TableCell>
+                    <TableCell>
+                      {(() => {
+                        if (
+                          item.scoreWeightNumerator &&
+                          item.scoreWeightDenominator
+                        ) {
+                          const percentage =
+                            (item.scoreWeightNumerator /
+                              item.scoreWeightDenominator) *
+                            100
+                          return `${percentage.toFixed(2)}%`
+                        }
+                        return '-'
+                      })()}
+                    </TableCell>
                   </TableRow>
                 )
               })}
