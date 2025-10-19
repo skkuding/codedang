@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-runner-scale-set
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+spec:
+  project: default
+  source:
+    repoURL: oci://ghcr.io/actions/actions-runner-controller-charts
+    chart: gha-runner-scale-set
+    targetRevision: 0.13.0
+    helm:
+      oci: true
+      releaseName: arc-runner
+      values: |
+        githubConfigUrl: "https://github.com/skkuding/codedang"
+        githubConfigSecret: "github-app-secret"
+        minRunners: 2
+        maxRunners: 10
+        containerMode:
+          type: dind
+          privileged: true
+        template:
+          spec:
+            containers:
+              - name: runner
+                image: "ghcr.io/actions/actions-runner:latest"
+  destination:
+    namespace: arc-runners
+    name: stage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground

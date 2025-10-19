@@ -1,31 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: actions-runner-controller
+  name: gha-runner-scale-set-controller
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
 spec:
   project: default
   source:
-    repoURL: https://actions-runner-controller.github.io/actions-runner-controller
-    chart: actions-runner-controller
-    targetRevision: 0.23.6
+    repoURL: oci://ghcr.io/actions/actions-runner-controller-charts
+    chart: gha-runner-scale-set-controller
+    targetRevision: 0.13.0
     helm:
-      values: |
-        fullnameOverride: actions-runner-controller
-        rbac:
-          create: true
-        scope:
-          singleNamespace: false
-        webhook:
-          enabled: true
-        githubWebhookServer:
-          enabled: true
-          service:
-            type: ClusterIP
-          secret:
-            name: github-webhook-secret
+      oci: true
   destination:
-    namespace: arc-runners
+    namespace: arc-systems
     name: stage
   syncPolicy:
     automated:

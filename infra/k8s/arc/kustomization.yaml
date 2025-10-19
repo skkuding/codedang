@@ -3,7 +3,4 @@ kind: Kustomization
 namespace: arc-runners
 resources:
   - namespace.yaml
-  - secrets/github-app-secret.yaml
-  - secrets/github-webhook-secret.yaml
-  - deployment.yaml
-  - ingress.yaml
+  - github-app-secret.yaml
