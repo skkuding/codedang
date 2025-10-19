@@ -8,6 +8,7 @@ import {
   TableFooter
 } from '@/components/shadcn/table'
 import { getResultColor } from '@/libs/utils'
+import { useTestcaseStore } from '@/stores/testcaseStore'
 import type { SubmissionDetail } from '@generated/graphql'
 
 interface SubmissionTestcaseProps {
@@ -15,12 +16,24 @@ interface SubmissionTestcaseProps {
 }
 
 export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
+  const { setSelectedTestcase, setIsTestResult } = useTestcaseStore()
+
+  const handleTestcaseSelect = (order: number, isHidden: boolean) => {
+    console.log('Selected order:', order)
+    setSelectedTestcase(order, isHidden)
+    setIsTestResult(false)
+  }
+
   if (!submission) {
     return <div className="h-72" />
   }
 
   const firstHiddenIndex = submission.testcaseResult.findIndex(
     (item) => item.isHidden
+  )
+
+  const firstSampleIndex = submission.testcaseResult.findIndex(
+    (item) => !item.isHidden
   )
 
   return (
@@ -39,37 +52,72 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {submission.testcaseResult.map((item, index) => {
-                const isHiddenTestCase =
-                  firstHiddenIndex !== -1 && index >= firstHiddenIndex
+              {[...submission.testcaseResult]
+                .sort((a, b) => Number(a.isHidden) - Number(b.isHidden))
+                .map((item) => {
+                  const sortedResults = [...submission.testcaseResult].sort(
+                    (a, b) => Number(a.isHidden) - Number(b.isHidden)
+                  )
 
-                const caseLabel = isHiddenTestCase
-                  ? `Hidden #${index - firstHiddenIndex + 1}`
-                  : `Sample #${index + 1}`
+                  const currentIndex = sortedResults.findIndex(
+                    (t) => t.problemTestcaseId === item.problemTestcaseId
+                  )
 
-                return (
-                  <TableRow
-                    className="text-[#9B9B9B]"
-                    key={item.problemTestcaseId}
-                  >
-                    <TableCell>
-                      <div className="py-2">{caseLabel}</div>
-                    </TableCell>
-                    <TableCell className={getResultColor(item.result)}>
-                      {item.result}
-                    </TableCell>
-                    <TableCell>
-                      {item.cpuTime ? `${item.cpuTime} ms` : '-'}
-                    </TableCell>
-                    <TableCell>
-                      {item.memoryUsage
-                        ? `${(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
-                        : '-'}
-                    </TableCell>
-                    <TableCell>{`${item.scoreWeight}%`}</TableCell>
-                  </TableRow>
-                )
-              })}
+                  const sampleCount = sortedResults
+                    .slice(0, currentIndex + 1)
+                    .filter((t) => !t.isHidden).length
+
+                  const hiddenCount = sortedResults
+                    .slice(0, currentIndex + 1)
+                    .filter((t) => t.isHidden).length
+
+                  const caseLabel = item.isHidden
+                    ? `Hidden #${hiddenCount}`
+                    : `Sample #${sampleCount}`
+
+                  return (
+                    <TableRow
+                      className="cursor-pointer text-[#9B9B9B] hover:bg-slate-800"
+                      key={item.problemTestcaseId}
+                      onClick={() =>
+                        handleTestcaseSelect(
+                          item.isHidden ? hiddenCount : sampleCount,
+                          item.isHidden
+                        )
+                      }
+                    >
+                      <TableCell>
+                        <div className="py-2">{caseLabel}</div>
+                      </TableCell>
+                      <TableCell className={getResultColor(item.result)}>
+                        {item.result}
+                      </TableCell>
+                      <TableCell>
+                        {item.cpuTime ? `${item.cpuTime} ms` : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {item.memoryUsage
+                          ? `${(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
+                          : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {(() => {
+                          if (
+                            item.scoreWeightNumerator &&
+                            item.scoreWeightDenominator
+                          ) {
+                            const percentage =
+                              (item.scoreWeightNumerator /
+                                item.scoreWeightDenominator) *
+                              100
+                            return `${percentage.toFixed(2)}%`
+                          }
+                          return '-'
+                        })()}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
             </TableBody>
             <TableFooter className="bg-transparent">
               <TableRow>
