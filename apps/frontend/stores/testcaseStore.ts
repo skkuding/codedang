@@ -1,11 +1,17 @@
 import { create } from 'zustand'
 
 interface TestcaseStore {
-  selectedTestcaseId: number | null
-  setSelectedTestcaseId: (id: number | null) => void
+  order: number | null
+  isHidden: boolean
+  setSelectedTestcase: (order: number | null, isHidden: boolean) => void
+  isTestResult: boolean
+  setIsTestResult: (isTestResult: boolean) => void
 }
 
 export const useTestcaseStore = create<TestcaseStore>((set) => ({
-  selectedTestcaseId: null,
-  setSelectedTestcaseId: (id) => set({ selectedTestcaseId: id })
+  order: null,
+  isHidden: false,
+  setSelectedTestcase: (order, isHidden) => set({ order, isHidden }),
+  isTestResult: false,
+  setIsTestResult: (isTestResult) => set({ isTestResult })
 }))

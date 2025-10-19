@@ -104,7 +104,7 @@ export function EditorMainResizablePanel({
                   {summaries.map((summary) => (
                     <Link
                       href={
-                        `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${summary.userId}/problem/${problemId}` as Route
+                        `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${summary.userId}/problem/${problemId}` as const
                       }
                       key={summary.userId}
                     >

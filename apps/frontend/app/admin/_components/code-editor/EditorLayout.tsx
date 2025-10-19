@@ -6,6 +6,7 @@ import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
+import { useTestcaseStore } from '@/stores/testcaseStore'
 import type { TestResultDetail } from '@/types/type'
 import { useQuery, useLazyQuery } from '@apollo/client'
 import type { ProblemTestcase, TestCaseResult } from '@generated/graphql'
@@ -150,6 +151,7 @@ export function EditorLayout({
   const [initialCode, setInitialCode] = useState('')
   const [isTesting, setIsTesting] = useState(false)
   const [testResults, setTestResults] = useState<TestResultDetail[]>([])
+  const { setIsTestResult } = useTestcaseStore()
 
   const initializeTestResults = useCallback(() => {
     if (submissionData?.testcaseResult && testcaseData?.getProblem?.testcase) {
@@ -184,6 +186,7 @@ export function EditorLayout({
 
   const handleTest = useCallback(async () => {
     setIsTesting(true)
+
     try {
       await submitCodeForTesting(problemId, language, editorCode)
 
@@ -205,6 +208,7 @@ export function EditorLayout({
       setTestResults([])
     } finally {
       setIsTesting(false)
+      setIsTestResult(true)
     }
   }, [language, editorCode, problemId, testcaseData])
 
