@@ -50,7 +50,7 @@ jobs:
 
   build-frontend:
     name: Build Frontend
-    runs-on: arc-runner
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -72,10 +72,8 @@ jobs:
           file: ./apps/frontend/Dockerfile # build with root context
           push: true
           tags: ghcr.io/skkuding/codedang-frontend:${{ github.event.pull_request.head.sha || github.sha }}
-          cache-from: |
-            type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-${{ github.event.pull_request.number || 'stage'}}
-            type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-stage
-          cache-to: type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-${{ github.event.pull_request.number || github.sha }},mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             BASEURL=https://stage.codedang.com/api
             GQL_BASEURL=https://stage.codedang.com/graphql
