@@ -53,7 +53,7 @@ export function TestcasePanel({ data, isTesting = false }: TestcasePanelProps) {
                                 'bg-primary text-white'
                             )}
                           >
-                            #{(tc.order ?? 0) + 1}
+                            #{tc.order ?? 0}
                           </span>
                         ))}
                       </div>
@@ -79,7 +79,7 @@ export function TestcasePanel({ data, isTesting = false }: TestcasePanelProps) {
                                 'bg-primary text-white'
                             )}
                           >
-                            #{(tc.order ?? 0) + 1}
+                            #{tc.order ?? 0}
                           </span>
                         ))}
                       </div>
