@@ -24,6 +24,15 @@ spec:
           privileged: true
         template:
           spec:
+            affinity:
+              nodeAffinity:
+                preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 30
+                    preference:
+                      matchExpressions:
+                        - key: kubernetes.io/hostname
+                          operator: In
+                          values: ["skkuding-3"]
             containers:
               - name: runner
                 image: "ghcr.io/actions/actions-runner:latest"
