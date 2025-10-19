@@ -370,6 +370,7 @@ export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
   type: 'user' | 'sample' | 'hidden'
+  isHidden?: boolean
 }
 
 export interface TabbedTestResult extends TestResultDetail {
