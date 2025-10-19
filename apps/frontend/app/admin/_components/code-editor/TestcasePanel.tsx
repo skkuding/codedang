@@ -72,24 +72,24 @@ export function TestcasePanel({ data, isTesting = false }: TestcasePanelProps) {
                     key={testResult.id}
                     className="cursor-pointer border-b border-b-slate-600 text-left hover:bg-slate-700"
                   >
-                    <td className="max-w-96 truncate p-3 align-top">
+                    <td className="max-w-96 truncate p-3">
                       {TAB_CONTENT[testResult.type]} #{testResult.order}
                     </td>
-                    <td className="max-w-96 truncate p-3">
+                    <td className="max-w-96 truncate p-3 align-top">
                       <WhitespaceVisualizer
                         text={testResult.input}
                         isTruncated={true}
                         className="h-fit max-h-24"
                       />
                     </td>
-                    <td className="max-w-96 truncate p-3">
+                    <td className="max-w-96 truncate p-3 align-top">
                       <WhitespaceVisualizer
                         text={testResult.expectedOutput}
                         isTruncated={true}
                         className="h-fit max-h-24"
                       />
                     </td>
-                    <td className="max-w-96 truncate p-3">
+                    <td className="max-w-96 truncate p-3 align-top">
                       <WhitespaceVisualizer
                         text={testResult.output}
                         isTruncated={true}
