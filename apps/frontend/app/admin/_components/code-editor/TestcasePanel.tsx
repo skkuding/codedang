@@ -127,13 +127,13 @@ export function TestcasePanel({ data, isTesting = false }: TestcasePanelProps) {
                     key={testResult.id}
                     className="cursor-pointer text-left hover:bg-slate-700"
                   >
-                    <td className="max-w-96 truncate p-3">
+                    <td className="max-w-96 truncate p-3 align-top">
                       <WhitespaceVisualizer text={testResult.input} />
                     </td>
-                    <td className="max-w-96 truncate p-3">
+                    <td className="max-w-96 truncate p-3 align-top">
                       <WhitespaceVisualizer text={testResult.expectedOutput} />
                     </td>
-                    <td className="max-w-96 truncate p-3">
+                    <td className="max-w-96 truncate p-3 align-top">
                       <WhitespaceVisualizer text={testResult.output} />
                     </td>
                   </tr>
