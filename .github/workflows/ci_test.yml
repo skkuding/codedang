@@ -1,0 +1,267 @@
+name: CI (ARC Test)
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  build-backend:
+    name: Build Backend
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        target: [client, admin]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            shared: &shared
+              - 'apps/backend/libs/**'
+              - 'apps/backend/prisma/**'
+              - 'apps/backend/*.json'
+              - 'pnpm-lock.yaml'
+            client:
+              - *shared
+              - 'apps/backend/apps/client/**'
+            admin:
+              - *shared
+              - 'apps/backend/apps/admin/**'
+
+      - uses: ./.github/actions/setup-pnpm
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
+
+      - name: Generate Prisma Client
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
+        run: pnpm --filter="@codedang/backend" exec prisma generate
+
+      - name: Build
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
+        run: pnpm --filter="@codedang/backend" build ${{ matrix.target }}
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: arc-runner
+    permissions:
+      contents: read
+      packages: write
+      actions: write
+
+    steps:
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          file: ./apps/frontend/Dockerfile # build with root context
+          push: true
+          tags: ghcr.io/skkuding/codedang-frontend:${{ github.event.pull_request.head.sha || github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BASEURL=https://stage.codedang.com/api
+            GQL_BASEURL=https://stage.codedang.com/graphql
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-pnpm
+
+      - name: Generate Prisma Client
+        run: pnpm --filter="@codedang/backend" exec prisma generate
+
+      - name: Check types (backend)
+        run: pnpm --filter="@codedang/backend" exec tsc --noEmit
+
+      - name: Compile GraphQL schema
+        run: pnpm --filter="@codedang/frontend" run compile
+
+      - name: Check types (frontend)
+        run: pnpm --filter="@codedang/frontend" exec tsc --noEmit
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-pnpm
+        with:
+          install: 'no'
+
+      # NOTE: eslint-config-next 에서 next 모듈을 찾지 못하는 에러를 해결하기 위해 프론트엔드 의존성을 설치합니다.
+      - name: Install root and frontend dependencies
+        run: pnpm install -w --filter frontend
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/iris/go.mod
+          cache-dependency-path: apps/iris/go.sum
+
+      - name: Lint pull request title
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "${{ github.event.pull_request.title }}" | pnpm commitlint --verbose
+
+      - name: Check style (Node.js)
+        run: git diff --name-only --diff-filter=ACMRUXB origin/main | xargs -r pnpm prettier -c --ignore-unknown --no-error-on-unmatched-pattern
+
+      - name: Check Style (Go)
+        run: |
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "Go files must be formatted with gofmt. Please run:"
+            echo "  go fmt ./..."
+            exit 1
+          fi
+        working-directory: ./apps/iris
+
+      - name: Lint (Node.js)
+        run: git diff --name-only --diff-filter=ACMRUXB origin/main | grep -E "(.ts$|.tsx$|.js$|.jsx$)" | grep -v 'next.config.js$' | xargs -r pnpm eslint
+
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
+      TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
+      MINIO_ENDPOINT_URL: http://localhost:9000
+      TESTCASE_BUCKET_NAME: test-bucket
+      MEDIA_BUCKET_NAME: image-bucket
+      AWS_ACCESS_KEY_ID: abc123
+      AWS_SECRET_ACCESS_KEY: xyz123456
+      REDIS_HOST: localhost
+      REDIS_PORT: 6380
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 1234
+          POSTGRES_DB: skkuding
+      minio:
+        # NOTE: GitHub Actions service containers do not support custom commands.
+        # This image from Bitnami includes the command to run MinIO.
+        # https://stackoverflow.com/questions/60849745/how-can-i-run-a-command-in-github-action-service-containers
+        # NOTE: Bitnami images for community-tier users are restricted to the latest tag.
+        # https://github.com/bitnami/charts/issues/35164
+        # NOTE: due to instability of Bitnami image, switch to lazybit's image
+        # https://stackoverflow.com/questions/64031598/creating-a-minios3-container-inside-a-github-actions-yml-file
+        image: lazybit/minio:latest
+        ports:
+          - 9000:9000
+          - 9001:9001
+        env:
+          MINIO_ROOT_USER: ${{ env.AWS_ACCESS_KEY_ID }}
+          MINIO_ROOT_PASSWORD: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          MINIO_BROWSER: 'off'
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6380:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'apps/backend/**'
+              - 'pnpm-lock.yaml'
+
+      - uses: ./.github/actions/setup-pnpm
+        if: steps.filter.outputs.backend == 'true'
+
+      - name: Check Prisma Migration
+        if: steps.filter.outputs.backend == 'true'
+        run: |
+          pnpm --filter="@codedang/backend" exec prisma migrate diff \
+            --from-migrations ./prisma/migrations \
+            --to-schema-datamodel ./prisma/schema.prisma \
+            --shadow-database-url ${{ env.DATABASE_URL }} \
+            --exit-code ||
+          (echo "::error::Prisma migration is not up to date." \
+          "Please run 'pnpm prisma migrate dev' locally and commit the changes." && exit 1)
+
+      - name: Migrate Prisma
+        if: steps.filter.outputs.backend == 'true'
+        run: pnpm --filter="@codedang/backend" exec prisma migrate reset --force
+
+      - name: Initialize MinIO
+        if: steps.filter.outputs.backend == 'true'
+        run: pnpm run init:storage
+        env:
+          MINIO_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          MINIO_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Test
+        if: steps.filter.outputs.backend == 'true'
+        run: pnpm --filter="@codedang/backend" test
+
+  test-iris:
+    name: Test Iris
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            iris:
+              - 'apps/iris/**'
+
+      - name: Set up Go
+        if: steps.filter.outputs.iris == 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/iris/go.mod
+          cache-dependency-path: apps/iris/go.sum
+
+      - name: Test (Go)
+        if: steps.filter.outputs.iris == 'true'
+        run: go test ./...
+        working-directory: ./apps/iris
+
+  # TODO: write smoke test for backend
+  # e.g) start backend server and check if it responds to requests
+  #
+  # ```
+  # pnpm --filter="@codedang/backend" start &
+  #
+  # for i in {1..10}
+  # do
+  #   curl -s http://localhost:3000/health && exit 0
+  #   sleep 2
+  # done
+  # echo "Server did not respond to health check."
+  # exit 1
+  # ```
