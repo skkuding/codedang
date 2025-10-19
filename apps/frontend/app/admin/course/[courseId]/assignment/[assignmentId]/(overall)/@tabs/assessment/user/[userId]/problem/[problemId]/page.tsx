@@ -85,12 +85,6 @@ export default function Page(props: PageProps) {
           <div className="h-3 bg-[#121728]" />
 
           <div className="px-6 py-2">
-            <SubmissionTestcase submission={submission as SubmissionDetail} />
-          </div>
-
-          <div className="h-3 bg-[#121728]" />
-
-          <div className="px-6 py-2">
             <SubmissionAssessment
               groupId={Number(courseId)}
               assignmentId={Number(assignmentId)}
@@ -98,6 +92,11 @@ export default function Page(props: PageProps) {
               problemId={Number(problemId)}
               autoGradedScore={submission?.score ?? 0}
             />
+          </div>
+          <div className="h-3 bg-[#121728]" />
+
+          <div className="px-6 py-2">
+            <SubmissionTestcase submission={submission as SubmissionDetail} />
           </div>
         </Suspense>
       </ErrorBoundary>

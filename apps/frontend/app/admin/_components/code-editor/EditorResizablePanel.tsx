@@ -1,6 +1,7 @@
 'use client'
 
 import { CodeEditor } from '@/components/CodeEditor'
+import { Button } from '@/components/shadcn/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,7 @@ import checkIcon from '@/public/icons/check-green.svg'
 import type { Language, TestcaseItem, TestResultDetail } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
 import type { Route } from 'next'
+import router from 'next/dist/shared/lib/router/router'
 import Image from 'next/image'
 import Link from 'next/link'
 import { BiSolidUser } from 'react-icons/bi'
@@ -66,6 +68,17 @@ export function EditorMainResizablePanel({
 
   const currentMember = summaries.find((member) => member.userId === userId)
 
+  const currentIndex = summaries.findIndex((s) => s.userId === userId)
+  const prevIndex = (currentIndex - 1 + summaries.length) % summaries.length
+  const nextIndex = (currentIndex + 1) % summaries.length
+
+  const prevUserId = summaries[prevIndex]?.userId
+  const nextUserId = summaries[nextIndex]?.userId
+
+  // 첫 번째와 마지막 학생인지 확인
+  const isFirstStudent = currentIndex === 0
+  const isLastStudent = currentIndex === summaries.length - 1
+
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -77,50 +90,82 @@ export function EditorMainResizablePanel({
         minSize={20}
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
-          <div className="flex h-12 w-full items-center gap-2 border-b border-slate-700 bg-[#222939] px-6">
-            <BiSolidUser className="size-6 rounded-none text-gray-300" />
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
-                <h1>
-                  {currentMember?.realName}({currentMember?.studentId})
-                </h1>
-                <FaSortDown />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="border-slate-700 bg-slate-900">
-                {summaries.map((summary) => (
-                  <Link
-                    href={
-                      `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${summary.userId}/problem/${problemId}` as Route
-                    }
-                    key={summary.userId}
-                  >
-                    <DropdownMenuItem
-                      className={cn(
-                        'flex justify-between text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white',
-                        currentMember?.userId === summary.userId &&
-                          'text-primary-light focus:text-primary-light'
-                      )}
+          <div className="flex h-12 w-full items-center justify-between border-b border-slate-700 bg-[#222939] px-3">
+            <div className="flex gap-2">
+              <BiSolidUser className="size-6 rounded-none text-gray-300" />
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
+                  <h1>
+                    {currentMember?.realName}({currentMember?.studentId})
+                  </h1>
+                  <FaSortDown />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="max-h-[400px] overflow-y-auto border-slate-700 bg-slate-900">
+                  {summaries.map((summary) => (
+                    <Link
+                      href={
+                        `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${summary.userId}/problem/${problemId}` as const
+                      }
+                      key={summary.userId}
                     >
-                      {summary.realName}({summary.studentId})
-                      {summary.problemScores.some(
-                        (score) =>
-                          score.problemId === problemId &&
-                          score.finalScore !== null
-                      ) && (
-                        <div className="flex items-center justify-center pl-2">
-                          <Image
-                            src={checkIcon}
-                            alt="check"
-                            width={16}
-                            height={16}
-                          />
-                        </div>
-                      )}
-                    </DropdownMenuItem>
-                  </Link>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                      <DropdownMenuItem
+                        className={cn(
+                          'flex justify-between text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white',
+                          currentMember?.userId === summary.userId &&
+                            'text-primary-light focus:text-primary-light'
+                        )}
+                      >
+                        {summary.realName}({summary.studentId})
+                        {summary.problemScores.some(
+                          (score) =>
+                            score.problemId === problemId &&
+                            score.finalScore !== null
+                        ) && (
+                          <div className="flex items-center justify-center pl-2">
+                            <Image
+                              src={checkIcon}
+                              alt="check"
+                              width={16}
+                              height={16}
+                            />
+                          </div>
+                        )}
+                      </DropdownMenuItem>
+                    </Link>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <div className="flex gap-2">
+              <Link
+                href={
+                  `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${prevUserId}/problem/${problemId}` as const
+                }
+                className={cn(isFirstStudent && 'pointer-events-none')}
+              >
+                <Button
+                  size={'sm'}
+                  variant={'outline'}
+                  disabled={isFirstStudent || summaries.length <= 1}
+                >
+                  Previous
+                </Button>
+              </Link>
+
+              <Link
+                href={
+                  `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${nextUserId}/problem/${problemId}` as const
+                }
+                className={cn(isLastStudent && 'pointer-events-none')}
+              >
+                <Button
+                  size={'sm'}
+                  disabled={isLastStudent || summaries.length <= 1}
+                >
+                  Next
+                </Button>
+              </Link>
+            </div>
           </div>
           <div className="flex-1 bg-[#222939]">
             <ScrollArea className="h-full">

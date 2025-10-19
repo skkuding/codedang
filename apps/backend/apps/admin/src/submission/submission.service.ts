@@ -24,9 +24,9 @@ import {
 import { PrismaService } from '@libs/prisma'
 import {
   ContestRole,
+  ResultStatus,
   Role,
-  type Language,
-  ResultStatus
+  type Language
 } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
 import { JudgeRequest } from '@client/submission/class/judge-request'
@@ -309,7 +309,7 @@ export class SubmissionService {
         userId,
         problemId
       },
-      orderBy: { createTime: 'desc' },
+      orderBy: [{ createTime: 'desc' }, { id: 'desc' }],
       select: {
         id: true
       }
@@ -333,7 +333,7 @@ export class SubmissionService {
         userId,
         problemId
       },
-      orderBy: { createTime: 'desc' },
+      orderBy: [{ createTime: 'desc' }, { id: 'desc' }],
       select: {
         id: true,
         code: true,
@@ -954,7 +954,8 @@ export class SubmissionService {
         codeSize: new TextEncoder().encode(
           plainToInstance(Snippet, submission.code)[0].text
         ).length,
-        language: submission.language
+        language: submission.language,
+        createTime: submission.createTime
       }
 
       const newSubmission = await this.prisma.submission.create({
