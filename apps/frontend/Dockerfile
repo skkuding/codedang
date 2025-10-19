@@ -17,7 +17,10 @@ COPY package.json .
 COPY pnpm-lock.yaml .
 COPY apps/frontend/package.json apps/frontend/
 
-RUN corepack enable && pnpm install --frozen-lockfile
+RUN corepack enable
+
+RUN --mount=type=cache,id=pnpm-store,target=/root/.pnpm-store \
+    pnpm install --frozen-lockfile
 
 COPY apps/frontend apps/frontend
 COPY apps/backend/schema.gql apps/backend/
@@ -35,7 +38,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # TODO: use cache mount
 # RUN --mount=type=cache,target=/build/apps/frontend/.next/cache pnpm build
-RUN pnpm build
+RUN --mount=type=cache,target=/build/apps/frontend/.next/cache \
+    sh -c "NEXT_BUILD_WORKERS=$(nproc) pnpm build"
 
 ### PRODUCTION ###
 FROM base AS production
