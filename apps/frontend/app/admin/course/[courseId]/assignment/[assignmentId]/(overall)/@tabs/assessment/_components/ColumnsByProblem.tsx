@@ -81,11 +81,13 @@ export const createColumns = (
         const isFirstRow = table.getRowModel().rows[0].id === row.id
         const results = row.original.testcaseResults ?? []
 
+        const contentWidth = results.length * 16
+
         return (
-          <div className="w-full">
+          <div className="mx-auto w-[600px]">
             {isFirstRow && (
               <div
-                className="line-scrollbar overflow-x-auto"
+                className="line-scrollbar mx-auto w-[600px] overflow-x-auto"
                 onScroll={(e) => {
                   const left = e.currentTarget.scrollLeft
                   document
@@ -95,15 +97,18 @@ export const createColumns = (
                     })
                 }}
               >
-                <TestcaseCell results={results} />
+                <div style={{ width: contentWidth, height: 1 }} />
               </div>
             )}
 
-            {!isFirstRow && (
-              <div className="tc-scroll overflow-x-hidden">
+            <div className="tc-scroll mx-auto w-[600px] overflow-x-hidden">
+              <div
+                className="inline-flex justify-start"
+                style={{ width: contentWidth }}
+              >
                 <TestcaseCell results={results} />
               </div>
-            )}
+            </div>
           </div>
         )
       }

@@ -50,7 +50,7 @@ jobs:
 
   build-frontend:
     name: Build Frontend
-    runs-on: [self-hosted, linux, X64, skkuding-2]
+    runs-on: arc-runner
     permissions:
       contents: read
       packages: write
