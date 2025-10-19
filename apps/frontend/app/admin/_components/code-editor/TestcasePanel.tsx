@@ -127,37 +127,14 @@ export function TestcasePanel({ data, isTesting = false }: TestcasePanelProps) {
                     key={testResult.id}
                     className="cursor-pointer text-left hover:bg-slate-700"
                   >
-                    <td className="max-w-96 truncate p-3">
-                      {TAB_CONTENT[testResult.type]} #{testResult.order}
+                    <td className="max-w-96 truncate p-3 align-top">
+                      <WhitespaceVisualizer text={testResult.input} />
                     </td>
                     <td className="max-w-96 truncate p-3 align-top">
-                      <WhitespaceVisualizer
-                        text={testResult.input}
-                        isTruncated={true}
-                        className="h-fit max-h-24"
-                      />
+                      <WhitespaceVisualizer text={testResult.expectedOutput} />
                     </td>
                     <td className="max-w-96 truncate p-3 align-top">
-                      <WhitespaceVisualizer
-                        text={testResult.expectedOutput}
-                        isTruncated={true}
-                        className="h-fit max-h-24"
-                      />
-                    </td>
-                    <td className="max-w-96 truncate p-3 align-top">
-                      <WhitespaceVisualizer
-                        text={testResult.output}
-                        isTruncated={true}
-                        className="h-fit max-h-24"
-                      />
-                    </td>
-                    <td
-                      className={cn(
-                        'p-3 text-left',
-                        getResultColor(isTesting ? null : testResult.result)
-                      )}
-                    >
-                      {isTesting ? 'Judging' : testResult.result}
+                      <WhitespaceVisualizer text={testResult.output} />
                     </td>
                   </tr>
                 ))}
