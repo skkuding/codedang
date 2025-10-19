@@ -6,8 +6,10 @@ on:
 
 jobs:
   build-frontend:
-    name: Build Frontend
+    name: Build Frontend(ARC Test)
     runs-on: arc-runner
+    continue-on-error: true
+    timeout-minutes: 10
     permissions:
       contents: read
       packages: write
