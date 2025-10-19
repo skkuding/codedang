@@ -51,7 +51,8 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
             <TableBody>
               {submission.testcaseResult.map((item, index) => {
                 const isHiddenTestCase =
-                  firstHiddenIndex !== -1 && index >= firstHiddenIndex
+                  item.isHidden ??
+                  (firstHiddenIndex !== -1 && index >= firstHiddenIndex)
 
                 const caseLabel = isHiddenTestCase
                   ? `Hidden #${index - firstHiddenIndex + 1}`
