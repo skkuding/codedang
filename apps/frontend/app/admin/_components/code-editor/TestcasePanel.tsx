@@ -72,7 +72,7 @@ export function TestcasePanel({ data, isTesting = false }: TestcasePanelProps) {
                     key={testResult.id}
                     className="cursor-pointer border-b border-b-slate-600 text-left hover:bg-slate-700"
                   >
-                    <td className="p-3 text-left">
+                    <td className="max-w-96 truncate p-3 align-top">
                       {TAB_CONTENT[testResult.type]} #{testResult.order}
                     </td>
                     <td className="max-w-96 truncate p-3">
