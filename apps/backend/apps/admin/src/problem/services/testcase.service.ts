@@ -263,7 +263,7 @@ export class TestcaseService {
             }
           })
 
-          await this.prisma.problemTestcase.create({
+          const created = await this.prisma.problemTestcase.create({
             data: {
               problemId,
               input: tc.input,
@@ -274,10 +274,11 @@ export class TestcaseService {
               scoreWeightDenominator: weightFraction.denominator
             }
           })
+          tc.id = created.id
         }
       } else {
         // 새로운 TC => 그냥 Create
-        await this.prisma.problemTestcase.create({
+        const created = await this.prisma.problemTestcase.create({
           data: {
             problemId,
             input: tc.input,
@@ -288,23 +289,14 @@ export class TestcaseService {
             scoreWeightDenominator: weightFraction.denominator
           }
         })
+        tc.id = created.id
       }
     }
-
-    const updatedTcs = (
-      await this.prisma.problemTestcase.findMany({
-        where: { problemId, isOutdated: false }
-      })
-    ).map((tc) => ({
-      ...tc,
-      input: tc.input ?? '',
-      output: tc.output ?? ''
-    }))
 
     const sample: Testcase[] = []
     const hidden: Testcase[] = []
 
-    for (const tc of updatedTcs) {
+    for (const tc of testcases) {
       if (tc.isHidden) hidden.push(tc)
       else sample.push(tc)
     }
