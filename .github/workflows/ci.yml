@@ -50,10 +50,11 @@ jobs:
 
   build-frontend:
     name: Build Frontend
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, X64, skkuding-2]
     permissions:
       contents: read
       packages: write
+      actions: write
 
     steps:
       - name: Setup Docker Buildx
