@@ -146,7 +146,7 @@ export class TestcaseService {
 
     const orderedTestcases = [
       ...sample.map((tc, i) => ({ ...tc, order: i + 1 })),
-      ...hidden.map((tc, i) => ({ ...tc, order: sample.length + i + 1 }))
+      ...hidden.map((tc, i) => ({ ...tc, order: i + 1 }))
     ]
 
     await Promise.all(
@@ -290,6 +290,38 @@ export class TestcaseService {
         })
       }
     }
+
+    const updatedTcs = (
+      await this.prisma.problemTestcase.findMany({
+        where: { problemId, isOutdated: false }
+      })
+    ).map((tc) => ({
+      ...tc,
+      input: tc.input ?? '',
+      output: tc.output ?? ''
+    }))
+
+    const sample: Testcase[] = []
+    const hidden: Testcase[] = []
+
+    for (const tc of updatedTcs) {
+      if (tc.isHidden) hidden.push(tc)
+      else sample.push(tc)
+    }
+
+    const orderedTestcases = [
+      ...sample.map((tc, i) => ({ ...tc, order: i + 1 })),
+      ...hidden.map((tc, i) => ({ ...tc, order: i + 1 }))
+    ]
+
+    await Promise.all(
+      orderedTestcases.map((tc) =>
+        this.prisma.problemTestcase.update({
+          where: { id: tc.id },
+          data: { order: tc.order }
+        })
+      )
+    )
   }
 
   async uploadTestcase(
