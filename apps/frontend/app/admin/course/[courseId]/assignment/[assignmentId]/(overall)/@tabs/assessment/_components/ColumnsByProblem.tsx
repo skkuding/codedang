@@ -81,7 +81,7 @@ export const createColumns = (
         const isFirstRow = table.getRowModel().rows[0].id === row.id
         const results = row.original.testcaseResults ?? []
 
-        const contentWidth = results.length * 16
+        const contentWidth = `${results.length}ch`
 
         return (
           <div className="mx-auto w-[600px]">
