@@ -136,8 +136,21 @@ export class TestcaseService {
 
   /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
   async createTestcasesLegacy(problemId: number, testcases: Array<Testcase>) {
+    const sample: Testcase[] = []
+    const hidden: Testcase[] = []
+
+    for (const tc of testcases) {
+      if (tc.isHidden) hidden.push(tc)
+      else sample.push(tc)
+    }
+
+    const orderedTestcases = [
+      ...sample.map((tc, i) => ({ ...tc, order: i + 1 })),
+      ...hidden.map((tc, i) => ({ ...tc, order: sample.length + i + 1 }))
+    ]
+
     await Promise.all(
-      testcases.map(async (tc, index) => {
+      orderedTestcases.map(async (tc) => {
         const fraction = this.convertToFraction(tc)
 
         const problemTestcase = await this.prisma.problemTestcase.create({
@@ -151,10 +164,10 @@ export class TestcaseService {
               (fraction.numerator / fraction.denominator) * 100
             ),
             isHidden: tc.isHidden,
-            order: index + 1
+            order: tc.order
           }
         })
-        return { index, id: problemTestcase.id }
+        return { order: tc.order, id: problemTestcase.id }
       })
     )
   }
