@@ -33,6 +33,10 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
     (item) => item.isHidden
   )
 
+  const firstSampleIndex = submission.testcaseResult.findIndex(
+    (item) => !item.isHidden
+  )
+
   return (
     <div>
       {submission.testcaseResult.length !== 0 && (
@@ -50,13 +54,9 @@ export function SubmissionTestcase({ submission }: SubmissionTestcaseProps) {
             </TableHeader>
             <TableBody>
               {submission.testcaseResult.map((item, index) => {
-                const isHiddenTestCase =
-                  item.isHidden ??
-                  (firstHiddenIndex !== -1 && index >= firstHiddenIndex)
-
-                const caseLabel = isHiddenTestCase
+                const caseLabel = item.isHidden
                   ? `Hidden #${index - firstHiddenIndex + 1}`
-                  : `Sample #${index + 1}`
+                  : `Sample #${index - firstSampleIndex + 1}`
 
                 return (
                   <TableRow
