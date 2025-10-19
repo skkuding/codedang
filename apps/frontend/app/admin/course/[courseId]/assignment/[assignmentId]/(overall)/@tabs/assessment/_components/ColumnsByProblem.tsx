@@ -30,14 +30,24 @@ function TestcaseCell({
 }: {
   results: { id: number; isHidden: boolean; result: string }[]
 }) {
-  const firstHiddenIndex = results.findIndex((item) => item.isHidden)
+  const samples = results.filter((r) => !r.isHidden)
+  const hiddens = results.filter((r) => r.isHidden)
+
+  const ordered = [...samples, ...hiddens]
+  let sampleIdx = 0
+  let hiddenIdx = 0
+
   return (
     <div className="whitespace-nowrap">
-      {results.length === 0 ? (
+      {ordered.length === 0 ? (
         <span className="text-xs text-gray-400">No testcases</span>
       ) : (
-        results.map((r, i) => {
+        ordered.map((r, i) => {
           const isPass = r.result === 'Accepted'
+          const title = r.isHidden
+            ? `Hidden #${++hiddenIdx}`
+            : `Sample #${++sampleIdx}`
+
           return (
             <span
               key={i}
@@ -45,7 +55,7 @@ function TestcaseCell({
                 'inline-block select-none py-1 font-mono text-sm',
                 isPass ? getResultColor('Accepted') : getResultColor('Wrong')
               )}
-              title={`${r.isHidden ? 'Hidden' : 'Sample'} #${r.isHidden ? i - firstHiddenIndex + 1 : i + 1}`}
+              title={title}
             >
               {isPass ? 'O' : 'X'}
             </span>
