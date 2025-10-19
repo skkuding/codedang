@@ -32,6 +32,7 @@ ENV NEXT_PUBLIC_BASEURL=${BASEURL}
 ENV NEXT_PUBLIC_GQL_BASEURL=${GQL_BASEURL}
 ENV NEXT_PUBLIC_RUNNER_BASEURL=${RUNNER_BASEURL}
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_BUILD_WORKERS=$(nproc)
 
 # TODO: use cache mount
 # RUN --mount=type=cache,target=/build/apps/frontend/.next/cache pnpm build
