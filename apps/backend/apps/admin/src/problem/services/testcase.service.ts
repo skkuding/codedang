@@ -746,10 +746,12 @@ export class TestcaseService {
       const hiddenTestcases = await tx.problemTestcase.findMany({
         where: {
           problemId,
-          isOutdated: false
+          isOutdated: false,
+          isHidden: true
         },
         select: {
           id: true,
+          order: true,
           isHidden: true,
           scoreWeightDenominator: true,
           scoreWeightNumerator: true,
@@ -765,11 +767,13 @@ export class TestcaseService {
       const sampleTestcases = await tx.problemTestcase.findMany({
         where: {
           problemId,
-          isOutdated: false
+          isOutdated: false,
+          isHidden: false
         },
         select: {
           id: true,
-          isHidden: false,
+          order: true,
+          isHidden: true,
           scoreWeightDenominator: true,
           scoreWeightNumerator: true,
           ...(problem.isSampleUploadedByZip
@@ -781,7 +785,11 @@ export class TestcaseService {
         }
       })
 
-      return [...sampleTestcases, ...hiddenTestcases]
+      return hiddenTestcases.concat(sampleTestcases).sort((a, b) => {
+        const orderA = a.order ?? a.id
+        const orderB = b.order ?? b.id
+        return orderA - orderB
+      })
     })
   }
 }
