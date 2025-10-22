@@ -624,26 +624,17 @@ export class TestcaseService {
       await flush()
 
       // Problem의 is*UploadedByZip 속성 변경
-      await this.prisma.$transaction(async (tx) => {
-        const problem = await tx.problem.findFirst({
+      if (isHidden) {
+        await this.prisma.problem.update({
           where: { id: problemId },
-          select: {
-            isHiddenUploadedByZip: true,
-            isSampleUploadedByZip: true
-          }
+          data: { isHiddenUploadedByZip: true }
         })
-        if (isHidden && !problem?.isHiddenUploadedByZip) {
-          await tx.problem.update({
-            where: { id: problemId },
-            data: { isHiddenUploadedByZip: true }
-          })
-        } else if (!isHidden && !problem?.isSampleUploadedByZip) {
-          await tx.problem.update({
-            where: { id: problemId },
-            data: { isSampleUploadedByZip: true }
-          })
-        }
-      })
+      } else {
+        await this.prisma.problem.update({
+          where: { id: problemId },
+          data: { isSampleUploadedByZip: true }
+        })
+      }
 
       const ids = await this.prisma.problemTestcase.findMany({
         where: { problemId, isOutdated: false, isHidden },
