@@ -785,11 +785,7 @@ export class TestcaseService {
         }
       })
 
-      return hiddenTestcases.concat(sampleTestcases).sort((a, b) => {
-        const orderA = a.order ?? a.id
-        const orderB = b.order ?? b.id
-        return orderA - orderB
-      })
+      return sampleTestcases.concat(hiddenTestcases)
     })
   }
 }
