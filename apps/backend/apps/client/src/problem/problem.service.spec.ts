@@ -338,16 +338,25 @@ describe('ContestProblemService', () => {
 
   describe('getContestProblems', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const stripZipFlags = (items: any[]) =>
-      items.map((item) => {
-        if (!item?.problem) return item
-        const cloned = { ...item, problem: { ...item.problem } }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        delete (cloned.problem as any).isHiddenUploadedByZip
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        delete (cloned.problem as any).isSampleUploadedByZip
-        return cloned
-      })
+    const deepStripZipFlags = (obj: any) => {
+      const clone = JSON.parse(JSON.stringify(obj)) // 깊은 복사
+      if (Array.isArray(clone)) {
+        return clone.map(deepStripZipFlags)
+      }
+      if (clone && typeof clone === 'object') {
+        // top-level
+        delete clone.isHiddenUploadedByZip
+        delete clone.isSampleUploadedByZip
+        // nested problem
+        if (clone.problem && typeof clone.problem === 'object') {
+          delete clone.problem.isHiddenUploadedByZip
+          delete clone.problem.isSampleUploadedByZip
+        }
+        // data 배열이 DTO 안에 있을 수 있으니 재귀
+        if (clone.data) clone.data = deepStripZipFlags(clone.data)
+      }
+      return clone
+    }
 
     it('should return public contest problems', async () => {
       // given
@@ -372,16 +381,15 @@ describe('ContestProblemService', () => {
         cursor: 1,
         take: 1
       })
-
-      const actual = { ...result, data: stripZipFlags(result.data) }
-
       // then
-      expect(actual).to.deep.equal(
-        // Deprecated
-        plainToInstance(_RelatedProblemsResponseDto, {
-          data: stripZipFlags(mockContestProblemsWithScore),
-          total: mockContestProblemsWithScore.length
-        })
+      const actualDto = plainToInstance(_RelatedProblemsResponseDto, result)
+      const expectedDto = plainToInstance(_RelatedProblemsResponseDto, {
+        data: mockContestProblemsWithScore,
+        total: mockContestProblemsWithScore.length
+      })
+
+      expect(deepStripZipFlags(actualDto)).to.deep.equal(
+        deepStripZipFlags(expectedDto)
       )
     })
 
