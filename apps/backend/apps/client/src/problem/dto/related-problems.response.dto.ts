@@ -80,8 +80,10 @@ class _Problem {
   updateContentTime: Date
 
   @Expose()
+  @IsOptional()
   isHiddenUploadedByZip: boolean
 
   @Expose()
+  @IsOptional()
   isSampleUploadedByZip: boolean
 }
