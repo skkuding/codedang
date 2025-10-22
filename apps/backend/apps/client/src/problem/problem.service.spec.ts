@@ -337,6 +337,12 @@ describe('ContestProblemService', () => {
   })
 
   describe('getContestProblems', () => {
+    const stripZipFlags = (items) =>
+      items.map(({ problem, ...rest }) => {
+        const { isHiddenUploadedByZip, isSampleUploadedByZip, ...p } = problem
+        return { ...rest, problem: p }
+      })
+
     it('should return public contest problems', async () => {
       // given
       const getContestSpy = stub(contestService, 'getContest')
@@ -361,11 +367,13 @@ describe('ContestProblemService', () => {
         take: 1
       })
 
+      const actual = { ...result, data: stripZipFlags(result.data) }
+
       // then
-      expect(result).to.deep.equal(
+      expect(actual).to.deep.equal(
         // Deprecated
         plainToInstance(_RelatedProblemsResponseDto, {
-          data: mockContestProblemsWithScore,
+          data: stripZipFlags(mockContestProblemsWithScore),
           total: mockContestProblemsWithScore.length
         })
       )
