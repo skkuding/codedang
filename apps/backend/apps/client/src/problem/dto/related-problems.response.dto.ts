@@ -78,4 +78,10 @@ class _Problem {
   @Transform(({ obj }) => obj.problem.updateContentTime, { toClassOnly: true })
   @IsOptional()
   updateContentTime: Date
+
+  @Expose()
+  isHiddenUploadedByZip: boolean
+
+  @Expose()
+  isSampleUploadedByZip: boolean
 }
