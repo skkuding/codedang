@@ -355,7 +355,9 @@ export class ContestProblemService {
           maxScore: contest.isJudgeResultVisible ? contestProblem.score : null,
           score: null,
           submissionTime: null,
-          updateContentTime: problem.updateContentTime
+          updateContentTime: problem.updateContentTime,
+          isHiddenUploadedByZip: problem.isHiddenUploadedByZip,
+          isSampleUploadedByZip: problem.isSampleUploadedByZip
         }
       }
       return {
@@ -371,7 +373,9 @@ export class ContestProblemService {
           ? ((submission.score * contestProblem.score) / 100).toFixed(0)
           : null,
         submissionTime: submission.createTime ?? null,
-        updateContentTime: problem.updateContentTime
+        updateContentTime: problem.updateContentTime,
+        isHiddenUploadedByZip: problem.isHiddenUploadedByZip,
+        isSampleUploadedByZip: problem.isSampleUploadedByZip
       }
     })
 

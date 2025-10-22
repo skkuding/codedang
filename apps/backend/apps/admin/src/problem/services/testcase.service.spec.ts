@@ -9,7 +9,7 @@ import * as StreamZipNs from 'node-stream-zip'
 import { spy, stub } from 'sinon'
 import { Readable } from 'stream'
 import { PrismaService } from '@libs/prisma'
-import { StorageService, S3Provider } from '@libs/storage'
+import { S3Provider, StorageService } from '@libs/storage'
 import {
   exampleProblemTestcases,
   testcaseData,
@@ -35,7 +35,9 @@ const StreamZipModuleRef = StreamZipNs as unknown as StreamZipModule
 
 const db = {
   problem: {
-    findFirstOrThrow: stub()
+    findFirstOrThrow: stub(),
+    findUnique: stub(),
+    update: stub()
   },
   problemTestcase: {
     create: stub(),
@@ -353,8 +355,16 @@ describe('TestcaseService', () => {
 
   describe('getProblemTestcases', () => {
     it('should return a problem testcase array', async () => {
+      db.problem.findUnique.resolves({
+        isHiddenUploadedByZip: false,
+        isSampleUploadedByZip: false
+      })
       db.problemTestcase.findMany.reset()
-      db.problemTestcase.findMany.resolves(exampleProblemTestcases)
+      // 첫 번째 호출은 빈 배열, 두 번째 호출은 실제 데이터
+      db.problemTestcase.findMany.onFirstCall().resolves([])
+      db.problemTestcase.findMany
+        .onSecondCall()
+        .resolves(exampleProblemTestcases)
       expect(await service.getProblemTestcases(1)).to.deep.equal(
         exampleProblemTestcases
       )

@@ -28,6 +28,8 @@ export class ProblemResponseDto {
   submissionCount: number
   acceptedCount: number
   acceptedRate: number
+  isHiddenUploadedByZip: boolean
+  isSampleUploadedByZip: boolean
   tags: Partial<Tag>[]
   template: JsonValue[]
   problemTestcase: Pick<ProblemTestcase, 'id' | 'input' | 'output'>[]
@@ -63,4 +65,6 @@ export class _ProblemResponseDto {
   @Expose() template: JSON[]
   @Expose() problemTestcase: Pick<ProblemTestcase, 'id' | 'input' | 'output'>[]
   @Expose() updateContentTime: Date
+  @Expose() isHiddenUploadedByZip: boolean
+  @Expose() isSampleUploadedByZip: boolean
 }
