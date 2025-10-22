@@ -735,15 +735,42 @@ export class TestcaseService {
     })
   }
 
+  /**
+   * 특정 문제에 해당하는 테스트케이스들을 반환합니다.
+   * problem의 isSampleUploadedByZip과 isHiddenUploadedByZip에 따라 각 유형의 테스트케이스의 IO 포함 여부를 판단합니다.
+   * @param problemId - 문제 ID
+   * @returns 조건에 부합하는 테스트케이스들의 배열
+   */
   async getProblemTestcases(problemId: number) {
-    return await this.prisma.problemTestcase.findMany({
-      where: {
-        problemId,
-        isOutdated: false
-      },
-      orderBy: {
-        order: 'asc'
+    return await this.prisma.$transaction(async (tx) => {
+      const problem = await tx.problem.findUnique({
+        where: { id: problemId },
+        select: { isHiddenUploadedByZip: true, isSampleUploadedByZip: true }
+      })
+      if (!problem) {
+        throw new EntityNotExistException('Problem')
       }
+
+      const allTestcases = await tx.problemTestcase.findMany({
+        where: {
+          problemId,
+          isOutdated: false
+        },
+        orderBy: {
+          order: 'asc'
+        }
+      })
+
+      return allTestcases.map((testcase) => {
+        const shoudHideIO =
+          (problem.isHiddenUploadedByZip && testcase.isHidden) ||
+          (problem.isSampleUploadedByZip && !testcase.isHidden)
+        return {
+          ...testcase,
+          input: shoudHideIO ? null : testcase.input,
+          output: shoudHideIO ? null : testcase.output
+        }
+      })
     })
   }
 }
