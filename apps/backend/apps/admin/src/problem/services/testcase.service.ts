@@ -623,27 +623,7 @@ export class TestcaseService {
       }
       await flush()
 
-      const ids = await this.prisma.problemTestcase.findMany({
-        where: { problemId, isOutdated: false, isHidden },
-        orderBy: { order: 'asc' },
-        select: { id: true }
-      })
-      return ids.map(({ id }) => ({ testcaseId: id }))
-    } catch (e) {
-      //롤백
-      await this.prisma.problemTestcase.deleteMany({
-        where: { problemId, isOutdated: false, isHidden }
-      })
-      await this.prisma.problemTestcase.updateMany({
-        where: {
-          id: {
-            in: justOutdated
-          }
-        },
-        data: { isOutdated: false }
-      })
-      throw e
-    } finally {
+      // Problem의 is*UploadedByZip 속성 변경
       await this.prisma.$transaction(async (tx) => {
         const problem = await tx.problem.findFirst({
           where: { id: problemId },
@@ -665,6 +645,27 @@ export class TestcaseService {
         }
       })
 
+      const ids = await this.prisma.problemTestcase.findMany({
+        where: { problemId, isOutdated: false, isHidden },
+        orderBy: { order: 'asc' },
+        select: { id: true }
+      })
+      return ids.map(({ id }) => ({ testcaseId: id }))
+    } catch (e) {
+      //롤백
+      await this.prisma.problemTestcase.deleteMany({
+        where: { problemId, isOutdated: false, isHidden }
+      })
+      await this.prisma.problemTestcase.updateMany({
+        where: {
+          id: {
+            in: justOutdated
+          }
+        },
+        data: { isOutdated: false }
+      })
+      throw e
+    } finally {
       await zip.close().catch(() => {})
       //임시파일 삭제
       try {
@@ -751,26 +752,45 @@ export class TestcaseService {
         throw new EntityNotExistException('Problem')
       }
 
-      const allTestcases = await tx.problemTestcase.findMany({
+      const hiddenTestcases = await tx.problemTestcase.findMany({
         where: {
           problemId,
           isOutdated: false
+        },
+        select: {
+          id: true,
+          isHidden: true,
+          scoreWeightDenominator: true,
+          scoreWeightNumerator: true,
+          ...(problem.isHiddenUploadedByZip
+            ? {}
+            : { input: true, output: true })
         },
         orderBy: {
           order: 'asc'
         }
       })
 
-      return allTestcases.map((testcase) => {
-        const shoudHideIO =
-          (problem.isHiddenUploadedByZip && testcase.isHidden) ||
-          (problem.isSampleUploadedByZip && !testcase.isHidden)
-        return {
-          ...testcase,
-          input: shoudHideIO ? null : testcase.input,
-          output: shoudHideIO ? null : testcase.output
+      const sampleTestcases = await tx.problemTestcase.findMany({
+        where: {
+          problemId,
+          isOutdated: false
+        },
+        select: {
+          id: true,
+          isHidden: false,
+          scoreWeightDenominator: true,
+          scoreWeightNumerator: true,
+          ...(problem.isSampleUploadedByZip
+            ? {}
+            : { input: true, output: true })
+        },
+        orderBy: {
+          order: 'asc'
         }
       })
+
+      return [...sampleTestcases, ...hiddenTestcases]
     })
   }
 }
