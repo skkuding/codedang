@@ -80,10 +80,16 @@ class _Problem {
   updateContentTime: Date
 
   @Expose()
+  @Transform(({ obj }) => obj.problem.isHiddenUploadedByZip, {
+    toClassOnly: true
+  })
   @IsOptional()
   isHiddenUploadedByZip: boolean
 
   @Expose()
+  @Transform(({ obj }) => obj.problem.isSampleUploadedByZip, {
+    toClassOnly: true
+  })
   @IsOptional()
   isSampleUploadedByZip: boolean
 }
