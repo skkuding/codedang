@@ -903,7 +903,9 @@ export const exampleProblemTestcases = [
     order: '1',
     input: '1',
     output: '1',
-    isHidden: false
+    isHidden: false,
+    scoreWeightNumerator: 1,
+    scoreWeightDenominator: 1
   }
 ]
 
