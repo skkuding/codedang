@@ -900,6 +900,7 @@ export const exampleOrderUpdatedAssignmentProblems: AssignmentProblem[] = [
 export const exampleProblemTestcases = [
   {
     id: '1',
+    order: '1',
     input: '1',
     output: '1',
     isHidden: false

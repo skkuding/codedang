@@ -360,6 +360,8 @@ describe('TestcaseService', () => {
         isSampleUploadedByZip: false
       })
       db.problemTestcase.findMany.reset()
+      // 첫 번째 호출은 빈 배열, 두 번째 호출은 실제 데이터
+      db.problemTestcase.findMany.resolves([])
       db.problemTestcase.findMany.resolves(exampleProblemTestcases)
       expect(await service.getProblemTestcases(1)).to.deep.equal(
         exampleProblemTestcases
