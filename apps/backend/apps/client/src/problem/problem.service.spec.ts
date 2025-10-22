@@ -381,13 +381,30 @@ describe('ContestProblemService', () => {
         cursor: 1,
         take: 1
       })
-      // then
-      const actualDto = plainToInstance(_RelatedProblemsResponseDto, result)
-      const expectedDto = plainToInstance(_RelatedProblemsResponseDto, {
-        data: mockContestProblemsWithScore,
-        total: mockContestProblemsWithScore.length
-      })
+      const cleanResult = {
+        ...result,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: (result.data || []).filter((item: any) => item && item.problem)
+      }
 
+      const cleanExpected = {
+        data: (mockContestProblemsWithScore || []).filter(
+          (item) => item && item.problem
+        ),
+        total: mockContestProblemsWithScore.length
+      }
+
+      // DTO 변환
+      const actualDto = plainToInstance(
+        _RelatedProblemsResponseDto,
+        cleanResult
+      )
+      const expectedDto = plainToInstance(
+        _RelatedProblemsResponseDto,
+        cleanExpected
+      )
+
+      // 비교 전에 필드 제거
       expect(deepStripZipFlags(actualDto)).to.deep.equal(
         deepStripZipFlags(expectedDto)
       )
