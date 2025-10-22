@@ -337,27 +337,6 @@ describe('ContestProblemService', () => {
   })
 
   describe('getContestProblems', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const deepStripZipFlags = (obj: any) => {
-      const clone = JSON.parse(JSON.stringify(obj)) // 깊은 복사
-      if (Array.isArray(clone)) {
-        return clone.map(deepStripZipFlags)
-      }
-      if (clone && typeof clone === 'object') {
-        // top-level
-        delete clone.isHiddenUploadedByZip
-        delete clone.isSampleUploadedByZip
-        // nested problem
-        if (clone.problem && typeof clone.problem === 'object') {
-          delete clone.problem.isHiddenUploadedByZip
-          delete clone.problem.isSampleUploadedByZip
-        }
-        // data 배열이 DTO 안에 있을 수 있으니 재귀
-        if (clone.data) clone.data = deepStripZipFlags(clone.data)
-      }
-      return clone
-    }
-
     it('should return public contest problems', async () => {
       // given
       const getContestSpy = stub(contestService, 'getContest')
@@ -381,32 +360,16 @@ describe('ContestProblemService', () => {
         cursor: 1,
         take: 1
       })
-      const cleanResult = {
-        ...result,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data: (result.data || []).filter((item: any) => item && item.problem)
-      }
 
-      const cleanExpected = {
-        data: (mockContestProblemsWithScore || []).filter(
-          (item) => item && item.problem
-        ),
-        total: mockContestProblemsWithScore.length
-      }
+      const actual = { ...result, data: result.data }
 
-      // DTO 변환
-      const actualDto = plainToInstance(
-        _RelatedProblemsResponseDto,
-        cleanResult
-      )
-      const expectedDto = plainToInstance(
-        _RelatedProblemsResponseDto,
-        cleanExpected
-      )
-
-      // 비교 전에 필드 제거
-      expect(deepStripZipFlags(actualDto)).to.deep.equal(
-        deepStripZipFlags(expectedDto)
+      // then
+      expect(actual).to.deep.equal(
+        // Deprecated
+        plainToInstance(_RelatedProblemsResponseDto, {
+          data: mockContestProblemsWithScore,
+          total: mockContestProblemsWithScore.length
+        })
       )
     })
 
