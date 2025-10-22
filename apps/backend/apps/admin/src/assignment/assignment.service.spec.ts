@@ -152,6 +152,8 @@ const problem: Problem = {
   engHint: null,
   engInputDescription: null,
   engOutputDescription: null,
+  isHiddenUploadedByZip: false,
+  isSampleUploadedByZip: false,
   engTitle: null
 }
 
