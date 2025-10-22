@@ -337,9 +337,16 @@ describe('ContestProblemService', () => {
   })
 
   describe('getContestProblems', () => {
-    const stripZipFlags = (items) =>
-      items.map(({ problem, ...rest }) => {
-        const { isHiddenUploadedByZip, isSampleUploadedByZip, ...p } = problem
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const stripZipFlags = (items: any[]) =>
+      items.map((item) => {
+        const { problem, ...rest } = item ?? {}
+        if (!problem) return item
+
+        const { isHiddenUploadedByZip, isSampleUploadedByZip, ...p } =
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          problem as any
+
         return { ...rest, problem: p }
       })
 
