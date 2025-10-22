@@ -340,14 +340,13 @@ describe('ContestProblemService', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const stripZipFlags = (items: any[]) =>
       items.map((item) => {
-        const { problem, ...rest } = item ?? {}
-        if (!problem) return item
-
-        const { isHiddenUploadedByZip, isSampleUploadedByZip, ...p } =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          problem as any
-
-        return { ...rest, problem: p }
+        if (!item?.problem) return item
+        const cloned = { ...item, problem: { ...item.problem } }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        delete (cloned.problem as any).isHiddenUploadedByZip
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        delete (cloned.problem as any).isSampleUploadedByZip
+        return cloned
       })
 
     it('should return public contest problems', async () => {
