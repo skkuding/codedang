@@ -13,17 +13,17 @@ import createUploadLink from 'apollo-upload-client/createUploadLink.mjs'
 
 interface Props {
   children: React.ReactNode
+  session: Session
 }
 
-export function ClientApolloProvider({ children }: Props) {
+export function ClientApolloProvider({ children, session }: Props) {
   const httpLink = createUploadLink({
     uri: adminBaseUrl,
     headers: {
       'Apollo-Require-Preflight': 'true'
     }
   })
-  const authLink = setContext(async (_, { headers }) => {
-    const session = await auth()
+  const authLink = setContext((_, { headers }) => {
     return {
       headers: {
         ...headers,

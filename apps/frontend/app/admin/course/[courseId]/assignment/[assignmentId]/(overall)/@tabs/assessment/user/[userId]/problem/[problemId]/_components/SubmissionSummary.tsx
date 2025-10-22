@@ -5,7 +5,10 @@ import type { SubmissionDetail } from '@generated/graphql'
 import Image from 'next/image'
 
 interface SubmissionSummaryProps {
-  submission: SubmissionDetail | null
+  submission: Pick<
+    SubmissionDetail,
+    'language' | 'updateTime' | 'codeSize' | 'testcaseResult'
+  > | null
 }
 
 export function SubmissionSummary({ submission }: SubmissionSummaryProps) {

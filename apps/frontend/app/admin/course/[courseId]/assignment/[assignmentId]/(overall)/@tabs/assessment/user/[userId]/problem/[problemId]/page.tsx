@@ -1,12 +1,14 @@
 'use client'
 
+import { mapTestResults } from '@/app/admin/_components/code-editor/libs/util'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
+import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
-import { useQuery } from '@apollo/client'
-import type { SubmissionDetail } from '@generated/graphql'
+import { useQuery, useSuspenseQuery } from '@apollo/client'
+import type { SubmissionDetail, TestCaseResult } from '@generated/graphql'
 import { ErrorBoundary } from '@suspensive/react'
-import { Suspense, use } from 'react'
+import { Suspense, use, useEffect, useState } from 'react'
 import { SubmissionAssessment } from './_components/SubmissionAssessment'
 import { SubmissionSummary } from './_components/SubmissionSummary'
 import { SubmissionTestcase } from './_components/SubmissionTestcase'
@@ -23,27 +25,47 @@ interface PageProps {
 export default function Page(props: PageProps) {
   const params = use(props.params)
   const { courseId, assignmentId, userId, problemId } = params
+  const [testResults, setTestResults] = useState<
+    (TestCaseResult & {
+      expectedOutput: string
+      order: number
+      input: string
+    })[]
+  >([])
 
-  const { data, error } = useQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
+  const { data: submissionResponse, error } = useSuspenseQuery(
+    GET_ASSIGNMENT_LATEST_SUBMISSION,
+    {
+      variables: {
+        groupId: Number(courseId),
+        assignmentId: Number(assignmentId),
+        userId: Number(userId),
+        problemId: Number(problemId)
+      }
+    }
+  )
+
+  const { data: problemResponse } = useSuspenseQuery(GET_PROBLEM_TESTCASE, {
     variables: {
-      groupId: Number(courseId),
-      assignmentId: Number(assignmentId),
-      userId: Number(userId),
-      problemId: Number(problemId)
+      id: Number(problemId)
     }
   })
+  const submissionData = submissionResponse?.getAssignmentLatestSubmission
+  const testcaseData = problemResponse?.getProblem?.testcase
+
+  useEffect(() => {
+    const mappedResults = mapTestResults(
+      testcaseData,
+      submissionData.testcaseResult
+    )
+    setTestResults(mappedResults)
+  }, [submissionData])
 
   if (error) {
     return (
       <div>
         <div className="px-6 py-4">
           <SubmissionSummary submission={null} />
-        </div>
-
-        <div className="h-3 bg-[#121728]" />
-
-        <div className="px-6 py-2">
-          <SubmissionTestcase submission={null} />
         </div>
 
         <div className="h-3 bg-[#121728]" />
@@ -57,16 +79,19 @@ export default function Page(props: PageProps) {
             autoGradedScore={0}
           />
         </div>
+        <div className="h-3 bg-[#121728]" />
+
+        <div className="px-6 py-2">
+          <div className="h-72" />
+        </div>
       </div>
     )
   }
 
-  const submission = data?.getAssignmentLatestSubmission
-
   return (
     <div className="flex flex-col gap-5 overflow-auto">
       <div className="z-20 flex items-center gap-3 px-6 pt-6">
-        <h1 className="text-xl font-bold">Submission #{submission?.id}</h1>
+        <h1 className="text-xl font-bold">Submission #{submissionData?.id}</h1>
       </div>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense
@@ -79,7 +104,7 @@ export default function Page(props: PageProps) {
           }
         >
           <div className="px-6 py-4">
-            <SubmissionSummary submission={submission as SubmissionDetail} />
+            <SubmissionSummary submission={submissionData} />
           </div>
 
           <div className="h-3 bg-[#121728]" />
@@ -90,13 +115,13 @@ export default function Page(props: PageProps) {
               assignmentId={Number(assignmentId)}
               userId={Number(userId)}
               problemId={Number(problemId)}
-              autoGradedScore={submission?.score ?? 0}
+              autoGradedScore={submissionData?.score ?? 0}
             />
           </div>
           <div className="h-3 bg-[#121728]" />
 
           <div className="px-6 py-2">
-            <SubmissionTestcase submission={submission as SubmissionDetail} />
+            <SubmissionTestcase testResults={testResults} />
           </div>
         </Suspense>
       </ErrorBoundary>

@@ -17,6 +17,7 @@ import { useQuery } from '@apollo/client'
 import { ContestRole, type UserContest } from '@generated/graphql'
 import { motion } from 'framer-motion'
 import type { Route } from 'next'
+import type { Session } from 'next-auth'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
@@ -99,8 +100,11 @@ function SidebarLink({
   )
 }
 
-export function ManagementSidebar() {
-  const session = useSession()
+interface ManagementSidebarProps {
+  session: Session | null
+}
+
+export function ManagementSidebar({ session }: ManagementSidebarProps) {
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isAnimationComplete, setIsAnimationComplete] = useState(true)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
