@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common'
 import { Prisma, Role } from '@prisma/client'
 import { isEqual } from 'es-toolkit'
 import { Workbook } from 'exceljs'
-import { promises as fsp, createWriteStream } from 'fs'
+import { createWriteStream, promises as fsp } from 'fs'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import StreamZip from 'node-stream-zip'
 import * as os from 'os'
@@ -644,6 +644,27 @@ export class TestcaseService {
       })
       throw e
     } finally {
+      await this.prisma.$transaction(async (tx) => {
+        const problem = await tx.problem.findFirst({
+          where: { id: problemId },
+          select: {
+            isHiddenUploadedByZip: true,
+            isSampleUploadedByZip: true
+          }
+        })
+        if (isHidden && !problem?.isHiddenUploadedByZip) {
+          await tx.problem.update({
+            where: { id: problemId },
+            data: { isHiddenUploadedByZip: true }
+          })
+        } else if (!isHidden && !problem?.isSampleUploadedByZip) {
+          await tx.problem.update({
+            where: { id: problemId },
+            data: { isSampleUploadedByZip: true }
+          })
+        }
+      })
+
       await zip.close().catch(() => {})
       //임시파일 삭제
       try {
