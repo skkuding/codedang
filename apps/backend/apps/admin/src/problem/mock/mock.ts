@@ -1,19 +1,19 @@
-import { Language, Level } from '@generated'
 import type {
-  Problem,
-  Workbook,
-  WorkbookProblem,
+  AssignmentProblem,
   Contest,
   ContestProblem,
-  AssignmentProblem,
+  Problem,
   ProblemTag,
   Tag,
-  User
+  User,
+  Workbook,
+  WorkbookProblem
 } from '@generated'
+import { Language, Level } from '@generated'
 import { faker } from '@faker-js/faker'
 import { Role } from '@prisma/client'
 import { createReadStream } from 'fs'
-import { MIN_DATE, MAX_DATE } from '@libs/constants'
+import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import type { UploadFileInput } from '../model/problem.input'
 import type { ProblemWithIsVisible } from '../model/problem.output'
@@ -94,6 +94,8 @@ export const problems: Problem[] = [
     engHint: null,
     engInputDescription: null,
     engOutputDescription: null,
+    isHiddenUploadedByZip: false,
+    isSampleUploadedByZip: false,
     updateHistory: []
   },
   {
@@ -123,6 +125,8 @@ export const problems: Problem[] = [
     engHint: null,
     engInputDescription: null,
     engOutputDescription: null,
+    isHiddenUploadedByZip: false,
+    isSampleUploadedByZip: false,
     updateHistory: []
   }
 ]
@@ -264,7 +268,9 @@ export const importedProblems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
-    engOutputDescription: null
+    engOutputDescription: null,
+    isHiddenUploadedByZip: false,
+    isSampleUploadedByZip: false
   },
   {
     id: 33,
@@ -308,6 +314,8 @@ export const importedProblems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
+    isHiddenUploadedByZip: false,
+    isSampleUploadedByZip: false,
     engOutputDescription: null
   }
 ]
