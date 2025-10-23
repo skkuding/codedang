@@ -238,7 +238,7 @@ type AssignmentProblemRecord {
   assignmentProblem: AssignmentProblem!
   assignmentRecord: AssignmentRecord!
   comment: String!
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean!
   isSubmitted: Boolean!
   problemId: Int!
@@ -248,7 +248,7 @@ type AssignmentProblemRecord {
 
 type AssignmentProblemRecordAvgAggregate {
   assignmentId: Float
-  finalScore: Float
+  finalScore: Decimal
   problemId: Float
   score: Decimal
   userId: Float
@@ -269,7 +269,7 @@ type AssignmentProblemRecordCountAggregate {
 type AssignmentProblemRecordMaxAggregate {
   assignmentId: Int
   comment: String
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean
   isSubmitted: Boolean
   problemId: Int
@@ -280,7 +280,7 @@ type AssignmentProblemRecordMaxAggregate {
 type AssignmentProblemRecordMinAggregate {
   assignmentId: Int
   comment: String
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean
   isSubmitted: Boolean
   problemId: Int
@@ -290,7 +290,7 @@ type AssignmentProblemRecordMinAggregate {
 
 type AssignmentProblemRecordSumAggregate {
   assignmentId: Int
-  finalScore: Int
+  finalScore: Decimal
   problemId: Int
   score: Decimal
   userId: Int
@@ -329,7 +329,7 @@ type AssignmentRecord {
   assignmentProblemRecord: [AssignmentProblemRecord!]
   comment: String!
   createTime: DateTime!
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: ID!
   score: Decimal!
@@ -342,7 +342,7 @@ type AssignmentRecord {
 type AssignmentRecordAvgAggregate {
   acceptedProblemNum: Float
   assignmentId: Float
-  finalScore: Float
+  finalScore: Decimal
   id: Float
   score: Decimal
   totalPenalty: Float
@@ -373,7 +373,7 @@ type AssignmentRecordMaxAggregate {
   assignmentId: Int
   comment: String
   createTime: DateTime
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: Int
   score: Decimal
@@ -387,7 +387,7 @@ type AssignmentRecordMinAggregate {
   assignmentId: Int
   comment: String
   createTime: DateTime
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: Int
   score: Decimal
@@ -399,7 +399,7 @@ type AssignmentRecordMinAggregate {
 type AssignmentRecordSumAggregate {
   acceptedProblemNum: Int
   assignmentId: Int
-  finalScore: Int
+  finalScore: Decimal
   id: Int
   score: Decimal
   totalPenalty: Int

@@ -412,7 +412,7 @@ model AssignmentRecord {
   userId             Int?       @map("user_id")
   acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
   score              Decimal    @default(0) @db.Decimal(10, 2) // Only used after assignment finished
-  finalScore         Int?       @map("final_score") // TODO: finalScore는 assignmentProblemRecord에서만 관리하기
+  finalScore         Decimal?   @map("final_score") @db.Decimal(10, 2) // TODO: finalScore는 assignmentProblemRecord에서만 관리하기
   comment            String     @default("")
 
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
@@ -436,8 +436,8 @@ model AssignmentProblemRecord {
   isSubmitted Boolean @default(false) @map("is_submitted")
   isAccepted  Boolean @default(false) @map("is_accepted")
 
-  finalScore Int?   @map("final_score")
-  comment    String @default("")
+  finalScore Decimal? @map("final_score") @db.Decimal(10, 2)
+  comment    String   @default("")
 
   assignmentProblem AssignmentProblem @relation(fields: [assignmentId, problemId], references: [assignmentId, problemId], onDelete: Cascade)
   assignmentRecord  AssignmentRecord  @relation(fields: [assignmentId, userId], references: [assignmentId, userId], onDelete: Cascade)
