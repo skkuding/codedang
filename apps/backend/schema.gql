@@ -242,7 +242,7 @@ type AssignmentProblemRecord {
   isAccepted: Boolean!
   isSubmitted: Boolean!
   problemId: Int!
-  score: Int!
+  score: Decimal!
   userId: Int!
 }
 
@@ -250,7 +250,7 @@ type AssignmentProblemRecordAvgAggregate {
   assignmentId: Float
   finalScore: Float
   problemId: Float
-  score: Float
+  score: Decimal
   userId: Float
 }
 
@@ -273,7 +273,7 @@ type AssignmentProblemRecordMaxAggregate {
   isAccepted: Boolean
   isSubmitted: Boolean
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
 }
 
@@ -284,7 +284,7 @@ type AssignmentProblemRecordMinAggregate {
   isAccepted: Boolean
   isSubmitted: Boolean
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
 }
 
@@ -292,7 +292,7 @@ type AssignmentProblemRecordSumAggregate {
   assignmentId: Int
   finalScore: Int
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
 }
 
@@ -332,7 +332,7 @@ type AssignmentRecord {
   finalScore: Int
   finishTime: DateTime
   id: ID!
-  score: Int!
+  score: Decimal!
   totalPenalty: Int!
   updateTime: DateTime!
   user: User
@@ -344,7 +344,7 @@ type AssignmentRecordAvgAggregate {
   assignmentId: Float
   finalScore: Float
   id: Float
-  score: Float
+  score: Decimal
   totalPenalty: Float
   userId: Float
 }
@@ -376,7 +376,7 @@ type AssignmentRecordMaxAggregate {
   finalScore: Int
   finishTime: DateTime
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   updateTime: DateTime
   userId: Int
@@ -390,7 +390,7 @@ type AssignmentRecordMinAggregate {
   finalScore: Int
   finishTime: DateTime
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   updateTime: DateTime
   userId: Int
@@ -401,7 +401,7 @@ type AssignmentRecordSumAggregate {
   assignmentId: Int
   finalScore: Int
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   userId: Int
 }
@@ -1423,6 +1423,9 @@ input CreateTestcasesInput {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+"""An arbitrary-precision Decimal type"""
+scalar Decimal
 
 type DuplicateCourse {
   copiedAssignments: [Int!]!
@@ -2512,7 +2515,7 @@ type Submission {
   result: ResultStatus!
 
   """100점 만점 기준 점수"""
-  score: Int!
+  score: Decimal!
   submissionResult: [SubmissionResult!]
   updateTime: DateTime!
   user: User
@@ -2528,7 +2531,7 @@ type SubmissionAvgAggregate {
   contestId: Float
   id: Float
   problemId: Float
-  score: Float
+  score: Decimal
   userId: Float
   workbookId: Float
 }
@@ -2570,7 +2573,7 @@ type SubmissionDetail {
   result: ResultStatus!
 
   """100점 만점 기준 점수"""
-  score: Int!
+  score: Decimal!
   testcaseResult: [TestCaseResult!]!
   updateTime: DateTime!
   user: User
@@ -2589,7 +2592,7 @@ type SubmissionMaxAggregate {
   language: Language
   problemId: Int
   result: ResultStatus
-  score: Int
+  score: Decimal
   updateTime: DateTime
   userId: Int
   userIp: String
@@ -2605,7 +2608,7 @@ type SubmissionMinAggregate {
   language: Language
   problemId: Int
   result: ResultStatus
-  score: Int
+  score: Decimal
   updateTime: DateTime
   userId: Int
   userIp: String
@@ -2685,7 +2688,7 @@ type SubmissionSumAggregate {
   contestId: Int
   id: Int
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
   workbookId: Int
 }
