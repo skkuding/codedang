@@ -28,7 +28,7 @@ export function SubmissionPaginatedTable({
   contestId: number
 }) {
   const refreshTrigger = useSubmissionSync((state) => state.refreshTrigger)
-  const [queryParams, updateQueryParams] = useState({
+  const [queryParams] = useState({
     take: getTakeQueryParam({ itemsPerPage })
   })
   const problemIdList = useSuspenseQuery({

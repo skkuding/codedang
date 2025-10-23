@@ -181,7 +181,17 @@ const GET_ASSIGNMENT_LATEST_SUBMISSION = gql(`
       result
       score
       updateTime
+      createTime
+      problemId
       testcaseResult {
+        id
+        problemTestcase {
+          input
+          output
+        }
+        submissionId
+        updateTime
+        createTime
         cpuTime
         problemTestcaseId
         result
@@ -199,10 +209,8 @@ const GET_ASSIGNMENT_LATEST_SUBMISSION = gql(`
           realName
         }
       }
-      assignment{
-        title
-      }
       problem {
+        id
         title
       }
     }

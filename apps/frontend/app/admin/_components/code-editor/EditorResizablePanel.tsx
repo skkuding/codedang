@@ -17,12 +17,13 @@ import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
 import { cn } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
-import type { Language, TestcaseItem, TestResultDetail } from '@/types/type'
+import type { Language } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
-import type { Route } from 'next'
-import router from 'next/dist/shared/lib/router/router'
+import type { TestCaseResult } from '@generated/graphql'
+import { ResultStatus } from '@generated/graphql'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useMemo } from 'react'
 import { BiSolidUser } from 'react-icons/bi'
 import { FaSortDown } from 'react-icons/fa'
 import { TestcasePanel } from './TestcasePanel'
@@ -37,8 +38,11 @@ interface ProblemEditorProps {
   setEditorCode: (code: string) => void
   isTesting: boolean
   onTest: () => void
-  testResults: TestResultDetail[]
-  testcases: TestcaseItem[]
+  testResults: (TestCaseResult & {
+    expectedOutput: string
+    order: number
+    input: string
+  })[]
   children: React.ReactNode
   onReset: () => void
 }
@@ -78,6 +82,17 @@ export function EditorMainResizablePanel({
   // 첫 번째와 마지막 학생인지 확인
   const isFirstStudent = currentIndex === 0
   const isLastStudent = currentIndex === summaries.length - 1
+
+  const displayTestResults = useMemo(() => {
+    if (isTesting) {
+      return testResults.map((result) => ({
+        ...result,
+        output: '',
+        result: ResultStatus.Judging
+      }))
+    }
+    return testResults
+  }, [isTesting, testResults])
 
   return (
     <ResizablePanelGroup
@@ -210,19 +225,7 @@ export function EditorMainResizablePanel({
             <ResizableHandle className="border-[0.5px] border-slate-700" />
             <ResizablePanel defaultSize={40} minSize={20}>
               <TestcasePanel
-                data={(() => {
-                  if (isTesting) {
-                    return testResults.map((result) => ({
-                      ...result,
-                      output: '',
-                      result: 'Judging'
-                    }))
-                  }
-                  if (testResults.length > 0) {
-                    return testResults
-                  }
-                  return []
-                })()}
+                testResults={displayTestResults}
                 isTesting={isTesting}
               />
             </ResizablePanel>

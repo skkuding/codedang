@@ -19,7 +19,7 @@ const calculateContestScore = async ({ contestId }: { contestId: string }) => {
       { totalScore: 0, totalMaxScore: 0 }
     )
     return [totalScore, totalMaxScore]
-  } catch (error) {
+  } catch {
     return [0, 0]
   }
 }

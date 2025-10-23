@@ -1,38 +1,40 @@
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { cn } from '@/libs/utils'
 import { useTestcaseStore } from '@/stores/testcaseStore'
-import type { TestResultDetail } from '@/types/type'
+import type { TestCaseResult } from '@generated/graphql'
 import React from 'react'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 
-interface AdminTestResultDetail extends TestResultDetail {
-  order?: number
-}
-
 interface TestcasePanelProps {
-  data: AdminTestResultDetail[]
+  testResults: (TestCaseResult & {
+    expectedOutput: string
+    input: string
+    order: number
+  })[]
   isTesting?: boolean
 }
 
-export function TestcasePanel({ data, isTesting = false }: TestcasePanelProps) {
+export function TestcasePanel({
+  testResults,
+  isTesting = false
+}: TestcasePanelProps) {
   const { order, setSelectedTestcase, isHidden, isTestResult } =
     useTestcaseStore()
 
-  const acceptedTestcases = data
+  const acceptedTestcases = testResults
     .filter((t) => t.result === 'Accepted')
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    .map((t) => ({ order: t.order, id: t.id, isHidden: t.type === 'hidden' }))
+    .map((t) => ({ order: t.order, id: t.id, isHidden: t.isHidden }))
 
-  const notAcceptedTestcases = data
+  const notAcceptedTestcases = testResults
     .filter((t) => t.result !== 'Accepted')
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    .map((t) => ({ order: t.order, id: t.id, isHidden: t.type === 'hidden' }))
+    .map((t) => ({ order: t.order, id: t.id, isHidden: t.isHidden }))
 
   const filteredData = order
-    ? data.filter(
+    ? testResults.filter(
         (testResult) =>
-          testResult.order === order &&
-          testResult.type === (isHidden ? 'hidden' : 'sample')
+          testResult.order === order && testResult.isHidden === isHidden
       )
     : []
 
@@ -134,7 +136,7 @@ export function TestcasePanel({ data, isTesting = false }: TestcasePanelProps) {
                       <WhitespaceVisualizer text={testResult.expectedOutput} />
                     </td>
                     <td className="max-w-96 truncate p-3 align-top">
-                      <WhitespaceVisualizer text={testResult.output} />
+                      <WhitespaceVisualizer text={testResult.output ?? ''} />
                     </td>
                   </tr>
                 ))}

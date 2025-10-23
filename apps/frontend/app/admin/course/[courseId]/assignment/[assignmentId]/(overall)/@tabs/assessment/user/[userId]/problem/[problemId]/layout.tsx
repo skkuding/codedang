@@ -1,5 +1,6 @@
 import { EditorLayout } from '@/app/admin/_components/code-editor/EditorLayout'
 import { auth } from '@/libs/auth'
+import { Suspense } from 'react'
 
 export default async function layout(props: {
   params: Promise<{
@@ -15,14 +16,22 @@ export default async function layout(props: {
   const session = await auth()
 
   return (
-    <EditorLayout
-      problemId={Number(problemId)}
-      courseId={Number(courseId)}
-      assignmentId={Number(assignmentId)}
-      userId={Number(userId)}
-      session={session}
+    <Suspense
+      fallback={
+        <div className="fixed left-0 top-0 grid h-dvh w-full place-items-center bg-slate-800 text-white">
+          <div className="text-lg">Loading Editor...</div>
+        </div>
+      }
     >
-      {children}
-    </EditorLayout>
+      <EditorLayout
+        problemId={Number(problemId)}
+        courseId={Number(courseId)}
+        assignmentId={Number(assignmentId)}
+        userId={Number(userId)}
+        session={session}
+      >
+        {children}
+      </EditorLayout>
+    </Suspense>
   )
 }

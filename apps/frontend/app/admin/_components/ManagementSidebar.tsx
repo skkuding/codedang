@@ -8,7 +8,6 @@ import {
 } from '@/components/Icons'
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
-import { useSession } from '@/libs/hooks/useSession'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import codedangIcon from '@/public/logos/codedang-editor.svg'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
@@ -17,6 +16,7 @@ import { useQuery } from '@apollo/client'
 import { ContestRole, type UserContest } from '@generated/graphql'
 import { motion } from 'framer-motion'
 import type { Route } from 'next'
+import type { Session } from 'next-auth'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
@@ -99,8 +99,11 @@ function SidebarLink({
   )
 }
 
-export function ManagementSidebar() {
-  const session = useSession()
+interface ManagementSidebarProps {
+  session: Session | null
+}
+
+export function ManagementSidebar({ session }: ManagementSidebarProps) {
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isAnimationComplete, setIsAnimationComplete] = useState(true)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)

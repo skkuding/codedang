@@ -1,7 +1,6 @@
 'use client'
 
 import { ErrorMessage } from '@/app/admin/_components/ErrorMessage'
-import { Label } from '@/app/admin/_components/Label'
 import { Switch } from '@/components/shadcn/switch'
 import React from 'react'
 import { useController, useFormContext } from 'react-hook-form'

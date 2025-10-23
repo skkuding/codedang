@@ -7,15 +7,15 @@ import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import { useTestcaseStore } from '@/stores/testcaseStore'
-import type { TestResultDetail } from '@/types/type'
-import { useQuery, useLazyQuery } from '@apollo/client'
-import type { ProblemTestcase, TestCaseResult } from '@generated/graphql'
+import { useSuspenseQuery } from '@apollo/client'
+import type { TestCaseResult } from '@generated/graphql'
 import type { Session } from 'next-auth'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useState, useEffect } from 'react'
 import { AssignmentProblemDropdown } from './AssignmentProblemDropdown'
 import { EditorMainResizablePanel } from './EditorResizablePanel'
+import { mapTestResults } from './libs/util'
 
 async function submitCodeForTesting(
   problemId: number,
@@ -67,38 +67,6 @@ async function pollTestResults(problemId: number) {
   return null
 }
 
-function mapTestResults(
-  testcases: ProblemTestcase[],
-  results: TestCaseResult[]
-) {
-  const resultMap = new Map(
-    results.map((r) => [Number(r.problemTestcaseId), r])
-  )
-  let sampleCount = 0
-  let hiddenCount = 0
-  console.log(testcases)
-  console.log(results)
-  console.log(resultMap)
-  return testcases.map((testcase) => {
-    const testResult = resultMap.get(Number(testcase.id))
-    if (testcase.isHidden) {
-      hiddenCount++
-    } else {
-      sampleCount++
-    }
-    return {
-      id: Number(testcase.id),
-      order: testcase.order ?? (testcase.isHidden ? hiddenCount : sampleCount),
-      type: testcase.isHidden ? ('hidden' as const) : ('sample' as const),
-      input: testcase.input ?? '',
-      expectedOutput: testcase.output ?? '',
-      output: testResult?.output ?? '',
-      result: testResult?.result ?? '',
-      isUserTestcase: false
-    }
-  })
-}
-
 interface EditorLayoutProps {
   courseId: number
   assignmentId: number
@@ -116,73 +84,56 @@ export function EditorLayout({
   session,
   children
 }: EditorLayoutProps) {
-  const { data: assignmentData, loading: assignmentLoading } = useQuery(
-    GET_ASSIGNMENT,
+  const { data: assignmentResponse } = useSuspenseQuery(GET_ASSIGNMENT, {
+    variables: {
+      groupId: courseId,
+      assignmentId
+    },
+    fetchPolicy: 'cache-first'
+  })
+
+  const { data: submissionResponse } = useSuspenseQuery(
+    GET_ASSIGNMENT_LATEST_SUBMISSION,
     {
       variables: {
         groupId: courseId,
-        assignmentId
-      }
+        assignmentId,
+        userId,
+        problemId
+      },
+      fetchPolicy: 'cache-first'
     }
   )
 
-  const { data } = useQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
+  const { data: problemResponse } = useSuspenseQuery(GET_PROBLEM_TESTCASE, {
     variables: {
-      groupId: courseId,
-      assignmentId,
-      userId,
-      problemId
-    }
+      id: problemId
+    },
+    fetchPolicy: 'cache-first'
   })
 
-  const [fetchTestcase, { data: testcaseData }] = useLazyQuery(
-    GET_PROBLEM_TESTCASE,
-    {
-      variables: {
-        id: problemId
-      }
-    }
-  )
+  const assignment = assignmentResponse?.getAssignment
+  const submissionData = submissionResponse?.getAssignmentLatestSubmission
+  const testcaseData = problemResponse?.getProblem?.testcase
 
-  const submissionData = data ? data?.getAssignmentLatestSubmission : null
-
-  const language = submissionData?.language ?? 'C'
+  const language = submissionData.language
   const [editorCode, setEditorCode] = useState('')
   const [initialCode, setInitialCode] = useState('')
   const [isTesting, setIsTesting] = useState(false)
-  const [testResults, setTestResults] = useState<TestResultDetail[]>([])
+  const [testResults, setTestResults] = useState<
+    (TestCaseResult & {
+      expectedOutput: string
+      order: number
+      input: string
+    })[]
+  >([])
   const { setIsTestResult } = useTestcaseStore()
 
-  const initializeTestResults = useCallback(() => {
-    if (submissionData?.testcaseResult && testcaseData?.getProblem?.testcase) {
-      const mappedResults = mapTestResults(
-        testcaseData.getProblem.testcase as ProblemTestcase[],
-        submissionData.testcaseResult as TestCaseResult[]
-      )
-      setTestResults(mappedResults)
-    } else {
-      setTestResults([])
-    }
-  }, [submissionData, testcaseData])
-
-  useEffect(() => {
-    if (submissionData) {
-      setEditorCode(submissionData.code)
-      setInitialCode(submissionData.code)
-      if (submissionData.testcaseResult) {
-        fetchTestcase()
-      }
-    }
-  }, [submissionData, fetchTestcase])
-
-  useEffect(() => {
-    initializeTestResults()
-  }, [initializeTestResults])
-
-  const handleReset = useCallback(() => {
+  const handleReset = () => {
     setEditorCode(initialCode)
-    initializeTestResults()
-  }, [initialCode, initializeTestResults])
+    setTestResults([])
+    setIsTestResult(false)
+  }
 
   const handleTest = useCallback(async () => {
     setIsTesting(true)
@@ -194,11 +145,11 @@ export function EditorLayout({
 
       if (finalResult) {
         const mappedResults = mapTestResults(
-          testcaseData?.getProblem?.testcase as ProblemTestcase[],
+          testcaseData,
           finalResult.map((result) => ({
             ...result,
             problemTestcaseId: result.id
-          })) as TestCaseResult[]
+          }))
         )
         setTestResults(mappedResults)
       } else {
@@ -212,15 +163,15 @@ export function EditorLayout({
     }
   }, [language, editorCode, problemId, testcaseData])
 
-  if (assignmentLoading) {
-    return (
-      <div className="fixed left-0 top-0 grid h-dvh w-full place-items-center bg-slate-800 text-white">
-        Loading Editor...
-      </div>
+  useEffect(() => {
+    setEditorCode(submissionData.code)
+    setInitialCode(submissionData.code)
+    const mappedResults = mapTestResults(
+      testcaseData,
+      submissionData.testcaseResult
     )
-  }
-
-  const assignment = assignmentData?.getAssignment
+    setTestResults(mappedResults)
+  }, [submissionData])
 
   return (
     // Admin Layout의 Sidebar를 무시하기 위한 fixed
@@ -235,7 +186,7 @@ export function EditorLayout({
               `/admin/course/${courseId}/assignment/${assignmentId}` as const
             }
           >
-            {assignment?.title}
+            {assignment.title}
           </Link>
           <div className="flex items-center gap-1 font-medium">
             <p className="mx-2"> / </p>
@@ -260,12 +211,6 @@ export function EditorLayout({
         isTesting={isTesting}
         onTest={handleTest}
         testResults={testResults}
-        testcases={(testcaseData?.getProblem?.testcase || []).map((tc) => ({
-          id: Number(tc.id),
-          input: tc.input ?? '',
-          output: tc.output ?? '',
-          isHidden: tc.isHidden ?? 'sample'
-        }))}
         onReset={handleReset}
       >
         {children}
