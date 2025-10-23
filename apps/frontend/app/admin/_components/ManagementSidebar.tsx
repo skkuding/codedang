@@ -8,7 +8,6 @@ import {
 } from '@/components/Icons'
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
-import { useSession } from '@/libs/hooks/useSession'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import codedangIcon from '@/public/logos/codedang-editor.svg'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
