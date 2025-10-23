@@ -411,7 +411,7 @@ model AssignmentRecord {
   user               User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId             Int?       @map("user_id")
   acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
-  score              Int        @default(0) // Only used after assignment finished
+  score              Decimal    @default(0) @db.Decimal(10, 2) // Only used after assignment finished
   finalScore         Int?       @map("final_score") // TODO: finalScore는 assignmentProblemRecord에서만 관리하기
   comment            String     @default("")
 
@@ -432,7 +432,7 @@ model AssignmentProblemRecord {
   userId       Int
   problemId    Int
 
-  score       Int     @default(0) // Only used after assignment finished
+  score       Decimal @default(0) @db.Decimal(10, 2) // Only used after assignment finished
   isSubmitted Boolean @default(false) @map("is_submitted")
   isAccepted  Boolean @default(false) @map("is_accepted")
 
@@ -698,7 +698,7 @@ model Submission {
   codeSize     Int?         @map("code_size")
   language     Language
   result       ResultStatus
-  score        Int          @default(0) /// 100점 만점 기준 점수
+  score        Decimal      @default(0) @db.Decimal(20, 10) /// 100점 만점 기준 점수
   createTime   DateTime     @default(now()) @map("create_time")
   updateTime   DateTime     @updatedAt @map("update_time")
 
