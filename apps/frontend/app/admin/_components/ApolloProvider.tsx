@@ -1,6 +1,5 @@
 'use client'
 
-import { auth } from '@/libs/auth'
 import { adminBaseUrl } from '@/libs/constants'
 import {
   ApolloClient,
@@ -10,10 +9,11 @@ import {
 } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
 import createUploadLink from 'apollo-upload-client/createUploadLink.mjs'
+import type { Session } from 'next-auth'
 
 interface Props {
   children: React.ReactNode
-  session: Session
+  session: Session | null
 }
 
 export function ClientApolloProvider({ children, session }: Props) {
