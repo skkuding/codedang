@@ -682,7 +682,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     // Assignment 점수 계산 공식: (AssignmentProblemScore / 100) * submissionScore
     // submissionScore는 이미 0~100 범위로 계산되어 있음 (분수 기반으로)
-    const realSubmissionScore = submissionRecord.score
+    const realSubmissionScore = (
+      submissionRecord.score ?? new Prisma.Decimal(0)
+    )
       .div(PERCENTAGE_SCALE)
       .mul(assignmentProblem.score)
 
