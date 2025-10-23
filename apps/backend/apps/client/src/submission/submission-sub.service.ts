@@ -1,6 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 import {
+  Prisma,
   ResultStatus,
   type Submission,
   type SubmissionResult
@@ -17,10 +18,9 @@ import {
   userTestcasesKey
 } from '@libs/cache'
 import {
-  Status,
-  TEST_SUBMISSION_EXPIRE_TIME,
   PERCENTAGE_SCALE,
-  DECIMAL_PRECISION_FACTOR
+  Status,
+  TEST_SUBMISSION_EXPIRE_TIME
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -637,7 +637,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     const assignmentId = submission.assignmentId!
     const userId = submission.userId!
 
-    let toBeAddedScore = 0,
+    let toBeAddedScore = new Prisma.Decimal(0),
       toBeAddedAcceptedProblemNum = 0
 
     const assignmentRecord =
@@ -682,12 +682,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     // Assignment 점수 계산 공식: (AssignmentProblemScore / 100) * submissionScore
     // submissionScore는 이미 0~100 범위로 계산되어 있음 (분수 기반으로)
-    const realSubmissionScore =
-      Math.round(
-        (submissionRecord.score / PERCENTAGE_SCALE) *
-          assignmentProblem.score *
-          DECIMAL_PRECISION_FACTOR
-      ) / DECIMAL_PRECISION_FACTOR
+    const realSubmissionScore = submissionRecord.score
+      .div(PERCENTAGE_SCALE)
+      .mul(assignmentProblem.score)
 
     const assignmentProblemRecord =
       await this.prisma.assignmentProblemRecord.findUnique({
@@ -705,7 +702,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       })
 
-    const prevSubmissionScore = assignmentProblemRecord?.score ?? 0
+    const prevSubmissionScore =
+      assignmentProblemRecord?.score ?? new Prisma.Decimal(0)
 
     await this.prisma.assignmentProblemRecord.update({
       where: {
@@ -723,11 +721,11 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
 
-    toBeAddedScore = realSubmissionScore - prevSubmissionScore
+    toBeAddedScore = realSubmissionScore.sub(prevSubmissionScore)
 
-    if (toBeAddedScore > 0) {
+    if (toBeAddedScore.greaterThan(0)) {
       toBeAddedAcceptedProblemNum = isAccepted ? 1 : 0
-    } else if (toBeAddedScore < 0) {
+    } else if (toBeAddedScore.lessThan(0)) {
       toBeAddedAcceptedProblemNum = assignmentProblemRecord?.isAccepted ? -1 : 0
     }
     await this.prisma.assignmentRecord.update({
