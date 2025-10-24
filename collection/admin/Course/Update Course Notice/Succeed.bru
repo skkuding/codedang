@@ -1,0 +1,80 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ($courseNoticeId: Int!, $input: UpdateCourseNoticeInput!) {
+    updateCourseNotice(courseNoticeId: $courseNoticeId, input: $input) {
+      id
+      createdById
+      title
+      content
+      isPublic
+      isFixed
+      createTime
+      updateTime
+      groupId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "courseNoticeId": 1,
+    "input": {
+      "title": "updated title"
+    }
+  }
+}
+
+assert {
+  res.body.data.updateCourseNotice: isDefined
+}
+
+docs {
+  # 📘 Create a Course Notice
+
+  **POST** `GraphQL`
+
+  Update a Course Notice.
+
+  강의 공지사항을 1개를 수정합니다.
+
+  이 함수는 다음과 같은 조건에 따라 공지를 수정하고 반환합니다.
+
+  1. 운영진(Admin, Manager) 및 Instructor
+  - 전달한 파라미터에 따라 공지사항을 1개 수정합니다.
+
+  접근 권한이 없는 경우 예외를 발생시킵니다.
+
+  - 일반 사용자: 권한이 없는 경우 ForbiddenAccessException 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `courseNoticeId` | int | ✅       | 수정할 강의 공지사항의 id |
+  | `input` | object | ✅       | 공지사항을 구성하는 요소. 모든 값은 optional. 하단 참고 |
+
+  #### input
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `title` | string |         | 공지사항 제목 |
+  | `content` | string |         | 공지사항 본문 |
+  | `isPublic` | boolean |         | 전체 공개 여부를 나타냅니다. |
+  | `isFixed` | boolean |         | 공지사항을 목록 최상단에 고정시키는 설정값입니다. |
+
+}
