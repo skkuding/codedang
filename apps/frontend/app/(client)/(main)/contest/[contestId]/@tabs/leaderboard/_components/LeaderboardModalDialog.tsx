@@ -1,12 +1,10 @@
 import {
   Dialog,
   DialogContent,
-  DialogClose,
   DialogTrigger,
   DialogTitle
 } from '@/components/shadcn/dialog'
 import infoIcon from '@/public/icons/file-info-gray.svg'
-import { X } from 'lucide-react'
 import Image from 'next/image'
 
 interface LeaderboardScoreExplanationRowProps {
@@ -85,9 +83,6 @@ export function LeaderboardModalDialog() {
           <DialogTitle className="sr-only">
             Ranking System of Contest
           </DialogTitle>
-          <DialogClose className="absolute left-[644px] top-6">
-            <X className="h-6 w-6" />
-          </DialogClose>
           <div className="flex flex-col overflow-x-auto">
             <p className="mb-8 h-[34px] w-[500px] text-[24px] font-bold text-black">
               Ranking System of Contest
