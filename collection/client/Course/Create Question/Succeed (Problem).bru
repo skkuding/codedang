@@ -1,0 +1,51 @@
+meta {
+  name: Succeed (Problem)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/course/2/qna?problemId=1
+  body: json
+  auth: none
+}
+
+params:query {
+  problemId: 1
+}
+
+body:json {
+  {
+    "title": "1번 문제 질문입니다",
+    "content": "이 문제의 시간 복잡도 제한이 어떻게 되나요?",
+    "isPrivate": false
+  }
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return 201 Created with problemId", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(201);
+    expect(data).to.have.property('id');
+    expect(data).to.have.property('order');
+    expect(data.title).to.equal("1번 문제 질문입니다");
+    expect(data.problemId).to.equal(1);
+    expect(data.category).to.equal("problem");
+    expect(data.isPrivate).to.equal(false);
+  });
+}
+
+docs {
+  # 📘 Create Course Question (Problem)
+  
+  **POST** `/course/:id/qna?problemId=:problemId`
+  
+  특정 문제에 대한 질문을 등록합니다.
+  
+  `problemId` 쿼리 파라미터를 전달하면 해당 문제와 연결된 질문으로 분류됩니다.
+}

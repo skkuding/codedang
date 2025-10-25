@@ -1,0 +1,105 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/course/1/qna/1/comment
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "이 질문에 대한 댓글입니다."
+  }
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser(req);
+}
+
+settings {
+  encodeUrl: true
+}
+
+tests {
+  test("should return 201 Created with comment", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(201);
+    expect(data).to.have.property('id');
+    expect(data).to.have.property('order');
+    expect(data).to.have.property('content');
+    expect(data.content).to.equal("이 질문에 대한 댓글입니다.");
+    expect(data).to.have.property('courseQnAId');
+    expect(data).to.have.property('createdById');
+    expect(data).to.have.property('isStaff');
+    expect(data).to.have.property('createTime');
+  });
+}
+
+docs {
+  # 📘 Create Course Q&A Comment
+
+  **POST** `/course/:id/qna/:order/comment`
+
+  Create a new comment for a specific question.
+
+  특정 질문에 새로운 댓글을 등록합니다.
+
+  - Course 멤버만 댓글을 작성할 수 있습니다.
+  - 공개 질문: 모든 Course 멤버가 댓글 작성 가능
+  - 비밀글: 질문 작성자와 교수/조교만 댓글 작성 가능
+  - 교수/조교가 댓글을 달면 질문이 자동으로 해결됨(`isResolved: true`)
+  - 저장 시, 해당 질문의 댓글 목록 중 가장 마지막 순번(`order`) 이후 번호가 자동으로 부여됩니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required
+  Course 멤버만 댓글 작성 가능
+
+  ---
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name    | Type   | Required | Description                     |
+  |---------|--------|----------|---------------------------------|
+  | `id`    | number | ✅       | ID of the target course         |
+  | `order` | number | ✅       | Order of target Q&A in course   |
+
+  ---
+
+  ### 📝 Request Body
+
+  #### Content-Type: `application/json`
+```json
+  {
+    "content": "이 질문에 대한 댓글입니다."
+  }
+}```
+
+  | Name      | Type   | Required | Description         |
+  |-----------|--------|----------|---------------------|
+  | `content` | string | ✅       | Content of comment  |
+
+  ---
+
+  ### 📤 Response
+
+  #### Content-Type: `application/json`
+```json
+  {
+    "id": 1,
+    "order": 1,
+    "content": "이 질문에 대한 댓글입니다.",
+    "courseQnAId": 1,
+    "createdById": 1,
+    "isStaff": false,
+    "createTime": "2023-10-05T12:34:56.789Z"
+  }```
