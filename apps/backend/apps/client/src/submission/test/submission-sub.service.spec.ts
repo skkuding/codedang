@@ -2,6 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
+  Prisma,
   ResultStatus,
   type Submission,
   type SubmissionResult
@@ -45,7 +46,7 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
   submissionResult: [submissionResults[0], submissionResults[1]],
-  score: 100
+  score: new Prisma.Decimal(100)
 }
 
 const contestSubmission = {

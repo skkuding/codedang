@@ -310,6 +310,9 @@ importers:
       pino-pretty:
         specifier: ^11.3.0
         version: 11.3.0
+      prisma-graphql-type-decimal:
+        specifier: ^3.0.1
+        version: 3.0.1(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(graphql@16.11.0)
       reflect-metadata:
         specifier: ^0.2.1
         version: 0.2.2
@@ -2516,6 +2519,7 @@ packages:
   '@graphql-tools/prisma-loader@8.0.17':
     resolution: {integrity: sha512-fnuTLeQhqRbA156pAyzJYN0KxCjKYRU5bz1q/SKOwElSnAU4k7/G1kyVsWLh7fneY78LoMNH5n+KlFV8iQlnyg==}
     engines: {node: '>=16.0.0'}
+    deprecated: 'This package was intended to be used with an older versions of Prisma.\nThe newer versions of Prisma has a different approach to GraphQL integration.\nTherefore, this package is no longer needed and has been deprecated and removed.\nLearn more: https://www.prisma.io/graphql'
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
@@ -9470,6 +9474,7 @@ packages:
 
   mailsplit@5.4.5:
     resolution: {integrity: sha512-oMfhmvclR689IIaQmIcR5nODnZRRVwAKtqFT407TIvmhX2OLUBnshUTcxzQBt3+96sZVDud9NfSe1NxAkUNXEQ==}
+    deprecated: This package has been renamed to @zone-eu/mailsplit. Please update your dependencies.
 
   make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
@@ -10552,6 +10557,12 @@ packages:
   preview-email@3.1.0:
     resolution: {integrity: sha512-ZtV1YrwscEjlrUzYrTSs6Nwo49JM3pXLM4fFOBSC3wSni+bxaWlw9/Qgk75PZO8M7cX2EybmL2iwvaV3vkAttw==}
     engines: {node: '>=14'}
+
+  prisma-graphql-type-decimal@3.0.1:
+    resolution: {integrity: sha512-zkMTsZi3sesQI4HOi1fNVw9UtFC3opt4KS4gpjkJ38pFILjNNrjUIyiSFCOBxwKQtjXnaWhFQvP3To0ckZvysQ==}
+    peerDependencies:
+      '@prisma/client': 4.12 - 6
+      graphql: '16'
 
   prisma-nestjs-graphql@21.2.0:
     resolution: {integrity: sha512-Mkb4brKW8NF3f7fq+H4ypdbbESxDnWdaszss2OIBxqutPV8N7DttdbKlmLnxo3Srk6fgW58nYQ4H5PJRKqKZxw==}
@@ -24375,6 +24386,11 @@ snapshots:
       pug: 3.0.3
       uuid: 9.0.1
     optional: true
+
+  prisma-graphql-type-decimal@3.0.1(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(graphql@16.11.0):
+    dependencies:
+      '@prisma/client': 6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)
+      graphql: 16.11.0
 
   prisma-nestjs-graphql@21.2.0:
     dependencies:

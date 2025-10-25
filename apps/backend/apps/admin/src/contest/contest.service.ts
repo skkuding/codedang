@@ -1054,7 +1054,7 @@ export class ContestService {
 
       latestSubmissions[problemId] = {
         result: submission.result as ResultStatus,
-        score: (submission.score / 100) * maxScore, // contest에 할당된 Problem의 총점에 맞게 계산
+        score: submission.score.mul(maxScore).div(100).trunc().toNumber(), // contest에 할당된 Problem의 총점에 맞게 계산
         maxScore
       }
     }
