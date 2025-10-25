@@ -361,8 +361,10 @@ describe('ContestProblemService', () => {
         take: 1
       })
 
+      const actual = { ...result, data: result.data }
+
       // then
-      expect(result).to.deep.equal(
+      expect(actual).to.deep.equal(
         // Deprecated
         plainToInstance(_RelatedProblemsResponseDto, {
           data: mockContestProblemsWithScore,

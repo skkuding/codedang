@@ -130,6 +130,7 @@ const GET_PROBLEM_TESTCASE = gql(`
     getProblem(id: $id) {
       testcase {
         id
+        order
         input
         output
         isHidden

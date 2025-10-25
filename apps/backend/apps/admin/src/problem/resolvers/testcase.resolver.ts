@@ -6,7 +6,8 @@ import { ProblemIDPipe } from '@libs/pipe'
 import {
   CreateTestcasesInput,
   UploadTestcaseZipInput,
-  UploadFileInput
+  UploadFileInput,
+  UploadTestcaseZipLegacyInput
 } from '../model/problem.input'
 import { ProblemTestcaseId } from '../model/problem.output'
 import { TestcaseService } from '../services/testcase.service'
@@ -18,24 +19,46 @@ export class TestcaseResolver {
 
   @Mutation(() => [ProblemTestcaseId])
   async createTestcases(
+    @Context('req') req: AuthenticatedRequest,
     @Args('input', { type: () => CreateTestcasesInput })
     input: CreateTestcasesInput
   ): Promise<ProblemTestcaseId[]> {
     return await this.testcaseService.createTestcases(
       input.testcases,
-      input.problemId
+      input.problemId,
+      req.user.id,
+      req.user.role
     )
   }
 
   @Mutation(() => [ProblemTestcaseId])
   async uploadTestcaseZip(
+    @Context('req') req: AuthenticatedRequest,
     @Args('input', { type: () => UploadTestcaseZipInput })
     input: UploadTestcaseZipInput
   ): Promise<ProblemTestcaseId[]> {
     return await this.testcaseService.uploadTestcaseZip(
       await input.file,
-      input.problemId
+      input.problemId,
+      req.user.id,
+      req.user.role
     )
+  }
+
+  @Mutation(() => [ProblemTestcaseId])
+  async uploadTestcaseZipLegacy(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('input', { type: () => UploadTestcaseZipLegacyInput })
+    input: UploadTestcaseZipLegacyInput
+  ): Promise<ProblemTestcaseId[]> {
+    return await this.testcaseService.uploadTestcaseZipLegacy({
+      file: await input.file,
+      problemId: input.problemId,
+      isHidden: input.isHidden,
+      scoreWeights: input.scoreWeights,
+      userRole: req.user.role,
+      userId: req.user.id
+    })
   }
 
   @Mutation(() => ProblemTestcase)

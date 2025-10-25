@@ -35,7 +35,7 @@ export function AdminQnaContentArea({
             {`No. ${order}`}
           </div>
           <div className="flex items-center justify-between gap-[20px]">
-            <p className="h-[34px] w-full overflow-hidden truncate text-2xl font-semibold">
+            <p className="max-h-[70px] max-w-[608px] overflow-hidden text-2xl font-semibold">
               {TitleText}
             </p>
             {DeleteButtonComponent}
