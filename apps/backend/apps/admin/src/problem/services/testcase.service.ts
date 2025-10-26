@@ -736,7 +736,7 @@ export class TestcaseService {
       include: {
         problem: {
           select: {
-            sharedGroups: true
+            sharedGroups: { select: { id: true } }
           }
         }
       }
