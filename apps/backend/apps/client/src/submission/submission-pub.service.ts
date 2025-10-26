@@ -1,17 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import type { Submission, TestSubmission } from '@prisma/client'
-import { Span, TraceService } from 'nestjs-otel'
-import {
-  EXCHANGE,
-  JUDGE_MESSAGE_TYPE,
-  MESSAGE_PRIORITY_HIGH,
-  MESSAGE_PRIORITY_LOW,
-  MESSAGE_PRIORITY_MIDDLE,
-  RUN_MESSAGE_TYPE,
-  SUBMISSION_KEY,
-  USER_TESTCASE_MESSAGE_TYPE
-} from '@libs/constants'
+import { Span } from 'nestjs-otel'
+import { AMQPService } from '@libs/amqp'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Snippet } from './class/create-submission.dto'
@@ -21,8 +11,7 @@ import { JudgeRequest, UserTestcaseJudgeRequest } from './class/judge-request'
 export class SubmissionPublicationService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpConnection: AmqpConnection,
-    private readonly traceService: TraceService
+    private readonly amqpService: AMQPService
   ) {}
 
   /**
@@ -97,60 +86,11 @@ export class SubmissionPublicationService {
           containHiddenTestcases
         )
 
-    const span = this.traceService.startSpan(
-      'publishJudgeRequestMessage.publish'
+    await this.amqpService.publishJudgeRequestMessage(
+      judgeRequest,
+      submission.id,
+      isTest,
+      isUserTest
     )
-    span.setAttributes({ submissionId: submission.id })
-
-    await this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
-      messageId: String(submission.id),
-      persistent: true,
-      type: this.calculateMessageType(isTest, isUserTest),
-      priority: this.calculateMessagePriority(isTest, isUserTest)
-    })
-    span.end()
-  }
-
-  /**
-   * 채점 요청 메세지의 타입을 계산하여 반환
-   *
-   * - RUN_MESSAGE_TYPE: 오픈 테스트 케이스 실행
-   * - USER_TESTCASE_MESSAGE_TYPE: 사용자 정의 테스트 케이스 실행
-   * - JUDGE_MESSAGE_TYPE: 제출
-   *
-   * @param isTest - 테스트 제출 여부
-   * @param isUserTest - 사용자 정의 테스트 케이스 제출 여부
-   */
-  private calculateMessageType(isTest: boolean, isUserTest: boolean) {
-    if (isTest) return RUN_MESSAGE_TYPE
-    if (isUserTest) return USER_TESTCASE_MESSAGE_TYPE
-    return JUDGE_MESSAGE_TYPE
-  }
-
-  /**
-   * 채점 요청 메세지의 우선순위를 계산하여 반환
-   *
-   * 우선순위 (0 ~ 3, 클 수록 우선순위 높음)
-   *
-   * - JUDGE_MESSAGE_TYPE: 3
-   * - RUN_MESSAGE_TYPE: 2
-   * - USER_TESTCASE_MESSAGE_TYPE: 2
-   * - DEFAULT: 1
-   *
-   * @param isTest - 테스트 제출 여부
-   * @param isUserTest - 사용자 정의 테스트 케이스 제출 여부
-   */
-  private calculateMessagePriority(isTest: boolean, isUserTest: boolean) {
-    const msgType = this.calculateMessageType(isTest, isUserTest)
-
-    switch (msgType) {
-      case JUDGE_MESSAGE_TYPE:
-        return MESSAGE_PRIORITY_HIGH
-      case RUN_MESSAGE_TYPE:
-      case USER_TESTCASE_MESSAGE_TYPE:
-        return MESSAGE_PRIORITY_MIDDLE
-      default:
-        return MESSAGE_PRIORITY_LOW
-    }
   }
 }

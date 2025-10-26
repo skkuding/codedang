@@ -37,6 +37,8 @@ export const problems: Problem[] = [
     engDescription: null,
     engHint: null,
     engInputDescription: null,
-    engOutputDescription: null
+    engOutputDescription: null,
+    isHiddenUploadedByZip: false,
+    isSampleUploadedByZip: false
   }
 ]

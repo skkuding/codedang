@@ -147,7 +147,9 @@ const problem: Problem = {
   engHint: null,
   engInputDescription: null,
   engOutputDescription: null,
-  engTitle: null
+  engTitle: null,
+  isHiddenUploadedByZip: false,
+  isSampleUploadedByZip: false
 }
 
 const contestProblem: ContestProblem = {

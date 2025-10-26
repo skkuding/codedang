@@ -444,9 +444,10 @@ export class ProblemService {
       languages,
       template,
       solution,
-      tags,
       testcases,
       isVisible,
+      //eslint-disable-next-line @typescript-eslint/no-unused-vars
+      tags,
       ...data
     } = input
 
@@ -649,9 +650,10 @@ export class ProblemService {
     //   )
     // }
 
-    const problemTag = tags
-      ? await this.tagService.updateProblemTag(id, tags)
-      : undefined
+    // TODO: fix problemTag duplication problem
+    // const problemTag = tags
+    //   ? await this.tagService.updateProblemTag(id, tags)
+    //   : undefined
 
     if (testcases?.length) {
       await this.testcaseService.syncTestcases(id, testcases)
@@ -675,7 +677,6 @@ export class ProblemService {
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
         ...(solution && { solution }),
-        problemTag,
         ...(updatedFields.length > 0 && {
           updateHistory: {
             create: [
