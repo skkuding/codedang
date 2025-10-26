@@ -1918,6 +1918,8 @@ type Problem {
   hint: String!
   id: ID!
   inputDescription: String!
+  isHiddenUploadedByZip: Boolean!
+  isSampleUploadedByZip: Boolean!
   languages: [Language!]
   memoryLimit: Int!
   outputDescription: String!
@@ -1991,6 +1993,8 @@ type ProblemCountAggregate {
   hint: Int!
   id: Int!
   inputDescription: Int!
+  isHiddenUploadedByZip: Int!
+  isSampleUploadedByZip: Int!
   languages: Int!
   memoryLimit: Int!
   outputDescription: Int!
@@ -2030,6 +2034,8 @@ type ProblemMaxAggregate {
   hint: String
   id: Int
   inputDescription: String
+  isHiddenUploadedByZip: Boolean
+  isSampleUploadedByZip: Boolean
   memoryLimit: Int
   outputDescription: String
   source: String
@@ -2056,6 +2062,8 @@ type ProblemMinAggregate {
   hint: String
   id: Int
   inputDescription: String
+  isHiddenUploadedByZip: Boolean
+  isSampleUploadedByZip: Boolean
   memoryLimit: Int
   outputDescription: String
   source: String
@@ -2268,6 +2276,8 @@ type ProblemWithIsVisible {
   hint: String!
   id: ID!
   inputDescription: String!
+  isHiddenUploadedByZip: Boolean!
+  isSampleUploadedByZip: Boolean!
   isVisible: Boolean
   languages: [Language!]
   memoryLimit: Int!
