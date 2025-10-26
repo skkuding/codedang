@@ -93,7 +93,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: ./apps/frontend/Dockerfile
-          context: .
+          context: '{{defaultContext}}:.'
           cache-from: |
             type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-${{ steps.pr.outputs.number || 'stage' }}
             type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-stage
