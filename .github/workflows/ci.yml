@@ -54,6 +54,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      pull-requests: read
 
     steps:
       - name: Setup Docker Buildx
