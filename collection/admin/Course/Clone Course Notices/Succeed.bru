@@ -1,0 +1,71 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ($courseNoticeIds: [Int!]!, $cloneToId: Int!) {
+    cloneCourseNotices(courseNoticeIds: $courseNoticeIds, cloneToId: $cloneToId) {
+      id
+      createdById
+      title
+      content
+      isPublic
+      isFixed
+      createTime
+      updateTime
+      groupId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "courseNoticeIds": [
+      1,2,3
+    ],
+    "cloneToId": 2
+  }
+}
+
+assert {
+  res.body.data.cloneCourseNotices: isDefined
+}
+
+docs {
+  # 📘 Clone Course Notices
+
+  **POST** `GraphQL`
+
+  Replicate several lecture announcements from one lecture to another.
+
+  한 강의의 강의 공지사항 여러 개를 다른 강의에 복제합니다.
+
+  이 함수는 다음과 같은 조건에 따라 공지를 복제하고 반환합니다.
+
+  1. 운영진(Admin, Manager) 및 Instructor
+  - 공지사항의 아이디 리스트를 넘기면 해당 공지들을 다른 강의에 복제합니다.
+
+
+  접근 권한이 없는 경우 예외를 발생시킵니다.
+
+  - 일반 사용자: 권한이 없는 경우 ForbiddenAccessException 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `courseNoticeIds` | number[] | ✅       | 복제할 공지사항의 아이디 리스트 |
+  | `cloneToId` | number | ✅       | 복제된 공지사항을 넣을 강의 아이디 |
+}

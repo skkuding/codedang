@@ -1,0 +1,34 @@
+meta {
+  name: NOT_FOUND
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetTestcase($testcaseId: Int!) {
+    getTestcase(testcaseId: $testcaseId) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "testcaseId": 999999
+  }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq NOT_FOUND
+}
+
+docs {
+  ## Get a Testcase - NOT_FOUND
+  존재하지 않는 테스트케이스 ID를 전달하면 NOT_FOUND 에러가 발생합니다.
+}
