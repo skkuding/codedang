@@ -1,5 +1,5 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import type { Submission, SubmissionResult } from '@prisma/client'
+import { Prisma, type Submission, type SubmissionResult } from '@prisma/client'
 import { expect } from 'chai'
 import { TraceService } from 'nestjs-otel'
 import * as sinon from 'sinon'
@@ -24,7 +24,7 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
   submissionResult: [],
-  score: 100
+  score: new Prisma.Decimal(100)
 }
 
 describe('SubmissionPublicationService', () => {

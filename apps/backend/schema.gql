@@ -238,19 +238,19 @@ type AssignmentProblemRecord {
   assignmentProblem: AssignmentProblem!
   assignmentRecord: AssignmentRecord!
   comment: String!
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean!
   isSubmitted: Boolean!
   problemId: Int!
-  score: Int!
+  score: Decimal!
   userId: Int!
 }
 
 type AssignmentProblemRecordAvgAggregate {
   assignmentId: Float
-  finalScore: Float
+  finalScore: Decimal
   problemId: Float
-  score: Float
+  score: Decimal
   userId: Float
 }
 
@@ -269,30 +269,30 @@ type AssignmentProblemRecordCountAggregate {
 type AssignmentProblemRecordMaxAggregate {
   assignmentId: Int
   comment: String
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean
   isSubmitted: Boolean
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
 }
 
 type AssignmentProblemRecordMinAggregate {
   assignmentId: Int
   comment: String
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean
   isSubmitted: Boolean
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
 }
 
 type AssignmentProblemRecordSumAggregate {
   assignmentId: Int
-  finalScore: Int
+  finalScore: Decimal
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
 }
 
@@ -329,10 +329,10 @@ type AssignmentRecord {
   assignmentProblemRecord: [AssignmentProblemRecord!]
   comment: String!
   createTime: DateTime!
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: ID!
-  score: Int!
+  score: Decimal!
   totalPenalty: Int!
   updateTime: DateTime!
   user: User
@@ -342,9 +342,9 @@ type AssignmentRecord {
 type AssignmentRecordAvgAggregate {
   acceptedProblemNum: Float
   assignmentId: Float
-  finalScore: Float
+  finalScore: Decimal
   id: Float
-  score: Float
+  score: Decimal
   totalPenalty: Float
   userId: Float
 }
@@ -373,10 +373,10 @@ type AssignmentRecordMaxAggregate {
   assignmentId: Int
   comment: String
   createTime: DateTime
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   updateTime: DateTime
   userId: Int
@@ -387,10 +387,10 @@ type AssignmentRecordMinAggregate {
   assignmentId: Int
   comment: String
   createTime: DateTime
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   updateTime: DateTime
   userId: Int
@@ -399,9 +399,9 @@ type AssignmentRecordMinAggregate {
 type AssignmentRecordSumAggregate {
   acceptedProblemNum: Int
   assignmentId: Int
-  finalScore: Int
+  finalScore: Decimal
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   userId: Int
 }
@@ -1577,6 +1577,9 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+"""An arbitrary-precision Decimal type"""
+scalar Decimal
+
 type DuplicateCourse {
   copiedAssignments: [Int!]!
   duplicatedCourse: Group!
@@ -2673,7 +2676,7 @@ type Submission {
   result: ResultStatus!
 
   """100점 만점 기준 점수"""
-  score: Int!
+  score: Decimal!
   submissionResult: [SubmissionResult!]
   updateTime: DateTime!
   user: User
@@ -2689,7 +2692,7 @@ type SubmissionAvgAggregate {
   contestId: Float
   id: Float
   problemId: Float
-  score: Float
+  score: Decimal
   userId: Float
   workbookId: Float
 }
@@ -2731,7 +2734,7 @@ type SubmissionDetail {
   result: ResultStatus!
 
   """100점 만점 기준 점수"""
-  score: Int!
+  score: Decimal!
   testcaseResult: [TestCaseResult!]!
   updateTime: DateTime!
   user: User
@@ -2750,7 +2753,7 @@ type SubmissionMaxAggregate {
   language: Language
   problemId: Int
   result: ResultStatus
-  score: Int
+  score: Decimal
   updateTime: DateTime
   userId: Int
   userIp: String
@@ -2766,7 +2769,7 @@ type SubmissionMinAggregate {
   language: Language
   problemId: Int
   result: ResultStatus
-  score: Int
+  score: Decimal
   updateTime: DateTime
   userId: Int
   userIp: String
@@ -2846,7 +2849,7 @@ type SubmissionSumAggregate {
   contestId: Int
   id: Int
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
   workbookId: Int
 }
