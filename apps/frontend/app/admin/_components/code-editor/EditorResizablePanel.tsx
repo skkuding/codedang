@@ -15,52 +15,62 @@ import {
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
-import { cn } from '@/libs/utils'
+import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
+import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
+import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
+import { useTestcaseStore } from '@/stores/testcaseStore'
 import type { Language } from '@/types/type'
-import { useSuspenseQuery } from '@apollo/client'
+import { useQuery, useSuspenseQuery } from '@apollo/client'
 import type { TestCaseResult } from '@generated/graphql'
 import { ResultStatus } from '@generated/graphql'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidUser } from 'react-icons/bi'
 import { FaSortDown } from 'react-icons/fa'
 import { TestcasePanel } from './TestcasePanel'
+import { mapTestResults } from './libs/util'
 
 interface ProblemEditorProps {
-  code: string
-  language: string
   courseId: number
   assignmentId: number
   userId: number
   problemId: number
-  setEditorCode: (code: string) => void
-  isTesting: boolean
-  onTest: () => void
-  testResults: (TestCaseResult & {
-    expectedOutput: string
-    order: number
-    input: string
-  })[]
+
   children: React.ReactNode
-  onReset: () => void
 }
 
 export function EditorMainResizablePanel({
-  code,
-  language,
   courseId,
   assignmentId,
   userId,
   problemId,
-  setEditorCode,
-  isTesting,
-  onTest,
-  testResults,
-  children,
-  onReset
+
+  children
 }: ProblemEditorProps) {
+  const [isTesting, setIsTesting] = useState(false)
+
+  const {
+    data: submissionResponse,
+    loading: submissionLoading,
+    error: submissionError
+  } = useQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
+    variables: {
+      groupId: courseId,
+      assignmentId,
+      userId,
+      problemId
+    },
+    fetchPolicy: 'cache-first'
+  })
+  const { data: problemResponse } = useSuspenseQuery(GET_PROBLEM_TESTCASE, {
+    variables: {
+      id: problemId
+    },
+    fetchPolicy: 'cache-first'
+  })
+  const testcaseData = problemResponse?.getProblem?.testcase
   const summaries =
     useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
       variables: {
@@ -69,7 +79,23 @@ export function EditorMainResizablePanel({
         take: 1000
       }
     }).data?.getAssignmentScoreSummaries ?? []
+  const { setIsTestResult } = useTestcaseStore()
 
+  const [testResults, setTestResults] = useState<
+    (TestCaseResult & {
+      expectedOutput: string
+      order: number
+      input: string
+    })[]
+  >([])
+
+  const handleReset = () => {
+    setEditorCode(initialCode)
+    setTestResults([])
+    setIsTestResult(false)
+  }
+  const submissionData = submissionResponse?.getAssignmentLatestSubmission
+  const language = submissionData?.language ?? 'C'
   const currentMember = summaries.find((member) => member.userId === userId)
 
   const currentIndex = summaries.findIndex((s) => s.userId === userId)
@@ -81,6 +107,7 @@ export function EditorMainResizablePanel({
 
   // 첫 번째와 마지막 학생인지 확인
   const isFirstStudent = currentIndex === 0
+
   const isLastStudent = currentIndex === summaries.length - 1
 
   const displayTestResults = useMemo(() => {
@@ -93,6 +120,47 @@ export function EditorMainResizablePanel({
     }
     return testResults
   }, [isTesting, testResults])
+
+  const [editorCode, setEditorCode] = useState('')
+  const [initialCode, setInitialCode] = useState('')
+  useEffect(() => {
+    if (submissionData) {
+      setEditorCode(submissionData.code)
+      setInitialCode(submissionData.code)
+      const mappedResults = mapTestResults(
+        testcaseData,
+        submissionData.testcaseResult
+      )
+      setTestResults(mappedResults)
+    }
+  }, [submissionData])
+  const handleTest = useCallback(async () => {
+    setIsTesting(true)
+
+    try {
+      await submitCodeForTesting(problemId, language, editorCode)
+
+      const finalResult = await pollTestResults(problemId)
+
+      if (finalResult) {
+        const mappedResults = mapTestResults(
+          testcaseData,
+          finalResult.map((result) => ({
+            ...result,
+            problemTestcaseId: result.id
+          }))
+        )
+        setTestResults(mappedResults)
+      } else {
+        setTestResults([])
+      }
+    } catch {
+      setTestResults([])
+    } finally {
+      setIsTesting(false)
+      setIsTestResult(true)
+    }
+  }, [language, editorCode, problemId, testcaseData])
 
   return (
     <ResizablePanelGroup
@@ -185,6 +253,7 @@ export function EditorMainResizablePanel({
           <div className="flex-1 bg-[#222939]">
             <ScrollArea className="h-full">
               {children}
+
               <ScrollBar orientation="vertical" />
             </ScrollArea>
           </div>
@@ -196,13 +265,13 @@ export function EditorMainResizablePanel({
           <div className="flex h-12 items-center gap-2 border-b border-slate-700 bg-[#222939] px-6">
             <div className="flex-1" />
             <button
-              onClick={onReset}
+              onClick={handleReset}
               className="rounded bg-gray-500 px-3 py-1 text-white hover:bg-gray-600"
             >
               Reset
             </button>
             <button
-              onClick={onTest}
+              onClick={handleTest}
               disabled={isTesting}
               className="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
             >
@@ -213,7 +282,7 @@ export function EditorMainResizablePanel({
           <ResizablePanelGroup direction="vertical" className="flex-1">
             <ResizablePanel defaultSize={60} className="relative">
               <CodeEditor
-                value={code}
+                value={editorCode}
                 language={language as Language}
                 readOnly={false}
                 enableCopyPaste={true}
@@ -234,4 +303,54 @@ export function EditorMainResizablePanel({
       </ResizablePanel>
     </ResizablePanelGroup>
   )
+}
+
+async function submitCodeForTesting(
+  problemId: number,
+  language: string,
+  code: string
+) {
+  await safeFetcherWithAuth.post('submission/test', {
+    json: {
+      language,
+      code: [
+        {
+          id: 1,
+          text: code,
+          locked: false
+        }
+      ]
+    },
+    searchParams: {
+      problemId
+    }
+  })
+}
+
+async function pollTestResults(problemId: number) {
+  let attempts = 0
+  const maxAttempts = 10
+  const interval = 2000
+
+  while (attempts < maxAttempts) {
+    const pollData = await safeFetcherWithAuth
+      .get('submission/test', {
+        searchParams: {
+          problemId
+        }
+      })
+      .json()
+
+    if (
+      Array.isArray(pollData) &&
+      pollData.every((r) => r.result !== 'Judging')
+    ) {
+      return pollData
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, interval))
+    attempts++
+  }
+
+  return null
 }

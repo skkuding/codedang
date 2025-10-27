@@ -1,5 +1,7 @@
 import { EditorLayout } from '@/app/admin/_components/code-editor/EditorLayout'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { auth } from '@/libs/auth'
+import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 
 export default async function layout(props: {
@@ -23,15 +25,17 @@ export default async function layout(props: {
         </div>
       }
     >
-      <EditorLayout
-        problemId={Number(problemId)}
-        courseId={Number(courseId)}
-        assignmentId={Number(assignmentId)}
-        userId={Number(userId)}
-        session={session}
-      >
-        {children}
-      </EditorLayout>
+      <ErrorBoundary fallback={<div>Error1 occurred</div>}>
+        <EditorLayout
+          problemId={Number(problemId)}
+          courseId={Number(courseId)}
+          assignmentId={Number(assignmentId)}
+          userId={Number(userId)}
+          session={session}
+        >
+          {children}
+        </EditorLayout>
+      </ErrorBoundary>
     </Suspense>
   )
 }
