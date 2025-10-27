@@ -8,6 +8,7 @@ import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { LeaderboardError } from './_components/LeaderboardError'
 import { LeaderboardTable } from './_components/LeaderboardTable'
 import { LeaderboardUnfreezeSwitchDialog } from './_components/LeaderboardUnfreezeSwitchDialog'
 import type { LeaderboardUser } from './_libs/types'
@@ -34,54 +35,54 @@ export default function ContestLeaderBoard() {
   const [searchText, setSearchText] = useState('')
   const pathname = usePathname()
   const contestId = Number(pathname.split('/')[3])
-
-  const { data: contestLeaderboard } = useQuery(GET_CONTEST_LEADERBOARD, {
-    variables: { contestId }
-  })
-
   const [disableLeaderboard, setDisableLeaderboard] = useState<boolean>(true)
-  const { data: fetchedContest } = useQuery(GET_CONTEST, {
+
+  const {
+    data: leaderboardData,
+    loading: leaderboardLoading,
+    error: leaderboardError
+  } = useQuery(GET_CONTEST_LEADERBOARD, {
     variables: { contestId }
   })
+
+  const {
+    data: contestData,
+    loading: contestLoading,
+    error: contestError
+  } = useQuery(GET_CONTEST, {
+    variables: { contestId }
+  })
+  const contestLeaderboard = leaderboardData?.getContestLeaderboard
+  const fetchedContest = contestData?.getContest
+
+  const isLoading = leaderboardLoading || contestLoading
+  const isError = leaderboardError || contestError
 
   const now = new Date()
   useEffect(() => {
-    const endTime = new Date(fetchedContest?.getContest.endTime)
+    const endTime = new Date(fetchedContest?.endTime)
     if (endTime > now) {
       setDisableLeaderboard(true)
     } else {
       setDisableLeaderboard(false)
     }
   }, [fetchedContest])
-  const isUnfrozen = !contestLeaderboard?.getContestLeaderboard.isFrozen
 
+  const isUnfrozen = !contestLeaderboard?.isFrozen
   const [problemSize, setProblemSize] = useState(0)
   const [leaderboardUsers, setLeaderboardUsers] = useState([
     BaseLeaderboardUser
   ])
 
   useEffect(() => {
-    if (
-      contestLeaderboard?.getContestLeaderboard.leaderboard[0] === undefined
-    ) {
-      const contestStartTime = new Date(fetchedContest?.getContest.startTime)
-      if (contestStartTime > now) {
-        throw new Error(
-          'Error(before start): There is no data in leaderboard yet.'
-        )
-      } else {
-        throw new Error('Error(no data): There is no data in leaderboard yet.')
-      }
-    }
     setProblemSize(
       contestLeaderboard
-        ? contestLeaderboard.getContestLeaderboard.leaderboard[0].problemRecords
-            .length
+        ? contestLeaderboard.leaderboard[0].problemRecords.length
         : 0
     )
     setLeaderboardUsers(
       contestLeaderboard
-        ? contestLeaderboard.getContestLeaderboard.leaderboard
+        ? contestLeaderboard.leaderboard
         : [BaseLeaderboardUser]
     )
   }, [contestLeaderboard])
@@ -108,6 +109,25 @@ export default function ContestLeaderBoard() {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center pt-[100px] text-xl">
+        Loading Contest Data...
+      </div>
+    )
+  }
+  if (isError) {
+    return <LeaderboardError type="networkError" />
+  }
+  if (!contestLeaderboard?.leaderboard?.length) {
+    const contestStartTime = new Date(fetchedContest?.startTime)
+    if (contestStartTime > now) {
+      return <LeaderboardError type="beforeStart" />
+    } else {
+      return <LeaderboardError type="noData" />
+    }
+  }
+
   return (
     <div className="relative mt-9 w-full pb-[120px]">
       <UnfreezeLeaderboardToggle
@@ -118,10 +138,9 @@ export default function ContestLeaderBoard() {
       <div className="mb-[62px] mt-[60px] flex w-full flex-row justify-between pl-[14px] pr-[9px]">
         <div className="flex flex-row text-2xl font-semibold text-black">
           <div className="text-[#3581FA]">
-            {contestLeaderboard?.getContestLeaderboard.participatedNum}
+            {contestLeaderboard?.participatedNum}
           </div>
-          /{contestLeaderboard?.getContestLeaderboard.registeredNum}{' '}
-          Participants
+          /{contestLeaderboard?.registeredNum} Participants
         </div>
         <div className="relative">
           <Image

@@ -1,0 +1,50 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetTestcase($testcaseId: Int!) {
+    getTestcase(testcaseId: $testcaseId) {
+      id
+      order
+      input
+      output
+      isHidden
+      isOutdated
+      outdateTime
+      scoreWeight
+      scoreWeightDenominator
+      scoreWeightNumerator
+      submissionCount
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "testcaseId": 1
+  }
+}
+
+assert {
+  res.body.data.getTestcase: isDefined
+}
+
+docs {
+  ## Get a Testcase
+  특정 테스트케이스 단건을 조회합니다.
+
+  ### Notes
+  - 관리자/슈퍼관리자는 항상 접근 가능
+  - 그 외 사용자는 공유된 그룹에 속한 경우에만 접근 가능
+}

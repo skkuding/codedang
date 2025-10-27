@@ -7,9 +7,30 @@ import type { JSX } from 'react'
 
 export function MiddleContestBanner() {
   return (
-    <div className="relative flex h-[578px] w-full max-w-[1860px]">
-      <TextBox className={'shirink-0 z-10 h-full min-w-[38%]'} />
-      <ImageBox className={'h-full flex-1'} />
+    <div className="relative w-full">
+      {/* Desktop View */}
+      <div className="hidden h-[578px] w-full max-w-[1860px] lg:flex">
+        <TextBox className={'shirink-0 z-10 h-full min-w-[38%]'} />
+        <ImageBox className={'h-full flex-1'} />
+      </div>
+      {/* Mobile View */}
+      <div className="w-full lg:hidden">
+        <Link
+          href={`/notice/${contestNoticeId}`}
+          className="flex h-full w-full"
+        >
+          <div className="h-[132px] w-full bg-[#182E56] px-4 py-8">
+            <div>
+              <p className="mb-1 text-lg font-semibold leading-snug text-white">
+                TAKE PART IN REAL-TIME <br /> CODING CONTEST
+              </p>
+              <p className="text-color-neutral-90 text-xs font-normal leading-tight">
+                Compete in real-time!
+              </p>
+            </div>
+          </div>
+        </Link>
+      </div>
     </div>
   )
 }

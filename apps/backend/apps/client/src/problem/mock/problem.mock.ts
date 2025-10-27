@@ -38,6 +38,8 @@ export const problems: Problem[] = [
     engHint: null,
     engInputDescription: null,
     engOutputDescription: null,
+    isHiddenUploadedByZip: false,
+    isSampleUploadedByZip: false,
     problemTestcase: []
   },
   {
@@ -67,6 +69,8 @@ export const problems: Problem[] = [
     engHint: null,
     engInputDescription: null,
     engOutputDescription: null,
+    isHiddenUploadedByZip: false,
+    isSampleUploadedByZip: false,
     problemTestcase: []
   }
 ]
