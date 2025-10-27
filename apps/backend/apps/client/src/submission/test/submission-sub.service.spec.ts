@@ -1,8 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import {
+  Prisma,
   ResultStatus,
   type Submission,
   type SubmissionResult
@@ -10,14 +10,8 @@ import {
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
-import {
-  CONSUME_CHANNEL,
-  EXCHANGE,
-  ORIGIN_HANDLER_NAME,
-  RESULT_KEY,
-  RESULT_QUEUE,
-  Status
-} from '@libs/constants'
+import { AMQPService } from '@libs/amqp'
+import { Status } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { problems } from '@admin/problem/mock/mock'
@@ -52,7 +46,7 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
   submissionResult: [submissionResults[0], submissionResults[1]],
-  score: 100
+  score: new Prisma.Decimal(100)
 }
 
 const contestSubmission = {
@@ -135,7 +129,7 @@ const db = {
 
 describe('SubmissionSubscriptionService', () => {
   let service: SubmissionSubscriptionService
-  let amqpConnection: AmqpConnection
+  let amqpService: AMQPService
   let cache: Cache
 
   const sandbox = sinon.createSandbox()
@@ -150,9 +144,10 @@ describe('SubmissionSubscriptionService', () => {
         },
         ConfigService,
         {
-          provide: AmqpConnection,
+          provide: AMQPService,
           useFactory: () => ({
-            createSubscriber: () => []
+            setMessageHandlers: () => [],
+            startSubscription: () => []
           })
         },
         {
@@ -172,7 +167,7 @@ describe('SubmissionSubscriptionService', () => {
     service = module.get<SubmissionSubscriptionService>(
       SubmissionSubscriptionService
     )
-    amqpConnection = module.get<AmqpConnection>(AmqpConnection)
+    amqpService = module.get<AMQPService>(AMQPService)
     cache = module.get<Cache>(CACHE_MANAGER)
     sandbox.stub(cache, 'get').resolves([])
     sandbox
@@ -193,25 +188,17 @@ describe('SubmissionSubscriptionService', () => {
   })
 
   describe('onModuleInit', () => {
-    it('should create amqpConenction', () => {
-      const amqpSpy = sandbox.stub(amqpConnection, 'createSubscriber')
+    it('should set message handlers', () => {
+      const mqttSpy = sandbox.stub(amqpService, 'setMessageHandlers')
 
       service.onModuleInit()
 
-      expect(
-        amqpSpy.calledOnceWith(
-          sinon.match.func,
-          {
-            exchange: EXCHANGE,
-            routingKey: RESULT_KEY,
-            queue: RESULT_QUEUE,
-            queueOptions: {
-              channel: CONSUME_CHANNEL
-            }
-          },
-          ORIGIN_HANDLER_NAME
-        )
-      ).to.be.true
+      expect(mqttSpy.calledOnce).to.be.true
+      const handlers = mqttSpy.getCall(0).args[0]
+      expect(handlers).to.have.property('onRunMessage')
+      expect(handlers).to.have.property('onJudgeMessage')
+      expect(typeof handlers.onRunMessage).to.equal('function')
+      expect(typeof handlers.onJudgeMessage).to.equal('function')
     })
   })
 
@@ -231,6 +218,110 @@ describe('SubmissionSubscriptionService', () => {
       }
 
       await expect(service.validateJudgerResponse(invalidMsg)).to.be.rejected
+    })
+  })
+
+  describe('handleRunMessage', () => {
+    it('should handle run message with testcaseId', async () => {
+      const testSubmission = {
+        id: 1,
+        maxCpuTime: BigInt(50000),
+        maxMemoryUsage: 5000000
+      }
+      const testcase = {
+        id: 1,
+        result: ResultStatus.Accepted,
+        output: 'test output'
+      }
+
+      sandbox.stub(db.testSubmission, 'findUnique').resolves(testSubmission)
+      sandbox.stub(db.testSubmission, 'update').resolves()
+      sandbox.stub(cache, 'get').resolves(testcase)
+      sandbox.stub(cache, 'set').resolves()
+
+      await expect(service.handleRunMessage(msg, 1, false)).not.to.be.rejected
+    })
+
+    it('should handle run message without testcaseId (compile error)', async () => {
+      const msgWithoutTestcase = {
+        ...msg,
+        judgeResult: {
+          ...judgeResult,
+          testcaseId: null
+        }
+      }
+      const testcaseIds = [1, 2, 3]
+
+      sandbox.stub(cache, 'get').resolves(testcaseIds)
+      sandbox.stub(cache, 'set').resolves()
+
+      await expect(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        service.handleRunMessage(msgWithoutTestcase as any, 1, false)
+      ).not.to.be.rejected
+    })
+
+    it('should handle user test run message', async () => {
+      const testSubmission = {
+        id: 1,
+        maxCpuTime: BigInt(50000),
+        maxMemoryUsage: 5000000
+      }
+      const testcase = {
+        id: 1,
+        result: ResultStatus.Accepted,
+        output: 'test output'
+      }
+
+      sandbox.stub(db.testSubmission, 'findUnique').resolves(testSubmission)
+      sandbox.stub(db.testSubmission, 'update').resolves()
+      sandbox.stub(cache, 'get').resolves(testcase)
+      sandbox.stub(cache, 'set').resolves()
+
+      await expect(service.handleRunMessage(msg, 1, true)).not.to.be.rejected
+    })
+  })
+
+  describe('parseError', () => {
+    it('should return output when judgeResult has output', () => {
+      const msgWithOutput = {
+        ...msg,
+        judgeResult: {
+          ...judgeResult,
+          output: 'test output'
+        }
+      }
+
+      const result = service.parseError(msgWithOutput, ResultStatus.Accepted)
+      expect(result).to.equal('test output')
+    })
+
+    it('should return error message for CompileError', () => {
+      const msgWithError = {
+        ...msg,
+        error: 'compilation failed'
+      }
+
+      const result = service.parseError(msgWithError, ResultStatus.CompileError)
+      expect(result).to.equal('compilation failed')
+    })
+
+    it('should return Segmentation Fault for SegmentationFaultError', () => {
+      const result = service.parseError(
+        msg,
+        ResultStatus.SegmentationFaultError
+      )
+      expect(result).to.equal('Segmentation Fault')
+    })
+
+    it('should return Value Error for RuntimeError', () => {
+      const result = service.parseError(msg, ResultStatus.RuntimeError)
+      expect(result).to.equal('Value Error')
+    })
+
+    it('should return empty string for other statuses', () => {
+      const result = service.parseError(msg, ResultStatus.Accepted)
+      expect(result).to.equal('')
     })
   })
 

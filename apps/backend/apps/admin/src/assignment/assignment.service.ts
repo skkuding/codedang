@@ -2,6 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Assignment, AssignmentProblem } from '@generated'
+import { Prisma } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
@@ -789,16 +790,16 @@ export class AssignmentService {
       ).length, // Assignment에 존재하는 문제 중 제출된 문제의 개수
       totalProblemCount: assignmentProblems.length, // Assignment에 존재하는 Problem의 총 개수
       userAssignmentScore: problemScores.reduce(
-        (total, { score }) => total + score,
-        0
+        (total, { score }) => total.plus(score),
+        new Prisma.Decimal(0)
       ), // Assignment에서 유저가 받은 점수
       assignmentPerfectScore: assignmentProblems.reduce(
         (total, { score }) => total + score,
         0
       ), // Assignment의 만점
       userAssignmentFinalScore: assignmentProblemRecords.reduce(
-        (total, { finalScore }) => total + (finalScore ?? 0),
-        0
+        (total, { finalScore }) => total.plus(finalScore ?? 0),
+        new Prisma.Decimal(0)
       ),
       problemScores // 개별 Problem의 점수 리스트 (각 문제에서 몇 점을 획득했는지)
     }
@@ -1089,8 +1090,8 @@ export class AssignmentService {
         })
 
         const totalFinalScore = problemRecords.reduce(
-          (total, { finalScore }) => total + (finalScore ?? 0),
-          0
+          (total, { finalScore }) => total.plus(finalScore ?? 0),
+          new Prisma.Decimal(0)
         )
 
         await prisma.assignmentRecord.update({

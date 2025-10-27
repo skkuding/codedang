@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -254,6 +255,7 @@ func (j *JudgeHandler[C, E]) Handle(id string, data []byte, testcaseFilter testc
 		}}
 		return
 	}
+
 	if compileResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 		// 컴파일러를 실행했으나 컴파일에 실패한 경우
 		// FIXME: 함수로 분리
@@ -330,6 +332,13 @@ func (j *JudgeHandler[C, E]) judgeTestcase(ctx context.Context, idx int, dir str
 
 	var accepted bool
 	judgeResultCode := SandboxStatusCodeToJudgeResultCode(runResult.ExecResult.StatusCode)
+
+	// Cgroup 경로 삭제
+	if runResult.ExecResult.CgroupPath != "" {
+		if err := os.RemoveAll(runResult.ExecResult.CgroupPath); err != nil {
+			j.logger.Log(logger.WARN, fmt.Sprintf("failed to clean up run cgroup dir %s: %v", runResult.ExecResult.CgroupPath, err))
+		}
+	}
 
 	if err != nil {
 		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))

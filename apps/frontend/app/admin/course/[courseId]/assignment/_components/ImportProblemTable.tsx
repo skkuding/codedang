@@ -93,7 +93,7 @@ export function ImportProblemTable({
           <DataTableSearchBar
             columndId="title"
             size="sm"
-            className="w-[322px]!"
+            className="w-[322px]! ring-inset"
           />
           <DataTableLevelFilter />
         </div>

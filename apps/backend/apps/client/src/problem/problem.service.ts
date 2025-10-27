@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
+import type { Decimal } from '@prisma/client/runtime/library'
 import { MIN_DATE } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
 import { ProblemOrder } from '@libs/pipe'
@@ -334,7 +335,10 @@ export class ContestProblemService {
       })
     ])
 
-    const submissionMap = new Map<number, { score: number; createTime: Date }>()
+    const submissionMap = new Map<
+      number,
+      { score: Decimal; createTime: Date }
+    >()
     for (const submission of submissions) {
       if (!submissionMap.has(submission.problemId)) {
         submissionMap.set(submission.problemId, submission)
@@ -355,7 +359,9 @@ export class ContestProblemService {
           maxScore: contest.isJudgeResultVisible ? contestProblem.score : null,
           score: null,
           submissionTime: null,
-          updateContentTime: problem.updateContentTime
+          updateContentTime: problem.updateContentTime,
+          isHiddenUploadedByZip: problem.isHiddenUploadedByZip,
+          isSampleUploadedByZip: problem.isSampleUploadedByZip
         }
       }
       return {
@@ -368,10 +374,12 @@ export class ContestProblemService {
         acceptedRate: contestProblem.problem.acceptedRate,
         maxScore: contest.isJudgeResultVisible ? contestProblem.score : null,
         score: contest.isJudgeResultVisible
-          ? ((submission.score * contestProblem.score) / 100).toFixed(0)
+          ? submission.score.mul(contestProblem.score).div(100).toFixed(0)
           : null,
         submissionTime: submission.createTime ?? null,
-        updateContentTime: problem.updateContentTime
+        updateContentTime: problem.updateContentTime,
+        isHiddenUploadedByZip: problem.isHiddenUploadedByZip,
+        isSampleUploadedByZip: problem.isSampleUploadedByZip
       }
     })
 

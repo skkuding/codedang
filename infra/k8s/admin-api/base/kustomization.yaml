@@ -7,4 +7,5 @@ resources:
   - deployment.yaml
   - ingress.yaml
   - namespace.yaml
+  - rabbitmq-credentials.yaml
   - service.yaml
