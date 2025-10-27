@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowRotateLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
+import { ErrorMessage } from '../../_components/ErrorMessage'
 import { Label } from '../../_components/Label'
 import { isInvalid } from '../_libs/utils'
 import { TestcaseItem } from './TestcaseItem'
@@ -23,7 +24,7 @@ import { TestcaseUploadModal } from './TestcaseUploadModal'
 
 export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const {
-    formState: { errors, submitCount },
+    formState: { errors },
     getValues,
     setValue,
     control,
@@ -314,18 +315,17 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
 
   const EPS = 0.0001
   const mustSumToHundred = Math.abs(totalScoreNum - 100) <= EPS
-  const showSumError = submitCount > 0 && !mustSumToHundred
 
   useEffect(() => {
-    if (showSumError) {
-      setError('testcases', {
+    if (!mustSumToHundred) {
+      setError('testcasesTotal', {
         type: 'manual',
-        message: 'Testcase values must add up to 100'
+        message: 'Testcase values must equal 100'
       })
     } else {
-      clearErrors('testcases')
+      clearErrors('testcasesTotal')
     }
-  }, [showSumError, setError, clearErrors])
+  }, [mustSumToHundred, setError, clearErrors])
 
   return (
     <div
@@ -465,11 +465,21 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             })}
           </div>
           {totalPages > 1 && <Paginator {...paginatorProps} />}
-          {showSumError && (
-            <p className="mt-2 text-center text-sm font-semibold text-red-500">
-              Testcase values must eqaul 100
-            </p>
-          )}
+          {(() => {
+            const e = errors.testcasesTotal
+            const msg =
+              e &&
+              typeof e === 'object' &&
+              'message' in e &&
+              typeof (e as { message?: unknown }).message === 'string'
+                ? (e as { message: string }).message
+                : undefined
+            return msg ? (
+              <div className="mt-2 flex justify-center font-semibold">
+                <ErrorMessage message={msg} />
+              </div>
+            ) : null
+          })()}
         </div>
       )}
       {testcaseFlag === 1 && (
@@ -571,11 +581,21 @@ export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
             })}
           </div>
           {totalPages > 1 && <Paginator {...paginatorProps} />}
-          {showSumError && (
-            <p className="mt-2 text-center text-sm font-semibold text-red-500">
-              Testcase values must eqaul 100
-            </p>
-          )}
+          {(() => {
+            const e = errors.testcasesTotal
+            const msg =
+              e &&
+              typeof e === 'object' &&
+              'message' in e &&
+              typeof (e as { message?: unknown }).message === 'string'
+                ? (e as { message: string }).message
+                : undefined
+            return msg ? (
+              <div className="mt-2 flex justify-center font-semibold">
+                <ErrorMessage message={msg} />
+              </div>
+            ) : null
+          })()}
         </div>
       )}
       <div className="mt-10 flex w-full justify-between">
