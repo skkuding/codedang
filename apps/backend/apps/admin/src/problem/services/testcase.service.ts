@@ -11,6 +11,7 @@ import { Parse } from 'unzipper'
 import { MAX_ZIP_SIZE } from '@libs/constants'
 import {
   EntityNotExistException,
+  ForbiddenAccessException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
@@ -725,6 +726,53 @@ export class TestcaseService {
         outdateTime: new Date()
       }
     })
+  }
+
+  async getProblemTestcase(testcaseId: number, userId: number, userRole: Role) {
+    const testcase = await this.prisma.problemTestcase.findUnique({
+      where: {
+        id: testcaseId
+      },
+      include: {
+        problem: {
+          select: {
+            sharedGroups: { select: { id: true } }
+          }
+        }
+      }
+    })
+
+    if (!testcase) {
+      throw new EntityNotExistException('Testcase')
+    }
+
+    const { problem, ...testcaseData } = testcase
+
+    if (userRole === Role.Admin || userRole === Role.SuperAdmin) {
+      return testcaseData
+    }
+
+    const coursesUserLead = await this.prisma.userGroup.findMany({
+      where: {
+        userId,
+        isGroupLeader: true
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    const userCourseIds = new Set(
+      coursesUserLead.map((course) => course.groupId)
+    )
+
+    if (!problem.sharedGroups.some((group) => userCourseIds.has(group.id))) {
+      throw new ForbiddenAccessException(
+        'You are not allowed to access this testcase'
+      )
+    }
+
+    return testcaseData
   }
 
   /**

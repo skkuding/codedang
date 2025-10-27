@@ -2580,6 +2580,7 @@ type Query {
   getSubmission(id: Int!): SubmissionDetail!
   getSubmissions(cursor: Int, problemId: Int!, take: Int = 10): SubmissionsWithTotal!
   getTags: [Tag!]!
+  getTestcase(testcaseId: Int!): ProblemTestcase!
   getUserByEmailOrStudentId(email: String, groupId: Int!, studentId: String): [User!]!
   getUsers(cursor: Int, take: Int! = 10): [User!]!
   getWhitelist(groupId: Int!): [String!]!

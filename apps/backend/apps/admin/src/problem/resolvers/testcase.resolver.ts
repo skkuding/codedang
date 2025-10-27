@@ -1,8 +1,8 @@
 import { UsePipes, ValidationPipe } from '@nestjs/common'
-import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
+import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { ProblemTestcase } from '@generated'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
-import { ProblemIDPipe } from '@libs/pipe'
+import { IDValidationPipe, ProblemIDPipe } from '@libs/pipe'
 import {
   CreateTestcasesInput,
   UploadTestcaseZipInput,
@@ -16,6 +16,19 @@ import { TestcaseService } from '../services/testcase.service'
 @UseDisableAdminGuard()
 export class TestcaseResolver {
   constructor(private readonly testcaseService: TestcaseService) {}
+
+  @Query(() => ProblemTestcase)
+  async getTestcase(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('testcaseId', { type: () => Int }, IDValidationPipe)
+    testcaseId: number
+  ) {
+    return await this.testcaseService.getProblemTestcase(
+      testcaseId,
+      req.user.id,
+      req.user.role
+    )
+  }
 
   @Mutation(() => [ProblemTestcaseId])
   async createTestcases(
