@@ -2,7 +2,10 @@
 
 import { CautionDialog } from '@/app/admin/_components/CautionDialog'
 import { useConfirmNavigationContext } from '@/app/admin/_components/ConfirmNavigation'
-import { UPDATE_PROBLEM } from '@/graphql/problem/mutations'
+import {
+  UPDATE_PROBLEM,
+  UPLOAD_TESTCASE_ZIP_LEGACY
+} from '@/graphql/problem/mutations'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type {
@@ -15,6 +18,8 @@ import { useRouter } from 'next/navigation'
 import { useRef, useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
+import type { TestcaseFieldRef } from '../../../_components/TestcaseField'
+import { ZipUploadModal } from '../../../_components/ZipUploadModal'
 import { validateScoreWeight } from '../../../_libs/utils'
 import { ScoreCautionDialog } from './ScoreCautionDialog'
 
@@ -23,16 +28,19 @@ interface EditProblemFormProps {
   children: ReactNode
   methods: UseFormReturn<UpdateProblemInput>
   isTestcaseEditBlocked: boolean
+  testcaseFieldRef?: React.RefObject<TestcaseFieldRef | null>
 }
 
 export function EditProblemForm({
   problemId,
   children,
-  methods
+  methods,
+  testcaseFieldRef
 }: EditProblemFormProps) {
   const [message, setMessage] = useState('')
   const [showCautionModal, setShowCautionModal] = useState(false)
   const [showScoreModal, setShowScoreModal] = useState(false)
+  const [isUploadingZip, setIsUploadingZip] = useState(false)
 
   const initialValues = useRef<{
     testcases: Testcase[]
@@ -119,12 +127,30 @@ export function EditProblemForm({
   const [updateProblem] = useMutation(UPDATE_PROBLEM, {
     onError: () => {
       toast.error('Failed to update problem')
+      setIsUploadingZip(false)
     },
     onCompleted: () => {
       setShouldSkipWarning(true)
+
+      if (testcaseFieldRef?.current) {
+        const zipUploadedTestcases =
+          testcaseFieldRef.current.getZipUploadedTestcases()
+        if (Object.keys(zipUploadedTestcases).length > 0) {
+          setIsUploadingZip(true)
+          return
+        }
+      }
+
       toast.success('Problem updated successfully')
       router.push('/admin/problem')
       router.refresh()
+    }
+  })
+
+  const [uploadTestcaseZipLegacy] = useMutation(UPLOAD_TESTCASE_ZIP_LEGACY, {
+    onError: (error) => {
+      toast.error(`Failed to upload testcase ZIP: ${error.message}`)
+      setIsUploadingZip(false)
     }
   })
 
@@ -142,14 +168,51 @@ export function EditProblemForm({
 
   const handleUpdate = async () => {
     if (pendingInput.current) {
+      const regularTestcases = (methods.getValues('testcases') || []).filter(
+        (tc) => !('isZipUploaded' in tc) || !tc.isZipUploaded
+      )
+
       await updateProblem({
         variables: {
           input: {
             ...pendingInput.current,
-            testcases: methods.getValues('testcases')
+            testcases: regularTestcases
           }
         }
       })
+
+      if (testcaseFieldRef?.current) {
+        const zipUploadedTestcases =
+          testcaseFieldRef.current.getZipUploadedTestcases()
+
+        if (Object.keys(zipUploadedTestcases).length > 0) {
+          for (const [, zipData] of Object.entries(zipUploadedTestcases)) {
+            const scoreWeights = zipData.testcases
+              .sort((a, b) => a.index - b.index)
+              .map((tc) => ({
+                scoreWeight: tc.scoreWeight,
+                scoreWeightNumerator: tc.scoreWeightNumerator,
+                scoreWeightDenominator: tc.scoreWeightDenominator
+              }))
+
+            await uploadTestcaseZipLegacy({
+              variables: {
+                input: {
+                  file: zipData.file,
+                  problemId,
+                  isHidden: zipData.isHidden,
+                  scoreWeights
+                }
+              }
+            })
+          }
+
+          toast.success('Problem updated successfully')
+          setIsUploadingZip(false)
+          router.push('/admin/problem')
+          router.refresh()
+        }
+      }
     }
   }
 
@@ -202,6 +265,7 @@ export function EditProblemForm({
         }}
         problemId={problemId}
       />
+      <ZipUploadModal isOpen={isUploadingZip} />
     </>
   )
 }

@@ -219,22 +219,24 @@ model Problem {
   ///           }[]
   /// }
 
-  template        Json[]     @default([])
-  languages       Language[]
-  solution        Json[]     @default([])
-  timeLimit       Int        @map("time_limit") // unit: MilliSeconds
-  memoryLimit     Int        @map("memory_limit") // unit: MegaBytes
-  difficulty      Level
-  source          String
-  submissionCount Int        @default(0) @map("submission_count")
-  acceptedCount   Int        @default(0) @map("accepted_count")
-  acceptedRate    Float      @default(0) @map("accepted_rate")
-  visibleLockTime DateTime   @map("visible_lock_time")
+  template              Json[]     @default([])
+  languages             Language[]
+  solution              Json[]     @default([])
+  timeLimit             Int        @map("time_limit") // unit: MilliSeconds
+  memoryLimit           Int        @map("memory_limit") // unit: MegaBytes
+  difficulty            Level
+  source                String
+  submissionCount       Int        @default(0) @map("submission_count")
+  acceptedCount         Int        @default(0) @map("accepted_count")
+  acceptedRate          Float      @default(0) @map("accepted_rate")
+  visibleLockTime       DateTime   @map("visible_lock_time")
   // 문제가 속한 대회들이 모두 끝나는 시각으로 이후 문제의 공개 여부를 변경가능, 속한 대회가 없을 경우 MIN_DATE
   // MIN_DATE의 경우 모든 사용자에게 공개, 이외에는 비공개
-  createTime      DateTime   @default(now()) @map("create_time")
-  updateTime      DateTime   @updatedAt @map("update_time")
-  updateContentTime DateTime? @map("update_content_time")
+  createTime            DateTime   @default(now()) @map("create_time")
+  updateTime            DateTime   @updatedAt @map("update_time")
+  updateContentTime     DateTime?  @map("update_content_time")
+  isSampleUploadedByZip Boolean    @default(false) @map("is_sample_uploaded_by_zip")
+  isHiddenUploadedByZip Boolean    @default(false) @map("is_hidden_uploaded_by_zip")
 
   sharedGroups      Group[]
   problemTestcase   ProblemTestcase[]
@@ -326,8 +328,8 @@ model ProblemTestcase {
   acceptedCount   Int      @default(0) @map("accepted_count")
   submissionCount Int      @default(0) @map("submission_count")
 
-  isOutdated      Boolean  @default(false) @map("is_outdated")
-  outdateTime     DateTime? @map("outdate_time")
+  isOutdated  Boolean   @default(false) @map("is_outdated")
+  outdateTime DateTime? @map("outdate_time")
 
   submissionResult SubmissionResult[]
 

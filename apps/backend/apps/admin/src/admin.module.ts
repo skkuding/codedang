@@ -37,10 +37,6 @@ import { WorkbookModule } from './workbook/workbook.module'
 
 @Module({
   imports: [
-    CacheModule.registerAsync({
-      isGlobal: true,
-      useClass: CacheConfigService
-    }),
     ConfigModule.forRoot({ isGlobal: true }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

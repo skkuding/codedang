@@ -9,7 +9,7 @@ import type { ProblemDetail } from '@/types/type'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -24,13 +24,17 @@ import { InfoForm } from '../_components/InfoForm'
 import { LimitForm } from '../_components/LimitForm'
 import { SolutionField } from '../_components/SolutionField'
 import { TemplateField } from '../_components/TemplateField'
-import { TestcaseField } from '../_components/TestcaseField'
+import {
+  TestcaseField,
+  type TestcaseFieldRef
+} from '../_components/TestcaseField'
 import { CreateProblemForm } from './_components/CreateProblemForm'
 
 export default function Page() {
   const [isPreviewing, setIsPreviewing] = useState(false)
   const session = useSession()
   const isAdmin = session?.user?.role !== 'User'
+  const testcaseFieldRef = useRef<TestcaseFieldRef | null>(null)
 
   const methods = useForm<CreateProblemInput>({
     resolver: valibotResolver(createSchema),
@@ -100,7 +104,10 @@ export default function Page() {
             <span className="text-4xl font-bold">CREATE PROBLEM</span>
           </div>
 
-          <CreateProblemForm methods={methods}>
+          <CreateProblemForm
+            methods={methods}
+            testcaseFieldRef={testcaseFieldRef}
+          >
             <FormSection isFlexColumn title="Title">
               <TitleForm placeholder="Enter a problem name" />
             </FormSection>
@@ -130,7 +137,7 @@ export default function Page() {
               </div>
             </div>
 
-            <TestcaseField />
+            <TestcaseField ref={testcaseFieldRef} />
 
             <FormSection isFlexColumn title="Info">
               <InfoForm />

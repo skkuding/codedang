@@ -66,13 +66,13 @@ const DialogContent = React.forwardRef<
       >
         {children}
         {!hideCloseButton && (
-          <div className="pointer-events-none absolute right-5 top-[30px] pr-[34px]">
+          <div className="pointer-events-none absolute right-[-16px] top-5 pr-[34px]">
             <DialogPrimitive.Close asChild>
               <button
                 aria-label="Close"
                 className="rounded-xs pointer-events-auto m-0 grid h-5 w-5 place-items-center border-0 bg-transparent p-0 opacity-70 outline-none ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 dark:ring-offset-gray-950 dark:focus:ring-gray-300"
               >
-                <X className="h-5 w-5" />
+                <X className="text-color-neutral-70 h-5 w-5" />
               </button>
             </DialogPrimitive.Close>
           </div>
