@@ -1,0 +1,55 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: simplest
+  namespace: monitoring-otel
+spec:
+  # prometheus will scrape through this port
+  ports:
+    - name: metrics
+      port: 8889
+      targetPort: 8889
+      protocol: TCP
+      appProtocol: http
+  config:
+    # https://opentelemetry.io/docs/collector/architecture/
+    # https://opentelemetry.io/docs/collector/configuration/
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+    processors:
+      batch:
+        timeout: 10s
+        send_batch_size: 512
+    exporters:
+      otlphttp/logs:
+        endpoint: http://loki.monitoring-loki.svc.cluster.local:3100/otlp
+        tls:
+          insecure: true
+        # used to satisfy loki's multi-tenancy
+        headers:
+          X-Scope-OrgID: '1'
+      prometheus:
+        endpoint: '0.0.0.0:8889'
+        resource_to_telemetry_conversion:
+          enabled: true
+      otlp/trace:
+        endpoint: 'tempo.monitoring-tempo.svc.cluster.local:4317'
+        tls:
+          insecure: true
+    service:
+      pipelines:
+        logs:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlphttp/logs]
+        metrics:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [prometheus]
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlp/trace]

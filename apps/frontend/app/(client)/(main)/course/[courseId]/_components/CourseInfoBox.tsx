@@ -1,5 +1,6 @@
 'use client'
 
+import { useHeaderTitle } from '@/app/(client)/(main)/_contexts/HeaderTitleContext'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import ongoingIcon from '@/public/icons/ongoing.svg'
@@ -14,6 +15,8 @@ interface CourseInfoBoxProps {
 
 export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
   const [course, setCourse] = useState<Course>()
+  const { setHeaderTitle } = useHeaderTitle()
+
   useEffect(() => {
     const fetchCourse = async () => {
       try {
@@ -21,12 +24,16 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
           .get(`course/${courseId}`)
           .json()
         setCourse(res)
+
+        // Course 이름을 Context에 설정
+        const courseName = `[${res.courseInfo.courseNum}_${res.courseInfo.classNum}] ${res.groupName}`
+        setHeaderTitle(courseName)
       } catch {
         console.error('Failed to fetch course')
       }
     }
     fetchCourse()
-  }, [courseId])
+  }, [courseId, setHeaderTitle])
 
   return (
     <div className="flex flex-col gap-3 px-2 pt-24">

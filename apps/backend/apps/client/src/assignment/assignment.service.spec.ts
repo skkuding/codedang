@@ -97,7 +97,7 @@ describe('AssignmentService', () => {
 
       // Check that all returned assignments have dueTime in the specified month/year
       for (const assignment of filteredAssignments) {
-        const dueDate = new Date(assignment.dueTime)
+        const dueDate = new Date(assignment.dueTime ?? assignment.endTime)
         expect(dueDate.getMonth() + 1).to.equal(currentMonth)
         expect(dueDate.getFullYear()).to.equal(currentYear)
       }

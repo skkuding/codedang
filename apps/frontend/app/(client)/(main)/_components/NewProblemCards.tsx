@@ -34,8 +34,8 @@ export async function NewProblemCards() {
             </div>
           </div>
 
-          <div className="relative left-1/2 -my-8 w-screen -translate-x-1/2 min-[1514px]:-ml-2">
-            <CarouselContent className="my-8 ml-[137px] mr-[153px] max-w-[1224px] min-[1514px]:mx-auto">
+          <div className="relative left-1/2 -my-8 -ml-2 w-screen -translate-x-1/2">
+            <CarouselContent className="mx-[116px] my-8 max-w-[1224px] lg:mx-auto">
               {problems.map((problem) => (
                 <CarouselItem key={problem.id}>
                   <NewProblemCard problem={problem} />
@@ -67,11 +67,11 @@ function NewProblemCard({ problem }: { problem: Problem }) {
         <div className="flex flex-col items-start gap-10">
           <Badge
             variant={problem.difficulty}
-            className="mb-2 whitespace-nowrap rounded-full px-2 py-1 text-xs font-medium capitalize"
+            className="flex w-[70px] items-center justify-center px-2 py-1 text-xs font-semibold leading-[140%] tracking-[-0.36px]"
           >
             Level {problem.difficulty.slice(-1)}
           </Badge>
-          <h3 className="line-clamp-2 break-normal break-keep text-lg font-semibold">
+          <h3 className="line-clamp-2 break-normal break-keep text-xl font-semibold">
             {problem.title}
           </h3>
         </div>

@@ -66,24 +66,20 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
-    cell: ({ row }) => {
-      return (
-        <div className="flex-col truncate text-left font-medium">
-          {row.getValue('title')}
-        </div>
-      )
+    cell: ({ row }) => row.getValue('title'),
+    sortingFn: (rowA, rowB) => {
+      const titleA = rowA.original.title
+      const titleB = rowB.original.title
+      return titleA.localeCompare(titleB, ['en', 'ko'], { numeric: true })
     },
-    enableHiding: false,
-    enableSorting: false
+    enableHiding: false
   },
   {
     accessorKey: 'updateTime',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Update" />
     ),
-    cell: ({ row }) => {
-      return <div>{row.original.updateTime.substring(2, 10)}</div>
-    }
+    cell: ({ row }) => row.original.updateTime.substring(2, 10)
   },
   {
     accessorKey: 'difficulty',
@@ -96,7 +92,7 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
       return (
         <Badge
           variant={level as Level}
-          className="whitespace-nowrap rounded-md px-1.5 py-1 font-normal"
+          className="whitespace-nowrap px-2 py-1 font-normal"
         >
           {formattedLevel}
         </Badge>
@@ -112,14 +108,10 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
       <DataTableColumnHeader column={column} title="Solution" />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="flex justify-center">
-          {row.original.solution.some((solution) => solution.code !== '') ? (
-            <FaCheck />
-          ) : (
-            '-'
-          )}
-        </div>
+      return row.original.solution.some((solution) => solution.code !== '') ? (
+        <FaCheck />
+      ) : (
+        '-'
       )
     },
     enableSorting: false

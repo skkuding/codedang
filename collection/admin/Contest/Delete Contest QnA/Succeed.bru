@@ -1,0 +1,93 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteContestQnA($contestId: Int!, $order: Int!) {
+    deleteContestQnA(contestId: $contestId, order: $order) {
+      id
+      title
+      content
+      createTime
+      createdById
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "order": 1
+  }
+}
+
+assert {
+  res.body.data.deleteContestQnA: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📘 Delete Contest QnA
+
+  **POST** `/graphql (mutation: deleteContestQnA)`
+
+  Deletes a specific QnA from a contest.
+
+  특정 대회의 특정 순번(`order`)에 해당하는 QnA를 삭제합니다.
+
+  삭제된 QnA 객체를 반환합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Contest Staff)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `contestId` | Int | ✅ | 삭제할 QnA가 속한 대회의 ID |
+  | `order` | Int | ✅ | 삭제할 QnA의 순번(order) |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "data": {
+      "deleteContestQnA": {
+        "id": "7",
+        "title": "20번 대회에 대한 질문",
+        "content": "7번 유저가 작성함",
+        "createTime": "2025-09-18T07:04:20.833Z",
+        "createdById": 7
+      }
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  |---|---|---|---|
+  | id | Int | QnA ID |
+  | title | String | QnA 제목 |
+  | content | String | QnA 내용 |
+  | createTime | GraphQLISODateTime | 생성 시간 |
+  | createdById | Int | 작성자 ID |
+}

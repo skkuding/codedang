@@ -6,7 +6,6 @@ import {
 import { Reflector } from '@nestjs/core'
 import { GqlExecutionContext, type GqlContextType } from '@nestjs/graphql'
 import type { AuthenticatedRequest } from '../authenticated-request.interface'
-import type { AuthenticatedUser } from '../authenticated-user.class'
 import { GROUP_LEADER_NOT_NEEDED_KEY } from '../guard.decorator'
 import { RolesService } from './roles.service'
 
@@ -38,7 +37,7 @@ export class GroupLeaderGuard implements CanActivate {
       groupId = parseInt(request.params.groupId)
     }
 
-    const user: AuthenticatedUser = request.user
+    const user = request.user
     if (!user.role) {
       const userRole = (await this.service.getUserRole(user.id)).role
       user.role = userRole

@@ -40,7 +40,7 @@ export default function Page() {
       inputDescription: '',
       outputDescription: '',
       testcases: [
-        { input: '', output: '', isHidden: false, scoreWeight: null }
+        { input: '', output: '', isHidden: false, scoreWeight: undefined }
       ],
       timeLimit: 2000,
       memoryLimit: 512,

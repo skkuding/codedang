@@ -88,7 +88,6 @@ export async function EditorLayout({
     if (courseRes.ok) {
       const courseData = await courseRes.json<Omit<Course, 'description'>>()
       courseName = courseData.groupName
-      console.log(courseData)
     }
 
     // for getting assignment info and problems list
@@ -122,7 +121,7 @@ export async function EditorLayout({
 
   return (
     <ProblemProvider problem={problem}>
-      <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
+      <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-[#222939] text-white">
         <header className="flex h-12 justify-between bg-slate-900 px-6">
           <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
             <Link href="/">
@@ -270,10 +269,10 @@ const renderTimediff = ({
   }
   const item = assignment ?? exercise
 
-  if (item && hasDueDate(item.dueTime)) {
+  if (item && (item.dueTime ?? hasDueDate(item.endTime))) {
     return (
       <CountdownStatus
-        baseTime={item.dueTime}
+        baseTime={item.dueTime ?? item.endTime}
         target={assignment ? 'assignment' : 'exercise'}
         showTarget={false}
         inEditor={true}

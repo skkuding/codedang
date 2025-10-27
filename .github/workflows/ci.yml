@@ -148,13 +148,11 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
       TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
-      STORAGE_BUCKET_ENDPOINT_URL: http://localhost:9000
+      MINIO_ENDPOINT_URL: http://localhost:9000
       TESTCASE_BUCKET_NAME: test-bucket
-      TESTCASE_ACCESS_KEY: abc123
-      TESTCASE_SECRET_KEY: xyz123456
       MEDIA_BUCKET_NAME: image-bucket
-      MEDIA_ACCESS_KEY: abc123
-      MEDIA_SECRET_KEY: xyz123456
+      AWS_ACCESS_KEY_ID: abc123
+      AWS_SECRET_ACCESS_KEY: xyz123456
       REDIS_HOST: localhost
       REDIS_PORT: 6380
 
@@ -171,15 +169,18 @@ jobs:
         # NOTE: GitHub Actions service containers do not support custom commands.
         # This image from Bitnami includes the command to run MinIO.
         # https://stackoverflow.com/questions/60849745/how-can-i-run-a-command-in-github-action-service-containers
-        image: bitnami/minio:2025.7.23
+        # NOTE: Bitnami images for community-tier users are restricted to the latest tag.
+        # https://github.com/bitnami/charts/issues/35164
+        # NOTE: due to instability of Bitnami image, switch to lazybit's image
+        # https://stackoverflow.com/questions/64031598/creating-a-minios3-container-inside-a-github-actions-yml-file
+        image: lazybit/minio:latest
         ports:
           - 9000:9000
           - 9001:9001
         env:
-          MINIO_ROOT_USER: ${{ env.TESTCASE_ACCESS_KEY }}
-          MINIO_ROOT_PASSWORD: ${{ env.TESTCASE_SECRET_KEY }}
-        volumes:
-          - minio-storage:/data
+          MINIO_ROOT_USER: ${{ env.AWS_ACCESS_KEY_ID }}
+          MINIO_ROOT_PASSWORD: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          MINIO_BROWSER: 'off'
       redis:
         image: redis:7-alpine
         ports:
@@ -218,6 +219,9 @@ jobs:
       - name: Initialize MinIO
         if: steps.filter.outputs.backend == 'true'
         run: pnpm run init:storage
+        env:
+          MINIO_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          MINIO_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
 
       - name: Test
         if: steps.filter.outputs.backend == 'true'

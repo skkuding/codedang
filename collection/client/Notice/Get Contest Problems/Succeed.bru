@@ -1,0 +1,69 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/contest/:contestId/problem?take=5
+  body: none
+  auth: none
+}
+
+params:query {
+  take: 5
+  ~cursor: 4
+}
+
+params:path {
+  contestId: 1
+}
+
+assert {
+  res.status: eq 200
+  res.body.problems[0].id: isNumber
+  res.body.problems[0].title: isString
+  res.body.problems[0].difficulty: isString
+  res.body.problems[0].submissionCount: isNumber
+  res.body.problems[0].acceptedRate: isNumber
+  res.body.problems[0].order: isNumber
+  res.body.total: isNumber
+}
+
+docs {
+  # 📘 Get Contest Problems
+
+  **GET** `/contest/:contestId/problem`
+
+  이 함수는 다음과 같은 조건에 따라 대회 속 여러개의 문제 정보들을 가져옵니다.
+  - contestId 속 문제 정보를 take 개수만큼 가져옵니다.
+
+  1. 운영진 (Admin, Manager, Reviewer)
+    - 대회 시점과 관계 없이 문제 목록을 열람할 수 있습니다.
+
+  2. 일반 사용자
+    > 대회가 진행중인 경우
+      - 대회에 등록한 사용자만 대회가 끝나기 전까지 문제를 열람할 수 있습니다.
+    > 대회가 진행중이지 않은 경우
+      - 대회에 등록한 사용자는 대회 시작 전까지 문제를 열람할 수 없습니다.
+      - 대회가 끝난 경우 로그인하지 않은 사용자도 문제 목록을 열람할 수 있습니다.
+
+  3. 예외 상황 발생
+    - 대회 시작 전에 문제를 열람하는 경우 403 Registered but not started 예외 발생
+    - 존재하지 않는 contestId를 입력할 경우 ForbiddenAccessException 예외 발생
+
+  ### 📥 Request Parameters
+
+  #### Query Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `take` | number | ✅ | 해당 contestId 속에서 가져올 problem 개수를 지정 |
+  | `cursor`  | number | ✅ | 문제 가져올 시작점 지정 -> cursor값 다음의 ID를 가진 문제들 반환 |
+
+  #### Path Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `contestId` | number | ✅ | 가져올 대회 지정 |
+}

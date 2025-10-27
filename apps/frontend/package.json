@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.13.9",
+    "@aws-sdk/client-secrets-manager": "^3.872.0",
     "@channel.io/channel-web-sdk-loader": "^2.0.0",
     "@codemirror/lang-cpp": "^6.0.3",
     "@codemirror/lang-java": "^6.0.2",
@@ -126,6 +127,7 @@
     "sonner": "^1.7.4",
     "tippy.js": "^6.3.7",
     "valibot": "1.1.0",
+    "vaul": "^1.1.2",
     "web-push": "^3.6.7",
     "xlsx": "^0.18.5",
     "zustand": "^5.0.7"

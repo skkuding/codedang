@@ -1,0 +1,49 @@
+meta {
+  name: [ERR] Nonexistent ContestQnAComment
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ToggleContestQnAResolved(
+    $contestId: Int!,
+    $qnAOrder: Int!
+  ) {
+    toggleContestQnAResolved(
+      contestId: $contestId,
+      qnAOrder: $qnAOrder
+    ) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 1,
+    "qnAOrder": 2
+  }
+}
+
+script:pre-request {
+  await require("./login").loginAdmin(req);
+}
+
+
+docs {
+  # 📙 [ERR] Nonexistent ContestQnAComment
+
+  **POST** `/graphql (mutation: toggleContestQnAResolved)`
+
+  The QnA has no comments to resolve.
+
+  댓글이 하나도 없는 QnA의 해결 상태를 변경하려고 할 때,
+
+  `BadRequestException`이 발생합니다.
+}

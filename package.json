@@ -5,6 +5,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "init:storage": "ts-node scripts/init-storage.ts",
+    "init:rabbitmq": "ts-node scripts/init-rabbitmq.ts",
     "knip": "knip"
   },
   "devDependencies": {
@@ -17,7 +18,9 @@
     "@next/eslint-plugin-next": "^15.4.6",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@tsconfig/recommended": "^1.0.10",
+    "@types/amqplib": "^0.10.7",
     "@types/node": "^22.17.1",
+    "amqplib": "^0.10.9",
     "eslint": "^9.33.0",
     "eslint-config-next": "^15.4.6",
     "eslint-config-prettier": "^10.1.8",
@@ -36,5 +39,8 @@
   "packageManager": "pnpm@10.14.0",
   "engines": {
     "node": "^22.18.0"
+  },
+  "dependencies": {
+    "web-push": "^3.6.7"
   }
 }
