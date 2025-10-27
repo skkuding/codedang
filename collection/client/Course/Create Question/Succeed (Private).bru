@@ -1,0 +1,46 @@
+meta {
+  name: Succeed (Private)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/course/1/qna
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "개인적인 질문이 있습니다",
+    "content": "제 과제 점수가 왜 낮은지 여쭤보고 싶습니다.",
+    "isPrivate": true
+  }
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should create a private question", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(201);
+    expect(data.isPrivate).to.equal(true);
+    expect(data.title).to.equal("개인적인 질문이 있습니다");
+    expect(data.category).to.equal("general");
+  });
+}
+
+docs {
+  # 📘 Create Private Course Question
+
+  **POST** `/course/:id/qna`
+
+  비밀글로 질문을 등록합니다.
+
+  `isPrivate: true`로 설정하면 작성자와 교수/조교만 해당 질문을 열람할 수 있습니다.
+
+  비밀글은 Q&A 목록 조회 시 일반 학생에게는 보이지 않으며, 상세 조회 시에도 권한이 없으면 403 Forbidden 에러가 발생합니다.
+}

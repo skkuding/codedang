@@ -1,0 +1,41 @@
+meta {
+  name: [ERR] Nonexistent Course
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetCourseQnAs($groupId: Int!) {
+    getCourseQnAs(groupId: $groupId) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 999
+  }
+}
+
+script:pre-request {
+  await require("./login").loginInstructor(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent Course
+
+  **POST** `/graphql (query: getCourseQnAs)`
+
+  Returns empty array when the course does not exist.
+
+  존재하지 않는 `groupId`로 Q&A 목록 조회를 요청했을 때,
+
+  빈 배열(`[]`)을 반환합니다.
+}

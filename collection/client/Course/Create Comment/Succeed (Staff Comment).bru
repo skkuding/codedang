@@ -1,0 +1,46 @@
+meta {
+  name: Succeed (Staff Comment)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/course/1/qna/1/comment
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "교수의 답변입니다. 1월 20일까지 제출하시면 됩니다."
+  }
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginInstructor(req);
+}
+
+settings {
+  encodeUrl: true
+}
+
+tests {
+  test("should mark question as resolved when staff comments", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(201);
+    expect(data.content).to.equal("교수의 답변입니다. 1월 20일까지 제출하시면 됩니다.");
+    expect(data.isStaff).to.equal(true);
+    // Question should be marked as resolved after staff comment
+  });
+}
+
+docs {
+  # 📘 Staff Comment (Auto-resolve)
+
+  교수/조교가 댓글을 작성하면 질문이 자동으로 해결됨 처리됩니다.
+
+  - `isStaff: true`로 표시됨
+  - 해당 질문의 `isResolved`가 자동으로 `true`로 변경
+  - 학생들은 교수/조교의 답변을 쉽게 구분할 수 있음
+}

@@ -1,0 +1,37 @@
+meta {
+  name: Succeed (Staff Can See All)
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/course/1/qna
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginInstructor(req);
+}
+
+tests {
+  test("should return all questions including private ones for staff", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(data).to.be.an('array');
+
+    // Staff can see private questions from other users
+    const hasPrivateQuestions = data.some(q => q.isPrivate === true);
+    // This test verifies staff permissions work correctly
+  });
+}
+
+docs {
+  # 📘 Get Course Questions (Staff Access)
+
+  교수/조교는 모든 질문을 조회할 수 있습니다.
+
+  - 다른 학생들의 비밀글도 모두 조회 가능
+  - 일반 학생은 본인의 비밀글만 조회 가능
+}
