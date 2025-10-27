@@ -1346,6 +1346,151 @@ input CourseInput {
   week: Int!
 }
 
+type CourseNotice {
+  CourseNoticeComment: [CourseNoticeComment!]
+  _count: CourseNoticeCount!
+  content: String!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  group: Group!
+  groupId: Int!
+  id: ID!
+  isFixed: Boolean!
+  isPublic: Boolean!
+  readBy: [Int!]
+  title: String!
+  updateTime: DateTime!
+}
+
+type CourseNoticeAvgAggregate {
+  createdById: Float
+  groupId: Float
+  id: Float
+  readBy: Float
+}
+
+type CourseNoticeComment {
+  CourseNoticeComment: [CourseNoticeComment!]
+  _count: CourseNoticeCommentCount!
+  content: String!
+  courseNotice: CourseNotice!
+  courseNoticeId: Int!
+  createdBy: User
+  createdById: Int
+  createdTime: DateTime!
+  id: ID!
+  isDeleted: Boolean!
+  isSecret: Boolean!
+  replyOn: CourseNoticeComment
+  replyOnId: Int
+  updateTime: DateTime!
+}
+
+type CourseNoticeCommentAvgAggregate {
+  courseNoticeId: Float
+  createdById: Float
+  id: Float
+  replyOnId: Float
+}
+
+type CourseNoticeCommentCount {
+  CourseNoticeComment: Int!
+}
+
+type CourseNoticeCommentCountAggregate {
+  _all: Int!
+  content: Int!
+  courseNoticeId: Int!
+  createdById: Int!
+  createdTime: Int!
+  id: Int!
+  isDeleted: Int!
+  isSecret: Int!
+  replyOnId: Int!
+  updateTime: Int!
+}
+
+type CourseNoticeCommentMaxAggregate {
+  content: String
+  courseNoticeId: Int
+  createdById: Int
+  createdTime: DateTime
+  id: Int
+  isDeleted: Boolean
+  isSecret: Boolean
+  replyOnId: Int
+  updateTime: DateTime
+}
+
+type CourseNoticeCommentMinAggregate {
+  content: String
+  courseNoticeId: Int
+  createdById: Int
+  createdTime: DateTime
+  id: Int
+  isDeleted: Boolean
+  isSecret: Boolean
+  replyOnId: Int
+  updateTime: DateTime
+}
+
+type CourseNoticeCommentSumAggregate {
+  courseNoticeId: Int
+  createdById: Int
+  id: Int
+  replyOnId: Int
+}
+
+type CourseNoticeCount {
+  CourseNoticeComment: Int!
+}
+
+type CourseNoticeCountAggregate {
+  _all: Int!
+  content: Int!
+  createTime: Int!
+  createdById: Int!
+  groupId: Int!
+  id: Int!
+  isFixed: Int!
+  isPublic: Int!
+  readBy: Int!
+  title: Int!
+  updateTime: Int!
+}
+
+type CourseNoticeMaxAggregate {
+  content: String
+  createTime: DateTime
+  createdById: Int
+  groupId: Int
+  id: Int
+  isFixed: Boolean
+  isPublic: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type CourseNoticeMinAggregate {
+  content: String
+  createTime: DateTime
+  createdById: Int
+  groupId: Int
+  id: Int
+  isFixed: Boolean
+  isPublic: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type CourseNoticeSumAggregate {
+  createdById: Int
+  groupId: Int
+  id: Int
+  readBy: [Int!]
+}
+
 input CreateAnnouncementInput {
   """content of announcement"""
   content: String!
@@ -1387,6 +1532,14 @@ input CreateContestInput {
   summary: JSON
   title: String!
   userContest: [UserContestInput!]
+}
+
+input CreateCourseNoticeInput {
+  content: String!
+  groupId: Int!
+  isFixed: Boolean! = false
+  isPublic: Boolean! = true
+  title: String!
 }
 
 input CreateNoticeInput {
@@ -1481,6 +1634,7 @@ input FilterProblemsInput {
 }
 
 type FindGroup {
+  CourseNotice: [CourseNotice!]
   GroupWhitelist: [GroupWhitelist!]
   _count: GroupCount!
   assignment: [Assignment!]
@@ -1525,6 +1679,7 @@ input GetContestSubmissionsInput {
 }
 
 type Group {
+  CourseNotice: [CourseNotice!]
   GroupWhitelist: [GroupWhitelist!]
   _count: GroupCount!
   assignment: [Assignment!]
@@ -1556,6 +1711,7 @@ type GroupAvgAggregate {
 }
 
 type GroupCount {
+  CourseNotice: Int!
   GroupWhitelist: Int!
   assignment: Int!
   sharedProblems: Int!
@@ -1678,11 +1834,13 @@ enum Level {
 
 type Mutation {
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
+  cloneCourseNotices(cloneToId: Int!, courseNoticeIds: [Int!]!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!
   createContestQnAComment(content: String!, contestId: Int!, order: Int!): ContestQnAComment!
   createCourse(input: CourseInput!): Group!
+  createCourseNotice(input: CreateCourseNoticeInput!): CourseNotice!
   createNotice(input: CreateNoticeInput!): Notice!
   createProblem(input: CreateProblemInput!): ProblemWithIsVisible!
   createTag(tagName: String!): Tag!
@@ -1693,6 +1851,7 @@ type Mutation {
   deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
   deleteContestQnAComment(commentOrder: Int!, contestId: Int!, qnAOrder: Int!): ContestQnAComment!
   deleteCourse(groupId: Int!): Group!
+  deleteCourseNotice(courseNoticeId: Int!): CourseNotice!
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
   deleteNotice(noticeId: Int!): Notice!
@@ -1722,6 +1881,7 @@ type Mutation {
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
   updateCourse(groupId: Int!, input: CourseInput!): Group!
+  updateCourseNotice(courseNoticeId: Int!, input: UpdateCourseNoticeInput!): CourseNotice!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
   updateNotice(input: UpdateNoticeInput!, noticeId: Int!): Notice!
@@ -2947,6 +3107,13 @@ input UpdateContestInput {
   userContest: [UserContestInput!]
 }
 
+input UpdateCourseNoticeInput {
+  content: String
+  isFixed: Boolean = false
+  isPublic: Boolean = true
+  title: String
+}
+
 type UpdateCreationPermissionResult {
   canCreateContest: Boolean!
   canCreateCourse: Boolean!
@@ -3068,6 +3235,8 @@ input UploadTestcaseZipLegacyInput {
 }
 
 type User {
+  CourseNotice: [CourseNotice!]
+  CourseNoticeComment: [CourseNoticeComment!]
   NotificationRecord: [NotificationRecord!]
   PushSubscription: [PushSubscription!]
   UpdateHistory: [UpdateHistory!]
@@ -3199,6 +3368,8 @@ type UserContestSumAggregate {
 }
 
 type UserCount {
+  CourseNotice: Int!
+  CourseNoticeComment: Int!
   NotificationRecord: Int!
   PushSubscription: Int!
   UpdateHistory: Int!
