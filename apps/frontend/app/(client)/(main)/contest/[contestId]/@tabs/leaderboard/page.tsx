@@ -46,6 +46,7 @@ const BaseFetchedContest = {
 
 export default function ContestLeaderBoard() {
   const [searchText, setSearchText] = useState('')
+  const [isFinished, setIsFinished] = useState(false)
   const pathname = usePathname()
   const contestId = Number(pathname.split('/')[2])
 
@@ -85,6 +86,9 @@ export default function ContestLeaderBoard() {
         contestLeaderboard.contestRole === 'Admin' ||
         contestLeaderboard.contestRole === 'Manager'
 
+      if (contestEndTime <= now) {
+        setIsFinished(true)
+      }
       if (!hasContestAuth && contestEndTime > now && contestStartTime < now) {
         throw new Error('Error(ongoing): The contest has not ended yet.')
       }
@@ -132,13 +136,15 @@ export default function ContestLeaderBoard() {
           CHECK YOUR RANKING!
         </div>
         <LeaderboardModalDialog />
-        <div className="text-primary ml-8 flex items-center gap-3">
-          On Live
-          <span className="relative flex size-3">
-            <span className="bg-primary-light absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
-            <span className="bg-primary relative inline-flex size-3 rounded-full" />
-          </span>
-        </div>
+        {isFinished ? null : (
+          <div className="text-primary ml-8 flex items-center gap-3">
+            On Live
+            <span className="relative flex size-3">
+              <span className="bg-primary-light absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+              <span className="bg-primary relative inline-flex size-3 rounded-full" />
+            </span>
+          </div>
+        )}
       </div>
       <div className="relative mb-[62px] mt-[30px]">
         <Image
