@@ -10,16 +10,9 @@ import {
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
 import { cn } from '@/libs/utils'
-import type { ZipUploadedTestcase } from '@/types/type'
 import type { Testcase } from '@generated/graphql'
 import Image from 'next/image'
-import {
-  useEffect,
-  useMemo,
-  useState,
-  useImperativeHandle,
-  forwardRef
-} from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowRotateLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
@@ -29,29 +22,7 @@ import { isInvalid } from '../_libs/utils'
 import { TestcaseItem } from './TestcaseItem'
 import { TestcaseUploadModal } from './TestcaseUploadModal'
 
-type ExtendedTestcase = Testcase | ZipUploadedTestcase
-
-interface ZipTestcaseInfo {
-  index: number
-  scoreWeight?: number | null
-  scoreWeightNumerator?: number | null
-  scoreWeightDenominator?: number | null
-}
-
-export interface TestcaseFieldRef {
-  getZipUploadedTestcases: () => {
-    [key: string]: {
-      file: File
-      testcases: ZipTestcaseInfo[]
-      isHidden: boolean
-    }
-  }
-}
-
-export const TestcaseField = forwardRef<
-  TestcaseFieldRef,
-  { blockEdit?: boolean }
->(({ blockEdit = false }, ref) => {
+export function TestcaseField({ blockEdit = false }: { blockEdit?: boolean }) {
   const {
     formState: { errors },
     getValues,
@@ -62,10 +33,7 @@ export const TestcaseField = forwardRef<
     clearErrors
   } = useFormContext()
 
-  const watchedItems: ExtendedTestcase[] = useWatch({
-    name: 'testcases',
-    control
-  })
+  const watchedItems: Testcase[] = useWatch({ name: 'testcases', control })
 
   const itemErrors = errors.testcases as FieldErrorsImpl
 
@@ -82,16 +50,9 @@ export const TestcaseField = forwardRef<
     x: 0,
     y: 0
   })
-  const [zipUploadedFiles, setZipUploadedFiles] = useState<{
-    [key: string]: File
-  }>({})
-  const [hasZipUploaded, setHasZipUploaded] = useState<{
-    sample: boolean
-    hidden: boolean
-  }>({ sample: false, hidden: false })
 
   useEffect(() => {
-    const isScoreAssigned = (tc: ExtendedTestcase) =>
+    const isScoreAssigned = (tc: Testcase) =>
       typeof tc.scoreWeight === 'number' ||
       (typeof tc.scoreWeightNumerator === 'number' &&
         typeof tc.scoreWeightDenominator === 'number')
@@ -111,39 +72,21 @@ export const TestcaseField = forwardRef<
   }
 
   const handleUploadTestcases = (
-    uploadedTestcases: Array<{ input: string; output: string }>,
-    zipFile: File
+    uploadedTestcases: Array<{ input: string; output: string }>
   ) => {
     const currentTestcases = getValues('testcases')
     const isHidden = testcaseFlag === 1
 
-    const zipKey = `${isHidden ? 'hidden' : 'sample'}_${Date.now()}`
-    setZipUploadedFiles((prev) => ({
-      ...prev,
-      [zipKey]: zipFile
-    }))
-
-    const filteredTestcases = currentTestcases.filter(
-      (tc: ExtendedTestcase) => tc.isHidden !== isHidden
-    )
-
-    const newTestcases = uploadedTestcases.map(() => ({
+    const newTestcases = uploadedTestcases.map((testcase) => ({
       id: null,
-      input: '',
-      output: '',
+      input: testcase.input,
+      output: testcase.output,
       isHidden,
-      scoreWeight: null,
-      isZipUploaded: true,
-      zipKey
+      scoreWeight: null
     }))
 
-    setValue('testcases', [...filteredTestcases, ...newTestcases])
+    setValue('testcases', [...currentTestcases, ...newTestcases])
     setDataChangeTrigger((prev) => prev + 1)
-
-    setHasZipUploaded((prev) => ({
-      ...prev,
-      [isHidden ? 'hidden' : 'sample']: true
-    }))
   }
   const handleSelectTestcase = (index: number, isSelected: boolean) => {
     setSelectedTestcases((prev) =>
@@ -152,7 +95,7 @@ export const TestcaseField = forwardRef<
   }
 
   const deleteSelectedTestcases = () => {
-    const currentValues: ExtendedTestcase[] = getValues('testcases')
+    const currentValues: Testcase[] = getValues('testcases')
     if (currentValues.length <= selectedTestcases.length) {
       setDialogDescription('At least one test case must be retained.')
       setDialogOpen(true)
@@ -166,17 +109,7 @@ export const TestcaseField = forwardRef<
   }
 
   const removeItem = (index: number) => {
-    const currentValues: ExtendedTestcase[] = getValues('testcases')
-
-    const itemToRemove = currentValues[index]
-    if (
-      itemToRemove &&
-      'isZipUploaded' in itemToRemove &&
-      itemToRemove.isZipUploaded
-    ) {
-      return
-    }
-
+    const currentValues: Testcase[] = getValues('testcases')
     if (currentValues.length <= 1) {
       setDialogDescription(
         'You cannot delete the testcase if it is the only one in the list. There must be at least one testcase in order to create this problem.'
@@ -184,7 +117,6 @@ export const TestcaseField = forwardRef<
       setDialogOpen(true)
       return
     }
-
     const updatedValues = currentValues.filter((_, i) => i !== index)
     setValue('testcases', updatedValues)
   }
@@ -194,7 +126,7 @@ export const TestcaseField = forwardRef<
   }
 
   const equalDistribution = () => {
-    const currentValues: ExtendedTestcase[] = getValues('testcases')
+    const currentValues: Testcase[] = getValues('testcases')
 
     const totalAssignedScore = currentValues
       .map((tc) => tc.scoreWeight ?? 0)
@@ -222,8 +154,6 @@ export const TestcaseField = forwardRef<
     const unassignedTestcases = currentValues
       .map((tc, index) => ({ ...tc, index }))
       .filter((tc) => isInvalid(tc.scoreWeight))
-    console.log(unassignedTestcases.length)
-
     const unassignedCount = unassignedTestcases.length
 
     if (unassignedCount === 0) {
@@ -254,7 +184,7 @@ export const TestcaseField = forwardRef<
   }
 
   const initializeScore = () => {
-    const currentValues: ExtendedTestcase[] = getValues('testcases')
+    const currentValues: Testcase[] = getValues('testcases')
     const updatedTestcases = currentValues.map((tc) => {
       return {
         ...tc,
@@ -270,7 +200,7 @@ export const TestcaseField = forwardRef<
   const [currentPage, setCurrentPage] = useState(1)
 
   const [filteredItems, setFilteredItems] = useState<
-    (ExtendedTestcase & { originalIndex: number })[]
+    (Testcase & { originalIndex: number })[]
   >([])
 
   const filteredTC = useMemo(() => {
@@ -363,7 +293,7 @@ export const TestcaseField = forwardRef<
     if (currentItems.length === 0 && currentPage > 1 && dataChangeTrigger > 0) {
       setCurrentPage((p) => p - 1)
     }
-  }, [currentItems, currentPage, dataChangeTrigger])
+  }, [currentItems])
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (blockEdit) {
@@ -395,46 +325,7 @@ export const TestcaseField = forwardRef<
     } else {
       clearErrors('testcasesTotal')
     }
-  }, [mustSumToHundred, setError, clearErrors])
-  const getZipUploadedTestcases = () => {
-    const testcases = getValues('testcases')
-    const zipGroups: {
-      [key: string]: {
-        file: File
-        testcases: ZipTestcaseInfo[]
-        isHidden: boolean
-      }
-    } = {}
-
-    testcases.forEach((tc: ExtendedTestcase, index: number) => {
-      if (
-        'isZipUploaded' in tc &&
-        tc.isZipUploaded &&
-        'zipKey' in tc &&
-        tc.zipKey
-      ) {
-        if (!zipGroups[tc.zipKey]) {
-          zipGroups[tc.zipKey] = {
-            file: zipUploadedFiles[tc.zipKey],
-            testcases: [],
-            isHidden: tc.isHidden
-          }
-        }
-        zipGroups[tc.zipKey].testcases.push({
-          index,
-          scoreWeight: tc.scoreWeight,
-          scoreWeightNumerator: tc.scoreWeightNumerator,
-          scoreWeightDenominator: tc.scoreWeightDenominator
-        })
-      }
-    })
-
-    return zipGroups
-  }
-
-  useImperativeHandle(ref, () => ({
-    getZipUploadedTestcases
-  }))
+  }, [mustSumToHundred, setError, clearErrors, totalScoreNum])
 
   return (
     <div
@@ -506,7 +397,6 @@ export const TestcaseField = forwardRef<
                   <TestcaseUploadModal
                     onUpload={handleUploadTestcases}
                     isHidden={false}
-                    disabled={hasZipUploaded.hidden}
                   />
                   <button
                     onClick={() => {
@@ -516,13 +406,11 @@ export const TestcaseField = forwardRef<
                     type="button"
                     className={cn(
                       'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                      selectedTestcases.length > 0 && !hasZipUploaded.sample
+                      selectedTestcases.length > 0
                         ? 'bg-[#FC5555] text-white'
                         : 'bg-gray-300 text-gray-600'
                     )}
-                    disabled={
-                      selectedTestcases.length === 0 || hasZipUploaded.sample
-                    }
+                    disabled={selectedTestcases.length === 0}
                   >
                     <Image
                       src="/icons/trashcan.svg"
@@ -540,13 +428,7 @@ export const TestcaseField = forwardRef<
                       setDataChangeTrigger((prev) => prev + 1)
                     }}
                     type="button"
-                    className={cn(
-                      'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                      hasZipUploaded.sample
-                        ? 'bg-gray-300 text-gray-600'
-                        : 'bg-primary text-white'
-                    )}
-                    disabled={hasZipUploaded.sample}
+                    className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
                   >
                     <Image
                       src="/icons/plus-circle-white.svg"
@@ -577,9 +459,6 @@ export const TestcaseField = forwardRef<
                       handleSelectTestcase(item.originalIndex, isSelected)
                     }
                     isSelected={selectedTestcases.includes(item.originalIndex)}
-                    isZipUploaded={
-                      'isZipUploaded' in item && item.isZipUploaded
-                    }
                   />
                 )
               )
@@ -633,7 +512,6 @@ export const TestcaseField = forwardRef<
                   <TestcaseUploadModal
                     onUpload={handleUploadTestcases}
                     isHidden={true}
-                    disabled={hasZipUploaded.sample}
                   />
                   <button
                     onClick={() => {
@@ -643,13 +521,11 @@ export const TestcaseField = forwardRef<
                     type="button"
                     className={cn(
                       'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                      selectedTestcases.length > 0 && !hasZipUploaded.hidden
+                      selectedTestcases.length > 0
                         ? 'bg-[#FC5555] text-white'
                         : 'bg-gray-300 text-gray-600'
                     )}
-                    disabled={
-                      selectedTestcases.length === 0 || hasZipUploaded.hidden
-                    }
+                    disabled={selectedTestcases.length === 0}
                   >
                     <Image
                       src="/icons/trashcan.svg"
@@ -668,13 +544,7 @@ export const TestcaseField = forwardRef<
                       setDataChangeTrigger((prev) => prev + 1)
                     }}
                     type="button"
-                    className={cn(
-                      'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                      hasZipUploaded.hidden
-                        ? 'bg-gray-300 text-gray-600'
-                        : 'bg-primary text-white'
-                    )}
-                    disabled={hasZipUploaded.hidden}
+                    className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#3581FA] px-[22px] py-[10px]"
                   >
                     <Image
                       src="/icons/plus-circle-white.svg"
@@ -705,9 +575,6 @@ export const TestcaseField = forwardRef<
                       handleSelectTestcase(item.originalIndex, isSelected)
                     }
                     isSelected={selectedTestcases.includes(item.originalIndex)}
-                    isZipUploaded={
-                      'isZipUploaded' in item && item.isZipUploaded
-                    }
                   />
                 )
               )
@@ -811,6 +678,4 @@ export const TestcaseField = forwardRef<
       />
     </div>
   )
-})
-
-TestcaseField.displayName = 'TestcaseField'
+}
