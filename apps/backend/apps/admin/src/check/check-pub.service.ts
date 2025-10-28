@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { CheckRequest } from '@prisma/client'
-import { Span, TraceService } from 'nestjs-otel'
+import { Span } from 'nestjs-otel'
+import { AMQPService } from '@libs/amqp'
 import { CHECK_MESSAGE_TYPE, CHECK_EXCHANGE, CHECK_KEY } from '@libs/constants'
 import { CheckRequestMsg } from './model/check-request'
 
@@ -9,10 +9,7 @@ import { CheckRequestMsg } from './model/check-request'
 export class CheckPublicationService {
   private readonly logger = new Logger(CheckPublicationService.name)
 
-  constructor(
-    private readonly amqpConnection: AmqpConnection,
-    private readonly traceService: TraceService
-  ) {}
+  constructor(private readonly amqpService: AMQPService) {}
 
   @Span()
   async publishCheckRequestMessage({
@@ -31,17 +28,14 @@ export class CheckPublicationService {
       check.workbookId ? check.workbookId : undefined
     )
 
-    const span = this.traceService.startSpan(
-      'publishCheckRequestMessage.publish'
-    )
+    /*await this.amqpService.publishCheckRequestMessage(
+      checkRequest
+    )*/
 
-    span.setAttributes({ checkId: check.id })
-
-    await this.amqpConnection.publish(CHECK_EXCHANGE, CHECK_KEY, checkRequest, {
+    /*await this.amqpConnection.publish(CHECK_EXCHANGE, CHECK_KEY, checkRequest, {
       messageId: String(check.id),
       type: CHECK_MESSAGE_TYPE,
       persistent: true
-    })
-    span.end()
+    })*/
   }
 }

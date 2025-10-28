@@ -97,7 +97,7 @@ export class CheckService {
         dueTime: true
       }
     })
-    if (!assignmentDueTime) {
+    if (!assignmentDueTime || !assignmentDueTime.dueTime) {
       throw new EntityNotExistException('AssignmentDueTime')
     }
     if (assignmentDueTime.dueTime.getTime() > Date.now()) {
