@@ -25,9 +25,6 @@ export const MESSAGE_PRIORITY_LOW = 1
  * 표절 검사 요청 메시지 관련
  */
 
-export const CHECK_PUBLISH_CHANNEL = 'check-publish-channel'
-export const CHECK_CONSUME_CHANNEL = 'check-result-consume-channel'
-
 export const CHECK_EXCHANGE = 'plag.e.direct.check'
 
 export const CHECK_KEY = 'check.request'

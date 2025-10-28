@@ -10,7 +10,6 @@ import {
   CHECK_EXCHANGE,
   CHECK_RESULT_KEY,
   CHECK_RESULT_QUEUE,
-  CHECK_CONSUME_CHANNEL,
   CHECK_KEY,
   CHECK_MESSAGE_TYPE,
   RUN_MESSAGE_TYPE,
@@ -173,7 +172,7 @@ export class CheckAMQPService {
         routingKey: CHECK_RESULT_KEY,
         queue: CHECK_RESULT_QUEUE,
         queueOptions: {
-          channel: CHECK_CONSUME_CHANNEL
+          channel: CONSUME_CHANNEL
         }
       },
       ORIGIN_HANDLER_NAME
@@ -181,7 +180,7 @@ export class CheckAMQPService {
   }
 
   /**
-   * 채점 요청 메시지를 발행합니다.
+   * 표절 검사 요청 메시지를 발행합니다.
    */
   @Span()
   async publishCheckRequestMessage(
