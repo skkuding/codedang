@@ -1,18 +1,11 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
-import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
 import { CheckResultStatus } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { validateOrReject, ValidationError } from 'class-validator'
 import { Span } from 'nestjs-otel'
-import {
-  CHECK_CONSUME_CHANNEL,
-  CHECK_RESULT_KEY,
-  CHECK_RESULT_QUEUE,
-  ORIGIN_HANDLER_NAME,
-  CheckStatus,
-  CHECK_EXCHANGE
-} from '@libs/constants'
+import { CheckAMQPService } from '@libs/amqp'
+import { CheckStatus } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { FileService } from './file.service'
@@ -25,15 +18,14 @@ export class CheckSubscriptionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpConnection: AmqpConnection,
+    private readonly amqpService: CheckAMQPService,
     private readonly fileService: FileService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   onModuleInit() {
-    this.amqpConnection.createSubscriber(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async (msg: object, raw: any) => {
+    this.amqpService.setMessageHandlers({
+      onCheckMessage: async (msg: object) => {
         try {
           this.logger.debug(msg, 'Received Check Result Message')
           const res = await this.validateCheckResponse(msg)
@@ -49,19 +41,11 @@ export class CheckSubscriptionService implements OnModuleInit {
           } else {
             this.logger.error(error, 'Unexpected error')
           }
-          return new Nack()
+          throw error // MQTT 서비스에서 Nack 처리
         }
-      },
-      {
-        exchange: CHECK_EXCHANGE,
-        routingKey: CHECK_RESULT_KEY,
-        queue: CHECK_RESULT_QUEUE,
-        queueOptions: {
-          channel: CHECK_CONSUME_CHANNEL
-        }
-      },
-      ORIGIN_HANDLER_NAME
-    )
+      }
+    })
+    this.amqpService.startSubscription()
   }
 
   @Span()

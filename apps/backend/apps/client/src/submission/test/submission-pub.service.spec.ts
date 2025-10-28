@@ -3,7 +3,7 @@ import type { Submission, SubmissionResult } from '@prisma/client'
 import { expect } from 'chai'
 import { TraceService } from 'nestjs-otel'
 import * as sinon from 'sinon'
-import { AMQPService } from '@libs/amqp'
+import { JudgeAMQPService } from '@libs/amqp'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { JudgeRequest, UserTestcaseJudgeRequest } from '../class/judge-request'
@@ -29,7 +29,7 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
 
 describe('SubmissionPublicationService', () => {
   let service: SubmissionPublicationService
-  let amqpService: AMQPService
+  let amqpService: JudgeAMQPService
 
   const sandbox = sinon.createSandbox()
 
@@ -42,7 +42,7 @@ describe('SubmissionPublicationService', () => {
           useValue: db
         },
         {
-          provide: AMQPService,
+          provide: JudgeAMQPService,
           useFactory: () => ({
             publishJudgeRequestMessage: () => []
           })
@@ -54,7 +54,7 @@ describe('SubmissionPublicationService', () => {
     service = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
     )
-    amqpService = module.get<AMQPService>(AMQPService)
+    amqpService = module.get<JudgeAMQPService>(JudgeAMQPService)
   })
 
   afterEach(() => {
