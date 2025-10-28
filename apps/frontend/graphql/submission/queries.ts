@@ -185,10 +185,6 @@ const GET_ASSIGNMENT_LATEST_SUBMISSION = gql(`
       problemId
       testcaseResult {
         id
-        problemTestcase {
-          input
-          output
-        }
         submissionId
         updateTime
         createTime

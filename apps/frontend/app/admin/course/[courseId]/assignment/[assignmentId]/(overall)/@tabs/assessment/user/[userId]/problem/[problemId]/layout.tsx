@@ -1,5 +1,4 @@
 import { EditorLayout } from '@/app/admin/_components/code-editor/EditorLayout'
-import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'

@@ -1,14 +1,15 @@
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
-import { dateFormatter, getResultColor } from '@/libs/utils'
+import { dateFormatter } from '@/libs/utils'
 import infoIcon from '@/public/icons/info.svg'
-import type { SubmissionDetail } from '@generated/graphql'
+import type { SubmissionDetail, TestCaseResult } from '@generated/graphql'
 import Image from 'next/image'
 
 interface SubmissionSummaryProps {
-  submission: Pick<
-    SubmissionDetail,
-    'language' | 'updateTime' | 'codeSize' | 'testcaseResult'
-  > | null
+  submission:
+    | (Pick<SubmissionDetail, 'language' | 'updateTime' | 'codeSize'> & {
+        testcaseResult: Omit<TestCaseResult, 'problemTestcase'>[]
+      })
+    | null
 }
 
 export function SubmissionSummary({ submission }: SubmissionSummaryProps) {

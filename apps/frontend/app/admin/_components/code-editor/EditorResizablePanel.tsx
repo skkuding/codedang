@@ -14,8 +14,9 @@ import {
   ResizablePanelGroup
 } from '@/components/shadcn/resizable'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
-import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
+import { GET_PROBLEM_TESTCASE_WITHOUT_IO } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
@@ -23,10 +24,10 @@ import { useTestcaseStore } from '@/stores/testcaseStore'
 import type { Language } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@apollo/client'
 import type { TestCaseResult } from '@generated/graphql'
-import { ResultStatus } from '@generated/graphql'
+import { ErrorBoundary, Suspense } from '@suspensive/react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { BiSolidUser } from 'react-icons/bi'
 import { FaSortDown } from 'react-icons/fa'
 import { TestcasePanel } from './TestcasePanel'
@@ -64,12 +65,15 @@ export function EditorMainResizablePanel({
     },
     fetchPolicy: 'cache-first'
   })
-  const { data: problemResponse } = useSuspenseQuery(GET_PROBLEM_TESTCASE, {
-    variables: {
-      id: problemId
-    },
-    fetchPolicy: 'cache-first'
-  })
+  const { data: problemResponse } = useSuspenseQuery(
+    GET_PROBLEM_TESTCASE_WITHOUT_IO,
+    {
+      variables: {
+        id: problemId
+      },
+      fetchPolicy: 'cache-first'
+    }
+  )
   const testcaseData = problemResponse?.getProblem?.testcase
   const summaries =
     useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
@@ -82,7 +86,7 @@ export function EditorMainResizablePanel({
   const { setIsTestResult } = useTestcaseStore()
 
   const [testResults, setTestResults] = useState<
-    (TestCaseResult & {
+    (Omit<TestCaseResult, 'problemTestcase'> & {
       expectedOutput: string
       order: number
       input: string
@@ -109,17 +113,6 @@ export function EditorMainResizablePanel({
   const isFirstStudent = currentIndex === 0
 
   const isLastStudent = currentIndex === summaries.length - 1
-
-  const displayTestResults = useMemo(() => {
-    if (isTesting) {
-      return testResults.map((result) => ({
-        ...result,
-        output: '',
-        result: ResultStatus.Judging
-      }))
-    }
-    return testResults
-  }, [isTesting, testResults])
 
   const [editorCode, setEditorCode] = useState('')
   const [initialCode, setInitialCode] = useState('')
@@ -293,10 +286,20 @@ export function EditorMainResizablePanel({
             </ResizablePanel>
             <ResizableHandle className="border-[0.5px] border-slate-700" />
             <ResizablePanel defaultSize={40} minSize={20}>
-              <TestcasePanel
-                testResults={displayTestResults}
-                isTesting={isTesting}
-              />
+              <Suspense
+                fallback={
+                  <Skeleton className="h-20 w-full rounded-lg bg-slate-900" />
+                }
+              >
+                <ErrorBoundary
+                  fallback={<div>Error occurred in Testcase Panel</div>}
+                >
+                  <TestcasePanel
+                    testResults={testResults}
+                    isTesting={isTesting}
+                  />
+                </ErrorBoundary>
+              </Suspense>
             </ResizablePanel>
           </ResizablePanelGroup>
         </div>

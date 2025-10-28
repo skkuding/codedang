@@ -24,14 +24,12 @@ export default function Page(props: PageProps) {
   const params = use(props.params)
   const { courseId, assignmentId, userId, problemId } = params
   const [testResults, setTestResults] = useState<
-    (TestCaseResult & {
+    (Omit<TestCaseResult, 'problemTestcase'> & {
       expectedOutput: string
       order: number
       input: string
     })[]
   >([])
-
-  // useSuspenseQuery 대신 useQuery 사용
   const {
     data: submissionResponse,
     loading: submissionLoading,
@@ -51,7 +49,6 @@ export default function Page(props: PageProps) {
       variables: {
         id: Number(problemId)
       }
-      // skip: Boolean(submissionError) // submission 에러 시 실행 안 함
     }
   )
 

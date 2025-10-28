@@ -12,17 +12,22 @@ import { useTestcaseStore } from '@/stores/testcaseStore'
 import { ResultStatus, type TestCaseResult } from '@generated/graphql'
 
 interface SubmissionTestcaseProps {
-  testResults: (TestCaseResult & {
+  testResults: (Omit<TestCaseResult, 'problemTestcase'> & {
     expectedOutput: string
     order: number
+    input: string
   })[]
 }
 
 export function SubmissionTestcase({ testResults }: SubmissionTestcaseProps) {
   const { setSelectedTestcase, setIsTestResult } = useTestcaseStore()
 
-  const handleTestcaseSelect = (order: number, isHidden: boolean) => {
-    setSelectedTestcase(order, isHidden)
+  const handleTestcaseSelect = (
+    order: number,
+    isHidden: boolean,
+    id: number
+  ) => {
+    setSelectedTestcase(order, isHidden, id)
     setIsTestResult(false)
   }
 
@@ -50,9 +55,14 @@ export function SubmissionTestcase({ testResults }: SubmissionTestcaseProps) {
                 <TableRow
                   className="cursor-pointer text-[#9B9B9B] hover:bg-slate-800"
                   key={item.problemTestcaseId}
-                  onClick={() =>
-                    handleTestcaseSelect(item.order, item.isHidden)
-                  }
+                  onClick={() => {
+                    handleTestcaseSelect(
+                      item.order,
+                      item.isHidden,
+                      item.problemTestcaseId
+                    )
+                    console.log(item.order, item.isHidden)
+                  }}
                 >
                   <TableCell>
                     <div className="py-2">{caseLabel}</div>
