@@ -135,7 +135,7 @@ func (c *checkManager) CheckPlagiarismRate( // 요청된 설정에 맞춰 실제
 	}
 
   cmd := exec.Command("java", jplagCommandArgs...)
-	out, err := cmd.Output()
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return out, fmt.Errorf("running jplag command error: %w, out: %s", err, string(out))
 	}
