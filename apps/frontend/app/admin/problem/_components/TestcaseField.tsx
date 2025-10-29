@@ -350,6 +350,28 @@ export const TestcaseField = forwardRef<
     return score.toFixed(2)
   }, [watchedItems, testcaseFlag])
 
+  const isHundred = useMemo(() => {
+    const EPS = 0.0001
+    const sum = watchedItems
+      .filter((tc) => (testcaseFlag === 0 ? !tc.isHidden : tc.isHidden))
+      .reduce((acc, tc) => {
+        if (typeof tc.scoreWeight === 'number') {
+          return acc + tc.scoreWeight
+        }
+        if (
+          typeof tc.scoreWeightNumerator === 'number' &&
+          typeof tc.scoreWeightDenominator === 'number' &&
+          tc.scoreWeightDenominator
+        ) {
+          return (
+            acc + (tc.scoreWeightNumerator / tc.scoreWeightDenominator) * 100
+          )
+        }
+        return acc
+      }, 0)
+    return Math.abs(sum - 100) <= EPS
+  }, [watchedItems, testcaseFlag])
+
   useEffect(() => {
     setCurrentPage(1)
   }, [searchTC, testcaseFlag])
@@ -385,21 +407,6 @@ export const TestcaseField = forwardRef<
       setShowTooltip(false)
     }
   }
-
-  const EPS = 0.0001
-  const totalScoreNum = useMemo(() => Number(totalScore), [totalScore])
-  const mustSumToHundred = Math.abs(totalScoreNum - 100) <= EPS
-
-  useEffect(() => {
-    if (!mustSumToHundred) {
-      setError('testcases', {
-        type: 'manual',
-        message: 'Testcase values must equal to 100.'
-      })
-    } else {
-      clearErrors('testcases')
-    }
-  }, [mustSumToHundred, setError, clearErrors, totalScoreNum])
 
   const getZipUploadedTestcases = () => {
     const testcases = getValues('testcases')
@@ -591,21 +598,11 @@ export const TestcaseField = forwardRef<
             })}
           </div>
           {totalPages > 1 && <Paginator {...paginatorProps} />}
-          {(() => {
-            const e = errors.testcasesTotal
-            const msg =
-              e &&
-              typeof e === 'object' &&
-              'message' in e &&
-              typeof (e as { message?: unknown }).message === 'string'
-                ? (e as { message: string }).message
-                : undefined
-            return msg ? (
-              <div className="mt-2 flex justify-center font-semibold">
-                <ErrorMessage message={msg} />
-              </div>
-            ) : null
-          })()}
+          {!isHundred && (
+            <div className="mt-2 flex justify-center font-semibold">
+              <ErrorMessage message="Testcase values must equal to 100." />
+            </div>
+          )}
         </div>
       )}
       {testcaseFlag === 1 && (
@@ -719,21 +716,11 @@ export const TestcaseField = forwardRef<
             })}
           </div>
           {totalPages > 1 && <Paginator {...paginatorProps} />}
-          {(() => {
-            const e = errors.testcasesTotal
-            const msg =
-              e &&
-              typeof e === 'object' &&
-              'message' in e &&
-              typeof (e as { message?: unknown }).message === 'string'
-                ? (e as { message: string }).message
-                : undefined
-            return msg ? (
-              <div className="mt-2 flex justify-center font-semibold">
-                <ErrorMessage message={msg} />
-              </div>
-            ) : null
-          })()}
+          {!isHundred && (
+            <div className="mt-2 flex justify-center font-semibold">
+              <ErrorMessage message="Testcase values must equal to 100." />
+            </div>
+          )}
         </div>
       )}
       <div className="mt-10 flex w-full justify-between">
