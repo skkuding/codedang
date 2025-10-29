@@ -27,59 +27,69 @@ import type { TestCaseResult } from '@generated/graphql'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { BiSolidUser } from 'react-icons/bi'
 import { FaSortDown } from 'react-icons/fa'
 import { TestcasePanel } from './TestcasePanel'
 import { mapTestResults } from './libs/util'
 
-interface ProblemEditorProps {
-  courseId: number
-  assignmentId: number
-  userId: number
-  problemId: number
+export function EditorMainResizablePanelFallback() {
+  return (
+    <div className="h-dvh w-full bg-slate-800 text-white">
+      <div className="flex h-12 w-full items-center justify-between border-b border-slate-700 bg-[#222939] px-3">
+        <Skeleton className="h-6 w-48 rounded-lg bg-slate-700" />
+        <div className="flex gap-2">
+          <Skeleton className="h-8 w-20 rounded-lg bg-slate-700" />
+          <Skeleton className="h-8 w-20 rounded-lg bg-slate-700" />
+        </div>
+      </div>
+      <div className="flex-1 bg-[#222939]">
+        <ScrollArea className="h-full">
+          <Skeleton className="m-6 h-[400px] w-full rounded-lg bg-slate-700" />
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+      </div>
+    </div>
+  )
+}
 
+interface ProblemEditorProps {
   children: React.ReactNode
 }
 
-export function EditorMainResizablePanel({
-  courseId,
-  assignmentId,
-  userId,
-  problemId,
-
-  children
-}: ProblemEditorProps) {
+export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
+  const params = useParams<{
+    courseId: string
+    assignmentId: string
+    userId: string
+    problemId: string
+  }>()
+  const { courseId, assignmentId, userId, problemId } = params
   const [isTesting, setIsTesting] = useState(false)
 
-  const {
-    data: submissionResponse,
-    loading: submissionLoading,
-    error: submissionError
-  } = useQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
+  const lastSubmission = useQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
     variables: {
-      groupId: courseId,
-      assignmentId,
-      userId,
-      problemId
+      groupId: Number(courseId),
+      assignmentId: Number(assignmentId),
+      userId: Number(userId),
+      problemId: Number(problemId)
     },
     fetchPolicy: 'cache-first'
-  })
-  const { data: problemResponse } = useSuspenseQuery(
-    GET_PROBLEM_TESTCASE_WITHOUT_IO,
-    {
-      variables: {
-        id: problemId
-      },
-      fetchPolicy: 'cache-first'
-    }
-  )
-  const testcaseData = problemResponse?.getProblem?.testcase
+  }).data?.getAssignmentLatestSubmission
+
+  const testcaseData = useSuspenseQuery(GET_PROBLEM_TESTCASE_WITHOUT_IO, {
+    variables: {
+      id: Number(problemId)
+    },
+    fetchPolicy: 'cache-first'
+  }).data.getProblem.testcase
+
   const summaries =
     useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
       variables: {
-        assignmentId,
-        groupId: courseId,
+        groupId: Number(courseId),
+        assignmentId: Number(assignmentId),
         take: 1000
       }
     }).data?.getAssignmentScoreSummaries ?? []
@@ -98,11 +108,13 @@ export function EditorMainResizablePanel({
     setTestResults([])
     setIsTestResult(false)
   }
-  const submissionData = submissionResponse?.getAssignmentLatestSubmission
-  const language = submissionData?.language ?? 'C'
-  const currentMember = summaries.find((member) => member.userId === userId)
 
-  const currentIndex = summaries.findIndex((s) => s.userId === userId)
+  const language = lastSubmission?.language ?? 'C'
+  const currentMember = summaries.find(
+    (member) => member.userId === Number(userId)
+  )
+
+  const currentIndex = summaries.findIndex((s) => s.userId === Number(userId))
   const prevIndex = (currentIndex - 1 + summaries.length) % summaries.length
   const nextIndex = (currentIndex + 1) % summaries.length
 
@@ -117,16 +129,16 @@ export function EditorMainResizablePanel({
   const [editorCode, setEditorCode] = useState('')
   const [initialCode, setInitialCode] = useState('')
   useEffect(() => {
-    if (submissionData) {
-      setEditorCode(submissionData.code)
-      setInitialCode(submissionData.code)
+    if (lastSubmission) {
+      setEditorCode(lastSubmission.code)
+      setInitialCode(lastSubmission.code)
       const mappedResults = mapTestResults(
         testcaseData,
-        submissionData.testcaseResult
+        lastSubmission.testcaseResult
       )
       setTestResults(mappedResults)
     }
-  }, [submissionData])
+  }, [lastSubmission])
   const handleTest = useCallback(async () => {
     setIsTesting(true)
 
@@ -194,7 +206,7 @@ export function EditorMainResizablePanel({
                         {summary.realName}({summary.studentId})
                         {summary.problemScores.some(
                           (score) =>
-                            score.problemId === problemId &&
+                            score.problemId === Number(problemId) &&
                             score.finalScore !== null
                         ) && (
                           <div className="flex items-center justify-center pl-2">
@@ -309,7 +321,7 @@ export function EditorMainResizablePanel({
 }
 
 async function submitCodeForTesting(
-  problemId: number,
+  problemId: string,
   language: string,
   code: string
 ) {
@@ -330,7 +342,7 @@ async function submitCodeForTesting(
   })
 }
 
-async function pollTestResults(problemId: number) {
+async function pollTestResults(problemId: string) {
   let attempts = 0
   const maxAttempts = 10
   const interval = 2000
