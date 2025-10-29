@@ -2116,6 +2116,7 @@ type Match {
 
 type Mutation {
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
+  checkAssignmentSubmissions(assignmentId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
   cloneCourseNotices(cloneToId: Int!, courseNoticeIds: [Int!]!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
@@ -3616,6 +3617,7 @@ input UploadTestcaseZipLegacyInput {
 }
 
 type User {
+  CheckRequest: [CheckRequest!]
   CourseNotice: [CourseNotice!]
   CourseNoticeComment: [CourseNoticeComment!]
   NotificationRecord: [NotificationRecord!]
@@ -3749,6 +3751,7 @@ type UserContestSumAggregate {
 }
 
 type UserCount {
+  CheckRequest: Int!
   CourseNotice: Int!
   CourseNoticeComment: Int!
   NotificationRecord: Int!
