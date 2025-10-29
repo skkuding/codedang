@@ -57,9 +57,7 @@ export const TestcaseField = forwardRef<
     getValues,
     setValue,
     control,
-    trigger,
-    setError,
-    clearErrors
+    trigger
   } = useFormContext()
 
   const watchedItems: ExtendedTestcase[] = useWatch({
