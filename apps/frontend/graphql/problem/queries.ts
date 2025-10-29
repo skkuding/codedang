@@ -17,6 +17,8 @@ const GET_PROBLEM = gql(`
       inputDescription
       outputDescription
       submissionCount
+      isHiddenUploadedByZip
+      isSampleUploadedByZip
       testcase {
         id
         input
