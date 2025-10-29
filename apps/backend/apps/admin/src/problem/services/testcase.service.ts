@@ -280,9 +280,9 @@ export class TestcaseService {
             }
           })
 
-          const isUploadedByZip =
-            (isHiddenUploadedByZip && tc.isHidden) ||
-            (isSampleUploadedByZip && !tc.isHidden)
+          const isUploadedByZip = tc.isHidden
+            ? isHiddenUploadedByZip
+            : isSampleUploadedByZip
 
           const input = isUploadedByZip ? existingTc.input : tc.input
           const output = isUploadedByZip ? existingTc.output : tc.output
