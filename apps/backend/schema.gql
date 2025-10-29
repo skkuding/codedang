@@ -1750,6 +1750,45 @@ input GetAssignmentSubmissionsInput {
   searchingName: String
 }
 
+type GetCheckResultDetailOutput {
+  averageSimilarity: Float!
+  clusterId: Int
+  firstCheckSubmissionId: Int
+  firstSimilarity: Float!
+  longestMatch: Int!
+  matches: [Match!]!
+  maxLength: Int!
+  maxSimilarity: Float!
+  requestId: Int!
+  secondCheckSubmissionId: Int
+  secondSimilarity: Float!
+}
+
+type GetCheckResultSummaryOutput {
+  averageSimilarity: Float!
+  cluster: ClusterSummary
+  clusterId: Int
+  firstCheckSubmissionId: Int
+  firstSimilarity: Float!
+  id: Int!
+  longestMatch: Int!
+  maxLength: Int!
+  maxSimilarity: Float!
+  secondCheckSubmissionId: Int
+  secondSimilarity: Float!
+}
+
+type GetClusterOutput {
+  averageSimilarity: Float!
+  id: Int!
+  strength: Float!
+  submissionCluster: [SubmissionCluster!]!
+}
+
+input GetContestQnAsFilterInput {
+  isResolved: Boolean
+}
+
 input GetContestSubmissionsInput {
   problemId: Int
   searchingName: String
@@ -1917,6 +1956,8 @@ type Match {
 }
 
 type Mutation {
+  autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
+  checkAssignmentSubmissions(assignmentId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!

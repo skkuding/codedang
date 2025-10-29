@@ -35,7 +35,10 @@ export class CheckSubscriptionService implements OnModuleInit {
             Array.isArray(error) &&
             error.every((e) => e instanceof ValidationError)
           ) {
-            this.logger.error(error, 'Message format error')
+            this.logger.error(
+              JSON.stringify(error, null, 2),
+              'Message format error'
+            )
           } else if (error instanceof UnprocessableDataException) {
             this.logger.error(error, 'Iris exception')
           } else {
