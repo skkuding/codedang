@@ -383,7 +383,7 @@ export class AssignmentService {
       assignmentId: number
       title: string
       totalParticipants: number
-      finalScores?: number[]
+      finalScores?: Prisma.Decimal[]
       autoFinalizeScore: boolean
       isFinalScoreVisible: boolean
     } = {
@@ -521,7 +521,7 @@ export class AssignmentService {
       {} as Record<
         number,
         {
-          finalScore: number | null
+          finalScore: Prisma.Decimal | null
           isSubmitted: boolean
           comment: string
         }
@@ -635,8 +635,9 @@ export class AssignmentService {
         }
         assignmentRecord[0].finalScore =
           assignmentRecord[0].assignmentProblemRecord.reduce(
-            (sum, { finalScore }) => sum + (finalScore ?? 0),
-            0
+            (sum, { finalScore }) =>
+              sum.plus(finalScore ?? new Prisma.Decimal(0)),
+            new Prisma.Decimal(0)
           )
         const total = assignmentProblem.reduce(
           (sum, { score }) => sum + score,
