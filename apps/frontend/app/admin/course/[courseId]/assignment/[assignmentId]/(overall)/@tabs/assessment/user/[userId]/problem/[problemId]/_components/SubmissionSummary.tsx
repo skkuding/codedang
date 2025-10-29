@@ -1,30 +1,42 @@
+'use client'
+
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { dateFormatter } from '@/libs/utils'
 import infoIcon from '@/public/icons/info.svg'
-import type { SubmissionDetail, TestCaseResult } from '@generated/graphql'
+import { useSuspenseQuery } from '@apollo/client'
 import Image from 'next/image'
+import { useParams } from 'next/navigation'
 
-interface SubmissionSummaryProps {
-  submission:
-    | (Pick<SubmissionDetail, 'language' | 'updateTime' | 'codeSize'> & {
-        testcaseResult: Omit<TestCaseResult, 'problemTestcase'>[]
-      })
-    | null
+export function SubmissionSummaryError() {
+  return (
+    <div className="flex flex-col items-center gap-4 py-4 text-center">
+      <Image src={infoIcon} alt="No Submission" width={50} height={50} />
+      <p className="text-xl font-medium">No Submission</p>
+      <div className="text-sm font-normal">
+        <p>No code has been submitted by this student.</p>
+        <p>You may still provide a final score or comment.</p>
+      </div>
+    </div>
+  )
 }
 
-export function SubmissionSummary({ submission }: SubmissionSummaryProps) {
-  if (!submission) {
-    return (
-      <div className="flex flex-col items-center gap-4 py-4 text-center">
-        <Image src={infoIcon} alt="No Submission" width={50} height={50} />
-        <p className="text-xl font-medium">No Submission</p>
-        <div className="text-sm font-normal">
-          <p>No code has been submitted by this student.</p>
-          <p>You may still provide a final score or comment.</p>
-        </div>
-      </div>
-    )
-  }
+export function SubmissionSummary() {
+  const params = useParams<{
+    courseId: string
+    assignmentId: string
+    userId: string
+    problemId: string
+  }>()
+  const { courseId, assignmentId, userId, problemId } = params
+  const submission = useSuspenseQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
+    variables: {
+      groupId: Number(courseId),
+      assignmentId: Number(assignmentId),
+      userId: Number(userId),
+      problemId: Number(problemId)
+    }
+  }).data.getAssignmentLatestSubmission
 
   const totalTestcases = submission.testcaseResult.length
   const passedTestcases = submission.testcaseResult.filter(
