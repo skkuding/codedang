@@ -6,23 +6,21 @@ import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { useQuery } from '@apollo/client'
 import type { TestCaseResult } from '@generated/graphql'
-import { use, useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { SubmissionAssessment } from './_components/SubmissionAssessment'
 import { SubmissionSummary } from './_components/SubmissionSummary'
 import { SubmissionTestcase } from './_components/SubmissionTestcase'
 
-interface PageProps {
-  params: Promise<{
+export default function Page() {
+  const params = useParams<{
     courseId: string
     assignmentId: string
     userId: string
     problemId: string
-  }>
-}
-
-export default function Page(props: PageProps) {
-  const params = use(props.params)
+  }>()
   const { courseId, assignmentId, userId, problemId } = params
+
   const [testResults, setTestResults] = useState<
     (Omit<TestCaseResult, 'problemTestcase'> & {
       expectedOutput: string
@@ -88,13 +86,7 @@ export default function Page(props: PageProps) {
         <div className="h-3 bg-[#121728]" />
 
         <div className="px-6 py-6">
-          <SubmissionAssessment
-            groupId={Number(courseId)}
-            assignmentId={Number(assignmentId)}
-            userId={Number(userId)}
-            problemId={Number(problemId)}
-            autoGradedScore={0}
-          />
+          <SubmissionAssessment />
         </div>
 
         <div className="h-3 bg-[#121728]" />
@@ -122,13 +114,7 @@ export default function Page(props: PageProps) {
       <div className="h-3 bg-[#121728]" />
 
       <div className="px-6 py-2">
-        <SubmissionAssessment
-          groupId={Number(courseId)}
-          assignmentId={Number(assignmentId)}
-          userId={Number(userId)}
-          problemId={Number(problemId)}
-          autoGradedScore={submissionData.score ?? 0}
-        />
+        <SubmissionAssessment />
       </div>
 
       <div className="h-3 bg-[#121728]" />
