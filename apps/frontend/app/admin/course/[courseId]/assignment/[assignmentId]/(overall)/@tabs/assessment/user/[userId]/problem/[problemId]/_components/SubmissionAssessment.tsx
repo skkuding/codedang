@@ -8,7 +8,10 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
-import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
+import {
+  GET_ASSIGNMENT_SCORE_SUMMARIES,
+  GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER
+} from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEM_MAX_SCORE } from '@/graphql/problem/queries'
 import submitIcon from '@/public/icons/submit.svg'
 import { useSuspenseQuery } from '@apollo/client'
@@ -35,12 +38,16 @@ export function SubmissionAssessment({
 }: SubmissionAssessmentProps) {
   const [showTooltip, setShowTooltip] = useState(false)
 
-  const maxScore =
-    useSuspenseQuery(GET_ASSIGNMENT_PROBLEM_MAX_SCORE, {
-      variables: { groupId, assignmentId }
-    }).data.getAssignmentProblems.find(
-      (problem) => problem.problemId === problemId
-    )?.score || 0
+  const score = useSuspenseQuery(GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER, {
+    variables: {
+      groupId,
+      assignmentId,
+      userId,
+      take: 1000
+    }
+  }).data?.getAssignmentSubmissionSummaryByUserId.scoreSummary.problemScores.find(
+    (score) => score.problemId === problemId
+  )
 
   const summaries = useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
     variables: { groupId, assignmentId, take: 1000 }
@@ -72,8 +79,8 @@ export function SubmissionAssessment({
         <h2 className="text-xl font-bold">Assessment</h2>
         <div className="flex flex-col gap-2">
           <p className="text-sm font-semibold">
-            Final Score (Max score: {maxScore}, Auto graded score:{' '}
-            {maxScore * autoGradedScore * 0.01})
+            Final Score (Max score: {score?.maxScore}, Auto graded score:{' '}
+            {score?.score ?? autoGradedScore})
           </p>
           <FinalScoreForm />
         </div>
