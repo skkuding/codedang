@@ -656,7 +656,12 @@ export class ProblemService {
     //   : undefined
 
     if (testcases?.length) {
-      await this.testcaseService.syncTestcases(id, testcases)
+      await this.testcaseService.syncTestcases(
+        id,
+        problem.isHiddenUploadedByZip,
+        problem.isSampleUploadedByZip,
+        testcases
+      )
     }
 
     const updatedInfo = updatedInfos
