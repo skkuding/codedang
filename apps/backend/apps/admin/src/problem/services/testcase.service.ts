@@ -280,11 +280,18 @@ export class TestcaseService {
             }
           })
 
+          const isUploadedByZip =
+            (isHiddenUploadedByZip && tc.isHidden) ||
+            (isSampleUploadedByZip && !tc.isHidden)
+
+          const input = isUploadedByZip ? existingTc.input : tc.input
+          const output = isUploadedByZip ? existingTc.output : tc.output
+
           const created = await this.prisma.problemTestcase.create({
             data: {
               problemId,
-              input: tc.input,
-              output: tc.output,
+              input,
+              output,
               isHidden: tc.isHidden,
               scoreWeight,
               scoreWeightNumerator: weightFraction.numerator,
