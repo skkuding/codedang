@@ -50,8 +50,14 @@ export interface TestcaseFieldRef {
 
 export const TestcaseField = forwardRef<
   TestcaseFieldRef,
-  { blockEdit?: boolean }
->(({ blockEdit = false }, ref) => {
+  {
+    blockEdit?: boolean
+    uploadByZipFromServer?: {
+      sample?: boolean
+      hidden?: boolean
+    }
+  }
+>(({ blockEdit = false, uploadByZipFromServer }, ref) => {
   const {
     formState: { errors },
     getValues,
@@ -80,13 +86,19 @@ export const TestcaseField = forwardRef<
     x: 0,
     y: 0
   })
-  const [zipUploadedFiles, setZipUploadedFiles] = useState<{
-    [key: string]: File
-  }>({})
-  const [hasZipUploaded, setHasZipUploaded] = useState<{
-    sample: boolean
-    hidden: boolean
-  }>({ sample: false, hidden: false })
+  const [zipUploadedFiles, setZipUploadedFiles] = useState<
+    Record<string, File>
+  >({})
+  const [hasZipUploaded, setHasZipUploaded] = useState({
+    sample: Boolean(uploadByZipFromServer?.sample),
+    hidden: Boolean(uploadByZipFromServer?.hidden)
+  })
+  const sampleUploadedByZip = Boolean(
+    hasZipUploaded.sample || uploadByZipFromServer?.sample
+  )
+  const hiddenUploadedByZip = Boolean(
+    hasZipUploaded.hidden || uploadByZipFromServer?.hidden
+  )
 
   useEffect(() => {
     const isScoreAssigned = (tc: ExtendedTestcase) =>
@@ -112,14 +124,21 @@ export const TestcaseField = forwardRef<
     uploadedTestcases: Array<{ input: string; output: string }>,
     zipFile: File
   ) => {
-    const currentTestcases = getValues('testcases')
     const isHidden = testcaseFlag === 1
+    const all = getValues('testcases') as ExtendedTestcase[]
+    const preserved = all.filter((tc) => tc.isHidden !== isHidden)
+    const prefix = isHidden ? 'hidden' : 'sample'
+    const prunedZipCache = Object.fromEntries(
+      Object.entries(zipUploadedFiles).filter(
+        ([key]) => !key.startsWith(prefix)
+      )
+    )
 
     const zipKey = `${isHidden ? 'hidden' : 'sample'}_${Date.now()}`
-    setZipUploadedFiles((prev) => ({
-      ...prev,
+    setZipUploadedFiles({
+      ...prunedZipCache,
       [zipKey]: zipFile
-    }))
+    })
 
     const newTestcases = uploadedTestcases.map(() => ({
       id: null,
@@ -131,7 +150,7 @@ export const TestcaseField = forwardRef<
       zipKey
     }))
 
-    setValue('testcases', [...currentTestcases, ...newTestcases])
+    setValue('testcases', [...preserved, ...newTestcases])
     setDataChangeTrigger((prev) => prev + 1)
 
     setHasZipUploaded((prev) => ({
@@ -164,13 +183,23 @@ export const TestcaseField = forwardRef<
     const remainingValues = currentValues.filter(
       (tc) => tc.isHidden !== isHidden
     )
-    if (remainingValues.length === 0) {
+    const tabUploadedByZip = isHidden
+      ? hiddenUploadedByZip
+      : sampleUploadedByZip
+    if (remainingValues.length === 0 && !tabUploadedByZip) {
       setDialogDescription(
         'You cannot delete the testcase if it is the only one in the list. There must be at least one testcase in order to create this problem.'
       )
       setDialogOpen(true)
       return
     }
+    const prefix = isHidden ? 'hidden' : 'sample'
+    const prunedZipCache = Object.fromEntries(
+      Object.entries(zipUploadedFiles).filter(
+        ([key]) => !key.startsWith(prefix)
+      )
+    )
+    setZipUploadedFiles(prunedZipCache)
     setValue('testcases', remainingValues)
     setSelectedTestcases([])
     setHasZipUploaded((prev) => ({
@@ -534,7 +563,7 @@ export const TestcaseField = forwardRef<
                     onUpload={handleUploadTestcases}
                     isHidden={false}
                   />
-                  {hasZipUploaded.sample ? (
+                  {sampleUploadedByZip ? (
                     <button
                       onClick={() => deleteAllInCurrentTab(false)}
                       type="button"
@@ -561,7 +590,7 @@ export const TestcaseField = forwardRef<
                         type="button"
                         className={cn(
                           'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                          selectedTestcases.length > 0 && !hasZipUploaded.sample
+                          selectedTestcases.length > 0 && !sampleUploadedByZip
                             ? 'bg-[#FC5555] text-white'
                             : 'bg-gray-300 text-gray-600'
                         )}
@@ -585,11 +614,11 @@ export const TestcaseField = forwardRef<
                         type="button"
                         className={cn(
                           'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                          hasZipUploaded.sample
+                          sampleUploadedByZip
                             ? 'bg-gray-300 text-gray-600'
                             : 'bg-primary text-white'
                         )}
-                        disabled={hasZipUploaded.sample}
+                        disabled={sampleUploadedByZip}
                       >
                         <Image
                           src="/icons/plus-circle-white.svg"
@@ -669,7 +698,7 @@ export const TestcaseField = forwardRef<
                     onUpload={handleUploadTestcases}
                     isHidden={true}
                   />
-                  {hasZipUploaded.hidden ? (
+                  {hiddenUploadedByZip ? (
                     <button
                       onClick={() => deleteAllInCurrentTab(true)}
                       type="button"
@@ -696,7 +725,7 @@ export const TestcaseField = forwardRef<
                         type="button"
                         className={cn(
                           'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                          selectedTestcases.length > 0
+                          selectedTestcases.length > 0 && !hiddenUploadedByZip
                             ? 'bg-[#FC5555] text-white'
                             : 'bg-gray-300 text-gray-600'
                         )}
@@ -721,11 +750,11 @@ export const TestcaseField = forwardRef<
                         type="button"
                         className={cn(
                           'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                          hasZipUploaded.hidden
+                          hiddenUploadedByZip
                             ? 'bg-gray-300 text-gray-600'
                             : 'bg-primary text-white'
                         )}
-                        disabled={hasZipUploaded.hidden}
+                        disabled={hiddenUploadedByZip}
                       >
                         <Image
                           src="/icons/plus-circle-white.svg"
