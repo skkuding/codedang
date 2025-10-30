@@ -662,7 +662,7 @@ export const TestcaseField = forwardRef<
           {totalPages > 1 && <Paginator {...paginatorProps} />}
           {!isHundred && (
             <div className="mt-2 flex justify-center font-semibold">
-              <ErrorMessage message="Testcase values must equal to 100." />
+              <ErrorMessage message="Testcase values must equal to 100" />
             </div>
           )}
         </div>
@@ -798,7 +798,7 @@ export const TestcaseField = forwardRef<
           {totalPages > 1 && <Paginator {...paginatorProps} />}
           {!isHundred && (
             <div className="mt-2 flex justify-center font-semibold">
-              <ErrorMessage message="Testcase values must equal to 100." />
+              <ErrorMessage message="Testcase values must equal to 100" />
             </div>
           )}
         </div>
