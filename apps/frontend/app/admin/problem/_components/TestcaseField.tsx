@@ -121,10 +121,6 @@ export const TestcaseField = forwardRef<
       [zipKey]: zipFile
     }))
 
-    const filteredTestcases = currentTestcases.filter(
-      (tc: ExtendedTestcase) => tc.isHidden !== isHidden
-    )
-
     const newTestcases = uploadedTestcases.map(() => ({
       id: null,
       input: '',
@@ -135,7 +131,7 @@ export const TestcaseField = forwardRef<
       zipKey
     }))
 
-    setValue('testcases', [...filteredTestcases, ...newTestcases])
+    setValue('testcases', [...currentTestcases, ...newTestcases])
     setDataChangeTrigger((prev) => prev + 1)
 
     setHasZipUploaded((prev) => ({
@@ -161,6 +157,27 @@ export const TestcaseField = forwardRef<
     )
     setValue('testcases', updatedValues)
     setSelectedTestcases([])
+  }
+
+  const deleteAllInCurrentTab = (isHidden: boolean) => {
+    const currentValues: ExtendedTestcase[] = getValues('testcases')
+    const remainingValues = currentValues.filter(
+      (tc) => tc.isHidden !== isHidden
+    )
+    if (remainingValues.length === 0) {
+      setDialogDescription(
+        'You cannot delete the testcase if it is the only one in the list. There must be at least one testcase in order to create this problem.'
+      )
+      setDialogOpen(true)
+      return
+    }
+    setValue('testcases', remainingValues)
+    setSelectedTestcases([])
+    setHasZipUploaded((prev) => ({
+      ...prev,
+      [isHidden ? 'hidden' : 'sample']: false
+    }))
+    setDataChangeTrigger((prev) => prev + 1)
   }
 
   const removeItem = (index: number) => {
@@ -516,58 +533,76 @@ export const TestcaseField = forwardRef<
                   <TestcaseUploadModal
                     onUpload={handleUploadTestcases}
                     isHidden={false}
-                    disabled={hasZipUploaded.hidden}
                   />
-                  <button
-                    onClick={() => {
-                      deleteSelectedTestcases()
-                      setDataChangeTrigger((prev) => prev + 1)
-                    }}
-                    type="button"
-                    className={cn(
-                      'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                      selectedTestcases.length > 0 && !hasZipUploaded.sample
-                        ? 'bg-[#FC5555] text-white'
-                        : 'bg-gray-300 text-gray-600'
-                    )}
-                    disabled={
-                      selectedTestcases.length === 0 || hasZipUploaded.sample
-                    }
-                  >
-                    <Image
-                      src="/icons/trashcan.svg"
-                      alt="trashcan Icon"
-                      width={18}
-                      height={18}
-                    />
-                    <span className="ml-[6px] flex items-center text-center text-white">
-                      Delete
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      addTestcase(false)
-                      setDataChangeTrigger((prev) => prev + 1)
-                    }}
-                    type="button"
-                    className={cn(
-                      'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                      hasZipUploaded.sample
-                        ? 'bg-gray-300 text-gray-600'
-                        : 'bg-primary text-white'
-                    )}
-                    disabled={hasZipUploaded.sample}
-                  >
-                    <Image
-                      src="/icons/plus-circle-white.svg"
-                      alt="plus circle white Icon"
-                      width={18}
-                      height={18}
-                    />
-                    <span className="ml-[6px] flex items-center text-center text-white">
-                      Add
-                    </span>
-                  </button>
+                  {hasZipUploaded.sample ? (
+                    <button
+                      onClick={() => deleteAllInCurrentTab(false)}
+                      type="button"
+                      className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#FC5555] px-[22px] py-[10px]"
+                      disabled={blockEdit}
+                    >
+                      <Image
+                        src="/icons/trashcan.svg"
+                        alt="trashcan Icon"
+                        width={18}
+                        height={18}
+                      />
+                      <span className="ml-[6px] flex items-center text-center text-white">
+                        Delete
+                      </span>
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          deleteSelectedTestcases()
+                          setDataChangeTrigger((prev) => prev + 1)
+                        }}
+                        type="button"
+                        className={cn(
+                          'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                          selectedTestcases.length > 0 && !hasZipUploaded.sample
+                            ? 'bg-[#FC5555] text-white'
+                            : 'bg-gray-300 text-gray-600'
+                        )}
+                        disabled={selectedTestcases.length === 0}
+                      >
+                        <Image
+                          src="/icons/trashcan.svg"
+                          alt="trashcan Icon"
+                          width={18}
+                          height={18}
+                        />
+                        <span className="ml-[6px] flex items-center text-center text-white">
+                          Delete
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          addTestcase(false)
+                          setDataChangeTrigger((prev) => prev + 1)
+                        }}
+                        type="button"
+                        className={cn(
+                          'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                          hasZipUploaded.sample
+                            ? 'bg-gray-300 text-gray-600'
+                            : 'bg-primary text-white'
+                        )}
+                        disabled={hasZipUploaded.sample}
+                      >
+                        <Image
+                          src="/icons/plus-circle-white.svg"
+                          alt="plus circle white Icon"
+                          width={18}
+                          height={18}
+                        />
+                        <span className="ml-[6px] flex items-center text-center text-white">
+                          Add
+                        </span>
+                      </button>
+                    </>
+                  )}
                 </>
               )}
             </div>
@@ -633,59 +668,77 @@ export const TestcaseField = forwardRef<
                   <TestcaseUploadModal
                     onUpload={handleUploadTestcases}
                     isHidden={true}
-                    disabled={hasZipUploaded.sample}
                   />
-                  <button
-                    onClick={() => {
-                      deleteSelectedTestcases()
-                      setDataChangeTrigger((prev) => prev + 1)
-                    }}
-                    type="button"
-                    className={cn(
-                      'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                      selectedTestcases.length > 0 && !hasZipUploaded.hidden
-                        ? 'bg-[#FC5555] text-white'
-                        : 'bg-gray-300 text-gray-600'
-                    )}
-                    disabled={
-                      selectedTestcases.length === 0 || hasZipUploaded.hidden
-                    }
-                  >
-                    <Image
-                      src="/icons/trashcan.svg"
-                      alt="trashcan Icon"
-                      width={18}
-                      height={18}
-                    />
-                    <span className="ml-[6px] flex items-center text-center text-white">
-                      Delete
-                    </span>
-                  </button>
+                  {hasZipUploaded.hidden ? (
+                    <button
+                      onClick={() => deleteAllInCurrentTab(true)}
+                      type="button"
+                      className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#FC5555] px-[22px] py-[10px]"
+                      disabled={blockEdit}
+                    >
+                      <Image
+                        src="/icons/trashcan.svg"
+                        alt="trashcan Icon"
+                        width={18}
+                        height={18}
+                      />
+                      <span className="ml-[6px] flex items-center text-center text-white">
+                        Delete
+                      </span>
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          deleteSelectedTestcases()
+                          setDataChangeTrigger((prev) => prev + 1)
+                        }}
+                        type="button"
+                        className={cn(
+                          'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                          selectedTestcases.length > 0
+                            ? 'bg-[#FC5555] text-white'
+                            : 'bg-gray-300 text-gray-600'
+                        )}
+                        disabled={selectedTestcases.length === 0}
+                      >
+                        <Image
+                          src="/icons/trashcan.svg"
+                          alt="trashcan Icon"
+                          width={18}
+                          height={18}
+                        />
+                        <span className="ml-[6px] flex items-center text-center text-white">
+                          Delete
+                        </span>
+                      </button>
 
-                  <button
-                    onClick={() => {
-                      addTestcase(true)
-                      setDataChangeTrigger((prev) => prev + 1)
-                    }}
-                    type="button"
-                    className={cn(
-                      'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                      hasZipUploaded.hidden
-                        ? 'bg-gray-300 text-gray-600'
-                        : 'bg-primary text-white'
-                    )}
-                    disabled={hasZipUploaded.hidden}
-                  >
-                    <Image
-                      src="/icons/plus-circle-white.svg"
-                      alt="plus circle white Icon"
-                      width={18}
-                      height={18}
-                    />
-                    <span className="ml-[6px] flex items-center text-center text-white">
-                      Add
-                    </span>
-                  </button>
+                      <button
+                        onClick={() => {
+                          addTestcase(true)
+                          setDataChangeTrigger((prev) => prev + 1)
+                        }}
+                        type="button"
+                        className={cn(
+                          'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                          hasZipUploaded.hidden
+                            ? 'bg-gray-300 text-gray-600'
+                            : 'bg-primary text-white'
+                        )}
+                        disabled={hasZipUploaded.hidden}
+                      >
+                        <Image
+                          src="/icons/plus-circle-white.svg"
+                          alt="plus circle white Icon"
+                          width={18}
+                          height={18}
+                        />
+                        <span className="ml-[6px] flex items-center text-center text-white">
+                          Add
+                        </span>
+                      </button>
+                    </>
+                  )}
                 </>
               )}
             </div>
