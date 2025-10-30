@@ -25,12 +25,17 @@ import { FaArrowRotateLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { Label } from '../../_components/Label'
-import { useEditProblemContext } from '../[problemId]/edit/_components/EditProblemContext'
 import { isInvalid } from '../_libs/utils'
 import { TestcaseItem } from './TestcaseItem'
 import { TestcaseUploadModal } from './TestcaseUploadModal'
 
 type ExtendedTestcase = Testcase | ZipUploadedTestcase
+
+function isZipUploadedTestcase(
+  tc: ExtendedTestcase
+): tc is ZipUploadedTestcase {
+  return (tc as Partial<ZipUploadedTestcase>).isZipUploaded === true
+}
 
 interface ZipTestcaseInfo {
   index: number
@@ -66,8 +71,8 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       name: 'testcases',
       control
     })
-    const { isSampleUploadedByZip, isHiddenUploadedByZip } =
-      useEditProblemContext()
+    // const { isSampleUploadedByZip, isHiddenUploadedByZip } =
+    //   useEditProblemContext()
     const itemErrors = errors.testcases as FieldErrorsImpl
 
     const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
@@ -90,13 +95,23 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
     const [zipUploadedFiles, setZipUploadedFiles] = useState<
       Record<string, File>
     >({})
-    const [hasZipUploaded, setHasZipUploaded] = useState<{
-      sample: boolean
-      hidden: boolean
-    }>({
-      sample: isSampleUploadedByZip,
-      hidden: isHiddenUploadedByZip
+    const [hasZipUploaded, setHasZipUploaded] = useState({
+      sample: false,
+      hidden: false
     })
+
+    useEffect(() => {
+      const hasSampleZip = watchedItems.some(
+        (tc) => !tc.isHidden && isZipUploadedTestcase(tc)
+      )
+      const hasHiddenZip = watchedItems.some(
+        (tc) => tc.isHidden && isZipUploadedTestcase(tc)
+      )
+      setHasZipUploaded({
+        sample: hasSampleZip,
+        hidden: hasHiddenZip
+      })
+    }, [watchedItems])
 
     useEffect(() => {
       const isScoreAssigned = (tc: ExtendedTestcase) =>
@@ -175,6 +190,24 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       )
       setValue('testcases', updatedValues)
       setSelectedTestcases([])
+
+      const isHiddenTab = testcaseFlag === 1
+      const prefix = isHiddenTab ? 'hidden' : 'sample'
+      const stillHasZip = updatedValues
+        .filter((tc) => tc.isHidden === isHiddenTab)
+        .some((tc) => isZipUploadedTestcase(tc))
+      if (!stillHasZip) {
+        setHasZipUploaded((prev) => ({
+          ...prev,
+          [prefix]: false
+        }))
+        const pruned = Object.fromEntries(
+          Object.entries(zipUploadedFiles).filter(
+            ([key]) => !key.startsWith(prefix)
+          )
+        )
+        setZipUploadedFiles(pruned)
+      }
     }
 
     const deleteAllInCurrentTab = (isHidden: boolean) => {
@@ -655,10 +688,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                       isSelected={selectedTestcases.includes(
                         item.originalIndex
                       )}
-                      isZipUploaded={
-                        ('isZipUploaded' in item && item.isZipUploaded) ||
-                        isSampleUploadedByZip
-                      }
+                      isZipUploaded={isZipUploadedTestcase(item)}
                     />
                   )
                 )
@@ -802,10 +832,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                       isSelected={selectedTestcases.includes(
                         item.originalIndex
                       )}
-                      isZipUploaded={
-                        ('isZipUploaded' in item && item.isZipUploaded) ||
-                        isHiddenUploadedByZip
-                      }
+                      isZipUploaded={isZipUploadedTestcase(item)}
                     />
                   )
                 )
@@ -860,13 +887,13 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             <span className="text-sm font-semibold text-[#737373]">(%)</span>
           </div>
         </div>
-        <div className="w/full mt-5 flex justify-end gap-3">
+        <div className="mt-5 flex w-full justify-end gap-3">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   className={cn(
-                    'w/full flex h-[42px] items-center gap-2 px-0',
+                    'flex h-[42px] w-full items-center gap-2 px-0',
                     disableDistribution && 'bg-gray-300 text-gray-600'
                   )}
                   type="button"
