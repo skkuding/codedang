@@ -297,7 +297,7 @@ type AssignmentProblemRecordSumAggregate {
 }
 
 type AssignmentProblemScore {
-  finalScore: Int
+  finalScore: Float
   maxScore: Int!
   problemId: Int!
   score: Float!
@@ -3087,7 +3087,7 @@ input UpdateAssignmentInput {
 input UpdateAssignmentProblemRecordInput {
   assignmentId: Int!
   comment: String
-  finalScore: Int
+  finalScore: Float
   problemId: Int!
   userId: Int!
 }

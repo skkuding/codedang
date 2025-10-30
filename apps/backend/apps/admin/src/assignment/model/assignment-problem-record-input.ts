@@ -1,5 +1,5 @@
-import { Field, InputType, Int } from '@nestjs/graphql'
-import { IsOptional, IsString, Min } from 'class-validator'
+import { Field, Float, InputType, Int } from '@nestjs/graphql'
+import { IsNumber, IsOptional, IsString, Min } from 'class-validator'
 
 @InputType()
 export class UpdateAssignmentProblemRecordInput {
@@ -18,7 +18,8 @@ export class UpdateAssignmentProblemRecordInput {
   comment?: string
 
   @IsOptional()
+  @IsNumber()
   @Min(0)
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   finalScore?: number
 }

@@ -1,4 +1,5 @@
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql'
+import type { Decimal } from '@prisma/client/runtime/library'
 
 @ObjectType()
 export class UserAssignmentScoreSummary {
@@ -68,6 +69,6 @@ class AssignmentProblemScore {
   @Field(() => Int)
   maxScore: number
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   finalScore?: number
 }
