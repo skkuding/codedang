@@ -87,13 +87,16 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       x: 0,
       y: 0
     })
-    const [zipUploadedFiles, setZipUploadedFiles] = useState<{
-      [key: string]: File
-    }>({})
+    const [zipUploadedFiles, setZipUploadedFiles] = useState<
+      Record<string, File>
+    >({})
     const [hasZipUploaded, setHasZipUploaded] = useState<{
       sample: boolean
       hidden: boolean
-    }>({ sample: false, hidden: false })
+    }>({
+      sample: isSampleUploadedByZip,
+      hidden: isHiddenUploadedByZip
+    })
 
     useEffect(() => {
       const isScoreAssigned = (tc: ExtendedTestcase) =>
@@ -119,18 +122,21 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       uploadedTestcases: Array<{ input: string; output: string }>,
       zipFile: File
     ) => {
-      const currentTestcases = getValues('testcases')
+      const all = getValues('testcases') as ExtendedTestcase[]
       const isHidden = testcaseFlag === 1
-
-      const zipKey = `${isHidden ? 'hidden' : 'sample'}_${Date.now()}`
-      setZipUploadedFiles((prev) => ({
-        ...prev,
-        [zipKey]: zipFile
-      }))
-
-      const filteredTestcases = currentTestcases.filter(
-        (tc: ExtendedTestcase) => tc.isHidden !== isHidden
+      const preserved = all.filter((tc) => tc.isHidden !== isHidden)
+      const prefix = isHidden ? 'hidden' : 'sample'
+      const prunedZipCache = Object.fromEntries(
+        Object.entries(zipUploadedFiles).filter(
+          ([key]) => !key.startsWith(prefix)
+        )
       )
+
+      const zipKey = `${prefix}_${Date.now()}`
+      setZipUploadedFiles({
+        ...prunedZipCache,
+        [zipKey]: zipFile
+      })
 
       const newTestcases = uploadedTestcases.map(() => ({
         id: null,
@@ -142,7 +148,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         zipKey
       }))
 
-      setValue('testcases', [...filteredTestcases, ...newTestcases])
+      setValue('testcases', [...preserved, ...newTestcases])
       setDataChangeTrigger((prev) => prev + 1)
 
       setHasZipUploaded((prev) => ({
@@ -150,6 +156,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         [isHidden ? 'hidden' : 'sample']: true
       }))
     }
+
     const handleSelectTestcase = (index: number, isSelected: boolean) => {
       setSelectedTestcases((prev) =>
         isSelected ? [...prev, index] : prev.filter((i) => i !== index)
@@ -168,6 +175,27 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       )
       setValue('testcases', updatedValues)
       setSelectedTestcases([])
+    }
+
+    const deleteAllInCurrentTab = (isHidden: boolean) => {
+      const currentValues: ExtendedTestcase[] = getValues('testcases')
+      const remainingValues = currentValues.filter(
+        (tc) => tc.isHidden !== isHidden
+      )
+      const prefix = isHidden ? 'hidden' : 'sample'
+      const prunedZipCache = Object.fromEntries(
+        Object.entries(zipUploadedFiles).filter(
+          ([key]) => !key.startsWith(prefix)
+        )
+      )
+      setZipUploadedFiles(prunedZipCache)
+      setValue('testcases', remainingValues)
+      setSelectedTestcases([])
+      setHasZipUploaded((prev) => ({
+        ...prev,
+        [prefix]: false
+      }))
+      setDataChangeTrigger((prev) => prev + 1)
     }
 
     const removeItem = (index: number) => {
@@ -227,7 +255,6 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       const unassignedTestcases = currentValues
         .map((tc, index) => ({ ...tc, index }))
         .filter((tc) => isInvalid(tc.scoreWeight))
-      console.log(unassignedTestcases.length)
 
       const unassignedCount = unassignedTestcases.length
 
@@ -479,7 +506,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         )}
         <div className="mb-[40px] flex w-full items-center justify-between">
           <button
-            className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 1 ? 'border-b-4 border-b-white' : 'border-b-primary border-b-4 font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
+            className={`w/full flex justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 1 ? 'border-b-4 border-b-white' : 'border-b-primary border-b-4 font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
             type="button"
             onClick={() => {
               setDataChangeTrigger(0)
@@ -489,7 +516,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             SAMPLE
           </button>
           <button
-            className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 0 ? 'border-b-4 border-b-white' : 'border-b-primary border-b-4 font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
+            className={`w/full flex justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 0 ? 'border-b-4 border-b-white' : 'border-b-primary border-b-4 font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
             type="button"
             onClick={() => {
               setDataChangeTrigger(0)
@@ -534,56 +561,79 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                       isHidden={false}
                       disabled={hasZipUploaded.hidden}
                     />
-                    <button
-                      onClick={() => {
-                        deleteSelectedTestcases()
-                        setDataChangeTrigger((prev) => prev + 1)
-                      }}
-                      type="button"
-                      className={cn(
-                        'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                        selectedTestcases.length > 0 && !hasZipUploaded.sample
-                          ? 'bg-[#FC5555] text-white'
-                          : 'bg-gray-300 text-gray-600'
-                      )}
-                      disabled={
-                        selectedTestcases.length === 0 || hasZipUploaded.sample
-                      }
-                    >
-                      <Image
-                        src="/icons/trashcan.svg"
-                        alt="trashcan Icon"
-                        width={18}
-                        height={18}
-                      />
-                      <span className="ml-[6px] flex items-center text-center text-white">
-                        Delete
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        addTestcase(false)
-                        setDataChangeTrigger((prev) => prev + 1)
-                      }}
-                      type="button"
-                      className={cn(
-                        'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                        hasZipUploaded.sample
-                          ? 'bg-gray-300 text-gray-600'
-                          : 'bg-primary text-white'
-                      )}
-                      disabled={hasZipUploaded.sample}
-                    >
-                      <Image
-                        src="/icons/plus-circle-white.svg"
-                        alt="plus circle white Icon"
-                        width={18}
-                        height={18}
-                      />
-                      <span className="ml-[6px] flex items-center text-center text-white">
-                        Add
-                      </span>
-                    </button>
+                    {hasZipUploaded.sample ? (
+                      <button
+                        onClick={() => deleteAllInCurrentTab(false)}
+                        type="button"
+                        className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#FC5555] px-[22px] py-[10px]"
+                        disabled={blockEdit}
+                      >
+                        <Image
+                          src="/icons/trashcan.svg"
+                          alt="trashcan Icon"
+                          width={18}
+                          height={18}
+                        />
+                        <span className="ml-[6px] flex items-center text-center text-white">
+                          Delete
+                        </span>
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => {
+                            deleteSelectedTestcases()
+                            setDataChangeTrigger((prev) => prev + 1)
+                          }}
+                          type="button"
+                          className={cn(
+                            'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                            selectedTestcases.length > 0 &&
+                              !hasZipUploaded.sample
+                              ? 'bg-[#FC5555] text-white'
+                              : 'bg-gray-300 text-gray-600'
+                          )}
+                          disabled={
+                            selectedTestcases.length === 0 ||
+                            hasZipUploaded.sample
+                          }
+                        >
+                          <Image
+                            src="/icons/trashcan.svg"
+                            alt="trashcan Icon"
+                            width={18}
+                            height={18}
+                          />
+                          <span className="ml-[6px] flex items-center text-center text-white">
+                            Delete
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            addTestcase(false)
+                            setDataChangeTrigger((prev) => prev + 1)
+                          }}
+                          type="button"
+                          className={cn(
+                            'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                            hasZipUploaded.sample
+                              ? 'bg-gray-300 text-gray-600'
+                              : 'bg-primary text-white'
+                          )}
+                          disabled={hasZipUploaded.sample}
+                        >
+                          <Image
+                            src="/icons/plus-circle-white.svg"
+                            alt="plus circle white Icon"
+                            width={18}
+                            height={18}
+                          />
+                          <span className="ml-[6px] flex items-center text-center text-white">
+                            Add
+                          </span>
+                        </button>
+                      </>
+                    )}
                   </>
                 )}
               </div>
@@ -657,57 +707,80 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                       isHidden={true}
                       disabled={hasZipUploaded.sample}
                     />
-                    <button
-                      onClick={() => {
-                        deleteSelectedTestcases()
-                        setDataChangeTrigger((prev) => prev + 1)
-                      }}
-                      type="button"
-                      className={cn(
-                        'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                        selectedTestcases.length > 0 && !hasZipUploaded.hidden
-                          ? 'bg-[#FC5555] text-white'
-                          : 'bg-gray-300 text-gray-600'
-                      )}
-                      disabled={
-                        selectedTestcases.length === 0 || hasZipUploaded.hidden
-                      }
-                    >
-                      <Image
-                        src="/icons/trashcan.svg"
-                        alt="trashcan Icon"
-                        width={18}
-                        height={18}
-                      />
-                      <span className="ml-[6px] flex items-center text-center text-white">
-                        Delete
-                      </span>
-                    </button>
+                    {hasZipUploaded.hidden ? (
+                      <button
+                        onClick={() => deleteAllInCurrentTab(true)}
+                        type="button"
+                        className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#FC5555] px-[22px] py-[10px]"
+                        disabled={blockEdit}
+                      >
+                        <Image
+                          src="/icons/trashcan.svg"
+                          alt="trashcan Icon"
+                          width={18}
+                          height={18}
+                        />
+                        <span className="ml-[6px] flex items-center text-center text-white">
+                          Delete
+                        </span>
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => {
+                            deleteSelectedTestcases()
+                            setDataChangeTrigger((prev) => prev + 1)
+                          }}
+                          type="button"
+                          className={cn(
+                            'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                            selectedTestcases.length > 0 &&
+                              !hasZipUploaded.hidden
+                              ? 'bg-[#FC5555] text-white'
+                              : 'bg-gray-300 text-gray-600'
+                          )}
+                          disabled={
+                            selectedTestcases.length === 0 ||
+                            hasZipUploaded.hidden
+                          }
+                        >
+                          <Image
+                            src="/icons/trashcan.svg"
+                            alt="trashcan Icon"
+                            width={18}
+                            height={18}
+                          />
+                          <span className="ml-[6px] flex items-center text-center text-white">
+                            Delete
+                          </span>
+                        </button>
 
-                    <button
-                      onClick={() => {
-                        addTestcase(true)
-                        setDataChangeTrigger((prev) => prev + 1)
-                      }}
-                      type="button"
-                      className={cn(
-                        'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                        hasZipUploaded.hidden
-                          ? 'bg-gray-300 text-gray-600'
-                          : 'bg-primary text-white'
-                      )}
-                      disabled={hasZipUploaded.hidden}
-                    >
-                      <Image
-                        src="/icons/plus-circle-white.svg"
-                        alt="plus circle white Icon"
-                        width={18}
-                        height={18}
-                      />
-                      <span className="ml-[6px] flex items-center text-center text-white">
-                        Add
-                      </span>
-                    </button>
+                        <button
+                          onClick={() => {
+                            addTestcase(true)
+                            setDataChangeTrigger((prev) => prev + 1)
+                          }}
+                          type="button"
+                          className={cn(
+                            'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                            hasZipUploaded.hidden
+                              ? 'bg-gray-300 text-gray-600'
+                              : 'bg-primary text-white'
+                          )}
+                          disabled={hasZipUploaded.hidden}
+                        >
+                          <Image
+                            src="/icons/plus-circle-white.svg"
+                            alt="plus circle white Icon"
+                            width={18}
+                            height={18}
+                          />
+                          <span className="ml-[6px] flex items-center text-center text-white">
+                            Add
+                          </span>
+                        </button>
+                      </>
+                    )}
                   </>
                 )}
               </div>
@@ -787,13 +860,13 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             <span className="text-sm font-semibold text-[#737373]">(%)</span>
           </div>
         </div>
-        <div className="mt-5 flex w-full justify-end gap-3">
+        <div className="w/full mt-5 flex justify-end gap-3">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   className={cn(
-                    'flex h-[42px] w-full items-center gap-2 px-0',
+                    'w/full flex h-[42px] items-center gap-2 px-0',
                     disableDistribution && 'bg-gray-300 text-gray-600'
                   )}
                   type="button"
