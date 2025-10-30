@@ -23,7 +23,8 @@ const nextConfig = {
   images: {
     remotePatterns: [
       new URL(`https://${BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/**`), // production
-      new URL('https://minio.minio.svc.cluster.local/**'), // development
+      new URL('https://minio.minio.svc.cluster.local/**'), // stage server-side
+      new URL('https://minio.stage.codedang.com/**'), // stage client-side
       {
         protocol: 'https',
         hostname: '**.cdninstagram.com'
