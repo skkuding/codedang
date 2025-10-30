@@ -25,7 +25,7 @@ spec:
     name: tenant-config
   env:
     - name: MINIO_BROWSER_REDIRECT_URL
-      value: 'https://minio.stage.codedang.com'
+      value: 'https://minio-console.stage.codedang.com'
   pools:
     - servers: 1 # standalone mode (4 or more for distributed mode)
       name: pool-0
