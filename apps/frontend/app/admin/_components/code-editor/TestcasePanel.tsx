@@ -40,7 +40,7 @@ export function TestcasePanel({
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
 
   const notAcceptedTestcases = displayTestResults
-    .filter((t) => t.result === 'WrongAnswer')
+    .filter((t) => t.result !== 'Accepted')
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
 
   return (
