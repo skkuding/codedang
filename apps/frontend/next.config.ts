@@ -21,15 +21,24 @@ const BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
 
 const nextConfig = {
   images: {
-    remotePatterns: [
-      new URL(`https://${BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/**`), // production
-      new URL('https://minio.minio.svc.cluster.local/**'), // stage server-side
-      new URL('https://minio.stage.codedang.com/**'), // stage client-side
-      {
-        protocol: 'https',
-        hostname: '**.cdninstagram.com'
-      }
-    ]
+    remotePatterns:
+      process.env.NODE_ENV === 'development'
+        ? [
+            {
+              protocol: 'https',
+              hostname: 'minio.minio.svc.cluster.local'
+            },
+            {
+              protocol: 'https',
+              hostname: 'minio.stage.codedang.com'
+            }
+          ]
+        : [
+            {
+              protocol: 'https',
+              hostname: `${BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`
+            }
+          ]
   },
   output: 'standalone',
   eslint: {
