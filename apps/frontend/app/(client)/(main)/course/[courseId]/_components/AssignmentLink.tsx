@@ -60,7 +60,8 @@ export function AssignmentLink({
     e.preventDefault()
 
     if (assignmentStatus === 'upcoming' && !assignmentData) {
-      toast.error('This assignment has not started yet!')
+      const noun = isExercise ? 'exercise' : 'assignment'
+      toast.error(`This ${noun} has not started yet!`)
       return
     }
 
