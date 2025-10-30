@@ -161,14 +161,14 @@ export function ContestStatusTimeDiff({
           )}
         >
           <Image src={subtractIcon} alt="subtract" width={20} height={20} />
-          <p className="ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px] text-[#3581FA]">
+          <p className="text-primary ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px]">
             Registration :
           </p>
-          <p className="mr-2 w-[280px] overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px] text-[#474747]">
+          <p className="text-color-neutral-30 mr-2 w-[280px] overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px]">
             {`${formattedTime(contest.createTime)} ~ ${formattedTime(contest.registerDueTime)}`}
           </p>
           {/* </p> */}
-          <div className="text-primary flex h-7 w-[80px] items-center justify-center text-ellipsis whitespace-nowrap rounded-[4px] bg-[#EAF3FF] px-[10px] py-1 text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
+          <div className="text-primary bg-color-blue-95 flex h-7 w-[80px] items-center justify-center text-ellipsis whitespace-nowrap rounded-[4px] px-[10px] py-1 text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
             {registerDDayStatus}
           </div>
         </div>
@@ -181,13 +181,13 @@ export function ContestStatusTimeDiff({
           )}
         >
           <Image src={clockRedIcon} alt="clock" width={20} height={20} />
-          <p className="ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px] text-[#FF3B2F]">
+          <p className="text-color-red-50 ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px]">
             Duration :
           </p>
-          <p className="mr-2 w-[280px] overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px] text-[#474747]">
+          <p className="text-color-neutral-30 mr-2 w-[280px] overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px]">
             {`${formattedTime(contest.startTime)} ~ ${formattedTime(contest.endTime)}`}
           </p>
-          <div className="flex h-7 w-[80px] items-center justify-center text-ellipsis whitespace-nowrap rounded-[4px] bg-[#FFEBEE] px-[10px] py-1 text-sm font-medium leading-[19.6px] tracking-[-0.42px] text-[#FF2C55]">
+          <div className="bg-color-pink-95 text-color-pink-50 flex h-7 w-[80px] items-center justify-center text-ellipsis whitespace-nowrap rounded-[4px] px-[10px] py-1 text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
             {contestDDayStatus}
           </div>
         </div>

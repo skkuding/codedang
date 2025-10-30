@@ -11,7 +11,7 @@ import {
   AlertDialogTitle
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
-import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import { safeFetcherWithAuth } from '@/libs/utils'
 import warningIcon from '@/public/icons/info.svg'
 import type { ContestPreview, ContestTop } from '@/types/type'
 import Image from 'next/image'
@@ -46,45 +46,45 @@ export function RegisterCancelButton({
   return (
     <>
       <Button
-        className={`h-[46px] w-[467px] rounded-[1000px] text-base font-medium leading-[22.4px] tracking-[-0.48px] ${state === 'Upcoming' ? 'bg-primary text-white' : 'pointer-events-none bg-[#F0F0F0] text-[#9B9B9B]'}`}
+        className={`h-[46px] w-[467px] rounded-[1000px] text-base font-medium leading-[22.4px] tracking-[-0.48px] ${state === 'Upcoming' ? 'bg-primary text-white' : 'bg-fill text-color-neutral-70 pointer-events-none'}`}
         onClick={OpenDeleteModal}
       >
         Cancel registration
       </Button>
       <AlertDialog open={deleteModalFlag} onOpenChange={setDeleteModalFlag}>
         <AlertDialogContent
-          className={cn(
+          className={
             'flex !h-[300px] !w-[424px] flex-col items-center justify-center !rounded-2xl !p-[40px]'
-          )}
+          }
           onEscapeKeyDown={() => setDeleteModalFlag(false)}
         >
           <AlertDialogHeader className="mt-[2px] flex flex-col items-center justify-center">
             <Image src={warningIcon} alt={'warning'} width={42} height={42} />
             <AlertDialogTitle
-              className={cn('w-full text-center text-2xl font-semibold')}
+              className={'w-full text-center text-2xl font-semibold'}
             >
               {'Cancel Registration?'}
             </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogDescription>
             <p
-              className={cn(
-                'w-full whitespace-pre-wrap text-center text-sm font-light leading-[21px] tracking-[-0.42px] text-[#737373]'
-              )}
+              className={
+                'text-color-neutral-50 w-full whitespace-pre-wrap text-center text-sm font-light leading-[21px] tracking-[-0.42px]'
+              }
             >
               {`Do you really want to cancel your registration?\nYou can only re-register before the registration deadline.`}
             </p>
           </AlertDialogDescription>
           <AlertDialogFooter className="flex w-full justify-center gap-[4px]">
-            <AlertDialogCancel className="!m-0 h-[46px] w-[170px] text-base font-medium leading-[22.4px] tracking-[-0.48px] text-[#8A8A8A]">
+            <AlertDialogCancel className="text-color-neutral-60 !m-0 h-[46px] w-[170px] text-base font-medium leading-[22.4px] tracking-[-0.48px]">
               Go Back
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
                 onClick={CancelRegister}
-                className={cn(
+                className={
                   'bg-error h-[46px] w-[170px] text-base font-medium leading-[22.4px] tracking-[-0.48px] text-white hover:bg-red-500/90'
-                )}
+                }
                 variant={'default'}
               >
                 {'Cancel'}

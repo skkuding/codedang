@@ -99,7 +99,7 @@ export function ContestOverviewLayout({
         <div className="mt-[20px] flex">
           <ContestStatusTimeDiff
             contest={contest}
-            textStyle="text-base font-normal leading-[24px] tracking-[-0.48px] text-[#474747]"
+            textStyle="text-base font-normal leading-[24px] tracking-[-0.48px] text-color-neutral-30"
             inContestEditor={false}
           />
         </div>
@@ -160,7 +160,7 @@ export function ContestOverviewLayout({
                 <div>
                   {actualIsRegistered ? (
                     <div className="flex h-[46px] w-[944px] gap-[10px]">
-                      <Button className="pointer-events-none h-[46px] w-[467px] rounded-[1000px] bg-[#F0F0F0] text-base font-medium leading-[22.4px] tracking-[-0.48px] text-[#9B9B9B]">
+                      <Button className="text-color-neutral-70 bg-fill pointer-events-none h-[46px] w-[467px] rounded-[1000px] text-base font-medium leading-[22.4px] tracking-[-0.48px]">
                         Registered
                       </Button>
                       <RegisterCancelButton contest={contest} state={state} />
@@ -182,12 +182,12 @@ export function ContestOverviewLayout({
         <Accordion type="single" collapsible className="mt-15 w-[1208px]">
           <AccordionItem value="item-1" className="border-b-0">
             <AccordionTrigger
-              className="h-[78px] pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-[#000000] data-[state=open]:pb-[12px]"
-              iconStyle="h-5 w-5 text-[#737373]"
+              className="h-[78px] pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black data-[state=open]:pb-[12px]"
+              iconStyle="h-5 w-5 text-color-neutral-30"
             >
               More Description
             </AccordionTrigger>
-            <AccordionContent className="!m-0 pb-[30px] text-base font-normal leading-[24px] tracking-[-0.48px] text-[#474747]">
+            <AccordionContent className="text-color-neutral-30 !m-0 pb-[30px] text-base font-normal leading-[24px] tracking-[-0.48px]">
               <KatexContent content={contest.description} classname="!mt-0" />
             </AccordionContent>
           </AccordionItem>
@@ -200,8 +200,8 @@ export function ContestOverviewLayout({
         >
           <AccordionItem value="item-1" className="border-b-0">
             <AccordionTrigger
-              className="h-[78px] border-t border-[#D8D8D8] pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-[#000000]"
-              iconStyle="h-5 w-5 text-[#737373]"
+              className="border-line h-[78px] border-t pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black"
+              iconStyle="h-5 w-5 text-color-neutral-50"
             >
               Problem List
             </AccordionTrigger>
