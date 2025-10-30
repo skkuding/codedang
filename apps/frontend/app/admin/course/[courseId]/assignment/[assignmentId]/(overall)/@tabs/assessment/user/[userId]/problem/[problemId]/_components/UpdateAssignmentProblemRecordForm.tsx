@@ -6,54 +6,50 @@ import {
   GET_ASSIGNMENT_SCORE_SUMMARIES,
   GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER
 } from '@/graphql/assignment/queries'
-import { useMutation, useQuery } from '@apollo/client'
+import { useSuspenseQuery, useMutation } from '@apollo/client'
 import type { UpdateAssignmentProblemRecordInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { useState, type ReactNode } from 'react'
+import { useParams } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { updateAssignmentProblemRecordSchema } from '../_libs/schemas'
 
 interface UpdateAssignmentProblemRecordFormProps {
-  children: ReactNode
-  groupId: number
-  assignmentId: number
-  userId: number
-  problemId: number
+  children: React.ReactNode
   onCompleted: () => void
 }
 
 export function UpdateAssignmentProblemRecordForm({
   children,
-  groupId,
-  assignmentId,
-  userId,
-  problemId,
   onCompleted
 }: UpdateAssignmentProblemRecordFormProps) {
-  const [loading, setLoading] = useState(true)
+  const params = useParams<{
+    courseId: string
+    assignmentId: string
+    userId: string
+    problemId: string
+  }>()
+  const { courseId, assignmentId, userId, problemId } = params
 
-  const methods = useForm<UpdateAssignmentProblemRecordInput>({
-    resolver: valibotResolver(updateAssignmentProblemRecordSchema)
+  const {
+    data: { getAssignmentProblemRecord }
+  } = useSuspenseQuery(GET_ASSIGNMENT_PROBLEM_RECORD, {
+    variables: {
+      groupId: Number(courseId),
+      assignmentId: Number(assignmentId),
+      userId: Number(userId),
+      problemId: Number(problemId)
+    }
   })
 
-  useQuery(GET_ASSIGNMENT_PROBLEM_RECORD, {
-    variables: {
-      groupId,
-      assignmentId,
-      userId,
-      problemId
-    },
-    onCompleted: (recordData) => {
-      const data = recordData.getAssignmentProblemRecord
-      methods.reset({
-        assignmentId,
-        userId,
-        problemId,
-        finalScore: data.finalScore,
-        comment: data.comment
-      })
-      setLoading(false)
+  const methods = useForm<UpdateAssignmentProblemRecordInput>({
+    resolver: valibotResolver(updateAssignmentProblemRecordSchema),
+    defaultValues: {
+      assignmentId: Number(assignmentId),
+      userId: Number(userId),
+      problemId: Number(problemId),
+      finalScore: getAssignmentProblemRecord.finalScore ?? null,
+      comment: getAssignmentProblemRecord.comment ?? ''
     }
   })
 
@@ -71,17 +67,17 @@ export function UpdateAssignmentProblemRecordForm({
         {
           query: GET_ASSIGNMENT_SCORE_SUMMARIES,
           variables: {
-            groupId,
-            assignmentId,
+            groupId: Number(courseId),
+            assignmentId: Number(assignmentId),
             take: 1000
           }
         },
         {
           query: GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER,
           variables: {
-            groupId,
-            assignmentId,
-            userId,
+            groupId: Number(courseId),
+            assignmentId: Number(assignmentId),
+            userId: Number(userId),
             take: 1000
           }
         }
@@ -93,15 +89,11 @@ export function UpdateAssignmentProblemRecordForm({
     const input = methods.getValues()
     await updateAssignmentProblemRecord({
       variables: {
-        groupId,
+        groupId: Number(courseId),
         input
       }
     })
   })
-
-  if (loading) {
-    return null
-  }
 
   return (
     <form onSubmit={onSubmit}>

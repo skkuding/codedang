@@ -115,7 +115,7 @@ export const useTestResults = () => {
             expectedOutput: testcase.output,
             output: testResult?.output ?? '',
             result: testResult?.result ?? '',
-            type: type
+            type
           }
         })
       : []

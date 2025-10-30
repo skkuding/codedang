@@ -17,6 +17,8 @@ const GET_PROBLEM = gql(`
       inputDescription
       outputDescription
       submissionCount
+      isHiddenUploadedByZip
+      isSampleUploadedByZip
       testcase {
         id
         input
@@ -141,13 +143,49 @@ const GET_PROBLEM_TESTCASE = gql(`
   }
 `)
 
+const GET_PROBLEM_TESTCASE_WITHOUT_IO = gql(`
+  query GetProblemTestcaseWithoutIO($id: Int!) {
+    getProblem(id: $id) {
+      testcase {
+        id
+        order
+        isHidden
+        scoreWeightNumerator
+        scoreWeightDenominator
+      }
+    }
+  }
+`)
+
+const GET_TESTCASE = gql(`
+  query GetTestcase($testcaseId: Int!) {
+  getTestcase(testcaseId: $testcaseId) {
+    id
+    order
+    input
+    output
+    isHidden
+    isOutdated
+    outdateTime
+    scoreWeight
+    scoreWeightDenominator
+    scoreWeightNumerator
+    submissionCount
+    createTime
+    updateTime
+  }
+}
+`)
+
 export {
   GET_ASSIGNMENT_PROBLEM_MAX_SCORE,
   GET_ASSIGNMENT_PROBLEMS,
+  GET_PROBLEM_TESTCASE_WITHOUT_IO,
   GET_CONTEST_PROBLEMS,
   GET_PROBLEM,
   GET_PROBLEM_DETAIL,
   GET_PROBLEM_TESTCASE,
   GET_PROBLEMS,
-  GET_TAGS
+  GET_TAGS,
+  GET_TESTCASE
 }
