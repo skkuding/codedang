@@ -1,5 +1,4 @@
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql'
-import type { Decimal } from '@prisma/client/runtime/library'
 
 @ObjectType()
 export class UserAssignmentScoreSummary {
