@@ -18,7 +18,8 @@ import {
   useMemo,
   useState,
   useImperativeHandle,
-  forwardRef
+  forwardRef,
+  useRef
 } from 'react'
 import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowRotateLeft } from 'react-icons/fa6'
@@ -101,6 +102,8 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       hidden: false
     })
 
+    const zipClearedRef = useRef({ sample: false, hidden: false })
+
     useEffect(() => {
       const hasSampleZip = watchedItems.some(
         (tc) => !tc.isHidden && isZipUploadedTestcase(tc)
@@ -109,10 +112,14 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         (tc) => tc.isHidden && isZipUploadedTestcase(tc)
       )
       setHasZipUploaded({
-        sample: hasSampleZip,
-        hidden: hasHiddenZip
+        sample:
+          hasSampleZip ||
+          (!zipClearedRef.current.sample && isSampleUploadedByZip),
+        hidden:
+          hasHiddenZip ||
+          (!zipClearedRef.current.hidden && isHiddenUploadedByZip)
       })
-    }, [watchedItems])
+    }, [watchedItems, isSampleUploadedByZip, isHiddenUploadedByZip])
 
     useEffect(() => {
       const isScoreAssigned = (tc: ExtendedTestcase) =>
@@ -171,6 +178,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         ...prev,
         [isHidden ? 'hidden' : 'sample']: true
       }))
+      zipClearedRef.current[isHidden ? 'hidden' : 'sample'] = false
     }
 
     const handleSelectTestcase = (index: number, isSelected: boolean) => {
@@ -223,24 +231,13 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         )
       )
       setZipUploadedFiles(prunedZipCache)
-      const stillinTab = remainingValues.filter(
-        (tc) => tc.isHidden === isHidden
-      )
-      if (stillinTab.length === 0) {
-        remainingValues.push({
-          id: null,
-          input: '',
-          output: '',
-          isHidden,
-          scoreWeight: null
-        })
-      }
       setValue('testcases', remainingValues)
       setSelectedTestcases([])
       setHasZipUploaded((prev) => ({
         ...prev,
         [prefix]: false
       }))
+      zipClearedRef.current[prefix] = true
       setDataChangeTrigger((prev) => prev + 1)
     }
 
@@ -701,8 +698,10 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         item.originalIndex
                       )}
                       isZipUploaded={
-                        ('isZipUploaded' in item && item.isZipUploaded) ||
-                        (isSampleUploadedByZip && hasZipUploaded.sample)
+                        isZipUploadedTestcase(item) ||
+                        (!item.isHidden
+                          ? hasZipUploaded.sample
+                          : hasZipUploaded.hidden)
                       }
                     />
                   )
@@ -847,8 +846,10 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         item.originalIndex
                       )}
                       isZipUploaded={
-                        ('isZipUploaded' in item && item.isZipUploaded) ||
-                        (isHiddenUploadedByZip && hasZipUploaded.hidden)
+                        isZipUploadedTestcase(item) ||
+                        (!item.isHidden
+                          ? hasZipUploaded.sample
+                          : hasZipUploaded.hidden)
                       }
                     />
                   )
