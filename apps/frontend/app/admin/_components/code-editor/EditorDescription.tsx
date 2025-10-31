@@ -1,13 +1,13 @@
 'use client'
 
 import { KatexContent } from '@/components/KatexContent'
+import { LevelBadge } from '@/components/LevelBadge'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@/components/shadcn/accordion'
-import { Badge } from '@/components/shadcn/badge'
 import { convertToLetter } from '@/libs/utils'
 import type { ProblemDetail } from '@/types/type'
 import DOMPurify from 'isomorphic-dompurify'
@@ -26,23 +26,17 @@ export function EditorDescription({
   isAssignment = false
 }: EditorDescriptionProps) {
   const level = problem.difficulty
-  const levelNumber = level.slice(-1)
 
   return (
     <div className="dark flex h-full w-full flex-col gap-6 bg-[#222939] py-6 text-lg">
       <div className="px-6">
-        <div className="flex max-h-24 justify-between gap-4">
-          <h1 className="mb-3 overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${problem?.order !== undefined ? convertToLetter(problem.order) : problem.id}. ${problem.title}`}</h1>
+        <div className="flex max-h-24 items-center justify-between gap-4">
+          <h1 className="overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${problem?.order !== undefined ? convertToLetter(problem.order) : problem.id}. ${problem.title}`}</h1>
           {!isContest && !isAssignment && (
-            <Badge
-              className="h-6 w-[52px] whitespace-nowrap rounded-[4px] bg-neutral-500 p-[6px] text-xs font-medium hover:bg-neutral-500"
-              textColors={level}
-            >
-              {`Level ${levelNumber}`}
-            </Badge>
+            <LevelBadge type="dark" level={level} />
           )}
         </div>
-        <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
+        <div className="prose prose-invert mt-5 max-w-full text-sm leading-relaxed text-slate-300">
           <KatexContent content={problem.description} />
         </div>
         <hr className="border-slate-700" />

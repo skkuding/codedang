@@ -3,7 +3,7 @@
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { ProblemUsage } from '@/app/admin/problem/_components/ProblemUsage'
-import { Badge } from '@/components/shadcn/badge'
+import { LevelBadge } from '@/components/LevelBadge'
 import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -79,15 +79,9 @@ export const createAssignmentColumns = (
       ),
       cell: ({ row }) => {
         const level: string = row.getValue('difficulty')
-        const formattedLevel = `Level ${level.slice(-1)}`
         return (
           <div>
-            <Badge
-              variant={level as Level}
-              className="whitespace-nowrap px-2 py-1 font-normal"
-            >
-              {formattedLevel}
-            </Badge>
+            <LevelBadge level={level as Level} />
           </div>
         )
       },
