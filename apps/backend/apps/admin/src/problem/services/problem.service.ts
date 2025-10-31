@@ -658,8 +658,8 @@ export class ProblemService {
     if (testcases?.length) {
       await this.testcaseService.syncTestcases(
         id,
-        problem.isHiddenUploadedByZip,
         problem.isSampleUploadedByZip,
+        problem.isHiddenUploadedByZip,
         testcases
       )
     }
