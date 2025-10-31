@@ -130,7 +130,7 @@ export class ContestService {
    * @returns 특정 대회 상세 정보
    */
   async getContest(contestId: number) {
-    const contest = await this.prisma.contest.findUniqueOrThrow({
+    const contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId
       },
@@ -867,7 +867,7 @@ export class ContestService {
    * @param {Map<number, number>} contestProblemScoreMap <problemId, maxScore> 배점 맵
    * @returns 문제 ID별 최신 제출 점수
    */
-  private async buildLatestSubmissionsMap(
+  private buildLatestSubmissionsMap(
     submissions: Submission[],
     contestProblemScoreMap: Map<number, number>
   ) {
