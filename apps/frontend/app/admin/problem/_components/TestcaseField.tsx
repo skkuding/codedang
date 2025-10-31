@@ -25,6 +25,7 @@ import { FaArrowRotateLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { Label } from '../../_components/Label'
+import { useEditProblemContext } from '../[problemId]/edit/_components/EditProblemContext'
 import { isInvalid } from '../_libs/utils'
 import { TestcaseItem } from './TestcaseItem'
 import { TestcaseUploadModal } from './TestcaseUploadModal'
@@ -71,8 +72,8 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       name: 'testcases',
       control
     })
-    // const { isSampleUploadedByZip, isHiddenUploadedByZip } =
-    //   useEditProblemContext()
+    const { isSampleUploadedByZip, isHiddenUploadedByZip } =
+      useEditProblemContext()
     const itemErrors = errors.testcases as FieldErrorsImpl
 
     const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
@@ -222,6 +223,18 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         )
       )
       setZipUploadedFiles(prunedZipCache)
+      const stillinTab = remainingValues.filter(
+        (tc) => tc.isHidden === isHidden
+      )
+      if (stillinTab.length === 0) {
+        remainingValues.push({
+          id: null,
+          input: '',
+          output: '',
+          isHidden,
+          scoreWeight: null
+        })
+      }
       setValue('testcases', remainingValues)
       setSelectedTestcases([])
       setHasZipUploaded((prev) => ({
@@ -592,7 +605,6 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                     <TestcaseUploadModal
                       onUpload={handleUploadTestcases}
                       isHidden={false}
-                      disabled={hasZipUploaded.hidden}
                     />
                     {hasZipUploaded.sample ? (
                       <button
@@ -616,7 +628,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         <button
                           onClick={() => {
                             deleteSelectedTestcases()
-                            setDataChangeTrigger((prev) => prev + 1)
+                            // setDataChangeTrigger((prev) => prev + 1)
                           }}
                           type="button"
                           className={cn(
@@ -644,7 +656,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         <button
                           onClick={() => {
                             addTestcase(false)
-                            setDataChangeTrigger((prev) => prev + 1)
+                            // setDataChangeTrigger((prev) => prev + 1)
                           }}
                           type="button"
                           className={cn(
@@ -688,7 +700,10 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                       isSelected={selectedTestcases.includes(
                         item.originalIndex
                       )}
-                      isZipUploaded={isZipUploadedTestcase(item)}
+                      isZipUploaded={
+                        ('isZipUploaded' in item && item.isZipUploaded) ||
+                        (isSampleUploadedByZip && hasZipUploaded.sample)
+                      }
                     />
                   )
                 )
@@ -735,7 +750,6 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                     <TestcaseUploadModal
                       onUpload={handleUploadTestcases}
                       isHidden={true}
-                      disabled={hasZipUploaded.sample}
                     />
                     {hasZipUploaded.hidden ? (
                       <button
@@ -759,7 +773,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         <button
                           onClick={() => {
                             deleteSelectedTestcases()
-                            setDataChangeTrigger((prev) => prev + 1)
+                            // setDataChangeTrigger((prev) => prev + 1)
                           }}
                           type="button"
                           className={cn(
@@ -788,7 +802,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         <button
                           onClick={() => {
                             addTestcase(true)
-                            setDataChangeTrigger((prev) => prev + 1)
+                            // setDataChangeTrigger((prev) => prev + 1)
                           }}
                           type="button"
                           className={cn(
@@ -832,7 +846,10 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                       isSelected={selectedTestcases.includes(
                         item.originalIndex
                       )}
-                      isZipUploaded={isZipUploadedTestcase(item)}
+                      isZipUploaded={
+                        ('isZipUploaded' in item && item.isZipUploaded) ||
+                        (isHiddenUploadedByZip && hasZipUploaded.hidden)
+                      }
                     />
                   )
                 )
