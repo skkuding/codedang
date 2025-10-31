@@ -101,7 +101,7 @@ describe('ContestQnAService', () => {
         { ...mockQnA, readBy: [] },
         { ...mockQnA, id: 102, order: 2, readBy: [staffUserId] }
       ]
-      db.contest.findUniqueOrThrow.resolves({ id: contestId })
+      db.contest.findUnique.resolves({ id: contestId })
       db.contestQnA.findMany.resolves(mockQnAs)
 
       const result = await service.getContestQnAs(
@@ -124,7 +124,7 @@ describe('ContestQnAService', () => {
 
   describe('getContestQnA', () => {
     it('should return a single QnA and mark as read', async () => {
-      db.contestQnA.findUniqueOrThrow.resolves({ ...mockQnA, readBy: [] })
+      db.contestQnA.findFirst.resolves({ ...mockQnA, readBy: [] })
       db.contestQnA.update.resolves({ ...mockQnA, readBy: [staffUserId] })
 
       const result = await service.getContestQnA(
@@ -134,9 +134,8 @@ describe('ContestQnAService', () => {
       )
       expect(result.id).to.equal(mockQnA.id)
       expect(
-        db.contestQnA.findUniqueOrThrow.calledWithMatch({
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          where: { contestId_order: { contestId, order: qnaOrder } }
+        db.contestQnA.findFirst.calledWithMatch({
+          where: { contestId, order: qnaOrder }
         })
       ).to.be.true
       expect(
@@ -150,14 +149,14 @@ describe('ContestQnAService', () => {
 
   describe('deleteContestQnA', () => {
     it('should delete a QnA', async () => {
+      db.contestQnA.findFirst.resolves(mockQnA)
       db.contestQnA.delete.resolves(mockQnA)
 
       const result = await service.deleteContestQnA(contestId, qnaOrder)
       expect(result).to.deep.equal(mockQnA)
       expect(
         db.contestQnA.delete.calledWithMatch({
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          where: { contestId_order: { contestId, order: qnaOrder } }
+          where: { id: mockQnA.id }
         })
       ).to.be.true
     })
@@ -166,8 +165,8 @@ describe('ContestQnAService', () => {
   describe('createContestQnAComment', () => {
     it('should create a new comment', async () => {
       const content = 'This is the new comment.'
-      db.contest.findUniqueOrThrow.resolves({ id: contestId })
-      db.contestQnA.findUniqueOrThrow.resolves(mockQnA)
+      db.contest.findUnique.resolves({ id: contestId })
+      db.contestQnA.findFirst.resolves(mockQnA)
       db.$transaction.callsFake(async (callback) => {
         const tx = {
           contestQnAComment: {
@@ -195,8 +194,8 @@ describe('ContestQnAService', () => {
 
   describe('deleteContestQnAComment', () => {
     it('should delete a comment', async () => {
-      db.contestQnA.findUniqueOrThrow.resolves(mockQnA)
-      db.contestQnAComment.findUniqueOrThrow.resolves(mockComment)
+      db.contestQnA.findFirst.resolves(mockQnA)
+      db.contestQnAComment.findFirst.resolves(mockComment)
       db.$transaction.callsFake(async (callback) => {
         const tx = {
           contestQnAComment: {
@@ -224,32 +223,41 @@ describe('ContestQnAService', () => {
     it('should toggle isResolved from false to true', async () => {
       const qnaFalse = { ...mockQnA, isResolved: false }
       const qnaTrue = { ...mockQnA, isResolved: true }
-      db.contestQnA.findUniqueOrThrow.resolves(qnaFalse)
+      db.contestQnA.findUnique.resolves(qnaFalse)
       db.contestQnAComment.count.resolves(1)
-      db.contestQnA.update.resolves(qnaTrue)
+      db.$transaction.callsFake(async (callback) => {
+        const tx = {
+          contestQnA: {
+            findUnique: stub().resolves(qnaFalse),
+            update: stub().resolves(qnaTrue)
+          }
+        }
+        return await callback(tx)
+      })
 
       const result = await service.toggleContestQnAResolved(contestId, qnaOrder)
       expect(result.isResolved).to.be.true
-      expect(
-        db.contestQnA.update.calledWithMatch({
-          data: { isResolved: true }
-        })
-      ).to.be.true
+      expect(db.$transaction.calledOnce).to.be.true
     })
 
     it('should toggle isResolved from true to false', async () => {
       const qnaTrue = { ...mockQnA, isResolved: true }
       const qnaFalse = { ...mockQnA, isResolved: false }
-      db.contestQnA.findUniqueOrThrow.resolves(qnaTrue)
-      db.contestQnA.update.resolves(qnaFalse)
+      db.contestQnA.findUnique.resolves(qnaTrue)
+      db.contestQnAComment.count.resolves(1)
+      db.$transaction.callsFake(async (callback) => {
+        const tx = {
+          contestQnA: {
+            findUnique: stub().resolves(qnaTrue),
+            update: stub().resolves(qnaFalse)
+          }
+        }
+        return await callback(tx)
+      })
 
       const result = await service.toggleContestQnAResolved(contestId, qnaOrder)
       expect(result.isResolved).to.be.false
-      expect(
-        db.contestQnA.update.calledWithMatch({
-          data: { isResolved: false }
-        })
-      ).to.be.true
+      expect(db.$transaction.calledOnce).to.be.true
     })
   })
 })

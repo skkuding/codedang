@@ -212,10 +212,10 @@ const createInput: CreateContestInput = {
 }
 
 const updateInput: UpdateContestInput = {
-  startTime: new Date('2025-01-03T12:00:00Z'),
-  endTime: new Date('2025-01-03T18:00:00Z'),
-  registerDueTime: new Date('2025-01-01T00:00:00Z'),
-  freezeTime: new Date('2025-01-03T17:00:00Z')
+  startTime: new Date('2999-01-03T12:00:00Z'),
+  endTime: new Date('2999-01-03T18:00:00Z'),
+  registerDueTime: new Date('2999-01-01T00:00:00Z'),
+  freezeTime: new Date('2999-01-03T17:00:00Z')
 }
 
 const db = {
@@ -336,7 +336,7 @@ describe('ContestService', () => {
 
   describe('getContest', () => {
     it('should return a contest with participants', async () => {
-      db.contest.findUniqueOrThrow.resolves(contestWithCount)
+      db.contest.findUnique.resolves(contestWithCount)
 
       const res = await service.getContest(contestId)
       expect(res.participants).to.equal(10)
@@ -344,12 +344,7 @@ describe('ContestService', () => {
     })
 
     it('should throw error if contest not found', async () => {
-      const err = new Prisma.PrismaClientKnownRequestError('', {
-        code: 'P2025',
-        clientVersion: ''
-      })
-      db.contest.findUniqueOrThrow.rejects(err)
-
+      db.contest.findUnique.resolves(null)
       await expect(service.getContest(999)).to.be.rejectedWith(
         EntityNotExistException
       )
@@ -386,7 +381,7 @@ describe('ContestService', () => {
 
   describe('updateContest', () => {
     it('should return updated contest and update problem lock time', async () => {
-      db.contest.findUniqueOrThrow.resolves({
+      db.contest.findUnique.resolves({
         ...contest,
         startTime: new Date('2025-01-01'),
         endTime: new Date('2025-01-02'),
@@ -400,8 +395,7 @@ describe('ContestService', () => {
       })
 
       const res = await service.updateContest(contestId, {
-        ...updateInput,
-        endTime: new Date('2025-01-03')
+        ...updateInput
       })
       expect(res.endTime).to.equal(updateInput.endTime)
       expect(db.problem.update.calledOnce).to.be.true
@@ -410,7 +404,7 @@ describe('ContestService', () => {
 
   describe('deleteContest', () => {
     it('should return deleted contest and update problem lock time', async () => {
-      db.contest.findUniqueOrThrow.resolves({
+      db.contest.findFirst.resolves({
         contestProblem: [{ problemId }]
       })
       db.contest.findMany.resolves([])
@@ -530,8 +524,8 @@ describe('ContestService', () => {
 
   describe('removeUserFromContest', () => {
     it('should remove a user from contest', async () => {
-      db.contest.findUniqueOrThrow.resolves(contest)
-      db.contestRecord.findFirstOrThrow.resolves(contestRecord)
+      db.contest.findUnique.resolves(contest)
+      db.contestRecord.findFirst.resolves(contestRecord)
       db.userContest.findUnique.resolves(userContest)
       db.$transaction.resolves(userContest)
 
@@ -542,8 +536,8 @@ describe('ContestService', () => {
 
     it('should throw ForbiddenAccessException if contest started', async () => {
       const startedContest = { ...contest, startTime: faker.date.past() }
-      db.contest.findUniqueOrThrow.resolves(startedContest)
-      db.contestRecord.findFirstOrThrow.resolves(contestRecord)
+      db.contest.findUnique.resolves(startedContest)
+      db.contestRecord.findFirst.resolves(contestRecord)
       db.userContest.findUnique.resolves(userContest)
 
       await expect(

@@ -69,7 +69,8 @@ const db = {
     findMany: stub()
   },
   contest: {
-    findUniqueOrThrow: stub()
+    findUniqueOrThrow: stub(),
+    findFirst: stub()
   },
   assignment: {
     findUniqueOrThrow: stub()
@@ -302,6 +303,17 @@ describe('ContestProblemService', () => {
   let contestService: ContestService
 
   beforeEach(async () => {
+    Object.values(db).forEach((model) => {
+      if (typeof model === 'object' && model !== null) {
+        Object.values(model).forEach((fn) => {
+          if (typeof fn === 'function' && 'resetHistory' in fn) {
+            fn.resetHistory()
+            fn.resetBehavior()
+          }
+        })
+      }
+    })
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ContestProblemService,
@@ -339,7 +351,7 @@ describe('ContestProblemService', () => {
   describe('getContestProblems', () => {
     it('should return public contest problems', async () => {
       // given
-      db.contest.findUniqueOrThrow.resolves({
+      db.contest.findFirst.resolves({
         id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
@@ -375,7 +387,7 @@ describe('ContestProblemService', () => {
 
     it('should return group contest problems', async () => {
       // given
-      db.contest.findUniqueOrThrow.resolves({
+      db.contest.findFirst.resolves({
         id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
@@ -408,7 +420,7 @@ describe('ContestProblemService', () => {
     })
 
     it('should return contest problems when user is a Reviewer before contest start', async () => {
-      db.contest.findUniqueOrThrow.resolves({
+      db.contest.findFirst.resolves({
         id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
@@ -446,10 +458,12 @@ describe('ContestProblemService', () => {
           take: 1
         })
       ).to.be.rejectedWith(prismaNotFoundError)
+
+      getContestSpy.restore()
     })
 
     it('should throw ForbiddenAccessException when the user is registered but contest is not started', async () => {
-      db.contest.findUniqueOrThrow.resolves({
+      db.contest.findFirst.resolves({
         id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
@@ -473,7 +487,7 @@ describe('ContestProblemService', () => {
     })
 
     it('should throw ForbiddenAccessException when the user is not registered and contest is not ended', async () => {
-      db.contest.findUniqueOrThrow.resolves({
+      db.contest.findFirst.resolves({
         id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
@@ -500,7 +514,7 @@ describe('ContestProblemService', () => {
   describe('getContestProblem', () => {
     it('should return the contest problem', async () => {
       // given
-      db.contest.findUniqueOrThrow.resolves({
+      db.contest.findFirst.resolves({
         id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
@@ -513,6 +527,7 @@ describe('ContestProblemService', () => {
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       db.updateHistory.findMany.resolves(mockUpdateHistory)
+      db.problemTag.findMany.resolves([])
 
       // when
       const result = await service.getContestProblem({
@@ -528,7 +543,7 @@ describe('ContestProblemService', () => {
 
     it('should return the contest problem when user is a Reviewer before contest start', async () => {
       // given
-      db.contest.findUniqueOrThrow.resolves({
+      db.contest.findFirst.resolves({
         id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
@@ -541,6 +556,7 @@ describe('ContestProblemService', () => {
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       db.updateHistory.findMany.resolves(mockUpdateHistory)
+      db.problemTag.findMany.resolves([])
 
       // when
       const result = await service.getContestProblem({
@@ -567,10 +583,12 @@ describe('ContestProblemService', () => {
           userId
         })
       ).to.be.rejectedWith(prismaNotFoundError)
+
+      getContestSpy.restore()
     })
 
     it('should throw ForbiddenAccessException when the user is registered but contest is not started', async () => {
-      db.contest.findUniqueOrThrow.resolves({
+      db.contest.findFirst.resolves({
         id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
@@ -592,7 +610,7 @@ describe('ContestProblemService', () => {
     })
 
     it('should throw ForbiddenAccessException when the user is not registered and contest is not ended', async () => {
-      db.contest.findUniqueOrThrow.resolves({
+      db.contest.findFirst.resolves({
         id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
