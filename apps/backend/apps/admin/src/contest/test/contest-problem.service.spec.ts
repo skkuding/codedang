@@ -49,13 +49,15 @@ describe('ContestProblemService', () => {
 
     service = module.get<ContestProblemService>(ContestProblemService)
 
-    db.contest.findUniqueOrThrow.resetBehavior()
-    db.contestProblem.aggregate.resetBehavior()
-    db.contestProblem.findMany.resetBehavior()
-    db.problem.updateMany.resetBehavior()
-    db.$transaction.resetBehavior()
-    db.contest.findFirstOrThrow.resetBehavior()
-    db.contestProblem.update.resetBehavior()
+    db.contest.findUniqueOrThrow.resetHistory()
+    db.contestProblem.aggregate.resetHistory()
+    db.contestProblem.findMany.resetHistory()
+    db.problem.updateMany.resetHistory()
+    db.contestProblem.create.resetHistory()
+    db.contestProblem.findFirst.resetHistory()
+    db.$transaction.resetHistory()
+    db.contest.findFirstOrThrow.resetHistory()
+    db.contestProblem.update.resetHistory()
   })
 
   describe('getContestProblems', () => {
@@ -99,6 +101,7 @@ describe('ContestProblemService', () => {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       db.contestProblem.aggregate.resolves({ _max: { order: 3 } })
       db.contestProblem.findMany.resolves([])
+
       db.$transaction.resolves([mockCreatedCP, { count: 1 }])
 
       const result = await service.importProblemsToContest(contestId, [

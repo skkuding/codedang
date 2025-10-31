@@ -339,8 +339,8 @@ describe('ContestProblemService', () => {
   describe('getContestProblems', () => {
     it('should return public contest problems', async () => {
       // given
-      const getContestSpy = stub(contestService, 'getContest')
-      getContestSpy.resolves({
+      db.contest.findUniqueOrThrow.resolves({
+        id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: true,
@@ -375,8 +375,8 @@ describe('ContestProblemService', () => {
 
     it('should return group contest problems', async () => {
       // given
-      const getContestSpy = stub(contestService, 'getContest')
-      getContestSpy.resolves({
+      db.contest.findUniqueOrThrow.resolves({
+        id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: true,
@@ -408,8 +408,8 @@ describe('ContestProblemService', () => {
     })
 
     it('should return contest problems when user is a Reviewer before contest start', async () => {
-      const getContestSpy = stub(contestService, 'getContest')
-      getContestSpy.resolves({
+      db.contest.findUniqueOrThrow.resolves({
+        id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
         isRegistered: false,
@@ -449,8 +449,8 @@ describe('ContestProblemService', () => {
     })
 
     it('should throw ForbiddenAccessException when the user is registered but contest is not started', async () => {
-      const getContestSpy = stub(contestService, 'getContest')
-      getContestSpy.resolves({
+      db.contest.findUniqueOrThrow.resolves({
+        id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
         isRegistered: true,
@@ -473,8 +473,8 @@ describe('ContestProblemService', () => {
     })
 
     it('should throw ForbiddenAccessException when the user is not registered and contest is not ended', async () => {
-      const getContestSpy = stub(contestService, 'getContest')
-      getContestSpy.resolves({
+      db.contest.findUniqueOrThrow.resolves({
+        id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: false,
@@ -500,8 +500,8 @@ describe('ContestProblemService', () => {
   describe('getContestProblem', () => {
     it('should return the contest problem', async () => {
       // given
-      const getContestSpy = stub(contestService, 'getContest')
-      getContestSpy.resolves({
+      db.contest.findUniqueOrThrow.resolves({
+        id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: true,
@@ -528,8 +528,8 @@ describe('ContestProblemService', () => {
 
     it('should return the contest problem when user is a Reviewer before contest start', async () => {
       // given
-      const getContestSpy = stub(contestService, 'getContest')
-      getContestSpy.resolves({
+      db.contest.findUniqueOrThrow.resolves({
+        id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
         isRegistered: false,
@@ -570,8 +570,8 @@ describe('ContestProblemService', () => {
     })
 
     it('should throw ForbiddenAccessException when the user is registered but contest is not started', async () => {
-      const getContestSpy = stub(contestService, 'getContest')
-      getContestSpy.resolves({
+      db.contest.findUniqueOrThrow.resolves({
+        id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
         isRegistered: true,
@@ -592,8 +592,8 @@ describe('ContestProblemService', () => {
     })
 
     it('should throw ForbiddenAccessException when the user is not registered and contest is not ended', async () => {
-      const getContestSpy = stub(contestService, 'getContest')
-      getContestSpy.resolves({
+      db.contest.findUniqueOrThrow.resolves({
+        id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: false,

@@ -11,9 +11,13 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { Contest, Problem, UpdateHistory } from '@admin/@generated'
+import type {
+  Contest,
+  ContestProblem,
+  Problem,
+  UpdateHistory
+} from '@admin/@generated'
 import { solution } from '@admin/problem/mock/mock'
-import { contestProblem } from '@client/submission/mock/contestProblem.mock'
 import { ContestService } from '../contest.service'
 import type { ContestWithParticipants } from '../model/contest-with-participants.model'
 import type {
@@ -49,17 +53,6 @@ const contest: Contest = {
   createTime,
   updateTime,
   invitationCode,
-  contestProblem: [
-    {
-      id: 1,
-      order: 0,
-      contestId,
-      problemId,
-      score: 50,
-      createTime,
-      updateTime
-    }
-  ],
   posterUrl: 'posterUrl',
   summary: {
     참여대상: 'participationTarget',
@@ -138,6 +131,16 @@ const problem: Problem = {
   isSampleUploadedByZip: false
 }
 
+const contestProblem: ContestProblem = {
+  id: 1,
+  order: 0,
+  contestId,
+  problemId,
+  score: 50,
+  createTime,
+  updateTime
+}
+
 const contestRecord = {
   id: 1,
   contestId,
@@ -158,7 +161,8 @@ const contestRecord = {
       realName: '홍길동'
     },
     major: 'Software'
-  }
+  },
+  contestProblemRecord: []
 }
 
 const userContest = {
@@ -208,19 +212,14 @@ const createInput: CreateContestInput = {
 }
 
 const updateInput: UpdateContestInput = {
-  startTime,
-  endTime,
-  registerDueTime: faker.date.past(),
-  freezeTime: faker.date.between({
-    from: startTime,
-    to: endTime
-  })
+  startTime: new Date('2025-01-03T12:00:00Z'),
+  endTime: new Date('2025-01-03T18:00:00Z'),
+  registerDueTime: new Date('2025-01-01T00:00:00Z'),
+  freezeTime: new Date('2025-01-03T17:00:00Z')
 }
 
 const db = {
-  user: {
-    findUnique: stub()
-  },
+  user: { findUnique: stub() },
   userContest: {
     create: stub(),
     findMany: stub(),
@@ -262,13 +261,8 @@ const db = {
     findFirstOrThrow: stub(),
     findMany: stub()
   },
-  submission: {
-    findMany: stub(),
-    groupBy: stub()
-  },
-  updateHistory: {
-    findMany: stub()
-  },
+  submission: { findMany: stub(), groupBy: stub() },
+  updateHistory: { findMany: stub() },
   $transaction: stub(),
   getPaginator: PrismaService.prototype.getPaginator
 }
