@@ -194,8 +194,24 @@ describe('ContestQnAService', () => {
 
   describe('deleteContestQnAComment', () => {
     it('should delete a comment', async () => {
-      db.contestQnA.findFirst.resolves(mockQnA)
-      db.contestQnAComment.findFirst.resolves(mockComment)
+      db.contestQnA.findUnique
+        .withArgs({
+          where: {
+            contestId,
+            order: qnaOrder
+          }
+        })
+        .resolves(mockQnA)
+
+      db.contestQnAComment.findFirst
+        .withArgs({
+          where: {
+            contestQnAId: mockQnA.id,
+            order: commentOrder
+          }
+        })
+        .resolves(mockComment)
+
       db.$transaction.callsFake(async (callback) => {
         const tx = {
           contestQnAComment: {
@@ -223,8 +239,24 @@ describe('ContestQnAService', () => {
     it('should toggle isResolved from false to true', async () => {
       const qnaFalse = { ...mockQnA, isResolved: false }
       const qnaTrue = { ...mockQnA, isResolved: true }
-      db.contestQnA.findUnique.resolves(qnaFalse)
-      db.contestQnAComment.count.resolves(1)
+
+      db.contestQnA.findUnique
+        .withArgs({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_order: { contestId, order: qnaOrder }
+          }
+        })
+        .resolves(qnaFalse)
+
+      db.contestQnAComment.count
+        .withArgs({
+          where: {
+            contestQnAId: qnaFalse.id
+          }
+        })
+        .resolves(1)
+
       db.$transaction.callsFake(async (callback) => {
         const tx = {
           contestQnA: {
@@ -243,8 +275,24 @@ describe('ContestQnAService', () => {
     it('should toggle isResolved from true to false', async () => {
       const qnaTrue = { ...mockQnA, isResolved: true }
       const qnaFalse = { ...mockQnA, isResolved: false }
-      db.contestQnA.findUnique.resolves(qnaTrue)
-      db.contestQnAComment.count.resolves(1)
+
+      db.contestQnA.findUnique
+        .withArgs({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_order: { contestId, order: qnaOrder }
+          }
+        })
+        .resolves(qnaTrue)
+
+      db.contestQnAComment.count
+        .withArgs({
+          where: {
+            contestQnAId: qnaTrue.id
+          }
+        })
+        .resolves(1)
+
       db.$transaction.callsFake(async (callback) => {
         const tx = {
           contestQnA: {

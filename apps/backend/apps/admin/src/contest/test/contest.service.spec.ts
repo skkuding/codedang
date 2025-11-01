@@ -381,12 +381,7 @@ describe('ContestService', () => {
 
   describe('updateContest', () => {
     it('should return updated contest and update problem lock time', async () => {
-      db.contest.findUnique.resolves({
-        ...contest,
-        startTime: new Date('2025-01-01'),
-        endTime: new Date('2025-01-02'),
-        contestProblem: [{ problemId }]
-      })
+      db.contest.findUnique.resolves(contest)
       db.contestProblem.findMany.resolves([])
       db.problem.update.resolves(problem)
       db.contest.update.resolves({
@@ -419,8 +414,12 @@ describe('ContestService', () => {
           data: { visibleLockTime: MIN_DATE }
         })
       ).to.be.true
-      expect((eventEmitter.emit as SinonStub).calledWith('contest.deleted')).to
-        .be.true
+      expect(
+        (eventEmitter.emit as SinonStub).calledWith(
+          'contest.deleted',
+          contestId
+        )
+      ).to.be.true
     })
   })
 
@@ -524,7 +523,8 @@ describe('ContestService', () => {
 
   describe('removeUserFromContest', () => {
     it('should remove a user from contest', async () => {
-      db.contest.findUnique.resolves(contest)
+      const upcomingContest = { ...contest, startTime: faker.date.future() }
+      db.contest.findUnique.resolves(upcomingContest)
       db.contestRecord.findFirst.resolves(contestRecord)
       db.userContest.findUnique.resolves(userContest)
       db.$transaction.resolves(userContest)
@@ -543,6 +543,7 @@ describe('ContestService', () => {
       await expect(
         service.removeUserFromContest(contestId, userId, userId)
       ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.$transaction.called).to.be.false
     })
   })
 
