@@ -60,7 +60,7 @@ const mockProblems = problems.map((problem) => {
         { id: 2, result: ResultStatus.WrongAnswer }
       ],
       problemTag: [{ tagId: 1 }],
-      submissionCount: 100,
+      submissionCount: 10,
       acceptedRate: 0.5
     }
   )
@@ -925,7 +925,10 @@ describe('WorkbookProblemService', () => {
           title: p.problem.title,
           difficulty: p.problem.difficulty,
           submissionCount: p.problem.submissionCount,
-          acceptedRate: p.problem.acceptedRate
+          acceptedRate: p.problem.acceptedRate,
+          isHiddenUploadedByZip: p.problem.isHiddenUploadedByZip,
+          isSampleUploadedByZip: p.problem.isSampleUploadedByZip,
+          updateContentTime: p.problem.updateContentTime
         })),
         total: mockWorkbookProblems.length
       })
@@ -952,16 +955,19 @@ describe('WorkbookProblemService', () => {
 
       // then
       expect(result).to.deep.equal({
-        data: mockWorkbookProblems.map((item) => ({
-          order: item.order,
+        data: mockWorkbookProblems.map((p) => ({
+          order: p.order,
           maxScore: null,
           score: null,
           submissionTime: null,
-          id: item.problem.id,
-          title: item.problem.title,
-          difficulty: item.problem.difficulty,
-          submissionCount: item.problem.submissionCount,
-          acceptedRate: item.problem.acceptedRate
+          id: p.problem.id,
+          title: p.problem.title,
+          difficulty: p.problem.difficulty,
+          submissionCount: p.problem.submissionCount,
+          acceptedRate: p.problem.acceptedRate,
+          isHiddenUploadedByZip: p.problem.isHiddenUploadedByZip,
+          isSampleUploadedByZip: p.problem.isSampleUploadedByZip,
+          updateContentTime: p.problem.updateContentTime
         })),
         total: mockWorkbookProblems.length
       })
