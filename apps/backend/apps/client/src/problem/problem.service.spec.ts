@@ -59,7 +59,9 @@ const mockProblems = problems.map((problem) => {
         { id: 1, result: ResultStatus.Accepted },
         { id: 2, result: ResultStatus.WrongAnswer }
       ],
-      problemTag: [{ tagId: 1 }]
+      problemTag: [{ tagId: 1 }],
+      submissionCount: 100,
+      acceptedRate: 0.5
     }
   )
 })
@@ -897,7 +899,11 @@ describe('WorkbookProblemService', () => {
     it('should return public workbook problems', async () => {
       // given
       const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
-      db.workbookProblem.findMany.resolves(mockWorkbookProblems)
+      const mockWorkbookProblemData = mockWorkbookProblems.map((p) => ({
+        order: p.order,
+        problem: p.problem
+      }))
+      db.workbookProblem.findMany.resolves(mockWorkbookProblemData)
       db.workbookProblem.count.resolves(mockWorkbookProblems.length)
 
       // when
@@ -909,30 +915,31 @@ describe('WorkbookProblemService', () => {
       })
 
       // then
-      expect(result).to.deep.equal(
-        // Deprecated
-        plainToInstance(_RelatedProblemsResponseDto, {
-          data: mockWorkbookProblems.map((item) => ({
-            order: item.order,
-            maxScore: null,
-            score: null,
-            submissionTime: null,
-            id: item.problem.id,
-            title: item.problem.title,
-            difficulty: item.problem.difficulty,
-            submissionCount: item.problem.submissionCount,
-            acceptedRate: item.problem.acceptedRate
-          })),
-          total: mockWorkbookProblems.length
-        })
-      )
+      expect(result).to.deep.equal({
+        data: mockWorkbookProblems.map((p) => ({
+          order: p.order,
+          maxScore: null,
+          score: null,
+          submissionTime: null,
+          id: p.problem.id,
+          title: p.problem.title,
+          difficulty: p.problem.difficulty,
+          submissionCount: p.problem.submissionCount,
+          acceptedRate: p.problem.acceptedRate
+        })),
+        total: mockWorkbookProblems.length
+      })
       isVisibleSpy.restore()
     })
 
     it('should return group workbook problems', async () => {
       // given
       const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
-      db.workbookProblem.findMany.resolves(mockWorkbookProblems)
+      const mockWorkbookProblemData = mockWorkbookProblems.map((p) => ({
+        order: p.order,
+        problem: p.problem
+      }))
+      db.workbookProblem.findMany.resolves(mockWorkbookProblemData)
       db.workbookProblem.count.resolves(mockWorkbookProblems.length)
 
       // when
@@ -944,22 +951,20 @@ describe('WorkbookProblemService', () => {
       })
 
       // then
-      expect(result).to.deep.equal(
-        plainToInstance(_RelatedProblemsResponseDto, {
-          data: mockWorkbookProblems.map((item) => ({
-            order: item.order,
-            maxScore: null,
-            score: null,
-            submissionTime: null,
-            id: item.problem.id,
-            title: item.problem.title,
-            difficulty: item.problem.difficulty,
-            submissionCount: item.problem.submissionCount,
-            acceptedRate: item.problem.acceptedRate
-          })),
-          total: mockWorkbookProblems.length
-        })
-      )
+      expect(result).to.deep.equal({
+        data: mockWorkbookProblems.map((item) => ({
+          order: item.order,
+          maxScore: null,
+          score: null,
+          submissionTime: null,
+          id: item.problem.id,
+          title: item.problem.title,
+          difficulty: item.problem.difficulty,
+          submissionCount: item.problem.submissionCount,
+          acceptedRate: item.problem.acceptedRate
+        })),
+        total: mockWorkbookProblems.length
+      })
       isVisibleSpy.restore()
     })
 

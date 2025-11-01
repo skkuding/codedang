@@ -4,8 +4,8 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
 import { ContestRole, Prisma, ResultStatus, Role } from '@prisma/client'
 import { expect } from 'chai'
-import { MIN_DATE } from 'class-validator'
 import { stub, type SinonStub } from 'sinon'
+import { MIN_DATE } from '@libs/constants'
 import {
   EntityNotExistException,
   ForbiddenAccessException
