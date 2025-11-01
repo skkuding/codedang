@@ -1,6 +1,7 @@
 export * from './oauth.constants'
 export * from './time.constants'
 export * from './rabbitmq.constants'
+export * from './check.constants'
 export * from './submission.constants'
 export * from './argon2.constants'
 export * from './score-calculation.constants'

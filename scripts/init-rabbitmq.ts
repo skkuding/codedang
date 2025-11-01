@@ -39,6 +39,32 @@ async function setupRabbitMQ() {
       submissionRoutingKey
     )
 
+    const checkExchangeName = process.env.CHECK_EXCHANGE_NAME!
+    await channel.assertExchange(checkExchangeName, 'direct', { durable: true })
+
+    const checkResultQueueName = process.env.CHECK_RESULT_QUEUE_NAME!
+    await channel.assertQueue(checkResultQueueName, { durable: true })
+
+    const checkRequestQueueName = process.env.CHECK_QUEUE_NAME!
+    await channel.assertQueue(checkRequestQueueName, {
+      durable: true,
+      arguments: { 'x-max-priority': 1 }
+    })
+
+    const checkResultRoutingKey = process.env.CHECK_RESULT_ROUTING_KEY!
+    await channel.bindQueue(
+      checkResultQueueName,
+      checkExchangeName,
+      checkResultRoutingKey
+    )
+
+    const checkRequestRoutingKey = process.env.CHECK_ROUTING_KEY!
+    await channel.bindQueue(
+      checkRequestQueueName,
+      checkExchangeName,
+      checkRequestRoutingKey
+    )
+
     console.log('RabbitMQ topology setup complete.')
   } catch (error) {
     console.error('❌ Failed to setup RabbitMQ topology:', error)

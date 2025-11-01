@@ -10,7 +10,7 @@ import {
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
-import { AMQPService } from '@libs/amqp'
+import { JudgeAMQPService } from '@libs/amqp'
 import { Status } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -129,7 +129,7 @@ const db = {
 
 describe('SubmissionSubscriptionService', () => {
   let service: SubmissionSubscriptionService
-  let amqpService: AMQPService
+  let amqpService: JudgeAMQPService
   let cache: Cache
 
   const sandbox = sinon.createSandbox()
@@ -144,7 +144,7 @@ describe('SubmissionSubscriptionService', () => {
         },
         ConfigService,
         {
-          provide: AMQPService,
+          provide: JudgeAMQPService,
           useFactory: () => ({
             setMessageHandlers: () => [],
             startSubscription: () => []
@@ -167,7 +167,7 @@ describe('SubmissionSubscriptionService', () => {
     service = module.get<SubmissionSubscriptionService>(
       SubmissionSubscriptionService
     )
-    amqpService = module.get<AMQPService>(AMQPService)
+    amqpService = module.get<JudgeAMQPService>(JudgeAMQPService)
     cache = module.get<Cache>(CACHE_MANAGER)
     sandbox.stub(cache, 'get').resolves([])
     sandbox

@@ -7,6 +7,11 @@ import {
   ORIGIN_HANDLER_NAME,
   RESULT_KEY,
   RESULT_QUEUE,
+  CHECK_EXCHANGE,
+  CHECK_RESULT_KEY,
+  CHECK_RESULT_QUEUE,
+  CHECK_KEY,
+  CHECK_MESSAGE_TYPE,
   RUN_MESSAGE_TYPE,
   USER_TESTCASE_MESSAGE_TYPE,
   JUDGE_MESSAGE_TYPE,
@@ -17,8 +22,8 @@ import {
 } from '@libs/constants'
 
 @Injectable()
-export class AMQPService {
-  private readonly logger = new Logger(AMQPService.name)
+export class JudgeAMQPService {
+  private readonly logger = new Logger(JudgeAMQPService.name)
 
   constructor(
     private readonly amqpConnection: AmqpConnection,
@@ -137,5 +142,73 @@ export class AMQPService {
   private messageHandlers?: {
     onRunMessage?: (msg: object, isUserTest: boolean) => Promise<void>
     onJudgeMessage?: (msg: object) => Promise<void>
+  }
+}
+
+@Injectable()
+export class CheckAMQPService {
+  private readonly logger = new Logger(CheckAMQPService.name)
+
+  constructor(
+    private readonly amqpConnection: AmqpConnection,
+    private readonly traceService: TraceService
+  ) {}
+
+  startSubscription() {
+    this.amqpConnection.createSubscriber(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async (msg: object, _: any) => {
+        try {
+          if (this.messageHandlers?.onCheckMessage) {
+            await this.messageHandlers?.onCheckMessage(msg)
+          }
+        } catch (error) {
+          this.logger.error(error, 'Unexpected error in handling check message')
+          return new Nack()
+        }
+      },
+      {
+        exchange: CHECK_EXCHANGE,
+        routingKey: CHECK_RESULT_KEY,
+        queue: CHECK_RESULT_QUEUE,
+        queueOptions: {
+          channel: CONSUME_CHANNEL
+        }
+      },
+      ORIGIN_HANDLER_NAME
+    )
+  }
+
+  /**
+   * 표절 검사 요청 메시지를 발행합니다.
+   */
+  @Span()
+  async publishCheckRequestMessage(
+    checkId: number,
+    checkRequest: object
+  ): Promise<void> {
+    const span = this.traceService.startSpan(
+      'publishCheckRequestMessage.publish'
+    )
+
+    await this.amqpConnection.publish(CHECK_EXCHANGE, CHECK_KEY, checkRequest, {
+      messageId: String(checkId),
+      persistent: true,
+      type: CHECK_MESSAGE_TYPE
+    })
+    span.end()
+  }
+
+  /**
+   * 메시지 핸들러 설정
+   */
+  setMessageHandlers(handlers: {
+    onCheckMessage?: (msg: object) => Promise<void>
+  }) {
+    this.messageHandlers = handlers
+  }
+
+  private messageHandlers?: {
+    onCheckMessage?: (msg: object) => Promise<void>
   }
 }
