@@ -224,7 +224,8 @@ const db = {
   },
   workbook: {
     findUniqueOrThrow: stub(),
-    findFirst: stub()
+    findFirst: stub(),
+    count: stub()
   },
   user: {
     findUniqueOrThrow: stub()
@@ -394,11 +395,12 @@ describe('ContestProblemService', () => {
       const publicContest = {
         ...mockContest,
         endTime: faker.date.past(),
-        isRegistered: false
+        contestRecord: []
       }
       db.contest.findUniqueOrThrow.resolves(publicContest)
       db.contestProblem.findMany.resolves(mockContestProblems)
       db.submission.findMany.resolves([])
+      db.contestProblem.count.resolves(mockContestProblems.length)
 
       // when
       const result = await service.getContestProblems({
@@ -408,14 +410,12 @@ describe('ContestProblemService', () => {
         take: 1
       })
 
-      const actual = { ...result, data: result.data }
-
       // then
-      expect(actual).to.deep.equal(
+      expect(result).to.deep.equal(
         // Deprecated
         plainToInstance(_RelatedProblemsResponseDto, {
           data: mockContestProblemsWithScore,
-          total: mockContestProblemsWithScore.length
+          total: mockContestProblems.length
         })
       )
     })
@@ -424,11 +424,12 @@ describe('ContestProblemService', () => {
       const reviewerContest = {
         ...mockContest,
         startTime: faker.date.future(),
-        isPrivilegedRole: true
+        userContest: [{ role: 'Reviewer' }]
       }
       db.contest.findUniqueOrThrow.resolves(reviewerContest)
       db.contestProblem.findMany.resolves(mockContestProblems)
       db.submission.findMany.resolves([])
+      db.contestProblem.count.resolves(mockContestProblems.length)
 
       const result = await service.getContestProblems({
         contestId,
@@ -501,14 +502,16 @@ describe('ContestProblemService', () => {
   describe('getContestProblem', () => {
     it('should return the contest problem', async () => {
       // given
-      db.contest.findFirst.resolves({
-        id: contestId,
+      const contestMock = {
+        ...mockContest,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        isRegistered: true,
-        isPrivilegedRole: false,
+        contestRecord: [{ userId }],
+        userContest: [],
         invitationCode: 123456
-      })
+      }
+      db.contest.findUniqueOrThrow.resolves(contestMock)
+      db.contest.findFirst.resolves(null)
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       db.updateHistory.findMany.resolves(mockUpdateHistory)
       db.problemTag.findMany.resolves([])
@@ -527,17 +530,19 @@ describe('ContestProblemService', () => {
 
     it('should return the contest problem when user is a Reviewer before contest start', async () => {
       // given
-      db.contest.findFirst.resolves({
+      const contestMock = {
+        ...mockContest,
         id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
-        isRegistered: false,
-        isPrivilegedRole: true,
+        contestRecord: [],
+        userContest: [{ role: 'Reviewer' }],
         isJudgeResultVisible: true,
-        invitationCodeExists: true,
-        prev: null,
-        next: null
-      })
+        invitationCode: 123456
+      }
+      db.contest.findUniqueOrThrow.resolves(contestMock)
+      db.contest.findFirst.resolves(null)
+
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       db.updateHistory.findMany.resolves(mockUpdateHistory)
       db.problemTag.findMany.resolves([])
@@ -572,17 +577,19 @@ describe('ContestProblemService', () => {
     })
 
     it('should throw ForbiddenAccessException when the user is registered but contest is not started', async () => {
-      db.contest.findFirst.resolves({
+      const contestMock = {
+        ...mockContest,
         id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
-        isRegistered: true,
-        isPrivilegedRole: false,
+        contestRecord: [{ userId }],
+        userContest: [],
         isJudgeResultVisible: true,
-        invitationCodeExists: true,
-        prev: null,
-        next: null
-      })
+        invitationCode: 123456
+      }
+      db.contest.findUniqueOrThrow.resolves(contestMock)
+      db.contest.findFirst.resolves(null)
+
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
         service.getContestProblem({
@@ -594,17 +601,19 @@ describe('ContestProblemService', () => {
     })
 
     it('should throw ForbiddenAccessException when the user is not registered and contest is not ended', async () => {
-      db.contest.findFirst.resolves({
+      const contestMock = {
+        ...mockContest,
         id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        isRegistered: false,
-        isPrivilegedRole: false,
+        contestRecord: [],
+        userContest: [],
         isJudgeResultVisible: true,
-        invitationCodeExists: true,
-        prev: null,
-        next: null
-      })
+        invitationCode: 123456
+      }
+      db.contest.findUniqueOrThrow.resolves(contestMock)
+      db.contest.findFirst.resolves(null)
+
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
         service.getContestProblem({
@@ -772,6 +781,8 @@ describe('AssignmentProblemService', () => {
 
   describe('getAssignmentProblem', () => {
     it('should return the public assignment problem', async () => {
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
 
       const result = await service.getAssignmentProblem({
@@ -779,7 +790,6 @@ describe('AssignmentProblemService', () => {
         problemId,
         userId
       })
-
       expect(result).to.be.deep.equal(
         // Deprecated
         plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
@@ -787,6 +797,8 @@ describe('AssignmentProblemService', () => {
     })
 
     it('should return the group assignment problem', async () => {
+      const getAssignmentSpy = stub(assignmentService, 'getAssignment')
+      getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
 
       const result = await service.getAssignmentProblem({
@@ -794,7 +806,6 @@ describe('AssignmentProblemService', () => {
         problemId,
         userId
       })
-
       expect(result).to.be.deep.equal(
         // Deprecated
         plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
@@ -875,6 +886,7 @@ describe('WorkbookProblemService', () => {
       // given
       db.workbook.findFirst.resolves({ isVisible: true })
       db.workbookProblem.findMany.resolves(mockWorkbookProblems)
+      db.workbookProblem.count.resolves(mockWorkbookProblems.length)
 
       // when
       const result = await service.getWorkbookProblems({
@@ -899,6 +911,7 @@ describe('WorkbookProblemService', () => {
       db.workbook.findFirst.resolves({ isVisible: false })
       const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
       db.workbookProblem.findMany.resolves(mockWorkbookProblems)
+      db.workbookProblem.count.resolves(mockWorkbookProblems.length)
 
       // when
       const result = await service.getWorkbookProblems({

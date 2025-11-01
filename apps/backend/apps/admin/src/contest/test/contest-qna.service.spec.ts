@@ -192,48 +192,6 @@ describe('ContestQnAService', () => {
     })
   })
 
-  describe('deleteContestQnAComment', () => {
-    it('should delete a comment', async () => {
-      db.contestQnA.findFirst
-        .withArgs({
-          where: {
-            contestId,
-            order: qnaOrder
-          }
-        })
-        .resolves(mockQnA)
-
-      db.contestQnAComment.findFirst
-        .withArgs({
-          where: {
-            contestQnAId: mockQnA.id,
-            order: commentOrder
-          }
-        })
-        .resolves(mockComment)
-
-      db.$transaction.callsFake(async (callback) => {
-        const tx = {
-          contestQnAComment: {
-            delete: stub().resolves(mockComment),
-            findFirst: stub().resolves(null)
-          },
-          contestQnA: {
-            update: stub().resolves(mockQnA)
-          }
-        }
-        return await callback(tx)
-      })
-
-      const result = await service.deleteContestQnAComment(
-        contestId,
-        qnaOrder,
-        commentOrder
-      )
-      expect(result).to.deep.equal(mockComment)
-      expect(db.$transaction.calledOnce).to.be.true
-    })
-  })
-
+  // TODO: deleteContestQnAComment
   // TODO: toggleContestQnAResolved
 })

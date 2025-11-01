@@ -423,7 +423,7 @@ describe('ContestService', () => {
       expect(
         (eventEmitter.emit as SinonStub).calledWith(
           'contest.deleted',
-          contestId
+          contest.id
         )
       ).to.be.true
     })
