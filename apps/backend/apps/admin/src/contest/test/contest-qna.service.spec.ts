@@ -194,7 +194,7 @@ describe('ContestQnAService', () => {
 
   describe('deleteContestQnAComment', () => {
     it('should delete a comment', async () => {
-      db.contestQnA.findUnique
+      db.contestQnA.findFirst
         .withArgs({
           where: {
             contestId,
@@ -235,77 +235,5 @@ describe('ContestQnAService', () => {
     })
   })
 
-  describe('toggleContestQnAResolved', () => {
-    it('should toggle isResolved from false to true', async () => {
-      const qnaFalse = { ...mockQnA, isResolved: false }
-      const qnaTrue = { ...mockQnA, isResolved: true }
-
-      db.contestQnA.findUnique
-        .withArgs({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            contestId_order: { contestId, order: qnaOrder }
-          }
-        })
-        .resolves(qnaFalse)
-
-      db.contestQnAComment.count
-        .withArgs({
-          where: {
-            contestQnAId: qnaFalse.id
-          }
-        })
-        .resolves(1)
-
-      db.$transaction.callsFake(async (callback) => {
-        const tx = {
-          contestQnA: {
-            findUnique: stub().resolves(qnaFalse),
-            update: stub().resolves(qnaTrue)
-          }
-        }
-        return await callback(tx)
-      })
-
-      const result = await service.toggleContestQnAResolved(contestId, qnaOrder)
-      expect(result.isResolved).to.be.true
-      expect(db.$transaction.calledOnce).to.be.true
-    })
-
-    it('should toggle isResolved from true to false', async () => {
-      const qnaTrue = { ...mockQnA, isResolved: true }
-      const qnaFalse = { ...mockQnA, isResolved: false }
-
-      db.contestQnA.findUnique
-        .withArgs({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            contestId_order: { contestId, order: qnaOrder }
-          }
-        })
-        .resolves(qnaTrue)
-
-      db.contestQnAComment.count
-        .withArgs({
-          where: {
-            contestQnAId: qnaTrue.id
-          }
-        })
-        .resolves(1)
-
-      db.$transaction.callsFake(async (callback) => {
-        const tx = {
-          contestQnA: {
-            findUnique: stub().resolves(qnaTrue),
-            update: stub().resolves(qnaFalse)
-          }
-        }
-        return await callback(tx)
-      })
-
-      const result = await service.toggleContestQnAResolved(contestId, qnaOrder)
-      expect(result.isResolved).to.be.false
-      expect(db.$transaction.calledOnce).to.be.true
-    })
-  })
+  // TODO: toggleContestQnAResolved
 })

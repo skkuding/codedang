@@ -308,12 +308,15 @@ export class ContestService {
    * @returns 삭제된 대회 참가 기록
    */
   async unregisterContest(contestId: number, userId: number) {
-    const contest = await this.prisma.contest.findUniqueOrThrow({
+    const contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId
       },
       select: { startTime: true }
     })
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
 
     const now = new Date()
     if (now >= contest.startTime) {

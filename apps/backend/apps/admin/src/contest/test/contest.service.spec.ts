@@ -381,12 +381,18 @@ describe('ContestService', () => {
 
   describe('updateContest', () => {
     it('should return updated contest and update problem lock time', async () => {
-      db.contest.findUnique.resolves(contest)
+      const mockContest = {
+        ...contest,
+        contestProblem: [{ problemId }],
+        userContest: []
+      }
+      db.contest.findUniqueOrThrow.resolves(mockContest)
       db.contestProblem.findMany.resolves([])
       db.problem.update.resolves(problem)
       db.contest.update.resolves({
         ...contest,
-        endTime: updateInput.endTime
+        ...updateInput,
+        userContest: []
       })
 
       const res = await service.updateContest(contestId, {

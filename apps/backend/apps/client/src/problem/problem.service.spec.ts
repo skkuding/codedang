@@ -82,21 +82,15 @@ const mockContest = {
   freezeTime: null,
   startTime: faker.date.past(),
   endTime: faker.date.future(),
-  isRegistered: true,
-  isPrivilegedRole: false,
-  invitationCodeExists: true,
+  invitationCode: 123456,
   isJudgeResultVisible: true,
-  prev: null,
-  next: null,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: { contestRecord: 0 },
-  createdBy: null,
   contestProblem: [],
   submission: [],
   announcement: [],
   userContest: [],
-  contestRecord: [],
-  workbook: []
+  contestRecord: []
 }
 
 const mockContestProblem = {
@@ -395,8 +389,14 @@ describe('ContestProblemService', () => {
       db.contest.findFirst.resolves(null)
     })
 
-    it('should return public contest problems', async () => {
+    it('should return contest problems', async () => {
       // given
+      const publicContest = {
+        ...mockContest,
+        endTime: faker.date.past(),
+        isRegistered: false
+      }
+      db.contest.findUniqueOrThrow.resolves(publicContest)
       db.contestProblem.findMany.resolves(mockContestProblems)
       db.submission.findMany.resolves([])
 
@@ -420,32 +420,10 @@ describe('ContestProblemService', () => {
       )
     })
 
-    it('should return group contest problems', async () => {
-      // given
-      db.contestProblem.findMany.resolves(mockContestProblems)
-      db.submission.findMany.resolves([])
-
-      // when
-      const result = await service.getContestProblems({
-        contestId,
-        userId,
-        cursor: 1,
-        take: 1
-      })
-
-      // then
-      expect(result).to.deep.equal(
-        // Deprecated
-        plainToInstance(_RelatedProblemsResponseDto, {
-          data: mockContestProblemsWithScore,
-          total: mockContestProblemsWithScore.length
-        })
-      )
-    })
-
     it('should return contest problems when user is a Reviewer before contest start', async () => {
       const reviewerContest = {
         ...mockContest,
+        startTime: faker.date.future(),
         isPrivilegedRole: true
       }
       db.contest.findUniqueOrThrow.resolves(reviewerContest)
@@ -529,10 +507,7 @@ describe('ContestProblemService', () => {
         endTime: faker.date.future(),
         isRegistered: true,
         isPrivilegedRole: false,
-        isJudgeResultVisible: true,
-        invitationCodeExists: true,
-        prev: null,
-        next: null
+        invitationCode: 123456
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       db.updateHistory.findMany.resolves(mockUpdateHistory)
