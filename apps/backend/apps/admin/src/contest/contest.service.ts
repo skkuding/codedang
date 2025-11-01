@@ -4,7 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Contest, ResultStatus, Submission } from '@generated'
 import { ContestRole, Prisma, Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { MIN_DATE } from '@libs/constants'
+import { MAX_DATE } from '@libs/constants'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -596,7 +596,7 @@ export class ContestService {
           orderBy: { endTime: 'desc' }
         })
 
-        const newVisibleLockTime = otherContests[0]?.endTime ?? MIN_DATE
+        const newVisibleLockTime = otherContests[0]?.endTime ?? MAX_DATE
 
         return this.prisma.problem.update({
           where: { id: problemId },

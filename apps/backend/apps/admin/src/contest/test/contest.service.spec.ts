@@ -5,7 +5,7 @@ import { faker } from '@faker-js/faker'
 import { ContestRole, Prisma, ResultStatus, Role } from '@prisma/client'
 import { expect } from 'chai'
 import { stub, type SinonStub } from 'sinon'
-import { MIN_DATE } from '@libs/constants'
+import { MAX_DATE } from '@libs/constants'
 import {
   EntityNotExistException,
   ForbiddenAccessException
@@ -417,7 +417,7 @@ describe('ContestService', () => {
       expect(db.problem.update.called).to.be.true
       const updateArgs = db.problem.update.getCall(0).args[0]
       expect(updateArgs.where).to.deep.equal({ id: problemId })
-      expect(updateArgs.data.visibleLockTime).to.equal(MIN_DATE)
+      expect(updateArgs.data.visibleLockTime).to.equal(MAX_DATE)
       expect(
         (eventEmitter.emit as SinonStub).calledWith(
           'contest.deleted',
