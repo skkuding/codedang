@@ -784,6 +784,7 @@ describe('AssignmentProblemService', () => {
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
       getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
+      db.problemTag.findMany.resolves([{ tag: mockTag }])
 
       const result = await service.getAssignmentProblem({
         assignmentId,
@@ -792,14 +793,19 @@ describe('AssignmentProblemService', () => {
       })
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
+        plainToInstance(_RelatedProblemResponseDto, {
+          ...mockAssignmentProblem,
+          problem: { ...mockAssignmentProblem.problem, tags: [mockTag] }
+        })
       )
+      db.problemTag.findMany.resetBehavior()
     })
 
     it('should return the group assignment problem', async () => {
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
       getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
+      db.problemTag.findMany.resolves([{ tag: mockTag }])
 
       const result = await service.getAssignmentProblem({
         assignmentId,
@@ -808,8 +814,13 @@ describe('AssignmentProblemService', () => {
       })
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
+        plainToInstance(_RelatedProblemResponseDto, {
+          ...mockAssignmentProblem,
+          problem: { ...mockAssignmentProblem.problem, tags: [mockTag] }
+        })
       )
+
+      db.problemTag.findMany.resetBehavior()
     })
 
     it('should throw PrismaClientKnownRequestError when the assignment is not visible', async () => {
@@ -871,6 +882,7 @@ describe('WorkbookProblemService', () => {
     workbookService = module.get<WorkbookService>(WorkbookService)
 
     db.workbook.findFirst.resetBehavior()
+    db.problemTag.findMany.resetBehavior()
   })
 
   it('should be defined', () => {
@@ -884,7 +896,7 @@ describe('WorkbookProblemService', () => {
   describe('getWorkbookProblems', () => {
     it('should return public workbook problems', async () => {
       // given
-      db.workbook.findFirst.resolves({ isVisible: true })
+      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
       db.workbookProblem.findMany.resolves(mockWorkbookProblems)
       db.workbookProblem.count.resolves(mockWorkbookProblems.length)
 
@@ -900,15 +912,25 @@ describe('WorkbookProblemService', () => {
       expect(result).to.deep.equal(
         // Deprecated
         plainToInstance(_RelatedProblemsResponseDto, {
-          data: mockWorkbookProblems,
+          data: mockWorkbookProblems.map((item) => ({
+            order: item.order,
+            maxScore: null,
+            score: null,
+            submissionTime: null,
+            id: item.problem.id,
+            title: item.problem.title,
+            difficulty: item.problem.difficulty,
+            submissionCount: item.problem.submissionCount,
+            acceptedRate: item.problem.acceptedRate
+          })),
           total: mockWorkbookProblems.length
         })
       )
+      isVisibleSpy.restore()
     })
 
     it('should return group workbook problems', async () => {
       // given
-      db.workbook.findFirst.resolves({ isVisible: false })
       const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
       db.workbookProblem.findMany.resolves(mockWorkbookProblems)
       db.workbookProblem.count.resolves(mockWorkbookProblems.length)
@@ -924,7 +946,17 @@ describe('WorkbookProblemService', () => {
       // then
       expect(result).to.deep.equal(
         plainToInstance(_RelatedProblemsResponseDto, {
-          data: mockWorkbookProblems,
+          data: mockWorkbookProblems.map((item) => ({
+            order: item.order,
+            maxScore: null,
+            score: null,
+            submissionTime: null,
+            id: item.problem.id,
+            title: item.problem.title,
+            difficulty: item.problem.difficulty,
+            submissionCount: item.problem.submissionCount,
+            acceptedRate: item.problem.acceptedRate
+          })),
           total: mockWorkbookProblems.length
         })
       )
@@ -933,7 +965,7 @@ describe('WorkbookProblemService', () => {
 
     it('should throw ForbiddenAccessException when the workbook is not visible', async () => {
       // given
-      stub(workbookService, 'isVisible').resolves(false)
+      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(false)
 
       // then
       await expect(
@@ -944,14 +976,16 @@ describe('WorkbookProblemService', () => {
           groupId
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
+      isVisibleSpy.restore()
     })
   })
 
   describe('getWorkbookProblem', () => {
     it('should return the public workbook problem', async () => {
       // given
-      db.workbook.findFirst.resolves({ isVisible: true })
+      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
       db.workbookProblem.findUniqueOrThrow.resolves(mockWorkbookProblem)
+      db.problemTag.findMany.resolves([{ tag: mockTag }])
 
       // when
       const result = await service.getWorkbookProblem(
@@ -963,14 +997,19 @@ describe('WorkbookProblemService', () => {
       // then
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockWorkbookProblem)
+        plainToInstance(_RelatedProblemResponseDto, {
+          ...mockWorkbookProblem,
+          problem: { ...mockWorkbookProblem.problem, tags: [mockTag] }
+        })
       )
+      isVisibleSpy.restore()
     })
 
     it('should return the group workbook problem', async () => {
       // given
-      db.workbook.findFirst.resolves({ isVisible: true })
+      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
       db.workbookProblem.findUniqueOrThrow.resolves(mockWorkbookProblem)
+      db.problemTag.findMany.resolves([{ tag: mockTag }])
 
       // when
       const result = await service.getWorkbookProblem(
@@ -982,18 +1021,23 @@ describe('WorkbookProblemService', () => {
       // then
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, mockWorkbookProblem)
+        plainToInstance(_RelatedProblemResponseDto, {
+          ...mockWorkbookProblem,
+          problem: { ...mockWorkbookProblem.problem, tags: [mockTag] }
+        })
       )
+      isVisibleSpy.restore()
     })
 
     it('should throw ForbiddenAccessException when the workbook is not visible', async () => {
       // given
-      stub(workbookService, 'isVisible').resolves(false)
+      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(false)
 
       // then
       await expect(
         service.getWorkbookProblem(workbookId, problemId, groupId)
       ).to.be.rejectedWith(ForbiddenAccessException)
+      isVisibleSpy.restore()
     })
   })
 })

@@ -414,12 +414,10 @@ describe('ContestService', () => {
 
       const res = await service.deleteContest(contestId)
       expect(res).to.deep.equal(contest)
-      expect(
-        db.problem.update.calledWithMatch({
-          where: { id: problemId },
-          data: { visibleLockTime: MIN_DATE }
-        })
-      ).to.be.true
+      expect(db.problem.update.called).to.be.true
+      const updateArgs = db.problem.update.getCall(0).args[0]
+      expect(updateArgs.where).to.deep.equal({ id: problemId })
+      expect(updateArgs.data.visibleLockTime).to.equal(MIN_DATE)
       expect(
         (eventEmitter.emit as SinonStub).calledWith(
           'contest.deleted',
