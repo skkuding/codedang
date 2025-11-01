@@ -59,7 +59,7 @@ func NewCheckManager(s3reader *loader.S3reader, database *loader.Postgres, jplag
 
 func getCheckInput(rawBaseCode string, element []loader.Element, err error) (CheckInput, error) {
 	if err != nil {
-		return CheckInput{}, fmt.Errorf("GetAllCodesFromAssignment: %w", err)
+		return CheckInput{}, fmt.Errorf("error raised in GetAllCodesFrom Somewhere: %w", err)
 	}
 	if rawBaseCode == "" || rawBaseCode == "{}" {
 		return CheckInput{BaseCode: "", Elements: element, HasBase: false}, nil
