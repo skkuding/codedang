@@ -5,9 +5,13 @@ import { RolesModule } from '@libs/auth'
 import { NotificationModule } from '@admin/notification/notification.module'
 import { ProblemModule } from '@admin/problem/problem.module'
 import { UserModule } from '@admin/user/user.module'
-import { ContestProblemResolver } from './contest-problem.resolver'
 import { ContestProblemService } from './contest-problem.service'
-import { ContestQnAResolver, ContestResolver } from './contest.resolver'
+import { ContestQnAService } from './contest-qna.service'
+import {
+  ContestProblemResolver,
+  ContestQnAResolver,
+  ContestResolver
+} from './contest.resolver'
 import { ContestService } from './contest.service'
 
 @Module({
@@ -22,6 +26,7 @@ import { ContestService } from './contest.service'
   providers: [
     ContestService,
     ContestProblemService,
+    ContestQnAService,
     ContestResolver,
     ContestProblemResolver,
     ContestQnAResolver

@@ -26,35 +26,35 @@ const contestId = 1
 const user01Id = 7
 const contestAdminId = 4
 
-const now = dayjs()
+// const now = dayjs()
 
-const contest = {
-  id: contestId,
-  createdById: 1,
-  title: 'title',
-  description: 'description',
-  penalty: 100,
-  lastPenalty: false,
-  startTime: now.add(-1, 'day').toDate(),
-  endTime: now.add(1, 'day').toDate(),
-  registerDueTime: now.add(-2, 'day').toDate(),
-  unfreeze: false,
-  freezeTime: null,
-  isJudgeResultVisible: true,
-  enableCopyPaste: true,
-  evaluateWithSampleTestcase: false,
-  createTime: now.add(-1, 'day').toDate(),
-  updateTime: now.add(-1, 'day').toDate(),
-  posterUrl: 'posterUrl',
-  summary: {
-    참여대상: 'participationTarget',
-    진행방식: 'competitionMethod',
-    순위산정: 'rankingMethod',
-    문제형태: 'problemFormat',
-    참여혜택: 'benefits'
-  },
-  invitationCode: '123456'
-} satisfies Contest
+// const contest = {
+//   id: contestId,
+//   createdById: 1,
+//   title: 'title',
+//   description: 'description',
+//   penalty: 100,
+//   lastPenalty: false,
+//   startTime: now.add(-1, 'day').toDate(),
+//   endTime: now.add(1, 'day').toDate(),
+//   registerDueTime: now.add(-2, 'day').toDate(),
+//   unfreeze: false,
+//   freezeTime: null,
+//   isJudgeResultVisible: true,
+//   enableCopyPaste: true,
+//   evaluateWithSampleTestcase: false,
+//   createTime: now.add(-1, 'day').toDate(),
+//   updateTime: now.add(-1, 'day').toDate(),
+//   posterUrl: 'posterUrl',
+//   summary: {
+//     참여대상: 'participationTarget',
+//     진행방식: 'competitionMethod',
+//     순위산정: 'rankingMethod',
+//     문제형태: 'problemFormat',
+//     참여혜택: 'benefits'
+//   },
+//   invitationCode: '123456'
+// } satisfies Contest
 
 describe('ContestService', () => {
   let service: ContestService
@@ -164,6 +164,7 @@ describe('ContestService', () => {
     })
 
     it('should return optional fields if they exist', async () => {
+      const contest = await service.getContest(contestId, user01Id)
       expect(contest).to.have.property('posterUrl')
       expect(contest).to.have.property('summary')
       if (contest.summary) {
@@ -252,23 +253,6 @@ describe('ContestService', () => {
 
   describe('unregisterContest', () => {
     let contestRecord: ContestRecord | { id: number } = { id: -1 }
-
-    afterEach(async () => {
-      try {
-        await transaction.contestRecord.delete({
-          where: { id: contestRecord.id }
-        })
-      } catch (error) {
-        if (
-          !(
-            error instanceof Prisma.PrismaClientKnownRequestError &&
-            error.code === 'P2025'
-          )
-        ) {
-          throw error
-        }
-      }
-    })
 
     it('should return deleted contest record', async () => {
       const newlyRegisteringContestId = 16
