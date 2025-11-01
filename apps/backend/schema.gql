@@ -296,18 +296,20 @@ type AssignmentProblemRecordSumAggregate {
   userId: Int
 }
 
-type AssignmentProblemScore {
-  finalScore: Float
-  maxScore: Int!
-  problemId: Int!
-  score: Float!
-}
-
 type AssignmentProblemSumAggregate {
   assignmentId: Int
   order: Int
   problemId: Int
   score: Int
+}
+
+type AssignmentProblemSummary {
+  acceptedTestcaseCount: Int!
+  finalScore: Float
+  maxScore: Int!
+  problemId: Int!
+  score: Float!
+  totalTestcaseCount: Int!
 }
 
 type AssignmentProblemTestcaseResult {
@@ -3277,7 +3279,7 @@ type User {
 
 type UserAssignmentScoreSummary {
   assignmentPerfectScore: Int!
-  problemScores: [AssignmentProblemScore!]!
+  scoreSummaryByProblem: [AssignmentProblemSummary!]!
   submittedProblemCount: Int!
   totalProblemCount: Int!
   userAssignmentFinalScore: Float
@@ -3287,8 +3289,8 @@ type UserAssignmentScoreSummary {
 type UserAssignmentScoreSummaryWithUserInfo {
   assignmentPerfectScore: Int!
   major: String!
-  problemScores: [AssignmentProblemScore!]!
   realName: String
+  scoreSummaryByProblem: [AssignmentProblemSummary!]!
   studentId: String!
   submittedProblemCount: Int!
   totalProblemCount: Int!
