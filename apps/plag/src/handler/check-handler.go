@@ -198,7 +198,6 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	for _, sub := range chIn.Elements { // 제출물 코드 파일 생성
 		fileName := getSubmissionFileName(fmt.Sprint(sub.Id), langExt)
 		srcPath := c.file.MakeFilePath(subDir, fileName).String() //submission 저장
-		code, err := utils.ParseRawCode(sub.Code)
 
 		if err != nil {
 			out <- CheckResultMessage{nil, &HandlerError{
@@ -211,7 +210,7 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 			return
 		}
 
-		if err := c.file.CreateFile(srcPath, code); err != nil {
+		if err := c.file.CreateFile(srcPath, sub.Code); err != nil {
 			out <- CheckResultMessage{nil, &HandlerError{
           caller:  "handle",
           err:     fmt.Errorf("creating submission file: %w", err),
@@ -228,8 +227,7 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	if chIn.HasBase {
 		path := c.file.MakeFilePath(dir, fileName).String() // base code 저장
 
-		bP := c.file.GetBasePath(path)
-		baseCodePath = &bP
+		baseCodePath = &path
 
 		if err := c.file.CreateFile(path, chIn.BaseCode); err != nil {
 			out <- CheckResultMessage{nil, &HandlerError{

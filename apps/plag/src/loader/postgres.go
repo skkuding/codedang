@@ -3,8 +3,10 @@ package loader
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	_ "github.com/lib/pq"
@@ -28,23 +30,71 @@ func NewPostgresDataSource(ctx context.Context) (*Postgres, error) {
 	return &Postgres{ctx, db}, nil
 }
 
+func ParseRawJson(rawCode string) string {
+  cleanedString := rawCode[2 : len(rawCode)-2]
+
+  var jsonString strings.Builder
+  for _, parsedCode := range strings.Split(cleanedString, "text\\\": \\\"") {
+    pCode := strings.Split(parsedCode, "\\\", \\\"locked")
+
+    if len(pCode) == 1 {
+      jsonString.WriteString(strings.ReplaceAll(pCode[0], `\"`, `"`))
+    } else if len(pCode) == 2 {
+      jsonString.WriteString("text\": \"")
+      jsonString.WriteString(pCode[0])
+      jsonString.WriteString("\", \"locked")
+      jsonString.WriteString(strings.ReplaceAll(pCode[1], `\"`, `"`))
+    }
+  }
+
+  return jsonString.String()
+}
+
+func ParseRawCode(rawCode string) string {
+  re := regexp.MustCompile(`\\[ntr"]`)
+	codeWithNewlines := re.ReplaceAllStringFunc(rawCode, func(s string) string { // 보완이 필요합니다.
+		switch s {
+		case `\n`:
+			return "\n"
+		case `\t`:
+			return "\t"
+		case `\r`:
+			return "\r"
+    case `\"`:
+			return "\""
+		default:
+			return s
+		}
+	})
+
+  return codeWithNewlines
+}
+
 func GetAllCodes(rows *sql.Rows, problemId string) ([]Element, error) {
   var result []Element
 
 	for rows.Next() {
 		var id int
 		var userId int
-		var code string
+		var rawCode string
 		var createTime string
 
-		if err := rows.Scan(&id, &userId, &code, &createTime); err != nil {
+		if err := rows.Scan(&id, &userId, &rawCode, &createTime); err != nil {
 			return nil, fmt.Errorf("database fetch error: %w", err)
 		}
+
+    data := []byte(ParseRawJson(rawCode))
+    var codePiece CodePiece
+
+    err := json.Unmarshal(data, &codePiece)
+    if err != nil {
+      return nil, fmt.Errorf("json unmarshal: %e", err)
+    }
 
 		result = append(result, Element{
 			Id: id,
 			UserId: userId,
-			Code: code,
+			Code: ParseRawCode(codePiece.Text),
 			CreateTime: createTime,
 		})
 	}
@@ -56,7 +106,7 @@ func GetAllCodes(rows *sql.Rows, problemId string) ([]Element, error) {
 	return result, nil
 }
 
-func (p *Postgres) GetRawBaseCode(problemId string) (string, error) {
+func (p *Postgres) GetRawBaseCode(problemId string, language string) (string, error) {
   baseCodeRow := p.client.QueryRow(`SELECT template FROM public.problem WHERE id = $1`, problemId)
 
   var rawBaseCode string
@@ -67,7 +117,26 @@ func (p *Postgres) GetRawBaseCode(problemId string) (string, error) {
   } else if err != nil {
     return "", fmt.Errorf("database fetch error: %w", err)
   }
-  return rawBaseCode, nil
+
+  data := []byte(ParseRawJson(rawBaseCode))
+	var result []TemplateItem
+
+	err = json.Unmarshal(data, &result)
+	if err != nil {
+		return "", fmt.Errorf("database json unmarshal: %e", err)
+	}
+
+  var codeBuilder strings.Builder
+  for _, r := range result {
+    if r.Language == language {
+      for _, c := range r.Code {
+        codeBuilder.WriteString(ParseRawCode(c.Text))
+        codeBuilder.WriteString("\n")
+      }
+    }
+  }
+
+  return codeBuilder.String(), nil
 }
 
 func (p *Postgres) GetAllCodesFromAssignment(problemId string, language string, assignmentId string) (string, []Element, error) {
@@ -84,7 +153,7 @@ func (p *Postgres) GetAllCodesFromAssignment(problemId string, language string, 
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  baseCode, err := p.GetRawBaseCode(problemId)
+  baseCode, err := p.GetRawBaseCode(problemId, language)
 
   if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
@@ -107,7 +176,7 @@ func (p *Postgres) GetAllCodesFromContest(problemId string, language string, con
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  baseCode, err := p.GetRawBaseCode(problemId)
+  baseCode, err := p.GetRawBaseCode(problemId, language)
 
   if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
@@ -130,7 +199,7 @@ func (p *Postgres) GetAllCodesFromWorkbook(problemId string, language string, wo
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  baseCode, err := p.GetRawBaseCode(problemId)
+  baseCode, err := p.GetRawBaseCode(problemId, language)
 
   if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/skkuding/codedang/apps/plag/src/loader"
-	"github.com/skkuding/codedang/apps/plag/src/utils"
 )
 
 type CheckManager interface {
@@ -57,18 +56,12 @@ func NewCheckManager(s3reader *loader.S3reader, database *loader.Postgres, jplag
 	return &checkManager{s3reader: s3reader, database: database, jplagPath: jplagPath}
 }
 
-func getCheckInput(rawBaseCode string, element []loader.Element, err error) (CheckInput, error) {
+func getCheckInput(baseCode string, element []loader.Element, err error) (CheckInput, error) {
 	if err != nil {
 		return CheckInput{}, fmt.Errorf("error raised in GetAllCodesFrom Somewhere: %w", err)
 	}
-	if rawBaseCode == "" || rawBaseCode == "{}" {
-		return CheckInput{BaseCode: "", Elements: element, HasBase: false}, nil
-	}
-	baseCode, err := utils.ParseRawCode(rawBaseCode)
-	if err != nil {
-		return CheckInput{}, fmt.Errorf("ParseRawCode: %w", err)
-	}
-	return CheckInput{BaseCode: baseCode, Elements: element, HasBase: true}, nil
+
+	return CheckInput{BaseCode: baseCode, Elements: element, HasBase: baseCode != ""}, nil
 }
 
 func (c *checkManager) GetAssignmentCheckInput(
