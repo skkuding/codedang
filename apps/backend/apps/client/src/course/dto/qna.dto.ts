@@ -1,6 +1,6 @@
 // apps/backend/apps/client/src/course/qna/dto/qna.dto.ts
 import { PartialType } from '@nestjs/mapped-types'
-import { CourseQnACategory } from '@prisma/client'
+import { QnACategory } from '@prisma/client'
 import { Transform } from 'class-transformer'
 import {
   IsArray,
@@ -43,14 +43,14 @@ export class GetCourseQnAsFilterDto {
 
   @IsArray()
   @IsOptional()
-  @IsEnum(CourseQnACategory, { each: true })
+  @IsEnum(QnACategory, { each: true })
   @Transform(({ value }) =>
     String(value)
       .split(',')
       .map((v) => v.trim())
       .filter((v) => v)
   )
-  categories?: CourseQnACategory[]
+  categories?: QnACategory[]
 
   @IsOptional()
   @IsArray()
