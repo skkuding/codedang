@@ -698,10 +698,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         item.originalIndex
                       )}
                       isZipUploaded={
-                        isZipUploadedTestcase(item) ||
-                        (!item.isHidden
-                          ? hasZipUploaded.sample
-                          : hasZipUploaded.hidden)
+                        isZipUploadedTestcase(item) || hasZipUploaded.sample
                       }
                     />
                   )
@@ -846,10 +843,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         item.originalIndex
                       )}
                       isZipUploaded={
-                        isZipUploadedTestcase(item) ||
-                        (!item.isHidden
-                          ? hasZipUploaded.sample
-                          : hasZipUploaded.hidden)
+                        isZipUploadedTestcase(item) || hasZipUploaded.hidden
                       }
                     />
                   )
