@@ -1,7 +1,3 @@
--- AlterTable
-ALTER TABLE "user" ADD COLUMN     "can_create_contest" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "can_create_course" BOOLEAN NOT NULL DEFAULT false;
-
 -- CreateTable
 CREATE TABLE "course_qna" (
     "id" SERIAL NOT NULL,
