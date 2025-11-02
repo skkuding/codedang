@@ -35,7 +35,6 @@ export function ContestStatusTimeDiff({
 }) {
   const router = useRouter()
   const { problemId } = useParams()
-  const now = dayjs()
   const currentTime = dayjs()
 
   const [contestStatus, setContestStatus] = useState<
@@ -44,9 +43,9 @@ export function ContestStatusTimeDiff({
   const formattedTime = (t: Date) => dateFormatter(t, 'YYYY-MM-DD HH:mm')
 
   const updateContestStatus = () => {
-    if (now.isAfter(contest.endTime)) {
+    if (currentTime.isAfter(contest.endTime)) {
       setContestStatus('finished')
-    } else if (now.isAfter(contest.startTime)) {
+    } else if (currentTime.isAfter(contest.startTime)) {
       setContestStatus('ongoing')
     } else {
       setContestStatus('upcoming')
@@ -56,7 +55,7 @@ export function ContestStatusTimeDiff({
       contestStatus === 'ongoing' || contestStatus === 'registeredOngoing'
         ? contest.endTime
         : contest.startTime
-    const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(now)))
+    const diff = dayjs.duration(Math.abs(dayjs(timeRef).diff(currentTime)))
     const days = Math.floor(diff.asDays())
     const hours = Math.floor(diff.asHours() % 24)
     const minutes = Math.floor(diff.asMinutes() % 60)
@@ -64,7 +63,7 @@ export function ContestStatusTimeDiff({
 
     const registerTimeRef = contest.registerDueTime
     const registerDiff = dayjs.duration(
-      Math.abs(dayjs(registerTimeRef).diff(now))
+      Math.abs(dayjs(registerTimeRef).diff(currentTime))
     )
     const registerDays = Math.floor(registerDiff.asDays())
     const registerHours = Math.floor(registerDiff.asHours() % 24)
@@ -134,7 +133,6 @@ export function ContestStatusTimeDiff({
   })()
 
   const contestDDayStatus = (() => {
-    const currentTime = dayjs()
     const startTime = dayjs(contest.startTime)
     const endTime = dayjs(contest.endTime)
 

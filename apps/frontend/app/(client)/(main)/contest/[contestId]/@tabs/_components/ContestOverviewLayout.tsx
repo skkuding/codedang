@@ -63,16 +63,23 @@ export function ContestOverviewLayout({
   const problemDataToUse: ProblemDataTop =
     !isPreview && problemData ? problemData : previewProblemData
 
+  const currentTime = new Date()
   const state = (() => {
     if (isPreview) {
       return 'Ongoing'
     }
-    const currentTime = new Date()
     if (currentTime >= contest.endTime) {
       return 'Finished'
     }
     if (currentTime < contest.startTime) {
       return 'Upcoming'
+    }
+    return 'Ongoing'
+  })()
+
+  const registerState = (() => {
+    if (currentTime >= contest.registerDueTime) {
+      return 'Finished'
     }
     return 'Ongoing'
   })()
@@ -160,7 +167,7 @@ export function ContestOverviewLayout({
                 <div>
                   {actualIsRegistered ? (
                     <div className="flex h-[46px] w-[944px] gap-[10px]">
-                      <Button className="text-color-neutral-70 bg-fill pointer-events-none h-[46px] w-[467px] rounded-[1000px] text-base font-medium leading-[22.4px] tracking-[-0.48px]">
+                      <Button className="text-color-neutral-70 bg-fill pointer-events-none h-[46px] w-[467px] rounded-[1000px] px-7 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px]">
                         Registered
                       </Button>
                       <RegisterCancelButton contest={contest} state={state} />
@@ -168,7 +175,7 @@ export function ContestOverviewLayout({
                   ) : (
                     <RegisterButton
                       id={String(contest.id)}
-                      state={state}
+                      state={registerState}
                       title={contest.title}
                       invitationCodeExists={actualInvitationCodeExists}
                       disabled={actualIsPrivilegedRole}
@@ -182,7 +189,7 @@ export function ContestOverviewLayout({
         <Accordion type="single" collapsible className="mt-15 w-[1208px]">
           <AccordionItem value="item-1" className="border-b-0">
             <AccordionTrigger
-              className="h-[78px] pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black data-[state=open]:pb-[12px]"
+              className="h-22 pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black data-[state=open]:pb-[12px]"
               iconStyle="h-5 w-5 text-color-neutral-30"
             >
               More Description
@@ -200,7 +207,7 @@ export function ContestOverviewLayout({
         >
           <AccordionItem value="item-1" className="border-b-0">
             <AccordionTrigger
-              className="border-line h-[78px] border-t pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black"
+              className="border-line h-22 border-t pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black"
               iconStyle="h-5 w-5 text-color-neutral-50"
             >
               Problem List

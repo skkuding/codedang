@@ -46,7 +46,7 @@ export function RegisterCancelButton({
   return (
     <>
       <Button
-        className={`h-[46px] w-[467px] rounded-[1000px] text-base font-medium leading-[22.4px] tracking-[-0.48px] ${state === 'Upcoming' ? 'bg-primary text-white' : 'bg-fill text-color-neutral-70 pointer-events-none'}`}
+        className={`h-[46px] w-[467px] rounded-[1000px] px-7 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px] ${state === 'Upcoming' ? 'bg-primary text-white' : 'bg-fill text-color-neutral-70 pointer-events-none'}`}
         onClick={OpenDeleteModal}
       >
         Cancel registration
