@@ -3,7 +3,6 @@
 import {
   DataTable,
   DataTableFallback,
-  DataTablePagination,
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
@@ -163,6 +162,7 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
       <DataTableRoot
         data={summariesData}
         columns={createColumns(problemColumnData)}
+        enablePagination={false}
       >
         <div className="flex justify-between">
           <div className="flex items-center gap-4">
@@ -198,7 +198,6 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
             `/admin/course/${courseId}/assignment/${assignmentId}/participant/${data.id}` as const
           }
         />
-        <DataTablePagination />
       </DataTableRoot>
     </div>
   )

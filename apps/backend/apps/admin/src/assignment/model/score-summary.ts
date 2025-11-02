@@ -68,6 +68,6 @@ class AssignmentProblemScore {
   @Field(() => Int)
   maxScore: number
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   finalScore?: number
 }

@@ -695,6 +695,112 @@ int main() {
       }
     ]
   })
+
+  const courseNotices = await prisma.courseNotice.createManyAndReturn({
+    data: [
+      {
+        groupId: 1,
+        title: '첫 번째 강의 공지입니다.',
+        content:
+          '1번 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있지 않습니다.',
+        isPublic: false,
+        isFixed: false
+      },
+      {
+        groupId: 1,
+        title: '두 번째 강의 공지입니다.',
+        content:
+          '1번 강의에 대한 공지사항입니다.\n이 공지는 모든 사용자에게 공개되며 고정되어 있지 않습니다.',
+        isPublic: true,
+        isFixed: false
+      },
+      {
+        groupId: 1,
+        title: '세 번째 강의 공지입니다.',
+        content:
+          '1번 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있습니다.',
+        isPublic: false,
+        isFixed: true
+      },
+      {
+        groupId: 1,
+        title: '네 번째 강의 공지입니다.',
+        content:
+          '1번 강의에 대한 공지사항입니다.\n이 공지는 모든 사용자에게 공개되며 고정되어 있습니다.',
+        isPublic: true,
+        isFixed: true
+      }
+    ]
+  })
+
+  const students = await prisma.userGroup.findMany({
+    where: {
+      groupId: 1
+    },
+    select: {
+      userId: true,
+      isGroupLeader: true
+    }
+  })
+
+  const comments = await prisma.courseNoticeComment.createManyAndReturn({
+    data: [
+      {
+        createdById: students[6].userId,
+        content: '첫 번째 댓글입니다.',
+        courseNoticeId: courseNotices[0].id,
+        isSecret: false
+      },
+      {
+        createdById: students[6].userId,
+        content: '두 번째 댓글입니다.',
+        courseNoticeId: courseNotices[0].id,
+        isSecret: false
+      },
+      {
+        createdById: students[6].userId,
+        content: '첫 번째 비밀 댓글입니다.',
+        courseNoticeId: courseNotices[0].id,
+        isSecret: true
+      }
+    ],
+    select: {
+      id: true
+    }
+  })
+
+  await prisma.courseNoticeComment.createMany({
+    data: [
+      {
+        createdById: students[5].userId,
+        content: '첫 번째 답글입니다.',
+        replyOnId: comments[0].id,
+        courseNoticeId: courseNotices[0].id,
+        isSecret: false
+      },
+      {
+        createdById: students[6].userId,
+        content: '두 번째 답글입니다.',
+        replyOnId: comments[0].id,
+        courseNoticeId: courseNotices[0].id,
+        isSecret: false
+      },
+      {
+        createdById: students[6].userId,
+        content: '첫 번째 비밀 답글입니다.',
+        replyOnId: comments[0].id,
+        courseNoticeId: courseNotices[0].id,
+        isSecret: true
+      },
+      {
+        createdById: students[6].userId,
+        content: '첫 번째 비밀 답글입니다.',
+        replyOnId: comments[2].id,
+        courseNoticeId: courseNotices[0].id,
+        isSecret: true
+      }
+    ]
+  })
 }
 
 const createProblems = async () => {

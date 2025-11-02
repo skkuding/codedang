@@ -15,7 +15,7 @@ interface PaginatorProps {
 export function Paginator({ children }: PaginatorProps) {
   return (
     <Pagination>
-      <PaginationContent className="flex items-center gap-1 py-2">
+      <PaginationContent className="flex items-center gap-[10px] py-2">
         {children}
       </PaginationContent>
     </Pagination>
@@ -35,21 +35,27 @@ export function SlotNavigation({
   disabled
 }: SlotNavigationProps) {
   return direction === 'prev' ? (
-    <PaginationPrevious
-      onClick={() => {
-        gotoSlot('prev')
-      }}
-      isActive={!disabled}
-      disabled={disabled}
-    />
+    <>
+      <PaginationPrevious
+        onClick={() => {
+          gotoSlot('prev')
+        }}
+        isActive={!disabled}
+        disabled={disabled}
+      />
+      <div className="w-[26px]" />
+    </>
   ) : (
-    <PaginationNext
-      onClick={() => {
-        gotoSlot('next')
-      }}
-      isActive={!disabled}
-      disabled={disabled}
-    />
+    <>
+      <div className="w-[26px]" />
+      <PaginationNext
+        onClick={() => {
+          gotoSlot('next')
+        }}
+        isActive={!disabled}
+        disabled={disabled}
+      />
+    </>
   )
 }
 

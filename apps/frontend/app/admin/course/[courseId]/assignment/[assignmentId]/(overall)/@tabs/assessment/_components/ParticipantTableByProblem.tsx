@@ -3,7 +3,6 @@
 import {
   DataTable,
   DataTableFallback,
-  DataTablePagination,
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
@@ -13,36 +12,42 @@ import {
   GET_ASSIGNMENT_SCORE_SUMMARIES,
   GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS
 } from '@/graphql/assignment/queries'
-import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
+import {
+  GET_ASSIGNMENT_PROBLEMS,
+  GET_PROBLEM_TESTCASE_WITHOUT_IO
+} from '@/graphql/problem/queries'
 import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
-import { useQuery, useSuspenseQuery } from '@apollo/client'
+import { REJUDGE_ASSIGNMENT_PROBLEM } from '@/graphql/submission/mutations'
+import { useQuery, useSuspenseQuery, useMutation } from '@apollo/client'
+import { RejudgeMode } from '@generated/graphql'
 import dayjs from 'dayjs'
 import { useState, useEffect, useMemo } from 'react'
 import { CSVLink } from 'react-csv'
+import { toast } from 'sonner'
 import { createColumns } from './ColumnsByProblem'
 import { ProblemSelectDropdown } from './DataTableProblemFilterSingle'
 
 interface ParticipantTableProps {
   courseId: number
-  groupId: number
   assignmentId: number
 }
 
 export function ParticipantTableByProblem({
   courseId,
-  groupId,
   assignmentId
 }: ParticipantTableProps) {
+  const [rejudge] = useMutation(REJUDGE_ASSIGNMENT_PROBLEM)
   const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
-      groupId,
+      groupId: courseId,
       assignmentId
     }
   }).data?.getAssignment
 
   const summaries = useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
-    variables: { groupId, assignmentId, take: 300 }
+    variables: { groupId: courseId, assignmentId, take: 300 }
   })
+  const { refetch: refetchSummaries } = summaries
   const summariesData = summaries.data.getAssignmentScoreSummaries.map(
     (item) => ({
       ...item,
@@ -51,7 +56,7 @@ export function ParticipantTableByProblem({
   )
 
   const problems = useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {
-    variables: { groupId, assignmentId }
+    variables: { groupId: courseId, assignmentId }
   })
 
   const problemData = problems.data.getAssignmentProblems
@@ -62,6 +67,31 @@ export function ParticipantTableByProblem({
     null
   )
 
+  const handleRejudge = async () => {
+    if (!selectedPid) {
+      console.error('No problem selected')
+      return
+    }
+
+    try {
+      await rejudge({
+        variables: {
+          groupId: courseId,
+          input: {
+            assignmentId,
+            problemId: selectedPid,
+            mode: RejudgeMode.CreateNew
+          }
+        }
+      })
+
+      await Promise.all([refetchSummaries(), refetchTcResults()])
+      toast.success('Rejudge successful')
+    } catch (e) {
+      console.error('Rejudge failed', e)
+    }
+  }
+
   useEffect(() => {
     if (problemData?.length && !selectedProblemId) {
       setSelectedProblemId(problemData[0].problemId)
@@ -70,17 +100,23 @@ export function ParticipantTableByProblem({
 
   const selectedPid = selectedProblemId ?? problemData?.[0]?.problemId
   const tcResults = useSuspenseQuery(GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS, {
-    variables: { groupId, assignmentId, problemId: selectedPid },
+    variables: { groupId: courseId, assignmentId, problemId: selectedPid },
+    fetchPolicy: 'no-cache',
+    returnPartialData: false,
     errorPolicy: 'all'
   })
+  const { refetch: refetchTcResults } = tcResults
 
   const tcData = useMemo(
     () => tcResults.data?.getAssignmentProblemTestcaseResults ?? [],
     [tcResults.data]
   )
-  const problemTestcaseData = useSuspenseQuery(GET_PROBLEM_TESTCASE, {
-    variables: { id: selectedPid }
-  })
+  const problemTestcaseData = useSuspenseQuery(
+    GET_PROBLEM_TESTCASE_WITHOUT_IO,
+    {
+      variables: { id: selectedPid }
+    }
+  )
   const totalTestcases =
     problemTestcaseData.data?.getProblem?.testcase?.length ?? 0
 
@@ -124,7 +160,7 @@ export function ParticipantTableByProblem({
   const problemLabel = `${alphabet}.${problemToDownload?.problem.title}`
   const fileName = assignmentTitle
     ? `${assignmentTitle.replace(/\s+/g, '_')} - ${problemLabel}.csv`
-    : `course-${groupId}/assignment-${assignmentId}/problem-${selectedPid}.csv`
+    : `course-${courseId}/assignment-${assignmentId}/problem-${selectedPid}.csv`
 
   const headers = [
     { label: 'Student ID', key: 'studentId' },
@@ -153,6 +189,17 @@ export function ParticipantTableByProblem({
     <div className="flex flex-col gap-6">
       <div className="flex justify-between gap-4">
         <UtilityPanel
+          title="Rejudge Problem"
+          description="Rejudging will re-evaluate all submissions for current problem in this assignment."
+        >
+          <button
+            onClick={handleRejudge}
+            className="bg-primary flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-85"
+          >
+            Rejudge
+          </button>
+        </UtilityPanel>
+        <UtilityPanel
           title="Download as a CSV"
           description="Download grading results by students and problem to see all."
         >
@@ -173,9 +220,10 @@ export function ParticipantTableByProblem({
           selectedPid,
           courseId,
           assignmentId,
-          groupId,
+          courseId,
           isAssignmentFinished
         )}
+        enablePagination={false}
       >
         <div className="mb-3 flex items-center gap-4">
           <p className="font-medium">
@@ -199,7 +247,6 @@ export function ParticipantTableByProblem({
           placeholder="Search Student Id"
         />
         <DataTable />
-        <DataTablePagination />
       </DataTableRoot>
     </div>
   )

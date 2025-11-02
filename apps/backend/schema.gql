@@ -238,19 +238,19 @@ type AssignmentProblemRecord {
   assignmentProblem: AssignmentProblem!
   assignmentRecord: AssignmentRecord!
   comment: String!
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean!
   isSubmitted: Boolean!
   problemId: Int!
-  score: Int!
+  score: Decimal!
   userId: Int!
 }
 
 type AssignmentProblemRecordAvgAggregate {
   assignmentId: Float
-  finalScore: Float
+  finalScore: Decimal
   problemId: Float
-  score: Float
+  score: Decimal
   userId: Float
 }
 
@@ -269,35 +269,35 @@ type AssignmentProblemRecordCountAggregate {
 type AssignmentProblemRecordMaxAggregate {
   assignmentId: Int
   comment: String
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean
   isSubmitted: Boolean
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
 }
 
 type AssignmentProblemRecordMinAggregate {
   assignmentId: Int
   comment: String
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean
   isSubmitted: Boolean
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
 }
 
 type AssignmentProblemRecordSumAggregate {
   assignmentId: Int
-  finalScore: Int
+  finalScore: Decimal
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
 }
 
 type AssignmentProblemScore {
-  finalScore: Int
+  finalScore: Float
   maxScore: Int!
   problemId: Int!
   score: Float!
@@ -329,10 +329,10 @@ type AssignmentRecord {
   assignmentProblemRecord: [AssignmentProblemRecord!]
   comment: String!
   createTime: DateTime!
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: ID!
-  score: Int!
+  score: Decimal!
   totalPenalty: Int!
   updateTime: DateTime!
   user: User
@@ -342,9 +342,9 @@ type AssignmentRecord {
 type AssignmentRecordAvgAggregate {
   acceptedProblemNum: Float
   assignmentId: Float
-  finalScore: Float
+  finalScore: Decimal
   id: Float
-  score: Float
+  score: Decimal
   totalPenalty: Float
   userId: Float
 }
@@ -373,10 +373,10 @@ type AssignmentRecordMaxAggregate {
   assignmentId: Int
   comment: String
   createTime: DateTime
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   updateTime: DateTime
   userId: Int
@@ -387,10 +387,10 @@ type AssignmentRecordMinAggregate {
   assignmentId: Int
   comment: String
   createTime: DateTime
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   updateTime: DateTime
   userId: Int
@@ -399,9 +399,9 @@ type AssignmentRecordMinAggregate {
 type AssignmentRecordSumAggregate {
   acceptedProblemNum: Int
   assignmentId: Int
-  finalScore: Int
+  finalScore: Decimal
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   userId: Int
 }
@@ -1346,6 +1346,151 @@ input CourseInput {
   week: Int!
 }
 
+type CourseNotice {
+  CourseNoticeComment: [CourseNoticeComment!]
+  _count: CourseNoticeCount!
+  content: String!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  group: Group!
+  groupId: Int!
+  id: ID!
+  isFixed: Boolean!
+  isPublic: Boolean!
+  readBy: [Int!]
+  title: String!
+  updateTime: DateTime!
+}
+
+type CourseNoticeAvgAggregate {
+  createdById: Float
+  groupId: Float
+  id: Float
+  readBy: Float
+}
+
+type CourseNoticeComment {
+  CourseNoticeComment: [CourseNoticeComment!]
+  _count: CourseNoticeCommentCount!
+  content: String!
+  courseNotice: CourseNotice!
+  courseNoticeId: Int!
+  createdBy: User
+  createdById: Int
+  createdTime: DateTime!
+  id: ID!
+  isDeleted: Boolean!
+  isSecret: Boolean!
+  replyOn: CourseNoticeComment
+  replyOnId: Int
+  updateTime: DateTime!
+}
+
+type CourseNoticeCommentAvgAggregate {
+  courseNoticeId: Float
+  createdById: Float
+  id: Float
+  replyOnId: Float
+}
+
+type CourseNoticeCommentCount {
+  CourseNoticeComment: Int!
+}
+
+type CourseNoticeCommentCountAggregate {
+  _all: Int!
+  content: Int!
+  courseNoticeId: Int!
+  createdById: Int!
+  createdTime: Int!
+  id: Int!
+  isDeleted: Int!
+  isSecret: Int!
+  replyOnId: Int!
+  updateTime: Int!
+}
+
+type CourseNoticeCommentMaxAggregate {
+  content: String
+  courseNoticeId: Int
+  createdById: Int
+  createdTime: DateTime
+  id: Int
+  isDeleted: Boolean
+  isSecret: Boolean
+  replyOnId: Int
+  updateTime: DateTime
+}
+
+type CourseNoticeCommentMinAggregate {
+  content: String
+  courseNoticeId: Int
+  createdById: Int
+  createdTime: DateTime
+  id: Int
+  isDeleted: Boolean
+  isSecret: Boolean
+  replyOnId: Int
+  updateTime: DateTime
+}
+
+type CourseNoticeCommentSumAggregate {
+  courseNoticeId: Int
+  createdById: Int
+  id: Int
+  replyOnId: Int
+}
+
+type CourseNoticeCount {
+  CourseNoticeComment: Int!
+}
+
+type CourseNoticeCountAggregate {
+  _all: Int!
+  content: Int!
+  createTime: Int!
+  createdById: Int!
+  groupId: Int!
+  id: Int!
+  isFixed: Int!
+  isPublic: Int!
+  readBy: Int!
+  title: Int!
+  updateTime: Int!
+}
+
+type CourseNoticeMaxAggregate {
+  content: String
+  createTime: DateTime
+  createdById: Int
+  groupId: Int
+  id: Int
+  isFixed: Boolean
+  isPublic: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type CourseNoticeMinAggregate {
+  content: String
+  createTime: DateTime
+  createdById: Int
+  groupId: Int
+  id: Int
+  isFixed: Boolean
+  isPublic: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type CourseNoticeSumAggregate {
+  createdById: Int
+  groupId: Int
+  id: Int
+  readBy: [Int!]
+}
+
 input CreateAnnouncementInput {
   """content of announcement"""
   content: String!
@@ -1389,6 +1534,14 @@ input CreateContestInput {
   userContest: [UserContestInput!]
 }
 
+input CreateCourseNoticeInput {
+  content: String!
+  groupId: Int!
+  isFixed: Boolean! = false
+  isPublic: Boolean! = true
+  title: String!
+}
+
 input CreateNoticeInput {
   content: String!
   isFixed: Boolean
@@ -1423,6 +1576,9 @@ input CreateTestcasesInput {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+"""An arbitrary-precision Decimal type"""
+scalar Decimal
 
 type DuplicateCourse {
   copiedAssignments: [Int!]!
@@ -1481,6 +1637,7 @@ input FilterProblemsInput {
 }
 
 type FindGroup {
+  CourseNotice: [CourseNotice!]
   GroupWhitelist: [GroupWhitelist!]
   _count: GroupCount!
   assignment: [Assignment!]
@@ -1525,6 +1682,7 @@ input GetContestSubmissionsInput {
 }
 
 type Group {
+  CourseNotice: [CourseNotice!]
   GroupWhitelist: [GroupWhitelist!]
   _count: GroupCount!
   assignment: [Assignment!]
@@ -1556,6 +1714,7 @@ type GroupAvgAggregate {
 }
 
 type GroupCount {
+  CourseNotice: Int!
   GroupWhitelist: Int!
   assignment: Int!
   sharedProblems: Int!
@@ -1678,11 +1837,13 @@ enum Level {
 
 type Mutation {
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
+  cloneCourseNotices(cloneToId: Int!, courseNoticeIds: [Int!]!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!
   createContestQnAComment(content: String!, contestId: Int!, order: Int!): ContestQnAComment!
   createCourse(input: CourseInput!): Group!
+  createCourseNotice(input: CreateCourseNoticeInput!): CourseNotice!
   createNotice(input: CreateNoticeInput!): Notice!
   createProblem(input: CreateProblemInput!): ProblemWithIsVisible!
   createTag(tagName: String!): Tag!
@@ -1693,6 +1854,7 @@ type Mutation {
   deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
   deleteContestQnAComment(commentOrder: Int!, contestId: Int!, qnAOrder: Int!): ContestQnAComment!
   deleteCourse(groupId: Int!): Group!
+  deleteCourseNotice(courseNoticeId: Int!): CourseNotice!
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
   deleteNotice(noticeId: Int!): Notice!
@@ -1706,6 +1868,7 @@ type Mutation {
   importProblemsToContest(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
   inviteUser(groupId: Int!, isGroupLeader: Boolean!, userId: Int!): UserGroup!
   issueInvitation(groupId: Int!): String!
+  rejudgeAssignmentProblem(groupId: Int!, input: RejudgeInput!): RejudgeResult!
   removeAnnouncement(contestId: Int!, id: Int!): Announcement!
   removeProblemsFromAssignment(assignmentId: Int!, groupId: Int!, problemIds: [Int!]!): [AssignmentProblem!]!
   removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
@@ -1721,6 +1884,7 @@ type Mutation {
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
   updateCourse(groupId: Int!, input: CourseInput!): Group!
+  updateCourseNotice(courseNoticeId: Int!, input: UpdateCourseNoticeInput!): CourseNotice!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
   updateNotice(input: UpdateNoticeInput!, noticeId: Int!): Notice!
@@ -1731,6 +1895,7 @@ type Mutation {
   uploadProblems(input: UploadFileInput!): [ProblemWithIsVisible!]!
   uploadTestcase(input: UploadFileInput!, problemId: Int!): ProblemTestcase!
   uploadTestcaseZip(input: UploadTestcaseZipInput!): [ProblemTestcaseId!]!
+  uploadTestcaseZipLegacy(input: UploadTestcaseZipLegacyInput!): [ProblemTestcaseId!]!
 }
 
 type Notice {
@@ -1916,6 +2081,8 @@ type Problem {
   hint: String!
   id: ID!
   inputDescription: String!
+  isHiddenUploadedByZip: Boolean!
+  isSampleUploadedByZip: Boolean!
   languages: [Language!]
   memoryLimit: Int!
   outputDescription: String!
@@ -1989,6 +2156,8 @@ type ProblemCountAggregate {
   hint: Int!
   id: Int!
   inputDescription: Int!
+  isHiddenUploadedByZip: Int!
+  isSampleUploadedByZip: Int!
   languages: Int!
   memoryLimit: Int!
   outputDescription: Int!
@@ -2028,6 +2197,8 @@ type ProblemMaxAggregate {
   hint: String
   id: Int
   inputDescription: String
+  isHiddenUploadedByZip: Boolean
+  isSampleUploadedByZip: Boolean
   memoryLimit: Int
   outputDescription: String
   source: String
@@ -2054,6 +2225,8 @@ type ProblemMinAggregate {
   hint: String
   id: Int
   inputDescription: String
+  isHiddenUploadedByZip: Boolean
+  isSampleUploadedByZip: Boolean
   memoryLimit: Int
   outputDescription: String
   source: String
@@ -2266,6 +2439,8 @@ type ProblemWithIsVisible {
   hint: String!
   id: ID!
   inputDescription: String!
+  isHiddenUploadedByZip: Boolean!
+  isSampleUploadedByZip: Boolean!
   isVisible: Boolean
   languages: [Language!]
   memoryLimit: Int!
@@ -2408,10 +2583,29 @@ type Query {
   getSubmission(id: Int!): SubmissionDetail!
   getSubmissions(cursor: Int, problemId: Int!, take: Int = 10): SubmissionsWithTotal!
   getTags: [Tag!]!
+  getTestcase(testcaseId: Int!): ProblemTestcase!
   getUserByEmailOrStudentId(email: String, groupId: Int!, studentId: String): [User!]!
   getUsers(cursor: Int, take: Int! = 10): [User!]!
   getWhitelist(groupId: Int!): [String!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
+}
+
+input RejudgeInput {
+  assignmentId: Int!
+  mode: RejudgeMode!
+  problemId: Int!
+}
+
+"""재채점 모드"""
+enum RejudgeMode {
+  CREATE_NEW
+  REPLACE_EXISTING
+}
+
+type RejudgeResult {
+  message: String!
+  processedSubmissions: Int!
+  totalSubmissions: Int!
 }
 
 enum ResultStatus {
@@ -2434,6 +2628,16 @@ enum Role {
   Manager
   SuperAdmin
   User
+}
+
+input ScoreWeights {
+  scoreWeight: Int
+
+  """점수 가중치 분모"""
+  scoreWeightDenominator: Int
+
+  """점수 가중치 분자"""
+  scoreWeightNumerator: Int
 }
 
 input Snippet {
@@ -2472,7 +2676,7 @@ type Submission {
   result: ResultStatus!
 
   """100점 만점 기준 점수"""
-  score: Int!
+  score: Decimal!
   submissionResult: [SubmissionResult!]
   updateTime: DateTime!
   user: User
@@ -2488,7 +2692,7 @@ type SubmissionAvgAggregate {
   contestId: Float
   id: Float
   problemId: Float
-  score: Float
+  score: Decimal
   userId: Float
   workbookId: Float
 }
@@ -2530,7 +2734,7 @@ type SubmissionDetail {
   result: ResultStatus!
 
   """100점 만점 기준 점수"""
-  score: Int!
+  score: Decimal!
   testcaseResult: [TestCaseResult!]!
   updateTime: DateTime!
   user: User
@@ -2549,7 +2753,7 @@ type SubmissionMaxAggregate {
   language: Language
   problemId: Int
   result: ResultStatus
-  score: Int
+  score: Decimal
   updateTime: DateTime
   userId: Int
   userIp: String
@@ -2565,7 +2769,7 @@ type SubmissionMinAggregate {
   language: Language
   problemId: Int
   result: ResultStatus
-  score: Int
+  score: Decimal
   updateTime: DateTime
   userId: Int
   userIp: String
@@ -2645,7 +2849,7 @@ type SubmissionSumAggregate {
   contestId: Int
   id: Int
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
   workbookId: Int
 }
@@ -2883,7 +3087,7 @@ input UpdateAssignmentInput {
 input UpdateAssignmentProblemRecordInput {
   assignmentId: Int!
   comment: String
-  finalScore: Int
+  finalScore: Float
   problemId: Int!
   userId: Int!
 }
@@ -2905,6 +3109,13 @@ input UpdateContestInput {
   title: String
   unfreeze: Boolean
   userContest: [UserContestInput!]
+}
+
+input UpdateCourseNoticeInput {
+  content: String
+  isFixed: Boolean = false
+  isPublic: Boolean = true
+  title: String
 }
 
 type UpdateCreationPermissionResult {
@@ -3020,7 +3231,16 @@ input UploadTestcaseZipInput {
   problemId: Int!
 }
 
+input UploadTestcaseZipLegacyInput {
+  file: Upload!
+  isHidden: Boolean!
+  problemId: Int!
+  scoreWeights: [ScoreWeights!]!
+}
+
 type User {
+  CourseNotice: [CourseNotice!]
+  CourseNoticeComment: [CourseNoticeComment!]
   NotificationRecord: [NotificationRecord!]
   PushSubscription: [PushSubscription!]
   UpdateHistory: [UpdateHistory!]
@@ -3152,6 +3372,8 @@ type UserContestSumAggregate {
 }
 
 type UserCount {
+  CourseNotice: Int!
+  CourseNoticeComment: Int!
   NotificationRecord: Int!
   PushSubscription: Int!
   UpdateHistory: Int!

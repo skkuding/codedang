@@ -1,16 +1,21 @@
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
-import { Group, GroupType, UserGroup } from '@generated'
+import { CourseNotice, Group, GroupType, UserGroup } from '@generated'
 import {
   AuthenticatedRequest,
   UseDisableAdminGuard,
   UseGroupLeaderGuard
 } from '@libs/auth'
-import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, IDValidationPipe } from '@libs/pipe'
 import {
   GroupService,
   InvitationService,
-  WhitelistService
+  WhitelistService,
+  CourseNoticeService
 } from './group.service'
+import {
+  CreateCourseNoticeInput,
+  UpdateCourseNoticeInput
+} from './model/course-notice.input'
 import { CourseInput } from './model/group.input'
 import { DuplicateCourse, FindGroup } from './model/group.output'
 
@@ -78,6 +83,54 @@ export class GroupResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
     return await this.groupService.getCourse(id)
+  }
+}
+
+@Resolver(() => CourseNotice)
+export class CourseNoticeResolver {
+  constructor(private readonly courseNoticeService: CourseNoticeService) {}
+
+  @Mutation(() => CourseNotice)
+  async createCourseNotice(
+    @Args('input') input: CreateCourseNoticeInput,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.courseNoticeService.createCourseNotice(req.user.id, input)
+  }
+
+  @Mutation(() => CourseNotice)
+  async deleteCourseNotice(
+    @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
+    courseNoticeId: number
+  ) {
+    return await this.courseNoticeService.deleteCourseNotice(courseNoticeId)
+  }
+
+  @Mutation(() => CourseNotice)
+  async updateCourseNotice(
+    @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
+    courseNoticeId: number,
+    @Args('input') input: UpdateCourseNoticeInput
+  ) {
+    return await this.courseNoticeService.updateCourseNotice(
+      courseNoticeId,
+      input
+    )
+  }
+
+  @Mutation(() => [CourseNotice])
+  async cloneCourseNotices(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('courseNoticeIds', { type: () => [Int] })
+    courseNoticeIds: number[],
+    @Args('cloneToId', { type: () => Int }, IDValidationPipe)
+    cloneToId: number
+  ) {
+    return await this.courseNoticeService.cloneCourseNotice(
+      req.user.id,
+      courseNoticeIds,
+      cloneToId
+    )
   }
 }
 

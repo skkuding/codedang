@@ -10,7 +10,7 @@ import { useQuery } from '@apollo/client'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState, use } from 'react'
+import { useState, use, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -24,8 +24,12 @@ import { InfoForm } from '../../_components/InfoForm'
 import { LimitForm } from '../../_components/LimitForm'
 import { SolutionField } from '../../_components/SolutionField'
 import { TemplateField } from '../../_components/TemplateField'
-import { TestcaseField } from '../../_components/TestcaseField'
+import {
+  TestcaseField,
+  type TestcaseFieldRef
+} from '../../_components/TestcaseField'
 import { editSchema } from '../../_libs/schemas'
+import { EditProblemProvider } from './_components/EditProblemContext'
 import { EditProblemForm } from './_components/EditProblemForm'
 
 export default function Page(props: {
@@ -36,6 +40,7 @@ export default function Page(props: {
   const { problemId } = params
 
   const [isTestcaseEditBlocked, setIsTestcaseEditBlocked] = useState(false)
+  const testcaseFieldRef = useRef<TestcaseFieldRef | null>(null)
 
   const methods = useForm<UpdateProblemInput>({
     resolver: valibotResolver(editSchema),
@@ -101,102 +106,105 @@ export default function Page(props: {
             </Link>
             <span className="text-4xl font-bold">EDIT PROBLEM</span>
           </div>
+          <EditProblemProvider>
+            <EditProblemForm
+              problemId={Number(problemId)}
+              methods={methods}
+              isTestcaseEditBlocked={isTestcaseEditBlocked}
+              testcaseFieldRef={testcaseFieldRef}
+            >
+              <FormSection isFlexColumn title="Title">
+                <TitleForm placeholder="Enter a problem name" />
+              </FormSection>
 
-          <EditProblemForm
-            problemId={Number(problemId)}
-            methods={methods}
-            isTestcaseEditBlocked={isTestcaseEditBlocked}
-          >
-            <FormSection isFlexColumn title="Title">
-              <TitleForm placeholder="Enter a problem name" />
-            </FormSection>
+              <FormSection isFlexColumn title="Description">
+                {methods.getValues('description') && (
+                  <DescriptionForm name="description" />
+                )}
+              </FormSection>
 
-            <FormSection isFlexColumn title="Description">
-              {methods.getValues('description') && (
-                <DescriptionForm name="description" />
+              <div className="flex justify-between gap-2">
+                <div>
+                  <FormSection
+                    isFlexColumn
+                    title="Input Description"
+                    isLabeled={false}
+                  >
+                    {methods.getValues('inputDescription') && (
+                      <DescriptionForm name="inputDescription" />
+                    )}
+                  </FormSection>
+                </div>
+                <div>
+                  <FormSection
+                    isFlexColumn
+                    title="Output Description"
+                    isLabeled={false}
+                  >
+                    {methods.getValues('outputDescription') && (
+                      <DescriptionForm name="outputDescription" />
+                    )}
+                  </FormSection>
+                </div>
+              </div>
+
+              <FormSection isFlexColumn title="Info">
+                <InfoForm />
+              </FormSection>
+
+              <TemplateField />
+
+              <SolutionField />
+
+              {methods.getValues('testcases') && (
+                <TestcaseField ref={testcaseFieldRef} blockEdit={false} />
               )}
-            </FormSection>
 
-            <div className="flex justify-between gap-2">
-              <div>
-                <FormSection
-                  isFlexColumn
-                  title="Input Description"
-                  isLabeled={false}
+              <FormSection isFlexColumn title="Limit">
+                <LimitForm blockEdit={false} />
+              </FormSection>
+
+              <SwitchField
+                name="hint"
+                title="Hint"
+                placeholder="Enter a hint"
+                formElement="textarea"
+                hasValue={methods.getValues('hint') !== ''}
+              />
+
+              <SwitchField
+                name="source"
+                title="Source"
+                placeholder="Enter a source"
+                formElement="input"
+                hasValue={methods.getValues('source') !== ''}
+              />
+              <div className="flex flex-col gap-5">
+                <Button
+                  type="button"
+                  variant={'slate'}
+                  className="bg-fill hover:bg-fill-neutral flex h-[48px] w-full items-center gap-2 px-0"
+                  onClick={async () => {
+                    const isValid = await methods.trigger()
+                    if (isValid) {
+                      setIsPreviewing(true)
+                    }
+                  }}
                 >
-                  {methods.getValues('inputDescription') && (
-                    <DescriptionForm name="inputDescription" />
-                  )}
-                </FormSection>
-              </div>
-              <div>
-                <FormSection
-                  isFlexColumn
-                  title="Output Description"
-                  isLabeled={false}
+                  <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
+                  <div className="text-base text-[#8a8a8a]">Show Preview</div>
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex h-12 w-full items-center gap-2 px-0"
                 >
-                  {methods.getValues('outputDescription') && (
-                    <DescriptionForm name="outputDescription" />
-                  )}
-                </FormSection>
+                  <IoIosCheckmarkCircle fontSize={20} />
+                  <div className="mb-[2px] text-lg font-bold">Edit</div>
+                </Button>
               </div>
-            </div>
+            </EditProblemForm>
+          </EditProblemProvider>
 
-            <FormSection isFlexColumn title="Info">
-              <InfoForm />
-            </FormSection>
-
-            <TemplateField />
-
-            <SolutionField />
-
-            {methods.getValues('testcases') && (
-              <TestcaseField blockEdit={false} />
-            )}
-
-            <FormSection isFlexColumn title="Limit">
-              <LimitForm blockEdit={false} />
-            </FormSection>
-
-            <SwitchField
-              name="hint"
-              title="Hint"
-              placeholder="Enter a hint"
-              formElement="textarea"
-              hasValue={methods.getValues('hint') !== ''}
-            />
-
-            <SwitchField
-              name="source"
-              title="Source"
-              placeholder="Enter a source"
-              formElement="input"
-              hasValue={methods.getValues('source') !== ''}
-            />
-            <div className="flex flex-col gap-5">
-              <Button
-                type="button"
-                variant={'slate'}
-                className="bg-fill hover:bg-fill-neutral flex h-[48px] w-full items-center gap-2 px-0"
-                onClick={async () => {
-                  const isValid = await methods.trigger()
-                  if (isValid) {
-                    setIsPreviewing(true)
-                  }
-                }}
-              >
-                <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
-                <div className="text-base text-[#8a8a8a]">Show Preview</div>
-              </Button>
-              <Button
-                type="submit"
-                className="flex h-12 w-full items-center gap-2 px-0"
-              >
-                <IoIosCheckmarkCircle fontSize={20} />
-                <div className="mb-[2px] text-lg font-bold">Edit</div>
-              </Button>
-            </div>
-          </EditProblemForm>
           {isPreviewing && <PreviewPortal />}
         </main>
         <ScrollBar orientation="horizontal" />
