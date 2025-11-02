@@ -1,8 +1,9 @@
--- CreateEnum
-CREATE TYPE "public"."QnACategory" AS ENUM ('General', 'Problem');
+-- AlterTable
+ALTER TABLE "user" ADD COLUMN     "can_create_contest" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "can_create_course" BOOLEAN NOT NULL DEFAULT false;
 
 -- CreateTable
-CREATE TABLE "public"."course_qna" (
+CREATE TABLE "course_qna" (
     "id" SERIAL NOT NULL,
     "order" INTEGER NOT NULL,
     "created_by_id" INTEGER,
@@ -10,7 +11,7 @@ CREATE TABLE "public"."course_qna" (
     "problem_id" INTEGER,
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "category" "public"."QnACategory" NOT NULL DEFAULT 'General',
+    "category" "QnACategory" NOT NULL DEFAULT 'General',
     "is_resolved" BOOLEAN NOT NULL DEFAULT false,
     "is_private" BOOLEAN NOT NULL DEFAULT false,
     "create_time" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -20,7 +21,7 @@ CREATE TABLE "public"."course_qna" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."course_qna_comment" (
+CREATE TABLE "course_qna_comment" (
     "id" SERIAL NOT NULL,
     "order" INTEGER NOT NULL,
     "created_by_id" INTEGER,
@@ -33,22 +34,22 @@ CREATE TABLE "public"."course_qna_comment" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "course_qna_group_id_order_key" ON "public"."course_qna"("group_id", "order");
+CREATE UNIQUE INDEX "course_qna_group_id_order_key" ON "course_qna"("group_id", "order");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "course_qna_comment_course_qna_id_order_key" ON "public"."course_qna_comment"("course_qna_id", "order");
+CREATE UNIQUE INDEX "course_qna_comment_course_qna_id_order_key" ON "course_qna_comment"("course_qna_id", "order");
 
 -- AddForeignKey
-ALTER TABLE "public"."course_qna" ADD CONSTRAINT "course_qna_created_by_id_fkey" FOREIGN KEY ("created_by_id") REFERENCES "public"."user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "course_qna" ADD CONSTRAINT "course_qna_created_by_id_fkey" FOREIGN KEY ("created_by_id") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."course_qna" ADD CONSTRAINT "course_qna_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "public"."group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "course_qna" ADD CONSTRAINT "course_qna_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."course_qna" ADD CONSTRAINT "course_qna_problem_id_fkey" FOREIGN KEY ("problem_id") REFERENCES "public"."problem"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "course_qna" ADD CONSTRAINT "course_qna_problem_id_fkey" FOREIGN KEY ("problem_id") REFERENCES "problem"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."course_qna_comment" ADD CONSTRAINT "course_qna_comment_created_by_id_fkey" FOREIGN KEY ("created_by_id") REFERENCES "public"."user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "course_qna_comment" ADD CONSTRAINT "course_qna_comment_created_by_id_fkey" FOREIGN KEY ("created_by_id") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."course_qna_comment" ADD CONSTRAINT "course_qna_comment_course_qna_id_fkey" FOREIGN KEY ("course_qna_id") REFERENCES "public"."course_qna"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "course_qna_comment" ADD CONSTRAINT "course_qna_comment_courseQnAId_fkey" FOREIGN KEY ("course_qna_id") REFERENCES "course_qna"("id") ON DELETE CASCADE ON UPDATE CASCADE;
