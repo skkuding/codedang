@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "public"."QnACategory" AS ENUM ('General', 'Problem');
+CREATE TYPE "public"."CourseQnACategory" AS ENUM ('General', 'Problem');
 
 -- CreateTable
 CREATE TABLE "public"."course_qna" (
@@ -10,7 +10,7 @@ CREATE TABLE "public"."course_qna" (
     "problem_id" INTEGER,
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "category" "public"."QnACategory" NOT NULL DEFAULT 'General',
+    "category" "public"."CourseQnACategory" NOT NULL DEFAULT 'General',
     "is_resolved" BOOLEAN NOT NULL DEFAULT false,
     "is_private" BOOLEAN NOT NULL DEFAULT false,
     "create_time" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
