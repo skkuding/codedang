@@ -38,7 +38,7 @@ export function SubmissionAssessment() {
       userId: Number(userId),
       take: 1000
     }
-  }).data?.getAssignmentSubmissionSummaryByUserId.scoreSummary.problemScores.find(
+  }).data?.getAssignmentSubmissionSummaryByUserId.scoreSummary.scoreSummaryByProblem.find(
     (score) => score.problemId === Number(problemId)
   )
 
@@ -51,7 +51,7 @@ export function SubmissionAssessment() {
   }).data.getAssignmentScoreSummaries
 
   const gradedCount = summaries.filter((summary) =>
-    summary.problemScores.some(
+    summary.scoreSummaryByProblem.some(
       (score) =>
         score.problemId === Number(problemId) && score.finalScore !== null
     )
@@ -59,7 +59,7 @@ export function SubmissionAssessment() {
   const totalCount = summaries.length
   const nextStudent = summaries.find(
     (summary) =>
-      !summary.problemScores.some(
+      !summary.scoreSummaryByProblem.some(
         (score) =>
           score.problemId === Number(problemId) && score.finalScore !== null
       )
