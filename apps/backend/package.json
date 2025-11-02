@@ -91,6 +91,7 @@
     "passport-kakao": "^1.0.1",
     "pino-http": "^10.5.0",
     "pino-pretty": "^11.3.0",
+    "prisma-graphql-type-decimal": "^3.0.1",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.2",
     "sanitize-filename": "^1.6.3",

@@ -80,7 +80,9 @@ model User {
   createdQnAComments ContestQnAComment[]  @relation("CreatedByUser")
   NotificationRecord NotificationRecord[]
   PushSubscription   PushSubscription[]
-
+  CourseNotice CourseNotice[]
+  CourseNoticeComment CourseNoticeComment[]
+  
   @@map("user")
 }
 
@@ -147,6 +149,7 @@ model Group {
   workbook       Workbook[]
   GroupWhitelist GroupWhitelist[]
   sharedProblems Problem[]
+  CourseNotice CourseNotice[]
 
   @@map("group")
 }
@@ -188,6 +191,44 @@ model Notice {
   updateTime  DateTime @updatedAt @map("update_time")
 
   @@map("notice")
+}
+
+model CourseNotice {
+  id          Int      @id @default(autoincrement())
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     Int      @map("group_id")
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?     @map("created_by_id")
+  title       String
+  content     String
+  isPublic    Boolean  @default(false) @map("is_public")
+  isFixed     Boolean  @default(false) @map("is_fixed")
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
+  readBy      Int[]               @map("read_by")
+
+  CourseNoticeComment CourseNoticeComment[]
+
+  @@map("course_notice")
+}
+
+model CourseNoticeComment {
+  id             Int          @id @default(autoincrement())
+  isSecret       Boolean      @default(false) @map("is_secret")
+  createdBy      User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById    Int?         @map("created_by_id")
+  isDeleted      Boolean      @default(false) @map("is_deleted")
+  replyOn        CourseNoticeComment?        @relation("ReplyOn", fields: [replyOnId], references: [id], onDelete: Cascade)
+  replyOnId      Int?                        @map("reply_on_id")
+  content        String
+  courseNotice   CourseNotice @relation(fields: [courseNoticeId], references: [id], onDelete: Cascade)
+  courseNoticeId Int          @map("course_notice_id")
+  createdTime    DateTime     @default(now()) @map("create_time")
+  updateTime     DateTime     @updatedAt @map("update_time")
+
+  CourseNoticeComment CourseNoticeComment[] @relation("ReplyOn")
+
+  @@map("course_notice_comment")
 }
 
 model Problem {
@@ -411,8 +452,8 @@ model AssignmentRecord {
   user               User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId             Int?       @map("user_id")
   acceptedProblemNum Int        @default(0) @map("accepted_problem_num")
-  score              Int        @default(0) // Only used after assignment finished
-  finalScore         Int?       @map("final_score") // TODO: finalScore는 assignmentProblemRecord에서만 관리하기
+  score              Decimal    @default(0) @db.Decimal(10, 2) // Only used after assignment finished
+  finalScore         Decimal?   @map("final_score") @db.Decimal(10, 2) // TODO: finalScore는 assignmentProblemRecord에서만 관리하기
   comment            String     @default("")
 
   // finishTime: Pariticipant가 가장 최근에 AC를 받은 시각
@@ -432,12 +473,12 @@ model AssignmentProblemRecord {
   userId       Int
   problemId    Int
 
-  score       Int     @default(0) // Only used after assignment finished
+  score       Decimal @default(0) @db.Decimal(10, 2) // Only used after assignment finished
   isSubmitted Boolean @default(false) @map("is_submitted")
   isAccepted  Boolean @default(false) @map("is_accepted")
 
-  finalScore Int?   @map("final_score")
-  comment    String @default("")
+  finalScore Decimal? @map("final_score") @db.Decimal(10, 2)
+  comment    String   @default("")
 
   assignmentProblem AssignmentProblem @relation(fields: [assignmentId, problemId], references: [assignmentId, problemId], onDelete: Cascade)
   assignmentRecord  AssignmentRecord  @relation(fields: [assignmentId, userId], references: [assignmentId, userId], onDelete: Cascade)
@@ -698,7 +739,7 @@ model Submission {
   codeSize     Int?         @map("code_size")
   language     Language
   result       ResultStatus
-  score        Int          @default(0) /// 100점 만점 기준 점수
+  score        Decimal      @default(0) @db.Decimal(20, 10) /// 100점 만점 기준 점수
   createTime   DateTime     @default(now()) @map("create_time")
   updateTime   DateTime     @updatedAt @map("update_time")
 

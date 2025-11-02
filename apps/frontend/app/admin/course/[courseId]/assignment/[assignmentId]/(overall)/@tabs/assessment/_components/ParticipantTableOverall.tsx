@@ -3,7 +3,6 @@
 import {
   DataTable,
   DataTableFallback,
-  DataTablePagination,
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'

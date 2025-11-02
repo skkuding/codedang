@@ -14,6 +14,7 @@ export function FinalScoreForm() {
         className="hide-spin-button h-9 w-20 rounded-md border border-[#3F444F] bg-[#29303F] focus-visible:ring-1 focus-visible:ring-white"
         type="number"
         id="finalScore"
+        step="0.01"
         {...register('finalScore', {
           setValueAs: (value) => Number(value)
         })}

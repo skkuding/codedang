@@ -1,0 +1,83 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ($input: CreateCourseNoticeInput!) {
+    createCourseNotice(input: $input) {
+      id
+      createdById
+      title
+      content
+      isPublic
+      isFixed
+      createTime
+      updateTime
+      groupId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "groupId": 1,
+      "title": "Notice created by bruno 3",
+      "content": "123",
+      "isFixed": false,
+      "isPublic": false
+    }
+  }
+}
+
+assert {
+  res.body.data.createCourseNotice: isDefined
+}
+
+docs {
+  # 📘 Create a Course Notice
+
+  **POST** `GraphQL`
+
+  Make a Course Notice.
+
+  강의 공지사항을 1개 만듭니다.
+
+  이 함수는 다음과 같은 조건에 따라 공지를 만들고 반환합니다.
+
+  1. 운영진(Admin, Manager) 및 Instructor
+  - 전달한 파라미터에 따라 공지사항을 1개 생성합니다.
+
+  접근 권한이 없는 경우 예외를 발생시킵니다.
+
+  - 일반 사용자: 권한이 없는 경우 ForbiddenAccessException 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `input` | object | ✅       | 공지사항 생성에 필요한 요소들 |
+
+  #### input
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `groupId` | number | ✅       | 강의 아이디 |
+  | `title` | string | ✅       | 공지사항 제목 |
+  | `content` | string | ✅       | 공지사항 본문 |
+  | `isPublic` | boolean |         | 전체 공개 여부를 나타냅니다. 기본값은 false |
+  | `isFixed` | boolean |         | 공지사항을 목록 최상단에 고정시키는 설정값입니다. 기본값은 false. |
+
+}

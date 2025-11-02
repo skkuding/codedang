@@ -2,15 +2,15 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
+  Assignment,
   AssignmentProblem,
-  Group,
+  AssignmentProblemRecord,
   AssignmentRecord,
-  AssignmentProblemRecord
+  Group,
+  Problem
 } from '@generated'
-import { Problem } from '@generated'
-import { Assignment } from '@generated'
 import { faker } from '@faker-js/faker'
-import { ResultStatus } from '@prisma/client'
+import { Prisma, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import {
@@ -424,9 +424,9 @@ describe('AssignmentService', () => {
       expect(summary).to.deep.equal({
         submittedProblemCount: 1,
         totalProblemCount: 1,
-        userAssignmentScore: 30,
+        userAssignmentScore: new Prisma.Decimal(30),
         assignmentPerfectScore: 50,
-        userAssignmentFinalScore: 25,
+        userAssignmentFinalScore: new Prisma.Decimal(25),
         problemScores: [
           {
             problemId,
@@ -457,9 +457,9 @@ describe('AssignmentService', () => {
       expect(summary).to.deep.equal({
         submittedProblemCount: 1,
         totalProblemCount: 1,
-        userAssignmentScore: 40,
+        userAssignmentScore: new Prisma.Decimal(40),
         assignmentPerfectScore: 50,
-        userAssignmentFinalScore: 0,
+        userAssignmentFinalScore: Prisma.Decimal(0),
         problemScores: [
           {
             problemId,
@@ -490,9 +490,9 @@ describe('AssignmentService', () => {
       expect(summary).to.deep.equal({
         submittedProblemCount: 0,
         totalProblemCount: 1,
-        userAssignmentScore: 0,
+        userAssignmentScore: Prisma.Decimal(0),
         assignmentPerfectScore: 50,
-        userAssignmentFinalScore: 0,
+        userAssignmentFinalScore: Prisma.Decimal(0),
         problemScores: [
           {
             problemId,
@@ -516,9 +516,9 @@ describe('AssignmentService', () => {
       expect(summary).to.deep.equal({
         submittedProblemCount: 0,
         totalProblemCount: 1,
-        userAssignmentScore: 0,
+        userAssignmentScore: Prisma.Decimal(0),
         assignmentPerfectScore: 50,
-        userAssignmentFinalScore: 0,
+        userAssignmentFinalScore: Prisma.Decimal(0),
         problemScores: []
       })
     })
@@ -570,9 +570,9 @@ describe('AssignmentService', () => {
           major: 'CS',
           submittedProblemCount: 1,
           totalProblemCount: 1,
-          userAssignmentScore: 50,
+          userAssignmentScore: Prisma.Decimal(50),
           assignmentPerfectScore: 50,
-          userAssignmentFinalScore: 45,
+          userAssignmentFinalScore: Prisma.Decimal(45),
           problemScores: [
             {
               problemId,
