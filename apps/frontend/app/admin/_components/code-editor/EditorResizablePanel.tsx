@@ -204,7 +204,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                         )}
                       >
                         {summary.realName}({summary.studentId})
-                        {summary.problemScores.some(
+                        {summary.scoreSummaryByProblem.some(
                           (score) =>
                             score.problemId === Number(problemId) &&
                             score.finalScore !== null
