@@ -1,6 +1,6 @@
 // apps/backend/apps/client/src/course/course.service.ts
 import { Injectable } from '@nestjs/common'
-import { CourseQnACategory, type Prisma } from '@prisma/client'
+import { QnACategory, type Prisma } from '@prisma/client'
 import {
   ForbiddenAccessException,
   EntityNotExistException
@@ -74,11 +74,11 @@ export class CourseService {
           readBy: [userId],
           ...(problemId
             ? {
-                category: CourseQnACategory.Problem,
+                category: QnACategory.Problem,
                 problem: { connect: { id: problemId } }
               }
             : {
-                category: CourseQnACategory.General
+                category: QnACategory.General
               })
         }
       })
@@ -130,16 +130,16 @@ export class CourseService {
     const orConditions: Prisma.CourseQnAWhereInput[] = []
     const categories = filter.categories ?? []
 
-    const includeGeneral = categories.includes(CourseQnACategory.General)
-    const includeProblem = categories.includes(CourseQnACategory.Problem)
+    const includeGeneral = categories.includes(QnACategory.General)
+    const includeProblem = categories.includes(QnACategory.Problem)
 
     if (includeGeneral) {
-      orConditions.push({ category: CourseQnACategory.General })
+      orConditions.push({ category: QnACategory.General })
     }
 
     if (includeProblem) {
       const problemCondition: Prisma.CourseQnAWhereInput = {
-        category: CourseQnACategory.Problem
+        category: QnACategory.Problem
       }
       if (filter.problemIds?.length) {
         problemCondition.problemId = { in: filter.problemIds }

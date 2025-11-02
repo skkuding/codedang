@@ -9,4 +9,4 @@ ALTER TABLE "public"."course_qna" DROP COLUMN "category",
 ADD COLUMN     "category" "public"."QnACategory" NOT NULL DEFAULT 'General';
 
 -- DropEnum
-DROP TYPE "public"."CourseQnACategory";
+DROP TYPE "public"."QnACategory";
