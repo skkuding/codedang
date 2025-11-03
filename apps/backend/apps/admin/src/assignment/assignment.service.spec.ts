@@ -445,7 +445,7 @@ describe('AssignmentService', () => {
             maxScore: 50,
             finalScore: 25,
             acceptedTestcaseCount: 0,
-            totalTestcaseCount: 3
+            totalTestcaseCount: 0
           }
         ]
       })
@@ -488,7 +488,7 @@ describe('AssignmentService', () => {
             maxScore: 50,
             finalScore: null,
             acceptedTestcaseCount: 0,
-            totalTestcaseCount: 2
+            totalTestcaseCount: 0
           }
         ]
       })
@@ -531,7 +531,7 @@ describe('AssignmentService', () => {
             maxScore: 50,
             finalScore: null,
             acceptedTestcaseCount: 0,
-            totalTestcaseCount: 4
+            totalTestcaseCount: 0
           }
         ]
       })
@@ -567,7 +567,7 @@ describe('AssignmentService', () => {
             maxScore: 0,
             finalScore: null,
             acceptedTestcaseCount: 0,
-            totalTestcaseCount: 1
+            totalTestcaseCount: 0
           }
         ]
       })
@@ -638,7 +638,7 @@ describe('AssignmentService', () => {
               maxScore: 50,
               finalScore: 45,
               acceptedTestcaseCount: 0,
-              totalTestcaseCount: 6
+              totalTestcaseCount: 0
             }
           ]
         }
