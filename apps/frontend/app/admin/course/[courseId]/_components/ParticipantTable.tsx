@@ -27,7 +27,11 @@ interface ScoreSummary {
   assignmentPerfectScore: number
   submittedProblemCount: number
   totalProblemCount: number
-  problemScores: { problemId: number; score: number; maxScore: number }[]
+  scoreSummaryByProblem: {
+    problemId: number
+    score: number
+    maxScore: number
+  }[]
   major: string
 }
 
@@ -102,7 +106,7 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
   const csvData =
     scoreData?.getAssignmentScoreSummaries.map((user) => {
       const userProblemScores = problemList.map((problem) => {
-        const scoreData = user.problemScores.find(
+        const scoreData = user.scoreSummaryByProblem.find(
           (ps) => ps.problemId === problem.problemId
         )
         return {

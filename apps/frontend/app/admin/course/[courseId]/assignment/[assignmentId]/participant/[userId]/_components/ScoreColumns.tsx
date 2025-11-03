@@ -12,7 +12,7 @@ export interface ScoreSummary {
   totalProblemCount: number
   userAssignmentScore: number
   assignmentPerfectScore: number
-  problemScores: {
+  scoreSummaryByProblem: {
     problemId: number
     score: number
     maxScore: number
@@ -28,7 +28,7 @@ interface DataTableSubmissionSummary
     | 'totalProblemCount'
   > {
   id: number
-  problemScores: {
+  scoreSummaryByProblem: {
     problemId: number
     score: number
   }[]
@@ -86,7 +86,7 @@ export const createColumns = (
         </p>
       ),
       cell: ({ row }: { row: Row<DataTableSubmissionSummary> }) => {
-        const problemScore = row.original.problemScores.find(
+        const problemScore = row.original.scoreSummaryByProblem.find(
           (ps) => ps.problemId === problem.problemId
         )
         return (

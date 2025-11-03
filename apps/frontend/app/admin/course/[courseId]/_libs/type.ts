@@ -23,7 +23,7 @@ export interface ScoreSummary {
   totalProblemCount: number
   userAssignmentScore: number
   assignmentPerfectScore: number
-  problemScores: {
+  scoreSummaryByProblem: {
     problemId: number
     score: number
     maxScore: number
