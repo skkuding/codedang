@@ -4,7 +4,7 @@ metadata:
   name: admin-api-server-ingress
   namespace: admin-api
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
     traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/router.middlewares: admin-api-cors@kubernetescrd
 spec:
