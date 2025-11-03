@@ -784,28 +784,28 @@ export class AssignmentService {
       finalScore: record.finalScore
     }))
 
-    const testcaseCounts = await this.prisma.problemTestcase.groupBy({
-      by: ['problemId'],
-      where: {
-        problemId: { in: assignmentProblemIds },
-        isOutdated: false
-      },
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      _count: {
-        problemId: true
-      }
-    })
+    // const testcaseCounts = await this.prisma.problemTestcase.groupBy({
+    //   by: ['problemId'],
+    //   where: {
+    //     problemId: { in: assignmentProblemIds },
+    //     isOutdated: false
+    //   },
+    //   // eslint-disable-next-line @typescript-eslint/naming-convention
+    //   _count: {
+    //     problemId: true
+    //   }
+    // })
 
     /**
      * 각 문제 별 Testcase 개수
      */
-    const testcaseCountMap = testcaseCounts.reduce(
-      (map, { problemId, _count }) => {
-        map[problemId] = _count.problemId
-        return map
-      },
-      {} as Record<number, number>
-    )
+    // const testcaseCountMap = testcaseCounts.reduce(
+    //   (map, { problemId, _count }) => {
+    //     map[problemId] = _count.problemId
+    //     return map
+    //   },
+    //   {} as Record<number, number>
+    // )
 
     const submissions = await this.prisma.submission.findMany({
       where: {
@@ -846,7 +846,7 @@ export class AssignmentService {
       (map, problemId) => {
         const latestSubmission = latestSubmissionMap.get(problemId)
         if (!latestSubmission) {
-          map[problemId] = 0
+          map[problemId] = { acceptedCount: 0, totalCount: 0 }
           return map
         }
 
@@ -856,10 +856,13 @@ export class AssignmentService {
           0
         )
 
-        map[problemId] = acceptedCount
+        map[problemId] = {
+          acceptedCount,
+          totalCount: latestSubmission.submissionResult.length
+        }
         return map
       },
-      {} as Record<number, number>
+      {} as Record<number, { acceptedCount: number; totalCount: number }>
     )
 
     /**
@@ -869,16 +872,18 @@ export class AssignmentService {
       const problemScore =
         problemScores.find((score) => score.problemId === problemId) ?? null
 
-      const acceptedTestcaseCount = acceptedCountsByProblem[problemId] ?? 0
-      const totalTestcaseCount = testcaseCountMap[problemId] ?? 0
+      const testcaseInfo = acceptedCountsByProblem[problemId] ?? {
+        acceptedCount: 0,
+        totalCount: 0
+      }
 
       return {
         problemId,
         score: problemScore?.score ?? new Prisma.Decimal(0),
         maxScore: problemScore?.maxScore ?? 0,
         finalScore: problemScore?.finalScore ?? null,
-        acceptedTestcaseCount,
-        totalTestcaseCount
+        acceptedTestcaseCount: testcaseInfo.acceptedCount,
+        totalTestcaseCount: testcaseInfo.totalCount
       }
     })
 
