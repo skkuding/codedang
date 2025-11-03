@@ -26,10 +26,6 @@ const nextConfig = {
         ? [
             {
               protocol: 'https',
-              hostname: 'minio.minio.svc.cluster.local'
-            },
-            {
-              protocol: 'https',
               hostname: 'minio.stage.codedang.com'
             }
           ]
