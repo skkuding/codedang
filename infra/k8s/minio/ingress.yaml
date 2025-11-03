@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: minio-api-ingress
+  name: minio-ingress
   namespace: minio
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
