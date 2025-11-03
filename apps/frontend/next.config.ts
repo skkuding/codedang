@@ -27,12 +27,20 @@ const nextConfig = {
             {
               protocol: 'https',
               hostname: 'minio.stage.codedang.com'
+            },
+            {
+              protocol: 'https',
+              hostname: '**.cdninstagram.com'
             }
           ]
         : [
             {
               protocol: 'https',
               hostname: `${BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`
+            },
+            {
+              protocol: 'https',
+              hostname: '**.cdninstagram.com'
             }
           ]
   },
