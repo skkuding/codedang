@@ -2,11 +2,23 @@
 
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import type { ProblemData } from '@/app/admin/contest/_libs/schemas'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList
+} from '@/components/shadcn/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/shadcn/popover'
 import { UPDATE_ASSIGNMENT_PROBLEM_RECORD } from '@/graphql/assignment/mutations'
 import { cn } from '@/libs/utils'
 import { useMutation } from '@apollo/client'
-import type { ColumnDef, Row } from '@tanstack/react-table'
-import { SquareArrowOutUpRight } from 'lucide-react'
+import type { Column, ColumnDef, Row } from '@tanstack/react-table'
+import { Check, SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -25,6 +37,9 @@ interface DataTableScoreSummary {
     problemId: number
     score: number
     maxScore: number
+    finalScore?: number | null
+    acceptedTestcaseCount: number
+    totalTestcaseCount: number
   }[]
 }
 
@@ -165,6 +180,74 @@ function ScoreEditableCell({
   )
 }
 
+function ColumnHeaderSelector({
+  column,
+  label
+}: {
+  column: Column<DataTableScoreSummary, unknown>
+  label: string
+}) {
+  const [open, setOpen] = useState(false)
+  const meta = column.columnDef.meta as { showAutoCounts: boolean }
+  const isTestcases = Boolean(meta?.showAutoCounts)
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button className="w-full">{label}</button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-40 p-0">
+        <Command>
+          <CommandList>
+            <CommandEmpty>No results.</CommandEmpty>
+            <CommandGroup>
+              <CommandItem
+                key="testcases"
+                onSelect={() => {
+                  const meta = column.columnDef.meta as {
+                    showAutoCounts: boolean
+                  }
+                  meta.showAutoCounts = true
+                  column.toggleVisibility(false)
+                  column.toggleVisibility(true)
+                  setOpen(false)
+                }}
+              >
+                <Check
+                  className={cn(
+                    'mr-2 h-4 w-4',
+                    isTestcases ? 'opacity-100' : 'opacity-0'
+                  )}
+                />
+                Testcases
+              </CommandItem>
+              <CommandItem
+                key="score"
+                onSelect={() => {
+                  const meta = column.columnDef.meta as {
+                    showAutoCounts: boolean
+                  }
+                  meta.showAutoCounts = false
+                  column.toggleVisibility(false)
+                  column.toggleVisibility(true)
+                  setOpen(false)
+                }}
+              >
+                <Check
+                  className={cn(
+                    'mr-2 h-4 w-4',
+                    !isTestcases ? 'opacity-100' : 'opacity-0'
+                  )}
+                />
+                Score
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 export const createColumns = (
   problemData: ProblemData[],
   courseId: number,
@@ -191,17 +274,43 @@ export const createColumns = (
     },
     ...problemData.map((problem, i) => ({
       accessorKey: `${String.fromCharCode(Number(65 + i))}`,
-      header: () => {
-        return String.fromCharCode(Number(65 + i))
-      },
-      cell: ({ row }: { row: Row<DataTableScoreSummary> }) => {
+      meta: { showAutoCounts: true } as { showAutoCounts: boolean },
+      header: ({
+        column
+      }: {
+        column: Column<DataTableScoreSummary, unknown>
+      }) => (
+        <ColumnHeaderSelector
+          column={column}
+          label={String.fromCharCode(Number(65 + i))}
+        />
+      ),
+      cell: ({
+        row,
+        column
+      }: {
+        row: Row<DataTableScoreSummary>
+        column: Column<DataTableScoreSummary, unknown>
+      }) => {
         const problemScore = row.original.scoreSummaryByProblem.find(
           (ps) => ps.problemId === problem.problemId
         )
+        const showAutoCounts = Boolean(
+          (column.columnDef.meta as { showAutoCounts?: boolean })
+            ?.showAutoCounts
+        )
         if (currentView === 'auto') {
+          if (showAutoCounts) {
+            return (
+              <div className="text-xs">
+                {problemScore?.acceptedTestcaseCount} /{' '}
+                {problemScore?.totalTestcaseCount ?? 0}
+              </div>
+            )
+          }
           return (
             <div className="text-xs">
-              {problemScore?.score ?? '-'} / {problemScore?.maxScore ?? 0}
+              {problemScore?.score} / {problemScore?.maxScore ?? 0}
             </div>
           )
         }
