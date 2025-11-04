@@ -91,6 +91,12 @@ export function ParticipantTableByProblem({
     }
   }
 
+  useEffect(() => {
+    if (problemData?.length && !selectedProblemId) {
+      setSelectedProblemId(problemData[0].problemId)
+    }
+  }, [problemData, selectedProblemId])
+
   const selectedPid = selectedProblemId ?? problemData?.[0]?.problemId
   const tcResults = useSuspenseQuery(GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS, {
     variables: { groupId: courseId, assignmentId, problemId: selectedPid },
@@ -141,16 +147,6 @@ export function ParticipantTableByProblem({
       }
     })
   }, [summariesData, tcByUser, totalTestcases])
-
-  useEffect(() => {
-    if (problemData?.length && !selectedProblemId) {
-      setSelectedProblemId(problemData[0].problemId)
-    }
-  }, [problemData, selectedProblemId])
-
-  if (!problemData || problemData.length === 0) {
-    return <ParticipantTableFallback />
-  }
 
   const now = dayjs()
   const isAssignmentFinished = now.isAfter(
