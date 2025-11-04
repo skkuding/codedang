@@ -61,7 +61,7 @@ export const createColumns = (
         </p>
       ),
       cell: ({ row }: { row: Row<DataTableScoreSummary> }) => {
-        const problemScore = row.original.problemScores.find(
+        const problemScore = row.original.scoreSummaryByProblem.find(
           (ps) => ps.problemId === problem.problemId
         )
         return (

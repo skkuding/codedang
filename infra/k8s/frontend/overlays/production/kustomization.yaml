@@ -6,3 +6,9 @@ resources:
   - ../../base
   - secrets/aws-credentials.yaml
   - secrets/security-keys.yaml
+
+patches:
+  - path: configmap.yaml
+    target:
+      kind: ConfigMap
+      name: frontend-env

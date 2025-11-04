@@ -54,7 +54,7 @@ export function AssignmentHeader() {
         take: 1000
       }
     }).data?.getAssignmentSubmissionSummaryByUserId.scoreSummary
-      .problemScores ?? []
+      .scoreSummaryByProblem ?? []
 
   const sortedProblems = [...assignmentProblems].sort(
     (a, b) => a.order - b.order
