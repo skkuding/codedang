@@ -1,6 +1,8 @@
 'use client'
 
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { cn } from '@/libs/utils'
+import { ErrorBoundary } from '@suspensive/react'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { Suspense } from 'react'
@@ -15,6 +17,7 @@ export default function Assessment() {
   const handleNoProblemsFound = () => {
     toast.error('No imported problems found in this assignment.')
     setTab('overall')
+    return null
   }
 
   return (
@@ -54,13 +57,17 @@ export default function Assessment() {
           />
         </Suspense>
       ) : (
-        <Suspense fallback={<div>Loading By Problem...</div>}>
-          <ParticipantTableByProblem
-            courseId={Number(courseId)}
-            assignmentId={Number(assignmentId)}
-            onNoProblemsFound={handleNoProblemsFound}
-          />
-        </Suspense>
+        <ErrorBoundary
+          fallback={FetchErrorFallback}
+          onError={handleNoProblemsFound}
+        >
+          <Suspense fallback={<div>Loading By Problem...</div>}>
+            <ParticipantTableByProblem
+              courseId={Number(courseId)}
+              assignmentId={Number(assignmentId)}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </div>
   )

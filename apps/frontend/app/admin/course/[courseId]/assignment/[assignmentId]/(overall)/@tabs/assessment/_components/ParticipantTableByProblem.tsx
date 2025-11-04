@@ -29,13 +29,11 @@ import { ProblemSelectDropdown } from './DataTableProblemFilterSingle'
 interface ParticipantTableProps {
   courseId: number
   assignmentId: number
-  onNoProblemsFound: () => void
 }
 
 export function ParticipantTableByProblem({
   courseId,
-  assignmentId,
-  onNoProblemsFound
+  assignmentId
 }: ParticipantTableProps) {
   const [rejudge] = useMutation(REJUDGE_ASSIGNMENT_PROBLEM)
   const assignmentData = useQuery(GET_ASSIGNMENT, {
@@ -98,8 +96,7 @@ export function ParticipantTableByProblem({
     variables: { groupId: courseId, assignmentId, problemId: selectedPid },
     fetchPolicy: 'no-cache',
     returnPartialData: false,
-    errorPolicy: 'all',
-    skip: !selectedPid
+    errorPolicy: 'all'
   })
   const { refetch: refetchTcResults } = tcResults
 
@@ -110,8 +107,7 @@ export function ParticipantTableByProblem({
   const problemTestcaseData = useSuspenseQuery(
     GET_PROBLEM_TESTCASE_WITHOUT_IO,
     {
-      variables: { id: selectedPid },
-      skip: !selectedPid
+      variables: { id: selectedPid }
     }
   )
   const totalTestcases =
@@ -145,12 +141,6 @@ export function ParticipantTableByProblem({
       }
     })
   }, [summariesData, tcByUser, totalTestcases])
-
-  useEffect(() => {
-    if (!problemData || problemData.length === 0) {
-      onNoProblemsFound()
-    }
-  }, [problemData, onNoProblemsFound])
 
   useEffect(() => {
     if (problemData?.length && !selectedProblemId) {
