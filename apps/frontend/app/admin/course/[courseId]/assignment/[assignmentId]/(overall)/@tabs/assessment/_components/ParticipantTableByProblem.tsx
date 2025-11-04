@@ -20,7 +20,7 @@ import { REJUDGE_ASSIGNMENT_PROBLEM } from '@/graphql/submission/mutations'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import { RejudgeMode } from '@generated/graphql'
 import dayjs from 'dayjs'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
 import { createColumns } from './ColumnsByProblem'
@@ -29,12 +29,15 @@ import { ProblemSelectDropdown } from './DataTableProblemFilterSingle'
 interface ParticipantTableProps {
   courseId: number
   assignmentId: number
+  onNoProblemsFound: () => void
 }
 
 export function ParticipantTableByProblem({
   courseId,
-  assignmentId
+  assignmentId,
+  onNoProblemsFound
 }: ParticipantTableProps) {
+  const hasTriggeredRef = useRef(false)
   const [rejudge] = useMutation(REJUDGE_ASSIGNMENT_PROBLEM)
   const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
@@ -91,18 +94,13 @@ export function ParticipantTableByProblem({
     }
   }
 
-  useEffect(() => {
-    if (problemData?.length && !selectedProblemId) {
-      setSelectedProblemId(problemData[0].problemId)
-    }
-  }, [problemData, selectedProblemId])
-
   const selectedPid = selectedProblemId ?? problemData?.[0]?.problemId
   const tcResults = useSuspenseQuery(GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS, {
     variables: { groupId: courseId, assignmentId, problemId: selectedPid },
     fetchPolicy: 'no-cache',
     returnPartialData: false,
-    errorPolicy: 'all'
+    errorPolicy: 'all',
+    skip: !selectedPid
   })
   const { refetch: refetchTcResults } = tcResults
 
@@ -113,7 +111,8 @@ export function ParticipantTableByProblem({
   const problemTestcaseData = useSuspenseQuery(
     GET_PROBLEM_TESTCASE_WITHOUT_IO,
     {
-      variables: { id: selectedPid }
+      variables: { id: selectedPid },
+      skip: !selectedPid
     }
   )
   const totalTestcases =
@@ -147,6 +146,25 @@ export function ParticipantTableByProblem({
       }
     })
   }, [summariesData, tcByUser, totalTestcases])
+
+  useEffect(() => {
+    if (!problemData || problemData.length === 0) {
+      if (!hasTriggeredRef.current) {
+        onNoProblemsFound()
+        hasTriggeredRef.current = true
+      }
+    }
+  }, [problemData, onNoProblemsFound])
+
+  useEffect(() => {
+    if (problemData?.length && !selectedProblemId) {
+      setSelectedProblemId(problemData[0].problemId)
+    }
+  }, [problemData, selectedProblemId])
+
+  if (!problemData || problemData.length === 0) {
+    return <ParticipantTableFallback />
+  }
 
   const now = dayjs()
   const isAssignmentFinished = now.isAfter(

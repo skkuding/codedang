@@ -4,12 +4,18 @@ import { cn } from '@/libs/utils'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { Suspense } from 'react'
+import { toast } from 'sonner'
 import { ParticipantTableByProblem } from './_components/ParticipantTableByProblem'
 import { ParticipantTableOverall } from './_components/ParticipantTableOverall'
 
 export default function Assessment() {
   const { courseId, assignmentId } = useParams() // 경로에서 params 가져오기
   const [tab, setTab] = useState<'overall' | 'by-problem'>('overall')
+
+  const handleNoProblemsFound = () => {
+    toast.error('No imported problems found in this assignment.')
+    setTab('overall')
+  }
 
   return (
     <div>
@@ -52,6 +58,7 @@ export default function Assessment() {
           <ParticipantTableByProblem
             courseId={Number(courseId)}
             assignmentId={Number(assignmentId)}
+            onNoProblemsFound={handleNoProblemsFound}
           />
         </Suspense>
       )}
