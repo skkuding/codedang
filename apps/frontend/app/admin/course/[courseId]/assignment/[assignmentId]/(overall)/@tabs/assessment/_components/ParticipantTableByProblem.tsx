@@ -20,7 +20,7 @@ import { REJUDGE_ASSIGNMENT_PROBLEM } from '@/graphql/submission/mutations'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import { RejudgeMode } from '@generated/graphql'
 import dayjs from 'dayjs'
-import { useEffect, useMemo, useState, useRef } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
 import { createColumns } from './ColumnsByProblem'
@@ -37,7 +37,6 @@ export function ParticipantTableByProblem({
   assignmentId,
   onNoProblemsFound
 }: ParticipantTableProps) {
-  const hasTriggeredRef = useRef(false)
   const [rejudge] = useMutation(REJUDGE_ASSIGNMENT_PROBLEM)
   const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
@@ -149,10 +148,7 @@ export function ParticipantTableByProblem({
 
   useEffect(() => {
     if (!problemData || problemData.length === 0) {
-      if (!hasTriggeredRef.current) {
-        onNoProblemsFound()
-        hasTriggeredRef.current = true
-      }
+      onNoProblemsFound()
     }
   }, [problemData, onNoProblemsFound])
 
