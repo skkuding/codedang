@@ -102,11 +102,13 @@ const GET_ASSIGNMENT_SCORE_SUMMARIES = gql(`
       userAssignmentScore
       assignmentPerfectScore
       userAssignmentFinalScore
-      problemScores {
+      scoreSummaryByProblem {
         problemId
         score
         maxScore
         finalScore
+        acceptedTestcaseCount
+        totalTestcaseCount
       }
       userId
       username
@@ -122,11 +124,13 @@ const GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER = gql(`
     getAssignmentSubmissionSummaryByUserId(assignmentId: $assignmentId, userId: $userId, take: $take, groupId: $groupId) {
       scoreSummary {
         assignmentPerfectScore
-        problemScores {
+        scoreSummaryByProblem {
           problemId
           score
           maxScore
           finalScore
+          acceptedTestcaseCount
+          totalTestcaseCount
         }
         submittedProblemCount
         totalProblemCount
@@ -183,10 +187,10 @@ const GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS = gql(`
 
 export {
   GET_ASSIGNMENT,
-  GET_ASSIGNMENTS,
-  GET_BELONGED_ASSIGNMENTS,
+  GET_ASSIGNMENT_PROBLEM_RECORD,
+  GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS,
   GET_ASSIGNMENT_SCORE_SUMMARIES,
   GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER,
-  GET_ASSIGNMENT_PROBLEM_RECORD,
-  GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS
+  GET_ASSIGNMENTS,
+  GET_BELONGED_ASSIGNMENTS
 }

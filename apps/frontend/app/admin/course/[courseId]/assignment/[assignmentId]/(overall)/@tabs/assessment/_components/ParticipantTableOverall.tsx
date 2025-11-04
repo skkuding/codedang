@@ -33,7 +33,7 @@ import { cn } from '@/libs/utils'
 import { useMutation, useQuery } from '@apollo/client'
 import dayjs from 'dayjs'
 import { Check, ChevronsUpDown } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
 import { createColumns } from './ColumnsOverall'
@@ -72,7 +72,9 @@ export function ParticipantTableOverall({
   useEffect(() => {
     if (summariesData && summariesData.length > 0) {
       const hasAnyFinalScore = summariesData.some((item) =>
-        item.problemScores.some((problem) => problem.finalScore !== null)
+        item.scoreSummaryByProblem.some(
+          (problem) => problem.finalScore !== null
+        )
       )
       setCurrentView(hasAnyFinalScore ? 'final' : 'auto')
     }
@@ -141,7 +143,7 @@ export function ParticipantTableOverall({
   const csvData =
     summaries.data?.getAssignmentScoreSummaries.map((user) => {
       const userProblemScores = problemList.map((problem) => {
-        const scoreData = user.problemScores.find(
+        const scoreData = user.scoreSummaryByProblem.find(
           (ps) => ps.problemId === problem.problemId
         )
 
