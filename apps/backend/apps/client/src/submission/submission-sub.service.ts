@@ -10,7 +10,7 @@ import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { ValidationError, validateOrReject } from 'class-validator'
 import { Span } from 'nestjs-otel'
-import { JudgeAMQPService } from '@libs/amqp'
+import { AMQPService } from '@libs/amqp'
 import {
   testKey,
   testcasesKey,
@@ -32,7 +32,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: JudgeAMQPService,
+    private readonly amqpService: AMQPService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 

@@ -22,7 +22,6 @@ import { LoggingPlugin, pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { StorageModule } from '@libs/storage'
 import { NoticeModule } from '@admin/notice/notice.module'
-import { CheckModule } from '../../admin/src/check/check.module'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { AnnouncementModule } from './announcement/announcement.module'
@@ -71,7 +70,6 @@ import { WorkbookModule } from './workbook/workbook.module'
     ProblemModule,
     StorageModule,
     GroupModule,
-    CheckModule,
     UserModule,
     AnnouncementModule,
     NoticeModule,
