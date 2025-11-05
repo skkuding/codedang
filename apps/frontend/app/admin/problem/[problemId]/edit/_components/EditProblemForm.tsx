@@ -21,6 +21,7 @@ import { toast } from 'sonner'
 import type { TestcaseFieldRef } from '../../../_components/TestcaseField'
 import { ZipUploadModal } from '../../../_components/ZipUploadModal'
 import { validateScoreWeight } from '../../../_libs/utils'
+import { useEditProblemContext } from './EditProblemContext'
 import { ScoreCautionDialog } from './ScoreCautionDialog'
 
 interface EditProblemFormProps {
@@ -41,7 +42,8 @@ export function EditProblemForm({
   const [showCautionModal, setShowCautionModal] = useState(false)
   const [showScoreModal, setShowScoreModal] = useState(false)
   const [isUploadingZip, setIsUploadingZip] = useState(false)
-
+  const { setIsSampleUploadedByZip, setIsHiddenUploadedByZip } =
+    useEditProblemContext()
   const initialValues = useRef<{
     testcases: Testcase[]
     timeLimit: number
@@ -76,6 +78,8 @@ export function EditProblemForm({
         memoryLimit: data.memoryLimit
       }
       initialValues.current = initialFormValues
+      setIsSampleUploadedByZip(data.isSampleUploadedByZip || false)
+      setIsHiddenUploadedByZip(data.isHiddenUploadedByZip || false)
 
       methods.reset({
         id: Number(problemId),

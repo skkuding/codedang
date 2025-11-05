@@ -33,11 +33,13 @@ body:graphql {
       userAssignmentScore
       assignmentPerfectScore
       userAssignmentFinalScore
-      problemScores {
+      scoreSummaryByProblem {
         problemId
         score
         maxScore
         finalScore
+        acceptedTestcaseCount
+        totalTestcaseCount
       }
     }
   }
@@ -46,8 +48,8 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "assignmentId": 5,
-    "groupId": 2
+    "assignmentId": 1,
+    "groupId": 1
     // "searchingName": "lee"
   }
 }

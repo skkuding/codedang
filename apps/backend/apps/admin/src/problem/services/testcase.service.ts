@@ -203,7 +203,12 @@ export class TestcaseService {
     }
   }
 
-  async syncTestcases(problemId: number, testcases: Array<Testcase>) {
+  async syncTestcases(
+    problemId: number,
+    isSampleUploadedByZip: boolean,
+    isHiddenUploadedByZip: boolean,
+    testcases: Array<Testcase>
+  ) {
     // 기존에 존재하던 유효한 TC 모두 가져옴
     const existing = await this.prisma.problemTestcase.findMany({
       where: {
@@ -219,12 +224,23 @@ export class TestcaseService {
     )
 
     // 기존에 존재하던 TC의 id 중 전달 받은 TC인자에 포함되어 있지 않은 id(삭제되어야할 TC의 id)
-    const outdated = existing.filter((tc) => !updatedIds.has(tc.id))
+    const outdated = existing.filter((tc) => {
+      const result = !updatedIds.has(tc.id)
+      if (result) {
+        if (isHiddenUploadedByZip && tc.isHidden === true) {
+          isHiddenUploadedByZip = false
+        } else if (isSampleUploadedByZip && tc.isHidden === false) {
+          isSampleUploadedByZip = false
+        }
+      }
+      return result
+    })
+
     const outdatedTime = new Date()
     if (outdated.length > 0) {
-      await Promise.all([
-        outdated.map(async (tc) => {
-          return await this.prisma.problemTestcase.update({
+      await Promise.all(
+        outdated.map((tc) =>
+          this.prisma.problemTestcase.update({
             where: {
               id: tc.id
             },
@@ -233,8 +249,8 @@ export class TestcaseService {
               outdateTime: outdatedTime
             }
           })
-        })
-      ])
+        )
+      )
     }
 
     for (const tc of testcases) {
@@ -264,11 +280,18 @@ export class TestcaseService {
             }
           })
 
+          const isUploadedByZip = tc.isHidden
+            ? isHiddenUploadedByZip
+            : isSampleUploadedByZip
+
+          const input = isUploadedByZip ? existingTc.input : tc.input
+          const output = isUploadedByZip ? existingTc.output : tc.output
+
           const created = await this.prisma.problemTestcase.create({
             data: {
               problemId,
-              input: tc.input,
-              output: tc.output,
+              input,
+              output,
               isHidden: tc.isHidden,
               scoreWeight,
               scoreWeightNumerator: weightFraction.numerator,
@@ -306,6 +329,11 @@ export class TestcaseService {
       ...sample.map((tc, i) => ({ ...tc, order: i + 1 })),
       ...hidden.map((tc, i) => ({ ...tc, order: i + 1 }))
     ]
+
+    await this.prisma.problem.update({
+      where: { id: problemId },
+      data: { isHiddenUploadedByZip, isSampleUploadedByZip }
+    })
 
     await Promise.all(
       orderedTestcases.map((tc) =>

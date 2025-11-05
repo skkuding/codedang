@@ -13,7 +13,7 @@ ingress:
   hosts:
     - grafana.codedang.com
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
   ingressClassName: traefik
   tls:
     - hosts:
