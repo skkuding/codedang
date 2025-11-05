@@ -1,0 +1,14 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: check-request-queue
+  namespace: rabbitmq
+spec:
+  name: client.q.check.request
+  vhost: vh
+  autoDelete: false
+  durable: true
+  rabbitmqClusterReference:
+    name: rabbitmq
+  arguments:
+    x-max-priority: 1

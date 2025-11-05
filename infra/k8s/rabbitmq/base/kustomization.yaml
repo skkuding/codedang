@@ -11,6 +11,8 @@ resources:
   - rabbitmq-cluster.yaml
   - result-queue.yaml
   - submission-queue.yaml
+  - check-request-queue.yaml
+  - check-result-queue.yaml
   - vhost.yaml
 
 commonAnnotations:

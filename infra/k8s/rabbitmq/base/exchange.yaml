@@ -13,6 +13,20 @@ spec:
     name: rabbitmq
 ---
 apiVersion: rabbitmq.com/v1beta1
+kind: Exchange
+metadata:
+  name: plag
+  namespace: rabbitmq
+spec:
+  name: plag.e.direct.check
+  type: direct
+  vhost: vh
+  autoDelete: false
+  durable: true
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+apiVersion: rabbitmq.com/v1beta1
 kind: Binding
 metadata:
   name: binding-submission
@@ -37,5 +51,33 @@ spec:
   destination: iris.q.judge.result
   destinationType: queue
   routingKey: judge.result
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: binding-check-request
+  namespace: rabbitmq
+spec:
+  vhost: vh
+  source: plag.e.direct.check
+  destination: client.q.check.request
+  destinationType: queue
+  routingKey: check.request
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: binding-check-result
+  namespace: rabbitmq
+spec:
+  vhost: vh
+  source: plag.e.direct.check
+  destination: plag.q.check.result
+  destinationType: queue
+  routingKey: check.result
   rabbitmqClusterReference:
     name: rabbitmq
