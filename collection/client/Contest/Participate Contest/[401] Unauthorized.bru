@@ -1,0 +1,27 @@
+meta {
+  name: [401] Unauthorized
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/contest/16/participation
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 401
+  res("message"): eq Unauthorized
+}
+
+docs {
+  # 📙 [401] Unauthorized
+
+  **POST** `/contest/:id/participation`
+
+  인증되지 않은 사용자가 대회 참가를 시도할 때 발생합니다.
+
+  로그인하지 않은 상태에서 이 API를 호출하면 `UnauthorizedException`이 발생합니다.
+}
+

@@ -10,10 +10,54 @@ get {
   auth: none
 }
 
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
 docs {
-  # Get Contest Role
-  
-  로그인 된 계정의 모든 constest에 대한 role들을 조회합니다.
-  
-  로그인하지 않을 시 빈 배열을 return 합니다.
+  # 📘 Get Contest Roles
+
+  **GET** `/contest/role`
+
+  Retrieve all contest roles for the currently authenticated user.
+
+  로그인한 사용자가 어떤 대회에서 어떤 역할을 맡고 있는지 목록을 조회합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  🔸 Optional
+  - 로그인하지 않으면 빈 배열(`[]`)을 반환합니다
+  - 인증 실패 시 `req.user`는 null이 되며, 빈 배열을 반환합니다
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  로그인한 경우:
+  ```json
+  [
+    {
+      "contestId": 20,
+      "role": "Manager"
+    },
+    {
+      "contestId": 1,
+      "role": "Participant"
+    }
+  ]
+  ```
+
+  로그인하지 않은 경우:
+  ```json
+  []
+  ```
+
+  | Field | Type | Description |
+  |-------|------|-------------|
+  | `contestId` | number | 대회 ID |
+  | `role` | string | 해당 대회에서의 역할 (`Admin`, `Manager`, `Reviewer`, `Participant` 중 하나) |
 }

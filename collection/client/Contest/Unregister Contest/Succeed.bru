@@ -25,32 +25,96 @@ script:pre-request {
 }
 
 docs {
-  ## Unregister Upcoming Contest
-  
-  Upcoming Contest에 한하여, User가 해당 Contest를 Unregister합니다.
-  
-  ### Path
-  Path URI로 `:id` 값이 옵니다.
-  해당 id 값은 `contestId`입니다.
-  
-  ### Query
-  |이름|타입|설명|
-  |--|--|--|
-  |groupId|Integer|Contest가 속한 GroupID입니다. (default: OPENSPACE_ID)|
-  
-  ### Error Case
-  
-  #### [404] No Contest found
-  
+  # 📘 Unregister Upcoming Contest
+
+  **DELETE** `/contest/:id/participation`
+
+  Unregister the authenticated user from an upcoming contest.
+
+  예정된 대회에 한하여, 사용자가 해당 대회 참가를 취소합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required
+  - 로그인이 필요합니다
+  - 인증되지 않은 요청은 401 Unauthorized 에러가 발생합니다
+
+  ---
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  Path URI로 `:id` 값이 옵니다. 해당 id 값은 `contestId`입니다.
+
+  | Name | Type   | Required | Description |
+  |------|--------|----------|-------------|
+  | `id` | number | ✅       | 대회 ID        |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  #### Status Code: `200 OK`
+
+  ```json
+  {
+    "id": 1,
+    "contestId": 15,
+    "userId": 1,
+    "acceptedProblemNum": 0,
+    "score": 0,
+    "finalScore": 0,
+    "lastAcceptedTime": null,
+    "totalPenalty": 0,
+    "finalTotalPenalty": 0,
+    "createTime": "2024-01-01T00:00:00.000Z",
+    "updateTime": "2024-01-01T00:00:00.000Z"
+  }
+  ```
+
+  #### Response Fields
+
+  | Field              | Type    | Description                                    |
+  |--------------------|---------|------------------------------------------------|
+  | `id`               | number  | ContestRecord ID                                |
+  | `contestId`        | number  | 대회 ID                                          |
+  | `userId`            | number  | 참가 취소한 사용자 ID                              |
+  | `acceptedProblemNum` | number  | 해결한 문제 수                                    |
+  | `score`             | number  | 현재 점수                                         |
+  | `finalScore`        | number  | 최종 점수                                         |
+  | `lastAcceptedTime`  | string  | 마지막으로 문제를 해결한 시간 (ISO 8601, null 가능) |
+  | `totalPenalty`      | number  | 총 페널티                                         |
+  | `finalTotalPenalty` | number  | 최종 총 페널티                                    |
+  | `createTime`        | string  | 참가 기록 생성 시간 (ISO 8601)                    |
+  | `updateTime`        | string  | 참가 기록 마지막 업데이트 시간 (ISO 8601)          |
+
+  ---
+
+  ### 📝 Notes
+
+  - 예정된 대회(`startTime > 현재 시간`)에만 참가 취소가 가능합니다
+  - 진행 중이거나 종료된 대회는 참가 취소할 수 없습니다
+  - 참가 취소 시 `ContestRecord`와 `UserContest` (역할: `Participant`)가 삭제됩니다
+  - 삭제된 `ContestRecord` 객체가 반환됩니다
+
+  ---
+
+  ### ⚠️ Error Cases
+
+  #### [404] Nonexistent Contest
+
   Path URI로 존재하지 않는 `contestId`를 주거나 `contestId`가 속하지 않은 `groupId`를 Query Parameter의 Argument로 줄 경우, No Contest found Error가 발생합니다.
-  
-  #### [404] No ContestRecord found
-  
-  현재 `userId`와 `contestId`를 기반으로 ContestRecord Table에서 두 field를 갖고 있는 레코드를 검색합니다.
-  그렇지만 이에 해당하는 레코드가 없는 경우 상기 에러를 반환합니다.
-  
+
+  #### [404] Nonexistent ContestRecord
+
+  해당 사용자가 참가하지 않은 대회의 참가 취소를 시도할 때 발생합니다.
+
   #### [403] Cannot unregister ongoing or ended contest
-  
-  Contest가 ongoing 혹은 ended 상태이면, unregister를 할 수 없습니다.
-  
+
+  진행 중이거나 종료된 대회의 참가 취소를 시도할 때 발생합니다.
 }
