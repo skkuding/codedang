@@ -3,6 +3,7 @@ import {
   ContestRole,
   Prisma,
   QnACategory,
+  ResultStatus,
   Role,
   type Contest
 } from '@prisma/client'
@@ -1220,5 +1221,94 @@ export class ContestService {
 
       return deletedComment
     })
+  }
+
+  /**
+   * 유저의 특정 대회 참가 여부를 확인합니다
+   */
+  private async checkIsUserParticipatedToContest(
+    userId: number,
+    contestId: number
+  ) {
+    const userContest = await this.prisma.userContest.findFirst({
+      where: {
+        contestId,
+        userId
+      }
+    })
+    if (!userContest) {
+      throw new ForbiddenAccessException(
+        'Only participants could view statistics.'
+      )
+    }
+  }
+
+  async getContestProblems(userId: number, contestId: number) {
+    await this.checkIsUserParticipatedToContest(userId, contestId)
+
+    return await this.prisma.contest.findFirst({
+      where: { id: contestId },
+      select: {
+        contestProblem: {
+          select: {
+            problemId: true,
+            problem: {
+              select: { title: true }
+            }
+          }
+        }
+      }
+    })
+  }
+
+  async getStatisticsByProblem(
+    userId: number,
+    contestId: number,
+    problemId: number
+  ) {
+    await this.checkIsUserParticipatedToContest(userId, contestId)
+
+    // 해당 contestProblem에 대한 submission 조회
+    const allSubmissions = await this.prisma.submission.findMany({
+      where: {
+        contestId,
+        problemId
+      },
+      select: {
+        id: true,
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        },
+        submissionResult: {
+          select: { cpuTime: true }
+        },
+        language: true,
+        result: true,
+        createTime: true
+      },
+      orderBy: {
+        createTime: 'asc'
+      }
+    })
+
+    const totalSubmissionCount = allSubmissions.length
+    const acceptedSubmissions = allSubmissions.filter((submission) => {
+      return submission.result == ResultStatus.Accepted
+    })
+    const acceptedSubmissionCount = acceptedSubmissions.length
+    const firstSolver = acceptedSubmissions[0].user
+    const idx = acceptedSubmissions.findIndex((s) => s.user?.id === userId)
+    const userSpeedRank = idx === -1 ? null : idx + 1
+    const acceptedSubmissionByLanguage = acceptedSubmissions
+
+    return {
+      totalSubmissionCount,
+      acceptedSubmissionCount,
+      firstSolver,
+      userSpeedRank
+    }
   }
 }

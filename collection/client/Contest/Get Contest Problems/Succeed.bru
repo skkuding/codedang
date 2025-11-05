@@ -1,0 +1,20 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/contest/1/statistics/problem
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
