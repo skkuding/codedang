@@ -11,16 +11,27 @@ import {
   exampleContestProblems,
   exampleOrderUpdatedContestProblems
 } from '@admin/problem/mock/mock'
-import { ContestProblemService } from './contest-problem.service'
+import { ContestProblemService } from '../contest-problem.service'
 
 const db = {
   contest: {
-    findFirstOrThrow: stub()
+    findFirstOrThrow: stub(),
+    findUnique: stub(),
+    findUniqueOrThrow: stub()
   },
   contestProblem: {
     findFirstOrThrow: stub(),
+    findFirst: stub(),
+    create: stub(),
     findMany: stub(),
-    update: stub()
+    update: stub(),
+    aggregate: stub(),
+    delete: stub(),
+    updateMany: stub()
+  },
+  problem: {
+    update: stub(),
+    updateMany: stub()
   },
   $transaction: stub()
 }
@@ -37,6 +48,16 @@ describe('ContestProblemService', () => {
     }).compile()
 
     service = module.get<ContestProblemService>(ContestProblemService)
+
+    db.contest.findUniqueOrThrow.resetHistory()
+    db.contestProblem.aggregate.resetHistory()
+    db.contestProblem.findMany.resetHistory()
+    db.problem.updateMany.resetHistory()
+    db.contestProblem.create.resetHistory()
+    db.contestProblem.findFirst.resetHistory()
+    db.$transaction.resetHistory()
+    db.contest.findFirstOrThrow.resetHistory()
+    db.contestProblem.update.resetHistory()
   })
 
   describe('getContestProblems', () => {
@@ -60,6 +81,63 @@ describe('ContestProblemService', () => {
       await expect(service.getContestProblems(-1)).to.be.rejectedWith(
         EntityNotExistException
       )
+    })
+  })
+
+  describe('importProblemsToContest', () => {
+    const contestId = 1
+    const mockContest = { id: contestId, endTime: new Date() }
+    const mockProblemInput = { problemId: 101, score: 50 }
+    const mockCreatedCP = {
+      id: 123,
+      contestId,
+      problemId: 101,
+      score: 50,
+      order: 4
+    }
+
+    it('should return created ContestProblems', async () => {
+      db.contest.findUniqueOrThrow.resolves(mockContest)
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      db.contestProblem.aggregate.resolves({ _max: { order: 3 } })
+      db.contestProblem.findMany.resolves([])
+
+      db.$transaction.resolves([mockCreatedCP, { count: 1 }])
+
+      const result = await service.importProblemsToContest(contestId, [
+        mockProblemInput
+      ])
+
+      expect(result).to.deep.equal([mockCreatedCP])
+      expect(db.$transaction.calledOnce).to.be.true
+    })
+
+    it('should return an empty array when the problem already exists in contest', async () => {
+      db.contest.findUniqueOrThrow.resolves(mockContest)
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      db.contestProblem.aggregate.resolves({ _max: { order: 3 } })
+      db.contestProblem.findMany.resolves([{ problemId: 101 }])
+
+      const result = await service.importProblemsToContest(contestId, [
+        mockProblemInput
+      ])
+
+      expect(result).to.deep.equal([])
+      expect(db.$transaction.called).to.be.false
+    })
+
+    it('should throw error when the contestId not exist', async () => {
+      db.contest.findUniqueOrThrow.rejects(
+        new EntityNotExistException('Contest')
+      )
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      db.contestProblem.aggregate.resolves({ _max: { order: 3 } })
+      db.contestProblem.findMany.resolves([])
+
+      await expect(
+        service.importProblemsToContest(9999, [mockProblemInput])
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(db.$transaction.called).to.be.false
     })
   })
 
