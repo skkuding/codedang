@@ -1,0 +1,27 @@
+meta {
+  name: [404] Nonexistent Upcoming Contests
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/contest/banner
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 404
+  res("statusCode"): eq 404
+  res("error"): eq Not Found
+}
+
+docs {
+  # 📙 [404] Nonexistent Upcoming Contests
+
+  **GET** `/contest/banner`
+
+  예정된 대회가 없을 때 발생하는 에러입니다.
+
+}
+

@@ -21,12 +21,12 @@ assert {
 
 script:pre-request {
   const axios = require("axios")
-  
+
   await require("./login").loginUser(req);
-  
+
   const baseUrl = bru.getEnvVar("baseUrl");
   const authorization = bru.getVar("jwtToken");
-  
+
   try {
     await axios.post(
       baseUrl + "/group/1/contest/1/participation",
