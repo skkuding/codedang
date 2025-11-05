@@ -182,11 +182,11 @@ export class ContestResolver {
     return await this.contestService.getContestUpdateHistories(contestId)
   }
 
-  @Query(() => [UserContest])
-  @UseDisableContestRolesGuard()
-  async getContestRoles(@Context('req') req: AuthenticatedRequest) {
-    return await this.contestService.getContestRoles(req.user.id)
-  }
+  // @Query(() => [UserContest])
+  // @UseDisableContestRolesGuard()
+  // async getContestRoles(@Context('req') req: AuthenticatedRequest) {
+  //   return await this.contestService.getContestRoles(req.user.id)
+  // }
 
   @ResolveField('createdBy', () => User, { nullable: true })
   async getUser(@Parent() contest: Contest) {

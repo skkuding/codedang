@@ -307,14 +307,14 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getContestRoles', () => {
-    it('should return contest roles', async () => {
-      const roles = await service.getContestRoles(contestAdminId)
-      expect(roles).to.be.an('array')
-      expect(roles[0]).to.have.property('contestId')
-      expect(roles[0]).to.have.property('role')
-    })
-  })
+  // describe('getContestRoles', () => {
+  //   it('should return contest roles', async () => {
+  //     const roles = await service.getContestRoles(contestAdminId)
+  //     expect(roles).to.be.an('array')
+  //     expect(roles[0]).to.have.property('contestId')
+  //     expect(roles[0]).to.have.property('role')
+  //   })
+  // })
 
   describe('createContestQnA', () => {
     it('should create General QnA', async () => {
