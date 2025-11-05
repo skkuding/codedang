@@ -8,11 +8,10 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: oci://ghcr.io/actions/actions-runner-controller-charts
+    - repoURL: https://actions-runner-controller.github.io/actions-runner-controller
       chart: gha-runner-scale-set
       targetRevision: 0.13.0
       helm:
-        oci: true
         releaseName: arc-runner
         valueFiles:
           - $codedang/infra/k8s/arc-runner-scale-set/values.yaml
