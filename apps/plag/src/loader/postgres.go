@@ -83,6 +83,10 @@ func GetAllCodes(rows *sql.Rows, problemId string) ([]Element, error) {
 			return nil, fmt.Errorf("database fetch error: %w", err)
 		}
 
+    if len(rawCode) < 4 {
+      return nil, fmt.Errorf("code length error: json is too short")
+    }
+
     data := []byte(ParseRawJson(rawCode))
     var codePiece CodePiece
 
@@ -116,6 +120,10 @@ func (p *Postgres) GetRawBaseCode(problemId string, language string) (string, er
     return "", nil
   } else if err != nil {
     return "", fmt.Errorf("database fetch error: %w", err)
+  }
+
+  if len(rawBaseCode) < 4 {
+    return "", nil
   }
 
   data := []byte(ParseRawJson(rawBaseCode))
