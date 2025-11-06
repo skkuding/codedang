@@ -22,14 +22,14 @@ export function GET(request: Request) {
 }
 
 // POST: Instagram event notifications
-export async function POST(request: Request) {
-  const body = await request.json()
-  console.log('Webhook POST received:', body)
+// export async function POST(request: Request) {
+//   const body = await request.json()
+//   console.log('Webhook POST received:', body)
 
-  if (body.entry?.[0]?.changes?.[0]?.field === 'media') {
-    console.log('Instagram media update detected. Revalidating cache...')
-    await revalidateTag('instagram-media')
-  }
+//   if (body.entry?.[0]?.changes?.[0]?.field === 'media') {
+//     console.log('Instagram media update detected. Revalidating cache...')
+//     await revalidateTag('instagram-media')
+//   }
 
-  return new NextResponse('OK', { status: 200 })
-}
+//   return new NextResponse('OK', { status: 200 })
+// }

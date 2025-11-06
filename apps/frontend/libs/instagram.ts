@@ -40,7 +40,7 @@ export async function fetchInstagramMedia() {
     `https://graph.instagram.com/v23.0/24748516551450633/media?access_token=${t}&fields=id,caption,media_url,permalink,timestamp,media_type&limit=4`
 
   let res = await fetch(url(token), {
-    next: { revalidate: 604800, tags: ['instagram-media'] }
+    next: { revalidate: 86400, tags: ['instagram-media'] }
   })
 
   if (res.status === 400 || res.status === 401) {
