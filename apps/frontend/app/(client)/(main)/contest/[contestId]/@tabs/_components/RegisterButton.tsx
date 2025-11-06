@@ -35,7 +35,7 @@ const schema = v.object({
 export function RegisterButton({
   id,
   state,
-  title,
+  // title,
   invitationCodeExists,
   disabled
 }: RegisterButtonProps) {
