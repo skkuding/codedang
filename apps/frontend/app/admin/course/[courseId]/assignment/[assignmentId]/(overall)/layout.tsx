@@ -40,10 +40,18 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
         </Link>
       </div>
       {assignmentData && (
-        <AssignmentStatus
-          startTime={assignmentData?.startTime}
-          dueTime={assignmentData?.dueTime ?? assignmentData?.endTime}
-        />
+        <div className="flex flex-col gap-[6px]">
+          <AssignmentStatus
+            startTime={assignmentData?.startTime}
+            endTime={assignmentData?.dueTime ?? assignmentData?.endTime}
+            title="Duration"
+          />
+          <AssignmentStatus
+            startTime={assignmentData?.startTime}
+            endTime={assignmentData?.endTime}
+            title="Visible"
+          />
+        </div>
       )}
 
       <AssignmentOverallTabs

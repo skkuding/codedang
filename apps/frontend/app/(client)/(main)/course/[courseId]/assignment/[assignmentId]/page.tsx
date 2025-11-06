@@ -49,10 +49,18 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
             </p>
             {record && <TotalScoreLabel record={record} />}
           </div>
-          <AssignmentStatus
-            startTime={assignment.startTime}
-            dueTime={assignment.dueTime ?? assignment.endTime}
-          />
+          <div className="flex flex-col gap-[6px]">
+            <AssignmentStatus
+              title="Duration"
+              startTime={assignment.startTime}
+              endTime={assignment.dueTime ?? assignment.endTime}
+            />
+            <AssignmentStatus
+              title="Visible"
+              startTime={assignment.startTime}
+              endTime={assignment.endTime}
+            />
+          </div>
         </div>
         <Separator className="my-0" />
         <div className="flex flex-col gap-[30px]">
