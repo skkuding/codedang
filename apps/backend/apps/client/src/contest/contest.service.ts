@@ -1215,38 +1215,30 @@ export class ContestService {
   }
 
   /**
-   * (private) 대회의 존재 여부 및 유저의 참가 여부를 검증합니다
+   * (private) 대회의 존재 여부 및 종료 여부를 검증합니다
    */
-  private async checkIsUserParticipatedToContest(
-    userId: number,
-    contestId: number
-  ) {
-    const [contest, userContest] = await Promise.all([
-      this.prisma.contest.findFirst({ where: { id: contestId } }),
-      this.prisma.userContest.findFirst({
-        where: {
-          contestId,
-          userId
-        }
-      })
-    ])
+  private async checkIsContestExistsAndEnded(contestId: number) {
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId }
+    })
     if (!contest) {
       throw new EntityNotExistException('Contest')
-    } else if (!userContest) {
+    }
+    const now = new Date()
+    if (contest.endTime <= now) {
       throw new ForbiddenAccessException(
-        'Only participants can view statistics.'
+        'You can access to statistics after contest ends.'
       )
     }
   }
 
   /**
    * 특정 대회에 해당하는 대회 문제들의 목록을 반환합니다.
-   * @param userId - 요청하는 유저의 Id
    * @param contestId - 조회할 대회의 Id
    * @returns contestProblem[]
    */
-  async getContestProblems(userId: number, contestId: number) {
-    await this.checkIsUserParticipatedToContest(userId, contestId)
+  async getContestProblems(contestId: number) {
+    await this.checkIsContestExistsAndEnded(contestId)
 
     return await this.prisma.contest.findFirst({
       where: { id: contestId },
@@ -1282,7 +1274,7 @@ export class ContestService {
     contestId: number,
     problemId: number
   ) {
-    await this.checkIsUserParticipatedToContest(userId, contestId)
+    await this.checkIsContestExistsAndEnded(contestId)
 
     const [participantCount, contestProblem, allSubmissions] =
       await Promise.all([

@@ -183,11 +183,8 @@ export class ContestController {
   }
 
   @Get(':id/statistics/problems')
-  async getContestProblems(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) contestId: number
-  ) {
-    return await this.contestService.getContestProblems(req.user.id, contestId)
+  async getContestProblems(@Param('id', IDValidationPipe) contestId: number) {
+    return await this.contestService.getContestProblems(contestId)
   }
 
   @Get(':id/statistics/problem/:problemId')
