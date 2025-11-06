@@ -180,16 +180,18 @@ function ScoreEditableCell({
   )
 }
 
-function ColumnHeaderSelector({
-  column,
-  label
-}: {
-  column: Column<DataTableScoreSummary, unknown>
+interface ColumnHeaderSelectorProps {
   label: string
-}) {
+  isTestcaseMode: boolean
+  onToggle: (isTestcaseMode: boolean) => void
+}
+
+function ColumnHeaderSelector({
+  label,
+  isTestcaseMode,
+  onToggle
+}: ColumnHeaderSelectorProps) {
   const [open, setOpen] = useState(false)
-  const meta = column.columnDef.meta as { showAutoCounts: boolean }
-  const isTestcases = Boolean(meta?.showAutoCounts)
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -203,19 +205,14 @@ function ColumnHeaderSelector({
               <CommandItem
                 key="testcases"
                 onSelect={() => {
-                  const meta = column.columnDef.meta as {
-                    showAutoCounts: boolean
-                  }
-                  meta.showAutoCounts = true
-                  column.toggleVisibility(false)
-                  column.toggleVisibility(true)
+                  onToggle(true)
                   setOpen(false)
                 }}
               >
                 <Check
                   className={cn(
                     'mr-2 h-4 w-4',
-                    isTestcases ? 'opacity-100' : 'opacity-0'
+                    isTestcaseMode ? 'opacity-100' : 'opacity-0'
                   )}
                 />
                 Testcases
@@ -223,19 +220,14 @@ function ColumnHeaderSelector({
               <CommandItem
                 key="score"
                 onSelect={() => {
-                  const meta = column.columnDef.meta as {
-                    showAutoCounts: boolean
-                  }
-                  meta.showAutoCounts = false
-                  column.toggleVisibility(false)
-                  column.toggleVisibility(true)
+                  onToggle(false)
                   setOpen(false)
                 }}
               >
                 <Check
                   className={cn(
                     'mr-2 h-4 w-4',
-                    !isTestcases ? 'opacity-100' : 'opacity-0'
+                    !isTestcaseMode ? 'opacity-100' : 'opacity-0'
                   )}
                 />
                 Score
@@ -246,6 +238,84 @@ function ColumnHeaderSelector({
       </PopoverContent>
     </Popover>
   )
+}
+
+function createProblemColumn(
+  problem: ProblemData,
+  index: number,
+  courseId: number,
+  assignmentId: number,
+  isAssignmentFinished: boolean,
+  currentView: 'final' | 'auto',
+  refetch: () => void
+): ColumnDef<DataTableScoreSummary> {
+  const label = String.fromCharCode(Number(65 + index))
+  return {
+    accessorKey: label,
+    meta: { isTestcaseMode: false } as { isTestcaseMode: boolean },
+    header: ({
+      column
+    }: {
+      column: Column<DataTableScoreSummary, unknown>
+    }) => {
+      if (currentView !== 'auto') {
+        return <div className="w-full">{label}</div>
+      }
+      const meta = column.columnDef.meta as { isTestcaseMode: boolean }
+      const isTestcaseMode = Boolean(meta?.isTestcaseMode)
+      const handleToggle = (newValue: boolean) => {
+        meta.isTestcaseMode = newValue
+        column.toggleVisibility(false)
+        column.toggleVisibility(true)
+      }
+      return (
+        <ColumnHeaderSelector
+          label={label}
+          isTestcaseMode={isTestcaseMode}
+          onToggle={handleToggle}
+        />
+      )
+    },
+    cell: ({
+      row,
+      column
+    }: {
+      row: Row<DataTableScoreSummary>
+      column: Column<DataTableScoreSummary, unknown>
+    }) => {
+      const problemScore = row.original.scoreSummaryByProblem.find(
+        (ps) => ps.problemId === problem.problemId
+      )
+      const isTestcaseMode = Boolean(
+        (column.columnDef.meta as { isTestcaseMode?: boolean })?.isTestcaseMode
+      )
+      if (currentView === 'auto') {
+        if (isTestcaseMode) {
+          return (
+            <div className="text-xs">
+              {problemScore?.acceptedTestcaseCount} /{' '}
+              {problemScore?.totalTestcaseCount ?? 0}
+            </div>
+          )
+        }
+        return (
+          <div className="text-xs">
+            {problemScore?.score} / {problemScore?.maxScore ?? 0}
+          </div>
+        )
+      }
+      return (
+        <ScoreEditableCell
+          problemScore={problemScore}
+          groupId={courseId}
+          assignmentId={assignmentId}
+          userId={row.original.id}
+          refetch={refetch}
+          isAssignmentFinished={isAssignmentFinished}
+        />
+      )
+    }
+  }
 }
 
 export const createColumns = (
@@ -272,60 +342,17 @@ export const createColumns = (
       cell: ({ row }) => row.getValue('realName'),
       filterFn: 'includesString'
     },
-    ...problemData.map((problem, i) => ({
-      accessorKey: `${String.fromCharCode(Number(65 + i))}`,
-      meta: { showAutoCounts: true } as { showAutoCounts: boolean },
-      header: ({
-        column
-      }: {
-        column: Column<DataTableScoreSummary, unknown>
-      }) => (
-        <ColumnHeaderSelector
-          column={column}
-          label={String.fromCharCode(Number(65 + i))}
-        />
-      ),
-      cell: ({
-        row,
-        column
-      }: {
-        row: Row<DataTableScoreSummary>
-        column: Column<DataTableScoreSummary, unknown>
-      }) => {
-        const problemScore = row.original.scoreSummaryByProblem.find(
-          (ps) => ps.problemId === problem.problemId
-        )
-        const showAutoCounts = Boolean(
-          (column.columnDef.meta as { showAutoCounts?: boolean })
-            ?.showAutoCounts
-        )
-        if (currentView === 'auto') {
-          if (showAutoCounts) {
-            return (
-              <div className="text-xs">
-                {problemScore?.acceptedTestcaseCount} /{' '}
-                {problemScore?.totalTestcaseCount ?? 0}
-              </div>
-            )
-          }
-          return (
-            <div className="text-xs">
-              {problemScore?.score} / {problemScore?.maxScore ?? 0}
-            </div>
-          )
-        }
-        return (
-          <ScoreEditableCell
-            problemScore={problemScore}
-            groupId={courseId}
-            assignmentId={assignmentId}
-            userId={row.original.id}
-            refetch={refetch}
-            isAssignmentFinished={isAssignmentFinished}
-          />
-        )
-      }
-    })),
+    ...problemData.map((problem, index) =>
+      createProblemColumn(
+        problem,
+        index,
+        courseId,
+        assignmentId,
+        isAssignmentFinished,
+        currentView,
+        refetch
+      )
+    ),
     {
       accessorKey: 'userAssignmentFinalScore',
       header: ({ column }) => (
