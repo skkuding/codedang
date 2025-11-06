@@ -1394,6 +1394,7 @@ export class ContestService {
       }
     }
 
+    // 제출 수가 0인 언어는 제외하고 배열 생성
     const acceptedSubmissionsByLanguageArray = Array.from(
       acceptedSubmissionsByLanguage.entries()
     )
