@@ -1,3 +1,5 @@
+'use client'
+
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { AssignmentIcon, ExerciseIcon } from '@/components/Icons'
 import {
