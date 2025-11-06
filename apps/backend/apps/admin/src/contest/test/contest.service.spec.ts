@@ -427,17 +427,17 @@ describe('ContestService', () => {
     })
   })
 
-  // describe('getContestRoles', () => {
-  //   it('should return an array of contest roles', async () => {
-  //     const roles = [{ contestId: 1, role: ContestRole.Admin }]
-  //     db.userContest.findMany.resolves(roles)
+  describe('getContestRoles', () => {
+    it('should return an array of contest roles', async () => {
+      const roles = [{ contestId: 1, role: ContestRole.Admin }]
+      db.userContest.findMany.resolves(roles)
 
-  //     const res = await service.getContestRoles(userId)
-  //     expect(res).to.deep.equal(roles)
-  //     expect(db.userContest.findMany.calledWithMatch({ where: { userId } })).to
-  //       .be.true
-  //   })
-  // })
+      const res = await service.getContestRoles(userId)
+      expect(res).to.deep.equal(roles)
+      expect(db.userContest.findMany.calledWithMatch({ where: { userId } })).to
+        .be.true
+    })
+  })
 
   describe('getContestsByProblemId', () => {
     it('should return grouped contests', async () => {

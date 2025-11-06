@@ -1317,23 +1317,23 @@ export class ContestService {
     }
   }
 
-  // /**
-  //  * 특정 사용자가 참여하거나 관리하는 모든 대회의 역할(Role) 목록을 조회합니다.
-  //  *
-  //  * @param {number} userId 사용자 ID
-  //  * @returns 사용자가 속한 대회 ID와 역할
-  //  */
-  // async getContestRoles(userId: number) {
-  //   const userContests = await this.prisma.userContest.findMany({
-  //     where: {
-  //       userId
-  //     },
-  //     select: {
-  //       contestId: true,
-  //       role: true
-  //     }
-  //   })
+  /**
+   * 특정 사용자가 참여하거나 관리하는 모든 대회의 역할(Role) 목록을 조회합니다.
+   *
+   * @param {number} userId 사용자 ID
+   * @returns 사용자가 속한 대회 ID와 역할
+   */
+  async getContestRoles(userId: number) {
+    const userContests = await this.prisma.userContest.findMany({
+      where: {
+        userId
+      },
+      select: {
+        contestId: true,
+        role: true
+      }
+    })
 
-  //   return userContests
-  // }
+    return userContests
+  }
 }
