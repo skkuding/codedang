@@ -51,10 +51,18 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
             <span className="text-primary">[Week {exercise.week}] </span>
             {exercise.title}
           </p>
-          <AssignmentStatus
-            startTime={exercise.startTime}
-            dueTime={exercise.dueTime ?? exercise.endTime}
-          />
+          <div className="flex flex-col gap-[6px]">
+            <AssignmentStatus
+              title="Duration"
+              startTime={exercise.startTime}
+              endTime={exercise.dueTime ?? exercise.endTime}
+            />
+            <AssignmentStatus
+              title="Visible"
+              startTime={exercise.startTime}
+              endTime={exercise.endTime}
+            />
+          </div>
         </div>
         <Separator className="my-0" />
         <div className="flex flex-col gap-[30px]">
