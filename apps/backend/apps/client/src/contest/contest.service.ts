@@ -1394,6 +1394,13 @@ export class ContestService {
       }
     }
 
+    const acceptedSubmissionsByLanguageArray = Array.from(
+      acceptedSubmissionsByLanguage.entries()
+    )
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .filter(([_, count]) => count > 0)
+      .map(([language, count]) => ({ language, count }))
+
     return {
       totalSubmissionCount,
       acceptedSubmissionCount,
@@ -1402,7 +1409,7 @@ export class ContestService {
       firstSolver,
       fastestSolver,
       userSpeedRank,
-      acceptedSubmissionsByLanguage
+      acceptedSubmissionsByLanguage: acceptedSubmissionsByLanguageArray
     }
   }
 }
