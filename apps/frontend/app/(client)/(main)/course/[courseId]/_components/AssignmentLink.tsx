@@ -31,9 +31,10 @@ export function AssignmentLink({
       setType('exercise')
     }
   }
-  const { data: assignmentData } = useQuery(
-    assignmentQueries.single({ assignmentId: assignment.id })
-  )
+  const { error: assignmentError } = useQuery({
+    ...assignmentQueries.single({ assignmentId: assignment.id }),
+    retry: false
+  })
 
   const updateAssignmentStatus = () => {
     // TODO: change to use server date
@@ -59,7 +60,7 @@ export function AssignmentLink({
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
 
-    if (assignmentStatus === 'upcoming' && !assignmentData) {
+    if (assignmentStatus === 'upcoming' && assignmentError) {
       const noun = isExercise ? 'exercise' : 'assignment'
       toast.error(`This ${noun} has not started yet!`)
       return

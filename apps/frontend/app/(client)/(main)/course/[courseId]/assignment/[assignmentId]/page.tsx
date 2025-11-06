@@ -43,16 +43,7 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
 
   const notFound = assignmentFetched && !assignment
 
-  const now = Date.now()
-  const endTimeMs = assignment ? new Date(assignment.endTime).getTime() : NaN
-  const isEnded = Number.isFinite(endTimeMs) && endTimeMs < now
-
-  const userHasAnySubmission =
-    Array.isArray(submissions) &&
-    submissions.some((s) => s?.submission !== null)
-
-  const isUser = Boolean(record) && userHasAnySubmission
-  const shouldShowError = assignmentFetched && (notFound || (isUser && isEnded))
+  const shouldShowError = assignmentFetched && notFound
 
   if (shouldShowError) {
     return (

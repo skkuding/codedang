@@ -57,15 +57,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
 
   const notFound = exerciseFetched && !exercise
 
-  const endTimeMs = exercise ? new Date(exercise.endTime).getTime() : NaN
-  const isEnded = Number.isFinite(endTimeMs) && endTimeMs < Date.now()
-
-  const userHasAnySubmission =
-    Array.isArray(submissions) &&
-    submissions.some((s) => s && s.submission !== null)
-  const isUser = Boolean(record) && userHasAnySubmission
-
-  const shouldShowError = invalidId || notFound || (isUser && isEnded)
+  const shouldShowError = invalidId || notFound
 
   if (shouldShowError) {
     return (
