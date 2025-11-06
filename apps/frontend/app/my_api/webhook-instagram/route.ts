@@ -1,4 +1,4 @@
-// app/my_api/revalidate-instagram/route.ts
+// app/my_api/webhook-instagram/route.ts
 import { revalidateTag } from 'next/cache'
 import { NextResponse } from 'next/server'
 
