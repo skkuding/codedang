@@ -596,19 +596,19 @@ export class ContestService {
    * @param {number} userId 사용자 ID
    * @returns 사용자가 속한 대회 ID와 역할
    */
-  // async getContestRoles(userId: number) {
-  //   const userContests = await this.prisma.userContest.findMany({
-  //     where: {
-  //       userId
-  //     },
-  //     select: {
-  //       contestId: true,
-  //       role: true
-  //     }
-  //   })
+  async getContestRoles(userId: number) {
+    const userContests = await this.prisma.userContest.findMany({
+      where: {
+        userId
+      },
+      select: {
+        contestId: true,
+        role: true
+      }
+    })
 
-  //   return userContests
-  // }
+    return userContests
+  }
 
   /**
    * Contest에 대한 QnA를 생성합니다.
