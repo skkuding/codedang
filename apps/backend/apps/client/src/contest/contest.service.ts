@@ -1355,14 +1355,14 @@ export class ContestService {
     let minTime: bigint | null = null
 
     for (const sub of deduplicatedAcceptedSubmissions) {
-      const elapsedTime = sub.submissionResult.reduce((total, r) => {
+      const maxElapsedTime = sub.submissionResult.reduce((max, r) => {
         const cpuTime = r.cpuTime ?? BigInt(0)
-        return total + cpuTime
+        return cpuTime > max ? cpuTime : max
       }, BigInt(0))
 
       if (sub.user?.id) {
-        if (minTime === null || elapsedTime < minTime) {
-          minTime = elapsedTime
+        if (minTime === null || maxElapsedTime < minTime) {
+          minTime = maxElapsedTime
           fastestUser = sub.user
         }
       }
