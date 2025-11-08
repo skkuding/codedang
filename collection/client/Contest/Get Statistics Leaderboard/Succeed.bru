@@ -1,0 +1,92 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/contest/:id/statistics
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 7
+}
+
+docs {
+  # 📘 Get Contest Statistics Leaderboard
+
+  **GET** `/contest/:id/statistics
+
+  Retrieves statistics leaderboard for a specific contest.
+
+  종료된 대회의 최종 통계 리더보드를 조회합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `contestId` | Int | ✅ | 대회 ID |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application:json`
+
+  ```json
+  {
+    "summary": {
+      "totalParticipants": 1,
+      "totalSubmissions": 0,
+      "averageAcceptedRate": 0,
+      "startTime": "2023-01-01T00:00:00.000Z",
+      "endTime": "2024-01-01T23:59:59.000Z"
+    },
+    "leaderboard": [
+      {
+        "rank": 1,
+        "username": "user01",
+        "totalScore": 0,
+        "totalPenalty": 0,
+        "problemResults": [
+          {
+            "order": 0,
+            "problemId": 5,
+            "isSolved": false,
+            "submissionCount": 0,
+            "penalty": 0
+          },
+          {
+            "order": 1,
+            "problemId": 6,
+            "isSolved": false,
+            "submissionCount": 0,
+            "penalty": 0
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+  | Field | Type | Description |
+  |---|---|---|
+  | `summary.totalParticipants` | Int | 대회 총 참가자 |
+  | `summary.totalSubmissions` | Int | 대회 총 제출 수 |
+  | `summary.averageAcceptedRate` | Number | 대회 문제 평균 정답률 |
+  | `summary.startTime` | GraphQLISODateTime | 대회 시작 시간 |
+  | `summary.endTime` | GraphQLISODateTime | 대회 종료 시간 |
+  | `leaderboard.rank` | Int | 대회 순위 |
+  | `leaderboard.username` | String | 사용자 이름 |
+  | `leaderboard.totalScore` | Int | 푼 문제의 총 개수 |
+  | `leaderboard.totalPenalty` | Int | 총 패널티 |
+  | `leaderboard.problemResults` | [problemResults] | 문제 풀이 결과 목록 |
+}

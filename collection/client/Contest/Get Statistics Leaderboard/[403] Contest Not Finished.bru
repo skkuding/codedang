@@ -1,0 +1,25 @@
+meta {
+  name: [403] Contest Not Finished
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/contest/:id/statistics
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 20
+}
+
+docs {
+  # 📙 [403] Contest Not Finished
+
+  **GET** `/contest/:id/statistics`
+
+  종료되지 않은 (`Ongoing`과 `Upcoming`) 대회의 통계 리더보드 조회를 요청했을 때,
+
+  `Forbidden` 에러가 발생합니다.
+}
