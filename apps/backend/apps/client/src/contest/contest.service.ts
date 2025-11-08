@@ -1,11 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import {
-  ContestRole,
-  Prisma,
-  QnACategory,
-  ResultStatus,
-  Role
-} from '@prisma/client'
+import { ContestRole, Prisma, QnACategory, Role } from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
