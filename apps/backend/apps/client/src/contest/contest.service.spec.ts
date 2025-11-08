@@ -5,11 +5,9 @@ import {
   ContestRole,
   Prisma,
   QnACategory,
-  type Contest,
   type ContestRecord
 } from '@prisma/client'
 import { expect } from 'chai'
-import * as dayjs from 'dayjs'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -499,6 +497,40 @@ describe('ContestService', () => {
           created.order,
           comment.order
         )
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+  })
+
+  describe('getStatisticsLeaderboard', () => {
+    it('should return statistics for a finished contest', async () => {
+      const stats = await service.getStatisticsLeaderboard(7)
+
+      expect(stats.summary).to.be.ok
+      expect(stats.summary.endTime).to.be.a('date')
+      expect(stats.summary.endTime.getTime()).to.be.lessThan(Date.now())
+      expect(stats.leaderboard).to.be.an('array')
+      if (stats.leaderboard.length > 0) {
+        const firstEntry = stats.leaderboard[0]
+        expect(firstEntry.rank).to.equal(1)
+        expect(firstEntry.problemResults).to.be.an('array')
+        if (firstEntry.problemResults.length > 0) {
+          const firstProblem = firstEntry.problemResults[0]
+          expect(firstProblem.order).to.be.a('number')
+          expect(firstProblem.problemId).to.be.a('number')
+          expect(firstProblem.isSolved).to.be.a('boolean')
+        }
+      }
+    })
+
+    it('should throw error when contest does not exist', async () => {
+      await expect(service.getStatisticsLeaderboard(9999)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+
+    it('should throw error when contest is not finished', async () => {
+      await expect(
+        service.getStatisticsLeaderboard(contestId)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
