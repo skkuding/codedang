@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { ContestRole, Prisma, QnACategory, Role } from '@prisma/client'
+import {
+  ContestRole,
+  Prisma,
+  QnACategory,
+  ResultStatus,
+  Role
+} from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -1205,5 +1211,159 @@ export class ContestService {
 
       return deletedComment
     })
+  }
+
+  /**
+   * 종료된 대회의 통계 리더보드를 조회합니다.
+   *
+   * @param {number} contestId 대회 ID
+   * @returns 통계 리더보드
+   */
+  async getStatisticsLeaderboard(contestId: number) {
+    const now = new Date()
+    const [contest, contestRecords, totalSubmissions, submissionCounts] =
+      await Promise.all([
+        // 대회 정보
+        this.prisma.contest.findUnique({
+          where: { id: contestId },
+          select: {
+            startTime: true,
+            endTime: true,
+            penalty: true,
+            contestProblem: {
+              select: {
+                id: true,
+                problemId: true,
+                order: true
+              },
+              orderBy: { order: 'asc' }
+            }
+          }
+        }),
+        // 유저별, 문제별 기록 조회
+        this.prisma.contestRecord.findMany({
+          where: { contestId },
+          select: {
+            userId: true,
+            user: {
+              select: { username: true }
+            },
+            acceptedProblemNum: true,
+            finalTotalPenalty: true,
+            lastAcceptedTime: true,
+            contestProblemRecord: {
+              select: {
+                contestProblemId: true,
+                finalScore: true,
+                finalTimePenalty: true,
+                finalSubmitCountPenalty: true
+              }
+            }
+          },
+          orderBy: [
+            { acceptedProblemNum: 'desc' },
+            { finalTotalPenalty: 'asc' },
+            { lastAcceptedTime: 'asc' }
+          ]
+        }),
+        // 총 제출 수
+        this.prisma.submission.count({
+          where: { contestId }
+        }),
+        // 사용자별, 문제별 총 제출 수
+        this.prisma.submission.groupBy({
+          by: ['userId', 'problemId'],
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: { id: true },
+          where: { contestId }
+        })
+      ])
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+    if (contest.endTime > now) {
+      throw new ForbiddenAccessException('Contest has not finished yet.')
+    }
+
+    // 대회 전체 통계 정보
+    const totalSolvedProblems = contestRecords.reduce(
+      (total, score) => total + score.acceptedProblemNum,
+      0
+    )
+    const totalPossibleSolves =
+      contest.contestProblem.length * contestRecords.length
+
+    const summary = {
+      totalParticipants: contestRecords.length,
+      totalSubmissions,
+      averageAcceptedRate:
+        totalPossibleSolves > 0
+          ? (totalSolvedProblems / totalPossibleSolves) * 100
+          : 0,
+      startTime: contest.startTime,
+      endTime: contest.endTime
+    }
+
+    // 유저별 문제별 제출 횟수 매핑
+    const submissionCountMap = new Map<number, Map<number, number>>()
+    for (const { userId, problemId, _count } of submissionCounts) {
+      if (userId == null || problemId == null) continue
+
+      if (!submissionCountMap.has(userId)) {
+        submissionCountMap.set(userId, new Map<number, number>())
+      }
+      submissionCountMap.get(userId)!.set(problemId, _count.id)
+    }
+
+    // 대회 통계 리더보드
+    let rank = 1
+    const leaderboard = contestRecords.map((record) => {
+      const {
+        userId,
+        user,
+        acceptedProblemNum,
+        finalTotalPenalty,
+        contestProblemRecord
+      } = record
+
+      const problemRecordMap = new Map<
+        number,
+        (typeof contestProblemRecord)[0]
+      >()
+      for (const pRecord of contestProblemRecord) {
+        problemRecordMap.set(pRecord.contestProblemId, pRecord)
+      }
+
+      const userSubmissionMap =
+        submissionCountMap.get(userId!) ?? new Map<number, number>()
+
+      const problemResults = contest.contestProblem.map((problem) => {
+        const record = problemRecordMap.get(problem.id)
+
+        return {
+          order: problem.order,
+          problemId: problem.problemId,
+          isSolved: record ? record.finalScore > 0 : false,
+          submissionCount: userSubmissionMap.get(problem.problemId) ?? 0,
+          penalty:
+            (record?.finalTimePenalty ?? 0) +
+            (record?.finalSubmitCountPenalty ?? 0)
+        }
+      })
+
+      return {
+        rank: rank++,
+        username: user!.username,
+        totalScore: acceptedProblemNum,
+        totalPenalty: finalTotalPenalty,
+        problemResults
+      }
+    })
+
+    return {
+      summary,
+      leaderboard
+    }
   }
 }
