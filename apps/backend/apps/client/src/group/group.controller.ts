@@ -81,7 +81,10 @@ export class GroupController {
 export class CourseController {
   private readonly logger = new Logger(CourseController.name)
 
-  constructor(private readonly groupService: GroupService) {}
+  constructor(
+    private readonly groupService: GroupService,
+    private readonly courseService: CourseService
+  ) {}
 
   @Get('invite')
   async getCourseByInvitation(
