@@ -18,13 +18,13 @@ import {
 } from '@libs/auth'
 import { JwtAuthGuard } from '@libs/auth'
 import { IDValidationPipe, OptionalParseIntPipe } from '@libs/pipe'
-import { CourseService } from './course.service'
 import {
   CreateCourseQnADto,
   CreateCourseQnACommentDto,
   GetCourseQnAsFilterDto,
   UpdateCourseQnADto
-} from './dto/qna.dto'
+} from '../group/dto/qna.dto'
+import { CourseService } from './course.service'
 
 @Controller('course')
 export class CourseController {

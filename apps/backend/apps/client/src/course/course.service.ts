@@ -10,7 +10,7 @@ import type {
   CreateCourseQnADto,
   GetCourseQnAsFilterDto,
   UpdateCourseQnADto
-} from './dto/qna.dto'
+} from '../group/dto/qna.dto'
 
 @Injectable()
 export class CourseService {

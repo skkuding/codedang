@@ -11,26 +11,37 @@ import {
   Post,
   Query,
   Req,
-  UseGuards
+  UseGuards,
+  ParseIntPipe
 } from '@nestjs/common'
 import { GroupType } from '@prisma/client'
 import {
   AuthenticatedRequest,
   AuthNotNeededIfPublic,
-  GroupMemberGuard
+  GroupMemberGuard,
+  UserNullWhenAuthFailedIfPublic,
+  JwtAuthGuard
 } from '@libs/auth'
 import {
   CourseNoticeOrderPipe,
   CursorValidationPipe,
   GroupIDPipe,
+  IDValidationPipe,
+  OptionalParseIntPipe,
   RequiredIntPipe
 } from '@libs/pipe'
 import type {
   CreateCourseNoticeCommentDto,
   UpdateCourseNoticeCommentDto
 } from './dto/courseNotice.dto'
+import {
+  CreateCourseQnADto,
+  CreateCourseQnACommentDto,
+  GetCourseQnAsFilterDto,
+  UpdateCourseQnADto
+} from './dto/qna.dto'
 import type { CourseNoticeOrder } from './enum/course-notice-order.enum'
-import { GroupService } from './group.service'
+import { GroupService, CourseService } from './group.service'
 
 @Controller('group')
 export class GroupController {
@@ -269,7 +280,7 @@ export class CourseController {
    * @returns 삭제된 댓글의 내용을 반환합니다.
    */
   @Delete('notice/:id/comment/:commentId')
-  async deleteComment(
+  async deleteNoticeComment(
     @Req() req: AuthenticatedRequest,
     @Param('id', new RequiredIntPipe('id')) id: number,
     @Param('commentId', new RequiredIntPipe('commentId'))
@@ -280,5 +291,109 @@ export class CourseController {
       id,
       commentId
     })
+  }
+
+  @Post(':id/qna')
+  @UseGuards(JwtAuthGuard)
+  async createCourseQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) courseId: number,
+    @Body() createCourseQnADto: CreateCourseQnADto,
+    @Query('problemId', OptionalParseIntPipe) problemId?: number
+  ) {
+    return await this.courseService.createCourseQnA(
+      req.user.id,
+      courseId,
+      createCourseQnADto,
+      problemId
+    )
+  }
+
+  @Get(':id/qna')
+  @UserNullWhenAuthFailedIfPublic()
+  async getCourseQnAs(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) courseId: number,
+    @Query() filter: GetCourseQnAsFilterDto
+  ) {
+    return await this.courseService.getCourseQnAs(
+      req.user?.id,
+      courseId,
+      filter
+    )
+  }
+
+  @Get(':id/qna/:order')
+  @UserNullWhenAuthFailedIfPublic()
+  async getCourseQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) courseId: number,
+    @Param('order', ParseIntPipe) order: number
+  ) {
+    return await this.courseService.getCourseQnA(req.user?.id, courseId, order)
+  }
+
+  @Patch(':id/qna/:order')
+  @UseGuards(JwtAuthGuard)
+  async updateCourseQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) courseId: number,
+    @Param('order', ParseIntPipe) order: number,
+    @Body() updateCourseQnADto: UpdateCourseQnADto
+  ) {
+    return await this.courseService.updateCourseQnA(
+      req.user.id,
+      courseId,
+      order,
+      updateCourseQnADto
+    )
+  }
+
+  @Delete(':id/qna/:order')
+  @UseGuards(JwtAuthGuard)
+  async deleteCourseQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) courseId: number,
+    @Param('order', ParseIntPipe) order: number
+  ) {
+    return await this.courseService.deleteCourseQnA(
+      req.user.id,
+      courseId,
+      order
+    )
+  }
+
+  @Post(':id/qna/:order/comment')
+  @UseGuards(JwtAuthGuard)
+  async createQnaComment(
+    // 메서드 이름 충돌 방지를 위해 createComment -> createQnaComment로 변경
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) courseId: number,
+    @Param('order', ParseIntPipe) order: number,
+    @Body() createCommentDto: CreateCourseQnACommentDto
+  ) {
+    return await this.courseService.createCourseQnAComment(
+      req.user.id,
+      courseId,
+      order,
+      createCommentDto.content
+    )
+  }
+
+  @Delete(':id/qna/:qnaOrder/comment/:commentOrder')
+  @UseGuards(JwtAuthGuard)
+  async deleteQnaComment(
+    // 메서드 이름 충돌 방지를 위해 deleteComment -> deleteQnaComment로 변경
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) courseId: number,
+    @Param('qnaOrder', ParseIntPipe) qnaOrder: number,
+    @Param('commentOrder', ParseIntPipe) commentOrder: number
+  ) {
+    return await this.courseService.deleteCourseQnAComment(
+      req.user.id,
+      courseId,
+      qnaOrder,
+      commentOrder
+    )
   }
 }
