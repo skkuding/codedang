@@ -57,7 +57,12 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
 
   const notFound = exerciseFetched && !exercise
 
-  const shouldShowError = invalidId || notFound
+  const wrongCourse =
+    exerciseFetched &&
+    Boolean(exercise) &&
+    Number(exercise?.group?.id ?? NaN) !== courseId
+
+  const shouldShowError = invalidId || notFound || wrongCourse
 
   if (shouldShowError) {
     return (
