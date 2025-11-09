@@ -1327,7 +1327,7 @@ export class ContestService {
     const acceptedSubmissionCount = acceptedSubmissions.length
     const acceptedRate =
       acceptedSubmissionCount > 0
-        ? (totalSubmissionCount / acceptedSubmissionCount).toFixed(1)
+        ? (acceptedSubmissionCount / totalSubmissionCount).toFixed(1)
         : '0.0'
     const averageTrial =
       participantCount > 0
