@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import type { Submission, TestSubmission } from '@prisma/client'
 import { Span } from 'nestjs-otel'
-import { AMQPService } from '@libs/amqp'
+import { JudgeAMQPService } from '@libs/amqp'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Snippet } from './class/create-submission.dto'
@@ -11,7 +11,7 @@ import { JudgeRequest, UserTestcaseJudgeRequest } from './class/judge-request'
 export class SubmissionPublicationService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: AMQPService
+    private readonly amqpService: JudgeAMQPService
   ) {}
 
   /**

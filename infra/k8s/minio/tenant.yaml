@@ -21,6 +21,9 @@ spec:
     - name: 'codedang-media'
       region: 'ap-northeast-2'
       objectLock: false
+    - name: 'codedang-plag-checks'
+      region: 'ap-northeast-2'
+      objectLock: false
   configuration:
     name: tenant-config
   env:
