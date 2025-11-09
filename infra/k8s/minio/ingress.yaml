@@ -25,7 +25,7 @@ spec:
               service:
                 name: minio
                 port:
-                  number: 9000
+                  number: 80
     - host: minio-console.stage.codedang.com
       http:
         paths:

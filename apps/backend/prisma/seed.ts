@@ -69,7 +69,7 @@ const createUsers = async () => {
     data: {
       username: 'super',
       password: await hash('Supersuper'),
-      email: 'skkucodingplatform@gmail.com',
+      email: 'skkuding@gmail.com',
       lastLogin: new Date(),
       role: Role.SuperAdmin,
       studentId: '2024000000',
