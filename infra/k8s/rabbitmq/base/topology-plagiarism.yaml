@@ -20,7 +20,7 @@ metadata:
   name: check-request-queue
   namespace: rabbitmq
 spec:
-  name: client.q.check.request
+  name: plag.q.check.request
   vhost: vh
   autoDelete: false
   durable: true
@@ -52,7 +52,7 @@ metadata:
 spec:
   vhost: vh
   source: plag.e.direct.check
-  destination: client.q.check.request
+  destination: plag.q.check.request
   destinationType: queue
   routingKey: check.request
   rabbitmqClusterReference:
