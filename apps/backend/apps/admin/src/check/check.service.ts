@@ -165,7 +165,7 @@ export class CheckService {
       workbookId?: number
     }
   }) {
-    this.validateRequest({
+    await this.validateRequest({
       problemId,
       language: checkInput.language
     })
