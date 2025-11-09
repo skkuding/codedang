@@ -117,15 +117,15 @@ func main() {
 		connector.Providers{Router: routeProvider, Logger: logProvider},
 		rabbitmq.ConsumerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.Getenv("RABBITMQ_CHECK_CONSUMER_CONNECTION_NAME", "plag-consumer-connection"),
-			QueueName:      utils.Getenv("RABBITMQ_CHECK_CONSUMER_QUEUE_NAME", "client.q.check.request"), // 큐 네임 설정
-			Ctag:           utils.Getenv("RABBITMQ_CHECK_CONSUMER_TAG", "check-consumer"),
+			ConnectionName: utils.Getenv("CHECK_CONSUMER_CONNECTION_NAME", "plag-consumer-connection"),
+			QueueName:      utils.Getenv("CHECK_QUEUE_NAME", "client.q.check.request"), // 큐 네임 설정
+			Ctag:           utils.Getenv("CHECK_TAG", "check-consumer"),
 		},
 		rabbitmq.ProducerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.Getenv("RABBITMQ_CHECK_PRODUCER_CONNECTION_NAME", "plag-producer"),
-			ExchangeName:   utils.Getenv("RABBITMQ_CHECK_PRODUCER_EXCHANGE_NAME", "plag.e.direct.check"),
-			RoutingKey:     utils.Getenv("RABBITMQ_CHECK_PRODUCER_ROUTING_KEY", "check.result"),
+			ConnectionName: utils.Getenv("CHECK_PRODUCER_CONNECTION_NAME", "plag-producer-connection"),
+			ExchangeName:   utils.Getenv("CHECK_EXCHANGE_NAME", "plag.e.direct.check"),
+			RoutingKey:     utils.Getenv("CHECK_RESULT_ROUTING_KEY", "check.result"),
 		},
 	).Connect(context.Background())
 
