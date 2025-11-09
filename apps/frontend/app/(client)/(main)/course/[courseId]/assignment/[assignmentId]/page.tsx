@@ -41,9 +41,16 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
     assignmentProblemQueries.list({ assignmentId, groupId: courseId })
   )
 
+  const invalidId = !Number.isFinite(assignmentId) || !Number.isFinite(courseId)
+
   const notFound = assignmentFetched && !assignment
 
-  const shouldShowError = assignmentFetched && notFound
+  const wrongCourse =
+    assignmentFetched &&
+    Boolean(assignment) &&
+    Number(assignment?.group?.id ?? NaN) !== courseId
+
+  const shouldShowError = invalidId || notFound || wrongCourse
 
   if (shouldShowError) {
     return (
