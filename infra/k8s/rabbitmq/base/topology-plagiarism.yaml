@@ -1,0 +1,74 @@
+# Exchange for Plagiarism Check
+apiVersion: rabbitmq.com/v1beta1
+kind: Exchange
+metadata:
+  name: plag
+  namespace: rabbitmq
+spec:
+  name: plag.e.direct.check
+  type: direct
+  vhost: vh
+  autoDelete: false
+  durable: true
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+# Queue for Plagiarism Check Request
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: check-request-queue
+  namespace: rabbitmq
+spec:
+  name: client.q.check.request
+  vhost: vh
+  autoDelete: false
+  durable: true
+  rabbitmqClusterReference:
+    name: rabbitmq
+  arguments:
+    x-max-priority: 1
+---
+# Queue for Plagiarism Check Result
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: check-result-queue
+  namespace: rabbitmq
+spec:
+  name: plag.q.check.result
+  vhost: vh
+  autoDelete: false
+  durable: true
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+# Binding for Plagiarism Check Request
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: binding-check-request
+  namespace: rabbitmq
+spec:
+  vhost: vh
+  source: plag.e.direct.check
+  destination: client.q.check.request
+  destinationType: queue
+  routingKey: check.request
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+# Binding for Plagiarism Check Result
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: binding-check-result
+  namespace: rabbitmq
+spec:
+  vhost: vh
+  source: plag.e.direct.check
+  destination: plag.q.check.result
+  destinationType: queue
+  routingKey: check.result
+  rabbitmqClusterReference:
+    name: rabbitmq

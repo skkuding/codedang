@@ -1,3 +1,4 @@
+# Exchange for Judging
 apiVersion: rabbitmq.com/v1beta1
 kind: Exchange
 metadata:
@@ -12,20 +13,35 @@ spec:
   rabbitmqClusterReference:
     name: rabbitmq
 ---
+# Queue for Submission
 apiVersion: rabbitmq.com/v1beta1
-kind: Exchange
+kind: Queue
 metadata:
-  name: plag
+  name: submission-queue
   namespace: rabbitmq
 spec:
-  name: plag.e.direct.check
-  type: direct
+  name: client.q.judge.submission
   vhost: vh
   autoDelete: false
   durable: true
   rabbitmqClusterReference:
     name: rabbitmq
 ---
+# Queue for Result
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: result-queue
+  namespace: rabbitmq
+spec:
+  name: iris.q.judge.result
+  vhost: vh
+  autoDelete: false
+  durable: true
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+# Binding for Submission
 apiVersion: rabbitmq.com/v1beta1
 kind: Binding
 metadata:
@@ -40,6 +56,7 @@ spec:
   rabbitmqClusterReference:
     name: rabbitmq
 ---
+# Binding for Result
 apiVersion: rabbitmq.com/v1beta1
 kind: Binding
 metadata:
@@ -51,33 +68,5 @@ spec:
   destination: iris.q.judge.result
   destinationType: queue
   routingKey: judge.result
-  rabbitmqClusterReference:
-    name: rabbitmq
----
-apiVersion: rabbitmq.com/v1beta1
-kind: Binding
-metadata:
-  name: binding-check-request
-  namespace: rabbitmq
-spec:
-  vhost: vh
-  source: plag.e.direct.check
-  destination: client.q.check.request
-  destinationType: queue
-  routingKey: check.request
-  rabbitmqClusterReference:
-    name: rabbitmq
----
-apiVersion: rabbitmq.com/v1beta1
-kind: Binding
-metadata:
-  name: binding-check-result
-  namespace: rabbitmq
-spec:
-  vhost: vh
-  source: plag.e.direct.check
-  destination: plag.q.check.result
-  destinationType: queue
-  routingKey: check.result
   rabbitmqClusterReference:
     name: rabbitmq
