@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable, StreamableFile } from '@nestjs/common'
 import type {} from '@generated'
 import {
   Language,
@@ -9,6 +9,8 @@ import {
 } from '@generated'
 import { ContestRole, ProblemField, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
+import { Response } from 'express'
+import { Readable } from 'stream'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
   UnprocessableDataException,
@@ -17,7 +19,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
 import { ImportedProblemHeader } from '../model/problem.constants'
-import type {
+import {
   CreateProblemInput,
   FilterProblemsInput,
   UpdateProblemInput,
@@ -285,11 +287,14 @@ export class ProblemService {
     userId: number
     input: FilterProblemsInput
     cursor: number | null
-    take: number
+    take: number | null
     mode: 'my' | 'shared' | 'contest'
     contestId?: number | null
   }) {
-    const paginator = this.prisma.getPaginator(cursor)
+    const paginationOptions = take
+      ? { ...this.prisma.getPaginator(cursor), take }
+      : {}
+
     const whereOptions: ProblemWhereInput =
       await this.buildProblemWhereOptionsWithMode(userId, mode, contestId)
 
@@ -303,11 +308,10 @@ export class ProblemService {
     }
 
     const problems: Problem[] = await this.prisma.problem.findMany({
-      ...paginator,
+      ...paginationOptions,
       where: {
         ...whereOptions
       },
-      take,
       include: {
         createdBy: true
       }
@@ -765,6 +769,39 @@ export class ProblemService {
         }
       })
       .sharedGroups()
+  }
+
+  async downloadProblem({
+    userId,
+    mode,
+    res
+  }: {
+    userId: number
+    mode: 'my' | 'shared'
+    res: Response
+  }) {
+    const problems = await this.getProblems({
+      userId,
+      input: new FilterProblemsInput(),
+      cursor: null,
+      take: null,
+      mode,
+      contestId: null
+    })
+
+    const filename = `${mode}-problems.json`
+
+    const dataString = JSON.stringify(problems, null, 2)
+
+    const stream = Readable.from(dataString)
+
+    res.set({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'Content-Type': 'application/json',
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'Content-Disposition': `attachment; filename*=UTF-8''${filename}`
+    })
+    return new StreamableFile(stream)
   }
 
   changeVisibleLockTimeToIsVisible(
