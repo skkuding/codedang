@@ -13,6 +13,7 @@ import { Response } from 'express'
 import { Readable } from 'stream'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
+  EntityNotExistException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
@@ -773,25 +774,60 @@ export class ProblemService {
 
   async downloadProblem({
     userId,
-    mode,
+    problemId,
     res
   }: {
     userId: number
-    mode: 'my' | 'shared'
+    problemId: number
     res: Response
   }) {
-    const problems = await this.getProblems({
-      userId,
-      input: new FilterProblemsInput(),
-      cursor: null,
-      take: null,
-      mode,
-      contestId: null
+    const leaderGroupIds = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          userId,
+          isGroupLeader: true
+        }
+      })
+    ).map((group) => group.groupId)
+
+    const problem = await this.prisma.problem.findUnique({
+      where: {
+        id: problemId,
+        OR: [
+          { createdById: { equals: userId } },
+          {
+            sharedGroups: {
+              some: {
+                id: { in: leaderGroupIds }
+              }
+            }
+          }
+        ]
+      }
     })
 
-    const filename = `${mode}-problems.json`
+    if (!problem) {
+      throw new EntityNotExistException(
+        'there is no problem that matches the conditions'
+      )
+    }
 
-    const dataString = JSON.stringify(problems, null, 2)
+    const testcases = await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId
+      }
+    })
+
+    const filename = `problem-${problemId}.json`
+
+    const dataString = JSON.stringify(
+      {
+        problem,
+        testcases
+      },
+      null,
+      2
+    )
 
     const stream = Readable.from(dataString)
 
