@@ -807,6 +807,9 @@ export class ProblemService {
     })
 
     if (!problem) {
+      res
+        .status(404)
+        .json({ error: 'there is no problem that matches the conditions' })
       throw new EntityNotExistException(
         'there is no problem that matches the conditions'
       )
@@ -818,7 +821,7 @@ export class ProblemService {
       }
     })
 
-    const filename = `problem-${problemId}.json`
+    const filename = `codedang-${problem.title}.json`
 
     const dataString = JSON.stringify(
       {

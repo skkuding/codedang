@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Query, Param, Res } from '@nestjs/common'
+import { Controller, Get, Req, Param, Res } from '@nestjs/common'
 import { Response } from 'express'
 import { AuthenticatedRequest } from '@libs/auth'
 import { RequiredIntPipe } from '@libs/pipe'
