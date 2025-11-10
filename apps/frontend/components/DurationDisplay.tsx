@@ -44,8 +44,8 @@ export function DurationDisplay({
           <span className={titleStyle}>{title} :</span>
         </div>
         <span className="text-color-neutral-30 text-base">
-          {dateFormatter(startTime, 'YYYY-MM-DD HH:mm')} ~{' '}
-          {dateFormatter(endTime, 'YYYY-MM-DD HH:mm')}
+          {dateFormatter(startTime ?? '', 'YYYY-MM-DD HH:mm')} ~{' '}
+          {dateFormatter(endTime ?? '', 'YYYY-MM-DD HH:mm')}
         </span>
         <div>
           {currentTime.isAfter(endTime) && <TimeStatusBadge status="ENDED" />}
