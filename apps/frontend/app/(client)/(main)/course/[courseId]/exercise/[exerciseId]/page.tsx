@@ -4,7 +4,8 @@ import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
-import { AssignmentStatus } from '@/components/AssignmentStatus'
+import { CountdownStatus } from '@/components/CountdownStatus'
+import { DurationDisplay } from '@/components/DurationDisplay'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
 import { useQuery } from '@tanstack/react-query'
@@ -52,12 +53,12 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
             {exercise.title}
           </p>
           <div className="flex flex-col gap-[6px]">
-            <AssignmentStatus
-              title="Duration"
+            <CountdownStatus
+              showText={true}
               startTime={exercise.startTime}
-              endTime={exercise.dueTime ?? exercise.endTime}
+              baseTime={exercise.dueTime ?? exercise.endTime}
             />
-            <AssignmentStatus
+            <DurationDisplay
               title="Visible"
               startTime={exercise.startTime}
               endTime={exercise.endTime}

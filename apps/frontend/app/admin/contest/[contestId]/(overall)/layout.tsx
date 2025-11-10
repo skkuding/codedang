@@ -1,12 +1,8 @@
 'use client'
 
-// import { AdminContestStatusTimeDiff } from '@/app/admin/_components/AdminContestStatusTimeDiff'
-import { AssignmentStatus } from '@/components/AssignmentStatus'
+import { AdminContestStatusTimeDiff } from '@/app/admin/_components/AdminContestStatusTimeDiff'
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
-// import { dateFormatter } from '@/libs/utils'
-// import calendarIcon from '@/public/icons/calendar.svg'
-// import emergencyIcon from '@/public/icons/emergency.svg'
 import keyBlueIcon from '@/public/icons/key-blue.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
@@ -57,13 +53,12 @@ export default function Layout(props: {
           <span className="text-primary font-medium">Invitation code : </span>
           <span>{contestData?.invitationCode && 'yes..'}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <AssignmentStatus
-            startTime={contestData?.startTime}
-            endTime={contestData?.endTime}
-            title="Duration"
-          />
-        </div>
+        <AdminContestStatusTimeDiff
+          showText={true}
+          contest={contestData}
+          textStyle="font-normal text-[#333333E5] opacity-100"
+          inContestEditor={false}
+        />
       </div>
 
       <ContestOverallTabs contestId={contestId} />
