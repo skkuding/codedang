@@ -45,3 +45,14 @@ resource "aws_iam_user_policy" "plag_s3_write" {
 output "plag_aws_iam_user_policy" {
   value = aws_iam_user_policy.plag_s3_write.id
 }
+
+output "plag_iam_user_access_key_id" {
+  description = "Access key ID for the plag IAM user"
+  value       = aws_iam_access_key.plag.id
+}
+
+output "plag_iam_user_secret_access_key" {
+  description = "Secret access key for the plag IAM user. This is sensitive and stored in plaintext in the state file."
+  value       = aws_iam_access_key.plag.secret
+  sensitive   = true
+}
