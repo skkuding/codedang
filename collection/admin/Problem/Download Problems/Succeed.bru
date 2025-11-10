@@ -1,0 +1,45 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{adminRestUrl}}/problem/download/11
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📘 Download Problem
+
+  **GET** `/problem/download/:problemId`
+
+  Download a problem and testcases.
+
+  문제 1개와 그와 연관된 테스트케이스를 json 형식으로 다운로드합니다.
+
+  이 함수는 다음과 같은 조건에 따라 문제를 다운로드합니다.
+
+  2. Instructor
+   - 자신이 생성한 문제 혹은 공유 받은 문제에 대해서만 다운로드할 수 있습니다.
+
+  접근 권한이 없는 경우 예외를 발생시킵니다.
+
+  - 자신이 생성한 문제 혹은 공유 받은 문제 외의 문제에 대해 요청할 경우 404 에러 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number | ✅       | 다운로드 하려는 문제 아이디 |
+}
