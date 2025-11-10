@@ -1,14 +1,17 @@
 'use client'
 
 import { cn } from '@/libs/utils'
+import { dateFormatter } from '@/libs/utils'
+import clockRedIcon from '@/public/icons/clock_red.svg'
+import subtractIcon from '@/public/icons/subtract.svg'
 import type { ContestStatus } from '@/types/type'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
+import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
-import { AssignmentStatus } from './AssignmentStatus'
 
 dayjs.extend(duration)
 
@@ -37,6 +40,7 @@ export function ContestStatusTimeDiff({
   const [contestStatus, setContestStatus] = useState<
     ContestStatus | undefined | null
   >(contest.status)
+  const formattedTime = (t: Date) => dateFormatter(t, 'YYYY-MM-DD HH:mm')
 
   const updateContestStatus = () => {
     if (currentTime.isAfter(contest.endTime)) {
@@ -112,6 +116,39 @@ export function ContestStatusTimeDiff({
     router.push(`/contest/${contest.id}/finished/problem/${problemId}`)
   }
 
+  const registerDDayStatus = (() => {
+    const registerDueTime = dayjs(contest.registerDueTime)
+    const createTime = dayjs(contest.createTime)
+
+    if (currentTime.isAfter(registerDueTime)) {
+      return 'ENDED'
+    }
+
+    if (
+      currentTime.isBefore(registerDueTime) &&
+      currentTime.isAfter(createTime)
+    ) {
+      return 'ONGOING'
+    }
+  })()
+
+  const contestDDayStatus = (() => {
+    const startTime = dayjs(contest.startTime)
+    const endTime = dayjs(contest.endTime)
+
+    if (currentTime.isAfter(endTime)) {
+      return 'ENDED'
+    }
+
+    if (currentTime.isAfter(startTime) && currentTime.isBefore(endTime)) {
+      return 'ONGOING'
+    }
+
+    if (currentTime.isBefore(startTime)) {
+      return 'UPCOMING'
+    }
+  })()
+
   return (
     <div className="flex flex-col gap-[10px]">
       {!inContestEditor && (
@@ -121,11 +158,17 @@ export function ContestStatusTimeDiff({
             textStyle
           )}
         >
-          <AssignmentStatus
-            title="Registration"
-            startTime={contest.createTime}
-            endTime={contest.registerDueTime}
-          />
+          <Image src={subtractIcon} alt="subtract" width={20} height={20} />
+          <p className="text-primary ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px]">
+            Registration :
+          </p>
+          <p className="text-color-neutral-30 mr-2 w-[280px] overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px]">
+            {`${formattedTime(contest.createTime)} ~ ${formattedTime(contest.registerDueTime)}`}
+          </p>
+          {/* </p> */}
+          <div className="text-primary bg-color-blue-95 flex h-7 w-[80px] items-center justify-center text-ellipsis whitespace-nowrap rounded-[4px] px-[10px] py-1 text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
+            {registerDDayStatus}
+          </div>
         </div>
       )}
       {!inContestEditor && (
@@ -135,11 +178,16 @@ export function ContestStatusTimeDiff({
             textStyle
           )}
         >
-          <AssignmentStatus
-            title="Duration"
-            startTime={contest.startTime}
-            endTime={contest.endTime}
-          />
+          <Image src={clockRedIcon} alt="clock" width={20} height={20} />
+          <p className="text-color-red-50 ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px]">
+            Duration :
+          </p>
+          <p className="text-color-neutral-30 mr-2 w-[280px] overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px]">
+            {`${formattedTime(contest.startTime)} ~ ${formattedTime(contest.endTime)}`}
+          </p>
+          <div className="bg-color-pink-95 text-color-pink-50 flex h-7 w-[80px] items-center justify-center text-ellipsis whitespace-nowrap rounded-[4px] px-[10px] py-1 text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
+            {contestDDayStatus}
+          </div>
         </div>
       )}
     </div>

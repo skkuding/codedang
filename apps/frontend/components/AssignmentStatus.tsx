@@ -1,6 +1,3 @@
-//import { CountdownStatus } from '@/components/CountdownStatus'
-//import { DateRangeDisplay } from '@/components/DateRangeDisplay'
-//import { hasDueDate } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import clockRedIcon from '@/public/icons/clock_red.svg'
 import inivisbleOrangeIcon from '@/public/icons/invisible-orange.svg'
@@ -76,8 +73,6 @@ export function AssignmentStatus({
             </div>
           )}
         </div>
-        {/* <DateRangeDisplay startTime={startTime} endTime={dueTime} />
-      {hasDueDate(dueTime) && <CountdownStatus baseTime={dueTime} />} */}
       </div>
     </div>
   )
