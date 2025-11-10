@@ -31,7 +31,7 @@ export function InvitationModal({
     try {
       await navigator.clipboard.writeText(invitationCode ?? '')
       toast.success('Invitation code successfully copied to clipboard!')
-    } catch (error) {
+    } catch {
       toast.error('Failed to copy invitation code')
     }
   }
