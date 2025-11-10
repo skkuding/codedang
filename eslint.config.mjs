@@ -2,6 +2,7 @@ import { FlatCompat } from '@eslint/eslintrc'
 import eslintJS from '@eslint/js'
 import eslintPluginPrettier from 'eslint-plugin-prettier/recommended'
 import eslintPluginPromise from 'eslint-plugin-promise'
+import storybook from 'eslint-plugin-storybook'
 import globals from 'globals'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -28,9 +29,7 @@ export default eslintTS.config(
       '**/worker/**/*.js',
       'infra/**/*.{js,mjs}'
     ]
-  },
-
-  /* Common configuration */
+  } /* Common configuration */,
   eslintPluginPrettier,
   eslintJS.configs.recommended,
   ...eslintTS.configs.recommended,
@@ -58,9 +57,7 @@ export default eslintTS.config(
       '@typescript-eslint/consistent-type-imports': 'warn',
       '@typescript-eslint/no-import-type-side-effects': 'error'
     }
-  },
-
-  /* Backend configuration */
+  } /* Backend configuration */,
 
   {
     files: ['apps/backend/**/*.ts'],
@@ -122,9 +119,7 @@ export default eslintTS.config(
     rules: {
       '@typescript-eslint/no-unused-expressions': 'off'
     }
-  },
-
-  /* Frontend configuration */
+  } /* Frontend configuration */,
   ...flatCompat
     .config({
       extends: ['next/core-web-vitals']
@@ -195,6 +190,12 @@ export default eslintTS.config(
     }
   },
   {
+    files: ['apps/frontend/**/*.stories.@(ts|tsx|js|jsx|mdx)'],
+    rules: {
+      'import/no-default-export': 'off'
+    }
+  },
+  {
     files: ['apps/frontend/**/*.ts?(x)'],
     rules: {
       '@typescript-eslint/naming-convention': [
@@ -225,5 +226,6 @@ export default eslintTS.config(
         }
       ]
     }
-  }
+  },
+  storybook.configs['flat/recommended']
 )
