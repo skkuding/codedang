@@ -25,6 +25,7 @@ resource "aws_iam_user_policy" "plag_secret_read" {
 data "aws_iam_policy_document" "plag_s3_write" {
   statement {
     actions = [
+      "s3:ListBucket", # required to check if bucket exists
       "s3:PutObject",
       "s3:PutObjectTagging",
       "s3:DeleteObject",
