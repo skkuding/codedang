@@ -7,7 +7,6 @@ resources:
   - database-credentials.yaml
 replicas:
   - name: plag
-    # TODO: correct the number of replicas
     count: 2
 patches:
   - path: configmap.yaml

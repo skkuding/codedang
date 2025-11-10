@@ -4,8 +4,7 @@ metadata:
   name: plag
   namespace: plag
 spec:
-  # TODO: correct the number of replicas
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: plag
