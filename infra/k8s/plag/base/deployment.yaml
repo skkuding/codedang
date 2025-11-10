@@ -4,7 +4,8 @@ metadata:
   name: plag
   namespace: plag
 spec:
-  replicas: 20
+  # TODO: correct the number of replicas
+  replicas: 5
   selector:
     matchLabels:
       app: plag
@@ -23,10 +24,6 @@ spec:
             requests:
               cpu: 1
               memory: 1.5Gi
-          volumeMounts:
-            - name: cgroup
-              mountPath: /sys/fs/cgroup
-              readOnly: false
           securityContext:
             privileged: true
           envFrom:
@@ -50,8 +47,3 @@ spec:
             # TODO: Enable OTEL when the backend is stable
             # - name: OTEL_EXPORTER_OTLP_ENDPOINT_URL
             #   value: '211.214.111.9:4317'
-      volumes:
-        - name: cgroup
-          hostPath:
-            path: /sys/fs/cgroup
-            type: Directory
