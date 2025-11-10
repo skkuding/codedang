@@ -213,13 +213,13 @@ const GET_CONTEST_QNAS = gql(`query GetContestQnas($contestId: Int!
   }
 `)
 
-// const GET_CONTEST_ROLES = gql(`query GetContestRoles {
-//     getContestRoles {
-//       contestId
-//       role
-//     }
-//   }
-// `)
+const GET_CONTEST_ROLES = gql(`query GetContestRoles {
+    getContestRoles {
+      contestId
+      role
+    }
+  }
+`)
 
 export {
   GET_CONTEST,
@@ -229,6 +229,6 @@ export {
   GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER,
   GET_CONTEST_UPDATE_HISTORIES,
   GET_CONTEST_QNA,
-  GET_CONTEST_QNAS
-  // , GET_CONTEST_ROLES
+  GET_CONTEST_QNAS,
+  GET_CONTEST_ROLES
 }
