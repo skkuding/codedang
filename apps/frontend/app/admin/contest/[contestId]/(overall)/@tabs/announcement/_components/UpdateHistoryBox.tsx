@@ -9,73 +9,122 @@ import { useState } from 'react'
 
 export function UpdateHistoryBox({ contestId }: { contestId: number }) {
   const [openHistory, setOpenHistory] = useState<boolean>(false)
-  const [seemore, setSeemore] = useState<string>('see more')
+  const [seemore, setSeemore] = useState<string>('See More')
   const onClickSeemore = () => {
     setOpenHistory(!openHistory)
-    setSeemore(openHistory ? 'see more' : 'close')
+    setSeemore(openHistory ? 'See More' : 'Close')
   }
   const { data: updateHistory } = useQuery(GET_CONTEST_UPDATE_HISTORIES, {
     variables: { contestId }
   })
   const updateHistories =
     updateHistory?.getContestUpdateHistories.updateHistories
+
+  const showHistories =
+    (updateHistories?.length ?? 0) > 3
+      ? updateHistories?.slice(0, 3)
+      : updateHistories
+
   return (
-    <>
-      <div className="mb-6 text-2xl font-semibold">Update History</div>
+    <div className="flex flex-col">
+      <div className="mb-5 text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
+        Update History
+      </div>
       <div
         id="historyBox"
         className={cn(
-          'w-100% mb-[14px] overflow-hidden rounded-xl border bg-white px-10 pb-[20px] pt-[18px]',
+          'border-line mb-[12px] flex w-full flex-col gap-2 space-x-2 overflow-hidden rounded-2xl border bg-white px-6 py-5',
           openHistory && (updateHistories?.length ?? 0) > 3
             ? 'h-auto'
-            : 'h-[149px]'
+            : 'h-[128px]'
         )}
       >
-        {updateHistories?.length === 0 && <p>no result.</p>}
-        {updateHistories?.map((history, index) => (
-          <div
-            key={history.updatedAt}
-            className={
-              index === 0
-                ? 'text-primary flex w-full flex-wrap py-[6px] text-lg'
-                : 'flex w-full flex-wrap py-[6px] text-lg'
-            }
-          >
-            <p>
-              {`[`}
-              {dateFormatter(history.updatedAt, 'YYYY-MM-DD HH:mm:ss')}
-              {`] `}
-            </p>
-            &nbsp;
-            <p>
-              Problem{' '}
-              {history.order !== null
-                ? convertToLetter(Number(history.order))
-                : ''}
+        {updateHistories?.length === 0 && (
+          <p className="text-base font-normal leading-[24px] tracking-[-0.48px] text-black">
+            no result.
+          </p>
+        )}
+        {!openHistory &&
+          showHistories?.map((history, index) => (
+            <div
+              key={history.updatedAt}
+              className={
+                index === 0
+                  ? 'text-primary flex w-full flex-wrap text-base font-normal leading-[24px] tracking-[-0.48px]'
+                  : 'text-color-neutral-50 flex w-full flex-wrap text-base font-normal leading-[24px] tracking-[-0.48px]'
+              }
+            >
+              <p>
+                {`[`}
+                {dateFormatter(history.updatedAt, 'YYYY-MM-DD HH:mm:ss')}
+                {`] `}
+              </p>
               &nbsp;
-              {':'}
-            </p>
-            &nbsp;
-            <div className="flex">
-              {history.updatedInfo
-                .map((current) => current.current)
-                .join(' & ')}
+              <p>
+                Problem{' '}
+                {history.order !== null
+                  ? convertToLetter(Number(history.order))
+                  : ''}
+                &nbsp;
+                {':'}
+              </p>
+              &nbsp;
+              <div className="flex">
+                {history.updatedInfo
+                  .map((current) => current.current)
+                  .join(' & ')}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        {openHistory &&
+          updateHistories?.map((history, index) => (
+            <div
+              key={history.updatedAt}
+              className={
+                index === 0
+                  ? 'text-primary flex w-full flex-wrap text-base font-normal leading-[24px] tracking-[-0.48px]'
+                  : 'text-color-neutral-50 flex w-full flex-wrap text-base font-normal leading-[24px] tracking-[-0.48px]'
+              }
+            >
+              <p>
+                {`[`}
+                {dateFormatter(history.updatedAt, 'YYYY-MM-DD HH:mm:ss')}
+                {`] `}
+              </p>
+              &nbsp;
+              <p>
+                Problem{' '}
+                {history.order !== null
+                  ? convertToLetter(Number(history.order))
+                  : ''}
+                &nbsp;
+                {':'}
+              </p>
+              &nbsp;
+              <div className="flex">
+                {history.updatedInfo
+                  .map((current) => current.current)
+                  .join(' & ')}
+              </div>
+            </div>
+          ))}
       </div>
       <Button
-        className="mb-16 h-[42px] bg-[#80808014] text-lg hover:bg-[#80808039]"
+        className="border-primary flex h-10 items-center justify-center rounded-[1000px] border bg-white px-5 py-[9px] hover:bg-white"
         onClick={() => {
           onClickSeemore()
         }}
       >
-        <p className="text-[#8A8A8A]">{seemore}</p>
-        &nbsp;
         <ChevronDown
-          className={cn('w-4 text-[#8A8A8A]', openHistory && 'rotate-180')}
+          className={cn(
+            'text-primary text-lg font-thin',
+            openHistory && 'rotate-180'
+          )}
         />
+        <p className="text-primary ml-[6px] text-base font-medium leading-[22.4px] tracking-[0.48px]">
+          {seemore}
+        </p>
       </Button>
-    </>
+    </div>
   )
 }
