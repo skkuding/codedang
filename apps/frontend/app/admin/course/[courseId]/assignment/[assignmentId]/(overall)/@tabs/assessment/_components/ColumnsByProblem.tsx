@@ -92,7 +92,7 @@ export const createColumns = (
         const results = row.original.testcaseResults ?? []
 
         return (
-          <div className="relative mx-auto max-w-[600px]">
+          <div className="relative mx-auto w-full max-w-[600px] min-[1600px]:max-w-[750px] min-[1800px]:max-w-[900px] min-[2100px]:max-w-[1100px]">
             {isFirstRow && (
               <div
                 className="line-scrollbar absolute left-0 right-0 top-[-10px] z-10 h-3 overflow-x-auto overflow-y-hidden"
