@@ -47,9 +47,6 @@ spec:
                 secretKeyRef:
                   name: rabbitmq-credentials
                   key: password
-            # TODO: Enable OTEL when the backend is stable
-            # - name: OTEL_EXPORTER_OTLP_ENDPOINT_URL
-            #   value: '211.214.111.9:4317'
       volumes:
         - name: cgroup
           hostPath:
