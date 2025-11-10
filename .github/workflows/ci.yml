@@ -226,7 +226,7 @@ jobs:
           MINIO_ROOT_PASSWORD: ${{ env.AWS_SECRET_ACCESS_KEY }}
           MINIO_BROWSER: 'off'
       redis:
-        image: redis:7-alpine
+        image: redis:8-alpine
         ports:
           - 6380:6379
 
