@@ -6,7 +6,6 @@ metadata:
 data:
   APP_ENV: 'stage' # Running in 'stage' to match consistency with iris
   CHECK_RESULT_BUCKET_NAME: 'codedang-plag-checks'
-  RABBITMQ_SSL: 'false'
   RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local'
   RABBITMQ_PORT: '5672'
   RABBITMQ_DEFAULT_VHOST: 'vh'

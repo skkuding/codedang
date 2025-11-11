@@ -6,7 +6,6 @@ metadata:
 data:
   APP_ENV: 'stage' # Running in 'stage' temporarily because of errors from entrypoint.sh
   TESTCASE_BUCKET_NAME: 'codedang-testcase'
-  RABBITMQ_SSL: 'false'
   RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local'
   RABBITMQ_PORT: '5672'
   RABBITMQ_DEFAULT_VHOST: 'vh'
