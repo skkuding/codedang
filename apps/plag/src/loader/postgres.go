@@ -31,27 +31,27 @@ func NewPostgresDataSource(ctx context.Context) (*Postgres, error) {
 }
 
 func ParseRawJson(rawCode string) string {
-  cleanedString := rawCode[2 : len(rawCode)-2]
+	cleanedString := rawCode[2 : len(rawCode)-2]
 
-  var jsonString strings.Builder
-  for _, parsedCode := range strings.Split(cleanedString, "text\\\": \\\"") {
-    pCode := strings.Split(parsedCode, "\\\", \\\"locked")
+	var jsonString strings.Builder
+	for _, parsedCode := range strings.Split(cleanedString, "text\\\": \\\"") {
+		pCode := strings.Split(parsedCode, "\\\", \\\"locked")
 
-    if len(pCode) == 1 {
-      jsonString.WriteString(strings.ReplaceAll(pCode[0], `\"`, `"`))
-    } else if len(pCode) == 2 {
-      jsonString.WriteString("text\": \"")
-      jsonString.WriteString(pCode[0])
-      jsonString.WriteString("\", \"locked")
-      jsonString.WriteString(strings.ReplaceAll(pCode[1], `\"`, `"`))
-    }
-  }
+		if len(pCode) == 1 {
+			jsonString.WriteString(strings.ReplaceAll(pCode[0], `\"`, `"`))
+		} else if len(pCode) == 2 {
+			jsonString.WriteString("text\": \"")
+			jsonString.WriteString(pCode[0])
+			jsonString.WriteString("\", \"locked")
+			jsonString.WriteString(strings.ReplaceAll(pCode[1], `\"`, `"`))
+		}
+	}
 
-  return jsonString.String()
+	return jsonString.String()
 }
 
 func ParseRawCode(rawCode string) string {
-  re := regexp.MustCompile(`\\[ntr"]`)
+	re := regexp.MustCompile(`\\[ntr"]`)
 	codeWithNewlines := re.ReplaceAllStringFunc(rawCode, func(s string) string { // 보완이 필요합니다.
 		switch s {
 		case `\n`:
@@ -60,18 +60,18 @@ func ParseRawCode(rawCode string) string {
 			return "\t"
 		case `\r`:
 			return "\r"
-    case `\"`:
+		case `\"`:
 			return "\""
 		default:
 			return s
 		}
 	})
 
-  return codeWithNewlines
+	return codeWithNewlines
 }
 
 func GetAllCodes(rows *sql.Rows, problemId string) ([]Element, error) {
-  var result []Element
+	var result []Element
 
 	for rows.Next() {
 		var id int
@@ -83,22 +83,22 @@ func GetAllCodes(rows *sql.Rows, problemId string) ([]Element, error) {
 			return nil, fmt.Errorf("database fetch error: %w", err)
 		}
 
-    if len(rawCode) < 4 {
-      return nil, fmt.Errorf("code length error: json is too short")
-    }
+		if len(rawCode) < 4 {
+			return nil, fmt.Errorf("code length error: json is too short")
+		}
 
-    data := []byte(ParseRawJson(rawCode))
-    var codePiece CodePiece
+		data := []byte(ParseRawJson(rawCode))
+		var codePiece CodePiece
 
-    err := json.Unmarshal(data, &codePiece)
-    if err != nil {
-      return nil, fmt.Errorf("json unmarshal: %e", err)
-    }
+		err := json.Unmarshal(data, &codePiece)
+		if err != nil {
+			return nil, fmt.Errorf("json unmarshal: %w", err)
+		}
 
 		result = append(result, Element{
-			Id: id,
-			UserId: userId,
-			Code: ParseRawCode(codePiece.Text),
+			Id:         id,
+			UserId:     userId,
+			Code:       ParseRawCode(codePiece.Text),
 			CreateTime: createTime,
 		})
 	}
@@ -111,107 +111,112 @@ func GetAllCodes(rows *sql.Rows, problemId string) ([]Element, error) {
 }
 
 func (p *Postgres) GetRawBaseCode(problemId string, language string) (string, error) {
-  baseCodeRow := p.client.QueryRow(`SELECT template FROM public.problem WHERE id = $1`, problemId)
+	baseCodeRow := p.client.QueryRow(`SELECT template FROM public.problem WHERE id = $1`, problemId)
 
-  var rawBaseCode string
-  err := baseCodeRow.Scan(&rawBaseCode)
+	var rawBaseCode string
+	err := baseCodeRow.Scan(&rawBaseCode)
 
-  if err == sql.ErrNoRows{
-    return "", nil
-  } else if err != nil {
-    return "", fmt.Errorf("database fetch error: %w", err)
-  }
-
-  if len(rawBaseCode) < 4 {
-    return "", nil
-  }
-
-  data := []byte(ParseRawJson(rawBaseCode))
-	var result []TemplateItem
-
-	err = json.Unmarshal(data, &result)
-	if err != nil {
-		return "", fmt.Errorf("database json unmarshal: %e", err)
+	if err == sql.ErrNoRows {
+		return "", nil
+	} else if err != nil {
+		return "", fmt.Errorf("database fetch error: %w", err)
 	}
 
-  var codeBuilder strings.Builder
-  for _, r := range result {
-    if r.Language == language {
-      for _, c := range r.Code {
-        codeBuilder.WriteString(ParseRawCode(c.Text))
-        codeBuilder.WriteString("\n")
-      }
-    }
-  }
+	if len(rawBaseCode) < 4 {
+		return "", nil
+	}
 
-  return codeBuilder.String(), nil
+	var data []byte
+	trimmed := strings.TrimSpace(rawBaseCode)
+	if strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[") {
+		data = []byte(trimmed)
+	} else {
+		data = []byte(ParseRawJson(rawBaseCode))
+	}
+
+	var result []TemplateItem
+	if err := json.Unmarshal(data, &result); err != nil {
+		return "", fmt.Errorf("database json unmarshal: %w", err)
+	}
+
+	var codeBuilder strings.Builder
+	for _, r := range result {
+		if r.Language == language {
+			for _, c := range r.Code {
+				codeBuilder.WriteString(ParseRawCode(c.Text))
+				codeBuilder.WriteString("\n")
+			}
+		}
+	}
+
+	return codeBuilder.String(), nil
 }
 
 func (p *Postgres) GetAllCodesFromAssignment(problemId string, language string, assignmentId string) (string, []Element, error) {
-  rows, err := p.client.Query(`SELECT DISTINCT ON (user_id) id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND assignment_id = $3 ORDER BY user_id, update_time DESC`, problemId, language, assignmentId)
-  if err != nil {
+	rows, err := p.client.Query(`SELECT DISTINCT ON (user_id) id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND assignment_id = $3 ORDER BY user_id, update_time DESC`, problemId, language, assignmentId)
+	if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  defer rows.Close()
+	defer rows.Close()
 
-  codes, err := GetAllCodes(rows, problemId)
+	codes, err := GetAllCodes(rows, problemId)
 
-  if err != nil {
+	if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  baseCode, err := p.GetRawBaseCode(problemId, language)
+	baseCode, err := p.GetRawBaseCode(problemId, language)
 
-  if err != nil {
+	if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  return baseCode, codes, nil
+	return baseCode, codes, nil
 }
 
 func (p *Postgres) GetAllCodesFromContest(problemId string, language string, contestId string) (string, []Element, error) {
-  rows, err := p.client.Query(`SELECT DISTINCT ON (user_id) id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND contest_id = $3 ORDER BY user_id, update_time DESC`, problemId, language, contestId)
-  if err != nil {
+	rows, err := p.client.Query(`SELECT DISTINCT ON (user_id) id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND contest_id = $3 ORDER BY user_id, update_time DESC`, problemId, language, contestId)
+	if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  defer rows.Close()
+	defer rows.Close()
 
-  codes, err := GetAllCodes(rows, problemId)
+	codes, err := GetAllCodes(rows, problemId)
 
-  if err != nil {
+	if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  baseCode, err := p.GetRawBaseCode(problemId, language)
+	baseCode, err := p.GetRawBaseCode(problemId, language)
 
-  if err != nil {
+	if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  return baseCode, codes, nil
+	return baseCode, codes, nil
 }
 
 func (p *Postgres) GetAllCodesFromWorkbook(problemId string, language string, workbookId string) (string, []Element, error) {
-  rows, err := p.client.Query(`SELECT DISTINCT ON (user_id) id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND workbook_id = $3 ORDER BY user_id, update_time DESC`, problemId, language, workbookId)
-  if err != nil {
+	rows, err := p.client.Query(`SELECT DISTINCT ON (user_id) id, user_id, code, create_time FROM public.submission WHERE problem_id = $1 AND language = $2 AND workbook_id = $3 ORDER BY user_id, update_time DESC`, problemId, language, workbookId)
+	if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  defer rows.Close()
+	defer rows.Close()
 
-  codes, err := GetAllCodes(rows, problemId)
+	codes, err := GetAllCodes(rows, problemId)
 
-  if err != nil {
+	if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  baseCode, err := p.GetRawBaseCode(problemId, language)
+	baseCode, err := p.GetRawBaseCode(problemId, language)
 
-  if err != nil {
+	if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
 
-  return baseCode, codes, nil
+	return baseCode, codes, nil
 }
