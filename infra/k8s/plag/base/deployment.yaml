@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: iris
-  namespace: iris
+  name: plag
+  namespace: plag
 spec:
-  replicas: 20
+  replicas: 3
   selector:
     matchLabels:
-      app: iris
+      app: plag
   template:
     metadata:
       labels:
-        app: iris
+        app: plag
     spec:
       containers:
-        - name: iris
-          image: ghcr.io/skkuding/codedang-iris
+        - name: plag
+          image: ghcr.io/skkuding/codedang-plag
           resources:
             limits:
               cpu: 1
@@ -23,15 +23,11 @@ spec:
             requests:
               cpu: 1
               memory: 1.5Gi
-          volumeMounts:
-            - name: cgroup
-              mountPath: /sys/fs/cgroup
-              readOnly: false
           securityContext:
             privileged: true
           envFrom:
             - configMapRef:
-                name: iris-env
+                name: plag-env
             - secretRef:
                 name: aws-credentials
             - secretRef:
@@ -47,8 +43,3 @@ spec:
                 secretKeyRef:
                   name: rabbitmq-credentials
                   key: password
-      volumes:
-        - name: cgroup
-          hostPath:
-            path: /sys/fs/cgroup
-            type: Directory
