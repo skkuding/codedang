@@ -58,7 +58,7 @@ func main() {
 		otelExporterUrl := utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "")
 		if otelExporterUrl != "" {
 			// TODO: ServiceName, ServiceVersion을 환경변수를 통해 동적으로 로드
-			shutdown, err := instrumentation.Init(ctx, "IRIS", "2.2.0", otelExporterUrl)
+			shutdown, err := instrumentation.Init(ctx, "PLAG", "1.0.0", otelExporterUrl)
 			if err != nil {
 				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to initialize instrumentation: %v", err))
 			}
