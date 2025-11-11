@@ -1279,43 +1279,36 @@ export class ContestService {
   ) {
     await this.checkIsContestExistsAndEnded(contestId)
 
-    const [participantCount, contestProblem, allSubmissions] =
-      await Promise.all([
-        this.prisma.userContest.count({
-          where: {
-            contestId,
-            role: ContestRole.Participant
-          }
-        }),
-        this.prisma.contestProblem.findFirst({
-          where: { contestId, problemId },
-          select: { problem: { select: { languages: true } } }
-        }),
-        this.prisma.submission.findMany({
-          where: {
-            contestId,
-            problemId
+    const [contestProblem, allSubmissions] = await Promise.all([
+      this.prisma.contestProblem.findFirst({
+        where: { contestId, problemId },
+        select: { problem: { select: { languages: true } } }
+      }),
+      this.prisma.submission.findMany({
+        where: {
+          contestId,
+          problemId
+        },
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
+              username: true
+            }
           },
-          select: {
-            id: true,
-            user: {
-              select: {
-                id: true,
-                username: true
-              }
-            },
-            submissionResult: {
-              select: { cpuTime: true }
-            },
-            language: true,
-            result: true,
-            createTime: true
+          submissionResult: {
+            select: { cpuTime: true }
           },
-          orderBy: {
-            createTime: 'asc'
-          }
-        })
-      ])
+          language: true,
+          result: true,
+          createTime: true
+        },
+        orderBy: {
+          createTime: 'asc'
+        }
+      })
+    ])
 
     if (!contestProblem) {
       throw new EntityNotExistException('ContestProblem')
@@ -1332,9 +1325,16 @@ export class ContestService {
       acceptedSubmissionCount > 0
         ? (acceptedSubmissionCount / totalSubmissionCount).toFixed(1)
         : '0.0'
+
+    const uniqueSubmitterIds = new Set<number>()
+    for (const s of allSubmissions) {
+      const uid = s.user?.id
+      if (uid) uniqueSubmitterIds.add(uid)
+    }
+    const submittedParticipantsCount = uniqueSubmitterIds.size
     const averageTrial =
-      participantCount > 0
-        ? (totalSubmissionCount / participantCount).toFixed(1)
+      submittedParticipantsCount > 0
+        ? (totalSubmissionCount / submittedParticipantsCount).toFixed(1)
         : '0.0'
 
     // acceptedSubmissions에서 특정 유저의 중복 정답 제출이 있는 경우 제출 시각이 가장 빠른 것만 유지
