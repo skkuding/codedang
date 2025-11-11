@@ -59,24 +59,20 @@ func main() {
 
 	disableInstrumentation := utils.Getenv("DISABLE_INSTRUMENTATION", "false") == "true"
 	if !disableInstrumentation {
-		otelExporterUrl := utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "")
-		if otelExporterUrl != "" {
-			// TODO: ServiceName, ServiceVersion을 환경변수를 통해 동적으로 로드
-			shutdown, err := instrumentation.Init(ctx, "IRIS", "2.2.0", otelExporterUrl)
-			if err != nil {
-				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to initialize instrumentation: %v", err))
-			}
-			defer shutdown(ctx)
-
-			instrumentation.GetMemoryMeter(otel.Meter("memory-metrics"))
-			instrumentation.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
-		} else {
-			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT_URL")
+		otelExporterUrl := utils.MustGetenvOrElseThrow("OTEL_EXPORTER_OTLP_ENDPOINT_URL", logProvider)
+		// TODO: ServiceName, ServiceVersion을 환경변수를 통해 동적으로 로드
+		shutdown, err := instrumentation.Init(ctx, "IRIS", "2.2.0", otelExporterUrl)
+		if err != nil {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to initialize instrumentation: %v", err))
 		}
+		defer shutdown(ctx)
+
+		instrumentation.GetMemoryMeter(otel.Meter("memory-metrics"))
+		instrumentation.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
 	}
 	defaultTracer := otel.Tracer("default")
 
-	bucket := utils.Getenv("TESTCASE_BUCKET_NAME", "")
+	bucket := utils.MustGetenvOrElseThrow("TESTCASE_BUCKET_NAME", logProvider)
 	s3reader, err := loader.NewS3DataSource(bucket)
 	if err != nil {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
@@ -107,32 +103,32 @@ func main() {
 
 	// amqps://skku:1234@broker-id.mq.us-west-2.amazonaws.com:5671
 	var uri string
-	if utils.Getenv("RABBITMQ_SSL", "") != "" {
+	if utils.MustGetenvOrElseThrow("RABBITMQ_SSL", logProvider) != "" {
 		uri = "amqps://"
 	} else {
 		uri = "amqp://"
 	}
 	uri +=
-		utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
-			utils.Getenv("RABBITMQ_DEFAULT_PASS", "1234") + "@" +
-			utils.Getenv("RABBITMQ_HOST", "localhost") + ":" +
-			utils.Getenv("RABBITMQ_PORT", "5672") + "/" +
-			utils.Getenv("RABBITMQ_DEFAULT_VHOST", "")
+		utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_USER", logProvider) + ":" +
+			utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_PASS", logProvider) + "@" +
+			utils.MustGetenvOrElseThrow("RABBITMQ_HOST", logProvider) + ":" +
+			utils.MustGetenvOrElseThrow("RABBITMQ_PORT", logProvider) + "/" +
+			utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_VHOST", logProvider)
 
 	go connector.Factory(
 		connector.RABBIT_MQ,
 		connector.Providers{Router: routeProvider, Logger: logProvider},
 		rabbitmq.ConsumerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.Getenv("JUDGE_SUBMISSION_CONSUMER_CONNECTION_NAME", "iris-consumer"),
-			QueueName:      utils.Getenv("JUDGE_SUBMISSION_QUEUE_NAME", "client.q.judge.submission"),
-			Ctag:           utils.Getenv("JUDGE_SUBMISSION_TAG", "consumer-tag"),
+			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_CONSUMER_CONNECTION_NAME", logProvider),
+			QueueName:      utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_QUEUE_NAME", logProvider),
+			Ctag:           utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_TAG", logProvider),
 		},
 		rabbitmq.ProducerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.Getenv("JUDGE_SUBMISSION_PRODUCER_CONNECTION_NAME", "iris-producer"),
-			ExchangeName:   utils.Getenv("JUDGE_EXCHANGE_NAME", "iris.e.direct.judge"),
-			RoutingKey:     utils.Getenv("JUDGE_RESULT_ROUTING_KEY", "judge.result"),
+			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_PRODUCER_CONNECTION_NAME", logProvider),
+			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_EXCHANGE_NAME", logProvider),
+			RoutingKey:     utils.MustGetenvOrElseThrow("JUDGE_RESULT_ROUTING_KEY", logProvider),
 		},
 	).Connect(context.Background())
 
