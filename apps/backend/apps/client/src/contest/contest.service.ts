@@ -1249,6 +1249,9 @@ export class ContestService {
             problem: {
               select: { title: true }
             }
+          },
+          orderBy: {
+            order: 'asc'
           }
         }
       }
