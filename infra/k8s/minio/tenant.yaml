@@ -14,11 +14,15 @@ spec:
     - name: admin-api-user
     - name: client-api-user
     - name: iris-user
+    - name: plag-user
   buckets:
     - name: 'codedang-testcase'
       region: 'ap-northeast-2'
       objectLock: false
     - name: 'codedang-media'
+      region: 'ap-northeast-2'
+      objectLock: false
+    - name: 'codedang-plag-checks'
       region: 'ap-northeast-2'
       objectLock: false
   configuration:
