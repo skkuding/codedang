@@ -106,26 +106,26 @@ func main() {
 		uri = "amqp://"
 	}
 	uri +=
-		utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
-			utils.Getenv("RABBITMQ_DEFAULT_PASS", "1234") + "@" +
-			utils.Getenv("RABBITMQ_HOST", "localhost") + ":" +
-			utils.Getenv("RABBITMQ_PORT", "5672") + "/" +
-			utils.Getenv("RABBITMQ_DEFAULT_VHOST", "")
+		utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_USER", logProvider) + ":" +
+			utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_PASS", logProvider) + "@" +
+			utils.MustGetenvOrElseThrow("RABBITMQ_HOST", logProvider) + ":" +
+			utils.MustGetenvOrElseThrow("RABBITMQ_PORT", logProvider) + "/" +
+			utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_VHOST", logProvider)
 
 	go connector.Factory(
 		connector.RABBIT_MQ,
 		connector.Providers{Router: routeProvider, Logger: logProvider},
 		rabbitmq.ConsumerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.Getenv("CHECK_CONSUMER_CONNECTION_NAME", "plag-consumer-connection"),
-			QueueName:      utils.Getenv("CHECK_QUEUE_NAME", "client.q.check.request"), // 큐 네임 설정
-			Ctag:           utils.Getenv("CHECK_TAG", "check-consumer"),
+			ConnectionName: utils.MustGetenvOrElseThrow("CHECK_CONSUMER_CONNECTION_NAME", logProvider),
+			QueueName:      utils.MustGetenvOrElseThrow("CHECK_QUEUE_NAME", logProvider), // 큐 네임 설정
+			Ctag:           utils.MustGetenvOrElseThrow("CHECK_TAG", logProvider),
 		},
 		rabbitmq.ProducerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.Getenv("CHECK_PRODUCER_CONNECTION_NAME", "plag-producer-connection"),
-			ExchangeName:   utils.Getenv("CHECK_EXCHANGE_NAME", "plag.e.direct.check"),
-			RoutingKey:     utils.Getenv("CHECK_RESULT_ROUTING_KEY", "check.result"),
+			ConnectionName: utils.MustGetenvOrElseThrow("CHECK_PRODUCER_CONNECTION_NAME", logProvider),
+			ExchangeName:   utils.MustGetenvOrElseThrow("CHECK_EXCHANGE_NAME", logProvider),
+			RoutingKey:     utils.MustGetenvOrElseThrow("CHECK_RESULT_ROUTING_KEY", logProvider),
 		},
 	).Connect(context.Background())
 
