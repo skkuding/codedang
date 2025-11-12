@@ -74,7 +74,7 @@ export class ProblemResolver {
       userId: req.user.id,
       input,
       cursor,
-      take: null,
+      take,
       mode,
       contestId
     })
