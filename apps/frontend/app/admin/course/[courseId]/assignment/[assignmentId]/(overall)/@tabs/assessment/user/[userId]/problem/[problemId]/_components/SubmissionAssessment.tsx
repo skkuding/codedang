@@ -12,7 +12,8 @@ import {
   GET_ASSIGNMENT_SCORE_SUMMARIES,
   GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER
 } from '@/graphql/assignment/queries'
-import submitIcon from '@/public/icons/submit.svg'
+import CheckboxIcon from '@/public/icons/check-box.svg'
+import resetIcon from '@/public/icons/reset.svg'
 import { useSuspenseQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -67,47 +68,69 @@ export function SubmissionAssessment() {
 
   return (
     <UpdateAssignmentProblemRecordForm onCompleted={() => setShowTooltip(true)}>
-      <div className="flex flex-col gap-6">
-        <h2 className="text-xl font-bold">Assessment</h2>
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold">
-            Final Score (Max score: {score?.maxScore}, Auto graded score:{' '}
-            {score?.score})
-          </p>
-          <FinalScoreForm />
-        </div>
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold">Comment</p>
-          <DescriptionForm name="comment" isDarkmode={true} />
-        </div>
-        <TooltipProvider>
-          <Tooltip open={showTooltip}>
-            <TooltipTrigger asChild>
-              <Button
-                className="my-4 mr-4 flex h-8 w-[75px] items-center self-end"
-                type="submit"
-              >
-                <Image src={submitIcon} alt="submit" width={24} height={24} />
-                Save
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <div className="flex gap-2">
-                <span>
-                  {gradedCount} of {totalCount} students graded.
-                </span>
-                {nextStudent && (
-                  <Link
-                    href={`/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${nextStudent.userId}/problem/${problemId}`}
-                    className="text-color-blue-40 hover:text-color-blue-30 underline"
+      <div>
+        <div className="flex flex-col gap-5 pb-1">
+          <h2 className="text-xl font-bold">Assessment</h2>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-[14px] font-normal">Final Score</p>
+              <p className="text-sm text-neutral-400">
+                Max score: {score?.maxScore}, Auto graded score: {score?.score}
+              </p>
+            </div>
+            <FinalScoreForm />
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="text-[14px] font-medium">Comment</p>
+            <DescriptionForm name="comment" isDarkmode={true} />
+          </div>
+          <TooltipProvider>
+            <Tooltip open={showTooltip}>
+              <TooltipTrigger asChild>
+                <div className="flex gap-2 self-end">
+                  <Button
+                    className="flex h-8 w-[88px] items-center gap-1 rounded-[4px] border border-[#585B6C] bg-[#282D3D] py-[7px] pl-[10px] pr-3 text-sm font-normal hover:bg-[#232838]"
+                    type="reset"
                   >
-                    Move to next student
-                  </Link>
-                )}
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+                    <Image src={resetIcon} alt="reset" width={16} height={16} />
+                    <span className="translate-y-[0.5px] leading-none">
+                      Reset
+                    </span>
+                  </Button>
+                  <Button
+                    className="flex h-8 w-[88px] items-center gap-1 rounded-[4px] border border-blue-500 py-[7px] pl-[10px] pr-3 text-sm font-normal"
+                    type="submit"
+                  >
+                    <Image
+                      src={CheckboxIcon}
+                      alt="submit"
+                      width={16}
+                      height={16}
+                    />
+                    <span className="translate-y-[0.5px] leading-none">
+                      Save
+                    </span>
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="flex gap-2">
+                  <span>
+                    {gradedCount} of {totalCount} students graded.
+                  </span>
+                  {nextStudent && (
+                    <Link
+                      href={`/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${nextStudent.userId}/problem/${problemId}`}
+                      className="text-color-blue-40 hover:text-color-blue-30 underline"
+                    >
+                      Move to next student
+                    </Link>
+                  )}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
     </UpdateAssignmentProblemRecordForm>
   )

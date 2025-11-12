@@ -174,7 +174,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
     >
       <ResizablePanel
         defaultSize={35}
-        style={{ minWidth: '500px' }}
+        style={{ minWidth: '515px' }}
         minSize={20}
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">

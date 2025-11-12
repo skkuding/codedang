@@ -3,7 +3,6 @@
 import { Button } from '@/components/shadcn/button'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
-import Expand from '@/public/icons/texteditor-expand.svg'
 import Shrink from '@/public/icons/texteditor-shrink.svg'
 import type { Range } from '@tiptap/core'
 import Code from '@tiptap/extension-code'
@@ -199,7 +198,7 @@ export function TextEditor({
     ],
     editorProps: {
       attributes: {
-        class: `focus:outline-none overflow-y-auto w-full px-3 disabled:cursur-not-allowed disabled:opacity-50 resize-y ${
+        class: `focus:outline-none overflow-y-auto w-full disabled:cursor-not-allowed disabled:opacity-50 resize-none ${
           isExpanded ? 'h-[500px]' : 'h-[300px]'
         }`
       }
@@ -213,59 +212,52 @@ export function TextEditor({
   const [isExpandedScreenOpen, setIsExpandedScreenOpen] = useState(false)
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border">
+    <div
+      className={cn(
+        'flex flex-col overflow-hidden rounded-[4px]',
+        isDarkMode ? 'border border-[#585B6C] bg-transparent' : 'border'
+      )}
+    >
       {editor && (
-        <div className="flex flex-wrap items-center gap-1 border-b bg-white p-1">
-          <TextStyleBar editor={editor} />
-          <div className="mx-1 h-8 shrink-0 border-r" />
-          <HeadingStyleBar editor={editor} />
-          <div className="mx-1 h-8 shrink-0 border-r" />
-          <ListStyleBar editor={editor} />
-          <div className="mx-1 h-8 shrink-0 border-r" />
-
-          <InsertNodeBar ref={insertNodeRef} editor={editor} />
-          <div className="mx-1 h-6 shrink-0 border-r" />
-          <UndoRedoBar editor={editor} />
-          {isExpanded ? (
-            <div className="ml-auto flex space-x-2">
-              <Button
-                variant="ghost"
-                type="button"
-                className="h-9 w-9 p-1"
-                onClick={() => onShrink?.(editor?.getHTML())}
-              >
-                <Image
-                  src={Shrink}
-                  alt="Shrink"
-                  className="h-[22px] w-[22px]"
-                />
-              </Button>
-            </div>
-          ) : (
-            <div className="ml-auto flex space-x-2">
-              <Button
-                variant="ghost"
-                type="button"
-                className="h-9 w-9 p-1"
-                onClick={() => {
-                  setIsExpandedScreenOpen(!isExpandedScreenOpen)
-                }}
-              >
-                <Image
-                  src={Expand}
-                  alt="Expand"
-                  className="h-[22px] w-[22px]"
-                />
-              </Button>
-            </div>
+        <div
+          className={cn(
+            'flex flex-wrap items-center border-b px-1 py-2',
+            isDarkMode
+              ? 'border-[#585B6C] bg-[#282D3D] text-white [&_button:hover]:!bg-white/10 [&_button]:text-white [&_img]:invert [&_path]:fill-white [&_svg]:text-white'
+              : 'bg-white'
           )}
+        >
+          <TextStyleBar editor={editor} />
+          <HeadingStyleBar editor={editor} />
+          <ListStyleBar editor={editor} />
+          <InsertNodeBar ref={insertNodeRef} editor={editor} />
+
+          <div className="ml-auto">
+            <div className="ml-auto flex items-center pr-1">
+              <UndoRedoBar editor={editor} />
+              {isExpanded && (
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="h-9 w-9 p-1"
+                  onClick={() => onShrink?.(editor?.getHTML())}
+                >
+                  <Image
+                    src={Shrink}
+                    alt="Shrink"
+                    className="h-[22px] w-[22px]"
+                  />
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
       )}
       <EditorContent
         editor={editor}
         className={cn(
-          'prose max-w-5xl overflow-hidden bg-white [&_code::after]:content-none [&_code::before]:content-none [&_h1]:mb-4 [&_h1]:mt-6 [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-0 [&_p]:mt-2',
-          isDarkMode && 'prose-invert bg-transparent'
+          'prose max-w-5xl overflow-hidden bg-white p-4 [&_code::after]:content-none [&_code::before]:content-none [&_h1]:mb-4 [&_h1]:mt-6 [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-0 [&_p]:mt-2',
+          isDarkMode && 'prose-invert bg-[#282D3D]'
         )}
       />
       {!isExpanded && (
