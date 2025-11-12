@@ -52,10 +52,10 @@ func GetAllCodes(rows *sql.Rows, problemId string) ([]Element, error) {
 			return nil, fmt.Errorf("json unmarshal: %w", err)
 		}
 
-    var code strings.Builder
-    for _, codePiece := range codePieces {
-      code.WriteString(codePiece.Text)
-    }
+		var code strings.Builder
+		for _, codePiece := range codePieces {
+			code.WriteString(codePiece.Text)
+		}
 
 		result = append(result, Element{
 			Id:         id,
@@ -103,7 +103,7 @@ func (p *Postgres) GetRawBaseCode(problemId string, language string) (string, er
 }
 
 func (p *Postgres) GetAllCodesFromAssignment(problemId string, language string, assignmentId string) (string, []Element, error) {
-	rows, err := p.client.Query(`SELECT id, user_id, COALESCE(to_jsonb(code), '[]'::jsonb), create_time
+	rows, err := p.client.Query(`SELECT DISTINCT ON (user_id) id, user_id, COALESCE(to_jsonb(code), '[]'::jsonb), create_time
                                FROM public.submission
                                WHERE problem_id = $1 AND language = $2 AND assignment_id = $3
                                ORDER BY user_id, update_time DESC`, problemId, language, assignmentId)
