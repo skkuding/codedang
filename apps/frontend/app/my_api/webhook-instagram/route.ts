@@ -1,5 +1,4 @@
-// app/my_api/webhook-instagram/route.ts
-import { revalidateTag } from 'next/cache'
+// import { revalidateTag } from 'next/cache'
 import { NextResponse } from 'next/server'
 
 // GET: Facebook webhook verification
