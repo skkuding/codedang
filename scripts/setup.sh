@@ -97,6 +97,18 @@ if [ "$DEVCONTAINER" = "1" ]; then
   $SUDO mkdir -p /app/sandbox/checks
   $SUDO chmod 777 /app/sandbox/checks
   $SUDO curl -L "https://github.com/jplag/JPlag/releases/download/v6.2.0/jplag-6.2.0-jar-with-dependencies.jar" -o "/app/sandbox/jplag.jar"
+
+  SDKMAN_INIT_SCRIPT="/usr/local/sdkman/bin/sdkman-init.sh"
+  if [ -f "$SDKMAN_INIT_SCRIPT" ]; then
+    echo "Sourcing SDKMAN for postCreateCommand..."
+    . "$SDKMAN_INIT_SCRIPT"
+  else
+    echo "🚨 ERROR: SDKMAN init script not found at $SDKMAN_INIT_SCRIPT"
+    exit 1
+  fi
+
+  cd "$BASEDIR"/apps/plag && sdk env install
+
 fi
 
 echo ""

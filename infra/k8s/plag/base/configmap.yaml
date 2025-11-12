@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: plag-env
+  namespace: plag
+data:
+  APP_ENV: 'stage' # Running in 'stage' to match consistency with iris
+  CHECK_RESULT_BUCKET_NAME: 'codedang-plag-checks'
+  RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local'
+  RABBITMQ_PORT: '5672'
+  RABBITMQ_DEFAULT_VHOST: 'vh'
+  OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'simplest-collector.monitoring-otel.svc.cluster.local:4317'
+  CHECK_CONSUMER_CONNECTION_NAME: 'plag-consumer'
+  CHECK_QUEUE_NAME: 'plag.q.check.request'
+  CHECK_TAG: 'check-consumer'
+  CHECK_PRODUCER_CONNECTION_NAME: 'plag-producer'
+  CHECK_EXCHANGE_NAME: 'plag.e.direct.check'
+  CHECK_RESULT_ROUTING_KEY: 'check.result'

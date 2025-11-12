@@ -14,6 +14,7 @@ spec:
     - name: admin-api-user
     - name: client-api-user
     - name: iris-user
+    - name: plag-user
   buckets:
     - name: 'codedang-testcase'
       region: 'ap-northeast-2'
