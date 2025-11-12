@@ -7,6 +7,19 @@ import 'server-only'
 
 const client = new SecretsManagerClient({ region: 'ap-northeast-2' })
 
+/**
+ * NOTE (중요):
+ * - `unstable_cache`는 Next 서버 프로세스의 메모리에 캐시를 저장합니다. 이는 "인스턴스-로컬" 캐시이며,
+ *   쿠버네티스와 같이 수평 스케일아웃(Horizontal scale-out)이 적용되면 각 파드/인스턴스마다 별도의 캐시를 가집니다.
+ * - 현재는 단일 컨테이너로 운용 중이므로 문제가 되지 않지만, 추후 멀티 인스턴스 환경에서는 서로 다른 인스턴스가
+ *   서로 다른 토큰 값을 갖게 되어 토큰 일관성 문제가 발생할 수 있습니다.
+ *
+ * 대안: 전역 무효화/동기화가 필요하면 Redis, PostgreSQL 등의 같은 중앙 저장소(또는 분산 캐시)를 사용하여 모든 인스턴스가
+ *    동일한 토큰을 참조하게 합니다.
+ *
+ * 정리: 단일 인스턴스에서는 허용 가능한 구현이지만, HPA 등으로 수평 확장할 계획이 있다면 위 내용을 고려해
+ * 코드를 수정하거나 중앙 캐시/무효화 전략을 도입하세요.
+ */
 export const getInstagramToken = unstable_cache(
   async () => {
     let secret: { access_token?: string } = {}
@@ -31,7 +44,7 @@ export const getInstagramToken = unstable_cache(
     return secret.access_token
   },
   ['instagram-token'],
-  { revalidate: 86400 }
+  { revalidate: 86400 } // 1일
 )
 
 export async function fetchInstagramMedia() {
