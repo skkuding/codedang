@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
 import type { Decimal } from '@prisma/client/runtime/library'
+import { Readable } from 'stream'
 import { MIN_DATE } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
 import { ProblemOrder } from '@libs/pipe'
@@ -243,6 +244,104 @@ export class ProblemService {
     // }
 
     return updateHistory
+  }
+
+  async buildProblemWhereOptionsWithMode({
+    userId,
+    mode
+  }: {
+    userId: number
+    mode: 'my' | 'shared'
+  }) {
+    switch (mode) {
+      case 'my':
+        return { createdById: { equals: userId } }
+
+      case 'shared': {
+        const leaderGroupIds = (
+          await this.prisma.userGroup.findMany({
+            where: {
+              userId,
+              isGroupLeader: true
+            }
+          })
+        ).map((group) => group.groupId)
+        return {
+          sharedGroups: {
+            some: {
+              id: { in: leaderGroupIds }
+            }
+          }
+        }
+      }
+      default:
+        throw new ForbiddenException('Invalid mode')
+    }
+  }
+
+  async getDownloadableProblems({
+    userId,
+    mode
+  }: {
+    userId: number
+    mode: 'my' | 'shared'
+  }) {
+    const whereOptions = await this.buildProblemWhereOptionsWithMode({
+      userId,
+      mode
+    })
+
+    const problems = await this.prisma.problem.findMany({
+      where: whereOptions,
+      select: {
+        id: true,
+        createdById: true,
+        title: true,
+        description: true,
+        inputDescription: true,
+        outputDescription: true,
+        hint: true,
+        engTitle: true,
+        engDescription: true,
+        engInputDescription: true,
+        engOutputDescription: true,
+        engHint: true,
+        template: true,
+        languages: true,
+        solution: true,
+        timeLimit: true,
+        memoryLimit: true,
+        difficulty: true,
+        source: true,
+        visibleLockTime: true,
+        createTime: true,
+        updateTime: true,
+        updateContentTime: true,
+        isSampleUploadedByZip: true,
+        isHiddenUploadedByZip: true
+      }
+    })
+
+    return problems
+  }
+
+  async downloadProblem({
+    userId,
+    mode
+  }: {
+    userId: number
+    mode: 'my' | 'shared'
+  }) {
+    const problems = await this.getDownloadableProblems({ userId, mode })
+
+    const filename = `${mode}-problems.json`
+    const contentType = 'application/json'
+
+    const dataString = JSON.stringify(problems, null, 2)
+
+    const stream = Readable.from(dataString)
+
+    return { stream, contentType, filename }
   }
 }
 

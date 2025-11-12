@@ -116,6 +116,18 @@ export function ContestStatusTimeDiff({
     router.push(`/contest/${contest.id}/finished/problem/${problemId}`)
   }
 
+  const colorMap = (state: string | undefined) => {
+    if (state === 'ONGOING') {
+      return 'text-primary bg-color-blue-95'
+    } else if (state === 'ENDED') {
+      return 'text-color-pink-50 bg-color-pink-95'
+    } else if (state === 'UPCOMING') {
+      return 'text-color-orange-50 bg-color-yellow-95'
+    } else {
+      return ''
+    }
+  }
+
   const registerDDayStatus = (() => {
     const registerDueTime = dayjs(contest.registerDueTime)
     const createTime = dayjs(contest.createTime)
@@ -162,11 +174,16 @@ export function ContestStatusTimeDiff({
           <p className="text-primary ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px]">
             Registration :
           </p>
-          <p className="text-color-neutral-30 mr-2 w-[280px] overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px]">
+          <p className="text-color-neutral-30 mr-2 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px]">
             {`${formattedTime(contest.createTime)} ~ ${formattedTime(contest.registerDueTime)}`}
           </p>
           {/* </p> */}
-          <div className="text-primary bg-color-blue-95 flex h-7 w-[80px] items-center justify-center text-ellipsis whitespace-nowrap rounded-[4px] px-[10px] py-1 text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
+          <div
+            className={cn(
+              'flex h-7 w-[80px] items-center justify-center text-ellipsis whitespace-nowrap rounded-[4px] px-[10px] py-1 text-sm font-medium leading-[19.6px] tracking-[-0.42px]',
+              colorMap(registerDDayStatus)
+            )}
+          >
             {registerDDayStatus}
           </div>
         </div>
@@ -182,10 +199,15 @@ export function ContestStatusTimeDiff({
           <p className="text-color-red-50 ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px]">
             Duration :
           </p>
-          <p className="text-color-neutral-30 mr-2 w-[280px] overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px]">
+          <p className="text-color-neutral-30 mr-2 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px]">
             {`${formattedTime(contest.startTime)} ~ ${formattedTime(contest.endTime)}`}
           </p>
-          <div className="bg-color-pink-95 text-color-pink-50 flex h-7 w-[80px] items-center justify-center text-ellipsis whitespace-nowrap rounded-[4px] px-[10px] py-1 text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
+          <div
+            className={cn(
+              'flex h-7 w-[80px] items-center justify-center text-ellipsis whitespace-nowrap rounded-[4px] px-[10px] py-1 text-sm font-medium leading-[19.6px] tracking-[-0.42px]',
+              colorMap(contestDDayStatus)
+            )}
+          >
             {contestDDayStatus}
           </div>
         </div>
