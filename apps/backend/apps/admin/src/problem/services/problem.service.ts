@@ -288,13 +288,11 @@ export class ProblemService {
     userId: number
     input: FilterProblemsInput
     cursor: number | null
-    take: number | null
+    take: number
     mode: 'my' | 'shared' | 'contest'
     contestId?: number | null
   }) {
-    const paginationOptions = take
-      ? { ...this.prisma.getPaginator(cursor), take }
-      : {}
+    const paginator = this.prisma.getPaginator(cursor)
 
     const whereOptions: ProblemWhereInput =
       await this.buildProblemWhereOptionsWithMode(userId, mode, contestId)
@@ -309,10 +307,11 @@ export class ProblemService {
     }
 
     const problems: Problem[] = await this.prisma.problem.findMany({
-      ...paginationOptions,
+      ...paginator,
       where: {
         ...whereOptions
       },
+      take,
       include: {
         createdBy: true
       }
