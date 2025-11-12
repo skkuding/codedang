@@ -66,7 +66,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
           <SheetContent
             side="right"
             aria-label="Mobile navigation menu"
-            className="flex h-dvh w-[260px] flex-col bg-white px-6 pb-[env(safe-area-inset-bottom,40px)] pt-10"
+            className="flex h-dvh w-[260px] flex-col bg-white px-6 pt-10"
           >
             <div className="border-b border-neutral-300 pb-6">
               <div className="flex h-6 items-center justify-end">
@@ -92,7 +92,6 @@ export function MobileMenu({ session }: { session: Session | null }) {
                 </Link>
               </div>
             </div>
-
             <nav className="mt-6 flex flex-1 flex-col space-y-3 text-[18px] font-normal leading-[25.2px] tracking-[-0.54px] text-neutral-700">
               {headerTitle && (
                 <SheetClose asChild>
@@ -124,9 +123,12 @@ export function MobileMenu({ session }: { session: Session | null }) {
                 </SheetClose>
               ))}
             </nav>
-
-            {/* 하단 고정 섹션 (border-top 제거, 스타일 통일) */}
-            <div className="mt-auto pt-6">
+            <div
+              className="mb-10 mt-auto pt-6"
+              style={{
+                marginBottom: 'max(env(safe-area-inset-bottom, 0px), 40px)'
+              }}
+            >
               <SheetClose asChild>
                 <Link
                   href="/settings"
