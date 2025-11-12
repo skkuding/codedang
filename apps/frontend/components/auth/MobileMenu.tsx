@@ -16,12 +16,16 @@ import {
 } from '@/components/shadcn/sheet'
 import courseIcon from '@/public/icons/course-sidebar.svg'
 import detailOnMobileIcon from '@/public/icons/detail-on-mobile.svg'
+import loginMobileIcon from '@/public/icons/login-mobile.svg'
+import logoutMobileIcon from '@/public/icons/logout-mobile.svg'
 import noticeIcon from '@/public/icons/notice.svg'
 import prizeIcon from '@/public/icons/prize.svg'
 import problemIcon from '@/public/icons/problem-sidebar.svg'
+import settingsIcon from '@/public/icons/settings.svg'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import { useAuthModalStore } from '@/stores/authModal'
 import type { Session } from 'next-auth'
+import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaAnglesLeft } from 'react-icons/fa6'
@@ -62,7 +66,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
           <SheetContent
             side="right"
             aria-label="Mobile navigation menu"
-            className="flex w-[260px] flex-col bg-white px-6 pb-6 pt-10"
+            className="flex h-dvh w-[260px] flex-col bg-white px-6 pb-[env(safe-area-inset-bottom,40px)] pt-10"
           >
             <div className="border-b border-neutral-300 pb-6">
               <div className="flex h-6 items-center justify-end">
@@ -120,6 +124,69 @@ export function MobileMenu({ session }: { session: Session | null }) {
                 </SheetClose>
               ))}
             </nav>
+
+            {/* 하단 고정 섹션 (border-top 제거, 스타일 통일) */}
+            <div className="mt-auto pt-6">
+              <SheetClose asChild>
+                <Link
+                  href="/settings"
+                  className="block rounded-full px-4 py-3 text-[18px] hover:bg-gray-100"
+                >
+                  <span className="flex items-center gap-[10px]">
+                    <Image
+                      src={settingsIcon}
+                      alt=""
+                      width={15}
+                      height={15}
+                      aria-hidden
+                    />
+                    <span>Setting</span>
+                  </span>
+                </Link>
+              </SheetClose>
+
+              {session ? (
+                <SheetClose asChild>
+                  <button
+                    type="button"
+                    className="mt-2 w-full rounded-full px-4 py-3 text-left hover:bg-gray-100"
+                    onClick={() => {
+                      signOut({ callbackUrl: '/', redirect: true })
+                    }}
+                  >
+                    <span className="flex items-center gap-[10px]">
+                      <Image
+                        src={logoutMobileIcon}
+                        alt=""
+                        width={20}
+                        height={20}
+                        aria-hidden
+                      />
+                      <span>Log Out</span>
+                    </span>
+                  </button>
+                </SheetClose>
+              ) : (
+                <SheetClose asChild>
+                  <button
+                    type="button"
+                    className="mt-2 w-full rounded-full px-3 py-3 text-left hover:bg-gray-100"
+                    onClick={() => showSignIn()}
+                  >
+                    <span className="flex items-center gap-[10px]">
+                      <Image
+                        src={loginMobileIcon}
+                        alt=""
+                        width={20}
+                        height={20}
+                        aria-hidden
+                      />
+                      <span>Log In</span>
+                    </span>
+                  </button>
+                </SheetClose>
+              )}
+            </div>
           </SheetContent>
         </Sheet>
       </div>

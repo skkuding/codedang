@@ -12,7 +12,6 @@ import { NavLink } from './NavLink'
 export function Header() {
   const session = useSession()
   const { headerTitle } = useHeaderTitle()
-
   return (
     <header className="backdrop-blur-xs fixed left-0 z-40 grid h-[60px] w-full place-items-center bg-white px-5 lg:bg-white/80 lg:px-[30px]">
       <div className="flex w-full max-w-[1440px] items-center justify-between gap-5 lg:px-[116px]">
@@ -48,7 +47,7 @@ export function Header() {
 
           <div className="lg:hidden">
             {headerTitle ? (
-              <span className="max-w=[200px] truncate font-semibold">
+              <span className="max-w-[200px] truncate font-semibold">
                 {headerTitle}
               </span>
             ) : (
@@ -63,7 +62,6 @@ export function Header() {
               </Link>
             )}
           </div>
-
           <Link className="hidden lg:block" href="/">
             <Image
               src={codedangLogo}
@@ -73,7 +71,6 @@ export function Header() {
               className="cursor-pointer"
             />
           </Link>
-
           <nav className="hidden font-semibold capitalize lg:flex lg:gap-10">
             <NavLink href="/notice" text="NOTICE" />
             <NavLink href="/contest" text="CONTEST" />
@@ -82,7 +79,6 @@ export function Header() {
             {/* TODO: Uncomment a group tab when we start to implement a group feature*/}
             {/* <NavLink href="/group" text="Group" /> */}
           </nav>
-
           <div className="lg:hidden">
             <HeaderAuthPanel session={session} />
           </div>
