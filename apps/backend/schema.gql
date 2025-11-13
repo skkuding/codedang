@@ -2918,6 +2918,7 @@ type Query {
   getProblem(id: Int!): ProblemWithIsVisible!
   getProblems(contestId: Int, cursor: Int, input: FilterProblemsInput!, mode: String!, take: Int! = 10): [ProblemWithIsVisible!]!
   getSubmission(id: Int!): SubmissionDetail!
+  getSubmissionResult(submissionId: Int!, testcaseId: Int!): SubmissionResultOutput!
   getSubmissions(cursor: Int, problemId: Int!, take: Int = 10): SubmissionsWithTotal!
   getTags: [Tag!]!
   getTestcase(testcaseId: Int!): ProblemTestcase!
@@ -3213,6 +3214,18 @@ type SubmissionResultMinAggregate {
   result: ResultStatus
   submissionId: Int
   updateTime: DateTime
+}
+
+type SubmissionResultOutput {
+  cpuTime: String
+  createTime: DateTime!
+  id: ID!
+  memoryUsage: Int
+  output: String
+  problemTestcaseId: Int!
+  result: ResultStatus!
+  submissionId: Int!
+  updateTime: DateTime!
 }
 
 type SubmissionResultSumAggregate {
