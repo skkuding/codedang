@@ -9,9 +9,9 @@ export function FinalScoreForm() {
   } = useFormContext()
 
   return (
-    <div>
+    <div className="flex flex-col">
       <Input
-        className="hide-spin-button h-9 w-20 rounded-md border border-[#3F444F] bg-[#29303F] focus-visible:ring-1 focus-visible:ring-white"
+        className="hide-spin-button h-9 w-[100px] rounded-[4px] border border-[#585B6C] bg-[#282D3D] px-5 text-center text-[14px] font-normal text-white focus-visible:ring-1 focus-visible:ring-white"
         type="number"
         id="finalScore"
         step="0.01"

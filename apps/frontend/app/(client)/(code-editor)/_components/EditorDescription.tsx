@@ -27,7 +27,7 @@ export function EditorDescription({
   const level = problem.difficulty
 
   return (
-    <div className="dark flex h-full flex-col gap-6 bg-[#222939] py-6 text-lg">
+    <div className="dark flex h-full flex-col gap-6 bg-[#202331] py-6 text-lg">
       <div className="px-6">
         <div className="flex max-h-24 items-center justify-between gap-4">
           <h1 className="overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold">{`#${problem?.order !== undefined ? convertToLetter(problem.order) : problem.id}. ${problem.title}`}</h1>

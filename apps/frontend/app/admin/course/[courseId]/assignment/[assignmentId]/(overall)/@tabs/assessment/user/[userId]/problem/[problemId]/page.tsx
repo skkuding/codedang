@@ -22,7 +22,7 @@ export default function Page() {
       }
     >
       <div className="flex flex-col gap-1 overflow-auto">
-        <div className="px-6 py-6">
+        <div className="px-5 py-6">
           <ErrorBoundary fallback={<SubmissionSummaryError />}>
             <SubmissionSummary />
           </ErrorBoundary>
@@ -30,13 +30,13 @@ export default function Page() {
 
         <div className="h-3 bg-[#121728]" />
 
-        <div className="px-6 py-2">
+        <div className="px-5 py-2">
           <SubmissionAssessment />
         </div>
 
         <div className="h-3 bg-[#121728]" />
 
-        <div className="px-6 py-2">
+        <div className="px-5 py-2">
           <ErrorBoundary fallback={<SubmissionTestcaseError />}>
             <SubmissionTestcase />
           </ErrorBoundary>
