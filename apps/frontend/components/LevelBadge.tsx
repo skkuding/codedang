@@ -1,5 +1,6 @@
 import { Badge } from '@/components/shadcn/badge'
 import { cn } from '@/libs/utils'
+import type { Level } from '@/types/type'
 
 const typeClass = {
   default: 'w-[70px] px-2 text-xs font-semibold tracking-[-0.36px]',
@@ -12,7 +13,7 @@ export function LevelBadge({
   level
 }: {
   type?: 'default' | 'dark' | 'gray'
-  level: 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
+  level: Level
 }) {
   return (
     <Badge
