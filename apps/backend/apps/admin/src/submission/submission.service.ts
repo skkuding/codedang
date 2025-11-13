@@ -38,6 +38,7 @@ import type {
 } from './model/get-submissions.input'
 import { RejudgeResult } from './model/rejudge-result.output'
 import { RejudgeInput, RejudgeMode } from './model/rejudge.input'
+import type { SubmissionResultOutput } from './model/submission-result.model'
 import type { SubmissionsWithTotal } from './model/submissions-with-total.output'
 
 @Injectable()
@@ -609,6 +610,25 @@ export class SubmissionService {
       return `Problem_${problemId}`
     }
     return encodeURIComponent(problem.title)
+  }
+
+  async getSubmissionResult(
+    submissionId: number,
+    testcaseId: number
+  ): Promise<SubmissionResultOutput> {
+    const submissionResult = await this.prisma.submissionResult.findFirst({
+      where: {
+        submissionId,
+        problemTestcaseId: testcaseId
+      }
+    })
+
+    if (!submissionResult) throw new EntityNotExistException('SubmissionResult')
+
+    return {
+      ...submissionResult,
+      cpuTime: submissionResult.cpuTime?.toString() ?? null
+    }
   }
 
   async compressSourceCodes(assignmentId: number, problemId: number) {
