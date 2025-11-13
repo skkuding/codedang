@@ -1,0 +1,30 @@
+{
+  // 이 섹션은 서버가 실행되기 전에 사용자로부터 입력받아야 할 정보를 정의합니다.
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "notion-api-key",
+      "description": "Notion API Key (Secret Token)",
+      "password": true // 입력 시 값이 숨겨지도록 설정
+    },
+    {
+      "type": "promptString",
+      "id": "notion-page-id",
+      "description": "(Optional) Notion Page ID to read. Leave empty to use search fallback or provide page URL.",
+      "default": "e28be993bdd742afbed3c0c116d85e4e",
+      "password": true
+    }
+  ],
+
+  // 이 섹션은 실제로 VS Code에 등록할 MCP 서버를 정의합니다.
+  "servers": {
+    "Notion Automation Server": {
+      "command": "npx",
+      "args": ["-y", "notion-mcp-server"],
+      "env": {
+        "NOTION_API_KEY": "${input:notion-api-key}",
+        "NOTION_PAGE_ID": "${input:notion-page-id}"
+      }
+    }
+  }
+}

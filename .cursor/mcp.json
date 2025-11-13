@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "notionApi": {
-      "command": "bash",
-      "args": [".cursor/scripts/notion-mcp-wrapper.sh"]
-    }
-  }
-}
