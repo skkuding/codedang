@@ -113,6 +113,8 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
     setIsTestResult(false)
   }
 
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
   const language = lastSubmission?.language ?? 'C'
   const currentMember = summaries.find(
     (member) => member.userId === Number(userId)
@@ -184,7 +186,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
           <div className="flex h-12 w-full items-center justify-between border-b border-slate-700 bg-[#222939] px-5 py-3">
             <div className="flex items-center gap-1">
               <BiSolidUser className="h-4 w-4 rounded-none text-gray-300" />
-              <DropdownMenu>
+              <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
                 <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
                   <p className="text-[14px]">
                     {currentMember?.realName}({currentMember?.studentId})
@@ -194,6 +196,10 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                     alt="open dropdown"
                     width={16}
                     height={16}
+                    className={cn(
+                      'transition-transform duration-200',
+                      isDropdownOpen && 'rotate-180'
+                    )}
                   />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="max-h-[400px] overflow-y-auto border-slate-700 bg-slate-900">

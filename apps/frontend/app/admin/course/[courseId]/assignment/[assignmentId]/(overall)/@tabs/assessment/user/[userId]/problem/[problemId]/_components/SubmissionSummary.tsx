@@ -1,8 +1,11 @@
 'use client'
 
+import { LevelBadge } from '@/components/LevelBadge'
+import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { dateFormatter, getResultColor } from '@/libs/utils'
 import infoIcon from '@/public/icons/info.svg'
+import type { Level } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
@@ -28,6 +31,21 @@ export function SubmissionSummary() {
     problemId: string
   }>()
   const { courseId, assignmentId, userId, problemId } = params
+  const assignmentProblems =
+    useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {
+      variables: {
+        groupId: Number(courseId),
+        assignmentId: Number(assignmentId)
+      },
+      fetchPolicy: 'cache-first'
+    }).data?.getAssignmentProblems ?? []
+
+  const currentProblem = assignmentProblems.find(
+    (p) => p.problemId === Number(problemId)
+  )
+
+  const level = currentProblem?.problem.difficulty as Level | undefined
+
   const submission = useSuspenseQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
     variables: {
       groupId: Number(courseId),
@@ -52,7 +70,13 @@ export function SubmissionSummary() {
         <p className="text-[20px] font-semibold text-white">
           {`Submission #${submission.id}`}
         </p>
-        {/* Level 배지 나중에 추가*/}
+        {level && (
+          <LevelBadge
+            type="dark"
+            level={level}
+            className="w-[60px] rounded-[4px] bg-[#282D3D]"
+          />
+        )}
       </div>
       <div className="**:whitespace-nowrap rounded-[4px] bg-[#282D3D] text-[14px]">
         <ul className="gap-2 space-y-3 py-3 pl-2 pr-4">

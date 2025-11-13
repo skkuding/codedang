@@ -20,6 +20,7 @@ import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { useState } from 'react'
 
 export function AssignmentHeader() {
   const params = useParams<{
@@ -64,6 +65,8 @@ export function AssignmentHeader() {
     (p) => p.problemId === Number(problemId)
   )
 
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
   return (
     <div className="-px-1 flex items-center justify-start py-[10px] text-lg text-[#787E80]">
       <Link href="/" className="mr-3">
@@ -76,7 +79,7 @@ export function AssignmentHeader() {
       </Link>
       <div className="border-1 mx-3 h-5 border-[#404351]" />
       <div className="flex items-center gap-1 font-medium">
-        <DropdownMenu>
+        <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
           <DropdownMenuTrigger className="outline-hidden flex gap-2 text-lg text-white">
             <h1>{`${convertToLetter(currentProblem?.order ?? 0)}. ${currentProblem?.problem.title}`}</h1>
             <Image
@@ -84,6 +87,10 @@ export function AssignmentHeader() {
               alt="open dropdown"
               width={16}
               height={16}
+              className={cn(
+                'transition-transform duration-200',
+                isDropdownOpen && 'rotate-180'
+              )}
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="border-slate-700 bg-slate-900">
