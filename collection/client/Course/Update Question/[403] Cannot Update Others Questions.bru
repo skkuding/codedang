@@ -1,0 +1,38 @@
+meta {
+  name: [403] Cannot Update Others Question
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/course/1/qna/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Forbidden update attempt"
+  }
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser2nd(req);  // 다른 학생으로 로그인
+}
+
+tests {
+  test("should return 403 Forbidden", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+}
+
+docs {
+  # 📘 Update Question - Forbidden
+
+  다른 학생의 질문을 수정하려고 하면 403 Forbidden 에러가 발생합니다.
+
+  질문 수정 권한:
+  - 작성자 본인
+  - 교수/조교
+}

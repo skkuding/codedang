@@ -1,0 +1,39 @@
+meta {
+  name: [404] Nonexistent Problem
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/course/1/qna?problemId=9999
+  body: json
+  auth: none
+}
+
+params:query {
+  problemId: 9999
+}
+
+body:json {
+  {
+    "title": "Nonexistent problem test",
+    "content": "This problem does not exist in this course."
+  }
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return 404 Not Found", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}
+
+docs {
+  # 📘 Create Course Question - Problem Not Found
+
+  강의에 존재하지 않는 문제 ID로 질문을 작성하려고 하면 404 Not Found 에러가 발생합니다.
+}
