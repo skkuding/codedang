@@ -181,4 +181,12 @@ export class ContestController {
       commentOrder
     )
   }
+
+  @Get(':id/statistics')
+  @UserNullWhenAuthFailedIfPublic()
+  async getStatisticsLeaderboard(
+    @Param('id', new RequiredIntPipe('id')) contestId: number
+  ) {
+    return this.contestService.getStatisticsLeaderboard(contestId)
+  }
 }

@@ -1,0 +1,25 @@
+meta {
+  name: [404] Nonexistent Contest
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/contest/:id/statistics
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 9999
+}
+
+docs {
+  # 📙 [404] Nonexistent Contest
+
+  **GET** `/contest/:id/statistics`
+
+  존재하지 않는 `id`로 통계 리더보드 조회를 요청했을 때,
+
+  `Not Found` 에러가 발생합니다.
+}
