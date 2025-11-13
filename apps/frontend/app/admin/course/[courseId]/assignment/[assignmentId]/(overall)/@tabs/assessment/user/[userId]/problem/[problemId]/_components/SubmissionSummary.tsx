@@ -1,8 +1,7 @@
 'use client'
 
-import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
-import { dateFormatter } from '@/libs/utils'
+import { dateFormatter, getResultColor } from '@/libs/utils'
 import infoIcon from '@/public/icons/info.svg'
 import { useSuspenseQuery } from '@apollo/client'
 import Image from 'next/image'
@@ -49,32 +48,69 @@ export function SubmissionSummary() {
 
   return (
     <div className="flex flex-col gap-2">
-      <ScrollArea className="shrink-0 rounded-md">
-        <div className="**:whitespace-nowrap flex items-center justify-around gap-5 bg-[#384151] p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-3 [&_p]:text-[#B0B0B0]">
-          <div>
-            <h2>Passed</h2>
-            <p>{`${passedTestcases} / ${totalTestcases}`}</p>
-          </div>
-          <div>
-            <h2>Rate</h2>
-            <p>{`${passRate}%`}</p>
-          </div>
-          <div>
-            <h2>Language</h2>
-            <p>{submission.language}</p>
-          </div>
-          <div>
-            <h2>Submission Time</h2>
-            <p>{dateFormatter(submission.updateTime, 'MMM DD, YYYY HH:mm')}</p>
-          </div>
-          <div>
-            <h2>Code Size</h2>
-            <p>{submission.codeSize}B</p>
-          </div>
-        </div>
+      <div className="flex items-center justify-between">
+        <p className="text-[20px] font-semibold text-white">
+          {`Submission #${submission.id}`}
+        </p>
+        {/* Level 배지 나중에 추가*/}
+      </div>
+      <div className="**:whitespace-nowrap rounded-[4px] bg-[#282D3D] text-[14px]">
+        <ul className="gap-2 space-y-3 py-3 pl-2 pr-4">
+          <li className="relative pl-5">
+            <span className="absolute left-0 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center before:block before:h-1 before:w-1 before:rounded-full before:bg-white" />
+            <div className="flex items-center justify-between">
+              <p className="text-white">Result</p>
+              <p className={getResultColor(submission.result)}>
+                {submission.result}
+              </p>
+            </div>
+          </li>
+          <li className="relative pl-5">
+            <span className="absolute left-0 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center before:block before:h-1 before:w-1 before:rounded-full before:bg-white" />
+            <div className="flex items-center justify-between">
+              <p className="text-white">Passed</p>
+              <p className="text-primary-light">{`${passedTestcases} / ${totalTestcases}`}</p>
+            </div>
+          </li>
 
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+          <li className="relative pl-5">
+            <span className="absolute left-0 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center before:block before:h-1 before:w-1 before:rounded-full before:bg-white" />
+            <div className="flex items-center justify-between">
+              <h2 className="text-white">Rate</h2>
+              <p className="text-primary-light">{`${passRate}%`}</p>
+            </div>
+          </li>
+
+          <li className="relative pl-5">
+            <span className="absolute left-0 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center before:block before:h-1 before:w-1 before:rounded-full before:bg-white" />
+            <div className="flex items-center justify-between">
+              <h2 className="text-white">Language</h2>
+              <p className="text-primary-light">{submission.language}</p>
+            </div>
+          </li>
+
+          <li className="relative pl-5">
+            <span className="absolute left-0 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center before:block before:h-1 before:w-1 before:rounded-full before:bg-white" />
+            <div className="flex items-center justify-between">
+              <h2 className="text-white">Submission Time</h2>
+              <p className="text-primary-light">
+                {dateFormatter(
+                  submission.updateTime,
+                  'YYYY. MM. DD | YYYY. MM. DD'
+                )}
+              </p>
+            </div>
+          </li>
+
+          <li className="relative pl-5">
+            <span className="absolute left-0 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center before:block before:h-1 before:w-1 before:rounded-full before:bg-white" />
+            <div className="flex items-center justify-between">
+              <h2 className="text-white">Code Size</h2>
+              <p className="text-primary-light">{submission.codeSize}B</p>
+            </div>
+          </li>
+        </ul>
+      </div>
     </div>
   )
 }
