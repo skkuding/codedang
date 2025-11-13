@@ -13,6 +13,24 @@
       "description": "(Optional) Notion Page ID to read. Leave empty to use search fallback or provide page URL.",
       "default": "e28be993bdd742afbed3c0c116d85e4e",
       "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "team-name",
+      "description": "Team name (예: 프론트, 백엔드, 인프라)",
+      "default": ""
+    },
+    {
+      "type": "promptString",
+      "id": "member-name",
+      "description": "멤버 이름 (예: 홍길동)",
+      "default": ""
+    },
+    {
+      "type": "promptString",
+      "id": "squad",
+      "description": "스쿼드 이름 (예: 스쿼드 __init__)",
+      "default": ""
     }
   ],
 
@@ -23,7 +41,10 @@
       "args": ["-y", "notion-mcp-server"],
       "env": {
         "NOTION_API_KEY": "${input:notion-api-key}",
-        "NOTION_PAGE_ID": "${input:notion-page-id}"
+        "NOTION_PAGE_ID": "${input:notion-page-id}",
+        "TEAM_NAME": "${input:team-name}",
+        "MEMBER_NAME": "${input:member-name}",
+        "SQUAD": "${input:squad}"
       }
     }
   }
