@@ -1,0 +1,20 @@
+meta {
+  name: [404] Nonexistent Contest
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/contest/999/statistics/problem/3
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
