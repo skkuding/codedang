@@ -36,11 +36,6 @@ jobs:
             context: apps/iris
             build-args: |
               app_env=stage
-          - target: plag
-            file: ''
-            context: apps/plag
-            build-args: |
-              app_env=stage
 
     steps:
       - name: Setup Docker Buildx

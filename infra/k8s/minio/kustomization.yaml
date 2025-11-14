@@ -12,4 +12,3 @@ resources:
   - users/admin-api.yaml
   - users/client-api.yaml
   - users/iris.yaml
-  - users/plag.yaml

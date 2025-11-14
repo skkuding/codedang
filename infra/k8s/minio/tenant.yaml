@@ -14,7 +14,6 @@ spec:
     - name: admin-api-user
     - name: client-api-user
     - name: iris-user
-    - name: plag-user
   buckets:
     - name: 'codedang-testcase'
       region: 'ap-northeast-2'
@@ -22,14 +21,11 @@ spec:
     - name: 'codedang-media'
       region: 'ap-northeast-2'
       objectLock: false
-    - name: 'codedang-plag-checks'
-      region: 'ap-northeast-2'
-      objectLock: false
   configuration:
     name: tenant-config
   env:
     - name: MINIO_BROWSER_REDIRECT_URL
-      value: 'https://minio-console.stage.codedang.com'
+      value: 'https://minio.stage.codedang.com'
   pools:
     - servers: 1 # standalone mode (4 or more for distributed mode)
       name: pool-0

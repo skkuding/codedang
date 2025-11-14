@@ -33,8 +33,6 @@ data "aws_iam_policy_document" "admin_api_s3_read" {
       "arn:aws:s3:::codedang-testcase/*",
       "arn:aws:s3:::codedang-media",
       "arn:aws:s3:::codedang-media/*",
-      "arn:aws:s3:::codedang-plag-checks",
-      "arn:aws:s3:::codedang-plag-checks/*",
     ]
   }
 }

@@ -91,17 +91,17 @@ export function RegisterButton({
           Register Now!
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex !h-[280px] !w-[424px] flex-col gap-5 !p-10">
+      <DialogContent className="flex h-[280px] w-[424px] flex-col gap-5 p-10">
         <DialogHeader>
-          <DialogTitle className="line-clamp-2 pt-3 text-center text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
-            {'Invite Register'}
+          <DialogTitle className="mt-2 text-center text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
+            Invite Register
           </DialogTitle>
         </DialogHeader>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-[10px]"
+          className="h-30 flex flex-col justify-between"
         >
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col">
             <Input
               placeholder="Invitation Code"
               {...register('invitationCode', {
@@ -109,7 +109,7 @@ export function RegisterButton({
               })}
               type="number"
               className={cn(
-                'hide-spin-button h-12 w-full',
+                'hide-spin-button placeholder:text-color-neutral-90 h-11 w-full px-6 placeholder:text-sm placeholder:font-normal placeholder:leading-[21px] placeholder:tracking-[-0.42px]',
                 errors.invitationCode &&
                   'border-red-500 focus-visible:ring-red-500'
               )}
@@ -121,7 +121,10 @@ export function RegisterButton({
             )}
           </div>
           <div className="flex justify-center">
-            <Button type="submit" className="w-24">
+            <Button
+              type="submit"
+              className="bg-primary h-[46px] w-[344px] text-base font-medium leading-[22.4px] tracking-[-0.48px] text-white"
+            >
               Register
             </Button>
           </div>

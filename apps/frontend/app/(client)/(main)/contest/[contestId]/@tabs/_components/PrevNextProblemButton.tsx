@@ -24,24 +24,24 @@ export function PrevNextProblemButton({
       <Link
         href={`/contest/${contestData[currentIndex - 1].id}${search ? `?search=${search}` : ''}`}
       >
-        <Button className="border-line bg-fill hover:bg-fill mb-0 mt-10 h-[57px] w-[1208px] justify-start rounded-b-none rounded-t-[10px] border px-[24px] py-[16px] text-black">
+        <Button className="mb-0 mt-[18px] h-[54px] w-[1208px] justify-start rounded-b-none rounded-t-xl border border-[#D8D8D8] bg-[#FFFFFF] px-[24px] py-[16px] font-light text-black hover:bg-[#F0F0F0]">
           <div className="flex flex-row">
-            <p className="mr-6 w-[100px] text-left text-lg font-medium leading-[25.2px] tracking-[-0.54px] text-black">
+            <p className="mr-6 w-[100px] text-left text-lg font-medium leading-[25.2px] tracking-[-0.54px] text-[#000000]">
               Previous
             </p>
-            <p className="truncate text-left text-base font-normal leading-[24px] tracking-[-0.48px] text-black">
+            <p className="w-[1020px] truncate text-left text-base font-normal leading-[22.4px] tracking-[-0.48px] text-[#000000]">
               {contestData[currentIndex - 1].title}
             </p>
           </div>
         </Button>
       </Link>
     ) : (
-      <Button className="border-line bg-fill hover:bg-fill pointer-events-none mb-0 mt-10 h-[57px] w-[1208px] justify-start rounded-b-none rounded-t-[10px] border px-[24px] py-[16px] text-black">
+      <Button className="pointer-events-none mb-0 mt-[18px] h-[54px] w-[1208px] justify-start rounded-b-none rounded-t-xl border border-[#80808040] bg-white pl-6 font-light text-black hover:bg-white">
         <div className="flex flex-row">
-          <p className="mr-6 w-[100px] text-left text-lg font-medium leading-[25.2px] tracking-[-0.54px] text-black">
+          <p className="mr-6 w-[100px] text-left text-base font-semibold text-[#737373]">
             Previous
           </p>
-          <p className="font-normal leading-[24px] tracking-[-0.48px] text-black">
+          <p className="text-left text-base font-medium text-[#737373]">
             No Previous Contest
           </p>
         </div>
@@ -52,26 +52,24 @@ export function PrevNextProblemButton({
       <Link
         href={`/contest/${contestData[currentIndex + 1].id}${search ? `?search=${search}` : ''}`}
       >
-        <Button className="border-line mb-0 h-[57px] w-[1208px] justify-start rounded-b-[10px] rounded-t-none border border-t-0 bg-white px-[24px] py-[16px] text-black hover:bg-white">
+        <Button className="mb-0 h-[54px] w-[1208px] justify-start rounded-b-xl rounded-t-none border-t-0 border-[#D8D8D8] bg-[#F0F0F0] pl-6 font-light text-black hover:bg-[#F0F0F0]">
           <div className="flex flex-row">
-            <p className="text-primary mr-6 w-[100px] text-left text-lg font-medium leading-[25.2px] tracking-[-0.54px]">
+            <p className="mr-6 w-[100px] text-left text-lg font-medium leading-[25.2px] tracking-[-0.54px] text-[#000000]">
               Next
             </p>
-            <p className="truncate text-left text-base font-normal leading-[24px] tracking-[-0.48px] text-black">
+            <p className="w-[1020px] truncate text-left text-base font-normal leading-[22.4px] tracking-[-0.48px] text-[#000000]">
               {contestData[currentIndex + 1].title}
             </p>
           </div>
         </Button>
       </Link>
     ) : (
-      <Button className="border-line pointer-events-none mb-0 h-[57px] w-[1208px] justify-start rounded-b-[10px] rounded-t-none border border-t-0 bg-white px-[24px] py-[16px] text-black hover:bg-white">
+      <Button className="pointer-events-none mb-0 h-[54px] w-[1208px] justify-start rounded-b-xl rounded-t-none border border-t-0 border-[#80808040] bg-white pl-6 font-light text-black hover:bg-white">
         <div className="flex flex-row">
-          <p className="text-primary mr-6 w-[100px] text-left text-lg font-medium leading-[25.2px] tracking-[-0.54px]">
+          <p className="mr-6 w-[100px] text-left text-base font-semibold text-[#3581FA]">
             Next
           </p>
-          <p className="font-normal leading-[24px] tracking-[-0.48px] text-black">
-            No Next Contest
-          </p>
+          <p className="text-left text-base font-medium">No Next Contest</p>
         </div>
       </Button>
     )

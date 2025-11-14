@@ -20,7 +20,7 @@ export class NotificationService {
 
     if (vapidKeys.publicKey && vapidKeys.privateKey) {
       webpush.setVapidDetails(
-        'mailto:skkuding@gmail.com',
+        'mailto:skkucodingplatform@gmail.com',
         vapidKeys.publicKey,
         vapidKeys.privateKey
       )

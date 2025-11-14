@@ -1,5 +1,5 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
-import { LevelBadge } from '@/components/LevelBadge'
+import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { Switch } from '@/components/shadcn/switch'
 import {
@@ -170,9 +170,15 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
+      const formattedLevel = `Level ${level.slice(-1)}`
       return (
         <div>
-          <LevelBadge level={level as Level} />
+          <Badge
+            variant={level as Level}
+            className="mr-1 whitespace-nowrap px-2 py-1 font-normal"
+          >
+            {formattedLevel}
+          </Badge>
         </div>
       )
     },

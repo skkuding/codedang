@@ -193,7 +193,6 @@ jobs:
       TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
       MINIO_ENDPOINT_URL: http://localhost:9000
       TESTCASE_BUCKET_NAME: test-bucket
-      CHECK_RESULT_BUCKET_NAME: codedang-plag-checks
       MEDIA_BUCKET_NAME: image-bucket
       AWS_ACCESS_KEY_ID: abc123
       AWS_SECRET_ACCESS_KEY: xyz123456
@@ -297,33 +296,6 @@ jobs:
         if: steps.filter.outputs.iris == 'true'
         run: go test ./...
         working-directory: ./apps/iris
-
-  test-plag:
-    name: Test Plag
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Check if source code has changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            plag:
-              - 'apps/plag/**'
-
-      - name: Set up Go
-        if: steps.filter.outputs.plag == 'true'
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: apps/plag/go.mod
-          cache-dependency-path: apps/plag/go.sum
-
-      - name: Test (Go)
-        if: steps.filter.outputs.plag == 'true'
-        run: go test ./...
-        working-directory: ./apps/plag
 
   # TODO: write smoke test for backend
   # e.g) start backend server and check if it responds to requests

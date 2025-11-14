@@ -27,11 +27,11 @@ const badgeVariants = cva(
         Contest: 'bg-color-blue-95 text-color-blue-50 rounded-sm border-0'
       },
       textColors: {
-        Level1: 'text-level-dark-1',
-        Level2: 'text-level-dark-2',
-        Level3: 'text-level-dark-3',
-        Level4: 'text-level-dark-4',
-        Level5: 'text-level-dark-5',
+        Level1: 'text-level-light-1',
+        Level2: 'text-level-light-2',
+        Level3: 'text-level-light-3',
+        Level4: 'text-level-light-4',
+        Level5: 'text-level-light-5',
         Spring: 'text-level-light-1',
         Summer: 'text-level-light-2',
         Fall: 'text-level-light-3',

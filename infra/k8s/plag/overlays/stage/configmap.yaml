@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: plag-env
-  namespace: plag
-data:
-  MINIO_ENDPOINT_URL: 'https://minio.stage.codedang.com'
