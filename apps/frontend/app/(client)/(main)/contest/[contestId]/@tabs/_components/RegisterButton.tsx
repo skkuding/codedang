@@ -91,7 +91,7 @@ export function RegisterButton({
           Register Now!
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex h-[280px] w-[424px] flex-col justify-start gap-5 p-10">
+      <DialogContent className="flex h-[280px] w-[424px] flex-col gap-5 p-10">
         <DialogHeader>
           <DialogTitle className="mt-2 text-center text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
             Invite Register
@@ -109,7 +109,7 @@ export function RegisterButton({
               })}
               type="number"
               className={cn(
-                'hide-spin-button placeholder:text-color-neutral-90 h-11 w-full !px-6 placeholder:text-sm placeholder:font-normal placeholder:leading-[21px] placeholder:tracking-[-0.42px]',
+                'hide-spin-button placeholder:text-color-neutral-90 h-11 w-full px-6 placeholder:text-sm placeholder:font-normal placeholder:leading-[21px] placeholder:tracking-[-0.42px]',
                 errors.invitationCode &&
                   'border-red-500 focus-visible:ring-red-500'
               )}
