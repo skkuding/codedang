@@ -49,7 +49,7 @@ export function RegisterButton({
             }
           : {}
       })
-      toast.success(`Registered ${state} test successfully`)
+      toast.success(`Successfully registered for ${state} contest!`)
       router.refresh() // to update register state
     } catch (error) {
       console.error(error)
@@ -74,7 +74,7 @@ export function RegisterButton({
   return !invitationCodeExists ? (
     // User not registered and no invitation code required
     <Button
-      className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white"
+      className={`h-[46px] w-[944px] rounded-[1000px] px-7 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px] ${state === 'Ongoing' ? 'bg-primary text-white' : 'bg-fill text-color-neutral-70 pointer-events-none'}`}
       onClick={onSubmit}
       disabled={disabled}
     >
@@ -85,7 +85,7 @@ export function RegisterButton({
     <Dialog>
       <DialogTrigger asChild>
         <Button
-          className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white"
+          className={`h-[46px] w-[944px] rounded-[1000px] px-7 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px] ${state === 'Ongoing' ? 'bg-primary text-white' : 'bg-fill text-color-neutral-70 pointer-events-none'}`}
           disabled={disabled}
         >
           Register Now!
