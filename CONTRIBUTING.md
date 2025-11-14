@@ -14,6 +14,10 @@ SKKUDING에 contribution 해주셔서 감사합니다! 이 글은 contribute 시
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/skkuding/next)
 
+### Notion MCP 설정
+
+AI 어시스턴트를 통해 Notion과 연동하여 작업하려면 Notion MCP를 설정할 수 있습니다. 자세한 설정 방법은 [Notion MCP 설정 가이드](docs/NOTION_MCP_SETUP.md)를 참고하세요.
+
 ## Task / Issue 🎫
 
 모든 업무는 **Notion Task(내부)** 또는 **GitHub Issue(외부)** 형태로 등록되어야 합니다. 아래의 작성 원칙은 두 경우에 공통으로 적용됩니다.

@@ -20,6 +20,10 @@ Codedang은 스꾸딩(skkuding) 팀에서 만들고 관리하는 성균관대학
 
 > 문서 저장소: [skkuding/docs](https://github.com/skkuding/docs)
 
+### 추가 문서
+
+- [Notion MCP 설정 가이드](docs/NOTION_MCP_SETUP.md) - AI 어시스턴트와 Notion 연동 설정
+
 ## Contributing Guide 👏
 
 [CONTRIBUTING.md](CONTRIBUTING.md)에서 확인할 수 있습니다.
