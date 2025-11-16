@@ -1,0 +1,95 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/contest/:contestId/problem/:problemId/statistics/graph
+  body: none
+  auth: none
+}
+
+params:query {
+  # mode를 지정하지 않으면 기본값으로 both가 사용됩니다.
+}
+
+params:path {
+  contestId: 42
+  problemId: 7
+}
+
+assert {
+  res.status: eq 200
+  res("contestId"): isNumber 42
+  res("problemId"): isNumber 7
+  res("mode"): eq "both"
+
+  res("distribution.totalSubmissions"): isNumber 1
+  res("distribution.counts.WA"): isNumber 1
+  res("distribution.counts.TLE"): isNumber 1
+  res("distribution.counts.MLE"): isNumber 1
+  res("distribution.counts.RE"): isNumber 1
+  res("distribution.counts.CE"): isNumber 1
+  res("distribution.counts.SE"): isNumber 1
+  res("distribution.counts.NA"): isNumber 1
+
+  res("timeline.intervalMinutes"): isNumber 10
+  res("timeline.series"): isArray
+  res("timeline.series[0].timestamp"): isString
+  res("timeline.series[0].accepted"): isNumber 0
+  res("timeline.series[0].wrong"): isNumber 0
+}
+
+docs {
+  # 📘 Get Contest Problem Statistics Graph
+
+  **GET** `/contest/:contestId/problem/:problemId/statistics/graph`
+
+  특정 대회의 특정 문제에 대한 **오답 분포와 시간별 제출 추이 그래프 데이터**를 조회합니다.
+
+  `mode` 쿼리 파라미터 미지정 시, 오답 분포(`distribution`)와 시간별 제출 추이(`timeline`)를 동시에 반환합니다.
+  - `mode=distribution`인 경우 오답 분포만,
+  - `mode=timeline`인 경우 제출 추이만 반환합니다.
+
+  이 API는 **대회 종료 후**에만 조회할 수 있으며, 누구나 접근 가능합니다.
+
+  ### 🔒 Authentication
+
+  🔸 Optional
+  인증 여부와 관계없이 대회가 종료된 이후라면 접근할 수 있습니다.
+
+  ### Request Parameters
+
+  #### Query Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `mode` | `"distribution" \| "timeline"` | ❌ | 생략 시 `both`로 처리되어 두 그래프 모두 반환 |
+
+  #### Path Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `contestId` | number | ✅ | 대상 대회의 ID |
+  | `problemId` | number | ✅ | 대상 문제의 ID |
+
+  ### 📤 Responses
+
+  #### 200 OK
+
+  - `mode` 미지정 시:
+    - `mode: "both"`
+    - `distribution`: 오답 분포 데이터
+      - `totalSubmissions`: 총 제출 수
+      - `counts`: 결과별 제출 수
+        (`WA`, `TLE`, `MLE`, `RE`, `CE`, `SE`, `NA`)
+    - `timeline`: 시간별 제출 추이 데이터
+      - `intervalMinutes`: 집계 간격(분) — 현재 10분
+      - `series[]`:
+        - `timestamp`: 슬롯 시작 시각(ISO8601)
+        - `accepted`: 해당 시각 Accepted 제출 수
+        - `wrong`: 해당 시각 Wrong 제출 수 (WA/TLE/MLE/RE/CE/SE의 합)
+}
+
+

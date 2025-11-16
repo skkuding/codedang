@@ -138,6 +138,21 @@ export class ContestProblemController {
     })
   }
 
+  @Get(':problemId/statistics/graph')
+  @UserNullWhenAuthFailedIfPublic()
+  async getContestProblemStatistics(
+    @Req() req: AuthenticatedRequest,
+    @Param('contestId', IDValidationPipe) contestId: number,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Query('mode') mode?: 'distribution' | 'timeline'
+  ) {
+    return await this.contestProblemService.getContestProblemStatistics({
+      contestId,
+      problemId,
+      mode
+    })
+  }
+
   @Get(':problemId/update-history')
   async getProblemUpdateHistory(
     @Req() req: AuthenticatedRequest,

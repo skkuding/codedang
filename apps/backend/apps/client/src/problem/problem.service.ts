@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
 import type { Decimal } from '@prisma/client/runtime/library'
 import { MIN_DATE } from '@libs/constants'
@@ -507,6 +507,321 @@ export class ContestProblemService {
       },
       updateHistory
     }
+  }
+
+  async getContestProblemStatistics({
+    contestId,
+    problemId,
+    mode
+  }: {
+    contestId: number
+    problemId: number
+    mode?: 'distribution' | 'timeline'
+  }) {
+    // 1) mode 파라미터를 검증하고 어떤 그래프를 응답할지 확정합니다.
+    const normalizedMode = this.resolveStatisticsMode(mode)
+    // 2) 대회가 종료된 상태인지 확인합니다. (진행 중이면 403)
+    const contest = await this.getContestWhenFinished(contestId)
+    // 3) 요청한 문제가 실제로 대회에 속해 있는지 검증합니다. (미존재 시 404)
+    await this.ensureContestProblemExists(contestId, problemId)
+
+    // 4) 기본 응답 객체를 만든 뒤 필요한 그래프만 계산합니다.
+    const statistics: {
+      contestId: number
+      problemId: number
+      mode: 'both' | 'distribution' | 'timeline'
+      distribution?: {
+        totalSubmissions: number
+        counts: Record<'WA' | 'TLE' | 'MLE' | 'RE' | 'CE' | 'SE' | 'NA', number>
+      }
+      timeline?: {
+        intervalMinutes: number
+        series: Array<{
+          timestamp: string
+          accepted: number
+          wrong: number
+        }>
+      }
+    } = {
+      contestId,
+      problemId,
+      mode: normalizedMode
+    }
+
+    if (this.shouldIncludeDistribution(normalizedMode)) {
+      statistics.distribution = await this.getProblemDistribution({
+        contestId,
+        problemId
+      })
+    }
+
+    if (this.shouldIncludeTimeline(normalizedMode)) {
+      statistics.timeline = await this.getProblemTimeline({
+        contestId,
+        problemId,
+        startTime: contest.startTime!,
+        endTime: contest.endTime!
+      })
+    }
+
+    return statistics
+  }
+
+  private async getProblemDistribution({
+    contestId,
+    problemId
+  }: {
+    contestId: number
+    problemId: number
+  }) {
+    /* eslint-disable @typescript-eslint/naming-convention */
+    const [resultGroups, submissionUsers, totalParticipants] =
+      await Promise.all([
+        this.prisma.submission.groupBy({
+          by: ['result'],
+          where: {
+            contestId,
+            problemId,
+            userId: {
+              not: null
+            }
+          },
+          _count: {
+            _all: true
+          }
+        }),
+        this.prisma.submission.findMany({
+          where: {
+            contestId,
+            problemId,
+            userId: {
+              not: null
+            }
+          },
+          distinct: ['userId'],
+          select: {
+            userId: true
+          }
+        }),
+        this.prisma.contestRecord.count({
+          where: {
+            contestId,
+            userId: {
+              not: null
+            }
+          }
+        })
+      ])
+    /* eslint-enable @typescript-eslint/naming-convention */
+
+    // 그래프에서 사용할 결과 유형별 카운트 객체를 초기화합니다.
+    const keys = this.getProblemStatisticsKeys()
+    const counts: Record<(typeof keys)[number], number> = keys.reduce(
+      (accumulator, key) => {
+        accumulator[key] = 0
+        return accumulator
+      },
+      {} as Record<(typeof keys)[number], number>
+    )
+
+    const statusMap = this.getResultStatusToKeyMap()
+
+    let totalSubmissions = 0
+
+    for (const group of resultGroups) {
+      // Prisma groupBy 결과를 순회하면서 해당 유형 카운트를 누적합니다.
+      const key = statusMap[group.result as keyof typeof statusMap]
+      const submissionCount = group._count._all
+      totalSubmissions += submissionCount
+      if (!key) {
+        continue
+      }
+      counts[key] += submissionCount
+    }
+
+    const participantsWithSubmission = submissionUsers.filter(
+      (item) => item.userId != null
+    ).length
+    counts.NA = Math.max(totalParticipants - participantsWithSubmission, 0)
+
+    return {
+      totalSubmissions,
+      counts
+    }
+  }
+
+  private async getProblemTimeline({
+    contestId,
+    problemId,
+    startTime,
+    endTime
+  }: {
+    contestId: number
+    problemId: number
+    startTime: Date
+    endTime: Date
+  }) {
+    const intervalMinutes = 10
+    const intervalMs = intervalMinutes * 60 * 1000
+
+    const start = startTime.getTime()
+    const end = endTime.getTime()
+    const durationMs = Math.max(end - start, intervalMs)
+    const slotCount = Math.ceil(durationMs / intervalMs)
+
+    const slots = Array.from({ length: slotCount }, (_, index) => ({
+      timestamp: new Date(start + index * intervalMs).toISOString(),
+      accepted: 0,
+      wrong: 0
+    }))
+
+    // 제출 생성 시각을 10분 단위 슬롯에 매핑해 Accepted/Not Accepted를 기록합니다.
+    const submissions = await this.prisma.submission.findMany({
+      where: {
+        contestId,
+        problemId,
+        userId: {
+          not: null
+        },
+        createTime: {
+          gte: startTime,
+          lte: endTime
+        }
+      },
+      select: {
+        result: true,
+        createTime: true
+      },
+      orderBy: {
+        createTime: 'asc'
+      }
+    })
+
+    for (const submission of submissions) {
+      const time = submission.createTime.getTime()
+      if (time < start || time > end) {
+        continue
+      }
+
+      const slotIndex = Math.min(
+        Math.floor((time - start) / intervalMs),
+        slots.length - 1
+      )
+
+      if (submission.result === ResultStatus.Accepted) {
+        slots[slotIndex].accepted += 1
+      } else if (this.isWrongResult(submission.result)) {
+        slots[slotIndex].wrong += 1
+      }
+    }
+
+    return {
+      intervalMinutes,
+      series: slots
+    }
+  }
+
+  private resolveStatisticsMode(
+    mode?: 'distribution' | 'timeline'
+  ): 'both' | 'distribution' | 'timeline' {
+    if (!mode) {
+      return 'both'
+    }
+
+    const allowedModes: Array<'distribution' | 'timeline'> = [
+      'distribution',
+      'timeline'
+    ]
+
+    if (!allowedModes.includes(mode)) {
+      throw new BadRequestException('Invalid mode parameter')
+    }
+
+    return mode
+  }
+
+  private async getContestWhenFinished(contestId: number) {
+    const contest = await this.prisma.contest.findUniqueOrThrow({
+      where: { id: contestId },
+      select: {
+        startTime: true,
+        endTime: true
+      }
+    })
+
+    const now = new Date()
+
+    if (!contest.endTime || now < contest.endTime) {
+      throw new ForbiddenAccessException(
+        'Contest problem statistics are available after the contest ends'
+      )
+    }
+
+    if (!contest.startTime) {
+      throw new ForbiddenAccessException(
+        'Contest problem statistics are unavailable'
+      )
+    }
+
+    return contest
+  }
+
+  private async ensureContestProblemExists(
+    contestId: number,
+    problemId: number
+  ) {
+    await this.prisma.contestProblem.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_problemId: {
+          contestId,
+          problemId
+        }
+      },
+      select: { id: true }
+    })
+  }
+
+  private shouldIncludeDistribution(
+    mode: 'both' | 'distribution' | 'timeline'
+  ) {
+    return mode === 'both' || mode === 'distribution'
+  }
+
+  private shouldIncludeTimeline(mode: 'both' | 'distribution' | 'timeline') {
+    return mode === 'both' || mode === 'timeline'
+  }
+
+  private getProblemStatisticsKeys() {
+    // 통계 응답에서 사용하는 결과 분류 키 모음
+    return ['WA', 'TLE', 'MLE', 'RE', 'CE', 'SE', 'NA'] as const
+  }
+
+  private getResultStatusToKeyMap() {
+    // Prisma ResultStatus → 통계 결과 키 매핑
+    const keys = this.getProblemStatisticsKeys()
+
+    return {
+      [ResultStatus.WrongAnswer]: keys[0],
+      [ResultStatus.TimeLimitExceeded]: keys[1],
+      [ResultStatus.MemoryLimitExceeded]: keys[2],
+      [ResultStatus.RuntimeError]: keys[3],
+      [ResultStatus.CompileError]: keys[4],
+      [ResultStatus.ServerError]: keys[5]
+    } as Partial<Record<ResultStatus, (typeof keys)[number]>>
+  }
+
+  private isWrongResult(status: ResultStatus) {
+    const wrongStatuses: ResultStatus[] = [
+      ResultStatus.WrongAnswer,
+      ResultStatus.TimeLimitExceeded,
+      ResultStatus.MemoryLimitExceeded,
+      ResultStatus.RuntimeError,
+      ResultStatus.CompileError,
+      ResultStatus.ServerError
+    ]
+
+    return wrongStatuses.includes(status)
   }
 
   async getContestProblemUpdateHistory({
