@@ -1,6 +1,7 @@
 'use client'
 
 import { AdminContestStatusTimeDiff } from '@/app/admin/_components/AdminContestStatusTimeDiff'
+//import { TimeStatusBadge } from '@/components/TimeStatusBadge'
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import keyBlueIcon from '@/public/icons/key-blue.svg'
@@ -51,7 +52,7 @@ export default function Layout(props: {
         <div className="flex gap-[6px] text-[#333333E5]">
           <Image src={keyBlueIcon} alt="keyBlueicon" />
           <span className="text-primary font-medium">Invitation code : </span>
-          <span>{contestData?.invitationCode && 'yes..'}</span>
+          <span>{contestData?.invitationCode ?? '-'}</span>
         </div>
         <AdminContestStatusTimeDiff
           showText={true}
