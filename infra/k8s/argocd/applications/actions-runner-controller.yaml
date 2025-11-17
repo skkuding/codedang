@@ -8,11 +8,11 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: oci://ghcr.io/actions/actions-runner-controller-charts
+    repoURL: https://actions-runner-controller.github.io/actions-runner-controller
     chart: gha-runner-scale-set-controller
     targetRevision: 0.13.0
     helm:
-      oci: true
+      releaseName: gha-runner-scale-set-controller
   destination:
     namespace: arc-systems
     name: stage

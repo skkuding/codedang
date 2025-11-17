@@ -10,16 +10,13 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: https://github.com/skkuding/codedang
-      targetRevision: main
-      path: infra/k8s/monitoring/grafana
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: grafana
+      targetRevision: '9.4.0'
       helm:
+        releaseName: grafana
         valueFiles:
           - $codedang/infra/k8s/monitoring/grafana/values.yaml
-        releaseName: grafana
-        chart: grafana
-        version: '9.4.0'
-        repo: https://grafana.github.io/helm-charts
     - repoURL: https://github.com/skkuding/codedang
       targetRevision: main
       path: infra/k8s/monitoring/grafana
