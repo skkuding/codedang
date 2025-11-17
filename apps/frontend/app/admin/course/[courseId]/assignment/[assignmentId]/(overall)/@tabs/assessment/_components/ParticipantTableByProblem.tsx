@@ -246,7 +246,7 @@ export function ParticipantTableByProblem() {
           columndId="studentId"
           placeholder="Search Student Id"
         />
-        <DataTable />
+        <DataTable headerStyle={{ testcases: 'w-1 min-w-[75px]' }} />
       </DataTableRoot>
     </div>
   )
