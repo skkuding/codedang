@@ -10,6 +10,11 @@ get {
   auth: none
 }
 
+params:path {
+  contestId: 999999
+  problemId: 999999
+}
+
 params:query {
   # mode를 지정하지 않아 both 기본 응답을 기대하지만,
   # contestId/problemId가 유효하지 않아 404를 반환합니다.

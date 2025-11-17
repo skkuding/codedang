@@ -5,18 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/:contestId/problem/:problemId/statistics/graph
+  url: {{baseUrl}}/contest/:contestId/problem/:problemId/statistics/graph?mode=invalid
   body: none
   auth: none
 }
 
 params:path {
-  problemId: 1
-  contestId: 1
-}
-
-params:query {
-  mode: invalid
+  contestId: 6
+  problemId: 5
 }
 
 assert {
@@ -30,6 +26,3 @@ docs {
   `mode` 쿼리 파라미터에 `distribution` / `timeline` 이외의 값을 전달했을 때
   `/contest/:contestId/problem/:problemId/statistics/graph`가 400 Bad Request와 `"Invalid mode parameter"` 메시지를 반환됩니다.
 }
-
-
-

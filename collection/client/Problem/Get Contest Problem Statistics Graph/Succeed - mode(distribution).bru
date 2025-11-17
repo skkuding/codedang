@@ -1,0 +1,50 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/contest/:contestId/problem/:problemId/statistics/graph?mode=distribution
+  body: none
+  auth: none
+}
+
+params:query {
+  # mode를 지정하지 않으면 기본값으로 both가 사용됩니다.
+}
+
+params:path {
+  contestId: 6
+  problemId: 6
+}
+
+assert {
+  res.status: eq 200
+  res("contestId"): isNumber 42
+  res("problemId"): isNumber 7
+  res("mode"): eq "both"
+
+  res("distribution.totalSubmissions"): isNumber 1
+  res("distribution.counts.WA"): isNumber 1
+  res("distribution.counts.TLE"): isNumber 1
+  res("distribution.counts.MLE"): isNumber 1
+  res("distribution.counts.RE"): isNumber 1
+  res("distribution.counts.CE"): isNumber 1
+  res("distribution.counts.SE"): isNumber 1
+  res("distribution.counts.NA"): isNumber 1
+
+  res("timeline.intervalMinutes"): isNumber 10
+  res("timeline.series"): isArray
+  res("timeline.series[0].timestamp"): isString
+  res("timeline.series[0].accepted"): isNumber 0
+  res("timeline.series[0].wrong"): isNumber 0
+}
+
+docs {
+  # 📘 Get Contest Problem Statistics Graph
+
+  **GET** `/contest/:contestId/problem/:problemId/statistics/graph?mode=distribution`
+
+  - `mode=distribution`인 경우 오답 분포만 반환합니다.
+}
