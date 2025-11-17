@@ -41,7 +41,7 @@ export class CheckResolver {
     @Args('problemId', { type: () => Int }) problemId: number
   ): Promise<CheckRequest> {
     return await this.checkService.checkAssignmentProblem({
-      userId: req.user.id,
+      user: req.user,
       checkInput,
       assignmentId,
       problemId
