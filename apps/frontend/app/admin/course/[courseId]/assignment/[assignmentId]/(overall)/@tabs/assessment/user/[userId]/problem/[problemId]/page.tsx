@@ -36,7 +36,7 @@ export default function Page() {
 
         <div className="h-3 bg-[#121728]" />
 
-        <div className="px-6 py-2">
+        <div className="px-5 pb-10 pt-5">
           <ErrorBoundary fallback={<SubmissionTestcaseError />}>
             <SubmissionTestcase />
           </ErrorBoundary>

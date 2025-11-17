@@ -12,10 +12,11 @@ import {
 } from '@/components/shadcn/table'
 import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
-import { getResultColor } from '@/libs/utils'
+import { cn } from '@/libs/utils'
 import { useTestcaseStore } from '@/stores/testcaseStore'
 import { useSuspenseQuery } from '@apollo/client'
 import { ResultStatus, type TestCaseResult } from '@generated/graphql'
+import { ChevronRight } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -77,27 +78,35 @@ export function SubmissionTestcase() {
 
   return (
     <div>
-      <h2 className="text-lg font-bold">Testcase</h2>
-      <Table className="**:text-center **:text-sm **:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
-        <TableHeader className="**:text-slate-100">
+      <h2 className="mb-5 text-xl font-semibold">Testcase</h2>
+      <Table className="**:border-separate **:border-spacing-0 **:text-center **:font-normal [&_td]:p-0 [&_td]:text-xs">
+        <TableHeader className="**:text-slate-100 **:text-sm **:h-[33px] **:bg-[#282D3D]">
           <TableRow>
-            <TableHead>#</TableHead>
+            <TableHead className="rounded-l-sm pl-3">#</TableHead>
             <TableHead>Result</TableHead>
             <TableHead>Runtime</TableHead>
             <TableHead>Memory</TableHead>
-            <TableHead>Score Weight</TableHead>
+            <TableHead className="rounded-r-sm pr-6">ScoreWeight</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
+          <TableRow>
+            <TableCell className="h-1 border-none" colSpan={5} />
+          </TableRow>
+        </TableBody>
+        <TableBody>
           {testResults
             .sort((a, b) => Number(a.isHidden) - Number(b.isHidden))
-            .map((item) => {
+            .map((item, index, array) => {
               const caseLabel = item.isHidden
                 ? `Hidden #${item.order}`
                 : `Sample #${item.order}`
               return (
                 <TableRow
-                  className="cursor-pointer text-[#9B9B9B] hover:bg-slate-800"
+                  className={cn(
+                    '[&_td]:border-b-1 h-10 cursor-pointer [&_td]:border-[#404351]',
+                    index === array.length - 1 && '[&_td]:border-none'
+                  )}
                   key={item.problemTestcaseId}
                   onClick={() => {
                     handleTestcaseSelect(
@@ -108,12 +117,10 @@ export function SubmissionTestcase() {
                     console.log(item.order, item.isHidden)
                   }}
                 >
-                  <TableCell>
-                    <div className="py-2">{caseLabel}</div>
+                  <TableCell className="rounded-l-sm">
+                    <div className="pl-3">{caseLabel}</div>
                   </TableCell>
-                  <TableCell className={getResultColor(item.result)}>
-                    {item.result}
-                  </TableCell>
+                  <TableCell>{item.result}</TableCell>
                   <TableCell>
                     {item.cpuTime ? `${item.cpuTime} ms` : '-'}
                   </TableCell>
@@ -122,54 +129,68 @@ export function SubmissionTestcase() {
                       ? `${(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
                       : '-'}
                   </TableCell>
-                  <TableCell>
-                    {(() => {
-                      if (
-                        item.scoreWeightNumerator &&
-                        item.scoreWeightDenominator
-                      ) {
-                        const percentage =
-                          (item.scoreWeightNumerator /
-                            item.scoreWeightDenominator) *
-                          100
-                        return `${percentage.toFixed(2)}%`
-                      }
-                      return '-'
-                    })()}
+                  <TableCell className="rounded-r-sm">
+                    <div className="flex justify-end pr-3">
+                      <div className="m-auto">
+                        {(() => {
+                          if (
+                            item.scoreWeightNumerator &&
+                            item.scoreWeightDenominator
+                          ) {
+                            const percentage =
+                              (item.scoreWeightNumerator /
+                                item.scoreWeightDenominator) *
+                              100
+                            return `${percentage.toFixed(2)}%`
+                          }
+                          return '-'
+                        })()}
+                      </div>
+                      <ChevronRight className="h-4 w-4" />
+                    </div>
                   </TableCell>
                 </TableRow>
               )
             })}
         </TableBody>
-        <TableFooter className="bg-transparent">
+        <TableBody>
           <TableRow>
-            <TableCell>
-              {(() => {
-                const totalTestcases = testResults.length
-                const correctTestcases = testResults.filter(
-                  (item) => item.result === ResultStatus.Accepted
-                ).length
-                return `${correctTestcases}/${totalTestcases}`
-              })()}
+            <TableCell className="h-1 border-none" colSpan={5} />
+          </TableRow>
+        </TableBody>
+        <TableFooter className="h-[34px] bg-[#282D3D] [&_td]:border-none">
+          <TableRow>
+            <TableCell className="rounded-l-sm">
+              <div className="pl-3">
+                {(() => {
+                  const totalTestcases = testResults.length
+                  const correctTestcases = testResults.filter(
+                    (item) => item.result === ResultStatus.Accepted
+                  ).length
+                  return `${correctTestcases}/${totalTestcases}`
+                })()}
+              </div>
             </TableCell>
             <TableCell colSpan={3} />
-            <TableCell>
-              {(() => {
-                const totalPercentage = testResults.reduce((sum, item) => {
-                  if (
-                    item.scoreWeightNumerator &&
-                    item.scoreWeightDenominator
-                  ) {
-                    const percentage =
-                      (item.scoreWeightNumerator /
-                        item.scoreWeightDenominator) *
-                      100
-                    return sum + percentage
-                  }
-                  return sum
-                }, 0)
-                return `${totalPercentage.toFixed(2)}%`
-              })()}
+            <TableCell className="rounded-r-sm">
+              <div className="pr-6">
+                {(() => {
+                  const totalPercentage = testResults.reduce((sum, item) => {
+                    if (
+                      item.scoreWeightNumerator &&
+                      item.scoreWeightDenominator
+                    ) {
+                      const percentage =
+                        (item.scoreWeightNumerator /
+                          item.scoreWeightDenominator) *
+                        100
+                      return sum + percentage
+                    }
+                    return sum
+                  }, 0)
+                  return `${totalPercentage.toFixed(2)}%`
+                })()}
+              </div>
             </TableCell>
           </TableRow>
         </TableFooter>
