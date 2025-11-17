@@ -130,7 +130,7 @@ export function SubmissionTestcase() {
                       : '-'}
                   </TableCell>
                   <TableCell className="rounded-r-sm">
-                    <div className="flex justify-end pr-3">
+                    <div className="flex pr-3">
                       <div className="m-auto">
                         {(() => {
                           if (
