@@ -127,6 +127,43 @@ export class CheckService {
     problemId: number
   }) {
     await this.validateAssignment({ assignmentId, problemId })
+
+    const assignment = await this.prisma.assignment.findUnique({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    const group = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId: assignment?.groupId
+        }
+      },
+      select: {
+        isGroupLeader: true
+      }
+    })
+
+    if (!group) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (group.isGroupLeader) {
+      throw new ForbiddenException(
+        'only group leader can request assignment plagiarism check'
+      )
+    }
+
     return await this.checkProblem({
       userId,
       checkInput,
