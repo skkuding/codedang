@@ -1,74 +1,72 @@
 'use client'
 
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { cn } from '@/libs/utils'
+import { Skeleton } from '@/components/shadcn/skeleton'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@/components/shadcn/tabs'
 import { ErrorBoundary } from '@suspensive/react'
-import { useParams } from 'next/navigation'
-import { useState } from 'react'
-import { Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { toast } from 'sonner'
 import { ParticipantTableByProblem } from './_components/ParticipantTableByProblem'
 import { ParticipantTableOverall } from './_components/ParticipantTableOverall'
 
 export default function Assessment() {
-  const { courseId, assignmentId } = useParams() // 경로에서 params 가져오기
-  const [tab, setTab] = useState<'overall' | 'by-problem'>('overall')
+  const [tab, setTab] = useState('overall')
 
   const handleNoProblemsFound = () => {
     toast.error('No imported problems found in this assignment.')
     setTab('overall')
-    return null
   }
 
   return (
-    <div>
-      <div className="mb-4 flex justify-start">
-        <div className="flex gap-1 rounded-full bg-gray-200 p-1">
-          <button
-            className={cn(
-              'rounded-full px-4 py-1 font-semibold transition-colors',
-              tab === 'overall'
-                ? 'text-primary bg-white'
-                : 'bg-transparent text-gray-700'
-            )}
-            onClick={() => setTab('overall')}
-          >
-            Overall
-          </button>
-          <button
-            className={cn(
-              'rounded-full px-4 py-1 font-semibold transition-colors',
-              tab === 'by-problem'
-                ? 'text-primary bg-white'
-                : 'bg-transparent text-gray-700'
-            )}
-            onClick={() => setTab('by-problem')}
-          >
-            By Problem
-          </button>
-        </div>
-      </div>
+    <Tabs value={tab} onValueChange={setTab}>
+      <TabsList>
+        <TabsTrigger value="overall">Overall</TabsTrigger>
+        <TabsTrigger value="by-problem">By Problem</TabsTrigger>
+      </TabsList>
 
-      {tab === 'overall' ? (
-        <Suspense fallback={<div>Loading Overall...</div>}>
-          <ParticipantTableOverall
-            groupId={Number(courseId)}
-            assignmentId={Number(assignmentId)}
-          />
-        </Suspense>
-      ) : (
+      <TabsContent value="overall">
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <Suspense
+            fallback={
+              <div className="flex flex-col gap-6">
+                <div className="flex justify-between gap-4">
+                  <Skeleton className="h-24 w-full" />
+                  <Skeleton className="h-24 w-full" />
+                </div>
+                <Skeleton className="h-[500px] w-full" />
+              </div>
+            }
+          >
+            <ParticipantTableOverall />
+          </Suspense>
+        </ErrorBoundary>
+      </TabsContent>
+
+      <TabsContent value="by-problem">
         <ErrorBoundary
           fallback={FetchErrorFallback}
           onError={handleNoProblemsFound}
         >
-          <Suspense fallback={<div>Loading By Problem...</div>}>
-            <ParticipantTableByProblem
-              courseId={Number(courseId)}
-              assignmentId={Number(assignmentId)}
-            />
+          <Suspense
+            fallback={
+              <div className="flex flex-col gap-6">
+                <div className="flex justify-between gap-4">
+                  <Skeleton className="h-24 w-full" />
+                  <Skeleton className="h-24 w-full" />
+                </div>
+                <Skeleton className="h-[500px] w-full" />
+              </div>
+            }
+          >
+            <ParticipantTableByProblem />
           </Suspense>
         </ErrorBoundary>
-      )}
-    </div>
+      </TabsContent>
+    </Tabs>
   )
 }

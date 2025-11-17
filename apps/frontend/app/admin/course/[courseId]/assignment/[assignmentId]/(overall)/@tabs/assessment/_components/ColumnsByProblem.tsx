@@ -69,9 +69,8 @@ function TestcaseCell({
 export const createColumns = (
   problemData: ProblemData[],
   selectedProblemId: number | null,
-  courseId: number,
-  assignmentId: number,
-  groupId: number,
+  courseId: string,
+  assignmentId: string,
   isAssignmentFinished: boolean
 ): ColumnDef<DataTableScoreSummary>[] => {
   return [
@@ -92,7 +91,8 @@ export const createColumns = (
         const results = row.original.testcaseResults ?? []
 
         return (
-          <div className="relative mx-auto max-w-[600px]">
+          <div className="relative" style={{ width: '45vw', maxWidth: '45vw' }}>
+            {/* <div className="relative w-[600px]"> */}
             {isFirstRow && (
               <div
                 className="line-scrollbar absolute left-0 right-0 top-[-10px] z-10 h-3 overflow-x-auto overflow-y-hidden"
@@ -139,8 +139,8 @@ export const createColumns = (
       cell: ({ row }) => (
         <div className="flex justify-center">
           <CommentCell
-            groupId={groupId}
-            assignmentId={assignmentId}
+            groupId={Number(courseId)}
+            assignmentId={Number(assignmentId)}
             userId={row.original.id}
             problemId={selectedProblemId ?? problemData[0].problemId}
           />
