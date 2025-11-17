@@ -25,7 +25,8 @@ export class CheckResolver {
    * - enableMerging(옵션, 기본: false)
    * - useJplagClustering(옵션, 기본: true)
    * @param {number} problemId 검사를 수행할 문제 아이디
-   * @returns {Promise} 생성된 검사 요청 기록을 반환합니다.
+   * @param {number} assignmentId 검사를 수행할 과제 아이디
+   * @returns {CheckRequest} 생성된 검사 요청 기록을 반환합니다.
    * - 요청 기록에 포함된 checkId로 검사 결과를 조회할 수 있습니다.
    */
   @Mutation(() => CheckRequest)
@@ -48,6 +49,24 @@ export class CheckResolver {
   }
 
   /**
+   * 특정 Assignment와 Problem에 대해 요청된 모든 표절 검사 요청을 조회합니다.
+   *
+   * @param {number} problemId 문제 아이디
+   * @param {number} assignmentId 과제 아이디
+   * @returns {CheckRequest[]} 제공된 문제/과제에 맞는 표절 검사 요청 목록
+   */
+  @Query(() => [CheckRequest])
+  async getCheckRequests(
+    @Args('problemId', { type: () => Int }) problemId: number,
+    @Args('assignmentId', { type: () => Int }) assignmentId: number
+  ) {
+    return await this.checkService.getCheckRequests({
+      problemId,
+      assignmentId
+    })
+  }
+
+  /**
    * 완료된 표절 검사 요청의 결과를 조회합니다.
    *
    * @param {number} checkId 표절 검사 요청의 아이디
@@ -56,7 +75,7 @@ export class CheckResolver {
    * @returns {GetCheckResultSummaryOutput[]} 각 제출물 쌍의 비교 결과를 take 수 만큼 반환합니다.
    */
   @Query(() => [GetCheckResultSummaryOutput])
-  async overviewPlagiarismChecks(
+  async overviewCheckByRequestId(
     @Args('checkId', { type: () => Int }) checkId: number,
     @Args(
       'take',
@@ -67,8 +86,38 @@ export class CheckResolver {
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ): Promise<GetCheckResultSummaryOutput[]> {
-    return await this.checkService.getCheckResults({
+    return await this.checkService.getCheckResultsById({
       checkId,
+      take,
+      cursor
+    })
+  }
+
+  /**
+   * 완료된 최신의 표절 검사 요청의 결과를 assignment 아이디 및 problem 아이디를 통해 조회합니다.
+   *
+   * @param {number} problemId 검사를 수행할 문제 아이디
+   * @param {number} assignmentId 검사를 수행할 과제 아이디
+   * @param {number} take 한 번에 조회할 검사 결과의 수
+   * @param {number} cursor 페이지 커서
+   * @returns {GetCheckResultSummaryOutput[]} 각 제출물 쌍의 비교 결과를 take 수 만큼 반환합니다.
+   */
+  @Query(() => [GetCheckResultSummaryOutput])
+  async overviewCheckByAssignmentProblemId(
+    @Args('problemId', { type: () => Int }) problemId: number,
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 50 },
+      new RequiredIntPipe('take')
+    )
+    take: number,
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null
+  ): Promise<GetCheckResultSummaryOutput[]> {
+    return await this.checkService.getCheckResultsByAssignmentProblemId({
+      problemId,
+      assignmentId,
       take,
       cursor
     })

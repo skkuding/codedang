@@ -199,6 +199,35 @@ export class CheckService {
     }
   }
 
+  @Span()
+  async getCheckRequests({
+    problemId,
+    assignmentId
+  }: {
+    problemId: number
+    assignmentId: number
+  }) {
+    return await this.prisma.checkRequest.findMany({
+      where: {
+        assignmentId,
+        problemId
+      },
+      select: {
+        id: true,
+        userId: true,
+        language: true,
+        enableMerging: true,
+        minTokens: true,
+        useJplagClustering: true,
+        createTime: true,
+        result: true
+      },
+      orderBy: {
+        createTime: 'desc'
+      }
+    })
+  }
+
   /**
    * 완료된 표절 검사의 결과 일부를 요약하여 가져옵니다.
    *
@@ -206,13 +235,13 @@ export class CheckService {
    * @param {number} take 조회할 제출물 쌍의 비교 결과 개수
    * @param {number | null} cursor 페이지 커서
    * @returns {GetCheckResultSummaryOutput[]} 여러 제출물 쌍의 비교 결과를 평균 유사도 기준으로 내림차순 정렬하여 반환합니다.
-   * @throws {NotFoundException} 아래와 같은 경우 발생합니다.
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 검사 요청 기록이 없을 때
    * - 아직 검사 중일 때
    * - 표절 검사 중 오류가 발생했을 때
    */
   @Span()
-  async getCheckResults({
+  async getCheckResultsById({
     checkId,
     take,
     cursor
@@ -231,15 +260,15 @@ export class CheckService {
     })
 
     if (!request) {
-      throw new NotFoundException('Request not found')
+      throw new EntityNotExistException('Request')
     }
     if (request.result === CheckResultStatus.Pending) {
-      throw new NotFoundException(
-        'Result not found as it is still being evaluated'
+      throw new EntityNotExistException(
+        'As it is still being evaluated, Result'
       )
     }
     if (request.result !== CheckResultStatus.Completed) {
-      throw new NotFoundException(`Result not found: ${request.result}`)
+      throw new EntityNotExistException(`[${request.result}] Result`)
     }
 
     const paginator = this.prisma.getPaginator(cursor)
@@ -274,6 +303,56 @@ export class CheckService {
     })
 
     return results
+  }
+
+  /**
+   * 완료된 표절 검사의 결과 일부를 요약하여 가져옵니다.
+   *
+   * @param {number} problemId 문제 아이디
+   * @param {number} assignmentId 과제 아이디
+   * @param {number} take 조회할 제출물 쌍의 비교 결과 개수
+   * @param {number | null} cursor 페이지 커서
+   * @returns {GetCheckResultSummaryOutput[]} 여러 제출물 쌍의 비교 결과를 평균 유사도 기준으로 내림차순 정렬하여 반환합니다.
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 검사 요청 기록이 없을 때
+   * - 아직 검사 중일 때
+   * - 표절 검사 중 오류가 발생했을 때
+   */
+  @Span()
+  async getCheckResultsByAssignmentProblemId({
+    problemId,
+    assignmentId,
+    take,
+    cursor
+  }: {
+    problemId: number
+    assignmentId: number
+    take: number
+    cursor: number | null
+  }) {
+    await this.validateAssignment({ assignmentId, problemId })
+    const request = await this.prisma.checkRequest.findFirst({
+      where: {
+        problemId,
+        assignmentId
+      },
+      select: {
+        id: true
+      },
+      orderBy: {
+        createTime: 'desc'
+      }
+    })
+
+    if (!request) {
+      throw new EntityNotExistException('no request found')
+    }
+
+    return await this.getCheckResultsById({
+      checkId: request.id,
+      take,
+      cursor
+    })
   }
 
   /**
