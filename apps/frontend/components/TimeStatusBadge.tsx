@@ -2,13 +2,20 @@ import { cn } from '@/libs/utils'
 
 interface TimeStatusBadgeProps {
   status: string
+  endTime?: Date
 }
 
-export function TimeStatusBadge({ status }: TimeStatusBadgeProps) {
+export function TimeStatusBadge({ status, endTime }: TimeStatusBadgeProps) {
   const statusStyles: Record<string, string> = {
-    UPCOMING: 'bg-color-yellow-95 text-color-orange-50',
-    ONGOING: 'text-primary bg-color-blue-95',
-    ENDED: 'text-color-pink-50 bg-color-pink-95'
+    upcoming: 'bg-color-yellow-95 text-color-orange-50',
+    ongoing: 'text-primary bg-color-blue-95',
+    ended: 'text-color-pink-50 bg-color-pink-95',
+    undefined: 'opacity-0'
+  }
+
+  if (endTime) {
+    const endDate = new Date(endTime)
+    status = new Date() < endDate ? 'ongoing' : 'ended'
   }
 
   return (
@@ -18,7 +25,7 @@ export function TimeStatusBadge({ status }: TimeStatusBadgeProps) {
         statusStyles[status]
       )}
     >
-      <span>{status}</span>
+      <span className="uppercase">{status}</span>
     </div>
   )
 }

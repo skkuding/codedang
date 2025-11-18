@@ -20,21 +20,21 @@ export function DurationDisplay({
   const currentTime = dayjs()
 
   const titleIcons = {
-    Duration: clockRedIcon,
-    Visible: inivisbleOrangeIcon,
-    Registration: subtractIcon
+    duration: clockRedIcon,
+    visible: inivisbleOrangeIcon,
+    registration: subtractIcon
   }
   const titleIcon = titleIcons[title as keyof typeof titleIcons] || clockRedIcon
 
   const titleDesigns = {
-    Duration: 'text-error text-base font-medium',
-    Visible: 'font-medium text-orange-500',
-    Registration: 'text-primary font-medium'
+    duration: 'text-error text-base font-medium capitalize',
+    visible: 'font-medium text-orange-500 capitalize',
+    registration: 'text-primary font-medium capitalize'
   }
 
   const titleStyle =
     titleDesigns[title as keyof typeof titleDesigns] ??
-    'test-error text-base font-medium'
+    'text-error text-base font-medium'
 
   return (
     <div className="flex flex-col gap-1">
@@ -48,13 +48,13 @@ export function DurationDisplay({
           {dateFormatter(endTime ?? '', 'YYYY-MM-DD HH:mm')}
         </span>
         <div>
-          {currentTime.isAfter(endTime) && <TimeStatusBadge status="ENDED" />}
+          {currentTime.isAfter(endTime) && <TimeStatusBadge status="ended" />}
           {currentTime.isAfter(dayjs(startTime)) &&
             currentTime.isBefore(dayjs(endTime)) && (
-              <TimeStatusBadge status="ONGOING" />
+              <TimeStatusBadge status="ongoing" />
             )}
           {currentTime.isBefore(dayjs(startTime)) && (
-            <TimeStatusBadge status="UPCOMING" />
+            <TimeStatusBadge status="upcoming" />
           )}
         </div>
       </div>

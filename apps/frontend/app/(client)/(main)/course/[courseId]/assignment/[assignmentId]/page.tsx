@@ -50,14 +50,14 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
             </p>
             {record && <TotalScoreLabel record={record} />}
           </div>
-          <div className="flex flex-col gap-[6px]">
+          <div className="flex flex-shrink-0 flex-col gap-[6px]">
             <CountdownStatus
               showText={true}
               startTime={assignment.startTime}
               baseTime={assignment.dueTime ?? assignment.endTime}
             />
             <DurationDisplay
-              title="Visible"
+              title="visible"
               startTime={assignment.startTime}
               endTime={assignment.endTime}
             />

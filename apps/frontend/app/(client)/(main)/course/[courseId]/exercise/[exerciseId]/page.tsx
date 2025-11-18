@@ -59,7 +59,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
               baseTime={exercise.dueTime ?? exercise.endTime}
             />
             <DurationDisplay
-              title="Visible"
+              title="visible"
               startTime={exercise.startTime}
               endTime={exercise.endTime}
             />

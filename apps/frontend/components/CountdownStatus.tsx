@@ -111,7 +111,7 @@ export function CountdownStatus({
       <DurationDisplay
         startTime={startTime}
         endTime={baseTime}
-        title="Duration"
+        title="duration"
       />
     )
   }

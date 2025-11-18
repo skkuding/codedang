@@ -100,7 +100,7 @@ export function AdminContestStatusTimeDiff({
       <DurationDisplay
         startTime={contest?.startTime}
         endTime={contest?.endTime}
-        title="Duration"
+        title="duration"
       />
     )
   }

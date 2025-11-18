@@ -50,7 +50,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
           <DurationDisplay
             startTime={assignmentData?.startTime}
             endTime={assignmentData?.endTime}
-            title="Visible"
+            title="visible"
           />
         </div>
       )}

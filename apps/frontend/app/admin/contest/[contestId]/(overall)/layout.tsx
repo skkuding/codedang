@@ -1,7 +1,7 @@
 'use client'
 
 import { AdminContestStatusTimeDiff } from '@/app/admin/_components/AdminContestStatusTimeDiff'
-//import { TimeStatusBadge } from '@/components/TimeStatusBadge'
+import { TimeStatusBadge } from '@/components/TimeStatusBadge'
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import keyBlueIcon from '@/public/icons/key-blue.svg'
@@ -10,7 +10,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { use } from 'react'
 import { FaAngleLeft, FaPencil, FaUser } from 'react-icons/fa6'
-// import { IoKey } from 'react-icons/io5'
 import { ContestOverallTabs } from '../_components/ContestOverallTabs'
 
 export default function Layout(props: {
@@ -45,14 +44,21 @@ export default function Layout(props: {
         </Link>
       </div>
       <div className="mb-[120px] flex flex-col gap-[10px]">
-        <div className="flex font-normal text-[#333333E5]">
-          <FaUser className="black self-center" color="#3581FA" />
-          &nbsp; Contest Admin : {contestData?.createdBy?.username}
+        <div className="flex items-center gap-[6px] font-normal text-[#333333E5]">
+          <FaUser className="black ml-0.5 self-center" color="#3581FA" />
+          <span>Contest Admin : </span>
+          <span>{contestData?.createdBy?.username}</span>
         </div>
-        <div className="flex gap-[6px] text-[#333333E5]">
+        <div className="flex items-center gap-[6px] text-[#333333E5]">
           <Image src={keyBlueIcon} alt="keyBlueicon" />
           <span className="text-primary font-medium">Invitation code : </span>
           <span>{contestData?.invitationCode ?? '-'}</span>
+          {contestData?.invitationCode ? (
+            <TimeStatusBadge
+              status="undefined"
+              endTime={contestData?.registerDueTime}
+            />
+          ) : null}
         </div>
         <AdminContestStatusTimeDiff
           showText={true}

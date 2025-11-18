@@ -48,7 +48,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
             baseTime={assignmentData?.dueTime ?? assignmentData?.endTime}
           />
           <DurationDisplay
-            title="Visible"
+            title="visible"
             startTime={assignmentData?.startTime}
             endTime={assignmentData?.endTime}
           />
