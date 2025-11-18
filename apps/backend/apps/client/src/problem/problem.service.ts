@@ -248,15 +248,13 @@ export class ProblemService {
 
 @Injectable()
 export class ContestProblemService {
-  // 통계 응답에서 사용하는 결과 유형 모음 (단일 진실 공급원)
   private static readonly resultTypes = [
     'WA',
     'TLE',
     'MLE',
     'RE',
     'CE',
-    'SE',
-    'NA'
+    'SE'
   ] as const
 
   constructor(
@@ -520,6 +518,13 @@ export class ContestProblemService {
     }
   }
 
+  /**
+   * 대회 statistics 페이지의 문제별 통계 그래프를 조회합니다.
+   *
+   * 대회 종료 후에만 조회할 수 있습니다.
+   *
+   * mode 파라미터에 따라 분포 통계(distribution), 타임라인 통계(timeline), 미지정 시 기본값 'both'로 둘 다 반환합니다.
+   */
   async getContestProblemStatistics({
     contestId,
     problemId,
@@ -552,7 +557,7 @@ export class ContestProblemService {
       )
     }
 
-    // 요청한 문제가 실제로 대회에 속해 있는지 확인
+    // 대회 소속 문제 검증
     await this.prisma.contestProblem.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -608,6 +613,12 @@ export class ContestProblemService {
     return statistics
   }
 
+  /**
+   * 문제 제출 결과 분포 통계를 계산합니다.
+   *
+   * 결과 유형별 제출 수를 집계합니다.
+   * 결과 유형: WA, TLE, MLE, RE, CE, SE
+   */
   private async getProblemDistribution({
     contestId,
     problemId
@@ -615,42 +626,20 @@ export class ContestProblemService {
     contestId: number
     problemId: number
   }) {
-    const [resultGroups, submissionUsers, totalParticipants] =
-      await Promise.all([
-        this.prisma.submission.groupBy({
-          by: ['result'],
-          where: {
-            contestId,
-            problemId,
-            userId: {
-              not: null
-            }
-          },
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          _count: { _all: true }
-        }),
-        this.prisma.submission.findMany({
-          where: {
-            contestId,
-            problemId,
-            userId: {
-              not: null
-            }
-          },
-          distinct: ['userId'],
-          select: {
-            userId: true
+    const [resultGroups] = await Promise.all([
+      this.prisma.submission.groupBy({
+        by: ['result'],
+        where: {
+          contestId,
+          problemId,
+          userId: {
+            not: null
           }
-        }),
-        this.prisma.contestRecord.count({
-          where: {
-            contestId,
-            userId: {
-              not: null
-            }
-          }
-        })
-      ])
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: { _all: true }
+      })
+    ])
 
     // 유형별 카운트 객체들 초기화
     const resultTypes = ContestProblemService.resultTypes
@@ -690,17 +679,19 @@ export class ContestProblemService {
       counts[key] += submissionCount
     }
 
-    const participantsWithSubmission = submissionUsers.filter(
-      (item) => item.userId != null
-    ).length
-    counts.NA = Math.max(totalParticipants - participantsWithSubmission, 0)
-
     return {
       totalSubmissions,
       counts
     }
   }
 
+  /**
+   * 문제 제출 타임라인 통계를 계산합니다.
+   *
+   * 대회 기간을 10분 단위로 분할하여 각 시간대별 Accepted와 Wrong 제출 수를 집계합니다.
+   * Wrong 유형: WA, TLE, MLE, RE, CE, SE
+   * NA는 제출하지 않은 경우이므로 타임라인 그래프에 포함되지 않습니다.
+   */
   private async getProblemTimeline({
     contestId,
     problemId,

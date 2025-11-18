@@ -2777,15 +2777,10 @@ int main(void) {
 
   await Promise.all(checkSeeds)
 
-  // ===== 테스트용 데이터  =====
-  // 통계 API 테스트를 위한 endedContests 제출 데이터
-  // 대상: 대회 ID 6 ("Long Time Ago Assignment"), 문제 ID 5 ("채권관계")
-  // 대회 기간: 2023-06-01 10:00 ~ 11:00 (1시간)
   if (endedContests.length > 0) {
     const testContest = endedContests[0]
-    const testProblem1 = problems[4] // 문제 ID: 5
+    const testProblem1 = problems[4]
 
-    // WA (Wrong Answer) - 10:03
     const waSubmission = await prisma.submission.create({
       data: {
         userId: users[0].id,
@@ -2810,7 +2805,6 @@ int main(void) {
       data: { result: ResultStatus.WrongAnswer }
     })
 
-    // TLE (Time Limit Exceeded) - 10:12
     const tleSubmission = await prisma.submission.create({
       data: {
         userId: users[1].id,
@@ -2834,7 +2828,6 @@ int main(void) {
       data: { result: ResultStatus.TimeLimitExceeded }
     })
 
-    // MLE (Memory Limit Exceeded) - 10:18
     const mleSubmission = await prisma.submission.create({
       data: {
         userId: users[2].id,
@@ -2858,7 +2851,6 @@ int main(void) {
       data: { result: ResultStatus.MemoryLimitExceeded }
     })
 
-    // RE (Runtime Error) - 10:25
     const reSubmission = await prisma.submission.create({
       data: {
         userId: users[3].id,
@@ -2882,7 +2874,6 @@ int main(void) {
       data: { result: ResultStatus.RuntimeError }
     })
 
-    // CE (Compile Error) - 10:33
     const ceSubmission = await prisma.submission.create({
       data: {
         userId: users[4].id,
@@ -2906,7 +2897,29 @@ int main(void) {
       data: { result: ResultStatus.CompileError }
     })
 
-    // Accepted (정답) - 10:42
+    const seSubmission = await prisma.submission.create({
+      data: {
+        userId: users[8]?.id || users[0].id,
+        problemId: testProblem1.id,
+        contestId: testContest.id,
+        code: [{ id: 1, locked: false, text: 'print("server error")' }],
+        language: Language.Python3,
+        result: ResultStatus.Judging,
+        createTime: new Date('2023-06-01T10:38:22.000Z')
+      }
+    })
+    await prisma.submissionResult.create({
+      data: {
+        submissionId: seSubmission.id,
+        problemTestcaseId: problemTestcases[4].id,
+        result: ResultStatus.ServerError
+      }
+    })
+    await prisma.submission.update({
+      where: { id: seSubmission.id },
+      data: { result: ResultStatus.ServerError }
+    })
+
     const acceptedSubmission = await prisma.submission.create({
       data: {
         userId: users[5].id,
@@ -2931,7 +2944,6 @@ int main(void) {
       data: { result: ResultStatus.Accepted }
     })
 
-    // WA (Wrong Answer) - 10:47
     const wrongAnswer2 = await prisma.submission.create({
       data: {
         userId: users[6].id,
@@ -2955,7 +2967,6 @@ int main(void) {
       data: { result: ResultStatus.WrongAnswer }
     })
 
-    // Accepted (정답) - 10:52
     const accepted2 = await prisma.submission.create({
       data: {
         userId: users[7].id,
@@ -3081,7 +3092,6 @@ int main(void) {
       })
     }
   }
-  // ===== 테스트용 데이터 끝 =====
 }
 
 const createAnnouncements = async () => {
