@@ -22,7 +22,7 @@ const BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
 const nextConfig = {
   images: {
     remotePatterns:
-      process.env.NODE_ENV === 'production'
+      process.env.APP_ENV === 'production'
         ? [
             {
               protocol: 'https',
