@@ -1,4 +1,6 @@
+import { ALL_LANGUAGES, DEFAULT_LANGUAGE } from '@/tolgee/shared'
 import { encode, getToken } from 'next-auth/jwt'
+import createMiddleware from 'next-intl/middleware'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getJWTFromResponse } from './libs/auth/getJWTFromResponse'
 import { baseUrl } from './libs/constants'
@@ -7,7 +9,15 @@ const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
   ? '__Secure-next-auth.session-token'
   : 'next-auth.session-token'
 
+const intlMiddleware = createMiddleware({
+  locales: ALL_LANGUAGES,
+  defaultLocale: DEFAULT_LANGUAGE,
+  localePrefix: 'as-needed'
+})
+
 export const middleware = async (req: NextRequest) => {
+  const response = intlMiddleware(req)
+
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET
@@ -15,7 +25,7 @@ export const middleware = async (req: NextRequest) => {
 
   const { pathname } = req.nextUrl
 
-  const isCourseDetailPath = /^\/course\/.+/.test(pathname)
+  const isCourseDetailPath = /^(\/[a-z]{2})?\/course\/.+/.test(pathname)
 
   if (isCourseDetailPath && !token) {
     const loginUrl = new URL('/login', req.url)
@@ -88,12 +98,7 @@ export const middleware = async (req: NextRequest) => {
 
       req.cookies.set(sessionCookieName, newToken)
 
-      const reissuedResponse = NextResponse.next({
-        request: {
-          headers: new Headers(req.headers)
-        }
-      })
-      reissuedResponse.cookies.set(sessionCookieName, newToken, {
+      response.cookies.set(sessionCookieName, newToken, {
         maxAge: 24 * 60 * 60,
         secure:
           process.env.APP_ENV === 'production' ||
@@ -102,19 +107,20 @@ export const middleware = async (req: NextRequest) => {
         sameSite: 'lax'
       })
 
-      return reissuedResponse
+      return response
     } catch {
       // If reissue is failed, delete session token.
       req.cookies.delete(sessionCookieName)
 
-      const deletedResponse = NextResponse.next({
-        request: {
-          headers: new Headers(req.headers)
-        }
-      })
-      deletedResponse.cookies.delete(sessionCookieName)
+      response.cookies.delete(sessionCookieName)
 
-      return deletedResponse
+      return response
     }
   }
+
+  return response
+}
+
+export const config = {
+  matcher: ['/((?!api|_next|.*\\..*).*)']
 }

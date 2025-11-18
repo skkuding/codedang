@@ -4,9 +4,13 @@ import { Toaster } from '@/components/shadcn/sonner'
 import { auth } from '@/libs/auth'
 import { metaBaseUrl } from '@/libs/constants'
 import { getBootstrapData } from '@/libs/posthog.server'
+import { TolgeeNextProvider } from '@/tolgee/client'
+import { getTolgee } from '@/tolgee/server'
+import { ALL_LANGUAGES } from '@/tolgee/shared'
 import { GoogleTagManager } from '@next/third-parties/google'
 import type { Metadata, Viewport } from 'next'
 import { IBM_Plex_Mono } from 'next/font/google'
+import { notFound } from 'next/navigation'
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
 import './globals.css'
 import { PostHogProvider } from './posthog'
@@ -40,17 +44,30 @@ export const viewport: Viewport = {
   viewportFit: 'cover'
 }
 
-export default async function RootLayout({
-  children
-}: {
+type RootLayoutProps = {
   children: React.ReactNode
-}) {
+  params: Promise<{ locale: string }>
+}
+
+export default async function RootLayout({
+  children,
+  params
+}: RootLayoutProps) {
+  const { locale } = await params
+
+  if (!ALL_LANGUAGES.includes(locale)) {
+    notFound()
+  }
+
+  const tolgee = await getTolgee()
+  const records = await tolgee.loadRequired()
+
   const bootstrapData = await getBootstrapData()
   const session = await auth()
   const gtmId = process.env.NEXT_PUBLIC_GTM_MEASUREMENT_ID
 
   return (
-    <html lang="en" className={mono.variable}>
+    <html lang={locale} className={mono.variable}>
       <head>
         <link rel="apple-touch-icon" href="/apple-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -266,20 +283,22 @@ export default async function RootLayout({
         />
       </head>
       <body>
-        <PostHogProvider bootstrap={bootstrapData}>
-          {/**NOTE: remove comment if you want to track page view of users */}
-          {/* <PostHogPageView /> */}
-          <AuthProvider session={session}>
-            {session?.user && <PushPermissionModal />}
-            {children}
-          </AuthProvider>
-          <Toaster
-            richColors
-            position="top-center"
-            closeButton={true}
-            duration={2000}
-          />
-        </PostHogProvider>
+        <TolgeeNextProvider language={locale} staticData={records}>
+          <PostHogProvider bootstrap={bootstrapData}>
+            {/**NOTE: remove comment if you want to track page view of users */}
+            {/* <PostHogPageView /> */}
+            <AuthProvider session={session}>
+              {session?.user && <PushPermissionModal />}
+              {children}
+            </AuthProvider>
+            <Toaster
+              richColors
+              position="top-center"
+              closeButton={true}
+              duration={2000}
+            />
+          </PostHogProvider>
+        </TolgeeNextProvider>
         {gtmId && <GoogleTagManager gtmId={gtmId} />}
       </body>
     </html>

@@ -1,0 +1,399 @@
+diff --git a/apps/frontend/.tolgeerc b/apps/frontend/.tolgeerc
+new file mode 100644
+index 000000000..0d4132e2d
+--- /dev/null
++++ b/apps/frontend/.tolgeerc
+@@ -0,0 +1,45 @@
++# .tolgeerc
++
++# .env.local에서 환경 변수를 읽어옵니다
++# (주의: CLI는 NEXT_PUBLIC_이 붙지 않은 변수를 우선으로 찾습니다.)
++# (만약 .env.local을 못 읽으면 여기에 직접 값을 넣어도 됩니다.)
++apiUrl: ${NEXT_PUBLIC_TOLGEE_API_URL}
++apiKey: ${TOLGEE_API_KEY}
++
++# 'pnpm tolgee pull' 명령어를 실행할 때 적용될 설정
++pull:
++  # next-intl이 좋아하는 중첩된 JSON 포맷
++  format: "json_nested"
++
++  # (중요!) json 파일을 저장할 경로
++  # 예: messages/ko.json, messages/en.json
++  path: "messages/{lang}.json"
++
++  # 모든 언어를 다운로드
++  languages: null
++
++extract:
++  # (중요!) 어떤 파일을 스캔할지 지정합니다.
++  # (App Router를 쓰신다면 'app/**/*.{js,jsx,ts,tsx}' 등으로 수정)
++  input:
++    - "src/**/*.{js,jsx,ts,tsx}"
++    - "app/**/*.{js,jsx,ts,tsx}" # (App Router 예시)
++    - "components/**/*.{js,jsx,ts,tsx}" # (Pages Router 예시)
++
++  # (중요!) 하드코딩된 텍스트를 어떤 함수로 감쌀지
++  # 't'라고 적으면 t('key')가 됩니다.
++  # (next-intl과 호환되므로 't'를 추천합니다.)
++  wrapper: "t"
++
++  # (중요!) 지금 추출하는 텍스트가 어떤 언어인지
++  # (하드코딩된 언어가 영어이므로 'en'으로 설정)
++  defaultLanguage: "en"
++
++  # 추출한 키를 Tolgee 서버에 바로 업로드합니다.
++  pushToTolgee: true
++
++  # 정규식으로 특정 텍스트는 무시할 수 있습니다.
++  # (예: CSS 클래스명, URL 등)
++  # ignoredNamespaces:
++  #   - "class"
++  #   - "href"
+diff --git a/apps/frontend/app/layout.tsx b/apps/frontend/app/layout.tsx
+index 09374b9c9..1cddb6b63 100644
+--- a/apps/frontend/app/layout.tsx
++++ b/apps/frontend/app/layout.tsx
+@@ -4,9 +4,13 @@ import { Toaster } from '@/components/shadcn/sonner'
+ import { auth } from '@/libs/auth'
+ import { metaBaseUrl } from '@/libs/constants'
+ import { getBootstrapData } from '@/libs/posthog.server'
++import { TolgeeNextProvider } from '@/tolgee/client'
++import { getTolgee } from '@/tolgee/server'
++import { ALL_LANGUAGES } from '@/tolgee/shared'
+ import { GoogleTagManager } from '@next/third-parties/google'
+ import type { Metadata, Viewport } from 'next'
+ import { IBM_Plex_Mono } from 'next/font/google'
++import { notFound } from 'next/navigation'
+ import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
+ import './globals.css'
+ import { PostHogProvider } from './posthog'
+@@ -40,17 +44,30 @@ export const viewport: Viewport = {
+   viewportFit: 'cover'
+ }
+
+-export default async function RootLayout({
+-  children
+-}: {
++type RootLayoutProps = {
+   children: React.ReactNode
+-}) {
++  params: Promise<{ locale: string }>
++}
++
++export default async function RootLayout({
++  children,
++  params
++}: RootLayoutProps) {
++  const { locale } = await params
++
++  if (!ALL_LANGUAGES.includes(locale)) {
++    notFound()
++  }
++
++  const tolgee = await getTolgee()
++  const records = await tolgee.loadRequired()
++
+   const bootstrapData = await getBootstrapData()
+   const session = await auth()
+   const gtmId = process.env.NEXT_PUBLIC_GTM_MEASUREMENT_ID
+
+   return (
+-    <html lang="en" className={mono.variable}>
++    <html lang={locale} className={mono.variable}>
+       <head>
+         <link rel="apple-touch-icon" href="/apple-icon.png" />
+         <meta name="apple-mobile-web-app-capable" content="yes" />
+@@ -266,20 +283,22 @@ export default async function RootLayout({
+         />
+       </head>
+       <body>
+-        <PostHogProvider bootstrap={bootstrapData}>
+-          {/**NOTE: remove comment if you want to track page view of users */}
+-          {/* <PostHogPageView /> */}
+-          <AuthProvider session={session}>
+-            {session?.user && <PushPermissionModal />}
+-            {children}
+-          </AuthProvider>
+-          <Toaster
+-            richColors
+-            position="top-center"
+-            closeButton={true}
+-            duration={2000}
+-          />
+-        </PostHogProvider>
++        <TolgeeNextProvider language={locale} staticData={records}>
++          <PostHogProvider bootstrap={bootstrapData}>
++            {/**NOTE: remove comment if you want to track page view of users */}
++            {/* <PostHogPageView /> */}
++            <AuthProvider session={session}>
++              {session?.user && <PushPermissionModal />}
++              {children}
++            </AuthProvider>
++            <Toaster
++              richColors
++              position="top-center"
++              closeButton={true}
++              duration={2000}
++            />
++          </PostHogProvider>
++        </TolgeeNextProvider>
+         {gtmId && <GoogleTagManager gtmId={gtmId} />}
+       </body>
+     </html>
+diff --git a/apps/frontend/i18n/request.ts b/apps/frontend/i18n/request.ts
+new file mode 100644
+index 000000000..4f8a7af27
+--- /dev/null
++++ b/apps/frontend/i18n/request.ts
+@@ -0,0 +1,9 @@
++import { getRequestConfig } from 'next-intl/server'
++
++export const requestConfig = getRequestConfig(async ({ requestLocale }) => {
++  const locale = await requestLocale
++  return {
++    locale: locale ?? 'en',
++    messages: { locale: locale ?? 'en' } // do this to make next-intl not emit any warnings
++  }
++})
+diff --git a/apps/frontend/middleware.ts b/apps/frontend/middleware.ts
+index 014740b33..e52a951e9 100644
+--- a/apps/frontend/middleware.ts
++++ b/apps/frontend/middleware.ts
+@@ -1,4 +1,6 @@
++import { ALL_LANGUAGES, DEFAULT_LANGUAGE } from '@/tolgee/shared'
+ import { encode, getToken } from 'next-auth/jwt'
++import createMiddleware from 'next-intl/middleware'
+ import { NextResponse, type NextRequest } from 'next/server'
+ import { getJWTFromResponse } from './libs/auth/getJWTFromResponse'
+ import { baseUrl } from './libs/constants'
+@@ -7,7 +9,15 @@ const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
+   ? '__Secure-next-auth.session-token'
+   : 'next-auth.session-token'
+
++const intlMiddleware = createMiddleware({
++  locales: ALL_LANGUAGES,
++  defaultLocale: DEFAULT_LANGUAGE,
++  localePrefix: 'as-needed'
++})
++
+ export const middleware = async (req: NextRequest) => {
++  const response = intlMiddleware(req)
++
+   const token = await getToken({
+     req,
+     secret: process.env.NEXTAUTH_SECRET
+@@ -15,7 +25,7 @@ export const middleware = async (req: NextRequest) => {
+
+   const { pathname } = req.nextUrl
+
+-  const isCourseDetailPath = /^\/course\/.+/.test(pathname)
++  const isCourseDetailPath = /^(\/[a-z]{2})?\/course\/.+/.test(pathname)
+
+   if (isCourseDetailPath && !token) {
+     const loginUrl = new URL('/login', req.url)
+@@ -88,12 +98,7 @@ export const middleware = async (req: NextRequest) => {
+
+       req.cookies.set(sessionCookieName, newToken)
+
+-      const reissuedResponse = NextResponse.next({
+-        request: {
+-          headers: new Headers(req.headers)
+-        }
+-      })
+-      reissuedResponse.cookies.set(sessionCookieName, newToken, {
++      response.cookies.set(sessionCookieName, newToken, {
+         maxAge: 24 * 60 * 60,
+         secure:
+           process.env.APP_ENV === 'production' ||
+@@ -102,19 +107,20 @@ export const middleware = async (req: NextRequest) => {
+         sameSite: 'lax'
+       })
+
+-      return reissuedResponse
++      return response
+     } catch {
+       // If reissue is failed, delete session token.
+       req.cookies.delete(sessionCookieName)
+
+-      const deletedResponse = NextResponse.next({
+-        request: {
+-          headers: new Headers(req.headers)
+-        }
+-      })
+-      deletedResponse.cookies.delete(sessionCookieName)
++      response.cookies.delete(sessionCookieName)
+
+-      return deletedResponse
++      return response
+     }
+   }
++
++  return response
++}
++
++export const config = {
++  matcher: ['/((?!api|_next|.*\\..*).*)']
+ }
+diff --git a/apps/frontend/navigation.ts b/apps/frontend/navigation.ts
+new file mode 100644
+index 000000000..a2f04dc42
+--- /dev/null
++++ b/apps/frontend/navigation.ts
+@@ -0,0 +1,8 @@
++import { createNavigation } from 'next-intl/navigation'
++import { ALL_LANGUAGES } from './tolgee/shared'
++
++// read more about next-intl library
++// https://next-intl-docs.vercel.app
++export const { Link, redirect, usePathname, useRouter } = createNavigation({
++  locales: ALL_LANGUAGES
++})
+diff --git a/apps/frontend/next.config.ts b/apps/frontend/next.config.ts
+index faa637a93..180d09ba4 100644
+--- a/apps/frontend/next.config.ts
++++ b/apps/frontend/next.config.ts
+@@ -1,5 +1,8 @@
+ import bundleAnalyzer from '@next/bundle-analyzer'
+ import type { NextConfig } from 'next'
++import createNextIntlPlugin from 'next-intl/plugin'
++
++const withNextIntl = createNextIntlPlugin()
+
+ const withBundleAnalyzer = bundleAnalyzer({
+   enabled: process.env.ANALYZE === 'true'
+@@ -50,4 +53,4 @@ const nextConfig = {
+   }
+ } satisfies NextConfig
+
+-export default withBundleAnalyzer(withPWA(nextConfig))
++export default withBundleAnalyzer(withPWA(withNextIntl(nextConfig)))
+diff --git a/apps/frontend/package.json b/apps/frontend/package.json
+index 46fc6eb02..3ff87ea6a 100644
+--- a/apps/frontend/package.json
++++ b/apps/frontend/package.json
+@@ -14,7 +14,9 @@
+     "lint": "eslint .",
+     "compile": "graphql-codegen --require dotenv/config",
+     "test": "vitest",
+-    "test:e2e": "playwright test"
++    "test:e2e": "playwright test",
++    "tolgee:pull": "tolgee pull",
++    "tolgee:extract": "tolgee extract"
+   },
+   "dependencies": {
+     "@apollo/client": "^3.13.9",
+@@ -82,6 +84,8 @@
+     "@tiptap/react": "^2.26.1",
+     "@tiptap/starter-kit": "^2.26.1",
+     "@tiptap/suggestion": "^2.26.1",
++    "@tolgee/react": "^6.2.7",
++    "@tolgee/web": "^6.2.7",
+     "@uiw/codemirror-extensions-langs": "^4.24.2",
+     "@uiw/codemirror-themes": "^4.24.2",
+     "@uiw/react-codemirror": "^4.24.2",
+@@ -109,6 +113,7 @@
+     "lowlight": "^3.3.0",
+     "next": "15.4.6",
+     "next-auth": "^4.24.11",
++    "next-intl": "^4.5.3",
+     "next-themes": "^0.4.6",
+     "posthog-js": "^1.259.0",
+     "pretendard": "^1.3.9",
+@@ -140,6 +145,7 @@
+     "@tailwindcss/postcss": "^4.1.11",
+     "@tanstack/react-query-devtools": "^5.84.2",
+     "@testing-library/react": "^16.3.0",
++    "@tolgee/cli": "^2.14.0",
+     "@types/apollo-upload-client": "^18.0.0",
+     "@types/katex": "^0.16.7",
+     "@types/node": "^22.17.1",
+diff --git a/apps/frontend/tolgee/client.tsx b/apps/frontend/tolgee/client.tsx
+new file mode 100644
+index 000000000..1a2d0f9e2
+--- /dev/null
++++ b/apps/frontend/tolgee/client.tsx
+@@ -0,0 +1,36 @@
++'use client'
++
++import type { CachePublicRecord, TolgeeStaticData } from '@tolgee/react'
++import { TolgeeProvider } from '@tolgee/react'
++import { useRouter } from 'next/navigation'
++import { useEffect } from 'react'
++import { TolgeeBase } from './shared'
++
++type Props = {
++  staticData: TolgeeStaticData | CachePublicRecord[]
++  language: string
++  children: React.ReactNode
++}
++
++const tolgee = TolgeeBase().init()
++
++export function TolgeeNextProvider({ language, staticData, children }: Props) {
++  const router = useRouter()
++
++  useEffect(() => {
++    const { unsubscribe } = tolgee.on('permanentChange', () => {
++      router.refresh()
++    })
++    return () => unsubscribe()
++  }, [tolgee, router])
++
++  return (
++    <TolgeeProvider
++      tolgee={tolgee}
++      fallback="Loading"
++      ssr={{ language, staticData }}
++    >
++      {children}
++    </TolgeeProvider>
++  )
++}
+diff --git a/apps/frontend/tolgee/server.tsx b/apps/frontend/tolgee/server.tsx
+new file mode 100644
+index 000000000..3c7386172
+--- /dev/null
++++ b/apps/frontend/tolgee/server.tsx
+@@ -0,0 +1,15 @@
++import { createServerInstance } from '@tolgee/react/server'
++import { getLocale } from 'next-intl/server'
++import { TolgeeBase } from './shared'
++
++export const { getTolgee, getTranslate, T } = createServerInstance({
++  getLocale,
++  createTolgee: async (language) => {
++    return await TolgeeBase().init({
++      observerOptions: {
++        fullKeyEncode: true
++      },
++      language
++    })
++  }
++})
+diff --git a/apps/frontend/tolgee/shared.ts b/apps/frontend/tolgee/shared.ts
+new file mode 100644
+index 000000000..5a6f82251
+--- /dev/null
++++ b/apps/frontend/tolgee/shared.ts
+@@ -0,0 +1,21 @@
++import { DevTools, Tolgee, FormatSimple } from '@tolgee/web'
++
++const apiKey = process.env.NEXT_PUBLIC_TOLGEE_API_KEY
++const apiUrl = process.env.NEXT_PUBLIC_TOLGEE_API_URL
++
++export const ALL_LANGUAGES = ['en', 'ko-KR']
++
++export const DEFAULT_LANGUAGE = 'en'
++
++export function TolgeeBase() {
++  return (
++    Tolgee()
++      .use(FormatSimple())
++      .use(DevTools())
++      // replace with .use(FormatIcu()) for rendering plurals, foramatted numbers, etc.
++      .updateDefaults({
++        apiKey,
++        apiUrl
++      })
++  )
++}
