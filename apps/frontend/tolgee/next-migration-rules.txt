@@ -1,0 +1,19 @@
+This is a Next.js App Router project. Please follow these specific migration rules:
+
+1. For Server Components (files without 'use client'):
+   - Use `getTranslate` function.
+   - Import it like this: `import { getTranslate } from '@/tolgee/server';`
+   - The component must be `async`.
+   - Usage:
+     const t = await getTranslate();
+     return <h1>{t('key_name')}</h1>
+
+2. For Client Components (files with 'use client'):
+   - Use `useTranslate` hook.
+   - Import it like this: `import { useTranslate } from '@tolgee/react';`
+   - Usage:
+     const { t } = useTranslate();
+     return <button>{t('key_name')}</button>
+
+3. Do NOT use the <T> component. Always use the `t()` function.
+4. Generate key names in snake_case based on the English text (e.g., "Hello World" -> "hello_world").
