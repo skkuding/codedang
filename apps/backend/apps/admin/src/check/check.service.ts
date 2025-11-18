@@ -147,7 +147,7 @@ export class CheckService {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         userId_groupId: {
           userId: user.id,
-          groupId: assignment?.groupId
+          groupId: assignment.groupId
         }
       },
       select: {
