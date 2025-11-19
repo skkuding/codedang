@@ -33,7 +33,7 @@ spec:
             valueFiles:
               - $codedang/infra/k8s/monitoring/tempo/values.yaml
         - repoURL: https://github.com/skkuding/codedang
-          targetRevision: main
+          targetRevision: '{{.branch}}'
           ref: codedang
       destination:
         name: '{{.env}}'
