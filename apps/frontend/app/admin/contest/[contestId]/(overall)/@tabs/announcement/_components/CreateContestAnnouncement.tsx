@@ -6,7 +6,6 @@ import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
 import { CREATE_CONTEST_ANNOUNCEMENT } from '@/graphql/contest/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { convertToLetter } from '@/libs/utils'
 import { cn } from '@/libs/utils'
 import checkBoxGrayIcon from '@/public/icons/checkbox_gray.svg'
 import checkBoxWhiteIcon from '@/public/icons/checkbox_white.svg'
@@ -53,12 +52,12 @@ export function CreateContestAnnouncement({
     problemData?.getContestProblems?.map((problem) => ({
       order: problem.order,
       title: problem.problem.title,
-      label: `${convertToLetter(problem.order)}. ${problem.problem.title}`
+      label: `${problem.problem.title}`
     })) || []
 
   const isContestStarted = true
 
-  const txtlength = (watch('content') || '').length
+  const txtlength = (watch('content') || '').replace(/\s/g, '').length
 
   const onSubmitAnnouncement: SubmitHandler<CreateAnnouncementInput> = async (
     data
@@ -82,6 +81,12 @@ export function CreateContestAnnouncement({
     }
   }
 
+  const handleProblemChange = (problemOrder: number | null) => {
+    setValue('problemOrder', problemOrder, {
+      shouldValidate: true
+    })
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmitAnnouncement)}>
       <p className="mb-5 text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
@@ -101,6 +106,7 @@ export function CreateContestAnnouncement({
           isOpen={isDropdownOpen && !isLoadingProblems}
           onClose={() => setIsDropdownOpen(false)}
           isContestStarted={isContestStarted}
+          onValueChange={handleProblemChange}
         />
         {errors.problemOrder && (
           <ErrorMessage message={errors.problemOrder.message} />

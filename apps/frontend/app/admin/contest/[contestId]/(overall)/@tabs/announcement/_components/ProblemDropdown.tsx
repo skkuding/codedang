@@ -18,6 +18,7 @@ interface ProblemDropdownProps {
   isOpen: boolean
   onClose: () => void
   isContestStarted: boolean
+  onValueChange: (problemOrder: number | null) => void
 }
 
 export function ProblemDropdown({
@@ -26,12 +27,13 @@ export function ProblemDropdown({
   problemOptions,
   isOpen,
   onClose,
-  isContestStarted
+  isContestStarted,
+  onValueChange
 }: ProblemDropdownProps) {
   const selectedProblemOrder = watch('problemOrder')
 
-  const handleProblemSelect = (order: number | undefined) => {
-    setValue('problemOrder', order, { shouldValidate: true })
+  const handleProblemSelect = (problemOrder: number | null) => {
+    onValueChange(problemOrder)
     onClose()
   }
 
@@ -60,8 +62,8 @@ export function ProblemDropdown({
             {displayOptions.map((option) => (
               <div
                 key={option.order ?? 'general'}
-                className="flex h-full items-center space-x-[14px]"
-                onClick={() => handleProblemSelect(option.order)}
+                className="flex h-full cursor-pointer items-center space-x-[14px]"
+                onClick={() => handleProblemSelect(option.order ?? null)}
               >
                 <input
                   type="radio"
@@ -69,10 +71,10 @@ export function ProblemDropdown({
                   value={option.order ?? ''}
                   checked={selectedProblemOrder === option.order}
                   onChange={() => {}}
-                  className="accent-primary h-5 w-5"
+                  className="accent-primary pointer-events-none h-5 w-5"
                 />
                 <label
-                  className={`text-base font-normal leading-[24px] tracking-[-0.48px] ${
+                  className={`cursor-pointer text-base font-normal leading-[24px] tracking-[-0.48px] ${
                     selectedProblemOrder === option.order
                       ? 'text-primary'
                       : 'text-black'
