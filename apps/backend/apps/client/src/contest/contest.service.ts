@@ -643,7 +643,7 @@ export class ContestService {
     // 대회 진행 중인 경우 대회에 등록한 참가자 또는 관리자만 질문 게시 가능
     if (isOngoing) {
       const hasRegistered = await this.prisma.userContest.findFirst({
-        where: { userId, contestId }
+        where: { userId, contestId, isBlocked: false }
       })
       if (!hasRegistered) {
         const user = await this.prisma.user.findFirst({
