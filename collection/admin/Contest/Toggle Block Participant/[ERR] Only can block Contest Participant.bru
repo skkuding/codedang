@@ -1,0 +1,87 @@
+meta {
+  name: [ERR] Only can block Contest Participant
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation ToggleParticipantBlocking(
+    $userId: Int!,
+    $contestId: Int!
+  ) {
+    toggleParticipantBlocking(
+      userId: $userId
+      contestId: $contestId
+    ) {
+      id
+      role
+      userId
+      contestId
+      isBlocked
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "userId" : 4,
+    "contestId" : 19
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📘 Toggle Block Participant
+  
+  **POST** `/graphql (mutation: toggleBlockParticipant)`
+  
+  대회 참가자에 대해 block 토글을 수행합니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required (Contest Admin / Manager, SuperAdmin)
+  
+  ---
+  
+  ## 요청 필드
+  | 필드명 | 타입 | 필수 여부 | 설명 |
+  |--------|------|----------|------|
+  | `userId` | Int | ✅ | 사용자 Id |
+  | `contestId` | Int | ✅ | 대회 Id |
+  
+  ---
+  
+  ### 📤 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "data": {
+      "toggleParticipantBlocking": {
+        "id": "47",
+        "role": "Participant",
+        "userId": 7,
+        "contestId": 19,
+        "isBlocked": false
+      }
+    }
+  }
+  ```
+}

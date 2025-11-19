@@ -2166,6 +2166,7 @@ type Mutation {
   removeUserFromContest(contestId: Int!, userId: Int!): UserContest!
   revokeInvitation(groupId: Int!): String!
   toggleContestQnAResolved(contestId: Int!, qnAOrder: Int!): ContestQnA!
+  toggleParticipantBlocking(contestId: Int!, userId: Int!): UserContest!
   updateAnnouncement(contestId: Int!, input: UpdateAnnouncementInput!): Announcement!
   updateAssignment(groupId: Int!, input: UpdateAssignmentInput!): Assignment!
   updateAssignmentProblemRecord(groupId: Int!, input: UpdateAssignmentProblemRecordInput!): AssignmentProblemRecord!
