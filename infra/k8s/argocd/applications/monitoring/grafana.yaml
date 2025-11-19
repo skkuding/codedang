@@ -8,32 +8,58 @@ metadata:
   labels:
     app.kubernetes.io/environment: 'production'
 spec:
-  project: default
-  sources:
-    - repoURL: https://github.com/skkuding/codedang
-      targetRevision: main
-      path: infra/k8s/monitoring/grafana
-      helm:
-        valueFiles:
-          - $codedang/infra/k8s/monitoring/grafana/values.yaml
-        releaseName: grafana
-        chart: grafana
-        version: '9.4.0'
-        repo: https://grafana.github.io/helm-charts
-    - repoURL: https://github.com/skkuding/codedang
-      targetRevision: main
-      path: infra/k8s/monitoring/grafana
-      directory:
-        # kustomization.yaml is ignored if recurse is true
-        recurse: false
-      ref: codedang
-  destination:
-    name: production
-    namespace: monitoring-grafana
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - PrunePropagationPolicy=foreground
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: release
+  template:
+    metadata:
+      name: 'grafana-{{.env}}'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+    project: default
+    sources:
+      # main helm chart source
+      - repoURL: https://github.com/skkuding/codedang
+        targetRevision: {{.branch}}
+        path: infra/k8s/monitoring/grafana
+        helm:
+          valueFiles:
+            - $codedang/infra/k8s/monitoring/grafana/overlays/{{.env}}/values.yaml
+          releaseName: grafana
+          chart: grafana
+          version: '10.1.4'
+          repo: https://grafana.github.io/helm-charts
+      # ref for helm valueFiles
+      - repoURL: https://github.com/skkuding/codedang
+        targetRevision: {{.branch}}
+        path: infra/k8s/monitoring/grafana
+        directory:
+          # kustomization.yaml is ignored if recurse is true
+          recurse: false
+        ref: codedang
+      # etc kustomize overlay
+      - repoURL: https://github.com/skkuding/codedang
+        targetRevision: {{.branch}}
+        path: infra/k8s/monitoring/grafana/overlays/{{.env}}
+        directory:
+          # kustomization.yaml is ignored if recurse is true
+          recurse: false
+    destination:
+      name: {{.env}}
+      namespace: monitoring-grafana
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
+        - PrunePropagationPolicy=foreground
