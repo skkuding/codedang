@@ -4,6 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Contest, ResultStatus, Submission } from '@generated'
 import { ContestRole, Prisma, Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
+import type { AuthenticatedUser } from '@libs/auth'
 import { MAX_DATE } from '@libs/constants'
 import {
   EntityNotExistException,
@@ -1370,5 +1371,49 @@ export class ContestService {
         email: user!.email,
         isBlocked
       }))
+  }
+
+  async toggleParticipantBlocking(
+    user: AuthenticatedUser,
+    targetUserId: number,
+    contestId: number
+  ) {
+    const [userContest, contestStaff] = await Promise.all([
+      this.prisma.userContest.findFirst({
+        where: {
+          userId: targetUserId,
+          contestId
+        }
+      }),
+      this.prisma.userContest.findFirst({
+        where: {
+          userId: user.id,
+          contestId,
+          role: { in: [ContestRole.Admin, ContestRole.Manager] }
+        },
+        select: { role: true }
+      })
+    ])
+
+    if (!userContest) {
+      throw new EntityNotExistException('UserContest')
+    }
+
+    if (userContest.role != ContestRole.Participant) {
+      throw new UnprocessableDataException(
+        'Only can block Contest Participant.'
+      )
+    }
+
+    if (!contestStaff && !user.isSuperAdmin()) {
+      throw new ForbiddenAccessException(
+        'Only Contest Admin or Manager can modify block status.'
+      )
+    }
+
+    return await this.prisma.userContest.update({
+      where: { id: userContest.id },
+      data: { isBlocked: !userContest.isBlocked }
+    })
   }
 }
