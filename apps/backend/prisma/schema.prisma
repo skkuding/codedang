@@ -61,30 +61,30 @@ model User {
   canCreateCourse  Boolean   @default(false) @map("can_create_course")
   canCreateContest Boolean   @default(false) @map("can_create_contest")
 
-  userProfile        UserProfile?
-  userGroup          UserGroup[]
-  notice             Notice[]
-  problem            Problem[]
-  assignment         Assignment[]
-  assignmentRecord   AssignmentRecord[]
-  contest            Contest[]
-  userContest        UserContest[]
-  contestRecord      ContestRecord[]
-  workbook           Workbook[]
-  submission         Submission[]
-  useroauth          UserOAuth?
-  file               File[]
-  testSubmission     TestSubmission[]
-  UpdateHistory      UpdateHistory[]
-  createdQnAs        ContestQnA[]         @relation("CreatedByUser")
-  createdQnAComments ContestQnAComment[]  @relation("CreatedByUser")
-  NotificationRecord NotificationRecord[]
-  PushSubscription   PushSubscription[]
-  CourseNotice CourseNotice[]
+  userProfile         UserProfile?
+  userGroup           UserGroup[]
+  notice              Notice[]
+  problem             Problem[]
+  assignment          Assignment[]
+  assignmentRecord    AssignmentRecord[]
+  contest             Contest[]
+  userContest         UserContest[]
+  contestRecord       ContestRecord[]
+  workbook            Workbook[]
+  submission          Submission[]
+  useroauth           UserOAuth?
+  file                File[]
+  testSubmission      TestSubmission[]
+  UpdateHistory       UpdateHistory[]
+  createdQnAs         ContestQnA[]          @relation("CreatedByUser")
+  createdQnAComments  ContestQnAComment[]   @relation("CreatedByUser")
+  NotificationRecord  NotificationRecord[]
+  PushSubscription    PushSubscription[]
+  CourseNotice        CourseNotice[]
   CourseNoticeComment CourseNoticeComment[]
-  
+  CheckRequest        CheckRequest[]
+
   @@map("user")
-  CheckRequest CheckRequest[]
 }
 
 model UserOAuth {
@@ -150,7 +150,7 @@ model Group {
   workbook       Workbook[]
   GroupWhitelist GroupWhitelist[]
   sharedProblems Problem[]
-  CourseNotice CourseNotice[]
+  CourseNotice   CourseNotice[]
 
   @@map("group")
 }
@@ -206,7 +206,7 @@ model CourseNotice {
   isFixed     Boolean  @default(false) @map("is_fixed")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
-  readBy      Int[]               @map("read_by")
+  readBy      Int[]    @map("read_by")
 
   CourseNoticeComment CourseNoticeComment[]
 
@@ -214,18 +214,18 @@ model CourseNotice {
 }
 
 model CourseNoticeComment {
-  id             Int          @id @default(autoincrement())
-  isSecret       Boolean      @default(false) @map("is_secret")
-  createdBy      User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById    Int?         @map("created_by_id")
-  isDeleted      Boolean      @default(false) @map("is_deleted")
-  replyOn        CourseNoticeComment?        @relation("ReplyOn", fields: [replyOnId], references: [id], onDelete: Cascade)
-  replyOnId      Int?                        @map("reply_on_id")
+  id             Int                  @id @default(autoincrement())
+  isSecret       Boolean              @default(false) @map("is_secret")
+  createdBy      User?                @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById    Int?                 @map("created_by_id")
+  isDeleted      Boolean              @default(false) @map("is_deleted")
+  replyOn        CourseNoticeComment? @relation("ReplyOn", fields: [replyOnId], references: [id], onDelete: Cascade)
+  replyOnId      Int?                 @map("reply_on_id")
   content        String
-  courseNotice   CourseNotice @relation(fields: [courseNoticeId], references: [id], onDelete: Cascade)
-  courseNoticeId Int          @map("course_notice_id")
-  createdTime    DateTime     @default(now()) @map("create_time")
-  updateTime     DateTime     @updatedAt @map("update_time")
+  courseNotice   CourseNotice         @relation(fields: [courseNoticeId], references: [id], onDelete: Cascade)
+  courseNoticeId Int                  @map("course_notice_id")
+  createdTime    DateTime             @default(now()) @map("create_time")
+  updateTime     DateTime             @updatedAt @map("update_time")
 
   CourseNoticeComment CourseNoticeComment[] @relation("ReplyOn")
 
@@ -424,10 +424,10 @@ model Assignment {
   assignmentRecord  AssignmentRecord[]
   submission        Submission[]
   testSubmission    TestSubmission[]
+  CheckRequest      CheckRequest[]
 
   @@index([groupId, week])
   @@map("assignment")
-  CheckRequest CheckRequest[]
 }
 
 model AssignmentProblem {
@@ -530,9 +530,9 @@ model Contest {
   testSubmission TestSubmission[]
   userContest    UserContest[]
   ContestQnA     ContestQnA[]
+  CheckRequest   CheckRequest[]
 
   @@map("contest")
-  CheckRequest CheckRequest[]
 }
 
 enum ContestRole {
@@ -546,6 +546,7 @@ model UserContest {
   id        Int         @id @default(autoincrement())
   userId    Int?        @map("user_id")
   contestId Int         @map("contest_id")
+  isBlocked Boolean     @default(false) @map("is_blocked")
   role      ContestRole
 
   user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -701,9 +702,9 @@ model Workbook {
   workbookProblem WorkbookProblem[]
   submission      Submission[]
   testSubmission  TestSubmission[]
+  CheckRequest    CheckRequest[]
 
   @@map("workbook")
-  CheckRequest CheckRequest[]
 }
 
 model WorkbookProblem {
@@ -749,12 +750,12 @@ model Submission {
   createTime   DateTime     @default(now()) @map("create_time")
   updateTime   DateTime     @updatedAt @map("update_time")
 
-  submissionResult SubmissionResult[]
+  submissionResult  SubmissionResult[]
+  SubmissionCluster SubmissionCluster[]
+  FirstCheckResult  CheckResult[]       @relation("FirstCheckSubmission")
+  SecondCheckResult CheckResult[]       @relation("SecondCheckSubmission")
 
   @@map("submission")
-  SubmissionCluster SubmissionCluster[]
-  FirstCheckResult CheckResult[] @relation("FirstCheckSubmission")
-  SecondCheckResult CheckResult[] @relation("SecondCheckSubmission")
 }
 
 model SubmissionResult {
@@ -822,27 +823,28 @@ model TestSubmission {
 }
 
 model CheckRequest {
-  id             Int         @id @default(autoincrement())
+  id                 Int               @id @default(autoincrement())
   // 검사 결과는 S3에 저장되며 checkId가 폴더명이 됩니다
   // 따라서 S3 경로는 저장하지 않습니다
-  problem       Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId                 Int                         @map("problem_id")
-  user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId         Int?        @map("user_id")
-  language  Language
-  enableMerging Boolean @map("enable_merging")
-  minTokens Int @map("min_tokens")
-  useJplagClustering  Boolean @map("use_jplag_clustering")
-  assignment     Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId   Int?        @map("assignment_id")
-  contest        Contest?    @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId      Int?        @map("contest_id")
-  workbook       Workbook?   @relation(fields: [workbookId], references: [id])
-  workbookId     Int?        @map("workbook_id")
-  createTime DateTime @default(now()) @map("create_time")
-  result       CheckResultStatus
+  problem            Problem           @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId          Int               @map("problem_id")
+  user               User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId             Int?              @map("user_id")
+  language           Language
+  enableMerging      Boolean           @map("enable_merging")
+  minTokens          Int               @map("min_tokens")
+  useJplagClustering Boolean           @map("use_jplag_clustering")
+  assignment         Assignment?       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId       Int?              @map("assignment_id")
+  contest            Contest?          @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId          Int?              @map("contest_id")
+  workbook           Workbook?         @relation(fields: [workbookId], references: [id])
+  workbookId         Int?              @map("workbook_id")
+  createTime         DateTime          @default(now()) @map("create_time")
+  result             CheckResultStatus
+  CheckResult        CheckResult[]
+
   @@map("check_request")
-  CheckResult CheckResult[]
 }
 
 enum CheckResultStatus {
@@ -854,64 +856,67 @@ enum CheckResultStatus {
 }
 
 model CheckResult {
-  id                           Int           @id @default(autoincrement())
-  request                      CheckRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  requestId                    Int           @map("request_id")
-  firstCheckSubmission         Submission?   @relation("FirstCheckSubmission", fields: [firstCheckSubmissionId], references: [id], onDelete: SetNull)
-  firstCheckSubmissionId       Int?          @map("first_user_id")
-  secondCheckSubmission        Submission?   @relation("SecondCheckSubmission", fields: [secondCheckSubmissionId], references: [id], onDelete: SetNull)
-  secondCheckSubmissionId      Int?          @map("second_user_id")
-  averageSimilarity            Float         @map("average_similarity")
-  maxSimilarity                Float         @map("max_similarity")
-  maxLength                    Int           @map("max_length")
-  longestMatch                 Int           @map("longest_match")
+  id                      Int          @id @default(autoincrement())
+  request                 CheckRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId               Int          @map("request_id")
+  firstCheckSubmission    Submission?  @relation("FirstCheckSubmission", fields: [firstCheckSubmissionId], references: [id], onDelete: SetNull)
+  firstCheckSubmissionId  Int?         @map("first_user_id")
+  secondCheckSubmission   Submission?  @relation("SecondCheckSubmission", fields: [secondCheckSubmissionId], references: [id], onDelete: SetNull)
+  secondCheckSubmissionId Int?         @map("second_user_id")
+  averageSimilarity       Float        @map("average_similarity")
+  maxSimilarity           Float        @map("max_similarity")
+  maxLength               Int          @map("max_length")
+  longestMatch            Int          @map("longest_match")
 
-  /* 1개 match의 structure
-  {
-      "startInFirst": {
-          "line": Int
-          "column": Int
-      },
-      "endInFirst": {
-          "line": Int
-          "column": Int
-      },
-      "startInSecond": {
-          "line": Int
-          "column": Int
-      },
-      "endInSecond": {
-          "line": Int
-          "column": Int
-      },
-      "lengthOfFirst": Int
-      "lengthOfSecond": Int
-  }
-  */
-  matches                Json[]        @map("matches")
-  firstSimilarity        Float         @map("first_similarity")
-  secondSimilarity       Float         @map("second_similarity")
+  /**
+   * 1개 match의 structure
+   * {
+   * "startInFirst": {
+   * "line": Int
+   * "column": Int
+   * },
+   * "endInFirst": {
+   * "line": Int
+   * "column": Int
+   * },
+   * "startInSecond": {
+   * "line": Int
+   * "column": Int
+   * },
+   * "endInSecond": {
+   * "line": Int
+   * "column": Int
+   * },
+   * "lengthOfFirst": Int
+   * "lengthOfSecond": Int
+   * }
+   */
+  matches          Json[] @map("matches")
+  firstSimilarity  Float  @map("first_similarity")
+  secondSimilarity Float  @map("second_similarity")
 
-  cluster                PlagiarismCluster?         @relation(fields: [clusterId], references: [id], onDelete: SetNull)
-  clusterId              Int?          @map("cluster_id")
+  cluster   PlagiarismCluster? @relation(fields: [clusterId], references: [id], onDelete: SetNull)
+  clusterId Int?               @map("cluster_id")
+
   @@map("check_result")
 }
 
 model PlagiarismCluster {
-  id                     Int           @id @default(autoincrement())
-  averageSimilarity      Float         @map("average_similarity")
-  strength               Float         @map("second_user_id")
+  id                Int   @id @default(autoincrement())
+  averageSimilarity Float @map("average_similarity")
+  strength          Float @map("second_user_id")
 
-  SubmissionCluster      SubmissionCluster[]
-  CheckResult            CheckResult[]
+  SubmissionCluster SubmissionCluster[]
+  CheckResult       CheckResult[]
+
   @@map("plagiarism_cluster")
 }
 
 model SubmissionCluster {
-  submission             Submission         @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  submissionId           Int                @map("submission_id")
-  cluster                PlagiarismCluster  @relation(fields: [clusterId], references: [id], onDelete: Cascade)
-  clusterId              Int                @map("cluster_id")
+  submission   Submission        @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submissionId Int               @map("submission_id")
+  cluster      PlagiarismCluster @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+  clusterId    Int               @map("cluster_id")
 
   @@id([submissionId, clusterId])
   @@map("submission_Cluster")

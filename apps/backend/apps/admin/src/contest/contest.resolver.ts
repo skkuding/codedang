@@ -35,6 +35,7 @@ import { ContestProblemService } from './contest-problem.service'
 import { ContestQnAService } from './contest-qna.service'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
+import { ContestParticipant } from './model/contest-participants.model'
 import { GetContestQnAsFilterInput } from './model/contest-qna.input'
 import { ContestQnAWithIsRead } from './model/contest-qna.model'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
@@ -195,6 +196,13 @@ export class ContestResolver {
       return null
     }
     return await this.userService.getUser(createdById)
+  }
+
+  @Query(() => [ContestParticipant])
+  async getContestParticipants(
+    @Args('contestId', { type: () => Int }) contestId: number
+  ) {
+    return await this.contestService.getContestParticipants(contestId)
   }
 }
 
