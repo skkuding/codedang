@@ -1,0 +1,38 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  query GetContestParticipants($contestId: Int!) {
+    getContestParticipants(contestId: $contestId) {
+      id
+    	username
+      major
+      email
+      isBlocked
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId" : 19
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
