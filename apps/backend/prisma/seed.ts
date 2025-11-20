@@ -1383,7 +1383,6 @@ const createContests = async () => {
           진행방식: '온라인 진행',
           참여혜택: '1~3등에게 상위 대회 출전 자격 부여'
         },
-        // 테스트용: 3시간 제한 (2023-06-01 10:00 ~ 13:00)
         startTime: new Date('2023-06-01T10:00:00.000Z'),
         endTime: new Date('2023-06-01T13:00:00.000Z'),
         registerDueTime: new Date('2023-05-31T23:59:59.000Z'),
