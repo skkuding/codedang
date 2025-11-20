@@ -254,7 +254,7 @@ export class ContestProblemService {
     'MLE',
     'RE',
     'CE',
-    'SE'
+    'ETC'
   ] as const
 
   constructor(
@@ -617,7 +617,7 @@ export class ContestProblemService {
    * 문제 제출 결과 분포 통계를 계산합니다.
    *
    * 결과 유형별 제출 수를 집계합니다.
-   * 결과 유형: WA, TLE, MLE, RE, CE, SE
+   * 결과 유형: WA, TLE, MLE, RE, CE, ETC(SE, OLE, SFE)
    */
   private async getProblemDistribution({
     contestId,
@@ -661,7 +661,9 @@ export class ContestProblemService {
       [ResultStatus.MemoryLimitExceeded]: resultTypes[2],
       [ResultStatus.RuntimeError]: resultTypes[3],
       [ResultStatus.CompileError]: resultTypes[4],
-      [ResultStatus.ServerError]: resultTypes[5]
+      [ResultStatus.ServerError]: resultTypes[5],
+      [ResultStatus.OutputLimitExceeded]: resultTypes[5],
+      [ResultStatus.SegmentationFaultError]: resultTypes[5]
     } as Partial<
       Record<ResultStatus, (typeof ContestProblemService.resultTypes)[number]>
     >
@@ -689,7 +691,7 @@ export class ContestProblemService {
    * 문제 제출 타임라인 통계를 계산합니다.
    *
    * 대회 기간을 10분 단위로 분할하여 각 시간대별 Accepted와 Wrong 제출 수를 집계합니다.
-   * Wrong 유형: WA, TLE, MLE, RE, CE, SE
+   * Wrong 유형: WA, TLE, MLE, RE, CE, ETC(SE, OLE, SFE)
    * NA는 제출하지 않은 경우이므로 타임라인 그래프에 포함되지 않습니다.
    */
   private async getProblemTimeline({
@@ -760,7 +762,9 @@ export class ContestProblemService {
             ResultStatus.MemoryLimitExceeded,
             ResultStatus.RuntimeError,
             ResultStatus.CompileError,
-            ResultStatus.ServerError
+            ResultStatus.ServerError,
+            ResultStatus.OutputLimitExceeded,
+            ResultStatus.SegmentationFaultError
           ] as ResultStatus[]
         ).includes(submission.result)
       ) {

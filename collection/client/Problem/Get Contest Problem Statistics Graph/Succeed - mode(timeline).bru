@@ -10,10 +10,6 @@ get {
   auth: none
 }
 
-params:query {
-  # mode를 지정하지 않으면 기본값으로 both가 사용됩니다.
-}
-
 params:path {
   contestId: 6
   problemId: 5
@@ -23,16 +19,7 @@ assert {
   res.status: eq 200
   res("contestId"): isNumber 42
   res("problemId"): isNumber 7
-  res("mode"): eq "both"
-
-  res("distribution.totalSubmissions"): isNumber 1
-  res("distribution.counts.WA"): isNumber 1
-  res("distribution.counts.TLE"): isNumber 1
-  res("distribution.counts.MLE"): isNumber 1
-  res("distribution.counts.RE"): isNumber 1
-  res("distribution.counts.CE"): isNumber 1
-  res("distribution.counts.SE"): isNumber 1
-  res("distribution.counts.NA"): isNumber 1
+  res("mode"): eq "timeline"
 
   res("timeline.intervalMinutes"): isNumber 10
   res("timeline.series"): isArray
