@@ -690,7 +690,8 @@ export class ContestProblemService {
   /**
    * 문제 제출 타임라인 통계를 계산합니다.
    *
-   * 대회 기간을 10분 단위로 분할하여 각 시간대별 Accepted와 Wrong 제출 수를 집계합니다.
+   * 대회 기간을 6등분하여 각 시간대별 Accepted와 Wrong 제출 수를 집계합니다.
+   * 타임슬롯 간격은 대회 시간에 따라 동적으로 결정됩니다 (예: 3시간 대회 → 30분, 6시간 대회 → 1시간).
    * Wrong 유형: WA, TLE, MLE, RE(RE, SFE), CE, ETC(SE, OLE)
    * NA는 제출하지 않은 경우이므로 타임라인 그래프에 포함되지 않습니다.
    */
@@ -705,13 +706,12 @@ export class ContestProblemService {
     startTime: Date
     endTime: Date
   }) {
-    const intervalMinutes = 10
-    const intervalMs = intervalMinutes * 60 * 1000
-
     const start = startTime.getTime()
     const end = endTime.getTime()
-    const durationMs = Math.max(end - start, intervalMs)
-    const slotCount = Math.ceil(durationMs / intervalMs)
+    const durationMs = end - start
+    const slotCount = 6
+    const intervalMs = durationMs / slotCount
+    const intervalMinutes = Math.max(1, Math.floor(intervalMs / (60 * 1000)))
 
     const slots = Array.from({ length: slotCount }, (_, index) => ({
       timestamp: new Date(start + index * intervalMs).toISOString(),
@@ -719,7 +719,7 @@ export class ContestProblemService {
       wrong: 0
     }))
 
-    // 제출 생성 시각을 10분 단위 슬롯에 매핑해 Accepted/Not Accepted를 기록.
+    // 제출 생성 시각을 동적 간격 슬롯에 매핑해 Accepted/Not Accepted를 기록.
     const submissions = await this.prisma.submission.findMany({
       where: {
         contestId,

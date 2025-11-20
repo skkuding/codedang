@@ -33,8 +33,9 @@ assert {
   res("distribution.counts.CE"): isNumber 1
   res("distribution.counts.ETC"): isNumber 1
 
-  res("timeline.intervalMinutes"): isNumber 10
+  res("timeline.intervalMinutes"): isNumber
   res("timeline.series"): isArray
+  res("timeline.series.length"): eq 6
   res("timeline.series[0].timestamp"): isString
   res("timeline.series[0].accepted"): isNumber 0
   res("timeline.series[0].wrong"): isNumber 0
@@ -89,8 +90,8 @@ docs {
         - `CE` ← CompileError
         - `ETC` ← ServerError + OutputLimitExceeded
     - `timeline`: 시간별 제출 추이 데이터
-      - `intervalMinutes`: 집계 간격(분) — 현재 10분
-      - `series[]`:
+      - `intervalMinutes`: 집계 간격(분) — 대회 시간의 6등분 (예: 3시간 대회 → 30분, 6시간 대회 → 60분)
+      - `series[]`: 6개의 슬롯
         - `timestamp`: 슬롯 시작 시각(ISO8601)
         - `accepted`: 해당 시각 Accepted 제출 수
         - `wrong`: 해당 시각 Wrong 제출 수 (WA/TLE/MLE/RE/CE/ETC의 합)
