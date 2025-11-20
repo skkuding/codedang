@@ -2920,6 +2920,52 @@ int main(void) {
       data: { result: ResultStatus.ServerError }
     })
 
+    const oleSubmission = await prisma.submission.create({
+      data: {
+        userId: users[9]?.id || users[1].id,
+        problemId: testProblem1.id,
+        contestId: testContest.id,
+        code: [{ id: 1, locked: false, text: 'print("A" * 1000000)' }],
+        language: Language.Python3,
+        result: ResultStatus.Judging,
+        createTime: new Date('2023-06-01T10:45:10.000Z')
+      }
+    })
+    await prisma.submissionResult.create({
+      data: {
+        submissionId: oleSubmission.id,
+        problemTestcaseId: problemTestcases[4].id,
+        result: ResultStatus.OutputLimitExceeded
+      }
+    })
+    await prisma.submission.update({
+      where: { id: oleSubmission.id },
+      data: { result: ResultStatus.OutputLimitExceeded }
+    })
+
+    const sfeSubmission = await prisma.submission.create({
+      data: {
+        userId: users[10]?.id || users[2].id,
+        problemId: testProblem1.id,
+        contestId: testContest.id,
+        code: [{ id: 1, locked: false, text: 'int *p = nullptr; *p = 42;' }],
+        language: Language.Cpp,
+        result: ResultStatus.Judging,
+        createTime: new Date('2023-06-01T10:52:33.000Z')
+      }
+    })
+    await prisma.submissionResult.create({
+      data: {
+        submissionId: sfeSubmission.id,
+        problemTestcaseId: problemTestcases[4].id,
+        result: ResultStatus.SegmentationFaultError
+      }
+    })
+    await prisma.submission.update({
+      where: { id: sfeSubmission.id },
+      data: { result: ResultStatus.SegmentationFaultError }
+    })
+
     const acceptedSubmission = await prisma.submission.create({
       data: {
         userId: users[5].id,
