@@ -9,16 +9,20 @@ import {
   TabsTrigger
 } from '@/components/shadcn/tabs'
 import { ErrorBoundary } from '@suspensive/react'
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useRef } from 'react'
 import { toast } from 'sonner'
 import { ParticipantTableByProblem } from './_components/ParticipantTableByProblem'
 import { ParticipantTableOverall } from './_components/ParticipantTableOverall'
 
 export default function Assessment() {
   const [tab, setTab] = useState('overall')
+  const toastShownRef = useRef(false)
 
   const handleNoProblemsFound = () => {
-    toast.error('No imported problems found in this assignment.')
+    if (!toastShownRef.current) {
+      toast.error('No imported problems found in this assignment.')
+      toastShownRef.current = true
+    }
     setTab('overall')
   }
 
