@@ -12,7 +12,7 @@ import {
 } from '@/components/shadcn/table'
 import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
-import { cn } from '@/libs/utils'
+import { cn, getResultColor } from '@/libs/utils'
 import { useTestcaseStore } from '@/stores/testcaseStore'
 import { useSuspenseQuery } from '@apollo/client'
 import { ResultStatus, type TestCaseResult } from '@generated/graphql'
@@ -114,13 +114,14 @@ export function SubmissionTestcase() {
                       item.isHidden,
                       item.problemTestcaseId
                     )
-                    console.log(item.order, item.isHidden)
                   }}
                 >
                   <TableCell className="rounded-l-sm">
                     <div className="pl-3">{caseLabel}</div>
                   </TableCell>
-                  <TableCell>{item.result}</TableCell>
+                  <TableCell className={getResultColor(item.result)}>
+                    {item.result}
+                  </TableCell>
                   <TableCell>
                     {item.cpuTime ? `${item.cpuTime} ms` : '-'}
                   </TableCell>
