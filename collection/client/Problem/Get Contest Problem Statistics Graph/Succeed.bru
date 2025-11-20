@@ -82,7 +82,12 @@ docs {
     - `distribution`: 오답 분포 데이터
       - `totalSubmissions`: 총 제출 수
       - `counts`: 결과별 제출 수
-        (`WA`, `TLE`, `MLE`, `RE`, `CE`, `ETC`)
+        - `WA` ← WrongAnswer
+        - `TLE` ← TimeLimitExceeded
+        - `MLE` ← MemoryLimitExceeded
+        - `RE` ← RuntimeError + SegmentationFaultError
+        - `CE` ← CompileError
+        - `ETC` ← ServerError + OutputLimitExceeded
     - `timeline`: 시간별 제출 추이 데이터
       - `intervalMinutes`: 집계 간격(분) — 현재 10분
       - `series[]`:

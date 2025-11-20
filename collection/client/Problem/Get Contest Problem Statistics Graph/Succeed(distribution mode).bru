@@ -1,5 +1,5 @@
 meta {
-  name: Succeed
+  name: Succeed(distribution mode)
   type: http
   seq: 1
 }
@@ -20,7 +20,6 @@ assert {
   res("contestId"): isNumber 42
   res("problemId"): isNumber 7
   res("mode"): eq "distribution"
-
   res("distribution.totalSubmissions"): isNumber 1
   res("distribution.counts.WA"): isNumber 1
   res("distribution.counts.TLE"): isNumber 1
@@ -32,8 +31,8 @@ assert {
 
 docs {
   # 📘 Get Contest Problem Statistics Graph
-
+  
   **GET** `/contest/:contestId/problem/:problemId/statistics/graph?mode=distribution`
-
+  
   - `mode=distribution`인 경우 오답 분포만 반환합니다.
 }
