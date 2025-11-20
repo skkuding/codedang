@@ -18,7 +18,8 @@ import {
   useMemo,
   useState,
   useImperativeHandle,
-  forwardRef
+  forwardRef,
+  useRef
 } from 'react'
 import { type FieldErrorsImpl, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowRotateLeft } from 'react-icons/fa6'
@@ -31,6 +32,12 @@ import { TestcaseItem } from './TestcaseItem'
 import { TestcaseUploadModal } from './TestcaseUploadModal'
 
 type ExtendedTestcase = Testcase | ZipUploadedTestcase
+
+function isZipUploadedTestcase(
+  tc: ExtendedTestcase
+): tc is ZipUploadedTestcase {
+  return (tc as Partial<ZipUploadedTestcase>).isZipUploaded === true
+}
 
 interface ZipTestcaseInfo {
   index: number
@@ -87,13 +94,32 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       x: 0,
       y: 0
     })
-    const [zipUploadedFiles, setZipUploadedFiles] = useState<{
-      [key: string]: File
-    }>({})
-    const [hasZipUploaded, setHasZipUploaded] = useState<{
-      sample: boolean
-      hidden: boolean
-    }>({ sample: false, hidden: false })
+    const [zipUploadedFiles, setZipUploadedFiles] = useState<
+      Record<string, File>
+    >({})
+    const [hasZipUploaded, setHasZipUploaded] = useState({
+      sample: false,
+      hidden: false
+    })
+
+    const zipClearedRef = useRef({ sample: false, hidden: false })
+
+    useEffect(() => {
+      const hasSampleZip = watchedItems.some(
+        (tc) => !tc.isHidden && isZipUploadedTestcase(tc)
+      )
+      const hasHiddenZip = watchedItems.some(
+        (tc) => tc.isHidden && isZipUploadedTestcase(tc)
+      )
+      setHasZipUploaded({
+        sample:
+          hasSampleZip ||
+          (!zipClearedRef.current.sample && isSampleUploadedByZip),
+        hidden:
+          hasHiddenZip ||
+          (!zipClearedRef.current.hidden && isHiddenUploadedByZip)
+      })
+    }, [watchedItems, isSampleUploadedByZip, isHiddenUploadedByZip])
 
     useEffect(() => {
       const isScoreAssigned = (tc: ExtendedTestcase) =>
@@ -119,18 +145,21 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       uploadedTestcases: Array<{ input: string; output: string }>,
       zipFile: File
     ) => {
-      const currentTestcases = getValues('testcases')
+      const all = getValues('testcases') as ExtendedTestcase[]
       const isHidden = testcaseFlag === 1
-
-      const zipKey = `${isHidden ? 'hidden' : 'sample'}_${Date.now()}`
-      setZipUploadedFiles((prev) => ({
-        ...prev,
-        [zipKey]: zipFile
-      }))
-
-      const filteredTestcases = currentTestcases.filter(
-        (tc: ExtendedTestcase) => tc.isHidden !== isHidden
+      const preserved = all.filter((tc) => tc.isHidden !== isHidden)
+      const prefix = isHidden ? 'hidden' : 'sample'
+      const prunedZipCache = Object.fromEntries(
+        Object.entries(zipUploadedFiles).filter(
+          ([key]) => !key.startsWith(prefix)
+        )
       )
+
+      const zipKey = `${prefix}_${Date.now()}`
+      setZipUploadedFiles({
+        ...prunedZipCache,
+        [zipKey]: zipFile
+      })
 
       const newTestcases = uploadedTestcases.map(() => ({
         id: null,
@@ -142,14 +171,16 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         zipKey
       }))
 
-      setValue('testcases', [...filteredTestcases, ...newTestcases])
+      setValue('testcases', [...preserved, ...newTestcases])
       setDataChangeTrigger((prev) => prev + 1)
 
       setHasZipUploaded((prev) => ({
         ...prev,
         [isHidden ? 'hidden' : 'sample']: true
       }))
+      zipClearedRef.current[isHidden ? 'hidden' : 'sample'] = false
     }
+
     const handleSelectTestcase = (index: number, isSelected: boolean) => {
       setSelectedTestcases((prev) =>
         isSelected ? [...prev, index] : prev.filter((i) => i !== index)
@@ -168,6 +199,46 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       )
       setValue('testcases', updatedValues)
       setSelectedTestcases([])
+
+      const isHiddenTab = testcaseFlag === 1
+      const prefix = isHiddenTab ? 'hidden' : 'sample'
+      const stillHasZip = updatedValues
+        .filter((tc) => tc.isHidden === isHiddenTab)
+        .some((tc) => isZipUploadedTestcase(tc))
+      if (!stillHasZip) {
+        setHasZipUploaded((prev) => ({
+          ...prev,
+          [prefix]: false
+        }))
+        const pruned = Object.fromEntries(
+          Object.entries(zipUploadedFiles).filter(
+            ([key]) => !key.startsWith(prefix)
+          )
+        )
+        setZipUploadedFiles(pruned)
+      }
+    }
+
+    const deleteAllInCurrentTab = (isHidden: boolean) => {
+      const currentValues: ExtendedTestcase[] = getValues('testcases')
+      const remainingValues = currentValues.filter(
+        (tc) => tc.isHidden !== isHidden
+      )
+      const prefix = isHidden ? 'hidden' : 'sample'
+      const prunedZipCache = Object.fromEntries(
+        Object.entries(zipUploadedFiles).filter(
+          ([key]) => !key.startsWith(prefix)
+        )
+      )
+      setZipUploadedFiles(prunedZipCache)
+      setValue('testcases', remainingValues)
+      setSelectedTestcases([])
+      setHasZipUploaded((prev) => ({
+        ...prev,
+        [prefix]: false
+      }))
+      zipClearedRef.current[prefix] = true
+      setDataChangeTrigger((prev) => prev + 1)
     }
 
     const removeItem = (index: number) => {
@@ -227,7 +298,6 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       const unassignedTestcases = currentValues
         .map((tc, index) => ({ ...tc, index }))
         .filter((tc) => isInvalid(tc.scoreWeight))
-      console.log(unassignedTestcases.length)
 
       const unassignedCount = unassignedTestcases.length
 
@@ -532,58 +602,80 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                     <TestcaseUploadModal
                       onUpload={handleUploadTestcases}
                       isHidden={false}
-                      disabled={hasZipUploaded.hidden}
                     />
-                    <button
-                      onClick={() => {
-                        deleteSelectedTestcases()
-                        setDataChangeTrigger((prev) => prev + 1)
-                      }}
-                      type="button"
-                      className={cn(
-                        'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                        selectedTestcases.length > 0 && !hasZipUploaded.sample
-                          ? 'bg-[#FC5555] text-white'
-                          : 'bg-gray-300 text-gray-600'
-                      )}
-                      disabled={
-                        selectedTestcases.length === 0 || hasZipUploaded.sample
-                      }
-                    >
-                      <Image
-                        src="/icons/trashcan.svg"
-                        alt="trashcan Icon"
-                        width={18}
-                        height={18}
-                      />
-                      <span className="ml-[6px] flex items-center text-center text-white">
-                        Delete
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        addTestcase(false)
-                        setDataChangeTrigger((prev) => prev + 1)
-                      }}
-                      type="button"
-                      className={cn(
-                        'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                        hasZipUploaded.sample
-                          ? 'bg-gray-300 text-gray-600'
-                          : 'bg-primary text-white'
-                      )}
-                      disabled={hasZipUploaded.sample}
-                    >
-                      <Image
-                        src="/icons/plus-circle-white.svg"
-                        alt="plus circle white Icon"
-                        width={18}
-                        height={18}
-                      />
-                      <span className="ml-[6px] flex items-center text-center text-white">
-                        Add
-                      </span>
-                    </button>
+                    {hasZipUploaded.sample ? (
+                      <button
+                        onClick={() => deleteAllInCurrentTab(false)}
+                        type="button"
+                        className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#FC5555] px-[22px] py-[10px]"
+                        disabled={blockEdit}
+                      >
+                        <Image
+                          src="/icons/trashcan.svg"
+                          alt="trashcan Icon"
+                          width={18}
+                          height={18}
+                        />
+                        <span className="ml-[6px] flex items-center text-center text-white">
+                          Delete
+                        </span>
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => {
+                            deleteSelectedTestcases()
+                            // setDataChangeTrigger((prev) => prev + 1)
+                          }}
+                          type="button"
+                          className={cn(
+                            'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                            selectedTestcases.length > 0 &&
+                              !hasZipUploaded.sample
+                              ? 'bg-[#FC5555] text-white'
+                              : 'bg-gray-300 text-gray-600'
+                          )}
+                          disabled={
+                            selectedTestcases.length === 0 ||
+                            hasZipUploaded.sample
+                          }
+                        >
+                          <Image
+                            src="/icons/trashcan.svg"
+                            alt="trashcan Icon"
+                            width={18}
+                            height={18}
+                          />
+                          <span className="ml-[6px] flex items-center text-center text-white">
+                            Delete
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            addTestcase(false)
+                            // setDataChangeTrigger((prev) => prev + 1)
+                          }}
+                          type="button"
+                          className={cn(
+                            'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                            hasZipUploaded.sample
+                              ? 'bg-gray-300 text-gray-600'
+                              : 'bg-primary text-white'
+                          )}
+                          disabled={hasZipUploaded.sample}
+                        >
+                          <Image
+                            src="/icons/plus-circle-white.svg"
+                            alt="plus circle white Icon"
+                            width={18}
+                            height={18}
+                          />
+                          <span className="ml-[6px] flex items-center text-center text-white">
+                            Add
+                          </span>
+                        </button>
+                      </>
+                    )}
                   </>
                 )}
               </div>
@@ -606,8 +698,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         item.originalIndex
                       )}
                       isZipUploaded={
-                        ('isZipUploaded' in item && item.isZipUploaded) ||
-                        isSampleUploadedByZip
+                        isZipUploadedTestcase(item) || hasZipUploaded.sample
                       }
                     />
                   )
@@ -655,59 +746,81 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                     <TestcaseUploadModal
                       onUpload={handleUploadTestcases}
                       isHidden={true}
-                      disabled={hasZipUploaded.sample}
                     />
-                    <button
-                      onClick={() => {
-                        deleteSelectedTestcases()
-                        setDataChangeTrigger((prev) => prev + 1)
-                      }}
-                      type="button"
-                      className={cn(
-                        'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                        selectedTestcases.length > 0 && !hasZipUploaded.hidden
-                          ? 'bg-[#FC5555] text-white'
-                          : 'bg-gray-300 text-gray-600'
-                      )}
-                      disabled={
-                        selectedTestcases.length === 0 || hasZipUploaded.hidden
-                      }
-                    >
-                      <Image
-                        src="/icons/trashcan.svg"
-                        alt="trashcan Icon"
-                        width={18}
-                        height={18}
-                      />
-                      <span className="ml-[6px] flex items-center text-center text-white">
-                        Delete
-                      </span>
-                    </button>
+                    {hasZipUploaded.hidden ? (
+                      <button
+                        onClick={() => deleteAllInCurrentTab(true)}
+                        type="button"
+                        className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#FC5555] px-[22px] py-[10px]"
+                        disabled={blockEdit}
+                      >
+                        <Image
+                          src="/icons/trashcan.svg"
+                          alt="trashcan Icon"
+                          width={18}
+                          height={18}
+                        />
+                        <span className="ml-[6px] flex items-center text-center text-white">
+                          Delete
+                        </span>
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => {
+                            deleteSelectedTestcases()
+                            // setDataChangeTrigger((prev) => prev + 1)
+                          }}
+                          type="button"
+                          className={cn(
+                            'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                            selectedTestcases.length > 0 &&
+                              !hasZipUploaded.hidden
+                              ? 'bg-[#FC5555] text-white'
+                              : 'bg-gray-300 text-gray-600'
+                          )}
+                          disabled={
+                            selectedTestcases.length === 0 ||
+                            hasZipUploaded.hidden
+                          }
+                        >
+                          <Image
+                            src="/icons/trashcan.svg"
+                            alt="trashcan Icon"
+                            width={18}
+                            height={18}
+                          />
+                          <span className="ml-[6px] flex items-center text-center text-white">
+                            Delete
+                          </span>
+                        </button>
 
-                    <button
-                      onClick={() => {
-                        addTestcase(true)
-                        setDataChangeTrigger((prev) => prev + 1)
-                      }}
-                      type="button"
-                      className={cn(
-                        'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
-                        hasZipUploaded.hidden
-                          ? 'bg-gray-300 text-gray-600'
-                          : 'bg-primary text-white'
-                      )}
-                      disabled={hasZipUploaded.hidden}
-                    >
-                      <Image
-                        src="/icons/plus-circle-white.svg"
-                        alt="plus circle white Icon"
-                        width={18}
-                        height={18}
-                      />
-                      <span className="ml-[6px] flex items-center text-center text-white">
-                        Add
-                      </span>
-                    </button>
+                        <button
+                          onClick={() => {
+                            addTestcase(true)
+                            // setDataChangeTrigger((prev) => prev + 1)
+                          }}
+                          type="button"
+                          className={cn(
+                            'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
+                            hasZipUploaded.hidden
+                              ? 'bg-gray-300 text-gray-600'
+                              : 'bg-primary text-white'
+                          )}
+                          disabled={hasZipUploaded.hidden}
+                        >
+                          <Image
+                            src="/icons/plus-circle-white.svg"
+                            alt="plus circle white Icon"
+                            width={18}
+                            height={18}
+                          />
+                          <span className="ml-[6px] flex items-center text-center text-white">
+                            Add
+                          </span>
+                        </button>
+                      </>
+                    )}
                   </>
                 )}
               </div>
@@ -730,8 +843,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         item.originalIndex
                       )}
                       isZipUploaded={
-                        ('isZipUploaded' in item && item.isZipUploaded) ||
-                        isHiddenUploadedByZip
+                        isZipUploadedTestcase(item) || hasZipUploaded.hidden
                       }
                     />
                   )

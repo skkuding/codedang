@@ -9,19 +9,18 @@ import {
 import { Skeleton } from '@/components/shadcn/skeleton'
 import {
   GET_ASSIGNMENT,
-  GET_ASSIGNMENT_SCORE_SUMMARIES,
-  GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS
+  GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS,
+  GET_ASSIGNMENT_SCORE_SUMMARIES
 } from '@/graphql/assignment/queries'
 import {
   GET_ASSIGNMENT_PROBLEMS,
   GET_PROBLEM_TESTCASE_WITHOUT_IO
 } from '@/graphql/problem/queries'
-import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
 import { REJUDGE_ASSIGNMENT_PROBLEM } from '@/graphql/submission/mutations'
-import { useQuery, useSuspenseQuery, useMutation } from '@apollo/client'
+import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import { RejudgeMode } from '@generated/graphql'
 import dayjs from 'dayjs'
-import { useState, useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
 import { createColumns } from './ColumnsByProblem'

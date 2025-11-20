@@ -4,7 +4,9 @@ import {
   Get,
   Param,
   Query,
-  Req
+  Req,
+  Res,
+  StreamableFile
 } from '@nestjs/common'
 import { ApiQuery } from '@nestjs/swagger'
 import {
@@ -101,6 +103,26 @@ export class ProblemController {
   @Get(':problemId/update-history')
   async getProblemUpdateHistory(@Param('problemId') problemId: number) {
     return await this.problemService.getProblemUpdateHistory(problemId)
+  }
+
+  @Get(':problemId/download')
+  @AuthNotNeededIfPublic()
+  async downloadProblem(
+    @Req() req: AuthenticatedRequest,
+    @Param('problemId') problemId: number,
+    @Query('mode') mode: 'my' | 'shared',
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const { stream, contentType, filename } =
+      await this.problemService.downloadProblem({
+        userId: req.user.id,
+        mode
+      })
+
+    res.headers.set('Content-Type', contentType)
+    res.headers.set('Content-Disposition', `attachment; filename="${filename}"`)
+
+    return new StreamableFile(stream)
   }
 }
 
