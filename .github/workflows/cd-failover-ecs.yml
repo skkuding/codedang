@@ -2,7 +2,7 @@ name: CD - Failover ECS
 
 on:
   push:
-    branches: [main]
+    branches: [release]
   workflow_dispatch:
 
 permissions:
