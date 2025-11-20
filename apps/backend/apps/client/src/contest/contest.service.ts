@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common'
-import { ContestRole, Prisma, QnACategory, Role } from '@prisma/client'
+import {
+  ContestRole,
+  Language,
+  Prisma,
+  QnACategory,
+  ResultStatus,
+  Role
+} from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -1205,5 +1212,208 @@ export class ContestService {
 
       return deletedComment
     })
+  }
+
+  /**
+   * (private) 대회의 존재 여부 및 종료 여부를 검증합니다
+   */
+  private async checkIsContestExistsAndEnded(contestId: number) {
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId }
+    })
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+    const now = new Date()
+    if (contest.endTime <= now) {
+      throw new ForbiddenAccessException(
+        'You can access to statistics after contest ends.'
+      )
+    }
+  }
+
+  /**
+   * 특정 대회에 해당하는 대회 문제들의 목록을 반환합니다.
+   * @param contestId - 조회할 대회의 Id
+   * @returns contestProblem[]
+   */
+  async getContestProblems(contestId: number) {
+    await this.checkIsContestExistsAndEnded(contestId)
+
+    return await this.prisma.contest.findFirst({
+      where: { id: contestId },
+      select: {
+        contestProblem: {
+          select: {
+            problemId: true,
+            problem: {
+              select: { title: true }
+            }
+          },
+          orderBy: {
+            order: 'asc'
+          }
+        }
+      }
+    })
+  }
+
+  /**
+   * 특정 대회 문제에 대한 통계를 반환합니다.
+   * @param userId - 요청하는 유저의 Id
+   * @param contestId - 조회할 대회의 Id
+   * @param problemId - 조회할 문제의 Id
+   * @returns totalSubmissionCount - 전체 제출 수
+   * @returns acceptedSubmissionCount - 정답 제출 수
+   * @returns acceptedRate - 정답률(제출 수 기준)
+   * @returns averageTrial - 평균 시도 횟수
+   * @returns firstSolver - 최단 정답자(제출시간 기준)
+   * @returns fastestSolver - 최단 정답자(cpuTime 기준)
+   * @returns userSpeedRank - 요청 유저의 제출시간 등수(정답을 맞추지 못한 경우 null)
+   * @returns acceptedSubmissionsByLanguage - 언어별 정답 제출 수
+   */
+  async getStatisticsByProblem(
+    userId: number,
+    contestId: number,
+    problemId: number
+  ) {
+    await this.checkIsContestExistsAndEnded(contestId)
+
+    const [contestProblem, allSubmissions] = await Promise.all([
+      this.prisma.contestProblem.findFirst({
+        where: { contestId, problemId },
+        select: { problem: { select: { languages: true } } }
+      }),
+      this.prisma.submission.findMany({
+        where: {
+          contestId,
+          problemId
+        },
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
+              username: true
+            }
+          },
+          submissionResult: {
+            select: { cpuTime: true }
+          },
+          language: true,
+          result: true,
+          createTime: true
+        },
+        orderBy: {
+          createTime: 'asc'
+        }
+      })
+    ])
+
+    if (!contestProblem) {
+      throw new EntityNotExistException('ContestProblem')
+    }
+
+    // 해당 contestProblem에 대한 submission 조회
+
+    const totalSubmissionCount = allSubmissions.length
+    const acceptedSubmissions = allSubmissions.filter((submission) => {
+      return submission.result == ResultStatus.Accepted
+    })
+    const acceptedSubmissionCount = acceptedSubmissions.length
+    const acceptedRate =
+      acceptedSubmissionCount > 0
+        ? (acceptedSubmissionCount / totalSubmissionCount).toFixed(1)
+        : '0.0'
+
+    const uniqueSubmitterIds = new Set<number>()
+    for (const s of allSubmissions) {
+      const uid = s.user?.id
+      if (uid) uniqueSubmitterIds.add(uid)
+    }
+    const submittedParticipantsCount = uniqueSubmitterIds.size
+    const averageTrial =
+      submittedParticipantsCount > 0
+        ? (totalSubmissionCount / submittedParticipantsCount).toFixed(1)
+        : '0.0'
+
+    // acceptedSubmissions에서 특정 유저의 중복 정답 제출이 있는 경우 제출 시각이 가장 빠른 것만 유지
+    const uniqueAcceptedSubmissions = new Map<
+      number,
+      (typeof acceptedSubmissions)[0]
+    >()
+    for (const submission of acceptedSubmissions) {
+      const userId = submission.user?.id
+      if (userId && !uniqueAcceptedSubmissions.has(userId)) {
+        uniqueAcceptedSubmissions.set(userId, submission)
+      }
+    }
+    const deduplicatedAcceptedSubmissions = Array.from(
+      uniqueAcceptedSubmissions.values()
+    )
+
+    const firstSolver = deduplicatedAcceptedSubmissions[0]?.user ?? null
+
+    let fastestUser: { id: number; username: string } | null = null
+    let minTime: bigint | null = null
+
+    for (const sub of deduplicatedAcceptedSubmissions) {
+      const maxElapsedTime = sub.submissionResult.reduce((max, r) => {
+        const cpuTime = r.cpuTime ?? BigInt(0)
+        return cpuTime > max ? cpuTime : max
+      }, BigInt(0))
+
+      if (sub.user?.id) {
+        if (minTime === null || maxElapsedTime < minTime) {
+          minTime = maxElapsedTime
+          fastestUser = sub.user
+        }
+      }
+    }
+
+    const fastestSolver = fastestUser
+
+    const idx = deduplicatedAcceptedSubmissions.findIndex(
+      (s) => s.user?.id === userId
+    )
+    const userSpeedRank = idx === -1 ? null : idx + 1
+
+    // 해당 problem에서 사용가능한 언어 집합
+    const allowedLanguage = new Set<Language>(
+      contestProblem.problem.languages ?? []
+    )
+
+    const acceptedSubmissionsByLanguage = new Map<Language, number>()
+    for (const lang of allowedLanguage)
+      acceptedSubmissionsByLanguage.set(lang, 0)
+
+    for (const s of acceptedSubmissions) {
+      const lang = s.language
+      if (allowedLanguage.has(lang)) {
+        acceptedSubmissionsByLanguage.set(
+          lang,
+          (acceptedSubmissionsByLanguage.get(lang) ?? 0) + 1
+        )
+      }
+    }
+
+    // 제출 수가 0인 언어는 제외하고 배열 생성
+    const acceptedSubmissionsByLanguageArray = Array.from(
+      acceptedSubmissionsByLanguage.entries()
+    )
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .filter(([_, count]) => count > 0)
+      .map(([language, count]) => ({ language, count }))
+
+    return {
+      totalSubmissionCount,
+      acceptedSubmissionCount,
+      acceptedRate,
+      averageTrial,
+      firstSolver,
+      fastestSolver,
+      userSpeedRank,
+      acceptedSubmissionsByLanguage: acceptedSubmissionsByLanguageArray
+    }
   }
 }

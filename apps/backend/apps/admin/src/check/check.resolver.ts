@@ -1,5 +1,5 @@
 import { Args, Context, Int, Mutation, Resolver, Query } from '@nestjs/graphql'
-import { AuthenticatedRequest } from '@libs/auth'
+import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { CheckRequest } from '@admin/@generated'
 import { CheckService } from './check.service'
@@ -11,6 +11,7 @@ import {
 import { CreatePlagiarismCheckInput } from './model/create-check.input'
 
 @Resolver(() => CheckRequest)
+@UseDisableAdminGuard()
 export class CheckResolver {
   constructor(private readonly checkService: CheckService) {}
 
@@ -40,7 +41,7 @@ export class CheckResolver {
     @Args('problemId', { type: () => Int }) problemId: number
   ): Promise<CheckRequest> {
     return await this.checkService.checkAssignmentProblem({
-      userId: req.user.id,
+      user: req.user,
       checkInput,
       assignmentId,
       problemId
