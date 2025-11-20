@@ -1,0 +1,42 @@
+meta {
+  name: [403] Cannot Comment on Others Private
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/course/1/qna/2
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "Forbidden comment on private question"
+  }
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser2nd(req);  // 다른 학생으로 로그인
+}
+
+settings {
+  encodeUrl: true
+}
+
+tests {
+  test("should return 403 Forbidden", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+}
+
+docs {
+  # 📘 Create Comment - Cannot Comment on Private Question
+
+  다른 학생의 비밀글에 댓글을 작성하려고 하면 403 Forbidden 에러가 발생합니다.
+
+  비밀글 댓글 작성 권한:
+  - 질문 작성자 본인
+  - 교수/조교
+}

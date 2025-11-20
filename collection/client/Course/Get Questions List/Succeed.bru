@@ -1,0 +1,101 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/course/1/qna
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return 200 OK with questions list", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(data).to.be.an('array');
+
+    if (data.length > 0) {
+      const question = data[0];
+      expect(question).to.have.property('id');
+      expect(question).to.have.property('order');
+      expect(question).to.have.property('title');
+      expect(question).to.have.property('category');
+      expect(question).to.have.property('isResolved');
+      expect(question).to.have.property('isRead');
+      expect(question).to.have.property('createdBy');
+      expect(question.createdBy).to.have.property('username');
+    }
+  });
+}
+
+docs {
+  # 📘 Get Course Questions List
+
+  **GET** `/course/:id/qna`
+
+  Retrieve multiple Q&A entries within the course.
+
+  특정 강의의 Q&A 목록을 조회합니다.
+
+  - 공개 질문은 누구나 볼 수 있습니다.
+  - 비밀글은 작성자와 교수/조교만 볼 수 있습니다.
+  - 각 질문의 읽음 여부(`isRead`)가 함께 반환됩니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  🔸 Optional
+  - 로그인하지 않아도 공개된 QnA는 조회 가능
+  - 인증 실패 시 `req.user`는 null이 됩니다
+
+  ---
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description                |
+  |------|--------|----------|----------------------------|
+  | `id` | number | ✅       | ID of the target course    |
+
+  #### Query Parameters
+
+  | Name         | Type     | Required | Description                           |
+  |--------------|----------|----------|---------------------------------------|
+  | `week`       | number   | ❌       | 주차별 필터링                           |
+  | `isAnswered` | boolean  | ❌       | 답변 여부 필터링 (true/false)           |
+  | `categories` | string[] | ❌       | 카테고리 필터 (general, problem)        |
+  | `problemIds` | number[] | ❌       | 특정 문제들의 질문만 조회                |
+  | `search`     | string   | ❌       | 제목 검색 (대소문자 구분 없음)           |
+
+  ---
+
+  ### 📤 Response
+
+  #### Success Response (200 OK)
+```json
+  [
+    {
+      "id": 1,
+      "order": 1,
+      "createdById": 7,
+      "title": "강의 전반에 대한 질문입니다",
+      "category": "general",
+      "isResolved": false,
+      "isRead": true,
+      "problemId": null,
+      "createTime": "2025-01-15T10:30:00.000Z",
+      "createdBy": {
+        "username": "user01"
+      }
+    }
+  ]
+}
