@@ -87,16 +87,7 @@ export function SubmissionAssessment() {
           <TooltipProvider>
             <Tooltip open={showTooltip}>
               <TooltipTrigger asChild>
-                <div className="flex gap-2 self-end">
-                  <Button
-                    className="flex h-8 w-[88px] items-center gap-1 rounded-[4px] border border-[#585B6C] bg-[#282D3D] py-[7px] pl-[10px] pr-3 text-sm font-normal hover:bg-[#232838]"
-                    type="reset"
-                  >
-                    <Image src={resetIcon} alt="reset" width={16} height={16} />
-                    <span className="translate-y-[0.5px] leading-none">
-                      Reset
-                    </span>
-                  </Button>
+                <div className="flex self-end">
                   <Button
                     className="flex h-8 w-[88px] items-center gap-1 rounded-[4px] border border-blue-500 py-[7px] pl-[10px] pr-3 text-sm font-normal"
                     type="submit"
