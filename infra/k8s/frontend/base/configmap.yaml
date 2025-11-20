@@ -8,3 +8,4 @@ data:
   # https://nextjs.org/docs/app/guides/environment-variables#bundling-environment-variables-for-the-browser
   NEXT_URL: 'https://codedang.com'
   NEXTAUTH_URL: 'https://codedang.com/next-auth/api/auth'
+  MEDIA_BUCKET_NAME: 'codedang-media'

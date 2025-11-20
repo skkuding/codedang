@@ -14,7 +14,7 @@ import {
 } from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
-import { AMQPService } from '@libs/amqp'
+import { JudgeAMQPService } from '@libs/amqp'
 import type { AuthenticatedUser } from '@libs/auth'
 import {
   EntityNotExistException,
@@ -45,7 +45,7 @@ export class SubmissionService {
   private readonly logger = new Logger(SubmissionService.name)
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: AMQPService
+    private readonly amqpService: JudgeAMQPService
   ) {}
 
   async getSubmissions(

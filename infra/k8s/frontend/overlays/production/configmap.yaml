@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-env
+  namespace: frontend
+data:
+  NEXT_PUBLIC_GTM_MEASUREMENT_ID: GTM-KFSR238F
