@@ -30,29 +30,27 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
   const { data: assignment, isFetched: assignmentFetched } = useQuery(
     assignmentQueries.single({ assignmentId })
   )
+
   const { data: record } = useQuery(assignmentQueries.record({ assignmentId }))
+
   const { data: submissions } = useQuery({
     ...assignmentSubmissionQueries.summary({
       assignmentId: (assignment?.id as number) ?? 0
     }),
     enabled: Boolean(assignment?.id)
   })
-  const { data: problems } = useQuery(
+
+  const {
+    data: problems,
+    isError: problemsIsError,
+    isFetched: problemsFetched
+  } = useQuery(
     assignmentProblemQueries.list({ assignmentId, groupId: courseId })
   )
 
   const invalidId = !Number.isFinite(assignmentId) || !Number.isFinite(courseId)
 
-  const notFound = assignmentFetched && !assignment
-
-  const wrongCourse =
-    assignmentFetched &&
-    Boolean(assignment) &&
-    Number(assignment?.group?.id ?? NaN) !== courseId
-
-  const shouldShowError = invalidId || notFound || wrongCourse
-
-  if (shouldShowError) {
+  if (invalidId) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
         <Image
@@ -69,8 +67,30 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
     )
   }
 
-  if (!assignment) {
+  if (!assignmentFetched || !problemsFetched) {
     return null
+  }
+
+  const notFound = !assignment
+  const wrongCourseByProblem = problemsIsError
+
+  const shouldShowError = notFound || wrongCourseByProblem
+
+  if (shouldShowError) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
+        <Image
+          src={errorImage}
+          alt="Error"
+          className="mx-auto block h-auto max-w-full"
+        />
+        <p className="mt-4 text-[20px] font-semibold text-neutral-700">
+          This assignment is unavailable.
+          <br />
+          Please check the URL or try again later.
+        </p>
+      </div>
+    )
   }
 
   return (
