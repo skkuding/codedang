@@ -72,11 +72,7 @@ export default function Page() {
         />
 
         <p className="text-xl font-bold">Submission</p>
-        <DataTableRoot
-          data={submissions}
-          columns={columns}
-          defaultSortState={[{ id: 'updateTime', desc: true }]}
-        >
+        <DataTableRoot data={submissions} columns={columns}>
           <div className="flex gap-4">
             <DataTableSearchBar columndId="username" />
           </div>

@@ -3,22 +3,28 @@ import { gql } from '@generated'
 const GET_PROBLEM = gql(`
   query GetProblem($id: Int!) {
     getProblem(id: $id) {
-      title
-      isVisible
-      difficulty
+      id
       languages
-      tag {
-        tag {
-          id
-          name
-        }
-      }
+      source
+      createdById
+      timeLimit
+      difficulty
+      title
+      memoryLimit
       description
       inputDescription
       outputDescription
       submissionCount
+      hint
+      isVisible
+      template
+      solution
       isHiddenUploadedByZip
       isSampleUploadedByZip
+      sharedGroups {
+        id
+        groupName
+      }
       testcase {
         id
         input
@@ -27,12 +33,19 @@ const GET_PROBLEM = gql(`
         scoreWeightNumerator
         scoreWeightDenominator
       }
-      timeLimit
-      memoryLimit
-      hint
-      source
-      template
-      solution
+      tag {
+        id
+        tag {
+          id
+          name
+        }
+      }
+      updateHistory {
+        id
+        updatedFields
+        updatedAt
+        updatedByid
+      }
     }
   }
 `)

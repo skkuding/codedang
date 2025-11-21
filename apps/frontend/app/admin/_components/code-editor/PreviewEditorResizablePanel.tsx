@@ -34,7 +34,9 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
   const [code, setCode] = useState('')
 
   useEffect(() => {
-    const templates = problem.template ? JSON.parse(problem.template[0]) : []
+    const templates = problem.template?.[0]
+      ? JSON.parse(problem.template[0])
+      : []
     const filteredTemplate = templates.filter(
       (template: Template) => template.language === language
     )
