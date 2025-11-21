@@ -1,8 +1,8 @@
-import { Field, InputType, Int, Directive } from '@nestjs/graphql'
+import { Directive, Field, InputType, Int } from '@nestjs/graphql'
 import { Language, Level } from '@generated'
 import { Min, ValidatePromise } from 'class-validator'
-import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
 import type { FileUpload } from 'graphql-upload/GraphQLUpload.mjs'
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import { Solution } from './solution.input'
 import { Template } from './template.input'
@@ -25,7 +25,7 @@ export class CreateProblemInput {
   @Field(() => String, { nullable: false })
   hint!: string
 
-  @Field(() => Boolean, { defaultValue: true })
+  @Field(() => Boolean, { defaultValue: false })
   isVisible!: boolean
 
   @Field(() => [Template], { nullable: false })

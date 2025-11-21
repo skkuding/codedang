@@ -9,6 +9,7 @@ data:
   REDIS_PORT: '6379'
   TESTCASE_BUCKET_NAME: 'codedang-testcase'
   MEDIA_BUCKET_NAME: 'codedang-media'
+  CHECK_RESULT_BUCKET_NAME: 'codedang-plag-checks'
   OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'simplest-collector.monitoring-otel.svc.cluster.local:4317'
   RABBITMQ_API_URL: 'http://rabbitmq.rabbitmq.svc.cluster.local:15672/api'
   RABBITMQ_DEFAULT_VHOST: 'vh'
