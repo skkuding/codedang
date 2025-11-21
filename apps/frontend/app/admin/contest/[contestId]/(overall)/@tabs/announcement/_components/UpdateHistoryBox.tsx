@@ -124,7 +124,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
             src={arrowBlueIcon}
             alt="arrow_top"
             width={18}
-            className={cn(openHistory && 'rotate-180')}
+            className={cn(!openHistory && 'rotate-180')}
           />
           <p className="text-primary ml-[6px] text-base font-medium leading-[22.4px] tracking-[0.48px]">
             {seemore}
@@ -133,7 +133,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
       )}
       {disableFlag && (
         <Button
-          className="border-line bg-color-neutral-99 pointer-events: none flex h-10 items-center justify-center rounded-[1000px] border px-5 py-[9px] hover:bg-white"
+          className="border-line bg-color-neutral-99 pointer-events-none flex h-10 items-center justify-center rounded-[1000px] border px-5 py-[9px] hover:bg-white"
           onClick={() => {
             onClickSeemore()
           }}
