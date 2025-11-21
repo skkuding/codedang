@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
 import { ProblemTabs } from './_components/ProblemTabs'
+import { ProblemsDownload } from './_components/ProblemsDownload'
 import { ProblemsUploadButton } from './_components/ProblemsUploadButton'
 
 export default function Page() {
@@ -18,17 +19,22 @@ export default function Page() {
             Here&apos;s a problem list you made
           </p>
         </div>
-        <div className="flex gap-2">
-          <ProblemsUploadButton />
-          <Button variant="default" className="w-[120px]" asChild>
-            <Link href="/admin/problem/create">
-              <HiMiniPlusCircle className="mr-2 h-5 w-5" />
-              <span className="text-lg">Create</span>
-            </Link>
-          </Button>
+        <div className="flex flex-col items-end gap-0.5">
+          <div className="flex items-end gap-2">
+            <ProblemsUploadButton />
+            <Button variant="default" className="w-[120px]" asChild>
+              <Link href="/admin/problem/create">
+                <HiMiniPlusCircle className="mr-2 h-5 w-5" />
+                <span className="text-lg">Create</span>
+              </Link>
+            </Button>
+          </div>
+          <ProblemsDownload />
         </div>
       </div>
+
       <ProblemTabs />
+
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<ProblemTableFallback />}>
           <ProblemTable />
