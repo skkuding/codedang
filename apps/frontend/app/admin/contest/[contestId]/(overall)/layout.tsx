@@ -53,12 +53,10 @@ export default function Layout(props: {
           <Image src={keyBlueIcon} alt="keyBlueicon" />
           <span className="text-primary font-medium">Invitation code : </span>
           <span>{contestData?.invitationCode ?? '-'}</span>
-          {contestData?.invitationCode ? (
-            <TimeStatusBadge
-              status="undefined"
-              endTime={contestData?.registerDueTime}
-            />
-          ) : null}
+          <TimeStatusBadge
+            status="undefined"
+            endTime={contestData?.registerDueTime}
+          />
         </div>
         <AdminContestStatusTimeDiff
           showText={true}

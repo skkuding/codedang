@@ -21,7 +21,7 @@ export function TimeStatusBadge({ status, endTime }: TimeStatusBadgeProps) {
   return (
     <div
       className={cn(
-        'flex h-7 w-20 flex-shrink-0 items-center justify-center rounded-[4px] px-[10px] py-[6px] text-[14px] font-medium tracking-[-0.42px]',
+        'flex h-7 w-20 flex-shrink-0 items-center justify-center rounded-[4px] px-[10px] py-1 text-[14px] font-medium tracking-[-0.42px]',
         statusStyles[status]
       )}
     >
