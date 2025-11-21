@@ -4,6 +4,7 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { ProblemTabs } from '../_components/ProblemTabs'
+import { ProblemsDownload } from '../_components/ProblemsDownload'
 import {
   SharedProblemTable,
   SharedProblemTableFallback
@@ -19,8 +20,8 @@ export default function Page() {
             Here&apos;s a problem list shared in other courses.
           </p>
         </div>
+        <ProblemsDownload />
       </div>
-
       <ProblemTabs />
 
       <ErrorBoundary fallback={FetchErrorFallback}>
