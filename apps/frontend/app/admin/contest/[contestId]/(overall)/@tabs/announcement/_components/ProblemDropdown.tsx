@@ -23,7 +23,6 @@ interface ProblemDropdownProps {
 
 export function ProblemDropdown({
   watch,
-  setValue,
   problemOptions,
   isOpen,
   onClose,
