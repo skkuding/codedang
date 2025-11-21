@@ -22,7 +22,8 @@ import {
   NullableGroupIDPipe,
   ProblemOrder,
   ProblemOrderPipe,
-  RequiredIntPipe
+  RequiredIntPipe,
+  StatisticsModeValidationPipe
 } from '@libs/pipe'
 import {
   AssignmentProblemService,
@@ -157,6 +158,22 @@ export class ContestProblemController {
       contestId,
       problemId,
       userId: req.user.id
+    })
+  }
+
+  @Get(':problemId/statistics/graph')
+  @UserNullWhenAuthFailedIfPublic()
+  async getContestProblemStatistics(
+    @Req() req: AuthenticatedRequest,
+    @Param('contestId', IDValidationPipe) contestId: number,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Query('mode', StatisticsModeValidationPipe)
+    mode?: 'distribution' | 'timeline'
+  ) {
+    return await this.contestProblemService.getContestProblemStatistics({
+      contestId,
+      problemId,
+      mode
     })
   }
 
