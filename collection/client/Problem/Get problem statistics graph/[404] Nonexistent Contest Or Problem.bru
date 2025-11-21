@@ -1,13 +1,13 @@
 meta {
   name: [404] Nonexistent Contest Or Problem
   type: http
-  seq: 2
+  seq: 4
 }
 
 get {
   url: {{baseUrl}}/contest/999999/problem/999999/statistics/graph
   body: none
-  auth: none
+  auth: inherit
 }
 
 params:path {
@@ -15,20 +15,18 @@ params:path {
   problemId: 999999
 }
 
-params:query {
-  # mode를 지정하지 않아 both 기본 응답을 기대하지만,
-  # contestId/problemId가 유효하지 않아 404를 반환합니다.
-}
-
 assert {
   res.status: eq 404
 }
 
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
 docs {
   # [404] Nonexistent Contest Or Problem
-
+  
   존재하지 않는 `contestId` 또는 `problemId`로
   `/contest/:contestId/problem/:problemId/statistics/graph`를 호출했을 때 404 응답이 반환됩니다.
 }
-
-

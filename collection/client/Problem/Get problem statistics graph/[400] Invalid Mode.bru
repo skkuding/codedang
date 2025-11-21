@@ -1,18 +1,27 @@
 meta {
   name: [400] Invalid Mode
   type: http
-  seq: 4
+  seq: 6
 }
 
 get {
   url: {{baseUrl}}/contest/:contestId/problem/:problemId/statistics/graph?mode=invalid
   body: none
-  auth: none
+  auth: inherit
+}
+
+params:query {
+  mode: invalid
 }
 
 params:path {
   contestId: 6
   problemId: 5
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
 }
 
 assert {

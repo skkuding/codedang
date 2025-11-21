@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
 import type { Decimal } from '@prisma/client/runtime/library'
 import { MIN_DATE } from '@libs/constants'
-import { ForbiddenAccessException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  ForbiddenAccessException
+} from '@libs/exception'
 import { ProblemOrder } from '@libs/pipe'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@client/assignment/assignment.service'
@@ -534,14 +537,32 @@ export class ContestProblemService {
     problemId: number
     mode?: 'distribution' | 'timeline'
   }) {
-    // 대회가 종료된 상태인지 확인
-    const contest = await this.prisma.contest.findUniqueOrThrow({
+    const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
       select: {
         startTime: true,
         endTime: true
       }
     })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const contestProblem = await this.prisma.contestProblem.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_problemId: {
+          contestId,
+          problemId
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!contestProblem) {
+      throw new EntityNotExistException('Problem')
+    }
 
     const now = new Date()
 
@@ -556,18 +577,6 @@ export class ContestProblemService {
         'Contest problem statistics are unavailable'
       )
     }
-
-    // 대회 소속 문제 검증
-    await this.prisma.contestProblem.findUniqueOrThrow({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_problemId: {
-          contestId,
-          problemId
-        }
-      },
-      select: { id: true }
-    })
 
     const statistics: {
       contestId: number

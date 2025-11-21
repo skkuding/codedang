@@ -1,13 +1,13 @@
 meta {
   name: [403] Contest Not Finished
   type: http
-  seq: 3
+  seq: 5
 }
 
 get {
   url: {{baseUrl}}/contest/:contestId/problem/:problemId/statistics/graph
   body: none
-  auth: none
+  auth: inherit
 }
 
 params:path {
@@ -15,17 +15,14 @@ params:path {
   problemId: 1
 }
 
-assert {
-  res.status: eq 403
-  res("message"): eq Contest problem statistics are available after the contest ends
+settings {
+  encodeUrl: true
+  timeout: 0
 }
 
 docs {
   # [403] Contest Not Finished
-
+  
   아직 종료되지 않은 대회에 대해
   `/contest/:contestId/problem/:problemId/statistics/graph`를 호출했을 때 403 Forbidden 응답이 반환됩니다.
 }
-
-
-

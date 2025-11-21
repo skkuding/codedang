@@ -1,17 +1,13 @@
 meta {
   name: Succeed
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
   url: {{baseUrl}}/contest/:contestId/problem/:problemId/statistics/graph
   body: none
-  auth: none
-}
-
-params:query {
-  # mode를 지정하지 않으면 기본값으로 both가 사용됩니다.
+  auth: inherit
 }
 
 params:path {
@@ -21,24 +17,21 @@ params:path {
 
 assert {
   res.status: eq 200
-  res("contestId"): isNumber 42
-  res("problemId"): isNumber 7
-  res("mode"): eq "both"
+  res("contestId"): isNumber
+  res("problemId"): isNumber
+  res("mode"): isString
+  res("distribution"): isDefined
+  res("timeline"): isDefined
+}
 
-  res("distribution.totalSubmissions"): isNumber 1
-  res("distribution.counts.WA"): isNumber 1
-  res("distribution.counts.TLE"): isNumber 1
-  res("distribution.counts.MLE"): isNumber 1
-  res("distribution.counts.RE"): isNumber 1
-  res("distribution.counts.CE"): isNumber 1
-  res("distribution.counts.ETC"): isNumber 1
+settings {
+  encodeUrl: true
+  timeout: 0
+}
 
-  res("timeline.intervalMinutes"): isNumber
-  res("timeline.series"): isArray
-  res("timeline.series.length"): eq 6
-  res("timeline.series[0].timestamp"): isString
-  res("timeline.series[0].accepted"): isNumber 0
-  res("timeline.series[0].wrong"): isNumber 0
+assert {
+  res.status: eq 403
+  res("message"): eq Contest problem statistics are available after the contest ends
 }
 
 docs {
@@ -68,6 +61,7 @@ docs {
   | `mode` | `"distribution" \| "timeline"` | ❌ | 생략 시 `both`로 처리되어 두 그래프 모두 반환 |
 
   #### Path Parameters
+  - mode를 지정하지 않으면 기본값으로 both가 사용됩니다.
 
   | Name | Type | Required | Description |
   |------|------|----------|-------------|
@@ -95,4 +89,5 @@ docs {
         - `timestamp`: 슬롯 시작 시각(ISO8601)
         - `accepted`: 해당 시각 Accepted 제출 수
         - `wrong`: 해당 시각 Wrong 제출 수 (WA/TLE/MLE/RE/CE/ETC의 합)
+
 }

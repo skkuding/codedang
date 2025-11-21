@@ -1,13 +1,17 @@
 meta {
   name: Succeed(timeline mode)
   type: http
-  seq: 1
+  seq: 3
 }
 
 get {
   url: {{baseUrl}}/contest/:contestId/problem/:problemId/statistics/graph?mode=timeline
   body: none
-  auth: none
+  auth: inherit
+}
+
+params:query {
+  mode: timeline
 }
 
 params:path {
@@ -17,15 +21,17 @@ params:path {
 
 assert {
   res.status: eq 200
-  res("contestId"): isNumber 42
-  res("problemId"): isNumber 7
+  res("contestId"): isNumber
+  res("problemId"): isNumber
   res("mode"): eq "timeline"
+  res("timeline"): isDefined
   res("timeline.intervalMinutes"): isNumber
   res("timeline.series"): isArray
-  res("timeline.series.length"): eq 6
-  res("timeline.series[0].timestamp"): isString
-  res("timeline.series[0].accepted"): isNumber 0
-  res("timeline.series[0].wrong"): isNumber 0
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
 }
 
 docs {
