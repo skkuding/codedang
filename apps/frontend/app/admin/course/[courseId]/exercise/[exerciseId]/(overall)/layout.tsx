@@ -1,12 +1,13 @@
 'use client'
 
+import { CountdownStatus } from '@/components/CountdownStatus'
+import { DurationDisplay } from '@/components/DurationDisplay'
 import { Button } from '@/components/shadcn/button'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
-import { AssignmentStatus } from '../../../../../../../components/AssignmentStatus'
 import { AssignmentOverallTabs } from '../../../_components/AssignmentOverallTabs'
 
 export default function Layout({ tabs }: { tabs: React.ReactNode }) {
@@ -40,10 +41,18 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
         </Link>
       </div>
       {assignmentData && (
-        <AssignmentStatus
-          startTime={assignmentData?.startTime}
-          dueTime={assignmentData?.dueTime ?? assignmentData?.endTime}
-        />
+        <div className="flex flex-col gap-[6px]">
+          <CountdownStatus
+            showText={true}
+            startTime={assignmentData?.startTime}
+            baseTime={assignmentData?.dueTime ?? assignmentData?.endTime}
+          />
+          <DurationDisplay
+            title="visible"
+            startTime={assignmentData?.startTime}
+            endTime={assignmentData?.endTime}
+          />
+        </div>
       )}
 
       <AssignmentOverallTabs
