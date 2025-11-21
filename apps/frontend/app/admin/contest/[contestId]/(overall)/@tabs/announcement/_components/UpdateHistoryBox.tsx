@@ -3,8 +3,10 @@
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST_UPDATE_HISTORIES } from '@/graphql/contest/queries'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
+import arrowBlueIcon from '@/public/icons/arrow_blue_top.svg'
+import arrowThinIcon from '@/public/icons/arrow_bottom_thin.svg'
 import { useQuery } from '@apollo/client'
-import { ChevronDown } from 'lucide-react'
+import Image from 'next/image'
 import { useState } from 'react'
 
 export function UpdateHistoryBox({ contestId }: { contestId: number }) {
@@ -24,6 +26,8 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
     (updateHistories?.length ?? 0) > 3
       ? updateHistories?.slice(0, 3)
       : updateHistories
+
+  const disableFlag = !((updateHistories?.length ?? 0) > 3)
 
   return (
     <div className="flex flex-col">
@@ -109,22 +113,37 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
             </div>
           ))}
       </div>
-      <Button
-        className="border-primary flex h-10 items-center justify-center rounded-[1000px] border bg-white px-5 py-[9px] hover:bg-white"
-        onClick={() => {
-          onClickSeemore()
-        }}
-      >
-        <ChevronDown
-          className={cn(
-            'text-primary text-lg font-thin',
-            openHistory && 'rotate-180'
-          )}
-        />
-        <p className="text-primary ml-[6px] text-base font-medium leading-[22.4px] tracking-[0.48px]">
-          {seemore}
-        </p>
-      </Button>
+      {!disableFlag && (
+        <Button
+          className="border-primary flex h-10 items-center justify-center rounded-[1000px] border bg-white px-5 py-[9px] hover:bg-white"
+          onClick={() => {
+            onClickSeemore()
+          }}
+        >
+          <Image
+            src={arrowBlueIcon}
+            alt="arrow_top"
+            width={18}
+            className={cn(openHistory && 'rotate-180')}
+          />
+          <p className="text-primary ml-[6px] text-base font-medium leading-[22.4px] tracking-[0.48px]">
+            {seemore}
+          </p>
+        </Button>
+      )}
+      {disableFlag && (
+        <Button
+          className="border-line bg-color-neutral-99 pointer-events: none flex h-10 items-center justify-center rounded-[1000px] border px-5 py-[9px] hover:bg-white"
+          onClick={() => {
+            onClickSeemore()
+          }}
+        >
+          <Image src={arrowThinIcon} alt="arrow_bottom_thin" width={18} />
+          <p className="text-color-neutral-70 ml-[6px] text-base font-medium leading-[22.4px] tracking-[0.48px]">
+            {seemore}
+          </p>
+        </Button>
+      )}
     </div>
   )
 }
