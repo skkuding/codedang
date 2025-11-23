@@ -614,8 +614,57 @@ export class SubmissionService {
 
   async getSubmissionResult(
     submissionId: number,
-    testcaseId: number
+    testcaseId: number,
+    reqUser: AuthenticatedUser
   ): Promise<SubmissionResultOutput> {
+    const hasPrivilege = reqUser.isAdmin() || reqUser.isSuperAdmin()
+
+    if (!hasPrivilege) {
+      const submission = await this.prisma.submission.findFirst({
+        where: {
+          id: submissionId
+        },
+        select: {
+          assignment: {
+            select: { groupId: true }
+          },
+          contestId: true
+        }
+      })
+
+      if (!submission) throw new EntityNotExistException('Submission')
+
+      if (submission.assignment) {
+        const isGroupLeader = await this.prisma.userGroup.findFirst({
+          where: {
+            groupId: submission.assignment.groupId,
+            userId: reqUser.id,
+            isGroupLeader: true
+          }
+        })
+
+        if (!isGroupLeader)
+          throw new ForbiddenAccessException(
+            `Only allowed to access submissions included in your group`
+          )
+      } else if (submission.contestId) {
+        const isContestManager = await this.prisma.userContest.findFirst({
+          where: {
+            contestId: submission.contestId,
+            userId: reqUser.id,
+            role: {
+              not: ContestRole.Participant
+            }
+          }
+        })
+
+        if (!isContestManager)
+          throw new ForbiddenAccessException(
+            `Only allowed to access your contest`
+          )
+      }
+    }
+
     const submissionResult = await this.prisma.submissionResult.findFirst({
       where: {
         submissionId,
