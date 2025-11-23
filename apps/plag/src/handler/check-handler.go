@@ -251,7 +251,7 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		c.file.GetBasePath(subDir),
 		baseCodePath,
 		c.file.GetBasePath(resDir),
-		sandbox.Language(req.Language).GetLangExt(),
+		sandbox.Language(req.Language).GetLangArg(),
 		checkSetting,
 	)
 
