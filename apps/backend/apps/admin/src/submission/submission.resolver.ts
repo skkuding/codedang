@@ -214,13 +214,19 @@ export class SubmissionResolver {
    * @param testcaseId
    * @returns {SubmissionResultOutput}
    */
+  @UseDisableAdminGuard()
   @Query(() => SubmissionResultOutput)
   async getSubmissionResult(
     @Args('submissionId', { type: () => Int }, IDValidationPipe)
     submissionId: number,
     @Args('testcaseId', { type: () => Int }, IDValidationPipe)
-    testcaseId: number
+    testcaseId: number,
+    @Context('req') req: AuthenticatedRequest
   ): Promise<SubmissionResultOutput> {
-    return this.submissionService.getSubmissionResult(submissionId, testcaseId)
+    return this.submissionService.getSubmissionResult(
+      submissionId,
+      testcaseId,
+      req.user
+    )
   }
 }
