@@ -5,21 +5,36 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
-  labels:
-    app.kubernetes.io/environment: production
 spec:
-  project: default
-  source:
-    path: infra/k8s/monitoring/otel-collector
-    repoURL: https://github.com/skkuding/codedang
-    targetRevision: main
-  destination:
-    namespace: monitoring-otel
-    name: production
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - PrunePropagationPolicy=foreground
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: release
+  template:
+    metadata:
+      name: 'otel-collector-{{.env}}'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+      project: default
+      source:
+        path: infra/k8s/monitoring/otel-collector
+        repoURL: https://github.com/skkuding/codedang
+        targetRevision: '{{.branch}}'
+      destination:
+        name: '{{.env}}'
+        namespace: monitoring-otel
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground

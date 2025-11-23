@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: tempo
+  name: promtail
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -17,7 +17,7 @@ spec:
             branch: release
   template:
     metadata:
-      name: 'tempo-{{.env}}'
+      name: 'promtail-{{.env}}'
       finalizers:
         - resources-finalizer.argocd.argoproj.io
       labels:
@@ -26,18 +26,18 @@ spec:
       project: default
       sources:
         - repoURL: https://grafana.github.io/helm-charts
-          chart: tempo
-          targetRevision: 1.24.0
+          chart: promtail
+          targetRevision: 6.17.1
           helm:
-            releaseName: tempo
+            releaseName: promtail
             valueFiles:
-              - $codedang/infra/k8s/monitoring/tempo/values.yaml
+              - $codedang/infra/k8s/monitoring/promtail/values.yaml
         - repoURL: https://github.com/skkuding/codedang
-          targetRevision: '{{.branch}}'
+          targetRevision: {{.branch}}
           ref: codedang
       destination:
         name: '{{.env}}'
-        namespace: monitoring-tempo
+        namespace: monitoring-promtail
       syncPolicy:
         automated:
           prune: true
@@ -45,4 +45,3 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - PrunePropagationPolicy=foreground
-          - ServerSideApply=true # avoid "CustomResourceDefinition ... is invalid: metadata.annotations: Too long" issue

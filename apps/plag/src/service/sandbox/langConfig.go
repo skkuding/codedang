@@ -7,8 +7,17 @@ func (l Language) GetLangExt() string {
     case C: return "c"
     case CPP: return "cpp"
     case JAVA: return "java"
-    case PYTHON: return "py"
-    case PYPY: return "pypy3"
+    case PYPY, PYTHON: return "py"
+    default: return ""
+  }
+}
+
+func (l Language) GetLangArg() string {
+  switch l {
+    case C: return "c"
+    case CPP: return "cpp"
+    case JAVA: return "java"
+    case PYPY, PYTHON: return "python3"
     default: return ""
   }
 }
