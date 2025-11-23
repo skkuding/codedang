@@ -628,7 +628,7 @@ export class SubmissionService {
     return {
       ...submissionResult,
       cpuTime:
-        submissionResult.cpuTime || submissionResult.cpuTime == BigInt(0)
+        submissionResult.cpuTime || submissionResult.cpuTime === BigInt(0)
           ? submissionResult.cpuTime.toString()
           : null
     }
