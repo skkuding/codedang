@@ -24,14 +24,7 @@ spec:
                 name: admin-api-server
                 port:
                   number: 3000
-          - path: /problem/download
-            pathType: Prefix
-            backend:
-              service:
-                name: admin-api-server
-                port:
-                  number: 3000
-          - path: /submission/download
+          - path: /admin
             pathType: Prefix
             backend:
               service:
