@@ -1,10 +1,10 @@
-import { Controller, Get, Req, Param, Res } from '@nestjs/common'
+import { Controller, Get, Param, Req, Res } from '@nestjs/common'
 import { Response } from 'express'
 import { AuthenticatedRequest } from '@libs/auth'
 import { RequiredIntPipe } from '@libs/pipe'
 import { ProblemService } from '../services'
 
-@Controller('problem')
+@Controller('admin/problem')
 export class ProblemController {
   constructor(private readonly problemService: ProblemService) {}
 

@@ -1,9 +1,9 @@
-import { Controller, Req, Res, Get, Param } from '@nestjs/common'
+import { Controller, Get, Param, Req, Res } from '@nestjs/common'
 import { Response } from 'express'
 import { AuthenticatedRequest } from '@libs/auth'
 import { SubmissionService } from './submission.service'
 
-@Controller('submission')
+@Controller('admin/submission')
 export class SubmissionController {
   constructor(private readonly submissionService: SubmissionService) {}
 
