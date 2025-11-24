@@ -175,24 +175,18 @@ export function EditorMainResizablePanel({
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
-            <Tabs value={tabValue} className="grow">
-              <TabsList className="rounded bg-slate-900">
-                <Link replace href={`${base}/problem/${problem.id}` as Route}>
-                  <TabsTrigger
-                    value="Description"
-                    className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
-                  >
+            <Tabs value={tabValue}>
+              <TabsList variant="editor">
+                <Link replace href={`${base}/problem/${problem.id}` as const}>
+                  <TabsTrigger value="Description" variant="editor">
                     Description
                   </TabsTrigger>
                 </Link>
                 <Link
                   replace
-                  href={`${base}/problem/${problem.id}/submission` as Route}
+                  href={`${base}/problem/${problem.id}/submission` as const}
                 >
-                  <TabsTrigger
-                    value="Submission"
-                    className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
-                  >
+                  <TabsTrigger value="Submission" variant="editor">
                     Submissions
                   </TabsTrigger>
                 </Link>
@@ -201,12 +195,9 @@ export function EditorMainResizablePanel({
                   problem.solution.length > 0 && (
                     <Link
                       replace
-                      href={`${base}/problem/${problem.id}/solution` as Route}
+                      href={`${base}/problem/${problem.id}/solution` as const}
                     >
-                      <TabsTrigger
-                        value="Solution"
-                        className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
-                      >
+                      <TabsTrigger value="Solution" variant="editor">
                         Solution
                       </TabsTrigger>
                     </Link>
@@ -215,13 +206,10 @@ export function EditorMainResizablePanel({
                   <Link
                     replace
                     href={
-                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as Route
+                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as const
                     }
                   >
-                    <TabsTrigger
-                      value="Leaderboard"
-                      className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
-                    >
+                    <TabsTrigger value="Leaderboard" variant="editor">
                       Leaderboard
                     </TabsTrigger>
                   </Link>
@@ -230,13 +218,10 @@ export function EditorMainResizablePanel({
                   <Link
                     replace
                     href={
-                      `/contest/${contestId}/problem/${problem.id}/qna` as Route
+                      `/contest/${contestId}/problem/${problem.id}/qna` as const
                     }
                   >
-                    <TabsTrigger
-                      value="Qna"
-                      className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
-                    >
+                    <TabsTrigger value="Qna" variant="editor">
                       Q&A
                     </TabsTrigger>
                   </Link>
