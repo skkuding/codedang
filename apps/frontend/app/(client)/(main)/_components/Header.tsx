@@ -42,7 +42,7 @@ export function Header() {
 
         {/* FIXME: If you uncomment a group tab, you have to remove a pr-20 tailwind class */}
         {/* sm 이상: 기존 구조 유지 */}
-        <div className="hidden w-full min-w-fit items-center justify-between gap-8 text-[16px] sm:flex lg:w-fit">
+        <div className="hidden w-full items-center justify-between gap-8 text-base sm:flex lg:w-fit">
           <MobileMenu session={session} />
 
           <div className="lg:hidden">

@@ -28,6 +28,7 @@ import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { BsPersonFillAdd } from 'react-icons/bs'
 import { FaAnglesLeft } from 'react-icons/fa6'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import { AccountItems } from './AccountItems'
@@ -129,64 +130,80 @@ export function MobileMenu({ session }: { session: Session | null }) {
                 marginBottom: 'max(env(safe-area-inset-bottom, 0px), 40px)'
               }}
             >
-              <SheetClose asChild>
-                <Link
-                  href="/settings"
-                  className="block rounded-full px-4 py-3 text-[18px] hover:bg-gray-100"
-                >
-                  <span className="flex items-center gap-[10px]">
-                    <Image
-                      src={settingsIcon}
-                      alt=""
-                      width={15}
-                      height={15}
-                      aria-hidden
-                    />
-                    <span>Setting</span>
-                  </span>
-                </Link>
-              </SheetClose>
-
               {session ? (
-                <SheetClose asChild>
-                  <button
-                    type="button"
-                    className="mt-2 w-full rounded-full px-4 py-3 text-left hover:bg-gray-100"
-                    onClick={() => {
-                      signOut({ callbackUrl: '/', redirect: true })
-                    }}
-                  >
-                    <span className="flex items-center gap-[10px]">
-                      <Image
-                        src={logoutMobileIcon}
-                        alt=""
-                        width={20}
-                        height={20}
-                        aria-hidden
-                      />
-                      <span>Log Out</span>
-                    </span>
-                  </button>
-                </SheetClose>
+                <>
+                  <SheetClose asChild>
+                    <Link
+                      href="/settings"
+                      className="block rounded-full px-4 py-3 text-[18px] hover:bg-gray-100"
+                    >
+                      <span className="flex items-center gap-[10px]">
+                        <Image
+                          src={settingsIcon}
+                          alt=""
+                          width={15}
+                          height={15}
+                          aria-hidden
+                        />
+                        <span>Setting</span>
+                      </span>
+                    </Link>
+                  </SheetClose>
+
+                  <SheetClose asChild>
+                    <button
+                      type="button"
+                      className="mt-2 w-full rounded-full px-4 py-3 text-left hover:bg-gray-100"
+                      onClick={() => {
+                        signOut({ callbackUrl: '/', redirect: true })
+                      }}
+                    >
+                      <span className="flex items-center gap-[10px]">
+                        <Image
+                          src={logoutMobileIcon}
+                          alt=""
+                          width={20}
+                          height={20}
+                          aria-hidden
+                        />
+                        <span>Log Out</span>
+                      </span>
+                    </button>
+                  </SheetClose>
+                </>
               ) : (
-                <SheetClose asChild>
-                  <button
-                    type="button"
-                    className="mt-2 w-full rounded-full px-3 py-3 text-left hover:bg-gray-100"
-                    onClick={() => showSignIn()}
-                  >
-                    <span className="flex items-center gap-[10px]">
-                      <Image
-                        src={loginMobileIcon}
-                        alt=""
-                        width={20}
-                        height={20}
-                        aria-hidden
-                      />
-                      <span>Log In</span>
-                    </span>
-                  </button>
-                </SheetClose>
+                <>
+                  <SheetClose asChild>
+                    <button
+                      type="button"
+                      className="w-full rounded-full px-4 py-3 text-left hover:bg-gray-100"
+                      onClick={() => showSignUp()}
+                    >
+                      <span className="flex items-center gap-[10px]">
+                        <BsPersonFillAdd className="text-neutral-500" />
+                        <span>Sign Up</span>
+                      </span>
+                    </button>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <button
+                      type="button"
+                      className="mt-2 w-full rounded-full px-3 py-3 text-left hover:bg-gray-100"
+                      onClick={() => showSignIn()}
+                    >
+                      <span className="flex items-center gap-[10px]">
+                        <Image
+                          src={loginMobileIcon}
+                          alt=""
+                          width={20}
+                          height={20}
+                          aria-hidden
+                        />
+                        <span>Log In</span>
+                      </span>
+                    </button>
+                  </SheetClose>
+                </>
               )}
             </div>
           </SheetContent>
