@@ -232,24 +232,22 @@ export function TextEditor({
           <ListStyleBar editor={editor} />
           <InsertNodeBar ref={insertNodeRef} editor={editor} />
 
-          <div className="ml-auto">
-            <div className="ml-auto flex items-center pr-1">
-              <UndoRedoBar editor={editor} />
-              {isExpanded && (
-                <Button
-                  variant="ghost"
-                  type="button"
-                  className="h-9 w-9 p-1"
-                  onClick={() => onShrink?.(editor?.getHTML())}
-                >
-                  <Image
-                    src={Shrink}
-                    alt="Shrink"
-                    className="h-[22px] w-[22px]"
-                  />
-                </Button>
-              )}
-            </div>
+          <div className="ml-auto flex items-center">
+            <UndoRedoBar editor={editor} />
+            {isExpanded && (
+              <Button
+                variant="ghost"
+                type="button"
+                className="h-9 w-9 p-1"
+                onClick={() => onShrink?.(editor?.getHTML())}
+              >
+                <Image
+                  src={Shrink}
+                  alt="Shrink"
+                  className="h-[22px] w-[22px]"
+                />
+              </Button>
+            )}
           </div>
         </div>
       )}
