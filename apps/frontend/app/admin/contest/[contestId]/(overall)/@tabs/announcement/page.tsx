@@ -15,8 +15,8 @@ export default function AdminAnnouncementPage(props: {
     <ConfirmNavigation>
       <ScrollArea className="w-full">
         <main className="flex flex-col">
-          <UpdateHistoryBox contestId={contestId} />
           <CreateContestAnnouncement contestId={contestId} />
+          <UpdateHistoryBox contestId={contestId} />
         </main>
       </ScrollArea>
     </ConfirmNavigation>
