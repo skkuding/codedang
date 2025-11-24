@@ -8,6 +8,7 @@ import type { Language } from '@prisma/client'
 import { CheckResultStatus, Prisma } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { Span } from 'nestjs-otel'
+import type { AuthenticatedUser } from '@libs/auth'
 import {
   EntityNotExistException,
   UnprocessableDataException
@@ -116,19 +117,56 @@ export class CheckService {
    */
   @Span()
   async checkAssignmentProblem({
-    userId,
+    user,
     checkInput,
     assignmentId,
     problemId
   }: {
-    userId: number
+    user: AuthenticatedUser
     checkInput: CreatePlagiarismCheckInput
     assignmentId: number
     problemId: number
   }) {
     await this.validateAssignment({ assignmentId, problemId })
+
+    const assignment = await this.prisma.assignment.findUnique({
+      where: {
+        id: assignmentId
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    const group = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId: user.id,
+          groupId: assignment.groupId
+        }
+      },
+      select: {
+        isGroupLeader: true
+      }
+    })
+
+    if (!group) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    if (!group.isGroupLeader && !user.isAdmin() && !user.isSuperAdmin()) {
+      throw new ForbiddenException(
+        'only group leader or admin can request assignment plagiarism check'
+      )
+    }
+
     return await this.checkProblem({
-      userId,
+      userId: user.id,
       checkInput,
       problemId,
       idOptions: {
