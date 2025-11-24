@@ -29,7 +29,10 @@ export default function Page() {
               </Link>
             </Button>
           </div>
-          <ProblemsDownload />
+
+          <Button className="mt-2 flex min-w-[250px]">
+            <ProblemsDownload />
+          </Button>
         </div>
       </div>
 

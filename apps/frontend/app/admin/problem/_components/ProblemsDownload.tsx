@@ -21,13 +21,9 @@ export function ProblemsDownload() {
     mode === 'my' ? 'Download My Problems' : 'Download Shared Problems'
 
   return (
-    <div className="mt-2 flex">
-      <Button asChild className="w-[250px]">
-        <a href={href} className="flex items-center gap-2">
-          <FiDownload className="h-5 w-5 shrink-0" />
-          <span>{label}</span>
-        </a>
-      </Button>
-    </div>
+    <a href={href} className="flex items-center gap-2">
+      <FiDownload className="h-5 w-5 shrink-0" />
+      <span>{label}</span>
+    </a>
   )
 }

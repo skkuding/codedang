@@ -1,6 +1,7 @@
 'use client'
 
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { Button } from '@/components/shadcn/button'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { ProblemTabs } from '../_components/ProblemTabs'
@@ -20,7 +21,9 @@ export default function Page() {
             Here&apos;s a problem list shared in other courses.
           </p>
         </div>
-        <ProblemsDownload />
+        <Button className="mt-2 flex min-w-[250px]">
+          <ProblemsDownload />
+        </Button>
       </div>
       <ProblemTabs />
 
