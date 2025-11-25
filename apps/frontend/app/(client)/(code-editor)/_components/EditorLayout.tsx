@@ -121,8 +121,8 @@ export async function EditorLayout({
 
   return (
     <ProblemProvider problem={problem}>
-      <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto text-white">
-        <header className="bg-editor-fill-1 flex h-12 justify-between px-6">
+      <div className="grid-rows-editor bg-editor-background-2 grid h-dvh w-full min-w-[1000px] overflow-x-auto text-white">
+        <header className="flex h-12 justify-between px-6">
           <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
             <Link href="/">
               <Image src={codedangLogo} alt="코드당" width={33} />

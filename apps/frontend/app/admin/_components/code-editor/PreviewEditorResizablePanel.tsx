@@ -64,8 +64,8 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
         className="flex"
       >
         <Tabs value={tab} onValueChange={setTab} className="w-full">
-          <div className="grid-rows-editor grid h-full w-full grid-cols-1">
-            <div className="flex w-full items-center border-b border-slate-700 bg-[#222939] px-6">
+          <div className="grid-rows-editor bg-editor-background-2 grid h-full w-full grid-cols-1">
+            <div className="flex w-full items-center border-b border-slate-700 px-6">
               <TabsList variant="editor">
                 <TabsTrigger value="Description" variant="editor">
                   Description
@@ -98,9 +98,9 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
         </Tabs>
       </ResizablePanel>
       <ResizableHandle className="border-[0.5px] border-slate-700" />
-      <ResizablePanel defaultSize={65} className="bg-[#222939]">
+      <ResizablePanel defaultSize={65} className="bg-editor-background-2">
         <div className="grid-rows-editor grid h-full">
-          <div className="flex shrink-0 items-center justify-end border-b border-b-slate-700 bg-[#222939] px-6">
+          <div className="flex shrink-0 items-center justify-end border-b border-b-slate-700 px-6">
             <Select
               onValueChange={(language: Language) => {
                 setLanguage(language)

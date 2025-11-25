@@ -174,7 +174,7 @@ export function EditorMainResizablePanel({
         minSize={20}
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
-          <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
+          <div className="bg-editor-background-2 flex h-full w-full items-center border-b border-slate-700 px-6">
             <Tabs value={tabValue}>
               <TabsList variant="editor">
                 <Link replace href={`${base}/problem/${problem.id}` as const}>
@@ -302,7 +302,7 @@ export function EditorMainResizablePanel({
         )}
       />
 
-      <ResizablePanel defaultSize={65} className="relative bg-[#222939]">
+      <ResizablePanel defaultSize={65} className="relative">
         <HidePanelButton
           isPanelHidden={isSidePanelHidden}
           toggleIsPanelHidden={toggleSidePanelVisibility}

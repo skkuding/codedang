@@ -55,9 +55,7 @@ export function AssignmentProblemDropdown({
           <Link
             key={p.id}
             href={
-              isExercise
-                ? (`/course/${courseId}/exercise/${id}/problem/${p.id}` as const)
-                : (`/course/${courseId}/assignment/${id}/problem/${p.id}` as const)
+              `/course/${courseId}/${isExercise ? 'exercise' : 'assignment'}/${id}/problem/${p.id}` as const
             }
           >
             <DropdownMenuItem
