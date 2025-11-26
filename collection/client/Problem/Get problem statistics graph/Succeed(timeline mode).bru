@@ -1,0 +1,43 @@
+meta {
+  name: Succeed(timeline mode)
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/contest/:contestId/problem/:problemId/statistics/graph?mode=timeline
+  body: none
+  auth: inherit
+}
+
+params:query {
+  mode: timeline
+}
+
+params:path {
+  contestId: 6
+  problemId: 5
+}
+
+assert {
+  res.status: eq 200
+  res("contestId"): isNumber
+  res("problemId"): isNumber
+  res("mode"): eq "timeline"
+  res("timeline"): isDefined
+  res("timeline.intervalMinutes"): isNumber
+  res("timeline.series"): isArray
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📘 Get Contest Problem Statistics Graph
+
+  **GET** `/contest/:contestId/problem/:problemId/statistics/graph?mode=timeline`
+
+  - `mode=timeline`인 경우 제출 추이만 반환합니다.
+}
