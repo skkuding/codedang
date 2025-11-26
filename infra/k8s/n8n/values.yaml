@@ -22,20 +22,6 @@ main:
       cpu: 512m
       memory: 512Mi
 
-worker:
-  mode: queue
-  autoscaling:
-    enabled: true
-  waitMainNodeReady:
-    enabled: true
-  resources:
-    requests:
-      cpu: 1000m
-      memory: 250Mi
-    limits:
-      cpu: 2000m
-      memory: 2Gi
-
 ingress:
   enabled: true
   className: traefik
@@ -51,20 +37,6 @@ ingress:
         - path: /
           pathType: Prefix
 
-webhook:
-  mode: queue
-  url: 'https://webhook.codedang.com'
-  autoscaling:
-    enabled: true
-  waitMainNodeReady:
-    enabled: true
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 512m
-      memory: 512Mi
-
+# Enable Prometheus monitoring
 serviceMonitor:
   enabled: true
