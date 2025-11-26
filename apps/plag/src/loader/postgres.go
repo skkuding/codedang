@@ -84,8 +84,13 @@ func (p *Postgres) GetRawBaseCode(problemId string, language string) (string, er
 		return "", fmt.Errorf("database fetch error: %w", err)
 	}
 
+	var innerString []string
+	if err := json.Unmarshal(rawBaseCode, &innerString); err != nil {
+		return "", fmt.Errorf("database json unmarshal: %w", err)
+	}
+
 	var arrayData []TemplateItem
-	if err := json.Unmarshal(rawBaseCode, &arrayData); err != nil {
+	if err := json.Unmarshal([]byte(innerString[0]), &arrayData); err != nil {
 		return "", fmt.Errorf("database json unmarshal: %w", err)
 	}
 

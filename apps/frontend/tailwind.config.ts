@@ -35,6 +35,19 @@ export default {
           strong: '#0760EF',
           heavy: '#0348B2'
         },
+        editor: {
+          background: {
+            1: '#0F111B',
+            2: '#202331'
+          },
+          line: {
+            1: '#585B6C',
+            2: '#404351'
+          },
+          fill: {
+            1: '#282D3D'
+          }
+        },
         color: {
           commmon: {
             100: '#FFF',

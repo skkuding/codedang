@@ -626,27 +626,28 @@ type CheckResult {
   longestMatch: Int!
 
   """
-  1개 match의 structure
-    {
-        "startInFirst": {
-            "line": Int
-            "column": Int
-        },
-        "endInFirst": {
-            "line": Int
-            "column": Int
-        },
-        "startInSecond": {
-            "line": Int
-            "column": Int
-        },
-        "endInSecond": {
-            "line": Int
-            "column": Int
-        },
-        "lengthOfFirst": Int
-        "lengthOfSecond": Int
-    }
+  *
+     * 1개 match의 structure
+     * {
+     * "startInFirst": {
+     * "line": Int
+     * "column": Int
+     * },
+     * "endInFirst": {
+     * "line": Int
+     * "column": Int
+     * },
+     * "startInSecond": {
+     * "line": Int
+     * "column": Int
+     * },
+     * "endInSecond": {
+     * "line": Int
+     * "column": Int
+     * },
+     * "lengthOfFirst": Int
+     * "lengthOfSecond": Int
+     * }
   """
   matches: [JSON!]
   maxLength: Int!
@@ -887,6 +888,14 @@ type ContestMinAggregate {
   title: String
   unfreeze: Boolean
   updateTime: DateTime
+}
+
+type ContestParticipant {
+  email: String!
+  id: Int!
+  isBlocked: Boolean!
+  major: String!
+  username: String!
 }
 
 type ContestProblem {
@@ -2897,6 +2906,7 @@ type Query {
   getCluster(clusterId: Int!): GetClusterOutput!
   getContest(contestId: Int!): ContestWithParticipants!
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
+  getContestParticipants(contestId: Int!): [ContestParticipant!]!
   getContestProblems(contestId: Int!): [ContestProblem!]!
   getContestQnA(contestId: Int!, order: Int!): ContestQnA!
   getContestQnAs(contestId: Int!, cursor: Int, filter: GetContestQnAsFilterInput, take: Int! = 10): [ContestQnAWithIsRead!]!
@@ -2918,6 +2928,7 @@ type Query {
   getProblem(id: Int!): ProblemWithIsVisible!
   getProblems(contestId: Int, cursor: Int, input: FilterProblemsInput!, mode: String!, take: Int! = 10): [ProblemWithIsVisible!]!
   getSubmission(id: Int!): SubmissionDetail!
+  getSubmissionResult(submissionId: Int!, testcaseId: Int!): SubmissionResultOutput!
   getSubmissions(cursor: Int, problemId: Int!, take: Int = 10): SubmissionsWithTotal!
   getTags: [Tag!]!
   getTestcase(testcaseId: Int!): ProblemTestcase!
@@ -3213,6 +3224,18 @@ type SubmissionResultMinAggregate {
   result: ResultStatus
   submissionId: Int
   updateTime: DateTime
+}
+
+type SubmissionResultOutput {
+  cpuTime: String
+  createTime: DateTime!
+  id: ID!
+  memoryUsage: Int
+  output: String
+  problemTestcaseId: Int!
+  result: ResultStatus!
+  submissionId: Int!
+  updateTime: DateTime!
 }
 
 type SubmissionResultSumAggregate {
@@ -3687,6 +3710,7 @@ type UserContest {
   contest: Contest!
   contestId: Int!
   id: ID!
+  isBlocked: Boolean!
   role: ContestRole!
   user: User
   userId: Int
@@ -3702,6 +3726,7 @@ type UserContestCountAggregate {
   _all: Int!
   contestId: Int!
   id: Int!
+  isBlocked: Int!
   role: Int!
   userId: Int!
 }
@@ -3714,6 +3739,7 @@ input UserContestInput {
 type UserContestMaxAggregate {
   contestId: Int
   id: Int
+  isBlocked: Boolean
   role: ContestRole
   userId: Int
 }
@@ -3721,6 +3747,7 @@ type UserContestMaxAggregate {
 type UserContestMinAggregate {
   contestId: Int
   id: Int
+  isBlocked: Boolean
   role: ContestRole
   userId: Int
 }

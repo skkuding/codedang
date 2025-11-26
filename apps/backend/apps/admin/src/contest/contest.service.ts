@@ -1336,4 +1336,39 @@ export class ContestService {
 
     return userContests
   }
+
+  /**
+   * 특정 대회의 참가자 목록을 불러옵니다. (Contest Management - Participants용)
+   * @param contestId 조회할 대회의 Id
+   * @returns isBlocked가 포함된 참가자 목록
+   */
+  async getContestParticipants(contestId: number) {
+    const participants = await this.prisma.userContest.findMany({
+      where: {
+        contestId,
+        role: ContestRole.Participant
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            major: true,
+            email: true
+          }
+        },
+        isBlocked: true
+      }
+    })
+
+    return participants
+      .filter((participant) => participant.user != null)
+      .map(({ user, isBlocked }) => ({
+        id: user!.id,
+        username: user!.username,
+        major: user!.major,
+        email: user!.email,
+        isBlocked
+      }))
+  }
 }
