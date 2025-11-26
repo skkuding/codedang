@@ -185,8 +185,14 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
 
   useEffect(() => {
     const id = (params.courseId as string) || ''
+    const hasCourse = Boolean(id)
+
     setSelectedCourseId(id)
-    setIsCourseSidebarOpened(Boolean(id))
+    setIsCourseSidebarOpened(hasCourse)
+
+    if (hasCourse) {
+      setIsMainSidebarExpanded(false)
+    }
   }, [params.courseId])
 
   const courseItems =
