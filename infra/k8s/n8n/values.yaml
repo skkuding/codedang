@@ -1,0 +1,70 @@
+log:
+  level: warn
+
+# Warning: SQLite is not recommended for production use
+db:
+  type: sqlite #TODO: switch to external Postgres for production
+  sqlite:
+    poolSize: 0
+
+# Warning: Local file system storage is not recommended for production use
+binaryData:
+  mode: default # default, filesystem, s3(recommended for production)
+  localStoragePath: /n8n/data
+
+main:
+  count: 1 # Single replica
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 512m
+      memory: 512Mi
+
+worker:
+  mode: queue
+  autoscaling:
+    enabled: true
+  waitMainNodeReady:
+    enabled: true
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 250Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
+  tls:
+    - hosts:
+        - n8n.codedang.com
+      secretName: n8n-tls
+  hosts:
+    - host: n8n.codedang.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+webhook:
+  mode: queue
+  url: 'https://webhook.codedang.com'
+  autoscaling:
+    enabled: true
+  waitMainNodeReady:
+    enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 512m
+      memory: 512Mi
+
+serviceMonitor:
+  enabled: true
