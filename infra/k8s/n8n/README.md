@@ -11,3 +11,7 @@ helm repo add community-charts https://community-charts.github.io/helm-charts
 ```sh
 helm upgrade --install n8n community-charts/n8n -f values.yaml -n n8n --create-namespace
 ```
+
+## TODO
+
+- [ ] Provisioning user, credentials and workflows
