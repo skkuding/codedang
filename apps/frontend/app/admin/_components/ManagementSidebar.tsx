@@ -20,7 +20,7 @@ import type { Session } from 'next-auth'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
-import { useEffect, useState, type ComponentType } from 'react'
+import { useEffect, useState, type ComponentType, type MouseEvent } from 'react'
 import type { IconType } from 'react-icons'
 import {
   FaAnglesLeft,
@@ -72,7 +72,7 @@ interface SidebarLinkProps {
   item: NavItem
   isActive: boolean
   isExpanded: boolean
-  onClick?: () => void
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
 }
 
 function SidebarLink({
@@ -202,6 +202,10 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
       name: course.groupName
     })) || []
 
+  const selectedCourse = courseItems.find(
+    (course) => course.id.toString() === selectedCourseId
+  )
+
   return (
     <div className="mx-6 flex h-full gap-5">
       {/* Main Sidebar */}
@@ -248,8 +252,27 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
                     : pathname.startsWith(item.path)
                 }
                 isExpanded={isMainSidebarExpanded}
-                onClick={() => {
-                  setIsCourseSidebarOpened(false)
+                onClick={(e) => {
+                  const isCourseItem = item.path === '/admin/course'
+                  const isOnCourseDetail =
+                    pathname.startsWith('/admin/course/') &&
+                    isCourseSidebarOpened
+
+                  if (isCourseItem && isOnCourseDetail) {
+                    if (!isMainSidebarExpanded) {
+                      setIsMainSidebarExpanded(true)
+                    }
+                    e.preventDefault()
+                    return
+                  }
+
+                  if (!isMainSidebarExpanded) {
+                    setIsMainSidebarExpanded(true)
+                  }
+
+                  if (!isCourseItem) {
+                    setIsCourseSidebarOpened(false)
+                  }
                 }}
               />
               {item.path === '/admin/course' &&
@@ -298,6 +321,18 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
             {isCourseSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
           </button>
           <div className="h-[3.8rem]" />
+          {selectedCourse && isCourseSidebarExpanded && (
+            <div className="absolute mt-16 text-gray-500">
+              <div className="font-semibold text-gray-700">
+                [{selectedCourse.code}]
+              </div>
+              <div>{selectedCourse.name}</div>
+              <div className="mt-5 w-[190px]">
+                <Separator />
+              </div>
+            </div>
+          )}
+
           <div className="mt-20 flex flex-col gap-2">
             <SideBar
               navItems={getCourseNavItems(selectedCourseId)}
