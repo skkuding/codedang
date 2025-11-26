@@ -30,6 +30,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { CodePolicyService } from '@client/submission/policy'
 import {
   CreateSubmissionDto,
   CreateUserTestSubmissionDto,
@@ -48,7 +49,8 @@ export class SubmissionService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly publish: SubmissionPublicationService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly codePolicy: CodePolicyService
   ) {}
 
   // setRequest(req: Request) {
@@ -452,6 +454,7 @@ export class SubmissionService {
    * @throws {ConflictFoundException} 아래와 같은 경우에 발생합니다
    *   - 문제에서 해당 언어를 지원하지 않을 경우
    *   - 제출한 코드가 템플릿이 변경 된 코드인 경우
+   *   - 제출한 코드에 금지된 import 또는 토큰이 존재하는 경우
    * @throws {UnprocessableDataException} 아래와 같은 경우에 발생합니다
    *   - 제출물을 생성하는 도중 데이터 처리에 실패한 경우
    */
@@ -482,6 +485,10 @@ export class SubmissionService {
         `This problem does not support language ${submissionDto.language}`
       )
     }
+
+    // Code Policy 검사
+    this.codePolicy.validate(submissionDto.language, submissionDto.code)
+
     const { code, ...data } = submissionDto
     if (
       !this.isValidCode(
@@ -653,6 +660,7 @@ export class SubmissionService {
    * @throws {ConflictFoundException} 다음과 같은 경우에 발생합니다
    *   - 문제에서 해당 언어를 지원하지 않는 경우
    *   - 제출 코드가 문제 템플릿을 수정한 경우
+   *   - 제출한 코드에 금지된 import 또는 토큰이 존재하는 경우
    */
   async submitTest(
     userId: number,
@@ -702,6 +710,10 @@ export class SubmissionService {
         `This problem does not support language ${submissionDto.language}`
       )
     }
+
+    // Code Policy 검사
+    this.codePolicy.validate(submissionDto.language, submissionDto.code)
+
     const { code } = submissionDto
     if (
       !this.isValidCode(
