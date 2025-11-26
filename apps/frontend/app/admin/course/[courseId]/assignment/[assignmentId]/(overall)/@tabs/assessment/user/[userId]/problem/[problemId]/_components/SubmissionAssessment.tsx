@@ -84,7 +84,9 @@ export function SubmissionAssessment() {
           <Tooltip open={showTooltip}>
             <TooltipTrigger asChild>
               <Button
-                className="my-4 mr-4 flex h-8 w-[75px] items-center self-end"
+                variant="editor"
+                size="editor"
+                className="bg-primary self-end"
                 type="submit"
               >
                 <Image src={submitIcon} alt="submit" width={24} height={24} />
