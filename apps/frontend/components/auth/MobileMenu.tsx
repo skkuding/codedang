@@ -83,28 +83,20 @@ export function MobileMenu({ session }: { session: Session | null }) {
               </div>
 
               <div className="mt-6 flex items-center">
-                <Link href="/" className="flex items-center px-4">
-                  <Image
-                    src={codedangLogo}
-                    alt="코드당"
-                    width={146}
-                    height={20}
-                  />
-                </Link>
-              </div>
-            </div>
-            <nav className="mt-6 flex flex-1 flex-col space-y-3 text-[18px] font-normal leading-[25.2px] tracking-[-0.54px] text-neutral-700">
-              {headerTitle && (
                 <SheetClose asChild>
-                  <Link
-                    href="/"
-                    className="flex items-center px-4 py-3 text-neutral-700"
-                  >
-                    Home
+                  <Link href="/" className="flex items-center px-4">
+                    <Image
+                      src={codedangLogo}
+                      alt="코드당"
+                      width={146}
+                      height={20}
+                    />
                   </Link>
                 </SheetClose>
-              )}
+              </div>
+            </div>
 
+            <nav className="mt-6 flex flex-1 flex-col space-y-3 text-[18px] font-normal leading-[25.2px] tracking-[-0.54px] text-neutral-700">
               {navItems.map((item) => (
                 <SheetClose asChild key={item.href}>
                   <Link
