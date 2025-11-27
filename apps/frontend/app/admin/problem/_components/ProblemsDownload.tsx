@@ -1,29 +1,45 @@
 'use client'
 
+import { useDataTable } from '@/app/admin/_components/table/context'
 import { Button } from '@/components/shadcn/button'
-import { usePathname } from 'next/navigation'
 import { FiDownload } from 'react-icons/fi'
+import { toast } from 'sonner'
 
-type Mode = 'my' | 'shared'
+const ADMIN_REST_URL = process.env.NEXT_PUBLIC_ADMIN_REST_URL
 
-const API_BASE = process.env.NEXT_PUBLIC_BASEURL ?? ''
+type Row = { id: number }
 
 export function ProblemsDownload() {
-  const pathname = usePathname()
+  const { table } = useDataTable<Row>()
 
-  const mode: Mode = pathname.startsWith('/admin/problem/shared')
-    ? 'shared'
-    : 'my'
+  const handleDownload = () => {
+    const rows = table.getSelectedRowModel().rows
 
-  const href = `${API_BASE}/problem/0/download?mode=${mode}`
+    if (!rows.length) {
+      toast.error('Please select at least one problem.')
+      return
+    }
 
-  const label =
-    mode === 'my' ? 'Download My Problems' : 'Download Shared Problems'
+    rows.forEach((row) => {
+      const problemId = row.original.id
+      const url = `${ADMIN_REST_URL}/problem/download/${problemId}`
+
+      const a = document.createElement('a')
+      a.href = url
+      a.target = '_blank'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    })
+  }
 
   return (
-    <a href={href} className="flex items-center gap-2">
-      <FiDownload className="h-5 w-5 shrink-0" />
-      <span>{label}</span>
-    </a>
+    <Button
+      type="button"
+      onClick={handleDownload}
+      className="ml-auto flex items-center justify-center"
+    >
+      <FiDownload className="h-4 w-4 shrink-0" />
+    </Button>
   )
 }

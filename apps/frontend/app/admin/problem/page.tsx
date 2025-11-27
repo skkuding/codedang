@@ -6,7 +6,6 @@ import { Suspense } from 'react'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
 import { ProblemTabs } from './_components/ProblemTabs'
-import { ProblemsDownload } from './_components/ProblemsDownload'
 import { ProblemsUploadButton } from './_components/ProblemsUploadButton'
 
 export default function Page() {
@@ -29,10 +28,6 @@ export default function Page() {
               </Link>
             </Button>
           </div>
-
-          <Button className="mt-2 flex min-w-[250px]">
-            <ProblemsDownload />
-          </Button>
         </div>
       </div>
 
