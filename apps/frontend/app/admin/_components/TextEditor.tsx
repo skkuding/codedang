@@ -215,7 +215,7 @@ export function TextEditor({
     <div
       className={cn(
         'flex flex-col overflow-hidden rounded-[4px]',
-        isDarkMode ? 'border border-[#585B6C] bg-transparent' : 'border'
+        isDarkMode ? 'border-editor-line-1 border bg-transparent' : 'border'
       )}
     >
       {editor && (
@@ -223,7 +223,7 @@ export function TextEditor({
           className={cn(
             'flex flex-wrap items-center border-b px-1 py-2',
             isDarkMode
-              ? 'border-[#585B6C] bg-[#282D3D] text-white [&_button:hover]:!bg-white/10 [&_button]:text-white [&_img]:invert [&_path]:fill-white [&_svg]:text-white'
+              ? 'border-editor-line-1 bg-editor-fill-1 text-white [&_button:hover]:!bg-white/10 [&_button]:text-white [&_img]:invert [&_path]:fill-white [&_svg]:text-white'
               : 'bg-white'
           )}
         >
@@ -255,7 +255,7 @@ export function TextEditor({
         editor={editor}
         className={cn(
           'prose max-w-5xl overflow-hidden bg-white p-4 [&_code::after]:content-none [&_code::before]:content-none [&_h1]:mb-4 [&_h1]:mt-6 [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-0 [&_p]:mt-2',
-          isDarkMode && 'prose-invert bg-[#282D3D]'
+          isDarkMode && 'prose-invert bg-editor-fill-1'
         )}
       />
       {!isExpanded && (

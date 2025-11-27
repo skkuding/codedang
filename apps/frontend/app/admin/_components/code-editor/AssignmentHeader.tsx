@@ -77,7 +77,7 @@ export function AssignmentHeader() {
       >
         {assignment.title}
       </Link>
-      <div className="border-1 mx-3 h-5 border-[#404351]" />
+      <div className="border-1 border-editor-line-2 mx-3 h-5" />
       <div className="flex items-center gap-1 font-medium">
         <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
           <DropdownMenuTrigger className="outline-hidden flex gap-2 text-lg text-white">

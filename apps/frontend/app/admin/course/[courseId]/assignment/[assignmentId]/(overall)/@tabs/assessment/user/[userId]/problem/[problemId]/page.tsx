@@ -28,13 +28,13 @@ export default function Page() {
           </ErrorBoundary>
         </div>
 
-        <div className="h-3 bg-[#121728]" />
+        <div className="bg-editor-background-1 h-3" />
 
         <div className="px-5 pb-6 pt-5">
           <SubmissionAssessment />
         </div>
 
-        <div className="h-3 bg-[#121728]" />
+        <div className="bg-editor-background-1 h-3" />
 
         <div className="px-5 py-2">
           <ErrorBoundary fallback={<SubmissionTestcaseError />}>
