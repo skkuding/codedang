@@ -10,6 +10,7 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '../../../_components/table'
+import { ProblemsDownload } from '../../_components/ProblemsDownload'
 import { columns } from '../_components/SharedProblemTableColumns'
 
 export function SharedProblemTable() {
@@ -54,6 +55,9 @@ export function SharedProblemTable() {
         <DataTableSearchBar columndId="title" />
         <DataTableLangFilter />
         <DataTableLevelFilter />
+        <div className="ml-auto flex gap-2">
+          <ProblemsDownload />
+        </div>
       </div>
       <DataTable
         getHref={(data) => `/admin/problem/${data.id}`}
