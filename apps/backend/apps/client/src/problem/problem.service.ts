@@ -1,7 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
 import type { Decimal } from '@prisma/client/runtime/library'
-import { Readable } from 'stream'
 import { MIN_DATE } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
 import { ProblemOrder } from '@libs/pipe'
@@ -323,25 +322,6 @@ export class ProblemService {
     })
 
     return problems
-  }
-
-  async downloadProblem({
-    userId,
-    mode
-  }: {
-    userId: number
-    mode: 'my' | 'shared'
-  }) {
-    const problems = await this.getDownloadableProblems({ userId, mode })
-
-    const filename = `${mode}-problems.json`
-    const contentType = 'application/json'
-
-    const dataString = JSON.stringify(problems, null, 2)
-
-    const stream = Readable.from(dataString)
-
-    return { stream, contentType, filename }
   }
 }
 
