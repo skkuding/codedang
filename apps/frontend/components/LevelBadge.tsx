@@ -10,16 +10,19 @@ const typeClass = {
 
 export function LevelBadge({
   type = 'default',
-  level
+  level,
+  className
 }: {
   type?: 'default' | 'dark' | 'gray'
   level: Level
+  className?: string
 }) {
   return (
     <Badge
       className={cn(
         'items-center justify-center py-1 leading-[140%]',
-        typeClass[type]
+        typeClass[type],
+        className
       )}
       {...(type === 'default' && { variant: level })}
       {...(type === 'dark' && { textColors: level })}
