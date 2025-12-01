@@ -107,6 +107,7 @@ jobs:
           build-args: |
             BASEURL=https://stage.codedang.com/api
             GQL_BASEURL=https://stage.codedang.com/graphql
+            RUNNER_BASEURL=wss://stage.run.codedang.com/run
           tags: |
             ghcr.io/skkuding/codedang-frontend:${{ github.sha }}
             ghcr.io/skkuding/codedang-frontend:stage
