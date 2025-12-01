@@ -199,7 +199,7 @@ export function TextEditor({
     editorProps: {
       attributes: {
         class: `focus:outline-none overflow-y-auto w-full disabled:cursor-not-allowed disabled:opacity-50 resize-none ${
-          isExpanded ? 'h-[500px]' : 'h-[300px]'
+          isExpanded ? 'h-[500px]' : 'h-[144px]'
         }`
       }
     },
@@ -254,7 +254,7 @@ export function TextEditor({
       <EditorContent
         editor={editor}
         className={cn(
-          'prose max-w-5xl overflow-hidden bg-white p-4 [&_code::after]:content-none [&_code::before]:content-none [&_h1]:mb-4 [&_h1]:mt-6 [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-0 [&_p]:mt-2',
+          'prose w-full max-w-none overflow-hidden bg-white p-4 [&_code::after]:content-none [&_code::before]:content-none [&_h1]:mb-4 [&_h1]:mt-6 [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-0 [&_p]:mt-2',
           isDarkMode && 'prose-invert bg-editor-fill-1'
         )}
       />
