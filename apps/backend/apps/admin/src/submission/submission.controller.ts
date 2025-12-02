@@ -3,7 +3,7 @@ import { Response } from 'express'
 import { AuthenticatedRequest } from '@libs/auth'
 import { SubmissionService } from './submission.service'
 
-@Controller('admin/submission')
+@Controller('admin-api/submission')
 export class SubmissionController {
   constructor(private readonly submissionService: SubmissionService) {}
 

@@ -24,7 +24,7 @@ spec:
                 name: admin-api-server
                 port:
                   number: 3000
-          - path: /admin
+          - path: /admin-api
             pathType: Prefix
             backend:
               service:

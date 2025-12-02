@@ -820,7 +820,7 @@ export class ProblemService {
       }
     })
 
-    const filename = `codedang-${problem.title}.json`
+    const filename = `codedang-${problem.id}.json`
 
     const dataString = JSON.stringify(
       {
