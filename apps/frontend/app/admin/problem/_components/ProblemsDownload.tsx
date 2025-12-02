@@ -27,8 +27,7 @@ export function ProblemsDownload() {
       const a = document.createElement('a')
       a.href = url
       a.download = `codedang-problem-${problemId}.json`
-      a.rel = 'noopener'
-      a.target = '_blank'
+      a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
