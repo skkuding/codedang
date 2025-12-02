@@ -12,7 +12,7 @@ type Row = { id: number }
 export function ProblemsDownload() {
   const { table } = useDataTable<Row>()
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     const rows = table.getSelectedRowModel().rows
 
     if (!rows.length) {
@@ -20,18 +20,40 @@ export function ProblemsDownload() {
       return
     }
 
-    rows.forEach((row) => {
+    for (const row of rows) {
       const problemId = row.original.id
       const url = `${ADMIN_REST_URL}/problem/download/${problemId}`
 
+      const res = await fetch(url, {
+        method: 'GET',
+        credentials: 'include' // 쿠키 포함
+      })
+
+      const blob = await res.blob()
+      const objectUrl = URL.createObjectURL(blob)
+
       const a = document.createElement('a')
-      a.href = url
+      a.href = objectUrl
       a.download = `codedang-problem-${problemId}.json`
-      a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
-    })
+
+      URL.revokeObjectURL(objectUrl)
+    }
+
+    // rows.forEach((row) => {
+    //   const problemId = row.original.id
+    //   const url = `${ADMIN_REST_URL}/problem/download/${problemId}`
+
+    //   const a = document.createElement('a')
+    //   a.href = url
+    //   a.download = `codedang-problem-${problemId}.json`
+    //   a.style.display = 'none'
+    //   document.body.appendChild(a)
+    //   a.click()
+    //   document.body.removeChild(a)
+    // })
   }
 
   return (
