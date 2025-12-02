@@ -24,21 +24,25 @@ export function ProblemsDownload() {
     for (const row of rows) {
       const problemId = row.original.id
 
-      const res = await adminSafeFetcherWithAuth.get(
-        `problem/download/${problemId}`
-      )
+      try {
+        const blob = await adminSafeFetcherWithAuth
+          .get(`problem/download/${problemId}`)
+          .blob()
 
-      const blob = await res.blob()
-      const objectUrl = URL.createObjectURL(blob)
+        const objectUrl = URL.createObjectURL(blob)
 
-      const a = document.createElement('a')
-      a.href = objectUrl
-      a.download = `codedang-problem-${problemId}.json`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
+        const a = document.createElement('a')
+        a.href = objectUrl
+        a.download = `codedang-problem-${problemId}.json`
+        a.style.display = 'none'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
 
-      URL.revokeObjectURL(objectUrl)
+        URL.revokeObjectURL(objectUrl)
+      } catch (e) {
+        toast.error(`Failed to download problem ${problemId}`)
+      }
     }
 
     // rows.forEach((row) => {
