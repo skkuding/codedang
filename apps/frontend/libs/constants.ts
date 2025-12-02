@@ -11,6 +11,12 @@ export const baseUrl = process.env.NEXT_PUBLIC_BASEURL
 export const adminBaseUrl = process.env.NEXT_PUBLIC_GQL_BASEURL
 
 /**
+ * The base REST API URL for the admin API.
+ * @constant
+ */
+export const adminRestUrl = process.env.NEXT_PUBLIC_ADMIN_REST_URL
+
+/**
  * The base URL for the runner websocket connection.
  * @constant
  */

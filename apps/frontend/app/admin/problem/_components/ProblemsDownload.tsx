@@ -2,6 +2,7 @@
 
 import { useDataTable } from '@/app/admin/_components/table/context'
 import { Button } from '@/components/shadcn/button'
+import { adminSafeFetcherWithAuth } from '@/libs/utils'
 import { FiDownload } from 'react-icons/fi'
 import { toast } from 'sonner'
 
@@ -22,12 +23,10 @@ export function ProblemsDownload() {
 
     for (const row of rows) {
       const problemId = row.original.id
-      const url = `${ADMIN_REST_URL}/problem/download/${problemId}`
 
-      const res = await fetch(url, {
-        method: 'GET',
-        credentials: 'include' // 쿠키 포함
-      })
+      const res = await adminSafeFetcherWithAuth.get(
+        `problem/download/${problemId}`
+      )
 
       const blob = await res.blob()
       const objectUrl = URL.createObjectURL(blob)
