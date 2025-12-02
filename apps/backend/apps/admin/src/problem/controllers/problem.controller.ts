@@ -1,9 +1,10 @@
 import { Controller, Get, Param, Req, Res } from '@nestjs/common'
 import { Response } from 'express'
-import { AuthenticatedRequest } from '@libs/auth'
+import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { RequiredIntPipe } from '@libs/pipe'
 import { ProblemService } from '../services'
 
+@UseDisableAdminGuard()
 @Controller('admin-api/problem')
 export class ProblemController {
   constructor(private readonly problemService: ProblemService) {}
