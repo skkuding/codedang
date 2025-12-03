@@ -6,8 +6,6 @@ import { adminSafeFetcherWithAuth } from '@/libs/utils'
 import { FiDownload } from 'react-icons/fi'
 import { toast } from 'sonner'
 
-const ADMIN_REST_URL = process.env.NEXT_PUBLIC_ADMIN_REST_URL
-
 type Row = { id: number }
 
 export function ProblemsDownload() {
@@ -40,23 +38,10 @@ export function ProblemsDownload() {
         document.body.removeChild(a)
 
         URL.revokeObjectURL(objectUrl)
-      } catch (e) {
+      } catch {
         toast.error(`Failed to download problem ${problemId}`)
       }
     }
-
-    // rows.forEach((row) => {
-    //   const problemId = row.original.id
-    //   const url = `${ADMIN_REST_URL}/problem/download/${problemId}`
-
-    //   const a = document.createElement('a')
-    //   a.href = url
-    //   a.download = `codedang-problem-${problemId}.json`
-    //   a.style.display = 'none'
-    //   document.body.appendChild(a)
-    //   a.click()
-    //   document.body.removeChild(a)
-    // })
   }
 
   return (
