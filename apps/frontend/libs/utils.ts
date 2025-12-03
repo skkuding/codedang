@@ -57,7 +57,16 @@ export const safeFetcherWithAuth = fetcherWithAuth.extend({
   throwHttpErrors: true
 })
 
+/**
+ * Converts a number to a letter.
+ * @param n - The number to convert (0-25).
+ * @returns The letter corresponding to the number (A-Z).
+ * @throws {RangeError} If n is not an integer between 0 and 25.
+ */
 export const convertToLetter = (n: number) => {
+  if (n < 0 || n > 25 || !Number.isInteger(n)) {
+    throw new RangeError('n must be an integer between 0 and 25')
+  }
   return String.fromCharCode(65 + n)
 }
 
