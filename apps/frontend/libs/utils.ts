@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import ky, { HTTPError } from 'ky'
 import { twMerge } from 'tailwind-merge'
 import { auth } from './auth'
-import { baseUrl, UNLIMITED_DATE } from './constants'
+import { adminRestUrl, baseUrl, UNLIMITED_DATE } from './constants'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
@@ -54,6 +54,11 @@ export const safeFetcher = fetcher.extend({
 })
 
 export const safeFetcherWithAuth = fetcherWithAuth.extend({
+  throwHttpErrors: true
+})
+
+export const adminSafeFetcherWithAuth = fetcherWithAuth.extend({
+  prefixUrl: adminRestUrl,
   throwHttpErrors: true
 })
 

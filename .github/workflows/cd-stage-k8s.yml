@@ -108,6 +108,7 @@ jobs:
             BASEURL=https://stage.codedang.com/api
             GQL_BASEURL=https://stage.codedang.com/graphql
             RUNNER_BASEURL=wss://stage.run.codedang.com/run
+            ADMIN_REST_URL=https://stage.codedang.com/admin-api
           tags: |
             ghcr.io/skkuding/codedang-frontend:${{ github.sha }}
             ghcr.io/skkuding/codedang-frontend:stage
