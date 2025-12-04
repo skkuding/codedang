@@ -1,0 +1,68 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteCourseQnAComment(
+    $groupId: Int!
+    $qnaOrder: Int!
+    $commentOrder: Int!
+  ) {
+    deleteCourseQnAComment(
+      groupId: $groupId
+      qnaOrder: $qnaOrder
+      commentOrder: $commentOrder
+    ) {
+      id
+      content
+      isCourseStaff
+      order
+      courseQnAId
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "qnaOrder": 1,
+    "commentOrder": 1
+  }
+}
+
+script:pre-request {
+  await require("./login").loginInstructor(req);
+}
+
+docs {
+  # 📘 Delete Course QnA Comment
+
+  **POST** `/graphql (mutation: deleteCourseQnAComment)`
+
+  Deletes a comment from a course QnA.
+
+  코스 Q&A의 댓글을 삭제합니다. 삭제 후 마지막 댓글의 `isCourseStaff` 값에 따라 Q&A의 `isResolved` 상태가 업데이트됩니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Course Staff)
+
+  ---
+
+  ### 📥 Request Variables
+
+  - `groupId` (Int, required): 코스 ID
+  - `qnaOrder` (Int, required): Q&A 순번
+  - `commentOrder` (Int, required): 삭제할 댓글 순번
+}
