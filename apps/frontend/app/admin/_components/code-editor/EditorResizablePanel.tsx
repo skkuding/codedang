@@ -177,8 +177,8 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
         style={{ minWidth: '500px' }}
         minSize={20}
       >
-        <div className="grid-rows-editor grid h-full grid-cols-1">
-          <div className="flex h-12 w-full items-center justify-between border-b border-slate-700 bg-[#222939] px-3">
+        <div className="grid-rows-editor bg-editor-background-2 grid h-full grid-cols-1">
+          <div className="flex h-12 w-full items-center justify-between border-b border-slate-700 px-3">
             <div className="flex gap-2">
               <BiSolidUser className="size-6 rounded-none text-gray-300" />
               <DropdownMenu>
@@ -232,8 +232,8 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                 className={cn(isFirstStudent && 'pointer-events-none')}
               >
                 <Button
-                  size={'sm'}
-                  variant={'outline'}
+                  size="editor"
+                  variant="editor"
                   disabled={isFirstStudent || summaries.length <= 1}
                 >
                   Previous
@@ -247,7 +247,9 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                 className={cn(isLastStudent && 'pointer-events-none')}
               >
                 <Button
-                  size={'sm'}
+                  size="editor"
+                  variant="editor"
+                  className="bg-primary"
                   disabled={isLastStudent || summaries.length <= 1}
                 >
                   Next
@@ -255,7 +257,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               </Link>
             </div>
           </div>
-          <div className="flex-1 bg-[#222939]">
+          <div className="flex-1">
             <ScrollArea className="h-full">
               {children}
 
@@ -265,23 +267,27 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
         </div>
       </ResizablePanel>
       <ResizableHandle className="border-[0.5px] border-slate-700" />
-      <ResizablePanel defaultSize={65} className="bg-[#222939]">
+      <ResizablePanel defaultSize={65} className="bg-editor-background-2">
         <div className="flex h-full flex-col">
-          <div className="flex h-12 items-center gap-2 border-b border-slate-700 bg-[#222939] px-6">
+          <div className="flex h-12 items-center gap-2 border-b border-slate-700 px-6">
             <div className="flex-1" />
-            <button
+            <Button
               onClick={handleReset}
-              className="rounded bg-gray-500 px-3 py-1 text-white hover:bg-gray-600"
+              size="editor"
+              variant="editor"
+              className="bg-gray-500 text-white hover:bg-gray-600"
             >
               Reset
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleTest}
+              size="editor"
+              variant="editor"
               disabled={isTesting}
-              className="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
+              className="bg-blue-500 text-white hover:bg-blue-600"
             >
               {isTesting ? 'Testing...' : 'Test'}
-            </button>
+            </Button>
           </div>
 
           <ResizablePanelGroup direction="vertical" className="flex-1">
