@@ -21,6 +21,29 @@ main:
     limits:
       cpu: 512m
       memory: 512Mi
+  volumeMounts:
+    - name: credentials
+      mountPath: /home/node/.n8n/credentials
+      readOnly: true
+  env:
+    - name: N8N_BASIC_AUTH_ACTIVE
+      value: 'true'
+    - name: N8N_BASIC_AUTH_USER
+      valueFrom:
+        secretKeyRef:
+          name: n8n-user
+          key: N8N_BASIC_AUTH_USER
+    - name: N8N_BASIC_AUTH_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: n8n-user
+          key: N8N_BASIC_AUTH_PASSWORD
+
+volumes:
+  - name: credentials
+    secret:
+      secretName: n8n-credentials
+      defaultMode: 0400
 
 ingress:
   enabled: true
