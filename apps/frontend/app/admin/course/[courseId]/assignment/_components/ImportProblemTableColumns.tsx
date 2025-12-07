@@ -1,5 +1,5 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
-import { Badge } from '@/components/shadcn/badge'
+import { LevelBadge } from '@/components/LevelBadge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import type { BaseDataTableProblem, Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -88,15 +88,7 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
-      const formattedLevel = `Level ${level.slice(-1)}`
-      return (
-        <Badge
-          variant={level as Level}
-          className="whitespace-nowrap px-2 py-1 font-normal"
-        >
-          {formattedLevel}
-        </Badge>
-      )
+      return <LevelBadge level={level as Level} />
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))

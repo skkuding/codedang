@@ -14,7 +14,7 @@ import {
 } from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
-import { AMQPService } from '@libs/amqp'
+import { JudgeAMQPService } from '@libs/amqp'
 import type { AuthenticatedUser } from '@libs/auth'
 import {
   EntityNotExistException,
@@ -38,6 +38,7 @@ import type {
 } from './model/get-submissions.input'
 import { RejudgeResult } from './model/rejudge-result.output'
 import { RejudgeInput, RejudgeMode } from './model/rejudge.input'
+import type { SubmissionResultOutput } from './model/submission-result.model'
 import type { SubmissionsWithTotal } from './model/submissions-with-total.output'
 
 @Injectable()
@@ -45,7 +46,7 @@ export class SubmissionService {
   private readonly logger = new Logger(SubmissionService.name)
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: AMQPService
+    private readonly amqpService: JudgeAMQPService
   ) {}
 
   async getSubmissions(
@@ -609,6 +610,77 @@ export class SubmissionService {
       return `Problem_${problemId}`
     }
     return encodeURIComponent(problem.title)
+  }
+
+  async getSubmissionResult(
+    submissionId: number,
+    testcaseId: number,
+    reqUser: AuthenticatedUser
+  ): Promise<SubmissionResultOutput> {
+    const hasPrivilege = reqUser.isAdmin() || reqUser.isSuperAdmin()
+
+    if (!hasPrivilege) {
+      const submission = await this.prisma.submission.findFirst({
+        where: {
+          id: submissionId
+        },
+        select: {
+          assignment: {
+            select: { groupId: true }
+          },
+          contestId: true
+        }
+      })
+
+      if (!submission) throw new EntityNotExistException('Submission')
+
+      if (submission.assignment) {
+        const isGroupLeader = await this.prisma.userGroup.findFirst({
+          where: {
+            groupId: submission.assignment.groupId,
+            userId: reqUser.id,
+            isGroupLeader: true
+          }
+        })
+
+        if (!isGroupLeader)
+          throw new ForbiddenAccessException(
+            `Only allowed to access submissions included in your group`
+          )
+      } else if (submission.contestId) {
+        const isContestManager = await this.prisma.userContest.findFirst({
+          where: {
+            contestId: submission.contestId,
+            userId: reqUser.id,
+            role: {
+              not: ContestRole.Participant
+            }
+          }
+        })
+
+        if (!isContestManager)
+          throw new ForbiddenAccessException(
+            `Only allowed to access your contest`
+          )
+      }
+    }
+
+    const submissionResult = await this.prisma.submissionResult.findFirst({
+      where: {
+        submissionId,
+        problemTestcaseId: testcaseId
+      }
+    })
+
+    if (!submissionResult) throw new EntityNotExistException('SubmissionResult')
+
+    return {
+      ...submissionResult,
+      cpuTime:
+        submissionResult.cpuTime || submissionResult.cpuTime === BigInt(0)
+          ? submissionResult.cpuTime.toString()
+          : null
+    }
   }
 
   async compressSourceCodes(assignmentId: number, problemId: number) {
