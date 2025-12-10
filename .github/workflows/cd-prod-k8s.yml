@@ -90,10 +90,7 @@ jobs:
             type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-production
           cache-to: type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-production
           push: true
-          build-args: |
-            BASEURL=https://codedang.com/api
-            GQL_BASEURL=https://codedang.com/graphql
-            RUNNER_BASEURL=wss://run.codedang.com/run
+          build-args: ''
           tags: |
             ghcr.io/${{ github.repository_owner }}/codedang-frontend:production
             ghcr.io/${{ github.repository_owner }}/codedang-frontend:${{github.sha}}
