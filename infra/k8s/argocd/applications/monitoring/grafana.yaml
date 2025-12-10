@@ -26,23 +26,16 @@ spec:
       project: default
       sources:
         # main helm chart source
-        - repoURL: https://github.com/skkuding/codedang
-          targetRevision: {{.branch}}
-          path: infra/k8s/monitoring/grafana
+        - repoURL: https://grafana.github.io/helm-charts
+          targetRevision: 10.3.0
+          chart: grafana
           helm:
+            releaseName: grafana
             valueFiles:
               - $codedang/infra/k8s/monitoring/grafana/overlays/{{.env}}/values.yaml
-            releaseName: grafana
-            chart: grafana
-            version: '10.1.4'
-            repo: https://grafana.github.io/helm-charts
         # ref for helm valueFiles
         - repoURL: https://github.com/skkuding/codedang
           targetRevision: {{.branch}}
-          path: infra/k8s/monitoring/grafana
-          directory:
-            # kustomization.yaml is ignored if recurse is true
-            recurse: false
           ref: codedang
         # etc kustomize overlay
         - repoURL: https://github.com/skkuding/codedang
