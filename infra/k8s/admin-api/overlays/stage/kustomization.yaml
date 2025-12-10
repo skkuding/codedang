@@ -14,7 +14,3 @@ patches:
     target:
       kind: ConfigMap
       name: admin-api-env
-  - path: ingress.yaml
-    target:
-      kind: Ingress
-      name: admin-api-server-ingress
