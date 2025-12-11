@@ -4,7 +4,7 @@ metadata:
   name: client-api
   namespace: client-api
 spec:
-  replicas: 2
+  replicas: 5 # increased from 2 to 5 for 25-2 final exam
   selector:
     matchLabels:
       app: client-api
