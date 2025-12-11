@@ -233,7 +233,9 @@ const renderHeaderContent = ({
         </Link>
         <p className="mx-2"> / </p>
         {courseId !== undefined && (
-          <AssignmentProblemDropdown problem={problem} isExercise />
+          <Suspense fallback={<Skeleton className="h-6 w-24" />}>
+            <AssignmentProblemDropdown problem={problem} isExercise />
+          </Suspense>
         )}
       </>
     )
