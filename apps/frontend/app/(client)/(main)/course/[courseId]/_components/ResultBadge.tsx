@@ -20,7 +20,7 @@ export function ResultBadge({
   } else if (submissionResult === 'No Result') {
     badgeStyle = 'border border-[#B0B0B0] text-[#B0B0B0]'
   } else {
-    badgeStyle = 'border border-[#FC5555] text-[#FC5555]'
+    badgeStyle = 'border border-flowkit-red text-flowkit-red'
   }
 
   return (
