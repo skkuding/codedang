@@ -16,6 +16,12 @@ export interface ProblemDetail {
   penalty: number | null
 } //문제마다의 패널티도 저장하기
 
+export interface ContestforStatistics {
+  id: number
+  title: string
+  startTime: string
+  endTime: string
+}
 export interface ContestProblemforStatistics {
   contestProblem: {
     problemId: number

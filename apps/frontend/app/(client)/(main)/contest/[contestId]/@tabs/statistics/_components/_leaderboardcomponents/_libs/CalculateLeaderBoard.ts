@@ -1,9 +1,9 @@
-import type { Contest } from '@/types/type'
 import type {
   Submission,
   UserData,
   JudgeResult,
   Leaderboard,
+  ContestforStatistics,
   ContestProblemforStatistics
 } from './types/type'
 
@@ -42,7 +42,7 @@ interface CreateInitialStateProps {
 interface CalculateRankingHistoryProps {
   sortedSubmissions: Submission[]
   leaderboard: Leaderboard
-  contestMetadata: Contest
+  contestMetadata: ContestforStatistics
   contestProblems: ContestProblemforStatistics
 }
 
@@ -90,7 +90,7 @@ function createInitialState({
 function reflectSubmissionToState( //하나의 submission 들어올 때마다 state 업데이트
   state: RankingState,
   submission: Submission,
-  contestMetadata: Contest
+  contestMetadata: ContestforStatistics
 ): void {
   const contestStartTime = new Date(contestMetadata.startTime).getTime()
   const userId = submission.userId.toString()
