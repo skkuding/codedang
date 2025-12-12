@@ -22,7 +22,7 @@
     "@types/node": "^22.17.1",
     "amqplib": "^0.10.9",
     "eslint": "^9.33.0",
-    "eslint-config-next": "^15.4.8",
+    "eslint-config-next": "^15.4.10",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-promise": "^7.2.1",
