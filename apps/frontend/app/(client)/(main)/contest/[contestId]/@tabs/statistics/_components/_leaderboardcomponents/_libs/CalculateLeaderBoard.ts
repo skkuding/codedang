@@ -1,9 +1,10 @@
-import type { Contest, ContestProblemforStatistics } from '@/types/type'
+import type { Contest } from '@/types/type'
 import type {
   Submission,
   UserData,
   JudgeResult,
-  Leaderboard
+  Leaderboard,
+  ContestProblemforStatistics
 } from './types/type'
 
 interface RankingState {
@@ -35,14 +36,14 @@ interface RankingState {
 }
 interface CreateInitialStateProps {
   leaderboard: Leaderboard
-  contestProblems: ContestProblemforStatistics[]
+  contestProblems: ContestProblemforStatistics
 }
 
 interface CalculateRankingHistoryProps {
   sortedSubmissions: Submission[]
   leaderboard: Leaderboard
   contestMetadata: Contest
-  contestProblems: ContestProblemforStatistics[]
+  contestProblems: ContestProblemforStatistics
 }
 
 function createInitialState({
@@ -58,7 +59,7 @@ function createInitialState({
     const userId = record.userId
     userProblems[userId] = {}
 
-    for (const problem of contestProblems) {
+    for (const problem of contestProblems.contestProblem) {
       //problem id
       //또 problem 마다
       userProblems[userId][problem.problemId] = {

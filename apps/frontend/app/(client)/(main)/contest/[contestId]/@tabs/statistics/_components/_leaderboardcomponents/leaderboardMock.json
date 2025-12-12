@@ -1,0 +1,141 @@
+{
+  "contestRole": null,
+  "maxScore": 110,
+  "leaderboard": [
+    {
+      "username": "user01",
+      "userId": 1,
+      "totalScore": 0,
+      "totalPenalty": 0,
+      "problemRecords": [
+        {
+          "order": 0,
+          "problemId": 1,
+          "penalty": 0,
+          "submissionCount": 7,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        },
+        {
+          "order": 1,
+          "problemId": 2,
+          "penalty": 0,
+          "submissionCount": 6,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        },
+        {
+          "order": 2,
+          "problemId": 3,
+          "penalty": 0,
+          "submissionCount": 5,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        },
+        {
+          "order": 3,
+          "problemId": 4,
+          "penalty": 0,
+          "submissionCount": 4,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        }
+      ],
+      "rank": 1
+    },
+    {
+      "username": "ykmami203",
+      "userId": 2,
+      "totalScore": 0,
+      "totalPenalty": 0,
+      "problemRecords": [
+        {
+          "order": 0,
+          "problemId": 1,
+          "penalty": 0,
+          "submissionCount": 7,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        },
+        {
+          "order": 1,
+          "problemId": 2,
+          "penalty": 0,
+          "submissionCount": 6,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        },
+        {
+          "order": 2,
+          "problemId": 3,
+          "penalty": 0,
+          "submissionCount": 5,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        },
+        {
+          "order": 3,
+          "problemId": 4,
+          "penalty": 0,
+          "submissionCount": 4,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        }
+      ],
+      "rank": 2
+    },
+    {
+      "username": "zampweri",
+      "userId": 3,
+      "totalScore": 0,
+      "totalPenalty": 0,
+      "problemRecords": [
+        {
+          "order": 0,
+          "problemId": 1,
+          "penalty": 0,
+          "submissionCount": 7,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        },
+        {
+          "order": 1,
+          "problemId": 2,
+          "penalty": 0,
+          "submissionCount": 6,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        },
+        {
+          "order": 2,
+          "problemId": 3,
+          "penalty": 0,
+          "submissionCount": 5,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        },
+        {
+          "order": 3,
+          "problemId": 4,
+          "penalty": 0,
+          "submissionCount": 4,
+          "score": 0,
+          "isFrozen": false,
+          "isFirstSolver": false
+        }
+      ],
+      "rank": 3
+    }
+  ]
+}

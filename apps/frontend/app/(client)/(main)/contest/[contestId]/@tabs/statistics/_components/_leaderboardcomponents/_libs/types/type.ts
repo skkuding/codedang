@@ -16,6 +16,16 @@ export interface ProblemDetail {
   penalty: number | null
 } //문제마다의 패널티도 저장하기
 
+export interface ContestProblemforStatistics {
+  contestProblem: {
+    problemId: number
+    problemOrder: number
+    problem: {
+      title: string
+    }
+  }[]
+}
+
 export interface UserData {
   userRank: number
   userId: string
@@ -49,14 +59,12 @@ interface LeaderboardProblemRecord {
 interface UserOnLeaderboard {
   username: string
   userId: number
-  score: number
-  finalScore: number
+  totalScore: number
   totalPenalty: number
-  finalTotalPenalty: number
   problemRecords: LeaderboardProblemRecord[]
   rank: number
 }
 export interface Leaderboard {
-  maxscore: number
+  maxScore: number
   leaderboard: UserOnLeaderboard[]
 }

@@ -250,13 +250,6 @@ export interface ContestPreview {
   }[]
 }
 
-export interface ContestProblemforStatistics {
-  problemId: number
-  problem: {
-    title: string
-  }
-}
-
 export interface Standings {
   ranking: number
   userId: number
