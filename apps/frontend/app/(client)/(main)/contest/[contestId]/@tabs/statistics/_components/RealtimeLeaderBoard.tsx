@@ -2,6 +2,7 @@ import type { Leaderboard } from '@/types/type'
 import type { ContestTop } from '@/types/type'
 import { sub } from 'date-fns'
 import React, { useState, useMemo } from 'react'
+import { TimeSlider } from './_leaderboardcomponents/TimeSlider'
 import { calculateRankingHistory } from './_leaderboardcomponents/_libs/CalculateLeaderBoard'
 import contestMetadataMock from './_leaderboardcomponents/contestMetadataMock.json'
 import contestProblemsMock from './_leaderboardcomponents/contestProblemMock.json'
@@ -14,7 +15,9 @@ export function RealtimeLearBoardPage() {
 
   const sortedSubmissions = useMemo(() => {
     return [...submissionsMock].sort(
-      (a, b) => parseInt(a.submissionTime) - parseInt(b.submissionTime)
+      (a, b) =>
+        new Date(a.submissionTime).getTime() -
+        new Date(b.submissionTime).getTime()
     )
   }, [])
 
@@ -50,7 +53,7 @@ export function RealtimeLearBoardPage() {
       return null
     }
     const submission = sortedSubmissions[currentSubmissionIndex]
-    return submission ? parseInt(submission.submissionTime) : null
+    return submission ? new Date(submission.submissionTime).getTime() : null
   }, [currentSubmissionIndex, sortedSubmissions])
 
   const handleSliderChange = (index: number) => {
@@ -62,6 +65,17 @@ export function RealtimeLearBoardPage() {
   }
 
   const handleRankChange = () => {}
-
-  return <p>Realtime Leaderboard Tab</p>
+  return (
+    <div>
+      <TimeSlider
+        currentSubmissionIndex={currentSubmissionIndex}
+        submissionCount={sortedSubmissions.length}
+        onSliderChange={handleSliderChange}
+        onReset={handleReset}
+        contestStartTime={contestStartTime}
+        contestEndTime={contestEndTime}
+        currentSubmissionTime={currentSubmissionTime}
+      />
+    </div>
+  )
 }
