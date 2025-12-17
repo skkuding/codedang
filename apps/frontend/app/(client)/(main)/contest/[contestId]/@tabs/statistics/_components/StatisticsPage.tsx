@@ -8,6 +8,7 @@ import {
   TabsTrigger,
   TabsList
 } from '@/components/shadcn/tabs'
+import { useUserSelectionStore } from '@/stores/selectUserStore'
 import { useState } from 'react'
 import { ProblemStatisticsPage } from './ProblemStatistics'
 import { RealtimeLearBoardPage } from './RealtimeLeaderBoard'
@@ -15,8 +16,13 @@ import { UserAnalysisPage } from './UserAnalysis'
 
 export function StatisticsPage() {
   const [tab, setTab] = useState('leaderboard')
-  const [selectUser, setSelectUser] = useState<boolean>(false)
-  console.log('selectUser', selectUser)
+  const { showOnlySelected, setShowOnlySelected } = useUserSelectionStore(
+    (state) => ({
+      showOnlySelected: state.showOnlySelected,
+      setShowOnlySelected: state.setShowOnlySelected
+    })
+  )
+  console.log('selectUser:', showOnlySelected)
   return (
     <Tabs defaultValue="leaderboard" value={tab} onValueChange={setTab}>
       <div className="mt-[80px] flex w-[1440px] justify-between px-[116px]">
@@ -31,8 +37,8 @@ export function StatisticsPage() {
                 Only select Users
               </p>
               <Switch
-                checked={selectUser}
-                onCheckedChange={(checked) => setSelectUser(checked)}
+                checked={showOnlySelected}
+                onCheckedChange={(checked) => setShowOnlySelected(checked)}
               />
             </>
           )}

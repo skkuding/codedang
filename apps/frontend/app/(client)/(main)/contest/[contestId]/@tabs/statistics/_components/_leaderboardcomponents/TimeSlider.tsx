@@ -112,7 +112,7 @@ export function TimeSlider({
     return formatDuration(contestEndTime - contestStartTime)
   }
   return (
-    <div className="flex w-full gap-[19px] px-5 py-4">
+    <div className="h-17 bg-color-neutral-99 flex w-full items-center gap-[19px] rounded-xl px-5 py-4">
       <div className="text-primary flex w-[169px] text-xl font-normal leading-7 tracking-[-0.04em]">
         {displayTime} / {getTotalDuration()}
       </div>
