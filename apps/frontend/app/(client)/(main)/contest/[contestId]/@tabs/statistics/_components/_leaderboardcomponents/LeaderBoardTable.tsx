@@ -1,17 +1,23 @@
+import { Checkbox } from '@/components/shadcn/checkbox'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/shadcn/table'
 import { useUserSelectionStore } from '@/stores/selectUserStore'
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import type { UserData } from './_libs/types/type'
-import contestMetadataMock from './contestMetadataMock.json'
-import contestProblemsMock from './contestProblemMock.json'
-import LeaderboardMock from './leaderboardMock.json'
-import submissionsMock from './submissionMock.json'
+import type { UserData, ContestProblemforStatistics } from './_libs/types/type'
 
 interface LeaderBoardTableProps {
   users: UserData[]
+  problems: ContestProblemforStatistics
 }
 
-export function LeaderBoardTable({ users }: LeaderBoardTableProps) {
+export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
   const prevUsersRankRef = useRef<Record<string, number>>({})
   const [rankChanges, setRankChanges] = useState<Record<string, 'up' | 'down'>>(
     {}
@@ -38,4 +44,71 @@ export function LeaderBoardTable({ users }: LeaderBoardTableProps) {
     }
     prevUsersRankRef.current = currentUsersRank
   }, [users])
+  const showOnlySelected = useUserSelectionStore((s) => s.showOnlySelected)
+  const selectedUserIds = useUserSelectionStore((s) => s.selectedUserIds)
+  const toggleUser = useUserSelectionStore((s) => s.toggleUser)
+  const isSelected = useUserSelectionStore((s) => s.isSelected)
+  const filteredUsers = showOnlySelected
+    ? users.filter((user) => selectedUserIds.has(user.userId.toString()))
+    : users
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Mark</TableHead>
+          <TableHead>Rank</TableHead>
+          <TableHead>Participants</TableHead>
+          <TableHead>Penalty</TableHead>
+          {problems.contestProblem.map((problem) => (
+            <TableHead key={problem.problemId} className="text-center">
+              {problem.problemOrder}
+            </TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {filteredUsers.map((user) => (
+          <TableRow key={user.userId} className="hover:brightness-95">
+            <TableCell>
+              <Checkbox
+                onClick={(e) => e.stopPropagation()}
+                checked={isSelected(user.userId.toString())}
+                onCheckedChange={() => toggleUser(user.userId.toString())}
+                aria-label="Select row"
+                className="translate-y-[2px]"
+              />
+            </TableCell>
+            <TableCell className="text-center">{user.userRank}</TableCell>
+            <TableCell>{user.userName}</TableCell>
+            <TableCell className="text-center">- {user.totalPenalty}</TableCell>
+            {problems.contestProblem.map((problem) => {
+              const detail = user.problemDetails[problem.problemId.toString()]
+              const { attempts, penalty, judgeResult } = detail
+              if (judgeResult === 'NoAttempt') {
+                return (
+                  <TableCell key={problem.problemId} className="text-center">
+                    -
+                  </TableCell>
+                )
+              }
+              return (
+                <TableCell
+                  key={problem.problemId}
+                  className="text-center text-sm"
+                >
+                  {judgeResult === 'Accepted' ? (
+                    <div> - {penalty}</div>
+                  ) : (
+                    <div> Wrong</div>
+                  )}
+                  <div>{attempts}</div>
+                </TableCell>
+              )
+            })}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
 }

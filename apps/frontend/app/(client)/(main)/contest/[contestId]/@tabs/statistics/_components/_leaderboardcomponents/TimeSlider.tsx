@@ -1,6 +1,4 @@
-import { Button } from '@/components/shadcn/button'
 import { Slider } from '@/components/shadcn/slider'
-import { get } from 'http'
 import { useState, useEffect, useRef } from 'react'
 import { IoIosPlayCircle } from 'react-icons/io'
 import { IoPauseCircle } from 'react-icons/io5'

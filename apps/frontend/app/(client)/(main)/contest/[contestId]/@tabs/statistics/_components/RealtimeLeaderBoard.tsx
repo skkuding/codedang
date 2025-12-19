@@ -1,7 +1,5 @@
-import type { Leaderboard } from '@/types/type'
-import type { ContestTop } from '@/types/type'
-import { sub } from 'date-fns'
 import React, { useState, useMemo } from 'react'
+import { LeaderBoardTable } from './_leaderboardcomponents/LeaderBoardTable'
 import { TimeSlider } from './_leaderboardcomponents/TimeSlider'
 import { calculateRankingHistory } from './_leaderboardcomponents/_libs/CalculateLeaderBoard'
 import contestMetadataMock from './_leaderboardcomponents/contestMetadataMock.json'
@@ -29,6 +27,7 @@ export function RealtimeLearBoardPage() {
       contestProblems: contestProblemsMock
     })
   }, [sortedSubmissions])
+  console.log('leaderboardHistory:', leaderboardHistory)
   const [currentSubmissionIndex, setCurrentSubmissionIndex] = useState<
     number | null
   >(null)
@@ -75,6 +74,10 @@ export function RealtimeLearBoardPage() {
         contestStartTime={contestStartTime}
         contestEndTime={contestEndTime}
         currentSubmissionTime={currentSubmissionTime}
+      />
+      <LeaderBoardTable
+        users={currentData.users}
+        problems={contestProblemsMock}
       />
     </div>
   )

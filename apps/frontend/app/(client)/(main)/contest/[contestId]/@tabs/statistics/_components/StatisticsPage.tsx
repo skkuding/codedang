@@ -16,13 +16,12 @@ import { UserAnalysisPage } from './UserAnalysis'
 
 export function StatisticsPage() {
   const [tab, setTab] = useState('leaderboard')
-  const { showOnlySelected, setShowOnlySelected } = useUserSelectionStore(
-    (state) => ({
-      showOnlySelected: state.showOnlySelected,
-      setShowOnlySelected: state.setShowOnlySelected
-    })
+  const showOnlySelected = useUserSelectionStore((s) => s.showOnlySelected)
+  const setShowOnlySelected = useUserSelectionStore(
+    (s) => s.setShowOnlySelected
   )
-  console.log('selectUser:', showOnlySelected)
+
+  //console.log('selectUser:', showOnlySelected)
   return (
     <Tabs defaultValue="leaderboard" value={tab} onValueChange={setTab}>
       <div className="mt-[80px] flex w-[1440px] justify-between px-[116px]">
