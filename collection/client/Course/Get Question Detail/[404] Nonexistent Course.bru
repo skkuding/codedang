@@ -1,0 +1,28 @@
+meta {
+  name: [404] Nonexistent Course
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/course/9999/qna/1
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return 404 Not Found", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}
+
+docs {
+  # 📘 Get Question Detail - Course Not Found
+
+  존재하지 않는 강의 ID로 질문을 조회하려고 하면 404 Not Found 에러가 발생합니다.
+}

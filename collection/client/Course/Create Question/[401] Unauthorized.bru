@@ -1,0 +1,30 @@
+meta {
+  name: [401] Unauthorized
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/course/1/qna
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Unauthorized test",
+    "content": "This should fail."
+  }
+}
+
+tests {
+  test("should return 401 Unauthorized", function() {
+    expect(res.getStatus()).to.equal(401);
+  });
+}
+
+docs {
+  # 📘 Create Course Question - Unauthorized
+
+  로그인하지 않은 상태에서 질문을 작성하려고 하면 401 Unauthorized 에러가 발생합니다.
+}
