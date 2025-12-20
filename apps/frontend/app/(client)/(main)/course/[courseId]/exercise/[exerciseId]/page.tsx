@@ -7,7 +7,9 @@ import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assign
 import { AssignmentStatus } from '@/components/AssignmentStatus'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
+import errorImage from '@/public/logos/error.webp'
 import { useQuery } from '@tanstack/react-query'
+import Image from 'next/image'
 import { use } from 'react'
 import { ProblemCard } from '../../_components/ProblemCard'
 import { problemColumns } from '../../assignment/[assignmentId]/_components/Columns'
@@ -22,9 +24,10 @@ interface ExerciseDetailProps {
 
 export default function ExerciseDetail(props: ExerciseDetailProps) {
   const params = use(props.params)
-  const { exerciseId, courseId } = params
+  const exerciseId = Number(params.exerciseId)
+  const courseId = Number(params.courseId)
 
-  const { data: exercise } = useQuery(
+  const { data: exercise, isFetched: exerciseFetched } = useQuery(
     assignmentQueries.single({ assignmentId: exerciseId })
   )
 
@@ -32,16 +35,72 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
     assignmentQueries.record({ assignmentId: exerciseId })
   )
 
-  const { data: submissions } = useQuery(
-    assignmentSubmissionQueries.summary({ assignmentId: exercise?.id ?? 0 })
-  )
+  const { data: submissions } = useQuery({
+    ...assignmentSubmissionQueries.summary({
+      assignmentId: (exercise?.id as number) ?? 0
+    }),
+    enabled: Boolean(exercise?.id)
+  })
 
-  const { data: problems } = useQuery(
+  const {
+    data: problems,
+    isError: problemsIsError,
+    isFetched: problemsFetched
+  } = useQuery(
     assignmentProblemQueries.list({
       assignmentId: exerciseId,
       groupId: courseId
     })
   )
+
+  const invalidId =
+    !Number.isFinite(exerciseId) ||
+    exerciseId <= 0 ||
+    !Number.isFinite(courseId) ||
+    courseId <= 0
+
+  if (invalidId) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
+        <Image
+          src={errorImage}
+          alt="Error"
+          className="mx-auto block h-auto max-w-full"
+        />
+        <p className="mt-4 text-[20px] font-semibold text-neutral-700">
+          This exercise is unavailable.
+          <br />
+          Please check the URL or try again later.
+        </p>
+      </div>
+    )
+  }
+
+  if (!exerciseFetched || !problemsFetched) {
+    return null
+  }
+
+  const notFound = !exercise
+  const wrongCourseByProblem = problemsIsError
+
+  const shouldShowError = notFound || wrongCourseByProblem
+
+  if (shouldShowError) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
+        <Image
+          src={errorImage}
+          alt="Error"
+          className="mx-auto block h-auto max-w-full"
+        />
+        <p className="mt-4 text-[20px] font-semibold text-neutral-700">
+          This exercise is unavailable.
+          <br />
+          Please check the URL or try again later.
+        </p>
+      </div>
+    )
+  }
 
   return (
     exercise && (
@@ -53,20 +112,23 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
           </p>
           <AssignmentStatus
             startTime={exercise.startTime}
-            dueTime={exercise.dueTime ?? exercise.endTime}
+            endTime={new Date(exercise.dueTime ?? exercise.endTime)}
+            title="Duration"
           />
         </div>
+
         <Separator className="my-0" />
+
         <div className="flex flex-col gap-[30px]">
           <p className="text-2xl font-semibold">DESCRIPTION</p>
-          {exercise && (
-            <KatexContent
-              content={exercise.description}
-              classname="text-[#7F7F7F] font-normal text-base"
-            />
-          )}
+          <KatexContent
+            content={exercise.description}
+            classname="text-[#7F7F7F] font-normal text-base"
+          />
         </div>
+
         <Separator className="my-0" />
+
         {problems && (
           <div>
             <p className="mb-[16px] text-2xl font-semibold">PROBLEMS</p>
@@ -86,7 +148,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
                   </span>
                   <span className="text-primary text-base font-semibold">
                     {
-                      submissions?.filter(
+                      (submissions || []).filter(
                         (submission) => submission.submission !== null
                       ).length
                     }
@@ -96,6 +158,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
             </div>
           </div>
         )}
+
         {!(record && submissions) && problems && (
           <div className="hidden lg:block">
             <DataTable
@@ -113,9 +176,9 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
             />
           </div>
         )}
+
         {record && submissions && (
           <>
-            {/* Desktop Table View */}
             <div className="hidden lg:block">
               <DataTable
                 data={record.problems}
@@ -131,7 +194,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
                 pathSegment={'problem'}
               />
             </div>
-            {/* Mobile Card View */}
+
             <div className="lg:hidden">
               <div className="space-y-3">
                 {record.problems.map((problem, index) => (

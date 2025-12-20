@@ -22,11 +22,11 @@ const BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
 const nextConfig = {
   images: {
     remotePatterns:
-      process.env.NODE_ENV === 'development'
+      process.env.APP_ENV === 'production'
         ? [
             {
               protocol: 'https',
-              hostname: 'minio.stage.codedang.com'
+              hostname: `${BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`
             },
             {
               protocol: 'https',
@@ -36,7 +36,7 @@ const nextConfig = {
         : [
             {
               protocol: 'https',
-              hostname: `${BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`
+              hostname: 'minio.stage.codedang.com'
             },
             {
               protocol: 'https',
