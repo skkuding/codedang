@@ -1,4 +1,5 @@
 import { Checkbox } from '@/components/shadcn/checkbox'
+import { convertToLetter } from '@/libs/utils'
 import bronzeMedalIcon from '@/public/icons/medal-bronze.svg'
 import goldMedalIcon from '@/public/icons/medal-gold.svg'
 import silverMedalIcon from '@/public/icons/medal-silver.svg'
@@ -83,7 +84,7 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
                 key={problem.problemId}
                 className="text-color-neutral-60 flex h-full w-[80px] shrink-0 items-center justify-center text-base font-medium tracking-[-0.03em]"
               >
-                {problem.problemOrder}
+                {convertToLetter(problem.problemOrder)}
               </div>
             ))}
           </div>

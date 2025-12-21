@@ -36,6 +36,7 @@ export function StatisticsPage() {
               <Switch
                 checked={showOnlySelected}
                 onCheckedChange={(checked) => setShowOnlySelected(checked)}
+                className="!bg-line-neutral"
               />
             </>
           )}
