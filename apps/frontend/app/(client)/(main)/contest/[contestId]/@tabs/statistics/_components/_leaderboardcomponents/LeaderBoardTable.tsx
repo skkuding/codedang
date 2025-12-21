@@ -1,14 +1,10 @@
 import { Checkbox } from '@/components/shadcn/checkbox'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/shadcn/table'
+import bronzeMedalIcon from '@/public/icons/medal-bronze.svg'
+import goldMedalIcon from '@/public/icons/medal-gold.svg'
+import silverMedalIcon from '@/public/icons/medal-silver.svg'
 import { useUserSelectionStore } from '@/stores/selectUserStore'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import type { UserData, ContestProblemforStatistics } from './_libs/types/type'
 
@@ -94,11 +90,11 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
         </div>
       </div>
       {/* body */}
-      <div className="mt-2 flex flex-col gap-2">
+      <div className="mb-22 mt-2 flex flex-col gap-2">
         {filteredUsers.map((user) => (
           <div
             key={user.userId}
-            className="h-18 grid items-center gap-1 rounded-full bg-white"
+            className="h-18 grid items-center gap-1 rounded-full bg-white shadow-[-4px_0_12px_rgba(0,0,0,0.03),4px_0_12px_rgba(0,0,0,0.03)]"
             style={{ gridTemplateColumns: GRID_COLUMNS }}
           >
             <div className="flex justify-center">
@@ -111,13 +107,35 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
               />
             </div>
 
-            <div className="text-center text-base">{user.userRank}</div>
-
-            <div className="truncate px-5 py-5 text-left text-base">
-              {user.userName}
+            <div className="text-center text-base font-normal">
+              {user.userRank}
+            </div>
+            <div className="flex gap-1 truncate px-5 py-5">
+              {user.userRank === 1 && (
+                <Image src={goldMedalIcon} alt="medal" width={15} height={20} />
+              )}
+              {user.userRank === 2 && (
+                <Image
+                  src={silverMedalIcon}
+                  alt="medal"
+                  width={15}
+                  height={20}
+                />
+              )}
+              {user.userRank === 3 && (
+                <Image
+                  src={bronzeMedalIcon}
+                  alt="medal"
+                  width={15}
+                  height={20}
+                />
+              )}
+              <div className="text-left text-base">{user.userName}</div>
             </div>
 
-            <div className="text-center text-base">-{user.totalPenalty}</div>
+            <div className="text-flowkit-red text-center text-base">
+              -{user.totalPenalty}
+            </div>
 
             <div className="flex w-full items-center justify-start gap-2 p-4">
               {problems.contestProblem.map((problem) => {
@@ -141,11 +159,17 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
                     className="flex w-[80px] shrink-0 flex-col items-center text-sm"
                   >
                     {judgeResult === 'Accepted' ? (
-                      <div>- {penalty}</div>
+                      <div className="text-primary text-base font-normal">
+                        -{penalty}
+                      </div>
                     ) : (
-                      <div className="text-red-500">Wrong</div>
+                      <div className="text-base font-normal tracking-[-0.03em] text-[#FF2C55]">
+                        Wrong
+                      </div>
                     )}
-                    <div className="text-xs text-neutral-500">{attempts}</div>
+                    <div className="text-xs text-neutral-500">
+                      {attempts} sub
+                    </div>
                   </div>
                 )
               })}
