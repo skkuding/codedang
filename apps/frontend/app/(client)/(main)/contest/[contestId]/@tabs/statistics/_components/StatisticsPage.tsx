@@ -20,8 +20,6 @@ export function StatisticsPage() {
   const setShowOnlySelected = useUserSelectionStore(
     (s) => s.setShowOnlySelected
   )
-
-  //console.log('selectUser:', showOnlySelected)
   return (
     <Tabs defaultValue="leaderboard" value={tab} onValueChange={setTab}>
       <div className="mt-[80px] flex w-[1440px] justify-between px-[116px]">

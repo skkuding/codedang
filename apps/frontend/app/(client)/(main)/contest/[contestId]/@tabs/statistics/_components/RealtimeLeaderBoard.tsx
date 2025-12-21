@@ -27,7 +27,6 @@ export function RealtimeLearBoardPage() {
       contestProblems: contestProblemsMock
     })
   }, [sortedSubmissions])
-  console.log('leaderboardHistory:', leaderboardHistory)
   const [currentSubmissionIndex, setCurrentSubmissionIndex] = useState<
     number | null
   >(null)

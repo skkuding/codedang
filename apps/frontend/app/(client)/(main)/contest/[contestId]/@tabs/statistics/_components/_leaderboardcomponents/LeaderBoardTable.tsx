@@ -53,15 +53,26 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
     : users
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Mark</TableHead>
-          <TableHead>Rank</TableHead>
-          <TableHead>Participants</TableHead>
-          <TableHead>Penalty</TableHead>
+    <Table className="mt-15 !border-separate border-spacing-2">
+      <TableHeader className="w-full border-b-0">
+        <TableRow className="h-10">
+          <TableHead className="bg-color-neutral-99 w-15 rounded-full text-base font-medium">
+            Mark
+          </TableHead>
+          <TableHead className="bg-color-neutral-99 w-15 rounded-full text-base font-medium">
+            Rank
+          </TableHead>
+          <TableHead className="bg-color-neutral-99 w-55 rounded-full text-base font-medium">
+            Participants
+          </TableHead>
+          <TableHead className="bg-color-neutral-99 w-30 rounded-full text-base font-medium">
+            Penalty
+          </TableHead>
           {problems.contestProblem.map((problem) => (
-            <TableHead key={problem.problemId} className="text-center">
+            <TableHead
+              key={problem.problemId}
+              className="bg-color-neutral-99 rounded-full text-center text-base font-medium"
+            >
               {problem.problemOrder}
             </TableHead>
           ))}
@@ -69,25 +80,32 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
       </TableHeader>
       <TableBody>
         {filteredUsers.map((user) => (
-          <TableRow key={user.userId} className="hover:brightness-95">
-            <TableCell>
+          <TableRow key={user.userId}>
+            <TableCell className="border-0">
               <Checkbox
                 onClick={(e) => e.stopPropagation()}
                 checked={isSelected(user.userId.toString())}
                 onCheckedChange={() => toggleUser(user.userId.toString())}
                 aria-label="Select row"
-                className="translate-y-[2px]"
+                className="flex translate-y-[2px] justify-self-center"
               />
             </TableCell>
-            <TableCell className="text-center">{user.userRank}</TableCell>
-            <TableCell>{user.userName}</TableCell>
-            <TableCell className="text-center">- {user.totalPenalty}</TableCell>
+            <TableCell className="border-0 text-center">
+              {user.userRank}
+            </TableCell>
+            <TableCell className="border-0">{user.userName}</TableCell>
+            <TableCell className="border-0 text-center">
+              - {user.totalPenalty}
+            </TableCell>
             {problems.contestProblem.map((problem) => {
               const detail = user.problemDetails[problem.problemId.toString()]
               const { attempts, penalty, judgeResult } = detail
               if (judgeResult === 'NoAttempt') {
                 return (
-                  <TableCell key={problem.problemId} className="text-center">
+                  <TableCell
+                    key={problem.problemId}
+                    className="border-0 text-center"
+                  >
                     -
                   </TableCell>
                 )
@@ -95,7 +113,7 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
               return (
                 <TableCell
                   key={problem.problemId}
-                  className="text-center text-sm"
+                  className="border-0 text-center text-sm"
                 >
                   {judgeResult === 'Accepted' ? (
                     <div> - {penalty}</div>
