@@ -93,8 +93,30 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
       {/* body */}
       <div className="mb-22 mt-2 flex flex-col gap-2">
         {filteredUsers.map((user) => (
-          <div
+          <motion.div
             key={user.userId}
+            layout
+            initial={{
+              y: (() => {
+                if (rankChanges[user.userId] === 'up') {
+                  return -10
+                }
+                if (rankChanges[user.userId] === 'down') {
+                  return 10
+                }
+                return 0
+              })(),
+              opacity: 0.9
+            }}
+            animate={{
+              y: 0,
+              opacity: 1
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 400,
+              damping: 30
+            }}
             className="h-18 grid items-center gap-1 rounded-full bg-white shadow-[-4px_0_12px_rgba(0,0,0,0.03),4px_0_12px_rgba(0,0,0,0.03)]"
             style={{ gridTemplateColumns: GRID_COLUMNS }}
           >
@@ -175,7 +197,7 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
                 )
               })}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>
