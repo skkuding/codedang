@@ -1,3 +1,5 @@
+# This is necessary because the iris service needs to access the minio server to upload and download the testcases.
+# Minio requires AWS credentials to access the bucket.
 apiVersion: v1
 kind: ConfigMap
 metadata:

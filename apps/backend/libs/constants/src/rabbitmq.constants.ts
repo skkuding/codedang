@@ -20,3 +20,16 @@ export const USER_TESTCASE_MESSAGE_TYPE = 'userTestCase'
 export const MESSAGE_PRIORITY_HIGH = 3
 export const MESSAGE_PRIORITY_MIDDLE = 2
 export const MESSAGE_PRIORITY_LOW = 1
+
+/**
+ * 표절 검사 요청 메시지 관련
+ */
+
+export const CHECK_EXCHANGE = 'plag.e.direct.check'
+
+export const CHECK_KEY = 'check.request'
+export const CHECK_RESULT_KEY = 'check.result'
+
+export const CHECK_RESULT_QUEUE = 'plag.q.check.result'
+
+export const CHECK_MESSAGE_TYPE = 'check'

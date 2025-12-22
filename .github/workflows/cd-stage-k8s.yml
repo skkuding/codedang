@@ -36,6 +36,11 @@ jobs:
             context: apps/iris
             build-args: |
               app_env=stage
+          - target: plag
+            file: ''
+            context: apps/plag
+            build-args: |
+              app_env=stage
 
     steps:
       - name: Setup Docker Buildx
@@ -102,6 +107,7 @@ jobs:
           build-args: |
             BASEURL=https://stage.codedang.com/api
             GQL_BASEURL=https://stage.codedang.com/graphql
+            ADMIN_REST_URL=https://stage.codedang.com/admin-api
           tags: |
             ghcr.io/skkuding/codedang-frontend:${{ github.sha }}
             ghcr.io/skkuding/codedang-frontend:stage

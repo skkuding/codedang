@@ -5,13 +5,12 @@ namespace: rabbitmq
 resources:
   - admin-credentials.yaml
   - admin-user.yaml
-  - exchange.yaml
   - ingress.yaml
   - namespace.yaml
   - rabbitmq-cluster.yaml
-  - result-queue.yaml
-  - submission-queue.yaml
   - vhost.yaml
+  - topology-judging.yaml
+  - topology-plagiarism.yaml
 
 commonAnnotations:
   managed-by: kustomize
