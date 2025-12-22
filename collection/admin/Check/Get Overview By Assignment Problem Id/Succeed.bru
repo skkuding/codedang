@@ -1,5 +1,5 @@
 meta {
-  name: Get Overview
+  name: Get Overview By Assignment Problem Id
   type: graphql
   seq: 1
 }
@@ -11,13 +11,15 @@ post {
 }
 
 body:graphql {
-  query OverviewPlagiarismChecks(
-    $checkId: Int!,
+  query OverviewCheckByAssignmentProblemId(
+    $problemId: Int!,
+    $assignmentId: Int!,
     $take: Int!,
     $cursor: Int
   ) {
-    overviewPlagiarismChecks(
-      checkId: $checkId,
+    overviewCheckByAssignmentProblemId(
+      problemId: $problemId,
+      assignmentId: $assignmentId,
       take: $take,
       cursor: $cursor
     ) {
@@ -33,7 +35,7 @@ body:graphql {
       clusterId
       cluster {
         averageSimilarity
-  	 		strength
+        strength
       }
     }
   }
@@ -41,18 +43,19 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "checkId": 1,
+    "problemId": 4,
+    "assignmentId": 6,
     "take": 10,
     "cursor": null
   }
 }
 
 docs {
-  # 📋 Get Overview
+  # 📋 Get Overview By Assignment Problem ID
 
-  Gets a rough plagiarism check result.
+  Gets a rough plagiarism check result by assignment and problem ID.
 
-  대략적인 표절 검사 결과를 불러옵니다.
+  문제와 과제 아이디를 통해 가장 최근에 요청된 대략적인 표절 검사 결과를 불러옵니다.
 
   이 API는 아래와 같은 조건에 부합하는 경우 접근할 수 있습니다.
 
@@ -65,7 +68,8 @@ docs {
 
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
-  | `checkId` | number | ✅ | 검사 요청의 아이디 |
+  | `assignmentId` | number | ✅ | 요청에 사용했던 과제의 아이디 |
+  | `problemId` | number | ✅ | 요청에 사용했던 문제의 아이디 |
   | `take` | number | ✅ | 가져올 제출물의 비교 결과 수 |
   | `cursor` | number | ❌ | 커서 |
 
