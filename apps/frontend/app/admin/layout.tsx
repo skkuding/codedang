@@ -72,7 +72,7 @@ export default async function Layout({
 
   return (
     <ClientApolloProvider session={session}>
-      <div className="flex h-dvh bg-neutral-50">
+      <div className="flex h-dvh bg-white">
         <nav className="bg-white p-2 pb-6 text-sm font-medium">
           {/* Todo: Group 기능 추가 시, Public Button 대신 GroupSelect 컴포넌트로 변경 */}
           {/* <GroupSelect /> */}
