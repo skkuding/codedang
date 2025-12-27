@@ -40,3 +40,19 @@ After successful deployment, delete the application and code from the cluster to
 5. Once approved, merge the pull request to remove the application from the cluster.
 
 6. Verify that all resources related to the application have been deleted from the Kubernetes cluster.
+
+## Further Steps
+
+After completing the onboarding deployment, consider exploring advanced topics such as:
+
+1. Deploy open source applications like RabbitMQ or Redis using Helm charts.
+
+2. Set up persistent storage for your applications using Persistent Volumes (PVs) and Persistent Volume Claims (PVCs).
+
+3. Implement OTel SDK to your source code for enhanced observability and monitoring.
+
+4. Connect other services or databases to your deployed applications for more complex scenarios.
+
+5. Use kubeseal to manage secrets securely within your Kubernetes cluster.
+
+6. Explore AWS services like RDS, S3, Route53, ECS and IAM to enhance your application deployments.
