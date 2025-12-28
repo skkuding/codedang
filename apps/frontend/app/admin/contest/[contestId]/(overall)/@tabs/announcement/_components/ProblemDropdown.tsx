@@ -37,7 +37,7 @@ export function ProblemDropdown({
   }
 
   const generalOption = {
-    order: undefined,
+    order: null,
     label: 'General'
   }
 
@@ -68,13 +68,21 @@ export function ProblemDropdown({
                   type="radio"
                   name="problem-select"
                   value={option.order ?? ''}
-                  checked={selectedProblemOrder === option.order}
+                  checked={
+                    selectedProblemOrder === option.order ||
+                    (selectedProblemOrder === null && option.order === null) ||
+                    (selectedProblemOrder === undefined &&
+                      option.order === null)
+                  }
                   onChange={() => {}}
                   className="accent-primary pointer-events-none h-5 w-5"
                 />
                 <label
                   className={`cursor-pointer text-base font-normal leading-[24px] tracking-[-0.48px] ${
-                    selectedProblemOrder === option.order
+                    selectedProblemOrder === option.order ||
+                    ((selectedProblemOrder === null ||
+                      selectedProblemOrder === undefined) &&
+                      option.order === null)
                       ? 'text-primary'
                       : 'text-black'
                   }`}
