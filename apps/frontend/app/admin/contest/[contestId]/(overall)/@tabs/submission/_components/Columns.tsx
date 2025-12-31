@@ -23,7 +23,7 @@ export const columns: ColumnDef<OverallSubmission>[] = [
               'flex h-[38px] w-40 items-center justify-center rounded-full text-base font-semibold',
               row.original.result === 'Accepted'
                 ? 'border-primary text-primary border-2'
-                : 'border-2 border-[#fc5555] text-[#fc5555]'
+                : 'border-flowkit-red text-flowkit-red border-2'
             )}
           >
             {row.original.result}
