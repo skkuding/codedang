@@ -1,0 +1,35 @@
+meta {
+  name: [403] Not a Course Member
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/course/2/qna
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Forbidden test",
+    "content": "This user is not a member of course 2."
+  }
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return 403 Forbidden", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+}
+
+docs {
+  # 📘 Create Course Question - Not a Member
+
+  강의에 가입되지 않은 사용자가 질문을 작성하려고 하면 403 Forbidden 에러가 발생합니다.
+}
