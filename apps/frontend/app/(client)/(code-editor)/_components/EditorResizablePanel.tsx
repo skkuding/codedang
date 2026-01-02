@@ -229,45 +229,47 @@ export function EditorMainResizablePanel({
               </TabsList>
             </Tabs>
             {tabValue === 'Leaderboard' && (
-              <div className="flex gap-x-4">
-                <LeaderboardModalDialog />
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Image
-                        src={syncIcon}
-                        alt="Sync"
-                        className={isFrozen ? '' : 'cursor-pointer'}
-                        onClick={() => {
-                          if (!isFrozen) {
-                            triggerRefresh()
-                          }
-                        }}
-                      />
-                    </TooltipTrigger>
-                    {isFrozen && (
-                      <TooltipContent
-                        side="bottom"
-                        className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
-                      >
+              <div className="flex w-full items-center">
+                <div className="ml-auto flex items-center gap-x-4">
+                  <LeaderboardModalDialog />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
                         <Image
-                          src={bottomCenterIcon}
-                          alt="Tooltip arrow"
-                          className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
+                          src={syncIcon}
+                          alt="Sync"
+                          className={`${isFrozen ? '' : 'cursor-pointer'} ml-auto mr-6`}
+                          onClick={() => {
+                            if (!isFrozen) {
+                              triggerRefresh()
+                            }
+                          }}
                         />
-                        <p className="text-xs">Leaderboard is frozen</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
+                      </TooltipTrigger>
+                      {isFrozen && (
+                        <TooltipContent
+                          side="bottom"
+                          className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
+                        >
+                          <Image
+                            src={bottomCenterIcon}
+                            alt="Tooltip arrow"
+                            className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
+                          />
+                          <p className="text-xs">Leaderboard is frozen</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
               </div>
             )}
             {tabValue === 'Submission' && contestId && (
-              <div className="flex gap-x-4">
+              <div className="flex w-full gap-x-4">
                 <Image
                   src={syncIcon}
                   alt="Sync"
-                  className={'cursor-pointer'}
+                  className={'ml-auto cursor-pointer'}
                   onClick={() => {
                     isSubmissionDetail
                       ? triggerSubmissionDetailRefresh()
@@ -277,7 +279,7 @@ export function EditorMainResizablePanel({
               </div>
             )}
             {tabValue === 'Qna' && contestId && (
-              <div className="flex gap-x-4">
+              <div className="ml-auto flex gap-x-4">
                 <Image
                   src={syncIcon}
                   alt="Sync"
