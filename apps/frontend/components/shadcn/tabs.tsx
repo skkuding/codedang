@@ -10,7 +10,7 @@ const Tabs = TabsPrimitive.Root
 const tabsListVariants = cva('inline-flex', {
   variants: {
     variant: {
-      default: 'h-[46px] gap-1 rounded-full border-1 border-color-line p-1',
+      default: 'h-[46px] gap-0 rounded-full border-1 border-color-line p-1',
       outline: 'gap-0 rounded-full border-2 border-color-line p-1',
       editor: 'gap-1 rounded bg-editor-background-1 py-1 px-1.5' // 수정: 넓은 간격, 둥근 모서리, 어두운 배경, 패딩
     }

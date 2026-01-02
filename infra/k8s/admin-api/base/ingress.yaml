@@ -23,3 +23,10 @@ spec:
                 name: admin-api-server
                 port:
                   number: 3000
+          - path: /admin-api
+            pathType: Prefix
+            backend:
+              service:
+                name: admin-api-server
+                port:
+                  number: 3000
