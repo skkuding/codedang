@@ -42,11 +42,11 @@ export function StatisticsPage() {
           )}
         </div>
         <TabsList>
-          <TabsTrigger value="leaderboard">Realtime Leaderboard</TabsTrigger>
-          <TabsTrigger value="user-analysis">User Analysis</TabsTrigger>
+          <TabsTrigger value="leaderboard">Real-Time Leaderboard</TabsTrigger>
           <TabsTrigger value="problem-statistics">
             Problem Statistics
           </TabsTrigger>
+          <TabsTrigger value="user-analysis">User Analysis</TabsTrigger>
         </TabsList>
       </div>
       <div className="mt-5 w-[1440px] px-[116px]">
