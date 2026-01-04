@@ -24,7 +24,6 @@ import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import { useSidePanelTabStore } from '@/stores/editorTabs'
 import type { ProblemDetail, Contest } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
-import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
@@ -238,7 +237,7 @@ export function EditorMainResizablePanel({
                         <Image
                           src={syncIcon}
                           alt="Sync"
-                          className={`${isFrozen ? '' : 'cursor-pointer'} ml-auto mr-6`}
+                          className={`${isFrozen ? '' : 'cursor-pointer'} ml-auto`}
                           onClick={() => {
                             if (!isFrozen) {
                               triggerRefresh()
