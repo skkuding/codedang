@@ -19,4 +19,4 @@ spec:
         - name: react-container
           image: okteto/example-react
           ports:
-            - containerPort: 80
+            - containerPort: 9000
