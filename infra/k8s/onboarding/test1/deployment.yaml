@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test1-deploy
+  namespace: onboarding
+  labels:
+    app: test1-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test1-app
+  template:
+    metadata:
+      labels:
+        app: test1-app
+    spec:
+      containers:
+        - name: react-container
+          image: okteto/example-react
+          ports:
+            - containerPort: 80
