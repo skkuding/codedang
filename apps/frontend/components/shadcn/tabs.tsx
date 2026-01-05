@@ -10,7 +10,7 @@ const Tabs = TabsPrimitive.Root
 const tabsListVariants = cva('inline-flex', {
   variants: {
     variant: {
-      default: 'mb-4 gap-1 rounded-full border-2 border-color-line p-1',
+      default: 'h-[46px] gap-0 rounded-full border-1 border-color-line p-1',
       outline: 'gap-0 rounded-full border-2 border-color-line p-1',
       editor: 'gap-1 rounded bg-editor-background-1 py-1 px-1.5' // 수정: 넓은 간격, 둥근 모서리, 어두운 배경, 패딩
     }
@@ -21,12 +21,12 @@ const tabsListVariants = cva('inline-flex', {
 })
 
 const tabsTriggerVariants = cva(
-  'px-6 py-2.5 font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50',
+  'font-normal transition-colors disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         default: [
-          'rounded-full',
+          'rounded-full w-[190px] text-base tracking-[-0.03em]',
           'data-[state=active]:bg-primary data-[state=active]:text-white',
           'data-[state=inactive]:bg-transparent data-[state=inactive]:text-color-neutral-60'
         ],

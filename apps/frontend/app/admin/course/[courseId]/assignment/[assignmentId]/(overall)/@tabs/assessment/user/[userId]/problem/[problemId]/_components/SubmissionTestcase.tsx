@@ -80,7 +80,7 @@ export function SubmissionTestcase() {
     <div>
       <h2 className="mb-5 text-xl font-semibold">Testcase</h2>
       <Table className="**:border-separate **:border-spacing-0 **:text-center **:font-normal [&_td]:p-0 [&_td]:text-xs">
-        <TableHeader className="**:text-slate-100 **:text-sm **:h-[33px] **:bg-[#282D3D]">
+        <TableHeader className="**:text-slate-100 **:text-sm **:h-[33px] **:bg-editor-fill-1">
           <TableRow>
             <TableHead className="rounded-l-sm pl-3">#</TableHead>
             <TableHead>Result</TableHead>
@@ -104,7 +104,7 @@ export function SubmissionTestcase() {
               return (
                 <TableRow
                   className={cn(
-                    '[&_td]:border-b-1 h-10 cursor-pointer [&_td]:border-[#404351]',
+                    '[&_td]:border-b-1 [&_td]:border-editor-line-2 h-10 cursor-pointer',
                     index === array.length - 1 && '[&_td]:border-none'
                   )}
                   key={item.problemTestcaseId}
@@ -159,7 +159,7 @@ export function SubmissionTestcase() {
             <TableCell className="h-1 border-none" colSpan={5} />
           </TableRow>
         </TableBody>
-        <TableFooter className="h-[34px] bg-[#282D3D] [&_td]:border-none">
+        <TableFooter className="bg-editor-fill-1 h-[34px] [&_td]:border-none">
           <TableRow>
             <TableCell className="rounded-l-sm">
               <div className="pl-3">

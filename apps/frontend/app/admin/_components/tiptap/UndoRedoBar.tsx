@@ -1,4 +1,3 @@
-import { Button } from '@/components/shadcn/button'
 import Redo from '@/public/icons/texteditor-redo.svg'
 import Undo from '@/public/icons/texteditor-undo.svg'
 import type { Editor } from '@tiptap/react'
@@ -9,30 +8,33 @@ interface UndoRedoBarProps {
 }
 
 export function UndoRedoBar({ editor }: UndoRedoBarProps) {
+  const canUndo = editor.can().undo()
+  const canRedo = editor.can().redo()
+
   return (
-    <div className="flex items-center">
-      <Button
-        variant="ghost"
+    <div className="flex">
+      <button
         type="button"
-        className="h-9 w-9 p-1"
-        disabled={!editor.can().undo()}
+        aria-label="Undo"
+        disabled={!canUndo}
         onClick={() => {
           editor.commands.undo()
         }}
+        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md align-middle hover:bg-gray-100"
       >
         <Image src={Undo} alt="Undo" className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
+      </button>
+      <button
         type="button"
-        className="h-9 w-9 p-1"
-        disabled={!editor.can().redo()}
+        aria-label="Redo"
+        disabled={!canRedo}
         onClick={() => {
           editor.commands.redo()
         }}
+        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md align-middle hover:bg-gray-100"
       >
         <Image src={Redo} alt="Redo" className="h-4 w-4" />
-      </Button>
+      </button>
     </div>
   )
 }

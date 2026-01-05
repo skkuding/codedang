@@ -1,5 +1,6 @@
 'use client'
 
+import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import { GET_CONTEST_QNAS } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery, useQuery } from '@apollo/client'
@@ -14,7 +15,6 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '../../../../../../_components/table'
-import { ContestQnaAnsweredTab } from './ContestQnaAnsweredTab'
 import { createColumns } from './ContestQnaTableColumns'
 import type { DataTableQna } from './ContestQnaTableColumns'
 import { QnaDetailModal } from './QnaDetailModal'
@@ -86,10 +86,20 @@ export function ContestQnaTable() {
             <p className="text-[26.22px] font-semibold">Questions</p>
           </div>
           <div className="flex justify-between">
-            <ContestQnaAnsweredTab
-              clickUnanswered={clickUnanswered}
-              setClickUnanswered={setClickUnanswered}
-            />
+            <Tabs
+              defaultValue="all"
+              onValueChange={(value) => {
+                setClickUnanswered(value === 'unanswered')
+              }}
+            >
+              <TabsList>
+                <TabsTrigger value="all">All Question</TabsTrigger>
+                <TabsTrigger value="unanswered">
+                  Unanswered Question
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
             <DataTableSearchBar columndId="title" size="lg" />
           </div>
         </div>

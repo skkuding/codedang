@@ -48,6 +48,14 @@ export default {
             1: '#282D3D'
           }
         },
+        flowkit: {
+          red: '#FC5555',
+          purple: '#7B61FF',
+          charoal: '#222222',
+          green: '#29CC6A',
+          blue: '#0099FF',
+          white: '#FFFFFF'
+        },
         color: {
           commmon: {
             100: '#FFF',
