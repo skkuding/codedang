@@ -15,16 +15,21 @@ export function MiddleContestBanner() {
       </div>
       {/* Mobile View */}
       <div className="w-full lg:hidden">
-        <Link
-          href={`/notice/${contestNoticeId}`}
-          className="flex h-full w-full"
-        >
-          <div className="h-[132px] w-full bg-[#182E56] px-4 py-8">
-            <div>
-              <p className="mb-1 text-lg font-semibold leading-snug text-white">
-                TAKE PART IN REAL-TIME <br /> CODING CONTEST
+        <Link href={`/notice/${contestNoticeId}`} className="block w-full">
+          <div className="relative h-[132px] w-full overflow-hidden">
+            <Image
+              src={'/banners/mobile_mainpage_middle_banner.png'}
+              alt="middle_banner_mobile"
+              fill
+              style={{ objectFit: 'cover' }}
+              className="z-0"
+            />
+            <div className="font-pretendard absolute left-[16px] top-[32px] z-10 inline-flex h-[66px] w-[201px] flex-col items-start gap-[4px] text-white">
+              <p className="text-[18px] font-medium font-semibold leading-[120%] tracking-[-0.54px]">
+                TAKE PART IN REAL-TIME
+                <br /> CODING CONTEST
               </p>
-              <p className="text-color-neutral-90 text-xs font-normal leading-tight">
+              <p className="text-color-neutral-90 text-[13px] font-normal leading-[140%] tracking-[-0.39px]">
                 Compete in real-time!
               </p>
             </div>

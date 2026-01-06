@@ -13,7 +13,9 @@ interface CarouselProps {
     topTitle: string
     bottomTitle: string
     sub: string
+    subMobile: string
     img: string
+    imgMobile: string
     imgAlt: string
     href: string
   }[]
@@ -114,20 +116,42 @@ export function Carousel({ slides }: CarouselProps) {
         </div>
       </div>
 
-      {/* Mobile View */}
-      <div className="mt-[10px] px-5 lg:hidden">
-        <div className="h-[164px] w-full rounded-[8px] bg-[#0C1421]">
-          <div className="px-4 py-7">
-            <p className="mb-2 text-xl font-medium leading-normal text-white">
-              YOUR CODING JOURNEY
-              <br /> STARTS HERE
-            </p>
-            <p className="text-color-neutral-90 text-xs font-normal leading-tight">
-              Compete. Grow. SKKU Coding
-            </p>
-          </div>
+      {/* Mobile View (render all slides and control visibility by facade) */}
+      <div className="mt-[10px] px-[20px] lg:hidden">
+        <div className="relative h-[164px] w-full">
+          {slides.map((slide, index) => (
+            <div
+              key={slide.href + slide.topTitle}
+              className={cn(
+                'absolute inset-0 transition-opacity duration-1000 ease-in-out',
+                facade !== index && 'z-0 opacity-0'
+              )}
+            >
+              <div className="relative h-[164px] w-full overflow-hidden rounded-[8px]">
+                <Image
+                  src={slide.imgMobile}
+                  alt={slide.imgAlt}
+                  fill
+                  className="z-0 object-cover"
+                  unoptimized
+                  priority
+                />
+                <div className="font-pretendard absolute left-[17px] top-[24px] z-10 inline-flex h-[73px] w-[222px] flex-col items-start gap-[4px] text-white">
+                  <p className="text-[20px] font-medium font-semibold leading-[130%] tracking-[-0.6px]">
+                    {slide.topTitle}
+                    <br />
+                    {slide.bottomTitle}
+                  </p>
+                  <p className="text-color-neutral-90 text-xs font-normal leading-[140%] tracking-[-0.36px]">
+                    {slide.subMobile}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="flex h-[30px] items-center justify-center gap-[6px]">
+
+        <div className="mt-4 flex h-[30px] items-center justify-center gap-[6px]">
           <div className="bg-primary h-[6px] w-[6px] rounded-full" />
           <div className="bg-color-neutral-90 h-[6px] w-[6px] rounded-full bg-black" />
           <div className="bg-color-neutral-90 h-[6px] w-[6px] rounded-full bg-black" />
