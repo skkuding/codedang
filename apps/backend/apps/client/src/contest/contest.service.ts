@@ -569,6 +569,7 @@ export class ContestService {
 
         return {
           username: user!.username,
+          userId,
           totalScore: isFrozen ? score : finalScore,
           totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
           problemRecords,
