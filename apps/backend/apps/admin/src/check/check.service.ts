@@ -383,7 +383,7 @@ export class CheckService {
     })
 
     if (!request) {
-      throw new EntityNotExistException('no request found')
+      throw new EntityNotExistException('CheckRequest')
     }
 
     return await this.getCheckResultsById({
