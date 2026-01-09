@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
@@ -91,6 +92,17 @@ type JudgeHandler[C any, E any] struct {
 	file            file.FileManager
 	logger          logger.Logger
 	tracer          trace.Tracer
+}
+
+func normalizeCompileError(err error, dir string, lang sandbox.Language) string {
+	if lang != sandbox.C && lang != sandbox.CPP {
+		return err.Error()
+	}
+	lines := strings.Split(strings.TrimRight(err.Error(), "\n"), "\n")
+	for i, line := range lines {
+		lines[i] = strings.ReplaceAll(line, fmt.Sprintf("/app/sandbox/results/%s/", dir), "")
+	}
+	return strings.Join(lines, "\n")
 }
 
 func NewJudgeHandler[C any, E any](
@@ -232,16 +244,14 @@ func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out cha
 
 	compileOutCh := make(chan result.ChResult)
 	go j.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
-
 	compileOut := <-compileOutCh
-
 	// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
 	if compileOut.Err != nil {
 		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("%w: %s", ErrCompile, compileOut.Err),
 			level:   logger.ERROR,
-			Message: compileOut.Err.Error(),
+			Message: normalizeCompileError(compileOut.Err, dir, sandbox.Language(validReq.Language)),
 		}}
 		return
 	}
