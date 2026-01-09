@@ -2902,6 +2902,7 @@ type Query {
   getAssignmentSubmissions(cursor: Int, groupId: Int!, input: GetAssignmentSubmissionsInput!, order: String, take: Int = 10): [AssignmentSubmission!]!
   getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
+  getCheckRequests(assignmentId: Int!, problemId: Int!): [CheckRequest!]!
   getCheckResultDetails(resultId: Int!): GetCheckResultDetailOutput!
   getCluster(clusterId: Int!): GetClusterOutput!
   getContest(contestId: Int!): ContestWithParticipants!
@@ -2936,7 +2937,8 @@ type Query {
   getUsers(cursor: Int, take: Int! = 10): [User!]!
   getWhitelist(groupId: Int!): [String!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
-  overviewPlagiarismChecks(checkId: Int!, cursor: Int, take: Int! = 50): [GetCheckResultSummaryOutput!]!
+  overviewCheckByAssignmentProblemId(assignmentId: Int!, cursor: Int, problemId: Int!, take: Int! = 50): [GetCheckResultSummaryOutput!]!
+  overviewCheckByRequestId(checkId: Int!, cursor: Int, take: Int! = 50): [GetCheckResultSummaryOutput!]!
 }
 
 input RejudgeInput {
