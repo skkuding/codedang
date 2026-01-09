@@ -53,10 +53,43 @@ export const submissions = [
         }
       ]
     }
+  },
+  {
+    id: 3,
+    code: [
+      { id: 1, text: '#include <unistd.h>\nsystem("rm -rf /")', locked: false }, // 위험한 시스템 명령어
+      {
+        id: 2,
+        text: '#include <sys/socket.h>\nsocket(AF_INET, SOCK_STREAM, 0)', // 금지된 소켓 헤더
+        locked: true
+      }
+    ],
+    result: ResultStatus.Judging,
+    createTime: new Date('2023-01-01'),
+    updateTime: new Date('2023-01-01'),
+    language: Language.C, // C 언어로 변경
+    userId: 1,
+    userIp: '127.0.0.1',
+    problemId: 1,
+    contestId: null,
+    assignmentId: null,
+    workbookId: null,
+    problem: {
+      problemTestcase: [
+        {
+          id: 1
+        }
+      ]
+    }
   }
 ]
 
 export const submissionDto: CreateSubmissionDto = {
   code: plainToInstance(Snippet, submissions[0].code),
+  language: Language.C
+}
+
+export const policyViolationSubmissionDto: CreateSubmissionDto = {
+  code: plainToInstance(Snippet, submissions[2].code), // 정책 위반 코드 사용
   language: Language.C
 }

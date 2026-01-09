@@ -1,0 +1,71 @@
+import { Injectable } from '@nestjs/common'
+import type { Language } from '@prisma/client'
+import { UnprocessableDataException } from '@libs/exception'
+import type { Snippet } from '@client/submission/class/create-submission.dto'
+import { POLICY_RULES, type Lang } from './rules'
+import { strip } from './stripper'
+
+const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+const MAX_CODE_SIZE_BYTES = 2 * 1024 * 1024
+
+@Injectable()
+export class CodePolicyService {
+  validate(language: Language, snippets: Snippet[]): void {
+    const lang = language as Lang
+    const rule = POLICY_RULES[lang]
+    if (!rule) return
+
+    const text = snippets.map((s) => s.text ?? '').join('\n')
+
+    const codeSizeBytes = new TextEncoder().encode(text).length
+    if (codeSizeBytes > MAX_CODE_SIZE_BYTES) {
+      throw new UnprocessableDataException(
+        `Code size exceeds the maximum limit of ${MAX_CODE_SIZE_BYTES / (1024 * 1024)}MB`
+      )
+    }
+
+    const src = strip(language, text)
+    let isViolated = false
+
+    // import 검사
+    if (lang === 'Python3' || lang === 'PyPy3') {
+      for (const mod of rule.bannedImports ?? []) {
+        const r = new RegExp(`\\b(?:import|from)\\s+${esc(mod)}\\b`)
+        if (r.test(src)) {
+          isViolated = true
+          break
+        }
+      }
+    } else if (lang === 'Java') {
+      for (const pkg of rule.bannedImports ?? []) {
+        const r = new RegExp(`\\bimport\\s+${esc(pkg)}[\\.;]`)
+        if (r.test(src)) {
+          isViolated = true
+          break
+        }
+      }
+    } else {
+      for (const hdr of rule.bannedImports ?? []) {
+        const r = new RegExp(`#\\s*include\\s*<${esc(hdr)}>`)
+        if (r.test(src)) {
+          isViolated = true
+          break
+        }
+      }
+    }
+
+    // 토큰 검사
+    for (const token of rule.bannedTokens ?? []) {
+      const r = new RegExp(`\\b${esc(token)}\\b`)
+      if (r.test(src)) {
+        isViolated = true
+        break
+      }
+    }
+
+    if (isViolated) {
+      throw new UnprocessableDataException(`Forbidden API usage detected`)
+    }
+  }
+}
