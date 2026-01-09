@@ -117,7 +117,7 @@ export function Carousel({ slides }: CarouselProps) {
       </div>
 
       {/* Mobile View (render all slides and control visibility by facade) */}
-      <div className="mt-[10px] px-[20px] lg:hidden">
+      <div className="mt-[10px] px-[20px] md:hidden">
         <div className="relative h-[164px] w-full">
           {slides.map((slide, index) => (
             <div
@@ -149,12 +149,6 @@ export function Carousel({ slides }: CarouselProps) {
               </div>
             </div>
           ))}
-        </div>
-
-        <div className="mt-4 flex h-[30px] items-center justify-center gap-[6px]">
-          <div className="bg-primary h-[6px] w-[6px] rounded-full" />
-          <div className="bg-color-neutral-90 h-[6px] w-[6px] rounded-full bg-black" />
-          <div className="bg-color-neutral-90 h-[6px] w-[6px] rounded-full bg-black" />
         </div>
       </div>
     </div>
