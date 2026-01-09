@@ -1226,7 +1226,7 @@ export class ContestService {
       throw new EntityNotExistException('Contest')
     }
     const now = new Date()
-    if (contest.endTime <= now) {
+    if (contest.endTime > now) {
       throw new ForbiddenAccessException(
         'You can access to statistics after contest ends.'
       )
@@ -1416,5 +1416,62 @@ export class ContestService {
       userSpeedRank,
       acceptedSubmissionsByLanguage: acceptedSubmissionsByLanguageArray
     }
+  }
+
+  /**
+   * 실시간 리더보드를 위해 대회의 모든 Submission을 반환합니다.
+   * @param contestId - 조회할 대회의 ID
+   * @returns submissionsWithOrder - 실시간 리더보드 구현에 필요한 형태의 Submission 리스트
+   */
+  async getAllSubmissionsByContest(contestId: number) {
+    await this.checkIsContestExistsAndEnded(contestId)
+
+    const [contestProblems, submissions] = await Promise.all([
+      this.prisma.contestProblem.findMany({
+        where: {
+          contestId
+        },
+        select: {
+          problemId: true,
+          order: true
+        }
+      }),
+      this.prisma.submission.findMany({
+        where: { contestId },
+        select: {
+          problemId: true,
+          problem: {
+            select: {
+              title: true
+            }
+          },
+          userId: true,
+          user: {
+            select: {
+              username: true
+            }
+          },
+          result: true,
+          language: true,
+          codeSize: true,
+          id: true,
+          createTime: true
+        }
+      })
+    ])
+
+    const problemOrderMap = new Map(
+      contestProblems.map((cp) => [cp.problemId, cp.order])
+    )
+
+    return submissions.map((submission) => {
+      const { user, problem, ...rest } = submission
+      return {
+        ...rest,
+        username: user!.username,
+        title: problem!.title,
+        order: problemOrderMap.get(submission.problemId) ?? null
+      }
+    })
   }
 }
