@@ -15,8 +15,8 @@ interface EditorLayoutProps {
 
 export function EditorLayout({ session, children }: EditorLayoutProps) {
   return (
-    <div className="grid-rows-editor bg-editor-background-2 fixed left-0 top-0 grid h-dvh w-full min-w-[1000px] overflow-x-auto text-white">
-      <header className="flex h-12 justify-between px-6">
+    <div className="grid-rows-editor fixed left-0 top-0 grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
+      <header className="flex h-12 justify-between bg-slate-900 px-6">
         <Suspense
           fallback={
             <Skeleton className="h-20 w-full rounded-lg bg-slate-900" />

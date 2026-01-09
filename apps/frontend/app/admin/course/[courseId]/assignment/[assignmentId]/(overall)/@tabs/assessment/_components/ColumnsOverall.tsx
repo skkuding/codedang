@@ -222,14 +222,8 @@ export const createColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Total" />
       ),
-      cell: ({ row }) => {
-        const score =
-          currentView === 'auto'
-            ? row.original.userAssignmentScore
-            : row.original.userAssignmentFinalScore
-
-        return `${score}/${row.original.assignmentPerfectScore}`
-      }
+      cell: ({ row }) =>
+        `${row.original.userAssignmentFinalScore}/${row.original.assignmentPerfectScore}`
     },
     {
       id: 'detail',

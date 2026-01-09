@@ -1,15 +1,17 @@
 'use client'
 
 import { AdminContestStatusTimeDiff } from '@/app/admin/_components/AdminContestStatusTimeDiff'
-import { TimeStatusBadge } from '@/components/TimeStatusBadge'
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
-import keyBlueIcon from '@/public/icons/key-blue.svg'
+import { dateFormatter } from '@/libs/utils'
+import calendarIcon from '@/public/icons/calendar.svg'
+import emergencyIcon from '@/public/icons/emergency.svg'
 import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
 import { use } from 'react'
 import { FaAngleLeft, FaPencil, FaUser } from 'react-icons/fa6'
+import { IoKey } from 'react-icons/io5'
 import { ContestOverallTabs } from '../_components/ContestOverallTabs'
 
 export default function Layout(props: {
@@ -44,26 +46,32 @@ export default function Layout(props: {
         </Link>
       </div>
       <div className="mb-[120px] flex flex-col gap-[10px]">
-        <div className="flex items-center gap-[6px] font-normal text-[#333333E5]">
-          <FaUser className="black ml-0.5 self-center" color="#3581FA" />
-          <span>Contest Admin : </span>
-          <span>{contestData?.createdBy?.username}</span>
+        <div className="flex font-normal text-[#333333E5]">
+          <FaUser className="black self-center" color="#3581FA" />
+          &nbsp; Contest Admin : {contestData?.createdBy?.username}
         </div>
-        <div className="flex items-center gap-[6px] text-[#333333E5]">
-          <Image src={keyBlueIcon} alt="keyBlueicon" />
-          <span className="text-primary font-medium">Invitation code : </span>
-          <span>{contestData?.invitationCode ?? '-'}</span>
-          <TimeStatusBadge
-            status="undefined"
-            endTime={contestData?.registerDueTime}
-          />
+        <div className="flex font-normal text-[#333333E5]">
+          <IoKey className="black self-center" color="#3581FA" />
+          &nbsp; Invitation code : {contestData?.invitationCode}
+        </div>
+        <div className="flex items-center gap-2">
+          <Image src={calendarIcon} alt="calendar" width={16} />
+          <p className="font-normal text-[#333333E5]">
+            {dateFormatter(contestData?.startTime, 'YY-MM-DD HH:mm')} ~{' '}
+            {dateFormatter(contestData?.endTime, 'YY-MM-DD HH:mm')}
+          </p>
         </div>
         <AdminContestStatusTimeDiff
-          showText={true}
           contest={contestData}
           textStyle="font-normal text-[#333333E5] opacity-100"
           inContestEditor={false}
         />
+        <div className="flex items-center gap-2">
+          <Image src={emergencyIcon} alt="emergency" width={16} />
+          <p className="font-normal text-[#333333E5]">
+            {dateFormatter(contestData?.registerDueTime, 'YY-MM-DD HH:mm')}
+          </p>
+        </div>
       </div>
 
       <ContestOverallTabs contestId={contestId} />

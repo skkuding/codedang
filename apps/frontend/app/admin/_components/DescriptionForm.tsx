@@ -39,7 +39,7 @@ export function DescriptionForm({
   }, [])
 
   return (
-    <div className="flex flex-col gap-1 [&_.ProseMirror>p]:mt-0">
+    <div className="flex flex-col gap-1">
       <TextEditor
         placeholder="Enter a description..."
         onChange={field.onChange}

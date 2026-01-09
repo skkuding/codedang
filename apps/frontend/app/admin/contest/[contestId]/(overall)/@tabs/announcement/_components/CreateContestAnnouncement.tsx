@@ -3,22 +3,23 @@
 import { ErrorMessage } from '@/app/admin/_components/ErrorMessage'
 import { announcementSchema } from '@/app/admin/contest/_libs/schemas'
 import { Button } from '@/components/shadcn/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/shadcn/select'
 import { Textarea } from '@/components/shadcn/textarea'
 import { CREATE_CONTEST_ANNOUNCEMENT } from '@/graphql/contest/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
-import { cn } from '@/libs/utils'
-import checkBoxGrayIcon from '@/public/icons/checkbox_gray.svg'
-import checkBoxWhiteIcon from '@/public/icons/checkbox_white.svg'
-import infoBlueIcon from '@/public/icons/icon-info-blue.svg'
+import { convertToLetter } from '@/libs/utils'
 import { useQuery, useMutation } from '@apollo/client'
 import type { CreateAnnouncementInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import Image from 'next/image'
-import { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
+import { BiSolidPencil } from 'react-icons/bi'
 import { toast } from 'sonner'
-import { ProblemDropdown } from './ProblemDropdown'
-import { ProblemSelector } from './ProblemSelector'
 
 export function CreateContestAnnouncement({
   contestId
@@ -26,15 +27,9 @@ export function CreateContestAnnouncement({
   contestId: number
 }) {
   const txtMaxLength = 400
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-
-  const { data: problemData, loading: isLoadingProblems } = useQuery(
-    GET_CONTEST_PROBLEMS,
-    {
-      variables: { contestId }
-    }
-  )
-
+  const { data: problemData } = useQuery(GET_CONTEST_PROBLEMS, {
+    variables: { contestId }
+  })
   const [createAnnouncement] = useMutation(CREATE_CONTEST_ANNOUNCEMENT)
 
   const {
@@ -48,17 +43,7 @@ export function CreateContestAnnouncement({
     resolver: valibotResolver(announcementSchema)
   })
 
-  const problemOptions =
-    problemData?.getContestProblems?.map((problem) => ({
-      order: problem.order,
-      title: problem.problem.title,
-      label: `${problem.problem.title}`
-    })) || []
-
-  const isContestStarted = true
-
-  const txtlength = (watch('content') || '').replace(/\s/g, '').length
-
+  const txtlength = (watch('content') || '').length
   const onSubmitAnnouncement: SubmitHandler<CreateAnnouncementInput> = async (
     data
   ) => {
@@ -73,78 +58,72 @@ export function CreateContestAnnouncement({
         }
       })
       resetField('content')
-      resetField('problemOrder')
       toast.success('Create Announcement successfully!')
     } catch (error) {
+      //TODO: error handling
       console.error('Error with creating Announcement:', error)
       toast.error('An unexpected error occurred')
     }
   }
 
-  const handleProblemChange = (problemOrder: number | null) => {
-    setValue('problemOrder', problemOrder, {
-      shouldValidate: true
-    })
-  }
-
   return (
     <form onSubmit={handleSubmit(onSubmitAnnouncement)}>
-      <p className="mb-5 text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
-        Post New Announcement
-      </p>
-      <div className="flex w-full flex-col gap-[6px]">
-        <ProblemSelector
-          watch={watch}
-          problemOptions={problemOptions}
-          isDropdownOpen={isDropdownOpen}
-          onToggleDropdown={() => setIsDropdownOpen(!isDropdownOpen)}
-        />
-        <ProblemDropdown
-          watch={watch}
-          setValue={setValue}
-          problemOptions={problemOptions}
-          isOpen={isDropdownOpen && !isLoadingProblems}
-          onClose={() => setIsDropdownOpen(false)}
-          isContestStarted={isContestStarted}
-          onValueChange={handleProblemChange}
-        />
+      <p className="mb-6 text-2xl font-semibold">Post New Announcement</p>
+      <div className="mb-[10px]">
+        <Select
+          onValueChange={(value) => {
+            setValue('problemOrder', value === 'none' ? null : Number(value), {
+              shouldValidate: true
+            })
+          }}
+        >
+          <SelectTrigger className="h-12 rounded-full bg-white pl-[30px] text-xl font-medium text-[#474747] focus:ring-0">
+            <SelectValue placeholder="General" />
+          </SelectTrigger>
+          <SelectContent
+            className="rounded-md border border-gray-200 bg-white shadow-md"
+            aria-required
+          >
+            <SelectItem
+              value="none"
+              className="hover:text-primary text-lg font-normal"
+            >
+              General
+            </SelectItem>
+            {problemData?.getContestProblems.map((problem) => (
+              <SelectItem
+                key={problem.order}
+                value={problem.order.toString()}
+                className="hover:text-primary text-lg font-normal"
+              >
+                {convertToLetter(problem.order)}. {problem.problem.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {errors.problemOrder && (
           <ErrorMessage message={errors.problemOrder.message} />
         )}
-        <div className="relative mt-1">
-          <Textarea
-            {...register('content')}
-            placeholder="Enter a Announcement"
-            maxLength={txtMaxLength}
-            className={cn(
-              'border-line min-h-[280px] resize-none rounded-[12px] border bg-white px-[30px] py-6 text-base font-normal leading-[24px] tracking-[-0.48px] text-black',
-              'placeholder:text-color-neutral-90 placeholder:text-base placeholder:font-normal placeholder:leading-[24px] placeholder:tracking-[-0.48px] focus-visible:ring-0'
-            )}
-          />
-          {errors.content && <ErrorMessage />}
-          <p className="text-color-neutral-80 absolute bottom-[30px] right-[30px] text-base font-medium leading-[22.4px] tracking-[-0.48px]">
-            {txtlength}/400
-          </p>
-        </div>
-        <div className="mb-[14px] flex items-center justify-start">
-          <Image src={infoBlueIcon} alt="infoblue" width={16} />
-          <p className="text-primary ml-[2px] text-xs font-normal leading-[16.8px] tracking-[-0.36px]">
-            Posted Announcement cannot be edited.
-          </p>
-        </div>
-        <Button
-          type="submit"
-          disabled={txtlength <= 0}
-          className={`mb-[100px] h-[46px] w-full rounded-[1000px] border px-[22px] pb-[11px] pt-[10px] text-lg font-medium leading-[25.2px] tracking-[-0.54px] ${txtlength > 0 ? 'bg-primary text-white' : 'bg-color-neutral-95 text-color-neutral-70'}`}
-        >
-          {txtlength > 0 ? (
-            <Image src={checkBoxWhiteIcon} alt="checkbox-white" width={20} />
-          ) : (
-            <Image src={checkBoxGrayIcon} alt="checkbox-gray" width={20} />
-          )}
-          <span className="ml-[6px]">Post</span>
-        </Button>
       </div>
+      <div className="relative">
+        <Textarea
+          {...register('content')}
+          placeholder="Enter your announcement"
+          maxLength={txtMaxLength}
+          className="min-h-[260px] rounded-xl bg-white px-[30px] py-6 text-lg font-normal text-black placeholder:text-[#3333334D] focus-visible:ring-0"
+        />
+        {errors.content && <ErrorMessage />}
+        <p className="absolute bottom-6 right-[28px] text-base font-medium text-[#8A8A8A]">
+          {txtlength}/400
+        </p>
+      </div>
+      <p className="mb-20 mt-2 text-base font-normal text-[#9B9B9B]">
+        Posted announcement cannot be edited.
+      </p>
+      <Button type="submit" className="h-12 w-full text-lg font-bold">
+        <BiSolidPencil className="white" />
+        &nbsp; Post
+      </Button>
     </form>
   )
 }

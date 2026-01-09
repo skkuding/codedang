@@ -33,15 +33,13 @@ export default function Information(props: InformationProps) {
     }
   }).data?.getAssignment
 
-  const problemsDataRaw =
+  const problemsData =
     useQuery(GET_ASSIGNMENT_PROBLEMS, {
       variables: {
         groupId: Number(params.courseId),
         assignmentId: Number(params.assignmentId)
       }
     }).data?.getAssignmentProblems || []
-
-  const problemsData = problemsDataRaw.slice().sort((a, b) => a.order - b.order)
 
   const [problemsOpen, setProblemsOpen] = useState(false)
 

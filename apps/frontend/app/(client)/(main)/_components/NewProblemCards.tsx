@@ -1,4 +1,4 @@
-import { LevelBadge } from '@/components/LevelBadge'
+import { Badge } from '@/components/shadcn/badge'
 import { Card, CardContent } from '@/components/shadcn/card'
 import {
   Carousel,
@@ -65,7 +65,12 @@ function NewProblemCard({ problem }: { problem: Problem }) {
     <Card className="border-none shadow-[3px_3px_20px_0_rgba(17,17,17,0.1)]">
       <CardContent className="flex h-[340px] w-[300px] flex-col justify-between rounded-xl bg-white p-7">
         <div className="flex flex-col items-start gap-10">
-          <LevelBadge level={problem.difficulty} />
+          <Badge
+            variant={problem.difficulty}
+            className="flex w-[70px] items-center justify-center px-2 py-1 text-xs font-semibold leading-[140%] tracking-[-0.36px]"
+          >
+            Level {problem.difficulty.slice(-1)}
+          </Badge>
           <h3 className="line-clamp-2 break-normal break-keep text-xl font-semibold">
             {problem.title}
           </h3>

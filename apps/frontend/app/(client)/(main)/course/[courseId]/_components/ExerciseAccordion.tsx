@@ -59,7 +59,16 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
         <ExerciseAccordionItem
           key={exercise.id}
           exercise={exercise}
-          grade={gradeMap.get(exercise.id)}
+          grade={
+            gradeMap.get(exercise.id) ?? {
+              id: 0,
+              submittedCount: 0,
+              problemCount: 0,
+              userAssignmentFinalScore: 0,
+              userAssignmentJudgeScore: 0,
+              assignmentPerfectScore: 0
+            }
+          }
           courseId={courseId}
         />
       ))}
@@ -70,7 +79,7 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
 interface ExerciseAccordionItemProps {
   exercise: Assignment
   courseId: number
-  grade?: AssignmentSummary
+  grade: AssignmentSummary
 }
 
 function ExerciseAccordionItem({
@@ -102,9 +111,6 @@ function ExerciseAccordionItem({
   const handleAccordionOpenChange = (value: string) => {
     setIsAccordionOpen(value === exercise.id.toString())
   }
-
-  const submittedCount = grade?.submittedCount ?? 0
-  const problemCount = grade?.problemCount ?? problems?.total ?? 0
 
   return (
     <Accordion
@@ -163,11 +169,9 @@ function ExerciseAccordionItem({
                   : 'justify-end'
               )}
             >
-              <SubmissionBadge
-                submittedCount={submittedCount}
-                problemCount={problemCount}
-                className="h-8 w-24 text-xs"
-              />
+              {dayjs().isAfter(dayjs(exercise.startTime)) && (
+                <SubmissionBadge grade={grade} className="h-8 w-24 text-xs" />
+              )}
             </div>
           </div>
 
@@ -208,10 +212,9 @@ function ExerciseAccordionItem({
             )}
 
             <div className="flex w-[20%] justify-center">
-              <SubmissionBadge
-                submittedCount={submittedCount}
-                problemCount={problemCount}
-              />
+              {dayjs().isAfter(dayjs(exercise.startTime)) && (
+                <SubmissionBadge grade={grade} />
+              )}
             </div>
           </div>
         </AccordionTrigger>
@@ -339,20 +342,14 @@ function ExerciseAccordionItem({
 
 interface SubmissionBadgeProps {
   className?: string
-  submittedCount: number
-  problemCount: number
+  grade: AssignmentSummary
 }
 
-function SubmissionBadge({
-  className,
-  submittedCount,
-  problemCount
-}: SubmissionBadgeProps) {
+function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
   const badgeStyle =
-    problemCount > 0 && submittedCount === problemCount
+    grade.submittedCount === grade.problemCount
       ? 'border-transparent bg-primary text-white'
       : 'border-primary text-primary'
-
   return (
     <div
       className={cn(
@@ -363,7 +360,7 @@ function SubmissionBadge({
     >
       <div className="text-base font-medium">
         <p>
-          {submittedCount} / {problemCount}
+          {grade.submittedCount} / {grade.problemCount}
         </p>
       </div>
     </div>

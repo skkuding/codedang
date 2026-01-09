@@ -3,6 +3,7 @@
 import { Button } from '@/components/shadcn/button'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
+import Expand from '@/public/icons/texteditor-expand.svg'
 import Shrink from '@/public/icons/texteditor-shrink.svg'
 import type { Range } from '@tiptap/core'
 import Code from '@tiptap/extension-code'
@@ -198,8 +199,8 @@ export function TextEditor({
     ],
     editorProps: {
       attributes: {
-        class: `focus:outline-none overflow-y-auto w-full disabled:cursor-not-allowed disabled:opacity-50 resize-none ${
-          isExpanded ? 'h-[500px]' : 'h-[144px]'
+        class: `focus:outline-none overflow-y-auto w-full px-3 disabled:cursur-not-allowed disabled:opacity-50 resize-y ${
+          isExpanded ? 'h-[500px]' : 'h-[300px]'
         }`
       }
     },
@@ -212,29 +213,21 @@ export function TextEditor({
   const [isExpandedScreenOpen, setIsExpandedScreenOpen] = useState(false)
 
   return (
-    <div
-      className={cn(
-        'flex flex-col overflow-hidden rounded-[4px]',
-        isDarkMode ? 'border-editor-line-1 border bg-transparent' : 'border'
-      )}
-    >
+    <div className="flex flex-col overflow-hidden rounded-xl border">
       {editor && (
-        <div
-          className={cn(
-            'flex flex-wrap items-center border-b px-1 py-2',
-            isDarkMode
-              ? 'border-editor-line-1 bg-editor-fill-1 text-white [&_button:hover]:!bg-white/10 [&_button]:text-white [&_img]:invert [&_path]:fill-white [&_svg]:text-white'
-              : 'bg-white'
-          )}
-        >
+        <div className="flex flex-wrap items-center gap-1 border-b bg-white p-1">
           <TextStyleBar editor={editor} />
+          <div className="mx-1 h-8 shrink-0 border-r" />
           <HeadingStyleBar editor={editor} />
+          <div className="mx-1 h-8 shrink-0 border-r" />
           <ListStyleBar editor={editor} />
-          <InsertNodeBar ref={insertNodeRef} editor={editor} />
+          <div className="mx-1 h-8 shrink-0 border-r" />
 
-          <div className="ml-auto flex items-center">
-            <UndoRedoBar editor={editor} />
-            {isExpanded && (
+          <InsertNodeBar ref={insertNodeRef} editor={editor} />
+          <div className="mx-1 h-6 shrink-0 border-r" />
+          <UndoRedoBar editor={editor} />
+          {isExpanded ? (
+            <div className="ml-auto flex space-x-2">
               <Button
                 variant="ghost"
                 type="button"
@@ -247,15 +240,32 @@ export function TextEditor({
                   className="h-[22px] w-[22px]"
                 />
               </Button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="ml-auto flex space-x-2">
+              <Button
+                variant="ghost"
+                type="button"
+                className="h-9 w-9 p-1"
+                onClick={() => {
+                  setIsExpandedScreenOpen(!isExpandedScreenOpen)
+                }}
+              >
+                <Image
+                  src={Expand}
+                  alt="Expand"
+                  className="h-[22px] w-[22px]"
+                />
+              </Button>
+            </div>
+          )}
         </div>
       )}
       <EditorContent
         editor={editor}
         className={cn(
-          'prose w-full max-w-none overflow-hidden bg-white p-4 [&_code::after]:content-none [&_code::before]:content-none [&_h1]:mb-4 [&_h1]:mt-6 [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-0 [&_p]:mt-2',
-          isDarkMode && 'prose-invert bg-editor-fill-1'
+          'prose max-w-5xl overflow-hidden bg-white [&_code::after]:content-none [&_code::before]:content-none [&_h1]:mb-4 [&_h1]:mt-6 [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-0 [&_p]:mt-2',
+          isDarkMode && 'prose-invert bg-transparent'
         )}
       />
       {!isExpanded && (

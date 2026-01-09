@@ -34,6 +34,58 @@ import {
   WorkbookProblemService
 } from './problem.service'
 
+const db = {
+  problem: {
+    findMany: stub(),
+    findFirst: stub(),
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
+  },
+  contestProblem: {
+    findMany: stub(),
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
+  },
+  assignmentProblem: {
+    findMany: stub(),
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
+  },
+  assignmentRecord: {
+    findUnique: stub()
+  },
+  assignmentProblemRecord: {
+    findMany: stub()
+  },
+  workbookProblem: {
+    findMany: stub(),
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
+  },
+  tag: {
+    findMany: stub()
+  },
+  problemTag: {
+    findMany: stub()
+  },
+  contest: {
+    findUniqueOrThrow: stub()
+  },
+  assignment: {
+    findUniqueOrThrow: stub()
+  },
+  user: {
+    findUniqueOrThrow: stub()
+  },
+  submission: {
+    findMany: stub()
+  },
+  updateHistory: {
+    findMany: stub()
+  },
+  getPaginator: PrismaService.prototype.getPaginator
+}
+
 const prismaNotFoundError = new Prisma.PrismaClientKnownRequestError(
   "Can't perform the action because the target record doesn't exist",
   {
@@ -59,41 +111,10 @@ const mockProblems = problems.map((problem) => {
         { id: 1, result: ResultStatus.Accepted },
         { id: 2, result: ResultStatus.WrongAnswer }
       ],
-      problemTag: [{ tagId: 1 }],
-      submissionCount: 10,
-      acceptedRate: 0.5
+      problemTag: [{ tagId: 1 }]
     }
   )
 })
-
-const mockContest = {
-  id: contestId,
-  createdById: 1,
-  title: 'Mock Contest Title',
-  description: 'Mock Contest Description',
-  penalty: 20,
-  lastPenalty: false,
-  registerDueTime: faker.date.past(),
-  unfreeze: false,
-  enableCopyPaste: true,
-  evaluateWithSampleTestcase: false,
-  createTime: faker.date.past(),
-  updateTime: faker.date.past(),
-  posterUrl: null,
-  summary: {},
-  freezeTime: null,
-  startTime: faker.date.past(),
-  endTime: faker.date.future(),
-  invitationCode: 123456,
-  isJudgeResultVisible: true,
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  _count: { contestRecord: 0 },
-  contestProblem: [],
-  submission: [],
-  announcement: [],
-  userContest: [],
-  contestRecord: []
-}
 
 const mockContestProblem = {
   ...Object.assign({}, contestProblems[0]),
@@ -180,66 +201,6 @@ const mockWorkbookProblems = workbookProblems.map((workbookProblem) => {
 
 const mockProblemTag = Object.assign({}, problemTag)
 const mockTag = Object.assign({}, tag)
-
-const db = {
-  problem: {
-    findMany: stub(),
-    findFirst: stub(),
-    findUniqueOrThrow: stub(),
-    count: stub().resolves(mockProblems.length)
-  },
-  contestProblem: {
-    findMany: stub(),
-    findUniqueOrThrow: stub(),
-    count: stub().resolves(mockContestProblems.length)
-  },
-  assignmentProblem: {
-    findMany: stub(),
-    findUniqueOrThrow: stub(),
-    count: stub().resolves(mockAssignmentProblems.length)
-  },
-  assignmentRecord: {
-    findUnique: stub(),
-    findFirst: stub()
-  },
-  assignmentProblemRecord: {
-    findMany: stub()
-  },
-  workbookProblem: {
-    findMany: stub(),
-    findUniqueOrThrow: stub(),
-    count: stub().resolves(mockWorkbookProblems.length)
-  },
-  tag: {
-    findMany: stub()
-  },
-  problemTag: {
-    findMany: stub()
-  },
-  contest: {
-    findUniqueOrThrow: stub(),
-    findFirst: stub()
-  },
-  assignment: {
-    findUniqueOrThrow: stub(),
-    findFirst: stub()
-  },
-  workbook: {
-    findUniqueOrThrow: stub(),
-    findFirst: stub(),
-    count: stub()
-  },
-  user: {
-    findUniqueOrThrow: stub()
-  },
-  submission: {
-    findMany: stub()
-  },
-  updateHistory: {
-    findMany: stub()
-  },
-  getPaginator: PrismaService.prototype.getPaginator
-}
 
 describe('ProblemService', () => {
   let service: ProblemService
@@ -341,17 +302,6 @@ describe('ContestProblemService', () => {
   let contestService: ContestService
 
   beforeEach(async () => {
-    Object.values(db).forEach((model) => {
-      if (typeof model === 'object' && model !== null) {
-        Object.values(model).forEach((fn) => {
-          if (typeof fn === 'function' && 'resetHistory' in fn) {
-            fn.resetHistory()
-            fn.resetBehavior()
-          }
-        })
-      }
-    })
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ContestProblemService,
@@ -387,22 +337,57 @@ describe('ContestProblemService', () => {
   })
 
   describe('getContestProblems', () => {
-    beforeEach(() => {
-      db.contest.findUniqueOrThrow.resolves(mockContest)
-      db.contest.findFirst.resolves(null)
-    })
-
-    it('should return contest problems', async () => {
+    it('should return public contest problems', async () => {
       // given
-      const publicContest = {
-        ...mockContest,
-        endTime: faker.date.past(),
-        contestRecord: []
-      }
-      db.contest.findUniqueOrThrow.resolves(publicContest)
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        isPrivilegedRole: false,
+        invitationCodeExists: true,
+        isJudgeResultVisible: true,
+        prev: null,
+        next: null
+      })
       db.contestProblem.findMany.resolves(mockContestProblems)
       db.submission.findMany.resolves([])
-      db.contestProblem.count.resolves(mockContestProblems.length)
+
+      // when
+      const result = await service.getContestProblems({
+        contestId,
+        userId,
+        cursor: 1,
+        take: 1
+      })
+
+      const actual = { ...result, data: result.data }
+
+      // then
+      expect(actual).to.deep.equal(
+        // Deprecated
+        plainToInstance(_RelatedProblemsResponseDto, {
+          data: mockContestProblemsWithScore,
+          total: mockContestProblemsWithScore.length
+        })
+      )
+    })
+
+    it('should return group contest problems', async () => {
+      // given
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        isRegistered: true,
+        isPrivilegedRole: false,
+        invitationCodeExists: true,
+        isJudgeResultVisible: true,
+        prev: null,
+        next: null
+      })
+      db.contestProblem.findMany.resolves(mockContestProblems)
+      db.submission.findMany.resolves([])
 
       // when
       const result = await service.getContestProblems({
@@ -417,21 +402,25 @@ describe('ContestProblemService', () => {
         // Deprecated
         plainToInstance(_RelatedProblemsResponseDto, {
           data: mockContestProblemsWithScore,
-          total: mockContestProblems.length
+          total: mockContestProblemsWithScore.length
         })
       )
     })
 
     it('should return contest problems when user is a Reviewer before contest start', async () => {
-      const reviewerContest = {
-        ...mockContest,
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
         startTime: faker.date.future(),
-        userContest: [{ role: 'Reviewer' }]
-      }
-      db.contest.findUniqueOrThrow.resolves(reviewerContest)
+        endTime: faker.date.future(),
+        isRegistered: false,
+        isPrivilegedRole: true,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true,
+        prev: null,
+        next: null
+      })
       db.contestProblem.findMany.resolves(mockContestProblems)
       db.submission.findMany.resolves([])
-      db.contestProblem.count.resolves(mockContestProblems.length)
 
       const result = await service.getContestProblems({
         contestId,
@@ -440,7 +429,7 @@ describe('ContestProblemService', () => {
         take: 1
       })
 
-      expect(result).to.be.ok
+      expect(result.data).to.be.an('array')
     })
 
     it('should throw PrismaClientKnownRequestError when the contest is not visible', async () => {
@@ -457,18 +446,21 @@ describe('ContestProblemService', () => {
           take: 1
         })
       ).to.be.rejectedWith(prismaNotFoundError)
-
-      getContestSpy.restore()
     })
 
     it('should throw ForbiddenAccessException when the user is registered but contest is not started', async () => {
-      const upcomingContest = {
-        ...mockContest,
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
         startTime: faker.date.future(),
+        endTime: faker.date.future(),
         isRegistered: true,
-        isPrivilegedRole: false
-      }
-      db.contest.findUniqueOrThrow.resolves(upcomingContest)
+        isPrivilegedRole: false,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true,
+        prev: null,
+        next: null
+      })
+      db.contestProblem.findMany.resolves(mockContestProblems)
 
       await expect(
         service.getContestProblems({
@@ -481,14 +473,18 @@ describe('ContestProblemService', () => {
     })
 
     it('should throw ForbiddenAccessException when the user is not registered and contest is not ended', async () => {
-      const ongoingContest = {
-        ...mockContest,
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
         isRegistered: false,
-        isPrivilegedRole: false
-      }
-      db.contest.findUniqueOrThrow.resolves(ongoingContest)
+        isPrivilegedRole: false,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true,
+        prev: null,
+        next: null
+      })
+      db.contestProblem.findMany.resolves(mockContestProblems)
 
       await expect(
         service.getContestProblems({
@@ -504,19 +500,19 @@ describe('ContestProblemService', () => {
   describe('getContestProblem', () => {
     it('should return the contest problem', async () => {
       // given
-      const contestMock = {
-        ...mockContest,
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        contestRecord: [{ userId }],
-        userContest: [],
-        invitationCode: 123456
-      }
-      db.contest.findUniqueOrThrow.resolves(contestMock)
-      db.contest.findFirst.resolves(null)
+        isRegistered: true,
+        isPrivilegedRole: false,
+        isJudgeResultVisible: true,
+        invitationCodeExists: true,
+        prev: null,
+        next: null
+      })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       db.updateHistory.findMany.resolves(mockUpdateHistory)
-      db.problemTag.findMany.resolves([])
 
       // when
       const result = await service.getContestProblem({
@@ -532,22 +528,19 @@ describe('ContestProblemService', () => {
 
     it('should return the contest problem when user is a Reviewer before contest start', async () => {
       // given
-      const contestMock = {
-        ...mockContest,
-        id: contestId,
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
         startTime: faker.date.future(),
         endTime: faker.date.future(),
-        contestRecord: [],
-        userContest: [{ role: 'Reviewer' }],
+        isRegistered: false,
+        isPrivilegedRole: true,
         isJudgeResultVisible: true,
-        invitationCode: 123456
-      }
-      db.contest.findUniqueOrThrow.resolves(contestMock)
-      db.contest.findFirst.resolves(null)
-
+        invitationCodeExists: true,
+        prev: null,
+        next: null
+      })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       db.updateHistory.findMany.resolves(mockUpdateHistory)
-      db.problemTag.findMany.resolves([])
 
       // when
       const result = await service.getContestProblem({
@@ -574,24 +567,20 @@ describe('ContestProblemService', () => {
           userId
         })
       ).to.be.rejectedWith(prismaNotFoundError)
-
-      getContestSpy.restore()
     })
 
     it('should throw ForbiddenAccessException when the user is registered but contest is not started', async () => {
-      const contestMock = {
-        ...mockContest,
-        id: contestId,
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
         startTime: faker.date.future(),
         endTime: faker.date.future(),
-        contestRecord: [{ userId }],
-        userContest: [],
+        isRegistered: true,
+        isPrivilegedRole: false,
         isJudgeResultVisible: true,
-        invitationCode: 123456
-      }
-      db.contest.findUniqueOrThrow.resolves(contestMock)
-      db.contest.findFirst.resolves(null)
-
+        invitationCodeExists: true,
+        prev: null,
+        next: null
+      })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
         service.getContestProblem({
@@ -603,19 +592,17 @@ describe('ContestProblemService', () => {
     })
 
     it('should throw ForbiddenAccessException when the user is not registered and contest is not ended', async () => {
-      const contestMock = {
-        ...mockContest,
-        id: contestId,
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        contestRecord: [],
-        userContest: [],
+        isRegistered: false,
+        isPrivilegedRole: false,
         isJudgeResultVisible: true,
-        invitationCode: 123456
-      }
-      db.contest.findUniqueOrThrow.resolves(contestMock)
-      db.contest.findFirst.resolves(null)
-
+        invitationCodeExists: true,
+        prev: null,
+        next: null
+      })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
         service.getContestProblem({
@@ -651,9 +638,6 @@ describe('AssignmentProblemService', () => {
 
     service = module.get<AssignmentProblemService>(AssignmentProblemService)
     assignmentService = module.get<AssignmentService>(AssignmentService)
-
-    db.assignment.findUniqueOrThrow.resetBehavior()
-    db.assignmentRecord.findFirst.resetBehavior()
   })
 
   afterEach(() => {
@@ -786,43 +770,34 @@ describe('AssignmentProblemService', () => {
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
       getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
-      db.problemTag.findMany.resolves([{ tag: mockTag }])
 
       const result = await service.getAssignmentProblem({
         assignmentId,
         problemId,
         userId
       })
+
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, {
-          ...mockAssignmentProblem,
-          problem: { ...mockAssignmentProblem.problem, tags: [mockTag] }
-        })
+        plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
       )
-      db.problemTag.findMany.resetBehavior()
     })
 
     it('should return the group assignment problem', async () => {
       const getAssignmentSpy = stub(assignmentService, 'getAssignment')
       getAssignmentSpy.resolves(mockAssignment)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
-      db.problemTag.findMany.resolves([{ tag: mockTag }])
 
       const result = await service.getAssignmentProblem({
         assignmentId,
         problemId,
         userId
       })
+
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, {
-          ...mockAssignmentProblem,
-          problem: { ...mockAssignmentProblem.problem, tags: [mockTag] }
-        })
+        plainToInstance(_RelatedProblemResponseDto, mockAssignmentProblem)
       )
-
-      db.problemTag.findMany.resetBehavior()
     })
 
     it('should throw PrismaClientKnownRequestError when the assignment is not visible', async () => {
@@ -841,9 +816,7 @@ describe('AssignmentProblemService', () => {
     })
 
     it('should throw ForbiddenAccessException when the user is not registered and assignment is not ended', async () => {
-      db.assignmentRecord.findFirst.resolves(null)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
-
       await expect(
         service.getAssignmentProblem({
           assignmentId,
@@ -882,9 +855,6 @@ describe('WorkbookProblemService', () => {
 
     service = module.get<WorkbookProblemService>(WorkbookProblemService)
     workbookService = module.get<WorkbookService>(WorkbookService)
-
-    db.workbook.findFirst.resetBehavior()
-    db.problemTag.findMany.resetBehavior()
   })
 
   it('should be defined', () => {
@@ -898,13 +868,8 @@ describe('WorkbookProblemService', () => {
   describe('getWorkbookProblems', () => {
     it('should return public workbook problems', async () => {
       // given
-      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
-      const mockWorkbookProblemData = mockWorkbookProblems.map((p) => ({
-        order: p.order,
-        problem: p.problem
-      }))
-      db.workbookProblem.findMany.resolves(mockWorkbookProblemData)
-      db.workbookProblem.count.resolves(mockWorkbookProblems.length)
+      stub(workbookService, 'isVisible').resolves(true)
+      db.workbookProblem.findMany.resolves(mockWorkbookProblems)
 
       // when
       const result = await service.getWorkbookProblems({
@@ -915,35 +880,19 @@ describe('WorkbookProblemService', () => {
       })
 
       // then
-      expect(result).to.deep.equal({
-        data: mockWorkbookProblems.map((p) => ({
-          order: p.order,
-          maxScore: null,
-          score: null,
-          submissionTime: null,
-          id: p.problem.id,
-          title: p.problem.title,
-          difficulty: p.problem.difficulty,
-          submissionCount: p.problem.submissionCount,
-          acceptedRate: p.problem.acceptedRate,
-          isHiddenUploadedByZip: p.problem.isHiddenUploadedByZip,
-          isSampleUploadedByZip: p.problem.isSampleUploadedByZip,
-          updateContentTime: p.problem.updateContentTime
-        })),
-        total: mockWorkbookProblems.length
-      })
-      isVisibleSpy.restore()
+      expect(result).to.deep.equal(
+        // Deprecated
+        plainToInstance(_RelatedProblemsResponseDto, {
+          data: mockWorkbookProblems,
+          total: mockWorkbookProblems.length
+        })
+      )
     })
 
     it('should return group workbook problems', async () => {
       // given
-      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
-      const mockWorkbookProblemData = mockWorkbookProblems.map((p) => ({
-        order: p.order,
-        problem: p.problem
-      }))
-      db.workbookProblem.findMany.resolves(mockWorkbookProblemData)
-      db.workbookProblem.count.resolves(mockWorkbookProblems.length)
+      stub(workbookService, 'isVisible').resolves(true)
+      db.workbookProblem.findMany.resolves(mockWorkbookProblems)
 
       // when
       const result = await service.getWorkbookProblems({
@@ -954,29 +903,17 @@ describe('WorkbookProblemService', () => {
       })
 
       // then
-      expect(result).to.deep.equal({
-        data: mockWorkbookProblems.map((p) => ({
-          order: p.order,
-          maxScore: null,
-          score: null,
-          submissionTime: null,
-          id: p.problem.id,
-          title: p.problem.title,
-          difficulty: p.problem.difficulty,
-          submissionCount: p.problem.submissionCount,
-          acceptedRate: p.problem.acceptedRate,
-          isHiddenUploadedByZip: p.problem.isHiddenUploadedByZip,
-          isSampleUploadedByZip: p.problem.isSampleUploadedByZip,
-          updateContentTime: p.problem.updateContentTime
-        })),
-        total: mockWorkbookProblems.length
-      })
-      isVisibleSpy.restore()
+      expect(result).to.deep.equal(
+        plainToInstance(_RelatedProblemsResponseDto, {
+          data: mockWorkbookProblems,
+          total: 2
+        })
+      )
     })
 
     it('should throw ForbiddenAccessException when the workbook is not visible', async () => {
       // given
-      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(false)
+      stub(workbookService, 'isVisible').resolves(false)
 
       // then
       await expect(
@@ -987,16 +924,14 @@ describe('WorkbookProblemService', () => {
           groupId
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
-      isVisibleSpy.restore()
     })
   })
 
   describe('getWorkbookProblem', () => {
     it('should return the public workbook problem', async () => {
       // given
-      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
+      stub(workbookService, 'isVisible').resolves(true)
       db.workbookProblem.findUniqueOrThrow.resolves(mockWorkbookProblem)
-      db.problemTag.findMany.resolves([{ tag: mockTag }])
 
       // when
       const result = await service.getWorkbookProblem(
@@ -1008,19 +943,14 @@ describe('WorkbookProblemService', () => {
       // then
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, {
-          ...mockWorkbookProblem,
-          problem: { ...mockWorkbookProblem.problem, tags: [mockTag] }
-        })
+        plainToInstance(_RelatedProblemResponseDto, mockWorkbookProblem)
       )
-      isVisibleSpy.restore()
     })
 
     it('should return the group workbook problem', async () => {
       // given
-      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
+      stub(workbookService, 'isVisible').resolves(true)
       db.workbookProblem.findUniqueOrThrow.resolves(mockWorkbookProblem)
-      db.problemTag.findMany.resolves([{ tag: mockTag }])
 
       // when
       const result = await service.getWorkbookProblem(
@@ -1032,23 +962,18 @@ describe('WorkbookProblemService', () => {
       // then
       expect(result).to.be.deep.equal(
         // Deprecated
-        plainToInstance(_RelatedProblemResponseDto, {
-          ...mockWorkbookProblem,
-          problem: { ...mockWorkbookProblem.problem, tags: [mockTag] }
-        })
+        plainToInstance(_RelatedProblemResponseDto, mockWorkbookProblem)
       )
-      isVisibleSpy.restore()
     })
 
     it('should throw ForbiddenAccessException when the workbook is not visible', async () => {
       // given
-      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(false)
+      stub(workbookService, 'isVisible').resolves(false)
 
       // then
       await expect(
         service.getWorkbookProblem(workbookId, problemId, groupId)
       ).to.be.rejectedWith(ForbiddenAccessException)
-      isVisibleSpy.restore()
     })
   })
 })

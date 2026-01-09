@@ -44,10 +44,6 @@ if [ ! -f apps/iris/.env ]; then
   cp apps/iris/.env.example apps/iris/.env
 fi
 
-if [ ! -f apps/plag/.env ]; then
-  cp apps/plag/.env.example apps/plag/.env
-fi
-
 # Backward compatibility: remove old .env file
 rm -f .env
 
@@ -90,25 +86,6 @@ if [ "$DEVCONTAINER" = "1" ]; then
 
   # Allow subgroups to access memory controller
   $SUDO echo "+memory" | $SUDO tee "$SANDBOX_DIR/cgroup.subtree_control"
-
-  # Setup sdk manager for jdk version control in plag and iris
-  $SUDO echo "sdkman_auto_env=true" >> /usr/local/sdkman/etc/config
-
-  $SUDO mkdir -p /app/sandbox/checks
-  $SUDO chmod 777 /app/sandbox/checks
-  $SUDO curl -L "https://github.com/jplag/JPlag/releases/download/v6.2.0/jplag-6.2.0-jar-with-dependencies.jar" -o "/app/sandbox/jplag.jar"
-
-  SDKMAN_INIT_SCRIPT="/usr/local/sdkman/bin/sdkman-init.sh"
-  if [ -f "$SDKMAN_INIT_SCRIPT" ]; then
-    echo "Sourcing SDKMAN for postCreateCommand..."
-    . "$SDKMAN_INIT_SCRIPT"
-  else
-    echo "🚨 ERROR: SDKMAN init script not found at $SDKMAN_INIT_SCRIPT"
-    exit 1
-  fi
-
-  cd "$BASEDIR"/apps/plag && sdk env install
-
 fi
 
 echo ""

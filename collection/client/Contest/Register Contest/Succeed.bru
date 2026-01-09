@@ -24,26 +24,104 @@ script:pre-request {
 }
 
 docs {
-  ## Participate Contest
+  # 📘 Participate Contest
+
+  **POST** `/contest/:id/participation`
+
+  Register the authenticated user for a specific contest.
+
+  주어진 대회 ID에 해당하는 대회에 참여합니다.
+
   ---
-  - 주어진 contest ID에 해당하는 contest에 참여합니다.
-  - invitationCode가 존재하는 Contest의 경우 6자리의 invitationCode를 URL Query로 전달해야 합니다.
-  
-  ### Error Case
-  
-  #### [404] Nonexistent content
-  
-  존재하지 않는 ContestID에 참여하려고 하면 오류가 납니다.
-  
+
+  ### 🔒 Authentication
+
+  ✅ Required
+  - 로그인이 필요합니다
+  - 인증되지 않은 요청은 401 Unauthorized 에러가 발생합니다
+
+  ---
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description |
+  |------|--------|----------|-------------|
+  | `id` | number | ✅       | 대회 ID        |
+
+  #### Query Parameters
+
+  | Name             | Type   | Required | Description                                      |
+  |------------------|--------|----------|--------------------------------------------------|
+  | `invitationCode` | string | 🔸       | 초대 코드 (대회에 `invitationCode`가 있는 경우 필수) |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  #### Status Code: `201 Created`
+
+  ```json
+  {
+    "id": 1,
+    "contestId": 16,
+    "userId": 1,
+    "acceptedProblemNum": 0,
+    "score": 0,
+    "finalScore": 0,
+    "lastAcceptedTime": null,
+    "totalPenalty": 0,
+    "finalTotalPenalty": 0,
+    "createTime": "2024-01-01T00:00:00.000Z",
+    "updateTime": "2024-01-01T00:00:00.000Z"
+  }
+  ```
+
+  #### Response Fields
+
+  | Field              | Type    | Description                                    |
+  |--------------------|---------|------------------------------------------------|
+  | `id`               | number  | ContestRecord ID                                |
+  | `contestId`        | number  | 대회 ID                                          |
+  | `userId`            | number  | 참가한 사용자 ID                                  |
+  | `acceptedProblemNum` | number  | 해결한 문제 수 (초기값: 0)                         |
+  | `score`             | number  | 현재 점수 (초기값: 0)                             |
+  | `finalScore`        | number  | 최종 점수 (초기값: 0)                             |
+  | `lastAcceptedTime`  | string  | 마지막으로 문제를 해결한 시간 (ISO 8601, null 가능) |
+  | `totalPenalty`      | number  | 총 페널티 (초기값: 0)                             |
+  | `finalTotalPenalty` | number  | 최종 총 페널티 (초기값: 0)                        |
+  | `createTime`        | string  | 참가 기록 생성 시간 (ISO 8601)                    |
+  | `updateTime`        | string  | 참가 기록 마지막 업데이트 시간 (ISO 8601)          |
+
+  ---
+
+  ### 📝 Notes
+
+  - `invitationCode`가 있는 대회의 경우, 정확한 6자리 초대 코드를 전달해야 합니다
+  - 참가 신청 마감 시간(`registerDueTime`) 이전에만 참가할 수 있습니다
+  - 이미 참가한 대회에 다시 참가할 수 없습니다
+  - 참가 성공 시 `ContestRecord`와 `UserContest` (역할: `Participant`)가 생성됩니다
+
+  ---
+
+  ### ⚠️ Error Cases
+
+  #### [404] Contest does not exist
+
+  존재하지 않는 대회 ID에 참여하려고 할 때 발생합니다.
+
   #### [409] Already participated
-  
-  이미 참여한 Contest에 참여하려고 하면 오류가 납니다.
-  
-  #### [409] Ended contest
-  
-  종료된 Contest에 참여하려고 하면 오류가 납니다.
-  
+
+  이미 참가한 대회에 다시 참가하려고 할 때 발생합니다.
+
+  #### [409] Registration closed
+
+  참가 신청 마감 시간이 지난 대회에 참가하려고 할 때 발생합니다.
+
   #### [409] Invalid Invitation Code
-  
-  잘못된 invitationCode를 입력한 경우 오류가 납니다.
+
+  초대 코드가 필요한 대회에 잘못된 초대 코드를 입력했을 때 발생합니다.
 }

@@ -21,15 +21,13 @@ const buttonVariants = cva(
         link: 'text-gray-900 underline-offset-4 hover:underline dark:text-gray-50',
         slate: 'hover:text-primary-light',
         filter:
-          'border border-gray-200 bg-white hover:bg-gray-100 hover:text-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50',
-        editor: 'rounded-[4px] font-normal shrink-0 gap-[5px]'
+          'border border-gray-200 bg-white hover:bg-gray-100 hover:text-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50'
       },
       size: {
         default: 'h-10 px-4 py-2',
         sm: 'h-9  px-3',
         lg: 'h-11  px-8',
-        icon: 'h-[30px] w-[30px]',
-        editor: 'h-8 px-2'
+        icon: 'h-[30px] w-[30px]'
       }
     },
     defaultVariants: {

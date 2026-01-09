@@ -35,9 +35,9 @@ export function ProblemInfiniteTable() {
             data={data.items}
             columns={columns}
             headerStyle={{
-              title: 'text-left w-4/12',
+              title: 'text-left w-5/12',
               difficulty: 'w-2/12',
-              submissionCount: 'w-3/12',
+              submissionCount: 'w-2/12',
               acceptedRate: 'w-2/12',
               info: 'w-1/12'
             }}

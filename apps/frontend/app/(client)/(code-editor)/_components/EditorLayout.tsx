@@ -1,12 +1,11 @@
 import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
 import { CountdownStatus } from '@/components/CountdownStatus'
 import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
-import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { fetcher, fetcherWithAuth, hasDueDate, omitString } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { Assignment, Contest, Course, ProblemDetail } from '@/types/type'
-import { ErrorBoundary, Suspense } from '@suspensive/react'
+import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -15,6 +14,7 @@ import type { GetContestProblemDetailResponse } from '../../_libs/apis/contestPr
 import { AssignmentProblemDropdown } from './AssignmentProblemDropdown'
 import { ContestProblemDropdown } from './ContestProblemDropdown'
 import { EditorMainResizablePanel } from './EditorResizablePanel'
+import { ExerciseProblemDropdown } from './ExerciseProblemDropdown'
 import { ProblemProvider } from './context/ProblemContext'
 
 interface EditorLayoutProps {
@@ -121,8 +121,8 @@ export async function EditorLayout({
 
   return (
     <ProblemProvider problem={problem}>
-      <div className="grid-rows-editor bg-editor-background-2 grid h-dvh w-full min-w-[1000px] overflow-x-auto text-white">
-        <header className="flex h-12 justify-between px-6">
+      <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-[#222939] text-white">
+        <header className="flex h-12 justify-between bg-slate-900 px-6">
           <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
             <Link href="/">
               <Image src={codedangLogo} alt="코드당" width={33} />
@@ -199,29 +199,27 @@ const renderHeaderContent = ({
         <ContestProblemDropdown problem={problem} contestId={contest.id} />
       </>
     )
-  }
-  if (assignment && courseName) {
+  } else if (assignment && courseName) {
     return (
       <>
-        <Link href={`/course/${courseId}/assignment` as const}>
+        <Link href={`/course/${courseId}/assignment` as Route}>
           <p> {omitString({ targetString: courseName, maxlength: 20 })}</p>
         </Link>
         <p className="mx-2"> / </p>
-        <Link href={`/course/${courseId}/assignment/${assignment.id}` as const}>
+        <Link href={`/course/${courseId}/assignment/${assignment.id}` as Route}>
           {omitString({ targetString: assignment.title, maxlength: 20 })}
         </Link>
         <p className="mx-2"> / </p>
         {courseId !== undefined && (
-          <ErrorBoundary fallback="Failed to load the assignment problem">
-            <Suspense fallback={<Skeleton className="h-6 w-24" />}>
-              <AssignmentProblemDropdown problem={problem} />
-            </Suspense>
-          </ErrorBoundary>
+          <AssignmentProblemDropdown
+            problem={problem}
+            assignmentId={assignment.id}
+            courseId={courseId}
+          />
         )}
       </>
     )
-  }
-  if (exercise && courseName) {
+  } else if (exercise && courseName) {
     return (
       <>
         <Link href={`/course/${courseId}/exercise`}>
@@ -233,19 +231,22 @@ const renderHeaderContent = ({
         </Link>
         <p className="mx-2"> / </p>
         {courseId !== undefined && (
-          <Suspense fallback={<Skeleton className="h-6 w-24" />}>
-            <AssignmentProblemDropdown problem={problem} isExercise />
-          </Suspense>
+          <ExerciseProblemDropdown
+            problem={problem}
+            exerciseId={exercise.id}
+            courseId={courseId}
+          />
         )}
       </>
     )
+  } else {
+    return (
+      <>
+        <Link href="/problem">Problem</Link> <p className="mx-2"> / </p>{' '}
+        <h1 className="w-[1024px] overflow-hidden text-ellipsis whitespace-nowrap text-lg font-medium text-white">{`#${problem.id}. ${problem.title}`}</h1>
+      </>
+    )
   }
-  return (
-    <>
-      <Link href="/problem">Problem</Link> <p className="mx-2"> / </p>{' '}
-      <h1 className="w-[1024px] overflow-hidden text-ellipsis whitespace-nowrap text-lg font-medium text-white">{`#${problem.id}. ${problem.title}`}</h1>
-    </>
-  )
 }
 
 const renderTimediff = ({

@@ -11,8 +11,8 @@ import {
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { Assignment, AssignmentSummary } from '@/types/type'
 import { useQueries, type UseQueryOptions } from '@tanstack/react-query'
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
-import { AssignmentLink } from '../[courseId]/_components/AssignmentLink'
 import { DashboardCalendar } from './DashboardCalendar'
 
 type WorkStatus = 'upcoming' | 'ongoing' | 'finished'
@@ -34,7 +34,6 @@ interface WorkItem {
   submittedCount: number
   week?: number
   status?: WorkStatus
-  raw: Assignment
 }
 
 interface GroupedRows {
@@ -47,7 +46,6 @@ interface CardSectionProps {
   title: string
   groups: GroupedRows[]
   selectedDate?: Date
-  courseIdResolver: (row: WorkItem) => number
 }
 
 const startOfDay = (date: Date) => {
@@ -214,8 +212,7 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
             problemCount: summary?.problemCount ?? a.problemCount ?? 0,
             submittedCount: summary?.submittedCount ?? 0,
             week: a.week,
-            status: a.status,
-            raw: a
+            status: a.status
           } satisfies WorkItem
         ]
       })
@@ -251,7 +248,6 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
     }
     return [...uniq].map((t) => new Date(t))
   }, [allRows])
-  const courseIdResolver = (row: WorkItem) => row.group.id
 
   return (
     <section className="mx-auto max-w-[1208px]">
@@ -261,6 +257,7 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
         </h2>
       </div>
 
+      {/* Desktop Layout */}
       <div className="hidden gap-[14px] sm:grid md:grid-cols-2 lg:grid-cols-3">
         <CardSection
           icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
@@ -270,7 +267,6 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
             rows: rows.filter((r) => !r.isExercise)
           }))}
           selectedDate={selectedDate}
-          courseIdResolver={courseIdResolver}
         />
 
         <CardSection
@@ -281,7 +277,6 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
             rows: rows.filter((r) => r.isExercise)
           }))}
           selectedDate={selectedDate}
-          courseIdResolver={courseIdResolver}
         />
 
         <DashboardCalendar
@@ -293,6 +288,7 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
         />
       </div>
 
+      {/* Mobile Layout */}
       <div className="sm:hidden">
         <div className="w-full origin-top">
           <DashboardCalendar
@@ -321,7 +317,6 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
                   rows: rows.filter((r) => !r.isExercise)
                 }))}
                 selectedDate={selectedDate}
-                courseIdResolver={courseIdResolver}
               />
 
               <CardSection
@@ -332,7 +327,6 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
                   rows: rows.filter((r) => r.isExercise)
                 }))}
                 selectedDate={selectedDate}
-                courseIdResolver={courseIdResolver}
               />
             </div>
           </DrawerContent>
@@ -342,13 +336,7 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
   )
 }
 
-function CardSection({
-  icon,
-  title,
-  groups,
-  selectedDate,
-  courseIdResolver
-}: CardSectionProps) {
+function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
   return (
     <section className="flex justify-center rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
       <div className="flex max-h-[40vh] w-full max-w-[100vw] flex-col py-[30px] pl-6 pr-2 sm:max-h-[460px] sm:max-w-[390px]">
@@ -403,16 +391,23 @@ function CardSection({
                       return a.title.localeCompare(b.title)
                     })
                     .map((row) => {
+                      const showDueBadge = isDueToday(
+                        selectedDate,
+                        row.dueTime ?? row.endTime
+                      )
                       const progress = progressPct(
                         row.submittedCount,
                         row.problemCount
                       )
-                      const courseId = courseIdResolver(row)
 
                       return (
-                        <div
+                        <Link
                           key={row.id}
+                          href={`/course/${row.group.id}/${row.isExercise ? 'exercise' : 'assignment'}/${row.id}`}
                           className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
+                          aria-label={`${row.title}, due ${formatDueMd(
+                            row.dueTime ?? row.endTime
+                          )}, progress ${progress}%`}
                         >
                           <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-neutral-200/40" />
                           <div
@@ -425,22 +420,24 @@ function CardSection({
                               <div className="pl-[18px] pr-[10px]">
                                 <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-violet-500" />
                               </div>
-
-                              <div className="min-w-0">
-                                <AssignmentLink
-                                  assignment={row.raw}
-                                  courseId={courseId}
-                                  isExercise={row.isExercise}
-                                />
-                              </div>
+                              <p
+                                className="truncate text-sm font-normal leading-6 tracking-[-0.48px] text-neutral-800"
+                                title={row.title}
+                              >
+                                {row.title}
+                                {showDueBadge && (
+                                  <span className="ml-2 rounded bg-rose-50 px-1.5 py-0.5 align-middle text-[11px] font-semibold text-rose-600">
+                                    DUE
+                                  </span>
+                                )}
+                              </p>
                             </div>
-
                             <span className="ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm tabular-nums text-violet-600">
                               {'~ '}
                               {formatDueMd(row.dueTime ?? row.endTime)}
                             </span>
                           </div>
-                        </div>
+                        </Link>
                       )
                     })}
                 </div>

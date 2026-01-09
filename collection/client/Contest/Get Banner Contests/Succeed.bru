@@ -9,3 +9,23 @@ get {
   body: none
   auth: none
 }
+
+docs {
+  # 📘 Get Banner Contests
+
+  **GET** `/contest/banner`
+
+  Retrieve banner contest IDs for display purposes.
+
+  베너에 표시할 대회 ID를 조회합니다.
+
+  이 API는 메인 페이지 베너에 표시할 대회를 결정하기 위해 다음 두 가지 대회 ID를 반환합니다.
+
+  1. **fastestUpcomingContestId**
+     - 시작 시간이 가장 가까운 예정된 대회의 ID
+
+  2. **mostRegisteredId**
+     - 참가자 수가 가장 많은 예정된 대회의 ID
+
+  두 대회 모두 시작 시간(`startTime`)이 현재 시간보다 미래인 대회 중에서 선택됩니다.
+}

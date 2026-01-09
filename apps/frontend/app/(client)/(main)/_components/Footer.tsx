@@ -11,7 +11,7 @@ import { toast } from 'sonner'
 export function Footer() {
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText('skkuding@gmail.com')
+      await navigator.clipboard.writeText('skkucodingplatform@gmail.com')
       console.log('clipboard successfully set')
       toast.success('Email Copied!')
     } catch (err) {

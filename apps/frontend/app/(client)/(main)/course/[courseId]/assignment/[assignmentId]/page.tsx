@@ -4,13 +4,10 @@ import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
-import { CountdownStatus } from '@/components/CountdownStatus'
-import { DurationDisplay } from '@/components/DurationDisplay'
+import { AssignmentStatus } from '@/components/AssignmentStatus'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
-import errorImage from '@/public/logos/error.webp'
 import { useQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import { use } from 'react'
 import { ProblemCard } from '../../_components/ProblemCard'
 import { columns, problemColumns } from './_components/Columns'
@@ -25,74 +22,21 @@ interface AssignmentDetailProps {
 
 export default function AssignmentDetail(props: AssignmentDetailProps) {
   const params = use(props.params)
-  const assignmentId = Number(params.assignmentId)
-  const courseId = Number(params.courseId)
+  const { assignmentId, courseId } = params
 
-  const { data: assignment, isFetched: assignmentFetched } = useQuery(
+  const { data: assignment } = useQuery(
     assignmentQueries.single({ assignmentId })
   )
 
   const { data: record } = useQuery(assignmentQueries.record({ assignmentId }))
 
-  const { data: submissions } = useQuery({
-    ...assignmentSubmissionQueries.summary({
-      assignmentId: (assignment?.id as number) ?? 0
-    }),
-    enabled: Boolean(assignment?.id)
-  })
-
-  const {
-    data: problems,
-    isError: problemsIsError,
-    isFetched: problemsFetched
-  } = useQuery(
-    assignmentProblemQueries.list({ assignmentId, groupId: courseId })
+  const { data: submissions } = useQuery(
+    assignmentSubmissionQueries.summary({ assignmentId: assignment?.id ?? 0 })
   )
 
-  const invalidId = !Number.isFinite(assignmentId) || !Number.isFinite(courseId)
-
-  if (invalidId) {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
-        <Image
-          src={errorImage}
-          alt="Error"
-          className="mx-auto block h-auto max-w-full"
-        />
-        <p className="mt-4 text-[20px] font-semibold text-neutral-700">
-          This assignment is unavailable.
-          <br />
-          Please check the URL or try again later.
-        </p>
-      </div>
-    )
-  }
-
-  if (!assignmentFetched || !problemsFetched) {
-    return null
-  }
-
-  const notFound = !assignment
-  const wrongCourseByProblem = problemsIsError
-
-  const shouldShowError = notFound || wrongCourseByProblem
-
-  if (shouldShowError) {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
-        <Image
-          src={errorImage}
-          alt="Error"
-          className="mx-auto block h-auto max-w-full"
-        />
-        <p className="mt-4 text-[20px] font-semibold text-neutral-700">
-          This assignment is unavailable.
-          <br />
-          Please check the URL or try again later.
-        </p>
-      </div>
-    )
-  }
+  const { data: problems } = useQuery(
+    assignmentProblemQueries.list({ assignmentId, groupId: courseId })
+  )
 
   return (
     assignment && (
@@ -105,32 +49,22 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
             </p>
             {record && <TotalScoreLabel record={record} />}
           </div>
-          <div className="flex flex-shrink-0 flex-col gap-[6px]">
-            <CountdownStatus
-              showText={true}
-              startTime={assignment.startTime}
-              baseTime={assignment.dueTime ?? assignment.endTime}
-            />
-            <DurationDisplay
-              title="visible"
-              startTime={assignment.startTime}
-              endTime={assignment.endTime}
-            />
-          </div>
-        </div>
-
-        <Separator className="my-0" />
-
-        <div className="flex flex-col gap-[30px]">
-          <p className="text-2xl font-semibold">DESCRIPTION</p>
-          <KatexContent
-            content={assignment.description}
-            classname="text-[#7F7F7F] font-normal text-base"
+          <AssignmentStatus
+            startTime={assignment.startTime}
+            dueTime={assignment.dueTime ?? assignment.endTime}
           />
         </div>
-
         <Separator className="my-0" />
-
+        <div className="flex flex-col gap-[30px]">
+          <p className="text-2xl font-semibold">DESCRIPTION</p>
+          {assignment && (
+            <KatexContent
+              content={assignment.description}
+              classname="text-[#7F7F7F] font-normal text-base"
+            />
+          )}
+        </div>
+        <Separator className="my-0" />
         {problems && (
           <div>
             <p className="mb-[16px] text-2xl font-semibold">PROBLEM(S)</p>
@@ -141,15 +75,17 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
                 <>
                   <span>Submit</span>
                   <span className="text-primary">
-                    {submissions?.filter((s) => s.submission !== null).length ??
-                      0}
+                    {
+                      submissions?.filter(
+                        (submission) => submission.submission !== null
+                      ).length
+                    }
                   </span>
                 </>
               )}
             </div>
           </div>
         )}
-
         {!(record && submissions) && problems && (
           <div className="hidden lg:block">
             <DataTable
@@ -167,9 +103,9 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
             />
           </div>
         )}
-
         {record && submissions && (
           <>
+            {/* Desktop Table View */}
             <div className="hidden lg:block">
               <DataTable
                 data={record.problems}
@@ -186,6 +122,7 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
               />
             </div>
 
+            {/* Mobile Card View */}
             <div className="lg:hidden">
               <div className="space-y-3">
                 {record.problems.map((problem, index) => (

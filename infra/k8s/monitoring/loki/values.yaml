@@ -13,10 +13,10 @@ loki:
   # could not find way to inject env variables with helm chart
   # need to reference minio access key and secret
   # instead, we will use the default minio provided by this chart
-  storage:
-    bucketNames:
-      chunks: loki
-      ruler: loki
+  # storage:
+  #   bucketNames:
+  #     chunks: loki
+  #     ruler: loki
   #   type: s3
   #   s3:
   #     endpoint: http://minio.monitoring-minio.svc.cluster.local:9000

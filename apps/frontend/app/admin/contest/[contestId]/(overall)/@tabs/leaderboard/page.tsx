@@ -76,7 +76,7 @@ export default function ContestLeaderBoard() {
 
   useEffect(() => {
     setProblemSize(
-      contestLeaderboard?.leaderboard.length
+      contestLeaderboard
         ? contestLeaderboard.leaderboard[0].problemRecords.length
         : 0
     )

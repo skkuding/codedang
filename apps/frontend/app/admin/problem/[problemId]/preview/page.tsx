@@ -49,7 +49,7 @@ export default function Page(props: PageProps) {
         </div>
       ) : (
         <>
-          <header className="bg-editor-background-2 flex h-12 items-center justify-between px-6">
+          <header className="flex h-12 items-center justify-between bg-slate-900 px-6">
             <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
               <Link href="/">
                 <Image src={codedangLogo} alt="코드당" width={33} />

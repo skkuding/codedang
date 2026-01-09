@@ -3,46 +3,31 @@ kind: Application
 metadata:
   name: tempo
   namespace: argocd
+  labels:
+    app.kubernetes.io/environment: production
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  goTemplate: true
-  goTemplateOptions: ['missingkey=error']
-  generators:
-    - list:
-        elements:
-          - env: stage
-            branch: main
-          - env: production
-            branch: release
-  template:
-    metadata:
-      name: 'tempo-{{.env}}'
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
-      labels:
-        app.kubernetes.io/environment: '{{.env}}'
-    spec:
-      project: default
-      sources:
-        - repoURL: https://grafana.github.io/helm-charts
-          chart: tempo
-          targetRevision: 1.24.0
-          helm:
-            releaseName: tempo
-            valueFiles:
-              - $codedang/infra/k8s/monitoring/tempo/values.yaml
-        - repoURL: https://github.com/skkuding/codedang
-          targetRevision: '{{.branch}}'
-          ref: codedang
-      destination:
-        name: '{{.env}}'
-        namespace: monitoring-tempo
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-          - PrunePropagationPolicy=foreground
-          - ServerSideApply=true # avoid "CustomResourceDefinition ... is invalid: metadata.annotations: Too long" issue
+  project: default
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: tempo
+      targetRevision: 1.23.3
+      helm:
+        releaseName: tempo
+        valueFiles:
+          - $codedang/infra/k8s/monitoring/tempo/values.yaml
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: main
+      ref: codedang
+  destination:
+    name: production
+    namespace: monitoring-tempo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - ServerSideApply=true # avoid "CustomResourceDefinition ... is invalid: metadata.annotations: Too long" issue

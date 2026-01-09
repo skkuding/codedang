@@ -101,13 +101,13 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
   const qna = realSize >= 1024 ? <p>Q&A</p> : <p className="text-xs">Q&A</p>
 
   return (
-    <div className="border-line mb-[60px] flex h-[60px] w-full rounded-full border border-[1.5px] border-solid bg-white">
+    <div className="mb-16 flex h-[60px] w-full rounded-full border border-solid border-[#80808040] bg-white">
       <Link
         href={`/admin/contest/${id}/leaderboard`}
         className={cn(
-          'text-color-neutral-50 flex h-full w-1/5 items-center justify-center rounded-full bg-white text-lg font-medium leading-[25.2px] tracking-[-0.54px]',
+          'flex h-full w-1/5 items-center justify-center rounded-full text-lg font-medium',
           isCurrentTab('leaderboard') &&
-            '!text-primary !border-primary border-[1.5px] border-solid'
+            'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
         <div>{leaderBoard}</div>
@@ -115,9 +115,9 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
       <Link
         href={`/admin/contest/${id}/submission`}
         className={cn(
-          'text-color-neutral-50 flex h-full w-1/5 items-center justify-center rounded-full bg-white text-lg font-medium leading-[25.2px] tracking-[-0.54px]',
+          'flex h-full w-1/5 items-center justify-center rounded-full text-lg font-medium',
           isCurrentTab('submission') &&
-            '!text-primary !border-primary border-[1.5px] border-solid'
+            'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
         <div>{allSubmission}</div>
@@ -125,9 +125,9 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
       <Link
         href={`/admin/contest/${id}/announcement`}
         className={cn(
-          'text-color-neutral-50 flex h-full w-1/5 items-center justify-center rounded-full bg-white text-lg font-medium leading-[25.2px] tracking-[-0.54px]',
+          'flex h-full w-1/5 items-center justify-center rounded-full text-lg font-medium',
           isCurrentTab('announcement') &&
-            '!text-primary !border-primary border-[1.5px] border-solid'
+            'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
         <div>{announcement}</div>
@@ -135,9 +135,9 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
       <Link
         href={`/admin/contest/${id}/statistics`}
         className={cn(
-          'text-color-neutral-50 flex h-full w-1/5 items-center justify-center rounded-full bg-white text-lg font-medium leading-[25.2px] tracking-[-0.54px]',
+          'flex h-full w-1/5 items-center justify-center rounded-full text-lg font-medium',
           isCurrentTab('statistics') &&
-            '!text-primary !border-primary border-[1.5px] border-solid'
+            'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
         <div>{statistics}</div>
@@ -145,9 +145,9 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
       <Link
         href={`/admin/contest/${id}/qna`}
         className={cn(
-          'text-color-neutral-50 flex h-full w-1/5 items-center justify-center rounded-full bg-white text-lg font-medium leading-[25.2px] tracking-[-0.54px]',
+          'flex h-full w-1/5 items-center justify-center rounded-full text-lg font-medium',
           isCurrentTab('qna') &&
-            '!text-primary !border-primary border-[1.5px] border-solid'
+            'text-primary border-primary border-2 border-solid bg-white font-semibold'
         )}
       >
         <div>{qna}</div>

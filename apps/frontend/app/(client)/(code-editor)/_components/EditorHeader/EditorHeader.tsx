@@ -486,7 +486,7 @@ export function EditorHeader({
     setIsLanguageModalOpen(false)
   }
   return (
-    <div className="bg-editor-background-2 flex shrink-0 items-center justify-between border-b border-b-slate-700 px-6">
+    <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-[#222939] px-6">
       <div>
         <Select onValueChange={handleLanguageChange} value={language}>
           <SelectTrigger className="focus:outline-hidden h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:ring-0 focus:ring-offset-0">
@@ -524,9 +524,8 @@ export function EditorHeader({
       </div>
       <div className="flex items-center gap-3">
         <Button
-          size="editor"
-          variant="editor"
-          className="bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
+          size="icon"
+          className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
           onClick={() => setIsResetModalOpen(true)}
         >
           <BsTrash3 size={17} />
@@ -554,9 +553,8 @@ export function EditorHeader({
             <Tooltip>
               <TooltipTrigger>
                 <Button
-                  size="editor"
-                  variant="editor"
-                  className="border-none bg-[#D7E5FE] text-[#484C4D] hover:bg-[#c6d3ea]"
+                  variant="secondary"
+                  className="h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]"
                   onClick={run}
                 >
                   <IoPlayCircleOutline size={22} />
@@ -572,9 +570,8 @@ export function EditorHeader({
           <Tooltip>
             <TooltipTrigger>
               <Button
-                size="editor"
-                variant="editor"
-                className="bg-[#fafafa] text-[#484C4D] hover:bg-[#e1e1e1]"
+                size="icon"
+                className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-[#fafafa] font-medium text-[#484C4D] hover:bg-[#e1e1e1]"
                 onClick={saveCode}
               >
                 <Save className="stroke-[1.3]" size={22} />
@@ -597,9 +594,7 @@ export function EditorHeader({
           <Tooltip>
             <TooltipTrigger>
               <Button
-                size="editor"
-                variant="editor"
-                className="bg-primary"
+                className="h-8 shrink-0 gap-1 rounded-[4px] px-2 font-normal"
                 disabled={loading}
                 onClick={submit}
               >

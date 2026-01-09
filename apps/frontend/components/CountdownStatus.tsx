@@ -1,6 +1,5 @@
 'use client'
 
-import { DurationDisplay } from '@/components/DurationDisplay'
 import { capitalizeFirstLetter, cn } from '@/libs/utils'
 import clockIcon from '@/public/icons/clock.svg'
 import dayjs from 'dayjs'
@@ -14,22 +13,18 @@ import { toast } from 'sonner'
 dayjs.extend(duration)
 
 interface CountdownStatusProps {
-  showText?: boolean
   showIcon?: boolean
   showTarget?: boolean
   inEditor?: boolean
   textStyle?: string
-  startTime?: Date
   baseTime: Date
   target?: string
 }
 
 export function CountdownStatus({
   showIcon = true,
-  showText = false,
   showTarget = true,
   inEditor = false,
-  startTime,
   baseTime,
   target,
   textStyle
@@ -105,16 +100,6 @@ export function CountdownStatus({
   }, [updateStatus])
 
   useInterval(updateStatus, 1000)
-
-  if (showText) {
-    return (
-      <DurationDisplay
-        startTime={startTime}
-        endTime={baseTime}
-        title="duration"
-      />
-    )
-  }
 
   return (
     <div

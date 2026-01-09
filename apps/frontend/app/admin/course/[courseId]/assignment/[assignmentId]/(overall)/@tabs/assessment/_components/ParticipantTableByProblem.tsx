@@ -20,29 +20,31 @@ import { REJUDGE_ASSIGNMENT_PROBLEM } from '@/graphql/submission/mutations'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import { RejudgeMode } from '@generated/graphql'
 import dayjs from 'dayjs'
-import { useParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
 import { createColumns } from './ColumnsByProblem'
 import { ProblemSelectDropdown } from './DataTableProblemFilterSingle'
 
-export function ParticipantTableByProblem() {
-  const { courseId, assignmentId } = useParams()
+interface ParticipantTableProps {
+  courseId: number
+  assignmentId: number
+}
+
+export function ParticipantTableByProblem({
+  courseId,
+  assignmentId
+}: ParticipantTableProps) {
   const [rejudge] = useMutation(REJUDGE_ASSIGNMENT_PROBLEM)
   const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
-      groupId: Number(courseId),
-      assignmentId: Number(assignmentId)
+      groupId: courseId,
+      assignmentId
     }
   }).data?.getAssignment
 
   const summaries = useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
-    variables: {
-      groupId: Number(courseId),
-      assignmentId: Number(assignmentId),
-      take: 300
-    }
+    variables: { groupId: courseId, assignmentId, take: 300 }
   })
   const { refetch: refetchSummaries } = summaries
   const summariesData = summaries.data.getAssignmentScoreSummaries.map(
@@ -53,7 +55,7 @@ export function ParticipantTableByProblem() {
   )
 
   const problems = useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {
-    variables: { groupId: Number(courseId), assignmentId: Number(assignmentId) }
+    variables: { groupId: courseId, assignmentId }
   })
 
   const problemData = problems.data.getAssignmentProblems
@@ -73,9 +75,9 @@ export function ParticipantTableByProblem() {
     try {
       await rejudge({
         variables: {
-          groupId: Number(courseId),
+          groupId: courseId,
           input: {
-            assignmentId: Number(assignmentId),
+            assignmentId,
             problemId: selectedPid,
             mode: RejudgeMode.CreateNew
           }
@@ -97,11 +99,7 @@ export function ParticipantTableByProblem() {
 
   const selectedPid = selectedProblemId ?? problemData?.[0]?.problemId
   const tcResults = useSuspenseQuery(GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS, {
-    variables: {
-      groupId: Number(courseId),
-      assignmentId: Number(assignmentId),
-      problemId: selectedPid
-    },
+    variables: { groupId: courseId, assignmentId, problemId: selectedPid },
     fetchPolicy: 'no-cache',
     returnPartialData: false,
     errorPolicy: 'all'
@@ -219,8 +217,9 @@ export function ParticipantTableByProblem() {
         columns={createColumns(
           problemData,
           selectedPid,
-          String(courseId),
-          String(assignmentId),
+          courseId,
+          assignmentId,
+          courseId,
           isAssignmentFinished
         )}
         enablePagination={false}
@@ -246,7 +245,7 @@ export function ParticipantTableByProblem() {
           columndId="studentId"
           placeholder="Search Student Id"
         />
-        <DataTable headerStyle={{ testcases: 'w-1 min-w-[75px]' }} />
+        <DataTable />
       </DataTableRoot>
     </div>
   )
@@ -256,7 +255,7 @@ export function ParticipantTableFallback() {
   return (
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
-      <DataTableFallback columns={createColumns([], null, '0', '0', true)} />
+      <DataTableFallback columns={createColumns([], null, 0, 0, 0, true)} />
     </div>
   )
 }

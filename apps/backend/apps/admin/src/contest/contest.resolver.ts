@@ -1,4 +1,3 @@
-import { ParseArrayPipe } from '@nestjs/common'
 import {
   Args,
   Context,
@@ -11,6 +10,7 @@ import {
 } from '@nestjs/graphql'
 import {
   Contest,
+  ContestProblem,
   ContestQnA,
   ContestQnAComment,
   User,
@@ -27,15 +27,9 @@ import {
   IDValidationPipe,
   RequiredIntPipe
 } from '@libs/pipe'
-import { ContestProblem } from '@admin/@generated'
-import { ProblemWithIsVisible } from '@admin/problem/model/problem.output'
-import { ProblemService } from '@admin/problem/services'
 import { UserService } from '@admin/user/user.service'
-import { ContestProblemService } from './contest-problem.service'
-import { ContestQnAService } from './contest-qna.service'
 import { ContestService } from './contest.service'
 import { ContestLeaderboard } from './model/contest-leaderboard.model'
-import { ContestParticipant } from './model/contest-participants.model'
 import { GetContestQnAsFilterInput } from './model/contest-qna.input'
 import { ContestQnAWithIsRead } from './model/contest-qna.model'
 import { ContestSubmissionSummaryForUser } from './model/contest-submission-summary-for-user.model'
@@ -102,6 +96,36 @@ export class ContestResolver {
     return await this.contestService.deleteContest(contestId)
   }
 
+  @Mutation(() => [ContestProblem])
+  async importProblemsToContest(
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
+    problemIdsWithScore: ProblemScoreInput[]
+  ) {
+    return await this.contestService.importProblemsToContest(
+      contestId,
+      problemIdsWithScore
+    )
+  }
+
+  @Mutation(() => [ContestProblem])
+  async removeProblemsFromContest(
+    @Args('contestId', { type: () => Int })
+    contestId: number,
+    @Args('problemIds', { type: () => [Int] }) problemIds: number[]
+  ) {
+    return await this.contestService.removeProblemsFromContest(
+      contestId,
+      problemIds
+    )
+  }
+
+  /**
+   * 특정 Contest의 Contest Admin / Manager가 참가한 User를 참가 취소합니다.
+   * @param contestId 대회 Id
+   * @param userId 참가 취소할 User의 Id
+   * @param req AuthenticatedRequest
+   */
   @Mutation(() => UserContest)
   @UseDisableContestRolesGuard()
   async removeUserFromContest(
@@ -118,6 +142,12 @@ export class ContestResolver {
     )
   }
 
+  /**
+   * 특정 User의 Contest 제출 내용 요약 정보를 가져옵니다.
+   *
+   * Contest Overall 페이지에서 특정 유저를 선택했을 때 사용
+   * @see https://github.com/skkuding/codedang/pull/1894
+   */
   @Query(() => ContestSubmissionSummaryForUser)
   async getContestSubmissionSummaryByUserId(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
@@ -142,6 +172,12 @@ export class ContestResolver {
     })
   }
 
+  /**
+   * Contest에 참여한 User와, 점수 요약을 함께 불러옵니다.
+   *
+   * Contest Overall 페이지의 Participants 탭의 정보
+   * @see https://github.com/skkuding/codedang/pull/2029
+   */
   @Query(() => [UserContestScoreSummaryWithUserInfo])
   async getContestScoreSummaries(
     @Args('contestId', { type: () => Int, nullable: false }, IDValidationPipe)
@@ -197,91 +233,12 @@ export class ContestResolver {
     }
     return await this.userService.getUser(createdById)
   }
-
-  @Query(() => [ContestParticipant])
-  async getContestParticipants(
-    @Args('contestId', { type: () => Int }) contestId: number
-  ) {
-    return await this.contestService.getContestParticipants(contestId)
-  }
-}
-
-@Resolver(() => ContestProblem)
-@UseContestRolesGuard(ContestRole.Reviewer)
-export class ContestProblemResolver {
-  constructor(
-    private readonly contestProblemService: ContestProblemService,
-    private readonly problemService: ProblemService
-  ) {}
-
-  @Query(() => [ContestProblem], { name: 'getContestProblems' })
-  async getContestProblems(
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
-    contestId: number
-  ) {
-    return await this.contestProblemService.getContestProblems(contestId)
-  }
-
-  @Mutation(() => [ContestProblem])
-  async importProblemsToContest(
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
-    problemIdsWithScore: ProblemScoreInput[]
-  ) {
-    return await this.contestProblemService.importProblemsToContest(
-      contestId,
-      problemIdsWithScore
-    )
-  }
-
-  @Mutation(() => [ContestProblem])
-  async removeProblemsFromContest(
-    @Args('contestId', { type: () => Int })
-    contestId: number,
-    @Args('problemIds', { type: () => [Int] }) problemIds: number[]
-  ) {
-    return await this.contestProblemService.removeProblemsFromContest(
-      contestId,
-      problemIds
-    )
-  }
-
-  @Mutation(() => [ContestProblem])
-  @UseContestRolesGuard(ContestRole.Manager)
-  async updateContestProblemsScore(
-    @Args('contestId', { type: () => Int }) contestId: number,
-    @Args('problemIdsWithScore', { type: () => [ProblemScoreInput] })
-    problemIdsWithScore: ProblemScoreInput[]
-  ) {
-    return await this.contestProblemService.updateContestProblemsScore(
-      contestId,
-      problemIdsWithScore
-    )
-  }
-
-  @Mutation(() => [ContestProblem])
-  @UseContestRolesGuard(ContestRole.Manager)
-  async updateContestProblemsOrder(
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
-    contestId: number,
-    @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
-  ) {
-    return await this.contestProblemService.updateContestProblemsOrder(
-      contestId,
-      orders
-    )
-  }
-
-  @ResolveField('problem', () => ProblemWithIsVisible)
-  async getProblem(@Parent() contestProblem: ContestProblem) {
-    return await this.problemService.getProblemById(contestProblem.problemId)
-  }
 }
 
 @Resolver(() => ContestQnA)
 @UseContestRolesGuard(ContestRole.Manager)
 export class ContestQnAResolver {
-  constructor(private readonly contestQnAService: ContestQnAService) {}
+  constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [ContestQnAWithIsRead])
   async getContestQnAs(
@@ -298,7 +255,7 @@ export class ContestQnAResolver {
     @Args('filter', { type: () => GetContestQnAsFilterInput, nullable: true })
     filter?: GetContestQnAsFilterInput
   ) {
-    return await this.contestQnAService.getContestQnAs(
+    return await this.contestService.getContestQnAs(
       contestId,
       req.user.id,
       take,
@@ -313,7 +270,7 @@ export class ContestQnAResolver {
     @Context('req') req: AuthenticatedRequest,
     @Args('order', { type: () => Int }, IDValidationPipe) order: number
   ) {
-    return await this.contestQnAService.getContestQnA(
+    return await this.contestService.getContestQnA(
       contestId,
       req.user.id,
       order
@@ -325,7 +282,7 @@ export class ContestQnAResolver {
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
     @Args('order', { type: () => Int }, IDValidationPipe) order: number
   ) {
-    return await this.contestQnAService.deleteContestQnA(contestId, order)
+    return await this.contestService.deleteContestQnA(contestId, order)
   }
 
   @Mutation(() => ContestQnAComment)
@@ -335,7 +292,7 @@ export class ContestQnAResolver {
     @Args('order', { type: () => Int }, IDValidationPipe) order: number,
     @Args('content', { type: () => String }) content: string
   ) {
-    return await this.contestQnAService.createContestQnAComment(
+    return await this.contestService.createContestQnAComment(
       contestId,
       req.user.id,
       order,
@@ -350,7 +307,7 @@ export class ContestQnAResolver {
     @Args('commentOrder', { type: () => Int }, IDValidationPipe)
     commentOrder: number
   ) {
-    return await this.contestQnAService.deleteContestQnAComment(
+    return await this.contestService.deleteContestQnAComment(
       contestId,
       qnAOrder,
       commentOrder
@@ -363,7 +320,7 @@ export class ContestQnAResolver {
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
     @Args('qnAOrder', { type: () => Int }, IDValidationPipe) qnAOrder: number
   ) {
-    return await this.contestQnAService.toggleContestQnAResolved(
+    return await this.contestService.toggleContestQnAResolved(
       contestId,
       qnAOrder
     )

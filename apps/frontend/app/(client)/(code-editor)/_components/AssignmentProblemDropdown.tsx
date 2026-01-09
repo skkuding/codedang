@@ -6,43 +6,34 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
-import { cn, convertToLetter } from '@/libs/utils'
+import { cn, convertToLetter, isHttpError } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
 import type { ProblemDetail } from '@/types/type'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import { FaSortDown } from 'react-icons/fa'
 import { assignmentProblemQueries } from '../../_libs/queries/assignmentProblem'
 
 interface AssignmentProblemDropdownProps {
   problem: Required<ProblemDetail>
-  isExercise?: boolean
+  assignmentId: number
+  courseId: number
 }
 
 export function AssignmentProblemDropdown({
   problem,
-  isExercise = false
+  assignmentId,
+  courseId
 }: AssignmentProblemDropdownProps) {
-  const params = useParams<{
-    assignmentId?: string
-    exerciseId?: string
-    courseId: string
-  }>()
-
-  const courseId = Number(params.courseId)
-  const id = isExercise
-    ? Number(params.exerciseId)
-    : Number(params.assignmentId)
-
-  const problems = useSuspenseQuery({
+  const { data: assignmentProblem, error } = useQuery({
     ...assignmentProblemQueries.list({
-      assignmentId: id,
+      assignmentId,
       take: 20,
       groupId: courseId
-    })
-  }).data.data
+    }),
+    throwOnError: false
+  })
 
   return (
     <DropdownMenu>
@@ -50,30 +41,37 @@ export function AssignmentProblemDropdown({
         <h1>{`${convertToLetter(problem.order)}. ${problem.title}`}</h1>
         <FaSortDown />
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-editor-background-1">
-        {problems.map((p) => (
-          <Link
-            key={p.id}
-            href={
-              `/course/${courseId}/${isExercise ? 'exercise' : 'assignment'}/${id}/problem/${p.id}` as const
-            }
-          >
-            <DropdownMenuItem
-              className={cn(
-                'flex justify-between text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white',
-                problem.id === p.id &&
-                  'text-primary-light focus:text-primary-light'
-              )}
-            >
-              {`${convertToLetter(p.order)}. ${p.title}`}
-              {p.submissionTime && (
-                <div className="flex items-center justify-center pl-2">
-                  <Image src={checkIcon} alt="check" width={16} height={16} />
-                </div>
-              )}
-            </DropdownMenuItem>
-          </Link>
-        ))}
+      <DropdownMenuContent className="border-slate-700 bg-slate-900">
+        {error && isHttpError(error)
+          ? 'Failed to load the assignment problem'
+          : assignmentProblem?.data.map((p) => (
+              <Link
+                key={p.id}
+                href={
+                  `/course/${courseId}/assignment/${assignmentId}/problem/${p.id}` as const
+                }
+              >
+                <DropdownMenuItem
+                  className={cn(
+                    'flex justify-between text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white',
+                    problem.id === p.id &&
+                      'text-primary-light focus:text-primary-light'
+                  )}
+                >
+                  {`${convertToLetter(p.order)}. ${p.title}`}
+                  {p.submissionTime && (
+                    <div className="flex items-center justify-center pl-2">
+                      <Image
+                        src={checkIcon}
+                        alt="check"
+                        width={16}
+                        height={16}
+                      />
+                    </div>
+                  )}
+                </DropdownMenuItem>
+              </Link>
+            ))}
       </DropdownMenuContent>
     </DropdownMenu>
   )

@@ -1,6 +1,5 @@
 'use client'
 
-import { DurationDisplay } from '@/components//DurationDisplay'
 import { cn } from '@/libs/utils'
 import clockIcon from '@/public/icons/clock.svg'
 import type { ContestStatus } from '@/types/type'
@@ -16,7 +15,6 @@ import { toast } from 'sonner'
 dayjs.extend(duration)
 
 interface AdminTimeDiffProps {
-  showText?: boolean
   contest: GetContestQuery['getContest'] | undefined
   textStyle: string
   inContestEditor: boolean
@@ -25,8 +23,7 @@ interface AdminTimeDiffProps {
 export function AdminContestStatusTimeDiff({
   contest,
   textStyle,
-  inContestEditor,
-  showText = false
+  inContestEditor
 }: AdminTimeDiffProps) {
   const router = useRouter()
   const { problemId } = useParams()
@@ -93,16 +90,6 @@ export function AdminContestStatusTimeDiff({
 
   if (inContestEditor && contestStatus === 'finished') {
     router.push(`/contest/${contest?.id}/finished/problem/${problemId}`)
-  }
-
-  if (showText) {
-    return (
-      <DurationDisplay
-        startTime={contest?.startTime}
-        endTime={contest?.endTime}
-        title="duration"
-      />
-    )
   }
 
   return (

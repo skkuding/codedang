@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: minio-ingress
+  name: minio-console-ingress
   namespace: minio
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-dns01
@@ -11,22 +11,9 @@ spec:
   tls:
     - hosts:
         - minio.stage.codedang.com
-      secretName: minio-api-tls
-    - hosts:
-        - minio-console.stage.codedang.com
       secretName: minio-console-tls
   rules:
     - host: minio.stage.codedang.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: minio
-                port:
-                  number: 80
-    - host: minio-console.stage.codedang.com
       http:
         paths:
           - path: /

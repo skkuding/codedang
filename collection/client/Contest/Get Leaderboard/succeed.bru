@@ -1,0 +1,80 @@
+meta {
+  name: succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/contest/:id/leaderboard
+  body: none
+  auth: none
+}
+
+params:query {
+  ~search: user
+}
+
+params:path {
+  id: 1
+}
+
+docs {
+  # Get Leaderboard
+  contest의 리더보드를 return합니다.
+
+  ## Query
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |search|string|검색하고자하는 string을 넣으면 해당 문자열이 포함된 유저명들만을 return합니다|
+
+  ## Return
+  ## 🔹 Response Format
+
+  ```json
+  {
+    "contestRole": "Manager",
+    "maxScore": 60,
+    "leaderboard": [
+      {
+        "user": {
+          "username": "super"
+        },
+        "totalScore": 0,
+        "totalPenalty": 0,
+        "problemRecords": [
+          {
+            "order": 0,
+            "problemId": 1,
+            "penalty": 0,
+            "submissionCount": 0,
+            "score": 0,
+            "isFrozen": false,
+            "isFirstSolver": false
+          }
+        ],
+        "rank": 1
+      }
+    ]
+  }
+  ```
+
+  ## 🔹 Response Fields
+
+  | 이름 | 타입 | 설명 |
+  |------------|--------|----------------------------|
+  | `contestRole` | `string` | 사용자의 대회 role (Admin, Manager, Reviewer, Participant, null) |
+  | `maxScore` | `number` | 대회에서 획득 가능한 최대 점수 |
+  | `leaderboard` | `array` | 대회의 리더보드 |
+  | `leaderboard[].user` | `object` | 참가자 정보 |
+  | `leaderboard[].user.username` | `string` | 참가자의 사용자 이름 |
+  | `leaderboard[].totalScore` | `number` | 참가자의 총 점수 |
+  | `leaderboard[].totalPenalty` | `number` | 참가자의 총 패널티 |
+  | `leaderboard[].problemRecords` | `array` | 참가자가 풀이한 문제 목록 |
+  | `leaderboard[].problemRecords[].order` | `number` | 대회 내 문제의 순서 |
+  | `leaderboard[].problemRecords[].problemId` | `number` | 문제의 고유 ID |
+  | `leaderboard[].problemRecords[].penalty` | `number` | 해당 문제에서 부과된 패널티 점수 |
+  | `leaderboard[].problemRecords[].submissionCount` | `number` | 해당 문제에 대한 제출 횟수 |
+  | `leaderboard[].problemRecords[].score` | `number` | 해당 문제에서 획득한 점수 |
+  | `leaderboard[].problemRecords[].isFrozen` | `boolean` | 점수 혹은 제출 횟수가 프리즈(freeze) 시간 이후에 변했는지 여부 |
+  | `leaderboard[].problemRecords[].isFirstSolver` | `boolean` | 해당 문제를 최초로 해결한 참가자인지 여부 |
+}

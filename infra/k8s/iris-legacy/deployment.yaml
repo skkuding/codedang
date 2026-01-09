@@ -4,7 +4,7 @@ metadata:
   name: iris
   namespace: iris-legacy
 spec:
-  replicas: 0
+  replicas: 5
   selector:
     matchLabels:
       app: iris

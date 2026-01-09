@@ -24,6 +24,7 @@ import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import { useSidePanelTabStore } from '@/stores/editorTabs'
 import type { ProblemDetail, Contest } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
+import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
@@ -173,19 +174,25 @@ export function EditorMainResizablePanel({
         minSize={20}
       >
         <div className="grid-rows-editor grid h-full grid-cols-1">
-          <div className="bg-editor-background-2 flex h-full w-full items-center border-b border-slate-700 px-6">
-            <Tabs value={tabValue}>
-              <TabsList variant="editor">
-                <Link replace href={`${base}/problem/${problem.id}` as const}>
-                  <TabsTrigger value="Description" variant="editor">
+          <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
+            <Tabs value={tabValue} className="grow">
+              <TabsList className="rounded bg-slate-900">
+                <Link replace href={`${base}/problem/${problem.id}` as Route}>
+                  <TabsTrigger
+                    value="Description"
+                    className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
+                  >
                     Description
                   </TabsTrigger>
                 </Link>
                 <Link
                   replace
-                  href={`${base}/problem/${problem.id}/submission` as const}
+                  href={`${base}/problem/${problem.id}/submission` as Route}
                 >
-                  <TabsTrigger value="Submission" variant="editor">
+                  <TabsTrigger
+                    value="Submission"
+                    className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
+                  >
                     Submissions
                   </TabsTrigger>
                 </Link>
@@ -194,9 +201,12 @@ export function EditorMainResizablePanel({
                   problem.solution.length > 0 && (
                     <Link
                       replace
-                      href={`${base}/problem/${problem.id}/solution` as const}
+                      href={`${base}/problem/${problem.id}/solution` as Route}
                     >
-                      <TabsTrigger value="Solution" variant="editor">
+                      <TabsTrigger
+                        value="Solution"
+                        className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
+                      >
                         Solution
                       </TabsTrigger>
                     </Link>
@@ -205,10 +215,13 @@ export function EditorMainResizablePanel({
                   <Link
                     replace
                     href={
-                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as const
+                      `/contest/${contestId}/problem/${problem.id}/leaderboard` as Route
                     }
                   >
-                    <TabsTrigger value="Leaderboard" variant="editor">
+                    <TabsTrigger
+                      value="Leaderboard"
+                      className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
+                    >
                       Leaderboard
                     </TabsTrigger>
                   </Link>
@@ -217,10 +230,13 @@ export function EditorMainResizablePanel({
                   <Link
                     replace
                     href={
-                      `/contest/${contestId}/problem/${problem.id}/qna` as const
+                      `/contest/${contestId}/problem/${problem.id}/qna` as Route
                     }
                   >
-                    <TabsTrigger value="Qna" variant="editor">
+                    <TabsTrigger
+                      value="Qna"
+                      className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
+                    >
                       Q&A
                     </TabsTrigger>
                   </Link>
@@ -228,47 +244,45 @@ export function EditorMainResizablePanel({
               </TabsList>
             </Tabs>
             {tabValue === 'Leaderboard' && (
-              <div className="flex w-full items-center">
-                <div className="ml-auto flex items-center gap-x-4">
-                  <LeaderboardModalDialog />
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
+              <div className="flex gap-x-4">
+                <LeaderboardModalDialog />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Image
+                        src={syncIcon}
+                        alt="Sync"
+                        className={isFrozen ? '' : 'cursor-pointer'}
+                        onClick={() => {
+                          if (!isFrozen) {
+                            triggerRefresh()
+                          }
+                        }}
+                      />
+                    </TooltipTrigger>
+                    {isFrozen && (
+                      <TooltipContent
+                        side="bottom"
+                        className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
+                      >
                         <Image
-                          src={syncIcon}
-                          alt="Sync"
-                          className={`${isFrozen ? '' : 'cursor-pointer'} ml-auto`}
-                          onClick={() => {
-                            if (!isFrozen) {
-                              triggerRefresh()
-                            }
-                          }}
+                          src={bottomCenterIcon}
+                          alt="Tooltip arrow"
+                          className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
                         />
-                      </TooltipTrigger>
-                      {isFrozen && (
-                        <TooltipContent
-                          side="bottom"
-                          className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
-                        >
-                          <Image
-                            src={bottomCenterIcon}
-                            alt="Tooltip arrow"
-                            className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
-                          />
-                          <p className="text-xs">Leaderboard is frozen</p>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
+                        <p className="text-xs">Leaderboard is frozen</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             )}
             {tabValue === 'Submission' && contestId && (
-              <div className="flex w-full gap-x-4">
+              <div className="flex gap-x-4">
                 <Image
                   src={syncIcon}
                   alt="Sync"
-                  className={'ml-auto cursor-pointer'}
+                  className={'cursor-pointer'}
                   onClick={() => {
                     isSubmissionDetail
                       ? triggerSubmissionDetailRefresh()
@@ -278,7 +292,7 @@ export function EditorMainResizablePanel({
               </div>
             )}
             {tabValue === 'Qna' && contestId && (
-              <div className="ml-auto flex gap-x-4">
+              <div className="flex gap-x-4">
                 <Image
                   src={syncIcon}
                   alt="Sync"
@@ -303,7 +317,7 @@ export function EditorMainResizablePanel({
         )}
       />
 
-      <ResizablePanel defaultSize={65} className="relative">
+      <ResizablePanel defaultSize={65} className="relative bg-[#222939]">
         <HidePanelButton
           isPanelHidden={isSidePanelHidden}
           toggleIsPanelHidden={toggleSidePanelVisibility}

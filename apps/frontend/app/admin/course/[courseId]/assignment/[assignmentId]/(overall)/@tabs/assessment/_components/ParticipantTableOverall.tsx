@@ -2,6 +2,7 @@
 
 import {
   DataTable,
+  DataTableFallback,
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
@@ -17,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/shadcn/popover'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { Switch } from '@/components/shadcn/switch'
 import {
   AUTO_FINALIZE_SCORE,
@@ -28,21 +30,27 @@ import {
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { cn } from '@/libs/utils'
-import { useMutation, useSuspenseQuery } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import dayjs from 'dayjs'
 import { Check, ChevronsUpDown } from 'lucide-react'
-import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
 import { createColumns } from './ColumnsOverall'
 
-export function ParticipantTableOverall() {
-  const { courseId, assignmentId } = useParams() // 경로에서 params 가져오기
-  const assignmentData = useSuspenseQuery(GET_ASSIGNMENT, {
+interface ParticipantTableProps {
+  groupId: number
+  assignmentId: number
+}
+
+export function ParticipantTableOverall({
+  groupId,
+  assignmentId
+}: ParticipantTableProps) {
+  const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
-      groupId: Number(courseId),
-      assignmentId: Number(assignmentId)
+      groupId,
+      assignmentId
     }
   }).data?.getAssignment
 
@@ -51,12 +59,8 @@ export function ParticipantTableOverall() {
   const [updateAssignment] = useMutation(UPDATE_ASSIGNMENT)
   const [autoFinalizeScore] = useMutation(AUTO_FINALIZE_SCORE)
 
-  const summaries = useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
-    variables: {
-      groupId: Number(courseId),
-      assignmentId: Number(assignmentId),
-      take: 300
-    }
+  const summaries = useQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
+    variables: { groupId, assignmentId, take: 300 }
   })
   const summariesData = summaries.data?.getAssignmentScoreSummaries.map(
     (item) => ({
@@ -76,8 +80,8 @@ export function ParticipantTableOverall() {
     }
   }, [summariesData?.length])
 
-  const problems = useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {
-    variables: { groupId: Number(courseId), assignmentId: Number(assignmentId) }
+  const problems = useQuery(GET_ASSIGNMENT_PROBLEMS, {
+    variables: { groupId, assignmentId }
   })
 
   const problemData = problems.data?.getAssignmentProblems
@@ -107,7 +111,7 @@ export function ParticipantTableOverall() {
 
   const fileName = assignmentTitle
     ? `${assignmentTitle.replace(/\s+/g, '_')}.csv`
-    : `course-${courseId}/assignment-${assignmentId}-participants.csv`
+    : `course-${groupId}/assignment-${assignmentId}-participants.csv`
 
   const problemList =
     problemData?.map((problem) => ({
@@ -179,9 +183,9 @@ export function ParticipantTableOverall() {
               setRevealFinalScore(checked)
               await updateAssignment({
                 variables: {
-                  groupId: Number(courseId),
+                  groupId,
                   input: {
-                    id: Number(assignmentId),
+                    id: assignmentId,
                     isFinalScoreVisible: checked
                   }
                 },
@@ -221,10 +225,7 @@ export function ParticipantTableOverall() {
               onClick={async () => {
                 try {
                   const result = await autoFinalizeScore({
-                    variables: {
-                      groupId: Number(courseId),
-                      assignmentId: Number(assignmentId)
-                    }
+                    variables: { groupId, assignmentId }
                   })
 
                   const gradedCount = result.data?.autoFinalizeScore
@@ -304,11 +305,11 @@ export function ParticipantTableOverall() {
         </div>
       </div>
       <DataTableRoot
-        data={summariesData}
+        data={summariesData || []}
         columns={createColumns(
-          problemData,
-          Number(courseId),
-          Number(assignmentId),
+          problemData || [],
+          groupId,
+          assignmentId,
           isAssignmentFinished,
           currentView,
           summaries.refetch
@@ -318,6 +319,17 @@ export function ParticipantTableOverall() {
         <DataTableSearchBar columndId="realName" placeholder="Search Name" />
         <DataTable />
       </DataTableRoot>
+    </div>
+  )
+}
+
+export function ParticipantTableFallback() {
+  return (
+    <div>
+      <Skeleton className="mb-3 h-[24px] w-2/12" />
+      <DataTableFallback
+        columns={createColumns([], 0, 0, true, 'final', () => {})}
+      />
     </div>
   )
 }

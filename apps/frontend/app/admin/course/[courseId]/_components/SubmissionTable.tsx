@@ -11,24 +11,20 @@ import { SubmissionDetailAdmin } from '@/app/admin/course/[courseId]/assignment/
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_ASSIGNMENT_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useSuspenseQuery } from '@apollo/client'
-import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { DataTableProblemFilterMini } from './DataTableProblemFilterMini'
 import { columns } from './SubmissionColumns'
 
-interface SubmissionTableProps {
-  isExercise?: boolean
-}
-
-export function SubmissionTable({ isExercise }: SubmissionTableProps) {
-  const params = useParams()
-  const courseId = Number(params.courseId)
-  const assignmentId = Number(
-    params[isExercise ? 'exerciseId' : 'assignmentId']
-  )
+export function SubmissionTable({
+  groupId,
+  assignmentId
+}: {
+  groupId: number
+  assignmentId: number
+}) {
   const { data } = useSuspenseQuery(GET_ASSIGNMENT_SUBMISSIONS, {
     variables: {
-      groupId: courseId,
+      groupId,
       input: {
         assignmentId
       },
@@ -55,7 +51,7 @@ export function SubmissionTable({ isExercise }: SubmissionTableProps) {
               Submissions
             </div>
             <DataTableProblemFilterMini
-              groupId={courseId}
+              groupId={groupId}
               assignmentId={assignmentId}
             />
           </div>

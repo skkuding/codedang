@@ -12,7 +12,6 @@ import {
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { cn, convertToLetter } from '@/libs/utils'
-import arrowBottomIcon from '@/public/icons/arrow-bottom.svg'
 import checkIcon from '@/public/icons/check-green.svg'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import { useSuspenseQuery } from '@apollo/client'
@@ -20,7 +19,7 @@ import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { FaSortDown } from 'react-icons/fa'
 
 export function AssignmentHeader() {
   const params = useParams<{
@@ -65,33 +64,22 @@ export function AssignmentHeader() {
     (p) => p.problemId === Number(problemId)
   )
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-
   return (
-    <div className="-px-1 flex items-center justify-start py-[10px] text-lg text-[#787E80]">
-      <Link href="/" className="mr-3">
-        <Image src={codedangLogo} alt="코드당" width={35} />
+    <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
+      <Link href="/">
+        <Image src={codedangLogo} alt="코드당" width={33} />
       </Link>
       <Link
         href={`/admin/course/${courseId}/assignment/${assignmentId}` as const}
       >
         {assignment.title}
       </Link>
-      <div className="border-1 border-editor-line-2 mx-3 h-5" />
       <div className="flex items-center gap-1 font-medium">
-        <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
-          <DropdownMenuTrigger className="outline-hidden flex gap-2 text-lg text-white">
+        <p className="mx-2"> / </p>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="outline-hidden flex gap-1 text-lg text-white">
             <h1>{`${convertToLetter(currentProblem?.order ?? 0)}. ${currentProblem?.problem.title}`}</h1>
-            <Image
-              src={arrowBottomIcon}
-              alt="open dropdown"
-              width={16}
-              height={16}
-              className={cn(
-                'transition-transform duration-200',
-                isDropdownOpen && 'rotate-180'
-              )}
-            />
+            <FaSortDown />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="border-slate-700 bg-slate-900">
             {sortedProblems.map((p) => (
