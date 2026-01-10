@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sumin-onboarding
+  namespace: onboarding
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: week2-restaurants
+  template:
+    metadata:
+      labels:
+        app: week2-restaurants
+        environment: stage
+    spec:
+      containers:
+        - name: week2-restaurants
+          image: clover229/week2-restaurants:latest
+          ports:
+            - containerPort: 3000
