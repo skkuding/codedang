@@ -33,3 +33,68 @@ body:json {
     ]
   }
 }
+
+docs {
+  # 📘 Submit User Test
+  **POST** `/submission/user-test?problemId:`
+  
+  Requests a test execution using usermade testcases, and stores the judging results in the cache.
+  
+  유저가 생성한 테스트케이스에 대해 Test을 요청합니다.
+  
+  채점 결과는 Cache에 저장됩니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number |   ✅    | Id of problem |
+  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "code": [
+      {
+        "id": 1,
+        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+        "locked": false
+      }
+    ],
+    "language": "Cpp",
+    "userTestcases": [
+      {
+        "id": 1,
+        "in": "1 1",
+        "out": "2"
+      }
+    ]
+  }
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `code` | array | ✅       | 제출 코드 정보 |
+  | `id` | int | ✅       | 코드의 id |
+  | `text` | string | ✅       | 소스 코드의 내용 |
+  | `locked` | boolean | ✅       | 코드의 잠금상태 여부 |
+  | `language` | string | ✅       |  제출 코드의 언어 |
+  | `userTestcases` | array | ✅       |  유저 생성 테스트 케이스 정보|
+  | `id` | int | ✅       | 테스트 케이스의 id |
+  | `in` | string | ✅       | 테스트 케이스 입력 |
+  | `out` | string | ✅       | 테스트 케이스 출력 |
+}

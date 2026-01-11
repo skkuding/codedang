@@ -13,3 +13,21 @@ get {
 script:pre-request {
   await require("./login").loginAdmin(req);
 }
+
+docs {
+  # 📘 getTestResult
+  
+  **GET** `/submission/test`
+  
+  Get latest test execution result for the given user.
+  
+  사용자의 가장 최신 테스트 제출에 대한 테스트케이스별 결과 목록을 반환합니다.
+  
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+}
