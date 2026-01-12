@@ -15,7 +15,7 @@ script:pre-request {
 }
 
 docs {
-  # 📘 getTestResult
+  # 📘 Get Test Result
   
   **GET** `/submission/test`
   
@@ -30,4 +30,30 @@ docs {
   
   ✅ Required  
   
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  [
+    {
+      "id": 1,
+      "result": "WrongAnswer",
+      "output": "1 2"
+    },
+    {
+      "id": 2,
+      "result": "Accepted",
+      "output": "1 1"
+    }
+  ]
+  
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `id` | int | ✅       | 테스트 케이스의 id |
+  | `result` | ResultStatus | ✅       | 제출 결과 |
+  | `output` | string | ✅       | 제출 출력값 |
 }
