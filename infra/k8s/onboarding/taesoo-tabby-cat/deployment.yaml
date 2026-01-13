@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taesoo-tabby-cat
+  namespace: onboarding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taesoo-tabby-cat
+  template:
+    metadata:
+      labels:
+        app: taesoo-tabby-cat
+        environment: stage
+    spec:
+      containers:
+        - name: taesoo-tabby-cat
+          image: tasoo1118/codedang-base-app:latest
+          ports:
+            - containerPort: 3000
