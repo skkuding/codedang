@@ -1800,7 +1800,7 @@ input CreateProblemInput {
   difficulty: Level!
   hint: String!
   inputDescription: String!
-  isVisible: Boolean! = true
+  isVisible: Boolean! = false
   languages: [Language!]!
   memoryLimit: Int!
   outputDescription: String!
