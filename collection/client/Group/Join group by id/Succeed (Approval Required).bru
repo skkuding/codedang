@@ -22,3 +22,50 @@ script:pre-request {
   
   // TODO: remove join request
 }
+
+docs {
+  # 📘 Join Group by ID
+  
+  **POST** `/group/:groupId/join`
+  
+  Request to join a specific group (course) by ID.
+  
+  URL param으로 전달된 `groupId`를 통해 해당 그룹(강의)에 가입을 요청합니다.
+  
+  - 입력된 `invitation` 코드가 캐시 내 해당 그룹의 코드와 일치하는지 먼저 확인합니다.
+  
+  - 그룹 설정에 따라 즉시 가입(`isJoined: true`)되거나, 승인 대기 상태`(isJoined: false`)로 전환됩니다.
+  
+  - 특정 학번 리스트가 있는 그룹의 경우, 유저의 학번이 포함되어 있어야 가입이 승인됩니다.
+  
+  - 가입 성공 시, 해당 그룹의 모든 과제 및 문제 풀이 기록(Record)이 자동 생성됩니다.
+  
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  로그인된 유저(`req.user.id`)만 가입 신청을 할 수 있습니다. 유효한 유저 인증 권한이 필요합니다.
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `invitation`  | string |      | 가입을 위한 초대 코드 |
+  
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `groupId`  | number |   ✅   | 가입하려는 Group ID |
+  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `none`
+}

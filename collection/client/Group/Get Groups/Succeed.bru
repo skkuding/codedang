@@ -10,7 +10,7 @@ get {
   auth: none
 }
 
-query {
+params:query {
   take: 5
   ~cursor: 1
 }
@@ -24,15 +24,46 @@ assert {
 }
 
 docs {
-  # Get Groups
+  # 📘 Get Groups
+  
+  **GET** `/group`
+  
+  Retrieve a list of public groups with pagination.
   
   공개된 그룹들의 정보를 가져옵니다.
   
-  ## Query
+  - 기본 그룹(`id: 1`)을 제외하고, `showOnList: true` 설정이 된 그룹만 선별합니다.
   
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |take  |Integer|가져올 그룹 개수 (default: 10)|
-  |cursor|Integer|cursor 값 다음의 ID를 가진 그룹들을 반환|
+  - 데이터베이스 조회를 통해 그룹 정보와 가입된 멤버 수(`memberNum`)를 반환합니다.
   
+  - `cursor`와 `take` 파라미터를 사용한 커서 기반 페이지네이션을 지원합니다.
+  
+  
+  ### 🔒 Authentication
+  
+  🔸 Optional 
+  `@AuthNotNeededIfPublic()`이 적용되어 있어, 로그인하지 않은 사용자도 공개된 그룹 목록을 조회할 수 있습니다.
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `take`  | Integer |   ✅   | 가져올 그룹 개수 (default: 10) |
+  | `cursor`  | Integer |      | cursor 값 다음의 ID를 가진 그룹들을 반환 |
+  
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `none`
 }
