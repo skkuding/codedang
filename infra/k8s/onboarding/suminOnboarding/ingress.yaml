@@ -7,7 +7,11 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-dns01
     traefik.ingress.kubernetes.io/redirect-entry-point: https
 spec:
-  ingressClassName: nginx
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - week2-restaurants.sumin-onboarding.stage.codedang.com
+      secretName: week2-restaurants-tls
   rules:
     - host: week2-restaurants.sumin-onboarding.stage.codedang.com
       http:
