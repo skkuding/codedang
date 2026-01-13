@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taesoo-tabby-cat
+  namespace: onboarding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taesoo-tabby-cat
+  template:
+    metadata:
+      labels:
+        app: taesoo-tabby-cat
+        environment: stage
+    spec:
+      containers:
+        - name: taesoo-tabby-cat
+          image: tasoo1118/codedang-base-app:latest
+          ports:
+            - containerPort: 3000
+
+
+# 최대한 많이 하기
+# terraform apply 할 때 조심하기
+# CONTRIBUTING.md, onboarding/README.md 적극 참고
+# PR 무조건 날려보기, Verification도 해보기
+# ArgoCD는 옵션
+# 스샷 무조건!!!

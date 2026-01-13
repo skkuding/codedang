@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: taesoo-tabby-cat
+  namespace: onboarding
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: taesoo-tabby-cat.first-task.codedang.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: taesoo-tabby-cat
+                port:
+                  number: 3000
