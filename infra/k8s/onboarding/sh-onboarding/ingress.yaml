@@ -6,7 +6,9 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
 spec:
+  ingressClassName: traefik
   tls:
+    
     - hosts:
         - sh-onboarding.first-task.codedang.com
       secretName: sh-onboarding-tls
