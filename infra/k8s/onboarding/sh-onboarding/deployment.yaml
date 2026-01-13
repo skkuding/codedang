@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sh-onboarding
+  namespace: onboarding
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sh-onboarding
+  template:
+    metadata:
+      labels:
+        app: sh-onboarding
+        environment: stage
+    spec:
+      containers:
+        - name: sh-onboarding
+          image: nginxdemos/hello
+          ports:
+            - containerPort: 80
