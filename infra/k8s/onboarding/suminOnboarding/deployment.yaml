@@ -3,9 +3,6 @@ kind: Deployment
 metadata:
   name: sumin-onboarding
   namespace: onboarding
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-dns01
-    traefik.ingress.kubernetes.io/redirect-entry-point: https
 spec:
   replicas: 2
   selector:
