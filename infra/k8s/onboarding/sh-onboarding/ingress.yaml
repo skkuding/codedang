@@ -6,6 +6,10 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
 spec:
+  tls:
+    - hosts:
+        - sh-onboarding.first-task.codedang.com
+      secretName: sh-onboarding-tls
   rules:
     - host: sh-onboarding.first-task.codedang.com
       http:
