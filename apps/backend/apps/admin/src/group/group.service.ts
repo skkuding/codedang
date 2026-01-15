@@ -812,7 +812,21 @@ export class CourseService {
 
   async updateCourseQnA(groupId: number, input: UpdateCourseQnAInput) {
     const { order, ...data } = input
-    const qna = await this.getCourseQnA(groupId, order)
+
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
 
     return await this.prisma.courseQnA.update({
       where: { id: qna.id },
@@ -821,7 +835,21 @@ export class CourseService {
   }
 
   async deleteCourseQnA(groupId: number, order: number) {
-    const qna = await this.getCourseQnA(groupId, order)
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
     return await this.prisma.courseQnA.delete({ where: { id: qna.id } })
   }
 
