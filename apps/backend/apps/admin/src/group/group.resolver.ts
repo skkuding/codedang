@@ -221,14 +221,14 @@ export class CourseResolver {
 
   @Query(() => [CourseQnA])
   async getCourseQnAs(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number // 2. GroupIDPipe 사용
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
     return await this.courseService.getCourseQnAs(groupId)
   }
 
   @Query(() => CourseQnA)
   async getCourseQnA(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number, // 2. GroupIDPipe 사용
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('order', { type: () => Int }, IDValidationPipe) order: number
   ) {
     return await this.courseService.getCourseQnA(groupId, order)
@@ -236,7 +236,7 @@ export class CourseResolver {
 
   @Mutation(() => CourseQnA)
   async updateCourseQnA(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number, // 2. GroupIDPipe 사용
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('input') input: UpdateCourseQnAInput
   ) {
     return await this.courseService.updateCourseQnA(groupId, input)
@@ -244,7 +244,7 @@ export class CourseResolver {
 
   @Mutation(() => CourseQnA)
   async deleteCourseQnA(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number, // 2. GroupIDPipe 사용
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('order', { type: () => Int }, IDValidationPipe) order: number
   ) {
     return await this.courseService.deleteCourseQnA(groupId, order)
@@ -253,7 +253,7 @@ export class CourseResolver {
   @Mutation(() => CourseQnAComment)
   async createCourseQnAComment(
     @Context('req') req: AuthenticatedRequest,
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number, // 2. GroupIDPipe 사용
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('order', { type: () => Int }, IDValidationPipe) order: number,
     @Args('content', { type: () => String }) content: string
   ) {
@@ -267,7 +267,7 @@ export class CourseResolver {
 
   @Mutation(() => CourseQnAComment)
   async deleteCourseQnAComment(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number, // 2. GroupIDPipe 사용
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('qnaOrder', { type: () => Int }, IDValidationPipe) qnaOrder: number,
     @Args('commentOrder', { type: () => Int }, IDValidationPipe)
     commentOrder: number
