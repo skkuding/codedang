@@ -19,8 +19,7 @@ import {
   AuthenticatedRequest,
   AuthNotNeededIfPublic,
   GroupMemberGuard,
-  UserNullWhenAuthFailedIfPublic,
-  JwtAuthGuard
+  UserNullWhenAuthFailedIfPublic
 } from '@libs/auth'
 import {
   CourseNoticeOrderPipe,
@@ -297,7 +296,6 @@ export class CourseController {
   }
 
   @Post(':id/qna')
-  @UseGuards(JwtAuthGuard)
   async createCourseQnA(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) courseId: number,
@@ -337,7 +335,6 @@ export class CourseController {
   }
 
   @Patch(':id/qna/:order')
-  @UseGuards(JwtAuthGuard)
   async updateCourseQnA(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) courseId: number,
@@ -353,7 +350,6 @@ export class CourseController {
   }
 
   @Delete(':id/qna/:order')
-  @UseGuards(JwtAuthGuard)
   async deleteCourseQnA(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) courseId: number,
@@ -367,7 +363,6 @@ export class CourseController {
   }
 
   @Post(':id/qna/:order/comment')
-  @UseGuards(JwtAuthGuard)
   async createQnaComment(
     // 메서드 이름 충돌 방지를 위해 createComment -> createQnaComment로 변경
     @Req() req: AuthenticatedRequest,
@@ -384,7 +379,6 @@ export class CourseController {
   }
 
   @Delete(':id/qna/:qnaOrder/comment/:commentOrder')
-  @UseGuards(JwtAuthGuard)
   async deleteQnaComment(
     // 메서드 이름 충돌 방지를 위해 deleteComment -> deleteQnaComment로 변경
     @Req() req: AuthenticatedRequest,
