@@ -221,9 +221,12 @@ export class CourseResolver {
 
   @Query(() => [CourseQnA])
   async getCourseQnAs(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
+    cursor: number | null,
+    @Args('take', { type: () => Int, defaultValue: 10 }) take: number
   ) {
-    return await this.courseService.getCourseQnAs(groupId)
+    return await this.courseService.getCourseQnAs(groupId, cursor, take)
   }
 
   @Query(() => CourseQnA)

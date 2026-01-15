@@ -778,11 +778,15 @@ export class WhitelistService {
 export class CourseService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getCourseQnAs(groupId: number) {
+  async getCourseQnAs(groupId: number, cursor: number | null, take: number) {
+    const paginator = this.prisma.getPaginator(cursor) // PrismaService의 헬퍼 사용
+
     return await this.prisma.courseQnA.findMany({
+      ...paginator,
+      take,
       where: { groupId },
       include: { createdBy: { select: { username: true } } },
-      orderBy: { order: 'asc' }
+      orderBy: { order: 'desc' }
     })
   }
 
