@@ -294,6 +294,14 @@ export class CourseController {
     })
   }
 
+  /**
+   * Create a new Q&A for the course.
+   * @param req - Authenticated request object containing user info.
+   * @param courseId - The ID of the course (Group ID).
+   * @param createCourseQnADto - DTO containing title, content, and private setting.
+   * @param problemId - (Optional) The ID of the related problem.
+   * @returns The created Course Q&A.
+   */
   @Post(':id/qna')
   async createCourseQnA(
     @Req() req: AuthenticatedRequest,
@@ -309,6 +317,13 @@ export class CourseController {
     )
   }
 
+  /**
+   * Get a list of Q&As for the course.
+   * @param req - Request object (User is optional if the course is public).
+   * @param courseId - The ID of the course.
+   * @param filter - Filter options (e.g., specific week, category).
+   * @returns List of Course Q&As.
+   */
   @Get(':id/qna')
   @UserNullWhenAuthFailedIfPublic()
   async getCourseQnAs(
@@ -323,6 +338,13 @@ export class CourseController {
     )
   }
 
+  /**
+   * Get a specific Q&A details.
+   * @param req - Request object.
+   * @param courseId - The ID of the course.
+   * @param order - The order number of the Q&A within the course.
+   * @returns Detailed information of the Course Q&A.
+   */
   @Get(':id/qna/:order')
   @UserNullWhenAuthFailedIfPublic()
   async getCourseQnA(
@@ -333,6 +355,14 @@ export class CourseController {
     return await this.courseService.getCourseQnA(req.user?.id, courseId, order)
   }
 
+  /**
+   * Update an existing Course Q&A.
+   * @param req - Authenticated request object.
+   * @param courseId - The ID of the course.
+   * @param order - The order number of the Q&A to update.
+   * @param updateCourseQnADto - DTO containing fields to update.
+   * @returns The updated Course Q&A.
+   */
   @Patch(':id/qna/:order')
   async updateCourseQnA(
     @Req() req: AuthenticatedRequest,
@@ -348,6 +378,13 @@ export class CourseController {
     )
   }
 
+  /**
+   * Delete a Course Q&A.
+   * @param req - Authenticated request object.
+   * @param courseId - The ID of the course.
+   * @param order - The order number of the Q&A to delete.
+   * @returns The result of the deletion.
+   */
   @Delete(':id/qna/:order')
   async deleteCourseQnA(
     @Req() req: AuthenticatedRequest,
@@ -361,9 +398,16 @@ export class CourseController {
     )
   }
 
+  /**
+   * Create a comment for a specific Course Q&A.
+   * @param req - Authenticated request object.
+   * @param courseId - The ID of the course.
+   * @param order - The order number of the Q&A.
+   * @param createCommentDto - DTO containing the comment content.
+   * @returns The created comment.
+   */
   @Post(':id/qna/:order/comment')
   async createQnaComment(
-    // 메서드 이름 충돌 방지를 위해 createComment -> createQnaComment로 변경
     @Req() req: AuthenticatedRequest,
     @Param('id', GroupIDPipe) courseId: number,
     @Param('order', ParseIntPipe) order: number,
@@ -377,6 +421,14 @@ export class CourseController {
     )
   }
 
+  /**
+   * Delete a comment from a Course Q&A.
+   * @param req - Authenticated request object.
+   * @param courseId - The ID of the course.
+   * @param qnaOrder - The order number of the Q&A.
+   * @param commentOrder - The order number of the comment to delete.
+   * @returns The result of the deletion.
+   */
   @Delete(':id/qna/:qnaOrder/comment/:commentOrder')
   async deleteQnaComment(
     // 메서드 이름 충돌 방지를 위해 deleteComment -> deleteQnaComment로 변경
