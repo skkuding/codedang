@@ -25,7 +25,6 @@ import {
   CourseNoticeOrderPipe,
   CursorValidationPipe,
   GroupIDPipe,
-  IDValidationPipe,
   OptionalParseIntPipe,
   RequiredIntPipe
 } from '@libs/pipe'
@@ -298,7 +297,7 @@ export class CourseController {
   @Post(':id/qna')
   async createCourseQnA(
     @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) courseId: number,
+    @Param('id', GroupIDPipe) courseId: number,
     @Body() createCourseQnADto: CreateCourseQnADto,
     @Query('problemId', OptionalParseIntPipe) problemId?: number
   ) {
@@ -314,7 +313,7 @@ export class CourseController {
   @UserNullWhenAuthFailedIfPublic()
   async getCourseQnAs(
     @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) courseId: number,
+    @Param('id', GroupIDPipe) courseId: number,
     @Query() filter: GetCourseQnAsFilterDto
   ) {
     return await this.courseService.getCourseQnAs(
@@ -328,7 +327,7 @@ export class CourseController {
   @UserNullWhenAuthFailedIfPublic()
   async getCourseQnA(
     @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) courseId: number,
+    @Param('id', GroupIDPipe) courseId: number,
     @Param('order', ParseIntPipe) order: number
   ) {
     return await this.courseService.getCourseQnA(req.user?.id, courseId, order)
@@ -337,7 +336,7 @@ export class CourseController {
   @Patch(':id/qna/:order')
   async updateCourseQnA(
     @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) courseId: number,
+    @Param('id', GroupIDPipe) courseId: number,
     @Param('order', ParseIntPipe) order: number,
     @Body() updateCourseQnADto: UpdateCourseQnADto
   ) {
@@ -352,7 +351,7 @@ export class CourseController {
   @Delete(':id/qna/:order')
   async deleteCourseQnA(
     @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) courseId: number,
+    @Param('id', GroupIDPipe) courseId: number,
     @Param('order', ParseIntPipe) order: number
   ) {
     return await this.courseService.deleteCourseQnA(
@@ -366,7 +365,7 @@ export class CourseController {
   async createQnaComment(
     // 메서드 이름 충돌 방지를 위해 createComment -> createQnaComment로 변경
     @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) courseId: number,
+    @Param('id', GroupIDPipe) courseId: number,
     @Param('order', ParseIntPipe) order: number,
     @Body() createCommentDto: CreateCourseQnACommentDto
   ) {
@@ -382,7 +381,7 @@ export class CourseController {
   async deleteQnaComment(
     // 메서드 이름 충돌 방지를 위해 deleteComment -> deleteQnaComment로 변경
     @Req() req: AuthenticatedRequest,
-    @Param('id', IDValidationPipe) courseId: number,
+    @Param('id', GroupIDPipe) courseId: number,
     @Param('qnaOrder', ParseIntPipe) qnaOrder: number,
     @Param('commentOrder', ParseIntPipe) commentOrder: number
   ) {
