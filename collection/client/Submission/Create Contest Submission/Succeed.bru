@@ -33,18 +33,98 @@ script:pre-request {
 }
 
 docs {
-  # Create Submission
+  # 📘 Create Contest Submission
   
-  코드를 제출하여 채점 요청을 보냅니다.
+  **POST** `/submission?problemId: &contestId: `
   
-  ## Query
+  Create submission of problems included in the contest.
   
-  > 필수 query는 * 표시하였습니다.
+  contest에 속한 문제에 대해 제출을 생성합니다.
   
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |problemId *|Integer|문제 ID|
-  |contestId|Integer|문제가 속한 대회 ID|
-  |workbookId|Integer|문제가 속한 문제집 ID|
-  |isTest|boolean|실제 제출인지 여부 (default: false)|
+  주어진 문제와 사용자 정보를 바탕으로 아직 채점되지 않은 제출 기록을 만들고, 채점 요청 큐에 메세지를 발행합니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number |   ✅   | id of problem |
+  | `contestId` | number |        | id of contest |
+  | `assignmentId` | number |        | id of assignment |
+  | `workbookId` | number |        | id of workbook |
+  
+  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "code": [
+      {
+        "id": 1,
+        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+        "locked": false
+      }
+    ],
+    "language": "C"
+  }
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `code` | array | ✅       | 제출 코드의 정보 |
+  | `id` | int | ✅       | 코드의 id |
+  | `text` | string | ✅       | 소스 코드의 내용 |
+  | `locked` | boolean | ✅       | 코드의 잠금상태 여부 |
+  | `language` | string | ✅       |  제출 코드의 언어 |
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {  
+  "code": [
+      {
+        "id": 1,
+        "text": "#include <iostream>\nint main() { return 0; }",
+        "locked": false
+      }
+    ],
+    "result": "Judging",
+    "userId": 77,
+    "userIp": "203.0.113.10",
+    "problemId": 1,
+    "codeSize": 43,
+    "language": "cpp",
+    "contestId": 1
+  }
+  
+  
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `code` | array | ✅       | 제출 코드의 정보 |
+  | `id` | number | ✅       | 코드의 id |
+  | `text` | string | ✅       | 소스 코드의 내용 |
+  | `locked` | boolean | ✅       | 코드의 잠금상태 여부 |
+  | `result` | array | ✅       | 제출 코드의 결과 |
+  | `userId` | number | ✅       | user의 Id |
+  | `userIp` | string | ✅       | user의 Ip |
+  | `problemId` | number | ✅       | 문제의 Id |
+  | `language` | string | ✅       |  제출 코드의 언어 |
+  | `contestId` | number | ✅       | contest의 Id |
 }
