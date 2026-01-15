@@ -953,7 +953,19 @@ export class CourseService {
     qnaOrder: number,
     commentOrder: number
   ) {
-    const qna = await this.getCourseQnA(groupId, qnaOrder)
+    const qna = await this.prisma.courseQnA.findFirst({
+      where: {
+        groupId,
+        order: qnaOrder
+      },
+      select: {
+        id: true
+      }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
     const comment = await this.prisma.courseQnAComment.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
