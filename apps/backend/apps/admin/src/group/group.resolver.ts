@@ -281,4 +281,20 @@ export class CourseResolver {
       commentOrder
     )
   }
+
+  @Mutation(() => CourseQnAComment)
+  async updateCourseQnAComment(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('qnaOrder', { type: () => Int }, IDValidationPipe) qnaOrder: number,
+    @Args('commentOrder', { type: () => Int }, IDValidationPipe)
+    commentOrder: number,
+    @Args('content', { type: () => String }) content: string
+  ) {
+    return await this.courseService.updateCourseQnAComment(
+      groupId,
+      qnaOrder,
+      commentOrder,
+      content
+    )
+  }
 }

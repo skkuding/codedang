@@ -859,7 +859,20 @@ export class CourseService {
     order: number,
     content: string
   ) {
-    const qna = await this.getCourseQnA(groupId, order)
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true, readBy: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
 
     return await this.prisma.$transaction(async (tx) => {
       const maxOrder = await tx.courseQnAComment.aggregate({
@@ -874,19 +887,64 @@ export class CourseService {
           content,
           courseQnAId: qna.id,
           createdById: userId,
-          isCourseStaff: true, // Admin API에서는 항상 true
+          isCourseStaff: true,
           order: newOrder
         }
       })
 
+      const isAlreadyRead = qna.readBy.includes(userId)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updateData: any = { isResolved: true }
+
+      if (!isAlreadyRead) {
+        updateData.readBy = { push: userId }
+      }
+
       await tx.courseQnA.update({
         where: { id: qna.id },
-        data: {
-          isResolved: true,
-          readBy: { set: [userId] }
-        }
+        data: updateData
       })
       return comment
+    })
+  }
+
+  async updateCourseQnAComment(
+    groupId: number,
+    qnaOrder: number,
+    commentOrder: number,
+    content: string
+  ) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order: qnaOrder
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    // Comment ID 조회
+    const comment = await this.prisma.courseQnAComment.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        courseQnAId_order: { courseQnAId: qna.id, order: commentOrder }
+      },
+      select: { id: true }
+    })
+
+    if (!comment) {
+      throw new EntityNotExistException('CourseQnAComment')
+    }
+
+    return await this.prisma.courseQnAComment.update({
+      where: { id: comment.id },
+      data: { content }
     })
   }
 
