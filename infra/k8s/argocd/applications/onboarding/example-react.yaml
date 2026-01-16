@@ -1,0 +1,27 @@
+# deploy your application for onboarding
+# from 'infra/k8s/<application-name>' directory in 'onboarding' branch
+# to '<application-name>' namespace in the stage cluster
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example-onboarding-react
+  namespace: argocd-onboarding-k8s
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    # write application manifest here
+    path: infra/k8s/onboarding/
+    repoURL: https://github.com/skkuding/codedang
+    targetRevision: onboarding # Git branch
+  destination:
+    namespace: onboarding-k8s # Target namespace
+    name: stage # Target cluster name
+  syncPolicy:
+    automated:
+      prune: true # Delete resources that are no longer defined
+      selfHeal: true # Automatically sync if out of sync
+    syncOptions:
+      - PrunePropagationPolicy=foreground
+      - CreateNamespace=true
