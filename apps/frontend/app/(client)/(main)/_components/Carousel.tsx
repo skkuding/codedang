@@ -38,7 +38,7 @@ export function Carousel({ slides }: CarouselProps) {
   return (
     <div className="relative my-1 w-full max-w-[1380px] overflow-hidden rounded-[8px] lg:rounded-[20px]">
       {/* Desktop View */}
-      <div className="hidden h-[640px] lg:flex">
+      <div className="hidden h-[640px] md:flex">
         {slides.map((slide, index) => (
           <div
             key={slide.href + slide.topTitle}

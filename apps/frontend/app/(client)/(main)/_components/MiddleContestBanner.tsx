@@ -9,7 +9,7 @@ export function MiddleContestBanner() {
   return (
     <div className="relative w-full">
       {/* Desktop View */}
-      <div className="hidden h-[578px] w-full max-w-[1860px] lg:flex">
+      <div className="hidden h-[578px] w-full max-w-[1860px] md:flex">
         <TextBox className={'shirink-0 z-10 h-full min-w-[38%]'} />
         <ImageBox className={'h-full flex-1'} />
       </div>
