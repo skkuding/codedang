@@ -199,4 +199,16 @@ export class ContestController {
       problemId
     )
   }
+  @Get(':id/problem/:problemId/statistics/graph')
+  @UserNullWhenAuthFailedIfPublic()
+  async getContestProblemStatistics(
+    @Req() req: AuthenticatedRequest,
+    @Param('contestId', IDValidationPipe) contestId: number,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
+  ) {
+    return await this.contestService.getContestProblemStatistics({
+      contestId,
+      problemId
+    })
+  }
 }
