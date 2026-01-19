@@ -210,4 +210,19 @@ export class ContestController {
       problemId
     })
   }
+
+  @Get(':id/statistics/users')
+  async getContestUsersStatistics(
+    @Param('id', IDValidationPipe) contestId: number
+  ) {
+    return await this.contestService.getContestUsersStatistics(contestId)
+  }
+
+  @Get(':id/statistics/user/:userId')
+  async getContestUserStatistics(
+    @Param('id', IDValidationPipe) contestId: number,
+    @Param('userId', IDValidationPipe) userId: number
+  ) {
+    return await this.contestService.getContestUserStatistics(contestId, userId)
+  }
 }

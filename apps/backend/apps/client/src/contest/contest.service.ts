@@ -1657,4 +1657,301 @@ export class ContestService {
       series: slots
     }
   }
+
+  /**
+   * 대회의 존재 여부 및 종료 여부를 검증합니다.
+   * 통계 API용으로 사용되며, 대회가 종료되지 않았으면 403 에러를 반환합니다.
+   *
+   * @private
+   * @param {number} contestId - 검증할 대회 ID
+   * @throws {EntityNotExistException} 대회가 존재하지 않을 경우
+   * @throws {ForbiddenAccessException} 대회가 종료되지 않았을 경우
+   */
+  private async checkContestExistsAndEndedForStatistics(contestId: number) {
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId }
+    })
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+    const now = new Date()
+    if (contest.endTime > now) {
+      throw new ForbiddenAccessException('Contest has not ended')
+    }
+  }
+
+  /**
+   * 대회에 참가한 모든 사용자의 기본 통계를 조회합니다.
+   * @param contestId - 대회 ID
+   * @returns 사용자별 통계 리스트 (순위, 정답 수, 패널티 등)
+   */
+  async getContestUsersStatistics(contestId: number) {
+    await this.checkContestExistsAndEndedForStatistics(contestId)
+
+    const contestRecords = await this.prisma.contestRecord.findMany({
+      where: { contestId },
+      select: {
+        userId: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        acceptedProblemNum: true,
+        finalTotalPenalty: true
+      },
+      orderBy: [{ acceptedProblemNum: 'desc' }, { finalTotalPenalty: 'asc' }]
+    })
+
+    let rank = 1
+    return contestRecords
+      .map((record) => {
+        if (!record.userId || !record.user) {
+          return null
+        }
+
+        const result = {
+          userId: record.userId,
+          username: record.user.username,
+          rank: rank++,
+          solved: record.acceptedProblemNum,
+          penalty: record.finalTotalPenalty
+        }
+
+        return result
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+  }
+
+  /**
+   * 특정 대회에서 특정 참가자의 상세 분석 데이터를 조회합니다.
+   * @param contestId - 대회 ID
+   * @param userId - 사용자 ID
+   * @returns 참가자의 상세 분석 데이터
+   */
+  async getContestUserStatistics(contestId: number, userId: number) {
+    await this.checkContestExistsAndEndedForStatistics(contestId)
+
+    const [contest, contestRecord, contestProblems, allSubmissions] =
+      await Promise.all([
+        this.prisma.contest.findUniqueOrThrow({
+          where: { id: contestId },
+          select: {
+            startTime: true,
+            endTime: true
+          }
+        }),
+        this.prisma.contestRecord.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_userId: { contestId, userId }
+          },
+          select: {
+            userId: true,
+            user: {
+              select: {
+                username: true
+              }
+            },
+            acceptedProblemNum: true,
+            finalTotalPenalty: true,
+            contestProblemRecord: {
+              select: {
+                contestProblem: {
+                  select: {
+                    id: true,
+                    order: true,
+                    problemId: true
+                  }
+                },
+                finalScore: true,
+                finalTimePenalty: true,
+                finalSubmitCountPenalty: true,
+                finishTime: true
+              }
+            }
+          }
+        }),
+        this.prisma.contestProblem.findMany({
+          where: { contestId },
+          select: {
+            id: true,
+            order: true,
+            problemId: true
+          },
+          orderBy: { order: 'asc' }
+        }),
+        this.prisma.submission.findMany({
+          where: {
+            contestId,
+            userId
+          },
+          select: {
+            id: true,
+            problemId: true,
+            result: true,
+            language: true,
+            createTime: true
+          },
+          orderBy: { createTime: 'asc' }
+        })
+      ])
+
+    if (!contestRecord || !contestRecord.user) {
+      throw new EntityNotExistException('ContestRecord')
+    }
+
+    // 전체 참가자 중 순위 계산
+    const allRecords = await this.prisma.contestRecord.findMany({
+      where: { contestId },
+      select: {
+        userId: true,
+        acceptedProblemNum: true,
+        finalTotalPenalty: true
+      },
+      orderBy: [{ acceptedProblemNum: 'desc' }, { finalTotalPenalty: 'asc' }]
+    })
+
+    let userRank = 1
+    for (const record of allRecords) {
+      if (record.userId === userId) {
+        break
+      }
+      userRank++
+    }
+
+    // 문제별 제출 횟수 계산
+    const submissionCountByProblem: Record<number, number> = {}
+    for (const submission of allSubmissions) {
+      if (submission.problemId) {
+        submissionCountByProblem[submission.problemId] =
+          (submissionCountByProblem[submission.problemId] || 0) + 1
+      }
+    }
+
+    // problemAnalysis 생성 (isSolved = true인 문제들만)
+    const problemAnalysis = contestRecord.contestProblemRecord
+      .filter((record) => record.finalScore > 0)
+      .map((record) => {
+        const problemId = record.contestProblem.problemId
+        const order = record.contestProblem.order
+        const attemptCount = submissionCountByProblem[problemId] || 0
+        // wrongAttemptCount: AC 제외 제출 수 (attemptCount > 1일 때만 존재)
+        const wrongAttemptCount = attemptCount > 1 ? attemptCount - 1 : null
+        const wrongPenalty = record.finalSubmitCountPenalty
+        const successPenalty = record.finalTimePenalty
+        const problemPenalty = successPenalty + wrongPenalty
+
+        return {
+          problemLabel: String.fromCharCode(65 + order), // A, B, C, ...
+          attemptCount,
+          successPenalty,
+          wrongAttemptCount,
+          wrongPenalty: wrongAttemptCount !== null ? wrongPenalty : null,
+          problemPenalty,
+          isSolved: true
+        }
+      })
+      .sort((a, b) => a.problemLabel.localeCompare(b.problemLabel))
+
+    // timeline 생성
+    const solvedProblems = contestRecord.contestProblemRecord
+      .filter((record) => record.finalScore > 0 && record.finishTime)
+      .map((record) => ({
+        order: record.contestProblem.order,
+        problemLabel: String.fromCharCode(65 + record.contestProblem.order),
+        finishTime: record.finishTime!
+      }))
+      .sort((a, b) => a.finishTime.getTime() - b.finishTime.getTime())
+
+    const timeline = solvedProblems.map((problem, index) => {
+      const solvingStartTime =
+        index === 0 ? contest.startTime : solvedProblems[index - 1].finishTime
+
+      const solvingEndTime = problem.finishTime
+      const solvingDuration = Math.floor(
+        (solvingEndTime.getTime() - solvingStartTime.getTime()) / 1000
+      ) // 초 단위
+
+      // 시간 포맷팅 (hh:mm:ss)
+      const formatTime = (date: Date) => {
+        const hours = Math.floor(
+          (date.getTime() - contest.startTime.getTime()) / (1000 * 60 * 60)
+        )
+        const minutes = Math.floor(
+          ((date.getTime() - contest.startTime.getTime()) % (1000 * 60 * 60)) /
+            (1000 * 60)
+        )
+        const seconds = Math.floor(
+          ((date.getTime() - contest.startTime.getTime()) % (1000 * 60)) / 1000
+        )
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(
+          2,
+          '0'
+        )}:${String(seconds).padStart(2, '0')}`
+      }
+
+      return {
+        problemLabel: problem.problemLabel,
+        solvingStartTime: formatTime(solvingStartTime),
+        solvingEndTime: formatTime(solvingEndTime),
+        solvingDuration
+      }
+    })
+
+    // submissionHistory 생성
+    const problemOrderMap = new Map(
+      contestProblems.map((cp) => [cp.problemId, cp.order])
+    )
+
+    const solvedProblemIds = new Set(
+      contestRecord.contestProblemRecord
+        .filter((r) => r.finalScore > 0)
+        .map((r) => r.contestProblem.problemId)
+    )
+
+    const submissionHistory = allSubmissions.map((submission) => {
+      const order = problemOrderMap.get(submission.problemId)
+      const problemLabel =
+        order !== undefined ? String.fromCharCode(65 + order) : '?'
+
+      // 시간 포맷팅 (hh:mm:ss)
+      const formatTime = (date: Date) => {
+        const hours = Math.floor(
+          (date.getTime() - contest.startTime.getTime()) / (1000 * 60 * 60)
+        )
+        const minutes = Math.floor(
+          ((date.getTime() - contest.startTime.getTime()) % (1000 * 60 * 60)) /
+            (1000 * 60)
+        )
+        const seconds = Math.floor(
+          ((date.getTime() - contest.startTime.getTime()) % (1000 * 60)) / 1000
+        )
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(
+          2,
+          '0'
+        )}:${String(seconds).padStart(2, '0')}`
+      }
+
+      return {
+        submissionTime: formatTime(submission.createTime),
+        problemLabel,
+        result: submission.result,
+        language: submission.language,
+        isSolved: solvedProblemIds.has(submission.problemId)
+      }
+    })
+
+    return {
+      user: {
+        rank: userRank,
+        username: contestRecord.user.username,
+        totalSolved: contestRecord.acceptedProblemNum,
+        totalPenalty: contestRecord.finalTotalPenalty,
+        problemAnalysis,
+        timeline,
+        submissionHistory
+      }
+    }
+  }
 }

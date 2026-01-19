@@ -1,0 +1,28 @@
+meta {
+  name: [404] Nonexistent ContestRecord
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/contest/6/statistics/user/999999
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 404
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # [404] Nonexistent ContestRecord
+
+  존재하지 않는 `userId`이거나 해당 사용자가 대회에 참가하지 않았을 때
+  `/contest/:contestId/statistics/user/:userId`를 호출했을 때 404 응답이 반환됩니다.
+}
+
