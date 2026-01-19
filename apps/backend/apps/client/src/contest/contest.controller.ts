@@ -212,6 +212,7 @@ export class ContestController {
   }
 
   @Get(':id/statistics/users')
+  @UserNullWhenAuthFailedIfPublic()
   async getContestUsersStatistics(
     @Param('id', IDValidationPipe) contestId: number
   ) {
@@ -219,6 +220,7 @@ export class ContestController {
   }
 
   @Get(':id/statistics/user/:userId')
+  @UserNullWhenAuthFailedIfPublic()
   async getContestUserStatistics(
     @Param('id', IDValidationPipe) contestId: number,
     @Param('userId', IDValidationPipe) userId: number
