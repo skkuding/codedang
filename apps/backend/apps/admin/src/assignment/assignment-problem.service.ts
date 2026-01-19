@@ -86,7 +86,10 @@ export class AssignmentProblemService {
     })
 
     const assignmentProblems = await this.prisma.assignmentProblem.findMany({
-      where: { assignmentId }
+      where: { assignmentId },
+      select: {
+        problemId: true
+      }
     })
 
     if (orders.length !== assignmentProblems.length) {
