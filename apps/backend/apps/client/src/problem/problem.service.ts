@@ -3,10 +3,7 @@ import { Prisma, ResultStatus } from '@prisma/client'
 import type { Decimal } from '@prisma/client/runtime/library'
 import { Readable } from 'stream'
 import { MIN_DATE } from '@libs/constants'
-import {
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@libs/exception'
+import { ForbiddenAccessException } from '@libs/exception'
 import { ProblemOrder } from '@libs/pipe'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@client/assignment/assignment.service'
