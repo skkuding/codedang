@@ -12,7 +12,7 @@ get {
 
 params:path {
   contestId: 6
-  userId: 8
+  userId: 10
 }
 
 assert {
@@ -30,11 +30,6 @@ assert {
 settings {
   encodeUrl: true
   timeout: 0
-}
-
-assert {
-  res.status: eq 403
-  res("message"): eq Contest has not ended
 }
 
 docs {
@@ -153,4 +148,3 @@ docs {
   존재하지 않는 대회이거나 해당 사용자가 대회에 참가하지 않았을 경우 반환됩니다.
 
 }
-

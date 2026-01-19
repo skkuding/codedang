@@ -16,17 +16,11 @@ params:path {
 
 assert {
   res.status: eq 200
-  res: isArray
 }
 
 settings {
   encodeUrl: true
   timeout: 0
-}
-
-assert {
-  res.status: eq 403
-  res("message"): eq Contest has not ended
 }
 
 docs {

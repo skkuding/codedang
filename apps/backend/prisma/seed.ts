@@ -1736,9 +1736,9 @@ const createContests = async () => {
       })
     }
   }
-  // add problem 5, 6 to ended contest
+  // add problem 5, 6, 7, 8 to ended contest (A, B, C, D)
   for (const contest of endedContests) {
-    for (const [index, problem] of problems.slice(4, 6).entries()) {
+    for (const [index, problem] of problems.slice(4, 8).entries()) {
       await prisma.contestProblem.create({
         data: {
           order: index,
@@ -2928,7 +2928,10 @@ const createContestRecords = async () => {
       })
 
       if (!existingRecord) {
-        const solvedCount = Math.min(i + 1, 2)
+        const testContestProblems = await prisma.contestProblem.findMany({
+          where: { contestId: testContest.id }
+        })
+        const solvedCount = Math.min(i + 1, testContestProblems.length)
         const penalty = (i + 1) * 50 + i * 20
 
         const contestRecord = await prisma.contestRecord.create({
@@ -3043,16 +3046,14 @@ const createContestProblemRecords = async () => {
 
     for (let i = 0; i < testContestRecords.length; i++) {
       const contestRecord = testContestRecords[i]
-      const solvedCount = Math.min(i + 1, 2)
+      const solvedCount = Math.min(i + 1, testContestProblems.length)
 
-      // 모든 문제에 대해 제출 기록 생성 (해결한 문제 + 해결하지 못한 문제)
       for (let j = 0; j < testContestProblems.length; j++) {
         const contestProblem = testContestProblems[j]
         const contestProblemId = contestProblem.id
         const isSolved = j < solvedCount
 
         if (isSolved) {
-          // 해결한 문제: ContestProblemRecord 생성 + 제출 기록 생성
           const existing = await prisma.contestProblemRecord.findFirst({
             where: {
               contestProblemId,
@@ -3071,7 +3072,17 @@ const createContestProblemRecords = async () => {
             const wrongAttemptCount = j // 오답 횟수
             const submitCountPenalty = wrongAttemptCount * 20
 
-            // 오답 제출 기록 생성 (wrongAttemptCount번)
+            const wrongResultTypes = [
+              ResultStatus.WrongAnswer,
+              ResultStatus.TimeLimitExceeded,
+              ResultStatus.MemoryLimitExceeded,
+              ResultStatus.RuntimeError,
+              ResultStatus.SegmentationFaultError,
+              ResultStatus.CompileError,
+              ResultStatus.ServerError,
+              ResultStatus.OutputLimitExceeded
+            ]
+
             for (let k = 0; k < wrongAttemptCount; k++) {
               const wrongSubmitTime = new Date(
                 startTime.getTime() +
@@ -3080,6 +3091,9 @@ const createContestProblemRecords = async () => {
                   (wrongAttemptCount - k) * 5 * 60 * 1000
               )
 
+              const wrongResultType =
+                wrongResultTypes[k % wrongResultTypes.length]
+
               const wrongSubmission = await prisma.submission.create({
                 data: {
                   userId: contestRecord.userId!,
@@ -3087,13 +3101,12 @@ const createContestProblemRecords = async () => {
                   contestId: testContest.id,
                   code: [{ id: 1, locked: false, text: 'wrong code' }],
                   language: Language.C,
-                  result: ResultStatus.WrongAnswer,
+                  result: wrongResultType,
                   createTime: wrongSubmitTime,
                   updateTime: wrongSubmitTime
                 }
               })
 
-              // SubmissionResult 생성 (문제의 첫 번째 testcase 사용)
               const problemTestcase = await prisma.problemTestcase.findFirst({
                 where: { problemId: contestProblem.problemId },
                 orderBy: { id: 'asc' }
@@ -3104,13 +3117,12 @@ const createContestProblemRecords = async () => {
                   data: {
                     submissionId: wrongSubmission.id,
                     problemTestcaseId: problemTestcase.id,
-                    result: ResultStatus.WrongAnswer
+                    result: wrongResultType
                   }
                 })
               }
             }
 
-            // 정답 제출 기록 생성 (1번)
             const acceptedSubmission = await prisma.submission.create({
               data: {
                 userId: contestRecord.userId!,
@@ -3124,7 +3136,6 @@ const createContestProblemRecords = async () => {
               }
             })
 
-            // SubmissionResult 생성 (모든 testcase에 대해 Accepted)
             const problemTestcases = await prisma.problemTestcase.findMany({
               where: { problemId: contestProblem.problemId }
             })
@@ -3156,8 +3167,18 @@ const createContestProblemRecords = async () => {
             })
           }
         } else {
-          // 해결하지 못한 문제: 제출 기록만 생성 (오답만)
-          const wrongAttemptCount = Math.min(2 + i, 3) // 2~3번 오답 시도
+          // 오답 생성
+          const wrongAttemptCount = Math.min(2 + i, 3)
+          const wrongResultTypes = [
+            ResultStatus.WrongAnswer,
+            ResultStatus.TimeLimitExceeded,
+            ResultStatus.MemoryLimitExceeded,
+            ResultStatus.RuntimeError,
+            ResultStatus.SegmentationFaultError,
+            ResultStatus.CompileError,
+            ResultStatus.ServerError,
+            ResultStatus.OutputLimitExceeded
+          ]
 
           for (let k = 0; k < wrongAttemptCount; k++) {
             const wrongSubmitTime = new Date(
@@ -3167,6 +3188,9 @@ const createContestProblemRecords = async () => {
                 k * 10 * 60 * 1000
             )
 
+            const wrongResultType =
+              wrongResultTypes[k % wrongResultTypes.length]
+
             const wrongSubmission = await prisma.submission.create({
               data: {
                 userId: contestRecord.userId!,
@@ -3174,7 +3198,7 @@ const createContestProblemRecords = async () => {
                 contestId: testContest.id,
                 code: [{ id: 1, locked: false, text: 'wrong code' }],
                 language: Language.C,
-                result: ResultStatus.WrongAnswer,
+                result: wrongResultType,
                 createTime: wrongSubmitTime,
                 updateTime: wrongSubmitTime
               }
@@ -3191,7 +3215,7 @@ const createContestProblemRecords = async () => {
                 data: {
                   submissionId: wrongSubmission.id,
                   problemTestcaseId: problemTestcase.id,
-                  result: ResultStatus.WrongAnswer
+                  result: wrongResultType
                 }
               })
             }
