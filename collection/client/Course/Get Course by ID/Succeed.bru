@@ -47,4 +47,36 @@ docs {
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `id` | number | ✅       | ID of the target course |
+  
+  ---
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```
+  {
+    "id": 2,
+    "groupName": "정보보호개론",
+    "groupType": "Course",
+    "courseInfo": {
+      "courseNum": "SWE3033",
+      "classNum": 42,
+      "professor": "형식킴",
+      "semester": "2025 Spring"
+    },
+    "isJoined": false
+  }
+  ```
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|---------------------------|
+  | `id` | number |    ✅   | 그룹 id |
+  | `groupName` | string |   ✅   | 그룹 제목 |
+  | `groupType` | string | ✅    | 그룹 유형 |
+  | `courseNum` | string | ✅       | 강의 번호 |
+  | `classNum` | number | ✅    | 분반 |
+  | `professor` | string | ✅       | 교수님 성함 |
+  | `semester` | string | ✅       | 학기 |
+  | `isJoined` | boolean | ✅       | 강의 등록 여부 |
 }

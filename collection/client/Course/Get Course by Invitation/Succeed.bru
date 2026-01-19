@@ -52,4 +52,25 @@ docs {
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `invitation` | string |  ✅  | 초대 코드 |
+  
+  ---
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```
+  {
+    "message": "Invalid invitation does not exist",
+    "error": "Not Found",
+    "statusCode": 404
+  }
+  
+  ```
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|---------------------------|
+  | `message` | string |    ✅   | 응답 메세지 |
+  | `error` | string |   ✅   | 에러 메세지 |
+  | `statusCode` | number | ✅    | HTTP 상태 코드 |
 }
