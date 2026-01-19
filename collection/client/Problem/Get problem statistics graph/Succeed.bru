@@ -19,7 +19,6 @@ assert {
   res.status: eq 200
   res("contestId"): isNumber
   res("problemId"): isNumber
-  res("mode"): isString
   res("distribution"): isDefined
   res("timeline"): isDefined
 }
@@ -41,9 +40,7 @@ docs {
 
   특정 대회의 특정 문제에 대한 **오답 분포와 시간별 제출 추이 그래프 데이터**를 조회합니다.
 
-  `mode` 쿼리 파라미터 미지정 시, 오답 분포(`distribution`)와 시간별 제출 추이(`timeline`)를 동시에 반환합니다.
-  - `mode=distribution`인 경우 오답 분포만,
-  - `mode=timeline`인 경우 제출 추이만 반환합니다.
+  오답 분포(`distribution`)와 시간별 제출 추이(`timeline`)를 항상 동시에 반환합니다.
 
   이 API는 **대회 종료 후**에만 조회할 수 있으며, 누구나 접근 가능합니다.
 
@@ -54,14 +51,7 @@ docs {
 
   ### Request Parameters
 
-  #### Query Parameters
-
-  | Name | Type | Required | Description |
-  |------|------|----------|-------------|
-  | `mode` | `"distribution" \| "timeline"` | ❌ | 생략 시 `both`로 처리되어 두 그래프 모두 반환 |
-
   #### Path Parameters
-  - mode를 지정하지 않으면 기본값으로 both가 사용됩니다.
 
   | Name | Type | Required | Description |
   |------|------|----------|-------------|
@@ -72,22 +62,22 @@ docs {
 
   #### 200 OK
 
-  - `mode` 미지정 시:
-    - `mode: "both"`
-    - `distribution`: 오답 분포 데이터
-      - `totalSubmissions`: 총 제출 수
-      - `counts`: 결과별 제출 수
-        - `WA` ← WrongAnswer
-        - `TLE` ← TimeLimitExceeded
-        - `MLE` ← MemoryLimitExceeded
-        - `RE` ← RuntimeError + SegmentationFaultError
-        - `CE` ← CompileError
-        - `ETC` ← ServerError + OutputLimitExceeded
-    - `timeline`: 시간별 제출 추이 데이터
-      - `intervalMinutes`: 집계 간격(분) — 대회 시간의 6등분 (예: 3시간 대회 → 30분, 6시간 대회 → 60분)
-      - `series[]`: 6개의 슬롯
-        - `timestamp`: 슬롯 시작 시각(ISO8601)
-        - `accepted`: 해당 시각 Accepted 제출 수
-        - `wrong`: 해당 시각 Wrong 제출 수 (WA/TLE/MLE/RE/CE/ETC의 합)
+  - `contestId`: 대회 ID
+  - `problemId`: 문제 ID
+  - `distribution`: 오답 분포 데이터
+    - `totalSubmissions`: 총 제출 수
+    - `counts`: 결과별 제출 수
+      - `WA` ← WrongAnswer
+      - `TLE` ← TimeLimitExceeded
+      - `MLE` ← MemoryLimitExceeded
+      - `RE` ← RuntimeError + SegmentationFaultError
+      - `CE` ← CompileError
+      - `ETC` ← ServerError + OutputLimitExceeded
+  - `timeline`: 시간별 제출 추이 데이터
+    - `intervalMinutes`: 집계 간격(분) — 대회 시간의 6등분 (예: 3시간 대회 → 30분, 6시간 대회 → 60분)
+    - `series[]`: 6개의 슬롯
+      - `timestamp`: 슬롯 시작 시각(ISO8601)
+      - `accepted`: 해당 시각 Accepted 제출 수
+      - `wrong`: 해당 시각 Wrong 제출 수 (WA/TLE/MLE/RE/CE/ETC의 합)
 
 }

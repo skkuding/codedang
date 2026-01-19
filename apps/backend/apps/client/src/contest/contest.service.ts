@@ -1465,12 +1465,6 @@ export class ContestService {
       )
     }
 
-    if (!contest.startTime) {
-      throw new ForbiddenAccessException(
-        'Contest problem statistics are unavailable'
-      )
-    }
-
     const [distribution, timeline] = await Promise.all([
       this.getProblemDistribution({
         contestId,
@@ -1479,8 +1473,8 @@ export class ContestService {
       this.getProblemTimeline({
         contestId,
         problemId,
-        startTime: contest.startTime!,
-        endTime: contest.endTime!
+        startTime: contest.startTime,
+        endTime: contest.endTime
       })
     ])
 
