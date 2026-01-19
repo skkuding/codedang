@@ -16,10 +16,7 @@ export class AssignmentProblemService {
    * @returns 해당 과제에 연결된 문제(AssignmentProblem) 리스트
    * @throws 과제가 존재하지 않거나 해당 그룹에 속하지 않는 경우 에러 발생
    */
-  async getAssignmentProblems(
-    groupId: number,
-    assignmentId: number
-  ): Promise<Partial<AssignmentProblem>[]> {
+  async getAssignmentProblems(groupId: number, assignmentId: number) {
     await this.prisma.assignment.findFirstOrThrow({
       where: { id: assignmentId, groupId }
     })
@@ -42,7 +39,7 @@ export class AssignmentProblemService {
     groupId: number,
     assignmentId: number,
     assignmentProblemUpdateInput: AssignmentProblemUpdateInput[]
-  ): Promise<Partial<AssignmentProblem>[]> {
+  ) {
     await this.prisma.assignment.findFirstOrThrow({
       where: { id: assignmentId, groupId }
     })
@@ -83,7 +80,7 @@ export class AssignmentProblemService {
     groupId: number,
     assignmentId: number,
     orders: number[]
-  ): Promise<Partial<AssignmentProblem>[]> {
+  ) {
     await this.prisma.assignment.findFirstOrThrow({
       where: { id: assignmentId, groupId }
     })
