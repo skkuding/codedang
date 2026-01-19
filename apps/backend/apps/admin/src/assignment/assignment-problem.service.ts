@@ -8,6 +8,13 @@ import type { AssignmentProblemUpdateInput } from './model/assignment-problem.in
 export class AssignmentProblemService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   *
+   * @param {number} groupId 그룹 ID
+   * @param {number} assignmentId 과제 ID
+   * @returns 해당 과제에 연결된 문제(AssignmentProblem) 리스트
+   * @throws 과제가 존재하지 않거나 해당 그룹에 속하지 않는 경우 에러 발생
+   */
   async getAssignmentProblems(
     groupId: number,
     assignmentId: number
