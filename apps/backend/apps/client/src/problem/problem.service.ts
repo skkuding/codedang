@@ -625,16 +625,14 @@ export class ContestProblemService {
    *
    * 대회 종료 후에만 조회할 수 있습니다.
    *
-   * mode 파라미터에 따라 분포 통계(distribution), 타임라인 통계(timeline), 미지정 시 기본값 'both'로 둘 다 반환합니다.
+   * 오답 분포(distribution)와 시간별 제출 추이(timeline) 통계를 모두 반환합니다.
    */
   async getContestProblemStatistics({
     contestId,
-    problemId,
-    mode
+    problemId
   }: {
     contestId: number
     problemId: number
-    mode?: 'distribution' | 'timeline'
   }) {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
@@ -677,48 +675,25 @@ export class ContestProblemService {
       )
     }
 
-    const statistics: {
-      contestId: number
-      problemId: number
-      mode: 'both' | 'distribution' | 'timeline'
-      distribution?: {
-        totalSubmissions: number
-        counts: Record<
-          (typeof ContestProblemService.resultTypes)[number],
-          number
-        >
-      }
-      timeline?: {
-        intervalMinutes: number
-        series: Array<{
-          timestamp: string
-          accepted: number
-          wrong: number
-        }>
-      }
-    } = {
-      contestId,
-      problemId,
-      mode: mode ?? 'both'
-    }
-
-    if (statistics.mode === 'both' || statistics.mode === 'distribution') {
-      statistics.distribution = await this.getProblemDistribution({
+    const [distribution, timeline] = await Promise.all([
+      this.getProblemDistribution({
         contestId,
         problemId
-      })
-    }
-
-    if (statistics.mode === 'both' || statistics.mode === 'timeline') {
-      statistics.timeline = await this.getProblemTimeline({
+      }),
+      this.getProblemTimeline({
         contestId,
         problemId,
         startTime: contest.startTime!,
         endTime: contest.endTime!
       })
-    }
+    ])
 
-    return statistics
+    return {
+      contestId,
+      problemId,
+      distribution,
+      timeline
+    }
   }
 
   /**
