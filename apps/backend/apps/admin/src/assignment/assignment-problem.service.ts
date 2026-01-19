@@ -60,7 +60,7 @@ export class AssignmentProblemService {
       })
     })
 
-    return await this.prisma.$transaction(queries)
+    return this.prisma.$transaction(queries)
   }
 
   /**
@@ -115,6 +115,6 @@ export class AssignmentProblemService {
       })
     })
 
-    return await this.prisma.$transaction(queries)
+    return this.prisma.$transaction(queries)
   }
 }
