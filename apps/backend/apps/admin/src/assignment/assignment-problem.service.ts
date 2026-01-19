@@ -9,6 +9,7 @@ export class AssignmentProblemService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
+   * 특정 그룹의 과제에 속한 문제 목록을 조회합니다.
    *
    * @param {number} groupId 그룹 ID
    * @param {number} assignmentId 과제 ID
