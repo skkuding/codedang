@@ -1,0 +1,156 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/contest/:contestId/statistics/user/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  contestId: 6
+  userId: 7
+}
+
+assert {
+  res.status: eq 200
+  res("user"): isDefined
+  res("user.rank"): isNumber
+  res("user.username"): isString
+  res("user.totalSolved"): isNumber
+  res("user.totalPenalty"): isNumber
+  res("user.problemAnalysis"): isArray
+  res("user.timeline"): isArray
+  res("user.submissionHistory"): isArray
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 403
+  res("message"): eq Contest has not ended
+}
+
+docs {
+  # 📘 Get Contest User Statistics
+
+  **GET** `/contest/:contestId/statistics/user/:userId`
+
+  특정 대회에서 특정 참가자의 대회 종료 후 상세 분석 데이터를 조회합니다.
+
+  페널티 분석, 문제 풀이 타임라인, 제출한 타임 등의 정보를 포함합니다.
+
+  이 API는 **대회 종료 후**에만 조회할 수 있으며, 누구나 접근 가능합니다.
+
+  ### 🔒 Authentication
+
+  🔸 Optional
+  인증 여부와 관계없이 대회가 종료된 이후라면 접근할 수 있습니다.
+
+  ### Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `contestId` | number | ✅ | 대상 대회의 ID |
+  | `userId` | number | ✅ | 대상 사용자의 ID |
+
+  ### 📤 Responses
+
+  #### 200 OK
+
+  ```json
+  {
+    "user": {
+      "rank": 1,
+      "username": "AlgorithmGod",
+      "totalSolved": 4,
+      "totalPenalty": 403,
+      "problemAnalysis": [
+        {
+          "problemLabel": "A",
+          "attemptCount": 1,
+          "successPenalty": 5,
+          "wrongAttemptCount": null,
+          "wrongPenalty": null,
+          "problemPenalty": 5,
+          "isSolved": true
+        },
+        {
+          "problemLabel": "B",
+          "attemptCount": 4,
+          "successPenalty": 120,
+          "wrongAttemptCount": 3,
+          "wrongPenalty": 60,
+          "problemPenalty": 180,
+          "isSolved": true
+        }
+      ],
+      "timeline": [
+        {
+          "problemLabel": "A",
+          "solvingStartTime": "00:00:00",
+          "solvingEndTime": "00:05:12",
+          "solvingDuration": 312
+        },
+        {
+          "problemLabel": "B",
+          "solvingStartTime": "00:05:12",
+          "solvingEndTime": "00:25:40",
+          "solvingDuration": 1228
+        }
+      ],
+      "submissionHistory": [
+        {
+          "submissionTime": "00:05:12",
+          "problemLabel": "A",
+          "result": "Accepted",
+          "language": "C++",
+          "isSolved": true
+        }
+      ]
+    }
+  }
+  ```
+
+  - `user.rank`: 참가자 순위
+  - `user.username`: 참가자 이름
+  - `user.totalSolved`: 총 해결 문제 수
+  - `user.totalPenalty`: 총 패널티
+  - `user.problemAnalysis`: 페널티 분석 (isSolved = true인 문제들만)
+    - `problemLabel`: 문제 이름 (A, B, C, ...)
+    - `attemptCount`: 해당 문제의 총 제출 횟수
+    - `successPenalty`: 성공 페널티
+    - `wrongAttemptCount`: 오답 제출 횟수 (AC 제외 제출 수)
+    - `wrongPenalty`: 오답으로 인한 추가 패널티
+    - `problemPenalty`: successPenalty + wrongPenalty
+    - `isSolved`: 문제 해결 여부
+  - `user.timeline`: 문제 풀이 타임라인
+    - `problemLabel`: 문제 이름
+    - `solvingStartTime`: 문제 풀이 시작 시각 (hh:mm:ss)
+    - `solvingEndTime`: 정답 제출 시각 (hh:mm:ss)
+    - `solvingDuration`: 풀이 소요 시간(초)
+  - `user.submissionHistory`: 제출 히스토리 목록
+    - `submissionTime`: 제출 시각 (hh:mm:ss)
+    - `problemLabel`: 문제 이름
+    - `result`: 결과 (Accepted, WrongAnswer, ...)
+    - `language`: 제출 언어
+    - `isSolved`: 문제 해결 여부
+
+  #### 403 Forbidden
+
+  대회가 종료되지 않았을 경우 반환됩니다.
+
+  #### 404 Not Found
+
+  존재하지 않는 대회이거나 해당 사용자가 대회에 참가하지 않았을 경우 반환됩니다.
+
+}
+
