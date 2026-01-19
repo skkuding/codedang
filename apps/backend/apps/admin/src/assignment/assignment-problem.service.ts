@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import type { AssignmentProblem } from '@prisma/client'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { AssignmentProblemUpdateInput } from './model/assignment-problem.input'
