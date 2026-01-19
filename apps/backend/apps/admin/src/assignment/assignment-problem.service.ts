@@ -32,8 +32,8 @@ export class AssignmentProblemService {
   /**
    * 과제에 연결된 문제들의 설정(배점 및 정답 공개 시간)을 일괄 수정합니다.
    *
-   * @param {number} groupId
-   * @param {numbser} assignmentId
+   * @param {number} groupId 그룹 ID
+   * @param {numbser} assignmentId 과제 ID
    * @param {AssignmentProblemUpdateInput[]} assignmentProblemUpdateInput 업데이트할 문제 설정 목록
    * @returns 업데이트된 문제(AssignmentProblem) 리스트
    * @throws 과제가 존재하지 않거나 해당 그룹에 속하지 않는 경우 에러 발생
