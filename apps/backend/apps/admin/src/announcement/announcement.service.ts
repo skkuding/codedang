@@ -109,6 +109,13 @@ export class AnnouncementService {
     })
   }
 
+  /**
+   * 특정 대회 내의 공지를 삭제합니다
+   *
+   * @param {number} contestId 대회 ID
+   * @param {number} id 삭제할 공지사항 ID
+   * @returns 삭제된 공지 정보
+   */
   async removeAnnouncement(contestId: number, id: number) {
     await this.prisma.contest.findUniqueOrThrow({ where: { id: contestId } })
     await this.prisma.announcement.findUniqueOrThrow({ where: { id } })
