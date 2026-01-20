@@ -1,0 +1,83 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/contest/:contestId/problem/:problemId/statistics/graph
+  body: none
+  auth: inherit
+}
+
+params:path {
+  contestId: 6
+  problemId: 5
+}
+
+assert {
+  res.status: eq 200
+  res("contestId"): isNumber
+  res("problemId"): isNumber
+  res("distribution"): isDefined
+  res("timeline"): isDefined
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 403
+  res("message"): eq Contest problem statistics are available after the contest ends
+}
+
+docs {
+  # 📘 Get Contest Problem Statistics Graph
+
+  **GET** `/contest/:contestId/problem/:problemId/statistics/graph`
+
+  특정 대회의 특정 문제에 대한 **오답 분포와 시간별 제출 추이 그래프 데이터**를 조회합니다.
+
+  오답 분포(`distribution`)와 시간별 제출 추이(`timeline`)를 항상 동시에 반환합니다.
+
+  이 API는 **대회 종료 후**에만 조회할 수 있으며, 누구나 접근 가능합니다.
+
+  ### 🔒 Authentication
+
+  🔸 Optional
+  인증 여부와 관계없이 대회가 종료된 이후라면 접근할 수 있습니다.
+
+  ### Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `contestId` | number | ✅ | 대상 대회의 ID |
+  | `problemId` | number | ✅ | 대상 문제의 ID |
+
+  ### 📤 Responses
+
+  #### 200 OK
+
+  - `contestId`: 대회 ID
+  - `problemId`: 문제 ID
+  - `distribution`: 오답 분포 데이터
+    - `totalSubmissions`: 총 제출 수
+    - `counts`: 결과별 제출 수
+      - `WA` ← WrongAnswer
+      - `TLE` ← TimeLimitExceeded
+      - `MLE` ← MemoryLimitExceeded
+      - `RE` ← RuntimeError + SegmentationFaultError
+      - `CE` ← CompileError
+      - `ETC` ← ServerError + OutputLimitExceeded
+  - `timeline`: 시간별 제출 추이 데이터
+    - `intervalMinutes`: 집계 간격(분) — 대회 시간의 6등분 (예: 3시간 대회 → 30분, 6시간 대회 → 60분)
+    - `series[]`: 6개의 슬롯
+      - `timestamp`: 슬롯 시작 시각(ISO8601)
+      - `accepted`: 해당 시각 Accepted 제출 수
+      - `wrong`: 해당 시각 Wrong 제출 수 (WA/TLE/MLE/RE/CE/ETC의 합)
+
+}
