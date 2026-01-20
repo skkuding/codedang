@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer'
-import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator'
+import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator'
 
 class Result {
   jplagOutput: string
