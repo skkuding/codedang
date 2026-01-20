@@ -118,8 +118,9 @@ export class CheckSubscriptionService implements OnModuleInit {
       }
     })
 
-    if (status === CheckResultStatus.ServerError)
-      throw new UnprocessableDataException(`${msg.checkId} ${msg.error}`)
+    throw new UnprocessableDataException(
+      `${msg.checkId} ${msg.checkResult} ${msg.error}`
+    )
   }
 
   @Span()

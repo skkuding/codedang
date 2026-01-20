@@ -8,6 +8,7 @@ import {
 } from '@libs/auth'
 import {
   CursorValidationPipe,
+  IDValidationPipe,
   RequiredIntPipe,
   SubmissionOrderPipe
 } from '@libs/pipe'
@@ -23,6 +24,7 @@ import {
 import { RejudgeResult } from './model/rejudge-result.output'
 import { RejudgeInput } from './model/rejudge.input'
 import { SubmissionDetail } from './model/submission-detail.output'
+import { SubmissionResultOutput } from './model/submission-result.model'
 import { SubmissionsWithTotal } from './model/submissions-with-total.output'
 import { SubmissionService } from './submission.service'
 
@@ -202,6 +204,28 @@ export class SubmissionResolver {
   ): Promise<RejudgeResult> {
     return await this.submissionService.rejudgeAssignmentProblem(
       input,
+      req.user
+    )
+  }
+
+  /**
+   * submissionId와 testcaseId를 통해 특정 submissionResult를 불러옵니다.
+   * @param submissionId
+   * @param testcaseId
+   * @returns {SubmissionResultOutput}
+   */
+  @UseDisableAdminGuard()
+  @Query(() => SubmissionResultOutput)
+  async getSubmissionResult(
+    @Args('submissionId', { type: () => Int }, IDValidationPipe)
+    submissionId: number,
+    @Args('testcaseId', { type: () => Int }, IDValidationPipe)
+    testcaseId: number,
+    @Context('req') req: AuthenticatedRequest
+  ): Promise<SubmissionResultOutput> {
+    return this.submissionService.getSubmissionResult(
+      submissionId,
+      testcaseId,
       req.user
     )
   }
