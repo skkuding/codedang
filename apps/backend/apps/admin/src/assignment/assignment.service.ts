@@ -26,6 +26,15 @@ export class AssignmentService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
+  /**
+   * 과제 목록을 조회합니다
+   *
+   * @param {number} take 페이지당 반환할 과제 개수
+   * @param {number} groupId 그룹 ID
+   * @param {number | null} cursor 페이지네이션 커서
+   * @param {boolean} isExercise exercise 여부 (false : assignment)
+   * @returns 과제리스트, 참가자
+   */
   async getAssignments(
     take: number,
     groupId: number,
