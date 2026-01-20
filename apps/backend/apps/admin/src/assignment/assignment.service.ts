@@ -64,6 +64,17 @@ export class AssignmentService {
     })
   }
 
+  /**
+   * 특정 과제의 상세 정보를 조회합니다
+   *
+   * @param {number} assignmentId 과제 ID
+   * @param {number} groupId 그룹 ID
+   * @returns 과제 상세 정보, 참가사 수
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 해당 과제가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제 ID의 그룹 ID가 일치하지 않을 때
+   */
   async getAssignment(assignmentId: number, groupId: number) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
