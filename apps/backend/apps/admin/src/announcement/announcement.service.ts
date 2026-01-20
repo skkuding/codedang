@@ -91,6 +91,13 @@ export class AnnouncementService {
     })
   }
 
+  /**
+   * 특정 대회 내의 기존 공지 정보 수정
+   *
+   * @param {number} contestId 대회 ID
+   * @param {UpdateAnnouncementInput} input 수정할 데이터
+   * @returns 업데이트된 공지 정보
+   */
   async updateAnnouncement(contestId: number, input: UpdateAnnouncementInput) {
     await this.prisma.contest.findUniqueOrThrow({ where: { id: contestId } })
     const { id, ...data } = input
