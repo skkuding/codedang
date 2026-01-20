@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-react-service
+  namespace: onboarding-k8s
+spec:
+  selector:
+    app: example-react
+  ports:
+    - port: 80
+      targetPort: 80
