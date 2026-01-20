@@ -10,7 +10,8 @@ import {
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
@@ -1466,11 +1467,17 @@ export class ContestService {
 
     return submissions.map((submission) => {
       const { user, problem, ...rest } = submission
+      const order = problemOrderMap.get(submission.problemId)
+      if (order === undefined) {
+        throw new UnprocessableDataException(
+          `Problem ${submission.problemId} is not found in contest ${contestId}`
+        )
+      }
       return {
         ...rest,
         username: user!.username,
         title: problem!.title,
-        order: problemOrderMap.get(submission.problemId) ?? null
+        order
       }
     })
   }
