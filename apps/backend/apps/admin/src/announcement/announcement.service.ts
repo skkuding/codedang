@@ -76,6 +76,13 @@ export class AnnouncementService {
     })
   }
 
+  /**
+   * 특정 대회 내의 특정 공지 상세 정보 조회합니다.
+   *
+   * @param {number} contestId 대회 ID
+   * @param {number} id 공지사항 ID
+   * @returns 공지 상세 정보
+   */
   async getAnnouncementById(contestId: number, id: number) {
     await this.prisma.contest.findUniqueOrThrow({ where: { id: contestId } })
 
