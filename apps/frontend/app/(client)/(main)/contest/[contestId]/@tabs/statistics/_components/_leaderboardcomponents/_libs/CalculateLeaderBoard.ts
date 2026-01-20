@@ -100,7 +100,7 @@ function reflectSubmissionToState(
     return
   }
   if (problem.solveTime !== null) {
-    problem.judgeResult = submission.result as JudgeResult
+    //problem.judgeResult = submission.result as JudgeResult
     return
   }
 

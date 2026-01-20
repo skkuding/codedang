@@ -8,6 +8,7 @@ import {
   TabsTrigger,
   TabsList
 } from '@/components/shadcn/tabs'
+import { cn } from '@/libs/utils'
 import { useUserSelectionStore } from '@/stores/selectUserStore'
 import { useState } from 'react'
 import { ProblemStatisticsPage } from './ProblemStatistics'
@@ -36,7 +37,9 @@ export function StatisticsPage() {
               <Switch
                 checked={showOnlySelected}
                 onCheckedChange={(checked) => setShowOnlySelected(checked)}
-                className="!bg-line-neutral"
+                className={cn(
+                  showOnlySelected ? 'bg-primary' : '!bg-line-neutral'
+                )}
               />
             </>
           )}

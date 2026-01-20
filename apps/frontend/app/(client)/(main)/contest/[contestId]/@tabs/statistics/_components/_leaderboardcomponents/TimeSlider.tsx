@@ -102,7 +102,7 @@ export function TimeSlider({
       const elapsed = currentSubmissionTime - contestStartTime
       setDisplayTime(formatDuration(Math.max(0, elapsed)))
     } else {
-      setDisplayTime('00:00:00')
+      setDisplayTime(getTotalDuration())
     }
   }, [currentSubmissionTime, contestStartTime])
 
