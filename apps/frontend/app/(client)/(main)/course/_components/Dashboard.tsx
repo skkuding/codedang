@@ -2,15 +2,10 @@
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { AssignmentIcon, ExerciseIcon } from '@/components/Icons'
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle
-} from '@/components/shadcn/drawer'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
-import type { Assignment, AssignmentSummary } from '@/types/type'
+import type { Assignment, AssignmentSummary, JoinedCourse } from '@/types/type'
 import { useQueries, type UseQueryOptions } from '@tanstack/react-query'
+import { ChevronDown } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { AssignmentLink } from '../[courseId]/_components/AssignmentLink'
 import { DashboardCalendar } from './DashboardCalendar'
@@ -38,7 +33,10 @@ interface WorkItem {
 }
 
 interface GroupedRows {
+  courseId: number
   courseTitle: string
+  courseNum?: string
+  classNum?: number
   rows: WorkItem[]
 }
 
@@ -110,10 +108,13 @@ const makeAssignmentQueries = (
     }
   })
 
-export function Dashboard({ courseIds }: { courseIds: number[] }) {
-  const validCourseIds = (courseIds ?? []).filter(
-    (n) => Number.isFinite(n) && n > 0
+export function Dashboard({ courses }: { courses: JoinedCourse[] }) {
+  const validCourseIds = useMemo(
+    () => courses.map((c) => c.id).filter((n) => Number.isFinite(n) && n > 0),
+    [courses]
   )
+
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     todayAtMidnight()
@@ -137,15 +138,6 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
     } else {
       setSelectedDate(normalized)
       setViewMonth(new Date(normalized.getFullYear(), normalized.getMonth(), 1))
-    }
-  }
-
-  const [drawerOpen, setDrawerOpen] = useState(false)
-
-  const onSelectDateMobile = (nextDate: Date | undefined) => {
-    onSelectDate(nextDate)
-    if (nextDate) {
-      setDrawerOpen(true)
     }
   }
 
@@ -228,9 +220,9 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
   )
 
   const groupedByCourse: GroupedRows[] = useMemo(() => {
-    const map = new Map<string, WorkItem[]>()
+    const map = new Map<number, WorkItem[]>()
     for (const row of visibleRows) {
-      const key = row.group.groupName || 'Unknown'
+      const key = row.group.id || 0
       let bucket = map.get(key)
       if (!bucket) {
         bucket = []
@@ -239,9 +231,27 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
       bucket.push(row)
     }
     return [...map]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([courseTitle, rows]) => ({ courseTitle, rows }))
-  }, [visibleRows])
+      .map(([courseId, rows]) => {
+        const detail = courses.find((c) => c.id === courseId)
+
+        return {
+          courseId,
+          courseNum: detail?.courseInfo.courseNum,
+          classNum: detail?.courseInfo.classNum,
+          courseTitle: rows[0].group.groupName || 'Unknown',
+          rows
+        }
+      })
+      .sort((a, b) => a.courseTitle.localeCompare(b.courseTitle))
+  }, [visibleRows, courses])
+
+  const totalWorkCount = useMemo(() => {
+    let count = 0
+    groupedByCourse.forEach((g) => {
+      count += g.rows.length
+    })
+    return count
+  }, [groupedByCourse])
 
   const deadlineDateList = useMemo(() => {
     const uniq = new Set<number>()
@@ -255,30 +265,30 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
 
   return (
     <section className="mx-auto max-w-[1208px]">
-      <div className="pb-[30px]">
-        <h2 className="text-[30px] font-semibold leading-9 tracking-[-0.9px] text-black">
+      <div className="pb-4 sm:pb-[30px]">
+        <h2 className="text-[20px] font-semibold leading-9 tracking-[-0.9px] text-black md:text-[30px]">
           DASHBOARD
         </h2>
       </div>
 
       <div className="hidden gap-[14px] sm:grid md:grid-cols-2 lg:grid-cols-3">
         <CardSection
-          icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
+          icon={<AssignmentIcon className="text-color-violet-60 h-6 w-6" />}
           title="Assignment"
-          groups={groupedByCourse.map(({ courseTitle, rows }) => ({
-            courseTitle,
-            rows: rows.filter((r) => !r.isExercise)
+          groups={groupedByCourse.map((group) => ({
+            ...group,
+            rows: group.rows.filter((r) => !r.isExercise)
           }))}
           selectedDate={selectedDate}
           courseIdResolver={courseIdResolver}
         />
 
         <CardSection
-          icon={<ExerciseIcon className="h-7 w-7 fill-violet-600" />}
+          icon={<ExerciseIcon className="text-color-violet-60 h-7 w-7" />}
           title="Exercise"
-          groups={groupedByCourse.map(({ courseTitle, rows }) => ({
-            courseTitle,
-            rows: rows.filter((r) => r.isExercise)
+          groups={groupedByCourse.map((group) => ({
+            ...group,
+            rows: group.rows.filter((r) => r.isExercise)
           }))}
           selectedDate={selectedDate}
           courseIdResolver={courseIdResolver}
@@ -293,53 +303,83 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
         />
       </div>
 
-      <div className="sm:hidden">
-        <div className="w-full origin-top">
-          <DashboardCalendar
-            selectedDate={selectedDate}
-            onSelect={onSelectDateMobile}
-            deadlineDateList={deadlineDateList}
-            viewMonth={viewMonth}
-            setViewMonth={setViewMonth}
-          />
-        </div>
+      {/* Mobile View */}
+      <div className="px-4 md:hidden">
+        <DashboardCalendar
+          selectedDate={selectedDate}
+          onSelect={onSelectDate}
+          deadlineDateList={deadlineDateList}
+          viewMonth={viewMonth}
+          setViewMonth={setViewMonth}
+        >
+          <div className="flex w-full min-w-0 gap-8 px-1">
+            <MobileCardSection
+              title="ASSIGNMENT"
+              icon={<AssignmentIcon className="text-color-violet-60 h-5 w-5" />}
+              groups={groupedByCourse.map((group) => ({
+                ...group,
+                rows: group.rows.filter((r) => !r.isExercise)
+              }))}
+              selectedDate={selectedDate}
+              courseIdResolver={courseIdResolver}
+              isExpanded={isExpanded}
+            />
 
-        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-          <DrawerContent className="max-h-[90vh] pb-0">
-            <DrawerHeader>
-              <DrawerTitle>
-                {selectedDate?.toLocaleDateString() ?? ''}
-              </DrawerTitle>
-            </DrawerHeader>
+            <MobileCardSection
+              title="EXERCISE"
+              icon={<ExerciseIcon className="text-color-violet-60 h-5 w-5" />}
+              groups={groupedByCourse.map((group) => ({
+                ...group,
+                rows: group.rows.filter((r) => r.isExercise)
+              }))}
+              selectedDate={selectedDate}
+              courseIdResolver={courseIdResolver}
+              isExpanded={isExpanded}
+            />
+          </div>
 
-            <div className="mx-auto w-full items-center space-y-6">
-              <CardSection
-                icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
-                title="Assignment"
-                groups={groupedByCourse.map(({ courseTitle, rows }) => ({
-                  courseTitle,
-                  rows: rows.filter((r) => !r.isExercise)
-                }))}
-                selectedDate={selectedDate}
-                courseIdResolver={courseIdResolver}
+          {totalWorkCount > 2 && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-color-neutral-40 mt-8 flex w-full items-center justify-center gap-1 text-[13px]"
+            >
+              {isExpanded ? 'Less' : 'More'}
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-300 ${
+                  isExpanded ? 'rotate-180' : 'rotate-0'
+                }`}
               />
-
-              <CardSection
-                icon={<ExerciseIcon className="h-7 w-7 fill-violet-600" />}
-                title="Exercise"
-                groups={groupedByCourse.map(({ courseTitle, rows }) => ({
-                  courseTitle,
-                  rows: rows.filter((r) => r.isExercise)
-                }))}
-                selectedDate={selectedDate}
-                courseIdResolver={courseIdResolver}
-              />
-            </div>
-          </DrawerContent>
-        </Drawer>
+            </button>
+          )}
+        </DashboardCalendar>
       </div>
     </section>
   )
+}
+
+const timeProgress = (start: Date, due: Date) => {
+  const now = new Date().getTime()
+  const startTime = start.getTime()
+  const dueTime = due.getTime()
+
+  {
+    /*시작 전인 경우*/
+  }
+  if (now < startTime) {
+    return 0
+  }
+
+  {
+    /*마감기한 지난 경우*/
+  }
+  if (now > dueTime) {
+    return 100
+  }
+
+  const totalDuration = dueTime - startTime
+  const elapsed = now - startTime
+
+  return Math.min(100, Math.round((elapsed / totalDuration) * 100))
 }
 
 function CardSection({
@@ -453,5 +493,80 @@ function CardSection({
         </ScrollArea>
       </div>
     </section>
+  )
+}
+
+function MobileCardSection({
+  icon,
+  title,
+  groups,
+  isExpanded,
+  courseIdResolver
+}: CardSectionProps & { isExpanded: boolean }) {
+  const visibleGroups = useMemo(() => {
+    const filtered = groups.filter((g) => g.rows.length > 0)
+
+    if (isExpanded) {
+      return filtered
+    }
+
+    if (filtered.length === 0) {
+      return []
+    }
+
+    return [filtered[0]]
+  }, [groups, isExpanded])
+
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-[10px]">
+      <div className="flex items-center gap-1">
+        <span>{icon}</span>
+        <span className="text-sm font-medium uppercase leading-[140%] tracking-[-0.42px]">
+          {title}
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-5">
+        {visibleGroups.map((group) => (
+          <div key={group.courseTitle} className="flex flex-col gap-2">
+            <div className="flex flex-col text-sm font-normal leading-[150%] tracking-[-0.42px]">
+              <span className="text-color-neutral-50 text-[11px] font-normal leading-[140%] tracking-[-0.33px]">
+                [{group.courseNum}_{group.classNum}]
+              </span>
+              <span className="truncate font-normal">{group.courseTitle}</span>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {group.rows.map((row) => {
+                const progress = timeProgress(
+                  row.startTime,
+                  row.dueTime ?? row.endTime
+                )
+                const courseId = courseIdResolver(row)
+
+                return (
+                  <div key={row.id} className="flex flex-col gap-1">
+                    <div className="w-full text-[12px] font-normal leading-[140%] tracking-[-0.36px]">
+                      <AssignmentLink
+                        assignment={row.raw}
+                        courseId={courseId}
+                        isExercise={row.isExercise}
+                      />
+                    </div>
+
+                    <div className="bg-color-neutral-99 h-1.5 w-full overflow-hidden rounded-full">
+                      <div
+                        className="bg-color-violet-70 h-full rounded-full transition-all duration-500"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }

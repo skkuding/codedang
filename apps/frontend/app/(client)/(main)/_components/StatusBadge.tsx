@@ -42,7 +42,7 @@ export function StatusBadge({ variant }: Props) {
   return (
     <div className="inline-flex items-center gap-[6px]">
       <Image src={image} alt={text} />
-      <p className={cn('font-sans text-sm font-semibold', color)}>{text}</p>
+      <p className={cn('font-sans text-sm font-normal', color)}>{text}</p>
     </div>
   )
 }

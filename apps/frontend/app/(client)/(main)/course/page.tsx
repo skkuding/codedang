@@ -3,6 +3,7 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import welcomeLogo from '@/public/logos/welcome.png'
+import type { JoinedCourse } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import Image from 'next/image'
 import { Suspense } from 'react'
@@ -24,47 +25,18 @@ function CardListFallback() {
   )
 }
 
-async function getMyCourseIds(): Promise<number[]> {
-  type SearchParams = Record<string, string | number | boolean>
-  type Endpoint = { path: string; params: SearchParams }
+async function getJoinedCourses(): Promise<JoinedCourse[]> {
+  try {
+    const res = await safeFetcherWithAuth.get('course/joined', {
+      searchParams: { take: 100 }
+    })
 
-  const endpoints: Endpoint[] = [
-    { path: 'course/joined', params: { take: 100 } },
-    { path: 'course', params: { joined: 'true', take: 100 } }
-  ]
-
-  const isRecord = (v: unknown): v is Record<string, unknown> =>
-    typeof v === 'object' && v !== null
-
-  const isPositiveNumber = (v: unknown): v is number =>
-    typeof v === 'number' && Number.isFinite(v) && v > 0
-
-  for (const { path, params } of endpoints) {
-    try {
-      const res = await safeFetcherWithAuth.get(path, { searchParams: params })
-      if (!res.ok) {
-        continue
-      }
-
+    if (res.ok) {
       const json = await res.json()
-      const ids = Array.isArray(json)
-        ? json.flatMap((item) => {
-            if (!isRecord(item)) {
-              return []
-            }
-            const key = (['id', 'groupId', 'courseId'] as const).find((k) =>
-              isPositiveNumber(item[k])
-            )
-            return key ? [item[key] as number] : []
-          })
-        : []
-
-      if (ids.length) {
-        return ids
-      }
-    } catch {
-      // 실패 시 다음 endpoint 시도
+      return Array.isArray(json) ? (json as JoinedCourse[]) : []
     }
+  } catch (error) {
+    console.error('fail to load courses.', error)
   }
   return []
 }
@@ -89,19 +61,19 @@ export default async function Course() {
     )
   }
 
-  const courseIds = await getMyCourseIds()
+  const joinedCourses = await getJoinedCourses()
 
   return (
     <>
       <CourseMainBanner course={null} />
-      <div className="w-full px-6 pt-[100px] sm:px-[116px]">
-        <Dashboard courseIds={courseIds} />
+      <div className="w-full px-5 pt-[100px] sm:px-[116px]">
+        <Dashboard courses={joinedCourses} />
       </div>
 
-      <div className="flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-[100px] sm:px-[116px]">
+      <div className="flex w-full max-w-[1440px] flex-col gap-5 px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
-            <CourseCardList title="MY COURSE" />
+            <CourseCardList title="MY COURSE" courses={joinedCourses} />
           </Suspense>
         </ErrorBoundary>
       </div>
