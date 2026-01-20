@@ -10,7 +10,7 @@ export class AnnouncementService {
   /**
    * 특정 대회에 새로운 공지를 등록합니다.
    *
-   * @param {number} contestId contestId 대회 ID
+   * @param {number} contestId 대회 ID
    * @param {CreateAnnouncementInput} input 공지 생성 데이터 (problemOrder 문제 순서 - optional, content 내용)
    * @returns 등록된 공지 정보
    */
@@ -44,6 +44,12 @@ export class AnnouncementService {
     })
   }
 
+  /**
+   * 특정 대회에 해당하는 모든 공지를 조회합니다
+   *
+   * @param {number} contestId 대회 ID
+   * @returns 대회 공지 리스트 (공지는 문제 순서를 함께 반환)
+   */
   async getAnnouncementsByContestId(contestId: number) {
     await this.prisma.contest.findUniqueOrThrow({ where: { id: contestId } })
 
