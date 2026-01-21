@@ -243,22 +243,18 @@ export class NotificationService {
       return
     }
 
-    const notification = await this.prisma.notification.create({
+    await this.prisma.notification.create({
       data: {
         title,
         message,
         url,
-        type
+        type,
+        NotificationRecord: {
+          createMany: {
+            data: userIds.map((userId) => ({ userId }))
+          }
+        }
       }
-    })
-
-    const notificationRecords = userIds.map((userId) => ({
-      notificationId: notification.id,
-      userId
-    }))
-
-    await this.prisma.notificationRecord.createMany({
-      data: notificationRecords
     })
   }
 
