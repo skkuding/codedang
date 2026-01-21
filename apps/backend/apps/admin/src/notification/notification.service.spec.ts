@@ -133,7 +133,6 @@ describe('NotificationService', () => {
     it('should create notification for all graded users', async () => {
       db.assignment.findUnique.resolves(assignmentInfoForGraded)
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 2 })
       db.pushSubscription.findMany.resolves([])
 
       await service.notifyAssignmentGraded(assignmentId)
@@ -154,9 +153,11 @@ describe('NotificationService', () => {
         })
       ).to.be.true
       expect(db.notification.create.calledOnce).to.be.true
-      expect(db.notificationRecord.createMany.calledOnce).to.be.true
-      const createManyCall = db.notificationRecord.createMany.getCall(0)
-      expect(createManyCall.args[0].data).to.have.lengthOf(2)
+
+      const createCall = db.notification.create.getCall(0)
+      const inputData = createCall.args[0].data
+
+      expect(inputData.NotificationRecord.createMany.data).to.have.lengthOf(2)
     })
 
     it('should not create notification when no receivers found', async () => {
