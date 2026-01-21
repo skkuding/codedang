@@ -287,6 +287,12 @@ export class NotificationService {
     await this.sendPushNotification(receivers, title, message, url)
   }
 
+  /**
+   * HTML 형식이 포함된 문자열을 순수 텍스트(Plain Text)로 변환합니다.
+   *
+   * @param {string} input HTML 태그가 포함된 원본 문자열
+   * @returns 태그 제거 및 엔티티 디코딩이 완료된 순수 텍스트
+   */
   processNotificationText(input: string) {
     if (!input) return ''
     const removedTags = input.replace(/<[^>]*>/g, '')
