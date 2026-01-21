@@ -428,14 +428,13 @@ describe('NotificationService', () => {
 
       expect(db.notification.create.calledOnce).to.be.true
       const createCall = db.notification.create.getCall(0)
+      const inputData = createCall.args[0].data
       expect(createCall.args[0].data.title).to.equal('Important Update')
       expect(createCall.args[0].data.message).to.equal('Body content here')
       expect(createCall.args[0].data.type).to.equal(NotificationType.Other)
       expect(createCall.args[0].data.url).to.equal(`/notice/${noticeId}`)
 
-      expect(db.notificationRecord.createMany.calledOnce).to.be.true
-      const createManyCall = db.notificationRecord.createMany.getCall(0)
-      expect(createManyCall.args[0].data).to.have.lengthOf(3)
+      expect(inputData.NotificationRecord.createMany.data).to.have.lengthOf(3)
       expect(db.pushSubscription.findMany.calledOnce).to.be.true
     })
 
