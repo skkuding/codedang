@@ -188,7 +188,6 @@ describe('NotificationService', () => {
     it('should create notification for all group members when assignment is created', async () => {
       db.assignment.findUnique.resolves(assignmentInfo)
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 3 })
       db.pushSubscription.findMany.resolves([])
 
       await service.notifyAssignmentCreated(assignmentId)
@@ -211,17 +210,15 @@ describe('NotificationService', () => {
 
       expect(db.notification.create.calledOnce).to.be.true
       const createCall = db.notification.create.getCall(0)
+      const inputData = createCall.args[0].data
       expect(createCall.args[0].data.title).to.equal('Test Group')
       expect(createCall.args[0].data.message).to.equal(
         `A new assignment "${assignment.title}" has been created.`
       )
       expect(createCall.args[0].data.type).to.equal(NotificationType.Assignment)
 
-      expect(db.notificationRecord.createMany.calledOnce).to.be.true
-      const createManyCall = db.notificationRecord.createMany.getCall(0)
-      expect(createManyCall.args[0].data).to.have.lengthOf(3)
-      expect(createManyCall.args[0].data[0]).to.deep.include({
-        notificationId: notification.id,
+      expect(inputData.NotificationRecord.createMany.data).to.have.lengthOf(3)
+      expect(inputData.NotificationRecord.createMany.data).to.deep.include({
         userId: 1
       })
     })
