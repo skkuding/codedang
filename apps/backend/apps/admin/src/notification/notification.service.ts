@@ -126,6 +126,16 @@ export class NotificationService {
     await this.sendPushNotification(receivers, title, message, url)
   }
 
+  /**
+   * 과제 마감 임박 시(1일 전 또는 3시간 전), 해당 과제가 속한 그룹의 구성원들에게 알림을 발송합니다.
+   *
+   * 1. 과제 정보를 조회하여 해당 그룹에 속한 모든 구성원을 수신자로 설정합니다.
+   * 2. 수신자 전원의 알림함(Notification)에 알림 내역을 저장합니다.
+   * 3. 수신자 중 푸시 알림을 구독(PushSubscription)한 사용자에게만 웹 푸시를 전송합니다.
+   *
+   * @param {number} assignmentId 과제 ID
+   * @returns
+   */
   async notifyAssignmentDue(assignmentId: number) {
     const assignmentInfo = await this.prisma.assignment.findUnique({
       where: { id: assignmentId },
