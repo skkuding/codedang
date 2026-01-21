@@ -170,6 +170,16 @@ export class NotificationService {
     await this.sendPushNotification(receivers, title, message, url)
   }
 
+  /**
+   * 대회가 시작되기 1시간 전, 해당 대회의 참가자들에게 알림을 발송합니다.
+   *
+   * 1. 대회 정보를 조회하여 해당 대회의 모든 참가자를 수신자로 설정합니다.
+   * 2. 수신자 전원의 알림함(Notification)에 알림 내역을 저장합니다.
+   * 3. 수신자 중 푸시 알림을 구독(PushSubscription)한 사용자에게만 웹 푸시를 전송합니다.
+   *
+   * @param {number} contestId 대회 ID
+   * @returns
+   */
   async notifyContestStartingSoon(contestId: number) {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
