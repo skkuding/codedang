@@ -104,7 +104,7 @@ export function ProblemStatisticsPage() {
     averageTrial: 0.1,
     firstSolver: {
       id: 7,
-      username: 'user01'
+      username: 'user01user01user01'
     },
     fastestSolver: {
       id: 7,
@@ -282,7 +282,7 @@ export function ProblemStatisticsPage() {
             <p className="text-primary text-sm font-medium tracking-[-0.42px]">
               First Solver
             </p>
-            <p className="text-2xl font-semibold tracking-[-0.72px]">
+            <p className="truncate text-2xl font-semibold tracking-[-0.72px]">
               {statistics.firstSolver.username}
             </p>
           </div>
@@ -290,7 +290,7 @@ export function ProblemStatisticsPage() {
             <p className="text-primary text-sm font-medium tracking-[-0.42px]">
               Fastest Solver
             </p>
-            <p className="text-2xl font-semibold tracking-[-0.72px]">
+            <p className="truncate text-2xl font-semibold tracking-[-0.72px]">
               {statistics.fastestSolver.username}
             </p>
           </div>
