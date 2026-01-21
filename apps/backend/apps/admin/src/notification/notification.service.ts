@@ -321,6 +321,19 @@ export class NotificationService {
     return decoded
   }
 
+  /**
+   * 푸시 알림을 구독(PushSubscription)한 사용자들에게 실제 웹 푸시를 전송합니다.
+   *
+   * 1. 전달받은 사용자 ID 목록 중, DB에 유효한 PushSubscription 정보가 있는 사용자를 조회합니다.
+   * 2. web-push 라이브러리를 사용하여 브라우저로 알림을 비동기 전송합니다.
+   * 3. 전송 실패 시 오류 코드를 확인하여, 만료되거나 유효하지 않은 구독(404 Not Found, 410 Gone)인 경우 DB에서 해당 구독 정보를 삭제합니다.
+   *
+   * @param {number[]} userIds 수신 대상 사용자 ID 배열
+   * @param {string} title 알림 제목
+   * @param {string} message 알림 내용
+   * @param {string} url 관련 URL
+   * @returns
+   */
   private async sendPushNotification(
     userIds: number[],
     title: string,
