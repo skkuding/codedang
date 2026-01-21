@@ -252,6 +252,16 @@ export class NotificationService {
     })
   }
 
+  /**
+   * 새로운 공지가 생성되면, 모든 사용자들에게 알림을 발송합니다.
+   *
+   * 1. 코드당 서비스에 가입된 모든 사용자들을 수신자로 설정합니다.
+   * 2. 수신자 전원의 알림함(Notification)에 알림 내역을 저장합니다.
+   * 3. 수신자 중 푸시 알림을 구독(PushSubscription)한 사용자에게만 웹 푸시를 전송합니다.
+   *
+   * @param {number} noticeId 공지 ID
+   * @returns
+   */
   async notifyNoticeCreated(noticeId: number) {
     const notice = await this.prisma.notice.findUnique({
       where: { id: noticeId },
