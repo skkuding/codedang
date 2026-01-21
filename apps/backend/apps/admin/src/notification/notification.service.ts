@@ -225,11 +225,11 @@ export class NotificationService {
   /**
    * 알림(Notification)을 생성하고, 수신자별 알림 기록(NotificationRecord)을 DB에 저장합니다.
    *
-   * @param userIds 알림을 받을 사용자 ID 배열
-   * @param title 알림 제목
-   * @param message 알림 내용
-   * @param type 알림 유형
-   * @param url 관련 URL
+   * @param {number[]} userIds 알림을 받을 사용자 ID 배열
+   * @param {string} title 알림 제목
+   * @param {string} message 알림 내용
+   * @param {NotificationType} type 알림 유형
+   * @param {string} url 관련 URL
    * @returns
    */
   private async saveNotification(
