@@ -1,7 +1,27 @@
-variable "private_admin_api1_subnet_id" { sensitive = true }
-variable "private_admin_api2_subnet_id" { sensitive = true }
-variable "private_iris1_subnet_id" { sensitive = true }
-variable "private_iris2_subnet_id" { sensitive = true }
-variable "private_client_api1_subnet_id" { sensitive = true }
-variable "private_client_api2_subnet_id" { sensitive = true }
 variable "nat_network_interface_id" { sensitive = true }
+
+variable "postgres_port" {
+  description = "Port for Postgres DB"
+  type        = number
+  default     = 5432
+  sensitive   = true
+}
+
+variable "redis_port" {
+  description = "Port for Redis"
+  type        = number
+  default     = 6379
+  sensitive   = true
+}
+
+variable "rabbitmq_port" {
+  type      = string
+  default   = "5671"
+  sensitive = true
+}
+
+variable "region" {
+  type        = string
+  description = "The region for provider"
+  default     = "ap-northeast-2"
+}

@@ -11,13 +11,13 @@ output "private_route_table_id" {
 }
 
 output "mq_subnet_id" {
-  value = aws_subnet.public_mq.id
+  value = module.public_api_subnets.subnet_ids["public_mq"]
 }
 
 output "db_subnet_ids" {
   value = [
-    aws_subnet.public_db1.id,
-    aws_subnet.public_db2.id,
-    aws_subnet.public_db3.id,
+    module.public_api_subnets.subnet_ids["public_db1"],
+    module.public_api_subnets.subnet_ids["public_db2"],
+    module.public_api_subnets.subnet_ids["public_db3"],
   ]
 }
