@@ -1480,7 +1480,8 @@ export class ContestService {
         order
       }
     })
-   /**
+  }
+  /**
    * 대회 statistics 페이지의 문제별 통계 그래프를 조회합니다.
    * 대회 종료 후에만 조회할 수 있습니다.
    *

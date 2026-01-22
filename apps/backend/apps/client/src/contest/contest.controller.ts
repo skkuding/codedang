@@ -205,8 +205,8 @@ export class ContestController {
     @Param('id', IDValidationPipe) contestId: number
   ) {
     return await this.contestService.getAllSubmissionsByContest(contestId)
-    }
-  
+  }
+
   @Get(':id/problem/:problemId/statistics/graph')
   @UserNullWhenAuthFailedIfPublic()
   async getContestProblemStatistics(
