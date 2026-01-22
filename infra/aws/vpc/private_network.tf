@@ -75,9 +75,8 @@ module "private_admin_api_subnets" {
 }
 
 
-# 현재 Codedang-Private-RT가 아닌,
-# 어떤 라우팅 테이블과도 명시적으로 연결되어 있지 않아서
-# 기본 라우팅 테이블에 연결되어 있는 상태
+# Current status: Associated with the Main Route Table.
+# Reason: Explicit association with Codedang-Private-RT is missing.
 
 # resource "aws_route_table" "legacy" {
 #   vpc_id = aws_vpc.main.id
