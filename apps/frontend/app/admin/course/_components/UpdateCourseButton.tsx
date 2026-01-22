@@ -37,8 +37,16 @@ interface TableRowData {
 }
 
 export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
+  type FormValues = CourseInput & {
+    phoneNum1?: string
+    phoneNum2?: string
+    phoneNum3?: string
+    emailLocal?: string
+    emailDomain?: string
+  }
+
   const [updateCourse] = useMutation(UPDATE_COURSE)
-  const methods = useForm<CourseInput>({
+  const methods = useForm<FormValues>({
     resolver: valibotResolver(courseSchema),
     mode: 'onChange',
     defaultValues: {
@@ -70,6 +78,14 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
       if (result.data) {
         const data = result.data.getCourse
 
+        // split phoneNum into parts if present
+        const phone = data.courseInfo?.phoneNum || ''
+        const [p1 = '', p2 = '', p3 = ''] = phone.split('-')
+
+        const email = data.courseInfo?.email || ''
+        const [local = '', ...domainParts] = email.split('@')
+        const domain = domainParts.join('@')
+
         methods.reset({
           courseTitle: data.groupName,
           courseNum: data.courseInfo?.courseNum,
@@ -78,9 +94,14 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
           semester: data.courseInfo?.semester,
           week: data.courseInfo?.week,
           email: data.courseInfo?.email,
+          emailLocal: local,
+          emailDomain: domain,
           website: data.courseInfo?.website,
           office: data.courseInfo?.office,
           phoneNum: data.courseInfo?.phoneNum,
+          phoneNum1: p1,
+          phoneNum2: p2,
+          phoneNum3: p3,
           config: {
             showOnList: true,
             allowJoinFromSearch: true,
@@ -96,7 +117,20 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
     }
   }
 
-  const handleUpdateSubmit: SubmitHandler<CourseInput> = (data) => {
+  const handleUpdateSubmit: SubmitHandler<FormValues> = (data) => {
+    // Combine phone parts if present
+    const anyPhonePart = data.phoneNum1 || data.phoneNum2 || data.phoneNum3
+    if (anyPhonePart) {
+      const part1 = String(data.phoneNum1 || '').trim()
+      const part2 = String(data.phoneNum2 || '').trim()
+      const part3 = String(data.phoneNum3 || '').trim()
+      data.phoneNum = `${part1}-${part2}-${part3}`
+    } else {
+      data.phoneNum = ''
+    }
+    const local = String(data.emailLocal || '').trim()
+    const domain = String(data.emailDomain || '').trim()
+    data.email = local || domain ? `${local}@${domain}` : ''
     const selectedRow = table.getSelectedRowModel().rows[0]
     const updatePromise = updateCourse({
       variables: {
@@ -130,8 +164,8 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
       <Modal
         size="lg"
         type={'input'}
-        title="Update Course"
-        headerDescription="You can update your course information here."
+        title="Edit Course"
+        headerDescription="You can edit and modify information"
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         className="!pb-0 !pr-[20px]"
