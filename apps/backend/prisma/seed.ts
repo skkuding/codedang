@@ -1736,7 +1736,7 @@ const createContests = async () => {
       })
     }
   }
-  // add problem 5, 6, 7, 8 to ended contest (A, B, C, D)
+  // add problem 5, 6, 7, 8 to ended contest
   for (const contest of endedContests) {
     for (const [index, problem] of problems.slice(4, 8).entries()) {
       await prisma.contestProblem.create({
@@ -3702,7 +3702,7 @@ const createContestProblemRecords = async () => {
             const timePenalty = Math.floor(
               (finishTime.getTime() - startTime.getTime()) / (1000 * 60)
             )
-            const wrongAttemptCount = j // 오답 횟수
+            const wrongAttemptCount = j
             const submitCountPenalty = wrongAttemptCount * 20
 
             const wrongResultTypes = [

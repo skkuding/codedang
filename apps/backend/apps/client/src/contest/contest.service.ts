@@ -571,6 +571,7 @@ export class ContestService {
         return {
           username: user!.username,
           totalScore: isFrozen ? score : finalScore,
+          userId,
           totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
           problemRecords,
           rank: rank++
@@ -1226,7 +1227,7 @@ export class ContestService {
       throw new EntityNotExistException('Contest')
     }
     const now = new Date()
-    if (contest.endTime <= now) {
+    if (contest.endTime > now) {
       throw new ForbiddenAccessException(
         'You can access to statistics after contest ends.'
       )
