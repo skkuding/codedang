@@ -244,7 +244,7 @@ export function ProblemStatisticsPage() {
           }
         </p>
         <div className="mb-3 flex h-[98px] gap-2">
-          <div className="flex-1 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
             <p className="text-primary text-sm font-medium tracking-[-0.42px]">
               Total Submission
             </p>
@@ -252,7 +252,7 @@ export function ProblemStatisticsPage() {
               {statistics.totalSubmissionCount}
             </p>
           </div>
-          <div className="flex-1 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
             <p className="text-primary text-sm font-medium tracking-[-0.42px]">
               Correct Answers
             </p>
@@ -260,7 +260,7 @@ export function ProblemStatisticsPage() {
               {statistics.acceptedSubmissionCount}
             </p>
           </div>
-          <div className="flex-1 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
             <p className="text-primary text-sm font-medium tracking-[-0.42px]">
               Correct Answers Rate
             </p>
@@ -268,7 +268,7 @@ export function ProblemStatisticsPage() {
               {(statistics.acceptedRate * 100).toFixed(1)}%
             </p>
           </div>
-          <div className="flex-1 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
             <p className="text-primary text-sm font-medium tracking-[-0.42px]">
               Average Attempt
             </p>
@@ -278,7 +278,7 @@ export function ProblemStatisticsPage() {
           </div>
         </div>
         <div className="mb-5 flex h-[188px] gap-2">
-          <div className="flex-1 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
             <p className="text-primary text-sm font-medium tracking-[-0.42px]">
               First Solver
             </p>
@@ -286,7 +286,7 @@ export function ProblemStatisticsPage() {
               {statistics.firstSolver.username}
             </p>
           </div>
-          <div className="flex-1 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
             <p className="text-primary text-sm font-medium tracking-[-0.42px]">
               Fastest Solver
             </p>
@@ -294,7 +294,7 @@ export function ProblemStatisticsPage() {
               {statistics.fastestSolver.username}
             </p>
           </div>
-          <div className="flex-1 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
             <p className="text-primary text-sm font-medium tracking-[-0.42px]">
               User Speed Rank
             </p>
@@ -305,7 +305,7 @@ export function ProblemStatisticsPage() {
                 ] || 'th')}
             </p>
           </div>
-          <div className="flex-1 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
             <p className="text-primary mb-3 text-sm font-medium tracking-[-0.42px]">
               Correct Answers by Language
             </p>
@@ -324,7 +324,7 @@ export function ProblemStatisticsPage() {
           </div>
         </div>
         <div className="flex h-[338px] gap-2">
-          <div className="flex-1 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <div className="w-1/2 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
             <p className="text-primary mb-3 text-sm font-medium tracking-[-0.42px]">
               Incorrect Answer Distribution
             </p>
@@ -451,7 +451,7 @@ export function ProblemStatisticsPage() {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="flex-1 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <div className="w-1/2 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
             <p className="text-primary mb-3 text-sm font-medium tracking-[-0.42px]">
               Trends in Submission
             </p>
