@@ -1736,9 +1736,9 @@ const createContests = async () => {
       })
     }
   }
-  // add problem 5, 6 to ended contest
+  // add problem 5, 6, 7, 8 to ended contest (A, B, C, D)
   for (const contest of endedContests) {
-    for (const [index, problem] of problems.slice(4, 6).entries()) {
+    for (const [index, problem] of problems.slice(4, 8).entries()) {
       await prisma.contestProblem.create({
         data: {
           order: index,
@@ -3546,6 +3546,46 @@ const createContestRecords = async () => {
     }
   }
 
+  // endedContests에 대한 통계 테스트용 데이터 추가 (contestId: 6)
+  if (endedContests.length > 0) {
+    const testContest = endedContests[0]
+    const testUsers = users.slice(0, 5)
+
+    for (let i = 0; i < testUsers.length; i++) {
+      const user = testUsers[i]
+      const existingRecord = await prisma.contestRecord.findFirst({
+        where: {
+          contestId: testContest.id,
+          userId: user.id
+        }
+      })
+
+      if (!existingRecord) {
+        const testContestProblems = await prisma.contestProblem.findMany({
+          where: { contestId: testContest.id }
+        })
+        const solvedCount = Math.min(i + 1, testContestProblems.length)
+        const penalty = (i + 1) * 50 + i * 20
+
+        const contestRecord = await prisma.contestRecord.create({
+          data: {
+            userId: user.id,
+            contestId: testContest.id,
+            acceptedProblemNum: solvedCount,
+            score: solvedCount * 100,
+            finalScore: solvedCount * 100,
+            totalPenalty: penalty,
+            finalTotalPenalty: penalty,
+            lastAcceptedTime: new Date(
+              testContest.startTime.getTime() + (i + 1) * 30 * 60 * 1000
+            )
+          }
+        })
+        contestRecords.push(contestRecord)
+      }
+    }
+  }
+
   return contestRecords
 }
 
@@ -3623,6 +3663,199 @@ const createContestProblemRecords = async () => {
         }
       })
     )
+  }
+
+  // endedContests에 대한 ContestProblemRecord 추가 (contestId: 6)
+  if (endedContests.length > 0 && contestRecords.length > 0) {
+    const testContest = endedContests[0]
+    const testContestProblems = await prisma.contestProblem.findMany({
+      where: { contestId: testContest.id },
+      orderBy: { order: 'asc' }
+    })
+
+    const testContestRecords = contestRecords.filter(
+      (cr) => cr.contestId === testContest.id
+    )
+
+    for (let i = 0; i < testContestRecords.length; i++) {
+      const contestRecord = testContestRecords[i]
+      const solvedCount = Math.min(i + 1, testContestProblems.length)
+
+      for (let j = 0; j < testContestProblems.length; j++) {
+        const contestProblem = testContestProblems[j]
+        const contestProblemId = contestProblem.id
+        const isSolved = j < solvedCount
+
+        if (isSolved) {
+          const existing = await prisma.contestProblemRecord.findFirst({
+            where: {
+              contestProblemId,
+              contestRecordId: contestRecord.id
+            }
+          })
+
+          if (!existing) {
+            const startTime = testContest.startTime
+            const finishTime = new Date(
+              startTime.getTime() + (j + 1) * 20 * 60 * 1000 + i * 5 * 60 * 1000
+            )
+            const timePenalty = Math.floor(
+              (finishTime.getTime() - startTime.getTime()) / (1000 * 60)
+            )
+            const wrongAttemptCount = j // 오답 횟수
+            const submitCountPenalty = wrongAttemptCount * 20
+
+            const wrongResultTypes = [
+              ResultStatus.WrongAnswer,
+              ResultStatus.TimeLimitExceeded,
+              ResultStatus.MemoryLimitExceeded,
+              ResultStatus.RuntimeError,
+              ResultStatus.SegmentationFaultError,
+              ResultStatus.CompileError,
+              ResultStatus.ServerError,
+              ResultStatus.OutputLimitExceeded
+            ]
+
+            for (let k = 0; k < wrongAttemptCount; k++) {
+              const wrongSubmitTime = new Date(
+                startTime.getTime() +
+                  (j + 1) * 20 * 60 * 1000 +
+                  i * 5 * 60 * 1000 -
+                  (wrongAttemptCount - k) * 5 * 60 * 1000
+              )
+
+              const wrongResultType =
+                wrongResultTypes[k % wrongResultTypes.length]
+
+              const wrongSubmission = await prisma.submission.create({
+                data: {
+                  userId: contestRecord.userId!,
+                  problemId: contestProblem.problemId,
+                  contestId: testContest.id,
+                  code: [{ id: 1, locked: false, text: 'wrong code' }],
+                  language: Language.C,
+                  result: wrongResultType,
+                  createTime: wrongSubmitTime,
+                  updateTime: wrongSubmitTime
+                }
+              })
+
+              const problemTestcase = await prisma.problemTestcase.findFirst({
+                where: { problemId: contestProblem.problemId },
+                orderBy: { id: 'asc' }
+              })
+
+              if (problemTestcase) {
+                await prisma.submissionResult.create({
+                  data: {
+                    submissionId: wrongSubmission.id,
+                    problemTestcaseId: problemTestcase.id,
+                    result: wrongResultType
+                  }
+                })
+              }
+            }
+
+            const acceptedSubmission = await prisma.submission.create({
+              data: {
+                userId: contestRecord.userId!,
+                problemId: contestProblem.problemId,
+                contestId: testContest.id,
+                code: [{ id: 1, locked: false, text: 'correct code' }],
+                language: Language.Cpp,
+                result: ResultStatus.Accepted,
+                createTime: finishTime,
+                updateTime: finishTime
+              }
+            })
+
+            const problemTestcases = await prisma.problemTestcase.findMany({
+              where: { problemId: contestProblem.problemId }
+            })
+
+            for (const testcase of problemTestcases) {
+              await prisma.submissionResult.create({
+                data: {
+                  submissionId: acceptedSubmission.id,
+                  problemTestcaseId: testcase.id,
+                  result: ResultStatus.Accepted,
+                  output: 'correct output'
+                }
+              })
+            }
+
+            await prisma.contestProblemRecord.create({
+              data: {
+                contestProblemId,
+                contestRecordId: contestRecord.id,
+                score: contestProblem.score,
+                finalScore: contestProblem.score,
+                finishTime,
+                submitCountPenalty,
+                timePenalty,
+                finalSubmitCountPenalty: submitCountPenalty,
+                finalTimePenalty: timePenalty,
+                isFirstSolver: i === 0 && j === 0
+              }
+            })
+          }
+        } else {
+          // 오답 생성
+          const wrongAttemptCount = Math.min(2 + i, 3)
+          const wrongResultTypes = [
+            ResultStatus.WrongAnswer,
+            ResultStatus.TimeLimitExceeded,
+            ResultStatus.MemoryLimitExceeded,
+            ResultStatus.RuntimeError,
+            ResultStatus.SegmentationFaultError,
+            ResultStatus.CompileError,
+            ResultStatus.ServerError,
+            ResultStatus.OutputLimitExceeded
+          ]
+
+          for (let k = 0; k < wrongAttemptCount; k++) {
+            const wrongSubmitTime = new Date(
+              testContest.startTime.getTime() +
+                (j + 1) * 30 * 60 * 1000 +
+                i * 5 * 60 * 1000 +
+                k * 10 * 60 * 1000
+            )
+
+            const wrongResultType =
+              wrongResultTypes[k % wrongResultTypes.length]
+
+            const wrongSubmission = await prisma.submission.create({
+              data: {
+                userId: contestRecord.userId!,
+                problemId: contestProblem.problemId,
+                contestId: testContest.id,
+                code: [{ id: 1, locked: false, text: 'wrong code' }],
+                language: Language.C,
+                result: wrongResultType,
+                createTime: wrongSubmitTime,
+                updateTime: wrongSubmitTime
+              }
+            })
+
+            // SubmissionResult 생성
+            const problemTestcase = await prisma.problemTestcase.findFirst({
+              where: { problemId: contestProblem.problemId },
+              orderBy: { id: 'asc' }
+            })
+
+            if (problemTestcase) {
+              await prisma.submissionResult.create({
+                data: {
+                  submissionId: wrongSubmission.id,
+                  problemTestcaseId: problemTestcase.id,
+                  result: wrongResultType
+                }
+              })
+            }
+          }
+        }
+      }
+    }
   }
 
   return contestProblemRecords
