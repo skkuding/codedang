@@ -1,5 +1,5 @@
 // apps/backend/apps/client/src/course/qna/dto/qna.dto.ts
-import { PartialType } from '@nestjs/mapped-types'
+import { PartialType } from '@nestjs/swagger'
 import { QnACategory } from '@prisma/client'
 import { Transform } from 'class-transformer'
 import {
