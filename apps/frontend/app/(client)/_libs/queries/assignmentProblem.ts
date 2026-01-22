@@ -9,12 +9,9 @@ export const assignmentProblemQueries = {
     ['assignment', assignmentId, 'problem'] as const,
   lists: (assignmentId: number) =>
     [...assignmentProblemQueries.all(assignmentId), 'list'] as const,
-  list: ({ assignmentId, ...searchParams }: GetAssignmentProblemListRequest) =>
+  list: ({ assignmentId, groupId }: GetAssignmentProblemListRequest) =>
     queryOptions({
-      queryKey: [
-        ...assignmentProblemQueries.lists(assignmentId),
-        { ...searchParams }
-      ] as const,
-      queryFn: () => getAssignmentProblemList({ assignmentId, ...searchParams })
+      queryKey: [assignmentId, groupId] as const,
+      queryFn: () => getAssignmentProblemList({ assignmentId, groupId })
     })
 }

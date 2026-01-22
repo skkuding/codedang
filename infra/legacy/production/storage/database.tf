@@ -110,6 +110,6 @@ resource "aws_secretsmanager_secret" "database" {
 resource "aws_secretsmanager_secret_version" "database" {
   secret_id = aws_secretsmanager_secret.database.id
   secret_string = jsonencode({
-    url = "postgres://${aws_db_instance.postgres.username}:${random_password.postgres_password.result}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/skkuding?schema=public"
+    url = "postgres://${aws_db_instance.postgres.username}:${random_password.postgres_password.result}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/skkuding?schema=public&connection_limit=20"
   })
 }

@@ -19,7 +19,12 @@ import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
 import { GET_PROBLEM_TESTCASE_WITHOUT_IO } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import arrowBottomIcon from '@/public/icons/arrow-bottom.svg'
+import arrowLeftFullIcon from '@/public/icons/arrow-left-full.svg'
+import arrowRightFullIcon from '@/public/icons/arrow-right-full.svg'
+import CheckboxIcon from '@/public/icons/check-box.svg'
 import checkIcon from '@/public/icons/check-green.svg'
+import trashcanIcon from '@/public/icons/trashcan2-red.svg'
 import { useTestcaseStore } from '@/stores/testcaseStore'
 import type { Language } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@apollo/client'
@@ -30,7 +35,6 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { BiSolidUser } from 'react-icons/bi'
-import { FaSortDown } from 'react-icons/fa'
 import { TestcasePanel } from './TestcasePanel'
 import { mapTestResults } from './libs/util'
 
@@ -109,6 +113,8 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
     setIsTestResult(false)
   }
 
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
   const language = lastSubmission?.language ?? 'C'
   const currentMember = summaries.find(
     (member) => member.userId === Number(userId)
@@ -123,7 +129,6 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
 
   // 첫 번째와 마지막 학생인지 확인
   const isFirstStudent = currentIndex === 0
-
   const isLastStudent = currentIndex === summaries.length - 1
 
   const [editorCode, setEditorCode] = useState('')
@@ -174,19 +179,28 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
     >
       <ResizablePanel
         defaultSize={35}
-        style={{ minWidth: '500px' }}
+        style={{ minWidth: '520px' }}
         minSize={20}
       >
-        <div className="grid-rows-editor grid h-full grid-cols-1">
-          <div className="flex h-12 w-full items-center justify-between border-b border-slate-700 bg-[#222939] px-3">
-            <div className="flex gap-2">
-              <BiSolidUser className="size-6 rounded-none text-gray-300" />
-              <DropdownMenu>
+        <div className="grid-rows-editor bg-editor-background-2 grid h-full grid-cols-1">
+          <div className="flex h-12 w-full items-center justify-between border-b border-slate-700 px-3">
+            <div className="flex items-center gap-1">
+              <BiSolidUser className="h-4 w-4 rounded-none text-gray-300" />
+              <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
                 <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
-                  <h1>
+                  <p className="text-[14px]">
                     {currentMember?.realName}({currentMember?.studentId})
-                  </h1>
-                  <FaSortDown />
+                  </p>
+                  <Image
+                    src={arrowBottomIcon}
+                    alt="open dropdown"
+                    width={16}
+                    height={16}
+                    className={cn(
+                      'transition-transform duration-200',
+                      isDropdownOpen && 'rotate-180'
+                    )}
+                  />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="max-h-[400px] overflow-y-auto border-slate-700 bg-slate-900">
                   {summaries.map((summary) => (
@@ -224,38 +238,45 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center">
               <Link
                 href={
                   `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${prevUserId}/problem/${problemId}` as const
                 }
-                className={cn(isFirstStudent && 'pointer-events-none')}
+                className={cn(
+                  'flex h-6 w-6 items-center justify-center',
+                  (isFirstStudent || summaries.length <= 1) &&
+                    'pointer-events-none opacity-40'
+                )}
               >
-                <Button
-                  size={'sm'}
-                  variant={'outline'}
-                  disabled={isFirstStudent || summaries.length <= 1}
-                >
-                  Previous
-                </Button>
+                <Image
+                  src={arrowLeftFullIcon}
+                  alt="Previous"
+                  width={16}
+                  height={16}
+                />
               </Link>
 
               <Link
                 href={
                   `/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${nextUserId}/problem/${problemId}` as const
                 }
-                className={cn(isLastStudent && 'pointer-events-none')}
+                className={cn(
+                  'flex h-6 w-6 items-center justify-center',
+                  (isLastStudent || summaries.length <= 1) &&
+                    'pointer-events-none opacity-40'
+                )}
               >
-                <Button
-                  size={'sm'}
-                  disabled={isLastStudent || summaries.length <= 1}
-                >
-                  Next
-                </Button>
+                <Image
+                  src={arrowRightFullIcon}
+                  alt="Next"
+                  width={16}
+                  height={16}
+                />
               </Link>
             </div>
           </div>
-          <div className="flex-1 bg-[#222939]">
+          <div className="flex-1">
             <ScrollArea className="h-full">
               {children}
 
@@ -265,23 +286,37 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
         </div>
       </ResizablePanel>
       <ResizableHandle className="border-[0.5px] border-slate-700" />
-      <ResizablePanel defaultSize={65} className="bg-[#222939]">
+      <ResizablePanel defaultSize={65} className="bg-editor-background-2">
         <div className="flex h-full flex-col">
-          <div className="flex h-12 items-center gap-2 border-b border-slate-700 bg-[#222939] px-6">
-            <div className="flex-1" />
-            <button
+          <div className="flex h-12 items-center justify-between border-b border-slate-700 bg-[#222939] px-6">
+            <Button
               onClick={handleReset}
-              className="rounded bg-gray-500 px-3 py-1 text-white hover:bg-gray-600"
+              type="button"
+              className="text-md bg-editor-fill-1 border-flowkit-red flex h-9 w-[86px] items-center gap-1 rounded-[4px] border py-[7px] pl-3 pr-[14px] font-normal hover:bg-[#232838]"
             >
-              Reset
-            </button>
-            <button
+              <span className="flex h-4 w-4 items-center justify-center">
+                <Image src={trashcanIcon} alt="reset" width={16} height={16} />
+              </span>
+              <span className="text-flowkit-red translate-y-[0.5px] leading-none">
+                Reset
+              </span>
+            </Button>
+
+            <Button
               onClick={handleTest}
+              size="editor"
+              variant="editor"
               disabled={isTesting}
-              className="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
+              type="button"
+              className="text-md flex h-9 w-[76px] items-center gap-1 rounded-[4px] border border-blue-500 bg-blue-500 py-[7px] pl-3 pr-[14px] font-normal disabled:opacity-60"
             >
-              {isTesting ? 'Testing...' : 'Test'}
-            </button>
+              <span className="flex h-4 w-4 items-center justify-center">
+                <Image src={CheckboxIcon} alt="test" width={16} height={16} />
+              </span>
+              <span className="translate-y-[0.5px] leading-none">
+                {isTesting ? 'Testing...' : 'Test'}
+              </span>
+            </Button>
           </div>
 
           <ResizablePanelGroup direction="vertical" className="flex-1">

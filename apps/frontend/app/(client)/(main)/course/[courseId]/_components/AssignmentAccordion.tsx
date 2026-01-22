@@ -60,7 +60,7 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
         <AssignmentAccordionItem
           key={assignment.id}
           assignment={assignment}
-          grade={gradeMap.get(assignment.id)} // 인덱스로 대응
+          grade={gradeMap.get(assignment.id)}
           courseId={courseId}
         />
       ))}
@@ -105,8 +105,20 @@ function AssignmentAccordionItem({
     setIsAccordionOpen(value === assignment.id.toString())
   }
 
-  if (!grade) {
-    return null
+  const submittedCount = grade?.submittedCount ?? 0
+  const problemCount = grade?.problemCount ?? problems?.total ?? 0
+
+  let scoreText = '- / -'
+  let isDetailActivated = false
+
+  if (grade) {
+    const userScore = grade.userAssignmentFinalScore ?? '-'
+    const perfectScore = grade.assignmentPerfectScore
+    scoreText = `${userScore} / ${perfectScore}`
+
+    isDetailActivated =
+      grade.userAssignmentFinalScore !== null &&
+      dayjs().isAfter(dayjs(assignment.endTime))
   }
 
   return (
@@ -165,26 +177,20 @@ function AssignmentAccordionItem({
                   : 'justify-end'
               )}
             >
-              {dayjs().isAfter(dayjs(assignment.startTime)) && (
-                <SubmissionBadge grade={grade} className="h-8 w-24 text-xs" />
-              )}
+              <SubmissionBadge
+                submittedCount={submittedCount}
+                problemCount={problemCount}
+                className="h-8 w-24 text-xs"
+              />
               {dayjs().isAfter(assignment.startTime) && (
-                <p className="text-sm font-medium">
-                  Score:{' '}
-                  {`${grade.userAssignmentFinalScore ?? '-'} / ${grade.assignmentPerfectScore}`}
-                </p>
+                <p className="text-sm font-medium">Score: {scoreText}</p>
               )}
 
               <Dialog
                 open={isAssignmentDialogOpen}
                 onOpenChange={setIsAssignmentDialogOpen}
               >
-                <DetailButton
-                  isActivated={
-                    grade.userAssignmentFinalScore !== null &&
-                    dayjs().isAfter(dayjs(assignment.endTime))
-                  }
-                />
+                <DetailButton isActivated={isDetailActivated} />
                 {isAssignmentDialogOpen && (
                   <GradeStatisticsModal
                     courseId={courseId}
@@ -235,17 +241,14 @@ function AssignmentAccordionItem({
             )}
 
             <div className="flex w-[10%] justify-center gap-1 text-base font-medium">
-              {dayjs().isAfter(assignment.startTime) && (
-                <p>
-                  {`${grade.userAssignmentFinalScore ?? '-'} / ${grade.assignmentPerfectScore}`}
-                </p>
-              )}
+              {dayjs().isAfter(assignment.startTime) && <p>{scoreText}</p>}
             </div>
 
             <div className="flex w-[13%] justify-center">
-              {dayjs().isAfter(dayjs(assignment.startTime)) && (
-                <SubmissionBadge grade={grade} />
-              )}
+              <SubmissionBadge
+                submittedCount={submittedCount}
+                problemCount={problemCount}
+              />
             </div>
 
             <div className="flex w-[5%] justify-center">
@@ -253,12 +256,7 @@ function AssignmentAccordionItem({
                 open={isAssignmentDialogOpen}
                 onOpenChange={setIsAssignmentDialogOpen}
               >
-                <DetailButton
-                  isActivated={
-                    grade.userAssignmentFinalScore !== null &&
-                    dayjs().isAfter(dayjs(assignment.endTime))
-                  }
-                />
+                <DetailButton isActivated={isDetailActivated} />
                 {isAssignmentDialogOpen && (
                   <GradeStatisticsModal
                     courseId={courseId}
@@ -338,6 +336,9 @@ function AssignmentAccordionItem({
                   const problemSubmission = submission?.find(
                     (sub) => sub.problemId === problem.id
                   )
+                  const submissionTime =
+                    problemSubmission?.submission?.submissionTime
+
                   return (
                     <div
                       key={problem.id}
@@ -360,17 +361,12 @@ function AssignmentAccordionItem({
                       </div>
 
                       <div className="flex w-[30%] justify-center">
-                        {(() => {
-                          const submissionTime =
-                            problemSubmission?.submission?.submissionTime
-
-                          return submissionTime ? (
-                            <div className="text-primary flex w-full justify-center text-sm font-normal">
-                              Last Submission :{' '}
-                              {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
-                            </div>
-                          ) : null
-                        })()}
+                        {submissionTime && (
+                          <div className="text-primary flex w-full justify-center text-sm font-normal">
+                            Last Submission :{' '}
+                            {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex w-[10%] justify-center gap-1 text-base font-medium">
@@ -406,14 +402,20 @@ function AssignmentAccordionItem({
 
 interface SubmissionBadgeProps {
   className?: string
-  grade: AssignmentSummary
+  submittedCount: number
+  problemCount: number
 }
 
-function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
+function SubmissionBadge({
+  className,
+  submittedCount,
+  problemCount
+}: SubmissionBadgeProps) {
   const badgeStyle =
-    grade.submittedCount === grade.problemCount
+    problemCount > 0 && submittedCount === problemCount
       ? 'border-transparent bg-primary text-white'
       : 'border-primary text-primary'
+
   return (
     <div
       className={cn(
@@ -423,9 +425,9 @@ function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
       )}
     >
       <div className="flex gap-2 text-base font-medium">
-        <p> {grade.submittedCount}</p>
-        <p> /</p>
-        <p> {grade.problemCount}</p>
+        <p>{submittedCount}</p>
+        <p>/</p>
+        <p>{problemCount}</p>
       </div>
     </div>
   )
