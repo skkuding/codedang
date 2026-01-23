@@ -1,4 +1,3 @@
-import { UseGuards } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import {
   CourseNotice,
@@ -215,7 +214,7 @@ export class WhitelistResolver {
 }
 
 @Resolver(() => CourseQnA)
-@UseGuards(UseGroupLeaderGuard)
+@UseGroupLeaderGuard()
 export class CourseResolver {
   constructor(private readonly courseService: CourseService) {}
 
