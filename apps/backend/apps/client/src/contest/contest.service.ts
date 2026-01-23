@@ -1687,7 +1687,10 @@ export class ContestService {
     if (durationMs <= 0 || submissions.length === 0) {
       return {
         intervalMinutes: 0,
-        series: slots
+        series: slots.map((slot) => ({
+          ...slot,
+          timestamp: null
+        }))
       }
     }
 
