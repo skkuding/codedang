@@ -315,8 +315,9 @@ export function ProblemStatisticsPage() {
                 <XAxis
                   dataKey="type"
                   tickLine={false}
-                  tickMargin={10}
+                  tickMargin={6}
                   axisLine={true}
+                  tick={{ fill: 'black' }}
                   tickFormatter={(value) => value.slice(0, 3)}
                   fontSize={14}
                   fontWeight={500}
@@ -445,7 +446,10 @@ export function ProblemStatisticsPage() {
                   interval={0}
                   tickLine={false}
                   axisLine={false}
-                  tickMargin={8}
+                  tick={{ fill: 'black' }}
+                  tickMargin={4}
+                  fontSize={14}
+                  fontWeight={500}
                 />
                 <ChartTooltip
                   cursor={false}
