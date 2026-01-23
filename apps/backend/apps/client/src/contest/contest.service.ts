@@ -1655,7 +1655,6 @@ export class ContestService {
     const durationMs = end - start
     const slotCount = 6
     const intervalMs = durationMs / slotCount
-    const intervalMinutes = Math.max(1, Math.floor(intervalMs / (60 * 1000)))
 
     const slots = Array.from({ length: slotCount }, (_, index) => ({
       timestamp: new Date(start + index * intervalMs).toISOString(),
@@ -1684,6 +1683,18 @@ export class ContestService {
         createTime: 'asc'
       }
     })
+
+    if (durationMs <= 0 || submissions.length === 0) {
+      return {
+        intervalMinutes: 0,
+        series: slots.map((slot) => ({
+          ...slot,
+          timestamp: null
+        }))
+      }
+    }
+
+    const intervalMinutes = Math.max(1, Math.floor(intervalMs / (60 * 1000)))
 
     for (const submission of submissions) {
       const time = submission.createTime.getTime()
