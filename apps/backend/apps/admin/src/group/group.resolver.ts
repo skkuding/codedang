@@ -215,7 +215,7 @@ export class WhitelistResolver {
 }
 
 @Resolver(() => CourseQnA)
-@UseGuards(UseGroupLeaderGuard)
+@UseGroupLeaderGuard()
 export class CourseResolver {
   constructor(private readonly courseService: CourseService) {}
 
