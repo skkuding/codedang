@@ -524,14 +524,16 @@ export function ProblemStatisticsPage() {
                 />
               </LineChart>
             </ChartContainer>
-            <div className="bg-color-neutral-99 flex h-[30px] w-fit rounded-lg px-3 text-xs">
-              <div className="border-r-1 flex items-center gap-1 pr-2">
-                Accepted
-                <div className="bg-flowkit-green rounded-xs h-3 w-3" />
-              </div>
-              <div className="flex items-center gap-1 pl-2">
-                Wrong Answer
-                <div className="bg-flowkit-red rounded-xs h-3 w-3" />
+            <div className="bg-color-neutral-99 flex h-[30px] w-fit items-center rounded-lg px-3 text-xs">
+              <div className="flex h-fit">
+                <div className="border-r-1 flex items-center gap-1 pr-2">
+                  Accepted
+                  <div className="bg-flowkit-green rounded-xs h-3 w-3" />
+                </div>
+                <div className="flex items-center gap-1 pl-2">
+                  Wrong Answer
+                  <div className="bg-flowkit-red rounded-xs h-3 w-3" />
+                </div>
               </div>
             </div>
           </div>
