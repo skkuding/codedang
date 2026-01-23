@@ -8,6 +8,7 @@ import {
   TabsTrigger,
   TabsList
 } from '@/components/shadcn/tabs'
+import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useState } from 'react'
 import { ProblemStatisticsPage } from './ProblemStatistics'
 import { RealtimeLearBoardPage } from './RealtimeLeaderBoard'
@@ -53,7 +54,11 @@ export function StatisticsPage() {
           <UserAnalysisPage />
         </TabsContent>
         <TabsContent value="problem-statistics">
-          <ProblemStatisticsPage />
+          <ErrorBoundary fallback="Failed to load page.">
+            <Suspense>
+              <ProblemStatisticsPage />
+            </Suspense>
+          </ErrorBoundary>
         </TabsContent>
       </div>
     </Tabs>

@@ -12,9 +12,10 @@ import {
 } from '@/components/shadcn/popover'
 import { fetcherWithAuth } from '@/libs/utils'
 import { cn } from '@/libs/utils'
+import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
-import { useState, Suspense } from 'react'
+import { useState } from 'react'
 import { SlArrowDown } from 'react-icons/sl'
 import { SlArrowRight } from 'react-icons/sl'
 import {
@@ -125,13 +126,15 @@ export function ProblemStatisticsPage() {
           </div>
         ))}
       </div>
-      <Suspense key={selectedProblem} fallback={<StatisticsSkeleton />}>
-        <ProblemDetailSection
-          contestId={contestId}
-          selectedProblem={selectedProblem}
-          problems={problems}
-        />
-      </Suspense>
+      <ErrorBoundary fallback="Failed to load problem statistics.">
+        <Suspense key={selectedProblem} fallback={<StatisticsSkeleton />}>
+          <ProblemDetailSection
+            contestId={contestId}
+            selectedProblem={selectedProblem}
+            problems={problems}
+          />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   )
 }
