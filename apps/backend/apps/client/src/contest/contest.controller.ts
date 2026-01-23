@@ -199,6 +199,14 @@ export class ContestController {
       problemId
     )
   }
+
+  @Get(':id/statistics/submissions')
+  async getAllSubmissionsByContest(
+    @Param('id', IDValidationPipe) contestId: number
+  ) {
+    return await this.contestService.getAllSubmissionsByContest(contestId)
+  }
+
   @Get(':id/problem/:problemId/statistics/graph')
   @UserNullWhenAuthFailedIfPublic()
   async getContestProblemStatistics(
