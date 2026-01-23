@@ -99,7 +99,7 @@ export function ContestDataTable<TData extends Item, TValue>({
     .rows.slice(startIndex, startIndex + itemsPerPage)
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-[41px]">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-700">CONTEST LIST</h1>
         <div className="flex gap-4">

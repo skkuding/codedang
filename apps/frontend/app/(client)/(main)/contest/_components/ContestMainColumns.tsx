@@ -58,7 +58,7 @@ export const columns: ColumnDef<Contest>[] = [
             alt="check"
             width={24}
             height={24}
-            className="block translate-y-[3px]"
+            className="block translate-x-[4px] translate-y-[4px]"
           />
         </div>
       )
