@@ -209,7 +209,7 @@ export function ProblemStatisticsPage() {
               Total Submission
             </p>
             <p className="text-2xl font-semibold tracking-[-0.72px]">
-              {statistics.totalSubmissionCount}
+              {statistics.totalSubmissionCount || '-'}
             </p>
           </div>
           <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
@@ -217,7 +217,7 @@ export function ProblemStatisticsPage() {
               Correct Answers
             </p>
             <p className="text-2xl font-semibold tracking-[-0.72px]">
-              {statistics.acceptedSubmissionCount}
+              {statistics.acceptedSubmissionCount || '-'}
             </p>
           </div>
           <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
@@ -233,7 +233,7 @@ export function ProblemStatisticsPage() {
               Average Attempt
             </p>
             <p className="text-2xl font-semibold tracking-[-0.72px]">
-              {statistics.averageTrial}
+              {statistics.averageTrial || '-'}
             </p>
           </div>
         </div>
@@ -285,7 +285,9 @@ export function ProblemStatisticsPage() {
                 </div>
               ))
             ) : (
-              <>-</>
+              <div className="flex text-sm font-medium">
+                <div className="m-2 h-1 w-1 rounded-full bg-black" />-
+              </div>
             )}
           </div>
         </div>
