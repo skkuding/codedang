@@ -1,4 +1,3 @@
-import { UseGuards } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import {
   CourseNotice,
