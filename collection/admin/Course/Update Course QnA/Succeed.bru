@@ -1,0 +1,72 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateCourseQnA($groupId: Int!, $input: UpdateCourseQnAInput!) {
+    updateCourseQnA(groupId: $groupId, input: $input) {
+      id
+      order
+      title
+      content
+      isPrivate
+      isResolved
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "input": {
+      "order": 1,
+      "title": "Updated Question Title",
+      "content": "Updated question content",
+      "isPrivate": true,
+      "isResolved": false
+    }
+  }
+}
+
+assert {
+  res.body.data.updateCourseQnA: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginInstructor(req);
+}
+
+docs {
+  # 📘 Update Course QnA
+
+  **POST** `/graphql (mutation: updateCourseQnA)`
+
+  Updates course QnA details.
+
+  코스 Q&A 정보를 수정합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Course Staff)
+
+  ---
+
+  ### 📥 Request Variables
+
+  - `groupId` (Int, required): 코스 ID
+  - `input.order` (Int, required): 수정할 Q&A 순번
+  - `input.title` (String, optional): 제목
+  - `input.content` (String, optional): 내용
+  - `input.isPrivate` (Boolean, optional): 비밀글 여부
+  - `input.isResolved` (Boolean, optional): 해결 여부
+}
