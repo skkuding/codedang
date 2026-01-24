@@ -1,6 +1,6 @@
 'use client'
 
-import { LevelBadge } from '@/components/LevelBadge'
+import { Badge } from '@/components/shadcn/badge'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { dateFormatter, getResultColor } from '@/libs/utils'
@@ -93,9 +93,9 @@ export function SubmissionSummary() {
           {`Submission #${submission.id}`}
         </p>
         {level && (
-          <LevelBadge
-            type="dark"
-            level={level}
+          <Badge
+            variant={level}
+            levelVariant="dark"
             className="bg-editor-fill-1 w-[60px] rounded-[4px]"
           />
         )}
