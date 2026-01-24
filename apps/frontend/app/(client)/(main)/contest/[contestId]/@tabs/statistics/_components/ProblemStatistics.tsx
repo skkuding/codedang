@@ -103,7 +103,7 @@ export function ProblemStatisticsPage() {
 
   return (
     <div className="flex gap-7">
-      <div className="border-1 h-fit w-[276px] rounded-2xl px-4 py-5">
+      <div className="border-1 h-fit w-[276px] shrink-0 rounded-2xl px-4 py-5">
         {problems.map((problem) => (
           <div
             key={problem.problemId}
