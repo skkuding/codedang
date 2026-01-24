@@ -93,11 +93,9 @@ export function SubmissionSummary() {
           {`Submission #${submission.id}`}
         </p>
         {level && (
-          <Badge
-            variant={level}
-            levelVariant="dark"
-            className="bg-editor-fill-1 w-[60px] rounded-[4px]"
-          />
+          <Badge variant={level} levelVariant="dark">
+            Level {level.slice(-1)}
+          </Badge>
         )}
       </div>
       <div className="**:whitespace-nowrap bg-editor-fill-1 rounded-[4px] text-[14px]">
