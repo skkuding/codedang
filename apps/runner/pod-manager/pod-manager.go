@@ -65,7 +65,7 @@ func (pm *PodManager) createRunnerPod() (*RunnerPod, error) {
 			Containers: []corev1.Container{
 				{
 					Name:            "runner",
-					Image:           fmt.Sprintf("ghcr.io/skkuding/iris-runner-backend:%s", imageTag),
+					Image:           fmt.Sprintf("ghcr.io/skkuding/codedang-runner-backend:%s", imageTag),
 					ImagePullPolicy: corev1.PullIfNotPresent,
 					Ports: []corev1.ContainerPort{
 						{ContainerPort: 8000},
