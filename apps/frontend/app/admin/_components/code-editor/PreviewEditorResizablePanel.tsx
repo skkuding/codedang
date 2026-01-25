@@ -15,7 +15,12 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@/components/shadcn/tabs'
 import type { Language, Template } from '@/types/type'
 import type { ProblemDetail } from '@/types/type'
 import { useEffect, useState } from 'react'
@@ -27,14 +32,16 @@ interface ProblemEditorProps {
 }
 
 export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
-  const [tabValue, setTabValue] = useState('Description')
+  const [tab, setTab] = useState('Description')
   const hasSolution =
     Array.isArray(problem.solution) && problem.solution.length > 0
   const [language, setLanguage] = useState<Language>(problem.languages[0])
   const [code, setCode] = useState('')
 
   useEffect(() => {
-    const templates = problem.template ? JSON.parse(problem.template[0]) : []
+    const templates = problem.template?.[0]
+      ? JSON.parse(problem.template[0])
+      : []
     const filteredTemplate = templates.filter(
       (template: Template) => template.language === language
     )
@@ -56,53 +63,44 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
         minSize={20}
         className="flex"
       >
-        <div className="grid-rows-editor grid h-full w-full grid-cols-1">
-          <div className="flex h-full w-full items-center border-b border-slate-700 bg-[#222939] px-6">
-            <Tabs value={tabValue} className="grow">
-              <TabsList className="rounded bg-slate-900">
-                <TabsTrigger
-                  value="Description"
-                  className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
-                  onClick={() => setTabValue('Description')}
-                >
+        <Tabs value={tab} onValueChange={setTab} className="w-full">
+          <div className="grid-rows-editor bg-editor-background-2 grid h-full w-full grid-cols-1">
+            <div className="flex w-full items-center border-b border-slate-700 px-6">
+              <TabsList variant="editor">
+                <TabsTrigger value="Description" variant="editor">
                   Description
                 </TabsTrigger>
-                <TabsTrigger
-                  value="Submission"
-                  className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
-                  onClick={() => setTabValue('Submission')}
-                >
+                <TabsTrigger value="Submission" variant="editor">
                   Submission
                 </TabsTrigger>
                 {hasSolution && (
-                  <TabsTrigger
-                    value="Solution"
-                    className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
-                    onClick={() => setTabValue('Solution')}
-                  >
+                  <TabsTrigger value="Solution" variant="editor">
                     Solution
                   </TabsTrigger>
                 )}
               </TabsList>
-            </Tabs>
+            </div>
+
+            <ScrollArea className="w-full">
+              <TabsContent value="Description">
+                <EditorDescription problem={problem} />
+              </TabsContent>
+              <TabsContent value="Solution">
+                {hasSolution && (
+                  <SolutionLayout
+                    solution={problem.solution}
+                    languages={problem.languages}
+                  />
+                )}
+              </TabsContent>
+            </ScrollArea>
           </div>
-          <ScrollArea className="[&>div>div]:block!">
-            {tabValue === 'Description' && (
-              <EditorDescription problem={problem} />
-            )}
-            {tabValue === 'Solution' && hasSolution && (
-              <SolutionLayout
-                solution={problem.solution}
-                languages={problem.languages}
-              />
-            )}
-          </ScrollArea>
-        </div>
+        </Tabs>
       </ResizablePanel>
       <ResizableHandle className="border-[0.5px] border-slate-700" />
-      <ResizablePanel defaultSize={65} className="bg-[#222939]">
+      <ResizablePanel defaultSize={65} className="bg-editor-background-2">
         <div className="grid-rows-editor grid h-full">
-          <div className="flex shrink-0 items-center justify-end border-b border-b-slate-700 bg-[#222939] px-6">
+          <div className="flex shrink-0 items-center justify-end border-b border-b-slate-700 px-6">
             <Select
               onValueChange={(language: Language) => {
                 setLanguage(language)

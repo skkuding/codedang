@@ -1,0 +1,101 @@
+# check default values.yaml
+# https://artifacthub.io/packages/helm/grafana/grafana?modal=values
+
+envFromSecret: grafana-github-oauth
+
+replicas: 1
+autoscaling:
+  enabled: false
+
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - grafana.codedang.com
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - grafana.codedang.com
+      secretName: grafana-tls
+
+limits:
+  cpu: 200m
+  memory: 256Mi
+requests:
+  cpu: 200m
+  memory: 256Mi
+
+# https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+# in the beginning of grafana migration, we allow editing dashboards without provisioning
+# however, it is highly recommended to provision data as code
+persistence:
+  type: pvc
+  enabled: true
+  size: 10Gi
+
+admin:
+  existingSecret: grafana-admin-user
+  userKey: ADMIN_USER
+  passwordKey: ADMIN_PASSWORD
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    prune: true
+    datasources:
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki.monitoring-loki.svc.cluster.local:3100
+        editable: false
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090
+        editable: false
+      - name: Tempo-production
+        type: tempo
+        access: proxy
+        url: http://tempo.monitoring-tempo.svc.cluster.local:3200
+        editable: false
+
+# help grafana to detect provisioned dashboards
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: '1'
+
+# TODO: provision dashboard config maps
+# dashboardsConfigMaps:
+#   default: 'all-service-logs'
+#   hardware: 'hardware-metrics'
+#   submission: 'submission-detail'
+
+# TODO: add public dashboards from https://grafana.com/grafana/dashboards/
+downloadDashboards:
+  env: {}
+
+# Grafana's primary configuration
+# http://docs.grafana.org/installation/configuration/
+grafana.ini:
+  log:
+    mode: console
+  server:
+    domain: 'grafana.codedang.com'
+    root_url: 'https://grafana.codedang.com'
+  users:
+    default_language: 'ko-KR'
+    default_locale: ko
+  auth.github:
+    enabled: true
+    allow_sign_up: true
+    auto_login: false
+    role_attribute_path: "'Editor'" # all users are Editor
+    skip_org_role_sync: true
+  # TODO: setup git sync provisioning
+  # feature_toggles:
+  #   provisioning: true
+  #   kubernetesDashboards: true ; use k8s from browser

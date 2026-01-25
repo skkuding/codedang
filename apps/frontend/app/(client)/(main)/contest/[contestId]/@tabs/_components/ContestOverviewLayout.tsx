@@ -8,8 +8,6 @@ import {
 } from '@/components/shadcn/accordion'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
-import { dateFormatter } from '@/libs/utils'
-import calendarIcon from '@/public/icons/calendar_blue.svg'
 import type {
   ContestPreview,
   ProblemDataTop,
@@ -22,6 +20,7 @@ import { BiggerImageButton } from './BiggerImageButton'
 import { GotoContestListButton } from './GotoContestListButton'
 import { PrevNextProblemButton } from './PrevNextProblemButton'
 import { RegisterButton } from './RegisterButton'
+import { RegisterCancelButton } from './RegisterCancelButton'
 import { RenderProblemList } from './RenderProblemList'
 
 interface ContestOverviewLayoutProps {
@@ -41,14 +40,7 @@ export function ContestOverviewLayout({
   isPreview,
   search = ''
 }: ContestOverviewLayoutProps) {
-  const formattedStartTime = dateFormatter(
-    contest.startTime,
-    'YYYY-MM-DD HH:mm:ss'
-  )
-  const formattedEndTime = dateFormatter(contest.endTime, 'YYYY-MM-DD HH:mm:ss')
-
   let previewProblemData: ProblemDataTop
-
   if (!isPreview) {
     previewProblemData = problemData ?? { data: [], total: 0 }
   } else {
@@ -60,7 +52,7 @@ export function ContestOverviewLayout({
         difficulty: problem.difficulty,
         submissionCount: problem.submissionCount,
         acceptedRate: problem.acceptedRate,
-        maxScore: 10, // 미리보기는 10점으로 고정
+        maxScore: 10,
         score: problem.score ?? null,
         submissionTime: null
       })),
@@ -71,16 +63,23 @@ export function ContestOverviewLayout({
   const problemDataToUse: ProblemDataTop =
     !isPreview && problemData ? problemData : previewProblemData
 
+  const currentTime = new Date()
   const state = (() => {
     if (isPreview) {
-      return 'Ongoing' // 미리보기는 항상 Ongoing으로 가정
+      return 'Ongoing'
     }
-    const currentTime = new Date()
     if (currentTime >= contest.endTime) {
       return 'Finished'
     }
     if (currentTime < contest.startTime) {
       return 'Upcoming'
+    }
+    return 'Ongoing'
+  })()
+
+  const registerState = (() => {
+    if (currentTime >= contest.registerDueTime) {
+      return 'Finished'
     }
     return 'Ongoing'
   })()
@@ -101,24 +100,18 @@ export function ContestOverviewLayout({
     <ScrollArea className={isPreview ? 'h-full w-full' : ''}>
       {' '}
       <div className="flex w-[1208px] flex-col justify-self-center">
-        <h1 className="mt-24 w-[1208px] text-2xl font-semibold tracking-[-0.72px]">
+        <h1 className="mt-20 w-[1208px] text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
           {contest?.title}
         </h1>
-        <div className="mt-[30px] flex flex-col gap-[10px]">
-          <div className="flex gap-2">
-            <Image src={calendarIcon} alt="calendar" width={20} height={20} />
-            <p className="text-base font-normal tracking-[-0.48px] text-[#333333e6]">
-              {formattedStartTime} ~ {formattedEndTime}
-            </p>
-          </div>
+        <div className="mt-[20px] flex">
           <ContestStatusTimeDiff
             contest={contest}
-            textStyle="text-[#333333e6] font-normal opacity-100"
+            textStyle="text-base font-normal leading-[24px] tracking-[-0.48px] text-color-neutral-30"
             inContestEditor={false}
           />
         </div>
-        <div className="flex flex-row items-start gap-[34px]">
-          <div className="relative mt-[34px] flex flex-shrink-0 rounded-xl">
+        <div className="mt-10 flex flex-row items-start gap-[30px]">
+          <div className="relative flex flex-shrink-0 rounded-xl">
             <Image
               src={imageUrl}
               alt="Contest Poster"
@@ -130,8 +123,8 @@ export function ContestOverviewLayout({
               <BiggerImageButton url={imageUrl} />
             </div>
           </div>
-          <div className="mt-[34px] flex h-[312px] flex-col justify-between">
-            <div className="flex flex-col gap-[14px]">
+          <div className="flex h-[312px] flex-col justify-between">
+            <div className="flex flex-col gap-[10px]">
               <ContestSummary
                 buttonName="참여 대상"
                 summary={
@@ -164,22 +157,25 @@ export function ContestOverviewLayout({
               />
             </div>
 
-            <div className="h-[48px] w-[940px]">
+            <div className="h-[46px] w-[944px]">
               {isPreview && (
-                <Button className="bg-primary border-primary h-[46px] w-[940px] rounded-full px-12 py-6 text-[16px] font-bold text-white">
+                <Button className="bg-primary border-primary h-[46px] w-[944px] rounded-full px-12 py-6 text-[16px] font-bold text-white">
                   Register Now!
                 </Button>
               )}
               {!isPreview && session && state !== 'Finished' && (
                 <div>
                   {actualIsRegistered ? (
-                    <Button className="text pointer-events-none h-[48px] w-[940px] rounded-[1000px] bg-[#F0F0F0] font-medium text-[#9B9B9B]">
-                      Registered
-                    </Button>
+                    <div className="flex h-[46px] w-[944px] gap-[10px]">
+                      <Button className="text-color-neutral-70 bg-fill pointer-events-none h-[46px] w-[467px] rounded-[1000px] px-7 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px]">
+                        Registered
+                      </Button>
+                      <RegisterCancelButton contest={contest} state={state} />
+                    </div>
                   ) : (
                     <RegisterButton
                       id={String(contest.id)}
-                      state={state}
+                      state={registerState}
                       title={contest.title}
                       invitationCodeExists={actualInvitationCodeExists}
                       disabled={actualIsPrivilegedRole}
@@ -190,13 +186,16 @@ export function ContestOverviewLayout({
             </div>
           </div>
         </div>
-        <Accordion type="single" collapsible className="mt-16 w-[1208px]">
+        <Accordion type="single" collapsible className="mt-15 w-[1208px]">
           <AccordionItem value="item-1" className="border-b-0">
-            <AccordionTrigger className="h-[74px] border-t-[1.5px] border-[#a2a2a240] pr-[25px] text-lg font-semibold tracking-[-0.6px]">
+            <AccordionTrigger
+              className="h-22 pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black data-[state=open]:pb-[12px]"
+              iconStyle="h-5 w-5 text-color-neutral-30"
+            >
               More Description
             </AccordionTrigger>
-            <AccordionContent className="pb-8 text-base text-[#00000080]">
-              <KatexContent content={contest.description} />
+            <AccordionContent className="text-color-neutral-30 !m-0 pb-[30px] text-base font-normal leading-[24px] tracking-[-0.48px]">
+              <KatexContent content={contest.description} classname="!mt-0" />
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -207,10 +206,13 @@ export function ContestOverviewLayout({
           className="w-[1208px]"
         >
           <AccordionItem value="item-1" className="border-b-0">
-            <AccordionTrigger className="h-[74px] border-t-[1.5px] border-[#a2a2a240] pr-[25px] text-lg font-semibold tracking-[-0.6px]">
+            <AccordionTrigger
+              className="border-line h-22 border-t pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black"
+              iconStyle="h-5 w-5 text-color-neutral-50"
+            >
               Problem List
             </AccordionTrigger>
-            <AccordionContent className="mb-10 pb-0 pt-[3px] text-base text-[#00000080]">
+            <AccordionContent>
               <RenderProblemList
                 state={!isPreview ? state : 'Ongoing'}
                 isRegistered={!isPreview ? actualIsRegistered : true}
@@ -252,14 +254,16 @@ function ContestSummary({
   summary: string
 }) {
   return (
-    <div className="flex w-full flex-row items-start">
+    <div className="flex w-full flex-row items-center">
       <Button
         variant={'outline'}
-        className="text-primary border-primary-light pointer-events-none mr-[14px] h-7 w-[87px] rounded-[14px] px-[17px] py-1 text-sm font-medium md:block"
+        className="text-primary border-primary pointer-events-none mr-[14px] h-8 w-[91px] rounded-[1000px] px-[20px] py-[6px] text-sm font-medium leading-[19.6px] tracking-[-0.42px] md:block"
       >
         {buttonName}
       </Button>
-      <div className="text-[#333333e6] md:max-w-[838px]">{summary}</div>
+      <div className="text-center text-base font-normal leading-[24px] tracking-[-0.48px] text-black md:max-w-[838px]">
+        {summary}
+      </div>
     </div>
   )
 }

@@ -17,7 +17,7 @@ interface DataTableScoreSummary {
   userAssignmentScore: number
   assignmentPerfectScore: number
   userAssignmentFinalScore?: number | null | undefined
-  problemScores: {
+  scoreSummaryByProblem: {
     problemId: number
     score: number
     maxScore: number
@@ -30,22 +30,32 @@ function TestcaseCell({
 }: {
   results: { id: number; isHidden: boolean; result: string }[]
 }) {
-  const firstHiddenIndex = results.findIndex((item) => item.isHidden)
+  const samples = results.filter((r) => !r.isHidden)
+  const hiddens = results.filter((r) => r.isHidden)
+
+  const ordered = [...samples, ...hiddens]
+  let sampleIdx = 0
+  let hiddenIdx = 0
+
   return (
     <div className="whitespace-nowrap">
-      {results.length === 0 ? (
+      {ordered.length === 0 ? (
         <span className="text-xs text-gray-400">No testcases</span>
       ) : (
-        results.map((r, i) => {
+        ordered.map((r, i) => {
           const isPass = r.result === 'Accepted'
+          const title = r.isHidden
+            ? `Hidden #${++hiddenIdx}`
+            : `Sample #${++sampleIdx}`
+
           return (
             <span
               key={i}
               className={cn(
-                'inline-block select-none px-1 font-mono text-sm',
+                'inline-block select-none py-1 font-mono text-sm',
                 isPass ? getResultColor('Accepted') : getResultColor('Wrong')
               )}
-              title={`${r.isHidden ? 'Hidden' : 'Sample'} #${r.isHidden ? i - firstHiddenIndex + 1 : i + 1}`}
+              title={title}
             >
               {isPass ? 'O' : 'X'}
             </span>
@@ -59,9 +69,8 @@ function TestcaseCell({
 export const createColumns = (
   problemData: ProblemData[],
   selectedProblemId: number | null,
-  courseId: number,
-  assignmentId: number,
-  groupId: number,
+  courseId: string,
+  assignmentId: string,
   isAssignmentFinished: boolean
 ): ColumnDef<DataTableScoreSummary>[] => {
   return [
@@ -81,13 +90,11 @@ export const createColumns = (
         const isFirstRow = table.getRowModel().rows[0].id === row.id
         const results = row.original.testcaseResults ?? []
 
-        const contentWidth = results.length * 16
-
         return (
-          <div className="mx-auto w-[600px]">
+          <div className="relative mx-auto w-full max-w-[600px] min-[1600px]:max-w-[750px] min-[1800px]:max-w-[900px] min-[2100px]:max-w-[1100px]">
             {isFirstRow && (
               <div
-                className="line-scrollbar mx-auto w-[600px] overflow-x-auto"
+                className="line-scrollbar absolute left-0 right-0 top-[-10px] z-10 h-3 overflow-x-auto overflow-y-hidden"
                 onScroll={(e) => {
                   const left = e.currentTarget.scrollLeft
                   document
@@ -97,15 +104,14 @@ export const createColumns = (
                     })
                 }}
               >
-                <div style={{ width: contentWidth, height: 1 }} />
+                <div className="inline-flex h-1 overflow-hidden opacity-0">
+                  <TestcaseCell results={results} />
+                </div>
               </div>
             )}
 
-            <div className="tc-scroll mx-auto w-[600px] overflow-x-hidden">
-              <div
-                className="inline-flex justify-start"
-                style={{ width: contentWidth }}
-              >
+            <div className="tc-scroll overflow-x-hidden">
+              <div className="inline-flex w-fit justify-start">
                 <TestcaseCell results={results} />
               </div>
             </div>
@@ -132,8 +138,8 @@ export const createColumns = (
       cell: ({ row }) => (
         <div className="flex justify-center">
           <CommentCell
-            groupId={groupId}
-            assignmentId={assignmentId}
+            groupId={Number(courseId)}
+            assignmentId={Number(assignmentId)}
             userId={row.original.id}
             problemId={selectedProblemId ?? problemData[0].problemId}
           />

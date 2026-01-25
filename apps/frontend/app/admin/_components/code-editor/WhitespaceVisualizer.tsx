@@ -32,7 +32,7 @@ export function WhitespaceVisualizer({
   return (
     <pre
       className={cn(
-        'h-24 w-full select-none overflow-auto font-mono text-sm',
+        'w-full select-none overflow-auto font-mono text-sm',
         isTruncated && 'overflow-y-hidden',
         className
       )}

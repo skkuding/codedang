@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable, StreamableFile } from '@nestjs/common'
 import type {} from '@generated'
 import {
   Language,
@@ -9,15 +9,18 @@ import {
 } from '@generated'
 import { ContestRole, ProblemField, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
+import { Response } from 'express'
+import { Readable } from 'stream'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
+  EntityNotExistException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
 import { ImportedProblemHeader } from '../model/problem.constants'
-import type {
+import {
   CreateProblemInput,
   FilterProblemsInput,
   UpdateProblemInput,
@@ -290,6 +293,7 @@ export class ProblemService {
     contestId?: number | null
   }) {
     const paginator = this.prisma.getPaginator(cursor)
+
     const whereOptions: ProblemWhereInput =
       await this.buildProblemWhereOptionsWithMode(userId, mode, contestId)
 
@@ -444,9 +448,10 @@ export class ProblemService {
       languages,
       template,
       solution,
-      tags,
       testcases,
       isVisible,
+      //eslint-disable-next-line @typescript-eslint/no-unused-vars
+      tags,
       ...data
     } = input
 
@@ -649,12 +654,18 @@ export class ProblemService {
     //   )
     // }
 
-    const problemTag = tags
-      ? await this.tagService.updateProblemTag(id, tags)
-      : undefined
+    // TODO: fix problemTag duplication problem
+    // const problemTag = tags
+    //   ? await this.tagService.updateProblemTag(id, tags)
+    //   : undefined
 
     if (testcases?.length) {
-      await this.testcaseService.syncTestcases(id, testcases)
+      await this.testcaseService.syncTestcases(
+        id,
+        problem.isSampleUploadedByZip,
+        problem.isHiddenUploadedByZip,
+        testcases
+      )
     }
 
     const updatedInfo = updatedInfos
@@ -675,7 +686,6 @@ export class ProblemService {
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
         ...(solution && { solution }),
-        problemTag,
         ...(updatedFields.length > 0 && {
           updateHistory: {
             create: [
@@ -759,6 +769,77 @@ export class ProblemService {
         }
       })
       .sharedGroups()
+  }
+
+  async downloadProblem({
+    userId,
+    problemId,
+    res
+  }: {
+    userId: number
+    problemId: number
+    res: Response
+  }) {
+    const leaderGroupIds = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          userId,
+          isGroupLeader: true
+        }
+      })
+    ).map((group) => group.groupId)
+
+    const problem = await this.prisma.problem.findUnique({
+      where: {
+        id: problemId,
+        OR: [
+          { createdById: { equals: userId } },
+          {
+            sharedGroups: {
+              some: {
+                id: { in: leaderGroupIds }
+              }
+            }
+          }
+        ]
+      }
+    })
+
+    if (!problem) {
+      res
+        .status(404)
+        .json({ error: 'there is no problem that matches the conditions' })
+      throw new EntityNotExistException(
+        'there is no problem that matches the conditions'
+      )
+    }
+
+    const testcases = await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId
+      }
+    })
+
+    const filename = `codedang-${problem.id}.json`
+
+    const dataString = JSON.stringify(
+      {
+        problem,
+        testcases
+      },
+      null,
+      2
+    )
+
+    const stream = Readable.from(dataString)
+
+    res.set({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'Content-Type': 'application/json',
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'Content-Disposition': `attachment; filename*=UTF-8''${filename}`
+    })
+    return new StreamableFile(stream)
   }
 
   changeVisibleLockTimeToIsVisible(

@@ -1,0 +1,70 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/course/1/notice/all?take=5
+  body: none
+  auth: none
+}
+
+params:query {
+  take: 5
+  ~cursor: 1
+  ~fixed: true
+  ~readFilter: all
+}
+
+assert {
+  res.status: eq 200
+  res.body.data[0].id: isNumber
+  res.body.data[0].title: isString
+  res.body.data[0].createTime: isString
+  res.body.data[0].isFixed: isBoolean
+  res.body.data[0].createdBy: isString
+  res.body.data[0].isRead: isBoolean
+  res.body.data[0].commentCount: isNumber
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # 📘 Get Course Notices
+
+  **GET** `/course/notice`
+
+  Get a set number of lecture announcements that users can inquire about.
+
+  유저가 조회할 수 있는 강의 공지사항을 정해진 개수만큼 가져옵니다.
+
+  이 함수는 다음과 같은 조건에 따라 강의 공지사항을 조회합니다.
+
+  1. 운영진(Admin, Manager)
+  - 모든 공지 목록을 열람할 수 있습니다.
+  3. 일반 사용자
+   - 전체 공개인 공지를 열람할 수 있습니다.
+   - 자신이 참여한 강의의 공지를 열람할 수 있습니다.
+
+  접근 권한이 없는 경우 예외를 발생시킵니다.
+
+  - 일반 사용자: 본인이 참여하지 않은 강의의 공지사항 목록을 조회하려는 경우 ForbiddenAccessException 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `cursor` | number |         | 조회할 페이지 지정을 위한 cursor |
+  | `take` | number |      | 가져올 공지의 개수 |
+  | `fixed` | boolean |         | 고정된 공지를 가져올지, 고정되지 않은 공지를 가져올지 여부 |
+  | `readFilter` | string | ✅       | 읽은 공지를 가져올지, 읽지 않은 공지를 가져올지 결정하는 필터 (기본값은 all, unread/all 입력 가능) |
+  | `search` | string | ✅    | 제목에서 검색할 문자열 |
+  | `order` | enum | ✅       | 공지 정렬 기준 (생성/수정시간 기준 정렬 및 각각에 대한 오름차순, 내림차순 정렬 가능) |
+}

@@ -12,6 +12,11 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { GroupType, type Group } from '@admin/@generated'
+import type {
+  CreateCourseNoticeInput,
+  UpdateCourseNoticeInput
+} from './model/course-notice.input'
+import type { UpdateCourseQnAInput } from './model/course-qna.input'
 import type { CourseInput } from './model/group.input'
 
 @Injectable()
@@ -407,6 +412,160 @@ export class GroupService {
 }
 
 @Injectable()
+export class CourseNoticeService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   *  한 강의 공지사항에 대해 모든 유저의 읽음 기록을 초기화합니다.
+   *
+   * @param {number} groupId
+   * @param {number} courseNoticeId
+   */
+  async markAsUnread(groupId: number, courseNoticeId: number) {
+    const userIds = await this.prisma.userGroup.findMany({
+      where: {
+        groupId
+      },
+      select: {
+        userId: true
+      }
+    })
+
+    if (userIds.length == 0) {
+      throw new EntityNotExistException('course user is not found')
+    }
+
+    await this.prisma.courseNotice.update({
+      where: {
+        id: courseNoticeId
+      },
+      data: {
+        readBy: {
+          set: []
+        }
+      }
+    })
+  }
+
+  /**
+   * 공지사항을 1개 만듭니다.
+   *
+   * @param {number} userId 접근하려는 유저 아이디
+   * @param {CreateCourseNoticeInput} createCourseNoticeInput 공지사항 내용 (groupId, title, content, isFixed, isPublic)
+   * @returns {CourseNotice}
+   */
+  async createCourseNotice(
+    userId: number,
+    createCourseNoticeInput: CreateCourseNoticeInput
+  ) {
+    const courseNotice = await this.prisma.courseNotice.create({
+      data: {
+        createdById: userId,
+        ...createCourseNoticeInput
+      }
+    })
+
+    return courseNotice
+  }
+
+  /**
+   * 강의 내 공지 1개를 삭제합니다.
+   *
+   * @param {number} courseNoticeId 강의 공지 아이디
+   * @returns {CourseNotice}
+   */
+  async deleteCourseNotice(courseNoticeId: number) {
+    return await this.prisma.courseNotice.delete({
+      where: {
+        id: courseNoticeId
+      }
+    })
+  }
+
+  /**
+   * 강의 내 공지 1개를 수정합니다.
+   * (읽음 기록을 초기화합니다.)
+   *
+   * @param {number} courseNoticeId 강의 공지 아이디
+   * @param {UpdateCourseNoticeInput} updateCourseNoticeInput 수정할 공지사항 내용 (title, content, isFixed, isPublic 등 옵셔널)
+   * @returns {CourseNotice}
+   */
+  async updateCourseNotice(
+    courseNoticeId: number,
+    updateCourseNoticeInput: UpdateCourseNoticeInput
+  ) {
+    const courseNotice = await this.prisma.courseNotice.findUnique({
+      where: {
+        id: courseNoticeId
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (!courseNotice) {
+      throw new EntityNotExistException('CourseNotice')
+    }
+
+    await this.markAsUnread(courseNotice.groupId, courseNoticeId)
+
+    return await this.prisma.courseNotice.update({
+      where: {
+        id: courseNoticeId
+      },
+      data: updateCourseNoticeInput
+    })
+  }
+
+  /**
+   * 한 강의 내 공지사항 여러 개를 다른 강의로 복제합니다.
+   *
+   * @param {number} userId 유저 아이디 (복제된 공지의 작성자로 설정됩니다.)
+   * @param {number[]} courseNoticeIds 복제할 공지 아이디 목록
+   * @param {number} cloneToId 복제해 넣을 강의 아이디
+   * @returns {CourseNotice[]}
+   */
+  async cloneCourseNotice(
+    userId: number,
+    courseNoticeIds: number[],
+    cloneToId: number
+  ) {
+    const originals = await this.prisma.courseNotice.findMany({
+      where: {
+        id: {
+          in: courseNoticeIds
+        }
+      },
+      select: {
+        title: true,
+        content: true,
+        isFixed: true,
+        isPublic: true
+      }
+    })
+
+    if (originals.length == 0) {
+      throw new EntityNotExistException('CourseNotice')
+    }
+
+    const clones = await this.prisma.courseNotice.createManyAndReturn({
+      data: originals.map((original) => {
+        return {
+          createdById: userId,
+          groupId: cloneToId,
+          title: original.title,
+          content: original.content,
+          isFixed: original.isFixed,
+          isPublic: original.isPublic
+        }
+      })
+    })
+
+    return clones
+  }
+}
+
+@Injectable()
 export class InvitationService {
   constructor(
     private readonly prisma: PrismaService,
@@ -612,5 +771,230 @@ export class WhitelistService {
         }
       })
     ).count
+  }
+}
+
+@Injectable()
+export class CourseService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getCourseQnAs(groupId: number, cursor: number | null, take: number) {
+    const paginator = this.prisma.getPaginator(cursor) // PrismaService의 헬퍼 사용
+
+    return await this.prisma.courseQnA.findMany({
+      ...paginator,
+      take,
+      where: { groupId },
+      include: { createdBy: { select: { username: true } } },
+      orderBy: { order: 'desc' }
+    })
+  }
+
+  async getCourseQnA(groupId: number, order: number) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: { groupId, order }
+      },
+      include: {
+        createdBy: { select: { username: true } },
+        comments: {
+          include: { createdBy: { select: { username: true } } },
+          orderBy: { order: 'asc' }
+        }
+      }
+    })
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+    return qna
+  }
+
+  async updateCourseQnA(groupId: number, input: UpdateCourseQnAInput) {
+    const { order, ...data } = input
+
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    return await this.prisma.courseQnA.update({
+      where: { id: qna.id },
+      data
+    })
+  }
+
+  async deleteCourseQnA(groupId: number, order: number) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    return await this.prisma.courseQnA.delete({ where: { id: qna.id } })
+  }
+
+  async createCourseQnAComment(
+    userId: number,
+    groupId: number,
+    order: number,
+    content: string
+  ) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true, readBy: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const maxOrder = await tx.courseQnAComment.aggregate({
+        where: { courseQnAId: qna.id },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _max: { order: true }
+      })
+      const newOrder = (maxOrder._max?.order ?? 0) + 1
+
+      const comment = await tx.courseQnAComment.create({
+        data: {
+          content,
+          courseQnAId: qna.id,
+          createdById: userId,
+          isCourseStaff: true,
+          order: newOrder
+        }
+      })
+
+      const isAlreadyRead = qna.readBy.includes(userId)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updateData: any = { isResolved: true }
+
+      if (!isAlreadyRead) {
+        updateData.readBy = { push: userId }
+      }
+
+      await tx.courseQnA.update({
+        where: { id: qna.id },
+        data: updateData
+      })
+      return comment
+    })
+  }
+
+  async updateCourseQnAComment(
+    groupId: number,
+    qnaOrder: number,
+    commentOrder: number,
+    content: string
+  ) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order: qnaOrder
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    // Comment ID 조회
+    const comment = await this.prisma.courseQnAComment.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        courseQnAId_order: { courseQnAId: qna.id, order: commentOrder }
+      },
+      select: { id: true }
+    })
+
+    if (!comment) {
+      throw new EntityNotExistException('CourseQnAComment')
+    }
+
+    return await this.prisma.courseQnAComment.update({
+      where: { id: comment.id },
+      data: { content }
+    })
+  }
+
+  async deleteCourseQnAComment(
+    groupId: number,
+    qnaOrder: number,
+    commentOrder: number
+  ) {
+    const qna = await this.prisma.courseQnA.findFirst({
+      where: {
+        groupId,
+        order: qnaOrder
+      },
+      select: {
+        id: true
+      }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+    const comment = await this.prisma.courseQnAComment.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        courseQnAId_order: { courseQnAId: qna.id, order: commentOrder }
+      }
+    })
+
+    if (!comment) {
+      throw new EntityNotExistException('CourseQnAComment')
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const deletedComment = await tx.courseQnAComment.delete({
+        where: { id: comment.id }
+      })
+
+      const lastComment = await tx.courseQnAComment.findFirst({
+        where: { courseQnAId: qna.id },
+        orderBy: { order: 'desc' },
+        select: { isCourseStaff: true }
+      })
+
+      const isResolved = lastComment ? lastComment.isCourseStaff : false
+      await tx.courseQnA.update({
+        where: { id: qna.id },
+        data: { isResolved }
+      })
+
+      return deletedComment
+    })
   }
 }

@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common'
 import { RolesModule } from '@libs/auth'
 import {
+  CourseNoticeResolver,
   GroupResolver,
   InvitationResolver,
-  WhitelistResolver
+  WhitelistResolver,
+  CourseResolver
 } from './group.resolver'
 import {
+  CourseNoticeService,
   GroupService,
   InvitationService,
-  WhitelistService
+  WhitelistService,
+  CourseService
 } from './group.service'
 
 @Module({
@@ -16,11 +20,20 @@ import {
   providers: [
     GroupResolver,
     GroupService,
+    CourseNoticeResolver,
+    CourseNoticeService,
     InvitationResolver,
     InvitationService,
     WhitelistResolver,
-    WhitelistService
+    WhitelistService,
+    CourseResolver,
+    CourseService
   ],
-  exports: [GroupService, InvitationService, WhitelistService]
+  exports: [
+    GroupService,
+    CourseNoticeService,
+    InvitationService,
+    WhitelistService
+  ]
 })
 export class GroupModule {}

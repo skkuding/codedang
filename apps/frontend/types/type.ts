@@ -48,6 +48,18 @@ export interface Snippet {
   text: string
 }
 
+export interface ZipUploadedTestcase {
+  id: number | null
+  input: string
+  output: string
+  isHidden: boolean
+  scoreWeight: number | null
+  scoreWeightNumerator?: number | null
+  scoreWeightDenominator?: number | null
+  isZipUploaded: true
+  zipKey: string
+}
+
 export interface Template {
   code: Snippet[]
   language: Language
@@ -146,6 +158,7 @@ export interface Contest {
   startTime: Date
   endTime: Date
   registerDueTime: Date
+  createTime: Date
   summary: {
     문제형태?: string
     순위산정?: string
@@ -169,6 +182,7 @@ export interface ContestTop {
   startTime: Date
   endTime: Date
   registerDueTime: Date
+  createTime: Date
   isJudgeResultVisible: boolean
   posterUrl?: string
   summary: {
@@ -214,6 +228,7 @@ export interface ContestPreview {
   startTime: Date
   endTime: Date
   registerDueTime: Date
+  createTime: Date
   summary: {
     문제형태?: string
     순위산정?: string
@@ -358,6 +373,7 @@ export interface TestResultDetail extends TestResult {
   input: string
   expectedOutput: string
   type: 'user' | 'sample' | 'hidden'
+  isHidden?: boolean
 }
 
 export interface TabbedTestResult extends TestResultDetail {

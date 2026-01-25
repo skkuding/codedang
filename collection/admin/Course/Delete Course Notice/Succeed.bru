@@ -1,0 +1,66 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation($courseNoticeId: Int! ) {
+    deleteCourseNotice(courseNoticeId: $courseNoticeId) {
+      title
+      content
+      isPublic
+      isFixed
+      createTime
+      updateTime
+      id
+      createdById
+      groupId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "courseNoticeId": 1
+  }
+}
+
+assert {
+  res.body.data.deleteCourseNotice: isDefined
+}
+
+docs {
+  # 📘 Delete a Course Notices
+
+  **POST** `GraphQL`
+
+  Replicate several lecture announcements from one lecture to another.
+
+  한 강의의 강의 공지사항 1개를 삭제합니다.
+
+  이 함수는 다음과 같은 조건에 따라 공지를 삭제하고 반환합니다.
+
+  1. 운영진(Admin, Manager) 및 Instructor
+  - 입력된 아이디에 맞는 강의 공지사항 1개를 삭제합니다.
+
+  접근 권한이 없는 경우 예외를 발생시킵니다.
+
+  - 일반 사용자: 권한이 없는 경우 ForbiddenAccessException 발생
+
+  ### 🔒 Authentication
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `courseNoticeId` | number | ✅       | 삭제할 강의 공지사항의 id |
+}

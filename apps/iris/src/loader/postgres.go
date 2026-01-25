@@ -29,7 +29,11 @@ func NewPostgresDataSource(ctx context.Context) (*Postgres, error) {
 }
 
 func (p *Postgres) Get(key string) ([]Element, error) {
-	rows, err := p.client.Query(`SELECT id, input, output, is_hidden_testcase FROM public.problem_testcase WHERE problem_id = $1`, key)
+	rows, err := p.client.Query(`
+  SELECT id, input, output, is_hidden_testcase
+  FROM public.problem_testcase
+  WHERE problem_id = $1 AND is_outdated = false
+  `, key)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get key: %w", err)
 	}

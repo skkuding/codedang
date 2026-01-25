@@ -1,16 +1,38 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
-import { GroupType, Role, type UserGroup } from '@prisma/client'
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotAcceptableException
+} from '@nestjs/common'
+import {
+  GroupType,
+  Role,
+  type Prisma,
+  type UserGroup,
+  QnACategory
+} from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { invitationCodeKey, joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { GroupJoinRequest } from '@libs/types'
+import type {
+  CreateCourseNoticeCommentDto,
+  UpdateCourseNoticeCommentDto
+} from './dto/courseNotice.dto'
+import type {
+  CreateCourseQnADto,
+  GetCourseQnAsFilterDto,
+  UpdateCourseQnADto
+} from './dto/qna.dto'
+import { CourseNoticeOrder } from './enum/course-notice-order.enum'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
@@ -614,4 +636,1206 @@ export class GroupService {
     return formattedAssignments
   }
     */
+
+  /**
+   * 유저가 접근할 수 있는 강의 공지사항인지 검사합니다.
+   * public한 공지이거나 강의 수강자인 경우 true
+   *
+   * @param {number} id 강의 공지사항의 아이디
+   * @param {number} userId 접근하려는 유저 아이디
+   * @returns
+   */
+  async isForbiddenNotice({ id, userId }: { id: number; userId: number }) {
+    const courseNotice = await this.prisma.courseNotice.findUnique({
+      where: {
+        id
+      },
+      select: {
+        isPublic: true,
+        groupId: true
+      }
+    })
+
+    if (!courseNotice) {
+      throw new EntityNotExistException('CourseNotice')
+    }
+
+    const isUserInGroup = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId: courseNotice.groupId
+        }
+      }
+    })
+
+    return !isUserInGroup && !courseNotice.isPublic
+  }
+
+  /**
+   * 한 유저가 접근할 수 있는 공지 중 읽지 않은 공지의 수를 반환합니다.
+   *
+   * @param {number} userId 유저 아이디
+   */
+  async getUnreadCourseNoticeCount({ userId }: { userId: number }) {
+    const readableCount = await this.prisma.courseNotice.count({
+      where: {
+        OR: [
+          {
+            isPublic: true
+          },
+          {
+            group: {
+              userGroup: {
+                some: {
+                  userId
+                }
+              }
+            }
+          }
+        ]
+      }
+    })
+    const readCount = await this.prisma.courseNotice.count({
+      where: {
+        readBy: {
+          has: userId
+        },
+        OR: [
+          {
+            group: {
+              userGroup: {
+                some: {
+                  userId
+                }
+              }
+            }
+          },
+          {
+            isPublic: true
+          }
+        ]
+      }
+    })
+
+    return {
+      unreadCount: readableCount - readCount
+    }
+  }
+
+  /**
+   * 한 유저가 접근할 수 있는 가장 최근 공지를 띄워줍니다.
+   *
+   * @param {number} userId 유저 아이디
+   */
+  async getLatestCourseNotice({ userId }: { userId: number }) {
+    const latest = await this.prisma.courseNotice.findFirst({
+      where: {
+        OR: [
+          {
+            group: {
+              userGroup: {
+                some: {
+                  userId
+                }
+              }
+            }
+          },
+          {
+            isPublic: true
+          }
+        ]
+      },
+      select: {
+        id: true,
+        title: true,
+        groupId: true,
+        group: {
+          select: {
+            groupName: true
+          }
+        },
+        updateTime: true,
+        readBy: true
+      },
+      orderBy: {
+        updateTime: 'desc'
+      }
+    })
+
+    if (!latest) {
+      throw new EntityNotExistException('CourseNotice')
+    }
+
+    const { readBy, group, ...newLatest } = latest
+
+    return {
+      ...newLatest,
+      groupName: group.groupName,
+      isRead: readBy.includes(userId)
+    }
+  }
+
+  /**
+   * 공지사항을 불러올 때 정렬 방식을 지정합니다.
+   *
+   * @param {CourseNoticeOrder} order 공지 정렬 방식
+   * @returns orderBy로 들어가는 객체를 반환합니다.
+   */
+  getOrderBy(
+    order: CourseNoticeOrder
+  ): Prisma.CourseNoticeOrderByWithRelationInput {
+    switch (order) {
+      case CourseNoticeOrder.updateTimeASC:
+        return { updateTime: 'asc' }
+      case CourseNoticeOrder.updateTimeDESC:
+        return { updateTime: 'desc' }
+      case CourseNoticeOrder.createTimeASC:
+        return { createTime: 'asc' }
+      case CourseNoticeOrder.createTimeDESC:
+        return { createTime: 'desc' }
+    }
+  }
+
+  /**
+   * 한 강의 내의 공지 목록을 가져옵니다.
+   *
+   * @param {number} userId 공지 목록을 요청한 유저 아이디
+   * @param {number} groupId 공지 목록을 받아오려는 강의 아이디
+   * @param {number | null} cursor 가져올 공지의 시작점
+   * @param {number} take 가져올 공지의 수
+   * @param {string} search 검색어
+   * @param {'all' | 'unread'} readFilter 읽지 않은 공지만 가져올지 여부
+   * @param {boolean} fixed 고정된 공지를 가져올지 여부
+   * @param {CourseNoticeOrder | undefined} order 공지 정렬 순서
+   * @returns 특정 강의 내의 공지 사항들에 대한 대략적인 정보를 반환합니다.
+   */
+  async getCourseNotices({
+    userId,
+    groupId,
+    cursor,
+    take,
+    search,
+    readFilter,
+    fixed = false,
+    order
+  }: {
+    userId: number
+    groupId: number
+    cursor: number | null
+    take: number
+    readFilter: 'all' | 'unread'
+    search?: string
+    fixed?: boolean
+    order?: CourseNoticeOrder
+  }) {
+    const paginator = this.prisma.getPaginator(cursor)
+    const courseNotices = await this.prisma.courseNotice.findMany({
+      ...paginator,
+      where: {
+        isFixed: fixed,
+        NOT:
+          readFilter == 'unread'
+            ? {
+                readBy: {
+                  has: userId
+                }
+              }
+            : undefined,
+        title: {
+          contains: search,
+          mode: 'insensitive'
+        },
+        groupId,
+        OR: [
+          {
+            group: {
+              userGroup: {
+                some: {
+                  userId
+                }
+              }
+            }
+          },
+          {
+            isPublic: true
+          }
+        ]
+      },
+      take,
+      select: {
+        id: true,
+        title: true,
+        updateTime: true,
+        isFixed: true,
+        createdBy: {
+          select: {
+            username: true
+          }
+        },
+        readBy: true,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            CourseNoticeComment: true
+          }
+        }
+      },
+      orderBy: order ? this.getOrderBy(order) : undefined
+    })
+
+    const data = courseNotices.map((courseNotice) => {
+      const { _count, readBy, createdBy, ...rest } = courseNotice
+      const notice = {
+        ...rest,
+        commentCount: _count.CourseNoticeComment,
+        isRead: readBy.includes(userId),
+        createdBy: createdBy?.username
+      }
+
+      return notice
+    })
+
+    const total = await this.prisma.courseNotice.count({
+      where: {
+        isFixed: fixed,
+        title: {
+          contains: search,
+          mode: 'insensitive'
+        }
+      }
+    })
+
+    return { data, total }
+  }
+
+  /**
+   * 특정 강의 내의 한 공지에 대해 그 내용과 자세한 정보를 조회합니다.
+   *
+   * @param {number} userId 조회를 요청한 유저 아이디
+   * @param {number} id 강의 공지의 아이디
+   * @returns 현재 공지사항의 내용과 이전/이후 공지의 아이디
+   */
+  async getCourseNoticeByID({ userId, id }: { userId: number; id: number }) {
+    const courseNotice = await this.prisma.courseNotice.findUnique({
+      where: {
+        id
+      },
+      select: {
+        groupId: true,
+        isPublic: true,
+        title: true,
+        content: true,
+        createTime: true,
+        updateTime: true,
+        createdBy: {
+          select: {
+            username: true
+          }
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            CourseNoticeComment: true
+          }
+        }
+      }
+    })
+
+    if (!courseNotice) {
+      throw new EntityNotExistException('CourseNotice')
+    }
+
+    const isUserIn = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId: courseNotice.groupId
+        }
+      }
+    })
+
+    if (!isUserIn && !courseNotice.isPublic) {
+      throw new ForbiddenAccessException('it is not accessible course notice')
+    }
+
+    const current = {
+      ...courseNotice,
+      createdBy: courseNotice.createdBy?.username
+    }
+
+    const navigate = (pos: 'prev' | 'next') => {
+      type Order = 'asc' | 'desc'
+      const options =
+        pos === 'prev'
+          ? { compare: { lt: id }, order: 'desc' as Order }
+          : { compare: { gt: id }, order: 'asc' as Order }
+      return {
+        where: {
+          id: options.compare,
+          isPublic: true
+        },
+        orderBy: {
+          id: options.order
+        },
+        select: {
+          id: true,
+          title: true
+        }
+      }
+    }
+
+    await this.markAsRead({
+      userId,
+      courseNoticeId: id
+    })
+
+    return {
+      current,
+      prev: await this.prisma.courseNotice.findFirst(navigate('prev')),
+      next: await this.prisma.courseNotice.findFirst(navigate('next'))
+    }
+  }
+
+  /**
+   * 공지사항의 읽음 여부를 기록합니다.
+   *
+   * @param {number} userId 공지를 조회한 유저 아이디
+   * @param {number} courseNoticeId 강의 내 공지의 아이디
+   * @returns 공지사항 읽음 기록
+   */
+  async markAsRead({
+    userId,
+    courseNoticeId
+  }: {
+    userId: number
+    courseNoticeId: number
+  }) {
+    const courseNotice = await this.prisma.courseNotice.findUnique({
+      where: {
+        id: courseNoticeId
+      },
+      select: {
+        readBy: true
+      }
+    })
+    if (!courseNotice) {
+      throw new EntityNotExistException('CorseNotice')
+    }
+
+    if (!courseNotice.readBy.includes(userId)) {
+      await this.prisma.courseNotice.update({
+        where: {
+          id: courseNoticeId
+        },
+        data: {
+          readBy: {
+            push: userId
+          }
+        }
+      })
+    }
+  }
+
+  /**
+   * 한 공지사항 내의 댓글 목록을 가져옵니다.
+   * 댓글의 개수(take)는 대댓글을 포함한 댓글의 수입니다.
+   *
+   * @param {number} id 댓글을 조회하려는 강의 공지사항의 아이디
+   * @param {number | null} cursor 가져올 댓글의 시작점
+   * @param {number} take 가져올 댓글의 수
+   * @returns 댓글과 그 댓글에 대한 대댓글을 구분한 리스트를 반환합니다.
+   */
+  async getCourseNoticeComments({
+    id,
+    userId,
+    userRole,
+    cursor,
+    take
+  }: {
+    id: number
+    userId: number
+    userRole: Role
+    cursor: number | null
+    take: number
+  }) {
+    const paginator = this.prisma.getPaginator(cursor)
+    const comments = await this.prisma.courseNoticeComment.findMany({
+      where: {
+        courseNoticeId: id
+      },
+      ...paginator,
+      take,
+      select: {
+        id: true,
+        createdById: true,
+        createdBy: {
+          select: {
+            username: true,
+            studentId: true
+          }
+        },
+        isDeleted: true,
+        isSecret: true,
+        replyOnId: true,
+        content: true,
+        createdTime: true,
+        updateTime: true
+      },
+      orderBy: {
+        id: 'asc'
+      }
+    })
+
+    const myRoleInCourse = await this.prisma.userGroup.findFirst({
+      where: {
+        userId,
+        group: {
+          CourseNotice: {
+            some: {
+              id
+            }
+          }
+        }
+      },
+      select: {
+        isGroupLeader: true
+      }
+    })
+
+    const isPublic = await this.prisma.courseNotice.findUnique({
+      where: {
+        id
+      },
+      select: {
+        isPublic: true
+      }
+    })
+
+    if (!myRoleInCourse && !isPublic?.isPublic) {
+      throw new ForbiddenAccessException('it is not accessable course notice')
+    }
+
+    const isVisibleSecretComment =
+      userRole != Role.User || myRoleInCourse?.isGroupLeader
+
+    type Comment = (typeof comments)[number]
+    const commentDatas = comments.reduce(
+      (acc, comment) => {
+        if (
+          !isVisibleSecretComment &&
+          userId != comment.createdById &&
+          comment.isSecret
+        ) {
+          comment = {
+            ...comment,
+            content: '',
+            createdBy: null,
+            createdById: null
+          }
+        }
+        if (!comment.replyOnId) {
+          acc.push({
+            comment,
+            replys: []
+          })
+        } else {
+          const nestedOnId = acc.findIndex(
+            (data) => data.comment.id === comment.replyOnId
+          )
+          if (nestedOnId === -1) {
+            throw new UnprocessableDataException('CourseNoticeComment')
+          }
+          acc[nestedOnId].replys.push(comment)
+        }
+        return acc
+      },
+      [] as {
+        comment: Comment
+        replys: Comment[]
+      }[]
+    )
+
+    return commentDatas.reverse()
+  }
+
+  /**
+   * 댓글을 생성합니다.
+   *
+   * @param {number} userId 댓글을 작성하려는 유저 아이디
+   * @param {number} id 댓글을 달려는 강의 공지사항의 아이디
+   * @param {CreateCourseNoticeCommentDto} createCourseNoticeCommentDto 댓글의 내용과 대댓글을 달려는 원댓글의 아이디(없으면 대댓글 아님)
+   * @returns 생성된 댓글의 정보를 반환합니다.
+   * @throws {NotAcceptableException}
+   *  - 댓글 내용이 1000자를 넘어갈 때
+   *  - 답글에 다시 답글을 달려고 할 때
+   */
+  async createComment({
+    userId,
+    id,
+    createCourseNoticeCommentDto
+  }: {
+    userId: number
+    id: number
+    createCourseNoticeCommentDto: CreateCourseNoticeCommentDto
+  }) {
+    if (createCourseNoticeCommentDto.content.length > 1000) {
+      throw new NotAcceptableException('comment content limit is 1000')
+    }
+
+    if (await this.isForbiddenNotice({ id, userId })) {
+      throw new ForbiddenAccessException('it is not accessible course notice')
+    }
+
+    if (createCourseNoticeCommentDto.replyOnId) {
+      const originalComment = await this.prisma.courseNoticeComment.findUnique({
+        where: {
+          id: createCourseNoticeCommentDto.replyOnId
+        },
+        select: {
+          replyOnId: true
+        }
+      })
+
+      if (!originalComment) {
+        throw new EntityNotExistException('CourseNoticeComment')
+      }
+
+      if (originalComment.replyOnId) {
+        throw new NotAcceptableException('double replies are not allowed.')
+      }
+    }
+    return await this.prisma.courseNoticeComment.create({
+      data: {
+        createdById: userId,
+        courseNoticeId: id,
+        ...createCourseNoticeCommentDto
+      }
+    })
+  }
+
+  /**
+   * 댓글을 수정합니다
+   *
+   * @param {number} userId 댓글을 수정하려는 유저 아이디
+   * @param {number} id 댓글이 달려있는 강의 공지사항의 아이디
+   * @param {number} commentId 수정하려는 댓글 아이디
+   * @param {UpdateCourseNoticeCommentDto} updateCourseNoticeCommentDto 수정할 댓글의 내용
+   * @returns 수정된 댓글의 내용
+   */
+  async updateComment({
+    userId,
+    id,
+    commentId,
+    updateCourseNoticeCommentDto
+  }: {
+    userId: number
+    id: number
+    commentId: number
+    updateCourseNoticeCommentDto: UpdateCourseNoticeCommentDto
+  }) {
+    if (await this.isForbiddenNotice({ id, userId })) {
+      throw new ForbiddenAccessException('it is not accessible course notice')
+    }
+
+    const comment = await this.prisma.courseNoticeComment.findUnique({
+      where: {
+        id: commentId
+      },
+      select: {
+        createdById: true
+      }
+    })
+
+    if (!comment) {
+      throw new EntityNotExistException('CouseNoticeComment')
+    }
+
+    if (comment.createdById !== userId) {
+      throw new ForbiddenException('it is not accessible comment')
+    }
+
+    return await this.prisma.courseNoticeComment.update({
+      where: {
+        id: commentId,
+        courseNoticeId: id,
+        createdById: userId
+      },
+      data: {
+        content: updateCourseNoticeCommentDto.content,
+        isSecret: updateCourseNoticeCommentDto.isSecret
+      }
+    })
+  }
+
+  /**
+   * 댓글을 삭제합니다.
+   *
+   * @param {number} userId 댓글을 삭제하려는 유저 아이디
+   * @param {number} id 댓글이 달려있는 강의 공지사항의 아이디
+   * @param {number} commentId 삭제하려는 댓글의 아이디
+   * @returns
+   * @throws {NotFoundException}
+   * - 댓글 아이디, 강의 아이디, 유저 아이디가 일치하는 댓글이 없을 때
+   */
+  async deleteComment({
+    userId,
+    id,
+    commentId
+  }: {
+    userId: number
+    id: number
+    commentId: number
+  }) {
+    if (await this.isForbiddenNotice({ id, userId })) {
+      throw new ForbiddenAccessException('it is not accessible course notice')
+    }
+
+    const comment = await this.prisma.courseNoticeComment.findUnique({
+      where: {
+        id: commentId,
+        courseNoticeId: id,
+        createdById: userId
+      },
+      select: {
+        replyOn: {
+          select: {
+            id: true,
+            isDeleted: true,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            _count: {
+              select: {
+                CourseNoticeComment: true
+              }
+            }
+          }
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            CourseNoticeComment: true
+          }
+        }
+      }
+    })
+
+    if (!comment) {
+      // comment가 존재하지 않을 때
+      throw new EntityNotExistException('CourseNoticeComment')
+    }
+
+    if (comment._count.CourseNoticeComment > 0) {
+      // 답글이 존재할 때
+      return await this.prisma.courseNoticeComment.update({
+        where: {
+          id: commentId,
+          courseNoticeId: id,
+          createdById: userId
+        },
+        data: {
+          isDeleted: true,
+          content: 'This is a deleted comment.',
+          createdById: null
+        }
+      })
+    }
+
+    if (comment.replyOn != null) {
+      if (
+        comment.replyOn._count.CourseNoticeComment == 1 &&
+        comment.replyOn.isDeleted
+      ) {
+        // 해당 댓글이 답글이고, 원댓글에 대한 답글이 1개 뿐이며 그 원댓글도 삭제되었을 때 (Cascade로 함께 삭제)
+        return await this.prisma.courseNoticeComment.delete({
+          where: {
+            id: comment.replyOn.id
+          }
+        })
+      }
+    }
+
+    // 어떤 경우에도 해당하지 않을 때 (답글이 존재하지 않거나 원댓글이 삭제된 마지막 답글이 아닐 때)
+    return await this.prisma.courseNoticeComment.delete({
+      where: {
+        id: commentId,
+        courseNoticeId: id,
+        createdById: userId
+      }
+    })
+  }
+}
+
+@Injectable()
+export class CourseService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * @description Course Q&A를 생성합니다.
+   * @param userId 작성자 ID
+   * @param courseId Course의 group ID
+   * @param data Q&A 생성에 필요한 데이터
+   * @param problemId 연결할 문제 ID (선택 사항)
+   * @returns 생성된 CourseQnA
+   * @throws {EntityNotExistException} Course 또는 Problem이 존재하지 않을 때
+   * @throws {ForbiddenAccessException} Course의 멤버가 아닐 때
+   */
+  async createCourseQnA(
+    userId: number,
+    courseId: number, // this is actually groupId from the URL
+    data: CreateCourseQnADto,
+    problemId?: number
+  ) {
+    const groupId = courseId
+
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId, courseInfo: { isNot: null } }
+    })
+    if (!group) {
+      throw new EntityNotExistException('Course')
+    }
+
+    const membership = await this.prisma.userGroup.findFirst({
+      where: { userId, groupId: group.id }
+    })
+    if (!membership) {
+      throw new ForbiddenAccessException('Not a member of this course')
+    }
+
+    if (problemId) {
+      const problem = await this.prisma.problem.findUnique({
+        where: { id: problemId }
+      })
+      if (!problem) {
+        throw new EntityNotExistException('Problem')
+      }
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const maxOrder = await tx.courseQnA.aggregate({
+        where: { groupId: group.id },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _max: { order: true }
+      })
+      const newOrder = (maxOrder._max?.order ?? 0) + 1
+
+      return await tx.courseQnA.create({
+        data: {
+          ...data,
+          createdBy: { connect: { id: userId } },
+          group: { connect: { id: group.id } },
+          order: newOrder,
+          readBy: [userId],
+          ...(problemId
+            ? {
+                category: QnACategory.Problem,
+                problem: { connect: { id: problemId } }
+              }
+            : {
+                category: QnACategory.General
+              })
+        }
+      })
+    })
+  }
+
+  /**
+   * @description Course Q&A 목록을 필터링하여 조회합니다.
+   * @param userId 현재 요청을 보낸 사용자 ID
+   * @param courseId Course의 group ID
+   * @param filter 필터링 조건
+   * @returns 필터링된 CourseQnA 목록 (isRead 필드 포함)
+   * @throws {EntityNotExistException} Course가 존재하지 않을 때
+   */
+  async getCourseQnAs(
+    userId: number | null,
+    courseId: number, // this is actually groupId
+    filter: GetCourseQnAsFilterDto
+  ) {
+    const groupId = courseId
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId, courseInfo: { isNot: null } }
+    })
+    if (!group) {
+      throw new EntityNotExistException('Course')
+    }
+
+    const isCourseStaff = userId
+      ? (await this.prisma.userGroup.findFirst({
+          where: { userId, groupId, isGroupLeader: true }
+        })) !== null
+      : false
+
+    const baseWhere: Prisma.CourseQnAWhereInput = {
+      groupId
+    }
+
+    if (!isCourseStaff) {
+      baseWhere.OR = [
+        { isPrivate: false },
+        ...(userId ? [{ createdById: userId }] : [])
+      ]
+    }
+
+    if (filter.isAnswered !== undefined) {
+      baseWhere.isResolved = filter.isAnswered
+    }
+
+    const orConditions: Prisma.CourseQnAWhereInput[] = []
+    const categories = filter.categories ?? []
+
+    const includeGeneral = categories.includes(QnACategory.General)
+    const includeProblem = categories.includes(QnACategory.Problem)
+
+    if (includeGeneral) {
+      orConditions.push({ category: QnACategory.General })
+    }
+
+    if (includeProblem) {
+      const problemCondition: Prisma.CourseQnAWhereInput = {
+        category: QnACategory.Problem
+      }
+      if (filter.problemIds?.length) {
+        problemCondition.problemId = { in: filter.problemIds }
+      }
+      orConditions.push(problemCondition)
+    }
+
+    const where: Prisma.CourseQnAWhereInput = orConditions.length
+      ? { AND: [baseWhere, { OR: orConditions }] }
+      : baseWhere
+
+    if (filter.search) {
+      where.title = { contains: filter.search, mode: 'insensitive' }
+    }
+
+    const qnas = await this.prisma.courseQnA.findMany({
+      select: {
+        id: true,
+        order: true,
+        title: true,
+        content: true,
+        isPrivate: true,
+        isResolved: true,
+        category: true,
+        problemId: true,
+        createTime: true,
+        readBy: true,
+        createdBy: { select: { username: true } },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: { select: { comments: true } }
+      },
+      where,
+      orderBy: {
+        order: 'asc'
+      }
+    })
+
+    return qnas.map(({ readBy, ...rest }) => ({
+      ...rest,
+      isRead: userId == null || readBy.includes(userId)
+    }))
+  }
+
+  /**
+   * @description 특정 Course Q&A를 상세 조회합니다.
+   * @param userId 현재 요청을 보낸 사용자 ID
+   * @param courseId Course의 group ID
+   * @param order 조회할 Q&A의 order 번호
+   * @returns Q&A 상세 정보 (댓글 포함)
+   * @throws {EntityNotExistException} Course 또는 QnA가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 비밀글에 접근 권한이 없을 때
+   */
+  async getCourseQnA(userId: number | null, courseId: number, order: number) {
+    const groupId = courseId
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId, courseInfo: { isNot: null } }
+    })
+    if (!group) {
+      throw new EntityNotExistException('Course')
+    }
+
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      include: {
+        comments: {
+          include: { createdBy: { select: { username: true } } },
+          orderBy: { order: 'asc' }
+        },
+        createdBy: { select: { username: true } }
+      }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('QnA')
+    }
+
+    if (qna.isPrivate) {
+      const isCourseStaff = userId
+        ? (await this.prisma.userGroup.findFirst({
+            where: { userId, groupId, isGroupLeader: true }
+          })) !== null
+        : false
+
+      if (!isCourseStaff && qna.createdById !== userId) {
+        throw new ForbiddenAccessException('This is a private question')
+      }
+    }
+
+    if (userId != null && !qna.readBy.includes(userId)) {
+      return await this.prisma.courseQnA.update({
+        where: { id: qna.id },
+        data: {
+          readBy: {
+            push: userId
+          }
+        },
+        include: {
+          comments: {
+            include: { createdBy: { select: { username: true } } },
+            orderBy: { order: 'asc' }
+          },
+          createdBy: { select: { username: true } }
+        }
+      })
+    }
+
+    return qna
+  }
+
+  /**
+   * @description Course Q&A를 수정합니다.
+   * @param userId 현재 요청을 보낸 사용자 ID
+   * @param courseId Course의 group ID
+   * @param order 수정할 Q&A의 order 번호
+   * @param data 수정할 데이터
+   * @returns 수정된 CourseQnA
+   * @throws {EntityNotExistException} Course 또는 QnA가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 수정 권한이 없을 때
+   */
+  async updateCourseQnA(
+    userId: number,
+    courseId: number,
+    order: number,
+    data: UpdateCourseQnADto
+  ) {
+    const groupId = courseId
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId, courseInfo: { isNot: null } }
+    })
+    if (!group) {
+      throw new EntityNotExistException('Course')
+    }
+
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: { groupId, order }
+      },
+      select: { createdById: true, id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    if (qna.createdById !== userId) {
+      throw new ForbiddenAccessException('You are not allowed to update')
+    }
+
+    return await this.prisma.courseQnA.update({
+      where: { id: qna.id },
+      data
+    })
+  }
+
+  /**
+   * @description Course Q&A를 삭제합니다.
+   * @param userId 현재 요청을 보낸 사용자 ID
+   * @param courseId Course의 group ID
+   * @param order 삭제할 Q&A의 order 번호
+   * @returns 삭제된 CourseQnA
+   * @throws {EntityNotExistException} Course 또는 QnA가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 삭제 권한이 없을 때
+   */
+  async deleteCourseQnA(userId: number, courseId: number, order: number) {
+    const groupId = courseId
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId, courseInfo: { isNot: null } }
+    })
+    if (!group) {
+      throw new EntityNotExistException('Course')
+    }
+
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: { groupId, order }
+      }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    const isCourseStaff =
+      (await this.prisma.userGroup.findFirst({
+        where: { userId, groupId, isGroupLeader: true }
+      })) !== null
+
+    if (qna.createdById !== userId && !isCourseStaff) {
+      throw new ForbiddenAccessException('You are not allowed to delete')
+    }
+
+    return await this.prisma.courseQnA.delete({ where: { id: qna.id } })
+  }
+
+  /**
+   * @description Course Q&A에 댓글을 생성합니다.
+   * @param userId 댓글 작성자 ID
+   * @param courseId Course의 group ID
+   * @param order 댓글을 작성할 Q&A의 order 번호
+   * @param content 댓글 내용
+   * @returns 생성된 CourseQnAComment
+   * @throws {EntityNotExistException} Course 또는 QnA가 존재하지 않을 때
+   */
+  async createCourseQnAComment(
+    userId: number,
+    courseId: number,
+    order: number,
+    content: string
+  ) {
+    const groupId = courseId
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId, courseInfo: { isNot: null } }
+    })
+    if (!group) {
+      throw new EntityNotExistException('Course')
+    }
+
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: { groupId, order }
+      }
+    })
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    const isCourseStaff =
+      (await this.prisma.userGroup.findFirst({
+        where: { userId, groupId, isGroupLeader: true }
+      })) !== null
+
+    return await this.prisma.$transaction(async (tx) => {
+      const maxOrder = await tx.courseQnAComment.aggregate({
+        where: { courseQnAId: qna.id },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _max: { order: true }
+      })
+      const newOrder = (maxOrder._max?.order ?? 0) + 1
+
+      const comment = await tx.courseQnAComment.create({
+        data: {
+          content,
+          courseQnAId: qna.id,
+          createdById: userId,
+          isCourseStaff,
+          order: newOrder
+        }
+      })
+
+      await tx.courseQnA.update({
+        where: { id: qna.id },
+        data: {
+          isResolved: isCourseStaff,
+          readBy: { set: [userId] } // Reset readBy
+        }
+      })
+
+      return comment
+    })
+  }
+
+  /**
+   * @description Course Q&A의 댓글을 삭제합니다.
+   * @param userId 현재 요청을 보낸 사용자 ID
+   * @param courseId Course의 group ID
+   * @param qnaOrder 댓글이 속한 Q&A의 order 번호
+   * @param commentOrder 삭제할 댓글의 order 번호
+   * @returns 삭제된 CourseQnAComment
+   * @throws {EntityNotExistException} Course, QnA, 또는 Comment가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 삭제 권한이 없을 때
+   */
+  async deleteCourseQnAComment(
+    userId: number,
+    courseId: number,
+    qnaOrder: number,
+    commentOrder: number
+  ) {
+    const groupId = courseId
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId, courseInfo: { isNot: null } }
+    })
+    if (!group) {
+      throw new EntityNotExistException('Course')
+    }
+
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: { groupId, order: qnaOrder }
+      }
+    })
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    const comment = await this.prisma.courseQnAComment.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        courseQnAId_order: { courseQnAId: qna.id, order: commentOrder }
+      }
+    })
+    if (!comment) {
+      throw new EntityNotExistException('CourseQnAComment')
+    }
+
+    const isCourseStaff =
+      (await this.prisma.userGroup.findFirst({
+        where: { userId, groupId, isGroupLeader: true }
+      })) !== null
+
+    if (comment.createdById !== userId && !isCourseStaff) {
+      throw new ForbiddenAccessException('You are not allowed to delete')
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const deletedComment = await tx.courseQnAComment.delete({
+        where: { id: comment.id }
+      })
+
+      const lastComment = await tx.courseQnAComment.findFirst({
+        where: { courseQnAId: qna.id },
+        orderBy: { order: 'desc' },
+        select: { isCourseStaff: true }
+      })
+
+      const isResolved = lastComment ? lastComment.isCourseStaff : false
+      await tx.courseQnA.update({
+        where: { id: qna.id },
+        data: { isResolved }
+      })
+
+      return deletedComment
+    })
+  }
 }

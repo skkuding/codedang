@@ -8,13 +8,18 @@ import { useState, useRef } from 'react'
 import { toast } from 'sonner'
 
 interface TestcaseUploadModalProps {
-  onUpload: (testcases: Array<{ input: string; output: string }>) => void
+  onUpload: (
+    testcases: Array<{ input: string; output: string }>,
+    zipFile: File
+  ) => void
   isHidden: boolean
+  disabled?: boolean
 }
 
 export function TestcaseUploadModal({
   onUpload,
-  isHidden
+  isHidden,
+  disabled = false
 }: TestcaseUploadModalProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -23,7 +28,29 @@ export function TestcaseUploadModal({
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
-    setUploadedFile(file)
+    if (file) {
+      console.log('Original file:', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      })
+
+      // MIME 타입을 application/zip으로 강제 변경
+      const modifiedFile = new File([file], file.name, {
+        type: 'application/zip',
+        lastModified: file.lastModified
+      })
+
+      console.log('Modified file:', {
+        name: modifiedFile.name,
+        type: modifiedFile.type,
+        size: modifiedFile.size
+      })
+
+      setUploadedFile(modifiedFile)
+    } else {
+      setUploadedFile(null)
+    }
   }
 
   const processZipFile = async () => {
@@ -81,7 +108,7 @@ export function TestcaseUploadModal({
         )
 
       if (testcases.length > 0) {
-        onUpload(testcases)
+        onUpload(testcases, uploadedFile)
       } else {
         toast.error('No testcases found in the ZIP file')
       }
@@ -120,8 +147,13 @@ export function TestcaseUploadModal({
       }}
       trigger={
         <button
-          className="flex cursor-pointer items-center justify-center rounded-[1000px] border border-[#C4C4C4] bg-[#F5F5F5] px-[24px] py-[10px]"
+          className={`flex items-center justify-center rounded-[1000px] border px-[24px] py-[10px] ${
+            disabled
+              ? 'cursor-not-allowed border-[#D8D8D8] bg-[#F5F5F5] opacity-50'
+              : 'cursor-pointer border-[#C4C4C4] bg-[#F5F5F5] hover:bg-[#E5E5E5]'
+          }`}
           type="button"
+          disabled={disabled}
         >
           <Image
             src="/icons/upload.svg"

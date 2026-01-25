@@ -3,20 +3,28 @@ import { gql } from '@generated'
 const GET_PROBLEM = gql(`
   query GetProblem($id: Int!) {
     getProblem(id: $id) {
-      title
-      isVisible
-      difficulty
+      id
       languages
-      tag {
-        tag {
-          id
-          name
-        }
-      }
+      source
+      createdById
+      timeLimit
+      difficulty
+      title
+      memoryLimit
       description
       inputDescription
       outputDescription
       submissionCount
+      hint
+      isVisible
+      template
+      solution
+      isHiddenUploadedByZip
+      isSampleUploadedByZip
+      sharedGroups {
+        id
+        groupName
+      }
       testcase {
         id
         input
@@ -25,12 +33,19 @@ const GET_PROBLEM = gql(`
         scoreWeightNumerator
         scoreWeightDenominator
       }
-      timeLimit
-      memoryLimit
-      hint
-      source
-      template
-      solution
+      tag {
+        id
+        tag {
+          id
+          name
+        }
+      }
+      updateHistory {
+        id
+        updatedFields
+        updatedAt
+        updatedByid
+      }
     }
   }
 `)
@@ -130,6 +145,7 @@ const GET_PROBLEM_TESTCASE = gql(`
     getProblem(id: $id) {
       testcase {
         id
+        order
         input
         output
         isHidden
@@ -140,13 +156,49 @@ const GET_PROBLEM_TESTCASE = gql(`
   }
 `)
 
+const GET_PROBLEM_TESTCASE_WITHOUT_IO = gql(`
+  query GetProblemTestcaseWithoutIO($id: Int!) {
+    getProblem(id: $id) {
+      testcase {
+        id
+        order
+        isHidden
+        scoreWeightNumerator
+        scoreWeightDenominator
+      }
+    }
+  }
+`)
+
+const GET_TESTCASE = gql(`
+  query GetTestcase($testcaseId: Int!) {
+  getTestcase(testcaseId: $testcaseId) {
+    id
+    order
+    input
+    output
+    isHidden
+    isOutdated
+    outdateTime
+    scoreWeight
+    scoreWeightDenominator
+    scoreWeightNumerator
+    submissionCount
+    createTime
+    updateTime
+  }
+}
+`)
+
 export {
   GET_ASSIGNMENT_PROBLEM_MAX_SCORE,
   GET_ASSIGNMENT_PROBLEMS,
+  GET_PROBLEM_TESTCASE_WITHOUT_IO,
   GET_CONTEST_PROBLEMS,
   GET_PROBLEM,
   GET_PROBLEM_DETAIL,
   GET_PROBLEM_TESTCASE,
   GET_PROBLEMS,
-  GET_TAGS
+  GET_TAGS,
+  GET_TESTCASE
 }

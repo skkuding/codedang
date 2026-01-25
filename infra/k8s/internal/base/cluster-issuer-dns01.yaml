@@ -15,8 +15,8 @@ spec:
           route53:
             region: ap-northeast-2
             accessKeyIDSecretRef:
-              name: route53-credential
+              name: route53-credentials
               key: aws_access_key_id
             secretAccessKeySecretRef:
-              name: route53-credential
+              name: route53-credentials
               key: aws_secret_access_key

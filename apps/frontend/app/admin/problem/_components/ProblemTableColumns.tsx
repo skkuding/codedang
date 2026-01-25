@@ -1,5 +1,5 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
-import { Badge } from '@/components/shadcn/badge'
+import { LevelBadge } from '@/components/LevelBadge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { Switch } from '@/components/shadcn/switch'
 import {
@@ -8,13 +8,11 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
-import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
-import { useLazyQuery, useMutation } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import { CiShare1 } from 'react-icons/ci'
 import { ProblemUsage } from './ProblemUsage'
 
@@ -38,27 +36,6 @@ export interface DataTableProblem {
 
 function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
-  const [getContestsByProblemId] = useLazyQuery(GET_BELONGED_CONTESTS)
-  const [fetched, setFetched] = useState(false)
-
-  useEffect(() => {
-    if (!fetched) {
-      getContestsByProblemId({
-        variables: { problemId: row.original.id },
-        onCompleted: (data) => {
-          const contests = data?.getContestsByProblemId
-          if (
-            contests.finished.length === 0 &&
-            contests.ongoing.length === 0 &&
-            contests.upcoming.length === 0
-          ) {
-            row.original.isVisible = null
-          }
-          setFetched(true)
-        }
-      })
-    }
-  }, [fetched, getContestsByProblemId, row.original])
 
   return (
     <div className="flex items-center justify-center space-x-2">
@@ -87,9 +64,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
           </TooltipTrigger>
           {row.original.isVisible === null && (
             <TooltipContent className="bg-white text-black">
-              <p>
-                This Problem is Not Included in Contest or Finished Contest.
-              </p>
+              <p>Included in Ongoing/Upcoming Contest/Assignment.</p>
             </TooltipContent>
           )}
         </Tooltip>
@@ -195,15 +170,9 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
-      const formattedLevel = `Level ${level.slice(-1)}`
       return (
         <div>
-          <Badge
-            variant={level as Level}
-            className="mr-1 whitespace-nowrap px-2 py-1 font-normal"
-          >
-            {formattedLevel}
-          </Badge>
+          <LevelBadge level={level as Level} />
         </div>
       )
     },

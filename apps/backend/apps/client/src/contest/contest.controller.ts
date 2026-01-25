@@ -181,4 +181,44 @@ export class ContestController {
       commentOrder
     )
   }
+
+  @Get(':id/statistics/problems')
+  @UserNullWhenAuthFailedIfPublic()
+  async getContestProblems(@Param('id', IDValidationPipe) contestId: number) {
+    return await this.contestService.getContestProblems(contestId)
+  }
+
+  @Get(':id/statistics/problem/:problemId')
+  @UserNullWhenAuthFailedIfPublic()
+  async getStatisticsByProblem(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', IDValidationPipe) contestId: number,
+    @Param('problemId', IDValidationPipe) problemId: number
+  ) {
+    return await this.contestService.getStatisticsByProblem(
+      req.user?.id,
+      contestId,
+      problemId
+    )
+  }
+
+  @Get(':id/statistics/submissions')
+  @UserNullWhenAuthFailedIfPublic()
+  async getAllSubmissionsByContest(
+    @Param('id', IDValidationPipe) contestId: number
+  ) {
+    return await this.contestService.getAllSubmissionsByContest(contestId)
+  }
+
+  @Get(':id/problem/:problemId/statistics/graph')
+  @UserNullWhenAuthFailedIfPublic()
+  async getContestProblemStatistics(
+    @Param('id', IDValidationPipe) contestId: number,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
+  ) {
+    return await this.contestService.getContestProblemStatistics({
+      contestId,
+      problemId
+    })
+  }
 }

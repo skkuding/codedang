@@ -18,7 +18,7 @@ jobs:
         target: [client, admin]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Check if source code has changed
         uses: dorny/paths-filter@v3
@@ -50,10 +50,11 @@ jobs:
 
   build-frontend:
     name: Build Frontend
-    runs-on: ubuntu-latest
+    runs-on: arc-runner
     permissions:
       contents: read
       packages: write
+      pull-requests: read
 
     steps:
       - name: Setup Docker Buildx
@@ -66,14 +67,56 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Detect PR number
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            let prNumber = '';
+
+            // pull_request
+            if (context.eventName === 'pull_request') {
+              prNumber = String(context.payload.pull_request.number);
+            }
+
+            // merge_group
+            if (!prNumber && context.eventName === 'merge_group' && context.ref?.includes('gh-readonly-queue')) {
+              const m = context.ref.match(/pr-(\d+)-/);
+              if (m) prNumber = m[1];
+            }
+
+            // push(main)
+            if (!prNumber) {
+              try {
+                const res = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  owner, repo, commit_sha: context.sha,
+                });
+                prNumber = res.data?.[0]?.number ? String(res.data[0].number) : '';
+              } catch (e) {}
+            }
+
+            // fallback
+            if (!prNumber) {
+              try {
+                const commit = await github.rest.repos.getCommit({ owner, repo, ref: context.sha });
+                const m = commit.data.commit.message.match(/#(\d+)/);
+                if (m) prNumber = m[1];
+              } catch (e) {}
+            }
+
+            core.setOutput('number', prNumber);
+
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
           file: ./apps/frontend/Dockerfile # build with root context
           push: true
           tags: ghcr.io/skkuding/codedang-frontend:${{ github.event.pull_request.head.sha || github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: |
+            type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-${{ steps.pr.outputs.number || 'stage' }}
+            type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-stage
+          cache-to: type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-${{ steps.pr.outputs.number || github.sha }},mode=max
           build-args: |
             BASEURL=https://stage.codedang.com/api
             GQL_BASEURL=https://stage.codedang.com/graphql
@@ -83,7 +126,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-pnpm
 
@@ -104,7 +147,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -150,6 +193,7 @@ jobs:
       TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
       MINIO_ENDPOINT_URL: http://localhost:9000
       TESTCASE_BUCKET_NAME: test-bucket
+      CHECK_RESULT_BUCKET_NAME: codedang-plag-checks
       MEDIA_BUCKET_NAME: image-bucket
       AWS_ACCESS_KEY_ID: abc123
       AWS_SECRET_ACCESS_KEY: xyz123456
@@ -187,7 +231,7 @@ jobs:
           - 6380:6379
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Check if source code has changed
         uses: dorny/paths-filter@v3
@@ -232,7 +276,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Check if source code has changed
         uses: dorny/paths-filter@v3
@@ -253,6 +297,33 @@ jobs:
         if: steps.filter.outputs.iris == 'true'
         run: go test ./...
         working-directory: ./apps/iris
+
+  test-plag:
+    name: Test Plag
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            plag:
+              - 'apps/plag/**'
+
+      - name: Set up Go
+        if: steps.filter.outputs.plag == 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/plag/go.mod
+          cache-dependency-path: apps/plag/go.sum
+
+      - name: Test (Go)
+        if: steps.filter.outputs.plag == 'true'
+        run: go test ./...
+        working-directory: ./apps/plag
 
   # TODO: write smoke test for backend
   # e.g) start backend server and check if it responds to requests

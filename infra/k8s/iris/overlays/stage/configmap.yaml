@@ -1,7 +1,9 @@
+# This is necessary because the iris service needs to access the minio server to upload and download the testcases.
+# Minio requires AWS credentials to access the bucket.
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: iris-env
   namespace: iris
 data:
-  MINIO_ENDPOINT_URL: 'http://minio.minio.svc.cluster.local'
+  MINIO_ENDPOINT_URL: 'https://minio.stage.codedang.com'

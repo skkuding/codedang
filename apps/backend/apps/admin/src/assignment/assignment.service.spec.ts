@@ -2,15 +2,15 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, type TestingModule } from '@nestjs/testing'
 import {
+  Assignment,
   AssignmentProblem,
-  Group,
+  AssignmentProblemRecord,
   AssignmentRecord,
-  AssignmentProblemRecord
+  Group,
+  Problem
 } from '@generated'
-import { Problem } from '@generated'
-import { Assignment } from '@generated'
 import { faker } from '@faker-js/faker'
-import { ResultStatus } from '@prisma/client'
+import { Prisma, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import {
@@ -152,6 +152,8 @@ const problem: Problem = {
   engHint: null,
   engInputDescription: null,
   engOutputDescription: null,
+  isHiddenUploadedByZip: false,
+  isSampleUploadedByZip: false,
   engTitle: null
 }
 
@@ -255,6 +257,9 @@ const db = {
     update: stub().resolves(Problem),
     updateMany: stub().resolves([Problem]),
     findFirstOrThrow: stub().resolves(Problem)
+  },
+  problemTestcase: {
+    groupBy: stub().resolves([])
   },
   group: {
     findUnique: stub().resolves(Group)
@@ -413,6 +418,14 @@ describe('AssignmentService', () => {
           isSubmitted: true
         }
       ])
+      db.problemTestcase.groupBy.resolves([
+        {
+          problemId,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: { problemId: 3 }
+        }
+      ])
+      db.submission.findMany.resolves([])
 
       const summary = await service.getAssignmentScoreSummary(
         userId,
@@ -422,15 +435,17 @@ describe('AssignmentService', () => {
       expect(summary).to.deep.equal({
         submittedProblemCount: 1,
         totalProblemCount: 1,
-        userAssignmentScore: 30,
+        userAssignmentScore: new Prisma.Decimal(30),
         assignmentPerfectScore: 50,
-        userAssignmentFinalScore: 25,
-        problemScores: [
+        userAssignmentFinalScore: new Prisma.Decimal(25),
+        scoreSummaryByProblem: [
           {
             problemId,
             score: 30,
             maxScore: 50,
-            finalScore: 25
+            finalScore: 25,
+            acceptedTestcaseCount: 0,
+            totalTestcaseCount: 0
           }
         ]
       })
@@ -446,6 +461,14 @@ describe('AssignmentService', () => {
           isSubmitted: true
         }
       ])
+      db.problemTestcase.groupBy.resolves([
+        {
+          problemId,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: { problemId: 2 }
+        }
+      ])
+      db.submission.findMany.resolves([])
 
       const summary = await service.getAssignmentScoreSummary(
         userId,
@@ -455,15 +478,17 @@ describe('AssignmentService', () => {
       expect(summary).to.deep.equal({
         submittedProblemCount: 1,
         totalProblemCount: 1,
-        userAssignmentScore: 40,
+        userAssignmentScore: new Prisma.Decimal(40),
         assignmentPerfectScore: 50,
-        userAssignmentFinalScore: 0,
-        problemScores: [
+        userAssignmentFinalScore: Prisma.Decimal(0),
+        scoreSummaryByProblem: [
           {
             problemId,
             score: 40,
             maxScore: 50,
-            finalScore: null
+            finalScore: null,
+            acceptedTestcaseCount: 0,
+            totalTestcaseCount: 0
           }
         ]
       })
@@ -479,6 +504,14 @@ describe('AssignmentService', () => {
           isSubmitted: false
         }
       ])
+      db.problemTestcase.groupBy.resolves([
+        {
+          problemId,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: { problemId: 4 }
+        }
+      ])
+      db.submission.findMany.resolves([])
 
       const summary = await service.getAssignmentScoreSummary(
         userId,
@@ -488,15 +521,17 @@ describe('AssignmentService', () => {
       expect(summary).to.deep.equal({
         submittedProblemCount: 0,
         totalProblemCount: 1,
-        userAssignmentScore: 0,
+        userAssignmentScore: Prisma.Decimal(0),
         assignmentPerfectScore: 50,
-        userAssignmentFinalScore: 0,
-        problemScores: [
+        userAssignmentFinalScore: Prisma.Decimal(0),
+        scoreSummaryByProblem: [
           {
             problemId,
             score: 0,
             maxScore: 50,
-            finalScore: null
+            finalScore: null,
+            acceptedTestcaseCount: 0,
+            totalTestcaseCount: 0
           }
         ]
       })
@@ -505,6 +540,14 @@ describe('AssignmentService', () => {
     it('should handle user with no records', async () => {
       db.assignmentProblem.findMany.resolves([assignmentProblem])
       db.assignmentProblemRecord.findMany.resolves([])
+      db.problemTestcase.groupBy.resolves([
+        {
+          problemId,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: { problemId: 1 }
+        }
+      ])
+      db.submission.findMany.resolves([])
 
       const summary = await service.getAssignmentScoreSummary(
         userId,
@@ -514,10 +557,19 @@ describe('AssignmentService', () => {
       expect(summary).to.deep.equal({
         submittedProblemCount: 0,
         totalProblemCount: 1,
-        userAssignmentScore: 0,
+        userAssignmentScore: Prisma.Decimal(0),
         assignmentPerfectScore: 50,
-        userAssignmentFinalScore: 0,
-        problemScores: []
+        userAssignmentFinalScore: Prisma.Decimal(0),
+        scoreSummaryByProblem: [
+          {
+            problemId,
+            score: new Prisma.Decimal(0),
+            maxScore: 0,
+            finalScore: null,
+            acceptedTestcaseCount: 0,
+            totalTestcaseCount: 0
+          }
+        ]
       })
     })
   })
@@ -551,6 +603,14 @@ describe('AssignmentService', () => {
           isSubmitted: true
         }
       ])
+      db.problemTestcase.groupBy.resolves([
+        {
+          problemId,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: { problemId: 6 }
+        }
+      ])
+      db.submission.findMany.resolves([])
 
       const summaries = await service.getAssignmentScoreSummaries(
         assignmentId,
@@ -568,15 +628,17 @@ describe('AssignmentService', () => {
           major: 'CS',
           submittedProblemCount: 1,
           totalProblemCount: 1,
-          userAssignmentScore: 50,
+          userAssignmentScore: Prisma.Decimal(50),
           assignmentPerfectScore: 50,
-          userAssignmentFinalScore: 45,
-          problemScores: [
+          userAssignmentFinalScore: Prisma.Decimal(45),
+          scoreSummaryByProblem: [
             {
               problemId,
               score: 50,
               maxScore: 50,
-              finalScore: 45
+              finalScore: 45,
+              acceptedTestcaseCount: 0,
+              totalTestcaseCount: 0
             }
           ]
         }

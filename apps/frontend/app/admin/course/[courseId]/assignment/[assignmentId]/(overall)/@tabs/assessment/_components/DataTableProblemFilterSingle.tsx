@@ -54,7 +54,7 @@ export function ProblemSelectDropdown({
         />
       </button>
       {open && (
-        <div className="absolute left-0 z-10 mt-2 flex w-60 flex-col gap-2 rounded-xl border border-gray-200 bg-white p-5 shadow-lg">
+        <div className="absolute left-0 z-50 mt-2 flex w-60 flex-col gap-2 rounded-xl border border-gray-200 bg-white p-5 shadow-lg">
           {problems.map((problem) => (
             <div
               key={problem.problemId}
