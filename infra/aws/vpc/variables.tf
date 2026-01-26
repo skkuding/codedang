@@ -1,7 +1,7 @@
 variable "postgres_port" {
   description = "Port for Postgres DB"
   type        = number
-  default     = 5432
+  default     = 5433
   sensitive   = true
 }
 
