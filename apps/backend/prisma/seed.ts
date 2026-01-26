@@ -3927,6 +3927,59 @@ const createNotifications = async () => {
   })
 }
 
+const createCourseQnA = async () => {
+  // QnA 1 (Problem, Public)
+  const qna1 = await prisma.courseQnA.create({
+    data: {
+      groupId: privateGroup1.id, // '컴퓨터프로그래밍' 코스
+      createdById: users[0].id, // user01 (학생)
+      problemId: problems[0].id, // '정수 더하기' 문제
+      category: QnACategory.Problem,
+      title: '1번 문제 테스트케이스 질문입니다.',
+      content: '1번 문제의 2번 테스트케이스가 이해가지 않습니다.',
+      isResolved: false,
+      isPrivate: false,
+      order: 1 //
+    }
+  })
+
+  // QnA 2 (General, Private)
+  const qna2 = await prisma.courseQnA.create({
+    data: {
+      groupId: privateGroup1.id, // '컴퓨터프로그래밍' 코스
+      createdById: users[1].id, // user02 (학생)
+      category: QnACategory.General,
+      title: '과제 제출 관련 질문입니다.',
+      content: '과제 제출은 언제까지인가요?',
+      isResolved: false,
+      isPrivate: true, // 비공개 질문
+      order: 2 //
+    }
+  })
+
+  // Comment 1 (Staff reply to QnA 1)
+  await prisma.courseQnAComment.create({
+    data: {
+      courseQnAId: qna1.id,
+      createdById: adminUser.id, // admin (교수/관리자)
+      content: '2번 테스트케이스는 0을 입력하는 엣지 케이스입니다.',
+      isCourseStaff: true,
+      order: 1 //
+    }
+  })
+
+  // Comment 2 (Student self-reply to QnA 2)
+  await prisma.courseQnAComment.create({
+    data: {
+      courseQnAId: qna2.id,
+      createdById: users[1].id, // user02 (학생 본인)
+      content: '아, 공지사항을 확인했습니다. 감사합니다.',
+      isCourseStaff: false,
+      order: 1 //
+    }
+  })
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -3946,6 +3999,7 @@ const main = async () => {
   await createContestQnA()
   await createNotifications()
   await createContestQnAComment()
+  await createCourseQnA()
 }
 
 main()
