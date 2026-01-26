@@ -1,5 +1,3 @@
-variable "nat_network_interface_id" { sensitive = true }
-
 variable "postgres_port" {
   description = "Port for Postgres DB"
   type        = number
