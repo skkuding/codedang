@@ -14,34 +14,32 @@ const badgeVariants = cva(
         destructive:
           'border-transparent bg-red-500 text-gray-50 hover:bg-red-500/80 dark:bg-red-900 dark:text-gray-50 dark:hover:bg-red-900/80',
         outline: 'text-gray-950 dark:text-gray-50',
-        Level1: 'bg-level-light-1 text-level-dark-1 border-0',
-        Level2: 'bg-level-light-2 text-level-dark-2 border-0',
-        Level3: 'bg-level-light-3 text-level-dark-3 border-0',
-        Level4: 'bg-level-light-4 text-level-dark-4 border-0',
-        Level5: 'bg-level-light-5 text-level-dark-5 border-0',
-        Spring: 'bg-level-light-1 text-level-dark-1 border-0',
-        Summer: 'bg-level-light-2 text-level-dark-2 border-0',
-        Fall: 'bg-level-light-3 text-level-dark-3 border-0',
-        Winter: 'bg-level-light-4 text-level-dark-4 border-0',
-        Course: 'bg-color-violet-95 text-color-violet-60 rounded-sm border-0',
-        Contest: 'bg-color-blue-95 text-color-blue-50 rounded-sm border-0'
+        Level1:
+          'bg-level-light-1 text-level-dark-1 border-0 leading-[140%] px-4 py-1 tracking-[-0.36px]',
+        Level2:
+          'bg-level-light-2 text-level-dark-2 border-0 leading-[140%] px-4 py-1 tracking-[-0.36px]',
+        Level3:
+          'bg-level-light-3 text-level-dark-3 border-0 leading-[140%] px-4 py-1 tracking-[-0.36px]',
+        Level4:
+          'bg-level-light-4 text-level-dark-4 border-0 leading-[140%] px-4 py-1 tracking-[-0.36px]',
+        Level5:
+          'bg-level-light-5 text-level-dark-5 border-0 leading-[140%] px-4 py-1 tracking-[-0.36px]',
+        course: 'bg-color-violet-95 text-color-violet-60 rounded-sm border-0',
+        contest: 'bg-color-blue-95 text-color-blue-50 rounded-sm border-0'
       },
       textColors: {
-        Spring: 'text-level-light-1',
-        Summer: 'text-level-light-2',
-        Fall: 'text-level-light-3',
-        Winter: 'text-level-light-4'
+        spring: 'text-level-light-1',
+        summer: 'text-level-light-2',
+        fall: 'text-level-light-3',
+        winter: 'text-level-light-4'
       },
       levelVariant: {
-        default:
-          'justify-center leading-[140%] h-[25px] w-[70px] text-xs font-semibold tracking-[-0.36px]',
-        dark: 'justify-center leading-[140%] h-[25px] w-[60px] bg-editor-fill-1 text-xs font-semibold tracking-[-0.36px] rounded-sm hover:bg-editor-fill-1',
-        gray: 'justify-center py-1 leading-[140%] w-[72px] bg-fill text-color-neutral-50 text-sm tracking-[-0.42px] font-medium hover:bg-fill'
+        dark: 'px-3 py-1 bg-editor-fill-1 tracking-[-0.36px] rounded-sm',
+        gray: 'px-[14px] py-1 bg-fill text-color-neutral-50 text-sm tracking-[-0.42px] font-medium'
       }
     },
     defaultVariants: {
-      variant: 'default',
-      levelVariant: 'default'
+      variant: 'default'
     }
   }
 )
