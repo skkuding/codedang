@@ -171,6 +171,20 @@ export class AssignmentService {
     }
   }
 
+  /**
+   * 과제 정보를 업데이트합니다.
+   *
+   * @param groupId 그룹 ID(수정을 요청한)
+   * @param assignment 업데이트할 과제 정보
+   * @returns 업데이트가 완료된 과제 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다
+   * - 업데이트하려는 과제가 DB에 존재하지 않을 경우
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다
+   * - 요청한 그룹 ID(groupId)가 과제가 속한 실제 그룹 ID와 일치하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다
+   * - 수정된 과제 시작 시간이 종료 시간(endTime)보다 늦을 때
+   * - 수정된 과제 시작 시간이 마감 시간(dueTime)보다 늦을 때
+   */
   async updateAssignment(
     groupId: number,
     assignment: UpdateAssignmentInput
