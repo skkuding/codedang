@@ -115,16 +115,16 @@ export function ProblemStatisticsPage() {
             )}
             onClick={() => setSelectedProblem(problem.problemId)}
           >
-            <div className="flex items-center">
+            <div className="flex min-w-0 items-center">
               <div
                 className={cn(
-                  'm-2 h-1 w-1 rounded-full bg-black',
+                  'm-2 h-1 w-1 shrink-0 rounded-full bg-black',
                   selectedProblem === problem.problemId && 'bg-white'
                 )}
               />
-              {problem.problem.title}
+              <span className="truncate">{problem.problem.title}</span>{' '}
             </div>
-            <SlArrowRight className="h-3 w-3" />
+            <SlArrowRight className="h-3 w-3 shrink-0" />
           </div>
         ))}
       </div>
