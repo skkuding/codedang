@@ -1,47 +1,95 @@
+'use client'
+
+import { fetcherWithAuth } from '@/libs/utils'
 import { useSuspenseQueries } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
 import React, { useState, useMemo } from 'react'
 import { LeaderBoardTable } from './_leaderboardcomponents/LeaderBoardTable'
+import { NoSubmissionData } from './_leaderboardcomponents/NoSubmissionData'
 import { TimeSlider } from './_leaderboardcomponents/TimeSlider'
 import { calculateRankingHistory } from './_leaderboardcomponents/_libs/CalculateLeaderBoard'
-import contestMetadataMock from './_leaderboardcomponents/contestMetadataMock.json'
-import contestProblemsMock from './_leaderboardcomponents/contestProblemMock.json'
-import leaderboardMock from './_leaderboardcomponents/leaderboardMock.json'
-import submissionsMock from './_leaderboardcomponents/submissionMock.json'
+import type {
+  Submission,
+  Leaderboard,
+  ContestforStatistics,
+  ContestProblemforStatistics
+} from './_leaderboardcomponents/_libs/types/type'
 
 export function RealtimeLearBoardPage() {
   const { contestId } = useParams<{ contestId: string }>()
   const results = useSuspenseQueries({
     queries: [
       {
-        queryKey: ['contestSubmissions', contestId],
-        queryFn: async () => {
-          const res = await fetch(`/contest/${contestId}`)
-          if (!res.ok) {
+        queryKey: ['contestMetadata', contestId],
+        queryFn: () => {
+          const res = fetcherWithAuth
+            .get(`contest/${contestId}`)
+            .json<ContestforStatistics>()
+          if (!res) {
             throw new Error('Failed to fetch contest metadata')
           }
-          return res.json()
+          return res
+        }
+      },
+      {
+        queryKey: ['contestSubmission', contestId],
+        queryFn: () => {
+          const res = fetcherWithAuth
+            .get(`contest/${contestId}/statistics/submissions`)
+            .json<Submission[]>()
+          if (!res) {
+            throw new Error('Failed to fetch contest submissions')
+          }
+          return res
+        }
+      },
+      {
+        queryKey: ['contestProblem', contestId],
+        queryFn: () => {
+          const res = fetcherWithAuth
+            .get(`contest/${contestId}/problems`)
+            .json<ContestProblemforStatistics>()
+          if (!res) {
+            throw new Error('Failed to fetch contest problems')
+          }
+          return res
+        }
+      },
+      {
+        queryKey: ['contestLeaderboard', contestId],
+        queryFn: () => {
+          const res = fetcherWithAuth
+            .get(`contest/${contestId}/statistics/leaderboard`)
+            .json<Leaderboard>()
+          if (!res) {
+            throw new Error('Failed to fetch contest leaderboard')
+          }
+          return res
         }
       }
     ]
   })
-  const contestStartTime = new Date(contestMetadataMock.startTime).getTime()
-  const contestEndTime = new Date(contestMetadataMock.endTime).getTime()
+  const contestMetadata = results[0].data
+  const submissions = results[1].data
+  const contestProblems = results[2].data
+  const leaderboard = results[3].data
+
+  const contestStartTime = new Date(contestMetadata.startTime).getTime()
+  const contestEndTime = new Date(contestMetadata.endTime).getTime()
 
   const sortedSubmissions = useMemo(() => {
-    return [...submissionsMock].sort(
+    return [...submissions].sort(
       (a, b) =>
-        new Date(a.submissionTime).getTime() -
-        new Date(b.submissionTime).getTime()
+        new Date(a.createTime).getTime() - new Date(b.createTime).getTime()
     )
   }, [])
 
   const leaderboardHistory = useMemo(() => {
     return calculateRankingHistory({
       sortedSubmissions,
-      leaderboard: leaderboardMock,
-      contestMetadata: contestMetadataMock,
-      contestProblems: contestProblemsMock
+      leaderboard,
+      contestMetadata,
+      contestProblems
     })
   }, [sortedSubmissions])
   const [currentSubmissionIndex, setCurrentSubmissionIndex] = useState<
@@ -68,7 +116,7 @@ export function RealtimeLearBoardPage() {
       return null
     }
     const submission = sortedSubmissions[currentSubmissionIndex]
-    return submission ? new Date(submission.submissionTime).getTime() : null
+    return submission ? new Date(submission.createTime).getTime() : null
   }, [currentSubmissionIndex, sortedSubmissions])
 
   const handleSliderChange = (index: number) => {
@@ -80,21 +128,26 @@ export function RealtimeLearBoardPage() {
   }
 
   const handleRankChange = () => {}
-  return (
-    <div>
-      <TimeSlider
-        currentSubmissionIndex={currentSubmissionIndex}
-        submissionCount={sortedSubmissions.length}
-        onSliderChange={handleSliderChange}
-        onReset={handleReset}
-        contestStartTime={contestStartTime}
-        contestEndTime={contestEndTime}
-        currentSubmissionTime={currentSubmissionTime}
-      />
-      <LeaderBoardTable
-        users={currentData.users}
-        problems={contestProblemsMock}
-      />
-    </div>
-  )
+
+  if (submissions.length === 0) {
+    return <NoSubmissionData />
+  } else {
+    return (
+      <div>
+        <TimeSlider
+          currentSubmissionIndex={currentSubmissionIndex}
+          submissionCount={sortedSubmissions.length}
+          onSliderChange={handleSliderChange}
+          onReset={handleReset}
+          contestStartTime={contestStartTime}
+          contestEndTime={contestEndTime}
+          currentSubmissionTime={currentSubmissionTime}
+        />
+        <LeaderBoardTable
+          users={currentData.users}
+          problems={contestProblems}
+        />
+      </div>
+    )
+  }
 }

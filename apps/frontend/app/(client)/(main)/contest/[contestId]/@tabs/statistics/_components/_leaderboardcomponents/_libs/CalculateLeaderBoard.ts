@@ -56,9 +56,9 @@ function createInitialState({
     const userId = record.userId
     userProblems[userId] = {}
 
-    for (const problem of contestProblems.contestProblem) {
-      userProblems[userId][problem.problemId] = {
-        problemId: problem.problemId.toString(),
+    for (const problem of contestProblems.data) {
+      userProblems[userId][problem.id] = {
+        problemId: problem.id.toString(),
         attempts: 0,
         solveTime: null,
         judgeResult: 'NoAttempt',
@@ -107,7 +107,7 @@ function reflectSubmissionToState(
   problem.attempts += 1
   problem.judgeResult = submission.result as JudgeResult
   if (submission.result === 'Accepted') {
-    const solveTime = new Date(submission.submissionTime).getTime()
+    const solveTime = new Date(submission.createTime).getTime()
     problem.solveTime = solveTime
 
     if (!state.firstSolvers[problemId]) {
@@ -212,7 +212,7 @@ export function calculateRankingHistory({
 
     history.push({
       submissionIndex: i,
-      timestamp: parseInt(submission.submissionTime),
+      timestamp: parseInt(submission.createTime),
       users,
       firstSolvers
     })

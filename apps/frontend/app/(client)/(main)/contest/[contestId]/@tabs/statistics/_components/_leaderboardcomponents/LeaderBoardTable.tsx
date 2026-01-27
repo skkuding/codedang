@@ -79,12 +79,12 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
         </div>
         <div className="bg-color-neutral-99 flex h-10 items-center rounded-full px-4">
           <div className="flex w-full items-center justify-start gap-2">
-            {problems.contestProblem.map((problem) => (
+            {problems.data.map((problem) => (
               <div
-                key={problem.problemId}
+                key={problem.id}
                 className="text-color-neutral-60 flex h-full w-[80px] shrink-0 items-center justify-center text-base font-medium tracking-[-0.03em]"
               >
-                {convertToLetter(problem.problemOrder)}
+                {convertToLetter(problem.order)}
               </div>
             ))}
           </div>
@@ -161,14 +161,14 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
             </div>
 
             <div className="flex w-full items-center justify-start gap-2 p-4">
-              {problems.contestProblem.map((problem) => {
-                const detail = user.problemDetails[problem.problemId.toString()]
+              {problems.data.map((problem) => {
+                const detail = user.problemDetails[problem.id.toString()]
                 const { attempts, penalty, judgeResult } = detail
 
                 if (judgeResult === 'NoAttempt') {
                   return (
                     <div
-                      key={problem.problemId}
+                      key={problem.id}
                       className="flex w-[80px] shrink-0 justify-center text-sm text-neutral-400"
                     >
                       -
@@ -178,7 +178,7 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
 
                 return (
                   <div
-                    key={problem.problemId}
+                    key={problem.id}
                     className="flex w-[80px] shrink-0 flex-col items-center text-sm"
                   >
                     {judgeResult === 'Accepted' ? (

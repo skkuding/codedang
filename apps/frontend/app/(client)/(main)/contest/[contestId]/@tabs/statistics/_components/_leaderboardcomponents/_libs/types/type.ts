@@ -23,12 +23,10 @@ export interface ContestforStatistics {
   endTime: string
 }
 export interface ContestProblemforStatistics {
-  contestProblem: {
-    problemId: number
-    problemOrder: number
-    problem: {
-      title: string
-    }
+  data: {
+    id: number
+    order: number
+    title: string
   }[]
 }
 
@@ -39,7 +37,6 @@ export interface UserData {
   problemsSolved: number
   totalPenalty: number
   problemDetails: Record<string, ProblemDetail>
-  isMyUser?: boolean
 }
 
 export interface Submission {
@@ -49,10 +46,10 @@ export interface Submission {
   userId: number
   result: string
   language: string
-  submissionTime: string
+  createTime: string
   codeSize: number
   problemId: number
-  order?: number
+  order: number
 }
 
 interface LeaderboardProblemRecord {
