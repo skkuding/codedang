@@ -1,0 +1,55 @@
+---
+
+### **파일: `5. Create Course QnA Comment/[ERR] Nonexistent CourseQnA.bru`**
+```bruno
+meta {
+  name: [ERR] Nonexistent CourseQnA
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateCourseQnAComment(
+    $groupId: Int!
+    $order: Int!
+    $content: String!
+  ) {
+    createCourseQnAComment(
+      groupId: $groupId
+      order: $order
+      content: $content
+    ) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "order": 999,
+    "content": "Nonexistent CourseQnA"
+  }
+}
+
+script:pre-request {
+  await require("./login").loginInstructor(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent CourseQnA
+
+  **POST** `/graphql (mutation: createCourseQnAComment)`
+
+  The requested QnA does not exist in the course.
+
+  존재하지 않는 Q&A 순번(`order`)에 댓글을 작성하려고 할 때,
+
+  `EntityNotExistException('CourseQnA')`이 발생합니다.
+}
