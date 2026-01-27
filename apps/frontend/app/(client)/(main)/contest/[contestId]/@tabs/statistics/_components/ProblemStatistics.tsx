@@ -455,7 +455,7 @@ function ProblemDetailSection({
               data={timelineChartData}
               margin={{
                 left: 12,
-                right: 32
+                right: 21
               }}
             >
               <CartesianGrid vertical={true} strokeDasharray="2 3" />
