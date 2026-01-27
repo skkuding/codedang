@@ -1,12 +1,8 @@
 resource "aws_db_subnet_group" "db_subnet_group" {
   name = "codedang-db-subnet-group"
-  subnet_ids = [
-    # TODO: change this to private subnets after migrating testcases from db to s3
-    # After the migration, on-premise iris does not have to access the database
-    local.network.subnet_ids["public_db1"],
-    local.network.subnet_ids["public_db2"],
-    local.network.subnet_ids["public_db3"]
-  ]
+  # TODO: change this to private subnets after migrating testcases from db to s3
+  # After the migration, on-premise iris does not have to access the database
+  subnet_ids = local.network.db_subnet_ids
 }
 
 resource "aws_security_group" "db" {
