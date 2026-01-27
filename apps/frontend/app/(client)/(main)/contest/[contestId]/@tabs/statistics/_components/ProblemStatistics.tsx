@@ -122,7 +122,7 @@ export function ProblemStatisticsPage() {
                   selectedProblem === problem.problemId && 'bg-white'
                 )}
               />
-              <span className="truncate">{problem.problem.title}</span>{' '}
+              <span className="mr-1 truncate">{problem.problem.title}</span>
             </div>
             <SlArrowRight className="h-3 w-3 shrink-0" />
           </div>
