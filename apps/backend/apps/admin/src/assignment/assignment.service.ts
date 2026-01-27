@@ -389,6 +389,20 @@ export class AssignmentService {
     }
   }
 
+  /**
+   * 과제에 문제들을 추가합니다.
+   *
+   * @param groupId 그룹 ID
+   * @param assignmentId 과제 ID
+   * @param assignmentProblemInput 추가할 문제 정보들
+   * @returns 추가된 과제들 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 요청한 과제가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제에 해당하는 그룹 ID가 일치하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - 트랜잭션 처리 중 오류가 발생할 때
+   */
   async importProblemsToAssignment(
     groupId: number,
     assignmentId: number,
