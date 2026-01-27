@@ -5,32 +5,6 @@ resource "aws_db_subnet_group" "db_subnet_group" {
   subnet_ids = local.network.db_subnet_ids
 }
 
-resource "aws_security_group" "db" {
-  name        = "Codedang-SG-DB"
-  description = "Allow DB inbound traffic"
-  vpc_id      = data.aws_vpc.main.id
-
-  ingress {
-    description = "PostgreSQL"
-    from_port   = var.postgres_port
-    to_port     = var.postgres_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = "Codedang-SG-DB"
-  }
-}
-
 resource "random_password" "postgres_password" {
   length  = 16
   special = false
@@ -54,7 +28,7 @@ resource "aws_db_instance" "postgres" {
   # TODO: remove this after migrating testcase from db to s3
   publicly_accessible = true
 
-  vpc_security_group_ids = [aws_security_group.db.id]
+  vpc_security_group_ids = [local.network.security_group_ids["sg_db"]]
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name #currently using public subnet group
   availability_zone      = "ap-northeast-2b"
 
