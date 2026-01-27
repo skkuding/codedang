@@ -331,6 +331,17 @@ export class AssignmentService {
     }
   }
 
+  /**
+   * 과제를 삭제합니다.
+   *
+   * @param groupId 그룹 ID
+   * @param assignmentId 삭제할 과제 ID
+   * @returns 삭제된 과제 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 요청한 assigmentID를 가진 과제가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 해당 과제 그룹 아이디와 일치하지 않을떄
+   */
   async deleteAssignment(groupId: number, assignmentId: number) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
