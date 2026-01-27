@@ -3546,11 +3546,49 @@ const createContestRecords = async () => {
     }
   }
 
+  const contestId6 = 6
+  const contest6 = await prisma.contest.findUnique({
+    where: { id: contestId6 },
+    select: {
+      contestProblem: {
+        orderBy: { order: 'asc' },
+        select: { id: true, score: true }
+      }
+    }
+  })
+  if (contest6?.contestProblem.length) {
+    const usersForContest6 = await prisma.user.findMany({
+      take: 5,
+      select: { id: true },
+      orderBy: { id: 'asc' }
+    })
+    for (const user of usersForContest6) {
+      const existing = await prisma.contestRecord.findUnique({
+        // eslint-disable-next-line @typescript-eslint/naming-convention -- Prisma unique key
+        where: { contestId_userId: { contestId: contestId6, userId: user.id } }
+      })
+      if (existing) continue
+      const record = await prisma.contestRecord.create({
+        data: {
+          contestId: contestId6,
+          userId: user.id,
+          acceptedProblemNum: 0,
+          score: 0,
+          totalPenalty: 0,
+          finalScore: 0,
+          finalTotalPenalty: 0
+        }
+      })
+      contestRecords.push(record)
+    }
+  }
+
   return contestRecords
 }
 
 const createUserContests = async () => {
   const userContests: Promise<UserContest | Prisma.BatchPayload>[] = []
+  // 대회 6 참가자 Participant 부여 (contestRecords에 이미 contest 6 레코드 포함됨)
   for (const contest of contests) {
     // Contest Manager & Reviewer
     if (contest.createdById === contestAdminUser.id) {
@@ -3623,6 +3661,70 @@ const createContestProblemRecords = async () => {
         }
       })
     )
+  }
+
+  const contestId6 = 6
+  const contest6 = await prisma.contest.findUnique({
+    where: { id: contestId6 },
+    select: {
+      contestProblem: {
+        orderBy: { order: 'asc' },
+        select: { id: true, score: true }
+      }
+    }
+  })
+  if (contest6?.contestProblem.length) {
+    const records6 = await prisma.contestRecord.findMany({
+      where: { contestId: contestId6 },
+      orderBy: { userId: 'asc' }
+    })
+    const baseTime = new Date('2023-06-01T10:00:00.000Z')
+    for (let u = 0; u < records6.length; u++) {
+      let totalScore = 0
+      let totalPenalty = 0
+      let lastAccepted: Date | null = null
+      let acceptedCount = 0
+      for (let i = 0; i < contest6.contestProblem.length; i++) {
+        const cp = contest6.contestProblem[i]
+        const solved = i < 2 && u < 3 ? 1 : 0
+        const score = solved ? (cp.score ?? 0) : 0
+        const timePenalty = solved ? 20 + u * 5 + i * 10 : 0
+        const submitPenalty = solved ? (i + 1) * 20 : 0
+        await prisma.contestProblemRecord.create({
+          data: {
+            contestProblemId: cp.id,
+            contestRecordId: records6[u].id,
+            score,
+            finalScore: score,
+            timePenalty,
+            finalTimePenalty: timePenalty,
+            submitCountPenalty: submitPenalty,
+            finalSubmitCountPenalty: submitPenalty,
+            finishTime: solved
+              ? new Date(baseTime.getTime() + (i + u) * 60_000)
+              : null,
+            isFirstSolver: u === 0 && i === 0
+          }
+        })
+        totalScore += score
+        totalPenalty += timePenalty + submitPenalty
+        if (solved) {
+          acceptedCount += 1
+          lastAccepted = new Date(baseTime.getTime() + (i + u) * 60_000)
+        }
+      }
+      await prisma.contestRecord.update({
+        where: { id: records6[u].id },
+        data: {
+          acceptedProblemNum: acceptedCount,
+          score: totalScore,
+          finalScore: totalScore,
+          totalPenalty,
+          finalTotalPenalty: totalPenalty,
+          lastAcceptedTime: lastAccepted
+        }
+      })
+    }
   }
 
   return contestProblemRecords
