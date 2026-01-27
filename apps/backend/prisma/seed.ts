@@ -2733,6 +2733,277 @@ int main(void) {
     data: { result: ResultStatus.OutputLimitExceeded }
   })
 
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[0].id,
+        problemId: problems[4].id,
+        contestId: contests[5].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <stdio.h>
+int main(void) {
+    int n;
+    scanf("%d", &n);
+    printf("%d\\n", n * 2);
+    return 0;
+}`
+          }
+        ],
+        language: Language.C,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[4].id,
+      result: ResultStatus.Accepted,
+      output: '10\n',
+      cpuTime: 1234,
+      memoryUsage: 5120
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.Accepted }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[1].id,
+        problemId: problems[4].id,
+        contestId: contests[5].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <iostream>
+using namespace std;
+int main() {
+    int n;
+    cin >> n;
+    cout << n + 1 << endl;
+    return 0;
+}`
+          }
+        ],
+        language: Language.Cpp,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[4].id,
+      result: ResultStatus.WrongAnswer,
+      output: '6\n',
+      cpuTime: 2345,
+      memoryUsage: 6144
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.WrongAnswer }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[2].id,
+        problemId: problems[5].id,
+        contestId: contests[5].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `class Main {
+    public static void main(String[] args) {
+        java.util.Scanner sc = new java.util.Scanner(System.in);
+        int n = sc.nextInt();
+        System.out.println(n * n);
+    }
+}`
+          }
+        ],
+        language: Language.Java,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[5].id,
+      result: ResultStatus.Accepted,
+      output: '25\n',
+      cpuTime: 3456,
+      memoryUsage: 8192
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.Accepted }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[3].id,
+        problemId: problems[4].id,
+        contestId: contests[5].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `while True:
+    pass`
+          }
+        ],
+        language: Language.Python3,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[4].id,
+      result: ResultStatus.TimeLimitExceeded,
+      output: null,
+      cpuTime: 5000,
+      memoryUsage: 4096
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.TimeLimitExceeded }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[4].id,
+        problemId: problems[5].id,
+        contestId: contests[5].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <stdio.h>
+int main(void) {
+    int arr[10];
+    printf("%d\\n", arr[100]);
+    return 0;
+}`
+          }
+        ],
+        language: Language.C,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[5].id,
+      result: ResultStatus.RuntimeError,
+      output: null,
+      cpuTime: 123,
+      memoryUsage: 2048
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.RuntimeError }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[0].id,
+        problemId: problems[5].id,
+        contestId: contests[5].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `print(int(input()) ** 2)`
+          }
+        ],
+        language: Language.Python3,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[5].id,
+      result: ResultStatus.Accepted,
+      output: '25\n',
+      cpuTime: 456,
+      memoryUsage: 3072
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.Accepted }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        userId: users[5].id,
+        problemId: problems[4].id,
+        contestId: contests[5].id,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <stdio.h>
+int main(void) {
+    printf("Hello World"
+    return 0;
+}`
+          }
+        ],
+        language: Language.C,
+        result: ResultStatus.Judging
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[submissions.length - 1].id,
+      problemTestcaseId: problemTestcases[4].id,
+      result: ResultStatus.CompileError
+    }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[submissions.length - 1].id
+    },
+    data: { result: ResultStatus.CompileError }
+  })
+
   const checkSeeds = users.map(async (user) => {
     const newSubmission = await prisma.submission.create({
       data: {
@@ -3656,6 +3927,59 @@ const createNotifications = async () => {
   })
 }
 
+const createCourseQnA = async () => {
+  // QnA 1 (Problem, Public)
+  const qna1 = await prisma.courseQnA.create({
+    data: {
+      groupId: privateGroup1.id, // '컴퓨터프로그래밍' 코스
+      createdById: users[0].id, // user01 (학생)
+      problemId: problems[0].id, // '정수 더하기' 문제
+      category: QnACategory.Problem,
+      title: '1번 문제 테스트케이스 질문입니다.',
+      content: '1번 문제의 2번 테스트케이스가 이해가지 않습니다.',
+      isResolved: false,
+      isPrivate: false,
+      order: 1 //
+    }
+  })
+
+  // QnA 2 (General, Private)
+  const qna2 = await prisma.courseQnA.create({
+    data: {
+      groupId: privateGroup1.id, // '컴퓨터프로그래밍' 코스
+      createdById: users[1].id, // user02 (학생)
+      category: QnACategory.General,
+      title: '과제 제출 관련 질문입니다.',
+      content: '과제 제출은 언제까지인가요?',
+      isResolved: false,
+      isPrivate: true, // 비공개 질문
+      order: 2 //
+    }
+  })
+
+  // Comment 1 (Staff reply to QnA 1)
+  await prisma.courseQnAComment.create({
+    data: {
+      courseQnAId: qna1.id,
+      createdById: adminUser.id, // admin (교수/관리자)
+      content: '2번 테스트케이스는 0을 입력하는 엣지 케이스입니다.',
+      isCourseStaff: true,
+      order: 1 //
+    }
+  })
+
+  // Comment 2 (Student self-reply to QnA 2)
+  await prisma.courseQnAComment.create({
+    data: {
+      courseQnAId: qna2.id,
+      createdById: users[1].id, // user02 (학생 본인)
+      content: '아, 공지사항을 확인했습니다. 감사합니다.',
+      isCourseStaff: false,
+      order: 1 //
+    }
+  })
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -3675,6 +3999,7 @@ const main = async () => {
   await createContestQnA()
   await createNotifications()
   await createContestQnAComment()
+  await createCourseQnA()
 }
 
 main()

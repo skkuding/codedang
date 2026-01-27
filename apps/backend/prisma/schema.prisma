@@ -46,20 +46,22 @@ enum ProblemField {
 }
 
 model User {
-  id               Int       @id @default(autoincrement())
-  username         String    @unique
+  id                       Int                @id @default(autoincrement())
+  username                 String             @unique
   /// @HideField()
-  password         String
-  role             Role      @default(User)
-  email            String    @unique
-  studentId        String    @default("0000000000") @map("student_id")
-  college          String?   @default("none")
-  major            String?   @default("none")
-  lastLogin        DateTime? @map("last_login")
-  createTime       DateTime  @default(now()) @map("create_time")
-  updateTime       DateTime  @updatedAt @map("update_time")
-  canCreateCourse  Boolean   @default(false) @map("can_create_course")
-  canCreateContest Boolean   @default(false) @map("can_create_contest")
+  password                 String
+  role                     Role               @default(User)
+  email                    String             @unique
+  studentId                String             @default("0000000000") @map("student_id")
+  college                  String?            @default("none")
+  major                    String?            @default("none")
+  lastLogin                DateTime?          @map("last_login")
+  createTime               DateTime           @default(now()) @map("create_time")
+  updateTime               DateTime           @updatedAt @map("update_time")
+  canCreateCourse          Boolean            @default(false) @map("can_create_course")
+  canCreateContest         Boolean            @default(false) @map("can_create_contest")
+  createdCourseQnAs        CourseQnA[]        @relation("CreatedByUserCourseQnA")
+  createdCourseQnAComments CourseQnAComment[] @relation("CreatedByUserCourseQnAComment")
 
   userProfile         UserProfile?
   userGroup           UserGroup[]
@@ -150,6 +152,7 @@ model Group {
   workbook       Workbook[]
   GroupWhitelist GroupWhitelist[]
   sharedProblems Problem[]
+  courseQnA      CourseQnA[]
   CourseNotice   CourseNotice[]
 
   @@map("group")
@@ -288,6 +291,7 @@ model Problem {
   submission        Submission[]
   announcement      Announcement[]
   ContestQnA        ContestQnA[]
+  courseQnA         CourseQnA[]         @relation("ProblemToCourseQnA")
 
   updateHistory UpdateHistory[]
 
@@ -969,4 +973,43 @@ model PushSubscription {
 
   @@unique([userId, endpoint])
   @@map("push_subscription")
+}
+
+model CourseQnA {
+  id          Int         @id @default(autoincrement())
+  order       Int
+  createdById Int?        @map("created_by_id")
+  groupId     Int         @map("group_id")
+  problemId   Int?        @map("problem_id")
+  title       String
+  content     String
+  category    QnACategory @default(General)
+  isResolved  Boolean     @default(false) @map("is_resolved")
+  isPrivate   Boolean     @default(false) @map("is_private")
+  createTime  DateTime    @default(now()) @map("create_time")
+  readBy      Int[]       @map("read_by")
+
+  createdBy User?              @relation("CreatedByUserCourseQnA", fields: [createdById], references: [id], onDelete: SetNull)
+  group     Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  problem   Problem?           @relation("ProblemToCourseQnA", fields: [problemId], references: [id], onDelete: Cascade)
+  comments  CourseQnAComment[]
+
+  @@unique([groupId, order])
+  @@map("course_qna")
+}
+
+model CourseQnAComment {
+  id            Int      @id @default(autoincrement())
+  order         Int
+  createdById   Int?     @map("created_by_id")
+  isCourseStaff Boolean  @default(false) @map("is_course_staff")
+  content       String
+  courseQnAId   Int      @map("course_qna_id")
+  createTime    DateTime @default(now()) @map("create_time")
+
+  createdBy User?     @relation("CreatedByUserCourseQnAComment", fields: [createdById], references: [id], onDelete: SetNull)
+  courseQnA CourseQnA @relation(fields: [courseQnAId], references: [id], onDelete: Cascade)
+
+  @@unique([courseQnAId, order])
+  @@map("course_qna_comment")
 }

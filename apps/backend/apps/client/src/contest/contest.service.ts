@@ -10,7 +10,8 @@ import {
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
@@ -569,6 +570,7 @@ export class ContestService {
 
         return {
           username: user!.username,
+          userId,
           totalScore: isFrozen ? score : finalScore,
           totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
           problemRecords,
@@ -1225,7 +1227,7 @@ export class ContestService {
       throw new EntityNotExistException('Contest')
     }
     const now = new Date()
-    if (contest.endTime <= now) {
+    if (contest.endTime > now) {
       throw new ForbiddenAccessException(
         'You can access to statistics after contest ends.'
       )
@@ -1273,7 +1275,7 @@ export class ContestService {
    * @returns acceptedSubmissionsByLanguage - 언어별 정답 제출 수
    */
   async getStatisticsByProblem(
-    userId: number,
+    userId: number | null,
     contestId: number,
     problemId: number
   ) {
@@ -1373,10 +1375,15 @@ export class ContestService {
 
     const fastestSolver = fastestUser
 
-    const idx = deduplicatedAcceptedSubmissions.findIndex(
-      (s) => s.user?.id === userId
-    )
-    const userSpeedRank = idx === -1 ? null : idx + 1
+    const userSpeedRank =
+      userId === null
+        ? null
+        : (() => {
+            const idx = deduplicatedAcceptedSubmissions.findIndex(
+              (s) => s.user?.id === userId
+            )
+            return idx === -1 ? null : idx + 1
+          })()
 
     // 해당 problem에서 사용가능한 언어 집합
     const allowedLanguage = new Set<Language>(
@@ -1417,6 +1424,68 @@ export class ContestService {
     }
   }
 
+  /**
+   * 실시간 리더보드를 위해 대회의 모든 Submission을 반환합니다.
+   * @param contestId - 조회할 대회의 ID
+   * @returns submissionsWithOrder - 실시간 리더보드 구현에 필요한 형태의 Submission 리스트
+   */
+  async getAllSubmissionsByContest(contestId: number) {
+    await this.checkIsContestExistsAndEnded(contestId)
+
+    const [contestProblems, submissions] = await Promise.all([
+      this.prisma.contestProblem.findMany({
+        where: {
+          contestId
+        },
+        select: {
+          problemId: true,
+          order: true
+        }
+      }),
+      this.prisma.submission.findMany({
+        where: { contestId },
+        select: {
+          problemId: true,
+          problem: {
+            select: {
+              title: true
+            }
+          },
+          userId: true,
+          user: {
+            select: {
+              username: true
+            }
+          },
+          result: true,
+          language: true,
+          codeSize: true,
+          id: true,
+          createTime: true
+        }
+      })
+    ])
+
+    const problemOrderMap = new Map(
+      contestProblems.map((cp) => [cp.problemId, cp.order])
+    )
+
+    return submissions.map((submission) => {
+      const { user, problem, ...rest } = submission
+      const order = problemOrderMap.get(submission.problemId)
+      if (order === undefined) {
+        throw new UnprocessableDataException(
+          `Problem ${submission.problemId} is not found in contest ${contestId}`
+        )
+      }
+      return {
+        ...rest,
+        username: user!.username,
+        title: problem!.title,
+        order
+      }
+    })
+  }
   /**
    * 대회 statistics 페이지의 문제별 통계 그래프를 조회합니다.
    * 대회 종료 후에만 조회할 수 있습니다.
@@ -1591,7 +1660,6 @@ export class ContestService {
     const durationMs = end - start
     const slotCount = 6
     const intervalMs = durationMs / slotCount
-    const intervalMinutes = Math.max(1, Math.floor(intervalMs / (60 * 1000)))
 
     const slots = Array.from({ length: slotCount }, (_, index) => ({
       timestamp: new Date(start + index * intervalMs).toISOString(),
@@ -1620,6 +1688,18 @@ export class ContestService {
         createTime: 'asc'
       }
     })
+
+    if (durationMs <= 0 || submissions.length === 0) {
+      return {
+        intervalMinutes: 0,
+        series: slots.map((slot) => ({
+          ...slot,
+          timestamp: null
+        }))
+      }
+    }
+
+    const intervalMinutes = Math.max(1, Math.floor(intervalMs / (60 * 1000)))
 
     for (const submission of submissions) {
       const time = submission.createTime.getTime()
