@@ -183,11 +183,13 @@ export class ContestController {
   }
 
   @Get(':id/statistics/problems')
+  @UserNullWhenAuthFailedIfPublic()
   async getContestProblems(@Param('id', IDValidationPipe) contestId: number) {
     return await this.contestService.getContestProblems(contestId)
   }
 
   @Get(':id/statistics/problem/:problemId')
+  @UserNullWhenAuthFailedIfPublic()
   async getStatisticsByProblem(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number,
@@ -201,6 +203,7 @@ export class ContestController {
   }
 
   @Get(':id/statistics/submissions')
+  @UserNullWhenAuthFailedIfPublic()
   async getAllSubmissionsByContest(
     @Param('id', IDValidationPipe) contestId: number
   ) {
