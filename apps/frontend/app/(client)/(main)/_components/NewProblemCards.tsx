@@ -46,7 +46,7 @@ export async function NewProblemCards() {
           </Carousel>
 
           <Link href={'/problem'}>
-            <div className="flex items-center justify-center gap-[2px] border-b border-[#B0B0B0] py-[4px]">
+            <div className="border-color-neutral-50 flex items-center justify-center gap-[2px] border-b py-[4px]">
               <p className="font-pretendard flex h-8 items-center text-[16px] font-medium leading-[22.4px] tracking-[-0.48px] text-[#5C5C5C]">
                 Go to Problem
               </p>

@@ -1,6 +1,6 @@
 import { LevelBadge } from '@/components/LevelBadge'
 import { Card, CardContent } from '@/components/shadcn/card'
-import GrayRightArrow from '@/public/icons/arrow-right-gray.svg'
+import GrayRightArrowIcon from '@/public/icons/arrow-right-gray.svg'
 import RightArrow from '@/public/icons/arrow-right-white.svg'
 import type { Problem } from '@/types/type'
 import Image from 'next/image'
@@ -33,24 +33,25 @@ export function NewProblemCard({ problem }: { problem: Problem }) {
         </CardContent>
       </Card>
       {/* Mobile Card */}
-      <Card className="border-none shadow-[3px_3px_20px_0_rgba(17,17,17,0.1)] md:hidden">
-        <CardContent className="flex h-[83px] w-full flex-col justify-between gap-[6px] rounded-sm bg-white p-4">
-          <LevelBadge level={problem.difficulty} className="rounded-sm" />
-          <div className="flex h-6 justify-between">
-            <p className="truncate text-base font-normal">{problem.title}</p>
-            <Link href={`/problem/${problem.id}`}>
+      <Link href={`/problem/${problem.id}`}>
+        <Card className="border-none shadow-[3px_3px_20px_0_rgba(17,17,17,0.1)] md:hidden">
+          <CardContent className="flex h-[83px] w-full flex-col justify-between gap-[6px] rounded-sm bg-white p-4">
+            <LevelBadge level={problem.difficulty} className="rounded-sm" />
+            <div className="flex h-6 justify-between">
+              <p className="truncate text-base font-normal">{problem.title}</p>
+
               <div className="flex h-6 items-center">
                 <Image
-                  src={GrayRightArrow}
+                  src={GrayRightArrowIcon}
                   alt="Right"
                   width={16}
                   height={16}
                 />
               </div>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
     </div>
   )
 }
