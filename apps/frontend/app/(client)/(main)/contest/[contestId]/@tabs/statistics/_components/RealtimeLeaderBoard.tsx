@@ -1,3 +1,5 @@
+import { useSuspenseQueries } from '@tanstack/react-query'
+import { useParams } from 'next/navigation'
 import React, { useState, useMemo } from 'react'
 import { LeaderBoardTable } from './_leaderboardcomponents/LeaderBoardTable'
 import { TimeSlider } from './_leaderboardcomponents/TimeSlider'
@@ -8,6 +10,21 @@ import leaderboardMock from './_leaderboardcomponents/leaderboardMock.json'
 import submissionsMock from './_leaderboardcomponents/submissionMock.json'
 
 export function RealtimeLearBoardPage() {
+  const { contestId } = useParams<{ contestId: string }>()
+  const results = useSuspenseQueries({
+    queries: [
+      {
+        queryKey: ['contestSubmissions', contestId],
+        queryFn: async () => {
+          const res = await fetch(`/contest/${contestId}`)
+          if (!res.ok) {
+            throw new Error('Failed to fetch contest metadata')
+          }
+          return res.json()
+        }
+      }
+    ]
+  })
   const contestStartTime = new Date(contestMetadataMock.startTime).getTime()
   const contestEndTime = new Date(contestMetadataMock.endTime).getTime()
 

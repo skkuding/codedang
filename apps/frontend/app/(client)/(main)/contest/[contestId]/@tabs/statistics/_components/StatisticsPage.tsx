@@ -11,8 +11,8 @@ import {
 import { cn } from '@/libs/utils'
 import { useUserSelectionStore } from '@/stores/selectUserStore'
 import { useState } from 'react'
+import { SuspenseRealtimeLeaderboard } from './\bSuspenseRealtimeLeaderboard'
 import { ProblemStatisticsPage } from './ProblemStatistics'
-import { RealtimeLearBoardPage } from './RealtimeLeaderBoard'
 import { UserAnalysisPage } from './UserAnalysis'
 
 export function StatisticsPage() {
@@ -54,7 +54,7 @@ export function StatisticsPage() {
       </div>
       <div className="mt-5 w-[1440px] px-[116px]">
         <TabsContent value="leaderboard">
-          <RealtimeLearBoardPage />
+          <SuspenseRealtimeLeaderboard />
         </TabsContent>
         <TabsContent value="user-analysis">
           <UserAnalysisPage />
