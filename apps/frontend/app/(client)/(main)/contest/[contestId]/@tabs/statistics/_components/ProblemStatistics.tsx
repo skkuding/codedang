@@ -1,5 +1,6 @@
 'use client'
 
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import {
   ChartContainer,
   ChartTooltip,
@@ -28,6 +29,7 @@ import {
   XAxis,
   YAxis
 } from 'recharts'
+import { StatisticsSkeleton } from './StatisticsSkeletons'
 
 interface Problems {
   data: {
@@ -126,7 +128,7 @@ export function ProblemStatisticsPage() {
           </div>
         ))}
       </div>
-      <ErrorBoundary fallback="Failed to load problem statistics.">
+      <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense key={selectedProblem} fallback={<StatisticsSkeleton />}>
           <ProblemDetailSection
             contestId={contestId}
@@ -453,7 +455,7 @@ function ProblemDetailSection({
               data={timelineChartData}
               margin={{
                 left: 12,
-                right: 12
+                right: 32
               }}
             >
               <CartesianGrid vertical={true} strokeDasharray="2 3" />
@@ -558,29 +560,6 @@ function ProblemDetailSection({
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-function StatisticsSkeleton() {
-  return (
-    <div className="w-full animate-pulse">
-      <div className="mb-4 h-7 w-48 rounded-xl bg-gray-200" />
-      <div className="mb-3 flex h-[98px] gap-2">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="w-1/4 rounded-xl bg-gray-100" />
-        ))}
-      </div>
-      <div className="mb-5 flex h-[188px] gap-2">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="w-1/4 rounded-xl bg-gray-100" />
-        ))}
-      </div>
-      <div className="flex h-[338px] gap-2">
-        {[1, 2].map((i) => (
-          <div key={i} className="w-1/2 rounded-xl bg-gray-100" />
-        ))}
       </div>
     </div>
   )

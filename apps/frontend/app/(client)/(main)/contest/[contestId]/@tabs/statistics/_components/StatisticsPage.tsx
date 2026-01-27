@@ -1,5 +1,6 @@
 'use client'
 
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Separator } from '@/components/shadcn/separator'
 import { Switch } from '@/components/shadcn/switch'
 import {
@@ -12,6 +13,7 @@ import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useState } from 'react'
 import { ProblemStatisticsPage } from './ProblemStatistics'
 import { RealtimeLearBoardPage } from './RealtimeLeaderBoard'
+import { ProblemStatisticsSkeleton } from './StatisticsSkeletons'
 import { UserAnalysisPage } from './UserAnalysis'
 
 export function StatisticsPage() {
@@ -54,7 +56,7 @@ export function StatisticsPage() {
           <UserAnalysisPage />
         </TabsContent>
         <TabsContent value="problem-statistics">
-          <ErrorBoundary fallback="Failed to load page.">
+          <ErrorBoundary fallback={FetchErrorFallback}>
             <Suspense fallback={<ProblemStatisticsSkeleton />}>
               <ProblemStatisticsPage />
             </Suspense>
@@ -62,31 +64,5 @@ export function StatisticsPage() {
         </TabsContent>
       </div>
     </Tabs>
-  )
-}
-
-function ProblemStatisticsSkeleton() {
-  return (
-    <div className="flex animate-pulse gap-7">
-      <div className="h-25 w-[276px] shrink-0 rounded-2xl bg-gray-100" />
-      <div className="w-full">
-        <div className="mb-4 h-7 w-48 rounded-xl bg-gray-200" />
-        <div className="mb-3 flex h-[98px] gap-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="w-1/4 rounded-xl bg-gray-100" />
-          ))}
-        </div>
-        <div className="mb-5 flex h-[188px] gap-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="w-1/4 rounded-xl bg-gray-100" />
-          ))}
-        </div>
-        <div className="flex h-[338px] gap-2">
-          {[1, 2].map((i) => (
-            <div key={i} className="w-1/2 rounded-xl bg-gray-100" />
-          ))}
-        </div>
-      </div>
-    </div>
   )
 }
