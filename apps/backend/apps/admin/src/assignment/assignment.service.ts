@@ -529,6 +529,21 @@ export class AssignmentService {
     return assignmentProblems
   }
 
+  /**
+   * 과제에서 특정 문제들을 제거합니다.
+   *
+   * @param groupId 그룹 ID
+   * @param assignmentId 과제 ID
+   * @param problemIds 제거할 문제 ID 배열
+   * @returns 제거된 과제 문제 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 요청된 과제 ID에 해당하는 과제가 존재하지 않을 때
+   * - 문제가 포함된 다른 과제들의 상세 정보(종료 시간)을 찾을 수 없을때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제에 해당하는 그룹 ID가 일치하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - 데이터 업데이트 또는 삭제 트랜잭션 중 오류가 발생할 때
+   */
   async removeProblemsFromAssignment(
     groupId: number,
     assignmentId: number,
