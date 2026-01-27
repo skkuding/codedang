@@ -106,6 +106,20 @@ export class AssignmentService {
     }
   }
 
+  /**
+   * 새로운 과제를 생성합니다
+   * 그룹 내 모든 course 멤버를 해당 과제에 자동 참여 시킵니다.
+   *
+   * @param {number} groupId 과제를 생성할 그룹 ID
+   * @param {number} userId 생성자 ID
+   * @param {CreateAssignmentInput} assignment 과제 정보 데이터
+   * @returns 생성된 과제 정보
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다 (유효성 체크)
+   * - 과제 시작 시간이 종료 시간(endTime)보다 늦을 때
+   * - 과제 시작 시간이 마감 시간(dueTime)보다 늦을 때
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 존재 하지 않는 그룹에 과제를 생성하려 할 때
+   */
   async createAssignment(
     groupId: number,
     userId: number,
@@ -1330,6 +1344,13 @@ export class AssignmentService {
     `
   }
 
+  /**
+   * (private) 그룹 내 모든 멤버에게 과제 공간을 할당합니다.
+   * @param {number} assignmentId 초대할 과제의 ID
+   * @param {number} groupId 그룹 ID
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 해당 course에 등록된 사람이 없을때
+   */
   private async inviteAllCourseMembersToAssignment(
     assignmentId: number,
     groupId: number
