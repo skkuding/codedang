@@ -196,7 +196,7 @@ export class ContestController {
     @Param('problemId', IDValidationPipe) problemId: number
   ) {
     return await this.contestService.getStatisticsByProblem(
-      req.user.id,
+      req.user?.id,
       contestId,
       problemId
     )

@@ -1275,7 +1275,7 @@ export class ContestService {
    * @returns acceptedSubmissionsByLanguage - 언어별 정답 제출 수
    */
   async getStatisticsByProblem(
-    userId: number,
+    userId: number | null,
     contestId: number,
     problemId: number
   ) {
@@ -1375,10 +1375,15 @@ export class ContestService {
 
     const fastestSolver = fastestUser
 
-    const idx = deduplicatedAcceptedSubmissions.findIndex(
-      (s) => s.user?.id === userId
-    )
-    const userSpeedRank = idx === -1 ? null : idx + 1
+    const userSpeedRank =
+      userId === null
+        ? null
+        : (() => {
+            const idx = deduplicatedAcceptedSubmissions.findIndex(
+              (s) => s.user?.id === userId
+            )
+            return idx === -1 ? null : idx + 1
+          })()
 
     // 해당 problem에서 사용가능한 언어 집합
     const allowedLanguage = new Set<Language>(
