@@ -1,8 +1,8 @@
 resource "aws_elasticache_subnet_group" "redis_subnet_group" {
   name = "Redis-subnet-group"
   subnet_ids = [
-    local.network.subnet_ids["private_redis1"],
-    local.network.subnet_ids["private_redis2"]
+    local.vpc.subnet_ids["private_redis1"],
+    local.vpc.subnet_ids["private_redis2"]
   ]
 }
 
@@ -18,7 +18,7 @@ resource "aws_elasticache_cluster" "db_cache" {
   apply_immediately        = true
   snapshot_retention_limit = 0 # no backup
 
-  security_group_ids = [local.network.security_group_ids["sg_redis"]]
+  security_group_ids = [local.vpc.security_group_ids["sg_redis"]]
   subnet_group_name  = aws_elasticache_subnet_group.redis_subnet_group.name
 
   log_delivery_configuration {

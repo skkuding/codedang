@@ -2,7 +2,7 @@ resource "aws_db_subnet_group" "db_subnet_group" {
   name = "codedang-db-subnet-group"
   # TODO: change this to private subnets after migrating testcases from db to s3
   # After the migration, on-premise iris does not have to access the database
-  subnet_ids = local.network.db_subnet_ids
+  subnet_ids = local.vpc.db_subnet_ids
 }
 
 resource "random_password" "postgres_password" {
@@ -28,7 +28,7 @@ resource "aws_db_instance" "postgres" {
   # TODO: remove this after migrating testcase from db to s3
   publicly_accessible = true
 
-  vpc_security_group_ids = [local.network.security_group_ids["sg_db"]]
+  vpc_security_group_ids = [local.vpc.security_group_ids["sg_db"]]
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name #currently using public subnet group
   availability_zone      = "ap-northeast-2b"
 

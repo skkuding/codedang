@@ -12,7 +12,7 @@ terraform {
 
   backend "s3" {
     bucket         = "codedang-tf-state"
-    key            = "terraform/storage.tfstate"
+    key            = "terraform/db.tfstate"
     region         = "ap-northeast-2"
     encrypt        = true
     dynamodb_table = "terraform-state-lock"
@@ -29,15 +29,15 @@ data "aws_vpc" "main" {
   }
 }
 
-data "terraform_remote_state" "network" {
+data "terraform_remote_state" "vpc" {
   backend = "s3"
   config = {
     bucket = "codedang-tf-state"
-    key    = "terraform/network.tfstate"
+    key    = "terraform/vpc.tfstate"
     region = "ap-northeast-2"
   }
 }
 
 locals {
-  network = data.terraform_remote_state.network.outputs
+  vpc = data.terraform_remote_state.vpc.outputs
 }
