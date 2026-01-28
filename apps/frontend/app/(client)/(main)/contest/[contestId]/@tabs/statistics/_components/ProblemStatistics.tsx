@@ -110,7 +110,7 @@ export function ProblemStatisticsPage() {
           <div
             key={problem.problemId}
             className={cn(
-              'flex h-[32px] cursor-pointer items-center justify-between rounded-full pl-2 pr-3',
+              'flex h-10 cursor-pointer items-center justify-between rounded-full pl-2 pr-3',
               selectedProblem === problem.problemId && 'bg-primary text-white'
             )}
             onClick={() => setSelectedProblem(problem.problemId)}
@@ -230,7 +230,7 @@ function ProblemDetailSection({
 
   return (
     <div>
-      <p className="mb-4 text-xl font-semibold tracking-[-0.6px]">
+      <p className="mb-4 text-2xl font-semibold tracking-[-0.72px]">
         {
           problems.find((problem) => problem.problemId === selectedProblem)
             ?.problem.title
