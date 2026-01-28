@@ -350,6 +350,7 @@ const createGroups = async () => {
     data: {
       groupName: '대회 참가 그룹 6',
       description: 'contest6 참가자를 위한 그룹',
+      groupType: GroupType.Study,
       config: {
         showOnList: false,
         allowJoinFromSearch: false,
