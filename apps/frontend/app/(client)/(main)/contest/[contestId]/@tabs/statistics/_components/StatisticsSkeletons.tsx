@@ -1,4 +1,4 @@
-export function StatisticsSkeleton() {
+export function ProblemStatisticsSkeleton() {
   return (
     <div className="w-full animate-pulse">
       <div className="mb-4 h-7 w-48 rounded-xl bg-gray-200" />
@@ -21,11 +21,11 @@ export function StatisticsSkeleton() {
   )
 }
 
-export function ProblemStatisticsSkeleton() {
+export function ProblemStatisticsSkeletonWithSidebar() {
   return (
     <div className="flex animate-pulse gap-7">
       <div className="h-25 w-[276px] shrink-0 rounded-2xl bg-gray-100" />
-      <StatisticsSkeleton />
+      <ProblemStatisticsSkeleton />
     </div>
   )
 }

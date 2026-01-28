@@ -29,7 +29,7 @@ import {
   XAxis,
   YAxis
 } from 'recharts'
-import { StatisticsSkeleton } from './StatisticsSkeletons'
+import { ProblemStatisticsSkeleton } from './StatisticsSkeletons'
 
 interface Problems {
   data: {
@@ -129,7 +129,10 @@ export function ProblemStatisticsPage() {
         ))}
       </div>
       <ErrorBoundary fallback={FetchErrorFallback}>
-        <Suspense key={selectedProblem} fallback={<StatisticsSkeleton />}>
+        <Suspense
+          key={selectedProblem}
+          fallback={<ProblemStatisticsSkeleton />}
+        >
           <ProblemDetailSection
             contestId={contestId}
             selectedProblem={selectedProblem}
