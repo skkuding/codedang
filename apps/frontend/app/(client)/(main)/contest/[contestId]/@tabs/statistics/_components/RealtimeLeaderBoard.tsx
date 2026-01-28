@@ -3,7 +3,6 @@
 import { fetcherWithAuth } from '@/libs/utils'
 import { getDuration } from '@/libs/utils'
 import { useSuspenseQueries } from '@tanstack/react-query'
-import { get } from 'http'
 import { useParams } from 'next/navigation'
 import React, { useState, useMemo } from 'react'
 import { LeaderBoardTable } from './_leaderboardcomponents/LeaderBoardTable'
