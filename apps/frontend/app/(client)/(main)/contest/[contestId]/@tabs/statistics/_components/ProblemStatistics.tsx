@@ -215,7 +215,7 @@ function ProblemDetailSection({
             wrong: ((item.wrong * 100) / total).toFixed(1)
           }
         })
-      : [{ time: '00:00', accepted: 0, wrong: 0 }]
+      : []
 
   const chartConfig = {
     accepted: {
