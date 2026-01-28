@@ -44,6 +44,7 @@ let contestManagerUser: User
 let contestReviewerUser: User
 let privateGroup1: Group
 let privateGroup2: Group
+let contest6Group: Group
 const users: User[] = []
 const problems: Problem[] = []
 const updateHistories: UpdateHistory[] = []
@@ -343,6 +344,41 @@ const createGroups = async () => {
       groupId: 4,
       isGroupLeader: true
     }
+  })
+
+  contest6Group = await prisma.group.create({
+    data: {
+      groupName: '대회 참가 그룹 6',
+      description: 'contest6 참가자를 위한 그룹',
+      config: {
+        showOnList: false,
+        allowJoinFromSearch: false,
+        allowJoinWithURL: false,
+        requireApprovalBeforeJoin: false
+      }
+    }
+  })
+
+  await prisma.userGroup.createMany({
+    data: [
+      {
+        userId: instructorUser.id,
+        groupId: contest6Group.id,
+        isGroupLeader: true
+      }
+    ],
+    skipDuplicates: true
+  })
+
+  // group6에 "순수 참가자" 5명 추가 (seed의 일반 유저 user01~user10 중 앞 5명)
+  const usersForGroup6 = users.slice(0, 5).map((u) => ({ id: u.id }))
+  await prisma.userGroup.createMany({
+    data: usersForGroup6.map((u) => ({
+      userId: u.id,
+      groupId: contest6Group.id,
+      isGroupLeader: false
+    })),
+    skipDuplicates: true
   })
 }
 
@@ -3557,21 +3593,26 @@ const createContestRecords = async () => {
     }
   })
   if (contest6?.contestProblem.length) {
-    const usersForContest6 = await prisma.user.findMany({
-      take: 5,
-      select: { id: true },
-      orderBy: { id: 'asc' }
+    const group6Users = await prisma.userGroup.findMany({
+      where: {
+        groupId: contest6Group.id,
+        isGroupLeader: false
+      },
+      select: { userId: true }
     })
-    for (const user of usersForContest6) {
-      const existing = await prisma.contestRecord.findUnique({
-        // eslint-disable-next-line @typescript-eslint/naming-convention -- Prisma unique key
-        where: { contestId_userId: { contestId: contestId6, userId: user.id } }
+
+    for (const userGroup of group6Users) {
+      const existing = await prisma.contestRecord.findFirst({
+        where: {
+          contestId: contestId6,
+          userId: userGroup.userId
+        }
       })
       if (existing) continue
       const record = await prisma.contestRecord.create({
         data: {
           contestId: contestId6,
-          userId: user.id,
+          userId: userGroup.userId,
           acceptedProblemNum: 0,
           score: 0,
           totalPenalty: 0,
@@ -3588,7 +3629,6 @@ const createContestRecords = async () => {
 
 const createUserContests = async () => {
   const userContests: Promise<UserContest | Prisma.BatchPayload>[] = []
-  // 대회 6 참가자 Participant 부여 (contestRecords에 이미 contest 6 레코드 포함됨)
   for (const contest of contests) {
     // Contest Manager & Reviewer
     if (contest.createdById === contestAdminUser.id) {
