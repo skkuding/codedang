@@ -26,7 +26,6 @@ resource "aws_instance" "nat_instance" {
 
   lifecycle {
     ignore_changes = [
-      # instance_state,
       user_data,
       user_data_base64,
     ]

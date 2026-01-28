@@ -1,6 +1,7 @@
 module "storage_security_groups" {
   source = "./modules/security-group"
 
+  # TODO: modify DB ingress
   security_groups = {
     sg_db = {
       name        = "Codedang-SG-DB"
