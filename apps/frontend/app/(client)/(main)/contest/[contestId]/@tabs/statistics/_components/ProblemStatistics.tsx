@@ -196,7 +196,7 @@ function ProblemDetailSection({
       fill: '#AFCDFD'
     },
     {
-      type: 'ETC',
+      type: 'etc.',
       counts: `${(distributionAndTimeline?.distribution?.counts?.ETC * 100) / total}`,
       fill: '#E0D9FC'
     }
@@ -351,7 +351,7 @@ function ProblemDetailSection({
                 tickMargin={6}
                 axisLine={true}
                 tick={{ fill: 'black' }}
-                tickFormatter={(value) => value.slice(0, 3)}
+                tickFormatter={(value) => value.slice(0, 4)}
                 fontSize={14}
                 fontWeight={500}
               />
@@ -443,7 +443,7 @@ function ProblemDetailSection({
               </div>
               <div className="flex items-center gap-2">
                 <div className="bg-level-5 rounded-xs h-3 w-3" />
-                ETC
+                etc.
               </div>
             </PopoverContent>
           </Popover>
