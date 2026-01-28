@@ -33,6 +33,16 @@ interface RankingState {
     }
   >
 }
+interface ProblemAccuracyRate {
+  problem: Record<
+    string,
+    {
+      attempts: number
+      solves: number
+      accuracyRate: number
+    }
+  >
+}
 interface CreateInitialStateProps {
   leaderboard: Leaderboard
   contestProblems: ContestProblemforStatistics
@@ -43,6 +53,12 @@ interface CalculateRankingHistoryProps {
   leaderboard: Leaderboard
   contestMetadata: ContestforStatistics
   contestProblems: ContestProblemforStatistics
+}
+
+interface CalculateProblemAccuracyRate {
+  leaderboard: Leaderboard
+  contestProblems: ContestProblemforStatistics
+  sortedSubmissions: Submission[]
 }
 
 function createInitialState({
@@ -219,4 +235,70 @@ export function calculateRankingHistory({
   }
 
   return history
+}
+
+export function calculateProblemAccuracyRate({
+  leaderboard,
+  contestProblems,
+  sortedSubmissions
+}: CalculateProblemAccuracyRate): ProblemAccuracyRate {
+  // 대회 중 부정행위 등으로 인해 리더보드에서 사라진 사용자의 제출은 무시
+  const validUsers = new Set<number>(
+    leaderboard.leaderboard.map((u) => u.userId)
+  )
+
+  const attemptedUsers: Record<string, Set<number>> = {}
+  const solvedUsers: Record<string, Set<number>> = {}
+
+  for (const problem of contestProblems.data) {
+    attemptedUsers[problem.id] = new Set()
+    solvedUsers[problem.id] = new Set()
+  }
+
+  for (const sub of sortedSubmissions) {
+    const pid = sub.problemId
+    const uid = sub.userId
+
+    if (!attemptedUsers[pid]) {
+      continue
+    }
+    if (!validUsers.has(uid)) {
+      continue
+    }
+
+    attemptedUsers[pid].add(uid)
+
+    if (sub.result === 'Accepted') {
+      solvedUsers[pid].add(uid)
+    }
+  }
+
+  const problemStats: ProblemAccuracyRate['problem'] = {}
+
+  for (const problem of contestProblems.data) {
+    const attempts = attemptedUsers[problem.id].size
+    const solves = solvedUsers[problem.id].size
+
+    problemStats[problem.id] = {
+      attempts,
+      solves,
+      accuracyRate: attempts === 0 ? 0 : solves / attempts
+    }
+  }
+
+  return {
+    problem: problemStats
+  }
+}
+
+export function calculateWeightedAccuracy(stats: ProblemAccuracyRate) {
+  let totalAttempts = 0
+  let totalSolves = 0
+
+  for (const p of Object.values(stats.problem)) {
+    totalAttempts += p.attempts
+    totalSolves += p.solves
+  }
+
+  return totalAttempts === 0 ? 0 : totalSolves / totalAttempts
 }

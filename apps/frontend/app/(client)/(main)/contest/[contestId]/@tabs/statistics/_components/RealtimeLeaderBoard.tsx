@@ -1,13 +1,19 @@
 'use client'
 
 import { fetcherWithAuth } from '@/libs/utils'
+import { getDuration } from '@/libs/utils'
 import { useSuspenseQueries } from '@tanstack/react-query'
+import { get } from 'http'
 import { useParams } from 'next/navigation'
 import React, { useState, useMemo } from 'react'
 import { LeaderBoardTable } from './_leaderboardcomponents/LeaderBoardTable'
 import { NoSubmissionData } from './_leaderboardcomponents/NoSubmissionData'
 import { TimeSlider } from './_leaderboardcomponents/TimeSlider'
-import { calculateRankingHistory } from './_leaderboardcomponents/_libs/CalculateLeaderBoard'
+import {
+  calculateRankingHistory,
+  calculateWeightedAccuracy,
+  calculateProblemAccuracyRate
+} from './_leaderboardcomponents/_libs/CalculateLeaderBoard'
 import type {
   Submission,
   Leaderboard,
@@ -47,7 +53,7 @@ export function RealtimeLearBoardPage() {
         queryKey: ['contestProblem', contestId],
         queryFn: () => {
           const res = fetcherWithAuth
-            .get(`contest/${contestId}/problems`)
+            .get(`contest/${contestId}/problem`)
             .json<ContestProblemforStatistics>()
           if (!res) {
             throw new Error('Failed to fetch contest problems')
@@ -59,7 +65,7 @@ export function RealtimeLearBoardPage() {
         queryKey: ['contestLeaderboard', contestId],
         queryFn: () => {
           const res = fetcherWithAuth
-            .get(`contest/${contestId}/statistics/leaderboard`)
+            .get(`contest/${contestId}/leaderboard`)
             .json<Leaderboard>()
           if (!res) {
             throw new Error('Failed to fetch contest leaderboard')
@@ -129,11 +135,61 @@ export function RealtimeLearBoardPage() {
 
   const handleRankChange = () => {}
 
+  const totalParticipants = leaderboard.leaderboard.length
+  const totalSubmissions = submissions.length
+  const contestProgressTime = getDuration(contestStartTime, contestEndTime)
+  const problemAccuracyRate = calculateProblemAccuracyRate({
+    leaderboard,
+    contestProblems,
+    sortedSubmissions
+  })
+  const averageAccuracy = calculateWeightedAccuracy(problemAccuracyRate)
+  //average accuracy rate
+
   if (submissions.length === 0) {
     return <NoSubmissionData />
   } else {
     return (
       <div>
+        <div className="mb-4 flex h-[102px] w-full items-center justify-between">
+          <div className="w-70 flex h-full flex-col justify-center rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+            <div className="text-color-neutral-60 text-sm">
+              Total Participants
+            </div>
+            <div className="text-color-neutral-90 text-2xl font-semibold">
+              {' '}
+              {totalParticipants}
+            </div>
+          </div>
+          <div className="w-70 flex h-full flex-col justify-center rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+            <div className="text-color-neutral-60 text-sm">
+              Total Submissions
+            </div>
+            <div className="text-color-neutral-90 text-2xl font-semibold">
+              {' '}
+              {totalSubmissions}
+            </div>
+          </div>
+          <div className="w-70 flex h-full flex-col justify-center rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+            <div className="text-color-neutral-60 text-sm">
+              Average Accuracy Rate
+            </div>
+            <div className="text-color-neutral-90 text-2xl font-semibold">
+              {' '}
+              {averageAccuracy.toFixed(2)}%
+            </div>
+          </div>
+          <div className="flex h-full w-[344px] flex-col justify-center rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+            <div className="text-color-neutral-60 text-sm">
+              Contest Progress Time
+            </div>
+            <div className="text-color-neutral-90 text-2xl font-semibold">
+              {' '}
+              {contestProgressTime}
+            </div>
+          </div>
+        </div>
+
         <TimeSlider
           currentSubmissionIndex={currentSubmissionIndex}
           submissionCount={sortedSubmissions.length}

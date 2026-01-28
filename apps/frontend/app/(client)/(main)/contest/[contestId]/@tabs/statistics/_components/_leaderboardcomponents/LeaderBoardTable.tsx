@@ -1,5 +1,6 @@
 import { Checkbox } from '@/components/shadcn/checkbox'
-import { convertToLetter } from '@/libs/utils'
+import { useSession } from '@/libs/hooks/useSession'
+import { cn, convertToLetter } from '@/libs/utils'
 import bronzeMedalIcon from '@/public/icons/medal-bronze.svg'
 import goldMedalIcon from '@/public/icons/medal-gold.svg'
 import silverMedalIcon from '@/public/icons/medal-silver.svg'
@@ -55,6 +56,7 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
     120px
     1fr
   `
+  const session = useSession()
 
   return (
     <div>
@@ -117,7 +119,12 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
               stiffness: 400,
               damping: 30
             }}
-            className="h-18 grid items-center gap-1 rounded-full bg-white shadow-[-4px_0_12px_rgba(0,0,0,0.03),4px_0_12px_rgba(0,0,0,0.03)]"
+            className={cn(
+              'h-18 grid items-center gap-1 rounded-full bg-white shadow-[-4px_0_12px_rgba(0,0,0,0.03),4px_0_12px_rgba(0,0,0,0.03)]',
+              session && session.user.username === user.userName
+                ? 'border-primary bg-color-blue-95 border-1'
+                : ''
+            )}
             style={{ gridTemplateColumns: GRID_COLUMNS }}
           >
             <div className="flex justify-center">
