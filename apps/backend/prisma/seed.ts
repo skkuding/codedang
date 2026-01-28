@@ -44,6 +44,7 @@ let contestManagerUser: User
 let contestReviewerUser: User
 let privateGroup1: Group
 let privateGroup2: Group
+let contest6Group: Group
 const users: User[] = []
 const problems: Problem[] = []
 const updateHistories: UpdateHistory[] = []
@@ -343,6 +344,40 @@ const createGroups = async () => {
       groupId: 4,
       isGroupLeader: true
     }
+  })
+
+  contest6Group = await prisma.group.create({
+    data: {
+      groupName: '대회 참가 그룹 6',
+      description: 'contest6 참가자를 위한 그룹',
+      groupType: GroupType.Study,
+      config: {
+        showOnList: false,
+        allowJoinFromSearch: false,
+        allowJoinWithURL: false,
+        requireApprovalBeforeJoin: false
+      }
+    }
+  })
+
+  await prisma.userGroup.createMany({
+    data: [
+      {
+        userId: instructorUser.id,
+        groupId: contest6Group.id,
+        isGroupLeader: true
+      }
+    ],
+    skipDuplicates: true
+  })
+  const usersForGroup6 = users.slice(0, 5).map((u) => ({ id: u.id }))
+  await prisma.userGroup.createMany({
+    data: usersForGroup6.map((u) => ({
+      userId: u.id,
+      groupId: contest6Group.id,
+      isGroupLeader: false
+    })),
+    skipDuplicates: true
   })
 }
 
@@ -3546,6 +3581,48 @@ const createContestRecords = async () => {
     }
   }
 
+  const contestId6 = 6
+  const contest6 = await prisma.contest.findUnique({
+    where: { id: contestId6 },
+    select: {
+      contestProblem: {
+        orderBy: { order: 'asc' },
+        select: { id: true, score: true }
+      }
+    }
+  })
+  if (contest6?.contestProblem.length) {
+    const group6Users = await prisma.userGroup.findMany({
+      where: {
+        groupId: contest6Group.id,
+        isGroupLeader: false
+      },
+      select: { userId: true }
+    })
+
+    for (const userGroup of group6Users) {
+      const existing = await prisma.contestRecord.findFirst({
+        where: {
+          contestId: contestId6,
+          userId: userGroup.userId
+        }
+      })
+      if (existing) continue
+      const record = await prisma.contestRecord.create({
+        data: {
+          contestId: contestId6,
+          userId: userGroup.userId,
+          acceptedProblemNum: 0,
+          score: 0,
+          totalPenalty: 0,
+          finalScore: 0,
+          finalTotalPenalty: 0
+        }
+      })
+      contestRecords.push(record)
+    }
+  }
+
   return contestRecords
 }
 
@@ -3623,6 +3700,70 @@ const createContestProblemRecords = async () => {
         }
       })
     )
+  }
+
+  const contestId6 = 6
+  const contest6 = await prisma.contest.findUnique({
+    where: { id: contestId6 },
+    select: {
+      contestProblem: {
+        orderBy: { order: 'asc' },
+        select: { id: true, score: true }
+      }
+    }
+  })
+  if (contest6?.contestProblem.length) {
+    const records6 = await prisma.contestRecord.findMany({
+      where: { contestId: contestId6 },
+      orderBy: { userId: 'asc' }
+    })
+    const baseTime = new Date('2023-06-01T10:00:00.000Z')
+    for (let u = 0; u < records6.length; u++) {
+      let totalScore = 0
+      let totalPenalty = 0
+      let lastAccepted: Date | null = null
+      let acceptedCount = 0
+      for (let i = 0; i < contest6.contestProblem.length; i++) {
+        const cp = contest6.contestProblem[i]
+        const solved = i < 2 && u < 3 ? 1 : 0
+        const score = solved ? (cp.score ?? 0) : 0
+        const timePenalty = solved ? 20 + u * 5 + i * 10 : 0
+        const submitPenalty = solved ? (i + 1) * 20 : 0
+        await prisma.contestProblemRecord.create({
+          data: {
+            contestProblemId: cp.id,
+            contestRecordId: records6[u].id,
+            score,
+            finalScore: score,
+            timePenalty,
+            finalTimePenalty: timePenalty,
+            submitCountPenalty: submitPenalty,
+            finalSubmitCountPenalty: submitPenalty,
+            finishTime: solved
+              ? new Date(baseTime.getTime() + (i + u) * 60_000)
+              : null,
+            isFirstSolver: u === 0 && i === 0
+          }
+        })
+        totalScore += score
+        totalPenalty += timePenalty + submitPenalty
+        if (solved) {
+          acceptedCount += 1
+          lastAccepted = new Date(baseTime.getTime() + (i + u) * 60_000)
+        }
+      }
+      await prisma.contestRecord.update({
+        where: { id: records6[u].id },
+        data: {
+          acceptedProblemNum: acceptedCount,
+          score: totalScore,
+          finalScore: totalScore,
+          totalPenalty,
+          finalTotalPenalty: totalPenalty,
+          lastAcceptedTime: lastAccepted
+        }
+      })
+    }
   }
 
   return contestProblemRecords
