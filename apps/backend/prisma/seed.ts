@@ -370,8 +370,6 @@ const createGroups = async () => {
     ],
     skipDuplicates: true
   })
-
-  // group6에 "순수 참가자" 5명 추가 (seed의 일반 유저 user01~user10 중 앞 5명)
   const usersForGroup6 = users.slice(0, 5).map((u) => ({ id: u.id }))
   await prisma.userGroup.createMany({
     data: usersForGroup6.map((u) => ({
