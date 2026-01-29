@@ -55,7 +55,7 @@ datasources:
         access: proxy
         url: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090
         editable: false
-      - name: Tempo-production
+      - name: Tempo
         type: tempo
         access: proxy
         url: http://tempo.monitoring-tempo.svc.cluster.local:3200
