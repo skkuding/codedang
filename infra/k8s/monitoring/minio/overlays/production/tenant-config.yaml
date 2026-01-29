@@ -1,0 +1,23 @@
+# TODO: Generate with kubeseal using production cluster context
+# printf "export MINIO_ROOT_USER=%s\nexport MINIO_ROOT_PASSWORD=%s" \
+#   "$ADMIN_ACCESS_KEY" "$ADMIN_SECRET_KEY" | \
+#   kubectl create secret generic tenant-config \
+#     --namespace monitoring-minio --from-file=config.env=/dev/stdin \
+#     --dry-run=client -o yaml | \
+#   kubeseal --controller-namespace sealed-secrets --format yaml
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: tenant-config
+  namespace: monitoring-minio
+spec:
+  encryptedData:
+    config.env: PLACEHOLDER
+  template:
+    metadata:
+      creationTimestamp: null
+      name: tenant-config
+      namespace: monitoring-minio
+    type: Opaque

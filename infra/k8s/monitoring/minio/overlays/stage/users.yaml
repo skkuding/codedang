@@ -1,0 +1,25 @@
+# TODO: Generate with kubeseal using stage cluster context
+# IMPORTANT: CONSOLE_ACCESS_KEY must be DIFFERENT from MINIO_ROOT_USER in tenant-config
+# kubectl create secret generic monitoring-user \
+#   --namespace monitoring-minio \
+#   --from-literal=CONSOLE_ACCESS_KEY="$MONITORING_ACCESS_KEY" \
+#   --from-literal=CONSOLE_SECRET_KEY="$MONITORING_SECRET_KEY" \
+#   --dry-run=client -o yaml | \
+#   kubeseal --controller-namespace sealed-secrets --format yaml
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: monitoring-user
+  namespace: monitoring-minio
+spec:
+  encryptedData:
+    CONSOLE_ACCESS_KEY: PLACEHOLDER
+    CONSOLE_SECRET_KEY: PLACEHOLDER
+  template:
+    metadata:
+      creationTimestamp: null
+      name: monitoring-user
+      namespace: monitoring-minio
+    type: Opaque
