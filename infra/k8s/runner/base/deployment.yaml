@@ -19,11 +19,9 @@ spec:
           image: ghcr.io/skkuding/codedang-runner-pod-manager
           ports:
             - containerPort: 8080
-          env:
-            - name: RUNNER_IMAGE_TAG
-              value: "production"
-            - name: RUNNER_NAMESPACE
-              value: "runner"
+          envFrom:
+            - configMapRef:
+                name: pod-manager-env
           resources:
             requests:
               cpu: 100m

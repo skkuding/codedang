@@ -5,3 +5,9 @@ namespace: runner
 resources:
   - ../../base
   - ingress.yaml
+
+patches:
+  - path: configmap.yaml
+    target:
+      kind: ConfigMap
+      name: pod-manager-env
