@@ -1,0 +1,32 @@
+meta {
+  name: [403] Cannot Access Others Private Question
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/course/1/qna/2
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser2nd(req);  // 다른 학생으로 로그인
+}
+
+tests {
+  test("should return 403 Forbidden", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+}
+
+docs {
+  # 📘 Cannot Access Others' Private Questions
+
+  일반 학생은 다른 학생의 비밀글을 조회할 수 없습니다.
+
+  비밀글은 다음 사용자만 조회 가능합니다:
+  - 질문 작성자 본인
+  - 교수/조교
+}
