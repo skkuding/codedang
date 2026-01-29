@@ -4,6 +4,23 @@ traces:
       enabled: true
 
 tempo:
+  extraArgs:
+    config.expand-env: "true"
+  extraEnvFrom:
+    - secretRef:
+        name: monitoring-minio-credentials
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: tempo
+        endpoint: minio.monitoring-minio.svc.cluster.local:9000
+        access_key: ${AWS_ACCESS_KEY_ID}
+        secret_key: ${AWS_SECRET_ACCESS_KEY}
+        insecure: true
+        forcepathstyle: true
+      wal:
+        path: /var/tempo/wal
   structuredConfig:
     ingester:
       lifecycler:
