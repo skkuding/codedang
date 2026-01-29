@@ -12,11 +12,3 @@ kubectl apply -f applications/argocd.yaml
 ```
 
 ArgoCD will then self-manage via the Helm chart and `values.yaml`.
-
-### 2. Assign Cluster
-
-**TODO: This section will be replaced with declarative management via `values.yaml` extraObjects.**
-
-Open the Argo CD UI, and go to `Settings` > `Clusters`.
-
-Add two clusters: production and stage, with appropriate URL.
