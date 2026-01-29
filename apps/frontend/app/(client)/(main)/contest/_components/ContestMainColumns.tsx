@@ -53,7 +53,13 @@ export const columns: ColumnDef<Contest>[] = [
     cell: ({ row }) =>
       row.original.isRegistered && (
         <div className="flex items-center justify-center">
-          <Image src={checkIcon} alt="check" height={24} />
+          <Image
+            src={checkIcon}
+            alt="check"
+            width={24}
+            height={24}
+            className="block translate-x-[4px] translate-y-[4px]"
+          />
         </div>
       )
   },

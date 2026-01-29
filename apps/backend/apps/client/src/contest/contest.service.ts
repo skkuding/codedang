@@ -1316,11 +1316,19 @@ export class ContestService {
       throw new EntityNotExistException('ContestProblem')
     }
 
+    // 해당 problem에서 사용가능한 언어 집합
+    const allowedLanguage = new Set<Language>(
+      contestProblem.problem.languages ?? []
+    )
+
     // 해당 contestProblem에 대한 submission 조회
 
     const totalSubmissionCount = allSubmissions.length
     const acceptedSubmissions = allSubmissions.filter((submission) => {
-      return submission.result == ResultStatus.Accepted
+      return (
+        submission.result == ResultStatus.Accepted &&
+        allowedLanguage.has(submission.language)
+      )
     })
     const acceptedSubmissionCount = acceptedSubmissions.length
     const acceptedRate =
@@ -1384,11 +1392,6 @@ export class ContestService {
             )
             return idx === -1 ? null : idx + 1
           })()
-
-    // 해당 problem에서 사용가능한 언어 집합
-    const allowedLanguage = new Set<Language>(
-      contestProblem.problem.languages ?? []
-    )
 
     const acceptedSubmissionsByLanguage = new Map<Language, number>()
     for (const lang of allowedLanguage)
