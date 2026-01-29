@@ -6,4 +6,3 @@ resources:
   - ../../base
   - tenant-config.yaml
   - users.yaml
-  - minio-credentials.yaml

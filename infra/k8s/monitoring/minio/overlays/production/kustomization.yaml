@@ -7,4 +7,3 @@ resources:
   - ingress.yaml
   - tenant-config.yaml
   - users.yaml
-  - minio-credentials.yaml

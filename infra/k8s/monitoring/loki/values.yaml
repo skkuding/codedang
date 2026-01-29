@@ -38,9 +38,17 @@ loki:
 singleBinary:
   extraArgs:
     config.expand-env: "true"
-  extraEnvFrom:
-    - secretRef:
-        name: monitoring-minio-credentials
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: monitoring-user
+          key: CONSOLE_ACCESS_KEY
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: monitoring-user
+          key: CONSOLE_SECRET_KEY
 
 gateway:
   enabled: false
