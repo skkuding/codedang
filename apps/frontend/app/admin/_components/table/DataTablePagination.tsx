@@ -41,8 +41,8 @@ export function DataTablePagination({
   )
 
   return (
-    <div className="flex items-center justify-between px-2">
-      <div className="text-xs text-neutral-600">
+    <div className="relative flex items-center justify-between px-2">
+      <div className="flex items-center text-xs text-neutral-600">
         {showSelection &&
           `${table.getFilteredSelectedRowModel().rows.length} of${' '}
           ${table.getFilteredRowModel().rows.length} row(s) selected`}

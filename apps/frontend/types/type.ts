@@ -1,4 +1,5 @@
-import type { UpdateContestInput } from '@generated/graphql'
+import type { QnACategory, UpdateContestInput } from '@generated/graphql'
+import type { C } from 'vitest/dist/chunks/environment.d.cL3nLXbE.js'
 
 export type ContestStatus =
   | 'ongoing'
@@ -618,4 +619,35 @@ export interface QnaFormData {
 export interface ProblemOption {
   value: string
   label: string
+}
+
+export interface CourseQnAComment {
+  id: number
+  order: number
+  createdById: number
+  isCourseStaff: boolean
+  content: string
+  courseQnAId: number
+  createTime: Date
+  createdBy?: {
+    username: string
+  }
+}
+
+export interface CourseQnAItem {
+  id: number
+  order: number
+  groupId: number
+  problemId: number
+  title: string
+  content: string
+  category: string
+  createTime: Date
+  isResolved: boolean
+  isPrivate: boolean
+  isRead: boolean
+  createdBy?: {
+    username: string
+  }
+  comments: CourseQnAComment[]
 }
