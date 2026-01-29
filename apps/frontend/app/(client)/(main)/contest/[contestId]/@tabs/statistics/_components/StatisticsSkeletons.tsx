@@ -1,7 +1,7 @@
 export function ProblemStatisticsSkeleton() {
   return (
     <div className="w-full animate-pulse">
-      <div className="mb-4 h-7 w-48 rounded-xl bg-gray-200" />
+      <div className="mb-4 h-8 w-48 rounded-xl bg-gray-200" />
       <div className="mb-3 flex h-[98px] gap-2">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="w-1/4 rounded-xl bg-gray-100" />
