@@ -13,8 +13,8 @@ spec:
       name: monitoring-user
       namespace: monitoring-minio
       annotations:
-        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "monitoring-loki,monitoring-tempo"
-        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "monitoring-loki,monitoring-tempo"
+        reflector.v1.k8s.emberstack.com/reflection-allowed: 'true'
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: 'monitoring-loki,monitoring-tempo'
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: 'true'
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: 'monitoring-loki,monitoring-tempo'
     type: Opaque

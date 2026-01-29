@@ -37,7 +37,7 @@ loki:
 
 singleBinary:
   extraArgs:
-    config.expand-env: "true"
+    config.expand-env: 'true'
   extraEnv:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
