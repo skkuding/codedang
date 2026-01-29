@@ -3,8 +3,10 @@ kind: ApplicationSet
 metadata:
   name: minio-monitoring
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  # finalizers:
+  #   - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/environment: 'production'
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
