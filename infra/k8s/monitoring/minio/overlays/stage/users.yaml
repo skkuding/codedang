@@ -1,25 +1,15 @@
-# TODO: Generate with kubeseal using stage cluster context
-# IMPORTANT: CONSOLE_ACCESS_KEY must be DIFFERENT from MINIO_ROOT_USER in tenant-config
-# kubectl create secret generic monitoring-user \
-#   --namespace monitoring-minio \
-#   --from-literal=CONSOLE_ACCESS_KEY="$MONITORING_ACCESS_KEY" \
-#   --from-literal=CONSOLE_SECRET_KEY="$MONITORING_SECRET_KEY" \
-#   --dry-run=client -o yaml | \
-#   kubeseal --controller-namespace sealed-secrets --format yaml
 ---
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
-  creationTimestamp: null
   name: monitoring-user
   namespace: monitoring-minio
 spec:
   encryptedData:
-    CONSOLE_ACCESS_KEY: PLACEHOLDER
-    CONSOLE_SECRET_KEY: PLACEHOLDER
+    CONSOLE_ACCESS_KEY: AgDGGSFpD/7eZqRfLw98ZDGm8oACXeCjnTx/OEMFPbi7FTfmOOOa5dA2HLl/aRZ94LBsK0LBpps9BWfGY/XxaOKO3SCzItBtIAXWpG8Na3veIKZ8yfq95kAzmMAOtHop2F2VwVzAXjQqJt11f5CuMm9zwYCGqsyi4j5a+mcKBr7pnvLUIIs2kOiVuwBw03padwkG8JM/AEXb8U7lIOAABdX8R5szvfAPtqziIrZalkPDEbZ0O7b0K3zqz5FZj80xDTVvB7upQJVKihHalj7HjfEIROpW8svHuiN7IiTmHLLJoeKpGz9OEU82CBydh4PP/dJroV3L8RVlai5KZUfMGGnMXDvKkoSYMdmaW2WihDtFlI0OQ/SCupG1D7SnAU6FY8WjngnIQee3WfyESUojAPFPGIYNlGrJpNG5DANvHt+lLkL77v2efdTnnFO+/WhNAsFEvecwxxLxELsIDxJb2d2XChZCeLPnEbBmAsql7UGcV9PYtIUqbfjjwzOiP5vxh6MO84WG0oA06sujTHeFLfm3xIh3MZnneUZdY+PNexkiSTo6thpp4v67i1VcFh4yXoqeRgVRNGsYwla3Yxrc+NcygQURQ+ZI+d1hi8l089bI2vsI4X5Yd8tCbNghwADFgKTExF7XTfn3yXT0sjfM/Tv/QkR22IBcOi6aZ8aB+GUtNjEVRweL9FGD1YFV7VoVgiYXNnoo8qbKZ92DJuwizz0xPjD2+tfOSRVmYZv+21V3Sw==
+    CONSOLE_SECRET_KEY: AgBRXUyUNvGlGMb8JjAoEvwOOHsZr6PJkVD0gajHU0wS5NB/wkUQyIy7q+IOIVNqg6GhT+t/9x+0/hd0P7+oojNBXjovOfPXNP0lvvgjZ+hb2GlRVCvMtkyQjYeODs3fnK1KAjcIJvhsCt+8coAka4HxpmmRlEh1gyhy/cm2wzjNXbDyBkZ0+1lPXJBZ23VaBlkgR7nOSEQRHtn2FhZebz0bJGglU3Z7MAmDcj0C9HsnNr5xHWcBnOwynGBppgnU351l4S7EDJyAXQkI7dOJpkr6wQWW69naVH/O2JE81ZQaGX5xg3o01+bLyijoyA1CfURA0r/ID2dtKp14ehDEO+tWpe8btF7jUAiS9LsKobj8MmW4/2+hrwRdw/9WAKtZIxJGrSN8J67BlQP7RxMl/iadOhpVLlk1q3ZNhCfozzQXETpRLyMQEOj1g1RUnRh4wDqqjIXBqL+E8gNDeLu1y49esS8U4Klb5frxRHNeLjoSyMnqOTq2dg//WNe6EKVin5FHqgqVU/02yiJ53vOBduzdDMQc9R531ivWsXq4PjLJ6xUOGGT4qfFtitBoBlz6HoRN8BkaPh2ZLAlz28jnhS2Awc0F+QQ9PsBcdaee8cvo7NW3Q/lMrfz41s1X6HIuDW13ohJNk7yZ4t2IZMZjm1L29EI9MtCoVIn0IwHIuhcdMVnKm17Q6Fc23MeWkp+yaC7dNjp1ZYhCMfAbBwTSH9bkVKYmjHrNJeEzx57/mXfkRaM6jKARQeucGHhMyf/XCiRNS/EPJ8O+5Cp21Bo+Ryay
   template:
     metadata:
-      creationTimestamp: null
       name: monitoring-user
       namespace: monitoring-minio
       annotations:
