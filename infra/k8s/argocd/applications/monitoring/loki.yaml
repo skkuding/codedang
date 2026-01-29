@@ -33,7 +33,7 @@ spec:
             valueFiles:
               - $codedang/infra/k8s/monitoring/loki/values.yaml
         - repoURL: https://github.com/skkuding/codedang
-          targetRevision: {{.branch}}
+          targetRevision: '{{.branch}}'
           ref: codedang
       destination:
         name: '{{.env}}'
