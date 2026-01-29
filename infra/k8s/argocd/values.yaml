@@ -192,26 +192,3 @@ extraObjects:
           name: argocd-dex-github-oauth
           namespace: argocd
         type: Opaque
-
-  # App of Apps root Application
-  - apiVersion: argoproj.io/v1alpha1
-    kind: Application
-    metadata:
-      name: apps
-      namespace: argocd
-    spec:
-      project: default
-      source:
-        repoURL: https://github.com/skkuding/codedang
-        targetRevision: main
-        path: infra/k8s/argocd/applications
-        directory:
-          recurse: true
-          exclude: 'argocd.yaml'
-      destination:
-        name: production
-        namespace: argocd
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true

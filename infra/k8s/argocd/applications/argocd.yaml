@@ -20,6 +20,12 @@ spec:
     - repoURL: https://github.com/skkuding/codedang
       targetRevision: main
       ref: codedang
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: main
+      path: infra/k8s/argocd/applications
+      directory:
+        recurse: true
+        exclude: 'argocd.yaml'
   destination:
     namespace: argocd
     name: production
