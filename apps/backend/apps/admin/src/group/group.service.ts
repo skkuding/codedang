@@ -147,7 +147,10 @@ export class GroupService {
       })
     ).map(({ group }) => ({
       ...group,
-      memberNum: group._count.userGroup
+      memberNum:
+        group._count?.userGroup ??
+        (group as unknown as { userGroup: unknown[] }).userGroup?.length ??
+        0
     }))
   }
 
@@ -169,7 +172,10 @@ export class GroupService {
 
     return {
       ...group,
-      memberNum: group._count.userGroup,
+      memberNum:
+        group._count?.userGroup ??
+        (group as unknown as { userGroup: unknown[] }).userGroup?.length ??
+        0,
       ...(code && { invitation: code })
     }
   }
