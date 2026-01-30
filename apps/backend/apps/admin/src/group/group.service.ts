@@ -93,26 +93,28 @@ export class GroupService {
   async getCourses(cursor: number | null, take: number) {
     const paginator = this.prisma.getPaginator(cursor)
 
-    return (
-      await this.prisma.group.findMany({
-        ...paginator,
-        take,
-        where: {
-          groupType: GroupType.Course
-        },
-        select: {
-          id: true,
-          groupName: true,
-          config: true,
-          userGroup: true,
-          courseInfo: true
+    const groups = await this.prisma.group.findMany({
+      ...paginator,
+      take,
+      where: {
+        groupType: GroupType.Course
+      },
+      select: {
+        id: true,
+        groupName: true,
+        config: true,
+        courseInfo: true,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: { userGroup: true }
         }
-      })
-    ).map((data) => {
-      const { userGroup, ...group } = data
+      }
+    })
+
+    return groups.map((group) => {
       return {
         ...group,
-        memberNum: userGroup.length
+        memberNum: group._count.userGroup
       }
     })
   }
@@ -122,7 +124,10 @@ export class GroupService {
       await this.prisma.userGroup.findMany({
         where: {
           userId,
-          isGroupLeader: true
+          isGroupLeader: true,
+          group: {
+            groupType
+          }
         },
         select: {
           group: {
@@ -137,12 +142,10 @@ export class GroupService {
           }
         }
       })
-    )
-      .filter(({ group }) => group.groupType === groupType)
-      .map(({ group }) => ({
-        ...group,
-        memberNum: group._count.userGroup
-      }))
+    ).map(({ group }) => ({
+      ...group,
+      memberNum: group._count.userGroup
+    }))
   }
 
   async getCourse(id: number) {
@@ -253,47 +256,39 @@ export class GroupService {
 
   async duplicateCourse(groupId: number, userId: number) {
     const userWithCanCreateCourse = await this.prisma.user.findUnique({
-      where: {
-        id: userId
-      },
-      select: {
-        canCreateCourse: true
-      }
+      where: { id: userId },
+      select: { canCreateCourse: true }
     })
     if (!userWithCanCreateCourse) {
       throw new EntityNotExistException('User not found')
     }
-
     if (!userWithCanCreateCourse.canCreateCourse) {
       throw new ForbiddenAccessException('No Access to create course')
     }
 
-    const { courseInfo, ...originCourse } =
-      await this.prisma.group.findUniqueOrThrow({
-        where: {
-          id: groupId
-        },
-        select: {
-          groupName: true,
-          groupType: true,
-          courseInfo: true,
-          config: true,
-          assignment: {
-            select: {
-              id: true
-            }
+    const originCourse = await this.prisma.group.findUniqueOrThrow({
+      where: { id: groupId },
+      select: {
+        groupName: true,
+        groupType: true,
+        courseInfo: true,
+        config: true,
+        assignment: {
+          include: {
+            assignmentProblem: true
           }
         }
-      })
+      }
+    })
 
-    if (!courseInfo) {
+    if (!originCourse.courseInfo) {
       throw new UnprocessableDataException('Invalid groupId for a course')
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { groupId: _, ...duplicatedCourseInfo } = courseInfo
+    const { groupId: _, ...duplicatedCourseInfo } = originCourse.courseInfo
 
-    const duplicatedCourse = await this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx) => {
       const duplicatedCourse = await tx.group.create({
         data: {
           groupName: originCourse.groupName,
@@ -316,98 +311,69 @@ export class GroupService {
           courseInfo: true
         }
       })
+
       await tx.userGroup.create({
         data: {
-          user: {
-            connect: { id: userId }
-          },
-          group: {
-            connect: { id: duplicatedCourse.id }
-          },
+          user: { connect: { id: userId } },
+          group: { connect: { id: duplicatedCourse.id } },
           isGroupLeader: true
         }
       })
 
-      return duplicatedCourse
+      const copiedAssignments: number[] = []
+      const originAssignmentIds: number[] = []
+
+      const now = new Date()
+
+      for (const assignment of originCourse.assignment) {
+        originAssignmentIds.push(assignment.id)
+
+        const isVisible =
+          assignment.startTime <= now && now <= assignment.endTime
+
+        const {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          id,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          createTime,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          updateTime,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          groupId: oldGroupId,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          assignmentProblem,
+          ...assignmentData
+        } = assignment
+
+        const newAssignment = await tx.assignment.create({
+          data: {
+            ...assignmentData,
+            createdById: userId,
+            groupId: duplicatedCourse.id,
+            isVisible
+          }
+        })
+
+        copiedAssignments.push(newAssignment.id)
+
+        if (assignment.assignmentProblem.length > 0) {
+          await tx.assignmentProblem.createMany({
+            data: assignment.assignmentProblem.map((ap) => ({
+              order: ap.order,
+              assignmentId: newAssignment.id,
+              problemId: ap.problemId,
+              score: ap.score
+            }))
+          })
+        }
+      }
+
+      return {
+        duplicatedCourse,
+        originAssignments: originAssignmentIds,
+        copiedAssignments
+      }
     })
-
-    let result = await Promise.all(
-      originCourse.assignment.map(async ({ id: assignmentId }) => {
-        const [assignmentFound, assignmentProblemsFound] = await Promise.all([
-          this.prisma.assignment.findFirst({
-            where: {
-              id: assignmentId,
-              groupId
-            }
-          }),
-          this.prisma.assignmentProblem.findMany({
-            where: {
-              assignmentId
-            }
-          })
-        ])
-
-        if (!assignmentFound) {
-          throw new EntityNotExistException('assignment')
-        }
-
-        // if assignment status is ongoing, visible would be true. else, false
-        const now = new Date()
-        let newVisible = false
-        if (
-          assignmentFound.startTime <= now &&
-          now <= assignmentFound.endTime
-        ) {
-          newVisible = true
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { id, createTime, updateTime, title, ...assignmentDataToCopy } =
-          assignmentFound
-
-        try {
-          return await this.prisma.$transaction(async (tx) => {
-            const newAssignment = await tx.assignment.create({
-              data: {
-                ...assignmentDataToCopy,
-                title,
-                createdById: userId,
-                groupId: duplicatedCourse.id,
-                isVisible: newVisible
-              }
-            })
-
-            // 2. copy assignment problems
-            await Promise.all(
-              assignmentProblemsFound.map((assignmentProblem) =>
-                tx.assignmentProblem.create({
-                  data: {
-                    order: assignmentProblem.order,
-                    assignmentId: newAssignment.id,
-                    problemId: assignmentProblem.problemId,
-                    score: assignmentProblem.score
-                  }
-                })
-              )
-            )
-
-            return id
-          })
-        } catch {
-          return null
-        }
-      })
-    )
-
-    result = result.filter((x) => x !== null)
-
-    return {
-      duplicatedCourse,
-      originAssignments: originCourse.assignment.map(
-        (assignment) => assignment.id
-      ),
-      copiedAssignments: result
-    }
   }
 }
 
