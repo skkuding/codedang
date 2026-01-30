@@ -1333,7 +1333,7 @@ export class ContestService {
     const acceptedSubmissionCount = acceptedSubmissions.length
     const acceptedRate =
       acceptedSubmissionCount > 0
-        ? (acceptedSubmissionCount / totalSubmissionCount).toFixed(1)
+        ? (acceptedSubmissionCount / totalSubmissionCount).toFixed(3)
         : '0.0'
 
     const uniqueSubmitterIds = new Set<number>()
