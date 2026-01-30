@@ -38,6 +38,7 @@ output "subnet_ids" {
     module.private_api_subnets.subnet_ids,
     module.private_iris_subnets.subnet_ids,
     module.private_admin_api_subnets.subnet_ids,
+    module.private_redis_subnets.subnet_ids,
 
     #Public
     module.public_api_subnets.subnet_ids
