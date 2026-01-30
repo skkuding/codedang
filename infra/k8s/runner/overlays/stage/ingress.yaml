@@ -6,8 +6,6 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-dns01
     traefik.ingress.kubernetes.io/redirect-entry-point: https
-    # WebSocket support (Traefik handles this automatically, but explicit is better)
-    traefik.ingress.kubernetes.io/service.sticky.cookie: 'true'
 spec:
   ingressClassName: traefik
   tls:
