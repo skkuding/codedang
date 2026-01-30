@@ -73,3 +73,25 @@ module "private_admin_api_subnets" {
     }
   }
 }
+
+
+module "private_redis_subnets" {
+  source = "./modules/subnet"
+
+  subnets = {
+    private_redis1 = {
+      cidr_block        = "10.0.31.0/24"
+      vpc_id            = aws_vpc.main.id
+      availability_zone = "ap-northeast-2a"
+      tags_name         = "Codedang_Redis-Subnet1"
+      route_table_id    = aws_route_table.private.id
+    }
+    private_redis2 = {
+      cidr_block        = "10.0.32.0/24"
+      vpc_id            = aws_vpc.main.id
+      availability_zone = "ap-northeast-2b"
+      tags_name         = "Codedang_Redis-Subnet2"
+      route_table_id    = aws_route_table.private.id
+    }
+  }
+}
