@@ -47,16 +47,19 @@ datasources:
     datasources:
       - name: Loki
         type: loki
+        uid: loki
         access: proxy
         url: http://loki.monitoring-loki.svc.cluster.local:3100
         editable: false
       - name: Prometheus
         type: prometheus
+        uid: prometheus
         access: proxy
         url: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090
         editable: false
       - name: Tempo
         type: tempo
+        uid: tempo
         access: proxy
         url: http://tempo.monitoring-tempo.svc.cluster.local:3200
         editable: false
