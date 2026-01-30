@@ -170,12 +170,12 @@ export class GroupService {
       throw new EntityNotExistException('Course')
     }
 
+    const code = await this.cacheManager.get<string>(invitationGroupKey(id))
+
     return {
       ...group,
-      memberNum:
-        group._count?.userGroup ??
-        (group as unknown as { userGroup: unknown[] }).userGroup?.length ??
-        0
+      memberNum: group._count.userGroup,
+      ...(code && { invitation: code })
     }
   }
 
