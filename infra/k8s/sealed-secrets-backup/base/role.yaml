@@ -4,6 +4,6 @@ metadata:
   name: sealed-secrets-backup
   namespace: kube-system
 rules:
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get", "list"]
+  - apiGroups: ['']
+    resources: ['secrets']
+    verbs: ['get', 'list']

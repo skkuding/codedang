@@ -4,7 +4,7 @@ metadata:
   name: sealed-secrets-backup
   namespace: sealed-secrets-backup
 spec:
-  schedule: "0 3 1 * *"
+  schedule: '0 3 1 * *'
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
@@ -17,7 +17,7 @@ spec:
           containers:
             - name: backup
               image: alpine/k8s:1.31.4
-              command: ["/bin/sh", "/scripts/backup.sh"]
+              command: ['/bin/sh', '/scripts/backup.sh']
               envFrom:
                 - secretRef:
                     name: aws-credentials
