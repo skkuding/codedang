@@ -3061,7 +3061,6 @@ int main(void) {
     data: { result: ResultStatus.CompileError }
   })
 
-  // contest 6 problem 6 제출 추가 (totalSubmission 늘리기)
   submissions.push(
     await prisma.submission.create({
       data: {
@@ -4186,7 +4185,6 @@ int main(void) {
       data: { result: ResultStatus.Accepted }
     })
 
-    // User 5: 문제 3 WA 2회 → Accepted
     baseTime = new Date('2023-06-01T10:28:00.000Z')
     for (let i = 0; i < 2; i++) {
       const sub = await prisma.submission.create({
@@ -4245,7 +4243,6 @@ int main(void) {
       data: { result: ResultStatus.Accepted }
     })
 
-    // User 6: 문제 3 TLE 1회 → Accepted
     baseTime = new Date('2023-06-01T11:12:00.000Z')
     const tleSub5 = await prisma.submission.create({
       data: {
@@ -4301,7 +4298,6 @@ int main(void) {
       data: { result: ResultStatus.Accepted }
     })
 
-    // User 7: 문제 3 CE 1회 → WA 1회 (미해결)
     baseTime = new Date('2023-06-01T11:55:00.000Z')
     const ceSub3 = await prisma.submission.create({
       data: {
@@ -4349,7 +4345,6 @@ int main(void) {
       data: { result: ResultStatus.WrongAnswer }
     })
 
-    // User 9: 문제 3 WA 1회 → Accepted
     baseTime = new Date('2023-06-01T12:42:00.000Z')
     const waSub7 = await prisma.submission.create({
       data: {
