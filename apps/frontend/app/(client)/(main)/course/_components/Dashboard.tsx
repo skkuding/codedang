@@ -3,8 +3,13 @@
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { AssignmentIcon, ExerciseIcon } from '@/components/Icons'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
+import { fetcherWithAuth } from '@/libs/utils'
 import type { Assignment, AssignmentSummary, JoinedCourse } from '@/types/type'
-import { useQueries, type UseQueryOptions } from '@tanstack/react-query'
+import {
+  useQueries,
+  useQuery,
+  type UseQueryOptions
+} from '@tanstack/react-query'
 import { ChevronDown } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { AssignmentLink } from '../[courseId]/_components/AssignmentLink'
@@ -108,7 +113,14 @@ const makeAssignmentQueries = (
     }
   })
 
-export function Dashboard({ courses }: { courses: JoinedCourse[] }) {
+export function Dashboard() {
+  const { data: courses = [] } = useQuery({
+    queryKey: ['joinedCourses'],
+    queryFn: async () => {
+      return await fetcherWithAuth.get('course/joined').json<JoinedCourse[]>()
+    }
+  })
+
   const validCourseIds = useMemo(
     () => courses.map((c) => c.id).filter((n) => Number.isFinite(n) && n > 0),
     [courses]
@@ -266,12 +278,12 @@ export function Dashboard({ courses }: { courses: JoinedCourse[] }) {
   return (
     <section className="mx-auto max-w-[1208px]">
       <div className="pb-4 sm:pb-[30px]">
-        <h2 className="text-[20px] font-semibold leading-9 tracking-[-0.9px] text-black md:text-[30px]">
+        <h2 className="text-2xl font-medium leading-9 tracking-[-0.9px] md:text-[28px]">
           DASHBOARD
         </h2>
       </div>
 
-      <div className="hidden gap-[14px] sm:grid md:grid-cols-2 lg:grid-cols-3">
+      <div className="hidden gap-[14px] md:grid md:grid-cols-2 lg:grid-cols-3">
         <CardSection
           icon={<AssignmentIcon className="text-color-violet-60 h-6 w-6" />}
           title="Assignment"
@@ -391,7 +403,7 @@ function CardSection({
 }: CardSectionProps) {
   return (
     <section className="flex justify-center rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
-      <div className="flex max-h-[40vh] w-full max-w-[100vw] flex-col py-[30px] pl-6 pr-2 sm:max-h-[460px] sm:max-w-[390px]">
+      <div className="flex max-h-[40vh] w-full max-w-[100vw] flex-col py-[30px] pl-6 pr-2 sm:max-w-[390px] md:max-h-[460px]">
         <div className="mb-6 flex items-center gap-2">
           {icon}
           <div className="text-[24px] font-semibold leading-[33.6px] tracking-[-0.72px]">

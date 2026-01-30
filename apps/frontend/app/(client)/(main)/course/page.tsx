@@ -1,9 +1,7 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
-import { safeFetcherWithAuth } from '@/libs/utils'
 import welcomeLogo from '@/public/logos/welcome.png'
-import type { JoinedCourse } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import Image from 'next/image'
 import { Suspense } from 'react'
@@ -23,22 +21,6 @@ function CardListFallback() {
       </div>
     </div>
   )
-}
-
-async function getJoinedCourses(): Promise<JoinedCourse[]> {
-  try {
-    const res = await safeFetcherWithAuth.get('course/joined', {
-      searchParams: { take: 100 }
-    })
-
-    if (res.ok) {
-      const json = await res.json()
-      return Array.isArray(json) ? (json as JoinedCourse[]) : []
-    }
-  } catch (error) {
-    console.error('fail to load courses.', error)
-  }
-  return []
 }
 
 export default async function Course() {
@@ -61,19 +43,17 @@ export default async function Course() {
     )
   }
 
-  const joinedCourses = await getJoinedCourses()
-
   return (
     <>
       <CourseMainBanner course={null} />
       <div className="w-full px-5 pt-[100px] sm:px-[116px]">
-        <Dashboard courses={joinedCourses} />
+        <Dashboard />
       </div>
 
       <div className="flex w-full max-w-[1440px] flex-col gap-5 px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
-            <CourseCardList title="MY COURSE" courses={joinedCourses} />
+            <CourseCardList title="MY COURSE" />
           </Suspense>
         </ErrorBoundary>
       </div>
