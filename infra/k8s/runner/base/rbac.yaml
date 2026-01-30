@@ -10,9 +10,9 @@ metadata:
   name: pod-manager-role
   namespace: runner
 rules:
-  - apiGroups: [""]
-    resources: ["pods", "pods/log"]
-    verbs: ["get", "list", "create", "delete"]
+  - apiGroups: ['']
+    resources: ['pods', 'pods/log']
+    verbs: ['get', 'list', 'create', 'delete']
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
