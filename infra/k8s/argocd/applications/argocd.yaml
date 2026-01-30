@@ -9,12 +9,23 @@ metadata:
     app.kubernetes.io/environment: 'production'
 spec:
   project: default
-  source:
-    path: infra/k8s/argocd
-    repoURL: https://github.com/skkuding/codedang
-    targetRevision: main
-    directory:
-      recurse: true
+  sources:
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      targetRevision: '9.0.6'
+      helm:
+        releaseName: argocd
+        valueFiles:
+          - $codedang/infra/k8s/argocd/values.yaml
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: main
+      ref: codedang
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: main
+      path: infra/k8s/argocd/applications
+      directory:
+        recurse: true
+        exclude: 'argocd.yaml'
   destination:
     namespace: argocd
     name: production
@@ -25,3 +36,4 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - PrunePropagationPolicy=foreground
+      - ServerSideApply=true
