@@ -182,7 +182,10 @@ export class GroupService {
           id: true,
           groupName: true,
           description: true,
-          userGroup: true
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: {
+            select: { userGroup: true }
+          }
         }
       })
     ).map((group) => {
@@ -190,7 +193,7 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        memberNum: group.userGroup.length
+        memberNum: group._count.userGroup
       }
     })
 
@@ -261,6 +264,7 @@ export class GroupService {
     }
 
     const filter = invitation ? 'allowJoinWithURL' : 'allowJoinFromSearch'
+
     const group = await this.prisma.group.findUniqueOrThrow({
       where: {
         id: groupId,
@@ -271,18 +275,19 @@ export class GroupService {
       },
       select: {
         config: true,
-        groupType: true,
-        userGroup: {
-          select: {
-            userId: true
-          }
-        }
+        groupType: true
       }
     })
 
-    const isJoined = group.userGroup.some(
-      (joinedUser) => joinedUser.userId === userId
-    )
+    const isJoined = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
+      }
+    })
 
     if (isJoined) {
       throw new ConflictFoundException('Already joined this group')
@@ -323,26 +328,27 @@ export class GroupService {
         isJoined: false
       }
     } else {
-      const whitelist = (
-        await this.prisma.groupWhitelist.findMany({
-          where: {
-            groupId
-          },
-          select: {
-            studentId: true
-          }
-        })
-      ).map((list) => list.studentId)
+      const whitelistExists = await this.prisma.groupWhitelist.findFirst({
+        where: { groupId },
+        select: { studentId: true }
+      })
 
-      if (whitelist.length) {
-        const { studentId } = await this.prisma.user.findUniqueOrThrow({
+      if (whitelistExists) {
+        const user = await this.prisma.user.findUniqueOrThrow({
           where: { id: userId },
           select: {
             studentId: true
           }
         })
 
-        if (!whitelist.includes(studentId)) {
+        const isUserWhitelisted = await this.prisma.groupWhitelist.findFirst({
+          where: {
+            groupId,
+            studentId: user.studentId
+          }
+        })
+
+        if (!isUserWhitelisted) {
           throw new ForbiddenAccessException('Whitelist violation')
         }
       }
