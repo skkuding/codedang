@@ -4,17 +4,19 @@ import { PreviewEditorLayout } from '@/app/admin/_components/code-editor/Preview
 import { createSchema } from '@/app/admin/problem/_libs/schemas'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { languages as allLanguages } from '@/libs/constants'
 import { useSession } from '@/libs/hooks/useSession'
 import type { ProblemDetail } from '@/types/type'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import Link from 'next/link'
-import { useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { MdTextSnippet } from 'react-icons/md'
+import { toast } from 'sonner'
 import { ConfirmNavigation } from '../../_components/ConfirmNavigation'
 import { DescriptionForm } from '../../_components/DescriptionForm'
 import { FormSection } from '../../_components/FormSection'
@@ -29,9 +31,15 @@ import {
   type TestcaseFieldRef
 } from '../_components/TestcaseField'
 import { CreateProblemForm } from './_components/CreateProblemForm'
+import {
+  BAEKJOON_EXTENSION_MESSAGE_TYPE,
+  baekjoonPayloadToFormValues,
+  type BaekjoonPayload
+} from './_libs/baekjoon'
 
 export default function Page() {
   const [isPreviewing, setIsPreviewing] = useState(false)
+  const [formKey, setFormKey] = useState(0)
   const session = useSession()
   const isAdmin = session?.user?.role !== 'User'
   const testcaseFieldRef = useRef<TestcaseFieldRef | null>(null)
@@ -55,6 +63,36 @@ export default function Page() {
       isVisible: isAdmin
     }
   })
+
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (event.source !== window) {
+        return
+      }
+      if (event.data?.type !== BAEKJOON_EXTENSION_MESSAGE_TYPE) {
+        return
+      }
+      const payload = event.data.payload as BaekjoonPayload | undefined
+      if (!payload?.title) {
+        return
+      }
+      try {
+        const imported = baekjoonPayloadToFormValues(payload)
+        const current = methods.getValues()
+        const next = {
+          ...current,
+          ...imported,
+          languages: [...allLanguages] as CreateProblemInput['languages']
+        }
+        methods.reset(next)
+        toast.success('Baekjoon problem data applied')
+      } catch {
+        toast.error('Failed to apply Baekjoon problem data')
+      }
+    }
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [methods])
 
   const PreviewPortal = () => {
     const problem = {
@@ -108,85 +146,89 @@ export default function Page() {
             methods={methods}
             testcaseFieldRef={testcaseFieldRef}
           >
-            <FormSection isFlexColumn title="Title">
-              <TitleForm placeholder="Enter a problem name" />
-            </FormSection>
+            <div key={`form-${formKey}`} className="flex flex-col gap-6">
+              <FormSection isFlexColumn title="Title">
+                <TitleForm placeholder="Enter a problem name" />
+              </FormSection>
 
-            <FormSection isFlexColumn title="Description">
-              <DescriptionForm name="description" />
-            </FormSection>
+              <FormSection isFlexColumn title="Description">
+                <DescriptionForm name="description" />
+              </FormSection>
 
-            <div className="flex justify-between gap-2">
-              <div>
-                <FormSection
-                  isLabeled={false}
-                  isFlexColumn
-                  title="Input Description"
-                >
-                  <DescriptionForm name="inputDescription" />
-                </FormSection>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <FormSection
+                    isLabeled={false}
+                    isFlexColumn
+                    title="Input Description"
+                  >
+                    <DescriptionForm name="inputDescription" />
+                  </FormSection>
+                </div>
+                <div className="flex-1">
+                  <FormSection
+                    isLabeled={false}
+                    isFlexColumn
+                    title="Output Description"
+                  >
+                    <DescriptionForm name="outputDescription" />
+                  </FormSection>
+                </div>
               </div>
-              <div>
-                <FormSection
-                  isLabeled={false}
-                  isFlexColumn
-                  title="Output Description"
+
+              <TestcaseField ref={testcaseFieldRef} />
+
+              <FormSection isFlexColumn title="Info">
+                <InfoForm />
+              </FormSection>
+
+              <TemplateField />
+
+              <SolutionField />
+
+              <FormSection isFlexColumn title="Limit">
+                <LimitForm />
+              </FormSection>
+
+              <SwitchField
+                name="hint"
+                title="Hint"
+                formElement="textarea"
+                placeholder="Enter a hint"
+                hasValue={Boolean(methods.watch('hint'))}
+              />
+
+              <SwitchField
+                name="source"
+                title="Source"
+                placeholder="Enter a source"
+                formElement="input"
+                hasValue={Boolean(methods.watch('source'))}
+              />
+
+              <div className="flex flex-col gap-5">
+                <Button
+                  type="button"
+                  variant={'slate'}
+                  className="bg-fill hover:bg-fill-neutral flex h-[48px] w-full items-center gap-2 px-0"
+                  onClick={async () => {
+                    const isValid = await methods.trigger()
+                    if (isValid) {
+                      setIsPreviewing(true)
+                    }
+                  }}
                 >
-                  <DescriptionForm name="outputDescription" />
-                </FormSection>
+                  <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
+                  <div className="text-base text-[#8a8a8a]">Show Preview</div>
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex h-12 w-full items-center gap-2 px-0"
+                >
+                  <IoIosCheckmarkCircle fontSize={20} />
+                  <div className="mb-[2px] text-lg font-bold">Create</div>
+                </Button>
               </div>
-            </div>
-
-            <TestcaseField ref={testcaseFieldRef} />
-
-            <FormSection isFlexColumn title="Info">
-              <InfoForm />
-            </FormSection>
-
-            <TemplateField />
-
-            <SolutionField />
-
-            <FormSection isFlexColumn title="Limit">
-              <LimitForm />
-            </FormSection>
-
-            <SwitchField
-              name="hint"
-              title="Hint"
-              formElement="textarea"
-              placeholder="Enter a hint"
-            />
-
-            <SwitchField
-              name="source"
-              title="Source"
-              placeholder="Enter a source"
-              formElement="input"
-            />
-
-            <div className="flex flex-col gap-5">
-              <Button
-                type="button"
-                variant={'slate'}
-                className="bg-fill hover:bg-fill-neutral flex h-[48px] w-full items-center gap-2 px-0"
-                onClick={async () => {
-                  const isValid = await methods.trigger()
-                  if (isValid) {
-                    setIsPreviewing(true)
-                  }
-                }}
-              >
-                <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
-                <div className="text-base text-[#8a8a8a]">Show Preview</div>
-              </Button>
-              <Button
-                type="submit"
-                className="flex h-12 w-full items-center gap-2 px-0"
-              >
-                <IoIosCheckmarkCircle fontSize={20} />
-                <div className="mb-[2px] text-lg font-bold">Create</div>
-              </Button>
             </div>
           </CreateProblemForm>
           {isPreviewing && <PreviewPortal />}
