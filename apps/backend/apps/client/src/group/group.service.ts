@@ -1462,6 +1462,8 @@ export class CourseService {
                     groupId: group.id
                   }
                 },
+                orderBy: { assignmentId: 'desc' },
+                take: 1,
                 select: {
                   assignment: {
                     select: {
@@ -1581,6 +1583,8 @@ export class CourseService {
                   groupId
                 }
               },
+              orderBy: { assignmentId: 'desc' },
+              take: 1,
               select: {
                 assignment: {
                   select: {
@@ -1595,7 +1599,7 @@ export class CourseService {
       },
       where,
       orderBy: {
-        order: 'desc'
+        order: 'asc'
       }
     })
 
@@ -1628,7 +1632,6 @@ export class CourseService {
       throw new EntityNotExistException('Course')
     }
 
-    // [최적화] findUnique -> select 사용으로 변경
     const qna = await this.prisma.courseQnA.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -1660,6 +1663,8 @@ export class CourseService {
               where: {
                 assignment: { groupId }
               },
+              orderBy: { assignmentId: 'desc' },
+              take: 1,
               select: {
                 assignment: {
                   select: {
