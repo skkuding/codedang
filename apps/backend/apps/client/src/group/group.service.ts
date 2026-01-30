@@ -1389,7 +1389,7 @@ export class CourseService {
    */
   async createCourseQnA(
     userId: number,
-    courseId: number, // this is actually groupId from the URL
+    courseId: number,
     data: CreateCourseQnADto,
     problemId?: number
   ) {
@@ -1426,7 +1426,7 @@ export class CourseService {
       })
       const newOrder = (maxOrder._max?.order ?? 0) + 1
 
-      return await tx.courseQnA.create({
+      const newQnA = await tx.courseQnA.create({
         data: {
           ...data,
           createdBy: { connect: { id: userId } },
@@ -1441,8 +1441,50 @@ export class CourseService {
             : {
                 category: QnACategory.General
               })
+        },
+        select: {
+          id: true,
+          order: true,
+          title: true,
+          content: true,
+          isPrivate: true,
+          isResolved: true,
+          category: true,
+          problemId: true,
+          createTime: true,
+          readBy: true,
+          createdBy: { select: { username: true } },
+          problem: {
+            select: {
+              assignmentProblem: {
+                where: {
+                  assignment: {
+                    groupId: group.id
+                  }
+                },
+                select: {
+                  assignment: {
+                    select: {
+                      id: true,
+                      title: true
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       })
+
+      const assignment = newQnA.problem?.assignmentProblem?.[0]?.assignment
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { problem, ...rest } = newQnA
+
+      return {
+        ...rest,
+        assignmentId: assignment?.id,
+        assignmentTitle: assignment?.title
+      }
     })
   }
 
@@ -1456,7 +1498,7 @@ export class CourseService {
    */
   async getCourseQnAs(
     userId: number | null,
-    courseId: number, // this is actually groupId
+    courseId: number,
     filter: GetCourseQnAsFilterDto
   ) {
     const groupId = courseId
@@ -1530,18 +1572,42 @@ export class CourseService {
         readBy: true,
         createdBy: { select: { username: true } },
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        _count: { select: { comments: true } }
+        _count: { select: { comments: true } },
+        problem: {
+          select: {
+            assignmentProblem: {
+              where: {
+                assignment: {
+                  groupId
+                }
+              },
+              select: {
+                assignment: {
+                  select: {
+                    id: true,
+                    title: true
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       where,
       orderBy: {
-        order: 'asc'
+        order: 'desc'
       }
     })
 
-    return qnas.map(({ readBy, ...rest }) => ({
-      ...rest,
-      isRead: userId == null || readBy.includes(userId)
-    }))
+    return qnas.map(({ readBy, problem, ...rest }) => {
+      const assignment = problem?.assignmentProblem?.[0]?.assignment
+      return {
+        ...rest,
+        isRead: userId == null || readBy.includes(userId),
+        assignmentId: assignment?.id,
+        assignmentTitle: assignment?.title
+      }
+    })
   }
 
   /**
@@ -1562,6 +1628,7 @@ export class CourseService {
       throw new EntityNotExistException('Course')
     }
 
+    // [최적화] findUnique -> select 사용으로 변경
     const qna = await this.prisma.courseQnA.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -1570,12 +1637,40 @@ export class CourseService {
           order
         }
       },
-      include: {
+      select: {
+        id: true,
+        order: true,
+        title: true,
+        content: true,
+        isPrivate: true,
+        isResolved: true,
+        category: true,
+        problemId: true,
+        createTime: true,
+        createdById: true,
+        readBy: true,
+        createdBy: { select: { username: true } },
         comments: {
           include: { createdBy: { select: { username: true } } },
           orderBy: { order: 'asc' }
         },
-        createdBy: { select: { username: true } }
+        problem: {
+          select: {
+            assignmentProblem: {
+              where: {
+                assignment: { groupId }
+              },
+              select: {
+                assignment: {
+                  select: {
+                    id: true,
+                    title: true
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     })
 
@@ -1596,24 +1691,25 @@ export class CourseService {
     }
 
     if (userId != null && !qna.readBy.includes(userId)) {
-      return await this.prisma.courseQnA.update({
+      await this.prisma.courseQnA.update({
         where: { id: qna.id },
         data: {
           readBy: {
             push: userId
           }
-        },
-        include: {
-          comments: {
-            include: { createdBy: { select: { username: true } } },
-            orderBy: { order: 'asc' }
-          },
-          createdBy: { select: { username: true } }
         }
       })
     }
 
-    return qna
+    const assignment = qna.problem?.assignmentProblem?.[0]?.assignment
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { problem, readBy, ...rest } = qna
+
+    return {
+      ...rest,
+      assignmentId: assignment?.id,
+      assignmentTitle: assignment?.title
+    }
   }
 
   /**
