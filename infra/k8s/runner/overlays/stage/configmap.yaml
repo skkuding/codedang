@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: pod-manager-env
 data:
-  RUNNER_IMAGE_TAG: "stage"
-  RUNNER_NAMESPACE: "runner"
+  RUNNER_IMAGE_TAG: 'stage'
+  RUNNER_NAMESPACE: 'runner'
