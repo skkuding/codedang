@@ -114,7 +114,10 @@ export class GroupService {
     return groups.map((group) => {
       return {
         ...group,
-        memberNum: group._count.userGroup
+        memberNum:
+          group._count?.userGroup ??
+          (group as unknown as { userGroup: unknown[] }).userGroup?.length ??
+          0
       }
     })
   }
@@ -340,7 +343,6 @@ export class GroupService {
           updateTime,
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           groupId: oldGroupId,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           assignmentProblem,
           ...assignmentData
         } = assignment
@@ -356,9 +358,9 @@ export class GroupService {
 
         copiedAssignments.push(newAssignment.id)
 
-        if (assignment.assignmentProblem.length > 0) {
+        if (assignmentProblem && assignmentProblem.length > 0) {
           await tx.assignmentProblem.createMany({
-            data: assignment.assignmentProblem.map((ap) => ({
+            data: assignmentProblem.map((ap) => ({
               order: ap.order,
               assignmentId: newAssignment.id,
               problemId: ap.problemId,
