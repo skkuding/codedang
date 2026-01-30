@@ -147,17 +147,13 @@ export class GroupService {
           }
         }
       })
-    ).map(({ group }) => {
-      const { _count, userGroup, ...rest } = group as unknown as {
-        _count?: { userGroup: number }
-        userGroup?: unknown[]
-      } & typeof group
-
-      return {
-        ...rest,
-        memberNum: _count?.userGroup ?? userGroup?.length ?? 0
-      }
-    })
+    ).map(({ group }) => ({
+      ...group,
+      memberNum:
+        group._count?.userGroup ??
+        (group as unknown as { userGroup: unknown[] }).userGroup?.length ??
+        0
+    }))
   }
 
   async getCourse(id: number) {
@@ -174,14 +170,12 @@ export class GroupService {
       throw new EntityNotExistException('Course')
     }
 
-    const { _count, userGroup, ...rest } = group as unknown as {
-      _count?: { userGroup: number }
-      userGroup?: unknown[]
-    } & typeof group
-
     return {
-      ...rest,
-      memberNum: _count?.userGroup ?? userGroup?.length ?? 0
+      ...group,
+      memberNum:
+        group._count?.userGroup ??
+        (group as unknown as { userGroup: unknown[] }).userGroup?.length ??
+        0
     }
   }
 
