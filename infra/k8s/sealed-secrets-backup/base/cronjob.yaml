@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sealed-secrets-backup
+  namespace: sealed-secrets-backup
+spec:
+  schedule: "0 3 1 * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          serviceAccountName: sealed-secrets-backup
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: alpine/k8s:1.31.4
+              command: ["/bin/sh", "/scripts/backup.sh"]
+              envFrom:
+                - secretRef:
+                    name: aws-credentials
+              env:
+                - name: SECRET_NAME
+                  value: Codedang-Sealed-Secrets-Prod
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+          volumes:
+            - name: scripts
+              configMap:
+                name: backup-script
+                defaultMode: 0755
