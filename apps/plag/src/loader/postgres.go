@@ -86,7 +86,7 @@ func (p *Postgres) GetRawBaseCode(problemId string, language string) (string, er
 
 	var innerString []string
 	if err := json.Unmarshal(rawBaseCode, &innerString); err != nil {
-		return "", fmt.Errorf("database json unmarshal: %w", err)
+		return "", fmt.Errorf("inner json unmarshal: %w", err)
 	}
 
   // Empty Template
@@ -96,7 +96,7 @@ func (p *Postgres) GetRawBaseCode(problemId string, language string) (string, er
 
 	var arrayData []TemplateItem
 	if err := json.Unmarshal([]byte(innerString[0]), &arrayData); err != nil {
-		return "", fmt.Errorf("database json unmarshal: %w", err)
+		return "", fmt.Errorf("outer json unmarshal: %w", err)
 	}
 
 	var baseCode strings.Builder
