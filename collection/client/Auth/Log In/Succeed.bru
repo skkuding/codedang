@@ -27,7 +27,11 @@ assert {
 }
 
 docs {
-  # Log In
+  # 📘Log In
+  
+  **POST** `/auth/login`
+  
+  Authenticates a user to issue access and refresh tokens for session management.
   
   사용자가 올바른 정보로 로그인하면 JWT를 발행합니다. 보안을 위해 짧은 만료 시간의 access token과 이를 재발행해주는 긴 만료 시간의 refresh token 두 가지를 발행합니다.
   
@@ -35,7 +39,7 @@ docs {
   
   - `Authrization` header를 통해 bearer token을 발급합니다.
   - Header로 발급되기 때문에, client에 token을 직접 저장하는 코드가 필요합니다.
-  - 30분 후 만료됩니다.
+  - 10분 후 만료됩니다.
   
   ### Refresh Token
   
@@ -43,4 +47,44 @@ docs {
   - `/auth/reissue`를 통해 access token을 재발급받을 때 필요합니다.
   - **가장 유출에 조심해야하는 값입니다.**
   - 24시간 후 만료됩니다.
+  
+  - `@AuthNotNeededIfPublic()`이 적용되어 있어, 로그인하지 않은 상태에서도 호출이 가능합니다.
+  
+  ### 🔒 Authentication
+  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  
+  
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  
+  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "username": "admin",
+    "password": "Adminadmin"
+  }
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `username` | string | ✅       | 유저 ID |
+  | `password` | string | ✅       | 유저 PW |
 }
