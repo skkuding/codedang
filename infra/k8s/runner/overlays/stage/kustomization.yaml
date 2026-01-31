@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: runner
+
+resources:
+  - ../../base
+  - ingress.yaml
+
+patches:
+  - path: configmap.yaml
+    target:
+      kind: ConfigMap
+      name: pod-manager-env

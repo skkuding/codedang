@@ -40,6 +40,16 @@ jobs:
             context: apps/plag
             build-args: |
               app_env=stage
+          - target: runner-pod-manager
+            file: ./apps/runner/pod-manager/Dockerfile
+            context: .
+            build-args: |
+              app_env=production
+          - target: runner-backend
+            file: ./apps/runner/backend/Dockerfile
+            context: .
+            build-args: |
+              app_env=production
 
     steps:
       - name: Setup Docker Buildx
