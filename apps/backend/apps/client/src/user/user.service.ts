@@ -53,6 +53,12 @@ export class UserService {
     private readonly jwtAuthService: JwtAuthService
   ) {}
 
+  /**
+   * 이메일 주소에 해당하는 사용자 이름을 조회합니다.
+   *
+   * @param {string} email
+   * @returns 조회한 사용자 이름
+   */
   async getUsernameByEmail({ email }: UserEmailDto) {
     const username = await this.prisma.user.findUniqueOrThrow({
       where: {
@@ -73,6 +79,11 @@ export class UserService {
     return username
   }
 
+  /**
+   * 사용자의 마지막 로그인 시간을 현재 시점으로 업데이트 합니다.
+   *
+   * @param {string} username 사용자 이름
+   */
   async updateLastLogin(username: string) {
     const user = await this.prisma.user.update({
       where: { username },
@@ -81,6 +92,11 @@ export class UserService {
     this.logger.debug(user, 'updateLastLogin')
   }
 
+  /**
+   *
+   * @param {string} email 이메일 주소
+   * @return
+   */
   async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
     const duplicatedUser = await this.getUserCredentialByEmail(email)
     if (duplicatedUser) {
@@ -96,6 +112,13 @@ export class UserService {
     return this.createPinAndSendEmail(email)
   }
 
+  /**
+   * 비밀번호 재설정을 위한 pin번호를 사용자 이메일로 전송합니다.
+   *
+   * @param {string} email 사용자 이메일 주소
+   * @throws {UnidentifiedException} DB에 이메일 주소와 일치하는 사용자가 없으면 예외를 발생시킵니다.
+   * @returns {Promise<string>} pin 번호 전송 성공 메시지
+   */
   async sendPinForPasswordReset({ email }: UserEmailDto): Promise<string> {
     const user = await this.getUserCredentialByEmail(email)
     if (!user) {
@@ -106,6 +129,12 @@ export class UserService {
     return this.createPinAndSendEmail(user.email)
   }
 
+  /**
+   * 이메일 주소에 해당하는 사용자를 반환합니다.
+   *
+   * @param {string} email 이메일 주소
+   * @returns 조회된 사용자
+   */
   async getUserCredentialByEmail(email: string) {
     const user = await this.prisma.user.findUnique({
       where: { email }
@@ -114,6 +143,12 @@ export class UserService {
     return user
   }
 
+  /**
+   * pin 번호를 생성해 이메일로 전송하고, 인증을 위해 캐시에 저장합니다.
+   *
+   * @param {string} email pin 번호를 받을 사용자 이메일 주소
+   * @returns {Promise<string>} pin 번호 전송 성공 메시지
+   */
   async createPinAndSendEmail(email: string): Promise<string> {
     const pin = this.createPinRandomly(6)
 
@@ -128,6 +163,13 @@ export class UserService {
     return 'Email authentication pin is sent to your email address'
   }
 
+  /**
+   * 랜덤으로 pin 번호를 생성합니다.
+   *
+   * @param {number} numberOfDigits 생성하려는 pin 번호의 자릿수
+   * @returns 입력한 자릿수의 랜덤 pin 번호를 반환합니다.
+   */
+
   createPinRandomly(numberOfDigits: number): string {
     const pin = randomInt(0, Number('1'.padEnd(numberOfDigits + 1, '0')))
       .toString()
@@ -136,6 +178,14 @@ export class UserService {
     return pin
   }
 
+  /**
+   * 사용자 비밀번호를 업데이트합니다.
+   *
+   * @param {string} newPassword 변경하려는 새로운 비밀번호
+   * @param {Request} req
+   * @throws {UnprocessableDataException}
+   * @returns {Promise<string>} 비밀번호 변경이 성공했다는 메시지를 반환합니다.
+   */
   async updatePassword(
     { newPassword }: NewPasswordDto,
     req: Request
@@ -183,6 +233,13 @@ export class UserService {
     }
   }
 
+  /**
+   * DB상에서 변경된 사용자 비밀번호를 암호화하여 업데이트합니다.
+   *
+   * @param {string} email 사용자 이메일 주소
+   * @param {string} newPassword 새로운 비밀번호
+   * @returns {Promise<User>} 비밀번호가 업데이트 된 user 객체
+   */
   async updateUserPasswordInPrisma(
     email: string,
     newPassword: string
@@ -192,7 +249,7 @@ export class UserService {
         email
       },
       data: {
-        password: await hash(newPassword, ARGON2_HASH_OPTION)
+        password: await hash(newPassword, ARGON2_HASH_OPTION) //암호화
       }
     })
     this.logger.debug(user, 'updateUserPasswordInPrisma')
@@ -241,6 +298,13 @@ export class UserService {
     this.logger.debug({ key }, 'deletePinFromCache')
   }
 
+  /**
+   * 사용자 식별을 위해 key값(이메일 주소)과 pin번호를 value값으로 하여 유효 시간(TTL) 동안 서버에 캐시(cache)합니다.
+   *
+   * @param {string} key 사용자 식별을 위한 key값 (이메일 주소)
+   * @param {string} value 캐시하는 value값 (pin 번호)
+   * @param {number} ttl 인증이 유효한 시간 (TTL)
+   */
   async setPinInCache(key: string, value: string, ttl: number) {
     await this.cacheManager.set(key, value, ttl)
     this.logger.debug({ key, value, ttl }, 'setPinInCache')
@@ -341,6 +405,12 @@ export class UserService {
     return true
   }
 
+  /**
+   * 입력된 비밀번호가 설정한 형식에 부합하는 올바른 비밀번호인지 검증합니다.
+   *
+   * @param {string} password 비밀번호
+   * @returns {boolean} 비밀번호가 올바른지 아닌지 반환합니다.
+   */
   isValidPassword(password: string): boolean {
     const invalidPassword = /^(.{0,7}|[a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
     if (invalidPassword.test(password)) {
@@ -349,8 +419,14 @@ export class UserService {
     return true
   }
 
+  /**
+   * DB상에 새로 회원가입한 사용자(및 정보)를 추가합니다.
+   *
+   * @param signUpDto 회원가입 정보 DTO 객체
+   * @returns {Promise<User>} 새로 추가된 user 객체
+   */
   async createUser(signUpDto: SignUpDto): Promise<User> {
-    const encryptedPassword = await hash(signUpDto.password, ARGON2_HASH_OPTION)
+    const encryptedPassword = await hash(signUpDto.password, ARGON2_HASH_OPTION) //암호화
 
     const user = await this.prisma.user.create({
       data: {
@@ -366,6 +442,13 @@ export class UserService {
     return user
   }
 
+  /**
+   * 사용자의 소셜 서비스(OAuth) 연동 정보를 DB에 생성합니다.
+   *
+   * @param socialSignUpDto 소셜 플랫폼에서 제공받은 계정 정보
+   * @param {number} userId 사용자 Id
+   * @returns 생성된 소셜 연동 정보 userOAuth 객체
+   */
   async createUserOAuth(socialSignUpDto: SocialSignUpDto, userId: number) {
     const userOAuth = await this.prisma.userOAuth.create({
       data: {
@@ -378,6 +461,12 @@ export class UserService {
     return userOAuth
   }
 
+  /**
+   * DB에 새로운 user 프로필을 생성합니다.
+   *
+   * @param createUserProfileData user 프로필 정보
+   * @returns {Promise<UserProfile>} 생성된 user 프로필 객체를 반환합니다.
+   */
   async createUserProfile(
     createUserProfileData: CreateUserProfileData
   ): Promise<UserProfile> {
@@ -536,6 +625,12 @@ export class UserService {
     }
   }
 
+  /**
+   * 이미 존재하는 사용자 이름인지 확인합니다,
+   *
+   * @param {string} usernameDto 사용자 이름
+   * @throws {DuplicateFoundException} 이미 중복되는 사용자 이름이 있으면 예외를 발생시킵니다.
+   */
   async checkDuplicatedUsername(usernameDto: UsernameDto) {
     const duplicatedUser = await this.prisma.user.findUnique({
       where: {
