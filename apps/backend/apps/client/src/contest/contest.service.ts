@@ -1333,7 +1333,7 @@ export class ContestService {
     const acceptedSubmissionCount = acceptedSubmissions.length
     const acceptedRate =
       acceptedSubmissionCount > 0
-        ? (acceptedSubmissionCount / totalSubmissionCount).toFixed(1)
+        ? (acceptedSubmissionCount / totalSubmissionCount).toFixed(3)
         : '0.0'
 
     const uniqueSubmitterIds = new Set<number>()
@@ -1540,7 +1540,9 @@ export class ContestService {
     const [distribution, timeline] = await Promise.all([
       this.getProblemDistribution({
         contestId,
-        problemId
+        problemId,
+        startTime: contest.startTime,
+        endTime: contest.endTime
       }),
       this.getProblemTimeline({
         contestId,
@@ -1575,10 +1577,14 @@ export class ContestService {
 
   private async getProblemDistribution({
     contestId,
-    problemId
+    problemId,
+    startTime,
+    endTime
   }: {
     contestId: number
     problemId: number
+    startTime: Date
+    endTime: Date
   }) {
     const [resultGroups] = await Promise.all([
       this.prisma.submission.groupBy({
@@ -1588,6 +1594,10 @@ export class ContestService {
           problemId,
           userId: {
             not: null
+          },
+          createTime: {
+            gte: startTime,
+            lte: endTime
           }
         },
         // eslint-disable-next-line @typescript-eslint/naming-convention
