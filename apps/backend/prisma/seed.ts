@@ -2783,6 +2783,7 @@ int main(void) {
     data: { result: ResultStatus.OutputLimitExceeded }
   })
 
+  // contest 6 problem 5 (채권관계)
   submissions.push(
     await prisma.submission.create({
       data: {
@@ -2794,16 +2795,10 @@ int main(void) {
           {
             id: 1,
             locked: false,
-            text: `#include <stdio.h>
-int main(void) {
-    int n;
-    scanf("%d", &n);
-    printf("%d\\n", n * 2);
-    return 0;
-}`
+            text: 'n = int(input())\nprint(n * 2)'
           }
         ],
-        language: Language.C,
+        language: Language.Python3,
         result: ResultStatus.Judging
       }
     })
@@ -2836,17 +2831,10 @@ int main(void) {
           {
             id: 1,
             locked: false,
-            text: `#include <iostream>
-using namespace std;
-int main() {
-    int n;
-    cin >> n;
-    cout << n + 1 << endl;
-    return 0;
-}`
+            text: 'n = int(input())\nprint(n + 1)'
           }
         ],
-        language: Language.Cpp,
+        language: Language.Python3,
         result: ResultStatus.Judging
       }
     })
@@ -2988,6 +2976,7 @@ int main(void) {
     data: { result: ResultStatus.RuntimeError }
   })
 
+  // contest 6 problem 6 (타일 교환)
   submissions.push(
     await prisma.submission.create({
       data: {
@@ -2999,10 +2988,10 @@ int main(void) {
           {
             id: 1,
             locked: false,
-            text: `print(int(input()) ** 2)`
+            text: '#include <stdio.h>\nint main(){ int n; scanf("%d",&n); printf("%d\\n",n*n); return 0; }'
           }
         ],
-        language: Language.Python3,
+        language: Language.C,
         result: ResultStatus.Judging
       }
     })
@@ -3035,14 +3024,10 @@ int main(void) {
           {
             id: 1,
             locked: false,
-            text: `#include <stdio.h>
-int main(void) {
-    printf("Hello World"
-    return 0;
-}`
+            text: 'print("Hello World"'
           }
         ],
-        language: Language.C,
+        language: Language.Python3,
         result: ResultStatus.Judging
       }
     })
@@ -3124,8 +3109,14 @@ int main(void) {
         problemId: problems[5].id,
         contestId: contests[5].id,
         createTime: new Date('2023-06-01T11:40:00.000Z'),
-        code: [{ id: 1, locked: false, text: 'while True: pass' }],
-        language: Language.Python3,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: '#include <stdio.h>\nint main(){ for(;;); return 0; }'
+          }
+        ],
+        language: Language.C,
         result: ResultStatus.Judging
       }
     })
@@ -3149,8 +3140,14 @@ int main(void) {
         problemId: problems[5].id,
         contestId: contests[5].id,
         createTime: new Date('2023-06-01T12:05:00.000Z'),
-        code: [{ id: 1, locked: false, text: 'print(99)' }],
-        language: Language.Python3,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: '#include <stdio.h>\nint main(){ printf("99\\n"); return 0; }'
+          }
+        ],
+        language: Language.C,
         result: ResultStatus.Judging
       }
     })
@@ -3181,10 +3178,10 @@ int main(void) {
           {
             id: 1,
             locked: false,
-            text: 'n = int(input())\nprint(n * n)'
+            text: '#include <stdio.h>\nint main(){ int n; scanf("%d",&n); printf("%d\\n",n*n); return 0; }'
           }
         ],
-        language: Language.Python3,
+        language: Language.C,
         result: ResultStatus.Judging
       }
     })
@@ -3718,8 +3715,8 @@ int main(void) {
         userId: users[5].id,
         problemId: problem2Id,
         contestId: contest6.id,
-        code: [{ id: 1, locked: false, text: 'print("syntax error' }],
-        language: Language.Python3,
+        code: [{ id: 1, locked: false, text: 'printf("syntax error"' }],
+        language: Language.C,
         result: ResultStatus.Judging,
         createTime: baseTime
       }
@@ -3740,8 +3737,14 @@ int main(void) {
         userId: users[5].id,
         problemId: problem2Id,
         contestId: contest6.id,
-        code: [{ id: 1, locked: false, text: 'print(1)' }],
-        language: Language.Python3,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: '#include <stdio.h>\nint main(){ int n; scanf("%d",&n); printf("%d\\n",1); return 0; }'
+          }
+        ],
+        language: Language.C,
         result: ResultStatus.Judging,
         createTime: new Date(baseTime.getTime() + 60000)
       }
@@ -3764,9 +3767,13 @@ int main(void) {
         problemId: problem2Id,
         contestId: contest6.id,
         code: [
-          { id: 1, locked: false, text: 'n = int(input())\nprint(n * 2)' }
+          {
+            id: 1,
+            locked: false,
+            text: '#include <stdio.h>\nint main(){ int n; scanf("%d",&n); printf("%d\\n",n*2); return 0; }'
+          }
         ],
-        language: Language.Python3,
+        language: Language.C,
         result: ResultStatus.Judging,
         createTime: new Date(baseTime.getTime() + 120000)
       }
@@ -3854,8 +3861,14 @@ int main(void) {
           userId: users[6].id,
           problemId: problem2Id,
           contestId: contest6.id,
-          code: [{ id: 1, locked: false, text: `print(${i})` }],
-          language: Language.Python3,
+          code: [
+            {
+              id: 1,
+              locked: false,
+              text: `#include <stdio.h>\nint main(){ printf("%d\\n",${i}); return 0; }`
+            }
+          ],
+          language: Language.C,
           result: ResultStatus.Judging,
           createTime: new Date(baseTime.getTime() + i * 60000)
         }
@@ -3878,8 +3891,14 @@ int main(void) {
         userId: users[6].id,
         problemId: problem2Id,
         contestId: contest6.id,
-        code: [{ id: 1, locked: false, text: 'while True: pass' }],
-        language: Language.Python3,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: '#include <stdio.h>\nint main(){ for(;;); return 0; }'
+          }
+        ],
+        language: Language.C,
         result: ResultStatus.Judging,
         createTime: new Date(baseTime.getTime() + 120000)
       }
@@ -3900,8 +3919,14 @@ int main(void) {
         userId: users[6].id,
         problemId: problem2Id,
         contestId: contest6.id,
-        code: [{ id: 1, locked: false, text: 'x = 1 / 0' }],
-        language: Language.Python3,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: '#include <stdio.h>\nint main(){ int *p=0; *p=1; return 0; }'
+          }
+        ],
+        language: Language.C,
         result: ResultStatus.Judging,
         createTime: new Date(baseTime.getTime() + 180000)
       }
@@ -3999,8 +4024,14 @@ int main(void) {
         userId: users[7].id,
         problemId: problem2Id,
         contestId: contest6.id,
-        code: [{ id: 1, locked: false, text: 'while True: pass' }],
-        language: Language.Python3,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: '#include <stdio.h>\nint main(){ for(;;); return 0; }'
+          }
+        ],
+        language: Language.C,
         result: ResultStatus.Judging,
         createTime: baseTime
       }
@@ -4021,8 +4052,14 @@ int main(void) {
         userId: users[7].id,
         problemId: problem2Id,
         contestId: contest6.id,
-        code: [{ id: 1, locked: false, text: 'print(1)' }],
-        language: Language.Python3,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: '#include <stdio.h>\nint main(){ printf("1\\n"); return 0; }'
+          }
+        ],
+        language: Language.C,
         result: ResultStatus.Judging,
         createTime: new Date(baseTime.getTime() + 60000)
       }
@@ -4082,8 +4119,14 @@ int main(void) {
         userId: users[8].id,
         problemId: problem2Id,
         contestId: contest6.id,
-        code: [{ id: 1, locked: false, text: 'print(1)' }],
-        language: Language.Python3,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: '#include <stdio.h>\nint main(){ printf("1\\n"); return 0; }'
+          }
+        ],
+        language: Language.C,
         result: ResultStatus.Judging,
         createTime: baseTime
       }
@@ -4106,9 +4149,13 @@ int main(void) {
         problemId: problem2Id,
         contestId: contest6.id,
         code: [
-          { id: 1, locked: false, text: 'n = int(input())\nprint(n * 2)' }
+          {
+            id: 1,
+            locked: false,
+            text: '#include <stdio.h>\nint main(){ int n; scanf("%d",&n); printf("%d\\n",n*2); return 0; }'
+          }
         ],
-        language: Language.Python3,
+        language: Language.C,
         result: ResultStatus.Judging,
         createTime: new Date(baseTime.getTime() + 60000)
       }
@@ -4192,8 +4239,14 @@ int main(void) {
           userId: users[5].id,
           problemId: problem3Id,
           contestId: contest6.id,
-          code: [{ id: 1, locked: false, text: `print(${i})` }],
-          language: Language.Python3,
+          code: [
+            {
+              id: 1,
+              locked: false,
+              text: `#include <iostream>\nint main(){ std::cout<<${i}<<std::endl; return 0; }`
+            }
+          ],
+          language: Language.Cpp,
           result: ResultStatus.Judging,
           createTime: new Date(baseTime.getTime() + i * 60000)
         }
@@ -4220,10 +4273,10 @@ int main(void) {
           {
             id: 1,
             locked: false,
-            text: 'n = int(input())\nprint(n * n)'
+            text: '#include <iostream>\nint main(){ int n; std::cin>>n; std::cout<<n*n<<std::endl; return 0; }'
           }
         ],
-        language: Language.Python3,
+        language: Language.Cpp,
         result: ResultStatus.Judging,
         createTime: new Date(baseTime.getTime() + 120000)
       }
@@ -4243,14 +4296,21 @@ int main(void) {
       data: { result: ResultStatus.Accepted }
     })
 
+    // User 6 문제 3
     baseTime = new Date('2023-06-01T11:12:00.000Z')
     const tleSub5 = await prisma.submission.create({
       data: {
         userId: users[6].id,
         problemId: problem3Id,
         contestId: contest6.id,
-        code: [{ id: 1, locked: false, text: 'while True: pass' }],
-        language: Language.Python3,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: '#include <iostream>\nint main(){ for(;;); return 0; }'
+          }
+        ],
+        language: Language.Cpp,
         result: ResultStatus.Judging,
         createTime: baseTime
       }
@@ -4275,10 +4335,10 @@ int main(void) {
           {
             id: 1,
             locked: false,
-            text: 'print(int(input())**2)'
+            text: '#include <iostream>\nint main(){ int n; std::cin>>n; std::cout<<n*n<<std::endl; return 0; }'
           }
         ],
-        language: Language.Python3,
+        language: Language.Cpp,
         result: ResultStatus.Judging,
         createTime: new Date(baseTime.getTime() + 60000)
       }
@@ -4304,8 +4364,8 @@ int main(void) {
         userId: users[7].id,
         problemId: problem3Id,
         contestId: contest6.id,
-        code: [{ id: 1, locked: false, text: 'print("syntax' }],
-        language: Language.Python3,
+        code: [{ id: 1, locked: false, text: 'std::cout<<"syntax' }],
+        language: Language.Cpp,
         result: ResultStatus.Judging,
         createTime: baseTime
       }
@@ -4326,8 +4386,14 @@ int main(void) {
         userId: users[7].id,
         problemId: problem3Id,
         contestId: contest6.id,
-        code: [{ id: 1, locked: false, text: 'print(1)' }],
-        language: Language.Python3,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: '#include <iostream>\nint main(){ std::cout<<1<<std::endl; return 0; }'
+          }
+        ],
+        language: Language.Cpp,
         result: ResultStatus.Judging,
         createTime: new Date(baseTime.getTime() + 60000)
       }
@@ -4351,8 +4417,14 @@ int main(void) {
         userId: users[9].id,
         problemId: problem3Id,
         contestId: contest6.id,
-        code: [{ id: 1, locked: false, text: 'print(0)' }],
-        language: Language.Python3,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: '#include <iostream>\nint main(){ std::cout<<0<<std::endl; return 0; }'
+          }
+        ],
+        language: Language.Cpp,
         result: ResultStatus.Judging,
         createTime: baseTime
       }
@@ -4378,10 +4450,10 @@ int main(void) {
           {
             id: 1,
             locked: false,
-            text: 'n = int(input())\nprint(n * n)'
+            text: '#include <iostream>\nint main(){ int n; std::cin>>n; std::cout<<n*n<<std::endl; return 0; }'
           }
         ],
-        language: Language.Python3,
+        language: Language.Cpp,
         result: ResultStatus.Judging,
         createTime: new Date(baseTime.getTime() + 60000)
       }
@@ -4491,8 +4563,8 @@ int main(void) {
           userId: users[9].id,
           problemId: problem2Id,
           contestId: contest6.id,
-          code: [{ id: 1, locked: false, text: 'print("syntax error' }],
-          language: Language.Python3,
+          code: [{ id: 1, locked: false, text: 'printf("syntax error"' }],
+          language: Language.C,
           result: ResultStatus.Judging,
           createTime: new Date(baseTime.getTime() + i * 60000)
         }
@@ -4515,8 +4587,14 @@ int main(void) {
           userId: users[9].id,
           problemId: problem2Id,
           contestId: contest6.id,
-          code: [{ id: 1, locked: false, text: `print(${i})` }],
-          language: Language.Python3,
+          code: [
+            {
+              id: 1,
+              locked: false,
+              text: `#include <stdio.h>\nint main(){ printf("%d\\n",${i}); return 0; }`
+            }
+          ],
+          language: Language.C,
           result: ResultStatus.Judging,
           createTime: new Date(baseTime.getTime() + 120000 + i * 60000)
         }
@@ -4540,9 +4618,13 @@ int main(void) {
         problemId: problem2Id,
         contestId: contest6.id,
         code: [
-          { id: 1, locked: false, text: 'n = int(input())\nprint(n * 2)' }
+          {
+            id: 1,
+            locked: false,
+            text: '#include <stdio.h>\nint main(){ int n; scanf("%d",&n); printf("%d\\n",n*2); return 0; }'
+          }
         ],
-        language: Language.Python3,
+        language: Language.C,
         result: ResultStatus.Judging,
         createTime: new Date(baseTime.getTime() + 240000)
       }
