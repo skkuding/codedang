@@ -1,0 +1,69 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetCourseQnAs($groupId: Int!) {
+    getCourseQnAs(groupId: $groupId) {
+      id
+      order
+      title
+      content
+      problemId
+      category
+      isResolved
+      isPrivate
+      createTime
+      groupId
+      createdBy {
+        username
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2
+  }
+}
+
+script:pre-request {
+  await require("./login").loginInstructor(req);
+}
+
+docs {
+  # 📘 Get Course QnAs
+
+  **POST** `/graphql (query: getCourseQnAs)`
+
+  Retrieves all QnAs for a specific course.
+
+  특정 코스의 모든 Q&A 목록을 조회합니다. Contest Q&A와 달리 `isPrivate` 필드를 포함합니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Course Staff)
+
+  ---
+
+  ### 📥 Request Variables
+
+  - `groupId` (Int, required): 조회할 코스의 ID
+
+  ---
+
+  ### 📤 Response
+
+  Q&A 목록을 반환합니다. 각 항목은 `id`, `order`, `title`, `content`, `isPrivate`, `isResolved` 등의 필드를 포함합니다.
+}

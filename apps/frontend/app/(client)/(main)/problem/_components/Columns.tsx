@@ -1,6 +1,6 @@
 'use client'
 
-import { LevelBadge } from '@/components/LevelBadge'
+import { Badge } from '@/components/shadcn/badge'
 import type { Problem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { SortButton } from './SortButton'
@@ -18,7 +18,11 @@ export const columns: ColumnDef<Problem>[] = [
   {
     header: () => <SortButton order="level">Level</SortButton>,
     accessorKey: 'difficulty',
-    cell: ({ row }) => <LevelBadge level={row.original.difficulty} />
+    cell: ({ row }) => (
+      <Badge variant={row.original.difficulty}>
+        Level {row.original.difficulty.slice(-1)}
+      </Badge>
+    )
   },
   {
     header: () => <SortButton order="submit">Submission</SortButton>,
