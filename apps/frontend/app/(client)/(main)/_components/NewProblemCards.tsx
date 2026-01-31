@@ -1,5 +1,3 @@
-import { Badge } from '@/components/shadcn/badge'
-import { Card, CardContent } from '@/components/shadcn/card'
 import {
   Carousel,
   CarouselContent,
@@ -8,84 +6,81 @@ import {
   CarouselPrevious
 } from '@/components/shadcn/carousel'
 import GrayRightArrow from '@/public/icons/arrow-right-gray.svg'
-import RightArrow from '@/public/icons/arrow-right-white.svg'
-import type { Problem } from '@/types/type'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getProblemList } from '../../_libs/apis/problem'
+import { NewProblemCard } from './NewProblemCard'
 
 export async function NewProblemCards() {
   const { data: problems } = await getProblemList({
     order: 'submit-desc',
     take: 6
   })
+  const mobileProblems = problems.slice(0, 3)
 
   return (
     problems.length > 0 && (
-      <div className="flex w-full max-w-[1440px] flex-col items-start gap-5 px-[116px]">
-        <Carousel className="flex w-full flex-col gap-10">
-          <div className="flex w-full justify-between">
-            <p className="text-3xl font-semibold leading-[36px] tracking-[-0.9px]">
-              PRACTICE WITH CODING PROBLEMS
-            </p>
-            <div className="flex h-[30px] w-[78px] gap-[18px]">
-              <CarouselPrevious />
-              <CarouselNext />
-            </div>
-          </div>
-
-          <div className="relative left-1/2 -my-8 -ml-2 w-screen -translate-x-1/2">
-            <CarouselContent className="mx-[116px] my-8 max-w-[1224px] lg:mx-auto">
-              {problems.map((problem) => (
-                <CarouselItem key={problem.id}>
-                  <NewProblemCard problem={problem} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </div>
-        </Carousel>
-
-        <Link href={'/problem'}>
-          <div className="flex items-center justify-center gap-[2px] border-b border-[#B0B0B0] py-[4px]">
-            <p className="font-pretendard flex h-8 items-center text-[16px] font-medium leading-[22.4px] tracking-[-0.48px] text-[#5C5C5C]">
-              Go to Problem
-            </p>
-            <div className="relative size-[16px]">
-              <Image src={GrayRightArrow} alt="Right" fill />
-            </div>
-          </div>
-        </Link>
-      </div>
-    )
-  )
-}
-
-function NewProblemCard({ problem }: { problem: Problem }) {
-  return (
-    <Card className="border-none shadow-[3px_3px_20px_0_rgba(17,17,17,0.1)]">
-      <CardContent className="flex h-[340px] w-[300px] flex-col justify-between rounded-xl bg-white p-7">
-        <div className="flex flex-col items-start gap-10">
-          <Badge variant={problem.difficulty}>
-            Level {problem.difficulty.slice(-1)}
-          </Badge>
-          <h3 className="line-clamp-2 break-normal break-keep text-xl font-semibold">
-            {problem.title}
-          </h3>
-        </div>
-
-        <Link href={`/problem/${problem.id}`}>
-          <div className="flex h-12 items-center justify-between rounded-full bg-[#F5F5F5] py-1 pl-[50px] pr-1">
-            <p className="text-[18px] font-medium tracking-[-0.54px] text-[#737373]">
-              Go to Problem
-            </p>
-            <div className="flex items-center gap-2.5 rounded-full bg-black p-2">
-              <div className="relative size-[24px]">
-                <Image src={RightArrow} alt="Right" fill />
+      <div className="relative w-full">
+        {/* Desktop View */}
+        <div className="hidden max-w-[1440px] flex-col items-start gap-5 px-[116px] md:flex">
+          <Carousel className="flex w-full flex-col gap-10">
+            <div className="flex w-full justify-between">
+              <p className="text-3xl font-semibold leading-[36px] tracking-[-0.9px]">
+                PRACTICE WITH CODING PROBLEMS
+              </p>
+              <div className="flex h-[30px] w-[78px] gap-[18px]">
+                <CarouselPrevious />
+                <CarouselNext />
               </div>
             </div>
+
+            <div className="relative left-1/2 -my-8 -ml-2 w-screen -translate-x-1/2">
+              <CarouselContent className="mx-[116px] my-8 max-w-[1224px] md:mx-auto">
+                {problems.map((problem) => (
+                  <CarouselItem key={problem.id}>
+                    <NewProblemCard problem={problem} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </div>
+          </Carousel>
+
+          <Link href={'/problem'}>
+            <div className="border-color-neutral-50 flex items-center justify-center gap-[2px] border-b py-[4px]">
+              <p className="font-pretendard flex h-8 items-center text-[16px] font-medium leading-[22.4px] tracking-[-0.48px] text-[#5C5C5C]">
+                Go to Problem
+              </p>
+              <div className="relative size-[16px]">
+                <Image src={GrayRightArrow} alt="Right" fill />
+              </div>
+            </div>
+          </Link>
+        </div>
+        {/* Desktop View */}
+        <div className="flex w-full flex-col gap-4 px-5 py-[30px] md:hidden">
+          <div className="flex justify-between">
+            <div className="text-xl font-semibold">
+              <p>PRACTICE WITH</p>
+              <p>CODING PROBLEMS</p>
+            </div>
+            <Link href={'/problem'}>
+              <div className="flex items-center justify-center gap-[2px] border-[#B0B0B0]">
+                <p className="text-color-neutral-50 flex h-[17px] items-center text-xs font-normal leading-[22.4px] tracking-[-0.03rem]">
+                  Go to Problem
+                </p>
+                <div className="relative size-[12px]">
+                  <Image src={GrayRightArrow} alt="Right" fill />
+                </div>
+              </div>
+            </Link>
           </div>
-        </Link>
-      </CardContent>
-    </Card>
+          <div className="flex flex-col gap-[6px]">
+            {mobileProblems.map((problem) => (
+              <NewProblemCard key={problem.id} problem={problem} />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
   )
 }
