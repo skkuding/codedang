@@ -1,5 +1,6 @@
 'use client'
 
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Separator } from '@/components/shadcn/separator'
 import { Switch } from '@/components/shadcn/switch'
 import {
@@ -8,9 +9,11 @@ import {
   TabsTrigger,
   TabsList
 } from '@/components/shadcn/tabs'
+import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useState } from 'react'
 import { ProblemStatisticsPage } from './ProblemStatistics'
 import { RealtimeLearBoardPage } from './RealtimeLeaderBoard'
+import { ProblemStatisticsSkeletonWithSidebar } from './StatisticsSkeletons'
 import { UserAnalysisPage } from './UserAnalysis'
 
 export function StatisticsPage() {
@@ -53,7 +56,11 @@ export function StatisticsPage() {
           <UserAnalysisPage />
         </TabsContent>
         <TabsContent value="problem-statistics">
-          <ProblemStatisticsPage />
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<ProblemStatisticsSkeletonWithSidebar />}>
+              <ProblemStatisticsPage />
+            </Suspense>
+          </ErrorBoundary>
         </TabsContent>
       </div>
     </Tabs>
