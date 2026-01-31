@@ -132,8 +132,6 @@ export function RealtimeLearBoardPage() {
     setCurrentSubmissionIndex(0)
   }
 
-  const handleRankChange = () => {}
-
   const totalParticipants = leaderboard.leaderboard.length
   const totalSubmissions = submissions.length
   const contestProgressTime = getDuration(contestStartTime, contestEndTime)
@@ -142,8 +140,12 @@ export function RealtimeLearBoardPage() {
     contestProblems,
     sortedSubmissions
   })
-  const averageAccuracy = calculateWeightedAccuracy(problemAccuracyRate)
-  //average accuracy rate
+  const averageAccuracy = calculateWeightedAccuracy(problemAccuracyRate) * 100
+  //상황별 classname tailwind 정의
+  const boxcontainer =
+    'flex h-full flex-col justify-center rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]'
+  const boxtitle = 'text-primary text-[13px]'
+  const boxnumber = 'text-[28px] font-medium'
 
   if (submissions.length === 0) {
     return <NoSubmissionData />
@@ -151,41 +153,21 @@ export function RealtimeLearBoardPage() {
     return (
       <div>
         <div className="mb-4 flex h-[102px] w-full items-center justify-between">
-          <div className="w-70 flex h-full flex-col justify-center rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-            <div className="text-color-neutral-60 text-sm">
-              Total Participants
-            </div>
-            <div className="text-color-neutral-90 text-2xl font-semibold">
-              {' '}
-              {totalParticipants}
-            </div>
+          <div className={`w-70 ${boxcontainer}`}>
+            <div className={`${boxtitle}`}>Total Participants</div>
+            <div className={`${boxnumber}`}>{totalParticipants}</div>
           </div>
-          <div className="w-70 flex h-full flex-col justify-center rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-            <div className="text-color-neutral-60 text-sm">
-              Total Submissions
-            </div>
-            <div className="text-color-neutral-90 text-2xl font-semibold">
-              {' '}
-              {totalSubmissions}
-            </div>
+          <div className={`w-70 ${boxcontainer}`}>
+            <div className={`${boxtitle}`}>Total Submissions</div>
+            <div className={`${boxnumber}`}>{totalSubmissions}</div>
           </div>
-          <div className="w-70 flex h-full flex-col justify-center rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-            <div className="text-color-neutral-60 text-sm">
-              Average Accuracy Rate
-            </div>
-            <div className="text-color-neutral-90 text-2xl font-semibold">
-              {' '}
-              {averageAccuracy.toFixed(2)}%
-            </div>
+          <div className={`w-70 ${boxcontainer}`}>
+            <div className={`${boxtitle}`}>Average Accuracy Rate</div>
+            <div className={`${boxnumber}`}>{averageAccuracy.toFixed(2)}%</div>
           </div>
-          <div className="flex h-full w-[344px] flex-col justify-center rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-            <div className="text-color-neutral-60 text-sm">
-              Contest Progress Time
-            </div>
-            <div className="text-color-neutral-90 text-2xl font-semibold">
-              {' '}
-              {contestProgressTime}
-            </div>
+          <div className={`w-[344px] ${boxcontainer}`}>
+            <div className={`${boxtitle}`}>Contest Progress Time</div>
+            <div className={`${boxnumber}`}>{contestProgressTime}</div>
           </div>
         </div>
 

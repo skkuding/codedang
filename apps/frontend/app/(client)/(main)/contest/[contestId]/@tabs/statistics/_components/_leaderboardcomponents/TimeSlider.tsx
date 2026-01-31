@@ -111,7 +111,7 @@ export function TimeSlider({
   }
   return (
     <div className="h-17 bg-color-neutral-99 flex w-full items-center gap-[19px] rounded-xl px-5 py-4">
-      <div className="text-primary flex w-[169px] text-xl font-normal leading-7 tracking-[-0.04em]">
+      <div className="text-primary flex w-[169px] text-lg font-semibold tracking-[-0.04em]">
         {displayTime} / {getTotalDuration()}
       </div>
       <Slider

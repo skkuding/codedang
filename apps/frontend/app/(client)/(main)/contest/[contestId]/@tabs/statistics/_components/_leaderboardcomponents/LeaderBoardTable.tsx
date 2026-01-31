@@ -120,7 +120,7 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
               damping: 30
             }}
             className={cn(
-              'h-18 grid items-center gap-1 rounded-full bg-white shadow-[-4px_0_12px_rgba(0,0,0,0.03),4px_0_12px_rgba(0,0,0,0.03)]',
+              'h-18 grid items-center gap-1 rounded-full bg-white shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]',
               session && session.user.username === user.userName
                 ? 'border-primary bg-color-blue-95 border-1'
                 : ''
