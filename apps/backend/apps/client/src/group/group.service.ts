@@ -182,7 +182,10 @@ export class GroupService {
           id: true,
           groupName: true,
           description: true,
-          userGroup: true
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: {
+            select: { userGroup: true }
+          }
         }
       })
     ).map((group) => {
@@ -190,7 +193,7 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        memberNum: group.userGroup.length
+        memberNum: group._count.userGroup
       }
     })
 
@@ -261,6 +264,7 @@ export class GroupService {
     }
 
     const filter = invitation ? 'allowJoinWithURL' : 'allowJoinFromSearch'
+
     const group = await this.prisma.group.findUniqueOrThrow({
       where: {
         id: groupId,
@@ -271,18 +275,19 @@ export class GroupService {
       },
       select: {
         config: true,
-        groupType: true,
-        userGroup: {
-          select: {
-            userId: true
-          }
-        }
+        groupType: true
       }
     })
 
-    const isJoined = group.userGroup.some(
-      (joinedUser) => joinedUser.userId === userId
-    )
+    const isJoined = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
+      }
+    })
 
     if (isJoined) {
       throw new ConflictFoundException('Already joined this group')
@@ -323,26 +328,27 @@ export class GroupService {
         isJoined: false
       }
     } else {
-      const whitelist = (
-        await this.prisma.groupWhitelist.findMany({
-          where: {
-            groupId
-          },
-          select: {
-            studentId: true
-          }
-        })
-      ).map((list) => list.studentId)
+      const whitelistExists = await this.prisma.groupWhitelist.findFirst({
+        where: { groupId },
+        select: { studentId: true }
+      })
 
-      if (whitelist.length) {
-        const { studentId } = await this.prisma.user.findUniqueOrThrow({
+      if (whitelistExists) {
+        const user = await this.prisma.user.findUniqueOrThrow({
           where: { id: userId },
           select: {
             studentId: true
           }
         })
 
-        if (!whitelist.includes(studentId)) {
+        const isUserWhitelisted = await this.prisma.groupWhitelist.findFirst({
+          where: {
+            groupId,
+            studentId: user.studentId
+          }
+        })
+
+        if (!isUserWhitelisted) {
           throw new ForbiddenAccessException('Whitelist violation')
         }
       }
@@ -1383,7 +1389,7 @@ export class CourseService {
    */
   async createCourseQnA(
     userId: number,
-    courseId: number, // this is actually groupId from the URL
+    courseId: number,
     data: CreateCourseQnADto,
     problemId?: number
   ) {
@@ -1420,7 +1426,7 @@ export class CourseService {
       })
       const newOrder = (maxOrder._max?.order ?? 0) + 1
 
-      return await tx.courseQnA.create({
+      const newQnA = await tx.courseQnA.create({
         data: {
           ...data,
           createdBy: { connect: { id: userId } },
@@ -1435,8 +1441,52 @@ export class CourseService {
             : {
                 category: QnACategory.General
               })
+        },
+        select: {
+          id: true,
+          order: true,
+          title: true,
+          content: true,
+          isPrivate: true,
+          isResolved: true,
+          category: true,
+          problemId: true,
+          createTime: true,
+          readBy: true,
+          createdBy: { select: { username: true } },
+          problem: {
+            select: {
+              assignmentProblem: {
+                where: {
+                  assignment: {
+                    groupId: group.id
+                  }
+                },
+                orderBy: { assignmentId: 'desc' },
+                take: 1,
+                select: {
+                  assignment: {
+                    select: {
+                      id: true,
+                      title: true
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       })
+
+      const assignment = newQnA.problem?.assignmentProblem?.[0]?.assignment
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { problem, ...rest } = newQnA
+
+      return {
+        ...rest,
+        assignmentId: assignment?.id,
+        assignmentTitle: assignment?.title
+      }
     })
   }
 
@@ -1450,7 +1500,7 @@ export class CourseService {
    */
   async getCourseQnAs(
     userId: number | null,
-    courseId: number, // this is actually groupId
+    courseId: number,
     filter: GetCourseQnAsFilterDto
   ) {
     const groupId = courseId
@@ -1524,7 +1574,28 @@ export class CourseService {
         readBy: true,
         createdBy: { select: { username: true } },
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        _count: { select: { comments: true } }
+        _count: { select: { comments: true } },
+        problem: {
+          select: {
+            assignmentProblem: {
+              where: {
+                assignment: {
+                  groupId
+                }
+              },
+              orderBy: { assignmentId: 'desc' },
+              take: 1,
+              select: {
+                assignment: {
+                  select: {
+                    id: true,
+                    title: true
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       where,
       orderBy: {
@@ -1532,10 +1603,15 @@ export class CourseService {
       }
     })
 
-    return qnas.map(({ readBy, ...rest }) => ({
-      ...rest,
-      isRead: userId == null || readBy.includes(userId)
-    }))
+    return qnas.map(({ readBy, problem, ...rest }) => {
+      const assignment = problem?.assignmentProblem?.[0]?.assignment
+      return {
+        ...rest,
+        isRead: userId == null || readBy.includes(userId),
+        assignmentId: assignment?.id,
+        assignmentTitle: assignment?.title
+      }
+    })
   }
 
   /**
@@ -1564,12 +1640,42 @@ export class CourseService {
           order
         }
       },
-      include: {
+      select: {
+        id: true,
+        order: true,
+        title: true,
+        content: true,
+        isPrivate: true,
+        isResolved: true,
+        category: true,
+        problemId: true,
+        createTime: true,
+        createdById: true,
+        readBy: true,
+        createdBy: { select: { username: true } },
         comments: {
           include: { createdBy: { select: { username: true } } },
           orderBy: { order: 'asc' }
         },
-        createdBy: { select: { username: true } }
+        problem: {
+          select: {
+            assignmentProblem: {
+              where: {
+                assignment: { groupId }
+              },
+              orderBy: { assignmentId: 'desc' },
+              take: 1,
+              select: {
+                assignment: {
+                  select: {
+                    id: true,
+                    title: true
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     })
 
@@ -1590,24 +1696,25 @@ export class CourseService {
     }
 
     if (userId != null && !qna.readBy.includes(userId)) {
-      return await this.prisma.courseQnA.update({
+      await this.prisma.courseQnA.update({
         where: { id: qna.id },
         data: {
           readBy: {
             push: userId
           }
-        },
-        include: {
-          comments: {
-            include: { createdBy: { select: { username: true } } },
-            orderBy: { order: 'asc' }
-          },
-          createdBy: { select: { username: true } }
         }
       })
     }
 
-    return qna
+    const assignment = qna.problem?.assignmentProblem?.[0]?.assignment
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { problem, readBy, ...rest } = qna
+
+    return {
+      ...rest,
+      assignmentId: assignment?.id,
+      assignmentTitle: assignment?.title
+    }
   }
 
   /**
