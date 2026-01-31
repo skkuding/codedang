@@ -25,7 +25,7 @@ spec:
     spec:
       project: default
       source:
-        path: infra/k8s/internal/overlays/{{.env}}
+        path: 'infra/k8s/internal/overlays/{{.env}}'
         repoURL: https://github.com/skkuding/codedang
         targetRevision: '{{.branch}}'
         directory:
