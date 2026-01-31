@@ -1,4 +1,4 @@
-import { LevelBadge } from '@/components/LevelBadge'
+import { Badge } from '@/components/shadcn/badge'
 import { Card, CardContent } from '@/components/shadcn/card'
 import GrayRightArrowIcon from '@/public/icons/arrow-right-gray.svg'
 import RightArrow from '@/public/icons/arrow-right-white.svg'
@@ -12,7 +12,9 @@ export function NewProblemCard({ problem }: { problem: Problem }) {
       <Card className="hidden border-none shadow-[3px_3px_20px_0_rgba(17,17,17,0.1)] md:flex">
         <CardContent className="flex h-[340px] w-[300px] flex-col justify-between rounded-xl bg-white p-7">
           <div className="flex flex-col items-start gap-10">
-            <LevelBadge level={problem.difficulty} />
+            <Badge variant={problem.difficulty}>
+              Level {problem.difficulty.slice(-1)}
+            </Badge>
             <h3 className="line-clamp-2 break-normal break-keep text-xl font-semibold">
               {problem.title}
             </h3>
@@ -35,12 +37,21 @@ export function NewProblemCard({ problem }: { problem: Problem }) {
       {/* Mobile Card */}
       <Link href={`/problem/${problem.id}`}>
         <Card className="border-none shadow-[3px_3px_20px_0_rgba(17,17,17,0.1)] md:hidden">
-          <CardContent className="flex h-[83px] w-full flex-col justify-between gap-[6px] rounded-sm bg-white p-4">
-            <LevelBadge level={problem.difficulty} className="rounded-sm" />
-            <div className="flex h-6 justify-between">
-              <p className="truncate text-base font-normal">{problem.title}</p>
+          <CardContent className="flex h-[83px] flex-col justify-between gap-[6px] rounded-sm bg-white p-4">
+            <div className="flex flex-col items-start gap-[6px]">
+              <Badge
+                variant={problem.difficulty}
+                className="h-[21px] w-14 rounded-sm px-[6px] py-[2px] text-xs font-semibold"
+              >
+                <p className="h-[17px] w-11 text-center">
+                  Level {problem.difficulty.slice(-1)}
+                </p>
+              </Badge>
+              <div className="flex h-6 w-full justify-between">
+                <p className="truncate text-base font-medium">
+                  {problem.title}
+                </p>
 
-              <div className="flex h-6 items-center">
                 <Image
                   src={GrayRightArrowIcon}
                   alt="Right"
