@@ -4296,7 +4296,6 @@ int main(void) {
       data: { result: ResultStatus.Accepted }
     })
 
-    // User 6 문제 3
     baseTime = new Date('2023-06-01T11:12:00.000Z')
     const tleSub5 = await prisma.submission.create({
       data: {
