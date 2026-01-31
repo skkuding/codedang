@@ -9,8 +9,15 @@ import {
 } from '@/components/shadcn/select'
 import { cn } from '@/libs/utils'
 
+interface OptionSelectOption {
+  label: string
+  value: string
+}
+
 interface OptionSelectProps {
-  options: string[] | readonly string[]
+  options:
+    | (string | OptionSelectOption)[]
+    | readonly (string | OptionSelectOption)[]
   onChange: (option: string) => void
   value?: string
   placeholder?: string
@@ -30,6 +37,10 @@ export function OptionSelect({
   prefix,
   tabIndex
 }: OptionSelectProps) {
+  const normalizedOptions = options.map((option) =>
+    typeof option === 'string' ? { label: option, value: option } : option
+  )
+
   return (
     <Select
       value={value}
@@ -51,13 +62,13 @@ export function OptionSelect({
       <SelectContent className="w-[var(--radix-select-trigger-width)] rounded-xl bg-white">
         <ScrollArea>
           <SelectGroup className="flex flex-col gap-1 p-5">
-            {options.map((option) => (
+            {normalizedOptions.map((option) => (
               <SelectItem
-                key={option}
-                value={option}
+                key={option.value}
+                value={option.value}
                 className="cursor-pointer hover:bg-gray-100/80"
               >
-                {option}
+                {option.label}
               </SelectItem>
             ))}
           </SelectGroup>
