@@ -82,7 +82,7 @@ export class TestcaseService {
    * @param {number} problemId :문제의 ID
    * @param {number} userId :유저 ID
    * @param {Role} userRole :유저 권한
-   * @returns:성공 시 테스트케이스 ID를 반환합니다.
+   * @returns {Promise<{ testcaseId: number }[]>} :성공 시 생성된 테스트케이스의 ID 객체의 배열을 담은 promise를 반환합니다.
    * @throws {EntityNotExistException} problemId에 해당하는 문제가 없으면 exception을 던집니다.
    */
   async createTestcases(
