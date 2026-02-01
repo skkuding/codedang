@@ -175,6 +175,19 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
   }
 
+  /**
+   * 채점 결과 메시지와 상태 코드를 기반으로, 사용자에게 보여줄 에러 메시지를 파싱합니다.
+   *
+   * 1. `judgeResult.output`이 존재하는 경우, 해당 값을 최우선으로 반환합니다.
+   * 2. 출력이 없는 경우 `ResultStatus`에 따라 대체 에러 메시지를 반환합니다.
+   *    - CompileError: `msg.error`
+   *    - SegmentationFaultError: 'Segmentation Fault'
+   *    - RuntimeError: 'Value Error'
+   *
+   * @param {JudgerResponse} msg 채점 서버로부터 수신한 응답 메시지 객체
+   * @param {ResultStatus} status 파싱된 채점 결과 상태
+   * @returns {string} 파싱된 에러 메시지 문자열
+   */
   parseError(msg: JudgerResponse, status: ResultStatus): string {
     if (msg.judgeResult?.output) return msg.judgeResult.output
 
