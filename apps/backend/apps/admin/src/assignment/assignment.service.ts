@@ -1120,6 +1120,16 @@ export class AssignmentService {
     return assignmentRecordsWithScoreSummary
   }
 
+  /**
+   * 특정 문제가 포함된 모든 과제 목록을 조회하고, 진행 상태별로 그룹화하여 반환합니다.
+   *
+   * @param problemId 조회할 문제 ID
+   * @param userId 요청을 보낸 유저 ID (권한 확인용)
+   * @returns 상태별(upcoming, ongoing, finished)로 분류된 과제 목록
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 문제를 직접 생성한 작성자가 아니며,
+   * - 동시에 유저가 관리자인 그룹 중 해당 문제가 공유된 그룹이 단 하나도 없을 때
+   */
   async getAssignmentsByProblemId(problemId: number, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: { id: problemId },
