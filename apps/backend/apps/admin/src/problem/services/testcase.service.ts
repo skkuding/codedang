@@ -220,7 +220,8 @@ export class TestcaseService {
    * @param {number} problemId : 문제 ID
    * @param {boolean} isSampleUploadedByZip : Sample Testcase가 zip업로드에 의해 변경되었으면 true
    * @param {boolean} isHiddenUploadedByZip : Hidden Testcase가 zip업로드에 의해 변경되었으면 true
-   * @param {Array[Testcase]} testcases
+   * @param {Array[Testcase]} testcases : 동기화할 testcase 배열
+   * @returns {Promise<void>}
    */
   async syncTestcases(
     problemId: number,
