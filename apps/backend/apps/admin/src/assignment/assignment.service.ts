@@ -1247,6 +1247,21 @@ export class AssignmentService {
     )
   }
 
+  /**
+   * 특정 유저의 개별 문제에 대한 점수(finalScore)와 코멘트를 수정하고
+   * 과제 총점을 갱신합니다.
+   *
+   * @param groupId 그룹 ID
+   * @param input 수정할 데이터 (assignmentId, problemId, userId, finalScore, comment)
+   * @returns 업데이트된 문제 기록 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 수정할 과제-문제 기록이 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제 소속 그룹이 일치하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - 과제 종료 전일 때
+   * - 입력 점수가 배점을 초과할 때
+   */
   async updateAssignmentProblemRecord(
     groupId: number,
     input: UpdateAssignmentProblemRecordInput
