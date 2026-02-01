@@ -377,6 +377,16 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     await this.updateSubmissionResult(submissionResult.submissionId)
   }
 
+  /**
+   * 개별 테스트케이스의 실행 통계를 업데이트합니다.
+   *
+   * 매 실행 시마다 `submissionCount`를 1씩 증가시키며,
+   * 결과가 `Accepted`인 경우 `acceptedCount`도 1씩 증가시킵니다.
+   *
+   * @param {number} testcaseId 통계를 업데이트할 테스트케이스 ID
+   * @param {boolean} isAccepted 채점 결과가 정답(Accepted)인지 여부
+   * @returns {Promise<void>}
+   */
   @Span()
   async updateTestcaseStats(
     testcaseId: number,
