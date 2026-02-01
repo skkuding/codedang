@@ -203,6 +203,17 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
   }
 
+  /**
+   * 채점 서버로부터 수신한 메시지의 형식을 검증합니다.
+   *
+   * 1. 수신한 `msg` 객체를 `JudgerResponse` DTO 인스턴스로 변환합니다 (`plainToInstance`).
+   * 2. `class-validator`를 사용하여 데이터의 유효성을 검사합니다.
+   * 3. 검증 성공 시 DTO 인스턴스를 반환하며, 실패 시 예외를 던집니다.
+   *
+   * @param {object} msg 채점 서버로부터 수신한 Raw 메시지 객체
+   * @returns {Promise<JudgerResponse>} 유효성 검사가 완료된 `JudgerResponse` 객체
+   * @throws {ValidationError[]} 유효성 검사 실패 시 발생
+   */
   @Span()
   async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
     const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
