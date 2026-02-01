@@ -42,13 +42,13 @@ jobs:
             build-args: |
               app_env=stage
           - target: runner-pod-manager
-            file: ./apps/runner/pod-manager/Dockerfile
-            context: .
+            file: ''
+            context: apps/runner/pod-manager
             build-args: |
               app_env=stage
           - target: runner-backend
-            file: ./apps/runner/backend/Dockerfile
-            context: .
+            file: ''
+            context: apps/runner/backend
             build-args: |
               app_env=stage
 
