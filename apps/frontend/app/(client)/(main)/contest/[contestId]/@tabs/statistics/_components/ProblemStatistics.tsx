@@ -420,7 +420,7 @@ function ProblemDetailSection({
                 <SlArrowDown className="h-3 w-3" />
               </div>
             </PopoverTrigger>
-            <PopoverContent className="w-102 mt-auto flex flex-col gap-1 text-xs">
+            <PopoverContent className="w-102 flex flex-col gap-1 text-xs">
               <div className="flex items-center gap-2">
                 <div className="bg-level-1 rounded-xs h-3 w-3" />
                 Wrong Answer
