@@ -439,6 +439,18 @@ export class TestcaseService {
     return await this.createTestcaseLegacy(problemId, testcase)
   }
 
+  /**
+   * zip파일을 업로드하여 testcase를 생성합니다.
+   *
+   * 사용자의 권한 확인, 파일 형식과 최대 크기 확인, 기존 testcase 삭제, zip파일 내의 testcase에 대해 DB레코드 생성 및 스토리지 업로드, in / out 대응 확인, 순서 정렬을 진행합니다.
+   *
+   * @param {FileUpload} file : 테스트케이스 zip파일
+   * @param {number} problemId : 문제 ID
+   * @param {number} userId : 유저 ID
+   * @param {Role} userRole : 유저 권한
+   * @returns {Promise<{ testcaseID: number }[]>} : 성공 시 테스트케이스 ID 배열을 담은 promise를 반환합니다.
+   * @throws {UnprocessableDataException} : zip파일이 아닌 경우 or .in이나 .out로 끝나지 않는 경우 exception을 던집니다.
+   */
   async uploadTestcaseZip(
     file: FileUpload,
     problemId: number,
