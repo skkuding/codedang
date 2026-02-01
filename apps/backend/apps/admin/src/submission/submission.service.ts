@@ -49,6 +49,21 @@ export class SubmissionService {
     private readonly amqpService: JudgeAMQPService
   ) {}
 
+  /**
+   * 특정 문제의 제출 목록을 조회합니다.
+   * 관리자가 아닌 경우, 본인이 관리하는 그룹의 과제 제출 또는 본인이 관리하는 콘테스트의 제출만 조회할 수 있습니다.
+   *
+   * @param {number} problemId 문제의 id
+   * @param {number | null} cursor 페이지네이션 커서
+   * @param {number} take 가져올 제출 수
+   * @param {AuthenticatedUser} reqUser 요청한 유저의 정보
+   * @returns { submissions, total } 제출 정보와 제출 수
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -해당 problemId에 해당하는 Problem이 존재하지 않는 경우
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * -요청한 유저가 접근 가능한 submission이 하나도 없는 경우
+   */
+
   async getSubmissions(
     problemId: number,
     cursor: number | null,
@@ -136,6 +151,17 @@ export class SubmissionService {
     return { data: submissions, total }
   }
 
+  /**
+   * 특정 contest의 제출 목록을 조회합니다.
+   * 문제 id와 제출자의 이름을 검색 조건으로 적용할 수 있습니다.
+   *
+   * @param {number} contestId
+   * @param {GetContestSubmissionsInput} input 조회 조건 problemId, searchingName
+   * @param {number} take 가져올 제출 수
+   * @param {number | null} cursor 페이지네이션 커서
+   * @param {SubmissionOrder | null} order 정렬 기준
+   * @returns  contest 제출 목록
+   */
   async getContestSubmissions(
     contestId: number,
     input: GetContestSubmissionsInput,
@@ -298,6 +324,17 @@ export class SubmissionService {
     return results
   }
 
+  /**
+   * 특정 과제에서 특정 유저의 특정 문제에 대한 최신 제출을 조회합니다.
+   *
+   * @param {number} assignmentId 과제의 id
+   * @param {number} userId 유저의 id
+   * @param {number} problemId 문제의 id
+   * @param {number} reqUserId 요청 유저의 id
+   * @returns 해당 submission의 제출 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -해당 과제/유저/문제 조합에 대한 Submission이 존재하지 않는 경우
+   */
   async getAssignmentLatestSubmission(
     assignmentId: number,
     userId: number,
@@ -323,6 +360,16 @@ export class SubmissionService {
     return this.getSubmission(submissionId.id, reqUserId)
   }
 
+  /**
+   * 특정 과제에서 특정 유저의 특정 문제에 대한 최신 제출 정보를 조회합니다.
+   *
+   * @param {number} assignmentId 과제의 id
+   * @param {number} userId 유저의 id
+   * @param {number} problemId 문제의 id
+   * @returns 최신 제출의 기본 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -해당 과제/유저/문제 조합에 대한 Submission이 존재하지 않는 경우
+   */
   async getAssignmentLatestSubmissionInfo(
     assignmentId: number,
     userId: number,
@@ -357,6 +404,20 @@ export class SubmissionService {
     return submissionInfo
   }
 
+  /**
+   * 특정 과제의 특정 문제에 대해, 최신 제출 기준 테스트케이스 결과를 조회합니다.
+   * 요청한 groupId가 과제의 groupId와 일치하는 경우에만 조회할 수 있습니다.
+   *
+   * @param {number} assignmentId 과제의 id
+   * @param {number} problemId 문제의 id
+   * @param {number} groupId group의 id
+   * @returns 유저별 최신 제출의 테스트케이스 결과 목록
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -assignmentId에 해당하는 Assignment가 존재하지 않는 경우
+   * -해당 과제/문제 조합에 대한 Submission이 존재하지 않는 경우
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * -요청한 groupId가 해당 과제의 groupId와 일치하지 않는 경우
+   */
   async getAssignmentProblemTestcaseResults(
     assignmentId: number,
     problemId: number,
@@ -456,6 +517,19 @@ export class SubmissionService {
     }
   }
 
+  /**
+   * 특정 제출의 상세 정보를 조회합니다.
+   *
+   * @param {number} id submission의 id
+   * @param {number} userId 요청한 유저의 id
+   * @returns submission 상세 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -id에 해당하는 Submission이 존재하지 않는 경우
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * -과제 제출인데 요청자가 해당 과제 그룹의 groupleader가 아니고 제출자 본인도 아닌 경우
+   * -콘테스트 제출인데 요청자가 해당 콘테스트의 Admin/Manager가 아닌 경우
+   * -과제/콘테스트 제출이 아닌데 요청자가 Admin/SuperAdmin이 아닌 경우
+   */
   async getSubmission(id: number, userId: number) {
     const submission = await this.prisma.submission.findFirst({
       where: {
@@ -576,6 +650,15 @@ export class SubmissionService {
     }
   }
 
+  /**
+   * 특정 과제의 제목을 조회합니다.
+   * 제목이 비어있는경우 Assignment_${assignmentId} 반환
+   *
+   * @param {number} assignmentId 과제의 id
+   * @returns {string | null} 과제 제목
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -assignmentId에 해당하는 Assignment가 존재하지 않는 경우
+   */
   async getAssignmentTitle(assignmentId: number): Promise<string | null> {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
@@ -594,6 +677,15 @@ export class SubmissionService {
     return encodeURIComponent(assignment.title)
   }
 
+  /**
+   * 특정 문제의 제목을 조회합니다.
+   * 제목이 비어있는 경우 Problem_${problemId} 반환
+   *
+   * @param {number} problemId 문제의 id
+   * @returns
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -problemId에 해당하는 Problem이 존재하지 않는 경우
+   */
   async getProblemTitle(problemId: number): Promise<string | null> {
     const problem = await this.prisma.problem.findUnique({
       where: {
@@ -612,6 +704,20 @@ export class SubmissionService {
     return encodeURIComponent(problem.title)
   }
 
+  /**
+   * 특정 제출의 특정 테스트케이스 결과를 조회합니다.
+   *
+   * @param {number} submissionId submission의 id
+   * @param {number} testcaseId 테스트케이스의 id
+   * @param {AuthenticatedUser} reqUser 요청한 유저의 정보
+   * @returns {SubmissionResultOutput} 해당 테스트케이스에 대한 제출 결과
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -submissionId에 해당하는 Submission이 존재하지 않는 경우
+   * -submissionId와 testcaseId에 해당하는 SubmissionResult가 존재하지 않는 경우
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * -과제 제출인데 요청자가 해당 그룹의 groupleader가 아닌 경우
+   * -콘테스트 제출인데 요청자가 해당 콘테스트의 운영진이 아닌 경우
+   */
   async getSubmissionResult(
     submissionId: number,
     testcaseId: number,
@@ -683,6 +789,20 @@ export class SubmissionService {
     }
   }
 
+  /**
+   * 특정 과제의 특정 문제에 대해 제출된 최신 소스코드들을 파일로 저장한 뒤 zip으로 압축합니다.
+   * '${assignmentTitle}_${problemId}'의 이름으로 zip파일 생성
+   *
+   * @param {number} assignmentId 과제의 id
+   * @param {number} problemId 문제의 id
+   * @returns 생성된 zip 파일의 다운로드 경로
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -해당 과제/문제에 제출한 AssignmentProblem이 존재하지 않는 경우
+   * -해당 과제/문제에 대한 최신 Submission 정보가 존재하지 않는 경우
+   * @throws {UnprocessableFileDataException} 아래와 같은 경우 발생합니다.
+   * -소스코드 파일 생성에 실패한 경우
+   * -zip 파일 생성에 실패한 경우
+   */
   async compressSourceCodes(assignmentId: number, problemId: number) {
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
@@ -803,8 +923,8 @@ export class SubmissionService {
   /**
    * 특정 Assignment의 특정 Problem에 대한 모든 제출을 재채점합니다.
    *
-   * @param input 재채점 옵션 (assignmentId, problemId, mode)
-   * @param reqUser 요청한 사용자
+   * @param {RejudgeInput} input 재채점 옵션 (assignmentId, problemId, mode)
+   * @param {AuthenticatedUser} reqUser 요청한 사용자
    * @returns 재채점 결과
    */
   async rejudgeAssignmentProblem(
@@ -850,7 +970,16 @@ export class SubmissionService {
   }
 
   /**
-   * 문제 조회, Assignment 조회, 권한 검증 및 기본 데이터 조회
+   * 과제/문제 데이터를 조회하고, 요청자의 권한을 검증합니다.
+   *
+   * @param {number} assignmentId 과제의 id
+   * @param {number} problemId 문제의 id
+   * @param {AuthenticatedUser} reqUser 요청한 문제의 id
+   * @returns 과제/문제 기본 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -assignmentId에 해당하는 Assignment 또는 problemId에 해당하는 Problem이 존재하지 않는 경우
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * -요청자가 Admin/SuperAdmin이 아니며, 해당 과제 그룹의 groupleader도 아닌 경우
    */
   private async validateAndFetchRejudgeData(
     assignmentId: number,
@@ -892,7 +1021,12 @@ export class SubmissionService {
   }
 
   /**
-   * 재채점할 submission 목록 조회
+   * 재채점을 위해 특정 과제의 특정 문제에 대한 제출 목록을 조회합니다.
+   * 제출 시간을 기준으로 내림차순 정렬합니다.
+   *
+   * @param {number} assignmentId 과제의 id
+   * @param {number} problemId 문제의 id
+   * @returns 제출 목록
    */
   private async fetchSubmissionsForRejudge(
     assignmentId: number,
@@ -915,6 +1049,12 @@ export class SubmissionService {
 
   /**
    * 모드에 따라 재채점할 submission 준비
+   *
+   * @param submissions 유저별 제출 목록
+   * @param problem 문제 정보
+   * @param {number} assignmentId 과제의 id
+   * @param {RejudgeMode} mode 재채점 모드
+   * @returns 재채점 대상 제출 목록
    */
   private async prepareSubmissionsForRejudge(
     submissions: Array<{
@@ -953,6 +1093,9 @@ export class SubmissionService {
 
   /**
    * 기존 submission들을 Juding 상태로 변경 및 테스트케이스 최신화
+   *
+   * @param {number[]} submissionIds submission id 목록
+   * @param {number} problemId  문제의 id
    */
   private async resetExistingSubmissions(
     submissionIds: number[],
@@ -983,6 +1126,11 @@ export class SubmissionService {
 
   /**
    * 재채점을 위한 새로운 submission들 생성
+   *
+   * @param submissions 제출 목록
+   * @param problem 문제 정보
+   * @param {number} assignmentId 과제의 id
+   * @returns 기존 제출 정보 + newSubmission id
    */
   private async createNewSubmissionsForRejudge(
     submissions: Array<{
@@ -1049,6 +1197,10 @@ export class SubmissionService {
 
   /**
    * 준비된 submission들에 대해 채점 요청 메시지 발행
+   *
+   * @param submissions 제출 목록
+   * @param problem 문제 정보
+   * @returns 성공적으로 발행된 채점 요청 개수
    */
   private async publishJudgeRequests(
     submissions: Array<{
@@ -1107,6 +1259,9 @@ export class SubmissionService {
 
   /**
    * 빈 재채점 결과 생성
+   *
+   * @param {number} totalCount 전체 제출 수
+   * @returns 빈 재채점 결과
    */
   private createEmptyRejudgeResult(totalCount: number): RejudgeResult {
     return {
@@ -1121,6 +1276,11 @@ export class SubmissionService {
 
   /**
    * 재채점 결과 생성
+   *
+   * @param {number} totalCount 전체 제출 수
+   * @param {number} processedCount 재채점 요청된 제출 수
+   * @param {RejudgeMode} mode 재채점 모드
+   * @returns 재채점 결과
    */
   private createRejudgeResult(
     totalCount: number,
@@ -1180,6 +1340,8 @@ export class SubmissionService {
 
   /**
    * 재채점을 위한 새로운 submission의 SubmissionResult를 생성
+   *
+   * @param submission 재채점 할 submission 정보
    */
   private async createSubmissionResultsForRejudge(submission: {
     id: number
