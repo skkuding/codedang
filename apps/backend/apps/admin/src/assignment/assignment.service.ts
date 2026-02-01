@@ -1013,6 +1013,21 @@ export class AssignmentService {
     return scoreSummary
   }
 
+  /**
+   * 과제에 참여한 모든 유저의 점수 요약 리스트를 가져옵니다.
+   * 조회 시 그룹 멤버 중 미참여자가 있다면 자동으로 과제에 초대합니다.
+   *
+   * @param assignmentId 과제 ID
+   * @param groupId 그룹 ID
+   * @param take 가져올 레코드 개수
+   * @param cursor 페이지네이션 커서
+   * @param searchingName 검색 유저 이름 (선택사항)
+   * @returns 각 유저의 프로필 정보와 점수 요약이 결합된 배열
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 과제가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제의 소속 그룹이 일치하지 않을 때
+   */
   async getAssignmentScoreSummaries(
     assignmentId: number,
     groupId: number,
