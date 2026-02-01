@@ -222,6 +222,18 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     return res
   }
 
+  /**
+   * 채점 결과가 도착한 테스트케이스가 최신 상태인지(유효한지) 확인합니다.
+   *
+   * 문제 출제자가 테스트케이스를 수정하거나 새로 업로드하면(`uploadTestcaseZip` 등),
+   * 기존 테스트케이스들은 모두 `isOutdated: true`로 설정됩니다.
+   *
+   * 1. 응답에 포함된 `testcaseId`가 현재 유효한지(`isOutdated: false`) 확인합니다.
+   * 2. 해당 테스트케이스가 존재하지 않으면(즉, Outdated 되었거나 삭제된 경우), `true`를 반환합니다.
+   *
+   * @param {JudgerResponse} res 채점 서버로부터 수신한 응답 메시지 객체
+   * @returns {Promise<boolean>} 테스트케이스가 만료(Outdated)되었으면 `true`, 유효하면 `false`
+   */
   @Span()
   async isOutdatedTestcase(res: JudgerResponse): Promise<boolean> {
     const testcase = await this.prisma.problemTestcase.findFirst({
