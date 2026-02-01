@@ -4,11 +4,16 @@ metadata:
   name: sealed-secrets-backup
   namespace: sealed-secrets-backup
 spec:
+  # run every month on the 1st at 03:00 AM(UTC)
   schedule: '0 3 1 * *'
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
+
+  # keep backup jobs for 36 months
+  successfulJobsHistoryLimit: 36
+  failedJobsHistoryLimit: 36
+
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 300
       backoffLimit: 3
       template:
         spec:
@@ -23,6 +28,7 @@ spec:
                     name: aws-credentials
               env:
                 - name: SECRET_NAME
+                  # Note: This value is overridden in overlays
                   value: Codedang-Sealed-Secrets-Prod
               volumeMounts:
                 - name: scripts
