@@ -654,6 +654,16 @@ export class AssignmentService {
     return assignmentProblems
   }
 
+  /**
+   * 특정 유저의 과제 체출 내용 요약과 성적 요약을 가져옵니다.
+   *
+   * @param take 가져올 레코드 개수
+   * @param assignmentId 과제 ID
+   * @param userId 조회할 유저 ID
+   * @param problemId 특정 문제만 조회할 경우의 문제 ID (선택 사항)
+   * @param cursor 페이지네이션을 위한 커서 값
+   * @returns 유저의 성적 요약 정보 및 매핑된 제출 내역 리스트
+   */
   async getAssignmentSubmissionSummaryByUserId({
     take,
     assignmentId,
@@ -830,7 +840,11 @@ export class AssignmentService {
   }
 
   /**
-   * 특정 user의 특정 Assignment에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
+   * userId에 해당하는 유저의 특정 Assignment 점수 요약을 계산하여 가져옵니다
+   *
+   * @param userId 유저 ID
+   * @param assignmentId 과제 ID
+   * @returns 제출 문제 개수, Assignment안 총 문제 개수, 사용자 점수, 과제 만점, 개별 점수 및 테스트케이스 개수 리스트 정보
    */
   async getAssignmentScoreSummary(userId: number, assignmentId: number) {
     const [assignmentProblems, rawAssignmentProblemRecords] = await Promise.all(
@@ -927,9 +941,7 @@ export class AssignmentService {
       }
     }
 
-    /**
-     * 문제 별 Accepted된 testcase의 개수 (latestSubmission 기준)
-     */
+    // 문제 별 Accepted된 testcase의 개수 (latestSubmission 기준)
     const acceptedCountsByProblem = assignmentProblemIds.reduce(
       (map, problemId) => {
         const latestSubmission = latestSubmissionMap.get(problemId)
@@ -953,9 +965,7 @@ export class AssignmentService {
       {} as Record<number, { acceptedCount: number; totalCount: number }>
     )
 
-    /**
-     * 문제 별 score과 testcase 개수(전체, 정답)에 대한 집합 배열
-     */
+    // 문제 별 score과 testcase 개수(전체, 정답)에 대한 집합 배열
     const scoreSummaryByProblem = assignmentProblemIds.map((problemId) => {
       const problemScore =
         problemScores.find((score) => score.problemId === problemId) ?? null
