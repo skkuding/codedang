@@ -17,6 +17,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
+import type { ProblemTestcase } from '@admin/@generated'
 import type { UploadFileInput } from '../model/problem.input'
 import { ImportedTestcaseHeader } from '../model/testcase.constants'
 import type { ScoreWeights, Testcase } from '../model/testcase.input'
@@ -796,6 +797,12 @@ export class TestcaseService {
     }
   }
 
+  /**
+   * 해당 문제의 testcase를 전부 삭제하고, 모든 테스트케이스 레코드를 outdated로 표시합니다.
+   *
+   * @param {number} problemId : 문제의 ID
+   * @returns {Promise<void>}
+   */
   async removeAllTestcaseFiles(problemId: number) {
     const testcaseDir = problemId + '/'
     const files = await this.storageService.listObjects(testcaseDir, 'testcase')
@@ -814,6 +821,16 @@ export class TestcaseService {
     })
   }
 
+  /**
+   * 테스트케이스 ID를 통해 정보를 조회합니다.
+   *
+   * @param {number} testcaseId : 테스트케이스 ID
+   * @param {number} userId : 유저 ID
+   * @param {Role} userRole : 유저 권한
+   * @returns {Promise<Omit<ProblemTestcase , 'problem'>>} 성공 시 ProblemTestcase 객체에서 problem필드를 제외한 데이터를 담은 promise를 반환합니다.
+   * @throws {EntityNotExistException} 테스트케이스 ID에 해당하는 테스트케이스가 없을 시 exception을 던집니다.
+   * @throws {ForbiddenAccessException} 테스트케이스에 접근 권한이 없을 시 exception을 던집니다.
+   */
   async getProblemTestcase(testcaseId: number, userId: number, userRole: Role) {
     const testcase = await this.prisma.problemTestcase.findUnique({
       where: {
