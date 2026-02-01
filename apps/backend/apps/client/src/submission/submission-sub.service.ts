@@ -911,6 +911,17 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     return score
   }
 
+  /**
+   * 제출 처리가 완료된 후, 해당 문제의 전체 통계(제출 수, 정답 수, 정답률)를 갱신합니다.
+   *
+   * 1. 해당 문제의 총 제출 횟수(`submissionCount`)를 1 증가시킵니다.
+   * 2. 제출 결과가 정답(`isAccepted`)인 경우, 정답 횟수(`acceptedCount`)도 1 증가시킵니다.
+   * 3. 증가된 수치를 바탕으로 정답률(`acceptedRate`)을 재계산하여 업데이트합니다.
+   *
+   * @param {number} id 통계를 갱신할 문제의 ID
+   * @param {boolean} isAccepted 제출의 최종 결과가 정답(Accepted)인지 여부
+   * @returns {Promise<void>}
+   */
   @Span()
   async updateProblemAccepted(id: number, isAccepted: boolean): Promise<void> {
     const data: {
