@@ -1468,7 +1468,8 @@ export class CourseService {
                   assignment: {
                     select: {
                       id: true,
-                      title: true
+                      title: true,
+                      isExercise: true
                     }
                   }
                 }
@@ -1485,7 +1486,8 @@ export class CourseService {
       return {
         ...rest,
         assignmentId: assignment?.id,
-        assignmentTitle: assignment?.title
+        assignmentTitle: assignment?.title,
+        isExercise: assignment?.isExercise
       }
     })
   }
@@ -1589,7 +1591,8 @@ export class CourseService {
                 assignment: {
                   select: {
                     id: true,
-                    title: true
+                    title: true,
+                    isExercise: true
                   }
                 }
               }
@@ -1609,7 +1612,8 @@ export class CourseService {
         ...rest,
         isRead: userId == null || readBy.includes(userId),
         assignmentId: assignment?.id,
-        assignmentTitle: assignment?.title
+        assignmentTitle: assignment?.title,
+        isExercise: assignment?.isExercise
       }
     })
   }
@@ -1669,7 +1673,8 @@ export class CourseService {
                 assignment: {
                   select: {
                     id: true,
-                    title: true
+                    title: true,
+                    isExercise: true
                   }
                 }
               }
@@ -1713,7 +1718,8 @@ export class CourseService {
     return {
       ...rest,
       assignmentId: assignment?.id,
-      assignmentTitle: assignment?.title
+      assignmentTitle: assignment?.title,
+      isExercise: assignment?.isExercise
     }
   }
 

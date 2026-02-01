@@ -340,14 +340,10 @@ export class GroupService {
           assignment.startTime <= now && now <= assignment.endTime
 
         const {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          id,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          createTime,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          updateTime,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          groupId: oldGroupId,
+          id: _id,
+          createTime: _createTime,
+          updateTime: _updateTime,
+          groupId: _groupId,
           assignmentProblem,
           ...assignmentData
         } = assignment
