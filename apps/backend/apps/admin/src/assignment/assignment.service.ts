@@ -1366,6 +1366,19 @@ export class AssignmentService {
     return updatedProblemRecord
   }
 
+  /**
+   * 특정 유저의 특정 과제 내 문제 풀이 기록(점수, 상태 등)을 상세 조회합니다.
+   *
+   * @param groupId 요청을 보낸 그룹 ID (권한 확인용)
+   * @param userId 기록을 조회할 유저 ID
+   * @param assignmentId 해당 과제 ID
+   * @param problemId 해당 문제 ID
+   * @returns 유저의 문제 풀이 기록 객체 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 기록이나 과제를 찾을 수 없을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청 그룹과 과제의 소속 그룹이 일치하지 않을 때
+   */
   async getAssignmentProblemRecord({
     groupId,
     userId,
@@ -1412,6 +1425,13 @@ export class AssignmentService {
     return assignmentProblemRecord
   }
 
+  /**
+   * 특정 유저의 특정 과제 내 문제 기록(제출 기록 및 점수 등)을 조회합니다.
+   *
+   * @param assignmentId 과제 ID
+   * @param userId 유저 ID
+   * @returns 모든 문제 채점 완료 여부 (boolean)
+   */
   async isAllAssignmentProblemGraded(assignmentId: number, userId: number) {
     const problemRecords = await this.prisma.assignmentProblemRecord.findMany({
       where: {
@@ -1430,6 +1450,19 @@ export class AssignmentService {
     return isAllProblemGraded
   }
 
+  /**
+   * 과제의 모든 참여 유저의 문제별 최종 점수(final_score)를 현재 획득 점수(score)로 자동 확정합니다.
+   *
+   * @param groupId 그룹 ID
+   * @param assignmentId 과제 ID
+   * @returns 업데이트된 레코드 개수
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 과제가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제 소속 그룹이 일치하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - 과제 마감 시간(dueTime 또는 endTime)이 지나지 않았을 때
+   */
   async autoFinalizeScore(groupId: number, assignmentId: number) {
     const assignment = await this.prisma.assignment.findUnique({
       where: { id: assignmentId },
