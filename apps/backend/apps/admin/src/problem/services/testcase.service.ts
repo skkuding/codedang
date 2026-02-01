@@ -213,6 +213,15 @@ export class TestcaseService {
     }
   }
 
+  /**
+   * 전달받은 테스트케이스 목록을 DB의 테스트케이스와 동기화시킵니다.
+   * 사용자의 문제 수정 권한 확인, outdated 테스트케이스 조회, 수정이 필요한 testcase 새 버전 생성, 완전히 새로운 테스트케이스 생성, 케이스 정렬 후 엔티티 업데이트를 진행합니다.
+   *
+   * @param {number} problemId : 문제 ID
+   * @param {boolean} isSampleUploadedByZip : Sample Testcase가 zip업로드에 의해 변경되었으면 true
+   * @param {boolean} isHiddenUploadedByZip : Hidden Testcase가 zip업로드에 의해 변경되었으면 true
+   * @param {Array[Testcase]} testcases
+   */
   async syncTestcases(
     problemId: number,
     isSampleUploadedByZip: boolean,
