@@ -1,5 +1,10 @@
 #!/bin/sh
+
+# -e: exit on error
+# -u: error on undefined vars
+# -o pipefail: fail on any pipe error
 set -euo pipefail
+
 
 # Step 1: Fetch all sealed-secrets encryption keys from the cluster
 echo "Exporting sealed-secrets keys from kube-system..."
