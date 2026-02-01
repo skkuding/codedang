@@ -162,13 +162,14 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       const newMaxMemoryUsage =
         memoryUsage > maxMemoryUsage ? memoryUsage : maxMemoryUsage
 
-      await this.prisma.testSubmission.update({
-        where: { id: testSubmission.id },
-        data: {
-          maxCpuTime: newMaxCpuTime,
-          maxMemoryUsage: newMaxMemoryUsage
-        }
-      })
+      if (maxCpuTime !== newMaxCpuTime || maxMemoryUsage !== newMaxMemoryUsage)
+        await this.prisma.testSubmission.update({
+          where: { id: testSubmission.id },
+          data: {
+            maxCpuTime: newMaxCpuTime,
+            maxMemoryUsage: newMaxMemoryUsage
+          }
+        })
     }
 
     await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
