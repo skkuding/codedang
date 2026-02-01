@@ -1224,6 +1224,12 @@ export class AssignmentService {
     return assignmentsGroupedByStatus
   }
 
+  /**
+   * 특정 과제의 모든 문제 배점을 합산하여 만점을 계산합니다.
+   *
+   * @param assignmentId 과제 ID
+   * @returns 과제 총점
+   */
   async getTotalScoreOfAssignment(assignmentId: number) {
     const assignmentProblemScores =
       await this.prisma.assignmentProblem.findMany({
