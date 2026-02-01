@@ -238,23 +238,23 @@ function ProblemDetailSection({
       </p>
       <div className="mb-3 flex h-[98px] gap-2">
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-          <p className="text-primary text-sm font-medium tracking-[-0.42px]">
+          <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
             Total Submission
           </p>
           <p className="text-2xl font-semibold tracking-[-0.72px]">
-            {statistics.totalSubmissionCount || '-'}
+            {statistics.totalSubmissionCount.toLocaleString('ko-KR') || '-'}
           </p>
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-          <p className="text-primary text-sm font-medium tracking-[-0.42px]">
+          <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
             Correct Answers
           </p>
           <p className="text-2xl font-semibold tracking-[-0.72px]">
-            {statistics.acceptedSubmissionCount || '-'}
+            {statistics.acceptedSubmissionCount.toLocaleString('ko-KR') || '-'}
           </p>
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-          <p className="text-primary text-sm font-medium tracking-[-0.42px]">
+          <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
             Correct Answers Rate
           </p>
           <p className="text-2xl font-semibold tracking-[-0.72px]">
@@ -262,17 +262,17 @@ function ProblemDetailSection({
           </p>
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-          <p className="text-primary text-sm font-medium tracking-[-0.42px]">
+          <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
             Average Attempt
           </p>
           <p className="text-2xl font-semibold tracking-[-0.72px]">
-            {statistics.averageTrial || '-'}
+            {statistics.averageTrial.toLocaleString('ko-KR') || '-'}
           </p>
         </div>
       </div>
       <div className="mb-5 flex h-[188px] gap-2">
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-          <p className="text-primary text-sm font-medium tracking-[-0.42px]">
+          <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
             First Solver
           </p>
           <p className="truncate text-2xl font-semibold tracking-[-0.72px]">
@@ -280,7 +280,7 @@ function ProblemDetailSection({
           </p>
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-          <p className="text-primary text-sm font-medium tracking-[-0.42px]">
+          <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
             Fastest Solver
           </p>
           <p className="truncate text-2xl font-semibold tracking-[-0.72px]">
@@ -288,12 +288,12 @@ function ProblemDetailSection({
           </p>
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-          <p className="text-primary text-sm font-medium tracking-[-0.42px]">
+          <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
             User Speed Rank
           </p>
           <p className="text-2xl font-semibold tracking-[-0.72px]">
             {statistics?.userSpeedRank
-              ? statistics.userSpeedRank +
+              ? statistics.userSpeedRank.toLocaleString('ko-KR') +
                 (['st', 'nd', 'rd'][
                   ((((statistics.userSpeedRank + 90) % 100) - 10) % 10) - 1
                 ] || 'th')
@@ -301,7 +301,7 @@ function ProblemDetailSection({
           </p>
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-          <p className="text-primary mb-3 text-sm font-medium tracking-[-0.42px]">
+          <p className="text-primary mb-3 text-[13px] font-normal tracking-[-0.42px]">
             Correct Answers by Language
           </p>
           {statistics?.acceptedSubmissionsByLanguage?.length ? (
@@ -310,11 +310,11 @@ function ProblemDetailSection({
                 className="mb-1 flex justify-between text-sm font-medium"
                 key={language.language}
               >
-                <div className="flex items-center">
-                  <div className="m-2 h-1 w-1 rounded-full bg-black" />
+                <div className="text-color-neutral-40 flex items-center">
+                  <div className="bg-color-neutral-40 m-2 h-1 w-1 rounded-full" />
                   {language.language}
                 </div>
-                {language.count}
+                {language.count.toLocaleString('ko-KR')}
               </div>
             ))
           ) : (
@@ -324,12 +324,12 @@ function ProblemDetailSection({
           )}
         </div>
       </div>
-      <div className="flex h-[338px] gap-2">
-        <div className="w-1/2 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-          <p className="text-primary mb-3 text-sm font-medium tracking-[-0.42px]">
+      <div className="mb-[112px] flex h-[338px] gap-2">
+        <div className="flex w-1/2 min-w-0 flex-col rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <p className="text-primary mb-[14px] text-[13px] font-normal tracking-[-0.42px]">
             Incorrect Answer Distribution
           </p>
-          <ChartContainer config={chartConfig} className="mb-[7px] h-[236px]">
+          <ChartContainer config={chartConfig} className="h-[230px]">
             <BarChart
               accessibilityLayer
               data={distributionChartData}
@@ -371,10 +371,10 @@ function ProblemDetailSection({
                       >
                         {Math.round(
                           (payload[0].value *
-                            distributionAndTimeline?.distribution
-                              ?.totalSubmissions) /
+                            (distributionAndTimeline?.distribution
+                              ?.totalSubmissions || 0)) /
                             100
-                        )}{' '}
+                        ).toLocaleString('ko-KR')}{' '}
                         Wrong Answer
                       </div>
                     )
@@ -401,7 +401,7 @@ function ProblemDetailSection({
             </BarChart>
           </ChartContainer>
           <Popover>
-            <PopoverTrigger className="w-full">
+            <PopoverTrigger className="mt-auto w-full justify-end">
               <div className="bg-color-neutral-99 flex h-[30px] items-center justify-between rounded-lg px-3 text-xs">
                 <div className="flex">
                   <div className="border-r-1 flex items-center gap-1 pr-2">
@@ -420,7 +420,7 @@ function ProblemDetailSection({
                 <SlArrowDown className="h-3 w-3" />
               </div>
             </PopoverTrigger>
-            <PopoverContent className="w-102 flex flex-col gap-1 text-xs">
+            <PopoverContent className="w-102 mt-auto flex flex-col gap-1 text-xs">
               <div className="flex items-center gap-2">
                 <div className="bg-level-1 rounded-xs h-3 w-3" />
                 Wrong Answer
@@ -448,11 +448,11 @@ function ProblemDetailSection({
             </PopoverContent>
           </Popover>
         </div>
-        <div className="w-1/2 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
-          <p className="text-primary mb-3 text-sm font-medium tracking-[-0.42px]">
+        <div className="flex w-1/2 min-w-0 flex-col rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
+          <p className="text-primary mb-[14px] text-[13px] font-normal tracking-[-0.42px]">
             Trends in Submission
           </p>
-          <ChartContainer config={chartConfig} className="mb-[7px] h-[236px]">
+          <ChartContainer config={chartConfig} className="h-[230px]">
             <LineChart
               accessibilityLayer
               data={timelineChartData}
@@ -501,18 +501,18 @@ function ProblemDetailSection({
                       >
                         {Math.round(
                           (payload[0].value *
-                            distributionAndTimeline.distribution
-                              .totalSubmissions) /
+                            (distributionAndTimeline?.distribution
+                              ?.totalSubmissions || 0)) /
                             100
-                        )}{' '}
+                        ).toLocaleString('ko-KR')}{' '}
                         Accepted Answer
                         <br />
                         {Math.round(
                           (payload[1].value *
-                            distributionAndTimeline.distribution
-                              .totalSubmissions) /
+                            (distributionAndTimeline?.distribution
+                              ?.totalSubmissions || 0)) /
                             100
-                        )}{' '}
+                        ).toLocaleString('ko-KR')}{' '}
                         Wrong Answer
                       </div>
                     )
@@ -552,7 +552,7 @@ function ProblemDetailSection({
               />
             </LineChart>
           </ChartContainer>
-          <div className="bg-color-neutral-99 flex h-[30px] w-fit items-center rounded-lg px-3 text-xs">
+          <div className="bg-color-neutral-99 mt-auto flex h-[30px] w-fit items-center justify-end rounded-lg px-3 text-xs">
             <div className="border-r-1 flex h-fit items-center gap-1 pr-2">
               Accepted
               <div className="bg-flowkit-green rounded-xs h-3 w-3" />

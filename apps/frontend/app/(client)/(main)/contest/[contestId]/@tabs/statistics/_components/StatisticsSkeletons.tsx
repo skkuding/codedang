@@ -12,7 +12,7 @@ export function ProblemStatisticsSkeleton() {
           <div key={i} className="w-1/4 rounded-xl bg-gray-100" />
         ))}
       </div>
-      <div className="flex h-[338px] gap-2">
+      <div className="mb-[112px] flex h-[338px] gap-2">
         {[1, 2].map((i) => (
           <div key={i} className="w-1/2 rounded-xl bg-gray-100" />
         ))}
