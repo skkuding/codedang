@@ -75,6 +75,16 @@ export class TestcaseService {
     }
   }
 
+  /**
+   * 문제에 해당하는 Testcase를 생성합니다. 권한 확인, 기존 Testcase를 전부 삭제, 가중치를 고려한 테스트케이스 레코드를 생성하고 in / out파일을 스토리지에 업로드합니다.
+   *
+   * @param {Testacse[]} testcases :테스트케이스 클래스 배열
+   * @param {number} problemId :문제의 ID
+   * @param {number} userId :유저 ID
+   * @param {Role} userRole :유저 권한
+   * @returns:성공 시 테스트케이스 ID를 반환합니다.
+   * @throws {EntityNotExistException} problemId에 해당하는 문제가 없으면 exception을 던집니다.
+   */
   async createTestcases(
     testcases: Testcase[],
     problemId: number,
