@@ -738,12 +738,17 @@ export class AssignmentService {
   }
 
   /**
-   * Duplicate assignment with assignment problems and users who participated in the assignment
-   * Not copied: submission
-   * @param groupId group to duplicate assignment
-   * @param assignmentId assignment to duplicate
-   * @param userId user who tries to duplicates the assignment
-   * @returns
+   * 과제를 복제합니다. 과제의 기본 설정, 포함된 문제들, 과제 참여 기록 모두 복사합니다.
+   * 제출 내역(Submission)은 복사되지 않습니다.
+   *
+   * @param groupId 과제를 복제할 그룹 ID
+   * @param assignmentId 복제 대상이 되는 원본 과제 ID
+   * @param userId 복제를 수행하는 유저 ID (새로운 과제 생성자)
+   * @returns 복제된 과제, 문제 리스트, 참여 기록 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 복제할 원본 과제(assignmentId)가 존재하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - 데이터 복제 트랜잭션 도중 오류가 발생할 때
    */
   async duplicateAssignment(
     groupId: number,
@@ -774,7 +779,7 @@ export class AssignmentService {
       throw new EntityNotExistException('Assignment')
     }
 
-    // if assignment status is ongoing, visible would be true. else, false
+    // 과제가 현재 진행중이면 newVisible를 true로, 그 외는 false
     const now = new Date()
     let newVisible = false
     if (assignmentFound.startTime <= now && now <= assignmentFound.endTime) {
@@ -788,7 +793,7 @@ export class AssignmentService {
     try {
       const [newAssignment, newAssignmentProblems, newAssignmentRecords] =
         await this.prisma.$transaction(async (tx) => {
-          // 1. copy assignment
+          // 1. 과제 기본 정보를 복사하여 새로운 과제를 생성합니다.
           const newAssignment = await tx.assignment.create({
             data: {
               ...assignmentDataToCopy,
@@ -799,7 +804,7 @@ export class AssignmentService {
             }
           })
 
-          // 2. copy assignment problems
+          // 2. 해당 과제에 등록된 문제들을 새로운 과제로 복사합니다.
           const newAssignmentProblems = await Promise.all(
             assignmentProblemsFound.map((assignmentProblem) =>
               tx.assignmentProblem.create({
@@ -814,7 +819,7 @@ export class AssignmentService {
             )
           )
 
-          // 3. copy assignment records (users who participated in the assignment)
+          // 3. 과제 참여 기록(assignmentRecord)을 새로운 과제로 복사합니다.
           const newAssignmentRecords = await Promise.all(
             userAssignmentRecords.map((userAssignmentRecord) =>
               tx.assignmentRecord.create({
