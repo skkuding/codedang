@@ -401,13 +401,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           increment: 1
         },
         acceptedCount: {
-          increment: 0
+          increment: isAccepted ? 1 : 0
         }
       }
-    }
-
-    if (isAccepted) {
-      testcaseStats.data.acceptedCount.increment = 1
     }
 
     await this.prisma.problemTestcase.update(testcaseStats)
