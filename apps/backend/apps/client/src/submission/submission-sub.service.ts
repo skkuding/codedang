@@ -281,6 +281,19 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     await this.updateTestcaseJudgeResult(submissionResult)
   }
 
+  /**
+   * 채점 도중 발생한 에러(컴파일 에러, 서버 에러 등)를 처리합니다.
+   *
+   * 1. 해당 제출이 현재 채점 중(`Judging`)인지 확인합니다. 이미 처리된 경우 종료합니다.
+   * 2. `Submission` 테이블의 결과를 해당 에러 상태로 업데이트합니다.
+   * 3. 관련된 모든 `SubmissionResult` (테스트케이스별 결과)를 해당 에러 상태로 일괄 업데이트합니다.
+   * 4. `ServerError`인 경우, 확인을 위해 예외를 발생시킵니다.
+   *
+   * @param {ResultStatus} status 발생한 에러의 상태 코드 (예: CompileError, ServerError)
+   * @param {JudgerResponse} msg 채점 서버로부터 수신한 상세 메시지 객체
+   * @returns {Promise<void>}
+   * @throws {UnprocessableDataException} ServerError 발생 시 상세 로그와 함께 예외 발생
+   */
   @Span()
   async handleJudgeError(
     status: ResultStatus,
