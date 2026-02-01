@@ -745,6 +745,20 @@ export class TestcaseService {
     }
   }
 
+  /**
+   * 유저가 특정 문제 수정 권한이 있는지 확인합니다. (비공개 헬퍼 메서드)
+   *
+   * <권한 규칙>
+   * 관리자 (Admin, SuperAdmin)은 항상 권한을 가집니다.
+   * 일반 사용자의 경우, 자신이 직접 생성한 문제이거나 자신이 leader로 있는 그룹에 공유된 문제에 대해 수정 권한을 가집니다.
+   *
+   * @private
+   * @param {number} problemId : 문제 ID
+   * @param {number} userId : 유저 ID
+   * @param {Role} userRole : 유저 권한 범위
+   * @returns {Promise<void>}
+   * @throws {ForbiddenException} 유저가 해당 문제 수정 권한이 없으면 exception을 던집니다.
+   */
   private async checkProblemEditPermission(
     problemId: number,
     userId: number,
