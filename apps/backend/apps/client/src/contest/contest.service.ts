@@ -1281,7 +1281,11 @@ export class ContestService {
   ) {
     await this.checkIsContestExistsAndEnded(contestId)
 
-    const [contestProblem, allSubmissions] = await Promise.all([
+    const [contest, contestProblem, allSubmissions] = await Promise.all([
+      this.prisma.contest.findUnique({
+        where: { id: contestId },
+        select: { startTime: true, endTime: true }
+      }),
       this.prisma.contestProblem.findFirst({
         where: { contestId, problemId },
         select: { problem: { select: { languages: true } } }
@@ -1312,24 +1316,41 @@ export class ContestService {
       })
     ])
 
+    if (!contest?.startTime || !contest?.endTime) {
+      throw new EntityNotExistException('Contest')
+    }
+
     if (!contestProblem) {
       throw new EntityNotExistException('ContestProblem')
     }
 
-    // 해당 contestProblem에 대한 submission 조회
+    // 해당 problem에서 사용가능한 언어 집합
+    const allowedLanguages = (contestProblem.problem.languages ??
+      []) as Language[]
+    const allowedLanguage = new Set<Language>(allowedLanguages)
 
-    const totalSubmissionCount = allSubmissions.length
-    const acceptedSubmissions = allSubmissions.filter((submission) => {
-      return submission.result == ResultStatus.Accepted
-    })
+    // 대회 기간 내 + 허용 언어로 제출된 것만 집계
+    const startTime = contest.startTime
+    const endTime = contest.endTime
+    const submissionsInScope = allSubmissions.filter(
+      (s) =>
+        s.createTime >= startTime &&
+        s.createTime <= endTime &&
+        allowedLanguage.has(s.language)
+    )
+
+    const totalSubmissionCount = submissionsInScope.length
+    const acceptedSubmissions = submissionsInScope.filter(
+      (submission) => submission.result === ResultStatus.Accepted
+    )
     const acceptedSubmissionCount = acceptedSubmissions.length
     const acceptedRate =
       acceptedSubmissionCount > 0
-        ? (acceptedSubmissionCount / totalSubmissionCount).toFixed(1)
+        ? (acceptedSubmissionCount / totalSubmissionCount).toFixed(3)
         : '0.0'
 
     const uniqueSubmitterIds = new Set<number>()
-    for (const s of allSubmissions) {
+    for (const s of submissionsInScope) {
       const uid = s.user?.id
       if (uid) uniqueSubmitterIds.add(uid)
     }
@@ -1384,11 +1405,6 @@ export class ContestService {
             )
             return idx === -1 ? null : idx + 1
           })()
-
-    // 해당 problem에서 사용가능한 언어 집합
-    const allowedLanguage = new Set<Language>(
-      contestProblem.problem.languages ?? []
-    )
 
     const acceptedSubmissionsByLanguage = new Map<Language, number>()
     for (const lang of allowedLanguage)
@@ -1490,7 +1506,7 @@ export class ContestService {
    * 대회 statistics 페이지의 문제별 통계 그래프를 조회합니다.
    * 대회 종료 후에만 조회할 수 있습니다.
    *
-   * 오답 분포(distribution)와 시간별 제출 추이(timeline) 통계를 모두 반환합니다.
+   * 오답 분포(distribution)와 시간별 제출 추이(timeline) 통계 그래프를 반환합니다.
    */
   async getContestProblemStatistics({
     contestId,
@@ -1519,7 +1535,10 @@ export class ContestService {
           problemId
         }
       },
-      select: { id: true }
+      select: {
+        id: true,
+        problem: { select: { languages: true } }
+      }
     })
 
     if (!contestProblem) {
@@ -1534,16 +1553,23 @@ export class ContestService {
       )
     }
 
+    const allowedLanguages = (contestProblem.problem.languages ??
+      []) as Language[]
+
     const [distribution, timeline] = await Promise.all([
       this.getProblemDistribution({
         contestId,
-        problemId
+        problemId,
+        startTime: contest.startTime,
+        endTime: contest.endTime,
+        allowedLanguages
       }),
       this.getProblemTimeline({
         contestId,
         problemId,
         startTime: contest.startTime,
-        endTime: contest.endTime
+        endTime: contest.endTime,
+        allowedLanguages
       })
     ])
 
@@ -1556,9 +1582,8 @@ export class ContestService {
   }
 
   /**
-   * 문제 제출 결과 분포 통계를 계산합니다.
-   *
-   * 결과 유형별 제출 수를 집계합니다.
+   * 문제 제출 결과 오답 분포(distribution) 그래프 통계를 계산합니다.
+   * 허용된 언어로 제출된 결과 유형별 제출 수를 집계합니다.
    * 결과 유형: WA, TLE, MLE, RE(RE, SFE), CE, ETC(SE, OLE)
    */
   private static readonly resultTypes = [
@@ -1572,10 +1597,16 @@ export class ContestService {
 
   private async getProblemDistribution({
     contestId,
-    problemId
+    problemId,
+    startTime,
+    endTime,
+    allowedLanguages
   }: {
     contestId: number
     problemId: number
+    startTime: Date
+    endTime: Date
+    allowedLanguages: Language[]
   }) {
     const [resultGroups] = await Promise.all([
       this.prisma.submission.groupBy({
@@ -1585,6 +1616,13 @@ export class ContestService {
           problemId,
           userId: {
             not: null
+          },
+          createTime: {
+            gte: startTime,
+            lte: endTime
+          },
+          language: {
+            in: allowedLanguages
           }
         },
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -1592,7 +1630,6 @@ export class ContestService {
       })
     ])
 
-    // 유형별 카운트 객체들 초기화
     const resultTypes = ContestService.resultTypes
     const counts: Record<(typeof ContestService.resultTypes)[number], number> =
       resultTypes.reduce(
@@ -1603,7 +1640,6 @@ export class ContestService {
         {} as Record<(typeof ContestService.resultTypes)[number], number>
       )
 
-    // 통계 결과 유형 매핑
     const statusMap = {
       [ResultStatus.WrongAnswer]: resultTypes[0],
       [ResultStatus.TimeLimitExceeded]: resultTypes[1],
@@ -1620,7 +1656,6 @@ export class ContestService {
     let totalSubmissions = 0
 
     for (const group of resultGroups) {
-      //  해당 유형 카운트 누적
       const key = statusMap[group.result as keyof typeof statusMap]
       const submissionCount = group._count._all
       totalSubmissions += submissionCount
@@ -1637,8 +1672,9 @@ export class ContestService {
   }
 
   /**
-   * 문제 제출 타임라인 통계를 계산합니다.
+   * 문제 제출 타임라인 그래프 통계를 계산합니다.
    *
+   * 허용된 언어로 제출된 결과 유형별 제출 수를 집계합니다.
    * 대회 기간을 6등분하여 각 시간대별 Accepted와 Wrong 제출 수를 집계합니다.
    * 타임슬롯 간격은 대회 시간에 따라 동적으로 결정됩니다 (예: 3시간 대회 → 30분, 6시간 대회 → 1시간).
    * Wrong 유형: WA, TLE, MLE, RE(RE, SFE), CE, ETC(SE, OLE)
@@ -1648,12 +1684,14 @@ export class ContestService {
     contestId,
     problemId,
     startTime,
-    endTime
+    endTime,
+    allowedLanguages
   }: {
     contestId: number
     problemId: number
     startTime: Date
     endTime: Date
+    allowedLanguages: Language[]
   }) {
     const start = startTime.getTime()
     const end = endTime.getTime()
@@ -1667,7 +1705,6 @@ export class ContestService {
       wrong: 0
     }))
 
-    // 제출 생성 시각을 동적 간격 슬롯에 매핑해 Accepted/Not Accepted를 기록.
     const submissions = await this.prisma.submission.findMany({
       where: {
         contestId,
@@ -1678,6 +1715,9 @@ export class ContestService {
         createTime: {
           gte: startTime,
           lte: endTime
+        },
+        language: {
+          in: allowedLanguages
         }
       },
       select: {
