@@ -365,6 +365,18 @@ export class TestcaseService {
     )
   }
 
+  /**
+   * Excel파일을 업로드하여 테스트케이스를 생성합니다.
+   * 사용자 권한 확인, 파일 유효성 검사, 파일 파싱, 테스트케이스 객체 구성, 'createTestcaseLegacy' 메소드를 호출하여 testcase를 생성합니다.
+   *
+   * @param {UploadFileInput} fileInput : Excel파일
+   * @param {number} problemId : 문제 ID
+   * @param {Role} userRole : 유저 권한
+   * @param {number} userId : 유저 ID
+   * @returns {Promise<ProblemTestcase>} : 성공 시 생성된 테스트케이스 객체를 담은 Promise를 반환합니다.
+   * @throws {UnprocessableDataException} : Excel파일이 아닌 경우 exception을 던집니다.
+   * @throws {UnprocessableFileDataException} : Excel파일이 파싱 불가능한 경우 exception을 던집니다.
+   */
   async uploadTestcase(
     fileInput: UploadFileInput,
     problemId: number,
