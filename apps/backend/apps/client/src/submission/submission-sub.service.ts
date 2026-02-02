@@ -336,6 +336,17 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       )
   }
 
+  /**
+   * 개별 테스트케이스의 채점 결과를 DB에 반영하고, 후속 처리를 수행합니다.
+   *
+   * 1. `SubmissionResult` 테이블에 해당 테스트케이스의 채점 결과(성공 여부, 시간, 메모리, 출력 등)를 업데이트합니다.
+   * 2. 유효한 채점 결과(Judging, ServerError 등이 아닌 확정된 상태)라면, `updateTestcaseStats`를 호출하여 테스트케이스별 통계를 갱신합니다.
+   * 3. `updateSubmissionResult`를 호출하여, 해당 제출(Submission)의 전체 채점 완료 여부를 확인하고 최종 결과를 갱신합니다.
+   *
+   * @param {Partial<SubmissionResult> & Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>} submissionResult
+   *   - 업데이트할 테스트케이스 결과 데이터 (필수: result, submissionId, problemTestcaseId)
+   * @returns {Promise<void>}
+   */
   @Span()
   async updateTestcaseJudgeResult(
     submissionResult: Partial<SubmissionResult> &
