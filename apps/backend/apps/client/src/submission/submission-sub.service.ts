@@ -861,7 +861,18 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   }
 
   /**
-   * 분수 기반 점수 계산 헬퍼 함수
+   * 분수(Fraction) 기반으로 제출 점수를 정밀하게 계산하는 헬퍼 함수입니다.
+   *
+   * 각 테스트케이스의 배점이 분수 형태(분자/분모)로 저장되어 있을 때,
+   * 부동소수점 연산 오차를 방지하기 위해 최소공배수(LCM)를 사용하여 통분 후 점수를 합산합니다.
+   *
+   * 1. 모든 테스트케이스의 분모에 대한 최소공배수(LCM)를 구합니다.
+   * 2. 각 테스트케이스의 점수를 공통 분모(LCM) 기준으로 환산하여 분자(Numerator)를 합산합니다.
+   * 3. (획득한 점수의 분자 합 / 전체 점수의 분자 합) * 100 공식을 사용하여 최종 점수를 계산합니다.
+   *
+   * @param {Array<{ problemTestcase: { id: number, scoreWeightNumerator: number, scoreWeightDenominator: number }, result: ResultStatus }>} submissionResults
+   *   - 점수 계산 대상이 되는 테스트케이스 결과 목록 (테스트케이스 배점 정보 포함)
+   * @returns {number} 100점 만점 기준으로 환산된 최종 점수 (정수)
    */
   private calculateFractionalScore(
     submissionResults: Array<{
