@@ -236,7 +236,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    */
   @Span()
   async isOutdatedTestcase(res: JudgerResponse): Promise<boolean> {
-    const testcase = await this.prisma.problemTestcase.findFirst({
+    const testcase = await this.prisma.problemTestcase.count({
       where: {
         id: res.judgeResult?.testcaseId,
         isOutdated: false,
@@ -248,7 +248,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
 
-    return !testcase
+    return testcase === 0
   }
 
   /**
