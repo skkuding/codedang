@@ -810,6 +810,17 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     })
   }
 
+  /**
+   * 제출(Submission)의 최종 점수를 계산하여 DB에 저장합니다.
+   *
+   * 1. 제출 정보와 연관된 채점 결과(`submissionResult`) 및 문제의 테스트케이스 배점 정보를 조회합니다.
+   * 2. 대회(`Contest`) 제출인 경우, `evaluateWithSampleTestcase` 설정에 따라 점수 계산에 포함할 테스트케이스를 필터링합니다.
+   *    - 예: 샘플 테스트케이스를 제외
+   * 3. `calculateFractionalScore` 함수를 통해 가중치와 부분 점수를 고려한 최종 점수를 계산합니다.
+   * 4. 계산된 점수를 `Submission` 테이블의 `score` 필드에 업데이트합니다.
+   *
+   * @param {number} id 점수를 계산할 제출의 ID
+   */
   async updateSubmissionScore(id: number) {
     const submission = await this.prisma.submission.findUniqueOrThrow({
       where: { id },
