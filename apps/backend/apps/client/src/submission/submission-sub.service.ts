@@ -1013,11 +1013,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       submissionCount: { increment: number }
       acceptedCount?: { increment: number }
     } = {
-      submissionCount: { increment: 1 }
-    }
-
-    if (isAccepted) {
-      data.acceptedCount = { increment: 1 }
+      submissionCount: { increment: 1 },
+      ...(isAccepted && { acceptedCount: { increment: 1 } })
     }
 
     const problem = await this.prisma.problem.findFirstOrThrow({
