@@ -694,7 +694,24 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   }
 
   /**
-   * Assignment 제출 점수 계산 (분수 기반)
+   * 과제(Assignment) 제출에 따른 점수 및 진행 상황을 계산하여 업데이트합니다.
+   *
+   * 사용자가 과제 내의 문제를 제출했을 때 호출되며, 다음 두 가지 레코드를 갱신합니다:
+   * 1. `AssignmentProblemRecord`: 해당 문제에 대한 개별 점수 및 정답 여부
+   * 2. `AssignmentRecord`: 과제 전체에 대한 총점, 맞은 문제 수, 완료 시간
+   *
+   * 주요 로직:
+   * 1. 점수 환산: 제출된 문제의 점수(0~100)를 과제 배점 비중(`assignmentProblem.score`)에 맞춰 환산합니다 (`realSubmissionScore`).
+   * 2. 개별 기록 갱신: `AssignmentProblemRecord`를 업데이트하고, 이전 점수(`prevSubmissionScore`)를 저장합니다.
+   * 3. 점수 차이 계산 (Delta): 이번 점수와 이전 점수의 차이(`toBeAddedScore`)를 계산하여 과제 총점에 반영합니다.
+   * 4. 정답 수 변동 계산: 점수 변동과 별개로, 정답 상태의 변화(X -> O, O -> X)를 감지하여 맞은 문제 수(`acceptedProblemNum`)를 증감합니다.
+   * 5. 전체 기록 갱신: 계산된 증감분을 `AssignmentRecord`에 적용(`increment`)합니다.
+   *
+   * @param {Pick<Submission, 'id' | 'problemId' | 'assignmentId' | 'userId' | 'updateTime'>} submission
+   *   - 점수 계산에 필요한 제출 정보 객체
+   * @param {boolean} isAccepted
+   *   - 이번 제출이 정답(Accepted)인지 여부
+   * @returns {Promise<void>}
    */
   @Span()
   async calculateAssignmentSubmissionScore(
