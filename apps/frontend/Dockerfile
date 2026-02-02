@@ -6,7 +6,7 @@ ARG GQL_BASEURL="https://codedang.com/graphql"
 ARG RUNNER_BASEURL="wss://run.codedang.com/run"
 ARG ADMIN_REST_URL="https://stage.codedang.com/admin-api"
 
-FROM node:22.18.0-alpine AS base
+FROM node:22.22.0-alpine AS base
 
 ### BUILD ###
 FROM base AS build
