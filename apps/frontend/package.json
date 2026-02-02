@@ -23,8 +23,8 @@
     "@codemirror/lang-cpp": "^6.0.3",
     "@codemirror/lang-java": "^6.0.2",
     "@codemirror/lang-python": "^6.2.1",
-    "@codemirror/state": "^6.5.2",
-    "@codemirror/view": "^6.38.1",
+    "@codemirror/state": "^6.5.4",
+    "@codemirror/view": "^6.39.12",
     "@ducanh2912/next-pwa": "^10.2.9",
     "@fullcalendar/bootstrap5": "^6.1.19",
     "@fullcalendar/core": "^6.1.19",
@@ -133,7 +133,7 @@
     "zustand": "^5.0.7"
   },
   "devDependencies": {
-    "@codemirror/language": "^6.11.2",
+    "@codemirror/language": "^6.12.1",
     "@graphql-codegen/cli": "^5.0.7",
     "@graphql-codegen/client-preset": "^4.8.3",
     "@graphql-typed-document-node/core": "^3.2.0",
