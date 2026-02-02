@@ -98,7 +98,6 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
           emailDomain: domain,
           website: data.courseInfo?.website,
           office: data.courseInfo?.office,
-          phoneNum: data.courseInfo?.phoneNum,
           phoneNum1: p1,
           phoneNum2: p2,
           phoneNum3: p3,
