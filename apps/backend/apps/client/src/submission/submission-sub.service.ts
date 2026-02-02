@@ -409,6 +409,21 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     await this.prisma.problemTestcase.update(testcaseStats)
   }
 
+  /**
+   * 개별 테스트케이스 통계를 업데이트한 후, 제출 전체의 최종 결과(Result)를 산출하고 관련 기록을 갱신합니다.
+   *
+   * 1. 모든 테스트케이스가 채점 완료되었는지 확인(Judging 상태가 없는지)합니다.
+   * 2. 전체 결과를 집계하여 `Submission`의 최종 상태(`Accepted`, `WrongAnswer`, `ServerError` 등)를 결정합니다.
+   *    - 모든 테스트케이스가 `Accepted`라면 `Accepted`.
+   *    - 하나라도 실패했다면 가장 먼저 발생한 실패 원인을 따르거나 `ServerError`로 처리.
+   * 3. 결정된 최종 결과를 DB에 업데이트합니다.
+   * 4. `updateSubmissionScore`를 호출하여 점수를 계산 및 저장합니다.
+   * 5. `updateProblemAccepted`를 호출하여 문제의 통계(정답률 등)를 갱신합니다.
+   * 6. 대회(`contestId`) 제출이거나 과제(`assignmentId`) 제출인 경우, 각각의 전용 기록(`Record`) 업데이트 로직을 호출합니다.
+   *
+   * @param {number} submissionId 최종 결과를 산출할 제출 ID
+   * @returns {Promise<void>}
+   */
   @Span()
   async updateSubmissionResult(submissionId: number): Promise<void> {
     const submission = await this.prisma.submission.findUnique({
