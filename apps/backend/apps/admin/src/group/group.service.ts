@@ -16,6 +16,7 @@ import type {
   CreateCourseNoticeInput,
   UpdateCourseNoticeInput
 } from './model/course-notice.input'
+import type { UpdateCourseQnAInput } from './model/course-qna.input'
 import type { CourseInput } from './model/group.input'
 
 @Injectable()
@@ -770,5 +771,230 @@ export class WhitelistService {
         }
       })
     ).count
+  }
+}
+
+@Injectable()
+export class CourseService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getCourseQnAs(groupId: number, cursor: number | null, take: number) {
+    const paginator = this.prisma.getPaginator(cursor) // PrismaService의 헬퍼 사용
+
+    return await this.prisma.courseQnA.findMany({
+      ...paginator,
+      take,
+      where: { groupId },
+      include: { createdBy: { select: { username: true } } },
+      orderBy: { order: 'desc' }
+    })
+  }
+
+  async getCourseQnA(groupId: number, order: number) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: { groupId, order }
+      },
+      include: {
+        createdBy: { select: { username: true } },
+        comments: {
+          include: { createdBy: { select: { username: true } } },
+          orderBy: { order: 'asc' }
+        }
+      }
+    })
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+    return qna
+  }
+
+  async updateCourseQnA(groupId: number, input: UpdateCourseQnAInput) {
+    const { order, ...data } = input
+
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    return await this.prisma.courseQnA.update({
+      where: { id: qna.id },
+      data
+    })
+  }
+
+  async deleteCourseQnA(groupId: number, order: number) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    return await this.prisma.courseQnA.delete({ where: { id: qna.id } })
+  }
+
+  async createCourseQnAComment(
+    userId: number,
+    groupId: number,
+    order: number,
+    content: string
+  ) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true, readBy: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const maxOrder = await tx.courseQnAComment.aggregate({
+        where: { courseQnAId: qna.id },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _max: { order: true }
+      })
+      const newOrder = (maxOrder._max?.order ?? 0) + 1
+
+      const comment = await tx.courseQnAComment.create({
+        data: {
+          content,
+          courseQnAId: qna.id,
+          createdById: userId,
+          isCourseStaff: true,
+          order: newOrder
+        }
+      })
+
+      const isAlreadyRead = qna.readBy.includes(userId)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updateData: any = { isResolved: true }
+
+      if (!isAlreadyRead) {
+        updateData.readBy = { push: userId }
+      }
+
+      await tx.courseQnA.update({
+        where: { id: qna.id },
+        data: updateData
+      })
+      return comment
+    })
+  }
+
+  async updateCourseQnAComment(
+    groupId: number,
+    qnaOrder: number,
+    commentOrder: number,
+    content: string
+  ) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order: qnaOrder
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    // Comment ID 조회
+    const comment = await this.prisma.courseQnAComment.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        courseQnAId_order: { courseQnAId: qna.id, order: commentOrder }
+      },
+      select: { id: true }
+    })
+
+    if (!comment) {
+      throw new EntityNotExistException('CourseQnAComment')
+    }
+
+    return await this.prisma.courseQnAComment.update({
+      where: { id: comment.id },
+      data: { content }
+    })
+  }
+
+  async deleteCourseQnAComment(
+    groupId: number,
+    qnaOrder: number,
+    commentOrder: number
+  ) {
+    const qna = await this.prisma.courseQnA.findFirst({
+      where: {
+        groupId,
+        order: qnaOrder
+      },
+      select: {
+        id: true
+      }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+    const comment = await this.prisma.courseQnAComment.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        courseQnAId_order: { courseQnAId: qna.id, order: commentOrder }
+      }
+    })
+
+    if (!comment) {
+      throw new EntityNotExistException('CourseQnAComment')
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const deletedComment = await tx.courseQnAComment.delete({
+        where: { id: comment.id }
+      })
+
+      const lastComment = await tx.courseQnAComment.findFirst({
+        where: { courseQnAId: qna.id },
+        orderBy: { order: 'desc' },
+        select: { isCourseStaff: true }
+      })
+
+      const isResolved = lastComment ? lastComment.isCourseStaff : false
+      await tx.courseQnA.update({
+        where: { id: qna.id },
+        data: { isResolved }
+      })
+
+      return deletedComment
+    })
   }
 }

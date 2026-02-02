@@ -30,7 +30,7 @@ data "aws_route53_zone" "skkuding" {
 locals {
   stage_cluster_ip = [
     "115.145.160.238",
-    # TODO: Add server-2 IP
+    "115.145.160.239",
     "115.145.160.240"
   ]
   prod_cluster_ip = [

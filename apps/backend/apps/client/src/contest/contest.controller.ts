@@ -183,24 +183,27 @@ export class ContestController {
   }
 
   @Get(':id/statistics/problems')
+  @UserNullWhenAuthFailedIfPublic()
   async getContestProblems(@Param('id', IDValidationPipe) contestId: number) {
     return await this.contestService.getContestProblems(contestId)
   }
 
   @Get(':id/statistics/problem/:problemId')
+  @UserNullWhenAuthFailedIfPublic()
   async getStatisticsByProblem(
     @Req() req: AuthenticatedRequest,
     @Param('id', IDValidationPipe) contestId: number,
     @Param('problemId', IDValidationPipe) problemId: number
   ) {
     return await this.contestService.getStatisticsByProblem(
-      req.user.id,
+      req.user?.id,
       contestId,
       problemId
     )
   }
 
   @Get(':id/statistics/submissions')
+  @UserNullWhenAuthFailedIfPublic()
   async getAllSubmissionsByContest(
     @Param('id', IDValidationPipe) contestId: number
   ) {
