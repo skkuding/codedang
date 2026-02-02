@@ -812,11 +812,19 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     toBeAddedScore = realSubmissionScore.sub(prevSubmissionScore)
 
-    if (toBeAddedScore.greaterThan(0)) {
-      toBeAddedAcceptedProblemNum = isAccepted ? 1 : 0
-    } else if (toBeAddedScore.lessThan(0)) {
-      toBeAddedAcceptedProblemNum = assignmentProblemRecord?.isAccepted ? -1 : 0
+    const wasAcceptted = assignmentProblemRecord?.isAccepted
+
+    if (!wasAcceptted && isAccepted) {
+      // (X -> O)
+      toBeAddedAcceptedProblemNum = 1
+    } else if (wasAcceptted && !isAccepted) {
+      // (O -> X)
+      toBeAddedAcceptedProblemNum = -1
+    } else {
+      // (O -> O) 혹은 (X -> X)
+      toBeAddedAcceptedProblemNum = 0
     }
+
     await this.prisma.assignmentRecord.update({
       where: { id: assignmentRecord.id },
       data: {
