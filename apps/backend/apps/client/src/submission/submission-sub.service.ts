@@ -251,6 +251,18 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     return !testcase
   }
 
+  /**
+   * 채점 서버로부터 수신한 개별 테스트케이스의 채점 결과 메시지를 처리합니다.
+   *
+   * 1. 메시지의 상태 코드(`resultCode`)를 파싱하여 `ResultStatus`를 결정합니다.
+   * 2. 에러 상태(ServerError, CompileError)인 경우, `handleJudgeError`를 호출하여 예외 처리를 수행하고 종료합니다.
+   * 3. 정상 채점 결과인 경우, 메시지에서 실행 데이터(CPU 시간, 메모리, 출력 등)를 추출합니다.
+   * 4. `updateTestcaseJudgeResult`를 호출하여 DB에 결과를 반영하고 후속 작업(통계 갱신 등)을 호출합니다.
+   *
+   * @param {JudgerResponse} msg 채점 서버로부터 수신한 채점 결과 메시지 객체
+   * @returns {Promise<void>}
+   * @throws {UnprocessableDataException} 정상 결과(`judgeResult`)가 누락된 경우 예외 발생
+   */
   @Span()
   async handleJudgerMessage(msg: JudgerResponse): Promise<void> {
     const status = Status(msg.resultCode)
@@ -346,7 +358,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * @param {Partial<SubmissionResult> & Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>} submissionResult
    *   - 업데이트할 테스트케이스 결과 데이터 (필수: result, submissionId, problemTestcaseId)
    * @returns {Promise<void>}
-   */
+   *    */
   @Span()
   async updateTestcaseJudgeResult(
     submissionResult: Partial<SubmissionResult> &
