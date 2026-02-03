@@ -1843,18 +1843,7 @@ export class ContestService {
    * @returns {Promise<Array<{ userId: number; username: string; rank: number; solved: number; penalty: number }>>} 사용자별 통계 리스트
    */
   async getContestUsersStatistics(contestId: number) {
-    const contest = await this.prisma.contest.findUnique({
-      where: { id: contestId }
-    })
-
-    if (!contest) {
-      throw new EntityNotExistException('Contest')
-    }
-
-    const now = new Date()
-    if (contest.endTime > now) {
-      throw new ForbiddenAccessException('Contest has not ended')
-    }
+    await this.checkIsContestExistsAndEnded(contestId)
 
     const contestRecords = await this.prisma.contestRecord.findMany({
       where: { contestId },
