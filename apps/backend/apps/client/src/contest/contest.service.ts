@@ -1892,10 +1892,8 @@ export class ContestService {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
       select: {
-        id: true,
         startTime: true,
-        endTime: true,
-        penalty: true
+        endTime: true
       }
     })
 
