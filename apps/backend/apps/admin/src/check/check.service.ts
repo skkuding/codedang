@@ -66,7 +66,9 @@ export class CheckService {
    *
    * @param {number} assignmentId
    * @param {number} problemId
+   * @param {number} groupId
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - Assignment가 주어진 group에 존재하지 않을 때
    * - 주어진 아이디의 AssignmentProblem가 존재하지 않을 때
    * - AssignmentDueTime이 존재하지 않을 때
    * @throws {NotFoundException} 아래와 같은 경우 발생합니다.
@@ -75,15 +77,20 @@ export class CheckService {
   @Span()
   async validateAssignment({
     assignmentId,
-    problemId
+    problemId,
+    groupId
   }: {
     assignmentId: number
     problemId: number
+    groupId: number
   }) {
     const assignmentProblem = await this.prisma.assignmentProblem.findFirst({
       where: {
-        assignmentId,
-        problemId
+        problemId,
+        assignment: {
+          id: assignmentId,
+          groupId
+        }
       }
     })
     if (!assignmentProblem) {
@@ -120,50 +127,16 @@ export class CheckService {
     user,
     checkInput,
     assignmentId,
-    problemId
+    problemId,
+    groupId
   }: {
     user: AuthenticatedUser
     checkInput: CreatePlagiarismCheckInput
     assignmentId: number
     problemId: number
+    groupId: number
   }) {
-    await this.validateAssignment({ assignmentId, problemId })
-
-    const assignment = await this.prisma.assignment.findUnique({
-      where: {
-        id: assignmentId
-      },
-      select: {
-        groupId: true
-      }
-    })
-
-    if (!assignment) {
-      throw new EntityNotExistException('Assignment')
-    }
-
-    const group = await this.prisma.userGroup.findUnique({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        userId_groupId: {
-          userId: user.id,
-          groupId: assignment.groupId
-        }
-      },
-      select: {
-        isGroupLeader: true
-      }
-    })
-
-    if (!group) {
-      throw new EntityNotExistException('Assignment')
-    }
-
-    if (!group.isGroupLeader && !user.isAdmin() && !user.isSuperAdmin()) {
-      throw new ForbiddenException(
-        'only group leader or admin can request assignment plagiarism check'
-      )
-    }
+    await this.validateAssignment({ assignmentId, problemId, groupId })
 
     return await this.checkProblem({
       userId: user.id,
@@ -240,15 +213,20 @@ export class CheckService {
   @Span()
   async getCheckRequests({
     problemId,
-    assignmentId
+    assignmentId,
+    groupId
   }: {
     problemId: number
     assignmentId: number
+    groupId: number
   }) {
     return await this.prisma.checkRequest.findMany({
       where: {
-        assignmentId,
-        problemId
+        problemId,
+        assignment: {
+          id: assignmentId,
+          groupId
+        }
       },
       select: {
         id: true,
@@ -270,6 +248,7 @@ export class CheckService {
    * 완료된 표절 검사의 결과 일부를 요약하여 가져옵니다.
    *
    * @param {number} checkId 표절 검사 요청 아이디
+   * @param {number} groupId 표절 검사 요청이 속한 그룹 아이디
    * @param {number} take 조회할 제출물 쌍의 비교 결과 개수
    * @param {number | null} cursor 페이지 커서
    * @returns {GetCheckResultSummaryOutput[]} 여러 제출물 쌍의 비교 결과를 평균 유사도 기준으로 내림차순 정렬하여 반환합니다.
@@ -281,16 +260,21 @@ export class CheckService {
   @Span()
   async getCheckResultsById({
     checkId,
+    groupId,
     take,
     cursor
   }: {
     checkId: number
+    groupId: number
     take: number
     cursor: number | null
   }) {
     const request = await this.prisma.checkRequest.findUnique({
       where: {
-        id: checkId
+        id: checkId,
+        assignment: {
+          groupId
+        }
       },
       select: {
         result: true
@@ -360,15 +344,17 @@ export class CheckService {
   async getCheckResultsByAssignmentProblemId({
     problemId,
     assignmentId,
+    groupId,
     take,
     cursor
   }: {
     problemId: number
     assignmentId: number
+    groupId: number
     take: number
     cursor: number | null
   }) {
-    await this.validateAssignment({ assignmentId, problemId })
+    await this.validateAssignment({ assignmentId, problemId, groupId })
     const request = await this.prisma.checkRequest.findFirst({
       where: {
         problemId,
@@ -388,6 +374,7 @@ export class CheckService {
 
     return await this.getCheckResultsById({
       checkId: request.id,
+      groupId,
       take,
       cursor
     })

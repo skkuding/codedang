@@ -1,6 +1,10 @@
 import { Args, Context, Int, Mutation, Resolver, Query } from '@nestjs/graphql'
-import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
-import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import {
+  AuthenticatedRequest,
+  UseDisableAdminGuard,
+  UseGroupLeaderGuard
+} from '@libs/auth'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { CheckRequest } from '@admin/@generated'
 import { CheckService } from './check.service'
 import {
@@ -27,10 +31,12 @@ export class CheckResolver {
    * - useJplagClustering(옵션, 기본: true)
    * @param {number} problemId 검사를 수행할 문제 아이디
    * @param {number} assignmentId 검사를 수행할 과제 아이디
+   * @param {number} groupId 검사를 수행할 과제의 그룹
    * @returns {CheckRequest} 생성된 검사 요청 기록을 반환합니다.
    * - 요청 기록에 포함된 checkId로 검사 결과를 조회할 수 있습니다.
    */
   @Mutation(() => CheckRequest)
+  @UseGroupLeaderGuard()
   async checkAssignmentSubmissions(
     @Context('req') req: AuthenticatedRequest,
     @Args('input', {
@@ -38,14 +44,16 @@ export class CheckResolver {
       type: () => CreatePlagiarismCheckInput
     })
     checkInput: CreatePlagiarismCheckInput,
+    @Args('problemId', { type: () => Int }) problemId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
-    @Args('problemId', { type: () => Int }) problemId: number
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ): Promise<CheckRequest> {
     return await this.checkService.checkAssignmentProblem({
       user: req.user,
       checkInput,
       assignmentId,
-      problemId
+      problemId,
+      groupId
     })
   }
 
@@ -54,16 +62,20 @@ export class CheckResolver {
    *
    * @param {number} problemId 문제 아이디
    * @param {number} assignmentId 과제 아이디
+   * @param {number} groupId assignment의 그룹
    * @returns {CheckRequest[]} 제공된 문제/과제에 맞는 표절 검사 요청 목록
    */
   @Query(() => [CheckRequest])
+  @UseGroupLeaderGuard()
   async getCheckRequests(
     @Args('problemId', { type: () => Int }) problemId: number,
-    @Args('assignmentId', { type: () => Int }) assignmentId: number
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
     return await this.checkService.getCheckRequests({
       problemId,
-      assignmentId
+      assignmentId,
+      groupId
     })
   }
 
@@ -71,13 +83,16 @@ export class CheckResolver {
    * 완료된 표절 검사 요청의 결과를 조회합니다.
    *
    * @param {number} checkId 표절 검사 요청의 아이디
+   * @param {number}
    * @param {number} take 한 번에 조회할 검사 결과의 수
    * @param {number} cursor 페이지 커서
    * @returns {GetCheckResultSummaryOutput[]} 각 제출물 쌍의 비교 결과를 take 수 만큼 반환합니다.
    */
   @Query(() => [GetCheckResultSummaryOutput])
+  @UseGroupLeaderGuard()
   async overviewCheckByRequestId(
     @Args('checkId', { type: () => Int }) checkId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args(
       'take',
       { type: () => Int, defaultValue: 50 },
@@ -89,6 +104,7 @@ export class CheckResolver {
   ): Promise<GetCheckResultSummaryOutput[]> {
     return await this.checkService.getCheckResultsById({
       checkId,
+      groupId,
       take,
       cursor
     })
@@ -99,14 +115,17 @@ export class CheckResolver {
    *
    * @param {number} problemId 검사를 수행할 문제 아이디
    * @param {number} assignmentId 검사를 수행할 과제 아이디
+   * @param {number} groupId 검사를 수행할 과제의 그룹
    * @param {number} take 한 번에 조회할 검사 결과의 수
    * @param {number} cursor 페이지 커서
    * @returns {GetCheckResultSummaryOutput[]} 각 제출물 쌍의 비교 결과를 take 수 만큼 반환합니다.
    */
   @Query(() => [GetCheckResultSummaryOutput])
+  @UseGroupLeaderGuard()
   async overviewCheckByAssignmentProblemId(
     @Args('problemId', { type: () => Int }) problemId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args(
       'take',
       { type: () => Int, defaultValue: 50 },
@@ -119,6 +138,7 @@ export class CheckResolver {
     return await this.checkService.getCheckResultsByAssignmentProblemId({
       problemId,
       assignmentId,
+      groupId,
       take,
       cursor
     })

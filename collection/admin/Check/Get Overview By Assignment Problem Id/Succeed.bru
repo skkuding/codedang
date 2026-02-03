@@ -14,12 +14,14 @@ body:graphql {
   query OverviewCheckByAssignmentProblemId(
     $problemId: Int!,
     $assignmentId: Int!,
+    $groupId: Int!,
     $take: Int!,
     $cursor: Int
   ) {
     overviewCheckByAssignmentProblemId(
       problemId: $problemId,
       assignmentId: $assignmentId,
+      groupId: $groupId,
       take: $take,
       cursor: $cursor
     ) {
@@ -45,6 +47,7 @@ body:graphql:vars {
   {
     "problemId": 4,
     "assignmentId": 6,
+    "groupId": 1,
     "take": 10,
     "cursor": null
   }
@@ -52,29 +55,29 @@ body:graphql:vars {
 
 docs {
   # 📋 Get Overview By Assignment Problem ID
-
+  
   Gets a rough plagiarism check result by assignment and problem ID.
-
+  
   문제와 과제 아이디를 통해 가장 최근에 요청된 대략적인 표절 검사 결과를 불러옵니다.
-
+  
   이 API는 아래와 같은 조건에 부합하는 경우 접근할 수 있습니다.
-
+  
   - 해당 과제의 담당 교수 / 운영진인 경우
   - 표절 검사가 완료된 경우
-
+  
   요청된 표절 검사가 없는 경우 혹은 해당 요청이 완료되지 않은 경우 예외를 발생시킵니다.
-
+  
   ### 📥 Request Parameters
-
+  
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `assignmentId` | number | ✅ | 요청에 사용했던 과제의 아이디 |
   | `problemId` | number | ✅ | 요청에 사용했던 문제의 아이디 |
   | `take` | number | ✅ | 가져올 제출물의 비교 결과 수 |
   | `cursor` | number | ❌ | 커서 |
-
+  
   ### 📥 Response Parameters
-
+  
   | Name | Type   | Description |
   |------|--------|-------------|
   | `id` | number | 결과 아이디 |
