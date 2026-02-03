@@ -311,27 +311,17 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     status: ResultStatus,
     msg: JudgerResponse
   ): Promise<void> {
-    const submission = await this.prisma.submission.findUnique({
+    const { count } = await this.prisma.submission.updateMany({
       where: {
         id: msg.submissionId,
         result: ResultStatus.Judging
-      },
-      select: {
-        id: true
-      }
-    })
-
-    // 이미 처리한 채점 예외에 대해서는 중복으로 처리하지 않음
-    if (!submission) return
-
-    await this.prisma.submission.update({
-      where: {
-        id: msg.submissionId
       },
       data: {
         result: status
       }
     })
+
+    if (!count) return
 
     await this.prisma.submissionResult.updateMany({
       where: {
