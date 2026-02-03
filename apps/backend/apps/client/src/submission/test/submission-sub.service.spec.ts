@@ -90,7 +90,7 @@ const db = {
   },
   contestProblemRecord: {
     upsert: mockFunc,
-    findMany: mockFunc
+    aggregate: mockFunc
   },
   assignmentRecord: {
     findUniqueOrThrow: mockFunc,
@@ -722,9 +722,24 @@ describe('SubmissionSubscriptionService', () => {
       const contestRecordFindUniqueSpy = sandbox
         .stub(db.contestRecord, 'findUniqueOrThrow')
         .resolves(contestRecordsMock[0])
-      const problemRecordFindManySpy = sandbox
-        .stub(db.contestProblemRecord, 'findMany')
-        .resolves([])
+      const aggregateSpy = sandbox
+        .stub(db.contestProblemRecord, 'aggregate')
+        .resolves({
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _sum: {
+            score: 100,
+            submitCountPenalty: 10,
+            timePenalty: 100,
+            finalScore: 100,
+            finalTimePenalty: 100,
+            finalSubmitCountPenalty: 10
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _max: {
+            timePenalty: 100,
+            finalTimePenalty: 100
+          }
+        })
       const upsertProblemRecordSpy = sandbox
         .stub(db.contestProblemRecord, 'upsert')
         .resolves()
@@ -801,17 +816,21 @@ describe('SubmissionSubscriptionService', () => {
       expect(upsertProblemRecordSpy.calledOnce).to.be.true
 
       expect(
-        problemRecordFindManySpy.calledOnceWith({
-          where: {
-            contestRecordId: contestRecordsMock[0].id
-          },
-          select: {
+        aggregateSpy.calledOnceWith({
+          where: { contestRecordId: contestRecordsMock[0].id },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _sum: {
             score: true,
-            timePenalty: true,
             submitCountPenalty: true,
+            timePenalty: true,
             finalScore: true,
             finalTimePenalty: true,
             finalSubmitCountPenalty: true
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _max: {
+            timePenalty: true,
+            finalTimePenalty: true
           }
         })
       ).to.be.true
