@@ -648,60 +648,33 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       })
 
-      const contestProblemRecords = await prisma.contestProblemRecord.findMany({
+      const stats = await prisma.contestProblemRecord.aggregate({
         where: { contestRecordId },
-        select: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _sum: {
           score: true,
-          timePenalty: true,
           submitCountPenalty: true,
+          timePenalty: true,
           finalScore: true,
           finalTimePenalty: true,
           finalSubmitCountPenalty: true
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _max: {
+          timePenalty: true,
+          finalTimePenalty: true
         }
       })
 
-      const initialStats = {
-        scoreSum: 0,
-        submitCountPenaltySum: 0,
-        timePenaltySum: 0,
-        maxTimePenalty: 0,
-        finalScoreSum: 0,
-        finalSubmitCountPenaltySum: 0,
-        finalTimePenaltySum: 0,
-        finalMaxTimePenalty: 0
-      }
+      const scoreSum = stats._sum.score ?? 0
+      const submitCountPenaltySum = stats._sum.submitCountPenalty ?? 0
+      const timePenaltySum = stats._sum.timePenalty ?? 0
+      const maxTimePenalty = stats._max.timePenalty ?? 0
 
-      const contestStats = { ...initialStats }
-
-      contestProblemRecords.forEach((record) => {
-        contestStats.scoreSum += record.score
-        contestStats.submitCountPenaltySum += record.submitCountPenalty
-        contestStats.timePenaltySum += record.timePenalty
-        contestStats.maxTimePenalty = Math.max(
-          contestStats.maxTimePenalty,
-          record.timePenalty
-        )
-
-        contestStats.finalScoreSum += record.finalScore
-        contestStats.finalSubmitCountPenaltySum +=
-          record.finalSubmitCountPenalty
-        contestStats.finalTimePenaltySum += record.finalTimePenalty
-        contestStats.finalMaxTimePenalty = Math.max(
-          contestStats.finalMaxTimePenalty,
-          record.finalTimePenalty
-        )
-      })
-
-      const {
-        scoreSum,
-        submitCountPenaltySum,
-        timePenaltySum,
-        maxTimePenalty,
-        finalScoreSum,
-        finalSubmitCountPenaltySum,
-        finalTimePenaltySum,
-        finalMaxTimePenalty
-      } = contestStats
+      const finalScoreSum = stats._sum.finalScore ?? 0
+      const finalSubmitCountPenaltySum = stats._sum.finalSubmitCountPenalty ?? 0
+      const finalTimePenaltySum = stats._sum.finalTimePenalty ?? 0
+      const finalMaxTimePenalty = stats._max.finalTimePenalty ?? 0
 
       const calculatePenalty = (
         lastPenalty: boolean,
