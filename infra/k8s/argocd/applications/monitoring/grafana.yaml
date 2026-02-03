@@ -1,5 +1,5 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: grafana
   namespace: argocd
@@ -41,9 +41,6 @@ spec:
         - repoURL: https://github.com/skkuding/codedang
           targetRevision: '{{.branch}}'
           path: 'infra/k8s/monitoring/grafana/overlays/{{.env}}'
-          directory:
-            # kustomization.yaml is ignored if recurse is true
-            recurse: false
       destination:
         name: '{{.env}}'
         namespace: monitoring-grafana

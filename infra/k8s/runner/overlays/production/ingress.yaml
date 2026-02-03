@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: runner-ingress
+  namespace: runner
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - run.codedang.com
+      secretName: runner-tls
+  rules:
+    - host: run.codedang.com
+      http:
+        paths:
+          - path: /run
+            pathType: Exact
+            backend:
+              service:
+                name: pod-manager
+                port:
+                  number: 80
