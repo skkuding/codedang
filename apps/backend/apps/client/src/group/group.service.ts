@@ -1378,14 +1378,17 @@ export class CourseService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * @description Course Q&A를 생성합니다.
-   * @param userId 작성자 ID
-   * @param courseId Course의 group ID
-   * @param data Q&A 생성에 필요한 데이터
-   * @param problemId 연결할 문제 ID (선택 사항)
-   * @returns 생성된 CourseQnA
-   * @throws {EntityNotExistException} Course 또는 Problem이 존재하지 않을 때
-   * @throws {ForbiddenAccessException} Course의 멤버가 아닐 때
+   * 강좌 내 Q&A 게시글을 생성합니다.
+   *
+   * @param userId - 작성자 ID
+   * @param courseId - 강좌 ID
+   * @param data - 게시글 제목, 내용 등 생성 데이터
+   * @param problemId - (선택) 질문과 연관된 문제 ID
+   * @returns 생성된 Q&A 정보 (연관된 과제 정보 포함)
+   *
+   * @remarks
+   * - `isExercise` 필드를 포함하여 과제 유형을 반환합니다.
+   * - 문제가 여러 과제에 포함된 경우, 가장 최근 과제(assignmentId desc) 정보를 기준으로 매핑합니다.
    */
   async createCourseQnA(
     userId: number,
@@ -1493,12 +1496,16 @@ export class CourseService {
   }
 
   /**
-   * @description Course Q&A 목록을 필터링하여 조회합니다.
-   * @param userId 현재 요청을 보낸 사용자 ID
-   * @param courseId Course의 group ID
-   * @param filter 필터링 조건
-   * @returns 필터링된 CourseQnA 목록 (isRead 필드 포함)
-   * @throws {EntityNotExistException} Course가 존재하지 않을 때
+   * 강좌의 Q&A 목록을 조회합니다.
+   *
+   * @param userId - 조회하는 사용자 ID (읽음 여부 확인용)
+   * @param courseId - 강좌 ID
+   * @param filter - 검색어, 카테고리, 답변 여부 등 필터 옵션
+   * @returns Q&A 목록 (연관된 과제 정보 및 읽음 여부 포함)
+   *
+   * @remarks
+   * - 목록은 `order: asc` (오래된 순)으로 정렬됩니다.
+   * - `isExercise` 필드를 통해 실습/과제 여부를 확인할 수 있습니다.
    */
   async getCourseQnAs(
     userId: number | null,
@@ -1619,13 +1626,19 @@ export class CourseService {
   }
 
   /**
-   * @description 특정 Course Q&A를 상세 조회합니다.
-   * @param userId 현재 요청을 보낸 사용자 ID
-   * @param courseId Course의 group ID
-   * @param order 조회할 Q&A의 order 번호
-   * @returns Q&A 상세 정보 (댓글 포함)
-   * @throws {EntityNotExistException} Course 또는 QnA가 존재하지 않을 때
-   * @throws {ForbiddenAccessException} 비밀글에 접근 권한이 없을 때
+   * 특정 Q&A 게시글의 상세 정보를 조회합니다.
+   *
+   * @param userId - 조회하는 사용자 ID
+   * @param courseId - 강좌 ID
+   * @param order - 게시글 순서 번호
+   * @returns Q&A 상세 정보 (댓글, 연관 과제 정보 포함)
+   *
+   * @throws EntityNotExistException - 게시글이 존재하지 않는 경우
+   * @throws ForbiddenAccessException - 비공개 게시글에 대한 접근 권한이 없는 경우
+   *
+   * @remarks
+   * - 조회 시 해당 사용자의 `readBy` 기록이 업데이트됩니다.
+   * - `assignmentId`, `assignmentTitle`, `isExercise` 정보를 포함합니다.
    */
   async getCourseQnA(userId: number | null, courseId: number, order: number) {
     const groupId = courseId

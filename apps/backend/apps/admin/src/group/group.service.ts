@@ -90,6 +90,16 @@ export class GroupService {
     }
   }
 
+  /**
+   * 강좌(Course) 목록을 조회합니다.
+   *
+   * @param cursor - 페이지네이션 커서 (이전 페이지의 마지막 ID)
+   * @param take - 가져올 항목의 개수
+   * @returns 강좌 목록과 각 강좌의 멤버 수(memberNum)
+   *
+   * @remarks
+   * 성능 최적화를 위해 `userGroup` 전체 관계를 로드하는 대신 `_count`를 사용하여 멤버 수를 조회합니다.
+   */
   async getCourses(cursor: number | null, take: number) {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -255,6 +265,21 @@ export class GroupService {
     })
   }
 
+  /**
+   * 기존 강좌를 복제하여 새로운 강좌를 생성합니다.
+   *
+   * @param groupId - 복제할 원본 강좌의 ID
+   * @param userId - 복제를 요청한 관리자(User)의 ID
+   * @returns 복제된 강좌 정보, 원본 과제 ID 목록, 복제된 과제 ID 목록
+   *
+   * @throws EntityNotExistException - 사용자가 존재하지 않는 경우
+   * @throws ForbiddenAccessException - 강좌 생성 권한이 없는 경우
+   * @throws UnprocessableDataException - 원본 강좌의 CourseInfo가 유효하지 않은 경우
+   *
+   * @remarks
+   * - `include`로 모든 연관 데이터를 가져온 후, 불필요한 필드(id, createTime 등)를 제외하고 복사합니다.
+   * - 과제(Assignment)와 문제(AssignmentProblem)도 함께 복제됩니다.
+   */
   async duplicateCourse(groupId: number, userId: number) {
     const userWithCanCreateCourse = await this.prisma.user.findUnique({
       where: { id: userId },
