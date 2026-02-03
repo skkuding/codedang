@@ -831,17 +831,7 @@ describe('SubmissionSubscriptionService', () => {
       // when
       await service.updateContestRecord(contestSubmission, false)
 
-      expect(
-        submissionCountSpy.calledOnceWith({
-          where: {
-            contestId: contestSubmission.contestId,
-            problemId: contestSubmission.problemId,
-            userId: contestSubmission.userId,
-            result: ResultStatus.Accepted,
-            id: { not: contestSubmission.id }
-          }
-        })
-      ).to.be.true
+      expect(submissionCountSpy.notCalled).to.be.true
       expect(upsertProblemRecordSpy.notCalled).to.be.true
       expect(updateRecordSpy.notCalled).to.be.true
     })
