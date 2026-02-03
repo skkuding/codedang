@@ -26,6 +26,17 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
+  /**
+   * 새로운 강좌(Course)를 생성합니다.
+   *
+   * @param input - 강좌 생성 정보 (제목, 설명, 학기, 설정 등)
+   * @param user - 요청한 사용자 (생성 권한이 필요함)
+   * @returns 생성된 강좌 객체 (Partial)
+   *
+   * @throws EntityNotExistException - 사용자가 존재하지 않는 경우
+   * @throws ForbiddenAccessException - 사용자가 강좌 생성 권한(canCreateCourse)을 가지고 있지 않은 경우
+   * @throws UnprocessableDataException - 강좌 생성 중 DB 에러 발생 시
+   */
   async createCourse(
     input: CourseInput,
     user: AuthenticatedUser
@@ -127,6 +138,16 @@ export class GroupService {
     }))
   }
 
+  /**
+   * 사용자가 리더(Leader)로 속해 있는 그룹 목록을 조회합니다.
+   *
+   * @param userId - 사용자 ID
+   * @param groupType - 조회할 그룹 타입 (예: GroupType.Course)
+   * @returns 그룹 목록과 각 그룹의 멤버 수(memberNum)
+   *
+   * @remarks
+   * `getCourses`와 마찬가지로 `_count`를 사용하여 멤버 수를 효율적으로 조회합니다.
+   */
   async getGroupsUserLead(userId: number, groupType: GroupType) {
     return (
       await this.prisma.userGroup.findMany({
@@ -159,6 +180,18 @@ export class GroupService {
     })
   }
 
+  /**
+   * 특정 강좌의 상세 정보를 조회합니다.
+   *
+   * @param id - 조회할 강좌 ID
+   * @returns 강좌 상세 정보, 멤버 수, 초대 코드(존재 시)
+   *
+   * @throws EntityNotExistException - 강좌가 존재하지 않는 경우
+   *
+   * @remarks
+   * - Redis 캐시를 확인하여 유효한 초대 코드(invitation)가 있다면 함께 반환합니다.
+   * - `include` 대신 `_count`를 사용하여 멤버 수를 조회합니다.
+   */
   async getCourse(id: number) {
     const group = await this.prisma.group.findUnique({
       where: { id, groupType: GroupType.Course },
@@ -194,6 +227,18 @@ export class GroupService {
     return group
   }
 
+  /**
+   * 강좌 정보를 수정합니다.
+   *
+   * @param id - 수정할 강좌 ID
+   * @param input - 변경할 강좌 정보 (설정, CourseInfo 포함)
+   * @returns 수정된 강좌 객체
+   *
+   * @throws UnprocessableDataException - 업데이트 중 DB 에러 발생 시
+   *
+   * @remarks
+   * `showOnList` 설정이 false일 경우 `allowJoinFromSearch`도 강제로 false로 설정됩니다.
+   */
   async updateCourse(id: number, input: CourseInput) {
     if (!input.config.showOnList) {
       input.config.allowJoinFromSearch = false
@@ -234,6 +279,19 @@ export class GroupService {
     }
   }
 
+  /**
+   * 그룹(또는 강좌)을 삭제합니다.
+   *
+   * @param id - 삭제할 그룹 ID
+   * @param groupType - 그룹 타입 (Course인 경우 연관된 CourseInfo도 함께 삭제 처리됨)
+   * @param user - 요청한 사용자
+   * @returns 삭제된 그룹 객체
+   *
+   * @throws ForbiddenAccessException - 요청한 사용자가 그룹 리더가 아닌 경우
+   *
+   * @remarks
+   * 그룹의 리더(Group Leader)만이 삭제 권한을 가집니다.
+   */
   async deleteGroup(id: number, groupType: GroupType, user: AuthenticatedUser) {
     const userGroup = await this.prisma.userGroup.findUnique({
       where: {

@@ -42,6 +42,20 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
+  /**
+   * 그룹(강좌)의 정보를 조회합니다.
+   *
+   * @param groupId - 조회할 그룹 ID
+   * @param userId - 요청한 사용자 ID
+   * @param invited - 초대 코드를 통한 접근 여부 (기본값: false)
+   * @returns 그룹 정보와 사용자의 가입 여부(isJoined), 리더 여부(isGroupLeader)
+   *
+   * @throws EntityNotExistException - 그룹이 존재하지 않거나 접근 권한(설정)이 없는 경우
+   *
+   * @remarks
+   * - 이미 가입한 사용자라면 그룹 정보를 바로 반환합니다.
+   * - 가입하지 않은 사용자의 경우, `invited`가 true면 `allowJoinWithURL` 설정을, false면 `showOnList` 설정을 확인합니다.
+   */
   async getCourse(groupId: number, userId: number, invited = false) {
     const isJoined = await this.prisma.userGroup.findUnique({
       where: {
@@ -114,6 +128,18 @@ export class GroupService {
     }
   }
 
+  /**
+   * 초대 코드를 사용하여 그룹 정보를 조회합니다.
+   *
+   * @param code - 초대 코드
+   * @param userId - 요청한 사용자 ID
+   * @returns 그룹 정보 (가입 여부 포함)
+   *
+   * @throws EntityNotExistException - 초대 코드가 유효하지 않거나 만료된 경우
+   *
+   * @remarks
+   * Redis 캐시에서 초대 코드를 검증한 후 `getCourse`를 호출합니다.
+   */
   async getGroupByInvitation(code: string, userId: number) {
     const groupId = await this.cacheManager.get<number>(invitationCodeKey(code))
     if (!groupId) {
@@ -122,6 +148,12 @@ export class GroupService {
     return this.getCourse(groupId, userId, true)
   }
 
+  /**
+   * 그룹의 리더(Leader) 목록을 조회합니다.
+   *
+   * @param groupId - 그룹 ID
+   * @returns 리더들의 사용자명(username) 배열
+   */
   async getGroupLeaders(groupId: number): Promise<string[]> {
     const leaders = (
       await this.prisma.userGroup.findMany({
@@ -142,6 +174,12 @@ export class GroupService {
     return leaders
   }
 
+  /**
+   * 그룹의 멤버(Member) 목록을 조회합니다. (리더 제외)
+   *
+   * @param groupId - 그룹 ID
+   * @returns 멤버들의 사용자명(username) 배열
+   */
   async getGroupMembers(groupId: number): Promise<string[]> {
     const members = (
       await this.prisma.userGroup.findMany({
@@ -162,6 +200,17 @@ export class GroupService {
     return members
   }
 
+  /**
+   * 공개된 그룹 목록을 조회합니다.
+   *
+   * @param cursor - 페이지네이션 커서
+   * @param take - 가져올 개수
+   * @returns 그룹 목록과 전체 개수(total)
+   *
+   * @remarks
+   * - `showOnList` 설정이 true인 그룹만 조회됩니다.
+   * - 시스템 그룹(ID: 1)은 제외됩니다.
+   */
   async getGroups(cursor: number | null, take: number) {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -212,6 +261,16 @@ export class GroupService {
     return { data: groups, total }
   }
 
+  /**
+   * 사용자가 가입한 그룹 목록을 조회합니다.
+   *
+   * @param userId - 사용자 ID
+   * @param groupType - 조회할 그룹 타입 (Course / Study 등)
+   * @returns 가입한 그룹 목록 (가입일시 내림차순 정렬)
+   *
+   * @remarks
+   * 그룹 타입에 따라 필요한 정보(CourseInfo 등)를 선별하여 반환합니다.
+   */
   async getJoinedGroups(userId: number, groupType: GroupType) {
     return (
       await this.prisma.userGroup.findMany({
@@ -251,6 +310,22 @@ export class GroupService {
       })
   }
 
+  /**
+   * 그룹에 가입하거나 가입 요청을 보냅니다.
+   *
+   * @param userId - 사용자 ID
+   * @param groupId - 가입할 그룹 ID
+   * @param invitation - (선택) 초대 코드
+   * @returns 가입 결과 (바로 가입되었는지 `isJoined: true`, 요청 상태인지 `isJoined: false`)
+   *
+   * @throws ForbiddenAccessException - 초대 코드가 유효하지 않거나, 화이트리스트에 없는 경우
+   * @throws ConflictFoundException - 이미 가입했거나, 이미 가입 요청을 보낸 경우
+   * @throws EntityNotExistException - 그룹이 존재하지 않는 경우
+   *
+   * @remarks
+   * - `requireApprovalBeforeJoin` 설정이 켜져 있다면 가입 요청(Join Request)을 생성합니다.
+   * - 화이트리스트가 설정된 그룹인 경우, 사용자의 학번(StudentId)을 검증합니다.
+   */
   async joinGroupById(
     userId: number,
     groupId: number,
@@ -366,6 +441,19 @@ export class GroupService {
     }
   }
 
+  /**
+   * 그룹에서 탈퇴합니다.
+   *
+   * @param userId - 사용자 ID
+   * @param groupId - 탈퇴할 그룹 ID
+   * @returns 삭제된 UserGroup 레코드
+   *
+   * @throws ConflictFoundException - 남은 리더가 없어 탈퇴할 수 없는 경우
+   *
+   * @remarks
+   * - 리더가 한 명뿐인 경우 탈퇴할 수 없습니다.
+   * - `GroupType.Course`인 경우, 탈퇴 시 해당 그룹의 과제 기록(AssignmentRecord)도 함께 삭제됩니다.
+   */
   async leaveGroup(userId: number, groupId: number): Promise<UserGroup> {
     const groupLeaders = await this.prisma.userGroup.findMany({
       where: {
@@ -416,6 +504,16 @@ export class GroupService {
     })
   }
 
+  /**
+   * 사용자-그룹 관계(UserGroup)를 생성하여 실제 가입 처리를 수행합니다.
+   *
+   * @param userGroupData - 사용자 ID, 그룹 ID, 리더 여부 정보
+   * @returns 생성된 UserGroup 객체
+   *
+   * @remarks
+   * - SuperAdmin 또는 Admin 권한 사용자는 자동으로 리더로 가입됩니다.
+   * - `GroupType.Course`인 경우, 가입 시 기존 과제들에 대한 빈 기록(AssignmentRecord)을 초기화합니다.
+   */
   async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: {
