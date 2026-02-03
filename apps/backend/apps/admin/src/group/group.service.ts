@@ -111,17 +111,10 @@ export class GroupService {
       }
     })
 
-    return groups.map((group) => {
-      const { _count, userGroup, ...rest } = group as unknown as {
-        _count?: { userGroup: number }
-        userGroup?: unknown[]
-      } & typeof group
-
-      return {
-        ...rest,
-        memberNum: _count?.userGroup ?? userGroup?.length ?? 0
-      }
-    })
+    return groups.map(({ _count, ...rest }) => ({
+      ...rest,
+      memberNum: _count.userGroup
+    }))
   }
 
   async getGroupsUserLead(userId: number, groupType: GroupType) {
@@ -147,13 +140,13 @@ export class GroupService {
           }
         }
       })
-    ).map(({ group }) => ({
-      ...group,
-      memberNum:
-        group._count?.userGroup ??
-        (group as unknown as { userGroup: unknown[] }).userGroup?.length ??
-        0
-    }))
+    ).map(({ group }) => {
+      const { _count, ...rest } = group
+      return {
+        ...rest,
+        memberNum: _count.userGroup
+      }
+    })
   }
 
   async getCourse(id: number) {
