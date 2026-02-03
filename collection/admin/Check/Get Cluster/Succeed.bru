@@ -12,10 +12,12 @@ post {
 
 body:graphql {
   query GetCluster(
-    $clusterId: Int!
+    $clusterId: Int!,
+    $groupId: Int!
   ) {
     getCluster(
-      clusterId: $clusterId
+      clusterId: $clusterId,
+      groupId: $groupId
     ) {
       id
       averageSimilarity
@@ -29,7 +31,8 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "clusterId": 5
+    "clusterId": 5,
+    "groupId": 1
   }
 }
 
@@ -53,6 +56,7 @@ docs {
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `clusterId` | number | ✅ | 조회할 클러스터 아이디 |
+  | `groupId` | number | ✅ | 조회할 클러스터의 그룹 아이디 |
   
   
   ### 📥 Response Parameters

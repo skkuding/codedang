@@ -3057,8 +3057,8 @@ type Query {
   getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
   getCheckRequests(assignmentId: Int!, groupId: Int!, problemId: Int!): [CheckRequest!]!
-  getCheckResultDetails(resultId: Int!): GetCheckResultDetailOutput!
-  getCluster(clusterId: Int!): GetClusterOutput!
+  getCheckResultDetails(groupId: Int!, resultId: Int!): GetCheckResultDetailOutput!
+  getCluster(clusterId: Int!, groupId: Int!): GetClusterOutput!
   getContest(contestId: Int!): ContestWithParticipants!
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestParticipants(contestId: Int!): [ContestParticipant!]!

@@ -389,10 +389,25 @@ export class CheckService {
    * - 주어진 아이디를 가진 클러스터가 없을 때
    */
   @Span()
-  async getCluster({ clusterId }: { clusterId: number }) {
+  async getCluster({
+    groupId,
+    clusterId
+  }: {
+    groupId: number
+    clusterId: number
+  }) {
     const cluster = await this.prisma.plagiarismCluster.findUnique({
       where: {
-        id: clusterId
+        id: clusterId,
+        SubmissionCluster: {
+          every: {
+            submission: {
+              assignment: {
+                groupId
+              }
+            }
+          }
+        }
       },
       include: {
         SubmissionCluster: true
@@ -418,10 +433,21 @@ export class CheckService {
    * - 주어진 아이디를 가진 결과가 존재하지 않을 때
    */
   @Span()
-  async getDetails({ resultId }: { resultId: number }) {
+  async getDetails({
+    groupId,
+    resultId
+  }: {
+    groupId: number
+    resultId: number
+  }) {
     const result = await this.prisma.checkResult.findUnique({
       where: {
-        id: resultId
+        id: resultId,
+        request: {
+          assignment: {
+            groupId
+          }
+        }
       },
       select: {
         requestId: true,

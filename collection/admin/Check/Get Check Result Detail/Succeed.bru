@@ -12,10 +12,12 @@ post {
 
 body:graphql {
   query GetCheckResultDetails(
-    $resultId: Int!
+    $resultId: Int!,
+    $groupId: Int!
   ) {
     getCheckResultDetails(
-      resultId: $resultId
+      resultId: $resultId,
+      groupId: $groupId
     ) {
       requestId
       firstCheckSubmissionId
@@ -53,7 +55,8 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "resultId": 54
+    "resultId": 1,
+    "groupId": 1
   }
 }
 
@@ -77,6 +80,7 @@ docs {
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `resultId` | number | ✅ | 조회할 검사 결과 아이디 |
+  | `groupId` | number | ✅ | 조회할 검사 결과의 그룹 아이디 |
   
   
   ### 📥 Response Parameters
