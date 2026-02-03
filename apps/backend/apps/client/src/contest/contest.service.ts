@@ -1896,7 +1896,7 @@ export class ContestService {
         endTime: true
       }
     })
-
+    // TODO: replace to checkIsContestExistsAndEnded with returning contest for bypass null-check
     if (!contest) {
       throw new EntityNotExistException('Contest')
     }
