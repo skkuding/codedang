@@ -516,7 +516,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   /**
    * 업데이트된 제출 결과를 반영하여 대회 참가자의 점수 및 패널티를 갱신하는 함수
    *
-   * @param {Pick<Submission, 'problemId' | 'contestId' | 'userId' | 'createTime' | 'updateTime'>} submission
+   * @param {Pick<Submission, 'id' | 'problemId' | 'contestId' | 'userId' | 'createTime' | 'updateTime'>} submission
    *   - 제출 정보 객체 (문제 ID, 대회 ID, 사용자 ID, 제출 생성 및 수정 시간 포함)
    * @param {boolean} isAccepted
    *   - 제출 결과가 `Accepted`인지 여부
@@ -544,18 +544,24 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   async updateContestRecord(
     submission: Pick<
       Submission,
-      'problemId' | 'contestId' | 'userId' | 'createTime' | 'updateTime'
+      'id' | 'problemId' | 'contestId' | 'userId' | 'createTime' | 'updateTime'
     >,
     isAccepted: boolean
   ): Promise<void> {
-    const { contestId, problemId, userId, updateTime } = submission
+    const {
+      id: submissionId,
+      contestId,
+      problemId,
+      userId,
+      updateTime
+    } = submission
 
     if (!contestId || !userId)
       throw new UnprocessableDataException(
         `Contest record update failed - missing required fields: contestId=${contestId}, userId=${userId}`
       )
 
-    const [contest, contestProblem, contestRecord, submissions] =
+    const [contest, contestProblem, contestRecord, previousSubmissions] =
       await Promise.all([
         this.prisma.contest.findUniqueOrThrow({
           where: { id: contestId },
@@ -577,14 +583,18 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           where: { contestId_userId: { contestId, userId } },
           select: { id: true }
         }),
-        this.prisma.submission.findMany({
-          where: { contestId, problemId, result: ResultStatus.Accepted },
-          select: { id: true, userId: true, createTime: true }
+        this.prisma.submission.count({
+          where: {
+            contestId,
+            problemId,
+            userId,
+            result: ResultStatus.Accepted,
+            id: { not: submissionId }
+          }
         })
       ])
 
-    const isNewAccept =
-      submissions.filter((sub) => sub.userId === userId).length === 1
+    const isNewAccept = previousSubmissions === 0
     if (!isNewAccept || !isAccepted) return
 
     const { startTime, penalty, lastPenalty, freezeTime } = contest
