@@ -70,6 +70,7 @@ const db = {
     findUnique: mockFunc,
     findUniqueOrThrow: mockFunc,
     update: mockFunc,
+    updateMany: mockFunc,
     findFirst: mockFunc,
     count: mockFunc
   },
@@ -381,13 +382,13 @@ describe('SubmissionSubscriptionService', () => {
 
   describe('handleJudgeError', () => {
     it('should handle ServerError', async () => {
-      const findSpy = sandbox
-        .stub(db.submission, 'findUnique')
-        .resolves(submissions[0])
-      const updateSpy = sandbox.stub(db.submission, 'update').resolves()
-      const updateManySpy = sandbox
+      const updateManySubmissionSpy = sandbox
+        .stub(db.submission, 'updateMany')
+        .resolves({ count: 1 })
+      const updateManyResultSpy = sandbox
         .stub(db.submissionResult, 'updateMany')
         .resolves()
+
       const serverErrMsg = {
         resultCode: 8,
         submissionId: 1,
@@ -400,20 +401,10 @@ describe('SubmissionSubscriptionService', () => {
       ).to.be.rejectedWith(UnprocessableDataException)
 
       expect(
-        findSpy.calledOnceWith({
+        updateManySubmissionSpy.calledOnceWith({
           where: {
             id: serverErrMsg.submissionId,
             result: ResultStatus.Judging
-          },
-          select: {
-            id: true
-          }
-        })
-      ).to.be.true
-      expect(
-        updateSpy.calledOnceWith({
-          where: {
-            id: serverErrMsg.submissionId
           },
           data: {
             result: ResultStatus.ServerError
@@ -421,7 +412,7 @@ describe('SubmissionSubscriptionService', () => {
         })
       ).to.be.true
       expect(
-        updateManySpy.calledOnceWith({
+        updateManyResultSpy.calledOnceWith({
           where: {
             submissionId: serverErrMsg.submissionId
           },
@@ -433,11 +424,10 @@ describe('SubmissionSubscriptionService', () => {
     })
 
     it('should handle CompileError', async () => {
-      const findSpy = sandbox
-        .stub(db.submission, 'findUnique')
-        .resolves(submissions[0])
-      const updateSpy = sandbox.stub(db.submission, 'update').resolves()
-      const updateManySpy = sandbox
+      const updateManySubmissionSpy = sandbox
+        .stub(db.submission, 'updateMany')
+        .resolves({ count: 1 })
+      const updateManyResultSpy = sandbox
         .stub(db.submissionResult, 'updateMany')
         .resolves()
       const serverErrMsg = {
@@ -450,20 +440,10 @@ describe('SubmissionSubscriptionService', () => {
       await service.handleJudgeError(ResultStatus.CompileError, serverErrMsg)
 
       expect(
-        findSpy.calledOnceWith({
+        updateManySubmissionSpy.calledOnceWith({
           where: {
             id: serverErrMsg.submissionId,
             result: ResultStatus.Judging
-          },
-          select: {
-            id: true
-          }
-        })
-      ).to.be.true
-      expect(
-        updateSpy.calledOnceWith({
-          where: {
-            id: serverErrMsg.submissionId
           },
           data: {
             result: ResultStatus.CompileError
@@ -471,7 +451,7 @@ describe('SubmissionSubscriptionService', () => {
         })
       ).to.be.true
       expect(
-        updateManySpy.calledOnceWith({
+        updateManyResultSpy.calledOnceWith({
           where: {
             submissionId: serverErrMsg.submissionId
           },
