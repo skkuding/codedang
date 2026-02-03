@@ -561,6 +561,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         `Contest record update failed - missing required fields: contestId=${contestId}, userId=${userId}`
       )
 
+    if (!isAccepted) return
+
     const [contest, contestProblem, contestRecord, previousSubmissions] =
       await Promise.all([
         this.prisma.contest.findUniqueOrThrow({
@@ -595,7 +597,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       ])
 
     const isNewAccept = previousSubmissions === 0
-    if (!isNewAccept || !isAccepted) return
+    if (!isNewAccept) return
 
     const { startTime, penalty, lastPenalty, freezeTime } = contest
     const { id: contestProblemId, score } = contestProblem
