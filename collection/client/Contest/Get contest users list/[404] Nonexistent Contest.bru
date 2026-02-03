@@ -1,0 +1,31 @@
+meta {
+  name: [404] Nonexistent Contest
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/contest/:contestId/statistics/users
+  body: none
+  auth: inherit
+}
+
+params:path {
+  contestId: 999999
+}
+
+assert {
+  res.status: eq 404
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # [404] Nonexistent Contest
+
+  존재하지 않는 `contestId`로
+  `/contest/:contestId/statistics/users`를 호출했을 때 404 응답이 반환됩니다.
+}
