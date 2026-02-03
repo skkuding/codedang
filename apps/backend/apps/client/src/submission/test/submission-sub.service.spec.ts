@@ -71,7 +71,7 @@ const db = {
     findUniqueOrThrow: mockFunc,
     update: mockFunc,
     findFirst: mockFunc,
-    findMany: mockFunc
+    count: mockFunc
   },
   submissionResult: {
     findFirstOrThrow: mockFunc,
@@ -707,9 +707,9 @@ describe('SubmissionSubscriptionService', () => {
 
   describe('updateContestRecord', () => {
     it('should update records when new accepted submission', async () => {
-      const submissionFindManySpy = sandbox
-        .stub(db.submission, 'findMany')
-        .resolves([contestSubmission])
+      const submissionCountSpy = sandbox
+        .stub(db.submission, 'count')
+        .resolves(0)
       const contestFindUniqueSpy = sandbox
         .stub(db.contest, 'findUniqueOrThrow')
         .resolves({
@@ -737,16 +737,13 @@ describe('SubmissionSubscriptionService', () => {
 
       // then
       expect(
-        submissionFindManySpy.calledOnceWith({
+        submissionCountSpy.calledOnceWith({
           where: {
             contestId: contestSubmission.contestId,
             problemId: contestSubmission.problemId,
-            result: ResultStatus.Accepted
-          },
-          select: {
-            id: true,
-            userId: true,
-            createTime: true
+            userId: contestSubmission.userId,
+            result: ResultStatus.Accepted,
+            id: { not: contestSubmission.id }
           }
         })
       ).to.be.true
@@ -822,9 +819,9 @@ describe('SubmissionSubscriptionService', () => {
     })
 
     it('should reject when submission is not accepted', async () => {
-      const submissionFindManySpy = sandbox
-        .stub(db.submission, 'findMany')
-        .resolves([])
+      const submissionCountSpy = sandbox
+        .stub(db.submission, 'count')
+        .resolves(0)
       const upsertProblemRecordSpy = sandbox
         .stub(db.contestProblemRecord, 'upsert')
         .resolves()
@@ -836,16 +833,13 @@ describe('SubmissionSubscriptionService', () => {
       await service.updateContestRecord(contestSubmission, false)
 
       expect(
-        submissionFindManySpy.calledOnceWith({
+        submissionCountSpy.calledOnceWith({
           where: {
             contestId: contestSubmission.contestId,
             problemId: contestSubmission.problemId,
-            result: ResultStatus.Accepted
-          },
-          select: {
-            id: true,
-            userId: true,
-            createTime: true
+            userId: contestSubmission.userId,
+            result: ResultStatus.Accepted,
+            id: { not: contestSubmission.id }
           }
         })
       ).to.be.true
