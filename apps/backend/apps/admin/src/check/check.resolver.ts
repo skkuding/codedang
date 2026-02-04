@@ -77,7 +77,7 @@ export class CheckResolver {
    * 완료된 표절 검사 요청의 결과를 조회합니다.
    *
    * @param {number} checkId 표절 검사 요청의 아이디
-   * @param {number}
+   * @param {number} groupId 검사를 수행한 과제의 그룹
    * @param {number} take 한 번에 조회할 검사 결과의 수
    * @param {number} cursor 페이지 커서
    * @returns {GetCheckResultSummaryOutput[]} 각 제출물 쌍의 비교 결과를 take 수 만큼 반환합니다.

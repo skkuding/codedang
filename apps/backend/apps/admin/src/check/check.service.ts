@@ -269,7 +269,7 @@ export class CheckService {
     take: number
     cursor: number | null
   }) {
-    const request = await this.prisma.checkRequest.findUnique({
+    const request = await this.prisma.checkRequest.findFirst({
       where: {
         id: checkId,
         assignment: {
@@ -396,7 +396,7 @@ export class CheckService {
     groupId: number
     clusterId: number
   }) {
-    const cluster = await this.prisma.plagiarismCluster.findUnique({
+    const cluster = await this.prisma.plagiarismCluster.findFirst({
       where: {
         id: clusterId,
         SubmissionCluster: {
@@ -440,7 +440,7 @@ export class CheckService {
     groupId: number
     resultId: number
   }) {
-    const result = await this.prisma.checkResult.findUnique({
+    const result = await this.prisma.checkResult.findFirst({
       where: {
         id: resultId,
         request: {
