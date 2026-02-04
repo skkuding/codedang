@@ -6,6 +6,10 @@ loki:
   auth_enabled: false
   commonConfig:
     replication_factor: 1
+  limits_config:
+    retention_period: 2160h # 90 days
+  compactor:
+    retention_enabled: true
   ring:
     kvstore:
       store: inmemory
