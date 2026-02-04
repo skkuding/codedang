@@ -94,19 +94,20 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-3">
       <div className="flex justify-between font-medium">
-        <div className="flex flex-col gap-2">
-          <span className="text-2xl">{userData.username}</span>
+        <div className="flex w-full flex-col gap-2">
+          <span className="truncate text-2xl">{userData.username}</span>
           <div className="bg-color-neutral-99 text-color-neutral-40 flex w-fit gap-2 rounded-full px-5 py-2">
             <span>Final Rank</span>
             <span className="text-primary">
-              {userData.rank}
-              {userData.rank - 1 > 2
-                ? 'th'
-                : ['st', 'nd', 'rd'][userData.rank - 1]}
+              {`${userData.rank}${
+                userData.rank % 100 >= 11 && userData.rank % 100 <= 13
+                  ? 'th'
+                  : ['th', 'st', 'nd', 'rd'][userData.rank % 10] || 'th'
+              }`}
             </span>
             <span className="text-line">|</span>
             <span>Penalty</span>
-            <span className="text-primary">{userData.totalPenalty}m</span>
+            <span className="text-primary">- {userData.totalPenalty}m</span>
             <span className="text-line">|</span>
             <span>Total Solved</span>
             <span className="text-primary">{userData.totalSolved}</span>
@@ -119,7 +120,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
             Penalty Analysis
           </span>
           <span className="text-color-red-60 font-semibold">
-            Total {userData.totalPenalty}m
+            Total - {userData.totalPenalty}m
           </span>
         </CardHeader>
         {userData.problemAnalysis.length > 0 && (

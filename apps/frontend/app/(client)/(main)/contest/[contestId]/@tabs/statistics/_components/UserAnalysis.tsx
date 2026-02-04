@@ -60,7 +60,11 @@ export function UserAnalysisPage() {
                 onClick={() => setCurUserId(user.userId)}
               >
                 <div className="w-7 flex-shrink-0 ps-1 text-left font-bold">
-                  {`${user.rank}${user.rank <= 3 ? ['st', 'nd', 'rd'][user.rank - 1] : 'th'}`}
+                  {`${user.rank}${
+                    user.rank % 100 >= 11 && user.rank % 100 <= 13
+                      ? 'th'
+                      : ['th', 'st', 'nd', 'rd'][user.rank % 10] || 'th'
+                  }`}
                 </div>
                 <div className="flex-1 truncate font-medium">
                   {user.username}
@@ -81,8 +85,8 @@ export function UserAnalysisPage() {
             <div className="place-items-center">
               <p
                 onClick={() => setShowAllUsers(true)}
-                className="text-color-neutral-60 grid cursor-pointer text-xs"
-              >{`${rawData.length - 5} users more`}</p>
+                className="text-color-neutral-60 hover:text-color-neutral-40 mt-1 grid cursor-pointer text-xs"
+              >{`${rawData.length - 5} more users`}</p>
             </div>
           )}
         </div>
