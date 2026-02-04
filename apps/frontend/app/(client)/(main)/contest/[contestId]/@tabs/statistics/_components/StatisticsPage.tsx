@@ -12,11 +12,11 @@ import {
 } from '@/components/shadcn/tabs'
 import { cn } from '@/libs/utils'
 import { useUserSelectionStore } from '@/stores/selectUserStore'
-import { ErrorBoundary } from '@suspensive/react'
+import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useState } from 'react'
-import { Suspense } from 'react'
 import { ProblemStatisticsPage } from './ProblemStatistics'
 import { RealtimeLearBoardPage } from './RealtimeLeaderBoard'
+import { ProblemStatisticsSkeletonWithSidebar } from './StatisticsSkeletons'
 import { UserAnalysisPage } from './UserAnalysis'
 
 export function StatisticsPage() {
@@ -68,7 +68,11 @@ export function StatisticsPage() {
           <UserAnalysisPage />
         </TabsContent>
         <TabsContent value="problem-statistics">
-          <ProblemStatisticsPage />
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<ProblemStatisticsSkeletonWithSidebar />}>
+              <ProblemStatisticsPage />
+            </Suspense>
+          </ErrorBoundary>
         </TabsContent>
       </div>
     </Tabs>
