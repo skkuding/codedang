@@ -5,7 +5,7 @@ import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
-import { UserAnalysisSkeleton } from './StatisticsSkeletons2'
+import { UserAnalysisSkeleton } from './StatisticsSkeletons'
 import { UserAnalysisContent } from './UserAnalysisContent'
 
 interface UserRankInfo {

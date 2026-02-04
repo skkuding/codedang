@@ -13,8 +13,10 @@ import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useState } from 'react'
 import { ProblemStatisticsPage } from './ProblemStatistics'
 import { RealtimeLearBoardPage } from './RealtimeLeaderBoard'
-import { ProblemStatisticsSkeletonWithSidebar } from './StatisticsSkeletons'
-import { UserAnalysisSkeletonWithSidebar } from './StatisticsSkeletons2'
+import {
+  ProblemStatisticsSkeletonWithSidebar,
+  UserAnalysisSkeletonWithSidebar
+} from './StatisticsSkeletons'
 import { UserAnalysisPage } from './UserAnalysis'
 
 export function StatisticsPage() {
