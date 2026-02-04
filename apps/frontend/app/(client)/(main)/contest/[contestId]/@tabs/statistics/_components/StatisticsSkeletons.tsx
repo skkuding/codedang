@@ -31,7 +31,7 @@ export function ProblemStatisticsSkeletonWithSidebar() {
     </div>
   )
 }
-        
+
 export function RealtimeLearBoardSkeleton() {
   return (
     <div className="flex flex-col">
