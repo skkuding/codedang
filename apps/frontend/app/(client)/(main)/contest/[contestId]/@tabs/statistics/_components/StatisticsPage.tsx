@@ -9,7 +9,6 @@ import {
   TabsTrigger,
   TabsList
 } from '@/components/shadcn/tabs'
-
 import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useState } from 'react'
 import { ProblemStatisticsPage } from './ProblemStatistics'
