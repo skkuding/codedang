@@ -5,6 +5,9 @@ traces:
 
 tempo:
   structuredConfig:
+    compactor:
+      compaction:
+        block_retention: 2160h # 90 days
     ingester:
       lifecycler:
         ring:
