@@ -9,10 +9,12 @@ import {
   TabsTrigger,
   TabsList
 } from '@/components/shadcn/tabs'
-import { ErrorBoundary, Suspense } from '@suspensive/react'
+
+import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useState } from 'react'
 import { ProblemStatisticsPage } from './ProblemStatistics'
 import { RealtimeLearBoardPage } from './RealtimeLeaderBoard'
+import { ProblemStatisticsSkeletonWithSidebar } from './StatisticsSkeletons'
 import { UserAnalysisSkeletonWithSidebar } from './StatisticsSkeletons2'
 import { UserAnalysisPage } from './UserAnalysis'
 
@@ -60,7 +62,11 @@ export function StatisticsPage() {
           </ErrorBoundary>
         </TabsContent>
         <TabsContent value="problem-statistics">
-          <ProblemStatisticsPage />
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<ProblemStatisticsSkeletonWithSidebar />}>
+              <ProblemStatisticsPage />
+            </Suspense>
+          </ErrorBoundary>
         </TabsContent>
       </div>
     </Tabs>
