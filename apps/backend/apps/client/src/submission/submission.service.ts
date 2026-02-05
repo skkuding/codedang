@@ -66,7 +66,8 @@ export class SubmissionService {
    * @param {number} userId - 제출하는 사용자의 ID
    * @param {number} problemId - 제출할 문제의 ID
    * @returns {Promise<Submission>} 생성된 제출물 객체
-   * @throws {EntityNotExistException} 주어진 조건에 맞는 문제가 없는 경우
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 주어진 조건에 맞는 문제가 없는 경우
    */
   @Span()
   async submitToProblem({
@@ -381,7 +382,7 @@ export class SubmissionService {
    * @param {number} workbookId - 제출이 속한 워크북의 ID
    * @param {number} groupId - 문제 그룹 ID
    * @returns {Promise<Submission>} 생성된 제출물 객체
-   * @throws {EntityNotExistException}
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    *   - 해당 workbookId와 problemId에 매칭되는 WorkbookProblem을 찾을 수 없는 경우
    *   - 문제의 groupId가 일치하지 않거나 visibleLockTime 조건을 만족하지 않는 경우
    */
@@ -856,6 +857,19 @@ export class SubmissionService {
     })
   }
 
+  /**
+   * 테스트 제출 객체(TestSubmission)을 DB에 생성합니다.
+   *
+   * @param {Pick<Submission,'problemId' | 'language' | 'userId' | 'userIp'>} testSubmissionData 테스트 제출 객체 기본 정보 (problemId, language, userId, userIp)
+   * @param {Snippet[]} codeSnippet 제출된 코드 스니펫
+   * @param {boolean} [isUserTest=false] 사용자 테스트 케이스인지 여부 (기본값: false)
+   * @returns 생성된 테스트 제출 객체
+   * @throws {EntityNotExistException} 다음과 같은 경우에 발생합니다.
+   * - 주어진 ID에 해당하는 문제가 없을 경우
+   * @throws {ConflictFoundException} 다음과 같은 경우에 발생합니다.
+   * - 지원하지 않는 언어로 제출했을 경우
+   * - 제출된 코드가 템플릿을 준수하지 않은 경우
+   */
   @Span()
   async createTestSubmission(
     testSubmissionData: Pick<
