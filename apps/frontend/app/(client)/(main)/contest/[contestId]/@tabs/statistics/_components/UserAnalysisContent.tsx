@@ -133,7 +133,9 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                       <Dot />
                       <span className="font-medium">{`${analysis.problemLabel} :`}</span>
                     </div>
-                    <span className="text-color-neutral-40">{`${analysis.successPenalty}m elapsed`}</span>
+                    {analysis.successPenalty && (
+                      <span className="text-color-neutral-40">{`${analysis.successPenalty}m elapsed`}</span>
+                    )}
                     {analysis.wrongAttemptCount && (
                       <span className="text-color-red-60">{`${analysis.wrongAttemptCount} attempts`}</span>
                     )}
@@ -142,7 +144,9 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                     )}
                   </div>
                 </div>
-                <span className="text-color-red-60 font-medium">{`-${analysis.problemPenalty}`}</span>
+                {analysis.problemPenalty && (
+                  <span className="text-color-red-60 font-medium">{`-${analysis.problemPenalty}`}</span>
+                )}
               </div>
             ))}
           </CardContent>
