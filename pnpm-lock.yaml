@@ -859,8 +859,8 @@ importers:
         specifier: ^8.5.6
         version: 8.5.6
       posthog-node:
-        specifier: ^4.18.0
-        version: 4.18.0
+        specifier: ^5.24.7
+        version: 5.24.7
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
@@ -3924,6 +3924,9 @@ packages:
   '@popperjs/core@2.11.8':
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
+  '@posthog/core@1.17.0':
+    resolution: {integrity: sha512-8pDNL+/u9ojzXloA5wILVDXBCV5daJ7w2ipCALQlEEZmL752cCKhRpbyiHn3tjKXh3Hy6aOboJneYa1JdlVHrQ==}
+
   '@prisma/client@6.13.0':
     resolution: {integrity: sha512-8m2+I3dQovkV8CkDMluiwEV1TxV9EXdT6xaCz39O6jYw7mkf5gwfmi+cL4LJsEPwz5tG7sreBwkRpEMJedGYUQ==}
     engines: {node: '>=18.18'}
@@ -6496,9 +6499,6 @@ packages:
   axe-core@4.10.3:
     resolution: {integrity: sha512-Xm7bpRXnDSX2YE2YFfBk2FnF0ep6tmG7xPh8iHee8MIcrgq762Nkce856dYtJYLkuIoYZvGfTs/PbZhideTcEg==}
     engines: {node: '>=4'}
-
-  axios@1.10.0:
-    resolution: {integrity: sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==}
 
   axios@1.11.0:
     resolution: {integrity: sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==}
@@ -10503,9 +10503,9 @@ packages:
       rrweb-snapshot:
         optional: true
 
-  posthog-node@4.18.0:
-    resolution: {integrity: sha512-XROs1h+DNatgKh/AlIlCtDxWzwrKdYDb2mOs58n4yN8BkGN9ewqeQwG5ApS4/IzwCb7HPttUkOVulkYatd2PIw==}
-    engines: {node: '>=15.0.0'}
+  posthog-node@5.24.7:
+    resolution: {integrity: sha512-IJ0Zj+v+eg/JQMZ75n0Hcp4NzuQzWcZjqFjcUQs6RhW2l5FiQIq09sKJMleXX33hYxD6sfjFsDTqugJlgeAohg==}
+    engines: {node: ^20.20.0 || >=22.22.0}
 
   preact-render-to-string@5.2.6:
     resolution: {integrity: sha512-JyhErpYOvBV1hEPwIxc/fHWXPfnEGdRKxc8gFdAZ7XV4tlzyzG847XAyEZqoDnynP88akM4eaHcSOzNcLWFguw==}
@@ -11777,6 +11777,7 @@ packages:
   tar@7.4.3:
     resolution: {integrity: sha512-5S7Va8hKfV7W5U6g3aYxXmlPoZVAwUMy9AOKyF2fVuZa2UD3qZjg578OrLRt8PcNN1PleVaL/5/yYATNL0ICUw==}
     engines: {node: '>=18'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   temp-dir@2.0.0:
     resolution: {integrity: sha512-aoBAniQmmwtcKp/7BzsH8Cxzv8OL736p7v1ihGb5e9DJ9kTwGWHrQrVB5+lfVDzfGrdRzXch+ig7LHaY1JTOrg==}
@@ -12432,6 +12433,7 @@ packages:
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@3.0.0:
     resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
@@ -16911,6 +16913,10 @@ snapshots:
 
   '@popperjs/core@2.11.8': {}
 
+  '@posthog/core@1.17.0':
+    dependencies:
+      cross-spawn: 7.0.6
+
   '@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)':
     optionalDependencies:
       prisma: 6.13.0(typescript@5.9.2)
@@ -19788,14 +19794,6 @@ snapshots:
       is-promise: 4.0.0
 
   axe-core@4.10.3: {}
-
-  axios@1.10.0:
-    dependencies:
-      follow-redirects: 1.15.9
-      form-data: 4.0.4
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
 
   axios@1.11.0:
     dependencies:
@@ -24489,11 +24487,9 @@ snapshots:
       preact: 10.26.9
       web-vitals: 4.2.4
 
-  posthog-node@4.18.0:
+  posthog-node@5.24.7:
     dependencies:
-      axios: 1.10.0
-    transitivePeerDependencies:
-      - debug
+      '@posthog/core': 1.17.0
 
   preact-render-to-string@5.2.6(preact@10.26.9):
     dependencies:
