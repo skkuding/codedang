@@ -10,6 +10,7 @@ loki:
     retention_period: 2160h # 90 days
   compactor:
     retention_enabled: true
+    delete_request_store: s3
   ring:
     kvstore:
       store: inmemory
