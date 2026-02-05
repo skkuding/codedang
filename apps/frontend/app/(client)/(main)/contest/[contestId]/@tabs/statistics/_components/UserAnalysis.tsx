@@ -59,7 +59,7 @@ export function UserAnalysisPage() {
                 key={user.userId}
                 onClick={() => setCurUserId(user.userId)}
               >
-                <div className="w-7 flex-shrink-0 ps-1 text-left font-bold">
+                <div className="w-10 flex-shrink-0 ps-1 text-left font-bold">
                   {`${user.rank}${
                     user.rank % 100 >= 11 && user.rank % 100 <= 13
                       ? 'th'
