@@ -184,7 +184,7 @@ export class UserService {
    * 사용자 비밀번호가 올바른 형식인지 체크하고 업데이트합니다.
    *
    * @param {string} newPassword 변경하려는 새로운 비밀번호
-   * @param {Request} req
+   * @param {Request} req 클라이언트 HTTP 요청 객체
    * @throws {UnprocessableDataException} 새로운 비밀번호가 잘못된 형식일 경우 예외를 발생시킵니다.
    * @returns {Promise<string>} 비밀번호 변경이 성공했다는 메시지를 반환합니다.
    */
@@ -206,7 +206,7 @@ export class UserService {
   /**
    * 클라이언트 요청 헤더에서 JWT 토큰을 추출해 검증하고, 성공시 pin 인증이 완료되었던 email(payload 객체 내용물)을 반환합니다.
    *
-   * @param {Request} req 브라우저에서 보내는 HTTP 요청 객체
+   * @param {Request} req 클라이언트 HTTP 요청 객체
    * @param {JwtVerifyOptions} jwtVerifyOption 추가로 검증할 조건 (없을 경우 빈 객체)
    * @throws {InvalidJwtTokenException} jwt 토큰이 없거나, 만료 되었거나, 서명이 일치하지 않을 경우, 예외를 발생시킵니다.
    * @returns {Promise<EmailAuthJwtObject>} jwt 검증 성공시 payload 객체 내용물 (pin 인증 완료된 이메일 주소)를 반환합니다.
@@ -369,7 +369,7 @@ export class UserService {
    * 2. 올바르지 않은 형식의 사용자 이름으로 가입을 시도하면 예외를 발생시킵니다.
    * 3. 올바르지 않은 형식의 비밀번호로 가입을 시도하면 예외를 발생시킵니다.
    * @throws {DuplicateFoundException} 이미 존재하는 사용자 이름으로 가입을 시도할 경우 예외를 발생시킵니다.
-   * @returns
+   * @returns 회원가입 성공 시 새로 가입된 user 객체를 반환합니다.
    */
   async signUp(req: Request, signUpDto: SignUpDto) {
     const { email } = await this.verifyJwtFromRequestHeader(req)
@@ -550,12 +550,12 @@ export class UserService {
   }
 
   /**
-   * 탈퇴 전 비밀번호를
+   * 탈퇴 전 비밀번호를 확인하고 탈퇴하려는 사용자가 그룹의 유일한 리더인지 체크한 후, 탈퇴를 진행합니다.
    *
    * @param {string} username 사용자 이름
    * @param {string} password 비밀번호
    * @throws {UnidentifiedException} 잘못된 비밀번호를 입력했을 경우 예외를 발생시킵니다.
-   * @throws {ConflictFoundException}
+   * @throws {ConflictFoundException} 탈퇴하려는 user가 그룹의 유일한 리더일 경우 예외를 발생시킵니다.
    */
   async deleteUser(username: string, password: string) {
     const user = await this.getUserCredential(username)
@@ -643,9 +643,11 @@ export class UserService {
   }
 
   /**
+   * 사용자의 프로필 정보를 조회합니다.
    *
    * @param {string} username 사용자 이름
-   * @returns
+   * @throws {EntityNotExistException} 사용자의 프로필 정보가 DB상에 존재하지 않을 경우, 예외를 발생시킵니다.
+   * @returns 사용자의 프로필 정보를 반환합니다.
    */
   async getUserProfile(username: string) {
     const userWithProfile = await this.prisma.user.findUnique({
@@ -675,6 +677,15 @@ export class UserService {
     return userWithProfile
   }
 
+  /**
+   * 사용자의 이메일을 업데이트합니다.
+   *
+   * @param {AuthenticatedRequest} req 인증된 사용자 정보가 포함된 HTTP 요청 객체
+   * @param updateUserEmailDto 업데이트 하려는 사용자의 이메일 주소가 담긴 DTO 객체
+   * @throws {UnprocessableDataException} 인증되지 않은 이메일로 변경을 시도할 경우 예외를 발생시킵니다.
+   * @throws {EntityNotExistException} 사용자가 DB상에 존재하지 않을 경우 예외를 발생시킵니다.
+   * @returns 이메일이 업데이트 된 user 객체를 반환합니다.
+   */
   async updateUserEmail(
     req: AuthenticatedRequest,
     updateUserEmailDto: UpdateUserEmailDto
@@ -713,7 +724,7 @@ export class UserService {
   }
 
   /**
-   * 이미 존재하는 사용자 이름인지 확인합니다,
+   * 이미 존재하는 사용자 이름인지 확인합니다.
    *
    * @param {string} usernameDto 사용자 이름
    * @throws {DuplicateFoundException} 이미 중복되는 사용자 이름이 있으면 예외를 발생시킵니다.
@@ -731,7 +742,17 @@ export class UserService {
     }
   }
 
-  // update user field (password, studentId, college, major, realName)
+  /**
+   * 사용자의 정보를 업데이트합니다.
+   *
+   * @param {AuthenticatedRequest} req 인증된 사용자 정보가 포함된 HTTP 요청 객체
+   * @param updateUserDto 업데이트 하려는 사용자의 정보가 담긴 DTO 객체 (password, studentId, college, major, realName)
+   * @throws {UnprocessableDataException} 현재 비밀번호를 입력하지 않으면 (빈 필드이면) 예외를 발생시킵니다.
+   * @throws {EntityNotExistException} 사용자가 DB상에 존재하지 않을 경우 예외를 발생시킵니다.
+   * @throws {UnidentifiedException} 잘못된 비밀번호를 입력했을 경우 예외를 발생시킵니다.
+   * @throws {UnprocessableDataException} 새로운 비밀번호가 잘못된 형식일 경우 예외를 발생시킵니다.
+   * @returns 업데이트 된 user 객체를 반환합니다. (studentId, college, major, realName 필드만)
+   */
   async updateUser(req: AuthenticatedRequest, updateUserDto: UpdateUserDto) {
     let encryptedNewPassword: string | undefined = undefined
 
