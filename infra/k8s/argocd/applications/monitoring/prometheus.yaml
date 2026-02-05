@@ -1,12 +1,12 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: prometheus
   namespace: argocd
   labels:
     app.kubernetes.io/environment: production
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  # finalizers:
+  #   - resources-finalizer.argocd.argoproj.io
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
@@ -20,8 +20,8 @@ spec:
   template:
     metadata:
       name: 'prometheus-{{.env}}'
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
+      # finalizers:
+      #   - resources-finalizer.argocd.argoproj.io
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:

@@ -15,7 +15,7 @@ spec:
         oci: true
         releaseName: arc-runner
         valueFiles:
-          - $codedang/infra/k8s/arc-runner-scale-set/values.yaml
+          - $codedang/infra/k8s/arc/values.yaml
     - repoURL: https://github.com/skkuding/codedang
       targetRevision: main
       ref: codedang

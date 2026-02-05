@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: grafana
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  # finalizers:
+  #   - resources-finalizer.argocd.argoproj.io
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
@@ -18,41 +18,31 @@ spec:
   template:
     metadata:
       name: 'grafana-{{.env}}'
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
+      # finalizers:
+      #   - resources-finalizer.argocd.argoproj.io
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:
       project: default
       sources:
-        # main helm chart source
-        - repoURL: https://github.com/skkuding/codedang
-          targetRevision: {{.branch}}
-          path: infra/k8s/monitoring/grafana
+        # helm chart from grafana registry
+        - repoURL: https://grafana.github.io/helm-charts
+          chart: grafana
+          targetRevision: '10.5.13'
           helm:
-            valueFiles:
-              - $codedang/infra/k8s/monitoring/grafana/overlays/{{.env}}/values.yaml
             releaseName: grafana
-            chart: grafana
-            version: '10.1.4'
-            repo: https://grafana.github.io/helm-charts
-        # ref for helm valueFiles
+            valueFiles:
+              - '$codedang/infra/k8s/monitoring/grafana/overlays/{{.env}}/values.yaml'
+        # git ref for helm valueFiles
         - repoURL: https://github.com/skkuding/codedang
-          targetRevision: {{.branch}}
-          path: infra/k8s/monitoring/grafana
-          directory:
-            # kustomization.yaml is ignored if recurse is true
-            recurse: false
+          targetRevision: '{{.branch}}'
           ref: codedang
-        # etc kustomize overlay
+        # kustomize overlay (namespace + sealed secrets)
         - repoURL: https://github.com/skkuding/codedang
-          targetRevision: {{.branch}}
-          path: infra/k8s/monitoring/grafana/overlays/{{.env}}
-          directory:
-            # kustomization.yaml is ignored if recurse is true
-            recurse: false
+          targetRevision: '{{.branch}}'
+          path: 'infra/k8s/monitoring/grafana/overlays/{{.env}}'
       destination:
-        name: {{.env}}
+        name: '{{.env}}'
         namespace: monitoring-grafana
       syncPolicy:
         automated:

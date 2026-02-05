@@ -47,16 +47,19 @@ datasources:
     datasources:
       - name: Loki
         type: loki
+        uid: loki
         access: proxy
         url: http://loki.monitoring-loki.svc.cluster.local:3100
         editable: false
       - name: Prometheus
         type: prometheus
+        uid: prometheus
         access: proxy
         url: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090
         editable: false
-      - name: Tempo-production
+      - name: Tempo
         type: tempo
+        uid: tempo
         access: proxy
         url: http://tempo.monitoring-tempo.svc.cluster.local:3200
         editable: false
@@ -68,15 +71,34 @@ sidecar:
     label: grafana_dashboard
     labelValue: '1'
 
-# TODO: provision dashboard config maps
-# dashboardsConfigMaps:
-#   default: 'all-service-logs'
-#   hardware: 'hardware-metrics'
-#   submission: 'submission-detail'
-
-# TODO: add public dashboards from https://grafana.com/grafana/dashboards/
-downloadDashboards:
-  env: {}
+dashboards:
+  grafana-dashboards:
+    # ArgoCD - https://grafana.com/grafana/dashboards/14584
+    argocd:
+      gnetId: 14584
+      revision: 1
+      datasource: Prometheus
+    # Node Exporter Full - https://grafana.com/grafana/dashboards/1860
+    node-exporter:
+      gnetId: 1860
+      revision: 37
+      datasource: Prometheus
+    # Loki Stack - https://grafana.com/grafana/dashboards/14055
+    loki-stack:
+      gnetId: 14055
+      revision: 5
+      datasource:
+        - name: DS_PROMETHEUS
+          value: Prometheus
+        - name: DS_LOKI
+          value: Loki
+    # Kubernetes Cluster Overview - https://grafana.com/grafana/dashboards/15661
+    k8s-dashboard:
+      gnetId: 15661
+      revision: 2
+      datasource:
+        - name: DS__VICTORIAMETRICS-PROD-ALL
+          value: Prometheus
 
 # Grafana's primary configuration
 # http://docs.grafana.org/installation/configuration/
@@ -94,7 +116,7 @@ grafana.ini:
     allow_sign_up: true
     auto_login: false
     role_attribute_path: "'Editor'" # all users are Editor
-    skip_org_role_sync: true
+    skip_org_role_sync: false
   # TODO: setup git sync provisioning
   # feature_toggles:
   #   provisioning: true
