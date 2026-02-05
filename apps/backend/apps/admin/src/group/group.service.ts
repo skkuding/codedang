@@ -359,7 +359,13 @@ export class GroupService {
         config: true,
         assignment: {
           include: {
-            assignmentProblem: true
+            assignmentProblem: {
+              select: {
+                order: true,
+                problemId: true,
+                score: true
+              }
+            }
           }
         }
       }
@@ -415,18 +421,9 @@ export class GroupService {
         const isVisible =
           assignment.startTime <= now && now <= assignment.endTime
 
-        const {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          id: _id,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          createTime: _createTime,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          updateTime: _updateTime,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          groupId: _groupId,
-          assignmentProblem,
-          ...assignmentData
-        } = assignment
+        // prettier-ignore
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, createTime, updateTime, groupId, assignmentProblem, ...assignmentData } = assignment
 
         const newAssignment = await tx.assignment.create({
           data: {
