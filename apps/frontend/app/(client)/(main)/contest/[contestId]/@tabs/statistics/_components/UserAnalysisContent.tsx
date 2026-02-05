@@ -252,45 +252,51 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
           Submission History
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader className="font-medium">
-              <TableRow>
-                <TableHead className="w-[100px]">Time</TableHead>
-                <TableHead>Problem</TableHead>
-                <TableHead>Result</TableHead>
-                <TableHead className="text-right">Language</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {userData.submissionHistory
-                .sort((a, b) =>
-                  a.submissionTime.localeCompare(b.submissionTime)
-                )
-                .map((submission) => (
-                  <TableRow key={submission.submissionTime}>
-                    <TableCell className="py-2! text-color-neutral-40">
-                      {submission.submissionTime}
-                    </TableCell>
-                    <TableCell className={'py-2! text-center font-medium'}>
-                      {submission.problemLabel}
-                    </TableCell>
-                    <TableCell
-                      className={cn(
-                        'py-2! text-center',
-                        submission.result === 'Accepted'
-                          ? 'text-flowkit-green'
-                          : 'text-flowkit-red'
-                      )}
-                    >
-                      {submission.result}
-                    </TableCell>
-                    <TableCell className="py-2! text-color-neutral-60 text-right">
-                      {submission.language}
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
+          {userData.submissionHistory.length > 0 ? (
+            <Table>
+              <TableHeader className="font-medium">
+                <TableRow>
+                  <TableHead className="w-[100px]">Time</TableHead>
+                  <TableHead>Problem</TableHead>
+                  <TableHead>Result</TableHead>
+                  <TableHead className="text-right">Language</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {userData.submissionHistory
+                  .sort((a, b) =>
+                    a.submissionTime.localeCompare(b.submissionTime)
+                  )
+                  .map((submission) => (
+                    <TableRow key={submission.submissionTime}>
+                      <TableCell className="py-2! text-color-neutral-40">
+                        {submission.submissionTime}
+                      </TableCell>
+                      <TableCell className={'py-2! text-center font-medium'}>
+                        {submission.problemLabel}
+                      </TableCell>
+                      <TableCell
+                        className={cn(
+                          'py-2! text-center',
+                          submission.result === 'Accepted'
+                            ? 'text-flowkit-green'
+                            : 'text-flowkit-red'
+                        )}
+                      >
+                        {submission.result}
+                      </TableCell>
+                      <TableCell className="py-2! text-color-neutral-60 text-right">
+                        {submission.language}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <p className="text-color-neutral-60 text-xs">
+              There is no submission history
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
