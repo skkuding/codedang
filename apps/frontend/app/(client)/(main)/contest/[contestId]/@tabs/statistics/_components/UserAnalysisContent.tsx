@@ -107,7 +107,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
             </span>
             <span className="text-line">|</span>
             <span>Penalty</span>
-            <span className="text-primary">- {userData.totalPenalty}m</span>
+            <span className="text-primary">- {userData.totalPenalty}</span>
             <span className="text-line">|</span>
             <span>Total Solved</span>
             <span className="text-primary">{userData.totalSolved}</span>
@@ -120,7 +120,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
             Penalty Analysis
           </span>
           <span className="text-color-red-60 font-semibold">
-            Total - {userData.totalPenalty}m
+            Total - {userData.totalPenalty}
           </span>
         </CardHeader>
         {userData.problemAnalysis.length > 0 && (
@@ -138,11 +138,11 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                       <span className="text-color-red-60">{`${analysis.wrongAttemptCount} attempts`}</span>
                     )}
                     {analysis.wrongPenalty && (
-                      <span className="text-color-red-60">{`(-${analysis.wrongPenalty}m)`}</span>
+                      <span className="text-color-red-60">{`(-${analysis.wrongPenalty})`}</span>
                     )}
                   </div>
                 </div>
-                <span className="text-color-red-60 font-medium">{`-${analysis.problemPenalty}m`}</span>
+                <span className="text-color-red-60 font-medium">{`-${analysis.problemPenalty}`}</span>
               </div>
             ))}
           </CardContent>
