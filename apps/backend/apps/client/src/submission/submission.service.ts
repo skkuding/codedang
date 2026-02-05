@@ -923,6 +923,18 @@ export class SubmissionService {
     return submission
   }
 
+  /**
+   * 사용자의 가장 최근 테스트 제출에 대한 상세 채점 결과를 조회합니다.
+   *
+   * 1. DB에서 해당 사용자의 가장 최근 테스트 제출(TestSubmission) ID를 조회
+   * 2. 제출 ID가 없으면 빈 배열([])을 반환
+   * 3. 캐시에서 해당 제출에 포함된 전체 테스트케이스 ID 목록을 가져옴
+   * 4. 각 테스트케이스 ID를 순회하며, 캐시에 저장된 개별 상세 결과(상태, 출력값 등)를 수집
+   * 5. 최종적으로 수집된 테스트 결과 배열을 반환
+   * @param {number} userId 사용자 ID
+   * @param {boolean} [isUserTest=false] 사용자 정의 테스트 결과 여부
+   * @returns 테스트 결과 리스트
+   */
   async getTestResult(userId: number, isUserTest = false) {
     // 가장 최신의 Test Submission 불러오기
     const testSubmissionId = (
