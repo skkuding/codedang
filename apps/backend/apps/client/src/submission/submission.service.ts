@@ -1040,7 +1040,8 @@ export class SubmissionService {
    * @param {number | null} contestId - 대회 ID (null인 경우 대회 제출 아님)
    * @param {number | null} assignmentId - 과제 ID (null인 경우 과제 제출 아님)
    * @returns 문제에 대한 제출 기록 목록과 총 제출 기록 수
-   * @throws {EntityNotExistException} 주어진 조건에 맞는 문제가 존재하지 않을 경우
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 주어진 조건에 맞는 문제가 존재하지 않을 경우
    */
   @Span()
   async getSubmission({
@@ -1272,6 +1273,18 @@ export class SubmissionService {
   }
 
   // FIXME: Workbook 구분
+  /**
+   * 특정 문제의 전체 제출 기록을 페이징하여 조회합니다.
+   *
+   * @param {Object} params
+   * @param {number} params.problemId 문제 ID
+   * @param {number | null} [params.cursor=null] 페이징용 커서
+   * @param {number} [params.take=10] 한 번에 가져올 기록 개수
+   * @returns 제출 목록과 전체 개수
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 문제가 존재하지 않은 경우
+   * - 문제의 visibleLockTime이 설정되어서 조회가 불가능한 경우
+   */
   @Span()
   async getSubmissions({
     problemId,
@@ -1322,6 +1335,21 @@ export class SubmissionService {
     return { data: submissions, total }
   }
 
+  /**
+   * 특정 대회 내에서 발생한 제출 기록 목록을 페이징하여 조회합니다.
+   *
+   * @param {Object} params
+   * @param {number} params.problemId 대회 내 문제 ID
+   * @param {number} params.contestId 대회 ID
+   * @param {number} params.userId 사용자 ID
+   * @param {number | null} [params.cursor=null] 페이징용 커서
+   * @param {number} [params.take=10] 한 번에 가져올 기록 개수
+   * @returns 제출 목록(Blind 처리 포함)과 전체 건수
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 대회 참가 기록(ContestRecord)이 존재하지 않을 경우
+   * - 대회 문제(ContestProblem)가 존재하지 않을 경우
+   * - 대회(Contest)가 존재하지 않을 경우
+   */
   @Span()
   async getContestSubmissions({
     problemId,
