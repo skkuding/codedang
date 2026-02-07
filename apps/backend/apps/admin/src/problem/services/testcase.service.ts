@@ -383,7 +383,7 @@ export class TestcaseService {
     problemId: number,
     userRole: Role,
     userId: number
-  ) {
+  ): Promise<ProblemTese> {
     await this.checkProblemEditPermission(problemId, userId, userRole)
 
     const { filename, mimetype, createReadStream } = await fileInput.file
@@ -449,7 +449,7 @@ export class TestcaseService {
    * @param {number} problemId : 문제 ID
    * @param {number} userId : 유저 ID
    * @param {Role} userRole : 유저 권한
-   * @returns {Promise<{ testcaseID: number }[]>} : 성공 시 테스트케이스 ID 배열을 담은 promise를 반환합니다.
+   * @returns {Promise<{ testcaseId: number }[]>} : 성공 시 테스트케이스 ID 배열을 담은 promise를 반환합니다.
    * @throws {UnprocessableDataException} : zip파일이 아닌 경우 or .in이나 .out로 끝나지 않는 경우 exception을 던집니다.
    */
   async uploadTestcaseZip(
@@ -831,7 +831,11 @@ export class TestcaseService {
    * @throws {EntityNotExistException} 테스트케이스 ID에 해당하는 테스트케이스가 없을 시 exception을 던집니다.
    * @throws {ForbiddenAccessException} 테스트케이스에 접근 권한이 없을 시 exception을 던집니다.
    */
-  async getProblemTestcase(testcaseId: number, userId: number, userRole: Role) {
+  async getProblemTestcase(
+    testcaseId: number,
+    userId: number,
+    userRole: Role
+  ): Promise<Omit<ProblemTestcase, 'problem'>> {
     const testcase = await this.prisma.problemTestcase.findUnique({
       where: {
         id: testcaseId
