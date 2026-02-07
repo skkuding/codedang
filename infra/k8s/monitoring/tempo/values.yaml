@@ -4,10 +4,8 @@ traces:
       enabled: true
 
 tempo:
+  retention: 2160h # 90 days
   structuredConfig:
-    compactor:
-      compaction:
-        block_retention: 2160h # 90 days
     ingester:
       max_block_bytes: 104857600
       max_block_duration: 10m
