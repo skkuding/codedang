@@ -383,7 +383,7 @@ export class TestcaseService {
     problemId: number,
     userRole: Role,
     userId: number
-  ): Promise<ProblemTese> {
+  ): Promise<ProblemTestcase> {
     await this.checkProblemEditPermission(problemId, userId, userRole)
 
     const { filename, mimetype, createReadStream } = await fileInput.file
