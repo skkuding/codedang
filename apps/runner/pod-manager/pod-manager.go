@@ -73,15 +73,16 @@ func (pm *PodManager) createRunnerPod() (*RunnerPod, error) {
 					SecurityContext: &corev1.SecurityContext{
 						Privileged: func(b bool) *bool { return &b }(true),
 					},
-					Resources: corev1.ResourceRequirements{
-						Limits: corev1.ResourceList{
-							corev1.ResourceMemory: resource.MustParse("512Mi"),
-						},
-						Requests: corev1.ResourceList{
-							corev1.ResourceCPU:    resource.MustParse("0.5"),
-							corev1.ResourceMemory: resource.MustParse("512Mi"),
-						},
+				Resources: corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						corev1.ResourceCPU:    resource.MustParse("1"),
+						corev1.ResourceMemory: resource.MustParse("512Mi"),
 					},
+					Requests: corev1.ResourceList{
+						corev1.ResourceCPU:    resource.MustParse("0.5"),
+						corev1.ResourceMemory: resource.MustParse("512Mi"),
+					},
+				},
 				},
 			},
 			RestartPolicy: corev1.RestartPolicyNever,
