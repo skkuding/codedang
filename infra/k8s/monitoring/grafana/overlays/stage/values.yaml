@@ -1,7 +1,8 @@
 # check default values.yaml
 # https://artifacthub.io/packages/helm/grafana/grafana?modal=values
 
-envFromSecret: grafana-github-oauth
+envFromSecrets:
+  - name: grafana-github-oauth
 
 replicas: 1
 autoscaling:
