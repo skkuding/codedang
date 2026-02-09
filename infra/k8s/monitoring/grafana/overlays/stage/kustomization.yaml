@@ -4,5 +4,4 @@ kind: Kustomization
 resources:
   - ../../base
   - admin-user.yaml
-  - aws-credentials.yaml
   - github-credentials.yaml
