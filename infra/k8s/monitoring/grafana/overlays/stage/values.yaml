@@ -173,6 +173,7 @@ dashboards:
       gnetId: 969
       revision: 6
     # AWS Billing - https://grafana.com/grafana/dashboards/139
+    # TODO: AWS 루트 계정에서 결제 및 비용 관리 > 결제 기본 설정 > CloudWatch 결제 알림 수신 활성화 필요
     aws-billing:
       gnetId: 139
       revision: 18
