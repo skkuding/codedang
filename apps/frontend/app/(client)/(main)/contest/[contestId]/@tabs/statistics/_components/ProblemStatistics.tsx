@@ -17,6 +17,7 @@ import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
+import { SlArrowUp } from 'react-icons/sl'
 import { SlArrowDown } from 'react-icons/sl'
 import { SlArrowRight } from 'react-icons/sl'
 import {
@@ -415,7 +416,8 @@ function ProblemDetailSection({
                     <div className="bg-level-3 rounded-xs h-3 w-3" />
                   </div>
                 </div>
-                <SlArrowDown className="h-3 w-3 transition-transform duration-0 group-data-[state=open]:rotate-180" />
+                <SlArrowDown className="block h-3 w-3 group-data-[state=open]:hidden" />
+                <SlArrowUp className="hidden h-3 w-3 group-data-[state=open]:block" />
               </div>
             </PopoverTrigger>
             <PopoverContent className="w-102 flex flex-col gap-1 text-xs">
