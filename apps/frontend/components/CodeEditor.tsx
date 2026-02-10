@@ -5,6 +5,8 @@ import { cpp } from '@codemirror/lang-cpp'
 import { java } from '@codemirror/lang-java'
 import { python } from '@codemirror/lang-python'
 import type { LanguageSupport } from '@codemirror/language'
+import { RangeSetBuilder } from '@codemirror/state'
+import { Decoration, ViewPlugin, type ViewUpdate } from '@codemirror/view'
 import { tags as t } from '@lezer/highlight'
 import { createTheme } from '@uiw/codemirror-themes'
 import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
@@ -72,6 +74,39 @@ const gutterStyle = EditorView.baseTheme({
   }
 })
 
+const highlightTheme = EditorView.baseTheme({
+  '.cm-line.cm-highlighted-pair-0': {
+    backgroundColor: 'rgba(248, 113, 113, 0.22)'
+  },
+  '.cm-line.cm-highlighted-pair-1': {
+    backgroundColor: 'rgba(251, 146, 60, 0.22)'
+  },
+  '.cm-line.cm-highlighted-pair-2': {
+    backgroundColor: 'rgba(250, 204, 21, 0.22)'
+  },
+  '.cm-line.cm-highlighted-pair-3': {
+    backgroundColor: 'rgba(52, 211, 153, 0.22)'
+  },
+  '.cm-line.cm-highlighted-pair-4': {
+    backgroundColor: 'rgba(56, 189, 248, 0.22)'
+  },
+  '.cm-line.cm-highlighted-pair-5': {
+    backgroundColor: 'rgba(129, 140, 248, 0.22)'
+  },
+  '.cm-line.cm-highlighted-pair-6': {
+    backgroundColor: 'rgba(244, 114, 182, 0.22)'
+  },
+  '.cm-line.cm-highlighted-pair-7': {
+    backgroundColor: 'rgba(248, 250, 252, 0.22)'
+  },
+  '.cm-line.cm-highlighted-pair-8': {
+    backgroundColor: 'rgba(148, 163, 184, 0.22)'
+  },
+  '.cm-line.cm-highlighted-pair-9': {
+    backgroundColor: 'rgba(34, 197, 94, 0.22)'
+  }
+})
+
 const languageParser: Record<Language, () => LanguageSupport> = {
   Cpp: cpp,
   C: cpp,
@@ -84,6 +119,9 @@ interface CodeEditorProps extends ReactCodeMirrorProps {
   language: Language
   enableCopyPaste?: boolean
   showZoom?: boolean
+  highlightLines?: number[]
+  highlightClassName?: string
+  multiHighlightRanges?: { line: number; className: string }[]
 }
 
 const copyPasteHandler = () => {
@@ -137,6 +175,9 @@ export function CodeEditor({
   enableCopyPaste = true,
   readOnly = false,
   showZoom = false,
+  highlightLines,
+  highlightClassName,
+  multiHighlightRanges,
   ...props
 }: CodeEditorProps) {
   const [fontSize, setFontSize] = useState(16)
@@ -158,6 +199,62 @@ export function CodeEditor({
   const { onPointerDown: startLongMinus, onPointerUp: stopLongMinus } =
     useLongPress(decreaseFontSize)
 
+  const highlightExtension =
+    (multiHighlightRanges && multiHighlightRanges.length > 0) ||
+    (highlightLines && highlightLines.length > 0 && highlightClassName)
+      ? ViewPlugin.fromClass(
+          class {
+            decorations
+            constructor(view: EditorView) {
+              this.decorations = this.buildDecorations(view)
+            }
+
+            update(update: ViewUpdate) {
+              if (update.docChanged || update.viewportChanged) {
+                this.decorations = this.buildDecorations(update.view)
+              }
+            }
+
+            buildDecorations(view: EditorView) {
+              const builder = new RangeSetBuilder<Decoration>()
+
+              if (multiHighlightRanges && multiHighlightRanges.length > 0) {
+                multiHighlightRanges.forEach(({ line, className }) => {
+                  if (line <= 0 || line > view.state.doc.lines) {
+                    return
+                  }
+                  const lineInfo = view.state.doc.line(line)
+                  const deco = Decoration.line({
+                    attributes: { class: className }
+                  })
+                  builder.add(lineInfo.from, lineInfo.from, deco)
+                })
+              } else if (
+                highlightLines &&
+                highlightLines.length > 0 &&
+                highlightClassName
+              ) {
+                highlightLines.forEach((lineNumber) => {
+                  if (lineNumber <= 0 || lineNumber > view.state.doc.lines) {
+                    return
+                  }
+                  const lineInfo = view.state.doc.line(lineNumber)
+                  const deco = Decoration.line({
+                    attributes: { class: highlightClassName }
+                  })
+                  builder.add(lineInfo.from, lineInfo.from, deco)
+                })
+              }
+
+              return builder.finish()
+            }
+          },
+          {
+            decorations: (v) => v.decorations
+          }
+        )
+      : null
+
   return (
     <div className="flex h-full flex-col">
       <ScrollArea className="flex-1 rounded-lg bg-[#121728]">
@@ -168,7 +265,9 @@ export function CodeEditor({
             enableCopyPaste ? [] : copyPasteHandler(),
             editorPadding,
             gutterStyle,
-            fontSizeTheme
+            highlightTheme,
+            fontSizeTheme,
+            ...(highlightExtension ? [highlightExtension] : [])
           ]}
           className="h-full"
           value={value}
