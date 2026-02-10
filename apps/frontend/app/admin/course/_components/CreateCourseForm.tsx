@@ -17,7 +17,15 @@ export function CreateCourseForm({
   children: ReactNode
   onSuccess: () => void
 }) {
-  const methods = useForm<CourseInput>({
+  type FormValues = CourseInput & {
+    phoneNum1?: string
+    phoneNum2?: string
+    phoneNum3?: string
+    emailLocal?: string
+    emailDomain?: string
+  }
+
+  const methods = useForm<FormValues>({
     resolver: valibotResolver(courseSchema),
     defaultValues: {
       professor: '',
@@ -28,8 +36,13 @@ export function CreateCourseForm({
       week: 0,
       email: '',
       phoneNum: '',
+      phoneNum1: '',
+      phoneNum2: '',
+      phoneNum3: '',
       office: '',
       website: '',
+      emailLocal: '',
+      emailDomain: '',
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
@@ -42,7 +55,19 @@ export function CreateCourseForm({
   const [createCourse] = useMutation(CREATE_COURSE)
   const client = useApolloClient()
 
-  const onSubmit: SubmitHandler<CourseInput> = async (data) => {
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    const anyPhonePart = data.phoneNum1 || data.phoneNum2 || data.phoneNum3
+    if (anyPhonePart) {
+      const part1 = String(data.phoneNum1 || '').trim()
+      const part2 = String(data.phoneNum2 || '').trim()
+      const part3 = String(data.phoneNum3 || '').trim()
+      data.phoneNum = `${part1}-${part2}-${part3}`
+    }
+
+    const local = String(data.emailLocal || '').trim()
+    const domain = String(data.emailDomain || '').trim()
+    data.email = local || domain ? `${local}@${domain}` : ''
+
     try {
       await createCourse({
         variables: {

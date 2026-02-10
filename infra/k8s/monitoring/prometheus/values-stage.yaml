@@ -2,6 +2,8 @@ grafana:
   enabled: false
 
 prometheus:
+  prometheusSpec:
+    retention: 90d
   ingress:
     enabled: true
     hosts:
