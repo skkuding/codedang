@@ -256,7 +256,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
             <Table>
               <TableHeader className="text-base! font-medium!">
                 <TableRow>
-                  <TableHead className="w-[100px]">Time</TableHead>
+                  <TableHead className="w-[100px] py-2">Time</TableHead>
                   <TableHead>Problem</TableHead>
                   <TableHead>Result</TableHead>
                   <TableHead className="text-right">Language</TableHead>
