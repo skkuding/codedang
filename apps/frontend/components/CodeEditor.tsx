@@ -12,7 +12,7 @@ import { createTheme } from '@uiw/codemirror-themes'
 import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { FaPlus, FaMinus, FaArrowRotateLeft } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { Button } from './shadcn/button'
@@ -199,61 +199,73 @@ export function CodeEditor({
   const { onPointerDown: startLongMinus, onPointerUp: stopLongMinus } =
     useLongPress(decreaseFontSize)
 
-  const highlightExtension =
-    (multiHighlightRanges && multiHighlightRanges.length > 0) ||
-    (highlightLines && highlightLines.length > 0 && highlightClassName)
-      ? ViewPlugin.fromClass(
-          class {
-            decorations
-            constructor(view: EditorView) {
-              this.decorations = this.buildDecorations(view)
-            }
+  const highlightExtension = useMemo(() => {
+    const hasRanges = multiHighlightRanges && multiHighlightRanges.length > 0
+    const hasLines =
+      highlightLines && highlightLines.length > 0 && highlightClassName
 
-            update(update: ViewUpdate) {
-              if (update.docChanged || update.viewportChanged) {
-                this.decorations = this.buildDecorations(update.view)
-              }
-            }
+    if (!hasRanges && !hasLines) {
+      return null
+    }
 
-            buildDecorations(view: EditorView) {
-              const builder = new RangeSetBuilder<Decoration>()
+    return ViewPlugin.fromClass(
+      class {
+        decorations
+        constructor(view: EditorView) {
+          this.decorations = this.buildDecorations(view)
+        }
 
-              if (multiHighlightRanges && multiHighlightRanges.length > 0) {
-                multiHighlightRanges.forEach(({ line, className }) => {
-                  if (line <= 0 || line > view.state.doc.lines) {
-                    return
-                  }
-                  const lineInfo = view.state.doc.line(line)
-                  const deco = Decoration.line({
-                    attributes: { class: className }
-                  })
-                  builder.add(lineInfo.from, lineInfo.from, deco)
-                })
-              } else if (
-                highlightLines &&
-                highlightLines.length > 0 &&
-                highlightClassName
-              ) {
-                highlightLines.forEach((lineNumber) => {
-                  if (lineNumber <= 0 || lineNumber > view.state.doc.lines) {
-                    return
-                  }
-                  const lineInfo = view.state.doc.line(lineNumber)
-                  const deco = Decoration.line({
-                    attributes: { class: highlightClassName }
-                  })
-                  builder.add(lineInfo.from, lineInfo.from, deco)
-                })
-              }
-
-              return builder.finish()
-            }
-          },
-          {
-            decorations: (v) => v.decorations
+        update(update: ViewUpdate) {
+          if (update.docChanged || update.viewportChanged) {
+            this.decorations = this.buildDecorations(update.view)
           }
-        )
-      : null
+        }
+
+        buildDecorations(view: EditorView) {
+          const builder = new RangeSetBuilder<Decoration>()
+
+          if (multiHighlightRanges && multiHighlightRanges.length > 0) {
+            const sortedRanges = [...multiHighlightRanges].sort(
+              (a, b) => a.line - b.line
+            )
+
+            sortedRanges.forEach(({ line, className }) => {
+              if (line <= 0 || line > view.state.doc.lines) {
+                return
+              }
+              const lineInfo = view.state.doc.line(line)
+              const deco = Decoration.line({
+                attributes: { class: className }
+              })
+              builder.add(lineInfo.from, lineInfo.from, deco)
+            })
+          } else if (
+            highlightLines &&
+            highlightLines.length > 0 &&
+            highlightClassName
+          ) {
+            const sortedLines = [...highlightLines].sort((a, b) => a - b)
+
+            sortedLines.forEach((lineNumber) => {
+              if (lineNumber <= 0 || lineNumber > view.state.doc.lines) {
+                return
+              }
+              const lineInfo = view.state.doc.line(lineNumber)
+              const deco = Decoration.line({
+                attributes: { class: highlightClassName }
+              })
+              builder.add(lineInfo.from, lineInfo.from, deco)
+            })
+          }
+
+          return builder.finish()
+        }
+      },
+      {
+        decorations: (v) => v.decorations
+      }
+    )
+  }, [multiHighlightRanges, highlightLines, highlightClassName])
 
   return (
     <div className="flex h-full flex-col">
