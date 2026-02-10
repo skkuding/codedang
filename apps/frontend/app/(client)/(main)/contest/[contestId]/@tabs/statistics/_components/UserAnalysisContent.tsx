@@ -116,7 +116,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
       </div>
       <Card className="flex w-full flex-col gap-3 rounded-xl border-none p-5 shadow-[0px_4px_20px_0px_rgba(53,78,116,0.10)]">
         <CardHeader className="flex flex-row items-start justify-between p-0">
-          <span className="text-primary text-sm font-normal">
+          <span className="text-primary text-base font-medium">
             Penalty Analysis
           </span>
           <span className="text-color-red-60 font-semibold">
@@ -153,7 +153,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
         )}
       </Card>
       <Card className="flex w-full flex-col gap-3 rounded-xl border-none p-5 shadow-[0px_4px_20px_0px_rgba(53,78,116,0.10)]">
-        <CardHeader className="text-primary p-0 text-sm font-normal">
+        <CardHeader className="text-primary p-0 text-base font-medium">
           Problem-Solving Timeline
         </CardHeader>
         {userData.timeline.length > 0 ? (
@@ -242,19 +242,19 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
             </ResponsiveContainer>
           </CardContent>
         ) : (
-          <CardContent className="text-color-neutral-60 p-0 text-xs">
+          <CardContent className="text-color-neutral-60 p-0 text-base font-medium">
             There is no timeline to figure
           </CardContent>
         )}
       </Card>
       <Card className="flex w-full flex-col gap-3 rounded-xl border-none p-5 shadow-[0px_4px_20px_0px_rgba(53,78,116,0.10)]">
-        <CardHeader className="text-primary p-0 text-sm font-normal">
+        <CardHeader className="text-primary p-0 text-base font-medium">
           Submission History
         </CardHeader>
         <CardContent className="p-0">
           {userData.submissionHistory.length > 0 ? (
             <Table>
-              <TableHeader className="font-medium">
+              <TableHeader className="text-base! font-medium!">
                 <TableRow>
                   <TableHead className="w-[100px]">Time</TableHead>
                   <TableHead>Problem</TableHead>
@@ -262,17 +262,17 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                   <TableHead className="text-right">Language</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="text-base! font-medium!">
                 {userData.submissionHistory
                   .sort((a, b) =>
                     a.submissionTime.localeCompare(b.submissionTime)
                   )
                   .map((submission) => (
                     <TableRow key={submission.submissionTime}>
-                      <TableCell className="py-2! text-color-neutral-40">
+                      <TableCell className="py-6! text-color-neutral-40">
                         {submission.submissionTime}
                       </TableCell>
-                      <TableCell className={'py-2! text-center font-medium'}>
+                      <TableCell className={'py-6! text-center'}>
                         {submission.problemLabel}
                       </TableCell>
                       <TableCell
