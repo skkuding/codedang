@@ -10,6 +10,13 @@ tempo:
       max_block_bytes: 104857600
       max_block_duration: 10m
       complete_block_timeout: 15m
+  overrides:
+    defaults:
+      metrics_generator:
+        processors:
+          - service-graphs
+          - span-metrics
+          - local-blocks
   metricsGenerator:
     enabled: true
     remoteWriteUrl: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090/api/v1/write
