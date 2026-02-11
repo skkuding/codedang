@@ -1,5 +1,5 @@
-import { Field, Int } from '@nestjs/graphql'
-import { ObjectType } from '@nestjs/graphql'
+import { Field, Int, ObjectType } from '@nestjs/graphql'
+// @generated에서 Group과 StudyInfo를 모두 가져옵니다.
 import { Group } from '@generated'
 
 @ObjectType()
@@ -17,10 +17,10 @@ export class DuplicateCourse {
   duplicatedCourse!: Group
 
   @Field(() => [Int], { nullable: false })
-  originAssignments!: number
+  originAssignments!: number[]
 
   @Field(() => [Int], { nullable: false })
-  copiedAssignments!: number
+  copiedAssignments!: number[]
 }
 
 @ObjectType()

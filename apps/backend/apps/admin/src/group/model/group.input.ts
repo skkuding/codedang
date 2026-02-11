@@ -21,6 +21,12 @@ class Config {
 export class CreateGroupInput extends GroupCreateInput {
   @Field(() => Config, { nullable: false })
   declare config: Config
+
+  @Field(() => Int, { nullable: true, description: 'Study Group 정원 (1~10)' })
+  capacity?: number
+
+  @Field({ nullable: true, description: 'Study Group 비공개 초대 코드' })
+  invitationCode?: string
 }
 
 @InputType()
