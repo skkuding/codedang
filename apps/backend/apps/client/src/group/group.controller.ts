@@ -322,6 +322,8 @@ export class CourseController {
    * @param req - Request object (User is optional if the course is public).
    * @param courseId - The ID of the course.
    * @param filter - Filter options (e.g., specific week, category).
+   * @param cursor - Pagination cursor (last QnA ID).
+   * @param take - Number of items to retrieve (default: 10).
    * @returns List of Course Q&As.
    */
   @Get(':id/qna')
@@ -329,12 +331,16 @@ export class CourseController {
   async getCourseQnAs(
     @Req() req: AuthenticatedRequest,
     @Param('id', GroupIDPipe) courseId: number,
-    @Query() filter: GetCourseQnAsFilterDto
+    @Query() filter: GetCourseQnAsFilterDto,
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number
   ) {
     return await this.courseService.getCourseQnAs(
-      req.user?.id,
+      req.user?.id ?? null,
       courseId,
-      filter
+      filter,
+      cursor || null,
+      take
     )
   }
 
