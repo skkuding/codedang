@@ -410,47 +410,50 @@ export class GroupService {
         }
       })
 
-      const copiedAssignments: number[] = []
-      const originAssignmentIds: number[] = []
-
       const now = new Date()
 
-      for (const assignment of originCourse.assignment) {
-        originAssignmentIds.push(assignment.id)
+      const results = await Promise.all(
+        originCourse.assignment.map(async (assignment) => {
+          const isVisible =
+            assignment.startTime <= now && now <= assignment.endTime
 
-        const isVisible =
-          assignment.startTime <= now && now <= assignment.endTime
+          // prettier-ignore
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id: originId, createTime, updateTime, groupId: oldGroupId, assignmentProblem, ...assignmentData } = assignment
 
-        // prettier-ignore
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { id, createTime, updateTime, groupId, assignmentProblem, ...assignmentData } = assignment
+          const newAssignment = await tx.assignment.create({
+            data: {
+              ...assignmentData,
+              createdById: userId,
+              groupId: duplicatedCourse.id,
+              isVisible
+            }
+          })
 
-        const newAssignment = await tx.assignment.create({
-          data: {
-            ...assignmentData,
-            createdById: userId,
-            groupId: duplicatedCourse.id,
-            isVisible
+          if (assignmentProblem && assignmentProblem.length > 0) {
+            await tx.assignmentProblem.createMany({
+              data: assignmentProblem.map((ap) => ({
+                order: ap.order,
+                assignmentId: newAssignment.id,
+                problemId: ap.problemId,
+                score: ap.score
+              }))
+            })
+          }
+
+          return {
+            originId,
+            newId: newAssignment.id
           }
         })
+      )
 
-        copiedAssignments.push(newAssignment.id)
-
-        if (assignmentProblem && assignmentProblem.length > 0) {
-          await tx.assignmentProblem.createMany({
-            data: assignmentProblem.map((ap) => ({
-              order: ap.order,
-              assignmentId: newAssignment.id,
-              problemId: ap.problemId,
-              score: ap.score
-            }))
-          })
-        }
-      }
+      const originAssignments = results.map((r) => r.originId)
+      const copiedAssignments = results.map((r) => r.newId)
 
       return {
         duplicatedCourse,
-        originAssignments: originAssignmentIds,
+        originAssignments,
         copiedAssignments
       }
     })
