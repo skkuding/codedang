@@ -1599,16 +1599,17 @@ export class CourseService {
    * @param userId - 조회하는 사용자 ID (읽음 여부 확인용)
    * @param courseId - 강좌 ID
    * @param filter - 검색어, 카테고리, 답변 여부 등 필터 옵션
+   * @param cursor - 페이지네이션 커서 (마지막으로 로드된 QnA ID)
+   * @param take - 한 번에 가져올 개수
    * @returns Q&A 목록 (연관된 과제 정보 및 읽음 여부 포함)
    *
-   * @remarks
-   * - 목록은 `order: asc` (오래된 순)으로 정렬됩니다.
-   * - `isExercise` 필드를 통해 실습/과제 여부를 확인할 수 있습니다.
    */
   async getCourseQnAs(
     userId: number | null,
     courseId: number,
-    filter: GetCourseQnAsFilterDto
+    filter: GetCourseQnAsFilterDto,
+    cursor: number | null,
+    take: number
   ) {
     const groupId = courseId
     const group = await this.prisma.group.findUnique({
@@ -1668,11 +1669,13 @@ export class CourseService {
     }
 
     const qnas = await this.prisma.courseQnA.findMany({
+      cursor: cursor ? { id: cursor } : undefined,
+      skip: cursor ? 1 : 0,
+      take,
       select: {
         id: true,
         order: true,
         title: true,
-        content: true,
         isPrivate: true,
         isResolved: true,
         category: true,
@@ -1707,7 +1710,7 @@ export class CourseService {
       },
       where,
       orderBy: {
-        order: 'asc'
+        id: 'desc'
       }
     })
 
