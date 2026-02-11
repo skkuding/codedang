@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: runner-quota
+  namespace: runner
+spec:
+  hard:
+    pods: '110'
+    requests.cpu: '30'
+    requests.memory: 30Gi
+    limits.cpu: '55'
+    limits.memory: 40Gi
