@@ -121,6 +121,8 @@ model UserGroup {
   createTime    DateTime @default(now()) @map("create_time")
   updateTime    DateTime @updatedAt @map("update_time")
 
+  totalStudyTime Int? @default(0) @map("total_study_time")
+
   @@id([userId, groupId])
   @@map("user_group")
 }
@@ -154,6 +156,8 @@ model Group {
   sharedProblems Problem[]
   courseQnA      CourseQnA[]
   CourseNotice   CourseNotice[]
+
+  studyInfo StudyInfo?
 
   @@map("group")
 }
@@ -1012,4 +1016,18 @@ model CourseQnAComment {
 
   @@unique([courseQnAId, order])
   @@map("course_qna_comment")
+}
+
+model StudyInfo {
+  id      Int @id @default(autoincrement())
+  groupId Int @unique @map("group_id")
+
+  // 스터디 설정
+  capacity       Int     @default(10) // 최대 인원 (1~10명)
+  invitationCode String? @map("invitation_code") // 비공개 시 입장 코드 (6자리)
+
+  // 관계 설정 (Group 삭제 시 StudyInfo도 자동 삭제)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@map("study_info")
 }
