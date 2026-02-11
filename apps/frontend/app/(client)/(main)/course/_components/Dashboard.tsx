@@ -1,7 +1,6 @@
 'use client'
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
-import { AssignmentIcon, ExerciseIcon } from '@/components/Icons'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { Assignment, AssignmentSummary, JoinedCourse } from '@/types/type'
@@ -10,7 +9,6 @@ import {
   useQuery,
   type UseQueryOptions
 } from '@tanstack/react-query'
-import { ChevronDown } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { AssignmentLink } from '../[courseId]/_components/AssignmentLink'
 import { DashboardCalendar } from './DashboardCalendar'
@@ -46,7 +44,6 @@ interface GroupedRows {
 }
 
 interface CardSectionProps {
-  icon: React.ReactNode
   title: string
   groups: GroupedRows[]
   selectedDate?: Date
@@ -78,8 +75,6 @@ const isActiveOnDate = (selectedDate: Date | undefined, workItem: WorkItem) => {
 }
 
 const formatDueMd = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
-const progressPct = (submitted: number, total: number) =>
-  total > 0 ? Math.min(100, Math.round((submitted / total) * 100)) : 0
 
 const isDueToday = (selectedDate?: Date, dueDate?: Date) =>
   Boolean(selectedDate && dueDate && sameDay(selectedDate, dueDate))
@@ -125,8 +120,6 @@ export function Dashboard() {
     () => courses.map((c) => c.id).filter((n) => Number.isFinite(n) && n > 0),
     [courses]
   )
-
-  const [isExpanded, setIsExpanded] = useState(false)
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     todayAtMidnight()
@@ -257,14 +250,6 @@ export function Dashboard() {
       .sort((a, b) => a.courseTitle.localeCompare(b.courseTitle))
   }, [visibleRows, courses])
 
-  const totalWorkCount = useMemo(() => {
-    let count = 0
-    groupedByCourse.forEach((g) => {
-      count += g.rows.length
-    })
-    return count
-  }, [groupedByCourse])
-
   const deadlineDateList = useMemo(() => {
     const uniq = new Set<number>()
     for (const row of allRows) {
@@ -278,140 +263,63 @@ export function Dashboard() {
   return (
     <section className="mx-auto max-w-[1208px]">
       <div className="pb-4 sm:pb-[30px]">
-        <h2 className="text-2xl font-medium leading-9 tracking-[-0.9px] md:text-[28px]">
-          DASHBOARD
+        <h2 className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
+          나의 대시보드
         </h2>
       </div>
 
-      <div className="hidden gap-[14px] md:grid md:grid-cols-2 lg:grid-cols-3">
-        <CardSection
-          icon={<AssignmentIcon className="text-color-violet-60 h-6 w-6" />}
-          title="Assignment"
-          groups={groupedByCourse.map((group) => ({
-            ...group,
-            rows: group.rows.filter((r) => !r.isExercise)
-          }))}
-          selectedDate={selectedDate}
-          courseIdResolver={courseIdResolver}
-        />
+      <div className="grid grid-cols-1 gap-[14px] md:grid md:grid-cols-2 lg:grid-cols-3">
+        <div className="order-2 flex max-h-[460px] flex-col md:order-1">
+          <CardSection
+            title="Assignment"
+            groups={groupedByCourse.map((group) => ({
+              ...group,
+              rows: group.rows.filter((r) => !r.isExercise)
+            }))}
+            selectedDate={selectedDate}
+            courseIdResolver={courseIdResolver}
+          />
+        </div>
 
-        <CardSection
-          icon={<ExerciseIcon className="text-color-violet-60 h-7 w-7" />}
-          title="Exercise"
-          groups={groupedByCourse.map((group) => ({
-            ...group,
-            rows: group.rows.filter((r) => r.isExercise)
-          }))}
-          selectedDate={selectedDate}
-          courseIdResolver={courseIdResolver}
-        />
-
-        <DashboardCalendar
-          selectedDate={selectedDate}
-          onSelect={onSelectDate}
-          deadlineDateList={deadlineDateList}
-          viewMonth={viewMonth}
-          setViewMonth={setViewMonth}
-        />
-      </div>
-
-      {/* Mobile View */}
-      <div className="px-4 md:hidden">
-        <DashboardCalendar
-          selectedDate={selectedDate}
-          onSelect={onSelectDate}
-          deadlineDateList={deadlineDateList}
-          viewMonth={viewMonth}
-          setViewMonth={setViewMonth}
-        >
-          <div className="flex w-full min-w-0 gap-8 px-1">
-            <MobileCardSection
-              title="ASSIGNMENT"
-              icon={<AssignmentIcon className="text-color-violet-60 h-5 w-5" />}
-              groups={groupedByCourse.map((group) => ({
-                ...group,
-                rows: group.rows.filter((r) => !r.isExercise)
-              }))}
-              selectedDate={selectedDate}
-              courseIdResolver={courseIdResolver}
-              isExpanded={isExpanded}
-            />
-
-            <MobileCardSection
-              title="EXERCISE"
-              icon={<ExerciseIcon className="text-color-violet-60 h-5 w-5" />}
-              groups={groupedByCourse.map((group) => ({
-                ...group,
-                rows: group.rows.filter((r) => r.isExercise)
-              }))}
-              selectedDate={selectedDate}
-              courseIdResolver={courseIdResolver}
-              isExpanded={isExpanded}
-            />
-          </div>
-
-          {totalWorkCount > 2 && (
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="text-color-neutral-40 mt-8 flex w-full items-center justify-center gap-1 text-[13px]"
-            >
-              {isExpanded ? 'Less' : 'More'}
-              <ChevronDown
-                className={`h-4 w-4 transition-transform duration-300 ${
-                  isExpanded ? 'rotate-180' : 'rotate-0'
-                }`}
-              />
-            </button>
-          )}
-        </DashboardCalendar>
+        <div className="order-3 flex max-h-[460px] flex-col md:order-2">
+          <CardSection
+            title="Exercise"
+            groups={groupedByCourse.map((group) => ({
+              ...group,
+              rows: group.rows.filter((r) => r.isExercise)
+            }))}
+            selectedDate={selectedDate}
+            courseIdResolver={courseIdResolver}
+          />
+        </div>
+        <div className="order-1 flex flex-col md:order-3">
+          <DashboardCalendar
+            selectedDate={selectedDate}
+            onSelect={onSelectDate}
+            deadlineDateList={deadlineDateList}
+            viewMonth={viewMonth}
+            setViewMonth={setViewMonth}
+          />
+        </div>
       </div>
     </section>
   )
 }
 
-const timeProgress = (start: Date, due: Date) => {
-  const now = new Date().getTime()
-  const startTime = start.getTime()
-  const dueTime = due.getTime()
-
-  {
-    /*시작 전인 경우*/
-  }
-  if (now < startTime) {
-    return 0
-  }
-
-  {
-    /*마감기한 지난 경우*/
-  }
-  if (now > dueTime) {
-    return 100
-  }
-
-  const totalDuration = dueTime - startTime
-  const elapsed = now - startTime
-
-  return Math.min(100, Math.round((elapsed / totalDuration) * 100))
-}
-
 function CardSection({
-  icon,
   title,
   groups,
   selectedDate,
   courseIdResolver
 }: CardSectionProps) {
   return (
-    <section className="flex justify-center rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
-      <div className="flex max-h-[40vh] w-full max-w-[100vw] flex-col py-[30px] pl-6 pr-2 sm:max-w-[390px] md:max-h-[460px]">
-        <div className="mb-6 flex items-center gap-2">
-          {icon}
-          <div className="text-[24px] font-semibold leading-[33.6px] tracking-[-0.72px]">
-            {title}
-          </div>
-        </div>
+    <section className="flex h-full rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
+      <div className="flex w-full max-w-[100vw] flex-col overflow-hidden py-[30px] pl-6 pr-2 md:max-w-[390px]">
+        <span className="mb-6 text-[24px] font-semibold leading-[33.6px] tracking-[-0.72px]">
+          {title}
+        </span>
 
-        <ScrollArea className="pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
+        <ScrollArea className="flex-1 pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
           {groups
             .slice()
             .sort(
@@ -431,7 +339,7 @@ function CardSection({
             .map((group, idx) => (
               <div key={group.courseTitle} className="w-full">
                 <p className="mb-3 pl-[6px] text-[14px] font-semibold leading-[19.6px] tracking-[-0.42px] text-black">
-                  <span className="mr-2 inline-block h-[22px] w-[6px] rounded-[1px] bg-violet-300 align-middle" />
+                  <span className="bg-primary-light mr-2 inline-block h-[22px] w-[6px] rounded-[1px] align-middle" />
                   {group.courseTitle}
                 </p>
 
@@ -455,10 +363,6 @@ function CardSection({
                       return a.title.localeCompare(b.title)
                     })
                     .map((row) => {
-                      const progress = progressPct(
-                        row.submittedCount,
-                        row.problemCount
-                      )
                       const courseId = courseIdResolver(row)
 
                       return (
@@ -466,16 +370,10 @@ function CardSection({
                           key={row.id}
                           className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
                         >
-                          <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-neutral-200/40" />
-                          <div
-                            className="pointer-events-none absolute inset-y-0 left-0 rounded-r-md bg-violet-200"
-                            style={{ width: `${progress}%` }}
-                          />
-
                           <div className="relative flex items-center py-[10px]">
                             <div className="flex min-w-0 flex-1 items-center">
                               <div className="pl-[18px] pr-[10px]">
-                                <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-violet-500" />
+                                <span className="bg-primary inline-block h-2 w-2 shrink-0 rounded-full" />
                               </div>
 
                               <div className="min-w-0">
@@ -487,7 +385,7 @@ function CardSection({
                               </div>
                             </div>
 
-                            <span className="ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm tabular-nums text-violet-600">
+                            <span className="text-primary ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm font-medium tabular-nums">
                               {'~ '}
                               {formatDueMd(row.dueTime ?? row.endTime)}
                             </span>
@@ -505,80 +403,5 @@ function CardSection({
         </ScrollArea>
       </div>
     </section>
-  )
-}
-
-function MobileCardSection({
-  icon,
-  title,
-  groups,
-  isExpanded,
-  courseIdResolver
-}: CardSectionProps & { isExpanded: boolean }) {
-  const visibleGroups = useMemo(() => {
-    const filtered = groups.filter((g) => g.rows.length > 0)
-
-    if (isExpanded) {
-      return filtered
-    }
-
-    if (filtered.length === 0) {
-      return []
-    }
-
-    return [filtered[0]]
-  }, [groups, isExpanded])
-
-  return (
-    <div className="flex w-full min-w-0 flex-col gap-[10px]">
-      <div className="flex items-center gap-1">
-        <span>{icon}</span>
-        <span className="text-sm font-medium uppercase leading-[140%] tracking-[-0.42px]">
-          {title}
-        </span>
-      </div>
-
-      <div className="flex flex-col gap-5">
-        {visibleGroups.map((group) => (
-          <div key={group.courseTitle} className="flex flex-col gap-2">
-            <div className="flex flex-col text-sm font-normal leading-[150%] tracking-[-0.42px]">
-              <span className="text-color-neutral-50 text-[11px] font-normal leading-[140%] tracking-[-0.33px]">
-                [{group.courseNum}_{group.classNum}]
-              </span>
-              <span className="truncate font-normal">{group.courseTitle}</span>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              {group.rows.map((row) => {
-                const progress = timeProgress(
-                  row.startTime,
-                  row.dueTime ?? row.endTime
-                )
-                const courseId = courseIdResolver(row)
-
-                return (
-                  <div key={row.id} className="flex flex-col gap-1">
-                    <div className="w-full text-[12px] font-normal leading-[140%] tracking-[-0.36px]">
-                      <AssignmentLink
-                        assignment={row.raw}
-                        courseId={courseId}
-                        isExercise={row.isExercise}
-                      />
-                    </div>
-
-                    <div className="bg-color-neutral-99 h-1.5 w-full overflow-hidden rounded-full">
-                      <div
-                        className="bg-color-violet-70 h-full rounded-full transition-all duration-500"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
   )
 }

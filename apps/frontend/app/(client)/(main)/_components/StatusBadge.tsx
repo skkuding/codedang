@@ -41,8 +41,8 @@ export function StatusBadge({ variant }: Props) {
   const { image, text, color } = variants[variant]
   return (
     <div className="inline-flex items-center gap-[6px]">
-      <Image src={image} alt={text} />
-      <p className={cn('font-sans text-sm font-normal', color)}>{text}</p>
+      {/* <Image src={image} alt={text} /> */}
+      <p className={cn('font-sans text-base font-medium', color)}>{text}</p>
     </div>
   )
 }

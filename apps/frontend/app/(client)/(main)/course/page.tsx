@@ -46,16 +46,17 @@ export default async function Course() {
   return (
     <>
       <CourseMainBanner course={null} />
-      <div className="w-full px-5 pt-[100px] sm:px-[116px]">
-        <Dashboard />
-      </div>
 
-      <div className="flex w-full max-w-[1440px] flex-col gap-5 px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
+      <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
-            <CourseCardList title="MY COURSE" />
+            <CourseCardList title="나의 강좌" />
           </Suspense>
         </ErrorBoundary>
+      </div>
+
+      <div className="w-full px-5 sm:px-[116px]">
+        <Dashboard />
       </div>
 
       <CourseSubBanner />

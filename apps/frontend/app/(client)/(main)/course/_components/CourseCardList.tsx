@@ -4,59 +4,57 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi
 } from '@/components/shadcn/carousel'
-import { fetcherWithAuth, safeFetcherWithAuth } from '@/libs/utils'
+import { fetcherWithAuth } from '@/libs/utils'
 import type { JoinedCourse } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CourseCard } from '../_components/CourseCard'
 import { RegisterCourseButton } from './RegisterCourseButton'
 
-const bgVariants = [
-  'bg-[#fed7de]',
-  'bg-[#c4f2de]',
-  'bg-[#e6ffe2]',
-  'bg-[#e7d9fe]',
-  'bg-[#c4d8f7]',
-  'bg-[#ffef98]'
-]
+// const bgVariants = [
+//   'bg-[#fed7de]',
+//   'bg-[#c4f2de]',
+//   'bg-[#e6ffe2]',
+//   'bg-[#e7d9fe]',
+//   'bg-[#c4d8f7]',
+//   'bg-[#ffef98]'
+// ]
 
-interface Profile {
-  username: string // ID
-  userProfile: {
-    realName: string
-  }
-  studentId: string
-  major: string
-}
+// interface Profile {
+//   username: string // ID
+//   userProfile: {
+//     realName: string
+//   }
+//   studentId: string
+//   major: string
+// }
 
-function getRandomColorArray(username: string) {
-  let hash = 0
-  for (let i = 0; i < username.length; i++) {
-    hash = (hash << 5) - hash + username.charCodeAt(i)
-    hash |= 0
-  }
+// function getRandomColorArray(username: string) {
+//   let hash = 0
+//   for (let i = 0; i < username.length; i++) {
+//     hash = (hash << 5) - hash + username.charCodeAt(i)
+//     hash |= 0
+//   }
 
-  function pseudoRandom(seed: number) {
-    seed = (seed * 9301 + 49297) % 233280
-    return seed / 233280
-  }
+//   function pseudoRandom(seed: number) {
+//     seed = (seed * 9301 + 49297) % 233280
+//     return seed / 233280
+//   }
 
-  const array = [...bgVariants]
+//   const array = [...bgVariants]
 
-  let seed = Math.abs(hash)
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(pseudoRandom(seed) * (i + 1))
-    ;[array[i], array[j]] = [array[j], array[i]]
-    seed = seed * 9301 + 49297
-  }
+//   let seed = Math.abs(hash)
+//   for (let i = array.length - 1; i > 0; i--) {
+//     const j = Math.floor(pseudoRandom(seed) * (i + 1))
+//     ;[array[i], array[j]] = [array[j], array[i]]
+//     seed = seed * 9301 + 49297
+//   }
 
-  return array
-}
+//   return array
+// }
 
 interface CourseCardListProps {
   title: string
@@ -64,15 +62,13 @@ interface CourseCardListProps {
 
 export function CourseCardList({ title }: CourseCardListProps) {
   // Get username and generate colors
-  const { data: username = 'unknown' } = useQuery({
-    queryKey: ['username'],
-    queryFn: async () => {
-      const data: Profile = await safeFetcherWithAuth.get('user').json()
-      return data.username
-    }
-  })
-
-  const colors = useMemo(() => getRandomColorArray(username), [username])
+  // const { data: username = 'unknown' } = useQuery({
+  //   queryKey: ['username'],
+  //   queryFn: async () => {
+  //     const data: Profile = await safeFetcherWithAuth.get('user').json()
+  //     return data.username
+  //   }
+  // })
 
   const { data: courses = [] } = useQuery({
     queryKey: ['joinedCourses'],
@@ -112,7 +108,7 @@ export function CourseCardList({ title }: CourseCardListProps) {
   if (courses.length === 0) {
     return (
       <div className="flex w-full flex-col gap-10 md:items-center md:justify-between">
-        <div className="flex gap-4 text-[20px] font-semibold leading-9 tracking-[-0.9px] text-black md:text-[30px]">
+        <div className="flex gap-4 text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
           {title}
           <RegisterCourseButton />
         </div>
@@ -127,79 +123,30 @@ export function CourseCardList({ title }: CourseCardListProps) {
   }
 
   return (
-    <>
-      <Carousel
-        setApi={setCarouselApi}
-        opts={{ align: 'start' }}
-        className="flex w-full flex-col gap-6"
-      >
-        <div className="flex w-full items-center justify-between">
-          <div className="flex gap-4 text-2xl font-medium leading-9 tracking-[-0.9px] text-black md:text-[28px]">
-            <span>{title}</span>
-            <RegisterCourseButton />
-          </div>
-          <div className="hidden items-center justify-end gap-2 md:flex">
-            <CarouselPrevious />
-            <CarouselNext />
-          </div>
-        </div>
-
-        <div className="-mx-4 sm:-mx-[116px]">
-          <CarouselContent className="mx-[7px] my-[14px] md:mx-[116px]">
-            {courses.map((_, pageIndex) => {
-              const startPoint = pageIndex * 4
-              const pageCourses = courses.slice(startPoint, startPoint + 4)
-              return (
-                <CarouselItem
-                  key={pageIndex}
-                  className="basis-full px-2 md:basis-[320px]"
-                >
-                  <div className="grid w-full grid-cols-2 gap-3 md:hidden">
-                    {pageCourses.map((course, index) => (
-                      <Link
-                        key={course.id}
-                        href={`/course/${course.id}` as const}
-                        className="w-full"
-                      >
-                        <CourseCard
-                          course={course}
-                          color={colors[(startPoint + index) % colors.length]}
-                          size="sm"
-                          index={index}
-                        />
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="hidden pr-4 md:block">
-                    <Link href={`/course/${courses[pageIndex].id}` as const}>
-                      <CourseCard
-                        course={courses[pageIndex]}
-                        color={colors[pageIndex % colors.length]}
-                        size="lg"
-                        index={pageIndex}
-                      />
-                    </Link>
-                  </div>
-                </CarouselItem>
-              )
-            })}
-          </CarouselContent>
-        </div>
-      </Carousel>
-
-      <div className="py-4 text-center text-sm md:hidden">
-        <div className="mb-2 flex items-center justify-center gap-2">
-          {Array.from({ length: count }).map((_, index) => (
-            <button
-              key={index}
-              onClick={() => carouselApi?.scrollTo(index)}
-              className={`h-2 w-2 rounded-full ${
-                index + 1 === current ? 'bg-primary' : 'bg-color-neutral-90'
-              }`}
-            />
-          ))}
-        </div>
+    <Carousel
+      setApi={setCarouselApi}
+      opts={{ align: 'start' }}
+      className="flex w-full flex-col"
+    >
+      <div className="mb-3 flex w-full items-center justify-between">
+        <span className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
+          {title}
+        </span>
+        <RegisterCourseButton />
+        {/* <div className="hidden items-center justify-end gap-2 md:flex">
+          <CarouselPrevious />
+          <CarouselNext />
+        </div> */}
       </div>
-    </>
+      <CarouselContent className="mb-[100px] ml-2 grid auto-cols-[240px] grid-flow-col grid-rows-2 gap-3 md:auto-cols-[293px]">
+        {courses.map((course, index) => (
+          <CarouselItem key={course.id} className="p-0">
+            <Link href={`/course/${course.id}`} className="block w-full">
+              <CourseCard course={course} index={index} />
+            </Link>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+    </Carousel>
   )
 }
