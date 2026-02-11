@@ -1823,6 +1823,7 @@ export class CourseService {
           }
         }
       })
+      qna.readBy.push(userId)
     }
 
     const assignment = qna.problem?.assignmentProblem?.[0]?.assignment
@@ -1831,6 +1832,7 @@ export class CourseService {
 
     return {
       ...rest,
+      isRead: userId == null || readBy.includes(userId),
       assignmentId: assignment?.id,
       assignmentTitle: assignment?.title,
       isExercise: assignment?.isExercise
