@@ -1,7 +1,9 @@
 # check default values.yaml
 # https://artifacthub.io/packages/helm/grafana/grafana?modal=values
 
-envFromSecret: grafana-github-oauth
+envFromSecrets:
+  - name: grafana-github-oauth
+  - name: grafana-aws-cloudwatch
 
 replicas: 1
 autoscaling:
@@ -63,6 +65,17 @@ datasources:
         access: proxy
         url: http://tempo.monitoring-tempo.svc.cluster.local:3200
         editable: false
+      - name: CloudWatch
+        type: cloudwatch
+        uid: cloudwatch
+        access: proxy
+        jsonData:
+          authType: keys
+          defaultRegion: ap-northeast-2
+        secureJsonData:
+          accessKey: $__env{AWS_ACCESS_KEY_ID}
+          secretKey: $__env{AWS_SECRET_ACCESS_KEY}
+        editable: false
 
 # help grafana to detect provisioned dashboards
 sidecar:
@@ -84,6 +97,14 @@ dashboardProviders:
         editable: false
         options:
           path: /var/lib/grafana/dashboards/grafana-dashboards
+      - name: aws-dashboards
+        orgId: 1
+        type: file
+        disableDeletion: true
+        editable: false
+        folder: AWS
+        options:
+          path: /var/lib/grafana/dashboards/aws-dashboards
 
 dashboards:
   grafana-dashboards:
@@ -113,6 +134,49 @@ dashboards:
       datasource:
         - name: DS__VICTORIAMETRICS-PROD-ALL
           value: Prometheus
+  # ── AWS CloudWatch (monitoringartist) ─────────
+  aws-dashboards:
+    # AWS RDS - https://grafana.com/grafana/dashboards/707
+    aws-rds:
+      gnetId: 707
+      revision: 8
+    # AWS S3 - https://grafana.com/grafana/dashboards/575
+    aws-s3:
+      gnetId: 575
+      revision: 8
+    # AWS EC2 - https://grafana.com/grafana/dashboards/617
+    aws-ec2:
+      gnetId: 617
+      revision: 5
+    # AWS EBS - https://grafana.com/grafana/dashboards/623
+    aws-ebs:
+      gnetId: 623
+      revision: 6
+    # AWS Lambda - https://grafana.com/grafana/dashboards/593
+    aws-lambda:
+      gnetId: 593
+      revision: 14
+    # AWS ECS - https://grafana.com/grafana/dashboards/551
+    aws-ecs:
+      gnetId: 551
+      revision: 8
+    # AWS Route53 - https://grafana.com/grafana/dashboards/11154
+    aws-route53:
+      gnetId: 11154
+      revision: 5
+    # AWS CloudFront - https://grafana.com/grafana/dashboards/674
+    aws-cloudfront:
+      gnetId: 674
+      revision: 7
+    # AWS ElastiCache Redis - https://grafana.com/grafana/dashboards/969
+    aws-elasticache-redis:
+      gnetId: 969
+      revision: 6
+    # AWS Billing - https://grafana.com/grafana/dashboards/139
+    # TODO: AWS 루트 계정에서 결제 및 비용 관리 > 결제 기본 설정 > CloudWatch 결제 알림 수신 활성화 필요
+    aws-billing:
+      gnetId: 139
+      revision: 18
 
 # Grafana's primary configuration
 # http://docs.grafana.org/installation/configuration/

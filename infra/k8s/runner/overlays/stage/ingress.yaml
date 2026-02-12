@@ -6,10 +6,10 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-dns01
     traefik.ingress.kubernetes.io/redirect-entry-point: https
-    # 10 minutes timeout
-    traefik.ingress.kubernetes.io/timeout.read: '600s'
-    traefik.ingress.kubernetes.io/timeout.write: '600s'
-    traefik.ingress.kubernetes.io/timeout.idle: '600s'
+    # WebSocket timeout (Frontend 180 timeout + 20s margin)
+    traefik.ingress.kubernetes.io/timeout.read: '200s'
+    traefik.ingress.kubernetes.io/timeout.write: '200s'
+    traefik.ingress.kubernetes.io/timeout.idle: '200s'
 spec:
   ingressClassName: traefik
   tls:
