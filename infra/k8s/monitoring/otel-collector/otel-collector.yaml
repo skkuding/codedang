@@ -15,12 +15,12 @@ spec:
     # https://opentelemetry.io/docs/collector/architecture/
     # https://opentelemetry.io/docs/collector/configuration/
     receivers:
-      otlp: # push 
+      otlp: # push
         protocols:
           grpc:
             endpoint: 0.0.0.0:4317
 
-      prometheus/rabbitmq: # pull 
+      prometheus/rabbitmq: # pull
         config:
           scrape_configs:
             - job_name: 'rabbitmq-scraper'
@@ -55,11 +55,10 @@ spec:
           processors: [batch]
           exporters: [otlphttp/logs]
         metrics:
-          receivers: [prometheus/rabbitmq, otlp] 
+          receivers: [prometheus/rabbitmq, otlp]
           processors: [batch]
           exporters: [prometheus]
         traces:
           receivers: [otlp]
           processors: [batch]
           exporters: [otlp/trace]
-
