@@ -46,7 +46,6 @@ dex:
 
 server:
   service:
-    servicePortHttps: 80
     servicePortHttp: 80
 
   metrics:

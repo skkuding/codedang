@@ -1,0 +1,16 @@
+# cert-manager Helm chart values
+# https://artifacthub.io/packages/helm/cert-manager/cert-manager
+
+# Install CRDs with Helm
+crds:
+  enabled: true
+
+replicaCount: 1
+
+# Enable prometheus metrics
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: true
+    labels:
+      release: prometheus
