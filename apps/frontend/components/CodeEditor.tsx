@@ -1,16 +1,22 @@
 'use client'
 
 import type { Language } from '@/types/type'
+import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
+import { defaultKeymap, indentWithTab } from '@codemirror/commands'
 import { cpp } from '@codemirror/lang-cpp'
 import { java } from '@codemirror/lang-java'
 import { python } from '@codemirror/lang-python'
 import type { LanguageSupport } from '@codemirror/language'
+import { indentUnit } from '@codemirror/language'
+import { keymap } from '@codemirror/view'
 import { tags as t } from '@lezer/highlight'
 import { createTheme } from '@uiw/codemirror-themes'
 import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror'
+import type { ReactCodeMirrorRef } from '@uiw/react-codemirror'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useCallback } from 'react'
+import { useRef } from 'react'
 import { FaPlus, FaMinus, FaArrowRotateLeft } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { Button } from './shadcn/button'
@@ -63,6 +69,12 @@ const editorPadding = EditorView.baseTheme({
   '.cm-editor': {
     padding: '8px',
     height: '100%'
+  },
+  '.cm-scroller': {
+    height: '100%'
+  },
+  '.cm-content': {
+    minHeight: '100%'
   }
 })
 
@@ -158,24 +170,55 @@ export function CodeEditor({
   const { onPointerDown: startLongMinus, onPointerUp: stopLongMinus } =
     useLongPress(decreaseFontSize)
 
+  const cmRef = useRef<ReactCodeMirrorRef>(null)
+
   return (
     <div className="flex h-full flex-col">
       <ScrollArea className="flex-1 rounded-lg bg-[#121728]">
-        <ReactCodeMirror
-          theme={editorTheme}
-          extensions={[
-            languageParser[language](),
-            enableCopyPaste ? [] : copyPasteHandler(),
-            editorPadding,
-            gutterStyle,
-            fontSizeTheme
-          ]}
+        <div
           className="h-full"
-          value={value}
-          onChange={onChange}
-          readOnly={readOnly}
-          {...props}
-        />
+          onMouseDownCapture={(e) => {
+            const view = cmRef.current?.view
+            if (!view) {
+              return
+            }
+
+            const target = e.target as HTMLElement
+            if (target.closest('.cm-editor')) {
+              return
+            }
+
+            e.preventDefault()
+
+            requestAnimationFrame(() => {
+              view.focus()
+            })
+          }}
+        >
+          <ReactCodeMirror
+            ref={cmRef}
+            theme={editorTheme}
+            extensions={[
+              indentUnit.of('    '),
+              languageParser[language](),
+              enableCopyPaste ? [] : copyPasteHandler(),
+              closeBrackets(),
+              keymap.of([
+                ...closeBracketsKeymap,
+                ...defaultKeymap,
+                indentWithTab
+              ]),
+              editorPadding,
+              gutterStyle,
+              fontSizeTheme
+            ]}
+            className="h-full"
+            value={value}
+            onChange={onChange}
+            readOnly={readOnly}
+            {...props}
+          />
+        </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
       {showZoom && (
