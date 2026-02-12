@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: oci://ghcr.io/actions/actions-runner-controller-charts
     chart: gha-runner-scale-set-controller
-    targetRevision: 0.13.0
+    targetRevision: 0.13.1
     helm:
       oci: true
   destination:
