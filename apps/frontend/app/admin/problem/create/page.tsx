@@ -85,6 +85,7 @@ export default function Page() {
           languages: [...allLanguages] as CreateProblemInput['languages']
         }
         methods.reset(next)
+        setFormKey((prev) => prev + 1)
         toast.success('Baekjoon problem data applied')
       } catch {
         toast.error('Failed to apply Baekjoon problem data')
