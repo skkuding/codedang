@@ -114,28 +114,32 @@ export const userGroups: UserGroup[] = [
     userId: 1,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
-    isGroupLeader: true
+    isGroupLeader: true,
+    totalStudyTime: 0
   },
   {
     groupId: 1,
     userId: 2,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
-    isGroupLeader: false
+    isGroupLeader: false,
+    totalStudyTime: 0
   },
   {
     groupId: 2,
     userId: 1,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
-    isGroupLeader: true
+    isGroupLeader: true,
+    totalStudyTime: 0
   },
   {
     groupId: 2,
     userId: 2,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
-    isGroupLeader: false
+    isGroupLeader: false,
+    totalStudyTime: 0
   }
 ]
 
