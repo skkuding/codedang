@@ -1019,9 +1019,7 @@ model CourseQnAComment {
 }
 
 model StudyInfo {
-  id      Int @id @default(autoincrement())
-  groupId Int @unique @map("group_id")
-
+  groupId        Int     @id @map("group_id")
   capacity       Int     @default(10)
   invitationCode String? @map("invitation_code")
 
