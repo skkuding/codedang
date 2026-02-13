@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
-import { Response } from 'express'
 import { createWriteStream, existsSync } from 'fs'
 import { writeFile, rm, unlink, mkdir } from 'fs/promises'
 import * as os from 'os'
@@ -11,7 +10,8 @@ import { v4 as uuidv4 } from 'uuid'
 import type { AuthenticatedUser } from '@libs/auth'
 import {
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
@@ -601,11 +601,8 @@ export class SubmissionService {
 
   private async compressSourceCodes(
     assignmentId: number,
-    problemId: number,
-    res: Response
-  ): Promise<
-    { zipPath: string; zipFilename: string; dirPath: string } | undefined
-  > {
+    problemId: number
+  ): Promise<{ zipPath: string; zipFilename: string; dirPath: string }> {
     const assignmentProblemRecords =
       await this.prisma.assignmentProblemRecord.findMany({
         where: {
@@ -618,12 +615,7 @@ export class SubmissionService {
         }
       })
     if (assignmentProblemRecords.length === 0) {
-      // throw new EntityNotExistException('AssignmentProblem')
-      res.status(404).json({
-        statusCode: 404,
-        message: 'AssignmentProblem does not exist'
-      })
-      return
+      throw new EntityNotExistException('AssignmentProblem')
     }
     const userIds = assignmentProblemRecords.map((r) => r.userId)
     const submissionInfos = await this.prisma.submission.findMany({
@@ -649,11 +641,7 @@ export class SubmissionService {
       }
     })
     if (submissionInfos.length === 0) {
-      // throw new EntityNotExistException('Submission')
-      res.status(404).json({
-        statusCode: 404,
-        message: 'Submission does not exist'
-      })
+      throw new EntityNotExistException('Submission')
     }
 
     const problem = await this.prisma.problem.findFirst({
@@ -665,10 +653,7 @@ export class SubmissionService {
       }
     })
     if (!problem) {
-      res.status(404).json({
-        statusCode: 404,
-        message: 'Problem does not exist'
-      })
+      throw new EntityNotExistException('Problem')
     }
 
     const problemTitle = problem!.title ?? `Problem_${problemId}`
@@ -709,23 +694,17 @@ export class SubmissionService {
       if (existsSync(dirPath)) {
         await rm(dirPath, { recursive: true, force: true })
       }
-      // throw new UnprocessableFileDataException(
-      //   'Failed to write source code files',
-      //   err
-      // )
-      res.status(422).json({
-        statusCode: 422,
-        message: 'Failed to write source code files',
-        detail: err.message
-      })
+      throw new UnprocessableFileDataException(
+        'Failed to write source code files',
+        err
+      )
     }
   }
 
   async downloadSourceCodes(
     assignmentId: number,
     problemId: number,
-    userId: number,
-    res: Response
+    userId: number
   ) {
     const assignmentGroup = await this.prisma.assignment.findFirst({
       where: {
@@ -737,11 +716,7 @@ export class SubmissionService {
       }
     })
     if (!assignmentGroup) {
-      // throw new EntityNotExistException('Assignment')
-      return res.status(404).json({
-        statusCode: 404,
-        message: 'Assignment does not exist'
-      })
+      throw new EntityNotExistException('Assignment')
     }
 
     const user = await this.prisma.user.findFirst({
@@ -766,18 +741,12 @@ export class SubmissionService {
     const isGroupLeader = (user?.userGroup?.length ?? 0) > 0
 
     if (!isAdmin && !isGroupLeader) {
-      // throw new ForbiddenAccessException('Only Group Leader can download source codes.')
-      return res.status(403).json({
-        statusCode: 403,
-        message: 'Only Group Leader can download source codes.'
-      })
+      throw new ForbiddenAccessException(
+        'Only Group Leader can download source codes.'
+      )
     }
 
-    const compressed = await this.compressSourceCodes(
-      assignmentId,
-      problemId,
-      res
-    )
+    const compressed = await this.compressSourceCodes(assignmentId, problemId)
     return compressed
   }
 }

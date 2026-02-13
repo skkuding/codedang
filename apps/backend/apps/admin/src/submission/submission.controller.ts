@@ -39,8 +39,7 @@ export class SubmissionController {
       await this.submissionService.downloadSourceCodes(
         assignmentId,
         problemId,
-        req.user.id,
-        res
+        req.user.id
       )
 
     const fileStream = createReadStream(zipPath)
