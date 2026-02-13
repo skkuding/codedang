@@ -625,16 +625,29 @@ export class SubmissionService {
       })
       return
     }
-
-    const submissionInfos = await Promise.all(
-      assignmentProblemRecords.map((record) =>
-        this.getAssignmentLatestSubmissionInfo(
-          assignmentId,
-          record.userId,
-          problemId
-        )
-      )
-    )
+    const userIds = assignmentProblemRecords.map((r) => r.userId)
+    const submissionInfos = await this.prisma.submission.findMany({
+      where: {
+        assignmentId,
+        problemId,
+        userId: { in: userIds }
+      },
+      distinct: ['userId'],
+      orderBy: { createTime: 'desc' },
+      select: {
+        id: true,
+        code: true,
+        updateTime: true,
+        language: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            studentId: true
+          }
+        }
+      }
+    })
     if (submissionInfos.length === 0) {
       // throw new EntityNotExistException('Submission')
       res.status(404).json({
