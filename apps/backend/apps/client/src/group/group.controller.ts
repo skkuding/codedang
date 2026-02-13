@@ -332,14 +332,15 @@ export class CourseController {
     @Req() req: AuthenticatedRequest,
     @Param('id', GroupIDPipe) courseId: number,
     @Query() filter: GetCourseQnAsFilterDto,
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
-    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number
+    @Query('cursor', new CursorValidationPipe()) cursor: number | null,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number
   ) {
     return await this.courseService.getCourseQnAs(
-      req.user?.id ?? null,
+      req.user?.id,
       courseId,
       filter,
-      cursor || null,
+      cursor,
       take
     )
   }
