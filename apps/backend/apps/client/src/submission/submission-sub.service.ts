@@ -83,12 +83,26 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     this.amqpService.startSubscription()
   }
 
+  /**
+   * 채점 서버로부터 수신한 실행 결과 메시지를 처리합니다.
+   * 주로 코드 실행 요청(`TestSubmission`)에 대한 결과를 처리하며, 캐시 및 DB를 업데이트합니다.
+   *
+   * 1. 메시지의 상태 및 에러 정보를 파싱합니다.
+   * 2. `testcaseId`가 존재하지 않는 경우(컴파일 에러, 서버 에러 등), 해당 제출과 관련된 모든 테스트케이스의 결과를 에러 상태로 캐시에 업데이트하고 종료합니다.
+   * 3. `testcaseId`가 존재하는 경우, 해당 테스트케이스의 결과와 출력값을 캐시에 업데이트합니다.
+   * 4. 실행 결과에 포함된 CPU 시간 및 메모리 사용량을 확인하여, 해당 제출(`TestSubmission`)의 최대 리소스 사용량(maxCpuTime, maxMemoryUsage)을 DB에 갱신합니다.
+   *
+   * @param {JudgerResponse} msg 채점 서버로부터 수신한 응답 메시지 객체
+   * @param {number} submissionId 제출 ID (`TestSubmission`의 ID)
+   * @param  isUserTest '테스트 실행' 여부 (기본값: false). true인 경우 사용자 테스트용 캐시 키를 사용합니다.
+   * @returns
+   */
   @Span()
   async handleRunMessage(
     msg: JudgerResponse,
     submissionId: number,
     isUserTest = false
-  ): Promise<void> {
+  ) {
     const status = Status(msg.resultCode)
     const testcaseId = msg.judgeResult?.testcaseId
     const output = this.parseError(msg, status)
@@ -148,18 +162,32 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       const newMaxMemoryUsage =
         memoryUsage > maxMemoryUsage ? memoryUsage : maxMemoryUsage
 
-      await this.prisma.testSubmission.update({
-        where: { id: testSubmission.id },
-        data: {
-          maxCpuTime: newMaxCpuTime,
-          maxMemoryUsage: newMaxMemoryUsage
-        }
-      })
+      if (maxCpuTime !== newMaxCpuTime || maxMemoryUsage !== newMaxMemoryUsage)
+        await this.prisma.testSubmission.update({
+          where: { id: testSubmission.id },
+          data: {
+            maxCpuTime: newMaxCpuTime,
+            maxMemoryUsage: newMaxMemoryUsage
+          }
+        })
     }
 
     await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
   }
 
+  /**
+   * 채점 결과 메시지와 상태 코드를 기반으로, 사용자에게 보여줄 에러 메시지를 파싱합니다.
+   *
+   * 1. `judgeResult.output`이 존재하는 경우, 해당 값을 최우선으로 반환합니다.
+   * 2. 출력이 없는 경우 `ResultStatus`에 따라 대체 에러 메시지를 반환합니다.
+   *    - CompileError: `msg.error`
+   *    - SegmentationFaultError: 'Segmentation Fault'
+   *    - RuntimeError: 'Value Error'
+   *
+   * @param {JudgerResponse} msg 채점 서버로부터 수신한 응답 메시지 객체
+   * @param {ResultStatus} status 파싱된 채점 결과 상태
+   * @returns {string} 파싱된 에러 메시지 문자열
+   */
   parseError(msg: JudgerResponse, status: ResultStatus): string {
     if (msg.judgeResult?.output) return msg.judgeResult.output
 
@@ -175,6 +203,17 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     }
   }
 
+  /**
+   * 채점 서버로부터 수신한 메시지의 형식을 검증합니다.
+   *
+   * 1. 수신한 `msg` 객체를 `JudgerResponse` DTO 인스턴스로 변환합니다 (`plainToInstance`).
+   * 2. `class-validator`를 사용하여 데이터의 유효성을 검사합니다.
+   * 3. 검증 성공 시 DTO 인스턴스를 반환하며, 실패 시 예외를 던집니다.
+   *
+   * @param {object} msg 채점 서버로부터 수신한 Raw 메시지 객체
+   * @returns {Promise<JudgerResponse>} 유효성 검사가 완료된 `JudgerResponse` 객체
+   * @throws {ValidationError[]} 유효성 검사 실패 시 발생
+   */
   @Span()
   async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
     const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
@@ -183,9 +222,21 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     return res
   }
 
+  /**
+   * 채점 결과가 도착한 테스트케이스가 최신 상태인지(유효한지) 확인합니다.
+   *
+   * 문제 출제자가 테스트케이스를 수정하거나 새로 업로드하면(`uploadTestcaseZip` 등),
+   * 기존 테스트케이스들은 모두 `isOutdated: true`로 설정됩니다.
+   *
+   * 1. 응답에 포함된 `testcaseId`가 현재 유효한지(`isOutdated: false`) 확인합니다.
+   * 2. 해당 테스트케이스가 존재하지 않으면(즉, Outdated 되었거나 삭제된 경우), `true`를 반환합니다.
+   *
+   * @param {JudgerResponse} res 채점 서버로부터 수신한 응답 메시지 객체
+   * @returns {Promise<boolean>} 테스트케이스가 만료(Outdated)되었으면 `true`, 유효하면 `false`
+   */
   @Span()
   async isOutdatedTestcase(res: JudgerResponse): Promise<boolean> {
-    const testcase = await this.prisma.problemTestcase.findFirst({
+    const testcase = await this.prisma.problemTestcase.count({
       where: {
         id: res.judgeResult?.testcaseId,
         isOutdated: false,
@@ -197,9 +248,21 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
 
-    return !testcase
+    return testcase === 0
   }
 
+  /**
+   * 채점 서버로부터 수신한 개별 테스트케이스의 채점 결과 메시지를 처리합니다.
+   *
+   * 1. 메시지의 상태 코드(`resultCode`)를 파싱하여 `ResultStatus`를 결정합니다.
+   * 2. 에러 상태(ServerError, CompileError)인 경우, `handleJudgeError`를 호출하여 예외 처리를 수행하고 종료합니다.
+   * 3. 정상 채점 결과인 경우, 메시지에서 실행 데이터(CPU 시간, 메모리, 출력 등)를 추출합니다.
+   * 4. `updateTestcaseJudgeResult`를 호출하여 DB에 결과를 반영하고 후속 작업(통계 갱신 등)을 호출합니다.
+   *
+   * @param {JudgerResponse} msg 채점 서버로부터 수신한 채점 결과 메시지 객체
+   * @returns {Promise<void>}
+   * @throws {UnprocessableDataException} 정상 결과(`judgeResult`)가 누락된 경우 예외 발생
+   */
   @Span()
   async handleJudgerMessage(msg: JudgerResponse): Promise<void> {
     const status = Status(msg.resultCode)
@@ -230,32 +293,35 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     await this.updateTestcaseJudgeResult(submissionResult)
   }
 
+  /**
+   * 채점 도중 발생한 에러(컴파일 에러, 서버 에러 등)를 처리합니다.
+   *
+   * 1. 해당 제출이 현재 채점 중(`Judging`)인지 확인합니다. 이미 처리된 경우 종료합니다.
+   * 2. `Submission` 테이블의 결과를 해당 에러 상태로 업데이트합니다.
+   * 3. 관련된 모든 `SubmissionResult` (테스트케이스별 결과)를 해당 에러 상태로 일괄 업데이트합니다.
+   * 4. `ServerError`인 경우, 확인을 위해 예외를 발생시킵니다.
+   *
+   * @param {ResultStatus} status 발생한 에러의 상태 코드 (예: CompileError, ServerError)
+   * @param {JudgerResponse} msg 채점 서버로부터 수신한 상세 메시지 객체
+   * @returns {Promise<void>}
+   * @throws {UnprocessableDataException} ServerError 발생 시 상세 로그와 함께 예외 발생
+   */
   @Span()
   async handleJudgeError(
     status: ResultStatus,
     msg: JudgerResponse
   ): Promise<void> {
-    const submission = await this.prisma.submission.findUnique({
+    const { count } = await this.prisma.submission.updateMany({
       where: {
         id: msg.submissionId,
         result: ResultStatus.Judging
-      },
-      select: {
-        id: true
-      }
-    })
-
-    // 이미 처리한 채점 예외에 대해서는 중복으로 처리하지 않음
-    if (!submission) return
-
-    await this.prisma.submission.update({
-      where: {
-        id: msg.submissionId
       },
       data: {
         result: status
       }
     })
+
+    if (!count) return
 
     await this.prisma.submissionResult.updateMany({
       where: {
@@ -272,6 +338,17 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       )
   }
 
+  /**
+   * 개별 테스트케이스의 채점 결과를 DB에 반영하고, 후속 처리를 수행합니다.
+   *
+   * 1. `SubmissionResult` 테이블에 해당 테스트케이스의 채점 결과(성공 여부, 시간, 메모리, 출력 등)를 업데이트합니다.
+   * 2. 유효한 채점 결과(Judging, ServerError 등이 아닌 확정된 상태)라면, `updateTestcaseStats`를 호출하여 테스트케이스별 통계를 갱신합니다.
+   * 3. `updateSubmissionResult`를 호출하여, 해당 제출(Submission)의 전체 채점 완료 여부를 확인하고 최종 결과를 갱신합니다.
+   *
+   * @param {Partial<SubmissionResult> & Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>} submissionResult
+   *   - 업데이트할 테스트케이스 결과 데이터 (필수: result, submissionId, problemTestcaseId)
+   * @returns {Promise<void>}
+   *    */
   @Span()
   async updateTestcaseJudgeResult(
     submissionResult: Partial<SubmissionResult> &
@@ -313,6 +390,16 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     await this.updateSubmissionResult(submissionResult.submissionId)
   }
 
+  /**
+   * 개별 테스트케이스의 실행 통계를 업데이트합니다.
+   *
+   * 매 실행 시마다 `submissionCount`를 1씩 증가시키며,
+   * 결과가 `Accepted`인 경우 `acceptedCount`도 1씩 증가시킵니다.
+   *
+   * @param {number} testcaseId 통계를 업데이트할 테스트케이스 ID
+   * @param {boolean} isAccepted 채점 결과가 정답(Accepted)인지 여부
+   * @returns {Promise<void>}
+   */
   @Span()
   async updateTestcaseStats(
     testcaseId: number,
@@ -327,18 +414,29 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           increment: 1
         },
         acceptedCount: {
-          increment: 0
+          increment: isAccepted ? 1 : 0
         }
       }
-    }
-
-    if (isAccepted) {
-      testcaseStats.data.acceptedCount.increment = 1
     }
 
     await this.prisma.problemTestcase.update(testcaseStats)
   }
 
+  /**
+   * 개별 테스트케이스 통계를 업데이트한 후, 제출 전체의 최종 결과(Result)를 산출하고 관련 기록을 갱신합니다.
+   *
+   * 1. 모든 테스트케이스가 채점 완료되었는지 확인(Judging 상태가 없는지)합니다.
+   * 2. 전체 결과를 집계하여 `Submission`의 최종 상태(`Accepted`, `WrongAnswer`, `ServerError` 등)를 결정합니다.
+   *    - 모든 테스트케이스가 `Accepted`라면 `Accepted`.
+   *    - 하나라도 실패했다면 가장 먼저 발생한 실패 원인을 따르거나 `ServerError`로 처리.
+   * 3. 결정된 최종 결과를 DB에 업데이트합니다.
+   * 4. `updateSubmissionScore`를 호출하여 점수를 계산 및 저장합니다.
+   * 5. `updateProblemAccepted`를 호출하여 문제의 통계(정답률 등)를 갱신합니다.
+   * 6. 대회(`contestId`) 제출이거나 과제(`assignmentId`) 제출인 경우, 각각의 전용 기록(`Record`) 업데이트 로직을 호출합니다.
+   *
+   * @param {number} submissionId 최종 결과를 산출할 제출 ID
+   * @returns {Promise<void>}
+   */
   @Span()
   async updateSubmissionResult(submissionId: number): Promise<void> {
     const submission = await this.prisma.submission.findUnique({
@@ -408,7 +506,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   /**
    * 업데이트된 제출 결과를 반영하여 대회 참가자의 점수 및 패널티를 갱신하는 함수
    *
-   * @param {Pick<Submission, 'problemId' | 'contestId' | 'userId' | 'createTime' | 'updateTime'>} submission
+   * @param {Pick<Submission, 'id' | 'problemId' | 'contestId' | 'userId' | 'createTime' | 'updateTime'>} submission
    *   - 제출 정보 객체 (문제 ID, 대회 ID, 사용자 ID, 제출 생성 및 수정 시간 포함)
    * @param {boolean} isAccepted
    *   - 제출 결과가 `Accepted`인지 여부
@@ -436,18 +534,26 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   async updateContestRecord(
     submission: Pick<
       Submission,
-      'problemId' | 'contestId' | 'userId' | 'createTime' | 'updateTime'
+      'id' | 'problemId' | 'contestId' | 'userId' | 'createTime' | 'updateTime'
     >,
     isAccepted: boolean
   ): Promise<void> {
-    const { contestId, problemId, userId, updateTime } = submission
+    const {
+      id: submissionId,
+      contestId,
+      problemId,
+      userId,
+      updateTime
+    } = submission
 
     if (!contestId || !userId)
       throw new UnprocessableDataException(
         `Contest record update failed - missing required fields: contestId=${contestId}, userId=${userId}`
       )
 
-    const [contest, contestProblem, contestRecord, submissions] =
+    if (!isAccepted) return
+
+    const [contest, contestProblem, contestRecord, previousSubmissions] =
       await Promise.all([
         this.prisma.contest.findUniqueOrThrow({
           where: { id: contestId },
@@ -469,15 +575,19 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           where: { contestId_userId: { contestId, userId } },
           select: { id: true }
         }),
-        this.prisma.submission.findMany({
-          where: { contestId, problemId, result: ResultStatus.Accepted },
-          select: { id: true, userId: true, createTime: true }
+        this.prisma.submission.count({
+          where: {
+            contestId,
+            problemId,
+            userId,
+            result: ResultStatus.Accepted,
+            id: { not: submissionId }
+          }
         })
       ])
 
-    const isNewAccept =
-      submissions.filter((sub) => sub.userId === userId).length === 1
-    if (!isNewAccept || !isAccepted) return
+    const isNewAccept = previousSubmissions === 0
+    if (!isNewAccept) return
 
     const { startTime, penalty, lastPenalty, freezeTime } = contest
     const { id: contestProblemId, score } = contestProblem
@@ -530,60 +640,33 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         }
       })
 
-      const contestProblemRecords = await prisma.contestProblemRecord.findMany({
+      const stats = await prisma.contestProblemRecord.aggregate({
         where: { contestRecordId },
-        select: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _sum: {
           score: true,
-          timePenalty: true,
           submitCountPenalty: true,
+          timePenalty: true,
           finalScore: true,
           finalTimePenalty: true,
           finalSubmitCountPenalty: true
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _max: {
+          timePenalty: true,
+          finalTimePenalty: true
         }
       })
 
-      const initialStats = {
-        scoreSum: 0,
-        submitCountPenaltySum: 0,
-        timePenaltySum: 0,
-        maxTimePenalty: 0,
-        finalScoreSum: 0,
-        finalSubmitCountPenaltySum: 0,
-        finalTimePenaltySum: 0,
-        finalMaxTimePenalty: 0
-      }
+      const scoreSum = stats._sum.score ?? 0
+      const submitCountPenaltySum = stats._sum.submitCountPenalty ?? 0
+      const timePenaltySum = stats._sum.timePenalty ?? 0
+      const maxTimePenalty = stats._max.timePenalty ?? 0
 
-      const contestStats = { ...initialStats }
-
-      contestProblemRecords.forEach((record) => {
-        contestStats.scoreSum += record.score
-        contestStats.submitCountPenaltySum += record.submitCountPenalty
-        contestStats.timePenaltySum += record.timePenalty
-        contestStats.maxTimePenalty = Math.max(
-          contestStats.maxTimePenalty,
-          record.timePenalty
-        )
-
-        contestStats.finalScoreSum += record.finalScore
-        contestStats.finalSubmitCountPenaltySum +=
-          record.finalSubmitCountPenalty
-        contestStats.finalTimePenaltySum += record.finalTimePenalty
-        contestStats.finalMaxTimePenalty = Math.max(
-          contestStats.finalMaxTimePenalty,
-          record.finalTimePenalty
-        )
-      })
-
-      const {
-        scoreSum,
-        submitCountPenaltySum,
-        timePenaltySum,
-        maxTimePenalty,
-        finalScoreSum,
-        finalSubmitCountPenaltySum,
-        finalTimePenaltySum,
-        finalMaxTimePenalty
-      } = contestStats
+      const finalScoreSum = stats._sum.finalScore ?? 0
+      const finalSubmitCountPenaltySum = stats._sum.finalSubmitCountPenalty ?? 0
+      const finalTimePenaltySum = stats._sum.finalTimePenalty ?? 0
+      const finalMaxTimePenalty = stats._max.finalTimePenalty ?? 0
 
       const calculatePenalty = (
         lastPenalty: boolean,
@@ -624,7 +707,24 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   }
 
   /**
-   * Assignment 제출 점수 계산 (분수 기반)
+   * 과제(Assignment) 제출에 따른 점수 및 진행 상황을 계산하여 업데이트합니다.
+   *
+   * 사용자가 과제 내의 문제를 제출했을 때 호출되며, 다음 두 가지 레코드를 갱신합니다:
+   * 1. `AssignmentProblemRecord`: 해당 문제에 대한 개별 점수 및 정답 여부
+   * 2. `AssignmentRecord`: 과제 전체에 대한 총점, 맞은 문제 수, 완료 시간
+   *
+   * 주요 로직:
+   * 1. 점수 환산: 제출된 문제의 점수(0~100)를 과제 배점 비중(`assignmentProblem.score`)에 맞춰 환산합니다 (`realSubmissionScore`).
+   * 2. 개별 기록 갱신: `AssignmentProblemRecord`를 업데이트하고, 이전 점수(`prevSubmissionScore`)를 저장합니다.
+   * 3. 점수 차이 계산 (Delta): 이번 점수와 이전 점수의 차이(`toBeAddedScore`)를 계산하여 과제 총점에 반영합니다.
+   * 4. 정답 수 변동 계산: 점수 변동과 별개로, 정답 상태의 변화(X -> O, O -> X)를 감지하여 맞은 문제 수(`acceptedProblemNum`)를 증감합니다.
+   * 5. 전체 기록 갱신: 계산된 증감분을 `AssignmentRecord`에 적용(`increment`)합니다.
+   *
+   * @param {Pick<Submission, 'id' | 'problemId' | 'assignmentId' | 'userId' | 'updateTime'>} submission
+   *   - 점수 계산에 필요한 제출 정보 객체
+   * @param {boolean} isAccepted
+   *   - 이번 제출이 정답(Accepted)인지 여부
+   * @returns {Promise<void>}
    */
   @Span()
   async calculateAssignmentSubmissionScore(
@@ -725,11 +825,19 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     toBeAddedScore = realSubmissionScore.sub(prevSubmissionScore)
 
-    if (toBeAddedScore.greaterThan(0)) {
-      toBeAddedAcceptedProblemNum = isAccepted ? 1 : 0
-    } else if (toBeAddedScore.lessThan(0)) {
-      toBeAddedAcceptedProblemNum = assignmentProblemRecord?.isAccepted ? -1 : 0
+    const wasAcceptted = assignmentProblemRecord?.isAccepted
+
+    if (!wasAcceptted && isAccepted) {
+      // (X -> O)
+      toBeAddedAcceptedProblemNum = 1
+    } else if (wasAcceptted && !isAccepted) {
+      // (O -> X)
+      toBeAddedAcceptedProblemNum = -1
+    } else {
+      // (O -> O) 혹은 (X -> X)
+      toBeAddedAcceptedProblemNum = 0
     }
+
     await this.prisma.assignmentRecord.update({
       where: { id: assignmentRecord.id },
       data: {
@@ -740,6 +848,17 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     })
   }
 
+  /**
+   * 제출(Submission)의 최종 점수를 계산하여 DB에 저장합니다.
+   *
+   * 1. 제출 정보와 연관된 채점 결과(`submissionResult`) 및 문제의 테스트케이스 배점 정보를 조회합니다.
+   * 2. 대회(`Contest`) 제출인 경우, `evaluateWithSampleTestcase` 설정에 따라 점수 계산에 포함할 테스트케이스를 필터링합니다.
+   *    - 예: 샘플 테스트케이스를 제외
+   * 3. `calculateFractionalScore` 함수를 통해 가중치와 부분 점수를 고려한 최종 점수를 계산합니다.
+   * 4. 계산된 점수를 `Submission` 테이블의 `score` 필드에 업데이트합니다.
+   *
+   * @param {number} id 점수를 계산할 제출의 ID
+   */
   async updateSubmissionScore(id: number) {
     const submission = await this.prisma.submission.findUniqueOrThrow({
       where: { id },
@@ -791,7 +910,18 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   }
 
   /**
-   * 분수 기반 점수 계산 헬퍼 함수
+   * 분수(Fraction) 기반으로 제출 점수를 정밀하게 계산하는 헬퍼 함수입니다.
+   *
+   * 각 테스트케이스의 배점이 분수 형태(분자/분모)로 저장되어 있을 때,
+   * 부동소수점 연산 오차를 방지하기 위해 최소공배수(LCM)를 사용하여 통분 후 점수를 합산합니다.
+   *
+   * 1. 모든 테스트케이스의 분모에 대한 최소공배수(LCM)를 구합니다.
+   * 2. 각 테스트케이스의 점수를 공통 분모(LCM) 기준으로 환산하여 분자(Numerator)를 합산합니다.
+   * 3. (획득한 점수의 분자 합 / 전체 점수의 분자 합) * 100 공식을 사용하여 최종 점수를 계산합니다.
+   *
+   * @param {Array<{ problemTestcase: { id: number, scoreWeightNumerator: number, scoreWeightDenominator: number }, result: ResultStatus }>} submissionResults
+   *   - 점수 계산 대상이 되는 테스트케이스 결과 목록 (테스트케이스 배점 정보 포함)
+   * @returns {number} 100점 만점 기준으로 환산된 최종 점수 (정수)
    */
   private calculateFractionalScore(
     submissionResults: Array<{
@@ -841,21 +971,33 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     return score
   }
 
+  /**
+   * 제출 처리가 완료된 후, 해당 문제의 전체 통계(제출 수, 정답 수, 정답률)를 갱신합니다.
+   *
+   * 1. 해당 문제의 총 제출 횟수(`submissionCount`)를 1 증가시킵니다.
+   * 2. 제출 결과가 정답(`isAccepted`)인 경우, 정답 횟수(`acceptedCount`)도 1 증가시킵니다.
+   * 3. 증가된 수치를 바탕으로 정답률(`acceptedRate`)을 재계산하여 업데이트합니다.
+   *
+   * @param {number} id 통계를 갱신할 문제의 ID
+   * @param {boolean} isAccepted 제출의 최종 결과가 정답(Accepted)인지 여부
+   * @returns {Promise<void>}
+   */
   @Span()
   async updateProblemAccepted(id: number, isAccepted: boolean): Promise<void> {
     const data: {
       submissionCount: { increment: number }
       acceptedCount?: { increment: number }
     } = {
-      submissionCount: { increment: 1 }
-    }
-
-    if (isAccepted) {
-      data.acceptedCount = { increment: 1 }
+      submissionCount: { increment: 1 },
+      ...(isAccepted && { acceptedCount: { increment: 1 } })
     }
 
     const problem = await this.prisma.problem.findFirstOrThrow({
-      where: { id }
+      where: { id },
+      select: {
+        submissionCount: true,
+        acceptedCount: true
+      }
     })
 
     await this.prisma.problem.update({
