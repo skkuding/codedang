@@ -673,23 +673,18 @@ export class SubmissionService {
 
     const problemTitle = problem!.title ?? `Problem_${problemId}`
     const assignmentTitle = await this.getAssignmentTitle(assignmentId)
-    const zipFilename = `${assignmentTitle}_${problemId}`
-    const zipPath = path.join(__dirname, `${zipFilename}.zip`)
-    const dirPath = path.join(__dirname, `${zipFilename}`)
-
-    if (existsSync(dirPath)) {
-      await rm(dirPath, { recursive: true, force: true })
-    }
-    await mkdir(dirPath, { recursive: true })
-
+    const uniqueId = uuidv4()
+    const dirPath = path.join(os.tmpdir(), `submissions_${uniqueId}`)
+    const zipPath = `${dirPath}.zip`
+    const zipFilename = `${assignmentTitle}_${problemId}.zip`
     try {
+      await mkdir(dirPath, { recursive: true })
       await Promise.all(
         submissionInfos.map(async (info) => {
           const code = plainToInstance(Snippet, info.code)
           const formattedCode = code.map((snippet) => snippet.text).join('\n')
           const filename = `${info.user?.studentId}${LanguageExtension[info.language]}`
-          const filePath = path.join(dirPath, filename)
-          await writeFile(filePath, formattedCode)
+          await writeFile(path.join(dirPath, filename), formattedCode)
         })
       )
 
