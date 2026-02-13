@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:22-bullseye
 RUN mkdir -p /app/sandbox/policy /app/sandbox/results /app/sandbox/logs/run /app/sandbox/logs/compile
 RUN chmod -R 777 /app/sandbox
 
-RUN curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.3/libjudger-$(dpkg --print-architecture).so" -o "/app/sandbox/libjudger.so"
+RUN curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.4/libjudger-$(dpkg --print-architecture).so" -o "/app/sandbox/libjudger.so"
 RUN chmod 750 /app/sandbox/libjudger.so
 
 # Install dependencies

@@ -66,6 +66,7 @@ type AnnouncementWithProblemOrder {
 }
 
 type Assignment {
+  CheckRequest: [CheckRequest!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
@@ -101,6 +102,7 @@ type AssignmentAvgAggregate {
 }
 
 type AssignmentCount {
+  CheckRequest: Int!
   assignmentProblem: Int!
   assignmentRecord: Int!
   submission: Int!
@@ -238,19 +240,19 @@ type AssignmentProblemRecord {
   assignmentProblem: AssignmentProblem!
   assignmentRecord: AssignmentRecord!
   comment: String!
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean!
   isSubmitted: Boolean!
   problemId: Int!
-  score: Int!
+  score: Decimal!
   userId: Int!
 }
 
 type AssignmentProblemRecordAvgAggregate {
   assignmentId: Float
-  finalScore: Float
+  finalScore: Decimal
   problemId: Float
-  score: Float
+  score: Decimal
   userId: Float
 }
 
@@ -269,38 +271,31 @@ type AssignmentProblemRecordCountAggregate {
 type AssignmentProblemRecordMaxAggregate {
   assignmentId: Int
   comment: String
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean
   isSubmitted: Boolean
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
 }
 
 type AssignmentProblemRecordMinAggregate {
   assignmentId: Int
   comment: String
-  finalScore: Int
+  finalScore: Decimal
   isAccepted: Boolean
   isSubmitted: Boolean
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
 }
 
 type AssignmentProblemRecordSumAggregate {
   assignmentId: Int
-  finalScore: Int
+  finalScore: Decimal
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
-}
-
-type AssignmentProblemScore {
-  finalScore: Int
-  maxScore: Int!
-  problemId: Int!
-  score: Float!
 }
 
 type AssignmentProblemSumAggregate {
@@ -308,6 +303,15 @@ type AssignmentProblemSumAggregate {
   order: Int
   problemId: Int
   score: Int
+}
+
+type AssignmentProblemSummary {
+  acceptedTestcaseCount: Int!
+  finalScore: Float
+  maxScore: Int!
+  problemId: Int!
+  score: Float!
+  totalTestcaseCount: Int!
 }
 
 type AssignmentProblemTestcaseResult {
@@ -329,10 +333,10 @@ type AssignmentRecord {
   assignmentProblemRecord: [AssignmentProblemRecord!]
   comment: String!
   createTime: DateTime!
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: ID!
-  score: Int!
+  score: Decimal!
   totalPenalty: Int!
   updateTime: DateTime!
   user: User
@@ -342,9 +346,9 @@ type AssignmentRecord {
 type AssignmentRecordAvgAggregate {
   acceptedProblemNum: Float
   assignmentId: Float
-  finalScore: Float
+  finalScore: Decimal
   id: Float
-  score: Float
+  score: Decimal
   totalPenalty: Float
   userId: Float
 }
@@ -373,10 +377,10 @@ type AssignmentRecordMaxAggregate {
   assignmentId: Int
   comment: String
   createTime: DateTime
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   updateTime: DateTime
   userId: Int
@@ -387,10 +391,10 @@ type AssignmentRecordMinAggregate {
   assignmentId: Int
   comment: String
   createTime: DateTime
-  finalScore: Int
+  finalScore: Decimal
   finishTime: DateTime
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   updateTime: DateTime
   userId: Int
@@ -399,9 +403,9 @@ type AssignmentRecordMinAggregate {
 type AssignmentRecordSumAggregate {
   acceptedProblemNum: Int
   assignmentId: Int
-  finalScore: Int
+  finalScore: Decimal
   id: Int
-  score: Int
+  score: Decimal
   totalPenalty: Int
   userId: Int
 }
@@ -453,6 +457,7 @@ type AssignmentSumAggregate {
 
 """assignmentWithParticipants"""
 type AssignmentWithParticipants {
+  CheckRequest: [CheckRequest!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
@@ -482,6 +487,7 @@ type AssignmentWithParticipants {
 }
 
 type AssignmentWithScores {
+  CheckRequest: [CheckRequest!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
@@ -517,6 +523,227 @@ type AssignmentsGroupedByStatus {
   upcoming: [AssignmentWithScores!]!
 }
 
+type CheckRequest {
+  CheckResult: [CheckResult!]
+  _count: CheckRequestCount!
+  assignment: Assignment
+  assignmentId: Int
+  contest: Contest
+  contestId: Int
+  createTime: DateTime!
+  enableMerging: Boolean!
+  id: ID!
+  language: Language!
+  minTokens: Int!
+  problem: Problem!
+  problemId: Int!
+  result: CheckResultStatus!
+  useJplagClustering: Boolean!
+  user: User
+  userId: Int
+  workbook: Workbook
+  workbookId: Int
+}
+
+type CheckRequestAvgAggregate {
+  assignmentId: Float
+  contestId: Float
+  id: Float
+  minTokens: Float
+  problemId: Float
+  userId: Float
+  workbookId: Float
+}
+
+type CheckRequestCount {
+  CheckResult: Int!
+}
+
+type CheckRequestCountAggregate {
+  _all: Int!
+  assignmentId: Int!
+  contestId: Int!
+  createTime: Int!
+  enableMerging: Int!
+  id: Int!
+  language: Int!
+  minTokens: Int!
+  problemId: Int!
+  result: Int!
+  useJplagClustering: Int!
+  userId: Int!
+  workbookId: Int!
+}
+
+type CheckRequestMaxAggregate {
+  assignmentId: Int
+  contestId: Int
+  createTime: DateTime
+  enableMerging: Boolean
+  id: Int
+  language: Language
+  minTokens: Int
+  problemId: Int
+  result: CheckResultStatus
+  useJplagClustering: Boolean
+  userId: Int
+  workbookId: Int
+}
+
+type CheckRequestMinAggregate {
+  assignmentId: Int
+  contestId: Int
+  createTime: DateTime
+  enableMerging: Boolean
+  id: Int
+  language: Language
+  minTokens: Int
+  problemId: Int
+  result: CheckResultStatus
+  useJplagClustering: Boolean
+  userId: Int
+  workbookId: Int
+}
+
+type CheckRequestSumAggregate {
+  assignmentId: Int
+  contestId: Int
+  id: Int
+  minTokens: Int
+  problemId: Int
+  userId: Int
+  workbookId: Int
+}
+
+type CheckResult {
+  averageSimilarity: Float!
+  cluster: PlagiarismCluster
+  clusterId: Int
+  firstCheckSubmission: Submission
+  firstCheckSubmissionId: Int
+  firstSimilarity: Float!
+  id: ID!
+  longestMatch: Int!
+
+  """
+  *
+     * 1개 match의 structure
+     * {
+     * "startInFirst": {
+     * "line": Int
+     * "column": Int
+     * },
+     * "endInFirst": {
+     * "line": Int
+     * "column": Int
+     * },
+     * "startInSecond": {
+     * "line": Int
+     * "column": Int
+     * },
+     * "endInSecond": {
+     * "line": Int
+     * "column": Int
+     * },
+     * "lengthOfFirst": Int
+     * "lengthOfSecond": Int
+     * }
+  """
+  matches: [JSON!]
+  maxLength: Int!
+  maxSimilarity: Float!
+  request: CheckRequest!
+  requestId: Int!
+  secondCheckSubmission: Submission
+  secondCheckSubmissionId: Int
+  secondSimilarity: Float!
+}
+
+type CheckResultAvgAggregate {
+  averageSimilarity: Float
+  clusterId: Float
+  firstCheckSubmissionId: Float
+  firstSimilarity: Float
+  id: Float
+  longestMatch: Float
+  maxLength: Float
+  maxSimilarity: Float
+  requestId: Float
+  secondCheckSubmissionId: Float
+  secondSimilarity: Float
+}
+
+type CheckResultCountAggregate {
+  _all: Int!
+  averageSimilarity: Int!
+  clusterId: Int!
+  firstCheckSubmissionId: Int!
+  firstSimilarity: Int!
+  id: Int!
+  longestMatch: Int!
+  matches: Int!
+  maxLength: Int!
+  maxSimilarity: Int!
+  requestId: Int!
+  secondCheckSubmissionId: Int!
+  secondSimilarity: Int!
+}
+
+type CheckResultMaxAggregate {
+  averageSimilarity: Float
+  clusterId: Int
+  firstCheckSubmissionId: Int
+  firstSimilarity: Float
+  id: Int
+  longestMatch: Int
+  maxLength: Int
+  maxSimilarity: Float
+  requestId: Int
+  secondCheckSubmissionId: Int
+  secondSimilarity: Float
+}
+
+type CheckResultMinAggregate {
+  averageSimilarity: Float
+  clusterId: Int
+  firstCheckSubmissionId: Int
+  firstSimilarity: Float
+  id: Int
+  longestMatch: Int
+  maxLength: Int
+  maxSimilarity: Float
+  requestId: Int
+  secondCheckSubmissionId: Int
+  secondSimilarity: Float
+}
+
+enum CheckResultStatus {
+  Completed
+  JplagError
+  Pending
+  ServerError
+  TokenError
+}
+
+type CheckResultSumAggregate {
+  averageSimilarity: Float
+  clusterId: Int
+  firstCheckSubmissionId: Int
+  firstSimilarity: Float
+  id: Int
+  longestMatch: Int
+  maxLength: Int
+  maxSimilarity: Float
+  requestId: Int
+  secondCheckSubmissionId: Int
+  secondSimilarity: Float
+}
+
+type ClusterSummary {
+  averageSimilarity: Float!
+  strength: Float!
+}
+
 input Config {
   allowJoinFromSearch: Boolean!
   allowJoinWithURL: Boolean!
@@ -525,6 +752,7 @@ input Config {
 }
 
 type Contest {
+  CheckRequest: [CheckRequest!]
   ContestQnA: [ContestQnA!]
   _count: ContestCount!
   announcement: [Announcement!]
@@ -579,6 +807,7 @@ type ContestAvgAggregate {
 }
 
 type ContestCount {
+  CheckRequest: Int!
   ContestQnA: Int!
   announcement: Int!
   contestProblem: Int!
@@ -659,6 +888,14 @@ type ContestMinAggregate {
   title: String
   unfreeze: Boolean
   updateTime: DateTime
+}
+
+type ContestParticipant {
+  email: String!
+  id: Int!
+  isBlocked: Boolean!
+  major: String!
+  username: String!
 }
 
 type ContestProblem {
@@ -1162,6 +1399,7 @@ type ContestUpdateHistories {
 
 """contestWithParticipants"""
 type ContestWithParticipants {
+  CheckRequest: [CheckRequest!]
   ContestQnA: [ContestQnA!]
   _count: ContestCount!
   announcement: [Announcement!]
@@ -1211,6 +1449,7 @@ type ContestWithParticipants {
 }
 
 type ContestWithScores {
+  CheckRequest: [CheckRequest!]
   ContestQnA: [ContestQnA!]
   _count: ContestCount!
   announcement: [Announcement!]
@@ -1346,6 +1585,294 @@ input CourseInput {
   week: Int!
 }
 
+type CourseNotice {
+  CourseNoticeComment: [CourseNoticeComment!]
+  _count: CourseNoticeCount!
+  content: String!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  group: Group!
+  groupId: Int!
+  id: ID!
+  isFixed: Boolean!
+  isPublic: Boolean!
+  readBy: [Int!]
+  title: String!
+  updateTime: DateTime!
+}
+
+type CourseNoticeAvgAggregate {
+  createdById: Float
+  groupId: Float
+  id: Float
+  readBy: Float
+}
+
+type CourseNoticeComment {
+  CourseNoticeComment: [CourseNoticeComment!]
+  _count: CourseNoticeCommentCount!
+  content: String!
+  courseNotice: CourseNotice!
+  courseNoticeId: Int!
+  createdBy: User
+  createdById: Int
+  createdTime: DateTime!
+  id: ID!
+  isDeleted: Boolean!
+  isSecret: Boolean!
+  replyOn: CourseNoticeComment
+  replyOnId: Int
+  updateTime: DateTime!
+}
+
+type CourseNoticeCommentAvgAggregate {
+  courseNoticeId: Float
+  createdById: Float
+  id: Float
+  replyOnId: Float
+}
+
+type CourseNoticeCommentCount {
+  CourseNoticeComment: Int!
+}
+
+type CourseNoticeCommentCountAggregate {
+  _all: Int!
+  content: Int!
+  courseNoticeId: Int!
+  createdById: Int!
+  createdTime: Int!
+  id: Int!
+  isDeleted: Int!
+  isSecret: Int!
+  replyOnId: Int!
+  updateTime: Int!
+}
+
+type CourseNoticeCommentMaxAggregate {
+  content: String
+  courseNoticeId: Int
+  createdById: Int
+  createdTime: DateTime
+  id: Int
+  isDeleted: Boolean
+  isSecret: Boolean
+  replyOnId: Int
+  updateTime: DateTime
+}
+
+type CourseNoticeCommentMinAggregate {
+  content: String
+  courseNoticeId: Int
+  createdById: Int
+  createdTime: DateTime
+  id: Int
+  isDeleted: Boolean
+  isSecret: Boolean
+  replyOnId: Int
+  updateTime: DateTime
+}
+
+type CourseNoticeCommentSumAggregate {
+  courseNoticeId: Int
+  createdById: Int
+  id: Int
+  replyOnId: Int
+}
+
+type CourseNoticeCount {
+  CourseNoticeComment: Int!
+}
+
+type CourseNoticeCountAggregate {
+  _all: Int!
+  content: Int!
+  createTime: Int!
+  createdById: Int!
+  groupId: Int!
+  id: Int!
+  isFixed: Int!
+  isPublic: Int!
+  readBy: Int!
+  title: Int!
+  updateTime: Int!
+}
+
+type CourseNoticeMaxAggregate {
+  content: String
+  createTime: DateTime
+  createdById: Int
+  groupId: Int
+  id: Int
+  isFixed: Boolean
+  isPublic: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type CourseNoticeMinAggregate {
+  content: String
+  createTime: DateTime
+  createdById: Int
+  groupId: Int
+  id: Int
+  isFixed: Boolean
+  isPublic: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type CourseNoticeSumAggregate {
+  createdById: Int
+  groupId: Int
+  id: Int
+  readBy: [Int!]
+}
+
+type CourseQnA {
+  _count: CourseQnACount!
+  category: QnACategory!
+  comments: [CourseQnAComment!]
+  content: String!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  group: Group!
+  groupId: Int!
+  id: ID!
+  isPrivate: Boolean!
+  isResolved: Boolean!
+  order: Int!
+  problem: Problem
+  problemId: Int
+  readBy: [Int!]
+  title: String!
+}
+
+type CourseQnAAvgAggregate {
+  createdById: Float
+  groupId: Float
+  id: Float
+  order: Float
+  problemId: Float
+  readBy: Float
+}
+
+type CourseQnAComment {
+  content: String!
+  courseQnA: CourseQnA!
+  courseQnAId: Int!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  id: ID!
+  isCourseStaff: Boolean!
+  order: Int!
+}
+
+type CourseQnACommentAvgAggregate {
+  courseQnAId: Float
+  createdById: Float
+  id: Float
+  order: Float
+}
+
+type CourseQnACommentCountAggregate {
+  _all: Int!
+  content: Int!
+  courseQnAId: Int!
+  createTime: Int!
+  createdById: Int!
+  id: Int!
+  isCourseStaff: Int!
+  order: Int!
+}
+
+type CourseQnACommentMaxAggregate {
+  content: String
+  courseQnAId: Int
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  isCourseStaff: Boolean
+  order: Int
+}
+
+type CourseQnACommentMinAggregate {
+  content: String
+  courseQnAId: Int
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  isCourseStaff: Boolean
+  order: Int
+}
+
+type CourseQnACommentSumAggregate {
+  courseQnAId: Int
+  createdById: Int
+  id: Int
+  order: Int
+}
+
+type CourseQnACount {
+  comments: Int!
+}
+
+type CourseQnACountAggregate {
+  _all: Int!
+  category: Int!
+  content: Int!
+  createTime: Int!
+  createdById: Int!
+  groupId: Int!
+  id: Int!
+  isPrivate: Int!
+  isResolved: Int!
+  order: Int!
+  problemId: Int!
+  readBy: Int!
+  title: Int!
+}
+
+type CourseQnAMaxAggregate {
+  category: QnACategory
+  content: String
+  createTime: DateTime
+  createdById: Int
+  groupId: Int
+  id: Int
+  isPrivate: Boolean
+  isResolved: Boolean
+  order: Int
+  problemId: Int
+  title: String
+}
+
+type CourseQnAMinAggregate {
+  category: QnACategory
+  content: String
+  createTime: DateTime
+  createdById: Int
+  groupId: Int
+  id: Int
+  isPrivate: Boolean
+  isResolved: Boolean
+  order: Int
+  problemId: Int
+  title: String
+}
+
+type CourseQnASumAggregate {
+  createdById: Int
+  groupId: Int
+  id: Int
+  order: Int
+  problemId: Int
+  readBy: [Int!]
+}
+
 input CreateAnnouncementInput {
   """content of announcement"""
   content: String!
@@ -1389,6 +1916,14 @@ input CreateContestInput {
   userContest: [UserContestInput!]
 }
 
+input CreateCourseNoticeInput {
+  content: String!
+  groupId: Int!
+  isFixed: Boolean! = false
+  isPublic: Boolean! = true
+  title: String!
+}
+
 input CreateNoticeInput {
   content: String!
   isFixed: Boolean
@@ -1396,12 +1931,19 @@ input CreateNoticeInput {
   title: String!
 }
 
+input CreatePlagiarismCheckInput {
+  enableMerging: Boolean! = false
+  language: Language!
+  minTokens: Int! = 12
+  useJplagClustering: Boolean! = true
+}
+
 input CreateProblemInput {
   description: String!
   difficulty: Level!
   hint: String!
   inputDescription: String!
-  isVisible: Boolean! = true
+  isVisible: Boolean! = false
   languages: [Language!]!
   memoryLimit: Int!
   outputDescription: String!
@@ -1423,6 +1965,9 @@ input CreateTestcasesInput {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+"""An arbitrary-precision Decimal type"""
+scalar Decimal
 
 type DuplicateCourse {
   copiedAssignments: [Int!]!
@@ -1481,6 +2026,7 @@ input FilterProblemsInput {
 }
 
 type FindGroup {
+  CourseNotice: [CourseNotice!]
   GroupWhitelist: [GroupWhitelist!]
   _count: GroupCount!
   assignment: [Assignment!]
@@ -1496,6 +2042,7 @@ type FindGroup {
   """
   config: JSON!
   courseInfo: CourseInfo
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   description: String
   groupName: String!
@@ -1515,6 +2062,41 @@ input GetAssignmentSubmissionsInput {
   searchingName: String
 }
 
+type GetCheckResultDetailOutput {
+  averageSimilarity: Float!
+  clusterId: Int
+  firstCheckSubmissionId: Int
+  firstSimilarity: Float!
+  longestMatch: Int!
+  matches: [Match!]!
+  maxLength: Int!
+  maxSimilarity: Float!
+  requestId: Int!
+  secondCheckSubmissionId: Int
+  secondSimilarity: Float!
+}
+
+type GetCheckResultSummaryOutput {
+  averageSimilarity: Float!
+  cluster: ClusterSummary
+  clusterId: Int
+  firstCheckSubmissionId: Int
+  firstSimilarity: Float!
+  id: Int!
+  longestMatch: Int!
+  maxLength: Int!
+  maxSimilarity: Float!
+  secondCheckSubmissionId: Int
+  secondSimilarity: Float!
+}
+
+type GetClusterOutput {
+  averageSimilarity: Float!
+  id: Int!
+  strength: Float!
+  submissionCluster: [SubmissionCluster!]!
+}
+
 input GetContestQnAsFilterInput {
   isResolved: Boolean
 }
@@ -1525,6 +2107,7 @@ input GetContestSubmissionsInput {
 }
 
 type Group {
+  CourseNotice: [CourseNotice!]
   GroupWhitelist: [GroupWhitelist!]
   _count: GroupCount!
   assignment: [Assignment!]
@@ -1540,6 +2123,7 @@ type Group {
   """
   config: JSON!
   courseInfo: CourseInfo
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   description: String
   groupName: String!
@@ -1556,8 +2140,10 @@ type GroupAvgAggregate {
 }
 
 type GroupCount {
+  CourseNotice: Int!
   GroupWhitelist: Int!
   assignment: Int!
+  courseQnA: Int!
   sharedProblems: Int!
   userGroup: Int!
   workbook: Int!
@@ -1676,13 +2262,26 @@ enum Level {
   Level5
 }
 
+type Match {
+  endInFirst: Position!
+  endInSecond: Position!
+  lengthOfFirst: Int!
+  lengthOfSecond: Int!
+  startInFirst: Position!
+  startInSecond: Position!
+}
+
 type Mutation {
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
+  checkAssignmentSubmissions(assignmentId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
+  cloneCourseNotices(cloneToId: Int!, courseNoticeIds: [Int!]!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!
   createContestQnAComment(content: String!, contestId: Int!, order: Int!): ContestQnAComment!
   createCourse(input: CourseInput!): Group!
+  createCourseNotice(input: CreateCourseNoticeInput!): CourseNotice!
+  createCourseQnAComment(content: String!, groupId: Int!, order: Int!): CourseQnAComment!
   createNotice(input: CreateNoticeInput!): Notice!
   createProblem(input: CreateProblemInput!): ProblemWithIsVisible!
   createTag(tagName: String!): Tag!
@@ -1693,6 +2292,9 @@ type Mutation {
   deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
   deleteContestQnAComment(commentOrder: Int!, contestId: Int!, qnAOrder: Int!): ContestQnAComment!
   deleteCourse(groupId: Int!): Group!
+  deleteCourseNotice(courseNoticeId: Int!): CourseNotice!
+  deleteCourseQnA(groupId: Int!, order: Int!): CourseQnA!
+  deleteCourseQnAComment(commentOrder: Int!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
   deleteNotice(noticeId: Int!): Notice!
@@ -1706,6 +2308,7 @@ type Mutation {
   importProblemsToContest(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
   inviteUser(groupId: Int!, isGroupLeader: Boolean!, userId: Int!): UserGroup!
   issueInvitation(groupId: Int!): String!
+  rejudgeAssignmentProblem(groupId: Int!, input: RejudgeInput!): RejudgeResult!
   removeAnnouncement(contestId: Int!, id: Int!): Announcement!
   removeProblemsFromAssignment(assignmentId: Int!, groupId: Int!, problemIds: [Int!]!): [AssignmentProblem!]!
   removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
@@ -1721,6 +2324,9 @@ type Mutation {
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
   updateCourse(groupId: Int!, input: CourseInput!): Group!
+  updateCourseNotice(courseNoticeId: Int!, input: UpdateCourseNoticeInput!): CourseNotice!
+  updateCourseQnA(groupId: Int!, input: UpdateCourseQnAInput!): CourseQnA!
+  updateCourseQnAComment(commentOrder: Int!, content: String!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
   updateNotice(input: UpdateNoticeInput!, noticeId: Int!): Notice!
@@ -1731,6 +2337,7 @@ type Mutation {
   uploadProblems(input: UploadFileInput!): [ProblemWithIsVisible!]!
   uploadTestcase(input: UploadFileInput!, problemId: Int!): ProblemTestcase!
   uploadTestcaseZip(input: UploadTestcaseZipInput!): [ProblemTestcaseId!]!
+  uploadTestcaseZipLegacy(input: UploadTestcaseZipLegacyInput!): [ProblemTestcaseId!]!
 }
 
 type Notice {
@@ -1895,7 +2502,58 @@ enum NotificationType {
   Other
 }
 
+type PlagiarismCluster {
+  CheckResult: [CheckResult!]
+  SubmissionCluster: [SubmissionCluster!]
+  _count: PlagiarismClusterCount!
+  averageSimilarity: Float!
+  id: ID!
+  strength: Float!
+}
+
+type PlagiarismClusterAvgAggregate {
+  averageSimilarity: Float
+  id: Float
+  strength: Float
+}
+
+type PlagiarismClusterCount {
+  CheckResult: Int!
+  SubmissionCluster: Int!
+}
+
+type PlagiarismClusterCountAggregate {
+  _all: Int!
+  averageSimilarity: Int!
+  id: Int!
+  strength: Int!
+}
+
+type PlagiarismClusterMaxAggregate {
+  averageSimilarity: Float
+  id: Int
+  strength: Float
+}
+
+type PlagiarismClusterMinAggregate {
+  averageSimilarity: Float
+  id: Int
+  strength: Float
+}
+
+type PlagiarismClusterSumAggregate {
+  averageSimilarity: Float
+  id: Int
+  strength: Float
+}
+
+type Position {
+  column: Int!
+  line: Int!
+}
+
 type Problem {
+  CheckRequest: [CheckRequest!]
   ContestQnA: [ContestQnA!]
   _count: ProblemCount!
   acceptedCount: Int!
@@ -1903,6 +2561,7 @@ type Problem {
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
   contestProblem: [ContestProblem!]
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -1916,6 +2575,8 @@ type Problem {
   hint: String!
   id: ID!
   inputDescription: String!
+  isHiddenUploadedByZip: Boolean!
+  isSampleUploadedByZip: Boolean!
   languages: [Language!]
   memoryLimit: Int!
   outputDescription: String!
@@ -1960,10 +2621,12 @@ type ProblemAvgAggregate {
 }
 
 type ProblemCount {
+  CheckRequest: Int!
   ContestQnA: Int!
   announcement: Int!
   assignmentProblem: Int!
   contestProblem: Int!
+  courseQnA: Int!
   problemTag: Int!
   problemTestcase: Int!
   sharedGroups: Int!
@@ -1989,6 +2652,8 @@ type ProblemCountAggregate {
   hint: Int!
   id: Int!
   inputDescription: Int!
+  isHiddenUploadedByZip: Int!
+  isSampleUploadedByZip: Int!
   languages: Int!
   memoryLimit: Int!
   outputDescription: Int!
@@ -2028,6 +2693,8 @@ type ProblemMaxAggregate {
   hint: String
   id: Int
   inputDescription: String
+  isHiddenUploadedByZip: Boolean
+  isSampleUploadedByZip: Boolean
   memoryLimit: Int
   outputDescription: String
   source: String
@@ -2054,6 +2721,8 @@ type ProblemMinAggregate {
   hint: String
   id: Int
   inputDescription: String
+  isHiddenUploadedByZip: Boolean
+  isSampleUploadedByZip: Boolean
   memoryLimit: Int
   outputDescription: String
   source: String
@@ -2246,6 +2915,7 @@ type ProblemTestcaseSumAggregate {
 }
 
 type ProblemWithIsVisible {
+  CheckRequest: [CheckRequest!]
   ContestQnA: [ContestQnA!]
   _count: ProblemCount!
   acceptedCount: Int!
@@ -2253,6 +2923,7 @@ type ProblemWithIsVisible {
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
   contestProblem: [ContestProblem!]
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -2266,6 +2937,8 @@ type ProblemWithIsVisible {
   hint: String!
   id: ID!
   inputDescription: String!
+  isHiddenUploadedByZip: Boolean!
+  isSampleUploadedByZip: Boolean!
   isVisible: Boolean
   languages: [Language!]
   memoryLimit: Int!
@@ -2382,8 +3055,12 @@ type Query {
   getAssignmentSubmissions(cursor: Int, groupId: Int!, input: GetAssignmentSubmissionsInput!, order: String, take: Int = 10): [AssignmentSubmission!]!
   getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
+  getCheckRequests(assignmentId: Int!, problemId: Int!): [CheckRequest!]!
+  getCheckResultDetails(resultId: Int!): GetCheckResultDetailOutput!
+  getCluster(clusterId: Int!): GetClusterOutput!
   getContest(contestId: Int!): ContestWithParticipants!
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
+  getContestParticipants(contestId: Int!): [ContestParticipant!]!
   getContestProblems(contestId: Int!): [ContestProblem!]!
   getContestQnA(contestId: Int!, order: Int!): ContestQnA!
   getContestQnAs(contestId: Int!, cursor: Int, filter: GetContestQnAsFilterInput, take: Int! = 10): [ContestQnAWithIsRead!]!
@@ -2395,6 +3072,8 @@ type Query {
   getContests(cursor: Int, take: Int! = 10): [ContestWithParticipants!]!
   getContestsByProblemId(problemId: Int!): ContestsGroupedByStatus!
   getCourse(groupId: Int!): FindGroup!
+  getCourseQnA(groupId: Int!, order: Int!): CourseQnA!
+  getCourseQnAs(cursor: Int, groupId: Int!, take: Int! = 10): [CourseQnA!]!
   getCourses(cursor: Int, take: Int! = 10): [FindGroup!]!
   getCoursesUserLead: [FindGroup!]!
   getGroupMember(groupId: Int!, userId: Int!): GroupMember!
@@ -2405,12 +3084,34 @@ type Query {
   getProblem(id: Int!): ProblemWithIsVisible!
   getProblems(contestId: Int, cursor: Int, input: FilterProblemsInput!, mode: String!, take: Int! = 10): [ProblemWithIsVisible!]!
   getSubmission(id: Int!): SubmissionDetail!
+  getSubmissionResult(submissionId: Int!, testcaseId: Int!): SubmissionResultOutput!
   getSubmissions(cursor: Int, problemId: Int!, take: Int = 10): SubmissionsWithTotal!
   getTags: [Tag!]!
+  getTestcase(testcaseId: Int!): ProblemTestcase!
   getUserByEmailOrStudentId(email: String, groupId: Int!, studentId: String): [User!]!
   getUsers(cursor: Int, take: Int! = 10): [User!]!
   getWhitelist(groupId: Int!): [String!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
+  overviewCheckByAssignmentProblemId(assignmentId: Int!, cursor: Int, problemId: Int!, take: Int! = 50): [GetCheckResultSummaryOutput!]!
+  overviewCheckByRequestId(checkId: Int!, cursor: Int, take: Int! = 50): [GetCheckResultSummaryOutput!]!
+}
+
+input RejudgeInput {
+  assignmentId: Int!
+  mode: RejudgeMode!
+  problemId: Int!
+}
+
+"""재채점 모드"""
+enum RejudgeMode {
+  CREATE_NEW
+  REPLACE_EXISTING
+}
+
+type RejudgeResult {
+  message: String!
+  processedSubmissions: Int!
+  totalSubmissions: Int!
 }
 
 enum ResultStatus {
@@ -2435,6 +3136,16 @@ enum Role {
   User
 }
 
+input ScoreWeights {
+  scoreWeight: Int
+
+  """점수 가중치 분모"""
+  scoreWeightDenominator: Int
+
+  """점수 가중치 분자"""
+  scoreWeightNumerator: Int
+}
+
 input Snippet {
   id: Int!
   locked: Boolean!
@@ -2447,6 +3158,9 @@ input Solution {
 }
 
 type Submission {
+  FirstCheckResult: [CheckResult!]
+  SecondCheckResult: [CheckResult!]
+  SubmissionCluster: [SubmissionCluster!]
   _count: SubmissionCount!
   assignment: Assignment
   assignmentId: Int
@@ -2471,7 +3185,7 @@ type Submission {
   result: ResultStatus!
 
   """100점 만점 기준 점수"""
-  score: Int!
+  score: Decimal!
   submissionResult: [SubmissionResult!]
   updateTime: DateTime!
   user: User
@@ -2487,12 +3201,48 @@ type SubmissionAvgAggregate {
   contestId: Float
   id: Float
   problemId: Float
-  score: Float
+  score: Decimal
   userId: Float
   workbookId: Float
 }
 
+type SubmissionCluster {
+  cluster: PlagiarismCluster!
+  clusterId: Int!
+  submission: Submission!
+  submissionId: Int!
+}
+
+type SubmissionClusterAvgAggregate {
+  clusterId: Float
+  submissionId: Float
+}
+
+type SubmissionClusterCountAggregate {
+  _all: Int!
+  clusterId: Int!
+  submissionId: Int!
+}
+
+type SubmissionClusterMaxAggregate {
+  clusterId: Int
+  submissionId: Int
+}
+
+type SubmissionClusterMinAggregate {
+  clusterId: Int
+  submissionId: Int
+}
+
+type SubmissionClusterSumAggregate {
+  clusterId: Int
+  submissionId: Int
+}
+
 type SubmissionCount {
+  FirstCheckResult: Int!
+  SecondCheckResult: Int!
+  SubmissionCluster: Int!
   submissionResult: Int!
 }
 
@@ -2515,6 +3265,9 @@ type SubmissionCountAggregate {
 }
 
 type SubmissionDetail {
+  FirstCheckResult: [CheckResult!]
+  SecondCheckResult: [CheckResult!]
+  SubmissionCluster: [SubmissionCluster!]
   assignment: Assignment
   assignmentId: Int
   code: String!
@@ -2529,7 +3282,7 @@ type SubmissionDetail {
   result: ResultStatus!
 
   """100점 만점 기준 점수"""
-  score: Int!
+  score: Decimal!
   testcaseResult: [TestCaseResult!]!
   updateTime: DateTime!
   user: User
@@ -2548,7 +3301,7 @@ type SubmissionMaxAggregate {
   language: Language
   problemId: Int
   result: ResultStatus
-  score: Int
+  score: Decimal
   updateTime: DateTime
   userId: Int
   userIp: String
@@ -2564,7 +3317,7 @@ type SubmissionMinAggregate {
   language: Language
   problemId: Int
   result: ResultStatus
-  score: Int
+  score: Decimal
   updateTime: DateTime
   userId: Int
   userIp: String
@@ -2630,6 +3383,18 @@ type SubmissionResultMinAggregate {
   updateTime: DateTime
 }
 
+type SubmissionResultOutput {
+  cpuTime: String
+  createTime: DateTime!
+  id: ID!
+  memoryUsage: Int
+  output: String
+  problemTestcaseId: Int!
+  result: ResultStatus!
+  submissionId: Int!
+  updateTime: DateTime!
+}
+
 type SubmissionResultSumAggregate {
   cpuTime: String
   id: Int
@@ -2644,7 +3409,7 @@ type SubmissionSumAggregate {
   contestId: Int
   id: Int
   problemId: Int
-  score: Int
+  score: Decimal
   userId: Int
   workbookId: Int
 }
@@ -2882,7 +3647,7 @@ input UpdateAssignmentInput {
 input UpdateAssignmentProblemRecordInput {
   assignmentId: Int!
   comment: String
-  finalScore: Int
+  finalScore: Float
   problemId: Int!
   userId: Int!
 }
@@ -2904,6 +3669,21 @@ input UpdateContestInput {
   title: String
   unfreeze: Boolean
   userContest: [UserContestInput!]
+}
+
+input UpdateCourseNoticeInput {
+  content: String
+  isFixed: Boolean = false
+  isPublic: Boolean = true
+  title: String
+}
+
+input UpdateCourseQnAInput {
+  content: String
+  isPrivate: Boolean
+  isResolved: Boolean
+  order: Int!
+  title: String
 }
 
 type UpdateCreationPermissionResult {
@@ -3019,7 +3799,17 @@ input UploadTestcaseZipInput {
   problemId: Int!
 }
 
+input UploadTestcaseZipLegacyInput {
+  file: Upload!
+  isHidden: Boolean!
+  problemId: Int!
+  scoreWeights: [ScoreWeights!]!
+}
+
 type User {
+  CheckRequest: [CheckRequest!]
+  CourseNotice: [CourseNotice!]
+  CourseNoticeComment: [CourseNoticeComment!]
   NotificationRecord: [NotificationRecord!]
   PushSubscription: [PushSubscription!]
   UpdateHistory: [UpdateHistory!]
@@ -3032,6 +3822,8 @@ type User {
   contest: [Contest!]
   contestRecord: [ContestRecord!]
   createTime: DateTime!
+  createdCourseQnAComments: [CourseQnAComment!]
+  createdCourseQnAs: [CourseQnA!]
   createdQnAComments: [ContestQnAComment!]
   createdQnAs: [ContestQnA!]
   email: String!
@@ -3056,7 +3848,7 @@ type User {
 
 type UserAssignmentScoreSummary {
   assignmentPerfectScore: Int!
-  problemScores: [AssignmentProblemScore!]!
+  scoreSummaryByProblem: [AssignmentProblemSummary!]!
   submittedProblemCount: Int!
   totalProblemCount: Int!
   userAssignmentFinalScore: Float
@@ -3066,8 +3858,8 @@ type UserAssignmentScoreSummary {
 type UserAssignmentScoreSummaryWithUserInfo {
   assignmentPerfectScore: Int!
   major: String!
-  problemScores: [AssignmentProblemScore!]!
   realName: String
+  scoreSummaryByProblem: [AssignmentProblemSummary!]!
   studentId: String!
   submittedProblemCount: Int!
   totalProblemCount: Int!
@@ -3085,6 +3877,7 @@ type UserContest {
   contest: Contest!
   contestId: Int!
   id: ID!
+  isBlocked: Boolean!
   role: ContestRole!
   user: User
   userId: Int
@@ -3100,6 +3893,7 @@ type UserContestCountAggregate {
   _all: Int!
   contestId: Int!
   id: Int!
+  isBlocked: Int!
   role: Int!
   userId: Int!
 }
@@ -3112,6 +3906,7 @@ input UserContestInput {
 type UserContestMaxAggregate {
   contestId: Int
   id: Int
+  isBlocked: Boolean
   role: ContestRole
   userId: Int
 }
@@ -3119,6 +3914,7 @@ type UserContestMaxAggregate {
 type UserContestMinAggregate {
   contestId: Int
   id: Int
+  isBlocked: Boolean
   role: ContestRole
   userId: Int
 }
@@ -3151,6 +3947,9 @@ type UserContestSumAggregate {
 }
 
 type UserCount {
+  CheckRequest: Int!
+  CourseNotice: Int!
+  CourseNoticeComment: Int!
   NotificationRecord: Int!
   PushSubscription: Int!
   UpdateHistory: Int!
@@ -3158,6 +3957,8 @@ type UserCount {
   assignmentRecord: Int!
   contest: Int!
   contestRecord: Int!
+  createdCourseQnAComments: Int!
+  createdCourseQnAs: Int!
   createdQnAComments: Int!
   createdQnAs: Int!
   file: Int!
@@ -3352,6 +4153,7 @@ type UserSumAggregate {
 }
 
 type Workbook {
+  CheckRequest: [CheckRequest!]
   _count: WorkbookCount!
   createTime: DateTime!
   createdBy: User
@@ -3375,6 +4177,7 @@ type WorkbookAvgAggregate {
 }
 
 type WorkbookCount {
+  CheckRequest: Int!
   submission: Int!
   testSubmission: Int!
   workbookProblem: Int!

@@ -19,7 +19,7 @@ const PaginationContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ul
     ref={ref}
-    className={cn('flex flex-row items-center gap-1', className)}
+    className={cn('flex flex-row items-center gap-[11px]', className)}
     {...props}
   />
 ))
@@ -50,10 +50,8 @@ const PaginationButton = ({
       type="button"
       className={cn(
         buttonVariants({ variant: 'ghost', size }),
-        'text-base',
-        isActive
-          ? 'text-primary-strong hover:text-primary-light hover:bg-gray-100'
-          : 'text-[#8A8A8A] hover:text-slate-400',
+        'align-middle text-base',
+        isActive && 'text-primary-strong',
         className
       )}
       {...props}
@@ -96,7 +94,6 @@ const PaginationPrevious = ({
 }: React.ComponentProps<typeof PaginationButton>) => (
   <PaginationButton
     aria-label="Go to previous page"
-    size="default"
     className={cn(!isActive && 'cursor-not-allowed', 'relative', className)}
     {...props}
   >
@@ -105,7 +102,7 @@ const PaginationPrevious = ({
     )}
     <FaCirclePlay
       color={isActive ? '#3581FA' : '#EBEBEB'}
-      className="z-10 h-6 w-6 rotate-180"
+      className="z-10 h-[30px] w-[30px] rotate-180"
     />
   </PaginationButton>
 )
@@ -118,7 +115,6 @@ const PaginationNext = ({
 }: React.ComponentProps<typeof PaginationButton>) => (
   <PaginationButton
     aria-label="Go to next page"
-    size="default"
     className={cn(!isActive && 'cursor-not-allowed', 'relative', className)}
     {...props}
   >
@@ -127,7 +123,7 @@ const PaginationNext = ({
     )}
     <FaCirclePlay
       color={isActive ? '#3581FA' : '#EBEBEB'}
-      className="z-10 h-6 w-6"
+      className="z-10 h-[30px] w-[30px]"
     />
   </PaginationButton>
 )

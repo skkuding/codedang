@@ -1,4 +1,4 @@
-import { Args, Context, Int, Query, Resolver } from '@nestjs/graphql'
+import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { ContestRole } from '@prisma/client'
 import {
   UseContestRolesGuard,
@@ -8,6 +8,7 @@ import {
 } from '@libs/auth'
 import {
   CursorValidationPipe,
+  IDValidationPipe,
   RequiredIntPipe,
   SubmissionOrderPipe
 } from '@libs/pipe'
@@ -20,7 +21,10 @@ import {
   GetAssignmentSubmissionsInput,
   GetContestSubmissionsInput
 } from './model/get-submissions.input'
+import { RejudgeResult } from './model/rejudge-result.output'
+import { RejudgeInput } from './model/rejudge.input'
 import { SubmissionDetail } from './model/submission-detail.output'
+import { SubmissionResultOutput } from './model/submission-result.model'
 import { SubmissionsWithTotal } from './model/submissions-with-total.output'
 import { SubmissionService } from './submission.service'
 
@@ -159,5 +163,47 @@ export class SubmissionResolver {
     @Context('req') req: AuthenticatedRequest
   ): Promise<SubmissionDetail> {
     return await this.submissionService.getSubmission(id, req.user.id)
+  }
+  /**
+   * 특정 Assignment의 특정 Problem에 대한 모든 제출을 재채점합니다.
+   *
+   * @param input 재채점 옵션 (assignmentId, problemId, mode)
+   * @param req 요청한 사용자 정보
+   * @returns 재채점 결과
+   */
+  @Mutation(() => RejudgeResult)
+  @UseGroupLeaderGuard()
+  async rejudgeAssignmentProblem(
+    @Args('groupId', { type: () => Int }) _groupId: number,
+    @Args('input', { type: () => RejudgeInput })
+    input: RejudgeInput,
+    @Context('req') req: AuthenticatedRequest
+  ): Promise<RejudgeResult> {
+    return await this.submissionService.rejudgeAssignmentProblem(
+      input,
+      req.user
+    )
+  }
+
+  /**
+   * submissionId와 testcaseId를 통해 특정 submissionResult를 불러옵니다.
+   * @param submissionId
+   * @param testcaseId
+   * @returns {SubmissionResultOutput}
+   */
+  @UseDisableAdminGuard()
+  @Query(() => SubmissionResultOutput)
+  async getSubmissionResult(
+    @Args('submissionId', { type: () => Int }, IDValidationPipe)
+    submissionId: number,
+    @Args('testcaseId', { type: () => Int }, IDValidationPipe)
+    testcaseId: number,
+    @Context('req') req: AuthenticatedRequest
+  ): Promise<SubmissionResultOutput> {
+    return this.submissionService.getSubmissionResult(
+      submissionId,
+      testcaseId,
+      req.user
+    )
   }
 }

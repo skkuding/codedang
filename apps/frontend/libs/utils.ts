@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import ky, { HTTPError } from 'ky'
 import { twMerge } from 'tailwind-merge'
 import { auth } from './auth'
-import { baseUrl, UNLIMITED_DATE } from './constants'
+import { adminRestUrl, baseUrl, UNLIMITED_DATE } from './constants'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
@@ -54,6 +54,11 @@ export const safeFetcher = fetcher.extend({
 })
 
 export const safeFetcherWithAuth = fetcherWithAuth.extend({
+  throwHttpErrors: true
+})
+
+export const adminSafeFetcherWithAuth = fetcherWithAuth.extend({
+  prefixUrl: adminRestUrl,
   throwHttpErrors: true
 })
 
@@ -116,6 +121,25 @@ export const getStatusWithStartEnd = (startTime: string, endTime: string) => {
   } else {
     return 'ongoing'
   }
+}
+
+export const getDuration = (
+  start: string | number | Date,
+  end: string | number | Date
+): string => {
+  const diff = new Date(end).getTime() - new Date(start).getTime()
+
+  if (diff <= 0) {
+    return '00:00:00'
+  }
+
+  const totalSeconds = Math.floor(diff / 1000)
+  const h = Math.floor(totalSeconds / 3600)
+  const m = Math.floor((totalSeconds % 3600) / 60)
+  const s = totalSeconds % 60
+
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  return `${pad(h)}:${pad(m)}:${pad(s)}`
 }
 
 /**

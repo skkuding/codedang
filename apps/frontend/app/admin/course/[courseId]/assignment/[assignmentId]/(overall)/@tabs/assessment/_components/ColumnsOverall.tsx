@@ -21,7 +21,7 @@ interface DataTableScoreSummary {
   userAssignmentScore: number
   assignmentPerfectScore: number
   userAssignmentFinalScore?: number | null | undefined
-  problemScores: {
+  scoreSummaryByProblem: {
     problemId: number
     score: number
     maxScore: number
@@ -195,7 +195,7 @@ export const createColumns = (
         return String.fromCharCode(Number(65 + i))
       },
       cell: ({ row }: { row: Row<DataTableScoreSummary> }) => {
-        const problemScore = row.original.problemScores.find(
+        const problemScore = row.original.scoreSummaryByProblem.find(
           (ps) => ps.problemId === problem.problemId
         )
         if (currentView === 'auto') {
@@ -222,8 +222,14 @@ export const createColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Total" />
       ),
-      cell: ({ row }) =>
-        `${row.original.userAssignmentFinalScore}/${row.original.assignmentPerfectScore}`
+      cell: ({ row }) => {
+        const score =
+          currentView === 'auto'
+            ? row.original.userAssignmentScore
+            : row.original.userAssignmentFinalScore
+
+        return `${score}/${row.original.assignmentPerfectScore}`
+      }
     },
     {
       id: 'detail',

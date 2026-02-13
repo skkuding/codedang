@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
+import type { Decimal } from '@prisma/client/runtime/library'
 import { MIN_DATE } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
 import { ProblemOrder } from '@libs/pipe'
@@ -243,6 +244,85 @@ export class ProblemService {
 
     return updateHistory
   }
+
+  async buildProblemWhereOptionsWithMode({
+    userId,
+    mode
+  }: {
+    userId: number
+    mode: 'my' | 'shared'
+  }) {
+    switch (mode) {
+      case 'my':
+        return { createdById: { equals: userId } }
+
+      case 'shared': {
+        const leaderGroupIds = (
+          await this.prisma.userGroup.findMany({
+            where: {
+              userId,
+              isGroupLeader: true
+            }
+          })
+        ).map((group) => group.groupId)
+        return {
+          sharedGroups: {
+            some: {
+              id: { in: leaderGroupIds }
+            }
+          }
+        }
+      }
+      default:
+        throw new ForbiddenException('Invalid mode')
+    }
+  }
+
+  async getDownloadableProblems({
+    userId,
+    mode
+  }: {
+    userId: number
+    mode: 'my' | 'shared'
+  }) {
+    const whereOptions = await this.buildProblemWhereOptionsWithMode({
+      userId,
+      mode
+    })
+
+    const problems = await this.prisma.problem.findMany({
+      where: whereOptions,
+      select: {
+        id: true,
+        createdById: true,
+        title: true,
+        description: true,
+        inputDescription: true,
+        outputDescription: true,
+        hint: true,
+        engTitle: true,
+        engDescription: true,
+        engInputDescription: true,
+        engOutputDescription: true,
+        engHint: true,
+        template: true,
+        languages: true,
+        solution: true,
+        timeLimit: true,
+        memoryLimit: true,
+        difficulty: true,
+        source: true,
+        visibleLockTime: true,
+        createTime: true,
+        updateTime: true,
+        updateContentTime: true,
+        isSampleUploadedByZip: true,
+        isHiddenUploadedByZip: true
+      }
+    })
+
+    return problems
+  }
 }
 
 @Injectable()
@@ -334,7 +414,10 @@ export class ContestProblemService {
       })
     ])
 
-    const submissionMap = new Map<number, { score: number; createTime: Date }>()
+    const submissionMap = new Map<
+      number,
+      { score: Decimal; createTime: Date }
+    >()
     for (const submission of submissions) {
       if (!submissionMap.has(submission.problemId)) {
         submissionMap.set(submission.problemId, submission)
@@ -355,7 +438,9 @@ export class ContestProblemService {
           maxScore: contest.isJudgeResultVisible ? contestProblem.score : null,
           score: null,
           submissionTime: null,
-          updateContentTime: problem.updateContentTime
+          updateContentTime: problem.updateContentTime,
+          isHiddenUploadedByZip: problem.isHiddenUploadedByZip,
+          isSampleUploadedByZip: problem.isSampleUploadedByZip
         }
       }
       return {
@@ -368,10 +453,12 @@ export class ContestProblemService {
         acceptedRate: contestProblem.problem.acceptedRate,
         maxScore: contest.isJudgeResultVisible ? contestProblem.score : null,
         score: contest.isJudgeResultVisible
-          ? ((submission.score * contestProblem.score) / 100).toFixed(0)
+          ? submission.score.mul(contestProblem.score).div(100).toFixed(0)
           : null,
         submissionTime: submission.createTime ?? null,
-        updateContentTime: problem.updateContentTime
+        updateContentTime: problem.updateContentTime,
+        isHiddenUploadedByZip: problem.isHiddenUploadedByZip,
+        isSampleUploadedByZip: problem.isSampleUploadedByZip
       }
     })
 

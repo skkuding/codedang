@@ -35,6 +35,27 @@ export default {
           strong: '#0760EF',
           heavy: '#0348B2'
         },
+        editor: {
+          background: {
+            1: '#0F111B',
+            2: '#202331'
+          },
+          line: {
+            1: '#585B6C',
+            2: '#404351'
+          },
+          fill: {
+            1: '#282D3D'
+          }
+        },
+        flowkit: {
+          red: '#FC5555',
+          purple: '#7B61FF',
+          charoal: '#222222',
+          green: '#29CC6A',
+          blue: '#0099FF',
+          white: '#FFFFFF'
+        },
         color: {
           commmon: {
             100: '#FFF',

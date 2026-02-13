@@ -1,8 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import {
+  Prisma,
   ResultStatus,
   type Submission,
   type SubmissionResult
@@ -10,14 +10,8 @@ import {
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
-import {
-  CONSUME_CHANNEL,
-  EXCHANGE,
-  ORIGIN_HANDLER_NAME,
-  RESULT_KEY,
-  RESULT_QUEUE,
-  Status
-} from '@libs/constants'
+import { JudgeAMQPService } from '@libs/amqp'
+import { Status } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { problems } from '@admin/problem/mock/mock'
@@ -52,7 +46,7 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
   submissionResult: [submissionResults[0], submissionResults[1]],
-  score: 100
+  score: new Prisma.Decimal(100)
 }
 
 const contestSubmission = {
@@ -76,8 +70,9 @@ const db = {
     findUnique: mockFunc,
     findUniqueOrThrow: mockFunc,
     update: mockFunc,
+    updateMany: mockFunc,
     findFirst: mockFunc,
-    findMany: mockFunc
+    count: mockFunc
   },
   submissionResult: {
     findFirstOrThrow: mockFunc,
@@ -96,7 +91,7 @@ const db = {
   },
   contestProblemRecord: {
     upsert: mockFunc,
-    findMany: mockFunc
+    aggregate: mockFunc
   },
   assignmentRecord: {
     findUniqueOrThrow: mockFunc,
@@ -135,7 +130,7 @@ const db = {
 
 describe('SubmissionSubscriptionService', () => {
   let service: SubmissionSubscriptionService
-  let amqpConnection: AmqpConnection
+  let amqpService: JudgeAMQPService
   let cache: Cache
 
   const sandbox = sinon.createSandbox()
@@ -150,9 +145,10 @@ describe('SubmissionSubscriptionService', () => {
         },
         ConfigService,
         {
-          provide: AmqpConnection,
+          provide: JudgeAMQPService,
           useFactory: () => ({
-            createSubscriber: () => []
+            setMessageHandlers: () => [],
+            startSubscription: () => []
           })
         },
         {
@@ -172,7 +168,7 @@ describe('SubmissionSubscriptionService', () => {
     service = module.get<SubmissionSubscriptionService>(
       SubmissionSubscriptionService
     )
-    amqpConnection = module.get<AmqpConnection>(AmqpConnection)
+    amqpService = module.get<JudgeAMQPService>(JudgeAMQPService)
     cache = module.get<Cache>(CACHE_MANAGER)
     sandbox.stub(cache, 'get').resolves([])
     sandbox
@@ -193,25 +189,17 @@ describe('SubmissionSubscriptionService', () => {
   })
 
   describe('onModuleInit', () => {
-    it('should create amqpConenction', () => {
-      const amqpSpy = sandbox.stub(amqpConnection, 'createSubscriber')
+    it('should set message handlers', () => {
+      const mqttSpy = sandbox.stub(amqpService, 'setMessageHandlers')
 
       service.onModuleInit()
 
-      expect(
-        amqpSpy.calledOnceWith(
-          sinon.match.func,
-          {
-            exchange: EXCHANGE,
-            routingKey: RESULT_KEY,
-            queue: RESULT_QUEUE,
-            queueOptions: {
-              channel: CONSUME_CHANNEL
-            }
-          },
-          ORIGIN_HANDLER_NAME
-        )
-      ).to.be.true
+      expect(mqttSpy.calledOnce).to.be.true
+      const handlers = mqttSpy.getCall(0).args[0]
+      expect(handlers).to.have.property('onRunMessage')
+      expect(handlers).to.have.property('onJudgeMessage')
+      expect(typeof handlers.onRunMessage).to.equal('function')
+      expect(typeof handlers.onJudgeMessage).to.equal('function')
     })
   })
 
@@ -231,6 +219,110 @@ describe('SubmissionSubscriptionService', () => {
       }
 
       await expect(service.validateJudgerResponse(invalidMsg)).to.be.rejected
+    })
+  })
+
+  describe('handleRunMessage', () => {
+    it('should handle run message with testcaseId', async () => {
+      const testSubmission = {
+        id: 1,
+        maxCpuTime: BigInt(50000),
+        maxMemoryUsage: 5000000
+      }
+      const testcase = {
+        id: 1,
+        result: ResultStatus.Accepted,
+        output: 'test output'
+      }
+
+      sandbox.stub(db.testSubmission, 'findUnique').resolves(testSubmission)
+      sandbox.stub(db.testSubmission, 'update').resolves()
+      sandbox.stub(cache, 'get').resolves(testcase)
+      sandbox.stub(cache, 'set').resolves()
+
+      await expect(service.handleRunMessage(msg, 1, false)).not.to.be.rejected
+    })
+
+    it('should handle run message without testcaseId (compile error)', async () => {
+      const msgWithoutTestcase = {
+        ...msg,
+        judgeResult: {
+          ...judgeResult,
+          testcaseId: null
+        }
+      }
+      const testcaseIds = [1, 2, 3]
+
+      sandbox.stub(cache, 'get').resolves(testcaseIds)
+      sandbox.stub(cache, 'set').resolves()
+
+      await expect(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        service.handleRunMessage(msgWithoutTestcase as any, 1, false)
+      ).not.to.be.rejected
+    })
+
+    it('should handle user test run message', async () => {
+      const testSubmission = {
+        id: 1,
+        maxCpuTime: BigInt(50000),
+        maxMemoryUsage: 5000000
+      }
+      const testcase = {
+        id: 1,
+        result: ResultStatus.Accepted,
+        output: 'test output'
+      }
+
+      sandbox.stub(db.testSubmission, 'findUnique').resolves(testSubmission)
+      sandbox.stub(db.testSubmission, 'update').resolves()
+      sandbox.stub(cache, 'get').resolves(testcase)
+      sandbox.stub(cache, 'set').resolves()
+
+      await expect(service.handleRunMessage(msg, 1, true)).not.to.be.rejected
+    })
+  })
+
+  describe('parseError', () => {
+    it('should return output when judgeResult has output', () => {
+      const msgWithOutput = {
+        ...msg,
+        judgeResult: {
+          ...judgeResult,
+          output: 'test output'
+        }
+      }
+
+      const result = service.parseError(msgWithOutput, ResultStatus.Accepted)
+      expect(result).to.equal('test output')
+    })
+
+    it('should return error message for CompileError', () => {
+      const msgWithError = {
+        ...msg,
+        error: 'compilation failed'
+      }
+
+      const result = service.parseError(msgWithError, ResultStatus.CompileError)
+      expect(result).to.equal('compilation failed')
+    })
+
+    it('should return Segmentation Fault for SegmentationFaultError', () => {
+      const result = service.parseError(
+        msg,
+        ResultStatus.SegmentationFaultError
+      )
+      expect(result).to.equal('Segmentation Fault')
+    })
+
+    it('should return Value Error for RuntimeError', () => {
+      const result = service.parseError(msg, ResultStatus.RuntimeError)
+      expect(result).to.equal('Value Error')
+    })
+
+    it('should return empty string for other statuses', () => {
+      const result = service.parseError(msg, ResultStatus.Accepted)
+      expect(result).to.equal('')
     })
   })
 
@@ -290,13 +382,13 @@ describe('SubmissionSubscriptionService', () => {
 
   describe('handleJudgeError', () => {
     it('should handle ServerError', async () => {
-      const findSpy = sandbox
-        .stub(db.submission, 'findUnique')
-        .resolves(submissions[0])
-      const updateSpy = sandbox.stub(db.submission, 'update').resolves()
-      const updateManySpy = sandbox
+      const updateManySubmissionSpy = sandbox
+        .stub(db.submission, 'updateMany')
+        .resolves({ count: 1 })
+      const updateManyResultSpy = sandbox
         .stub(db.submissionResult, 'updateMany')
         .resolves()
+
       const serverErrMsg = {
         resultCode: 8,
         submissionId: 1,
@@ -309,20 +401,10 @@ describe('SubmissionSubscriptionService', () => {
       ).to.be.rejectedWith(UnprocessableDataException)
 
       expect(
-        findSpy.calledOnceWith({
+        updateManySubmissionSpy.calledOnceWith({
           where: {
             id: serverErrMsg.submissionId,
             result: ResultStatus.Judging
-          },
-          select: {
-            id: true
-          }
-        })
-      ).to.be.true
-      expect(
-        updateSpy.calledOnceWith({
-          where: {
-            id: serverErrMsg.submissionId
           },
           data: {
             result: ResultStatus.ServerError
@@ -330,7 +412,7 @@ describe('SubmissionSubscriptionService', () => {
         })
       ).to.be.true
       expect(
-        updateManySpy.calledOnceWith({
+        updateManyResultSpy.calledOnceWith({
           where: {
             submissionId: serverErrMsg.submissionId
           },
@@ -342,11 +424,10 @@ describe('SubmissionSubscriptionService', () => {
     })
 
     it('should handle CompileError', async () => {
-      const findSpy = sandbox
-        .stub(db.submission, 'findUnique')
-        .resolves(submissions[0])
-      const updateSpy = sandbox.stub(db.submission, 'update').resolves()
-      const updateManySpy = sandbox
+      const updateManySubmissionSpy = sandbox
+        .stub(db.submission, 'updateMany')
+        .resolves({ count: 1 })
+      const updateManyResultSpy = sandbox
         .stub(db.submissionResult, 'updateMany')
         .resolves()
       const serverErrMsg = {
@@ -359,20 +440,10 @@ describe('SubmissionSubscriptionService', () => {
       await service.handleJudgeError(ResultStatus.CompileError, serverErrMsg)
 
       expect(
-        findSpy.calledOnceWith({
+        updateManySubmissionSpy.calledOnceWith({
           where: {
             id: serverErrMsg.submissionId,
             result: ResultStatus.Judging
-          },
-          select: {
-            id: true
-          }
-        })
-      ).to.be.true
-      expect(
-        updateSpy.calledOnceWith({
-          where: {
-            id: serverErrMsg.submissionId
           },
           data: {
             result: ResultStatus.CompileError
@@ -380,7 +451,7 @@ describe('SubmissionSubscriptionService', () => {
         })
       ).to.be.true
       expect(
-        updateManySpy.calledOnceWith({
+        updateManyResultSpy.calledOnceWith({
           where: {
             submissionId: serverErrMsg.submissionId
           },
@@ -616,9 +687,9 @@ describe('SubmissionSubscriptionService', () => {
 
   describe('updateContestRecord', () => {
     it('should update records when new accepted submission', async () => {
-      const submissionFindManySpy = sandbox
-        .stub(db.submission, 'findMany')
-        .resolves([contestSubmission])
+      const submissionCountSpy = sandbox
+        .stub(db.submission, 'count')
+        .resolves(0)
       const contestFindUniqueSpy = sandbox
         .stub(db.contest, 'findUniqueOrThrow')
         .resolves({
@@ -631,9 +702,24 @@ describe('SubmissionSubscriptionService', () => {
       const contestRecordFindUniqueSpy = sandbox
         .stub(db.contestRecord, 'findUniqueOrThrow')
         .resolves(contestRecordsMock[0])
-      const problemRecordFindManySpy = sandbox
-        .stub(db.contestProblemRecord, 'findMany')
-        .resolves([])
+      const aggregateSpy = sandbox
+        .stub(db.contestProblemRecord, 'aggregate')
+        .resolves({
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _sum: {
+            score: 100,
+            submitCountPenalty: 10,
+            timePenalty: 100,
+            finalScore: 100,
+            finalTimePenalty: 100,
+            finalSubmitCountPenalty: 10
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _max: {
+            timePenalty: 100,
+            finalTimePenalty: 100
+          }
+        })
       const upsertProblemRecordSpy = sandbox
         .stub(db.contestProblemRecord, 'upsert')
         .resolves()
@@ -646,16 +732,13 @@ describe('SubmissionSubscriptionService', () => {
 
       // then
       expect(
-        submissionFindManySpy.calledOnceWith({
+        submissionCountSpy.calledOnceWith({
           where: {
             contestId: contestSubmission.contestId,
             problemId: contestSubmission.problemId,
-            result: ResultStatus.Accepted
-          },
-          select: {
-            id: true,
-            userId: true,
-            createTime: true
+            userId: contestSubmission.userId,
+            result: ResultStatus.Accepted,
+            id: { not: contestSubmission.id }
           }
         })
       ).to.be.true
@@ -713,17 +796,21 @@ describe('SubmissionSubscriptionService', () => {
       expect(upsertProblemRecordSpy.calledOnce).to.be.true
 
       expect(
-        problemRecordFindManySpy.calledOnceWith({
-          where: {
-            contestRecordId: contestRecordsMock[0].id
-          },
-          select: {
+        aggregateSpy.calledOnceWith({
+          where: { contestRecordId: contestRecordsMock[0].id },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _sum: {
             score: true,
-            timePenalty: true,
             submitCountPenalty: true,
+            timePenalty: true,
             finalScore: true,
             finalTimePenalty: true,
             finalSubmitCountPenalty: true
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _max: {
+            timePenalty: true,
+            finalTimePenalty: true
           }
         })
       ).to.be.true
@@ -731,9 +818,9 @@ describe('SubmissionSubscriptionService', () => {
     })
 
     it('should reject when submission is not accepted', async () => {
-      const submissionFindManySpy = sandbox
-        .stub(db.submission, 'findMany')
-        .resolves([])
+      const submissionCountSpy = sandbox
+        .stub(db.submission, 'count')
+        .resolves(0)
       const upsertProblemRecordSpy = sandbox
         .stub(db.contestProblemRecord, 'upsert')
         .resolves()
@@ -744,20 +831,7 @@ describe('SubmissionSubscriptionService', () => {
       // when
       await service.updateContestRecord(contestSubmission, false)
 
-      expect(
-        submissionFindManySpy.calledOnceWith({
-          where: {
-            contestId: contestSubmission.contestId,
-            problemId: contestSubmission.problemId,
-            result: ResultStatus.Accepted
-          },
-          select: {
-            id: true,
-            userId: true,
-            createTime: true
-          }
-        })
-      ).to.be.true
+      expect(submissionCountSpy.notCalled).to.be.true
       expect(upsertProblemRecordSpy.notCalled).to.be.true
       expect(updateRecordSpy.notCalled).to.be.true
     })

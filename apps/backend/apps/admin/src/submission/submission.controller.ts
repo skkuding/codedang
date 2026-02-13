@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Req,
-  Res,
-  Get,
-  Param,
-  StreamableFile
-} from '@nestjs/common'
-import { Logger } from '@nestjs/common'
+import { Controller, Get, Param, Req, Res } from '@nestjs/common'
 import { Response } from 'express'
 import { createReadStream, existsSync } from 'fs'
 import { rm, unlink } from 'fs/promises'
@@ -14,7 +6,7 @@ import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { IDValidationPipe } from '@libs/pipe'
 import { SubmissionService } from './submission.service'
 
-@Controller('submission')
+@Controller('admin-api/submission')
 export class SubmissionController {
   private readonly logger = new Logger(SubmissionController.name)
   constructor(private readonly submissionService: SubmissionService) {}

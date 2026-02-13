@@ -1,33 +1,50 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: prometheus
   namespace: argocd
   labels:
     app.kubernetes.io/environment: production
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  # finalizers:
+  #   - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
-  sources:
-    - repoURL: https://prometheus-community.github.io/helm-charts
-      chart: kube-prometheus-stack
-      targetRevision: 77.1.0
-      helm:
-        releaseName: prometheus
-        valueFiles:
-          - $codedang/infra/k8s/monitoring/prometheus/values.yaml
-    - repoURL: https://github.com/skkuding/codedang
-      targetRevision: main
-      ref: codedang
-  destination:
-    name: production
-    namespace: monitoring-prometheus
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - PrunePropagationPolicy=foreground
-      - ServerSideApply=true # avoid "CustomResourceDefinition ... is invalid: metadata.annotations: Too long" issue
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: release
+  template:
+    metadata:
+      name: 'prometheus-{{.env}}'
+      # finalizers:
+      #   - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+      project: default
+      sources:
+        - repoURL: https://prometheus-community.github.io/helm-charts
+          chart: kube-prometheus-stack
+          targetRevision: 79.5.0
+          helm:
+            releaseName: prometheus
+            valueFiles:
+              - $codedang/infra/k8s/monitoring/prometheus/values-{{.env}}.yaml
+        - repoURL: https://github.com/skkuding/codedang
+          targetRevision: '{{.branch}}'
+          ref: codedang
+      destination:
+        name: '{{.env}}'
+        namespace: monitoring-prometheus
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+          - ServerSideApply=true # avoid "CustomResourceDefinition ... is invalid: metadata.annotations: Too long" issue

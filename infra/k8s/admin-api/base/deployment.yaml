@@ -28,11 +28,18 @@ spec:
                 name: admin-api-env
             - secretRef:
                 name: aws-credentials
-                optional: true # not used in stage env
             - secretRef:
                 name: database-credentials
             - secretRef:
                 name: security-keys
-            - secretRef:
-                name: object-storage-credentials
-                optional: true # not used in production env
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: username
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: password

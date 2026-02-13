@@ -1,0 +1,34 @@
+traces:
+  otlp:
+    grpc:
+      enabled: true
+
+tempo:
+  retention: 2160h # 90 days
+  structuredConfig:
+    ingester:
+      max_block_bytes: 104857600
+      max_block_duration: 10m
+      complete_block_timeout: 15m
+  overrides:
+    defaults:
+      metrics_generator:
+        processors:
+          - service-graphs
+          - span-metrics
+          - local-blocks
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090/api/v1/write
+
+distributor:
+  replicas: 1
+  config:
+    log_received_spans:
+      enabled: true
+
+ingester:
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 10Gi

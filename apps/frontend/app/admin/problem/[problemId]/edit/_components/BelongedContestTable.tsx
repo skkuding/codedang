@@ -5,25 +5,24 @@ import {
   DataTableFallback,
   DataTableRoot
 } from '@/app/admin/_components/table'
-import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
+import { GET_BELONGED_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { useEffect, useState } from 'react'
-import { columns, type BelongedContest } from './BelongedContestTableColumns'
-import { RevertScoreButton } from './RevertScoreButton'
-import { SetToZeroButton } from './SetToZeroButton'
+import {
+  createColumns,
+  type BelongedContest
+} from './BelongedContestTableColumns'
 
 export function BelongedContestTable({
   problemId,
-  onSetToZero,
-  onRevertScore
+  onSelectedAssignmentsChange
 }: {
   problemId: number
-  onSetToZero: (data: number[]) => void
-  onRevertScore: () => void
+  onSelectedAssignmentsChange: (assignments: BelongedContest[]) => void
 }) {
-  const [contests, setContests] = useState<BelongedContest[]>([])
+  const [assignments, setAssignments] = useState<BelongedContest[]>([])
 
-  const { data } = useSuspenseQuery(GET_BELONGED_CONTESTS, {
+  const { data } = useSuspenseQuery(GET_BELONGED_ASSIGNMENTS, {
     variables: {
       problemId
     },
@@ -34,62 +33,39 @@ export function BelongedContestTable({
   useEffect(() => {
     if (data) {
       const mappedData: BelongedContest[] = [
-        ...data.getContestsByProblemId.upcoming.map((contest) => ({
-          id: Number(contest.id),
-          title: contest.title,
-          state: 'Upcoming',
-          problemScore: contest.problemScore,
-          totalScore: contest.totalScore,
-          isSetToZero: false
+        ...data.getAssignmentsByProblemId.upcoming.map((assignment) => ({
+          id: Number(assignment.id),
+          title: assignment.title,
+          courseNum: assignment.group.courseInfo?.courseNum || 'N/A',
+          groupId: Number(assignment.group.id)
         })),
-        ...data.getContestsByProblemId.ongoing.map((contest) => ({
-          id: Number(contest.id),
-          title: contest.title,
-          state: 'Ongoing',
-          problemScore: contest.problemScore,
-          totalScore: contest.totalScore,
-          isSetToZero: false
+        ...data.getAssignmentsByProblemId.ongoing.map((assignment) => ({
+          id: Number(assignment.id),
+          title: assignment.title,
+          courseNum: assignment.group.courseInfo?.courseNum || 'N/A',
+          groupId: Number(assignment.group.id)
         })),
-        ...data.getContestsByProblemId.finished.map((contest) => ({
-          id: Number(contest.id),
-          title: contest.title,
-          state: 'Finished',
-          problemScore: contest.problemScore,
-          totalScore: contest.totalScore,
-          isSetToZero: false
+        ...data.getAssignmentsByProblemId.finished.map((assignment) => ({
+          id: Number(assignment.id),
+          title: assignment.title,
+          courseNum: assignment.group.courseInfo?.courseNum || 'N/A',
+          groupId: Number(assignment.group.id)
         }))
       ]
-      setContests(mappedData)
+      setAssignments(mappedData)
     }
   }, [data])
 
+  const columns = createColumns(onSelectedAssignmentsChange)
+
   return (
-    <DataTableRoot data={contests} columns={columns}>
+    <DataTableRoot data={assignments} columns={columns}>
       <DataTable />
-      <SetToZeroButton
-        onSetToZero={(contestsToSetZero) => {
-          setContests((contests) =>
-            contests.map((contest) =>
-              contestsToSetZero.includes(contest.id)
-                ? { ...contest, isSetToZero: true }
-                : contest
-            )
-          )
-          onSetToZero(contestsToSetZero)
-        }}
-      />
-      <RevertScoreButton
-        onRevertScore={() => {
-          setContests(
-            contests.map((contest) => ({ ...contest, isSetToZero: false }))
-          )
-          onRevertScore()
-        }}
-      />
     </DataTableRoot>
   )
 }
 
 export function BelongedContestTableFallback() {
+  const columns = createColumns(() => {})
   return <DataTableFallback withSearchBar={false} columns={columns} />
 }

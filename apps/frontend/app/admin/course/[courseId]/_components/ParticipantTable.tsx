@@ -3,7 +3,6 @@
 import {
   DataTable,
   DataTableFallback,
-  DataTablePagination,
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
@@ -28,7 +27,11 @@ interface ScoreSummary {
   assignmentPerfectScore: number
   submittedProblemCount: number
   totalProblemCount: number
-  problemScores: { problemId: number; score: number; maxScore: number }[]
+  scoreSummaryByProblem: {
+    problemId: number
+    score: number
+    maxScore: number
+  }[]
   major: string
 }
 
@@ -103,7 +106,7 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
   const csvData =
     scoreData?.getAssignmentScoreSummaries.map((user) => {
       const userProblemScores = problemList.map((problem) => {
-        const scoreData = user.problemScores.find(
+        const scoreData = user.scoreSummaryByProblem.find(
           (ps) => ps.problemId === problem.problemId
         )
         return {
@@ -163,6 +166,7 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
       <DataTableRoot
         data={summariesData}
         columns={createColumns(problemColumnData)}
+        enablePagination={false}
       >
         <div className="flex justify-between">
           <div className="flex items-center gap-4">
@@ -198,7 +202,6 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
             `/admin/course/${courseId}/assignment/${assignmentId}/participant/${data.id}` as const
           }
         />
-        <DataTablePagination />
       </DataTableRoot>
     </div>
   )

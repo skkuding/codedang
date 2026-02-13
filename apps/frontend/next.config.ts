@@ -21,10 +21,28 @@ const BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
 
 const nextConfig = {
   images: {
-    remotePatterns: [
-      new URL(`https://${BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/**`), // production
-      new URL('https://stage.codedang.com/**') // development
-    ]
+    remotePatterns:
+      process.env.APP_ENV === 'production'
+        ? [
+            {
+              protocol: 'https',
+              hostname: `${BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com`
+            },
+            {
+              protocol: 'https',
+              hostname: '**.cdninstagram.com'
+            }
+          ]
+        : [
+            {
+              protocol: 'https',
+              hostname: 'minio.stage.codedang.com'
+            },
+            {
+              protocol: 'https',
+              hostname: '**.cdninstagram.com'
+            }
+          ]
   },
   output: 'standalone',
   eslint: {

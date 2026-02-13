@@ -8,7 +8,6 @@ import {
 } from '@/components/Icons'
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
-import { useSession } from '@/libs/hooks/useSession'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import codedangIcon from '@/public/logos/codedang-editor.svg'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
@@ -17,10 +16,11 @@ import { useQuery } from '@apollo/client'
 import { ContestRole, type UserContest } from '@generated/graphql'
 import { motion } from 'framer-motion'
 import type { Route } from 'next'
+import type { Session } from 'next-auth'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
-import { useEffect, useState, type ComponentType } from 'react'
+import { useEffect, useState, type ComponentType, type MouseEvent } from 'react'
 import type { IconType } from 'react-icons'
 import {
   FaAnglesLeft,
@@ -72,7 +72,7 @@ interface SidebarLinkProps {
   item: NavItem
   isActive: boolean
   isExpanded: boolean
-  onClick?: () => void
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
 }
 
 function SidebarLink({
@@ -99,8 +99,11 @@ function SidebarLink({
   )
 }
 
-export function ManagementSidebar() {
-  const session = useSession()
+interface ManagementSidebarProps {
+  session: Session | null
+}
+
+export function ManagementSidebar({ session }: ManagementSidebarProps) {
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isAnimationComplete, setIsAnimationComplete] = useState(true)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
@@ -182,8 +185,14 @@ export function ManagementSidebar() {
 
   useEffect(() => {
     const id = (params.courseId as string) || ''
+    const hasCourse = Boolean(id)
+
     setSelectedCourseId(id)
-    setIsCourseSidebarOpened(Boolean(id))
+    setIsCourseSidebarOpened(hasCourse)
+
+    if (hasCourse) {
+      setIsMainSidebarExpanded(false)
+    }
   }, [params.courseId])
 
   const courseItems =
@@ -192,6 +201,10 @@ export function ManagementSidebar() {
       code: `${course?.courseInfo?.courseNum}-${course?.courseInfo?.classNum}`,
       name: course.groupName
     })) || []
+
+  const selectedCourse = courseItems.find(
+    (course) => course.id.toString() === selectedCourseId
+  )
 
   return (
     <div className="mx-6 flex h-full gap-5">
@@ -239,8 +252,27 @@ export function ManagementSidebar() {
                     : pathname.startsWith(item.path)
                 }
                 isExpanded={isMainSidebarExpanded}
-                onClick={() => {
-                  setIsCourseSidebarOpened(false)
+                onClick={(e) => {
+                  const isCourseItem = item.path === '/admin/course'
+                  const isOnCourseDetail =
+                    pathname.startsWith('/admin/course/') &&
+                    isCourseSidebarOpened
+
+                  if (isCourseItem && isOnCourseDetail) {
+                    if (!isMainSidebarExpanded) {
+                      setIsMainSidebarExpanded(true)
+                    }
+                    e.preventDefault()
+                    return
+                  }
+
+                  if (!isMainSidebarExpanded) {
+                    setIsMainSidebarExpanded(true)
+                  }
+
+                  if (!isCourseItem) {
+                    setIsCourseSidebarOpened(false)
+                  }
                 }}
               />
               {item.path === '/admin/course' &&
@@ -289,6 +321,18 @@ export function ManagementSidebar() {
             {isCourseSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
           </button>
           <div className="h-[3.8rem]" />
+          {selectedCourse && isCourseSidebarExpanded && (
+            <div className="absolute mt-16 text-gray-500">
+              <div className="font-semibold text-gray-700">
+                [{selectedCourse.code}]
+              </div>
+              <div>{selectedCourse.name}</div>
+              <div className="mt-5 w-[190px]">
+                <Separator />
+              </div>
+            </div>
+          )}
+
           <div className="mt-20 flex flex-col gap-2">
             <SideBar
               navItems={getCourseNavItems(selectedCourseId)}

@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common'
 import {
   ContestRole,
+  Language,
   Prisma,
   QnACategory,
-  Role,
-  type Contest
+  ResultStatus,
+  Role
 } from '@prisma/client'
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
@@ -29,11 +31,6 @@ const contestSelectOption = {
   isJudgeResultVisible: true,
   posterUrl: true,
   summary: true,
-  contestRecord: {
-    select: {
-      userId: true
-    }
-  },
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     select: {
@@ -54,87 +51,75 @@ export type ContestResult = Omit<ContestSelectResult, '_count'> & {
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * 모든 대회를 진행 중(ongoing), 예정(upcoming), 종료(finished) 상태로 분류하여 조회합니다.
+   *
+   * @param {number} [userId] 사용자 ID
+   * @param {string} [search] 대회 제목 검색어
+   * @returns `ongoing`, `upcoming`, `finished` 대회 리스트
+   */
   async getContests(userId?: number, search?: string) {
-    // 1. get all contests
     const now = new Date()
+
+    const registeredContestIds = new Set<number>()
+    if (userId) {
+      const userRecords = await this.prisma.contestRecord.findMany({
+        where: { userId },
+        select: { contestId: true }
+      })
+      userRecords.forEach((record) =>
+        registeredContestIds.add(record.contestId)
+      )
+    }
 
     const searchFilter = search
       ? { title: { contains: search, mode: Prisma.QueryMode.insensitive } }
       : {}
 
-    const ongoingContests = await this.prisma.contest.findMany({
-      where: {
-        startTime: {
-          lte: now
-        },
-        endTime: {
-          gt: now
-        },
-        ...searchFilter
-      },
+    const contests = await this.prisma.contest.findMany({
+      where: searchFilter,
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
       select: contestSelectOption
     })
 
-    const upcomingContests = await this.prisma.contest.findMany({
-      where: {
-        startTime: {
-          gt: now
-        },
-        ...searchFilter
-      },
-      orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
-      select: contestSelectOption
-    })
+    const ongoing: ContestResult[] = []
+    const upcoming: ContestResult[] = []
+    const finished: ContestResult[] = []
 
-    const finishedContests = await this.prisma.contest.findMany({
-      where: {
-        endTime: {
-          lte: now
-        },
-        ...searchFilter
-      },
-      orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }],
-      select: contestSelectOption
-    })
+    for (const contest of contests) {
+      const { _count, ...rest } = contest
 
-    const checkIsRegisteredAndRenameParticipants = (
-      contest: ContestSelectResult
-    ) => {
-      const { _count: countObject, contestRecord, ...rest } = contest
-
-      if (!userId) {
-        return {
-          ...rest,
-          participants: countObject.contestRecord,
-          isRegistered: false
-        }
+      const contestWithParticipantsAndIsRegistered: ContestResult & {
+        isRegistered: boolean
+      } = {
+        ...rest,
+        participants: _count.contestRecord,
+        isRegistered: userId ? registeredContestIds.has(contest.id) : false
       }
 
-      return {
-        ...rest,
-        participants: countObject.contestRecord,
-        isRegistered: contestRecord.some((record) => record.userId === userId)
+      if (contest.endTime <= now) {
+        finished.push(contestWithParticipantsAndIsRegistered)
+      } else if (contest.startTime <= now) {
+        ongoing.push(contestWithParticipantsAndIsRegistered)
+      } else {
+        upcoming.push(contestWithParticipantsAndIsRegistered)
       }
     }
 
-    const ongoingContestsWithIsRegistered = ongoingContests.map(
-      checkIsRegisteredAndRenameParticipants
-    )
-    const upcomingContestsWithIsRegistered = upcomingContests.map(
-      checkIsRegisteredAndRenameParticipants
-    )
-    const finishedContestsWithIsRegistered = finishedContests.map(
-      checkIsRegisteredAndRenameParticipants
-    )
-
     return {
-      ongoing: ongoingContestsWithIsRegistered,
-      upcoming: upcomingContestsWithIsRegistered,
-      finished: finishedContestsWithIsRegistered
+      ongoing,
+      upcoming,
+      finished
     }
   }
 
+  /**
+   * 메인 배너에 표시할 두 개의 대회 ID를 조회합니다.
+   * 1. 가장 빨리 시작하는 예정된 대회
+   * 2. 가장 많은 인원이 등록한 예정된 대회
+   *
+   * @returns `fastestUpcomingContestId`, `mostRegisteredId` 대회 정보
+   */
   async getBannerContests() {
     const fastestUpcomingContestId = (
       await this.prisma.contest.findFirstOrThrow({
@@ -176,56 +161,35 @@ export class ContestService {
     }
   }
 
+  /**
+   * 특정 대회의 상세 정보를 조회합니다.
+   *
+   * @param {number} id 대회 ID
+   * @param {number} [userId] 사용자 ID
+   * @returns 대회 상세 정보
+   */
   async getContest(id: number, userId?: number | null) {
-    // check if the user has already registered this contest
-    // initial value is false
-    let isRegistered = false
-    // check if the user has contest role in this contest
-    let isPrivilegedRole = false
-    let contest: Partial<Contest>
-    if (userId) {
-      const hasRegistered = await this.prisma.contestRecord.findFirst({
-        where: { userId, contestId: id }
-      })
-      if (hasRegistered) {
-        isRegistered = true
-      }
-      const hasPrivilegedRole = await this.prisma.userContest.findFirst({
-        where: {
-          userId,
-          contestId: id,
-          role: {
-            in: ['Admin', 'Manager', 'Reviewer']
-          }
-        }
-      })
-      if (hasPrivilegedRole) {
-        isPrivilegedRole = true
-      }
-    }
-    try {
-      contest = await this.prisma.contest.findUniqueOrThrow({
-        where: {
-          id
-        },
-        select: {
-          ...contestSelectOption,
-          description: true,
-          createTime: true
-        }
-      })
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('Contest')
-      }
-      throw error
+    const contestDetailSelect: Prisma.ContestSelect = {
+      ...contestSelectOption,
+      description: true,
+      createTime: true
     }
 
-    const { invitationCode, ...contestDetails } = contest
-    const invitationCodeExists = invitationCode != null
+    if (userId) {
+      contestDetailSelect.contestRecord = {
+        where: { userId },
+        select: { userId: true }
+      }
+      contestDetailSelect.userContest = {
+        where: {
+          userId,
+          role: {
+            in: [ContestRole.Admin, ContestRole.Manager, ContestRole.Reviewer]
+          }
+        },
+        select: { role: true }
+      }
+    }
 
     const navigate = (pos: 'prev' | 'next') => {
       type Order = 'asc' | 'desc'
@@ -233,7 +197,7 @@ export class ContestService {
         pos === 'prev'
           ? { compare: { lt: id }, order: 'desc' as Order }
           : { compare: { gt: id }, order: 'asc' as Order }
-      return {
+      return this.prisma.contest.findFirst({
         where: {
           id: options.compare
         },
@@ -244,19 +208,54 @@ export class ContestService {
           id: true,
           title: true
         }
-      }
+      })
     }
 
-    return {
-      ...contestDetails,
-      invitationCodeExists,
-      isRegistered,
-      isPrivilegedRole,
-      prev: await this.prisma.contest.findFirst(navigate('prev')),
-      next: await this.prisma.contest.findFirst(navigate('next'))
+    try {
+      const [contestResult, prev, next] = await Promise.all([
+        this.prisma.contest.findUniqueOrThrow({
+          where: { id },
+          select: contestDetailSelect
+        }),
+        navigate('prev'),
+        navigate('next')
+      ])
+
+      const { invitationCode, contestRecord, userContest, ...contestDetails } =
+        contestResult as typeof contestResult & {
+          contestRecord?: { userId: number }[]
+          userContest?: { role: ContestRole }[]
+        }
+
+      const invitationCodeExists = invitationCode != null
+      const isRegistered = !!contestRecord?.length
+      const isPrivilegedRole = !!userContest?.length
+
+      return {
+        ...contestDetails,
+        invitationCodeExists,
+        isRegistered,
+        isPrivilegedRole,
+        prev,
+        next
+      }
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('Contest')
+      }
+      throw error
     }
   }
 
+  /**
+   * 사용자가 대회에 등록합니다.
+   *
+   * @param {object} params 등록에 필요한 정보
+   * @returns 생성된 대회 참가 기록
+   */
   async registerContest({
     contestId,
     userId,
@@ -266,23 +265,25 @@ export class ContestService {
     userId: number
     invitationCode?: string
   }) {
-    const contest = await this.prisma.contest.findUniqueOrThrow({
-      where: {
-        id: contestId
-      },
-      select: {
-        registerDueTime: true,
-        invitationCode: true
-      }
-    })
+    const [contest, hasRegistered] = await Promise.all([
+      this.prisma.contest.findUniqueOrThrow({
+        where: {
+          id: contestId
+        },
+        select: {
+          registerDueTime: true,
+          invitationCode: true
+        }
+      }),
+      this.prisma.contestRecord.findFirst({
+        where: { userId, contestId },
+        select: { id: true }
+      })
+    ])
 
     if (contest.invitationCode && contest.invitationCode !== invitationCode) {
       throw new ConflictFoundException('Invalid invitation code')
     }
-
-    const hasRegistered = await this.prisma.contestRecord.findFirst({
-      where: { userId, contestId }
-    })
     if (hasRegistered) {
       throw new ConflictFoundException('Already participated this contest')
     }
@@ -292,6 +293,7 @@ export class ContestService {
         'Cannot participate in the contest after the registration deadline'
       )
     }
+
     return await this.prisma.$transaction(async (prisma) => {
       const contestRecord = await prisma.contestRecord.create({
         data: { contestId, userId }
@@ -305,27 +307,23 @@ export class ContestService {
     })
   }
 
+  /**
+   * 대회 참가를 취소합니다.
+   * 단, 대회가 시작된 후에는 취소할 수 없습니다.
+   *
+   * @param {number} contestId 대회 ID
+   * @param {number} userId 사용자 ID
+   * @returns 삭제된 대회 참가 기록
+   */
   async unregisterContest(contestId: number, userId: number) {
-    const [contest, contestRecord] = await Promise.all([
-      this.prisma.contest.findUnique({
-        where: {
-          id: contestId
-        }
-      }),
-      this.prisma.contestRecord.findFirst({
-        where: {
-          userId,
-          contestId
-        }
-      })
-    ])
-
+    const contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      },
+      select: { startTime: true }
+    })
     if (!contest) {
       throw new EntityNotExistException('Contest')
-    }
-
-    if (!contestRecord) {
-      throw new EntityNotExistException('ContestRecord')
     }
 
     const now = new Date()
@@ -335,63 +333,82 @@ export class ContestService {
       )
     }
 
-    return await this.prisma.$transaction(async (prisma) => {
-      await prisma.userContest.delete({
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        where: { userId_contestId: { userId, contestId } }
-      })
+    try {
+      return await this.prisma.$transaction(async (prisma) => {
+        await prisma.userContest.delete({
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          where: { userId_contestId: { userId, contestId } }
+        })
 
-      return prisma.contestRecord.delete({
-        where: { id: contestRecord.id }
+        return prisma.contestRecord.delete({
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          where: { contestId_userId: { contestId, userId } }
+        })
       })
-    })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('ContestRecord')
+      }
+      throw error
+    }
   }
 
+  /**
+   * 대회의 리더보드를 조회합니다.
+   * Freeze/Unfreeze 상태를 반영합니다.
+   *
+   * @param {number} contestId 대회 ID
+   * @param {number} [userId] 사용자 ID
+   * @param {string} [search] 사용자 이름 필터링
+   * @returns 대회 Leaderboard 정보
+   */
   async getContestLeaderboard(
     contestId: number,
     userId?: number,
     search?: string
   ) {
-    const contest = await this.prisma.contest.findUniqueOrThrow({
-      where: {
-        id: contestId
-      },
-      select: {
-        freezeTime: true,
-        unfreeze: true,
-        userContest: {
-          where: {
-            userId
-          },
-          select: {
-            role: true
+    const [contest, sum, submissionCounts, allProblems] = await Promise.all([
+      this.prisma.contest.findUniqueOrThrow({
+        where: { id: contestId },
+        select: {
+          freezeTime: true,
+          unfreeze: true,
+          userContest: {
+            where: { userId },
+            select: { role: true }
           }
         }
-      }
-    })
+      }),
+      this.prisma.contestProblem.aggregate({
+        where: { contestId },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _sum: { score: true }
+      }),
+      this.prisma.submission.groupBy({
+        by: ['userId', 'problemId'],
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: { id: true },
+        where: { contestId }
+      }),
+      this.prisma.contestProblem.findMany({
+        where: { contestId },
+        select: { id: true, order: true, problemId: true },
+        orderBy: { order: 'asc' }
+      })
+    ])
+
     const contestRole = userId ? (contest.userContest[0]?.role ?? null) : null
     const now = new Date()
     const isFrozen = Boolean(
       contest.freezeTime && now >= contest.freezeTime && !contest.unfreeze
     )
-
-    const sum = await this.prisma.contestProblem.aggregate({
-      where: {
-        contestId
-      },
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      _sum: {
-        score: true
-      }
-    })
     const maxScore = sum._sum?.score ?? 0
 
-    const scoreColumn = isFrozen ? 'score' : 'finalScore'
-    const totalPenaltyColumn = isFrozen ? 'totalPenalty' : 'finalTotalPenalty'
-    const contestRecords = await this.prisma.contestRecord.findMany({
-      where: {
-        contestId
-      },
+    const contestRecordsPromise = this.prisma.contestRecord.findMany({
+      where: { contestId },
       select: {
         userId: true,
         user: {
@@ -424,40 +441,28 @@ export class ContestService {
         }
       },
       orderBy: [
-        { [scoreColumn]: 'desc' },
-        { [totalPenaltyColumn]: 'asc' },
+        { [isFrozen ? 'score' : 'finalScore']: 'desc' },
+        { [isFrozen ? 'totalPenalty' : 'finalTotalPenalty']: 'asc' },
         { lastAcceptedTime: 'asc' }
       ]
     })
 
-    // 문제별 제출 횟수 데이터 가져오기
-    const submissionCounts = await this.prisma.submission.groupBy({
-      by: ['userId', 'problemId'], // userId와 problemId로 그룹화
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      _count: {
-        id: true // 제출 횟수를 세기 위해 id를 카운트
-      },
-      where: {
-        contestId
-      }
-    })
-
-    let beforeFreezeSubmissionCounts
-    if (contest?.freezeTime) {
-      beforeFreezeSubmissionCounts = await this.prisma.submission.groupBy({
-        by: ['userId', 'problemId'],
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        _count: {
-          id: true
-        },
-        where: {
-          contestId,
-          createTime: {
-            lt: contest.freezeTime
+    const beforeFreezePromise = contest.freezeTime
+      ? this.prisma.submission.groupBy({
+          by: ['userId', 'problemId'],
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: { id: true },
+          where: {
+            contestId,
+            createTime: { lt: contest.freezeTime }
           }
-        }
-      })
-    }
+        })
+      : Promise.resolve(undefined)
+
+    const [contestRecords, beforeFreezeSubmissionCounts] = await Promise.all([
+      contestRecordsPromise,
+      beforeFreezePromise
+    ])
 
     // 유저별 문제별 제출 횟수를 매핑
     const submissionCountMap: Record<number, Record<number, number>> = {}
@@ -492,20 +497,6 @@ export class ContestService {
         submissionCountMapBeforeFreeze[userId][problemId] = _count.id
       }
     }
-
-    const allProblems = await this.prisma.contestProblem.findMany({
-      where: {
-        contestId
-      },
-      select: {
-        id: true,
-        order: true,
-        problemId: true
-      },
-      orderBy: {
-        order: 'asc'
-      }
-    }) // 모든 문제 목록이 포함된 배열
 
     let rank = 1
     const leaderboard = contestRecords.map(
@@ -580,6 +571,7 @@ export class ContestService {
         return {
           username: user!.username,
           totalScore: isFrozen ? score : finalScore,
+          userId,
           totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
           problemRecords,
           rank: rank++
@@ -600,11 +592,13 @@ export class ContestService {
     }
   }
 
+  /**
+   * 특정 사용자가 참여하거나 관리하는 모든 대회의 역할(Role) 목록을 조회합니다.
+   *
+   * @param {number} userId 사용자 ID
+   * @returns 사용자가 속한 대회 ID와 역할
+   */
   async getContestRoles(userId: number) {
-    if (!userId) {
-      return []
-    }
-
     const userContests = await this.prisma.userContest.findMany({
       where: {
         userId
@@ -1220,5 +1214,902 @@ export class ContestService {
 
       return deletedComment
     })
+  }
+
+  /**
+   * (private) 대회의 존재 여부 및 종료 여부를 검증합니다
+   */
+  private async checkIsContestExistsAndEnded(contestId: number) {
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId }
+    })
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+    const now = new Date()
+    if (contest.endTime > now) {
+      throw new ForbiddenAccessException(
+        'You can access to statistics after contest ends.'
+      )
+    }
+  }
+
+  /**
+   * 특정 대회에 해당하는 대회 문제들의 목록을 반환합니다.
+   * @param contestId - 조회할 대회의 Id
+   * @returns contestProblem[]
+   */
+  async getContestProblems(contestId: number) {
+    await this.checkIsContestExistsAndEnded(contestId)
+
+    return await this.prisma.contest.findFirst({
+      where: { id: contestId },
+      select: {
+        contestProblem: {
+          select: {
+            problemId: true,
+            problem: {
+              select: { title: true }
+            }
+          },
+          orderBy: {
+            order: 'asc'
+          }
+        }
+      }
+    })
+  }
+
+  /**
+   * 특정 대회 문제에 대한 통계를 반환합니다.
+   * @param userId - 요청하는 유저의 Id
+   * @param contestId - 조회할 대회의 Id
+   * @param problemId - 조회할 문제의 Id
+   * @returns totalSubmissionCount - 전체 제출 수
+   * @returns acceptedSubmissionCount - 정답 제출 수
+   * @returns acceptedRate - 정답률(제출 수 기준)
+   * @returns averageTrial - 평균 시도 횟수
+   * @returns firstSolver - 최단 정답자(제출시간 기준)
+   * @returns fastestSolver - 최단 정답자(cpuTime 기준)
+   * @returns userSpeedRank - 요청 유저의 제출시간 등수(정답을 맞추지 못한 경우 null)
+   * @returns acceptedSubmissionsByLanguage - 언어별 정답 제출 수
+   */
+  async getStatisticsByProblem(
+    userId: number | null,
+    contestId: number,
+    problemId: number
+  ) {
+    await this.checkIsContestExistsAndEnded(contestId)
+
+    const [contest, contestProblem, allSubmissions] = await Promise.all([
+      this.prisma.contest.findUnique({
+        where: { id: contestId },
+        select: { startTime: true, endTime: true }
+      }),
+      this.prisma.contestProblem.findFirst({
+        where: { contestId, problemId },
+        select: { problem: { select: { languages: true } } }
+      }),
+      this.prisma.submission.findMany({
+        where: {
+          contestId,
+          problemId
+        },
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
+              username: true
+            }
+          },
+          submissionResult: {
+            select: { cpuTime: true }
+          },
+          language: true,
+          result: true,
+          createTime: true
+        },
+        orderBy: {
+          createTime: 'asc'
+        }
+      })
+    ])
+
+    if (!contest?.startTime || !contest?.endTime) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    if (!contestProblem) {
+      throw new EntityNotExistException('ContestProblem')
+    }
+
+    // 해당 problem에서 사용가능한 언어 집합
+    const allowedLanguages = (contestProblem.problem.languages ??
+      []) as Language[]
+    const allowedLanguage = new Set<Language>(allowedLanguages)
+
+    // 대회 기간 내 + 허용 언어로 제출된 것만 집계
+    const startTime = contest.startTime
+    const endTime = contest.endTime
+    const submissionsInScope = allSubmissions.filter(
+      (s) =>
+        s.createTime >= startTime &&
+        s.createTime <= endTime &&
+        allowedLanguage.has(s.language)
+    )
+
+    const totalSubmissionCount = submissionsInScope.length
+    const acceptedSubmissions = submissionsInScope.filter(
+      (submission) => submission.result === ResultStatus.Accepted
+    )
+    const acceptedSubmissionCount = acceptedSubmissions.length
+    const acceptedRate =
+      acceptedSubmissionCount > 0
+        ? (acceptedSubmissionCount / totalSubmissionCount).toFixed(3)
+        : '0.0'
+
+    const uniqueSubmitterIds = new Set<number>()
+    for (const s of submissionsInScope) {
+      const uid = s.user?.id
+      if (uid) uniqueSubmitterIds.add(uid)
+    }
+    const submittedParticipantsCount = uniqueSubmitterIds.size
+    const averageTrial =
+      submittedParticipantsCount > 0
+        ? (totalSubmissionCount / submittedParticipantsCount).toFixed(1)
+        : '0.0'
+
+    // acceptedSubmissions에서 특정 유저의 중복 정답 제출이 있는 경우 제출 시각이 가장 빠른 것만 유지
+    const uniqueAcceptedSubmissions = new Map<
+      number,
+      (typeof acceptedSubmissions)[0]
+    >()
+    for (const submission of acceptedSubmissions) {
+      const userId = submission.user?.id
+      if (userId && !uniqueAcceptedSubmissions.has(userId)) {
+        uniqueAcceptedSubmissions.set(userId, submission)
+      }
+    }
+    const deduplicatedAcceptedSubmissions = Array.from(
+      uniqueAcceptedSubmissions.values()
+    )
+
+    const firstSolver = deduplicatedAcceptedSubmissions[0]?.user ?? null
+
+    let fastestUser: { id: number; username: string } | null = null
+    let minTime: bigint | null = null
+
+    for (const sub of deduplicatedAcceptedSubmissions) {
+      const maxElapsedTime = sub.submissionResult.reduce((max, r) => {
+        const cpuTime = r.cpuTime ?? BigInt(0)
+        return cpuTime > max ? cpuTime : max
+      }, BigInt(0))
+
+      if (sub.user?.id) {
+        if (minTime === null || maxElapsedTime < minTime) {
+          minTime = maxElapsedTime
+          fastestUser = sub.user
+        }
+      }
+    }
+
+    const fastestSolver = fastestUser
+
+    const userSpeedRank =
+      userId === null
+        ? null
+        : (() => {
+            const idx = deduplicatedAcceptedSubmissions.findIndex(
+              (s) => s.user?.id === userId
+            )
+            return idx === -1 ? null : idx + 1
+          })()
+
+    const acceptedSubmissionsByLanguage = new Map<Language, number>()
+    for (const lang of allowedLanguage)
+      acceptedSubmissionsByLanguage.set(lang, 0)
+
+    for (const s of acceptedSubmissions) {
+      const lang = s.language
+      if (allowedLanguage.has(lang)) {
+        acceptedSubmissionsByLanguage.set(
+          lang,
+          (acceptedSubmissionsByLanguage.get(lang) ?? 0) + 1
+        )
+      }
+    }
+
+    // 제출 수가 0인 언어는 제외하고 배열 생성
+    const acceptedSubmissionsByLanguageArray = Array.from(
+      acceptedSubmissionsByLanguage.entries()
+    )
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .filter(([_, count]) => count > 0)
+      .map(([language, count]) => ({ language, count }))
+
+    return {
+      totalSubmissionCount,
+      acceptedSubmissionCount,
+      acceptedRate,
+      averageTrial,
+      firstSolver,
+      fastestSolver,
+      userSpeedRank,
+      acceptedSubmissionsByLanguage: acceptedSubmissionsByLanguageArray
+    }
+  }
+
+  /**
+   * 실시간 리더보드를 위해 대회의 모든 Submission을 반환합니다.
+   * @param contestId - 조회할 대회의 ID
+   * @returns submissionsWithOrder - 실시간 리더보드 구현에 필요한 형태의 Submission 리스트
+   */
+  async getAllSubmissionsByContest(contestId: number) {
+    await this.checkIsContestExistsAndEnded(contestId)
+
+    const [contestProblems, submissions] = await Promise.all([
+      this.prisma.contestProblem.findMany({
+        where: {
+          contestId
+        },
+        select: {
+          problemId: true,
+          order: true
+        }
+      }),
+      this.prisma.submission.findMany({
+        where: { contestId },
+        select: {
+          problemId: true,
+          problem: {
+            select: {
+              title: true
+            }
+          },
+          userId: true,
+          user: {
+            select: {
+              username: true
+            }
+          },
+          result: true,
+          language: true,
+          codeSize: true,
+          id: true,
+          createTime: true
+        }
+      })
+    ])
+
+    const problemOrderMap = new Map(
+      contestProblems.map((cp) => [cp.problemId, cp.order])
+    )
+
+    return submissions.map((submission) => {
+      const { user, problem, ...rest } = submission
+      const order = problemOrderMap.get(submission.problemId)
+      if (order === undefined) {
+        throw new UnprocessableDataException(
+          `Problem ${submission.problemId} is not found in contest ${contestId}`
+        )
+      }
+      return {
+        ...rest,
+        username: user!.username,
+        title: problem!.title,
+        order
+      }
+    })
+  }
+  /**
+   * 대회 statistics 페이지의 문제별 통계 그래프를 조회합니다.
+   * 대회 종료 후에만 조회할 수 있습니다.
+   *
+   * 오답 분포(distribution)와 시간별 제출 추이(timeline) 통계 그래프를 반환합니다.
+   */
+  async getContestProblemStatistics({
+    contestId,
+    problemId
+  }: {
+    contestId: number
+    problemId: number
+  }) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId },
+      select: {
+        startTime: true,
+        endTime: true
+      }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const contestProblem = await this.prisma.contestProblem.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_problemId: {
+          contestId,
+          problemId
+        }
+      },
+      select: {
+        id: true,
+        problem: { select: { languages: true } }
+      }
+    })
+
+    if (!contestProblem) {
+      throw new EntityNotExistException('Problem')
+    }
+
+    const now = new Date()
+
+    if (!contest.endTime || now < contest.endTime) {
+      throw new ForbiddenAccessException(
+        'Contest problem statistics are available after the contest ends'
+      )
+    }
+
+    const allowedLanguages = (contestProblem.problem.languages ??
+      []) as Language[]
+
+    const [distribution, timeline] = await Promise.all([
+      this.getProblemDistribution({
+        contestId,
+        problemId,
+        startTime: contest.startTime,
+        endTime: contest.endTime,
+        allowedLanguages
+      }),
+      this.getProblemTimeline({
+        contestId,
+        problemId,
+        startTime: contest.startTime,
+        endTime: contest.endTime,
+        allowedLanguages
+      })
+    ])
+
+    return {
+      contestId,
+      problemId,
+      distribution,
+      timeline
+    }
+  }
+
+  /**
+   * 문제 제출 결과 오답 분포(distribution) 그래프 통계를 계산합니다.
+   * 허용된 언어로 제출된 결과 유형별 제출 수를 집계합니다.
+   * 결과 유형: WA, TLE, MLE, RE(RE, SFE), CE, ETC(SE, OLE)
+   */
+  private static readonly resultTypes = [
+    'WA',
+    'TLE',
+    'MLE',
+    'RE',
+    'CE',
+    'ETC'
+  ] as const
+
+  private async getProblemDistribution({
+    contestId,
+    problemId,
+    startTime,
+    endTime,
+    allowedLanguages
+  }: {
+    contestId: number
+    problemId: number
+    startTime: Date
+    endTime: Date
+    allowedLanguages: Language[]
+  }) {
+    const [resultGroups] = await Promise.all([
+      this.prisma.submission.groupBy({
+        by: ['result'],
+        where: {
+          contestId,
+          problemId,
+          userId: {
+            not: null
+          },
+          createTime: {
+            gte: startTime,
+            lte: endTime
+          },
+          language: {
+            in: allowedLanguages
+          }
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: { _all: true }
+      })
+    ])
+
+    const resultTypes = ContestService.resultTypes
+    const counts: Record<(typeof ContestService.resultTypes)[number], number> =
+      resultTypes.reduce(
+        (accumulator, type) => {
+          accumulator[type] = 0
+          return accumulator
+        },
+        {} as Record<(typeof ContestService.resultTypes)[number], number>
+      )
+
+    const statusMap = {
+      [ResultStatus.WrongAnswer]: resultTypes[0],
+      [ResultStatus.TimeLimitExceeded]: resultTypes[1],
+      [ResultStatus.MemoryLimitExceeded]: resultTypes[2],
+      [ResultStatus.RuntimeError]: resultTypes[3],
+      [ResultStatus.SegmentationFaultError]: resultTypes[3],
+      [ResultStatus.CompileError]: resultTypes[4],
+      [ResultStatus.ServerError]: resultTypes[5],
+      [ResultStatus.OutputLimitExceeded]: resultTypes[5]
+    } as Partial<
+      Record<ResultStatus, (typeof ContestService.resultTypes)[number]>
+    >
+
+    let totalSubmissions = 0
+
+    for (const group of resultGroups) {
+      const key = statusMap[group.result as keyof typeof statusMap]
+      const submissionCount = group._count._all
+      totalSubmissions += submissionCount
+      if (!key) {
+        continue
+      }
+      counts[key] += submissionCount
+    }
+
+    return {
+      totalSubmissions,
+      counts
+    }
+  }
+
+  /**
+   * 문제 제출 타임라인 그래프 통계를 계산합니다.
+   *
+   * 허용된 언어로 제출된 결과 유형별 제출 수를 집계합니다.
+   * 대회 기간을 6등분하여 각 시간대별 Accepted와 Wrong 제출 수를 집계합니다.
+   * 타임슬롯 간격은 대회 시간에 따라 동적으로 결정됩니다 (예: 3시간 대회 → 30분, 6시간 대회 → 1시간).
+   * Wrong 유형: WA, TLE, MLE, RE(RE, SFE), CE, ETC(SE, OLE)
+   * NA는 제출하지 않은 경우이므로 타임라인 그래프에 포함되지 않습니다.
+   */
+  private async getProblemTimeline({
+    contestId,
+    problemId,
+    startTime,
+    endTime,
+    allowedLanguages
+  }: {
+    contestId: number
+    problemId: number
+    startTime: Date
+    endTime: Date
+    allowedLanguages: Language[]
+  }) {
+    const start = startTime.getTime()
+    const end = endTime.getTime()
+    const durationMs = end - start
+    const slotCount = 6
+    const intervalMs = durationMs / slotCount
+
+    const slots = Array.from({ length: slotCount }, (_, index) => ({
+      timestamp: new Date(start + index * intervalMs).toISOString(),
+      accepted: 0,
+      wrong: 0
+    }))
+
+    const submissions = await this.prisma.submission.findMany({
+      where: {
+        contestId,
+        problemId,
+        userId: {
+          not: null
+        },
+        createTime: {
+          gte: startTime,
+          lte: endTime
+        },
+        language: {
+          in: allowedLanguages
+        }
+      },
+      select: {
+        result: true,
+        createTime: true
+      },
+      orderBy: {
+        createTime: 'asc'
+      }
+    })
+
+    if (durationMs <= 0 || submissions.length === 0) {
+      return {
+        intervalMinutes: 0,
+        series: slots.map((slot) => ({
+          ...slot,
+          timestamp: null
+        }))
+      }
+    }
+
+    const intervalMinutes = Math.max(1, Math.floor(intervalMs / (60 * 1000)))
+
+    for (const submission of submissions) {
+      const time = submission.createTime.getTime()
+      if (time < start || time > end) {
+        continue
+      }
+
+      const slotIndex = Math.min(
+        Math.floor((time - start) / intervalMs),
+        slots.length - 1
+      )
+
+      if (submission.result === ResultStatus.Accepted) {
+        slots[slotIndex].accepted += 1
+      } else if (
+        (
+          [
+            ResultStatus.WrongAnswer,
+            ResultStatus.TimeLimitExceeded,
+            ResultStatus.MemoryLimitExceeded,
+            ResultStatus.RuntimeError,
+            ResultStatus.SegmentationFaultError,
+            ResultStatus.CompileError,
+            ResultStatus.ServerError,
+            ResultStatus.OutputLimitExceeded
+          ] as ResultStatus[]
+        ).includes(submission.result)
+      ) {
+        slots[slotIndex].wrong += 1
+      }
+    }
+
+    return {
+      intervalMinutes,
+      series: slots
+    }
+  }
+
+  /**
+   * 대회 시작 시간을 기준으로 경과 시간을 hh:mm:ss 형식으로 포맷팅합니다.
+   *
+   * @private
+   * @param {Date} date - 포맷팅할 날짜
+   * @param {Date} contestStartTime - 대회 시작 시간
+   * @returns {string} 포맷팅된 시간 (hh:mm:ss)
+   */
+  private formatElapsedTime(date: Date, contestStartTime: Date): string {
+    const totalSeconds = Math.floor(
+      (date.getTime() - contestStartTime.getTime()) / 1000
+    )
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = totalSeconds % 60
+
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(
+      2,
+      '0'
+    )}:${String(seconds).padStart(2, '0')}`
+  }
+
+  /**
+   * ICPC 규칙에 따라 순위를 계산합니다.
+   * 정렬 기준: 1. solved DESC, 2. penalty ASC
+   * 동일한 solved와 penalty를 가진 참가자는 같은 순위를 받습니다.
+   *
+   * @private
+   * @param {Array<{ solved: number; penalty: number }>} records
+   * @returns {number[]}
+   */
+  private calculateRanks(
+    records: Array<{ solved: number; penalty: number }>
+  ): number[] {
+    if (records.length === 0) {
+      return []
+    }
+
+    const ranks: number[] = []
+    let currentRank = 1
+
+    for (let i = 0; i < records.length; i++) {
+      if (
+        i > 0 &&
+        records[i].solved === records[i - 1].solved &&
+        records[i].penalty === records[i - 1].penalty
+      ) {
+        ranks.push(ranks[i - 1])
+      } else {
+        ranks.push(currentRank)
+      }
+      currentRank = i + 2
+    }
+
+    return ranks
+  }
+
+  /**
+   * 대회에 참가한 모든 사용자의 통계를 조회합니다.
+   * ICPC 규칙에 따라 정렬되며, 동점자는 같은 순위를 받습니다.
+   *
+   * @param {number} contestId - 대회 ID
+   * @returns {Promise<Array<{ userId: number; username: string; rank: number; solved: number; penalty: number }>>} 사용자별 통계 리스트
+   */
+  async getContestUsersStatistics(contestId: number) {
+    await this.checkIsContestExistsAndEnded(contestId)
+
+    const contestRecords = await this.prisma.contestRecord.findMany({
+      where: { contestId },
+      select: {
+        userId: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        acceptedProblemNum: true,
+        finalTotalPenalty: true
+      },
+      orderBy: [{ acceptedProblemNum: 'desc' }, { finalTotalPenalty: 'asc' }]
+    })
+
+    const validRecords = contestRecords
+      .filter((record) => record.userId !== null && record.user !== null)
+      .map((record) => ({
+        userId: record.userId!,
+        username: record.user!.username,
+        solved: record.acceptedProblemNum,
+        penalty: record.finalTotalPenalty
+      }))
+
+    const ranks = this.calculateRanks(validRecords)
+
+    return validRecords.map((record, index) => ({
+      userId: record.userId,
+      username: record.username,
+      rank: ranks[index],
+      solved: record.solved,
+      penalty: record.penalty
+    }))
+  }
+
+  /**
+   * 특정 대회에서 특정 참가자의 상세 분석 데이터를 조회합니다.
+   * 페널티 분석, 문제 풀이 타임라인, 제출 히스토리를 포함합니다.
+   *
+   * @param {number} contestId - 대회 ID
+   * @param {number} userId - 사용자 ID
+   * @returns {Promise<{ user: { rank: number; username: string; totalSolved: number; totalPenalty: number; problemAnalysis: Array<any>; timeline: Array<any>; submissionHistory: Array<any> } }>} 참가자의 상세 분석 데이터
+   */
+  async getContestUserStatistics(contestId: number, userId: number) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId },
+      select: {
+        startTime: true,
+        endTime: true
+      }
+    })
+    // TODO: replace to checkIsContestExistsAndEnded with returning contest for bypass null-check
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const now = new Date()
+    if (contest.endTime > now) {
+      throw new ForbiddenAccessException('Contest has not ended')
+    }
+
+    const [contestRecord, contestProblems, allSubmissions] = await Promise.all([
+      this.prisma.contestRecord.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_userId: { contestId, userId }
+        },
+        select: {
+          userId: true,
+          user: {
+            select: {
+              username: true
+            }
+          },
+          acceptedProblemNum: true,
+          finalTotalPenalty: true,
+          contestProblemRecord: {
+            select: {
+              contestProblem: {
+                select: {
+                  id: true,
+                  order: true,
+                  problemId: true
+                }
+              },
+              finalScore: true,
+              finalTimePenalty: true,
+              finalSubmitCountPenalty: true,
+              finishTime: true
+            }
+          }
+        }
+      }),
+      this.prisma.contestProblem.findMany({
+        where: { contestId },
+        select: {
+          id: true,
+          order: true,
+          problemId: true
+        },
+        orderBy: { order: 'asc' }
+      }),
+      this.prisma.submission.findMany({
+        where: {
+          contestId,
+          userId
+        },
+        select: {
+          id: true,
+          problemId: true,
+          result: true,
+          language: true,
+          createTime: true
+        },
+        orderBy: { createTime: 'asc' }
+      })
+    ])
+
+    if (!contestRecord || !contestRecord.user) {
+      throw new EntityNotExistException('ContestRecord')
+    }
+
+    // 전체 참가자 중 순위 계산
+    const allRecords = await this.prisma.contestRecord.findMany({
+      where: { contestId },
+      select: {
+        userId: true,
+        acceptedProblemNum: true,
+        finalTotalPenalty: true
+      },
+      orderBy: [{ acceptedProblemNum: 'desc' }, { finalTotalPenalty: 'asc' }]
+    })
+
+    const ranks = this.calculateRanks(
+      allRecords.map((r) => ({
+        solved: r.acceptedProblemNum,
+        penalty: r.finalTotalPenalty
+      }))
+    )
+
+    const userIndex = allRecords.findIndex((r) => r.userId === userId)
+    const userRank = userIndex !== -1 ? ranks[userIndex] : allRecords.length + 1
+
+    const submissionCountByProblem: Record<number, number> = {}
+    for (const submission of allSubmissions) {
+      if (submission.problemId !== null) {
+        submissionCountByProblem[submission.problemId] =
+          (submissionCountByProblem[submission.problemId] || 0) + 1
+      }
+    }
+
+    const problemOrderMap = new Map(
+      contestProblems.map((cp) => [cp.problemId, cp.order])
+    )
+
+    // 각 문제별 첫 번째 Accepted 제출 시간 계산
+    const firstAcceptedTimeByProblem = new Map<number, Date>()
+    for (const submission of allSubmissions) {
+      if (
+        submission.problemId !== null &&
+        submission.result === ResultStatus.Accepted &&
+        !firstAcceptedTimeByProblem.has(submission.problemId)
+      ) {
+        firstAcceptedTimeByProblem.set(
+          submission.problemId,
+          submission.createTime
+        )
+      }
+    }
+
+    const solvedProblemRecords = contestRecord.contestProblemRecord.filter(
+      (record) => record.finalScore > 0
+    )
+
+    // 페널티 분석
+    const problemAnalysis = solvedProblemRecords.map((record) => {
+      const problemId = record.contestProblem.problemId
+      const order = record.contestProblem.order
+      const attemptCount = submissionCountByProblem[problemId] || 0
+      const wrongAttemptCount = attemptCount > 1 ? attemptCount - 1 : null
+      const wrongPenalty = record.finalSubmitCountPenalty
+      const successPenalty = record.finalTimePenalty
+      const problemPenalty = successPenalty + wrongPenalty
+
+      return {
+        problemLabel: String.fromCharCode(65 + order),
+        attemptCount,
+        successPenalty,
+        wrongAttemptCount,
+        wrongPenalty: wrongAttemptCount !== null ? wrongPenalty : null,
+        problemPenalty,
+        isSolved: true
+      }
+    })
+
+    problemAnalysis.sort((a, b) => a.problemLabel.localeCompare(b.problemLabel))
+
+    const solvedProblems = solvedProblemRecords
+      .filter((record) => record.finishTime !== null)
+      .map((record) => ({
+        order: record.contestProblem.order,
+        problemLabel: String.fromCharCode(65 + record.contestProblem.order),
+        finishTime: record.finishTime!
+      }))
+      .sort((a, b) => a.finishTime.getTime() - b.finishTime.getTime())
+
+    const timeline = solvedProblems.map((problem, index) => {
+      const solvingStartTime =
+        index === 0 ? contest.startTime : solvedProblems[index - 1].finishTime
+      const solvingEndTime = problem.finishTime
+      const solvingDuration = Math.floor(
+        (solvingEndTime.getTime() - solvingStartTime.getTime()) / 1000
+      )
+
+      return {
+        problemLabel: problem.problemLabel,
+        solvingStartTime: this.formatElapsedTime(
+          solvingStartTime,
+          contest.startTime
+        ),
+        solvingEndTime: this.formatElapsedTime(
+          solvingEndTime,
+          contest.startTime
+        ),
+        solvingDuration
+      }
+    })
+
+    // 제출 히스토리
+    const submissionHistory = allSubmissions
+      .filter((submission) => submission.problemId !== null)
+      .map((submission) => {
+        const order = problemOrderMap.get(submission.problemId!)
+        const problemLabel =
+          order !== undefined ? String.fromCharCode(65 + order) : '?'
+
+        const firstAcceptedTime = firstAcceptedTimeByProblem.get(
+          submission.problemId!
+        )
+        const isSolved =
+          firstAcceptedTime !== undefined &&
+          submission.createTime >= firstAcceptedTime
+
+        return {
+          submissionTime: this.formatElapsedTime(
+            submission.createTime,
+            contest.startTime
+          ),
+          problemLabel,
+          result: submission.result,
+          language: submission.language,
+          isSolved
+        }
+      })
+
+    return {
+      user: {
+        rank: userRank,
+        username: contestRecord.user.username,
+        totalSolved: contestRecord.acceptedProblemNum,
+        totalPenalty: contestRecord.finalTotalPenalty,
+        problemAnalysis,
+        timeline,
+        submissionHistory
+      }
+    }
   }
 }

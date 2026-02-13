@@ -7,9 +7,35 @@ import type { JSX } from 'react'
 
 export function MiddleContestBanner() {
   return (
-    <div className="relative flex h-[578px] w-full max-w-[1860px]">
-      <TextBox className={'shirink-0 z-10 h-full min-w-[38%]'} />
-      <ImageBox className={'h-full flex-1'} />
+    <div className="relative w-full">
+      {/* Desktop View */}
+      <div className="hidden h-[578px] w-full max-w-[1860px] md:flex">
+        <TextBox className={'shirink-0 z-10 h-full min-w-[38%]'} />
+        <ImageBox className={'h-full flex-1'} />
+      </div>
+      {/* Mobile View */}
+      <div className="w-full py-[30px] md:hidden">
+        <Link href={`/notice/${contestNoticeId}`} className="block w-full">
+          <div className="relative h-[132px] w-full overflow-hidden">
+            <Image
+              src={'/banners/mobile_mainpage_middle_banner.svg'}
+              alt="middle_banner_mobile"
+              fill
+              style={{ objectFit: 'cover' }}
+              className="z-0"
+            />
+            <div className="font-pretendard absolute left-[16px] top-[32px] z-10 inline-flex h-[66px] w-[201px] flex-col items-start gap-[4px] text-white">
+              <p className="text-[18px] font-semibold leading-[120%] tracking-[-0.54px]">
+                TAKE PART IN REAL-TIME
+                <br /> CODING CONTEST
+              </p>
+              <p className="text-color-neutral-90 text-[13px] font-normal leading-[140%] tracking-[-0.39px]">
+                Compete in real-time!
+              </p>
+            </div>
+          </div>
+        </Link>
+      </div>
     </div>
   )
 }

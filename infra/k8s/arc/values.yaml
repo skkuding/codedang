@@ -1,0 +1,24 @@
+githubConfigUrl: 'https://github.com/skkuding/codedang'
+githubConfigSecret: 'github-app-secret'
+minRunners: 2
+maxRunners: 10
+containerMode:
+  type: dind
+  privileged: true
+template:
+  spec:
+    # Prefer skkuding-2/3 (faster CPU) for runners.
+    # When both are full, runners will fall back to skkuding-1.
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 80
+            preference:
+              matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values: ['skkuding-2', 'skkuding-3']
+    containers:
+      - name: runner
+        image: 'ghcr.io/actions/actions-runner:latest'
+        command: ['/home/runner/run.sh']

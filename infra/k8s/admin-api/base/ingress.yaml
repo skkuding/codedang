@@ -4,7 +4,7 @@ metadata:
   name: admin-api-server-ingress
   namespace: admin-api
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
     traefik.ingress.kubernetes.io/redirect-entry-point: https
 spec:
   ingressClassName: traefik
@@ -17,6 +17,13 @@ spec:
       http:
         paths:
           - path: /graphql
+            pathType: Prefix
+            backend:
+              service:
+                name: admin-api-server
+                port:
+                  number: 3000
+          - path: /admin-api
             pathType: Prefix
             backend:
               service:

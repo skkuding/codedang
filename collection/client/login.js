@@ -71,6 +71,14 @@ const loginUser3rd = async (req) => {
   })
 }
 
+const loginUser4th = async (req) => {
+  await login(req, {
+    username: 'user04',
+    password: 'Useruser'
+  })
+}
+
+
 module.exports = {
   loginAdmin,
   loginContestAdmin,
@@ -80,4 +88,5 @@ module.exports = {
   loginUser,
   loginUser2nd,
   loginUser3rd,
+  loginUser4th
 }

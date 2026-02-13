@@ -6,6 +6,11 @@ loki:
   auth_enabled: false
   commonConfig:
     replication_factor: 1
+  limits_config:
+    retention_period: 2160h # 90 days
+  compactor:
+    retention_enabled: true
+    delete_request_store: s3
   ring:
     kvstore:
       store: inmemory
@@ -13,10 +18,10 @@ loki:
   # could not find way to inject env variables with helm chart
   # need to reference minio access key and secret
   # instead, we will use the default minio provided by this chart
-  # storage:
-  #   bucketNames:
-  #     chunks: loki
-  #     ruler: loki
+  storage:
+    bucketNames:
+      chunks: loki
+      ruler: loki
   #   type: s3
   #   s3:
   #     endpoint: http://minio.monitoring-minio.svc.cluster.local:9000
