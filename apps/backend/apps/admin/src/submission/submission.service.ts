@@ -5,8 +5,9 @@ import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
 import { createReadStream, createWriteStream, existsSync } from 'fs'
 import { writeFile, rm, unlink, mkdir } from 'fs/promises'
+import * as os from 'os'
 import path from 'path'
-import sanitize from 'sanitize-filename'
+import { v4 as uuidv4 } from 'uuid'
 import type { AuthenticatedUser } from '@libs/auth'
 import {
   EntityNotExistException,
@@ -753,7 +754,7 @@ export class SubmissionService {
       }
     })
 
-    const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin'
+    const isAdmin = user?.role === Role.Admin || user?.role === Role.SuperAdmin
     const isGroupLeader = (user?.userGroup?.length ?? 0) > 0
 
     if (!isAdmin && !isGroupLeader) {
