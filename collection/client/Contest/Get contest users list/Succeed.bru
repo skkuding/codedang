@@ -1,0 +1,87 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/contest/:contestId/statistics/users
+  body: none
+  auth: inherit
+}
+
+params:path {
+  contestId: 6
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📘 Get Contest Users Statistics
+
+  **GET** `/contest/:contestId/statistics/users`
+
+  대회에 참가한 모든 사용자의 기본 통계(순위, 정답 수, 패널티 등)를 조회합니다.
+
+  이 API는 **대회 종료 후**에만 조회할 수 있으며, 누구나 접근 가능합니다.
+
+  ### 🔒 Authentication
+
+  🔸 Optional
+  인증 여부와 관계없이 대회가 종료된 이후라면 접근할 수 있습니다.
+
+  ### Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type | Required | Description |
+  |------|------|----------|-------------|
+  | `contestId` | number | ✅ | 대상 대회의 ID |
+
+  ### 📤 Responses
+
+  #### 200 OK
+
+  사용자 통계 배열이 반환됩니다. ICPC 규칙에 따라 정렬됩니다 (solved DESC, penalty ASC).
+
+  ```json
+  [
+    {
+      "userId": 12,
+      "username": "AlgorithmGod",
+      "rank": 1,
+      "solved": 4,
+      "penalty": 403
+    },
+    {
+      "userId": 34,
+      "username": "SpeedKing",
+      "rank": 2,
+      "solved": 4,
+      "penalty": 512
+    }
+  ]
+  ```
+
+  - `userId`: 사용자 ID
+  - `username`: 사용자 닉네임
+  - `rank`: 순위 (ICPC 규칙 적용)
+  - `solved`: 해결한 문제 수
+  - `penalty`: 총 패널티(분)
+
+  #### 403 Forbidden
+
+  대회가 종료되지 않았을 경우 반환됩니다.
+
+  #### 404 Not Found
+
+  존재하지 않는 대회일 경우 반환됩니다.
+
+}
