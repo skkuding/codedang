@@ -778,43 +778,6 @@ export class SubmissionService {
       problemId,
       res
     )
-    if (!compressed) {
-      return
-    }
-    const { zipPath, zipFilename, dirPath } = compressed
-    const encodedFilename = encodeURIComponent(zipFilename)
-    res.set({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      'Content-Type': 'application/zip',
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      'Content-Disposition': `attachment; filename=assignment${assignmentId}_problem${problemId}.zip; filename*=UTF-8''${encodedFilename}.zip`
-    })
-
-    try {
-      await new Promise<void>((resolve, reject) => {
-        const stream = createReadStream(zipPath)
-        stream.pipe(res)
-        stream.on('end', resolve)
-        stream.on('error', reject)
-      })
-    } catch (err) {
-      if (!res.headersSent) {
-        // throw new UnprocessableFileDataException('File download failed', err)
-        res.status(422).json({
-          statusCode: 422,
-          message: 'File download failed',
-          detail: err.message
-        })
-      } else {
-        res.destroy(err)
-      }
-    } finally {
-      if (existsSync(zipPath)) {
-        await unlink(zipPath)
-      }
-      if (existsSync(dirPath)) {
-        await rm(dirPath, { recursive: true, force: true })
-      }
-    }
+    return compressed
   }
 }
