@@ -1668,11 +1668,10 @@ export class CourseService {
       where.title = { contains: filter.search, mode: 'insensitive' }
     }
 
-    // [Refactor] getCourses와 동일하게 getPaginator 헬퍼 사용
     const paginator = this.prisma.getPaginator(cursor)
 
     const qnas = await this.prisma.courseQnA.findMany({
-      ...paginator, // cursor 설정과 skip: 1이 자동으로 적용됨
+      ...paginator,
       take,
       select: {
         id: true,
