@@ -1,6 +1,6 @@
 import { Field, Int } from '@nestjs/graphql'
 import { InputType } from '@nestjs/graphql'
-import { GroupCreateInput, GroupUpdateInput } from '@generated'
+import { GroupUpdateInput } from '@generated'
 
 @InputType()
 class Config {
@@ -18,14 +18,20 @@ class Config {
 }
 
 @InputType()
-export class CreateGroupInput extends GroupCreateInput {
-  @Field(() => Config, { nullable: false })
-  declare config: Config
+export class CreateGroupInput {
+  @Field(() => String)
+  groupName: string
 
-  @Field(() => Int, { nullable: true, description: 'Study Group 정원 (1~10)' })
+  @Field(() => String, { nullable: true })
+  description?: string
+
+  @Field(() => Boolean, { defaultValue: false })
+  isPrivate: boolean
+
+  @Field(() => Int, { nullable: true, description: '최대 인원 (기본값: 10)' })
   capacity?: number
 
-  @Field({ nullable: true, description: 'Study Group 비공개 초대 코드' })
+  @Field(() => String, { nullable: true, description: '비공개 초대 코드' })
   invitationCode?: string
 }
 

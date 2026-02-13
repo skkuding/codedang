@@ -18,6 +18,7 @@ import type {
 } from './model/course-notice.input'
 import type { UpdateCourseQnAInput } from './model/course-qna.input'
 import type { CourseInput } from './model/group.input'
+import { CreateGroupInput } from './model/group.input'
 
 @Injectable()
 export class GroupService {
@@ -88,6 +89,48 @@ export class GroupService {
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
+  }
+
+  async createGroup(input: CreateGroupInput, userId: number) {
+    const { groupName, description, isPrivate, capacity, invitationCode } =
+      input
+
+    const existingGroup = await this.prisma.group.findFirst({
+      where: { groupName }
+    })
+    if (existingGroup) {
+      throw new ConflictFoundException('Group name already exists')
+    }
+
+    const group = await this.prisma.group.create({
+      data: {
+        groupName,
+        description: description ?? '',
+        config: {
+          type: 'Study',
+          isPrivate,
+          showOnList: true,
+          allowJoinFromSearch: true,
+          allowJoinWithURL: true,
+          requireApprovalBeforeJoin: false
+        },
+        userGroup: {
+          create: {
+            userId,
+            isGroupLeader: true,
+            totalStudyTime: 0
+          }
+        },
+        studyInfo: {
+          create: {
+            capacity: capacity ?? 10,
+            invitationCode: isPrivate ? invitationCode : null
+          }
+        }
+      }
+    })
+
+    return group
   }
 
   async getCourses(cursor: number | null, take: number) {
