@@ -15,7 +15,6 @@ interface CourseCardProps {
 export function CourseCard({ course }: CourseCardProps) {
   return (
     <div className="mt-3 flex h-[200px] flex-col justify-between overflow-hidden rounded-xl shadow-[0_4px_20px_rgba(53,78,116,0.1)]">
-      {/* <div className={cn('h-[108px]', color)} /> */}
       <div className="flex w-full flex-col justify-between gap-2 px-5 pt-4">
         <StatusBadge variant={'ongoing'} />
         <div className="h-[62px] text-ellipsis whitespace-pre-wrap text-xl font-medium leading-tight tracking-[-0.72px] md:text-2xl">

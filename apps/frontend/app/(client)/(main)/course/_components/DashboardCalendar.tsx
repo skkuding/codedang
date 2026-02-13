@@ -28,9 +28,9 @@ export function DashboardCalendar({
 
   return (
     <section className="h-full rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
-      <div className="flex flex-col justify-center px-[30px] pb-5 pt-[30px]">
+      <div className="flex flex-col px-[30px] pb-5 pt-[30px]">
         <DayPicker
-          className="m-0"
+          className="mx-auto"
           mode="single"
           showOutsideDays
           weekStartsOn={0}
@@ -115,7 +115,7 @@ export function DashboardCalendar({
             } as DayPickerSingleProps['components']
           }
           classNames={{
-            caption: 'py-2',
+            caption: 'py-2 mb-4',
             nav: 'hidden',
             head_row: 'grid grid-cols-7 text-center',
             head_cell:
@@ -123,7 +123,8 @@ export function DashboardCalendar({
             row: 'grid grid-cols-7',
             cell: 'relative p-1 text-center',
             day: 'mx-auto my-1 flex hover:bg-color-blue-95 hover:text-black h-9 w-9 items-center justify-center rounded-full font-normal transition',
-            day_outside: 'text-neutral-400'
+            day_outside: 'text-neutral-400',
+            table: 'w-full border-collapse table-fixed'
           }}
           modifiersClassNames={{
             today: 'bg-primary text-white border border-primary',

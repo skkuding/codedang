@@ -2,7 +2,6 @@ import { cn } from '@/libs/utils'
 import finishedIcon from '@/public/icons/finished.svg'
 import ongoingIcon from '@/public/icons/ongoing.svg'
 import upcomingIcon from '@/public/icons/upcoming.svg'
-import Image from 'next/image'
 import React from 'react'
 
 const variants = {
@@ -38,10 +37,9 @@ interface Props {
 }
 
 export function StatusBadge({ variant }: Props) {
-  const { image, text, color } = variants[variant]
+  const { text, color } = variants[variant]
   return (
     <div className="inline-flex items-center gap-[6px]">
-      {/* <Image src={image} alt={text} /> */}
       <p className={cn('font-sans text-base font-medium', color)}>{text}</p>
     </div>
   )

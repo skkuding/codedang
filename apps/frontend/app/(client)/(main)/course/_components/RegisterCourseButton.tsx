@@ -5,7 +5,6 @@ import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import personFillIcon from '@/public/icons/person-fill.svg'
-// import plusCircleIcon from '@/public/icons/plus-circle.svg'
 import type { Course } from '@/types/type'
 import { useQueryClient } from '@tanstack/react-query'
 import Image from 'next/image'
@@ -96,7 +95,6 @@ export function RegisterCourseButton() {
             variant="outline"
             className="border-primary flex h-9 w-[90px] items-center justify-center rounded-full border hover:bg-[#EAF3FF]"
           >
-            {/* <Image src={plusCircleIcon} alt="plusIcon" /> */}
             <span className="text-primary text-sm font-medium tracking-[-0.42px]">
               Register
             </span>
