@@ -1022,11 +1022,9 @@ model StudyInfo {
   id      Int @id @default(autoincrement())
   groupId Int @unique @map("group_id")
 
-  // 스터디 설정
-  capacity       Int     @default(10) // 최대 인원 (1~10명)
-  invitationCode String? @map("invitation_code") // 비공개 시 입장 코드 (6자리)
+  capacity       Int     @default(10)
+  invitationCode String? @map("invitation_code")
 
-  // 관계 설정 (Group 삭제 시 StudyInfo도 자동 삭제)
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@map("study_info")

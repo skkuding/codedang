@@ -1,5 +1,4 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql'
-// @generated에서 Group과 StudyInfo를 모두 가져옵니다.
 import { Group } from '@generated'
 
 @ObjectType()

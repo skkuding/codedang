@@ -28,10 +28,13 @@ export class CreateGroupInput {
   @Field(() => Boolean, { defaultValue: false })
   isPrivate: boolean
 
-  @Field(() => Int, { nullable: true, description: '최대 인원 (기본값: 10)' })
+  @Field(() => Int, { nullable: true, description: 'Max people (default: 10)' })
   capacity?: number
 
-  @Field(() => String, { nullable: true, description: '비공개 초대 코드' })
+  @Field(() => String, {
+    nullable: true,
+    description: 'Private invitation code'
+  })
   invitationCode?: string
 }
 

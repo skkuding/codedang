@@ -117,8 +117,7 @@ export class GroupService {
         userGroup: {
           create: {
             userId,
-            isGroupLeader: true,
-            totalStudyTime: 0
+            isGroupLeader: true
           }
         },
         studyInfo: {
