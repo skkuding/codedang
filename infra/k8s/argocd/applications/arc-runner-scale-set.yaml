@@ -12,7 +12,6 @@ spec:
       chart: gha-runner-scale-set
       targetRevision: 0.13.1
       helm:
-        oci: true
         releaseName: arc-runner
         valueFiles:
           - $codedang/infra/k8s/arc/values.yaml

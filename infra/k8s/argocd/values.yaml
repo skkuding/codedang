@@ -62,6 +62,7 @@ server:
       traefik.ingress.kubernetes.io/redirect-entry-point: https
     ingressClassName: traefik
     tls: true
+    https: false # Use HTTP backend (port 80) because server runs with --insecure
 
   extraArgs:
     - --insecure
@@ -156,6 +157,24 @@ extraObjects:
             app.kubernetes.io/name: argocd-notifications-controller
             app.kubernetes.io/part-of: argocd
           name: argocd-notifications-secret
+          namespace: argocd
+        type: Opaque
+
+  # ArgoCD Admin Password
+  - apiVersion: bitnami.com/v1alpha1
+    kind: SealedSecret
+    metadata:
+      name: argocd-secret
+      namespace: argocd
+    spec:
+      encryptedData:
+        admin.password: AgBc5OhGJntFlsqJ2dC2B9sdGW7Chh6aMcJPhX9SKfHjfogR1BRYtDytCDx308xRygd10ZmsVy89lwMlxtxYcmH65UMSaVrly/Xxe8biXPykGUHfi/C5jq5DpNB2BWwMSygAnlUOX2rH4rSk768z+a5glFrCHdJfm1ZTxaemvSaGEcbYxhYa5tjhZeoSidNuO6DBoTMUBuw1ruAwcG4CdqMPO0bRmX0A9TqDd2uAzQsPtaVvcx9GPpW+wduundznxcr6cqLXejnAKvWtUDF1A5AiuoV5FWvSZFIuUfGeYtA1/I5Rs29VeEf3ls14eovpqPeBJUMr3qluLF5+ViYUd5CnBbSXMVK9JA3HoheUn8mYCSqSREHsW2RwQenG/2dxqeUnMFGWClmrCG18asEoLgb4+h7u1qcdEkiyUDFD2Z5g22SiY8ONNiJV7xNdCcEBYaUaIWHJUscLIpGr+Fa2/ZMZS+Nu/DxsD9M10cOjVB3i0jjpdrcjSUD9oPufTLO2+pf89GUV51tiTvqH6k3TZ4dQZN6xJ81+WFSEs5WWhJg8iDEwqcYIGTeu0MtYJz7f2k7jdZDz7UEAVz+YqMJt4ftbcOslWM4yPGjZn66X0wHGdS05i4DHfLhOPMEspjtrAsxn5kNvFe2MYaxJ2EB9UXqzSzvRtJhc/oXUf2G5cdJM46RzOV2s6wSnxqP/dIBqHLIa0qDvh23zUFD3DJOigaGVSGMep3mUorYSrqYgtkP7AUQg4TfQspg7dD6kQ234/nQBDQI9tSwj91syR8w=
+        admin.passwordMtime: AgCB4b87UR4VPdyyTDZ9InEakEU1OQSewfe/mEAL+umYLklWsKictbNxw2pLT+QLmuXdV04q5BcJfXhsRg4yA9bMYog3N0P603TmRRyV1sBklWAzgBqjvw4RHvCORshOjG2tDp/C6GNiQBogbgcngyleh36mAlnuEUondJuNBWXwE4wGP19VPaPPSES/6tWaCXKqMi+3Pdv9RbAsH7G1N30Pdwce8JinZ2dWI0GkYQjLMgRB41XmYq8kp/BExeGZSwnAxytVDmmOL05C/YNIO5pKGcbLBdoZig2VL1ALXSGKY0rGaaM4irfUNMgWxSnND5bz0GhKZtaPjKZmoqMlQzZGdcDVxKx9BFmCIGm36QerVm+UIJnXtmgRowIiokIVcevHX7szq2tQtiSMB5oZ1/yN6mOYZDBrUGdHYa328xylBkmXPKFkT01rQlJWU7i70v78cGALguFiRfzIXZoCMP1tlVHIsIB9d1zF4TkhZavctes+ML2sk7UF4/KQNwVq8N8sLWxT8euVkjeQeP3/3JZMF2mZDufksr2u1B9dyYKIMkF6EwwIG0ssaAE0ZrRLgYy5PJGDFjQ5Pkszxo4LFcAtB7kyoCOUd3wBzO7ZW3gZJegMm9tEfHTL5YLGdE00VpRhhXI32fbmgXp4LeSxBDqqVLDFarONWULec/XDyrwaVGYJzFMPmrTnbrgtTUS001aV2LaICzF8Qq3VsRmYvU0G6OR5XQ==
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/part-of: argocd
+          name: argocd-secret
           namespace: argocd
         type: Opaque
 

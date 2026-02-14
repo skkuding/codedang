@@ -15,6 +15,12 @@ app:
       cert-manager.io/cluster-issuer: letsencrypt-dns01
       traefik.ingress.kubernetes.io/redirect-entry-point: https
 
+  # Session timeout settings
+  settings:
+    # 0 = session stays active as long as browser window is open
+    # Default is 900 (15 minutes)
+    tokenTTL: 43200 # 12 hours in seconds
+
 # Admin user for accessing the dashboard
 extras:
   manifests:
