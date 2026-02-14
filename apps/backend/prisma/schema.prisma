@@ -121,6 +121,8 @@ model UserGroup {
   createTime    DateTime @default(now()) @map("create_time")
   updateTime    DateTime @updatedAt @map("update_time")
 
+  totalStudyTime Int? @default(0) @map("total_study_time")
+
   @@id([userId, groupId])
   @@map("user_group")
 }
@@ -154,6 +156,8 @@ model Group {
   sharedProblems Problem[]
   courseQnA      CourseQnA[]
   CourseNotice   CourseNotice[]
+
+  studyInfo StudyInfo?
 
   @@map("group")
 }
@@ -1012,4 +1016,14 @@ model CourseQnAComment {
 
   @@unique([courseQnAId, order])
   @@map("course_qna_comment")
+}
+
+model StudyInfo {
+  groupId        Int     @id @map("group_id")
+  capacity       Int     @default(10)
+  invitationCode String? @map("invitation_code")
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@map("study_info")
 }
