@@ -1,5 +1,6 @@
 'use client'
 
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Separator } from '@/components/shadcn/separator'
 import { Switch } from '@/components/shadcn/switch'
 import {
@@ -8,15 +9,22 @@ import {
   TabsTrigger,
   TabsList
 } from '@/components/shadcn/tabs'
+import { cn } from '@/libs/utils'
+import { useUserSelectionStore } from '@/stores/selectUserStore'
+import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useState } from 'react'
 import { ProblemStatisticsPage } from './ProblemStatistics'
 import { RealtimeLearBoardPage } from './RealtimeLeaderBoard'
+import { ProblemStatisticsSkeletonWithSidebar } from './StatisticsSkeletons'
+import { RealtimeLearBoardSkeleton } from './StatisticsSkeletons'
 import { UserAnalysisPage } from './UserAnalysis'
 
 export function StatisticsPage() {
   const [tab, setTab] = useState('leaderboard')
-  const [selectUser, setSelectUser] = useState<boolean>(false)
-  console.log('selectUser', selectUser)
+  const showOnlySelected = useUserSelectionStore((s) => s.showOnlySelected)
+  const setShowOnlySelected = useUserSelectionStore(
+    (s) => s.setShowOnlySelected
+  )
   return (
     <Tabs defaultValue="leaderboard" value={tab} onValueChange={setTab}>
       <div className="mt-[80px] flex w-[1440px] justify-between px-[116px]">
@@ -31,8 +39,11 @@ export function StatisticsPage() {
                 Only select Users
               </p>
               <Switch
-                checked={selectUser}
-                onCheckedChange={(checked) => setSelectUser(checked)}
+                checked={showOnlySelected}
+                onCheckedChange={(checked) => setShowOnlySelected(checked)}
+                className={cn(
+                  showOnlySelected ? 'bg-primary' : '!bg-line-neutral'
+                )}
               />
             </>
           )}
@@ -47,13 +58,21 @@ export function StatisticsPage() {
       </div>
       <div className="mt-5 w-[1440px] px-[116px]">
         <TabsContent value="leaderboard">
-          <RealtimeLearBoardPage />
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<RealtimeLearBoardSkeleton />}>
+              <RealtimeLearBoardPage />
+            </Suspense>
+          </ErrorBoundary>
         </TabsContent>
         <TabsContent value="user-analysis">
           <UserAnalysisPage />
         </TabsContent>
         <TabsContent value="problem-statistics">
-          <ProblemStatisticsPage />
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<ProblemStatisticsSkeletonWithSidebar />}>
+              <ProblemStatisticsPage />
+            </Suspense>
+          </ErrorBoundary>
         </TabsContent>
       </div>
     </Tabs>
