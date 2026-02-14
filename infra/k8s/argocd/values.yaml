@@ -13,8 +13,8 @@ configs:
           id: github
           name: GitHub
           config:
-            clientID: $argocd-dex-github-oauth:clientID
-            clientSecret: $argocd-dex-github-oauth:clientSecret
+            clientID: $clientID
+            clientSecret: $clientSecret
             useLoginAsID: true
             orgs:
               - name: skkuding
@@ -30,6 +30,16 @@ configs:
       name: codedang
       type: git
 
+  # GitHub Container Registry (ghcr.io) credentials for OCI Helm charts
+  # Personal account: manamana32321, 90-day expiration
+  credentialTemplates:
+    ghcr:
+      url: ghcr.io
+      username: $ghcr-credential:username
+      password: $ghcr-credential:password
+      enableOCI: 'true'
+      type: helm
+
 controller:
   metrics:
     enabled: true
@@ -40,6 +50,9 @@ controller:
 
 dex:
   enabled: true
+  envFrom:
+    - secretRef:
+        name: argocd-dex-github-oauth
   metrics:
     enabled: true
     serviceMonitor:
@@ -212,6 +225,23 @@ extraObjects:
       template:
         metadata:
           name: argocd-dex-github-oauth
+          namespace: argocd
+        type: Opaque
+
+  # GitHub Container Registry Credentials
+  # Personal account: manamana32321, 90-day expiration
+  - apiVersion: bitnami.com/v1alpha1
+    kind: SealedSecret
+    metadata:
+      name: ghcr-credential
+      namespace: argocd
+    spec:
+      encryptedData:
+        password: AgAAcHCOv6osTw+66AUzcLhiBUYQqgB/HJvx7UimuxzSRTdawwIWczDUpFwPvSXAp1TI6ji4I8XuwRfPKp0ls5wsjybl0nTTdYvHSn7+s/C6+1XkDfAHPy4uZFbyek5H8SogTfmhICKsJdq+DbV0p7MypIwX3lJMoDsTwgy4lMkAAUMTuKQ8jayoQlbaKkUAjH3sU1qO2RXDzfjytNkcquR+QKmGq58npnZcAnzYTvqsEuFQ/hUF99dwo5WqTHotWWOt5KSkWlmp49YblyIOs2Nuimbf8DGeggY7RJu+k8NqreuKz5w1QmHa963UGK1CSWj3mrcPmKjP2tSZaNLGjI8Ofyw4a1dH1t6+lVFSo+m39RJavz9mGaVmajyxQfa2M9Qf5KzuPt3/ihpwyBuZRcyssIHQG+UD1BbvevW3Z2BkY/lC0kg1KoAFe0UHHWI3zt5fK+hAJIMsbVaGjlOXkEmb0A435FZqsAMVZ0VcOH8LxgwCLMcQgRCP21HpnOsaHnJmaHqq5w1qUVgdkFjocX6wLqbqFV+dtnfuDaIN0+lpswy0pyn7RqO2WQz4JDXETGI9NaqJA6IKMEgl+6JbrisEhcUoeEIx89ZlJznJB7f8vfi7FVAMOYZ6w8alFKq1VBEL19Q9AgQWcTS3cQfeSUsqjhdSWlYSvPy//N/f0e1cGjuIamwB3XoLTjX3u7DYWpxG2K9KbgMA8XBzEDspZLyYVbLP6rpS6lgIgBU85MAb4MKOEXGYLM8M075BJkTgSCmSfk4BHNNCGrXaG28vxcM1xbTg/XVjCUpu7xhnkTo1hKGOO6NyXwnI7rR7J+Y=
+        username: AgCDBCHrIsb9D6zfJLi8zM+SznUd03srdnCkw/uSOl2++QdRw0Em0Mjt31J/05aR/hvVS6uLYtb75MG94Dpuh4cHYW27VjePlVy9t5wRSMN3T4taOAw4x6PKpLU+ZDNQI5W/f8xGmk42KgX00zM35txYhIlu9fvKV+k6jTj6fbOvB1TDtbE/AS1U2J/GXFjWUtNSLLsFzsbvVer+o566ja273IFPvz0zcztWSpN0fPTcRkhg/9gZAJeS/l2XN23eCinWlQoOWf8VrkZP5gsjkB+AkbOXQ0JmyKKhPCmEnYEsYb/6KL30l26j2IccilHPjBBcHtKs3bbRRq8s48o4Bj+5UWgAZY2N2cAKPCZWt1eM0BQ4UWmTlWfv1AqZYfgHCe2sSNTkWWLgrMiVjwg2IB4E+1GZWuwqwa9Jp6XafPPQHtY5xIUjJ2L1qAXH0s2/y6HVveNP9wf0LIcQmVNYfK5RwXJKj2tFbvuI1YV1zYa1lw1IQ6/PXwMX4RdxBmgQca5d0N7874Xy0S9B3LY735FKJK1bPPCQ0M11EXWKawHFR9utTVkGmQPrMpXYQ2xut+6bbXltn31AoMme0MUL8sFT9trhIZ4CaGtsDSWVuw7fw/iG1RXiRmIRHvFMmWdfjwsA5I4jyNNsc2UZ4yXnNM7KocSHo6VFQSXRtI/5bReesEHDGYMEHAkefdBytEjw+DQvzKFV7eStLqmICT4A
+      template:
+        metadata:
+          name: ghcr-credential
           namespace: argocd
         type: Opaque
 
