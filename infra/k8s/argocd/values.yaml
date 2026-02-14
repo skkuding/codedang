@@ -62,6 +62,7 @@ server:
       traefik.ingress.kubernetes.io/redirect-entry-point: https
     ingressClassName: traefik
     tls: true
+    https: false # Use HTTP backend (port 80) because server runs with --insecure
 
   extraArgs:
     - --insecure
