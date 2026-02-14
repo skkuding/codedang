@@ -407,7 +407,7 @@ export class ContestService {
     )
     const maxScore = sum._sum?.score ?? 0
 
-    const contestRecordsPromise = this.prisma.contestRecord.findMany({
+    const records = await this.prisma.contestRecord.findMany({
       where: { contestId },
       select: {
         userId: true,
@@ -439,12 +439,7 @@ export class ContestService {
             }
           }
         }
-      },
-      orderBy: [
-        { [isFrozen ? 'score' : 'finalScore']: 'desc' },
-        { [isFrozen ? 'totalPenalty' : 'finalTotalPenalty']: 'asc' },
-        { lastAcceptedTime: 'asc' }
-      ]
+      }
     })
 
     const beforeFreezePromise = contest.freezeTime
@@ -460,7 +455,7 @@ export class ContestService {
       : Promise.resolve(undefined)
 
     const [contestRecords, beforeFreezeSubmissionCounts] = await Promise.all([
-      contestRecordsPromise,
+      records,
       beforeFreezePromise
     ])
 
@@ -498,17 +493,12 @@ export class ContestService {
       }
     }
 
-    let rank = 1
-    const leaderboard = contestRecords.map(
-      ({
-        contestProblemRecord,
-        userId,
-        score,
-        finalScore,
-        totalPenalty,
-        finalTotalPenalty,
-        user
-      }) => {
+    const leaderboard = records.map(
+      ({ contestProblemRecord, userId, user }) => {
+        //유저별 총 점수, 총 패널티
+        let calculatedTotalScore = 0
+        let calculatedTotalPenalty = 0
+
         const getSubmissionCount = (problemId: number) => {
           const map = isFrozen
             ? submissionCountMapBeforeFreeze
@@ -553,16 +543,24 @@ export class ContestService {
             isFirstSolver
           } = record
 
-          const penalty = isFrozen
+          const currentProblemScore = isFrozen ? freezeScore : finalScore
+
+          const currentProblemPenalty = isFrozen
             ? submitCountPenalty + timePenalty
             : finalSubmitCountPenalty + finalTimePenalty
+
+          //문제를 맞췄을 때만 총점과 총패널티에 합산
+          if (currentProblemScore > 0) {
+            calculatedTotalScore += currentProblemScore
+            calculatedTotalPenalty += currentProblemPenalty
+          }
 
           return {
             order,
             problemId,
-            penalty,
+            penalty: currentProblemPenalty,
             submissionCount: getSubmissionCount(problemId),
-            score: isFrozen ? freezeScore : finalScore,
+            score: currentProblemScore,
             isFrozen: getIsFrozen(problemId, freezeScore, finalScore),
             isFirstSolver
           }
@@ -570,20 +568,37 @@ export class ContestService {
 
         return {
           username: user!.username,
-          totalScore: isFrozen ? score : finalScore,
+          totalScore: calculatedTotalScore,
           userId,
-          totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
+          totalPenalty: calculatedTotalPenalty,
           problemRecords,
-          rank: rank++
+          rank: 1
         }
       }
     )
 
+    //등수 정렬
+    leaderboard.sort((a, b) => {
+      //1순위: 맞춘 문제 개수 내림차순
+      if (b.totalScore !== a.totalScore) {
+        return b.totalScore - a.totalScore
+      }
+      //2순위: 패널티 내림차순 (음수니까 작은수가 더 상위)
+      return b.totalPenalty - a.totalPenalty
+    })
+
+    let currentRank = 1
+    const rankedLeaderboard = leaderboard.map((record) => ({
+      ...record,
+      rank: currentRank++
+    }))
+
+    //필터
     const filteredLeaderboard = search
-      ? leaderboard.filter(({ username }) =>
+      ? rankedLeaderboard.filter(({ username }) =>
           username.toLowerCase().includes(search.toLowerCase())
         )
-      : leaderboard
+      : rankedLeaderboard
 
     return {
       contestRole,
