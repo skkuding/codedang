@@ -30,16 +30,6 @@ configs:
       name: codedang
       type: git
 
-  # GitHub Container Registry (ghcr.io) credentials for OCI Helm charts
-  # Personal account: manamana32321, 90-day expiration
-  credentialTemplates:
-    ghcr:
-      url: ghcr.io
-      username: $ghcr-credential:username
-      password: $ghcr-credential:password
-      enableOCI: 'true'
-      type: helm
-
 controller:
   metrics:
     enabled: true
