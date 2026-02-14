@@ -54,7 +54,7 @@ helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
 helm install sealed-secrets sealed-secrets/sealed-secrets -n kube-system
 ```
 
-If restoring an existing cluster, restore the encryption keys first. See [Sealed Secrets Key Restore Procedure](../../docs/sealed-secrets-restore.md).
+If restoring an existing cluster, restore the encryption keys first. See [Sealed Secrets Key Restore Procedure](../sealed-secrets-backup/README.md).
 
 #### 2. Install Argo CD via Helm
 
