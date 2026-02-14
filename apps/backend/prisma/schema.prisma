@@ -87,7 +87,6 @@ model User {
   CheckRequest             CheckRequest[]
   polygonProblems          PolygonProblem[]         @relation("PolygonProblemOwner")
   polygonCollaborations    PolygonCollaborator[]    @relation("PolygonCollaborator")
-  polygonInvitations       PolygonCollaborator[]    @relation("PolygonInviter")
   polygonApprovalRequests  PolygonApprovalRequest[] @relation("PolygonApprovalRequester")
   polygonReviewedApprovals PolygonApprovalRequest[] @relation("PolygonApprovalReviewer")
 
@@ -1033,6 +1032,7 @@ enum TestFileType {
 }
 
 enum CollaboratorRole {
+  Owner
   Editor
   Viewer
 }
@@ -1072,8 +1072,6 @@ model PolygonProblem {
   // Status
   status      PolygonProblemStatus @default(Draft)
   lastRunPass Boolean              @default(false) @map("last_run_pass")
-
-  solution Json[] @default([])
 
   createTime              DateTime                 @default(now()) @map("create_time")
   updateTime              DateTime                 @updatedAt @map("update_time")
@@ -1157,11 +1155,8 @@ model PolygonCollaborator {
   user   User @relation("PolygonCollaborator", fields: [userId], references: [id])
   userId Int  @map("user_id")
 
-  role   CollaboratorRole // Editor | Viewer
+  role   CollaboratorRole // Owner | Editor | Viewer
   status CollaboratorStatus @default(Pending) // Pending | Active
-
-  inviter   User? @relation("PolygonInviter", fields: [invitedBy], references: [id])
-  invitedBy Int?  @map("invited_by")
 
   createTime DateTime @default(now()) @map("create_time")
 
