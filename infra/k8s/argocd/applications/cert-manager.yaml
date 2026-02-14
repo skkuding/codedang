@@ -31,7 +31,7 @@ spec:
           helm:
             releaseName: cert-manager
             valueFiles:
-              - $codedang/infra/k8s/argocd/cert-manager-values.yaml
+              - $codedang/infra/k8s/cert-manager/values.yaml
         - repoURL: https://github.com/skkuding/codedang
           targetRevision: '{{.branch}}'
           ref: codedang

@@ -2,6 +2,9 @@ global:
   domain: argocd.codedang.com
 
 configs:
+  secret:
+    # Don't create argocd-secret - managed by SealedSecret in extraObjects
+    createSecret: false
   cm:
     url: https://argocd.codedang.com
     dex.config: |
@@ -10,8 +13,8 @@ configs:
           id: github
           name: GitHub
           config:
-            clientID: $argocd-dex-github-oauth:clientID
-            clientSecret: $argocd-dex-github-oauth:clientSecret
+            clientID: $clientID
+            clientSecret: $clientSecret
             useLoginAsID: true
             orgs:
               - name: skkuding
@@ -37,6 +40,9 @@ controller:
 
 dex:
   enabled: true
+  envFrom:
+    - secretRef:
+        name: argocd-dex-github-oauth
   metrics:
     enabled: true
     serviceMonitor:
@@ -46,6 +52,7 @@ dex:
 
 server:
   service:
+    servicePortHttps: 80
     servicePortHttp: 80
 
   metrics:
@@ -62,7 +69,6 @@ server:
       traefik.ingress.kubernetes.io/redirect-entry-point: https
     ingressClassName: traefik
     tls: true
-    https: false # Use HTTP backend (port 80) because server runs with --insecure
 
   extraArgs:
     - --insecure
@@ -168,8 +174,9 @@ extraObjects:
       namespace: argocd
     spec:
       encryptedData:
-        admin.password: AgBc5OhGJntFlsqJ2dC2B9sdGW7Chh6aMcJPhX9SKfHjfogR1BRYtDytCDx308xRygd10ZmsVy89lwMlxtxYcmH65UMSaVrly/Xxe8biXPykGUHfi/C5jq5DpNB2BWwMSygAnlUOX2rH4rSk768z+a5glFrCHdJfm1ZTxaemvSaGEcbYxhYa5tjhZeoSidNuO6DBoTMUBuw1ruAwcG4CdqMPO0bRmX0A9TqDd2uAzQsPtaVvcx9GPpW+wduundznxcr6cqLXejnAKvWtUDF1A5AiuoV5FWvSZFIuUfGeYtA1/I5Rs29VeEf3ls14eovpqPeBJUMr3qluLF5+ViYUd5CnBbSXMVK9JA3HoheUn8mYCSqSREHsW2RwQenG/2dxqeUnMFGWClmrCG18asEoLgb4+h7u1qcdEkiyUDFD2Z5g22SiY8ONNiJV7xNdCcEBYaUaIWHJUscLIpGr+Fa2/ZMZS+Nu/DxsD9M10cOjVB3i0jjpdrcjSUD9oPufTLO2+pf89GUV51tiTvqH6k3TZ4dQZN6xJ81+WFSEs5WWhJg8iDEwqcYIGTeu0MtYJz7f2k7jdZDz7UEAVz+YqMJt4ftbcOslWM4yPGjZn66X0wHGdS05i4DHfLhOPMEspjtrAsxn5kNvFe2MYaxJ2EB9UXqzSzvRtJhc/oXUf2G5cdJM46RzOV2s6wSnxqP/dIBqHLIa0qDvh23zUFD3DJOigaGVSGMep3mUorYSrqYgtkP7AUQg4TfQspg7dD6kQ234/nQBDQI9tSwj91syR8w=
-        admin.passwordMtime: AgCB4b87UR4VPdyyTDZ9InEakEU1OQSewfe/mEAL+umYLklWsKictbNxw2pLT+QLmuXdV04q5BcJfXhsRg4yA9bMYog3N0P603TmRRyV1sBklWAzgBqjvw4RHvCORshOjG2tDp/C6GNiQBogbgcngyleh36mAlnuEUondJuNBWXwE4wGP19VPaPPSES/6tWaCXKqMi+3Pdv9RbAsH7G1N30Pdwce8JinZ2dWI0GkYQjLMgRB41XmYq8kp/BExeGZSwnAxytVDmmOL05C/YNIO5pKGcbLBdoZig2VL1ALXSGKY0rGaaM4irfUNMgWxSnND5bz0GhKZtaPjKZmoqMlQzZGdcDVxKx9BFmCIGm36QerVm+UIJnXtmgRowIiokIVcevHX7szq2tQtiSMB5oZ1/yN6mOYZDBrUGdHYa328xylBkmXPKFkT01rQlJWU7i70v78cGALguFiRfzIXZoCMP1tlVHIsIB9d1zF4TkhZavctes+ML2sk7UF4/KQNwVq8N8sLWxT8euVkjeQeP3/3JZMF2mZDufksr2u1B9dyYKIMkF6EwwIG0ssaAE0ZrRLgYy5PJGDFjQ5Pkszxo4LFcAtB7kyoCOUd3wBzO7ZW3gZJegMm9tEfHTL5YLGdE00VpRhhXI32fbmgXp4LeSxBDqqVLDFarONWULec/XDyrwaVGYJzFMPmrTnbrgtTUS001aV2LaICzF8Qq3VsRmYvU0G6OR5XQ==
+        admin.password: AgCQngkbs0rdNHM0RvVX6yN+ove+AssqYsiz7BNREmJtq77MIRjW87ztD8H4jIqEC1AmggCUIq2uuV8TUGevWA7nCsHDtG8cW/ZcCzFNJt3j6cqxnDCw+cTYi8fWsJ45gb8gn4of5dzTQ63/427KfGK/Bxld7gqJoH6j2R8MVJbRj+alNgI3stMWVY7g2wWOwf0Ja/hMsxHOroRxROT8Oi6nwrglHIwllvQZLpDfEUfHBd0HkeGp9wqQOAWrWBAC+WXqTpEUFYlH5UmDQEIcqszubQlSie5cRJde8VesgePQ8K/QdJ38SXg9eoLDRKVaGCt1zFFgXkos3tT1EGW0bM1WJCjbK3oNq7FqUzXCyfsUwDOChhOypB84U7sjHaiXgh+db3/vbIPNCgNqxzoWM4z4YU+MmJrGaqzhYvC0H5dmusc77/ZDbuC5aokCPSCXG1O3rVLdO9MKDXzvhRpjqy9zq3rcXs4h4MwYp7rrP4OxyJcQpec/7RUHEtE107iuSfNVBzfgKWR4nwBeXcjdX7p7aPeS0Us9wuqK/zpCZ61IzXAeunt2QNrEq+7mLH3ZhfYYD3NeszCWHxikmbsw05RjUba4O1/Rv1aMV5QjISgSgDzuF6zdrEP4FCgisZ4VybF8M+6/cwrfjSCw/ewPMXD7RosFkdY/pFsDofHvEJqCZutu3NlqLJsSVmwKSCuKPPjXb8ai8YpBXh7LNRSpT4b55+tEflmlQt04BlyNjHEqqyxPuPnKr4CXFAz6YN1gD9I3NElDCjS1J6bT37A=
+        admin.passwordMtime: AgC/aGJ+lsVe62wnyY5256cPiuLIz8/bklSbWaMmfSYbpiFbC3GSb27FiCvJkckIegtHTBCYaja/iGsggG3TQaoeEX76Kh6YZGJjeFLVCk7q8FNnEd3u2uBd+ZR/sfF60btT/3uwtCefZdwAHCcG6g4+dxkRQMFHli6s+ahqEK6SeZAe2gHNLyFIu/yPQr871BjoZy8EQw5kyjIMnOPRlEL8bAwtnan2F1FeAH6+oBzsNSUfKfS0LX5RLgFRws4/O21vbNpx+me5QpEmCIBTn7wJezumvfrQCX5+Prbcp/ZQJujwZ5ZWxsSHGbMZs1KvKc86/PH9t1dw2+e9uG53xwS2eY6xUpfQW+Ds3clMqpJDlyAA/TdEtEG5vKkNPOwn9cBmb3ceb8NzjW2kJkRXQsbzReDdJvfPl5le/zqrEeJTyynWw5lT9ad0AFRKS5Bbxd1+PSvGoWU2fbUIC8hpnTmn38ExnF5I4wxkwN+AA543sQsRoZ8Woi3KHSjiYwyLSWCpgA/SlkkmKjndj0FKEDtzFkMxxnQPF8yrHEmPxZnNMl4Ge7Z20pGIfWpjuue/GPqbyX1fEd1mu4LSkTzimuVJOYL9Foz93tJQwZwid/GSLmmEE7yxilalld/QLlSpBw75sbMOrTX1dJF68p7YPs75pHmKyyiSpIjrl2FyodHXFyZUzgHotzgeV6RzWx6scenW0B1xGGXQ0I+IymFZ2xqi6dAHSw==
+        server.secretkey: AgC+5sWFzXj3Of3LkMIZphbQPXz/Cm2YROzV8/SWk5zN3XRhGwrJG/+weXA89foCndqAkLj6VFhcYblFJcvKr7kKsZuTA0D+AX2Olu/u7CYw+nLHllG7fI+7rhi2AsoyJcF4OIuR3ZEVdzBp/Nt3GFDxSZSZ7/52Owt/NVHGioN9CtlMH/of7s7t8AJd2WD2w5gRZNUtT1lVQH0wELBkCHJoL29zwNA7hoXVhS/Embjp0Oqs1aJw4zJmfQ9o/H0KBC6DR3xdjmWaZoYVs5xh22L0STI9EZ0tjAZa+YniKduWxMVcOwS+JjCpa8uqFCz5io9MsdHAb/RpN230PNPERBLGSAxb/gCqqyP9WdwVGmtpQf8Y0zBqrOjG7vVICF8gLKTEmWhNSbULP7EWRZ+IfAJ/AnMXXNKSpNj36xmTPQ4wVzw7J3eIiCx3MG4NkNWGE8Mald9tE1MriERRpTz94HyHkenKB4J7AMq9AmE5Ry1yShb51DBSF5XgzGmESZMiXUodTMD9gPJyZefAf5fLkaTrIocCHiMjksiwkFoFGcOTPwbqghSc4vX47n5MBwtCcHRhiI9LTeDtVC8qHpic2PZesYMYH5dAUe1Xg73WNDFZIAV1fgp+25cf4eYmyu4RPu1ITqoj1AR2XuH51+9bnUxPBfTFRMJ/A/tKjr8HJqEcmKqQMFs1f950ZgzyYR/kA3YGRVGwXS9A0uKy7+3ubVOGkvwKZHlVv3cb1kTolMRHTA==
       template:
         metadata:
           labels:
@@ -203,8 +210,8 @@ extraObjects:
       namespace: argocd
     spec:
       encryptedData:
-        clientID: AgBO0RT7QuMlzZqXPOp53iAY00eTsRIltfOzadGoMDqU2VlW5ZwoHY7Nc9nsWU75A/8jN4TmqFjwB7NVWvxiqmdUdKgXVpWl2ZreE29VkJRATKBe/hLWn5B2wV/Fv6yap8jpmC4MalRJMnC/v7pvAUD0UFOas2v/A1JB2EsW6cdMCkPIKRX2lgnlaJcexxyRXI/Xn/9lrwa1/M8gc87p1yKxkm1fwhr435hBPqpB9/qF9JPri8THvU98GIvc8d31pUiYwrWMs6W5BB+S/BFf/9kn2KE6g1EZDg1bHQIBP8efm72d8fUf9aBMuTeuWlTycEfXIlYaPFHf8J7/9zCBOwHoYb9CIzV7dfUVRivSoohzIiDThu7SvmPS01gkMxGYGD+36r9DKc+LCMb85k3T0ddVncYZVAeOQPVq8cuZMrk8IES6qTAIzaqIXGWtv9qzJ3VjlVoohv2C0dUwTBp4+lRGMiFjMTvRwXAJjDpFjx5cuceQlJIuOcxBkN2iBXkNYMNrjFL9oH//8JWfas+napR31BisZajXs/kBC4Qy5q1pDHbqqM9M4mJVIdqW47Wf2R488xS1CKBXt8Ji+Gya6unh+h05ET3YRhO75YL500ht3KYcZ/P7Cuv1UZK4x7/tFBrNUzZu2EnAzbcX4+tit3AalwBhImgyfFURqhFRfB1iiS/PyYhH5YDQ65AfUGMSPQCDsHUqJmDlolE3kny0/iXEFWG8ug==
-        clientSecret: AgBgP3uOd64/zt/5kKrGY7GUJp1rMH3FMbYMpyT/q3+gsK3sncbyvO+z11FsXbr39eNwdiRNjCeyQjfZTCM93u5CEKMdJajwqqnSMTJ1PBLlGVoEkwcDiz/CqXWuuLGOpfo075s2caEEwfYxnXGlTSqM33tO3JtXEqlYEW5Ns+eKc4nPwjcRJbo1K3IjePXqKIRLal+225QQwJcrn3jUXg+NSz4a/fvUwm3oAVO/7HsxZTR2zqzvJ/uB1UuC+d38PhSKaj9eUaxd+2NF2z3BCaO8JzWsueqaSGjyq2P00LUmD+4ds0pv6rU+7pS98MqJXgkB8sB2VvBc4Am4G4+L/Cu2/hwSDLQIRO55QftpphX9IVPPAlXkNB+K3F0cEW3K34jJxxu603XbJOT6ral+yB/GqKaMA5B6DDOPH+tRrlphp2ibgi5kb81D4yl+JB0ZrVEliNIyjgTkho3qkvwn5izbmCXrZZQ/n13AekZjPsDgV1dnLTff6UqMWU7oTUnCX5BJhEEmAReb1XDl9EOa7ecFhlFQSP1gsHfiFsl3+WBrqRi/qzAhuB28/WkQjOFuaeO1J0+yvgxRTfAuthhSsRuNXZBL0rLcxEgru6XJ3evI4UE2igFQPqt+BrZUTuzn2uun4xNraMQ08e/j8GISDUy+hBHiM6GZ5wpU884+5R5MD5VmiUcQkTbdrPE9ZB4zr3Alyof8gBzZ4Wsi9Ytc8HewHcpqhrtn0qhgTLBcdHak+rIjbkYAfcUJ
+        clientID: AgA6weCXUljSvrS+FAOsfaNkUmchAiUshQjZYkWt9wsJa7MZJ9KVLx40FqrbLyWaQ7ypzgiLPZpbhezlABwUZoUrJGC/spEI6psAwJmHmA3dY6cvBrVHoDMiVbjBTK3+JKwFJtoQr0dpKD8K9CXLgT7xTVIGVtz9jkGh0t92xR8SOqwMlnMgBigs4aYBg5qa8B8BqLXPf9I7qy3pe5jPTTqtRGJTqFes2C5wQURPhL9f0Lpz850/JIhd/1jM4/1D5Zzx006jyzjI4s7X9hEfu4SrmF55As9c2km2GJF2/3NwUnvgvvGGSjMzR+mGMok1hlcRPTvZWHC3C6QaSsTAbIIq6VA34GNZFfoHTwfqVsJsaRiWZ2uwWuG2OOrVR72dKAjhWOlRuSZtu+OO3TL67mrj3ErO7PN6kvtHwhjPf/oFpDrASURJSgHx4sN+Ckp3g1QCJ/A8QhSjqwKcOYmLmCKwQyWP9r84muaWkdHZQ2RDQhGgtBhE0znRZZURAbe4OgDX27E5MOC6QUp54+VJ1r0npYSWLZ6nQnJ++MggxTpt/e8Phgt80zhvs+MvdVlCxXQpitRjsLBOpgjI1xfyX2ZobjUwVATS+wyukZuGObbeJfCkK/5KLAknqgWjEgrB2PpvKXpoN7b6L8IoRjVinv422XIHSdy9x7lNPLyHfIwy2YqA5m74HhGzOTCXxq+TXKfAzTvd9LANIilyE/ektFnLwW19HQ==
+        clientSecret: AgAH6O+r33UPKn0ZrLkZA69T8bnroC/SI/blPoRMhd2NYO/f5j3rKHq+DomgRGDZh9s8ZxDaG3UP5LDAYkgjJbf01SNQZ0hEXGQlMjdya3mnkcElx2UG/Gh3SH6poD7oUGr+FxyaT/D8crNDVuK7G9jUJB1eRYI//63bF0WjMZsgg1umoTJg8MEQhS3Q0rPRm0sCSpsB4YmvJNbfdZLMWfTPozZijbJuZjN4mpu/BApRR62O10UlIsxYdB7QvlUnutIGqWLVPNlxyPuJJWNN3Jb6T3EOlSgFmaGWDN19KgO+XnPr4RcJMMScv0dRH38sUvMNp5ujMdEtPfDexAsixpNuzr9Oimvc4vM+GTUAn77Xrq4wL253YoWeRguquFvYeQlbKsDxNdXEelV6JmRbBEGGNyBPTcbRoflW14/jwTt3XtGtBc6O5jgffCjmnsiCZPsmcWlNym8bcKsfBZivRmGvzYqabiYQOgUDd/K5lpD/6iVVhDxS0VzEcLkTkEX4z5HDWLgzF/uciTzv+35VLmmb9oaWZ4av+KaJtS1Jg+/0fAqRFd8Kf6eVTUJ6mTnJKRxwqhjdbxrkuUdE/zA5IHWc2rv1E583YUqtuzYXe2o1fL+tb3Kvmi5xcNN1VDaKEJ4Q9ZV47IhiuLMkEYlx2a2lg2Vq12rlcmIXj7wLR8M63LgC93OLe/wrITo7uAunSyeh7iL3cqhgbdOtEXf7ceWSDRp4X1CopcK4IPhup0CX+dDqV/LxIqVM
       template:
         metadata:
           name: argocd-dex-github-oauth

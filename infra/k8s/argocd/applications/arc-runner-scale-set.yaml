@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: oci://ghcr.io/actions/actions-runner-controller-charts
+    - repoURL: ghcr.io/actions/actions-runner-controller-charts
       chart: gha-runner-scale-set
       targetRevision: 0.13.1
       helm:
@@ -18,9 +18,6 @@ spec:
     - repoURL: https://github.com/skkuding/codedang
       targetRevision: main
       ref: codedang
-    - repoURL: https://github.com/skkuding/codedang
-      targetRevision: main
-      path: infra/k8s/arc/github-app-secret.yaml
   destination:
     namespace: arc-runners
     name: stage
