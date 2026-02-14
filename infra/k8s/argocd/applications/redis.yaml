@@ -40,7 +40,7 @@ spec:
         name: '{{.env}}'
       syncPolicy:
         automated:
-          prune: true
+          prune: false
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
