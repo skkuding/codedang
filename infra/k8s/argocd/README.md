@@ -7,12 +7,14 @@
 Use the automated bootstrap script for complete cluster setup from scratch:
 
 ```bash
+# Clone the repository first
+git clone https://github.com/skkuding/codedang.git
+cd codedang/infra
+
 # For production cluster
-cd infra
 ENVIRONMENT=production ./bootstrap-cluster.sh
 
 # For stage cluster
-cd infra
 ENVIRONMENT=stage CLUSTER_CONTEXT=stage ./bootstrap-cluster.sh
 ```
 
@@ -26,6 +28,7 @@ The script will:
 
 **Prerequisites:**
 
+- Repository cloned locally (scripts reference local files)
 - Kubernetes cluster running and accessible
 - AWS credentials configured with access to `Codedang-Sealed-Secrets-*` secrets
 
