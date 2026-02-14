@@ -3,8 +3,8 @@ kind: ApplicationSet
 metadata:
   name: minio-monitoring
   namespace: argocd
-  # finalizers:
-  #   - resources-finalizer.argocd.argoproj.io
+  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+  finalizers: []
   labels:
     app.kubernetes.io/environment: 'production'
 spec:
@@ -20,8 +20,8 @@ spec:
   template:
     metadata:
       name: 'minio-monitoring-{{.env}}'
-      finalizers:
-        - resources-finalizer.argocd.argoproj.io
+      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+      finalizers: []
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:

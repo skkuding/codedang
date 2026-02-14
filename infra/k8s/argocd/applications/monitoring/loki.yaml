@@ -3,8 +3,8 @@ kind: ApplicationSet
 metadata:
   name: loki
   namespace: argocd
-  # finalizers:
-  #   - resources-finalizer.argocd.argoproj.io
+  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+  finalizers: []
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
@@ -18,8 +18,8 @@ spec:
   template:
     metadata:
       name: 'loki-{{.env}}'
-      # finalizers:
-      #   - resources-finalizer.argocd.argoproj.io
+      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+      finalizers: []
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:
