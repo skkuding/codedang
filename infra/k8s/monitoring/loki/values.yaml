@@ -14,21 +14,17 @@ loki:
   ring:
     kvstore:
       store: inmemory
-  # TODO: connect minio
-  # could not find way to inject env variables with helm chart
-  # need to reference minio access key and secret
-  # instead, we will use the default minio provided by this chart
   storage:
     bucketNames:
       chunks: loki
       ruler: loki
-  #   type: s3
-  #   s3:
-  #     endpoint: http://minio.monitoring-minio.svc.cluster.local:9000
-  #     accessKeyId: # TODO: inject from secret
-  #     secretAccessKey: # TODO: inject from secret
-  #     s3ForcePathStyle: true
-  #     insecure: true
+    type: s3
+    s3:
+      endpoint: http://minio.monitoring-minio.svc.cluster.local:9000
+      accessKeyId: ${AWS_ACCESS_KEY_ID}
+      secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
+      s3ForcePathStyle: true
+      insecure: true
   schemaConfig:
     configs:
       - from: 2025-08-15
@@ -38,20 +34,30 @@ loki:
         index:
           prefix: loki_index_
           period: 24h
-  distributor: {otlp_config: {default_resource_attributes_as_index_labels:
-            # these keys will be indexed
-            ['service.name', 'service.version', 'service.environment']}}
+  distributor:
+    otlp_config:
+      default_resource_attributes_as_index_labels:
+        # these keys will be indexed
+        ['service.name', 'service.version', 'service.environment']
+
+singleBinary:
+  extraArgs:
+    config.expand-env: 'true'
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: monitoring-user
+          key: CONSOLE_ACCESS_KEY
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: monitoring-user
+          key: CONSOLE_SECRET_KEY
 
 gateway:
   enabled: false
 
-# default minio by loki chart
-# need to be replaced by custom minio(monitoring-minio) for centralized storage
+# Disabled - using central monitoring-minio instead
 minio:
-  enabled: true
-  resources:
-    requests:
-      cpu: 200m
-      memory: 256Mi
-  persistence:
-    size: 50Gi
+  enabled: false

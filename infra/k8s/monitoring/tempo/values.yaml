@@ -4,7 +4,32 @@ traces:
       enabled: true
 
 tempo:
+  extraArgs:
+    config.expand-env: 'true'
+  extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: monitoring-user
+          key: CONSOLE_ACCESS_KEY
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: monitoring-user
+          key: CONSOLE_SECRET_KEY
   retention: 2160h # 90 days
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: tempo
+        endpoint: minio.monitoring-minio.svc.cluster.local:9000
+        access_key: ${AWS_ACCESS_KEY_ID}
+        secret_key: ${AWS_SECRET_ACCESS_KEY}
+        insecure: true
+        forcepathstyle: true
+      wal:
+        path: /var/tempo/wal
   structuredConfig:
     ingester:
       max_block_bytes: 104857600
