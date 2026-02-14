@@ -5,7 +5,7 @@ traces:
 
 tempo:
   extraArgs:
-    - '--config.expand-env=true'
+    config.expand-env: 'true'
   extraEnv:
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
@@ -23,7 +23,7 @@ tempo:
       backend: s3
       s3:
         bucket: tempo
-        endpoint: minio.monitoring-minio.svc.cluster.local:9000
+        endpoint: minio.monitoring-minio.svc.cluster.local:80
         access_key: ${AWS_ACCESS_KEY_ID}
         secret_key: ${AWS_SECRET_ACCESS_KEY}
         insecure: true
