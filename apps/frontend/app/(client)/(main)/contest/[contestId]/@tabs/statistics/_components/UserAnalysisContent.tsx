@@ -18,10 +18,12 @@ import {
   CartesianGrid,
   Cell,
   LabelList,
+  Rectangle,
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis
+  YAxis,
+  type RectangleProps
 } from 'recharts'
 
 interface Timeline {
@@ -71,6 +73,35 @@ const secondsToTime = (totalSeconds: number) => {
   const mins = Math.floor((totalSeconds % 3600) / 60)
   const secs = totalSeconds % 60
   return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}
+
+interface CustomBarProps extends RectangleProps {
+  payload?: Timeline
+}
+
+function RenderCustomBar(props: CustomBarProps) {
+  const { x, y, width, height, fill, payload } = props
+
+  if (!payload) {
+    return null
+  }
+
+  const isStartAtZero = timeToSeconds(payload.solvingStartTime) === 0
+
+  const radius: [number, number, number, number] = isStartAtZero
+    ? [0, 4, 4, 0]
+    : [4, 4, 4, 4]
+
+  return (
+    <Rectangle
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      fill={fill}
+      radius={radius}
+    />
+  )
 }
 
 export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
@@ -217,24 +248,16 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                     return null
                   }}
                 />
-                <Bar
-                  dataKey="timeRange" // 위에서 만든 배열 데이터 사용
-                >
-                  {chartData.map((entry, index) => {
-                    const isStartAtZero =
-                      timeToSeconds(entry.solvingStartTime) === 0
-                    return (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={tailwindConfig.theme.extend.colors.primary.light}
-                        radius={isStartAtZero ? [0, 4, 4, 0] : [4, 4, 4, 4]}
-                      />
-                    )
-                  })}
+                <Bar dataKey="timeRange" shape={<RenderCustomBar />}>
+                  {chartData.map((_, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={tailwindConfig.theme.extend.colors.primary.light}
+                    />
+                  ))}
                   <LabelList
                     dataKey="timeRange"
                     position="right"
-                    // 중요: val이 배열 [start, end]로 들어오므로 차이값을 계산해서 표시
                     formatter={(val: [number, number]) =>
                       `${Math.floor((val[1] - val[0]) / 60)}m`
                     }
