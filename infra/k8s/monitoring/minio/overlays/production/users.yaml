@@ -1,0 +1,20 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: monitoring-user
+  namespace: monitoring-minio
+spec:
+  encryptedData:
+    CONSOLE_ACCESS_KEY: AgBuQAYzX68i4MPy2m07YBFpahkV6rE4gZtj8luwhSAcNnPf4Ds0I74XmXm2w7fpvdljdftzg/2qoj79ksSolTWSqg/j3upXuk7Unq11KLTNVHSoszJwdJdk6JNi6BBXH6Hf1BCpRaxj+gFQFHAndGs9rVpMgm6ZkNk2dowdanR117cqgpbc/1QMRHEa89vyEyz/ZltSPAhK8/v3FiKvOfOM334tChSVaptDYbDfk3jEMYyktM43YLfAKYg7uZIqXr4DkaZSkbXrBfo+/4seSLHc2bCvcP2HGTUd0qGko+Y+tR6Sg4M5xVjXntveElPhq9DeRJmhxrQz//bGwKkA4cm6n4hdJ1Mq9IAPQLHsGFvJ07mmejUu8rn47ckCcJWTjQOC+KHBdFOOYyYgD0v0Zx+liik/lI1RX6PW8Rba2nSP39qMj/fo7DNX23/3NhsqXcNrjRak8ckO5YWbKCPzLdzZXb8rrcBJrQNq2dxdDXIYAdTf3/NysLF2Ar9EisO5c40nsiYcTZrnB49qIQTb6WKydGNpKLNzwtYPiXpEV5h9YZzJOl8mrpjX1wRnfHEG1nf+JM43gGK2ph2/Eyrkl8c6y+CTBoKosfCcq9b1EAuXFCgW83uXcAOv0iYtHEXmjHTROtU+05+o/Xq4FInb7m6RlUFFxks0CapCSa+XQYI2+vk8i63Q+iWIfIk77gg+Mxlj2d1afU0nsVfsw8TG491+esDjUkNYpjmcUWhuAEJjlg==
+    CONSOLE_SECRET_KEY: AgBapcWkGYrG4MZWihPB2NhoGqTos4A5rycbhkReeFEfXusZv3U9JCunSenCLSwiBoIvLpvjggpjvrzKIX7dFrcaLTvEiC/MxmMnTf0GGjDg3unNn1l9ohy7mwB8JkERbSLHweLBAzegX2TcIh6uOdI0U31Qgol8rp9pD7tPUQbB8/SKf5W/FiCD/r9RmJLzXxSyPwLhnnUIA170yr8r3xSE+WDDMTB3Dk2vjcLB3i7TawzUs/pKMDSrU1cfqJa043LJBYo4nPBn3/niY3C25gkXfQjjbOWqwduZLkBhVpP/JPN7DamjOTsmfdMwDnf5GX6CQST6rtSUXlYjavO0moKxmvhmnQkzqeyM18b/XgM4vgaArZ3ipXKkF6SZ74V6rD5lDACvOXrDJs4wqyLXT4eCCRK5+C2iHEXg93QUUpDqUvft1Iec2bw6f3s1PGkc1BvlvDhXmHwVYl0xFYdmjG+1zKgOHwSVtt5OL6pE8hQGsDxq7ucaI25WVE9jDs8gJ+epkO/kWJeD5D7H08TN6OX++/yHcOCtC1UNVQIrusGVUhG/EXIJCfmtSkyC3wX91fAd6AOTE191u0aOij5UJxsXU9d8g5u9hEyr0wcomgSVL1L2nnkcivW82IbgxhgJT5bsBY56gOt2ZwS4I7O4paSO6J1liX/GMVE0vsqMqd0CpBdvcEm2naUFK4jhzM+PyfGuCgBdhWhQ2u0WBaGGkawYNnk3xCbmElLZqz+3Iqjgh8tZrTj5grSdjBhFhEH0gin4irTSCGhU3MxIK64pYlxL
+  template:
+    metadata:
+      name: monitoring-user
+      namespace: monitoring-minio
+      annotations:
+        reflector.v1.k8s.emberstack.com/reflection-allowed: 'true'
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: 'monitoring-loki,monitoring-tempo'
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: 'true'
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: 'monitoring-loki,monitoring-tempo'
+    type: Opaque
