@@ -1730,6 +1730,149 @@ type CourseNoticeSumAggregate {
   readBy: [Int!]
 }
 
+type CourseQnA {
+  _count: CourseQnACount!
+  category: QnACategory!
+  comments: [CourseQnAComment!]
+  content: String!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  group: Group!
+  groupId: Int!
+  id: ID!
+  isPrivate: Boolean!
+  isResolved: Boolean!
+  order: Int!
+  problem: Problem
+  problemId: Int
+  readBy: [Int!]
+  title: String!
+}
+
+type CourseQnAAvgAggregate {
+  createdById: Float
+  groupId: Float
+  id: Float
+  order: Float
+  problemId: Float
+  readBy: Float
+}
+
+type CourseQnAComment {
+  content: String!
+  courseQnA: CourseQnA!
+  courseQnAId: Int!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  id: ID!
+  isCourseStaff: Boolean!
+  order: Int!
+}
+
+type CourseQnACommentAvgAggregate {
+  courseQnAId: Float
+  createdById: Float
+  id: Float
+  order: Float
+}
+
+type CourseQnACommentCountAggregate {
+  _all: Int!
+  content: Int!
+  courseQnAId: Int!
+  createTime: Int!
+  createdById: Int!
+  id: Int!
+  isCourseStaff: Int!
+  order: Int!
+}
+
+type CourseQnACommentMaxAggregate {
+  content: String
+  courseQnAId: Int
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  isCourseStaff: Boolean
+  order: Int
+}
+
+type CourseQnACommentMinAggregate {
+  content: String
+  courseQnAId: Int
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  isCourseStaff: Boolean
+  order: Int
+}
+
+type CourseQnACommentSumAggregate {
+  courseQnAId: Int
+  createdById: Int
+  id: Int
+  order: Int
+}
+
+type CourseQnACount {
+  comments: Int!
+}
+
+type CourseQnACountAggregate {
+  _all: Int!
+  category: Int!
+  content: Int!
+  createTime: Int!
+  createdById: Int!
+  groupId: Int!
+  id: Int!
+  isPrivate: Int!
+  isResolved: Int!
+  order: Int!
+  problemId: Int!
+  readBy: Int!
+  title: Int!
+}
+
+type CourseQnAMaxAggregate {
+  category: QnACategory
+  content: String
+  createTime: DateTime
+  createdById: Int
+  groupId: Int
+  id: Int
+  isPrivate: Boolean
+  isResolved: Boolean
+  order: Int
+  problemId: Int
+  title: String
+}
+
+type CourseQnAMinAggregate {
+  category: QnACategory
+  content: String
+  createTime: DateTime
+  createdById: Int
+  groupId: Int
+  id: Int
+  isPrivate: Boolean
+  isResolved: Boolean
+  order: Int
+  problemId: Int
+  title: String
+}
+
+type CourseQnASumAggregate {
+  createdById: Int
+  groupId: Int
+  id: Int
+  order: Int
+  problemId: Int
+  readBy: [Int!]
+}
+
 input CreateAnnouncementInput {
   """content of announcement"""
   content: String!
@@ -1800,7 +1943,7 @@ input CreateProblemInput {
   difficulty: Level!
   hint: String!
   inputDescription: String!
-  isVisible: Boolean! = true
+  isVisible: Boolean! = false
   languages: [Language!]!
   memoryLimit: Int!
   outputDescription: String!
@@ -1899,6 +2042,7 @@ type FindGroup {
   """
   config: JSON!
   courseInfo: CourseInfo
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   description: String
   groupName: String!
@@ -1979,6 +2123,7 @@ type Group {
   """
   config: JSON!
   courseInfo: CourseInfo
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   description: String
   groupName: String!
@@ -1998,6 +2143,7 @@ type GroupCount {
   CourseNotice: Int!
   GroupWhitelist: Int!
   assignment: Int!
+  courseQnA: Int!
   sharedProblems: Int!
   userGroup: Int!
   workbook: Int!
@@ -2135,6 +2281,7 @@ type Mutation {
   createContestQnAComment(content: String!, contestId: Int!, order: Int!): ContestQnAComment!
   createCourse(input: CourseInput!): Group!
   createCourseNotice(input: CreateCourseNoticeInput!): CourseNotice!
+  createCourseQnAComment(content: String!, groupId: Int!, order: Int!): CourseQnAComment!
   createNotice(input: CreateNoticeInput!): Notice!
   createProblem(input: CreateProblemInput!): ProblemWithIsVisible!
   createTag(tagName: String!): Tag!
@@ -2146,6 +2293,8 @@ type Mutation {
   deleteContestQnAComment(commentOrder: Int!, contestId: Int!, qnAOrder: Int!): ContestQnAComment!
   deleteCourse(groupId: Int!): Group!
   deleteCourseNotice(courseNoticeId: Int!): CourseNotice!
+  deleteCourseQnA(groupId: Int!, order: Int!): CourseQnA!
+  deleteCourseQnAComment(commentOrder: Int!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
   deleteNotice(noticeId: Int!): Notice!
@@ -2176,6 +2325,8 @@ type Mutation {
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
   updateCourse(groupId: Int!, input: CourseInput!): Group!
   updateCourseNotice(courseNoticeId: Int!, input: UpdateCourseNoticeInput!): CourseNotice!
+  updateCourseQnA(groupId: Int!, input: UpdateCourseQnAInput!): CourseQnA!
+  updateCourseQnAComment(commentOrder: Int!, content: String!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
   updateNotice(input: UpdateNoticeInput!, noticeId: Int!): Notice!
@@ -2410,6 +2561,7 @@ type Problem {
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
   contestProblem: [ContestProblem!]
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -2474,6 +2626,7 @@ type ProblemCount {
   announcement: Int!
   assignmentProblem: Int!
   contestProblem: Int!
+  courseQnA: Int!
   problemTag: Int!
   problemTestcase: Int!
   sharedGroups: Int!
@@ -2770,6 +2923,7 @@ type ProblemWithIsVisible {
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
   contestProblem: [ContestProblem!]
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -2902,6 +3056,7 @@ type Query {
   getAssignmentSubmissions(cursor: Int, groupId: Int!, input: GetAssignmentSubmissionsInput!, order: String, take: Int = 10): [AssignmentSubmission!]!
   getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
+  getCheckRequests(assignmentId: Int!, problemId: Int!): [CheckRequest!]!
   getCheckResultDetails(resultId: Int!): GetCheckResultDetailOutput!
   getCluster(clusterId: Int!): GetClusterOutput!
   getContest(contestId: Int!): ContestWithParticipants!
@@ -2918,6 +3073,8 @@ type Query {
   getContests(cursor: Int, take: Int! = 10): [ContestWithParticipants!]!
   getContestsByProblemId(problemId: Int!): ContestsGroupedByStatus!
   getCourse(groupId: Int!): FindGroup!
+  getCourseQnA(groupId: Int!, order: Int!): CourseQnA!
+  getCourseQnAs(cursor: Int, groupId: Int!, take: Int! = 10): [CourseQnA!]!
   getCourses(cursor: Int, take: Int! = 10): [FindGroup!]!
   getCoursesUserLead: [FindGroup!]!
   getGroupMember(groupId: Int!, userId: Int!): GroupMember!
@@ -2936,7 +3093,8 @@ type Query {
   getUsers(cursor: Int, take: Int! = 10): [User!]!
   getWhitelist(groupId: Int!): [String!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
-  overviewPlagiarismChecks(checkId: Int!, cursor: Int, take: Int! = 50): [GetCheckResultSummaryOutput!]!
+  overviewCheckByAssignmentProblemId(assignmentId: Int!, cursor: Int, problemId: Int!, take: Int! = 50): [GetCheckResultSummaryOutput!]!
+  overviewCheckByRequestId(checkId: Int!, cursor: Int, take: Int! = 50): [GetCheckResultSummaryOutput!]!
 }
 
 input RejudgeInput {
@@ -3521,6 +3679,14 @@ input UpdateCourseNoticeInput {
   title: String
 }
 
+input UpdateCourseQnAInput {
+  content: String
+  isPrivate: Boolean
+  isResolved: Boolean
+  order: Int!
+  title: String
+}
+
 type UpdateCreationPermissionResult {
   canCreateContest: Boolean!
   canCreateCourse: Boolean!
@@ -3657,6 +3823,8 @@ type User {
   contest: [Contest!]
   contestRecord: [ContestRecord!]
   createTime: DateTime!
+  createdCourseQnAComments: [CourseQnAComment!]
+  createdCourseQnAs: [CourseQnA!]
   createdQnAComments: [ContestQnAComment!]
   createdQnAs: [ContestQnA!]
   email: String!
@@ -3790,6 +3958,8 @@ type UserCount {
   assignmentRecord: Int!
   contest: Int!
   contestRecord: Int!
+  createdCourseQnAComments: Int!
+  createdCourseQnAs: Int!
   createdQnAComments: Int!
   createdQnAs: Int!
   file: Int!

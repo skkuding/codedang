@@ -1,0 +1,27 @@
+meta {
+  name: [401] Unauthorized
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/course/1/qna/1/comment/1
+  body: none
+  auth: none
+}
+
+settings {
+  encodeUrl: true
+}
+
+tests {
+  test("should return 401 Unauthorized", function() {
+    expect(res.getStatus()).to.equal(401);
+  });
+}
+
+docs {
+  # 📘 Delete Comment - Unauthorized
+
+  로그인하지 않은 상태에서 댓글을 삭제하려고 하면 401 Unauthorized 에러가 발생합니다.
+}

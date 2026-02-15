@@ -16,3 +16,7 @@ patches:
     target:
       kind: ConfigMap
       name: iris-env
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: iris

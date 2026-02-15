@@ -4,7 +4,8 @@ import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
-import { AssignmentStatus } from '@/components/AssignmentStatus'
+import { CountdownStatus } from '@/components/CountdownStatus'
+import { DurationDisplay } from '@/components/DurationDisplay'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
 import errorImage from '@/public/logos/error.webp'
@@ -104,11 +105,18 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
             </p>
             {record && <TotalScoreLabel record={record} />}
           </div>
-          <AssignmentStatus
-            startTime={assignment.startTime}
-            endTime={new Date(assignment.dueTime ?? assignment.endTime)}
-            title="Duration"
-          />
+          <div className="flex flex-shrink-0 flex-col gap-[6px]">
+            <CountdownStatus
+              showText={true}
+              startTime={assignment.startTime}
+              baseTime={assignment.dueTime ?? assignment.endTime}
+            />
+            <DurationDisplay
+              title="visible"
+              startTime={assignment.startTime}
+              endTime={assignment.endTime}
+            />
+          </div>
         </div>
 
         <Separator className="my-0" />
