@@ -4,10 +4,8 @@ import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
-import { ContestFeatureList } from './_components/ContestFeatureList'
-import { ContestMainBanner } from './_components/ContestMainBanner'
+import { ContestHeader } from './_components/ContestHeader'
 import { ContestMainTable } from './_components/ContestMainTable'
-import { ContestSubBanner } from './_components/ContestSubBanner'
 
 interface ContestProps {
   searchParams: Promise<{
@@ -26,18 +24,9 @@ export default async function Contest(props: ContestProps) {
   const search = searchParams.search ?? ''
 
   return (
-    <>
-      <ContestMainBanner />
-
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <Suspense fallback={<ContestCardListFallback />}>
-          <ContestFeatureList title={`WHAT'S FUNCTION OF CONTEST?`} />
-        </Suspense>
-      </ErrorBoundary>
-
-      <ContestSubBanner />
-
-      <div className="mb-12 mt-[101px] flex w-full max-w-[1440px] flex-col gap-12 px-5 sm:px-6 md:px-[116px]">
+    <div className="flex w-full max-w-[1440px] flex-col sm:px-6 md:px-[116px]">
+      <ContestHeader />
+      <div className="mb-12 flex w-full flex-col gap-12">
         <div className="flex-col">
           <ErrorBoundary fallback={FetchErrorFallback}>
             <Suspense fallback={<FinishedContestTableFallback />}>
@@ -46,37 +35,26 @@ export default async function Contest(props: ContestProps) {
           </ErrorBoundary>
         </div>
       </div>
-    </>
-  )
-}
-
-function ContestCardListFallback() {
-  return (
-    <div>
-      <Skeleton className="mb-8 h-8 w-24" />
-      <div className="flex gap-8">
-        <Skeleton className="h-[120px] w-[375px] rounded-xl" />
-        <Skeleton className="h-[120px] w-[375px] rounded-xl" />
-      </div>
     </div>
   )
 }
+
 function FinishedContestTableFallback() {
   return (
     <div>
-      <Skeleton className="mb-8 h-8 w-24" />
-      <div className="mt-4 flex">
+      <Skeleton className="mb-12 h-12 w-[196px]" />
+      <div className="flex">
         <span className="w-2/5 md:w-3/6">
-          <Skeleton className="h-6 w-20" />
+          <Skeleton className="h-7 w-20" />
         </span>
         <span className="w-1/5 md:w-1/6">
-          <Skeleton className="mx-auto h-6 w-20" />
+          <Skeleton className="mx-auto h-7 w-20" />
         </span>
         <span className="w-1/5 md:w-1/6">
-          <Skeleton className="mx-auto h-6 w-20" />
+          <Skeleton className="mx-auto h-7 w-20" />
         </span>
         <span className="w-1/5 md:w-1/6">
-          <Skeleton className="mx-auto h-6 w-20" />
+          <Skeleton className="mx-auto h-7 w-20" />
         </span>
       </div>
       {[...Array(5)].map((_, i) => (

@@ -101,7 +101,7 @@ export function ContestDataTable<TData extends Item, TValue>({
   return (
     <div className="flex flex-col gap-[41px]">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-700">CONTEST LIST</h1>
+        <h1 className="text-3xl font-semibold">전체 대회 리스트</h1>
         <div className="flex gap-4">
           <ContestTitleFilter
             column={table.getColumn('status')}
@@ -109,13 +109,13 @@ export function ContestDataTable<TData extends Item, TValue>({
             options={status.map((item) => ({ value: item, label: item }))}
             resetPageIndex={resetPageIndex}
           />
-          <SearchBar className="w-60" />
+          <SearchBar className="w-70" />
         </div>
       </div>
       <Table className="table-fixed">
-        <TableHeader className="border-b-[1.5px] border-neutral-200">
+        <TableHeader className="h-13 border-transparent">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow className="hover:bg-white" key={headerGroup.id}>
+            <TableRow className="bg-white" key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead
