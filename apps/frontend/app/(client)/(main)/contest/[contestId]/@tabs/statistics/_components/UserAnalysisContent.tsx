@@ -205,8 +205,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                             <p>End Time: {data.solvingEndTime}</p>
                             <hr className="border-primary my-1" />
                             <p className="text-primary">
-                              Duration: {Math.floor(data.solvingDuration / 60)}m{' '}
-                              {data.solvingDuration % 60}s
+                              {`Duration: ${Math.floor(data.solvingDuration / 3600) > 0 && `${Math.floor(data.solvingDuration / 3600)}h`} ${Math.floor((data.solvingDuration % 3600) / 60)}m ${data.solvingDuration % 60}s`}
                             </p>
                           </div>
                         </div>
