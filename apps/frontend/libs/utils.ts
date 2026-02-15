@@ -195,9 +195,9 @@ export const getStatusColor = (status: string): string => {
   if (status.toLowerCase().includes('upcoming')) {
     return 'text-white border-primary bg-primary font-medium'
   } else if (status.toLowerCase().includes('ongoing')) {
-    return 'text-primary border-primary font-medium'
+    return 'text-primary border-primary font-medium bg-white'
   } else {
-    return 'text-[#8A8A8A] border-[#C4C4C4]'
+    return 'text-color-neutral-70 font-medium bg-color-neutral-95'
   }
 }
 
