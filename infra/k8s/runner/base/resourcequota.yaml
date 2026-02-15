@@ -5,7 +5,7 @@ metadata:
   namespace: runner
 spec:
   hard:
-    pods: '60'
+    pods: '110'
     requests.cpu: '30'
     requests.memory: 30Gi
     limits.cpu: '55'
