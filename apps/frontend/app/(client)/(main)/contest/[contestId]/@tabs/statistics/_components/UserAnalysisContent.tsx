@@ -86,10 +86,13 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
 
   const userData = rawData.user
 
-  const chartData = userData.timeline.map((item) => ({
-    ...item,
-    startSeconds: timeToSeconds(item.solvingStartTime)
-  }))
+  const chartData = userData.timeline.map((item) => {
+    const start = timeToSeconds(item.solvingStartTime)
+    return {
+      ...item,
+      timeRange: [start, start + item.solvingDuration]
+    }
+  })
 
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -215,25 +218,26 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                   }}
                 />
                 <Bar
-                  dataKey="startSeconds"
-                  stackId="problem"
-                  fill="transparent"
-                />
-                <Bar
-                  dataKey="solvingDuration"
-                  stackId="problem"
-                  radius={[0, 4, 4, 0]}
+                  dataKey="timeRange" // 위에서 만든 배열 데이터 사용
                 >
-                  {chartData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={tailwindConfig.theme.extend.colors.primary.light}
-                    />
-                  ))}
+                  {chartData.map((entry, index) => {
+                    const isStartAtZero =
+                      timeToSeconds(entry.solvingStartTime) === 0
+                    return (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={tailwindConfig.theme.extend.colors.primary.light}
+                        radius={isStartAtZero ? [0, 4, 4, 0] : [4, 4, 4, 4]}
+                      />
+                    )
+                  })}
                   <LabelList
-                    dataKey="solvingDuration"
+                    dataKey="timeRange"
                     position="right"
-                    formatter={(val: number) => `${Math.floor(val / 60)}m`}
+                    // 중요: val이 배열 [start, end]로 들어오므로 차이값을 계산해서 표시
+                    formatter={(val: [number, number]) =>
+                      `${Math.floor((val[1] - val[0]) / 60)}m`
+                    }
                     className="fill-gray-500 text-[11px] font-medium"
                   />
                 </Bar>
