@@ -33,13 +33,18 @@ export function InstagramCards() {
         TAKE OUR NEWS
       </span>
 
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 [ms-overflow-style:none] [scrollbar-width:none] sm:grid sm:grid-cols-2 sm:gap-2 sm:px-0 md:grid-cols-3 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
         {posts.map((post) => (
-          <InstagramCard key={post.id} post={post} />
+          <div
+            key={post.id}
+            className="w-[70%] flex-shrink-0 snap-center sm:w-auto"
+          >
+            <InstagramCard post={post} />
+          </div>
         ))}
       </div>
 
-      <div className="flex flex-col items-center justify-center pt-10">
+      <div className="hidden flex-col items-center justify-center pt-10 sm:flex">
         <Link
           href="https://www.instagram.com/skkuding/"
           target="_blank"
