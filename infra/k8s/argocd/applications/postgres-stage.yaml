@@ -3,8 +3,8 @@ kind: Application
 metadata:
   name: postgres-stage
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+  finalizers: []
   labels:
     app.kubernetes.io/environment: 'stage'
 spec:
@@ -20,7 +20,8 @@ spec:
     name: stage
   syncPolicy:
     automated:
-      prune: true
+      # Prune disabled: requires manual review before removing resources
+      prune: false
       selfHeal: true
     syncOptions:
       - CreateNamespace=true

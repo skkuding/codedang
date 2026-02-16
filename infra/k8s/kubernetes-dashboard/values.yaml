@@ -1,0 +1,51 @@
+# kubernetes-dashboard Helm chart values
+# https://artifacthub.io/packages/helm/k8s-dashboard/kubernetes-dashboard
+
+app:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    useDefaultAnnotations: false
+    pathType: Prefix
+    path: /
+    tls:
+      enabled: true
+      secretName: kubernetes-dashboard-tls
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-dns01
+      traefik.ingress.kubernetes.io/redirect-entry-point: https
+
+  # Session timeout settings
+  settings:
+    # 0 = session stays active as long as browser window is open
+    # Default is 900 (15 minutes)
+    tokenTTL: 43200 # 12 hours in seconds
+
+# Admin user for accessing the dashboard
+extras:
+  manifests:
+    - apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: admin-user
+        namespace: kubernetes-dashboard
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: admin-user
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: cluster-admin
+      subjects:
+        - kind: ServiceAccount
+          name: admin-user
+          namespace: kubernetes-dashboard
+    - apiVersion: v1
+      kind: Secret
+      metadata:
+        name: admin-user-token
+        namespace: kubernetes-dashboard
+        annotations:
+          kubernetes.io/service-account.name: admin-user
+      type: kubernetes.io/service-account-token
