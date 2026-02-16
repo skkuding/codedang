@@ -41,6 +41,7 @@ spec:
       destination:
         name: '{{.env}}'
         namespace: headlamp
+      # TODO: Single Headlamp multi-cluster management (prod managing stage)
       syncPolicy:
         automated:
           prune: true
