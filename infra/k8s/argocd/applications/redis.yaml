@@ -3,8 +3,8 @@ kind: ApplicationSet
 metadata:
   name: redis
   namespace: argocd
-  # finalizers:
-  #   - resources-finalizer.argocd.argoproj.io
+  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+  finalizers: []
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
@@ -18,8 +18,8 @@ spec:
   template:
     metadata:
       name: 'redis-{{.env}}'
-      # finalizers:
-      #   - resources-finalizer.argocd.argoproj.io
+      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+      finalizers: []
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:
@@ -40,7 +40,7 @@ spec:
         name: '{{.env}}'
       syncPolicy:
         automated:
-          prune: true
+          prune: false
           selfHeal: true
         syncOptions:
           - CreateNamespace=true

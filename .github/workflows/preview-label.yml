@@ -1,0 +1,62 @@
+name: Preview Label
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+
+jobs:
+  manage-preview-label:
+    name: Manage Preview Label
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.SKKUDING_BOT_APP_ID }}
+          private-key: ${{ secrets.SKKUDING_BOT_PRIVATE_KEY }}
+
+      - name: Check labels and manage preview
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+            const hasFrontendLabel = labels.includes('⛳️ team-design') || labels.includes('⛳️ team-frontend');
+            const hasPreviewLabel = labels.includes('preview');
+
+            if (hasFrontendLabel && !hasPreviewLabel) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: prNumber,
+                labels: ['preview']
+              });
+              core.info(`Added 'preview' label to PR #${prNumber}`);
+            } else if (!hasFrontendLabel && hasPreviewLabel) {
+              await github.rest.issues.removeLabel({
+                owner,
+                repo,
+                issue_number: prNumber,
+                name: 'preview'
+              });
+              core.info(`Removed 'preview' label from PR #${prNumber}`);
+
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: [
+                  '🛑 **Preview Removed**',
+                  '',
+                  '**Reason:** PR does not have a frontend-related label (`⛳️ team-design` or `⛳️ team-frontend`)',
+                  '',
+                  'Add one of these labels to enable the preview.'
+                ].join('\n')
+              });
+            }

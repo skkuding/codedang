@@ -17,6 +17,7 @@ import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
+import { SlArrowUp } from 'react-icons/sl'
 import { SlArrowDown } from 'react-icons/sl'
 import { SlArrowRight } from 'react-icons/sl'
 import {
@@ -318,9 +319,7 @@ function ProblemDetailSection({
               </div>
             ))
           ) : (
-            <div className="flex text-sm font-medium">
-              <div className="m-2 h-1 w-1 rounded-full bg-black" />-
-            </div>
+            <p className="mt-[-8px] text-2xl font-semibold">-</p>
           )}
         </div>
       </div>
@@ -401,7 +400,7 @@ function ProblemDetailSection({
             </BarChart>
           </ChartContainer>
           <Popover>
-            <PopoverTrigger className="mt-auto w-full justify-end">
+            <PopoverTrigger className="group mt-auto w-full justify-end">
               <div className="bg-color-neutral-99 flex h-[30px] items-center justify-between rounded-lg px-3 text-xs">
                 <div className="flex">
                   <div className="border-r-1 flex items-center gap-1 pr-2">
@@ -417,7 +416,8 @@ function ProblemDetailSection({
                     <div className="bg-level-3 rounded-xs h-3 w-3" />
                   </div>
                 </div>
-                <SlArrowDown className="h-3 w-3" />
+                <SlArrowDown className="block h-3 w-3 group-data-[state=open]:hidden" />
+                <SlArrowUp className="hidden h-3 w-3 group-data-[state=open]:block" />
               </div>
             </PopoverTrigger>
             <PopoverContent className="w-102 flex flex-col gap-1 text-xs">
@@ -457,6 +457,7 @@ function ProblemDetailSection({
               accessibilityLayer
               data={timelineChartData}
               margin={{
+                top: 20,
                 left: 12,
                 right: 21
               }}
@@ -527,18 +528,6 @@ function ProblemDetailSection({
                 }
               />
               <Line
-                dataKey="accepted"
-                type="linear"
-                stroke="var(--color-accepted)"
-                strokeWidth={2}
-                dot={{
-                  r: 6,
-                  fill: 'white',
-                  strokeWidth: 2,
-                  stroke: 'var(--color-accepted)'
-                }}
-              />
-              <Line
                 dataKey="wrong"
                 type="linear"
                 stroke="var(--color-wrong)"
@@ -548,6 +537,18 @@ function ProblemDetailSection({
                   fill: 'white',
                   strokeWidth: 2,
                   stroke: 'var(--color-wrong)'
+                }}
+              />
+              <Line
+                dataKey="accepted"
+                type="linear"
+                stroke="var(--color-accepted)"
+                strokeWidth={2}
+                dot={{
+                  r: 6,
+                  fill: 'white',
+                  strokeWidth: 2,
+                  stroke: 'var(--color-accepted)'
                 }}
               />
             </LineChart>
