@@ -52,7 +52,10 @@ export function CourseCardList({ title }: CourseCardListProps) {
       <CarouselContent className="mb-[100px] ml-2 grid auto-cols-[240px] grid-flow-col grid-rows-2 gap-3 md:auto-cols-[293px]">
         {courses.map((course, index) => (
           <CarouselItem key={course.id} className="p-0">
-            <Link href={`/course/${course.id}`} className="block w-full">
+            <Link
+              href={`/course/${course.id}` as const}
+              className="block w-full"
+            >
               <CourseCard course={course} index={index} />
             </Link>
           </CarouselItem>

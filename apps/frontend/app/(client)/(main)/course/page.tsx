@@ -45,9 +45,15 @@ export default async function Course() {
 
   return (
     <>
-      <CourseMainBanner course={null} />
-
       <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
+        <div className="flex flex-col pb-12">
+          <span className="text-[40px] font-bold leading-[130%] tracking-[-1.2px]">
+            COURSE
+          </span>
+          <span className="text-color-neutral-40 text-lg font-medium">
+            전반적인 교육과정을 연계하여 관리해보세요
+          </span>
+        </div>
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
             <CourseCardList title="나의 강좌" />
@@ -55,7 +61,7 @@ export default async function Course() {
         </ErrorBoundary>
       </div>
 
-      <div className="w-full px-5 sm:px-[116px]">
+      <div className="w-full px-5 md:px-[116px]">
         <Dashboard />
       </div>
 
