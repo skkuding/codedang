@@ -45,7 +45,7 @@ jobs:
           #   file: ''
           #   context: apps/runner/pod-manager
           #   build-args: ''
-          # - target: runner-backend
+          # - target: runner
           #   file: ''
           #   context: apps/runner/backend
           #   build-args: ''
