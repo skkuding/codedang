@@ -194,8 +194,6 @@ export interface ContestTop {
     참여혜택?: string
   }
   enableCopyPaste: boolean
-  status: ContestStatus
-  participants: number
   isRegistered: boolean
   isPrivilegedRole: boolean
   invitationCodeExists: boolean

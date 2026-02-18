@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cert-manager
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: release
+  template:
+    metadata:
+      name: 'cert-manager-{{.env}}'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+      project: default
+      sources:
+        - repoURL: https://charts.jetstack.io
+          chart: cert-manager
+          targetRevision: 'v1.18.2'
+          helm:
+            releaseName: cert-manager
+            valueFiles:
+              - $codedang/infra/k8s/cert-manager/values.yaml
+        - repoURL: https://github.com/skkuding/codedang
+          targetRevision: '{{.branch}}'
+          ref: codedang
+      destination:
+        namespace: cert-manager
+        name: '{{.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

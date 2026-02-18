@@ -1,0 +1,40 @@
+config:
+  inClusterContextName: 'stage'
+
+clusterRoleBinding:
+  create: true
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+  hosts:
+    - host: k8s.stage.codedang.com
+      paths:
+        - path: /
+          type: Prefix
+  tls:
+    - hosts:
+        - k8s.stage.codedang.com
+      secretName: headlamp-tls
+
+# TODO: Configure OIDC for GitHub OAuth login
+# config:
+#   oidc:
+#     clientID: ""
+#     clientSecret: ""
+#     issuerURL: ""
+#     scopes: ""
+
+extraManifests:
+  - |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: headlamp-token
+      namespace: headlamp
+      annotations:
+        kubernetes.io/service-account.name: headlamp
+    type: kubernetes.io/service-account-token
