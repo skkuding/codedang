@@ -195,16 +195,6 @@ func (pm *PodManager) createRunnerPod() (*RunnerPod, error) {
 							corev1.ResourceMemory: resource.MustParse("512Mi"),
 						},
 					},
-<<<<<<< Updated upstream
-				Resources: corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
-						corev1.ResourceCPU:    resource.MustParse("500m"),
-						corev1.ResourceMemory: resource.MustParse("512Mi"),
-					},
-					Requests: corev1.ResourceList{
-						corev1.ResourceCPU:    resource.MustParse("250m"),
-						corev1.ResourceMemory: resource.MustParse("512Mi"),
-=======
 					ReadinessProbe: &corev1.Probe{
 						ProbeHandler: corev1.ProbeHandler{
 							HTTPGet: &corev1.HTTPGetAction{
@@ -228,7 +218,6 @@ func (pm *PodManager) createRunnerPod() (*RunnerPod, error) {
 						PeriodSeconds:       10,
 						TimeoutSeconds:      1,
 						FailureThreshold:    3,
->>>>>>> Stashed changes
 					},
 				},
 			},
