@@ -223,11 +223,20 @@ describe('GroupService', () => {
   })
 
   describe('getCourses', () => {
-    const group = { ...simpleGroup, memberNum: userGroup.length }
+    const groupWithCount = {
+      ...simpleGroup,
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      _count: { userGroup: userGroup.length }
+    }
 
     it('should return groups', async () => {
+      db.group.findMany.resolves([groupWithCount])
+
       const res = await service.getCourses(0, 3)
-      expect(res).to.deep.equal([group])
+
+      expect(res).to.deep.equal([
+        { ...simpleGroup, memberNum: userGroup.length }
+      ])
     })
   })
 
@@ -249,15 +258,14 @@ describe('GroupService', () => {
       db.userGroup.findMany.resolves(userGroups)
 
       const result = await service.getGroupsUserLead(userId, GroupType.Course)
+
       expect(result).to.deep.equal([
         {
           id: 1,
           groupName: 'Test Group',
           groupType: GroupType.Course,
           courseInfo: null,
-          memberNum: 3,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          _count: { userGroup: 3 }
+          memberNum: 3
         }
       ])
     })
