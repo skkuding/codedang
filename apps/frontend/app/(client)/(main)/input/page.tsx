@@ -52,6 +52,28 @@ export default function InputTestPage() {
           </div>
         </div>
       </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="text-lg font-medium text-neutral-800">Widths</h2>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <span className="w-24 text-sm text-neutral-600">sm (640)</span>
+            <Input className="w-[640px]" placeholder="w-[640px]" />
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="w-24 text-sm text-neutral-600">md (768)</span>
+            <Input className="w-[768px]" placeholder="w-[768px]" />
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="w-24 text-sm text-neutral-600">lg (1024)</span>
+            <Input className="w-[1024px]" placeholder="w-[1024px]" />
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="w-24 text-sm text-neutral-600">full</span>
+            <Input className="w-full" placeholder="w-full" />
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

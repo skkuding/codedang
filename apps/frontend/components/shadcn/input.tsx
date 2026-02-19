@@ -22,8 +22,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const sizeClasses = {
       lg: 'h-[46px] text-base px-[20px]',
-      md: 'h-[40px] text-sm px-[18px]',
-      sm: 'h-[36px] text-sm px-[18px]'
+      md: 'h-10 text-sm px-[18px]',
+      sm: 'h-9 text-sm px-[18px]'
     }
     const resolvedValue = props.value ?? props.defaultValue
     const [isFilled, setIsFilled] = React.useState<boolean>(
@@ -51,12 +51,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           type={type}
           onWheel={(e) => (e.target as HTMLElement).blur()}
-          placeholder={props.placeholder ?? 'Enter'}
+          placeholder={props.placeholder ?? ''}
           data-filled={isFilled ? 'true' : 'false'}
           aria-invalid={isError || undefined}
           onChange={handleChange}
           className={cn(
-            'focus-visible:outline-hidden flex w-full rounded-full border bg-white py-2 ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-base placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-950 dark:ring-offset-gray-950 dark:placeholder:text-gray-400',
+            'focus-visible:outline-hidden flex w-full rounded-xl border bg-white py-2 ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-base placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-950 dark:ring-offset-gray-950 dark:placeholder:text-gray-400',
             sizeClasses[sizeVariant],
             isError
               ? 'border-red-500 focus-visible:ring-red-500'
