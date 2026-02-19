@@ -7,3 +7,6 @@ spec:
   rabbitmq:
     additionalPlugins:
       - rabbitmq_prometheus
+  tls:
+    secretName: rabbitmq-server-certs
+    disableNonTLSListeners: true

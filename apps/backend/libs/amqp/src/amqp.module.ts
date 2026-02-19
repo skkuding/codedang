@@ -35,7 +35,14 @@ import { CheckAMQPService, JudgeAMQPService } from './amqp.service'
         return {
           uri,
           channels,
-          connectionInitOptions: { wait: false }
+          connectionInitOptions: { wait: false },
+          ...(config.get('RABBITMQ_SSL', false) && {
+            connectionManagerOptions: {
+              connectionOptions: {
+                rejectUnauthorized: false
+              }
+            }
+          })
         }
       },
       inject: [ConfigService]
