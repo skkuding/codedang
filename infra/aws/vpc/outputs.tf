@@ -20,7 +20,7 @@ output "private_route_table_id" {
 # }
 
 output "mq_subnet_id" {
-  value = module.public_api_subnets.subnet_ids["public_mq"]
+  value = module.private_mq_subnets.subnet_ids["private_mq"]
 }
 
 output "db_subnet_ids" {
@@ -39,6 +39,7 @@ output "subnet_ids" {
     module.private_iris_subnets.subnet_ids,
     module.private_admin_api_subnets.subnet_ids,
     module.private_redis_subnets.subnet_ids,
+    module.private_mq_subnets.subnet_ids,
 
     #Public
     module.public_api_subnets.subnet_ids
