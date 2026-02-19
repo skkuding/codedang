@@ -29,15 +29,15 @@ export function InstagramCards() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8">
-      <span className="mb-10 block text-3xl font-semibold leading-[120%] tracking-[-0.9px]">
+      <span className="mb-4 block text-[24px] font-medium leading-[130%] tracking-[-0.03em] sm:mb-10 sm:text-3xl sm:font-semibold sm:leading-[120%] sm:tracking-[-0.9px]">
         TAKE OUR NEWS
       </span>
 
-      <div className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 [ms-overflow-style:none] [scrollbar-width:none] sm:grid sm:grid-cols-2 sm:gap-2 sm:px-0 md:grid-cols-3 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+      <div className="scrollbar-hide -mx-4 flex w-[calc(100%+2rem)] snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 [ms-overflow-style:none] [scrollbar-width:none] sm:mx-0 sm:grid sm:w-full sm:grid-cols-2 sm:gap-2 sm:px-0 md:grid-cols-3 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
         {posts.map((post) => (
           <div
             key={post.id}
-            className="w-[70%] flex-shrink-0 snap-center sm:w-auto"
+            className="w-[280px] flex-shrink-0 snap-center sm:w-auto"
           >
             <InstagramCard post={post} />
           </div>
