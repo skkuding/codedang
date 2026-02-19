@@ -91,10 +91,6 @@ export class GroupService {
       }
     })
 
-    if (isJoined) {
-      console.log('DEBUG: isJoined', JSON.stringify(isJoined, null, 2))
-    }
-
     if (!isJoined) {
       const filter = invited ? 'allowJoinWithURL' : 'showOnList'
       const group = await this.prisma.group.findUniqueOrThrow({
@@ -114,8 +110,7 @@ export class GroupService {
               courseNum: true,
               classNum: true,
               professor: true,
-              semester: true,
-              invitationCode: true
+              semester: true
             }
           }
         }
