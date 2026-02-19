@@ -8,6 +8,7 @@ resources:
   - ingress.yaml
   - namespace.yaml
   - rabbitmq-cluster.yaml
+  - tls-certificate.yaml
   - vhost.yaml
   - topology-judging.yaml
   - topology-plagiarism.yaml
