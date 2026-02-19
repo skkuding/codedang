@@ -3,5 +3,3 @@ kind: ConfigMap
 metadata:
   name: pod-manager-env
   namespace: runner
-data:
-  RUNNER_NAMESPACE: 'runner'
