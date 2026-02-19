@@ -81,7 +81,8 @@ export class GroupService {
                 email: true,
                 phoneNum: true,
                 office: true,
-                website: true
+                website: true,
+                invitationCode: true
               }
             }
           }
@@ -89,6 +90,10 @@ export class GroupService {
         isGroupLeader: true
       }
     })
+
+    if (isJoined) {
+      console.log('DEBUG: isJoined', JSON.stringify(isJoined, null, 2))
+    }
 
     if (!isJoined) {
       const filter = invited ? 'allowJoinWithURL' : 'showOnList'
@@ -109,7 +114,8 @@ export class GroupService {
               courseNum: true,
               classNum: true,
               professor: true,
-              semester: true
+              semester: true,
+              invitationCode: true
             }
           }
         }
