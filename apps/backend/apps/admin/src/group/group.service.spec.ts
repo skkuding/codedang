@@ -53,7 +53,8 @@ const courseInfo = {
   email: 'johndoe@example.com',
   website: 'https://example.com',
   office: 'Room 301',
-  phoneNum: '010-3333-2222'
+  phoneNum: '010-3333-2222',
+  invitationCode: null
 }
 
 const group = {

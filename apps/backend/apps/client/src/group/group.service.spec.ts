@@ -110,7 +110,8 @@ describe('GroupService', () => {
           email: 'example01@skku.edu',
           website: 'https://seclab.com',
           office: null,
-          phoneNum: null
+          phoneNum: null,
+          invitationCode: null
         },
         isGroupLeader: true,
         isJoined: true
@@ -151,7 +152,8 @@ describe('GroupService', () => {
           email: 'example01@skku.edu',
           website: 'https://seclab.com',
           office: null,
-          phoneNum: null
+          phoneNum: null,
+          invitationCode: null
         },
         isGroupLeader: true,
         isJoined: true
@@ -221,7 +223,8 @@ describe('GroupService', () => {
             email: 'example01@skku.edu',
             website: 'https://seclab.com',
             office: null,
-            phoneNum: null
+            phoneNum: null,
+            invitationCode: null
           },
           memberNum: 11,
           isGroupLeader: true
@@ -256,7 +259,8 @@ describe('GroupService', () => {
       const userGroupData: UserGroupData = {
         userId,
         groupId,
-        isGroupLeader: false
+        isGroupLeader: false,
+        totalStudyTime: 0
       }
 
       expect(res)
@@ -317,6 +321,7 @@ describe('GroupService', () => {
         userId,
         groupId,
         isGroupLeader: false,
+        totalStudyTime: 0,
         createTime: undefined,
         updateTime: undefined
       })

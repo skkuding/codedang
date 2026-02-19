@@ -46,7 +46,8 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
   submissionResult: [submissionResults[0], submissionResults[1]],
-  score: new Prisma.Decimal(100)
+  score: new Prisma.Decimal(100),
+  groupId: null
 }
 
 const contestSubmission = {
