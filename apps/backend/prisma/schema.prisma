@@ -75,6 +75,10 @@ model User {
   workbook            Workbook[]
   submission          Submission[]
   useroauth           UserOAuth?
+  groupComment        GroupComment[]
+  problemDraft        ProblemDraft[]
+  joinRequests        GroupJoinRequest[]
+  groupTimer          GroupTimer[]
   file                File[]
   testSubmission      TestSubmission[]
   UpdateHistory       UpdateHistory[]
@@ -156,6 +160,10 @@ model Group {
   sharedProblems Problem[]
   courseQnA      CourseQnA[]
   CourseNotice   CourseNotice[]
+  groupTag       GroupTag[]
+  groupComment   GroupComment[]
+  joinRequests   GroupJoinRequest[]
+  groupTimer     GroupTimer[]
 
   studyInfo StudyInfo?
 
@@ -171,6 +179,89 @@ model GroupWhitelist {
   @@map("group_whitelist")
 }
 
+model GroupTag {
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId Int   @map("group_id")
+  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId   Int   @map("tag_id")
+
+  @@id([groupId, tagId])
+  @@map("group_tag")
+}
+
+model GroupComment {
+  id             Int      @id @default(autoincrement())
+  group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId        Int      @map("group_id")
+  createdBy      User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdById    Int      @map("created_by_id")
+  content        String
+  isSecret       Boolean  @default(false) @map("is_secret")
+  isDeleted      Boolean  @default(false) @map("is_deleted")
+  parentCommentId Int?    @map("parent_comment_id")
+  parent         GroupComment? @relation("ReplyOn", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  children       GroupComment[] @relation("ReplyOn")
+  createTime     DateTime @default(now()) @map("create_time")
+  updateTime     DateTime @updatedAt @map("update_time")
+
+  @@map("group_comment")
+}
+
+model ProblemDraft {
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      @map("user_id")
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId  Int      @map("problem_id")
+  code       Json
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@id([userId, problemId])
+  @@map("problem_draft")
+}
+
+model GroupJoinRequest {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int      @map("user_id")
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     Int      @map("group_id")
+  isAccepted  Boolean? @map("is_accepted")
+  requestTime DateTime @default(now()) @map("request_time")
+  processTime DateTime? @map("process_time")
+
+  @@unique([userId, groupId])
+  @@map("group_join_request")
+}
+
+enum TimerType {
+  ALL
+  PERSONAL
+}
+
+enum TimerStatus {
+  RUNNING
+  PAUSED
+  STOPPED
+}
+
+model GroupTimer {
+  id          Int         @id @default(autoincrement())
+  group       Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     Int         @map("group_id")
+  creator     User        @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  creatorId   Int         @map("creator_id")
+  type        TimerType
+  status      TimerStatus @default(STOPPED)
+  duration    Int
+  remaining   Int
+  startTime   DateTime?   @map("start_time")
+  createTime  DateTime    @default(now()) @map("create_time")
+  updateTime  DateTime    @updatedAt @map("update_time")
+
+  @@map("group_timer")
+}
+
 model CourseInfo {
   groupId   Int     @id @map("group_id")
   group     Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
@@ -183,6 +274,7 @@ model CourseInfo {
   office    String?
   phoneNum  String? @map("phone_num")
   week      Int     @default(16) //양수만 허용됨
+  invitationCode String? @map("invitation_code")
 
   @@map("course_info")
 }
@@ -293,6 +385,7 @@ model Problem {
   workbookProblem   WorkbookProblem[]
   contestProblem    ContestProblem[]
   submission        Submission[]
+  problemDraft      ProblemDraft[]
   announcement      Announcement[]
   ContestQnA        ContestQnA[]
   courseQnA         CourseQnA[]         @relation("ProblemToCourseQnA")
@@ -402,6 +495,7 @@ model Tag {
   updateTime DateTime @updatedAt @map("update_time")
 
   problemTag ProblemTag[]
+  groupTag   GroupTag[]
 
   @@map("tag")
 }
@@ -744,6 +838,8 @@ model Submission {
   contestId    Int?         @map("contest_id")
   workbook     Workbook?    @relation(fields: [workbookId], references: [id])
   workbookId   Int?         @map("workbook_id")
+  group        Group?       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId      Int?         @map("group_id")
   /// code item structure
   /// {
   ///   "id": number,
@@ -763,6 +859,10 @@ model Submission {
   FirstCheckResult  CheckResult[]       @relation("FirstCheckSubmission")
   SecondCheckResult CheckResult[]       @relation("SecondCheckSubmission")
 
+  FirstCheckResult  CheckResult[]       @relation("FirstCheckSubmission")
+  SecondCheckResult CheckResult[]       @relation("SecondCheckSubmission")
+
+  @@index([groupId])
   @@map("submission")
 }
 
