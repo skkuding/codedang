@@ -324,6 +324,52 @@ export class StudyService {
     })
   }
 
+  async upsertDraft(userId: number, problemId: number, code: object) {
+    return this.prisma.problemDraft.upsert({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_problemId: { userId, problemId }
+      },
+      create: { userId, problemId, code },
+      update: { code }
+    })
+  }
+
+  async getDraft(userId: number, problemId: number) {
+    const draft = await this.prisma.problemDraft.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_problemId: { userId, problemId }
+      }
+    })
+
+    if (!draft) {
+      throw new EntityNotExistException('ProblemDraft')
+    }
+
+    return draft
+  }
+
+  async deleteDraft(userId: number, problemId: number) {
+    const draft = await this.prisma.problemDraft.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_problemId: { userId, problemId }
+      }
+    })
+
+    if (!draft) {
+      throw new EntityNotExistException('ProblemDraft')
+    }
+
+    return this.prisma.problemDraft.delete({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_problemId: { userId, problemId }
+      }
+    })
+  }
+
   private async assertLeader(groupId: number, userId: number) {
     const membership = await this.prisma.userGroup.findUnique({
       where: {

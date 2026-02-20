@@ -7,12 +7,13 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Req,
   UseGuards
 } from '@nestjs/common'
 import { AuthenticatedRequest, GroupMemberGuard } from '@libs/auth'
 import { GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
-import { CreateStudyDto, UpdateStudyDto } from './dto/study.dto'
+import { CreateStudyDto, UpdateStudyDto, UpsertDraftDto } from './dto/study.dto'
 import { StudyService } from './study.service'
 
 @Controller('study')
@@ -115,5 +116,30 @@ export class StudyController {
     @Param('groupId', GroupIDPipe) groupId: number
   ) {
     return this.studyService.leaveStudyGroup(groupId, req.user.id)
+  }
+
+  @Put('draft/:problemId')
+  async upsertDraft(
+    @Req() req: AuthenticatedRequest,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Body() dto: UpsertDraftDto
+  ) {
+    return this.studyService.upsertDraft(req.user.id, problemId, dto.code)
+  }
+
+  @Get('draft/:problemId')
+  async getDraft(
+    @Req() req: AuthenticatedRequest,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
+  ) {
+    return this.studyService.getDraft(req.user.id, problemId)
+  }
+
+  @Delete('draft/:problemId')
+  async deleteDraft(
+    @Req() req: AuthenticatedRequest,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
+  ) {
+    return this.studyService.deleteDraft(req.user.id, problemId)
   }
 }

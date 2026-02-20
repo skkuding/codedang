@@ -77,3 +77,8 @@ export class UpdateStudyDto {
   @Type(() => StudyConfig)
   config?: StudyConfig
 }
+
+export class UpsertDraftDto {
+  @IsNotEmpty()
+  code: object
+}
