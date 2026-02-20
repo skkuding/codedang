@@ -1,5 +1,4 @@
-import { Field, Int } from '@nestjs/graphql'
-import { ObjectType } from '@nestjs/graphql'
+import { Field, Int, ObjectType } from '@nestjs/graphql'
 import { Group } from '@generated'
 
 @ObjectType()
@@ -17,10 +16,10 @@ export class DuplicateCourse {
   duplicatedCourse!: Group
 
   @Field(() => [Int], { nullable: false })
-  originAssignments!: number
+  originAssignments!: number[]
 
   @Field(() => [Int], { nullable: false })
-  copiedAssignments!: number
+  copiedAssignments!: number[]
 }
 
 @ObjectType()
