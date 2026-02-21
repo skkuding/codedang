@@ -5,6 +5,15 @@ import { PrismaService } from '@libs/prisma'
 export class NoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * 공지사항 목록을 페이징하여 조회합니다.
+   *
+   * @param cursor - 커서 기반 페이징을 위한 기준 ID (null 가능)
+   * @param take - 한 페이지에 가져올 데이터 개수
+   * @param search - 제목 검색 키워드 (선택)
+   * @param fixed - 상단 고정된 공지사항 여부 (기본값: false)
+   * @returns 가공된 공지사항 목록과 전체 검색 결과 개수
+   */
   async getNotices({
     cursor,
     take,
@@ -62,6 +71,12 @@ export class NoticeService {
     return { data, total }
   }
 
+  /**
+   * 특정 ID의 공지사항 상세 정보와 이전/다음 글 링크를 조회합니다.
+   *
+   * @param id - 조회하고자 하는 공지사항의 고유 ID
+   * @returns 현재 글 정보, 이전 글, 다음 글 정보를 포함한 객체
+   */
   async getNoticeByID(id: number) {
     const notice = await this.prisma.notice.findUniqueOrThrow({
       where: {
