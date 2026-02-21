@@ -20,7 +20,7 @@ loki:
       ruler: loki
     type: s3
     s3:
-      endpoint: http://minio.monitoring-minio.svc.cluster.local:9000
+      endpoint: http://minio.monitoring-minio.svc.cluster.local:80
       accessKeyId: ${AWS_ACCESS_KEY_ID}
       secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
       s3ForcePathStyle: true
@@ -61,3 +61,8 @@ gateway:
 # Disabled - using central monitoring-minio instead
 minio:
   enabled: false
+
+# Fix canary URL bug (trailing dot before port)
+lokiCanary:
+  enabled: true
+  lokiurl: loki.monitoring-loki.svc.cluster.local:3100

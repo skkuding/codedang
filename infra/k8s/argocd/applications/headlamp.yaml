@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: kubernetes-dashboard
+  name: headlamp
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -13,13 +13,11 @@ spec:
         elements:
           - env: stage
             branch: main
-            host: k8s.stage.codedang.com
           - env: production
             branch: release
-            host: k8s.codedang.com
   template:
     metadata:
-      name: 'kubernetes-dashboard-{{.env}}'
+      name: 'headlamp-{{.env}}'
       finalizers:
         - resources-finalizer.argocd.argoproj.io
       labels:
@@ -27,26 +25,27 @@ spec:
     spec:
       project: default
       sources:
-        - repoURL: https://kubernetes.github.io/dashboard/
-          chart: kubernetes-dashboard
-          targetRevision: '7.14.0'
+        # Headlamp Helm chart
+        - repoURL: https://kubernetes-sigs.github.io/headlamp/
+          chart: headlamp
+          targetRevision: '0.40.0'
           helm:
-            releaseName: kubernetes-dashboard
+            releaseName: headlamp
             valueFiles:
-              - $codedang/infra/k8s/kubernetes-dashboard/values.yaml
-            parameters:
-              - name: 'app.ingress.hosts[0]'
-                value: '{{.host}}'
+              - $codedang/infra/k8s/headlamp/overlays/{{.env}}/values.yaml
+        # ref for helm valueFiles
         - repoURL: https://github.com/skkuding/codedang
           targetRevision: '{{.branch}}'
+          path: infra/k8s/headlamp
           ref: codedang
       destination:
-        namespace: kubernetes-dashboard
         name: '{{.env}}'
+        namespace: headlamp
+      # TODO: Single Headlamp multi-cluster management (prod managing stage)
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
-          - ServerSideApply=true
+          - PrunePropagationPolicy=foreground

@@ -4,4 +4,4 @@ metadata:
   name: pod-manager-env
   namespace: runner
 data:
-  RUNNER_NAMESPACE: 'runner'
+  RUNNER_POOL_SIZE: '3'
