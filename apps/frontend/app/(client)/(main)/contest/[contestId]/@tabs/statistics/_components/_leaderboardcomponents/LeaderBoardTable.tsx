@@ -65,13 +65,13 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
     120px
     1fr
   `
-  console.log('PROBLEM_SECTION_WIDTH:', PROBLEM_SECTION_WIDTH)
+  //console.log('PROBLEM_SECTION_WIDTH:', PROBLEM_SECTION_WIDTH)
   const minGridWidth = FIXED_WIDTH + PROBLEM_SECTION_WIDTH
   const session = useSession()
 
   return (
-    <div className="relative -mx-6">
-      <div className="z-10 mb-[106px] overflow-x-auto px-6">
+    <div className="relative -mx-3">
+      <div className="z-10 mb-[106px] overflow-x-auto px-3">
         <div style={{ minWidth: minGridWidth }}>
           {/* header */}
           <div
@@ -195,7 +195,9 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
                         height={20}
                       />
                     )}
-                    <div className="text-left text-base">{user.userName}</div>
+                    <div className="truncate text-left text-base">
+                      {user.userName}
+                    </div>
                   </div>
 
                   <div className="text-flowkit-red text-center text-base">
