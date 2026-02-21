@@ -570,8 +570,8 @@ export class ContestService {
 
         return {
           username: user!.username,
-          userId,
           totalScore: isFrozen ? score : finalScore,
+          userId,
           totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
           problemRecords,
           rank: rank++
@@ -1775,6 +1775,341 @@ export class ContestService {
     return {
       intervalMinutes,
       series: slots
+    }
+  }
+
+  /**
+   * 대회 시작 시간을 기준으로 경과 시간을 hh:mm:ss 형식으로 포맷팅합니다.
+   *
+   * @private
+   * @param {Date} date - 포맷팅할 날짜
+   * @param {Date} contestStartTime - 대회 시작 시간
+   * @returns {string} 포맷팅된 시간 (hh:mm:ss)
+   */
+  private formatElapsedTime(date: Date, contestStartTime: Date): string {
+    const totalSeconds = Math.floor(
+      (date.getTime() - contestStartTime.getTime()) / 1000
+    )
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = totalSeconds % 60
+
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(
+      2,
+      '0'
+    )}:${String(seconds).padStart(2, '0')}`
+  }
+
+  /**
+   * ICPC 규칙에 따라 순위를 계산합니다.
+   * 정렬 기준: 1. solved DESC, 2. penalty ASC
+   * 동일한 solved와 penalty를 가진 참가자는 같은 순위를 받습니다.
+   *
+   * @private
+   * @param {Array<{ solved: number; penalty: number }>} records
+   * @returns {number[]}
+   */
+  private calculateRanks(
+    records: Array<{ solved: number; penalty: number }>
+  ): number[] {
+    if (records.length === 0) {
+      return []
+    }
+
+    const ranks: number[] = []
+    let currentRank = 1
+
+    for (let i = 0; i < records.length; i++) {
+      if (
+        i > 0 &&
+        records[i].solved === records[i - 1].solved &&
+        records[i].penalty === records[i - 1].penalty
+      ) {
+        ranks.push(ranks[i - 1])
+      } else {
+        ranks.push(currentRank)
+      }
+      currentRank = i + 2
+    }
+
+    return ranks
+  }
+
+  /**
+   * 대회에 참가한 모든 사용자의 통계를 조회합니다.
+   * ICPC 규칙에 따라 정렬되며, 동점자는 같은 순위를 받습니다.
+   *
+   * @param {number} contestId - 대회 ID
+   * @returns {Promise<Array<{ userId: number; username: string; rank: number; solved: number; penalty: number }>>} 사용자별 통계 리스트
+   */
+  async getContestUsersStatistics(contestId: number) {
+    await this.checkIsContestExistsAndEnded(contestId)
+
+    const contestRecords = await this.prisma.contestRecord.findMany({
+      where: { contestId },
+      select: {
+        userId: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        acceptedProblemNum: true,
+        finalTotalPenalty: true
+      },
+      orderBy: [{ acceptedProblemNum: 'desc' }, { finalTotalPenalty: 'asc' }]
+    })
+
+    const validRecords = contestRecords
+      .filter((record) => record.userId !== null && record.user !== null)
+      .map((record) => ({
+        userId: record.userId!,
+        username: record.user!.username,
+        solved: record.acceptedProblemNum,
+        penalty: record.finalTotalPenalty
+      }))
+
+    const ranks = this.calculateRanks(validRecords)
+
+    return validRecords.map((record, index) => ({
+      userId: record.userId,
+      username: record.username,
+      rank: ranks[index],
+      solved: record.solved,
+      penalty: record.penalty
+    }))
+  }
+
+  /**
+   * 특정 대회에서 특정 참가자의 상세 분석 데이터를 조회합니다.
+   * 페널티 분석, 문제 풀이 타임라인, 제출 히스토리를 포함합니다.
+   *
+   * @param {number} contestId - 대회 ID
+   * @param {number} userId - 사용자 ID
+   * @returns {Promise<{ user: { rank: number; username: string; totalSolved: number; totalPenalty: number; problemAnalysis: Array<any>; timeline: Array<any>; submissionHistory: Array<any> } }>} 참가자의 상세 분석 데이터
+   */
+  async getContestUserStatistics(contestId: number, userId: number) {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId },
+      select: {
+        startTime: true,
+        endTime: true
+      }
+    })
+    // TODO: replace to checkIsContestExistsAndEnded with returning contest for bypass null-check
+    if (!contest) {
+      throw new EntityNotExistException('Contest')
+    }
+
+    const now = new Date()
+    if (contest.endTime > now) {
+      throw new ForbiddenAccessException('Contest has not ended')
+    }
+
+    const [contestRecord, contestProblems, allSubmissions] = await Promise.all([
+      this.prisma.contestRecord.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_userId: { contestId, userId }
+        },
+        select: {
+          userId: true,
+          user: {
+            select: {
+              username: true
+            }
+          },
+          acceptedProblemNum: true,
+          finalTotalPenalty: true,
+          contestProblemRecord: {
+            select: {
+              contestProblem: {
+                select: {
+                  id: true,
+                  order: true,
+                  problemId: true
+                }
+              },
+              finalScore: true,
+              finalTimePenalty: true,
+              finalSubmitCountPenalty: true,
+              finishTime: true
+            }
+          }
+        }
+      }),
+      this.prisma.contestProblem.findMany({
+        where: { contestId },
+        select: {
+          id: true,
+          order: true,
+          problemId: true
+        },
+        orderBy: { order: 'asc' }
+      }),
+      this.prisma.submission.findMany({
+        where: {
+          contestId,
+          userId
+        },
+        select: {
+          id: true,
+          problemId: true,
+          result: true,
+          language: true,
+          createTime: true
+        },
+        orderBy: { createTime: 'asc' }
+      })
+    ])
+
+    if (!contestRecord || !contestRecord.user) {
+      throw new EntityNotExistException('ContestRecord')
+    }
+
+    // 전체 참가자 중 순위 계산
+    const allRecords = await this.prisma.contestRecord.findMany({
+      where: { contestId },
+      select: {
+        userId: true,
+        acceptedProblemNum: true,
+        finalTotalPenalty: true
+      },
+      orderBy: [{ acceptedProblemNum: 'desc' }, { finalTotalPenalty: 'asc' }]
+    })
+
+    const ranks = this.calculateRanks(
+      allRecords.map((r) => ({
+        solved: r.acceptedProblemNum,
+        penalty: r.finalTotalPenalty
+      }))
+    )
+
+    const userIndex = allRecords.findIndex((r) => r.userId === userId)
+    const userRank = userIndex !== -1 ? ranks[userIndex] : allRecords.length + 1
+
+    const submissionCountByProblem: Record<number, number> = {}
+    for (const submission of allSubmissions) {
+      if (submission.problemId !== null) {
+        submissionCountByProblem[submission.problemId] =
+          (submissionCountByProblem[submission.problemId] || 0) + 1
+      }
+    }
+
+    const problemOrderMap = new Map(
+      contestProblems.map((cp) => [cp.problemId, cp.order])
+    )
+
+    // 각 문제별 첫 번째 Accepted 제출 시간 계산
+    const firstAcceptedTimeByProblem = new Map<number, Date>()
+    for (const submission of allSubmissions) {
+      if (
+        submission.problemId !== null &&
+        submission.result === ResultStatus.Accepted &&
+        !firstAcceptedTimeByProblem.has(submission.problemId)
+      ) {
+        firstAcceptedTimeByProblem.set(
+          submission.problemId,
+          submission.createTime
+        )
+      }
+    }
+
+    const solvedProblemRecords = contestRecord.contestProblemRecord.filter(
+      (record) => record.finalScore > 0
+    )
+
+    // 페널티 분석
+    const problemAnalysis = solvedProblemRecords.map((record) => {
+      const problemId = record.contestProblem.problemId
+      const order = record.contestProblem.order
+      const attemptCount = submissionCountByProblem[problemId] || 0
+      const wrongAttemptCount = attemptCount > 1 ? attemptCount - 1 : null
+      const wrongPenalty = record.finalSubmitCountPenalty
+      const successPenalty = record.finalTimePenalty
+      const problemPenalty = successPenalty + wrongPenalty
+
+      return {
+        problemLabel: String.fromCharCode(65 + order),
+        attemptCount,
+        successPenalty,
+        wrongAttemptCount,
+        wrongPenalty: wrongAttemptCount !== null ? wrongPenalty : null,
+        problemPenalty,
+        isSolved: true
+      }
+    })
+
+    problemAnalysis.sort((a, b) => a.problemLabel.localeCompare(b.problemLabel))
+
+    const solvedProblems = solvedProblemRecords
+      .filter((record) => record.finishTime !== null)
+      .map((record) => ({
+        order: record.contestProblem.order,
+        problemLabel: String.fromCharCode(65 + record.contestProblem.order),
+        finishTime: record.finishTime!
+      }))
+      .sort((a, b) => a.finishTime.getTime() - b.finishTime.getTime())
+
+    const timeline = solvedProblems.map((problem, index) => {
+      const solvingStartTime =
+        index === 0 ? contest.startTime : solvedProblems[index - 1].finishTime
+      const solvingEndTime = problem.finishTime
+      const solvingDuration = Math.floor(
+        (solvingEndTime.getTime() - solvingStartTime.getTime()) / 1000
+      )
+
+      return {
+        problemLabel: problem.problemLabel,
+        solvingStartTime: this.formatElapsedTime(
+          solvingStartTime,
+          contest.startTime
+        ),
+        solvingEndTime: this.formatElapsedTime(
+          solvingEndTime,
+          contest.startTime
+        ),
+        solvingDuration
+      }
+    })
+
+    // 제출 히스토리
+    const submissionHistory = allSubmissions
+      .filter((submission) => submission.problemId !== null)
+      .map((submission) => {
+        const order = problemOrderMap.get(submission.problemId!)
+        const problemLabel =
+          order !== undefined ? String.fromCharCode(65 + order) : '?'
+
+        const firstAcceptedTime = firstAcceptedTimeByProblem.get(
+          submission.problemId!
+        )
+        const isSolved =
+          firstAcceptedTime !== undefined &&
+          submission.createTime >= firstAcceptedTime
+
+        return {
+          submissionTime: this.formatElapsedTime(
+            submission.createTime,
+            contest.startTime
+          ),
+          problemLabel,
+          result: submission.result,
+          language: submission.language,
+          isSolved
+        }
+      })
+
+    return {
+      user: {
+        rank: userRank,
+        username: contestRecord.user.username,
+        totalSolved: contestRecord.acceptedProblemNum,
+        totalPenalty: contestRecord.finalTotalPenalty,
+        problemAnalysis,
+        timeline,
+        submissionHistory
+      }
     }
   }
 }

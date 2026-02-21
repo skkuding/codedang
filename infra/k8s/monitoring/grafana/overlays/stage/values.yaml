@@ -1,7 +1,8 @@
 # check default values.yaml
 # https://artifacthub.io/packages/helm/grafana/grafana?modal=values
 
-envFromSecret: grafana-github-oauth
+envFromSecrets:
+  - name: grafana-github-oauth
 
 replicas: 1
 autoscaling:
@@ -71,6 +72,20 @@ sidecar:
     label: grafana_dashboard
     labelValue: '1'
 
+# Workaround: sidecar overwrites the default dashboard provider,
+# so we need to explicitly register the provider for gnetId dashboards.
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: grafana-dashboards
+        orgId: 1
+        type: file
+        disableDeletion: true
+        editable: false
+        options:
+          path: /var/lib/grafana/dashboards/grafana-dashboards
+
 dashboards:
   grafana-dashboards:
     # ArgoCD - https://grafana.com/grafana/dashboards/14584
@@ -111,12 +126,14 @@ grafana.ini:
   users:
     default_language: 'ko-KR'
     default_locale: ko
+    auto_assign_org_role: Editor
   auth.github:
     enabled: true
     allow_sign_up: true
     auto_login: false
-    role_attribute_path: "'Editor'" # all users are Editor
-    skip_org_role_sync: false
+    scopes: user:email,read:org
+    allowed_organizations: skkuding
+    skip_org_role_sync: true # prevent OAuth from overwriting auto_assign_org_role on every login
   # TODO: setup git sync provisioning
   # feature_toggles:
   #   provisioning: true
