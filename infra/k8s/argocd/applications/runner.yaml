@@ -18,9 +18,8 @@ spec:
         elements:
           - env: stage
             branch: main
-          # Stage 검증 후 활성화
-          # - env: production
-          #   branch: release
+          - env: production
+            branch: release
   template:
     metadata:
       name: 'runner-{{.env}}'
