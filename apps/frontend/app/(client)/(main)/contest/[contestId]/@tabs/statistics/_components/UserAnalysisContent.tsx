@@ -168,7 +168,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                       <span className="font-medium">{`${analysis.problemLabel} :`}</span>
                     </div>
                     {analysis.successPenalty && (
-                      <span className="text-color-neutral-40">{`${analysis.successPenalty}m elapsed`}</span>
+                      <span className="text-color-neutral-40">{`${analysis.successPenalty}m taken`}</span>
                     )}
                     {analysis.wrongAttemptCount && (
                       <span className="text-color-red-60">{`${analysis.wrongAttemptCount} attempts`}</span>
