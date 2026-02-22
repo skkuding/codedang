@@ -11,16 +11,32 @@ class ClusterSummary {
   strength: number
 }
 
+class UserInfo {
+  @Field(() => String, { nullable: false })
+  username: string
+
+  @Field(() => String, { nullable: false })
+  studentId: string
+}
+@ObjectType()
+class ComparedSubmissionInfo {
+  @Field(() => Int, { nullable: false })
+  id: number
+
+  @Field(() => UserInfo, { nullable: true })
+  user: UserInfo | null
+}
+
 @ObjectType()
 export class GetCheckResultSummaryOutput {
   @Field(() => Int, { nullable: false })
   id: number
 
-  @Field(() => Int, { nullable: true })
-  firstCheckSubmissionId: number | null
+  @Field(() => ComparedSubmissionInfo, { nullable: true })
+  firstCheckSubmission: ComparedSubmissionInfo | null
 
-  @Field(() => Int, { nullable: true })
-  secondCheckSubmissionId: number | null
+  @Field(() => ComparedSubmissionInfo, { nullable: true })
+  secondCheckSubmission: ComparedSubmissionInfo | null
 
   @Field(() => Float, { nullable: false })
   averageSimilarity: number
