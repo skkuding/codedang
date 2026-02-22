@@ -109,19 +109,22 @@ export function ContestDataTable<TData extends Item, TValue>({
             options={status.map((item) => ({ value: item, label: item }))}
             resetPageIndex={resetPageIndex}
           />
-          <SearchBar className="w-70" />
+          <SearchBar className="w-60" />
         </div>
       </div>
       <Table className="table-fixed">
-        <TableHeader className="h-13 border-transparent">
+        <TableHeader className="h-13 border-none">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow className="bg-white" key={headerGroup.id}>
+            <TableRow
+              className="border-none bg-transparent hover:bg-transparent"
+              key={headerGroup.id}
+            >
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead
                     key={header.id}
                     className={cn(
-                      'text-center text-sm md:text-base',
+                      'bg-white text-center text-sm md:text-base',
                       headerStyle[header.id]
                     )}
                   >
@@ -153,24 +156,7 @@ export function ContestDataTable<TData extends Item, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className={`cursor-pointer border-b-[1.5px] border-neutral-200 ${(() => {
-                    let rowClass = ''
-                    switch (true) {
-                      case row.original.status
-                        .toLowerCase()
-                        .includes('upcoming'):
-                        rowClass = 'bg-neutral-100'
-                        break
-                      case row.original.status
-                        .toLowerCase()
-                        .includes('ongoing'):
-                        rowClass = 'bg-neutral-50'
-                        break
-                      default:
-                        rowClass = ''
-                    }
-                    return rowClass
-                  })()}`}
+                  className="cursor-pointer border-b-[1.5px] border-neutral-200 bg-white transition-colors hover:bg-neutral-50"
                   onClick={handleClick}
                 >
                   {row.getVisibleCells().map((cell) => (

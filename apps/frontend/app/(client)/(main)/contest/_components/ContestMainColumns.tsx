@@ -27,7 +27,7 @@ export const columns: ColumnDef<Contest>[] = [
     header: 'Period',
     accessorKey: 'period',
     cell: ({ row }) => (
-      <p className="text-left text-neutral-500">
+      <p className="text-left text-base tracking-[-0.48px] text-neutral-500">
         {dateFormatter(row.original.startTime, 'YYYY-MM-DD HH:mm')} ~{' '}
         {dateFormatter(row.original.endTime, 'YYYY-MM-DD HH:mm')}
       </p>
