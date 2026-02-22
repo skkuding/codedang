@@ -22,12 +22,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import {
-  ContestRole,
-  ResultStatus,
-  Role,
-  type Language
-} from '@admin/@generated'
+import { ContestRole, Language, ResultStatus, Role } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
 import { JudgeRequest } from '@client/submission/class/judge-request'
 import { LanguageExtension } from './enum/language-extensions.enum'
@@ -38,6 +33,7 @@ import type {
 } from './model/get-submissions.input'
 import { RejudgeResult } from './model/rejudge-result.output'
 import { RejudgeInput, RejudgeMode } from './model/rejudge.input'
+import type { SubmissionCountByLanguage } from './model/submission-counts-by-language.output'
 import type { SubmissionResultOutput } from './model/submission-result.model'
 import type { SubmissionsWithTotal } from './model/submissions-with-total.output'
 
@@ -355,6 +351,70 @@ export class SubmissionService {
     }
 
     return submissionInfo
+  }
+
+  async getLatestSubmissionCountByLanguage(
+    assignmentId: number,
+    problemId: number,
+    groupId: number,
+    reqUser: AuthenticatedUser
+  ): Promise<SubmissionCountByLanguage[]> {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: { groupId: true }
+    })
+
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+
+    const hasPrivilege = reqUser.isAdmin() || reqUser.isSuperAdmin()
+
+    if (!hasPrivilege) {
+      const isGroupLeader = await this.prisma.userGroup.findFirst({
+        where: {
+          userId: reqUser.id,
+          groupId: assignment.groupId,
+          isGroupLeader: true
+        }
+      })
+
+      if (!isGroupLeader) {
+        throw new ForbiddenAccessException(
+          'Only group leaders can access the assignment'
+        )
+      }
+    }
+
+    const submissions = await this.prisma.submission.findMany({
+      where: {
+        assignmentId,
+        problemId
+      },
+      distinct: ['userId'],
+      orderBy: {
+        id: 'desc'
+      },
+      select: {
+        language: true
+      }
+    })
+
+    const countMap = new Map<Language, number>()
+    Object.values(Language).forEach((lang) => {
+      countMap.set(lang, 0)
+    })
+
+    for (const submission of submissions) {
+      const lang = submission.language as Language
+      const currentCount = countMap.get(lang)
+      countMap.set(lang, (currentCount ?? 0) + 1)
+    }
+
+    return Array.from(countMap, ([language, count]) => ({
+      language,
+      count
+    }))
   }
 
   async getAssignmentProblemTestcaseResults(
