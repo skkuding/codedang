@@ -427,8 +427,24 @@ export class CheckService {
       where: {
         id: clusterId
       },
-      include: {
-        SubmissionCluster: true
+      select: {
+        id: true,
+        averageSimilarity: true,
+        strength: true,
+        SubmissionCluster: {
+          include: {
+            submission: {
+              include: {
+                user: {
+                  select: {
+                    username: true,
+                    studentId: true
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     })
 
@@ -438,7 +454,11 @@ export class CheckService {
       id: cluster.id,
       averageSimilarity: cluster.averageSimilarity,
       strength: cluster.strength,
-      submissionCluster: cluster.SubmissionCluster
+      submissionClusterInfos: cluster.SubmissionCluster.map((item) => ({
+        submissionId: item.submissionId,
+        clusterId: item.clusterId,
+        user: item.submission.user
+      }))
     }
   }
 
