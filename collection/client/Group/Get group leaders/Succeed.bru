@@ -20,7 +20,44 @@ script:pre-request {
 }
 
 docs {
-  # Get Group Leaders
+  # 📘 Get Group Leaders
+  
+  **GET** `/group/:groupId/leaders`
+  
+  Retrieve the usernames of all leaders within a specific group.
+  
+  URL param으로 전달된 `groupId`에 해당하는 Group에서 leader로 설정되어있는 User들의 `username` 리스트를 반환합니다
+  
+  - 해당 그룹(`groupId`) 내에서 `isGroupLeader: true` 상태인 사용자를 선별합니다.
+  
+  - 데이터베이스 조회를 통해 조건에 맞는 사용자들의 `username` 컬럼만 추출하여 문자열 배열(`string[]`) 형태로 반환됩니다.
+  
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  `GroupMemberGuard`가 적용되어 있어, 유효한 그룹 멤버 권한이 필요합니다.
+  
   ---
-  - URL param으로 전달된 `groupId`에 해당하는 Group에서 leader로 설정되어있는 User들의 `username` 리스트를 반환합니다.
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  
+  
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `groupId`  | number |   ✅   | 리더 목록을 조회할 Group ID |
+  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `none`
 }
