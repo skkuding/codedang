@@ -319,8 +319,28 @@ export class CheckService {
       },
       select: {
         id: true,
-        firstCheckSubmissionId: true,
-        secondCheckSubmissionId: true,
+        firstCheckSubmission: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                username: true,
+                studentId: true
+              }
+            }
+          }
+        },
+        secondCheckSubmission: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                username: true,
+                studentId: true
+              }
+            }
+          }
+        },
         averageSimilarity: true,
         maxSimilarity: true,
         maxLength: true,
