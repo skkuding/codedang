@@ -39,9 +39,6 @@ loki:
       default_resource_attributes_as_index_labels:
         # these keys will be indexed
         ['service.name', 'service.version', 'service.environment']
-  storage_config:
-    tsdb_shipper:
-      query_ready_num_days: 90
 
 singleBinary:
   extraArgs:
