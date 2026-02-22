@@ -1,5 +1,4 @@
 import { Field, Float, Int, ObjectType, OmitType } from '@nestjs/graphql'
-import { SubmissionCluster } from '@admin/@generated'
 import { Match } from './check-result.dto'
 
 @ObjectType()
@@ -22,6 +21,18 @@ class UserInfo {
 class ComparedSubmissionInfo {
   @Field(() => Int, { nullable: false })
   id: number
+
+  @Field(() => UserInfo, { nullable: true })
+  user: UserInfo | null
+}
+
+@ObjectType()
+class SubmissionClusterInfo {
+  @Field(() => Int, { nullable: false })
+  submissionId: number
+
+  @Field(() => Int, { nullable: false })
+  clusterId: number
 
   @Field(() => UserInfo, { nullable: true })
   user: UserInfo | null
@@ -74,8 +85,8 @@ export class GetClusterOutput {
   @Field(() => Float, { nullable: false })
   strength: number
 
-  @Field(() => [SubmissionCluster], { nullable: false })
-  submissionCluster: SubmissionCluster[]
+  @Field(() => [SubmissionClusterInfo], { nullable: false })
+  submissionClusterInfos: SubmissionClusterInfo[]
 }
 
 @ObjectType()
