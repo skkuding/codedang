@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { GroupType } from '@prisma/client'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  ConflictFoundException,
+  EntityNotExistException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { CreateStudyDto } from './dto/study.dto'
 
@@ -137,6 +140,69 @@ export class StudyService {
     await this.prisma.group.delete({
       where: {
         id: groupId
+      }
+    })
+  }
+
+  async joinStudyGroupById(
+    userId: number,
+    groupId: number,
+    invitation?: string
+  ) {
+    const studyGroup = await this.prisma.group.findUnique({
+      where: {
+        id: groupId,
+        groupType: GroupType.Study
+      },
+      select: {
+        studyInfo: {
+          select: {
+            capacity: true,
+            invitationCode: true
+          }
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            userGroup: true
+          }
+        }
+      }
+    })
+
+    if (!studyGroup) {
+      throw new EntityNotExistException('StudyGroup')
+    }
+
+    const isJoined = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
+      }
+    })
+
+    if (isJoined)
+      throw new ConflictFoundException('Already joined this Study group')
+
+    if (
+      studyGroup.studyInfo &&
+      studyGroup.studyInfo.capacity <= studyGroup._count.userGroup
+    )
+      throw new ConflictFoundException('Study group capacity exceeded')
+
+    if (
+      studyGroup.studyInfo?.invitationCode &&
+      studyGroup.studyInfo.invitationCode !== invitation
+    )
+      throw new ConflictFoundException('Invalid invitation code')
+
+    return await this.prisma.userGroup.create({
+      data: {
+        userId,
+        groupId
       }
     })
   }
