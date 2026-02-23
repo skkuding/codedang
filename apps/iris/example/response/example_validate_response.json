@@ -1,0 +1,19 @@
+{
+  "submissionId": "msg-val-002",
+  "resultCode": 0,
+  "validateResult": {
+    "isValid": true,
+    "testcaseCount": 2,
+    "results": [
+      {
+        "id": 1,
+        "isValid": true
+      },
+      {
+        "id": 2,
+        "isValid": true
+      }
+    ]
+  },
+  "error": ""
+}

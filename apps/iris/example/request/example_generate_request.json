@@ -1,0 +1,15 @@
+{
+  "properties": {
+    "messageId": "msg-gen-111",
+    "persistent": true,
+    "type": "generate",
+    "priority": 2
+  },
+  "body": {
+    "problemId": 1001,
+    "language": "cpp",
+    "generatorCode": "#include \"testlib.h\"\n#include <bits/stdc++.h>\n\nusing namespace std;\n\nint main(int argc, char* argv[]) {\n    registerGen(argc, argv, 1);\n    int n = atoi(argv[1]);\n    int t = atoi(argv[2]);\n    cout << rnd.wnext(1, n, t) << ' ' << n << endl;\n}\n",
+    "generatorArgs": ["100", "5"],
+    "testcaseCount": 5
+  }
+}

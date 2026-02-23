@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "messageId": "msg-val-222",
+    "persistent": true,
+    "type": "validate",
+    "priority": 2
+  },
+  "body": {
+    "problemId": 1001,
+    "language": "cpp",
+    "validatorCode": "#include <testlib.h>\n#include <bits/stdc++.h>\n\nusing namespace std;\n\nint main(int argc, char* argv[]) {\n    registerValidation(argc, argv);\n\n    int x = inf.readInt(1, 1000 * 1000, \"x\");\n    inf.readSpace();\n    int n = inf.readInt(1, 1000 * 1000, \"n\");\n    inf.readEoln();\n    ensure(x <= n);\n\n    inf.readEof();\n}\n"
+  }
+}
