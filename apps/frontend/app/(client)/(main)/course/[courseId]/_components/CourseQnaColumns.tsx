@@ -15,7 +15,7 @@ export const courseQnAColumns: ColumnDef<
     ),
     cell: ({ row }) => (
       <div
-        className="max-w-[150px] truncate"
+        className="text-color-neutral-30 max-w-[150px] truncate"
         title={row.original.assignmentTitle}
       >
         {row.original.assignmentTitle}
@@ -29,7 +29,10 @@ export const courseQnAColumns: ColumnDef<
       <DataTableColumnHeader column={column} title="Problem" />
     ),
     cell: ({ row }) => (
-      <div className="max-w-[200px] truncate" title={row.original.problemTitle}>
+      <div
+        className="text-color-neutral-30 max-w-[200px] truncate"
+        title={row.original.problemTitle}
+      >
         {row.original.problemTitle}
       </div>
     ),
@@ -43,6 +46,10 @@ export const courseQnAColumns: ColumnDef<
     cell: ({ row }) => {
       const isPrivate = row.original.isPrivate
       const title = row.original.title
+      const TEN_DAYS_IN_MS = 10 * 24 * 60 * 60 * 1000
+      const isNew =
+        new Date().getTime() - new Date(row.original.createTime).getTime() <
+        TEN_DAYS_IN_MS
 
       return (
         <div className="flex items-center gap-2">
@@ -53,13 +60,10 @@ export const courseQnAColumns: ColumnDef<
               className="h-4 w-4 shrink-0"
             />
           )}
-          <span
-            className="max-w-[400px] truncate font-medium text-gray-700"
-            title={title}
-          >
+          <span className="max-w-[400px] truncate" title={title}>
             {title}
           </span>
-          {!row.original.isResolved && (
+          {isNew && (
             <div className="bg-primary h-1.5 w-1.5 shrink-0 rounded-full" />
           )}
         </div>

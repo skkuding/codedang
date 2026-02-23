@@ -1,5 +1,4 @@
-import type { QnACategory, UpdateContestInput } from '@generated/graphql'
-import type { C } from 'vitest/dist/chunks/environment.d.cL3nLXbE.js'
+import type { UpdateContestInput } from '@generated/graphql'
 
 export type ContestStatus =
   | 'ongoing'
@@ -637,6 +636,9 @@ export interface CourseQnAItem {
   order: number
   groupId: number
   problemId: number
+  assignmentId: number
+  assignmentTitle: string
+  isExercise: boolean
   title: string
   content: string
   category: string

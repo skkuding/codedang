@@ -1,4 +1,3 @@
-import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import {
   DataTable,
@@ -20,23 +19,23 @@ interface CourseQnaTableProps {
 export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
   const [filterType, setFilterType] = useState<'General' | 'Problem'>('Problem')
 
-  const tasks = useSuspenseQueries({
-    queries: [
-      assignmentQueries.muliple({ courseId, isExercise: false }),
-      assignmentQueries.muliple({ courseId, isExercise: true })
-    ]
+  const { data: qnaData } = useSuspenseQuery<CourseQnAItem[]>({
+    queryKey: ['courseQnA', courseId, filterType],
+    queryFn: () =>
+      safeFetcherWithAuth
+        .get(`course/${courseId}/qna`, {
+          searchParams: { categories: filterType }
+        })
+        .json(),
+    retry: false
   })
 
-  const allTasks = useMemo(() => {
-    const assignments = tasks[0].data || []
-    const exercises = tasks[1].data || []
-    return [...assignments, ...exercises]
-  }, [tasks])
-
   const problemQueries = useSuspenseQueries({
-    queries: allTasks.map((task) =>
+    queries: Array.from(
+      new Set(qnaData.map((q) => q.assignmentId).filter(Boolean))
+    ).map((id) =>
       assignmentProblemQueries.list({
-        assignmentId: task.id,
+        assignmentId: id,
         groupId: Number(courseId)
       })
     )
@@ -49,35 +48,21 @@ export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
     return new Map(flatProblems.map((p) => [p.id, p]))
   }, [problemQueries])
 
-  const { data: qnaData } = useSuspenseQuery<CourseQnAItem[]>({
-    queryKey: ['courseQnA', courseId, filterType],
-    queryFn: () =>
-      safeFetcherWithAuth
-        .get(`course/${courseId}/qna`, {
-          searchParams: {
-            categories: filterType
-          }
-        })
-        .json()
-  })
-  console.log('qnaData', qnaData)
+  const tableData: (CourseQnAItem & { problemTitle: string })[] =
+    useMemo(() => {
+      return qnaData.map((qna) => {
+        const matchedProblem = allProblemsMap.get(qna.problemId)
 
-  const tableData = useMemo(() => {
-    return qnaData.map((qna) => {
-      const matchedProblem = allProblemsMap.get(qna.problemId)
-      const matchedAssignment = allTasks.find((a) => a.id === qna.groupId)
-      return {
-        ...qna,
-        category: qna.category,
-        assignmentTitle: matchedAssignment?.title,
-        problemTitle: String(matchedProblem?.title),
-        createdBy: {
-          username: qna.createdBy?.username || 'Unknown'
-        },
-        createTime: new Date(qna.createTime)
-      }
-    })
-  }, [qnaData, allTasks, allProblemsMap])
+        return {
+          ...qna,
+          order: qna.order,
+          assignmentTitle: qna.assignmentTitle,
+          problemTitle: String(matchedProblem?.title) || '-',
+          createdBy: { username: qna.createdBy?.username || 'Unknown' },
+          createTime: new Date(qna.createTime)
+        }
+      })
+    }, [qnaData, allProblemsMap])
 
   const columns = useMemo(() => {
     if (filterType === 'General') {
@@ -128,7 +113,9 @@ export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
 
         <DataTableSearchBar columndId="title" />
       </div>
-      <DataTable getHref={(row) => `/course/${courseId}/qna/${row.id}`} />
+      <DataTable
+        getHref={(row: CourseQnAItem) => `/course/${courseId}/qna/${row.order}`}
+      />
 
       <DataTablePagination />
     </DataTableRoot>

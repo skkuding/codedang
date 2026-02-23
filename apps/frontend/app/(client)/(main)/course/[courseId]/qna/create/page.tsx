@@ -153,7 +153,9 @@ export default function Page() {
                 onValueChange={handleCategoryChange}
               >
                 <SelectTrigger className="h-4 border-none bg-white px-2 text-[15px] font-normal text-gray-500 focus:ring-0 focus:ring-offset-0">
-                  <span className="flex-1 text-left">Category</span>
+                  <span className="flex-1 text-left">
+                    {categoryValue ? categoryValue : 'Category'}
+                  </span>
                 </SelectTrigger>
                 <SelectContent className="mt-2 rounded-2xl border border-gray-100 bg-white p-1.5 shadow-xl">
                   <SelectItem
@@ -182,7 +184,12 @@ export default function Page() {
                     onValueChange={handleAssignmentChange}
                   >
                     <SelectTrigger className="h-4 border-none bg-white px-2 text-[15px] font-normal text-gray-500 focus:ring-0 focus:ring-offset-0">
-                      <span className="flex-1 text-left">Task</span>
+                      <span>
+                        {currentAssignmentId
+                          ? allTasks.find((t) => t.id === currentAssignmentId)
+                              ?.title
+                          : 'Task'}
+                      </span>
                     </SelectTrigger>
                     <SelectContent className="mt-2 max-h-[250px] rounded-2xl border border-gray-100 bg-white p-1.5 shadow-xl">
                       {allTasks?.map((task) => (
@@ -210,7 +217,12 @@ export default function Page() {
                     disabled={!currentAssignmentId}
                   >
                     <SelectTrigger className="h-4 border-none bg-white px-2 text-[15px] font-normal text-gray-500 focus:ring-0 focus:ring-offset-0 disabled:opacity-30">
-                      <span className="flex-1 text-left">Problem</span>
+                      <span>
+                        {problemIdValue !== 0
+                          ? problems?.data?.find((p) => p.id === problemIdValue)
+                              ?.title
+                          : 'Problem'}
+                      </span>
                     </SelectTrigger>
                     <SelectContent className="mt-2 max-h-[250px] rounded-2xl border border-gray-100 bg-white p-1.5 shadow-xl">
                       {problems?.data?.map((problem) => (
@@ -240,7 +252,7 @@ export default function Page() {
               {...register('content', { required: true })}
               placeholder="Enter Your Question Details"
               rows={12}
-              maxLength={1000}
+              maxLength={999}
               className="w-full resize-none bg-transparent leading-relaxed outline-none"
             />
             <span className="px-6 text-right text-sm text-gray-400">
