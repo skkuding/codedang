@@ -621,8 +621,6 @@ export interface ProblemOption {
 export interface CourseQnAComment {
   id: number
   order: number
-  createdById: number
-  isCourseStaff: boolean
   content: string
   courseQnAId: number
   createTime: Date
@@ -645,7 +643,6 @@ export interface CourseQnAItem {
   createTime: Date
   isResolved: boolean
   isPrivate: boolean
-  isRead: boolean
   createdBy?: {
     username: string
   }
