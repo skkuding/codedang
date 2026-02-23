@@ -10,6 +10,7 @@ class ClusterSummary {
   strength: number
 }
 
+@ObjectType()
 class UserInfo {
   @Field(() => String, { nullable: false })
   username: string
