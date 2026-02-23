@@ -9,8 +9,11 @@ import {
   Delete,
   Req
 } from '@nestjs/common'
-import { UserNullWhenAuthFailedIfPublic } from '@libs/auth'
-import { AuthenticatedRequest, GroupMemberGuard } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  UserNullWhenAuthFailedIfPublic,
+  UseGroupLeaderGuard
+} from '@libs/auth'
 import { GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { CreateStudyDto } from './dto/study.dto'
 import { StudyService } from './study.service'
@@ -33,5 +36,11 @@ export class StudyController {
   @UserNullWhenAuthFailedIfPublic()
   getStudyGroups(@Req() req: AuthenticatedRequest) {
     return this.studyService.getStudyGroups(req.user?.id)
+  }
+
+  @Delete(':groupId')
+  @UseGroupLeaderGuard()
+  async deleteStudyGroup(@Param('groupId', GroupIDPipe) groupId: number) {
+    return await this.studyService.deleteStudyGroup(groupId)
   }
 }
