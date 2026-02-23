@@ -11,22 +11,27 @@ export function MiddleContestBanner() {
   return (
     <div className="relative w-full">
       {/* Desktop View */}
-      <div className="hidden h-[578px] w-full max-w-[1860px] lg:flex">
+      <div className="hidden h-[578px] w-full max-w-[1860px] md:flex">
         <TextBox className={'shirink-0 z-10 h-full min-w-[38%]'} />
         <ImageBox className={'h-full flex-1'} />
       </div>
       {/* Mobile View */}
-      <div className="w-full lg:hidden">
-        <Link
-          href={`/notice/${contestNoticeId}`}
-          className="flex h-full w-full"
-        >
-          <div className="h-[132px] w-full bg-[#182E56] px-4 py-8">
-            <div>
-              <p className="mb-1 text-lg font-semibold leading-snug text-white">
-                {t('take_part_realtime')} <br /> {t('coding_contest')}
+      <div className="w-full py-[30px] md:hidden">
+        <Link href={`/notice/${contestNoticeId}`} className="block w-full">
+          <div className="relative h-[132px] w-full overflow-hidden">
+            <Image
+              src={'/banners/mobile_mainpage_middle_banner.svg'}
+              alt="middle_banner_mobile"
+              fill
+              style={{ objectFit: 'cover' }}
+              className="z-0"
+            />
+            <div className="font-pretendard absolute left-[16px] top-[32px] z-10 inline-flex h-[66px] w-[201px] flex-col items-start gap-[4px] text-white">
+              <p className="text-[18px] font-semibold leading-[120%] tracking-[-0.54px]">
+                {t('take_part_realtime')}
+                <br /> {t('coding_contest')}
               </p>
-              <p className="text-color-neutral-90 text-xs font-normal leading-tight">
+              <p className="text-color-neutral-90 text-[13px] font-normal leading-[140%] tracking-[-0.39px]">
                 {t('compete_in_realtime')}
               </p>
             </div>

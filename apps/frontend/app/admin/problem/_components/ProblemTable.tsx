@@ -15,6 +15,7 @@ import {
 } from '../../_components/table'
 import { createColumns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
+import { ProblemsDownload } from './ProblemsDownload'
 
 export function ProblemTable() {
   const { t } = useTranslate()
@@ -65,11 +66,14 @@ export function ProblemTable() {
 
       // defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-4">
         <DataTableSearchBar columndId="title" />
         <DataTableLangFilter />
         <DataTableLevelFilter />
-        <ProblemsDeleteButton />
+        <div className="ml-auto flex gap-2">
+          <ProblemsDeleteButton />
+          <ProblemsDownload />
+        </div>
       </div>
       <DataTable
         getHref={(data) => `/admin/problem/${data.id}`}

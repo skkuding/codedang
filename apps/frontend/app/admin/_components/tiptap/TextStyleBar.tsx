@@ -23,9 +23,9 @@ interface TextStyleBarProps {
 }
 
 export function TextStyleBar({ editor }: TextStyleBarProps) {
+  const { t } = useTranslate()
   const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
-  const { t } = useTranslate()
 
   const handleSetLink = useCallback(() => {
     const previousUrl = editor?.getAttributes('link').href
@@ -58,21 +58,21 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
       <Toggle
         pressed={editor?.isActive('bold')}
         onPressedChange={() => editor.chain().focus().toggleBold().run()}
-        className="h-9 w-9 p-1"
+        className="h-9 w-9 p-2"
       >
         <Image src={BoldIcon} alt={t('bold_alt')} className="h-4 w-4" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('italic')}
         onPressedChange={() => editor.chain().focus().toggleItalic().run()}
-        className="h-9 w-9 p-1"
+        className="h-9 w-9 p-2"
       >
         <Image src={ItalicIcon} alt={t('italic_alt')} className="h-4 w-4" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('underline')}
         onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
-        className="h-9 w-9 p-1"
+        className="h-9 w-9 p-2"
       >
         <Image
           src={UnderlineIcon}
@@ -83,7 +83,7 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
       <Toggle
         pressed={editor?.isActive('strike')}
         onPressedChange={() => editor.chain().focus().toggleStrike().run()}
-        className="h-9 w-9 p-1"
+        className="h-9 w-9 p-2"
       >
         <Image
           src={StrikeIcon}
@@ -94,7 +94,7 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
       <Toggle
         pressed={editor?.isActive('code')}
         onPressedChange={() => editor.chain().focus().toggleCode().run()}
-        className="h-9 w-9 p-1"
+        className="h-9 w-9 p-2"
       >
         <Image src={CodeIcon} alt={t('code_alt')} className="h-6 w-6" />
       </Toggle>
@@ -104,7 +104,7 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
             type="button"
             pressed={isLinkPopoverOpen}
             onClick={handleSetLink}
-            className="h-9 w-9 p-1"
+            className="h-9 w-9 p-2"
             aria-haspopup="dialog"
             aria-expanded={isLinkPopoverOpen}
           >

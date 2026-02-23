@@ -366,8 +366,8 @@ export function NotificationDropdown({
                             className={cn(isEditor && 'bg-[#41526A]')}
                             variant={
                               notification.type === 'Assignment'
-                                ? 'Course'
-                                : 'Contest'
+                                ? 'course'
+                                : 'contest'
                             }
                           >
                             {notification.type === 'Assignment'

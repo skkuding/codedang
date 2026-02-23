@@ -1,5 +1,5 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
-import { LevelBadge } from '@/components/LevelBadge'
+import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { Switch } from '@/components/shadcn/switch'
 import {
@@ -176,7 +176,7 @@ export const createColumns = (
       const level: string = row.getValue('difficulty')
       return (
         <div>
-          <LevelBadge level={level as Level} />
+          <Badge variant={level as Level}>Level {level.slice(-1)}</Badge>
         </div>
       )
     },

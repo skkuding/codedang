@@ -1,0 +1,100 @@
+meta {
+  name: Get Overview
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  query OverviewCheckByRequestId(
+    $checkId: Int!,
+    $take: Int!,
+    $cursor: Int
+  ) {
+    overviewCheckByRequestId(
+      checkId: $checkId,
+      take: $take,
+      cursor: $cursor
+    ) {
+      id
+      firstCheckSubmission {
+        id
+        user {
+          username
+          studentId
+        }
+      }
+      secondCheckSubmission {
+        id
+        user {
+          username
+          studentId
+        }
+      }
+      averageSimilarity
+      maxSimilarity
+      maxLength
+      longestMatch
+      firstSimilarity
+      secondSimilarity
+      clusterId
+      cluster {
+        averageSimilarity
+  	 		strength
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "checkId": 9,
+    "take": 10,
+    "cursor": null
+  }
+}
+
+docs {
+  # 📋 Get Overview
+
+  Gets a rough plagiarism check result.
+
+  대략적인 표절 검사 결과를 불러옵니다.
+
+  이 API는 아래와 같은 조건에 부합하는 경우 접근할 수 있습니다.
+
+  - 해당 과제의 담당 교수 / 운영진인 경우
+  - 표절 검사가 완료된 경우
+
+  요청된 표절 검사가 없는 경우 혹은 해당 요청이 완료되지 않은 경우 예외를 발생시킵니다.
+
+  ### 📥 Request Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `checkId` | number | ✅ | 검사 요청의 아이디 |
+  | `take` | number | ✅ | 가져올 제출물의 비교 결과 수 |
+  | `cursor` | number | ❌ | 커서 |
+
+  ### 📥 Response Parameters
+
+  | Name | Type   | Description |
+  |------|--------|-------------|
+  | `id` | number | 결과 아이디 |
+  | `firstCheckSubmissionId` | number | 비교 대상인 첫 번째 제출물의 아이디 |
+  | `secondCheckSubmissionId` | number | 비교 대상인 두 번째 제출물의 아이디 |
+  | `averageSimilarity` | number | 서로에 대한 두 제출물의 평균 유사도 |
+  | `maxSimilarity` | number | 서로에 대한 두 제출물의 유사도 중 높은 값 |
+  | `maxLength` | number | 더 긴 제출물의 토큰 수 |
+  | `longestMatch` | number | 매칭된 단락 중 가장 긴 단락의 토큰 수 |
+  | `firstSimilarity` | number | 두 번째에 대한 첫 번째 제출물의 유사도 |
+  | `secondSimilarity` | number | 첫 번째에 대한 두 번째 제출물의 유사도 |
+  | `clusterId` | number | 해당 결과가 속한 클러스터 아이디 |
+  | `averageSimilarity` | number | 클러스터의 평균 유사도 |
+  | `strength` | number | 클러스터의 표절 의심 강도 |
+}

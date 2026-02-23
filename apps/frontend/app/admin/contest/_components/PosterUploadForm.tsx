@@ -45,6 +45,8 @@ export function PosterUploadForm({
   const [uploadImage] = useMutation(UPLOAD_IMAGE)
 
   const handleUploadPhoto = async (files: FileList | null) => {
+    console.log('Bucket name:', process.env.NEXT_PUBLIC_MEDIA_BUCKET_NAME)
+    console.log('App env:', process.env.NEXT_PUBLIC_APP_ENV)
     if (files === null) {
       return
     }

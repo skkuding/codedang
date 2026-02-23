@@ -116,7 +116,7 @@ export function SubmissionDetailAdmin({
                     'flex h-[38px] w-36 items-center justify-center rounded-full text-base font-semibold',
                     submission?.result === 'Accepted'
                       ? 'border-primary text-primary border-2'
-                      : 'border-2 border-[#fc5555] text-[#fc5555]'
+                      : 'border-flowkit-red text-flowkit-red border-2'
                   )}
                 >
                   {submission?.result}
@@ -197,7 +197,7 @@ export function SubmissionDetailAdmin({
                                     'flex h-[38px] w-36 items-center justify-center rounded-full text-base font-semibold',
                                     submission?.result === 'Accepted'
                                       ? 'border-primary text-primary border-2'
-                                      : 'border-2 border-[#fc5555] text-[#fc5555]'
+                                      : 'border-flowkit-red text-flowkit-red border-2'
                                   )}
                                 >
                                   {submission?.result}

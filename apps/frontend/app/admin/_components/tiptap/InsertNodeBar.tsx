@@ -214,7 +214,7 @@ export const InsertNodeBar = forwardRef<
             .insertContent(`<math-component content=""></math-component>`)
             .run()
         }}
-        className="h-9 w-9 p-1 text-black"
+        className="h-9 w-9 p-2"
       >
         <Image
           src={SquareRadical}
@@ -228,7 +228,7 @@ export const InsertNodeBar = forwardRef<
         onClick={() => {
           editor.chain().focus().setCodeBlock().run()
         }}
-        className="h-9 w-9 p-1 text-black"
+        className="h-9 w-9 p-2"
       >
         <Image
           src={CodeBlock}
@@ -300,7 +300,7 @@ export const InsertNodeBar = forwardRef<
         <PopoverTrigger asChild>
           <Toggle
             pressed={editor.isActive('table')}
-            className="h-9 w-9 p-1"
+            className="h-9 w-9 p-2"
             onPressedChange={(pressed) => {
               if (pressed) {
                 setIsTableDialogOpen(true)
@@ -316,7 +316,7 @@ export const InsertNodeBar = forwardRef<
             />
           </Toggle>
         </PopoverTrigger>
-        <PopoverContent className="flex w-fit gap-1 p-1">
+        <PopoverContent className="flex w-fit p-1">
           <Button
             variant="ghost"
             onClick={() => editor.chain().focus().addRowAfter().run()}

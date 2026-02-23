@@ -1,16 +1,17 @@
 import { Toggle } from '@/components/shadcn/toggle'
 import BulletList from '@/public/icons/texteditor-bulletlist.svg'
 import NumberedList from '@/public/icons/texteditor-numberedlist.svg'
-import { getTranslate } from '@/tolgee/server'
 import type { Editor } from '@tiptap/core'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 
 interface ListStyleBarProps {
   editor: Editor
 }
 
-export async function ListStyleBar({ editor }: ListStyleBarProps) {
-  const t = await getTranslate()
+export function ListStyleBar({ editor }: ListStyleBarProps) {
+  const { t } = useTranslate()
+
   return (
     <div className="flex items-center">
       <Toggle
@@ -19,7 +20,7 @@ export async function ListStyleBar({ editor }: ListStyleBarProps) {
           editor.chain().focus().toggleBulletList().run()
           editor.commands.focus()
         }}
-        className="h-9 w-9 p-1"
+        className="h-9 w-9 p-2"
       >
         <Image
           src={BulletList}
@@ -33,7 +34,7 @@ export async function ListStyleBar({ editor }: ListStyleBarProps) {
           editor.chain().focus().toggleOrderedList().run()
           editor.commands.focus()
         }}
-        className="h-9 w-9 p-1"
+        className="h-9 w-9 p-2"
       >
         <Image
           src={NumberedList}

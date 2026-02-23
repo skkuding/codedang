@@ -1,62 +1,78 @@
 'use client'
 
-import { cn } from '@/libs/utils'
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { Skeleton } from '@/components/shadcn/skeleton'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@/components/shadcn/tabs'
+import { ErrorBoundary } from '@suspensive/react'
 import { useTranslate } from '@tolgee/react'
-import { useParams } from 'next/navigation'
-import { useState } from 'react'
-import { Suspense } from 'react'
+import { Suspense, useRef, useState } from 'react'
+import { toast } from 'sonner'
 import { ParticipantTableByProblem } from './_components/ParticipantTableByProblem'
 import { ParticipantTableOverall } from './_components/ParticipantTableOverall'
 
 export default function Assessment() {
   const { t } = useTranslate()
-  const { courseId, assignmentId } = useParams() // 경로에서 params 가져오기
-  const [tab, setTab] = useState<'overall' | 'by-problem'>('overall')
+  const [tab, setTab] = useState('overall')
+  const toastShownRef = useRef(false)
+
+  const handleNoProblemsFound = () => {
+    if (!toastShownRef.current) {
+      toast.error(t('no_imported_problems_found'))
+      toastShownRef.current = true
+    }
+    setTab('overall')
+  }
 
   return (
-    <div>
-      <div className="mb-4 flex justify-start">
-        <div className="flex gap-1 rounded-full bg-gray-200 p-1">
-          <button
-            className={cn(
-              'rounded-full px-4 py-1 font-semibold transition-colors',
-              tab === 'overall'
-                ? 'text-primary bg-white'
-                : 'bg-transparent text-gray-700'
-            )}
-            onClick={() => setTab('overall')}
-          >
-            {t('overall_button')}
-          </button>
-          <button
-            className={cn(
-              'rounded-full px-4 py-1 font-semibold transition-colors',
-              tab === 'by-problem'
-                ? 'text-primary bg-white'
-                : 'bg-transparent text-gray-700'
-            )}
-            onClick={() => setTab('by-problem')}
-          >
-            {t('by_problem_button')}
-          </button>
-        </div>
-      </div>
+    <Tabs value={tab} onValueChange={setTab}>
+      <TabsList>
+        <TabsTrigger value="overall">{t('overall_button')}</TabsTrigger>
+        <TabsTrigger value="by-problem">{t('by_problem_button')}</TabsTrigger>
+      </TabsList>
 
-      {tab === 'overall' ? (
-        <Suspense fallback={<div>{t('loading_overall')}</div>}>
-          <ParticipantTableOverall
-            groupId={Number(courseId)}
-            assignmentId={Number(assignmentId)}
-          />
-        </Suspense>
-      ) : (
-        <Suspense fallback={<div>{t('loading_by_problem')}</div>}>
-          <ParticipantTableByProblem
-            courseId={Number(courseId)}
-            assignmentId={Number(assignmentId)}
-          />
-        </Suspense>
-      )}
-    </div>
+      <TabsContent value="overall">
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <Suspense
+            fallback={
+              <div className="flex flex-col gap-6">
+                <div className="flex justify-between gap-4">
+                  <Skeleton className="h-24 w-full" />
+                  <Skeleton className="h-24 w-full" />
+                </div>
+                <Skeleton className="h-[500px] w-full" />
+              </div>
+            }
+          >
+            <ParticipantTableOverall />
+          </Suspense>
+        </ErrorBoundary>
+      </TabsContent>
+
+      <TabsContent value="by-problem">
+        <ErrorBoundary
+          fallback={FetchErrorFallback}
+          onError={handleNoProblemsFound}
+        >
+          <Suspense
+            fallback={
+              <div className="flex flex-col gap-6">
+                <div className="flex justify-between gap-4">
+                  <Skeleton className="h-24 w-full" />
+                  <Skeleton className="h-24 w-full" />
+                </div>
+                <Skeleton className="h-[500px] w-full" />
+              </div>
+            }
+          >
+            <ParticipantTableByProblem />
+          </Suspense>
+        </ErrorBoundary>
+      </TabsContent>
+    </Tabs>
   )
 }

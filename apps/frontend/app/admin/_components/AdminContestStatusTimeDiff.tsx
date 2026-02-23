@@ -1,5 +1,6 @@
 'use client'
 
+import { DurationDisplay } from '@/components//DurationDisplay'
 import { cn } from '@/libs/utils'
 import clockIcon from '@/public/icons/clock.svg'
 import type { ContestStatus } from '@/types/type'
@@ -17,6 +18,7 @@ import { C } from 'vitest/dist/chunks/reporters.d.BFLkQcL6.js'
 dayjs.extend(duration)
 
 interface AdminTimeDiffProps {
+  showText?: boolean
   contest: GetContestQuery['getContest'] | undefined
   textStyle: string
   inContestEditor: boolean
@@ -25,7 +27,8 @@ interface AdminTimeDiffProps {
 export function AdminContestStatusTimeDiff({
   contest,
   textStyle,
-  inContestEditor
+  inContestEditor,
+  showText = false
 }: AdminTimeDiffProps) {
   const { t } = useTranslate()
   const router = useRouter()
@@ -109,26 +112,35 @@ export function AdminContestStatusTimeDiff({
     contestStatus === 'registeredOngoing'
   ) {
     currentKeyName = 'ends_in_time'
-  }
+    if (showText) {
+      return (
+        <DurationDisplay
+          startTime={contest?.startTime}
+          endTime={contest?.endTime}
+          title={t('duration_label')}
+        />
+      )
+    }
 
-  return (
-    <div
-      className={cn(
-        'inline-flex items-center gap-2 whitespace-nowrap opacity-80',
-        textStyle
-      )}
-    >
-      <Image src={clockIcon} alt="clock" width={16} height={16} />
-      <T
-        keyName={currentKeyName}
-        params={{
-          time: (
-            <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-              {timeText}
-            </p>
-          )
-        }}
-      />
-    </div>
-  )
+    return (
+      <div
+        className={cn(
+          'inline-flex items-center gap-2 whitespace-nowrap opacity-80',
+          textStyle
+        )}
+      >
+        <Image src={clockIcon} alt="clock" width={16} height={16} />
+        <T
+          keyName={currentKeyName}
+          params={{
+            time: (
+              <p className="overflow-hidden text-ellipsis whitespace-nowrap">
+                {timeText}
+              </p>
+            )
+          }}
+        />
+      </div>
+    )
+  }
 }

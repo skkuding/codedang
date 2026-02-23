@@ -1,0 +1,203 @@
+# check default values.yaml
+# https://artifacthub.io/packages/helm/grafana/grafana?modal=values
+
+envFromSecrets:
+  - name: grafana-github-oauth
+  - name: grafana-aws-cloudwatch
+
+replicas: 1
+autoscaling:
+  enabled: false
+
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - grafana.codedang.com
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - grafana.codedang.com
+      secretName: grafana-tls
+
+limits:
+  cpu: 200m
+  memory: 256Mi
+requests:
+  cpu: 200m
+  memory: 256Mi
+
+# https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+# in the beginning of grafana migration, we allow editing dashboards without provisioning
+# however, it is highly recommended to provision data as code
+persistence:
+  type: pvc
+  enabled: true
+  size: 10Gi
+
+admin:
+  existingSecret: grafana-admin-user
+  userKey: ADMIN_USER
+  passwordKey: ADMIN_PASSWORD
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    prune: true
+    datasources:
+      - name: Loki
+        type: loki
+        uid: loki
+        access: proxy
+        url: http://loki.monitoring-loki.svc.cluster.local:3100
+        editable: false
+      - name: Prometheus
+        type: prometheus
+        uid: prometheus
+        access: proxy
+        url: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090
+        editable: false
+      - name: Tempo
+        type: tempo
+        uid: tempo
+        access: proxy
+        url: http://tempo.monitoring-tempo.svc.cluster.local:3200
+        editable: false
+      - name: CloudWatch
+        type: cloudwatch
+        uid: cloudwatch
+        access: proxy
+        jsonData:
+          authType: keys
+          defaultRegion: ap-northeast-2
+        secureJsonData:
+          accessKey: $__env{AWS_ACCESS_KEY_ID}
+          secretKey: $__env{AWS_SECRET_ACCESS_KEY}
+        editable: false
+
+# help grafana to detect provisioned dashboards
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: '1'
+
+# Workaround: sidecar overwrites the default dashboard provider,
+# so we need to explicitly register the provider for gnetId dashboards.
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: grafana-dashboards
+        orgId: 1
+        type: file
+        disableDeletion: true
+        editable: false
+        options:
+          path: /var/lib/grafana/dashboards/grafana-dashboards
+      - name: aws-dashboards
+        orgId: 1
+        type: file
+        disableDeletion: true
+        editable: false
+        folder: AWS
+        options:
+          path: /var/lib/grafana/dashboards/aws-dashboards
+
+dashboards:
+  grafana-dashboards:
+    # ArgoCD - https://grafana.com/grafana/dashboards/14584
+    argocd:
+      gnetId: 14584
+      revision: 1
+      datasource: Prometheus
+    # Node Exporter Full - https://grafana.com/grafana/dashboards/1860
+    node-exporter:
+      gnetId: 1860
+      revision: 37
+      datasource: Prometheus
+    # Loki Stack - https://grafana.com/grafana/dashboards/14055
+    loki-stack:
+      gnetId: 14055
+      revision: 5
+      datasource:
+        - name: DS_PROMETHEUS
+          value: Prometheus
+        - name: DS_LOKI
+          value: Loki
+    # Kubernetes Cluster Overview - https://grafana.com/grafana/dashboards/15661
+    k8s-dashboard:
+      gnetId: 15661
+      revision: 2
+      datasource:
+        - name: DS__VICTORIAMETRICS-PROD-ALL
+          value: Prometheus
+  # ── AWS CloudWatch (monitoringartist) ─────────
+  aws-dashboards:
+    # AWS RDS - https://grafana.com/grafana/dashboards/707
+    aws-rds:
+      gnetId: 707
+      revision: 8
+    # AWS S3 - https://grafana.com/grafana/dashboards/575
+    aws-s3:
+      gnetId: 575
+      revision: 8
+    # AWS EC2 - https://grafana.com/grafana/dashboards/617
+    aws-ec2:
+      gnetId: 617
+      revision: 5
+    # AWS EBS - https://grafana.com/grafana/dashboards/623
+    aws-ebs:
+      gnetId: 623
+      revision: 6
+    # AWS Lambda - https://grafana.com/grafana/dashboards/593
+    aws-lambda:
+      gnetId: 593
+      revision: 14
+    # AWS ECS - https://grafana.com/grafana/dashboards/551
+    aws-ecs:
+      gnetId: 551
+      revision: 8
+    # AWS Route53 - https://grafana.com/grafana/dashboards/11154
+    aws-route53:
+      gnetId: 11154
+      revision: 5
+    # AWS CloudFront - https://grafana.com/grafana/dashboards/674
+    aws-cloudfront:
+      gnetId: 674
+      revision: 7
+    # AWS ElastiCache Redis - https://grafana.com/grafana/dashboards/969
+    aws-elasticache-redis:
+      gnetId: 969
+      revision: 6
+    # AWS Billing - https://grafana.com/grafana/dashboards/139
+    # TODO: AWS 루트 계정에서 결제 및 비용 관리 > 결제 기본 설정 > CloudWatch 결제 알림 수신 활성화 필요
+    aws-billing:
+      gnetId: 139
+      revision: 18
+
+# Grafana's primary configuration
+# http://docs.grafana.org/installation/configuration/
+grafana.ini:
+  log:
+    mode: console
+  server:
+    domain: 'grafana.codedang.com'
+    root_url: 'https://grafana.codedang.com'
+  users:
+    default_language: 'ko-KR'
+    default_locale: ko
+    auto_assign_org_role: Editor
+  auth.github:
+    enabled: true
+    allow_sign_up: true
+    auto_login: false
+    scopes: user:email,read:org
+    allowed_organizations: skkuding
+    skip_org_role_sync: true # prevent OAuth from overwriting auto_assign_org_role on every login
+  # TODO: setup git sync provisioning
+  # feature_toggles:
+  #   provisioning: true
+  #   kubernetesDashboards: true ; use k8s from browser

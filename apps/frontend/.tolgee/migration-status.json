@@ -1024,6 +1024,16 @@
         "default": "PRACTICE WITH CODING PROBLEMS"
       },
       {
+        "name": "practice_with",
+        "description": "Text for the practice section with coding problems.",
+        "default": "PRACTICE WITH"
+      },
+      {
+        "name": "coding_problems",
+        "description": "Text for the coding problems section.",
+        "default": "CODING PROBLEMS"
+      },
+      {
         "name": "go_to_problem",
         "description": "Text for the link or button to navigate to a problem.",
         "default": "Go to Problem"
@@ -1107,6 +1117,11 @@
         "name": "starts_here",
         "description": "Text for mobile view coding journey headline continuation on new line.",
         "default": "STARTS HERE"
+      },
+      {
+        "name": "codedang_subtitle",
+        "description": "Text for mobile view coding journey subtitle.",
+        "default": "Practice real problems, compete with peers.\nGrow your skills on SKKU's coding platform."
       },
       {
         "name": "compete_grow_skku_coding",
@@ -3389,14 +3404,14 @@
         "default": "Failed to update course."
       },
       {
-        "name": "update_course_title",
+        "name": "edit_course_title",
         "description": "Title of the modal dialog for updating course.",
-        "default": "Update Course"
+        "default": "Edit Course"
       },
       {
-        "name": "update_course_header_description",
+        "name": "edit_course_header_description",
         "description": "Header description in the update course modal.",
-        "default": "You can update your course information here."
+        "default": "You can edit your course information here."
       },
       {
         "name": "cancel_button",
@@ -6479,6 +6494,11 @@
         "name": "assignment_not_started_error",
         "description": "Error message when the assignment has not started yet.",
         "default": "This assignment has not started yet!"
+      },
+      {
+        "name": "exercise_not_started_error",
+        "description": "Error message when the exercise has not started yet.",
+        "default": "This exercise has not started yet!"
       }
     ]
   },
@@ -8187,6 +8207,16 @@
         "name": "submit",
         "description": "Label showing the number of submissions.",
         "default": "Submit"
+      },
+      {
+        "name": "this_exercise_unavailable",
+        "description": "Message indicating that the exercise is unavailable.",
+        "default": "This exercise is unavailable."
+      },
+      {
+        "name": "please_check_url_or_try_again_later",
+        "description": "Message indicating that the user should check the URL or try again later.",
+        "default": "Please check the URL or try again later."
       }
     ]
   },
@@ -9329,6 +9359,16 @@
   "app/admin/contest/[contestId]/(overall)/@tabs/announcement/_components/UpdateHistoryBox.tsx": {
     "migrated": true,
     "keys": [
+      {
+        "name": "see_more",
+        "description": "Label for the 'See More' button.",
+        "default": "See More"
+      },
+      {
+        "name": "close",
+        "description": "Label for the 'Close' button.",
+        "default": "Close"
+      },
       {
         "name": "update_history",
         "description": "Label for the update history section title.",
@@ -10980,7 +11020,12 @@
       {
         "name": "final_score_heading",
         "description": "Heading for displaying the final score with max and auto graded score details",
-        "default": "Final Score (Max score: {maxScore}, Auto graded score: {gradedScore})"
+        "default": "Final Score"
+      },
+      {
+        "name": "max_and_auto_graded_score",
+        "description": "Displaying the max and auto graded score details",
+        "default": "Max score: {maxScore}, Auto graded score: {gradedScore}"
       },
       {
         "name": "comment_heading",
@@ -11124,6 +11169,21 @@
         "name": "may_provide_final_score_or_comment",
         "description": "Message indicating that a final score or comment can still be provided.",
         "default": "You may still provide a final score or comment."
+      },
+      {
+        "name": "submission_number",
+        "description": "Label for the submission number.",
+        "default": "Submission #${submissionId}"
+      },
+      {
+        "name": "level_label",
+        "description": "Label for the level of the submission.",
+        "default": "Level {level}"
+      },
+      {
+        "name": "result_label",
+        "description": "Label for the result of the submission.",
+        "default": "Result"
       },
       {
         "name": "passed_label",
@@ -11605,12 +11665,12 @@
       {
         "name": "registration_label",
         "description": "Label for the registration period.",
-        "default": "Registration :"
+        "default": "Registration"
       },
       {
         "name": "duration_label",
         "description": "Label for the contest duration period.",
-        "default": "Duration :"
+        "default": "Duration"
       }
     ]
   },
@@ -11707,6 +11767,26 @@
         "name": "home",
         "description": "Navigation item for home page, visible when there is a header title.",
         "default": "Home"
+      },
+      {
+        "name": "setting",
+        "description": "Navigation item for setting page.",
+        "default": "Setting"
+      },
+      {
+        "name": "log_out",
+        "description": "Navigation item for log out page.",
+        "default": "Log Out"
+      },
+      {
+        "name": "log_in",
+        "description": "Navigation item for log in page.",
+        "default": "Log In"
+      },
+      {
+        "name": "sign_up",
+        "description": "Navigation item for sign up page.",
+        "default": "Sign Up"
       },
       {
         "name": "notice_capitalized",
@@ -12747,6 +12827,401 @@
         "name": "resend_email_button",
         "description": "Text for the 'Resend Email' button.",
         "default": "Resend Email"
+      }
+    ]
+  },
+  "app/(client)/(main)/contest/[contestId]/@tabs/statistics/_components/StatisticsPage.tsx": {
+    "migrated": true,
+    "keys": [
+      {
+        "name": "statistics",
+        "description": "Title of the statistics section.",
+        "default": "STATISTICS"
+      },
+      {
+        "name": "only_select_users",
+        "description": "Description for selecting users to view statistics.",
+        "default": "Only select Users"
+      },
+      {
+        "name": "real_time_leaderboard",
+        "description": "Text for the real-time leaderboard tab.",
+        "default": "Real-Time Leaderboard"
+      },
+      {
+        "name": "problem_statistics",
+        "description": "Text for the problem statistics tab.",
+        "default": "Problem Statistics"
+      },
+      {
+        "name": "user_analysis",
+        "description": "Text for the user analysis tab.",
+        "default": "User Analysis"
+      }
+    ]
+  },
+  "app/(client)/(main)/contest/[contestId]/@tabs/statistics/_components/ProblemStatistics.tsx": {
+    "migrated": true,
+    "keys": [
+      {
+        "name": "total_submission",
+        "description": "Label for the total submission.",
+        "default": "Total Submission"
+      },
+      {
+        "name": "correct_answers",
+        "description": "Label for the correct answers.",
+        "default": "Correct Answers"
+      },
+      {
+        "name": "correct_answers_rate",
+        "description": "Label for the correct answers rate.",
+        "default": "Correct Answers Rate"
+      },
+      {
+        "name": "average_attempt",
+        "description": "Label for the average attempt.",
+        "default": "Average Attempt"
+      },
+      {
+        "name": "first_solver",
+        "description": "Label for the first solver.",
+        "default": "First Solver"
+      },
+      {
+        "name": "fastest_solver",
+        "description": "Label for the fastest solver.",
+        "default": "Fastest Solver"
+      },
+      {
+        "name": "user_speed_rank",
+        "description": "Label for the user speed rank.",
+        "default": "User Speed Rank"
+      },
+      {
+        "name": "correct_answers_by_language",
+        "description": "Label for the correct answers by language.",
+        "default": "Correct Answers by Language"
+      },
+      {
+        "name": "incorrect_answer_distribution",
+        "description": "Label for the incorrect answer distribution.",
+        "default": "Incorrect Answer Distribution"
+      },
+      {
+        "name": "wrong_answer_count",
+        "description": "Label for the wrong answer.",
+        "default": "{count} Wrong Answer"
+      },
+      {
+        "name": "accepted_answer_count",
+        "description": "Label for the accepted answer count.",
+        "default": "{count} Accepted Answer"
+      },
+      {
+        "name": "wrong_answer",
+        "description": "Label for the wrong answer.",
+        "default": "Wrong Answer"
+      },
+      {
+        "name": "time_limit_exceeded",
+        "description": "Label for the time limit exceeded.",
+        "default": "Time Limit Exceeded"
+      },
+      {
+        "name": "runtime_error",
+        "description": "Label for the runtime error.",
+        "default": "Runtime Error"
+      },
+      {
+        "name": "memory_limit_exceeded",
+        "description": "Label for the memory limit exceeded.",
+        "default": "Memory Limit Exceeded"
+      },
+      {
+        "name": "compile_error",
+        "description": "Label for the compile error.",
+        "default": "Compile Error"
+      },
+      {
+        "name": "trends_in_submission",
+        "description": "Label for the trends in submission.",
+        "default": "Trends in Submission"
+      }
+    ]
+  },
+  "app/(client)/(main)/contest/[contestId]/@tabs/statistics/_components/RealtimeLeaderBoard.tsx": {
+    "migrated": true,
+    "keys": [
+      {
+        "name": "total_participants",
+        "description": "Label for the total participants.",
+        "default": "Total Participants"
+      },
+      {
+        "name": "total_submissions",
+        "description": "Label for the total submissions.",
+        "default": "Total Submissions"
+      },
+      {
+        "name": "average_accuracy_rate",
+        "description": "Label for the average accuracy rate.",
+        "default": "Average Accuracy Rate"
+      },
+      {
+        "name": "contest_progress_time",
+        "description": "Label for the contest progress time.",
+        "default": "Contest Progress Time"
+      }
+    ]
+  },
+  "app/(client)/(main)/contest/[contestId]/@tabs/statistics/_components/UserAnalysis.tsx": {
+    "migrated": true,
+    "keys": [
+      {
+        "name": "search_placeholder",
+        "description": "Placeholder for the search input.",
+        "default": "Search"
+      },
+      {
+        "name": "solved_count",
+        "description": "Label for the solved count.",
+        "default": "{count} solved"
+      },
+      {
+        "name": "more_users_count",
+        "description": "Label for the more users count.",
+        "default": "{count} more users"
+      }
+    ]
+  },
+  "app/(client)/(main)/contest/[contestId]/@tabs/statistics/_components/UserAnalysisContent.tsx": {
+    "migrated": true,
+    "keys": [
+      {
+        "name": "final_rank",
+        "description": "Label for the final rank.",
+        "default": "Final Rank"
+      },
+      {
+        "name": "penalty",
+        "description": "Label for penalty.",
+        "default": "Penalty"
+      },
+      {
+        "name": "total_solved",
+        "description": "Label for total solved problems.",
+        "default": "Total Solved"
+      },
+      {
+        "name": "penalty_analysis",
+        "description": "Label for penalty analysis section.",
+        "default": "Penalty Analysis"
+      },
+      {
+        "name": "total_penalty",
+        "description": "Total penalty score display.",
+        "default": "Total - {score}"
+      },
+      {
+        "name": "time_taken",
+        "description": "Time taken for successful submission.",
+        "default": "{time}m taken"
+      },
+      {
+        "name": "attempts_count",
+        "description": "Number of wrong attempts.",
+        "default": "{count} attempts"
+      },
+      {
+        "name": "problem_solving_timeline",
+        "description": "Label for problem-solving timeline chart.",
+        "default": "Problem-Solving Timeline"
+      },
+      {
+        "name": "problem_label",
+        "description": "Problem label display.",
+        "default": "Problem {label}"
+      },
+      {
+        "name": "start_time",
+        "description": "Start time in tooltip.",
+        "default": "Start Time: {time}"
+      },
+      {
+        "name": "end_time",
+        "description": "End time in tooltip.",
+        "default": "End Time: {time}"
+      },
+      {
+        "name": "duration",
+        "description": "Duration in tooltip.",
+        "default": "Duration: {duration}"
+      },
+      {
+        "name": "no_timeline",
+        "description": "Message when there is no timeline data.",
+        "default": "There is no timeline to figure"
+      },
+      {
+        "name": "submission_history",
+        "description": "Label for submission history section.",
+        "default": "Submission History"
+      },
+      {
+        "name": "time_header",
+        "description": "Table header for Time.",
+        "default": "Time"
+      },
+      {
+        "name": "problem_header",
+        "description": "Table header for Problem.",
+        "default": "Problem"
+      },
+      {
+        "name": "result_header",
+        "description": "Table header for Result.",
+        "default": "Result"
+      },
+      {
+        "name": "language_header",
+        "description": "Table header for Language.",
+        "default": "Language"
+      },
+      {
+        "name": "no_submission_history",
+        "description": "Message when there is no submission history.",
+        "default": "There is no submission history"
+      }
+    ]
+  },
+  "app/(client)/(main)/contest/[contestId]/@tabs/statistics/_components/_leaderboardcomponents/LeaderBoardTable.tsx": {
+    "migrated": true,
+    "keys": [
+      {
+        "name": "mark_header",
+        "description": "Table header for Mark.",
+        "default": "Mark"
+      },
+      {
+        "name": "rank_header",
+        "description": "Table header for Rank.",
+        "default": "Rank"
+      },
+      {
+        "name": "participant_header",
+        "description": "Table header for Participant.",
+        "default": "Participant"
+      },
+      {
+        "name": "penalty_header",
+        "description": "Table header for Penalty.",
+        "default": "Penalty"
+      },
+      {
+        "name": "wrong_status",
+        "description": "Status text when the answer is wrong.",
+        "default": "Wrong"
+      },
+      {
+        "name": "submission_count",
+        "description": "Number of submissions attempts.",
+        "default": "{count} sub"
+      }
+    ]
+  },
+  "app/(client)/(main)/contest/[contestId]/@tabs/statistics/_components/_leaderboardcomponents/NoSubmissionData.tsx": {
+    "migrated": true,
+    "keys": [
+      {
+        "name": "coming_soon_alt",
+        "description": "Alt text for the no submission data image.",
+        "default": "coming-soon"
+      },
+      {
+        "name": "no_submission_data_title",
+        "description": "Title text when there is no submission data.",
+        "default": "No Submission Data."
+      },
+      {
+        "name": "no_submission_data_description",
+        "description": "Description text when there is no submission data.",
+        "default": "No submissions data for Real-Time Leaderboard"
+      },
+      {
+        "name": "refresh_button",
+        "description": "Label for the refresh button.",
+        "default": "Refresh"
+      }
+    ]
+  },
+  "app/admin/contest/[contestId]/(overall)/@tabs/_components/InvitationModal.tsx": {
+    "migrated": true,
+    "keys": [
+      {
+        "name": "copy_success_toast",
+        "description": "Toast message for successful copy.",
+        "default": "Invitation code successfully copied to clipboard!"
+      },
+      {
+        "name": "copy_fail_toast",
+        "description": "Toast message for failed copy.",
+        "default": "Failed to copy invitation code"
+      },
+      {
+        "name": "invitation_button",
+        "description": "Label for the invitation button.",
+        "default": "Invitation"
+      },
+      {
+        "name": "invitation_code_title",
+        "description": "Title for the invitation code dialog.",
+        "default": "Invitation Code"
+      },
+      {
+        "name": "bullet_icon_alt",
+        "description": "Alt text for the bullet icon.",
+        "default": "bullet"
+      },
+      {
+        "name": "contest_admin",
+        "description": "Label for the contest admin.",
+        "default": "Contest Admin"
+      },
+      {
+        "name": "copy_button",
+        "description": "Label for the copy button.",
+        "default": "Copy"
+      }
+    ]
+  },
+  "app/admin/problem/_components/ProblemsDownload.tsx": {
+    "migrated": true,
+    "keys": [
+      {
+        "name": "select_problem_warning",
+        "description": "Warning toast when no problem is selected for download.",
+        "default": "Please select at least one problem."
+      },
+      {
+        "name": "download_fail_toast",
+        "description": "Error toast when a problem fails to download.",
+        "default": "Failed to download problem {id}"
+      }
+    ]
+  },
+  "components/TimeStatusBadge.tsx": {
+    "migrated": true,
+    "keys": [
+      {
+        "name": "status_ongoing",
+        "description": "Status text for ongoing contests.",
+        "default": "Ongoing"
+      },
+      {
+        "name": "status_ended",
+        "description": "Status text for ended contests.",
+        "default": "Ended"
       }
     ]
   }

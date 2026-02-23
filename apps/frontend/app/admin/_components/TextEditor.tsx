@@ -201,8 +201,8 @@ export function TextEditor({
     ],
     editorProps: {
       attributes: {
-        class: `focus:outline-none overflow-y-auto w-full px-3 disabled:cursur-not-allowed disabled:opacity-50 resize-y ${
-          isExpanded ? 'h-[500px]' : 'h-[300px]'
+        class: `focus:outline-none overflow-y-auto w-full disabled:cursor-not-allowed disabled:opacity-50 resize-none ${
+          isExpanded ? 'h-[500px]' : 'h-[144px]'
         }`
       }
     },
@@ -215,17 +215,26 @@ export function TextEditor({
   const [isExpandedScreenOpen, setIsExpandedScreenOpen] = useState(false)
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border">
+    <div
+      className={cn(
+        'flex flex-col overflow-hidden rounded-[4px]',
+        isDarkMode ? 'border-editor-line-1 border bg-transparent' : 'border'
+      )}
+    >
       {editor && (
-        <div className="flex flex-wrap items-center gap-1 border-b bg-white p-1">
+        <div
+          className={cn(
+            'flex flex-wrap items-center border-b px-1 py-2',
+            isDarkMode
+              ? 'border-editor-line-1 bg-editor-fill-1 text-white [&_button:hover]:!bg-white/10 [&_button]:text-white [&_img]:invert [&_path]:fill-white [&_svg]:text-white'
+              : 'bg-white'
+          )}
+        >
           <TextStyleBar editor={editor} />
-          <div className="mx-1 h-8 shrink-0 border-r" />
           <HeadingStyleBar editor={editor} />
-          <div className="mx-1 h-8 shrink-0 border-r" />
           <ListStyleBar editor={editor} />
-          <div className="mx-1 h-8 shrink-0 border-r" />
-
           <InsertNodeBar ref={insertNodeRef} editor={editor} />
+
           <div className="mx-1 h-6 shrink-0 border-r" />
           <UndoRedoBar editor={editor} />
           {isExpanded ? (
@@ -238,7 +247,7 @@ export function TextEditor({
               >
                 <Image
                   src={Shrink}
-                  alt={t('shrink_button_alt')}
+                  alt="Shrink"
                   className="h-[22px] w-[22px]"
                 />
               </Button>
@@ -255,7 +264,7 @@ export function TextEditor({
               >
                 <Image
                   src={Expand}
-                  alt={t('expand_button_alt')}
+                  alt="Expand"
                   className="h-[22px] w-[22px]"
                 />
               </Button>
@@ -266,8 +275,8 @@ export function TextEditor({
       <EditorContent
         editor={editor}
         className={cn(
-          'prose max-w-5xl overflow-hidden bg-white [&_code::after]:content-none [&_code::before]:content-none [&_h1]:mb-4 [&_h1]:mt-6 [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-0 [&_p]:mt-2',
-          isDarkMode && 'prose-invert bg-transparent'
+          'prose w-full max-w-none overflow-hidden bg-white p-4 [&_code::after]:content-none [&_code::before]:content-none [&_h1]:mb-4 [&_h1]:mt-6 [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-0 [&_p]:mt-2',
+          isDarkMode && 'prose-invert bg-editor-fill-1'
         )}
       />
       {!isExpanded && (

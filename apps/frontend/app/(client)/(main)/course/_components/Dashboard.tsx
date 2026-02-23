@@ -1,19 +1,17 @@
 'use client'
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
-import { AssignmentIcon, ExerciseIcon } from '@/components/Icons'
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle
-} from '@/components/shadcn/drawer'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
-import type { Assignment, AssignmentSummary } from '@/types/type'
-import { useQueries, type UseQueryOptions } from '@tanstack/react-query'
+import { fetcherWithAuth } from '@/libs/utils'
+import type { Assignment, AssignmentSummary, JoinedCourse } from '@/types/type'
+import {
+  useQueries,
+  useQuery,
+  type UseQueryOptions
+} from '@tanstack/react-query'
 import { useTranslate } from '@tolgee/react'
-import Link from 'next/link'
 import { useMemo, useState } from 'react'
+import { AssignmentLink } from '../[courseId]/_components/AssignmentLink'
 import { DashboardCalendar } from './DashboardCalendar'
 
 type WorkStatus = 'upcoming' | 'ongoing' | 'finished'
@@ -35,18 +33,22 @@ interface WorkItem {
   submittedCount: number
   week?: number
   status?: WorkStatus
+  raw: Assignment
 }
 
 interface GroupedRows {
+  courseId: number
   courseTitle: string
+  courseNum?: string
+  classNum?: number
   rows: WorkItem[]
 }
 
 interface CardSectionProps {
-  icon: React.ReactNode
   title: string
   groups: GroupedRows[]
   selectedDate?: Date
+  courseIdResolver: (row: WorkItem) => number
 }
 
 const startOfDay = (date: Date) => {
@@ -74,8 +76,6 @@ const isActiveOnDate = (selectedDate: Date | undefined, workItem: WorkItem) => {
 }
 
 const formatDueMd = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
-const progressPct = (submitted: number, total: number) =>
-  total > 0 ? Math.min(100, Math.round((submitted / total) * 100)) : 0
 
 const isDueToday = (selectedDate?: Date, dueDate?: Date) =>
   Boolean(selectedDate && dueDate && sameDay(selectedDate, dueDate))
@@ -109,11 +109,18 @@ const makeAssignmentQueries = (
     }
   })
 
-export function Dashboard({ courseIds }: { courseIds: number[] }) {
+export function Dashboard() {
   const { t } = useTranslate()
+  const { data: courses = [] } = useQuery({
+    queryKey: ['joinedCourses'],
+    queryFn: async () => {
+      return await fetcherWithAuth.get('course/joined').json<JoinedCourse[]>()
+    }
+  })
 
-  const validCourseIds = (courseIds ?? []).filter(
-    (n) => Number.isFinite(n) && n > 0
+  const validCourseIds = useMemo(
+    () => courses.map((c) => c.id).filter((n) => Number.isFinite(n) && n > 0),
+    [courses]
   )
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
@@ -138,15 +145,6 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
     } else {
       setSelectedDate(normalized)
       setViewMonth(new Date(normalized.getFullYear(), normalized.getMonth(), 1))
-    }
-  }
-
-  const [drawerOpen, setDrawerOpen] = useState(false)
-
-  const onSelectDateMobile = (nextDate: Date | undefined) => {
-    onSelectDate(nextDate)
-    if (nextDate) {
-      setDrawerOpen(true)
     }
   }
 
@@ -215,7 +213,8 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
             problemCount: summary?.problemCount ?? a.problemCount ?? 0,
             submittedCount: summary?.submittedCount ?? 0,
             week: a.week,
-            status: a.status
+            status: a.status,
+            raw: a
           } satisfies WorkItem
         ]
       })
@@ -228,9 +227,9 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
   )
 
   const groupedByCourse: GroupedRows[] = useMemo(() => {
-    const map = new Map<string, WorkItem[]>()
+    const map = new Map<number, WorkItem[]>()
     for (const row of visibleRows) {
-      const key = row.group.groupName || 'Unknown'
+      const key = row.group.id || 0
       let bucket = map.get(key)
       if (!bucket) {
         bucket = []
@@ -239,9 +238,19 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
       bucket.push(row)
     }
     return [...map]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([courseTitle, rows]) => ({ courseTitle, rows }))
-  }, [visibleRows])
+      .map(([courseId, rows]) => {
+        const detail = courses.find((c) => c.id === courseId)
+
+        return {
+          courseId,
+          courseNum: detail?.courseInfo.courseNum,
+          classNum: detail?.courseInfo.classNum,
+          courseTitle: rows[0].group.groupName || 'Unknown',
+          rows
+        }
+      })
+      .sort((a, b) => a.courseTitle.localeCompare(b.courseTitle))
+  }, [visibleRows, courses])
 
   const deadlineDateList = useMemo(() => {
     const uniq = new Set<number>()
@@ -251,107 +260,68 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
     }
     return [...uniq].map((t) => new Date(t))
   }, [allRows])
+  const courseIdResolver = (row: WorkItem) => row.group.id
 
   return (
     <section className="mx-auto max-w-[1208px]">
-      <div className="pb-[30px]">
-        <h2 className="text-[30px] font-semibold leading-9 tracking-[-0.9px] text-black">
+      <div className="pb-4 sm:pb-[30px]">
+        <h2 className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
           {t('dashboard_header')}
         </h2>
       </div>
 
-      {/* Desktop Layout */}
-      <div className="hidden gap-[14px] sm:grid md:grid-cols-2 lg:grid-cols-3">
-        <CardSection
-          icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
-          title={t('assignment_section_title')}
-          groups={groupedByCourse.map(({ courseTitle, rows }) => ({
-            courseTitle,
-            rows: rows.filter((r) => !r.isExercise)
-          }))}
-          selectedDate={selectedDate}
-        />
+      <div className="grid grid-cols-1 gap-[14px] md:grid md:grid-cols-2 lg:grid-cols-3">
+        <div className="order-2 flex max-h-[460px] flex-col md:order-1">
+          <CardSection
+            title={t('assignment_section_title')}
+            groups={groupedByCourse.map((group) => ({
+              ...group,
+              rows: group.rows.filter((r) => !r.isExercise)
+            }))}
+            selectedDate={selectedDate}
+            courseIdResolver={courseIdResolver}
+          />
+        </div>
 
-        <CardSection
-          icon={<ExerciseIcon className="h-7 w-7 fill-violet-600" />}
-          title={t('exercise_section_title')}
-          groups={groupedByCourse.map(({ courseTitle, rows }) => ({
-            courseTitle,
-            rows: rows.filter((r) => r.isExercise)
-          }))}
-          selectedDate={selectedDate}
-        />
-
-        <DashboardCalendar
-          selectedDate={selectedDate}
-          onSelect={onSelectDate}
-          deadlineDateList={deadlineDateList}
-          viewMonth={viewMonth}
-          setViewMonth={setViewMonth}
-        />
-      </div>
-
-      {/* Mobile Layout */}
-      <div className="sm:hidden">
-        <div className="w-full origin-top">
+        <div className="order-3 flex max-h-[460px] flex-col md:order-2">
+          <CardSection
+            title={t('exercise_section_title')}
+            groups={groupedByCourse.map((group) => ({
+              ...group,
+              rows: group.rows.filter((r) => r.isExercise)
+            }))}
+            selectedDate={selectedDate}
+            courseIdResolver={courseIdResolver}
+          />
+        </div>
+        <div className="order-1 flex flex-col md:order-3">
           <DashboardCalendar
             selectedDate={selectedDate}
-            onSelect={onSelectDateMobile}
+            onSelect={onSelectDate}
             deadlineDateList={deadlineDateList}
             viewMonth={viewMonth}
             setViewMonth={setViewMonth}
           />
         </div>
-
-        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-          <DrawerContent className="max-h-[90vh] pb-0">
-            <DrawerHeader>
-              <DrawerTitle>
-                {selectedDate?.toLocaleDateString() ?? ''}
-              </DrawerTitle>
-            </DrawerHeader>
-
-            <div className="mx-auto w-full items-center space-y-6">
-              <CardSection
-                icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
-                title={t('assignment_section_title')}
-                groups={groupedByCourse.map(({ courseTitle, rows }) => ({
-                  courseTitle,
-                  rows: rows.filter((r) => !r.isExercise)
-                }))}
-                selectedDate={selectedDate}
-              />
-
-              <CardSection
-                icon={<ExerciseIcon className="h-7 w-7 fill-violet-600" />}
-                title={t('exercise_section_title')}
-                groups={groupedByCourse.map(({ courseTitle, rows }) => ({
-                  courseTitle,
-                  rows: rows.filter((r) => r.isExercise)
-                }))}
-                selectedDate={selectedDate}
-              />
-            </div>
-          </DrawerContent>
-        </Drawer>
       </div>
     </section>
   )
 }
 
-function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
-  const { t } = useTranslate()
+function CardSection({
+  title,
+  groups,
+  selectedDate,
+  courseIdResolver
+}: CardSectionProps) {
   return (
-    <section className="flex justify-center rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
-      <div className="flex max-h-[40vh] w-full max-w-[100vw] flex-col py-[30px] pl-6 pr-2 sm:max-h-[460px] sm:max-w-[390px]">
-        <div className="mb-6 flex items-center gap-2">
-          {icon}
-          <div className="text-[24px] font-semibold leading-[33.6px] tracking-[-0.72px]">
-            {title}
-          </div>
-        </div>
+    <section className="flex h-full rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
+      <div className="flex w-full max-w-[100vw] flex-col overflow-hidden py-[30px] pl-6 pr-2 md:max-w-[390px]">
+        <span className="mb-6 text-[24px] font-semibold leading-[33.6px] tracking-[-0.72px]">
+          {title}
+        </span>
 
-        <ScrollArea className="pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
+        <ScrollArea className="flex-1 pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
           {groups
             .slice()
             .sort(
@@ -371,7 +341,7 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
             .map((group, idx) => (
               <div key={group.courseTitle} className="w-full">
                 <p className="mb-3 pl-[6px] text-[14px] font-semibold leading-[19.6px] tracking-[-0.42px] text-black">
-                  <span className="mr-2 inline-block h-[22px] w-[6px] rounded-[1px] bg-violet-300 align-middle" />
+                  <span className="bg-primary-light mr-2 inline-block h-[22px] w-[6px] rounded-[1px] align-middle" />
                   {group.courseTitle}
                 </p>
 
@@ -395,53 +365,34 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
                       return a.title.localeCompare(b.title)
                     })
                     .map((row) => {
-                      const showDueBadge = isDueToday(
-                        selectedDate,
-                        row.dueTime ?? row.endTime
-                      )
-                      const progress = progressPct(
-                        row.submittedCount,
-                        row.problemCount
-                      )
+                      const courseId = courseIdResolver(row)
 
                       return (
-                        <Link
+                        <div
                           key={row.id}
-                          href={`/course/${row.group.id}/${row.isExercise ? 'exercise' : 'assignment'}/${row.id}`}
                           className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
-                          aria-label={`${row.title}, due ${formatDueMd(
-                            row.dueTime ?? row.endTime
-                          )}, progress ${progress}%`}
                         >
-                          <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-neutral-200/40" />
-                          <div
-                            className="pointer-events-none absolute inset-y-0 left-0 rounded-r-md bg-violet-200"
-                            style={{ width: `${progress}%` }}
-                          />
-
                           <div className="relative flex items-center py-[10px]">
                             <div className="flex min-w-0 flex-1 items-center">
                               <div className="pl-[18px] pr-[10px]">
-                                <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-violet-500" />
+                                <span className="bg-primary inline-block h-2 w-2 shrink-0 rounded-full" />
                               </div>
-                              <p
-                                className="truncate text-sm font-normal leading-6 tracking-[-0.48px] text-neutral-800"
-                                title={row.title}
-                              >
-                                {row.title}
-                                {showDueBadge && (
-                                  <span className="ml-2 rounded bg-rose-50 px-1.5 py-0.5 align-middle text-[11px] font-semibold text-rose-600">
-                                    {t('due_label')}
-                                  </span>
-                                )}
-                              </p>
+
+                              <div className="min-w-0">
+                                <AssignmentLink
+                                  assignment={row.raw}
+                                  courseId={courseId}
+                                  isExercise={row.isExercise}
+                                />
+                              </div>
                             </div>
-                            <span className="ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm tabular-nums text-violet-600">
+
+                            <span className="text-primary ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm font-medium tabular-nums">
                               {'~ '}
                               {formatDueMd(row.dueTime ?? row.endTime)}
                             </span>
                           </div>
-                        </Link>
+                        </div>
                       )
                     })}
                 </div>

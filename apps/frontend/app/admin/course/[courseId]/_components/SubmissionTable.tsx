@@ -12,20 +12,24 @@ import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_ASSIGNMENT_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { useTranslate } from '@tolgee/react'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { DataTableProblemFilterMini } from './DataTableProblemFilterMini'
 import { getColumns } from './SubmissionColumns'
 
-export function SubmissionTable({
-  groupId,
-  assignmentId
-}: {
-  groupId: number
-  assignmentId: number
-}) {
+interface SubmissionTableProps {
+  isExercise?: boolean
+}
+
+export function SubmissionTable({ isExercise }: SubmissionTableProps) {
+  const params = useParams()
+  const courseId = Number(params.courseId)
+  const assignmentId = Number(
+    params[isExercise ? 'exerciseId' : 'assignmentId']
+  )
   const { data } = useSuspenseQuery(GET_ASSIGNMENT_SUBMISSIONS, {
     variables: {
-      groupId,
+      groupId: courseId,
       input: {
         assignmentId
       },
@@ -53,7 +57,7 @@ export function SubmissionTable({
               {t('submissions')}
             </div>
             <DataTableProblemFilterMini
-              groupId={groupId}
+              groupId={courseId}
               assignmentId={assignmentId}
             />
           </div>

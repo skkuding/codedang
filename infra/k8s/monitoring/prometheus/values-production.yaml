@@ -1,0 +1,21 @@
+grafana:
+  enabled: false
+
+prometheus:
+  prometheusSpec:
+    retention: 90d
+    enableRemoteWriteReceiver: true
+  ingress:
+    enabled: true
+    hosts:
+      - prometheus.codedang.com
+    paths:
+      - /
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-dns01
+      traefik.ingress.kubernetes.io/redirect-entry-point: https
+    ingressClassName: traefik
+    tls:
+      - hosts:
+          - prometheus.codedang.com
+        secretName: prometheus-tls

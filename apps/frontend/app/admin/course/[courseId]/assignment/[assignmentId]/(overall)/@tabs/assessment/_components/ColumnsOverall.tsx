@@ -227,8 +227,14 @@ export const createColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('total_column')} />
       ),
-      cell: ({ row }) =>
-        `${row.original.userAssignmentFinalScore}/${row.original.assignmentPerfectScore}`
+      cell: ({ row }) => {
+        const score =
+          currentView === 'auto'
+            ? row.original.userAssignmentScore
+            : row.original.userAssignmentFinalScore
+
+        return `${score}/${row.original.assignmentPerfectScore}`
+      }
     },
     {
       id: 'detail',

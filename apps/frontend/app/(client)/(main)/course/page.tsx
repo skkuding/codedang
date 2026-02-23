@@ -1,7 +1,6 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
-import { safeFetcherWithAuth } from '@/libs/utils'
 import welcomeLogo from '@/public/logos/welcome.png'
 import { getTranslate } from '@/tolgee/server'
 import { ErrorBoundary } from '@suspensive/react'
@@ -23,51 +22,6 @@ function CardListFallback() {
       </div>
     </div>
   )
-}
-
-async function getMyCourseIds(): Promise<number[]> {
-  type SearchParams = Record<string, string | number | boolean>
-  type Endpoint = { path: string; params: SearchParams }
-
-  const endpoints: Endpoint[] = [
-    { path: 'course/joined', params: { take: 100 } },
-    { path: 'course', params: { joined: 'true', take: 100 } }
-  ]
-
-  const isRecord = (v: unknown): v is Record<string, unknown> =>
-    typeof v === 'object' && v !== null
-
-  const isPositiveNumber = (v: unknown): v is number =>
-    typeof v === 'number' && Number.isFinite(v) && v > 0
-
-  for (const { path, params } of endpoints) {
-    try {
-      const res = await safeFetcherWithAuth.get(path, { searchParams: params })
-      if (!res.ok) {
-        continue
-      }
-
-      const json = await res.json()
-      const ids = Array.isArray(json)
-        ? json.flatMap((item) => {
-            if (!isRecord(item)) {
-              return []
-            }
-            const key = (['id', 'groupId', 'courseId'] as const).find((k) =>
-              isPositiveNumber(item[k])
-            )
-            return key ? [item[key] as number] : []
-          })
-        : []
-
-      if (ids.length) {
-        return ids
-      }
-    } catch {
-      // 실패 시 다음 endpoint 시도
-    }
-  }
-  return []
 }
 
 export default async function Course() {
@@ -92,21 +46,26 @@ export default async function Course() {
     )
   }
 
-  const courseIds = await getMyCourseIds()
-
   return (
     <>
-      <CourseMainBanner course={null} />
-      <div className="w-full px-6 pt-[100px] sm:px-[116px]">
-        <Dashboard courseIds={courseIds} />
-      </div>
-
-      <div className="flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-[100px] sm:px-[116px]">
+      <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
+        <div className="flex flex-col pb-12">
+          <span className="text-[40px] font-bold leading-[130%] tracking-[-1.2px]">
+            COURSE
+          </span>
+          <span className="text-color-neutral-40 text-lg font-medium">
+            전반적인 교육과정을 연계하여 관리해보세요
+          </span>
+        </div>
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
             <CourseCardList title={t('my_course')} />
           </Suspense>
         </ErrorBoundary>
+      </div>
+
+      <div className="w-full px-5 md:px-[116px]">
+        <Dashboard />
       </div>
 
       <CourseSubBanner />

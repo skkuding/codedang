@@ -610,7 +610,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                       <button
                         onClick={() => deleteAllInCurrentTab(false)}
                         type="button"
-                        className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#FC5555] px-[22px] py-[10px]"
+                        className="bg-flowkit-red flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]"
                         disabled={blockEdit}
                       >
                         <Image
@@ -635,7 +635,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
                             selectedTestcases.length > 0 &&
                               !hasZipUploaded.sample
-                              ? 'bg-[#FC5555] text-white'
+                              ? 'bg-flowkit-red text-white'
                               : 'bg-gray-300 text-gray-600'
                           )}
                           disabled={
@@ -754,7 +754,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                       <button
                         onClick={() => deleteAllInCurrentTab(true)}
                         type="button"
-                        className="flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] bg-[#FC5555] px-[22px] py-[10px]"
+                        className="bg-flowkit-red flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]"
                         disabled={blockEdit}
                       >
                         <Image
@@ -779,7 +779,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             'flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]',
                             selectedTestcases.length > 0 &&
                               !hasZipUploaded.hidden
-                              ? 'bg-[#FC5555] text-white'
+                              ? 'bg-flowkit-red text-white'
                               : 'bg-gray-300 text-gray-600'
                           )}
                           disabled={

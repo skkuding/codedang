@@ -1,0 +1,74 @@
+meta {
+  name: Get Check Request
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  query GetCheckRequests(
+    $assignmentId: Int!,
+    $problemId: Int!
+  ) {
+    getCheckRequests(
+      assignmentId: $assignmentId,
+      problemId: $problemId
+    ) {
+      id
+      language
+      enableMerging
+      minTokens
+      useJplagClustering
+      createTime
+      result
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": 4,
+    "assignmentId": 6
+  }
+}
+
+docs {
+  # 📨 Get Check Requests
+
+  Get Requests for plagiarism check.
+
+  특정 과제와 문제 아이디를 통해 요청된 표절 검사 요청을 조회합니다.
+
+  이 API는 아래와 같은 조건에 부합하는 경우 접근할 수 있습니다.
+
+  - 해당 과제의 담당 교수 / 운영진인 경우
+  - 과제 dueTime이 지난 경우
+
+  Assignment, Problem이 없거나 권한이 없는 경우 및 submission이 1개 이하인 경우 예외를 발생시킵니다.
+
+  ### 📥 Request Parameters
+
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `assignmentId` | number | ✅ | 요청 대상인 과제 아이디 |
+  | `problemId` | number | ✅ | 요청 대상인 과제의 문제 아이디 |
+
+
+  ### 📥 Response Parameters
+
+  | Name | Type   | Description |
+  |------|--------|-------------|
+  | `id` | number | 요청 아이디 |
+  | `language` | Language | 표절 검사할 언어 |
+  | `enableMerging` | boolean | 표절 검사 회피를 위한 난독화를 방지 |
+  | `minTokens` | number | 비교할 최소 토큰 수 |
+  | `useJplagClustering` | boolean | 표절이 의심되는 집단을 분석할지 여부 |
+  | `createTime` | DateTime | 요청이 생성된 시간 |
+  | `result` | CheckResultStatus | 표절 검사 회피를 위한 난독화를 방지 |
+}
+

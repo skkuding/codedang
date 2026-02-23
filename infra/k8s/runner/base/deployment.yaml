@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-manager
+  namespace: runner
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pod-manager
+  template:
+    metadata:
+      labels:
+        app: pod-manager
+    spec:
+      serviceAccountName: pod-manager
+      containers:
+        - name: pod-manager
+          image: ghcr.io/skkuding/codedang-runner-pod-manager
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: pod-manager-env
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

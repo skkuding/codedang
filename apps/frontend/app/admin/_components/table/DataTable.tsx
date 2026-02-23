@@ -23,6 +23,7 @@ import { useDataTable } from './context'
 
 interface DataTableProps<TData extends { id: number }, TRoute extends string> {
   bodyStyle?: Record<string, string>
+  headerStyle?: Record<string, string>
   showFooter?: boolean
   isHeaderGrouped?: boolean
   isCardView?: boolean
@@ -71,6 +72,7 @@ const bodyStyleMap = {
 }
 
 export function DataTable<TData extends { id: number }, TRoute extends string>({
+  headerStyle = {},
   bodyStyle = {},
   showFooter = false,
   isHeaderGrouped = false,
@@ -146,7 +148,10 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
               {headerGroup.headers.map((header, index) => (
                 <TableHead
                   key={header.id}
-                  className={cn(isHeaderGrouped && 'p-0')}
+                  className={cn(
+                    isHeaderGrouped && 'p-0',
+                    headerStyle[header.column.id]
+                  )}
                 >
                   <div
                     className={cn(
