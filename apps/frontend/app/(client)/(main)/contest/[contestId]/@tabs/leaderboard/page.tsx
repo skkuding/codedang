@@ -104,6 +104,10 @@ export default function ContestLeaderBoard() {
 
       setProblemSize(contestLeaderboard.leaderboard[0].problemRecords.length)
       setLeaderboardUsers(contestLeaderboard.leaderboard)
+
+      // requestAnimationFrame(() => {
+      //   window.scrollTo({ top: 420, behavior: 'auto' })
+      // })
     }
   }, [data, isLoading, isError, isContestLoading, isContestError])
 
