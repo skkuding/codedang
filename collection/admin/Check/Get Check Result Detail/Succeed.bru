@@ -18,8 +18,18 @@ body:graphql {
       resultId: $resultId
     ) {
       requestId
-      firstCheckSubmissionId
-      secondCheckSubmissionId
+      firstCheckSubmission {
+        user {
+          username
+          studentId
+        }
+      }
+      secondCheckSubmission {
+        user {
+          username
+          studentId
+        }
+      }
       averageSimilarity
       maxSimilarity
       maxLength
@@ -53,34 +63,34 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "resultId": 54
+    "resultId": 45
   }
 }
 
 docs {
   # 🔎 Get Result Detail
-
+  
   Look up one result of check in detail.
-
+  
   한 검사 결과를 자세히 조회합니다.
-
+  
   이 API는 아래와 같은 조건에 부합하는 경우 접근할 수 있습니다.
-
+  
   - 해당 과제의 담당 교수 / 운영진인 경우
   - 표절 검사가 완료된 경우
   - 결과가 존재하는 경우
-
+  
   해당 검사 결과 아이디가 존재하지 않는 경우 예외가 발생합니다.
-
+  
   ### 📥 Request Parameters
-
+  
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `resultId` | number | ✅ | 조회할 검사 결과 아이디 |
-
-
+  
+  
   ### 📥 Response Parameters
-
+  
   | Name | Type   | Description |
   |------|--------|-------------|
   | `requestId` | number | 검사 요청 아이디 |
