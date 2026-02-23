@@ -23,7 +23,7 @@ export class StudyService {
       distinct: ['tagId']
     })
 
-    await this.prisma.group.create({
+    return await this.prisma.group.create({
       data: {
         groupName,
         groupType: GroupType.Study,
