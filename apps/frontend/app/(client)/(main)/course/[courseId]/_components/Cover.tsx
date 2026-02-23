@@ -1,5 +1,6 @@
 import { cn } from '@/libs/utils'
 import Codedang from '@/public/logos/codedang-rotated.svg'
+import { getTranslate } from '@/tolgee/server'
 import Image from 'next/image'
 
 interface CoverProps {
@@ -18,7 +19,8 @@ const bgColors: { [key: string]: string } = {
   course: 'bg-[#F3F7FF]'
 }
 
-export function Cover({ title, description }: CoverProps) {
+export async function Cover({ title, description }: CoverProps) {
+  const t = await getTranslate()
   return (
     <div className="w-screen">
       <div className="absolute left-0 top-0 z-10 h-14 w-full bg-white" />
@@ -38,7 +40,9 @@ export function Cover({ title, description }: CoverProps) {
             height={100}
             priority
           />
-          <p className="text-5xl font-semibold text-white">COURSE</p>
+          <p className="text-5xl font-semibold text-white">
+            {t('course_label')}
+          </p>
           <p className="text-xl text-white">{description}</p>
         </div>
 

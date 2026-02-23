@@ -3,6 +3,7 @@ import { LevelBadge } from '@/components/LevelBadge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import type { BaseDataTableProblem, Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import type { useTranslate } from '@tolgee/react'
 import { toast } from 'sonner'
 
 export interface ContestProblem extends BaseDataTableProblem {
@@ -11,8 +12,9 @@ export interface ContestProblem extends BaseDataTableProblem {
 
 export const DEFAULT_PAGE_SIZE = 5
 export const MAX_SELECTED_ROW_COUNT = 20
-export const ERROR_MESSAGE = `You can only import up to ${MAX_SELECTED_ROW_COUNT} problems in a contest`
-export const columns: ColumnDef<ContestProblem>[] = [
+export const getColumns = (
+  t: ReturnType<typeof useTranslate>['t']
+): ColumnDef<ContestProblem>[] => [
   {
     accessorKey: 'select',
     header: ({ table }) => (
@@ -31,17 +33,21 @@ export const columns: ColumnDef<ContestProblem>[] = [
             table.toggleAllPageRowsSelected()
             table.setSorting([{ id: 'select', desc: true }]) // NOTE: force to trigger sortingFn
           } else {
-            toast.error(ERROR_MESSAGE)
+            toast.error(
+              t('import_problem_error_message', {
+                count: MAX_SELECTED_ROW_COUNT
+              })
+            )
           }
         }}
-        aria-label="Select all"
+        aria-label={t('select_all_aria_label')}
         className="translate-y-[2px]"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        aria-label="Select row"
+        aria-label={t('select_row_aria_label')}
         className="translate-y-[2px]"
       />
     ),
@@ -62,7 +68,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
       <DataTableColumnHeader
         className="text-center"
         column={column}
-        title="Title"
+        title={t('title_column_header')}
       />
     ),
     cell: ({ row }) => {
@@ -83,7 +89,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
       return (
         <DataTableColumnHeader
           column={column}
-          title="Language"
+          title={t('language_column_header')}
           className="text-center"
         />
       )
@@ -116,7 +122,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Date"
+        title={t('date_column_header')}
         className="justify-center"
       />
     ),
@@ -133,7 +139,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Creator"
+        title={t('creator_column_header')}
         className="justify-center"
       />
     ),
@@ -147,7 +153,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Level"
+        title={t('level_column_header')}
         className="justify-center"
       />
     ),

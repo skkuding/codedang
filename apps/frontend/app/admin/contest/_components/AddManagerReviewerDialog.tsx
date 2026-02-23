@@ -4,6 +4,7 @@ import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { ALLOWED_DOMAINS } from '@/libs/constants'
+import { useTranslate } from '@tolgee/react'
 import React, { useEffect, useState } from 'react'
 import { FaCircleExclamation } from 'react-icons/fa6'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
@@ -28,6 +29,7 @@ export function AddManagerReviewerDialog({
   setManagers,
   participants = []
 }: AddManagerReviewerDialogProps) {
+  const { t } = useTranslate()
   const [open, setOpen] = useState(false)
   const [users, setUsers] = useState<ContestManagerReviewer[]>([])
   const [inputField, setInputField] = useState({
@@ -68,16 +70,16 @@ export function AddManagerReviewerDialog({
           className="flex h-[36px] w-[100px] items-center gap-1 px-0"
         >
           <HiMiniPlusCircle className="h-5 w-5" />
-          <span className="text-sm font-bold">Add</span>
+          <span className="text-sm font-bold">{t('add_button')}</span>
         </Button>
       }
       open={open}
       onOpenChange={setOpen}
       size="lg"
       type="custom"
-      title="Add Contest Manager / Reviewer"
-      headerDescription="Easily register managers and judges to help run the Contest."
-      primaryButton={{ text: 'Invite', onClick: handleInvite }}
+      title={t('add_contest_manager_reviewer_title')}
+      headerDescription={t('add_contest_manager_reviewer_description')}
+      primaryButton={{ text: t('invite_button'), onClick: handleInvite }}
       onClose={() => setOpen(false)}
     >
       <div className="flex h-full flex-col gap-[30px]">
@@ -91,14 +93,14 @@ export function AddManagerReviewerDialog({
         <ScrollArea className="relative max-h-[293px] w-full p-0 tracking-[-3%]">
           <div className="border-color-line-default flex min-h-[293px] flex-col gap-[10px] rounded-2xl border border-solid p-[30px]">
             <div className="text-primary mt-1 text-sm">
-              {`${users.length} user(s) selected`}
+              {`${users.length} ${t('users_selected')}`}
             </div>
             {users.length === 0 ? (
               <div className="bg-color-neutral-99 text-color-neutral-80 flex grow flex-col items-center justify-center gap-[6.4px] rounded-lg">
                 <div className="grid size-[25.2px] place-content-center">
                   <FaCircleExclamation />
                 </div>
-                <p>No users have been selected yet</p>
+                <p>{t('no_users_selected_yet')}</p>
               </div>
             ) : (
               <div className="mb-[2px] flex flex-col gap-[8px]">

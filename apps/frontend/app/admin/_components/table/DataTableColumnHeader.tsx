@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
 import { cn } from '@/libs/utils'
+import { getTranslate } from '@/tolgee/server'
 import {
   Cross2Icon,
   TriangleDownIcon,
@@ -28,11 +29,12 @@ interface DataTableColumnHeaderProps<TData, TValue>
  * @param title
  * 헤더에 표시할 텍스트
  */
-export function DataTableColumnHeader<TData, TValue>({
+export async function DataTableColumnHeader<TData, TValue>({
   column,
   title,
   className
 }: DataTableColumnHeaderProps<TData, TValue>) {
+  const t = await getTranslate()
   // Title column
   if (!column.getCanSort()) {
     return (
@@ -87,18 +89,18 @@ export function DataTableColumnHeader<TData, TValue>({
         <DropdownMenuContent align="center">
           <DropdownMenuItem onClick={() => column.toggleSorting(false, true)}>
             <TriangleUpIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
-            {title === VISIBLE_COLUMN_TITLE ? 'Hidden first' : 'Asc'}
+            {title === VISIBLE_COLUMN_TITLE ? t('hidden_first') : t('asc')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true, true)}>
             <TriangleDownIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
-            {title === VISIBLE_COLUMN_TITLE ? 'Visible first' : 'Desc'}
+            {title === VISIBLE_COLUMN_TITLE ? t('visible_first') : t('desc')}
           </DropdownMenuItem>
           {canClearSort && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => column.clearSorting()}>
                 <Cross2Icon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
-                Clear sort
+                {t('clear_sort')}
               </DropdownMenuItem>
             </>
           )}

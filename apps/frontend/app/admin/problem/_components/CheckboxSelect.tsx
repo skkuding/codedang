@@ -16,6 +16,7 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { Separator } from '@/components/shadcn/separator'
+import { useTranslate } from '@tolgee/react'
 import { ChevronDown } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { IoFilter } from 'react-icons/io5'
@@ -34,6 +35,7 @@ export function CheckboxSelect<T extends string>({
   defaultValue
 }: DataProps<T>) {
   const [selectedValues, setSelectedValues] = useState<T[]>([])
+  const { t } = useTranslate()
 
   useEffect(() => {
     if (defaultValue) {
@@ -67,7 +69,7 @@ export function CheckboxSelect<T extends string>({
                       variant="secondary"
                       className="rounded-xs px-1 font-normal"
                     >
-                      All
+                      {t('all_badge')}
                     </Badge>
                   ) : (
                     <div className="flex space-x-1">
@@ -93,7 +95,7 @@ export function CheckboxSelect<T extends string>({
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] rounded-xl px-3 py-5">
         <Command>
           <CommandList className="p-0">
-            <CommandEmpty>No language found.</CommandEmpty>
+            <CommandEmpty>{t('no_language_found')}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
                 <CommandItem
@@ -124,7 +126,7 @@ export function CheckboxSelect<T extends string>({
             }
           }}
         >
-          Apply
+          {t('apply_button')}
         </Button>
       </PopoverContent>
     </Popover>

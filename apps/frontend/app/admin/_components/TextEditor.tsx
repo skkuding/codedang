@@ -29,6 +29,7 @@ import {
 import type { Editor, NodeViewWrapperProps } from '@tiptap/react'
 import { Extension } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import { useTranslate } from '@tolgee/react'
 import 'highlight.js/styles/github-dark.css'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
@@ -66,6 +67,7 @@ export function TextEditor({
   isExpanded = false,
   onShrink
 }: TextEditorProps) {
+  const { t } = useTranslate()
   const lowlight = createLowlight(common)
 
   const insertNodeRef = useRef<InsertNodeBarHandles>(null)
@@ -236,7 +238,7 @@ export function TextEditor({
               >
                 <Image
                   src={Shrink}
-                  alt="Shrink"
+                  alt={t('shrink_button_alt')}
                   className="h-[22px] w-[22px]"
                 />
               </Button>
@@ -253,7 +255,7 @@ export function TextEditor({
               >
                 <Image
                   src={Expand}
-                  alt="Expand"
+                  alt={t('expand_button_alt')}
                   className="h-[22px] w-[22px]"
                 />
               </Button>
@@ -275,7 +277,7 @@ export function TextEditor({
             hideCloseButton={true}
           >
             <TextEditor
-              placeholder={placeholder}
+              placeholder={t('editor_placeholder')}
               onChange={onChange}
               defaultValue={editor?.getHTML()}
               isExpanded={true}
@@ -363,6 +365,8 @@ export const MathExtension = Node.create({
 })
 
 function MathPreview(props: NodeViewWrapperProps) {
+  const { t } = useTranslate()
+
   const [content, setContent] = useState(props.node.attrs.content)
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -512,14 +516,14 @@ function MathPreview(props: NodeViewWrapperProps) {
               value={content}
               onChange={handleContentChange}
               onKeyDown={handleKeyDown}
-              placeholder="Please Insert LaTeX"
+              placeholder={t('latex_placeholder')}
               className="w-60 rounded-md border border-gray-300 px-2 py-1 text-sm"
             />
             <button
               onClick={handleApply}
               className="ml-2 cursor-pointer rounded-md border-none bg-blue-600 px-2 py-1 text-sm text-white"
             >
-              Apply
+              {t('apply_button')}
             </button>
           </div>
         )}

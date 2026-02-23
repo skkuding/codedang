@@ -17,6 +17,7 @@ import { convertToLetter } from '@/libs/utils'
 import { useQuery, useMutation } from '@apollo/client'
 import type { CreateAnnouncementInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { BiSolidPencil } from 'react-icons/bi'
 import { toast } from 'sonner'
@@ -44,6 +45,7 @@ export function CreateContestAnnouncement({
   })
 
   const txtlength = (watch('content') || '').length
+  const { t } = useTranslate()
   const onSubmitAnnouncement: SubmitHandler<CreateAnnouncementInput> = async (
     data
   ) => {
@@ -58,17 +60,19 @@ export function CreateContestAnnouncement({
         }
       })
       resetField('content')
-      toast.success('Create Announcement successfully!')
+      toast.success(t('create_announcement_success'))
     } catch (error) {
       //TODO: error handling
       console.error('Error with creating Announcement:', error)
-      toast.error('An unexpected error occurred')
+      toast.error(t('unexpected_error_occurred'))
     }
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmitAnnouncement)}>
-      <p className="mb-6 text-2xl font-semibold">Post New Announcement</p>
+      <p className="mb-6 text-2xl font-semibold">
+        {t('post_new_announcement')}
+      </p>
       <div className="mb-[10px]">
         <Select
           onValueChange={(value) => {
@@ -78,7 +82,7 @@ export function CreateContestAnnouncement({
           }}
         >
           <SelectTrigger className="h-12 rounded-full bg-white pl-[30px] text-xl font-medium text-[#474747] focus:ring-0">
-            <SelectValue placeholder="General" />
+            <SelectValue placeholder={t('general')} />
           </SelectTrigger>
           <SelectContent
             className="rounded-md border border-gray-200 bg-white shadow-md"
@@ -88,7 +92,7 @@ export function CreateContestAnnouncement({
               value="none"
               className="hover:text-primary text-lg font-normal"
             >
-              General
+              {t('general')}
             </SelectItem>
             {problemData?.getContestProblems.map((problem) => (
               <SelectItem
@@ -108,7 +112,7 @@ export function CreateContestAnnouncement({
       <div className="relative">
         <Textarea
           {...register('content')}
-          placeholder="Enter your announcement"
+          placeholder={t('enter_your_announcement')}
           maxLength={txtMaxLength}
           className="min-h-[260px] rounded-xl bg-white px-[30px] py-6 text-lg font-normal text-black placeholder:text-[#3333334D] focus-visible:ring-0"
         />
@@ -118,11 +122,11 @@ export function CreateContestAnnouncement({
         </p>
       </div>
       <p className="mb-20 mt-2 text-base font-normal text-[#9B9B9B]">
-        Posted announcement cannot be edited.
+        {t('posted_announcement_cannot_be_edited')}
       </p>
       <Button type="submit" className="h-12 w-full text-lg font-bold">
         <BiSolidPencil className="white" />
-        &nbsp; Post
+        &nbsp; {t('post')}
       </Button>
     </form>
   )

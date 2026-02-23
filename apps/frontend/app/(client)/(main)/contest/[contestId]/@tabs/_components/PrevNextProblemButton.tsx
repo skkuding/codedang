@@ -1,5 +1,6 @@
 import { Button } from '@/components/shadcn/button'
 import type { ContestOrder } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 
 interface PrevNextProblemButtonProps {
@@ -15,6 +16,8 @@ export function PrevNextProblemButton({
   previous,
   search
 }: PrevNextProblemButtonProps) {
+  const { t } = useTranslate()
+
   const currentIndex = contestData.findIndex(
     (data) => data.id === currentContestId
   )
@@ -27,7 +30,7 @@ export function PrevNextProblemButton({
         <Button className="border-line bg-fill hover:bg-fill mb-0 mt-10 h-[57px] w-[1208px] justify-start rounded-b-none rounded-t-[10px] border px-[24px] py-[16px] text-black">
           <div className="flex flex-row">
             <p className="mr-6 w-[100px] text-left text-lg font-medium leading-[25.2px] tracking-[-0.54px] text-black">
-              Previous
+              {t('previous_button')}
             </p>
             <p className="truncate text-left text-base font-normal leading-[24px] tracking-[-0.48px] text-black">
               {contestData[currentIndex - 1].title}
@@ -39,10 +42,10 @@ export function PrevNextProblemButton({
       <Button className="border-line bg-fill hover:bg-fill pointer-events-none mb-0 mt-10 h-[57px] w-[1208px] justify-start rounded-b-none rounded-t-[10px] border px-[24px] py-[16px] text-black">
         <div className="flex flex-row">
           <p className="mr-6 w-[100px] text-left text-lg font-medium leading-[25.2px] tracking-[-0.54px] text-black">
-            Previous
+            {t('previous_button')}
           </p>
           <p className="font-normal leading-[24px] tracking-[-0.48px] text-black">
-            No Previous Contest
+            {t('no_previous_contest')}
           </p>
         </div>
       </Button>
@@ -55,7 +58,7 @@ export function PrevNextProblemButton({
         <Button className="border-line mb-0 h-[57px] w-[1208px] justify-start rounded-b-[10px] rounded-t-none border border-t-0 bg-white px-[24px] py-[16px] text-black hover:bg-white">
           <div className="flex flex-row">
             <p className="text-primary mr-6 w-[100px] text-left text-lg font-medium leading-[25.2px] tracking-[-0.54px]">
-              Next
+              {t('next_button')}
             </p>
             <p className="truncate text-left text-base font-normal leading-[24px] tracking-[-0.48px] text-black">
               {contestData[currentIndex + 1].title}
@@ -67,10 +70,10 @@ export function PrevNextProblemButton({
       <Button className="border-line pointer-events-none mb-0 h-[57px] w-[1208px] justify-start rounded-b-[10px] rounded-t-none border border-t-0 bg-white px-[24px] py-[16px] text-black hover:bg-white">
         <div className="flex flex-row">
           <p className="text-primary mr-6 w-[100px] text-left text-lg font-medium leading-[25.2px] tracking-[-0.54px]">
-            Next
+            {t('next_button')}
           </p>
           <p className="font-normal leading-[24px] tracking-[-0.48px] text-black">
-            No Next Contest
+            {t('no_next_contest')}
           </p>
         </div>
       </Button>

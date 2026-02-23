@@ -3,6 +3,7 @@ import { TOGGLE_CONTEST_QNA_RESOLVED } from '@/graphql/contest/mutations'
 import { dateFormatter } from '@/libs/utils'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import { toast } from 'sonner'
 import { useQnaCommentsSync } from './context/RefetchingQnaStoreProvider'
 
@@ -35,6 +36,7 @@ interface ContestProblem {
 function AnsweredCell({ row }: { row: Row<DataTableQna> }) {
   const [toggleResolved] = useMutation(TOGGLE_CONTEST_QNA_RESOLVED)
   const triggerRefresh = useQnaCommentsSync((s) => s.triggerRefresh)
+  const { t } = useTranslate()
   return (
     <div className="flex items-center">
       <button
@@ -61,19 +63,22 @@ function AnsweredCell({ row }: { row: Row<DataTableQna> }) {
           }
         }}
       >
-        {row.original.isResolved ? 'Answered' : 'Unanswer'}
+        {row.original.isResolved
+          ? t('answered_button')
+          : t('unanswered_button')}
       </button>
     </div>
   )
 }
 
 export const createColumns = (
-  contestProblems: ContestProblem[]
+  contestProblems: ContestProblem[],
+  t: (key: string) => string
 ): ColumnDef<DataTableQna>[] => [
   {
     accessorKey: 'order',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="No" />
+      <DataTableColumnHeader column={column} title={t('no_header')} />
     ),
     cell: ({ row }) => {
       return <p className="text-base">{row.getValue('order')}</p>
@@ -84,7 +89,7 @@ export const createColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Category"
+        title={t('category_header')}
         className="w-[178px]"
       />
     ),
@@ -95,7 +100,7 @@ export const createColumns = (
       )
       const categoryName = matchedProblem
         ? `${String.fromCharCode(65 + matchedProblem.order)}. ${matchedProblem.problem.title}`
-        : 'General'
+        : t('general_category')
 
       return (
         <p className="max-w-[178px] truncate text-base text-[#808080]">
@@ -109,7 +114,7 @@ export const createColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Question"
+        title={t('question_header')}
         className="w-[400px] text-base"
       />
     ),
@@ -136,7 +141,7 @@ export const createColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Writer"
+        title={t('writer_header')}
         className="text-base"
       />
     ),
@@ -150,7 +155,7 @@ export const createColumns = (
   {
     accessorKey: 'createTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Date" />
+      <DataTableColumnHeader column={column} title={t('date_header')} />
     ),
     cell: ({ row }) => {
       return (
@@ -163,7 +168,7 @@ export const createColumns = (
   {
     accessorKey: 'Answer',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Answer" />
+      <DataTableColumnHeader column={column} title={t('answer_header')} />
     ),
     cell: ({ row }) => {
       return <AnsweredCell row={row} />

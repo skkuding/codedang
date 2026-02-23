@@ -10,6 +10,7 @@ import {
   SelectValue
 } from '@/components/shadcn/select'
 import type { Language, Solution } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 
 interface SolutionLayoutProps {
@@ -21,6 +22,7 @@ export function SolutionLayout({ solution, languages }: SolutionLayoutProps) {
   console.log('solution', solution)
   const [language, setLanguage] = useState<Language>(solution[0].language)
   const [code, setCode] = useState('')
+  const { t } = useTranslate()
 
   useEffect(() => {
     const filtered = solution.find((item) => item.language === language)
@@ -32,7 +34,7 @@ export function SolutionLayout({ solution, languages }: SolutionLayoutProps) {
   return (
     <div className="mx-6 flex flex-col gap-2">
       <div className="flex justify-between">
-        <div className="text-lg font-bold">Solution Code</div>
+        <div className="text-lg font-bold">{t('solution_code')}</div>
         <Select
           value={language}
           onValueChange={(val: Language) => setLanguage(val)}

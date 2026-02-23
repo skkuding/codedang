@@ -1,6 +1,7 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBoundary'
 import { fetcherWithAuth } from '@/libs/utils'
+import { getTranslate } from '@/tolgee/server'
 import type { ProblemDataTop } from '@/types/type'
 import { Suspense } from 'react'
 import { CreateQnaTextArea } from './_components/CreateQnaTextArea'
@@ -18,9 +19,11 @@ export default async function QnaPage(props: {
   )
   const problemorder = findproblem ? findproblem.order : null
 
+  const t = await getTranslate()
+
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>{t('loading')}</div>}>
         <div className="flex h-full flex-col bg-[#222939]">
           <CreateQnaTextArea
             problemOrder={problemorder}

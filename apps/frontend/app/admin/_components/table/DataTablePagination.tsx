@@ -8,6 +8,7 @@ import {
   SelectValue
 } from '@/components/shadcn/select'
 import { cn, getPageArray } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { FaCirclePlay } from 'react-icons/fa6'
 import { useDataTable } from './context'
 
@@ -28,6 +29,7 @@ export function DataTablePagination({
   showRowsPerPage = true
 }: DataTablePaginationProps) {
   const { table } = useDataTable()
+  const { t } = useTranslate()
 
   const pages = getPageArray(
     Math.floor(table.getState().pagination.pageIndex / 10) * 10 + 1,
@@ -44,8 +46,10 @@ export function DataTablePagination({
     <div className="flex items-center justify-between px-2">
       <div className="text-xs text-neutral-600">
         {showSelection &&
-          `${table.getFilteredSelectedRowModel().rows.length} of${' '}
-          ${table.getFilteredRowModel().rows.length} row(s) selected`}
+          t('n_of_m_rows_selected', {
+            n: table.getFilteredSelectedRowModel().rows.length,
+            m: table.getFilteredRowModel().rows.length
+          })}
       </div>
       <div className="absolute left-1/2 flex -translate-x-1/2 transform gap-[33px]">
         <button
@@ -100,7 +104,9 @@ export function DataTablePagination({
       <div className="flex items-center space-x-6 lg:space-x-8">
         {showRowsPerPage && (
           <div className="flex items-center space-x-2">
-            <p className="text-xs text-neutral-600">Rows per page</p>
+            <p className="text-xs text-neutral-600">
+              {t('pagination_rows_per_page')}
+            </p>
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {

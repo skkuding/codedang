@@ -9,6 +9,7 @@ import {
   TESTCASE_RESULT_TAB
 } from '@/stores/editorTabs'
 import type { TabbedTestResult } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import { DiffMatchPatch } from 'diff-match-patch-typescript'
 import { useEffect, useState, type ReactNode, type JSX } from 'react'
 import { IoMdClose } from 'react-icons/io'
@@ -33,6 +34,7 @@ function getWidthClass(length: number) {
 }
 
 export function TestcasePanel({ isContest }: TestcasePanelProps) {
+  const { t } = useTranslate()
   const [testcaseTabList, setTestcaseTabList] = useState<TabbedTestResult[]>([])
   const { activeTab, setActiveTab } = useTestcaseTabStore()
   const [detailTabId, setDetailTabId] = useState<number | null>(null)
@@ -111,11 +113,11 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
                   'block overflow-hidden text-ellipsis whitespace-nowrap'
                 }
               >
-                Run Code
+                {t('run_code')}
               </span>
               <div className="flex items-center">
                 <Badge type="upcoming">
-                  <div className="text-[10px]">Beta</div>
+                  <div className="text-[10px]">{t('beta')}</div>
                 </Badge>
               </div>
             </div>
@@ -138,9 +140,9 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
             <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
               {(() => {
                 if (testcaseTabList.length < 7) {
-                  return 'Testcase Result'
+                  return t('testcase_result')
                 } else {
-                  return 'TC Res'
+                  return t('tc_res')
                 }
               })()}
             </span>
@@ -169,11 +171,9 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
                 )}
               >
                 <div className="flex h-12 w-full items-center justify-center overflow-hidden text-ellipsis whitespace-nowrap">
-                  {
-                    (testcaseTabList.length < 7
-                      ? TAB_CONTENT
-                      : SHORTHAND_TAB_CONTENT)[testcase.type]
-                  }{' '}
+                  {testcaseTabList.length < 7
+                    ? t(TAB_CONTENT[testcase.type])
+                    : SHORTHAND_TAB_CONTENT[testcase.type]}
                   #{testcase.id}
                 </div>
               </TestcaseTab>
@@ -226,9 +226,9 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
 }
 
 export const TAB_CONTENT = {
-  sample: 'Sample',
-  user: 'User',
-  hidden: 'Hidden'
+  sample: 'tab_sample',
+  user: 'tab_user',
+  hidden: 'tab_hidden'
 }
 
 const SHORTHAND_TAB_CONTENT = {
@@ -298,6 +298,7 @@ function TestSummary({
 }: {
   data: { id: number; result: string; type: 'user' | 'sample' | 'hidden' }[]
 }) {
+  const { t } = useTranslate()
   const acceptedCount = data.filter(
     (testcase) => testcase.result === 'Accepted'
   ).length
@@ -307,7 +308,7 @@ function TestSummary({
   const notAcceptedTestcases = data
     .map((testcase) =>
       testcase.result !== 'Accepted' && testcase.result !== 'Judging'
-        ? `${TAB_CONTENT[testcase.type]} #${testcase.id}`
+        ? `${t(TAB_CONTENT[testcase.type])} #${testcase.id}`
         : undefined
     )
     .filter(Boolean)
@@ -316,14 +317,14 @@ function TestSummary({
     <table className="min-w-full">
       <tbody>
         <tr>
-          <td className="w-52 py-1 text-slate-400">Correct Testcase:</td>
+          <td className="w-52 py-1 text-slate-400">{t('correct_testcase')}:</td>
           <td className="py-1 text-white">
             {acceptedCount}/{total}
           </td>
         </tr>
         <tr>
           <td className="w-52 py-1 align-top text-slate-400">
-            Wrong Testcase Number:
+            {t('wrong_testcase_number')}:
           </td>
           <td className="py-1 text-white">
             {notAcceptedTestcases.length > 0
@@ -337,6 +338,8 @@ function TestSummary({
 }
 
 function TestResultDetail({ data }: { data: TabbedTestResult | undefined }) {
+  const { t } = useTranslate()
+
   if (data === undefined) {
     return null
   }
@@ -344,19 +347,19 @@ function TestResultDetail({ data }: { data: TabbedTestResult | undefined }) {
   return (
     <div className="px-8 pt-5">
       <div className="flex w-full gap-4 rounded-md bg-[#121728] px-6 py-3 font-light text-neutral-400">
-        Result
+        {t('result')}
         <span className={getResultColor(data.result)}>{data.result}</span>
       </div>
       <div className="flex flex-wrap gap-4">
         <LabeledField label="Input" text={data.input} result={data.result} />
         <LabeledField
-          label="Expected Output"
+          label={t('expected_output')}
           text={data.expectedOutput}
           compareText={data.output}
           result={data.result}
         />
         <LabeledField
-          label="Output"
+          label={t('output')}
           text={data.output}
           compareText={data.expectedOutput}
           result={data.result}

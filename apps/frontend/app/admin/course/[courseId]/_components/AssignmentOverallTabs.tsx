@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -16,6 +17,7 @@ export function AssignmentOverallTabs({
   isExercise
 }: AssignmentOverallTabsProps) {
   const pathname = usePathname()
+  const { t } = useTranslate()
 
   const isCurrentTab = (tab: string) => {
     const basePath = `/admin/course/${groupId}/${isExercise ? 'exercise' : 'assignment'}/${assignmentId}`
@@ -36,7 +38,7 @@ export function AssignmentOverallTabs({
             : 'text-[#737373]'
         )}
       >
-        INFORMATION
+        {t('information_tab')}
       </Link>
       <Link
         href={
@@ -49,7 +51,7 @@ export function AssignmentOverallTabs({
             : 'text-[#737373]'
         )}
       >
-        SUBMISSION
+        {t('submission_tab')}
       </Link>
       {!isExercise && (
         <Link
@@ -63,7 +65,7 @@ export function AssignmentOverallTabs({
               : 'text-[#737373]'
           )}
         >
-          ASSESSMENT
+          {t('assessment_tab')}
         </Link>
       )}
     </div>

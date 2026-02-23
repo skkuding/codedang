@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import useEmblaCarousel, {
   type UseEmblaCarouselType
 } from 'embla-carousel-react'
@@ -197,6 +198,7 @@ const CarouselPrevious = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button>
 >(({ className, variant = 'link', size = 'icon', ...props }, ref) => {
+  const { t } = useTranslate()
   const { orientation, scrollPrev, canScrollPrev, canScrollNext } =
     useCarousel()
 
@@ -225,7 +227,7 @@ const CarouselPrevious = React.forwardRef<
           className="h-6 w-6 rotate-180"
         />
       </div>
-      <span className="sr-only">Previous slide</span>
+      <span className="sr-only">{t('previous_slide')}</span>
     </Button>
   ) : null
 })
@@ -235,6 +237,7 @@ const CarouselNext = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button>
 >(({ className, variant = 'link', size = 'icon', ...props }, ref) => {
+  const { t } = useTranslate()
   const { orientation, scrollNext, canScrollNext, canScrollPrev } =
     useCarousel()
 
@@ -263,7 +266,7 @@ const CarouselNext = React.forwardRef<
           className="z-10 h-6 w-6"
         />
       </div>
-      <span className="sr-only">Next slide</span>
+      <span className="sr-only">{t('next_slide')}</span>
     </Button>
   ) : null
 })

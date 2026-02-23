@@ -13,12 +13,11 @@ import {
 } from '@/graphql/problem/queries'
 import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 import { IoFilter } from 'react-icons/io5'
 import { PROBLEM_COLUMN_ID } from './constants'
 import { useDataTable } from './context'
-
-const ALL_OPTION_LABEL = 'All Problems'
 
 export function DataTableProblemFilter({
   contestId = 0,
@@ -29,6 +28,7 @@ export function DataTableProblemFilter({
   groupId?: number
   assignmentId?: number
 }) {
+  const { t } = useTranslate()
   const { table } = useDataTable()
   const column = table.getColumn(PROBLEM_COLUMN_ID)
   const selectedValues = (column?.getFilterValue() as string[]) || []
@@ -86,7 +86,7 @@ export function DataTableProblemFilter({
       selectedValues.length === 0 ||
       selectedValues.length === options.length
     ) {
-      return 'ALL'
+      return t('selected_labels_all')
     }
 
     const alphabeticalOrders = selectedValues
@@ -107,7 +107,7 @@ export function DataTableProblemFilter({
         <AccordionTrigger className="flex h-12 w-full items-center rounded-full border bg-transparent px-6">
           <div className="flex gap-2">
             <IoFilter className="mr-2 h-4 w-4" />
-            Problem
+            {t('accordion_trigger_problem')}
             <p className="overflow-hidden text-ellipsis whitespace-nowrap font-bold">
               {getSelectedLabels()}
             </p>
@@ -126,7 +126,7 @@ export function DataTableProblemFilter({
                     'text-primary font-semibold'
                 )}
               >
-                {ALL_OPTION_LABEL}
+                {t('all_option_label')}
               </p>
             </div>
             {options.map(({ value, label }) => (

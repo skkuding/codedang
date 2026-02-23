@@ -4,6 +4,7 @@ import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { MobileMenu } from '@/components/auth/MobileMenu'
 import { useSession } from '@/libs/hooks/useSession'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useHeaderTitle } from '../_contexts/HeaderTitleContext'
@@ -12,6 +13,7 @@ import { NavLink } from './NavLink'
 export function Header() {
   const session = useSession()
   const { headerTitle } = useHeaderTitle()
+  const { t } = useTranslate()
   return (
     <header className="backdrop-blur-xs fixed left-0 z-40 grid h-[60px] w-full place-items-center bg-white px-5 lg:bg-white/80 lg:px-[30px]">
       <div className="flex w-full max-w-[1440px] items-center justify-between gap-5 lg:px-[116px]">
@@ -28,7 +30,7 @@ export function Header() {
               <Link href="/">
                 <Image
                   src={codedangLogo}
-                  alt="코드당"
+                  alt={t('codedang_logo_alt')}
                   width={135.252}
                   height={28}
                   className="cursor-pointer"
@@ -39,17 +41,17 @@ export function Header() {
           <Link className="hidden lg:block" href="/">
             <Image
               src={codedangLogo}
-              alt="코드당"
+              alt={t('codedang_logo_alt')}
               width={135.252}
               height={28}
               className="cursor-pointer"
             />
           </Link>
           <nav className="hidden font-semibold capitalize lg:flex lg:gap-10">
-            <NavLink href="/notice" text="NOTICE" />
-            <NavLink href="/contest" text="CONTEST" />
-            <NavLink href="/problem" text="PROBLEM" />
-            <NavLink href="/course" text="COURSE" />
+            <NavLink href="/notice" text={t('nav_notice')} />
+            <NavLink href="/contest" text={t('nav_contest')} />
+            <NavLink href="/problem" text={t('nav_problem')} />
+            <NavLink href="/course" text={t('nav_course')} />
             {/* TODO: Uncomment a group tab when we start to implement a group feature*/}
             {/* <NavLink href="/group" text="Group" /> */}
           </nav>

@@ -9,6 +9,7 @@ import { TimeForm } from '@/app/admin/_components/TimeForm'
 import { TitleForm } from '@/app/admin/_components/TitleForm'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { useState, use } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -27,6 +28,7 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
   const { courseId } = params
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isCreating, setIsCreating] = useState(false)
+  const { t } = useTranslate()
 
   return (
     <ConfirmNavigation>
@@ -36,7 +38,9 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
             <Link href={`/admin/course/${courseId}/exercise` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-[32px] font-bold">CREATE EXERCISE</span>
+            <span className="text-[32px] font-bold">
+              {t('create_exercise')}
+            </span>
           </div>
 
           <CreateAssignmentForm
@@ -46,23 +50,29 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
             isExercise={true}
           >
             <div className="flex w-[901px] flex-col gap-[28px]">
-              <FormSection title="Title">
+              <FormSection title={t('title_form_section')}>
                 <TitleForm
-                  placeholder="Name your Exercise"
+                  placeholder={t('exercise_name_placeholder')}
                   className="max-w-[760px]"
                 />
               </FormSection>
               <div className="flex justify-between">
-                <FormSection title="Week" className="w-[420px]">
+                <FormSection
+                  title={t('week_form_section')}
+                  className="w-[420px]"
+                >
                   <WeekComboBox name="week" courseId={Number(courseId)} />
                 </FormSection>
-                <FormSection title="Start Time" className="w-[420px]">
+                <FormSection
+                  title={t('start_time_form_section')}
+                  className="w-[420px]"
+                >
                   <TimeForm name="startTime" />
                 </FormSection>
               </div>
               <div className="flex justify-between">
                 <FormSection
-                  title="Due Time"
+                  title={t('due_time_form_section')}
                   className="w-[420px]"
                   isLabeled={false}
                 >
@@ -78,7 +88,7 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
                 </FormSection>
 
                 <FormSection
-                  title="End Time"
+                  title={t('end_time_form_section')}
                   className="w-[420px]"
                   isLabeled={false}
                 >
@@ -93,7 +103,11 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
                 </FormSection>
               </div>
 
-              <FormSection isFlexColumn title="Description" isLabeled={false}>
+              <FormSection
+                isFlexColumn
+                title={t('description_form_section')}
+                isLabeled={false}
+              >
                 <DescriptionForm name="description" />
               </FormSection>
 
@@ -115,9 +129,9 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
 
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-3">
-                  <Label required={false}>Solution</Label>
+                  <Label required={false}>{t('solution_label')}</Label>
                   <p className="text-[11px] text-[#9B9B9B]">
-                    Only problems with solutions are listed below.
+                    {t('solutions_only_hint')}
                   </p>
                 </div>
                 <AssignmentSolutionTable
@@ -130,15 +144,15 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
                 <SwitchField
                   hasValue={true}
                   name="isJudgeResultVisible"
-                  title="Reveal Hidden Testcase Result"
-                  description="When enabled, hidden testcase results will be revealed to students."
+                  title={t('reveal_hidden_testcase_result')}
+                  description={t('reveal_hidden_testcase_result_desc')}
                 />
 
                 <SwitchField
                   hasValue={true}
                   name="enableCopyPaste"
-                  title="Enable Participants Copy/Pasting"
-                  description="When enabled, students will be able to copy from or paste into the code editor."
+                  title={t('enable_copy_paste_title')}
+                  description={t('enable_copy_paste_desc')}
                 />
               </div>
 
@@ -158,7 +172,7 @@ export default function Page(props: { params: Promise<{ courseId: string }> }) {
                 disabled={isCreating}
               >
                 <IoMdCheckmarkCircleOutline fontSize={20} />
-                <div className="mb-[2px] text-base">Create</div>
+                <div className="mb-[2px] text-base">{t('create_button')}</div>
               </Button>
             </div>
           </CreateAssignmentForm>

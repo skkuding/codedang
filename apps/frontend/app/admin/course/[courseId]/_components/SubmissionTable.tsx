@@ -11,9 +11,10 @@ import { SubmissionDetailAdmin } from '@/app/admin/course/[courseId]/assignment/
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_ASSIGNMENT_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
 import { DataTableProblemFilterMini } from './DataTableProblemFilterMini'
-import { columns } from './SubmissionColumns'
+import { getColumns } from './SubmissionColumns'
 
 export function SubmissionTable({
   groupId,
@@ -34,7 +35,8 @@ export function SubmissionTable({
 
   const [isSubmissionDialogOpen, setIsSubmissionDialogOpen] = useState(false)
   const [submissionId, setSubmissionId] = useState(0)
-
+  const { t } = useTranslate()
+  const columns = getColumns(t)
   return (
     <>
       <DataTableRoot
@@ -48,14 +50,17 @@ export function SubmissionTable({
               <span className="text-primary font-bold">
                 {data.getAssignmentSubmissions.length}
               </span>{' '}
-              Submissions
+              {t('submissions')}
             </div>
             <DataTableProblemFilterMini
               groupId={groupId}
               assignmentId={assignmentId}
             />
           </div>
-          <DataTableSearchBar columndId="realname" placeholder="Search Name" />
+          <DataTableSearchBar
+            columndId="realname"
+            placeholder={t('search_name_placeholder')}
+          />
         </div>
         <DataTable
           onRowClick={(_, row) => {
@@ -78,5 +83,5 @@ export function SubmissionTable({
 }
 
 export function SubmissionTableFallback() {
-  return <DataTableFallback columns={columns} />
+  return <DataTableFallback columns={getColumns(() => '')} />
 }

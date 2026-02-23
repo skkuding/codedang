@@ -3,6 +3,7 @@ import { Input } from '@/components/shadcn/input'
 import { cn, fetcher, safeFetcher } from '@/libs/utils'
 import { useRecoverAccountModalStore } from '@/stores/recoverAccountModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -12,16 +13,18 @@ interface EmailVerifyInput {
   verificationCode: string
 }
 
-const schema = v.object({
-  verificationCode: v.pipe(
-    v.string(),
-    v.length(6, 'Code must be 6 characters long')
-  )
-})
+const schema = (t: (key: string) => string) =>
+  v.object({
+    verificationCode: v.pipe(
+      v.string(),
+      v.length(6, t('code_must_be_6_characters_long'))
+    )
+  })
 
 const timeLimit = 300
 
 export function ResetPasswordEmailVerify() {
+  const { t } = useTranslate()
   const [timer, setTimer] = useState(timeLimit)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const previousTimeRef = useRef(Date.now())
@@ -36,7 +39,7 @@ export function ResetPasswordEmailVerify() {
     trigger,
     formState: { errors }
   } = useForm<EmailVerifyInput>({
-    resolver: valibotResolver(schema)
+    resolver: valibotResolver(schema(t))
   })
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
@@ -97,7 +100,7 @@ export function ResetPasswordEmailVerify() {
       setExpired(false)
       setTimer(timeLimit)
     } catch {
-      toast.error('Failed to resend email')
+      toast.error(t('failed_to_resend_email'))
     }
   }
 
@@ -118,10 +121,10 @@ export function ResetPasswordEmailVerify() {
           setCodeError('')
           setEmailAuthToken(response.headers.get('email-auth') || '')
         } else {
-          setCodeError('Verification code is not valid')
+          setCodeError(t('verification_code_is_not_valid'))
         }
       } catch {
-        setCodeError('Email verification failed!')
+        setCodeError(t('email_verification_failed'))
       }
     }
   }
@@ -132,7 +135,7 @@ export function ResetPasswordEmailVerify() {
       className="flex w-full flex-col gap-1 px-2"
     >
       <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
-        Reset Password
+        {t('reset_password')}
       </p>
       <div className="flex justify-between">
         <div className="text-sm text-black">{formData.email}</div>
@@ -147,20 +150,20 @@ export function ResetPasswordEmailVerify() {
             ? 'ring-red-500 focus-visible:ring-red-500'
             : 'focus-visible:ring-primary'
         )}
-        placeholder="Verification Code"
+        placeholder={t('verification_code')}
         {...register('verificationCode', {
           onChange: () => verifyCode()
         })}
         onFocus={() => setInputFocused(true)}
       />
       {!expired && !errors.verificationCode && !codeError && !emailVerified && (
-        <p className="text-primary mt-1 text-xs">We&apos;ve sent an email</p>
+        <p className="text-primary mt-1 text-xs">{t('we_sent_an_email')}</p>
       )}
       {expired && (
         <p className="mt-1 text-xs text-red-500">
-          Verification code expired
+          {t('verification_code_expired')}
           <br />
-          Please resend an email and try again
+          {t('please_resend_email_and_try_again')}
         </p>
       )}
       {!expired && (
@@ -176,7 +179,7 @@ export function ResetPasswordEmailVerify() {
           className={cn('mb-8 mt-4 w-full', !emailVerified && 'bg-gray-400')}
           disabled={!emailVerified}
         >
-          Next
+          {t('next')}
         </Button>
       ) : (
         <Button
@@ -184,7 +187,7 @@ export function ResetPasswordEmailVerify() {
           className="mt-4 w-full font-semibold"
           onClick={resendEmail}
         >
-          Resend Email
+          {t('resend_email')}
         </Button>
       )}
     </form>

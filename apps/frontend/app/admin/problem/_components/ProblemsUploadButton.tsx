@@ -5,6 +5,7 @@ import { Button } from '@/components/shadcn/button'
 import { UPLOAD_PROBLEMS } from '@/graphql/problem/mutations'
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useApolloClient, useMutation } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { UploadCloudIcon, UploadIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -13,6 +14,7 @@ import { useDrop } from 'react-use'
 import { toast } from 'sonner'
 
 export function ProblemsUploadButton() {
+  const { t } = useTranslate()
   const client = useApolloClient()
   const [file, setFile] = useState<File | null>(null)
   const fileRef = useRef<HTMLInputElement | null>(null)
@@ -20,13 +22,13 @@ export function ProblemsUploadButton() {
   const state = useDrop({
     onFiles: (files) => {
       if (files.length > 1) {
-        toast.error('Only one file is allowed')
+        toast.error(t('error_multiple_files'))
       }
       const file = files[0]
       if (file.name.endsWith('.xlsx')) {
         setFile(files[0])
       } else {
-        toast.error('Only .xlsx files are allowed')
+        toast.error(t('error_invalid_file_type'))
       }
     }
   })
@@ -58,14 +60,14 @@ export function ProblemsUploadButton() {
           }
         }
       })
-      toast.success('File uploaded successfully')
+      toast.success(t('success_file_upload'))
       document.getElementById('closeDialog')?.click()
       resetFile()
       client.refetchQueries({
         include: [GET_PROBLEMS]
       })
     } catch {
-      toast.error('Failed to upload file')
+      toast.error(t('error_file_upload'))
     }
   }
 
@@ -73,18 +75,18 @@ export function ProblemsUploadButton() {
     <Modal
       size={'sm'}
       type={'custom'}
-      title="Upload Problems"
+      title={t('modal_title_upload_problems')}
       trigger={
         <Button variant="outline" className="w-[120px]">
           <UploadIcon className="mr-2 h-5 w-5" />
-          <span className="text-lg font-medium">Upload</span>
+          <span className="text-lg font-medium">{t('button_upload')}</span>
         </Button>
       }
     >
       <span className="w-full text-center text-sm font-normal text-[#737373]">
-        {`Please upload Excel file containing problem data. If you are looking for the required schema, you can download `}
+        {t('instruction_upload_excel_file')}
         <a href="/sample.xlsx" download className="text-primary underline">
-          {`the sample file here.`}
+          {t('instruction_download_sample_file')}
         </a>
       </span>
       <input
@@ -107,7 +109,7 @@ export function ProblemsUploadButton() {
               className="h-[46px] w-full text-base"
               variant="outline"
             >
-              Reset
+              {t('button_reset')}
             </Button>
             <Button
               onClick={uploadFile}
@@ -115,7 +117,7 @@ export function ProblemsUploadButton() {
               className="h-[46px] w-full text-base"
               variant="default"
             >
-              Upload
+              {t('button_upload')}
             </Button>
           </div>
           {loading && (
@@ -127,13 +129,13 @@ export function ProblemsUploadButton() {
       ) : (
         <section className="flex items-center justify-center gap-3 rounded-lg">
           <UploadCloudIcon className="h-16 w-16 text-slate-800" />
-          <p className="text-sm font-semibold">Drag and Drop or</p>
+          <p className="text-sm font-semibold">{t('drag_drop_or')}</p>
           <Button
             variant="outline"
             className="text-sm"
             onClick={openFileBrowser}
           >
-            Browse
+            {t('button_browse')}
           </Button>
         </section>
       )}
@@ -141,7 +143,7 @@ export function ProblemsUploadButton() {
         typeof window === 'object' &&
         createPortal(
           <div className="backdrop-blur-xs fixed left-0 top-0 z-50 grid h-dvh w-dvw place-items-center bg-slate-500/50 text-5xl font-bold">
-            Drop file here
+            {t('drop_file_here')}
           </div>,
           document.body
         )}

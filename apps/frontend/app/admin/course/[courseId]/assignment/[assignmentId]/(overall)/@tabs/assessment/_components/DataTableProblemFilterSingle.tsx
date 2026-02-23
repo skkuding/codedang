@@ -2,6 +2,7 @@
 
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 import { IoChevronDown, IoFilter } from 'react-icons/io5'
 
@@ -34,6 +35,8 @@ export function ProblemSelectDropdown({
       : '...'
   }
 
+  const { t } = useTranslate()
+
   return (
     <div className="relative">
       <button
@@ -42,7 +45,9 @@ export function ProblemSelectDropdown({
         type="button"
       >
         <IoFilter className="text-lg text-gray-400" />
-        <span className="text-sm font-medium text-gray-700">Problem</span>
+        <span className="text-sm font-medium text-gray-700">
+          {t('problem_select_dropdown_button_problem')}
+        </span>
         <span className="ml-2 text-xs font-semibold text-gray-500">
           {getSelectedLabel()}
         </span>

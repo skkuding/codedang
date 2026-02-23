@@ -1,7 +1,8 @@
 import { cn } from '@/libs/utils'
+import { getTranslate } from '@/tolgee/server'
 import DOMPurify from 'isomorphic-dompurify'
 
-export function WhitespaceVisualizer({
+export async function WhitespaceVisualizer({
   text = '',
   isTruncated = false,
   className
@@ -17,9 +18,10 @@ export function WhitespaceVisualizer({
   let highlightedWhitespaceText = ''
   let truncatedText
 
+  const t = await getTranslate()
+
   if (text === null || text?.length === 0) {
-    highlightedWhitespaceText =
-      '<span style="color: rgb(150, 150, 150); font-style: italic;">(empty)</span>'
+    highlightedWhitespaceText = `<span style="color: rgb(150, 150, 150); font-style: italic;">${t('empty_placeholder')}</span>`
     truncatedText = highlightedWhitespaceText
   } else if (text.length >= 100000) {
     highlightedWhitespaceText = text

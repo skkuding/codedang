@@ -14,6 +14,7 @@ import {
 } from '@/graphql/assignment/queries'
 import submitIcon from '@/public/icons/submit.svg'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -22,6 +23,7 @@ import { FinalScoreForm } from './FinalScoreForm'
 import { UpdateAssignmentProblemRecordForm } from './UpdateAssignmentProblemRecordForm'
 
 export function SubmissionAssessment() {
+  const { t } = useTranslate()
   const params = useParams<{
     courseId: string
     assignmentId: string
@@ -68,16 +70,18 @@ export function SubmissionAssessment() {
   return (
     <UpdateAssignmentProblemRecordForm onCompleted={() => setShowTooltip(true)}>
       <div className="flex flex-col gap-6">
-        <h2 className="text-xl font-bold">Assessment</h2>
+        <h2 className="text-xl font-bold">{t('assessment_heading')}</h2>
         <div className="flex flex-col gap-2">
           <p className="text-sm font-semibold">
-            Final Score (Max score: {score?.maxScore}, Auto graded score:{' '}
-            {score?.score})
+            {t('final_score_heading', {
+              maxScore: score?.maxScore,
+              gradedScore: score?.score
+            })}
           </p>
           <FinalScoreForm />
         </div>
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold">Comment</p>
+          <p className="text-sm font-semibold">{t('comment_heading')}</p>
           <DescriptionForm name="comment" isDarkmode={true} />
         </div>
         <TooltipProvider>
@@ -88,20 +92,23 @@ export function SubmissionAssessment() {
                 type="submit"
               >
                 <Image src={submitIcon} alt="submit" width={24} height={24} />
-                Save
+                {t('save_button')}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
               <div className="flex gap-2">
                 <span>
-                  {gradedCount} of {totalCount} students graded.
+                  {t('students_graded', {
+                    graded: gradedCount,
+                    total: totalCount
+                  })}
                 </span>
                 {nextStudent && (
                   <Link
                     href={`/admin/course/${courseId}/assignment/${assignmentId}/assessment/user/${nextStudent.userId}/problem/${problemId}`}
                     className="text-color-blue-40 hover:text-color-blue-30 underline"
                   >
-                    Move to next student
+                    {t('move_to_next_student')}
                   </Link>
                 )}
               </div>

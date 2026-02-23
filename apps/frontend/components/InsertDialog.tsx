@@ -11,6 +11,7 @@ import {
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import type { Editor } from '@tiptap/core'
+import { useTranslate } from '@tolgee/react'
 import type { Dispatch, SetStateAction } from 'react'
 import { Button } from './shadcn/button'
 import { Toggle } from './shadcn/toggle'
@@ -38,6 +39,7 @@ export function InsertDialog({
   onInsert,
   onToggleClick
 }: InsertDialogProps) {
+  const { t } = useTranslate()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild onClick={onToggleClick}>
@@ -55,7 +57,7 @@ export function InsertDialog({
         <DialogDescription>{description}</DialogDescription>
         <DialogFooter>
           <DialogClose asChild>
-            <Button onClick={onInsert}>Insert</Button>
+            <Button onClick={onInsert}>{t('insert_button')}</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

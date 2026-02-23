@@ -2,6 +2,7 @@
 
 import { fetcherWithAuth } from '@/libs/utils'
 import type { GetContestQnaQuery } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { QnaCommentPostArea } from './QnaCommentPostArea'
@@ -33,6 +34,7 @@ export function QnaCommentArea({
   isContestStaff: boolean
   canPostComment: boolean
 }) {
+  const { t } = useTranslate()
   const { contestId, order: qnaId, comments: initialComments } = QnaData
   const [comments, setComments] = useState(initialComments)
   const [text, setText] = useState('')
@@ -79,11 +81,11 @@ export function QnaCommentArea({
         toast.error(errorRes.message)
       } else {
         CommentTriggerRefresh()
-        toast.success('Posted successfully!')
+        toast.success(t('posted_successfully'))
         setText('')
       }
     } catch {
-      toast.error('Error in posting comment!')
+      toast.error(t('error_posting_comment'))
     }
   }
 

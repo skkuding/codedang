@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
 import { useAuthModalStore } from '@/stores/authModal'
+import { useTranslate } from '@tolgee/react'
 import type { Session } from 'next-auth'
 import Link from 'next/link'
 import { RxHamburgerMenu } from 'react-icons/rx'
@@ -52,6 +53,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
 }
 
 function NavItems({ headerTitle }: { headerTitle?: string }) {
+  const { t } = useTranslate()
   const navItems = ['notice', 'contest', 'problem', 'course']
 
   return (
@@ -59,14 +61,14 @@ function NavItems({ headerTitle }: { headerTitle?: string }) {
       {headerTitle && (
         <Link href="/">
           <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-            Home
+            {t('home')}
           </DropdownMenuItem>
         </Link>
       )}
       {navItems.map((navItem) => (
         <Link href={`/${navItem}` as const} key={navItem}>
           <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-            {navItem.charAt(0).toUpperCase() + navItem.slice(1)}
+            {t(`${navItem}_capitalized`)}
           </DropdownMenuItem>
         </Link>
       ))}

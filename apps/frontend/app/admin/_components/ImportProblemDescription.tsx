@@ -1,15 +1,19 @@
 'use client'
 
+import { useTranslate } from '@tolgee/react'
 import { useDataTable } from './table/context'
 
 export function ImportProblemDescription() {
   const { table } = useDataTable()
+  const { t } = useTranslate()
 
   return (
     <p className="text-sm font-normal">
       <span className="text-primary">
-        {table.getFilteredSelectedRowModel().rows.length} problem(s)
-        selected:{' '}
+        {t('problems_selected_label', {
+          count: table.getFilteredSelectedRowModel().rows.length
+        })}
+        :{' '}
       </span>
       <span className="text-[#8A8A8A]">
         {table

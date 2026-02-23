@@ -5,6 +5,7 @@ import { UPLOAD_IMAGE } from '@/graphql/problem/mutations'
 import { cn } from '@/libs/utils'
 import imageUpload from '@/public/icons/image-upload.svg'
 import { useMutation } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import React, { useCallback, useRef, useState } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
@@ -79,6 +80,8 @@ export function PosterUploadForm({
     }
   }
 
+  const { t } = useTranslate()
+
   return (
     <>
       <div
@@ -90,12 +93,14 @@ export function PosterUploadForm({
         )}
       >
         {isLoading ? (
-          <div className="text-center text-[11px] font-normal">Loading...</div>
+          <div className="text-center text-[11px] font-normal">
+            {t('loading_label')}
+          </div>
         ) : (
           <div className="flex shrink-0 rounded-xl">
             <Image
               src={field.value || imageUpload}
-              alt="Contest Poster"
+              alt={t('contest_poster_alt')}
               width={234}
               height={312}
               className={cn(
@@ -107,11 +112,13 @@ export function PosterUploadForm({
         )}
         {!field.value && !isLoading && (
           <>
-            <h1 className="text-xs font-semibold">Upload Your Poster</h1>
+            <h1 className="text-xs font-semibold">
+              {t('upload_your_poster_header')}
+            </h1>
             <p className="text-center text-[11px] font-normal">
-              Supported Format: PNG, JPEG, JPG
+              {t('supported_format_label')}
               <br />
-              Maximum Size: 20MB
+              {t('maximum_size_label')}
             </p>
           </>
         )}

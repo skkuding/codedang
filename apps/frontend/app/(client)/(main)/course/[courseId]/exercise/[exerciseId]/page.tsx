@@ -8,9 +8,10 @@ import { AssignmentStatus } from '@/components/AssignmentStatus'
 import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { use } from 'react'
 import { ProblemCard } from '../../_components/ProblemCard'
-import { problemColumns } from '../../assignment/[assignmentId]/_components/Columns'
+import { getProblemColumns } from '../../assignment/[assignmentId]/_components/Columns'
 import { columns } from './_components/Columns'
 
 interface ExerciseDetailProps {
@@ -43,6 +44,8 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
     })
   )
 
+  const { t } = useTranslate()
+
   return (
     exercise && (
       <div className="flex flex-col gap-[45px] px-4 py-[80px] lg:px-[100px]">
@@ -58,7 +61,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
         </div>
         <Separator className="my-0" />
         <div className="flex flex-col gap-[30px]">
-          <p className="text-2xl font-semibold">DESCRIPTION</p>
+          <p className="text-2xl font-semibold">{t('description')}</p>
           {exercise && (
             <KatexContent
               content={exercise.description}
@@ -69,11 +72,11 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
         <Separator className="my-0" />
         {problems && (
           <div>
-            <p className="mb-[16px] text-2xl font-semibold">PROBLEMS</p>
+            <p className="mb-[16px] text-2xl font-semibold">{t('problems')}</p>
             <div className="flex gap-[30px] lg:mb-[42px]">
               <div className="flex gap-[6px]">
                 <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
-                  Total
+                  {t('total')}
                 </span>
                 <span className="text-primary text-base font-semibold">
                   {problems.total}
@@ -82,7 +85,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
               {record && (
                 <div className="flex gap-[6px]">
                   <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
-                    Submit
+                    {t('submit')}
                   </span>
                   <span className="text-primary text-base font-semibold">
                     {
@@ -100,7 +103,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
           <div className="hidden lg:block">
             <DataTable
               data={problems.data}
-              columns={problemColumns()}
+              columns={getProblemColumns(t)}
               headerStyle={{
                 order: 'w-[10%]',
                 title: 'text-left w-[40%]',
@@ -119,7 +122,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
             <div className="hidden lg:block">
               <DataTable
                 data={record.problems}
-                columns={columns(record, exercise, courseId, submissions)}
+                columns={columns(record, exercise, courseId, submissions, t)}
                 headerStyle={{
                   order: 'w-[10%]',
                   title: 'text-left w-[40%]',

@@ -18,6 +18,7 @@ import {
   getPaginationRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import type { Session } from 'next-auth'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -61,6 +62,7 @@ export function QnADataTable<TData extends QnAItem, TValue>({
   isContestStaff,
   canCreateQnA
 }: QnADataTableProps<TData, TValue>) {
+  const { t } = useTranslate()
   const table = useReactTable({
     data: QnADataWithCategory ?? [],
     columns,
@@ -106,12 +108,11 @@ export function QnADataTable<TData extends QnAItem, TValue>({
         <div className="flex flex-col items-start gap-1.5">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold leading-[140%] tracking-[-0.72px]">
-              QUESTION & ANSWER
+              {t('question_answer')}
             </h1>
           </div>
           <p className="text-base font-medium tracking-[-0.48px] text-[#9B9B9B]">
-            본 Q&A는 해당 대회와 관련된 질문만 작성해 주세요. 욕설, 비방, 대회
-            진행에 방해가 되는 내용은 제재 대상이 될 수 있습니다.
+            {t('qna_description')}
           </p>
         </div>
         <div className="flex h-[46px] items-center items-stretch gap-2.5 self-stretch">

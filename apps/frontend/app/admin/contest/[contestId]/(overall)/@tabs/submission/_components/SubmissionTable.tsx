@@ -14,10 +14,13 @@ import { SubmissionDetailAdmin } from '@/app/admin/contest/[contestId]/_componen
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_CONTEST_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
-import { columns } from './Columns'
+import { getColumns } from './Columns'
 
 export function SubmissionTable({ contestId }: { contestId: number }) {
+  const { t } = useTranslate()
+  const columns = getColumns(t)
   const { data } = useSuspenseQuery(GET_CONTEST_SUBMISSIONS, {
     variables: {
       contestId,
@@ -61,6 +64,7 @@ export function SubmissionTable({ contestId }: { contestId: number }) {
 }
 
 function SubmissionTableHeader() {
+  const { t } = useTranslate()
   const { table } = useDataTable()
   const filteredRowCount = table.getFilteredRowModel().rows.length
 
@@ -70,16 +74,19 @@ function SubmissionTableHeader() {
         <span className="text-primary text-[26px] font-extrabold">
           {filteredRowCount}
         </span>{' '}
-        Submissions
+        {t('submissions_text')}
       </div>
       <div className="flex items-center gap-2">
         <DataTableSortButton columnIds={['problemTitle', 'submissionTime']} />
-        <DataTableSearchBar placeholder="Search User ID" columndId="username" />
+        <DataTableSearchBar
+          placeholder={t('search_user_id_placeholder')}
+          columndId="username"
+        />
       </div>
     </div>
   )
 }
 
 export function SubmissionTableFallback() {
-  return <DataTableFallback columns={columns} />
+  return <DataTableFallback columns={getColumns(() => '')} />
 }

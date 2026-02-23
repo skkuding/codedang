@@ -1,6 +1,7 @@
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import { toast } from 'sonner'
 import { ImportProblemButton } from '../../_components/ImportProblemButton'
 import { ImportProblemDescription } from '../../_components/ImportProblemDescription'
@@ -14,9 +15,8 @@ import {
 } from '../../_components/table'
 import type { ContestProblem } from '../_libs/schemas'
 import {
-  columns,
+  getColumns,
   DEFAULT_PAGE_SIZE,
-  ERROR_MESSAGE,
   MAX_SELECTED_ROW_COUNT
 } from './ImportProblemTableColumns'
 
@@ -31,6 +31,9 @@ export function ImportProblemTable({
   onSelectedExport,
   contestId = null
 }: ImportProblemTableProps) {
+  const { t } = useTranslate()
+  const columns = getColumns(t)
+
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       mode: 'contest',
@@ -103,7 +106,11 @@ export function ImportProblemTable({
             row.toggleSelected()
             table.setSorting([{ id: 'select', desc: true }]) // NOTE: force to trigger sortingFn
           } else {
-            toast.error(ERROR_MESSAGE)
+            toast.error(
+              t('import_problem_error_message', {
+                count: MAX_SELECTED_ROW_COUNT
+              })
+            )
           }
         }}
       />
@@ -114,5 +121,10 @@ export function ImportProblemTable({
 }
 
 export function ImportProblemTableFallback() {
-  return <DataTableFallback columns={columns} rowCount={DEFAULT_PAGE_SIZE} />
+  return (
+    <DataTableFallback
+      columns={getColumns(() => '')}
+      rowCount={DEFAULT_PAGE_SIZE}
+    />
+  )
 }

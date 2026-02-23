@@ -16,18 +16,21 @@ import { getResultColor } from '@/libs/utils'
 import { useTestcaseStore } from '@/stores/testcaseStore'
 import { useSuspenseQuery } from '@apollo/client'
 import { ResultStatus, type TestCaseResult } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export function SubmissionTestcaseError() {
+  const { t } = useTranslate()
   return (
     <div className="flex flex-col items-center gap-4 py-4 text-center">
-      Unable to load testcase data for this problem.
+      {t('unable_to_load_testcase_data')}
     </div>
   )
 }
 
 export function SubmissionTestcase() {
+  const { t } = useTranslate()
   const params = useParams<{
     courseId: string
     assignmentId: string
@@ -77,15 +80,15 @@ export function SubmissionTestcase() {
 
   return (
     <div>
-      <h2 className="text-lg font-bold">Testcase</h2>
+      <h2 className="text-lg font-bold">{t('testcase_header')}</h2>
       <Table className="**:text-center **:text-sm **:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
         <TableHeader className="**:text-slate-100">
           <TableRow>
             <TableHead>#</TableHead>
-            <TableHead>Result</TableHead>
-            <TableHead>Runtime</TableHead>
-            <TableHead>Memory</TableHead>
-            <TableHead>Score Weight</TableHead>
+            <TableHead>{t('result_header')}</TableHead>
+            <TableHead>{t('runtime_header')}</TableHead>
+            <TableHead>{t('memory_header')}</TableHead>
+            <TableHead>{t('score_weight_header')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -93,8 +96,8 @@ export function SubmissionTestcase() {
             .sort((a, b) => Number(a.isHidden) - Number(b.isHidden))
             .map((item) => {
               const caseLabel = item.isHidden
-                ? `Hidden #${item.order}`
-                : `Sample #${item.order}`
+                ? t('hidden_label', { hidden: item.order })
+                : t('sample_label', { sample: item.order })
               return (
                 <TableRow
                   className="cursor-pointer text-[#9B9B9B] hover:bg-slate-800"

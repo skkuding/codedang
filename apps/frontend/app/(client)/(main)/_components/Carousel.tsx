@@ -3,6 +3,7 @@
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
 import ArrowIcon from '@/public/icons/arrow-icon.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -32,6 +33,8 @@ export function Carousel({ slides }: CarouselProps) {
   const handleClick = (next: number) => {
     setFacade(next % slides.length)
   }
+
+  const { t } = useTranslate()
 
   return (
     <div className="relative my-1 w-full max-w-[1380px] overflow-hidden rounded-[8px] lg:rounded-[20px]">
@@ -72,10 +75,10 @@ export function Carousel({ slides }: CarouselProps) {
                     className="flex h-full w-full items-center gap-[2px] pb-[10px] pl-[30px] pr-[24px] pt-[10px]"
                   >
                     <span className="font-pretendard text-[18px] font-medium tracking-[-0.03em]">
-                      What is CODEDANG
+                      {t('what_is_codedang')}
                     </span>
                     <div className="relative flex size-[16px] scale-x-[-1] items-center justify-center">
-                      <Image src={ArrowIcon} alt="Right" fill />
+                      <Image src={ArrowIcon} alt={t('right_arrow')} fill />
                     </div>
                   </Link>
                 </Button>
@@ -90,7 +93,7 @@ export function Carousel({ slides }: CarouselProps) {
             onClick={() => handleClick(facade - 1 + slides.length)}
           >
             <div className="relative flex h-[40px] w-[40px] items-center justify-center">
-              <Image src={ArrowIcon} alt="Left" fill />
+              <Image src={ArrowIcon} alt={t('left_arrow')} fill />
             </div>
           </Button>
         </div>
@@ -101,7 +104,7 @@ export function Carousel({ slides }: CarouselProps) {
             onClick={() => handleClick(facade + 1)}
           >
             <div className="relative flex h-[40px] w-[40px] scale-x-[-1] items-center justify-center">
-              <Image src={ArrowIcon} alt="Right" fill />
+              <Image src={ArrowIcon} alt={t('right_arrow')} fill />
             </div>
           </Button>
         </div>
@@ -119,11 +122,11 @@ export function Carousel({ slides }: CarouselProps) {
         <div className="h-[164px] w-full rounded-[8px] bg-[#0C1421]">
           <div className="px-4 py-7">
             <p className="mb-2 text-xl font-medium leading-normal text-white">
-              YOUR CODING JOURNEY
-              <br /> STARTS HERE
+              {t('your_coding_journey')}
+              <br /> {t('starts_here')}
             </p>
             <p className="text-color-neutral-90 text-xs font-normal leading-tight">
-              Compete. Grow. SKKU Coding
+              {t('compete_grow_skku_coding')}
             </p>
           </div>
         </div>

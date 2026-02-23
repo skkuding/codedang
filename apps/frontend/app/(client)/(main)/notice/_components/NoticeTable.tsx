@@ -1,5 +1,6 @@
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { fetcher } from '@/libs/utils'
+import { getTranslate } from '@/tolgee/server'
 import type { Notice } from '@/types/type'
 import { columns } from './Columns'
 
@@ -39,6 +40,8 @@ const getNotices = async (search: string) => {
 }
 
 export async function NoticeTable({ search }: Props) {
+  const t = await getTranslate()
+
   const fixedNoticesFetcher: Promise<Notice[]> | Notice[] =
     search !== '' ? [] : getFixedNotices()
 
@@ -63,7 +66,7 @@ export async function NoticeTable({ search }: Props) {
   return (
     <DataTable
       data={currentPageData}
-      columns={columns}
+      columns={columns(t)}
       headerStyle={{
         title: 'text-left w-2/4 md:w-4/6',
         createdBy: 'w-1/4 md:w-1/6',

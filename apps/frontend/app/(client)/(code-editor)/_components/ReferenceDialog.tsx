@@ -6,10 +6,12 @@ import {
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import compileIcon from '@/public/icons/compile-version.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { FaRegFile } from 'react-icons/fa6'
 
 export function ReferenceDialog() {
+  const { t } = useTranslate()
   return (
     <div className="flex px-6">
       <Dialog>
@@ -17,7 +19,7 @@ export function ReferenceDialog() {
           <Image
             className="cursor-pointer"
             src={compileIcon}
-            alt="compile"
+            alt={t('compile_icon_alt')}
             width={24}
           />
         </DialogTrigger>
@@ -27,19 +29,24 @@ export function ReferenceDialog() {
         >
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-white">
-              Compiler Version Document
+              {t('compiler_version_document_title')}
             </DialogTitle>
           </DialogHeader>
           <div className="overflow-x-auto rounded-[10px] border border-slate-600">
             <table className="min-w-full bg-[#222939] text-left text-sm">
               <thead className="border-b border-slate-600 bg-slate-800 text-xs font-normal text-[#C4CACC]">
                 <tr>
-                  <th className="py-3 pl-4 font-normal">Language</th>
-                  <th className="py-3 pl-4 font-normal">Time Limit</th>
-
-                  <th className="py-3 pl-4 font-normal">Memory Limit</th>
+                  <th className="py-3 pl-4 font-normal">
+                    {t('language_column')}
+                  </th>
+                  <th className="py-3 pl-4 font-normal">
+                    {t('time_limit_column')}
+                  </th>
+                  <th className="py-3 pl-4 font-normal">
+                    {t('memory_limit_column')}
+                  </th>
                   <th className="px-3 py-3 font-normal">
-                    Compiler Version Document
+                    {t('compiler_version_document_column')}
                   </th>
                 </tr>
               </thead>

@@ -1,6 +1,7 @@
 'use client'
 
 import { BaseModal } from '@/components/BaseModal'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { IoIosCloseCircle } from 'react-icons/io'
@@ -17,6 +18,7 @@ interface ModalProps {
 }
 
 export function BiggerImageButton({ url }: ModalProps) {
+  const { t } = useTranslate()
   const [openModal, setOpenModal] = useState(false)
 
   const OpenModal = () => setOpenModal(true)
@@ -48,7 +50,7 @@ export function BiggerImageButton({ url }: ModalProps) {
         <div ref={modalRef} className="relative mt-0">
           <Image
             src={url}
-            alt="Contest Poster"
+            alt={t('contest_poster_alt_text')}
             width={468}
             height={624}
             className="h-[624px] w-[468px] rounded-2xl border-0 object-contain"

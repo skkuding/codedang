@@ -16,6 +16,7 @@ import {
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 
@@ -24,9 +25,11 @@ interface ContestTableProps {
 }
 
 export function ContestTable({ data }: ContestTableProps) {
+  const { t } = useTranslate()
+
   const columns: ColumnDef<Contest>[] = [
     {
-      header: 'Name',
+      header: t('name_header'),
       accessorKey: 'title',
       cell: ({ row }) => {
         return (
@@ -39,7 +42,7 @@ export function ContestTable({ data }: ContestTableProps) {
     {
       header: () => (
         <p className="text-center">
-          <span>Starts at</span>
+          <span>{t('starts_at_header')}</span>
         </p>
       ),
       accessorKey: 'startTime',
@@ -56,7 +59,7 @@ export function ContestTable({ data }: ContestTableProps) {
     {
       header: () => (
         <p className="text-center">
-          <span>Ends at</span>
+          <span>{t('ends_at_header')}</span>
         </p>
       ),
       accessorKey: 'endTime',
@@ -73,7 +76,7 @@ export function ContestTable({ data }: ContestTableProps) {
     {
       header: () => (
         <p className="text-center">
-          <span>Participants</span>
+          <span>{t('participants_header')}</span>
         </p>
       ),
       accessorKey: 'participants',
@@ -144,7 +147,7 @@ export function ContestTable({ data }: ContestTableProps) {
         ) : (
           <TableRow>
             <TableCell colSpan={columns.length} className="h-24 text-center">
-              No results.
+              {t('no_results_text')}
             </TableCell>
           </TableRow>
         )}

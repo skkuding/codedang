@@ -4,6 +4,7 @@ import { auth } from '@/libs/auth'
 import statisticsChart from '@/public/captures/statistics-chart.gif'
 import statisticsLeaderboard from '@/public/captures/statistics-leaderboard.gif'
 import statisticsSubmissions from '@/public/captures/statistics-submissions.gif'
+import { getTranslate } from '@/tolgee/server'
 import Image from 'next/image'
 import Link from 'next/link'
 import { LuArrowRight } from 'react-icons/lu'
@@ -20,6 +21,7 @@ export default async function ContestStatistics(props: ContestStatisticsProps) {
   const { contestId } = await props.params
   const session = await auth()
   const username = session?.user?.username
+  const t = await getTranslate()
 
   // If contest is not finished or has frozen records, throw error to show error.tsx
   const [contestLeaderboard, contest] = await Promise.all([
@@ -47,14 +49,16 @@ export default async function ContestStatistics(props: ContestStatisticsProps) {
 
   return (
     <div className="pb-[120px]">
-      <p className="my-20 text-left text-2xl font-semibold">STATISTICS</p>
+      <p className="my-20 text-left text-2xl font-semibold">
+        {t('statistics_title')}
+      </p>
       <div className="my-5 text-lg">
-        You can check the leaderboard and statistics by time.
+        {t('leaderboard_statistics_description')}
       </div>
 
       <Button className="w-fit text-lg" asChild>
         <Link href={statisticsUrl}>
-          See statistics in new page
+          {t('see_statistics_in_new_page')}
           <LuArrowRight className="ml-2 inline" />
         </Link>
       </Button>
@@ -74,7 +78,7 @@ export default async function ContestStatistics(props: ContestStatisticsProps) {
               />
             </div>
             <div className="w-full text-center text-base font-normal text-neutral-600">
-              You can check the leaderboard over time.
+              {t('check_leaderboard_over_time')}
             </div>
           </CardContent>
         </Card>
@@ -92,8 +96,7 @@ export default async function ContestStatistics(props: ContestStatisticsProps) {
               />
             </div>
             <div className="w-full text-center text-base font-normal text-neutral-600">
-              You can view problem-solving trends and ranking changes for each
-              team over time through graphs.
+              {t('view_problem_solving_trends')}
             </div>
           </CardContent>
         </Card>
@@ -112,8 +115,7 @@ export default async function ContestStatistics(props: ContestStatisticsProps) {
               />
             </div>
             <div className="w-full text-center text-base font-normal text-neutral-600">
-              You can select teams to view or compare each team&apos;s
-              problem-solving summary and submission history.
+              {t('select_teams_view_summary')}
             </div>
           </CardContent>
         </Card>

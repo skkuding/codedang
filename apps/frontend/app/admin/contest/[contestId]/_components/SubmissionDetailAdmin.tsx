@@ -16,6 +16,7 @@ import { GET_SUBMISSION } from '@/graphql/submission/queries'
 import { cn, dateFormatter } from '@/libs/utils'
 import type { Language } from '@/types/type'
 import { useLazyQuery, useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 import { IoWarning } from 'react-icons/io5'
@@ -25,6 +26,7 @@ export function SubmissionDetailAdmin({
 }: {
   submissionId: number
 }) {
+  const { t } = useTranslate()
   const { data, loading } = useQuery(GET_SUBMISSION, {
     variables: {
       id: Number(submissionId)
@@ -85,26 +87,26 @@ export function SubmissionDetailAdmin({
             </span>
           </h1>
           <ScrollArea className="mt-4 max-w-full shrink-0 rounded-md">
-            <div className="**:whitespace-nowrap flex items-center justify-around gap-5 bg-gray-100 p-7 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
+            <div className=":whitespace-nowrap flex items-center justify-around gap-5 bg-gray-100 p-7 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
               <div>
-                <h2 className="mb-[14px]">User ID</h2>
+                <h2 className="mb-[14px]">{t('user_id')}</h2>
                 <p>{submission?.user?.username}</p>
               </div>
               <div className="h-14 border-l border-neutral-200" />
               <div>
-                <h2 className="mb-[14px]">Language</h2>
+                <h2 className="mb-[14px]">{t('language')}</h2>
                 <p>{submission?.language}</p>
               </div>
               <div className="h-14 border-l border-neutral-200" />
               <div>
-                <h2 className="mb-[14px]">Submission Time</h2>
+                <h2 className="mb-[14px]">{t('submission_time')}</h2>
                 <p>
                   {dateFormatter(submission?.createTime, 'YYYY-MM-DD HH:mm:ss')}
                 </p>
               </div>
               <div className="h-14 border-l border-neutral-200" />
               <div>
-                <h2 className="mb-[14px]">Code Size</h2>
+                <h2 className="mb-[14px]">{t('code_size')}</h2>
                 <p>{new TextEncoder().encode(submission?.code).length} B</p>
               </div>
               <div className="h-14 border-l border-neutral-200" />
@@ -124,13 +126,13 @@ export function SubmissionDetailAdmin({
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
 
-          <h2 className="mt-4 font-bold">Testcase</h2>
+          <h2 className="mt-4 font-bold">{t('testcase')}</h2>
           {submission?.testcaseResult.length !== 0 ? (
             <div className="flex flex-col gap-4">
               <table>
                 <tbody className="text-sm font-light">
                   <tr>
-                    <td className="w-52 py-1">Correct Testcase:</td>
+                    <td className="w-52 py-1">{t('correct_testcase')}</td>
                     <td className="py-1 text-slate-500">
                       {correctTestcases.length}/
                       {testcaseData?.getProblem?.testcase?.length || 0}
@@ -139,7 +141,7 @@ export function SubmissionDetailAdmin({
                   {wrongTestcases.length > 0 && (
                     <tr>
                       <td className="w-52 py-1 align-top">
-                        Wrong Testcase Number:
+                        {t('wrong_testcase_number')}
                       </td>
                       <td className="py-1 text-slate-500">
                         {wrongTestcases.join(', ') || 'None'}
@@ -153,19 +155,19 @@ export function SubmissionDetailAdmin({
                   <TableRow className="bg-[#619cfb] hover:bg-[#619cfb] dark:hover:bg-[#619cfb]">
                     <TableHead className="w-32 px-2" />
                     <TableHead className="w-44 px-2 font-semibold">
-                      Result
+                      {t('result')}
                     </TableHead>
                     <TableHead className="w-32 px-2 font-semibold">
-                      Input
+                      {t('input')}
                     </TableHead>
                     <TableHead className="w-32 px-2 font-semibold">
-                      Expected Output
+                      {t('expected_output')}
                     </TableHead>
                     <TableHead className="w-32 px-2 font-semibold">
-                      Output
+                      {t('output')}
                     </TableHead>
                     <TableHead className="w-24 px-2 font-semibold">
-                      Memory
+                      {t('memory')}
                     </TableHead>
                     <TableHead className="w-10 px-2 font-semibold" />
                   </TableRow>
@@ -213,7 +215,7 @@ export function SubmissionDetailAdmin({
                               <TableCell>
                                 {matchingResult?.memoryUsage
                                   ? `${(matchingResult.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
-                                  : 'N/A'}
+                                  : t('n_a')}
                               </TableCell>
                               <TableCell>
                                 <button
@@ -242,13 +244,13 @@ export function SubmissionDetailAdmin({
                                     <div className="px-5 py-[10px]">
                                       <div className="flex gap-4">
                                         <div className="flex h-8 w-[200px] items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-700">
-                                          Input
+                                          {t('input')}
                                         </div>
                                         <div className="flex h-8 w-[200px] items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-700">
-                                          Expected Output
+                                          {t('expected_output')}
                                         </div>
                                         <div className="flex h-8 w-[200px] items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-700">
-                                          Output
+                                          {t('output')}
                                         </div>
                                       </div>
                                       <div className="mt-3 flex gap-4 font-mono text-neutral-500">
@@ -278,13 +280,13 @@ export function SubmissionDetailAdmin({
           ) : (
             <Alert variant="default">
               <IoWarning className="mr-2 h-4 w-4" />
-              <AlertTitle>Testcase Judge Results Not Available</AlertTitle>
+              <AlertTitle>{t('testcase_judge_results_unavailable')}</AlertTitle>
               <AlertDescription>
-                The testcases have been recently updated and are now outdated.
+                {t('testcase_updated_outdated')}
               </AlertDescription>
             </Alert>
           )}
-          <h2 className="mt-4 font-bold">Source Code</h2>
+          <h2 className="mt-4 font-bold">{t('source_code')}</h2>
           <CodeEditor
             value={submission?.code}
             language={submission?.language as Language}

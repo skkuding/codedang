@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -8,6 +9,7 @@ import { usePathname } from 'next/navigation'
 export function ContestTabs({ contestId }: { contestId: string }) {
   const id = contestId
   const pathname = usePathname()
+  const { t } = useTranslate()
 
   const isCurrentTab = (tab: string) => {
     if (tab === '') {
@@ -27,7 +29,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          OVERVIEW
+          {t('overview')}
         </Link>
         <Link
           href={`/contest/${id}/announcement` as Route}
@@ -37,7 +39,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          ANNOUNCEMENT
+          {t('announcement')}
         </Link>
         <Link
           href={`/contest/${id}/leaderboard` as Route}
@@ -47,7 +49,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          LEADERBOARD
+          {t('leaderboard')}
         </Link>
         <Link
           href={`/contest/${id}/statistics` as Route}
@@ -57,7 +59,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          STATISTICS
+          {t('statistics')}
         </Link>
         <Link
           href={`/contest/${id}/qna` as Route}
@@ -67,7 +69,7 @@ export function ContestTabs({ contestId }: { contestId: string }) {
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          Q&A
+          {t('q_and_a')}
         </Link>
         {/* <Link
           href={`/contest/${id}/problem` as Route}

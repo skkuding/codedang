@@ -10,6 +10,7 @@ import {
 import { TimePickerDemo } from '@/components/shadcn/time-picker-demo'
 import { cn } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
+import { useTranslate } from '@tolgee/react'
 import { format } from 'date-fns'
 import Image from 'next/image'
 import { useEffect, useState, forwardRef } from 'react'
@@ -26,6 +27,7 @@ export const DateTimePickerDemo = forwardRef<
   DateTimePickerDemoProps
 >(({ onChange, isContest = false, defaultValue, defaultTimeOnSelect }, ref) => {
   const [date, setDate] = useState<Date>()
+  const { t } = useTranslate()
 
   useEffect(() => {
     if (defaultValue && defaultValue instanceof Date) {
@@ -61,7 +63,7 @@ export const DateTimePickerDemo = forwardRef<
             className="mr-2 h-4 w-4"
             style={{ filter: 'grayscale(100%)' }}
             src={calendarIcon}
-            alt="calendar"
+            alt={t('calendar_icon')}
             width={16}
             height={16}
           />
@@ -69,7 +71,7 @@ export const DateTimePickerDemo = forwardRef<
           {date ? (
             format(date, 'PPP HH:mm:ss')
           ) : (
-            <span className="text-[#C4C4C4]">Pick a date</span>
+            <span className="text-[#C4C4C4]">{t('pick_a_date')}</span>
           )}
         </Button>
       </PopoverTrigger>

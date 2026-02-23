@@ -9,15 +9,18 @@ import {
 } from '@/app/admin/_components/table'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useMemo, useState } from 'react'
 import { DataTableSemesterFilter } from '../../_components/table/DataTableSemesterFilter'
-import { columns } from './Columns'
+import { getColumns } from './Columns'
 import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
 import { UpdateCourseButton } from './UpdateCourseButton'
 
 export function GroupTable() {
   const client = useApolloClient()
+  const { t } = useTranslate()
+  const columns = getColumns(t)
 
   const [semesters, setSemesters] = useState<string[]>([])
 
@@ -76,5 +79,7 @@ export function GroupTable() {
 }
 
 export function GroupTableFallback() {
-  return <DataTableFallback withSearchBar={false} columns={columns} />
+  return (
+    <DataTableFallback withSearchBar={false} columns={getColumns(() => '')} />
+  )
 }

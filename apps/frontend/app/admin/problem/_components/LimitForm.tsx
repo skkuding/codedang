@@ -2,6 +2,7 @@
 
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { useFormContext } from 'react-hook-form'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { inputStyle } from '../../_libs/utils'
@@ -11,6 +12,7 @@ export function LimitForm({ blockEdit }: { blockEdit?: boolean }) {
     formState: { errors },
     register
   } = useFormContext()
+  const { t } = useTranslate()
 
   return (
     <div className="flex gap-8">
@@ -21,7 +23,7 @@ export function LimitForm({ blockEdit }: { blockEdit?: boolean }) {
             id="time"
             type="number"
             min={0}
-            placeholder="Time"
+            placeholder={t('time_placeholder')}
             className={cn(inputStyle, 'h-[36px] w-[112px]')}
             {...register('timeLimit', {
               setValueAs: (value: string) => parseInt(value, 10)
@@ -39,7 +41,7 @@ export function LimitForm({ blockEdit }: { blockEdit?: boolean }) {
             id="memory"
             type="number"
             min={0}
-            placeholder="Memory"
+            placeholder={t('memory_placeholder')}
             className={cn(inputStyle, 'h-[36px] w-[112px]')}
             {...register('memoryLimit', {
               setValueAs: (value: string) => parseInt(value, 10)

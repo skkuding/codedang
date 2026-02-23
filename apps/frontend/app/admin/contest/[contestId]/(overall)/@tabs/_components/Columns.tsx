@@ -12,12 +12,15 @@ interface DataTableScoreSummary extends ScoreSummary {
 }
 
 export const createColumns = (
-  problemData: ProblemData[]
+  problemData: ProblemData[],
+  t: (key: string) => string
 ): ColumnDef<DataTableScoreSummary>[] => {
   return [
     {
       accessorKey: 'studentId',
-      header: () => <p className="font-mono text-sm">Student ID</p>,
+      header: () => (
+        <p className="font-mono text-sm">{t('student_id_header')}</p>
+      ),
       cell: ({ row }) => (
         <div className="whitespace-nowrap text-center text-xs font-medium">
           {row.getValue('studentId')}
@@ -29,7 +32,7 @@ export const createColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Name"
+          title={t('name_header')}
           className="flex justify-center"
         />
       ),
@@ -42,7 +45,9 @@ export const createColumns = (
     },
     {
       accessorKey: 'username',
-      header: () => <p className="border-r py-1 font-mono text-sm">User ID</p>,
+      header: () => (
+        <p className="border-r py-1 font-mono text-sm">{t('user_id_header')}</p>
+      ),
       cell: ({ row }) => (
         <div className="whitespace-nowrap border-r py-1 text-center text-xs font-medium">
           {row.getValue('username')}
@@ -54,7 +59,7 @@ export const createColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Submit"
+          title={t('submit_header')}
           className="flex justify-center border-r"
         />
       ),
@@ -69,7 +74,7 @@ export const createColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Total"
+          title={t('total_header')}
           className="flex justify-center"
         />
       ),

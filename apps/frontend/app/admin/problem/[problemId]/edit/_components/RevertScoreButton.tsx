@@ -1,5 +1,6 @@
 import { useDataTable } from '@/app/admin/_components/table/context'
 import { Button } from '@/components/shadcn/button'
+import { useTranslate } from '@tolgee/react'
 import type { BelongedContest } from './BelongedContestTableColumns'
 
 interface SetToZeroButtonProps {
@@ -8,6 +9,7 @@ interface SetToZeroButtonProps {
 
 export function RevertScoreButton({ onRevertScore }: SetToZeroButtonProps) {
   const { table } = useDataTable<BelongedContest>()
+  const { t } = useTranslate()
 
   const selectedContests = table.getSelectedRowModel().rows
 
@@ -20,7 +22,7 @@ export function RevertScoreButton({ onRevertScore }: SetToZeroButtonProps) {
       variant="filter"
       className="ml-3"
     >
-      Revert Score
+      {t('revert_score_button')}
     </Button>
   ) : null
 }

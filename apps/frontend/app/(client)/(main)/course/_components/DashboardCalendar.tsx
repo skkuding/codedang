@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslate } from '@tolgee/react'
 import {
   DayPicker,
   useNavigation,
@@ -19,6 +20,8 @@ export function DashboardCalendar({
   viewMonth: Date
   setViewMonth: (m: Date) => void
 }) {
+  const { t } = useTranslate()
+
   const isOutside = (d: Date) =>
     d.getFullYear() !== viewMonth.getFullYear() ||
     d.getMonth() !== viewMonth.getMonth()
@@ -68,7 +71,7 @@ export function DashboardCalendar({
                       className="rounded-full hover:bg-neutral-200 disabled:opacity-40"
                       disabled={!previousMonth}
                       onClick={() => previousMonth && goToMonth(previousMonth)}
-                      aria-label="Previous month"
+                      aria-label={t('previous_month_button_aria')}
                     >
                       <svg
                         viewBox="0 0 24 24"
@@ -90,7 +93,7 @@ export function DashboardCalendar({
                       className="rounded-full hover:bg-neutral-200 disabled:opacity-40"
                       disabled={!nextMonth}
                       onClick={() => nextMonth && goToMonth(nextMonth)}
-                      aria-label="Next month"
+                      aria-label={t('next_month_button_aria')}
                     >
                       <svg
                         viewBox="0 0 24 24"

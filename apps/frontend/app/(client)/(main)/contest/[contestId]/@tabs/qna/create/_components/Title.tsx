@@ -1,6 +1,7 @@
 'use client'
 
 import { Textarea } from '@/components/shadcn/textarea'
+import { useTranslate } from '@tolgee/react'
 import type { Control } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
@@ -16,6 +17,7 @@ interface TitleInputProps {
 }
 
 export function Title({ control }: TitleInputProps) {
+  const { t } = useTranslate()
   return (
     <div className="flex w-full !p-0">
       <Controller
@@ -25,7 +27,7 @@ export function Title({ control }: TitleInputProps) {
           <Textarea
             {...field}
             id="title"
-            placeholder="Enter a question title"
+            placeholder={t('enter_a_question_title')}
             className="font-pretendard h-[24px] min-h-[24px] resize-none truncate rounded-none border-none p-0 text-base font-normal leading-[22px] tracking-[-0.48px] text-[#5C5C5C] shadow-none ring-0 placeholder:text-[#C4C4C4] focus:placeholder:text-transparent focus-visible:ring-0"
             maxLength={35}
             rows={1}

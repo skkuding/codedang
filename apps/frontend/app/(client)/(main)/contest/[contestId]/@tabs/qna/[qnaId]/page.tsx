@@ -1,4 +1,5 @@
 import { fetcherWithAuth } from '@/libs/utils'
+import { getTranslate } from '@/tolgee/server'
 import type { GetContestQnaQuery } from '@generated/graphql'
 import { QnaCommentArea } from './_components/QnaCommentArea'
 import { QnaContentArea } from './_components/QnaContentArea'
@@ -20,6 +21,7 @@ interface ContestRole {
 type Role = 'Admin' | 'Manager' | 'Participant' | 'Reviewer'
 
 export default async function QnaDetailPage({ params }: PageProps) {
+  const t = await getTranslate()
   // Get data
   const { contestId, qnaId } = await params
 
@@ -89,7 +91,7 @@ export default async function QnaDetailPage({ params }: PageProps) {
   if (!res.ok) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
-        <h1 className="text-2xl font-bold">Error in fetching user ID</h1>
+        <h1 className="text-2xl font-bold">{t('error_fetching_user_id')}</h1>
       </div>
     )
   }

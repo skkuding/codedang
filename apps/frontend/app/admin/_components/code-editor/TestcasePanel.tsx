@@ -5,6 +5,7 @@ import { cn } from '@/libs/utils'
 import { useTestcaseStore } from '@/stores/testcaseStore'
 import { useSuspenseQuery } from '@apollo/client'
 import { ResultStatus, type TestCaseResult } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import React, { Suspense, useMemo } from 'react'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 
@@ -23,6 +24,7 @@ export function TestcasePanel({
 }: TestcasePanelProps) {
   const { order, setSelectedTestcase, isHidden, isTestResult } =
     useTestcaseStore()
+  const { t } = useTranslate()
 
   const displayTestResults = useMemo(() => {
     if (isTesting) {
@@ -50,7 +52,9 @@ export function TestcasePanel({
           <table className="min-w-full">
             <tbody>
               <tr>
-                <td className="w-20 py-1 align-top text-slate-400">Correct:</td>
+                <td className="w-20 py-1 align-top text-slate-400">
+                  {t('correct_label')}:
+                </td>
                 <td className="py-1 text-white">
                   <div className="max-h-20 overflow-y-auto">
                     {acceptedTestcases.length > 0 ? (
@@ -84,7 +88,9 @@ export function TestcasePanel({
                 </td>
               </tr>
               <tr>
-                <td className="w-20 py-1 align-top text-slate-400">Wrong:</td>
+                <td className="w-20 py-1 align-top text-slate-400">
+                  {t('wrong_label')}:
+                </td>
                 <td className="py-1 text-white">
                   <div className="max-h-20 overflow-y-auto">
                     {notAcceptedTestcases.length > 0 ? (
@@ -126,9 +132,11 @@ export function TestcasePanel({
           <table className="min-w-full rounded-t-md">
             <thead className="bg-[#121728] [&_tr]:border-b-slate-600">
               <tr className="text-base hover:bg-slate-900/60">
-                <th className="w-[25%] p-3 text-left">Input</th>
-                <th className="w-[25%] p-3 text-left">Expected Output</th>
-                <th className="w-[25%] p-3 text-left">Output</th>
+                <th className="w-[25%] p-3 text-left">{t('input_label')}</th>
+                <th className="w-[25%] p-3 text-left">
+                  {t('expected_output_label')}
+                </th>
+                <th className="w-[25%] p-3 text-left">{t('output_label')}</th>
               </tr>
             </thead>
             <Suspense

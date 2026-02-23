@@ -3,6 +3,7 @@
 import type { ProblemData } from '@/app/admin/contest/_libs/schemas'
 import { cn, getResultColor } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import { SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { CommentCell } from './CommentCell'
@@ -30,6 +31,8 @@ function TestcaseCell({
 }: {
   results: { id: number; isHidden: boolean; result: string }[]
 }) {
+  const { t } = useTranslate()
+
   const samples = results.filter((r) => !r.isHidden)
   const hiddens = results.filter((r) => r.isHidden)
 
@@ -40,13 +43,13 @@ function TestcaseCell({
   return (
     <div className="whitespace-nowrap">
       {ordered.length === 0 ? (
-        <span className="text-xs text-gray-400">No testcases</span>
+        <span className="text-xs text-gray-400">{t('no_testcases')}</span>
       ) : (
         ordered.map((r, i) => {
           const isPass = r.result === 'Accepted'
           const title = r.isHidden
-            ? `Hidden #${++hiddenIdx}`
-            : `Sample #${++sampleIdx}`
+            ? t('hidden_label', { hidden: ++hiddenIdx })
+            : t('sample_label', { sample: ++sampleIdx })
 
           return (
             <span
@@ -72,12 +75,13 @@ export const createColumns = (
   courseId: number,
   assignmentId: number,
   groupId: number,
-  isAssignmentFinished: boolean
+  isAssignmentFinished: boolean,
+  t: (key: string) => string
 ): ColumnDef<DataTableScoreSummary>[] => {
   return [
     {
       accessorKey: 'studentId',
-      header: () => <p className="font-mono text-xs">Student ID</p>,
+      header: () => <p className="font-mono text-xs">{t('student_id')}</p>,
       cell: ({ row }) => (
         <div className="text-center text-xs font-medium">
           {row.getValue('studentId')}
@@ -86,7 +90,9 @@ export const createColumns = (
     },
     {
       id: 'testcases',
-      header: () => <p className="text-center font-mono text-xs">Testcase</p>,
+      header: () => (
+        <p className="text-center font-mono text-xs">{t('testcase')}</p>
+      ),
       cell: ({ row, table }) => {
         const isFirstRow = table.getRowModel().rows[0].id === row.id
         const results = row.original.testcaseResults ?? []
@@ -125,7 +131,9 @@ export const createColumns = (
     },
     {
       id: 'testcase-total',
-      header: () => <p className="text-center font-mono text-xs">Total</p>,
+      header: () => (
+        <p className="text-center font-mono text-xs">{t('total')}</p>
+      ),
       cell: ({ row }) => {
         const results = row.original.testcaseResults ?? []
         const total = results.length
@@ -138,7 +146,9 @@ export const createColumns = (
     },
     {
       id: 'comment',
-      header: () => <p className="text-center font-mono text-xs">Comment</p>,
+      header: () => (
+        <p className="text-center font-mono text-xs">{t('comment')}</p>
+      ),
       cell: ({ row }) => (
         <div className="flex justify-center">
           <CommentCell
@@ -152,7 +162,7 @@ export const createColumns = (
     },
     {
       id: 'detail',
-      header: () => <span className="sr-only">Detail</span>,
+      header: () => <span className="sr-only">{t('detail')}</span>,
       cell: ({ row }) => {
         if (!problemData || problemData.length === 0) {
           return null

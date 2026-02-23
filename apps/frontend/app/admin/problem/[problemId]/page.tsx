@@ -6,6 +6,7 @@ import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_PROBLEM_DETAIL } from '@/graphql/problem/queries'
 import { GET_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { FaAngleLeft, FaEye, FaPencil } from 'react-icons/fa6'
@@ -15,11 +16,14 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '../../_components/table'
-import { columns } from './_components/Columns'
+import { getColumns } from './_components/Columns'
 
 export default function Page() {
   const params = useParams()
   const { problemId } = params
+
+  const { t } = useTranslate()
+  const columns = getColumns(t)
 
   const problemData = useQuery(GET_PROBLEM_DETAIL, {
     variables: {
@@ -55,13 +59,13 @@ export default function Page() {
             <Link href={`/admin/problem/${problemId}/preview`}>
               <Button variant="slate" className="bg-slate-200">
                 <FaEye className="mr-2 h-4 w-4" />
-                Preview
+                {t('preview_button')}
               </Button>
             </Link>
             <Link href={`/admin/problem/${problemId}/edit`}>
               <Button variant="default">
                 <FaPencil className="mr-2 h-4 w-4" />
-                Edit
+                {t('edit_button')}
               </Button>
             </Link>
           </div>
@@ -71,7 +75,7 @@ export default function Page() {
           classname="prose mb-12 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
         />
 
-        <p className="text-xl font-bold">Submission</p>
+        <p className="text-xl font-bold">{t('submission_title')}</p>
         <DataTableRoot
           data={submissions}
           columns={columns}

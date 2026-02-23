@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslate } from '@tolgee/react'
 import { useRouter } from 'next/navigation'
 import type { MutableRefObject, ReactNode } from 'react'
 import { createContext, useContext, useEffect, useMemo, useRef } from 'react'
@@ -7,6 +8,7 @@ import { createContext, useContext, useEffect, useMemo, useRef } from 'react'
 export const useConfirmNavigation = (
   shouldSkipWarningRef: MutableRefObject<boolean>
 ) => {
+  const { t } = useTranslate()
   const router = useRouter()
 
   const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -21,9 +23,7 @@ export const useConfirmNavigation = (
     // 뒤로가기 이벤트 처리
     const handlePopState = () => {
       if (!shouldSkipWarningRef.current) {
-        const shouldLeave = window.confirm(
-          'Are you sure you want to leave this page? Changes you made may not be saved.'
-        )
+        const shouldLeave = window.confirm(t('leave_confirmation'))
 
         if (shouldLeave) {
           // 사용자가 확인을 누르면 뒤로가기 허용
@@ -52,9 +52,7 @@ export const useConfirmNavigation = (
         originalPush(href, ...args)
         return
       }
-      const shouldWarn = window.confirm(
-        'Are you sure you want to leave this page? Changes you made may not be saved.'
-      )
+      const shouldWarn = window.confirm(t('leave_confirmation'))
       if (shouldWarn) {
         originalPush(href, ...args)
       }
@@ -65,7 +63,7 @@ export const useConfirmNavigation = (
       window.removeEventListener('popstate', handlePopState)
       router.push = originalPush
     }
-  }, [router, shouldSkipWarningRef])
+  }, [router, shouldSkipWarningRef, t])
 }
 
 interface ConfirmNavigationProps {
@@ -79,6 +77,7 @@ interface Context {
 const ConfirmNavigationContext = createContext<Context | undefined>(undefined)
 
 export function ConfirmNavigation({ children }: ConfirmNavigationProps) {
+  const { t } = useTranslate()
   const shouldSkipWarning = useRef(false)
   const router = useRouter()
 
@@ -92,9 +91,7 @@ export function ConfirmNavigation({ children }: ConfirmNavigationProps) {
 
     const handlePopState = () => {
       if (!shouldSkipWarning.current) {
-        const shouldLeave = window.confirm(
-          'Are you sure you want to leave this page? Changes you made may not be saved.'
-        )
+        const shouldLeave = window.confirm(t('leave_confirmation'))
 
         if (shouldLeave) {
           shouldSkipWarning.current = true
@@ -118,9 +115,7 @@ export function ConfirmNavigation({ children }: ConfirmNavigationProps) {
         originalPush(href, ...args)
         return
       }
-      const shouldWarn = window.confirm(
-        'Are you sure you want to leave this page? Changes you made may not be saved.'
-      )
+      const shouldWarn = window.confirm(t('leave_confirmation'))
       if (shouldWarn) {
         originalPush(href, ...args)
       }
@@ -131,7 +126,7 @@ export function ConfirmNavigation({ children }: ConfirmNavigationProps) {
       window.removeEventListener('popstate', handlePopState)
       router.push = originalPush
     }
-  }, [router, shouldSkipWarning])
+  }, [router, shouldSkipWarning, t])
 
   const contextValue = useMemo(() => {
     const setShouldSkipWarning = (value: boolean) => {

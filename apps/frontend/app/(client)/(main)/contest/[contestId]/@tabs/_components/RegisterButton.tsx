@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/shadcn/input'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -40,6 +41,7 @@ export function RegisterButton({
   disabled
 }: RegisterButtonProps) {
   const router = useRouter()
+  const { t } = useTranslate()
   const clickRegister = async (contestId: string) => {
     try {
       await safeFetcherWithAuth.post(`contest/${contestId}/participation`, {
@@ -53,7 +55,9 @@ export function RegisterButton({
       router.refresh() // to update register state
     } catch (error) {
       console.error(error)
-      toast.error(invitationCodeExists ? 'Invalid code' : 'Failed to register')
+      toast.error(
+        invitationCodeExists ? t('invalid_code') : t('failed_to_register')
+      )
     }
   }
 
@@ -78,7 +82,7 @@ export function RegisterButton({
       onClick={onSubmit}
       disabled={disabled}
     >
-      Register Now!
+      {t('register_now_button')}
     </Button>
   ) : (
     // User not registered and invitation code required
@@ -88,13 +92,13 @@ export function RegisterButton({
           className={`h-[46px] w-[944px] rounded-[1000px] px-7 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px] ${state === 'Ongoing' ? 'bg-primary text-white' : 'bg-fill text-color-neutral-70 pointer-events-none'}`}
           disabled={disabled}
         >
-          Register Now!
+          {t('register_now_button')}
         </Button>
       </DialogTrigger>
       <DialogContent className="flex !h-[280px] !w-[424px] flex-col gap-5 !p-10">
         <DialogHeader>
           <DialogTitle className="line-clamp-2 pt-3 text-center text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
-            {'Invite Register'}
+            {t('invite_register_title')}
           </DialogTitle>
         </DialogHeader>
         <form
@@ -103,7 +107,7 @@ export function RegisterButton({
         >
           <div className="flex flex-col gap-1">
             <Input
-              placeholder="Invitation Code"
+              placeholder={t('invitation_code_placeholder')}
               {...register('invitationCode', {
                 onChange: () => trigger('invitationCode')
               })}
@@ -116,13 +120,13 @@ export function RegisterButton({
             />
             {errors.invitationCode && (
               <p className="text-xs text-red-500">
-                Register Code must be a 6-digit number
+                {t('register_code_error_message')}
               </p>
             )}
           </div>
           <div className="flex justify-center">
             <Button type="submit" className="w-24">
-              Register
+              {t('register_button')}
             </Button>
           </div>
         </form>

@@ -4,6 +4,7 @@ import {
   AlertDialogCancel,
   AlertDialogFooter
 } from '@/components/shadcn/alert-dialog'
+import { getTranslate } from '@/tolgee/server'
 
 interface ModalProps {
   open: boolean
@@ -27,13 +28,15 @@ interface ModalProps {
  * @remarks
  * * AlertDialogFooter section (Button section) is separated using ConfirmModal component for reusability.
  */
-export function ConfirmModal({
+export async function ConfirmModal({
   open,
   handleClose,
   confirmAction,
   title = '',
   description = ''
 }: ModalProps) {
+  const t = await getTranslate()
+
   return (
     <BaseModal
       handleClose={handleClose}
@@ -47,13 +50,13 @@ export function ConfirmModal({
           className="border-none bg-slate-100 text-[#3333334D] hover:bg-slate-200"
           onClick={confirmAction}
         >
-          Leave
+          {t('leave_button')}
         </AlertDialogAction>
         <AlertDialogCancel
           className="bg-primary hover:bg-primary-strong border-none text-white"
           onClick={handleClose}
         >
-          Stay
+          {t('stay_button')}
         </AlertDialogCancel>
       </AlertDialogFooter>
     </BaseModal>

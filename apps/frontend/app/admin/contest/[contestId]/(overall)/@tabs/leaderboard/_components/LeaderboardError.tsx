@@ -2,6 +2,7 @@
 
 import errorImage from '@/public/logos/error.webp'
 import welcomeImage from '@/public/logos/welcome.png'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 
 interface LeaderboardErrorProps {
@@ -9,27 +10,28 @@ interface LeaderboardErrorProps {
 }
 
 export function LeaderboardError({ type }: LeaderboardErrorProps) {
+  const { t } = useTranslate()
   if (type === 'beforeStart') {
     return (
       <div className="flex flex-col items-center pt-[100px]">
-        <Image src={errorImage} alt="error image" />
+        <Image src={errorImage} alt={t('error_image_alt')} />
         <p className="ml-[70px] mt-[50px] text-2xl font-semibold">
-          아직 콘테스트 시작 안했어요 ^~^
+          {t('before_start_message')}
         </p>
         <p className="ml-[70px] mt-2 text-[#00000080]">
-          After contest, you can see the leaderboard.
+          {t('before_start_info')}
         </p>
       </div>
     )
   } else if (type === 'networkError') {
     return (
       <div className="flex flex-col items-center pt-[100px]">
-        <Image src={errorImage} alt="error image" />
+        <Image src={errorImage} alt={t('error_image_alt')} />
         <p className="ml-[70px] mt-[50px] text-2xl font-semibold">
-          Network Error Occurred
+          {t('network_error_occurred')}
         </p>
         <p className="ml-[70px] mt-2 text-[#00000080]">
-          Please try reloading this page.
+          {t('please_try_reloading')}
         </p>
       </div>
     )
@@ -37,9 +39,9 @@ export function LeaderboardError({ type }: LeaderboardErrorProps) {
 
   return (
     <div className="flex flex-col items-center pt-[100px]">
-      <Image src={welcomeImage} alt="welcome image" />
-      <p className="mt-[50px] text-2xl font-semibold">No Data Here</p>
-      <p className="mt-2 text-[#00000080]">This leaderboard has no data</p>
+      <Image src={welcomeImage} alt={t('welcome_image_alt')} />
+      <p className="mt-[50px] text-2xl font-semibold">{t('no_data_here')}</p>
+      <p className="mt-2 text-[#00000080]">{t('no_data_info')}</p>
     </div>
   )
 }

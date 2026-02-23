@@ -1,6 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import Redo from '@/public/icons/texteditor-redo.svg'
 import Undo from '@/public/icons/texteditor-undo.svg'
+import { getTranslate } from '@/tolgee/server'
 import type { Editor } from '@tiptap/react'
 import Image from 'next/image'
 
@@ -8,7 +9,8 @@ interface UndoRedoBarProps {
   editor: Editor
 }
 
-export function UndoRedoBar({ editor }: UndoRedoBarProps) {
+export async function UndoRedoBar({ editor }: UndoRedoBarProps) {
+  const t = await getTranslate()
   return (
     <div className="flex items-center">
       <Button
@@ -20,7 +22,7 @@ export function UndoRedoBar({ editor }: UndoRedoBarProps) {
           editor.commands.undo()
         }}
       >
-        <Image src={Undo} alt="Undo" className="h-4 w-4" />
+        <Image src={Undo} alt={t('undo_alt_text')} className="h-4 w-4" />
       </Button>
       <Button
         variant="ghost"
@@ -31,7 +33,7 @@ export function UndoRedoBar({ editor }: UndoRedoBarProps) {
           editor.commands.redo()
         }}
       >
-        <Image src={Redo} alt="Redo" className="h-4 w-4" />
+        <Image src={Redo} alt={t('redo_alt_text')} className="h-4 w-4" />
       </Button>
     </div>
   )

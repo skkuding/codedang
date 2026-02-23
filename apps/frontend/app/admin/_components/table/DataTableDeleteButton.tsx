@@ -3,6 +3,7 @@
 import { AlertModal } from '@/components/AlertModal'
 import { ModalList } from '@/components/ModalList'
 import { Button } from '@/components/shadcn/button'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
 import { FaTrash } from 'react-icons/fa'
 import { toast } from 'sonner'
@@ -50,13 +51,14 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   className,
   deleteItems
 }: DataTableDeleteButtonProps<TData, TPromise>) {
+  const { t } = useTranslate()
   const { table } = useDataTable<TData>()
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleDeleteButtonClick = async () => {
     if (table.getSelectedRowModel().rows.length === 0) {
-      toast.error(`Please select at least one ${target}`)
+      toast.error(t('select_at_least_one', { target }))
       return
     }
 
@@ -87,7 +89,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       table.resetPageIndex()
       onSuccess?.()
     } catch {
-      toast.error(`Failed to delete ${target}`)
+      toast.error(t('failed_to_delete', { target }))
     }
   }
 
@@ -107,15 +109,18 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       onOpenChange={setIsDialogOpen}
       type={'warning'}
       showIcon={!deleteItems}
-      title={`Delete ${target}?`}
+      title={t('delete_target_title', { target })}
       primaryButton={{
-        text: 'Delete',
+        text: t('delete_button'),
         onClick: handleDeleteRows
       }}
       {...(deleteItems
         ? {}
         : {
-            description: `Are you sure you want to permanently delete ${table.getSelectedRowModel().rows.length} ${target}(s)?`
+            description: t('confirm_permanent_delete', {
+              count: table.getSelectedRowModel().rows.length,
+              target
+            })
           })}
     >
       {deleteItems && <ModalList items={deleteItems} />}

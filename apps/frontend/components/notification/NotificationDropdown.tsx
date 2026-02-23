@@ -10,6 +10,7 @@ import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { formatTimeAgo } from '@/libs/utils'
 import NotiIcon from '@/public/icons/notification.svg'
 import type { Notification } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import { X } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect, useRef, useCallback } from 'react'
@@ -25,6 +26,7 @@ interface NotificationDropdownProps {
 export function NotificationDropdown({
   isEditor = false
 }: NotificationDropdownProps) {
+  const { t } = useTranslate()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadApiCount, setUnreadApiCount] = useState(0)
   const [isSubscribed, setIsSubscribed] = useState(false)
@@ -239,7 +241,7 @@ export function NotificationDropdown({
         <Image
           className="min-w-fit"
           src={NotiIcon}
-          alt="notification"
+          alt={t('notification_alt')}
           width={18}
           height={21}
         />
@@ -263,7 +265,7 @@ export function NotificationDropdown({
                 isEditor ? 'text-white' : 'text-gray-900'
               )}
             >
-              Notification
+              {t('notification_title')}
             </div>
             <NotificationOptionsMenu
               isLoading={isLoading}
@@ -286,7 +288,7 @@ export function NotificationDropdown({
               )}
               onClick={() => setFilter('all')}
             >
-              All
+              {t('all_button')}
             </button>
             <button
               className={cn(
@@ -296,7 +298,7 @@ export function NotificationDropdown({
               )}
               onClick={() => setFilter('unread')}
             >
-              Unread
+              {t('unread_button')}
             </button>
           </div>
 
@@ -313,7 +315,7 @@ export function NotificationDropdown({
                 isEditor ? 'text-gray-300' : 'text-gray-500'
               )}
             >
-              No new notifications
+              {t('no_new_notifications')}
             </div>
           )}
 
@@ -340,7 +342,7 @@ export function NotificationDropdown({
                   >
                     <button
                       className="notification-delete-btn absolute right-2 top-3 z-10 rounded text-gray-400 hover:text-gray-700 focus:outline-none"
-                      aria-label="Delete notification"
+                      aria-label={t('delete_notification_aria')}
                       onClick={(e) => {
                         e.stopPropagation()
                         handleDeleteNotification(
@@ -369,7 +371,7 @@ export function NotificationDropdown({
                             }
                           >
                             {notification.type === 'Assignment'
-                              ? 'Course'
+                              ? t('course_badge')
                               : notification.type}
                           </Badge>
                           {notification.title}
@@ -409,7 +411,7 @@ export function NotificationDropdown({
                       isEditor ? 'text-gray-400' : 'text-gray-500'
                     )}
                   >
-                    You&apos;ve viewed all notifications from the past 30 days.
+                    {t('viewed_all_notifications')}
                   </p>
                   <div className="h-14" />
                 </div>

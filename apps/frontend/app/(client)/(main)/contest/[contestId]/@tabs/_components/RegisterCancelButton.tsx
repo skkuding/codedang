@@ -14,6 +14,7 @@ import { Button } from '@/components/shadcn/button'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import warningIcon from '@/public/icons/info.svg'
 import type { ContestPreview, ContestTop } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -28,12 +29,13 @@ export function RegisterCancelButton({
   contest,
   state
 }: RegisterCancelButtonProps) {
+  const { t } = useTranslate()
   const router = useRouter()
   const [deleteModalFlag, setDeleteModalFlag] = useState<boolean>(false)
   const CancelRegister = async () => {
     try {
       await safeFetcherWithAuth.delete(`contest/${contest.id}/participation`)
-      toast.success(`Successfully unregistered for ${state} contest!`)
+      toast.success(t('unregister_success_toast_message', { state }))
       router.refresh()
       setDeleteModalFlag(false)
     } catch (error) {
@@ -49,7 +51,7 @@ export function RegisterCancelButton({
         className={`h-[46px] w-[467px] rounded-[1000px] px-7 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px] ${state === 'Upcoming' ? 'bg-primary text-white' : 'bg-fill text-color-neutral-70 pointer-events-none'}`}
         onClick={OpenDeleteModal}
       >
-        Cancel registration
+        {t('cancel_registration_button')}
       </Button>
       <AlertDialog open={deleteModalFlag} onOpenChange={setDeleteModalFlag}>
         <AlertDialogContent
@@ -63,7 +65,7 @@ export function RegisterCancelButton({
             <AlertDialogTitle
               className={'w-full text-center text-2xl font-semibold'}
             >
-              {'Cancel Registration?'}
+              {t('cancel_registration_title')}
             </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogDescription>
@@ -72,12 +74,13 @@ export function RegisterCancelButton({
                 'text-color-neutral-50 w-full whitespace-pre-wrap text-center text-sm font-light leading-[21px] tracking-[-0.42px]'
               }
             >
-              {`Do you really want to cancel your registration?\nYou can only re-register before the registration deadline.`}
+              {t('cancel_registration_description_line_1')}
+              <br /> {t('cancel_registration_description_line_2')}
             </p>
           </AlertDialogDescription>
           <AlertDialogFooter className="flex w-full justify-center gap-[4px]">
             <AlertDialogCancel className="text-color-neutral-60 !m-0 h-[46px] w-[170px] text-base font-medium leading-[22.4px] tracking-[-0.48px]">
-              Go Back
+              {t('go_back_button')}
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
@@ -87,7 +90,7 @@ export function RegisterCancelButton({
                 }
                 variant={'default'}
               >
-                {'Cancel'}
+                {t('cancel_button')}
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>

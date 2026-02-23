@@ -27,6 +27,7 @@ import { ReactNodeViewRenderer } from '@tiptap/react'
 import type { NodeViewWrapperProps } from '@tiptap/react'
 import { NodeViewWrapper } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import { useTranslate } from '@tolgee/react'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import {
@@ -43,6 +44,7 @@ import { InsertDialog } from './InsertDialog'
 import { Button } from './shadcn/button'
 
 function MathPreview(props: NodeViewWrapperProps) {
+  const { t } = useTranslate()
   const [content, setContent] = useState(props.node.attrs.content)
   const [isOpen, setIsOpen] = useState(true)
   const handleContentChange = (event: { target: { value: unknown } }) => {
@@ -57,7 +59,7 @@ function MathPreview(props: NodeViewWrapperProps) {
   return (
     <NodeViewWrapper className="math-block-preview cursor-pointer" as="span">
       {isOpen && (
-        <Dialog aria-label="Edit Math Equation">
+        <Dialog aria-label={t('edit_math_equation_aria')}>
           <DialogTrigger asChild>
             <span
               dangerouslySetInnerHTML={{ __html: preview }}
@@ -69,12 +71,12 @@ function MathPreview(props: NodeViewWrapperProps) {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Edit Equation</DialogTitle>
+              <DialogTitle>{t('edit_equation_title')}</DialogTitle>
             </DialogHeader>
             <DialogDescription>
               <Input
                 value={content}
-                placeholder="Enter Equation"
+                placeholder={t('enter_equation_placeholder')}
                 onChange={handleContentChange}
               />
               <Tex block className="text-black">
@@ -83,7 +85,7 @@ function MathPreview(props: NodeViewWrapperProps) {
             </DialogDescription>
             <DialogFooter>
               <DialogClose asChild>
-                <Button>Insert</Button>
+                <Button>{t('insert_button')}</Button>
               </DialogClose>
             </DialogFooter>
           </DialogContent>
@@ -161,6 +163,7 @@ export function TextEditor({
   defaultValue?: string
   isDarkMode?: boolean
 }) {
+  const { t } = useTranslate()
   const [url, setUrl] = useState('')
   const [imageUrl, setImageUrl] = useState<string | undefined>('')
   const [equation, setEquation] = useState('')
@@ -268,7 +271,7 @@ export function TextEditor({
       if (error instanceof Error) {
         const errorMessage = error.message
         if (errorMessage === 'File size exceeds maximum limit') {
-          setDialogDescription('Images larger than 5MB cannot be uploaded.')
+          setDialogDescription(t('file_size_exceeds_limit'))
           setIsDialogOpen(true)
         }
       }
@@ -324,10 +327,10 @@ export function TextEditor({
         <InsertDialog
           editor={editor}
           activeType="link"
-          title="Insert Link"
+          title={t('insert_link_title')}
           description={
             <Input
-              placeholder="Enter URL"
+              placeholder={t('enter_url_placeholder')}
               onChange={(e) => setUrl(e.target.value)}
             />
           }
@@ -338,9 +341,12 @@ export function TextEditor({
         <InsertDialog
           editor={editor}
           activeType="katex"
-          title="Insert Equation"
+          title={t('insert_equation_title')}
           description={
-            <Input placeholder="Enter Equation" onChange={handleEquation} />
+            <Input
+              placeholder={t('enter_equation_placeholder')}
+              onChange={handleEquation}
+            />
           }
           triggerIcon={<Pi className="h-[14px] w-[14px]" />}
           onInsert={() => {
@@ -357,7 +363,7 @@ export function TextEditor({
         <InsertDialog
           editor={editor}
           activeType="image"
-          title="Upload Image"
+          title={t('upload_image_title')}
           description={
             <>
               <Input
@@ -367,7 +373,7 @@ export function TextEditor({
                   handleUploadPhoto(e.target.files)
                 }}
               />
-              <p className="text-sm"> * Image must be under 5MB</p>
+              <p className="text-sm">{t('max_image_size_message')}</p>
             </>
           }
           triggerIcon={<ImagePlus className="h-[14px] w-[14px]" />}

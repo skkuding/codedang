@@ -3,6 +3,7 @@
 import type { GetAssignmentSummaryResponse } from '@/app/(client)/_libs/apis/assignmentSubmission'
 import { cn, getResultColor } from '@/libs/utils'
 import type { Assignment, ProblemGrade } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import { SubmissionOverviewModal } from './SubmissionOverviewModal'
 
 interface ProblemCardProps {
@@ -22,6 +23,8 @@ export function ProblemCard({
   courseId,
   type
 }: ProblemCardProps) {
+  const { t } = useTranslate()
+
   const submission = submissions?.find((s) => s.problemId === problem.id)
   const hasSubmission = submission?.submission !== null
   const isAccepted = submission?.submission?.submissionResult === 'Accepted'
@@ -54,7 +57,7 @@ export function ProblemCard({
                     month: 'short',
                     day: 'numeric'
                   })}`
-                : 'Not submitted'}
+                : t('not_submitted')}
             </p>
           </div>
         </div>
@@ -78,7 +81,7 @@ export function ProblemCard({
                   </span>
                 </div>
                 <p className="text-xs text-gray-500">
-                  {isAccepted ? 'Accepted' : 'Wrong Answer'}
+                  {isAccepted ? t('accepted') : t('wrong_answer')}
                 </p>
               </div>
             ) : (
@@ -88,7 +91,7 @@ export function ProblemCard({
                   getResultColor(isAccepted ? 'Accepted' : 'Wrong Answer')
                 )}
               >
-                {isAccepted ? 'Accepted' : 'Wrong Answer'}
+                {isAccepted ? t('accepted') : t('wrong_answer')}
               </p>
             ))}
 

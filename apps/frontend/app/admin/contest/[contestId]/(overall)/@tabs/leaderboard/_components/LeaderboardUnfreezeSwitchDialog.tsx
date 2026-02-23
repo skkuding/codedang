@@ -14,6 +14,7 @@ import {
 import { Switch } from '@/components/shadcn/switch'
 import { UPDATE_CONTEST } from '@/graphql/contest/mutations'
 import { useMutation } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
 
 interface LeaderboardUnfreezeDialogProps {
@@ -29,6 +30,7 @@ export function LeaderboardUnfreezeSwitchDialog({
 }: LeaderboardUnfreezeDialogProps) {
   const [isUnfrozen, setIsUnFrozen] = useState<boolean>(isUnFrozen)
   const [updateContest] = useMutation(UPDATE_CONTEST)
+  const { t } = useTranslate()
 
   const toggleUnfreeze = async () => {
     try {
@@ -65,20 +67,20 @@ export function LeaderboardUnfreezeSwitchDialog({
       >
         <DialogHeader className="flex flex-col items-center">
           <DialogTitle className="pt-5 text-2xl font-semibold">
-            Unfreeze Leaderboard?
+            {t('unfreeze_leaderboard')}
           </DialogTitle>
           <DialogDescription>
             <div className="flex flex-col items-center pt-[14px] text-[14px] text-[#737373]">
-              <p>The number of submissions, penalties,</p>
-              <p>and correctness status will be visible to everyone.</p>
-              <p>Rankings may change after the leaderboard is unfrozen.</p>
+              <p>{t('submissions_visibility_notice_1')}</p>
+              <p>{t('submissions_visibility_notice_2')}</p>
+              <p>{t('ranking_change_notice')}</p>
             </div>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex flex-row items-center justify-center pl-0 sm:items-center sm:justify-center">
           <DialogClose asChild>
             <Button className="flex h-[44px] w-[170px] flex-row items-center justify-center rounded-full border border-[#C4C4C4] bg-white text-[14px] font-semibold text-[#8A8A8A] hover:bg-[#80808014]">
-              Cancel
+              {t('cancel')}
             </Button>
           </DialogClose>
           <DialogClose asChild>
@@ -89,7 +91,7 @@ export function LeaderboardUnfreezeSwitchDialog({
                 setIsUnFrozen(!isUnFrozen)
               }}
             >
-              Unfreeze
+              {t('unfreeze')}
             </Button>
           </DialogClose>
         </DialogFooter>

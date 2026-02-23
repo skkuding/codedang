@@ -1,6 +1,7 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
+import { getTranslate } from '@/tolgee/server'
 import { ErrorBoundary } from '@suspensive/react'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
@@ -20,6 +21,7 @@ export default async function Contest(props: ContestProps) {
   const searchParams = await props.searchParams
   const session = await auth()
   const registered = searchParams.registered === 'true'
+  const t = await getTranslate()
   if (!session && registered) {
     redirect('/contest')
   }
@@ -31,7 +33,7 @@ export default async function Contest(props: ContestProps) {
 
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<ContestCardListFallback />}>
-          <ContestFeatureList title={`WHAT'S FUNCTION OF CONTEST?`} />
+          <ContestFeatureList title={t('contest_feature_list_title')} />
         </Suspense>
       </ErrorBoundary>
 

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslate } from '@tolgee/react'
 import { useState, type ReactNode } from 'react'
 import { HiTrash } from 'react-icons/hi'
 import { AlertModal } from './AlertModal'
@@ -17,18 +18,26 @@ export function DeleteButton({
   trigger?: ReactNode
 }) {
   const [showModal, setShowModal] = useState(false)
+  const { t } = useTranslate()
 
   return (
     <AlertModal
-      trigger={trigger ?? triggers[type]}
+      trigger={trigger ?? triggers(t)[type]}
       open={showModal}
       onOpenChange={(open) => setShowModal(open)}
       size="sm"
       type="warning"
-      title={`Delete ${subject.toUpperCase().slice(0, 1).concat(subject.toLowerCase().slice(1))}?`}
-      description={`Are you sure you want to delete this ${subject.toLowerCase()}?\nOnce deleted, it cannot be recovered.`}
+      title={t('delete_modal_title', {
+        subject: subject
+          .toUpperCase()
+          .slice(0, 1)
+          .concat(subject.toLowerCase().slice(1))
+      })}
+      description={t('delete_modal_description', {
+        subject: subject.toLowerCase()
+      })}
       primaryButton={{
-        text: 'Delete',
+        text: t('delete_button_primary'),
         onClick: () => {
           handleDelete()
           setShowModal(false)
@@ -40,7 +49,7 @@ export function DeleteButton({
   )
 }
 
-const triggers = {
+const triggers = (t: (key: string) => string) => ({
   default: (
     <Button
       variant="outline"
@@ -49,7 +58,9 @@ const triggers = {
     >
       <div className="text-primary flex h-auto items-center justify-center gap-[4px] px-[10px] py-[6px]">
         <HiTrash fontSize={20} />
-        <p className="text-sm font-medium tracking-[-3%]">Delete</p>
+        <p className="text-sm font-medium tracking-[-3%]">
+          {t('delete_button_text')}
+        </p>
       </div>
     </Button>
   ),
@@ -64,4 +75,4 @@ const triggers = {
       </div>
     </Button>
   )
-}
+})

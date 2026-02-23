@@ -3,6 +3,7 @@
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import type { Assignment, AssignmentStatus } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -22,6 +23,7 @@ export function AssignmentLink({
   isExercise = false
 }: AssignmentLinkProps) {
   const router = useRouter()
+  const { t } = useTranslate()
   const [type, setType] = useState<'assignment' | 'exercise'>('assignment')
   const [assignmentStatus, setAssignmentStatus] =
     useState<AssignmentStatus>('upcoming')
@@ -60,7 +62,7 @@ export function AssignmentLink({
     e.preventDefault()
 
     if (assignmentStatus === 'upcoming' && !assignmentData) {
-      toast.error('This assignment has not started yet!')
+      toast.error(t('assignment_not_started_error'))
       return
     }
 

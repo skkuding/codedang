@@ -1,10 +1,13 @@
 'use client'
 
+import { useTranslate } from '@tolgee/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useCallback } from 'react'
 import { AlertModal } from '../AlertModal'
 
-const messages: Record<
+const messages = (
+  t: (key: string) => string
+): Record<
   string,
   {
     title: string
@@ -12,34 +15,34 @@ const messages: Record<
     showNoticeButton?: boolean
     isWarning?: boolean
   }
-> = {
-  'push:unsupported': {
-    title: 'Push Notifications Unavailable',
-    description:
-      'This browser doesn’t support push notifications.\nPlease check the Notice page and install the PWA.',
-    showNoticeButton: true,
-    isWarning: true
-  },
-  'push:denied': {
-    title: 'Notifications Blocked',
-    description:
-      'Notifications are blocked in this browser.\nPlease check the Notice page to enable them.',
-    showNoticeButton: true,
-    isWarning: true
-  },
-  'push:error': {
-    title: 'Subscription Failed',
-    description:
-      'Error occurred while subscribing to push notifications.\nPlease try again in a little while.',
-    isWarning: true
-  },
-  'push:subscribed': {
-    title: 'Subscription Successful',
-    description: 'Push notifications are now enabled!'
+> => {
+  return {
+    'push:unsupported': {
+      title: t('push_notifications_unavailable_title'),
+      description: t('push_notifications_unavailable_description'),
+      showNoticeButton: true,
+      isWarning: true
+    },
+    'push:denied': {
+      title: t('notifications_blocked_title'),
+      description: t('notifications_blocked_description'),
+      showNoticeButton: true,
+      isWarning: true
+    },
+    'push:error': {
+      title: t('subscription_failed_title'),
+      description: t('subscription_failed_description'),
+      isWarning: true
+    },
+    'push:subscribed': {
+      title: t('subscription_successful_title'),
+      description: t('subscription_successful_description')
+    }
   }
 }
 
 export function PushPermissionModal() {
+  const { t } = useTranslate()
   const [open, setOpen] = useState(false)
   const [eventKey, setEventKey] = useState<string | null>(null)
   const router = useRouter()
@@ -53,14 +56,14 @@ export function PushPermissionModal() {
     const handler = (e: Event) => {
       handleEvent((e as CustomEvent).type)
     }
-    const keys = Object.keys(messages)
+    const keys = Object.keys(messages(t))
     keys.forEach((k) => window.addEventListener(k, handler))
     return () => {
       keys.forEach((k) => window.removeEventListener(k, handler))
     }
-  }, [handleEvent])
+  }, [handleEvent, t])
 
-  const data = eventKey ? messages[eventKey] : null
+  const data = eventKey ? messages(t)[eventKey] : null
 
   const handleNoticeClick = () => {
     router.push('/notice/7')
@@ -82,7 +85,7 @@ export function PushPermissionModal() {
       title={data?.title || ''}
       description={data?.description || ''}
       primaryButton={{
-        text: data?.showNoticeButton ? 'Read Notice' : 'OK',
+        text: data?.showNoticeButton ? t('read_notice_button') : t('ok_button'),
         onClick: data?.showNoticeButton ? handleNoticeClick : handleClose
       }}
     />

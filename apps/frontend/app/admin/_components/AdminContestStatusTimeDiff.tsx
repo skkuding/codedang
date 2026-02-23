@@ -4,6 +4,7 @@ import { cn } from '@/libs/utils'
 import clockIcon from '@/public/icons/clock.svg'
 import type { ContestStatus } from '@/types/type'
 import type { GetContestQuery } from '@generated/graphql'
+import { T, useTranslate } from '@tolgee/react'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import Image from 'next/image'
@@ -11,6 +12,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
+import { C } from 'vitest/dist/chunks/reporters.d.BFLkQcL6.js'
 
 dayjs.extend(duration)
 
@@ -25,6 +27,7 @@ export function AdminContestStatusTimeDiff({
   textStyle,
   inContestEditor
 }: AdminTimeDiffProps) {
+  const { t } = useTranslate()
   const router = useRouter()
   const { problemId } = useParams()
 
@@ -64,10 +67,10 @@ export function AdminContestStatusTimeDiff({
 
     if (inContestEditor) {
       if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
-        toast.error('Contest ends in 5 minutes.', { duration: 10000 })
+        toast.error(t('contest_ends_in_5_minutes'), { duration: 10000 })
       }
       if (days === 0 && hours === 0 && minutes === 1 && seconds === 0) {
-        toast.error('Contest ends in 1 minute.', { duration: 10000 })
+        toast.error(t('contest_ends_in_1_minute'), { duration: 10000 })
       }
     }
 
@@ -92,6 +95,22 @@ export function AdminContestStatusTimeDiff({
     router.push(`/contest/${contest?.id}/finished/problem/${problemId}`)
   }
 
+  const timeText =
+    timeDiff.days > 0
+      ? t('days_count', { days: timeDiff.days })
+      : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`
+
+  let currentKeyName = 'starts_in_time'
+
+  if (contestStatus === 'finished') {
+    currentKeyName = 'finished_time'
+  } else if (
+    contestStatus === 'ongoing' ||
+    contestStatus === 'registeredOngoing'
+  ) {
+    currentKeyName = 'ends_in_time'
+  }
+
   return (
     <div
       className={cn(
@@ -99,30 +118,17 @@ export function AdminContestStatusTimeDiff({
         textStyle
       )}
     >
-      {contestStatus === 'finished' ? (
-        <>
-          <Image src={clockIcon} alt="clock" width={16} height={16} />
-          Finished
-          <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-            {timeDiff.days > 0
-              ? `${timeDiff.days} DAYS`
-              : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`}
-          </p>
-          ago
-        </>
-      ) : (
-        <>
-          <Image src={clockIcon} alt="clock" width={16} height={16} />
-          {contestStatus === 'ongoing' || contestStatus === 'registeredOngoing'
-            ? 'Ends in'
-            : 'Starts in'}
-          <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-            {timeDiff.days > 0
-              ? `${timeDiff.days} DAYS`
-              : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`}
-          </p>
-        </>
-      )}
+      <Image src={clockIcon} alt="clock" width={16} height={16} />
+      <T
+        keyName={currentKeyName}
+        params={{
+          time: (
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap">
+              {timeText}
+            </p>
+          )
+        }}
+      />
     </div>
   )
 }

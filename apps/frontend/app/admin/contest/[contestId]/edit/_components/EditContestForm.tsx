@@ -16,6 +16,7 @@ import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import type { UpdateContestInfo } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
@@ -42,6 +43,7 @@ export function EditContestForm({
   setIsLoading,
   methods
 }: EditContestFormProps) {
+  const { t } = useTranslate()
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
 
   const { setShouldSkipWarning } = useConfirmNavigationContext()
@@ -145,13 +147,13 @@ export function EditContestForm({
 
   const isSubmittable = (input: UpdateContestInput) => {
     if (input.startTime >= input.endTime) {
-      toast.error('Start time must be earlier than end time')
+      toast.error(t('start_time_error'))
       return
     }
     if (
       new Set(problems.map((problem) => problem.order)).size !== problems.length
     ) {
-      toast.error('Duplicate problem order found')
+      toast.error(t('duplicate_order_error'))
       return
     }
     onSubmit()
@@ -170,7 +172,7 @@ export function EditContestForm({
     })
 
     if (error) {
-      toast.error('Failed to update contest')
+      toast.error(t('update_contest_failed'))
       return
     }
 
@@ -205,7 +207,7 @@ export function EditContestForm({
     })
 
     setShouldSkipWarning(true)
-    toast.success('Contest updated successfully')
+    toast.success(t('contest_updated'))
     router.push('/admin/contest')
     router.refresh()
   }

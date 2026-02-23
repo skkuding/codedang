@@ -12,6 +12,7 @@ import {
 import { cn } from '@/libs/utils'
 import type { ZipUploadedTestcase } from '@/types/type'
 import type { Testcase } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import {
   useEffect,
@@ -61,6 +62,8 @@ interface TestcaseFieldProps {
 
 export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
   ({ blockEdit = false }, ref) => {
+    const { t } = useTranslate()
+
     const {
       formState: { errors },
       getValues,
@@ -190,7 +193,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
     const deleteSelectedTestcases = () => {
       const currentValues: ExtendedTestcase[] = getValues('testcases')
       if (currentValues.length <= selectedTestcases.length) {
-        setDialogDescription('At least one test case must be retained.')
+        setDialogDescription(t('at_least_one_testcase')) // At least one test case must be retained.
         setDialogOpen(true)
         return
       }
@@ -255,7 +258,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
 
       if (currentValues.length <= 1) {
         setDialogDescription(
-          'You cannot delete the testcase if it is the only one in the list. There must be at least one testcase in order to create this problem.'
+          t('cannot_delete_only_testcase') // You cannot delete the testcase if it is the only one.
         )
         setDialogOpen(true)
         return
@@ -278,7 +281,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         .reduce((acc: number, score) => {
           if (score < 0) {
             setDialogDescription(
-              'The scoring ratios contain negative value(s).\nPlease review and correct them.'
+              t('scoring_ratios_negative') // The scoring ratios contain negative value(s)
             )
             setDialogOpen(true)
           }
@@ -289,7 +292,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
 
       if (remainingScore < 0) {
         setDialogDescription(
-          'The scoring ratios have not been specified correctly.\nPlease review and correct them.'
+          t('scoring_ratios_incorrect') // The scoring ratios have not been specified correctly.
         )
         setDialogOpen(true)
         return
@@ -544,7 +547,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
               top: mousePosition.y - 30
             }}
           >
-            You cannot edit testcases if the problem has submissions.
+            {t('cannot_edit_testcases_tooltip')}
           </div>
         )}
         <div className="mb-[40px] flex w-full items-center justify-between">
@@ -556,7 +559,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
               setTestcaseFlag(0)
             }}
           >
-            SAMPLE
+            {t('button_sample')}
           </button>
           <button
             className={`flex w-full justify-center bg-white p-[18px] text-lg font-normal text-[#333333] opacity-90 ${testcaseFlag === 0 ? 'border-b-4 border-b-white' : 'border-b-primary border-b-4 font-semibold text-[#3581FA] hover:text-[#3581FA]'}`}
@@ -566,7 +569,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
               setTestcaseFlag(1)
             }}
           >
-            HIDDEN
+            {t('button_hidden')}
           </button>
         </div>
         {testcaseFlag === 0 && (
@@ -575,7 +578,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
               required={false}
               className="text-2xl font-semibold text-black"
             >
-              Sample Testcase
+              {t('label_sample_testcase')}
             </Label>
             <div className="flex w-full items-center justify-between">
               <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
@@ -587,7 +590,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                 />
                 <input
                   type="text"
-                  placeholder="Search"
+                  placeholder={t('input_search_placeholder')}
                   value={searchTC}
                   onChange={(e) => {
                     setsearchTC(e.target.value)
@@ -617,7 +620,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                           height={18}
                         />
                         <span className="ml-[6px] flex items-center text-center text-white">
-                          Delete
+                          {t('button_delete')}
                         </span>
                       </button>
                     ) : (
@@ -647,7 +650,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             height={18}
                           />
                           <span className="ml-[6px] flex items-center text-center text-white">
-                            Delete
+                            {t('button_delete')}
                           </span>
                         </button>
                         <button
@@ -671,7 +674,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             height={18}
                           />
                           <span className="ml-[6px] flex items-center text-center text-white">
-                            Add
+                            {t('button_add')}
                           </span>
                         </button>
                       </>
@@ -708,7 +711,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             {totalPages > 1 && <Paginator {...paginatorProps} />}
             {!isHundred && (
               <div className="mt-2 flex justify-center font-semibold">
-                <ErrorMessage message="Testcase values must equal to 100." />
+                <ErrorMessage message={t('error_testcase_values_not_100')} />
               </div>
             )}
           </div>
@@ -719,7 +722,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
               required={false}
               className="text-2xl font-semibold text-black"
             >
-              Hidden Testcase
+              {t('label_hidden_testcase')}
             </Label>
             <div className="flex w-full items-center justify-between">
               <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
@@ -731,7 +734,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                 />
                 <input
                   type="text"
-                  placeholder="Search"
+                  placeholder={t('input_search_placeholder')}
                   value={searchTC}
                   onChange={(e) => {
                     setsearchTC(e.target.value)
@@ -761,7 +764,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                           height={18}
                         />
                         <span className="ml-[6px] flex items-center text-center text-white">
-                          Delete
+                          {t('button_delete')}
                         </span>
                       </button>
                     ) : (
@@ -791,7 +794,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             height={18}
                           />
                           <span className="ml-[6px] flex items-center text-center text-white">
-                            Delete
+                            {t('button_delete')}
                           </span>
                         </button>
 
@@ -816,7 +819,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             height={18}
                           />
                           <span className="ml-[6px] flex items-center text-center text-white">
-                            Add
+                            {t('button_add')}
                           </span>
                         </button>
                       </>
@@ -853,7 +856,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             {totalPages > 1 && <Paginator {...paginatorProps} />}
             {!isHundred && (
               <div className="mt-2 flex justify-center font-semibold">
-                <ErrorMessage message="Testcase values must equal to 100." />
+                <ErrorMessage message={t('error_testcase_values_not_100')} />
               </div>
             )}
           </div>
@@ -878,17 +881,17 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                     fontSize={20}
                     className={cn(isScoreNull && 'text-[#B0B0B0]')}
                   />
-                  <p>Reset Ratio</p>
+                  <p>{t('button_reset_ratio')}</p>
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="shadow-2xs bg-white text-black">
-                Click to discard all of the scores of testcases.
+                {t('tooltip_reset_ratio')}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
           <div className="flex items-center">
             <span className="text-base font-medium text-[#474747]">
-              Total of
+              {t('total_of')}
             </span>
             <span className="ml-1 mr-5 font-medium text-[#3581FA]">
               {filteredItems.length}
@@ -919,12 +922,11 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                     fontSize={20}
                     className={cn(disableDistribution && 'text-gray-600')}
                   />
-                  <p>Equal Distribution</p>
+                  <p>{t('button_equal_distribution')}</p>
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="shadow-2xs bg-white text-black">
-                Click to equally distribute the scoring ratio for testcases
-                where the percentage is not specified.
+                {t('tooltip_equal_distribution')}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -932,7 +934,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         <Modal
           open={isDialogOpen}
           onOpenChange={setDialogOpen}
-          title="Warning"
+          title={t('modal_warning_title')}
           size="sm"
           headerDescription={dialogDescription}
           onClose={() => setDialogOpen(false)}

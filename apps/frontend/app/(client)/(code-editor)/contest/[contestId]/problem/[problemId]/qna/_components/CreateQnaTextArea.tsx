@@ -5,6 +5,7 @@ import { Input } from '@/components/shadcn/input'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
 import { safeFetcherWithAuth } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import React, { useState } from 'react'
 import { FaPen } from 'react-icons/fa6'
 import { toast } from 'sonner'
@@ -18,6 +19,7 @@ export function CreateQnaTextArea({
   contestId,
   problemOrder
 }: CreateQnaTextAreaProps) {
+  const { t } = useTranslate()
   const [qnaFormdata, setQnaFormData] = useState({
     title: '',
     content: ''
@@ -57,11 +59,11 @@ export function CreateQnaTextArea({
       }
       const result = await response.json()
       console.log('Success:', result)
-      toast.success('Question submitted successfully')
+      toast.success(t('question_submitted_successfully'))
       setQnaFormData({ title: '', content: '' })
     } catch (error) {
       console.error('Error submitting question:', error)
-      toast.error('Failed to submit question')
+      toast.error(t('failed_to_submit_question'))
     } finally {
       setLoading(false)
       //setPostModalOpen(false)
@@ -71,7 +73,7 @@ export function CreateQnaTextArea({
   return (
     <div className="rounded-lg bg-[#222939] p-5 text-white">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-xl font-semibold">Post a Question</h3>
+        <h3 className="text-xl font-semibold">{t('post_a_question')}</h3>
         <button
           onClick={() => handleSubmit()}
           className={cn(
@@ -84,7 +86,7 @@ export function CreateQnaTextArea({
         >
           <div className="flex items-center justify-center">
             <FaPen className="mr-1 inline h-3 w-3" />
-            <p>Post</p>
+            <p>{t('post_button')}</p>
           </div>
         </button>
       </div>
@@ -94,7 +96,7 @@ export function CreateQnaTextArea({
           <Input
             type="text"
             name="title"
-            placeholder="Enter the Title"
+            placeholder={t('enter_the_title')}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 event.preventDefault()
@@ -109,7 +111,7 @@ export function CreateQnaTextArea({
         <div className="relative">
           <Textarea
             name="content"
-            placeholder="Inappropriate questions can be deleted."
+            placeholder={t('inappropriate_questions_message')}
             value={qnaFormdata.content}
             onChange={handleInputChange}
             maxLength={400}

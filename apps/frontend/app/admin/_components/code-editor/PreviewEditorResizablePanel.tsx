@@ -18,6 +18,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import type { Language, Template } from '@/types/type'
 import type { ProblemDetail } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 import { EditorDescription } from './EditorDescription'
 import { SolutionLayout } from './SolutionLayout'
@@ -32,6 +33,8 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
     Array.isArray(problem.solution) && problem.solution.length > 0
   const [language, setLanguage] = useState<Language>(problem.languages[0])
   const [code, setCode] = useState('')
+
+  const { t } = useTranslate()
 
   useEffect(() => {
     const templates = problem.template ? JSON.parse(problem.template[0]) : []
@@ -65,14 +68,14 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
                   className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                   onClick={() => setTabValue('Description')}
                 >
-                  Description
+                  {t('description_tab')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="Submission"
                   className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                   onClick={() => setTabValue('Submission')}
                 >
-                  Submission
+                  {t('submission_tab')}
                 </TabsTrigger>
                 {hasSolution && (
                   <TabsTrigger
@@ -80,7 +83,7 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
                     className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                     onClick={() => setTabValue('Solution')}
                   >
-                    Solution
+                    {t('solution_tab')}
                   </TabsTrigger>
                 )}
               </TabsList>

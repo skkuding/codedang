@@ -52,13 +52,14 @@ interface DataTableSubmissionSummary
 // }
 
 export const createColumns = (
-  problemData: ProblemData[]
+  problemData: ProblemData[],
+  t: (key: string) => string
 ): ColumnDef<DataTableSubmissionSummary>[] => {
   return [
     {
       accessorKey: 'submittedProblemCount',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Submit" />
+        <DataTableColumnHeader column={column} title={t('submit_title')} />
       ),
       cell: ({ row }) => (
         <div className="flex justify-center">
@@ -69,7 +70,7 @@ export const createColumns = (
     {
       accessorKey: 'userAssignmentScore',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Total" />
+        <DataTableColumnHeader column={column} title={t('total_title')} />
       ),
       cell: ({ row }) => (
         <div>

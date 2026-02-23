@@ -25,6 +25,7 @@ import type { Language } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@apollo/client'
 import type { TestCaseResult } from '@generated/graphql'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -59,6 +60,7 @@ interface ProblemEditorProps {
 }
 
 export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
+  const { t } = useTranslate()
   const params = useParams<{
     courseId: string
     assignmentId: string
@@ -212,7 +214,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                           <div className="flex items-center justify-center pl-2">
                             <Image
                               src={checkIcon}
-                              alt="check"
+                              alt={t('check_icon')}
                               width={16}
                               height={16}
                             />
@@ -236,7 +238,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                   variant={'outline'}
                   disabled={isFirstStudent || summaries.length <= 1}
                 >
-                  Previous
+                  {t('previous_button')}
                 </Button>
               </Link>
 
@@ -250,7 +252,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                   size={'sm'}
                   disabled={isLastStudent || summaries.length <= 1}
                 >
-                  Next
+                  {t('next_button')}
                 </Button>
               </Link>
             </div>
@@ -273,14 +275,14 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               onClick={handleReset}
               className="rounded bg-gray-500 px-3 py-1 text-white hover:bg-gray-600"
             >
-              Reset
+              {t('reset_button')}
             </button>
             <button
               onClick={handleTest}
               disabled={isTesting}
               className="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
             >
-              {isTesting ? 'Testing...' : 'Test'}
+              {isTesting ? t('testing_label') : t('test_button')}
             </button>
           </div>
 
@@ -304,7 +306,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                 }
               >
                 <ErrorBoundary
-                  fallback={<div>Error occurred in Testcase Panel</div>}
+                  fallback={<div>{t('error_occurred_in_testcase_panel')}</div>}
                 >
                   <TestcasePanel
                     testResults={testResults}

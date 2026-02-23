@@ -1,4 +1,5 @@
 import { DataTable, DataTableRoot } from '@/app/admin/_components/table'
+import { useTranslate } from '@tolgee/react'
 import dayjs from 'dayjs'
 import {
   useCallback,
@@ -23,6 +24,8 @@ export function AssignmentSolutionTable({
   setProblems,
   dueTime
 }: AssignmentSolutionTableProps) {
+  const { t } = useTranslate()
+
   const [revealedStates, setRevealedStates] = useState<{
     [problemId: number]: boolean
   }>({})
@@ -275,7 +278,8 @@ export function AssignmentSolutionTable({
         optionStates,
         handleOptionChange,
         handleTimeFormChange,
-        solutionReleaseTimes
+        solutionReleaseTimes,
+        t
       ),
     [
       revealedStates,
@@ -283,7 +287,8 @@ export function AssignmentSolutionTable({
       optionStates,
       handleOptionChange,
       handleTimeFormChange,
-      solutionReleaseTimes
+      solutionReleaseTimes,
+      t
     ]
   )
 

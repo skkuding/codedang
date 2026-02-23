@@ -5,7 +5,7 @@ import type { Problem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { SortButton } from './SortButton'
 
-export const columns: ColumnDef<Problem>[] = [
+export const columns = (t: (key: string) => string): ColumnDef<Problem>[] => [
   {
     header: 'Title',
     accessorKey: 'title',
@@ -16,17 +16,23 @@ export const columns: ColumnDef<Problem>[] = [
     }
   },
   {
-    header: () => <SortButton order="level">Level</SortButton>,
+    header: () => {
+      return <SortButton order="level">{t('level_header')}</SortButton>
+    },
     accessorKey: 'difficulty',
     cell: ({ row }) => <LevelBadge level={row.original.difficulty} />
   },
   {
-    header: () => <SortButton order="submit">Submission</SortButton>,
+    header: () => {
+      return <SortButton order="submit">{t('submission_header')}</SortButton>
+    },
     accessorKey: 'submissionCount',
     cell: ({ row }) => row.original.submissionCount
   },
   {
-    header: () => <SortButton order="acrate">Success Rate</SortButton>,
+    header: () => {
+      return <SortButton order="acrate">{t('success_rate_header')}</SortButton>
+    },
     accessorKey: 'acceptedRate',
     cell: ({ row }) => `${(row.original.acceptedRate * 100).toFixed(2)}%`
   }

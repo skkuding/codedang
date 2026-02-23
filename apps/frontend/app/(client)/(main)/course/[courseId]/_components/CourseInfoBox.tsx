@@ -6,6 +6,7 @@ import calendarIcon from '@/public/icons/calendar.svg'
 import ongoingIcon from '@/public/icons/ongoing.svg'
 import personFillIcon from '@/public/icons/person-fill.svg'
 import type { Course } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
@@ -16,6 +17,7 @@ interface CourseInfoBoxProps {
 export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
   const [course, setCourse] = useState<Course>()
   const { setHeaderTitle } = useHeaderTitle()
+  const { t } = useTranslate()
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -38,10 +40,15 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
   return (
     <div className="flex flex-col gap-3 px-2 pt-24">
       <div className="flex gap-1">
-        <Image src={ongoingIcon} alt="ongoing" width={20} height={20} />
+        <Image
+          src={ongoingIcon}
+          alt={t('ongoing_icon_alt')}
+          width={20}
+          height={20}
+        />
         {/* FIXME: 하드코딩된 ONGOING 대신 데이터를 받아와주세요 */}
         <p className="text-primary text-sm font-semibold">
-          {course && 'ONGOING'}
+          {course && t('ongoing_status')}
         </p>
       </div>
       <p className="line-clamp-2 w-56 break-words text-lg font-semibold tracking-[-0.54px]">
@@ -51,7 +58,12 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
       </p>
       <div className="mt-2 flex flex-col gap-2">
         <div className="flex gap-[14px]">
-          <Image src={calendarIcon} alt="calendar" width={16} height={16} />
+          <Image
+            src={calendarIcon}
+            alt={t('calendar_icon_alt')}
+            width={16}
+            height={16}
+          />
           <p className="text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
             {course ? course.courseInfo.semester : ''}
           </p>
@@ -59,7 +71,7 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
         <div className="flex gap-[14px]">
           <Image
             src={personFillIcon}
-            alt="person-fill"
+            alt={t('person_fill_icon_alt')}
             width={16}
             height={16}
           />

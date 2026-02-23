@@ -15,10 +15,13 @@ import {
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { colleges } from '@/libs/constants'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { FaCheck, FaChevronDown } from 'react-icons/fa6'
 import { useSettingsContext } from './context'
 
 export function MajorSection() {
+  const { t } = useTranslate()
+
   const {
     isLoading,
     updateNow,
@@ -35,7 +38,7 @@ export function MajorSection() {
   const getMajorDisplayValue = () => {
     if (updateNow) {
       return majorValue === 'none'
-        ? 'Department Information Unavailable / 학과 정보 없음'
+        ? t('department_information_unavailable')
         : majorValue
     }
 
@@ -45,7 +48,7 @@ export function MajorSection() {
   const getCollegeDisplayValue = () => {
     if (updateNow) {
       return collegeValue === 'none'
-        ? 'Department Information Unavailable / 학과 정보 없음'
+        ? t('department_information_unavailable')
         : collegeValue
     }
 
@@ -54,7 +57,7 @@ export function MajorSection() {
 
   return (
     <>
-      <label className="-mb-4 mt-2 text-xs">First Major</label>
+      <label className="-mb-4 mt-2 text-xs">{t('first_major_label')}</label>
       <div className="flex flex-col gap-1">
         <Popover open={collegeOpen} onOpenChange={setCollegeOpen} modal={true}>
           <PopoverTrigger asChild>
@@ -77,16 +80,16 @@ export function MajorSection() {
               )}
             >
               <span className="truncate">
-                {isLoading ? 'Loading...' : getCollegeDisplayValue()}
+                {isLoading ? t('loading_text') : getCollegeDisplayValue()}
               </span>
               <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[555px] p-0">
             <Command>
-              <CommandInput placeholder="Search affiliation..." />
+              <CommandInput placeholder={t('search_affiliation_placeholder')} />
               <ScrollArea>
-                <CommandEmpty>No affiliation found.</CommandEmpty>
+                <CommandEmpty>{t('no_affiliation_found')}</CommandEmpty>
                 <CommandGroup>
                   <CommandList className="h-40">
                     {colleges?.map((college) => (
@@ -137,16 +140,16 @@ export function MajorSection() {
               )}
             >
               <span className="truncate">
-                {isLoading ? 'Loading...' : getMajorDisplayValue()}
+                {isLoading ? t('loading_text') : getMajorDisplayValue()}
               </span>
               <FaChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[555px] p-0">
             <Command>
-              <CommandInput placeholder="Search major..." />
+              <CommandInput placeholder={t('search_major_placeholder')} />
               <ScrollArea>
-                <CommandEmpty>No major found.</CommandEmpty>
+                <CommandEmpty>{t('no_major_found')}</CommandEmpty>
                 <CommandGroup>
                   <CommandList className="h-40">
                     {colleges

@@ -8,11 +8,13 @@ import {
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { cn } from '@/libs/utils'
 import { ErrorBoundary } from '@suspensive/react'
+import { useTranslate } from '@tolgee/react'
 import { Suspense, useState, use } from 'react'
 
 export default function Submission(props: {
   params: Promise<{ courseId: string; exerciseId: string }>
 }) {
+  const { t } = useTranslate()
   const params = use(props.params)
   const [tab, setTab] = useState<'all' | 'students'>('all')
   const groupId = Number(params.courseId)
@@ -33,7 +35,7 @@ export default function Submission(props: {
                 )}
                 onClick={() => setTab('all')}
               >
-                All submissions
+                {t('all_submissions_button')}
               </button>
               <button
                 className={cn(
@@ -44,7 +46,7 @@ export default function Submission(props: {
                 )}
                 onClick={() => setTab('students')}
               >
-                Students
+                {t('students_button')}
               </button>
             </div>
           </div>

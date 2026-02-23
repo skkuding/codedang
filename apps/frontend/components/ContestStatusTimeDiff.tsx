@@ -5,6 +5,7 @@ import { dateFormatter } from '@/libs/utils'
 import clockRedIcon from '@/public/icons/clock_red.svg'
 import subtractIcon from '@/public/icons/subtract.svg'
 import type { ContestStatus } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import Image from 'next/image'
@@ -33,6 +34,7 @@ export function ContestStatusTimeDiff({
   textStyle: string
   inContestEditor: boolean
 }) {
+  const { t } = useTranslate()
   const router = useRouter()
   const { problemId } = useParams()
   const currentTime = dayjs()
@@ -72,10 +74,10 @@ export function ContestStatusTimeDiff({
 
     if (inContestEditor) {
       if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
-        toast.error('Contest ends in 5 minutes.', { duration: 10000 })
+        toast.error(t('contest_ends_in_5_minutes'), { duration: 10000 })
       }
       if (days === 0 && hours === 0 && minutes === 1 && seconds === 0) {
-        toast.error('Contest ends in 1 minute.', { duration: 10000 })
+        toast.error(t('contest_ends_in_1_minute'), { duration: 10000 })
       }
     }
 
@@ -86,7 +88,7 @@ export function ContestStatusTimeDiff({
         registerMinutes === 5 &&
         registerSeconds === 0
       ) {
-        toast.error('Contest registration will close in 5 minutes.', {
+        toast.error(t('contest_registration_5_minutes'), {
           duration: 10000
         })
       }
@@ -96,7 +98,7 @@ export function ContestStatusTimeDiff({
         registerMinutes === 1 &&
         registerSeconds === 0
       ) {
-        toast.error('Contest registration will close in 1 minutes.', {
+        toast.error(t('contest_registration_1_minute'), {
           duration: 10000
         })
       }
@@ -172,7 +174,7 @@ export function ContestStatusTimeDiff({
         >
           <Image src={subtractIcon} alt="subtract" width={20} height={20} />
           <p className="text-primary ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px]">
-            Registration :
+            {t('registration')} :
           </p>
           <p className="text-color-neutral-30 mr-2 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px]">
             {`${formattedTime(contest.createTime)} ~ ${formattedTime(contest.registerDueTime)}`}
@@ -197,7 +199,7 @@ export function ContestStatusTimeDiff({
         >
           <Image src={clockRedIcon} alt="clock" width={20} height={20} />
           <p className="text-color-red-50 ml-[6px] mr-2 text-ellipsis whitespace-nowrap text-base font-medium leading-[22.4px] tracking-[-0.48px]">
-            Duration :
+            {t('duration')} :
           </p>
           <p className="text-color-neutral-30 mr-2 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-base font-normal leading-[24px] tracking-[-0.48px]">
             {`${formattedTime(contest.startTime)} ~ ${formattedTime(contest.endTime)}`}

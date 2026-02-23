@@ -11,7 +11,8 @@ import {
 import { DELETE_ASSIGNMENT } from '@/graphql/assignment/mutations'
 import { GET_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
-import { columns } from './AssignmentTableColumns'
+import { useTranslate } from '@tolgee/react'
+import { getColumns } from './AssignmentTableColumns'
 
 interface AssignmentTableProps {
   groupId: string
@@ -22,6 +23,8 @@ export function AssignmentTable({
   groupId,
   isExercise = false
 }: AssignmentTableProps) {
+  const { t } = useTranslate()
+  const columns = getColumns(t)
   const { data } = useSuspenseQuery(GET_ASSIGNMENTS, {
     variables: {
       groupId: Number(groupId),
@@ -95,5 +98,5 @@ function AssignmentsDeleteButton({
 }
 
 export function AssignmentTableFallback() {
-  return <DataTableFallback columns={columns} />
+  return <DataTableFallback columns={getColumns(() => '')} />
 }

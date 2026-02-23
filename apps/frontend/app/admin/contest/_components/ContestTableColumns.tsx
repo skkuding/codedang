@@ -15,7 +15,9 @@ export interface DataTableContest {
   status: string
 }
 
-export const columns: ColumnDef<DataTableContest>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<DataTableContest>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -25,7 +27,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
         onCheckedChange={(value) =>
           table.toggleAllPageRowsSelected(Boolean(value))
         }
-        aria-label="Select all"
+        aria-label={t('select_all_aria_label')}
         className="translate-y-[2px]"
       />
     ),
@@ -34,7 +36,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
         onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
-        aria-label="Select row"
+        aria-label={t('select_row_aria_label')}
         className="translate-y-[2px]"
       />
     ),
@@ -46,7 +48,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Title"
+        title={t('title_column_header')}
         className="w-[400px]"
       />
     ),
@@ -59,7 +61,10 @@ export const columns: ColumnDef<DataTableContest>[] = [
   {
     accessorKey: 'participants',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Participants" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('participants_column_header')}
+      />
     ),
     cell: ({ row }) => {
       return row.original.participants
@@ -70,7 +75,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Period"
+        title={t('period_column_header')}
         className="text-center"
       />
     ),
@@ -81,7 +86,7 @@ export const columns: ColumnDef<DataTableContest>[] = [
   {
     accessorKey: 'status',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="State" />
+      <DataTableColumnHeader column={column} title={t('state_column_header')} />
     ),
     cell: ({ row }) => (
       <p

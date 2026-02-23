@@ -4,6 +4,7 @@ import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { auth } from '@/libs/auth'
 import { fetcher, fetcherWithAuth, hasDueDate, omitString } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
+import { getTranslate } from '@/tolgee/server'
 import type { Assignment, Contest, Course, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Image from 'next/image'
@@ -34,6 +35,7 @@ export async function EditorLayout({
   problemId,
   children
 }: EditorLayoutProps) {
+  const t = await getTranslate()
   let assignment: Assignment | undefined
   let exercise: Assignment | undefined
   let contest: Contest | undefined
@@ -125,16 +127,17 @@ export async function EditorLayout({
         <header className="flex h-12 justify-between bg-slate-900 px-6">
           <div className="flex items-center justify-center gap-4 text-lg text-[#787E80]">
             <Link href="/">
-              <Image src={codedangLogo} alt="코드당" width={33} />
+              <Image src={codedangLogo} alt={t('codedang_alt')} width={33} />
             </Link>
             <div className="flex items-center gap-1 font-medium">
               {renderHeaderContent({
                 contest,
                 assignment,
                 exercise,
-                problem,
                 courseId,
-                courseName
+                courseName,
+                problem,
+                t
               })}
             </div>
           </div>
@@ -175,21 +178,23 @@ interface HeaderContentProps {
   courseId?: number | undefined
   courseName?: string | undefined
   problem: Required<ProblemDetail>
+  t: (key: string) => string
 }
 
 const renderHeaderContent = ({
   contest,
   assignment,
   exercise,
-  problem,
   courseId,
-  courseName
+  courseName,
+  problem,
+  t
 }: HeaderContentProps) => {
   if (contest) {
     return (
       <>
         <Link href={'/contest'}>
-          <p>Contest</p>
+          <p>{t('contest_link')}</p>
         </Link>
         <p className="mx-2"> / </p>
         <Link href={`/contest/${contest.id}`}>
@@ -242,7 +247,8 @@ const renderHeaderContent = ({
   } else {
     return (
       <>
-        <Link href="/problem">Problem</Link> <p className="mx-2"> / </p>{' '}
+        <Link href="/problem">{t('problem_link')}</Link>{' '}
+        <p className="mx-2"> / </p>{' '}
         <h1 className="w-[1024px] overflow-hidden text-ellipsis whitespace-nowrap text-lg font-medium text-white">{`#${problem.id}. ${problem.title}`}</h1>
       </>
     )

@@ -1,5 +1,6 @@
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { useSettingsContext } from './context'
 
 interface StudentIdSectionProps {
@@ -7,6 +8,7 @@ interface StudentIdSectionProps {
 }
 
 export function StudentIdSection({ studentId }: StudentIdSectionProps) {
+  const { t } = useTranslate()
   const {
     isLoading,
     updateNow,
@@ -16,13 +18,15 @@ export function StudentIdSection({ studentId }: StudentIdSectionProps) {
 
   return (
     <>
-      <label className="-mb-4 mt-2 text-xs">Student ID</label>
+      <label className="-mb-4 mt-2 text-xs">{t('student_id_label')}</label>
       <Input
         placeholder={(() => {
           if (updateNow) {
             return '2024123456'
           }
-          return isLoading ? 'Loading...' : defaultProfileValues.studentId
+          return isLoading
+            ? t('loading_placeholder')
+            : defaultProfileValues.studentId
         })()}
         disabled={!updateNow}
         {...register('studentId')}

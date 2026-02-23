@@ -22,12 +22,15 @@ interface DataTableScoreSummary
 }
 
 export const createColumns = (
-  problemData: ProblemData[]
+  problemData: ProblemData[],
+  t: (key: string) => string
 ): ColumnDef<DataTableScoreSummary>[] => {
   return [
     {
       accessorKey: 'submittedProblemCount',
-      header: () => <p className="py-1 font-mono text-sm">Submit</p>,
+      header: () => (
+        <p className="py-1 font-mono text-sm">{t('submit_header')}</p>
+      ),
       cell: ({ row }) => (
         <div className="flex justify-center">
           {row.original.submittedProblemCount}/{row.original.totalProblemCount}
@@ -36,7 +39,9 @@ export const createColumns = (
     },
     {
       accessorKey: 'userContestScore',
-      header: () => <p className="py-1 font-mono text-sm">Total</p>,
+      header: () => (
+        <p className="py-1 font-mono text-sm">{t('total_header')}</p>
+      ),
       cell: ({ row }) => (
         <div>
           {row.original.userContestScore}/{row.original.contestPerfectScore}

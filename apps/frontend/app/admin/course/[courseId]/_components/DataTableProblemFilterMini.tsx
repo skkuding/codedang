@@ -7,10 +7,9 @@ import {
 } from '@/graphql/problem/queries'
 import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 import { IoChevronDown, IoFilter } from 'react-icons/io5'
-
-const ALL_OPTION_LABEL = 'All Problems'
 
 export function DataTableProblemFilterMini({
   contestId = 0,
@@ -21,6 +20,7 @@ export function DataTableProblemFilterMini({
   groupId?: number
   assignmentId?: number
 }) {
+  const { t } = useTranslate()
   const { table } = useDataTable()
   const column = table.getColumn(SUBMISSION_PROBLEM_COLUMN_ID)
   const selectedValues = (column?.getFilterValue() as string[]) || []
@@ -95,7 +95,7 @@ export function DataTableProblemFilterMini({
       selectedValues.length === 0 ||
       selectedValues.length === options.length
     ) {
-      return 'ALL'
+      return t('all_label')
     }
     // 선택된 문제들의 order 알파벳만 콤마로 표시
     const selectedOrders = selectedValues
@@ -105,7 +105,7 @@ export function DataTableProblemFilterMini({
       })
       .filter(Boolean)
       .join(', ')
-    return selectedOrders || 'ALL'
+    return selectedOrders || t('all_label')
   }
 
   return (
@@ -116,7 +116,9 @@ export function DataTableProblemFilterMini({
         type="button"
       >
         <IoFilter className="text-lg text-gray-400" />
-        <span className="text-sm font-medium text-gray-700">Problem</span>
+        <span className="text-sm font-medium text-gray-700">
+          {t('problem_label')}
+        </span>
         <span className="ml-2 text-xs font-semibold text-gray-500">
           {getSelectedLabel()}
         </span>
@@ -150,7 +152,7 @@ export function DataTableProblemFilterMini({
                   : 'font-normal text-gray-800'
               )}
             >
-              {ALL_OPTION_LABEL}
+              {t('all_problems_label')}
             </span>
           </div>
           {options.map((problem) => (
@@ -184,7 +186,7 @@ export function DataTableProblemFilterMini({
             className="bg-primary mt-2 h-8 w-full rounded-full text-sm font-bold text-white shadow-none transition hover:bg-blue-600"
             onClick={handleApply}
           >
-            Apply
+            {t('apply_button')}
           </button>
         </div>
       )}

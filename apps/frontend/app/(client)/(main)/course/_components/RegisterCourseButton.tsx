@@ -8,11 +8,13 @@ import personFillIcon from '@/public/icons/person-fill.svg'
 import plusCircleIcon from '@/public/icons/plus-circle.svg'
 import type { Course } from '@/types/type'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 export function RegisterCourseButton() {
+  const { t } = useTranslate()
   const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false)
   const [isVerifyDialogOpen, setIsVerifyDialogOpen] = useState(false)
   const [isVerified, setIsVerified] = useState(false)
@@ -37,12 +39,10 @@ export function RegisterCourseButton() {
       setFoundCourse(data)
     } catch (error) {
       if (isHttpError(error) && error.response.status === 404) {
-        setVerificationFailedTitle('Invalid Code')
-        setVerificationFailedDescription(
-          'If the issue persists, please contact the instructor or administrator.'
-        )
+        setVerificationFailedTitle(t('invalid_code_title'))
+        setVerificationFailedDescription(t('invalid_code_persist_message'))
       } else {
-        setVerificationFailedTitle('Invalid Request')
+        setVerificationFailedTitle(t('invalid_request_title'))
         setVerificationFailedDescription('')
       }
       setInvitationCode('')
@@ -57,30 +57,22 @@ export function RegisterCourseButton() {
         searchParams: { invitation: invitationCode }
       })
       queryClient.invalidateQueries({ queryKey: ['joinedCourses'] })
-      toast.success('Successfully registered course.')
+      toast.success(t('successfully_registered_course'))
       setIsVerifyDialogOpen(false)
       setIsRegisterDialogOpen(false)
     } catch (error) {
       if (isHttpError(error) && error.response.status === 409) {
-        setVerificationFailedTitle('Already requested or joined the group')
-        setVerificationFailedDescription(
-          'If the issue persists, please contact the instructor or administrator.'
-        )
+        setVerificationFailedTitle(t('already_requested_or_joined'))
+        setVerificationFailedDescription(t('invalid_code_persist_message'))
       } else if (isHttpError(error) && error.response.status === 404) {
-        setVerificationFailedTitle('Group not found')
-        setVerificationFailedDescription(
-          'If the issue persists, please contact the instructor or administrator.'
-        )
+        setVerificationFailedTitle(t('group_not_found_title'))
+        setVerificationFailedDescription(t('invalid_code_persist_message'))
       } else if (isHttpError(error) && error.response.status === 403) {
-        setVerificationFailedTitle('Not authorized for this course')
-        setVerificationFailedDescription(
-          'The instructor of this course has not approved the enrollment for this student ID. If the issue persists, please contact the instructor or administrator.'
-        )
+        setVerificationFailedTitle(t('not_authorized_title'))
+        setVerificationFailedDescription(t('not_authorized_message'))
       } else {
-        setVerificationFailedTitle('Invalid Code')
-        setVerificationFailedDescription(
-          'If the issue persists, please contact the instructor or administrator.'
-        )
+        setVerificationFailedTitle(t('invalid_code_title'))
+        setVerificationFailedDescription(t('invalid_code_persist_message'))
       }
       setIsVerified(false)
       setInvitationCode('')
@@ -97,19 +89,21 @@ export function RegisterCourseButton() {
             className="border-primary flex h-8 w-[127px] items-center justify-center gap-2 rounded-full border hover:bg-[#EAF3FF]"
           >
             <Image src={plusCircleIcon} alt="plusIcon" />
-            <span className="text-primary text-lg font-semibold">Register</span>
+            <span className="text-primary text-lg font-semibold">
+              {t('register_button')}
+            </span>
           </Button>
         }
         open={isRegisterDialogOpen}
         size="sm"
-        title="Course Register"
+        title={t('course_register_title')}
         primaryButton={{
-          text: 'Register',
+          text: t('register_button'),
           onClick: handleFindCourseByInvitation
         }}
         inputProps={{
           type: 'text',
-          placeholder: 'Invitation Code',
+          placeholder: t('invitation_code_placeholder'),
           value: invitationCode,
           onChange: (value) => setInvitationCode(value)
         }}
@@ -118,11 +112,11 @@ export function RegisterCourseButton() {
       <AlertModal
         open={isVerifyDialogOpen && isVerified}
         onOpenChange={setIsVerifyDialogOpen}
-        title="Verified"
-        description="Are you sure you want to register this course?"
+        title={t('verified_title')}
+        description={t('confirm_registration_message')}
         onClose={() => setIsVerifyDialogOpen(false)}
         primaryButton={{
-          text: 'Register',
+          text: t('register_button'),
           onClick: handleRegisterCourse
         }}
         type="confirm"

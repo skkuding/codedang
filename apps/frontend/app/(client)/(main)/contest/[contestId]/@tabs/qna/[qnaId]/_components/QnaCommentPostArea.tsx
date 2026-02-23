@@ -1,9 +1,10 @@
 import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
+import { getTranslate } from '@/tolgee/server'
 import type { Dispatch, SetStateAction } from 'react'
 import { BiSolidPencil } from 'react-icons/bi'
 
-export function QnaCommentPostArea({
+export async function QnaCommentPostArea({
   username,
   text,
   setText,
@@ -14,6 +15,8 @@ export function QnaCommentPostArea({
   setText: Dispatch<SetStateAction<string>>
   onPost: () => void
 }) {
+  const t = await getTranslate()
+
   return (
     <div className="border-color-line-default flex flex-col gap-[20px] rounded-xl border border-solid p-[30px]">
       {/* 작성자 이름과 input field */}
@@ -24,7 +27,7 @@ export function QnaCommentPostArea({
             value={text}
             id="textarea"
             className="placeholder:text-color-neutral-90 min-h-[120px] resize-none whitespace-pre-wrap rounded-none border-none p-0 text-base shadow-none focus-visible:ring-0"
-            placeholder="Enter Your Answer"
+            placeholder={t('enter_your_answer')}
             onChange={(value) => setText(value.target.value)}
             maxLength={400}
           />
@@ -41,7 +44,7 @@ export function QnaCommentPostArea({
         className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-[6px]"
       >
         <BiSolidPencil className="white" />
-        <p className="text-base font-medium text-white">Post</p>
+        <p className="text-base font-medium text-white">{t('post_button')}</p>
       </Button>
     </div>
   )

@@ -10,6 +10,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { AlertTriangle, X } from 'lucide-react'
 import { useState } from 'react'
 import { CiSquarePlus } from 'react-icons/ci'
@@ -21,6 +22,7 @@ import { useTestcaseStore } from '../context/TestcaseStoreProvider'
 import { useUserTestcasesForm } from './useUserTestcasesForm'
 
 export function AddUserTestcaseDialog() {
+  const { t } = useTranslate()
   const [open, setOpen] = useState(false)
   const sampleTestcases = useTestcaseStore((state) => state.sampleTestcases)
 
@@ -47,7 +49,7 @@ export function AddUserTestcaseDialog() {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger className="flex h-8 w-[148px] items-center justify-center gap-2 rounded-[5px] bg-slate-600 p-2 text-white">
         <CiSquarePlus size={24} />
-        Add Testcase
+        {t('add_testcase')}
       </DialogTrigger>
 
       <DialogContent
@@ -56,14 +58,14 @@ export function AddUserTestcaseDialog() {
       >
         <DialogClose className="absolute right-6 top-6 z-10">
           <X className="h-6 w-6 text-[#b0b0b0]" />
-          <span className="sr-only">Close</span>
+          <span className="sr-only">{t('close')}</span>
         </DialogClose>
         <ScrollArea className="h-[600px] px-14">
           <ScrollBar />
           <form onSubmit={onSubmit}>
             <DialogHeader className="mt-[70px]">
               <DialogTitle className="text-white">
-                Add User Testcase
+                {t('add_user_testcase')}
               </DialogTitle>
             </DialogHeader>
 
@@ -71,7 +73,9 @@ export function AddUserTestcaseDialog() {
               {sampleTestcases.map((testcase, index) => (
                 <div key={testcase.id} className="flex flex-col gap-4">
                   <p className="text-[#C4CACC]">
-                    Sample #{(index + 1).toString().padStart(2, '0')}
+                    {t('sample_testcase_number', {
+                      number: (index + 1).toString().padStart(2, '0')
+                    })}
                   </p>
                   <SampleTestcaseItem
                     input={testcase.input}
@@ -83,7 +87,9 @@ export function AddUserTestcaseDialog() {
               {testcases.map((testcase, index) => (
                 <div key={testcase.id} className="flex flex-col">
                   <p className="text-primary-light mb-4">
-                    User Testcase #{(index + 1).toString().padStart(2, '0')}
+                    {t('user_testcase_number', {
+                      number: (index + 1).toString().padStart(2, '0')
+                    })}
                   </p>
                   <div
                     className={cn(
@@ -95,14 +101,14 @@ export function AddUserTestcaseDialog() {
                       {...register(`testcases.${index}.input`, {
                         required: true
                       })}
-                      placeholder="Input"
+                      placeholder={t('input')}
                       className="z-10 resize-none border-0 px-4 py-0 text-black shadow-none placeholder:text-[#3333334D] focus-visible:ring-0"
                     />
                     <Textarea
                       {...register(`testcases.${index}.output`, {
                         required: true
                       })}
-                      placeholder="Output"
+                      placeholder={t('output')}
                       className="z-10 min-h-[80px] rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 text-black shadow-none placeholder:text-[#3333334D] focus-visible:ring-0"
                     />
                     <button
@@ -116,7 +122,7 @@ export function AddUserTestcaseDialog() {
                   {formState.errors?.testcases?.[index] && (
                     <div className="text-error mt-2 flex items-center gap-1 text-[11px] font-medium leading-[14px]">
                       <AlertTriangle size={12} />
-                      Required
+                      {t('required')}
                     </div>
                   )}
                 </div>
@@ -127,14 +133,14 @@ export function AddUserTestcaseDialog() {
                 className="mt-6 flex w-full gap-2 bg-[#555C66] text-[#C4CACC] hover:bg-[#222939] active:bg-[#222939]"
               >
                 <FaPlus />
-                Add
+                {t('add')}
               </Button>
             </div>
 
             <div className="mb-[40px] flex flex-row justify-end gap-3">
               <DialogClose asChild>
                 <Button className="h-[40px] w-[78px] bg-[#DCE3E5] text-[#787E80] hover:bg-[#C4CACC] hover:text-[#5F6566] active:bg-[#C4CACC] active:text-[#5F6566]">
-                  Cancel
+                  {t('cancel')}
                 </Button>
               </DialogClose>
               <Button
@@ -142,7 +148,7 @@ export function AddUserTestcaseDialog() {
                 className="flex h-[40px] w-[95px] gap-2 text-white hover:text-neutral-200 active:text-neutral-200"
               >
                 <FaCircleCheck />
-                Save
+                {t('save')}
               </Button>
             </div>
           </form>

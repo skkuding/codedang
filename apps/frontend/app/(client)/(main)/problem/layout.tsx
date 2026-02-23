@@ -1,11 +1,17 @@
 import { Cover } from '@/app/(client)/(main)/_components/Cover'
+import { getTranslate } from '@/tolgee/server'
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  const t = await getTranslate()
   return (
     <>
       <Cover
-        title="PROBLEM"
-        description="Train Hard, Solve Fast, Code Like a Pro!"
+        title={t('problem_title')}
+        description={t('problem_description')}
       />
       <div className="flex w-full max-w-[1440px] flex-col gap-5 px-[116px] py-8">
         {children}

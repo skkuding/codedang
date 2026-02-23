@@ -1,5 +1,6 @@
 import { useDataTable } from '@/app/admin/_components/table/context'
 import { Button } from '@/components/shadcn/button'
+import { useTranslate } from '@tolgee/react'
 import type { BelongedContest } from './BelongedContestTableColumns'
 
 interface SetToZeroButtonProps {
@@ -7,6 +8,7 @@ interface SetToZeroButtonProps {
 }
 
 export function SetToZeroButton({ onSetToZero }: SetToZeroButtonProps) {
+  const { t } = useTranslate()
   const { table } = useDataTable<BelongedContest>()
 
   const selectedContests = table
@@ -15,7 +17,7 @@ export function SetToZeroButton({ onSetToZero }: SetToZeroButtonProps) {
 
   return selectedContests.length > 0 ? (
     <Button onClick={() => onSetToZero(selectedContests)} variant="outline">
-      Set to Zero
+      {t('set_to_zero_button')}
     </Button>
   ) : null
 }

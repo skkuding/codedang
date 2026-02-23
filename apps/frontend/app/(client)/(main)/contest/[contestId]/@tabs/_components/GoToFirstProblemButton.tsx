@@ -1,5 +1,6 @@
 import { getContestProblemList } from '@/app/(client)/_libs/apis/contestProblem'
 import { Button } from '@/components/shadcn/button'
+import { getTranslate } from '@/tolgee/server'
 import Link from 'next/link'
 
 interface GoToFirstProblemButtonProps {
@@ -13,10 +14,12 @@ export async function GoToFirstProblemButton({
 
   const firstProblemId = data.at(0)?.id
 
+  const t = await getTranslate()
+
   return firstProblemId ? (
     <Button className="px-12 py-6 text-lg font-light">
       <Link href={`/contest/${contestId}/problem/${firstProblemId}`}>
-        Go To First Problem!
+        {t('go_to_first_problem_button')}
       </Link>
     </Button>
   ) : null

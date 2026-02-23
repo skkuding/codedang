@@ -3,6 +3,7 @@
 import type { SettingsFormat } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -37,6 +38,7 @@ type UpdatePayload = Partial<{
 }>
 
 export default function Page() {
+  const { t } = useTranslate()
   const searchParams = useSearchParams()
   const updateNow = searchParams.get('updateNow')
   const router = useRouter()
@@ -145,13 +147,13 @@ export default function Page() {
     mutationFn: updateUserProfile,
     onError: (error) => {
       console.error(error)
-      toast.error('Failed to update your information, Please try again')
+      toast.error(t('update_failed'))
       setTimeout(() => {
         window.location.reload()
       }, 1500)
     },
     onSuccess: () => {
-      toast.success('Successfully updated your information')
+      toast.success(t('update_successful'))
       bypassConfirmation.current = true
       setTimeout(() => {
         if (updateNow) {
@@ -297,8 +299,8 @@ export default function Page() {
       </SettingsProvider>
 
       <ConfirmModal
-        title="Are you sure you want to leave?"
-        description={`Your changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?`}
+        title={t('leave_confirmation_title')}
+        description={`${t('leave_confirmation_description_line_1')}\n${t('leave_confirmation_description_line_2')}\n${t('leave_confirmation_description_line_3')}`}
         open={isConfirmModalOpen}
         handleOpen={() => setIsConfirmModalOpen(true)}
         handleClose={() => setIsConfirmModalOpen(false)}

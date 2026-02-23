@@ -11,6 +11,7 @@ import {
 import { cn, fetcherWithAuth, safeFetcherWithAuth } from '@/libs/utils'
 import type { JoinedCourse } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
@@ -64,6 +65,8 @@ interface CourseCardListProps {
 }
 
 export function CourseCardList({ title }: CourseCardListProps) {
+  const { t } = useTranslate()
+
   // Get username and generate colors
   const { data: username = 'unknown' } = useQuery({
     queryKey: ['username'],
@@ -118,10 +121,8 @@ export function CourseCardList({ title }: CourseCardListProps) {
           <RegisterCourseButton />
         </div>
         <div className="flex h-72 w-full flex-col items-center justify-center rounded-[20px] border border-[#DFDFDF] text-xl font-normal text-[#737373]">
-          <p>There are no courses registered!</p>
-          <p>
-            Please click the register button at the top to enroll in a course.
-          </p>
+          <p>{t('no_courses_registered_message')}</p>
+          <p>{t('register_button_prompt')}</p>
         </div>
       </div>
     )

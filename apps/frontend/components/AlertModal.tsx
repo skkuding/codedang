@@ -4,6 +4,7 @@ import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
 import confirmIcon from '@/public/icons/check-blue.svg'
 import warningIcon from '@/public/icons/info.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useState } from 'react'
 import {
@@ -59,6 +60,7 @@ export function AlertModal({
   children,
   onClose
 }: AlertModalProps) {
+  const { t } = useTranslate()
   const [internalOpen, setInternalOpen] = useState(false)
   const isControlled = open !== undefined && onOpenChange !== undefined
   const actualOpen = isControlled ? open : internalOpen
@@ -77,7 +79,7 @@ export function AlertModal({
           {showIcon && (
             <Image
               src={type === 'warning' ? warningIcon : confirmIcon}
-              alt={type === 'warning' ? 'warning' : 'confirm'}
+              alt={type === 'warning' ? t('warning') : t('confirm')}
               width={42}
               height={42}
             />
@@ -107,7 +109,7 @@ export function AlertModal({
         <AlertDialogFooter className="flex w-full flex-row gap-[4px]">
           {showCancelButton && (
             <AlertDialogCancel className="h-[46px] w-full">
-              Cancel
+              {t('cancel')}
             </AlertDialogCancel>
           )}
           <AlertDialogAction asChild>

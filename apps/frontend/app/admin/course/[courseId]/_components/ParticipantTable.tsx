@@ -14,6 +14,7 @@ import {
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import excelIcon from '@/public/icons/excel.svg'
 import { useQuery, useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { CSVLink } from 'react-csv'
@@ -40,6 +41,7 @@ interface ParticipantTableProps {
 }
 
 export function ParticipantTable({ isExercise }: ParticipantTableProps) {
+  const { t } = useTranslate()
   const params = useParams()
   const courseId = Number(params.courseId)
   const assignmentId = Number(
@@ -146,16 +148,21 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
   })
 
   const headers = [
-    { label: '학번', key: 'studentId' },
-    { label: '전공', key: 'major' },
-    { label: '이름', key: 'realName' },
-    { label: '아이디', key: 'username' },
+    { label: t('student_id_label'), key: 'studentId' },
+    { label: t('major_label'), key: 'major' },
+    { label: t('real_name_label'), key: 'realName' },
+    { label: t('username_label'), key: 'username' },
     {
-      label: `제출 문제 수(총 ${scoreData?.getAssignmentScoreSummaries[0]?.totalProblemCount || 0})`,
+      label: t('submitted_problem_count_label', {
+        total: scoreData?.getAssignmentScoreSummaries[0]?.totalProblemCount || 0
+      }),
       key: 'problemRatio'
     },
     {
-      label: `총 획득 점수(만점 ${scoreData?.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
+      label: t('total_score_label', {
+        max:
+          scoreData?.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0
+      }),
       key: 'score'
     },
     ...problemHeaders
@@ -165,7 +172,7 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
     <div>
       <DataTableRoot
         data={summariesData}
-        columns={createColumns(problemColumnData)}
+        columns={createColumns(problemColumnData, t)}
         enablePagination={false}
       >
         <div className="flex justify-between">
@@ -174,11 +181,11 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
               <span className="text-primary font-bold">
                 {summariesData.length}
               </span>{' '}
-              Participants
+              {t('participant_count_label')}
             </div>
             <DataTableSearchBar
               columndId="realName"
-              placeholder="Search Name"
+              placeholder={t('search_name_placeholder')}
             />
           </div>
           <CSVLink
@@ -187,10 +194,10 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
             filename={fileName}
             className="bg-primary flex items-center gap-2 rounded-full px-[12px] py-[8px] text-lg font-semibold text-white transition-opacity hover:opacity-85"
           >
-            Export
+            {t('export_button')}
             <Image
               src={excelIcon}
-              alt="Excel Icon"
+              alt={t('excel_icon_alt')}
               width={20}
               height={20}
               className="ml-1"
@@ -211,7 +218,7 @@ export function ParticipantTableFallback() {
   return (
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
-      <DataTableFallback columns={createColumns([])} />
+      <DataTableFallback columns={createColumns([], () => '')} />
     </div>
   )
 }

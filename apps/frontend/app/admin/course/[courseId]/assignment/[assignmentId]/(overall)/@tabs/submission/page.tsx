@@ -3,6 +3,7 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { cn } from '@/libs/utils'
 import { ErrorBoundary } from '@suspensive/react'
+import { useTranslate } from '@tolgee/react'
 import { Suspense, useState, use } from 'react'
 import { ParticipantTable } from '../../../../../_components/ParticipantTable'
 import {
@@ -17,6 +18,8 @@ export default function Submission(props: {
   const [tab, setTab] = useState<'all' | 'students'>('all')
   const groupId = Number(params.courseId)
   const assignmentId = Number(params.assignmentId)
+
+  const { t } = useTranslate()
 
   return (
     <ErrorBoundary fallback={FetchErrorFallback}>
@@ -33,7 +36,7 @@ export default function Submission(props: {
                 )}
                 onClick={() => setTab('all')}
               >
-                All submissions
+                {t('all_submissions')}
               </button>
               <button
                 className={cn(
@@ -44,7 +47,7 @@ export default function Submission(props: {
                 )}
                 onClick={() => setTab('students')}
               >
-                Students
+                {t('students')}
               </button>
             </div>
           </div>

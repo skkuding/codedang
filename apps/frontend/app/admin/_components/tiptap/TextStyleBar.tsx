@@ -13,6 +13,7 @@ import LinkIcon from '@/public/icons/texteditor-link.svg'
 import StrikeIcon from '@/public/icons/texteditor-stikethrough.svg'
 import UnderlineIcon from '@/public/icons/texteditor-underline.svg'
 import type { Editor } from '@tiptap/core'
+import { useTranslate } from '@tolgee/react'
 import { Save as SaveIcon, Trash as TrashIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
@@ -24,6 +25,8 @@ interface TextStyleBarProps {
 export function TextStyleBar({ editor }: TextStyleBarProps) {
   const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
+  const { t } = useTranslate()
+
   const handleSetLink = useCallback(() => {
     const previousUrl = editor?.getAttributes('link').href
     setLinkUrl(previousUrl || '')
@@ -57,35 +60,43 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
         onPressedChange={() => editor.chain().focus().toggleBold().run()}
         className="h-9 w-9 p-1"
       >
-        <Image src={BoldIcon} alt="Bold" className="h-4 w-4" />
+        <Image src={BoldIcon} alt={t('bold_alt')} className="h-4 w-4" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('italic')}
         onPressedChange={() => editor.chain().focus().toggleItalic().run()}
         className="h-9 w-9 p-1"
       >
-        <Image src={ItalicIcon} alt="Italic" className="h-4 w-4" />
+        <Image src={ItalicIcon} alt={t('italic_alt')} className="h-4 w-4" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('underline')}
         onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
         className="h-9 w-9 p-1"
       >
-        <Image src={UnderlineIcon} alt="Underline" className="h-5 w-5" />
+        <Image
+          src={UnderlineIcon}
+          alt={t('underline_alt')}
+          className="h-5 w-5"
+        />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('strike')}
         onPressedChange={() => editor.chain().focus().toggleStrike().run()}
         className="h-9 w-9 p-1"
       >
-        <Image src={StrikeIcon} alt="Strikethrough" className="h-6 w-6" />
+        <Image
+          src={StrikeIcon}
+          alt={t('strikethrough_alt')}
+          className="h-6 w-6"
+        />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('code')}
         onPressedChange={() => editor.chain().focus().toggleCode().run()}
         className="h-9 w-9 p-1"
       >
-        <Image src={CodeIcon} alt="Code" className="h-6 w-6" />
+        <Image src={CodeIcon} alt={t('code_alt')} className="h-6 w-6" />
       </Toggle>
       <Popover open={isLinkPopoverOpen} onOpenChange={setIsLinkPopoverOpen}>
         <PopoverTrigger asChild>
@@ -97,14 +108,14 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
             aria-haspopup="dialog"
             aria-expanded={isLinkPopoverOpen}
           >
-            <Image src={LinkIcon} alt="Link" className="h-4 w-4" />
+            <Image src={LinkIcon} alt={t('link_alt')} className="h-4 w-4" />
           </Toggle>
         </PopoverTrigger>
         <PopoverContent className="flex gap-2 rounded-lg border bg-white p-2">
           <Input
             type="url"
             className="h-8"
-            placeholder="Enter URL"
+            placeholder={t('enter_url_placeholder')}
             value={linkUrl}
             onChange={(e) => setLinkUrl(e.target.value)}
           />

@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/shadcn/button'
 import penIcon from '@/public/icons/pen.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 
 interface SubmitButtonProps {
@@ -17,6 +18,7 @@ export function SubmitButton({
   onSubmit,
   canCreateQnA
 }: SubmitButtonProps) {
+  const { t } = useTranslate()
   return (
     <Button
       onClick={onSubmit}
@@ -24,9 +26,9 @@ export function SubmitButton({
       disabled={!isFormValid || isLoadingProblems}
       variant={canCreateQnA ? 'default' : 'secondary'}
     >
-      <Image src={penIcon} alt="pen" width={16} height={16} />
+      <Image src={penIcon} alt={t('pen_icon_alt')} width={16} height={16} />
       <span className="font-pretendard text-base font-medium not-italic leading-[140%] tracking-[-0.48px] text-white">
-        Post
+        {t('post_button')}
       </span>
     </Button>
   )

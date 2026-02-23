@@ -5,6 +5,7 @@ import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
 import { useQuery } from '@apollo/client'
 import { ErrorBoundary } from '@suspensive/react'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { Suspense, use } from 'react'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -26,6 +27,8 @@ export default function Page(props: {
   })
   const userData = user.data?.getGroupMember
 
+  const { t } = useTranslate()
+
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
@@ -44,8 +47,8 @@ export default function Page(props: {
             <div className="font-semibold">{userData?.major}</div>
             <div className="flex space-x-4">
               <div className="flex flex-col gap-4 font-medium">
-                <span>User ID</span>
-                <span>Student ID</span>
+                <span>{t('user_id')}</span>
+                <span>{t('student_id')}</span>
               </div>
               <div className="flex flex-col gap-4">
                 <span>{userData?.username}</span>

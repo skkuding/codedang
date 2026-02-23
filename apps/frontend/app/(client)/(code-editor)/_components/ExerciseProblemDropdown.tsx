@@ -10,6 +10,7 @@ import { cn, convertToLetter, isHttpError } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
 import type { ProblemDetail } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaSortDown } from 'react-icons/fa'
@@ -35,6 +36,8 @@ export function ExerciseProblemDropdown({
     throwOnError: false
   })
 
+  const { t } = useTranslate()
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="outline-hidden flex gap-1 text-lg text-white">
@@ -43,7 +46,7 @@ export function ExerciseProblemDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent className="border-slate-700 bg-slate-900">
         {error && isHttpError(error)
-          ? 'Failed to load the assignment problem'
+          ? t('failed_to_load_assignment_problem')
           : exerciseProblem?.data.map((p) => (
               <Link
                 key={p.id}

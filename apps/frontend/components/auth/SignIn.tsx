@@ -6,6 +6,7 @@ import { Input } from '@/components/shadcn/input'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 // import KakaotalkLogo from '@/public/kakaotalk.svg'
 import { useAuthModalStore } from '@/stores/authModal'
+import { useTranslate } from '@tolgee/react'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -25,6 +26,7 @@ interface SignInInput {
 }
 
 export function SignIn() {
+  const { t } = useTranslate()
   const [isSignInDisabled, setIsSignInDisabled] = useState(false)
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const { hideModal, showRecoverAccount } = useAuthModalStore((state) => state)
@@ -50,11 +52,11 @@ export function SignIn() {
           }
         })
       } else {
-        toast.error('Failed to log in')
+        toast.error(t('failed_login_error'))
       }
     } catch (error) {
       console.error('Error during login:', error)
-      toast.error('An unexpected error occurred')
+      toast.error(t('unexpected_error_message'))
     } finally {
       setIsSignInDisabled(false)
     }
@@ -65,7 +67,7 @@ export function SignIn() {
       <div className="flex flex-col gap-[6px]">
         <IDLabel />
         <Input
-          placeholder="User ID"
+          placeholder={t('user_id_placeholder')}
           type="text"
           autoCapitalize="none"
           autoCorrect="off"
@@ -83,7 +85,7 @@ export function SignIn() {
         <PasswordLabel />
         <div className="relative flex justify-between gap-1">
           <Input
-            placeholder="Password"
+            placeholder={t('password_placeholder')}
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck={false}
@@ -116,10 +118,10 @@ export function SignIn() {
           variant={'link'}
           className="text-color-neutral-70 text-sm font-normal underline"
         >
-          Forgot ID / Password
+          {t('forgot_id_password_button')}
         </Button>
         <Button className="w-full" type="submit" disabled={isSignInDisabled}>
-          Log In
+          {t('log_in_button')}
         </Button>
       </div>
     )
@@ -135,7 +137,7 @@ export function SignIn() {
       <form
         className="flex h-full w-full flex-col justify-between"
         onSubmit={handleSubmit(onSubmit)}
-        aria-label="Log in"
+        aria-label={t('log_in_aria_label')}
       >
         <div className="flex flex-col gap-5">
           {renderIDField()}

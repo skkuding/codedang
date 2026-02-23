@@ -5,6 +5,7 @@ import { GET_CONTEST } from '@/graphql/contest/queries'
 import { GET_CONTEST_LEADERBOARD } from '@/graphql/leaderboard/queries'
 import searchIcon from '@/public/icons/search.svg'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -36,6 +37,7 @@ export default function ContestLeaderBoard() {
   const pathname = usePathname()
   const contestId = Number(pathname.split('/')[3])
   const [disableLeaderboard, setDisableLeaderboard] = useState<boolean>(true)
+  const { t } = useTranslate()
 
   const {
     data: leaderboardData,
@@ -112,7 +114,7 @@ export default function ContestLeaderBoard() {
   if (isLoading) {
     return (
       <div className="flex justify-center pt-[100px] text-xl">
-        Loading Contest Data...
+        {t('loading_contest_data')}
       </div>
     )
   }
@@ -134,13 +136,14 @@ export default function ContestLeaderBoard() {
         contestId={contestId}
         isUnFrozen={isUnfrozen}
         activated={!disableLeaderboard}
+        t={t}
       />
       <div className="mb-[62px] mt-[60px] flex w-full flex-row justify-between pl-[14px] pr-[9px]">
         <div className="flex flex-row text-2xl font-semibold text-black">
           <div className="text-[#3581FA]">
             {contestLeaderboard?.participatedNum}
           </div>
-          /{contestLeaderboard?.registeredNum} Participants
+          /{contestLeaderboard?.registeredNum} {t('participants')}
         </div>
         <div className="relative">
           <Image
@@ -152,7 +155,7 @@ export default function ContestLeaderBoard() {
             }}
           />
           <Input
-            placeholder="Search"
+            placeholder={t('search_placeholder')}
             className="w-[600px] pl-[52px] text-[18px] font-normal"
             onChange={(e) => setSearchText(e.target.value)}
             onKeyDown={(e) => {
@@ -179,11 +182,13 @@ interface UnfreezeLeaderboardToggleProps {
   contestId: number
   isUnFrozen: boolean
   activated: boolean
+  t: (key: string) => string
 }
 function UnfreezeLeaderboardToggle({
   contestId,
   isUnFrozen,
-  activated
+  activated,
+  t
 }: UnfreezeLeaderboardToggleProps) {
   return (
     <div
@@ -197,7 +202,7 @@ function UnfreezeLeaderboardToggle({
         <div
           className={`mr-3 text-xl font-semibold ${!activated ? 'text-[#9B9B9B]' : 'text-[#3581FA]'}`}
         >
-          Unfreeze Leaderboard
+          {t('unfreeze_leaderboard')}
         </div>
         <LeaderboardUnfreezeSwitchDialog
           contestId={contestId}
@@ -206,7 +211,7 @@ function UnfreezeLeaderboardToggle({
         />
       </div>
       <div className="mt-1 text-[14px] font-normal text-[#9B9B9B]">
-        The leaderboard can only be unfrozen after the contest has finished.
+        {t('unfreeze_leaderboard_note')}
       </div>
     </div>
   )

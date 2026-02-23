@@ -3,6 +3,7 @@
 import { Button } from '@/components/shadcn/button'
 import { Switch } from '@/components/shadcn/switch'
 import type { Language } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { ErrorMessage } from '../../_components/ErrorMessage'
@@ -22,6 +23,7 @@ export function CodeForm({
   hasValue = false,
   variant
 }: CodeFormProps) {
+  const { t } = useTranslate()
   const [isEnabled, setIsEnabled] = useState(false)
   const {
     control,
@@ -57,7 +59,7 @@ export function CodeForm({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Label required={false}>
-            {language} {variant === 'template' ? 'Template' : 'Solution'}
+            {language} {variant === 'template' ? t('template') : t('solution')}
           </Label>
           <Switch
             onCheckedChange={() => {
@@ -74,7 +76,7 @@ export function CodeForm({
             type="button"
             className="h-6 w-16 text-xs"
           >
-            Format
+            {t('format')}
           </Button>
         )}
       </div>

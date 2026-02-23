@@ -2,6 +2,7 @@
 
 import rightArrow from '@/public/icons/arrow-right-white.svg'
 import type { Post, InstagramApiResponse } from '@/types/instagram'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -9,6 +10,7 @@ import { InstagramCard } from './InstagramCard'
 
 export function InstagramCards() {
   const [posts, setPosts] = useState<Post[]>([])
+  const { t } = useTranslate()
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -30,7 +32,7 @@ export function InstagramCards() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8">
       <span className="mb-10 block text-3xl font-semibold leading-[120%] tracking-[-0.9px]">
-        TAKE OUR NEWS
+        {t('take_our_news')}
       </span>
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -46,7 +48,7 @@ export function InstagramCards() {
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-1 rounded-full bg-black py-[10px] pl-[30px] pr-5 text-xl text-white hover:opacity-75"
         >
-          <span>Go to Instagram</span>
+          <span>{t('go_to_instagram')}</span>
           <Image
             src={rightArrow}
             alt="rightArrow"

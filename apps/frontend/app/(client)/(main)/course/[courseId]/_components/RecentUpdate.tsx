@@ -2,6 +2,7 @@
 
 import { cn } from '@/libs/utils'
 import type { CourseRecentUpdate, RecentUpdateType } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 // import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
@@ -11,6 +12,8 @@ export function RecentUpdate() {
   // const searchParams = useSearchParams()
   // const courseId = searchParams.get('courseId')
   const [updates, setUpdates] = useState<CourseRecentUpdate[]>([])
+
+  const { t } = useTranslate()
 
   useEffect(() => {
     const fetchUpdates = () => {
@@ -63,7 +66,9 @@ export function RecentUpdate() {
     <div className="shadow-xs w-full rounded-xl p-4">
       <div className="mb-2 flex justify-between">
         <div>
-          <span className="text-primary mr-4 font-semibold">RECENT UPDATE</span>
+          <span className="text-primary mr-4 font-semibold">
+            {t('recent_update_title')}
+          </span>
           <span className="text-sm font-semibold">{updates.length}</span>
         </div>
       </div>
@@ -100,7 +105,7 @@ export function RecentUpdate() {
             </li>
           ))
         ) : (
-          <p className="text-sm text-gray-500">공지사항이 없습니다.</p>
+          <p className="text-sm text-gray-500">{t('no_updates_message')}</p>
         )}
       </ul>
     </div>

@@ -9,6 +9,7 @@ import {
 import { GET_COURSE } from '@/graphql/course/queries'
 import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { FaChevronDown } from 'react-icons/fa6'
@@ -41,6 +42,8 @@ export function WeekComboBox({ name, courseId }: WeekComboBoxProps) {
   const [selectedWeek, setSelectedWeek] = useState(field.value)
   const [open, setOpen] = useState(false)
 
+  const { t } = useTranslate()
+
   return (
     <div>
       <Popover open={open} onOpenChange={setOpen}>
@@ -51,7 +54,9 @@ export function WeekComboBox({ name, courseId }: WeekComboBoxProps) {
             ref={field.ref}
           >
             <p className={cn(!selectedWeek && 'text-[#C4C4C4]')}>
-              {selectedWeek ? `Week ${selectedWeek}` : 'Select an option'}
+              {selectedWeek
+                ? t('week_label', { week: selectedWeek })
+                : t('select_option')}
             </p>
             <FaChevronDown className="ml-4 h-3 w-3 opacity-50" />
           </Button>

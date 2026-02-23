@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/shadcn/button'
 import { useAuthModalStore } from '@/stores/authModal'
+import { useTranslate } from '@tolgee/react'
 
 interface LoginButtonProps {
   className?: string
@@ -9,10 +10,11 @@ interface LoginButtonProps {
 
 export function LoginButton({ className }: LoginButtonProps) {
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
+  const { t } = useTranslate()
 
   return (
     <Button onClick={() => showSignIn()} className={className}>
-      Log in
+      {t('log_in')}
     </Button>
   )
 }

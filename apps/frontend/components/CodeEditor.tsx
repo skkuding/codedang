@@ -6,6 +6,7 @@ import { java } from '@codemirror/lang-java'
 import { python } from '@codemirror/lang-python'
 import type { LanguageSupport } from '@codemirror/language'
 import { tags as t } from '@lezer/highlight'
+import { useTranslate } from '@tolgee/react'
 import { createTheme } from '@uiw/codemirror-themes'
 import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror'
@@ -86,18 +87,18 @@ interface CodeEditorProps extends ReactCodeMirrorProps {
   showZoom?: boolean
 }
 
-const copyPasteHandler = () => {
+const copyPasteHandler = (t: (key: string) => string) => {
   return EditorView.domEventHandlers({
     paste(event) {
-      toast.error('Copying and pasting is not allowed')
+      toast.error(t('copying_and_pasting_is_not_allowed'))
       event.preventDefault()
     },
     copy(event) {
-      toast.error('Copying and pasting is not allowed')
+      toast.error(t('copying_and_pasting_is_not_allowed'))
       event.preventDefault()
     },
     cut(event) {
-      toast.error('Copying and pasting is not allowed')
+      toast.error(t('copying_and_pasting_is_not_allowed'))
       event.preventDefault()
     }
   })
@@ -158,6 +159,8 @@ export function CodeEditor({
   const { onPointerDown: startLongMinus, onPointerUp: stopLongMinus } =
     useLongPress(decreaseFontSize)
 
+  const { t } = useTranslate()
+
   return (
     <div className="flex h-full flex-col">
       <ScrollArea className="flex-1 rounded-lg bg-[#121728]">
@@ -165,7 +168,7 @@ export function CodeEditor({
           theme={editorTheme}
           extensions={[
             languageParser[language](),
-            enableCopyPaste ? [] : copyPasteHandler(),
+            enableCopyPaste ? [] : copyPasteHandler(t),
             editorPadding,
             gutterStyle,
             fontSizeTheme
@@ -199,7 +202,7 @@ export function CodeEditor({
                       </MotionButton>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Reset Font Size</p>
+                      <p>{t('reset_font_size')}</p>
                     </TooltipContent>
                   </Tooltip>
                   <motion.div
@@ -227,7 +230,7 @@ export function CodeEditor({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Increase Font Size</p>
+                <p>{t('increase_font_size')}</p>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -244,7 +247,7 @@ export function CodeEditor({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Decrease Font Size</p>
+                <p>{t('decrease_font_size')}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

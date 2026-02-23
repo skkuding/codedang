@@ -1,6 +1,7 @@
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import {
   DataTable,
   DataTableFallback,
@@ -10,9 +11,11 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '../../../_components/table'
-import { columns } from '../_components/SharedProblemTableColumns'
+import { getColumns } from '../_components/SharedProblemTableColumns'
 
 export function SharedProblemTable() {
+  const { t } = useTranslate()
+  const columns = getColumns(t)
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       take: 500,
@@ -65,5 +68,5 @@ export function SharedProblemTable() {
 }
 
 export function SharedProblemTableFallback() {
-  return <DataTableFallback columns={columns} />
+  return <DataTableFallback columns={getColumns(() => '')} />
 }

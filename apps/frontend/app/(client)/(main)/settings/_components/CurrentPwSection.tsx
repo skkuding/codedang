@@ -3,6 +3,7 @@ import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
 import invisibleIcon from '@/public/icons/invisible.svg'
 import visibleIcon from '@/public/icons/visible.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import React from 'react'
 import { FaCheck } from 'react-icons/fa6'
@@ -26,15 +27,16 @@ export function CurrentPwSection({
     updateNow,
     formState: { register, errors }
   } = useSettingsContext()
+  const { t } = useTranslate()
 
   return (
     <>
-      <label className="-mb-4 mt-4 text-xs">Password</label>
+      <label className="-mb-4 mt-4 text-xs">{t('password_label')}</label>
       <div className="flex items-center gap-2">
         <div className="relative w-full justify-between">
           <Input
             type={passwordShow ? 'text' : 'password'}
-            placeholder="Current password"
+            placeholder={t('current_password_placeholder')}
             {...register('currentPassword')}
             disabled={
               updateNow ? true : isCheckButtonClicked && isPasswordCorrect
@@ -52,7 +54,7 @@ export function CurrentPwSection({
           >
             <Image
               src={passwordShow ? visibleIcon : invisibleIcon}
-              alt={passwordShow ? 'visible' : 'invisible'}
+              alt={passwordShow ? t('visible_alt') : t('invisible_alt')}
             />
           </span>
         </div>
@@ -69,18 +71,18 @@ export function CurrentPwSection({
       {errors.currentPassword &&
         errors.currentPassword.message === 'Required' && (
           <div className="-mt-4 inline-flex items-center text-xs text-red-500">
-            Required
+            {t('required_message')}
           </div>
         )}
       {!errors.currentPassword &&
         isCheckButtonClicked &&
         (isPasswordCorrect ? (
           <div className="text-primary -mt-4 inline-flex items-center text-xs">
-            Correct
+            {t('correct_message')}
           </div>
         ) : (
           <div className="-mt-4 inline-flex items-center text-xs text-red-500">
-            Incorrect
+            {t('incorrect_message')}
           </div>
         ))}
     </>

@@ -16,6 +16,7 @@ import visibleIcon from '@/public/icons/visible.svg'
 import { useMutation } from '@apollo/client'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import type { ColumnDef, Row } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
@@ -34,6 +35,7 @@ export interface DataTableAssignment {
 }
 
 function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
+  const { t } = useTranslate()
   const [updateVisible] = useMutation(UPDATE_ASSIGNMENT_VISIBLE)
   const params = useParams()
   const groupId = Number(params.courseId)
@@ -56,7 +58,7 @@ function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
             'YYYY-MM-DD HH:mm:ss'
           )
           if (currentTime > startTime && currentTime < endTime) {
-            toast.error('Cannot change visibility of ongoing assignment')
+            toast.error(t('cannot_change_visibility_of_ongoing_assignment'))
             return
           }
           // TODO: assignment update API 수정되면 고치기
@@ -88,9 +90,9 @@ function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
                   className="h-6 w-6"
                 >
                   {row.original.isVisible ? (
-                    <Image src={visibleIcon} alt="Visible" />
+                    <Image src={visibleIcon} alt={t('visible_alt_text')} />
                   ) : (
-                    <Image src={invisibleIcon} alt="Invisible" />
+                    <Image src={invisibleIcon} alt={t('invisible_alt_text')} />
                   )}
                 </button>
               </TooltipTrigger>
@@ -102,9 +104,9 @@ function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
                 alignOffset={-20}
               >
                 {row.original.isVisible ? (
-                  <p>This assignment is visible</p>
+                  <p>{t('this_assignment_is_visible')}</p>
                 ) : (
-                  <p>This assignment is not visible to users</p>
+                  <p>{t('this_assignment_is_not_visible_to_users')}</p>
                 )}
                 <TooltipPrimitive.Arrow
                   className={cn(
@@ -121,7 +123,9 @@ function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
   )
 }
 
-export const columns: ColumnDef<DataTableAssignment>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<DataTableAssignment>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -131,7 +135,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
         onCheckedChange={(value) =>
           table.toggleAllPageRowsSelected(Boolean(value))
         }
-        aria-label="Select all"
+        aria-label={t('select_all')}
         className="translate-y-[2px]"
       />
     ),
@@ -140,7 +144,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
         onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
-        aria-label="Select row"
+        aria-label={t('select_row')}
         className="translate-y-[2px]"
       />
     ),
@@ -152,7 +156,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Title"
+        title={t('title')}
         className="w-[400px]"
       />
     ),
@@ -165,7 +169,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
   {
     accessorKey: 'startTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Period" />
+      <DataTableColumnHeader column={column} title={t('period')} />
     ),
     cell: ({ row }) => {
       return formatDateRange(row.original.startTime, row.original.endTime)
@@ -174,7 +178,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
   {
     accessorKey: 'week',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Week" />
+      <DataTableColumnHeader column={column} title={t('week')} />
     ),
     cell: ({ row }) => {
       return `Week ${row.original.week}`
@@ -183,7 +187,7 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
   {
     accessorKey: 'isVisible',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Visible" />
+      <DataTableColumnHeader column={column} title={t('visible')} />
     ),
     cell: ({ row }) => {
       return <VisibleCell row={row} />

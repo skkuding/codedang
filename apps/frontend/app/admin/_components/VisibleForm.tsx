@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslate } from '@tolgee/react'
 import { useFormContext, useController } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { ErrorMessage } from './ErrorMessage'
@@ -15,6 +16,8 @@ export function VisibleForm({ blockEdit = false }: { blockEdit?: boolean }) {
     control,
     defaultValue: true
   })
+
+  const { t } = useTranslate()
 
   return (
     <>
@@ -44,7 +47,9 @@ export function VisibleForm({ blockEdit = false }: { blockEdit?: boolean }) {
           </label>
         </div>
       </div>
-      {errors.isVisible && <ErrorMessage message="required" />}
+      {errors.isVisible && (
+        <ErrorMessage message={t('error_message_required')} />
+      )}
     </>
   )
 }

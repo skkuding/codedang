@@ -10,6 +10,7 @@ import { cn, convertToLetter, isHttpError, omitString } from '@/libs/utils'
 import checkIcon from '@/public/icons/check-green.svg'
 import type { ProblemDetail } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaSortDown } from 'react-icons/fa'
@@ -29,6 +30,8 @@ export function ContestProblemDropdown({
     throwOnError: false
   })
 
+  const { t } = useTranslate()
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="outline-hidden flex gap-1 text-lg text-white">
@@ -37,7 +40,7 @@ export function ContestProblemDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent className="border-slate-700 bg-slate-900">
         {error && isHttpError(error)
-          ? 'Failed to load the contest problem'
+          ? t('failed_load_contest_problem')
           : contestProblems?.data.map((p) => (
               <Link key={p.id} href={`/contest/${contestId}/problem/${p.id}`}>
                 <DropdownMenuItem
@@ -52,7 +55,7 @@ export function ContestProblemDropdown({
                     <div className="flex items-center justify-center pl-2">
                       <Image
                         src={checkIcon}
-                        alt="check"
+                        alt={t('check_icon_alt')}
                         width={16}
                         height={16}
                       />

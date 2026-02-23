@@ -6,6 +6,7 @@ import {
 } from '@/graphql/contest/queries'
 import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -17,6 +18,7 @@ interface SubmissionSummary {
 export function ContestOverallTabs({ contestId }: { contestId: string }) {
   const id = parseInt(contestId, 10)
   const pathname = usePathname()
+  const { t } = useTranslate()
 
   const { data: userData } = useQuery<{
     getUserIdByContest: { userId: number }
@@ -52,53 +54,59 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  /*
+  TODO: 사실 전반적인 admin 페이지는 반응형을 고려하지 않고 설계되었기 때문에
+  아래의 처리를 굳이 할 필요가 없고, 하더라도 조건문보다는 tailwind로 overflow를 처리하는 게 바람직할 듯함
+  일단 현재 태스크의 목적이 리팩토링은 아니므로 수정하지 않고 주석으로 남김.
+  */
   const leaderBoard =
     realSize >= 1024 ? (
-      <p>LEADERBOARD</p>
+      <p>{t('leaderboard_title')}</p>
     ) : (
       <p className="text-xs">
-        LEADER
+        {t('leaderboard_leader')}
         <br />
-        BOARD
+        {t('leaderboard_board')}
       </p>
     )
 
   const allSubmission =
     realSize >= 1024 ? (
-      <p>ALL SUBMISSION</p>
+      <p>{t('all_submission_title')}</p>
     ) : (
       <p className="text-xs">
-        ALL
+        {t('all_submission_all')}
         <br />
-        SUB
+        {t('all_submission_sub')}
         <br />
-        MISSION
+        {t('all_submission_mission')}
       </p>
     )
 
   const announcement =
     realSize >= 1024 ? (
-      <p>ANNOUNCEMENT</p>
+      <p>{t('announcement_title')}</p>
     ) : (
       <p className="text-xs">
-        ANNOUNCE
+        {t('announcement_announce')}
         <br />
-        MENT
+        {t('announcement_ment')}
       </p>
     )
 
   const statistics =
     realSize >= 1024 ? (
-      <p>STATISTICS</p>
+      <p>{t('statistics_title')}</p>
     ) : (
       <p className="text-xs">
-        STATIS
+        {t('statistics_statis')}
         <br />
-        TICS
+        {t('statistics_tics')}
       </p>
     )
 
-  const qna = realSize >= 1024 ? <p>Q&A</p> : <p className="text-xs">Q&A</p>
+  const qna =
+    realSize >= 1024 ? <p>{t('qna')}</p> : <p className="text-xs">{t('qna')}</p>
 
   return (
     <div className="mb-16 flex h-[60px] w-full rounded-full border border-solid border-[#80808040] bg-white">

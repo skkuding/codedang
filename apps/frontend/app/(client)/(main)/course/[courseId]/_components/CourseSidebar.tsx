@@ -3,6 +3,7 @@
 import { SideBar } from '@/components/SideBar'
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -21,15 +22,16 @@ interface CourseSidebarProps {
 export function CourseSidebar({ courseId }: CourseSidebarProps) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true)
   const pathname = usePathname()
+  const { t } = useTranslate()
 
   const navItems = [
     {
-      name: 'Assignment',
+      name: t('assignment_nav_item'),
       path: `/course/${courseId}/assignment` as const,
       icon: AssignmentIcon
     },
     {
-      name: 'Exercise',
+      name: t('exercise_nav_item'),
       path: `/course/${courseId}/exercise` as const,
       icon: ExerciseIcon
     }

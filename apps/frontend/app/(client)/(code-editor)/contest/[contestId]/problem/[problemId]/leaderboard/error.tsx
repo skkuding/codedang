@@ -2,6 +2,7 @@
 
 import { ErrorDetail } from '@/components/ErrorDetail'
 import { captureError } from '@/libs/captureError'
+import { useTranslate } from '@tolgee/react'
 import { useEffect } from 'react'
 
 interface Props {
@@ -10,9 +11,12 @@ interface Props {
 }
 
 export default function Error({ error }: Props) {
+  const { t } = useTranslate()
   useEffect(() => {
     captureError(error)
   }, [error])
 
-  return <ErrorDetail errorDetail="Failed to Load Leaderboard!" error={error} />
+  return (
+    <ErrorDetail errorDetail={t('failed_to_load_leaderboard')} error={error} />
+  )
 }

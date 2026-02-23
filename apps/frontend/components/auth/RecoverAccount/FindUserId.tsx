@@ -4,6 +4,7 @@ import { cn, fetcher, isHttpError, safeFetcher } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { useRecoverAccountModalStore } from '@/stores/recoverAccountModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as v from 'valibot'
@@ -11,11 +12,13 @@ import * as v from 'valibot'
 interface FindUserIdInput {
   email: string
 }
-const schema = v.object({
-  email: v.pipe(v.string(), v.email('Invalid email address'))
-})
+const schema = (t: (key: string) => string) =>
+  v.object({
+    email: v.pipe(v.string(), v.email(t('invalid_email_address')))
+  })
 
 export function FindUserId() {
+  const { t } = useTranslate()
   const [userId, setUserId] = useState<string>('')
   const [emailError, setEmailError] = useState<string>('')
   const [wrongEmail, setWrongEmail] = useState<string>('')
@@ -33,7 +36,7 @@ export function FindUserId() {
     getValues,
     formState: { errors }
   } = useForm<FindUserIdInput>({
-    resolver: valibotResolver(schema)
+    resolver: valibotResolver(schema(t))
   })
 
   const onSubmit = async (data: FindUserIdInput) => {
@@ -48,11 +51,11 @@ export function FindUserId() {
         setUserId(data.username)
         setEmailError('')
       } else {
-        setEmailError('No account confirmed with this email')
+        setEmailError(t('no_account_confirmed'))
         setWrongEmail(email)
       }
     } catch {
-      setEmailError('No account confirmed with this email')
+      setEmailError(t('no_account_confirmed'))
       setWrongEmail(email)
     }
   }
@@ -81,9 +84,9 @@ export function FindUserId() {
       nextModal()
     } catch (error) {
       if (isHttpError(error) && error.response.status === 401) {
-        setEmailError('Email authentication pin is sent to your email address')
+        setEmailError(t('email_authentication_sent'))
       } else {
-        setEmailError('Something went wrong!')
+        setEmailError(t('something_went_wrong'))
       }
     }
   }
@@ -96,7 +99,7 @@ export function FindUserId() {
       >
         <div className="flex flex-col gap-1">
           <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
-            Find User ID
+            {t('find_user_id')}
           </p>
           <Input
             id="email"
@@ -107,7 +110,7 @@ export function FindUserId() {
                 ? 'ring-red-500 focus-visible:ring-red-500'
                 : 'focus-visible:ring-primary'
             )}
-            placeholder="Email Address"
+            placeholder={t('email_address_placeholder')}
             {...register('email', {
               onChange: () => trigger('email')
             })}
@@ -123,7 +126,7 @@ export function FindUserId() {
           )}
           {userId && (
             <p className="mt-4 text-center text-sm text-gray-700">
-              Your user ID is{' '}
+              {t('your_user_id_is')}{' '}
               <span className="text-primary font-bold">{userId}</span>
             </p>
           )}
@@ -136,11 +139,11 @@ export function FindUserId() {
               type="button"
               className="font-semibold"
             >
-              Log in
+              {t('log_in')}
             </Button>
           ) : (
             <Button type="submit" className="font-semibold">
-              Find Your User ID
+              {t('find_your_user_id')}
             </Button>
           )}
           <Button
@@ -154,7 +157,7 @@ export function FindUserId() {
             )}
             disabled={!userId}
           >
-            Reset Password
+            {t('reset_password')}
           </Button>
         </div>
       </form>
@@ -164,7 +167,7 @@ export function FindUserId() {
           variant={'link'}
           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
-          Sign up now
+          {t('sign_up_now')}
         </Button>
       </div>
     </>

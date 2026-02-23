@@ -2,6 +2,7 @@
 
 import { DropdownMenuItem } from '@/components/shadcn/dropdown-menu'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { LogOut, UserRoundCog } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
@@ -28,6 +29,8 @@ export function AccountItems({
   showSignIn,
   showSignUp
 }: AccountItemsProps) {
+  const { t } = useTranslate()
+
   if (session) {
     return (
       <>
@@ -44,7 +47,7 @@ export function AccountItems({
                   : 'font-semibold'
               )}
             >
-              <UserRoundCog className="size-4" /> Management
+              <UserRoundCog className="size-4" /> {t('management')}
             </DropdownMenuItem>
           </Link>
         )}
@@ -57,7 +60,7 @@ export function AccountItems({
                 : 'font-semibold'
             )}
           >
-            <UserRoundCog className="size-4" /> Settings
+            <UserRoundCog className="size-4" /> {t('settings')}
           </DropdownMenuItem>
         </Link>
         <DropdownMenuItem
@@ -71,7 +74,7 @@ export function AccountItems({
             signOut({ callbackUrl: '/', redirect: true })
           }}
         >
-          <LogOut className="size-4" /> LogOut
+          <LogOut className="size-4" /> {t('log_out')}
         </DropdownMenuItem>
       </>
     )
@@ -83,7 +86,7 @@ export function AccountItems({
         className="flex cursor-pointer items-center gap-1 font-semibold"
         onClick={() => showSignIn()}
       >
-        Log In
+        {t('log_in')}
       </DropdownMenuItem>
       <DropdownMenuItem
         className="flex cursor-pointer items-center gap-1 font-semibold"
@@ -91,7 +94,7 @@ export function AccountItems({
           showSignUp()
         }}
       >
-        Sign Up
+        {t('sign_up')}
       </DropdownMenuItem>
     </>
   )

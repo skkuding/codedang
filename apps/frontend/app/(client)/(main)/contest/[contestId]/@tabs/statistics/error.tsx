@@ -2,21 +2,27 @@
 
 import { Button } from '@/components/shadcn/button'
 import pleaseLogo from '@/public/logos/please.png'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 
 export default function StatisticsError() {
+  const { t } = useTranslate()
   return (
     <div className="flex flex-col items-center justify-center pb-[120px]">
-      <Image className="mt-40" src={pleaseLogo} alt="coming-soon" width={336} />
+      <Image
+        className="mt-40"
+        src={pleaseLogo}
+        alt={t('coming_soon')}
+        width={336}
+      />
       <div className="mt-5 text-lg text-gray-600">
-        Statistics will be available after the contest ends.
+        {t('statistics_unavailable')}
       </div>
       <div className="mt-2 text-base text-gray-500">
-        You can check the statistics after the contest ends and the leaderboard
-        is unfrozen.
+        {t('check_statistics_after_contest')}
       </div>
       <Button className="mt-4" onClick={() => window.location.reload()}>
-        Refresh
+        {t('refresh_button')}
       </Button>
     </div>
   )

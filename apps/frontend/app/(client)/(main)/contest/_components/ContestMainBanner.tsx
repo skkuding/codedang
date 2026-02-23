@@ -4,6 +4,7 @@ import { Button } from '@/components/shadcn/button'
 import { contestOvalIconColors, contestTextColors } from '@/libs/constants'
 import { cn, fetcher } from '@/libs/utils'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -20,31 +21,8 @@ interface BannerPageDotsProps {
   slideType: string
 }
 
-const slides = [
-  {
-    type: 'recent',
-    subDescription: 'WELCOME TO',
-    mainDescription: 'CODEDANG\nCONTEST HUB',
-    buttonDescription: 'RECENT CONTEST',
-    bgcolor: 'bg-[#00183E]',
-    mainDescriptionColor:
-      'linear-gradient(96deg, #21AEF2 -6.62%, #3AFCF5 94.83%)',
-    img: '/banners/computer.png',
-    imgAlt: 'Recent Contest'
-  },
-  {
-    type: 'upcoming',
-    subDescription: 'Join now, showcase your skills!',
-    mainDescription: 'GET READY FOR\nUPCOMING CONTEST',
-    buttonDescription: 'UPCOMING CONTEST',
-    bgcolor: 'bg-[#E5EDFF]',
-    mainDescriptionColor: 'linear-gradient(90deg, #2D51EA 0%, #1A2E84 100%)',
-    img: '/banners/trophy-main.png',
-    imgAlt: 'Upcoming Contest'
-  }
-]
-
 export function ContestMainBanner() {
+  const { t } = useTranslate()
   const [facade, setFacade] = useState(0)
   const router = useRouter()
 
@@ -68,6 +46,30 @@ export function ContestMainBanner() {
   const handleClick = (next: number) => {
     setFacade(next % slides.length)
   }
+
+  const slides = [
+    {
+      type: 'recent',
+      subDescription: t('welcome_to'),
+      mainDescription: t('codedang_contest_hub'),
+      buttonDescription: t('recent_contest'),
+      bgcolor: 'bg-[#00183E]',
+      mainDescriptionColor:
+        'linear-gradient(96deg, #21AEF2 -6.62%, #3AFCF5 94.83%)',
+      img: '/banners/computer.png',
+      imgAlt: t('recent_contest_image_alt')
+    },
+    {
+      type: 'upcoming',
+      subDescription: t('join_now_showcase_your_skills'),
+      mainDescription: t('get_ready_for_upcoming_contest'),
+      buttonDescription: t('upcoming_contest'),
+      bgcolor: 'bg-[#E5EDFF]',
+      mainDescriptionColor: 'linear-gradient(90deg, #2D51EA 0%, #1A2E84 100%)',
+      img: '/banners/trophy-main.png',
+      imgAlt: t('upcoming_contest_image_alt')
+    }
+  ]
 
   return (
     <div className="w-full xl:w-screen">

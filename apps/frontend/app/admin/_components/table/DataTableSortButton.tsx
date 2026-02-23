@@ -6,6 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/shadcn/popover'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 import { FaSort } from 'react-icons/fa'
 import { useDataTable } from './context'
@@ -74,6 +75,8 @@ export function DataTableSortButton({
     setOpen(false)
   }
 
+  const { t } = useTranslate()
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -83,12 +86,12 @@ export function DataTableSortButton({
         >
           <div className="flex items-center gap-2">
             <FaSort className="h-4 w-4" />
-            Order by
+            {t('order_by')}
             {selectedColumn && (
               <p className="overflow-hidden text-ellipsis whitespace-nowrap font-bold">
                 {columns.find((c) => c.id === selectedColumn)?.label ||
                   selectedColumn}
-                ({sortOrder === 'asc' ? 'Ascending' : 'Descending'})
+                ({sortOrder === 'asc' ? t('ascending') : t('descending')})
               </p>
             )}
           </div>
@@ -97,7 +100,7 @@ export function DataTableSortButton({
       <PopoverContent className="w-72 p-4">
         <div className="space-y-4">
           <div>
-            <h4 className="mb-2 text-sm font-medium">Column</h4>
+            <h4 className="mb-2 text-sm font-medium">{t('column')}</h4>
             <div className="space-y-2">
               {columns.map(({ id, label }) => (
                 <div key={id} className="flex items-center space-x-2">
@@ -119,7 +122,7 @@ export function DataTableSortButton({
           </div>
 
           <div>
-            <h4 className="mb-2 text-sm font-medium">Direction</h4>
+            <h4 className="mb-2 text-sm font-medium">{t('direction')}</h4>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <input
@@ -132,7 +135,7 @@ export function DataTableSortButton({
                   className="form-radio h-4 w-4 text-blue-600"
                 />
                 <label htmlFor="sort-asc" className="flex items-center text-sm">
-                  Ascending
+                  {t('ascending')}
                 </label>
               </div>
               <div className="flex items-center space-x-2">
@@ -149,7 +152,7 @@ export function DataTableSortButton({
                   htmlFor="sort-desc"
                   className="flex items-center text-sm"
                 >
-                  Descending
+                  {t('descending')}
                 </label>
               </div>
             </div>

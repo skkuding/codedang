@@ -2,13 +2,14 @@
 
 import { useQnaCommentSync } from '@/app/(client)/(main)/contest/[contestId]/@tabs/qna/[qnaId]/_components/context/QnaCommentStoreProvider'
 import { DeleteButton } from '@/components/DeleteButton'
+import type { GetContestQnaQuery } from '@/generated/graphql'
 import {
   CREATE_CONTEST_QNA_COMMENT,
   DELETE_CONTEST_QNA_COMMENT
 } from '@/graphql/contest/mutations'
 import { GET_CONTEST_QNA } from '@/graphql/contest/queries'
 import { useMutation, useQuery } from '@apollo/client'
-import type { GetContestQnaQuery } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { AdminCommentPostArea } from './AdminCommentPostArea'
@@ -69,14 +70,16 @@ export function AdminQnaCommentArea({
     })
   }
 
+  const { t } = useTranslate()
+
   const onPost = async () => {
     try {
       await createContestQnaComment()
       CommentTriggerRefresh()
-      toast.success('Posted successfully!')
+      toast.success(t('posted_successfully'))
       setText('')
     } catch {
-      toast.error('Error in posting comment!')
+      toast.error(t('error_in_posting_comment'))
     }
   }
 
@@ -96,9 +99,9 @@ export function AdminQnaCommentArea({
     try {
       await deleteContestQnaComment(commentOrder)
       CommentTriggerRefresh()
-      toast.success(`comment is deleted successfully!`)
+      toast.success(t('comment_deleted_successfully'))
     } catch (error) {
-      toast.error(`Error in deleting comment!: ${error}`)
+      toast.error(t('error_in_deleting_comment', { error: error as string }))
     }
   }
 

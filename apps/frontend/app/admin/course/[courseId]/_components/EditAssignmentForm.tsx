@@ -16,6 +16,7 @@ import {
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateAssignmentInput } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
@@ -57,6 +58,7 @@ export function EditAssignmentForm({
 
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
+  const { t } = useTranslate()
 
   useQuery(GET_ASSIGNMENT, {
     variables: { groupId: courseId, assignmentId },
@@ -159,19 +161,19 @@ export function EditAssignmentForm({
 
   const isSubmittable = (input: UpdateAssignmentInput) => {
     if (input.startTime >= (input.dueTime ?? input.endTime)) {
-      toast.error('Start time must be earlier than due time')
+      toast.error(t('start_time_error'))
       return
     }
 
     if (input.dueTime > input.endTime) {
-      toast.error('End time cannot be earlier than due time')
+      toast.error(t('end_time_error'))
       return
     }
 
     if (
       new Set(problems.map((problem) => problem.order)).size !== problems.length
     ) {
-      toast.error('Duplicate problem order found')
+      toast.error(t('duplicate_order_error'))
       return
     }
     onSubmit()
@@ -202,7 +204,7 @@ export function EditAssignmentForm({
     })
 
     if (error) {
-      toast.error('Failed to update assignment')
+      toast.error(t('update_assignment_error'))
       return
     }
 
@@ -259,8 +261,8 @@ export function EditAssignmentForm({
     setShouldSkipWarning(true)
     toast.success(
       isExercise
-        ? 'Exercise updated successfully'
-        : 'Assignment updated successfully'
+        ? t('exercise_updated_success')
+        : t('assignment_updated_success')
     )
     router.push(
       isExercise
@@ -286,9 +288,9 @@ export function EditAssignmentForm({
         onOpenChange={setIsModalOpen}
         type="confirm"
         size="md"
-        title="Are you sure to save the change?"
+        title={t('confirm_save_change')}
         primaryButton={{
-          text: 'Confirm',
+          text: t('confirm_button'),
           onClick: handleConfirm,
           variant: 'default'
         }}
@@ -296,15 +298,15 @@ export function EditAssignmentForm({
         <div className="flex h-full w-full flex-col gap-[20px]">
           {deletedProblemTitles.length > 0 && (
             <ModalSection
-              title="Delete Problems"
-              description="Deleting a problem will remove all previous submissions."
+              title={t('delete_problems_title')}
+              description={t('delete_problems_description')}
               items={deletedProblemTitles}
             />
           )}
           {scoreUpdatedProblemTitles.length > 0 && (
             <ModalSection
-              title="Score Updated Problems"
-              description="Modifying scores may result in inconsistency between the scores of existing submissions and new submissions."
+              title={t('score_updated_problems_title')}
+              description={t('score_updated_problems_description')}
               items={scoreUpdatedProblemTitles}
             />
           )}

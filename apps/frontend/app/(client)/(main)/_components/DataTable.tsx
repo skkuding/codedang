@@ -15,6 +15,7 @@ import {
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -78,9 +79,10 @@ export function DataTable<TData extends Item, TValue>({
   headerStyle,
   tableRowStyle,
   linked = false,
-  emptyMessage = 'No results.',
+  emptyMessage,
   pathSegment
 }: DataTableProps<TData, TValue>) {
+  const { t } = useTranslate()
   const table = useReactTable({
     data,
     columns,
@@ -166,7 +168,7 @@ export function DataTable<TData extends Item, TValue>({
         ) : (
           <TableRow>
             <TableCell colSpan={columns.length} className="h-24 text-center">
-              {emptyMessage}
+              {emptyMessage ?? t('no_results')}
             </TableCell>
           </TableRow>
         )}

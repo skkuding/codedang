@@ -1,7 +1,9 @@
 import codedangSymbol from '@/public/logos/codedang-editor.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 
 export function LogoSection() {
+  const { t } = useTranslate()
   return (
     <div
       className="hidden h-svh max-h-[846px] w-full flex-col items-center justify-center gap-3 rounded-2xl md:flex"
@@ -13,10 +15,10 @@ export function LogoSection() {
       }}
     >
       <div className="flex items-center gap-3">
-        <Image src={codedangSymbol} alt="codedang" width={65} />
+        <Image src={codedangSymbol} alt={t('codedang_logo_alt')} width={65} />
         <p className="font-mono text-[40px] font-bold text-white">CODEDANG</p>
       </div>
-      <p className="font-medium text-white">Online Judge Platform for SKKU</p>
+      <p className="font-medium text-white">{t('online_judge_platform')}</p>
     </div>
   )
 }

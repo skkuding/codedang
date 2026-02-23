@@ -24,6 +24,7 @@ import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import { useSidePanelTabStore } from '@/stores/editorTabs'
 import type { ProblemDetail, Contest } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -59,6 +60,8 @@ export function EditorMainResizablePanel({
   enableCopyPaste = true,
   children
 }: ProblemEditorProps) {
+  const { t } = useTranslate()
+
   const fetchFreezeTime = async (contestId: number | undefined) => {
     const res: Contest = await fetcherWithAuth
       .get(`contest/${contestId}`)
@@ -182,7 +185,7 @@ export function EditorMainResizablePanel({
                     value="Description"
                     className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                   >
-                    Description
+                    {t('description')}
                   </TabsTrigger>
                 </Link>
                 <Link
@@ -193,7 +196,7 @@ export function EditorMainResizablePanel({
                     value="Submission"
                     className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                   >
-                    Submissions
+                    {t('submissions')}
                   </TabsTrigger>
                 </Link>
                 {(assignmentId || exerciseId) &&
@@ -207,7 +210,7 @@ export function EditorMainResizablePanel({
                         value="Solution"
                         className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                       >
-                        Solution
+                        {t('solution')}
                       </TabsTrigger>
                     </Link>
                   )}
@@ -222,7 +225,7 @@ export function EditorMainResizablePanel({
                       value="Leaderboard"
                       className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                     >
-                      Leaderboard
+                      {t('leaderboard')}
                     </TabsTrigger>
                   </Link>
                 )}
@@ -237,7 +240,7 @@ export function EditorMainResizablePanel({
                       value="Qna"
                       className="data-[state=active]:text-primary-light rounded-tab-button w-[105px] data-[state=active]:bg-slate-700"
                     >
-                      Q&A
+                      {t('qna')}
                     </TabsTrigger>
                   </Link>
                 )}
@@ -270,7 +273,7 @@ export function EditorMainResizablePanel({
                           alt="Tooltip arrow"
                           className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
                         />
-                        <p className="text-xs">Leaderboard is frozen</p>
+                        <p className="text-xs">{t('leaderboard_is_frozen')}</p>
                       </TooltipContent>
                     )}
                   </Tooltip>

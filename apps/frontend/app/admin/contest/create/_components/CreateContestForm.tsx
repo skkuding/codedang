@@ -8,6 +8,7 @@ import {
 import { UPDATE_CONTEST_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateContestInput } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { FormProvider } from 'react-hook-form'
@@ -33,6 +34,8 @@ export function CreateContestForm({
   managers,
   setIsCreating
 }: CreateContestFormProps) {
+  const { t } = useTranslate()
+
   const formattedManagers = managers.map((manager) => ({
     userId: manager.id,
     contestRole: manager.type
@@ -52,18 +55,18 @@ export function CreateContestForm({
 
   const isSubmittable = (input: CreateContestInput) => {
     if (input.startTime >= input.endTime) {
-      toast.error('Start time must be earlier than end time')
+      toast.error(t('start_time_error'))
       return
     }
     if (input.registerDueTime >= input.startTime) {
-      toast.error('Join duetime must be earlier than start time')
+      toast.error(t('join_duetime_error'))
       return
     }
 
     if (
       new Set(problems.map((problem) => problem.order)).size !== problems.length
     ) {
-      toast.error('Duplicate problem order found')
+      toast.error(t('duplicate_problem_order_error'))
       return
     }
     onSubmit()
@@ -82,7 +85,7 @@ export function CreateContestForm({
     const contestId = Number(data?.createContest.id)
 
     if (error) {
-      toast.error('Failed to create contest')
+      toast.error(t('create_contest_failed'))
       setIsCreating(false)
       return
     }
@@ -111,7 +114,7 @@ export function CreateContestForm({
     })
 
     setShouldSkipWarning(true)
-    toast.success('Contest created successfully')
+    toast.success(t('contest_create_success'))
     router.push('/admin/contest')
     router.refresh()
   }

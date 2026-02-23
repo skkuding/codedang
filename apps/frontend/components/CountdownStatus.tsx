@@ -2,6 +2,7 @@
 
 import { capitalizeFirstLetter, cn } from '@/libs/utils'
 import clockIcon from '@/public/icons/clock.svg'
+import { useTranslate } from '@tolgee/react'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import Image from 'next/image'
@@ -31,6 +32,7 @@ export function CountdownStatus({
 }: CountdownStatusProps) {
   const router = useRouter()
   const { problemId, courseId, assignmentId, exerciseId } = useParams()
+  const { t } = useTranslate()
   const [isFinished, setIsFinished] = useState(() => {
     const now = dayjs()
     return now.isAfter(baseTime)
@@ -75,10 +77,10 @@ export function CountdownStatus({
 
       if (!isCurrentlyFinished && days === 0 && hours === 0) {
         if (minutes === 5 && seconds === 0) {
-          toast.error('Submission ends in 5 minutes.', { duration: 10000 })
+          toast.error(t('submission_ends_5_minutes'), { duration: 10000 })
         }
         if (minutes === 1 && seconds === 0) {
-          toast.error('Submission ends in 1 minute.', { duration: 10000 })
+          toast.error(t('submission_ends_1_minute'), { duration: 10000 })
         }
       }
     }
@@ -92,7 +94,8 @@ export function CountdownStatus({
     exerciseId,
     router,
     courseId,
-    problemId
+    problemId,
+    t
   ])
 
   useEffect(() => {
@@ -110,12 +113,14 @@ export function CountdownStatus({
     >
       {showIcon && <Image src={clockIcon} alt="calendar" width={14} />}
       {target && showTarget && capitalizeFirstLetter(target)}
-      {target && showTarget ? ' submission ' : 'Submission '}
-      {isFinished ? 'has ended' : 'ends in'}
+      {target && showTarget
+        ? t('submission_text_with_target')
+        : t('submission_text_no_target')}
+      {isFinished ? t('has_ended_text') : t('ends_in_text')}
       {!isFinished && (
         <p className="overflow-hidden text-ellipsis whitespace-nowrap">
           {timeDiff.days > 0
-            ? `${timeDiff.days} DAYS`
+            ? t('days_count', { days: timeDiff.days })
             : `${timeDiff.hours}:${timeDiff.minutes}:${timeDiff.seconds}`}
         </p>
       )}

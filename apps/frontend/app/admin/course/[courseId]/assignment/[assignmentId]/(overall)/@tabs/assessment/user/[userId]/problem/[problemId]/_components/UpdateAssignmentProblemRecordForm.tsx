@@ -9,6 +9,7 @@ import {
 import { useSuspenseQuery, useMutation } from '@apollo/client'
 import type { UpdateAssignmentProblemRecordInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useParams } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -53,14 +54,16 @@ export function UpdateAssignmentProblemRecordForm({
     }
   })
 
+  const { t } = useTranslate()
+
   const [updateAssignmentProblemRecord] = useMutation(
     UPDATE_ASSIGNMENT_PROBLEM_RECORD,
     {
       onError: () => {
-        toast.error('Failed to update assessment')
+        toast.error(t('failed_to_update_assessment'))
       },
       onCompleted: () => {
-        toast.success('Assessment updated successfully')
+        toast.success(t('assessment_updated_successfully'))
         onCompleted()
       },
       refetchQueries: [

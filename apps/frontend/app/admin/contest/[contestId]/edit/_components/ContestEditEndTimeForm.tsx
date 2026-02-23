@@ -1,4 +1,5 @@
 import { ErrorMessage } from '@/app/admin/_components/ErrorMessage'
+import { useTranslate } from '@tolgee/react'
 import { useRef, useState } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -17,6 +18,8 @@ export function ContestEditEndTimeForm({
   defaultValue,
   defaultTimeOnSelect
 }: ContestEditEndTimeFormProps) {
+  const { t } = useTranslate()
+
   const {
     control,
     formState: { errors },
@@ -39,9 +42,7 @@ export function ContestEditEndTimeForm({
       const newEndTime = new Date(newDate)
       if (originalEndTime && newEndTime < new Date(originalEndTime)) {
         setDate(originalEndTime)
-        toast.error(
-          'End Time cannot be earlier than the original End Time for an ongoing contest.'
-        )
+        toast.error(t('ongoing_contest_end_time_error'))
         return
       }
       setValue(name, newDate)

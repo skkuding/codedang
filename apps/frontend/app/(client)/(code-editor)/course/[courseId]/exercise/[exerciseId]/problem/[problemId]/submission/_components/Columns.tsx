@@ -4,29 +4,37 @@ import { dateFormatter } from '@/libs/utils'
 import type { SubmissionItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
-export const columns: ColumnDef<SubmissionItem>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<SubmissionItem>[] => [
   {
     header: '#',
     accessorKey: 'id',
     cell: ({ row }) => <p className="text-sm">{row.original.id}</p>
   },
   {
-    header: () => 'Language',
+    header: () => {
+      return t('language_column_header')
+    },
     accessorKey: 'language',
     cell: ({ row }) => row.original.language
   },
   {
-    header: () => 'Submission Time',
+    header: () => {
+      return t('submission_time_column_header')
+    },
     accessorKey: 'createTime',
     cell: ({ row }) =>
       dateFormatter(row.original.createTime, 'MMM DD, YYYY HH:mm')
   },
   {
-    header: () => 'Code Size',
+    header: () => {
+      return t('code_size_column_header')
+    },
     accessorKey: 'codeSize',
     cell: ({ row }) => {
       return row.original.codeSize === null ? (
-        <p>N/A</p>
+        <p>{t('n_a')}</p>
       ) : (
         <p>{row.original.codeSize} B</p>
       )

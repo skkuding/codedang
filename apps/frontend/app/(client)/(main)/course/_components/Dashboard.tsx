@@ -11,6 +11,7 @@ import {
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { Assignment, AssignmentSummary } from '@/types/type'
 import { useQueries, type UseQueryOptions } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { DashboardCalendar } from './DashboardCalendar'
@@ -109,6 +110,8 @@ const makeAssignmentQueries = (
   })
 
 export function Dashboard({ courseIds }: { courseIds: number[] }) {
+  const { t } = useTranslate()
+
   const validCourseIds = (courseIds ?? []).filter(
     (n) => Number.isFinite(n) && n > 0
   )
@@ -253,7 +256,7 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
     <section className="mx-auto max-w-[1208px]">
       <div className="pb-[30px]">
         <h2 className="text-[30px] font-semibold leading-9 tracking-[-0.9px] text-black">
-          DASHBOARD
+          {t('dashboard_header')}
         </h2>
       </div>
 
@@ -261,7 +264,7 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
       <div className="hidden gap-[14px] sm:grid md:grid-cols-2 lg:grid-cols-3">
         <CardSection
           icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
-          title="Assignment"
+          title={t('assignment_section_title')}
           groups={groupedByCourse.map(({ courseTitle, rows }) => ({
             courseTitle,
             rows: rows.filter((r) => !r.isExercise)
@@ -271,7 +274,7 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
 
         <CardSection
           icon={<ExerciseIcon className="h-7 w-7 fill-violet-600" />}
-          title="Exercise"
+          title={t('exercise_section_title')}
           groups={groupedByCourse.map(({ courseTitle, rows }) => ({
             courseTitle,
             rows: rows.filter((r) => r.isExercise)
@@ -311,7 +314,7 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
             <div className="mx-auto w-full items-center space-y-6">
               <CardSection
                 icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
-                title="Assignment"
+                title={t('assignment_section_title')}
                 groups={groupedByCourse.map(({ courseTitle, rows }) => ({
                   courseTitle,
                   rows: rows.filter((r) => !r.isExercise)
@@ -321,7 +324,7 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
 
               <CardSection
                 icon={<ExerciseIcon className="h-7 w-7 fill-violet-600" />}
-                title="Exercise"
+                title={t('exercise_section_title')}
                 groups={groupedByCourse.map(({ courseTitle, rows }) => ({
                   courseTitle,
                   rows: rows.filter((r) => r.isExercise)
@@ -337,6 +340,7 @@ export function Dashboard({ courseIds }: { courseIds: number[] }) {
 }
 
 function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
+  const { t } = useTranslate()
   return (
     <section className="flex justify-center rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
       <div className="flex max-h-[40vh] w-full max-w-[100vw] flex-col py-[30px] pl-6 pr-2 sm:max-h-[460px] sm:max-w-[390px]">
@@ -427,7 +431,7 @@ function CardSection({ icon, title, groups, selectedDate }: CardSectionProps) {
                                 {row.title}
                                 {showDueBadge && (
                                   <span className="ml-2 rounded bg-rose-50 px-1.5 py-0.5 align-middle text-[11px] font-semibold text-rose-600">
-                                    DUE
+                                    {t('due_label')}
                                   </span>
                                 )}
                               </p>

@@ -1,6 +1,7 @@
 'use client'
 
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { AiOutlineLink } from 'react-icons/ai'
 import { AiFillMail } from 'react-icons/ai'
@@ -9,11 +10,12 @@ import { TbBrandGithubFilled } from 'react-icons/tb'
 import { toast } from 'sonner'
 
 export function Footer() {
+  const { t } = useTranslate()
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText('skkuding@gmail.com')
       console.log('clipboard successfully set')
-      toast.success('Email Copied!')
+      toast.success(t('email_copied_toast'))
     } catch (err) {
       console.error('clipboard failed', err)
     }
@@ -58,7 +60,9 @@ export function Footer() {
         <p className="text-center text-sm font-light">
           ⓒ 2025. CODEDANG All rights reserved.
         </p>
-        <p className="text-center text-sm font-light">Since 2021</p>
+        <p className="text-center text-sm font-light">
+          {t('since_2021_label')}
+        </p>
       </div>
     </footer>
   )

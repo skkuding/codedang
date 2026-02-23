@@ -4,6 +4,7 @@ import bronzeMedalIcon from '@/public/icons/medal-bronze.svg'
 import goldMedalIcon from '@/public/icons/medal-gold.svg'
 import silverMedalIcon from '@/public/icons/medal-silver.svg'
 import * as Tooltip from '@radix-ui/react-tooltip'
+import { useTranslate } from '@tolgee/react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import type { ProblemRecordInContestLeaderboard } from '../_libs/types'
@@ -27,6 +28,7 @@ export function LeaderboardRow({
   problemRecords,
   search
 }: LeaderboardRowProps) {
+  const { t } = useTranslate()
   const medals = [goldMedalIcon, silverMedalIcon, bronzeMedalIcon]
 
   const isTopRanked = rank <= 3
@@ -41,7 +43,11 @@ export function LeaderboardRow({
           style={{ boxShadow: '2px 2px 10px rgba(0,0,0,0.15)' }}
         >
           {isTopRanked ? (
-            <Image src={medalImage} alt="medal" className="px-[2px]" />
+            <Image
+              src={medalImage}
+              alt={t('medal_alt_text')}
+              className="px-[2px]"
+            />
           ) : (
             <div className="flex h-[34px] w-[34px] flex-col items-center justify-center rounded-full bg-[#C4C4C4] font-[18px] font-bold text-white">
               {rank}
@@ -50,7 +56,7 @@ export function LeaderboardRow({
           <div className="flex flex-col justify-center pl-[18px]">
             <div className="text-[22px] font-semibold">{username}</div>
             <div className="flex flex-row text-[14px] text-[#737373]">
-              Total Penalty /{' '}
+              {t('total_penalty')} /{' '}
               <div className="font-medium text-[#3581FA]">{totalPenalty}</div>
             </div>
           </div>
@@ -89,7 +95,11 @@ export function LeaderboardRow({
                             transition={{ duration: 0.2, ease: 'easeOut' }}
                             className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
                           >
-                            <div>{`${problem.submissionCount} sub`}</div>
+                            <div>
+                              {t('hover_submission_count', {
+                                count: problem.submissionCount
+                              })}
+                            </div>
                             <div className="border-t-10 absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-x-transparent border-t-[#3581FA]" />
                           </motion.div>
                         </Tooltip.Content>
@@ -114,7 +124,11 @@ export function LeaderboardRow({
                             transition={{ duration: 0.2, ease: 'easeOut' }}
                             className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
                           >
-                            <div>{`${problem.submissionCount} sub`}</div>
+                            <div>
+                              {t('hover_submission_count', {
+                                count: problem.submissionCount
+                              })}
+                            </div>
                             <div className="border-t-10 absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-x-transparent border-t-[#3581FA]" />
                           </motion.div>
                         </Tooltip.Content>
@@ -137,7 +151,11 @@ export function LeaderboardRow({
           style={{ boxShadow: '2px 2px 10px rgba(0,0,0,0.15)' }}
         >
           {isTopRanked ? (
-            <Image src={medalImage} alt="medal" className="px-[2px]" />
+            <Image
+              src={medalImage}
+              alt={t('medal_alt_text')}
+              className="px-[2px]"
+            />
           ) : (
             <div className="flex h-[34px] w-[34px] flex-col items-center justify-center rounded-full bg-white font-[18px] font-bold text-[#3581FA]">
               {rank}
@@ -146,7 +164,7 @@ export function LeaderboardRow({
           <div className="flex flex-col justify-center pl-[18px]">
             <div className="text-[22px] font-bold text-white">{username}</div>
             <div className="flex flex-row text-[14px] text-white">
-              Total Penalty /{' '}
+              {t('total_penalty')} /{' '}
               <div className="font-medium text-white">{totalPenalty}</div>
             </div>
           </div>
@@ -185,7 +203,11 @@ export function LeaderboardRow({
                             transition={{ duration: 0.2, ease: 'easeOut' }}
                             className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
                           >
-                            <div>{`${problem.submissionCount} sub`}</div>
+                            <div>
+                              {t('hover_submission_count', {
+                                count: problem.submissionCount
+                              })}
+                            </div>
                             <div className="border-t-10 absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-x-transparent border-t-[#3581FA]" />
                           </motion.div>
                         </Tooltip.Content>
@@ -210,7 +232,11 @@ export function LeaderboardRow({
                             transition={{ duration: 0.2, ease: 'easeOut' }}
                             className="flex h-[38px] w-[88px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-lg text-white"
                           >
-                            <div>{`${problem.submissionCount} sub`}</div>
+                            <div>
+                              {t('hover_submission_count', {
+                                count: problem.submissionCount
+                              })}
+                            </div>
                             <div className="border-t-10 absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-8 border-x-transparent border-t-[#3581FA]" />
                           </motion.div>
                         </Tooltip.Content>

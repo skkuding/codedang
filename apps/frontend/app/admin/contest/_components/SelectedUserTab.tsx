@@ -5,6 +5,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem
 } from '@/components/shadcn/dropdown-menu'
+import { getTranslate } from '@/tolgee/server'
 import React from 'react'
 import { BiEnvelope } from 'react-icons/bi'
 import { FaChevronDown } from 'react-icons/fa6'
@@ -16,7 +17,12 @@ interface SelectedUserTabProps {
   setUsers: React.Dispatch<React.SetStateAction<ContestManagerReviewer[]>>
 }
 
-export function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
+export async function SelectedUserTab({
+  curUser,
+  setUsers
+}: SelectedUserTabProps) {
+  const t = await getTranslate()
+
   const handleUserDropdownChange = (value: string) => {
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
@@ -64,13 +70,13 @@ export function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
             checked={curUser.type === 'Manager'}
             onCheckedChange={() => handleUserDropdownChange('Manager')}
           >
-            Manager
+            {t('manager')}
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
             checked={curUser.type === 'Reviewer'}
             onCheckedChange={() => handleUserDropdownChange('Reviewer')}
           >
-            Reviewer
+            {t('reviewer')}
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
       </DropdownMenu>

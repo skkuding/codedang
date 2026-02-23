@@ -31,6 +31,7 @@ import {
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { cn } from '@/libs/utils'
 import { useMutation, useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import dayjs from 'dayjs'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -47,6 +48,7 @@ export function ParticipantTableOverall({
   groupId,
   assignmentId
 }: ParticipantTableProps) {
+  const { t } = useTranslate()
   const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
       groupId,
@@ -130,10 +132,14 @@ export function ParticipantTableOverall({
   })
 
   const headers = [
-    { label: 'Student Id', key: 'studentId' },
-    { label: 'Name', key: 'realName' },
+    { label: t('student_id_label'), key: 'studentId' },
+    { label: t('name_label'), key: 'realName' },
     {
-      label: `Total Score(MAX ${summaries?.data?.getAssignmentScoreSummaries[0]?.assignmentPerfectScore || 0})`,
+      label: t('total_score_label', {
+        max:
+          summaries?.data?.getAssignmentScoreSummaries[0]
+            ?.assignmentPerfectScore || 0
+      }),
       key: 'finalScore'
     },
 
@@ -169,15 +175,13 @@ export function ParticipantTableOverall({
     <div className="flex flex-col gap-6">
       <div className="flex justify-between gap-4">
         <UtilityPanel
-          title="Show Scores to Students"
-          description="When enabled, students can view their scores for this assignment."
+          title={t('show_scores_to_students_title')}
+          description={t('show_scores_to_students_description')}
         >
           <Switch
             onCheckedChange={async (checked) => {
               if (checked && !isAssignmentFinished) {
-                toast.error(
-                  'Score cannot be revealed before assignment due time.'
-                )
+                toast.error(t('score_cannot_be_revealed_error'))
                 return
               }
               setRevealFinalScore(checked)
@@ -190,7 +194,7 @@ export function ParticipantTableOverall({
                   }
                 },
                 onCompleted: () => {
-                  toast.success('Successfully updated')
+                  toast.success(t('successfully_updated_message'))
                 }
               })
             }}
@@ -199,8 +203,8 @@ export function ParticipantTableOverall({
           />
         </UtilityPanel>
         <UtilityPanel
-          title="Download as a CSV"
-          description="Download grading results, showing scores by student and problem"
+          title={t('download_csv_title')}
+          description={t('download_csv_description')}
         >
           <CSVLink
             data={csvData}
@@ -208,7 +212,7 @@ export function ParticipantTableOverall({
             filename={fileName}
             className="bg-primary flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-85"
           >
-            Download
+            {t('download_button')}
           </CSVLink>
         </UtilityPanel>
       </div>
@@ -217,7 +221,7 @@ export function ParticipantTableOverall({
           <span className="text-primary font-bold">
             {summariesData?.length}
           </span>{' '}
-          Participants
+          {t('participants_label')}
         </p>
         <div className="flex gap-2">
           {currentView === 'auto' && (
@@ -233,9 +237,11 @@ export function ParticipantTableOverall({
                     (summariesData?.length || 0) * (problemData?.length || 0)
 
                   if (gradedCount === expectedCount) {
-                    toast.success('Successfully graded all submissions')
+                    toast.success(t('successfully_graded_all_submissions'))
                   } else {
-                    toast.success(`Graded ${gradedCount} submissions`)
+                    toast.success(
+                      t('graded_submissions', { count: gradedCount })
+                    )
                   }
 
                   summaries.refetch()
@@ -244,12 +250,12 @@ export function ParticipantTableOverall({
                   if (error instanceof Error) {
                     toast.error(error.message)
                   } else {
-                    toast.error('Failed to apply auto grading')
+                    toast.error(t('failed_to_apply_auto_grading_error'))
                   }
                 }
               }}
             >
-              Apply to Final Score
+              {t('apply_to_final_score_button')}
             </Button>
           )}
           <Popover open={viewOpen} onOpenChange={setViewOpen}>
@@ -259,7 +265,9 @@ export function ParticipantTableOverall({
                 role="combobox"
                 className="w-[200px] justify-between"
               >
-                {currentView === 'final' ? 'Final Score' : 'Auto Graded Score'}
+                {currentView === 'final'
+                  ? t('final_score_label')
+                  : t('auto_graded_score_label')}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -280,7 +288,7 @@ export function ParticipantTableOverall({
                           currentView === 'final' ? 'opacity-100' : 'opacity-0'
                         )}
                       />
-                      Final Score
+                      {t('final_score_label')}
                     </CommandItem>
                     <CommandItem
                       value="auto"
@@ -295,7 +303,7 @@ export function ParticipantTableOverall({
                           currentView === 'auto' ? 'opacity-100' : 'opacity-0'
                         )}
                       />
-                      Auto Graded Score
+                      {t('auto_graded_score_label')}
                     </CommandItem>
                   </CommandGroup>
                 </CommandList>
@@ -312,11 +320,15 @@ export function ParticipantTableOverall({
           assignmentId,
           isAssignmentFinished,
           currentView,
-          summaries.refetch
+          summaries.refetch,
+          t
         )}
         enablePagination={false}
       >
-        <DataTableSearchBar columndId="realName" placeholder="Search Name" />
+        <DataTableSearchBar
+          columndId="realName"
+          placeholder={t('search_name_placeholder')}
+        />
         <DataTable />
       </DataTableRoot>
     </div>
@@ -328,7 +340,15 @@ export function ParticipantTableFallback() {
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
       <DataTableFallback
-        columns={createColumns([], 0, 0, true, 'final', () => {})}
+        columns={createColumns(
+          [],
+          0,
+          0,
+          true,
+          'final',
+          () => {},
+          () => ''
+        )}
       />
     </div>
   )

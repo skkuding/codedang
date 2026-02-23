@@ -3,9 +3,11 @@
 import type { LeaderboardItemCodeEditorPagination } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
-export const columns: ColumnDef<LeaderboardItemCodeEditorPagination>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<LeaderboardItemCodeEditorPagination>[] => [
   {
-    header: 'Rank',
+    header: t('rank_column_header'),
     accessorKey: 'rank',
     cell: ({ row }) => {
       const rank = row.original.rank
@@ -25,7 +27,7 @@ export const columns: ColumnDef<LeaderboardItemCodeEditorPagination>[] = [
     }
   },
   {
-    header: 'User ID',
+    header: t('user_id_column_header'),
     accessorKey: 'userId',
     cell: ({ row }) =>
       row.original.rank <= 3 ? (
@@ -35,7 +37,7 @@ export const columns: ColumnDef<LeaderboardItemCodeEditorPagination>[] = [
       )
   },
   {
-    header: 'Penalty',
+    header: t('penalty_column_header'),
     accessorKey: 'penalty',
     cell: ({ row }) =>
       row.original.rank <= 3 ? (
@@ -45,7 +47,7 @@ export const columns: ColumnDef<LeaderboardItemCodeEditorPagination>[] = [
       )
   },
   {
-    header: 'Solved',
+    header: t('solved_column_header'),
     accessorKey: 'solved',
     cell: ({ row }) => {
       return row.original.rank <= 3 ? (

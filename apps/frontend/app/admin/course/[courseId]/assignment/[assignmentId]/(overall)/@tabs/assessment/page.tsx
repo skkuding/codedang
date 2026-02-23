@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { Suspense } from 'react'
@@ -8,6 +9,7 @@ import { ParticipantTableByProblem } from './_components/ParticipantTableByProbl
 import { ParticipantTableOverall } from './_components/ParticipantTableOverall'
 
 export default function Assessment() {
+  const { t } = useTranslate()
   const { courseId, assignmentId } = useParams() // 경로에서 params 가져오기
   const [tab, setTab] = useState<'overall' | 'by-problem'>('overall')
 
@@ -24,7 +26,7 @@ export default function Assessment() {
             )}
             onClick={() => setTab('overall')}
           >
-            Overall
+            {t('overall_button')}
           </button>
           <button
             className={cn(
@@ -35,20 +37,20 @@ export default function Assessment() {
             )}
             onClick={() => setTab('by-problem')}
           >
-            By Problem
+            {t('by_problem_button')}
           </button>
         </div>
       </div>
 
       {tab === 'overall' ? (
-        <Suspense fallback={<div>Loading Overall...</div>}>
+        <Suspense fallback={<div>{t('loading_overall')}</div>}>
           <ParticipantTableOverall
             groupId={Number(courseId)}
             assignmentId={Number(assignmentId)}
           />
         </Suspense>
       ) : (
-        <Suspense fallback={<div>Loading By Problem...</div>}>
+        <Suspense fallback={<div>{t('loading_by_problem')}</div>}>
           <ParticipantTableByProblem
             courseId={Number(courseId)}
             assignmentId={Number(assignmentId)}

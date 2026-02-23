@@ -7,6 +7,7 @@ import {
 } from '@/components/shadcn/popover'
 import { GET_ASSIGNMENT_PROBLEM_RECORD } from '@/graphql/assignment/queries'
 import { useLazyQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useMemo, useState } from 'react'
 import { FaCommentDots } from 'react-icons/fa'
 
@@ -58,20 +59,22 @@ export function CommentCell({
   const raw = data?.getAssignmentProblemRecord?.comment ?? ''
   const plain = htmlToText(raw)
 
+  const { t } = useTranslate()
+
   const displayText = useMemo(() => {
     if (!plain) {
-      return 'Enter a comment'
+      return t('enter_a_comment')
     }
     return plain.length > 500 ? `${plain.slice(0, 500)}…` : plain
-  }, [plain])
+  }, [plain, t])
 
   let body = null
   if (loading) {
-    body = <p className="italic text-gray-400">Loading…</p>
+    body = <p className="italic text-gray-400">{t('loading')}</p>
   } else if (error) {
     body = (
       <p className="italic text-red-500">
-        Failed to load comment. {error.message}
+        {t('failed_to_load_comment', { errorMessage: error.message })}
       </p>
     )
   } else if (plain) {
@@ -85,7 +88,7 @@ export function CommentCell({
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label="View comment"
+          aria-label={t('view_comment')}
           className="hover:text-primary text-gray-500"
         >
           <FaCommentDots className="h-4 w-4" />

@@ -1,4 +1,5 @@
 import { safeFetcher } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -18,6 +19,8 @@ export const useCheckPassword = (
   defaultProfileValues: { username: string },
   currentPassword: string
 ): UseCheckPasswordResult => {
+  const { t } = useTranslate()
+
   const [isPasswordCorrect, setIsPasswordCorrect] = useState(false)
   const [newPasswordAble, setNewPasswordAble] = useState(false)
   const [isCheckButtonClicked, setIsCheckButtonClicked] = useState(false)
@@ -35,7 +38,7 @@ export const useCheckPassword = (
       setIsPasswordCorrect(true)
       setNewPasswordAble(true)
     } catch {
-      toast.error('Failed to check password')
+      toast.error(t('failed_to_check_password'))
       console.error('Failed to check password')
     }
   }

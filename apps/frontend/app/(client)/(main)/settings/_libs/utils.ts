@@ -1,3 +1,4 @@
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import type { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import { useRouter } from 'next/navigation'
@@ -21,6 +22,7 @@ export const useConfirmNavigation = (
   bypassConfirmation: MutableRefObject<boolean>,
   updateNow: boolean
 ) => {
+  const { t } = useTranslate()
   const router = useRouter()
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [confirmAction, setConfirmAction] = useState<() => void>(() => () => {})
@@ -33,7 +35,7 @@ export const useConfirmNavigation = (
     ): void => {
       if (updateNow) {
         if (!bypassConfirmation.current) {
-          toast.error('You must update your information')
+          toast.error(t('navigation_update_required_error'))
         } else {
           originalPush(href as Route, options)
         }
@@ -53,7 +55,7 @@ export const useConfirmNavigation = (
     return () => {
       router.push = originalPush
     }
-  }, [router, bypassConfirmation, updateNow])
+  }, [router, bypassConfirmation, updateNow, t])
 
   return { isConfirmModalOpen, setIsConfirmModalOpen, confirmAction }
 }

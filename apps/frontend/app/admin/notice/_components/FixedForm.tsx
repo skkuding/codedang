@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslate } from '@tolgee/react'
 import { useFormContext, useController } from 'react-hook-form'
 import { TbPinned, TbPinnedOff } from 'react-icons/tb'
 import { ErrorMessage } from '../../_components/ErrorMessage'
@@ -15,6 +16,8 @@ export function FixedForm({ blockEdit = false }: { blockEdit?: boolean }) {
     control,
     defaultValue: true
   })
+
+  const { t } = useTranslate()
 
   return (
     <>
@@ -44,7 +47,7 @@ export function FixedForm({ blockEdit = false }: { blockEdit?: boolean }) {
           </label>
         </div>
       </div>
-      {errors.isFixed && <ErrorMessage message="required" />}
+      {errors.isFixed && <ErrorMessage message={t('error_message_required')} />}
     </>
   )
 }

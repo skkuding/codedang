@@ -9,6 +9,7 @@ import { UPDATE_ASSIGNMENT_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -32,6 +33,7 @@ export function CreateAssignmentForm({
   setIsCreating,
   isExercise = false
 }: CreateAssignmentFormProps) {
+  const { t } = useTranslate()
   const methods = useForm<CreateAssignmentInput>({
     resolver: valibotResolver(createSchema),
     defaultValues: {
@@ -58,19 +60,19 @@ export function CreateAssignmentForm({
 
   const isSubmittable = (input: CreateAssignmentInput) => {
     if (input.startTime >= (input.dueTime ?? input.endTime)) {
-      toast.error('Start time must be earlier than due time')
+      toast.error(t('start_time_error'))
       return
     }
 
     if (input.dueTime > input.endTime) {
-      toast.error('End time cannot be earlier than due time')
+      toast.error(t('end_time_error'))
       return
     }
 
     if (
       new Set(problems.map((problem) => problem.order)).size !== problems.length
     ) {
-      toast.error('Duplicate problem order found')
+      toast.error(t('duplicate_problem_order_error'))
       return
     }
     onSubmit()
@@ -98,7 +100,7 @@ export function CreateAssignmentForm({
     const assignmentId = Number(data?.createAssignment.id)
 
     if (error) {
-      toast.error('Failed to create assignment')
+      toast.error(t('create_assignment_error'))
       setIsCreating(false)
       return
     }
@@ -135,9 +137,7 @@ export function CreateAssignmentForm({
 
     setShouldSkipWarning(true)
     toast.success(
-      isExercise
-        ? 'Exercise created successfully'
-        : 'Assignment created successfully'
+      isExercise ? t('exercise_create_success') : t('assignment_create_success')
     )
     router.push(
       isExercise

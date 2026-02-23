@@ -8,6 +8,7 @@ import { GET_COURSE } from '@/graphql/course/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form'
 import { FaPen } from 'react-icons/fa6'
@@ -51,6 +52,8 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
     }
   })
 
+  const { t } = useTranslate()
+
   const { table } = useDataTable<TableRowData>()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -92,7 +95,7 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
       }
     } catch (error) {
       console.error('Refetch error:', error)
-      toast.error('Failed to load course data.')
+      toast.error(t('failed_to_load_course_data'))
     }
   }
 
@@ -106,14 +109,14 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
     })
 
     toast.promise(updatePromise, {
-      loading: 'Updating course...',
+      loading: t('updating_course_loading'),
       success: () => {
         onSuccess?.()
         table.resetRowSelection()
         setIsModalOpen(false)
-        return 'Course updated successfully!'
+        return t('course_updated_successfully')
       },
-      error: 'Failed to update course.'
+      error: t('failed_to_update_course')
     })
   }
 
@@ -130,8 +133,8 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
       <Modal
         size="lg"
         type={'input'}
-        title="Update Course"
-        headerDescription="You can update your course information here."
+        title={t('update_course_title')}
+        headerDescription={t('update_course_header_description')}
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         className="!pb-0 !pr-[20px]"
@@ -147,14 +150,14 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
                   onClick={() => setIsModalOpen(false)}
                   className="h-[46px] w-full"
                 >
-                  Cancel
+                  {t('cancel_button')}
                 </Button>
                 <Button
                   type="submit"
                   variant="default"
                   className="h-[46px] w-full"
                 >
-                  Update
+                  {t('update_button')}
                 </Button>
               </div>
             </form>

@@ -4,6 +4,7 @@ import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST_UPDATE_HISTORIES } from '@/graphql/contest/queries'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
@@ -19,9 +20,12 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
   })
   const updateHistories =
     updateHistory?.getContestUpdateHistories.updateHistories
+
+  const { t } = useTranslate()
+
   return (
     <>
-      <div className="mb-6 text-2xl font-semibold">Update History</div>
+      <div className="mb-6 text-2xl font-semibold">{t('update_history')}</div>
       <div
         id="historyBox"
         className={cn(
@@ -31,7 +35,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
             : 'h-[149px]'
         )}
       >
-        {updateHistories?.length === 0 && <p>no result.</p>}
+        {updateHistories?.length === 0 && <p>{t('no_result')}</p>}
         {updateHistories?.map((history, index) => (
           <div
             key={history.updatedAt}

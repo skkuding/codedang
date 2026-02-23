@@ -3,11 +3,13 @@
 // import checkBlue from '@/public/icons/check-blue.svg'
 // import checkGray from '@/public/icons/check-gray.svg'
 import type { Assignment } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 // import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 export function OngoingAssignments() {
+  const { t } = useTranslate()
   const [ongoings, setOngoings] = useState<Assignment[]>([])
 
   useEffect(() => {
@@ -57,14 +59,14 @@ export function OngoingAssignments() {
 
   return (
     <div className="p-10">
-      <h3 className="mb-10 text-lg font-bold">On-going Assignments</h3>
+      <h3 className="mb-10 text-lg font-bold">{t('on_going_assignments')}</h3>
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-gray-100">
-            <th className="px-4 py-2 font-medium">Title</th>
-            <th className="px-4 py-2 font-medium">Start Date</th>
-            <th className="px-4 py-2 font-medium">End Date</th>
-            <th className="px-4 py-2 font-medium">Submission</th>
+            <th className="px-4 py-2 font-medium">{t('title_header')}</th>
+            <th className="px-4 py-2 font-medium">{t('start_date_header')}</th>
+            <th className="px-4 py-2 font-medium">{t('end_date_header')}</th>
+            <th className="px-4 py-2 font-medium">{t('submission_header')}</th>
           </tr>
         </thead>
         <tbody>

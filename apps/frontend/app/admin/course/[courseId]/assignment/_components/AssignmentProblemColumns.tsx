@@ -13,27 +13,28 @@ import type { AssignmentProblem } from '../../_libs/type'
 export const createAssignmentColumns = (
   setProblems: React.Dispatch<React.SetStateAction<AssignmentProblem[]>>,
   disableInput: boolean,
-  isExercise: boolean
+  isExercise: boolean,
+  t: (key: string) => string
 ): ColumnDef<AssignmentProblem>[] => {
   const columns: ColumnDef<AssignmentProblem>[] = [
     {
       accessorKey: 'title',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Title" />
+        <DataTableColumnHeader column={column} title={t('title_header')} />
       ),
       cell: ({ row }) => (
         <p className="w-[469px] overflow-hidden text-ellipsis whitespace-nowrap text-left">
           {row.getValue('title')}
         </p>
       ),
-      footer: () => <p className="w-[469px]">Score Sum</p>,
+      footer: () => <p className="w-[469px]">{t('score_sum')}</p>,
       enableSorting: false,
       enableHiding: false
     },
     {
       accessorKey: 'order',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Order" />
+        <DataTableColumnHeader column={column} title={t('order_header')} />
       ),
       cell: ({ table, row }) => {
         const tableRows = table.getRowModel().rows
@@ -45,7 +46,7 @@ export const createAssignmentColumns = (
             className="flex justify-center"
             onClick={() => {
               if (disableInput) {
-                toast.error('Problem order cannot be edited')
+                toast.error(t('problem_order_edit_error'))
               }
             }}
           >
@@ -75,7 +76,7 @@ export const createAssignmentColumns = (
     {
       accessorKey: 'difficulty',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Level" />
+        <DataTableColumnHeader column={column} title={t('level_header')} />
       ),
       cell: ({ row }) => {
         const level: string = row.getValue('difficulty')
@@ -90,7 +91,7 @@ export const createAssignmentColumns = (
     {
       accessorKey: 'included',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Included" />
+        <DataTableColumnHeader column={column} title={t('included_header')} />
       ),
       cell: ({ row }) => (
         <div className="flex w-[75px] justify-center">
@@ -105,14 +106,14 @@ export const createAssignmentColumns = (
     const scoreColumn: ColumnDef<AssignmentProblem> = {
       accessorKey: 'score',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Score" />
+        <DataTableColumnHeader column={column} title={t('score_header')} />
       ),
       cell: ({ row }) => (
         <div
           className="w-15 flex justify-center"
           onClick={() => {
             if (disableInput) {
-              toast.error('Problem scoring cannot be edited')
+              toast.error(t('problem_scoring_edit_error'))
             }
           }}
         >

@@ -1,14 +1,17 @@
 'use client'
 
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 
 export function ServiceCards() {
+  const { t } = useTranslate()
+
   return (
     <section className="font-pretendard flex w-full flex-col items-center gap-10">
       <div className="flex w-full max-w-[1208px] flex-col items-start gap-10">
         <h2 className="text-[30px] font-semibold leading-9 tracking-[-0.9px] text-black">
-          SERVICE WE PROVIDE
+          {t('service_we_provide')}
         </h2>
 
         <div className="grid w-full auto-rows-[330px] grid-cols-2 gap-3 [@media(min-width:1140px)]:grid-cols-[41%_29%_28%]">
@@ -17,21 +20,21 @@ export function ServiceCards() {
             className="bg-primary-light relative row-span-2 h-full w-full rounded-[20px] text-white duration-500 hover:scale-[1.02]"
           >
             <div className="absolute left-[30px] top-[30px] flex h-[34px] items-center justify-center rounded-full border border-white px-3 py-1 text-xs font-normal">
-              CONTEST
+              {t('contest')}
             </div>
             <Image
               src="/banners/about-contest.svg"
-              alt="About Contest"
+              alt={t('about_contest')}
               className="absolute h-full w-full rounded-[20px] object-cover"
               fill
             />
             <div className="absolute bottom-10 left-[30px] right-[30px]">
               <p className="pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
-                About Contest
+                {t('about_contest')}
               </p>
               <p className="text-s font-normal leading-[22.4px] tracking-[-0.48px]">
-                Professors and students can host coding contests,
-                <br /> and rankings help enhance learning and motivation.
+                {t('about_contest_description_line_1')}
+                <br /> {t('about_contest_description_line_2')}
               </p>
             </div>
           </Link>
@@ -41,20 +44,20 @@ export function ServiceCards() {
             className="bg-background-normal relative h-full w-full rounded-[20px] duration-500 hover:scale-[1.02]"
           >
             <div className="border-primary text-primary absolute left-[30px] top-[30px] z-10 flex h-[34px] items-center justify-center rounded-full border px-3 py-1 text-xs leading-[22.4px] tracking-[-0.48px]">
-              NOTICE
+              {t('notice')}
             </div>
             <Image
               src="/banners/stay-informed.svg"
-              alt="Stay Informed"
+              alt={t('stay_informed')}
               className="absolute inset-0 h-full w-full rounded-[20px] object-cover"
               fill
             />
             <div className="absolute left-[30px] right-[30px] top-[78px]">
               <p className="text-primary-strong pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
-                Stay Informed
+                {t('stay_informed')}
               </p>
               <p className="text-primary text-s font-normal leading-[22.4px] tracking-[-0.48px]">
-                Stay updated with the latest news <br /> and announcements.
+                {t('stay_updated_with_latest_news_and_announcements')}
               </p>
             </div>
           </Link>
@@ -64,29 +67,29 @@ export function ServiceCards() {
             className="bg-primary relative h-full w-full rounded-[20px] text-white duration-500 hover:scale-[1.02]"
           >
             <div className="absolute left-[30px] top-[30px] z-10 flex h-[34px] items-center justify-center rounded-full border border-white px-3 py-1 text-xs leading-[22.4px] tracking-[-0.48px]">
-              PROBLEM
+              {t('problem')}
             </div>
             <Image
               src="/banners/practice-with-real-problems-bg.svg"
-              alt="Background pattern"
+              alt={t('background_pattern')}
               className="absolute inset-0 h-full w-full rounded-[20px] object-cover"
               fill
             />
             <Image
               src="/banners/practice-with-real-problems.svg"
-              alt="Practice with Real problems"
+              alt={t('practice_with_real_problems')}
               className="absolute bottom-0 right-0 object-contain"
               width={350}
               height={350}
             />
             <div className="absolute left-[30px] right-[30px] top-[78px]">
               <p className="pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
-                Practice with
-                <br /> Real problems
+                {t('practice_with_real_problems_line_1')}
+                <br /> {t('practice_with_real_problems_line_2')}
               </p>
               <p className="text-s font-normal leading-[22.4px] tracking-[-0.48px]">
-                Explore coding challenges
-                <br /> by level and topic.
+                {t('practice_with_real_problems_description_line_1')}
+                <br /> {t('practice_with_real_problems_description_line_2')}
               </p>
             </div>
           </Link>
@@ -96,22 +99,22 @@ export function ServiceCards() {
             className="relative col-span-2 h-full w-full rounded-[20px] bg-[#00183E] text-white duration-500 hover:scale-[1.02]"
           >
             <div className="absolute left-[30px] top-[30px] flex h-[34px] items-center justify-center rounded-full border border-white bg-[#00183E] px-3 py-1 text-xs leading-[22.4px] tracking-[-0.48px]">
-              COURSE
+              {t('course')}
             </div>
             <Image
               src="/banners/learn-with-courses.svg"
-              alt="Learn with Courses"
+              alt={t('learn_with_courses')}
               className="absolute bottom-0 right-0 rounded-[20px] object-cover"
               width={350}
               height={350}
             />
             <div className="absolute bottom-10 left-[30px] right-[30px]">
               <p className="pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
-                Learn with Courses
+                {t('learn_with_courses')}
               </p>
               <p className="text-s font-normal leading-[22.4px] tracking-[-0.48px]">
-                Access course-linked assignments and exercises.
-                <br /> Learn through professor-curated problem.
+                {t('learn_with_courses_description_line_1')}
+                <br /> {t('learn_with_courses_description_line_2')}
               </p>
             </div>
           </Link>

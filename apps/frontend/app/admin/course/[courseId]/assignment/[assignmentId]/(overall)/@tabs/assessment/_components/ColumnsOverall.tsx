@@ -6,6 +6,7 @@ import { UPDATE_ASSIGNMENT_PROBLEM_RECORD } from '@/graphql/assignment/mutations
 import { cn } from '@/libs/utils'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import { SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -50,6 +51,7 @@ function ScoreEditableCell({
   refetch: () => void
   isAssignmentFinished: boolean
 }) {
+  const { t } = useTranslate()
   const [editing, setEditing] = useState(false)
   const [inputValue, setInputValue] = useState(
     problemScore && typeof problemScore.finalScore === 'number'
@@ -60,7 +62,7 @@ function ScoreEditableCell({
     UPDATE_ASSIGNMENT_PROBLEM_RECORD,
     {
       onCompleted: () => {
-        toast.success('Score saved successfully.')
+        toast.success(t('score_saved_successfully'))
         setEditing(false)
         if (refetch) {
           refetch()
@@ -68,7 +70,7 @@ function ScoreEditableCell({
       },
       onError: (error) => {
         console.error('Score save error:', error)
-        toast.error('Failed to save score.')
+        toast.error(t('failed_to_save_score'))
         setInputValue(
           problemScore &&
             typeof (problemScore.finalScore ?? problemScore.score) === 'number'
@@ -86,7 +88,9 @@ function ScoreEditableCell({
     const num = Number(inputValue)
     if (inputValue === '' || num < 0 || num > problemScore.maxScore) {
       toast.error(
-        `Only integers between 0 and ${problemScore.maxScore} are allowed.`
+        t('score_allowed_integer_range_error', {
+          maxScore: problemScore.maxScore
+        })
       )
       setInputValue(
         typeof (problemScore.finalScore ?? problemScore.score) === 'number'
@@ -154,7 +158,7 @@ function ScoreEditableCell({
       )}
       onClick={() => {
         if (!isAssignmentFinished) {
-          toast.error('Only completed assignments can be graded')
+          toast.error(t('only_completed_assignments_can_be_graded'))
           return
         }
         setEditing(true)
@@ -171,20 +175,21 @@ export const createColumns = (
   assignmentId: number,
   isAssignmentFinished: boolean,
   currentView: 'final' | 'auto',
-  refetch: () => void
+  refetch: () => void,
+  t: (key: string) => string
 ): ColumnDef<DataTableScoreSummary>[] => {
   return [
     {
       accessorKey: 'studentId',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Student ID" />
+        <DataTableColumnHeader column={column} title={t('student_id_column')} />
       ),
       cell: ({ row }) => row.getValue('studentId')
     },
     {
       accessorKey: 'realName',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name" />
+        <DataTableColumnHeader column={column} title={t('name_column')} />
       ),
       cell: ({ row }) => row.getValue('realName'),
       filterFn: 'includesString'
@@ -220,7 +225,7 @@ export const createColumns = (
     {
       accessorKey: 'userAssignmentFinalScore',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Total" />
+        <DataTableColumnHeader column={column} title={t('total_column')} />
       ),
       cell: ({ row }) =>
         `${row.original.userAssignmentFinalScore}/${row.original.assignmentPerfectScore}`
@@ -228,7 +233,7 @@ export const createColumns = (
     {
       id: 'detail',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Detail" />
+        <DataTableColumnHeader column={column} title={t('detail_column')} />
       ),
       cell: ({ row }) => {
         if (!problemData || problemData.length === 0) {

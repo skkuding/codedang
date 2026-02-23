@@ -7,7 +7,9 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { Suspense } from 'react'
 import { MySubmissionFallback, MySubmission } from './MySubmission'
 
-export const columns: ColumnDef<ContestProblem>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<ContestProblem>[] => [
   {
     header: '#',
     accessorKey: 'order',
@@ -27,7 +29,9 @@ export const columns: ColumnDef<ContestProblem>[] = [
     }
   },
   {
-    header: 'My Submission',
+    header: () => {
+      return t('my_submission')
+    },
     accessorKey: 'submit',
     cell: ({ row }) =>
       row.original.submissionTime && (
@@ -41,14 +45,18 @@ export const columns: ColumnDef<ContestProblem>[] = [
       )
   },
   {
-    header: () => 'Submission Time',
+    header: () => {
+      return t('submission_time')
+    },
     accessorKey: 'submissionTime',
     cell: ({ row }) =>
       row.original.submissionTime &&
       dateFormatter(row.original.submissionTime, 'YYYY-MM-DD HH:mm:ss')
   },
   {
-    header: () => 'Score',
+    header: () => {
+      return t('score')
+    },
     accessorKey: 'score',
     cell: ({ row }) =>
       row.original.maxScore !== null

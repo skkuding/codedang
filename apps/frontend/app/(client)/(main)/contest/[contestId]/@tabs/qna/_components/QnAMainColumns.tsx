@@ -4,10 +4,12 @@ import { dateFormatter } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { QnAItemWithCategory } from './QnAMainTable'
 
-export const QnAColumns: ColumnDef<QnAItemWithCategory>[] = [
+export const getQnAColumns = (
+  t: (key: string) => string
+): ColumnDef<QnAItemWithCategory>[] => [
   {
     accessorKey: 'id',
-    header: 'No',
+    header: t('column_no'),
     cell: ({ row }) => row.original.order,
     sortingFn: 'basic',
     sortDescFirst: true
@@ -18,7 +20,7 @@ export const QnAColumns: ColumnDef<QnAItemWithCategory>[] = [
   },
   {
     accessorKey: 'category',
-    header: 'Category',
+    header: t('column_category'),
     cell: ({ row }) => row.original.categoryName || row.original.category,
     filterFn: (row, id, value) => {
       const category = row.original.categoryName || row.original.category
@@ -34,7 +36,7 @@ export const QnAColumns: ColumnDef<QnAItemWithCategory>[] = [
   },
   {
     accessorKey: 'title',
-    header: 'Question',
+    header: t('column_question'),
     cell: ({ row }) => row.original.title
   },
   {
@@ -43,7 +45,7 @@ export const QnAColumns: ColumnDef<QnAItemWithCategory>[] = [
   },
   {
     accessorKey: 'writer',
-    header: 'Writer',
+    header: t('column_writer'),
     cell: ({ row }) => row.original.createdBy.username
   },
   {
@@ -52,7 +54,7 @@ export const QnAColumns: ColumnDef<QnAItemWithCategory>[] = [
   },
   {
     accessorKey: 'createTime',
-    header: 'Date',
+    header: t('column_date'),
     cell: ({ row }) =>
       dateFormatter(row.original.createTime, 'YYYY-MM-DD HH:mm:ss')
   }

@@ -18,6 +18,7 @@ import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import type { Course } from '@/types/type'
 import { ContestRole, type UserContest } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import { ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { usePathname } from 'next/navigation'
@@ -47,6 +48,7 @@ export function HeaderAuthPanel({
   const { currentModal, hideModal, showSignIn, showSignUp } = useAuthModalStore(
     (state) => state
   )
+  const { t } = useTranslate()
   const isUser = session?.user.role === 'User'
 
   const isEditor = group === 'editor'
@@ -185,7 +187,7 @@ export function HeaderAuthPanel({
                   'h-8 border-none bg-[#EAF3FF] text-[11px] hover:bg-[#D7E5FE]'
               )}
             >
-              Log In
+              {t('log_in')}
             </Button>
           </DialogTrigger>
           <DialogTrigger asChild>
@@ -198,7 +200,7 @@ export function HeaderAuthPanel({
                 isEditor && 'h-8 text-[11px]'
               )}
             >
-              Sign Up
+              {t('sign_up')}
             </Button>
           </DialogTrigger>
           <DialogContent

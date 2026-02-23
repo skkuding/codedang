@@ -22,6 +22,7 @@ import {
 } from '@/libs/utils'
 import type { Assignment, AssignmentSummary } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -35,6 +36,7 @@ interface AssignmentAccordianProps {
 }
 
 export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
+  const { t } = useTranslate()
   const { data: assignments } = useQuery(
     assignmentQueries.muliple({ courseId, isExercise: false })
   )
@@ -47,7 +49,7 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
       <div className="mt-4 lg:mt-8">
         <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">
           <p className="text-color-neutral-60 text-base">
-            No assignments registered
+            {t('no_assignments_registered')}
           </p>
         </div>
       </div>
@@ -79,6 +81,7 @@ function AssignmentAccordionItem({
   courseId,
   grade
 }: AssignmentAccordionItemProps) {
+  const { t } = useTranslate()
   const [isAccordionOpen, setIsAccordionOpen] = useState(false)
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
 
@@ -170,7 +173,7 @@ function AssignmentAccordionItem({
               )}
               {dayjs().isAfter(assignment.startTime) && (
                 <p className="text-sm font-medium">
-                  Score:{' '}
+                  {t('score_label')}:{' '}
                   {`${grade.userAssignmentFinalScore ?? '-'} / ${grade.assignmentPerfectScore}`}
                 </p>
               )}
@@ -310,13 +313,13 @@ function AssignmentAccordionItem({
 
                             return submissionTime ? (
                               <span>
-                                Last Submission :{' '}
+                                {t('last_submission')} :{' '}
                                 {dateFormatter(submissionTime, 'MMM D, HH:mm')}
                               </span>
                             ) : null
                           })()}
                           <span>
-                            Score:{' '}
+                            {t('score_label')}:{' '}
                             {dayjs().isAfter(
                               dayjs(assignment.dueTime ?? assignment.endTime)
                             )
@@ -366,7 +369,7 @@ function AssignmentAccordionItem({
 
                           return submissionTime ? (
                             <div className="text-primary flex w-full justify-center text-sm font-normal">
-                              Last Submission :{' '}
+                              {t('last_submission')} :{' '}
                               {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
                             </div>
                           ) : null

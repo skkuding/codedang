@@ -8,6 +8,7 @@ import {
 import { GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { createColumns } from './ScoreColumns'
 
 interface ScoreTableProps {
@@ -16,6 +17,7 @@ interface ScoreTableProps {
 }
 
 export function ScoreTable({ userId, contestId }: ScoreTableProps) {
+  const { t } = useTranslate()
   const submissions = useSuspenseQuery(
     GET_CONTEST_SUBMISSION_SUMMARIES_OF_USER,
     {
@@ -35,7 +37,7 @@ export function ScoreTable({ userId, contestId }: ScoreTableProps) {
   return (
     <DataTableRoot
       data={[{ ...scoreData, id: userId }]}
-      columns={createColumns(problemData)}
+      columns={createColumns(problemData, t)}
     >
       <DataTable />
     </DataTableRoot>
@@ -43,5 +45,10 @@ export function ScoreTable({ userId, contestId }: ScoreTableProps) {
 }
 
 export function ScoreTableFallback() {
-  return <DataTableFallback withSearchBar={false} columns={createColumns([])} />
+  return (
+    <DataTableFallback
+      withSearchBar={false}
+      columns={createColumns([], () => '')}
+    />
+  )
 }

@@ -10,6 +10,7 @@ import {
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { MdHelpOutline } from 'react-icons/md'
@@ -54,6 +55,8 @@ export function SwitchField({
     getValues,
     formState: { errors }
   } = useFormContext()
+
+  const { t } = useTranslate()
 
   useEffect(() => {
     setIsEnabled(invert ? !hasValue : hasValue)
@@ -142,7 +145,7 @@ export function SwitchField({
 
       {isEnabled && name === 'invitationCode' && (
         <span className="text-xs text-gray-400">
-          The invitation code must be a 6-digit number
+          {t('switch_field_invitation_code_message')}
         </span>
       )}
 

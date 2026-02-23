@@ -4,20 +4,26 @@ import { dateFormatter, getResultColor, omitString } from '@/libs/utils'
 import type { SubmissionItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
-export const columns: ColumnDef<SubmissionItem>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<SubmissionItem>[] => [
   {
-    header: '#',
+    header: 'Id',
     accessorKey: 'id',
     cell: ({ row }) => <p className="text-sm">{row.original.id}</p>
   },
   {
-    header: () => 'Problem',
+    header: () => {
+      return t('problem_head')
+    },
     accessorKey: 'problem',
     cell: ({ row }) =>
       omitString({ targetString: row.original.problem.title, maxlength: 13 })
   },
   {
-    header: () => 'Result',
+    header: () => {
+      return t('result_head')
+    },
     accessorKey: 'result',
     cell: ({ row }) => {
       return (
@@ -28,7 +34,9 @@ export const columns: ColumnDef<SubmissionItem>[] = [
     }
   },
   {
-    header: () => 'Language',
+    header: () => {
+      return t('language_head')
+    },
     accessorKey: 'language',
     cell: ({ row }) => {
       return (
@@ -37,17 +45,21 @@ export const columns: ColumnDef<SubmissionItem>[] = [
     }
   },
   {
-    header: () => 'Submission Time',
+    header: () => {
+      return t('submission_time_head')
+    },
     accessorKey: 'createTime',
     cell: ({ row }) =>
       dateFormatter(row.original.createTime, 'YYYY-MM-DD HH:mm:ss')
   },
   {
-    header: () => 'Code Size',
+    header: () => {
+      return t('code_size_head')
+    },
     accessorKey: 'codeSize',
     cell: ({ row }) => {
       return row.original.codeSize === null ? (
-        <p>N/A</p>
+        <p>{t('n_a')}</p>
       ) : (
         <p>{row.original.codeSize} B</p>
       )

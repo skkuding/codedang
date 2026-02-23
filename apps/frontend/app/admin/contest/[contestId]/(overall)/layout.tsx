@@ -7,6 +7,7 @@ import { dateFormatter } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import emergencyIcon from '@/public/icons/emergency.svg'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { use } from 'react'
@@ -18,6 +19,7 @@ export default function Layout(props: {
   params: Promise<{ contestId: string }>
   tabs: React.ReactNode
 }) {
+  const { t } = useTranslate()
   const params = use(props.params)
 
   const { tabs } = props
@@ -41,21 +43,21 @@ export default function Layout(props: {
         <Link href={`/admin/contest/${contestId}/edit`}>
           <Button variant="default" className="h-[50px] w-[120px]">
             <FaPencil className="mr-2 h-4 w-4" />
-            <p className="text-lg font-semibold">Edit</p>
+            <p className="text-lg font-semibold">{t('edit_button')}</p>
           </Button>
         </Link>
       </div>
       <div className="mb-[120px] flex flex-col gap-[10px]">
         <div className="flex font-normal text-[#333333E5]">
           <FaUser className="black self-center" color="#3581FA" />
-          &nbsp; Contest Admin : {contestData?.createdBy?.username}
+          &nbsp; {t('contest_admin')} : {contestData?.createdBy?.username}
         </div>
         <div className="flex font-normal text-[#333333E5]">
           <IoKey className="black self-center" color="#3581FA" />
-          &nbsp; Invitation code : {contestData?.invitationCode}
+          &nbsp; {t('invitation_code')} : {contestData?.invitationCode}
         </div>
         <div className="flex items-center gap-2">
-          <Image src={calendarIcon} alt="calendar" width={16} />
+          <Image src={calendarIcon} alt={t('calendar_alt_text')} width={16} />
           <p className="font-normal text-[#333333E5]">
             {dateFormatter(contestData?.startTime, 'YY-MM-DD HH:mm')} ~{' '}
             {dateFormatter(contestData?.endTime, 'YY-MM-DD HH:mm')}
@@ -67,7 +69,7 @@ export default function Layout(props: {
           inContestEditor={false}
         />
         <div className="flex items-center gap-2">
-          <Image src={emergencyIcon} alt="emergency" width={16} />
+          <Image src={emergencyIcon} alt={t('emergency_alt_text')} width={16} />
           <p className="font-normal text-[#333333E5]">
             {dateFormatter(contestData?.registerDueTime, 'YY-MM-DD HH:mm')}
           </p>

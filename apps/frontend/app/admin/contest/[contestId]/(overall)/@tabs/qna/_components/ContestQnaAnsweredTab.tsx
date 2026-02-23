@@ -1,4 +1,5 @@
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 
 interface ContestQnaAnsweredTabProps {
   clickUnanswered: boolean
@@ -9,6 +10,7 @@ export function ContestQnaAnsweredTab({
   clickUnanswered,
   setClickUnanswered
 }: ContestQnaAnsweredTabProps) {
+  const { t } = useTranslate()
   const tabClass =
     'flex h-9 w-48 cursor-pointer items-center justify-center rounded-full text-base font-normal tracking-[-0.03em]'
   const activeClass = 'bg-primary text-white'
@@ -20,13 +22,13 @@ export function ContestQnaAnsweredTab({
         className={cn(tabClass, !clickUnanswered ? activeClass : inactiveClass)}
         onClick={() => setClickUnanswered(false)}
       >
-        All Question
+        {t('all_question')}
       </div>
       <div
         className={cn(tabClass, clickUnanswered ? activeClass : inactiveClass)}
         onClick={() => setClickUnanswered(true)}
       >
-        Unanswered Question
+        {t('unanswered_question')}
       </div>
     </div>
   )
