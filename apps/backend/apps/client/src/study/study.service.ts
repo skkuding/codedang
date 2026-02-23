@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { GroupType } from '@prisma/client'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { CreateStudyDto } from './dto/study.dto'
 
@@ -119,5 +120,23 @@ export class StudyService {
       isPublic: !studyGroup.studyInfo?.invitationCode,
       isJoined: userId ? studyGroup._count.userGroup > 0 : false
     }))
+  }
+
+  async deleteStudyGroup(groupId: number) {
+    const studyGroup = await this.prisma.group.findUnique({
+      where: {
+        id: groupId
+      }
+    })
+
+    if (!studyGroup) {
+      throw new EntityNotExistException('StudyGroup')
+    }
+
+    await this.prisma.group.delete({
+      where: {
+        id: groupId
+      }
+    })
   }
 }
