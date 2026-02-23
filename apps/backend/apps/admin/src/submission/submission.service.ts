@@ -353,6 +353,16 @@ export class SubmissionService {
     return submissionInfo
   }
 
+  /**
+   * 특정 과제의 특정 문제에 대해 각 사용자의 최신 제출물을 기준으로 언어별 제출 통계를 계산합니다.
+   * @param assignmentId 조회의 대상이 되는 AssignmentId
+   * @param problemId 조회의 대상이 되는 ProblemId
+   * @param groupId 해당 과제가 속한 그룹의 Id (그룹 리더 가드에서 사용)
+   * @param reqUser 요청을 보낸 사용자 정보 (권한 검증 시 사용)
+   * @returns 언어별 제출 횟수가 담긴 SubmissionCountByLanguage 배열
+   * @throws {EntityNotExistException} 요청한 과제가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 사용자의 권한 검증에 실패 했을 때 (Admin, SuperAdmin이 아니거나 해당 그룹의 리더가 아닐 경우)
+   */
   async getLatestSubmissionCountByLanguage(
     assignmentId: number,
     problemId: number,
