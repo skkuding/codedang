@@ -34,8 +34,8 @@ export class StudyController {
 
   @Get()
   @UserNullWhenAuthFailedIfPublic()
-  getStudyGroups(@Req() req: AuthenticatedRequest) {
-    return this.studyService.getStudyGroups(req.user?.id)
+  async getStudyGroups(@Req() req: AuthenticatedRequest) {
+    return await this.studyService.getStudyGroups(req.user?.id)
   }
 
   @Delete(':groupId')
