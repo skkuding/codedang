@@ -97,7 +97,23 @@ func main() {
 		defaultTracer,
 	)
 
-	routeProvider := router.NewRouter(judgeHandler, logProvider, defaultTracer)
+	generateHandler := handler.NewGenerateHandler[judger.JudgerConfig, judger.ExecArgs](
+		logProvider,
+		defaultTracer,
+	)
+
+	validateHandler := handler.NewValidateHandler[judger.JudgerConfig, judger.ExecArgs](
+		logProvider,
+		defaultTracer,
+	)
+
+	routeProvider := router.NewRouter(
+		judgeHandler,
+		generateHandler,
+		validateHandler,
+		logProvider,
+		defaultTracer,
+	)
 
 	logProvider.Log(logger.INFO, "Server Started")
 

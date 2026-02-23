@@ -18,6 +18,8 @@ const (
 	Run          = "run"
 	Interactive  = "interactive"
 	UserTestCase = "userTestCase"
+	Generate     = "generate"
+	Validate     = "validate"
 )
 
 type Router interface {
@@ -26,17 +28,21 @@ type Router interface {
 }
 
 type router[C any, E any] struct {
-	judgeHandler *handler.JudgeHandler[C, E]
-	logger       logger.Logger
-	tracer       trace.Tracer
+	judgeHandler    *handler.JudgeHandler[C, E]
+	generateHandler *handler.GenerateHandler[C, E]
+	validateHandler *handler.ValidateHandler[C, E]
+	logger          logger.Logger
+	tracer          trace.Tracer
 }
 
 func NewRouter[C any, E any](
 	judgeHandler *handler.JudgeHandler[C, E],
+	generateHandler *handler.GenerateHandler[C, E],
+	validateHandler *handler.ValidateHandler[C, E],
 	logger logger.Logger,
 	tracer trace.Tracer,
 ) *router[C, E] {
-	return &router[C, E]{judgeHandler, logger, tracer}
+	return &router[C, E]{judgeHandler, generateHandler, validateHandler, logger, tracer}
 }
 
 func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byte, ctx context.Context) {
@@ -72,6 +78,10 @@ func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byt
 	case UserTestCase:
 		go r.judgeHandler.Handle(id, data, false, judgeChan, newCtx)
 	case SpecialJudge:
+	case Generate:
+		go r.generateHandler.Handle(id, data, judgeChan, newCtx)
+	case Validate:
+		go r.validateHandler.Handle(id, data, judgeChan, newCtx)
 	default:
 		err := fmt.Errorf("invalid request type: %s", path)
 		r.errHandle(err)
