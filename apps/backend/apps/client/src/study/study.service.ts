@@ -126,7 +126,8 @@ export class StudyService {
     const studyGroup = await this.prisma.group.findUnique({
       where: {
         id: groupId
-      }
+      },
+      select: { id: true }
     })
 
     if (!studyGroup) {
