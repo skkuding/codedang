@@ -28,8 +28,9 @@ export function MiddleContestBanner() {
             />
             <div className="font-pretendard absolute left-[16px] top-[32px] z-10 inline-flex h-[66px] w-[201px] flex-col items-start gap-[4px] text-white">
               <p className="text-[18px] font-semibold leading-[120%] tracking-[-0.54px]">
-                {t('take_part_realtime')}
-                <br /> {t('coding_contest')}
+                {t('take_part_realtime_coding_contest_1')}
+                <br />
+                {t('take_part_realtime_coding_contest_2')}
               </p>
               <p className="text-color-neutral-90 text-[13px] font-normal leading-[140%] tracking-[-0.39px]">
                 {t('compete_in_realtime')}
@@ -53,7 +54,11 @@ function TextBox({ className }: { className: string }) {
         {/* 글자 부분 */}
         <div className="flex h-full max-h-[164px] flex-col justify-between">
           <Text className="max-h-[96px] w-fit whitespace-nowrap text-[40px] font-semibold leading-[120%]">
-            <p> {t('take_part_realtime_coding_contest')}</p>
+            <p>
+              {t('take_part_realtime_coding_contest_1')}
+              <br />
+              {t('take_part_realtime_coding_contest_2')}
+            </p>
           </Text>
           <Text className="text-background-alternative max-h-[48px] text-[16px] font-normal leading-[150%]">
             <p>

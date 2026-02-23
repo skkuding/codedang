@@ -52,7 +52,7 @@ export function QuestionAnswerArea({
       setQnaDetails(details)
     } catch (err) {
       console.error('API 호출 중 오류 발생:', err)
-      setError(t('eomething_wrong_try_again'))
+      setError(t('something_wrong_try_again'))
     } finally {
       setLoading(false)
     }

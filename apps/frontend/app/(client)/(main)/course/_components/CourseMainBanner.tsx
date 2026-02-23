@@ -44,7 +44,8 @@ export function CourseMainBanner({ course }: { course: JoinedCourse | null }) {
       mainDescription: `${t('codedang')}\n${t('course_hub')}`,
       buttonDescription: t('check_your_course'),
       bgcolor: 'bg-[linear-gradient(95deg,#E0D0FF_50.46%,#9B99FF_82.55%)]',
-      mainDescriptionColor: t('main_description_color'),
+      mainDescriptionColor:
+        'linear-gradient(100deg, #12134A -7.99%, #262799 23.9%, #4D3CCF 65.71%)',
       img: '/banners/notebook.png',
       imgAlt: t('recent_course')
     }

@@ -304,13 +304,7 @@
   },
   "app/admin/course/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_contest_list",
-        "description": "Error message shown when contest list fails to load.",
-        "default": "Failed to Load Contest List!"
-      }
-    ]
+    "keys": []
   },
   "app/admin/_components/VisibleForm.tsx": {
     "migrated": true,
@@ -428,11 +422,6 @@
         "name": "problem_list_description",
         "description": "Description under the problem list title",
         "default": "Here's a problem list you made"
-      },
-      {
-        "name": "create_button",
-        "description": "Label for the button to create a new problem",
-        "default": "Create"
       }
     ]
   },
@@ -494,11 +483,6 @@
         "name": "failed_to_load_assignment_problem",
         "description": "Message displayed when there is an error loading the assignment.",
         "default": "Failed to load the assignment problem"
-      },
-      {
-        "name": "check_icon_alt",
-        "description": "Alt text for a check icon image.",
-        "default": "check"
       }
     ]
   },
@@ -589,22 +573,11 @@
   },
   "app/(client)/(code-editor)/_components/ExerciseProblemDropdown.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_assignment_problem",
-        "description": "Message shown when there is an error loading the assignment problem.",
-        "default": "Failed to load the assignment problem"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(code-editor)/_components/EditorSkeleton.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "contest",
-        "description": "Label for contest section in the header.",
-        "default": "Contest"
-      },
       {
         "name": "future_contest",
         "description": "Link to a future contest in the header.",
@@ -877,13 +850,7 @@
   },
   "app/(client)/(main)/_components/DataTable.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "no_results",
-        "description": "Message displayed when there are no results.",
-        "default": "No results."
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/_components/Header.tsx": {
     "migrated": true,
@@ -984,12 +951,12 @@
     "migrated": true,
     "keys": [
       {
-        "name": "take_part_realtime",
+        "name": "take_part_realtime_coding_contest_1",
         "description": "Banner text for encouraging participation in real-time coding contests.",
         "default": "TAKE PART IN REAL-TIME"
       },
       {
-        "name": "coding_contest",
+        "name": "take_part_realtime_coding_contest_2",
         "description": "Banner text for encouraging participation in real-time coding contests.",
         "default": "CODING CONTEST"
       },
@@ -1058,16 +1025,6 @@
   "app/(client)/(code-editor)/_components/EditorResizablePanel.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "description",
-        "description": "Tab label for the problem description.",
-        "default": "Description"
-      },
-      {
-        "name": "submissions",
-        "description": "Tab label for the submissions.",
-        "default": "Submissions"
-      },
       {
         "name": "solution",
         "description": "Tab label for the solution.",
@@ -1151,11 +1108,6 @@
   "app/(client)/(main)/course/page.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "welcome_image_alt",
-        "description": "Alt text for the welcome image.",
-        "default": "welcome"
-      },
       {
         "name": "please_login",
         "description": "Prompt text for login.",
@@ -1368,7 +1320,7 @@
         "default": "SERVICE WE PROVIDE"
       },
       {
-        "name": "contest",
+        "name": "contest_2",
         "description": "Label for the contest-related service.",
         "default": "CONTEST"
       },
@@ -1388,7 +1340,7 @@
         "default": "and rankings help enhance learning and motivation."
       },
       {
-        "name": "notice",
+        "name": "notice_2",
         "description": "Label for the notice-related service.",
         "default": "NOTICE"
       },
@@ -1403,7 +1355,7 @@
         "default": "Stay updated with the latest news and announcements."
       },
       {
-        "name": "problem",
+        "name": "problem_2",
         "description": "Label for the problem-related service.",
         "default": "PROBLEM"
       },
@@ -1411,6 +1363,11 @@
         "name": "background_pattern",
         "description": "Alt text for the background pattern image in the problems section.",
         "default": "Background pattern"
+      },
+      {
+        "name": "practice_with_real_problems",
+        "description": "Alt text for the practice with real problems image.",
+        "default": "Practice with Real problems"
       },
       {
         "name": "practice_with_real_problems_line_1",
@@ -1433,7 +1390,7 @@
         "default": "by level and topic."
       },
       {
-        "name": "course",
+        "name": "course_2",
         "description": "Label for the course-related service.",
         "default": "COURSE"
       },
@@ -1621,11 +1578,6 @@
         "name": "delete_manager_reviewer_description",
         "description": "Description explaining the consequences of deleting a manager or reviewer.",
         "default": "If you remove the selected contest manager or reviewer, he/she will no longer have access to this contest"
-      },
-      {
-        "name": "cancel_button",
-        "description": "Label for the cancel button in the dialog.",
-        "default": "Cancel"
       },
       {
         "name": "delete_button",
@@ -1816,11 +1768,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "codedang_alt",
-        "description": "Alt text for the Codedang logo.",
-        "default": "Codedang"
-      },
-      {
         "name": "check_icon_alt_text",
         "description": "Alt text for the check icon.",
         "default": "check"
@@ -1829,38 +1776,7 @@
   },
   "app/admin/_components/code-editor/EditorDescription.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "input",
-        "description": "Label for the problem input section.",
-        "default": "Input"
-      },
-      {
-        "name": "output",
-        "description": "Label for the problem output section.",
-        "default": "Output"
-      },
-      {
-        "name": "time_limit",
-        "description": "Label for the time limit information.",
-        "default": "Time Limit"
-      },
-      {
-        "name": "memory_limit",
-        "description": "Label for the memory limit information.",
-        "default": "Memory Limit"
-      },
-      {
-        "name": "source",
-        "description": "Label for the problem source information.",
-        "default": "Source"
-      },
-      {
-        "name": "hint",
-        "description": "Label for the hint section.",
-        "default": "Hint"
-      }
-    ]
+    "keys": []
   },
   "app/admin/_components/code-editor/EditorLayout.tsx": {
     "migrated": true,
@@ -1869,21 +1785,6 @@
   "app/admin/contest/_components/ImportProblemTableColumns.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "select_all_aria_label",
-        "description": "Aria label for the checkbox to select all rows.",
-        "default": "Select all"
-      },
-      {
-        "name": "select_row_aria_label",
-        "description": "Aria label for the checkbox to select a row.",
-        "default": "Select row"
-      },
-      {
-        "name": "title_column_header",
-        "description": "Header title for the title column.",
-        "default": "Title"
-      },
       {
         "name": "language_column_header",
         "description": "Header title for the language column.",
@@ -1913,28 +1814,12 @@
         "name": "sample_title",
         "description": "Title for the sample section.",
         "default": "Sample"
-      },
-      {
-        "name": "input_label",
-        "description": "Label for the input section with index.",
-        "default": "Input {index}"
-      },
-      {
-        "name": "output_label",
-        "description": "Label for the output section with index.",
-        "default": "Output {index}"
       }
     ]
   },
   "app/admin/_components/code-editor/PreviewEditorLayout.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "exit_preview_button",
-        "description": "Button to exit the preview mode.",
-        "default": "Exit Preview"
-      }
-    ]
+    "keys": []
   },
   "app/admin/_components/code-editor/CopyButton.tsx": {
     "migrated": true,
@@ -2005,7 +1890,7 @@
         "default": "CREATE CONTEST"
       },
       {
-        "name": "title",
+        "name": "title_2",
         "description": "Label for the title form section.",
         "default": "Title"
       },
@@ -2098,13 +1983,7 @@
   },
   "app/admin/_components/code-editor/SolutionLayout.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "solution_code",
-        "description": "Label for the solution code section.",
-        "default": "Solution Code"
-      }
-    ]
+    "keys": []
   },
   "app/admin/contest/_components/InputFieldTab.tsx": {
     "migrated": true,
@@ -2234,11 +2113,6 @@
         "default": "Delete {target}?"
       },
       {
-        "name": "delete_button",
-        "description": "Text for the delete button in a modal.",
-        "default": "Delete"
-      },
-      {
         "name": "confirm_permanent_delete",
         "description": "Description for confirming permanent delete of selected items.",
         "default": "Are you sure you want to permanently delete {count} {target}(s)?"
@@ -2333,7 +2207,7 @@
         "default": "Wrong"
       },
       {
-        "name": "input_label",
+        "name": "input_label_2",
         "description": "Table header label for input column.",
         "default": "Input"
       },
@@ -2343,7 +2217,7 @@
         "default": "Expected Output"
       },
       {
-        "name": "output_label",
+        "name": "output_label_2",
         "description": "Table header label for output column.",
         "default": "Output"
       }
@@ -2390,13 +2264,7 @@
   },
   "app/admin/_components/table/DataTable.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "no_results",
-        "description": "Displayed when there are no results in the table.",
-        "default": "No results."
-      }
-    ]
+    "keys": []
   },
   "app/admin/_components/table/context.ts": {
     "migrated": true,
@@ -2629,13 +2497,7 @@
   },
   "app/admin/course/[courseId]/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_contest_list",
-        "description": "Error message displayed when contest list fails to load.",
-        "default": "Failed to Load Contest List!"
-      }
-    ]
+    "keys": []
   },
   "app/admin/course/[courseId]/page.tsx": {
     "migrated": true,
@@ -2685,16 +2547,6 @@
         "name": "create_course_header_description",
         "description": "Description for the header of the create course modal.",
         "default": "You can create your course information here."
-      },
-      {
-        "name": "create_button",
-        "description": "Text for the create button.",
-        "default": "Create"
-      },
-      {
-        "name": "cancel_button",
-        "description": "Text for the cancel button.",
-        "default": "Cancel"
       }
     ]
   },
@@ -2735,7 +2587,7 @@
         "default": "Select row"
       },
       {
-        "name": "title",
+        "name": "title_3",
         "description": "Column header for the title.",
         "default": "Title"
       },
@@ -2907,13 +2759,7 @@
   },
   "app/admin/notice/_components/FixedForm.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "error_message_required",
-        "description": "Error message indicating a required field.",
-        "default": "required"
-      }
-    ]
+    "keys": []
   },
   "app/admin/notice/_libs/schemas.ts": {
     "migrated": true,
@@ -2951,11 +2797,6 @@
         "name": "content_section_title",
         "description": "Title for the content section form.",
         "default": "Content"
-      },
-      {
-        "name": "create_button",
-        "description": "Text for the create button.",
-        "default": "Create"
       }
     ]
   },
@@ -3018,17 +2859,7 @@
         "default": "This assignment is not visible to users"
       },
       {
-        "name": "select_all",
-        "description": "Aria label for selecting all items.",
-        "default": "Select all"
-      },
-      {
-        "name": "select_row",
-        "description": "Aria label for selecting a single row.",
-        "default": "Select row"
-      },
-      {
-        "name": "title",
+        "name": "title_4",
         "description": "Column header for title column.",
         "default": "Title"
       },
@@ -3133,7 +2964,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "add_button",
+        "name": "add_button_2",
         "description": "Label for add function button.",
         "default": "+ add"
       }
@@ -3148,11 +2979,6 @@
         "default": "Template"
       },
       {
-        "name": "solution",
-        "description": "Label for solution variant option.",
-        "default": "Solution"
-      },
-      {
         "name": "format",
         "description": "Label text for the format button.",
         "default": "Format"
@@ -3163,19 +2989,9 @@
     "migrated": true,
     "keys": [
       {
-        "name": "all_badge",
-        "description": "Label for selecting all options in the filter badge.",
-        "default": "All"
-      },
-      {
         "name": "no_language_found",
         "description": "Message displayed when no language is found in the filter menu.",
         "default": "No language found."
-      },
-      {
-        "name": "apply_button",
-        "description": "Label for the button to apply selected options in the filter.",
-        "default": "Apply"
       }
     ]
   },
@@ -3414,11 +3230,6 @@
         "default": "You can edit your course information here."
       },
       {
-        "name": "cancel_button",
-        "description": "Text for the cancel button.",
-        "default": "Cancel"
-      },
-      {
         "name": "update_button",
         "description": "Text for the update button.",
         "default": "Update"
@@ -3464,13 +3275,7 @@
   },
   "app/admin/problem/shared/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_problem_list",
-        "description": "Error detail message when failing to load problem list.",
-        "default": "Failed to Load Problem List!"
-      }
-    ]
+    "keys": []
   },
   "app/admin/problem/_components/ProblemUsage.tsx": {
     "migrated": true,
@@ -3496,16 +3301,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "user_id",
-        "description": "Header for the username column.",
-        "default": "User ID"
-      },
-      {
-        "name": "name",
-        "description": "Header for the real name column.",
-        "default": "Name"
-      },
-      {
         "name": "email",
         "description": "Header for the email column.",
         "default": "Email"
@@ -3519,11 +3314,6 @@
         "name": "major",
         "description": "Header for the major column.",
         "default": "Major"
-      },
-      {
-        "name": "role",
-        "description": "Header for the role column.",
-        "default": "Role"
       },
       {
         "name": "can_create_course",
@@ -3589,7 +3379,7 @@
         "default": "CREATE PROBLEM"
       },
       {
-        "name": "form_section_title",
+        "name": "form_section_title_2",
         "description": "Title label for the form section in the create problem form.",
         "default": "Title"
       },
@@ -3647,22 +3437,12 @@
         "name": "show_preview_button",
         "description": "Text for the button to show the preview in the create problem form.",
         "default": "Show Preview"
-      },
-      {
-        "name": "create_button",
-        "description": "Text for the create button in the create problem form.",
-        "default": "Create"
       }
     ]
   },
   "app/(client)/(code-editor)/_components/EditorHeader/BackCautionDialog.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "cancel_button",
-        "description": "Text for the cancel button in the back caution dialog",
-        "default": "Cancel"
-      },
       {
         "name": "ok_button",
         "description": "Text for the OK button in the back caution dialog",
@@ -3687,11 +3467,6 @@
         "name": "please_write_code_before_test",
         "description": "Error message when test is attempted without writing code.",
         "default": "Please write code before test"
-      },
-      {
-        "name": "test_button",
-        "description": "Button text for starting a test.",
-        "default": "Test"
       },
       {
         "name": "tooltip_test_your_code",
@@ -3804,16 +3579,6 @@
         "default": "User Testcase #{number}"
       },
       {
-        "name": "input",
-        "description": "Placeholder text for input Textarea.",
-        "default": "Input"
-      },
-      {
-        "name": "output",
-        "description": "Placeholder text for output Textarea.",
-        "default": "Output"
-      },
-      {
         "name": "required",
         "description": "Error text for required fields.",
         "default": "Required"
@@ -3827,11 +3592,6 @@
         "name": "cancel",
         "description": "Cancel button text in the dialog.",
         "default": "Cancel"
-      },
-      {
-        "name": "save",
-        "description": "Save button text in the dialog.",
-        "default": "Save"
       }
     ]
   },
@@ -4008,11 +3768,6 @@
         "default": "Confirm"
       },
       {
-        "name": "reset_button",
-        "description": "Text for the reset button.",
-        "default": "Reset"
-      },
-      {
         "name": "reset_code_title",
         "description": "Title for the reset code confirmation modal.",
         "default": "Reset code"
@@ -4066,6 +3821,11 @@
         "name": "judging",
         "description": "Text indicating the judging status during submission.",
         "default": "Judging"
+      },
+      {
+        "name": "failed_to_reset_the_code",
+        "description": "Error message when code cannot be reset.",
+        "default": "Failed to reset the code"
       }
     ]
   },
@@ -4141,11 +3901,6 @@
         "name": "expected_output",
         "description": "Label for the expected output field.",
         "default": "Expected Output"
-      },
-      {
-        "name": "output",
-        "description": "Label for the output field.",
-        "default": "Output"
       }
     ]
   },
@@ -4219,11 +3974,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "contest_list_title",
-        "description": "Title for the contest list view.",
-        "default": "CONTEST LIST"
-      },
-      {
         "name": "state_filter_title",
         "description": "Title for the state filter dropdown in the contest list.",
         "default": "State"
@@ -4239,7 +3989,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "contest_feature_list_title",
+        "name": "contest_feature_list_title_2",
         "description": "Title of the contest feature list.",
         "default": "Title"
       },
@@ -4404,7 +4154,7 @@
         "default": "ANNOUNCEMENT"
       },
       {
-        "name": "leaderboard",
+        "name": "leaderboard_2",
         "description": "The tab label for the leaderboard section.",
         "default": "LEADERBOARD"
       },
@@ -4422,33 +4172,11 @@
   },
   "app/(client)/(main)/contest/_libs/utils.ts": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "status_ongoing",
-        "description": "Text for when a contest is ongoing.",
-        "default": "Ongoing"
-      },
-      {
-        "name": "status_upcoming",
-        "description": "Text for when a contest is upcoming.",
-        "default": "Upcoming"
-      },
-      {
-        "name": "status_finished",
-        "description": "Text for when a contest is finished.",
-        "default": "Finished"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/contest/_components/ContestTitleFilter.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "all_badge",
-        "description": "Label for the badge when all options are selected.",
-        "default": "All"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/course/[courseId]/layout.tsx": {
     "migrated": true,
@@ -4516,11 +4244,6 @@
   "app/(client)/(main)/course/_components/CourseCard.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "calendar_icon_alt",
-        "description": "Alt text for the calendar icon.",
-        "default": "calendar"
-      },
       {
         "name": "person_icon_alt",
         "description": "Alt text for the person fill icon.",
@@ -4690,11 +4413,6 @@
         "name": "button_delete",
         "description": "Delete button text.",
         "default": "Delete"
-      },
-      {
-        "name": "button_add",
-        "description": "Add button text.",
-        "default": "Add"
       },
       {
         "name": "error_testcase_values_not_100",
@@ -4999,11 +4717,6 @@
         "name": "id_label",
         "description": "Label for the ID section",
         "default": "ID"
-      },
-      {
-        "name": "loading_placeholder",
-        "description": "Placeholder text when content is loading",
-        "default": "Loading..."
       }
     ]
   },
@@ -5011,7 +4724,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "codedang_logo_alt",
+        "name": "codedang_logo_alt_2",
         "description": "Alt text for the Codedang logo",
         "default": "codedang"
       },
@@ -5125,16 +4838,6 @@
         "default": "New password"
       },
       {
-        "name": "visible_alt",
-        "description": "Alt text for the icon when the password is visible.",
-        "default": "visible"
-      },
-      {
-        "name": "invisible_alt",
-        "description": "Alt text for the icon when the password is invisible.",
-        "default": "invisible"
-      },
-      {
         "name": "password_criteria_8_20_chars",
         "description": "Password requirement for 8-20 characters.",
         "default": "8-20 characters"
@@ -5148,13 +4851,7 @@
   },
   "app/(client)/(main)/settings/_components/SaveButton.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "save_button",
-        "description": "Label for the save button.",
-        "default": "Save"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/settings/_components/StudentIdSection.tsx": {
     "migrated": true,
@@ -5163,11 +4860,6 @@
         "name": "student_id_label",
         "description": "Label for the student ID input field.",
         "default": "Student ID"
-      },
-      {
-        "name": "loading_placeholder",
-        "description": "Placeholder text displayed when data is loading.",
-        "default": "Loading..."
       }
     ]
   },
@@ -5203,17 +4895,12 @@
     "migrated": true,
     "keys": [
       {
-        "name": "edit_button",
-        "description": "Text for the edit button.",
-        "default": "Edit"
-      },
-      {
         "name": "contest_admin",
         "description": "Label for contest admin name.",
         "default": "Contest Admin"
       },
       {
-        "name": "invitation_code",
+        "name": "invitation_code_2",
         "description": "Label for invitation code.",
         "default": "Invitation code"
       },
@@ -5232,16 +4919,6 @@
   "app/(client)/(main)/settings/_components/NameSection.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "name_label",
-        "description": "Label for the name input field.",
-        "default": "Name"
-      },
-      {
-        "name": "loading_placeholder",
-        "description": "Placeholder text shown while loading.",
-        "default": "Loading..."
-      },
       {
         "name": "enter_name_placeholder",
         "description": "Placeholder text prompting the user to enter their name.",
@@ -5316,11 +4993,6 @@
         "name": "statistics_tics",
         "description": "Part of the word for smaller screens for 'statistics' title.",
         "default": "TICS"
-      },
-      {
-        "name": "qna",
-        "description": "Title for Q&A section.",
-        "default": "Q&A"
       }
     ]
   },
@@ -5376,16 +5048,6 @@
         "name": "re_enter_new_password_placeholder",
         "description": "Placeholder text for re-entering new password input field.",
         "default": "Re-enter new password"
-      },
-      {
-        "name": "correct_message",
-        "description": "Message indicating that the passwords match.",
-        "default": "Correct"
-      },
-      {
-        "name": "incorrect_message",
-        "description": "Message indicating that the passwords do not match.",
-        "default": "Incorrect"
       }
     ]
   },
@@ -5428,7 +5090,7 @@
         "default": "INFORMATION"
       },
       {
-        "name": "submission_tab",
+        "name": "submission_tab_2",
         "description": "Label for the submission tab.",
         "default": "SUBMISSION"
       },
@@ -5462,11 +5124,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "title_header",
-        "description": "Header for the title column.",
-        "default": "Title"
-      },
-      {
         "name": "reveal_header",
         "description": "Header for the reveal column.",
         "default": "Reveal"
@@ -5492,11 +5149,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "user_id",
-        "description": "Display label for User ID field.",
-        "default": "User ID"
-      },
-      {
         "name": "language",
         "description": "Display label for language field.",
         "default": "Language"
@@ -5517,34 +5169,14 @@
         "default": "Testcase"
       },
       {
-        "name": "correct_testcase",
+        "name": "correct_testcase_2",
         "description": "Label for showing the count of correct testcases.",
         "default": "Correct Testcase:"
       },
       {
-        "name": "wrong_testcase_number",
+        "name": "wrong_testcase_number_2",
         "description": "Label for showing the number of wrong testcases.",
         "default": "Wrong Testcase Number:"
-      },
-      {
-        "name": "result",
-        "description": "Table column header for result.",
-        "default": "Result"
-      },
-      {
-        "name": "input",
-        "description": "Table column header for input data of testcases.",
-        "default": "Input"
-      },
-      {
-        "name": "expected_output",
-        "description": "Table column header for expected output of testcases.",
-        "default": "Expected Output"
-      },
-      {
-        "name": "output",
-        "description": "Table column header for actual output of testcases.",
-        "default": "Output"
       },
       {
         "name": "memory",
@@ -5596,7 +5228,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "start_time_error",
+        "name": "start_time_error_2",
         "description": "Error message for when start time is later than due time.",
         "default": "Start time must be earlier than due time"
       },
@@ -5604,11 +5236,6 @@
         "name": "end_time_error",
         "description": "Error message for when end time is earlier than due time.",
         "default": "End time cannot be earlier than due time"
-      },
-      {
-        "name": "duplicate_problem_order_error",
-        "description": "Error message for when there are duplicate problem orders.",
-        "default": "Duplicate problem order found"
       },
       {
         "name": "create_assignment_error",
@@ -5636,41 +5263,15 @@
         "default": "Import problem"
       },
       {
-        "name": "importing_from_problem_list_title",
-        "description": "Title of the alert modal when importing from the problem list",
-        "default": "Importing from Problem List"
-      },
-      {
-        "name": "importing_from_problem_list_description",
+        "name": "importing_from_problem_list_description_2",
         "description": "Description of the alert modal when importing from the problem list",
         "default": "If assignment problems are imported from the ‘All Problem List’, the problems will automatically become invisible state.\nThese problems will be shared with your course’s instructors."
-      },
-      {
-        "name": "ok_button",
-        "description": "Text for the primary confirmation button",
-        "default": "OK"
-      },
-      {
-        "name": "import_edit_problem_title",
-        "description": "Title for the modal to import or edit a problem",
-        "default": "Import / Edit Problem"
       }
     ]
   },
   "app/admin/course/[courseId]/_components/AssignmentSolutionTable.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "after_due_date",
-        "description": "Used in the context of option states when the solution release time is after the due date.",
-        "default": "After Due Date"
-      },
-      {
-        "name": "manually",
-        "description": "Used in the context of option states when the solution release time is set manually.",
-        "default": "Manually"
-      }
-    ]
+    "keys": []
   },
   "app/admin/course/[courseId]/_components/DataTableProblemFilterMini.tsx": {
     "migrated": true,
@@ -5681,7 +5282,7 @@
         "default": "All Problems"
       },
       {
-        "name": "all_label",
+        "name": "all_label_2",
         "description": "Label that denotes when all problems are selected or no problems are selected in dropdown.",
         "default": "ALL"
       },
@@ -5689,11 +5290,6 @@
         "name": "problem_label",
         "description": "Label for the problem dropdown section.",
         "default": "Problem"
-      },
-      {
-        "name": "apply_button",
-        "description": "Label for the apply button in the filter dropdown.",
-        "default": "Apply"
       }
     ]
   },
@@ -5736,19 +5332,9 @@
         "default": "Student ID"
       },
       {
-        "name": "name_header",
-        "description": "Column header for the 'Name' column.",
-        "default": "Name"
-      },
-      {
         "name": "result_header",
         "description": "Column header for the 'Result' column.",
         "default": "Result"
-      },
-      {
-        "name": "language_header",
-        "description": "Column header for the 'Language' column.",
-        "default": "Language"
       },
       {
         "name": "submission_time_header",
@@ -5770,11 +5356,6 @@
   "app/admin/course/[courseId]/_components/SubmissionTable.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "submissions",
-        "description": "Label displaying the count of submissions",
-        "default": "Submissions"
-      },
       {
         "name": "search_name_placeholder",
         "description": "Placeholder for the search input in the data table search bar",
@@ -5821,26 +5402,15 @@
   },
   "app/admin/course/[courseId]/exam/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_notice_page",
-        "description": "Error message displayed when notice page fails to load.",
-        "default": "Failed to Load Notice Page!"
-      }
-    ]
+    "keys": []
   },
   "app/admin/course/[courseId]/_components/EditAssignmentForm.tsx": {
     "migrated": true,
     "keys": [
       {
-        "name": "start_time_error",
+        "name": "start_time_error_3",
         "description": "Error message when start time is not earlier than due time.",
         "default": "Start time must be earlier than due time"
-      },
-      {
-        "name": "end_time_error",
-        "description": "Error message when end time is earlier than due time.",
-        "default": "End time cannot be earlier than due time"
       },
       {
         "name": "duplicate_order_error",
@@ -5908,7 +5478,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "student_id_label",
+        "name": "student_id_label_2",
         "description": "Label for student ID in CSV headers.",
         "default": "학번"
       },
@@ -5923,7 +5493,7 @@
         "default": "이름"
       },
       {
-        "name": "username_label",
+        "name": "username_label_2",
         "description": "Label for username in CSV headers.",
         "default": "아이디"
       },
@@ -5941,11 +5511,6 @@
         "name": "participant_count_label",
         "description": "Label indicating the count of participants in the table.",
         "default": "Participants"
-      },
-      {
-        "name": "search_name_placeholder",
-        "description": "Placeholder for the search bar in the DataTable.",
-        "default": "Search Name"
       },
       {
         "name": "export_button",
@@ -5968,11 +5533,6 @@
         "default": "Assignment List"
       },
       {
-        "name": "create_button",
-        "description": "Text for the create button in the assignment list page.",
-        "default": "Create"
-      },
-      {
         "name": "assignment_list_description",
         "description": "Description for the assignment list page.",
         "default": "Here's a assignment list you made"
@@ -5981,33 +5541,15 @@
   },
   "app/admin/course/[courseId]/qna/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_notice_page",
-        "description": "Error message when the notice page fails to load.",
-        "default": "Failed to Load Notice Page!"
-      }
-    ]
+    "keys": []
   },
   "app/admin/course/[courseId]/qna/page.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "todo_show_notice_list",
-        "description": "Text indicating a placeholder for showing the notice list",
-        "default": "TODO: Show notice list"
-      }
-    ]
+    "keys": []
   },
   "app/admin/course/[courseId]/notice/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_notice_page",
-        "description": "Error detail message for failed notice page loading.",
-        "default": "Failed to Load Notice Page!"
-      }
-    ]
+    "keys": []
   },
   "app/admin/course/[courseId]/exercise/page.tsx": {
     "migrated": true,
@@ -6018,11 +5560,6 @@
         "default": "Exercise List"
       },
       {
-        "name": "create_button",
-        "description": "Button text for creating a new exercise.",
-        "default": "Create"
-      },
-      {
         "name": "exercise_list_description",
         "description": "Description of the exercise list.",
         "default": "Here's a exercise list you made"
@@ -6031,13 +5568,7 @@
   },
   "app/admin/course/[courseId]/user/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_notice_page",
-        "description": "Error message displayed when the notice page fails to load.",
-        "default": "Failed to Load Notice Page!"
-      }
-    ]
+    "keys": []
   },
   "app/admin/course/[courseId]/notice/page.tsx": {
     "migrated": true,
@@ -6083,7 +5614,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "loading_text",
+        "name": "loading_text_2",
         "description": "Displayed while loading or when problem data is null.",
         "default": "loading..."
       },
@@ -6154,11 +5685,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "failed_to_create_problem",
-        "description": "Error message when problem creation fails.",
-        "default": "Failed to create problem"
-      },
-      {
         "name": "problem_created_successfully",
         "description": "Success message when problem has been successfully created.",
         "default": "Problem created successfully"
@@ -6210,14 +5736,9 @@
         "default": "Edit Contest"
       },
       {
-        "name": "title",
+        "name": "title_5",
         "description": "Form section title for contest name input.",
         "default": "Title"
-      },
-      {
-        "name": "name_your_contest",
-        "description": "Placeholder for the contest name input field.",
-        "default": "Name your contest"
       },
       {
         "name": "join_duetime",
@@ -6225,59 +5746,14 @@
         "default": "Join DueTime"
       },
       {
-        "name": "start_time",
-        "description": "Form section title for start time.",
-        "default": "Start Time"
-      },
-      {
-        "name": "end_time",
-        "description": "Form section title for end time.",
-        "default": "End Time"
-      },
-      {
-        "name": "summary",
-        "description": "Form section title for contest summary.",
-        "default": "Summary"
-      },
-      {
-        "name": "more_description",
-        "description": "Form section title for additional descriptions.",
-        "default": "More Description"
-      },
-      {
-        "name": "evaluate_with_sample_testcases_included",
-        "description": "Title for sample test cases evaluation form.",
-        "default": "Evaluate with sample testcases included"
-      },
-      {
-        "name": "invitation_code",
-        "description": "Title for the invitation code field.",
-        "default": "Invitation Code"
-      },
-      {
         "name": "enter_a_invitation_code",
         "description": "Placeholder for the invitation code input field.",
         "default": "Enter a invitation code"
       },
       {
-        "name": "disable_copy_paste",
-        "description": "Title for disabling copy/paste feature in the contest.",
-        "default": "Disable Copy/Paste"
-      },
-      {
-        "name": "add_manager_reviewer",
-        "description": "Section title for adding contest managers and reviewers.",
-        "default": "Add manager / reviewer"
-      },
-      {
         "name": "add_manager_reviewer_description",
         "description": "Description for adding contest managers and reviewers.",
         "default": "Contest managers have all permissions except for creating and editing the contest.\nYou can also import problems created by the contest manager into this contest.\nContest reviewers can view the problem list before the contest starts."
-      },
-      {
-        "name": "contest_problem_list",
-        "description": "Section title for the contest problem list.",
-        "default": "Contest Problem List"
       },
       {
         "name": "contest_problem_list_description",
@@ -6308,11 +5784,6 @@
         "name": "please_fill_required_fields",
         "description": "Error message when required fields are not filled in the form.",
         "default": "Please fill in all required fields."
-      },
-      {
-        "name": "show_preview",
-        "description": "Button label for showing the contest preview.",
-        "default": "Show Preview"
       },
       {
         "name": "edit",
@@ -6397,16 +5868,6 @@
         "name": "enter_source_placeholder",
         "description": "Placeholder for entering a source.",
         "default": "Enter a source"
-      },
-      {
-        "name": "show_preview_button",
-        "description": "Button text for showing preview.",
-        "default": "Show Preview"
-      },
-      {
-        "name": "edit_button",
-        "description": "Button text for editing problem.",
-        "default": "Edit"
       }
     ]
   },
@@ -6428,11 +5889,6 @@
         "default": "ONGOING"
       },
       {
-        "name": "calendar_icon_alt",
-        "description": "Alt text for the calendar icon.",
-        "default": "calendar"
-      },
-      {
         "name": "person_fill_icon_alt",
         "description": "Alt text for the person fill icon.",
         "default": "person-fill"
@@ -6447,29 +5903,9 @@
     "migrated": true,
     "keys": [
       {
-        "name": "select_all_aria_label",
-        "description": "Label for the checkbox to select all rows.",
-        "default": "Select all"
-      },
-      {
-        "name": "select_row_aria_label",
-        "description": "Label for the checkbox to select a single row.",
-        "default": "Select row"
-      },
-      {
-        "name": "title_header",
-        "description": "Header title for the title column.",
-        "default": "Title"
-      },
-      {
         "name": "update_header",
         "description": "Header title for the update time column.",
         "default": "Update"
-      },
-      {
-        "name": "level_header",
-        "description": "Header title for the difficulty level column.",
-        "default": "Level"
       }
     ]
   },
@@ -6556,11 +5992,6 @@
         "default": "On-going Assignments"
       },
       {
-        "name": "title_header",
-        "description": "Table header for the assignment title.",
-        "default": "Title"
-      },
-      {
         "name": "start_date_header",
         "description": "Table header for the start date of the assignment.",
         "default": "Start Date"
@@ -6569,11 +6000,6 @@
         "name": "end_date_header",
         "description": "Table header for the end date of the assignment.",
         "default": "End Date"
-      },
-      {
-        "name": "submission_header",
-        "description": "Table header for the assignment submission status.",
-        "default": "Submission"
       }
     ]
   },
@@ -6591,7 +6017,7 @@
         "default": "Week {weekNumber}"
       },
       {
-        "name": "statistics",
+        "name": "statistics_2",
         "description": "Section header for statistics.",
         "default": "Statistics"
       },
@@ -6643,11 +6069,6 @@
         "name": "no_result",
         "description": "Default message when submission result is unavailable.",
         "default": "No Result"
-      },
-      {
-        "name": "accepted",
-        "description": "Indicates that the submission was accepted.",
-        "default": "Accepted"
       }
     ]
   },
@@ -6658,11 +6079,6 @@
         "name": "no_exercises_registered",
         "description": "Displayed when there are no exercises registered.",
         "default": "No exercises registered"
-      },
-      {
-        "name": "week_number",
-        "description": "Represents the week number for the exercise.",
-        "default": "Week {weekNumber}"
       },
       {
         "name": "last_submission",
@@ -6706,11 +6122,6 @@
         "name": "score_label",
         "description": "Label for displaying score information.",
         "default": "Score"
-      },
-      {
-        "name": "last_submission",
-        "description": "Label for indicating the time of the last submission.",
-        "default": "Last Submission"
       }
     ]
   },
@@ -6804,16 +6215,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "start_time_error",
-        "description": "Error message when start time is not earlier than end time.",
-        "default": "Start time must be earlier than end time"
-      },
-      {
-        "name": "duplicate_order_error",
-        "description": "Error message for duplicate problem order.",
-        "default": "Duplicate problem order found"
-      },
-      {
         "name": "update_contest_failed",
         "description": "Error message for failing to update the contest.",
         "default": "Failed to update contest"
@@ -6827,27 +6228,11 @@
   },
   "app/admin/contest/[contestId]/participant/[userId]/page.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "user_id",
-        "description": "Label for user ID field.",
-        "default": "User ID"
-      },
-      {
-        "name": "student_id",
-        "description": "Label for student ID field.",
-        "default": "Student ID"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/course/[courseId]/_components/SubmissionDetailModal.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "week_number",
-        "description": "Label for week number in the dialog header.",
-        "default": "Week {weekNumber}"
-      },
       {
         "name": "not_found_label",
         "description": "Fallback text when the problem title is not found.",
@@ -6903,11 +6288,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "title_header",
-        "description": "Label for the column header displaying assignment titles.",
-        "default": "Title"
-      },
-      {
         "name": "score_sum",
         "description": "Footer text for score summation in the title column.",
         "default": "Score Sum"
@@ -6921,11 +6301,6 @@
         "name": "problem_order_edit_error",
         "description": "Error message when problem order editing is attempted while disabled.",
         "default": "Problem order cannot be edited"
-      },
-      {
-        "name": "level_header",
-        "description": "Label for the column header displaying difficulty level.",
-        "default": "Level"
       },
       {
         "name": "included_header",
@@ -6977,34 +6352,14 @@
     "migrated": true,
     "keys": [
       {
-        "name": "import_problem_error_message",
+        "name": "import_problem_error_message_2",
         "description": "Error message when the selected row count exceeds the max limit.",
         "default": "You can only import up to {count} problems in an assignment."
-      },
-      {
-        "name": "select_all_aria_label",
-        "description": "Aria label for selecting all checkboxes in a page.",
-        "default": "Select all"
-      },
-      {
-        "name": "select_row_aria_label",
-        "description": "Aria label for selecting a single row checkbox.",
-        "default": "Select row"
-      },
-      {
-        "name": "title_column_header",
-        "description": "Column header for the title of the assignment problem.",
-        "default": "Title"
       },
       {
         "name": "update_column_header",
         "description": "Column header for the update time of the assignment problem.",
         "default": "Update"
-      },
-      {
-        "name": "level_column_header",
-        "description": "Column header for the difficulty level of the assignment problem.",
-        "default": "Level"
       },
       {
         "name": "solution_column_header",
@@ -7025,16 +6380,6 @@
   "app/admin/course/[courseId]/user/_components/Columns.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "select_all_aria_label",
-        "description": "Aria label for selecting all rows checkbox.",
-        "default": "Select all"
-      },
-      {
-        "name": "select_row_aria_label",
-        "description": "Aria label for selecting a single row checkbox.",
-        "default": "Select row"
-      },
       {
         "name": "student_id_title",
         "description": "Header title for the Student ID column.",
@@ -7120,11 +6465,6 @@
         "default": "CREATE ASSIGNMENT"
       },
       {
-        "name": "title_section",
-        "description": "Title for the assignment title section.",
-        "default": "Title"
-      },
-      {
         "name": "assignment_name_placeholder",
         "description": "Placeholder text for the assignment name input field.",
         "default": "Name your Assignment"
@@ -7148,11 +6488,6 @@
         "name": "end_time_section",
         "description": "Title for the end time section in the form.",
         "default": "End Time"
-      },
-      {
-        "name": "description_section",
-        "description": "Title for the description section in the form.",
-        "default": "Description"
       },
       {
         "name": "solution_label",
@@ -7183,11 +6518,6 @@
         "name": "copy_paste_description",
         "description": "Description for the switch field that enables copy/pasting for participants.",
         "default": "When enabled, students will be able to copy from or paste into the code editor."
-      },
-      {
-        "name": "create_button",
-        "description": "Label for the form submission button to create an assignment or execute an action.",
-        "default": "Create"
       }
     ]
   },
@@ -7235,19 +6565,9 @@
         "default": "Description"
       },
       {
-        "name": "solution_label",
-        "description": "Label for the solutions section in exercise creation.",
-        "default": "Solution"
-      },
-      {
         "name": "solutions_only_hint",
         "description": "Information about which problems are listed.",
         "default": "Only problems with solutions are listed below."
-      },
-      {
-        "name": "reveal_hidden_testcase_result",
-        "description": "Title for the switch field to reveal hidden testcase results.",
-        "default": "Reveal Hidden Testcase Result"
       },
       {
         "name": "reveal_hidden_testcase_result_desc",
@@ -7263,11 +6583,6 @@
         "name": "enable_copy_paste_desc",
         "description": "Description for enabling copy/paste functionality switch.",
         "default": "When enabled, students will be able to copy from or paste into the code editor."
-      },
-      {
-        "name": "create_button",
-        "description": "Text for the create button to submit the form.",
-        "default": "Create"
       }
     ]
   },
@@ -7324,7 +6639,7 @@
         "default": "Failed to find user"
       },
       {
-        "name": "unexpected_error_occurred",
+        "name": "unexpected_error_occurred_2",
         "description": "Error message shown when an unexpected error occurs.",
         "default": "Unexpected error occurred"
       },
@@ -7364,19 +6679,9 @@
         "default": "Student"
       },
       {
-        "name": "add_button",
-        "description": "Label for the add button in the interface.",
-        "default": "Add"
-      },
-      {
         "name": "user_count",
         "description": "Text showing the number of selected users.",
         "default": "{count} user(s) selected"
-      },
-      {
-        "name": "invite_button",
-        "description": "Text for the invite button.",
-        "default": "Invite"
       }
     ]
   },
@@ -7406,11 +6711,6 @@
         "name": "updating_status",
         "description": "Button text showing the status as updating.",
         "default": "Updating..."
-      },
-      {
-        "name": "confirm_button",
-        "description": "Button text confirming the action.",
-        "default": "Confirm"
       },
       {
         "name": "edit_problem_may_affect_grading",
@@ -7486,13 +6786,7 @@
   },
   "app/(client)/(code-editor)/contest/[contestId]/problem/[problemId]/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_problem_description",
-        "description": "ErrorDetail component error detail message.",
-        "default": "Failed to Load Problem Description!"
-      }
-    ]
+    "keys": []
   },
   "app/admin/problem/[problemId]/edit/_components/BelongedContestTable.tsx": {
     "migrated": true,
@@ -7501,16 +6795,6 @@
   "app/admin/problem/[problemId]/edit/_components/BelongedContestTableColumns.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "select_all_aria_label",
-        "description": "Aria label for the checkbox to select all rows.",
-        "default": "Select all"
-      },
-      {
-        "name": "select_row_aria_label",
-        "description": "Aria label for the checkbox to select a single row.",
-        "default": "Select row"
-      },
       {
         "name": "assignment_title_column_header",
         "description": "Header for the assignment title column.",
@@ -7534,26 +6818,6 @@
         "name": "user_id_header",
         "description": "Header for User ID column.",
         "default": "User ID"
-      },
-      {
-        "name": "result_header",
-        "description": "Header for Result column.",
-        "default": "Result"
-      },
-      {
-        "name": "language_header",
-        "description": "Header for Language column.",
-        "default": "Language"
-      },
-      {
-        "name": "submission_time_header",
-        "description": "Header for Submission Time column.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "code_size_header",
-        "description": "Header for Code Size column.",
-        "default": "Code Size"
       }
     ]
   },
@@ -7645,11 +6909,6 @@
         "default": "Failed to upload testcase ZIP: {message}"
       },
       {
-        "name": "scoring_ratios_incorrect",
-        "description": "Error message when scoring ratios are incorrectly specified.",
-        "default": "The scoring ratios have not been specified correctly.\nPlease review and correct them."
-      },
-      {
         "name": "problem_update_success",
         "description": "Message displayed when problem update is successful after ZIP handling.",
         "default": "Problem updated successfully"
@@ -7682,31 +6941,15 @@
   },
   "app/(client)/(code-editor)/problem/[problemId]/submission/[submissionId]/page.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "submission_title",
-        "description": "Title for the submission page, displaying the submission ID.",
-        "default": "Submission #{submissionId}"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/contest/[contestId]/@tabs/_components/PrevNextProblemButton.tsx": {
     "migrated": true,
     "keys": [
       {
-        "name": "previous_button",
-        "description": "Label for the previous button.",
-        "default": "Previous"
-      },
-      {
         "name": "no_previous_contest",
         "description": "Text shown when there is no previous contest.",
         "default": "No Previous Contest"
-      },
-      {
-        "name": "next_button",
-        "description": "Label for the next button.",
-        "default": "Next"
       },
       {
         "name": "no_next_contest",
@@ -7732,11 +6975,6 @@
         "name": "upcoming_state",
         "description": "Label to indicate an upcoming state.",
         "default": "Upcoming"
-      },
-      {
-        "name": "contest_poster_alt",
-        "description": "Alt text for contest poster image.",
-        "default": "Contest Poster"
       },
       {
         "name": "contest_summary_target_button",
@@ -7849,7 +7087,7 @@
         "default": "The student ID whitelist will be deleted, and anyone will be able to join the course with an invitation code."
       },
       {
-        "name": "ok_button",
+        "name": "ok_button_2",
         "description": "Text for the OK button in modals.",
         "default": "Ok"
       },
@@ -7904,29 +7142,14 @@
         "default": "Failed to register"
       },
       {
-        "name": "register_now_button",
-        "description": "Text for the button to register immediately.",
-        "default": "Register Now!"
-      },
-      {
         "name": "invite_register_title",
         "description": "Dialog title for registration through invitation.",
         "default": "Invite Register"
       },
       {
-        "name": "invitation_code_placeholder",
-        "description": "Placeholder text for input field for invitation code.",
-        "default": "Invitation Code"
-      },
-      {
         "name": "register_code_error_message",
         "description": "Error message shown when the invitation code is invalid.",
         "default": "Register Code must be a 6-digit number"
-      },
-      {
-        "name": "register_button",
-        "description": "Text for the register button after entering the invitation code.",
-        "default": "Register"
       }
     ]
   },
@@ -7962,23 +7185,12 @@
         "name": "go_back_button",
         "description": "Text for the go back button in the alert dialog.",
         "default": "Go Back"
-      },
-      {
-        "name": "cancel_button",
-        "description": "Text for the cancel button in the alert dialog.",
-        "default": "Cancel"
       }
     ]
   },
   "app/(client)/(main)/contest/[contestId]/@tabs/announcement/page.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "announcement_title",
-        "description": "Title for the announcement section.",
-        "default": "ANNOUNCEMENT"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/contest/[contestId]/@tabs/_components/GotoContestListButton.tsx": {
     "migrated": true,
@@ -8029,11 +7241,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "please_login",
-        "description": "Message indicating user needs to login.",
-        "default": "Please Login!"
-      },
-      {
         "name": "only_logged_in_users_message",
         "description": "Message indicating the page is only available for logged-in users.",
         "default": "This page is only available to logged-in users."
@@ -8052,11 +7259,6 @@
         "name": "no_header",
         "description": "The header for the No column in the table.",
         "default": "No"
-      },
-      {
-        "name": "title_header",
-        "description": "The header for the Title column in the table.",
-        "default": "Title"
       },
       {
         "name": "info_header",
@@ -8114,7 +7316,7 @@
         "default": "The problem list only be revealed to contest participants"
       },
       {
-        "name": "no_result",
+        "name": "no_result_2",
         "description": "Text displayed when there are no results available.",
         "default": "No result."
       }
@@ -8159,12 +7361,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "week_number",
-        "description": "Label for week number in the dialog header.",
-        "default": "Week {weekNumber}"
-      },
-      {
-        "name": "description",
+        "name": "description_2",
         "description": "Label for the description section.",
         "default": "DESCRIPTION"
       },
@@ -8177,11 +7374,6 @@
         "name": "total",
         "description": "Label for the total problems/submissions count.",
         "default": "Total"
-      },
-      {
-        "name": "submit",
-        "description": "Label for the number of submissions.",
-        "default": "Submit"
       }
     ]
   },
@@ -8189,24 +7381,14 @@
     "migrated": true,
     "keys": [
       {
-        "name": "description",
+        "name": "description_3",
         "description": "Label for the section describing the exercise.",
         "default": "DESCRIPTION"
       },
       {
-        "name": "problems",
+        "name": "problems_2",
         "description": "Label for the problems section containing the exercise problems.",
         "default": "PROBLEMS"
-      },
-      {
-        "name": "total",
-        "description": "Label showing the total number of problems.",
-        "default": "Total"
-      },
-      {
-        "name": "submit",
-        "description": "Label showing the number of submissions.",
-        "default": "Submit"
       },
       {
         "name": "this_exercise_unavailable",
@@ -8223,21 +7405,6 @@
   "app/admin/contest/[contestId]/(overall)/@tabs/_components/Columns.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "student_id_header",
-        "description": "Header text for the student ID column.",
-        "default": "Student ID"
-      },
-      {
-        "name": "name_header",
-        "description": "Header text for the name column.",
-        "default": "Name"
-      },
-      {
-        "name": "user_id_header",
-        "description": "Header text for the user ID column.",
-        "default": "User ID"
-      },
       {
         "name": "submit_header",
         "description": "Header text for the submitted problems count column.",
@@ -8292,11 +7459,6 @@
         "default": "coming-soon"
       },
       {
-        "name": "coming_soon_title",
-        "description": "Title indicating that the content is coming soon.",
-        "default": "COMING SOON!"
-      },
-      {
         "name": "page_preparation_message",
         "description": "Message indicating that the page is under preparation and updates will follow soon.",
         "default": "This page is being prepared.\n We will provide an update as soon as possible."
@@ -8309,27 +7471,11 @@
   },
   "app/admin/contest/[contestId]/participant/[userId]/_components/ScoreColumns.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "submit_header",
-        "description": "Header for the submitted problems count column",
-        "default": "Submit"
-      },
-      {
-        "name": "total_header",
-        "description": "Header for the user contest score column",
-        "default": "Total"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/contest/[contestId]/@tabs/statistics/page.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "statistics_title",
-        "description": "Title of the statistics section.",
-        "default": "STATISTICS"
-      },
       {
         "name": "leaderboard_statistics_description",
         "description": "Description for checking leaderboard and statistics by time.",
@@ -8365,29 +7511,9 @@
     "migrated": true,
     "keys": [
       {
-        "name": "problem_title",
+        "name": "problem_title_2",
         "description": "Header for the problem title column.",
         "default": "Problem Title"
-      },
-      {
-        "name": "result",
-        "description": "Header for the submission result column.",
-        "default": "Result"
-      },
-      {
-        "name": "language",
-        "description": "Header for the programming language column.",
-        "default": "Language"
-      },
-      {
-        "name": "submission_time",
-        "description": "Header for the submission time column.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "code_size",
-        "description": "Header for the code size column.",
-        "default": "Code Size"
       },
       {
         "name": "ip",
@@ -8407,11 +7533,6 @@
         "name": "participants",
         "description": "Label indicating the number of participants.",
         "default": "Participants"
-      },
-      {
-        "name": "search_name_placeholder",
-        "description": "Placeholder text for the name search input.",
-        "default": "Search Name"
       }
     ]
   },
@@ -8432,16 +7553,6 @@
         "name": "loading_contest_data",
         "description": "Loading text displayed while contest data is being fetched.",
         "default": "Loading Contest Data..."
-      },
-      {
-        "name": "participants",
-        "description": "Refers to the number of participants in the contest.",
-        "default": "Participants"
-      },
-      {
-        "name": "search_placeholder",
-        "description": "Placeholder text for the search input field.",
-        "default": "Search"
       },
       {
         "name": "unfreeze_leaderboard",
@@ -8467,13 +7578,7 @@
   },
   "app/admin/course/[courseId]/assignment/[assignmentId]/(overall)/layout.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "edit_button",
-        "description": "Text for the edit button.",
-        "default": "Edit"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/contest/[contestId]/@tabs/standings/page.tsx": {
     "migrated": true,
@@ -8481,13 +7586,7 @@
   },
   "app/admin/course/[courseId]/exercise/[exerciseId]/(overall)/layout.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "edit_button",
-        "description": "Label for the edit button in assignment layout",
-        "default": "Edit"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(code-editor)/contest/[contestId]/problem/[problemId]/leaderboard/error.tsx": {
     "migrated": true,
@@ -8516,67 +7615,7 @@
         "default": "Submission #{submissionId}"
       },
       {
-        "name": "summary",
-        "description": "Header for the summary section.",
-        "default": "Summary"
-      },
-      {
-        "name": "name",
-        "description": "Label for the user's real name.",
-        "default": "Name"
-      },
-      {
-        "name": "student_id",
-        "description": "Label for the student's ID.",
-        "default": "Student ID"
-      },
-      {
-        "name": "major",
-        "description": "Label for the user's major.",
-        "default": "Major"
-      },
-      {
-        "name": "user_id",
-        "description": "Label for the user's ID.",
-        "default": "User ID"
-      },
-      {
-        "name": "result",
-        "description": "Label for the result status.",
-        "default": "Result"
-      },
-      {
-        "name": "language",
-        "description": "Label for the submission language.",
-        "default": "Language"
-      },
-      {
-        "name": "submission_time",
-        "description": "Label for the submission time.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "code_size",
-        "description": "Label for the size of the code in bytes.",
-        "default": "Code Size"
-      },
-      {
-        "name": "testcase",
-        "description": "Header for the testcase section.",
-        "default": "Testcase"
-      },
-      {
-        "name": "correct_testcase",
-        "description": "Label for the count of correct testcases.",
-        "default": "Correct Testcase"
-      },
-      {
-        "name": "wrong_testcase_number",
-        "description": "Label for the number of wrong testcases.",
-        "default": "Wrong Testcase Number"
-      },
-      {
-        "name": "none",
+        "name": "none_2",
         "description": "Label indicating none are available.",
         "default": "None"
       },
@@ -8584,11 +7623,6 @@
         "name": "runtime",
         "description": "Label for runtime in the table header.",
         "default": "Runtime"
-      },
-      {
-        "name": "memory",
-        "description": "Label for memory usage in the table header.",
-        "default": "Memory"
       },
       {
         "name": "n_a",
@@ -8604,11 +7638,6 @@
         "name": "testcases_outdated",
         "description": "Alert description for outdated testcases.",
         "default": "The testcases have been recently updated and are now outdated."
-      },
-      {
-        "name": "source_code",
-        "description": "Header for the source code section.",
-        "default": "Source Code"
       }
     ]
   },
@@ -8641,44 +7670,14 @@
         "default": "EDIT EXERCISE"
       },
       {
-        "name": "form_section_title",
+        "name": "form_section_title_3",
         "description": "Form section for the title input.",
         "default": "Title"
       },
       {
-        "name": "title_form_placeholder",
+        "name": "title_form_placeholder_2",
         "description": "Placeholder for the title form.",
         "default": "Name your Exercise"
-      },
-      {
-        "name": "week_form_section",
-        "description": "Title for the week selection form section.",
-        "default": "Week"
-      },
-      {
-        "name": "start_time_form_section",
-        "description": "Title for the start time form section.",
-        "default": "Start Time"
-      },
-      {
-        "name": "due_time_form_section",
-        "description": "Title for the due time form section.",
-        "default": "Due Time"
-      },
-      {
-        "name": "end_time_form_section",
-        "description": "Title for the end time form section.",
-        "default": "End Time"
-      },
-      {
-        "name": "description_form_section",
-        "description": "Title for the description form section.",
-        "default": "Description"
-      },
-      {
-        "name": "solution_label",
-        "description": "Label for the solution section.",
-        "default": "Solution"
       },
       {
         "name": "problem_with_solutions_note",
@@ -8696,19 +7695,9 @@
         "default": "When enabled, hidden testcase results will be revealed from students."
       },
       {
-        "name": "enable_copy_paste_title",
-        "description": "Title for enabling copy/paste toggle.",
-        "default": "Enable Participants Copy/Pasting"
-      },
-      {
         "name": "enable_copy_paste_description",
         "description": "Description for enabling copy/paste toggle.",
         "default": "When enabled, students will be able to copy from or paste into the code editor."
-      },
-      {
-        "name": "edit_button",
-        "description": "Text for the edit button.",
-        "default": "Edit"
       }
     ]
   },
@@ -8728,7 +7717,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "announcement",
+        "name": "announcement_2",
         "description": "Header for the announcement column.",
         "default": "Announcement"
       },
@@ -8748,7 +7737,7 @@
         "default": "EDIT ASSIGNMENT"
       },
       {
-        "name": "title",
+        "name": "title_6",
         "description": "Title for the section where the user inputs the title of the assignment.",
         "default": "Title"
       },
@@ -8758,44 +7747,14 @@
         "default": "Name your Assignment"
       },
       {
-        "name": "week",
-        "description": "Title for the section where the user selects the week for the assignment.",
-        "default": "Week"
-      },
-      {
-        "name": "start_time",
-        "description": "Title for the section where the user inputs the start time for the assignment.",
-        "default": "Start Time"
-      },
-      {
         "name": "due_time",
         "description": "Title for the section where the user inputs the due time for the assignment.",
         "default": "Due Time"
       },
       {
-        "name": "end_time",
-        "description": "Title for the section where the user inputs the end time for the assignment.",
-        "default": "End Time"
-      },
-      {
-        "name": "description",
-        "description": "Title for the section where the user inputs the description of the assignment.",
-        "default": "Description"
-      },
-      {
-        "name": "solution_label",
-        "description": "Label for the section listing solutions.",
-        "default": "Solution"
-      },
-      {
         "name": "only_problems_with_solutions",
         "description": "Text explaining that only problems with solutions are listed.",
         "default": "Only problems with solutions are listed below."
-      },
-      {
-        "name": "reveal_hidden_testcase_result",
-        "description": "Title for the switch to reveal hidden testcase results.",
-        "default": "Reveal Hidden Testcase Result"
       },
       {
         "name": "reveal_hidden_testcase_result_description",
@@ -8811,11 +7770,6 @@
         "name": "enable_copypaste_description",
         "description": "Description for enabling copy-paste functionality.",
         "default": "When enabled, students will be able to copy from or paste into the code editor."
-      },
-      {
-        "name": "edit_button",
-        "description": "Text for the button to submit the form and edit the assignment.",
-        "default": "Edit"
       }
     ]
   },
@@ -8830,16 +7784,6 @@
         "name": "my_submission",
         "description": "Header for the My Submission column.",
         "default": "My Submission"
-      },
-      {
-        "name": "submission_time",
-        "description": "Header for the Submission Time column.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "score",
-        "description": "Header for the Score column.",
-        "default": "Score"
       }
     ]
   },
@@ -8871,11 +7815,6 @@
         "default": "Solved"
       },
       {
-        "name": "user_id_header",
-        "description": "Header text for the 'User ID' column.",
-        "default": "User ID"
-      },
-      {
         "name": "total_penalty_header",
         "description": "Header text for the 'Total Penalty' column.",
         "default": "Total Penalty"
@@ -8885,11 +7824,6 @@
   "app/(client)/(main)/contest/[contestId]/@tabs/problem/_components/SubmissionDetailContent.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "submission_number",
-        "description": "Text for the submission number with the ID included.",
-        "default": "Submission #{submissionId}"
-      },
       {
         "name": "summary_heading",
         "description": "Heading for the summary section",
@@ -8971,7 +7905,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "info_icon_alt",
+        "name": "info_icon_alt_2",
         "description": "Alt text for the info icon image.",
         "default": "info-icon"
       },
@@ -9009,11 +7943,6 @@
         "name": "penalty_calculation_header",
         "description": "Header text for penalty calculation section.",
         "default": "Penalty Calculation"
-      },
-      {
-        "name": "penalty_time_calculation",
-        "description": "Description of the penalty time calculation formula.",
-        "default": "Time from the start of the contest to Accepted (min.)"
       },
       {
         "name": "penalty_submission_formula",
@@ -9099,6 +8028,16 @@
         "name": "submission_explanation_detail",
         "description": "Detail explanation for submissions displayed when hovering over accepted.",
         "default": "The number of submissions displayed when hovering over ‘Accepted’"
+      },
+      {
+        "name": "same_problems_penalty",
+        "description": "Text for the same problems penalty rule.",
+        "default": "If the number of problems solved and the penalty are the same,"
+      },
+      {
+        "name": "ranking_earliest_submission_time",
+        "description": "Text for the ranking earliest submission time rule.",
+        "default": "ranking is determined by the earliest time of submission of the last accepted."
       }
     ]
   },
@@ -9170,19 +8109,9 @@
         "default": "Post"
       },
       {
-        "name": "access_denied_title",
-        "description": "Title for the access denied alert modal.",
-        "default": "Access Denied"
-      },
-      {
         "name": "access_denied_description",
         "description": "Description for the access denied alert modal.",
         "default": "You are not authorized to access this page.\nPlease check your account permissions."
-      },
-      {
-        "name": "confirm_button",
-        "description": "Text for the confirm button in the alert modal.",
-        "default": "Confirm"
       }
     ]
   },
@@ -9198,13 +8127,7 @@
   },
   "app/(client)/(main)/contest/[contestId]/@tabs/qna/_components/SearchBar.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "search_placeholder",
-        "description": "Placeholder text for the search input field.",
-        "default": "Search"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/course/[courseId]/assignment/[assignmentId]/_components/AssignmentTabs.tsx": {
     "migrated": true,
@@ -9250,11 +8173,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "see_submission_icon_alt",
-        "description": "Alt text for the 'See submission' icon.",
-        "default": "See submission"
-      },
-      {
         "name": "click_to_check_latest_submission",
         "description": "Tooltip message indicating the user can click to check their latest submission.",
         "default": "Click to check your latest submission."
@@ -9265,19 +8183,9 @@
     "migrated": true,
     "keys": [
       {
-        "name": "order_header",
+        "name": "order_header_2",
         "description": "Header for the order column",
         "default": "#"
-      },
-      {
-        "name": "title_header",
-        "description": "Header for the title column",
-        "default": "Title"
-      },
-      {
-        "name": "submission_time_header",
-        "description": "Header for the submission time column",
-        "default": "Submission Time"
       },
       {
         "name": "submission_result_header",
@@ -9295,11 +8203,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "submission_number",
-        "description": "Label for submission number including the ID.",
-        "default": "Submission #{submissionId}"
-      },
-      {
         "name": "summary_section_title",
         "description": "Title for the summary section in detail content.",
         "default": "Summary"
@@ -9313,21 +8216,6 @@
         "name": "result_label",
         "description": "Label for the result of the submission.",
         "default": "Result"
-      },
-      {
-        "name": "language_label",
-        "description": "Label for the language used in the submission.",
-        "default": "Language"
-      },
-      {
-        "name": "submission_time_label",
-        "description": "Label for the submission time of the assignment.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "code_size_label",
-        "description": "Label for the size of the submitted code.",
-        "default": "Code Size"
       },
       {
         "name": "testcase_section_title",
@@ -9365,17 +8253,12 @@
         "default": "See More"
       },
       {
-        "name": "close",
-        "description": "Label for the 'Close' button.",
-        "default": "Close"
-      },
-      {
         "name": "update_history",
         "description": "Label for the update history section title.",
         "default": "Update History"
       },
       {
-        "name": "no_result",
+        "name": "no_result_3",
         "description": "Message displayed when no update histories are found.",
         "default": "no result."
       }
@@ -9410,7 +8293,7 @@
         "default": "Please try reloading this page."
       },
       {
-        "name": "welcome_image_alt",
+        "name": "welcome_image_alt_2",
         "description": "Alt text for the welcome image.",
         "default": "welcome image"
       },
@@ -9430,34 +8313,14 @@
     "migrated": true,
     "keys": [
       {
-        "name": "user_id_header",
-        "description": "User ID column header text.",
-        "default": "User ID"
-      },
-      {
         "name": "problem_header",
         "description": "Problem column header text.",
         "default": "Problem"
       },
       {
-        "name": "total_header",
-        "description": "Total column header text.",
-        "default": "Total"
-      },
-      {
         "name": "solved_header",
         "description": "Solved column header text in the Total section.",
         "default": "Solved"
-      },
-      {
-        "name": "score_header",
-        "description": "Score column header text in the Total section.",
-        "default": "Score"
-      },
-      {
-        "name": "no_results_message",
-        "description": "Text displayed when no results are found in the table.",
-        "default": "No results."
       }
     ]
   },
@@ -9469,7 +8332,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "total_score_label",
+        "name": "total_score_label_2",
         "description": "Label for the total score display.",
         "default": "Total score"
       }
@@ -9477,32 +8340,11 @@
   },
   "app/admin/contest/[contestId]/(overall)/@tabs/leaderboard/_components/LeaderboardTableHeader.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "solved_header",
-        "description": "Header text for the 'Solved' column.",
-        "default": "Solved"
-      },
-      {
-        "name": "user_id_header",
-        "description": "Header text for the 'User ID / Total Penalty' column.",
-        "default": "User ID"
-      },
-      {
-        "name": "total_penalty_header",
-        "description": "Header text for the 'Total Penalty' column.",
-        "default": "Total Penalty"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/course/[courseId]/exercise/[exerciseId]/_components/Columns.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "title_column_header",
-        "description": "The header of the title column in the table.",
-        "default": "Title"
-      },
       {
         "name": "submission_time_column_header",
         "description": "The header of the submission time column in the table.",
@@ -9535,11 +8377,6 @@
         "name": "enter_your_answer_placeholder",
         "description": "Placeholder text for the answer input field.",
         "default": "Enter Your Answer"
-      },
-      {
-        "name": "post_button",
-        "description": "Text for the post button.",
-        "default": "Post"
       }
     ]
   },
@@ -9572,7 +8409,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "unfreeze_leaderboard",
+        "name": "unfreeze_leaderboard_2",
         "description": "Title for the dialog to unfreeze the leaderboard.",
         "default": "Unfreeze Leaderboard?"
       },
@@ -9592,11 +8429,6 @@
         "default": "Rankings may change after the leaderboard is unfrozen."
       },
       {
-        "name": "cancel",
-        "description": "Button text to cancel the action in the dialog.",
-        "default": "Cancel"
-      },
-      {
         "name": "unfreeze",
         "description": "Button text to confirm the unfreezing of the leaderboard.",
         "default": "Unfreeze"
@@ -9612,7 +8444,7 @@
         "default": "No. {count}"
       },
       {
-        "name": "person_icon_alt",
+        "name": "person_icon_alt_2",
         "description": "Alt text for the person icon",
         "default": "person"
       }
@@ -9653,43 +8485,12 @@
         "name": "total_penalty",
         "description": "Label for total penalty",
         "default": "Total Penalty"
-      },
-      {
-        "name": "hover_submission_count",
-        "description": "Text for the submission count in the hover tooltip.",
-        "default": "{count} sub"
       }
     ]
   },
   "app/admin/contest/[contestId]/(overall)/@tabs/submission/_components/Columns.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "user_id",
-        "description": "Label for user ID information.",
-        "default": "User ID"
-      },
-      {
-        "name": "submission_time",
-        "description": "Label for submission time information.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "language",
-        "description": "Label for language information.",
-        "default": "Language"
-      },
-      {
-        "name": "code_size",
-        "description": "Label for code size information.",
-        "default": "Code Size"
-      },
-      {
-        "name": "ip",
-        "description": "Label for IP information.",
-        "default": "IP"
-      }
-    ]
+    "keys": []
   },
   "app/admin/contest/[contestId]/(overall)/@tabs/submission/_components/SubmissionTable.tsx": {
     "migrated": true,
@@ -9733,18 +8534,7 @@
   },
   "app/admin/course/[courseId]/assignment/[assignmentId]/participant/[userId]/page.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "user_id_label",
-        "description": "Label for the User ID field.",
-        "default": "User ID"
-      },
-      {
-        "name": "student_id_label",
-        "description": "Label for the Student ID field.",
-        "default": "Student ID"
-      }
-    ]
+    "keys": []
   },
   "app/admin/contest/[contestId]/(overall)/@tabs/announcement/_components/CreateContestAnnouncement.tsx": {
     "migrated": true,
@@ -9753,11 +8543,6 @@
         "name": "create_announcement_success",
         "description": "Toast message shown when an announcement is created successfully.",
         "default": "Create Announcement successfully!"
-      },
-      {
-        "name": "unexpected_error_occurred",
-        "description": "Toast error message when an unexpected error occurs.",
-        "default": "An unexpected error occurred"
       },
       {
         "name": "post_new_announcement",
@@ -9790,11 +8575,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "description",
-        "description": "Label for description of the assignment.",
-        "default": "Description"
-      },
-      {
         "name": "included_problem",
         "description": "Label for included problems in the assignment.",
         "default": "Included Problem"
@@ -9805,14 +8585,9 @@
         "default": "Order"
       },
       {
-        "name": "title",
+        "name": "title_7",
         "description": "Table header for problem title.",
         "default": "Title"
-      },
-      {
-        "name": "solution",
-        "description": "Table header for problem solution.",
-        "default": "Solution"
       },
       {
         "name": "exercise_setting",
@@ -9820,12 +8595,7 @@
         "default": "Exercise Setting"
       },
       {
-        "name": "reveal_hidden_testcase_result",
-        "description": "Label for revealing hidden testcase results.",
-        "default": "Reveal Hidden Testcase Result"
-      },
-      {
-        "name": "enable_copy_paste",
+        "name": "enable_copy_paste_2",
         "description": "Label for enabling copy and paste option.",
         "default": "Enable Copy/Paste"
       },
@@ -9853,11 +8623,6 @@
         "name": "unanswered_button",
         "description": "Button label indicating that the Q&A is unanswered.",
         "default": "Unanswer"
-      },
-      {
-        "name": "no_header",
-        "description": "Header label for the order or number column.",
-        "default": "No"
       },
       {
         "name": "category_header",
@@ -9903,13 +8668,7 @@
   },
   "app/(client)/(code-editor)/contest/[contestId]/problem/[problemId]/leaderboard/_components/LeaderboardTable.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "no_results",
-        "description": "Displayed when there are no results in the leaderboard table.",
-        "default": "No results."
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(code-editor)/contest/[contestId]/problem/[problemId]/qna/_components/CommentsArea.tsx": {
     "migrated": true,
@@ -10043,36 +8802,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "result_heading",
-        "description": "The heading for the result section.",
-        "default": "Result"
-      },
-      {
-        "name": "language_heading",
-        "description": "The heading for the language section.",
-        "default": "Language"
-      },
-      {
-        "name": "submission_time_heading",
-        "description": "The heading for the submission time section.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "code_size_heading",
-        "description": "The heading for the code size section.",
-        "default": "Code Size"
-      },
-      {
-        "name": "source_code_heading",
-        "description": "The heading for the source code section.",
-        "default": "Source Code"
-      },
-      {
-        "name": "access_denied_message",
-        "description": "The message indicating access is denied.",
-        "default": "Access Denied"
-      },
-      {
         "name": "contest_restriction_notice",
         "description": "A notice explaining contest restrictions on viewing answers.",
         "default": "During the contest, you are not allowed to view others' answers."
@@ -10081,13 +8810,7 @@
   },
   "app/(client)/(code-editor)/course/[courseId]/assignment/[assignmentId]/problem/[problemId]/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_problem_description",
-        "description": "Message displayed when problem description fails to load.",
-        "default": "Failed to Load Problem Description!"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(code-editor)/course/[courseId]/assignment/[assignmentId]/problem/[problemId]/layout.tsx": {
     "migrated": true,
@@ -10110,11 +8833,6 @@
         "name": "post_a_question",
         "description": "Header for posting a question.",
         "default": "Post a Question"
-      },
-      {
-        "name": "post_button",
-        "description": "Label for the post button.",
-        "default": "Post"
       },
       {
         "name": "enter_the_title",
@@ -10155,22 +8873,12 @@
         "name": "enter_your_answer",
         "description": "Placeholder text for the textarea where the user inputs their answer.",
         "default": "Enter Your Answer"
-      },
-      {
-        "name": "post_button",
-        "description": "Text for the button used to post the answer.",
-        "default": "Post"
       }
     ]
   },
   "app/(client)/(main)/contest/[contestId]/@tabs/qna/[qnaId]/_components/QnaCommentArea.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "posted_successfully",
-        "description": "Message displayed when a comment is posted successfully.",
-        "default": "Posted successfully!"
-      },
       {
         "name": "error_posting_comment",
         "description": "Error message displayed when there's an issue posting a comment.",
@@ -10234,7 +8942,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "loading_text",
+        "name": "loading_text_3",
         "description": "Text displayed when problems are being loaded.",
         "default": "Loading"
       }
@@ -10262,16 +8970,6 @@
         "name": "title_label",
         "description": "Label for the title column in the table.",
         "default": "Title"
-      },
-      {
-        "name": "score_label",
-        "description": "Label for the score column in the table.",
-        "default": "Score"
-      },
-      {
-        "name": "solution_label",
-        "description": "Label for the solution column in the table.",
-        "default": "Solution"
       },
       {
         "name": "total_label",
@@ -10323,6 +9021,11 @@
     "migrated": true,
     "keys": [
       {
+        "name": "no_imported_problems_found",
+        "description": "Message displayed when no imported problems are found in the assignment.",
+        "default": "No imported problems found in this assignment."
+      },
+      {
         "name": "overall_button",
         "description": "Button text for selecting the 'Overall' tab view.",
         "default": "Overall"
@@ -10348,7 +9051,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "coming_soon",
+        "name": "coming_soon_2",
         "description": "Text indicating that something is coming soon.",
         "default": "COMING SOON!"
       },
@@ -10402,7 +9105,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "coming_soon",
+        "name": "coming_soon_3",
         "description": "Alt text for the error image.",
         "default": "coming-soon"
       },
@@ -10420,38 +9123,7 @@
   },
   "app/admin/course/[courseId]/assignment/[assignmentId]/participant/[userId]/_components/SubmissionColumns.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "problem_title_header",
-        "description": "Header for the problem title column.",
-        "default": "Problem Title"
-      },
-      {
-        "name": "result_header",
-        "description": "Header for the submission result column.",
-        "default": "Result"
-      },
-      {
-        "name": "language_header",
-        "description": "Header for the language column.",
-        "default": "Language"
-      },
-      {
-        "name": "submission_time_header",
-        "description": "Header for the submission time column.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "code_size_header",
-        "description": "Header for the code size column.",
-        "default": "Code Size"
-      },
-      {
-        "name": "ip_header",
-        "description": "Header for the IP column.",
-        "default": "IP"
-      }
-    ]
+    "keys": []
   },
   "app/admin/course/[courseId]/assignment/[assignmentId]/participant/[userId]/_components/SubmissionTable.tsx": {
     "migrated": true,
@@ -10459,13 +9131,7 @@
   },
   "app/(client)/(code-editor)/course/[courseId]/exercise/[exerciseId]/problem/[problemId]/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_problem_description",
-        "description": "Error message indicating failure to load problem description.",
-        "default": "Failed to Load Problem Description!"
-      }
-    ]
+    "keys": []
   },
   "app/admin/course/[courseId]/exercise/[exerciseId]/(overall)/@tabs/statistics/page.tsx": {
     "migrated": true,
@@ -10476,7 +9142,7 @@
         "default": "COMING SOON!"
       },
       {
-        "name": "page_preparation_message",
+        "name": "page_preparation_message_2",
         "description": "Message indicating that the page is being prepared.",
         "default": "This page is being prepared."
       },
@@ -10522,13 +9188,7 @@
   },
   "app/(client)/(code-editor)/course/[courseId]/assignment/[assignmentId]/problem/[problemId]/submission/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_submission",
-        "description": "Error message displayed when loading a submission fails.",
-        "default": "Failed to Load Submission!"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(code-editor)/course/[courseId]/assignment/[assignmentId]/problem/[problemId]/submission/loading.tsx": {
     "migrated": true,
@@ -10548,13 +9208,7 @@
   },
   "app/(client)/(code-editor)/course/[courseId]/exercise/[exerciseId]/problem/[problemId]/submission/error.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "failed_to_load_submission",
-        "description": "Displayed when a submission fails to load.",
-        "default": "Failed to Load Submission!"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(main)/contest/[contestId]/@tabs/qna/[qnaId]/_components/context/QnaCommentStoreProvider.tsx": {
     "migrated": true,
@@ -10575,11 +9229,6 @@
         "name": "pen_icon_alt",
         "description": "Alt text for the pen icon.",
         "default": "pen"
-      },
-      {
-        "name": "post_button",
-        "description": "The text on the submit button when posting.",
-        "default": "Post"
       }
     ]
   },
@@ -10592,7 +9241,7 @@
         "default": "Enter a comment"
       },
       {
-        "name": "loading",
+        "name": "loading_2",
         "description": "Message displayed while comments are loading.",
         "default": "Loading…"
       },
@@ -10629,16 +9278,6 @@
         "name": "week_header",
         "description": "Header title for the week column.",
         "default": "Week"
-      },
-      {
-        "name": "title_header",
-        "description": "Header title for the title column.",
-        "default": "Title"
-      },
-      {
-        "name": "period_header",
-        "description": "Header title for the period column.",
-        "default": "Period"
       }
     ]
   },
@@ -10706,21 +9345,6 @@
         "default": "Sample #{sample}"
       },
       {
-        "name": "student_id",
-        "description": "Header label for the Student ID column in the data table.",
-        "default": "Student ID"
-      },
-      {
-        "name": "testcase",
-        "description": "Header label for the Testcase column in the data table.",
-        "default": "Testcase"
-      },
-      {
-        "name": "total",
-        "description": "Header label for the Total column in the data table.",
-        "default": "Total"
-      },
-      {
         "name": "comment",
         "description": "Header label for the Comment column in the data table.",
         "default": "Comment"
@@ -10741,24 +9365,9 @@
         "default": "General"
       },
       {
-        "name": "question_submitted_successfully",
-        "description": "Toast message for successful question submission.",
-        "default": "Question submitted successfully"
-      },
-      {
-        "name": "failed_to_submit_question",
-        "description": "Toast message indicating a failure in question submission.",
-        "default": "Failed to submit question"
-      },
-      {
         "name": "error_occurred_while_submitting_question",
         "description": "Toast message indicating an error occurred while submitting a question.",
         "default": "An error occurred while submitting the question"
-      },
-      {
-        "name": "loading",
-        "description": "Text indicating loading status.",
-        "default": "Loading..."
       },
       {
         "name": "redirecting",
@@ -10789,11 +9398,6 @@
         "name": "submitting",
         "description": "Text displayed when the form is in the submitting state.",
         "default": "Submitting..."
-      },
-      {
-        "name": "confirm",
-        "description": "Text for the confirm button in the alert modal.",
-        "default": "Confirm"
       }
     ]
   },
@@ -10870,17 +9474,12 @@
     "migrated": true,
     "keys": [
       {
-        "name": "student_id_label",
+        "name": "student_id_label_3",
         "description": "Label for student ID in CSV headers.",
         "default": "Student Id"
       },
       {
-        "name": "name_label",
-        "description": "Label for name in CSV headers.",
-        "default": "Name"
-      },
-      {
-        "name": "total_score_label",
+        "name": "total_score_label_3",
         "description": "Label for total score in CSV headers.",
         "default": "Total Score(MAX 0)"
       },
@@ -10905,24 +9504,9 @@
         "default": "Successfully updated"
       },
       {
-        "name": "download_csv_title",
-        "description": "Title for the CSV download utility panel.",
-        "default": "Download as a CSV"
-      },
-      {
-        "name": "download_csv_description",
+        "name": "download_csv_description_2",
         "description": "Description for the CSV download utility panel.",
         "default": "Download grading results, showing scores by student and problem"
-      },
-      {
-        "name": "download_button",
-        "description": "Text for CSV download button.",
-        "default": "Download"
-      },
-      {
-        "name": "participants_label",
-        "description": "Label for number of participants.",
-        "default": "Participants"
       },
       {
         "name": "successfully_graded_all_submissions",
@@ -10953,11 +9537,6 @@
         "name": "auto_graded_score_label",
         "description": "Label for auto graded score option in popover.",
         "default": "Auto Graded Score"
-      },
-      {
-        "name": "search_name_placeholder",
-        "description": "Placeholder text for search input.",
-        "default": "Search Name"
       }
     ]
   },
@@ -10975,23 +9554,7 @@
   },
   "app/(client)/(code-editor)/course/[courseId]/assignment/[assignmentId]/problem/[problemId]/submission/_components/Columns.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "language",
-        "description": "Header for the language column.",
-        "default": "Language"
-      },
-      {
-        "name": "submission_time",
-        "description": "Header for the submission time column.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "code_size",
-        "description": "Header for the code size column.",
-        "default": "Code Size"
-      }
-    ]
+    "keys": []
   },
   "app/(client)/(code-editor)/course/[courseId]/exercise/[exerciseId]/problem/[problemId]/submission/[submissionId]/_components/SubmissionDetailTitle.tsx": {
     "migrated": true,
@@ -11033,11 +9596,6 @@
         "default": "Comment"
       },
       {
-        "name": "save_button",
-        "description": "Label for the save button",
-        "default": "Save"
-      },
-      {
         "name": "students_graded",
         "description": "Tooltip content showing count of graded and total students",
         "default": "{graded} of {total} students graded."
@@ -11053,16 +9611,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "language_column_header",
-        "description": "Header for the language column in the table.",
-        "default": "Language"
-      },
-      {
-        "name": "submission_time_column_header",
-        "description": "Header for the submission time column in the table.",
-        "default": "Submission Time"
-      },
-      {
         "name": "code_size_column_header",
         "description": "Header for the code size column in the table.",
         "default": "Code Size"
@@ -11077,44 +9625,9 @@
     "migrated": true,
     "keys": [
       {
-        "name": "language",
-        "description": "Label for the programming language used in the submission.",
-        "default": "Language"
-      },
-      {
-        "name": "submission_time",
-        "description": "Label for the submission time of the code.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "code_size",
-        "description": "Label for the size of the code.",
-        "default": "Code Size"
-      },
-      {
-        "name": "source_code",
-        "description": "Title for the section displaying the source code.",
-        "default": "Source Code"
-      },
-      {
         "name": "test_case",
         "description": "Title for the section displaying the test case results.",
         "default": "Test case"
-      },
-      {
-        "name": "result",
-        "description": "Table head label for the result of the test case.",
-        "default": "Result"
-      },
-      {
-        "name": "runtime",
-        "description": "Table head label for the runtime of the test case.",
-        "default": "Runtime"
-      },
-      {
-        "name": "memory",
-        "description": "Table head label for the memory usage of the test case.",
-        "default": "Memory"
       },
       {
         "name": "access_denied",
@@ -11171,7 +9684,7 @@
         "default": "You may still provide a final score or comment."
       },
       {
-        "name": "submission_number",
+        "name": "submission_number_2",
         "description": "Label for the submission number.",
         "default": "Submission #${submissionId}"
       },
@@ -11179,11 +9692,6 @@
         "name": "level_label",
         "description": "Label for the level of the submission.",
         "default": "Level {level}"
-      },
-      {
-        "name": "result_label",
-        "description": "Label for the result of the submission.",
-        "default": "Result"
       },
       {
         "name": "passed_label",
@@ -11194,21 +9702,6 @@
         "name": "rate_label",
         "description": "Label for the pass rate percentage.",
         "default": "Rate"
-      },
-      {
-        "name": "language_label",
-        "description": "Label for the language used in the submission.",
-        "default": "Language"
-      },
-      {
-        "name": "submission_time_label",
-        "description": "Label for the submission time.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "code_size_label",
-        "description": "Label for the code size of the submission.",
-        "default": "Code Size"
       }
     ]
   },
@@ -11234,11 +9727,6 @@
         "default": "Testcase"
       },
       {
-        "name": "result_header",
-        "description": "Column header for result.",
-        "default": "Result"
-      },
-      {
         "name": "runtime_header",
         "description": "Column header for runtime.",
         "default": "Runtime"
@@ -11252,16 +9740,6 @@
         "name": "score_weight_header",
         "description": "Column header for score weight.",
         "default": "Score Weight"
-      },
-      {
-        "name": "hidden_label",
-        "description": "Label for the hidden testcase.",
-        "default": "Hidden #{hidden}"
-      },
-      {
-        "name": "sample_label",
-        "description": "Label for the sample testcase.",
-        "default": "Sample #{sample}"
       }
     ]
   },
@@ -11350,14 +9828,9 @@
         "default": "warning"
       },
       {
-        "name": "confirm",
+        "name": "confirm_2",
         "description": "alt text for confirm icon in alert modal.",
         "default": "confirm"
-      },
-      {
-        "name": "cancel",
-        "description": "text for cancel button in alert modal.",
-        "default": "Cancel"
       }
     ]
   },
@@ -11367,13 +9840,7 @@
   },
   "components/AssignmentStatus.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "ongoing_status",
-        "description": "The status indicating that an assignment is ongoing.",
-        "default": "ONGOING"
-      }
-    ]
+    "keys": []
   },
   "components/BaseModal.tsx": {
     "migrated": true,
@@ -11387,26 +9854,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "language_heading",
-        "description": "Heading for the programming language detail.",
-        "default": "Language"
-      },
-      {
-        "name": "submission_time_heading",
-        "description": "Heading for the submission time detail.",
-        "default": "Submission Time"
-      },
-      {
-        "name": "code_size_heading",
-        "description": "Heading for the code size detail.",
-        "default": "Code Size"
-      },
-      {
-        "name": "source_code_heading",
-        "description": "Heading for the source code section.",
-        "default": "Source Code"
-      },
-      {
         "name": "test_case_heading",
         "description": "Heading for the test case section.",
         "default": "Test case"
@@ -11415,11 +9862,6 @@
         "name": "number_sign",
         "description": "Symbol for numbering column in tables.",
         "default": "#"
-      },
-      {
-        "name": "result_heading",
-        "description": "Heading for the result column in tables.",
-        "default": "Result"
       },
       {
         "name": "runtime_heading",
@@ -11432,12 +9874,7 @@
         "default": "Memory"
       },
       {
-        "name": "access_denied",
-        "description": "Message displayed when access is denied.",
-        "default": "Access Denied"
-      },
-      {
-        "name": "access_denied_message",
+        "name": "access_denied_message_2",
         "description": "Explanation message when access is denied.",
         "default": "During the assignment, you are not allowed to view others' answers."
       }
@@ -11465,13 +9902,7 @@
   },
   "components/DateRangeDisplay.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "calendar_icon_alt",
-        "description": "The alt text for the calendar icon.",
-        "default": "calendar"
-      }
-    ]
+    "keys": []
   },
   "components/ErrorDetail.tsx": {
     "migrated": true,
@@ -11543,13 +9974,7 @@
   },
   "components/InsertDialog.tsx": {
     "migrated": true,
-    "keys": [
-      {
-        "name": "insert_button",
-        "description": "Button label for inserting an item.",
-        "default": "Insert"
-      }
-    ]
+    "keys": []
   },
   "components/LevelBadge.tsx": {
     "migrated": true,
@@ -11643,16 +10068,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "contest_ends_in_5_minutes",
-        "description": "Displayed when the contest is about to end in 5 minutes.",
-        "default": "Contest ends in 5 minutes."
-      },
-      {
-        "name": "contest_ends_in_1_minute",
-        "description": "Displayed when the contest is about to end in 1 minute.",
-        "default": "Contest ends in 1 minute."
-      },
-      {
         "name": "contest_registration_5_minutes",
         "description": "Displayed when the contest registration will close in 5 minutes.",
         "default": "Contest registration will close in 5 minutes."
@@ -11693,7 +10108,7 @@
         "default": "LogOut"
       },
       {
-        "name": "log_in",
+        "name": "log_in_2",
         "description": "Button text for logging in.",
         "default": "Log In"
       },
@@ -11708,24 +10123,9 @@
     "migrated": true,
     "keys": [
       {
-        "name": "user_id",
-        "description": "Label for user ID identifier",
-        "default": "User ID"
-      },
-      {
         "name": "password",
         "description": "Label for password field",
         "default": "Password"
-      },
-      {
-        "name": "name",
-        "description": "Label for real name field",
-        "default": "Name"
-      },
-      {
-        "name": "student_id",
-        "description": "Label for student ID identifier",
-        "default": "Student ID"
       },
       {
         "name": "first_major",
@@ -11764,29 +10164,19 @@
     "migrated": true,
     "keys": [
       {
-        "name": "home",
-        "description": "Navigation item for home page, visible when there is a header title.",
-        "default": "Home"
-      },
-      {
         "name": "setting",
         "description": "Navigation item for setting page.",
         "default": "Setting"
       },
       {
-        "name": "log_out",
+        "name": "log_out_2",
         "description": "Navigation item for log out page.",
         "default": "Log Out"
       },
       {
-        "name": "log_in",
+        "name": "log_in_3",
         "description": "Navigation item for log in page.",
         "default": "Log In"
-      },
-      {
-        "name": "sign_up",
-        "description": "Navigation item for sign up page.",
-        "default": "Sign Up"
       },
       {
         "name": "notice_capitalized",
@@ -11834,16 +10224,6 @@
         "default": "to continue using our service (~ 2024-10-31)."
       },
       {
-        "name": "student_id",
-        "description": "Text referring to Student ID requirement.",
-        "default": "Student ID"
-      },
-      {
-        "name": "first_major",
-        "description": "Text referring to First Major requirement.",
-        "default": "First Major"
-      },
-      {
         "name": "update_now",
         "description": "Button text prompting user to update information immediately.",
         "default": "Update Now"
@@ -11861,11 +10241,6 @@
         "name": "more_icon_alt",
         "description": "Alt text for the more icon",
         "default": "filter"
-      },
-      {
-        "name": "check_icon_alt",
-        "description": "Alt text for the check icon",
-        "default": "check"
       },
       {
         "name": "mark_all_as_read",
@@ -11903,11 +10278,6 @@
         "default": "Enter Equation"
       },
       {
-        "name": "insert_button",
-        "description": "Text for the insert button.",
-        "default": "Insert"
-      },
-      {
         "name": "file_size_exceeds_limit",
         "description": "Dialog message displayed when trying to upload a file that exceeds the maximum allowed size.",
         "default": "Images larger than 5MB cannot be uploaded."
@@ -11918,19 +10288,9 @@
         "default": "Insert Link"
       },
       {
-        "name": "enter_url_placeholder",
-        "description": "Placeholder text for entering a URL in an input field.",
-        "default": "Enter URL"
-      },
-      {
         "name": "insert_equation_title",
         "description": "Title for the insert equation action.",
         "default": "Insert Equation"
-      },
-      {
-        "name": "upload_image_title",
-        "description": "Title for the upload image action.",
-        "default": "Upload Image"
       },
       {
         "name": "max_image_size_message",
@@ -11972,7 +10332,7 @@
         "default": "Forgot ID / Password"
       },
       {
-        "name": "log_in_button",
+        "name": "log_in_button_2",
         "description": "Text for the log in button.",
         "default": "Log In"
       },
@@ -12056,11 +10416,6 @@
         "name": "read_notice_button",
         "description": "Text for the 'Read Notice' button.",
         "default": "Read Notice"
-      },
-      {
-        "name": "ok_button",
-        "description": "Text for the 'OK' button.",
-        "default": "OK"
       }
     ]
   },
@@ -12121,11 +10476,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "pick_a_date",
-        "description": "Label for the date picker when no date is selected.",
-        "default": "Pick a date"
-      },
-      {
         "name": "calendar_icon",
         "description": "Alternative text for the calendar icon image.",
         "default": "calendar"
@@ -12183,14 +10533,9 @@
     "migrated": true,
     "keys": [
       {
-        "name": "log_in",
+        "name": "log_in_4",
         "description": "Label for the log in button.",
         "default": "Log In"
-      },
-      {
-        "name": "sign_up",
-        "description": "Label for the sign up button.",
-        "default": "Sign Up"
       }
     ]
   },
@@ -12347,11 +10692,6 @@
         "default": "Your user ID is"
       },
       {
-        "name": "log_in",
-        "description": "Button text for log in action.",
-        "default": "Log in"
-      },
-      {
         "name": "find_your_user_id",
         "description": "Button text to find your user ID.",
         "default": "Find Your User ID"
@@ -12376,12 +10716,7 @@
     "migrated": true,
     "keys": [
       {
-        "name": "back_button",
-        "description": "Aria-label for the back button.",
-        "default": "Back"
-      },
-      {
-        "name": "codedang_logo_alt",
+        "name": "codedang_logo_alt_3",
         "description": "Alt text for the codedang logo.",
         "default": "codedang"
       }
@@ -12428,11 +10763,6 @@
         "name": "student_id_placeholder",
         "description": "Placeholder for the input where user enters their student ID.",
         "default": "Student ID"
-      },
-      {
-        "name": "next_button",
-        "description": "Label for the 'Next' button to proceed in signup.",
-        "default": "Next"
       }
     ]
   },
@@ -12460,11 +10790,6 @@
         "default": "Reset Password"
       },
       {
-        "name": "password_placeholder",
-        "description": "Placeholder for the password input.",
-        "default": "Password"
-      },
-      {
         "name": "password_requirements_1",
         "description": "Password requirement: character length.",
         "default": "8-20 characters"
@@ -12483,11 +10808,6 @@
         "name": "reenter_password_placeholder",
         "description": "Placeholder for the re-enter password input.",
         "default": "Re-enter password"
-      },
-      {
-        "name": "save_button",
-        "description": "Label text for the save button in the form.",
-        "default": "Save"
       }
     ]
   },
@@ -12510,16 +10830,6 @@
         "default": "Failed to register. Please try again."
       },
       {
-        "name": "tell_us_about_yourself",
-        "description": "Prompt to get information about the user.",
-        "default": "Tell Us About Yourself"
-      },
-      {
-        "name": "fill_out_the_whole_form",
-        "description": "Instruction to complete the form.",
-        "default": "Make sure to fill out the whole form"
-      },
-      {
         "name": "affiliation_placeholder",
         "description": "Placeholder for affiliation selection.",
         "default": "Affiliation"
@@ -12528,11 +10838,6 @@
         "name": "first_major_placeholder",
         "description": "Placeholder for first major selection.",
         "default": "First Major"
-      },
-      {
-        "name": "register_button",
-        "description": "Text for the register button.",
-        "default": "Register"
       }
     ]
   },
@@ -12575,11 +10880,6 @@
         "default": "Already have account?"
       },
       {
-        "name": "log_in_button",
-        "description": "Label for the login button",
-        "default": "Log in"
-      },
-      {
         "name": "send_the_email_button",
         "description": "Label for the submit button to send email.",
         "default": "Send the Email"
@@ -12593,11 +10893,6 @@
   "components/auth/SignUp/SignUpWelcome.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "welcome_image_alt",
-        "description": "Alt text for the welcome image.",
-        "default": "welcome"
-      },
       {
         "name": "welcome_message",
         "description": "Welcome message to new users on sign-up completion.",
@@ -12622,11 +10917,6 @@
         "name": "code_must_be_6_characters_long",
         "description": "Message displayed when the verification code must be 6 characters long.",
         "default": "Code must be 6 characters long"
-      },
-      {
-        "name": "reset_password",
-        "description": "Title for the reset password form.",
-        "default": "Reset Password"
       },
       {
         "name": "verification_code",
@@ -12664,7 +10954,7 @@
         "default": "Email verification failed!"
       },
       {
-        "name": "next",
+        "name": "next_2",
         "description": "Label for the button to proceed to the next step.",
         "default": "Next"
       },
@@ -12749,11 +11039,6 @@
         "default": "Check"
       },
       {
-        "name": "password_placeholder",
-        "description": "Placeholder for the password input field.",
-        "default": "Password"
-      },
-      {
         "name": "correct_password",
         "description": "Success message indicating that the password meets the criteria.",
         "default": "Correct Password"
@@ -12764,7 +11049,7 @@
         "default": "8–20 characters, use 2 of: upper, lower, number"
       },
       {
-        "name": "reenter_password_placeholder",
+        "name": "reenter_password_placeholder_2",
         "description": "Placeholder for the re-enter password input field.",
         "default": "Re-enter Password"
       },
@@ -12777,11 +11062,6 @@
         "name": "passwords_do_not_match",
         "description": "Error message indicating that the passwords do not match.",
         "default": "Passwords do not match"
-      },
-      {
-        "name": "next_button",
-        "description": "Label for the button to proceed to the next step.",
-        "default": "Next"
       }
     ]
   },
@@ -12804,7 +11084,7 @@
         "default": "Verification Code"
       },
       {
-        "name": "verification_code_expired",
+        "name": "verification_code_expired_2",
         "description": "Error message displayed when the verification code has expired.",
         "default": "Verification code expired."
       },
@@ -12819,11 +11099,6 @@
         "default": "Verification code is valid"
       },
       {
-        "name": "next_button",
-        "description": "Text for the 'Next' button.",
-        "default": "Next"
-      },
-      {
         "name": "resend_email_button",
         "description": "Text for the 'Resend Email' button.",
         "default": "Resend Email"
@@ -12833,11 +11108,6 @@
   "app/(client)/(main)/contest/[contestId]/@tabs/statistics/_components/StatisticsPage.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "statistics",
-        "description": "Title of the statistics section.",
-        "default": "STATISTICS"
-      },
       {
         "name": "only_select_users",
         "description": "Description for selecting users to view statistics.",
@@ -12919,12 +11189,7 @@
         "default": "{count} Accepted Answer"
       },
       {
-        "name": "wrong_answer",
-        "description": "Label for the wrong answer.",
-        "default": "Wrong Answer"
-      },
-      {
-        "name": "time_limit_exceeded",
+        "name": "time_limit_exceeded_2",
         "description": "Label for the time limit exceeded.",
         "default": "Time Limit Exceeded"
       },
@@ -12979,11 +11244,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "search_placeholder",
-        "description": "Placeholder for the search input.",
-        "default": "Search"
-      },
-      {
         "name": "solved_count",
         "description": "Label for the solved count.",
         "default": "{count} solved"
@@ -13019,7 +11279,7 @@
         "default": "Penalty Analysis"
       },
       {
-        "name": "total_penalty",
+        "name": "total_penalty_2",
         "description": "Total penalty score display.",
         "default": "Total - {score}"
       },
@@ -13039,17 +11299,17 @@
         "default": "Problem-Solving Timeline"
       },
       {
-        "name": "problem_label",
+        "name": "problem_label_2",
         "description": "Problem label display.",
         "default": "Problem {label}"
       },
       {
-        "name": "start_time",
+        "name": "start_time_2",
         "description": "Start time in tooltip.",
         "default": "Start Time: {time}"
       },
       {
-        "name": "end_time",
+        "name": "end_time_2",
         "description": "End time in tooltip.",
         "default": "End Time: {time}"
       },
@@ -13072,21 +11332,6 @@
         "name": "time_header",
         "description": "Table header for Time.",
         "default": "Time"
-      },
-      {
-        "name": "problem_header",
-        "description": "Table header for Problem.",
-        "default": "Problem"
-      },
-      {
-        "name": "result_header",
-        "description": "Table header for Result.",
-        "default": "Result"
-      },
-      {
-        "name": "language_header",
-        "description": "Table header for Language.",
-        "default": "Language"
       },
       {
         "name": "no_submission_history",
@@ -13134,11 +11379,6 @@
     "migrated": true,
     "keys": [
       {
-        "name": "coming_soon_alt",
-        "description": "Alt text for the no submission data image.",
-        "default": "coming-soon"
-      },
-      {
         "name": "no_submission_data_title",
         "description": "Title text when there is no submission data.",
         "default": "No Submission Data."
@@ -13147,11 +11387,6 @@
         "name": "no_submission_data_description",
         "description": "Description text when there is no submission data.",
         "default": "No submissions data for Real-Time Leaderboard"
-      },
-      {
-        "name": "refresh_button",
-        "description": "Label for the refresh button.",
-        "default": "Refresh"
       }
     ]
   },
@@ -13184,11 +11419,6 @@
         "default": "bullet"
       },
       {
-        "name": "contest_admin",
-        "description": "Label for the contest admin.",
-        "default": "Contest Admin"
-      },
-      {
         "name": "copy_button",
         "description": "Label for the copy button.",
         "default": "Copy"
@@ -13213,11 +11443,6 @@
   "components/TimeStatusBadge.tsx": {
     "migrated": true,
     "keys": [
-      {
-        "name": "status_ongoing",
-        "description": "Status text for ongoing contests.",
-        "default": "Ongoing"
-      },
       {
         "name": "status_ended",
         "description": "Status text for ended contests.",
