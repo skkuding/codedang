@@ -15,8 +15,11 @@ import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useState } from 'react'
 import { ProblemStatisticsPage } from './ProblemStatistics'
 import { RealtimeLearBoardPage } from './RealtimeLeaderBoard'
-import { ProblemStatisticsSkeletonWithSidebar } from './StatisticsSkeletons'
-import { RealtimeLearBoardSkeleton } from './StatisticsSkeletons'
+import {
+  ProblemStatisticsSkeletonWithSidebar,
+  UserAnalysisSkeletonWithSidebar,
+  RealtimeLearBoardSkeleton
+} from './StatisticsSkeletons'
 import { UserAnalysisPage } from './UserAnalysis'
 
 export function StatisticsPage() {
@@ -65,7 +68,11 @@ export function StatisticsPage() {
           </ErrorBoundary>
         </TabsContent>
         <TabsContent value="user-analysis">
-          <UserAnalysisPage />
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<UserAnalysisSkeletonWithSidebar />}>
+              <UserAnalysisPage />
+            </Suspense>
+          </ErrorBoundary>
         </TabsContent>
         <TabsContent value="problem-statistics">
           <ErrorBoundary fallback={FetchErrorFallback}>
