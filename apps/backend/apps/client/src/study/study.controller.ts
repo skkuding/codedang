@@ -4,17 +4,17 @@ import {
   Post,
   Logger,
   Body,
-  Patch,
   Param,
   Delete,
-  Req
+  Req,
+  Query
 } from '@nestjs/common'
 import {
   AuthenticatedRequest,
   UserNullWhenAuthFailedIfPublic,
   UseGroupLeaderGuard
 } from '@libs/auth'
-import { GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import { GroupIDPipe } from '@libs/pipe'
 import { CreateStudyDto } from './dto/study.dto'
 import { StudyService } from './study.service'
 
@@ -42,5 +42,18 @@ export class StudyController {
   @UseGroupLeaderGuard()
   async deleteStudyGroup(@Param('groupId', GroupIDPipe) groupId: number) {
     return await this.studyService.deleteStudyGroup(groupId)
+  }
+
+  @Post(':groupId/join')
+  async joinStudyGroupById(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number,
+    @Query('invitation') invitation?: string
+  ) {
+    return await this.studyService.joinStudyGroupById(
+      req.user.id,
+      groupId,
+      invitation
+    )
   }
 }
