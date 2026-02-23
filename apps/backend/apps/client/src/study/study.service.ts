@@ -1,0 +1,123 @@
+import { Injectable } from '@nestjs/common'
+import { GroupType } from '@prisma/client'
+import { PrismaService } from '@libs/prisma'
+import { CreateStudyDto } from './dto/study.dto'
+
+@Injectable()
+export class StudyService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async createStudyGroup(userId: number, dto: CreateStudyDto) {
+    const { groupName, description, capacity, problmeIds, invitationCode } = dto
+
+    const tags = await this.prisma.problemTag.findMany({
+      where: {
+        problemId: {
+          in: problmeIds
+        }
+      },
+      select: {
+        tagId: true
+      },
+      distinct: ['tagId']
+    })
+
+    await this.prisma.group.create({
+      data: {
+        groupName,
+        groupType: GroupType.Study,
+        description,
+        config: {
+          showOnList: true,
+          allowJoinFromSearch: true,
+          allowJoinWithURL: false,
+          requireApprovalBeforeJoin: false
+        },
+        userGroup: {
+          create: {
+            userId,
+            isGroupLeader: true
+          }
+        },
+        sharedProblems: {
+          connect: problmeIds?.map((problmeId) => ({ id: problmeId }))
+        },
+        groupTag: {
+          createMany: {
+            data: tags.map((tag) => ({ tagId: tag.tagId }))
+          }
+        },
+        studyInfo: {
+          create: {
+            capacity,
+            invitationCode
+          }
+        }
+      }
+    })
+  }
+
+  async getStudyGroups(userId?: number) {
+    const studyGroups = await this.prisma.group.findMany({
+      where: {
+        groupType: GroupType.Study
+      },
+      select: {
+        id: true,
+        groupName: true,
+        description: true,
+        userGroup: {
+          select: {
+            user: {
+              select: {
+                username: true
+              }
+            },
+            isGroupLeader: true
+          }
+        },
+        groupTag: {
+          select: {
+            tag: {
+              select: {
+                name: true
+              }
+            }
+          }
+        },
+        ...(userId && {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: {
+            select: {
+              userGroup: {
+                where: { userId }
+              }
+            }
+          }
+        }),
+        studyInfo: {
+          select: {
+            capacity: true,
+            invitationCode: true
+          }
+        }
+      },
+      orderBy: {
+        createTime: 'desc'
+      }
+    })
+
+    return studyGroups.map((studyGroup) => ({
+      id: studyGroup.id,
+      groupName: studyGroup.groupName,
+      description: studyGroup.description,
+      leader: studyGroup.userGroup.find((user) => user.isGroupLeader === true)
+        ?.user.username,
+      currentMember: studyGroup.userGroup.length,
+      capacity: studyGroup.studyInfo?.capacity,
+      tags: studyGroup.groupTag.map((tag) => tag.tag.name),
+      isPublic: !studyGroup.studyInfo?.invitationCode,
+      isJoined: userId ? studyGroup._count.userGroup > 0 : false
+    }))
+  }
+}
