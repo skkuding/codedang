@@ -1,3 +1,5 @@
+'use client'
+
 import { Input } from '@/components/shadcn/input'
 import searchIcon from '@/public/icons/search.svg'
 import { useQuery } from '@tanstack/react-query'
