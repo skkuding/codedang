@@ -4,7 +4,7 @@ metadata:
   name: rabbitmq-cluster-operator
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: '-1'
+    argocd.argoproj.io/sync-wave: '-2'
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
@@ -41,7 +41,7 @@ metadata:
   name: rabbitmq-topology-operator
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: '-1'
+    argocd.argoproj.io/sync-wave: '-2'
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
