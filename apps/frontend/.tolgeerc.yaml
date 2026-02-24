@@ -1,45 +1,15 @@
-# .tolgeerc
-
-# .env.local에서 환경 변수를 읽어옵니다
-# (주의: CLI는 NEXT_PUBLIC_이 붙지 않은 변수를 우선으로 찾습니다.)
-# (만약 .env.local을 못 읽으면 여기에 직접 값을 넣어도 됩니다.)
 apiUrl: 'https://tolgee.jwoojin.com'
 apiKey: ${TOLGEE_API_KEY}
 
-# 'pnpm tolgee pull' 명령어를 실행할 때 적용될 설정
 pull:
-  # next-intl이 좋아하는 중첩된 JSON 포맷
   format: 'json_nested'
-
-  # (중요!) json 파일을 저장할 경로
-  # 예: messages/ko.json, messages/en.json
   path: 'messages/{lang}.json'
 
-  # 모든 언어를 다운로드
-  # languages: null
-
 extract:
-  # (중요!) 어떤 파일을 스캔할지 지정합니다.
-  # (App Router를 쓰신다면 'app/**/*.{js,jsx,ts,tsx}' 등으로 수정)
   input:
     - 'src/**/*.{js,jsx,ts,tsx}'
-    - 'app/**/*.{js,jsx,ts,tsx}' # (App Router 예시)
-    - 'components/**/*.{js,jsx,ts,tsx}' # (Pages Router 예시)
-
-  # (중요!) 하드코딩된 텍스트를 어떤 함수로 감쌀지
-  # 't'라고 적으면 t('key')가 됩니다.
-  # (next-intl과 호환되므로 't'를 추천합니다.)
+    - 'app/**/*.{js,jsx,ts,tsx}'
+    - 'components/**/*.{js,jsx,ts,tsx}'
   wrapper: 't'
-
-  # (중요!) 지금 추출하는 텍스트가 어떤 언어인지
-  # (하드코딩된 언어가 영어이므로 'en'으로 설정)
   defaultLanguage: 'en'
-
-  # 추출한 키를 Tolgee 서버에 바로 업로드합니다.
   pushToTolgee: true
-
-  # 정규식으로 특정 텍스트는 무시할 수 있습니다.
-  # (예: CSS 클래스명, URL 등)
-  # ignoredNamespaces:
-  #   - "class"
-  #   - "href"
