@@ -183,13 +183,24 @@ else
   $KUBECTL create namespace argocd --dry-run=client -o yaml | $KUBECTL apply -f -
   echo -e "${GREEN}✓ Namespace created${NC}"
 
+  # Initial ArgoCD install via Helm (creates CRDs + core components)
+  echo "Installing ArgoCD via Helm (initial bootstrap)..."
+  helm repo add argo https://argoproj.github.io/argo-helm
+  helm repo update
+  $HELM upgrade --install argocd argo/argo-cd \
+    --namespace argocd \
+    --version 9.4.2 \
+    --wait \
+    --timeout 10m
+  echo -e "${GREEN}✓ ArgoCD installed via Helm${NC}"
+
   # Get current directory (where script is located)
   SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-  # Apply ArgoCD self-management Application
+  # Apply ArgoCD self-management Application (ArgoCD now manages itself via GitOps)
   echo "Applying ArgoCD self-management Application..."
   $KUBECTL apply -f "${SCRIPT_DIR}/k8s/argocd/applications/argocd.yaml"
-  echo -e "${GREEN}✓ ArgoCD Application created${NC}"
+  echo -e "${GREEN}✓ ArgoCD Application created (self-management enabled)${NC}"
 
   # Wait for ArgoCD to be ready
   echo "Waiting for ArgoCD to be ready..."
