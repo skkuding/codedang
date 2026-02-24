@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/graphql'
 import {
   IsArray,
   IsInt,
@@ -25,10 +26,12 @@ export class CreateStudyDto {
   @IsOptional()
   @IsArray()
   @IsInt({ each: true })
-  problmeIds?: number[]
+  problemIds?: number[]
 
   @IsString()
   @IsOptional()
   @Length(6, 6)
   invitationCode?: string
 }
+
+export class UpdateStudyDto extends PartialType(CreateStudyDto) {}
