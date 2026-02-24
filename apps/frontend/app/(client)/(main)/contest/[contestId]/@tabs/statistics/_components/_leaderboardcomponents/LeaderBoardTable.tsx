@@ -65,7 +65,6 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
     120px
     1fr
   `
-  //console.log('PROBLEM_SECTION_WIDTH:', PROBLEM_SECTION_WIDTH)
   const minGridWidth = FIXED_WIDTH + PROBLEM_SECTION_WIDTH
   const session = useSession()
 
