@@ -3,8 +3,6 @@ kind: ApplicationSet
 metadata:
   name: rabbitmq-cluster-operator
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: '-2'
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
@@ -16,6 +14,8 @@ spec:
   template:
     metadata:
       name: 'rabbitmq-cluster-operator-{{.env}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: '-2'
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:
@@ -40,8 +40,6 @@ kind: ApplicationSet
 metadata:
   name: rabbitmq-topology-operator
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: '-2'
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
@@ -53,6 +51,8 @@ spec:
   template:
     metadata:
       name: 'rabbitmq-topology-operator-{{.env}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: '-2'
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:

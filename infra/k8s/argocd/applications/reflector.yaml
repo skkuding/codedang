@@ -3,8 +3,6 @@ kind: ApplicationSet
 metadata:
   name: reflector
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: '-2'
 spec:
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
@@ -16,6 +14,8 @@ spec:
   template:
     metadata:
       name: 'reflector-{{.env}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: '-2'
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:
