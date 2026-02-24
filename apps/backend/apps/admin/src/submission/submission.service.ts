@@ -1049,6 +1049,8 @@ export class SubmissionService {
 
   /**
    * 모드에 따라 재채점할 submission 준비
+   * mode = CREATE_NEW          새로운 submission 생성
+   * mode = REPLACE_EXISTING    기존 Submission 초기화 후 수정
    *
    * @param submissions 유저별 제출 목록
    * @param problem 문제 정보
@@ -1276,6 +1278,8 @@ export class SubmissionService {
 
   /**
    * 재채점 결과 생성
+   * mode = CREATE_NEW          새로운 submission 생성
+   * mode = REPLACE_EXISTING    기존 Submission 초기화 후 수정
    *
    * @param {number} totalCount 전체 제출 수
    * @param {number} processedCount 재채점 요청된 제출 수
