@@ -3,8 +3,6 @@ kind: Application
 metadata:
   name: minio-stage
   namespace: argocd
-  # finalizers:
-  #   - resources-finalizer.argocd.argoproj.io
   labels:
     app.kubernetes.io/environment: 'stage'
 spec:
@@ -21,7 +19,8 @@ spec:
     name: stage
   syncPolicy:
     automated:
-      prune: true
+      # Prune disabled: requires manual review before removing resources
+      prune: false
       selfHeal: true
     syncOptions:
       - CreateNamespace=true

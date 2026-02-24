@@ -9,7 +9,7 @@ metadata:
     app: minio
 spec:
   features:
-    bucketDNS: true
+    bucketDNS: false # use path-style access to be compatible with Loki/Tempo S3 config
   users:
     - name: monitoring-user
   buckets:

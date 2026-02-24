@@ -319,8 +319,28 @@ export class CheckService {
       },
       select: {
         id: true,
-        firstCheckSubmissionId: true,
-        secondCheckSubmissionId: true,
+        firstCheckSubmission: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                username: true,
+                studentId: true
+              }
+            }
+          }
+        },
+        secondCheckSubmission: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                username: true,
+                studentId: true
+              }
+            }
+          }
+        },
         averageSimilarity: true,
         maxSimilarity: true,
         maxLength: true,
@@ -407,8 +427,24 @@ export class CheckService {
       where: {
         id: clusterId
       },
-      include: {
-        SubmissionCluster: true
+      select: {
+        id: true,
+        averageSimilarity: true,
+        strength: true,
+        SubmissionCluster: {
+          include: {
+            submission: {
+              include: {
+                user: {
+                  select: {
+                    username: true,
+                    studentId: true
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     })
 
@@ -418,7 +454,11 @@ export class CheckService {
       id: cluster.id,
       averageSimilarity: cluster.averageSimilarity,
       strength: cluster.strength,
-      submissionCluster: cluster.SubmissionCluster
+      submissionClusterInfos: cluster.SubmissionCluster.map((item) => ({
+        submissionId: item.submissionId,
+        clusterId: item.clusterId,
+        user: item.submission.user
+      }))
     }
   }
 
@@ -438,8 +478,28 @@ export class CheckService {
       },
       select: {
         requestId: true,
-        firstCheckSubmissionId: true,
-        secondCheckSubmissionId: true,
+        firstCheckSubmission: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                username: true,
+                studentId: true
+              }
+            }
+          }
+        },
+        secondCheckSubmission: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                username: true,
+                studentId: true
+              }
+            }
+          }
+        },
         averageSimilarity: true,
         maxSimilarity: true,
         maxLength: true,
@@ -463,8 +523,8 @@ export class CheckService {
 
     return {
       requestId: result.requestId,
-      firstCheckSubmissionId: result.firstCheckSubmissionId,
-      secondCheckSubmissionId: result.secondCheckSubmissionId,
+      firstCheckSubmission: result.firstCheckSubmission,
+      secondCheckSubmission: result.secondCheckSubmission,
       averageSimilarity: result.averageSimilarity,
       maxSimilarity: result.maxSimilarity,
       maxLength: result.maxLength,
