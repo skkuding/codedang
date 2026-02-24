@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { GroupType } from '@prisma/client'
+import { group } from 'console'
 import {
   ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { CreateStudyDto } from './dto/study.dto'
+import { CreateStudyDto, UpdateStudyDto } from './dto/study.dto'
 
 @Injectable()
 export class StudyService {
@@ -123,6 +124,82 @@ export class StudyService {
       isPublic: !studyGroup.studyInfo?.invitationCode,
       isJoined: userId ? studyGroup._count.userGroup > 0 : false
     }))
+  }
+
+  async updateStudyGroup(groupId: number, dto: UpdateStudyDto) {
+    const studyGroup = await this.prisma.group.findUnique({
+      where: {
+        id: groupId,
+        groupType: GroupType.Study
+      },
+      select: {
+        studyInfo: {
+          select: {
+            capacity: true
+          }
+        },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: {
+            userGroup: true
+          }
+        }
+      }
+    })
+
+    if (!studyGroup) {
+      throw new EntityNotExistException('StudyGroup')
+    }
+
+    if (dto.capacity && dto.capacity < studyGroup._count.userGroup)
+      throw new ConflictFoundException('')
+
+    const { groupName, description, capacity, problmeIds, invitationCode } = dto
+
+    let tags: { tagId: number }[] = []
+    if (problmeIds)
+      tags = await this.prisma.problemTag.findMany({
+        where: {
+          problemId: {
+            in: problmeIds
+          }
+        },
+        select: {
+          tagId: true
+        },
+        distinct: ['tagId']
+      })
+
+    const studyInfoUpdate =
+      capacity !== undefined || invitationCode !== undefined
+
+    await this.prisma.group.update({
+      where: {
+        id: groupId,
+        groupType: GroupType.Study
+      },
+      data: {
+        groupName,
+        description,
+        ...(studyInfoUpdate && {
+          studyInfo: {
+            update: {
+              capacity,
+              invitationCode
+            }
+          }
+        }),
+        ...(problmeIds && {
+          groupTag: {
+            deleteMany: {},
+            create: tags.map((tag) => ({ tagId: tag.tagId }))
+          },
+          sharedProblems: {
+            set: problmeIds.map((id) => ({ id }))
+          }
+        })
+      }
+    })
   }
 
   async deleteStudyGroup(groupId: number) {
