@@ -7,7 +7,7 @@ import { SortButton } from './SortButton'
 
 export const columns = (t: (key: string) => string): ColumnDef<Problem>[] => [
   {
-    header: 'Title',
+    header: t('title_column_header'),
     accessorKey: 'title',
     cell: ({ row }) => {
       return (

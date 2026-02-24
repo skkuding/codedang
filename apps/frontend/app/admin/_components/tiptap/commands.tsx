@@ -26,10 +26,29 @@ const Commands = Extension.create({
           query
         }: {
           query?: string
-        }): {
-          title: string
-          command: ({ editor, range }: { editor: Editor; range: Range }) => void
-        }[] => {
+        }):
+          | {
+              title: string
+              command: ({
+                editor,
+                range
+              }: {
+                editor: Editor
+                range: Range
+              }) => void
+            }[]
+          | Promise<
+              {
+                title: string
+                command: ({
+                  editor,
+                  range
+                }: {
+                  editor: Editor
+                  range: Range
+                }) => void
+              }[]
+            > => {
           void query
           return []
         }

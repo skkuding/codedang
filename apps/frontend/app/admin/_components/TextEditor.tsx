@@ -5,7 +5,6 @@ import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
 import Expand from '@/public/icons/texteditor-expand.svg'
 import Shrink from '@/public/icons/texteditor-shrink.svg'
-import type { Range } from '@tiptap/core'
 import Code from '@tiptap/extension-code'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Heading from '@tiptap/extension-heading'
@@ -26,7 +25,7 @@ import {
   NodeViewWrapper,
   Node
 } from '@tiptap/react'
-import type { Editor, NodeViewWrapperProps } from '@tiptap/react'
+import type { NodeViewWrapperProps } from '@tiptap/react'
 import { Extension } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useTranslate } from '@tolgee/react'
@@ -175,27 +174,13 @@ export function TextEditor({
             props.command({ editor, range, props })
           },
           render: renderItems,
-          items: ({
-            query
-          }: {
-            query?: string
-          }): {
-            title: string
-            command: ({
-              editor,
-              range
-            }: {
-              editor: Editor
-              range: Range
-            }) => void
-          }[] => {
-            return getSuggestionItems(
+          items: ({ query }: { query?: string }) =>
+            getSuggestionItems(
               query,
               () => insertNodeRef.current?.openImageDialog(),
               () => insertNodeRef.current?.openFileDialog(),
               () => insertNodeRef.current?.openTableDialog()
             )
-          }
         }
       })
     ],

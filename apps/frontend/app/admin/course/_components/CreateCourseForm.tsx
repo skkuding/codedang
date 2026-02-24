@@ -1,9 +1,9 @@
 'use client'
 
-import type { CourseInput } from '@/generated/graphql'
 import { CREATE_COURSE } from '@/graphql/course/mutation'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useMutation } from '@apollo/client'
+import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useTranslate } from '@tolgee/react'
 import type { ReactNode } from 'react'

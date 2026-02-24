@@ -8,6 +8,7 @@ import {
 import { GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { createColumns } from './ScoreColumns'
 
 interface ScoreTableProps {
@@ -17,6 +18,7 @@ interface ScoreTableProps {
 }
 
 export function ScoreTable({ groupId, assignmentId, userId }: ScoreTableProps) {
+  const { t } = useTranslate()
   const submissions = useSuspenseQuery(
     GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER,
     {
@@ -36,7 +38,7 @@ export function ScoreTable({ groupId, assignmentId, userId }: ScoreTableProps) {
   return (
     <DataTableRoot
       data={[{ ...scoreData, id: userId }]}
-      columns={createColumns(problemData)}
+      columns={createColumns(problemData, t)}
     >
       <DataTable />
     </DataTableRoot>
@@ -44,5 +46,10 @@ export function ScoreTable({ groupId, assignmentId, userId }: ScoreTableProps) {
 }
 
 export function ScoreTableFallback() {
-  return <DataTableFallback withSearchBar={false} columns={createColumns([])} />
+  return (
+    <DataTableFallback
+      withSearchBar={false}
+      columns={createColumns([], () => '')}
+    />
+  )
 }

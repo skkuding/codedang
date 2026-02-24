@@ -2,13 +2,13 @@
 
 import { useQnaCommentSync } from '@/app/(client)/(main)/contest/[contestId]/@tabs/qna/[qnaId]/_components/context/QnaCommentStoreProvider'
 import { DeleteButton } from '@/components/DeleteButton'
-import type { GetContestQnaQuery } from '@/generated/graphql'
 import {
   CREATE_CONTEST_QNA_COMMENT,
   DELETE_CONTEST_QNA_COMMENT
 } from '@/graphql/contest/mutations'
 import { GET_CONTEST_QNA } from '@/graphql/contest/queries'
 import { useMutation, useQuery } from '@apollo/client'
+import type { GetContestQnaQuery } from '@generated/graphql'
 import { useTranslate } from '@tolgee/react'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'

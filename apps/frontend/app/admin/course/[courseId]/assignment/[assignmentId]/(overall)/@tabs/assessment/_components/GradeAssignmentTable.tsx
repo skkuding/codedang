@@ -9,14 +9,17 @@ import {
 } from '@/app/admin/_components/table'
 import { GET_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
-import { columns } from './GradeAssignmentTableColumns'
+import { getColumns } from './GradeAssignmentTableColumns'
 
 interface AssignmentTableProps {
   groupId: string
 }
 
 export function GradeAssignmentTable({ groupId }: AssignmentTableProps) {
+  const { t } = useTranslate()
+  const columns = getColumns(t)
   const { data } = useSuspenseQuery(GET_ASSIGNMENTS, {
     variables: {
       groupId: Number(groupId),
@@ -49,5 +52,5 @@ export function GradeAssignmentTable({ groupId }: AssignmentTableProps) {
 }
 
 export function GradeAssignmentTableFallback() {
-  return <DataTableFallback columns={columns} />
+  return <DataTableFallback columns={getColumns(() => '')} />
 }

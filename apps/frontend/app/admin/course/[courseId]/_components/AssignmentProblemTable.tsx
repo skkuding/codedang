@@ -1,4 +1,5 @@
 import { DataTable, DataTableRoot } from '@/app/admin/_components/table'
+import { useTranslate } from '@tolgee/react'
 import { useMemo, type Dispatch, type SetStateAction } from 'react'
 import type { AssignmentProblem } from '../_libs/type'
 import { createAssignmentColumns } from '../assignment/_components/AssignmentProblemColumns'
@@ -16,9 +17,10 @@ export function AssignmentProblemTable({
   disableInput,
   isExercise = false
 }: AssignmentProblemTableProps) {
+  const { t } = useTranslate()
   const columns = useMemo(
-    () => createAssignmentColumns(setProblems, disableInput, isExercise),
-    [setProblems, disableInput, isExercise]
+    () => createAssignmentColumns(setProblems, disableInput, isExercise, t),
+    [setProblems, disableInput, isExercise, t]
   )
 
   return (
