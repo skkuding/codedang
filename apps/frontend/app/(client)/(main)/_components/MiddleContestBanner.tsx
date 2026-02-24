@@ -1,13 +1,13 @@
 import { Button } from '@/components/shadcn/button'
 import { contestNoticeId } from '@/libs/constants'
 import RightIcon from '@/public/icons/arrow-right-white.svg'
-import { useTranslate } from '@tolgee/react'
+import { getTranslate } from '@/tolgee/server'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { JSX } from 'react'
 
-export function MiddleContestBanner() {
-  const { t } = useTranslate()
+export async function MiddleContestBanner() {
+  const t = await getTranslate()
   return (
     <div className="relative w-full">
       {/* Desktop View */}
@@ -43,8 +43,8 @@ export function MiddleContestBanner() {
   )
 }
 
-function TextBox({ className }: { className: string }) {
-  const { t } = useTranslate()
+async function TextBox({ className }: { className: string }) {
+  const t = await getTranslate()
   return (
     <div
       className={`flex items-center rounded-l-[20px] bg-[#182E56] pe-[140px] ps-[86px] ${className}`}
@@ -91,8 +91,8 @@ function Text({
   )
 }
 
-function BarButton() {
-  const { t } = useTranslate()
+async function BarButton() {
+  const t = await getTranslate()
   return (
     <Button
       variant={'outline'}
