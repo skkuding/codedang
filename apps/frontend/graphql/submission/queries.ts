@@ -213,11 +213,29 @@ const GET_ASSIGNMENT_LATEST_SUBMISSION = gql(`
   }
 `)
 
+const GET_LATEST_SUBMISSION_COUNT_BY_LANGUAGE = gql(`
+  query GetLatestSubmissionCountByLanguage(
+    $assignmentId: Int!
+    $problemId: Int!
+    $groupId: Int!
+  ) {
+    getLatestSubmissionCountByLanguage(
+      assignmentId: $assignmentId
+      problemId: $problemId
+      groupId: $groupId
+    ) {
+      language
+      count
+    }
+  }
+`)
+
 export {
   GET_ASSIGNMENT_LATEST_SUBMISSION,
   GET_ASSIGNMENT_SUBMISSIONS,
   GET_CONTEST_SUBMISSIONS,
   GET_CONTEST_SUBMISSIONS_COUNT,
   GET_SUBMISSION,
-  GET_SUBMISSIONS
+  GET_SUBMISSIONS,
+  GET_LATEST_SUBMISSION_COUNT_BY_LANGUAGE
 }

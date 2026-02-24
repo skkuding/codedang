@@ -6,6 +6,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 export interface ClusterSubmissionRow {
   id: number
   submissionId: number
+  studentId: string | null
 }
 
 export function createClusterSubmissionColumns(
@@ -34,12 +35,14 @@ export function createClusterSubmissionColumns(
       enableHiding: false
     },
     {
-      accessorKey: 'submissionId',
+      accessorKey: 'studentId',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Submission ID" />
+        <DataTableColumnHeader column={column} title="Student ID" />
       ),
       cell: ({ row }) => (
-        <span className="font-mono">#{row.original.submissionId}</span>
+        <span className="font-mono">
+          {row.original.studentId ?? '-'} (#{row.original.submissionId})
+        </span>
       ),
       enableSorting: false
     }

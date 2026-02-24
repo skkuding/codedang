@@ -75,17 +75,34 @@ export function PlagiarismResultTable({
     () =>
       (overviewQuery.data?.overviewCheckByAssignmentProblemId ?? [])
         .filter(
-          (item): item is PlagiarismResult =>
-            item.firstCheckSubmissionId !== null &&
-            item.firstCheckSubmissionId !== undefined &&
-            item.secondCheckSubmissionId !== null &&
-            item.secondCheckSubmissionId !== undefined
+          (item) =>
+            item.firstCheckSubmission?.id !== null &&
+            item.firstCheckSubmission?.id !== undefined &&
+            item.secondCheckSubmission?.id !== null &&
+            item.secondCheckSubmission?.id !== undefined
         )
-        .map((item) => ({
-          ...item,
-          firstCheckSubmissionId: item.firstCheckSubmissionId,
-          secondCheckSubmissionId: item.secondCheckSubmissionId
-        })),
+        .map((item) => {
+          const firstSubmission = item.firstCheckSubmission
+          const secondSubmission = item.secondCheckSubmission
+          if (!firstSubmission || !secondSubmission) {
+            throw new Error('Unexpected null submission after filter')
+          }
+          return {
+            id: item.id,
+            averageSimilarity: item.averageSimilarity,
+            maxSimilarity: item.maxSimilarity,
+            maxLength: item.maxLength,
+            longestMatch: item.longestMatch,
+            firstSimilarity: item.firstSimilarity,
+            secondSimilarity: item.secondSimilarity,
+            clusterId: item.clusterId ?? null,
+            cluster: item.cluster ?? null,
+            firstCheckSubmissionId: firstSubmission.id,
+            secondCheckSubmissionId: secondSubmission.id,
+            firstStudentId: firstSubmission.user?.studentId ?? null,
+            secondStudentId: secondSubmission.user?.studentId ?? null
+          }
+        }),
     [overviewQuery.data]
   )
 

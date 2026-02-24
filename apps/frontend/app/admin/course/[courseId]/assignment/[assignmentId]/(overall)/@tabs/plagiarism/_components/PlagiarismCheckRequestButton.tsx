@@ -21,6 +21,7 @@ import { Switch } from '@/components/shadcn/switch'
 import { CHECK_ASSIGNMENT_SUBMISSIONS } from '@/graphql/check/mutations'
 import { GET_CHECK_REQUESTS } from '@/graphql/check/queries'
 import { GET_PROBLEM } from '@/graphql/problem/queries'
+import { GET_LATEST_SUBMISSION_COUNT_BY_LANGUAGE } from '@/graphql/submission/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import { Language } from '@generated/graphql'
 import { useParams } from 'next/navigation'
@@ -58,7 +59,7 @@ export function PlagiarismCheckRequestButton({
   onRequestComplete,
   disabled = false
 }: PlagiarismCheckRequestButtonProps) {
-  const { assignmentId } = useParams()
+  const { assignmentId, courseId } = useParams()
   const [open, setOpen] = useState(false)
   const [language, setLanguage] = useState<Language>(Language.Java)
   const [minTokens, setMinTokens] = useState(12)
@@ -108,6 +109,30 @@ export function PlagiarismCheckRequestButton({
   const latestRequest = checkRequests[checkRequests.length - 1]
   const latestStatus = latestRequest?.result as CheckResultStatus | undefined
   const hasExistingResults = checkRequests.length > 0
+
+  const { data: submissionCountsData, loading: submissionCountsLoading } =
+    useQuery(GET_LATEST_SUBMISSION_COUNT_BY_LANGUAGE, {
+      variables: {
+        assignmentId: Number(assignmentId),
+        problemId,
+        groupId: Number(courseId)
+      },
+      skip: !assignmentId || !problemId || !courseId,
+      errorPolicy: 'all'
+    })
+
+  const submissionCounts =
+    submissionCountsData?.getLatestSubmissionCountByLanguage ?? []
+  const selectedLanguageCount =
+    submissionCounts.find(
+      (item: { language: Language; count: number }) =>
+        item.language === language
+    )?.count ?? 0
+  const meetsPlagiarismCheckThreshold = selectedLanguageCount >= 2
+
+  const selectedLanguageLabel =
+    allowedLanguages.find((l) => l.value === language)?.label ??
+    String(language)
 
   useEffect(() => {
     if (isPolling && pollingStartedAt.current === null) {
@@ -228,6 +253,54 @@ export function PlagiarismCheckRequestButton({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="grid gap-1 text-xs">
+            {submissionCountsLoading && (
+              <p className="text-gray-500">
+                Loading latest submissions by language...
+              </p>
+            )}
+            {!submissionCountsLoading && submissionCounts.length > 0 && (
+              <>
+                <p className="text-gray-600">
+                  Latest submissions per language (per student):
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {submissionCounts.map(
+                    (item: { language: Language; count: number }) => (
+                      <span
+                        key={item.language}
+                        className={`rounded border px-2 py-0.5 ${
+                          item.language === language
+                            ? 'border-primary bg-primary/5 text-primary'
+                            : 'border-gray-200 text-gray-700'
+                        }`}
+                      >
+                        {item.language}: {item.count}
+                      </span>
+                    )
+                  )}
+                </div>
+                <p
+                  className={
+                    meetsPlagiarismCheckThreshold
+                      ? 'text-emerald-600'
+                      : 'text-red-600'
+                  }
+                >
+                  {selectedLanguageLabel} 기준 최신 제출 학생 수:{' '}
+                  <span className="font-semibold">{selectedLanguageCount}</span>
+                  명 — 표절 검사 최소 기준은{' '}
+                  <span className="font-semibold">2명 이상</span>
+                  입니다.
+                </p>
+              </>
+            )}
+            {!submissionCountsLoading && submissionCounts.length === 0 && (
+              <p className="text-gray-500">
+                No latest submissions found for this problem yet.
+              </p>
+            )}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="minTokens">Min tokens</Label>

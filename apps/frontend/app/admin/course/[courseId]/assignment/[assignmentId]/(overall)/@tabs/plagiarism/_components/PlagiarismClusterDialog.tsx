@@ -54,15 +54,24 @@ export function PlagiarismClusterDialog({
 
   const cluster = data?.getCluster
   const submissionRows: ClusterSubmissionRow[] = useMemo(() => {
-    const entries = cluster?.submissionCluster
+    const entries = cluster?.submissionClusterInfos
     if (!entries || entries.length === 0) {
       return []
     }
-    return entries.map((s: { submissionId: number }, index: number) => ({
-      id: index + 1,
-      submissionId: s.submissionId
-    }))
-  }, [cluster?.submissionCluster])
+    return entries.map(
+      (
+        s: {
+          submissionId: number
+          user?: { studentId?: string | null } | null
+        },
+        index: number
+      ) => ({
+        id: index + 1,
+        submissionId: s.submissionId,
+        studentId: s.user?.studentId ?? null
+      })
+    )
+  }, [cluster?.submissionClusterInfos])
 
   const handleToggleSubmission = useCallback((id: number) => {
     let shouldShowMaxToast = false

@@ -28,8 +28,20 @@ const OVERVIEW_CHECK_BY_ASSIGNMENT_PROBLEM_ID = gql(`
       cursor: $cursor
     ) {
       id
-      firstCheckSubmissionId
-      secondCheckSubmissionId
+      firstCheckSubmission {
+        id
+        user {
+          username
+          studentId
+        }
+      }
+      secondCheckSubmission {
+        id
+        user {
+          username
+          studentId
+        }
+      }
       averageSimilarity
       maxSimilarity
       maxLength
@@ -49,8 +61,20 @@ const GET_CHECK_RESULT_DETAILS = gql(`
   query GetCheckResultDetails($resultId: Int!) {
     getCheckResultDetails(resultId: $resultId) {
       requestId
-      firstCheckSubmissionId
-      secondCheckSubmissionId
+      firstCheckSubmission {
+        id
+        user {
+          username
+          studentId
+        }
+      }
+      secondCheckSubmission {
+        id
+        user {
+          username
+          studentId
+        }
+      }
       averageSimilarity
       maxSimilarity
       maxLength
@@ -88,8 +112,13 @@ const GET_CLUSTER = gql(`
       id
       averageSimilarity
       strength
-      submissionCluster {
+      submissionClusterInfos {
         submissionId
+        clusterId
+        user {
+          username
+          studentId
+        }
       }
     }
   }

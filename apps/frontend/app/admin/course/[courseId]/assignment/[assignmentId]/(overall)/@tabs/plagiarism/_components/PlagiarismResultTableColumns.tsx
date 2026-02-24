@@ -7,6 +7,8 @@ export interface PlagiarismResult {
   id: number
   firstCheckSubmissionId: number
   secondCheckSubmissionId: number
+  firstStudentId: string | null
+  secondStudentId: string | null
   averageSimilarity: number
   maxSimilarity: number
   maxLength: number
@@ -26,24 +28,24 @@ export function createPlagiarismResultColumns(
 ): ColumnDef<PlagiarismResult>[] {
   return [
     {
-      accessorKey: 'firstCheckSubmissionId',
+      accessorKey: 'firstStudentId',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="1st submission ID" />
+        <DataTableColumnHeader column={column} title="1st student ID" />
       ),
       cell: ({ row }) => (
         <div className="font-mono text-sm">
-          #{row.original.firstCheckSubmissionId}
+          {row.original.firstStudentId ?? '-'}
         </div>
       )
     },
     {
-      accessorKey: 'secondCheckSubmissionId',
+      accessorKey: 'secondStudentId',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="2nd submission ID" />
+        <DataTableColumnHeader column={column} title="2nd student ID" />
       ),
       cell: ({ row }) => (
         <div className="font-mono text-sm">
-          #{row.original.secondCheckSubmissionId}
+          {row.original.secondStudentId ?? '-'}
         </div>
       )
     },
