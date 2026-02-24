@@ -26,6 +26,15 @@ export class AssignmentService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
+  /**
+   * 과제 목록을 조회합니다
+   *
+   * @param {number} take 페이지당 반환할 과제 개수
+   * @param {number} groupId 그룹 ID
+   * @param {number | null} cursor 페이지네이션 커서
+   * @param {boolean} isExercise exercise 여부 (false : assignment)
+   * @returns 과제리스트, 참가자
+   */
   async getAssignments(
     take: number,
     groupId: number,
@@ -55,6 +64,17 @@ export class AssignmentService {
     })
   }
 
+  /**
+   * 특정 과제의 상세 정보를 조회합니다
+   *
+   * @param {number} assignmentId 과제 ID
+   * @param {number} groupId 그룹 ID
+   * @returns 과제 상세 정보, 참가사 수
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 해당 과제가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제 ID의 그룹 ID가 일치하지 않을 때
+   */
   async getAssignment(assignmentId: number, groupId: number) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
@@ -86,6 +106,20 @@ export class AssignmentService {
     }
   }
 
+  /**
+   * 새로운 과제를 생성합니다
+   * 그룹 내 모든 course 멤버를 해당 과제에 자동 참여 시킵니다.
+   *
+   * @param {number} groupId 과제를 생성할 그룹 ID
+   * @param {number} userId 생성자 ID
+   * @param {CreateAssignmentInput} assignment 과제 정보 데이터
+   * @returns 생성된 과제 정보
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다 (유효성 체크)
+   * - 과제 시작 시간이 종료 시간(endTime)보다 늦을 때
+   * - 과제 시작 시간이 마감 시간(dueTime)보다 늦을 때
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 존재 하지 않는 그룹에 과제를 생성하려 할 때
+   */
   async createAssignment(
     groupId: number,
     userId: number,
@@ -137,6 +171,20 @@ export class AssignmentService {
     }
   }
 
+  /**
+   * 과제 정보를 업데이트합니다.
+   *
+   * @param groupId 그룹 ID(수정을 요청한)
+   * @param assignment 업데이트할 과제 정보
+   * @returns 업데이트가 완료된 과제 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다
+   * - 업데이트하려는 과제가 DB에 존재하지 않을 경우
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다
+   * - 요청한 그룹 ID(groupId)가 과제가 속한 실제 그룹 ID와 일치하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다
+   * - 수정된 과제 시작 시간이 종료 시간(endTime)보다 늦을 때
+   * - 수정된 과제 시작 시간이 마감 시간(dueTime)보다 늦을 때
+   */
   async updateAssignment(
     groupId: number,
     assignment: UpdateAssignmentInput
@@ -283,6 +331,17 @@ export class AssignmentService {
     }
   }
 
+  /**
+   * 과제를 삭제합니다.
+   *
+   * @param groupId 그룹 ID
+   * @param assignmentId 삭제할 과제 ID
+   * @returns 삭제된 과제 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 요청한 assigmentID를 가진 과제가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 해당 과제 그룹 아이디와 일치하지 않을떄
+   */
   async deleteAssignment(groupId: number, assignmentId: number) {
     const assignment = await this.prisma.assignment.findUnique({
       where: {
@@ -330,6 +389,20 @@ export class AssignmentService {
     }
   }
 
+  /**
+   * 과제에 문제들을 추가합니다.
+   *
+   * @param groupId 그룹 ID
+   * @param assignmentId 과제 ID
+   * @param assignmentProblemInput 추가할 문제 정보들
+   * @returns 추가된 과제들 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 요청한 과제가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제에 해당하는 그룹 ID가 일치하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - 트랜잭션 처리 중 오류가 발생할 때
+   */
   async importProblemsToAssignment(
     groupId: number,
     assignmentId: number,
@@ -456,6 +529,21 @@ export class AssignmentService {
     return assignmentProblems
   }
 
+  /**
+   * 과제에서 특정 문제들을 제거합니다.
+   *
+   * @param groupId 그룹 ID
+   * @param assignmentId 과제 ID
+   * @param problemIds 제거할 문제 ID 배열
+   * @returns 제거된 과제 문제 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 요청된 과제 ID에 해당하는 과제가 존재하지 않을 때
+   * - 문제가 포함된 다른 과제들의 상세 정보(종료 시간)을 찾을 수 없을때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제에 해당하는 그룹 ID가 일치하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - 데이터 업데이트 또는 삭제 트랜잭션 중 오류가 발생할 때
+   */
   async removeProblemsFromAssignment(
     groupId: number,
     assignmentId: number,
@@ -566,6 +654,16 @@ export class AssignmentService {
     return assignmentProblems
   }
 
+  /**
+   * 특정 유저의 과제 체출 내용 요약과 성적 요약을 가져옵니다.
+   *
+   * @param take 가져올 레코드 개수
+   * @param assignmentId 과제 ID
+   * @param userId 조회할 유저 ID
+   * @param problemId 특정 문제만 조회할 경우의 문제 ID (선택 사항)
+   * @param cursor 페이지네이션을 위한 커서 값
+   * @returns 유저의 성적 요약 정보 및 매핑된 제출 내역 리스트
+   */
   async getAssignmentSubmissionSummaryByUserId({
     take,
     assignmentId,
@@ -640,12 +738,17 @@ export class AssignmentService {
   }
 
   /**
-   * Duplicate assignment with assignment problems and users who participated in the assignment
-   * Not copied: submission
-   * @param groupId group to duplicate assignment
-   * @param assignmentId assignment to duplicate
-   * @param userId user who tries to duplicates the assignment
-   * @returns
+   * 과제를 복제합니다. 과제의 기본 설정, 포함된 문제들, 과제 참여 기록 모두 복사합니다.
+   * 제출 내역(Submission)은 복사되지 않습니다.
+   *
+   * @param groupId 과제를 복제할 그룹 ID
+   * @param assignmentId 복제 대상이 되는 원본 과제 ID
+   * @param userId 복제를 수행하는 유저 ID (새로운 과제 생성자)
+   * @returns 복제된 과제, 문제 리스트, 참여 기록 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 복제할 원본 과제(assignmentId)가 존재하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - 데이터 복제 트랜잭션 도중 오류가 발생할 때
    */
   async duplicateAssignment(
     groupId: number,
@@ -676,7 +779,7 @@ export class AssignmentService {
       throw new EntityNotExistException('Assignment')
     }
 
-    // if assignment status is ongoing, visible would be true. else, false
+    // 과제가 현재 진행중이면 newVisible를 true로, 그 외는 false
     const now = new Date()
     let newVisible = false
     if (assignmentFound.startTime <= now && now <= assignmentFound.endTime) {
@@ -690,7 +793,7 @@ export class AssignmentService {
     try {
       const [newAssignment, newAssignmentProblems, newAssignmentRecords] =
         await this.prisma.$transaction(async (tx) => {
-          // 1. copy assignment
+          // 1. 과제 기본 정보를 복사하여 새로운 과제를 생성합니다.
           const newAssignment = await tx.assignment.create({
             data: {
               ...assignmentDataToCopy,
@@ -701,7 +804,7 @@ export class AssignmentService {
             }
           })
 
-          // 2. copy assignment problems
+          // 2. 해당 과제에 등록된 문제들을 새로운 과제로 복사합니다.
           const newAssignmentProblems = await Promise.all(
             assignmentProblemsFound.map((assignmentProblem) =>
               tx.assignmentProblem.create({
@@ -716,7 +819,7 @@ export class AssignmentService {
             )
           )
 
-          // 3. copy assignment records (users who participated in the assignment)
+          // 3. 과제 참여 기록(assignmentRecord)을 새로운 과제로 복사합니다.
           const newAssignmentRecords = await Promise.all(
             userAssignmentRecords.map((userAssignmentRecord) =>
               tx.assignmentRecord.create({
@@ -742,7 +845,11 @@ export class AssignmentService {
   }
 
   /**
-   * 특정 user의 특정 Assignment에 대한 총점, 통과한 문제 개수와 각 문제별 테스트케이스 통과 개수를 불러옵니다.
+   * userId에 해당하는 유저의 특정 Assignment 점수 요약을 계산하여 가져옵니다
+   *
+   * @param userId 유저 ID
+   * @param assignmentId 과제 ID
+   * @returns 제출 문제 개수, Assignment안 총 문제 개수, 사용자 점수, 과제 만점, 개별 점수 및 테스트케이스 개수 리스트 정보
    */
   async getAssignmentScoreSummary(userId: number, assignmentId: number) {
     const [assignmentProblems, rawAssignmentProblemRecords] = await Promise.all(
@@ -839,9 +946,7 @@ export class AssignmentService {
       }
     }
 
-    /**
-     * 문제 별 Accepted된 testcase의 개수 (latestSubmission 기준)
-     */
+    // 문제 별 Accepted된 testcase의 개수 (latestSubmission 기준)
     const acceptedCountsByProblem = assignmentProblemIds.reduce(
       (map, problemId) => {
         const latestSubmission = latestSubmissionMap.get(problemId)
@@ -865,9 +970,7 @@ export class AssignmentService {
       {} as Record<number, { acceptedCount: number; totalCount: number }>
     )
 
-    /**
-     * 문제 별 score과 testcase 개수(전체, 정답)에 대한 집합 배열
-     */
+    // 문제 별 score과 testcase 개수(전체, 정답)에 대한 집합 배열
     const scoreSummaryByProblem = assignmentProblemIds.map((problemId) => {
       const problemScore =
         problemScores.find((score) => score.problemId === problemId) ?? null
@@ -910,6 +1013,21 @@ export class AssignmentService {
     return scoreSummary
   }
 
+  /**
+   * 과제에 참여한 모든 유저의 점수 요약 리스트를 가져옵니다.
+   * 조회 시 그룹 멤버 중 미참여자가 있다면 자동으로 과제에 초대합니다.
+   *
+   * @param assignmentId 과제 ID
+   * @param groupId 그룹 ID
+   * @param take 가져올 레코드 개수
+   * @param cursor 페이지네이션 커서
+   * @param searchingName 검색 유저 이름 (선택사항)
+   * @returns 각 유저의 프로필 정보와 점수 요약이 결합된 배열
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 과제가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제의 소속 그룹이 일치하지 않을 때
+   */
   async getAssignmentScoreSummaries(
     assignmentId: number,
     groupId: number,
@@ -1002,6 +1120,16 @@ export class AssignmentService {
     return assignmentRecordsWithScoreSummary
   }
 
+  /**
+   * 특정 문제가 포함된 모든 과제 목록을 조회하고, 진행 상태별로 그룹화하여 반환합니다.
+   *
+   * @param problemId 조회할 문제 ID
+   * @param userId 요청을 보낸 유저 ID (권한 확인용)
+   * @returns 상태별(upcoming, ongoing, finished)로 분류된 과제 목록
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 문제를 직접 생성한 작성자가 아니며,
+   * - 동시에 유저가 관리자인 그룹 중 해당 문제가 공유된 그룹이 단 하나도 없을 때
+   */
   async getAssignmentsByProblemId(problemId: number, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: { id: problemId },
@@ -1096,6 +1224,12 @@ export class AssignmentService {
     return assignmentsGroupedByStatus
   }
 
+  /**
+   * 특정 과제의 모든 문제 배점을 합산하여 만점을 계산합니다.
+   *
+   * @param assignmentId 과제 ID
+   * @returns 과제 총점
+   */
   async getTotalScoreOfAssignment(assignmentId: number) {
     const assignmentProblemScores =
       await this.prisma.assignmentProblem.findMany({
@@ -1113,6 +1247,21 @@ export class AssignmentService {
     )
   }
 
+  /**
+   * 특정 유저의 개별 문제에 대한 점수(finalScore)와 코멘트를 수정하고
+   * 과제 총점을 갱신합니다.
+   *
+   * @param groupId 그룹 ID
+   * @param input 수정할 데이터 (assignmentId, problemId, userId, finalScore, comment)
+   * @returns 업데이트된 문제 기록 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 수정할 과제-문제 기록이 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제 소속 그룹이 일치하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - 과제 종료 전일 때
+   * - 입력 점수가 배점을 초과할 때
+   */
   async updateAssignmentProblemRecord(
     groupId: number,
     input: UpdateAssignmentProblemRecordInput
@@ -1217,6 +1366,19 @@ export class AssignmentService {
     return updatedProblemRecord
   }
 
+  /**
+   * 특정 유저의 특정 과제 내 문제 풀이 기록(점수, 상태 등)을 상세 조회합니다.
+   *
+   * @param groupId 요청을 보낸 그룹 ID (권한 확인용)
+   * @param userId 기록을 조회할 유저 ID
+   * @param assignmentId 해당 과제 ID
+   * @param problemId 해당 문제 ID
+   * @returns 유저의 문제 풀이 기록 객체 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 기록이나 과제를 찾을 수 없을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청 그룹과 과제의 소속 그룹이 일치하지 않을 때
+   */
   async getAssignmentProblemRecord({
     groupId,
     userId,
@@ -1263,6 +1425,13 @@ export class AssignmentService {
     return assignmentProblemRecord
   }
 
+  /**
+   * 특정 유저의 특정 과제 내 문제 기록(제출 기록 및 점수 등)을 조회합니다.
+   *
+   * @param assignmentId 과제 ID
+   * @param userId 유저 ID
+   * @returns 모든 문제 채점 완료 여부 (boolean)
+   */
   async isAllAssignmentProblemGraded(assignmentId: number, userId: number) {
     const problemRecords = await this.prisma.assignmentProblemRecord.findMany({
       where: {
@@ -1281,6 +1450,19 @@ export class AssignmentService {
     return isAllProblemGraded
   }
 
+  /**
+   * 과제의 모든 참여 유저의 문제별 최종 점수(final_score)를 현재 획득 점수(score)로 자동 확정합니다.
+   *
+   * @param groupId 그룹 ID
+   * @param assignmentId 과제 ID
+   * @returns 업데이트된 레코드 개수
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 과제가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 요청한 그룹 ID와 과제 소속 그룹이 일치하지 않을 때
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - 과제 마감 시간(dueTime 또는 endTime)이 지나지 않았을 때
+   */
   async autoFinalizeScore(groupId: number, assignmentId: number) {
     const assignment = await this.prisma.assignment.findUnique({
       where: { id: assignmentId },
@@ -1310,6 +1492,13 @@ export class AssignmentService {
     `
   }
 
+  /**
+   * (private) 그룹 내 모든 멤버에게 과제 공간을 할당합니다.
+   * @param {number} assignmentId 초대할 과제의 ID
+   * @param {number} groupId 그룹 ID
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 해당 course에 등록된 사람이 없을때
+   */
   private async inviteAllCourseMembersToAssignment(
     assignmentId: number,
     groupId: number
