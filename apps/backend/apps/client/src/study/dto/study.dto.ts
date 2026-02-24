@@ -31,7 +31,7 @@ export class CreateStudyDto {
   @IsString()
   @IsOptional()
   @Length(6, 6)
-  invitationCode?: string
+  invitationCode?: string | null
 }
 
 export class UpdateStudyDto extends PartialType(CreateStudyDto) {}
