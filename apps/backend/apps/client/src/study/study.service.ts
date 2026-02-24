@@ -151,7 +151,9 @@ export class StudyService {
     }
 
     if (dto.capacity && dto.capacity < studyGroup._count.userGroup)
-      throw new ConflictFoundException('')
+      throw new ConflictFoundException(
+        'Capacity cannot be less than current members'
+      )
 
     const { groupName, description, capacity, problemIds, invitationCode } = dto
 
