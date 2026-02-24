@@ -17,7 +17,7 @@ export function StatisticsClientLayout({
   const router = useRouter()
   const params = useParams<{ contestId: string }>()
   const contestId = params.contestId
-  const t = useTranslate()
+  const { t } = useTranslate()
 
   let currentTab: string
   if (pathname.includes('user-analysis')) {
