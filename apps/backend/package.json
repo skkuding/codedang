@@ -71,6 +71,7 @@
     "cookie-parser": "^1.4.7",
     "cross-env": "^7.0.3",
     "dayjs": "^1.11.13",
+    "dotenv": "^16.6.1",
     "es-toolkit": "^1.39.9",
     "exceljs": "^4.4.0",
     "express": "^5.1.0",
@@ -136,8 +137,5 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "5.9.2"
-  },
-  "prisma": {
-    "seed": "swc-node prisma/seed.ts"
   }
 }
