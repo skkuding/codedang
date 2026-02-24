@@ -6,11 +6,10 @@ import { metaBaseUrl } from '@/libs/constants'
 import { getBootstrapData } from '@/libs/posthog.server'
 import { TolgeeNextProvider } from '@/tolgee/client'
 import { getTolgee } from '@/tolgee/server'
-import { ALL_LANGUAGES } from '@/tolgee/shared'
 import { GoogleTagManager } from '@next/third-parties/google'
 import type { Metadata, Viewport } from 'next'
+import { getLocale } from 'next-intl/server'
 import { IBM_Plex_Mono } from 'next/font/google'
-import { notFound } from 'next/navigation'
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
 import './globals.css'
 import { PostHogProvider } from './posthog'
@@ -49,15 +48,8 @@ type RootLayoutProps = {
   params: Promise<{ locale: string }>
 }
 
-export default async function RootLayout({
-  children,
-  params
-}: RootLayoutProps) {
-  const { locale } = await params
-
-  if (!ALL_LANGUAGES.includes(locale)) {
-    notFound()
-  }
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const locale = await getLocale()
 
   const tolgee = await getTolgee()
   const records = await tolgee.loadRequired()

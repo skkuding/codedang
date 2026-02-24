@@ -1,9 +1,18 @@
+import { DEFAULT_LANGUAGE, ALL_LANGUAGES } from '@/tolgee/shared'
 import { getRequestConfig } from 'next-intl/server'
+import { cookies } from 'next/headers'
 
-export const requestConfig = getRequestConfig(async ({ requestLocale }) => {
-  const locale = await requestLocale
+// eslint-disable-next-line
+export default getRequestConfig(async () => {
+  const cookieStore = await cookies()
+  const localeCookie = cookieStore.get('NEXT_LOCALE')?.value
+  const locale =
+    localeCookie && ALL_LANGUAGES.includes(localeCookie)
+      ? localeCookie
+      : DEFAULT_LANGUAGE
+
   return {
-    locale: locale ?? 'en',
-    messages: { locale: locale ?? 'en' } // do this to make next-intl not emit any warnings
+    locale,
+    messages: {}
   }
 })
