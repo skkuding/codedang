@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { GroupType } from '@prisma/client'
-import { group } from 'console'
 import {
   ConflictFoundException,
   EntityNotExistException
@@ -13,12 +12,12 @@ export class StudyService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createStudyGroup(userId: number, dto: CreateStudyDto) {
-    const { groupName, description, capacity, problmeIds, invitationCode } = dto
+    const { groupName, description, capacity, problemIds, invitationCode } = dto
 
     const tags = await this.prisma.problemTag.findMany({
       where: {
         problemId: {
-          in: problmeIds
+          in: problemIds
         }
       },
       select: {
@@ -45,7 +44,7 @@ export class StudyService {
           }
         },
         sharedProblems: {
-          connect: problmeIds?.map((problmeId) => ({ id: problmeId }))
+          connect: problemIds?.map((problmeId) => ({ id: problmeId }))
         },
         groupTag: {
           createMany: {
@@ -154,14 +153,14 @@ export class StudyService {
     if (dto.capacity && dto.capacity < studyGroup._count.userGroup)
       throw new ConflictFoundException('')
 
-    const { groupName, description, capacity, problmeIds, invitationCode } = dto
+    const { groupName, description, capacity, problemIds, invitationCode } = dto
 
     let tags: { tagId: number }[] = []
-    if (problmeIds)
+    if (problemIds)
       tags = await this.prisma.problemTag.findMany({
         where: {
           problemId: {
-            in: problmeIds
+            in: problemIds
           }
         },
         select: {
@@ -189,13 +188,13 @@ export class StudyService {
             }
           }
         }),
-        ...(problmeIds && {
+        ...(problemIds && {
           groupTag: {
             deleteMany: {},
             create: tags.map((tag) => ({ tagId: tag.tagId }))
           },
           sharedProblems: {
-            set: problmeIds.map((id) => ({ id }))
+            set: problemIds.map((id) => ({ id }))
           }
         })
       }
