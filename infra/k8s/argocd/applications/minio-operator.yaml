@@ -1,43 +1,35 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: sealed-secrets
+  name: minio-operator
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: '-1'
 spec:
-  # Preserves deployed resources when ApplicationSet or Application is deleted (prevents data loss)
-  syncPolicy:
-    preserveResourcesOnDeletion: true
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
   generators:
     - list:
         elements:
           - env: stage
-            branch: main
           - env: production
-            branch: release
   template:
     metadata:
-      name: 'sealed-secrets-{{.env}}'
+      name: 'minio-operator-{{.env}}'
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:
       project: default
       source:
-        repoURL: https://bitnami-labs.github.io/sealed-secrets
-        chart: sealed-secrets
-        targetRevision: '2.17.3'
-        helm:
-          releaseName: sealed-secrets
+        repoURL: https://github.com/minio/operator
+        targetRevision: v7.1.1
+        path: .
       destination:
-        namespace: kube-system
+        namespace: minio-operator
         name: '{{.env}}'
       syncPolicy:
         automated:
-          # Prune disabled: requires manual review before removing resources
-          prune: false
+          prune: true
           selfHeal: true
         syncOptions:
           - CreateNamespace=true

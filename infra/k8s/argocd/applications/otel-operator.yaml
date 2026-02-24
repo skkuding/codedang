@@ -1,43 +1,37 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: sealed-secrets
+  name: otel-operator
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: '-1'
 spec:
-  # Preserves deployed resources when ApplicationSet or Application is deleted (prevents data loss)
-  syncPolicy:
-    preserveResourcesOnDeletion: true
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
   generators:
     - list:
         elements:
           - env: stage
-            branch: main
           - env: production
-            branch: release
   template:
     metadata:
-      name: 'sealed-secrets-{{.env}}'
+      name: 'otel-operator-{{.env}}'
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:
       project: default
       source:
-        repoURL: https://bitnami-labs.github.io/sealed-secrets
-        chart: sealed-secrets
-        targetRevision: '2.17.3'
+        repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+        chart: opentelemetry-operator
+        targetRevision: 0.106.0
         helm:
-          releaseName: sealed-secrets
+          releaseName: opentelemetry-operator
       destination:
-        namespace: kube-system
+        namespace: opentelemetry-operator-system
         name: '{{.env}}'
       syncPolicy:
         automated:
-          # Prune disabled: requires manual review before removing resources
-          prune: false
+          prune: true
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
