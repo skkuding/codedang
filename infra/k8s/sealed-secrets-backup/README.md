@@ -17,8 +17,8 @@
 ### 1. Download keys from AWS Secrets Manager
 
 ```bash
-# Codedang-Sealed-Secrets-Prod or Codedang-Sealed-Secrets-Stage
-SECRET_NAME=Codedang-Sealed-Secrets-Prod
+# Codedang-Sealed-Secrets-Production or Codedang-Sealed-Secrets-Stage
+SECRET_NAME=Codedang-Sealed-Secrets-Production
 aws secretsmanager get-secret-value \
   --secret-id "$SECRET_NAME" \
   --query SecretString --output text > sealed-secrets-keys.json

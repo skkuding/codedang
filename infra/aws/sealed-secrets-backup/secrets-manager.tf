@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "sealed_secrets_prod" {
-  name = "Codedang-Sealed-Secrets-Prod"
+  name = "Codedang-Sealed-Secrets-Production"
 }
 
 resource "aws_secretsmanager_secret_version" "sealed_secrets_prod" {

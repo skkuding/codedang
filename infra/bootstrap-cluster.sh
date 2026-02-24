@@ -30,6 +30,7 @@ CLUSTER_CONTEXT="${CLUSTER_CONTEXT:-}"
 ENVIRONMENT="${ENVIRONMENT:-production}"  # production or stage
 SEALED_SECRETS_SECRET_NAME="Codedang-Sealed-Secrets-${ENVIRONMENT^}"  # Capitalize first letter
 AUTO_INSTALL_TOOLS="${AUTO_INSTALL_TOOLS:-true}"  # Set to false to skip auto-installation
+SKIP_ARGOCD="${SKIP_ARGOCD:-false}"  # Set to true for stage clusters managed by production ArgoCD
 
 echo "========================================="
 echo "Codedang Cluster Bootstrap"
@@ -39,13 +40,18 @@ echo "Sealed Secrets Secret: ${SEALED_SECRETS_SECRET_NAME}"
 if [ -n "${CLUSTER_CONTEXT}" ]; then
   echo "Cluster Context: ${CLUSTER_CONTEXT}"
 fi
+if [ "${SKIP_ARGOCD}" = "true" ]; then
+  echo "ArgoCD: SKIPPED (managed by production ArgoCD)"
+fi
 echo "========================================="
 echo
 
-# Prepare kubectl command with optional context
+# Prepare kubectl/helm commands with optional context
 KUBECTL="kubectl"
+HELM="helm"
 if [ -n "${CLUSTER_CONTEXT}" ]; then
   KUBECTL="kubectl --context ${CLUSTER_CONTEXT}"
+  HELM="helm --kube-context ${CLUSTER_CONTEXT}"
 fi
 
 # Check prerequisites
@@ -108,7 +114,7 @@ echo -e "${GREEN}✓ Helm repository added${NC}"
 
 # Install sealed-secrets controller
 echo "Installing sealed-secrets controller..."
-helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
+$HELM upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
   --namespace kube-system \
   --wait \
   --timeout 5m
@@ -161,41 +167,49 @@ echo
 #############################################
 # Step 3: Install ArgoCD
 #############################################
-echo "========================================="
-echo "Step 3: Installing ArgoCD"
-echo "========================================="
+if [ "${SKIP_ARGOCD}" = "true" ]; then
+  echo "========================================="
+  echo "Step 3: Skipping ArgoCD (SKIP_ARGOCD=true)"
+  echo "========================================="
+  echo "This cluster is managed by production ArgoCD."
+  echo
+else
+  echo "========================================="
+  echo "Step 3: Installing ArgoCD"
+  echo "========================================="
 
-# Create argocd namespace
-echo "Creating argocd namespace..."
-$KUBECTL create namespace argocd --dry-run=client -o yaml | $KUBECTL apply -f -
-echo -e "${GREEN}✓ Namespace created${NC}"
+  # Create argocd namespace
+  echo "Creating argocd namespace..."
+  $KUBECTL create namespace argocd --dry-run=client -o yaml | $KUBECTL apply -f -
+  echo -e "${GREEN}✓ Namespace created${NC}"
 
-# Get current directory (where script is located)
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+  # Get current directory (where script is located)
+  SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Apply ArgoCD self-management Application
-echo "Applying ArgoCD self-management Application..."
-$KUBECTL apply -f "${SCRIPT_DIR}/k8s/argocd/applications/argocd.yaml"
-echo -e "${GREEN}✓ ArgoCD Application created${NC}"
+  # Apply ArgoCD self-management Application
+  echo "Applying ArgoCD self-management Application..."
+  $KUBECTL apply -f "${SCRIPT_DIR}/k8s/argocd/applications/argocd.yaml"
+  echo -e "${GREEN}✓ ArgoCD Application created${NC}"
 
-# Wait for ArgoCD to be ready
-echo "Waiting for ArgoCD to be ready..."
-echo "(This may take several minutes as ArgoCD syncs all infrastructure components)"
+  # Wait for ArgoCD to be ready
+  echo "Waiting for ArgoCD to be ready..."
+  echo "(This may take several minutes as ArgoCD syncs all infrastructure components)"
 
-# Wait for ArgoCD server deployment
-$KUBECTL wait --for=condition=available --timeout=10m \
-  deployment/argocd-server -n argocd 2>/dev/null || {
-  echo -e "${YELLOW}⚠ ArgoCD server is still syncing, continuing...${NC}"
-}
+  # Wait for ArgoCD server deployment
+  $KUBECTL wait --for=condition=available --timeout=10m \
+    deployment/argocd-server -n argocd 2>/dev/null || {
+    echo -e "${YELLOW}⚠ ArgoCD server is still syncing, continuing...${NC}"
+  }
 
-# Wait for ArgoCD application controller
-$KUBECTL wait --for=condition=available --timeout=10m \
-  deployment/argocd-application-controller -n argocd 2>/dev/null || {
-  echo -e "${YELLOW}⚠ ArgoCD application controller is still syncing, continuing...${NC}"
-}
+  # Wait for ArgoCD application controller
+  $KUBECTL wait --for=condition=available --timeout=10m \
+    deployment/argocd-application-controller -n argocd 2>/dev/null || {
+    echo -e "${YELLOW}⚠ ArgoCD application controller is still syncing, continuing...${NC}"
+  }
 
-echo -e "${GREEN}✓ ArgoCD core components are ready${NC}"
-echo
+  echo -e "${GREEN}✓ ArgoCD core components are ready${NC}"
+  echo
+fi
 
 #############################################
 # Step 4: Verification
@@ -204,34 +218,41 @@ echo "========================================="
 echo "Step 4: Verification"
 echo "========================================="
 
-# Check ArgoCD pods
-echo "ArgoCD pods status:"
-$KUBECTL get pods -n argocd
-echo
+if [ "${SKIP_ARGOCD}" != "true" ]; then
+  # Check ArgoCD pods
+  echo "ArgoCD pods status:"
+  $KUBECTL get pods -n argocd
+  echo
 
-# Get ArgoCD admin password
-echo "========================================="
-echo "ArgoCD Admin Credentials"
-echo "========================================="
-echo "URL: https://argocd.codedang.com"
-echo
-echo "The admin password is stored in sealed secrets and will be available after sync."
-echo "To retrieve the password, wait for the argocd-secret to be created, then run:"
-echo "  $KUBECTL -n argocd get secret argocd-secret -o jsonpath='{.data.admin\\.password}' | base64 -d"
-echo
+  # Get ArgoCD admin password
+  echo "========================================="
+  echo "ArgoCD Admin Credentials"
+  echo "========================================="
+  echo "URL: https://argocd.codedang.com"
+  echo
+  echo "The admin password is stored in sealed secrets and will be available after sync."
+  echo "To retrieve the password, wait for the argocd-secret to be created, then run:"
+  echo "  $KUBECTL -n argocd get secret argocd-secret -o jsonpath='{.data.admin\\.password}' | base64 -d"
+  echo
 
-# List ArgoCD applications
-echo "========================================="
-echo "ArgoCD Applications"
-echo "========================================="
-echo "Waiting for ArgoCD CRDs to be available..."
-sleep 10
+  # List ArgoCD applications
+  echo "========================================="
+  echo "ArgoCD Applications"
+  echo "========================================="
+  echo "Waiting for ArgoCD CRDs to be available..."
+  sleep 10
 
-$KUBECTL get applications -n argocd 2>/dev/null || {
-  echo -e "${YELLOW}⚠ ArgoCD Application CRD not yet available${NC}"
-  echo "ArgoCD is still syncing. Check status with:"
-  echo "  $KUBECTL get applications -n argocd"
-}
+  $KUBECTL get applications -n argocd 2>/dev/null || {
+    echo -e "${YELLOW}⚠ ArgoCD Application CRD not yet available${NC}"
+    echo "ArgoCD is still syncing. Check status with:"
+    echo "  $KUBECTL get applications -n argocd"
+  }
+  echo
+fi
+
+# Check sealed-secrets pods
+echo "Sealed-secrets pods status:"
+$KUBECTL get pods -n kube-system -l app.kubernetes.io/name=sealed-secrets
 echo
 
 #############################################
@@ -241,17 +262,22 @@ echo "========================================="
 echo "✅ Bootstrap script completed!"
 echo "========================================="
 echo
-echo "Next steps:"
-echo "1. Monitor ArgoCD sync progress:"
-echo "   $KUBECTL get applications -n argocd -w"
-echo
-echo "2. Access ArgoCD UI:"
-echo "   URL: https://argocd.codedang.com"
-echo
-echo "3. Verify all applications are synced:"
-echo "   $KUBECTL get applications -n argocd"
-echo
-echo "4. Check infrastructure components:"
-echo "   $KUBECTL get pods --all-namespaces"
+if [ "${SKIP_ARGOCD}" = "true" ]; then
+  echo "Sealed-secrets controller and keys are ready."
+  echo "This cluster will be managed by production ArgoCD."
+else
+  echo "Next steps:"
+  echo "1. Monitor ArgoCD sync progress:"
+  echo "   $KUBECTL get applications -n argocd -w"
+  echo
+  echo "2. Access ArgoCD UI:"
+  echo "   URL: https://argocd.codedang.com"
+  echo
+  echo "3. Verify all applications are synced:"
+  echo "   $KUBECTL get applications -n argocd"
+  echo
+  echo "4. Check infrastructure components:"
+  echo "   $KUBECTL get pods --all-namespaces"
+fi
 echo
 echo "========================================="
