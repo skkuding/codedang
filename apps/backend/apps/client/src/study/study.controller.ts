@@ -7,7 +7,8 @@ import {
   Param,
   Delete,
   Req,
-  Query
+  Query,
+  Patch
 } from '@nestjs/common'
 import {
   AuthenticatedRequest,
@@ -15,7 +16,7 @@ import {
   UseGroupLeaderGuard
 } from '@libs/auth'
 import { GroupIDPipe } from '@libs/pipe'
-import { CreateStudyDto } from './dto/study.dto'
+import { CreateStudyDto, type UpdateStudyDto } from './dto/study.dto'
 import { StudyService } from './study.service'
 
 @Controller('study')
@@ -36,6 +37,15 @@ export class StudyController {
   @UserNullWhenAuthFailedIfPublic()
   async getStudyGroups(@Req() req: AuthenticatedRequest) {
     return await this.studyService.getStudyGroups(req.user?.id)
+  }
+
+  @Patch(':groupId')
+  @UseGroupLeaderGuard()
+  async updateStudyGroup(
+    @Param('groupId', GroupIDPipe) groupId: number,
+    @Body() updateStudyDto: UpdateStudyDto
+  ) {
+    return await this.studyService.updateStudyGroup(groupId, updateStudyDto)
   }
 
   @Delete(':groupId')
