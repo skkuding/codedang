@@ -43,14 +43,14 @@ done
 
 ```bash
 kubectl --context "${CLUSTER}" rollout restart deployment \
-  sealed-secrets-controller -n kube-system
+  sealed-secrets -n kube-system
 ```
 
 ### 5. Verify decryption works
 
 ```bash
 kubeseal --fetch-cert \
-  --controller-name=sealed-secrets-controller \
+  --controller-name=sealed-secrets \
   --controller-namespace=kube-system
 ```
 

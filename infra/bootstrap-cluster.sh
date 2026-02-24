@@ -150,14 +150,14 @@ echo -e "${GREEN}✓ Encryption keys restored${NC}"
 
 # Restart sealed-secrets controller to load new keys
 echo "Restarting sealed-secrets controller..."
-$KUBECTL rollout restart deployment sealed-secrets-controller -n kube-system
-$KUBECTL rollout status deployment sealed-secrets-controller -n kube-system --timeout=2m
+$KUBECTL rollout restart deployment sealed-secrets -n kube-system
+$KUBECTL rollout status deployment sealed-secrets -n kube-system --timeout=2m
 echo -e "${GREEN}✓ Sealed-secrets controller restarted${NC}"
 
 # Verify sealed-secrets is working
 echo "Verifying sealed-secrets functionality..."
 kubeseal --fetch-cert \
-  --controller-name=sealed-secrets-controller \
+  --controller-name=sealed-secrets \
   --controller-namespace=kube-system \
   $([ -n "${CLUSTER_CONTEXT}" ] && echo "--kubeconfig ${HOME}/.kube/config --context ${CLUSTER_CONTEXT}") \
   >/dev/null 2>&1 || { echo -e "${RED}✗ Failed to fetch certificate${NC}"; exit 1; }
@@ -201,9 +201,8 @@ else
     echo -e "${YELLOW}⚠ ArgoCD server is still syncing, continuing...${NC}"
   }
 
-  # Wait for ArgoCD application controller
-  $KUBECTL wait --for=condition=available --timeout=10m \
-    deployment/argocd-application-controller -n argocd 2>/dev/null || {
+  # Wait for ArgoCD application controller (StatefulSet)
+  $KUBECTL rollout status statefulset/argocd-application-controller -n argocd --timeout=10m 2>/dev/null || {
     echo -e "${YELLOW}⚠ ArgoCD application controller is still syncing, continuing...${NC}"
   }
 
