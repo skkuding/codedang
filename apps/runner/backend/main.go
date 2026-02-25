@@ -289,7 +289,7 @@ func runInteractive(ctx *ConnectionContext, commandArgs []string) error {
 	}
 
 	args := isolateCommonArgs()
-	args = append(args, "--run", "--")
+	args = append(args, "--silent", "--run", "--")
 	args = append(args, commandArgs...)
 
 	cmd := exec.Command(isolateBinary, args...)

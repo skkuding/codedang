@@ -16,6 +16,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -119,6 +120,7 @@ func NewPodManager(clientset *kubernetes.Clientset) (*PodManager, error) {
 		provisioningCounts: make(map[string]int),
 	}
 
+	pm.initManagerIdentity()
 	return pm, nil
 }
 
@@ -196,6 +198,7 @@ func loadRunnerNodePools(defaultPoolSize int) (string, []RunnerNodePool, error) 
 }
 
 func (pm *PodManager) startWarmPool() {
+	pm.reconcileManagedRunnerPods()
 	pm.ensurePool()
 
 	ticker := time.NewTicker(5 * time.Second)
@@ -204,6 +207,97 @@ func (pm *PodManager) startWarmPool() {
 			pm.ensurePool()
 		}
 	}()
+}
+
+func (pm *PodManager) initManagerIdentity() {
+	if pm.managerPodName == "" {
+		pm.logger.Printf("HOSTNAME is empty, owner references are disabled")
+		return
+	}
+
+	pod, err := pm.clientset.CoreV1().Pods(pm.namespace).Get(
+		context.Background(),
+		pm.managerPodName,
+		metav1.GetOptions{},
+	)
+	if err != nil {
+		pm.logger.Printf("Failed to load manager pod identity (%s): %v", pm.managerPodName, err)
+		return
+	}
+
+	pm.managerPodUID = string(pod.UID)
+}
+
+func (pm *PodManager) reconcileManagedRunnerPods() {
+	activeManagerUIDs := make(map[string]struct{})
+
+	managerPods, err := pm.clientset.CoreV1().Pods(pm.namespace).List(
+		context.Background(),
+		metav1.ListOptions{LabelSelector: "app=pod-manager"},
+	)
+	if err != nil {
+		pm.logger.Printf("Failed to list pod-manager pods for reconcile: %v", err)
+		return
+	}
+
+	for _, pod := range managerPods.Items {
+		if pod.DeletionTimestamp != nil {
+			continue
+		}
+		activeManagerUIDs[string(pod.UID)] = struct{}{}
+	}
+
+	runnerPods, err := pm.clientset.CoreV1().Pods(pm.namespace).List(
+		context.Background(),
+		metav1.ListOptions{LabelSelector: "managed-by=runner-pod-manager"},
+	)
+	if err != nil {
+		pm.logger.Printf("Failed to list managed runner pods for reconcile: %v", err)
+		return
+	}
+
+	for _, pod := range runnerPods.Items {
+		if pod.DeletionTimestamp != nil {
+			continue
+		}
+
+		ownerUID := runnerOwnerPodUID(&pod)
+		_, ownerAlive := activeManagerUIDs[ownerUID]
+
+		shouldDelete := false
+		reason := ""
+
+		switch {
+		case ownerUID == "":
+			shouldDelete = true
+			reason = "legacy runner without ownerReference"
+		case pm.managerPodUID != "" && ownerUID == pm.managerPodUID:
+			shouldDelete = true
+			reason = "runner owned by current pod-manager from previous process state"
+		case !ownerAlive:
+			shouldDelete = true
+			reason = "runner owned by deleted pod-manager"
+		}
+
+		if !shouldDelete {
+			continue
+		}
+
+		if err := pm.deleteRunnerPod(pod.Name); err != nil {
+			pm.logger.Printf("Failed to delete reconciled runner pod %s: %v", pod.Name, err)
+			continue
+		}
+		pm.logger.Printf("Reconciled runner pod %s (%s)", pod.Name, reason)
+	}
+}
+
+func runnerOwnerPodUID(pod *corev1.Pod) string {
+	for _, ref := range pod.OwnerReferences {
+		if ref.APIVersion == "v1" && ref.Kind == "Pod" {
+			return string(ref.UID)
+		}
+	}
+	return ""
 }
 
 func (pm *PodManager) ensurePool() {
@@ -421,6 +515,21 @@ func (pm *PodManager) createRunnerPod(nodeValue string) (*RunnerPod, error) {
 			pm.nodeSelectorKey: nodeValue,
 		}
 		pod.ObjectMeta.Labels["runner-node-pool"] = nodeValue
+	}
+
+	if pm.managerPodUID != "" && pm.managerPodName != "" {
+		controller := true
+		blockOwnerDeletion := false
+		pod.ObjectMeta.OwnerReferences = []metav1.OwnerReference{
+			{
+				APIVersion:         "v1",
+				Kind:               "Pod",
+				Name:               pm.managerPodName,
+				UID:                types.UID(pm.managerPodUID),
+				Controller:         &controller,
+				BlockOwnerDeletion: &blockOwnerDeletion,
+			},
+		}
 	}
 
 	created, err := pm.clientset.CoreV1().Pods(pm.namespace).Create(
