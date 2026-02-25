@@ -95,14 +95,16 @@ type JudgeHandler[C any, E any] struct {
 }
 
 func normalizeCompileError(err error, dir string, lang sandbox.Language) string {
-	if lang != sandbox.C && lang != sandbox.CPP {
+	switch lang {
+	case sandbox.C, sandbox.CPP:
+		lines := strings.Split(strings.TrimRight(err.Error(), "\n"), "\n")
+		for i, line := range lines {
+			lines[i] = strings.ReplaceAll(line, fmt.Sprintf("/app/sandbox/results/%s/", dir), "")
+		}
+		return strings.Join(lines, "\n")
+	default:
 		return err.Error()
 	}
-	lines := strings.Split(strings.TrimRight(err.Error(), "\n"), "\n")
-	for i, line := range lines {
-		lines[i] = strings.ReplaceAll(line, fmt.Sprintf("/app/sandbox/results/%s/", dir), "")
-	}
-	return strings.Join(lines, "\n")
 }
 
 func NewJudgeHandler[C any, E any](
