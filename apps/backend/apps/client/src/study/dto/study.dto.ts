@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/graphql'
+import { PartialType } from '@nestjs/swagger'
 import {
   IsArray,
   IsInt,
