@@ -3,3 +3,7 @@ kind: ConfigMap
 metadata:
   name: pod-manager-env
   namespace: runner
+data:
+  RUNNER_POOL_SIZE: '10'
+  RUNNER_LEASE_TIMEOUT_SEC: '3'
+  RUNNER_READY_TIMEOUT_SEC: '90'

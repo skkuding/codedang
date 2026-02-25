@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -28,27 +29,40 @@ const (
 type RunnerPod struct {
 	Name       string
 	IP         string
+	NodePoolID string
 	CreatedAt  time.Time
 	LastUsedAt time.Time
 }
 
+type RunnerNodePool struct {
+	NodePoolID string
+	MaxPods    int
+}
+
 type PodManager struct {
-	clientset      *kubernetes.Clientset
-	logger         *log.Logger
-	namespace      string
-	imageTag       string
-	targetPoolSize int
-	leaseTimeout   time.Duration
-	readyTimeout   time.Duration
+	clientset       *kubernetes.Clientset
+	logger          *log.Logger
+	namespace       string
+	imageTag        string
+	targetPoolSize  int
+	leaseTimeout    time.Duration
+	readyTimeout    time.Duration
+	nodeSelectorKey string
+	nodePools       []RunnerNodePool
+	nextNodePoolIdx int
 
 	idlePods chan *RunnerPod
 
-	mu           sync.Mutex
-	busyPods     map[string]*RunnerPod
-	provisioning int
+	mu                 sync.Mutex
+	busyPods           map[string]*RunnerPod
+	provisioning       int
+	idleCounts         map[string]int
+	busyCounts         map[string]int
+	provisioningCounts map[string]int
 }
 
 func NewPodManager(clientset *kubernetes.Clientset) (*PodManager, error) {
+	logger := log.New(os.Stdout, "[Pod Manager] ", log.LstdFlags)
 	imageTag := os.Getenv(RunnerImageTag)
 	if imageTag == "" {
 		return nil, fmt.Errorf("environment variable %s is not set", RunnerImageTag)
@@ -69,16 +83,40 @@ func NewPodManager(clientset *kubernetes.Clientset) (*PodManager, error) {
 		readyTimeoutSec = 10
 	}
 
+	nodeSelectorKey, nodePools, err := loadRunnerNodePools(poolSize)
+	if err != nil {
+		return nil, err
+	}
+	if len(nodePools) > 0 {
+		totalCap := 0
+		for _, pool := range nodePools {
+			totalCap += pool.MaxPods
+		}
+		if poolSize > totalCap {
+			logger.Printf(
+				"RUNNER_POOL_SIZE=%d exceeds RUNNER_NODE_POD_COUNTS total=%d, clamping pool size",
+				poolSize,
+				totalCap,
+			)
+			poolSize = totalCap
+		}
+	}
+
 	pm := &PodManager{
-		clientset:      clientset,
-		logger:         log.New(os.Stdout, "[Pod Manager] ", log.LstdFlags),
-		namespace:      RunnerNamespace,
-		imageTag:       imageTag,
-		targetPoolSize: poolSize,
-		leaseTimeout:   time.Duration(leaseTimeoutSec) * time.Second,
-		readyTimeout:   time.Duration(readyTimeoutSec) * time.Second,
-		idlePods:       make(chan *RunnerPod, poolSize),
-		busyPods:       make(map[string]*RunnerPod),
+		clientset:          clientset,
+		logger:             logger,
+		namespace:          RunnerNamespace,
+		imageTag:           imageTag,
+		targetPoolSize:     poolSize,
+		leaseTimeout:       time.Duration(leaseTimeoutSec) * time.Second,
+		readyTimeout:       time.Duration(readyTimeoutSec) * time.Second,
+		nodeSelectorKey:    nodeSelectorKey,
+		nodePools:          nodePools,
+		idlePods:           make(chan *RunnerPod, poolSize),
+		busyPods:           make(map[string]*RunnerPod),
+		idleCounts:         make(map[string]int),
+		busyCounts:         make(map[string]int),
+		provisioningCounts: make(map[string]int),
 	}
 
 	return pm, nil
@@ -98,6 +136,65 @@ func envInt(key string, fallback int) int {
 	return parsed
 }
 
+func loadRunnerNodePools(defaultPoolSize int) (string, []RunnerNodePool, error) {
+	selectorKey := strings.TrimSpace(os.Getenv("RUNNER_NODE_SELECTOR_KEY"))
+	if selectorKey == "" {
+		return "", nil, nil
+	}
+
+	rawPodCounts := strings.TrimSpace(os.Getenv("RUNNER_NODE_POD_COUNTS"))
+	if rawPodCounts != "" {
+		pools := make([]RunnerNodePool, 0)
+		for _, item := range strings.Split(rawPodCounts, ",") {
+			item = strings.TrimSpace(item)
+			if item == "" {
+				continue
+			}
+
+			parts := strings.SplitN(item, "=", 2)
+			if len(parts) != 2 {
+				return "", nil, fmt.Errorf(
+					"invalid RUNNER_NODE_POD_COUNTS entry %q (expected nodePoolID=maxPods)",
+					item,
+				)
+			}
+
+			value := strings.TrimSpace(parts[0])
+			if value == "" {
+				return "", nil, fmt.Errorf("invalid RUNNER_NODE_POD_COUNTS entry %q: empty nodePoolID", item)
+			}
+
+			maxPods, err := strconv.Atoi(strings.TrimSpace(parts[1]))
+			if err != nil || maxPods < 1 {
+				return "", nil, fmt.Errorf("invalid RUNNER_NODE_POD_COUNTS entry %q: maxPods must be >= 1", item)
+			}
+
+			pools = append(pools, RunnerNodePool{
+				NodePoolID: value,
+				MaxPods:    maxPods,
+			})
+		}
+
+		if len(pools) == 0 {
+			return "", nil, fmt.Errorf("RUNNER_NODE_POD_COUNTS is set but no valid node pools were parsed")
+		}
+
+		return selectorKey, pools, nil
+	}
+
+	singleValue := strings.TrimSpace(os.Getenv("RUNNER_NODE_SELECTOR_VALUE"))
+	if singleValue == "" {
+		return "", nil, fmt.Errorf(
+			"RUNNER_NODE_SELECTOR_KEY is set but neither RUNNER_NODE_POD_COUNTS nor RUNNER_NODE_SELECTOR_VALUE is set",
+		)
+	}
+
+	return selectorKey, []RunnerNodePool{{
+		NodePoolID: singleValue,
+		MaxPods:    defaultPoolSize,
+	}}, nil
+}
+
 func (pm *PodManager) startWarmPool() {
 	pm.ensurePool()
 
@@ -114,25 +211,115 @@ func (pm *PodManager) ensurePool() {
 	currentTotal := len(pm.idlePods) + len(pm.busyPods) + pm.provisioning
 	missing := pm.targetPoolSize - currentTotal
 	if missing <= 0 {
+		excessIdlePods := []*RunnerPod(nil)
+		if missing < 0 {
+			excessIdlePods = pm.takeExcessIdlePodsLocked(-missing)
+		}
 		pm.mu.Unlock()
+
+		for _, pod := range excessIdlePods {
+			pm.logger.Printf("Shrinking excess idle pod: %s (nodePool=%s)", pod.Name, pod.NodePoolID)
+			if err := pm.deleteRunnerPod(pod.Name); err != nil {
+				pm.logger.Printf("Failed to delete excess idle pod %s: %v", pod.Name, err)
+			}
+		}
 		return
 	}
-	pm.provisioning += missing
+	nodeSelections := make([]string, 0, missing)
+	for i := 0; i < missing; i++ {
+		nodeValue, ok := pm.reserveProvisioningSlotLocked()
+		if !ok {
+			break
+		}
+		nodeSelections = append(nodeSelections, nodeValue)
+	}
 	pm.mu.Unlock()
 
-	for i := 0; i < missing; i++ {
-		go pm.provisionOnePod()
+	if len(nodeSelections) == 0 {
+		if len(pm.nodePools) > 0 {
+			pm.logger.Printf("No node pool has free capacity (target=%d current=%d)", pm.targetPoolSize, currentTotal)
+		}
+		return
+	}
+
+	for _, nodeValue := range nodeSelections {
+		go pm.provisionOnePod(nodeValue)
 	}
 }
 
-func (pm *PodManager) provisionOnePod() {
+func (pm *PodManager) takeExcessIdlePodsLocked(excess int) []*RunnerPod {
+	if excess <= 0 {
+		return nil
+	}
+
+	removable := excess
+	if removable > len(pm.idlePods) {
+		removable = len(pm.idlePods)
+	}
+
+	pods := make([]*RunnerPod, 0, removable)
+	for i := 0; i < removable; i++ {
+		select {
+		case pod := <-pm.idlePods:
+			if pod.NodePoolID != "" {
+				pm.idleCounts[pod.NodePoolID]--
+				if pm.idleCounts[pod.NodePoolID] <= 0 {
+					delete(pm.idleCounts, pod.NodePoolID)
+				}
+			}
+			pods = append(pods, pod)
+		default:
+			return pods
+		}
+	}
+
+	return pods
+}
+
+func (pm *PodManager) reserveProvisioningSlotLocked() (string, bool) {
+	if len(pm.nodePools) == 0 {
+		pm.provisioning++
+		return "", true
+	}
+
+	for i := 0; i < len(pm.nodePools); i++ {
+		idx := (pm.nextNodePoolIdx + i) % len(pm.nodePools)
+		pool := pm.nodePools[idx]
+		current := pm.idleCounts[pool.NodePoolID] +
+			pm.busyCounts[pool.NodePoolID] +
+			pm.provisioningCounts[pool.NodePoolID]
+		if current >= pool.MaxPods {
+			continue
+		}
+
+		pm.nextNodePoolIdx = (idx + 1) % len(pm.nodePools)
+		pm.provisioning++
+		pm.provisioningCounts[pool.NodePoolID]++
+		return pool.NodePoolID, true
+	}
+
+	return "", false
+}
+
+func (pm *PodManager) releaseProvisioningSlot(nodeValue string) {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	pm.provisioning--
+	if nodeValue != "" {
+		pm.provisioningCounts[nodeValue]--
+		if pm.provisioningCounts[nodeValue] <= 0 {
+			delete(pm.provisioningCounts, nodeValue)
+		}
+	}
+}
+
+func (pm *PodManager) provisionOnePod(nodeValue string) {
 	defer func() {
-		pm.mu.Lock()
-		pm.provisioning--
-		pm.mu.Unlock()
+		pm.releaseProvisioningSlot(nodeValue)
 	}()
 
-	pod, err := pm.createAndWaitRunnerPod()
+	pod, err := pm.createAndWaitRunnerPod(nodeValue)
 	if err != nil {
 		pm.logger.Printf("Failed to provision warm pod: %v", err)
 		return
@@ -140,6 +327,11 @@ func (pm *PodManager) provisionOnePod() {
 
 	select {
 	case pm.idlePods <- pod:
+		pm.mu.Lock()
+		if pod.NodePoolID != "" {
+			pm.idleCounts[pod.NodePoolID]++
+		}
+		pm.mu.Unlock()
 		pm.logger.Printf("Warm pod ready: %s (%s)", pod.Name, pod.IP)
 	default:
 		pm.logger.Printf("Idle pool is full, deleting extra pod: %s", pod.Name)
@@ -147,8 +339,8 @@ func (pm *PodManager) provisionOnePod() {
 	}
 }
 
-func (pm *PodManager) createAndWaitRunnerPod() (*RunnerPod, error) {
-	pod, err := pm.createRunnerPod()
+func (pm *PodManager) createAndWaitRunnerPod(nodeValue string) (*RunnerPod, error) {
+	pod, err := pm.createRunnerPod(nodeValue)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +356,7 @@ func (pm *PodManager) createAndWaitRunnerPod() (*RunnerPod, error) {
 	return pod, nil
 }
 
-func (pm *PodManager) createRunnerPod() (*RunnerPod, error) {
+func (pm *PodManager) createRunnerPod(nodeValue string) (*RunnerPod, error) {
 	privileged := true
 
 	pod := &corev1.Pod{
@@ -224,6 +416,12 @@ func (pm *PodManager) createRunnerPod() (*RunnerPod, error) {
 			RestartPolicy: corev1.RestartPolicyNever,
 		},
 	}
+	if pm.nodeSelectorKey != "" && nodeValue != "" {
+		pod.Spec.NodeSelector = map[string]string{
+			pm.nodeSelectorKey: nodeValue,
+		}
+		pod.ObjectMeta.Labels["runner-node-pool"] = nodeValue
+	}
 
 	created, err := pm.clientset.CoreV1().Pods(pm.namespace).Create(
 		context.Background(),
@@ -236,8 +434,9 @@ func (pm *PodManager) createRunnerPod() (*RunnerPod, error) {
 
 	pm.logger.Printf("Created runner pod: %s", created.Name)
 	return &RunnerPod{
-		Name:      created.Name,
-		CreatedAt: time.Now(),
+		Name:       created.Name,
+		NodePoolID: nodeValue,
+		CreatedAt:  time.Now(),
 	}, nil
 }
 
@@ -311,6 +510,13 @@ func (pm *PodManager) leasePod() (*RunnerPod, error) {
 	select {
 	case pod := <-pm.idlePods:
 		pm.mu.Lock()
+		if pod.NodePoolID != "" {
+			pm.idleCounts[pod.NodePoolID]--
+			if pm.idleCounts[pod.NodePoolID] <= 0 {
+				delete(pm.idleCounts, pod.NodePoolID)
+			}
+			pm.busyCounts[pod.NodePoolID]++
+		}
 		pm.busyPods[pod.Name] = pod
 		pm.mu.Unlock()
 		return pod, nil
@@ -322,12 +528,23 @@ func (pm *PodManager) leasePod() (*RunnerPod, error) {
 func (pm *PodManager) releasePod(pod *RunnerPod, forceReplace bool) {
 	pm.mu.Lock()
 	delete(pm.busyPods, pod.Name)
+	if pod.NodePoolID != "" {
+		pm.busyCounts[pod.NodePoolID]--
+		if pm.busyCounts[pod.NodePoolID] <= 0 {
+			delete(pm.busyCounts, pod.NodePoolID)
+		}
+	}
 	pm.mu.Unlock()
 
 	if !forceReplace && pm.isPodReusable(pod.Name) {
 		pod.LastUsedAt = time.Now()
 		select {
 		case pm.idlePods <- pod:
+			pm.mu.Lock()
+			if pod.NodePoolID != "" {
+				pm.idleCounts[pod.NodePoolID]++
+			}
+			pm.mu.Unlock()
 			return
 		default:
 			pm.logger.Printf("Idle pool channel is full, replacing pod: %s", pod.Name)
@@ -494,10 +711,25 @@ func (pm *PodManager) handleHealth(w http.ResponseWriter, _ *http.Request) {
 	idle := len(pm.idlePods)
 	busy := len(pm.busyPods)
 	provisioning := pm.provisioning
+	nodeStats := ""
+	if len(pm.nodePools) > 0 {
+		parts := make([]string, 0, len(pm.nodePools))
+		for _, pool := range pm.nodePools {
+			parts = append(parts, fmt.Sprintf(
+				"%s:%d/%d/%d(cap=%d)",
+				pool.NodePoolID,
+				pm.idleCounts[pool.NodePoolID],
+				pm.busyCounts[pool.NodePoolID],
+				pm.provisioningCounts[pool.NodePoolID],
+				pool.MaxPods,
+			))
+		}
+		nodeStats = " nodes=" + strings.Join(parts, ",")
+	}
 	pm.mu.Unlock()
 
 	w.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprintf(w, "ok idle=%d busy=%d provisioning=%d", idle, busy, provisioning)
+	_, _ = fmt.Fprintf(w, "ok idle=%d busy=%d provisioning=%d%s", idle, busy, provisioning, nodeStats)
 }
 
 func main() {
