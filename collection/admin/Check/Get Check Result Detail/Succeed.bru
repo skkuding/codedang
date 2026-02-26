@@ -18,8 +18,21 @@ body:graphql {
       resultId: $resultId
     ) {
       requestId
-      firstCheckSubmissionId
-      secondCheckSubmissionId
+      firstCheckSubmission
+      {
+        id
+        user {
+          username
+          studentId
+        }
+      }
+      secondCheckSubmission {
+        id
+        user {
+          username
+          studentId
+        }
+      }
       averageSimilarity
       maxSimilarity
       maxLength
@@ -53,7 +66,7 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "resultId": 54
+    "resultId": 45
   }
 }
 
