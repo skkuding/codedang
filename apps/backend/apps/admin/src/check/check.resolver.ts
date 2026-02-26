@@ -1,6 +1,6 @@
 import { Args, Context, Int, Mutation, Resolver, Query } from '@nestjs/graphql'
-import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
-import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { CheckRequest } from '@admin/@generated'
 import { CheckService } from './check.service'
 import {
@@ -11,7 +11,7 @@ import {
 import { CreatePlagiarismCheckInput } from './model/create-check.input'
 
 @Resolver(() => CheckRequest)
-@UseDisableAdminGuard()
+@UseGroupLeaderGuard()
 export class CheckResolver {
   constructor(private readonly checkService: CheckService) {}
 
@@ -27,6 +27,7 @@ export class CheckResolver {
    * - useJplagClustering(옵션, 기본: true)
    * @param {number} problemId 검사를 수행할 문제 아이디
    * @param {number} assignmentId 검사를 수행할 과제 아이디
+   * @param {number} groupId 검사를 수행할 과제의 그룹
    * @returns {CheckRequest} 생성된 검사 요청 기록을 반환합니다.
    * - 요청 기록에 포함된 checkId로 검사 결과를 조회할 수 있습니다.
    */
@@ -38,14 +39,16 @@ export class CheckResolver {
       type: () => CreatePlagiarismCheckInput
     })
     checkInput: CreatePlagiarismCheckInput,
+    @Args('problemId', { type: () => Int }) problemId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
-    @Args('problemId', { type: () => Int }) problemId: number
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ): Promise<CheckRequest> {
     return await this.checkService.checkAssignmentProblem({
       user: req.user,
       checkInput,
       assignmentId,
-      problemId
+      problemId,
+      groupId
     })
   }
 
@@ -54,16 +57,19 @@ export class CheckResolver {
    *
    * @param {number} problemId 문제 아이디
    * @param {number} assignmentId 과제 아이디
+   * @param {number} groupId assignment의 그룹
    * @returns {CheckRequest[]} 제공된 문제/과제에 맞는 표절 검사 요청 목록
    */
   @Query(() => [CheckRequest])
   async getCheckRequests(
     @Args('problemId', { type: () => Int }) problemId: number,
-    @Args('assignmentId', { type: () => Int }) assignmentId: number
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
     return await this.checkService.getCheckRequests({
       problemId,
-      assignmentId
+      assignmentId,
+      groupId
     })
   }
 
@@ -71,6 +77,7 @@ export class CheckResolver {
    * 완료된 표절 검사 요청의 결과를 조회합니다.
    *
    * @param {number} checkId 표절 검사 요청의 아이디
+   * @param {number} groupId 검사를 수행한 과제의 그룹
    * @param {number} take 한 번에 조회할 검사 결과의 수
    * @param {number} cursor 페이지 커서
    * @returns {GetCheckResultSummaryOutput[]} 각 제출물 쌍의 비교 결과를 take 수 만큼 반환합니다.
@@ -78,6 +85,7 @@ export class CheckResolver {
   @Query(() => [GetCheckResultSummaryOutput])
   async overviewCheckByRequestId(
     @Args('checkId', { type: () => Int }) checkId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args(
       'take',
       { type: () => Int, defaultValue: 50 },
@@ -89,6 +97,7 @@ export class CheckResolver {
   ): Promise<GetCheckResultSummaryOutput[]> {
     return await this.checkService.getCheckResultsById({
       checkId,
+      groupId,
       take,
       cursor
     })
@@ -99,6 +108,7 @@ export class CheckResolver {
    *
    * @param {number} problemId 검사를 수행할 문제 아이디
    * @param {number} assignmentId 검사를 수행할 과제 아이디
+   * @param {number} groupId 검사를 수행할 과제의 그룹
    * @param {number} take 한 번에 조회할 검사 결과의 수
    * @param {number} cursor 페이지 커서
    * @returns {GetCheckResultSummaryOutput[]} 각 제출물 쌍의 비교 결과를 take 수 만큼 반환합니다.
@@ -107,6 +117,7 @@ export class CheckResolver {
   async overviewCheckByAssignmentProblemId(
     @Args('problemId', { type: () => Int }) problemId: number,
     @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args(
       'take',
       { type: () => Int, defaultValue: 50 },
@@ -119,6 +130,7 @@ export class CheckResolver {
     return await this.checkService.getCheckResultsByAssignmentProblemId({
       problemId,
       assignmentId,
+      groupId,
       take,
       cursor
     })
@@ -127,14 +139,17 @@ export class CheckResolver {
   /**
    * 표절이 강하게 의심되는 제출물 그룹을 조회합니다.
    *
+   * @param {number} groupId  클러스터의 그룹 아이디
    * @param {number} clusterId 조회하려는 클러스터의 아이디
    * @returns {GetClusterOutput} 클러스터 정보
    */
   @Query(() => GetClusterOutput)
   async getCluster(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('clusterId', { type: () => Int }) clusterId: number
   ): Promise<GetClusterOutput> {
     return await this.checkService.getCluster({
+      groupId,
       clusterId
     })
   }
@@ -143,14 +158,17 @@ export class CheckResolver {
    * 1개의 표절 검사 기록을 조회합니다
    * 코드에서 표절이 의심되는 라인, 컬럼 넘버를 함께 제공합니다.
    *
+   * @param {number} groupId 제출물의 그룹 아이디
    * @param {number} resultId 제출물 쌍의 표절 검사 기록 아이디
    * @returns {GetCheckResultDetailOutput} 자세한 표절 검사 결과
    */
   @Query(() => GetCheckResultDetailOutput)
   async getCheckResultDetails(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('resultId', { type: () => Int }) resultId: number
   ): Promise<GetCheckResultDetailOutput> {
     return await this.checkService.getDetails({
+      groupId,
       resultId
     })
   }
