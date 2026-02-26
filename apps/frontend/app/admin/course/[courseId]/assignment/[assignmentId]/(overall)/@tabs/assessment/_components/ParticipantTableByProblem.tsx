@@ -3,47 +3,46 @@
 import {
   DataTable,
   DataTableFallback,
-  DataTablePagination,
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import {
   GET_ASSIGNMENT,
-  GET_ASSIGNMENT_SCORE_SUMMARIES,
-  GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS
+  GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS,
+  GET_ASSIGNMENT_SCORE_SUMMARIES
 } from '@/graphql/assignment/queries'
-import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
-import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
+import {
+  GET_ASSIGNMENT_PROBLEMS,
+  GET_PROBLEM_TESTCASE_WITHOUT_IO
+} from '@/graphql/problem/queries'
 import { REJUDGE_ASSIGNMENT_PROBLEM } from '@/graphql/submission/mutations'
-import { useQuery, useSuspenseQuery, useMutation } from '@apollo/client'
+import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import { RejudgeMode } from '@generated/graphql'
 import dayjs from 'dayjs'
-import { useState, useEffect, useMemo } from 'react'
+import { useParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { toast } from 'sonner'
 import { createColumns } from './ColumnsByProblem'
 import { ProblemSelectDropdown } from './DataTableProblemFilterSingle'
 
-interface ParticipantTableProps {
-  courseId: number
-  assignmentId: number
-}
-
-export function ParticipantTableByProblem({
-  courseId,
-  assignmentId
-}: ParticipantTableProps) {
+export function ParticipantTableByProblem() {
+  const { courseId, assignmentId } = useParams()
   const [rejudge] = useMutation(REJUDGE_ASSIGNMENT_PROBLEM)
   const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
-      groupId: courseId,
-      assignmentId
+      groupId: Number(courseId),
+      assignmentId: Number(assignmentId)
     }
   }).data?.getAssignment
 
   const summaries = useSuspenseQuery(GET_ASSIGNMENT_SCORE_SUMMARIES, {
-    variables: { groupId: courseId, assignmentId, take: 300 }
+    variables: {
+      groupId: Number(courseId),
+      assignmentId: Number(assignmentId),
+      take: 300
+    }
   })
   const { refetch: refetchSummaries } = summaries
   const summariesData = summaries.data.getAssignmentScoreSummaries.map(
@@ -54,7 +53,7 @@ export function ParticipantTableByProblem({
   )
 
   const problems = useSuspenseQuery(GET_ASSIGNMENT_PROBLEMS, {
-    variables: { groupId: courseId, assignmentId }
+    variables: { groupId: Number(courseId), assignmentId: Number(assignmentId) }
   })
 
   const problemData = problems.data.getAssignmentProblems
@@ -74,9 +73,9 @@ export function ParticipantTableByProblem({
     try {
       await rejudge({
         variables: {
-          groupId: courseId,
+          groupId: Number(courseId),
           input: {
-            assignmentId,
+            assignmentId: Number(assignmentId),
             problemId: selectedPid,
             mode: RejudgeMode.CreateNew
           }
@@ -98,7 +97,11 @@ export function ParticipantTableByProblem({
 
   const selectedPid = selectedProblemId ?? problemData?.[0]?.problemId
   const tcResults = useSuspenseQuery(GET_ASSIGNMENT_PROBLEM_TESTCASE_RESULTS, {
-    variables: { groupId: courseId, assignmentId, problemId: selectedPid },
+    variables: {
+      groupId: Number(courseId),
+      assignmentId: Number(assignmentId),
+      problemId: selectedPid
+    },
     fetchPolicy: 'no-cache',
     returnPartialData: false,
     errorPolicy: 'all'
@@ -109,9 +112,12 @@ export function ParticipantTableByProblem({
     () => tcResults.data?.getAssignmentProblemTestcaseResults ?? [],
     [tcResults.data]
   )
-  const problemTestcaseData = useSuspenseQuery(GET_PROBLEM_TESTCASE, {
-    variables: { id: selectedPid }
-  })
+  const problemTestcaseData = useSuspenseQuery(
+    GET_PROBLEM_TESTCASE_WITHOUT_IO,
+    {
+      variables: { id: selectedPid }
+    }
+  )
   const totalTestcases =
     problemTestcaseData.data?.getProblem?.testcase?.length ?? 0
 
@@ -213,9 +219,8 @@ export function ParticipantTableByProblem({
         columns={createColumns(
           problemData,
           selectedPid,
-          courseId,
-          assignmentId,
-          courseId,
+          String(courseId),
+          String(assignmentId),
           isAssignmentFinished
         )}
         enablePagination={false}
@@ -241,7 +246,7 @@ export function ParticipantTableByProblem({
           columndId="studentId"
           placeholder="Search Student Id"
         />
-        <DataTable />
+        <DataTable headerStyle={{ testcases: 'w-1 min-w-[75px]' }} />
       </DataTableRoot>
     </div>
   )
@@ -251,7 +256,7 @@ export function ParticipantTableFallback() {
   return (
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
-      <DataTableFallback columns={createColumns([], null, 0, 0, 0, true)} />
+      <DataTableFallback columns={createColumns([], null, '0', '0', true)} />
     </div>
   )
 }

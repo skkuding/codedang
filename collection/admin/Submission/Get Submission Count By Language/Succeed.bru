@@ -1,0 +1,106 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  query GetSubmissionCountByLanguage(
+    $assignmentId: Int!,
+    $problemId: Int!,
+    $groupId: Int!
+  ) {
+    getLatestSubmissionCountByLanguage(
+      assignmentId: $assignmentId,
+      problemId: $problemId,
+      groupId: $groupId
+    ) {
+  		language
+      count
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "assignmentId": 6,
+    "problemId": 4,
+    "groupId": 1
+  }
+}
+
+docs {
+  # 📘 Get Latest Submission Count By Language
+
+  **POST** `/graphql (query: getLatestSubmissionCountByLanguage)`
+
+  특정 과제 및 문제에 대해 각 학생의 **최신 제출물**을 기준으로 프로그래밍 언어별 제출 현황을 집계합니다.
+  특정 언어에 대한 최신 제출물이 없을 경우 0으로 반환합니다.
+
+  ---
+
+  ### 🔒 Authentication & Authorization
+
+  ✅ **Required**: Admin, SuperAdmin 또는 해당 그룹의 **Group Leader** 권한이 필요합니다.
+  * `groupId` 인자는 가드(Guard)에서 요청자의 권한을 검증하는 데 사용됩니다.
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `assignmentId` | Int | ✅ | 조회의 대상이 되는 과제의 ID |
+  | `problemId` | Int | ✅ | 조회의 대상이 되는 문제의 ID |
+  | `groupId` | Int | ✅ | 권한 검증(Guard)을 위한 그룹 ID |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    {
+      "data": {
+        "getLatestSubmissionCountByLanguage": [
+          {
+            "language": "C",
+            "count": 0
+          },
+          {
+            "language": "Cpp",
+            "count": 0
+          },
+          {
+            "language": "Java",
+            "count": 10
+          },
+          {
+            "language": "Python2",
+            "count": 0
+          },
+          {
+            "language": "Python3",
+            "count": 0
+          },
+          {
+            "language": "PyPy3",
+            "count": 0
+          },
+          {
+            "language": "Golang",
+            "count": 0
+          }
+        ]
+      }
+    }
+  }
+}

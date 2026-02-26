@@ -158,6 +158,7 @@ export interface Contest {
   startTime: Date
   endTime: Date
   registerDueTime: Date
+  createTime: Date
   summary: {
     문제형태?: string
     순위산정?: string
@@ -181,6 +182,7 @@ export interface ContestTop {
   startTime: Date
   endTime: Date
   registerDueTime: Date
+  createTime: Date
   isJudgeResultVisible: boolean
   posterUrl?: string
   summary: {
@@ -191,8 +193,6 @@ export interface ContestTop {
     참여혜택?: string
   }
   enableCopyPaste: boolean
-  status: ContestStatus
-  participants: number
   isRegistered: boolean
   isPrivilegedRole: boolean
   invitationCodeExists: boolean
@@ -226,6 +226,7 @@ export interface ContestPreview {
   startTime: Date
   endTime: Date
   registerDueTime: Date
+  createTime: Date
   summary: {
     문제형태?: string
     순위산정?: string

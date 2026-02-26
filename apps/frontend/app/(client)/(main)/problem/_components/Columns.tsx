@@ -19,8 +19,8 @@ export const columns: ColumnDef<Problem>[] = [
     header: () => <SortButton order="level">Level</SortButton>,
     accessorKey: 'difficulty',
     cell: ({ row }) => (
-      <Badge className="rounded-md" variant={row.original.difficulty}>
-        {row.original.difficulty}
+      <Badge variant={row.original.difficulty}>
+        Level {row.original.difficulty.slice(-1)}
       </Badge>
     )
   },

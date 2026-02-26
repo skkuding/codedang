@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plag
+  namespace: plag
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: plag
+  template:
+    metadata:
+      labels:
+        app: plag
+    spec:
+      containers:
+        - name: plag
+          image: ghcr.io/skkuding/codedang-plag
+          resources:
+            limits:
+              cpu: 1
+              memory: 1.5Gi
+            requests:
+              cpu: 1
+              memory: 1.5Gi
+          securityContext:
+            privileged: true
+          envFrom:
+            - configMapRef:
+                name: plag-env
+            - secretRef:
+                name: aws-credentials
+            - secretRef:
+                name: database-credentials
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: username
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: password

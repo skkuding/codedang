@@ -133,9 +133,10 @@ export function RunTestButton({
     <Tooltip>
       <TooltipTrigger>
         <Button
-          variant="secondary"
+          size="editor"
+          variant="editor"
           className={cn(
-            'h-8 shrink-0 gap-1 rounded-[4px] border-none bg-[#D7E5FE] px-2 font-normal text-[#484C4D] hover:bg-[#c6d3ea]',
+            'bg-[#D7E5FE] text-[#484C4D] hover:bg-[#c6d3ea]',
             className
           )}
           onClick={submitTest}

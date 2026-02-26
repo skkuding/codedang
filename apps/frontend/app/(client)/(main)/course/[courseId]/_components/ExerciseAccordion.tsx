@@ -43,7 +43,7 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
 
   if (!exercises || exercises.length === 0) {
     return (
-      <div className="mt-4 lg:mt-8">
+      <div className="mt-13 lg:mt-8">
         <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">
           <p className="text-color-neutral-60 text-base">
             No exercises registered
@@ -59,16 +59,7 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
         <ExerciseAccordionItem
           key={exercise.id}
           exercise={exercise}
-          grade={
-            gradeMap.get(exercise.id) ?? {
-              id: 0,
-              submittedCount: 0,
-              problemCount: 0,
-              userAssignmentFinalScore: 0,
-              userAssignmentJudgeScore: 0,
-              assignmentPerfectScore: 0
-            }
-          }
+          grade={gradeMap.get(exercise.id)}
           courseId={courseId}
         />
       ))}
@@ -79,7 +70,7 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
 interface ExerciseAccordionItemProps {
   exercise: Assignment
   courseId: number
-  grade: AssignmentSummary
+  grade?: AssignmentSummary
 }
 
 function ExerciseAccordionItem({
@@ -112,6 +103,9 @@ function ExerciseAccordionItem({
     setIsAccordionOpen(value === exercise.id.toString())
   }
 
+  const submittedCount = grade?.submittedCount ?? 0
+  const problemCount = grade?.problemCount ?? problems?.total ?? 0
+
   return (
     <Accordion
       type="single"
@@ -137,7 +131,7 @@ function ExerciseAccordionItem({
             <div className="mr-6 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Badge
-                  variant="Course"
+                  variant="course"
                   className="min-w-fit px-2 py-1 text-xs font-medium lg:px-[10px] lg:text-sm"
                 >
                   Week {exercise.week.toString().padStart(2, '0')}
@@ -169,9 +163,11 @@ function ExerciseAccordionItem({
                   : 'justify-end'
               )}
             >
-              {dayjs().isAfter(dayjs(exercise.startTime)) && (
-                <SubmissionBadge grade={grade} className="h-8 w-24 text-xs" />
-              )}
+              <SubmissionBadge
+                submittedCount={submittedCount}
+                problemCount={problemCount}
+                className="h-8 w-24 text-xs"
+              />
             </div>
           </div>
 
@@ -179,7 +175,7 @@ function ExerciseAccordionItem({
           <div className="hidden w-full items-center lg:flex">
             <div className="mr-4 w-[10%]">
               <Badge
-                variant="Course"
+                variant="course"
                 className="px-[10px] py-1 text-sm font-medium"
               >
                 Week {exercise.week.toString().padStart(2, '0')}
@@ -212,9 +208,10 @@ function ExerciseAccordionItem({
             )}
 
             <div className="flex w-[20%] justify-center">
-              {dayjs().isAfter(dayjs(exercise.startTime)) && (
-                <SubmissionBadge grade={grade} />
-              )}
+              <SubmissionBadge
+                submittedCount={submittedCount}
+                problemCount={problemCount}
+              />
             </div>
           </div>
         </AccordionTrigger>
@@ -342,14 +339,20 @@ function ExerciseAccordionItem({
 
 interface SubmissionBadgeProps {
   className?: string
-  grade: AssignmentSummary
+  submittedCount: number
+  problemCount: number
 }
 
-function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
+function SubmissionBadge({
+  className,
+  submittedCount,
+  problemCount
+}: SubmissionBadgeProps) {
   const badgeStyle =
-    grade.submittedCount === grade.problemCount
+    problemCount > 0 && submittedCount === problemCount
       ? 'border-transparent bg-primary text-white'
       : 'border-primary text-primary'
+
   return (
     <div
       className={cn(
@@ -360,7 +363,7 @@ function SubmissionBadge({ className, grade }: SubmissionBadgeProps) {
     >
       <div className="text-base font-medium">
         <p>
-          {grade.submittedCount} / {grade.problemCount}
+          {submittedCount} / {problemCount}
         </p>
       </div>
     </div>

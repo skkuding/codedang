@@ -170,15 +170,9 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
-      const formattedLevel = `Level ${level.slice(-1)}`
       return (
         <div>
-          <Badge
-            variant={level as Level}
-            className="mr-1 whitespace-nowrap px-2 py-1 font-normal"
-          >
-            {formattedLevel}
-          </Badge>
+          <Badge variant={level as Level}>Level {level.slice(-1)}</Badge>
         </div>
       )
     },

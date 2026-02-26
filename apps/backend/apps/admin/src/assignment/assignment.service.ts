@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Assignment, AssignmentProblem } from '@generated'
-import { Prisma } from '@prisma/client'
+import { Prisma, ResultStatus } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
@@ -784,6 +784,109 @@ export class AssignmentService {
       finalScore: record.finalScore
     }))
 
+    // const testcaseCounts = await this.prisma.problemTestcase.groupBy({
+    //   by: ['problemId'],
+    //   where: {
+    //     problemId: { in: assignmentProblemIds },
+    //     isOutdated: false
+    //   },
+    //   // eslint-disable-next-line @typescript-eslint/naming-convention
+    //   _count: {
+    //     problemId: true
+    //   }
+    // })
+
+    /**
+     * 각 문제 별 Testcase 개수
+     */
+    // const testcaseCountMap = testcaseCounts.reduce(
+    //   (map, { problemId, _count }) => {
+    //     map[problemId] = _count.problemId
+    //     return map
+    //   },
+    //   {} as Record<number, number>
+    // )
+
+    const submissions = await this.prisma.submission.findMany({
+      where: {
+        assignmentId,
+        userId,
+        problemId: { in: assignmentProblemIds }
+      },
+      select: {
+        id: true,
+        problemId: true,
+        createTime: true,
+        result: true,
+        submissionResult: {
+          select: {
+            result: true,
+            problemTestcaseId: true,
+            problemTestcase: {
+              select: { isHidden: true }
+            }
+          }
+        }
+      },
+      orderBy: [{ createTime: 'desc' }, { id: 'desc' }]
+    })
+
+    const latestSubmissionMap = new Map<number, (typeof submissions)[number]>()
+
+    for (const submission of submissions) {
+      if (!latestSubmissionMap.has(submission.problemId)) {
+        latestSubmissionMap.set(submission.problemId, submission)
+      }
+    }
+
+    /**
+     * 문제 별 Accepted된 testcase의 개수 (latestSubmission 기준)
+     */
+    const acceptedCountsByProblem = assignmentProblemIds.reduce(
+      (map, problemId) => {
+        const latestSubmission = latestSubmissionMap.get(problemId)
+        if (!latestSubmission) {
+          map[problemId] = { acceptedCount: 0, totalCount: 0 }
+          return map
+        }
+
+        const acceptedCount = latestSubmission.submissionResult.reduce(
+          (acc, testcaseResult) =>
+            testcaseResult.result === ResultStatus.Accepted ? acc + 1 : acc,
+          0
+        )
+
+        map[problemId] = {
+          acceptedCount,
+          totalCount: latestSubmission.submissionResult.length
+        }
+        return map
+      },
+      {} as Record<number, { acceptedCount: number; totalCount: number }>
+    )
+
+    /**
+     * 문제 별 score과 testcase 개수(전체, 정답)에 대한 집합 배열
+     */
+    const scoreSummaryByProblem = assignmentProblemIds.map((problemId) => {
+      const problemScore =
+        problemScores.find((score) => score.problemId === problemId) ?? null
+
+      const testcaseInfo = acceptedCountsByProblem[problemId] ?? {
+        acceptedCount: 0,
+        totalCount: 0
+      }
+
+      return {
+        problemId,
+        score: problemScore?.score ?? new Prisma.Decimal(0),
+        maxScore: problemScore?.maxScore ?? 0,
+        finalScore: problemScore?.finalScore ?? null,
+        acceptedTestcaseCount: testcaseInfo.acceptedCount,
+        totalTestcaseCount: testcaseInfo.totalCount
+      }
+    })
+
     const scoreSummary = {
       submittedProblemCount: assignmentProblemRecords.filter(
         (record) => record.isSubmitted
@@ -801,7 +904,7 @@ export class AssignmentService {
         (total, { finalScore }) => total.plus(finalScore ?? 0),
         new Prisma.Decimal(0)
       ),
-      problemScores // 개별 Problem의 점수 리스트 (각 문제에서 몇 점을 획득했는지)
+      scoreSummaryByProblem // 개별 Problem의 점수 및 테스트케이스 개수(정답, 전체) 리스트
     }
 
     return scoreSummary

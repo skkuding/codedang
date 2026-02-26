@@ -1,0 +1,140 @@
+# check default values.yaml
+# https://artifacthub.io/packages/helm/grafana/grafana?modal=values
+
+envFromSecrets:
+  - name: grafana-github-oauth
+
+replicas: 1
+autoscaling:
+  enabled: false
+
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - grafana.stage.codedang.com
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - grafana.stage.codedang.com
+      secretName: grafana-tls
+
+limits:
+  cpu: 200m
+  memory: 256Mi
+requests:
+  cpu: 200m
+  memory: 256Mi
+
+# https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+# in the beginning of grafana migration, we allow editing dashboards without provisioning
+# however, it is highly recommended to provision data as code
+persistence:
+  type: pvc
+  enabled: true
+  size: 10Gi
+
+admin:
+  existingSecret: grafana-admin-user
+  userKey: ADMIN_USER
+  passwordKey: ADMIN_PASSWORD
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    prune: true
+    datasources:
+      - name: Loki
+        type: loki
+        uid: loki
+        access: proxy
+        url: http://loki.monitoring-loki.svc.cluster.local:3100
+        editable: false
+      - name: Prometheus
+        type: prometheus
+        uid: prometheus
+        access: proxy
+        url: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090
+        editable: false
+      - name: Tempo
+        type: tempo
+        uid: tempo
+        access: proxy
+        url: http://tempo.monitoring-tempo.svc.cluster.local:3200
+        editable: false
+
+# help grafana to detect provisioned dashboards
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: '1'
+
+# Workaround: sidecar overwrites the default dashboard provider,
+# so we need to explicitly register the provider for gnetId dashboards.
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: grafana-dashboards
+        orgId: 1
+        type: file
+        disableDeletion: true
+        editable: false
+        options:
+          path: /var/lib/grafana/dashboards/grafana-dashboards
+
+dashboards:
+  grafana-dashboards:
+    # ArgoCD - https://grafana.com/grafana/dashboards/14584
+    argocd:
+      gnetId: 14584
+      revision: 1
+      datasource: Prometheus
+    # Node Exporter Full - https://grafana.com/grafana/dashboards/1860
+    node-exporter:
+      gnetId: 1860
+      revision: 37
+      datasource: Prometheus
+    # Loki Stack - https://grafana.com/grafana/dashboards/14055
+    loki-stack:
+      gnetId: 14055
+      revision: 5
+      datasource:
+        - name: DS_PROMETHEUS
+          value: Prometheus
+        - name: DS_LOKI
+          value: Loki
+    # Kubernetes Cluster Overview - https://grafana.com/grafana/dashboards/15661
+    k8s-dashboard:
+      gnetId: 15661
+      revision: 2
+      datasource:
+        - name: DS__VICTORIAMETRICS-PROD-ALL
+          value: Prometheus
+
+# Grafana's primary configuration
+# http://docs.grafana.org/installation/configuration/
+grafana.ini:
+  log:
+    mode: console
+  server:
+    domain: 'grafana.stage.codedang.com'
+    root_url: 'https://grafana.stage.codedang.com'
+  users:
+    default_language: 'ko-KR'
+    default_locale: ko
+    auto_assign_org_role: Editor
+  auth.github:
+    enabled: true
+    allow_sign_up: true
+    auto_login: false
+    scopes: user:email,read:org
+    allowed_organizations: skkuding
+    skip_org_role_sync: true # prevent OAuth from overwriting auto_assign_org_role on every login
+  # TODO: setup git sync provisioning
+  # feature_toggles:
+  #   provisioning: true
+  #   kubernetesDashboards: true ; use k8s from browser

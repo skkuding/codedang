@@ -1,33 +1,48 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: tempo
   namespace: argocd
-  labels:
-    app.kubernetes.io/environment: production
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
-  sources:
-    - repoURL: https://grafana.github.io/helm-charts
-      chart: tempo
-      targetRevision: 1.23.3
-      helm:
-        releaseName: tempo
-        valueFiles:
-          - $codedang/infra/k8s/monitoring/tempo/values.yaml
-    - repoURL: https://github.com/skkuding/codedang
-      targetRevision: main
-      ref: codedang
-  destination:
-    name: production
-    namespace: monitoring-tempo
+  # Preserves deployed resources when ApplicationSet or Application is deleted (prevents data loss)
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - PrunePropagationPolicy=foreground
-      - ServerSideApply=true # avoid "CustomResourceDefinition ... is invalid: metadata.annotations: Too long" issue
+    preserveResourcesOnDeletion: true
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: release
+  template:
+    metadata:
+      name: 'tempo-{{.env}}'
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+      project: default
+      sources:
+        - repoURL: https://grafana.github.io/helm-charts
+          chart: tempo
+          targetRevision: 1.24.0
+          helm:
+            releaseName: tempo
+            valueFiles:
+              - $codedang/infra/k8s/monitoring/tempo/values.yaml
+        - repoURL: https://github.com/skkuding/codedang
+          targetRevision: '{{.branch}}'
+          ref: codedang
+      destination:
+        name: '{{.env}}'
+        namespace: monitoring-tempo
+      syncPolicy:
+        automated:
+          # Prune disabled: requires manual review before removing resources
+          prune: false
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+          - ServerSideApply=true # avoid "CustomResourceDefinition ... is invalid: metadata.annotations: Too long" issue

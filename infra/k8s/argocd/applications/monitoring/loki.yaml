@@ -1,32 +1,46 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: loki
   namespace: argocd
-  labels:
-    app.kubernetes.io/environment: production
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
-  sources:
-    - repoURL: https://grafana.github.io/helm-charts
-      chart: loki
-      targetRevision: 6.38.0
-      helm:
-        releaseName: loki
-        valueFiles:
-          - $codedang/infra/k8s/monitoring/loki/values.yaml
-    - repoURL: https://github.com/skkuding/codedang
-      targetRevision: main
-      ref: codedang
-  destination:
-    name: production
-    namespace: monitoring-loki
+  # Preserves deployed resources when ApplicationSet or Application is deleted (prevents data loss)
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - PrunePropagationPolicy=foreground
+    preserveResourcesOnDeletion: true
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: release
+  template:
+    metadata:
+      name: 'loki-{{.env}}'
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+      project: default
+      sources:
+        - repoURL: https://grafana.github.io/helm-charts
+          chart: loki
+          targetRevision: 6.53.0
+          helm:
+            releaseName: loki
+            valueFiles:
+              - $codedang/infra/k8s/monitoring/loki/values.yaml
+        - repoURL: https://github.com/skkuding/codedang
+          targetRevision: '{{.branch}}'
+          ref: codedang
+      destination:
+        name: '{{.env}}'
+        namespace: monitoring-loki
+      syncPolicy:
+        automated:
+          prune: false
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground

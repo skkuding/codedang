@@ -1,0 +1,19 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: plag-user
+  namespace: minio
+spec:
+  encryptedData:
+    CONSOLE_ACCESS_KEY: AgBt/rxIohL1D1BvuVe2at8w25x1wXQpyUPqoYFl4PvqFXu5prF3njcExAQOref2FCc1Szvwc/vi+rHk8v8Suc4YFuc9HfV0/ezpye30cVzP3TxwbL8eekRhfUFTspns3gTbI14zaOazSehG1t/qsXH9q1HnFEDtGxhNaUEYHzhB7LKH1otx5MDE9MLwe7wdj4uqZSjVeHW7xREC55oz0HWrRUJEHRj0oJBa39v8LgRlfwpU3Px8+ss4w/iRZnp7kUA4D5QS4/57hlJyv4eoyZcyA1i8x9Wzc4eDqX8VaKMN/NkXubNKggVV/vwUL85KZjLFGJSKJh3ENI/sLcjq4eFjlMOf4sWjR5Irbi/nc4ypK55QvdR0oYKa8grK/mBdsGmFRGSr9CSNxh/w+aG7PdHHS81zl1K4LUW5MieHm31+bk/vPI200I2rj4ToL6uDBKLskZ1TykcBipXWKJHOIe/nya7FrDEw0x3iI/ItPnfInISp4QRfKm29fixC62hAaXzjmZ4ZfAJLiugRxNncLSX1Jfz1wlN3ULqwiI0UQwoyPUKcRZDSAWFg4aYyRO6U0SEwAejQjitB7UpCxwYlKsUZkCmv2I0JzCEbBA4UqmspYyjdUOUNUQRrW/iQutA/fZg+iTPdH6HXPwrQKGnDzuQrkebnsHvsrXG3kW3dWHtMumE22fcCLADltzV4ehdAGzsdACqK
+    CONSOLE_SECRET_KEY: AgAtI7ZHR/TSnhsrkCbsS9A+A4/Vup6gPyk0iQjtc4YD5wsL9WIu+kd3Qf+D+Kjh/JvlsPvE+O5Dtv3XD4WxmuKU7w+w5yTpFf0RtS2akxEAXypUmzxhd/i7swSGkZF/p0nc4wAVtbcVuiH9Puxhi0rTaPw29W1zAVVtxeNJAxL+K/vZumWu0ZPoh04RT5EbCqDck6AbTIUhTqQjb0Fde9kfKzeF2ZCYVsbAlw1ocMPy7wlfH9z9v+tSots3FxjKTEIMF1X0ONzUUUvXNpQZ/p468pqdJiCcXdv60kP5v6zjXdeYliIGH/w/FGUrf8g8cDNfdMrP6LIQ7DQg+jgldgD1DpIgwnkizWgSmLPRRFsJ4rA4+1Kw+bjkbPr9h6yBsroURqqzoclmUaOQDZQieZRrCn38yad5bz9d60h+SWJ3Vp2HzpTIUkam9LXv73KoTGKxOrDZ13KAM0NBVStRkE+cAKFnOt63zLKRqL/8nDTcJoJmVovCzbHAQhYz88CIMD6zY9sajqzD4E4BGl9TOlkBMyyRlulkzQ7vs0CVKK8ev+D3Pwnh6kWuP7sgFtngDeO8lnUyEQKbU4/aLgsOWewFlHwwJvm8ykJnExUWx3N3y15pcr4BPCdyUV+/hVV8n4e7P29TINFbRmL23tleg4pa6hqfjssglDq+6xfw1BNsYbPvWTPIQQoMw+zcZAnr5XZbVB9TaKZ+rWzFB4Bq
+  template:
+    metadata:
+      creationTimestamp: null
+      name: plag-user
+      namespace: minio
+      annotations:
+        reflector.v1.k8s.emberstack.com/reflection-allowed: 'true'
+    type: Opaque

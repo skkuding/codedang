@@ -1,0 +1,16 @@
+meta {
+  name: [403] Contest is not ended
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/contest/2/statistics/submissions
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

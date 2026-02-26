@@ -17,8 +17,8 @@ export class UserAssignmentScoreSummary {
   @Field(() => Float, { nullable: true })
   userAssignmentFinalScore?: number
 
-  @Field(() => [AssignmentProblemScore])
-  problemScores: AssignmentProblemScore[]
+  @Field(() => [AssignmentProblemSummary])
+  scoreSummaryByProblem: AssignmentProblemSummary[]
 }
 
 @ObjectType()
@@ -53,12 +53,12 @@ export class UserAssignmentScoreSummaryWithUserInfo {
   @Field(() => Float, { nullable: true })
   userAssignmentFinalScore?: number
 
-  @Field(() => [AssignmentProblemScore])
-  problemScores: AssignmentProblemScore[]
+  @Field(() => [AssignmentProblemSummary])
+  scoreSummaryByProblem: AssignmentProblemSummary[]
 }
 
 @ObjectType()
-class AssignmentProblemScore {
+class AssignmentProblemSummary {
   @Field(() => Int)
   problemId: number
 
@@ -68,6 +68,12 @@ class AssignmentProblemScore {
   @Field(() => Int)
   maxScore: number
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   finalScore?: number
+
+  @Field(() => Int)
+  acceptedTestcaseCount: number
+
+  @Field(() => Int)
+  totalTestcaseCount: number
 }

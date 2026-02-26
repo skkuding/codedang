@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable } from '@nestjs/common'
 import { Prisma, ResultStatus } from '@prisma/client'
 import type { Decimal } from '@prisma/client/runtime/library'
 import { MIN_DATE } from '@libs/constants'
@@ -57,6 +57,11 @@ export class ProblemService {
   /**
    * 주어진 옵션에 따라 문제 목록을 가져옵니다.
    * 문제, 태그를 가져오고 사용자가 각 문제를 통과했는지 확인합니다.
+   * @param {number | null} userId 요청 유저의 id
+   * @param {number | null} cursor 커서 값
+   * @param {number} take 가져올 문제 개수
+   * @param {ProblemOrder} order 정렬 기준 지정
+   * @param {string} search 검색 키워드 지정
    * @returns {ProblemsResponseDto} data: 문제 목록, total: 문제 총 개수
    */
   async getProblems(options: {
@@ -196,6 +201,15 @@ export class ProblemService {
     }
   }
 
+  /**
+   * 특정 문제의 상세 정보를 조회합니다.
+   * 문제의 기본 정보와 태그 목록, 업데이트 히스토리를 함께 반환합니다.
+   *
+   * @param {number} problemId 문제의 id
+   * @returns {ProblemResponseDto} 문제 상세 정보(태그, 업데이트 히스토리 포함)
+   * @throws {Prisma.PrismaClientKnownRequestError} 아래와 같은 경우 발생할 수 있습니다.
+   * 해당 problemId에 대한 문제가 존재하지 않는 경우
+   */
   async getProblem(problemId: number): Promise<ProblemResponseDto> {
     // const data = await this.problemRepository.getProblem(problemId, groupId)
     const data = await this.prisma.problem.findUniqueOrThrow({
@@ -231,6 +245,12 @@ export class ProblemService {
     }
   }
 
+  /**
+   * 특정 문제의 업데이트 히스토리를 최신순으로 조회합니다.
+   *
+   * @param {number} problemId 문제의 id
+   * @returns {updateHistory} 해당 문제의 업데이트 히스토리 목록
+   */
   async getProblemUpdateHistory(problemId: number) {
     // 업데이트 히스토리 조회
     const updateHistory = await this.prisma.updateHistory.findMany({
@@ -243,6 +263,105 @@ export class ProblemService {
     // }
 
     return updateHistory
+  }
+
+  /**
+   * 문제 조회 시 사용할 where 조건을 mode에 따라 생성합니다.
+   * my 모드에서는 본인이 생성한 문제만 조회하도록 조건을 만들고,
+   * shared 모드에서는 본인이 groupleader인 그룹에 공유된 문제만 조회하도록 조건을 만듭니다.
+   *
+   * @param {number} userId 유저 아이디
+   * @param {'my' | 'shared'} mode 모드 조건
+   * @returns mode에 따른 where 조건
+   * @throws {ForbiddenException} 아래와 같은 경우 발생합니다.
+   * -mode가 'my' 또는 'shared'가 아닌 경우
+   */
+  async buildProblemWhereOptionsWithMode({
+    userId,
+    mode
+  }: {
+    userId: number
+    mode: 'my' | 'shared'
+  }) {
+    switch (mode) {
+      case 'my':
+        return { createdById: { equals: userId } }
+
+      case 'shared': {
+        const leaderGroupIds = (
+          await this.prisma.userGroup.findMany({
+            where: {
+              userId,
+              isGroupLeader: true
+            }
+          })
+        ).map((group) => group.groupId)
+        return {
+          sharedGroups: {
+            some: {
+              id: { in: leaderGroupIds }
+            }
+          }
+        }
+      }
+      default:
+        throw new ForbiddenException('Invalid mode')
+    }
+  }
+
+  /**
+   * 다운로드 가능한 문제 목록을 조회합니다.
+   * my 모드에서는 본인이 생성한 문제를 조회합니다.
+   * shared 모드에서는 본인이 groupleader인 그룹에 공유된 문제를 조회합니다.
+   *
+   * @param {number} userId 유저 아이디
+   * @param {'my' | 'shared'} mode 모드 조건
+   * @returns {problems} 다운로드 가능 문제 목록
+   */
+  async getDownloadableProblems({
+    userId,
+    mode
+  }: {
+    userId: number
+    mode: 'my' | 'shared'
+  }) {
+    const whereOptions = await this.buildProblemWhereOptionsWithMode({
+      userId,
+      mode
+    })
+
+    const problems = await this.prisma.problem.findMany({
+      where: whereOptions,
+      select: {
+        id: true,
+        createdById: true,
+        title: true,
+        description: true,
+        inputDescription: true,
+        outputDescription: true,
+        hint: true,
+        engTitle: true,
+        engDescription: true,
+        engInputDescription: true,
+        engOutputDescription: true,
+        engHint: true,
+        template: true,
+        languages: true,
+        solution: true,
+        timeLimit: true,
+        memoryLimit: true,
+        difficulty: true,
+        source: true,
+        visibleLockTime: true,
+        createTime: true,
+        updateTime: true,
+        updateContentTime: true,
+        isSampleUploadedByZip: true,
+        isHiddenUploadedByZip: true
+      }
+    })
+
+    return problems
   }
 }
 
@@ -263,7 +382,14 @@ export class ContestProblemService {
    * 대회 진행 중: Register한 경우 문제 액세스 가능 //
    * 대회 종료 후: 누구나 문제 액세스 가능
    * @see [Contest Problem 정책](https://www.notion.so/skkuding/Contest-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
+   * @param {number} contestId contest의 id
+   * @param {number | null} userId 요청 유저의 id
+   * @param {number | null} cursor 커서 값
+   * @param {number} take 가져올 문제 개수
    * @returns {RelatedProblemsResponseDto} data: 대회 문제 목록, total: 대회 문제 총 개수
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * -권한이 없는 유저가 콘테스트 시작 전 문제에 접근하려는 경우
+   * -등록하지 않은 유저가 콘테스트 종료 전 문제에 접근하려는 경우
    */
   async getContestProblems({
     contestId,
@@ -404,7 +530,15 @@ export class ContestProblemService {
    * 대회 진행 중: Register한 경우 문제 액세스 가능 //
    * 대회 종료 후: 누구나 문제 액세스 가능
    * @see [Contest Problem 정책](https://www.notion.so/skkuding/Contest-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
+   * @param {number} contestId contest의 id
+   * @param {number} problemId 문제의 id
+   * @param {number} userId 요청 유저의 id
    * @returns {RelatedProblemResponseDto} problem: 대회 문제 정보, order: 대회 문제 순서
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * -운영진 권한이 없는 유저가 콘테스트 시작 전/종료 후 문제에 접근하려는 경우
+   * -등록하지 않은 유저가 문제에 접근하려는 경우
+   * @throws {Prisma.PrismaClientKnownRequestError} 아래와 같은 경우 발생할 수 있습니다.
+   * -contestId/problemId에 해당하는 ContestProblem이 존재하지 않는 경우
    */
   async getContestProblem({
     contestId,
@@ -509,6 +643,14 @@ export class ContestProblemService {
     }
   }
 
+  /**
+   * 특정 contest의 특정 문제에 대한 업데이트 히스토리를 최신순으로 조회합니다.
+   *
+   * @param {number} contestId contest의 id
+   * @param {number} problemId 문제의 id
+   * @param {number} userId 요청 유저의 id
+   * @returns {updateHistory} 업데이트 히스토리 목록
+   */
   async getContestProblemUpdateHistory({
     contestId,
     problemId,
@@ -555,6 +697,10 @@ export class AssignmentProblemService {
    * 과제 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
    * 과제 진행 중: Participate한 경우 문제 액세스 가능 //
    * 과제 종료 후: Participate한 경우 문제 액세스 가능
+   * @param {number} assignmentId 과제의 id
+   * @param {number} userId 요청 유저의 id
+   * @param {number | null} cursor 커서 값
+   * @param {number} take 가져올 문제 개수
    * @returns {RelatedProblemsResponseDto} data: 과제 문제 목록, total: 과제 문제 총 개수
    */
   async getAssignmentProblems({
@@ -626,7 +772,14 @@ export class AssignmentProblemService {
    * 대회 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
    * 대회 진행 중: Register한 경우 문제 액세스 가능 //
    * 대회 종료 후: 누구나 문제 액세스 가능
+   * @param {number} assignmentId 과제의 id
+   * @param {number} problemId 문제의 id
+   * @param {number} userId 요청 유저의 id
    * @returns {RelatedProblemResponseDto} problem: 과제 문제 정보, order: 과제 문제 순서
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * -과제가 종료된 이후 해당 과제 문제에 접근하려는 경우
+   * @throws {Prisma.PrismaClientKnownRequestError} 아래와 같은 경우 발생할 수 있습니다.
+   * -assignmentId/problemId에 해당하는 AssignmentProblem이 존재하지 않는 경우
    */
   async getAssignmentProblem({
     assignmentId,
@@ -718,6 +871,17 @@ export class WorkbookProblemService {
     private readonly workbookService: WorkbookService
   ) {}
 
+  /**
+   * 특정 워크북에 포함된 문제 목록을 조회합니다.
+   *
+   * @param {number} workbookId workbook의 id
+   * @param {number} cursor 커서 값
+   * @param {number} take 가져올 문제 개수
+   * @param {number | null} groupId 그룹의 id
+   * @returns data:워크북 문제 목록 total:전체 개수
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * -해당 그룹이 워크북에 접근할 수 없는 경우
+   */
   async getWorkbookProblems({
     workbookId,
     cursor,
@@ -814,6 +978,18 @@ export class WorkbookProblemService {
     }
   }
 
+  /**
+   * 특정 워크북에 포함된 특정 문제를 조회합니다.
+   *
+   * @param {number} workbookId workbook의 id
+   * @param {number} problemId 문제의 id
+   * @param {number} groupId 그룹의 id
+   * @returns {RelatedProblemResponseDto} 워크북 문제의 상세 정보
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * -해당 그룹이 워크북에 접근할 수 없는 경우
+   * @throws {Prisma.PrismaClientKnownRequestError} 아래와 같은 경우 발생할 수 있습니다.
+   * -workbookId/problemId에 해당하는 WorkbookProblem이 존재하지 않는 경우
+   */
   async getWorkbookProblem(
     workbookId: number,
     problemId: number,

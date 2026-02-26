@@ -17,6 +17,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
+import type { ProblemTestcase } from '@admin/@generated'
 import type { UploadFileInput } from '../model/problem.input'
 import { ImportedTestcaseHeader } from '../model/testcase.constants'
 import type { ScoreWeights, Testcase } from '../model/testcase.input'
@@ -75,6 +76,16 @@ export class TestcaseService {
     }
   }
 
+  /**
+   * 문제에 해당하는 Testcase를 생성합니다. 권한 확인, 기존 Testcase를 전부 삭제, 가중치를 고려한 테스트케이스 레코드를 생성하고 in / out파일을 스토리지에 업로드합니다.
+   *
+   * @param {Testacse[]} testcases :테스트케이스 클래스 배열
+   * @param {number} problemId :문제의 ID
+   * @param {number} userId :유저 ID
+   * @param {Role} userRole :유저 권한
+   * @returns {Promise<{ testcaseId: number }[]>} :성공 시 생성된 테스트케이스의 ID 객체의 배열을 담은 promise를 반환합니다.
+   * @throws {EntityNotExistException} problemId에 해당하는 문제가 없으면 exception을 던집니다.
+   */
   async createTestcases(
     testcases: Testcase[],
     problemId: number,
@@ -203,7 +214,22 @@ export class TestcaseService {
     }
   }
 
-  async syncTestcases(problemId: number, testcases: Array<Testcase>) {
+  /**
+   * 전달받은 테스트케이스 목록을 DB의 테스트케이스와 동기화시킵니다.
+   * 사용자의 문제 수정 권한 확인, outdated 테스트케이스 조회, 수정이 필요한 testcase 새 버전 생성, 완전히 새로운 테스트케이스 생성, 케이스 정렬 후 엔티티 업데이트를 진행합니다.
+   *
+   * @param {number} problemId : 문제 ID
+   * @param {boolean} isSampleUploadedByZip : Sample Testcase가 zip업로드에 의해 변경되었으면 true
+   * @param {boolean} isHiddenUploadedByZip : Hidden Testcase가 zip업로드에 의해 변경되었으면 true
+   * @param {Array[Testcase]} testcases : 동기화할 testcase 배열
+   * @returns {Promise<void>}
+   */
+  async syncTestcases(
+    problemId: number,
+    isSampleUploadedByZip: boolean,
+    isHiddenUploadedByZip: boolean,
+    testcases: Array<Testcase>
+  ) {
     // 기존에 존재하던 유효한 TC 모두 가져옴
     const existing = await this.prisma.problemTestcase.findMany({
       where: {
@@ -219,12 +245,23 @@ export class TestcaseService {
     )
 
     // 기존에 존재하던 TC의 id 중 전달 받은 TC인자에 포함되어 있지 않은 id(삭제되어야할 TC의 id)
-    const outdated = existing.filter((tc) => !updatedIds.has(tc.id))
+    const outdated = existing.filter((tc) => {
+      const result = !updatedIds.has(tc.id)
+      if (result) {
+        if (isHiddenUploadedByZip && tc.isHidden === true) {
+          isHiddenUploadedByZip = false
+        } else if (isSampleUploadedByZip && tc.isHidden === false) {
+          isSampleUploadedByZip = false
+        }
+      }
+      return result
+    })
+
     const outdatedTime = new Date()
     if (outdated.length > 0) {
-      await Promise.all([
-        outdated.map(async (tc) => {
-          return await this.prisma.problemTestcase.update({
+      await Promise.all(
+        outdated.map((tc) =>
+          this.prisma.problemTestcase.update({
             where: {
               id: tc.id
             },
@@ -233,8 +270,8 @@ export class TestcaseService {
               outdateTime: outdatedTime
             }
           })
-        })
-      ])
+        )
+      )
     }
 
     for (const tc of testcases) {
@@ -264,11 +301,18 @@ export class TestcaseService {
             }
           })
 
+          const isUploadedByZip = tc.isHidden
+            ? isHiddenUploadedByZip
+            : isSampleUploadedByZip
+
+          const input = isUploadedByZip ? existingTc.input : tc.input
+          const output = isUploadedByZip ? existingTc.output : tc.output
+
           const created = await this.prisma.problemTestcase.create({
             data: {
               problemId,
-              input: tc.input,
-              output: tc.output,
+              input,
+              output,
               isHidden: tc.isHidden,
               scoreWeight,
               scoreWeightNumerator: weightFraction.numerator,
@@ -307,6 +351,11 @@ export class TestcaseService {
       ...hidden.map((tc, i) => ({ ...tc, order: i + 1 }))
     ]
 
+    await this.prisma.problem.update({
+      where: { id: problemId },
+      data: { isHiddenUploadedByZip, isSampleUploadedByZip }
+    })
+
     await Promise.all(
       orderedTestcases.map((tc) =>
         this.prisma.problemTestcase.update({
@@ -317,12 +366,24 @@ export class TestcaseService {
     )
   }
 
+  /**
+   * Excel파일을 업로드하여 테스트케이스를 생성합니다.
+   * 사용자 권한 확인, 파일 유효성 검사, 파일 파싱, 테스트케이스 객체 구성, 'createTestcaseLegacy' 메소드를 호출하여 testcase를 생성합니다.
+   *
+   * @param {UploadFileInput} fileInput : Excel파일
+   * @param {number} problemId : 문제 ID
+   * @param {Role} userRole : 유저 권한
+   * @param {number} userId : 유저 ID
+   * @returns {Promise<ProblemTestcase>} : 성공 시 생성된 테스트케이스 객체를 담은 Promise를 반환합니다.
+   * @throws {UnprocessableDataException} : Excel파일이 아닌 경우 exception을 던집니다.
+   * @throws {UnprocessableFileDataException} : Excel파일이 파싱 불가능한 경우 exception을 던집니다.
+   */
   async uploadTestcase(
     fileInput: UploadFileInput,
     problemId: number,
     userRole: Role,
     userId: number
-  ) {
+  ): Promise<ProblemTestcase> {
     await this.checkProblemEditPermission(problemId, userId, userRole)
 
     const { filename, mimetype, createReadStream } = await fileInput.file
@@ -379,6 +440,18 @@ export class TestcaseService {
     return await this.createTestcaseLegacy(problemId, testcase)
   }
 
+  /**
+   * zip파일을 업로드하여 testcase를 생성합니다.
+   *
+   * 사용자의 권한 확인, 파일 형식과 최대 크기 확인, 기존 testcase 삭제, zip파일 내의 testcase에 대해 DB레코드 생성 및 스토리지 업로드, in / out 대응 확인, 순서 정렬을 진행합니다.
+   *
+   * @param {FileUpload} file : 테스트케이스 zip파일
+   * @param {number} problemId : 문제 ID
+   * @param {number} userId : 유저 ID
+   * @param {Role} userRole : 유저 권한
+   * @returns {Promise<{ testcaseId: number }[]>} : 성공 시 테스트케이스 ID 배열을 담은 promise를 반환합니다.
+   * @throws {UnprocessableDataException} : zip파일이 아닌 경우 or .in이나 .out로 끝나지 않는 경우 exception을 던집니다.
+   */
   async uploadTestcaseZip(
     file: FileUpload,
     problemId: number,
@@ -673,6 +746,20 @@ export class TestcaseService {
     }
   }
 
+  /**
+   * 유저가 특정 문제 수정 권한이 있는지 확인합니다. (비공개 헬퍼 메서드)
+   *
+   * <권한 규칙>
+   * 관리자 (Admin, SuperAdmin)은 항상 권한을 가집니다.
+   * 일반 사용자의 경우, 자신이 직접 생성한 문제이거나 자신이 leader로 있는 그룹에 공유된 문제에 대해 수정 권한을 가집니다.
+   *
+   * @private
+   * @param {number} problemId : 문제 ID
+   * @param {number} userId : 유저 ID
+   * @param {Role} userRole : 유저 권한 범위
+   * @returns {Promise<void>}
+   * @throws {ForbiddenException} 유저가 해당 문제 수정 권한이 없으면 exception을 던집니다.
+   */
   private async checkProblemEditPermission(
     problemId: number,
     userId: number,
@@ -710,6 +797,12 @@ export class TestcaseService {
     }
   }
 
+  /**
+   * 해당 문제의 testcase를 전부 삭제하고, 모든 테스트케이스 레코드를 outdated로 표시합니다.
+   *
+   * @param {number} problemId : 문제의 ID
+   * @returns {Promise<void>}
+   */
   async removeAllTestcaseFiles(problemId: number) {
     const testcaseDir = problemId + '/'
     const files = await this.storageService.listObjects(testcaseDir, 'testcase')
@@ -728,7 +821,21 @@ export class TestcaseService {
     })
   }
 
-  async getProblemTestcase(testcaseId: number, userId: number, userRole: Role) {
+  /**
+   * 테스트케이스 ID를 통해 정보를 조회합니다.
+   *
+   * @param {number} testcaseId : 테스트케이스 ID
+   * @param {number} userId : 유저 ID
+   * @param {Role} userRole : 유저 권한
+   * @returns {Promise<Omit<ProblemTestcase , 'problem'>>} 성공 시 ProblemTestcase 객체에서 problem필드를 제외한 데이터를 담은 promise를 반환합니다.
+   * @throws {EntityNotExistException} 테스트케이스 ID에 해당하는 테스트케이스가 없을 시 exception을 던집니다.
+   * @throws {ForbiddenAccessException} 테스트케이스에 접근 권한이 없을 시 exception을 던집니다.
+   */
+  async getProblemTestcase(
+    testcaseId: number,
+    userId: number,
+    userRole: Role
+  ): Promise<Omit<ProblemTestcase, 'problem'>> {
     const testcase = await this.prisma.problemTestcase.findUnique({
       where: {
         id: testcaseId

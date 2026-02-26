@@ -31,9 +31,10 @@ export function AssignmentLink({
       setType('exercise')
     }
   }
-  const { data: assignmentData } = useQuery(
-    assignmentQueries.single({ assignmentId: assignment.id })
-  )
+  const { error: assignmentError } = useQuery({
+    ...assignmentQueries.single({ assignmentId: assignment.id }),
+    retry: false
+  })
 
   const updateAssignmentStatus = () => {
     // TODO: change to use server date
@@ -59,8 +60,9 @@ export function AssignmentLink({
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
 
-    if (assignmentStatus === 'upcoming' && !assignmentData) {
-      toast.error('This assignment has not started yet!')
+    if (assignmentStatus === 'upcoming' && assignmentError) {
+      const noun = isExercise ? 'exercise' : 'assignment'
+      toast.error(`This ${noun} has not started yet!`)
       return
     }
 
@@ -73,7 +75,7 @@ export function AssignmentLink({
       onClick={handleClick}
       className="w-fit"
     >
-      <p className="line-clamp-1 text-sm font-normal lg:text-base">
+      <p className="line-clamp-1 truncate text-sm font-normal lg:text-base">
         {assignment.title}
       </p>
     </Link>

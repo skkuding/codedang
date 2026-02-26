@@ -22,6 +22,7 @@ import { LoggingPlugin, pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { StorageModule } from '@libs/storage'
 import { NoticeModule } from '@admin/notice/notice.module'
+import { CheckModule } from '../../admin/src/check/check.module'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { AnnouncementModule } from './announcement/announcement.module'
@@ -29,6 +30,7 @@ import { AssignmentModule } from './assignment/assignment.module'
 import { ContestModule } from './contest/contest.module'
 import { GroupModule } from './group/group.module'
 import { NotificationModule } from './notification/notification.module'
+import { PolygonModule } from './polygon/polygon.module'
 import { ProblemModule } from './problem/problem.module'
 import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
@@ -67,9 +69,11 @@ import { WorkbookModule } from './workbook/workbook.module'
     ContestModule,
     AssignmentModule,
     WorkbookModule,
+    PolygonModule,
     ProblemModule,
     StorageModule,
     GroupModule,
+    CheckModule,
     UserModule,
     AnnouncementModule,
     NoticeModule,

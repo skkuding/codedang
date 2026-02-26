@@ -71,8 +71,8 @@ export default async function Layout({
   }
 
   return (
-    <ClientApolloProvider>
-      <div className="flex h-dvh bg-neutral-50">
+    <ClientApolloProvider session={session}>
+      <div className="flex h-dvh bg-white">
         <nav className="bg-white p-2 pb-6 text-sm font-medium">
           {/* Todo: Group 기능 추가 시, Public Button 대신 GroupSelect 컴포넌트로 변경 */}
           {/* <GroupSelect /> */}
@@ -95,7 +95,7 @@ export default async function Layout({
             <FaArrowRightFromBracket className="mr-2 inline-block" />
             Quit
           </Link> */}
-          <ManagementSidebar />
+          <ManagementSidebar session={session} />
         </nav>
         <Separator orientation="vertical" />
         {/*NOTE: full width - sidebar width */}

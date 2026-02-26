@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: plag
+resources:
+  - ../../base
+  - aws-credentials.yaml
+  - database-credentials.yaml
+replicas:
+  - name: plag
+    count: 2
+patches:
+  - path: configmap.yaml
+    target:
+      kind: ConfigMap
+      name: plag-env
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: plag

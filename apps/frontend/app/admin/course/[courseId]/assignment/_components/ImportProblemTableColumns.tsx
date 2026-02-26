@@ -88,15 +88,7 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
-      const formattedLevel = `Level ${level.slice(-1)}`
-      return (
-        <Badge
-          variant={level as Level}
-          className="whitespace-nowrap px-2 py-1 font-normal"
-        >
-          {formattedLevel}
-        </Badge>
-      )
+      return <Badge variant={level as Level}>Level {level.slice(-1)}</Badge>
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
