@@ -120,8 +120,13 @@ export function PlagiarismResultTable({
   }, [])
 
   const columns = useMemo(
-    () => createPlagiarismResultColumns(setSelectedResult, handleClusterClick),
-    [handleClusterClick]
+    () =>
+      createPlagiarismResultColumns(
+        setSelectedResult,
+        handleClusterClick,
+        sortedResults
+      ),
+    [handleClusterClick, sortedResults]
   )
 
   const problemsForDropdown = problemData.map((p) => ({

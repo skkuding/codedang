@@ -122,8 +122,12 @@ export function PlagiarismCodeComparisonView({
           </div>
           {firstData && (
             <div className="mt-1 text-xs text-blue-700">
-              User: {firstData.user?.username ?? 'N/A'} | Student ID:{' '}
-              {firstData.user?.studentId ?? '-'} | Result: {firstData.result}
+              <div>
+                User: {firstData.user?.username ?? 'N/A'} | Student ID:{' '}
+                {firstData.user?.studentId ?? '-'} | Real name:{' '}
+                {firstData.user?.userProfile?.realName ?? '-'}
+              </div>
+              <div>Result: {firstData.result}</div>
             </div>
           )}
         </div>
@@ -132,9 +136,13 @@ export function PlagiarismCodeComparisonView({
             Submission #{result.secondCheckSubmissionId}
           </div>
           {secondData && (
-            <div className="mt-1 text-xs text-green-700">
-              User: {secondData.user?.username ?? 'N/A'} | Student ID:{' '}
-              {secondData.user?.studentId ?? '-'} | Result: {secondData.result}
+            <div className="mt-1 flex flex-col gap-1 text-xs text-green-700">
+              <div>
+                User: {secondData.user?.username ?? 'N/A'} | Student ID:{' '}
+                {secondData.user?.studentId ?? '-'} | Real name:{' '}
+                {secondData.user?.userProfile?.realName ?? '-'}
+              </div>
+              <div>Result: {secondData.result}</div>
             </div>
           )}
         </div>
@@ -145,9 +153,6 @@ export function PlagiarismCodeComparisonView({
       <div className="grid flex-1 grid-cols-2 gap-4 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="pr-4">
-            <div className="mb-2 text-sm font-semibold text-blue-900">
-              Submission #{result.firstCheckSubmissionId}
-            </div>
             {firstLoading && (
               <div className="p-4 text-gray-500">Loading...</div>
             )}
@@ -173,9 +178,6 @@ export function PlagiarismCodeComparisonView({
 
         <ScrollArea className="h-full">
           <div className="pr-4">
-            <div className="mb-2 text-sm font-semibold text-green-900">
-              Submission #{result.secondCheckSubmissionId}
-            </div>
             {secondLoading && (
               <div className="p-4 text-gray-500">Loading...</div>
             )}

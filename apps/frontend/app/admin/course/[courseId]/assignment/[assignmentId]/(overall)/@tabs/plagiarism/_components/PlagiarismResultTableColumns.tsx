@@ -22,10 +22,23 @@ export interface PlagiarismResult {
   } | null
 }
 
+export function buildClusterIdToDisplayNo(
+  results: PlagiarismResult[]
+): Map<number, number> {
+  const ids = [
+    ...new Set(
+      results.map((r) => r.clusterId).filter((id): id is number => id !== null)
+    )
+  ].sort((a, b) => a - b)
+  return new Map(ids.map((id, i) => [id, i + 1]))
+}
+
 export function createPlagiarismResultColumns(
   onCompareClick: (row: PlagiarismResult) => void,
-  onClusterClick: (clusterId: number) => void
+  onClusterClick: (clusterId: number) => void,
+  results: PlagiarismResult[]
 ): ColumnDef<PlagiarismResult>[] {
+  const clusterIdToDisplayNo = buildClusterIdToDisplayNo(results)
   return [
     {
       accessorKey: 'firstStudentId',
@@ -90,13 +103,14 @@ export function createPlagiarismResultColumns(
         if (clusterId === null) {
           return <div className="text-sm text-gray-400">-</div>
         }
+        const displayNo = clusterIdToDisplayNo.get(clusterId) ?? clusterId
         return (
           <button
             type="button"
             onClick={() => onClusterClick(clusterId)}
             className="text-primary text-sm font-medium hover:underline"
           >
-            #{clusterId}
+            #{displayNo}
           </button>
         )
       }

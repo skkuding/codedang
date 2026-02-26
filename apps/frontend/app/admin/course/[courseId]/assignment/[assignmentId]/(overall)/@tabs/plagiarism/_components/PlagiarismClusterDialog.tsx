@@ -21,7 +21,10 @@ import {
   type ClusterSubmissionRow
 } from './PlagiarismClusterSubmissionColumns'
 import { PlagiarismCodeComparisonView } from './PlagiarismCodeComparisonView'
-import type { PlagiarismResult } from './PlagiarismResultTableColumns'
+import {
+  buildClusterIdToDisplayNo,
+  type PlagiarismResult
+} from './PlagiarismResultTableColumns'
 
 interface PlagiarismClusterDialogProps {
   open: boolean
@@ -38,6 +41,13 @@ export function PlagiarismClusterDialog({
   clusterId,
   results
 }: PlagiarismClusterDialogProps) {
+  const displayClusterNo = useMemo(
+    () =>
+      clusterId !== null
+        ? (buildClusterIdToDisplayNo(results).get(clusterId) ?? null)
+        : null,
+    [results, clusterId]
+  )
   const [view, setView] = useState<ViewMode>('list')
   const [selectedResult, setSelectedResult] = useState<PlagiarismResult | null>(
     null
@@ -166,7 +176,7 @@ export function PlagiarismClusterDialog({
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {view === 'list'
-              ? `Cluster #${clusterId ?? ''} — Comparison list`
+              ? `Cluster #${displayClusterNo ?? clusterId ?? ''} — Comparison list`
               : `Code comparison — Similarity: ${
                   selectedResult
                     ? (selectedResult.averageSimilarity * 100).toFixed(2)

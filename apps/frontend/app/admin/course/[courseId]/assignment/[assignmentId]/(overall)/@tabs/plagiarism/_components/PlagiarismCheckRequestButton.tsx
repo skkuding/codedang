@@ -25,7 +25,7 @@ import { GET_LATEST_SUBMISSION_COUNT_BY_LANGUAGE } from '@/graphql/submission/qu
 import { useMutation, useQuery } from '@apollo/client'
 import { Language } from '@generated/graphql'
 import { useParams } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 const PLAGIARISM_LANGUAGES: { value: Language; label: string }[] = [
@@ -121,18 +121,43 @@ export function PlagiarismCheckRequestButton({
       errorPolicy: 'all'
     })
 
-  const submissionCounts =
-    submissionCountsData?.getLatestSubmissionCountByLanguage ?? []
-  const selectedLanguageCount =
-    submissionCounts.find(
-      (item: { language: Language; count: number }) =>
-        item.language === language
-    )?.count ?? 0
-  const meetsPlagiarismCheckThreshold = selectedLanguageCount >= 2
+  const submissionCounts = useMemo(
+    () => submissionCountsData?.getLatestSubmissionCountByLanguage ?? [],
+    [submissionCountsData?.getLatestSubmissionCountByLanguage]
+  )
+  const hasAnyLanguageWithEnoughSubmissions = submissionCounts.some(
+    (item: { count: number }) => item.count >= 2
+  )
 
-  const selectedLanguageLabel =
-    allowedLanguages.find((l) => l.value === language)?.label ??
-    String(language)
+  const getCountForLanguage = useCallback(
+    (lang: Language) =>
+      submissionCounts.find(
+        (item: { language: Language; count: number }) => item.language === lang
+      )?.count ?? 0,
+    [submissionCounts]
+  )
+
+  useEffect(() => {
+    if (submissionCountsLoading) {
+      return
+    }
+    const currentCount = getCountForLanguage(language)
+    if (currentCount <= 2 && hasAnyLanguageWithEnoughSubmissions) {
+      const firstValid = allowedLanguages.find(
+        (l) => getCountForLanguage(l.value) >= 2
+      )
+      if (firstValid) {
+        setLanguage(firstValid.value)
+      }
+    }
+  }, [
+    submissionCountsLoading,
+    submissionCounts,
+    language,
+    hasAnyLanguageWithEnoughSubmissions,
+    allowedLanguages,
+    getCountForLanguage
+  ])
 
   useEffect(() => {
     if (isPolling && pollingStartedAt.current === null) {
@@ -242,65 +267,37 @@ export function PlagiarismCheckRequestButton({
               value={language}
               onValueChange={(v) => setLanguage(v as Language)}
             >
-              <SelectTrigger id="language">
+              <SelectTrigger
+                id="language"
+                className={
+                  !submissionCountsLoading &&
+                  getCountForLanguage(language) === 0
+                    ? 'text-gray-400'
+                    : undefined
+                }
+              >
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                {allowedLanguages.map(({ value, label }) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
+                {allowedLanguages.map(({ value, label }) => {
+                  const count = getCountForLanguage(value)
+                  const disabled = !submissionCountsLoading && count <= 2
+                  const countLabel = submissionCountsLoading
+                    ? label
+                    : `${label} (${count} submits)`
+                  return (
+                    <SelectItem
+                      key={value}
+                      value={value}
+                      disabled={disabled}
+                      className={disabled ? 'text-gray-400' : undefined}
+                    >
+                      {countLabel}
+                    </SelectItem>
+                  )
+                })}
               </SelectContent>
             </Select>
-          </div>
-          <div className="grid gap-1 text-xs">
-            {submissionCountsLoading && (
-              <p className="text-gray-500">
-                Loading latest submissions by language...
-              </p>
-            )}
-            {!submissionCountsLoading && submissionCounts.length > 0 && (
-              <>
-                <p className="text-gray-600">
-                  Latest submissions per language (per student):
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {submissionCounts.map(
-                    (item: { language: Language; count: number }) => (
-                      <span
-                        key={item.language}
-                        className={`rounded border px-2 py-0.5 ${
-                          item.language === language
-                            ? 'border-primary bg-primary/5 text-primary'
-                            : 'border-gray-200 text-gray-700'
-                        }`}
-                      >
-                        {item.language}: {item.count}
-                      </span>
-                    )
-                  )}
-                </div>
-                <p
-                  className={
-                    meetsPlagiarismCheckThreshold
-                      ? 'text-emerald-600'
-                      : 'text-red-600'
-                  }
-                >
-                  {selectedLanguageLabel} 기준 최신 제출 학생 수:{' '}
-                  <span className="font-semibold">{selectedLanguageCount}</span>
-                  명 — 표절 검사 최소 기준은{' '}
-                  <span className="font-semibold">2명 이상</span>
-                  입니다.
-                </p>
-              </>
-            )}
-            {!submissionCountsLoading && submissionCounts.length === 0 && (
-              <p className="text-gray-500">
-                No latest submissions found for this problem yet.
-              </p>
-            )}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="minTokens">Min tokens</Label>
@@ -347,7 +344,11 @@ export function PlagiarismCheckRequestButton({
           >
             Cancel
           </Button>
-          <Button type="button" onClick={handleSubmit} disabled={loading}>
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading || !hasAnyLanguageWithEnoughSubmissions}
+          >
             {loading ? 'Requesting...' : 'Submit'}
           </Button>
         </DialogFooter>
