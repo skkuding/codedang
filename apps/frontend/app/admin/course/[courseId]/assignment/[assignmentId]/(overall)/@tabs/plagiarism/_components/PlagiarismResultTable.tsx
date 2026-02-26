@@ -129,11 +129,21 @@ export function PlagiarismResultTable({
     [handleClusterClick, sortedResults]
   )
 
+  const hasProblems = problemData.length > 0
+
   const problemsForDropdown = problemData.map((p) => ({
     problemId: p.problemId,
     title: p.problem?.title ?? '',
     order: p.order
   }))
+
+  if (!hasProblems) {
+    return (
+      <div className="py-8 text-center text-gray-500">
+        No problems are available for this assignment.
+      </div>
+    )
+  }
 
   if (!selectedPid) {
     return (

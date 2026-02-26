@@ -70,6 +70,9 @@ export function PlagiarismCheckRequestButton({
 
   const [checkAssignmentSubmissions, { loading: mutationLoading }] =
     useMutation(CHECK_ASSIGNMENT_SUBMISSIONS, {
+      onCompleted: () => {
+        setIsPolling(true)
+      },
       onError: (error) => {
         toast.error(`Plagiarism check request failed: ${error.message}`)
         setOpen(false)
@@ -142,7 +145,7 @@ export function PlagiarismCheckRequestButton({
       return
     }
     const currentCount = getCountForLanguage(language)
-    if (currentCount <= 2 && hasAnyLanguageWithEnoughSubmissions) {
+    if (currentCount < 2 && hasAnyLanguageWithEnoughSubmissions) {
       const firstValid = allowedLanguages.find(
         (l) => getCountForLanguage(l.value) >= 2
       )
@@ -209,27 +212,19 @@ export function PlagiarismCheckRequestButton({
     }
   }, [isPolling, latestStatus, onRequestComplete])
 
-  const handleSubmit = useCallback(async () => {
-    try {
-      await checkAssignmentSubmissions({
-        variables: {
-          assignmentId: Number(assignmentId),
-          problemId,
-          input: {
-            language,
-            minTokens,
-            enableMerging,
-            useJplagClustering
-          }
+  const handleSubmit = useCallback(() => {
+    checkAssignmentSubmissions({
+      variables: {
+        assignmentId: Number(assignmentId),
+        problemId,
+        input: {
+          language,
+          minTokens,
+          enableMerging,
+          useJplagClustering
         }
-      })
-      toast.success(
-        'Plagiarism check request received. Please wait until it completes.'
-      )
-      setIsPolling(true)
-    } catch {
-      /* Handled by mutation onError */
-    }
+      }
+    })
   }, [
     assignmentId,
     problemId,
@@ -281,7 +276,7 @@ export function PlagiarismCheckRequestButton({
               <SelectContent className="bg-white">
                 {allowedLanguages.map(({ value, label }) => {
                   const count = getCountForLanguage(value)
-                  const disabled = !submissionCountsLoading && count <= 2
+                  const disabled = !submissionCountsLoading && count < 2
                   const countLabel = submissionCountsLoading
                     ? label
                     : `${label} (${count} submits)`
@@ -318,7 +313,7 @@ export function PlagiarismCheckRequestButton({
               onCheckedChange={setEnableMerging}
             />
             <Label htmlFor="enableMerging">
-              enableMerging (obfuscation resistance)
+              Enable merging (obfuscation resistance)
             </Label>
           </div>
           <div className="flex items-center space-x-2">
