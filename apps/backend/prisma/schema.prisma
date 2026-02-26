@@ -63,28 +63,32 @@ model User {
   createdCourseQnAs        CourseQnA[]        @relation("CreatedByUserCourseQnA")
   createdCourseQnAComments CourseQnAComment[] @relation("CreatedByUserCourseQnAComment")
 
-  userProfile         UserProfile?
-  userGroup           UserGroup[]
-  notice              Notice[]
-  problem             Problem[]
-  assignment          Assignment[]
-  assignmentRecord    AssignmentRecord[]
-  contest             Contest[]
-  userContest         UserContest[]
-  contestRecord       ContestRecord[]
-  workbook            Workbook[]
-  submission          Submission[]
-  useroauth           UserOAuth?
-  file                File[]
-  testSubmission      TestSubmission[]
-  UpdateHistory       UpdateHistory[]
-  createdQnAs         ContestQnA[]          @relation("CreatedByUser")
-  createdQnAComments  ContestQnAComment[]   @relation("CreatedByUser")
-  NotificationRecord  NotificationRecord[]
-  PushSubscription    PushSubscription[]
-  CourseNotice        CourseNotice[]
-  CourseNoticeComment CourseNoticeComment[]
-  CheckRequest        CheckRequest[]
+  userProfile              UserProfile?
+  userGroup                UserGroup[]
+  notice                   Notice[]
+  problem                  Problem[]
+  assignment               Assignment[]
+  assignmentRecord         AssignmentRecord[]
+  contest                  Contest[]
+  userContest              UserContest[]
+  contestRecord            ContestRecord[]
+  workbook                 Workbook[]
+  submission               Submission[]
+  useroauth                UserOAuth?
+  file                     File[]
+  testSubmission           TestSubmission[]
+  UpdateHistory            UpdateHistory[]
+  createdQnAs              ContestQnA[]             @relation("CreatedByUser")
+  createdQnAComments       ContestQnAComment[]      @relation("CreatedByUser")
+  NotificationRecord       NotificationRecord[]
+  PushSubscription         PushSubscription[]
+  CourseNotice             CourseNotice[]
+  CourseNoticeComment      CourseNoticeComment[]
+  CheckRequest             CheckRequest[]
+  polygonProblems          PolygonProblem[]         @relation("PolygonProblemOwner")
+  polygonCollaborations    PolygonCollaborator[]    @relation("PolygonCollaborator")
+  polygonApprovalRequests  PolygonApprovalRequest[] @relation("PolygonApprovalRequester")
+  polygonReviewedApprovals PolygonApprovalRequest[] @relation("PolygonApprovalReviewer")
 
   @@map("user")
 }
@@ -1012,4 +1016,171 @@ model CourseQnAComment {
 
   @@unique([courseQnAId, order])
   @@map("course_qna_comment")
+}
+
+enum PolygonProblemStatus {
+  Draft
+  Ready
+  PendingApproval
+  Rejected
+  Published
+}
+
+enum TestFileType {
+  IN
+  OUT
+}
+
+enum CollaboratorRole {
+  Owner
+  Editor
+  Viewer
+}
+
+enum CollaboratorStatus {
+  Pending
+  Active
+}
+
+enum PolygonApprovalStatus {
+  Pending
+  Approved
+  Rejected
+}
+
+enum ToolType {
+  Generator
+  Validator
+  Checker
+}
+
+model PolygonProblem {
+  id          Int   @id @default(autoincrement())
+  createdBy   User? @relation("PolygonProblemOwner", fields: [createdById], references: [id])
+  createdById Int?  @map("created_by_id")
+
+  // Statement
+  title             String
+  description       String
+  inputDescription  String     @map("input_description")
+  outputDescription String     @map("output_description")
+  timeLimit         Int        @map("time_limit") // unit: MilliSeconds
+  memoryLimit       Int        @map("memory_limit") // unit: MegaBytes
+  languages         Language[]
+  difficulty        Level
+
+  // Status
+  status      PolygonProblemStatus @default(Draft)
+  lastRunPass Boolean              @default(false) @map("last_run_pass")
+
+  createTime              DateTime                 @default(now()) @map("create_time")
+  updateTime              DateTime                 @updatedAt @map("update_time")
+  polygonSamples          PolygonSample[]
+  polygonTestFiles        PolygonTestFile[]
+  polygonSolution         PolygonSolution?
+  polygonTools            PolygonTool[]
+  polygonCollaborators    PolygonCollaborator[]
+  polygonApprovalRequests PolygonApprovalRequest[]
+
+  @@map("polygon_problem")
+}
+
+model PolygonSample {
+  id        Int            @id @default(autoincrement())
+  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int            @map("problem_id")
+
+  inputText  String @map("input_text")
+  outputText String @map("output_text")
+  order      Int
+
+  createTime DateTime @default(now()) @map("create_time")
+
+  @@map("polygon_sample")
+}
+
+model PolygonTestFile {
+  id        Int            @id @default(autoincrement())
+  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int            @map("problem_id")
+
+  fileName String       @map("file_name") // 원본 파일명 (1.in)
+  baseName String       @map("base_name") // 확장자 제외
+  fileType TestFileType @map("file_type")
+  filePath String       @map("file_path") // S3 key
+  fileSize BigInt       @map("file_size")
+
+  createTime DateTime @default(now()) @map("create_time")
+
+  @@index([problemId, baseName])
+  @@map("polygon_test_file")
+}
+
+model PolygonSolution {
+  id        Int            @id @default(autoincrement())
+  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int            @unique @map("problem_id")
+
+  fileName String   @map("file_name") // 원본 파일명 (solution.cpp)
+  filePath String   @map("file_path") // S3 key
+  language Language
+
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@map("polygon_solution")
+}
+
+model PolygonTool {
+  id        Int            @id @default(autoincrement())
+  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int            @map("problem_id")
+
+  toolType ToolType @map("tool_type") // 'generator' | 'validator' | 'checker'
+  fileName String   @map("file_name")
+  filePath String   @map("file_path") // S3 key
+
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@unique([problemId, toolType])
+  @@map("polygon_tool")
+}
+
+model PolygonCollaborator {
+  id        Int            @id @default(autoincrement())
+  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int            @map("problem_id")
+
+  user   User @relation("PolygonCollaborator", fields: [userId], references: [id])
+  userId Int  @map("user_id")
+
+  role   CollaboratorRole // Owner | Editor | Viewer
+  status CollaboratorStatus @default(Pending) // Pending | Active
+
+  createTime DateTime @default(now()) @map("create_time")
+
+  @@unique([problemId, userId])
+  @@map("polygon_collaborator")
+}
+
+model PolygonApprovalRequest {
+  id        Int            @id @default(autoincrement())
+  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int            @map("problem_id")
+
+  requester   User @relation("PolygonApprovalRequester", fields: [requesterId], references: [id])
+  requesterId Int  @map("requester_id")
+
+  status      PolygonApprovalStatus @default(Pending) // Pending | Approved | Rejected
+  message     String? // 제출 시 메시지
+  submittedAt DateTime              @default(now()) @map("submitted_at")
+
+  reviewer   User?     @relation("PolygonApprovalReviewer", fields: [reviewerId], references: [id])
+  reviewerId Int?      @map("reviewer_id")
+  reviewedAt DateTime? @map("reviewed_at")
+
+  rejectionReason String? @map("rejection_reason")
+
+  @@map("polygon_approval_request")
 }

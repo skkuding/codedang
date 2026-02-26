@@ -2,287 +2,744 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
 
 const (
 	RunnerImageTag  = "RUNNER_IMAGE_TAG"
-	RunnerNamespace = "RUNNER_NAMESPACE"
+	RunnerNamespace = "runner"
 )
 
-// RunnerPod: 생성된 Runner Pod의 정보를 저장
 type RunnerPod struct {
-	Name      string
-	IP        string
-	CreatedAt time.Time
+	Name       string
+	IP         string
+	NodePoolID string
+	CreatedAt  time.Time
+	LastUsedAt time.Time
 }
 
-// PodManager: Kubernetes Pod를 관리하는 서비스
+type RunnerNodePool struct {
+	NodePoolID string
+	MaxPods    int
+}
+
 type PodManager struct {
-	clientset *kubernetes.Clientset
-	logger    *log.Logger
+	clientset       *kubernetes.Clientset
+	logger          *log.Logger
+	namespace       string
+	imageTag        string
+	targetPoolSize  int
+	leaseTimeout    time.Duration
+	readyTimeout    time.Duration
+	nodeSelectorKey string
+	nodePools       []RunnerNodePool
+	nextNodePoolIdx int
+
+	idlePods chan *RunnerPod
+
+	mu                 sync.Mutex
+	busyPods           map[string]*RunnerPod
+	provisioning       int
+	idleCounts         map[string]int
+	busyCounts         map[string]int
+	provisioningCounts map[string]int
 }
 
-// NewPodManager: PodManager 인스턴스 생성
-func NewPodManager(clientset *kubernetes.Clientset) *PodManager {
-	return &PodManager{
-		clientset: clientset,
-		logger:    log.New(os.Stdout, "[Pod Manager] ", log.LstdFlags),
-	}
-}
-
-// createRunnerPod: 코드 실행을 위한 새로운 Pod 생성 (제한 리소스: 0.5 CPU, 512MB Memory)
-func (pm *PodManager) createRunnerPod() (*RunnerPod, error) {
+func NewPodManager(clientset *kubernetes.Clientset) (*PodManager, error) {
+	logger := log.New(os.Stdout, "[Pod Manager] ", log.LstdFlags)
 	imageTag := os.Getenv(RunnerImageTag)
 	if imageTag == "" {
 		return nil, fmt.Errorf("environment variable %s is not set", RunnerImageTag)
 	}
 
-	namespace := os.Getenv(RunnerNamespace)
-	if namespace == "" {
-		namespace = "runner" // default fallback
+	poolSize := envInt("RUNNER_POOL_SIZE", 10)
+	if poolSize < 1 {
+		poolSize = 1
 	}
+
+	leaseTimeoutSec := envInt("RUNNER_LEASE_TIMEOUT_SEC", 3)
+	if leaseTimeoutSec < 1 {
+		leaseTimeoutSec = 1
+	}
+
+	readyTimeoutSec := envInt("RUNNER_READY_TIMEOUT_SEC", 90)
+	if readyTimeoutSec < 10 {
+		readyTimeoutSec = 10
+	}
+
+	nodeSelectorKey, nodePools, err := loadRunnerNodePools(poolSize)
+	if err != nil {
+		return nil, err
+	}
+	if len(nodePools) > 0 {
+		totalCap := 0
+		for _, pool := range nodePools {
+			totalCap += pool.MaxPods
+		}
+		if poolSize > totalCap {
+			logger.Printf(
+				"RUNNER_POOL_SIZE=%d exceeds RUNNER_NODE_POD_COUNTS total=%d, clamping pool size",
+				poolSize,
+				totalCap,
+			)
+			poolSize = totalCap
+		}
+	}
+
+	pm := &PodManager{
+		clientset:          clientset,
+		logger:             logger,
+		namespace:          RunnerNamespace,
+		imageTag:           imageTag,
+		targetPoolSize:     poolSize,
+		leaseTimeout:       time.Duration(leaseTimeoutSec) * time.Second,
+		readyTimeout:       time.Duration(readyTimeoutSec) * time.Second,
+		nodeSelectorKey:    nodeSelectorKey,
+		nodePools:          nodePools,
+		idlePods:           make(chan *RunnerPod, poolSize),
+		busyPods:           make(map[string]*RunnerPod),
+		idleCounts:         make(map[string]int),
+		busyCounts:         make(map[string]int),
+		provisioningCounts: make(map[string]int),
+	}
+
+	pm.initManagerIdentity()
+	return pm, nil
+}
+
+func envInt(key string, fallback int) int {
+	value := os.Getenv(key)
+	if value == "" {
+		return fallback
+	}
+
+	parsed, err := strconv.Atoi(value)
+	if err != nil {
+		return fallback
+	}
+
+	return parsed
+}
+
+func loadRunnerNodePools(defaultPoolSize int) (string, []RunnerNodePool, error) {
+	selectorKey := strings.TrimSpace(os.Getenv("RUNNER_NODE_SELECTOR_KEY"))
+	if selectorKey == "" {
+		return "", nil, nil
+	}
+
+	rawPodCounts := strings.TrimSpace(os.Getenv("RUNNER_NODE_POD_COUNTS"))
+	if rawPodCounts != "" {
+		pools := make([]RunnerNodePool, 0)
+		for _, item := range strings.Split(rawPodCounts, ",") {
+			item = strings.TrimSpace(item)
+			if item == "" {
+				continue
+			}
+
+			parts := strings.SplitN(item, "=", 2)
+			if len(parts) != 2 {
+				return "", nil, fmt.Errorf(
+					"invalid RUNNER_NODE_POD_COUNTS entry %q (expected nodePoolID=maxPods)",
+					item,
+				)
+			}
+
+			value := strings.TrimSpace(parts[0])
+			if value == "" {
+				return "", nil, fmt.Errorf("invalid RUNNER_NODE_POD_COUNTS entry %q: empty nodePoolID", item)
+			}
+
+			maxPods, err := strconv.Atoi(strings.TrimSpace(parts[1]))
+			if err != nil || maxPods < 1 {
+				return "", nil, fmt.Errorf("invalid RUNNER_NODE_POD_COUNTS entry %q: maxPods must be >= 1", item)
+			}
+
+			pools = append(pools, RunnerNodePool{
+				NodePoolID: value,
+				MaxPods:    maxPods,
+			})
+		}
+
+		if len(pools) == 0 {
+			return "", nil, fmt.Errorf("RUNNER_NODE_POD_COUNTS is set but no valid node pools were parsed")
+		}
+
+		return selectorKey, pools, nil
+	}
+
+	singleValue := strings.TrimSpace(os.Getenv("RUNNER_NODE_SELECTOR_VALUE"))
+	if singleValue == "" {
+		return "", nil, fmt.Errorf(
+			"RUNNER_NODE_SELECTOR_KEY is set but neither RUNNER_NODE_POD_COUNTS nor RUNNER_NODE_SELECTOR_VALUE is set",
+		)
+	}
+
+	return selectorKey, []RunnerNodePool{{
+		NodePoolID: singleValue,
+		MaxPods:    defaultPoolSize,
+	}}, nil
+}
+
+func (pm *PodManager) startWarmPool() {
+	pm.reconcileManagedRunnerPods()
+	pm.ensurePool()
+
+	ticker := time.NewTicker(5 * time.Second)
+	go func() {
+		for range ticker.C {
+			pm.ensurePool()
+		}
+	}()
+}
+
+func (pm *PodManager) initManagerIdentity() {
+	if pm.managerPodName == "" {
+		pm.logger.Printf("HOSTNAME is empty, owner references are disabled")
+		return
+	}
+
+	pod, err := pm.clientset.CoreV1().Pods(pm.namespace).Get(
+		context.Background(),
+		pm.managerPodName,
+		metav1.GetOptions{},
+	)
+	if err != nil {
+		pm.logger.Printf("Failed to load manager pod identity (%s): %v", pm.managerPodName, err)
+		return
+	}
+
+	pm.managerPodUID = string(pod.UID)
+}
+
+func (pm *PodManager) reconcileManagedRunnerPods() {
+	activeManagerUIDs := make(map[string]struct{})
+
+	managerPods, err := pm.clientset.CoreV1().Pods(pm.namespace).List(
+		context.Background(),
+		metav1.ListOptions{LabelSelector: "app=pod-manager"},
+	)
+	if err != nil {
+		pm.logger.Printf("Failed to list pod-manager pods for reconcile: %v", err)
+		return
+	}
+
+	for _, pod := range managerPods.Items {
+		if pod.DeletionTimestamp != nil {
+			continue
+		}
+		activeManagerUIDs[string(pod.UID)] = struct{}{}
+	}
+
+	runnerPods, err := pm.clientset.CoreV1().Pods(pm.namespace).List(
+		context.Background(),
+		metav1.ListOptions{LabelSelector: "managed-by=runner-pod-manager"},
+	)
+	if err != nil {
+		pm.logger.Printf("Failed to list managed runner pods for reconcile: %v", err)
+		return
+	}
+
+	for _, pod := range runnerPods.Items {
+		if pod.DeletionTimestamp != nil {
+			continue
+		}
+
+		ownerUID := runnerOwnerPodUID(&pod)
+		_, ownerAlive := activeManagerUIDs[ownerUID]
+
+		shouldDelete := false
+		reason := ""
+
+		switch {
+		case ownerUID == "":
+			shouldDelete = true
+			reason = "legacy runner without ownerReference"
+		case pm.managerPodUID != "" && ownerUID == pm.managerPodUID:
+			shouldDelete = true
+			reason = "runner owned by current pod-manager from previous process state"
+		case !ownerAlive:
+			shouldDelete = true
+			reason = "runner owned by deleted pod-manager"
+		}
+
+		if !shouldDelete {
+			continue
+		}
+
+		if err := pm.deleteRunnerPod(pod.Name); err != nil {
+			pm.logger.Printf("Failed to delete reconciled runner pod %s: %v", pod.Name, err)
+			continue
+		}
+		pm.logger.Printf("Reconciled runner pod %s (%s)", pod.Name, reason)
+	}
+}
+
+func runnerOwnerPodUID(pod *corev1.Pod) string {
+	for _, ref := range pod.OwnerReferences {
+		if ref.APIVersion == "v1" && ref.Kind == "Pod" {
+			return string(ref.UID)
+		}
+	}
+	return ""
+}
+
+func (pm *PodManager) ensurePool() {
+	pm.mu.Lock()
+	currentTotal := len(pm.idlePods) + len(pm.busyPods) + pm.provisioning
+	missing := pm.targetPoolSize - currentTotal
+	if missing <= 0 {
+		excessIdlePods := []*RunnerPod(nil)
+		if missing < 0 {
+			excessIdlePods = pm.takeExcessIdlePodsLocked(-missing)
+		}
+		pm.mu.Unlock()
+
+		for _, pod := range excessIdlePods {
+			pm.logger.Printf("Shrinking excess idle pod: %s (nodePool=%s)", pod.Name, pod.NodePoolID)
+			if err := pm.deleteRunnerPod(pod.Name); err != nil {
+				pm.logger.Printf("Failed to delete excess idle pod %s: %v", pod.Name, err)
+			}
+		}
+		return
+	}
+	nodeSelections := make([]string, 0, missing)
+	for i := 0; i < missing; i++ {
+		nodeValue, ok := pm.reserveProvisioningSlotLocked()
+		if !ok {
+			break
+		}
+		nodeSelections = append(nodeSelections, nodeValue)
+	}
+	pm.mu.Unlock()
+
+	if len(nodeSelections) == 0 {
+		if len(pm.nodePools) > 0 {
+			pm.logger.Printf("No node pool has free capacity (target=%d current=%d)", pm.targetPoolSize, currentTotal)
+		}
+		return
+	}
+
+	for _, nodeValue := range nodeSelections {
+		go pm.provisionOnePod(nodeValue)
+	}
+}
+
+func (pm *PodManager) takeExcessIdlePodsLocked(excess int) []*RunnerPod {
+	if excess <= 0 {
+		return nil
+	}
+
+	removable := excess
+	if removable > len(pm.idlePods) {
+		removable = len(pm.idlePods)
+	}
+
+	pods := make([]*RunnerPod, 0, removable)
+	for i := 0; i < removable; i++ {
+		select {
+		case pod := <-pm.idlePods:
+			if pod.NodePoolID != "" {
+				pm.idleCounts[pod.NodePoolID]--
+				if pm.idleCounts[pod.NodePoolID] <= 0 {
+					delete(pm.idleCounts, pod.NodePoolID)
+				}
+			}
+			pods = append(pods, pod)
+		default:
+			return pods
+		}
+	}
+
+	return pods
+}
+
+func (pm *PodManager) reserveProvisioningSlotLocked() (string, bool) {
+	if len(pm.nodePools) == 0 {
+		pm.provisioning++
+		return "", true
+	}
+
+	for i := 0; i < len(pm.nodePools); i++ {
+		idx := (pm.nextNodePoolIdx + i) % len(pm.nodePools)
+		pool := pm.nodePools[idx]
+		current := pm.idleCounts[pool.NodePoolID] +
+			pm.busyCounts[pool.NodePoolID] +
+			pm.provisioningCounts[pool.NodePoolID]
+		if current >= pool.MaxPods {
+			continue
+		}
+
+		pm.nextNodePoolIdx = (idx + 1) % len(pm.nodePools)
+		pm.provisioning++
+		pm.provisioningCounts[pool.NodePoolID]++
+		return pool.NodePoolID, true
+	}
+
+	return "", false
+}
+
+func (pm *PodManager) releaseProvisioningSlot(nodeValue string) {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	pm.provisioning--
+	if nodeValue != "" {
+		pm.provisioningCounts[nodeValue]--
+		if pm.provisioningCounts[nodeValue] <= 0 {
+			delete(pm.provisioningCounts, nodeValue)
+		}
+	}
+}
+
+func (pm *PodManager) provisionOnePod(nodeValue string) {
+	defer func() {
+		pm.releaseProvisioningSlot(nodeValue)
+	}()
+
+	pod, err := pm.createAndWaitRunnerPod(nodeValue)
+	if err != nil {
+		pm.logger.Printf("Failed to provision warm pod: %v", err)
+		return
+	}
+
+	select {
+	case pm.idlePods <- pod:
+		pm.mu.Lock()
+		if pod.NodePoolID != "" {
+			pm.idleCounts[pod.NodePoolID]++
+		}
+		pm.mu.Unlock()
+		pm.logger.Printf("Warm pod ready: %s (%s)", pod.Name, pod.IP)
+	default:
+		pm.logger.Printf("Idle pool is full, deleting extra pod: %s", pod.Name)
+		_ = pm.deleteRunnerPod(pod.Name)
+	}
+}
+
+func (pm *PodManager) createAndWaitRunnerPod(nodeValue string) (*RunnerPod, error) {
+	pod, err := pm.createRunnerPod(nodeValue)
+	if err != nil {
+		return nil, err
+	}
+
+	podIP, err := pm.waitForPodReady(pod.Name)
+	if err != nil {
+		pm.logger.Printf("Pod %s failed warm-up: %v", pod.Name, err)
+		_ = pm.deleteRunnerPod(pod.Name)
+		return nil, err
+	}
+
+	pod.IP = podIP
+	return pod, nil
+}
+
+func (pm *PodManager) createRunnerPod(nodeValue string) (*RunnerPod, error) {
+	privileged := true
 
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: "runner-",
 			Labels: map[string]string{
-				"app": "iris-runner",
+				"app":        "runner",
+				"managed-by": "runner-pod-manager",
 			},
 		},
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
 				{
 					Name:            "runner",
-					Image:           fmt.Sprintf("ghcr.io/skkuding/codedang-runner-backend:%s", imageTag),
-					ImagePullPolicy: corev1.PullAlways,
+					Image:           fmt.Sprintf("%s:%s", "ghcr.io/skkuding/codedang-runner", pm.imageTag),
+					ImagePullPolicy: corev1.PullIfNotPresent,
 					Ports: []corev1.ContainerPort{
 						{ContainerPort: 8000},
 					},
-					SecurityContext: &corev1.SecurityContext{
-						Privileged: func(b bool) *bool { return &b }(true),
-					},
+					SecurityContext: &corev1.SecurityContext{Privileged: &privileged},
 					Resources: corev1.ResourceRequirements{
 						Limits: corev1.ResourceList{
+							corev1.ResourceCPU:    resource.MustParse("500m"),
 							corev1.ResourceMemory: resource.MustParse("512Mi"),
 						},
 						Requests: corev1.ResourceList{
-							corev1.ResourceCPU:    resource.MustParse("0.5"),
+							corev1.ResourceCPU:    resource.MustParse("250m"),
 							corev1.ResourceMemory: resource.MustParse("512Mi"),
 						},
+					},
+					ReadinessProbe: &corev1.Probe{
+						ProbeHandler: corev1.ProbeHandler{
+							HTTPGet: &corev1.HTTPGetAction{
+								Path: "/healthz",
+								Port: intstr.FromInt(8000),
+							},
+						},
+						InitialDelaySeconds: 1,
+						PeriodSeconds:       1,
+						TimeoutSeconds:      1,
+						FailureThreshold:    5,
+					},
+					LivenessProbe: &corev1.Probe{
+						ProbeHandler: corev1.ProbeHandler{
+							HTTPGet: &corev1.HTTPGetAction{
+								Path: "/healthz",
+								Port: intstr.FromInt(8000),
+							},
+						},
+						InitialDelaySeconds: 10,
+						PeriodSeconds:       10,
+						TimeoutSeconds:      1,
+						FailureThreshold:    3,
 					},
 				},
 			},
 			RestartPolicy: corev1.RestartPolicyNever,
 		},
 	}
+	if pm.nodeSelectorKey != "" && nodeValue != "" {
+		pod.Spec.NodeSelector = map[string]string{
+			pm.nodeSelectorKey: nodeValue,
+		}
+		pod.ObjectMeta.Labels["runner-node-pool"] = nodeValue
+	}
 
-	created, err := pm.clientset.CoreV1().Pods(namespace).Create(
+	if pm.managerPodUID != "" && pm.managerPodName != "" {
+		controller := true
+		blockOwnerDeletion := false
+		pod.ObjectMeta.OwnerReferences = []metav1.OwnerReference{
+			{
+				APIVersion:         "v1",
+				Kind:               "Pod",
+				Name:               pm.managerPodName,
+				UID:                types.UID(pm.managerPodUID),
+				Controller:         &controller,
+				BlockOwnerDeletion: &blockOwnerDeletion,
+			},
+		}
+	}
+
+	created, err := pm.clientset.CoreV1().Pods(pm.namespace).Create(
 		context.Background(),
 		pod,
 		metav1.CreateOptions{},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create pod: %v", err)
+		return nil, fmt.Errorf("failed to create pod: %w", err)
 	}
 
-	pm.logger.Printf("Created new runner pod: %s", created.Name)
-
+	pm.logger.Printf("Created runner pod: %s", created.Name)
 	return &RunnerPod{
-		Name:      created.Name,
-		IP:        "", // 빈 문자열로 초기화, waitForPodReady에서 업데이트
-		CreatedAt: time.Now(),
+		Name:       created.Name,
+		NodePoolID: nodeValue,
+		CreatedAt:  time.Now(),
 	}, nil
 }
 
-func (pm *PodManager) deleteRunnerPod(podName string) error {
-	namespace := os.Getenv(RunnerNamespace)
-	if namespace == "" {
-		namespace = "runner" // default fallback
-	}
+func (pm *PodManager) waitForPodReady(podName string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), pm.readyTimeout)
+	defer cancel()
 
-	err := pm.clientset.CoreV1().Pods(namespace).Delete(
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			pod, err := pm.clientset.CoreV1().Pods(pm.namespace).Get(context.Background(), podName, metav1.GetOptions{})
+			if err != nil {
+				return "", fmt.Errorf("timeout waiting for pod %s to be ready: %w", podName, ctx.Err())
+			}
+			return "", fmt.Errorf("timeout waiting for pod %s to be ready (phase=%s)", podName, pod.Status.Phase)
+
+		case <-ticker.C:
+			pod, err := pm.clientset.CoreV1().Pods(pm.namespace).Get(context.Background(), podName, metav1.GetOptions{})
+			if err != nil {
+				return "", fmt.Errorf("failed to get pod status: %w", err)
+			}
+
+			if pod.Status.Phase == corev1.PodFailed || pod.Status.Phase == corev1.PodSucceeded {
+				return "", fmt.Errorf("pod %s is in terminal state: %s", podName, pod.Status.Phase)
+			}
+
+			if pod.Status.Phase != corev1.PodRunning {
+				continue
+			}
+
+			if pod.Status.PodIP == "" {
+				continue
+			}
+
+			allReady := true
+			for _, status := range pod.Status.ContainerStatuses {
+				if !status.Ready {
+					allReady = false
+					break
+				}
+			}
+
+			if allReady {
+				return pod.Status.PodIP, nil
+			}
+		}
+	}
+}
+
+func (pm *PodManager) deleteRunnerPod(podName string) error {
+	err := pm.clientset.CoreV1().Pods(pm.namespace).Delete(
 		context.Background(),
 		podName,
 		metav1.DeleteOptions{},
 	)
 	if err != nil {
-		return fmt.Errorf("failed to delete pod %s: %v", podName, err)
+		return fmt.Errorf("failed to delete pod %s: %w", podName, err)
 	}
 
 	pm.logger.Printf("Deleted runner pod: %s", podName)
 	return nil
 }
 
-// waitForPodReady: Pod 준비될 때까지 대기 후(최대 90초), 생성된 Pod의 IP 주소 반환
-func (pm *PodManager) waitForPodReady(podName string) (string, error) {
-	namespace := os.Getenv(RunnerNamespace)
-	if namespace == "" {
-		namespace = "runner" // default fallback
-	}
+func (pm *PodManager) leasePod() (*RunnerPod, error) {
+	timer := time.NewTimer(pm.leaseTimeout)
+	defer timer.Stop()
 
-	timeout := time.After(90 * time.Second)
-	tick := time.Tick(1 * time.Second)
-	var podIP string
-
-	for {
-		select {
-		case <-timeout:
-			// 타임아웃 시 Pod 상태 자세히 조사
-			pod, err := pm.clientset.CoreV1().Pods(namespace).Get(
-				context.Background(),
-				podName,
-				metav1.GetOptions{},
-			)
-			if err != nil {
-				return "", fmt.Errorf("timeout and failed to get pod status: %v", err)
+	select {
+	case pod := <-pm.idlePods:
+		pm.mu.Lock()
+		if pod.NodePoolID != "" {
+			pm.idleCounts[pod.NodePoolID]--
+			if pm.idleCounts[pod.NodePoolID] <= 0 {
+				delete(pm.idleCounts, pod.NodePoolID)
 			}
-
-			// 현재 Pod 상태, 컨테이너 상태 로깅
-			pm.logger.Printf("Pod %s timed out with phase: %s", podName, pod.Status.Phase)
-
-			for _, containerStatus := range pod.Status.ContainerStatuses {
-				pm.logger.Printf("Container %s - Ready: %v", containerStatus.Name, containerStatus.Ready)
-
-				if containerStatus.State.Waiting != nil {
-					pm.logger.Printf("Container %s is waiting: reason=%s, message=%s",
-						containerStatus.Name,
-						containerStatus.State.Waiting.Reason,
-						containerStatus.State.Waiting.Message)
-				}
-				if containerStatus.State.Terminated != nil {
-					pm.logger.Printf("Container %s terminated: reason=%s, exitCode=%d, message=%s",
-						containerStatus.Name,
-						containerStatus.State.Terminated.Reason,
-						containerStatus.State.Terminated.ExitCode,
-						containerStatus.State.Terminated.Message)
-				}
-				if containerStatus.LastTerminationState.Terminated != nil {
-					pm.logger.Printf("Container %s last termination: reason=%s, exitCode=%d",
-						containerStatus.Name,
-						containerStatus.LastTerminationState.Terminated.Reason,
-						containerStatus.LastTerminationState.Terminated.ExitCode)
-				}
-			}
-
-			return "", fmt.Errorf("timeout waiting for pod %s to be ready", podName)
-
-		case <-tick:
-			pod, err := pm.clientset.CoreV1().Pods(namespace).Get(
-				context.Background(),
-				podName,
-				metav1.GetOptions{},
-			)
-			if err != nil {
-				return "", fmt.Errorf("failed to get pod status: %v", err)
-			}
-
-			// 매 틱마다 현재 상태 로깅
-			pm.logger.Printf("Checking pod %s: phase=%s", podName, pod.Status.Phase)
-
-			// Pod IP 저장
-			podIP = pod.Status.PodIP
-
-			// Pod가 중지된 경우 (실패/완료)
-			if pod.Status.Phase == corev1.PodFailed || pod.Status.Phase == corev1.PodSucceeded {
-				pm.logger.Printf("Pod %s is in terminal state: %s", podName, pod.Status.Phase)
-
-				// 컨테이너 상태 확인
-				for _, containerStatus := range pod.Status.ContainerStatuses {
-					if containerStatus.State.Terminated != nil {
-						pm.logger.Printf("Container %s terminated: reason=%s, exitCode=%d",
-							containerStatus.Name,
-							containerStatus.State.Terminated.Reason,
-							containerStatus.State.Terminated.ExitCode)
-					}
-				}
-
-				// 로그 가져오기 시도
-				logs, err := pm.clientset.CoreV1().Pods(namespace).GetLogs(
-					podName,
-					&corev1.PodLogOptions{},
-				).Do(context.Background()).Raw()
-
-				if err == nil && len(logs) > 0 {
-					pm.logger.Printf("Pod %s logs: %s", podName, string(logs))
-				} else {
-					pm.logger.Printf("Could not get logs for pod %s: %v", podName, err)
-				}
-
-				return "", fmt.Errorf("pod %s is in terminal state: %s", podName, pod.Status.Phase)
-			}
-
-			if pod.Status.Phase == corev1.PodRunning {
-				// Pod Running 상태 확인
-				allContainersReady := true
-				for _, containerStatus := range pod.Status.ContainerStatuses {
-					if !containerStatus.Ready {
-						allContainersReady = false
-						pm.logger.Printf("Container %s is not ready", containerStatus.Name)
-					}
-				}
-
-				if allContainersReady {
-					// Pod IP 확인
-					if podIP == "" {
-						pm.logger.Printf("Pod %s is ready but has no IP address", podName)
-						continue
-					}
-
-					// Pod가 준비되었지만 서비스가 시작되기까지 약간의 지연 추가
-					pm.logger.Printf("Pod %s is ready (all containers ready) with IP: %s", podName, podIP)
-					pm.logger.Printf("Waiting 2 seconds for services to initialize...")
-					time.Sleep(2 * time.Second)
-
-					return podIP, nil
-				} else {
-					pm.logger.Printf("Pod %s is running but not all containers are ready", podName)
-				}
-			} else {
-				// Pending, Unknown 등 다양한 상태 처리
-				pm.logger.Printf("Pod %s is not running yet (phase: %s)", podName, pod.Status.Phase)
-			}
+			pm.busyCounts[pod.NodePoolID]++
 		}
+		pm.busyPods[pod.Name] = pod
+		pm.mu.Unlock()
+		return pod, nil
+	case <-timer.C:
+		return nil, errors.New("warm pod pool exhausted")
 	}
 }
 
-// handleWebSocket: 클라이언트의 WebSocket 연결 처리 및 Pod과의 통신 중계
-func (pm *PodManager) handleWebSocket(w http.ResponseWriter, r *http.Request) {
-	pod, err := pm.createRunnerPod()
+func (pm *PodManager) releasePod(pod *RunnerPod, forceReplace bool) {
+	pm.mu.Lock()
+	delete(pm.busyPods, pod.Name)
+	if pod.NodePoolID != "" {
+		pm.busyCounts[pod.NodePoolID]--
+		if pm.busyCounts[pod.NodePoolID] <= 0 {
+			delete(pm.busyCounts, pod.NodePoolID)
+		}
+	}
+	pm.mu.Unlock()
+
+	if !forceReplace && pm.isPodReusable(pod.Name) {
+		pod.LastUsedAt = time.Now()
+		select {
+		case pm.idlePods <- pod:
+			pm.mu.Lock()
+			if pod.NodePoolID != "" {
+				pm.idleCounts[pod.NodePoolID]++
+			}
+			pm.mu.Unlock()
+			return
+		default:
+			pm.logger.Printf("Idle pool channel is full, replacing pod: %s", pod.Name)
+		}
+	}
+
+	if err := pm.deleteRunnerPod(pod.Name); err != nil {
+		pm.logger.Printf("Failed to delete pod %s: %v", pod.Name, err)
+	}
+
+	pm.ensurePool()
+}
+
+func (pm *PodManager) isPodReusable(podName string) bool {
+	pod, err := pm.clientset.CoreV1().Pods(pm.namespace).Get(
+		context.Background(),
+		podName,
+		metav1.GetOptions{},
+	)
 	if err != nil {
-		pm.logger.Printf("Failed to create runner pod: %v", err)
-		http.Error(w, "Failed to create runner pod", http.StatusInternalServerError)
+		pm.logger.Printf("Pod %s cannot be checked for reuse: %v", podName, err)
+		return false
+	}
+
+	if pod.DeletionTimestamp != nil {
+		return false
+	}
+	if pod.Status.Phase != corev1.PodRunning {
+		return false
+	}
+	if pod.Status.PodIP == "" {
+		return false
+	}
+	for _, status := range pod.Status.ContainerStatuses {
+		if !status.Ready {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (pm *PodManager) dialPodWebSocket(pod *RunnerPod) (*websocket.Conn, error) {
+	wsURL := fmt.Sprintf("ws://%s:8000/ws", pod.IP)
+	dialer := &websocket.Dialer{
+		HandshakeTimeout: 5 * time.Second,
+		ReadBufferSize:   1024,
+		WriteBufferSize:  1024,
+	}
+
+	var lastErr error
+	for i := 0; i < 3; i++ {
+		conn, _, err := dialer.Dial(wsURL, nil)
+		if err == nil {
+			return conn, nil
+		}
+		lastErr = err
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	return nil, fmt.Errorf("failed to connect pod websocket %s: %w", wsURL, lastErr)
+}
+
+func (pm *PodManager) handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	pod, err := pm.leasePod()
+	if err != nil {
+		pm.logger.Printf("Rejecting request: %v", err)
+		w.Header().Set("Retry-After", strconv.Itoa(int(pm.leaseTimeout.Seconds())))
+		http.Error(w, "Runner capacity exhausted, retry later", http.StatusServiceUnavailable)
 		return
 	}
 
-	// 모든 종료 상황에서 Pod 안전하게 삭제
+	forceReplace := false
 	defer func() {
-		pm.logger.Printf("Deleting pod %s", pod.Name)
-		pm.deleteRunnerPod(pod.Name)
+		pm.releasePod(pod, forceReplace)
 	}()
 
-	podIP, err := pm.waitForPodReady(pod.Name)
+	podConn, err := pm.dialPodWebSocket(pod)
 	if err != nil {
-		pm.logger.Printf("Pod failed to become ready: %v", err)
-		http.Error(w, "Pod failed to become ready", http.StatusInternalServerError)
+		pm.logger.Printf("Failed to connect to leased pod %s: %v", pod.Name, err)
+		forceReplace = true
+		http.Error(w, "Runner pod is unavailable", http.StatusServiceUnavailable)
 		return
 	}
+	defer podConn.Close()
 
-	// Pod IP 업데이트
-	pod.IP = podIP
-
-	// WebSocket 연결 설정
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
@@ -292,7 +749,6 @@ func (pm *PodManager) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		WriteBufferSize:  1024,
 	}
 
-	// 클라이언트와 WebSocket 연결 수립
 	clientConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		pm.logger.Printf("WebSocket upgrade failed: %v", err)
@@ -300,118 +756,92 @@ func (pm *PodManager) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	}
 	defer clientConn.Close()
 
-	// Pod IP 유효성 확인
-	if pod.IP == "" {
-		pm.logger.Printf("Pod IP is empty, cannot connect to pod")
-		return
-	}
-
-	wsURL := fmt.Sprintf("ws://%s:8000/ws", pod.IP)
-	pm.logger.Printf("Attempting to connect to pod WebSocket at: %s", wsURL)
-
-	dialer := &websocket.Dialer{
-		HandshakeTimeout: 10 * time.Second,
-		ReadBufferSize:   1024,
-		WriteBufferSize:  1024,
-	}
-
-	// 생성된 Pod과 웹소켓 연결 최대 5번 재시도
-	var podConn *websocket.Conn
-	var dialErr error
-
-	for i := 0; i < 5; i++ {
-		podConn, _, dialErr = dialer.Dial(wsURL, nil)
-		if dialErr == nil {
-			break
-		}
-		pm.logger.Printf("Failed to connect to pod (attempt %d/5): %v", i+1, dialErr)
-		time.Sleep(2 * time.Second)
-	}
-
-	if dialErr != nil {
-		pm.logger.Printf("All connection attempts to pod failed: %v", dialErr)
-		return
-	}
-	defer podConn.Close()
-
-	pm.logger.Printf("WebSocket connection established with pod %s", pod.Name)
-
-	// 연결 상태 모니터링을 위한 채널
-	closeChan := make(chan struct{})
 	errorChan := make(chan error, 2)
-
-	// 클라이언트 -> Pod: 클라이언트 메시지를 Pod로 전달
-	go func() {
-		defer func() {
-			pm.logger.Printf("Client -> Pod is ready to close")
-			close(closeChan)
-		}()
-
-		for {
-			_, message, err := clientConn.ReadMessage()
-			if err != nil {
-				pm.logger.Printf("Client read error: %v", err)
-				errorChan <- fmt.Errorf("client read: %v", err)
-				return
-			}
-
-			// 메시지 내용 로깅 (디버깅용)
-			pm.logger.Printf("Received message from client: %s", string(message))
-
-			// 메시지를 그대로 Pod에 전달 (JSON 형식 유지)
-			if err := podConn.WriteMessage(websocket.TextMessage, message); err != nil {
-				pm.logger.Printf("Pod write error: %v", err)
-				errorChan <- fmt.Errorf("pod write: %v", err)
-				return
-			}
-
-			pm.logger.Printf("Forwarded message to pod")
-		}
-	}()
-
-	// Pod -> 클라이언트: Pod 메시지를 클라이언트로 전달
-	go func() {
-		for {
-			_, message, err := podConn.ReadMessage()
-			if err != nil {
-				select {
-				case <-closeChan:
-					pm.logger.Printf("Pod -> Client is ready to close")
-					return
-				default:
-					pm.logger.Printf("Pod read error: %v", err)
-					errorChan <- fmt.Errorf("pod read: %v", err)
-					return
-				}
-			}
-
-			// 메시지 내용 로깅 (디버깅용)
-			pm.logger.Printf("Received message from pod: %s", string(message))
-
-			// 메시지를 그대로 클라이언트에 전달
-			if err := clientConn.WriteMessage(websocket.TextMessage, message); err != nil {
-				pm.logger.Printf("Client write error: %v", err)
-				errorChan <- fmt.Errorf("client write: %v", err)
-				return
-			}
-
-			pm.logger.Printf("Forwarded message to client")
-		}
-	}()
-
-	// 오류 또는 종료 대기
-	select {
-	case err := <-errorChan:
-		pm.logger.Printf("Connection error: %v", err)
-	case <-closeChan:
-		pm.logger.Printf("Connection closed normally")
+	var closeOnce sync.Once
+	closeBoth := func() {
+		_ = clientConn.Close()
+		_ = podConn.Close()
 	}
 
-	pm.logger.Printf("WebSocket handler completed for pod %s", pod.Name)
+	go func() {
+		defer closeOnce.Do(closeBoth)
+		for {
+			messageType, message, err := clientConn.ReadMessage()
+			if err != nil {
+				if isExpectedClose(err) {
+					errorChan <- nil
+				} else {
+					errorChan <- fmt.Errorf("client read: %w", err)
+				}
+				return
+			}
+			if err := podConn.WriteMessage(messageType, message); err != nil {
+				errorChan <- fmt.Errorf("pod write: %w", err)
+				return
+			}
+		}
+	}()
+
+	go func() {
+		defer closeOnce.Do(closeBoth)
+		for {
+			messageType, message, err := podConn.ReadMessage()
+			if err != nil {
+				if isExpectedClose(err) {
+					errorChan <- nil
+				} else {
+					errorChan <- fmt.Errorf("pod read: %w", err)
+				}
+				return
+			}
+			if err := clientConn.WriteMessage(messageType, message); err != nil {
+				errorChan <- fmt.Errorf("client write: %w", err)
+				return
+			}
+		}
+	}()
+
+	if proxyErr := <-errorChan; proxyErr != nil {
+		pm.logger.Printf("Connection ended with error for pod %s: %v", pod.Name, proxyErr)
+	}
+}
+
+func isExpectedClose(err error) bool {
+	return websocket.IsCloseError(
+		err,
+		websocket.CloseNormalClosure,
+		websocket.CloseGoingAway,
+		websocket.CloseNoStatusReceived,
+	)
+}
+
+func (pm *PodManager) handleHealth(w http.ResponseWriter, _ *http.Request) {
+	pm.mu.Lock()
+	idle := len(pm.idlePods)
+	busy := len(pm.busyPods)
+	provisioning := pm.provisioning
+	nodeStats := ""
+	if len(pm.nodePools) > 0 {
+		parts := make([]string, 0, len(pm.nodePools))
+		for _, pool := range pm.nodePools {
+			parts = append(parts, fmt.Sprintf(
+				"%s:%d/%d/%d(cap=%d)",
+				pool.NodePoolID,
+				pm.idleCounts[pool.NodePoolID],
+				pm.busyCounts[pool.NodePoolID],
+				pm.provisioningCounts[pool.NodePoolID],
+				pool.MaxPods,
+			))
+		}
+		nodeStats = " nodes=" + strings.Join(parts, ",")
+	}
+	pm.mu.Unlock()
+
+	w.WriteHeader(http.StatusOK)
+	_, _ = fmt.Fprintf(w, "ok idle=%d busy=%d provisioning=%d%s", idle, busy, provisioning, nodeStats)
 }
 
 func main() {
-	// Kubernetes 클라이언트 생성
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		log.Fatalf("Failed to create in-cluster config: %v", err)
@@ -421,11 +851,18 @@ func main() {
 		log.Fatalf("Failed to create clientset: %v", err)
 	}
 
-	podManager := NewPodManager(clientset)
+	podManager, err := NewPodManager(clientset)
+	if err != nil {
+		log.Fatalf("Failed to initialize pod manager: %v", err)
+	}
+
+	podManager.startWarmPool()
+
 	http.HandleFunc("/run", podManager.handleWebSocket)
+	http.HandleFunc("/healthz", podManager.handleHealth)
 
 	addr := ":8080"
-	podManager.logger.Printf("Pod Manager running on %s", addr)
+	podManager.logger.Printf("Pod Manager running on %s (pool=%d)", addr, podManager.targetPoolSize)
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}

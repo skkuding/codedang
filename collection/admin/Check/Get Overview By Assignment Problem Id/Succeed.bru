@@ -26,8 +26,20 @@ body:graphql {
       cursor: $cursor
     ) {
       id
-      firstCheckSubmissionId
-      secondCheckSubmissionId
+      firstCheckSubmission {
+        id
+        user {
+          username
+          studentId
+        }
+      }
+      secondCheckSubmission {
+        id
+        user {
+          username
+          studentId
+        }
+      }
       averageSimilarity
       maxSimilarity
       maxLength

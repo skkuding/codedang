@@ -20,8 +20,21 @@ body:graphql {
       groupId: $groupId
     ) {
       requestId
-      firstCheckSubmissionId
-      secondCheckSubmissionId
+      firstCheckSubmission
+      {
+        id
+        user {
+          username
+          studentId
+        }
+      }
+      secondCheckSubmission {
+        id
+        user {
+          username
+          studentId
+        }
+      }
       averageSimilarity
       maxSimilarity
       maxLength

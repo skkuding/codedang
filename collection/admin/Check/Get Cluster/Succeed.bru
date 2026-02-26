@@ -22,8 +22,13 @@ body:graphql {
       id
       averageSimilarity
       strength
-      submissionCluster {
+      submissionClusterInfos {
         submissionId
+        clusterId
+        user {
+          username
+          studentId
+        }
       }
     }
   }

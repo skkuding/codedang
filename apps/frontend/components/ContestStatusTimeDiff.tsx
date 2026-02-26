@@ -14,7 +14,6 @@ dayjs.extend(duration)
 
 interface ContestStatusTimeDifftype {
   id: number
-  status: ContestStatus
   startTime: Date
   endTime: Date
   registerDueTime: Date
@@ -36,7 +35,7 @@ export function ContestStatusTimeDiff({
 
   const [contestStatus, setContestStatus] = useState<
     ContestStatus | undefined | null
-  >(contest.status)
+  >(undefined)
 
   const updateContestStatus = () => {
     if (currentTime.isAfter(contest.endTime)) {

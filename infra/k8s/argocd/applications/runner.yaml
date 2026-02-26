@@ -1,51 +1,51 @@
-# apiVersion: argoproj.io/v1alpha1
-# kind: ApplicationSet
-# metadata:
-#   name: runner
-#   namespace: argocd
-#   finalizers:
-#     - resources-finalizer.argocd.argoproj.io
-# spec:
-#   # Required for argocd-image-updater to make changes to the Application
-#   # Otherwise, the changed image will be reverted to the original one by this ApplicationSet controller
-#   ignoreApplicationDifferences:
-#     - jsonPointers:
-#         - /spec/source/kustomize/images
-#   goTemplate: true
-#   goTemplateOptions: ['missingkey=error']
-#   generators:
-#     - list:
-#         elements:
-#           - env: stage
-#             branch: main
-#           - env: production
-#             branch: release
-#   template:
-#     metadata:
-#       name: 'runner-{{.env}}'
-#       finalizers:
-#         - resources-finalizer.argocd.argoproj.io
-#       labels:
-#         app.kubernetes.io/environment: '{{.env}}'
-#       annotations:
-#         argocd-image-updater.argoproj.io/image-list: 'pod-manager=ghcr.io/skkuding/codedang-runner-pod-manager:{{.env}}'
-#         argocd-image-updater.argoproj.io/pod-manager.update-strategy: digest
-#     spec:
-#       project: default
-#       source:
-#         path: 'infra/k8s/runner/overlays/{{.env}}'
-#         repoURL: https://github.com/skkuding/codedang
-#         targetRevision: '{{.branch}}'
-#         directory:
-#           # kustomization.yaml is ignored if recurse is true
-#           recurse: false
-#       destination:
-#         namespace: runner
-#         name: '{{.env}}'
-#       syncPolicy:
-#         automated:
-#           prune: true
-#           selfHeal: true
-#         syncOptions:
-#           - CreateNamespace=true
-#           - PrunePropagationPolicy=foreground
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: runner
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  # Required for argocd-image-updater to make changes to the Application
+  # Otherwise, the changed image will be reverted to the original one by this ApplicationSet controller
+  ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/source/kustomize/images
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: release
+  template:
+    metadata:
+      name: 'runner-{{.env}}'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+      annotations:
+        argocd-image-updater.argoproj.io/image-list: 'pod-manager=ghcr.io/skkuding/codedang-runner-pod-manager:{{.env}}'
+        argocd-image-updater.argoproj.io/pod-manager.update-strategy: digest
+    spec:
+      project: default
+      source:
+        path: 'infra/k8s/runner/overlays/{{.env}}'
+        repoURL: https://github.com/skkuding/codedang
+        targetRevision: '{{.branch}}'
+        directory:
+          # kustomization.yaml is ignored if recurse is true
+          recurse: false
+      destination:
+        namespace: runner
+        name: '{{.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
