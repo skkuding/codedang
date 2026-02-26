@@ -337,19 +337,25 @@ describe('GroupService', () => {
   })
 
   describe('duplicateCourse', () => {
+    const duplicateInput = {
+      courseNum: 'SWE3099',
+      semester: '2026 Spring'
+    }
+
     it('should throw NotFoundException if user does not exist', async () => {
       db.user.findUnique.resolves(null)
 
-      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
-        EntityNotExistException,
-        'User not found'
-      )
+      await expect(
+        service.duplicateCourse(groupId, userId, duplicateInput)
+      ).to.be.rejectedWith(EntityNotExistException, 'User not found')
     })
 
     it('should throw ForbiddenAccessException if user cannot create course', async () => {
       db.user.findUnique.resolves({ canCreateCourse: false })
 
-      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+      await expect(
+        service.duplicateCourse(groupId, userId, duplicateInput)
+      ).to.be.rejectedWith(
         ForbiddenAccessException,
         'No Access to create course'
       )
@@ -359,7 +365,9 @@ describe('GroupService', () => {
       db.user.findUnique.resolves({ canCreateCourse: true })
       db.group.findUniqueOrThrow.resolves({ courseInfo: null })
 
-      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+      await expect(
+        service.duplicateCourse(groupId, userId, duplicateInput)
+      ).to.be.rejectedWith(
         UnprocessableDataException,
         'Invalid groupId for a course'
       )
@@ -405,7 +413,11 @@ describe('GroupService', () => {
         id: 1000
       })
 
-      const result = await service.duplicateCourse(groupId, userId)
+      const result = await service.duplicateCourse(
+        groupId,
+        userId,
+        duplicateInput
+      )
 
       expect(result).to.deep.equal({
         duplicatedCourse: groupWithAssignment,

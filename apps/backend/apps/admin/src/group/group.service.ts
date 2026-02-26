@@ -328,6 +328,7 @@ export class GroupService {
    *
    * @param groupId - 복제할 원본 강좌의 ID
    * @param userId - 복제를 요청한 관리자(User)의 ID
+   * @param input - 복제된 강좌에 적용할 학수번호와 학기 정보
    * @returns 복제된 강좌 정보, 원본 과제 ID 목록, 복제된 과제 ID 목록
    *
    * @throws EntityNotExistException - 사용자가 존재하지 않는 경우
@@ -337,8 +338,13 @@ export class GroupService {
    * @remarks
    * - `include`로 모든 연관 데이터를 가져온 후, 불필요한 필드(id, createTime 등)를 제외하고 복사합니다.
    * - 과제(Assignment)와 문제(AssignmentProblem)도 함께 복제됩니다.
+   * - 복제 시 학수번호(courseNum)와 학기(semester)는 input 값으로 덮어씁니다.
    */
-  async duplicateCourse(groupId: number, userId: number) {
+  async duplicateCourse(
+    groupId: number,
+    userId: number,
+    input: { courseNum: string; semester: string }
+  ) {
     const userWithCanCreateCourse = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { canCreateCourse: true }
@@ -377,6 +383,8 @@ export class GroupService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { groupId: _, ...duplicatedCourseInfo } = originCourse.courseInfo
+    duplicatedCourseInfo.courseNum = input.courseNum
+    duplicatedCourseInfo.semester = input.semester
 
     return await this.prisma.$transaction(async (tx) => {
       const duplicatedCourse = await tx.group.create({
