@@ -29,6 +29,9 @@ export class AssignmentService {
   /**
    * 과제 목록을 조회합니다
    *
+   * 1. 커서 기반 페이지네이션을 사용하여 그룹 내 과제/연습 목록을 가져옴
+   * 2. 각 과제에 참여한 총 참가자 수(`assignmentRecord` 개수)를 포함하여 반환
+   *
    * @param {number} take 페이지당 반환할 과제 개수
    * @param {number} groupId 그룹 ID
    * @param {number | null} cursor 페이지네이션 커서
@@ -66,6 +69,9 @@ export class AssignmentService {
 
   /**
    * 특정 과제의 상세 정보를 조회합니다
+   *
+   * 1. 과제 ID로 데이터를 조회하며, 참가자 수를 함께 집계
+   * 2. 요청한 그룹 ID와 과제의 실제 소속 그룹이 일치하는지 보안 검증
    *
    * @param {number} assignmentId 과제 ID
    * @param {number} groupId 그룹 ID
@@ -108,7 +114,10 @@ export class AssignmentService {
 
   /**
    * 새로운 과제를 생성합니다
-   * 그룹 내 모든 course 멤버를 해당 과제에 자동 참여 시킵니다.
+   *
+   * 1. 시작 시간, 종료 시간, 마감 시간의 유효성을 검증
+   * 2. 과제를 생성한 후 (createdAssignment)
+   * 3. 해당 그룹의 모든 멤버를 과제 참가자로 자동 등록 (inviteAllCourseMembersToAssignment 호출로)
    *
    * @param {number} groupId 과제를 생성할 그룹 ID
    * @param {number} userId 생성자 ID
@@ -174,8 +183,16 @@ export class AssignmentService {
   /**
    * 과제 정보를 업데이트합니다.
    *
-   * @param groupId 그룹 ID(수정을 요청한)
-   * @param assignment 업데이트할 과제 정보
+   * 1. 과제 관련 데이터 및 권한 유효성 검증
+   * 2. visibleLockTime 재계산 :
+   *  - endTime 변경된 경우, 공개 제한 시간 수정
+   *  - 문제는 여러 과제 중복 포함 가능하므로, 해당 문제가 속한 과제 중 가장 늦은 endTime으로 설정
+   * 3. 이벤트 발생 :
+   *  - isFinalScoreVisible이 false에서 true 변경될 경우, assignment.graded 이벤트 발행
+   *  - dueTime이 변경될 경우, assignment.updated 이벤트 발행
+   *
+   * @param {number} groupId 그룹 ID(수정을 요청한)
+   * @param {UpdateAssignmentInput} assignment 업데이트할 과제 정보
    * @returns 업데이트가 완료된 과제 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다
    * - 업데이트하려는 과제가 DB에 존재하지 않을 경우
@@ -334,8 +351,14 @@ export class AssignmentService {
   /**
    * 과제를 삭제합니다.
    *
-   * @param groupId 그룹 ID
-   * @param assignmentId 삭제할 과제 ID
+   * 1. 삭제 대상 과제 유효성 검사
+   * 2. 과제에 등록된 문제 목록 추출
+   * 3. 문제-과제 연결을 끊고 (removeProblemsFromAssignment 호출로)
+   * 4. 과제 데이터 삭제
+   * 5. 'assignment.deleted' 이벤트를 발행하여 삭제 사실 알림
+   *
+   * @param {number} groupId 그룹 ID
+   * @param {number} assignmentId 삭제할 과제 ID
    * @returns 삭제된 과제 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 요청한 assigmentID를 가진 과제가 존재하지 않을 때
@@ -392,9 +415,17 @@ export class AssignmentService {
   /**
    * 과제에 문제들을 추가합니다.
    *
-   * @param groupId 그룹 ID
-   * @param assignmentId 과제 ID
-   * @param assignmentProblemInput 추가할 문제 정보들
+   * 1. 과제 존재 여부 및 groupId 일치 여부 확인
+   * 2. input된 데이터 중 이미 해당 과제에 등록된 문제는 건너뜀 (continue)
+   * 3. Transaction
+   *  - 과제-문제 연결 정보를 생성 (AssignmentProblem, 임시로 `order: 0` 설정)
+   * - visibleLockTime에 대해 추가되는 문제의 공개 제한 시간이 과제의 종료 시간보다 빠르거나 설정되지 않은 경우, endTime으로 업데이트
+   * - 해당 문제를 과제가 속한 그룹(sharedGroups)에 연결하여 그룹 멤버들이 접근할 수 있도록 함
+   * 4. 과제에 이미 참여 중인 모든 사용자(AssignmentRecord)에 대해, 추가된 문제에 대한 개별 문제 기록(AssignmentProblemRecord)을 생성
+   *
+   * @param {number} groupId 그룹 ID
+   * @param {number} assignmentId 과제 ID
+   * @param {AssignmentProblemInput} assignmentProblemInput 추가할 문제 정보들
    * @returns 추가된 과제들 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 요청한 과제가 존재하지 않을 때
@@ -530,11 +561,18 @@ export class AssignmentService {
   }
 
   /**
-   * 과제에서 특정 문제들을 제거합니다.
+   * 과제에서 특정 문제들을 제거하고 연관된 노출 설정을 재계산합니다.
    *
-   * @param groupId 그룹 ID
-   * @param assignmentId 과제 ID
-   * @param problemIds 제거할 문제 ID 배열
+   * 1. 과제 및 그룹 유효성 확인
+   * 2. visibleLockTime를 문제가 포함된 과제 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정 (없을시 비공개 전환)
+   * 3. 데이터 정리
+   * - 문제의 visibleLockTime를 계산 된 값으로 업데이트
+   * - AssignmentProblem 테이블에서 과제-문제 연결 데이터 삭제
+   * - sharedGroups에서 해당 문제를 disconnect(해제)함
+   *
+   * @param {number} groupId 그룹 ID
+   * @param {number} assignmentId 과제 ID
+   * @param {number[]} problemIds 제거할 문제 ID 배열
    * @returns 제거된 과제 문제 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 요청된 과제 ID에 해당하는 과제가 존재하지 않을 때
@@ -655,13 +693,18 @@ export class AssignmentService {
   }
 
   /**
-   * 특정 유저의 과제 체출 내용 요약과 성적 요약을 가져옵니다.
+   * 특정 유저의 과제 체출 내용 요약과 성적 요약을 통합 조회합니다.
    *
-   * @param take 가져올 레코드 개수
-   * @param assignmentId 과제 ID
-   * @param userId 조회할 유저 ID
-   * @param problemId 특정 문제만 조회할 경우의 문제 ID (선택 사항)
-   * @param cursor 페이지네이션을 위한 커서 값
+   * 1. 제출 내역 페이지네이션 (제출 내역 최신순으로 조회)
+   * 2. 데이터를 return 형식에 맞춰 변환 (mappedSubmission)
+   * 3. 점수 정보 요약을 반환 (getAssignmentScoreSummary 호출로)
+   *  - 요약 정보 : 제출 문제 수, 총 문제 수, 유저 합산 점수, 과제 만점, 문제별 상세 득점 리스트
+   *
+   * @param {number} take 가져올 레코드 개수
+   * @param {number} assignmentId 과제 ID
+   * @param {number} userId 조회할 유저 ID
+   * @param {number | null} problemId 특정 문제만 조회할 경우의 문제 ID (선택 사항)
+   * @param {number | null} cursor 페이지네이션을 위한 커서 값
    * @returns 유저의 성적 요약 정보 및 매핑된 제출 내역 리스트
    */
   async getAssignmentSubmissionSummaryByUserId({
@@ -738,12 +781,19 @@ export class AssignmentService {
   }
 
   /**
-   * 과제를 복제합니다. 과제의 기본 설정, 포함된 문제들, 과제 참여 기록 모두 복사합니다.
+   * 과제를 복제하여 새로운 과제를 생성합니다. (설정, 문제, 참여 기록 복사)
    * 제출 내역(Submission)은 복사되지 않습니다.
    *
-   * @param groupId 과제를 복제할 그룹 ID
-   * @param assignmentId 복제 대상이 되는 원본 과제 ID
-   * @param userId 복제를 수행하는 유저 ID (새로운 과제 생성자)
+   * 1. assignment, assignmentProblem, assignmentRecord을 병렬 조회
+   * 2. 현재 시간을 기준으로 과제가 진행 중이면 새 과제를 즉시 공개(isVisible: true)로, 그 외에는 MAX_DATE로 설정
+   * 3. 과제 복제(Transaction)
+   * - 과제 기본 정보를 기반으로 새로운 과제 생성 ('Copy of' 접두어 추가)
+   * - 원본 과제의 모든 문제 연결 정보를 새 과제 ID로 매핑하여 복사
+   * - 원본 과제의 참여 기록(`AssignmentRecord`)을 새 과제로 복사하여 참가자 명단을 유지 (단, 개별 제출물은 복사되지 않음)
+   *
+   * @param {number} groupId 과제를 복제할 그룹 ID
+   * @param {number} assignmentId 복제 대상이 되는 원본 과제 ID
+   * @param {number} userId 복제를 수행하는 유저 ID (새로운 과제 생성자)
    * @returns 복제된 과제, 문제 리스트, 참여 기록 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 복제할 원본 과제(assignmentId)가 존재하지 않을 때
@@ -845,10 +895,16 @@ export class AssignmentService {
   }
 
   /**
-   * userId에 해당하는 유저의 특정 Assignment 점수 요약을 계산하여 가져옵니다
+   * 과제에 참여하는 유저의 Assignment 점수 요약을 계산하여 가져옵니다
    *
-   * @param userId 유저 ID
-   * @param assignmentId 과제 ID
+   * 1. 현재 과제에 등록되어 있는 문제들만을 대상으로 점수를 계산 (삭제된 문제는 제외)
+   * 2. 유저의 전체 제출 이력 중 Latest Submission)을 기준으로 최근 테스트케이스 통과 개수를 집계
+   * 3. 점수 합산
+   * - 유저의 score와 finalScore를 Decimal 타입으로 정밀하게 합산
+   * - 과제 전체 만점 대비 유저의 득점 현황을 산출 (제출 문제 수, 총 문제 수, 유저 합산 점수, 과제 만점, 문제별 상세 득점 리스트)
+   *
+   * @param {number} userId 유저 ID
+   * @param {number} assignmentId 과제 ID
    * @returns 제출 문제 개수, Assignment안 총 문제 개수, 사용자 점수, 과제 만점, 개별 점수 및 테스트케이스 개수 리스트 정보
    */
   async getAssignmentScoreSummary(userId: number, assignmentId: number) {
@@ -1015,13 +1071,17 @@ export class AssignmentService {
 
   /**
    * 과제에 참여한 모든 유저의 점수 요약 리스트를 가져옵니다.
-   * 조회 시 그룹 멤버 중 미참여자가 있다면 자동으로 과제에 초대합니다.
+   * 조회 시 그룹 멤버 중 미참가자가 있다면 자동으로 과제에 초대합니다.
    *
-   * @param assignmentId 과제 ID
-   * @param groupId 그룹 ID
-   * @param take 가져올 레코드 개수
-   * @param cursor 페이지네이션 커서
-   * @param searchingName 검색 유저 이름 (선택사항)
+   * 1. 아직 과제에 등록되지 않은 멤버가 있다면 과제에 참여시킴 (inviteAllCourseMembersToAssignment 호출로)
+   * 2. realName을 통한 대소문자 무시 검색을 지원하며, studentId 순으로 정렬
+   * 3. 조회된 각 유저에 대해 `getAssignmentScoreSummary`를 병렬로 실행하여 유저 프로필과 상세 점수 데이터를 결합
+   *
+   * @param {number} assignmentId 과제 ID
+   * @param {number} groupId 그룹 ID
+   * @param {number} take 가져올 레코드 개수
+   * @param {number | null} cursor 페이지네이션 커서
+   * @param {string} searchingName 검색 유저 이름 (선택사항)
    * @returns 각 유저의 프로필 정보와 점수 요약이 결합된 배열
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 과제가 존재하지 않을 때
@@ -1123,8 +1183,12 @@ export class AssignmentService {
   /**
    * 특정 문제가 포함된 모든 과제 목록을 조회하고, 진행 상태별로 그룹화하여 반환합니다.
    *
-   * @param problemId 조회할 문제 ID
-   * @param userId 요청을 보낸 유저 ID (권한 확인용)
+   * 1. 유저가 문제 작성자이거나, 해당 문제가 공유된 그룹의 관리자인지 검증
+   * 2. 각 과제에 대해 problemScore과 totalScore을 병합
+   * 3. 현재 시간을 기준으로 `upcoming`, `ongoing`, `finished` 섹션으로 그룹화하여 반환
+   *
+   * @param {number} problemId 조회할 문제 ID
+   * @param {number} userId 요청을 보낸 유저 ID (권한 확인용)
    * @returns 상태별(upcoming, ongoing, finished)로 분류된 과제 목록
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * - 문제를 직접 생성한 작성자가 아니며,
@@ -1227,7 +1291,7 @@ export class AssignmentService {
   /**
    * 특정 과제의 모든 문제 배점을 합산하여 만점을 계산합니다.
    *
-   * @param assignmentId 과제 ID
+   * @param {number} assignmentId 과제 ID
    * @returns 과제 총점
    */
   async getTotalScoreOfAssignment(assignmentId: number) {
@@ -1251,8 +1315,14 @@ export class AssignmentService {
    * 특정 유저의 개별 문제에 대한 점수(finalScore)와 코멘트를 수정하고
    * 과제 총점을 갱신합니다.
    *
-   * @param groupId 그룹 ID
-   * @param input 수정할 데이터 (assignmentId, problemId, userId, finalScore, comment)
+   * 1. 과제의 dueTime(또는 endTime)이 지났는지 확인
+   * 2. finalScore가 해당 문제의 배점을 초과하지 않는지 확인
+   * 3. 과제 업데이트(Transaction)
+   * - `AssignmentProblemRecord`: 특정 문제의 최종 점수와 코멘트를 업데이트
+   * - `AssignmentRecord`: 해당 유저가 과제 내 모든 문제에서 받은 `finalScore`를 합산하여 과제 총점을 최신화
+   *
+   * @param {number} groupId 그룹 ID
+   * @param {UpdateAssignmentProblemRecordInput} input 수정할 데이터 (assignmentId, problemId, userId, finalScore, comment)
    * @returns 업데이트된 문제 기록 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 수정할 과제-문제 기록이 존재하지 않을 때
@@ -1369,10 +1439,10 @@ export class AssignmentService {
   /**
    * 특정 유저의 특정 과제 내 문제 풀이 기록(점수, 상태 등)을 상세 조회합니다.
    *
-   * @param groupId 요청을 보낸 그룹 ID (권한 확인용)
-   * @param userId 기록을 조회할 유저 ID
-   * @param assignmentId 해당 과제 ID
-   * @param problemId 해당 문제 ID
+   * @param {number} groupId 요청을 보낸 그룹 ID (권한 확인용)
+   * @param {number} userId 기록을 조회할 유저 ID
+   * @param {number} assignmentId 해당 과제 ID
+   * @param {number} problemId 해당 문제 ID
    * @returns 유저의 문제 풀이 기록 객체 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 기록이나 과제를 찾을 수 없을 때
@@ -1428,8 +1498,8 @@ export class AssignmentService {
   /**
    * 특정 유저의 특정 과제 내 문제 기록(제출 기록 및 점수 등)을 조회합니다.
    *
-   * @param assignmentId 과제 ID
-   * @param userId 유저 ID
+   * @param {number} assignmentId 과제 ID
+   * @param {number} userId 유저 ID
    * @returns 모든 문제 채점 완료 여부 (boolean)
    */
   async isAllAssignmentProblemGraded(assignmentId: number, userId: number) {
@@ -1453,8 +1523,13 @@ export class AssignmentService {
   /**
    * 과제의 모든 참여 유저의 문제별 최종 점수(final_score)를 현재 획득 점수(score)로 자동 확정합니다.
    *
-   * @param groupId 그룹 ID
-   * @param assignmentId 과제 ID
+   * 1. UserGroup 중 AssignmentRecord이 없는 유저를 필터링
+   * 2. 대량 생성(Batch Create)
+   * - 신규 참가자들의 AssignmentRecord을 일괄 생성
+   * - 해당 유저들이 풀어야 할 각 AssignmentProblemRecord을 일괄 생성
+   *
+   * @param {number} groupId 그룹 ID
+   * @param {number} assignmentId 과제 ID
    * @returns 업데이트된 레코드 개수
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 과제가 존재하지 않을 때
@@ -1494,10 +1569,19 @@ export class AssignmentService {
 
   /**
    * (private) 그룹 내 모든 멤버에게 과제 공간을 할당합니다.
+   *
+   * 1. 해당 그룹(`UserGroup`)의 전체 멤버 중 이미 과제에 참여 중인 유저를 제외한 '미참가자' 목록을 추출
+   * 2. 데이터 매핑
+   * - 미참가자 각 유저에 대해 AssignmentRecord를 생성합니다.
+   * - 과제에 등록된 모든 문제와 미참가자를 조합하여 AssignmentProblemRecord를 준비합니다.
+   * 3. 일괄 생성(Transaction)
+   * - createMany와 skipDuplicates를 활용하여 참여 기록과 문제 기록을 한 번에 생성
+   * - 트랜잭션을 통해 두 종류의 레코드가 모두 생성되거나, 오류 시 모두 롤백됨을 보장
+   *
    * @param {number} assignmentId 초대할 과제의 ID
    * @param {number} groupId 그룹 ID
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * - 해당 course에 등록된 사람이 없을때
+   * - 해당 course에 등록된 참가자가 없을때
    */
   private async inviteAllCourseMembersToAssignment(
     assignmentId: number,
