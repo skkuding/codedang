@@ -6,6 +6,7 @@ import {
 import { Reflector } from '@nestjs/core'
 import { type GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
 import { AuthGuard } from '@nestjs/passport'
+import type { Socket } from 'socket.io'
 import {
   AUTH_NOT_NEEDED_KEY,
   USER_NULL_WHEN_AUTH_FAILED
@@ -23,7 +24,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       AUTH_NOT_NEEDED_KEY,
       [context.getHandler(), context.getClass()]
     )
-    if (isAuthNotNeeded && !request.query.groupId) {
+
+    let groupId = request.query?.groupId
+    if (context.getType() === 'ws') {
+      const data = context.switchToWs().getData()
+      groupId = data?.groupId || groupId
+    }
+
+    if (isAuthNotNeeded && !groupId) {
       return true
     }
     return super.canActivate(context)
@@ -33,12 +41,30 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (context.getType<GqlContextType>() === 'graphql') {
       return GqlExecutionContext.create(context).getContext().req
     }
+
+    if (context.getType() === 'ws') {
+      const client = context.switchToWs().getClient<Socket>()
+      const handshake = client.handshake
+
+      if (handshake.auth?.token) {
+        handshake.headers.authorization = `Bearer ${handshake.auth.token}`
+      }
+
+      return handshake
+    }
+
     return super.getRequest(context)
   }
 
   handleRequest(err, user, info, context: ExecutionContext) {
     const request = this.getRequest(context)
-    const groupId = request.query.groupId
+    let groupId = request.query?.groupId
+
+    if (context.getType() === 'ws') {
+      const data = context.switchToWs().getData()
+      groupId = data?.groupId || groupId
+    }
+
     const userNullWhenAuthFailed = this.reflector.getAllAndOverride<boolean>(
       USER_NULL_WHEN_AUTH_FAILED,
       [context.getHandler(), context.getClass()]
