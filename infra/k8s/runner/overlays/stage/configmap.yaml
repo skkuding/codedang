@@ -5,3 +5,6 @@ metadata:
   namespace: runner
 data:
   RUNNER_IMAGE_TAG: 'stage'
+  RUNNER_POOL_SIZE: '60'
+  RUNNER_NODE_SELECTOR_KEY: 'runner-node'
+  RUNNER_NODE_POD_COUNTS: 'node-1=40,node-2=10,node-3=10'
