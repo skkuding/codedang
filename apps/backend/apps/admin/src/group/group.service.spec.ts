@@ -424,6 +424,15 @@ describe('GroupService', () => {
         originAssignments: [999, 1000],
         copiedAssignments: [999, 1000]
       })
+
+      // Verify that group.create was called with the input courseNum and semester
+      const createCallArgs = db.group.create.lastCall.args[0]
+      expect(createCallArgs.data.courseInfo.create.courseNum).to.equal(
+        duplicateInput.courseNum
+      )
+      expect(createCallArgs.data.courseInfo.create.semester).to.equal(
+        duplicateInput.semester
+      )
     })
   })
 })
