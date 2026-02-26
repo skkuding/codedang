@@ -2289,7 +2289,7 @@ type Match {
 
 type Mutation {
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
-  checkAssignmentSubmissions(assignmentId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
+  checkAssignmentSubmissions(assignmentId: Int!, groupId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
   cloneCourseNotices(cloneToId: Int!, courseNoticeIds: [Int!]!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
@@ -3512,9 +3512,9 @@ type Query {
   getAssignmentSubmissions(cursor: Int, groupId: Int!, input: GetAssignmentSubmissionsInput!, order: String, take: Int = 10): [AssignmentSubmission!]!
   getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
-  getCheckRequests(assignmentId: Int!, problemId: Int!): [CheckRequest!]!
-  getCheckResultDetails(resultId: Int!): GetCheckResultDetailOutput!
-  getCluster(clusterId: Int!): GetClusterOutput!
+  getCheckRequests(assignmentId: Int!, groupId: Int!, problemId: Int!): [CheckRequest!]!
+  getCheckResultDetails(groupId: Int!, resultId: Int!): GetCheckResultDetailOutput!
+  getCluster(clusterId: Int!, groupId: Int!): GetClusterOutput!
   getContest(contestId: Int!): ContestWithParticipants!
   getContestLeaderboard(contestId: Int!): ContestLeaderboard!
   getContestParticipants(contestId: Int!): [ContestParticipant!]!
@@ -3550,8 +3550,8 @@ type Query {
   getUsers(cursor: Int, take: Int! = 10): [User!]!
   getWhitelist(groupId: Int!): [String!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
-  overviewCheckByAssignmentProblemId(assignmentId: Int!, cursor: Int, problemId: Int!, take: Int! = 50): [GetCheckResultSummaryOutput!]!
-  overviewCheckByRequestId(checkId: Int!, cursor: Int, take: Int! = 50): [GetCheckResultSummaryOutput!]!
+  overviewCheckByAssignmentProblemId(assignmentId: Int!, cursor: Int, groupId: Int!, problemId: Int!, take: Int! = 50): [GetCheckResultSummaryOutput!]!
+  overviewCheckByRequestId(checkId: Int!, cursor: Int, groupId: Int!, take: Int! = 50): [GetCheckResultSummaryOutput!]!
 }
 
 input RejudgeInput {
