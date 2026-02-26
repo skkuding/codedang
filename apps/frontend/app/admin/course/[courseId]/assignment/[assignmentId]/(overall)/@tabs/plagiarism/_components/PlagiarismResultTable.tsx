@@ -60,6 +60,7 @@ export function PlagiarismResultTable({
     variables: {
       assignmentId: Number(assignmentId),
       problemId: selectedPid ?? 0,
+      groupId: Number(courseId),
       take: 100,
       cursor: null
     },
@@ -203,6 +204,7 @@ export function PlagiarismResultTable({
         }}
         clusterId={selectedClusterId}
         results={sortedResults}
+        groupId={Number(courseId)}
       />
 
       {selectedResult !== null && (
@@ -214,6 +216,7 @@ export function PlagiarismResultTable({
               setSelectedResult(null)
             }
           }}
+          groupId={Number(courseId)}
         />
       )}
     </>

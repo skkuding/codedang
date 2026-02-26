@@ -102,7 +102,8 @@ export function PlagiarismCheckRequestButton({
   const { data: checkRequestsData } = useQuery(GET_CHECK_REQUESTS, {
     variables: {
       assignmentId: Number(assignmentId),
-      problemId
+      problemId,
+      groupId: Number(courseId)
     },
     skip: !assignmentId || !problemId,
     pollInterval: isPolling ? POLL_INTERVAL_MS : 0
@@ -217,6 +218,7 @@ export function PlagiarismCheckRequestButton({
       variables: {
         assignmentId: Number(assignmentId),
         problemId,
+        groupId: Number(courseId),
         input: {
           language,
           minTokens,

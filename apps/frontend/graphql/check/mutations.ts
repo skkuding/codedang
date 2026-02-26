@@ -5,11 +5,13 @@ const CHECK_ASSIGNMENT_SUBMISSIONS = gql(`
     $input: CreatePlagiarismCheckInput!
     $assignmentId: Int!
     $problemId: Int!
+    $groupId: Int!
   ) {
     checkAssignmentSubmissions(
       input: $input
       assignmentId: $assignmentId
       problemId: $problemId
+      groupId: $groupId
     ) {
       id
       problemId

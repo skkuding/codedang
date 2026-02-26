@@ -1,8 +1,8 @@
 import { gql } from '@generated'
 
 const GET_CHECK_REQUESTS = gql(`
-  query GetCheckRequests($assignmentId: Int!, $problemId: Int!) {
-    getCheckRequests(assignmentId: $assignmentId, problemId: $problemId) {
+  query GetCheckRequests($assignmentId: Int!, $problemId: Int!, $groupId: Int!) {
+    getCheckRequests(assignmentId: $assignmentId, problemId: $problemId, groupId: $groupId) {
       id
       language
       enableMerging
@@ -18,12 +18,14 @@ const OVERVIEW_CHECK_BY_ASSIGNMENT_PROBLEM_ID = gql(`
   query OverviewCheckByAssignmentProblemId(
     $problemId: Int!
     $assignmentId: Int!
+    $groupId: Int!
     $take: Int!
     $cursor: Int
   ) {
     overviewCheckByAssignmentProblemId(
-      problemId: $problemId
-      assignmentId: $assignmentId
+      problemId: $problemId,
+      assignmentId: $assignmentId,
+      groupId: $groupId,
       take: $take
       cursor: $cursor
     ) {
@@ -58,8 +60,8 @@ const OVERVIEW_CHECK_BY_ASSIGNMENT_PROBLEM_ID = gql(`
 `)
 
 const GET_CHECK_RESULT_DETAILS = gql(`
-  query GetCheckResultDetails($resultId: Int!) {
-    getCheckResultDetails(resultId: $resultId) {
+  query GetCheckResultDetails($resultId: Int!, $groupId: Int!) {
+    getCheckResultDetails(resultId: $resultId, groupId: $groupId) {
       requestId
       firstCheckSubmission {
         id
@@ -107,8 +109,8 @@ const GET_CHECK_RESULT_DETAILS = gql(`
 `)
 
 const GET_CLUSTER = gql(`
-  query GetCluster($clusterId: Int!) {
-    getCluster(clusterId: $clusterId) {
+  query GetCluster($clusterId: Int!, $groupId: Int!) {
+    getCluster(clusterId: $clusterId, groupId: $groupId) {
       id
       averageSimilarity
       strength

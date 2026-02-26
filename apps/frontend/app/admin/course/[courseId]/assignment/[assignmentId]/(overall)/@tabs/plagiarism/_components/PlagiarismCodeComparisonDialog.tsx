@@ -13,12 +13,14 @@ interface PlagiarismCodeComparisonDialogProps {
   result: PlagiarismResult
   open: boolean
   onOpenChange: (open: boolean) => void
+  groupId: number
 }
 
 export function PlagiarismCodeComparisonDialog({
   result,
   open,
-  onOpenChange
+  onOpenChange,
+  groupId
 }: PlagiarismCodeComparisonDialogProps) {
   const similarityPercent = (result.averageSimilarity * 100).toFixed(2)
 
@@ -30,7 +32,11 @@ export function PlagiarismCodeComparisonDialog({
             Code comparison — Similarity: {similarityPercent}%
           </DialogTitle>
         </DialogHeader>
-        <PlagiarismCodeComparisonView result={result} active={open} />
+        <PlagiarismCodeComparisonView
+          result={result}
+          active={open}
+          groupId={groupId}
+        />
       </DialogContent>
     </Dialog>
   )

@@ -14,15 +14,17 @@ interface PlagiarismCodeComparisonViewProps {
   result: PlagiarismResult
   onBack?: () => void
   active?: boolean
+  groupId: number
 }
 
 export function PlagiarismCodeComparisonView({
   result,
   onBack,
-  active = true
+  active = true,
+  groupId
 }: PlagiarismCodeComparisonViewProps) {
   const { data: detailData } = useQuery(GET_CHECK_RESULT_DETAILS, {
-    variables: { resultId: result.id },
+    variables: { resultId: result.id, groupId },
     skip: !active,
     errorPolicy: 'all'
   })

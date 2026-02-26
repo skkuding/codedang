@@ -13,7 +13,6 @@ import {
 } from '@/components/shadcn/dialog'
 import { GET_CLUSTER } from '@/graphql/check/queries'
 import { useQuery } from '@apollo/client'
-import type { DocumentNode } from 'graphql'
 import { useState, useCallback, useMemo } from 'react'
 import { toast } from 'sonner'
 import {
@@ -30,6 +29,7 @@ interface PlagiarismClusterDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   clusterId: number | null
+  groupId: number
   results: PlagiarismResult[]
 }
 
@@ -39,6 +39,7 @@ export function PlagiarismClusterDialog({
   open,
   onOpenChange,
   clusterId,
+  groupId,
   results
 }: PlagiarismClusterDialogProps) {
   const displayClusterNo = useMemo(
@@ -56,8 +57,8 @@ export function PlagiarismClusterDialog({
     []
   )
 
-  const { data, loading, error } = useQuery(GET_CLUSTER as DocumentNode, {
-    variables: { clusterId: clusterId ?? 0 },
+  const { data, loading, error } = useQuery(GET_CLUSTER, {
+    variables: { clusterId: clusterId ?? 0, groupId },
     skip: clusterId === null || !open,
     errorPolicy: 'all'
   })
@@ -89,18 +90,15 @@ export function PlagiarismClusterDialog({
     setSelectedSubmissionIds((prev) => {
       const isSelected = prev.includes(id)
 
-      // If already selected, unselect
       if (isSelected) {
         return prev.filter((x) => x !== id)
       }
 
-      // If two are already selected, remember to show toast and ignore
       if (prev.length >= 2) {
         shouldShowMaxToast = true
         return prev
       }
 
-      // Otherwise, add this submission
       return [...prev, id]
     })
 
@@ -146,7 +144,6 @@ export function PlagiarismClusterDialog({
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
       if (!nextOpen) {
-        // Reset local state when dialog is closed
         setSelectedSubmissionIds([])
         setSelectedResult(null)
         if (view === 'comparison') {
@@ -246,6 +243,7 @@ export function PlagiarismClusterDialog({
               result={selectedResult}
               onBack={handleBackToList}
               active={open}
+              groupId={groupId}
             />
           )
         )}
