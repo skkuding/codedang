@@ -110,7 +110,7 @@ func NewJudgeHandler[C any, E any](
 }
 
 // handle top layer logical flow
-func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out chan JudgeResultMessage, ctx context.Context) {
+func (j *JudgeHandler[C, E]) Handle(id string, data []byte, testcaseFilter testcase.TestcaseFilterCode, out chan JudgeResultMessage, ctx context.Context) {
 	startedAt := time.Now()
 	handleCtx, childSpan := j.tracer.Start(
 		ctx,
@@ -193,7 +193,7 @@ func (j *JudgeHandler[C, E]) Handle(id string, data []byte, hidden bool, out cha
 		tc = testcase.Testcase{Elements: *req.UserTestcases}
 	} else {
 		testcaseOutCh := make(chan result.ChResult)
-		go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), hidden)
+		go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId), testcaseFilter)
 
 		testcaseOut := <-testcaseOutCh
 
@@ -294,14 +294,14 @@ func (j *JudgeHandler[C, E]) compile(ctx context.Context, out chan<- result.ChRe
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler[C, E]) getTestcase(ctx context.Context, out chan<- result.ChResult, problemId string, hidden bool) {
+func (j *JudgeHandler[C, E]) getTestcase(ctx context.Context, out chan<- result.ChResult, problemId string, testcaseFilter testcase.TestcaseFilterCode) {
 	_, childSpan := j.tracer.Start(
 		ctx,
 		instrumentation.GetSemanticSpanName("judge-handler", "getTestcase"),
 	)
 	defer childSpan.End()
 
-	res, err := j.testcaseManager.GetTestcase(problemId, hidden)
+	res, err := j.testcaseManager.GetTestcase(problemId, testcaseFilter)
 
 	if err != nil {
 		out <- result.ChResult{Err: err}
