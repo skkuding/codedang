@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: oci://ghcr.io/actions/actions-runner-controller-charts
+    repoURL: ghcr.io/actions/actions-runner-controller-charts
     chart: gha-runner-scale-set-controller
     targetRevision: 0.13.1
   destination:
