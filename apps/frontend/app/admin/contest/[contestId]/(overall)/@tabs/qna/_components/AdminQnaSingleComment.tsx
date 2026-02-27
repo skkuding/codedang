@@ -19,7 +19,7 @@ export function AdminQnaSingleComment({
     <div className="border-line-default flex flex-col gap-[16px] rounded-xl border border-[1px] border-solid p-[24px]">
       <div className="flex flex-col gap-[2px]">
         <div className="relative flex items-center gap-[4px]">
-          <span className="text-xl font-semibold">
+          <span className="text-title1_sb_20">
             {comment.createdBy?.username}
           </span>
           {comment.isContestStaff && (
@@ -29,7 +29,7 @@ export function AdminQnaSingleComment({
           )}
           <div className="absolute right-0 top-0">{DeleteButtonComponent}</div>
         </div>
-        <div className="flex items-center gap-[4px] text-sm font-medium text-[#787E80]">
+        <div className="text-body2_m_14 flex items-center gap-[4px] text-[#787E80]">
           <span>
             {dateFormatter(new Date(comment.createdTime), 'YYYY-MM-DD')}
           </span>
@@ -38,7 +38,7 @@ export function AdminQnaSingleComment({
           </span>
         </div>
       </div>
-      <span className="whitespace-pre-wrap break-all text-base font-normal">
+      <span className="text-body3_r_16 whitespace-pre-wrap break-all">
         {comment.content.trim()}
       </span>
     </div>

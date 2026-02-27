@@ -52,7 +52,7 @@ export function ProblemDetailModal({
       >
         <DialogHeader>
           <DialogTitle>
-            <div className="flex items-center gap-[6px] overflow-hidden truncate whitespace-nowrap text-lg font-medium">
+            <div className="text-sub2_m_18 flex items-center gap-[6px] overflow-hidden truncate whitespace-nowrap">
               <span
                 title={`Week ${assignment.week}`}
                 className="max-w-[80px] truncate"
@@ -85,9 +85,9 @@ export function ProblemDetailModal({
         <div className="flex flex-col gap-6 pr-10">
           {submission && (
             <div className="flex flex-col gap-[14px]">
-              <span className="text-sm font-medium">Last Submission</span>
+              <span className="text-body2_m_14">Last Submission</span>
               <ScrollArea className="rounded-md">
-                <div className="**:whitespace-nowrap flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-[14px] [&_p]:text-slate-400">
+                <div className="**:whitespace-nowrap text-caption4_r_12 flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-[14px] [&_p]:text-slate-400">
                   <div>
                     <h2>User ID</h2>
                     <p>{submission?.user.username}</p>
@@ -128,17 +128,21 @@ export function ProblemDetailModal({
           )}
           {testResults && (
             <div className="flex flex-col gap-[14px]">
-              <span className="text-sm font-medium">Testcase Result</span>
+              <span className="text-body2_m_14">Testcase Result</span>
               <table
-                className="w-full border-separate text-center text-sm"
+                className="text-body4_r_14 w-full border-separate text-center"
                 style={{ borderSpacing: 0 }}
               >
                 <thead className="bg-primary text-white">
                   <tr>
                     <th className="rounded-tl-md px-4 py-2" />
-                    <th className="px-4 py-2 text-xs font-light">Memory</th>
-                    <th className="px-4 py-2 text-xs font-light">Runtime</th>
-                    <th className="rounded-tr-md px-4 py-2 text-xs font-light">
+                    <th className="text-caption4_r_12 px-4 py-2 font-light">
+                      Memory
+                    </th>
+                    <th className="text-caption4_r_12 px-4 py-2 font-light">
+                      Runtime
+                    </th>
+                    <th className="text-caption4_r_12 rounded-tr-md px-4 py-2 font-light">
                       Result
                     </th>
                   </tr>
@@ -156,23 +160,23 @@ export function ProblemDetailModal({
                         {index + 1}
                       </td>
 
-                      <td className="px-4 py-3 text-xs font-light text-gray-500">
+                      <td className="text-caption4_r_12 px-4 py-3 font-light text-gray-500">
                         {test.memoryUsage !== null
                           ? `${(test.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
                           : '-'}
                       </td>
 
-                      <td className="px-4 py-3 text-xs font-light text-gray-500">
+                      <td className="text-caption4_r_12 px-4 py-3 font-light text-gray-500">
                         {test.cpuTime !== null ? `${test.cpuTime} ms` : '-'}
                       </td>
 
                       <td className="px-4 py-3">
                         {test.result === 'Accepted' ? (
-                          <span className="rounded-full border border-blue-500 px-2 py-1 text-xs font-light text-blue-500">
+                          <span className="text-caption4_r_12 rounded-full border border-blue-500 px-2 py-1 font-light text-blue-500">
                             {test.result}
                           </span>
                         ) : (
-                          <span className="rounded-full border border-gray-400 px-2 py-1 text-xs font-light text-gray-400">
+                          <span className="text-caption4_r_12 rounded-full border border-gray-400 px-2 py-1 font-light text-gray-400">
                             {test.result}
                           </span>
                         )}
@@ -185,7 +189,7 @@ export function ProblemDetailModal({
           )}
 
           <div className="flex flex-col gap-[14px]">
-            <span className="text-sm font-medium">Source Code</span>
+            <span className="text-body2_m_14">Source Code</span>
             <CodeEditor
               value={testResults?.code ?? ''}
               language={testResults?.language ?? 'C'}

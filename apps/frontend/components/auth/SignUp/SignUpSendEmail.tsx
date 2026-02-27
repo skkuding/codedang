@@ -59,8 +59,8 @@ export function SignUpSendEmail() {
   function renderFormHeader() {
     return (
       <>
-        <p className="text-xl font-medium">Join us to grow!</p>
-        <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
+        <p className="text-title2_m_20">Join us to grow!</p>
+        <p className="text-color-neutral-70 text-body4_r_14 mb-[30px]">
           You can only use{' '}
           <span className="text-primary">{ALLOWED_DOMAINS[0]}</span> emails
         </p>
@@ -95,7 +95,7 @@ export function SignUpSendEmail() {
               setValue('emailDomain', value)
             }}
             prefix="@"
-            className="text-base font-normal"
+            className="text-body3_r_16"
           />
         </div>
         {errors.emailId && (
@@ -109,18 +109,18 @@ export function SignUpSendEmail() {
     return (
       <div className="flex flex-col gap-[12.5px]">
         <div className="text-color-neutral-50 flex items-center justify-center">
-          <span className="text-sm font-normal">Already have account?</span>
+          <span className="text-body4_r_14">Already have account?</span>
           <Button
             onClick={showSignIn}
             variant="link"
-            className="text-sm font-normal underline"
+            className="text-body4_r_14 underline"
           >
             Log in
           </Button>
         </div>
         <Button
           type="submit"
-          className="w-full px-[22px] py-[9px] text-base font-medium"
+          className="text-body1_m_16 w-full px-[22px] py-[9px]"
           disabled={isSendButtonDisabled}
         >
           Send the Email

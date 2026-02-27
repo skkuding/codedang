@@ -31,7 +31,7 @@ export function DisableCopyPasteForm({
   return (
     <div className="flex items-center gap-3">
       {/* NOTE: opacity문제로 Label컴포넌트 이용 안함 */}
-      <span className="text-lg font-semibold">{title} </span>
+      <span className="text-sub1_sb_18">{title} </span>
       <Switch
         onCheckedChange={(checked) => field.onChange(!checked)}
         checked={!field.value}

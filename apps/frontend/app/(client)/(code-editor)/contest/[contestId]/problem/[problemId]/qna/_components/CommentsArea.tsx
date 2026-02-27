@@ -23,14 +23,14 @@ export function CommentsArea({ comments }: CommentsAreaProps) {
             )}
           >
             {comment.isContestStaff && (
-              <div className="text-color-neutral-70 mb-2 flex items-center justify-start gap-2 text-sm font-semibold">
+              <div className="text-color-neutral-70 text-sub4_sb_14 mb-2 flex items-center justify-start gap-2">
                 <IoPersonCircle className="h-6 w-6" />
-                <span className="text-sm font-semibold">
+                <span className="text-sub4_sb_14">
                   {comment.createdBy.username}
                 </span>
               </div>
             )}
-            <div className="whitespace-pre-wrap break-all text-base text-white">
+            <div className="text-body3_r_16 whitespace-pre-wrap break-all text-white">
               {comment.content}
             </div>
           </div>

@@ -30,7 +30,7 @@ export function LoadButton({ code }: LoadButtonProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button className="size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-slate-600 font-normal text-white hover:bg-slate-700">
+        <Button className="text-body3_r_16 size-7 h-8 w-[77px] shrink-0 gap-[5px] rounded-[4px] bg-slate-600 text-white hover:bg-slate-700">
           Load
         </Button>
       </AlertDialogTrigger>

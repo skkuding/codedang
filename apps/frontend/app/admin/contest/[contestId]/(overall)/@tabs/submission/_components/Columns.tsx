@@ -15,12 +15,12 @@ export const columns: ColumnDef<OverallSubmission>[] = [
           <div className="rounded-full bg-[#e1ecfe] px-4 py-1">User ID</div>
           <div>{row.original.username}</div>
         </div>
-        <div className="flex items-end justify-between px-[10px] text-xl font-semibold">
+        <div className="text-title1_sb_20 flex items-end justify-between px-[10px]">
           {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
           {row.original.title}
           <span
             className={cn(
-              'flex h-[38px] w-40 items-center justify-center rounded-full text-base font-semibold',
+              'text-sub3_sb_16 flex h-[38px] w-40 items-center justify-center rounded-full',
               row.original.result === 'Accepted'
                 ? 'border-primary text-primary border-2'
                 : 'border-flowkit-red text-flowkit-red border-2'

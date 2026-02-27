@@ -259,7 +259,7 @@ export function NotificationDropdown({
           <div className="mb-2 flex items-center justify-between px-4">
             <div
               className={cn(
-                'text-xl font-semibold',
+                'text-title1_sb_20',
                 isEditor ? 'text-white' : 'text-gray-900'
               )}
             >
@@ -280,7 +280,7 @@ export function NotificationDropdown({
           >
             <button
               className={cn(
-                'text-color-neutral-80 h-6 w-20 rounded-full bg-transparent text-sm font-medium transition-colors',
+                'text-color-neutral-80 text-body2_m_14 h-6 w-20 rounded-full bg-transparent transition-colors',
                 filter === 'all' && !isEditor && 'text-primary bg-white',
                 filter === 'all' && isEditor && 'text-primary bg-[#334155]'
               )}
@@ -290,7 +290,7 @@ export function NotificationDropdown({
             </button>
             <button
               className={cn(
-                'text-color-neutral-80 h-6 w-20 rounded-full bg-transparent text-sm font-medium transition-colors',
+                'text-color-neutral-80 text-body2_m_14 h-6 w-20 rounded-full bg-transparent transition-colors',
                 filter === 'unread' && !isEditor && 'text-primary bg-white',
                 filter === 'unread' && isEditor && 'text-primary bg-[#334155]'
               )}

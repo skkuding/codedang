@@ -16,7 +16,7 @@ export function ServiceCards() {
             href="/contest"
             className="bg-primary-light relative row-span-2 h-full w-full rounded-[20px] text-white duration-500 hover:scale-[1.02]"
           >
-            <div className="absolute left-[30px] top-[30px] flex h-[34px] items-center justify-center rounded-full border border-white px-3 py-1 text-xs font-normal">
+            <div className="text-caption4_r_12 absolute left-[30px] top-[30px] flex h-[34px] items-center justify-center rounded-full border border-white px-3 py-1">
               CONTEST
             </div>
             <Image
@@ -29,7 +29,7 @@ export function ServiceCards() {
               <p className="pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
                 About Contest
               </p>
-              <p className="text-s font-normal leading-[22.4px] tracking-[-0.48px]">
+              <p className="text-s text-body3_r_16">
                 Professors and students can host coding contests,
                 <br /> and rankings help enhance learning and motivation.
               </p>
@@ -40,7 +40,7 @@ export function ServiceCards() {
             href="/notice"
             className="bg-background-normal relative h-full w-full rounded-[20px] duration-500 hover:scale-[1.02]"
           >
-            <div className="border-primary text-primary absolute left-[30px] top-[30px] z-10 flex h-[34px] items-center justify-center rounded-full border px-3 py-1 text-xs leading-[22.4px] tracking-[-0.48px]">
+            <div className="border-primary text-primary text-caption4_r_12 absolute left-[30px] top-[30px] z-10 flex h-[34px] items-center justify-center rounded-full border px-3 py-1">
               NOTICE
             </div>
             <Image
@@ -53,7 +53,7 @@ export function ServiceCards() {
               <p className="text-primary-strong pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
                 Stay Informed
               </p>
-              <p className="text-primary text-s font-normal leading-[22.4px] tracking-[-0.48px]">
+              <p className="text-primary text-s text-body3_r_16">
                 Stay updated with the latest news <br /> and announcements.
               </p>
             </div>
@@ -63,7 +63,7 @@ export function ServiceCards() {
             href="/problem"
             className="bg-primary relative h-full w-full rounded-[20px] text-white duration-500 hover:scale-[1.02]"
           >
-            <div className="absolute left-[30px] top-[30px] z-10 flex h-[34px] items-center justify-center rounded-full border border-white px-3 py-1 text-xs leading-[22.4px] tracking-[-0.48px]">
+            <div className="text-caption4_r_12 absolute left-[30px] top-[30px] z-10 flex h-[34px] items-center justify-center rounded-full border border-white px-3 py-1">
               PROBLEM
             </div>
             <Image
@@ -84,7 +84,7 @@ export function ServiceCards() {
                 Practice with
                 <br /> Real problems
               </p>
-              <p className="text-s font-normal leading-[22.4px] tracking-[-0.48px]">
+              <p className="text-s text-body3_r_16">
                 Explore coding challenges
                 <br /> by level and topic.
               </p>
@@ -95,7 +95,7 @@ export function ServiceCards() {
             href="/course"
             className="relative col-span-2 h-full w-full rounded-[20px] bg-[#00183E] text-white duration-500 hover:scale-[1.02]"
           >
-            <div className="absolute left-[30px] top-[30px] flex h-[34px] items-center justify-center rounded-full border border-white bg-[#00183E] px-3 py-1 text-xs leading-[22.4px] tracking-[-0.48px]">
+            <div className="text-caption4_r_12 absolute left-[30px] top-[30px] flex h-[34px] items-center justify-center rounded-full border border-white bg-[#00183E] px-3 py-1">
               COURSE
             </div>
             <Image
@@ -109,7 +109,7 @@ export function ServiceCards() {
               <p className="pb-[14px] text-[30px] font-semibold leading-9 tracking-[-0.9px]">
                 Learn with Courses
               </p>
-              <p className="text-s font-normal leading-[22.4px] tracking-[-0.48px]">
+              <p className="text-s text-body3_r_16">
                 Access course-linked assignments and exercises.
                 <br /> Learn through professor-curated problem.
               </p>

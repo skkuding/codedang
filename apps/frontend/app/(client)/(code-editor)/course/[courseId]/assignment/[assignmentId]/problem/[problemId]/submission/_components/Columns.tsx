@@ -8,7 +8,7 @@ export const columns: ColumnDef<SubmissionItem>[] = [
   {
     header: '#',
     accessorKey: 'id',
-    cell: ({ row }) => <p className="text-sm">{row.original.id}</p>
+    cell: ({ row }) => <p className="text-body4_r_14">{row.original.id}</p>
   },
   {
     header: () => 'Language',

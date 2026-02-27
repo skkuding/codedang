@@ -61,7 +61,7 @@ export default async function ContestProblem(props: ContestProblemProps) {
     return (
       <div className="flex h-44 translate-y-[22px] items-center justify-center gap-4">
         <div className="flex flex-col items-center gap-1 font-mono">
-          <p className="text-xl font-semibold">Access Denied</p>
+          <p className="text-title1_sb_20">Access Denied</p>
           <p className="text-gray-500">{displayMessage}</p>
         </div>
       </div>

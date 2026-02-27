@@ -31,8 +31,8 @@ export default async function Course() {
         <CourseMainBanner course={null} />
         <div className="flex w-full max-w-7xl flex-col items-center justify-center p-5 py-48">
           <Image src={welcomeLogo} alt="welcome" />
-          <p className="mt-10 text-2xl font-semibold">Please Login!</p>
-          <div className="mt-2 text-center text-base font-normal text-[#7F7F7F]">
+          <p className="text-head5_sb_24 mt-10">Please Login!</p>
+          <div className="text-body3_r_16 mt-2 text-center text-[#7F7F7F]">
             <p>This page is only available to logged-in users.</p>
             <p>Click the button below to login.</p>
           </div>
@@ -47,10 +47,8 @@ export default async function Course() {
     <>
       <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
         <div className="flex flex-col pb-12">
-          <span className="text-[40px] font-bold leading-[130%] tracking-[-1.2px]">
-            COURSE
-          </span>
-          <span className="text-color-neutral-40 text-lg font-medium">
+          <span className="text-head1_b_40">COURSE</span>
+          <span className="text-color-neutral-40 text-sub2_m_18">
             전반적인 교육과정을 연계하여 관리해보세요
           </span>
         </div>
@@ -60,11 +58,9 @@ export default async function Course() {
           </Suspense>
         </ErrorBoundary>
       </div>
-
       <div className="w-full px-5 md:px-[116px]">
         <Dashboard />
       </div>
-
       <CourseSubBanner />
       <div className="h-[100px]" />
     </>

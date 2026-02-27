@@ -43,7 +43,7 @@ export function TestcaseItem({
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <p className="text-lg font-medium text-[#5C5C5C]">
+          <p className="text-sub2_m_18 text-[#5C5C5C]">
             #{(currentIndex + 1).toString().padStart(2, '0')}
           </p>
           {!blockEdit && !isZipUploaded && (
@@ -71,7 +71,7 @@ export function TestcaseItem({
                 />
                 <p
                   className={cn(
-                    'text-base font-medium text-[#737373]',
+                    'text-body1_m_16 text-[#737373]',
                     isHiddenField.value === true
                       ? 'font-medium text-gray-500'
                       : 'text-gray-400'
@@ -118,7 +118,7 @@ export function TestcaseItem({
               className="hide-spin-button h-7 w-24 rounded-[1000px] border px-2 py-1 text-center"
             />
           )}{' '}
-          <span className="text-sm font-semibold text-[#737373]">(%)</span>
+          <span className="text-sub4_sb_14 text-[#737373]">(%)</span>
         </div>
       </div>
       {!isZipUploaded ? (
@@ -132,7 +132,7 @@ export function TestcaseItem({
       ) : (
         <div className="border-color-neutral-95 bg-color-neutral-99 flex items-center justify-between rounded border p-4">
           <div className="flex items-center gap-2">
-            <span className="text-color-neutral-50 text-sm font-medium">
+            <span className="text-color-neutral-50 text-body2_m_14">
               Uploaded via ZIP - Input/Output is handled by the server
             </span>
           </div>

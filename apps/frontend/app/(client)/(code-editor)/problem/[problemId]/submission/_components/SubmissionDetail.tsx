@@ -36,7 +36,7 @@ export async function SubmissionDetail({ problemId, submissionId }: Props) {
   return (
     <>
       <ScrollArea className="shrink-0 rounded-md">
-        <div className="**:whitespace-nowrap flex items-center justify-around gap-5 bg-slate-700 p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
+        <div className="**:whitespace-nowrap text-body4_r_14 flex items-center justify-around gap-5 bg-slate-700 p-5 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
           <div>
             <h2>User</h2>
             <p>{submission.username}</p>
@@ -101,7 +101,7 @@ export async function SubmissionDetail({ problemId, submissionId }: Props) {
       )}
       {res.ok ? null : (
         <div className="backdrop-blur-xs absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1">
-          <p className="mt-4 font-mono text-xl font-semibold">Access Denied</p>
+          <p className="text-title1_sb_20 mt-4 font-mono">Access Denied</p>
           <p className="w-10/12 text-center">
             {`To view other users' code,
             please submit your own correct code first`}

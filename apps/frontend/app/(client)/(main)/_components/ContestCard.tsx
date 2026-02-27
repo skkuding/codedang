@@ -45,13 +45,13 @@ export function ContestCard({ contest }: Props) {
         )}
       >
         <StatusBadge variant={contest.status} />
-        <div className="line-clamp-4 text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight text-black min-[400px]:line-clamp-2">
+        <div className="text-sub1_sb_18 line-clamp-4 text-ellipsis whitespace-pre-wrap text-black min-[400px]:line-clamp-2">
           {contest.title}
         </div>
       </div>
       <div className="mb-4 flex items-center justify-between">
         <div className="line-clamp-2 flex flex-col gap-2">
-          <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
+          <div className="text-caption4_r_12 inline-flex items-center gap-2 whitespace-nowrap text-gray-800 opacity-80">
             <Image src={calendarIcon} alt="calendar" width={16} height={16} />
             <p className="overflow-hidden text-ellipsis whitespace-pre-wrap">
               {startTime} ~ {endTime}

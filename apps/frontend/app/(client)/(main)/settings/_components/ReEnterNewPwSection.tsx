@@ -55,11 +55,11 @@ export function ReEnterNewPwSection({
       </div>
       {getValues('confirmPassword') &&
         (isPasswordsMatch ? (
-          <div className="text-primary -mt-4 inline-flex items-center text-xs">
+          <div className="text-primary text-caption4_r_12 -mt-4 inline-flex items-center">
             Correct
           </div>
         ) : (
-          <div className="-mt-4 inline-flex items-center text-xs text-red-500">
+          <div className="text-caption4_r_12 -mt-4 inline-flex items-center text-red-500">
             Incorrect
           </div>
         ))}

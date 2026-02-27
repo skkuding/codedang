@@ -139,13 +139,11 @@ export function SwitchField({
 
           return null
         })()}
-
       {isEnabled && name === 'invitationCode' && (
-        <span className="text-xs text-gray-400">
+        <span className="text-caption4_r_12 text-gray-400">
           The invitation code must be a 6-digit number
         </span>
       )}
-
       {isEnabled && name === 'invitationCode' && errors[name] && (
         <ErrorMessage message={errors[name]?.message?.toString()} />
       )}

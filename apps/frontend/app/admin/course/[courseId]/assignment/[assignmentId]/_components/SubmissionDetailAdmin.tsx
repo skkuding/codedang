@@ -71,7 +71,7 @@ export function SubmissionDetailAdmin({
     <ScrollArea className="mt-5 max-h-[760px] w-[1000px]">
       {!loading && (
         <div className="mx-14 flex flex-col gap-4">
-          <h1 className="flex text-lg font-semibold">
+          <h1 className="text-sub1_sb_18 flex">
             <span className="max-w-[30%] truncate text-gray-400">
               {submission?.user?.userProfile?.realName}(
               {submission?.user?.studentId})
@@ -85,7 +85,7 @@ export function SubmissionDetailAdmin({
           </h1>
           <h2 className="font-bold">Summary</h2>
           <ScrollArea className="max-w-full shrink-0 rounded-md">
-            <div className="**:whitespace-nowrap flex items-center justify-around gap-5 bg-gray-100 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
+            <div className="**:whitespace-nowrap text-caption4_r_12 flex items-center justify-around gap-5 bg-gray-100 p-5 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
               <div>
                 <h2>Name</h2>
                 <p>{submission?.user?.userProfile?.realName}</p>
@@ -132,7 +132,7 @@ export function SubmissionDetailAdmin({
           {submission?.testcaseResult.length !== 0 ? (
             <div className="flex flex-col gap-4">
               <table>
-                <tbody className="text-sm font-light">
+                <tbody className="text-body4_r_14 font-light">
                   <tr>
                     <td className="w-52 py-1">Correct Testcase:</td>
                     <td className="py-1 text-slate-500">

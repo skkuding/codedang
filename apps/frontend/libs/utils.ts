@@ -1,12 +1,26 @@
 import { type ClassValue, clsx } from 'clsx'
 import dayjs from 'dayjs'
 import ky, { HTTPError } from 'ky'
-import { twMerge } from 'tailwind-merge'
+import { extendTailwindMerge } from 'tailwind-merge'
 import { auth } from './auth'
 import { adminRestUrl, baseUrl, UNLIMITED_DATE } from './constants'
 
+const customTwMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      'font-size': [
+        {
+          text: [
+            (value: string) => /^(head|title|sub|body|caption)/.test(value)
+          ]
+        }
+      ]
+    }
+  }
+})
+
 export const cn = (...inputs: ClassValue[]) => {
-  return twMerge(clsx(inputs))
+  return customTwMerge(clsx(inputs))
 }
 
 export const isHttpError = (error: unknown) => error instanceof HTTPError

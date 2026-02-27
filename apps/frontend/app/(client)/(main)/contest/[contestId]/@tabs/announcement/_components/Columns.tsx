@@ -9,7 +9,7 @@ export const columns: ColumnDef<ContestAnnouncement>[] = [
     header: 'No',
     accessorKey: 'no',
     cell: ({ row, table }) => (
-      <div className="h-full text-base">
+      <div className="text-body3_r_16 h-full">
         {table.getCoreRowModel().rows.length - row.index}
       </div>
     )
@@ -18,7 +18,7 @@ export const columns: ColumnDef<ContestAnnouncement>[] = [
     header: 'Problem',
     accessorKey: 'problem',
     cell: ({ row }) => (
-      <div className="h-full text-base">
+      <div className="text-body3_r_16 h-full">
         {row.original.problemOrder !== null
           ? convertToLetter(row.original.problemOrder)
           : ''}
@@ -29,14 +29,14 @@ export const columns: ColumnDef<ContestAnnouncement>[] = [
     header: () => 'Announcement',
     accessorKey: 'content',
     cell: ({ row }) => (
-      <div className="text-left text-base">{row.original.content}</div>
+      <div className="text-body3_r_16 text-left">{row.original.content}</div>
     )
   },
   {
     header: () => 'Date',
     accessorKey: 'createTime',
     cell: ({ row }) => (
-      <div className="text-base text-[#808080]">
+      <div className="text-body3_r_16 text-[#808080]">
         {dateFormatter(row.original.createTime, 'YYYY-MM-DD HH:mm')}
       </div>
     )

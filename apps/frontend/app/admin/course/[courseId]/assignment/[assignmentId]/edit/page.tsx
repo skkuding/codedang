@@ -183,7 +183,7 @@ export default function Page() {
                 disabled={isLoading}
               >
                 <IoIosCheckmarkCircle fontSize={20} />
-                <div className="mb-[2px] text-base">Edit</div>
+                <div className="text-body3_r_16 mb-[2px]">Edit</div>
               </Button>
             </div>
           </EditAssignmentForm>

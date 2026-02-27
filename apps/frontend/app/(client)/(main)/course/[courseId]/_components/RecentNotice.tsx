@@ -83,8 +83,10 @@ export function RecentNotice() {
     <div className="shadow-xs w-full rounded-xl p-4">
       <div className="mb-2 flex justify-between">
         <div>
-          <span className="text-primary mr-4 font-semibold">Recent Notice</span>
-          <span className="text-sm font-semibold">{notices.length}</span>
+          <span className="text-primary text-sub3_sb_16 mr-4">
+            Recent Notice
+          </span>
+          <span className="text-sub4_sb_14">{notices.length}</span>
         </div>
 
         <Link
@@ -94,14 +96,13 @@ export function RecentNotice() {
           SHOW MORE<span className="ml-1">+</span>
         </Link>
       </div>
-
       <ul className="space-y-5 pt-3">
         {notices.length > 0 ? (
           notices.map((notice) => (
             //TODO: 공지 요소 누르면 해당 페이지로 넘어가는 기능 필요!
             <li
               key={notice.id}
-              className="flex justify-between border-b text-sm"
+              className="text-body4_r_14 flex justify-between border-b"
             >
               <div>
                 <span
@@ -125,7 +126,7 @@ export function RecentNotice() {
             </li>
           ))
         ) : (
-          <p className="text-sm text-gray-500">공지사항이 없습니다.</p>
+          <p className="text-body4_r_14 text-gray-500">공지사항이 없습니다.</p>
         )}
       </ul>
     </div>

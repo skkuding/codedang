@@ -82,7 +82,7 @@ export function ScoreCautionDialog({
             Editing the problem may affect the{' '}
             <span className="underline">accuracy</span> of grading results.
           </p>
-          <ul className="list-disc py-2 pl-4 text-xs marker:text-gray-500">
+          <ul className="text-caption4_r_12 list-disc py-2 pl-4 marker:text-gray-500">
             <li>
               Future submissions will be graded based on the updated problem.
             </li>
@@ -102,7 +102,7 @@ export function ScoreCautionDialog({
             <span className="underline">rejudge submissions</span> after editing
             the problem.
           </p>
-          <ul className="list-disc py-2 pl-4 text-xs marker:text-gray-500">
+          <ul className="text-caption4_r_12 list-disc py-2 pl-4 marker:text-gray-500">
             <li>
               Re-evaluate all submissions for this problem in the selected
               assignments.

@@ -41,20 +41,18 @@ export function SubmissionAssessment() {
     <UpdateAssignmentProblemRecordForm onCompleted={() => setShowTooltip(true)}>
       <div className="min-w-[480px]">
         <div className="flex flex-col">
-          <h2 className="text-xl font-semibold leading-[28px] tracking-[-0.6px]">
-            Assessment
-          </h2>
+          <h2 className="text-title1_sb_20">Assessment</h2>
           <div className="mt-5 flex items-center justify-between">
             <div>
-              <p className="text-[14px] font-normal">Final Score</p>
-              <p className="text-sm text-neutral-400">
+              <p className="text-body4_r_14">Final Score</p>
+              <p className="text-body4_r_14 text-neutral-400">
                 Max score: {score?.maxScore}, Auto graded score: {score?.score}
               </p>
             </div>
             <FinalScoreForm />
           </div>
           <div className="mt-4 flex flex-col gap-2">
-            <p className="text-[14px] font-medium">Comment</p>
+            <p className="text-body2_m_14">Comment</p>
             <DescriptionForm name="comment" isDarkmode={true} />
           </div>
           <div className="mt-5 flex self-end">
@@ -62,7 +60,7 @@ export function SubmissionAssessment() {
               <Tooltip open={showTooltip}>
                 <TooltipTrigger asChild>
                   <Button
-                    className="flex h-8 w-[88px] items-center gap-1 rounded-[4px] border border-blue-500 py-[7px] pl-[10px] pr-3 text-sm font-normal"
+                    className="text-body4_r_14 flex h-8 w-[88px] items-center gap-1 rounded-[4px] border border-blue-500 py-[7px] pl-[10px] pr-3"
                     type="submit"
                   >
                     <Image

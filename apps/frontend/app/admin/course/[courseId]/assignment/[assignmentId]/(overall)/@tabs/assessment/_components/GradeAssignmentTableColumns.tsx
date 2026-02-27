@@ -19,7 +19,7 @@ export const columns: ColumnDef<DataTableGrade>[] = [
       <DataTableColumnHeader column={column} title="Week" />
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-center font-medium">
+      <p className="text-body1_m_16 max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-center">
         Week {row.getValue('week')}
       </p>
     ),
@@ -31,7 +31,7 @@ export const columns: ColumnDef<DataTableGrade>[] = [
       <DataTableColumnHeader column={column} title="Title" />
     ),
     cell: ({ row }) => (
-      <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+      <p className="text-body1_m_16 max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left">
         {row.getValue('title')}
       </p>
     ),

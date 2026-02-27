@@ -53,9 +53,7 @@ function HeaderSection({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-[6px] self-stretch">
       <div className="bg-primary w-[6px] self-stretch rounded-[1px]" />
-      <span className="text-[18px] font-medium leading-[140%] tracking-[-0.54px] text-black">
-        {label}
-      </span>
+      <span className="text-sub2_m_18 text-black">{label}</span>
     </div>
   )
 }
@@ -90,7 +88,7 @@ function AssignmentProblemSection({ contents }: ProblemSectionProps) {
                       />
                     </div>
 
-                    <span className="text-color-neutral-50 text-sm">
+                    <span className="text-color-neutral-50 text-body4_r_14">
                       [{content.group?.courseInfo?.courseNum}-
                       {content.group?.courseInfo?.classNum}]
                       <span> {content.group?.groupName}</span>
@@ -160,7 +158,7 @@ function ExerciseProblemSection({ contents }: ProblemSectionProps) {
                       />
                     </div>
 
-                    <span className="text-color-neutral-50 text-sm">
+                    <span className="text-color-neutral-50 text-body4_r_14">
                       [{content.group?.courseInfo?.courseNum}-
                       {content.group?.courseInfo?.classNum}]
                       <span> {content.group?.groupName}</span>
@@ -185,7 +183,7 @@ function NoContentsSection({ label }: { label: string }) {
           className="absolute left-[2.40px] top-[2.40px] h-6 w-6"
         />
       </div>
-      <div className="text-color-neutral-80 justify-start self-stretch text-center text-base font-medium">
+      <div className="text-color-neutral-80 text-body1_m_16 justify-start self-stretch text-center">
         No {label} have used this problem
       </div>
     </div>

@@ -127,7 +127,7 @@ export async function EditorLayout({
             <Link href="/">
               <Image src={codedangLogo} alt="코드당" width={33} />
             </Link>
-            <div className="flex items-center gap-1 font-medium">
+            <div className="text-sub2_m_18 flex items-center gap-1">
               {renderHeaderContent({
                 contest,
                 assignment,
@@ -243,7 +243,7 @@ const renderHeaderContent = ({
   return (
     <>
       <Link href="/problem">Problem</Link> <p className="mx-2"> / </p>{' '}
-      <h1 className="w-[1024px] overflow-hidden text-ellipsis whitespace-nowrap text-lg font-medium text-white">{`#${problem.id}. ${problem.title}`}</h1>
+      <h1 className="text-sub2_m_18 w-[1024px] overflow-hidden text-ellipsis whitespace-nowrap text-white">{`#${problem.id}. ${problem.title}`}</h1>
     </>
   )
 }

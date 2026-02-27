@@ -11,7 +11,7 @@ export default function Page() {
         width={454}
         height={262}
       />
-      <p className="text-center font-['IBM_Plex_Mono'] text-[40px] font-bold leading-[46px] text-[#0760EF]">
+      <p className="text-head1_b_40 text-center font-['IBM_Plex_Mono'] text-[#0760EF]">
         Thanks for using CODEDANG!
       </p>
       <p className="text-slate-[#000] gap-6 text-center font-light leading-[50px]">

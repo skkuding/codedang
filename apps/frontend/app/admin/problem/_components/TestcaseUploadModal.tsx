@@ -180,7 +180,9 @@ export function TestcaseUploadModal({
             Select ZIP File
           </Button>
           {uploadedFile && (
-            <span className="text-sm text-gray-600">{uploadedFile.name}</span>
+            <span className="text-body4_r_14 text-gray-600">
+              {uploadedFile.name}
+            </span>
           )}
         </div>
         <input

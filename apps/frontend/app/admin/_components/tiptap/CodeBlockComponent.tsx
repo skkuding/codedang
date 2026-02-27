@@ -19,7 +19,7 @@ export function CodeBlockComponent(props: NodeViewProps) {
 
   return (
     <NodeViewWrapper className="relative">
-      <div className="absolute right-2 top-2 bg-white text-sm">
+      <div className="text-body4_r_14 absolute right-2 top-2 bg-white">
         <Select
           defaultValue={
             languages.includes(defaultLanguage) ? defaultLanguage : 'auto'

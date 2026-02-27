@@ -36,7 +36,7 @@ export default function Page() {
             <Link href={`/admin/course/${courseId}/assignment` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-[32px] font-bold">CREATE ASSIGNMENT</span>
+            <span className="text-head2_b_32">CREATE ASSIGNMENT</span>
           </div>
 
           <CreateAssignmentForm
@@ -157,7 +157,7 @@ export default function Page() {
                 disabled={isCreating}
               >
                 <IoMdCheckmarkCircleOutline fontSize={20} />
-                <div className="mb-[2px] text-base">Create</div>
+                <div className="text-body3_r_16 mb-[2px]">Create</div>
               </Button>
             </div>
           </CreateAssignmentForm>

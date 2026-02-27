@@ -11,7 +11,7 @@ export const RenderProblemColumn: ColumnDef<ProblemDataTop['data'][number]>[] =
       cell: ({ row }) => {
         return (
           <div className="flex items-center justify-center p-0">
-            <span className="p-0 text-center text-sm font-normal text-black md:text-base">
+            <span className="text-body4_r_14 p-0 text-center text-black md:text-base">
               {String.fromCharCode(row.original.order + 65)}
             </span>
           </div>
@@ -24,7 +24,7 @@ export const RenderProblemColumn: ColumnDef<ProblemDataTop['data'][number]>[] =
       cell: ({ row }) => {
         return (
           <div className="flex items-center justify-start p-0">
-            <span className="text-sm font-normal text-black md:text-base">
+            <span className="text-body4_r_14 text-black md:text-base">
               {row.original.title}
             </span>
           </div>
@@ -38,7 +38,7 @@ export const RenderProblemColumn: ColumnDef<ProblemDataTop['data'][number]>[] =
       cell: () => {
         return (
           <div className="flex items-center justify-center p-0">
-            <span className="text-sm font-normal text-black md:text-base">
+            <span className="text-body4_r_14 text-black md:text-base">
               {''}
             </span>
           </div>

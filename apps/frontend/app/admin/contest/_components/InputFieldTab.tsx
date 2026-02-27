@@ -146,7 +146,7 @@ export function InputFieldTab({
             id="email-input"
             value={inputField.value}
             placeholder="Enter the e-mail"
-            className="min-h-none placeholder:text-color-neutral-90 max-h-[24px] resize-none truncate rounded-none border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
+            className="min-h-none placeholder:text-color-neutral-90 text-body3_r_16 max-h-[24px] resize-none truncate rounded-none border-none p-0 shadow-none focus-visible:ring-0"
             onChange={(value) =>
               setInputField((prevField) => ({
                 ...prevField,
@@ -162,7 +162,7 @@ export function InputFieldTab({
           />
         </div>
         {isDirect ? (
-          <div className="border-color-line-default flex h-[40px] max-w-[245px] flex-1 items-center gap-[6px] rounded-full border-[1px] border-solid pl-4 pr-2 text-base font-normal">
+          <div className="border-color-line-default text-body3_r_16 flex h-[40px] max-w-[245px] flex-1 items-center gap-[6px] rounded-full border-[1px] border-solid pl-4 pr-2">
             <div className="grid size-[20px] place-content-center">
               <HiMiniAtSymbol size={16.67} className="text-color-neutral-30" />
             </div>
@@ -171,7 +171,7 @@ export function InputFieldTab({
                 ref={inputDirectRef}
                 value={inputField.domain}
                 placeholder="Enter directly"
-                className="min-h-none placeholder:text-color-neutral-90 z-100 max-h-[24px] resize-none truncate rounded-none border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
+                className="min-h-none placeholder:text-color-neutral-90 z-100 text-body3_r_16 max-h-[24px] resize-none truncate rounded-none border-none p-0 shadow-none focus-visible:ring-0"
                 onChange={(value) =>
                   setInputField((prevField) => ({
                     ...prevField,
@@ -216,7 +216,7 @@ export function InputFieldTab({
             value={ALLOWED_DOMAINS[0]}
             onValueChange={handleDomainDropdownChange}
           >
-            <SelectTrigger className="text-color-common-0 flex h-[40px] max-w-[245px] flex-1 gap-[6px] rounded-full pl-4 pr-2 text-base font-normal focus:ring-0 focus:ring-offset-0">
+            <SelectTrigger className="text-color-common-0 text-body3_r_16 flex h-[40px] max-w-[245px] flex-1 gap-[6px] rounded-full pl-4 pr-2 focus:ring-0 focus:ring-offset-0">
               <div className="flex items-center gap-[6px]">
                 <div className="grid size-[20px] place-content-center">
                   <HiMiniAtSymbol
@@ -225,7 +225,7 @@ export function InputFieldTab({
                   />
                 </div>
                 <div className="min-w-[170px]">
-                  <p className="text-color-common-0 text-left text-base">
+                  <p className="text-color-common-0 text-body3_r_16 text-left">
                     {inputField.domain}
                   </p>
                 </div>
@@ -255,7 +255,7 @@ export function InputFieldTab({
             <Button
               type="button"
               variant="outline"
-              className="text-color-common-0 flex h-[40px] max-w-[120px] flex-none items-center gap-[4px] px-[19.5px] text-base font-normal"
+              className="text-color-common-0 text-body3_r_16 flex h-[40px] max-w-[120px] flex-none items-center gap-[4px] px-[19.5px]"
             >
               <p className="min-w-[67px] text-center">{inputField.role}</p>
               <div className="grid size-[16px] place-content-center">
@@ -286,7 +286,7 @@ export function InputFieldTab({
       >
         <div className="text-color-blue-50 flex h-full items-center gap-[4px] px-[22px]">
           <HiMiniPlus size={16} />
-          <p className="text-sm font-medium">Add</p>
+          <p className="text-body2_m_14">Add</p>
         </div>
       </Button>
     </div>

@@ -48,7 +48,7 @@ export function SubmissionTable({ isExercise }: SubmissionTableProps) {
       >
         <div className="mb-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="font-semibold">
+            <div className="text-sub3_sb_16">
               <span className="text-primary font-bold">
                 {data.getAssignmentSubmissions.length}
               </span>{' '}

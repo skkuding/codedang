@@ -14,9 +14,11 @@ export function LogoSection() {
     >
       <div className="flex items-center gap-3">
         <Image src={codedangSymbol} alt="codedang" width={65} />
-        <p className="font-mono text-[40px] font-bold text-white">CODEDANG</p>
+        <p className="text-head1_b_40 font-mono text-white">CODEDANG</p>
       </div>
-      <p className="font-medium text-white">Online Judge Platform for SKKU</p>
+      <p className="text-body1_m_16 text-white">
+        Online Judge Platform for SKKU
+      </p>
     </div>
   )
 }

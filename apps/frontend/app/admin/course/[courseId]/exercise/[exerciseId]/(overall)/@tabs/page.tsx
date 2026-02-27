@@ -73,13 +73,13 @@ export default function Information(props: InformationProps) {
               <Table className="overflow-hidden rounded-xl border border-gray-200">
                 <TableHeader>
                   <TableRow className="border-b border-gray-200">
-                    <TableHead className="w-12 bg-gray-50 text-center text-sm font-normal text-gray-500">
+                    <TableHead className="text-body4_r_14 w-12 bg-gray-50 text-center text-gray-500">
                       Order
                     </TableHead>
-                    <TableHead className="bg-gray-50 text-left text-sm font-normal text-gray-500">
+                    <TableHead className="text-body4_r_14 bg-gray-50 text-left text-gray-500">
                       Title
                     </TableHead>
-                    <TableHead className="w-40 bg-gray-50 text-center text-sm font-normal text-gray-500">
+                    <TableHead className="text-body4_r_14 w-40 bg-gray-50 text-center text-gray-500">
                       Solution
                     </TableHead>
                   </TableRow>
@@ -90,10 +90,10 @@ export default function Information(props: InformationProps) {
                       key={problem.problemId}
                       className="border-b border-gray-200 last:border-b-0"
                     >
-                      <TableCell className="text-center font-mono text-sm text-gray-900">
+                      <TableCell className="text-body4_r_14 text-center font-mono text-gray-900">
                         {String.fromCharCode(65 + idx)}
                       </TableCell>
-                      <TableCell className="text-left text-sm text-gray-900">
+                      <TableCell className="text-body4_r_14 text-left text-gray-900">
                         {problem.problem.title}
                       </TableCell>
                       <TableCell className="text-center">
@@ -115,7 +115,7 @@ export default function Information(props: InformationProps) {
           </span>
           <div className="flex w-full flex-col gap-4 rounded-[12px] bg-white p-6">
             <div className="flex items-center gap-4">
-              <span className="text-[16px] font-semibold">
+              <span className="text-sub3_sb_16">
                 Reveal Hidden Testcase Result
               </span>
               <span
@@ -125,9 +125,7 @@ export default function Information(props: InformationProps) {
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-[16px] font-semibold">
-                Enable Copy/Paste
-              </span>
+              <span className="text-sub3_sb_16">Enable Copy/Paste</span>
               <span
                 className={`rounded-[12px] px-4 py-1 text-xs font-bold text-white ${assignmentData?.enableCopyPaste ? 'bg-primary' : 'bg-gray-300'}`}
               >

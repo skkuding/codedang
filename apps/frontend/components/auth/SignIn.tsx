@@ -114,7 +114,7 @@ export function SignIn() {
           onClick={showRecoverAccount}
           type="button"
           variant={'link'}
-          className="text-color-neutral-70 text-sm font-normal underline"
+          className="text-color-neutral-70 text-body4_r_14 underline"
         >
           Forgot ID / Password
         </Button>

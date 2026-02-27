@@ -51,7 +51,7 @@ export function Cover({ title, description }: CoverProps) {
           />
           <div>
             <h2 className="text-[50px] font-bold text-white">{title}</h2>
-            <p className="whitespace-nowrap text-xl font-medium text-white/80">
+            <p className="text-title2_m_20 whitespace-nowrap text-white/80">
               {description}
             </p>
           </div>

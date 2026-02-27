@@ -30,7 +30,7 @@ export function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
   }
 
   return (
-    <div className="flex gap-[10px] text-base">
+    <div className="text-body3_r_16 flex gap-[10px]">
       <div className="border-color-line-default flex h-10 w-full max-w-[530px] cursor-pointer items-center justify-between rounded-full border border-solid px-[10px] py-[10px] text-black">
         <div className="ml-[10px] flex items-center gap-[10px]">
           <div className="grid place-content-center">
@@ -41,7 +41,7 @@ export function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
 
         <Button
           variant="ghost"
-          className="h-9 w-9 p-1 text-sm font-normal"
+          className="text-body4_r_14 h-9 w-9 p-1"
           onClick={() => handleDeleteUser()}
         >
           <HiMiniXCircle className="text-color-neutral-80 h-5 w-5" />
@@ -51,7 +51,7 @@ export function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
         <DropdownMenuTrigger asChild className="grow">
           <Button
             variant="outline"
-            className="text-color-common-0 h-10 pl-4 pr-2 font-normal"
+            className="text-color-common-0 text-body3_r_16 h-10 pl-4 pr-2"
           >
             <p className="min-w-[67px] text-center">{curUser.type}</p>
             <div className="grid size-[16px] place-content-center">
@@ -59,7 +59,7 @@ export function SelectedUserTab({ curUser, setUsers }: SelectedUserTabProps) {
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-full text-base font-normal">
+        <DropdownMenuContent className="text-body3_r_16 w-full">
           <DropdownMenuCheckboxItem
             checked={curUser.type === 'Manager'}
             onCheckedChange={() => handleUserDropdownChange('Manager')}

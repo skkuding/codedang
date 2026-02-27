@@ -8,9 +8,11 @@ import dayjs from 'dayjs'
 export const submissionColumns: ColumnDef<UserSubmission>[] = [
   {
     accessorKey: 'problemTitle',
-    header: () => <div className="py-1 font-mono text-sm">Problem Title</div>,
+    header: () => (
+      <div className="text-body4_r_14 py-1 font-mono">Problem Title</div>
+    ),
     cell: ({ row }) => (
-      <div className="whitespace-nowrap py-1 text-center text-xs">
+      <div className="text-caption4_r_12 whitespace-nowrap py-1 text-center">
         {String.fromCharCode(65 + (row.original.order ?? 0))}.{' '}
         {row.getValue('problemTitle')}
       </div>
@@ -19,7 +21,7 @@ export const submissionColumns: ColumnDef<UserSubmission>[] = [
   },
   {
     accessorKey: 'submissionResult',
-    header: () => <p className="font-mono text-sm">Result</p>,
+    header: () => <p className="text-body4_r_14 font-mono">Result</p>,
     cell: ({ row }) => (
       <div
         className={cn(
@@ -33,18 +35,18 @@ export const submissionColumns: ColumnDef<UserSubmission>[] = [
   },
   {
     accessorKey: 'language',
-    header: () => <p className="font-mono text-sm">Language</p>,
+    header: () => <p className="text-body4_r_14 font-mono">Language</p>,
     cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
+      <div className="text-caption4_r_12 whitespace-nowrap text-center">
         {row.getValue('language')}
       </div>
     )
   },
   {
     accessorKey: 'submissionTime',
-    header: () => <p className="font-mono text-sm">Submission Time</p>,
+    header: () => <p className="text-body4_r_14 font-mono">Submission Time</p>,
     cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
+      <div className="text-caption4_r_12 whitespace-nowrap text-center">
         {dayjs(new Date(parseInt(row.getValue('submissionTime'), 10))).format(
           'MMM DD, YYYY HH:mm'
         )}
@@ -53,18 +55,18 @@ export const submissionColumns: ColumnDef<UserSubmission>[] = [
   },
   {
     accessorKey: 'codeSize',
-    header: () => <p className="font-mono text-sm">Code Size</p>,
+    header: () => <p className="text-body4_r_14 font-mono">Code Size</p>,
     cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
+      <div className="text-caption4_r_12 whitespace-nowrap text-center">
         {row.getValue('codeSize') ? `${row.getValue('codeSize')} B` : 'N/A'}
       </div>
     )
   },
   {
     accessorKey: 'ip',
-    header: () => <p className="font-mono text-sm">IP</p>,
+    header: () => <p className="text-body4_r_14 font-mono">IP</p>,
     cell: ({ row }) => (
-      <div className="whitespace-nowrap text-center text-xs">
+      <div className="text-caption4_r_12 whitespace-nowrap text-center">
         {row.getValue('ip') ?? 'Unknown'}
       </div>
     )

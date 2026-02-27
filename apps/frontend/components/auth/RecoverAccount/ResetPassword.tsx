@@ -128,7 +128,7 @@ export function ResetPassword() {
                 'text-xs'
               )}
             >
-              <ul className="pl-4 text-xs">
+              <ul className="text-caption4_r_12 pl-4">
                 <li className="list-disc">8-20 characters</li>
                 <li className="list-disc">Include two of the followings:</li>
                 <li>capital letters, small letters, numbers</li>
@@ -168,7 +168,7 @@ export function ResetPassword() {
             </span>
           </div>
           {errors.passwordAgain && (
-            <p className="text-xs text-red-500">
+            <p className="text-caption4_r_12 text-red-500">
               {errors.passwordAgain.message}
             </p>
           )}

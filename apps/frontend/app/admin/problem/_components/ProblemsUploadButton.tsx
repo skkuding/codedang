@@ -77,11 +77,11 @@ export function ProblemsUploadButton() {
       trigger={
         <Button variant="outline" className="w-[120px]">
           <UploadIcon className="mr-2 h-5 w-5" />
-          <span className="text-lg font-medium">Upload</span>
+          <span className="text-sub2_m_18">Upload</span>
         </Button>
       }
     >
-      <span className="w-full text-center text-sm font-normal text-[#737373]">
+      <span className="text-body4_r_14 w-full text-center text-[#737373]">
         {`Please upload Excel file containing problem data. If you are looking for the required schema, you can download `}
         <a href="/sample.xlsx" download className="text-primary underline">
           {`the sample file here.`}
@@ -96,7 +96,7 @@ export function ProblemsUploadButton() {
       />
       {file ? (
         <section className="relative flex h-full w-full flex-col items-center justify-center gap-4">
-          <div className="flex min-w-60 items-center justify-center gap-2 text-sm">
+          <div className="text-body4_r_14 flex min-w-60 items-center justify-center gap-2">
             <RiFileExcel2Fill size={20} className="text-[#1D6F42]" />
             {file.name}
           </div>
@@ -104,7 +104,7 @@ export function ProblemsUploadButton() {
             <Button
               onClick={resetFile}
               disabled={loading}
-              className="h-[46px] w-full text-base"
+              className="text-body3_r_16 h-[46px] w-full"
               variant="outline"
             >
               Reset
@@ -112,7 +112,7 @@ export function ProblemsUploadButton() {
             <Button
               onClick={uploadFile}
               disabled={loading}
-              className="h-[46px] w-full text-base"
+              className="text-body3_r_16 h-[46px] w-full"
               variant="default"
             >
               Upload
@@ -127,10 +127,10 @@ export function ProblemsUploadButton() {
       ) : (
         <section className="flex items-center justify-center gap-3 rounded-lg">
           <UploadCloudIcon className="h-16 w-16 text-slate-800" />
-          <p className="text-sm font-semibold">Drag and Drop or</p>
+          <p className="text-sub4_sb_14">Drag and Drop or</p>
           <Button
             variant="outline"
-            className="text-sm"
+            className="text-body4_r_14"
             onClick={openFileBrowser}
           >
             Browse

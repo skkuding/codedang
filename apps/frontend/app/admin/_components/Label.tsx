@@ -16,11 +16,7 @@ export function Label({
   return (
     <div>
       <span
-        className={cn(
-          'text-lg font-semibold',
-          disabled ?? 'opacity-50',
-          className
-        )}
+        className={cn('text-sub1_sb_18', disabled ?? 'opacity-50', className)}
       >
         {children}{' '}
       </span>

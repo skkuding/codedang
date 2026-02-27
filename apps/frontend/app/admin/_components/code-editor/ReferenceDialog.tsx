@@ -26,13 +26,13 @@ export function ReferenceDialog() {
           className="rounded-xl border-none bg-slate-900 text-gray-300 sm:max-w-md"
         >
           <DialogHeader>
-            <DialogTitle className="font-normal text-white">
+            <DialogTitle className="text-body3_r_16 text-white">
               Compiler Version Document
             </DialogTitle>
           </DialogHeader>
           <div className="rounded-xs overflow-x-auto border border-slate-600">
-            <table className="min-w-full bg-slate-900 text-left text-sm">
-              <thead className="border-b border-slate-600 bg-slate-800 text-xs">
+            <table className="text-body4_r_14 min-w-full bg-slate-900 text-left">
+              <thead className="text-caption4_r_12 border-b border-slate-600 bg-slate-800">
                 <tr>
                   <th className="px-6 py-3">Language</th>
                   <th className="px-6 py-3">Compiler Version Document</th>

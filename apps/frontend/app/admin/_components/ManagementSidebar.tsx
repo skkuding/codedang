@@ -94,7 +94,7 @@ function SidebarLink({
       <item.icon
         className={cn('h-4 w-4', isActive ? 'fill-white' : 'fill-gray-600')}
       />
-      {isExpanded && <span className="ml-3 text-sm">{item.name}</span>}
+      {isExpanded && <span className="text-body4_r_14 ml-3">{item.name}</span>}
     </Link>
   )
 }
@@ -306,7 +306,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
           ))}
         </div>
       </motion.div>
-
       {/* Course Sidebar */}
       {isCourseSidebarOpened && (
         <motion.div
@@ -323,7 +322,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
           <div className="h-[3.8rem]" />
           {selectedCourse && isCourseSidebarExpanded && (
             <div className="absolute mt-16 text-gray-500">
-              <div className="font-semibold text-gray-700">
+              <div className="text-sub3_sb_16 text-gray-700">
                 [{selectedCourse.code}]
               </div>
               <div>{selectedCourse.name}</div>

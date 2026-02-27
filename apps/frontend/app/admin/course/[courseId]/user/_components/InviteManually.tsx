@@ -217,7 +217,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                   id="email"
                   {...findRegister('email')}
                   placeholder="Enter the e-mail"
-                  className="pl aceholder:text-color-neutral-90 rounded-none border-none !bg-transparent pl-0 text-base autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
+                  className="pl aceholder:text-color-neutral-90 text-body3_r_16 rounded-none border-none !bg-transparent pl-0 autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
                 />
               </div>
 
@@ -227,7 +227,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                   onValueChange={handleSelectChange}
                   defaultValue="@skku.edu"
                 >
-                  <SelectTrigger className="flex gap-[6px] border-none bg-transparent px-[14px] text-base focus-visible:ring-0 focus-visible:ring-offset-0">
+                  <SelectTrigger className="text-body3_r_16 flex gap-[6px] border-none bg-transparent px-[14px] focus-visible:ring-0 focus-visible:ring-offset-0">
                     <div className="flex items-center gap-[6px]">
                       <Image src={emailIcon} alt="emailIcon" />
 
@@ -250,12 +250,12 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                 </Select>
 
                 {isDirectInputMode && (
-                  <div className="flex items-center rounded-lg text-base">
+                  <div className="text-body3_r_16 flex items-center rounded-lg">
                     <Input
                       value={emailDomain.replace('@', '')}
                       placeholder="Enter directly"
                       onChange={handleInputChange}
-                      className="w-35 absolute left-[20px] h-10 border-none bg-transparent text-base shadow-none focus-visible:ring-0"
+                      className="w-35 text-body3_r_16 absolute left-[20px] h-10 border-none bg-transparent shadow-none focus-visible:ring-0"
                     />
                   </div>
                 )}
@@ -270,7 +270,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                     inviteSetValue('isGroupLeader', value === 'Instructor')
                   }}
                 >
-                  <SelectTrigger className="flex w-auto items-center gap-2 border-none bg-transparent text-base leading-[150%] tracking-[-0.48px] text-black focus:outline-none">
+                  <SelectTrigger className="text-body3_r_16 flex w-auto items-center gap-2 border-none bg-transparent text-black focus:outline-none">
                     <SelectValue placeholder="Student" />
                   </SelectTrigger>
                   <SelectContent className="rounded-lg bg-white shadow-md">
@@ -289,13 +289,13 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
               onClick={() => findHandleSubmit(onFind)()}
             >
               <Image src={plusIcon} alt="plusIcon" />
-              <span className="text-primary text-[14px] font-medium">Add</span>
+              <span className="text-primary text-body2_m_14">Add</span>
             </div>
           </div>
         </div>
 
         <div className="flex flex-col items-start gap-[10px] self-stretch">
-          <span className="text-primary overflow-hidden text-ellipsis text-sm font-normal">
+          <span className="text-primary text-body4_r_14 overflow-hidden text-ellipsis">
             {selectedList.length} user(s) selected
           </span>
 
@@ -308,7 +308,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                 <div className="border-line flex h-10 flex-1 items-center justify-between rounded-full border bg-white px-5">
                   <div className="flex items-center gap-[10px]">
                     <MdOutlineEmail className="h-5 w-5 text-gray-400" />
-                    <span className="text-base">{user.email}</span>
+                    <span className="text-body3_r_16">{user.email}</span>
                   </div>
                   <IoMdCloseCircle
                     className="h-[18px] w-[18px] cursor-pointer text-gray-400"
@@ -321,14 +321,14 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                 </div>
 
                 <div className="border-line flex h-10 w-[120px] items-center justify-center gap-1 rounded-full border bg-white px-5">
-                  <span className="text-base">
+                  <span className="text-body3_r_16">
                     <Select
                       value={user.role}
                       onValueChange={(value: 'Instructor' | 'Student') => {
                         handleRoleChange(user.userId, value)
                       }}
                     >
-                      <SelectTrigger className="flex w-auto items-center gap-2 border-none bg-transparent text-base leading-[150%] tracking-[-0.48px] text-black focus:outline-none">
+                      <SelectTrigger className="text-body3_r_16 flex w-auto items-center gap-2 border-none bg-transparent text-black focus:outline-none">
                         <SelectValue placeholder="Student" />
                       </SelectTrigger>
                       <SelectContent className="rounded-lg bg-white shadow-md">
@@ -359,10 +359,9 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
           <ErrorMessage message={inviteErrors.isGroupLeader.message} />
         )}
       </form>
-
       <Button
         type="button"
-        className="bg-primary hover:bg-primary-strong mt-[30px] h-11 w-full rounded-full text-base text-white"
+        className="bg-primary hover:bg-primary-strong text-body3_r_16 mt-[30px] h-11 w-full rounded-full text-white"
         onClick={() => inviteHandleSubmit(onInvite)()}
       >
         Invite

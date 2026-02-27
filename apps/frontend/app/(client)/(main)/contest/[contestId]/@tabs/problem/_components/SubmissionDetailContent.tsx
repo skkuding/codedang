@@ -38,7 +38,7 @@ export function SubmissionDetailContent({
   return (
     <ScrollArea className="mt-5 max-h-[540px] w-[760px]">
       <div className="ml-20 flex w-[612px] flex-col gap-4">
-        <h1 className="flex text-lg font-semibold">
+        <h1 className="text-sub1_sb_18 flex">
           <span className="max-w-[30%] truncate text-gray-400">
             {submission.username}
           </span>
@@ -52,7 +52,7 @@ export function SubmissionDetailContent({
         </h1>
         <h2 className="font-bold">Summary</h2>
         <ScrollArea className="max-w-full shrink-0 rounded-md">
-          <div className="**:whitespace-nowrap flex items-center justify-around gap-5 bg-gray-100 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
+          <div className="**:whitespace-nowrap text-caption4_r_12 flex items-center justify-around gap-5 bg-gray-100 p-5 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
             <div>
               <h2>User</h2>
               <p>{submission.username}</p>

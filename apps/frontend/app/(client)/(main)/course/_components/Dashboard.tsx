@@ -263,11 +263,8 @@ export function Dashboard() {
   return (
     <section className="mx-auto max-w-[1208px]">
       <div className="pb-4 sm:pb-[30px]">
-        <h2 className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
-          나의 대시보드
-        </h2>
+        <h2 className="text-head5_sb_24 md:text-[28px]">나의 대시보드</h2>
       </div>
-
       <div className="grid grid-cols-1 gap-[14px] md:grid md:grid-cols-2 lg:grid-cols-3">
         <div className="order-2 flex max-h-[460px] flex-col md:order-1">
           <CardSection
@@ -315,9 +312,7 @@ function CardSection({
   return (
     <section className="flex h-full rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
       <div className="flex w-full max-w-[100vw] flex-col overflow-hidden py-[30px] pl-6 pr-2 md:max-w-[390px]">
-        <span className="mb-6 text-[24px] font-semibold leading-[33.6px] tracking-[-0.72px]">
-          {title}
-        </span>
+        <span className="text-head5_sb_24 mb-6">{title}</span>
 
         <ScrollArea className="flex-1 pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
           {groups
@@ -338,7 +333,7 @@ function CardSection({
             .filter((g) => g.rows.length)
             .map((group, idx) => (
               <div key={group.courseTitle} className="w-full">
-                <p className="mb-3 pl-[6px] text-[14px] font-semibold leading-[19.6px] tracking-[-0.42px] text-black">
+                <p className="text-sub4_sb_14 mb-3 pl-[6px] text-black">
                   <span className="bg-primary-light mr-2 inline-block h-[22px] w-[6px] rounded-[1px] align-middle" />
                   {group.courseTitle}
                 </p>
@@ -385,7 +380,7 @@ function CardSection({
                               </div>
                             </div>
 
-                            <span className="text-primary ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm font-medium tabular-nums">
+                            <span className="text-primary text-body2_m_14 ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right tabular-nums">
                               {'~ '}
                               {formatDueMd(row.dueTime ?? row.endTime)}
                             </span>

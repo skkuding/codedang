@@ -90,7 +90,7 @@ export function AddManagerReviewerDialog({
         />
         <ScrollArea className="relative max-h-[293px] w-full p-0 tracking-[-3%]">
           <div className="border-color-line-default flex min-h-[293px] flex-col gap-[10px] rounded-2xl border border-solid p-[30px]">
-            <div className="text-primary mt-1 text-sm">
+            <div className="text-primary text-body4_r_14 mt-1">
               {`${users.length} user(s) selected`}
             </div>
             {users.length === 0 ? (

@@ -93,7 +93,7 @@ export function RegisterButton({
       </DialogTrigger>
       <DialogContent className="flex !h-[280px] !w-[424px] flex-col gap-5 !p-10">
         <DialogHeader>
-          <DialogTitle className="line-clamp-2 pt-3 text-center text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
+          <DialogTitle className="text-head5_sb_24 line-clamp-2 pt-3 text-center text-black">
             {'Invite Register'}
           </DialogTitle>
         </DialogHeader>
@@ -115,7 +115,7 @@ export function RegisterButton({
               )}
             />
             {errors.invitationCode && (
-              <p className="text-xs text-red-500">
+              <p className="text-caption4_r_12 text-red-500">
                 Register Code must be a 6-digit number
               </p>
             )}

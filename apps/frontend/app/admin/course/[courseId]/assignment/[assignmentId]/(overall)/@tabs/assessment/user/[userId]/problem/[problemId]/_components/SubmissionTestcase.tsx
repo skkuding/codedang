@@ -78,7 +78,7 @@ export function SubmissionTestcase() {
 
   return (
     <div>
-      <h2 className="mb-5 text-xl font-semibold">Testcase</h2>
+      <h2 className="text-title1_sb_20 mb-5">Testcase</h2>
       <Table className="**:border-separate **:border-spacing-0 **:text-center **:font-normal [&_td]:p-0 [&_td]:text-xs">
         <TableHeader className="**:text-slate-100 **:text-sm **:h-[33px] **:bg-editor-fill-1">
           <TableRow>

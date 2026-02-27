@@ -11,7 +11,7 @@ export function ErrorDetail({ errorDetail, error }: ErrorDetailProps) {
   return (
     <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-3 py-12">
       <p className="mt-8 text-2xl font-extrabold">{errorDetail}</p>
-      <p className="mb-4 max-w-xl text-lg font-semibold">
+      <p className="text-sub1_sb_18 mb-4 max-w-xl">
         {error.message || 'Unknown Error'}
       </p>
       <Button

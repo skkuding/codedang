@@ -68,7 +68,7 @@ export function UserAnalysisPage() {
                       : ['th', 'st', 'nd', 'rd'][user.rank % 10] || 'th'
                   }`}
                 </div>
-                <div className="flex-1 truncate font-medium">
+                <div className="text-body1_m_16 flex-1 truncate">
                   {user.username}
                 </div>
                 <div
@@ -87,7 +87,7 @@ export function UserAnalysisPage() {
             <div className="place-items-center">
               <p
                 onClick={() => setShowAllUsers(true)}
-                className="text-color-neutral-60 hover:text-color-neutral-40 mt-1 grid cursor-pointer text-xs"
+                className="text-color-neutral-60 hover:text-color-neutral-40 text-caption4_r_12 mt-1 grid cursor-pointer"
               >{`${rawData.length - 5} more users`}</p>
             </div>
           )}

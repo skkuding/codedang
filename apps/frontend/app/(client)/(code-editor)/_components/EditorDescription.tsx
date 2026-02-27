@@ -37,34 +37,28 @@ export function EditorDescription({
             </Badge>
           )}
         </div>
-        <div className="prose prose-invert mt-5 max-w-full text-sm leading-relaxed text-slate-300">
+        <div className="prose prose-invert text-body4_r_14 mt-5 max-w-full text-slate-300">
           <KatexContent content={problem.description} />
         </div>
         <hr className="border-slate-700" />
       </div>
-
       <div className="px-6">
         <h2 className="mb-3 font-bold">Input</h2>
-        <div className="prose prose-invert mb-4 max-w-full text-sm leading-relaxed text-slate-300">
+        <div className="prose prose-invert text-body4_r_14 mb-4 max-w-full text-slate-300">
           <KatexContent content={problem.inputDescription} />
         </div>
         <hr className="border-slate-700" />
       </div>
-
       <div className="px-6">
         <h2 className="mb-3 font-bold">Output</h2>
-        <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
+        <div className="prose prose-invert text-body4_r_14 max-w-full text-slate-300">
           <KatexContent content={problem.outputDescription} />
         </div>
       </div>
-
       <hr className="border-editor-background-1 border-4" />
-
       <EditorSampleField problemTestCase={problem.problemTestcase} />
-
       <hr className="border-editor-background-1 border-4" />
-
-      <div className="flex shrink-0 gap-11 px-6 text-base">
+      <div className="text-body3_r_16 flex shrink-0 gap-11 px-6">
         <div className="space-y-2 text-nowrap">
           <h2>Time Limit</h2>
           <h2>Memory Limit</h2>
@@ -76,22 +70,20 @@ export function EditorDescription({
           <p>{problem.source}</p>
         </div>
       </div>
-
       <hr className="border-editor-background-1 border-4" />
-
       {problem.hint?.trim() && (
         <>
           <Accordion type="multiple">
             <AccordionItem value="item-1" className="border-none px-6">
               <AccordionTrigger className="hover:no-underline">
-                <div className="flex items-center text-base">Hint</div>
+                <div className="text-body3_r_16 flex items-center">Hint</div>
               </AccordionTrigger>
               <AccordionContent>
                 <pre
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(problem.hint)
                   }}
-                  className="prose prose-invert max-w-full whitespace-pre-wrap break-keep text-sm leading-relaxed text-slate-300"
+                  className="prose prose-invert text-body4_r_14 max-w-full whitespace-pre-wrap break-keep text-slate-300"
                 />
               </AccordionContent>
             </AccordionItem>
@@ -100,7 +92,6 @@ export function EditorDescription({
           <hr className="border-editor-background-1 border-4" />
         </>
       )}
-
       <ReferenceDialog />
     </div>
   )

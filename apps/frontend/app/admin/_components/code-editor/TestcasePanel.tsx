@@ -125,7 +125,7 @@ export function TestcasePanel({
         <ScrollArea className="h-full">
           <table className="min-w-full rounded-t-md">
             <thead className="bg-[#121728] [&_tr]:border-b-slate-600">
-              <tr className="text-base hover:bg-slate-900/60">
+              <tr className="text-body3_r_16 hover:bg-slate-900/60">
                 <th className="w-[25%] p-3 text-left">Input</th>
                 <th className="w-[25%] p-3 text-left">Expected Output</th>
                 <th className="w-[25%] p-3 text-left">Output</th>

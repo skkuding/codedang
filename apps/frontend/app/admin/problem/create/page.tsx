@@ -178,7 +178,9 @@ export default function Page() {
                 }}
               >
                 <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
-                <div className="text-base text-[#8a8a8a]">Show Preview</div>
+                <div className="text-body3_r_16 text-[#8a8a8a]">
+                  Show Preview
+                </div>
               </Button>
               <Button
                 type="submit"

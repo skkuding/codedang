@@ -83,7 +83,7 @@ export function ContestQnaTable() {
             <p className="text-primary text-[30.6px] font-extrabold">
               {data?.getContestQnAs?.length || 0}
             </p>
-            <p className="text-[26.22px] font-semibold">Questions</p>
+            <p className="text-sub3_sb_16 text-[26.22px]">Questions</p>
           </div>
           <div className="flex justify-between">
             <Tabs

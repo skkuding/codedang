@@ -95,9 +95,7 @@ export function RegisterCourseButton() {
             variant="outline"
             className="border-primary flex h-9 w-[90px] items-center justify-center rounded-full border hover:bg-[#EAF3FF]"
           >
-            <span className="text-primary text-sm font-medium tracking-[-0.42px]">
-              Register
-            </span>
+            <span className="text-primary text-body2_m_14">Register</span>
           </Button>
         }
         open={isRegisterDialogOpen}
@@ -132,7 +130,7 @@ export function RegisterCourseButton() {
           key="course-info"
           className="flex w-full flex-col gap-2 rounded-[10px] bg-[#F2F6F7] px-6 py-4"
         >
-          <p className="text-primary text-base font-semibold">
+          <p className="text-primary text-sub3_sb_16">
             [{foundCourse?.courseInfo?.courseNum}-
             {foundCourse?.courseInfo?.classNum}] {foundCourse?.groupName}
           </p>
@@ -143,7 +141,7 @@ export function RegisterCourseButton() {
               width={16}
               height={16}
             />
-            <p className="text-sm font-medium text-[#8A8A8A]">
+            <p className="text-body2_m_14 text-[#8A8A8A]">
               Prof. {foundCourse?.courseInfo?.professor}
             </p>
           </div>

@@ -11,7 +11,7 @@ export default function StatisticsError() {
       <div className="mt-5 text-lg text-gray-600">
         Statistics will be available after the contest ends.
       </div>
-      <div className="mt-2 text-base text-gray-500">
+      <div className="text-body3_r_16 mt-2 text-gray-500">
         You can check the statistics after the contest ends and the leaderboard
         is unfrozen.
       </div>

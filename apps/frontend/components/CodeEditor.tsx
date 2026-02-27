@@ -203,7 +203,7 @@ export function CodeEditor({
                     </TooltipContent>
                   </Tooltip>
                   <motion.div
-                    className="w-12 px-1 text-center text-sm text-slate-100/60"
+                    className="text-body4_r_14 w-12 px-1 text-center text-slate-100/60"
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0 }}

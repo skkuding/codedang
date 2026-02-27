@@ -116,13 +116,15 @@ export function FindUserId() {
             disabled={Boolean(userId)}
           />
           {errors.email && (
-            <p className="text-xs text-red-500">{errors.email?.message}</p>
+            <p className="text-caption4_r_12 text-red-500">
+              {errors.email?.message}
+            </p>
           )}
           {emailError && getValues('email') === wrongEmail && (
-            <p className="text-xs text-red-500">{emailError}</p>
+            <p className="text-caption4_r_12 text-red-500">{emailError}</p>
           )}
           {userId && (
-            <p className="mt-4 text-center text-sm text-gray-700">
+            <p className="text-body4_r_14 mt-4 text-center text-gray-700">
               Your user ID is{' '}
               <span className="text-primary font-bold">{userId}</span>
             </p>
@@ -134,12 +136,12 @@ export function FindUserId() {
             <Button
               onClick={() => showSignIn()}
               type="button"
-              className="font-semibold"
+              className="text-sub3_sb_16"
             >
               Log in
             </Button>
           ) : (
-            <Button type="submit" className="font-semibold">
+            <Button type="submit" className="text-sub3_sb_16">
               Find Your User ID
             </Button>
           )}
@@ -162,7 +164,7 @@ export function FindUserId() {
         <Button
           onClick={() => showSignUp()}
           variant={'link'}
-          className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
+          className="text-caption4_r_12 h-5 w-fit p-0 py-2 text-gray-500"
         >
           Sign up now
         </Button>

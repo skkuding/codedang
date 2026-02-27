@@ -48,8 +48,8 @@ export function ImportProblemButton<
       onClick={handleImportProblems}
       className="h-[36px] w-[120px] gap-[8px] p-[8px]"
     >
-      <HiCheckCircle className="text-sm" />
-      <span className="text-sm">Import</span>
+      <HiCheckCircle className="text-body4_r_14" />
+      <span className="text-body4_r_14">Import</span>
     </Button>
   )
 }

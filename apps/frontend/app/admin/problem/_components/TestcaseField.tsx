@@ -538,7 +538,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
       >
         {blockEdit && showTooltip && (
           <div
-            className="bg-color-neutral-95 pointer-events-none fixed z-50 rounded px-3 py-2 text-sm shadow-lg"
+            className="bg-color-neutral-95 text-body4_r_14 pointer-events-none fixed z-50 rounded px-3 py-2 shadow-lg"
             style={{
               left: mousePosition.x + 10,
               top: mousePosition.y - 30
@@ -571,10 +571,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         </div>
         {testcaseFlag === 0 && (
           <div className="flex flex-col gap-10">
-            <Label
-              required={false}
-              className="text-2xl font-semibold text-black"
-            >
+            <Label required={false} className="text-head5_sb_24 text-black">
               Sample Testcase
             </Label>
             <div className="flex w-full items-center justify-between">
@@ -707,7 +704,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             </div>
             {totalPages > 1 && <Paginator {...paginatorProps} />}
             {!isHundred && (
-              <div className="mt-2 flex justify-center font-semibold">
+              <div className="text-sub3_sb_16 mt-2 flex justify-center">
                 <ErrorMessage message="Testcase values must equal to 100." />
               </div>
             )}
@@ -715,10 +712,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         )}
         {testcaseFlag === 1 && (
           <div className="flex flex-col gap-10">
-            <Label
-              required={false}
-              className="text-2xl font-semibold text-black"
-            >
+            <Label required={false} className="text-head5_sb_24 text-black">
               Hidden Testcase
             </Label>
             <div className="flex w-full items-center justify-between">
@@ -852,7 +846,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             </div>
             {totalPages > 1 && <Paginator {...paginatorProps} />}
             {!isHundred && (
-              <div className="mt-2 flex justify-center font-semibold">
+              <div className="text-sub3_sb_16 mt-2 flex justify-center">
                 <ErrorMessage message="Testcase values must equal to 100." />
               </div>
             )}
@@ -887,16 +881,14 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             </Tooltip>
           </TooltipProvider>
           <div className="flex items-center">
-            <span className="text-base font-medium text-[#474747]">
-              Total of
-            </span>
-            <span className="ml-1 mr-5 font-medium text-[#3581FA]">
+            <span className="text-body1_m_16 text-[#474747]">Total of</span>
+            <span className="text-body1_m_16 ml-1 mr-5 text-[#3581FA]">
               {filteredItems.length}
             </span>
-            <div className="hide-spin-button mr-1 flex h-7 w-20 items-center justify-center rounded-[1000px] border border-[#D8D8D8] bg-[#F5F5F5] px-2 py-1 text-center text-base font-medium text-[#000000]">
+            <div className="hide-spin-button text-body1_m_16 mr-1 flex h-7 w-20 items-center justify-center rounded-[1000px] border border-[#D8D8D8] bg-[#F5F5F5] px-2 py-1 text-center text-[#000000]">
               {totalScore}
             </div>
-            <span className="text-sm font-semibold text-[#737373]">(%)</span>
+            <span className="text-sub4_sb_14 text-[#737373]">(%)</span>
           </div>
         </div>
         <div className="mt-5 flex w-full justify-end gap-3">

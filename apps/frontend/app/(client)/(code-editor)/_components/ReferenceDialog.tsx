@@ -26,19 +26,19 @@ export function ReferenceDialog() {
           className="h-[415px] w-[580px] max-w-none rounded-2xl border-none bg-slate-900 text-gray-300"
         >
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-white">
+            <DialogTitle className="text-title1_sb_20 text-white">
               Compiler Version Document
             </DialogTitle>
           </DialogHeader>
           <div className="overflow-x-auto rounded-[10px] border border-slate-600">
-            <table className="min-w-full bg-[#222939] text-left text-sm">
-              <thead className="border-b border-slate-600 bg-slate-800 text-xs font-normal text-[#C4CACC]">
+            <table className="text-body4_r_14 min-w-full bg-[#222939] text-left">
+              <thead className="text-caption4_r_12 border-b border-slate-600 bg-slate-800 text-[#C4CACC]">
                 <tr>
-                  <th className="py-3 pl-4 font-normal">Language</th>
-                  <th className="py-3 pl-4 font-normal">Time Limit</th>
+                  <th className="text-body3_r_16 py-3 pl-4">Language</th>
+                  <th className="text-body3_r_16 py-3 pl-4">Time Limit</th>
 
-                  <th className="py-3 pl-4 font-normal">Memory Limit</th>
-                  <th className="px-3 py-3 font-normal">
+                  <th className="text-body3_r_16 py-3 pl-4">Memory Limit</th>
+                  <th className="text-body3_r_16 px-3 py-3">
                     Compiler Version Document
                   </th>
                 </tr>

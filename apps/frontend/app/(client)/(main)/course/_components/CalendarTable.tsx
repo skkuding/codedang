@@ -27,7 +27,7 @@ export function CalendarTable() {
       {events.map((event) => (
         <div key={event.id} className="flex items-center space-x-4">
           <div className="h-6 w-4 rounded-full bg-blue-500" />
-          <span className="text-lg font-semibold">{event.title}</span>
+          <span className="text-sub1_sb_18">{event.title}</span>
           <span className="text-gray-500">
             {format(event.date, 'yyyy.M.d')}
           </span>

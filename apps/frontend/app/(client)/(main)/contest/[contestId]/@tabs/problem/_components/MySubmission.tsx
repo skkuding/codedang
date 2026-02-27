@@ -67,7 +67,7 @@ export function MySubmission({ problem }: { problem: ContestProblem }) {
           </DialogTrigger>
           {isTooltipOpen && (
             <TooltipContent className="mr-4 bg-white">
-              <p className="text-xs text-neutral-900">
+              <p className="text-caption4_r_12 text-neutral-900">
                 Click to check your latest submission.
               </p>
               <TooltipPrimitive.Arrow className="fill-white" />

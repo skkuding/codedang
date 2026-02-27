@@ -127,7 +127,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
 
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-3">
-      <div className="flex justify-between font-medium">
+      <div className="text-body1_m_16 flex justify-between">
         <div className="flex w-full flex-col gap-2">
           <span className="truncate text-2xl">{userData.username}</span>
           <div className="bg-color-neutral-99 text-color-neutral-40 flex w-fit gap-2 rounded-full px-5 py-2">
@@ -150,10 +150,8 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
       </div>
       <Card className="flex w-full flex-col gap-3 rounded-xl border-none p-5 shadow-[0px_4px_20px_0px_rgba(53,78,116,0.10)]">
         <CardHeader className="flex flex-row items-start justify-between p-0">
-          <span className="text-primary text-base font-medium">
-            Penalty Analysis
-          </span>
-          <span className="text-color-red-60 font-semibold">
+          <span className="text-primary text-body1_m_16">Penalty Analysis</span>
+          <span className="text-color-red-60 text-sub3_sb_16">
             Total - {userData.totalPenalty}
           </span>
         </CardHeader>
@@ -165,7 +163,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                   <div className="flex gap-2 truncate font-light">
                     <div className="flex items-center">
                       <Dot />
-                      <span className="font-medium">{`${analysis.problemLabel} :`}</span>
+                      <span className="text-body1_m_16">{`${analysis.problemLabel} :`}</span>
                     </div>
                     {analysis.successPenalty && (
                       <span className="text-color-neutral-40">{`${analysis.successPenalty}m taken`}</span>
@@ -179,7 +177,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                   </div>
                 </div>
                 {analysis.problemPenalty && (
-                  <span className="text-color-red-60 font-medium">{`-${analysis.problemPenalty}`}</span>
+                  <span className="text-color-red-60 text-body1_m_16">{`-${analysis.problemPenalty}`}</span>
                 )}
               </div>
             ))}
@@ -187,7 +185,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
         )}
       </Card>
       <Card className="flex w-full flex-col gap-3 rounded-xl border-none p-5 shadow-[0px_4px_20px_0px_rgba(53,78,116,0.10)]">
-        <CardHeader className="text-primary p-0 text-base font-medium">
+        <CardHeader className="text-primary text-body1_m_16 p-0">
           Problem-Solving Timeline
         </CardHeader>
         {userData.timeline.length > 0 ? (
@@ -231,10 +229,10 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                       const data = payload[0].payload as Timeline
                       return (
                         <div className="border-primary text-primary rounded-lg border bg-white p-3 shadow-2xl">
-                          <p className="mb-1 text-sm font-medium">
+                          <p className="text-body2_m_14 mb-1">
                             Problem {data.problemLabel}
                           </p>
-                          <div className="space-y-1 text-xs">
+                          <div className="text-caption4_r_12 space-y-1">
                             <p>Start Time: {data.solvingStartTime}</p>
                             <p>End Time: {data.solvingEndTime}</p>
                             <hr className="border-primary my-1" />
@@ -268,13 +266,13 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
             </ResponsiveContainer>
           </CardContent>
         ) : (
-          <CardContent className="text-color-neutral-60 p-0 text-base font-medium">
+          <CardContent className="text-color-neutral-60 text-body1_m_16 p-0">
             There is no timeline to figure
           </CardContent>
         )}
       </Card>
       <Card className="flex w-full flex-col gap-3 rounded-xl border-none p-5 shadow-[0px_4px_20px_0px_rgba(53,78,116,0.10)]">
-        <CardHeader className="text-primary p-0 text-base font-medium">
+        <CardHeader className="text-primary text-body1_m_16 p-0">
           Submission History
         </CardHeader>
         <CardContent className="p-0">
@@ -319,7 +317,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
               </TableBody>
             </Table>
           ) : (
-            <p className="text-color-neutral-60 text-xs">
+            <p className="text-color-neutral-60 text-caption4_r_12">
               There is no submission history
             </p>
           )}

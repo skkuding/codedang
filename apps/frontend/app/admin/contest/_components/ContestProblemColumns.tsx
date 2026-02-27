@@ -22,7 +22,9 @@ export const createColumns = (
     cell: ({ row }) => {
       return row.getValue('title')
     },
-    footer: () => <p className="w-[350px] text-left text-sm">Score Sum</p>,
+    footer: () => (
+      <p className="text-body4_r_14 w-[350px] text-left">Score Sum</p>
+    ),
     enableSorting: false,
     enableHiding: false
   },

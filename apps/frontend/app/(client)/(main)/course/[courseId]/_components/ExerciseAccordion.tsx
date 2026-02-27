@@ -45,7 +45,7 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
     return (
       <div className="mt-13 lg:mt-8">
         <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">
-          <p className="text-color-neutral-60 text-base">
+          <p className="text-color-neutral-60 text-body3_r_16">
             No exercises registered
           </p>
         </div>
@@ -132,7 +132,7 @@ function ExerciseAccordionItem({
               <div className="flex items-center gap-2">
                 <Badge
                   variant="course"
-                  className="min-w-fit px-2 py-1 text-xs font-medium lg:px-[10px] lg:text-sm"
+                  className="text-caption2_m_12 min-w-fit px-2 py-1 lg:px-[10px] lg:text-sm"
                 >
                   Week {exercise.week.toString().padStart(2, '0')}
                 </Badge>
@@ -166,7 +166,7 @@ function ExerciseAccordionItem({
               <SubmissionBadge
                 submittedCount={submittedCount}
                 problemCount={problemCount}
-                className="h-8 w-24 text-xs"
+                className="text-caption4_r_12 h-8 w-24"
               />
             </div>
           </div>
@@ -176,7 +176,7 @@ function ExerciseAccordionItem({
             <div className="mr-4 w-[10%]">
               <Badge
                 variant="course"
-                className="px-[10px] py-1 text-sm font-medium"
+                className="text-body2_m_14 px-[10px] py-1"
               >
                 Week {exercise.week.toString().padStart(2, '0')}
               </Badge>
@@ -201,7 +201,7 @@ function ExerciseAccordionItem({
 
             {exercise && (
               <div className="flex w-[25%] justify-center">
-                <p className="text-color-neutral-60 truncate text-center text-base font-normal">
+                <p className="text-color-neutral-60 text-body3_r_16 truncate text-center">
                   {formatDateRange(exercise.startTime, exercise.endTime, false)}
                 </p>
               </div>
@@ -234,22 +234,21 @@ function ExerciseAccordionItem({
                     >
                       <div className="mb-2 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="text-color-violet-60 text-sm font-semibold">
+                          <div className="text-color-violet-60 text-sub4_sb_14">
                             {convertToLetter(problem.order)}
                           </div>
                           <Link
                             href={`/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}`}
                             className="flex-1"
                           >
-                            <span className="line-clamp-2 text-sm font-medium text-[#171717]">
+                            <span className="text-body2_m_14 line-clamp-2 text-[#171717]">
                               {problem.title}
                             </span>
                           </Link>
                         </div>
                       </div>
-
                       {record && submission && (
-                        <div className="flex items-center justify-between text-xs text-gray-600">
+                        <div className="text-caption4_r_12 flex items-center justify-between text-gray-600">
                           <div className="flex flex-col gap-1">
                             {(() => {
                               const submissionTime =
@@ -290,34 +289,31 @@ function ExerciseAccordionItem({
                       className="bg-background-alternative border-line-neutral hidden w-full items-center border-b px-14 py-6 lg:flex"
                     >
                       <div className="mr-4 flex w-[10%]">
-                        <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
+                        <div className="text-color-violet-60 text-sub3_sb_16 w-[76px] text-center">
                           {convertToLetter(problem.order)}
                         </div>
                       </div>
-
                       <div className="flex w-[45%] flex-col">
                         <Link
                           href={`/course/${courseId}/exercise/${exercise.id}/problem/${problem.id}`}
                         >
-                          <span className="line-clamp-1 text-base font-medium text-[#171717]">
+                          <span className="text-body1_m_16 line-clamp-1 text-[#171717]">
                             {problem.title}
                           </span>
                         </Link>
                       </div>
-
                       <div className="flex w-[25%] justify-center">
                         {(() => {
                           const submissionTime =
                             problemSubmission?.submission?.submissionTime
                           return submissionTime ? (
-                            <div className="text-primary flex w-full justify-center truncate text-sm font-normal">
+                            <div className="text-primary text-body4_r_14 flex w-full justify-center truncate">
                               Last Submission :{' '}
                               {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
                             </div>
                           ) : null
                         })()}
                       </div>
-
                       <div className="flex w-[20%] justify-center">
                         {problemSubmission && (
                           <ResultBadge
@@ -361,7 +357,7 @@ function SubmissionBadge({
         className
       )}
     >
-      <div className="text-base font-medium">
+      <div className="text-body1_m_16">
         <p>
           {submittedCount} / {problemCount}
         </p>

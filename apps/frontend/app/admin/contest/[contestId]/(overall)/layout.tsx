@@ -39,19 +39,21 @@ export default function Layout(props: {
         <Link href={`/admin/contest/${contestId}/edit`}>
           <Button variant="default" className="h-[50px] w-[120px]">
             <FaPencil className="mr-2 h-4 w-4" />
-            <p className="text-lg font-semibold">Edit</p>
+            <p className="text-sub1_sb_18">Edit</p>
           </Button>
         </Link>
       </div>
       <div className="mb-[120px] flex flex-col gap-[10px]">
-        <div className="flex items-center gap-[6px] font-normal text-[#333333E5]">
+        <div className="text-body3_r_16 flex items-center gap-[6px] text-[#333333E5]">
           <FaUser className="black ml-0.5 self-center" color="#3581FA" />
           <span>Contest Admin : </span>
           <span>{contestData?.createdBy?.username}</span>
         </div>
         <div className="flex items-center gap-[6px] text-[#333333E5]">
           <Image src={keyBlueIcon} alt="keyBlueicon" />
-          <span className="text-primary font-medium">Invitation code : </span>
+          <span className="text-primary text-body1_m_16">
+            Invitation code :{' '}
+          </span>
           <span>{contestData?.invitationCode ?? '-'}</span>
           <TimeStatusBadge
             status="undefined"
@@ -65,7 +67,6 @@ export default function Layout(props: {
           inContestEditor={false}
         />
       </div>
-
       <ContestOverallTabs contestId={contestId} />
       {tabs}
     </main>

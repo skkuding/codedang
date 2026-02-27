@@ -99,7 +99,7 @@ export function DataTable<TData extends Item, TValue>({
                 <TableHead
                   key={header.id}
                   className={cn(
-                    'whitespace-nowrap border-b-[1.5px] border-[#80808040] text-center text-sm font-normal md:text-base',
+                    'text-body4_r_14 whitespace-nowrap border-b-[1.5px] border-[#80808040] text-center md:text-base',
                     headerStyle[header.id]
                   )}
                 >
@@ -143,7 +143,7 @@ export function DataTable<TData extends Item, TValue>({
                         href={href as Route}
                         className="block h-full w-full"
                       >
-                        <div className="text-center text-xs md:text-sm">
+                        <div className="text-caption4_r_12 text-center md:text-sm">
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
@@ -151,7 +151,7 @@ export function DataTable<TData extends Item, TValue>({
                         </div>
                       </Link>
                     ) : (
-                      <div className="text-center text-xs md:text-sm">
+                      <div className="text-caption4_r_12 text-center md:text-sm">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()

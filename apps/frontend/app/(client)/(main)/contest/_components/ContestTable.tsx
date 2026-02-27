@@ -31,7 +31,9 @@ export function ContestTable({ data }: ContestTableProps) {
       cell: ({ row }) => {
         return (
           <div className="flex items-center justify-start gap-3 md:gap-4">
-            <span className="text-sm md:text-base">{row.original.title}</span>
+            <span className="text-body4_r_14 md:text-base">
+              {row.original.title}
+            </span>
           </div>
         )
       }
@@ -46,7 +48,7 @@ export function ContestTable({ data }: ContestTableProps) {
       cell: ({ row }) => {
         return (
           <p className="text-center">
-            <span className="text-xs md:text-sm">
+            <span className="text-caption4_r_12 md:text-sm">
               {dateFormatter(row.original.startTime, 'YYYY-MM-DD')}
             </span>
           </p>
@@ -63,7 +65,7 @@ export function ContestTable({ data }: ContestTableProps) {
       cell: ({ row }) => {
         return (
           <p className="text-center">
-            <span className="text-xs md:text-sm">
+            <span className="text-caption4_r_12 md:text-sm">
               {dateFormatter(row.original.endTime, 'YYYY-MM-DD')}
             </span>
           </p>
@@ -81,7 +83,9 @@ export function ContestTable({ data }: ContestTableProps) {
         return (
           <p className="text-center">
             {/* TODO participant로 변경 */}
-            <span className="text-xs md:text-sm">{row.original.id}</span>
+            <span className="text-caption4_r_12 md:text-sm">
+              {row.original.id}
+            </span>
           </p>
         )
       }

@@ -46,7 +46,7 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
     return (
       <div className="mt-13 lg:mt-8">
         <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">
-          <p className="text-color-neutral-60 text-base">
+          <p className="text-color-neutral-60 text-body3_r_16">
             No assignments registered
           </p>
         </div>
@@ -147,7 +147,7 @@ function AssignmentAccordionItem({
               <div className="flex items-center gap-2">
                 <Badge
                   variant="course"
-                  className="min-w-fit px-2 py-1 text-xs font-medium lg:px-[10px] lg:text-sm"
+                  className="text-caption2_m_12 min-w-fit px-2 py-1 lg:px-[10px] lg:text-sm"
                 >
                   Week {assignment.week.toString().padStart(2, '0')}
                 </Badge>
@@ -180,10 +180,10 @@ function AssignmentAccordionItem({
               <SubmissionBadge
                 submittedCount={submittedCount}
                 problemCount={problemCount}
-                className="h-8 w-24 text-xs"
+                className="text-caption4_r_12 h-8 w-24"
               />
               {dayjs().isAfter(assignment.startTime) && (
-                <p className="text-sm font-medium">Score: {scoreText}</p>
+                <p className="text-body2_m_14">Score: {scoreText}</p>
               )}
 
               <Dialog
@@ -206,7 +206,7 @@ function AssignmentAccordionItem({
             <div className="mr-4 w-[10%]">
               <Badge
                 variant="course"
-                className="px-[10px] py-1 text-sm font-medium"
+                className="text-body2_m_14 px-[10px] py-1"
               >
                 Week {assignment.week.toString().padStart(2, '0')}
               </Badge>
@@ -230,7 +230,7 @@ function AssignmentAccordionItem({
 
             {assignment && (
               <div className="flex w-[30%] justify-center">
-                <p className="text-color-neutral-60 truncate text-center text-base font-normal">
+                <p className="text-color-neutral-60 text-body3_r_16 truncate text-center">
                   {formatDateRange(
                     assignment.startTime,
                     assignment.dueTime ?? assignment.endTime,
@@ -240,7 +240,7 @@ function AssignmentAccordionItem({
               </div>
             )}
 
-            <div className="flex w-[10%] justify-center gap-1 text-base font-medium">
+            <div className="text-body1_m_16 flex w-[10%] justify-center gap-1">
               {dayjs().isAfter(assignment.startTime) && <p>{scoreText}</p>}
             </div>
 
@@ -283,21 +283,21 @@ function AssignmentAccordionItem({
                   >
                     <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="text-color-violet-60 text-sm font-semibold">
+                        <div className="text-color-violet-60 text-sub4_sb_14">
                           {convertToLetter(problem.order)}
                         </div>
                         <Link
                           href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
                           className="flex-1"
                         >
-                          <span className="line-clamp-2 text-sm font-medium text-[#171717]">
+                          <span className="text-body2_m_14 line-clamp-2 text-[#171717]">
                             {problem.title}
                           </span>
                         </Link>
                       </div>
                     </div>
                     {record && submission && (
-                      <div className="flex items-center justify-between text-xs text-gray-600">
+                      <div className="text-caption4_r_12 flex items-center justify-between text-gray-600">
                         <div className="flex flex-col gap-1">
                           {(() => {
                             const problemSubmission = submission.find(
@@ -345,31 +345,28 @@ function AssignmentAccordionItem({
                       className="hidden w-full items-center border-b bg-[#F8F8F8] px-8 py-6 last:border-none lg:flex"
                     >
                       <div className="mr-4 w-[10%]">
-                        <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
+                        <div className="text-color-violet-60 text-sub3_sb_16 w-[76px] text-center">
                           {convertToLetter(problem.order)}
                         </div>
                       </div>
-
                       <div className="flex w-[30%] flex-col">
                         <Link
                           href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
                         >
-                          <span className="line-clamp-1 text-base font-medium text-[#171717]">
+                          <span className="text-body1_m_16 line-clamp-1 text-[#171717]">
                             {problem.title}
                           </span>
                         </Link>
                       </div>
-
                       <div className="flex w-[30%] justify-center">
                         {submissionTime && (
-                          <div className="text-primary flex w-full justify-center text-sm font-normal">
+                          <div className="text-primary text-body4_r_14 flex w-full justify-center">
                             Last Submission :{' '}
                             {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
                           </div>
                         )}
                       </div>
-
-                      <div className="flex w-[10%] justify-center gap-1 text-base font-medium">
+                      <div className="text-body1_m_16 flex w-[10%] justify-center gap-1">
                         {dayjs().isAfter(
                           dayjs(assignment.dueTime ?? assignment.endTime)
                         ) && record
@@ -378,7 +375,6 @@ function AssignmentAccordionItem({
                           : '-'}{' '}
                         / {problem.maxScore}
                       </div>
-
                       <div className="flex w-[13%] justify-center">
                         {problemSubmission && (
                           <ResultBadge
@@ -386,7 +382,6 @@ function AssignmentAccordionItem({
                           />
                         )}
                       </div>
-
                       <div className="w-[6%]" />
                     </div>
                   )
@@ -424,7 +419,7 @@ function SubmissionBadge({
         className
       )}
     >
-      <div className="flex gap-2 text-base font-medium">
+      <div className="text-body1_m_16 flex gap-2">
         <p>{submittedCount}</p>
         <p>/</p>
         <p>{problemCount}</p>

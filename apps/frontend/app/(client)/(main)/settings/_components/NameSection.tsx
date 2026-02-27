@@ -16,7 +16,7 @@ export function NameSection({ realName }: NameSectionProps) {
 
   return (
     <>
-      <label className="-mb-4 text-xs">Name</label>
+      <label className="text-caption4_r_12 -mb-4">Name</label>
       <Input
         placeholder={
           isLoading
@@ -31,7 +31,7 @@ export function NameSection({ realName }: NameSectionProps) {
         )}
       />
       {realName && errors.realName && (
-        <div className="-mt-4 inline-flex items-center text-xs text-red-500">
+        <div className="text-caption4_r_12 -mt-4 inline-flex items-center text-red-500">
           {errors.realName.message}
         </div>
       )}

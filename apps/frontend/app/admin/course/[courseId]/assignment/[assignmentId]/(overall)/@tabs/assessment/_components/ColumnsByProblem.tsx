@@ -40,7 +40,7 @@ function TestcaseCell({
   return (
     <div className="whitespace-nowrap">
       {ordered.length === 0 ? (
-        <span className="text-xs text-gray-400">No testcases</span>
+        <span className="text-caption4_r_12 text-gray-400">No testcases</span>
       ) : (
         ordered.map((r, i) => {
           const isPass = r.result === 'Accepted'
@@ -76,16 +76,18 @@ export const createColumns = (
   return [
     {
       accessorKey: 'studentId',
-      header: () => <p className="font-mono text-xs">Student ID</p>,
+      header: () => <p className="text-caption4_r_12 font-mono">Student ID</p>,
       cell: ({ row }) => (
-        <div className="text-center text-xs font-medium">
+        <div className="text-caption2_m_12 text-center">
           {row.getValue('studentId')}
         </div>
       )
     },
     {
       id: 'testcases',
-      header: () => <p className="text-center font-mono text-xs">Testcase</p>,
+      header: () => (
+        <p className="text-caption4_r_12 text-center font-mono">Testcase</p>
+      ),
       cell: ({ row, table }) => {
         const isFirstRow = table.getRowModel().rows[0].id === row.id
         const results = row.original.testcaseResults ?? []
@@ -121,20 +123,24 @@ export const createColumns = (
     },
     {
       id: 'testcase-total',
-      header: () => <p className="text-center font-mono text-xs">Total</p>,
+      header: () => (
+        <p className="text-caption4_r_12 text-center font-mono">Total</p>
+      ),
       cell: ({ row }) => {
         const results = row.original.testcaseResults ?? []
         const total = results.length
         return (
-          <div className="text-xs">
-            {results.filter((r) => r.result === 'Accepted').length} / {total}
+          <div className="text-caption4_r_12">
+            {results.filter((r) => r.result === 'Accepted').length}/ {total}
           </div>
         )
       }
     },
     {
       id: 'comment',
-      header: () => <p className="text-center font-mono text-xs">Comment</p>,
+      header: () => (
+        <p className="text-caption4_r_12 text-center font-mono">Comment</p>
+      ),
       cell: ({ row }) => (
         <div className="flex justify-center">
           <CommentCell

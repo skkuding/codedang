@@ -113,8 +113,8 @@ export function SignUpVerifyEmail() {
   function renderFormHeader() {
     return (
       <>
-        <p className="text-xl font-medium">We’ve Sent an Email</p>
-        <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
+        <p className="text-title2_m_20">We’ve Sent an Email</p>
+        <p className="text-color-neutral-70 text-body4_r_14 mb-[30px]">
           Please check your inbox{' '}
           <span className="text-primary">{formData.email}</span>
         </p>
@@ -189,13 +189,13 @@ export function SignUpVerifyEmail() {
 
   function renderFormFooter() {
     return (
-      <div className="text-color-neutral-50 flex flex-col gap-[12.5px] text-sm font-normal">
+      <div className="text-color-neutral-50 text-body4_r_14 flex flex-col gap-[12.5px]">
         {(() => {
           if (!codeExpired || emailVerified) {
             return (
               <Button
                 type="submit"
-                className={cn('w-full text-base font-medium')}
+                className={cn('text-body1_m_16 w-full')}
                 disabled={!emailVerified || Boolean(errors.verificationCode)}
               >
                 Next
@@ -204,7 +204,7 @@ export function SignUpVerifyEmail() {
           }
           return (
             <Button
-              className="mt-2 w-full font-semibold"
+              className="text-sub3_sb_16 mt-2 w-full"
               onClick={() => {
                 setCodeExpired(false)
                 setRemaining(TIME_LIMIT)

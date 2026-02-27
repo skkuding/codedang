@@ -84,7 +84,7 @@ export function AlertModal({
           )}
           <AlertDialogTitle
             className={cn(
-              'w-full text-2xl font-semibold',
+              'text-head5_sb_24 w-full',
               size === 'lg' ? 'text-left' : 'text-center'
             )}
           >
@@ -96,7 +96,7 @@ export function AlertModal({
           {description && (
             <p
               className={cn(
-                'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
+                'text-body4_r_14 w-full whitespace-pre-wrap text-center text-[#737373]',
                 children && 'text-left'
               )}
             >

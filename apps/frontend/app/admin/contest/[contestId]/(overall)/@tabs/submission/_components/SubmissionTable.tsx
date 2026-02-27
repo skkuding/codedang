@@ -66,7 +66,7 @@ function SubmissionTableHeader() {
 
   return (
     <div className="flex items-center justify-between gap-4">
-      <div className="text-2xl font-semibold">
+      <div className="text-head5_sb_24">
         <span className="text-primary text-[26px] font-extrabold">
           {filteredRowCount}
         </span>{' '}

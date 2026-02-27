@@ -60,7 +60,7 @@ function ActiveLink<T extends string>({
     <Link
       href={href}
       className={cn(
-        'flex h-[50px] w-[420px] items-center justify-center rounded-full text-lg font-semibold',
+        'text-sub1_sb_18 flex h-[50px] w-[420px] items-center justify-center rounded-full',
         activeCondition && 'text-primary border-primary border',
         '-translate-y-px transform',
         isLeft ? '-translate-x-px' : 'translate-x-px'

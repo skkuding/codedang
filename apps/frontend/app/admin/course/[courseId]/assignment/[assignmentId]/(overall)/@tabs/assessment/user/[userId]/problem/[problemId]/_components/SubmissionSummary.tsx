@@ -36,8 +36,8 @@ export function SubmissionSummaryError() {
   return (
     <div className="flex flex-col items-center gap-4 py-4 text-center">
       <Image src={infoIcon} alt="No Submission" width={50} height={50} />
-      <p className="text-xl font-medium">No Submission</p>
-      <div className="text-sm font-normal">
+      <p className="text-title2_m_20">No Submission</p>
+      <div className="text-body4_r_14">
         <p>No code has been submitted by this student.</p>
         <p>You may still provide a final score or comment.</p>
       </div>
@@ -89,16 +89,14 @@ export function SubmissionSummary() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <p className="text-[20px] font-semibold leading-[28px] tracking-[-0.6px]">
-          {`Submission #${submission.id}`}
-        </p>
+        <p className="text-title1_sb_20">{`Submission #${submission.id}`}</p>
         {level && (
           <Badge variant={level} levelVariant="dark">
             Level {level.slice(-1)}
           </Badge>
         )}
       </div>
-      <div className="**:whitespace-nowrap bg-editor-fill-1 rounded-[4px] text-[14px]">
+      <div className="**:whitespace-nowrap bg-editor-fill-1 text-body4_r_14 rounded-[4px]">
         <ul className="gap-2 space-y-3 py-3 pl-2 pr-4">
           <SubmissionSummaryItem
             label="Result"

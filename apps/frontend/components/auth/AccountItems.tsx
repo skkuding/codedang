@@ -80,13 +80,13 @@ export function AccountItems({
   return (
     <>
       <DropdownMenuItem
-        className="flex cursor-pointer items-center gap-1 font-semibold"
+        className="text-sub3_sb_16 flex cursor-pointer items-center gap-1"
         onClick={() => showSignIn()}
       >
         Log In
       </DropdownMenuItem>
       <DropdownMenuItem
-        className="flex cursor-pointer items-center gap-1 font-semibold"
+        className="text-sub3_sb_16 flex cursor-pointer items-center gap-1"
         onClick={() => {
           showSignUp()
         }}

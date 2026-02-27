@@ -29,7 +29,7 @@ export function CurrentPwSection({
 
   return (
     <>
-      <label className="-mb-4 mt-4 text-xs">Password</label>
+      <label className="text-caption4_r_12 -mb-4 mt-4">Password</label>
       <div className="flex items-center gap-2">
         <div className="relative w-full justify-between">
           <Input
@@ -68,18 +68,18 @@ export function CurrentPwSection({
       </div>
       {errors.currentPassword &&
         errors.currentPassword.message === 'Required' && (
-          <div className="-mt-4 inline-flex items-center text-xs text-red-500">
+          <div className="text-caption4_r_12 -mt-4 inline-flex items-center text-red-500">
             Required
           </div>
         )}
       {!errors.currentPassword &&
         isCheckButtonClicked &&
         (isPasswordCorrect ? (
-          <div className="text-primary -mt-4 inline-flex items-center text-xs">
+          <div className="text-primary text-caption4_r_12 -mt-4 inline-flex items-center">
             Correct
           </div>
         ) : (
-          <div className="-mt-4 inline-flex items-center text-xs text-red-500">
+          <div className="text-caption4_r_12 -mt-4 inline-flex items-center text-red-500">
             Incorrect
           </div>
         ))}

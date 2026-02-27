@@ -50,7 +50,7 @@ export default function Page(props: {
             <Link href={`/admin/course/${courseId}/exercise` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-[32px] font-bold">EDIT EXERCISE</span>
+            <span className="text-head2_b_32">EDIT EXERCISE</span>
           </div>
 
           <EditAssignmentForm
@@ -178,7 +178,7 @@ export default function Page(props: {
                 disabled={isLoading}
               >
                 <IoIosCheckmarkCircle fontSize={20} />
-                <div className="mb-[2px] text-base">Edit</div>
+                <div className="text-body3_r_16 mb-[2px]">Edit</div>
               </Button>
             </div>
           </EditAssignmentForm>

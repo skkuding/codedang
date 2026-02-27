@@ -51,7 +51,7 @@ function SummarySection({ buttonName, maxChar }: SummarySectionProps) {
     >
       <label
         htmlFor={buttonName}
-        className="text-primary border-primary pointer-events-none h-8 w-[100px] rounded-full border py-[6px] text-center text-sm font-semibold"
+        className="text-primary border-primary text-sub4_sb_14 pointer-events-none h-8 w-[100px] rounded-full border py-[6px] text-center"
       >
         {`${buttonName.slice(0, 2)} ${buttonName.slice(2)}`}
       </label>
@@ -78,7 +78,7 @@ function SummarySection({ buttonName, maxChar }: SummarySectionProps) {
           setValue(`summary.${buttonName}`, e.target.value)
         }}
       />
-      <span className="text-sm text-[#8A8A8A]">
+      <span className="text-body4_r_14 text-[#8A8A8A]">
         {buttonName !== '순위산정' && `${inputCount}/${maxChar}`}
       </span>
     </div>

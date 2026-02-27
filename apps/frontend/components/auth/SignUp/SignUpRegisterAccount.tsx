@@ -122,7 +122,7 @@ function SignUpRegisterAccountContent() {
   return (
     <>
       <div>
-        <p className="mb-[30px] text-xl font-medium">Create Your Account</p>
+        <p className="text-title2_m_20 mb-[30px]">Create Your Account</p>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-[6px]">
             <IDLabel />
@@ -245,7 +245,7 @@ function SignUpRegisterAccountContent() {
       </div>
       <Button
         type="submit"
-        className="w-full px-[22px] py-[9px] text-base font-medium"
+        className="text-body1_m_16 w-full px-[22px] py-[9px]"
         disabled={!isUsernameAvailable || !isValid || !isPasswordMatched}
       >
         Next

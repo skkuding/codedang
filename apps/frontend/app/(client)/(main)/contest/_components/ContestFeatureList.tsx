@@ -30,7 +30,7 @@ export function ContestFeatureList({ title }: ContestFeatureListProps) {
   return (
     <Carousel className="flex w-full max-w-[1440px] flex-col gap-6">
       <div className="flex w-full items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-700">{title} </h1>
+        <h1 className="text-head5_sb_24 text-gray-700">{title} </h1>
         <div className="flex items-center justify-end gap-2">
           <CarouselPrevious />
           <CarouselNext />

@@ -64,8 +64,8 @@ export default async function NoticeDetail(props: NoticeDetailProps) {
   return (
     <article>
       <header className="border-b border-b-gray-200 p-5 py-4">
-        <h2 className="break-words text-lg font-semibold">{title}</h2>
-        <div className="mt-1 flex justify-between text-sm text-gray-400">
+        <h2 className="text-sub1_sb_18 break-words">{title}</h2>
+        <div className="text-body4_r_14 mt-1 flex justify-between text-gray-400">
           <p>{createdBy}</p>
           <p>{dateFormatter(createTime, 'YYYY-MM-DD')}</p>
         </div>

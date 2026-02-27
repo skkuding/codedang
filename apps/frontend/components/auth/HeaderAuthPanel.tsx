@@ -136,7 +136,7 @@ export function HeaderAuthPanel({
                 )}
               />
               {!isEditor && (
-                <p className="font-semibold text-white">
+                <p className="text-sub3_sb_16 text-white">
                   {session?.user.username}
                 </p>
               )}
@@ -180,7 +180,7 @@ export function HeaderAuthPanel({
               onClick={() => showSignIn()}
               variant={'outline'}
               className={cn(
-                'border-primary text-primary mr-3 hidden bg-transparent px-5 py-1 text-sm font-semibold hover:bg-[#EAF3FF] active:bg-[#D7E5FE] lg:block',
+                'border-primary text-primary text-sub4_sb_14 mr-3 hidden bg-transparent px-5 py-1 hover:bg-[#EAF3FF] active:bg-[#D7E5FE] lg:block',
                 isEditor &&
                   'h-8 border-none bg-[#EAF3FF] text-[11px] hover:bg-[#D7E5FE]'
               )}
@@ -194,7 +194,7 @@ export function HeaderAuthPanel({
                 showSignUp()
               }}
               className={cn(
-                'hidden px-5 py-1 text-sm font-semibold lg:block',
+                'text-sub4_sb_14 hidden px-5 py-1 lg:block',
                 isEditor && 'h-8 text-[11px]'
               )}
             >

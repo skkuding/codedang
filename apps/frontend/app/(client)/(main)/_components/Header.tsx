@@ -16,11 +16,11 @@ export function Header() {
     <header className="backdrop-blur-xs fixed left-0 z-40 grid h-[60px] w-full place-items-center bg-white px-5 lg:bg-white/80 lg:px-[30px]">
       <div className="flex w-full max-w-[1440px] items-center justify-between gap-5 lg:px-[116px]">
         {/* FIXME: If you uncomment a group tab, you have to remove a pr-20 tailwind class */}
-        <div className="flex w-full items-center justify-between text-base">
+        <div className="text-body3_r_16 flex w-full items-center justify-between">
           {/* Mobile */}
           <div className="lg:hidden">
             {headerTitle ? (
-              <span className="max-w-[200px] truncate font-semibold">
+              <span className="text-sub3_sb_16 max-w-[200px] truncate">
                 {headerTitle}
               </span>
             ) : (
@@ -47,7 +47,7 @@ export function Header() {
                 className="cursor-pointer"
               />
             </Link>
-            <nav className="flex gap-10 font-semibold capitalize">
+            <nav className="text-sub3_sb_16 flex gap-10 capitalize">
               <NavLink href="/notice" text="NOTICE" />
               <NavLink href="/contest" text="CONTEST" />
               <NavLink href="/problem" text="PROBLEM" />

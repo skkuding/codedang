@@ -14,7 +14,7 @@ export function TestCaseResult({ submission }: TestCaseResulProps) {
             (submission.acceptedTestcaseCount / submission.testcaseCount) * 100
           }
         />
-        <div className="flex w-full justify-center gap-1 text-xs">
+        <div className="text-caption4_r_12 flex w-full justify-center gap-1">
           <p>
             {submission.acceptedTestcaseCount} / {submission.testcaseCount}
           </p>

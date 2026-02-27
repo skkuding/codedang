@@ -188,7 +188,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               <BiSolidUser className="h-4 w-4 rounded-none text-gray-300" />
               <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
                 <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
-                  <p className="text-[14px]">
+                  <p className="text-body4_r_14">
                     {currentMember?.realName}({currentMember?.studentId})
                   </p>
                   <Image
@@ -292,7 +292,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
             <Button
               onClick={handleReset}
               type="button"
-              className="text-md bg-editor-fill-1 border-flowkit-red flex h-9 w-[86px] items-center gap-1 rounded-[4px] border py-[7px] pl-3 pr-[14px] font-normal hover:bg-[#232838]"
+              className="text-md bg-editor-fill-1 border-flowkit-red text-body3_r_16 flex h-9 w-[86px] items-center gap-1 rounded-[4px] border py-[7px] pl-3 pr-[14px] hover:bg-[#232838]"
             >
               <span className="flex h-4 w-4 items-center justify-center">
                 <Image src={trashcanIcon} alt="reset" width={16} height={16} />
@@ -308,7 +308,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               variant="editor"
               disabled={isTesting}
               type="button"
-              className="text-md flex h-9 w-[76px] items-center gap-1 rounded-[4px] border border-blue-500 bg-blue-500 py-[7px] pl-3 pr-[14px] font-normal disabled:opacity-60"
+              className="text-md text-body3_r_16 flex h-9 w-[76px] items-center gap-1 rounded-[4px] border border-blue-500 bg-blue-500 py-[7px] pl-3 pr-[14px] disabled:opacity-60"
             >
               <span className="flex h-4 w-4 items-center justify-center">
                 <Image src={CheckboxIcon} alt="test" width={16} height={16} />

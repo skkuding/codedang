@@ -56,7 +56,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     realSize >= 1024 ? (
       <p>LEADERBOARD</p>
     ) : (
-      <p className="text-xs">
+      <p className="text-caption4_r_12">
         LEADER
         <br />
         BOARD
@@ -67,7 +67,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     realSize >= 1024 ? (
       <p>ALL SUBMISSION</p>
     ) : (
-      <p className="text-xs">
+      <p className="text-caption4_r_12">
         ALL
         <br />
         SUB
@@ -80,7 +80,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     realSize >= 1024 ? (
       <p>ANNOUNCEMENT</p>
     ) : (
-      <p className="text-xs">
+      <p className="text-caption4_r_12">
         ANNOUNCE
         <br />
         MENT
@@ -91,21 +91,22 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
     realSize >= 1024 ? (
       <p>STATISTICS</p>
     ) : (
-      <p className="text-xs">
+      <p className="text-caption4_r_12">
         STATIS
         <br />
         TICS
       </p>
     )
 
-  const qna = realSize >= 1024 ? <p>Q&A</p> : <p className="text-xs">Q&A</p>
+  const qna =
+    realSize >= 1024 ? <p>Q&A</p> : <p className="text-caption4_r_12">Q&A</p>
 
   return (
     <div className="border-line mb-[60px] flex h-[60px] w-full rounded-full border border-[1.5px] border-solid bg-white">
       <Link
         href={`/admin/contest/${id}/leaderboard`}
         className={cn(
-          'text-color-neutral-50 flex h-full w-1/5 items-center justify-center rounded-full bg-white text-lg font-medium leading-[25.2px] tracking-[-0.54px]',
+          'text-color-neutral-50 text-sub2_m_18 flex h-full w-1/5 items-center justify-center rounded-full bg-white',
           isCurrentTab('leaderboard') &&
             '!text-primary !border-primary border-[1.5px] border-solid'
         )}
@@ -115,7 +116,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
       <Link
         href={`/admin/contest/${id}/submission`}
         className={cn(
-          'text-color-neutral-50 flex h-full w-1/5 items-center justify-center rounded-full bg-white text-lg font-medium leading-[25.2px] tracking-[-0.54px]',
+          'text-color-neutral-50 text-sub2_m_18 flex h-full w-1/5 items-center justify-center rounded-full bg-white',
           isCurrentTab('submission') &&
             '!text-primary !border-primary border-[1.5px] border-solid'
         )}
@@ -125,7 +126,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
       <Link
         href={`/admin/contest/${id}/announcement`}
         className={cn(
-          'text-color-neutral-50 flex h-full w-1/5 items-center justify-center rounded-full bg-white text-lg font-medium leading-[25.2px] tracking-[-0.54px]',
+          'text-color-neutral-50 text-sub2_m_18 flex h-full w-1/5 items-center justify-center rounded-full bg-white',
           isCurrentTab('announcement') &&
             '!text-primary !border-primary border-[1.5px] border-solid'
         )}
@@ -135,7 +136,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
       <Link
         href={`/admin/contest/${id}/statistics`}
         className={cn(
-          'text-color-neutral-50 flex h-full w-1/5 items-center justify-center rounded-full bg-white text-lg font-medium leading-[25.2px] tracking-[-0.54px]',
+          'text-color-neutral-50 text-sub2_m_18 flex h-full w-1/5 items-center justify-center rounded-full bg-white',
           isCurrentTab('statistics') &&
             '!text-primary !border-primary border-[1.5px] border-solid'
         )}
@@ -145,7 +146,7 @@ export function ContestOverallTabs({ contestId }: { contestId: string }) {
       <Link
         href={`/admin/contest/${id}/qna`}
         className={cn(
-          'text-color-neutral-50 flex h-full w-1/5 items-center justify-center rounded-full bg-white text-lg font-medium leading-[25.2px] tracking-[-0.54px]',
+          'text-color-neutral-50 text-sub2_m_18 flex h-full w-1/5 items-center justify-center rounded-full bg-white',
           isCurrentTab('qna') &&
             '!text-primary !border-primary border-[1.5px] border-solid'
         )}

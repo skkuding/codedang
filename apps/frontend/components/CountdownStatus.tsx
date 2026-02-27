@@ -119,7 +119,7 @@ export function CountdownStatus({
   return (
     <div
       className={cn(
-        'text-error inline-flex gap-1 whitespace-nowrap text-sm font-medium',
+        'text-error text-body2_m_14 inline-flex gap-1 whitespace-nowrap',
         textStyle
       )}
     >

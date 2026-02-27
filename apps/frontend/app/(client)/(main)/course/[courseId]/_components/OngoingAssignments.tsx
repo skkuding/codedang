@@ -61,10 +61,10 @@ export function OngoingAssignments() {
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-gray-100">
-            <th className="px-4 py-2 font-medium">Title</th>
-            <th className="px-4 py-2 font-medium">Start Date</th>
-            <th className="px-4 py-2 font-medium">End Date</th>
-            <th className="px-4 py-2 font-medium">Submission</th>
+            <th className="text-body1_m_16 px-4 py-2">Title</th>
+            <th className="text-body1_m_16 px-4 py-2">Start Date</th>
+            <th className="text-body1_m_16 px-4 py-2">End Date</th>
+            <th className="text-body1_m_16 px-4 py-2">Submission</th>
           </tr>
         </thead>
         <tbody>

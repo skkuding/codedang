@@ -10,11 +10,13 @@ export function Header() {
         </h1>
         <div className="flex items-center gap-2">
           <CiCalendar className="text-gray-600" />
-          <p className="text-sm text-gray-600">2025 Spring</p>
+          <p className="text-body4_r_14 text-gray-600">2025 Spring</p>
         </div>
         <div className="flex items-center gap-2">
           <RxPerson className="text-gray-600" />
-          <p className="text-sm text-gray-600 underline">Prof. 교수님</p>
+          <p className="text-body4_r_14 text-gray-600 underline">
+            Prof. 교수님
+          </p>
         </div>
       </div>
     </header>

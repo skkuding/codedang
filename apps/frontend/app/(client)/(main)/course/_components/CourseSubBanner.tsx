@@ -6,7 +6,6 @@ export function CourseSubBanner() {
   return (
     <>
       <div className="h-[120px]" />
-
       <div
         className="relative flex h-[328px] w-full items-center justify-center overflow-hidden lg:w-[1440px] xl:w-screen"
         style={{
@@ -15,7 +14,7 @@ export function CourseSubBanner() {
       >
         <div className="flex h-full w-[90%] items-center justify-around">
           <div className="z-10 mt-2 flex h-56 flex-col justify-evenly pl-12 text-white">
-            <p className="text-xl font-semibold leading-[120%] md:text-[34px]">
+            <p className="text-title1_sb_20 md:text-[34px]">
               Check out the assignments <br />
               assigned to you!
             </p>

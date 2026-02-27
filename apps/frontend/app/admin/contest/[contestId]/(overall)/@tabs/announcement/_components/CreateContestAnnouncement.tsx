@@ -89,9 +89,7 @@ export function CreateContestAnnouncement({
 
   return (
     <form onSubmit={handleSubmit(onSubmitAnnouncement)}>
-      <p className="mb-5 text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
-        Post New Announcement
-      </p>
+      <p className="text-head5_sb_24 mb-5 text-black">Post New Announcement</p>
       <div className="flex w-full flex-col gap-[6px]">
         <ProblemSelector
           watch={watch}
@@ -117,18 +115,18 @@ export function CreateContestAnnouncement({
             placeholder="Enter a Announcement"
             maxLength={txtMaxLength}
             className={cn(
-              'border-line min-h-[280px] resize-none rounded-[12px] border bg-white px-[30px] py-6 text-base font-normal leading-[24px] tracking-[-0.48px] text-black',
+              'border-line text-body3_r_16 min-h-[280px] resize-none rounded-[12px] border bg-white px-[30px] py-6 text-black',
               'placeholder:text-color-neutral-90 placeholder:text-base placeholder:font-normal placeholder:leading-[24px] placeholder:tracking-[-0.48px] focus-visible:ring-0'
             )}
           />
           {errors.content && <ErrorMessage />}
-          <p className="text-color-neutral-80 absolute bottom-[30px] right-[30px] text-base font-medium leading-[22.4px] tracking-[-0.48px]">
+          <p className="text-color-neutral-80 text-body1_m_16 absolute bottom-[30px] right-[30px]">
             {txtlength}/400
           </p>
         </div>
         <div className="mb-[14px] flex items-center justify-start">
           <Image src={infoBlueIcon} alt="infoblue" width={16} />
-          <p className="text-primary ml-[2px] text-xs font-normal leading-[16.8px] tracking-[-0.36px]">
+          <p className="text-primary text-caption4_r_12 ml-[2px]">
             Posted Announcement cannot be edited.
           </p>
         </div>

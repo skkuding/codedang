@@ -12,7 +12,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
     header: '#',
     accessorKey: 'order',
     cell: ({ row }) => (
-      <div className="h-full font-medium">
+      <div className="text-body1_m_16 h-full">
         {convertToLetter(row.original.order)}
       </div>
     )
@@ -22,7 +22,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
     accessorKey: 'title',
     cell: ({ row }) => {
       return (
-        <p className="text-left font-medium md:text-base">{`${row.original.title}`}</p>
+        <p className="text-body1_m_16 text-left md:text-base">{`${row.original.title}`}</p>
       )
     }
   },

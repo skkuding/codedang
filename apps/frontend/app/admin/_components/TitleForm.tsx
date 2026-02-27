@@ -50,7 +50,7 @@ export function TitleForm({ placeholder, className }: TitleFormProps) {
             setValue('title', e.target.value)
           }}
         />
-        <span className="text-sm text-[#8A8A8A]">{inputCount}/120</span>
+        <span className="text-body4_r_14 text-[#8A8A8A]">{inputCount}/120</span>
       </div>
       {errors.title &&
         (errors.title?.type === 'required' ? (
