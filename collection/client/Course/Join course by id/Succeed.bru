@@ -40,10 +40,39 @@ script:pre-request {
 }
 
 docs {
-  # Join Group by Id
-  ---
-  - URL param으로 전달된 `groupId`에 해당하는 Group에 가입합니다.
+  
+  
+  # 📘 Join Course by Id
+  
+  **POST** `/course/:id/join?invitation`
+  
+  Create a new QnA entry for a specific contest.
+  
+  - URL param으로 전달된 `groupId`에 해당하는 Course에 가입합니다.
   - URL Query로 `invitation` 초대 코드를 전달할 수 있습니다.
   - 가입된 Group의 정보를 반환합니다.
   - Instructor가 학번 whitelist를 설정한 경우 초대 코드가 있어도 못 들어갈 수 있습니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `invitation` | string |  ✅    | 초대 코드 |
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `groupId` | number | ✅       | 가입할 그룹의 id |
+  
+  ---
 }

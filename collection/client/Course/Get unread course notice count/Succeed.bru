@@ -10,10 +10,6 @@ get {
   auth: inherit
 }
 
-settings {
-  encodeUrl: true
-}
-
 assert {
   res.status: eq 200
   res.body.data[0].unreadCount: isNumber
@@ -23,20 +19,25 @@ script:pre-request {
   await require("./login").loginUser(req);
 }
 
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
 docs {
   # 📘 Get Unread Course Notice Count
-
+  
   **GET** `/course/notice/unreadCount`
-
+  
   Gets the number of unread announcements that the user can view.
-
+  
   유저가 조회 가능한 공지 중 읽지 않은 공지의 개수를 가져옵니다.
-
+  
   조건에 맞는 최근 공지가 없을 때 0을 반환합니다.
-
+  
   ### 🔒 Authentication
-
-  ### 📥 Request Parameters
-
-   - 없습니다.
+  
+  ✅ Required 
+  
+  ###
 }

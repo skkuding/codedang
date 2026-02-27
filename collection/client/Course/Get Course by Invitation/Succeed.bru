@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/course/invite?invitation
+  url: {{baseUrl}}/course/invite?invitation=123
   body: none
   auth: none
 }
 
 params:query {
-  invitation: 
+  invitation: 123
 }
 
 assert {
@@ -28,7 +28,49 @@ script:pre-request {
 }
 
 docs {
-  # Get Group by Group Id
+  # 📘 Get Course by Invitation 
+  
+  **GET** `/course/invite?invitation`
+  
+  Get a course information for a group invited by an invitation code.
+  
+  URL Query로 invitation 코드를 전달하면, 초대된 강의의 정보를 반환합니다.
+  
+  부적절한 초대 코드일 경우, EntityNotExistException가 발생합니다.
+  
   ---
-  - URL param으로 전달된 `groupId`를 통해 해당 group의 정보를 가져와 반환합니다.
+  
+  ### 🔒 Authentication  
+  
+  ✅ Required
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `invitation` | string |  ✅  | 초대 코드 |
+  
+  ---
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```
+  {
+    "message": "Invalid invitation does not exist",
+    "error": "Not Found",
+    "statusCode": 404
+  }
+  
+  ```
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|---------------------------|
+  | `message` | string |    ✅   | 응답 메세지 |
+  | `error` | string |   ✅   | 에러 메세지 |
+  | `statusCode` | number | ✅    | HTTP 상태 코드 |
 }
