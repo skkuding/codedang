@@ -3,6 +3,7 @@
 import { DELETE_CONTEST } from '@/graphql/contest/mutations'
 import { GET_CONTESTS } from '@/graphql/contest/queries'
 import { useApolloClient, useMutation, useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import {
   DataTable,
   DataTableDeleteButton,
@@ -11,7 +12,7 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '../../_components/table'
-import { columns } from './ContestTableColumns'
+import { getColumns } from './ContestTableColumns'
 
 const headerStyle = {
   select: '',
@@ -21,6 +22,9 @@ const headerStyle = {
 }
 
 export function ContestTable() {
+  const { t } = useTranslate()
+  const columns = getColumns(t)
+
   const { data } = useSuspenseQuery(GET_CONTESTS, {
     variables: {
       take: 300
@@ -36,12 +40,12 @@ export function ContestTable() {
   const contestsWithStatus = contests.map((contest) => {
     const startTime = new Date(contest.startTime)
     const endTime = new Date(contest.endTime)
-    let status = 'Upcoming'
+    let status = t('status_upcoming')
 
     if (now >= startTime && now <= endTime) {
-      status = 'Ongoing'
+      status = t('status_ongoing')
     } else if (now > endTime) {
-      status = 'Finished'
+      status = t('status_finished')
     }
 
     return {
@@ -100,5 +104,10 @@ function ContestsDeleteButton() {
 }
 
 export function ContestTableFallback() {
-  return <DataTableFallback columns={columns} headerStyle={headerStyle} />
+  return (
+    <DataTableFallback
+      columns={getColumns(() => '')}
+      headerStyle={headerStyle}
+    />
+  )
 }

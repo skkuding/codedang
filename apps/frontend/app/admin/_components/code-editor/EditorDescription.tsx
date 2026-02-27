@@ -10,6 +10,7 @@ import {
 import { Badge } from '@/components/shadcn/badge'
 import { convertToLetter } from '@/libs/utils'
 import type { ProblemDetail } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import DOMPurify from 'isomorphic-dompurify'
 import { EditorSampleField } from './EditorSampleField'
 import { ReferenceDialog } from './ReferenceDialog'
@@ -25,6 +26,7 @@ export function EditorDescription({
   isContest = false,
   isAssignment = false
 }: EditorDescriptionProps) {
+  const { t } = useTranslate()
   const level = problem.difficulty
 
   return (
@@ -45,7 +47,7 @@ export function EditorDescription({
       </div>
 
       <div className="px-6">
-        <h2 className="mb-3 font-bold">Input</h2>
+        <h2 className="mb-3 font-bold">{t('input')}</h2>
         <div className="prose prose-invert mb-4 max-w-full text-sm leading-relaxed text-slate-300">
           <KatexContent content={problem.inputDescription} />
         </div>
@@ -53,7 +55,7 @@ export function EditorDescription({
       </div>
 
       <div className="px-6">
-        <h2 className="mb-3 font-bold">Output</h2>
+        <h2 className="mb-3 font-bold">{t('output')}</h2>
         <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
           <KatexContent content={problem.outputDescription} />
         </div>
@@ -67,9 +69,9 @@ export function EditorDescription({
 
       <div className="flex shrink-0 gap-11 px-6 text-base">
         <div className="space-y-2 text-nowrap">
-          <h2>Time Limit</h2>
-          <h2>Memory Limit</h2>
-          <h2>Source</h2>
+          <h2>{t('time_limit')}</h2>
+          <h2>{t('memory_limit')}</h2>
+          <h2>{t('source')}</h2>
         </div>
         <div className="space-y-2 text-slate-300">
           <p>{problem.timeLimit} ms</p>
@@ -84,7 +86,7 @@ export function EditorDescription({
           <Accordion type="multiple">
             <AccordionItem value="item-1" className="border-none px-6">
               <AccordionTrigger className="hover:no-underline">
-                <div className="flex items-center text-base">Hint</div>
+                <div className="flex items-center text-base">{t('hint')}</div>
               </AccordionTrigger>
               <AccordionContent>
                 <pre

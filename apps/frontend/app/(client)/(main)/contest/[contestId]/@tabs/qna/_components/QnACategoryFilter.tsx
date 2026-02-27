@@ -15,6 +15,7 @@ import {
 } from '@/components/shadcn/popover'
 import DownArrow from '@/public/icons/arrow-down.svg'
 import type { Column } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import React, { type ReactNode } from 'react'
 
@@ -32,6 +33,7 @@ export function QnACategoryFilter<TData, TValue>({
   options,
   resetPageIndex
 }: QnACategoryFilterProps<TData, TValue>) {
+  const { t } = useTranslate()
   const selectedValues = getSelectedValues(column?.getFilterValue())
 
   const showAll =
@@ -49,7 +51,7 @@ export function QnACategoryFilter<TData, TValue>({
           <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
             {showAll ? (
               <span className="ml-[6px] overflow-hidden text-ellipsis whitespace-nowrap text-[16px] font-medium tracking-[-0.48px] text-[#737373]">
-                All
+                {t('all_span')}
               </span>
             ) : (
               <span className="ml-[6px] overflow-hidden text-ellipsis whitespace-nowrap text-[16px] font-medium tracking-[-0.48px] text-[#737373]">

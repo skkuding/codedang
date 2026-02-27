@@ -7,9 +7,11 @@ import type { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 import { getStatusText } from '../_libs/utils'
 
-export const columns: ColumnDef<Contest>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<Contest>[] => [
   {
-    header: 'Title',
+    header: t('title_header'),
     accessorKey: 'title',
     cell: ({ row }) => (
       <p
@@ -24,7 +26,7 @@ export const columns: ColumnDef<Contest>[] = [
     )
   },
   {
-    header: 'State',
+    header: t('state_header'),
     accessorKey: 'status',
     cell: ({ row }) => (
       <p
@@ -48,7 +50,7 @@ export const columns: ColumnDef<Contest>[] = [
     }
   },
   {
-    header: 'Registered',
+    header: t('registered_header'),
     accessorKey: 'registered',
     cell: ({ row }) =>
       row.original.isRegistered && (
@@ -64,7 +66,7 @@ export const columns: ColumnDef<Contest>[] = [
       )
   },
   {
-    header: 'Period',
+    header: t('period_header'),
     accessorKey: 'period',
     cell: ({ row }) => (
       <p className="text-neutral-500">

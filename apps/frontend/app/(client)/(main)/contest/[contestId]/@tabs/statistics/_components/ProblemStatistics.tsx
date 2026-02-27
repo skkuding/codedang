@@ -15,6 +15,7 @@ import { fetcherWithAuth } from '@/libs/utils'
 import { cn } from '@/libs/utils'
 import { Suspense, ErrorBoundary } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { SlArrowUp } from 'react-icons/sl'
@@ -150,6 +151,7 @@ function ProblemDetailSection({
   selectedProblem,
   problems
 }: ProblemDetailSectionProps) {
+  const { t } = useTranslate()
   const { data: statistics } = useSuspenseQuery<Statistics>({
     queryKey: ['statistics', contestId, selectedProblem],
     queryFn: () =>
@@ -240,7 +242,7 @@ function ProblemDetailSection({
       <div className="mb-3 flex h-[98px] gap-2">
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
           <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
-            Total Submission
+            {t('total_submission')}
           </p>
           <p className="text-2xl font-semibold tracking-[-0.72px]">
             {statistics.totalSubmissionCount.toLocaleString('ko-KR') || '-'}
@@ -248,7 +250,7 @@ function ProblemDetailSection({
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
           <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
-            Correct Answers
+            {t('correct_answers')}
           </p>
           <p className="text-2xl font-semibold tracking-[-0.72px]">
             {statistics.acceptedSubmissionCount.toLocaleString('ko-KR') || '-'}
@@ -256,7 +258,7 @@ function ProblemDetailSection({
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
           <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
-            Correct Answers Rate
+            {t('correct_answers_rate')}
           </p>
           <p className="text-2xl font-semibold tracking-[-0.72px]">
             {(statistics.acceptedRate * 100).toFixed(1)}%
@@ -264,7 +266,7 @@ function ProblemDetailSection({
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
           <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
-            Average Attempt
+            {t('average_attempt')}
           </p>
           <p className="text-2xl font-semibold tracking-[-0.72px]">
             {statistics.averageTrial.toLocaleString('ko-KR') || '-'}
@@ -274,7 +276,7 @@ function ProblemDetailSection({
       <div className="mb-5 flex h-[188px] gap-2">
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
           <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
-            First Solver
+            {t('first_solver')}
           </p>
           <p className="truncate text-2xl font-semibold tracking-[-0.72px]">
             {statistics?.firstSolver?.username || '-'}
@@ -282,7 +284,7 @@ function ProblemDetailSection({
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
           <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
-            Fastest Solver
+            {t('fastest_solver')}
           </p>
           <p className="truncate text-2xl font-semibold tracking-[-0.72px]">
             {statistics?.fastestSolver?.username || '-'}
@@ -290,7 +292,7 @@ function ProblemDetailSection({
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
           <p className="text-primary mb-1 text-[13px] font-normal tracking-[-0.42px]">
-            User Speed Rank
+            {t('user_speed_rank')}
           </p>
           <p className="text-2xl font-semibold tracking-[-0.72px]">
             {statistics?.userSpeedRank
@@ -303,7 +305,7 @@ function ProblemDetailSection({
         </div>
         <div className="w-1/4 min-w-0 rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
           <p className="text-primary mb-3 text-[13px] font-normal tracking-[-0.42px]">
-            Correct Answers by Language
+            {t('correct_answers_by_language')}
           </p>
           {statistics?.acceptedSubmissionsByLanguage?.length ? (
             statistics.acceptedSubmissionsByLanguage.map((language) => (
@@ -326,7 +328,7 @@ function ProblemDetailSection({
       <div className="mb-[112px] flex h-[338px] gap-2">
         <div className="flex w-1/2 min-w-0 flex-col rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
           <p className="text-primary mb-[14px] text-[13px] font-normal tracking-[-0.42px]">
-            Incorrect Answer Distribution
+            {t('incorrect_answer_distribution')}
           </p>
           <ChartContainer config={chartConfig} className="h-[230px]">
             <BarChart
@@ -368,13 +370,14 @@ function ProblemDetailSection({
                         }}
                         className="border-1 border-primary text-primary flex h-[25px] w-[118px] items-center justify-center rounded-full bg-white"
                       >
-                        {Math.round(
-                          (payload[0].value *
-                            (distributionAndTimeline?.distribution
-                              ?.totalSubmissions || 0)) /
-                            100
-                        ).toLocaleString('ko-KR')}{' '}
-                        Wrong Answer
+                        {t('wrong_answer_count', {
+                          count: Math.round(
+                            (payload[0].value *
+                              (distributionAndTimeline?.distribution
+                                ?.totalSubmissions || 0)) /
+                              100
+                          ).toLocaleString('ko-KR')
+                        })}
                       </div>
                     )
                   }
@@ -404,15 +407,15 @@ function ProblemDetailSection({
               <div className="bg-color-neutral-99 flex h-[30px] items-center justify-between rounded-lg px-3 text-xs">
                 <div className="flex">
                   <div className="border-r-1 flex items-center gap-1 pr-2">
-                    Wrong Answer
+                    {t('wrong_answer')}
                     <div className="bg-level-1 rounded-xs h-3 w-3" />
                   </div>
                   <div className="border-r-1 flex items-center gap-1 px-2">
-                    Time Limit Exceeded
+                    {t('time_limit_exceeded')}
                     <div className="bg-level-2 rounded-xs h-3 w-3" />
                   </div>
                   <div className="flex items-center gap-1 px-2">
-                    Runtime Error
+                    {t('runtime_error')}
                     <div className="bg-level-3 rounded-xs h-3 w-3" />
                   </div>
                 </div>
@@ -423,23 +426,23 @@ function ProblemDetailSection({
             <PopoverContent className="w-102 flex flex-col gap-1 text-xs">
               <div className="flex items-center gap-2">
                 <div className="bg-level-1 rounded-xs h-3 w-3" />
-                Wrong Answer
+                {t('wrong_answer')}
               </div>
               <div className="flex items-center gap-2">
                 <div className="bg-level-2 rounded-xs h-3 w-3" />
-                Time Limit Exceeded
+                {t('time_limit_exceeded')}
               </div>
               <div className="flex items-center gap-2">
                 <div className="bg-level-3 rounded-xs h-3 w-3" />
-                Runtime Error
+                {t('runtime_error')}
               </div>
               <div className="flex items-center gap-2">
                 <div className="bg-level-4 rounded-xs h-3 w-3" />
-                Memory Limit Exceeded
+                {t('memory_limit_exceeded')}
               </div>
               <div className="flex items-center gap-2">
                 <div className="bg-color-blue-80 rounded-xs h-3 w-3" />
-                Compile Error
+                {t('compile_error')}
               </div>
               <div className="flex items-center gap-2">
                 <div className="bg-level-5 rounded-xs h-3 w-3" />
@@ -450,7 +453,7 @@ function ProblemDetailSection({
         </div>
         <div className="flex w-1/2 min-w-0 flex-col rounded-xl p-5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]">
           <p className="text-primary mb-[14px] text-[13px] font-normal tracking-[-0.42px]">
-            Trends in Submission
+            {t('trends_in_submission')}
           </p>
           <ChartContainer config={chartConfig} className="h-[230px]">
             <LineChart
@@ -500,21 +503,23 @@ function ProblemDetailSection({
                         }}
                         className="border-1 border-primary text-primary flex h-[50px] w-[118px] items-center justify-center rounded-full bg-white"
                       >
-                        {Math.round(
-                          (payload[0].value *
-                            (distributionAndTimeline?.distribution
-                              ?.totalSubmissions || 0)) /
-                            100
-                        ).toLocaleString('ko-KR')}{' '}
-                        Accepted Answer
+                        {t('accepted_answer_count', {
+                          count: Math.round(
+                            (payload[0].value *
+                              (distributionAndTimeline?.distribution
+                                ?.totalSubmissions || 0)) /
+                              100
+                          ).toLocaleString('ko-KR')
+                        })}
                         <br />
-                        {Math.round(
-                          (payload[1].value *
-                            (distributionAndTimeline?.distribution
-                              ?.totalSubmissions || 0)) /
-                            100
-                        ).toLocaleString('ko-KR')}{' '}
-                        Wrong Answer
+                        {t('wrong_answer_count', {
+                          count: Math.round(
+                            (payload[1].value *
+                              (distributionAndTimeline?.distribution
+                                ?.totalSubmissions || 0)) /
+                              100
+                          ).toLocaleString('ko-KR')
+                        })}
                       </div>
                     )
                   }
@@ -555,11 +560,11 @@ function ProblemDetailSection({
           </ChartContainer>
           <div className="bg-color-neutral-99 mt-auto flex h-[30px] w-fit items-center justify-end rounded-lg px-3 text-xs">
             <div className="border-r-1 flex h-fit items-center gap-1 pr-2">
-              Accepted
+              {t('accepted')}
               <div className="bg-flowkit-green rounded-xs h-3 w-3" />
             </div>
             <div className="flex items-center gap-1 pl-2">
-              Wrong Answer
+              {t('wrong_answer')}
               <div className="bg-flowkit-red rounded-xs h-3 w-3" />
             </div>
           </div>

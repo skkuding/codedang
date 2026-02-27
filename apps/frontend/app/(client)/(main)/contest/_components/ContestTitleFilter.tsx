@@ -14,6 +14,7 @@ import {
 } from '@/components/shadcn/popover'
 import { Separator } from '@/components/shadcn/separator'
 import type { Column } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import React, { type ReactNode } from 'react'
 import { IoFilter } from 'react-icons/io5'
 
@@ -34,6 +35,7 @@ export function ContestTitleFilter<TData, TValue>({
   options,
   resetPageIndex
 }: ContestTableMultiSelectFilterProps<TData, TValue>) {
+  const { t } = useTranslate()
   const selectedValues = getSelectedValues(column?.getFilterValue())
 
   const handleFilterSelect = (value: string) => {
@@ -66,7 +68,7 @@ export function ContestTitleFilter<TData, TValue>({
                     variant="secondary"
                     className="rounded-xs px-1 font-normal"
                   >
-                    All
+                    {t('all_badge')}
                   </Badge>
                 ) : (
                   <div className="flex space-x-1">

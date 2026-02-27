@@ -12,6 +12,7 @@ import { cn } from '@/libs/utils'
 import type { UpdateContestInfo } from '@/types/type'
 import type { ContestPreview } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { useState, use } from 'react'
 import { createPortal } from 'react-dom'
@@ -42,6 +43,7 @@ import { EditContestForm } from './_components/EditContestForm'
 export default function Page(props: {
   params: Promise<{ contestId: string }>
 }) {
+  const { t } = useTranslate()
   const params = use(props.params)
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [managers, setManagers] = useState<ContestManagerReviewer[]>([])
@@ -107,7 +109,7 @@ export default function Page(props: {
             <Link href="/admin/contest">
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-[32px] font-bold">Edit Contest</span>
+            <span className="text-[32px] font-bold">{t('edit_contest')}</span>
           </div>
 
           <EditContestForm
@@ -129,17 +131,17 @@ export default function Page(props: {
 
               <div className="flex flex-col justify-between">
                 <FormSection
-                  title="Title"
+                  title={t('title')}
                   isOngoing={isOngoing}
                   isFinished={isFinished}
                 >
                   <TitleForm
-                    placeholder="Name your contest"
+                    placeholder={t('name_your_contest')}
                     className="max-w-[492px]"
                   />
                 </FormSection>
                 <FormSection
-                  title="Join DueTime"
+                  title={t('join_duetime')}
                   isOngoing={isOngoing}
                   isFinished={isFinished}
                 >
@@ -148,7 +150,7 @@ export default function Page(props: {
                   )}
                 </FormSection>
                 <FormSection
-                  title="Start Time"
+                  title={t('start_time')}
                   isOngoing={isOngoing}
                   isFinished={isFinished}
                 >
@@ -156,7 +158,7 @@ export default function Page(props: {
                     <TimeForm isContest name="startTime" />
                   )}
                 </FormSection>
-                <FormSection title="End Time" isFinished={isFinished}>
+                <FormSection title={t('end_time')} isFinished={isFinished}>
                   {methods.getValues('endTime') && (
                     <ContestEditEndTimeForm
                       name="endTime"
@@ -179,7 +181,7 @@ export default function Page(props: {
             </div>
 
             <FormSection
-              title="Summary"
+              title={t('summary')}
               isLabeled={false}
               isFlexColumn
               isOngoing={isOngoing}
@@ -189,7 +191,7 @@ export default function Page(props: {
             </FormSection>
 
             <FormSection
-              title="More Description"
+              title={t('more_description')}
               isLabeled={false}
               isFlexColumn={true}
               isOngoing={isOngoing}
@@ -205,7 +207,7 @@ export default function Page(props: {
                 undefined && (
                 <SampleTestcaseForm
                   name="evaluateWithSampleTestcase"
-                  title="Evaluate with sample testcases included"
+                  title={t('evaluate_with_sample_testcases_included')}
                   hasValue={
                     methods.getValues('evaluateWithSampleTestcase') !== false
                   }
@@ -215,17 +217,17 @@ export default function Page(props: {
               )}
               <SwitchField
                 name="invitationCode"
-                title="Invitation Code"
+                title={t('invitation_code')}
                 type="number"
                 formElement="input"
-                placeholder="Enter a invitation code"
+                placeholder={t('enter_a_invitation_code')}
                 hasValue={methods.getValues('invitationCode') !== null}
                 disabled={isOngoing || isFinished}
               />
               {methods.getValues('enableCopyPaste') !== undefined && (
                 <DisableCopyPasteForm
                   name="enableCopyPaste"
-                  title="Disable Copy/Paste"
+                  title={t('disable_copy_paste')}
                   hasValue={methods.getValues('enableCopyPaste') !== false}
                   disabled={isOngoing || isFinished}
                 />
@@ -241,8 +243,8 @@ export default function Page(props: {
             >
               <div className="flex items-center justify-between">
                 <CreateEditContestLabel
-                  title="Add manager / reviewer"
-                  content={`Contest managers have all permissions except for creating and editing the contest.\nYou can also import problems created by the contest manager into this contest.\nContest reviewers can view the problem list before the contest starts.`}
+                  title={t('add_manager_reviewer')}
+                  content={t('add_manager_reviewer_description')}
                 />
                 <AddManagerReviewerDialog
                   managers={managers}
@@ -265,8 +267,8 @@ export default function Page(props: {
             >
               <div className="flex items-center justify-between">
                 <CreateEditContestLabel
-                  title="Contest Problem List"
-                  content={`If contest problems are imported from the ‘All Problem List’,<br>the problems will automatically become invisible state.<br>After the contests are all over, you can manually make the problem visible again.`}
+                  title={t('contest_problem_list')}
+                  content={t('contest_problem_list_description')}
                 />
                 <ImportProblemDialog
                   problems={problems}
@@ -284,26 +286,14 @@ export default function Page(props: {
             <div className="space-y-2">
               {isOngoing && (
                 <p className="text-error text-sm">
-                  * You can only edit{' '}
-                  <strong className="font-bold">End Time</strong> and{' '}
-                  <strong className="font-bold">Freeze Time</strong> for an
-                  Ongoing Contest.
-                  <br />* <strong className="font-bold">End Time</strong> must
-                  be after the{' '}
-                  <strong className="font-bold">Original End Time</strong>.
-                  <br />*{' '}
-                  <strong className="font-bold">Freeze Start Time</strong> must
-                  be after the{' '}
-                  <strong className="font-bold">Current Time</strong>, and the{' '}
-                  <strong className="font-bold">
-                    Original Freeze Start Time
-                  </strong>
-                  .
+                  * {t('only_edit_note')}
+                  <br />* {t('end_time_note')}
+                  <br />* {t('freeze_time_note')}.
                 </p>
               )}
               {isFinished && (
                 <p className="text-error text-sm">
-                  * You cannot edit the contest after it is finished.
+                  * {t('cannot_edit_finished_note')}
                 </p>
               )}
               <div className="flex flex-col gap-5">
@@ -316,12 +306,14 @@ export default function Page(props: {
                     if (isValid) {
                       setIsPreviewing(true)
                     } else {
-                      toast.error('Please fill in all required fields.')
+                      toast.error(t('please_fill_required_fields'))
                     }
                   }}
                 >
                   <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
-                  <div className="text-base text-[#8a8a8a]">Show Preview</div>
+                  <div className="text-base text-[#8a8a8a]">
+                    {t('show_preview')}
+                  </div>
                 </Button>
                 <Button
                   type="submit"
@@ -329,7 +321,7 @@ export default function Page(props: {
                   disabled={isLoading || isFinished}
                 >
                   <IoIosCheckmarkCircle fontSize={20} />
-                  <div className="mb-[2px] text-lg font-bold">Edit</div>
+                  <div className="mb-[2px] text-lg font-bold">{t('edit')}</div>
                 </Button>
               </div>
             </div>

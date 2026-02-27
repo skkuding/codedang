@@ -3,6 +3,7 @@
 import { GET_USERS } from '@/graphql/user/queries'
 import { dateFormatter } from '@/libs/utils'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import {
   DataTable,
   DataTableFallback,
@@ -10,9 +11,11 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '../../_components/table'
-import { columns } from './Columns'
+import { getColumns } from './Columns'
 
 export function UserTable() {
+  const { t } = useTranslate()
+  const columns = getColumns(t)
   const { data } = useSuspenseQuery(GET_USERS, {
     variables: {
       take: 5000
@@ -48,5 +51,7 @@ export function UserTable() {
 }
 
 export function UserTableFallback() {
-  return <DataTableFallback withSearchBar={false} columns={columns} />
+  return (
+    <DataTableFallback withSearchBar={false} columns={getColumns(() => '')} />
+  )
 }

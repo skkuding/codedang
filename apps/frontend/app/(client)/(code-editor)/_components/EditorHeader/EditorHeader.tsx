@@ -44,6 +44,7 @@ import type {
   Template
 } from '@/types/type'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import JSConfetti from 'js-confetti'
 import { Save } from 'lucide-react'
 import type { Route } from 'next'
@@ -76,6 +77,7 @@ export function EditorHeader({
   courseId,
   templateString
 }: ProblemEditorProps) {
+  const { t } = useTranslate()
   const { language, setLanguage } = useLanguageStore(
     problem.id,
     contestId,
@@ -168,7 +170,7 @@ export function EditorHeader({
         }
       } else {
         setIsSubmitting(false)
-        toast.error('Please try again later.')
+        toast.error(t('please_try_again_later'))
       }
     },
     isSubmitting && submissionId ? 500 : null
@@ -177,12 +179,12 @@ export function EditorHeader({
   useEffect(() => {
     if (!session) {
       setTimeout(() => {
-        toast.info('Log in to use submission & save feature')
+        toast.info(t('log_in_to_use_submission_save_feature'))
       })
     } else {
       setUserName(session.user.username)
     }
-  }, [session])
+  }, [session, t])
 
   useEffect(() => {
     if (!templateString) {
@@ -225,7 +227,7 @@ export function EditorHeader({
     if (storageKey.current !== undefined) {
       localStorage.setItem(storageKey.current, code)
     } else {
-      toast.error('Failed to save the code')
+      toast.error(t('failed_to_save_the_code'))
     }
   }
 
@@ -233,7 +235,7 @@ export function EditorHeader({
     const code = getCode()
 
     if (code === '') {
-      toast.error('Please write code before run')
+      toast.error(t('please_write_code_before_run'))
       return
     }
 
@@ -247,12 +249,12 @@ export function EditorHeader({
 
     if (session === null) {
       showSignIn()
-      toast.error('Log in first to submit your code')
+      toast.error(t('log_in_first_to_submit_your_code'))
       return
     }
 
     if (code === '') {
-      toast.error('Please write code before submission')
+      toast.error(t('please_write_code_before_submission'))
       return
     }
 
@@ -280,7 +282,7 @@ export function EditorHeader({
       }
     })
     if (res.ok) {
-      toast.success('Successfully submitted the code')
+      toast.success(t('successfully_submitted_the_code'))
       storeCodeToLocalStorage(code)
       const submission: Submission = await res.json()
 
@@ -325,11 +327,11 @@ export function EditorHeader({
       setIsSubmitting(false)
       if (res.status === 401) {
         showSignIn()
-        toast.error('Log in first to submit your code')
+        toast.error(t('log_in_first_to_submit_your_code'))
       } else if (res.status === 404) {
-        toast.error('Submission period has ended.')
+        toast.error(t('submission_period_has_ended'))
       } else {
-        toast.error('Please try again later.')
+        toast.error(t('please_try_again_later'))
       }
     }
   }
@@ -338,13 +340,13 @@ export function EditorHeader({
     const code = getCode()
 
     if (session === null) {
-      toast.error('Log in first to save your code')
+      toast.error(t('log_in_first_to_save_your_code'))
       showSignIn()
     } else if (storageKey.current !== undefined) {
       localStorage.setItem(storageKey.current, code)
-      toast.success('Successfully saved the code')
+      toast.success(t('successfully_saved_the_code'))
     } else {
-      toast.error('Failed to save the code')
+      toast.error(t('failed_to_save_the_code'))
     }
   }
 
@@ -352,9 +354,9 @@ export function EditorHeader({
     if (storageKey.current !== undefined) {
       localStorage.setItem(storageKey.current, templateCode)
       setCode(templateCode)
-      toast.success('Successfully reset the code')
+      toast.success(t('successfully_reset_the_code'))
     } else {
-      toast.error('Failed to reset the code')
+      toast.error(t('failed_to_reset_the_code'))
     }
   }
 
@@ -430,9 +432,7 @@ export function EditorHeader({
         return
       }
       isModalConfrimed.current = false
-      const isConfirmed = window.confirm(
-        'Are you sure you want to leave this page? Changes you made may not be saved.'
-      )
+      const isConfirmed = window.confirm(t('leave_this_page_warning'))
       if (isConfirmed) {
         originalPush(href, ...args)
       }
@@ -441,7 +441,7 @@ export function EditorHeader({
     return () => {
       router.push = originalPush
     }
-  }, [router])
+  }, [router, t])
 
   useKey(
     's',
@@ -512,11 +512,11 @@ export function EditorHeader({
           open={isLanguageModalOpen}
           onOpenChange={setIsLanguageModalOpen}
           size="sm"
-          title="Change Language"
-          description={`Change language to ${selectedLanguage}?\nOnce you change it, Your code will be deleted.`}
+          title={t('change_language_title')}
+          description={t('change_language_description', { selectedLanguage })}
           onClose={() => setIsLanguageModalOpen(false)}
           primaryButton={{
-            text: isSubmitting ? 'Changing...' : 'Confirm',
+            text: isSubmitting ? t('changing') : t('confirm'),
             onClick: handleConfirmLanguageChange
           }}
           type="warning"
@@ -530,17 +530,17 @@ export function EditorHeader({
           onClick={() => setIsResetModalOpen(true)}
         >
           <BsTrash3 size={17} />
-          Reset
+          {t('reset_button')}
         </Button>
         <AlertModal
           open={isResetModalOpen}
           onOpenChange={setIsResetModalOpen}
           size="sm"
-          title="Reset code"
-          description="Are you sure you want to reset to the default code?"
+          title={t('reset_code_title')}
+          description={t('reset_code_description')}
           onClose={() => setIsResetModalOpen(false)}
           primaryButton={{
-            text: 'Reset',
+            text: t('reset_button'),
             onClick: () => {
               resetCode()
               setIsResetModalOpen(false)
@@ -560,11 +560,11 @@ export function EditorHeader({
                   onClick={run}
                 >
                   <IoPlayCircleOutline size={22} />
-                  Run
+                  {t('run_button')}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Ctrl/Cmd + Enter | Run your code in interactive terminal.</p>
+                <p>{t('run_code_tooltip')}</p>
               </TooltipContent>
             </Tooltip>
           )}
@@ -578,11 +578,11 @@ export function EditorHeader({
                 onClick={saveCode}
               >
                 <Save className="stroke-[1.3]" size={22} />
-                Save
+                {t('save_button')}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Ctrl/Cmd + S | Save your code in your browser.</p>
+              <p>{t('save_code_tooltip')}</p>
             </TooltipContent>
           </Tooltip>
 
@@ -604,16 +604,17 @@ export function EditorHeader({
                 onClick={submit}
               >
                 {loading ? (
-                  'Judging'
+                  t('judging')
                 ) : (
                   <>
-                    <Image src={submitIcon} width={22} alt={'submit'} /> Submit
+                    <Image src={submitIcon} width={22} alt={'submit'} />{' '}
+                    {t('submit_button')}
                   </>
                 )}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Submit your code for evaluation</p>
+              <p>{t('submit_code_tooltip')}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -621,8 +622,8 @@ export function EditorHeader({
       <BackCautionDialog
         confrim={isModalConfrimed}
         isOpen={showModal}
-        title="Leave this page?"
-        description="Changes you made my not be saved."
+        title={t('leave_this_page_title')}
+        description={t('leave_this_page_description')}
         onClose={() => setShowModal(false)}
         onBack={() => router.push(whereToPush.current as Route)}
       />

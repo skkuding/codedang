@@ -12,6 +12,7 @@ import { useCodeStore } from '@/stores/editor'
 import { useTestcaseTabStore, TESTCASE_RESULT_TAB } from '@/stores/editorTabs'
 import type { TestcaseItem } from '@/types/type'
 import { useMutation } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { IoPlayCircleOutline } from 'react-icons/io5'
 import { toast } from 'sonner'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
@@ -31,6 +32,7 @@ export function RunTestButton({
   className,
   ...props
 }: RunTestButtonProps) {
+  const { t } = useTranslate()
   const session = useSession()
   const setIsTesting = useTestPollingStore((state) => state.setIsTesting)
   const startPolling = useTestPollingStore((state) => state.startPolling)
@@ -101,9 +103,9 @@ export function RunTestButton({
       setIsTesting(false)
       if (isHttpError(error) && error.response.status === 401) {
         showSignIn()
-        toast.error('Log in first to test your code')
+        toast.error(t('log_in_first_to_test_your_code'))
       } else {
-        toast.error('Please try again later.')
+        toast.error(t('try_again_later_error'))
       }
     }
   })
@@ -116,12 +118,12 @@ export function RunTestButton({
 
     if (session === null) {
       showSignIn()
-      toast.error('Log in first to test your code')
+      toast.error(t('log_in_first_to_test_your_code'))
       return
     }
 
     if (code === '') {
-      toast.error('Please write code before test')
+      toast.error(t('please_write_code_before_test'))
       return
     }
 
@@ -143,11 +145,11 @@ export function RunTestButton({
           {...props}
         >
           <IoPlayCircleOutline size={22} />
-          Test
+          {t('test_button')}
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        <p>Ctrl/Cmd + Shift + Enter | Test your code with testcases</p>
+        <p>{t('tooltip_test_your_code')}</p>
       </TooltipContent>
     </Tooltip>
   )

@@ -15,6 +15,7 @@ import {
 } from '@/components/shadcn/dialog'
 import type { Assignment } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { useCallback, useMemo } from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
@@ -35,6 +36,8 @@ export function GradeStatisticsModal({
   assignment,
   courseId
 }: GradeStatisticsModalProps) {
+  const { t } = useTranslate()
+
   const { data } = useSuspenseQuery(
     assignmentSubmissionQueries.anonymizedScores({
       assignmentId: assignment.id,
@@ -116,7 +119,7 @@ export function GradeStatisticsModal({
   }, [finalScores])
 
   if (!isAssignmentProblemRecordValid) {
-    toast.error('Cannot Load Assignment Information')
+    toast.error(t('cannot_load_assignment_info'))
     return null
   }
 
@@ -128,7 +131,7 @@ export function GradeStatisticsModal({
       <DialogHeader>
         <DialogTitle>
           <div className="flex items-center gap-2 text-lg font-medium">
-            <span>Week {assignment.week}</span>
+            <span>{t('week_number', { weekNumber: assignment.week })}</span>
             <MdArrowForwardIos />
             <span className="text-primary">{assignment.title}</span>
           </div>
@@ -136,7 +139,7 @@ export function GradeStatisticsModal({
       </DialogHeader>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3">
-          <span className="text-sm font-medium">Statistics</span>
+          <span className="text-sm font-medium">{t('statistics')}</span>
           <table
             className="w-full min-w-[300px] max-w-[550px] border-separate text-center text-xs"
             style={{ borderSpacing: 0 }}
@@ -145,19 +148,19 @@ export function GradeStatisticsModal({
               <tr className="border-primary-light border">
                 <th className="border-primary-light w-[80px] rounded-tl-md px-2 py-2 text-xs" />
                 <th className="border-primary-light px-3 py-2 text-xs font-light">
-                  Score
+                  {t('score')}
                 </th>
                 <th className="border-primary-light px-3 py-2 text-xs font-light">
-                  Mean
+                  {t('mean')}
                 </th>
                 <th className="border-primary-light px-3 py-2 text-xs font-light">
-                  Median
+                  {t('median')}
                 </th>
                 <th className="border-primary-light px-3 py-2 text-xs font-light">
-                  Min
+                  {t('min')}
                 </th>
                 <th className="border-primary-light rounded-tr-md px-3 py-2 text-xs font-light">
-                  Max
+                  {t('max')}
                 </th>
               </tr>
             </thead>
@@ -165,10 +168,10 @@ export function GradeStatisticsModal({
               {assignmentProblemRecord?.isFinalScoreVisible && (
                 <tr className="text-gray-500">
                   <td className="bg-primary-light flex w-[60px] flex-col items-center rounded-bl-md px-1 py-2 text-xs text-white sm:w-[80px] sm:px-2">
-                    Graded
+                    {t('graded')}
                     {assignmentProblemRecord.autoFinalizeScore && (
                       <span className="text-primary shadow-2xs mt-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium">
-                        Auto
+                        {t('auto')}
                       </span>
                     )}
                   </td>

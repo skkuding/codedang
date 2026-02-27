@@ -6,6 +6,7 @@ import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery, useQuery } from '@apollo/client'
 import { useLazyQuery } from '@apollo/client'
 import type { Row, Table } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import { useParams } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import {
@@ -21,6 +22,7 @@ import { QnaDetailModal } from './QnaDetailModal'
 import { useQnaCommentsSync } from './context/RefetchingQnaStoreProvider'
 
 export function ContestQnaTable() {
+  const { t } = useTranslate()
   const { contestId } = useParams<{ contestId: string }>()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const prevModalStatus = useRef(isModalOpen)
@@ -67,7 +69,7 @@ export function ContestQnaTable() {
   })
   const contestProblems = problemsData?.getContestProblems || []
 
-  const columns = createColumns(contestProblems)
+  const columns = createColumns(contestProblems, t)
 
   const bodyStyle = { title: 'justify-start' }
 
@@ -83,7 +85,9 @@ export function ContestQnaTable() {
             <p className="text-primary text-[30.6px] font-extrabold">
               {data?.getContestQnAs?.length || 0}
             </p>
-            <p className="text-[26.22px] font-semibold">Questions</p>
+            <p className="text-[26.22px] font-semibold">
+              {t('questions_count')}
+            </p>
           </div>
           <div className="flex justify-between">
             <Tabs
@@ -118,6 +122,7 @@ export function ContestQnaTable() {
 }
 
 export function ContestQnaTableFallback() {
-  const columns = createColumns([])
+  const { t } = useTranslate()
+  const columns = createColumns([], t)
   return <DataTableFallback columns={columns} />
 }

@@ -16,6 +16,7 @@ import {
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 
 interface StandingsTableProps {
   data: Standings[]
@@ -27,6 +28,7 @@ const myUserId = 2020312938
 
 // TODO: theme 넘겨주는 방식이 바뀔 수도 있습니다.
 export function StandingsTable({ data, theme }: StandingsTableProps) {
+  const { t } = useTranslate()
   const darkTextColor = 'text-slate-300'
   const lightTextColor = 'text-gray-500'
   const darkBorderColor = 'border-slate-500'
@@ -54,7 +56,7 @@ export function StandingsTable({ data, theme }: StandingsTableProps) {
     {
       header: () => (
         <p className={cn('text-xs font-medium md:text-base', textColor)}>
-          User ID
+          {t('user_id_header')}
         </p>
       ),
       accessorKey: 'userId',
@@ -66,7 +68,7 @@ export function StandingsTable({ data, theme }: StandingsTableProps) {
     {
       header: () => (
         <p className={cn('text-sm font-medium md:text-base', textColor)}>
-          Problem
+          {t('problem_header')}
         </p>
       ),
       accessorKey: 'problem',
@@ -101,13 +103,15 @@ export function StandingsTable({ data, theme }: StandingsTableProps) {
     {
       header: () => (
         <p className={cn('text-sm font-medium md:text-base', textColor)}>
-          Total
+          {t('total_header')}
         </p>
       ),
       accessorKey: 'total',
       columns: [
         {
-          header: () => <p className="text-xs md:text-sm">Solved</p>,
+          header: () => (
+            <p className="text-xs md:text-sm">{t('solved_header')}</p>
+          ),
           accessorKey: 'solved',
           cell: ({ row }) => {
             return <p className="text-xs md:text-sm">{row.original.solved}</p>
@@ -115,7 +119,9 @@ export function StandingsTable({ data, theme }: StandingsTableProps) {
           id: 'solved'
         },
         {
-          header: () => <p className="text-xs md:text-sm">Score</p>,
+          header: () => (
+            <p className="text-xs md:text-sm">{t('score_header')}</p>
+          ),
           accessorKey: 'score',
           cell: ({ row }) => {
             return (
@@ -229,7 +235,7 @@ export function StandingsTable({ data, theme }: StandingsTableProps) {
         ) : (
           <TableRow>
             <TableCell colSpan={columns.length} className="h-24 text-center">
-              No results.
+              {t('no_results_message')}
             </TableCell>
           </TableRow>
         )}

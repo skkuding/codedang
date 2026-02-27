@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslate } from '@tolgee/react'
 import { useEffect } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { ErrorMessage } from './ErrorMessage'
@@ -27,6 +28,8 @@ export function DescriptionForm({
     control
   })
 
+  const { t } = useTranslate()
+
   // NOTE: Contest는 description이 필수 항목이 아니므로 description 값이 아닐때는 null로 초기화
   useEffect(() => {
     if (isContest && field.value === '<p></p>') {
@@ -41,7 +44,7 @@ export function DescriptionForm({
   return (
     <div className="flex flex-col gap-1 [&_.ProseMirror>p]:mt-0">
       <TextEditor
-        placeholder="Enter a description..."
+        placeholder={t('enter_description_placeholder')}
         onChange={field.onChange}
         defaultValue={field.value as string}
         isDarkMode={isDarkmode}

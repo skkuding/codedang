@@ -5,6 +5,7 @@ import { Input } from '@/components/shadcn/input'
 import { cn, fetcherWithAuth } from '@/libs/utils'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { UserAnalysisSkeleton } from './StatisticsSkeletons'
@@ -19,6 +20,7 @@ interface UserRankInfo {
 }
 
 export function UserAnalysisPage() {
+  const { t } = useTranslate()
   const { contestId } = useParams<{ contestId: string }>()
 
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -42,7 +44,7 @@ export function UserAnalysisPage() {
     <div className="flex gap-7 tracking-[-0.03em]">
       <div className="border-color-line-default border-1 flex h-fit w-72 flex-col gap-2 rounded-2xl px-4 pb-2 pt-5">
         <Input
-          placeholder="Search"
+          placeholder={t('search_placeholder')}
           value={searchKeyword}
           onChange={(e) => setSearchKeyword(e.target.value)}
         />
@@ -79,7 +81,7 @@ export function UserAnalysisPage() {
                       : 'bg-primary'
                   )}
                 >
-                  {user.solved} solved
+                  {t('solved_count', { count: user.solved })}
                 </div>
               </div>
             ))}
@@ -88,7 +90,9 @@ export function UserAnalysisPage() {
               <p
                 onClick={() => setShowAllUsers(true)}
                 className="text-color-neutral-60 hover:text-color-neutral-40 mt-1 grid cursor-pointer text-xs"
-              >{`${rawData.length - 5} more users`}</p>
+              >
+                {t('more_users_count', { count: rawData.length - 5 })}
+              </p>
             </div>
           )}
         </div>

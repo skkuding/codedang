@@ -12,6 +12,7 @@ import infoGrayIcon from '@/public/icons/info-gray.svg'
 import prizeIcon from '@/public/icons/prize.svg'
 import taskCompleteIcon from '@/public/icons/task-complete.svg'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -176,6 +177,7 @@ function ExerciseProblemSection({ contents }: ProblemSectionProps) {
 }
 
 function NoContentsSection({ label }: { label: string }) {
+  const { t } = useTranslate()
   return (
     <div className="bg-color-neutral-99 flex flex-col items-center justify-center gap-1 self-stretch rounded-lg px-5 pb-10 pt-7">
       <div className="text-color-neutral-80 relative h-7 w-7 overflow-hidden">
@@ -186,13 +188,14 @@ function NoContentsSection({ label }: { label: string }) {
         />
       </div>
       <div className="text-color-neutral-80 justify-start self-stretch text-center text-base font-medium">
-        No {label} have used this problem
+        {t('no_label_used_problem', { label })}
       </div>
     </div>
   )
 }
 
 export function ProblemUsage({ problemId }: ProblemUsageProps) {
+  const { t } = useTranslate()
   const { data: contestData, loading: contestLoading } = useQuery(
     GET_BELONGED_CONTESTS,
     {
@@ -242,8 +245,8 @@ export function ProblemUsage({ problemId }: ProblemUsageProps) {
     <Modal
       size="lg"
       type="custom"
-      title="Using this problem"
-      headerDescription="This problem is used in the following contexts"
+      title={t('using_this_problem_title')}
+      headerDescription={t('problem_usage_header_description')}
       trigger={<Image src={fileInfoIcon} alt="fileinfo" />}
     >
       <ScrollArea className="h-full w-full pr-2">

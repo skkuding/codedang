@@ -4,6 +4,7 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import { convertToLetter } from '@/libs/utils'
 import type { ContestSubmission, ContestProblem } from '@/types/type'
 import { useSuspenseQueries } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 
 interface Props {
   problemId: number
@@ -16,6 +17,8 @@ export function SubmissionDetailTitle({
   submissionId,
   contestId
 }: Props) {
+  const { t } = useTranslate()
+
   async function fetchContestSubmissionTitle(contestId: number) {
     const res: ContestSubmission = await safeFetcherWithAuth(
       `contest/${contestId}/submission`,
@@ -26,7 +29,7 @@ export function SubmissionDetailTitle({
     const problem = res.data.filter((item) => item.id === submissionId)[0]
     const problemTitle = problem
       ? problem.problem.title
-      : 'Problem fetch failed'
+      : t('problem_fetch_failed')
 
     return problemTitle
   }

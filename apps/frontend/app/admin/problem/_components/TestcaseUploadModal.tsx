@@ -2,6 +2,7 @@
 
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
+import { useTranslate } from '@tolgee/react'
 import JSZip from 'jszip'
 import Image from 'next/image'
 import { useState, useRef } from 'react'
@@ -25,6 +26,7 @@ export function TestcaseUploadModal({
   const [isProcessing, setIsProcessing] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { t } = useTranslate()
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
@@ -110,7 +112,7 @@ export function TestcaseUploadModal({
       if (testcases.length > 0) {
         onUpload(testcases, uploadedFile)
       } else {
-        toast.error('No testcases found in the ZIP file')
+        toast.error(t('no_testcases_error'))
       }
 
       handleClose()
@@ -132,16 +134,20 @@ export function TestcaseUploadModal({
       onOpenChange={setIsOpen}
       size="md"
       type="custom"
-      title={`Upload Testcases via ZIP`}
-      headerDescription={`Upload ${isHidden ? 'hidden' : 'sample'} testcases from a single ZIP file.`}
+      title={t('upload_testcases_title')}
+      headerDescription={t('upload_testcases_description', {
+        isHidden: isHidden ? 'hidden' : 'sample'
+      })}
       onClose={handleClose}
       primaryButton={{
-        text: isProcessing ? 'Processing...' : 'Upload',
+        text: isProcessing
+          ? t('processing_button_text')
+          : t('upload_button_text'),
         onClick: processZipFile,
         variant: 'default'
       }}
       secondaryButton={{
-        text: 'Cancel',
+        text: t('cancel_button_text'),
         onClick: handleClose,
         variant: 'outline'
       }}
@@ -157,7 +163,7 @@ export function TestcaseUploadModal({
         >
           <Image
             src="/icons/upload.svg"
-            alt="upload Icon"
+            alt={t('upload_icon_alt')}
             width={20}
             height={20}
           />
@@ -165,11 +171,10 @@ export function TestcaseUploadModal({
       }
     >
       <div className="flex flex-col gap-4 py-4">
-        <strong>File Format:</strong>
-        • Name your files like 1.in, 1.out, 2.in, 2.out, etc.
-        <br />
-        • Use .in for input files and .out for output files.
-        <br />• The testcases will be sorted and uploaded by number.
+        <strong>{t('file_format_title')}</strong>•{' '}
+        {t('file_format_instruction_1')}
+        <br />• {t('file_format_instruction_2')}
+        <br />• {t('file_format_instruction_3')}
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -177,7 +182,7 @@ export function TestcaseUploadModal({
             onClick={() => fileInputRef.current?.click()}
             disabled={isProcessing}
           >
-            Select ZIP File
+            {t('select_zip_button')}
           </Button>
           {uploadedFile && (
             <span className="text-sm text-gray-600">{uploadedFile.name}</span>

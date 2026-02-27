@@ -7,6 +7,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/shadcn/alert-dialog'
+import { useTranslate } from '@tolgee/react'
 import type { MutableRefObject } from 'react'
 
 interface BackCautionDialogProps {
@@ -26,6 +27,7 @@ export function BackCautionDialog({
   onClose,
   onBack
 }: BackCautionDialogProps) {
+  const { t } = useTranslate()
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent className="gap-6">
@@ -40,7 +42,7 @@ export function BackCautionDialog({
             onClick={() => window.history.pushState(null, '', '')}
             className="border border-neutral-300 bg-white text-neutral-400 hover:bg-neutral-200"
           >
-            Cancel
+            {t('cancel_button')}
           </AlertDialogAction>
           <AlertDialogAction
             onClick={() => {
@@ -48,7 +50,7 @@ export function BackCautionDialog({
               onBack()
             }}
           >
-            OK
+            {t('ok_button')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

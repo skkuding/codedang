@@ -5,14 +5,18 @@ import { cn } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 
-export const columns: ColumnDef<OverallSubmission>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<OverallSubmission>[] => [
   {
     accessorKey: 'username',
     header: () => null,
     cell: ({ row }) => (
       <div className="shadow-2xs flex flex-col rounded-2xl border bg-white px-[30px] py-[18px]">
         <div className="text-primary flex items-center gap-2">
-          <div className="rounded-full bg-[#e1ecfe] px-4 py-1">User ID</div>
+          <div className="rounded-full bg-[#e1ecfe] px-4 py-1">
+            {t('user_id')}
+          </div>
           <div>{row.original.username}</div>
         </div>
         <div className="flex items-end justify-between px-[10px] text-xl font-semibold">
@@ -33,7 +37,7 @@ export const columns: ColumnDef<OverallSubmission>[] = [
         <div className="mt-3 flex items-center justify-between gap-2 text-neutral-500">
           <div className="flex items-center gap-2">
             <div className="flex items-center justify-center rounded-full bg-neutral-100 px-3 py-1 text-black">
-              Submission Time
+              {t('submission_time')}
             </div>
             <div className="w-40 text-left">
               {dayjs(
@@ -43,21 +47,21 @@ export const columns: ColumnDef<OverallSubmission>[] = [
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center justify-center rounded-full bg-neutral-100 px-3 py-1 text-black">
-              Language
+              {t('language')}
             </div>
             <div className="w-20 text-left">{row.original.language}</div>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="flex items-center justify-center rounded-full bg-neutral-100 px-3 py-1 text-black">
-              Code Size
+              {t('code_size')}
             </div>
             <div className="w-24 text-left">{row.original.codeSize} Bytes</div>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="flex items-center justify-center rounded-full bg-neutral-100 px-3 py-1 text-black">
-              IP
+              {t('ip')}
             </div>
             <div className="w-32 text-left">{row.original.ip}</div>
           </div>

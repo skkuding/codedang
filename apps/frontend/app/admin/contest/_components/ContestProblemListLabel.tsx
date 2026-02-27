@@ -4,13 +4,15 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
+import { useTranslate } from '@tolgee/react'
 import { MdHelpOutline } from 'react-icons/md'
 import { Label } from '../../_components/Label'
 
 export function ContestProblemListLabel() {
+  const { t } = useTranslate()
   return (
     <div className="flex items-center gap-2">
-      <Label required={false}>Contest Problem List</Label>
+      <Label required={false}>{t('contest_problem_list_label')}</Label>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -23,12 +25,7 @@ export function ContestProblemListLabel() {
             className="mb-2 w-[640px] bg-white px-4 py-2 shadow-md"
           >
             <p className="text-xs font-normal text-black">
-              If a problem is included in at least one ongoing, or upcoming
-              contest, it will automatically become invisible state in the ‘All
-              Problem List’. You cannot change its visibility until all the
-              ongoing or upcoming contests it is part of have ended. After the
-              contests are all over, you can manually make the problem visible
-              again.
+              {t('contest_problem_list_tooltip')}
             </p>
           </TooltipContent>
         </Tooltip>

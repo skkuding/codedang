@@ -7,10 +7,12 @@ import {
   handleRequestPermissionAndSubscribe
 } from '@/libs/push-subscription'
 import { safeFetcherWithAuth } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 export function PushNotificationSection() {
+  const { t } = useTranslate()
   const [isSubscribed, setIsSubscribed] = useState(false)
   const [showDisableModal, setShowDisableModal] = useState(false)
 
@@ -36,16 +38,16 @@ export function PushNotificationSection() {
       await safeFetcherWithAuth.delete('notification/push-subscription').json()
       setIsSubscribed(false)
       setShowDisableModal(false)
-      toast.success('Push notifications are disabled.')
+      toast.success(t('push_notifications_disabled'))
     } catch {
-      toast.error('Failed to disable push notifications.')
+      toast.error(t('failed_to_disable_push_notifications'))
     }
   }
 
   return (
     <>
       <div className="mt-2 flex items-center justify-between">
-        <label>Receive Push Notifications</label>
+        <label>{t('receive_push_notifications')}</label>
         <Switch checked={isSubscribed} onCheckedChange={handleToggle} />
       </div>
 
@@ -53,10 +55,10 @@ export function PushNotificationSection() {
         open={showDisableModal}
         onOpenChange={setShowDisableModal}
         type="warning"
-        title="Disable Push Notifications"
-        description="This will disable push notifications on all your devices. Are you sure you want to continue?"
+        title={t('disable_push_notifications_title')}
+        description={t('disable_push_notifications_description')}
         primaryButton={{
-          text: 'Disable',
+          text: t('disable_button'),
           onClick: handleDisablePushNotifications,
           variant: 'default'
         }}

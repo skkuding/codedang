@@ -5,6 +5,7 @@ import { ModalSection } from '@/components/ModalSection'
 import { Button } from '@/components/shadcn/button'
 import { DUPLICATE_COURSE } from '@/graphql/course/mutation'
 import { useMutation } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
 import { GoAlertFill } from 'react-icons/go'
 import { IoCopy } from 'react-icons/io5'
@@ -18,6 +19,7 @@ interface DuplicateCourseButtonProps {
 export function DuplicateCourseButton({
   onSuccess
 }: DuplicateCourseButtonProps) {
+  const { t } = useTranslate()
   const { table } = useDataTable<{ id: number; title: string }>()
   const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
 
@@ -42,7 +44,7 @@ export function DuplicateCourseButton({
       table.resetPageIndex()
       onSuccess()
     } catch {
-      toast.error('Failed to duplicate course')
+      toast.error(t('failed_to_duplicate_course'))
     }
   }
 
@@ -58,7 +60,7 @@ export function DuplicateCourseButton({
     <AlertModal
       size="md"
       type="confirm"
-      title="Duplicate Course"
+      title={t('duplicate_course_modal_title')}
       trigger={
         <Button
           variant="outline"
@@ -71,13 +73,13 @@ export function DuplicateCourseButton({
       open={isDialogOpen}
       onOpenChange={setIsDialogOpen}
       primaryButton={{
-        text: 'Duplicate',
+        text: t('duplicate_button'),
         onClick: handleDuplicateRows
       }}
     >
       <ModalSection
-        title="Courses that will be Copied"
-        description="Make sure to review the courses that will be duplicated."
+        title={t('courses_to_be_copied_title')}
+        description={t('courses_to_be_copied_description')}
         items={[
           table
             .getSelectedRowModel()
@@ -88,7 +90,7 @@ export function DuplicateCourseButton({
       <div className="flex h-[37px] w-full items-center gap-[6px] bg-[#FFEBEE] px-[18px] py-[8px]">
         <GoAlertFill size={16} color="#FF3B2F" />
         <span className="text-sm text-[#FF3B2F]">
-          Course Info, Assignments and Exercises will be duplicated.
+          {t('course_info_assignments_exercises_info')}
         </span>
       </div>
     </AlertModal>

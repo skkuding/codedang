@@ -8,6 +8,7 @@ import { cn } from '@/libs/utils'
 import CheckIcon from '@/public/icons/check.svg'
 import MoreIcon from '@/public/icons/more.svg'
 import SettingsIcon from '@/public/icons/settings.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -24,10 +25,12 @@ export function NotificationOptionsMenu({
   setIsOpen,
   handleMarkAllAsRead
 }: NotificationOptionsMenuProps) {
+  const { t } = useTranslate()
+
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger disabled={isLoading}>
-        <Image src={MoreIcon} alt="filter" width={24} height={24} />
+        <Image src={MoreIcon} alt={t('more_icon_alt')} width={24} height={24} />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
@@ -43,8 +46,13 @@ export function NotificationOptionsMenu({
             isEditor && '!bg-slate-700 !text-gray-300 hover:!bg-slate-800'
           )}
         >
-          <Image src={CheckIcon} alt="check" width={16} height={16} />
-          Mark all as read
+          <Image
+            src={CheckIcon}
+            alt={t('check_icon_alt')}
+            width={16}
+            height={16}
+          />
+          {t('mark_all_as_read')}
         </DropdownMenuItem>
         <DropdownMenuItem
           className={cn(
@@ -52,9 +60,14 @@ export function NotificationOptionsMenu({
             isEditor && '!bg-slate-700 !text-gray-300 hover:!bg-slate-800'
           )}
         >
-          <Image src={SettingsIcon} alt="settings" width={13} height={12} />
+          <Image
+            src={SettingsIcon}
+            alt={t('settings_icon_alt')}
+            width={13}
+            height={12}
+          />
           <Link onClick={() => setIsOpen(false)} href="/settings">
-            Notification settings
+            {t('notification_settings')}
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

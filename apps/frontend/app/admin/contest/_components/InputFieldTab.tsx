@@ -15,6 +15,7 @@ import {
 import { Textarea } from '@/components/shadcn/textarea'
 import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useRef, useState } from 'react'
 import { BiEnvelope } from 'react-icons/bi'
 import { FaChevronDown } from 'react-icons/fa6'
@@ -58,6 +59,7 @@ export function InputFieldTab({
   setInputField,
   participants
 }: InputFieldTabProps) {
+  const { t } = useTranslate()
   const [isDirect, setIsDirect] = useState(false)
   const inputDirectRef = useRef<HTMLTextAreaElement>(null)
 
@@ -97,13 +99,13 @@ export function InputFieldTab({
         (participant) => participant.user.email === email
       )
       if (isParticipant) {
-        toast.error('This email is already registered as contest participant')
+        toast.error(t('error_email_registered_as_participant'))
         return
       }
 
       const isSelected = users.some((user) => user.email === email)
       if (isSelected) {
-        toast.error('This email is already selected')
+        toast.error(t('error_email_already_selected'))
         return
       }
 
@@ -121,8 +123,8 @@ export function InputFieldTab({
     } catch (error) {
       const errorMessage =
         isHttpError(error) && error.response.status === 404
-          ? 'No user exists with this email'
-          : 'Invalid email format'
+          ? t('error_no_user_exists')
+          : t('error_invalid_email_format')
       toast.error(errorMessage)
       return
     }
@@ -145,7 +147,7 @@ export function InputFieldTab({
           <Textarea
             id="email-input"
             value={inputField.value}
-            placeholder="Enter the e-mail"
+            placeholder={t('placeholder_enter_email')}
             className="min-h-none placeholder:text-color-neutral-90 max-h-[24px] resize-none truncate rounded-none border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
             onChange={(value) =>
               setInputField((prevField) => ({
@@ -170,7 +172,7 @@ export function InputFieldTab({
               <Textarea
                 ref={inputDirectRef}
                 value={inputField.domain}
-                placeholder="Enter directly"
+                placeholder={t('placeholder_enter_directly')}
                 className="min-h-none placeholder:text-color-neutral-90 z-100 max-h-[24px] resize-none truncate rounded-none border-none p-0 text-base font-normal shadow-none focus-visible:ring-0"
                 onChange={(value) =>
                   setInputField((prevField) => ({
@@ -188,7 +190,7 @@ export function InputFieldTab({
             </div>
             <Select
               onValueChange={handleDomainDropdownChange}
-              value="Enter directly"
+              value={t('select_enter_directly')}
             >
               <SelectTrigger className="max-w-[16px] border-none bg-transparent p-0 focus:ring-0 focus:ring-offset-0">
                 <div className="grid place-content-center">
@@ -205,7 +207,7 @@ export function InputFieldTab({
                     </SelectItem>
                   ))}
                   <SelectItem key={'Enter directly'} value="Enter directly">
-                    Enter directly
+                    {t('select_enter_directly')}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
@@ -244,7 +246,7 @@ export function InputFieldTab({
                   </SelectItem>
                 ))}
                 <SelectItem key={'Enter directly'} value="Enter directly">
-                  Enter directly
+                  {t('select_enter_directly')}
                 </SelectItem>
               </SelectGroup>
             </SelectContent>
@@ -268,13 +270,13 @@ export function InputFieldTab({
               checked={inputField.role === 'Manager'}
               onCheckedChange={() => handleRoleDropdownChange('Manager')}
             >
-              Manager
+              {t('role_manager')}
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={inputField.role === 'Reviewer'}
               onCheckedChange={() => handleRoleDropdownChange('Reviewer')}
             >
-              Reviewer
+              {t('role_reviewer')}
             </DropdownMenuCheckboxItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -286,7 +288,7 @@ export function InputFieldTab({
       >
         <div className="text-color-blue-50 flex h-full items-center gap-[4px] px-[22px]">
           <HiMiniPlus size={16} />
-          <p className="text-sm font-medium">Add</p>
+          <p className="text-sm font-medium">{t('button_add')}</p>
         </div>
       </Button>
     </div>

@@ -14,6 +14,7 @@ import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
 import type { User } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import { ContestRole, type UserContest } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import { motion } from 'framer-motion'
 import type { Route } from 'next'
 import type { Session } from 'next-auth'
@@ -40,9 +41,12 @@ interface NavItem {
   icon: IconType | ComponentType<{ className: string }>
 }
 
-const getCourseNavItems = (courseId: string): NavItem[] => [
+const getCourseNavItems = (
+  courseId: string,
+  t: (key: string) => string
+): NavItem[] => [
   {
-    name: 'Home',
+    name: t('home'),
     path: `/admin/course/${courseId}` as const,
     icon: HomeIcon
   },
@@ -52,17 +56,17 @@ const getCourseNavItems = (courseId: string): NavItem[] => [
   //   icon: FaBell
   // },
   {
-    name: 'Member',
+    name: t('member'),
     path: `/admin/course/${courseId}/user` as const,
     icon: MemberIcon
   },
   {
-    name: 'Assignment',
+    name: t('assignment'),
     path: `/admin/course/${courseId}/assignment` as const,
     icon: AssignmentIcon
   },
   {
-    name: 'Exercise',
+    name: t('exercise'),
     path: `/admin/course/${courseId}/exercise` as const,
     icon: ExerciseIcon
   }
@@ -104,6 +108,8 @@ interface ManagementSidebarProps {
 }
 
 export function ManagementSidebar({ session }: ManagementSidebarProps) {
+  const { t } = useTranslate()
+
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isAnimationComplete, setIsAnimationComplete] = useState(true)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
@@ -163,19 +169,19 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
 
     if (isAdmin) {
       items.push(
-        { name: 'Dashboard', path: '/admin', icon: FaSquarePollHorizontal },
-        { name: 'User', path: '/admin/user', icon: FaUser },
-        { name: 'Notice', path: '/admin/notice', icon: FaBell }
+        { name: t('dashboard'), path: '/admin', icon: FaSquarePollHorizontal },
+        { name: t('user'), path: '/admin/user', icon: FaUser },
+        { name: t('notice'), path: '/admin/notice', icon: FaBell }
       )
     }
-    items.push({ name: 'Problem', path: '/admin/problem', icon: FaPen })
+    items.push({ name: t('problem'), path: '/admin/problem', icon: FaPen })
 
     if (userPermissions.canCreateCourse || hasLeadCourses) {
-      items.push({ name: 'Course', path: '/admin/course', icon: FaBook })
+      items.push({ name: t('course'), path: '/admin/course', icon: FaBook })
     }
 
     if (userPermissions.canCreateContest || hasAnyPermissionOnContest) {
-      items.push({ name: 'Contest', path: '/admin/contest', icon: FaTrophy })
+      items.push({ name: t('contest'), path: '/admin/contest', icon: FaTrophy })
     }
 
     return items
@@ -247,7 +253,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
               <SidebarLink
                 item={item}
                 isActive={
-                  item.name === 'Dashboard'
+                  item.name === t('dashboard')
                     ? pathname === item.path
                     : pathname.startsWith(item.path)
                 }
@@ -335,9 +341,9 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
 
           <div className="mt-20 flex flex-col gap-2">
             <SideBar
-              navItems={getCourseNavItems(selectedCourseId)}
+              navItems={getCourseNavItems(selectedCourseId, t)}
               isSidebarExpanded={isCourseSidebarExpanded}
-              defaultItem="Home"
+              defaultItem={t('home')}
             />
           </div>
         </motion.div>

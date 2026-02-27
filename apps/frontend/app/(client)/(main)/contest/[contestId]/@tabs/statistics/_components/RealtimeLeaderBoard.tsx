@@ -3,6 +3,7 @@
 import { fetcherWithAuth } from '@/libs/utils'
 import { getDuration } from '@/libs/utils'
 import { useSuspenseQueries } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { useParams } from 'next/navigation'
 import React, { useState, useMemo } from 'react'
 import { LeaderBoardTable } from './_leaderboardcomponents/LeaderBoardTable'
@@ -21,6 +22,7 @@ import type {
 } from './_leaderboardcomponents/_libs/types/type'
 
 export function RealtimeLearBoardPage() {
+  const { t } = useTranslate()
   const { contestId } = useParams<{ contestId: string }>()
   const results = useSuspenseQueries({
     queries: [
@@ -154,19 +156,19 @@ export function RealtimeLearBoardPage() {
       <div>
         <div className="mb-4 flex h-[102px] w-full items-center justify-between">
           <div className={`w-70 ${boxcontainer}`}>
-            <div className={`${boxtitle}`}>Total Participants</div>
+            <div className={`${boxtitle}`}>{t('total_participants')}</div>
             <div className={`${boxnumber}`}>{totalParticipants}</div>
           </div>
           <div className={`w-70 ${boxcontainer}`}>
-            <div className={`${boxtitle}`}>Total Submissions</div>
+            <div className={`${boxtitle}`}>{t('total_submissions')}</div>
             <div className={`${boxnumber}`}>{totalSubmissions}</div>
           </div>
           <div className={`w-70 ${boxcontainer}`}>
-            <div className={`${boxtitle}`}>Average Accuracy Rate</div>
+            <div className={`${boxtitle}`}>{t('average_accuracy_rate')}</div>
             <div className={`${boxnumber}`}>{averageAccuracy.toFixed(2)}%</div>
           </div>
           <div className={`w-[344px] ${boxcontainer}`}>
-            <div className={`${boxtitle}`}>Contest Progress Time</div>
+            <div className={`${boxtitle}`}>{t('contest_progress_time')}</div>
             <div className={`${boxnumber}`}>{contestProgressTime}</div>
           </div>
         </div>

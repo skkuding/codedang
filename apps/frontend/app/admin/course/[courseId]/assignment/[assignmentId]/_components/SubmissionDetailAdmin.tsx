@@ -16,6 +16,7 @@ import { GET_SUBMISSION } from '@/graphql/submission/queries'
 import { dateFormatter, getResultColor } from '@/libs/utils'
 import type { Language } from '@/types/type'
 import { useLazyQuery, useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { IoWarning } from 'react-icons/io5'
 
 export function SubmissionDetailAdmin({
@@ -23,6 +24,8 @@ export function SubmissionDetailAdmin({
 }: {
   submissionId: number
 }) {
+  const { t } = useTranslate()
+
   const { data, loading } = useQuery(GET_SUBMISSION, {
     variables: {
       id: Number(submissionId)
@@ -53,8 +56,8 @@ export function SubmissionDetailAdmin({
 
     testcaseData.getProblem.testcase.forEach((testcase, index) => {
       const label = testcase.isHidden
-        ? `Hidden #${hiddenIndex++}`
-        : `Sample #${sampleIndex++}`
+        ? t('hidden_label', { hidden: hiddenIndex++ })
+        : t('sample_label', { sample: sampleIndex++ })
       const matchingResult = submission.testcaseResult[index]
 
       if (matchingResult?.result === 'Accepted') {
@@ -80,61 +83,61 @@ export function SubmissionDetailAdmin({
               &nbsp; &gt; &nbsp;{submission?.problem.title}
             </span>
             <span className="max-w-[40%] truncate">
-              &nbsp; &gt; &nbsp;Submission #{submissionId}
+              &nbsp; &gt; &nbsp;{t('submission_number', { submissionId })}
             </span>
           </h1>
-          <h2 className="font-bold">Summary</h2>
+          <h2 className="font-bold">{t('summary')}</h2>
           <ScrollArea className="max-w-full shrink-0 rounded-md">
             <div className="**:whitespace-nowrap flex items-center justify-around gap-5 bg-gray-100 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
               <div>
-                <h2>Name</h2>
+                <h2>{t('name')}</h2>
                 <p>{submission?.user?.userProfile?.realName}</p>
               </div>
               <div>
-                <h2>Student ID</h2>
+                <h2>{t('student_id')}</h2>
                 <p>{submission?.user?.studentId}</p>
               </div>
               <div>
-                <h2>Major</h2>
+                <h2>{t('major')}</h2>
                 <p className="max-w-[20ch] truncate">
                   {submission?.user?.major}
                 </p>
               </div>
               <div>
-                <h2>User ID</h2>
+                <h2>{t('user_id')}</h2>
                 <p>{submission?.user?.username}</p>
               </div>
               <div>
-                <h2>Result</h2>
+                <h2>{t('result')}</h2>
                 <p className={getResultColor(submission?.result)}>
                   {submission?.result}
                 </p>
               </div>
               <div>
-                <h2>Language</h2>
+                <h2>{t('language')}</h2>
                 <p>{submission?.language}</p>
               </div>
               <div>
-                <h2>Submission Time</h2>
+                <h2>{t('submission_time')}</h2>
                 <p>
                   {dateFormatter(submission?.createTime, 'MMM DD, YYYY HH:mm')}
                 </p>
               </div>
               <div>
-                <h2>Code Size</h2>
+                <h2>{t('code_size')}</h2>
                 <p>{new TextEncoder().encode(submission?.code).length} B</p>
               </div>
             </div>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
 
-          <h2 className="mt-4 font-bold">Testcase</h2>
+          <h2 className="mt-4 font-bold">{t('testcase')}</h2>
           {submission?.testcaseResult.length !== 0 ? (
             <div className="flex flex-col gap-4">
               <table>
                 <tbody className="text-sm font-light">
                   <tr>
-                    <td className="w-52 py-1">Correct Testcase:</td>
+                    <td className="w-52 py-1">{t('correct_testcase')}:</td>
                     <td className="py-1 text-slate-500">
                       {correctTestcases.length}/
                       {testcaseData?.getProblem?.testcase?.length || 0}
@@ -143,10 +146,10 @@ export function SubmissionDetailAdmin({
                   {wrongTestcases.length > 0 && (
                     <tr>
                       <td className="w-52 py-1 align-top">
-                        Wrong Testcase Number:
+                        {t('wrong_testcase_number')}:
                       </td>
                       <td className="py-1 text-slate-500">
-                        {wrongTestcases.join(', ') || 'None'}
+                        {wrongTestcases.join(', ') || t('none')}
                       </td>
                     </tr>
                   )}
@@ -157,13 +160,13 @@ export function SubmissionDetailAdmin({
                   <TableRow>
                     <TableHead />
                     <TableHead className="text-sm! text-black">
-                      Result
+                      {t('result')}
                     </TableHead>
                     <TableHead className="text-sm! text-black">
-                      Runtime
+                      {t('runtime')}
                     </TableHead>
                     <TableHead className="text-sm! text-black">
-                      Memory
+                      {t('memory')}
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -186,15 +189,15 @@ export function SubmissionDetailAdmin({
                             <TableCell
                               className={getResultColor(matchingResult?.result)}
                             >
-                              {matchingResult?.result || 'N/A'}
+                              {matchingResult?.result || t('n_a')}
                             </TableCell>
                             <TableCell>
-                              {matchingResult?.cpuTime || 'N/A'} ms
+                              {matchingResult?.cpuTime || t('n_a')} ms
                             </TableCell>
                             <TableCell>
                               {matchingResult?.memoryUsage
                                 ? `${(matchingResult.memoryUsage / (1024 * 1024)).toFixed(2)} MB`
-                                : 'N/A'}
+                                : t('n_a')}
                             </TableCell>
                           </TableRow>
                         )
@@ -207,13 +210,13 @@ export function SubmissionDetailAdmin({
           ) : (
             <Alert variant="default">
               <IoWarning className="mr-2 h-4 w-4" />
-              <AlertTitle>Testcase Judge Results Not Available</AlertTitle>
-              <AlertDescription>
-                The testcases have been recently updated and are now outdated.
-              </AlertDescription>
+              <AlertTitle>
+                {t('testcase_judge_results_not_available')}
+              </AlertTitle>
+              <AlertDescription>{t('testcases_outdated')}</AlertDescription>
             </Alert>
           )}
-          <h2 className="mt-4 font-bold">Source Code</h2>
+          <h2 className="mt-4 font-bold">{t('source_code')}</h2>
           <CodeEditor
             value={submission?.code}
             language={submission?.language as Language}

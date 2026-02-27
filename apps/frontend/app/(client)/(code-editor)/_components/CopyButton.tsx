@@ -6,6 +6,7 @@ import {
 } from '@/components/shadcn/tooltip'
 import { cn } from '@/libs/utils'
 import copyBlueIcon from '@/public/icons/copy-blue.svg'
+import { useTranslate } from '@tolgee/react'
 import { LazyMotion, m, domAnimation } from 'framer-motion'
 import Image from 'next/image'
 import {
@@ -56,6 +57,7 @@ export function CopyButton({
   const { copied, copy } = useCopy()
 
   const [mounted, setMounted] = useState(false)
+  const { t } = useTranslate()
 
   useEffect(() => {
     setMounted(true)
@@ -80,10 +82,10 @@ export function CopyButton({
                 onClick={(e) => {
                   onClick?.(e)
                   copy(value)
-                  toast('Successfully copied', {
+                  toast(t('successfully_copied'), {
                     unstyled: true,
                     closeButton: false,
-                    icon: <Image src={copyBlueIcon} alt="copy" />,
+                    icon: <Image src={copyBlueIcon} alt={t('copy_icon_alt')} />,
                     style: { backgroundColor: '#f0f8ff' },
                     classNames: {
                       toast:
@@ -99,7 +101,7 @@ export function CopyButton({
               </TooltipTrigger>
               {withTooltip ? (
                 <TooltipContent>
-                  <p>Copy</p>
+                  <p>{t('copy_tooltip')}</p>
                 </TooltipContent>
               ) : null}
             </Tooltip>

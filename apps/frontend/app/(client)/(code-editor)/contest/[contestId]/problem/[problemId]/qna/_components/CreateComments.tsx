@@ -4,6 +4,7 @@ import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/con
 import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
 import { safeFetcherWithAuth } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { BsFillCaretRightFill } from 'react-icons/bs'
@@ -13,6 +14,7 @@ interface CreateCommentsProps {
   qnaOrder: number
 }
 export function CreateComments({ qnaOrder }: CreateCommentsProps) {
+  const { t } = useTranslate()
   const contestId = Number(usePathname().split('/')[2])
   const [commentData, setCommentData] = useState('')
   const [loading, setLoading] = useState(false)
@@ -36,10 +38,10 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
       }
       triggerQnaRefresh()
       setCommentData('')
-      toast.success('Comment created successfully')
+      toast.success(t('comment_created_successfully'))
     } catch (error) {
       console.error('Error:', error)
-      toast.error('Failed to create comment')
+      toast.error(t('failed_to_create_comment'))
     } finally {
       setLoading(false)
     }
@@ -53,7 +55,7 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
       <div className="relative">
         <Textarea
           name="content"
-          placeholder="Please enter your reply"
+          placeholder={t('please_enter_your_reply')}
           value={commentData}
           onChange={handleInputChange}
           maxLength={400}

@@ -10,6 +10,7 @@ import {
 } from '@/components/shadcn/dialog'
 import bulletIcon from '@/public/icons/bullet.svg'
 import copyWhiteIcon from '@/public/icons/copy_white.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -26,13 +27,14 @@ export function InvitationModal({
   createdByUsername
 }: InvitationModalProps) {
   const [open, setOpen] = useState(false)
+  const { t } = useTranslate()
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(invitationCode ?? '')
-      toast.success('Invitation code successfully copied to clipboard!')
+      toast.success(t('copy_success_toast'))
     } catch {
-      toast.error('Failed to copy invitation code')
+      toast.error(t('copy_fail_toast'))
     }
   }
 
@@ -43,13 +45,13 @@ export function InvitationModal({
           className={`border-primary text-primary ml-5 h-[46px] w-[111px] border bg-white px-6 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px] hover:bg-white ${disabled ? 'pointer-events-none' : ''}`}
           type="button"
         >
-          Invitation
+          {t('invitation_button')}
         </Button>
       </DialogTrigger>
       <DialogContent className="flex !h-[280px] !w-[424px] flex-col !gap-0 !p-10">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
-            Invitation Code
+            {t('invitation_code_title')}
           </DialogTitle>
         </DialogHeader>
 
@@ -60,9 +62,9 @@ export function InvitationModal({
         </div>
 
         <div className="mt-2 flex items-center justify-center text-center">
-          <Image src={bulletIcon} alt="bullet" width={20} />
+          <Image src={bulletIcon} alt={t('bullet_icon_alt')} width={20} />
           <span className="text-primary text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
-            Contest Admin
+            {t('contest_admin')}
           </span>
           <span className="text-color-neutral-30 mx-1 text-sm font-normal leading-[21px] tracking-[-0.42px]">
             :
@@ -77,9 +79,9 @@ export function InvitationModal({
           className="bg-primary mt-[22px] flex h-[46px] w-[344px] items-center justify-center gap-[6px] rounded-[1000px] px-[22px] pb-[11px] pt-[10px]"
           type="button"
         >
-          <Image src={copyWhiteIcon} alt="copyWhite" width={20} />
+          <Image src={copyWhiteIcon} alt={t('copy_button')} width={20} />
           <span className="text-lg font-medium leading-[25.2px] tracking-[-0.54px] text-white">
-            Copy
+            {t('copy_button')}
           </span>
         </Button>
       </DialogContent>

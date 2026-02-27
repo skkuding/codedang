@@ -17,6 +17,7 @@ import problemIcon from '@/public/icons/problem-sidebar.svg'
 import settingsIcon from '@/public/icons/settings.svg'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import { useAuthModalStore } from '@/stores/authModal'
+import { useTranslate } from '@tolgee/react'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
@@ -25,14 +26,15 @@ import { BsPersonFillAdd } from 'react-icons/bs'
 import { FaAnglesLeft } from 'react-icons/fa6'
 
 export function MobileMenu({ session }: { session: Session | null }) {
+  const { t } = useTranslate()
   const { headerTitle } = useHeaderTitle()
   const { showSignIn, showSignUp } = useAuthModalStore((state) => state)
 
   const navItems = [
-    { href: '/notice', label: 'Notice', icon: noticeIcon },
-    { href: '/problem', label: 'Problem', icon: problemIcon },
-    { href: '/course', label: 'Course', icon: courseIcon },
-    { href: '/contest', label: 'Contest', icon: prizeIcon }
+    { href: '/notice', label: t('notice_capitalized'), icon: noticeIcon },
+    { href: '/problem', label: t('problem_capitalized'), icon: problemIcon },
+    { href: '/course', label: t('course_capitalized'), icon: courseIcon },
+    { href: '/contest', label: t('contest_capitalized'), icon: prizeIcon }
   ]
 
   return (
@@ -83,7 +85,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                 href="/"
                 className="flex items-center px-4 py-3 text-neutral-700"
               >
-                Home
+                {t('home')}
               </Link>
             </SheetClose>
           )}
@@ -128,7 +130,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                       height={15}
                       aria-hidden
                     />
-                    <span>Setting</span>
+                    <span>{t('setting')}</span>
                   </span>
                 </Link>
               </SheetClose>
@@ -149,7 +151,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                       height={20}
                       aria-hidden
                     />
-                    <span>Log Out</span>
+                    <span>{t('log_out')}</span>
                   </span>
                 </button>
               </SheetClose>
@@ -164,7 +166,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                 >
                   <span className="flex items-center gap-[10px]">
                     <BsPersonFillAdd className="text-neutral-500" />
-                    <span>Sign Up</span>
+                    <span>{t('sign_up')}</span>
                   </span>
                 </button>
               </SheetClose>
@@ -182,7 +184,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                       height={20}
                       aria-hidden
                     />
-                    <span>Log In</span>
+                    <span>{t('log_in')}</span>
                   </span>
                 </button>
               </SheetClose>

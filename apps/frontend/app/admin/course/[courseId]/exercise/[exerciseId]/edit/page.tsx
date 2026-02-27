@@ -12,6 +12,7 @@ import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { useState, use } from 'react'
 import { useForm } from 'react-hook-form'
@@ -42,6 +43,8 @@ export default function Page(props: {
     }
   })
 
+  const { t } = useTranslate()
+
   return (
     <ConfirmNavigation>
       <ScrollArea className="w-full">
@@ -50,7 +53,9 @@ export default function Page(props: {
             <Link href={`/admin/course/${courseId}/exercise` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-[32px] font-bold">EDIT EXERCISE</span>
+            <span className="text-[32px] font-bold">
+              {t('edit_exercise_title')}
+            </span>
           </div>
 
           <EditAssignmentForm
@@ -63,20 +68,26 @@ export default function Page(props: {
             isExercise={true}
           >
             <div className="flex w-[901px] flex-col gap-[28px]">
-              <FormSection title="Title">
+              <FormSection title={t('form_section_title')}>
                 <TitleForm
-                  placeholder="Name your Exercise"
+                  placeholder={t('title_form_placeholder')}
                   className="max-w-[760px]"
                 />
               </FormSection>
 
               <div className="flex justify-between">
-                <FormSection title="Week" className="w-[420px]">
+                <FormSection
+                  title={t('week_form_section')}
+                  className="w-[420px]"
+                >
                   {methods.getValues('week') && (
                     <WeekComboBox name="week" courseId={Number(courseId)} />
                   )}
                 </FormSection>
-                <FormSection title="Start Time" className="w-[420px]">
+                <FormSection
+                  title={t('start_time_form_section')}
+                  className="w-[420px]"
+                >
                   {methods.getValues('startTime') && (
                     <TimeForm name="startTime" />
                   )}
@@ -85,7 +96,7 @@ export default function Page(props: {
 
               <div className="flex justify-between">
                 <FormSection
-                  title="Due Time"
+                  title={t('due_time_form_section')}
                   className="w-[420px]"
                   isLabeled={false}
                 >
@@ -100,7 +111,7 @@ export default function Page(props: {
                   />
                 </FormSection>
                 <FormSection
-                  title="End Time"
+                  title={t('end_time_form_section')}
                   className="w-[420px]"
                   isLabeled={false}
                 >
@@ -108,7 +119,11 @@ export default function Page(props: {
                 </FormSection>
               </div>
 
-              <FormSection isFlexColumn title="Description" isLabeled={false}>
+              <FormSection
+                isFlexColumn
+                title={t('description_form_section')}
+                isLabeled={false}
+              >
                 {!isLoading && <DescriptionForm name="description" />}
               </FormSection>
 
@@ -142,9 +157,9 @@ export default function Page(props: {
 
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-3">
-                  <Label required={false}>Solution</Label>
+                  <Label required={false}>{t('solution_label')}</Label>
                   <p className="text-[11px] text-[#9B9B9B]">
-                    Only problems with solutions are listed below.
+                    {t('problem_with_solutions_note')}
                   </p>
                 </div>
                 <AssignmentSolutionTable
@@ -159,15 +174,15 @@ export default function Page(props: {
               <div className="flex flex-col gap-1 rounded-md border bg-white p-[20px]">
                 <SwitchField
                   name="isJudgeResultVisible"
-                  title="Reveal Hidden Testcase Result"
-                  description="When enabled, hidden testcase results will be revealed from students."
+                  title={t('judge_result_visible_title')}
+                  description={t('judge_result_visible_description')}
                   hasValue={methods.getValues('isJudgeResultVisible') || false}
                 />
 
                 <SwitchField
                   name="enableCopyPaste"
-                  description="When enabled, students will be able to copy from or paste into the code editor."
-                  title="Enable Participants Copy/Pasting"
+                  description={t('enable_copy_paste_description')}
+                  title={t('enable_copy_paste_title')}
                   hasValue={methods.getValues('enableCopyPaste') || false}
                 />
               </div>
@@ -178,7 +193,7 @@ export default function Page(props: {
                 disabled={isLoading}
               >
                 <IoIosCheckmarkCircle fontSize={20} />
-                <div className="mb-[2px] text-base">Edit</div>
+                <div className="mb-[2px] text-base">{t('edit_button')}</div>
               </Button>
             </div>
           </EditAssignmentForm>

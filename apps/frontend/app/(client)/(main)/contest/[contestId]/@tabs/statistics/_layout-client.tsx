@@ -5,6 +5,7 @@ import { Switch } from '@/components/shadcn/switch'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import { cn } from '@/libs/utils'
 import { useUserSelectionStore } from '@/stores/selectUserStore'
+import { useTranslate } from '@tolgee/react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 
 export function StatisticsClientLayout({
@@ -16,6 +17,7 @@ export function StatisticsClientLayout({
   const router = useRouter()
   const params = useParams<{ contestId: string }>()
   const contestId = params.contestId
+  const { t } = useTranslate()
 
   let currentTab: string
   if (pathname.includes('user-analysis')) {
@@ -36,14 +38,14 @@ export function StatisticsClientLayout({
       <div className="mt-[80px] flex w-[1440px] justify-between px-[116px]">
         <div className="flex items-center gap-3">
           <p className="text-2xl font-semibold tracking-[-0.03em]">
-            STATISTICS
+            {t('statistics')}
           </p>
 
           {currentTab === 'leaderboard' && (
             <>
               <Separator orientation="vertical" className="h-[25px]" />
               <p className="text-color-neutral-60 text-lg font-medium tracking-[-0.03em]">
-                Only select Users
+                {t('only_select_users')}
               </p>
               <Switch
                 checked={showOnlySelected}
@@ -61,7 +63,7 @@ export function StatisticsClientLayout({
             value="leaderboard"
             onClick={() => router.push(`/contest/${contestId}/statistics`)}
           >
-            Real-Time Leaderboard
+            {t('real_time_leaderboard')}
           </TabsTrigger>
           <TabsTrigger
             value="problem-statistics"
@@ -69,7 +71,7 @@ export function StatisticsClientLayout({
               router.push(`/contest/${contestId}/statistics/problem-statistics`)
             }
           >
-            Problem Statistics
+            {t('problem_statistics')}
           </TabsTrigger>
           <TabsTrigger
             value="user-analysis"
@@ -77,7 +79,7 @@ export function StatisticsClientLayout({
               router.push(`/contest/${contestId}/statistics/user-analysis`)
             }
           >
-            User Analysis
+            {t('user_analysis')}
           </TabsTrigger>
         </TabsList>
       </div>

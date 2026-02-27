@@ -5,6 +5,7 @@ import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useMutation } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import type { ReactNode } from 'react'
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -17,6 +18,7 @@ export function CreateCourseForm({
   children: ReactNode
   onSuccess: () => void
 }) {
+  const { t } = useTranslate()
   type FormValues = CourseInput & {
     phoneNum1?: string
     phoneNum2?: string
@@ -86,14 +88,14 @@ export function CreateCourseForm({
           }
         }
       })
-      toast.success('Course created successfully!')
+      toast.success(t('course_created_successfully'))
       client.refetchQueries({
         include: [GET_COURSES_USER_LEAD]
       })
       onSuccess()
     } catch (error) {
       console.error('Error creating course:', error)
-      toast.error('An unexpected error occurred')
+      toast.error(t('unexpected_error_occurred'))
     }
   }
 

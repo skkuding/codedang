@@ -3,6 +3,7 @@
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { languages, levels } from '@/libs/constants'
 import type { Language, Solution, Template } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import { useEffect } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { ErrorMessage } from '../../_components/ErrorMessage'
@@ -16,6 +17,8 @@ export function InfoForm() {
     formState: { errors },
     setValue
   } = useFormContext()
+
+  const { t } = useTranslate()
 
   const watchedLanguages: Language[] = watch('languages')
 
@@ -94,7 +97,7 @@ export function InfoForm() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <CheckboxSelect
-          title="Language"
+          title={t('select_language')}
           options={languages}
           onChange={(selectedLanguages) => {
             languagesField.onChange(selectedLanguages)

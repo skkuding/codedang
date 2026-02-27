@@ -9,6 +9,7 @@ import {
   useQuery,
   type UseQueryOptions
 } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { useMemo, useState } from 'react'
 import { AssignmentLink } from '../[courseId]/_components/AssignmentLink'
 import { DashboardCalendar } from './DashboardCalendar'
@@ -109,6 +110,7 @@ const makeAssignmentQueries = (
   })
 
 export function Dashboard() {
+  const { t } = useTranslate()
   const { data: courses = [] } = useQuery({
     queryKey: ['joinedCourses'],
     queryFn: async () => {
@@ -264,14 +266,14 @@ export function Dashboard() {
     <section className="mx-auto max-w-[1208px]">
       <div className="pb-4 sm:pb-[30px]">
         <h2 className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
-          나의 대시보드
+          {t('dashboard_header')}
         </h2>
       </div>
 
       <div className="grid grid-cols-1 gap-[14px] md:grid md:grid-cols-2 lg:grid-cols-3">
         <div className="order-2 flex max-h-[460px] flex-col md:order-1">
           <CardSection
-            title="Assignment"
+            title={t('assignment_section_title')}
             groups={groupedByCourse.map((group) => ({
               ...group,
               rows: group.rows.filter((r) => !r.isExercise)
@@ -283,7 +285,7 @@ export function Dashboard() {
 
         <div className="order-3 flex max-h-[460px] flex-col md:order-2">
           <CardSection
-            title="Exercise"
+            title={t('exercise_section_title')}
             groups={groupedByCourse.map((group) => ({
               ...group,
               rows: group.rows.filter((r) => r.isExercise)

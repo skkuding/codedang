@@ -3,10 +3,14 @@
 import type { ProblemDataTop } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
-export const RenderProblemColumn: ColumnDef<ProblemDataTop['data'][number]>[] =
-  [
+export const RenderProblemColumn = ({
+  t
+}: {
+  t: (key: string) => string
+}): ColumnDef<ProblemDataTop['data'][number]>[] => {
+  return [
     {
-      header: 'No',
+      header: t('no_header'),
       accessorKey: 'order',
       cell: ({ row }) => {
         return (
@@ -19,7 +23,7 @@ export const RenderProblemColumn: ColumnDef<ProblemDataTop['data'][number]>[] =
       }
     },
     {
-      header: 'Title',
+      header: t('title_header'),
       accessorKey: 'title',
       cell: ({ row }) => {
         return (
@@ -33,7 +37,7 @@ export const RenderProblemColumn: ColumnDef<ProblemDataTop['data'][number]>[] =
     },
     {
       //NOTE: Put score data because No Info(Special Judge) data for now
-      header: 'Info',
+      header: t('info_header'),
       accessorKey: 'score',
       cell: () => {
         return (
@@ -46,3 +50,4 @@ export const RenderProblemColumn: ColumnDef<ProblemDataTop['data'][number]>[] =
       }
     }
   ]
+}

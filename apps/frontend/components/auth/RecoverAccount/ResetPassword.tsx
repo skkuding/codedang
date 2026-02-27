@@ -3,6 +3,7 @@ import { Input } from '@/components/shadcn/input'
 import { cn, fetcher } from '@/libs/utils'
 import { useRecoverAccountModalStore } from '@/stores/recoverAccountModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
@@ -14,30 +15,32 @@ interface ResetPasswordInput {
   passwordAgain: string
 }
 
-const schema = v.pipe(
-  v.object({
-    password: v.pipe(
-      v.string(),
-      v.minLength(8),
-      v.maxLength(20),
-      v.check((value) => {
-        const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
-        return !invalidPassword.test(value)
-      })
-    ),
-    passwordAgain: v.string()
-  }),
-  v.forward(
-    v.partialCheck(
-      [['password'], ['passwordAgain']],
-      (input) => input.password === input.passwordAgain,
-      'Incorrect'
-    ),
-    ['passwordAgain']
+const schema = (t: (key: string) => string) =>
+  v.pipe(
+    v.object({
+      password: v.pipe(
+        v.string(),
+        v.minLength(8),
+        v.maxLength(20),
+        v.check((value) => {
+          const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
+          return !invalidPassword.test(value)
+        })
+      ),
+      passwordAgain: v.string()
+    }),
+    v.forward(
+      v.partialCheck(
+        [['password'], ['passwordAgain']],
+        (input) => input.password === input.passwordAgain,
+        t('incorrect')
+      ),
+      ['passwordAgain']
+    )
   )
-)
 
 export function ResetPassword() {
+  const { t } = useTranslate()
   const {
     handleSubmit,
     register,
@@ -46,7 +49,7 @@ export function ResetPassword() {
     watch,
     formState: { errors, isValid }
   } = useForm<ResetPasswordInput>({
-    resolver: valibotResolver(schema)
+    resolver: valibotResolver(schema(t))
   })
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
@@ -73,10 +76,10 @@ export function ResetPassword() {
       })
       if (response.ok) {
         document.getElementById('closeDialog')?.click()
-        toast.success('Password reset successfully')
+        toast.success(t('password_reset_success'))
       }
     } catch {
-      toast.error('Password reset failed')
+      toast.error(t('password_reset_fail'))
     }
   }
 
@@ -86,13 +89,13 @@ export function ResetPassword() {
       className="flex w-full flex-col gap-1 px-2"
     >
       <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
-        Reset Password
+        {t('reset_password_title')}
       </p>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <div className="relative flex justify-between gap-1">
             <Input
-              placeholder="Password"
+              placeholder={t('password_placeholder')}
               className={cn(
                 focusedList[0] && 'ring-1 focus-visible:ring-1',
                 errors.password && getValues('password')
@@ -129,9 +132,9 @@ export function ResetPassword() {
               )}
             >
               <ul className="pl-4 text-xs">
-                <li className="list-disc">8-20 characters</li>
-                <li className="list-disc">Include two of the followings:</li>
-                <li>capital letters, small letters, numbers</li>
+                <li className="list-disc">{t('password_requirements_1')}</li>
+                <li className="list-disc">{t('password_requirements_2')}</li>
+                <li>{t('password_requirements_3')}</li>
               </ul>
             </div>
           )}
@@ -149,7 +152,7 @@ export function ResetPassword() {
               {...register('passwordAgain', {
                 onChange: () => trigger('passwordAgain')
               })}
-              placeholder="Re-enter password"
+              placeholder={t('reenter_password_placeholder')}
               type={passwordAgainShow ? 'text' : 'password'}
               onFocus={() => {
                 setInputFocus(1)
@@ -178,7 +181,7 @@ export function ResetPassword() {
           className={cn(!isValid && 'bg-gray-400')}
           type="submit"
         >
-          Save
+          {t('save_button')}
         </Button>
       </div>
     </form>

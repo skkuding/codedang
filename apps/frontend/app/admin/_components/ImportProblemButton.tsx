@@ -1,5 +1,6 @@
 import { useDataTable } from '@/app/admin/_components/table/context'
 import { Button } from '@/components/shadcn/button'
+import { useTranslate } from '@tolgee/react'
 import { HiCheckCircle } from 'react-icons/hi'
 import type { ContestProblem } from '../contest/_libs/schemas'
 import type { AssignmentProblem } from '../course/[courseId]/_libs/type'
@@ -12,6 +13,7 @@ export function ImportProblemButton<
   T extends AssignmentProblem | ContestProblem
 >({ onSelectedExport }: ImportProblemButtonProps<T>) {
   const { table } = useDataTable<T>()
+  const { t } = useTranslate()
 
   const handleImportProblems = () => {
     const selectedRows = table
@@ -49,7 +51,7 @@ export function ImportProblemButton<
       className="h-[36px] w-[120px] gap-[8px] p-[8px]"
     >
       <HiCheckCircle className="text-sm" />
-      <span className="text-sm">Import</span>
+      <span className="text-sm">{t('import_button')}</span>
     </Button>
   )
 }

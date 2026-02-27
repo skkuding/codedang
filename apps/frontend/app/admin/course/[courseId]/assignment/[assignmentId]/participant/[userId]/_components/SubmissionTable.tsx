@@ -11,8 +11,9 @@ import { SubmissionDetailAdmin } from '@/app/admin/contest/[contestId]/_componen
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER } from '@/graphql/assignment/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
-import { submissionColumns } from './SubmissionColumns'
+import { createSubmissionColumns } from './SubmissionColumns'
 
 export function SubmissionTable({
   groupId,
@@ -23,6 +24,8 @@ export function SubmissionTable({
   assignmentId: number
   userId: number
 }) {
+  const { t } = useTranslate()
+  const submissionColumns = createSubmissionColumns(t)
   const submissions = useSuspenseQuery(
     GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER,
     {
@@ -64,5 +67,10 @@ export function SubmissionTable({
 }
 
 export function SubmissionTableFallback() {
-  return <DataTableFallback withSearchBar={false} columns={submissionColumns} />
+  return (
+    <DataTableFallback
+      withSearchBar={false}
+      columns={createSubmissionColumns(() => '')}
+    />
+  )
 }

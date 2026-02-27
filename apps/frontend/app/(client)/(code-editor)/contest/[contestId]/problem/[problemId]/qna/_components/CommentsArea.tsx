@@ -1,5 +1,6 @@
 import { cn } from '@/libs/utils'
 import type { SingleQnaData } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import { FaCircleExclamation } from 'react-icons/fa6'
 import { IoPersonCircle } from 'react-icons/io5'
 
@@ -10,6 +11,7 @@ interface CommentsAreaProps {
 }
 
 export function CommentsArea({ comments }: CommentsAreaProps) {
+  const { t } = useTranslate()
   comments.sort((a, b) => a.order - b.order)
   return (
     <div className="flex h-full flex-col gap-2 bg-[#121728] px-5 pt-5">
@@ -40,7 +42,7 @@ export function CommentsArea({ comments }: CommentsAreaProps) {
           <div className="text-[#787E80]">
             <FaCircleExclamation className="h-[30px] w-[30px]" />
           </div>
-          Answer not registered
+          {t('answer_not_registered')}
         </div>
       )}
     </div>

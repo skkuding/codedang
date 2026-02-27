@@ -10,10 +10,11 @@ import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
 import errorImage from '@/public/logos/error.webp'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { use } from 'react'
 import { ProblemCard } from '../../_components/ProblemCard'
-import { columns, problemColumns } from './_components/Columns'
+import { getColumns, getProblemColumns } from './_components/Columns'
 import { TotalScoreLabel } from './_components/TotalScoreLabel'
 
 interface AssignmentDetailProps {
@@ -24,6 +25,7 @@ interface AssignmentDetailProps {
 }
 
 export default function AssignmentDetail(props: AssignmentDetailProps) {
+  const { t } = useTranslate()
   const params = use(props.params)
   const assignmentId = Number(params.assignmentId)
   const courseId = Number(params.courseId)
@@ -100,7 +102,9 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
         <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
           <div className="flex flex-col gap-4 lg:gap-7">
             <p className="text-2xl font-semibold">
-              <span className="text-primary">[Week {assignment.week}] </span>
+              <span className="text-primary">
+                [{t('week_number', { weekNumber: assignment.week })}]{' '}
+              </span>
               {assignment.title}
             </p>
             {record && <TotalScoreLabel record={record} />}
@@ -112,7 +116,7 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
               baseTime={assignment.dueTime ?? assignment.endTime}
             />
             <DurationDisplay
-              title="visible"
+              title={t('visible')}
               startTime={assignment.startTime}
               endTime={assignment.endTime}
             />
@@ -122,7 +126,7 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
         <Separator className="my-0" />
 
         <div className="flex flex-col gap-[30px]">
-          <p className="text-2xl font-semibold">DESCRIPTION</p>
+          <p className="text-2xl font-semibold">{t('description')}</p>
           <KatexContent
             content={assignment.description}
             classname="text-[#7F7F7F] font-normal text-base"
@@ -133,13 +137,13 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
 
         {problems && (
           <div>
-            <p className="mb-[16px] text-2xl font-semibold">PROBLEM(S)</p>
+            <p className="mb-[16px] text-2xl font-semibold">{t('problems')}</p>
             <div className="flex gap-1 text-base font-semibold lg:mb-[42px]">
-              <span>Total</span>
+              <span>{t('total')}</span>
               <span className="text-primary">{problems.total}</span>
               {record && (
                 <>
-                  <span>Submit</span>
+                  <span>{t('submit')}</span>
                   <span className="text-primary">
                     {submissions?.filter((s) => s.submission !== null).length ??
                       0}
@@ -154,7 +158,7 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
           <div className="hidden lg:block">
             <DataTable
               data={problems.data}
-              columns={problemColumns()}
+              columns={getProblemColumns(t)}
               headerStyle={{
                 order: 'w-[10%]',
                 title: 'text-left w-[40%]',
@@ -173,7 +177,13 @@ export default function AssignmentDetail(props: AssignmentDetailProps) {
             <div className="hidden lg:block">
               <DataTable
                 data={record.problems}
-                columns={columns(record, assignment, courseId, submissions)}
+                columns={getColumns(
+                  record,
+                  assignment,
+                  courseId,
+                  submissions,
+                  t
+                )}
                 headerStyle={{
                   order: 'w-[10%]',
                   title: 'text-left w-[40%]',

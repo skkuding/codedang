@@ -1,5 +1,6 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
+import { getTranslate } from '@/tolgee/server'
 import { ErrorBoundary } from '@suspensive/react'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -13,6 +14,7 @@ export default async function Page(props: {
   }>
 }) {
   const { submissionId, problemId } = await props.params
+  const t = await getTranslate()
 
   return (
     <div className="flex flex-col gap-5 overflow-auto p-6">
@@ -20,7 +22,9 @@ export default async function Page(props: {
         <Link href={`/problem/${problemId}/submission`}>
           <ArrowLeft className="size-5" />
         </Link>
-        <h1 className="text-xl font-bold">Submission #{submissionId}</h1>
+        <h1 className="text-xl font-bold">
+          {t('submission_title', { submissionId })}
+        </h1>
       </div>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense

@@ -1,6 +1,7 @@
 'use client'
 
 import type { SemesterSeason } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
 import { FormSection } from '../../_components/FormSection'
 import { DropdownForm } from './DropdownForm'
@@ -8,6 +9,7 @@ import { InputForm } from './InputForm'
 
 export function CourseFormFields() {
   const [courseNumber, setCourseNumber] = useState('')
+  const { t } = useTranslate()
 
   const handleCourseNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCourseNumber(e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())
@@ -44,16 +46,32 @@ export function CourseFormFields() {
 
   return (
     <div className="flex flex-col gap-[10px] px-1">
-      <FormSection isFlexColumn title="Professor" className="gap-[6px]">
-        <InputForm placeholder="홍길동" name="professor" type="text" />
+      <FormSection
+        isFlexColumn
+        title={t('professor-title')}
+        className="gap-[6px]"
+      >
+        <InputForm
+          placeholder={t('professor-placeholder')}
+          name="professor"
+          type="text"
+        />
       </FormSection>
-      <FormSection isFlexColumn title="Course Title" className="gap-[6px]">
-        <InputForm placeholder="홍길동개론" name="courseTitle" type="text" />
+      <FormSection
+        isFlexColumn
+        title={t('course_title-title')}
+        className="gap-[6px]"
+      >
+        <InputForm
+          placeholder={t('course_title-placeholder')}
+          name="courseTitle"
+          type="text"
+        />
       </FormSection>
       <div className="flex justify-between gap-[10px]">
         <FormSection
           isFlexColumn
-          title="Course Code"
+          title={t('course_code-title')}
           className="w-full gap-[6px]"
         >
           <InputForm
@@ -66,7 +84,11 @@ export function CourseFormFields() {
           />
         </FormSection>
       </div>
-      <FormSection isFlexColumn title="Course Section" className="gap-[6px]">
+      <FormSection
+        isFlexColumn
+        title={t('course_section-title')}
+        className="gap-[6px]"
+      >
         <InputForm
           placeholder="1"
           name="classNum"
@@ -74,18 +96,22 @@ export function CourseFormFields() {
           maxLength={2}
         />
       </FormSection>
-      <FormSection isFlexColumn title="Week" className="gap-[6px]">
+      <FormSection isFlexColumn title={t('week-title')} className="gap-[6px]">
         <DropdownForm name="week" items={weekOptions} />
       </FormSection>
-      <FormSection isFlexColumn title="Semester" className="gap-[6px]">
+      <FormSection
+        isFlexColumn
+        title={t('semester-title')}
+        className="gap-[6px]"
+      >
         <DropdownForm name="semester" items={semesterItems} />
       </FormSection>
-      <span className="whitespace-nowrap text-lg">Contact</span>
+      <span className="whitespace-nowrap text-lg">{t('contact-text')}</span>
       <div className="bg-color-neutral-99 flex flex-col gap-[10px] rounded-[10px] p-5">
         <FormSection
           isFlexColumn
           isLabeled={false}
-          title="Email"
+          title={t('email-title')}
           className="gap-[6px]"
           titleSize="base"
         >
@@ -107,7 +133,7 @@ export function CourseFormFields() {
         </FormSection>
         <FormSection
           isFlexColumn
-          title="Phone Number"
+          title={t('phone_number-title')}
           className="gap-[6px]"
           titleSize="base"
           isLabeled={false}
@@ -140,20 +166,20 @@ export function CourseFormFields() {
         </FormSection>
         <FormSection
           isFlexColumn
-          title="Office"
+          title={t('office-title')}
           className="gap-[6px]"
           titleSize="base"
           isLabeled={false}
         >
           <InputForm
-            placeholder="제2공학관 26B12A호"
+            placeholder={t('office-placeholder')}
             name="office"
             type="text"
           />
         </FormSection>
         <FormSection
           isFlexColumn
-          title="Website"
+          title={t('website-title')}
           className="gap-[6px]"
           titleSize="base"
           isLabeled={false}

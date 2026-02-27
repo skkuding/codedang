@@ -30,6 +30,7 @@ import type { Language } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@apollo/client'
 import type { TestCaseResult } from '@generated/graphql'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -63,6 +64,7 @@ interface ProblemEditorProps {
 }
 
 export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
+  const { t } = useTranslate()
   const params = useParams<{
     courseId: string
     assignmentId: string
@@ -226,7 +228,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                           <div className="flex items-center justify-center pl-2">
                             <Image
                               src={checkIcon}
-                              alt="check"
+                              alt={t('check_icon')}
                               width={16}
                               height={16}
                             />
@@ -251,7 +253,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               >
                 <Image
                   src={arrowLeftFullIcon}
-                  alt="Previous"
+                  alt={t('previous_button')}
                   width={16}
                   height={16}
                 />
@@ -269,7 +271,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               >
                 <Image
                   src={arrowRightFullIcon}
-                  alt="Next"
+                  alt={t('next_button')}
                   width={16}
                   height={16}
                 />
@@ -295,10 +297,15 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               className="text-md bg-editor-fill-1 border-flowkit-red flex h-9 w-[86px] items-center gap-1 rounded-[4px] border py-[7px] pl-3 pr-[14px] font-normal hover:bg-[#232838]"
             >
               <span className="flex h-4 w-4 items-center justify-center">
-                <Image src={trashcanIcon} alt="reset" width={16} height={16} />
+                <Image
+                  src={trashcanIcon}
+                  alt={t('reset_button')}
+                  width={16}
+                  height={16}
+                />
               </span>
               <span className="text-flowkit-red translate-y-[0.5px] leading-none">
-                Reset
+                {t('reset_button')}
               </span>
             </Button>
 
@@ -311,10 +318,15 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               className="text-md flex h-9 w-[76px] items-center gap-1 rounded-[4px] border border-blue-500 bg-blue-500 py-[7px] pl-3 pr-[14px] font-normal disabled:opacity-60"
             >
               <span className="flex h-4 w-4 items-center justify-center">
-                <Image src={CheckboxIcon} alt="test" width={16} height={16} />
+                <Image
+                  src={CheckboxIcon}
+                  alt={isTesting ? t('testing_label') : t('test_button')}
+                  width={16}
+                  height={16}
+                />
               </span>
               <span className="translate-y-[0.5px] leading-none">
-                {isTesting ? 'Testing...' : 'Test'}
+                {isTesting ? t('testing_label') : t('test_button')}
               </span>
             </Button>
           </div>
@@ -339,7 +351,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                 }
               >
                 <ErrorBoundary
-                  fallback={<div>Error occurred in Testcase Panel</div>}
+                  fallback={<div>{t('error_occurred_in_testcase_panel')}</div>}
                 >
                   <TestcasePanel
                     testResults={testResults}

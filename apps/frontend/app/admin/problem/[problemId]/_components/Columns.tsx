@@ -13,9 +13,13 @@ interface DataTableSubmission
   id: number
 }
 
-export const columns: ColumnDef<DataTableSubmission>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<DataTableSubmission>[] => [
   {
-    header: ({ column }) => <DataTableColumnHeader column={column} title="#" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={t('column_header_id')} />
+    ),
     accessorKey: 'id',
     cell: ({ row }) => row.original.id,
     filterFn: (row, _, value) => {
@@ -26,14 +30,20 @@ export const columns: ColumnDef<DataTableSubmission>[] = [
   {
     id: 'username',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="User ID" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('column_header_user_id')}
+      />
     ),
     accessorKey: 'username',
     cell: ({ row }) => row.original.user?.username
   },
   {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Result" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('column_header_result')}
+      />
     ),
     accessorKey: 'result',
     cell: ({ row }) => {
@@ -46,14 +56,20 @@ export const columns: ColumnDef<DataTableSubmission>[] = [
   },
   {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Language" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('column_header_language')}
+      />
     ),
     accessorKey: 'language',
     cell: ({ row }) => row.original.language
   },
   {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Submission Time" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('column_header_submission_time')}
+      />
     ),
     accessorKey: 'createTime',
     cell: ({ row }) =>
@@ -61,12 +77,15 @@ export const columns: ColumnDef<DataTableSubmission>[] = [
   },
   {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Code Size" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('column_header_code_size')}
+      />
     ),
     accessorKey: 'codeSize',
     cell: ({ row }) => {
       return row.original.codeSize === null ? (
-        <p>N/A</p>
+        <p>{t('not_available')}</p>
       ) : (
         <p>{row.original.codeSize} B</p>
       )

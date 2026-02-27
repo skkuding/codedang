@@ -2,6 +2,7 @@
 
 import { AlertModal } from '@/components/AlertModal'
 import { Button } from '@/components/shadcn/button'
+import { useTranslate } from '@tolgee/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { BiSolidPencil } from 'react-icons/bi'
@@ -14,6 +15,8 @@ type QnAPostButtonProps = {
 export function QnAPostButton({ contestId, canCreateQnA }: QnAPostButtonProps) {
   const router = useRouter()
   const [modalOpen, setModalOpen] = useState(false)
+  const { t } = useTranslate()
+
   return (
     <>
       <Button
@@ -26,7 +29,7 @@ export function QnAPostButton({ contestId, canCreateQnA }: QnAPostButtonProps) {
         className="flex h-[46px] w-[120px] flex-[1_0_0] items-center justify-center gap-[6px] px-6 py-3 text-base font-medium tracking-[-0.48px]"
       >
         <BiSolidPencil className="white w-4" />
-        Post
+        {t('post_button')}
       </Button>
       <AlertModal
         open={modalOpen}
@@ -34,12 +37,10 @@ export function QnAPostButton({ contestId, canCreateQnA }: QnAPostButtonProps) {
         size="sm"
         type="warning"
         showCancelButton={false}
-        title="Access Denied"
-        description={
-          'You are not authorized to access this page.\nPlease check your account permissions.'
-        }
+        title={t('access_denied_title')}
+        description={t('access_denied_description')}
         primaryButton={{
-          text: 'Confirm',
+          text: t('confirm_button'),
           onClick: () => setModalOpen(false),
           variant: 'default'
         }}

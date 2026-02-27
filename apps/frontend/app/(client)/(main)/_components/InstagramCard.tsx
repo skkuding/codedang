@@ -1,5 +1,6 @@
 import instagramLogo from '@/public/icons/instagram-logo.svg'
 import type { Post } from '@/types/instagram'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -8,6 +9,8 @@ interface InstagramCardProps {
 }
 
 export function InstagramCard({ post }: InstagramCardProps) {
+  const { t } = useTranslate()
+
   return (
     <Link
       href={post.permalink}
@@ -19,7 +22,7 @@ export function InstagramCard({ post }: InstagramCardProps) {
         <div className="flex h-full w-auto items-center justify-center rounded-full bg-white shadow-[0_0_20px_0_rgba(53,78,116,0.10)]">
           <Image
             src={instagramLogo}
-            alt="Instagram Logo"
+            alt={t('instagram_logo')}
             width={24}
             height={24}
           />
@@ -41,7 +44,7 @@ export function InstagramCard({ post }: InstagramCardProps) {
 
       <div className="h-[37px] px-[10px] py-2">
         <span className="line-clamp-1 text-sm text-gray-700">
-          {post.caption || 'No caption'}
+          {post.caption || t('no_caption')}
         </span>
       </div>
     </Link>

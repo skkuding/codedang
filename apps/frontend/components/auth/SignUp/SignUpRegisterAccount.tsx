@@ -5,6 +5,7 @@ import { Input } from '@/components/shadcn/input'
 import { safeFetcher } from '@/libs/utils'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useState, type ReactNode } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa6'
@@ -18,38 +19,40 @@ interface RegisterAccountInput {
   passwordConfirm: string
 }
 
-const schema = v.object({
-  username: v.pipe(
-    v.string(),
-    v.minLength(3, 'Username must be at least 3 characters'),
-    v.maxLength(10, 'Username must be at most 10 characters'),
-    v.regex(
-      /^[a-z0-9]+$/,
-      'Username must contain only lowercase letters and numbers'
+const schema = (t: (key: string) => string) =>
+  v.object({
+    username: v.pipe(
+      v.string(),
+      v.minLength(3, t('username_must_be_at_least_3_characters')),
+      v.maxLength(10, t('username_must_be_at_most_10_characters')),
+      v.regex(
+        /^[a-z0-9]+$/,
+        t('username_must_contain_only_lowercase_letters_and_numbers')
+      )
+    ),
+    password: v.pipe(
+      v.string(),
+      v.minLength(8, t('password_must_be_at_least_8_characters')),
+      v.maxLength(20, t('password_must_be_at_most_20_characters')),
+      v.regex(
+        /^(?=.*[a-z])(?=.*[A-Z])|(?=.*[a-z])(?=.*\d)|(?=.*[A-Z])(?=.*\d)/,
+        t('password_must_use_2_of_uppercase_lowercase_number')
+      )
+    ),
+    passwordConfirm: v.pipe(
+      v.string(),
+      v.minLength(8, t('password_must_be_at_least_8_characters')),
+      v.maxLength(20, t('password_must_be_at_most_20_characters'))
     )
-  ),
-  password: v.pipe(
-    v.string(),
-    v.minLength(8, 'Password must be at least 8 characters'),
-    v.maxLength(20, 'Password must be at most 20 characters'),
-    v.regex(
-      /^(?=.*[a-z])(?=.*[A-Z])|(?=.*[a-z])(?=.*\d)|(?=.*[A-Z])(?=.*\d)/,
-      'Password must use 2 of: uppercase, lowercase, number'
-    )
-  ),
-  passwordConfirm: v.pipe(
-    v.string(),
-    v.minLength(8, 'Password must be at least 8 characters'),
-    v.maxLength(20, 'Password must be at most 20 characters')
-  )
-})
+  })
 
 function RegisterAccountForm({ children }: { children: ReactNode }) {
+  const { t } = useTranslate()
   const { nextModal, setFormData, formData } = useSignUpModalStore(
     (state) => state
   )
   const methods = useForm<RegisterAccountInput>({
-    resolver: valibotResolver(schema),
+    resolver: valibotResolver(schema(t)),
     mode: 'onChange',
     defaultValues: {
       username: '',
@@ -82,13 +85,14 @@ interface VisibleButtonProps {
 }
 
 function VisibleButton({ isVisible, setIsVisible }: VisibleButtonProps) {
+  const { t } = useTranslate()
   return (
     <button
       className="absolute inset-y-0 right-[21.67px] flex items-center"
       type="button"
       tabIndex={-1}
       onClick={() => setIsVisible(!isVisible)}
-      aria-label={isVisible ? 'Hide password' : 'Show password'}
+      aria-label={isVisible ? t('hide_password') : t('show_password')}
     >
       {isVisible ? (
         <FaEye className="text-gray-400" />
@@ -100,6 +104,7 @@ function VisibleButton({ isVisible, setIsVisible }: VisibleButtonProps) {
 }
 
 function SignUpRegisterAccountContent() {
+  const { t } = useTranslate()
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(false)
   const {
     register,
@@ -122,14 +127,16 @@ function SignUpRegisterAccountContent() {
   return (
     <>
       <div>
-        <p className="mb-[30px] text-xl font-medium">Create Your Account</p>
+        <p className="mb-[30px] text-xl font-medium">
+          {t('create_your_account')}
+        </p>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-[6px]">
             <IDLabel />
             <div className="flex gap-1">
               <div className="w-full">
                 <Input
-                  placeholder="username"
+                  placeholder={t('username_placeholder')}
                   {...register('username')}
                   onFocus={() => {
                     clearErrors('username')
@@ -147,14 +154,14 @@ function SignUpRegisterAccountContent() {
                   }
                   if (isUsernameAvailable) {
                     return (
-                      <AuthMessage message={'Available ID'} type={'success'} />
+                      <AuthMessage
+                        message={t('available_id')}
+                        type={'success'}
+                      />
                     )
                   }
                   return (
-                    <AuthMessage
-                      message={'3-10 characters of small letters, numbers'}
-                      type={'info'}
-                    />
+                    <AuthMessage message={t('username_info')} type={'info'} />
                   )
                 })()}
               </div>
@@ -176,12 +183,12 @@ function SignUpRegisterAccountContent() {
                     setIsUsernameAvailable(true)
                   } catch {
                     setError('username', {
-                      message: 'Duplicate ID'
+                      message: t('duplicate_id')
                     })
                   }
                 }}
               >
-                Check
+                {t('check_button')}
               </Button>
             </div>
           </div>
@@ -189,7 +196,7 @@ function SignUpRegisterAccountContent() {
             <PasswordLabel />
             <div className="relative">
               <Input
-                placeholder="Password"
+                placeholder={t('password_placeholder')}
                 type={isPasswordVisible ? 'text' : 'password'}
                 {...register('password')}
                 onFocus={() => {
@@ -211,18 +218,15 @@ function SignUpRegisterAccountContent() {
                 )
               }
               if (!errors.password && watchPassword) {
-                return <AuthMessage message="Correct Password" type="success" />
+                return (
+                  <AuthMessage message={t('correct_password')} type="success" />
+                )
               }
-              return (
-                <AuthMessage
-                  message="8–20 characters, use 2 of: upper, lower, number"
-                  type="info"
-                />
-              )
+              return <AuthMessage message={t('password_info')} type="info" />
             })()}
             <div className="relative">
               <Input
-                placeholder="Re-enter Password"
+                placeholder={t('reenter_password_placeholder')}
                 type={isPasswordConfirmVisible ? 'text' : 'password'}
                 {...register('passwordConfirm')}
                 onFocus={() => {
@@ -236,9 +240,12 @@ function SignUpRegisterAccountContent() {
             </div>
             {watchPasswordConfirm &&
               (isPasswordMatched ? (
-                <AuthMessage message="Passwords match" type="success" />
+                <AuthMessage message={t('passwords_match')} type="success" />
               ) : (
-                <AuthMessage message="Passwords do not match" type="error" />
+                <AuthMessage
+                  message={t('passwords_do_not_match')}
+                  type="error"
+                />
               ))}
           </div>
         </div>
@@ -248,7 +255,7 @@ function SignUpRegisterAccountContent() {
         className="w-full px-[22px] py-[9px] text-base font-medium"
         disabled={!isUsernameAvailable || !isValid || !isPasswordMatched}
       >
-        Next
+        {t('next_button')}
       </Button>
     </>
   )

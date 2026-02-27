@@ -5,6 +5,7 @@ import { CREATE_WHITE_LIST, DELETE_WHITE_LIST } from '@/graphql/course/mutation'
 import { GET_COURSE, GET_WHITE_LIST } from '@/graphql/course/queries'
 import { ISSUE_INVITATION, REVOKE_INVITATION } from '@/graphql/user/mutation'
 import { useMutation, useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { useForm } from 'react-hook-form'
@@ -21,6 +22,7 @@ interface InvitationCodeInput {
 }
 
 export function InviteByCode({ courseId }: InviteByCodeProps) {
+  const { t } = useTranslate()
   const { getValues, reset } = useForm<InvitationCodeInput>()
   const [issueInvitation] = useMutation(ISSUE_INVITATION)
   const [revokeInvitation] = useMutation(REVOKE_INVITATION)
@@ -33,7 +35,9 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
   const [isUploaded, setIsUploaded] = useState(false)
   const [whiteListStudentIds, setWhiteListStudentIds] = useState<string[]>([])
   const [whitelistCount, setWhitelistCount] = useState<number | null>(null)
-  const [fileName, setFileName] = useState<string>('Whitelist.csv')
+  const [fileName, setFileName] = useState<string>(
+    t('whitelist_default_filename')
+  )
 
   const [isDeleteWhitelistModalOpen, setIsDeleteWhitelistModalOpen] =
     useState(false)
@@ -59,7 +63,9 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
       }
     },
     onError: (error) => {
-      toast.error(`Failed to fetch invitation code: ${error.message}`)
+      toast.error(
+        t('failed_to_fetch_invitation_code_error', { error: error.message })
+      )
     }
   })
 
@@ -72,7 +78,11 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
         reset({ invitationCode: data.issueInvitation })
       }
     } catch (error) {
-      console.error('Failed to update invitation code:', error)
+      console.error(
+        t('failed_to_update_invitation_code_error', {
+          error: (error as Error).message
+        })
+      )
     }
   }
 
@@ -114,7 +124,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
       )
 
       if (studentIdIndex === -1) {
-        toast.error("Cannot find 'studentId' Column")
+        toast.error(t('cannot_find_student_id_column_error'))
         return
       }
 
@@ -139,7 +149,9 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
         setWhitelistCount(data?.createWhitelist ?? 0)
         setIsUploaded(true)
       } catch (error) {
-        console.error('Create white list error:', error)
+        console.error(
+          t('create_white_list_error', { error: (error as Error).message })
+        )
       }
     }
 
@@ -148,14 +160,16 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
 
   useEffect(() => {
     if (isUploaded && whitelistCount) {
-      toast.success(`${whitelistCount} whiteListStudentIds are registered.`)
+      toast.success(
+        t('whitelist_registered_success_message', { count: whitelistCount })
+      )
     }
-  }, [courseId, isUploaded, whitelistCount])
+  }, [courseId, isUploaded, whitelistCount, t])
 
   return (
     <div className="flex flex-col gap-[30px] rounded-lg border p-[30px]">
       <div className="flex items-center gap-[10px]">
-        <span className="text-lg">Invite by Invitation Code</span>
+        <span className="text-lg">{t('invite_by_invitation_code_label')}</span>
         <Switch
           checked={isCodeInvitationEnabled}
           onCheckedChange={(checked) => {
@@ -186,7 +200,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
               className="bg-primary flex h-[36px] w-[72px] rounded-full"
               onClick={() => {
                 const invitationCode = getValues('invitationCode')
-                toast.success('Copied Successfully !', {
+                toast.success(t('copied_successfully_message'), {
                   style: {
                     background: '#F0F8FF',
                     color: '#0973DC',
@@ -205,7 +219,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-[10px]">
               <span className="text-base text-[#5C5C5C]">
-                Only approved accounts can enter
+                {t('only_approved_accounts_can_enter_label')}
               </span>
               <Switch
                 checked={isWhiteListEnabled}
@@ -225,10 +239,10 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                 open={isDeleteWhitelistModalOpen}
                 onOpenChange={setIsDeleteWhitelistModalOpen}
                 type="warning"
-                title="Disable Student Whitelist"
-                description="The student ID whitelist will be deleted, and anyone will be able to join the course with an invitation code."
+                title={t('disable_student_whitelist_title')}
+                description={t('disable_student_whitelist_description')}
                 primaryButton={{
-                  text: 'Ok',
+                  text: t('ok_button'),
                   onClick: async () => {
                     await deleteWhitelist({
                       variables: { groupId: Number(courseId) }
@@ -244,21 +258,20 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
               <div className="bg-fill flex flex-col gap-[18px] rounded-lg p-[20px]">
                 <ul className="list-inside list-disc space-y-2.5 text-sm text-[#8A8A8A]">
                   <li>
-                    When you upload a new file, the existing whitelist is
-                    deleted and replaced.
+                    {t('upload_new_file_warning')}
                     <div className="pl-5">
-                      You can download the sample file{' '}
+                      {t('download_sample_file_prompt')}{' '}
                       <a
                         href="/Whitelist_Sample.csv"
                         download="Whitelist_Sample.csv"
                         className="text-primary underline"
                       >
-                        here
+                        {t('download_here_link')}
                       </a>
                     </div>
                   </li>
                   <li>
-                    Current Whitelist:{' '}
+                    {t('current_whitelist_label')}{' '}
                     <CSVLink
                       data={whiteListStudentIds.map((id) => ({
                         studentId: id
@@ -274,7 +287,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                 <label className="flex h-[40px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-full border border-[#D8D8D8] bg-white px-[28px] py-[12px] transition hover:border-gray-300 hover:bg-gray-50">
                   <IoCloudUpload size={20} className="text-gray-700" />
                   <span className="text-sm font-medium text-gray-700">
-                    Upload File (Excel)
+                    {t('upload_file_excel_label')}
                   </span>
                   <input
                     type="file"
@@ -290,10 +303,10 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
       )}
       <AlertModal
         type="warning"
-        title=" Disable Invitation Code"
-        description=" Students will no longer be able to join the course using the invitation code."
+        title={t('disable_invitation_code_title')}
+        description={t('disable_invitation_code_description')}
         primaryButton={{
-          text: 'Ok',
+          text: t('ok_button'),
           onClick: async () => {
             await revokeInvitation({
               variables: { groupId: Number(courseId) }

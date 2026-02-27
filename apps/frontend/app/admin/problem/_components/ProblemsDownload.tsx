@@ -3,6 +3,7 @@
 import { useDataTable } from '@/app/admin/_components/table/context'
 import { Button } from '@/components/shadcn/button'
 import { adminSafeFetcherWithAuth } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { FiDownload } from 'react-icons/fi'
 import { toast } from 'sonner'
 
@@ -10,12 +11,13 @@ type Row = { id: number }
 
 export function ProblemsDownload() {
   const { table } = useDataTable<Row>()
+  const { t } = useTranslate()
 
   const handleDownload = async () => {
     const rows = table.getSelectedRowModel().rows
 
     if (!rows.length) {
-      toast.error('Please select at least one problem.')
+      toast.error(t('select_problem_warning'))
       return
     }
 
@@ -39,7 +41,7 @@ export function ProblemsDownload() {
 
         URL.revokeObjectURL(objectUrl)
       } catch {
-        toast.error(`Failed to download problem ${problemId}`)
+        toast.error(t('download_fail_toast', { id: problemId }))
       }
     }
   }

@@ -16,6 +16,7 @@ import {
   flexRender,
   type ColumnDef
 } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 
 interface Item {
   id: number
@@ -42,6 +43,7 @@ export function LeaderboardTable<TData extends Item, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel()
   })
+  const { t } = useTranslate()
 
   return (
     <Table className="table-fixed">
@@ -101,7 +103,7 @@ export function LeaderboardTable<TData extends Item, TValue>({
         ) : (
           <TableRow className="pointer-events-none">
             <TableCell colSpan={columns.length} className="h-24 text-center">
-              No results.
+              {t('no_results')}
             </TableCell>
           </TableRow>
         )}

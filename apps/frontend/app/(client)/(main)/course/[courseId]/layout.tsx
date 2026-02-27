@@ -2,6 +2,7 @@
 
 import { Cover } from '@/app/(client)/(main)/_components/Cover'
 import { useHeaderTitle } from '@/app/(client)/(main)/_contexts/HeaderTitleContext'
+import { useTranslate } from '@tolgee/react'
 import { useParams } from 'next/navigation'
 import React from 'react'
 import { CourseSidebar } from './_components/CourseSidebar'
@@ -9,6 +10,7 @@ import { CourseSidebar } from './_components/CourseSidebar'
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { setHeaderTitle } = useHeaderTitle()
   const { courseId } = useParams()
+  const { t } = useTranslate()
 
   React.useEffect(() => {
     return () => {
@@ -20,8 +22,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <>
       <div className="hidden lg:flex">
         <Cover
-          title="COURSE"
-          description="Structured Learning, Real-World Coding"
+          title={t('course_title')}
+          description={t('course_description')}
         />
       </div>
       <div className="mt-14 flex h-full w-full max-w-[1440px] flex-col lg:mt-0">

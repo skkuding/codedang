@@ -1,6 +1,7 @@
 import { KatexContent } from '@/components/KatexContent'
 import { fetcher } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
+import { getTranslate } from '@/tolgee/server'
 import Link from 'next/link'
 import { RxHamburgerMenu } from 'react-icons/rx'
 
@@ -41,6 +42,8 @@ export default async function NoticeDetail(props: NoticeDetailProps) {
 
   console.log('noticeIdRes: ', noticeIdRes)
 
+  const t = await getTranslate()
+
   // Ensure noticeIdRes has the expected structure
   if (!noticeIdRes || !noticeIdRes.current) {
     console.error(
@@ -48,9 +51,9 @@ export default async function NoticeDetail(props: NoticeDetailProps) {
     )
     return (
       <div>
-        You need to login first for now!
+        {t('login_required_message')}
         <br />
-        (This will be updated to allow access without login in the few days.)
+        {t('login_access_update_message')}
       </div>
     )
   }
@@ -84,7 +87,7 @@ export default async function NoticeDetail(props: NoticeDetailProps) {
             className="flex items-center justify-center gap-1 text-gray-400 hover:text-gray-500"
           >
             <RxHamburgerMenu />
-            List
+            {t('list_link_text')}
           </Link>
         </div>
         {prev && (
@@ -97,7 +100,9 @@ export default async function NoticeDetail(props: NoticeDetailProps) {
             className="text-gray-400 hover:text-gray-500"
           >
             <div className="border-b border-b-gray-200 p-5 py-4">
-              <span className="mr-5 font-bold text-gray-500">prev</span>
+              <span className="mr-5 font-bold text-gray-500">
+                {t('prev_text')}
+              </span>
               {prev.title}
             </div>
           </Link>
@@ -112,7 +117,9 @@ export default async function NoticeDetail(props: NoticeDetailProps) {
             className="text-gray-400 hover:text-gray-500"
           >
             <div className="border-b border-b-gray-200 p-5 py-4">
-              <span className="mr-5 font-bold text-gray-500">next</span>
+              <span className="mr-5 font-bold text-gray-500">
+                {t('next_text')}
+              </span>
               {next.title}
             </div>
           </Link>

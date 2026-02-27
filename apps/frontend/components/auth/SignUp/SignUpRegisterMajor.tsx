@@ -6,6 +6,7 @@ import { colleges } from '@/libs/constants'
 import { safeFetcher } from '@/libs/utils'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -17,17 +18,22 @@ interface RegisterMajorInput {
   major: string
 }
 
-const schema = v.object({
-  affiliation: v.pipe(v.string(), v.minLength(1, 'Affiliation is required')),
-  major: v.pipe(v.string(), v.minLength(1, 'Major is required'))
-})
+const schema = (t: (key: string) => string) =>
+  v.object({
+    affiliation: v.pipe(
+      v.string(),
+      v.minLength(1, t('affiliation_is_required'))
+    ),
+    major: v.pipe(v.string(), v.minLength(1, t('major_is_required')))
+  })
 
 function RegisterMajorForm({ children }: { children: ReactNode }) {
+  const { t } = useTranslate()
   const { nextModal, setFormData, formData } = useSignUpModalStore(
     (state) => state
   )
   const methods = useForm<RegisterMajorInput>({
-    resolver: valibotResolver(schema),
+    resolver: valibotResolver(schema(t)),
     mode: 'onChange', // 실시간 validation 추가
     defaultValues: {
       affiliation: '',
@@ -60,7 +66,7 @@ function RegisterMajorForm({ children }: { children: ReactNode }) {
       })
       nextModal()
     } catch {
-      toast.error('Failed to register. Please try again.')
+      toast.error(t('failed_to_register_please_try_again'))
     }
   }
 
@@ -85,6 +91,8 @@ function RegisterMajorFormFields({
   const watchAffiliation = watch('affiliation')
   const watchMajor = watch('major')
 
+  const { t } = useTranslate()
+
   useEffect(() => {
     const hasValues = watchAffiliation && watchMajor
     setIsButtonDisabled(!hasValues)
@@ -92,9 +100,9 @@ function RegisterMajorFormFields({
 
   return (
     <div>
-      <p className="text-xl font-medium">Tell Us About Yourself</p>
+      <p className="text-xl font-medium">{t('tell_us_about_yourself')}</p>
       <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
-        Make sure to fill out the whole form
+        {t('fill_out_the_whole_form')}
       </p>
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-[6px]">
@@ -107,7 +115,7 @@ function RegisterMajorFormFields({
               setValue('major', '', { shouldValidate: true })
             }}
             className="truncate text-base font-normal"
-            placeholder="Affiliation"
+            placeholder={t('affiliation_placeholder')}
           />
           <OptionSelect
             options={colleges
@@ -118,7 +126,7 @@ function RegisterMajorFormFields({
               setValue('major', value, { shouldValidate: true })
             }}
             className="truncate text-base font-normal"
-            placeholder="First Major"
+            placeholder={t('first_major_placeholder')}
           />
         </div>
       </div>
@@ -129,6 +137,8 @@ function RegisterMajorFormFields({
 export function SignUpRegisterMajor() {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true)
 
+  const { t } = useTranslate()
+
   return (
     <RegisterMajorForm>
       <RegisterMajorFormFields setIsButtonDisabled={setIsButtonDisabled} />
@@ -137,7 +147,7 @@ export function SignUpRegisterMajor() {
         className="w-full px-[22px] py-[9px] text-base font-medium"
         disabled={isButtonDisabled}
       >
-        Register
+        {t('register_button')}
       </Button>
     </RegisterMajorForm>
   )

@@ -1,5 +1,6 @@
 import { getContestSubmissionList } from '@/app/(client)/_libs/apis/contestSubmission'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -21,6 +22,7 @@ const useSubmissionPolling = ({
   problemId,
   enabled
 }: UseSubmissionPollingProps) => {
+  const { t } = useTranslate()
   contestId = contestId ? contestId : 0
 
   const { data: submissionList } = useQuery({
@@ -39,7 +41,7 @@ const useSubmissionPolling = ({
     setTimeout(() => {
       switch (submissionResult) {
         case submissionResults[0]:
-          toast('🎉 Accepted', {
+          toast(t('accepted_toast'), {
             style: {
               background: '#EBFAEF',
               color: '#1F7936',
@@ -54,7 +56,7 @@ const useSubmissionPolling = ({
           })
           break
         case submissionResults[1]:
-          toast('🤔 WrongAnswer', {
+          toast(t('wrong_answer_toast'), {
             style: {
               background: '#FFECEA',
               color: '#B80901',
@@ -69,7 +71,7 @@ const useSubmissionPolling = ({
           })
           break
         case submissionResults[2]:
-          toast('🤔 CompileError', {
+          toast(t('compile_error_toast'), {
             style: {
               borderRadius: '8px',
               background: '#FFECEA',
@@ -85,7 +87,7 @@ const useSubmissionPolling = ({
           })
           break
         case submissionResults[3]:
-          toast('🤔 ServerError', {
+          toast(t('server_error_toast'), {
             style: {
               background: '#FFECEA',
               color: '#B80901',
@@ -103,7 +105,7 @@ const useSubmissionPolling = ({
           break
       }
     }, 1200)
-  }, [submissionList, enabled])
+  }, [submissionList, enabled, t])
 }
 
 export { useSubmissionPolling }

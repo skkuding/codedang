@@ -3,6 +3,7 @@
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { CourseFormFields } from './CourseFormFields'
@@ -10,17 +11,18 @@ import { CreateCourseForm } from './CreateCourseForm'
 
 export function CreateCourseButton() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { t } = useTranslate()
 
   return (
     <Modal
       size="lg"
       type={'input'}
-      title="Create Course"
-      headerDescription="You can create your course information here."
+      title={t('create_course_title')}
+      headerDescription={t('create_course_header_description')}
       trigger={
         <Button type="button" variant="default" className="w-[120px]">
           <HiMiniPlusCircle className="mr-2 h-5 w-5" />
-          <span className="text-lg">Create</span>
+          <span className="text-lg">{t('create_button')}</span>
         </Button>
       }
       open={isModalOpen}
@@ -38,10 +40,10 @@ export function CreateCourseButton() {
               onClick={() => setIsModalOpen(false)}
               className="h-[46px] w-full"
             >
-              Cancel
+              {t('cancel_button')}
             </Button>
             <Button variant="default" type="submit" className="h-[46px] w-full">
-              Create
+              {t('create_button')}
             </Button>
           </div>
         </CreateCourseForm>

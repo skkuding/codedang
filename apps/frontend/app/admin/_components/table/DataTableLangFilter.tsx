@@ -1,6 +1,7 @@
 'use client'
 
 import { languages } from '@/libs/constants'
+import { useTranslate } from '@tolgee/react'
 import { DataTableMultiSelectFilter } from './DataTableMultiSelectFilter'
 import { LANG_COLUMN_ID } from './constants'
 import { useDataTable } from './context'
@@ -11,11 +12,12 @@ import { useDataTable } from './context'
  */
 export function DataTableLangFilter() {
   const { table } = useDataTable()
+  const { t } = useTranslate()
 
   return (
     <DataTableMultiSelectFilter
       column={table.getColumn(LANG_COLUMN_ID)}
-      title="Language"
+      title={t('language_filter_title')}
       options={languages.map((item) => ({ value: item, label: item }))}
     />
   )

@@ -5,11 +5,13 @@ import { problemQueries } from '@/app/(client)/_libs/queries/problem'
 import { IntersectionArea } from '@/components/IntersectionArea'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { useSearchParams } from 'next/navigation'
 import { SearchBar } from '../../_components/SearchBar'
 import { columns } from './Columns'
 
 export function ProblemInfiniteTable() {
+  const { t } = useTranslate()
   const searchParams = useSearchParams()
   const search = searchParams.get('search') ?? ''
   const order = searchParams.get('order') ?? 'id-asc'
@@ -21,7 +23,7 @@ export function ProblemInfiniteTable() {
     <>
       <div className="flex items-center justify-between text-gray-500">
         <div className="flex gap-1">
-          <p className="text-2xl font-bold text-gray-500">All</p>
+          <p className="text-2xl font-bold text-gray-500">{t('all_label')}</p>
           <p className="text-2xl font-bold text-blue-500">{data.total}</p>
         </div>
         <SearchBar />
@@ -33,7 +35,7 @@ export function ProblemInfiniteTable() {
         >
           <DataTable
             data={data.items}
-            columns={columns}
+            columns={columns(t)}
             headerStyle={{
               title: 'text-left w-4/12',
               difficulty: 'w-2/12',

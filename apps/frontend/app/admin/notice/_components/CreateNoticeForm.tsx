@@ -4,6 +4,7 @@ import { CREATE_NOTICE } from '@/graphql/notice/mutation'
 import { useMutation } from '@apollo/client'
 import type { CreateNoticeInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -15,6 +16,7 @@ interface CreateNoticeFormProps {
 }
 
 export function CreateNoticeForm({ children }: CreateNoticeFormProps) {
+  const { t } = useTranslate()
   const methods = useForm<CreateNoticeInput>({
     resolver: valibotResolver(createSchema),
     defaultValues: {
@@ -28,11 +30,11 @@ export function CreateNoticeForm({ children }: CreateNoticeFormProps) {
 
   const [createNotice] = useMutation(CREATE_NOTICE, {
     onError: () => {
-      toast.error('Failed to create problem')
+      toast.error(t('failed_to_create_problem'))
     },
     onCompleted: (data) => {
       const noticeId = data.createNotice.id
-      toast.success('Notice created successfully')
+      toast.success(t('notice_created_successfully'))
       router.push(`/admin/notice/${noticeId}`)
       router.refresh()
     }

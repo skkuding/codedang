@@ -10,6 +10,7 @@ import type {
   QnaFormData
 } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
@@ -31,6 +32,7 @@ const schema = v.object({
 })
 
 export function QnaForm() {
+  const { t } = useTranslate()
   const params = useParams()
   const router = useRouter()
   const contestId = params.contestId as string
@@ -48,7 +50,7 @@ export function QnaForm() {
       title: '',
       content: '',
       selectedProblem: '',
-      selectedProblemLabel: 'General'
+      selectedProblemLabel: t('general_label')
     },
     mode: 'onChange'
   })
@@ -57,7 +59,7 @@ export function QnaForm() {
   const [modalOpen, setModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [problemOptions, setProblemOptions] = useState<ProblemOption[]>([
-    { value: '', label: 'General' }
+    { value: '', label: t('general_label') }
   ])
   const [isLoadingProblems, setIsLoadingProblems] = useState(true)
   const [isContestStarted, setIsContestStarted] = useState(false)
@@ -138,7 +140,7 @@ export function QnaForm() {
         if (problemResponse.ok) {
           const problemData: ProblemDataTop = await problemResponse.json()
           const options: ProblemOption[] = [
-            { value: '', label: 'General' },
+            { value: '', label: t('general_label') },
             ...problemData.data.map((problem, index) => ({
               value: problem.order.toString(),
               label: `${String.fromCharCode(65 + index)}. ${problem.title}`
@@ -146,7 +148,7 @@ export function QnaForm() {
           ]
           setProblemOptions(options)
         } else {
-          setProblemOptions([{ value: '', label: 'General' }])
+          setProblemOptions([{ value: '', label: t('general_label') }])
           console.log('Before Ongoing, using General')
         }
       } catch (error) {
@@ -160,7 +162,7 @@ export function QnaForm() {
     }
 
     checkPermissionAndFetch()
-  }, [contestId, session, status, router])
+  }, [contestId, session, status, router, t])
 
   const handlePostClick = () => {
     if (isFormValid) {
@@ -194,17 +196,17 @@ export function QnaForm() {
 
       if (response.ok) {
         console.log('QnA created successfully')
-        toast.success('Question submitted successfully')
+        toast.success(t('question_submitted_successfully'))
         setModalOpen(false)
         gotoQuestionList()
       } else {
         const errorData = await response.json().catch(() => ({}))
         console.error('Failed to create QnA:', errorData)
-        toast.error('Failed to submit question')
+        toast.error(t('failed_to_submit_question'))
       }
     } catch (error) {
       console.error('Submit error:', error)
-      toast.error('An error occurred while submitting the question')
+      toast.error(t('error_occurred_while_submitting_question'))
     } finally {
       setIsSubmitting(false)
     }
@@ -213,7 +215,7 @@ export function QnaForm() {
   if (status === 'loading') {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-2xl font-bold">Loading...</div>
+        <div className="text-2xl font-bold">{t('loading')}</div>
       </div>
     )
   }
@@ -221,7 +223,7 @@ export function QnaForm() {
   if (status === 'unauthenticated' || isRedirecting) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-2xl font-bold">Redirecting...</div>
+        <div className="text-2xl font-bold">{t('redirecting')}</div>
       </div>
     )
   }
@@ -229,7 +231,7 @@ export function QnaForm() {
   if (!contest) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-2xl font-bold">Loading...</div>
+        <div className="text-2xl font-bold">{t('loading')}</div>
       </div>
     )
   }
@@ -238,7 +240,7 @@ export function QnaForm() {
     <>
       <div className="mb-[30px] flex items-center">
         <h1 className="font-pretendard text-2xl font-medium leading-[28.8px] tracking-[-0.72px] text-black">
-          Post New Question
+          {t('post_new_question')}
         </h1>
       </div>
 
@@ -262,7 +264,7 @@ export function QnaForm() {
             className="ml-2 mr-[2px]"
           />
           <span className="text-primary text-xs font-normal leading-[16.8px] tracking-[-0.36px]">
-            Contest has not started yet. Only General questions are available.
+            {t('contest_not_started_info')}
           </span>
         </div>
       )}
@@ -289,11 +291,11 @@ export function QnaForm() {
         open={modalOpen}
         onOpenChange={setModalOpen}
         size="sm"
-        title="Question Submit"
-        description={`Are you sure you want to submit this question?\nOnce submitted, you cannot edit it.`}
+        title={t('question_submit')}
+        description={t('question_submit_description')}
         onClose={() => setModalOpen(false)}
         primaryButton={{
-          text: isSubmitting ? 'Submitting...' : 'Confirm',
+          text: isSubmitting ? t('submitting') : t('confirm'),
           onClick: handleSubmit
         }}
         type="confirm"

@@ -11,7 +11,9 @@ export interface DataTableCourse {
   studentCount: number
 }
 
-export const columns: ColumnDef<DataTableCourse>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<DataTableCourse>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -21,7 +23,7 @@ export const columns: ColumnDef<DataTableCourse>[] = [
         onCheckedChange={(value) =>
           table.toggleAllPageRowsSelected(Boolean(value))
         }
-        aria-label="Select all"
+        aria-label={t('select_all')}
         className="translate-y-[2px]"
       />
     ),
@@ -30,7 +32,7 @@ export const columns: ColumnDef<DataTableCourse>[] = [
         onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
-        aria-label="Select row"
+        aria-label={t('select_row')}
         className="translate-y-[2px] bg-transparent"
       />
     ),
@@ -42,7 +44,7 @@ export const columns: ColumnDef<DataTableCourse>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Title"
+        title={t('title')}
         className="w-[400px]"
       />
     ),
@@ -54,14 +56,14 @@ export const columns: ColumnDef<DataTableCourse>[] = [
   {
     accessorKey: 'code',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Code" />
+      <DataTableColumnHeader column={column} title={t('code')} />
     ),
     cell: ({ row }) => row.getValue('code')
   },
   {
     accessorKey: 'semester',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Semester" />
+      <DataTableColumnHeader column={column} title={t('semester')} />
     ),
     cell: ({ row }) => {
       const yearSeason = row.original.semester
@@ -79,7 +81,7 @@ export const columns: ColumnDef<DataTableCourse>[] = [
   {
     accessorKey: 'studentCount',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Members" />
+      <DataTableColumnHeader column={column} title={t('members')} />
     ),
     cell: ({ row }) => row.getValue('studentCount'),
     enableSorting: false

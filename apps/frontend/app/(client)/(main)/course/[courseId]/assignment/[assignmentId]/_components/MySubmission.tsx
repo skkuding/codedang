@@ -17,6 +17,7 @@ import type { AssignmentProblem } from '@/types/type'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import { ErrorBoundary } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useState, Suspense } from 'react'
@@ -26,6 +27,7 @@ import {
 } from './SubmissionDetailContent'
 
 export function MySubmission({ problem }: { problem: AssignmentProblem }) {
+  const { t } = useTranslate()
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
   const { assignmentId: assignmentIdString } = useParams()
   const assignmentId = Number(assignmentIdString)
@@ -55,7 +57,7 @@ export function MySubmission({ problem }: { problem: AssignmentProblem }) {
                 src={seeSubmissionIcon}
                 width={20}
                 height={20}
-                alt={'See submission'}
+                alt={t('see_submission_icon_alt')}
                 onClick={(e) => {
                   e.stopPropagation()
                   setIsTooltipOpen(true)
@@ -68,7 +70,7 @@ export function MySubmission({ problem }: { problem: AssignmentProblem }) {
           {isTooltipOpen && (
             <TooltipContent className="mr-4 bg-white">
               <p className="text-xs text-neutral-900">
-                Click to check your latest submission.
+                {t('click_to_check_latest_submission')}
               </p>
               <TooltipPrimitive.Arrow className="fill-white" />
             </TooltipContent>

@@ -3,6 +3,7 @@ import { Input } from '@/components/shadcn/input'
 import { cn, safeFetcher } from '@/libs/utils'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as v from 'valibot'
@@ -46,6 +47,8 @@ export function SignUpVerifyEmail() {
   } = useForm<VerifyEmailInput>({
     resolver: valibotResolver(schema)
   })
+
+  const { t } = useTranslate()
 
   useEffect(() => {
     if (codeExpired || emailVerified) {
@@ -113,9 +116,9 @@ export function SignUpVerifyEmail() {
   function renderFormHeader() {
     return (
       <>
-        <p className="text-xl font-medium">We’ve Sent an Email</p>
+        <p className="text-xl font-medium">{t('we_have_sent_an_email')}</p>
         <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
-          Please check your inbox{' '}
+          {t('please_check_your_inbox')}{' '}
           <span className="text-primary">{formData.email}</span>
         </p>
       </>
@@ -134,7 +137,7 @@ export function SignUpVerifyEmail() {
               (errors.verificationCode || codeExpired) &&
                 'border-red-500 focus-visible:border-red-500'
             )}
-            placeholder="Verification Code"
+            placeholder={t('verification_code_placeholder')}
             {...register('verificationCode', {
               onChange: verifyCode
             })}
@@ -154,11 +157,11 @@ export function SignUpVerifyEmail() {
           <div className="flex flex-col gap-[2px]">
             <AuthMessage
               type={'error'}
-              message={'Verification code expired.'}
+              message={t('verification_code_expired')}
             />
             <AuthMessage
               type={'error'}
-              message={'Please resend an email and try again.'}
+              message={t('please_resend_and_try_again')}
             />
           </div>
         ) : (
@@ -176,7 +179,7 @@ export function SignUpVerifyEmail() {
                 return (
                   <AuthMessage
                     type={'success'}
-                    message={'Verification code is valid'}
+                    message={t('verification_code_valid')}
                   />
                 )
               }
@@ -198,7 +201,7 @@ export function SignUpVerifyEmail() {
                 className={cn('w-full text-base font-medium')}
                 disabled={!emailVerified || Boolean(errors.verificationCode)}
               >
-                Next
+                {t('next_button')}
               </Button>
             )
           }
@@ -212,7 +215,7 @@ export function SignUpVerifyEmail() {
                 SignUpApi.sendEmail(formData.email)
               }}
             >
-              Resend Email
+              {t('resend_email_button')}
             </Button>
           )
         })()}

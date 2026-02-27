@@ -1,23 +1,23 @@
-import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { fetcherWithAuth } from '@/libs/utils'
 import { getStatusWithStartEnd } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
+import { getTranslate } from '@/tolgee/server'
 import type { ContestProblem } from '@/types/type'
 import type { Contest } from '@/types/type'
-import { columns } from './_components/Columns'
+import { ProblemTable } from './_components/ProblemTable'
 
 interface ContestProblemProps {
   params: Promise<{ contestId: string }>
 }
 
-interface ContestApiResponse {
+export interface ContestApiResponse {
   data: ContestProblem[]
   total: number
 }
 
 export default async function ContestProblem(props: ContestProblemProps) {
   const { contestId } = await props.params
-
+  const t = await getTranslate()
   // TODO: use `getContestProblemList` from _libs/apis folder
   const res = await fetcherWithAuth.get(`contest/${contestId}/problem`, {
     searchParams: {
@@ -49,19 +49,19 @@ export default async function ContestProblem(props: ContestProblemProps) {
     let displayMessage = ''
 
     if (statusCode === 401) {
-      displayMessage = 'Log in first to check the problems.'
+      displayMessage = t('login_first_check_problems')
     } else {
       if (contestStatus === 'ongoing') {
-        displayMessage = 'Please register first to view the problem list'
+        displayMessage = t('please_register_view_problem_list')
       } else {
-        displayMessage = 'You can access after the contest started'
+        displayMessage = t('access_after_contest_started')
       }
     }
 
     return (
       <div className="flex h-44 translate-y-[22px] items-center justify-center gap-4">
         <div className="flex flex-col items-center gap-1 font-mono">
-          <p className="text-xl font-semibold">Access Denied</p>
+          <p className="text-xl font-semibold">{t('access_denied_title')}</p>
           <p className="text-gray-500">{displayMessage}</p>
         </div>
       </div>
@@ -70,18 +70,5 @@ export default async function ContestProblem(props: ContestProblemProps) {
 
   const problems: ContestApiResponse = await res.json()
 
-  return (
-    <DataTable
-      data={problems.data}
-      columns={columns}
-      headerStyle={{
-        order: 'w-[8%] ',
-        title: 'text-left w-[50%]',
-        submit: 'w-[11%]',
-        submissionTime: 'w-[20%]',
-        score: 'w-[11%]'
-      }}
-      linked
-    />
-  )
+  return <ProblemTable problems={problems.data} />
 }

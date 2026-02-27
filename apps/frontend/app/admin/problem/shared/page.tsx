@@ -2,6 +2,7 @@
 
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
+import { useTranslate } from '@tolgee/react'
 import { Suspense } from 'react'
 import { ProblemTabs } from '../_components/ProblemTabs'
 import {
@@ -10,13 +11,14 @@ import {
 } from './_components/SharedProblemTable'
 
 export default function Page() {
+  const { t } = useTranslate()
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between">
         <div>
-          <p className="text-4xl font-bold">SHARED PROBLEM LIST</p>
+          <p className="text-4xl font-bold">{t('shared_problem_list_title')}</p>
           <p className="flex text-lg text-slate-500">
-            Here&apos;s a problem list shared in other courses.
+            {t('shared_problem_list_description')}
           </p>
         </div>
       </div>

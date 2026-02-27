@@ -6,6 +6,7 @@ import { GET_PROBLEM } from '@/graphql/problem/queries'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { ProblemDetail } from '@/types/type'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -21,6 +22,8 @@ export default function Page(props: PageProps) {
   const params = use(props.params)
   const { problemId } = params
   const router = useRouter()
+
+  const { t } = useTranslate()
 
   const { data, loading } = useQuery(GET_PROBLEM, {
     variables: { id: Number(problemId) }
@@ -45,7 +48,7 @@ export default function Page(props: PageProps) {
     <div className="grid-rows-editor fixed left-0 grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
       {loading || !problem ? (
         <div className="flex h-dvh items-center justify-center text-white">
-          loading...
+          {t('loading_text')}
         </div>
       ) : (
         <>
@@ -57,7 +60,7 @@ export default function Page(props: PageProps) {
             </div>
 
             <Button onClick={() => router.back()} className="h-8 rounded-md">
-              Back
+              {t('back_button')}
             </Button>
           </header>
           <PreviewEditorResizablePanel problem={problem} />

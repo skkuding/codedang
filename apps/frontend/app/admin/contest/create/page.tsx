@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { ContestPreview } from '@/types/type'
 import type { CreateContestInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -35,6 +36,7 @@ import type { ContestManagerReviewer, ContestProblem } from '../_libs/schemas'
 import { CreateContestForm } from './_components/CreateContestForm'
 
 export default function Page() {
+  const { t } = useTranslate()
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [managers, setManagers] = useState<ContestManagerReviewer[]>([])
   const [isCreating, setIsCreating] = useState(false)
@@ -82,7 +84,7 @@ export default function Page() {
             <Link href="/admin/contest">
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-[32px] font-bold">CREATE CONTEST</span>
+            <span className="text-[32px] font-bold">{t('create_contest')}</span>
           </div>
 
           <CreateContestForm
@@ -95,31 +97,31 @@ export default function Page() {
               <PosterUploadForm name="posterUrl" />
 
               <div className="flex flex-col justify-between">
-                <FormSection title="Title">
+                <FormSection title={t('title')}>
                   <TitleForm
-                    placeholder="Name your contest"
+                    placeholder={t('name_your_contest')}
                     className="max-w-[492px]"
                   />
                 </FormSection>
-                <FormSection title="Join DueTime">
+                <FormSection title={t('join_due_time')}>
                   <TimeForm isContest name="registerDueTime" />
                 </FormSection>
-                <FormSection title="Start Time">
+                <FormSection title={t('start_time')}>
                   <TimeForm isContest name="startTime" />
                 </FormSection>
-                <FormSection title="End Time">
+                <FormSection title={t('end_time')}>
                   <TimeForm isContest name="endTime" />
                 </FormSection>
                 <FreezeForm name="freezeTime" />
               </div>
             </div>
 
-            <FormSection title="Summary" isLabeled={false} isFlexColumn>
+            <FormSection title={t('summary')} isLabeled={false} isFlexColumn>
               <SummaryForm name="summary" />
             </FormSection>
 
             <FormSection
-              title="More Description"
+              title={t('more_description')}
               isLabeled={false}
               isFlexColumn={true}
             >
@@ -129,26 +131,26 @@ export default function Page() {
             <div className="flex h-full min-h-[114px] w-full flex-col justify-center gap-3 rounded-xl border bg-[#8080800D] px-10 py-[27px]">
               <SampleTestcaseForm
                 name="evaluateWithSampleTestcase"
-                title="Evaluate with sample testcases included"
+                title={t('evaluate_with_sample_testcases_included')}
               />
               <SwitchField
                 name="invitationCode"
-                title="Invitation Code"
+                title={t('invitation_code')}
                 type="number"
                 formElement="input"
-                placeholder="Enter a invitation code"
+                placeholder={t('enter_invitation_code')}
               />
               <DisableCopyPasteForm
                 name="enableCopyPaste"
-                title="Disable Copy/Paste"
+                title={t('disable_copy_paste')}
               />
             </div>
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <CreateEditContestLabel
-                  title="Add manager / reviewer"
-                  content={`Contest managers have all permissions except for creating and editing the contest.\nYou can also import problems created by the contest manager into this contest.\nContest reviewers can view the problem list before the contest starts.`}
+                  title={t('add_manager_reviewer')}
+                  content={t('contest_managers_permissions')}
                 />
                 <AddManagerReviewerDialog
                   managers={managers}
@@ -164,8 +166,8 @@ export default function Page() {
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <CreateEditContestLabel
-                  title="Contest Problem List"
-                  content={`If contest problems are imported from the ‘All Problem List’,<br>the problems will automatically become invisible state.<br>After the contests are all over, you can manually make the problem visible again.`}
+                  title={t('contest_problem_list')}
+                  content={t('contest_problems_import_invisible')}
                 />
                 <ImportProblemDialog
                   problems={problems}
@@ -189,12 +191,14 @@ export default function Page() {
                   if (isValid) {
                     setIsPreviewing(true)
                   } else {
-                    toast.error('Please fill in all required fields.')
+                    toast.error(t('fill_required_fields_error'))
                   }
                 }}
               >
                 <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
-                <div className="text-base text-[#8a8a8a]">Show Preview</div>
+                <div className="text-base text-[#8a8a8a]">
+                  {t('show_preview')}
+                </div>
               </Button>
               <Button
                 type="submit"
@@ -202,7 +206,7 @@ export default function Page() {
                 disabled={isCreating}
               >
                 <IoIosCheckmarkCircle fontSize={20} />
-                <div className="mb-[2px] text-lg font-bold">Create</div>
+                <div className="mb-[2px] text-lg font-bold">{t('create')}</div>
               </Button>
             </div>
           </CreateContestForm>

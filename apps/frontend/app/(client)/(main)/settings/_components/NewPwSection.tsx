@@ -2,6 +2,7 @@ import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
 import invisibleIcon from '@/public/icons/invisible.svg'
 import visibleIcon from '@/public/icons/visible.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import React from 'react'
 import { useSettingsContext } from './context'
@@ -25,13 +26,15 @@ export function NewPwSection({
     formState: { register, errors }
   } = useSettingsContext()
 
+  const { t } = useTranslate()
+
   return (
     <>
       <div className="flex items-center gap-2">
         <div className="relative w-full justify-between">
           <Input
             type={newPasswordShow ? 'text' : 'password'}
-            placeholder="New password"
+            placeholder={t('new_password_placeholder')}
             disabled={updateNow ? true : !newPasswordAble}
             {...register('newPassword')}
             className={cn(
@@ -48,7 +51,7 @@ export function NewPwSection({
           >
             <Image
               src={newPasswordShow ? visibleIcon : invisibleIcon}
-              alt={newPasswordShow ? 'visible' : 'invisible'}
+              alt={newPasswordShow ? t('visible_alt') : t('invisible_alt')}
             />
           </span>
         </div>
@@ -61,11 +64,8 @@ export function NewPwSection({
           )}
         >
           <ul>
-            <li>8-20 characters</li>
-            <li>
-              Include two of the following: capital letters, small letters,
-              numbers
-            </li>
+            <li>{t('password_criteria_8_20_chars')}</li>
+            <li>{t('password_criteria_include_two')}</li>
           </ul>
         </div>
       )}

@@ -8,6 +8,7 @@ import { GET_CONTEST_QNA } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSession } from '@/libs/hooks/useSession'
 import { useMutation, useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { AdminQnaCommentArea } from './AdminQnaCommentArea'
@@ -25,6 +26,7 @@ export function QnaDetailModal({
 }) {
   const { contestId } = useParams<{ contestId: string }>()
   const session = useSession()
+  const { t } = useTranslate()
 
   const { data } = useQuery(GET_CONTEST_QNA, {
     variables: {
@@ -59,9 +61,9 @@ export function QnaDetailModal({
     try {
       await deleteContestQna()
       onOpenChange(false)
-      toast.success(`question is deleted successfully!`)
+      toast.success(t('question_deleted_success_message'))
     } catch (error) {
-      toast.error(`Error in deleting question!: ${error}`)
+      toast.error(`${t('error_deleting_question_message')}: ${error}`)
     } finally {
       triggerRefresh()
     }
@@ -84,7 +86,7 @@ export function QnaDetailModal({
               categoryName={categoryName ?? 'undefined'}
               DeleteButtonComponent={
                 <DeleteButton
-                  subject="question"
+                  subject={t('question')}
                   handleDelete={() => {
                     handleDeleteQna()
                   }}
@@ -98,7 +100,7 @@ export function QnaDetailModal({
           </div>
         ) : (
           <ErrorPage
-            errorRes={{ message: 'There is no such Qna!', statusCode: 999 }}
+            errorRes={{ message: t('no_qna_error_message'), statusCode: 999 }}
           />
         )}
       </div>

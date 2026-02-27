@@ -1,11 +1,13 @@
 import { Button } from '@/components/shadcn/button'
 import { contestNoticeId } from '@/libs/constants'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
 export function ContestSubBanner() {
+  const { t } = useTranslate()
   return (
     <>
       <div className="h-[120px]" />
@@ -19,18 +21,18 @@ export function ContestSubBanner() {
         <div className="flex h-full w-[90%] items-center justify-around">
           <div className="z-10 mt-2 flex h-56 flex-col justify-evenly pl-12 text-white">
             <p className="text-xl font-semibold leading-[120%] md:text-[34px]">
-              Turn Your Ideas <br />
-              into a Contest on CODEDANG!
+              {t('turn_your_ideas_1')} <br />
+              {t('turn_your_ideas_2')}
             </p>
             <p className="-mt-3 text-neutral-50">
-              You&apos;re just one admin approval away from create contest
+              {t('admin_approval_contest')}
             </p>
             <Link href={`/notice/${contestNoticeId}`}>
               <Button
                 variant="outline"
                 className="text-primary-strong mt-2 w-[150px] rounded-full text-base font-medium shadow-lg"
               >
-                Read more
+                {t('read_more')}
               </Button>
             </Link>
           </div>

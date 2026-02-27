@@ -1,6 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { ProblemDetail } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { PreviewEditorResizablePanel } from './PreviewEditorResizablePanel'
@@ -14,6 +15,8 @@ export function PreviewEditorLayout({
   problem,
   exitPreview
 }: EditorLayoutProps) {
+  const { t } = useTranslate()
+
   return (
     // Admin Layout의 Sidebar를 무시하기 위한 fixed
     <div className="grid-rows-editor fixed left-0 grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-[#222939] text-white">
@@ -31,7 +34,7 @@ export function PreviewEditorLayout({
           variant="destructive"
           className="h-8 rounded-md"
         >
-          Exit Preview
+          {t('exit_preview_button')}
         </Button>
       </header>
       <PreviewEditorResizablePanel problem={problem} />

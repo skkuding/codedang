@@ -10,10 +10,11 @@ import { KatexContent } from '@/components/KatexContent'
 import { Separator } from '@/components/shadcn/separator'
 import errorImage from '@/public/logos/error.webp'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { use } from 'react'
 import { ProblemCard } from '../../_components/ProblemCard'
-import { problemColumns } from '../../assignment/[assignmentId]/_components/Columns'
+import { getProblemColumns } from '../../assignment/[assignmentId]/_components/Columns'
 import { columns } from './_components/Columns'
 
 interface ExerciseDetailProps {
@@ -54,6 +55,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
     })
   )
 
+  const { t } = useTranslate()
   const invalidId =
     !Number.isFinite(exerciseId) ||
     exerciseId <= 0 ||
@@ -69,9 +71,9 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
           className="mx-auto block h-auto max-w-full"
         />
         <p className="mt-4 text-[20px] font-semibold text-neutral-700">
-          This exercise is unavailable.
+          {t('this_exercise_unavailable')}
           <br />
-          Please check the URL or try again later.
+          {t('please_check_url_or_try_again_later')}
         </p>
       </div>
     )
@@ -95,9 +97,9 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
           className="mx-auto block h-auto max-w-full"
         />
         <p className="mt-4 text-[20px] font-semibold text-neutral-700">
-          This exercise is unavailable.
+          {t('this_exercise_unavailable')}
           <br />
-          Please check the URL or try again later.
+          {t('please_check_url_or_try_again_later')}
         </p>
       </div>
     )
@@ -118,7 +120,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
               baseTime={exercise.dueTime ?? exercise.endTime}
             />
             <DurationDisplay
-              title="visible"
+              title={t('visible')}
               startTime={exercise.startTime}
               endTime={exercise.endTime}
             />
@@ -128,7 +130,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
         <Separator className="my-0" />
 
         <div className="flex flex-col gap-[30px]">
-          <p className="text-2xl font-semibold">DESCRIPTION</p>
+          <p className="text-2xl font-semibold">{t('description')}</p>
           <KatexContent
             content={exercise.description}
             classname="text-[#7F7F7F] font-normal text-base"
@@ -139,11 +141,11 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
 
         {problems && (
           <div>
-            <p className="mb-[16px] text-2xl font-semibold">PROBLEMS</p>
+            <p className="mb-[16px] text-2xl font-semibold">{t('problems')}</p>
             <div className="flex gap-[30px] lg:mb-[42px]">
               <div className="flex gap-[6px]">
                 <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
-                  Total
+                  {t('total')}
                 </span>
                 <span className="text-primary text-base font-semibold">
                   {problems.total}
@@ -152,7 +154,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
               {record && (
                 <div className="flex gap-[6px]">
                   <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
-                    Submit
+                    {t('submit')}
                   </span>
                   <span className="text-primary text-base font-semibold">
                     {
@@ -171,7 +173,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
           <div className="hidden lg:block">
             <DataTable
               data={problems.data}
-              columns={problemColumns()}
+              columns={getProblemColumns(t)}
               headerStyle={{
                 order: 'w-[10%]',
                 title: 'text-left w-[40%]',
@@ -190,7 +192,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
             <div className="hidden lg:block">
               <DataTable
                 data={record.problems}
-                columns={columns(record, exercise, courseId, submissions)}
+                columns={columns(record, exercise, courseId, submissions, t)}
                 headerStyle={{
                   order: 'w-[10%]',
                   title: 'text-left w-[40%]',

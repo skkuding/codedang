@@ -17,6 +17,7 @@ import {
   type ColumnDef,
   type Row
 } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import Link from 'next/link'
 
@@ -45,6 +46,7 @@ export function SubmissionTable<
   TValue,
   TRoute extends string
 >({ columns, data, getHref }: SubmissionTableProps<TData, TValue, TRoute>) {
+  const { t } = useTranslate()
   const table = useReactTable({
     data,
     columns,
@@ -141,7 +143,7 @@ export function SubmissionTable<
         ) : (
           <TableRow className="pointer-events-none">
             <TableCell colSpan={columns.length} className="h-24 text-center">
-              No results.
+              {t('no_results')}
             </TableCell>
           </TableRow>
         )}

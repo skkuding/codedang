@@ -4,6 +4,7 @@ import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { useSignUpModalStore } from '@/stores/signUpModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import * as v from 'valibot'
@@ -14,21 +15,23 @@ interface RegisterInfoInput {
   studentId: string
 }
 
-const schema = v.object({
-  realName: v.pipe(v.string(), v.minLength(1, 'Name is required')),
-  studentId: v.pipe(
-    v.string(),
-    v.length(10, 'Student ID must be 10 characters long')
-  )
-})
+const schema = (t: (key: string) => string) =>
+  v.object({
+    realName: v.pipe(v.string(), v.minLength(1, 'Name is required')),
+    studentId: v.pipe(
+      v.string(),
+      v.length(10, t('student_id_must_be_10_characters_long'))
+    )
+  })
 
 function RegisterInfoForm({ children }: { children: ReactNode }) {
+  const { t } = useTranslate()
   const { nextModal, setFormData, formData } = useSignUpModalStore(
     (state) => state
   )
   const methods = useForm<RegisterInfoInput>({
     mode: 'onChange',
-    resolver: valibotResolver(schema),
+    resolver: valibotResolver(schema(t)),
     defaultValues: {
       realName: '',
       studentId: ''
@@ -65,25 +68,31 @@ function RegisterInfoFormFields({
     formState: { isValid }
   } = useFormContext<RegisterInfoInput>()
 
+  const { t } = useTranslate()
+
   useEffect(() => {
     setIsButtonDisabled(!isValid)
   }, [isValid])
 
   return (
     <div>
-      <p className="text-xl font-medium">Tell Us About Yourself</p>
+      <p className="text-xl font-medium">{t('tell_us_about_yourself')}</p>
       <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
-        Make sure to fill out the whole form
+        {t('fill_out_the_whole_form')}
       </p>
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-[6px]">
           <RealNameLabel />
-          <Input placeholder="Name" type="text" {...register('realName')} />
+          <Input
+            placeholder={t('name_placeholder')}
+            type="text"
+            {...register('realName')}
+          />
         </div>
         <div className="flex flex-col gap-[6px]">
           <StudentIDLabel />
           <Input
-            placeholder="Student ID"
+            placeholder={t('student_id_placeholder')}
             type="number"
             {...register('studentId')}
           />
@@ -95,6 +104,7 @@ function RegisterInfoFormFields({
 
 export function SignUpRegisterInfo() {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true)
+  const { t } = useTranslate()
 
   return (
     <RegisterInfoForm>
@@ -104,7 +114,7 @@ export function SignUpRegisterInfo() {
         className="w-full px-[22px] py-[9px] text-base font-medium"
         disabled={isButtonDisabled}
       >
-        Next
+        {t('next_button')}
       </Button>
     </RegisterInfoForm>
   )

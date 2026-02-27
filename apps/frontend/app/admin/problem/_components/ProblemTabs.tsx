@@ -1,12 +1,14 @@
 'use client'
 
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 export function ProblemTabs() {
   const pathname = usePathname()
+  const { t } = useTranslate()
 
   const isCurrentTab = (tab: string) => {
     if (tab === '') {
@@ -26,7 +28,7 @@ export function ProblemTabs() {
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          MY PROBLEM
+          {t('my_problem')}
         </Link>
         <Link
           href={'/admin/problem/shared' as Route}
@@ -36,7 +38,7 @@ export function ProblemTabs() {
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          SHARED PROBLEM
+          {t('shared_problem')}
         </Link>
       </div>
     </div>

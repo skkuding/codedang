@@ -3,8 +3,8 @@
 import { Button } from '@/components/shadcn/button'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
+import Expand from '@/public/icons/texteditor-expand.svg'
 import Shrink from '@/public/icons/texteditor-shrink.svg'
-import type { Range } from '@tiptap/core'
 import Code from '@tiptap/extension-code'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Heading from '@tiptap/extension-heading'
@@ -25,9 +25,10 @@ import {
   NodeViewWrapper,
   Node
 } from '@tiptap/react'
-import type { Editor, NodeViewWrapperProps } from '@tiptap/react'
+import type { NodeViewWrapperProps } from '@tiptap/react'
 import { Extension } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import { useTranslate } from '@tolgee/react'
 import 'highlight.js/styles/github-dark.css'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
@@ -65,6 +66,7 @@ export function TextEditor({
   isExpanded = false,
   onShrink
 }: TextEditorProps) {
+  const { t } = useTranslate()
   const lowlight = createLowlight(common)
 
   const insertNodeRef = useRef<InsertNodeBarHandles>(null)
@@ -172,27 +174,13 @@ export function TextEditor({
             props.command({ editor, range, props })
           },
           render: renderItems,
-          items: ({
-            query
-          }: {
-            query?: string
-          }): {
-            title: string
-            command: ({
-              editor,
-              range
-            }: {
-              editor: Editor
-              range: Range
-            }) => void
-          }[] => {
-            return getSuggestionItems(
+          items: ({ query }: { query?: string }) =>
+            getSuggestionItems(
               query,
               () => insertNodeRef.current?.openImageDialog(),
               () => insertNodeRef.current?.openFileDialog(),
               () => insertNodeRef.current?.openTableDialog()
             )
-          }
         }
       })
     ],
@@ -232,9 +220,10 @@ export function TextEditor({
           <ListStyleBar editor={editor} />
           <InsertNodeBar ref={insertNodeRef} editor={editor} />
 
-          <div className="ml-auto flex items-center">
-            <UndoRedoBar editor={editor} />
-            {isExpanded && (
+          <div className="mx-1 h-6 shrink-0 border-r" />
+          <UndoRedoBar editor={editor} />
+          {isExpanded ? (
+            <div className="ml-auto flex space-x-2">
               <Button
                 variant="ghost"
                 type="button"
@@ -247,8 +236,25 @@ export function TextEditor({
                   className="h-[22px] w-[22px]"
                 />
               </Button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="ml-auto flex space-x-2">
+              <Button
+                variant="ghost"
+                type="button"
+                className="h-9 w-9 p-1"
+                onClick={() => {
+                  setIsExpandedScreenOpen(!isExpandedScreenOpen)
+                }}
+              >
+                <Image
+                  src={Expand}
+                  alt="Expand"
+                  className="h-[22px] w-[22px]"
+                />
+              </Button>
+            </div>
+          )}
         </div>
       )}
       <EditorContent
@@ -265,7 +271,7 @@ export function TextEditor({
             hideCloseButton={true}
           >
             <TextEditor
-              placeholder={placeholder}
+              placeholder={t('editor_placeholder')}
               onChange={onChange}
               defaultValue={editor?.getHTML()}
               isExpanded={true}
@@ -353,6 +359,8 @@ export const MathExtension = Node.create({
 })
 
 function MathPreview(props: NodeViewWrapperProps) {
+  const { t } = useTranslate()
+
   const [content, setContent] = useState(props.node.attrs.content)
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -502,14 +510,14 @@ function MathPreview(props: NodeViewWrapperProps) {
               value={content}
               onChange={handleContentChange}
               onKeyDown={handleKeyDown}
-              placeholder="Please Insert LaTeX"
+              placeholder={t('latex_placeholder')}
               className="w-60 rounded-md border border-gray-300 px-2 py-1 text-sm"
             />
             <button
               onClick={handleApply}
               className="ml-2 cursor-pointer rounded-md border-none bg-blue-600 px-2 py-1 text-sm text-white"
             >
-              Apply
+              {t('apply_button')}
             </button>
           </div>
         )}

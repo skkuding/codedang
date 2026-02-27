@@ -6,12 +6,14 @@ import {
   CarouselPrevious
 } from '@/components/shadcn/carousel'
 import GrayRightArrow from '@/public/icons/arrow-right-gray.svg'
+import { getTranslate } from '@/tolgee/server'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getProblemList } from '../../_libs/apis/problem'
 import { NewProblemCard } from './NewProblemCard'
 
 export async function NewProblemCards() {
+  const t = await getTranslate()
   const { data: problems } = await getProblemList({
     order: 'submit-desc',
     take: 6
@@ -26,7 +28,7 @@ export async function NewProblemCards() {
           <Carousel className="flex w-full flex-col gap-10">
             <div className="flex w-full justify-between">
               <p className="text-3xl font-semibold leading-[36px] tracking-[-0.9px]">
-                PRACTICE WITH CODING PROBLEMS
+                {t('practice_with_coding_problems')}
               </p>
               <div className="flex h-[30px] w-[78px] gap-[18px]">
                 <CarouselPrevious />
@@ -48,7 +50,7 @@ export async function NewProblemCards() {
           <Link href={'/problem'}>
             <div className="border-color-neutral-50 flex items-center justify-center gap-[2px] border-b py-[4px]">
               <p className="font-pretendard flex h-8 items-center text-[16px] font-medium leading-[22.4px] tracking-[-0.48px] text-[#5C5C5C]">
-                Go to Problem
+                {t('go_to_problem')}
               </p>
               <div className="relative size-[16px]">
                 <Image src={GrayRightArrow} alt="Right" fill />
@@ -60,13 +62,13 @@ export async function NewProblemCards() {
         <div className="flex w-full flex-col gap-4 px-5 py-[30px] md:hidden">
           <div className="flex justify-between">
             <div className="text-xl font-semibold">
-              <p>PRACTICE WITH</p>
-              <p>CODING PROBLEMS</p>
+              <p>{t('practice_with')}</p>
+              <p>{t('coding_problems')}</p>
             </div>
             <Link href={'/problem'}>
               <div className="flex items-center justify-center gap-[2px] border-[#B0B0B0]">
                 <p className="text-color-neutral-50 flex h-[17px] items-center text-xs font-normal leading-[22.4px] tracking-[-0.03rem]">
-                  Go to Problem
+                  {t('go_to_problem')}
                 </p>
                 <div className="relative size-[12px]">
                   <Image src={GrayRightArrow} alt="Right" fill />

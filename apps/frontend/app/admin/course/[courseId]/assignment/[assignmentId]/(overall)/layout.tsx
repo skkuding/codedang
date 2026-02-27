@@ -5,6 +5,7 @@ import { DurationDisplay } from '@/components/DurationDisplay'
 import { Button } from '@/components/shadcn/button'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
@@ -19,6 +20,8 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
       assignmentId: Number(assignmentId)
     }
   }).data?.getAssignment
+
+  const { t } = useTranslate()
 
   return (
     <main className="flex flex-col gap-6 px-20 py-16">
@@ -36,7 +39,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
         >
           <Button variant="default">
             <FaPencil className="mr-2 h-4 w-4" />
-            Edit
+            {t('edit_button')}
           </Button>
         </Link>
       </div>
@@ -50,7 +53,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
           <DurationDisplay
             startTime={assignmentData?.startTime}
             endTime={assignmentData?.endTime}
-            title="visible"
+            title={t('visible')}
           />
         </div>
       )}

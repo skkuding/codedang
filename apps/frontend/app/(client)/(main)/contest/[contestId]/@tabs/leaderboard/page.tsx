@@ -3,6 +3,7 @@
 import { Input } from '@/components/shadcn/input'
 import searchIcon from '@/public/icons/search.svg'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -45,6 +46,7 @@ const BaseFetchedContest = {
 }
 
 export default function ContestLeaderBoard() {
+  const { t } = useTranslate()
   const [searchText, setSearchText] = useState('')
   const [isFinished, setIsFinished] = useState(false)
   const pathname = usePathname()
@@ -133,12 +135,12 @@ export default function ContestLeaderBoard() {
     <div className="relative ml-[116px] w-screen pb-[120px]">
       <div className="mt-[96px] flex flex-row">
         <div className="h-[34px] text-[24px] font-bold">
-          CHECK YOUR RANKING!
+          {t('check_your_ranking')}
         </div>
         <LeaderboardModalDialog />
         {isFinished ? null : (
           <div className="text-primary ml-8 flex items-center gap-3">
-            On Live
+            {t('on_live')}
             <span className="relative flex size-3">
               <span className="bg-primary-light absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
               <span className="bg-primary relative inline-flex size-3 rounded-full" />
@@ -149,14 +151,14 @@ export default function ContestLeaderBoard() {
       <div className="relative mb-[62px] mt-[30px]">
         <Image
           src={searchIcon}
-          alt="search"
+          alt={t('search')}
           className="absolute left-5 top-1/2 -translate-y-1/2 cursor-pointer"
           onClick={() => {
             handleSearch({ text: searchText, leaderboardUsers })
           }}
         />
         <Input
-          placeholder="Search"
+          placeholder={t('search_input_placeholder')}
           className="w-[600px] pl-[52px] text-[18px] font-normal"
           onChange={(e) => setSearchText(e.target.value)}
           onKeyDown={(e) => {

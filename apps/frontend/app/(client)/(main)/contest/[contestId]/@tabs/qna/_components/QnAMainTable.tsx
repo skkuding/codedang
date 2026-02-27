@@ -9,10 +9,11 @@ import { usePagination } from '@/libs/hooks/usePaginationV2'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import type { ProblemDataTop } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import type { Session } from 'next-auth'
 import { useEffect, useState } from 'react'
 import { QnADataTable } from './QnADataTable'
-import { QnAColumns } from './QnAMainColumns'
+import { getQnAColumns } from './QnAMainColumns'
 
 const ITEMS_PER_PAGE = 12
 
@@ -60,6 +61,9 @@ export function QnAMainTable({
   isContestStaff,
   canCreateQnA
 }: QnAMainTableProps) {
+  const { t } = useTranslate()
+  const columns = getQnAColumns(t)
+
   const { data: QnAData } = useSuspenseQuery({
     queryKey: [
       'QnA',
@@ -122,7 +126,7 @@ export function QnAMainTable({
       <QnADataTable
         session={session}
         contestId={contestId}
-        columns={QnAColumns}
+        columns={columns}
         QnADataWithCategory={QnADataWithCategory}
         contestProblems={contestProblems}
         contestStatus={contestStatus}
@@ -133,7 +137,7 @@ export function QnAMainTable({
           writer: 'w-[190px]',
           createTime: 'w-[190px]'
         }}
-        emptyMessage="No results."
+        emptyMessage={t('empty_message')}
         itemsPerPage={ITEMS_PER_PAGE}
         currentPage={currentPage}
         setFilteredData={setFilteredData}

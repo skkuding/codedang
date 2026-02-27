@@ -3,6 +3,7 @@
 import { DurationDisplay } from '@/components/DurationDisplay'
 import { cn } from '@/libs/utils'
 import type { ContestStatus } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import { useParams, useRouter } from 'next/navigation'
@@ -29,6 +30,7 @@ export function ContestStatusTimeDiff({
   textStyle: string
   inContestEditor: boolean
 }) {
+  const { t } = useTranslate()
   const router = useRouter()
   const { problemId } = useParams()
   const currentTime = dayjs()
@@ -67,10 +69,10 @@ export function ContestStatusTimeDiff({
 
     if (inContestEditor) {
       if (days === 0 && hours === 0 && minutes === 5 && seconds === 0) {
-        toast.error('Contest ends in 5 minutes.', { duration: 10000 })
+        toast.error(t('contest_ends_in_5_minutes'), { duration: 10000 })
       }
       if (days === 0 && hours === 0 && minutes === 1 && seconds === 0) {
-        toast.error('Contest ends in 1 minute.', { duration: 10000 })
+        toast.error(t('contest_ends_in_1_minute'), { duration: 10000 })
       }
     }
 
@@ -81,7 +83,7 @@ export function ContestStatusTimeDiff({
         registerMinutes === 5 &&
         registerSeconds === 0
       ) {
-        toast.error('Contest registration will close in 5 minutes.', {
+        toast.error(t('contest_registration_5_minutes'), {
           duration: 10000
         })
       }
@@ -91,7 +93,7 @@ export function ContestStatusTimeDiff({
         registerMinutes === 1 &&
         registerSeconds === 0
       ) {
-        toast.error('Contest registration will close in 1 minutes.', {
+        toast.error(t('contest_registration_1_minute'), {
           duration: 10000
         })
       }
@@ -123,7 +125,7 @@ export function ContestStatusTimeDiff({
           <DurationDisplay
             startTime={contest.createTime}
             endTime={contest.registerDueTime}
-            title="registration"
+            title={t('registration_label')}
           />
         </div>
       )}
@@ -137,7 +139,7 @@ export function ContestStatusTimeDiff({
           <DurationDisplay
             startTime={contest.startTime}
             endTime={contest.endTime}
-            title="duration"
+            title={t('duration_label')}
           />
         </div>
       )}

@@ -16,6 +16,7 @@ import {
   type Row,
   type Table as TanstackTable
 } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useDataTable } from './context'
@@ -82,6 +83,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
 }: DataTableProps<TData, TRoute>) {
   const router = useRouter()
   const { table } = useDataTable<TData>()
+  const { t } = useTranslate()
 
   if (isCardView) {
     // isCardView가 true일 때 반환
@@ -122,7 +124,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                   colSpan={Number(table.getAllColumns().length)}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {t('no_results')}
                 </TableCell>
               </TableRow>
             )}
@@ -220,7 +222,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                 colSpan={Number(table.getAllColumns().length)}
                 className="h-24 text-center"
               >
-                No results.
+                {t('no_results')}
               </TableCell>
             </TableRow>
           )}

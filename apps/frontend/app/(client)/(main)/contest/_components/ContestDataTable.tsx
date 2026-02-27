@@ -18,6 +18,7 @@ import {
   getPaginationRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -76,6 +77,8 @@ export function ContestDataTable<TData extends Item, TValue>({
   setFilteredData,
   resetPageIndex
 }: ContestDataTableProps<TData, TValue>) {
+  const { t } = useTranslate()
+
   const table = useReactTable({
     data,
     columns,
@@ -101,11 +104,13 @@ export function ContestDataTable<TData extends Item, TValue>({
   return (
     <div className="flex flex-col gap-[41px]">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-700">CONTEST LIST</h1>
+        <h1 className="text-2xl font-semibold text-gray-700">
+          {t('contest_list_title')}
+        </h1>
         <div className="flex gap-4">
           <ContestTitleFilter
             column={table.getColumn('status')}
-            title="State"
+            title={t('state_filter_title')}
             options={status.map((item) => ({ value: item, label: item }))}
             resetPageIndex={resetPageIndex}
           />

@@ -10,6 +10,7 @@ import {
 import { cn, fetcherWithAuth } from '@/libs/utils'
 import tailwindConfig from '@/tailwind.config'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { Dot } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import {
@@ -106,6 +107,7 @@ function RenderCustomBar(props: CustomBarProps) {
 
 export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
   const { contestId } = useParams<{ contestId: string }>()
+  const { t } = useTranslate()
 
   const { data: rawData } = useSuspenseQuery<UserDetail>({
     queryKey: ['statistics', contestId, 'user analysis', `${curUserId}`],
@@ -131,7 +133,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
         <div className="flex w-full flex-col gap-2">
           <span className="truncate text-2xl">{userData.username}</span>
           <div className="bg-color-neutral-99 text-color-neutral-40 flex w-fit gap-2 rounded-full px-5 py-2">
-            <span>Final Rank</span>
+            <span>{t('final_rank')}</span>
             <span className="text-primary">
               {`${userData.rank}${
                 userData.rank % 100 >= 11 && userData.rank % 100 <= 13
@@ -140,10 +142,10 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
               }`}
             </span>
             <span className="text-line">|</span>
-            <span>Penalty</span>
+            <span>{t('penalty')}</span>
             <span className="text-primary">- {userData.totalPenalty}</span>
             <span className="text-line">|</span>
-            <span>Total Solved</span>
+            <span>{t('total_solved')}</span>
             <span className="text-primary">{userData.totalSolved}</span>
           </div>
         </div>
@@ -151,10 +153,10 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
       <Card className="flex w-full flex-col gap-3 rounded-xl border-none p-5 shadow-[0px_4px_20px_0px_rgba(53,78,116,0.10)]">
         <CardHeader className="flex flex-row items-start justify-between p-0">
           <span className="text-primary text-base font-medium">
-            Penalty Analysis
+            {t('penalty_analysis')}
           </span>
           <span className="text-color-red-60 font-semibold">
-            Total - {userData.totalPenalty}
+            {t('total_penalty', { score: userData.totalPenalty })}
           </span>
         </CardHeader>
         {userData.problemAnalysis.length > 0 && (
@@ -168,10 +170,16 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                       <span className="font-medium">{`${analysis.problemLabel} :`}</span>
                     </div>
                     {analysis.successPenalty && (
-                      <span className="text-color-neutral-40">{`${analysis.successPenalty}m taken`}</span>
+                      <span className="text-color-neutral-40">
+                        {t('time_taken', { time: analysis.successPenalty })}
+                      </span>
                     )}
                     {analysis.wrongAttemptCount && (
-                      <span className="text-color-red-60">{`${analysis.wrongAttemptCount} attempts`}</span>
+                      <span className="text-color-red-60">
+                        {t('attempts_count', {
+                          count: analysis.wrongAttemptCount
+                        })}
+                      </span>
                     )}
                     {analysis.wrongPenalty && (
                       <span className="text-color-red-60">{`(-${analysis.wrongPenalty})`}</span>
@@ -188,7 +196,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
       </Card>
       <Card className="flex w-full flex-col gap-3 rounded-xl border-none p-5 shadow-[0px_4px_20px_0px_rgba(53,78,116,0.10)]">
         <CardHeader className="text-primary p-0 text-base font-medium">
-          Problem-Solving Timeline
+          {t('problem_solving_timeline')}
         </CardHeader>
         {userData.timeline.length > 0 ? (
           <CardContent
@@ -232,14 +240,22 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
                       return (
                         <div className="border-primary text-primary rounded-lg border bg-white p-3 shadow-2xl">
                           <p className="mb-1 text-sm font-medium">
-                            Problem {data.problemLabel}
+                            {t('problem_label', { label: data.problemLabel })}
                           </p>
                           <div className="space-y-1 text-xs">
-                            <p>Start Time: {data.solvingStartTime}</p>
-                            <p>End Time: {data.solvingEndTime}</p>
+                            <p>
+                              {t('start_time', {
+                                time: data.solvingStartTime
+                              })}
+                            </p>
+                            <p>
+                              {t('end_time', { time: data.solvingEndTime })}
+                            </p>
                             <hr className="border-primary my-1" />
                             <p className="text-primary">
-                              {`Duration: ${Math.floor(data.solvingDuration / 3600) > 0 ? `${Math.floor(data.solvingDuration / 3600)}h` : ''} ${Math.floor((data.solvingDuration % 3600) / 60)}m ${data.solvingDuration % 60}s`}
+                              {t('duration', {
+                                duration: `${Math.floor(data.solvingDuration / 3600) > 0 ? `${Math.floor(data.solvingDuration / 3600)}h ` : ''}${Math.floor((data.solvingDuration % 3600) / 60)}m ${data.solvingDuration % 60}s`
+                              })}
                             </p>
                           </div>
                         </div>
@@ -269,23 +285,27 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
           </CardContent>
         ) : (
           <CardContent className="text-color-neutral-60 p-0 text-base font-medium">
-            There is no timeline to figure
+            {t('no_timeline')}
           </CardContent>
         )}
       </Card>
       <Card className="flex w-full flex-col gap-3 rounded-xl border-none p-5 shadow-[0px_4px_20px_0px_rgba(53,78,116,0.10)]">
         <CardHeader className="text-primary p-0 text-base font-medium">
-          Submission History
+          {t('submission_history')}
         </CardHeader>
         <CardContent className="p-0">
           {userData.submissionHistory.length > 0 ? (
             <Table>
               <TableHeader className="text-base! font-medium!">
                 <TableRow>
-                  <TableHead className="w-[100px] py-2">Time</TableHead>
-                  <TableHead>Problem</TableHead>
-                  <TableHead>Result</TableHead>
-                  <TableHead className="text-right">Language</TableHead>
+                  <TableHead className="w-[100px] py-2">
+                    {t('time_header')}
+                  </TableHead>
+                  <TableHead>{t('problem_header')}</TableHead>
+                  <TableHead>{t('result_header')}</TableHead>
+                  <TableHead className="text-right">
+                    {t('language_header')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="text-base! font-medium!">
@@ -320,7 +340,7 @@ export function UserAnalysisContent({ curUserId }: { curUserId: number }) {
             </Table>
           ) : (
             <p className="text-color-neutral-60 text-xs">
-              There is no submission history
+              {t('no_submission_history')}
             </p>
           )}
         </CardContent>

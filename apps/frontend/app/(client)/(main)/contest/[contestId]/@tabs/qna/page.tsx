@@ -3,6 +3,7 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import { fetcherWithAuth } from '@/libs/utils'
 import welcomeLogo from '@/public/logos/welcome.png'
+import { getTranslate } from '@/tolgee/server'
 import type { ContestTop, ProblemDataTop } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import Image from 'next/image'
@@ -71,14 +72,16 @@ export default async function ContestQna(props: ContestQnAProps) {
       contest.isPrivilegedRole ||
       contestStatus !== 'Ongoing')
 
+  const t = await getTranslate()
+
   if (!session && contestStatus === 'Ongoing') {
     return (
       <div className="flex w-full max-w-7xl flex-col items-center justify-center p-5 py-48">
         <Image src={welcomeLogo} alt="welcome" />
-        <p className="mt-10 text-2xl font-semibold">Please Login!</p>
+        <p className="mt-10 text-2xl font-semibold">{t('please_login')}</p>
         <div className="mt-2 text-center text-base font-normal text-[#7F7F7F]">
-          <p>This page is only available to logged-in users.</p>
-          <p>Click the button below to login.</p>
+          <p>{t('only_logged_in_users_message')}</p>
+          <p>{t('click_to_login')}</p>
         </div>
         <LoginButton className="mt-6 flex h-[46px] w-60 items-center justify-center text-base font-bold" />
         <div className="py-5" />

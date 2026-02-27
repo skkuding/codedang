@@ -13,6 +13,7 @@ import infoBlueIcon from '@/public/icons/icon-info-blue.svg'
 import { useQuery, useMutation } from '@apollo/client'
 import type { CreateAnnouncementInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
@@ -25,6 +26,7 @@ export function CreateContestAnnouncement({
 }: {
   contestId: number
 }) {
+  const { t } = useTranslate()
   const txtMaxLength = 400
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
@@ -74,10 +76,10 @@ export function CreateContestAnnouncement({
       })
       resetField('content')
       resetField('problemOrder')
-      toast.success('Create Announcement successfully!')
+      toast.success(t('create_announcement_success'))
     } catch (error) {
       console.error('Error with creating Announcement:', error)
-      toast.error('An unexpected error occurred')
+      toast.error(t('unexpected_error_occurred'))
     }
   }
 
@@ -90,7 +92,7 @@ export function CreateContestAnnouncement({
   return (
     <form onSubmit={handleSubmit(onSubmitAnnouncement)}>
       <p className="mb-5 text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
-        Post New Announcement
+        {t('post_new_announcement')}
       </p>
       <div className="flex w-full flex-col gap-[6px]">
         <ProblemSelector
@@ -114,7 +116,7 @@ export function CreateContestAnnouncement({
         <div className="relative mt-1">
           <Textarea
             {...register('content')}
-            placeholder="Enter a Announcement"
+            placeholder={t('enter_your_announcement')}
             maxLength={txtMaxLength}
             className={cn(
               'border-line min-h-[280px] resize-none rounded-[12px] border bg-white px-[30px] py-6 text-base font-normal leading-[24px] tracking-[-0.48px] text-black',
@@ -129,7 +131,7 @@ export function CreateContestAnnouncement({
         <div className="mb-[14px] flex items-center justify-start">
           <Image src={infoBlueIcon} alt="infoblue" width={16} />
           <p className="text-primary ml-[2px] text-xs font-normal leading-[16.8px] tracking-[-0.36px]">
-            Posted Announcement cannot be edited.
+            {t('posted_announcement_cannot_be_edited')}
           </p>
         </div>
         <Button
@@ -142,7 +144,7 @@ export function CreateContestAnnouncement({
           ) : (
             <Image src={checkBoxGrayIcon} alt="checkbox-gray" width={20} />
           )}
-          <span className="ml-[6px]">Post</span>
+          <span className="ml-[6px]">{t('post')}</span>
         </Button>
       </div>
     </form>

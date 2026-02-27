@@ -12,6 +12,7 @@ import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import type { Level } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { CiShare1 } from 'react-icons/ci'
 import { ProblemUsage } from './ProblemUsage'
@@ -36,6 +37,7 @@ export interface DataTableProblem {
 
 function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
+  const { t } = useTranslate()
 
   return (
     <div className="flex items-center justify-center space-x-2">
@@ -64,7 +66,7 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
           </TooltipTrigger>
           {row.original.isVisible === null && (
             <TooltipContent className="bg-white text-black">
-              <p>Included in Ongoing/Upcoming Contest/Assignment.</p>
+              <p>{t('included_in_ongoing_contest_tooltip')}</p>
             </TooltipContent>
           )}
         </Tooltip>
@@ -84,7 +86,9 @@ function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
   )
 }
 
-export const createColumns = (): ColumnDef<DataTableProblem>[] => [
+export const createColumns = (
+  t: (key: string) => string
+): ColumnDef<DataTableProblem>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -93,7 +97,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
         onCheckedChange={(value) =>
           table.toggleAllPageRowsSelected(Boolean(value))
         }
-        aria-label="Select all"
+        aria-label={t('select_all_checkbox_aria')}
         className="translate-y-[2px]"
       />
     ),
@@ -102,7 +106,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
         onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
-        aria-label="Select row"
+        aria-label={t('select_row_checkbox_aria')}
         className="translate-y-[2px]"
       />
     ),
@@ -114,7 +118,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Title"
+        title={t('title_column_title')}
         className="w-[400px]"
       />
     ),
@@ -152,7 +156,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
   {
     accessorKey: 'updateTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Update" />
+      <DataTableColumnHeader column={column} title={t('update_column_title')} />
     ),
     cell: ({ row }) => {
       return row.original.updateTime.substring(2, 10)
@@ -166,7 +170,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Level" />
+      <DataTableColumnHeader column={column} title={t('level_column_title')} />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
@@ -188,7 +192,10 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
   {
     accessorKey: 'submissionCount',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Submission" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('submission_column_title')}
+      />
     ),
     cell: ({ row }) => {
       return row.getValue('submissionCount')
@@ -197,7 +204,10 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
   {
     accessorKey: 'acceptedRate',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Success Rate" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('success_rate_column_title')}
+      />
     ),
     cell: ({ row }) => {
       const acceptedRate: number = row.getValue('acceptedRate')
@@ -205,11 +215,13 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
       return `${acceptedRateFloat}%`
     }
   },
-
   {
     accessorKey: 'isVisible',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Visible" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('visible_column_title')}
+      />
     ),
     cell: ({ row }) => {
       return <VisibleCell row={row} />
@@ -220,7 +232,7 @@ export const createColumns = (): ColumnDef<DataTableProblem>[] => [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Preview"
+        title={t('preview_column_title')}
         className="w-[80px]"
       />
     ),

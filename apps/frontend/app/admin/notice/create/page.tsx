@@ -1,5 +1,6 @@
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -13,6 +14,7 @@ import { FixedForm } from '../_components/FixedForm'
 export const dynamic = 'force-dynamic'
 
 export default function Page() {
+  const { t } = useTranslate()
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
@@ -20,25 +22,25 @@ export default function Page() {
           <Link href="/admin/problem">
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
-          <span className="text-4xl font-bold">Create Notice</span>
+          <span className="text-4xl font-bold">{t('create_notice')}</span>
         </div>
 
         <CreateNoticeForm>
           <div className="flex gap-32">
-            <FormSection title="Visible">
+            <FormSection title={t('visible_section_title')}>
               <VisibleForm />
             </FormSection>
 
-            <FormSection title="Fixed">
+            <FormSection title={t('fixed_section_title')}>
               <FixedForm />
             </FormSection>
           </div>
 
-          <FormSection title="Title">
-            <TitleForm placeholder="Enter a notice title" />
+          <FormSection title={t('title_section_title')}>
+            <TitleForm placeholder={t('notice_title_placeholder')} />
           </FormSection>
 
-          <FormSection title="Content">
+          <FormSection title={t('content_section_title')}>
             <DescriptionForm name="content" />
           </FormSection>
 
@@ -47,7 +49,7 @@ export default function Page() {
             className="flex h-[36px] w-[100px] items-center gap-2 px-0"
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
-            <div className="mb-[2px] text-base">Create</div>
+            <div className="mb-[2px] text-base">{t('create_button')}</div>
           </Button>
         </CreateNoticeForm>
       </main>

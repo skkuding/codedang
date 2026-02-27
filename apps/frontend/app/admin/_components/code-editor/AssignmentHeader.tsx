@@ -16,6 +16,7 @@ import arrowBottomIcon from '@/public/icons/arrow-bottom.svg'
 import checkIcon from '@/public/icons/check-green.svg'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -65,12 +66,13 @@ export function AssignmentHeader() {
     (p) => p.problemId === Number(problemId)
   )
 
+  const { t } = useTranslate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   return (
     <div className="-px-1 flex items-center justify-start py-[10px] text-lg text-[#787E80]">
       <Link href="/" className="mr-3">
-        <Image src={codedangLogo} alt="코드당" width={35} />
+        <Image src={codedangLogo} alt={t('codedang_alt')} width={35} />
       </Link>
       <Link
         href={`/admin/course/${courseId}/assignment/${assignmentId}` as const}
@@ -118,7 +120,7 @@ export function AssignmentHeader() {
                     <div className="flex items-center justify-center pl-2">
                       <Image
                         src={checkIcon}
-                        alt="check"
+                        alt={t('check_icon_alt_text')}
                         width={16}
                         height={16}
                       />

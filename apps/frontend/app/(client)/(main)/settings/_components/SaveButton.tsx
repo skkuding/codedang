@@ -1,4 +1,5 @@
 import { Button } from '@/components/shadcn/button'
+import { useTranslate } from '@tolgee/react'
 import { useSettingsContext } from './context'
 
 interface SaveButtonProps {
@@ -13,6 +14,7 @@ export function SaveButton({
   onSubmitClick
 }: SaveButtonProps) {
   const { updateNow } = useSettingsContext()
+  const { t } = useTranslate()
 
   return (
     <div className="mt-2 text-end">
@@ -22,7 +24,7 @@ export function SaveButton({
         className="font-semibold disabled:bg-neutral-300 disabled:text-neutral-500"
         onClick={onSubmitClick}
       >
-        Save
+        {t('save_button')}
       </Button>
     </div>
   )

@@ -2,6 +2,7 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import welcomeLogo from '@/public/logos/welcome.png'
+import { getTranslate } from '@/tolgee/server'
 import { ErrorBoundary } from '@suspensive/react'
 import Image from 'next/image'
 import { Suspense } from 'react'
@@ -25,16 +26,18 @@ function CardListFallback() {
 
 export default async function Course() {
   const session = await auth()
+  const t = await getTranslate()
+
   if (!session) {
     return (
       <>
         <CourseMainBanner course={null} />
         <div className="flex w-full max-w-7xl flex-col items-center justify-center p-5 py-48">
-          <Image src={welcomeLogo} alt="welcome" />
-          <p className="mt-10 text-2xl font-semibold">Please Login!</p>
+          <Image src={welcomeLogo} alt={t('welcome_image_alt')} />
+          <p className="mt-10 text-2xl font-semibold">{t('please_login')}</p>
           <div className="mt-2 text-center text-base font-normal text-[#7F7F7F]">
-            <p>This page is only available to logged-in users.</p>
-            <p>Click the button below to login.</p>
+            <p>{t('page_available_only_login')}</p>
+            <p>{t('button_below_to_login')}</p>
           </div>
           <LoginButton className="mt-6 flex h-[46px] w-60 items-center justify-center text-base font-bold" />
           <div className="py-5" />
@@ -56,7 +59,7 @@ export default async function Course() {
         </div>
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<CardListFallback />}>
-            <CourseCardList title="나의 강좌" />
+            <CourseCardList title={t('my_course')} />
           </Suspense>
         </ErrorBoundary>
       </div>

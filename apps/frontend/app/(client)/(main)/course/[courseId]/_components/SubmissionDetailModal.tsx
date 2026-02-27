@@ -13,6 +13,7 @@ import { Separator } from '@/components/shadcn/separator'
 import { dateFormatter } from '@/libs/utils'
 import type { Assignment } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { MdArrowForwardIos } from 'react-icons/md'
 
 interface SubmissionDetailModalProps {
@@ -23,6 +24,8 @@ export function SubmissionDetailModal({
   problemId,
   assignment
 }: SubmissionDetailModalProps) {
+  const { t } = useTranslate()
+
   const { data: assignmentProblemRecord } = useSuspenseQuery({
     ...assignmentQueries.record({
       assignmentId: assignment.id
@@ -53,10 +56,10 @@ export function SubmissionDetailModal({
         <DialogTitle>
           <div className="flex items-center gap-2 overflow-hidden truncate whitespace-nowrap text-lg font-medium">
             <span
-              title={`Week ${assignment.week}`}
+              title={t('week_number', { weekNumber: assignment.week })}
               className="max-w-[80px] truncate"
             >
-              Week {assignment.week}
+              {t('week_number', { weekNumber: assignment.week })}
             </span>
             <MdArrowForwardIos />
             <span
@@ -70,13 +73,13 @@ export function SubmissionDetailModal({
               title={
                 assignmentProblemRecord?.problems.find(
                   (problem) => problem.id === problemId
-                )?.title || 'Not found'
+                )?.title || t('not_found_label')
               }
               className="max-w-[200px] overflow-hidden truncate"
             >
               {assignmentProblemRecord?.problems.find(
                 (problem) => problem.id === problemId
-              )?.title || 'Not found'}
+              )?.title || t('not_found_label')}
             </span>
           </div>
         </DialogTitle>
@@ -101,7 +104,7 @@ export function SubmissionDetailModal({
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Comment</span>
+          <span className="text-sm font-medium">{t('comment_label')}</span>
           <div className="rounded-xs flex-col border p-4">
             <span className="text-xs">
               {assignmentProblemRecord?.problems.find(
@@ -113,11 +116,13 @@ export function SubmissionDetailModal({
 
         {submission && (
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium">Last Submission</span>
+            <span className="text-sm font-medium">
+              {t('last_submission_label')}
+            </span>
             <ScrollArea className="rounded-md">
               <div className="**:whitespace-nowrap flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-[14px] [&_p]:text-slate-400">
                 <div>
-                  <h2>User ID</h2>
+                  <h2>{t('user_id_label')}</h2>
                   <p>{submission?.user.username}</p>
                 </div>
                 <Separator
@@ -125,7 +130,7 @@ export function SubmissionDetailModal({
                   className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
                 />
                 <div>
-                  <h2>Language</h2>
+                  <h2>{t('language_label')}</h2>
                   <p>{submission?.language}</p>
                 </div>
                 <Separator
@@ -133,7 +138,7 @@ export function SubmissionDetailModal({
                   className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
                 />
                 <div>
-                  <h2>Code Size</h2>
+                  <h2>{t('code_size_label')}</h2>
                   <p>{submission?.codeSize} B</p>
                 </div>
                 <Separator
@@ -141,7 +146,7 @@ export function SubmissionDetailModal({
                   className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
                 />
                 <div>
-                  <h2>Submission Time</h2>
+                  <h2>{t('submission_time_label')}</h2>
                   <p>
                     {dateFormatter(
                       submission?.createTime ?? '',
@@ -158,7 +163,9 @@ export function SubmissionDetailModal({
           <div className="flex flex-col gap-2">
             {testResults && (
               <div>
-                <span className="text-sm font-medium">Testcase Result</span>
+                <span className="text-sm font-medium">
+                  {t('testcase_result_label')}
+                </span>
 
                 {(() => {
                   const sortedResults = [...testResults.testcaseResult].sort(
@@ -215,7 +222,7 @@ export function SubmissionDetailModal({
           </div>
         )}
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Source Code</span>
+          <span className="text-sm font-medium">{t('source_code_label')}</span>
           <CodeEditor
             value={testResults?.code ?? ''}
             language={testResults?.language ?? 'C'}

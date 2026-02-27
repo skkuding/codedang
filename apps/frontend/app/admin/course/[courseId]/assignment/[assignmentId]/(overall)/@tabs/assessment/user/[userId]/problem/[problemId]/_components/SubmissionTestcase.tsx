@@ -16,19 +16,22 @@ import { cn, getResultColor } from '@/libs/utils'
 import { useTestcaseStore } from '@/stores/testcaseStore'
 import { useSuspenseQuery } from '@apollo/client'
 import { ResultStatus, type TestCaseResult } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import { ChevronRight } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export function SubmissionTestcaseError() {
+  const { t } = useTranslate()
   return (
     <div className="flex flex-col items-center gap-4 py-4 text-center">
-      Unable to load testcase data for this problem.
+      {t('unable_to_load_testcase_data')}
     </div>
   )
 }
 
 export function SubmissionTestcase() {
+  const { t } = useTranslate()
   const params = useParams<{
     courseId: string
     assignmentId: string
@@ -78,15 +81,17 @@ export function SubmissionTestcase() {
 
   return (
     <div>
-      <h2 className="mb-5 text-xl font-semibold">Testcase</h2>
+      <h2 className="mb-5 text-xl font-semibold">{t('testcase_header')}</h2>
       <Table className="**:border-separate **:border-spacing-0 **:text-center **:font-normal [&_td]:p-0 [&_td]:text-xs">
         <TableHeader className="**:text-slate-100 **:text-sm **:h-[33px] **:bg-editor-fill-1">
           <TableRow>
             <TableHead className="rounded-l-sm pl-3">#</TableHead>
-            <TableHead>Result</TableHead>
-            <TableHead>Runtime</TableHead>
-            <TableHead>Memory</TableHead>
-            <TableHead className="rounded-r-sm pr-6">ScoreWeight</TableHead>
+            <TableHead>{t('result_header')}</TableHead>
+            <TableHead>{t('runtime_header')}</TableHead>
+            <TableHead>{t('memory_header')}</TableHead>
+            <TableHead className="rounded-r-sm pr-6">
+              {t('score_weight_header')}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -99,8 +104,8 @@ export function SubmissionTestcase() {
             .sort((a, b) => Number(a.isHidden) - Number(b.isHidden))
             .map((item, index, array) => {
               const caseLabel = item.isHidden
-                ? `Hidden #${item.order}`
-                : `Sample #${item.order}`
+                ? t('hidden_label', { hidden: item.order })
+                : t('sample_label', { sample: item.order })
               return (
                 <TableRow
                   className={cn(

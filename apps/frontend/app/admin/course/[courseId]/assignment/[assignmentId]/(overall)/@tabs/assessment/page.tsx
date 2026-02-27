@@ -9,18 +9,20 @@ import {
   TabsTrigger
 } from '@/components/shadcn/tabs'
 import { ErrorBoundary } from '@suspensive/react'
-import { useState, Suspense, useRef } from 'react'
+import { useTranslate } from '@tolgee/react'
+import { Suspense, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ParticipantTableByProblem } from './_components/ParticipantTableByProblem'
 import { ParticipantTableOverall } from './_components/ParticipantTableOverall'
 
 export default function Assessment() {
+  const { t } = useTranslate()
   const [tab, setTab] = useState('overall')
   const toastShownRef = useRef(false)
 
   const handleNoProblemsFound = () => {
     if (!toastShownRef.current) {
-      toast.error('No imported problems found in this assignment.')
+      toast.error(t('no_imported_problems_found'))
       toastShownRef.current = true
     }
     setTab('overall')
@@ -29,8 +31,8 @@ export default function Assessment() {
   return (
     <Tabs value={tab} onValueChange={setTab}>
       <TabsList>
-        <TabsTrigger value="overall">Overall</TabsTrigger>
-        <TabsTrigger value="by-problem">By Problem</TabsTrigger>
+        <TabsTrigger value="overall">{t('overall_button')}</TabsTrigger>
+        <TabsTrigger value="by-problem">{t('by_problem_button')}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="overall">

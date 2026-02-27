@@ -1,6 +1,7 @@
 'use client'
 
 import { Textarea } from '@/components/shadcn/textarea'
+import { useTranslate } from '@tolgee/react'
 import type { Control, UseFormWatch } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
@@ -17,6 +18,7 @@ interface ContentProps {
 }
 
 export function Content({ control, watch }: ContentProps) {
+  const { t } = useTranslate()
   const watchedValues = watch()
   const contentLength = watchedValues.content?.length || 0
 
@@ -29,7 +31,7 @@ export function Content({ control, watch }: ContentProps) {
           <Textarea
             {...field}
             id="content"
-            placeholder="Enter a question"
+            placeholder={t('enter_question_placeholder')}
             className="font-pretendard h-full min-h-[188px] resize-none rounded-none !border-none !p-0 text-base font-normal not-italic leading-normal tracking-[-0.48px] text-[#5C5C5C] shadow-none placeholder:text-[#C4C4C4] focus:placeholder:text-transparent focus-visible:ring-0"
             maxLength={400}
           />

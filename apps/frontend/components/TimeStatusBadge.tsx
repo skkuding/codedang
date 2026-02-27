@@ -1,11 +1,16 @@
 import { cn } from '@/libs/utils'
+import { getTranslate } from '@/tolgee/server'
 
 interface TimeStatusBadgeProps {
   status: string
   endTime?: Date
 }
 
-export function TimeStatusBadge({ status, endTime }: TimeStatusBadgeProps) {
+export async function TimeStatusBadge({
+  status,
+  endTime
+}: TimeStatusBadgeProps) {
+  const t = await getTranslate()
   const statusStyles: Record<string, string> = {
     upcoming: 'bg-color-yellow-95 text-color-orange-50',
     ongoing: 'text-primary bg-color-blue-95',
@@ -25,7 +30,7 @@ export function TimeStatusBadge({ status, endTime }: TimeStatusBadgeProps) {
         statusStyles[status]
       )}
     >
-      <span className="uppercase">{status}</span>
+      <span className="uppercase">{t(`status_${status}`)}</span>
     </div>
   )
 }

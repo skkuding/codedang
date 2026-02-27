@@ -5,6 +5,7 @@ import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { cn, isHttpError } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { useSignUpModalStore } from '@/stores/signUpModal'
+import { useTranslate } from '@tolgee/react'
 import { useForm } from 'react-hook-form'
 import { AuthMessage } from '../AuthMessage'
 import { SignUpApi } from './api'
@@ -15,6 +16,8 @@ interface SendEmailInput {
 }
 
 export function SignUpSendEmail() {
+  const { t } = useTranslate()
+
   const { formData, nextModal, setFormData } = useSignUpModalStore(
     (state) => state
   )
@@ -46,11 +49,11 @@ export function SignUpSendEmail() {
     } catch (error) {
       if (isHttpError(error) && error.response.status === 409) {
         setError('emailId', {
-          message: 'You have already signed up'
+          message: t('already_signed_up')
         })
       } else {
         setError('emailId', {
-          message: 'Something went wrong!'
+          message: t('error_something_went_wrong')
         })
       }
     }
@@ -59,10 +62,11 @@ export function SignUpSendEmail() {
   function renderFormHeader() {
     return (
       <>
-        <p className="text-xl font-medium">Join us to grow!</p>
+        <p className="text-xl font-medium">{t('join_us_to_grow')}</p>
         <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
-          You can only use{' '}
-          <span className="text-primary">{ALLOWED_DOMAINS[0]}</span> emails
+          {t('you_can_only_use_email_domains_1')}{' '}
+          <span className="text-primary">{ALLOWED_DOMAINS[0]}</span>{' '}
+          {t('you_can_only_use_email_domains_2')}
         </p>
       </>
     )
@@ -78,7 +82,7 @@ export function SignUpSendEmail() {
             className={cn(
               errors.emailId && 'border-red-500 focus-visible:border-red-500'
             )}
-            placeholder="Enter the e-mail"
+            placeholder={t('enter_the_email')}
             {...register('emailId')}
             onFocus={() => clearErrors('emailId')}
             onKeyDown={(e) => {
@@ -109,13 +113,15 @@ export function SignUpSendEmail() {
     return (
       <div className="flex flex-col gap-[12.5px]">
         <div className="text-color-neutral-50 flex items-center justify-center">
-          <span className="text-sm font-normal">Already have account?</span>
+          <span className="text-sm font-normal">
+            {t('already_have_account')}
+          </span>
           <Button
             onClick={showSignIn}
             variant="link"
             className="text-sm font-normal underline"
           >
-            Log in
+            {t('log_in_button')}
           </Button>
         </div>
         <Button
@@ -123,7 +129,7 @@ export function SignUpSendEmail() {
           className="w-full px-[22px] py-[9px] text-base font-medium"
           disabled={isSendButtonDisabled}
         >
-          Send the Email
+          {t('send_the_email_button')}
         </Button>
       </div>
     )

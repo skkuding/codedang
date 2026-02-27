@@ -11,10 +11,11 @@ import { SubmissionDetailAdmin } from '@/app/admin/course/[courseId]/assignment/
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { GET_ASSIGNMENT_SUBMISSIONS } from '@/graphql/submission/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { DataTableProblemFilterMini } from './DataTableProblemFilterMini'
-import { columns } from './SubmissionColumns'
+import { getColumns } from './SubmissionColumns'
 
 interface SubmissionTableProps {
   isExercise?: boolean
@@ -38,7 +39,8 @@ export function SubmissionTable({ isExercise }: SubmissionTableProps) {
 
   const [isSubmissionDialogOpen, setIsSubmissionDialogOpen] = useState(false)
   const [submissionId, setSubmissionId] = useState(0)
-
+  const { t } = useTranslate()
+  const columns = getColumns(t)
   return (
     <>
       <DataTableRoot
@@ -52,14 +54,17 @@ export function SubmissionTable({ isExercise }: SubmissionTableProps) {
               <span className="text-primary font-bold">
                 {data.getAssignmentSubmissions.length}
               </span>{' '}
-              Submissions
+              {t('submissions')}
             </div>
             <DataTableProblemFilterMini
               groupId={courseId}
               assignmentId={assignmentId}
             />
           </div>
-          <DataTableSearchBar columndId="realname" placeholder="Search Name" />
+          <DataTableSearchBar
+            columndId="realname"
+            placeholder={t('search_name_placeholder')}
+          />
         </div>
         <DataTable
           onRowClick={(_, row) => {
@@ -82,5 +87,5 @@ export function SubmissionTable({ isExercise }: SubmissionTableProps) {
 }
 
 export function SubmissionTableFallback() {
-  return <DataTableFallback columns={columns} />
+  return <DataTableFallback columns={getColumns(() => '')} />
 }

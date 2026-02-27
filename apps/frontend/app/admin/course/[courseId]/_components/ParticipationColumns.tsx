@@ -12,20 +12,27 @@ interface DataTableScoreSummary extends ScoreSummary {
 }
 
 export const createColumns = (
-  problemData: ProblemData[]
+  problemData: ProblemData[],
+  t: (key: string) => string
 ): ColumnDef<DataTableScoreSummary>[] => {
   return [
     {
       accessorKey: 'studentId',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Student ID" />
+        <DataTableColumnHeader
+          column={column}
+          title={t('student_id_column_header')}
+        />
       ),
       cell: ({ row }) => row.getValue('studentId')
     },
     {
       accessorKey: 'realName',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name" />
+        <DataTableColumnHeader
+          column={column}
+          title={t('name_column_header')}
+        />
       ),
       cell: ({ row }) => row.getValue('realName'),
       filterFn: 'includesString'
@@ -33,7 +40,10 @@ export const createColumns = (
     {
       accessorKey: 'submittedProblemCount',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Submit" />
+        <DataTableColumnHeader
+          column={column}
+          title={t('submit_column_header')}
+        />
       ),
       cell: ({ row }) => (
         <>
@@ -44,7 +54,10 @@ export const createColumns = (
     {
       accessorKey: 'userAssignmentScore',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Total" />
+        <DataTableColumnHeader
+          column={column}
+          title={t('total_column_header')}
+        />
       ),
       cell: ({ row }) => (
         <>

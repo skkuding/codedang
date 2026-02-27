@@ -6,15 +6,17 @@ import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
 import arrowBlueIcon from '@/public/icons/arrow_blue_top.svg'
 import arrowThinIcon from '@/public/icons/arrow_bottom_thin.svg'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useState } from 'react'
 
 export function UpdateHistoryBox({ contestId }: { contestId: number }) {
+  const { t } = useTranslate()
   const [openHistory, setOpenHistory] = useState<boolean>(false)
-  const [seemore, setSeemore] = useState<string>('See More')
+  const [seemore, setSeemore] = useState<string>(t('see_more'))
   const onClickSeemore = () => {
     setOpenHistory(!openHistory)
-    setSeemore(openHistory ? 'See More' : 'Close')
+    setSeemore(openHistory ? t('see_more') : t('close'))
   }
   const { data: updateHistory } = useQuery(GET_CONTEST_UPDATE_HISTORIES, {
     variables: { contestId }
@@ -32,7 +34,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
   return (
     <div className="flex flex-col">
       <div className="mb-5 text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
-        Update History
+        {t('update_history')}
       </div>
       <div
         id="historyBox"
@@ -45,7 +47,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
       >
         {updateHistories?.length === 0 && (
           <p className="text-base font-normal leading-[24px] tracking-[-0.48px] text-black">
-            no result.
+            {t('no_result')}
           </p>
         )}
         {!openHistory &&

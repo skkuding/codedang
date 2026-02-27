@@ -24,6 +24,7 @@ import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import { useSidePanelTabStore } from '@/stores/editorTabs'
 import type { ProblemDetail, Contest } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
@@ -58,6 +59,8 @@ export function EditorMainResizablePanel({
   enableCopyPaste = true,
   children
 }: ProblemEditorProps) {
+  const { t } = useTranslate()
+
   const fetchFreezeTime = async (contestId: number | undefined) => {
     const res: Contest = await fetcherWithAuth
       .get(`contest/${contestId}`)
@@ -178,7 +181,7 @@ export function EditorMainResizablePanel({
               <TabsList variant="editor">
                 <Link replace href={`${base}/problem/${problem.id}` as const}>
                   <TabsTrigger value="Description" variant="editor">
-                    Description
+                    {t('description')}
                   </TabsTrigger>
                 </Link>
                 <Link
@@ -186,7 +189,7 @@ export function EditorMainResizablePanel({
                   href={`${base}/problem/${problem.id}/submission` as const}
                 >
                   <TabsTrigger value="Submission" variant="editor">
-                    Submissions
+                    {t('submissions')}
                   </TabsTrigger>
                 </Link>
                 {(assignmentId || exerciseId) &&
@@ -197,7 +200,7 @@ export function EditorMainResizablePanel({
                       href={`${base}/problem/${problem.id}/solution` as const}
                     >
                       <TabsTrigger value="Solution" variant="editor">
-                        Solution
+                        {t('solution')}
                       </TabsTrigger>
                     </Link>
                   )}
@@ -209,7 +212,7 @@ export function EditorMainResizablePanel({
                     }
                   >
                     <TabsTrigger value="Leaderboard" variant="editor">
-                      Leaderboard
+                      {t('leaderboard')}
                     </TabsTrigger>
                   </Link>
                 )}
@@ -221,7 +224,7 @@ export function EditorMainResizablePanel({
                     }
                   >
                     <TabsTrigger value="Qna" variant="editor">
-                      Q&A
+                      {t('qna')}
                     </TabsTrigger>
                   </Link>
                 )}
@@ -255,7 +258,9 @@ export function EditorMainResizablePanel({
                             alt="Tooltip arrow"
                             className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
                           />
-                          <p className="text-xs">Leaderboard is frozen</p>
+                          <p className="text-xs">
+                            {t('leaderboard_is_frozen')}
+                          </p>
                         </TooltipContent>
                       )}
                     </Tooltip>

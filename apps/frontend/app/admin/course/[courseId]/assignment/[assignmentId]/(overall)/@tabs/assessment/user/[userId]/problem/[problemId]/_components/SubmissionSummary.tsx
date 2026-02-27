@@ -7,6 +7,7 @@ import { dateFormatter, getResultColor } from '@/libs/utils'
 import infoIcon from '@/public/icons/info.svg'
 import type { Level } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 
@@ -33,19 +34,26 @@ function SubmissionSummaryItem({
 }
 
 export function SubmissionSummaryError() {
+  const { t } = useTranslate()
   return (
     <div className="flex flex-col items-center gap-4 py-4 text-center">
-      <Image src={infoIcon} alt="No Submission" width={50} height={50} />
-      <p className="text-xl font-medium">No Submission</p>
+      <Image
+        src={infoIcon}
+        alt={t('no_submission_alt')}
+        width={50}
+        height={50}
+      />
+      <p className="text-xl font-medium">{t('no_submission_title')}</p>
       <div className="text-sm font-normal">
-        <p>No code has been submitted by this student.</p>
-        <p>You may still provide a final score or comment.</p>
+        <p>{t('no_code_submitted_by_student')}</p>
+        <p>{t('may_provide_final_score_or_comment')}</p>
       </div>
     </div>
   )
 }
 
 export function SubmissionSummary() {
+  const { t } = useTranslate()
   const params = useParams<{
     courseId: string
     assignmentId: string
@@ -90,38 +98,38 @@ export function SubmissionSummary() {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <p className="text-[20px] font-semibold leading-[28px] tracking-[-0.6px]">
-          {`Submission #${submission.id}`}
+          {t('submission_number', { submissionId: submission.id })}
         </p>
         {level && (
           <Badge variant={level} levelVariant="dark">
-            Level {level.slice(-1)}
+            {t('level_label', { level: level.slice(-1) })}
           </Badge>
         )}
       </div>
       <div className="**:whitespace-nowrap bg-editor-fill-1 rounded-[4px] text-[14px]">
         <ul className="gap-2 space-y-3 py-3 pl-2 pr-4">
           <SubmissionSummaryItem
-            label="Result"
+            label={t('result_label')}
             value={submission.result}
             valueClassName={getResultColor(submission.result)}
           />
           <SubmissionSummaryItem
-            label="Passed"
+            label={t('passed_label')}
             value={`${passedTestcases} / ${totalTestcases}`}
             valueClassName="text-primary-light"
           />
           <SubmissionSummaryItem
-            label="Rate"
+            label={t('rate_label')}
             value={`${passRate}%`}
             valueClassName="text-primary-light"
           />
           <SubmissionSummaryItem
-            label="Language"
+            label={t('language_label')}
             value={submission.language}
             valueClassName="text-primary-light"
           />
           <SubmissionSummaryItem
-            label="Submission Time"
+            label={t('submission_time_label')}
             value={dateFormatter(
               submission.updateTime,
               'YYYY. MM. DD | YYYY. MM. DD'
@@ -129,7 +137,7 @@ export function SubmissionSummary() {
             valueClassName="text-primary-light"
           />
           <SubmissionSummaryItem
-            label="Code Size"
+            label={t('code_size_label')}
             value={`${submission.codeSize}B`}
             valueClassName="text-primary-light"
           />

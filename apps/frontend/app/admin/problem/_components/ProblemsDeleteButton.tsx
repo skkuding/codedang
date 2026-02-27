@@ -2,6 +2,7 @@ import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import { DELETE_PROBLEM } from '@/graphql/problem/mutations'
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { toast } from 'sonner'
 import { DataTableDeleteButton } from '../../_components/table/DataTableDeleteButton'
 import type { DataTableProblem } from './ProblemTableColumns'
@@ -10,6 +11,7 @@ export function ProblemsDeleteButton() {
   const client = useApolloClient()
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
   const [fetchContests] = useLazyQuery(GET_BELONGED_CONTESTS)
+  const { t } = useTranslate()
 
   const getCanDelete = async (data: DataTableProblem[]) => {
     const promises = data.map((item) =>
@@ -34,7 +36,7 @@ export function ProblemsDeleteButton() {
       return true
     }
 
-    toast.error('Failed: Problem included in the contest')
+    toast.error(t('failed_problem_included_in_contest_error'))
     return false
   }
 

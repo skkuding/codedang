@@ -2,6 +2,7 @@
 
 import { ErrorDetail } from '@/components/ErrorDetail'
 import { captureError } from '@/libs/captureError'
+import { useTranslate } from '@tolgee/react'
 import { useEffect } from 'react'
 
 interface Props {
@@ -14,5 +15,9 @@ export default function Error({ error }: Props) {
     captureError(error)
   }, [error])
 
-  return <ErrorDetail errorDetail="Failed to Load Main Page!" error={error} />
+  const { t } = useTranslate()
+
+  return (
+    <ErrorDetail errorDetail={t('failed_to_load_main_page')} error={error} />
+  )
 }

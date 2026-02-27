@@ -8,6 +8,7 @@ import {
 } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { CreateProblemInput } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
@@ -27,6 +28,7 @@ export function CreateProblemForm({
   children,
   testcaseFieldRef
 }: CreateProblemFormProps) {
+  const { t } = useTranslate()
   const [message, setMessage] = useState('')
   const [showCautionModal, setShowCautionModal] = useState(false)
   const [isUploadingZip, setIsUploadingZip] = useState(false)
@@ -36,7 +38,7 @@ export function CreateProblemForm({
 
   const [createProblem] = useMutation(CREATE_PROBLEM, {
     onError: () => {
-      toast.error('Failed to create problem')
+      toast.error(t('failed_to_create_problem'))
       setIsUploadingZip(false)
     },
     onCompleted: () => {
@@ -51,7 +53,7 @@ export function CreateProblemForm({
         }
       }
 
-      toast.success('Problem created successfully')
+      toast.success(t('problem_created_successfully'))
       router.push('/admin/problem')
       router.refresh()
     }
@@ -59,7 +61,9 @@ export function CreateProblemForm({
 
   const [uploadTestcaseZipLegacy] = useMutation(UPLOAD_TESTCASE_ZIP_LEGACY, {
     onError: (error) => {
-      toast.error(`Failed to upload testcase ZIP: ${error.message}`)
+      toast.error(
+        t('failed_to_upload_testcase_zip', { message: error.message })
+      )
       setIsUploadingZip(false)
     },
     onCompleted: () => {
@@ -71,9 +75,7 @@ export function CreateProblemForm({
     const testcases = methods.getValues('testcases')
     if (!validateScoreWeight(testcases)) {
       setShowCautionModal(true)
-      setMessage(
-        'The scoring ratios have not been specified correctly.\nPlease review and correct them.'
-      )
+      setMessage(t('scoring_ratios_not_specified'))
       return false
     }
     return true
@@ -126,7 +128,7 @@ export function CreateProblemForm({
           })
         }
 
-        toast.success('Problem created successfully')
+        toast.success(t('problem_created_successfully'))
         setIsUploadingZip(false)
         router.push('/admin/problem')
         router.refresh()

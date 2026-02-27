@@ -1,0 +1,15 @@
+apiUrl: 'https://tolgee.jwoojin.com'
+apiKey: ${TOLGEE_API_KEY}
+
+pull:
+  format: 'json_nested'
+  path: 'messages/{lang}.json'
+
+extract:
+  input:
+    - 'src/**/*.{js,jsx,ts,tsx}'
+    - 'app/**/*.{js,jsx,ts,tsx}'
+    - 'components/**/*.{js,jsx,ts,tsx}'
+  wrapper: 't'
+  defaultLanguage: 'en'
+  pushToTolgee: true

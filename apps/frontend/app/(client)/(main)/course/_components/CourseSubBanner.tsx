@@ -1,8 +1,10 @@
 import { cn } from '@/libs/utils'
+import { getTranslate } from '@/tolgee/server'
 import Image from 'next/image'
 import React from 'react'
 
-export function CourseSubBanner() {
+export async function CourseSubBanner() {
+  const t = await getTranslate()
   return (
     <>
       <div className="h-[120px]" />
@@ -16,11 +18,11 @@ export function CourseSubBanner() {
         <div className="flex h-full w-[90%] items-center justify-around">
           <div className="z-10 mt-2 flex h-56 flex-col justify-evenly pl-12 text-white">
             <p className="text-xl font-semibold leading-[120%] md:text-[34px]">
-              Check out the assignments <br />
-              assigned to you!
+              {t('check_out_assignments1')} <br />
+              {t('check_out_assignments2')}
             </p>
             <p className="-mt-3 text-neutral-50">
-              You can check the assignments assigned to each class
+              {t('check_assignments_each_class')}
             </p>
             {/* TODO: 무언가 링크 연결 */}
             {/* <Button

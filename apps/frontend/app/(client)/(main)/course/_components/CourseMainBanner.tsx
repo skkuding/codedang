@@ -4,6 +4,7 @@ import { Button } from '@/components/shadcn/button'
 import { courseOvalIconColors, courseTextcolors } from '@/libs/constants'
 import { cn } from '@/libs/utils'
 import type { JoinedCourse } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -20,21 +21,8 @@ interface BannerPageDotsProps {
   slideType: string
 }
 
-const slides = [
-  {
-    type: 'course',
-    subDescription: 'Structured Learning Course!',
-    mainDescription: `CODEDANG\nCOURSE HUB`,
-    buttonDescription: 'CHECK YOUR COURSE',
-    bgcolor: 'bg-[linear-gradient(95deg,#E0D0FF_50.46%,#9B99FF_82.55%)]',
-    mainDescriptionColor:
-      'linear-gradient(100deg, #12134A -7.99%, #262799 23.9%, #4D3CCF 65.71%)',
-    img: '/banners/notebook.png',
-    imgAlt: 'Recent Course'
-  }
-]
-
 export function CourseMainBanner({ course }: { course: JoinedCourse | null }) {
+  const { t } = useTranslate()
   const [facade, setFacade] = useState(0)
   const router = useRouter()
 
@@ -48,6 +36,20 @@ export function CourseMainBanner({ course }: { course: JoinedCourse | null }) {
   const handleClick = (next: number) => {
     setFacade(next % slides.length)
   }
+
+  const slides = [
+    {
+      type: 'course',
+      subDescription: t('structured_learning_course'),
+      mainDescription: `${t('codedang')}\n${t('course_hub')}`,
+      buttonDescription: t('check_your_course'),
+      bgcolor: 'bg-[linear-gradient(95deg,#E0D0FF_50.46%,#9B99FF_82.55%)]',
+      mainDescriptionColor:
+        'linear-gradient(100deg, #12134A -7.99%, #262799 23.9%, #4D3CCF 65.71%)',
+      img: '/banners/notebook.png',
+      imgAlt: t('recent_course')
+    }
+  ]
 
   return (
     <div className="w-full xl:w-screen">

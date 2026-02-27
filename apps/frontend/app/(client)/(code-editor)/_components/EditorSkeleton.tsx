@@ -1,8 +1,10 @@
 import clockIcon from '@/public/icons/clock.svg'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 
 export function EditorSkeleton() {
+  const { t } = useTranslate()
   return (
     <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
       <header className="flex h-12 justify-between bg-slate-900 px-6">
@@ -11,9 +13,9 @@ export function EditorSkeleton() {
             <Image src={codedangLogo} alt="코드당" width={33} />
           </a>
           <div className="flex items-center gap-1 font-medium">
-            Contest
+            {t('contest')}
             <p className="mx-2"> / </p>
-            <a href="#">Future Contest</a>
+            <a href="#">{t('future_contest')}</a>
             <p className="mx-2"> / </p>
             <button
               type="button"
@@ -26,7 +28,7 @@ export function EditorSkeleton() {
         <div className="flex items-center gap-1">
           <div className="text-error inline-flex items-center gap-2 whitespace-nowrap text-sm opacity-80">
             <Image src={clockIcon} alt="Clock" />
-            Ends in
+            {t('ends_in')}
             <p className="overflow-hidden text-ellipsis whitespace-nowrap">
               365291 DAYS
             </p>
@@ -48,13 +50,13 @@ export function EditorSkeleton() {
                 type="button"
                 className="rounded-md bg-slate-700 px-3 py-1 text-sm font-medium"
               >
-                Description
+                {t('description')}
               </button>
               <button
                 type="button"
                 className="rounded-md px-3 py-1 text-sm font-medium"
               >
-                Submissions
+                {t('submissions')}
               </button>
             </div>
             <div className="px-6 py-6 text-lg text-slate-300">
@@ -65,10 +67,10 @@ export function EditorSkeleton() {
                 첫째 줄에 A+B를 출력한다.
               </p>
               <hr className="my-4 border-slate-700" />
-              <h2 className="mb-3 font-bold">Input</h2>
+              <h2 className="mb-3 font-bold">{t('input')}</h2>
               <p>첫째 줄에 A와 B가 주어진다. (0 &lt; A, B &lt; 10)</p>
               <hr className="my-4 border-slate-700" />
-              <h2 className="mb-3 font-bold">Output</h2>
+              <h2 className="mb-3 font-bold">{t('output')}</h2>
               <p>첫째 줄에 A+B를 출력한다.</p>
             </div>
           </div>
@@ -77,16 +79,16 @@ export function EditorSkeleton() {
         <div className="w-2/3 bg-[#222939]">
           <div className="flex h-12 items-center justify-end border-b border-slate-700 bg-[#222939] px-6">
             <button className="h-8 w-[77px] rounded-md bg-slate-600 text-red-500">
-              Reset
+              {t('reset')}
             </button>
             <button className="h-8 w-[77px] rounded-md bg-[#D7E5FE] text-[#484C4D]">
-              Save
+              {t('save')}
             </button>
             <button className="h-8 w-[77px] rounded-md bg-[#D7E5FE] text-[#484C4D]">
-              Test
+              {t('test')}
             </button>
             <button className="bg-primary h-8 w-[77px] rounded-md text-gray-50">
-              Submit
+              {t('submit')}
             </button>
             <button className="h-8 w-10 rounded-md bg-slate-600">C</button>
           </div>

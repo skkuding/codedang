@@ -12,11 +12,13 @@ export interface DataTableGrade {
   week: number
 }
 
-export const columns: ColumnDef<DataTableGrade>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<DataTableGrade>[] => [
   {
     accessorKey: 'week',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Week" />
+      <DataTableColumnHeader column={column} title={t('week_header')} />
     ),
     cell: ({ row }) => (
       <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-center font-medium">
@@ -28,7 +30,7 @@ export const columns: ColumnDef<DataTableGrade>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader column={column} title={t('title_header')} />
     ),
     cell: ({ row }) => (
       <p className="max-w-[700px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
@@ -44,7 +46,7 @@ export const columns: ColumnDef<DataTableGrade>[] = [
       <div className="flex justify-center">
         <DataTableColumnHeader
           column={column}
-          title="Period"
+          title={t('period_header')}
           className="text-center"
         />
       </div>

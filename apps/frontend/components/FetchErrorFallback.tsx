@@ -1,6 +1,7 @@
 'use client'
 
 import type { ErrorBoundaryFallbackProps } from '@suspensive/react'
+import { useTranslate } from '@tolgee/react'
 import { useRouter } from 'next/navigation'
 import { startTransition, useState } from 'react'
 import { RiAlertFill } from 'react-icons/ri'
@@ -9,6 +10,7 @@ import { Button } from './shadcn/button'
 export function FetchErrorFallback({ reset }: ErrorBoundaryFallbackProps) {
   const router = useRouter()
   const [isResetting, setIsResetting] = useState(false)
+  const { t } = useTranslate()
 
   const handleRetry = () => {
     setIsResetting(true)
@@ -22,13 +24,13 @@ export function FetchErrorFallback({ reset }: ErrorBoundaryFallbackProps) {
   return (
     <div className="flex w-full flex-col items-center py-6">
       <RiAlertFill className="text-gray-300" size={42} />
-      <p className="text-2xl font-bold">Failed to load data</p>
+      <p className="text-2xl font-bold">{t('failed_to_load_data')}</p>
       <Button
         onClick={() => handleRetry()}
         disabled={isResetting}
         className="mt-2"
       >
-        Retry
+        {t('retry_button')}
       </Button>
     </div>
   )

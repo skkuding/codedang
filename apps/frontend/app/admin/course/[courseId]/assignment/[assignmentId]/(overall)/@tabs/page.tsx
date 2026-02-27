@@ -16,6 +16,7 @@ import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { useQuery } from '@apollo/client'
 import { ChevronDownIcon } from '@radix-ui/react-icons'
 import { ErrorBoundary } from '@suspensive/react'
+import { useTranslate } from '@tolgee/react'
 import { Suspense, useState, use } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { ParticipantTableFallback } from '../../../../_components/ParticipantTable'
@@ -26,6 +27,7 @@ interface InformationProps {
 
 export default function Information(props: InformationProps) {
   const params = use(props.params)
+  const { t } = useTranslate()
   const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
       groupId: Number(params.courseId),
@@ -50,7 +52,7 @@ export default function Information(props: InformationProps) {
       <Suspense fallback={<ParticipantTableFallback />}>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <span className="font-bold">Description</span>
+            <span className="font-bold">{t('description_label')}</span>
             <KatexContent
               content={assignmentData?.description}
               classname="mb-4 w-full max-w-full rounded-2xl border-y-gray-300 bg-white p-6"
@@ -61,7 +63,7 @@ export default function Information(props: InformationProps) {
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center">
-              <span className="font-bold">Included Problem</span>
+              <span className="font-bold">{t('included_problem_label')}</span>
               <button
                 type="button"
                 className="rounded-xs flex h-7 w-7 items-center justify-center transition hover:bg-transparent"
@@ -78,16 +80,16 @@ export default function Information(props: InformationProps) {
                   <TableHeader>
                     <TableRow className="border-b border-gray-200">
                       <TableHead className="w-12 bg-gray-50 text-center text-sm font-normal text-gray-500">
-                        Order
+                        {t('order_label')}
                       </TableHead>
                       <TableHead className="bg-gray-50 text-left text-sm font-normal text-gray-500">
-                        Title
+                        {t('title_label')}
                       </TableHead>
                       <TableHead className="w-20 bg-gray-50 text-center text-sm font-normal text-gray-500">
-                        Score
+                        {t('score_label')}
                       </TableHead>
                       <TableHead className="w-20 bg-gray-50 text-center text-sm font-normal text-gray-500">
-                        Solution
+                        {t('solution_label')}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -120,7 +122,7 @@ export default function Information(props: InformationProps) {
                         colSpan={2}
                         className="rounded-bl-xl bg-gray-50 text-right text-sm font-semibold text-gray-700"
                       >
-                        Total
+                        {t('total_label')}
                       </TableCell>
                       <TableCell className="text-primary bg-gray-50 text-center text-sm font-semibold">
                         {problemsData.reduce(
@@ -140,27 +142,31 @@ export default function Information(props: InformationProps) {
 
           <div className="flex flex-col gap-2">
             <span className="text-left text-[16px] font-bold leading-[1.4] tracking-[-3%] text-black">
-              Assignment Setting
+              {t('assignment_setting_label')}
             </span>
             <div className="flex w-full flex-col gap-4 rounded-[12px] bg-white p-6">
               <div className="flex items-center gap-4">
                 <span className="text-[16px] font-semibold">
-                  Reveal Hidden Testcase Result
+                  {t('reveal_hidden_testcase_result_label')}
                 </span>
                 <span
                   className={`rounded-[12px] px-4 py-1 text-xs font-bold text-white ${assignmentData?.isJudgeResultVisible ? 'bg-primary' : 'bg-gray-300'}`}
                 >
-                  {assignmentData?.isJudgeResultVisible ? 'ON' : 'OFF'}
+                  {assignmentData?.isJudgeResultVisible
+                    ? t('status_on')
+                    : t('status_off')}
                 </span>
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-[16px] font-semibold">
-                  Enable Copy/Paste
+                  {t('enable_copy_paste_label')}
                 </span>
                 <span
                   className={`rounded-[12px] px-4 py-1 text-xs font-bold text-white ${assignmentData?.enableCopyPaste ? 'bg-primary' : 'bg-gray-300'}`}
                 >
-                  {assignmentData?.enableCopyPaste ? 'ON' : 'OFF'}
+                  {assignmentData?.enableCopyPaste
+                    ? t('status_on')
+                    : t('status_off')}
                 </span>
               </div>
             </div>

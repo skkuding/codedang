@@ -2,12 +2,14 @@
 
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import './xterm.css'
 
 interface RunnerTabProps {
   className?: string
 }
 export function RunnerTab({ className }: RunnerTabProps) {
+  const { t } = useTranslate()
   return (
     <div
       className={cn(
@@ -19,7 +21,7 @@ export function RunnerTab({ className }: RunnerTabProps) {
       <div className="absolute right-3 top-3 z-10">
         <Button size="sm">
           <a href="https://tally.so/r/wMVB9g" target="_blank">
-            Give Us Feedback
+            {t('give_us_feedback')}
           </a>
         </Button>
       </div>

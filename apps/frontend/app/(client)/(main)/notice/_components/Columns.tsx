@@ -5,9 +5,9 @@ import type { Notice } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { PiPushPinFill } from 'react-icons/pi'
 
-export const columns: ColumnDef<Notice>[] = [
+export const columns = (t: (key: string) => string): ColumnDef<Notice>[] => [
   {
-    header: 'Title',
+    header: t('column_title_header'),
     accessorKey: 'title',
     cell: ({ row }) => {
       return (
@@ -30,12 +30,12 @@ export const columns: ColumnDef<Notice>[] = [
     }
   },
   {
-    header: 'Writer',
+    header: t('column_writer_header'),
     accessorKey: 'createdBy',
     cell: ({ row }) => row.original.createdBy
   },
   {
-    header: 'Date',
+    header: t('column_date_header'),
     accessorKey: 'createTime',
     cell: ({ row }) => dateFormatter(row.original.createTime, 'YYYY-MM-DD')
   }

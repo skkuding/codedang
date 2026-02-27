@@ -1,6 +1,7 @@
 'use client'
 
 import type { ProblemDetail } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import { CopyButton } from './CopyButton'
 import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 
@@ -9,18 +10,20 @@ interface EditorSampleFieldProps {
 }
 
 export function EditorSampleField({ problemTestCase }: EditorSampleFieldProps) {
+  const { t } = useTranslate()
+
   return (
     <div>
       {problemTestCase.map(({ id, input, output }, index) => {
         return (
           <div key={id} className="mb-2 px-6">
-            <h2 className="mb-2 font-bold">Sample</h2>
+            <h2 className="mb-2 font-bold">{t('sample_title')}</h2>
 
             <div className="flex space-x-2 text-base">
               <div className="w-1/2 space-y-2">
                 <div className="flex items-center space-x-3">
                   <h3 className="select-none text-sm font-semibold">
-                    Input {index + 1}
+                    {t('input_label', { index: index + 1 })}
                   </h3>
                   <CopyButton value={input} />
                 </div>
@@ -32,7 +35,7 @@ export function EditorSampleField({ problemTestCase }: EditorSampleFieldProps) {
               <div className="w-1/2 space-y-2">
                 <div className="flex items-center space-x-3">
                   <h3 className="select-none text-sm font-semibold">
-                    Output {index + 1}
+                    {t('output_label', { index: index + 1 })}
                   </h3>
                   <CopyButton value={output} />
                 </div>

@@ -15,6 +15,7 @@ import {
 } from '@/components/shadcn/popover'
 import { Separator } from '@/components/shadcn/separator'
 import type { Column } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import type { ReactNode } from 'react'
 import { IoFilter } from 'react-icons/io5'
 import { useDataTable } from './context'
@@ -48,6 +49,7 @@ export function DataTableMultiSelectFilter<TData, TValue>({
 }: DataTableMultiSelectFilterProps<TData, TValue>) {
   const { table } = useDataTable()
   const selectedValues = getSelectedValues(column?.getFilterValue())
+  const { t } = useTranslate()
 
   return (
     <Popover>
@@ -64,7 +66,7 @@ export function DataTableMultiSelectFilter<TData, TValue>({
                     variant="secondary"
                     className="rounded-xs px-1 font-normal"
                   >
-                    All
+                    {t('all_badge')}
                   </Badge>
                 ) : (
                   <div className="flex space-x-1">

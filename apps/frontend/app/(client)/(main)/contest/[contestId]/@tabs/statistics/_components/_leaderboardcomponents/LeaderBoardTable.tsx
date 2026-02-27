@@ -5,6 +5,7 @@ import bronzeMedalIcon from '@/public/icons/medal-bronze.svg'
 import goldMedalIcon from '@/public/icons/medal-gold.svg'
 import silverMedalIcon from '@/public/icons/medal-silver.svg'
 import { useUserSelectionStore } from '@/stores/selectUserStore'
+import { useTranslate } from '@tolgee/react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
@@ -16,6 +17,7 @@ interface LeaderBoardTableProps {
 }
 
 export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
+  const { t } = useTranslate()
   const prevUsersRankRef = useRef<Record<string, number>>({})
   const [rankChanges, setRankChanges] = useState<Record<string, 'up' | 'down'>>(
     {}
@@ -81,16 +83,16 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
             }}
           >
             <div className="bg-color-neutral-99 text-color-neutral-60 flex h-10 items-center justify-center rounded-full text-base font-medium tracking-[-0.03em]">
-              Mark
+              {t('mark_header')}
             </div>
             <div className="bg-color-neutral-99 text-color-neutral-60 flex h-10 items-center justify-center rounded-full text-base font-medium tracking-[-0.03em]">
-              Rank
+              {t('rank_header')}
             </div>
             <div className="bg-color-neutral-99 text-color-neutral-60 flex h-10 items-center justify-center rounded-full text-base font-medium tracking-[-0.03em]">
-              Participant
+              {t('participant_header')}
             </div>
             <div className="bg-color-neutral-99 text-color-neutral-60 flex h-10 items-center justify-center rounded-full text-base font-medium tracking-[-0.03em]">
-              Penalty
+              {t('penalty_header')}
             </div>
             <div
               className="bg-color-neutral-99 flex h-10 items-center rounded-full"
@@ -233,11 +235,11 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
                             </div>
                           ) : (
                             <div className="text-base font-normal tracking-[-0.03em] text-[#FF2C55]">
-                              Wrong
+                              {t('wrong_status')}
                             </div>
                           )}
                           <div className="text-xs text-neutral-500">
-                            {attempts} sub
+                            {t('submission_count', { count: attempts })}
                           </div>
                         </div>
                       )

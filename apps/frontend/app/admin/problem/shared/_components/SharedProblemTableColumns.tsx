@@ -18,23 +18,25 @@ export interface SharedDataTableProblem {
   tag: { id: number; tag: Tag }[]
 }
 
-export const columns: ColumnDef<SharedDataTableProblem>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<SharedDataTableProblem>[] => [
   {
     id: 'select',
-    header: ({ table }) => (
-      <Checkbox
+    header: ({ table }) => {
+      ;<Checkbox
         checked={table.getIsAllPageRowsSelected()}
-        aria-label="Select all"
+        aria-label={t('select_all_aria_label')}
         className="translate-y-[2px]"
         disabled={true}
       />
-    ),
+    },
     cell: ({ row }) => (
       <Checkbox
         onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
-        aria-label="Select row"
+        aria-label={t('select_row_aria_label')}
         className="translate-y-[2px]"
       />
     ),
@@ -46,7 +48,7 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Title"
+        title={t('title_header')}
         className="w-[300px]"
       />
     ),
@@ -80,7 +82,7 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
   {
     accessorKey: 'updateTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Update" />
+      <DataTableColumnHeader column={column} title={t('update_header')} />
     ),
     cell: ({ row }) => {
       return <div>{row.original.updateTime.substring(2, 10)}</div>
@@ -89,7 +91,7 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Level" />
+      <DataTableColumnHeader column={column} title={t('level_header')} />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')

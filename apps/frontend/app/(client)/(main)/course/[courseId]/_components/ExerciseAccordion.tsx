@@ -21,6 +21,7 @@ import {
 } from '@/libs/utils'
 import type { Assignment, AssignmentSummary } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -32,6 +33,7 @@ interface ExerciseAccordionProps {
 }
 
 export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
+  const { t } = useTranslate()
   const { data: exercises } = useQuery(
     assignmentQueries.muliple({ courseId, isExercise: true })
   )
@@ -46,7 +48,7 @@ export function ExerciseAccordion({ courseId }: ExerciseAccordionProps) {
       <div className="mt-13 lg:mt-8">
         <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">
           <p className="text-color-neutral-60 text-base">
-            No exercises registered
+            {t('no_exercises_registered')}
           </p>
         </div>
       </div>
@@ -78,6 +80,7 @@ function ExerciseAccordionItem({
   courseId,
   grade
 }: ExerciseAccordionItemProps) {
+  const { t } = useTranslate()
   const [isAccordionOpen, setIsAccordionOpen] = useState(false)
 
   const { data: record } = useQuery({
@@ -134,7 +137,9 @@ function ExerciseAccordionItem({
                   variant="course"
                   className="min-w-fit px-2 py-1 text-xs font-medium lg:px-[10px] lg:text-sm"
                 >
-                  Week {exercise.week.toString().padStart(2, '0')}
+                  {t('week_number', {
+                    weekNumber: exercise.week.toString().padStart(2, '0')
+                  })}
                 </Badge>
                 <div className="flex flex-col">
                   <AssignmentLink
@@ -178,7 +183,9 @@ function ExerciseAccordionItem({
                 variant="course"
                 className="px-[10px] py-1 text-sm font-medium"
               >
-                Week {exercise.week.toString().padStart(2, '0')}
+                {t('week_number', {
+                  weekNumber: exercise.week.toString().padStart(2, '0')
+                })}
               </Badge>
             </div>
 
@@ -257,7 +264,7 @@ function ExerciseAccordionItem({
 
                               return submissionTime ? (
                                 <span>
-                                  Last Submission :{' '}
+                                  {t('last_submission')} :{' '}
                                   {dateFormatter(
                                     submissionTime,
                                     'MMM D, HH:mm'
@@ -311,7 +318,7 @@ function ExerciseAccordionItem({
                             problemSubmission?.submission?.submissionTime
                           return submissionTime ? (
                             <div className="text-primary flex w-full justify-center truncate text-sm font-normal">
-                              Last Submission :{' '}
+                              {t('last_submission')} :{' '}
                               {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
                             </div>
                           ) : null

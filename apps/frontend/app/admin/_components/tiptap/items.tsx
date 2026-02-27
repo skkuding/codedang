@@ -8,15 +8,17 @@ import Heading3 from '@/public/icons/texteditor-h3.svg'
 import ImagePlus from '@/public/icons/texteditor-image.svg'
 import NumberedList from '@/public/icons/texteditor-numberedlist.svg'
 import TableIcon from '@/public/icons/texteditor-table.svg'
+import { getTranslate } from '@/tolgee/server'
 import type { Range } from '@tiptap/core'
 import type { Editor } from '@tiptap/react'
 
-const getSuggestionItems = (
+const getSuggestionItems = async (
   query: unknown,
   openImageDialog: () => void,
   openFileDialog: () => void,
   openTableDialog: () => void
 ) => {
+  const t = await getTranslate()
   let queryStr = ''
 
   if (typeof query === 'string') {
@@ -32,7 +34,7 @@ const getSuggestionItems = (
 
   return [
     {
-      title: 'Heading1',
+      title: t('heading1'),
       icon: Heading1,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor
@@ -44,7 +46,7 @@ const getSuggestionItems = (
       }
     },
     {
-      title: 'Heading2',
+      title: t('heading2'),
       icon: Heading2,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor
@@ -56,7 +58,7 @@ const getSuggestionItems = (
       }
     },
     {
-      title: 'Heading3',
+      title: t('heading3'),
       icon: Heading3,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor
@@ -68,7 +70,7 @@ const getSuggestionItems = (
       }
     },
     {
-      title: 'Equation',
+      title: t('equation'),
       icon: SquareRadical,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()
@@ -81,14 +83,14 @@ const getSuggestionItems = (
       }
     },
     {
-      title: 'CodeBlock',
+      title: t('code_block'),
       icon: CodeBlock,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).setCodeBlock().run()
       }
     },
     {
-      title: 'Image',
+      title: t('image'),
       icon: ImagePlus,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()
@@ -96,7 +98,7 @@ const getSuggestionItems = (
       }
     },
     {
-      title: 'File',
+      title: t('file'),
       icon: Paperclip,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()
@@ -104,21 +106,21 @@ const getSuggestionItems = (
       }
     },
     {
-      title: 'Bullet List',
+      title: t('bullet_list'),
       icon: BulletList,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).toggleBulletList().run()
       }
     },
     {
-      title: 'Ordered List',
+      title: t('ordered_list'),
       icon: NumberedList,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).toggleOrderedList().run()
       }
     },
     {
-      title: 'Table',
+      title: t('table'),
       icon: TableIcon,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()

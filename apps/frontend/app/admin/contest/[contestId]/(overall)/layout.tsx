@@ -6,6 +6,7 @@ import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import keyBlueIcon from '@/public/icons/key-blue.svg'
 import { useQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { use } from 'react'
@@ -16,6 +17,7 @@ export default function Layout(props: {
   params: Promise<{ contestId: string }>
   tabs: React.ReactNode
 }) {
+  const { t } = useTranslate()
   const params = use(props.params)
 
   const { tabs } = props
@@ -39,19 +41,21 @@ export default function Layout(props: {
         <Link href={`/admin/contest/${contestId}/edit`}>
           <Button variant="default" className="h-[50px] w-[120px]">
             <FaPencil className="mr-2 h-4 w-4" />
-            <p className="text-lg font-semibold">Edit</p>
+            <p className="text-lg font-semibold">{t('edit_button')}</p>
           </Button>
         </Link>
       </div>
       <div className="mb-[120px] flex flex-col gap-[10px]">
         <div className="flex items-center gap-[6px] font-normal text-[#333333E5]">
           <FaUser className="black ml-0.5 self-center" color="#3581FA" />
-          <span>Contest Admin : </span>
+          <span>{t('contest_admin')} : </span>
           <span>{contestData?.createdBy?.username}</span>
         </div>
         <div className="flex items-center gap-[6px] text-[#333333E5]">
           <Image src={keyBlueIcon} alt="keyBlueicon" />
-          <span className="text-primary font-medium">Invitation code : </span>
+          <span className="text-primary font-medium">
+            {t('invitation_code')} :{' '}
+          </span>
           <span>{contestData?.invitationCode ?? '-'}</span>
           <TimeStatusBadge
             status="undefined"

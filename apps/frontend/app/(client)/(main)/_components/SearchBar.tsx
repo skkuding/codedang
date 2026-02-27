@@ -2,6 +2,7 @@
 
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
@@ -17,6 +18,7 @@ interface SearchBarProps {
 }
 
 export function SearchBar({ className }: SearchBarProps) {
+  const { t } = useTranslate()
   const router = useRouter()
   const pathname = usePathname()
   const searchParam = useSearchParams()
@@ -56,7 +58,7 @@ export function SearchBar({ className }: SearchBarProps) {
         color="#C4C4C4"
       />
       <Input
-        placeholder="Search"
+        placeholder={t('search_bar_placeholder')}
         className="h-9 rounded-full px-8 placeholder:text-[#8A8A8A]"
         {...register('search')}
         defaultValue={search ?? ''}

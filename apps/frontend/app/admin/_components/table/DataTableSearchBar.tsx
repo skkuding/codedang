@@ -2,6 +2,7 @@
 
 import { Input, type InputProps } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { IoSearch } from 'react-icons/io5'
 import { useDataTable } from './context'
 
@@ -29,6 +30,7 @@ export function DataTableSearchBar({
   size = 'md',
   ...props
 }: SearchBarProps) {
+  const { t } = useTranslate()
   const { table } = useDataTable()
 
   const filterValue = table.getColumn(columndId)?.getFilterValue()
@@ -41,7 +43,7 @@ export function DataTableSearchBar({
     <div className="relative">
       <IoSearch className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#C4C4C4]" />
       <Input
-        placeholder={placeholder ?? 'Search'}
+        placeholder={placeholder ?? t('search_placeholder')}
         value={typeof filterValue === 'string' ? filterValue : ''}
         onChange={(e) => onChangeValue(e.currentTarget.value)}
         className={cn(

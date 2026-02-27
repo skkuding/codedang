@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslate } from '@tolgee/react'
 import { useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { DataTable, DataTableRoot } from '../../_components/table'
 import type { ContestManagerReviewer } from '../_libs/schemas'
@@ -15,11 +16,12 @@ export function ContestManagerReviewerTable({
   managers,
   setManagers
 }: ContestManagerReviewerTableProps) {
+  const { t } = useTranslate()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleteRowId, setDeleteRowId] = useState<number | null>(null)
   const columns = useMemo(
-    () => createColumns(setShowDeleteDialog, setManagers, setDeleteRowId),
-    [setManagers, setDeleteRowId]
+    () => createColumns(setShowDeleteDialog, setManagers, setDeleteRowId, t),
+    [setManagers, setDeleteRowId, t]
   )
 
   return (

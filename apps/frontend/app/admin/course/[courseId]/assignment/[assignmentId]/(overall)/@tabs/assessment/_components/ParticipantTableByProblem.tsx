@@ -19,6 +19,7 @@ import {
 import { REJUDGE_ASSIGNMENT_PROBLEM } from '@/graphql/submission/mutations'
 import { useMutation, useQuery, useSuspenseQuery } from '@apollo/client'
 import { RejudgeMode } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import dayjs from 'dayjs'
 import { useParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
@@ -30,6 +31,9 @@ import { ProblemSelectDropdown } from './DataTableProblemFilterSingle'
 export function ParticipantTableByProblem() {
   const { courseId, assignmentId } = useParams()
   const [rejudge] = useMutation(REJUDGE_ASSIGNMENT_PROBLEM)
+
+  const { t } = useTranslate()
+
   const assignmentData = useQuery(GET_ASSIGNMENT, {
     variables: {
       groupId: Number(courseId),
@@ -83,7 +87,7 @@ export function ParticipantTableByProblem() {
       })
 
       await Promise.all([refetchSummaries(), refetchTcResults()])
-      toast.success('Rejudge successful')
+      toast.success(t('rejudge_successful'))
     } catch (e) {
       console.error('Rejudge failed', e)
     }
@@ -164,9 +168,9 @@ export function ParticipantTableByProblem() {
     : `course-${courseId}/assignment-${assignmentId}/problem-${selectedPid}.csv`
 
   const headers = [
-    { label: 'Student ID', key: 'studentId' },
-    { label: 'Testcase', key: 'testcase' },
-    { label: 'Total', key: 'total' }
+    { label: t('csv_header_student_id'), key: 'studentId' },
+    { label: t('csv_header_testcase'), key: 'testcase' },
+    { label: t('csv_header_total'), key: 'total' }
   ]
 
   const csvData = summaries.data?.getAssignmentScoreSummaries.map((user) => {
@@ -190,19 +194,19 @@ export function ParticipantTableByProblem() {
     <div className="flex flex-col gap-6">
       <div className="flex justify-between gap-4">
         <UtilityPanel
-          title="Rejudge Problem"
-          description="Rejudging will re-evaluate all submissions for current problem in this assignment."
+          title={t('rejudge_problem_title')}
+          description={t('rejudge_problem_description')}
         >
           <button
             onClick={handleRejudge}
             className="bg-primary flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-85"
           >
-            Rejudge
+            {t('rejudge_button')}
           </button>
         </UtilityPanel>
         <UtilityPanel
-          title="Download as a CSV"
-          description="Download grading results by students and problem to see all."
+          title={t('download_csv_title')}
+          description={t('download_csv_description')}
         >
           <CSVLink
             data={csvData}
@@ -210,7 +214,7 @@ export function ParticipantTableByProblem() {
             filename={fileName}
             className="bg-primary flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-85"
           >
-            Download
+            {t('download_button')}
           </CSVLink>
         </UtilityPanel>
       </div>
@@ -221,7 +225,8 @@ export function ParticipantTableByProblem() {
           selectedPid,
           String(courseId),
           String(assignmentId),
-          isAssignmentFinished
+          isAssignmentFinished,
+          t
         )}
         enablePagination={false}
       >
@@ -230,7 +235,7 @@ export function ParticipantTableByProblem() {
             <span className="text-primary font-bold">
               {summariesData.length}
             </span>{' '}
-            Participants
+            {t('participants_label')}
           </p>
           <ProblemSelectDropdown
             problems={problemData.map((p) => ({
@@ -244,7 +249,7 @@ export function ParticipantTableByProblem() {
         </div>
         <DataTableSearchBar
           columndId="studentId"
-          placeholder="Search Student Id"
+          placeholder={t('search_student_id_placeholder')}
         />
         <DataTable headerStyle={{ testcases: 'w-1 min-w-[75px]' }} />
       </DataTableRoot>
@@ -256,7 +261,9 @@ export function ParticipantTableFallback() {
   return (
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
-      <DataTableFallback columns={createColumns([], null, '0', '0', true)} />
+      <DataTableFallback
+        columns={createColumns([], null, '0', '0', true, () => '')}
+      />
     </div>
   )
 }

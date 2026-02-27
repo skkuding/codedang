@@ -1,5 +1,6 @@
 import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
+import { useTranslate } from '@tolgee/react'
 import type { Dispatch, SetStateAction } from 'react'
 import { BiSolidPencil } from 'react-icons/bi'
 
@@ -14,6 +15,8 @@ export function AdminCommentPostArea({
   setText: Dispatch<SetStateAction<string>>
   onPost: () => void
 }) {
+  const { t } = useTranslate()
+
   return (
     <div className="border-line-default flex flex-col gap-[16px] rounded-xl border border-solid p-[24px]">
       {/* 작성자 이름과 input field */}
@@ -23,7 +26,7 @@ export function AdminCommentPostArea({
           <Textarea
             value={text}
             className="placeholder:text-color-neutral-90 min-h-[72px] resize-none whitespace-pre-wrap rounded-none border-none p-0 text-base shadow-none focus-visible:ring-0"
-            placeholder="Enter Your Answer"
+            placeholder={t('enter_your_answer_placeholder')}
             onChange={(value) => setText(value.target.value)}
             maxLength={400}
           />
@@ -40,7 +43,7 @@ export function AdminCommentPostArea({
         className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-[6px]"
       >
         <BiSolidPencil className="white" />
-        <p className="text-base font-medium text-white">Post</p>
+        <p className="text-base font-medium text-white">{t('post_button')}</p>
       </Button>
     </div>
   )

@@ -1,3 +1,4 @@
+import { useTranslate } from '@tolgee/react'
 import { useMemo, type Dispatch, type SetStateAction } from 'react'
 import { DataTable, DataTableRoot } from '../../_components/table'
 import type { ContestProblem } from '../_libs/schemas'
@@ -14,9 +15,10 @@ export function ContestProblemTable({
   setProblems,
   disableInput
 }: ContestProblemTableProps) {
+  const { t } = useTranslate()
   const columns = useMemo(
-    () => createColumns(setProblems, disableInput),
-    [setProblems, disableInput]
+    () => createColumns(setProblems, disableInput, t),
+    [setProblems, disableInput, t]
   )
 
   return (

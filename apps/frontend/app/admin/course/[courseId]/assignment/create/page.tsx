@@ -9,6 +9,7 @@ import { TimeForm } from '@/app/admin/_components/TimeForm'
 import { TitleForm } from '@/app/admin/_components/TitleForm'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
@@ -27,6 +28,7 @@ export default function Page() {
   const { courseId } = useParams()
   const [problems, setProblems] = useState<AssignmentProblem[]>([])
   const [isCreating, setIsCreating] = useState(false)
+  const { t } = useTranslate()
 
   return (
     <ConfirmNavigation>
@@ -36,7 +38,9 @@ export default function Page() {
             <Link href={`/admin/course/${courseId}/assignment` as const}>
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-[32px] font-bold">CREATE ASSIGNMENT</span>
+            <span className="text-[32px] font-bold">
+              {t('create_assignment')}
+            </span>
           </div>
 
           <CreateAssignmentForm
@@ -45,24 +49,27 @@ export default function Page() {
             setIsCreating={setIsCreating}
           >
             <div className="flex w-[901px] flex-col gap-[28px]">
-              <FormSection title="Title">
+              <FormSection title={t('title_section')}>
                 <TitleForm
-                  placeholder="Name your Assignment"
+                  placeholder={t('assignment_name_placeholder')}
                   className="max-w-[760px]"
                 />
               </FormSection>
 
               <div className="flex justify-between">
-                <FormSection title="Week" className="w-[420px]">
+                <FormSection title={t('week_section')} className="w-[420px]">
                   <WeekComboBox name="week" courseId={Number(courseId)} />
                 </FormSection>
-                <FormSection title="Start Time" className="w-[420px]">
+                <FormSection
+                  title={t('start_time_section')}
+                  className="w-[420px]"
+                >
                   <TimeForm name="startTime" />
                 </FormSection>
               </div>
               <div className="flex justify-between">
                 <FormSection
-                  title="Due Time"
+                  title={t('due_time_section')}
                   className="w-[420px]"
                   isLabeled={false}
                 >
@@ -78,7 +85,7 @@ export default function Page() {
                 </FormSection>
 
                 <FormSection
-                  title="End Time"
+                  title={t('end_time_section')}
                   className="w-[420px]"
                   isLabeled={false}
                 >
@@ -93,7 +100,11 @@ export default function Page() {
                 </FormSection>
               </div>
 
-              <FormSection isFlexColumn title="Description" isLabeled={false}>
+              <FormSection
+                isFlexColumn
+                title={t('description_section')}
+                isLabeled={false}
+              >
                 <DescriptionForm name="description" />
               </FormSection>
 
@@ -114,9 +125,9 @@ export default function Page() {
 
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-3">
-                  <Label required={false}>Solution</Label>
+                  <Label required={false}>{t('solution_label')}</Label>
                   <p className="text-[11px] text-[#9B9B9B]">
-                    Only problems with solutions are listed below.
+                    {t('solution_description')}
                   </p>
                 </div>
                 <AssignmentSolutionTable
@@ -129,15 +140,15 @@ export default function Page() {
                 <SwitchField
                   hasValue={true}
                   name="isJudgeResultVisible"
-                  title="Reveal Hidden Testcase Result"
-                  description="When enabled, hidden testcase results will be revealed to students."
+                  title={t('reveal_hidden_testcase_result')}
+                  description={t('hidden_testcase_description')}
                 />
 
                 <SwitchField
                   hasValue={true}
                   name="enableCopyPaste"
-                  title="Enable Participants Copy/Pasting"
-                  description="When enabled, students will be able to copy from or paste into the code editor."
+                  title={t('enable_copy_paste')}
+                  description={t('copy_paste_description')}
                 />
               </div>
 
@@ -157,7 +168,7 @@ export default function Page() {
                 disabled={isCreating}
               >
                 <IoMdCheckmarkCircleOutline fontSize={20} />
-                <div className="mb-[2px] text-base">Create</div>
+                <div className="mb-[2px] text-base">{t('create_button')}</div>
               </Button>
             </div>
           </CreateAssignmentForm>

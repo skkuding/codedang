@@ -14,6 +14,7 @@ import type {
   Testcase,
   UpdateProblemInput
 } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import { useRouter } from 'next/navigation'
 import { useRef, useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
@@ -38,6 +39,7 @@ export function EditProblemForm({
   methods,
   testcaseFieldRef
 }: EditProblemFormProps) {
+  const { t } = useTranslate()
   const [message, setMessage] = useState('')
   const [showCautionModal, setShowCautionModal] = useState(false)
   const [showScoreModal, setShowScoreModal] = useState(false)
@@ -130,7 +132,7 @@ export function EditProblemForm({
 
   const [updateProblem] = useMutation(UPDATE_PROBLEM, {
     onError: () => {
-      toast.error('Failed to update problem')
+      toast.error(t('update_problem_error'))
       setIsUploadingZip(false)
     },
     onCompleted: () => {
@@ -145,7 +147,7 @@ export function EditProblemForm({
         }
       }
 
-      toast.success('Problem updated successfully')
+      toast.success(t('update_problem_success'))
       router.push('/admin/problem')
       router.refresh()
     }
@@ -153,7 +155,7 @@ export function EditProblemForm({
 
   const [uploadTestcaseZipLegacy] = useMutation(UPLOAD_TESTCASE_ZIP_LEGACY, {
     onError: (error) => {
-      toast.error(`Failed to upload testcase ZIP: ${error.message}`)
+      toast.error(t('upload_zip_error', { message: error.message }))
       setIsUploadingZip(false)
     }
   })
@@ -162,9 +164,7 @@ export function EditProblemForm({
     const testcases = methods.getValues('testcases') ?? []
     if (!validateScoreWeight(testcases)) {
       setShowCautionModal(true)
-      setMessage(
-        'The scoring ratios have not been specified correctly.\nPlease review and correct them.'
-      )
+      setMessage(t('scoring_ratios_incorrect'))
       return false
     }
     return true
@@ -211,7 +211,7 @@ export function EditProblemForm({
             })
           }
 
-          toast.success('Problem updated successfully')
+          toast.success(t('problem_update_success'))
           setIsUploadingZip(false)
           router.push('/admin/problem')
           router.refresh()

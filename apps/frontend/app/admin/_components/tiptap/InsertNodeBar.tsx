@@ -26,6 +26,7 @@ import ImagePlus from '@/public/icons/texteditor-image.svg'
 import TableIcon from '@/public/icons/texteditor-table.svg'
 import { useMutation } from '@apollo/client'
 import type { Editor } from '@tiptap/react'
+import { useTranslate } from '@tolgee/react'
 import {
   ArrowDownToLine,
   ArrowLeftFromLine,
@@ -52,6 +53,7 @@ export const InsertNodeBar = forwardRef<
   InsertNodeBarHandles,
   InsertNodeBarProps
 >(function InsertNodeBar({ editor }, ref) {
+  const { t } = useTranslate()
   const [uploadImageMutation] = useMutation(UPLOAD_IMAGE)
   const [uploadFileMutation] = useMutation(UPLOAD_FILE)
 
@@ -88,7 +90,7 @@ export const InsertNodeBar = forwardRef<
       if (error instanceof Error) {
         const errorMessage = error.message
         if (errorMessage === 'File size exceeds maximum limit') {
-          toast.error('Images larger than 5MB cannot be uploaded.')
+          toast.error(t('image_size_error'))
         }
       }
     }
@@ -126,7 +128,7 @@ export const InsertNodeBar = forwardRef<
       if (error instanceof Error) {
         const errorMessage = error.message
         if (errorMessage === 'File size exceeds maximum limit') {
-          toast.error('Files larger than 30MB cannot be uploaded.')
+          toast.error(t('file_size_error'))
         }
       }
     }
@@ -144,7 +146,7 @@ export const InsertNodeBar = forwardRef<
         open={isFileDialogOpen}
         editor={editor}
         activeType="file"
-        title="Upload File"
+        title={t('upload_file_title')}
         description={
           <>
             <Input
@@ -152,11 +154,15 @@ export const InsertNodeBar = forwardRef<
               accept="application/pdf"
               onChange={(e) => handleUploadFile(e.target.files)}
             />
-            <p className="text-sm"> * File must be under 30MB</p>
+            <p className="text-sm"> * {t('file_size_limit_note')}</p>
           </>
         }
         triggerIcon={
-          <Image src={Paperclip} alt="File" className="h-[18px] w-[18px]" />
+          <Image
+            src={Paperclip}
+            alt={t('file_alt_text')}
+            className="h-[18px] w-[18px]"
+          />
         }
         onOpenChange={(open) => {
           setIsFileDialogOpen(open)
@@ -171,7 +177,7 @@ export const InsertNodeBar = forwardRef<
         open={isImageDialogOpen}
         editor={editor}
         activeType="image"
-        title="Upload Image"
+        title={t('upload_image_title')}
         description={
           <>
             <Input
@@ -179,11 +185,15 @@ export const InsertNodeBar = forwardRef<
               accept="image/*"
               onChange={(e) => handleUploadPhoto(e.target.files)}
             />
-            <p className="text-sm"> * Image must be under 5MB</p>
+            <p className="text-sm"> * {t('image_size_limit_note')}</p>
           </>
         }
         triggerIcon={
-          <Image src={ImagePlus} alt="Image" className="h-[18px] w-[18px]" />
+          <Image
+            src={ImagePlus}
+            alt={t('image_alt_text')}
+            className="h-[18px] w-[18px]"
+          />
         }
         onOpenChange={(open) => {
           setIsImageDialogOpen(open)
@@ -208,7 +218,7 @@ export const InsertNodeBar = forwardRef<
       >
         <Image
           src={SquareRadical}
-          alt="Equation"
+          alt={t('equation_alt_text')}
           className="h-[17px] w-[17px]"
         />
       </Toggle>
@@ -220,7 +230,11 @@ export const InsertNodeBar = forwardRef<
         }}
         className="h-9 w-9 p-2"
       >
-        <Image src={CodeBlock} alt="Code Block" className="h-[18px] w-5" />
+        <Image
+          src={CodeBlock}
+          alt={t('code_block_alt_text')}
+          className="h-[18px] w-5"
+        />
       </Toggle>
       <Dialog
         open={isTableDialogOpen}
@@ -233,11 +247,11 @@ export const InsertNodeBar = forwardRef<
       >
         <DialogContent className="!w-fit">
           <DialogHeader>
-            <DialogTitle>Insert Table</DialogTitle>
+            <DialogTitle>{t('insert_table_title')}</DialogTitle>
           </DialogHeader>
           <DialogDescription>
             <div className="my-4 flex w-32 items-center justify-between">
-              <p>Row: </p>
+              <p>{t('row_label')}: </p>
               <Input
                 type="number"
                 className="h-8 w-16"
@@ -251,7 +265,7 @@ export const InsertNodeBar = forwardRef<
               />
             </div>
             <div className="flex w-32 items-center justify-between">
-              <p>Column: </p>
+              <p>{t('column_label')}: </p>
               <Input
                 type="number"
                 className="h-8 w-16"
@@ -276,7 +290,7 @@ export const InsertNodeBar = forwardRef<
                   })
                 }}
               >
-                Insert
+                {t('insert_button')}
               </Button>
             </DialogClose>
           </DialogFooter>
@@ -295,7 +309,11 @@ export const InsertNodeBar = forwardRef<
               }
             }}
           >
-            <Image src={TableIcon} alt="Table" className="h-5 w-5" />
+            <Image
+              src={TableIcon}
+              alt={t('table_alt_text')}
+              className="h-5 w-5"
+            />
           </Toggle>
         </PopoverTrigger>
         <PopoverContent className="flex w-fit p-1">

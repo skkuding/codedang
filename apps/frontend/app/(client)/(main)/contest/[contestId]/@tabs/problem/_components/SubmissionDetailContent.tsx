@@ -15,6 +15,7 @@ import {
 import { dateFormatter, getResultColor } from '@/libs/utils'
 import type { ContestProblem } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 
 interface SubmissionDetailProps {
   contestId: number
@@ -34,6 +35,7 @@ export function SubmissionDetailContent({
       problemId: problem.id
     })
   )
+  const { t } = useTranslate()
 
   return (
     <ScrollArea className="mt-5 max-h-[540px] w-[760px]">
@@ -47,34 +49,34 @@ export function SubmissionDetailContent({
             {problem.title}
           </span>
           <span className="max-w-[40%] truncate">
-            &nbsp; &gt; &nbsp;Submission #{submissionId}
+            &nbsp; &gt; &nbsp;{t('submission_number', { submissionId })}
           </span>
         </h1>
-        <h2 className="font-bold">Summary</h2>
+        <h2 className="font-bold">{t('summary_heading')}</h2>
         <ScrollArea className="max-w-full shrink-0 rounded-md">
           <div className="**:whitespace-nowrap flex items-center justify-around gap-5 bg-gray-100 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
             <div>
-              <h2>User</h2>
+              <h2>{t('user_heading')}</h2>
               <p>{submission.username}</p>
             </div>
             <div>
-              <h2>Result</h2>
+              <h2>{t('result_heading')}</h2>
               <p className={getResultColor(submission?.result)}>
                 {submission?.result}
               </p>
             </div>
             <div>
-              <h2>Language</h2>
+              <h2>{t('language_heading')}</h2>
               <p>{submission?.language}</p>
             </div>
             <div>
-              <h2>Submission Time</h2>
+              <h2>{t('submission_time_heading')}</h2>
               <p>
                 {dateFormatter(submission?.createTime, 'YYYY-MM-DD HH:mm:ss')}
               </p>
             </div>
             <div>
-              <h2>Code Size</h2>
+              <h2>{t('code_size_heading')}</h2>
               <p>{new TextEncoder().encode(submission?.code).length} B</p>
             </div>
           </div>
@@ -84,19 +86,19 @@ export function SubmissionDetailContent({
           submission?.result !== 'Judging' &&
           submission?.result !== 'Blind' && (
             <div>
-              <h2 className="font-bold">Testcase</h2>
+              <h2 className="font-bold">{t('testcase_heading')}</h2>
               <Table className="**:text-center **:text-xs **:hover:bg-transparent [&_tr]:border-neutral-200! [&_td]:p-2">
                 <TableHeader>
                   <TableRow>
                     <TableHead />
                     <TableHead className="text-sm! text-black">
-                      Result
+                      {t('result_column')}
                     </TableHead>
                     <TableHead className="text-sm! text-black">
-                      Runtime
+                      {t('runtime_column')}
                     </TableHead>
                     <TableHead className="text-sm! text-black">
-                      Memory
+                      {t('memory_column')}
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -118,7 +120,7 @@ export function SubmissionDetailContent({
             </div>
           )}
         <div>
-          <h2 className="mb-3 font-bold">Source Code</h2>
+          <h2 className="mb-3 font-bold">{t('source_code_heading')}</h2>
           <CodeEditor
             value={submission?.code}
             language={submission?.language}
@@ -132,20 +134,21 @@ export function SubmissionDetailContent({
 }
 
 export function SubmissionDetailContentFallback() {
+  const { t } = useTranslate()
   return (
     <ScrollArea className="mt-5 max-h-[540px] w-[760px]">
       <div className="ml-20 flex w-[612px] flex-col gap-4">
         <Skeleton className="h-[28px]" />
         <div>
-          <h2 className="font-bold">Summary</h2>
+          <h2 className="font-bold">{t('summary_heading')}</h2>
           <Skeleton className="h-[76px]" />
         </div>
         <div>
-          <h2 className="font-bold">Testcase</h2>
+          <h2 className="font-bold">{t('testcase_heading')}</h2>
           <Skeleton className="h-[76px]" />
         </div>
         <div>
-          <h2 className="mb-3 font-bold">Source Code</h2>
+          <h2 className="mb-3 font-bold">{t('source_code_heading')}</h2>
           <Skeleton className="h-28" />
         </div>
       </div>

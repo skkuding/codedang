@@ -3,6 +3,7 @@
 import calendarIcon from '@/public/icons/calendar-gray.svg'
 import personFillIcon from '@/public/icons/person-gray.svg'
 import type { JoinedCourse } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import 'react-circular-progressbar/dist/styles.css'
 import { StatusBadge } from '../../../(main)/_components/StatusBadge'
@@ -13,6 +14,7 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course }: CourseCardProps) {
+  const { t } = useTranslate()
   return (
     <div className="mt-3 flex h-[200px] flex-col justify-between overflow-hidden rounded-xl shadow-[0_4px_20px_rgba(53,78,116,0.1)]">
       <div className="flex w-full flex-col justify-between gap-2 px-5 pt-4">
@@ -24,7 +26,12 @@ export function CourseCard({ course }: CourseCardProps) {
         </div>
         <div className="flex flex-col gap-[6px] pb-8 pt-4">
           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
-            <Image src={calendarIcon} alt="calendar" width={16} height={16} />
+            <Image
+              src={calendarIcon}
+              alt={t('calendar_icon_alt')}
+              width={16}
+              height={16}
+            />
             <span className="text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
               {course?.courseInfo?.semester}
             </span>
@@ -32,12 +39,14 @@ export function CourseCard({ course }: CourseCardProps) {
           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
             <Image
               src={personFillIcon}
-              alt="person-fill"
+              alt={t('person_icon_alt')}
               width={16}
               height={16}
             />
             <span className="text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
-              Prof. {course?.courseInfo?.professor}
+              {t('professor_label', {
+                professor: course?.courseInfo?.professor
+              })}
             </span>
           </div>
         </div>

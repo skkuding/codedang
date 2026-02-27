@@ -8,6 +8,7 @@ import { useSession } from '@/libs/hooks/useSession'
 import type { ProblemDetail } from '@/types/type'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
@@ -35,6 +36,7 @@ export default function Page() {
   const session = useSession()
   const isAdmin = session?.user?.role !== 'User'
   const testcaseFieldRef = useRef<TestcaseFieldRef | null>(null)
+  const { t } = useTranslate()
 
   const methods = useForm<CreateProblemInput>({
     resolver: valibotResolver(createSchema),
@@ -101,18 +103,20 @@ export default function Page() {
             <Link href="/admin/problem">
               <FaAngleLeft className="h-12 hover:text-gray-700/80" />
             </Link>
-            <span className="text-4xl font-bold">CREATE PROBLEM</span>
+            <span className="text-4xl font-bold">
+              {t('create_problem_title')}
+            </span>
           </div>
 
           <CreateProblemForm
             methods={methods}
             testcaseFieldRef={testcaseFieldRef}
           >
-            <FormSection isFlexColumn title="Title">
-              <TitleForm placeholder="Enter a problem name" />
+            <FormSection isFlexColumn title={t('form_section_title')}>
+              <TitleForm placeholder={t('title_form_placeholder')} />
             </FormSection>
 
-            <FormSection isFlexColumn title="Description">
+            <FormSection isFlexColumn title={t('description_section_title')}>
               <DescriptionForm name="description" />
             </FormSection>
 
@@ -121,7 +125,7 @@ export default function Page() {
                 <FormSection
                   isLabeled={false}
                   isFlexColumn
-                  title="Input Description"
+                  title={t('input_description_section_title')}
                 >
                   <DescriptionForm name="inputDescription" />
                 </FormSection>
@@ -130,7 +134,7 @@ export default function Page() {
                 <FormSection
                   isLabeled={false}
                   isFlexColumn
-                  title="Output Description"
+                  title={t('output_description_section_title')}
                 >
                   <DescriptionForm name="outputDescription" />
                 </FormSection>
@@ -139,7 +143,7 @@ export default function Page() {
 
             <TestcaseField ref={testcaseFieldRef} />
 
-            <FormSection isFlexColumn title="Info">
+            <FormSection isFlexColumn title={t('info_section_title')}>
               <InfoForm />
             </FormSection>
 
@@ -147,21 +151,21 @@ export default function Page() {
 
             <SolutionField />
 
-            <FormSection isFlexColumn title="Limit">
+            <FormSection isFlexColumn title={t('limit_section_title')}>
               <LimitForm />
             </FormSection>
 
             <SwitchField
               name="hint"
-              title="Hint"
+              title={t('hint_field_title')}
               formElement="textarea"
-              placeholder="Enter a hint"
+              placeholder={t('hint_field_placeholder')}
             />
 
             <SwitchField
               name="source"
-              title="Source"
-              placeholder="Enter a source"
+              title={t('source_field_title')}
+              placeholder={t('source_field_placeholder')}
               formElement="input"
             />
 
@@ -178,14 +182,18 @@ export default function Page() {
                 }}
               >
                 <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
-                <div className="text-base text-[#8a8a8a]">Show Preview</div>
+                <div className="text-base text-[#8a8a8a]">
+                  {t('show_preview_button')}
+                </div>
               </Button>
               <Button
                 type="submit"
                 className="flex h-12 w-full items-center gap-2 px-0"
               >
                 <IoIosCheckmarkCircle fontSize={20} />
-                <div className="mb-[2px] text-lg font-bold">Create</div>
+                <div className="mb-[2px] text-lg font-bold">
+                  {t('create_button')}
+                </div>
               </Button>
             </div>
           </CreateProblemForm>

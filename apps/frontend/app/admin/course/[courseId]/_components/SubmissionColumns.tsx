@@ -7,12 +7,17 @@ import { cn, getResultColor } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 
-export const columns: ColumnDef<OverallSubmission>[] = [
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<OverallSubmission>[] => [
   {
     accessorKey: 'title',
     id: SUBMISSION_PROBLEM_COLUMN_ID,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Problem Title" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('problem_title_header')}
+      />
     ),
     cell: ({ row }) => (
       <>
@@ -25,21 +30,21 @@ export const columns: ColumnDef<OverallSubmission>[] = [
   {
     accessorKey: 'studentId',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student ID" />
+      <DataTableColumnHeader column={column} title={t('student_id_header')} />
     ),
     cell: ({ row }) => row.getValue('studentId')
   },
   {
     accessorKey: 'realname',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
+      <DataTableColumnHeader column={column} title={t('name_header')} />
     ),
     cell: ({ row }) => row.getValue('realname')
   },
   {
     accessorKey: 'result',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Result" />
+      <DataTableColumnHeader column={column} title={t('result_header')} />
     ),
     cell: ({ row }) => (
       <div
@@ -55,14 +60,17 @@ export const columns: ColumnDef<OverallSubmission>[] = [
   {
     accessorKey: 'language',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Language" />
+      <DataTableColumnHeader column={column} title={t('language_header')} />
     ),
     cell: ({ row }) => row.getValue('language')
   },
   {
     accessorKey: 'submissionTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Submission Time" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('submission_time_header')}
+      />
     ),
     cell: ({ row }) => {
       return dayjs(
@@ -73,16 +81,18 @@ export const columns: ColumnDef<OverallSubmission>[] = [
   {
     accessorKey: 'codeSize',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Code Size" />
+      <DataTableColumnHeader column={column} title={t('code_size_header')} />
     ),
     cell: ({ row }) => {
-      return row.getValue('codeSize') ? `${row.getValue('codeSize')} B` : 'N/A'
+      return row.getValue('codeSize')
+        ? `${row.getValue('codeSize')} B`
+        : t('n_a')
     }
   },
   {
     accessorKey: 'ip',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="IP" />
+      <DataTableColumnHeader column={column} title={t('ip_header')} />
     ),
     cell: ({ row }) => row.getValue('ip')
   }

@@ -11,9 +11,11 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_CONTEST_SCORE_SUMMARIES } from '@/graphql/contest/queries'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { createColumns } from './Columns'
 
 export function ParticipantTable({ contestId }: { contestId: number }) {
+  const { t } = useTranslate()
   const summaries = useSuspenseQuery(GET_CONTEST_SCORE_SUMMARIES, {
     variables: { contestId, take: 300 }
   })
@@ -34,10 +36,16 @@ export function ParticipantTable({ contestId }: { contestId: number }) {
     <div>
       <p className="mb-3 font-medium">
         <span className="text-primary font-bold">{summariesData.length}</span>{' '}
-        Participants
+        {t('participants')}
       </p>
-      <DataTableRoot data={summariesData} columns={createColumns(problemData)}>
-        <DataTableSearchBar columndId="realName" placeholder="Search Name" />
+      <DataTableRoot
+        data={summariesData}
+        columns={createColumns(problemData, t)}
+      >
+        <DataTableSearchBar
+          columndId="realName"
+          placeholder={t('search_name_placeholder')}
+        />
         <DataTable
           getHref={(data) =>
             `/admin/contest/${contestId}/participant/${data.id}`
@@ -53,7 +61,7 @@ export function ParticipantTableFallback() {
   return (
     <div>
       <Skeleton className="mb-3 h-[24px] w-2/12" />
-      <DataTableFallback columns={createColumns([])} />
+      <DataTableFallback columns={createColumns([], () => '')} />
     </div>
   )
 }

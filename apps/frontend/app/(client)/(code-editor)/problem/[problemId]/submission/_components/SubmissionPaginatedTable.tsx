@@ -12,12 +12,15 @@ import {
 } from '@/components/PaginatorV2'
 import { getTakeQueryParam, usePagination } from '@/libs/hooks/usePaginationV2'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
-import { columns } from './Columns'
+import { getColumns } from './Columns'
 
 const itemsPerPage = 20
 
 export function SubmissionPaginatedTable({ problemId }: { problemId: number }) {
+  const { t } = useTranslate()
+  const columns = getColumns(t)
   const [queryParams, updateQueryParams] = useState({
     take: getTakeQueryParam({ itemsPerPage })
   })
@@ -75,5 +78,5 @@ export function SubmissionPaginatedTable({ problemId }: { problemId: number }) {
 }
 
 export function SubmissionPaginatedTableFallback() {
-  return <SubmissionTableFallback columns={columns} />
+  return <SubmissionTableFallback columns={getColumns(() => '')} />
 }

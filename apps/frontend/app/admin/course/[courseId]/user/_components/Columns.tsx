@@ -12,6 +12,7 @@ import {
 import { UPDATE_GROUP_MEMBER } from '@/graphql/user/mutation'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef } from '@tanstack/react-table'
+import { useTranslate } from '@tolgee/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -26,94 +27,97 @@ export interface DataTableMember {
 }
 
 export const createColumns = (
-  groupId: number
-): ColumnDef<DataTableMember>[] => [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        onClick={(e) => e.stopPropagation()}
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) =>
-          table.toggleAllPageRowsSelected(Boolean(value))
-        }
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        onClick={(e) => e.stopPropagation()}
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false
-  },
-  {
-    accessorKey: 'studentId',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student ID" />
-    ),
-    cell: ({ row }) => {
-      return row.getValue('studentId')
-    }
-  },
-  {
-    accessorKey: 'major',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Major" />
-    ),
-    cell: ({ row }) => {
-      return row.getValue('major')
-    }
-  },
-  {
-    accessorKey: 'username',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="User ID" />
-    ),
-    cell: ({ row }) => {
-      return row.getValue('username')
-    }
-  },
-  {
-    accessorKey: 'name',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
-    ),
-    cell: ({ row }) => {
-      return row.getValue('name')
-    }
-  },
-  {
-    accessorKey: 'role',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Role" />
-    ),
-    cell: ({ row }) => (
-      <div className="flex justify-center">
-        <RoleSelect
-          groupId={groupId}
-          userId={row.original.id}
-          role={row.original.role}
+  groupId: number,
+  t: (key: string) => string
+): ColumnDef<DataTableMember>[] => {
+  return [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          onClick={(e) => e.stopPropagation()}
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) =>
+            table.toggleAllPageRowsSelected(Boolean(value))
+          }
+          aria-label={t('select_all_aria_label')}
+          className="translate-y-[2px]"
         />
-      </div>
-    )
-  },
-  {
-    accessorKey: 'email',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Email" />
-    ),
-    cell: ({ row }) => {
-      return row.getValue('email')
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          onClick={(e) => e.stopPropagation()}
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
+          aria-label={t('select_row_aria_label')}
+          className="translate-y-[2px]"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false
+    },
+    {
+      accessorKey: 'studentId',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('student_id_title')} />
+      ),
+      cell: ({ row }) => {
+        return row.getValue('studentId')
+      }
+    },
+    {
+      accessorKey: 'major',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('major_title')} />
+      ),
+      cell: ({ row }) => {
+        return row.getValue('major')
+      }
+    },
+    {
+      accessorKey: 'username',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('user_id_title')} />
+      ),
+      cell: ({ row }) => {
+        return row.getValue('username')
+      }
+    },
+    {
+      accessorKey: 'name',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('name_title')} />
+      ),
+      cell: ({ row }) => {
+        return row.getValue('name')
+      }
+    },
+    {
+      accessorKey: 'role',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('role_title')} />
+      ),
+      cell: ({ row }) => (
+        <div className="flex justify-center">
+          <RoleSelect
+            groupId={groupId}
+            userId={row.original.id}
+            role={row.original.role}
+          />
+        </div>
+      )
+    },
+    {
+      accessorKey: 'email',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('email_title')} />
+      ),
+      cell: ({ row }) => {
+        return row.getValue('email')
+      }
     }
-  }
-]
+  ]
+}
 
 interface RoleSelectProps {
   groupId: number
@@ -122,6 +126,7 @@ interface RoleSelectProps {
 }
 
 function RoleSelect({ groupId, userId, role }: RoleSelectProps) {
+  const { t } = useTranslate()
   const [selectedRole, setSelectedRole] = useState(role)
   const [updateGroupMember] = useMutation(UPDATE_GROUP_MEMBER)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
@@ -142,13 +147,13 @@ function RoleSelect({ groupId, userId, role }: RoleSelectProps) {
         }
       })
       setSelectedRole(pendingRole)
-      toast.success('Successfully changed role')
+      toast.success(t('toast_success_role_changed'))
     } catch (error) {
       const errorMessage =
         error instanceof Error &&
         error.message.includes('You cannot change your own role')
-          ? 'You cannot change your own role'
-          : 'Failed to change role'
+          ? t('error_cannot_change_own_role')
+          : t('error_failed_to_change_role')
 
       toast.error(errorMessage)
       console.error(error)
@@ -164,8 +169,8 @@ function RoleSelect({ groupId, userId, role }: RoleSelectProps) {
         </SelectTrigger>
         <SelectContent className="bg-white font-semibold">
           <SelectGroup>
-            <SelectItem value="Instructor">Instructor</SelectItem>
-            <SelectItem value="Student">Student</SelectItem>
+            <SelectItem value="Instructor">{t('role_instructor')}</SelectItem>
+            <SelectItem value="Student">{t('role_student')}</SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -174,10 +179,12 @@ function RoleSelect({ groupId, userId, role }: RoleSelectProps) {
         open={isConfirmModalOpen}
         onOpenChange={setIsConfirmModalOpen}
         type="warning"
-        title="Confirm Role Change"
-        description={`Are you sure you want to change the role to ${pendingRole}?`}
+        title={t('modal_confirm_role_change_title')}
+        description={t('modal_confirm_role_change_description', {
+          role: pendingRole
+        })}
         primaryButton={{
-          text: 'Confirm',
+          text: t('modal_confirm_button'),
           onClick: handleConfirm
         }}
       />

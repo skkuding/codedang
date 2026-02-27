@@ -23,6 +23,7 @@ import {
 } from '@/components/shadcn/tabs'
 import type { Language, Template } from '@/types/type'
 import type { ProblemDetail } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 import { EditorDescription } from './EditorDescription'
 import { SolutionLayout } from './SolutionLayout'
@@ -37,6 +38,8 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
     Array.isArray(problem.solution) && problem.solution.length > 0
   const [language, setLanguage] = useState<Language>(problem.languages[0])
   const [code, setCode] = useState('')
+
+  const { t } = useTranslate()
 
   useEffect(() => {
     const templates = problem.template?.[0]
@@ -68,14 +71,14 @@ export function PreviewEditorResizablePanel({ problem }: ProblemEditorProps) {
             <div className="flex w-full items-center border-b border-slate-700 px-6">
               <TabsList variant="editor">
                 <TabsTrigger value="Description" variant="editor">
-                  Description
+                  {t('description_tab')}
                 </TabsTrigger>
                 <TabsTrigger value="Submission" variant="editor">
-                  Submission
+                  {t('submission_tab')}
                 </TabsTrigger>
                 {hasSolution && (
                   <TabsTrigger value="Solution" variant="editor">
-                    Solution
+                    {t('solution_tab')}
                   </TabsTrigger>
                 )}
               </TabsList>

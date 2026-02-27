@@ -12,13 +12,14 @@ export const createColumns = (
   optionStates: { [problemId: number]: string },
   handleOptionChange: (problemId: number, value: string) => void,
   handleTimeFormChange: (problemId: number, date: Date | null) => void,
-  solutionReleaseTimes: { [problemId: number]: Date | null }
+  solutionReleaseTimes: { [problemId: number]: Date | null },
+  t: (key: string) => string
 ): ColumnDef<AssignmentProblem>[] => {
   return [
     {
       accessorKey: 'title',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Title" />
+        <DataTableColumnHeader column={column} title={t('title_header')} />
       ),
       cell: ({ row }) => (
         <div>
@@ -31,7 +32,7 @@ export const createColumns = (
     {
       accessorKey: 'reveal',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Reveal" />
+        <DataTableColumnHeader column={column} title={t('reveal_header')} />
       ),
       cell: ({ row }) => (
         <div className="flex w-[70px] justify-center">
@@ -47,7 +48,7 @@ export const createColumns = (
     {
       accessorKey: 'options',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Options" />
+        <DataTableColumnHeader column={column} title={t('options_header')} />
       ),
       cell: ({ row }) => {
         const selectedOption = optionStates[row.original.id]
@@ -62,7 +63,7 @@ export const createColumns = (
                   handleOptionChange(row.original.id, 'After Due Date')
                 }
               />
-              <p>After Due Date</p>
+              <p>{t('after_due_date')}</p>
             </label>
             <div className="flex w-[180px] flex-col items-center justify-start gap-2">
               <label className="flex items-center gap-1">
@@ -74,7 +75,7 @@ export const createColumns = (
                     handleOptionChange(row.original.id, 'Manually')
                   }
                 />
-                <p>Manually</p>
+                <p>{t('manually')}</p>
               </label>
 
               {selectedOption === 'Manually' && (

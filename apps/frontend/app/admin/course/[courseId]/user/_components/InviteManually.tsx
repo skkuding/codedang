@@ -18,6 +18,7 @@ import plusIcon from '@/public/icons/plus-line.svg'
 import type { MemberRole } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
@@ -52,6 +53,7 @@ type SelectedUserDisplay = {
 }
 
 export function InviteManually({ courseId }: InviteManuallyProps) {
+  const { t } = useTranslate()
   const roles: MemberRole[] = ['Instructor', 'Student']
   const userId = 0
   const [inviteUser] = useMutation(INVITE_USER)
@@ -61,12 +63,12 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
   const [emailDomain, setEmailDomain] = useState(ALLOWED_DOMAINS[0])
   const [isDirectInputMode, setIsDirectInputMode] = useState(false)
 
-  const emailDomains = [...ALLOWED_DOMAINS, 'Enter directly']
+  const emailDomains = [...ALLOWED_DOMAINS, t('enter_directly')]
 
   const handleSelectChange = (value: string) => {
     setSelectDomain(value)
 
-    if (value === 'Enter directly') {
+    if (value === t('enter_directly')) {
       setIsDirectInputMode(true)
       setEmailDomain('')
     } else {
@@ -102,7 +104,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
       })
 
       if (!res.ok) {
-        toast.error('Failed to find user')
+        toast.error(t('failed_to_find_user'))
         return
       }
 
@@ -121,13 +123,13 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
       )
     } catch (err) {
       console.error(err)
-      toast.error('Unexpected error occurred')
+      toast.error(t('unexpected_error_occurred'))
     }
   }
 
   const onInvite: SubmitHandler<InviteUserInput> = useCallback(async () => {
     if (selectedList.length === 0) {
-      toast.error('No user selected to invite')
+      toast.error(t('no_user_selected_to_invite'))
       return
     }
 
@@ -149,7 +151,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
       )
 
       if (resultSuccess) {
-        toast.success('Invited Successfully!', {
+        toast.success(t('invited_successfully'), {
           style: {
             background: '#F0F8FF',
             color: '#0973DC',
@@ -161,12 +163,12 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
 
         setSelectedList([])
       } else {
-        toast.error('Failed to invite user')
+        toast.error(t('failed_to_invite_user'))
       }
     } catch {
-      toast.error('An unexpected error occurred')
+      toast.error(t('unexpected_error_occurred'))
     }
-  }, [inviteUser, courseId, selectedList])
+  }, [inviteUser, courseId, selectedList, t])
 
   const {
     watch: findWatch,
@@ -197,10 +199,10 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
         onSubmit={() => {
           findHandleSubmit(onFind)()
         }}
-        aria-label="Invite user"
+        aria-label={t('invite_user_form_aria_label')}
         className="flex flex-col gap-3 rounded-lg border p-[30px]"
       >
-        <span className="font-pretendard text-lg">Invite Manually</span>
+        <span className="font-pretendard text-lg">{t('invite_manually')}</span>
 
         <div className="border-line flex flex-col items-start self-stretch border-b pb-[30px]">
           <div className="flex items-center gap-[10px] self-stretch">
@@ -216,7 +218,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                 <Input
                   id="email"
                   {...findRegister('email')}
-                  placeholder="Enter the e-mail"
+                  placeholder={t('enter_the_email_placeholder')}
                   className="pl aceholder:text-color-neutral-90 rounded-none border-none !bg-transparent pl-0 text-base autofill:!bg-transparent focus:outline-none focus:ring-0 focus-visible:border-none focus-visible:outline-none focus-visible:ring-0"
                 />
               </div>
@@ -231,7 +233,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                     <div className="flex items-center gap-[6px]">
                       <Image src={emailIcon} alt="emailIcon" />
 
-                      {selectDomain !== 'Enter directly' ? (
+                      {selectDomain !== t('enter_directly') ? (
                         <SelectValue placeholder={ALLOWED_DOMAINS[0]} />
                       ) : (
                         <div className="flex-grow" />
@@ -241,7 +243,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                   <SelectContent className="rounded-lg bg-white shadow-md">
                     {emailDomains.map((domain) => (
                       <SelectItem key={domain} value={domain}>
-                        {domain === 'Enter directly'
+                        {domain === t('enter_directly')
                           ? domain
                           : domain.replace('@', '')}
                       </SelectItem>
@@ -253,7 +255,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                   <div className="flex items-center rounded-lg text-base">
                     <Input
                       value={emailDomain.replace('@', '')}
-                      placeholder="Enter directly"
+                      placeholder={t('enter_directly')}
                       onChange={handleInputChange}
                       className="w-35 absolute left-[20px] h-10 border-none bg-transparent text-base shadow-none focus-visible:ring-0"
                     />
@@ -271,7 +273,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                   }}
                 >
                   <SelectTrigger className="flex w-auto items-center gap-2 border-none bg-transparent text-base leading-[150%] tracking-[-0.48px] text-black focus:outline-none">
-                    <SelectValue placeholder="Student" />
+                    <SelectValue placeholder={t('student')} />
                   </SelectTrigger>
                   <SelectContent className="rounded-lg bg-white shadow-md">
                     {roles.map((role) => (
@@ -289,14 +291,16 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
               onClick={() => findHandleSubmit(onFind)()}
             >
               <Image src={plusIcon} alt="plusIcon" />
-              <span className="text-primary text-[14px] font-medium">Add</span>
+              <span className="text-primary text-[14px] font-medium">
+                {t('add_button')}
+              </span>
             </div>
           </div>
         </div>
 
         <div className="flex flex-col items-start gap-[10px] self-stretch">
           <span className="text-primary overflow-hidden text-ellipsis text-sm font-normal">
-            {selectedList.length} user(s) selected
+            {t('user_count', { count: selectedList.length })}
           </span>
 
           <div className="flex flex-col items-start gap-2 self-stretch">
@@ -329,7 +333,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                       }}
                     >
                       <SelectTrigger className="flex w-auto items-center gap-2 border-none bg-transparent text-base leading-[150%] tracking-[-0.48px] text-black focus:outline-none">
-                        <SelectValue placeholder="Student" />
+                        <SelectValue placeholder={t('student')} />
                       </SelectTrigger>
                       <SelectContent className="rounded-lg bg-white shadow-md">
                         {roles.map((role) => (
@@ -365,7 +369,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
         className="bg-primary hover:bg-primary-strong mt-[30px] h-11 w-full rounded-full text-base text-white"
         onClick={() => inviteHandleSubmit(onInvite)()}
       >
-        Invite
+        {t('invite_button')}
       </Button>
     </div>
   )

@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from '@/components/shadcn/card'
 import type { CreateAnnouncementInput } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import type { UseFormSetValue, UseFormWatch } from 'react-hook-form'
 import { ScrollArea } from './DropDownScrollBar'
 
@@ -29,6 +30,7 @@ export function ProblemDropdown({
   isContestStarted,
   onValueChange
 }: ProblemDropdownProps) {
+  const { t } = useTranslate()
   const selectedProblemOrder = watch('problemOrder')
 
   const handleProblemSelect = (problemOrder: number | null) => {
@@ -38,7 +40,7 @@ export function ProblemDropdown({
 
   const generalOption = {
     order: null,
-    label: 'General'
+    label: t('general')
   }
 
   if (!isOpen) {

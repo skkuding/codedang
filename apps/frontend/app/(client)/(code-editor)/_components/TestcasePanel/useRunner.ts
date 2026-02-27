@@ -1,11 +1,10 @@
-'use client'
-
 import { runnerBaseUrl, runnerConnectionTimeLimit } from '@/libs/constants'
 import {
   RunnerMessageType,
   type Language,
   type RunnerMessage
 } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 // Do not import xterm statically to avoid SSR issues
 // Only importing types from xterm is fine
 import type { Terminal } from '@xterm/xterm'
@@ -27,6 +26,7 @@ const useWebsocket = (
   source: string,
   language: Language
 ) => {
+  const { t } = useTranslate()
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const ws = new WebSocket(runnerBaseUrl!)
   let currentInputBuffer = ''
@@ -38,7 +38,7 @@ const useWebsocket = (
   let lastComposedText = ''
   let outputLength = 0 // 출력 길이 추적용 변수 추가
 
-  terminal.writeln('[SYS] Connecting to the runner...')
+  terminal.writeln(t('connecting_to_runner'))
 
   const sendExitMessage = () => {
     if (ws && ws.readyState === WebSocket.OPEN) {
@@ -46,7 +46,7 @@ const useWebsocket = (
         type: RunnerMessageType.EXIT
       }
       ws.send(JSON.stringify(exitMsg))
-      terminal.writeln('\n\n[SYS] Sent exit message to the server')
+      terminal.writeln(t('sent_exit_message'))
       ws.close()
     }
   }
@@ -180,9 +180,7 @@ const useWebsocket = (
 
   const setupWebSocketHandlers = () => {
     ws.onopen = () => {
-      terminal.writeln(
-        '[SYS] Successfully connected to the runner. Type Ctrl + C to exit.\n'
-      )
+      terminal.writeln(t('successfully_connected_to_runner'))
       terminal.focus()
       isConnected = true
 
@@ -191,13 +189,13 @@ const useWebsocket = (
     }
 
     ws.onclose = () => {
-      terminal.writeln('\n[SYS] Connection to the runner closed')
+      terminal.writeln(t('connection_to_runner_closed'))
       isWaitingForServerResponse = false
       isConnected = false
     }
 
     ws.onerror = () => {
-      terminal.writeln('[SYS] Error occurred, connection closed')
+      terminal.writeln(t('error_occurred'))
       isWaitingForServerResponse = false
       isConnected = false
     }
@@ -230,9 +228,7 @@ const useWebsocket = (
 
             // 출력 길이가 100000자를 초과하면 연결 종료
             if (outputLength > 100000) {
-              terminal.writeln(
-                '\n\n[SYS] Output is too long, process terminated (Max 100000 characters)'
-              )
+              terminal.writeln(t('output_too_long'))
               sendExitMessage()
             }
             break
@@ -354,6 +350,7 @@ const useWebsocket = (
 }
 
 export const useRunner = () => {
+  const { t } = useTranslate()
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
   const [ws, setWs] = useState<WebSocket | null>(null)
   const [terminalInstance, setTerminalInstance] = useState<Terminal | null>(
@@ -456,9 +453,7 @@ export const useRunner = () => {
               type: RunnerMessageType.EXIT
             }
             newWs.send(JSON.stringify(exitMsg))
-            terminal.writeln(
-              '\n\n[SYS] Time limit exceeded, process terminated (Max 180 seconds)'
-            )
+            terminal.writeln(t('time_limit_exceeded'))
           }
           newWs.close()
           setWs(null)

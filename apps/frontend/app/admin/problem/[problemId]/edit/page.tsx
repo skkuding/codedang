@@ -9,6 +9,7 @@ import type { ProblemDetail } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { useState, use, useRef } from 'react'
 import { createPortal } from 'react-dom'
@@ -35,6 +36,7 @@ import { EditProblemForm } from './_components/EditProblemForm'
 export default function Page(props: {
   params: Promise<{ problemId: string }>
 }) {
+  const { t } = useTranslate()
   const params = use(props.params)
   const [isPreviewing, setIsPreviewing] = useState(false)
   const { problemId } = params
@@ -104,7 +106,9 @@ export default function Page(props: {
             <Link href={`/admin/problem/${problemId}`}>
               <FaAngleLeft className="h-12 hover:text-gray-700/80" />
             </Link>
-            <span className="text-4xl font-bold">EDIT PROBLEM</span>
+            <span className="text-4xl font-bold">
+              {t('edit_problem_title')}
+            </span>
           </div>
           <EditProblemProvider>
             <EditProblemForm
@@ -113,11 +117,11 @@ export default function Page(props: {
               isTestcaseEditBlocked={isTestcaseEditBlocked}
               testcaseFieldRef={testcaseFieldRef}
             >
-              <FormSection isFlexColumn title="Title">
-                <TitleForm placeholder="Enter a problem name" />
+              <FormSection isFlexColumn title={t('title_section')}>
+                <TitleForm placeholder={t('enter_problem_name_placeholder')} />
               </FormSection>
 
-              <FormSection isFlexColumn title="Description">
+              <FormSection isFlexColumn title={t('description_section')}>
                 {methods.getValues('description') && (
                   <DescriptionForm name="description" />
                 )}
@@ -127,7 +131,7 @@ export default function Page(props: {
                 <div>
                   <FormSection
                     isFlexColumn
-                    title="Input Description"
+                    title={t('input_description_section')}
                     isLabeled={false}
                   >
                     {methods.getValues('inputDescription') && (
@@ -138,7 +142,7 @@ export default function Page(props: {
                 <div>
                   <FormSection
                     isFlexColumn
-                    title="Output Description"
+                    title={t('output_description_section')}
                     isLabeled={false}
                   >
                     {methods.getValues('outputDescription') && (
@@ -148,7 +152,7 @@ export default function Page(props: {
                 </div>
               </div>
 
-              <FormSection isFlexColumn title="Info">
+              <FormSection isFlexColumn title={t('info_section')}>
                 <InfoForm />
               </FormSection>
 
@@ -160,22 +164,22 @@ export default function Page(props: {
                 <TestcaseField ref={testcaseFieldRef} blockEdit={false} />
               )}
 
-              <FormSection isFlexColumn title="Limit">
+              <FormSection isFlexColumn title={t('limit_section')}>
                 <LimitForm blockEdit={false} />
               </FormSection>
 
               <SwitchField
                 name="hint"
-                title="Hint"
-                placeholder="Enter a hint"
+                title={t('hint_section')}
+                placeholder={t('enter_hint_placeholder')}
                 formElement="textarea"
                 hasValue={methods.getValues('hint') !== ''}
               />
 
               <SwitchField
                 name="source"
-                title="Source"
-                placeholder="Enter a source"
+                title={t('source_section')}
+                placeholder={t('enter_source_placeholder')}
                 formElement="input"
                 hasValue={methods.getValues('source') !== ''}
               />
@@ -192,14 +196,18 @@ export default function Page(props: {
                   }}
                 >
                   <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
-                  <div className="text-base text-[#8a8a8a]">Show Preview</div>
+                  <div className="text-base text-[#8a8a8a]">
+                    {t('show_preview_button')}
+                  </div>
                 </Button>
                 <Button
                   type="submit"
                   className="flex h-12 w-full items-center gap-2 px-0"
                 >
                   <IoIosCheckmarkCircle fontSize={20} />
-                  <div className="mb-[2px] text-lg font-bold">Edit</div>
+                  <div className="mb-[2px] text-lg font-bold">
+                    {t('edit_button')}
+                  </div>
                 </Button>
               </div>
             </EditProblemForm>

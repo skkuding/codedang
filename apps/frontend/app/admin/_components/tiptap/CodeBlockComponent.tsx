@@ -5,11 +5,13 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
+import { getTranslate } from '@/tolgee/server'
 import type { NodeViewProps } from '@tiptap/core'
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
 import React from 'react'
 
-export function CodeBlockComponent(props: NodeViewProps) {
+export async function CodeBlockComponent(props: NodeViewProps) {
+  const t = await getTranslate()
   const defaultLanguage = props.node.attrs.language as string
   const updateAttributes = props.updateAttributes as (attrs: {
     language: string
@@ -27,14 +29,14 @@ export function CodeBlockComponent(props: NodeViewProps) {
           onValueChange={(value) => updateAttributes({ language: value })}
         >
           <SelectTrigger className="h-6 w-24">
-            <SelectValue placeholder="Select Language" />
+            <SelectValue placeholder={t('select_language_placeholder')} />
           </SelectTrigger>
           <SelectContent className="bg-white">
-            <SelectItem value="auto">auto</SelectItem>
-            <SelectItem value="c">C</SelectItem>
-            <SelectItem value="cpp">C++</SelectItem>
-            <SelectItem value="java">Java</SelectItem>
-            <SelectItem value="python">Python</SelectItem>
+            <SelectItem value="auto">{t('auto')}</SelectItem>
+            <SelectItem value="c">{t('language_c')}</SelectItem>
+            <SelectItem value="cpp">{t('language_cpp')}</SelectItem>
+            <SelectItem value="java">{t('language_java')}</SelectItem>
+            <SelectItem value="python">{t('language_python')}</SelectItem>
           </SelectContent>
         </Select>
       </div>

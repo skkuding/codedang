@@ -11,16 +11,18 @@ import {
   TabsList
 } from '@/components/shadcn/tabs'
 import { ErrorBoundary } from '@suspensive/react'
+import { useTranslate } from '@tolgee/react'
 import { Suspense } from 'react'
 
 export default function Submission() {
+  const { t } = useTranslate()
   return (
     <ErrorBoundary fallback={FetchErrorFallback}>
       <Suspense fallback={<SubmissionTableFallback />}>
         <Tabs defaultValue="all">
           <TabsList>
-            <TabsTrigger value="all">All submissions</TabsTrigger>
-            <TabsTrigger value="students">Students</TabsTrigger>
+            <TabsTrigger value="all">{t('all_submissions_button')}</TabsTrigger>
+            <TabsTrigger value="students">{t('students_button')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all">

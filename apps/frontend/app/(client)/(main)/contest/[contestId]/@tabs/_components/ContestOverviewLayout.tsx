@@ -8,6 +8,7 @@ import {
 } from '@/components/shadcn/accordion'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
+import { getTranslate } from '@/tolgee/server'
 import type {
   ContestPreview,
   ProblemDataTop,
@@ -32,7 +33,7 @@ interface ContestOverviewLayoutProps {
   search?: string
 }
 
-export function ContestOverviewLayout({
+export async function ContestOverviewLayout({
   contest,
   problemData,
   orderedContests,
@@ -40,6 +41,8 @@ export function ContestOverviewLayout({
   isPreview,
   search = ''
 }: ContestOverviewLayoutProps) {
+  const t = await getTranslate()
+
   let previewProblemData: ProblemDataTop
   if (!isPreview) {
     previewProblemData = problemData ?? { data: [], total: 0 }
@@ -66,22 +69,22 @@ export function ContestOverviewLayout({
   const currentTime = new Date()
   const state = (() => {
     if (isPreview) {
-      return 'Ongoing'
+      return t('ongoing_state')
     }
     if (currentTime >= contest.endTime) {
-      return 'Finished'
+      return t('finished_state')
     }
     if (currentTime < contest.startTime) {
-      return 'Upcoming'
+      return t('upcoming_state')
     }
-    return 'Ongoing'
+    return t('ongoing_state')
   })()
 
   const registerState = (() => {
     if (currentTime >= contest.registerDueTime) {
-      return 'Finished'
+      return t('finished_state')
     }
-    return 'Ongoing'
+    return t('ongoing_state')
   })()
 
   const imageUrl = contest.posterUrl || '/logos/welcome.png'
@@ -114,7 +117,7 @@ export function ContestOverviewLayout({
           <div className="relative flex flex-shrink-0 rounded-xl">
             <Image
               src={imageUrl}
-              alt="Contest Poster"
+              alt={t('contest_poster_alt')}
               width={234}
               height={312}
               className="h-[312px] w-[234px] rounded-xl border object-contain"
@@ -126,33 +129,43 @@ export function ContestOverviewLayout({
           <div className="flex h-[312px] flex-col justify-between">
             <div className="flex flex-col gap-[10px]">
               <ContestSummary
-                buttonName="참여 대상"
+                buttonName={t('contest_summary_target_button')}
                 summary={
-                  contest.summary.참여대상 ? contest.summary.참여대상 : '없음'
+                  contest.summary.참여대상
+                    ? contest.summary.참여대상
+                    : t('none')
                 }
               />
               <ContestSummary
-                buttonName="진행 방식"
+                buttonName={t('contest_summary_method_button')}
                 summary={
-                  contest.summary.진행방식 ? contest.summary.진행방식 : '없음'
+                  contest.summary.진행방식
+                    ? contest.summary.진행방식
+                    : t('none')
                 }
               />
               <ContestSummary
-                buttonName="순위 산정"
+                buttonName={t('contest_summary_ranking_button')}
                 summary={
-                  contest.summary.순위산정 ? contest.summary.순위산정 : '없음'
+                  contest.summary.순위산정
+                    ? contest.summary.순위산정
+                    : t('none')
                 }
               />
               <ContestSummary
-                buttonName="문제 형태"
+                buttonName={t('contest_summary_problem_type_button')}
                 summary={
-                  contest.summary.문제형태 ? contest.summary.문제형태 : '없음'
+                  contest.summary.문제형태
+                    ? contest.summary.문제형태
+                    : t('none')
                 }
               />
               <ContestSummary
-                buttonName="참여 혜택"
+                buttonName={t('contest_summary_benefits_button')}
                 summary={
-                  contest.summary.참여혜택 ? contest.summary.참여혜택 : '없음'
+                  contest.summary.참여혜택
+                    ? contest.summary.참여혜택
+                    : t('none')
                 }
               />
             </div>
@@ -160,15 +173,15 @@ export function ContestOverviewLayout({
             <div className="h-[46px] w-[944px]">
               {isPreview && (
                 <Button className="bg-primary border-primary h-[46px] w-[944px] rounded-full px-12 py-6 text-[16px] font-bold text-white">
-                  Register Now!
+                  {t('register_now_button')}
                 </Button>
               )}
-              {!isPreview && session && state !== 'Finished' && (
+              {!isPreview && session && state !== t('finished_state') && (
                 <div>
                   {actualIsRegistered ? (
                     <div className="flex h-[46px] w-[944px] gap-[10px]">
                       <Button className="text-color-neutral-70 bg-fill pointer-events-none h-[46px] w-[467px] rounded-[1000px] px-7 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px]">
-                        Registered
+                        {t('registered_button')}
                       </Button>
                       <RegisterCancelButton contest={contest} state={state} />
                     </div>
@@ -192,7 +205,7 @@ export function ContestOverviewLayout({
               className="h-22 pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black data-[state=open]:pb-[12px]"
               iconStyle="h-5 w-5 text-color-neutral-30"
             >
-              More Description
+              {t('more_description_button')}
             </AccordionTrigger>
             <AccordionContent className="text-color-neutral-30 !m-0 pb-[30px] text-base font-normal leading-[24px] tracking-[-0.48px]">
               <KatexContent content={contest.description} classname="!mt-0" />
@@ -210,11 +223,11 @@ export function ContestOverviewLayout({
               className="border-line h-22 border-t pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black"
               iconStyle="h-5 w-5 text-color-neutral-50"
             >
-              Problem List
+              {t('problem_list_button')}
             </AccordionTrigger>
             <AccordionContent>
               <RenderProblemList
-                state={!isPreview ? state : 'Ongoing'}
+                state={!isPreview ? state : t('ongoing_state')}
                 isRegistered={!isPreview ? actualIsRegistered : true}
                 problemData={problemDataToUse}
                 isPrivilegedRole={!isPreview ? actualIsPrivilegedRole : false}

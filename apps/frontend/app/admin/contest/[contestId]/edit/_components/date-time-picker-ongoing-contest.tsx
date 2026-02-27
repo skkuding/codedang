@@ -10,6 +10,7 @@ import {
 import { TimePickerDemo } from '@/components/shadcn/time-picker-demo'
 import { cn } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
+import { useTranslate } from '@tolgee/react'
 import { format } from 'date-fns'
 import Image from 'next/image'
 import { useEffect } from 'react'
@@ -48,6 +49,8 @@ export function DateTimePickerContest({
     }
   }, [])
 
+  const { t } = useTranslate()
+
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (!selectedDate) {
       return
@@ -62,9 +65,7 @@ export function DateTimePickerContest({
 
     // ongoing contest인 경우, 새로운 날짜가 원래 종료 시간보다 이전일 경우 날짜 설정을 방지합니다.
     if (isContestOngoing && originalEndTime && newDate < originalEndTime) {
-      toast.error(
-        'End Time cannot be earlier than the original End Time for an ongoing contest.'
-      )
+      toast.error(t('end_time_warning'))
       return
     }
 
@@ -100,7 +101,7 @@ export function DateTimePickerContest({
           {date ? (
             format(date, 'PPP HH:mm:ss')
           ) : (
-            <span className="text-[#C4C4C4]">Pick a date</span>
+            <span className="text-[#C4C4C4]">{t('pick_a_date')}</span>
           )}
         </Button>
       </PopoverTrigger>

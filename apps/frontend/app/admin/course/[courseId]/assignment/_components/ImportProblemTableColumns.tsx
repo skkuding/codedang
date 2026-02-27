@@ -3,6 +3,7 @@ import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import type { BaseDataTableProblem, Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import type { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { CiShare1 } from 'react-icons/ci'
 import { FaCheck } from 'react-icons/fa6'
@@ -16,8 +17,10 @@ export interface AssignmentProblem extends BaseDataTableProblem {
 
 export const DEFAULT_PAGE_SIZE = 5
 export const MAX_SELECTED_ROW_COUNT = 20
-export const ERROR_MESSAGE = `You can only import up to ${MAX_SELECTED_ROW_COUNT} problems in a assignment`
-export const columns: ColumnDef<AssignmentProblem>[] = [
+
+export const getColumns = (
+  t: ReturnType<typeof useTranslate>['t']
+): ColumnDef<AssignmentProblem>[] => [
   {
     accessorKey: 'select',
     header: ({ table }) => (
@@ -36,17 +39,21 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
             table.toggleAllPageRowsSelected()
             table.setSorting([{ id: 'select', desc: true }]) // NOTE: force to trigger sortingFn
           } else {
-            toast.error(ERROR_MESSAGE)
+            toast.error(
+              t('import_problem_error_message', {
+                count: MAX_SELECTED_ROW_COUNT
+              })
+            )
           }
         }}
-        aria-label="Select all"
+        aria-label={t('select_all_aria_label')}
         className="translate-y-[2px]"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        aria-label="Select row"
+        aria-label={t('select_row_aria_label')}
         className="translate-y-[2px]"
       />
     ),
@@ -64,7 +71,7 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader column={column} title={t('title_column_header')} />
     ),
     cell: ({ row }) => row.getValue('title'),
     sortingFn: (rowA, rowB) => {
@@ -77,14 +84,17 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
   {
     accessorKey: 'updateTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Update" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('update_column_header')}
+      />
     ),
     cell: ({ row }) => row.original.updateTime.substring(2, 10)
   },
   {
     accessorKey: 'difficulty',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Level" />
+      <DataTableColumnHeader column={column} title={t('level_column_header')} />
     ),
     cell: ({ row }) => {
       const level: string = row.getValue('difficulty')
@@ -97,7 +107,10 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
   {
     accessorKey: 'solution',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Solution" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('solution_column_header')}
+      />
     ),
     cell: ({ row }) => {
       return row.original.solution.some((solution) => solution.code !== '') ? (
@@ -111,7 +124,10 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
   {
     accessorKey: 'preview',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Preview" />
+      <DataTableColumnHeader
+        column={column}
+        title={t('preview_column_header')}
+      />
     ),
     cell: ({ row }) => {
       return (

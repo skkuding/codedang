@@ -1,5 +1,6 @@
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { useSettingsContext } from './context'
 
 interface NameSectionProps {
@@ -14,14 +15,17 @@ export function NameSection({ realName }: NameSectionProps) {
     formState: { register, errors }
   } = useSettingsContext()
 
+  const { t } = useTranslate()
+
   return (
     <>
-      <label className="-mb-4 text-xs">Name</label>
+      <label className="-mb-4 text-xs">{t('name_label')}</label>
       <Input
         placeholder={
           isLoading
-            ? 'Loading...'
-            : defaultProfileValues.userProfile?.realName || 'Enter your name'
+            ? t('loading_placeholder')
+            : defaultProfileValues.userProfile?.realName ||
+              t('enter_name_placeholder')
         }
         disabled={Boolean(updateNow)}
         {...register('realName')}

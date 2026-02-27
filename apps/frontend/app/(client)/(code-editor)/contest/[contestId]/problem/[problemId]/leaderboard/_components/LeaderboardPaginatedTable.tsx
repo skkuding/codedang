@@ -11,7 +11,9 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import type { Leaderboard } from '@/types/type'
 import type { LeaderboardItemCodeEditorPagination } from '@/types/type'
 import { useSuspenseQueries } from '@tanstack/react-query'
-import { columns } from './Columns'
+import { useTranslate } from '@tolgee/react'
+import { useMemo } from 'react'
+import { getColumns } from './Columns'
 import { LeaderboardTable, LeaderboardTableFallback } from './LeaderboardTable'
 
 const itemsPerPage = 17
@@ -146,6 +148,9 @@ export function LeaderboardPaginatedTable({
     itemsPerPage
   })
 
+  const { t } = useTranslate()
+
+  const columns = useMemo(() => getColumns(t), [t])
   return (
     <>
       <LeaderboardTable data={paginatedItems} columns={columns} />
@@ -172,5 +177,8 @@ export function LeaderboardPaginatedTable({
 }
 
 export function LeaderboardPaginatedTableFallback() {
+  const { t } = useTranslate()
+
+  const columns = useMemo(() => getColumns(t), [t])
   return <LeaderboardTableFallback columns={columns} />
 }

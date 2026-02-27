@@ -1,5 +1,6 @@
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
+import { getTranslate } from '@/tolgee/server'
 
 interface ExampleTextareaProps {
   onRemove: () => void
@@ -11,7 +12,7 @@ interface ExampleTextareaProps {
   register: any
   blockEdit?: boolean
 }
-export function ExampleTextarea({
+export async function ExampleTextarea({
   onRemove,
   inputName,
   outputName,
@@ -19,6 +20,8 @@ export function ExampleTextarea({
   register,
   blockEdit
 }: ExampleTextareaProps) {
+  const t = await getTranslate()
+
   return (
     <div
       className={cn(
@@ -50,7 +53,7 @@ export function ExampleTextarea({
       <div className="shadow-2xs relative flex min-h-[164px] w-full justify-between gap-2 rounded-xl border border-[#D8D8D8] bg-white px-6 py-4 font-mono">
         <Textarea
           disabled={blockEdit}
-          placeholder="Input"
+          placeholder={t('input_textarea_placeholder')}
           className="resize-none border-0 px-0 py-0 shadow-none focus-visible:ring-0"
           {...register(inputName)}
         />
@@ -58,7 +61,7 @@ export function ExampleTextarea({
       <div className="shadow-2xs relative flex min-h-[164px] w-full justify-between gap-2 rounded-xl border border-[#D8D8D8] bg-white px-6 py-4 font-mono">
         <Textarea
           disabled={blockEdit}
-          placeholder="Output"
+          placeholder={t('output_textarea_placeholder')}
           className="resize-none border-0 px-0 py-0 shadow-none focus-visible:ring-0"
           {...register(outputName)}
         />

@@ -1,6 +1,7 @@
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type { TestResult } from '@/types/type'
 import { useQueries } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { useShallow } from 'zustand/shallow'
@@ -11,6 +12,7 @@ const MAX_ATTEMPTS = 10
 const REFETCH_INTERVAL = 2000
 
 const useGetTestResult = (type: 'non-user' | 'user') => {
+  const { t } = useTranslate()
   const attempts = useRef(0)
   const setIsTesting = useTestPollingStore((state) => state.setIsTesting)
   const stopPolling = useTestPollingStore((state) => state.stopPolling)
@@ -44,7 +46,7 @@ const useGetTestResult = (type: 'non-user' | 'user') => {
       attempts.current = 0
       setIsTesting(false)
       stopPolling(type)
-      toast.error('Judging took too long. Please try again later.')
+      toast.error(t('judging_took_long'))
     }
 
     return results
@@ -54,6 +56,7 @@ const useGetTestResult = (type: 'non-user' | 'user') => {
 }
 
 export const useTestResults = () => {
+  const { t } = useTranslate()
   const getNonUserTestResult = useGetTestResult('non-user')
   const getUserTestResult = useGetTestResult('user')
   const {
@@ -131,12 +134,12 @@ export const useTestResults = () => {
 
   useEffect(() => {
     if (isError) {
-      toast.error('Failed to execute some testcases. Please try again later.')
+      toast.error(t('failed_testcases_execution'))
       setIsTesting(false)
       stopPolling('non-user')
       stopPolling('user')
     }
-  }, [isError])
+  }, [isError, t])
 
   return testResults
 }

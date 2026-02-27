@@ -8,6 +8,7 @@ import {
 import { fetcherWithAuth } from '@/libs/utils'
 import type { JoinedCourse } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { CourseCard } from '../_components/CourseCard'
 import { RegisterCourseButton } from './RegisterCourseButton'
@@ -17,6 +18,7 @@ interface CourseCardListProps {
 }
 
 export function CourseCardList({ title }: CourseCardListProps) {
+  const { t } = useTranslate()
   const { data: courses = [] } = useQuery({
     queryKey: ['joinedCourses'],
     queryFn: async () => {
@@ -32,10 +34,8 @@ export function CourseCardList({ title }: CourseCardListProps) {
           <RegisterCourseButton />
         </div>
         <div className="flex h-72 w-full flex-col items-center justify-center rounded-[20px] border border-[#DFDFDF] text-xl font-normal text-[#737373]">
-          <p>There are no courses registered!</p>
-          <p>
-            Please click the register button at the top to enroll in a course.
-          </p>
+          <p>{t('no_courses_registered_message')}</p>
+          <p>{t('register_button_prompt')}</p>
         </div>
       </div>
     )

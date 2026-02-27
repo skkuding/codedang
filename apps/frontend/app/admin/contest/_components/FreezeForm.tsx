@@ -9,6 +9,7 @@ import {
 import { Switch } from '@/components/shadcn/switch'
 // import { freezeMinuteOptions } from '@/libs/constants'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -40,6 +41,8 @@ export function FreezeForm({
   const isInitialized = useRef(!isEdit)
   const endTime = watch('endTime')
   const originalFreezeTime = useRef(watch(name)).current
+
+  const { t } = useTranslate()
 
   useEffect(() => {
     if (!isInitialized.current) {
@@ -78,14 +81,12 @@ export function FreezeForm({
 
     if (isOngoing) {
       if (originalFreezeTime && now >= originalFreezeTime) {
-        toast.error('Freeze Time cannot be updated as it has already started.')
+        toast.error(t('freeze_time_started_error'))
         return
       }
 
       if (originalFreezeTime && newFreezeTime < originalFreezeTime) {
-        toast.error(
-          'New Freeze Time must be after the Original Freeze Start Time.'
-        )
+        toast.error(t('freeze_time_must_be_after_original_error'))
         return
       }
     }
@@ -102,7 +103,7 @@ export function FreezeForm({
       )}
     >
       <div className="flex items-center gap-[54px]">
-        <h1 className="text-base font-semibold">Leaderboard Freeze</h1>
+        <h1 className="text-base font-semibold">{t('leaderboard_freeze')}</h1>
         <Switch
           onCheckedChange={() => {
             setValue(name, null)
@@ -113,7 +114,7 @@ export function FreezeForm({
         />
       </div>
       <div className="flex items-center gap-[77px] text-sm">
-        <h1 className="text-base font-semibold">Freeze start time</h1>
+        <h1 className="text-base font-semibold">{t('freeze_start_time')}</h1>
         <Select
           value={selectedOption}
           onValueChange={(value) => handleFreezeTimeChange(value)}
@@ -154,7 +155,9 @@ export function FreezeForm({
                     <span className={isEnabled ? '' : 'text-[#8A8A8A]'}>
                       {option} min&nbsp;
                     </span>
-                    <span className="text-[#8A8A8A]">Before the End</span>
+                    <span className="text-[#8A8A8A]">
+                      {t('before_the_end')}
+                    </span>
                   </SelectItem>
                 </div>
               ))}

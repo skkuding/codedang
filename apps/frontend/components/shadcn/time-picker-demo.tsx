@@ -1,6 +1,7 @@
 'use client'
 
 import { Label } from '@/components/shadcn/label'
+import { useTranslate } from '@tolgee/react'
 import { Clock } from 'lucide-react'
 import * as React from 'react'
 import { TimePickerInput } from './time-picker-input'
@@ -11,6 +12,7 @@ interface TimePickerDemoProps {
 }
 
 export const TimePickerDemo = ({ date, setDate }: TimePickerDemoProps) => {
+  const { t } = useTranslate()
   const minuteRef = React.useRef<HTMLInputElement>(null)
   const hourRef = React.useRef<HTMLInputElement>(null)
   const secondRef = React.useRef<HTMLInputElement>(null)
@@ -19,7 +21,7 @@ export const TimePickerDemo = ({ date, setDate }: TimePickerDemoProps) => {
     <div className="flex items-end gap-2">
       <div className="grid gap-1 text-center">
         <Label htmlFor="hours" className="text-xs">
-          Hours
+          {t('hours_label')}
         </Label>
         <TimePickerInput
           picker="hours"
@@ -31,7 +33,7 @@ export const TimePickerDemo = ({ date, setDate }: TimePickerDemoProps) => {
       </div>
       <div className="grid gap-1 text-center">
         <Label htmlFor="minutes" className="text-xs">
-          Minutes
+          {t('minutes_label')}
         </Label>
         <TimePickerInput
           picker="minutes"
@@ -44,7 +46,7 @@ export const TimePickerDemo = ({ date, setDate }: TimePickerDemoProps) => {
       </div>
       <div className="grid gap-1 text-center">
         <Label htmlFor="seconds" className="text-xs">
-          Seconds
+          {t('seconds_label')}
         </Label>
         <TimePickerInput
           picker="seconds"

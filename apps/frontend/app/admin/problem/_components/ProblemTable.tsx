@@ -3,6 +3,7 @@
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
+import { useTranslate } from '@tolgee/react'
 import {
   DataTable,
   DataTableFallback,
@@ -17,6 +18,7 @@ import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 import { ProblemsDownload } from './ProblemsDownload'
 
 export function ProblemTable() {
+  const { t } = useTranslate()
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
     variables: {
       take: 500,
@@ -60,7 +62,7 @@ export function ProblemTable() {
   return (
     <DataTableRoot
       data={problems}
-      columns={createColumns()}
+      columns={createColumns(t)}
 
       // defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
@@ -83,5 +85,5 @@ export function ProblemTable() {
 }
 
 export function ProblemTableFallback() {
-  return <DataTableFallback columns={createColumns()} />
+  return <DataTableFallback columns={createColumns(() => '')} />
 }

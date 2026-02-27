@@ -9,10 +9,11 @@ import { usePagination } from '@/libs/hooks/usePaginationV2'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
 import type { Contest } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { useTranslate } from '@tolgee/react'
 import type { Session } from 'next-auth'
 import { useState, useEffect } from 'react'
 import { ContestDataTable } from './ContestDataTable'
-import { columns } from './ContestMainColumns'
+import { getColumns } from './ContestMainColumns'
 
 const ITEMS_PER_PAGE = 10
 
@@ -22,6 +23,9 @@ interface ContestMainTableProps {
 }
 
 export function ContestMainTable({ search, session }: ContestMainTableProps) {
+  const { t } = useTranslate()
+  const columns = getColumns(t)
+
   const { data: contestData } = useSuspenseQuery({
     queryKey: ['contest', search],
     queryFn: () => getOngoingUpcomingContests(search, session)

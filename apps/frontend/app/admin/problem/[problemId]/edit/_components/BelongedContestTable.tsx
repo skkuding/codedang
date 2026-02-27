@@ -7,6 +7,7 @@ import {
 } from '@/app/admin/_components/table'
 import { GET_BELONGED_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { useTranslate } from '@tolgee/react'
 import { useEffect, useState } from 'react'
 import {
   createColumns,
@@ -21,7 +22,7 @@ export function BelongedContestTable({
   onSelectedAssignmentsChange: (assignments: BelongedContest[]) => void
 }) {
   const [assignments, setAssignments] = useState<BelongedContest[]>([])
-
+  const { t } = useTranslate()
   const { data } = useSuspenseQuery(GET_BELONGED_ASSIGNMENTS, {
     variables: {
       problemId
@@ -56,7 +57,7 @@ export function BelongedContestTable({
     }
   }, [data])
 
-  const columns = createColumns(onSelectedAssignmentsChange)
+  const columns = createColumns(onSelectedAssignmentsChange, t)
 
   return (
     <DataTableRoot data={assignments} columns={columns}>
@@ -66,6 +67,9 @@ export function BelongedContestTable({
 }
 
 export function BelongedContestTableFallback() {
-  const columns = createColumns(() => {})
+  const columns = createColumns(
+    () => {},
+    () => ''
+  )
   return <DataTableFallback withSearchBar={false} columns={columns} />
 }

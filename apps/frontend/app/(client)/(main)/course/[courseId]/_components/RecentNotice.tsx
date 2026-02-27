@@ -2,6 +2,7 @@
 
 import { cn } from '@/libs/utils'
 import type { CourseNotice } from '@/types/type'
+import { useTranslate } from '@tolgee/react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -28,6 +29,7 @@ function DateBadge({ date }: DateBadgeProps) {
 }
 
 export function RecentNotice() {
+  const { t } = useTranslate()
   const searchParams = useSearchParams()
   const courseId = searchParams.get('courseId')
   const [notices, setNotices] = useState<CourseNotice[]>([])
@@ -83,7 +85,9 @@ export function RecentNotice() {
     <div className="shadow-xs w-full rounded-xl p-4">
       <div className="mb-2 flex justify-between">
         <div>
-          <span className="text-primary mr-4 font-semibold">Recent Notice</span>
+          <span className="text-primary mr-4 font-semibold">
+            {t('recent_notice')}
+          </span>
           <span className="text-sm font-semibold">{notices.length}</span>
         </div>
 
@@ -91,7 +95,8 @@ export function RecentNotice() {
           href={`/course/${courseId}/notice` as const}
           className="text-primary flex items-center text-xs font-semibold"
         >
-          SHOW MORE<span className="ml-1">+</span>
+          {t('show_more')}
+          <span className="ml-1">+</span>
         </Link>
       </div>
 
@@ -125,7 +130,7 @@ export function RecentNotice() {
             </li>
           ))
         ) : (
-          <p className="text-sm text-gray-500">공지사항이 없습니다.</p>
+          <p className="text-sm text-gray-500">{t('no_notices')}</p>
         )}
       </ul>
     </div>

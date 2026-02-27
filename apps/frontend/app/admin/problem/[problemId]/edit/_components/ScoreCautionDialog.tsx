@@ -4,6 +4,7 @@ import { REJUDGE_ASSIGNMENT_PROBLEM } from '@/graphql/submission/mutations'
 import { useMutation } from '@apollo/client'
 import { RejudgeMode } from '@generated/graphql'
 import { ErrorBoundary } from '@suspensive/react'
+import { useTranslate } from '@tolgee/react'
 import { Suspense, useCallback, useState } from 'react'
 import {
   BelongedContestTable,
@@ -24,6 +25,7 @@ export function ScoreCautionDialog({
   onConfirm,
   problemId
 }: ScoreCautionDialogProps) {
+  const { t } = useTranslate()
   const [rejudge] = useMutation(REJUDGE_ASSIGNMENT_PROBLEM)
   const [isUpdating, setIsUpdating] = useState(false)
 
@@ -42,11 +44,11 @@ export function ScoreCautionDialog({
     <Modal
       size={'lg'}
       type={'custom'}
-      title={'Are you sure you want to edit this problem?'}
+      title={t('edit_problem_confirmation_title')}
       open={isOpen}
       onOpenChange={onCancel}
       primaryButton={{
-        text: isUpdating ? 'Updating...' : 'Confirm',
+        text: isUpdating ? t('updating_status') : t('confirm_button'),
         variant: 'default',
         onClick: async () => {
           setIsUpdating(true)
@@ -79,38 +81,28 @@ export function ScoreCautionDialog({
       <ul className="list-decimal space-y-4 pl-4">
         <li className="marker:text-xs marker:font-bold marker:text-black">
           <p className="text-xs font-bold text-black">
-            Editing the problem may affect the{' '}
-            <span className="underline">accuracy</span> of grading results.
+            {t('edit_problem_may_affect_grading')}
+            <span className="underline">{t('accuracy')}</span>{' '}
+            {t('of_grading_results')}
           </p>
           <ul className="list-disc py-2 pl-4 text-xs marker:text-gray-500">
-            <li>
-              Future submissions will be graded based on the updated problem.
-            </li>
-            <li>
-              Previous submissions will retain their original grading based on
-              the pre-edit version.
-            </li>
+            <li>{t('future_submissions_based_on_updated_problem')}</li>
+            <li>{t('previous_submissions_retain_original_grading')}</li>
           </ul>
         </li>
         <li className="marker:text-xs marker:font-bold marker:text-black">
           <p className="text-xs font-bold text-black">
-            This problem is included in the following assignments.
-          </p>{' '}
+            {t('problem_included_in_following_assignments')}
+          </p>
           <p className="text-xs font-bold text-black">
-            <span className="underline">Please select</span> the assignments for
-            which you want to{' '}
-            <span className="underline">rejudge submissions</span> after editing
-            the problem.
+            <span className="underline">{t('please_select')}</span>{' '}
+            {t('assignments_for_rejudge')}
+            <span className="underline">{t('rejudge_submissions')}</span>{' '}
+            {t('after_editing_problem')}
           </p>
           <ul className="list-disc py-2 pl-4 text-xs marker:text-gray-500">
-            <li>
-              Re-evaluate all submissions for this problem in the selected
-              assignments.
-            </li>
-            <li>
-              This ensures that submissions are graded based on the updated
-              problem.
-            </li>
+            <li>{t('re_evaluate_submissions_in_selected_assignments')}</li>
+            <li>{t('ensure_submissions_graded_based_on_updated_problem')}</li>
           </ul>
           <ErrorBoundary fallback={FetchErrorFallback}>
             <Suspense fallback={<BelongedContestTableFallback />}>

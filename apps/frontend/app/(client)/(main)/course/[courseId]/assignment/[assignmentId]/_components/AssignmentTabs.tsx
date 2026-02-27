@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -15,6 +16,7 @@ export function AssignmentTabs({
   courseId
 }: AssignmentTabsProps) {
   const pathname = usePathname()
+  const { t } = useTranslate()
 
   const basePathname = `/course/${courseId}/assignment/${assignmentId}` as const
 
@@ -30,13 +32,13 @@ export function AssignmentTabs({
       <ActiveLink
         href={basePathname}
         activeCondition={isCurrentTab('')}
-        text="Info"
+        text={t('info-tab')}
         isLeft={true}
       />
       <ActiveLink
         href={`${basePathname}/problem`}
         activeCondition={isCurrentTab('problem')}
-        text="Problem"
+        text={t('problem-tab')}
         isLeft={false}
       />
     </div>

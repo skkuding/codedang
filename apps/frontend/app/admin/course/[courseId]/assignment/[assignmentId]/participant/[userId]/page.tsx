@@ -5,6 +5,7 @@ import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_GROUP_MEMBER } from '@/graphql/user/queries'
 import { useQuery } from '@apollo/client'
 import { ErrorBoundary } from '@suspensive/react'
+import { useTranslate } from '@tolgee/react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { Suspense, use } from 'react'
@@ -18,6 +19,7 @@ import {
 export default function Page(props: {
   params: Promise<{ courseId: string; assignmentId: string; userId: string }>
 }) {
+  const { t } = useTranslate()
   const params = use(props.params)
   const groupId = Number(params.courseId)
   const assignmentId = Number(params.assignmentId)
@@ -50,8 +52,8 @@ export default function Page(props: {
             <div className="font-semibold">{userData?.major}</div>
             <div className="flex space-x-4">
               <div className="flex flex-col gap-4 font-medium">
-                <span>User ID</span>
-                <span>Student ID</span>
+                <span>{t('user_id_label')}</span>
+                <span>{t('student_id_label')}</span>
               </div>
               <div className="flex flex-col gap-4">
                 <span>{userData?.username}</span>

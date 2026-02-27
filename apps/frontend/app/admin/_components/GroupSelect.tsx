@@ -14,6 +14,7 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { cn } from '@/libs/utils'
+import { useTranslate } from '@tolgee/react'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import * as React from 'react'
 
@@ -37,6 +38,7 @@ const groups = [
 ]
 
 export function GroupSelect() {
+  const { t } = useTranslate()
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(groups[0].id)
 
@@ -51,14 +53,14 @@ export function GroupSelect() {
         >
           {value
             ? groups.find((framework) => framework.id === value)?.label
-            : 'Select group...'}
+            : t('select_group_placeholder')}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="mx-2 w-48 p-0 font-semibold">
         <Command>
           <CommandList>
-            <CommandEmpty>No group found.</CommandEmpty>
+            <CommandEmpty>{t('no_group_found')}</CommandEmpty>
             <CommandGroup>
               {groups.map((framework) => (
                 <CommandItem
