@@ -8,6 +8,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - configmap.yaml
+  - resourcequota.yaml
 
 commonAnnotations:
   managed-by: kustomize

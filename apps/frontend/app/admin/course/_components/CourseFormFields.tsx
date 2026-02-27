@@ -22,6 +22,7 @@ export function CourseFormFields() {
   })
 
   let currentSeasonIdx = 0
+  let baseYear = currentYear
   if (month >= 3 && month <= 5) {
     currentSeasonIdx = 0
   } else if (month >= 6 && month <= 8) {
@@ -29,13 +30,16 @@ export function CourseFormFields() {
   } else if (month >= 9 && month <= 11) {
     currentSeasonIdx = 2
   } else {
+    if (month <= 2) {
+      baseYear = baseYear - 1
+    }
     currentSeasonIdx = 3
   }
 
   const semesterItems = Array.from({ length: 5 }, (_, i) => {
     const seasonIdx = (currentSeasonIdx + i) % 4
     const yearOffset = Math.floor((currentSeasonIdx + i) / 4)
-    return `${currentYear + yearOffset} ${seasons[seasonIdx]}`
+    return `${baseYear + yearOffset} ${seasons[seasonIdx]}`
   })
 
   return (

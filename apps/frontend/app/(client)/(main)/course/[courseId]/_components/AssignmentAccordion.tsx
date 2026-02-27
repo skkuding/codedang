@@ -44,7 +44,7 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
 
   if (!assignments || assignments.length === 0) {
     return (
-      <div className="mt-4 lg:mt-8">
+      <div className="mt-13 lg:mt-8">
         <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">
           <p className="text-color-neutral-60 text-base">
             No assignments registered

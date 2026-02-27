@@ -23,6 +23,7 @@ import {
 } from './model/get-submissions.input'
 import { RejudgeResult } from './model/rejudge-result.output'
 import { RejudgeInput } from './model/rejudge.input'
+import { SubmissionCountByLanguage } from './model/submission-counts-by-language.output'
 import { SubmissionDetail } from './model/submission-detail.output'
 import { SubmissionResultOutput } from './model/submission-result.model'
 import { SubmissionsWithTotal } from './model/submissions-with-total.output'
@@ -136,6 +137,22 @@ export class SubmissionResolver {
       userId,
       problemId,
       req.user.id
+    )
+  }
+
+  @Query(() => [SubmissionCountByLanguage])
+  @UseGroupLeaderGuard()
+  async getLatestSubmissionCountByLanguage(
+    @Args('groupId', { type: () => Int }) _groupId: number,
+    @Args('assignmentId', { type: () => Int }) assignmentId: number,
+    @Args('problemId', { type: () => Int }) problemId: number,
+    @Context('req') req: AuthenticatedRequest
+  ): Promise<SubmissionCountByLanguage[]> {
+    return await this.submissionService.getLatestSubmissionCountByLanguage(
+      assignmentId,
+      problemId,
+      _groupId,
+      req.user
     )
   }
 

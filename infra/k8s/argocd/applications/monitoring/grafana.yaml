@@ -3,9 +3,10 @@ kind: ApplicationSet
 metadata:
   name: grafana
   namespace: argocd
-  # finalizers:
-  #   - resources-finalizer.argocd.argoproj.io
 spec:
+  # Preserves deployed resources when ApplicationSet or Application is deleted (prevents data loss)
+  syncPolicy:
+    preserveResourcesOnDeletion: true
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
   generators:
@@ -18,8 +19,6 @@ spec:
   template:
     metadata:
       name: 'grafana-{{.env}}'
-      # finalizers:
-      #   - resources-finalizer.argocd.argoproj.io
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:
@@ -46,7 +45,7 @@ spec:
         namespace: monitoring-grafana
       syncPolicy:
         automated:
-          prune: true
+          prune: false
           selfHeal: true
         syncOptions:
           - CreateNamespace=true

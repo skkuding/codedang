@@ -1,3 +1,6 @@
+controllerServiceAccount:
+  name: gha-runner-scale-set-controller-gha-rs-controller
+  namespace: arc-systems
 githubConfigUrl: 'https://github.com/skkuding/codedang'
 githubConfigSecret: 'github-app-secret'
 minRunners: 2
@@ -21,3 +24,4 @@ template:
     containers:
       - name: runner
         image: 'ghcr.io/actions/actions-runner:latest'
+        command: ['/home/runner/run.sh']
