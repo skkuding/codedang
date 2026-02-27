@@ -31,7 +31,8 @@
       "@libs/types": ["./libs/types/src/index.ts"],
       "@libs/instrumentation": ["./libs/instrumentation.ts"],
       "@libs/storage": ["./libs/storage/src/index.ts"],
-      "@libs/amqp": ["./libs/amqp/src/index.ts"]
+      "@libs/amqp": ["./libs/amqp/src/index.ts"],
+      "@libs/redis": ["./libs/redis/src/index.ts"]
     }
   }
 }

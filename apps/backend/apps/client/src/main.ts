@@ -2,11 +2,13 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import cookieParser from 'cookie-parser'
+import type Redis from 'ioredis'
 import Instrumentation from '@libs/instrumentation'
+import { REDIS_CLIENT, RedisIoAdapter } from '@libs/redis'
 
 /**
-  TODO: 가능하면 `app.module.ts`에서 PrismaModule 처럼 IoC 리팩터링 필요  
-  지금은 Instrumentation.start가 AppModule 보다 먼저 실행되어야 함  
+  TODO: 가능하면 `app.module.ts`에서 PrismaModule 처럼 IoC 리팩터링 필요
+  지금은 Instrumentation.start가 AppModule 보다 먼저 실행되어야 함
   자세한 이유는 [이 comment](https://github.com/skkuding/codedang/pull/2705#discussion_r2072945663)를 참고해주세요.
 */
 const bootstrap = async () => {
@@ -29,6 +31,12 @@ const bootstrap = async () => {
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
   app.use(cookieParser())
+
+  const redisClient = app.get<Redis>(REDIS_CLIENT)
+  const redisIoAdapter = new RedisIoAdapter(app, redisClient)
+  await redisIoAdapter.connectToRedis()
+  app.useWebSocketAdapter(redisIoAdapter)
+
   if (process.env.APP_ENV !== 'production' && process.env.APP_ENV !== 'stage') {
     app.enableCors({
       origin: 'http://localhost:5525',
