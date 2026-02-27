@@ -63,18 +63,19 @@ export function RecentUpdate() {
     <div className="shadow-xs w-full rounded-xl p-4">
       <div className="mb-2 flex justify-between">
         <div>
-          <span className="text-primary mr-4 font-semibold">RECENT UPDATE</span>
-          <span className="text-sm font-semibold">{updates.length}</span>
+          <span className="text-primary text-sub3_sb_16 mr-4">
+            RECENT UPDATE
+          </span>
+          <span className="text-sub4_sb_14">{updates.length}</span>
         </div>
       </div>
-
       <ul className="space-y-5 pt-3">
         {updates.length > 0 ? (
           updates.map((update) => (
             //TODO: 업데이트 요소 누르면 해당 페이지로 넘어가는 기능 필요!
             <li
               key={update.id}
-              className="flex justify-between border-b text-sm"
+              className="text-body4_r_14 flex justify-between border-b"
             >
               <div>
                 <span
@@ -100,7 +101,7 @@ export function RecentUpdate() {
             </li>
           ))
         ) : (
-          <p className="text-sm text-gray-500">공지사항이 없습니다.</p>
+          <p className="text-body4_r_14 text-gray-500">공지사항이 없습니다.</p>
         )}
       </ul>
     </div>

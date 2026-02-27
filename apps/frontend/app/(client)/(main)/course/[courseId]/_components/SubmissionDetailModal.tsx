@@ -51,7 +51,7 @@ export function SubmissionDetailModal({
     >
       <DialogHeader>
         <DialogTitle>
-          <div className="flex items-center gap-2 overflow-hidden truncate whitespace-nowrap text-lg font-medium">
+          <div className="text-sub2_m_18 flex items-center gap-2 overflow-hidden truncate whitespace-nowrap">
             <span
               title={`Week ${assignment.week}`}
               className="max-w-[80px] truncate"
@@ -101,9 +101,9 @@ export function SubmissionDetailModal({
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Comment</span>
+          <span className="text-body2_m_14">Comment</span>
           <div className="rounded-xs flex-col border p-4">
-            <span className="text-xs">
+            <span className="text-caption4_r_12">
               {assignmentProblemRecord?.problems.find(
                 (problem) => problem.id === problemId
               )?.problemRecord?.comment || ''}
@@ -113,9 +113,9 @@ export function SubmissionDetailModal({
 
         {submission && (
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium">Last Submission</span>
+            <span className="text-body2_m_14">Last Submission</span>
             <ScrollArea className="rounded-md">
-              <div className="**:whitespace-nowrap flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 text-xs [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-[14px] [&_p]:text-slate-400">
+              <div className="**:whitespace-nowrap text-caption4_r_12 flex items-center justify-around gap-5 rounded-lg border border-[#E6E6E6] bg-gray-50 p-5 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-[14px] [&_p]:text-slate-400">
                 <div>
                   <h2>User ID</h2>
                   <p>{submission?.user.username}</p>
@@ -158,7 +158,7 @@ export function SubmissionDetailModal({
           <div className="flex flex-col gap-2">
             {testResults && (
               <div>
-                <span className="text-sm font-medium">Testcase Result</span>
+                <span className="text-body2_m_14">Testcase Result</span>
 
                 {(() => {
                   const sortedResults = [...testResults.testcaseResult].sort(
@@ -172,7 +172,7 @@ export function SubmissionDetailModal({
                   let hiddenCount = 0
 
                   return (
-                    <table className="w-full border-collapse text-center text-sm">
+                    <table className="text-body4_r_14 w-full border-collapse text-center">
                       <thead className="bg-gray-50 text-[#737373]">
                         <tr>
                           {sortedResults.map((result, index) => {
@@ -183,7 +183,7 @@ export function SubmissionDetailModal({
                             return (
                               <th
                                 key={index}
-                                className="border px-4 py-2 text-xs font-normal"
+                                className="text-caption4_r_12 border px-4 py-2"
                               >
                                 {label}
                               </th>
@@ -215,7 +215,7 @@ export function SubmissionDetailModal({
           </div>
         )}
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Source Code</span>
+          <span className="text-body2_m_14">Source Code</span>
           <CodeEditor
             value={testResults?.code ?? ''}
             language={testResults?.language ?? 'C'}

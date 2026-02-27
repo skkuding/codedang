@@ -136,7 +136,7 @@ export default function ContestLeaderBoard() {
         activated={!disableLeaderboard}
       />
       <div className="mb-[62px] mt-[60px] flex w-full flex-row justify-between pl-[14px] pr-[9px]">
-        <div className="flex flex-row text-2xl font-semibold text-black">
+        <div className="text-head5_sb_24 flex flex-row text-black">
           <div className="text-[#3581FA]">
             {contestLeaderboard?.participatedNum}
           </div>
@@ -163,7 +163,6 @@ export default function ContestLeaderBoard() {
           />
         </div>
       </div>
-
       <div>
         <LeaderboardTable
           problemSize={problemSize}
@@ -205,7 +204,7 @@ function UnfreezeLeaderboardToggle({
           activated={activated}
         />
       </div>
-      <div className="mt-1 text-[14px] font-normal text-[#9B9B9B]">
+      <div className="text-body4_r_14 mt-1 text-[#9B9B9B]">
         The leaderboard can only be unfrozen after the contest has finished.
       </div>
     </div>

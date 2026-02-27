@@ -76,7 +76,7 @@ export function RegisterCancelButton({
             </p>
           </AlertDialogDescription>
           <AlertDialogFooter className="flex w-full justify-center gap-[4px]">
-            <AlertDialogCancel className="text-color-neutral-60 !m-0 h-[46px] w-[170px] text-base font-medium leading-[22.4px] tracking-[-0.48px]">
+            <AlertDialogCancel className="text-color-neutral-60 text-body1_m_16 !m-0 h-[46px] w-[170px]">
               Go Back
             </AlertDialogCancel>
             <AlertDialogAction asChild>

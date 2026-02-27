@@ -42,7 +42,7 @@ export function DurationDisplay({
         <Image src={titleIcon} alt="Icon" width={20} />
         <span className={titleStyle}>{title} :</span>
       </div>
-      <span className="text-color-neutral-30 shrink-0 text-base">
+      <span className="text-color-neutral-30 text-body3_r_16 shrink-0">
         {dateFormatter(startTime ?? '', 'YYYY-MM-DD HH:mm')} ~{' '}
         {dateFormatter(endTime ?? '', 'YYYY-MM-DD HH:mm')}
       </span>

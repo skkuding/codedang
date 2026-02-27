@@ -6,7 +6,7 @@ export function IdSection() {
 
   return (
     <>
-      <label className="-mb-4 text-xs">ID</label>
+      <label className="text-caption4_r_12 -mb-4">ID</label>
       <Input
         placeholder={isLoading ? 'Loading...' : defaultProfileValues.username}
         disabled={true}

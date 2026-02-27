@@ -204,7 +204,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
           </div>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-[10px]">
-              <span className="text-base text-[#5C5C5C]">
+              <span className="text-body3_r_16 text-[#5C5C5C]">
                 Only approved accounts can enter
               </span>
               <Switch
@@ -242,7 +242,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
             </div>
             {isWhiteListEnabled && (
               <div className="bg-fill flex flex-col gap-[18px] rounded-lg p-[20px]">
-                <ul className="list-inside list-disc space-y-2.5 text-sm text-[#8A8A8A]">
+                <ul className="text-body4_r_14 list-inside list-disc space-y-2.5 text-[#8A8A8A]">
                   <li>
                     When you upload a new file, the existing whitelist is
                     deleted and replaced.
@@ -273,7 +273,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                 </ul>
                 <label className="flex h-[40px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-full border border-[#D8D8D8] bg-white px-[28px] py-[12px] transition hover:border-gray-300 hover:bg-gray-50">
                   <IoCloudUpload size={20} className="text-gray-700" />
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-body2_m_14 text-gray-700">
                     Upload File (Excel)
                   </span>
                   <input

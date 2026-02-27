@@ -526,7 +526,7 @@ export function EditorHeader({
         <Button
           size="editor"
           variant="editor"
-          className="bg-slate-600 font-normal text-red-500 hover:bg-slate-700"
+          className="text-body3_r_16 bg-slate-600 text-red-500 hover:bg-slate-700"
           onClick={() => setIsResetModalOpen(true)}
         >
           <BsTrash3 size={17} />

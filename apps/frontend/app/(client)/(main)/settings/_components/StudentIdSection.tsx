@@ -16,7 +16,7 @@ export function StudentIdSection({ studentId }: StudentIdSectionProps) {
 
   return (
     <>
-      <label className="-mb-4 mt-2 text-xs">Student ID</label>
+      <label className="text-caption4_r_12 -mb-4 mt-2">Student ID</label>
       <Input
         placeholder={(() => {
           if (updateNow) {
@@ -39,7 +39,7 @@ export function StudentIdSection({ studentId }: StudentIdSectionProps) {
         )}
       />
       {errors.studentId && (
-        <div className="-mt-4 inline-flex items-center text-xs text-red-500">
+        <div className="text-caption4_r_12 -mt-4 inline-flex items-center text-red-500">
           {errors.studentId.message}
         </div>
       )}

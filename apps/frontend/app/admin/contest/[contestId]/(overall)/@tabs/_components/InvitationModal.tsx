@@ -48,26 +48,20 @@ export function InvitationModal({
       </DialogTrigger>
       <DialogContent className="flex !h-[280px] !w-[424px] flex-col !gap-0 !p-10">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
+          <DialogTitle className="text-head5_sb_24 text-center text-black">
             Invitation Code
           </DialogTitle>
         </DialogHeader>
 
         <div className="bg-color-neutral-99 mt-4 flex w-full items-center justify-center rounded-[1000px] px-6 py-3">
-          <span className="text-base font-normal leading-[24px] tracking-[-0.48px] text-black">
-            {invitationCode}
-          </span>
+          <span className="text-body3_r_16 text-black">{invitationCode}</span>
         </div>
 
         <div className="mt-2 flex items-center justify-center text-center">
           <Image src={bulletIcon} alt="bullet" width={20} />
-          <span className="text-primary text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
-            Contest Admin
-          </span>
-          <span className="text-color-neutral-30 mx-1 text-sm font-normal leading-[21px] tracking-[-0.42px]">
-            :
-          </span>
-          <span className="text-color-neutral-30 text-sm font-normal leading-[21px] tracking-[-0.42px]">
+          <span className="text-primary text-body2_m_14">Contest Admin</span>
+          <span className="text-color-neutral-30 text-body4_r_14 mx-1">:</span>
+          <span className="text-color-neutral-30 text-body4_r_14">
             {createdByUsername}
           </span>
         </div>
@@ -78,9 +72,7 @@ export function InvitationModal({
           type="button"
         >
           <Image src={copyWhiteIcon} alt="copyWhite" width={20} />
-          <span className="text-lg font-medium leading-[25.2px] tracking-[-0.54px] text-white">
-            Copy
-          </span>
+          <span className="text-sub2_m_18 text-white">Copy</span>
         </Button>
       </DialogContent>
     </Dialog>

@@ -77,7 +77,7 @@ export function InputForm({
           })}
         />
         {maxLength && (
-          <span className="text-sm text-[#8A8A8A]">
+          <span className="text-body4_r_14 text-[#8A8A8A]">
             {inputCount}/{maxLength}
           </span>
         )}

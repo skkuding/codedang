@@ -87,7 +87,7 @@ export function DuplicateCourseButton({
       />
       <div className="flex h-[37px] w-full items-center gap-[6px] bg-[#FFEBEE] px-[18px] py-[8px]">
         <GoAlertFill size={16} color="#FF3B2F" />
-        <span className="text-sm text-[#FF3B2F]">
+        <span className="text-body4_r_14 text-[#FF3B2F]">
           Course Info, Assignments and Exercises will be duplicated.
         </span>
       </div>

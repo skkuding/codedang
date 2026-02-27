@@ -92,7 +92,7 @@ class CommandList extends Component<CommandListProps, CommandListState> {
     }
 
     return (
-      <div className="relative overflow-hidden rounded border border-gray-200 bg-white p-1 text-sm text-black shadow-lg">
+      <div className="text-body4_r_14 relative overflow-hidden rounded border border-gray-200 bg-white p-1 text-black shadow-lg">
         {items.map((item, index) => (
           <button
             className={cn(

@@ -63,9 +63,7 @@ function SidebarLink({ item, isActive, isExpanded }: SidebarLinkProps) {
       <item.icon
         className={cn('h-4 w-4', isActive ? 'fill-white' : 'fill-gray-600')}
       />
-      {isExpanded && (
-        <span className="ml-3 text-sm font-normal">{item.name}</span>
-      )}
+      {isExpanded && <span className="text-body4_r_14 ml-3">{item.name}</span>}
     </Link>
   )
 }

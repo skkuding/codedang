@@ -503,11 +503,11 @@ function MathPreview(props: NodeViewWrapperProps) {
               onChange={handleContentChange}
               onKeyDown={handleKeyDown}
               placeholder="Please Insert LaTeX"
-              className="w-60 rounded-md border border-gray-300 px-2 py-1 text-sm"
+              className="text-body4_r_14 w-60 rounded-md border border-gray-300 px-2 py-1"
             />
             <button
               onClick={handleApply}
-              className="ml-2 cursor-pointer rounded-md border-none bg-blue-600 px-2 py-1 text-sm text-white"
+              className="text-body4_r_14 ml-2 cursor-pointer rounded-md border-none bg-blue-600 px-2 py-1 text-white"
             >
               Apply
             </button>

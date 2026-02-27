@@ -23,18 +23,18 @@ export function UpdateInformation() {
         <IoWarningOutline />
         <p className="pl-2">Update Information</p>
       </div>
-      <div className="my-6 flex flex-col gap-2 text-center text-xs text-neutral-700">
+      <div className="text-caption4_r_12 my-6 flex flex-col gap-2 text-center text-neutral-700">
         <p>
           You <span className="font-bold">must update below information</span>
         </p>
         <p>to continue using our service (~ 2024-10-31).</p>
       </div>
-      <ul className="flex flex-col gap-2 text-xs font-medium text-neutral-700">
+      <ul className="text-caption2_m_12 flex flex-col gap-2 text-neutral-700">
         <li className="list-disc">Student ID</li>
         <li className="list-disc">First Major</li>
       </ul>
       <Button
-        className="mt-8 w-full bg-red-500 font-semibold hover:bg-red-600"
+        className="text-sub3_sb_16 mt-8 w-full bg-red-500 hover:bg-red-600"
         onClick={() => {
           router.push(
             (`/settings` +

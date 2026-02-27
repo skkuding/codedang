@@ -11,7 +11,7 @@ export const columns: ColumnDef<Contest>[] = [
     header: 'Title',
     accessorKey: 'title',
     cell: ({ row }) => (
-      <p className="overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base">
+      <p className="text-body4_r_14 overflow-hidden text-ellipsis whitespace-nowrap text-left md:text-base">
         {row.original.title}
       </p>
     )

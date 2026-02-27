@@ -107,7 +107,7 @@ export default function Page(props: {
             <Link href="/admin/contest">
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-[32px] font-bold">Edit Contest</span>
+            <span className="text-head2_b_32">Edit Contest</span>
           </div>
 
           <EditContestForm
@@ -283,7 +283,7 @@ export default function Page(props: {
 
             <div className="space-y-2">
               {isOngoing && (
-                <p className="text-error text-sm">
+                <p className="text-error text-body4_r_14">
                   * You can only edit{' '}
                   <strong className="font-bold">End Time</strong> and{' '}
                   <strong className="font-bold">Freeze Time</strong> for an
@@ -302,7 +302,7 @@ export default function Page(props: {
                 </p>
               )}
               {isFinished && (
-                <p className="text-error text-sm">
+                <p className="text-error text-body4_r_14">
                   * You cannot edit the contest after it is finished.
                 </p>
               )}
@@ -321,7 +321,9 @@ export default function Page(props: {
                   }}
                 >
                   <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
-                  <div className="text-base text-[#8a8a8a]">Show Preview</div>
+                  <div className="text-body3_r_16 text-[#8a8a8a]">
+                    Show Preview
+                  </div>
                 </Button>
                 <Button
                   type="submit"

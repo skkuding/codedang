@@ -59,7 +59,7 @@ export function DataTableColumnHeader<TData, TValue>({
                 column.getIsSorted() ? 'text-black' : ''
               )}
             >
-              <span className="font-normal text-[#8A8A8A]">{title}</span>
+              <span className="text-body3_r_16 text-[#8A8A8A]">{title}</span>
               {(() => {
                 const sort = column.getIsSorted()
                 if (sort === 'desc') {
@@ -77,7 +77,7 @@ export function DataTableColumnHeader<TData, TValue>({
               })()}
               {/* 정렬 우선순위 표시 */}
               {sortIndex !== -1 && (
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
+                <span className="text-caption4_r_12 absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-white">
                   {sortIndex + 1}
                 </span>
               )}

@@ -68,7 +68,7 @@ export function QuestionAnswerArea({
     return (
       <div className="mx-5 mb-[38px] mt-5 flex flex-col items-center justify-center gap-[10px] rounded-lg bg-[#121728] px-5 pb-10 pt-[30px] text-center font-sans text-[#787E80]">
         <FaCircleExclamation className="h-[30px] w-[30px]" />
-        <p className="text-base">{error}</p>
+        <p className="text-body3_r_16">{error}</p>
         <Image src={'/logos/error.webp'} alt="error" width={150} height={150} />
       </div>
     )
@@ -78,7 +78,7 @@ export function QuestionAnswerArea({
     return (
       <div className="mx-5 mb-[38px] mt-5 flex flex-col items-center justify-center gap-[6px] rounded-lg bg-[#121728] px-5 pb-10 pt-[30px] text-center font-sans text-[#787E80]">
         <FaCircleExclamation className="h-[30px] w-[30px]" />
-        <p className="text-base">Question not registered</p>
+        <p className="text-body3_r_16">Question not registered</p>
       </div>
     )
   }

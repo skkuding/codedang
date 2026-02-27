@@ -82,7 +82,7 @@ export default function Page() {
             <Link href="/admin/contest">
               <FaAngleLeft className="h-12" />
             </Link>
-            <span className="text-[32px] font-bold">CREATE CONTEST</span>
+            <span className="text-head2_b_32">CREATE CONTEST</span>
           </div>
 
           <CreateContestForm
@@ -194,7 +194,9 @@ export default function Page() {
                 }}
               >
                 <MdTextSnippet fontSize={20} className="text-[#8a8a8a]" />
-                <div className="text-base text-[#8a8a8a]">Show Preview</div>
+                <div className="text-body3_r_16 text-[#8a8a8a]">
+                  Show Preview
+                </div>
               </Button>
               <Button
                 type="submit"

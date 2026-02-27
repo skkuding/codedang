@@ -48,11 +48,11 @@ export function QnACategoryFilter<TData, TValue>({
         >
           <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
             {showAll ? (
-              <span className="ml-[6px] overflow-hidden text-ellipsis whitespace-nowrap text-[16px] font-medium tracking-[-0.48px] text-[#737373]">
+              <span className="text-body1_m_16 ml-[6px] overflow-hidden text-ellipsis whitespace-nowrap text-[#737373]">
                 All
               </span>
             ) : (
-              <span className="ml-[6px] overflow-hidden text-ellipsis whitespace-nowrap text-[16px] font-medium tracking-[-0.48px] text-[#737373]">
+              <span className="text-body1_m_16 ml-[6px] overflow-hidden text-ellipsis whitespace-nowrap text-[#737373]">
                 {options
                   .filter((option) => selectedValues.has(option.value))
                   .map((option) => option.label)
@@ -67,7 +67,6 @@ export function QnACategoryFilter<TData, TValue>({
           </div>
         </Button>
       </PopoverTrigger>
-
       <PopoverContent className="z-0 w-[175px] p-0" align="start">
         <Command>
           <CommandList>

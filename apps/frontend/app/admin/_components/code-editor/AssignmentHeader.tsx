@@ -78,7 +78,7 @@ export function AssignmentHeader() {
         {assignment.title}
       </Link>
       <div className="border-1 border-editor-line-2 mx-3 h-5" />
-      <div className="flex items-center gap-1 font-medium">
+      <div className="text-sub2_m_18 flex items-center gap-1">
         <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
           <DropdownMenuTrigger className="outline-hidden flex gap-2 text-lg text-white">
             <h1>{`${convertToLetter(currentProblem?.order ?? 0)}. ${currentProblem?.problem.title}`}</h1>

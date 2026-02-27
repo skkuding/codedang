@@ -57,7 +57,7 @@ export function CheckboxSelect<T extends string>({
         <Button variant="filter" className="flex justify-between">
           <div className="flex items-center">
             <IoFilter className="mr-4 h-4 w-4" />
-            <p className="text-sm">{title}</p>
+            <p className="text-body4_r_14">{title}</p>
             {selectedValues.length > 0 && (
               <>
                 <Separator orientation="vertical" className="mx-2 h-4" />
@@ -65,7 +65,7 @@ export function CheckboxSelect<T extends string>({
                   {selectedValues.length === options.length ? (
                     <Badge
                       variant="secondary"
-                      className="rounded-xs px-1 font-normal"
+                      className="rounded-xs text-body3_r_16 px-1"
                     >
                       All
                     </Badge>
@@ -75,7 +75,7 @@ export function CheckboxSelect<T extends string>({
                         <Badge
                           key={value}
                           variant="secondary"
-                          className="rounded-xs px-1 font-normal"
+                          className="rounded-xs text-body3_r_16 px-1"
                         >
                           {value}
                         </Badge>
@@ -89,7 +89,6 @@ export function CheckboxSelect<T extends string>({
           <ChevronDown className="h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] rounded-xl px-3 py-5">
         <Command>
           <CommandList className="p-0">

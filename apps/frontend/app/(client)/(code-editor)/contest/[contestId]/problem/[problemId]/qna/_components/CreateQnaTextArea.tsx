@@ -71,11 +71,11 @@ export function CreateQnaTextArea({
   return (
     <div className="rounded-lg bg-[#222939] p-5 text-white">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-xl font-semibold">Post a Question</h3>
+        <h3 className="text-title1_sb_20">Post a Question</h3>
         <button
           onClick={() => handleSubmit()}
           className={cn(
-            'h-9 w-20 rounded px-4 py-2 text-sm font-semibold text-white transition duration-300 ease-in-out hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
+            'text-sub4_sb_14 h-9 w-20 rounded px-4 py-2 text-white transition duration-300 ease-in-out hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
             loading || !qnaFormdata.title || !qnaFormdata.content
               ? 'border-1 border-[#4C5565] bg-gray-900'
               : 'bg-primary'
@@ -88,7 +88,6 @@ export function CreateQnaTextArea({
           </div>
         </button>
       </div>
-
       <form onSubmit={handleSubmit}>
         <div className="mb-2">
           <Input
@@ -115,7 +114,7 @@ export function CreateQnaTextArea({
             maxLength={400}
             className="min-h-[127px] w-full resize-none rounded-md border border-neutral-600 bg-[#222939] p-3 text-white placeholder:text-base placeholder:text-gray-400 focus-visible:ring-0"
           />
-          <span className="absolute bottom-2 right-2 text-sm text-gray-400">
+          <span className="text-body4_r_14 absolute bottom-2 right-2 text-gray-400">
             {qnaFormdata.content.length}/400
           </span>
         </div>

@@ -41,9 +41,9 @@ export default function Page(props: {
         </div>
         <div className="prose mb-4 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12">
           <div className="flex flex-col gap-4">
-            <div className="font-semibold">{userData?.major}</div>
+            <div className="text-sub3_sb_16">{userData?.major}</div>
             <div className="flex space-x-4">
-              <div className="flex flex-col gap-4 font-medium">
+              <div className="text-body1_m_16 flex flex-col gap-4">
                 <span>User ID</span>
                 <span>Student ID</span>
               </div>

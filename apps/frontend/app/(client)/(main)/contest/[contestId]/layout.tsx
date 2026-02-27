@@ -49,7 +49,7 @@ export default async function Layout(props: ContestDetailProps) {
           width={300}
           height={300}
         />
-        <h2 className="mb-[6px] text-xl font-semibold">
+        <h2 className="text-title1_sb_20 mb-[6px]">
           WAITING FOR NEW CONTESTS!
         </h2>
         <p className="mb-[26px] text-center text-neutral-500">

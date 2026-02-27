@@ -31,9 +31,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
 
   return (
     <div className="flex flex-col">
-      <div className="mb-5 text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
-        Update History
-      </div>
+      <div className="text-head5_sb_24 mb-5 text-black">Update History</div>
       <div
         id="historyBox"
         className={cn(
@@ -44,9 +42,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
         )}
       >
         {updateHistories?.length === 0 && (
-          <p className="text-base font-normal leading-[24px] tracking-[-0.48px] text-black">
-            no result.
-          </p>
+          <p className="text-body3_r_16 text-black">no result.</p>
         )}
         {!openHistory &&
           showHistories?.map((history, index) => (
@@ -126,9 +122,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
             width={18}
             className={cn(!openHistory && 'rotate-180')}
           />
-          <p className="text-primary ml-[6px] text-base font-medium leading-[22.4px] tracking-[0.48px]">
-            {seemore}
-          </p>
+          <p className="text-primary text-body1_m_16 ml-[6px]">{seemore}</p>
         </Button>
       )}
       {disableFlag && (
@@ -139,7 +133,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
           }}
         >
           <Image src={arrowThinIcon} alt="arrow_bottom_thin" width={18} />
-          <p className="text-color-neutral-70 ml-[6px] text-base font-medium leading-[22.4px] tracking-[0.48px]">
+          <p className="text-color-neutral-70 text-body1_m_16 ml-[6px]">
             {seemore}
           </p>
         </Button>

@@ -10,16 +10,15 @@ export function SignUpWelcome() {
       <div className="flex flex-1 flex-col items-center justify-center">
         <Image src={welcome} alt={'welcome'} height={220} width={220} />
         <div className="mt-[25px] text-center">
-          <p className="text-xl font-medium">Welcome to Codedang!</p>
-          <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
+          <p className="text-title2_m_20">Welcome to Codedang!</p>
+          <p className="text-color-neutral-70 text-body4_r_14 mb-[30px]">
             Your account has been created.
           </p>
         </div>
       </div>
-
       <Button
         type="submit"
-        className="w-full px-[22px] py-[9px] text-base font-medium"
+        className="text-body1_m_16 w-full px-[22px] py-[9px]"
         onClick={hideModal}
       >
         Start Codedang

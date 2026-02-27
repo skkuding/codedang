@@ -152,7 +152,7 @@ export const InsertNodeBar = forwardRef<
               accept="application/pdf"
               onChange={(e) => handleUploadFile(e.target.files)}
             />
-            <p className="text-sm"> * File must be under 30MB</p>
+            <p className="text-body4_r_14"> * File must be under 30MB</p>
           </>
         }
         triggerIcon={
@@ -179,7 +179,7 @@ export const InsertNodeBar = forwardRef<
               accept="image/*"
               onChange={(e) => handleUploadPhoto(e.target.files)}
             />
-            <p className="text-sm"> * Image must be under 5MB</p>
+            <p className="text-body4_r_14"> * Image must be under 5MB</p>
           </>
         }
         triggerIcon={

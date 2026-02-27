@@ -23,7 +23,7 @@ export function TestcaseTable({
   return (
     <Table className="rounded-t-md">
       <TableHeader className="bg-[#121728] [&_tr]:border-b-slate-600">
-        <TableRow className="text-base hover:bg-slate-900/60">
+        <TableRow className="text-body3_r_16 hover:bg-slate-900/60">
           <TableHead className="w-[10%] text-left">No</TableHead>
           <TableHead className="w-[25%] text-left">Input</TableHead>
           <TableHead className="w-[25%] text-left">Expected Output</TableHead>

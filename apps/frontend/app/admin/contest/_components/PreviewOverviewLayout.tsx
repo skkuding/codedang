@@ -20,7 +20,7 @@ export function PreviewOverviewLayout({
           <Link href="/">
             <Image src={codedangLogo} alt="코드당" width={33} />
           </Link>
-          <div className="flex items-center gap-1 font-medium">
+          <div className="text-sub2_m_18 flex items-center gap-1">
             {contest.title} Preview
           </div>
         </div>
@@ -32,7 +32,6 @@ export function PreviewOverviewLayout({
           Exit Preview
         </Button>
       </header>
-
       <ContestOverviewLayout contest={contest} isPreview={true} />
     </div>
   )

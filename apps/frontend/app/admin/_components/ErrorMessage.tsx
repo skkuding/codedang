@@ -6,7 +6,7 @@ export function ErrorMessage({
   message?: string
 }) {
   return (
-    <div className="flex items-center gap-1 text-xs text-red-500">
+    <div className="text-caption4_r_12 flex items-center gap-1 text-red-500">
       <PiWarningBold />
       {message}
     </div>

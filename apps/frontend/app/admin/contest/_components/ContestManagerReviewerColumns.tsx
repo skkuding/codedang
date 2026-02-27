@@ -49,7 +49,7 @@ export const createColumns = (
               )
             )
           }}
-          className="w-[120px] pl-4 text-sm font-normal disabled:pointer-events-none"
+          className="text-body4_r_14 w-[120px] pl-4 disabled:pointer-events-none"
         />
       </div>
     ),

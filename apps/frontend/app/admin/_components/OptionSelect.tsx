@@ -49,7 +49,7 @@ export function OptionSelect({
     >
       <SelectTrigger
         className={cn(
-          'focus:ring-primary w-full rounded-full bg-white p-4 text-sm font-semibold hover:bg-gray-50 focus:ring-offset-0',
+          'focus:ring-primary text-sub4_sb_14 w-full rounded-full bg-white p-4 hover:bg-gray-50 focus:ring-offset-0',
           className
         )}
         tabIndex={tabIndex}

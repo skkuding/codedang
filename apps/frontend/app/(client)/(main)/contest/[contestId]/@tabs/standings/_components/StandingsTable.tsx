@@ -43,31 +43,35 @@ export function StandingsTable({ data, theme }: StandingsTableProps) {
   const columns: ColumnDef<Standings>[] = [
     {
       header: () => (
-        <p className={cn('text-base font-medium md:text-lg', textColor)}>#</p>
+        <p className={cn('text-body1_m_16 md:text-lg', textColor)}>#</p>
       ),
       accessorKey: 'ranking',
       cell: ({ row }) => {
-        return <p className="text-xs md:text-sm">{row.original.ranking}</p>
+        return (
+          <p className="text-caption4_r_12 md:text-sm">
+            {row.original.ranking}
+          </p>
+        )
       },
       id: 'ranking'
     },
     {
       header: () => (
-        <p className={cn('text-xs font-medium md:text-base', textColor)}>
+        <p className={cn('text-caption2_m_12 md:text-base', textColor)}>
           User ID
         </p>
       ),
       accessorKey: 'userId',
       cell: ({ row }) => {
-        return <p className="text-xs md:text-sm">{row.original.userId}</p>
+        return (
+          <p className="text-caption4_r_12 md:text-sm">{row.original.userId}</p>
+        )
       },
       id: 'userId'
     },
     {
       header: () => (
-        <p className={cn('text-sm font-medium md:text-base', textColor)}>
-          Problem
-        </p>
+        <p className={cn('text-body2_m_14 md:text-base', textColor)}>Problem</p>
       ),
       accessorKey: 'problem',
       columns: Array.from({ length: data[0].problemScore.length }).map(
@@ -76,18 +80,18 @@ export function StandingsTable({ data, theme }: StandingsTableProps) {
             // TODO: Contest Problem API 연결하기
             header: () => (
               <div>
-                <p className="text-xs md:text-sm">{alphabet[i]}</p>
-                <p className="text-xs md:text-sm">(1500)</p>
+                <p className="text-caption4_r_12 md:text-sm">{alphabet[i]}</p>
+                <p className="text-caption4_r_12 md:text-sm">(1500)</p>
               </div>
             ),
             accessorKey: i.toString(),
             cell: ({ row }) => {
               return (
                 <>
-                  <p className="text-xs md:text-sm">
+                  <p className="text-caption4_r_12 md:text-sm">
                     {row.original.problemScore[i].score}
                   </p>
-                  <p className="text-xs md:text-sm">
+                  <p className="text-caption4_r_12 md:text-sm">
                     {row.original.problemScore[i].time}
                   </p>
                 </>
@@ -100,26 +104,30 @@ export function StandingsTable({ data, theme }: StandingsTableProps) {
     },
     {
       header: () => (
-        <p className={cn('text-sm font-medium md:text-base', textColor)}>
-          Total
-        </p>
+        <p className={cn('text-body2_m_14 md:text-base', textColor)}>Total</p>
       ),
       accessorKey: 'total',
       columns: [
         {
-          header: () => <p className="text-xs md:text-sm">Solved</p>,
+          header: () => <p className="text-caption4_r_12 md:text-sm">Solved</p>,
           accessorKey: 'solved',
           cell: ({ row }) => {
-            return <p className="text-xs md:text-sm">{row.original.solved}</p>
+            return (
+              <p className="text-caption4_r_12 md:text-sm">
+                {row.original.solved}
+              </p>
+            )
           },
           id: 'solved'
         },
         {
-          header: () => <p className="text-xs md:text-sm">Score</p>,
+          header: () => <p className="text-caption4_r_12 md:text-sm">Score</p>,
           accessorKey: 'score',
           cell: ({ row }) => {
             return (
-              <p className="text-xs md:text-sm">{row.original.totalScore}</p>
+              <p className="text-caption4_r_12 md:text-sm">
+                {row.original.totalScore}
+              </p>
             )
           },
           id: 'score'

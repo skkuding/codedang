@@ -71,8 +71,8 @@ function RegisterInfoFormFields({
 
   return (
     <div>
-      <p className="text-xl font-medium">Tell Us About Yourself</p>
-      <p className="text-color-neutral-70 mb-[30px] text-sm font-normal">
+      <p className="text-title2_m_20">Tell Us About Yourself</p>
+      <p className="text-color-neutral-70 text-body4_r_14 mb-[30px]">
         Make sure to fill out the whole form
       </p>
       <div className="flex flex-col gap-5">
@@ -101,7 +101,7 @@ export function SignUpRegisterInfo() {
       <RegisterInfoFormFields setIsButtonDisabled={setIsButtonDisabled} />
       <Button
         type="submit"
-        className="w-full px-[22px] py-[9px] text-base font-medium"
+        className="text-body1_m_16 w-full px-[22px] py-[9px]"
         disabled={isButtonDisabled}
       >
         Next

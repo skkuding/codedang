@@ -102,7 +102,7 @@ export function FreezeForm({
       )}
     >
       <div className="flex items-center gap-[54px]">
-        <h1 className="text-base font-semibold">Leaderboard Freeze</h1>
+        <h1 className="text-sub3_sb_16">Leaderboard Freeze</h1>
         <Switch
           onCheckedChange={() => {
             setValue(name, null)
@@ -112,8 +112,8 @@ export function FreezeForm({
           className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-300"
         />
       </div>
-      <div className="flex items-center gap-[77px] text-sm">
-        <h1 className="text-base font-semibold">Freeze start time</h1>
+      <div className="text-body4_r_14 flex items-center gap-[77px]">
+        <h1 className="text-sub3_sb_16">Freeze start time</h1>
         <Select
           value={selectedOption}
           onValueChange={(value) => handleFreezeTimeChange(value)}

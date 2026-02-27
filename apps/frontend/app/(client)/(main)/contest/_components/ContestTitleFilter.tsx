@@ -53,7 +53,7 @@ export function ContestTitleFilter<TData, TValue>({
         <Button
           variant="outline"
           size={'sm'}
-          className="h-9 rounded-full border border-neutral-200 px-4 font-semibold text-black hover:bg-gray-50"
+          className="text-sub3_sb_16 h-9 rounded-full border border-neutral-200 px-4 text-black hover:bg-gray-50"
         >
           <IoFilter className="mr-2 h-4 w-4" />
           <p className="font-bold">{title}</p>
@@ -64,7 +64,7 @@ export function ContestTitleFilter<TData, TValue>({
                 {selectedValues.size === options.length ? (
                   <Badge
                     variant="secondary"
-                    className="rounded-xs px-1 font-normal"
+                    className="rounded-xs text-body3_r_16 px-1"
                   >
                     All
                   </Badge>
@@ -76,7 +76,7 @@ export function ContestTitleFilter<TData, TValue>({
                         <Badge
                           key={option.value}
                           variant="secondary"
-                          className="rounded-xs px-1 font-normal"
+                          className="rounded-xs text-body3_r_16 px-1"
                         >
                           {option.label}
                         </Badge>
@@ -88,7 +88,6 @@ export function ContestTitleFilter<TData, TValue>({
           )}
         </Button>
       </PopoverTrigger>
-
       <PopoverContent className="w-[115px] p-0" align="start">
         <Command>
           <CommandList>

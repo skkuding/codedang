@@ -55,7 +55,7 @@ export function GroupSelect() {
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="mx-2 w-48 p-0 font-semibold">
+      <PopoverContent className="text-sub3_sb_16 mx-2 w-48 p-0">
         <Command>
           <CommandList>
             <CommandEmpty>No group found.</CommandEmpty>

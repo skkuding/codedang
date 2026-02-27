@@ -76,7 +76,7 @@ export const createColumns = (
       <DataTableColumnHeader column={column} title="No" />
     ),
     cell: ({ row }) => {
-      return <p className="text-base">{row.getValue('order')}</p>
+      return <p className="text-body3_r_16">{row.getValue('order')}</p>
     }
   },
   {
@@ -98,7 +98,7 @@ export const createColumns = (
         : 'General'
 
       return (
-        <p className="max-w-[178px] truncate text-base text-[#808080]">
+        <p className="text-body3_r_16 max-w-[178px] truncate text-[#808080]">
           {categoryName}
         </p>
       )
@@ -110,12 +110,12 @@ export const createColumns = (
       <DataTableColumnHeader
         column={column}
         title="Question"
-        className="w-[400px] text-base"
+        className="text-body3_r_16 w-[400px]"
       />
     ),
     cell: ({ row }) => {
       return (
-        <div className="truncate text-base">
+        <div className="text-body3_r_16 truncate">
           {row.getValue('title')}
           {!row.original.isRead && (
             <span className="bg-primary ml-2 inline-block h-2 w-2 rounded-full" />
@@ -137,12 +137,14 @@ export const createColumns = (
       <DataTableColumnHeader
         column={column}
         title="Writer"
-        className="text-base"
+        className="text-body3_r_16"
       />
     ),
     cell: ({ row }) => {
       const createdBy: CreatedByType = row.getValue('createdBy')
-      return <p className="text-base text-[#808080]">{createdBy.username}</p>
+      return (
+        <p className="text-body3_r_16 text-[#808080]">{createdBy.username}</p>
+      )
     },
     enableSorting: false,
     enableHiding: false
@@ -154,7 +156,7 @@ export const createColumns = (
     ),
     cell: ({ row }) => {
       return (
-        <p className="text-base text-[#808080]">
+        <p className="text-body3_r_16 text-[#808080]">
           {dateFormatter(row.getValue('createTime'), 'YYYY-MM-DD HH:mm:ss')}
         </p>
       )

@@ -49,7 +49,7 @@ const triggers = {
     >
       <div className="text-primary flex h-auto items-center justify-center gap-[4px] px-[10px] py-[6px]">
         <HiTrash fontSize={20} />
-        <p className="text-sm font-medium tracking-[-3%]">Delete</p>
+        <p className="text-body2_m_14">Delete</p>
       </div>
     </Button>
   ),

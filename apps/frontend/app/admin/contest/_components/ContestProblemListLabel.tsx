@@ -22,7 +22,7 @@ export function ContestProblemListLabel() {
             side="top"
             className="mb-2 w-[640px] bg-white px-4 py-2 shadow-md"
           >
-            <p className="text-xs font-normal text-black">
+            <p className="text-caption4_r_12 text-black">
               If a problem is included in at least one ongoing, or upcoming
               contest, it will automatically become invisible state in the ‘All
               Problem List’. You cannot change its visibility until all the

@@ -54,7 +54,7 @@ export function MajorSection() {
 
   return (
     <>
-      <label className="-mb-4 mt-2 text-xs">First Major</label>
+      <label className="text-caption4_r_12 -mb-4 mt-2">First Major</label>
       <div className="flex flex-col gap-1">
         <Popover open={collegeOpen} onOpenChange={setCollegeOpen} modal={true}>
           <PopoverTrigger asChild>

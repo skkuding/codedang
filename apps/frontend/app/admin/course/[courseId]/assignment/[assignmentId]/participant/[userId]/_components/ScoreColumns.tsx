@@ -81,7 +81,7 @@ export const createColumns = (
     ...problemData.map((problem, i) => ({
       accessorKey: `${String.fromCharCode(Number(65 + i))}`,
       header: () => (
-        <p className="font-mono text-sm">
+        <p className="text-body4_r_14 font-mono">
           {String.fromCharCode(Number(65 + i))}
         </p>
       ),

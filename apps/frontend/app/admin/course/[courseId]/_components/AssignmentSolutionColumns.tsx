@@ -56,7 +56,7 @@ export const createColumns = (
             <label className="flex items-center gap-1">
               <input
                 type="radio"
-                className="text-primary-light text-xs"
+                className="text-primary-light text-caption4_r_12"
                 checked={selectedOption === 'After Due Date'}
                 onChange={() =>
                   handleOptionChange(row.original.id, 'After Due Date')
@@ -68,7 +68,7 @@ export const createColumns = (
               <label className="flex items-center gap-1">
                 <input
                   type="radio"
-                  className="text-primary-light text-xs"
+                  className="text-primary-light text-caption4_r_12"
                   checked={selectedOption === 'Manually'}
                   onChange={() =>
                     handleOptionChange(row.original.id, 'Manually')

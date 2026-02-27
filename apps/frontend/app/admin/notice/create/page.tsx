@@ -47,7 +47,7 @@ export default function Page() {
             className="flex h-[36px] w-[100px] items-center gap-2 px-0"
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
-            <div className="mb-[2px] text-base">Create</div>
+            <div className="text-body3_r_16 mb-[2px]">Create</div>
           </Button>
         </CreateNoticeForm>
       </main>

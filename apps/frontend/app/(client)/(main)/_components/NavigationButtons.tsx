@@ -11,25 +11,25 @@ export function NavigationButtons() {
       <Link href={'/notice'}>
         <div className="flex h-[98px] w-[80px] flex-col items-center justify-center gap-[2px] rounded-sm bg-white hover:shadow-md">
           <Image src={notification} alt="Notification" width={27} height={33} />
-          <p className="text-color-neutral-40 text-sm font-medium">NOTICE</p>
+          <p className="text-color-neutral-40 text-body2_m_14">NOTICE</p>
         </div>
       </Link>
       <Link href={'/contest'}>
         <div className="flex h-[98px] w-[80px] flex-col items-center justify-center gap-[2px] rounded-sm bg-white hover:shadow-md">
           <Image src={prize} alt="Prize" width={36} height={36} />
-          <p className="text-color-neutral-40 text-sm font-medium">CONTEST</p>
+          <p className="text-color-neutral-40 text-body2_m_14">CONTEST</p>
         </div>
       </Link>
       <Link href={'/problem'}>
         <div className="flex h-[98px] w-[80px] flex-col items-center justify-center gap-[2px] rounded-sm bg-white hover:shadow-md">
           <Image src={filledfile} alt="filledfile" width={36} height={36} />
-          <p className="text-color-neutral-40 text-sm font-medium">PROBLEM</p>
+          <p className="text-color-neutral-40 text-body2_m_14">PROBLEM</p>
         </div>
       </Link>
       <Link href={'/course'}>
         <div className="flex h-[98px] w-[80px] flex-col items-center justify-center gap-[2px] rounded-sm bg-white hover:shadow-md">
           <Image src={graduation} alt="Graduation" width={36} height={36} />
-          <p className="text-color-neutral-40 text-sm font-medium">COURSE</p>
+          <p className="text-color-neutral-40 text-body2_m_14">COURSE</p>
         </div>
       </Link>
     </div>

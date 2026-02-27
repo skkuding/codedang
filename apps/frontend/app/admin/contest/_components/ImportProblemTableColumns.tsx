@@ -67,7 +67,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="w-[150px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        <div className="text-body1_m_16 w-[150px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left">
           {row.getValue('title')}
         </div>
       )

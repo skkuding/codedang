@@ -27,10 +27,10 @@ export function RenderProblemList({
           width={454}
           height={262}
         />
-        <p className="mt-[50px] text-center text-2xl font-semibold tracking-[-0.72px] text-[#000000]">
+        <p className="text-head5_sb_24 mt-[50px] text-center text-[#000000]">
           {`Contest Hasn't Started`}
         </p>
-        <p className="mt-2 text-center text-base font-normal text-[#00000080]">
+        <p className="text-body3_r_16 mt-2 text-center text-[#00000080]">
           The problem list will be released after the start of the contest
         </p>
       </div>
@@ -44,10 +44,10 @@ export function RenderProblemList({
           width={454}
           height={262}
         />
-        <p className="mt-[50px] text-center text-2xl font-semibold tracking-[-0.72px] text-[#000000]">
+        <p className="text-head5_sb_24 mt-[50px] text-center text-[#000000]">
           Please Register for The Contest First!
         </p>
-        <p className="mt-2 text-center text-base font-normal text-[#00000080]">
+        <p className="text-body3_r_16 mt-2 text-center text-[#00000080]">
           The problem list only be revealed to contest participants
         </p>
       </div>

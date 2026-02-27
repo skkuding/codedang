@@ -91,8 +91,9 @@ export function CommentCell({
           <FaCommentDots className="h-4 w-4" />
         </button>
       </PopoverTrigger>
-
-      <PopoverContent className="max-w-sm text-sm">{body}</PopoverContent>
+      <PopoverContent className="text-body4_r_14 max-w-sm">
+        {body}
+      </PopoverContent>
     </Popover>
   )
 }

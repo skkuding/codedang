@@ -55,7 +55,7 @@ export function BaseModal({
             {loading ? (
               <div className="flex flex-col items-center justify-center">
                 <Loader2 size={32} className="animate-spin" />
-                <span className="mt-2 text-sm">{loadingMessage}</span>
+                <span className="text-body4_r_14 mt-2">{loadingMessage}</span>
               </div>
             ) : (
               formattedDescription

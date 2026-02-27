@@ -159,17 +159,16 @@ function RoleSelect({ groupId, userId, role }: RoleSelectProps) {
   return (
     <>
       <Select value={selectedRole} onValueChange={handleRoleChange}>
-        <SelectTrigger className="w-min border-0 bg-transparent font-semibold focus:ring-0 focus:ring-offset-0">
+        <SelectTrigger className="text-sub3_sb_16 w-min border-0 bg-transparent focus:ring-0 focus:ring-offset-0">
           <SelectValue placeholder={role} />
         </SelectTrigger>
-        <SelectContent className="bg-white font-semibold">
+        <SelectContent className="text-sub3_sb_16 bg-white">
           <SelectGroup>
             <SelectItem value="Instructor">Instructor</SelectItem>
             <SelectItem value="Student">Student</SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
-
       <AlertModal
         open={isConfirmModalOpen}
         onOpenChange={setIsConfirmModalOpen}

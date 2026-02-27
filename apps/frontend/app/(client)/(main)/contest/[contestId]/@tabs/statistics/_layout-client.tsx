@@ -35,14 +35,12 @@ export function StatisticsClientLayout({
     <Tabs value={currentTab}>
       <div className="mt-[80px] flex w-[1440px] justify-between px-[116px]">
         <div className="flex items-center gap-3">
-          <p className="text-2xl font-semibold tracking-[-0.03em]">
-            STATISTICS
-          </p>
+          <p className="text-head5_sb_24">STATISTICS</p>
 
           {currentTab === 'leaderboard' && (
             <>
               <Separator orientation="vertical" className="h-[25px]" />
-              <p className="text-color-neutral-60 text-lg font-medium tracking-[-0.03em]">
+              <p className="text-color-neutral-60 text-sub2_m_18">
                 Only select Users
               </p>
               <Switch
@@ -81,7 +79,6 @@ export function StatisticsClientLayout({
           </TabsTrigger>
         </TabsList>
       </div>
-
       <div className="mt-5 w-[1440px] px-[116px]">{children}</div>
     </Tabs>
   )

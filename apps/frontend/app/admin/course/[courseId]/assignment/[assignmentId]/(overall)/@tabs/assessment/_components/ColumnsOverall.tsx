@@ -116,7 +116,7 @@ function ScoreEditableCell({
           type="number"
           min={0}
           max={problemScore?.maxScore ?? 0}
-          className="hide-spin-button rounded-xs w-8 border px-1 py-0.5 text-center text-xs"
+          className="hide-spin-button rounded-xs text-caption4_r_12 w-8 border px-1 py-0.5 text-center"
           value={inputValue}
           autoFocus
           disabled={loading}
@@ -142,7 +142,10 @@ function ScoreEditableCell({
             }
           }}
         />
-        <span className="text-xs"> / {problemScore?.maxScore ?? 0}</span>
+        <span className="text-caption4_r_12">
+          {' '}
+          / {problemScore?.maxScore ?? 0}
+        </span>
       </div>
     )
   }
@@ -200,8 +203,8 @@ export const createColumns = (
         )
         if (currentView === 'auto') {
           return (
-            <div className="text-xs">
-              {problemScore?.score ?? '-'} / {problemScore?.maxScore ?? 0}
+            <div className="text-caption4_r_12">
+              {problemScore?.score ?? '-'}/ {problemScore?.maxScore ?? 0}
             </div>
           )
         }

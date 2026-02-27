@@ -80,16 +80,16 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
               minWidth: minGridWidth
             }}
           >
-            <div className="bg-color-neutral-99 text-color-neutral-60 flex h-10 items-center justify-center rounded-full text-base font-medium tracking-[-0.03em]">
+            <div className="bg-color-neutral-99 text-color-neutral-60 text-body1_m_16 flex h-10 items-center justify-center rounded-full">
               Mark
             </div>
-            <div className="bg-color-neutral-99 text-color-neutral-60 flex h-10 items-center justify-center rounded-full text-base font-medium tracking-[-0.03em]">
+            <div className="bg-color-neutral-99 text-color-neutral-60 text-body1_m_16 flex h-10 items-center justify-center rounded-full">
               Rank
             </div>
-            <div className="bg-color-neutral-99 text-color-neutral-60 flex h-10 items-center justify-center rounded-full text-base font-medium tracking-[-0.03em]">
+            <div className="bg-color-neutral-99 text-color-neutral-60 text-body1_m_16 flex h-10 items-center justify-center rounded-full">
               Participant
             </div>
-            <div className="bg-color-neutral-99 text-color-neutral-60 flex h-10 items-center justify-center rounded-full text-base font-medium tracking-[-0.03em]">
+            <div className="bg-color-neutral-99 text-color-neutral-60 text-body1_m_16 flex h-10 items-center justify-center rounded-full">
               Penalty
             </div>
             <div
@@ -106,7 +106,7 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
                 {problems.data.map((problem) => (
                   <div
                     key={problem.id}
-                    className="text-color-neutral-60 flex h-full w-[80px] shrink-0 items-center justify-center text-base font-medium tracking-[-0.03em]"
+                    className="text-color-neutral-60 text-body1_m_16 flex h-full w-[80px] shrink-0 items-center justify-center"
                   >
                     {convertToLetter(problem.order)}
                   </div>
@@ -166,7 +166,7 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
                     />
                   </div>
 
-                  <div className="text-center text-base font-normal">
+                  <div className="text-body3_r_16 text-center">
                     {user.userRank}
                   </div>
                   <div className="flex gap-1 truncate px-5 py-5">
@@ -194,12 +194,12 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
                         height={20}
                       />
                     )}
-                    <div className="truncate text-left text-base">
+                    <div className="text-body3_r_16 truncate text-left">
                       {user.userName}
                     </div>
                   </div>
 
-                  <div className="text-flowkit-red text-center text-base">
+                  <div className="text-flowkit-red text-body3_r_16 text-center">
                     -{user.totalPenalty}
                   </div>
 
@@ -215,7 +215,7 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
                         return (
                           <div
                             key={problem.id}
-                            className="flex w-[80px] shrink-0 justify-center text-sm text-neutral-400"
+                            className="text-body4_r_14 flex w-[80px] shrink-0 justify-center text-neutral-400"
                           >
                             -
                           </div>
@@ -225,18 +225,18 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
                       return (
                         <div
                           key={problem.id}
-                          className="flex w-[80px] shrink-0 flex-col items-center text-sm"
+                          className="text-body4_r_14 flex w-[80px] shrink-0 flex-col items-center"
                         >
                           {judgeResult === 'Accepted' ? (
-                            <div className="text-primary text-base font-normal">
+                            <div className="text-primary text-body3_r_16">
                               -{penalty}
                             </div>
                           ) : (
-                            <div className="text-base font-normal tracking-[-0.03em] text-[#FF2C55]">
+                            <div className="text-body3_r_16 text-[#FF2C55]">
                               Wrong
                             </div>
                           )}
-                          <div className="text-xs text-neutral-500">
+                          <div className="text-caption4_r_12 text-neutral-500">
                             {attempts} sub
                           </div>
                         </div>

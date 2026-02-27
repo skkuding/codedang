@@ -42,7 +42,7 @@ export function DataTablePagination({
 
   return (
     <div className="flex items-center justify-between px-2">
-      <div className="text-xs text-neutral-600">
+      <div className="text-caption4_r_12 text-neutral-600">
         {showSelection &&
           `${table.getFilteredSelectedRowModel().rows.length} of${' '}
           ${table.getFilteredRowModel().rows.length} row(s) selected`}
@@ -69,7 +69,7 @@ export function DataTablePagination({
             key={pageNumber}
             type="button"
             className={cn(
-              'text-base font-medium text-[#8A8A8A]',
+              'text-body1_m_16 text-[#8A8A8A]',
               table.getState().pagination.pageIndex === pageNumber - 1 &&
                 'text-primary-strong'
             )}
@@ -100,14 +100,14 @@ export function DataTablePagination({
       <div className="flex items-center space-x-6 lg:space-x-8">
         {showRowsPerPage && (
           <div className="flex items-center space-x-2">
-            <p className="text-xs text-neutral-600">Rows per page</p>
+            <p className="text-caption4_r_12 text-neutral-600">Rows per page</p>
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
                 table.setPageSize(Number(value))
               }}
             >
-              <SelectTrigger className="h-6 w-14 bg-white text-xs">
+              <SelectTrigger className="text-caption4_r_12 h-6 w-14 bg-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent side="top" className="bg-white">

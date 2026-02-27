@@ -47,7 +47,7 @@ export async function NewProblemCards() {
 
           <Link href={'/problem'}>
             <div className="border-color-neutral-50 flex items-center justify-center gap-[2px] border-b py-[4px]">
-              <p className="font-pretendard flex h-8 items-center text-[16px] font-medium leading-[22.4px] tracking-[-0.48px] text-[#5C5C5C]">
+              <p className="font-pretendard text-body1_m_16 flex h-8 items-center text-[#5C5C5C]">
                 Go to Problem
               </p>
               <div className="relative size-[16px]">
@@ -59,13 +59,13 @@ export async function NewProblemCards() {
         {/* Desktop View */}
         <div className="flex w-full flex-col gap-4 px-5 py-[30px] md:hidden">
           <div className="flex justify-between">
-            <div className="text-xl font-semibold">
+            <div className="text-title1_sb_20">
               <p>PRACTICE WITH</p>
               <p>CODING PROBLEMS</p>
             </div>
             <Link href={'/problem'}>
               <div className="flex items-center justify-center gap-[2px] border-[#B0B0B0]">
-                <p className="text-color-neutral-50 flex h-[17px] items-center text-xs font-normal leading-[22.4px] tracking-[-0.03rem]">
+                <p className="text-color-neutral-50 text-caption4_r_12 flex h-[17px] items-center">
                   Go to Problem
                 </p>
                 <div className="relative size-[12px]">

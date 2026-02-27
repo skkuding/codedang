@@ -23,7 +23,7 @@ export function QnAPostButton({ contestId, canCreateQnA }: QnAPostButtonProps) {
             ? router.push(`/contest/${contestId}/qna/create`)
             : setModalOpen(true)
         }
-        className="flex h-[46px] w-[120px] flex-[1_0_0] items-center justify-center gap-[6px] px-6 py-3 text-base font-medium tracking-[-0.48px]"
+        className="text-body1_m_16 flex h-[46px] w-[120px] flex-[1_0_0] items-center justify-center gap-[6px] px-6 py-3"
       >
         <BiSolidPencil className="white w-4" />
         Post

@@ -18,9 +18,9 @@ export const columns: ColumnDef<LeaderboardItemCodeEditorPagination>[] = [
       }
 
       return row.original.rank <= 3 ? (
-        <p className="text-sm text-[#619CFB]">{strRank}</p>
+        <p className="text-body4_r_14 text-[#619CFB]">{strRank}</p>
       ) : (
-        <p className="text-sm">{strRank}</p>
+        <p className="text-body4_r_14">{strRank}</p>
       )
     }
   },
@@ -29,9 +29,9 @@ export const columns: ColumnDef<LeaderboardItemCodeEditorPagination>[] = [
     accessorKey: 'userId',
     cell: ({ row }) =>
       row.original.rank <= 3 ? (
-        <p className="text-sm text-[#619CFB]">{row.original.userId}</p>
+        <p className="text-body4_r_14 text-[#619CFB]">{row.original.userId}</p>
       ) : (
-        <p className="text-sm">{row.original.userId}</p>
+        <p className="text-body4_r_14">{row.original.userId}</p>
       )
   },
   {
@@ -39,9 +39,9 @@ export const columns: ColumnDef<LeaderboardItemCodeEditorPagination>[] = [
     accessorKey: 'penalty',
     cell: ({ row }) =>
       row.original.rank <= 3 ? (
-        <p className="text-sm text-[#619CFB]">{row.original.penalty}</p>
+        <p className="text-body4_r_14 text-[#619CFB]">{row.original.penalty}</p>
       ) : (
-        <p className="text-sm">{row.original.penalty}</p>
+        <p className="text-body4_r_14">{row.original.penalty}</p>
       )
   },
   {
@@ -49,9 +49,9 @@ export const columns: ColumnDef<LeaderboardItemCodeEditorPagination>[] = [
     accessorKey: 'solved',
     cell: ({ row }) => {
       return row.original.rank <= 3 ? (
-        <p className="text-sm text-[#619CFB]">{row.original.solved}</p>
+        <p className="text-body4_r_14 text-[#619CFB]">{row.original.solved}</p>
       ) : (
-        <p className="text-sm">{row.original.solved}</p>
+        <p className="text-body4_r_14">{row.original.solved}</p>
       )
     }
   }

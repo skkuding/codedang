@@ -34,7 +34,7 @@ export const columns = (
     header: '#',
     accessorKey: 'order',
     cell: ({ row }) => (
-      <div className="h-full text-sm font-medium text-[#8A8A8A]">
+      <div className="text-body2_m_14 h-full text-[#8A8A8A]">
         {convertToLetter(row.original.order)}
       </div>
     )
@@ -44,7 +44,7 @@ export const columns = (
     accessorKey: 'title',
     cell: ({ row }) => {
       return (
-        <p className="w-[500px] text-left font-medium md:text-base">{`${row.original.title}`}</p>
+        <p className="text-body1_m_16 w-[500px] text-left md:text-base">{`${row.original.title}`}</p>
       )
     }
   },
@@ -58,7 +58,7 @@ export const columns = (
 
       return (
         submission?.submissionTime && (
-          <div className="flex w-full justify-center font-normal text-[#8A8A8A]">
+          <div className="text-body3_r_16 flex w-full justify-center text-[#8A8A8A]">
             {dateFormatter(submission.submissionTime, 'MMM D, HH:mm:ss')}
           </div>
         )

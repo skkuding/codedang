@@ -34,16 +34,16 @@ export function DeleteManagerReviewerAlert({
           <AlertDialogTitle>
             <div className="flex flex-col items-center justify-center gap-[24px]">
               <FaCircleExclamation color="#FF3B2F" size={50} />
-              <p className="text-2xl font-medium">Delete Manager / Reviewer?</p>
+              <p className="text-head6_m_24">Delete Manager / Reviewer?</p>
             </div>
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-xs">
+          <AlertDialogDescription className="text-caption4_r_12">
             If you remove the selected contest manager or reviewer, he/she will
             no longer have access to this contest
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="">
-          <AlertDialogCancel className="w-full border-[#C4C4C4] text-sm font-semibold text-[#8A8A8A]">
+          <AlertDialogCancel className="text-sub4_sb_14 w-full border-[#C4C4C4] text-[#8A8A8A]">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction asChild>
@@ -54,7 +54,7 @@ export function DeleteManagerReviewerAlert({
                 )
                 setShowDeleteDialog(false)
               }}
-              className="bg-error w-full text-sm font-semibold hover:bg-red-500/90"
+              className="bg-error text-sub4_sb_14 w-full hover:bg-red-500/90"
             >
               Delete
             </Button>

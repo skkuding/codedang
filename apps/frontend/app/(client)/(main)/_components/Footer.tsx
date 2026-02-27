@@ -55,10 +55,10 @@ export function Footer() {
         </a>
       </div>
       <div className="text-black-400 flex max-w-7xl flex-col justify-center gap-1 md:justify-center">
-        <p className="text-center text-sm font-light">
+        <p className="text-body4_r_14 text-center font-light">
           ⓒ 2025. CODEDANG All rights reserved.
         </p>
-        <p className="text-center text-sm font-light">Since 2021</p>
+        <p className="text-body4_r_14 text-center font-light">Since 2021</p>
       </div>
     </footer>
   )

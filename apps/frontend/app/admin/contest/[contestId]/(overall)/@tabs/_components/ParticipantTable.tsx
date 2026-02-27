@@ -32,7 +32,7 @@ export function ParticipantTable({ contestId }: { contestId: number }) {
 
   return (
     <div>
-      <p className="mb-3 font-medium">
+      <p className="text-body1_m_16 mb-3">
         <span className="text-primary font-bold">{summariesData.length}</span>{' '}
         Participants
       </p>

@@ -15,16 +15,14 @@ export function NewProblemCard({ problem }: { problem: Problem }) {
             <Badge variant={problem.difficulty}>
               Level {problem.difficulty.slice(-1)}
             </Badge>
-            <h3 className="line-clamp-2 break-normal break-keep text-xl font-semibold">
+            <h3 className="text-title1_sb_20 line-clamp-2 break-normal break-keep">
               {problem.title}
             </h3>
           </div>
 
           <Link href={`/problem/${problem.id}`}>
             <div className="flex h-12 items-center justify-between rounded-full bg-[#F5F5F5] py-1 pl-[50px] pr-1">
-              <p className="text-[18px] font-medium tracking-[-0.54px] text-[#737373]">
-                Go to Problem
-              </p>
+              <p className="text-sub2_m_18 text-[#737373]">Go to Problem</p>
               <div className="flex items-center gap-2.5 rounded-full bg-black p-2">
                 <div className="relative size-[24px]">
                   <Image src={RightArrow} alt="Right" fill />
@@ -48,9 +46,7 @@ export function NewProblemCard({ problem }: { problem: Problem }) {
                 </p>
               </Badge>
               <div className="flex h-6 w-full justify-between">
-                <p className="truncate text-base font-medium">
-                  {problem.title}
-                </p>
+                <p className="text-body1_m_16 truncate">{problem.title}</p>
 
                 <Image
                   src={GrayRightArrowIcon}

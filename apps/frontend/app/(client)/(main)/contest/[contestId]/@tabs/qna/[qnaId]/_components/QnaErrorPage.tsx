@@ -16,8 +16,8 @@ export function ErrorPage({
         height={300}
       />
       <div className="flex flex-col items-center">
-        <h2 className="pb-2 text-xl font-semibold">{errorRes.message}</h2>
-        <p className="text-center text-base text-neutral-500">
+        <h2 className="text-title1_sb_20 pb-2">{errorRes.message}</h2>
+        <p className="text-body3_r_16 text-center text-neutral-500">
           {`${errorRes.statusCode ?? 'Unknown'} Error`}
         </p>
       </div>

@@ -75,7 +75,7 @@ export function SubmissionDetailAdmin({
     <ScrollArea className="mt-5 max-h-[545px] w-[976px]">
       {!loading && (
         <div className="mx-[70px] flex flex-col gap-6">
-          <h1 className="flex text-lg font-semibold">
+          <h1 className="text-sub1_sb_18 flex">
             <span className="max-w-[30%] truncate">
               {submission?.user?.userProfile?.realName}(
               {submission?.user?.username})&nbsp; &gt; &nbsp;
@@ -85,7 +85,7 @@ export function SubmissionDetailAdmin({
             </span>
           </h1>
           <ScrollArea className="mt-4 max-w-full shrink-0 rounded-md">
-            <div className="**:whitespace-nowrap flex items-center justify-around gap-5 bg-gray-100 p-7 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
+            <div className="**:whitespace-nowrap text-body4_r_14 flex items-center justify-around gap-5 bg-gray-100 p-7 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
               <div>
                 <h2 className="mb-[14px]">User ID</h2>
                 <p>{submission?.user?.username}</p>
@@ -111,7 +111,7 @@ export function SubmissionDetailAdmin({
               <div>
                 <span
                   className={cn(
-                    'flex h-[38px] w-36 items-center justify-center rounded-full text-base font-semibold',
+                    'text-sub3_sb_16 flex h-[38px] w-36 items-center justify-center rounded-full',
                     submission?.result === 'Accepted'
                       ? 'border-primary text-primary border-2'
                       : 'border-flowkit-red text-flowkit-red border-2'
@@ -128,7 +128,7 @@ export function SubmissionDetailAdmin({
           {submission?.testcaseResult.length !== 0 ? (
             <div className="flex flex-col gap-4">
               <table>
-                <tbody className="text-sm font-light">
+                <tbody className="text-body4_r_14 font-light">
                   <tr>
                     <td className="w-52 py-1">Correct Testcase:</td>
                     <td className="py-1 text-slate-500">
@@ -152,22 +152,22 @@ export function SubmissionDetailAdmin({
                 <TableHeader>
                   <TableRow className="bg-[#619cfb] hover:bg-[#619cfb] dark:hover:bg-[#619cfb]">
                     <TableHead className="w-32 px-2" />
-                    <TableHead className="w-44 px-2 font-semibold">
+                    <TableHead className="text-sub3_sb_16 w-44 px-2">
                       Result
                     </TableHead>
-                    <TableHead className="w-32 px-2 font-semibold">
+                    <TableHead className="text-sub3_sb_16 w-32 px-2">
                       Input
                     </TableHead>
-                    <TableHead className="w-32 px-2 font-semibold">
+                    <TableHead className="text-sub3_sb_16 w-32 px-2">
                       Expected Output
                     </TableHead>
-                    <TableHead className="w-32 px-2 font-semibold">
+                    <TableHead className="text-sub3_sb_16 w-32 px-2">
                       Output
                     </TableHead>
-                    <TableHead className="w-24 px-2 font-semibold">
+                    <TableHead className="text-sub3_sb_16 w-24 px-2">
                       Memory
                     </TableHead>
-                    <TableHead className="w-10 px-2 font-semibold" />
+                    <TableHead className="text-sub3_sb_16 w-10 px-2" />
                   </TableRow>
                 </TableHeader>
                 <TableBody className="text-slate-400">
@@ -186,13 +186,13 @@ export function SubmissionDetailAdmin({
                         return (
                           <>
                             <TableRow key={testcase.id}>
-                              <TableCell className="py-4! border-y-[#619cfb] bg-[#619cfb] font-semibold text-white">
+                              <TableCell className="py-4! text-sub3_sb_16 border-y-[#619cfb] bg-[#619cfb] text-white">
                                 {label}
                               </TableCell>
                               <TableCell className="flex items-center justify-center">
                                 <span
                                   className={cn(
-                                    'flex h-[38px] w-36 items-center justify-center rounded-full text-base font-semibold',
+                                    'text-sub3_sb_16 flex h-[38px] w-36 items-center justify-center rounded-full',
                                     submission?.result === 'Accepted'
                                       ? 'border-primary text-primary border-2'
                                       : 'border-flowkit-red text-flowkit-red border-2'
@@ -230,7 +230,6 @@ export function SubmissionDetailAdmin({
                                 </button>
                               </TableCell>
                             </TableRow>
-
                             {isExpanded && (
                               <TableRow
                                 key={testcase.id}

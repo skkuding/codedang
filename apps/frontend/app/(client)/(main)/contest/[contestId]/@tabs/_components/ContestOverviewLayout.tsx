@@ -100,7 +100,7 @@ export function ContestOverviewLayout({
     <ScrollArea className={isPreview ? 'h-full w-full' : ''}>
       {' '}
       <div className="flex w-[1208px] flex-col justify-self-center">
-        <h1 className="mt-20 w-[1208px] text-2xl font-semibold leading-[33.6px] tracking-[-0.72px] text-black">
+        <h1 className="text-head5_sb_24 mt-20 w-[1208px] text-black">
           {contest?.title}
         </h1>
         <div className="mt-[20px] flex">
@@ -167,7 +167,7 @@ export function ContestOverviewLayout({
                 <div>
                   {actualIsRegistered ? (
                     <div className="flex h-[46px] w-[944px] gap-[10px]">
-                      <Button className="text-color-neutral-70 bg-fill pointer-events-none h-[46px] w-[467px] rounded-[1000px] px-7 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px]">
+                      <Button className="text-color-neutral-70 bg-fill text-body1_m_16 pointer-events-none h-[46px] w-[467px] rounded-[1000px] px-7 py-3">
                         Registered
                       </Button>
                       <RegisterCancelButton contest={contest} state={state} />
@@ -189,12 +189,12 @@ export function ContestOverviewLayout({
         <Accordion type="single" collapsible className="mt-15 w-[1208px]">
           <AccordionItem value="item-1" className="border-b-0">
             <AccordionTrigger
-              className="h-22 pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black data-[state=open]:pb-[12px]"
+              className="h-22 text-title2_m_20 pb-[30px] pt-[30px] text-black data-[state=open]:pb-[12px]"
               iconStyle="h-5 w-5 text-color-neutral-30"
             >
               More Description
             </AccordionTrigger>
-            <AccordionContent className="text-color-neutral-30 !m-0 pb-[30px] text-base font-normal leading-[24px] tracking-[-0.48px]">
+            <AccordionContent className="text-color-neutral-30 text-body3_r_16 !m-0 pb-[30px]">
               <KatexContent content={contest.description} classname="!mt-0" />
             </AccordionContent>
           </AccordionItem>
@@ -207,7 +207,7 @@ export function ContestOverviewLayout({
         >
           <AccordionItem value="item-1" className="border-b-0">
             <AccordionTrigger
-              className="border-line h-22 border-t pb-[30px] pt-[30px] text-xl font-medium leading-[28px] tracking-[-0.6px] text-black"
+              className="border-line h-22 text-title2_m_20 border-t pb-[30px] pt-[30px] text-black"
               iconStyle="h-5 w-5 text-color-neutral-50"
             >
               Problem List
@@ -257,11 +257,11 @@ function ContestSummary({
     <div className="flex w-full flex-row items-center">
       <Button
         variant={'outline'}
-        className="text-primary border-primary pointer-events-none mr-[14px] h-8 w-[91px] rounded-[1000px] px-[20px] py-[6px] text-sm font-medium leading-[19.6px] tracking-[-0.42px] md:block"
+        className="text-primary border-primary text-body2_m_14 pointer-events-none mr-[14px] h-8 w-[91px] rounded-[1000px] px-[20px] py-[6px] md:block"
       >
         {buttonName}
       </Button>
-      <div className="text-center text-base font-normal leading-[24px] tracking-[-0.48px] text-black md:max-w-[838px]">
+      <div className="text-body3_r_16 text-center text-black md:max-w-[838px]">
         {summary}
       </div>
     </div>

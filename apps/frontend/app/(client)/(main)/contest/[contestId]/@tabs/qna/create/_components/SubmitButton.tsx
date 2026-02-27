@@ -25,7 +25,7 @@ export function SubmitButton({
       variant={canCreateQnA ? 'default' : 'secondary'}
     >
       <Image src={penIcon} alt="pen" width={16} height={16} />
-      <span className="font-pretendard text-base font-medium not-italic leading-[140%] tracking-[-0.48px] text-white">
+      <span className="font-pretendard text-body1_m_16 not-italic text-white">
         Post
       </span>
     </Button>

@@ -367,7 +367,7 @@ export function TextEditor({
                   handleUploadPhoto(e.target.files)
                 }}
               />
-              <p className="text-sm"> * Image must be under 5MB</p>
+              <p className="text-body4_r_14"> * Image must be under 5MB</p>
             </>
           }
           triggerIcon={<ImagePlus className="h-[14px] w-[14px]" />}

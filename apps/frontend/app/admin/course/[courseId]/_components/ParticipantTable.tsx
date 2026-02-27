@@ -170,7 +170,7 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
       >
         <div className="flex justify-between">
           <div className="flex items-center gap-4">
-            <div className="font-semibold">
+            <div className="text-sub3_sb_16">
               <span className="text-primary font-bold">
                 {summariesData.length}
               </span>{' '}
@@ -185,7 +185,7 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
             data={csvData}
             headers={headers}
             filename={fileName}
-            className="bg-primary flex items-center gap-2 rounded-full px-[12px] py-[8px] text-lg font-semibold text-white transition-opacity hover:opacity-85"
+            className="bg-primary text-sub1_sb_18 flex items-center gap-2 rounded-full px-[12px] py-[8px] text-white transition-opacity hover:opacity-85"
           >
             Export
             <Image

@@ -25,11 +25,11 @@ export function MiddleContestBanner() {
               className="z-0"
             />
             <div className="font-pretendard absolute left-[16px] top-[32px] z-10 inline-flex h-[66px] w-[201px] flex-col items-start gap-[4px] text-white">
-              <p className="text-[18px] font-semibold leading-[120%] tracking-[-0.54px]">
+              <p className="text-sub1_sb_18">
                 TAKE PART IN REAL-TIME
                 <br /> CODING CONTEST
               </p>
-              <p className="text-color-neutral-90 text-[13px] font-normal leading-[140%] tracking-[-0.39px]">
+              <p className="text-color-neutral-90 text-caption3_r_13">
                 Compete in real-time!
               </p>
             </div>
@@ -57,7 +57,7 @@ function TextBox({ className }: { className: string }) {
               CODING CONTEST
             </p>
           </Text>
-          <Text className="text-background-alternative max-h-[48px] text-[16px] font-normal leading-[150%]">
+          <Text className="text-background-alternative text-body3_r_16 max-h-[48px]">
             <p>
               Check your skills, and try to compete in the rankings.
               <br />
@@ -98,7 +98,7 @@ function BarButton() {
         href={`/notice/${contestNoticeId}`}
         className="flex h-full w-full items-center justify-between px-[4px] py-0"
       >
-        <Text className="ms-[26px] max-h-[28px] max-w-[191px] text-[20px] font-medium leading-[140%] text-black">
+        <Text className="text-title2_m_20 ms-[26px] max-h-[28px] max-w-[191px] text-black">
           <p>How to host a Contest</p>
         </Text>
         <div className="flex h-full max-h-[46px] w-full max-w-[46px] items-center justify-center rounded-full bg-black">

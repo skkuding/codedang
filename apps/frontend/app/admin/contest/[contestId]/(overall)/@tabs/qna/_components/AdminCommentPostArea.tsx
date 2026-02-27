@@ -18,16 +18,16 @@ export function AdminCommentPostArea({
     <div className="border-line-default flex flex-col gap-[16px] rounded-xl border border-solid p-[24px]">
       {/* 작성자 이름과 input field */}
       <div className="flex flex-col gap-[8px]">
-        <span className="text-xl font-medium">{username}</span>
+        <span className="text-title2_m_20">{username}</span>
         <div className="flex flex-col gap-[15px]">
           <Textarea
             value={text}
-            className="placeholder:text-color-neutral-90 min-h-[72px] resize-none whitespace-pre-wrap rounded-none border-none p-0 text-base shadow-none focus-visible:ring-0"
+            className="placeholder:text-color-neutral-90 text-body3_r_16 min-h-[72px] resize-none whitespace-pre-wrap rounded-none border-none p-0 shadow-none focus-visible:ring-0"
             placeholder="Enter Your Answer"
             onChange={(value) => setText(value.target.value)}
             maxLength={400}
           />
-          <div className="text-color-neutral-90 text-abse right-0 flex justify-end font-medium">
+          <div className="text-color-neutral-90 text-abse text-body1_m_16 right-0 flex justify-end">
             <span className="px-[10px]">{`${text.length}/400`}</span>
           </div>
         </div>
@@ -40,7 +40,7 @@ export function AdminCommentPostArea({
         className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-[6px]"
       >
         <BiSolidPencil className="white" />
-        <p className="text-base font-medium text-white">Post</p>
+        <p className="text-body1_m_16 text-white">Post</p>
       </Button>
     </div>
   )

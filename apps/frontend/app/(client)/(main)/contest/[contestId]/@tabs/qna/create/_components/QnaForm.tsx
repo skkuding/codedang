@@ -237,11 +237,10 @@ export function QnaForm() {
   return (
     <>
       <div className="mb-[30px] flex items-center">
-        <h1 className="font-pretendard text-2xl font-medium leading-[28.8px] tracking-[-0.72px] text-black">
+        <h1 className="font-pretendard text-head6_m_24 text-black">
           Post New Question
         </h1>
       </div>
-
       <div className="flex min-h-[36px] w-full items-center gap-[14px] rounded-[1000px] border border-[#D8D8D8] bg-[#FFFFFF] px-[30px] py-[11px]">
         <ProblemSelector
           watch={watch}
@@ -251,7 +250,6 @@ export function QnaForm() {
         />
         <Title control={control} />
       </div>
-
       {!isContestStarted && !isLoadingProblems && (
         <div className="mt-[4px] flex">
           <Image
@@ -261,12 +259,11 @@ export function QnaForm() {
             height={16}
             className="ml-2 mr-[2px]"
           />
-          <span className="text-primary text-xs font-normal leading-[16.8px] tracking-[-0.36px]">
+          <span className="text-primary text-caption4_r_12">
             Contest has not started yet. Only General questions are available.
           </span>
         </div>
       )}
-
       <ProblemDropdown
         watch={watch}
         setValue={setValue}
@@ -275,16 +272,13 @@ export function QnaForm() {
         onClose={() => setIsDropdownOpen(false)}
         isContestStarted={isContestStarted}
       />
-
       <Content control={control} watch={watch} />
-
       <SubmitButton
         isFormValid={isFormValid}
         isLoadingProblems={isLoadingProblems}
         onSubmit={handlePostClick}
         canCreateQnA={canCreateQnA}
       />
-
       <AlertModal
         open={modalOpen}
         onOpenChange={setModalOpen}

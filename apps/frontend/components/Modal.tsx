@@ -91,7 +91,7 @@ export function Modal({
           )}
           <DialogTitle
             className={cn(
-              'w-full text-2xl font-semibold',
+              'text-head5_sb_24 w-full',
               size === 'lg' ? 'text-left' : 'text-center'
             )}
           >
@@ -100,7 +100,7 @@ export function Modal({
           {size === 'lg' && headerDescription && (
             <p
               className={cn(
-                'w-full text-center text-sm font-normal text-[#737373]',
+                'text-body4_r_14 w-full text-center text-[#737373]',
                 children && 'text-left'
               )}
             >
@@ -120,7 +120,7 @@ export function Modal({
           {size !== 'lg' && headerDescription && (
             <span
               className={cn(
-                'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
+                'text-body4_r_14 w-full whitespace-pre-wrap text-center text-[#737373]',
                 children && 'text-left'
               )}
             >
@@ -131,7 +131,7 @@ export function Modal({
           {footerDescription && (
             <span
               className={cn(
-                'w-full whitespace-pre-wrap text-center text-sm font-normal text-[#737373]',
+                'text-body4_r_14 w-full whitespace-pre-wrap text-center text-[#737373]',
                 children && 'text-left'
               )}
             >
@@ -144,7 +144,7 @@ export function Modal({
             {secondaryButton && (
               <Button
                 onClick={secondaryButton.onClick}
-                className="h-[46px] w-full text-base"
+                className="text-body3_r_16 h-[46px] w-full"
                 variant={secondaryButton.variant}
                 disabled={secondaryButton.disabled}
               >
@@ -154,7 +154,7 @@ export function Modal({
             {primaryButton && (
               <Button
                 onClick={primaryButton.onClick}
-                className="h-[46px] w-full text-base"
+                className="text-body3_r_16 h-[46px] w-full"
                 variant={primaryButton.variant}
                 disabled={primaryButton.disabled}
               >

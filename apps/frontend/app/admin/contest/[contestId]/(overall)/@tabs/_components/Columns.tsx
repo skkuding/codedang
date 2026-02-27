@@ -17,9 +17,9 @@ export const createColumns = (
   return [
     {
       accessorKey: 'studentId',
-      header: () => <p className="font-mono text-sm">Student ID</p>,
+      header: () => <p className="text-body4_r_14 font-mono">Student ID</p>,
       cell: ({ row }) => (
-        <div className="whitespace-nowrap text-center text-xs font-medium">
+        <div className="text-caption2_m_12 whitespace-nowrap text-center">
           {row.getValue('studentId')}
         </div>
       )
@@ -34,7 +34,7 @@ export const createColumns = (
         />
       ),
       cell: ({ row }) => (
-        <div className="whitespace-nowrap text-center text-xs font-medium">
+        <div className="text-caption2_m_12 whitespace-nowrap text-center">
           {row.original.realName}
         </div>
       ),
@@ -42,9 +42,11 @@ export const createColumns = (
     },
     {
       accessorKey: 'username',
-      header: () => <p className="border-r py-1 font-mono text-sm">User ID</p>,
+      header: () => (
+        <p className="text-body4_r_14 border-r py-1 font-mono">User ID</p>
+      ),
       cell: ({ row }) => (
-        <div className="whitespace-nowrap border-r py-1 text-center text-xs font-medium">
+        <div className="text-caption2_m_12 whitespace-nowrap border-r py-1 text-center">
           {row.getValue('username')}
         </div>
       )
@@ -82,7 +84,7 @@ export const createColumns = (
     ...problemData.map((problem, i) => ({
       accessorKey: `${String.fromCharCode(Number(65 + i))}`,
       header: () => (
-        <p className="font-mono text-sm">
+        <p className="text-body4_r_14 font-mono">
           {String.fromCharCode(Number(65 + i))}
         </p>
       ),

@@ -39,14 +39,14 @@ export function ProblemCard({
     >
       <div className="flex items-center justify-between">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="bg-primary flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white">
+          <div className="bg-primary text-sub4_sb_14 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-white">
             {String.fromCharCode(65 + index)}
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="truncate text-sm font-medium text-gray-900">
+            <h3 className="text-body2_m_14 truncate text-gray-900">
               {problem.title}
             </h3>
-            <p className="text-xs text-gray-500">
+            <p className="text-caption4_r_12 text-gray-500">
               {hasSubmission
                 ? `Submitted on ${new Date(
                     submission?.submission?.submissionTime || ''
@@ -72,12 +72,12 @@ export function ProblemCard({
                       }}
                     />
                   </div>
-                  <span className="text-primary text-xs font-medium">
+                  <span className="text-primary text-caption2_m_12">
                     {submission?.submission?.acceptedTestcaseCount || 0}/
                     {submission?.submission?.testcaseCount || 0}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-caption4_r_12 text-gray-500">
                   {isAccepted ? 'Accepted' : 'Wrong Answer'}
                 </p>
               </div>

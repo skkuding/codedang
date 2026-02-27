@@ -9,7 +9,6 @@ export function ContestSubBanner() {
   return (
     <>
       <div className="h-[120px]" />
-
       <div
         className="relative flex h-[328px] w-full items-center justify-center overflow-hidden lg:w-[1440px] xl:w-screen"
         style={{
@@ -18,7 +17,7 @@ export function ContestSubBanner() {
       >
         <div className="flex h-full w-[90%] items-center justify-around">
           <div className="z-10 mt-2 flex h-56 flex-col justify-evenly pl-12 text-white">
-            <p className="text-xl font-semibold leading-[120%] md:text-[34px]">
+            <p className="text-title1_sb_20 md:text-[34px]">
               Turn Your Ideas <br />
               into a Contest on CODEDANG!
             </p>
@@ -28,7 +27,7 @@ export function ContestSubBanner() {
             <Link href={`/notice/${contestNoticeId}`}>
               <Button
                 variant="outline"
-                className="text-primary-strong mt-2 w-[150px] rounded-full text-base font-medium shadow-lg"
+                className="text-primary-strong text-body1_m_16 mt-2 w-[150px] rounded-full shadow-lg"
               >
                 Read more
               </Button>

@@ -19,7 +19,7 @@ export function CreateEditContestLabel({
   const sentences = content
     .split(/(?:\n|<br\s*\/?>)/)
     .map((sentence, index) => (
-      <p key={index} className="text-xs font-normal text-black">
+      <p key={index} className="text-caption4_r_12 text-black">
         {sentence.trim()}
       </p>
     ))

@@ -8,7 +8,7 @@ export function EmailSection() {
 
   return (
     <>
-      <label className="-mb-4 mt-2 text-xs">Email</label>
+      <label className="text-caption4_r_12 -mb-4 mt-2">Email</label>
       <Input
         placeholder={
           isLoading

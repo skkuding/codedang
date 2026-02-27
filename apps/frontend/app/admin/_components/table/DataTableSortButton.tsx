@@ -97,7 +97,7 @@ export function DataTableSortButton({
       <PopoverContent className="w-72 p-4">
         <div className="space-y-4">
           <div>
-            <h4 className="mb-2 text-sm font-medium">Column</h4>
+            <h4 className="text-body2_m_14 mb-2">Column</h4>
             <div className="space-y-2">
               {columns.map(({ id, label }) => (
                 <div key={id} className="flex items-center space-x-2">
@@ -110,7 +110,7 @@ export function DataTableSortButton({
                     onChange={handleColumnChange}
                     className="form-radio h-4 w-4 text-blue-600"
                   />
-                  <label htmlFor={`column-${id}`} className="text-sm">
+                  <label htmlFor={`column-${id}`} className="text-body4_r_14">
                     {label}
                   </label>
                 </div>
@@ -119,7 +119,7 @@ export function DataTableSortButton({
           </div>
 
           <div>
-            <h4 className="mb-2 text-sm font-medium">Direction</h4>
+            <h4 className="text-body2_m_14 mb-2">Direction</h4>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <input
@@ -131,7 +131,10 @@ export function DataTableSortButton({
                   onChange={handleOrderChange}
                   className="form-radio h-4 w-4 text-blue-600"
                 />
-                <label htmlFor="sort-asc" className="flex items-center text-sm">
+                <label
+                  htmlFor="sort-asc"
+                  className="text-body4_r_14 flex items-center"
+                >
                   Ascending
                 </label>
               </div>
@@ -147,7 +150,7 @@ export function DataTableSortButton({
                 />
                 <label
                   htmlFor="sort-desc"
-                  className="flex items-center text-sm"
+                  className="text-body4_r_14 flex items-center"
                 >
                   Descending
                 </label>

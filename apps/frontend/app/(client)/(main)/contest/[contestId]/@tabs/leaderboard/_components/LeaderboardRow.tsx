@@ -47,9 +47,11 @@ export function LeaderboardRow({
           )}
           <div className="flex flex-col justify-center pl-[18px]">
             <div className="text-[22px] font-semibold">{username}</div>
-            <div className="flex flex-row text-[14px] text-[#737373]">
+            <div className="text-body4_r_14 flex flex-row text-[#737373]">
               Total Penalty /{' '}
-              <div className="font-medium text-[#3581FA]">{totalPenalty}</div>
+              <div className="text-body1_m_16 text-[#3581FA]">
+                {totalPenalty}
+              </div>
             </div>
           </div>
         </div>
@@ -84,7 +86,7 @@ export function LeaderboardRow({
                     <Tooltip.Root key={index}>
                       <Tooltip.Trigger asChild>
                         <th
-                          className="flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold"
+                          className="text-title1_sb_20 flex h-11 w-[114px] flex-row items-center justify-center"
                           key={index}
                         >
                           <LeaderboardPenalty problem={problem} />
@@ -109,7 +111,7 @@ export function LeaderboardRow({
                     <Tooltip.Root key={index}>
                       <Tooltip.Trigger asChild>
                         <th
-                          className="flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#E5E5E5] text-xl font-semibold"
+                          className="text-title1_sb_20 flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#E5E5E5]"
                           key={index}
                         >
                           <LeaderboardPenalty problem={problem} />
@@ -155,9 +157,11 @@ export function LeaderboardRow({
           )}
           <div className="flex flex-col justify-center pl-[18px]">
             <div className="text-[22px] font-semibold">{username}</div>
-            <div className="flex flex-row text-[14px] text-[#FFFFFF]">
+            <div className="text-body4_r_14 flex flex-row text-[#FFFFFF]">
               Total Penalty /{' '}
-              <div className="font-medium text-[#FFFFFF]">{totalPenalty}</div>
+              <div className="text-body1_m_16 text-[#FFFFFF]">
+                {totalPenalty}
+              </div>
             </div>
           </div>
         </div>
@@ -193,7 +197,7 @@ export function LeaderboardRow({
                     <Tooltip.Root key={index}>
                       <Tooltip.Trigger asChild>
                         <th
-                          className="flex h-11 w-[114px] flex-row items-center justify-center text-xl font-semibold"
+                          className="text-title1_sb_20 flex h-11 w-[114px] flex-row items-center justify-center"
                           key={index}
                         >
                           <LeaderboardPenalty problem={problem} />
@@ -218,7 +222,7 @@ export function LeaderboardRow({
                     <Tooltip.Root key={index}>
                       <Tooltip.Trigger asChild>
                         <th
-                          className="flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#DCE3E5] text-xl font-semibold"
+                          className="text-title1_sb_20 flex h-11 w-[114px] flex-row items-center justify-center border-l-2 border-[#DCE3E5]"
                           key={index}
                         >
                           <LeaderboardPenalty problem={problem} />
@@ -260,7 +264,7 @@ function LeaderboardPenalty({ problem }: LeaderboardPenaltyProps) {
   const isFirstSolver = problem.isFirstSolver
 
   if (isFrozen) {
-    return <div className="text-xl font-semibold text-[#C4C4C4]">Frozen</div>
+    return <div className="text-title1_sb_20 text-[#C4C4C4]">Frozen</div>
   } else if (score === 0) {
     return <div>-</div>
   } else if (isFirstSolver) {

@@ -87,7 +87,7 @@ export function DashboardCalendar({
                         />
                       </svg>
                     </button>
-                    <div className="text-[16px] font-semibold leading-[33.6px] tracking-[-0.72px] text-black md:text-2xl">{`${y}. ${m}`}</div>
+                    <div className="text-sub3_sb_16 text-black md:text-2xl">{`${y}. ${m}`}</div>
                     <button
                       type="button"
                       className="rounded-full hover:bg-neutral-200 disabled:opacity-40"

@@ -101,7 +101,7 @@ export function SubmissionTable<
                     }}
                     className="border-b-2 border-slate-700"
                   >
-                    <div className="text-center text-xs">
+                    <div className="text-caption4_r_12 text-center">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -127,7 +127,7 @@ export function SubmissionTable<
                     }}
                     className="border-b-2 border-slate-700"
                   >
-                    <div className="text-center text-xs">
+                    <div className="text-caption4_r_12 text-center">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

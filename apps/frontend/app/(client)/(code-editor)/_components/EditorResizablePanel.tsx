@@ -255,7 +255,9 @@ export function EditorMainResizablePanel({
                             alt="Tooltip arrow"
                             className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
                           />
-                          <p className="text-xs">Leaderboard is frozen</p>
+                          <p className="text-caption4_r_12">
+                            Leaderboard is frozen
+                          </p>
                         </TooltipContent>
                       )}
                     </Tooltip>
@@ -295,14 +297,12 @@ export function EditorMainResizablePanel({
           </ScrollArea>
         </div>
       </ResizablePanel>
-
       <ResizableHandle
         className={cn(
           'border-[0.5px] border-slate-700',
           isSidePanelHidden && 'hidden'
         )}
       />
-
       <ResizablePanel defaultSize={65} className="relative">
         <HidePanelButton
           isPanelHidden={isSidePanelHidden}

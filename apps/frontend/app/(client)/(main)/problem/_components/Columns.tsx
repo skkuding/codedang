@@ -11,7 +11,7 @@ export const columns: ColumnDef<Problem>[] = [
     accessorKey: 'title',
     cell: ({ row }) => {
       return (
-        <p className="overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base">{`${row.original.id}. ${row.original.title}`}</p>
+        <p className="text-body4_r_14 overflow-hidden text-ellipsis whitespace-nowrap text-left md:text-base">{`${row.original.id}. ${row.original.title}`}</p>
       )
     }
   },

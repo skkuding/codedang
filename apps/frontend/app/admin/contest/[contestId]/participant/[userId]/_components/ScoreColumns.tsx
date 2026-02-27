@@ -27,7 +27,7 @@ export const createColumns = (
   return [
     {
       accessorKey: 'submittedProblemCount',
-      header: () => <p className="py-1 font-mono text-sm">Submit</p>,
+      header: () => <p className="text-body4_r_14 py-1 font-mono">Submit</p>,
       cell: ({ row }) => (
         <div className="flex justify-center">
           {row.original.submittedProblemCount}/{row.original.totalProblemCount}
@@ -36,7 +36,7 @@ export const createColumns = (
     },
     {
       accessorKey: 'userContestScore',
-      header: () => <p className="py-1 font-mono text-sm">Total</p>,
+      header: () => <p className="text-body4_r_14 py-1 font-mono">Total</p>,
       cell: ({ row }) => (
         <div>
           {row.original.userContestScore}/{row.original.contestPerfectScore}
@@ -46,7 +46,7 @@ export const createColumns = (
     ...problemData.map((problem, i) => ({
       accessorKey: `${String.fromCharCode(Number(65 + i))}`,
       header: () => (
-        <p className="font-mono text-sm">
+        <p className="text-body4_r_14 font-mono">
           {String.fromCharCode(Number(65 + i))}
         </p>
       ),

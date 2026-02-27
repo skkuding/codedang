@@ -101,7 +101,7 @@ export function ContestDataTable<TData extends Item, TValue>({
   return (
     <div className="flex flex-col gap-[41px]">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-700">CONTEST LIST</h1>
+        <h1 className="text-head5_sb_24 text-gray-700">CONTEST LIST</h1>
         <div className="flex gap-4">
           <ContestTitleFilter
             column={table.getColumn('status')}
@@ -175,7 +175,7 @@ export function ContestDataTable<TData extends Item, TValue>({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="align-middle">
-                      <div className="text-center text-xs md:text-sm">
+                      <div className="text-caption4_r_12 text-center md:text-sm">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()

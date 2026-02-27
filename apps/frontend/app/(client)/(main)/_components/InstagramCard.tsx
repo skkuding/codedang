@@ -24,11 +24,8 @@ export function InstagramCard({ post }: InstagramCardProps) {
             height={24}
           />
         </div>
-        <span className="text-base font-medium leading-[140%] tracking-[-0.48px]">
-          SKKUDING
-        </span>
+        <span className="text-body1_m_16">SKKUDING</span>
       </div>
-
       <div className="relative aspect-[4/5] w-full">
         <Image
           src={post.media_url}
@@ -38,9 +35,8 @@ export function InstagramCard({ post }: InstagramCardProps) {
           unoptimized
         />
       </div>
-
       <div className="h-[37px] px-[10px] py-2">
-        <span className="line-clamp-1 text-sm text-gray-700">
+        <span className="text-body4_r_14 line-clamp-1 text-gray-700">
           {post.caption || 'No caption'}
         </span>
       </div>

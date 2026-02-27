@@ -54,7 +54,7 @@ export async function SubmissionDetail({
   return (
     <>
       <ScrollArea className="shrink-0 rounded-lg px-6">
-        <div className="**:whitespace-nowrap flex items-center justify-around gap-3 bg-[#384151] p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
+        <div className="**:whitespace-nowrap text-body4_r_14 flex items-center justify-around gap-3 bg-[#384151] p-5 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_p]:text-slate-400">
           <div>
             <h2>Language</h2>
             <p>{submission.language !== 'Cpp' ? submission.language : 'C++'}</p>
@@ -136,7 +136,7 @@ export async function SubmissionDetail({
       {res.ok ? null : (
         <div className="backdrop-blur-xs absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1">
           <IoIosLock size={100} />
-          <p className="mt-4 text-xl font-semibold">Access Denied</p>
+          <p className="text-title1_sb_20 mt-4">Access Denied</p>
           <p className="w-10/12 text-center">
             {`During the assignment, you are not allowed to view others' answers.
 `}

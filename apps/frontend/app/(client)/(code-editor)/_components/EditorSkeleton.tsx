@@ -10,7 +10,7 @@ export function EditorSkeleton() {
           <a href="#">
             <Image src={codedangLogo} alt="코드당" width={33} />
           </a>
-          <div className="flex items-center gap-1 font-medium">
+          <div className="text-sub2_m_18 flex items-center gap-1">
             Contest
             <p className="mx-2"> / </p>
             <a href="#">Future Contest</a>
@@ -24,7 +24,7 @@ export function EditorSkeleton() {
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <div className="text-error inline-flex items-center gap-2 whitespace-nowrap text-sm opacity-80">
+          <div className="text-error text-body4_r_14 inline-flex items-center gap-2 whitespace-nowrap opacity-80">
             <Image src={clockIcon} alt="Clock" />
             Ends in
             <p className="overflow-hidden text-ellipsis whitespace-nowrap">
@@ -46,13 +46,13 @@ export function EditorSkeleton() {
             <div className="text-muted-foreground inline-flex h-9 items-center justify-center rounded-lg bg-slate-900 p-1">
               <button
                 type="button"
-                className="rounded-md bg-slate-700 px-3 py-1 text-sm font-medium"
+                className="text-body2_m_14 rounded-md bg-slate-700 px-3 py-1"
               >
                 Description
               </button>
               <button
                 type="button"
-                className="rounded-md px-3 py-1 text-sm font-medium"
+                className="text-body2_m_14 rounded-md px-3 py-1"
               >
                 Submissions
               </button>
@@ -91,7 +91,7 @@ export function EditorSkeleton() {
             <button className="h-8 w-10 rounded-md bg-slate-600">C</button>
           </div>
           <div className="h-full bg-[#121728] p-4">
-            <pre className="h-96 overflow-auto rounded-md bg-[#222939] p-4 font-mono text-sm text-gray-300" />
+            <pre className="text-body4_r_14 h-96 overflow-auto rounded-md bg-[#222939] p-4 font-mono text-gray-300" />
           </div>
         </div>
       </div>

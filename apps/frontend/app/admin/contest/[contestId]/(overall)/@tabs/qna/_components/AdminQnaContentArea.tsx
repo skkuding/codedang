@@ -31,34 +31,34 @@ export function AdminQnaContentArea({
       {/* TITLE */}
       <div className="border-line flex flex-col gap-[16px] border-b-[1px] pb-[20px]">
         <div className="flex flex-col gap-[4px]">
-          <div className="round-full text-color-neutral-60 bg-color-neutral-99 flex w-fit items-center rounded-xl px-[16px] py-[4px] text-sm font-medium">
+          <div className="round-full text-color-neutral-60 bg-color-neutral-99 text-body2_m_14 flex w-fit items-center rounded-xl px-[16px] py-[4px]">
             {`No. ${order}`}
           </div>
           <div className="flex items-center justify-between gap-[20px]">
-            <p className="max-h-[70px] max-w-[608px] overflow-hidden text-2xl font-semibold">
+            <p className="text-head5_sb_24 max-h-[70px] max-w-[608px] overflow-hidden">
               {TitleText}
             </p>
             {DeleteButtonComponent}
           </div>
         </div>
         {/* userID & time */}
-        <div className="flex flex-col gap-[6px] font-medium text-[#787E80]">
+        <div className="text-body1_m_16 flex flex-col gap-[6px] text-[#787E80]">
           <div className="flex items-center gap-[10px]">
             <div className="size-[13.5px]">
               <Image src={PersonFillIcon} alt="person" />
             </div>
-            <p className="text-sm">{createdBy?.username}</p>
+            <p className="text-body4_r_14">{createdBy?.username}</p>
           </div>
           <div className="flex items-center gap-[10px]">
             <FaClock className="text-color-blue-50" size={13.5} />
-            <div className="flex items-center gap-[4px] text-sm">
+            <div className="text-body4_r_14 flex items-center gap-[4px]">
               <p>{dateFormatter(new Date(createTime), 'YYYY-MM-DD')}</p>
               <p>{dateFormatter(new Date(createTime), 'HH:mm:ss')}</p>
             </div>
           </div>
         </div>
       </div>
-      <div className="whitespace-pre-line break-all px-[16px] text-base font-normal">
+      <div className="text-body3_r_16 whitespace-pre-line break-all px-[16px]">
         {content.trim()}
       </div>
     </div>

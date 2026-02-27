@@ -64,11 +64,11 @@ export function LeaderboardUnfreezeSwitchDialog({
         }}
       >
         <DialogHeader className="flex flex-col items-center">
-          <DialogTitle className="pt-5 text-2xl font-semibold">
+          <DialogTitle className="text-head5_sb_24 pt-5">
             Unfreeze Leaderboard?
           </DialogTitle>
           <DialogDescription>
-            <div className="flex flex-col items-center pt-[14px] text-[14px] text-[#737373]">
+            <div className="text-body4_r_14 flex flex-col items-center pt-[14px] text-[#737373]">
               <p>The number of submissions, penalties,</p>
               <p>and correctness status will be visible to everyone.</p>
               <p>Rankings may change after the leaderboard is unfrozen.</p>
@@ -77,13 +77,13 @@ export function LeaderboardUnfreezeSwitchDialog({
         </DialogHeader>
         <DialogFooter className="flex flex-row items-center justify-center pl-0 sm:items-center sm:justify-center">
           <DialogClose asChild>
-            <Button className="flex h-[44px] w-[170px] flex-row items-center justify-center rounded-full border border-[#C4C4C4] bg-white text-[14px] font-semibold text-[#8A8A8A] hover:bg-[#80808014]">
+            <Button className="text-sub4_sb_14 flex h-[44px] w-[170px] flex-row items-center justify-center rounded-full border border-[#C4C4C4] bg-white text-[#8A8A8A] hover:bg-[#80808014]">
               Cancel
             </Button>
           </DialogClose>
           <DialogClose asChild>
             <Button
-              className="flex h-[44px] w-[170px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-[14px] font-semibold text-white"
+              className="text-sub4_sb_14 flex h-[44px] w-[170px] flex-row items-center justify-center rounded-full bg-[#3581FA] text-white"
               onClick={() => {
                 toggleUnfreeze()
                 setIsUnFrozen(!isUnFrozen)

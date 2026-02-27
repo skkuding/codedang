@@ -48,7 +48,7 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
                   key={item.name}
                   href={item.path}
                   className={cn(
-                    'relative flex-1 px-4 py-2 text-center text-sm font-medium transition-colors',
+                    'text-body2_m_14 relative flex-1 px-4 py-2 text-center transition-colors',
                     isActive
                       ? 'text-primary'
                       : 'text-gray-500 hover:text-gray-700'
@@ -67,7 +67,6 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
           </nav>
         </div>
       </div>
-
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex">
         <div className="flex flex-col">

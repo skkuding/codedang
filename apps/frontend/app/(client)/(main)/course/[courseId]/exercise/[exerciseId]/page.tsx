@@ -68,7 +68,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
           alt="Error"
           className="mx-auto block h-auto max-w-full"
         />
-        <p className="mt-4 text-[20px] font-semibold text-neutral-700">
+        <p className="text-title1_sb_20 mt-4 text-neutral-700">
           This exercise is unavailable.
           <br />
           Please check the URL or try again later.
@@ -94,7 +94,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
           alt="Error"
           className="mx-auto block h-auto max-w-full"
         />
-        <p className="mt-4 text-[20px] font-semibold text-neutral-700">
+        <p className="text-title1_sb_20 mt-4 text-neutral-700">
           This exercise is unavailable.
           <br />
           Please check the URL or try again later.
@@ -107,7 +107,7 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
     exercise && (
       <div className="flex flex-col gap-[45px] px-4 py-[80px] lg:px-[100px]">
         <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
-          <p className="text-2xl font-semibold">
+          <p className="text-head5_sb_24">
             <span className="text-primary">[Week {exercise.week}] </span>
             {exercise.title}
           </p>
@@ -124,37 +124,33 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
             />
           </div>
         </div>
-
         <Separator className="my-0" />
-
         <div className="flex flex-col gap-[30px]">
-          <p className="text-2xl font-semibold">DESCRIPTION</p>
+          <p className="text-head5_sb_24">DESCRIPTION</p>
           <KatexContent
             content={exercise.description}
             classname="text-[#7F7F7F] font-normal text-base"
           />
         </div>
-
         <Separator className="my-0" />
-
         {problems && (
           <div>
-            <p className="mb-[16px] text-2xl font-semibold">PROBLEMS</p>
+            <p className="text-head5_sb_24 mb-[16px]">PROBLEMS</p>
             <div className="flex gap-[30px] lg:mb-[42px]">
               <div className="flex gap-[6px]">
-                <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
+                <span className="text-body4_r_14 rounded-full bg-gray-100 px-[25px] py-[2px] text-center">
                   Total
                 </span>
-                <span className="text-primary text-base font-semibold">
+                <span className="text-primary text-sub3_sb_16">
                   {problems.total}
                 </span>
               </div>
               {record && (
                 <div className="flex gap-[6px]">
-                  <span className="rounded-full bg-gray-100 px-[25px] py-[2px] text-center text-sm font-normal">
+                  <span className="text-body4_r_14 rounded-full bg-gray-100 px-[25px] py-[2px] text-center">
                     Submit
                   </span>
-                  <span className="text-primary text-base font-semibold">
+                  <span className="text-primary text-sub3_sb_16">
                     {
                       (submissions || []).filter(
                         (submission) => submission.submission !== null
@@ -166,7 +162,6 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
             </div>
           </div>
         )}
-
         {!(record && submissions) && problems && (
           <div className="hidden lg:block">
             <DataTable
@@ -184,7 +179,6 @@ export default function ExerciseDetail(props: ExerciseDetailProps) {
             />
           </div>
         )}
-
         {record && submissions && (
           <>
             <div className="hidden lg:block">

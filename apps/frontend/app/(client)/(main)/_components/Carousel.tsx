@@ -63,7 +63,7 @@ export function Carousel({ slides }: CarouselProps) {
                 <h2 className="text-[60px] font-medium leading-[110%] md:text-nowrap">
                   {slide.bottomTitle}
                 </h2>
-                <p className="mt-5 whitespace-pre-line text-[16px] font-normal leading-[150%] tracking-[-0.03em] text-[#E5E5E5]">
+                <p className="text-body3_r_16 mt-5 whitespace-pre-line text-[#E5E5E5]">
                   {slide.sub}
                 </p>
               </div>
@@ -73,7 +73,7 @@ export function Carousel({ slides }: CarouselProps) {
                     href={`https://what-is-codedang.framer.website`}
                     className="flex h-full w-full items-center gap-[2px] pb-[10px] pl-[30px] pr-[24px] pt-[10px]"
                   >
-                    <span className="font-pretendard text-[18px] font-medium tracking-[-0.03em]">
+                    <span className="font-pretendard text-sub2_m_18">
                       What is CODEDANG
                     </span>
                     <div className="relative flex size-[16px] scale-x-[-1] items-center justify-center">
@@ -108,14 +108,13 @@ export function Carousel({ slides }: CarouselProps) {
           </Button>
         </div>
         <div className="absolute right-[94px] top-[560px] z-20 flex h-[28px] w-[57px] items-center justify-center rounded-full bg-black/40 px-4 py-1 backdrop-blur-md">
-          <p className="font-pretendard flex items-center gap-1 text-sm font-medium leading-[140%] tracking-[-0.03em] text-white">
+          <p className="font-pretendard text-body2_m_14 flex items-center gap-1 text-white">
             <span>{facade + 1}</span>
             <span>/</span>
             <span>{slides.length}</span>
           </p>
         </div>
       </div>
-
       {/* Mobile View (render all slides and control visibility by facade) */}
       <div className="mt-[10px] px-[20px] md:hidden">
         <div className="relative h-[164px] w-full">
@@ -137,12 +136,12 @@ export function Carousel({ slides }: CarouselProps) {
                   priority
                 />
                 <div className="font-pretendard absolute left-[17px] top-[24px] z-10 inline-flex h-[73px] w-[222px] flex-col items-start gap-[4px] text-white">
-                  <p className="text-[20px] font-medium font-semibold leading-[130%] tracking-[-0.6px]">
+                  <p className="text-title1_sb_20">
                     {slide.topTitle}
                     <br />
                     {slide.bottomTitle}
                   </p>
-                  <p className="text-color-neutral-90 text-xs font-normal leading-[140%] tracking-[-0.36px]">
+                  <p className="text-color-neutral-90 text-caption4_r_12">
                     {slide.subMobile}
                   </p>
                 </div>

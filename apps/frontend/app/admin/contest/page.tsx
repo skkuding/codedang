@@ -13,8 +13,8 @@ export default function Page() {
     <div className="container mx-auto space-y-[46px] py-20">
       <div className="flex justify-between">
         <div>
-          <p className="text-[32px] font-bold">CONTEST LIST</p>
-          <p className="text-base text-[#787E80]">
+          <p className="text-head2_b_32">CONTEST LIST</p>
+          <p className="text-body3_r_16 text-[#787E80]">
             Here&apos;s a contest list you made
           </p>
         </div>

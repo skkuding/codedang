@@ -195,7 +195,7 @@ export function ParticipantTableByProblem() {
         >
           <button
             onClick={handleRejudge}
-            className="bg-primary flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-85"
+            className="bg-primary text-body2_m_14 flex items-center gap-2 rounded-full px-5 py-3 text-white transition-opacity hover:opacity-85"
           >
             Rejudge
           </button>
@@ -208,7 +208,7 @@ export function ParticipantTableByProblem() {
             data={csvData}
             headers={headers}
             filename={fileName}
-            className="bg-primary flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-85"
+            className="bg-primary text-body2_m_14 flex items-center gap-2 rounded-full px-5 py-3 text-white transition-opacity hover:opacity-85"
           >
             Download
           </CSVLink>
@@ -226,7 +226,7 @@ export function ParticipantTableByProblem() {
         enablePagination={false}
       >
         <div className="mb-3 flex items-center gap-4">
-          <p className="font-medium">
+          <p className="text-body1_m_16">
             <span className="text-primary font-bold">
               {summariesData.length}
             </span>{' '}
@@ -271,8 +271,8 @@ function UtilityPanel({ children, title, description }: UtilityPanelProps) {
   return (
     <div className="flex h-24 w-full items-center justify-between rounded-xl border border-[#D8D8D8] bg-white px-5 py-4">
       <div className="text-[#737373]">
-        <p className="text-xl font-semibold">{title}</p>
-        <p className="text-base">{description}</p>
+        <p className="text-title1_sb_20">{title}</p>
+        <p className="text-body3_r_16">{description}</p>
       </div>
       {children}
     </div>

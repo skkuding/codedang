@@ -19,7 +19,7 @@ export function SaveButton({
       <Button
         disabled={updateNow ? !saveAbleUpdateNow : !saveAble}
         type="submit"
-        className="font-semibold disabled:bg-neutral-300 disabled:text-neutral-500"
+        className="text-sub3_sb_16 disabled:bg-neutral-300 disabled:text-neutral-500"
         onClick={onSubmitClick}
       >
         Save

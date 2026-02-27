@@ -134,7 +134,7 @@ export function TimeSlider({
   }
   return (
     <div className="h-17 bg-color-neutral-99 flex w-full items-center gap-[19px] rounded-xl px-5 py-4">
-      <div className="text-primary flex w-[169px] text-lg font-semibold tracking-[-0.04em]">
+      <div className="text-primary text-sub1_sb_18 flex w-[169px]">
         {displayTime} / {getTotalDuration()}
       </div>
       <Slider
@@ -149,7 +149,6 @@ export function TimeSlider({
             : (currentSubmissionIndex ?? submissionCount - 1)
         ]}
       />
-
       <button
         onClick={handlePlayPause}
         className="text-primary transition-colors hover:text-blue-600"

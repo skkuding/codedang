@@ -105,11 +105,9 @@ export function QnADataTable<TData extends QnAItem, TValue>({
       <div className="flex flex-col items-start gap-6 self-stretch">
         <div className="flex flex-col items-start gap-1.5">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold leading-[140%] tracking-[-0.72px]">
-              QUESTION & ANSWER
-            </h1>
+            <h1 className="text-head5_sb_24">QUESTION & ANSWER</h1>
           </div>
-          <p className="text-base font-medium tracking-[-0.48px] text-[#9B9B9B]">
+          <p className="text-body1_m_16 text-[#9B9B9B]">
             본 Q&A는 해당 대회와 관련된 질문만 작성해 주세요. 욕설, 비방, 대회
             진행에 방해가 되는 내용은 제재 대상이 될 수 있습니다.
           </p>
@@ -141,7 +139,7 @@ export function QnADataTable<TData extends QnAItem, TValue>({
                       header.id === 'title' ||
                       header.id === 'writer' ||
                       header.id === 'createTime'
-                      ? 'rounded-full bg-[#F5F5F5] px-4 py-2 text-[16px] font-medium leading-[140%] tracking-[-0.48px] text-[#8A8A8A]'
+                      ? 'text-body1_m_16 rounded-full bg-[#F5F5F5] px-4 py-2 text-[#8A8A8A]'
                       : 'w-[4px] bg-white px-0',
                     headerStyle[header.id]
                   )}

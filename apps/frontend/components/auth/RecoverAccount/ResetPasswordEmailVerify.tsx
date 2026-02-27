@@ -135,7 +135,7 @@ export function ResetPasswordEmailVerify() {
         Reset Password
       </p>
       <div className="flex justify-between">
-        <div className="text-sm text-black">{formData.email}</div>
+        <div className="text-body4_r_14 text-black">{formData.email}</div>
         {!expired && <p className="text-red-500">{formatTimer()}</p>}
       </div>
       <Input
@@ -154,17 +154,19 @@ export function ResetPasswordEmailVerify() {
         onFocus={() => setInputFocused(true)}
       />
       {!expired && !errors.verificationCode && !codeError && !emailVerified && (
-        <p className="text-primary mt-1 text-xs">We&apos;ve sent an email</p>
+        <p className="text-primary text-caption4_r_12 mt-1">
+          We&apos;ve sent an email
+        </p>
       )}
       {expired && (
-        <p className="mt-1 text-xs text-red-500">
+        <p className="text-caption4_r_12 mt-1 text-red-500">
           Verification code expired
           <br />
           Please resend an email and try again
         </p>
       )}
       {!expired && (
-        <p className="mt-1 text-xs text-red-500">
+        <p className="text-caption4_r_12 mt-1 text-red-500">
           {errors.verificationCode
             ? errors.verificationCode?.message
             : codeError}
@@ -181,7 +183,7 @@ export function ResetPasswordEmailVerify() {
       ) : (
         <Button
           type="button"
-          className="mt-4 w-full font-semibold"
+          className="text-sub3_sb_16 mt-4 w-full"
           onClick={resendEmail}
         >
           Resend Email

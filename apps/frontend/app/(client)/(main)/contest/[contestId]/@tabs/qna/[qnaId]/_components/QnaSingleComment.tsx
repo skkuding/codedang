@@ -21,7 +21,7 @@ export function QnaSingleComment({
     >
       <div className="flex flex-col gap-[4px]">
         <div className="relative flex items-center gap-[4px]">
-          <span className="text-xl font-semibold">
+          <span className="text-title1_sb_20">
             {comment.createdBy?.username}
           </span>
           {comment.isContestStaff && (
@@ -33,7 +33,7 @@ export function QnaSingleComment({
         </div>
         <div className="flex items-center gap-[8px]">
           <FaClock className="text-color-blue-50" size={13} />
-          <div className="flex items-center gap-[4px] text-sm font-medium text-[#787E80]">
+          <div className="text-body2_m_14 flex items-center gap-[4px] text-[#787E80]">
             <span>
               {dateFormatter(new Date(comment.createdTime), 'YYYY-MM-DD')}
             </span>
@@ -43,7 +43,7 @@ export function QnaSingleComment({
           </div>
         </div>
       </div>
-      <span className="whitespace-pre-wrap break-all text-base font-normal">
+      <span className="text-body3_r_16 whitespace-pre-wrap break-all">
         {comment.content.trim()}
       </span>
     </div>

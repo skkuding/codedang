@@ -47,7 +47,7 @@ export function WeekComboBox({ name, courseId }: WeekComboBoxProps) {
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="flex h-[36px] w-[280px] justify-between font-normal"
+            className="text-body3_r_16 flex h-[36px] w-[280px] justify-between"
             ref={field.ref}
           >
             <p className={cn(!selectedWeek && 'text-[#C4C4C4]')}>

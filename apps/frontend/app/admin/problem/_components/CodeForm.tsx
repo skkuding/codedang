@@ -72,7 +72,7 @@ export function CodeForm({
           <Button
             onClick={handleFormat}
             type="button"
-            className="h-6 w-16 text-xs"
+            className="text-caption4_r_12 h-6 w-16"
           >
             Format
           </Button>

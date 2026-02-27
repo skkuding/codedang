@@ -22,7 +22,7 @@ export function PreviewEditorLayout({
           <Link href="/">
             <Image src={codedangLogo} alt="코드당" width={33} />
           </Link>
-          <div className="flex items-center gap-1 font-medium">
+          <div className="text-sub2_m_18 flex items-center gap-1">
             {problem.title}
           </div>
         </div>
