@@ -60,7 +60,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             sizeClasses[sizeVariant],
             isError
               ? 'border-red-500 focus-visible:ring-red-500'
-              : 'focus-visible:ring-primary border-gray-200 active:border-gray-400 data-[filled=true]:border-gray-300 dark:border-gray-800 dark:focus-visible:ring-gray-300',
+              : 'focus-visible:ring-primary border-gray-200 data-[filled=true]:border-gray-300 dark:border-gray-800 dark:focus-visible:ring-gray-300',
             className
           )}
           ref={ref}
