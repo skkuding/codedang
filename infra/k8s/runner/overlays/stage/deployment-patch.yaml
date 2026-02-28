@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-manager
+  namespace: runner
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+        - name: pod-manager
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: runner-redis-auth
+                  key: password
