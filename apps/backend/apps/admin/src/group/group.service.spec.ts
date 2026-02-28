@@ -339,7 +339,8 @@ describe('GroupService', () => {
   describe('duplicateCourse', () => {
     const duplicateInput = {
       courseNum: 'SWE3099',
-      semester: '2026 Spring'
+      semester: '2026 Spring',
+      classNum: 1
     }
 
     it('should throw NotFoundException if user does not exist', async () => {
@@ -425,13 +426,16 @@ describe('GroupService', () => {
         copiedAssignments: [999, 1000]
       })
 
-      // Verify that group.create was called with the input courseNum and semester
+      // Verify that group.create was called with the input courseNum, semester, and classNum
       const createCallArgs = db.group.create.lastCall.args[0]
       expect(createCallArgs.data.courseInfo.create.courseNum).to.equal(
         duplicateInput.courseNum
       )
       expect(createCallArgs.data.courseInfo.create.semester).to.equal(
         duplicateInput.semester
+      )
+      expect(createCallArgs.data.courseInfo.create.classNum).to.equal(
+        duplicateInput.classNum
       )
     })
   })

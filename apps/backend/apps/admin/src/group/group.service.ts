@@ -17,6 +17,7 @@ import type {
   UpdateCourseNoticeInput
 } from './model/course-notice.input'
 import type { UpdateCourseQnAInput } from './model/course-qna.input'
+import type { DuplicateCourseInput } from './model/duplicate-course.input'
 import type { CourseInput } from './model/group.input'
 
 @Injectable()
@@ -343,7 +344,7 @@ export class GroupService {
   async duplicateCourse(
     groupId: number,
     userId: number,
-    input: { courseNum: string; semester: string }
+    input: DuplicateCourseInput
   ) {
     const userWithCanCreateCourse = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -385,6 +386,7 @@ export class GroupService {
     const { groupId: _, ...duplicatedCourseInfo } = originCourse.courseInfo
     duplicatedCourseInfo.courseNum = input.courseNum
     duplicatedCourseInfo.semester = input.semester
+    duplicatedCourseInfo.classNum = input.classNum
 
     return await this.prisma.$transaction(async (tx) => {
       const duplicatedCourse = await tx.group.create({
