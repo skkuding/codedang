@@ -46,9 +46,10 @@ export function InputForm({
           disabled={disabled}
           value={value}
           placeholder={placeholder}
+          sizeVariant="md"
           className={cn(
             inputStyle,
-            'h-[40px] border-none px-4 placeholder:text-sm focus-visible:ring-0'
+            'border-none px-4 placeholder:text-sm focus-visible:ring-0'
           )}
           maxLength={maxLength || 120}
           {...register(name, {
