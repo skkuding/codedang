@@ -1,22 +1,68 @@
-import { Controller, Get, Param, Req, Res } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Param,
+  Req,
+  Res,
+  Logger,
+  StreamableFile
+} from '@nestjs/common'
 import { Response } from 'express'
-import { AuthenticatedRequest } from '@libs/auth'
+import { createReadStream, existsSync } from 'fs'
+import { rm, unlink } from 'fs/promises'
+import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
+import { IDValidationPipe } from '@libs/pipe'
 import { SubmissionService } from './submission.service'
 
 @Controller('admin-api/submission')
 export class SubmissionController {
+  private readonly logger = new Logger(SubmissionController.name)
   constructor(private readonly submissionService: SubmissionService) {}
 
   /**
-   * compressSourceCodes 메서드를 통해 압축된 zipFile을 스트리밍을 통해 다운로드 합니다.
-   * filename은 압축된 zipFile의 이름으로 ${assignmentTitle}_${problemId}의 형식으로 저장됩니다.
+   * 특정 Assignment의 특정 Problem에 대한 제출 내역을 Zip file로 압축한 후 다운로드합니다.
+   *
+   * @param groupId 권한 검증을 위한 groupID
+   * @param assignmentId AssignmentProblemRecode을 조회할 Assignment의 ID
+   * @param problemId AssignmentProblemRecode을 조회할 problemID
+   * @returns
    */
-  @Get('/download/:filename')
+  @Get('/download/:assignmentId/:problemId')
+  @UseDisableAdminGuard()
   async downloadCodes(
-    @Param('filename') filename: string,
+    @Param('assignmentId', IDValidationPipe) assignmentId: number,
+    @Param('problemId', IDValidationPipe) problemId: number,
     @Req() req: AuthenticatedRequest,
-    @Res() res: Response
+    @Res({ passthrough: true }) res: Response
   ) {
-    await this.submissionService.downloadCodes(filename, res)
+    const { zipPath, zipFilename, dirPath } =
+      await this.submissionService.downloadSourceCodes(
+        assignmentId,
+        problemId,
+        req.user.id
+      )
+
+    const fileStream = createReadStream(zipPath)
+    fileStream.on('close', async () => {
+      try {
+        if (existsSync(zipPath)) await unlink(zipPath)
+        if (existsSync(dirPath))
+          await rm(dirPath, { recursive: true, force: true })
+      } catch (err) {
+        this.logger.error(
+          `Failed to remove temp files (Path: ${zipPath}: ${err.message}`
+        )
+      }
+    })
+
+    const encodedFilename = encodeURIComponent(zipFilename)
+    res.set({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'Content-Type': 'application/zip',
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'Content-Disposition': `attachment; filename='${encodedFilename}.zip'; filename*=UTF-8''${encodedFilename}.zip`
+    })
+
+    return new StreamableFile(fileStream)
   }
 }
