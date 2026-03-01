@@ -5,7 +5,7 @@
 ARG target=client
 ARG app_env=production
 
-FROM node:22.18.0-alpine AS builder
+FROM node:22.22.0-alpine AS builder
 ARG target
 
 # Install bash for swc-node
@@ -24,7 +24,7 @@ RUN npx prisma generate
 RUN npm run build ${target}
 
 ### PRODUCTION ###
-FROM node:22.18.0-alpine
+FROM node:22.22.0-alpine
 ARG target
 ARG app_env
 
