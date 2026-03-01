@@ -13,8 +13,6 @@ spec:
       labels:
         app: runner-scheduler-redis
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: skkuding-2
       containers:
         - name: redis
           image: redis:7.2-alpine
