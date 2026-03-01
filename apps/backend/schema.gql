@@ -1991,6 +1991,12 @@ type DuplicateCourse {
   originAssignments: [Int!]!
 }
 
+input DuplicateCourseInput {
+  classNum: Int!
+  courseNum: String!
+  semester: String!
+}
+
 type DuplicatedAssignmentResponse {
   assignment: Assignment!
   problems: [AssignmentProblem!]!
@@ -2318,7 +2324,7 @@ type Mutation {
   deleteTag(tagName: String!): Tag!
   deleteWhitelist(groupId: Int!): Float!
   duplicateAssignment(assignmentId: Int!, groupId: Int!): DuplicatedAssignmentResponse!
-  duplicateCourse(groupId: Int!): DuplicateCourse!
+  duplicateCourse(groupId: Int!, input: DuplicateCourseInput!): DuplicateCourse!
   handleJoinRequest(groupId: Int!, isAccept: Boolean!, userId: Int!): UserGroup!
   importProblemsToAssignment(assignmentId: Int!, assignmentProblemInput: [AssignmentProblemInput!]!, groupId: Int!): [AssignmentProblem!]!
   importProblemsToContest(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
