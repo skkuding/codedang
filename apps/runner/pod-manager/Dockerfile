@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine AS build
+FROM golang:1.26-alpine AS build
 
 RUN apk update && apk add --no-cache go
 
@@ -10,7 +10,7 @@ RUN go mod download
 COPY *.go /app
 RUN go build -o pod-manager
 
-FROM alpine:3.21.3
+FROM alpine:3.23.3
 
 WORKDIR /app
 COPY --from=build /app/pod-manager /app/pod-manager
