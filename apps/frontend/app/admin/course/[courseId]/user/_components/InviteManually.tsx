@@ -255,7 +255,8 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                       value={emailDomain.replace('@', '')}
                       placeholder="Enter directly"
                       onChange={handleInputChange}
-                      className="w-35 absolute left-[20px] h-10 border-none bg-transparent text-base shadow-none focus-visible:ring-0"
+                      sizeVariant="md"
+                      className="w-35 absolute left-[20px] border-none bg-transparent text-base shadow-none focus-visible:ring-0"
                     />
                   </div>
                 )}
