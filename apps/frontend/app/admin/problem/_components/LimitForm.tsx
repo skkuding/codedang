@@ -22,7 +22,8 @@ export function LimitForm({ blockEdit }: { blockEdit?: boolean }) {
             type="number"
             min={0}
             placeholder="Time"
-            className={cn(inputStyle, 'h-[36px] w-[112px]')}
+            sizeVariant="sm"
+            className={cn(inputStyle, 'w-[112px]')}
             {...register('timeLimit', {
               setValueAs: (value: string) => parseInt(value, 10)
             })}
@@ -40,7 +41,8 @@ export function LimitForm({ blockEdit }: { blockEdit?: boolean }) {
             type="number"
             min={0}
             placeholder="Memory"
-            className={cn(inputStyle, 'h-[36px] w-[112px]')}
+            sizeVariant="sm"
+            className={cn(inputStyle, 'w-[112px]')}
             {...register('memoryLimit', {
               setValueAs: (value: string) => parseInt(value, 10)
             })}
