@@ -125,7 +125,11 @@ export function QnADataTable<TData extends QnAItem, TValue>({
             options={options}
             resetPageIndex={resetPageIndex}
           />
-          <QnAPostButton contestId={contestId} canCreateQnA={canCreateQnA} />
+          <QnAPostButton
+            section="contest"
+            hrefId={contestId}
+            canCreateQnA={canCreateQnA}
+          />
         </div>
       </div>
       <Table className="mb-7 table-fixed">
