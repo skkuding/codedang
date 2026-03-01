@@ -17,8 +17,8 @@
 ### 1. Download keys from AWS Secrets Manager
 
 ```bash
-# Codedang-Sealed-Secrets-Prod or Codedang-Sealed-Secrets-Stage
-SECRET_NAME=Codedang-Sealed-Secrets-Prod
+# Codedang-Sealed-Secrets-Production or Codedang-Sealed-Secrets-Stage
+SECRET_NAME=Codedang-Sealed-Secrets-Production
 aws secretsmanager get-secret-value \
   --secret-id "$SECRET_NAME" \
   --query SecretString --output text > sealed-secrets-keys.json
@@ -43,14 +43,14 @@ done
 
 ```bash
 kubectl --context "${CLUSTER}" rollout restart deployment \
-  sealed-secrets-controller -n kube-system
+  sealed-secrets -n kube-system
 ```
 
 ### 5. Verify decryption works
 
 ```bash
 kubeseal --fetch-cert \
-  --controller-name=sealed-secrets-controller \
+  --controller-name=sealed-secrets \
   --controller-namespace=kube-system
 ```
 
