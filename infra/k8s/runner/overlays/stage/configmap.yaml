@@ -8,3 +8,5 @@ data:
   RUNNER_POOL_SIZE: '60'
   RUNNER_NODE_SELECTOR_KEY: 'runner-node'
   RUNNER_NODE_POD_COUNTS: 'node-1=40,node-2=10,node-3=10'
+  REDIS_ADDR: 'runner-scheduler-redis.runner.svc.cluster.local:6379'
+  RUNNER_REDIS_PREFIX: 'codedang:runner:stage'
