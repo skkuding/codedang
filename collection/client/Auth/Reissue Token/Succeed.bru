@@ -24,7 +24,47 @@ script:pre-request {
 }
 
 docs {
-  # Reissue Token
+  # 📘 Reissue Token
+  
+  **GET** `/auth/reissue`
+  
+  Issues a new set of Access and Refresh tokens using a valid Refresh Token from cookies.
   
   Cookie의 `refresh_token` 을 이용해 access token을 재발급합니다.
+  
+  - 요청 시 자동으로 전송된 쿠키에서 `refresh_token`을 확인합니다. 만료되었거나 토큰이 없는 경우 `UnauthorizedException`을 발생시킵니다.
+  
+  - 서버는 전달받은 토큰의 서명을 확인하고, 서버 캐시(`cacheManager`)에 저장된 값과 일치하는지 대조합니다. (로그아웃된 토큰인지 확인하는 절차)
+  
+  - 검증이 완료되면 새로운 Access Token과 새로운 Refresh Token을 동시에 발급합니다.
+  
+  - 새로 발급된 토큰들은 다시 헤더(Access)와 쿠키(Refresh)에 각각 업데이트됩니다.
+  
+  - `@AuthNotNeededIfPublic()`이 적용되어 있습니다. 이는 Access Token이 만료된 상태에서 호출하는 API이기 때문이며, 대신 유효한 Refresh Token 쿠키가 반드시 있어야 합니다.
+  
+  ### 🔒 Authentication
+  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  
+  
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  
+  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `none`
 }

@@ -5,6 +5,9 @@ configs:
   secret:
     # Don't create argocd-secret - managed by SealedSecret in extraObjects
     createSecret: false
+  params:
+    # Run server in insecure mode (TLS termination at Traefik ingress)
+    server.insecure: 'true'
   cm:
     url: https://argocd.codedang.com
     dex.config: |
@@ -52,8 +55,10 @@ dex:
 
 server:
   service:
-    servicePortHttps: 80
+    # HTTP port for Traefik ingress (TLS termination at ingress)
     servicePortHttp: 80
+    # HTTPS port (not used in --insecure mode)
+    servicePortHttps: 443
 
   metrics:
     enabled: true
@@ -68,6 +73,7 @@ server:
       cert-manager.io/cluster-issuer: letsencrypt-dns01
       traefik.ingress.kubernetes.io/redirect-entry-point: https
     ingressClassName: traefik
+    # TLS termination at Traefik, backend uses HTTP (server.insecure: true)
     tls: true
 
   extraArgs:

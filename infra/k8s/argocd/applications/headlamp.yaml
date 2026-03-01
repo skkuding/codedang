@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: headlamp
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: release
+  template:
+    metadata:
+      name: 'headlamp-{{.env}}'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+      project: default
+      sources:
+        # Headlamp Helm chart
+        - repoURL: https://kubernetes-sigs.github.io/headlamp/
+          chart: headlamp
+          targetRevision: '0.40.0'
+          helm:
+            releaseName: headlamp
+            valueFiles:
+              - $codedang/infra/k8s/headlamp/overlays/{{.env}}/values.yaml
+        # ref for helm valueFiles
+        - repoURL: https://github.com/skkuding/codedang
+          targetRevision: '{{.branch}}'
+          path: infra/k8s/headlamp
+          ref: codedang
+      destination:
+        name: '{{.env}}'
+        namespace: headlamp
+      # TODO: Single Headlamp multi-cluster management (prod managing stage)
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground

@@ -4,7 +4,7 @@ metadata:
   name: pod-manager
   namespace: runner
 spec:
-  replicas: 6
+  replicas: 3
   selector:
     matchLabels:
       app: pod-manager

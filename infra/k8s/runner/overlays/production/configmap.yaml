@@ -5,4 +5,3 @@ metadata:
   namespace: runner
 data:
   RUNNER_IMAGE_TAG: 'production'
-  RUNNER_NAMESPACE: 'runner'

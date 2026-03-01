@@ -25,3 +25,9 @@ variable "region" {
   default     = "ap-northeast-2"
 }
 
+
+variable "repository_names" {
+  description = "Names of ECR repositories"
+  type        = list(string)
+  default     = ["codedang-admin-api", "codedang-client-api", "codedang-iris", "codedang-plag"]
+}
