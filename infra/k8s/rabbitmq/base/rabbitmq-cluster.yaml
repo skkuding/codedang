@@ -3,3 +3,7 @@ kind: RabbitmqCluster
 metadata:
   name: rabbitmq
   namespace: rabbitmq
+spec:
+  tls:
+    secretName: rabbitmq-server-certs
+    disableNonTLSListeners: true
