@@ -56,10 +56,14 @@ export function ContestMainTable({ search, session }: ContestMainTableProps) {
         data={contestData}
         columns={columns}
         headerStyle={{
-          title: 'text-[#8A8A8A] font-normal text-left w-2/5 md:w-1/2',
-          status: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/6',
-          registered: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/6',
-          period: 'text-[#8A8A8A] font-normal w-1/5 md:w-1/3'
+          title:
+            'shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] px-5 rounded-l-full text-color-neutral-30 font-medium text-left w-2/5 md:w-1/2',
+          period:
+            'shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] text-color-neutral-30 font-medium w-1/5 text-left px-5 md:w-1/3',
+          status:
+            'shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] text-color-neutral-30 font-medium w-1/5 md:w-1/6',
+          registered:
+            'shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] rounded-r-full text-color-neutral-30 font-medium w-1/5 md:w-1/6'
         }}
         linked
         itemsPerPage={ITEMS_PER_PAGE}

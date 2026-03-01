@@ -101,7 +101,7 @@ export function ContestDataTable<TData extends Item, TValue>({
   return (
     <div className="flex flex-col gap-[41px]">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-700">CONTEST LIST</h1>
+        <h1 className="text-3xl font-semibold">전체 대회 리스트</h1>
         <div className="flex gap-4">
           <ContestTitleFilter
             column={table.getColumn('status')}
@@ -113,15 +113,18 @@ export function ContestDataTable<TData extends Item, TValue>({
         </div>
       </div>
       <Table className="table-fixed">
-        <TableHeader className="border-b-[1.5px] border-neutral-200">
+        <TableHeader className="h-13 border-none">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow className="hover:bg-white" key={headerGroup.id}>
+            <TableRow
+              className="border-none bg-transparent hover:bg-transparent"
+              key={headerGroup.id}
+            >
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead
                     key={header.id}
                     className={cn(
-                      'text-center text-sm md:text-base',
+                      'bg-white text-center text-sm md:text-base',
                       headerStyle[header.id]
                     )}
                   >
@@ -153,24 +156,7 @@ export function ContestDataTable<TData extends Item, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className={`cursor-pointer border-b-[1.5px] border-neutral-200 ${(() => {
-                    let rowClass = ''
-                    switch (true) {
-                      case row.original.status
-                        .toLowerCase()
-                        .includes('upcoming'):
-                        rowClass = 'bg-neutral-100'
-                        break
-                      case row.original.status
-                        .toLowerCase()
-                        .includes('ongoing'):
-                        rowClass = 'bg-neutral-50'
-                        break
-                      default:
-                        rowClass = ''
-                    }
-                    return rowClass
-                  })()}`}
+                  className="cursor-pointer border-b-[1.5px] border-neutral-200 bg-white transition-colors hover:bg-neutral-50"
                   onClick={handleClick}
                 >
                   {row.getVisibleCells().map((cell) => (
