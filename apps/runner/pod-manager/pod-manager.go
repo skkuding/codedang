@@ -60,6 +60,9 @@ type PodManager struct {
 	idleCounts         map[string]int
 	busyCounts         map[string]int
 	provisioningCounts map[string]int
+
+	managerPodName string
+	managerPodUID  string
 }
 
 func NewPodManager(clientset *kubernetes.Clientset) (*PodManager, error) {
@@ -118,6 +121,7 @@ func NewPodManager(clientset *kubernetes.Clientset) (*PodManager, error) {
 		idleCounts:         make(map[string]int),
 		busyCounts:         make(map[string]int),
 		provisioningCounts: make(map[string]int),
+		managerPodName:     strings.TrimSpace(os.Getenv("HOSTNAME")),
 	}
 
 	pm.initManagerIdentity()
