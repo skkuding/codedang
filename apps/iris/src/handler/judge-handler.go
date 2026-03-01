@@ -98,7 +98,7 @@ func normalizeCompileError(err error, dir string, lang sandbox.Language) string 
 	switch lang {
 	case sandbox.C, sandbox.CPP:
 		errMsg := err.Error()
-		sandboxPath := "/app/sandbox/results/%s/" + dir + "/"
+		sandboxPath := "/app/sandbox/results/" + dir + "/"
 		return strings.ReplaceAll(errMsg, sandboxPath, "")
 	default:
 		return err.Error()
