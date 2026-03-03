@@ -42,6 +42,7 @@ export function HeadingStyleBar({ editor }: HeadingSizeBarProps) {
       >
         <Image src={Heading3} alt="Heading 3" className="h-[18px] w-[18px]" />
       </Toggle>
+      <div className="mx-1 h-6 w-px bg-gray-300" />
     </div>
   )
 }

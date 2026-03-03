@@ -49,6 +49,7 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
       >
         <Image src={CodeIcon} alt="Code" className="h-6 w-6" />
       </Toggle>
+      <div className="mx-1 h-6 w-px bg-gray-300" />
     </div>
   )
 }

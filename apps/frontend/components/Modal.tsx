@@ -28,6 +28,7 @@ interface ButtonProps {
   onClick: () => void
   variant?: 'default' | 'outline'
   disabled?: boolean
+  className?: string
 }
 
 interface ModalProps {
@@ -140,11 +141,14 @@ export function Modal({
           )}
         </ScrollArea>
         {(secondaryButton || primaryButton) && (
-          <DialogFooter className="flex w-full flex-row justify-center gap-[4px]">
+          <DialogFooter className="flex w-full flex-row justify-end gap-[4px]">
             {secondaryButton && (
               <Button
                 onClick={secondaryButton.onClick}
-                className="h-[46px] w-full text-base"
+                className={cn(
+                  'h-[46px] w-[96px] text-base',
+                  secondaryButton.className
+                )}
                 variant={secondaryButton.variant}
                 disabled={secondaryButton.disabled}
               >
@@ -154,7 +158,10 @@ export function Modal({
             {primaryButton && (
               <Button
                 onClick={primaryButton.onClick}
-                className="h-[46px] w-full text-base"
+                className={cn(
+                  'h-[46px] w-[96px] text-base',
+                  primaryButton.className
+                )}
                 variant={primaryButton.variant}
                 disabled={primaryButton.disabled}
               >

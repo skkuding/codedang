@@ -10,7 +10,8 @@ import { useState } from 'react'
 import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
 import {
   AssignmentIcon,
-  ExerciseIcon
+  ExerciseIcon,
+  NoticeIcon
 } from '../../../../../../components/Icons'
 import { CourseInfoBox } from './CourseInfoBox'
 
@@ -23,6 +24,11 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
   const pathname = usePathname()
 
   const navItems = [
+    {
+      name: 'Notice',
+      path: `/course/${courseId}/notice` as const,
+      icon: NoticeIcon
+    },
     {
       name: 'Assignment',
       path: `/course/${courseId}/assignment` as const,

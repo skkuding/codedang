@@ -176,7 +176,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody className="[&_td]:border-[#80808040]">
+        <TableBody className="[&_td]:border-[#80808040] [&_tr:last-child_td]:border-b-0">
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row) => (
               <TableRow

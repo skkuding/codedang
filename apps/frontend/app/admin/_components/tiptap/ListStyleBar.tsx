@@ -70,7 +70,7 @@ export function ListStyleBar({ editor }: ListStyleBarProps) {
       >
         <Image src={NumberedList} alt="Numbered List" className="h-5 w-5" />
       </Toggle>
-
+      <div className="mx-1 h-6 w-px bg-gray-300" />
       <Popover open={isLinkPopoverOpen} onOpenChange={setIsLinkPopoverOpen}>
         <PopoverTrigger asChild>
           <Toggle
