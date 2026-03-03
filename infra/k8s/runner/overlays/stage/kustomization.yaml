@@ -5,9 +5,17 @@ namespace: runner
 resources:
   - ../../base
   - ingress.yaml
+  - redis-secret.yaml
+  - redis-service.yaml
+  - redis-pvc.yaml
+  - redis-deployment.yaml
 
 patches:
   - path: configmap.yaml
     target:
       kind: ConfigMap
       name: pod-manager-env
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: pod-manager
