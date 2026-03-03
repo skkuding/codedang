@@ -13,10 +13,10 @@ interface CourseCardProps {
 }
 
 const TERM_ORDER = {
-  spring: 1,
-  summer: 2,
-  fall: 3,
-  winter: 4
+  spring: 0,
+  summer: 1,
+  fall: 2,
+  winter: 3
 } as const
 
 const getCourseRank = (semester: string) => {
@@ -29,22 +29,26 @@ const getCourseRank = (semester: string) => {
 
 const getCurrentRank = () => {
   const now = new Date()
-  const year = now.getFullYear()
+  const currentYear = now.getFullYear()
   const month = now.getMonth() + 1
 
-  let term: (typeof TERM_ORDER)[keyof typeof TERM_ORDER]
+  let currentSeasonIdx = 0
+  let baseYear = currentYear
 
-  if (month <= 2) {
-    term = TERM_ORDER.winter
-  } else if (month <= 6) {
-    term = TERM_ORDER.spring
-  } else if (month <= 8) {
-    term = TERM_ORDER.summer
+  if (month >= 3 && month <= 5) {
+    currentSeasonIdx = 0
+  } else if (month >= 6 && month <= 8) {
+    currentSeasonIdx = 1
+  } else if (month >= 9 && month <= 11) {
+    currentSeasonIdx = 2
   } else {
-    term = TERM_ORDER.fall
+    if (month <= 2) {
+      baseYear = baseYear - 1
+    }
+    currentSeasonIdx = 3
   }
 
-  return year * 10 + term
+  return baseYear * 10 + currentSeasonIdx
 }
 
 const isPastCourse = (semester: string) => {
