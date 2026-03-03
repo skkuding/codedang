@@ -27,6 +27,7 @@ const (
 	RunnerImageTag         = "RUNNER_IMAGE_TAG"
 	RunnerNamespace        = "runner"
 	SharedLeaseTTLSeconds  = 200
+	GlobalPoolReservationID = "__global__"
 )
 
 type RunnerPod struct {
@@ -122,9 +123,6 @@ func NewPodManager(clientset *kubernetes.Clientset) (*PodManager, error) {
 	pm.stateStore = NewRunnerStateStoreFromEnv(logger)
 	if !pm.useGlobalRedisScheduler() {
 		return nil, errors.New("redis state store must be enabled in redis-only mode")
-	}
-	if len(pm.nodePools) == 0 {
-		return nil, errors.New("RUNNER_NODE_SELECTOR_KEY and RUNNER_NODE_POD_COUNTS are required in redis-only mode")
 	}
 	pm.initManagerIdentity()
 	return pm, nil
@@ -364,8 +362,25 @@ func (pm *PodManager) ensurePoolGlobal() {
 }
 
 func (pm *PodManager) reserveProvisioningSlotGlobal(snapshot *RunnerClusterSnapshot) (string, bool) {
-	if snapshot == nil || len(pm.nodePools) == 0 {
+	if snapshot == nil {
 		return "", false
+	}
+	if len(pm.nodePools) == 0 {
+		ok, err := pm.stateStore.TryReserveProvisioningSlot(
+			context.Background(),
+			pm.targetPoolSize,
+			GlobalPoolReservationID,
+			pm.targetPoolSize,
+		)
+		if err != nil {
+			pm.logger.Printf("Failed to reserve global provisioning slot: %v", err)
+			return "", false
+		}
+		if !ok {
+			return "", false
+		}
+		snapshot.TotalReserved++
+		return GlobalPoolReservationID, true
 	}
 
 	// Pick the least-loaded node pool using shared global counts (including reservations),
@@ -566,9 +581,13 @@ func (pm *PodManager) createRunnerPod(nodeValue string) (*RunnerPod, error) {
 	}
 
 	pm.logger.Printf("Created runner pod: %s", created.Name)
+	nodePoolID := ""
+	if pm.nodeSelectorKey != "" {
+		nodePoolID = nodeValue
+	}
 	runnerPod := &RunnerPod{
 		Name:       created.Name,
-		NodePoolID: nodeValue,
+		NodePoolID: nodePoolID,
 		CreatedAt:  time.Now(),
 	}
 	pm.syncRunnerSharedState(runnerPod, RunnerStateProvisioning)
