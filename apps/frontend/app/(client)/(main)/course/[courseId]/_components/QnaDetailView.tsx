@@ -8,7 +8,6 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import arrowLeftIcon from '@/public/icons/arrow-left-black.svg'
 import checkBlueIcon from '@/public/icons/check-blue.svg'
-import clockBlueIcon from '@/public/icons/clock_blue.svg'
 import infoGrayIcon from '@/public/icons/info-gray.svg'
 import lockGrayIcon from '@/public/icons/lock-gray.svg'
 import penIcon from '@/public/icons/pen.svg'
@@ -26,7 +25,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 export function QnaDetailView() {
-  const { courseId, order } = useParams()
+  const { courseId, commentOrder: order } = useParams()
   const router = useRouter()
   const queryClient = useQueryClient()
   const [commentContent, setCommentContent] = useState('')
@@ -154,11 +153,6 @@ export function QnaDetailView() {
             {qna.createdBy?.username}
           </div>
           <div className="flex items-center gap-[10px]">
-            <Image
-              src={clockBlueIcon}
-              alt="clockBlueIcon"
-              className="h-4 w-4"
-            />
             {dateFormatter(qna.createTime, 'YYYY-MM-DD HH:mm:ss')}
           </div>
         </div>
@@ -188,19 +182,18 @@ export function QnaDetailView() {
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl font-medium">
+                        <span className="text-lg font-medium">
                           {comment.createdBy?.username}
                         </span>
                         {isWriter && (
-                          <Image src={checkBlueIcon} alt="checkBlueIcon" />
+                          <Image
+                            src={checkBlueIcon}
+                            alt="checkBlueIcon"
+                            className="h-5 w-5"
+                          />
                         )}
                       </div>
                       <div className="text-color-neutral-50 flex items-center gap-1 text-[13px]">
-                        <Image
-                          src={clockBlueIcon}
-                          alt="time"
-                          className="h-5 w-5"
-                        />
                         {dateFormatter(
                           comment.createTime,
                           'YYYY-MM-DD HH:mm:ss'

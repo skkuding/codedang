@@ -37,7 +37,7 @@ export default function Page() {
 
   const methods = useForm<CreateQnaInput>({
     defaultValues: {
-      category: 'GENERAL',
+      category: 'General',
       problemId: 0,
       title: '',
       content: '',
@@ -50,7 +50,7 @@ export default function Page() {
     handleSubmit,
     watch,
     setValue,
-    formState: { isSubmitting }
+    formState: { isSubmitting, errors }
   } = methods
 
   const categoryValue = watch('category')
@@ -65,7 +65,7 @@ export default function Page() {
   const handleAssignmentChange = (val: string) => {
     const id = Number(val)
     setCurrentAssignmentId(id)
-    setValue('problemId', 0) // 과제 변경 시 문제 초기화
+    setValue('problemId', 0)
   }
 
   const handleProblemChange = (val: string) => {
@@ -129,6 +129,10 @@ export default function Page() {
     }
   }
 
+  const onInvalid = () => {
+    toast.error('Please fill in all the fields')
+  }
+
   return (
     <div className="mx-[116px] mt-20 flex flex-col gap-6">
       <div className="flex items-center gap-[10px]">
@@ -144,7 +148,10 @@ export default function Page() {
         </span>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <form
+        onSubmit={handleSubmit(onSubmit, onInvalid)}
+        className="flex flex-col gap-4"
+      >
         <FormProvider {...methods}>
           <div className="flex items-center gap-4 rounded-full border border-gray-200 bg-white p-4">
             <div className="flex flex-1 items-center">

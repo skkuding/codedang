@@ -17,7 +17,7 @@ interface CourseQnaTableProps {
 }
 
 export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
-  const [filterType, setFilterType] = useState<'General' | 'Problem'>('Problem')
+  const [filterType, setFilterType] = useState<'General' | 'Problem'>('General')
 
   const { data: qnaData } = useSuspenseQuery<CourseQnAItem[]>({
     queryKey: ['courseQnA', courseId, filterType],
