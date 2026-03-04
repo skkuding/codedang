@@ -6,7 +6,10 @@ import { Prisma, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { stub } from 'sinon'
-import { ForbiddenAccessException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  ForbiddenAccessException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@client/assignment/assignment.service'
 import { ContestService } from '@client/contest/contest.service'
@@ -768,7 +771,7 @@ describe('AssignmentProblemService', () => {
       ).to.be.rejectedWith(prismaNotFoundError)
     })
 
-    it('should throw ForbiddenAccessException when the user is not registered and assignment is not ended', async () => {
+    it('should throw EntityNotExistException when the user is not registered and assignment is not ended', async () => {
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
 
       await expect(
@@ -778,7 +781,7 @@ describe('AssignmentProblemService', () => {
           cursor: 1,
           take: 1
         })
-      ).to.be.rejectedWith(ForbiddenAccessException)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 
@@ -841,7 +844,7 @@ describe('AssignmentProblemService', () => {
       ).to.be.rejectedWith(prismaNotFoundError)
     })
 
-    it('should throw ForbiddenAccessException when the user is not registered and assignment is not ended', async () => {
+    it('should throw EntityNotExistException when the user is not registered and assignment is not ended', async () => {
       db.assignmentRecord.findFirst.resolves(null)
       db.assignmentProblem.findUniqueOrThrow.resolves(mockAssignmentProblem)
 
@@ -851,7 +854,7 @@ describe('AssignmentProblemService', () => {
           problemId,
           userId: 999
         })
-      ).to.be.rejectedWith(ForbiddenAccessException)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 })
