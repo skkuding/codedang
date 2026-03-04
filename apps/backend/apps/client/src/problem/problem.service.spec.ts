@@ -222,6 +222,7 @@ const db = {
   },
   assignment: {
     findUniqueOrThrow: stub(),
+    findUnique: stub(),
     findFirst: stub()
   },
   workbook: {
