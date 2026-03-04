@@ -65,7 +65,7 @@ export function CourseCard({ course }: CourseCardProps) {
       }`}
     >
       <div className="flex w-full flex-col justify-between gap-2 px-5 pt-4">
-        <StatusBadge variant={'ongoing'} />
+        <StatusBadge variant={pastCourse ? 'finished' : 'ongoing'} />
         <div className="h-[62px] text-ellipsis whitespace-pre-wrap text-xl font-medium leading-tight tracking-[-0.72px] md:text-2xl">
           [{course.courseInfo.courseNum}_{course.courseInfo.classNum}]{' '}
           <br className="md:hidden" />
