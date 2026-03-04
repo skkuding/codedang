@@ -7,17 +7,53 @@ import (
 )
 
 type Handler interface {
-	Handle(data interface{}) (json.RawMessage, error)
+	Handle(data any) (json.RawMessage, error)
 }
 
-func ParseError(j JudgeResult, resultCode ResultCode) error {
+type Request interface {
+}
+
+type ResultMessage struct {
+	Result json.RawMessage
+	Err    error
+}
+
+func NewHandlerError(caller string, err error, level logger.Level) *HandlerError {
+	return &HandlerError{
+		caller: caller,
+		err:    err,
+		level:  level,
+	}
+}
+
+func ParseError(res any, resultCode ResultCode) error {
 	if resultCode != ACCEPTED {
-		if j.Signal == 11 && resultCode != MEMORY_LIMIT_EXCEEDED {
-			return resultCodeToError(SEGMENTATION_FAULT_ERROR)
+		// Attempt to extract typical Sandbox signals from Result if present
+		if j, ok := res.(struct {
+			Signal   int
+			RealTime int
+		}); ok {
+			if j.Signal == 11 && resultCode != MEMORY_LIMIT_EXCEEDED {
+				return resultCodeToError(SEGMENTATION_FAULT_ERROR)
+			}
+			if j.RealTime >= 2000 && j.Signal == 9 && resultCode == RUNTIME_ERROR {
+				return resultCodeToError(REAL_TIME_LIMIT_EXCEEDED)
+			}
 		}
-		if j.RealTime >= 2000 && j.Signal == 9 && resultCode == RUNTIME_ERROR {
-			return resultCodeToError(REAL_TIME_LIMIT_EXCEEDED)
+
+		// Attempt to extract by map for parsing if res comes as interface{} JSON decode
+		if m, ok := res.(map[string]any); ok {
+			signal, hasSignal := m["signal"].(float64)
+			realTime, hasRealTime := m["realTime"].(float64)
+
+			if hasSignal && int(signal) == 11 && resultCode != MEMORY_LIMIT_EXCEEDED {
+				return resultCodeToError(SEGMENTATION_FAULT_ERROR)
+			}
+			if hasRealTime && hasSignal && int(realTime) >= 2000 && int(signal) == 9 && resultCode == RUNTIME_ERROR {
+				return resultCodeToError(REAL_TIME_LIMIT_EXCEEDED)
+			}
 		}
+
 		return resultCodeToError(resultCode)
 	}
 	return nil

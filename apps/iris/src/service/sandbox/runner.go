@@ -16,4 +16,5 @@ type RunRequest struct {
 	Language    Language
 	TimeLimit   int
 	MemoryLimit int
+	ExtraArgs   []string
 }
