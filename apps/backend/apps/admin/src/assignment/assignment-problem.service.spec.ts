@@ -3,7 +3,6 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import {
   EntityNotExistException,
-  ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -22,6 +21,7 @@ const db = {
   assignmentProblem: {
     findFirstOrThrow: stub(),
     findMany: stub(),
+    findUnique: stub(),
     update: stub()
   },
   $transaction: stub()
