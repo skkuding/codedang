@@ -3,6 +3,7 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import {
   EntityNotExistException,
+  ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -15,7 +16,8 @@ import { AssignmentProblemService } from './assignment-problem.service'
 
 const db = {
   assignment: {
-    findFirstOrThrow: stub()
+    findFirstOrThrow: stub(),
+    findUnique: stub()
   },
   assignmentProblem: {
     findFirstOrThrow: stub(),
@@ -58,7 +60,7 @@ describe('AssignmentProblemService', () => {
       )
       // when & then
       await expect(service.getAssignmentProblems(-1, 1)).to.be.rejectedWith(
-        EntityNotExistException
+        ForbiddenAccessException
       )
     })
   })
