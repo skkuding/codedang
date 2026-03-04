@@ -60,12 +60,7 @@ export function CourseCardList({ title }: CourseCardListProps) {
         <span className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
           {title}
         </span>
-
-        <div className="flex items-center gap-2">
-          <CarouselPrevious className="h-5 w-5" />
-          <CarouselNext className="h-5 w-5" />
-          <RegisterCourseButton />
-        </div>
+        <RegisterCourseButton />
       </div>
 
       <CarouselContent className="mb-[100px] ml-2">
@@ -92,6 +87,10 @@ export function CourseCardList({ title }: CourseCardListProps) {
           </CarouselItem>
         ))}
       </CarouselContent>
+      <div className="mb-[50px] mt-[-50px] flex items-center justify-center gap-2">
+        <CarouselPrevious className="h-6 w-6" />
+        <CarouselNext className="h-6 w-6" />
+      </div>
     </Carousel>
   )
 }
