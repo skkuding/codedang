@@ -6,5 +6,4 @@ metadata:
 data:
   RUNNER_IMAGE_TAG: 'stage'
   RUNNER_POOL_SIZE: '60'
-  REDIS_ADDR: 'runner-scheduler-redis.runner.svc.cluster.local:6379'
   RUNNER_REDIS_PREFIX: 'codedang:runner:stage'
