@@ -60,7 +60,7 @@ describe('AssignmentProblemService', () => {
       )
       // when & then
       await expect(service.getAssignmentProblems(-1, 1)).to.be.rejectedWith(
-        ForbiddenAccessException
+        EntityNotExistException
       )
     })
   })
