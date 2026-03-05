@@ -62,8 +62,20 @@ export class StudyService {
     })
   }
 
-  async getStudyGroups(userId?: number) {
+  async getStudyGroups({
+    userId,
+    cursor = null,
+    take = 10
+  }: {
+    userId: number | null
+    cursor?: number | null
+    take?: number
+  }) {
+    const paginator = this.prisma.getPaginator(cursor)
+
     const studyGroups = await this.prisma.group.findMany({
+      ...paginator,
+      take,
       where: {
         groupType: GroupType.Study
       },
