@@ -249,7 +249,7 @@ export class StudyService {
     const studyInfoUpdate =
       capacity !== undefined || invitationCode !== undefined
 
-    await this.prisma.group.update({
+    return await this.prisma.group.update({
       where: {
         id: groupId,
         groupType: GroupType.Study
