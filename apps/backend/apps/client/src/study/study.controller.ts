@@ -39,6 +39,14 @@ export class StudyController {
     return await this.studyService.getStudyGroups(req.user?.id)
   }
 
+  @Get(':groupId')
+  async getStudyGroup(
+    @Param('groupId', GroupIDPipe) groupId: number,
+    @Req() req: AuthenticatedRequest
+  ) {
+    return await this.studyService.getStudyGroup(groupId, req.user.id)
+  }
+
   @Patch(':groupId')
   @UseGroupLeaderGuard()
   async updateStudyGroup(

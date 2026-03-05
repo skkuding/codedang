@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { GroupType } from '@prisma/client'
 import {
   ConflictFoundException,
-  EntityNotExistException
+  EntityNotExistException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { CreateStudyDto, UpdateStudyDto } from './dto/study.dto'
@@ -123,6 +124,80 @@ export class StudyService {
       isPublic: !studyGroup.studyInfo?.invitationCode,
       isJoined: userId ? studyGroup._count.userGroup > 0 : false
     }))
+  }
+
+  async getStudyGroup(groupId: number, userId: number) {
+    const studyGroup = await this.prisma.group.findUnique({
+      where: {
+        id: groupId,
+        groupType: GroupType.Study
+      },
+      select: {
+        id: true,
+        groupName: true,
+        description: true,
+        userGroup: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                username: true
+              }
+            },
+            isGroupLeader: true
+          }
+        },
+        sharedProblems: {
+          select: {
+            id: true,
+            title: true
+          },
+          orderBy: {
+            id: 'asc'
+          }
+        },
+        groupTag: {
+          select: {
+            tag: {
+              select: {
+                name: true
+              }
+            }
+          }
+        },
+        studyInfo: {
+          select: {
+            capacity: true
+          }
+        }
+      }
+    })
+
+    if (!studyGroup) throw new EntityNotExistException('StudyGroup')
+
+    const isJoined = studyGroup.userGroup.some((user) => user.userId === userId)
+
+    if (!isJoined)
+      throw new ForbiddenAccessException(
+        'You must join this study group first.'
+      )
+
+    return {
+      id: studyGroup.id,
+      groupName: studyGroup.groupName,
+      description: studyGroup.description,
+      capacity: studyGroup.studyInfo?.capacity,
+      tags: studyGroup.groupTag.map((tag) => tag.tag.name),
+
+      currentMember: studyGroup.userGroup.length,
+      members: studyGroup.userGroup.map((user) => ({
+        userId: user.userId,
+        username: user.user.username,
+        isGroupLeader: user.isGroupLeader
+      })),
+
+      problems: studyGroup.sharedProblems
+    }
   }
 
   async updateStudyGroup(groupId: number, dto: UpdateStudyDto) {
