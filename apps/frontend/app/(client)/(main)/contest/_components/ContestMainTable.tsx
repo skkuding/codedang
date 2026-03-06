@@ -51,7 +51,7 @@ export function ContestMainTable({ search, session }: ContestMainTableProps) {
   const resetPageIndex = () => gotoPage(1)
 
   return (
-    <div className="flex flex-col gap-[69px]">
+    <div className="flex flex-col gap-[40px]">
       <ContestDataTable
         data={contestData}
         columns={columns}
