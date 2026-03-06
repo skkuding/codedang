@@ -68,6 +68,7 @@ const userGroup1: UserGroup = {
   userId: 3,
   groupId: 2,
   isGroupLeader: true,
+  totalStudyTime: 0,
   createTime: faker.date.past(),
   updateTime: faker.date.past()
 }
@@ -76,6 +77,7 @@ const userGroup2: UserGroup = {
   userId: 4,
   groupId: 2,
   isGroupLeader: true,
+  totalStudyTime: 0,
   createTime: faker.date.past(),
   updateTime: faker.date.past()
 }
@@ -84,6 +86,7 @@ const userGroup3: UserGroup = {
   userId: 5,
   groupId: 2,
   isGroupLeader: false,
+  totalStudyTime: 0,
   createTime: faker.date.past(),
   updateTime: faker.date.past()
 }
