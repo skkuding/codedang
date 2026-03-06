@@ -454,7 +454,7 @@ export class ContestService {
         })
       : Promise.resolve(undefined)
 
-    const [contestRecords, beforeFreezeSubmissionCounts] = await Promise.all([
+    const [, beforeFreezeSubmissionCounts] = await Promise.all([
       records,
       beforeFreezePromise
     ])
