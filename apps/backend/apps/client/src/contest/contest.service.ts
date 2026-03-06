@@ -496,6 +496,7 @@ export class ContestService {
     const leaderboard = records.map(
       ({ contestProblemRecord, userId, user }) => {
         //유저별 총 점수, 총 패널티
+        let solvedProblemCount = 0
         let calculatedTotalScore = 0
         let calculatedTotalPenalty = 0
 
@@ -551,10 +552,12 @@ export class ContestService {
 
           //문제를 맞췄을 때만 총점과 총패널티에 합산
           if (currentProblemScore > 0) {
+            solvedProblemCount += 1
             calculatedTotalScore += currentProblemScore
             calculatedTotalPenalty += currentProblemPenalty
           }
 
+          //problemRecords: []
           return {
             order,
             problemId,
@@ -566,8 +569,10 @@ export class ContestService {
           }
         })
 
+        //leaderboard:[]
         return {
           username: user!.username,
+          solvedProblemCount,
           totalScore: calculatedTotalScore,
           userId,
           totalPenalty: calculatedTotalPenalty,
@@ -580,11 +585,11 @@ export class ContestService {
     //등수 정렬
     leaderboard.sort((a, b) => {
       //1순위: 맞춘 문제 개수 내림차순
-      if (b.totalScore !== a.totalScore) {
-        return b.totalScore - a.totalScore
+      if (b.solvedProblemCount !== a.solvedProblemCount) {
+        return b.solvedProblemCount - a.solvedProblemCount
       }
       //2순위: 패널티 내림차순 (음수니까 작은수가 더 상위)
-      return b.totalPenalty - a.totalPenalty
+      return a.totalPenalty - b.totalPenalty
     })
 
     let currentRank = 1

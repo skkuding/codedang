@@ -4791,6 +4791,7 @@ const createContestRecords = async () => {
       }
     }
   })
+
   if (contest6?.contestProblem.length) {
     const group6Users = await prisma.userGroup.findMany({
       where: {
@@ -4848,6 +4849,122 @@ const createContestRecords = async () => {
     }
   }
 
+  //contest7 리더보드 순위 테스트
+  //contestProbelm (problem 5,6,7,8 / 점수는 각각 50,60,70,80)
+  const contestId7 = 7
+  const contest7 = await prisma.contest.findUnique({
+    where: { id: contestId7 },
+    select: {
+      contestProblem: {
+        orderBy: { order: 'asc' },
+        select: { id: true, score: true }
+      }
+    }
+  })
+
+  if (!contest7) throw new Error('contest7 not found')
+  const problems = contest7.contestProblem
+
+  const testData = [
+    {
+      // user02 (2등) 3솔
+      scores: [50, 60, 70, 0],
+      penalties: [30, 30, 40, 0]
+    },
+    {
+      // user03 (1등) 4솔
+      scores: [50, 60, 70, 80],
+      penalties: [15, 100, 55, 200]
+    },
+    {
+      // user04 (3등) 3솔
+      scores: [0, 60, 70, 80],
+      penalties: [0, 150, 20, 300]
+    },
+    {
+      // user05 (5등) 2솔
+      scores: [0, 0, 70, 80],
+      penalties: [0, 0, 150, 100]
+    },
+    {
+      //user06 (6등) 1솔
+      scores: [50, 0, 70, 0],
+      penalties: [100, 0, 150, 0]
+    },
+    {
+      //user07 (4등) 2솔
+      scores: [50, 60, 0, 0],
+      penalties: [20, 35, 0, 0]
+    }
+  ]
+
+  const contest7Records: ContestRecord[] = []
+
+  //contestRecord 생성 (유저별로 하나씩)
+  for (let i = 0; i < 6; i++) {
+    let totalScore = 0
+    let totalPenalty = 0
+    let acceptedProblemNum = 0
+
+    const record = await prisma.contestRecord.create({
+      data: {
+        contestId: contestId7,
+        userId: users[i + 1].id,
+        acceptedProblemNum: 0,
+        score: 0,
+        totalPenalty: 0,
+        finalScore: 0,
+        finalTotalPenalty: 0
+      }
+    })
+
+    // 문제별 contestProblemRecord 생성
+    for (let p = 0; p < 4; p++) {
+      const score = testData[i].scores[p]
+      const penalty = testData[i].penalties[p]
+
+      const submitPenalty = Math.floor(penalty / 2)
+      const timePenalty = penalty - submitPenalty
+
+      if (score > 0) {
+        totalScore += score
+        totalPenalty += penalty
+        acceptedProblemNum += 1
+      }
+
+      await prisma.contestProblemRecord.create({
+        data: {
+          contestRecordId: record.id,
+          contestProblemId: problems[p].id,
+
+          // freeze 여부 상관없이 동일하게 값 넣고 테스트
+          score,
+          finalScore: score,
+
+          submitCountPenalty: submitPenalty,
+          timePenalty,
+
+          finalSubmitCountPenalty: submitPenalty,
+          finalTimePenalty: timePenalty,
+
+          isFirstSolver: false
+        }
+      })
+    }
+    // contestRecord에도 값 넣어놓기
+    const updated = await prisma.contestRecord.update({
+      where: { id: record.id },
+      data: {
+        acceptedProblemNum,
+        score: totalScore,
+        finalScore: totalScore,
+        totalPenalty,
+        finalTotalPenalty: totalPenalty
+      }
+    })
+
+    contest7Records.push(updated)
+  }
   return contestRecords
 }
 
