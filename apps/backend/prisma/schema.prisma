@@ -89,28 +89,6 @@ model User {
   CourseNotice             CourseNotice[]
   CourseNoticeComment      CourseNoticeComment[]
   CheckRequest             CheckRequest[]
-  userProfile              UserProfile?
-  userGroup                UserGroup[]
-  notice                   Notice[]
-  problem                  Problem[]
-  assignment               Assignment[]
-  assignmentRecord         AssignmentRecord[]
-  contest                  Contest[]
-  userContest              UserContest[]
-  contestRecord            ContestRecord[]
-  workbook                 Workbook[]
-  submission               Submission[]
-  useroauth                UserOAuth?
-  file                     File[]
-  testSubmission           TestSubmission[]
-  UpdateHistory            UpdateHistory[]
-  createdQnAs              ContestQnA[]             @relation("CreatedByUser")
-  createdQnAComments       ContestQnAComment[]      @relation("CreatedByUser")
-  NotificationRecord       NotificationRecord[]
-  PushSubscription         PushSubscription[]
-  CourseNotice             CourseNotice[]
-  CourseNoticeComment      CourseNoticeComment[]
-  CheckRequest             CheckRequest[]
   polygonProblems          PolygonProblem[]         @relation("PolygonProblemOwner")
   polygonCollaborations    PolygonCollaborator[]    @relation("PolygonCollaborator")
   polygonApprovalRequests  PolygonApprovalRequest[] @relation("PolygonApprovalRequester")
