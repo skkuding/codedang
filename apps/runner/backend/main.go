@@ -160,8 +160,8 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 					"type":  "error",
 					"error": fmt.Sprintf("stdin write error: %v", writeErr),
 				})
-				return
 			}
+			return
 
 		case "exit":
 			ctx.write(map[string]interface{}{
