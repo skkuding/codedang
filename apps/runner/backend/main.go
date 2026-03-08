@@ -150,19 +150,22 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			inputData := msg.Data
 			if inputData == "\r" || inputData == "\n" {
 				inputData = "\r\n"
-			} else if _, writeErr := stdin.Write([]byte(inputData)); writeErr != nil {
+			}
+			if _, writeErr := stdin.Write([]byte(inputData)); writeErr != nil {
 				log.Println("stdinPipe.Write error:", writeErr)
 				ctx.write(map[string]interface{}{
 					"type":  "error",
 					"error": fmt.Sprintf("stdin write error: %v", writeErr),
 				})
+				return
 			}
 
-			ctx.write(map[string]interface{}{
-				"type": "echo",
-				"data": inputData,
-			})
-			return
+			if inputData != "\r\n" {
+				ctx.write(map[string]interface{}{
+					"type": "echo",
+					"data": inputData,
+				})
+			}
 
 		case "exit":
 			ctx.write(map[string]interface{}{
