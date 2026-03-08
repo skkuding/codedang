@@ -112,9 +112,10 @@ export function SwitchField({
                 id={name}
                 type={type}
                 placeholder={placeholder}
+                sizeVariant="sm"
                 className={cn(
                   inputStyle,
-                  'hide-spin-button h-[36px]',
+                  'hide-spin-button',
                   name === 'invitationCode'
                     ? 'mt-3 w-full placeholder:text-center placeholder:text-sm'
                     : 'w-[380px]'

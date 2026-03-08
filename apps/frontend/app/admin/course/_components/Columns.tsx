@@ -38,26 +38,13 @@ export const columns: ColumnDef<DataTableCourse>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'title',
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Title"
-        className="w-[400px]"
-      />
-    ),
-    cell: ({ row }) => {
-      return row.getValue('title')
-    },
-    enableSorting: false
-  },
-  {
     accessorKey: 'code',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Code" />
     ),
     cell: ({ row }) => row.getValue('code')
   },
+
   {
     accessorKey: 'semester',
     header: ({ column }) => (
@@ -75,6 +62,24 @@ export const columns: ColumnDef<DataTableCourse>[] = [
         </div>
       )
     }
+  },
+  {
+    accessorKey: 'title',
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title="Title"
+        className="w-[300px]"
+      />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex w-full justify-center">
+          {row.getValue('title')}
+        </div>
+      )
+    },
+    enableSorting: false
   },
   {
     accessorKey: 'studentCount',
