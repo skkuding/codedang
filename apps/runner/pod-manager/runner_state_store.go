@@ -126,7 +126,9 @@ func (noopRunnerStateStore) TryReserveProvisioningSlot(context.Context, int, str
 	return false, nil
 }
 
-func (noopRunnerStateStore) ReleaseProvisioningSlotReservation(context.Context, string) error { return nil }
+func (noopRunnerStateStore) ReleaseProvisioningSlotReservation(context.Context, string) error {
+	return nil
+}
 
 func (noopRunnerStateStore) ListRunnersByStates(context.Context, ...RunnerLifecycleState) ([]RunnerStateRecord, error) {
 	return nil, nil
@@ -140,31 +142,48 @@ type redisRunnerStateStore struct {
 }
 
 var acquireRunnerLeaseScript = redis.NewScript(`
-local state = redis.call('HGET', KEYS[1], 'state')
-if state ~= ARGV[1] then
-  return 0
+local maxAttempts = tonumber(ARGV[11]) or 8
+for i = 1, maxAttempts do
+  local popped = redis.call('ZPOPMIN', KEYS[1], 1)
+  if (not popped) or (#popped == 0) then
+    return {0}
+  end
+
+  local podName = tostring(popped[1])
+  local runnerKey = ARGV[1] .. ':runner:' .. podName
+  local state = redis.call('HGET', runnerKey, 'state')
+  if state ~= ARGV[2] then
+    redis.call('SREM', KEYS[2], podName)
+    local staleNodePool = redis.call('HGET', runnerKey, 'node_pool')
+    if staleNodePool and staleNodePool ~= '' then
+      redis.call('SREM', ARGV[1] .. ':index:node:' .. staleNodePool .. ':state:' .. ARGV[2], podName)
+    end
+  else
+    local leaseKey = ARGV[1] .. ':lease:' .. podName
+    local ok = redis.call('SET', leaseKey, ARGV[6], 'NX', 'PX', ARGV[7])
+    if ok then
+      local nodePool = redis.call('HGET', runnerKey, 'node_pool') or ''
+      local podIP = redis.call('HGET', runnerKey, 'pod_ip') or ''
+      redis.call('HSET', runnerKey,
+        'state', ARGV[3],
+        'owner_pod', ARGV[4],
+        'owner_uid', ARGV[5],
+        'lease_token', ARGV[6],
+        'lease_expire_at', ARGV[8],
+        'updated_at', ARGV[9]
+      )
+      redis.call('SREM', KEYS[2], podName)
+      redis.call('SADD', KEYS[3], podName)
+      if nodePool ~= '' then
+        redis.call('SREM', ARGV[1] .. ':index:node:' .. nodePool .. ':state:' .. ARGV[2], podName)
+        redis.call('SADD', ARGV[1] .. ':index:node:' .. nodePool .. ':state:' .. ARGV[3], podName)
+      end
+      return {1, podName, nodePool, podIP}
+    end
+    redis.call('ZADD', KEYS[1], ARGV[10], podName)
+  end
 end
-local ok = redis.call('SET', KEYS[2], ARGV[5], 'NX', 'PX', ARGV[6])
-if not ok then
-  return 0
-end
-redis.call('HSET', KEYS[1],
-  'state', ARGV[2],
-  'owner_pod', ARGV[3],
-  'owner_uid', ARGV[4],
-  'lease_token', ARGV[5],
-  'lease_expire_at', ARGV[7],
-  'updated_at', ARGV[8]
-)
-redis.call('SREM', KEYS[3], ARGV[9])
-redis.call('SADD', KEYS[4], ARGV[9])
-if KEYS[5] ~= '' then
-  redis.call('SREM', KEYS[5], ARGV[9])
-end
-if KEYS[6] ~= '' then
-  redis.call('SADD', KEYS[6], ARGV[9])
-end
-return 1
+return {0}
 `)
 
 var releaseRunnerLeaseScript = redis.NewScript(`
@@ -176,6 +195,8 @@ end
 redis.call('DEL', KEYS[2])
 redis.call('HSET', KEYS[1],
   'state', ARGV[3],
+  'owner_pod', '',
+  'owner_uid', '',
   'lease_token', '',
   'lease_expire_at', '',
   'updated_at', ARGV[4]
@@ -184,11 +205,16 @@ redis.call('SREM', KEYS[3], ARGV[5])
 if KEYS[4] ~= '' then
   redis.call('SADD', KEYS[4], ARGV[5])
 end
-if KEYS[6] ~= '' then
-  redis.call('SREM', KEYS[6], ARGV[5])
+if ARGV[7] ~= '' then
+  redis.call('SREM', ARGV[7], ARGV[5])
 end
-if KEYS[5] ~= '' then
-  redis.call('SADD', KEYS[5], ARGV[5])
+if ARGV[6] ~= '' then
+  redis.call('SADD', ARGV[6], ARGV[5])
+end
+if ARGV[3] == ARGV[8] then
+  redis.call('ZADD', KEYS[5], ARGV[9], ARGV[5])
+else
+  redis.call('ZREM', KEYS[5], ARGV[5])
 end
 return 1
 `)
@@ -258,6 +284,10 @@ func (s *redisRunnerStateStore) stateIndexKey(state RunnerLifecycleState) string
 	return fmt.Sprintf("%s:index:state:%s", s.prefix, state)
 }
 
+func (s *redisRunnerStateStore) idleQueueKey() string {
+	return fmt.Sprintf("%s:queue:idle", s.prefix)
+}
+
 func (s *redisRunnerStateStore) nodeStateIndexKey(nodePoolID string, state RunnerLifecycleState) string {
 	return fmt.Sprintf("%s:index:node:%s:state:%s", s.prefix, nodePoolID, state)
 }
@@ -294,9 +324,20 @@ func (s *redisRunnerStateStore) UpsertRunner(ctx context.Context, record RunnerS
 	if record.NodePoolID != "" {
 		pipe.SAdd(ctx, s.nodeStateIndexKey(record.NodePoolID, record.State), record.PodName)
 	}
+	if record.State == RunnerStateIdle {
+		pipe.ZAdd(ctx, s.idleQueueKey(), redis.Z{
+			Score:  float64(updatedAt.UnixNano()),
+			Member: record.PodName,
+		})
+	} else {
+		pipe.ZRem(ctx, s.idleQueueKey(), record.PodName)
+	}
 
 	if prevState != "" && prevState != record.State {
 		pipe.SRem(ctx, s.stateIndexKey(prevState), record.PodName)
+	}
+	if prevState == RunnerStateIdle && record.State != RunnerStateIdle {
+		pipe.ZRem(ctx, s.idleQueueKey(), record.PodName)
 	}
 	if prevNodePool != "" && (prevNodePool != record.NodePoolID || prevState != record.State) {
 		if prevState != "" {
@@ -329,7 +370,9 @@ func (s *redisRunnerStateStore) DeleteRunner(ctx context.Context, podName string
 	if prevState != "" && prevNodePool != "" {
 		pipe.SRem(ctx, s.nodeStateIndexKey(prevNodePool, prevState), podName)
 	}
+	pipe.ZRem(ctx, s.idleQueueKey(), podName)
 	pipe.Del(ctx, s.runnerKey(podName))
+	pipe.Del(ctx, s.runnerLeaseKey(podName))
 
 	if _, err := pipe.Exec(ctx); err != nil {
 		return fmt.Errorf("delete runner state pipeline: %w", err)
@@ -419,69 +462,66 @@ func (s *redisRunnerStateStore) AcquireIdleRunnerLease(
 		ttl = 30 * time.Second
 	}
 
-	candidates, err := s.client.SMembers(ctx, s.stateIndexKey(RunnerStateIdle)).Result()
-	if err != nil {
-		return nil, fmt.Errorf("list idle runners: %w", err)
-	}
 	now := time.Now().UTC()
-	for _, podName := range candidates {
-		data, err := s.client.HGetAll(ctx, s.runnerKey(podName)).Result()
-		if err != nil && err != redis.Nil {
-			return nil, fmt.Errorf("get runner state %s: %w", podName, err)
-		}
-		if len(data) == 0 {
-			continue
-		}
-		nodePool := data["node_pool"]
-		token := fmt.Sprintf("%s-%d", ownerPod, time.Now().UnixNano())
-		expireAt := now.Add(ttl)
-		keys := []string{
-			s.runnerKey(podName),
-			s.runnerLeaseKey(podName),
+	token := fmt.Sprintf("%s-%d", ownerPod, time.Now().UnixNano())
+	expireAt := now.Add(ttl)
+	raw, err := acquireRunnerLeaseScript.Run(
+		ctx,
+		s.client,
+		[]string{
+			s.idleQueueKey(),
 			s.stateIndexKey(RunnerStateIdle),
 			s.stateIndexKey(RunnerStateLeased),
-			"",
-			"",
-		}
-		if nodePool != "" {
-			keys[4] = s.nodeStateIndexKey(nodePool, RunnerStateIdle)
-			keys[5] = s.nodeStateIndexKey(nodePool, RunnerStateLeased)
-		}
-
-		res, err := acquireRunnerLeaseScript.Run(ctx, s.client, keys,
-			string(RunnerStateIdle),
-			string(RunnerStateLeased),
-			ownerPod,
-			ownerUID,
-			token,
-			ttl.Milliseconds(),
-			expireAt.Format(time.RFC3339Nano),
-			now.Format(time.RFC3339Nano),
-			podName,
-		).Int()
-		if err != nil {
-			return nil, fmt.Errorf("acquire lease script for %s: %w", podName, err)
-		}
-		if res != 1 {
-			continue
-		}
-
-		return &RunnerLease{
-			LeaseToken: token,
-			Record: RunnerStateRecord{
-				PodName:     podName,
-				NodePoolID:  nodePool,
-				PodIP:       data["pod_ip"],
-				State:       RunnerStateLeased,
-				OwnerPod:    ownerPod,
-				OwnerPodUID: ownerUID,
-				LeaseToken:  token,
-				UpdatedAt:   now,
-			},
-		}, nil
+		},
+		s.prefix,
+		string(RunnerStateIdle),
+		string(RunnerStateLeased),
+		ownerPod,
+		ownerUID,
+		token,
+		ttl.Milliseconds(),
+		expireAt.Format(time.RFC3339Nano),
+		now.Format(time.RFC3339Nano),
+		now.UnixNano(),
+		8,
+	).Result()
+	if err != nil {
+		return nil, fmt.Errorf("acquire lease script: %w", err)
+	}
+	values, ok := raw.([]interface{})
+	if !ok || len(values) == 0 {
+		return nil, fmt.Errorf("acquire lease script: unexpected result %T", raw)
+	}
+	status, err := scriptResultInt(values[0])
+	if err != nil {
+		return nil, fmt.Errorf("acquire lease script status: %w", err)
+	}
+	if status != 1 {
+		return nil, nil
+	}
+	if len(values) < 4 {
+		return nil, fmt.Errorf("acquire lease script: malformed success result")
+	}
+	podName := scriptResultString(values[1])
+	nodePool := scriptResultString(values[2])
+	podIP := scriptResultString(values[3])
+	if podName == "" {
+		return nil, fmt.Errorf("acquire lease script: empty pod name")
 	}
 
-	return nil, nil
+	return &RunnerLease{
+		LeaseToken: token,
+		Record: RunnerStateRecord{
+			PodName:     podName,
+			NodePoolID:  nodePool,
+			PodIP:       podIP,
+			State:       RunnerStateLeased,
+			OwnerPod:    ownerPod,
+			OwnerPodUID: ownerUID,
+			LeaseToken:  token,
+			UpdatedAt:   now,
+		},
+	}, nil
 }
 
 func (s *redisRunnerStateStore) ReleaseRunnerLease(
@@ -502,17 +542,18 @@ func (s *redisRunnerStateStore) ReleaseRunnerLease(
 	}
 
 	nodePool := data["node_pool"]
+	nextNodeStateKey := ""
+	leasedNodeStateKey := ""
+	if nodePool != "" {
+		nextNodeStateKey = s.nodeStateIndexKey(nodePool, nextState)
+		leasedNodeStateKey = s.nodeStateIndexKey(nodePool, RunnerStateLeased)
+	}
 	keys := []string{
 		s.runnerKey(podName),
 		s.runnerLeaseKey(podName),
 		s.stateIndexKey(RunnerStateLeased),
 		s.stateIndexKey(nextState),
-		"",
-		"",
-	}
-	if nodePool != "" {
-		keys[4] = s.nodeStateIndexKey(nodePool, nextState)
-		keys[5] = s.nodeStateIndexKey(nodePool, RunnerStateLeased)
+		s.idleQueueKey(),
 	}
 
 	res, err := releaseRunnerLeaseScript.Run(ctx, s.client, keys,
@@ -521,6 +562,10 @@ func (s *redisRunnerStateStore) ReleaseRunnerLease(
 		string(nextState),
 		time.Now().UTC().Format(time.RFC3339Nano),
 		podName,
+		nextNodeStateKey,
+		leasedNodeStateKey,
+		string(RunnerStateIdle),
+		time.Now().UTC().UnixNano(),
 	).Int()
 	if err != nil {
 		return false, fmt.Errorf("release lease script for %s: %w", podName, err)
@@ -659,4 +704,38 @@ func (s *redisRunnerStateStore) HasRunnerLease(ctx context.Context, podName stri
 		return false, fmt.Errorf("check runner lease key %s: %w", podName, err)
 	}
 	return n > 0, nil
+}
+
+func scriptResultInt(v interface{}) (int64, error) {
+	switch parsed := v.(type) {
+	case int64:
+		return parsed, nil
+	case int:
+		return int64(parsed), nil
+	case string:
+		n, err := strconv.ParseInt(parsed, 10, 64)
+		if err != nil {
+			return 0, err
+		}
+		return n, nil
+	case []byte:
+		n, err := strconv.ParseInt(string(parsed), 10, 64)
+		if err != nil {
+			return 0, err
+		}
+		return n, nil
+	default:
+		return 0, fmt.Errorf("unsupported int type %T", v)
+	}
+}
+
+func scriptResultString(v interface{}) string {
+	switch parsed := v.(type) {
+	case string:
+		return parsed
+	case []byte:
+		return string(parsed)
+	default:
+		return fmt.Sprint(parsed)
+	}
 }
