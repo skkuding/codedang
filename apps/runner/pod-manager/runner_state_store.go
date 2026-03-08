@@ -461,6 +461,7 @@ func (s *redisRunnerStateStore) AcquireIdleRunnerLease(
 	if ttl <= 0 {
 		ttl = 30 * time.Second
 	}
+
 	now := time.Now().UTC()
 	token := fmt.Sprintf("%s-%d", ownerPod, time.Now().UnixNano())
 	expireAt := now.Add(ttl)
@@ -507,6 +508,7 @@ func (s *redisRunnerStateStore) AcquireIdleRunnerLease(
 	if podName == "" {
 		return nil, fmt.Errorf("acquire lease script: empty pod name")
 	}
+
 	return &RunnerLease{
 		LeaseToken: token,
 		Record: RunnerStateRecord{
