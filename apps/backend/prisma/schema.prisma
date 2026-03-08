@@ -63,32 +63,32 @@ model User {
   createdCourseQnAs        CourseQnA[]        @relation("CreatedByUserCourseQnA")
   createdCourseQnAComments CourseQnAComment[] @relation("CreatedByUserCourseQnAComment")
 
-  userProfile         UserProfile?
-  userGroup           UserGroup[]
-  notice              Notice[]
-  problem             Problem[]
-  assignment          Assignment[]
-  assignmentRecord    AssignmentRecord[]
-  contest             Contest[]
-  userContest         UserContest[]
-  contestRecord       ContestRecord[]
-  workbook            Workbook[]
-  submission          Submission[]
-  useroauth           UserOAuth?
-  groupComment        GroupComment[]
-  problemDraft        ProblemDraft[]
-  joinRequests        GroupJoinRequest[]
-  groupTimer          GroupTimer[]
-  file                File[]
-  testSubmission      TestSubmission[]
-  UpdateHistory       UpdateHistory[]
-  createdQnAs         ContestQnA[]          @relation("CreatedByUser")
-  createdQnAComments  ContestQnAComment[]   @relation("CreatedByUser")
-  NotificationRecord  NotificationRecord[]
-  PushSubscription    PushSubscription[]
-  CourseNotice        CourseNotice[]
-  CourseNoticeComment CourseNoticeComment[]
-  CheckRequest        CheckRequest[]
+  userProfile              UserProfile?
+  userGroup                UserGroup[]
+  notice                   Notice[]
+  problem                  Problem[]
+  assignment               Assignment[]
+  assignmentRecord         AssignmentRecord[]
+  contest                  Contest[]
+  userContest              UserContest[]
+  contestRecord            ContestRecord[]
+  workbook                 Workbook[]
+  submission               Submission[]
+  useroauth                UserOAuth?
+  groupComment             GroupComment[]
+  problemDraft             ProblemDraft[]
+  joinRequests             GroupJoinRequest[]
+  groupTimer               GroupTimer[]
+  file                     File[]
+  testSubmission           TestSubmission[]
+  UpdateHistory            UpdateHistory[]
+  createdQnAs              ContestQnA[]             @relation("CreatedByUser")
+  createdQnAComments       ContestQnAComment[]      @relation("CreatedByUser")
+  NotificationRecord       NotificationRecord[]
+  PushSubscription         PushSubscription[]
+  CourseNotice             CourseNotice[]
+  CourseNoticeComment      CourseNoticeComment[]
+  CheckRequest             CheckRequest[]
   userProfile              UserProfile?
   userGroup                UserGroup[]
   notice                   Notice[]
@@ -1150,6 +1150,8 @@ model StudyInfo {
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@map("study_info")
+}
+
 enum PolygonProblemStatus {
   Draft
   Ready
