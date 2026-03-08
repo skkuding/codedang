@@ -160,12 +160,10 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if inputData != "\r\n" {
-				ctx.write(map[string]interface{}{
-					"type": "echo",
-					"data": inputData,
-				})
-			}
+			ctx.write(map[string]interface{}{
+				"type": "echo",
+				"data": inputData,
+			})
 
 		case "exit":
 			ctx.write(map[string]interface{}{
