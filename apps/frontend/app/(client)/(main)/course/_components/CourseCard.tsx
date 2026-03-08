@@ -12,13 +12,62 @@ interface CourseCardProps {
   index: number
 }
 
+const TERM_ORDER = {
+  spring: 0,
+  summer: 1,
+  fall: 2,
+  winter: 3
+} as const
+
+const getCourseRank = (semester: string) => {
+  const [yearText, termText] = semester.trim().split(/\s+/)
+  const year = Number(yearText)
+  const term = TERM_ORDER[termText.toLowerCase() as keyof typeof TERM_ORDER]
+
+  return year * 10 + term
+}
+
+const getCurrentRank = () => {
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const month = now.getMonth() + 1
+
+  let currentSeasonIdx = 0
+  let baseYear = currentYear
+
+  if (month >= 3 && month <= 5) {
+    currentSeasonIdx = 0
+  } else if (month >= 6 && month <= 8) {
+    currentSeasonIdx = 1
+  } else if (month >= 9 && month <= 11) {
+    currentSeasonIdx = 2
+  } else {
+    if (month <= 2) {
+      baseYear = baseYear - 1
+    }
+    currentSeasonIdx = 3
+  }
+
+  return baseYear * 10 + currentSeasonIdx
+}
+
+const isPastCourse = (semester: string) => {
+  return getCourseRank(semester) < getCurrentRank()
+}
+
 export function CourseCard({ course }: CourseCardProps) {
+  const pastCourse = isPastCourse(course.courseInfo.semester)
+
   return (
-    <div className="mt-3 flex h-[200px] flex-col justify-between overflow-hidden rounded-xl shadow-[0_4px_20px_rgba(53,78,116,0.1)]">
+    <div
+      className={`mt-3 flex h-[200px] flex-col justify-between overflow-hidden rounded-xl shadow-[0_4px_20px_rgba(53,78,116,0.1)] ${
+        pastCourse ? 'opacity-50 grayscale' : ''
+      }`}
+    >
       <div className="flex w-full flex-col justify-between gap-2 px-5 pt-4">
-        <StatusBadge variant={'ongoing'} />
+        <StatusBadge variant={pastCourse ? 'finished' : 'ongoing'} />
         <div className="h-[62px] text-ellipsis whitespace-pre-wrap text-xl font-medium leading-tight tracking-[-0.72px] md:text-2xl">
-          [{course?.courseInfo?.courseNum}_{course?.courseInfo?.classNum}]{' '}
+          [{course.courseInfo.courseNum}_{course.courseInfo.classNum}]{' '}
           <br className="md:hidden" />
           {course.groupName}
         </div>
@@ -26,7 +75,7 @@ export function CourseCard({ course }: CourseCardProps) {
           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
             <Image src={calendarIcon} alt="calendar" width={16} height={16} />
             <span className="text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
-              {course?.courseInfo?.semester}
+              {course.courseInfo.semester}
             </span>
           </div>
           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
@@ -37,7 +86,7 @@ export function CourseCard({ course }: CourseCardProps) {
               height={16}
             />
             <span className="text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
-              Prof. {course?.courseInfo?.professor}
+              Prof. {course.courseInfo.professor}
             </span>
           </div>
         </div>

@@ -24,6 +24,168 @@ export default {
       gridTemplateRows: {
         editor: '3rem minmax(0, 1fr)'
       },
+      fontSize: {
+        head1_b_40: [
+          '40px',
+          {
+            lineHeight: '130%',
+            letterSpacing: '-1.2px',
+            fontWeight: '700'
+          }
+        ],
+        head2_b_32: [
+          '32px',
+          {
+            lineHeight: '130%',
+            letterSpacing: '-0.96px',
+            fontWeight: '700'
+          }
+        ],
+        head3_sb_28: [
+          '28px',
+          {
+            lineHeight: '130%',
+            letterSpacing: '-0.84px',
+            fontWeight: '600'
+          }
+        ],
+        head4_m_28: [
+          '28px',
+          {
+            lineHeight: '130%',
+            letterSpacing: '-0.84px',
+            fontWeight: '500'
+          }
+        ],
+        head5_sb_24: [
+          '24px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.96px',
+            fontWeight: '600'
+          }
+        ],
+        head6_m_24: [
+          '24px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.96px',
+            fontWeight: '500'
+          }
+        ],
+        title1_sb_20: [
+          '20px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.6px',
+            fontWeight: '600'
+          }
+        ],
+        title2_m_20: [
+          '20px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.6px',
+            fontWeight: '500'
+          }
+        ],
+        sub1_sb_18: [
+          '18px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.72px',
+            fontWeight: '600'
+          }
+        ],
+        sub2_m_18: [
+          '18px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.72px',
+            fontWeight: '500'
+          }
+        ],
+        sub3_sb_16: [
+          '16px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.64px',
+            fontWeight: '600'
+          }
+        ],
+        sub4_sb_14: [
+          '14px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.42px',
+            fontWeight: '600'
+          }
+        ],
+        body1_m_16: [
+          '16px',
+          {
+            lineHeight: '150%',
+            letterSpacing: '-0.48px',
+            fontWeight: '500'
+          }
+        ],
+        body2_m_14: [
+          '14px',
+          {
+            lineHeight: '150%',
+            letterSpacing: '-0.56px',
+            fontWeight: '500'
+          }
+        ],
+        body3_r_16: [
+          '16px',
+          {
+            lineHeight: '150%',
+            letterSpacing: '-0.64px',
+            fontWeight: '400'
+          }
+        ],
+        body4_r_14: [
+          '14px',
+          {
+            lineHeight: '150%',
+            letterSpacing: '-0.56px',
+            fontWeight: '400'
+          }
+        ],
+        caption1_m_13: [
+          '13px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.52px',
+            fontWeight: '500'
+          }
+        ],
+        caption2_m_12: [
+          '12px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.48px',
+            fontWeight: '500'
+          }
+        ],
+        caption3_r_13: [
+          '13px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.52px',
+            fontWeight: '400'
+          }
+        ],
+        caption4_r_12: [
+          '12px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.48px',
+            fontWeight: '400'
+          }
+        ]
+      },
       fontFamily: {
         sans: ['Pretendard Variable', ...defaultTheme.fontFamily.sans],
         mono: ['var(--font-mono)', ...defaultTheme.fontFamily.mono]

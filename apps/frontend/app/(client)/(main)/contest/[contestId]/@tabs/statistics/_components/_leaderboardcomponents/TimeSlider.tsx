@@ -34,6 +34,7 @@ export function TimeSlider({
 }: TimeSliderProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [displayTime, setDisplayTime] = useState<string>('00:00:00')
+  const [isVirtualFinalStep, setIsVirtualFinalStep] = useState(true)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const currentIndexRef = useRef<number | null>(currentSubmissionIndex)
 
@@ -42,11 +43,19 @@ export function TimeSlider({
   }, [currentSubmissionIndex])
 
   const handleSliderValueChange = (value: number[]) => {
-    onSliderChange(value[0])
+    const index = value[0]
+    if (index >= submissionCount) {
+      setIsVirtualFinalStep(true)
+      onSliderChange(submissionCount - 1)
+    } else {
+      setIsVirtualFinalStep(false)
+      onSliderChange(index)
+    }
   }
 
   const handleReset = () => {
     setIsPlaying(false)
+    setIsVirtualFinalStep(false)
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
       intervalRef.current = null
@@ -64,6 +73,7 @@ export function TimeSlider({
       }
     } else {
       const isAtEnd =
+        isVirtualFinalStep ||
         currentIndexRef.current === submissionCount - 1 ||
         currentIndexRef.current === null
 
@@ -77,6 +87,7 @@ export function TimeSlider({
           currentIndexRef.current === null ? 0 : currentIndexRef.current + 1
 
         if (nextIndex >= submissionCount) {
+          setIsVirtualFinalStep(true)
           setIsPlaying(false)
           if (intervalRef.current) {
             clearInterval(intervalRef.current)
@@ -85,6 +96,7 @@ export function TimeSlider({
           return
         }
 
+        setIsVirtualFinalStep(false)
         onSliderChange(nextIndex)
       }, 100)
     }
@@ -98,13 +110,24 @@ export function TimeSlider({
     }
   }, [])
   useEffect(() => {
-    if (currentSubmissionTime !== null && currentSubmissionTime !== undefined) {
+    const totalDuration = formatDuration(contestEndTime - contestStartTime)
+    if (isVirtualFinalStep) {
+      setDisplayTime(totalDuration)
+    } else if (
+      currentSubmissionTime !== null &&
+      currentSubmissionTime !== undefined
+    ) {
       const elapsed = currentSubmissionTime - contestStartTime
       setDisplayTime(formatDuration(Math.max(0, elapsed)))
     } else {
-      setDisplayTime(getTotalDuration())
+      setDisplayTime(totalDuration)
     }
-  }, [currentSubmissionTime, contestStartTime])
+  }, [
+    currentSubmissionTime,
+    contestStartTime,
+    contestEndTime,
+    isVirtualFinalStep
+  ])
 
   const getTotalDuration = (): string => {
     return formatDuration(contestEndTime - contestStartTime)
@@ -115,16 +138,16 @@ export function TimeSlider({
         {displayTime} / {getTotalDuration()}
       </div>
       <Slider
-        max={submissionCount - 1}
+        max={submissionCount}
         min={0}
         color="yellow"
         className="w-[925px] cursor-pointer"
         onValueChange={(value) => handleSliderValueChange(value)}
-        value={
-          currentSubmissionIndex !== null
-            ? [currentSubmissionIndex]
-            : [submissionCount - 1]
-        }
+        value={[
+          isVirtualFinalStep
+            ? submissionCount
+            : (currentSubmissionIndex ?? submissionCount - 1)
+        ]}
       />
 
       <button
