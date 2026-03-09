@@ -24,14 +24,10 @@ import (
 )
 
 const (
-	RunnerImageTag          = "RUNNER_IMAGE_TAG"
-	RunnerNamespace         = "runner"
-	SharedLeaseTTLSeconds   = 200
+	RunnerImageTag         = "RUNNER_IMAGE_TAG"
+	RunnerNamespace        = "runner"
+	SharedLeaseTTLSeconds  = 200
 	GlobalPoolReservationID = "__global__"
-	DefaultLocalLeaseBatch  = 8
-	DefaultLocalLeaseTarget = 8
-	DefaultLocalLeaseMax    = 12
-	LocalLeaseRefillTick    = 1 * time.Second
 )
 
 type RunnerPod struct {
@@ -60,18 +56,13 @@ type PodManager struct {
 	nodePools       []RunnerNodePool
 	nextNodePoolIdx int
 
-	mu            sync.Mutex
-	busyPods      map[string]*RunnerPod
-	localIdlePods []*RunnerPod
-	localIdleSet  map[string]struct{}
+	mu       sync.Mutex
+	busyPods map[string]*RunnerPod
 
-	managerPodName   string
-	managerPodUID    string
-	stateStore       RunnerStateStore
-	sharedLeaseTTL   time.Duration
-	localLeaseBatch  int
-	localLeaseTarget int
-	localLeaseMax    int
+	managerPodName string
+	managerPodUID  string
+	stateStore     RunnerStateStore
+	sharedLeaseTTL time.Duration
 }
 
 func NewPodManager(clientset *kubernetes.Clientset) (*PodManager, error) {
@@ -115,31 +106,18 @@ func NewPodManager(clientset *kubernetes.Clientset) (*PodManager, error) {
 	}
 
 	pm := &PodManager{
-		clientset:        clientset,
-		logger:           logger,
-		namespace:        RunnerNamespace,
-		imageTag:         imageTag,
-		targetPoolSize:   poolSize,
-		leaseTimeout:     time.Duration(leaseTimeoutSec) * time.Second,
-		readyTimeout:     time.Duration(readyTimeoutSec) * time.Second,
-		nodeSelectorKey:  nodeSelectorKey,
-		nodePools:        nodePools,
-		busyPods:         make(map[string]*RunnerPod),
-		localIdleSet:     make(map[string]struct{}),
-		managerPodName:   strings.TrimSpace(os.Getenv("HOSTNAME")),
-		sharedLeaseTTL:   time.Duration(SharedLeaseTTLSeconds) * time.Second,
-		localLeaseBatch:  envInt("RUNNER_LOCAL_LEASE_BATCH", DefaultLocalLeaseBatch),
-		localLeaseTarget: envInt("RUNNER_LOCAL_LEASE_TARGET", DefaultLocalLeaseTarget),
-		localLeaseMax:    envInt("RUNNER_LOCAL_LEASE_MAX", DefaultLocalLeaseMax),
-	}
-	if pm.localLeaseBatch < 1 {
-		pm.localLeaseBatch = DefaultLocalLeaseBatch
-	}
-	if pm.localLeaseTarget < 1 {
-		pm.localLeaseTarget = DefaultLocalLeaseTarget
-	}
-	if pm.localLeaseMax < pm.localLeaseTarget {
-		pm.localLeaseMax = pm.localLeaseTarget
+		clientset:       clientset,
+		logger:          logger,
+		namespace:       RunnerNamespace,
+		imageTag:        imageTag,
+		targetPoolSize:  poolSize,
+		leaseTimeout:    time.Duration(leaseTimeoutSec) * time.Second,
+		readyTimeout:    time.Duration(readyTimeoutSec) * time.Second,
+		nodeSelectorKey: nodeSelectorKey,
+		nodePools:       nodePools,
+		busyPods:        make(map[string]*RunnerPod),
+		managerPodName:  strings.TrimSpace(os.Getenv("HOSTNAME")),
+		sharedLeaseTTL:  time.Duration(SharedLeaseTTLSeconds) * time.Second,
 	}
 
 	pm.stateStore = NewRunnerStateStoreFromEnv(logger)
@@ -248,13 +226,6 @@ func (pm *PodManager) startSharedStateMaintenanceLoops() {
 	go func() {
 		for range reaperTicker.C {
 			pm.reapOrphanLeases()
-		}
-	}()
-
-	refillTicker := time.NewTicker(LocalLeaseRefillTick)
-	go func() {
-		for range refillTicker.C {
-			pm.maintainLocalLeasePool()
 		}
 	}()
 }
@@ -673,8 +644,6 @@ func (pm *PodManager) waitForPodReady(podName string) (string, error) {
 }
 
 func (pm *PodManager) deleteRunnerPod(podName string) error {
-	pm.removeLocalPod(podName)
-
 	err := pm.clientset.CoreV1().Pods(pm.namespace).Delete(
 		context.Background(),
 		podName,
@@ -704,41 +673,6 @@ func (pm *PodManager) leasePodFromSharedPool() (*RunnerPod, error) {
 			return nil, errors.New("global warm pod pool exhausted")
 		}
 
-		if pod := pm.popLocalIdlePod(); pod != nil {
-			pm.mu.Lock()
-			pm.busyPods[pod.Name] = pod
-			pm.mu.Unlock()
-			return pod, nil
-		}
-
-		if err := pm.refillLocalLeases(pm.localLeaseBatch); err != nil {
-			return nil, fmt.Errorf("shared lease acquire failed: %w", err)
-		}
-		time.Sleep(20 * time.Millisecond)
-	}
-}
-
-func (pm *PodManager) maintainLocalLeasePool() {
-	if !pm.useGlobalRedisScheduler() {
-		return
-	}
-	pm.releaseExcessLocalLeases()
-	_ = pm.refillLocalLeases(pm.localLeaseBatch)
-}
-
-func (pm *PodManager) refillLocalLeases(limit int) error {
-	if limit < 1 {
-		return nil
-	}
-	for i := 0; i < limit; i++ {
-		pm.mu.Lock()
-		held := len(pm.localIdlePods) + len(pm.busyPods)
-		need := pm.localLeaseTarget - len(pm.localIdlePods)
-		pm.mu.Unlock()
-		if held >= pm.localLeaseMax || need <= 0 {
-			return nil
-		}
-
 		lease, err := pm.stateStore.AcquireIdleRunnerLease(
 			context.Background(),
 			pm.managerPodName,
@@ -746,102 +680,26 @@ func (pm *PodManager) refillLocalLeases(limit int) error {
 			pm.sharedLeaseTTL,
 		)
 		if err != nil {
-			return err
+			return nil, fmt.Errorf("shared lease acquire failed: %w", err)
 		}
 		if lease == nil {
-			return nil
+			time.Sleep(50 * time.Millisecond)
+			continue
 		}
 
 		pod, err := pm.loadLeasedRunnerPod(lease)
 		if err != nil {
 			pm.logger.Printf("Discarding leased runner %s after validation failure: %v", lease.Record.PodName, err)
 			_ = pm.deleteRunnerPod(lease.Record.PodName)
+			time.Sleep(25 * time.Millisecond)
 			continue
 		}
-		pm.pushLocalIdlePod(pod)
-	}
-	return nil
-}
 
-func (pm *PodManager) releaseExcessLocalLeases() {
-	for {
 		pm.mu.Lock()
-		if len(pm.localIdlePods) <= pm.localLeaseTarget {
-			pm.mu.Unlock()
-			return
-		}
-		pod := pm.localIdlePods[0]
-		pm.localIdlePods = pm.localIdlePods[1:]
-		delete(pm.localIdleSet, pod.Name)
+		pm.busyPods[pod.Name] = pod
 		pm.mu.Unlock()
-
-		ok, err := pm.stateStore.ReleaseRunnerLease(
-			context.Background(),
-			pod.Name,
-			pod.LeaseToken,
-			RunnerStateIdle,
-		)
-		if err != nil {
-			pm.logger.Printf("Failed to release excess local lease %s: %v", pod.Name, err)
-			if delErr := pm.deleteRunnerPod(pod.Name); delErr != nil {
-				pm.logger.Printf("Failed to delete pod after excess release failure %s: %v", pod.Name, delErr)
-			}
-			continue
-		}
-		if !ok {
-			pm.logger.Printf("Excess local lease release rejected for %s; deleting pod", pod.Name)
-			if delErr := pm.deleteRunnerPod(pod.Name); delErr != nil {
-				pm.logger.Printf("Failed to delete pod after excess release rejection %s: %v", pod.Name, delErr)
-			}
-		}
+		return pod, nil
 	}
-}
-
-func (pm *PodManager) popLocalIdlePod() *RunnerPod {
-	pm.mu.Lock()
-	defer pm.mu.Unlock()
-	if len(pm.localIdlePods) == 0 {
-		return nil
-	}
-	pod := pm.localIdlePods[0]
-	pm.localIdlePods = pm.localIdlePods[1:]
-	delete(pm.localIdleSet, pod.Name)
-	return pod
-}
-
-func (pm *PodManager) removeLocalPod(podName string) {
-	if podName == "" {
-		return
-	}
-	pm.mu.Lock()
-	defer pm.mu.Unlock()
-	delete(pm.localIdleSet, podName)
-	filtered := pm.localIdlePods[:0]
-	for _, pod := range pm.localIdlePods {
-		if pod == nil || pod.Name == podName {
-			continue
-		}
-		filtered = append(filtered, pod)
-	}
-	pm.localIdlePods = filtered
-	delete(pm.busyPods, podName)
-}
-
-func (pm *PodManager) pushLocalIdlePod(pod *RunnerPod) bool {
-	if pod == nil {
-		return false
-	}
-	pm.mu.Lock()
-	defer pm.mu.Unlock()
-	if _, busy := pm.busyPods[pod.Name]; busy {
-		return false
-	}
-	if _, exists := pm.localIdleSet[pod.Name]; exists {
-		return false
-	}
-	pm.localIdlePods = append(pm.localIdlePods, pod)
-	pm.localIdleSet[pod.Name] = struct{}{}
-	return true
 }
 
 func (pm *PodManager) loadLeasedRunnerPod(lease *RunnerLease) (*RunnerPod, error) {
@@ -885,10 +743,6 @@ func (pm *PodManager) releasePod(pod *RunnerPod, forceReplace bool) {
 	pm.mu.Unlock()
 
 	if !forceReplace && pm.isPodReusable(pod.Name) {
-		pod.LastUsedAt = time.Now()
-		if pm.pushLocalIdlePod(pod) {
-			return
-		}
 		ok, err := pm.stateStore.ReleaseRunnerLease(
 			context.Background(),
 			pod.Name,
@@ -1003,12 +857,12 @@ func (pm *PodManager) reconcileRunnerSharedState() {
 			desiredState = RunnerStateIdle
 		}
 
-		record := RunnerStateRecord{
-			PodName:     pod.Name,
-			NodePoolID:  pod.Labels["runner-node-pool"],
-			PodIP:       pod.Status.PodIP,
-			State:       desiredState,
-			OwnerPod:    existing.OwnerPod,
+			record := RunnerStateRecord{
+				PodName:     pod.Name,
+				NodePoolID:  pod.Labels["runner-node-pool"],
+				PodIP:       pod.Status.PodIP,
+				State:       desiredState,
+				OwnerPod:    existing.OwnerPod,
 			OwnerPodUID: existing.OwnerPodUID,
 			LeaseToken:  existing.LeaseToken,
 			UpdatedAt:   time.Now(),
@@ -1064,12 +918,12 @@ func (pm *PodManager) reapOrphanLeases() {
 		}
 
 		if pm.isPodReady(pod) {
-			record := RunnerStateRecord{
-				PodName:     pod.Name,
-				NodePoolID:  pod.Labels["runner-node-pool"],
-				PodIP:       pod.Status.PodIP,
-				State:       RunnerStateIdle,
-				OwnerPod:    "",
+				record := RunnerStateRecord{
+					PodName:     pod.Name,
+					NodePoolID:  pod.Labels["runner-node-pool"],
+					PodIP:       pod.Status.PodIP,
+					State:       RunnerStateIdle,
+					OwnerPod:    "",
 				OwnerPodUID: "",
 				LeaseToken:  "",
 				UpdatedAt:   time.Now(),
@@ -1211,7 +1065,6 @@ func isExpectedClose(err error) bool {
 func (pm *PodManager) handleHealth(w http.ResponseWriter, _ *http.Request) {
 	pm.mu.Lock()
 	busy := len(pm.busyPods)
-	localIdle := len(pm.localIdlePods)
 	pm.mu.Unlock()
 
 	globalStats := ""
@@ -1248,7 +1101,7 @@ func (pm *PodManager) handleHealth(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprintf(w, "ok local_busy=%d local_idle=%d%s", busy, localIdle, globalStats)
+	_, _ = fmt.Fprintf(w, "ok local_busy=%d%s", busy, globalStats)
 }
 
 func main() {
