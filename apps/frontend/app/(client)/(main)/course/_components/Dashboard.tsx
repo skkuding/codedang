@@ -74,6 +74,12 @@ const isActiveOnDate = (selectedDate: Date | undefined, workItem: WorkItem) => {
   return !(dueTime < selectedStart || startTime > selectedEnd)
 }
 
+const isNotExpired = (workItem: WorkItem) => {
+  const now = Date.now()
+  const dueTime = (workItem.dueTime ?? workItem.endTime).getTime()
+  return dueTime >= now
+}
+
 const formatDueMd = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
 
 const isDueToday = (selectedDate?: Date, dueDate?: Date) =>
@@ -220,7 +226,11 @@ export function Dashboard() {
   }, [assignments, exercises, summaryByAssignmentId])
 
   const visibleRows = useMemo(
-    () => allRows.filter((workItem) => isActiveOnDate(selectedDate, workItem)),
+    () =>
+      allRows.filter(
+        (workItem) =>
+          isNotExpired(workItem) && isActiveOnDate(selectedDate, workItem)
+      ),
     [allRows, selectedDate]
   )
 
@@ -252,7 +262,7 @@ export function Dashboard() {
 
   const deadlineDateList = useMemo(() => {
     const uniq = new Set<number>()
-    for (const row of allRows) {
+    for (const row of allRows.filter(isNotExpired)) {
       const t = startOfDay(new Date(row.dueTime ?? row.endTime)).getTime()
       uniq.add(t)
     }
