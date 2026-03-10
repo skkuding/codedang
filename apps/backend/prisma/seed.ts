@@ -1771,9 +1771,9 @@ const createContests = async () => {
       })
     }
   }
-  // add problem 5, 6 to ended contest
+  // add problem 5, 6, 7, 8 to ended contest
   for (const contest of endedContests) {
-    for (const [index, problem] of problems.slice(4, 6).entries()) {
+    for (const [index, problem] of problems.slice(4, 8).entries()) {
       await prisma.contestProblem.create({
         data: {
           order: index,

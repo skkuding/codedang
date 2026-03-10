@@ -2,6 +2,9 @@ grafana:
   enabled: false
 
 prometheus:
+  prometheusSpec:
+    retention: 90d
+    enableRemoteWriteReceiver: true
   ingress:
     enabled: true
     hosts:

@@ -1,0 +1,22 @@
+# Stage-specific: Map MinIO credential keys (CONSOLE_*) to AWS SDK keys (AWS_*)
+# This allows the application to use AWS SDK with MinIO credentials
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iris
+spec:
+  template:
+    spec:
+      containers:
+        - name: iris
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: CONSOLE_ACCESS_KEY
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: CONSOLE_SECRET_KEY

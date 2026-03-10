@@ -1,5 +1,5 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: promtail
   namespace: argocd
@@ -33,7 +33,7 @@ spec:
             valueFiles:
               - $codedang/infra/k8s/monitoring/promtail/values.yaml
         - repoURL: https://github.com/skkuding/codedang
-          targetRevision: {{.branch}}
+          targetRevision: '{{.branch}}'
           ref: codedang
       destination:
         name: '{{.env}}'

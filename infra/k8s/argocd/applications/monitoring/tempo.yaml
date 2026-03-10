@@ -1,11 +1,12 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: tempo
   namespace: argocd
-  # finalizers:
-  #   - resources-finalizer.argocd.argoproj.io
 spec:
+  # Preserves deployed resources when ApplicationSet or Application is deleted (prevents data loss)
+  syncPolicy:
+    preserveResourcesOnDeletion: true
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
   generators:
@@ -18,8 +19,6 @@ spec:
   template:
     metadata:
       name: 'tempo-{{.env}}'
-      # finalizers:
-      #   - resources-finalizer.argocd.argoproj.io
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:
@@ -40,7 +39,8 @@ spec:
         namespace: monitoring-tempo
       syncPolicy:
         automated:
-          prune: true
+          # Prune disabled: requires manual review before removing resources
+          prune: false
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
