@@ -12,8 +12,8 @@ import (
 )
 
 type Task struct {
-	factory *Factory
 	req     *GenerateRequest
+	outChan chan handler.ResultMessage
 	sandbox sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
 	logger  logger.Logger
 }
@@ -26,7 +26,13 @@ func (t *Task) GetLanguage() string {
 	return t.req.Language
 }
 
-func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.ResultMessage) {
+func (t *Task) GetOutChan() chan handler.ResultMessage {
+	return t.outChan
+}
+
+func (t *Task) RunAction(ctx context.Context, dir string) {
+	defer close(t.outChan)
+
 	validReq := t.req
 	successCount := 0
 
@@ -43,13 +49,13 @@ func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.Res
 
 		if err != nil {
 			t.logger.Log(logger.ERROR, fmt.Sprintf("Error while generating testcase: %s", err.Error()))
-			out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("GenerateTask.RunAction", err, logger.ERROR)}
+			t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("GenerateTask.RunAction", err, logger.ERROR)}
 			return
 		}
 
 		if runResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 			t.logger.Log(logger.ERROR, fmt.Sprintf("Generator execution failed at testcase %d, status: %v, error: %s", i, runResult.ExecResult.StatusCode, string(runResult.ErrOutput)))
-			out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("GenerateTask.RunAction", handler.ErrSandbox, logger.ERROR)}
+			t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("GenerateTask.RunAction", handler.ErrSandbox, logger.ERROR)}
 			return
 		}
 
@@ -62,8 +68,8 @@ func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.Res
 	}
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
-		out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("GenerateTask.RunAction", handler.ErrMarshalJson, logger.ERROR)}
+		t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("GenerateTask.RunAction", handler.ErrMarshalJson, logger.ERROR)}
 	} else {
-		out <- handler.ResultMessage{Result: marshaledRes, Err: nil}
+		t.outChan <- handler.ResultMessage{Result: marshaledRes, Err: nil}
 	}
 }

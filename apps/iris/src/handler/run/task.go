@@ -21,8 +21,8 @@ import (
 )
 
 type Task struct {
-	factory   *Factory
 	req       *RunRequest
+	outChan   chan handler.ResultMessage
 	hidden    bool
 	tcManager testcase.TestcaseManager
 	sandbox   sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
@@ -38,18 +38,22 @@ func (t *Task) GetLanguage() string {
 	return t.req.Language
 }
 
-func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.ResultMessage) {
+func (t *Task) GetOutChan() chan handler.ResultMessage {
+	return t.outChan
+}
+
+func (t *Task) RunAction(ctx context.Context, dir string) {
+	defer close(t.outChan)
+
 	validReq := t.req
 
 	var tc testcase.Testcase
-
 	if validReq.UserTestcases != nil {
 		tc = testcase.Testcase{Elements: *validReq.UserTestcases}
 	} else {
 		res, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), t.hidden)
 		if err != nil {
-			out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("handle", fmt.Errorf("%w: %s", handler.ErrTestcaseGet, err), logger.ERROR)}
-			return
+			t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("handle", fmt.Errorf("%w: %s", handler.ErrTestcaseGet, err), logger.ERROR)}
 		}
 
 		tc = res
@@ -65,24 +69,45 @@ func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.Res
 		}
 	}
 
-	tcNum := len(tc.Elements)
-	for i, tElement := range tc.Elements {
-		var judgeResultCode handler.ResultCode
-		if tElement.In != "" {
-			judgeResultCode = t.runTestcase(ctx, i, dir, validReq, tElement, out)
+	tcId, tcNum := 0, len(tc.Elements)
+	for tcId = 0; tcId < tcNum; tcId++ {
+		var judgeResult runTestcaseResult
+		if tc.Elements[tcId].In != "" {
+			judgeResult = t.runTestcase(ctx, tcId, dir, validReq, tc.Elements[tcId])
 		}
 
-		if validReq.StopOnNotAccepted && judgeResultCode != handler.ACCEPTED {
-			for idxToCancel := i + 1; idxToCancel < tcNum; idxToCancel++ {
-				t.sendCancelResult(tc.Elements[idxToCancel], out)
-			}
+		if validReq.StopOnNotAccepted && judgeResult.code != handler.ACCEPTED {
 			break
+		}
+
+		t.outChan <- judgeResult.message
+	}
+
+	if tcId < tcNum {
+		for idxToCancel := tcId + 1; idxToCancel < tcNum; idxToCancel++ {
+			canceledResult := RunResult{
+				TestcaseId: tc.Elements[idxToCancel].Id,
+				ErrorCode:  int(handler.CANCELED),
+				Error:      "Execution canceled due to previous test case failure",
+			}
+
+			marshaledRes, err := json.Marshal(canceledResult)
+			if err != nil {
+				t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("Task.sendCancelResult", handler.ErrMarshalJson, logger.ERROR)}
+				return
+			}
+			t.outChan <- handler.ResultMessage{Result: marshaledRes, Err: handler.ParseError(canceledResult, handler.CANCELED)}
 		}
 	}
 }
 
+type runTestcaseResult struct {
+	code    handler.ResultCode
+	message handler.ResultMessage
+}
+
 func (t *Task) runTestcase(ctx context.Context, idx int, dir string, validReq *RunRequest,
-	tc loader.Element, out chan<- handler.ResultMessage) handler.ResultCode {
+	tc loader.Element) runTestcaseResult {
 	_, childSpan := t.tracer.Start(
 		ctx,
 		instrumentation.GetSemanticSpanName("run-handler", "runTestcase"),
@@ -137,24 +162,20 @@ func (t *Task) runTestcase(ctx context.Context, idx int, dir string, validReq *R
 Send:
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
-		out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("Task.judgeTestcase", handler.ErrMarshalJson, logger.ERROR)}
+		return runTestcaseResult{
+			code: judgeResultCode,
+			message: handler.ResultMessage{
+				Result: nil,
+				Err:    handler.NewHandlerError("Task.judgeTestcase", handler.ErrMarshalJson, logger.ERROR),
+			},
+		}
 	} else {
-		out <- handler.ResultMessage{Result: marshaledRes, Err: handler.ParseError(res, judgeResultCode)}
+		return runTestcaseResult{
+			code: judgeResultCode,
+			message: handler.ResultMessage{
+				Result: marshaledRes,
+				Err:    handler.ParseError(res, judgeResultCode),
+			},
+		}
 	}
-	return judgeResultCode
-}
-
-func (t *Task) sendCancelResult(element loader.Element, out chan<- handler.ResultMessage) {
-	canceledResult := RunResult{
-		TestcaseId: element.Id,
-		ErrorCode:  int(handler.CANCELED),
-		Error:      "Execution canceled due to previous test case failure",
-	}
-
-	marshaledRes, err := json.Marshal(canceledResult)
-	if err != nil {
-		out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("Task.sendCancelResult", handler.ErrMarshalJson, logger.ERROR)}
-		return
-	}
-	out <- handler.ResultMessage{Result: marshaledRes, Err: handler.ParseError(canceledResult, handler.CANCELED)}
 }

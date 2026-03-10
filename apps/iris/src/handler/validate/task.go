@@ -16,6 +16,7 @@ import (
 
 type Task struct {
 	req       *ValidateRequest
+	outChan   chan handler.ResultMessage
 	tcManager testcase.TestcaseManager
 	sandbox   sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
 	logger    logger.Logger
@@ -29,12 +30,18 @@ func (t *Task) GetLanguage() string {
 	return t.req.Language
 }
 
-func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.ResultMessage) {
+func (t *Task) GetOutChan() chan handler.ResultMessage {
+	return t.outChan
+}
+
+func (t *Task) RunAction(ctx context.Context, dir string) {
+	defer close(t.outChan)
+
 	validReq := t.req
 
 	tc, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), false)
 	if err != nil {
-		out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", err, logger.ERROR)}
+		t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", err, logger.ERROR)}
 		return
 	}
 
@@ -55,13 +62,13 @@ func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.Res
 
 		if err != nil {
 			t.logger.Log(logger.ERROR, fmt.Sprintf("Error while validating testcase: %s", err.Error()))
-			out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", err, logger.ERROR)}
+			t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", err, logger.ERROR)}
 			return
 		}
 
 		if runResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 			t.logger.Log(logger.ERROR, fmt.Sprintf("Validator execution failed at testcase %d", i))
-			out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", handler.ErrSandbox, logger.ERROR)}
+			t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", handler.ErrSandbox, logger.ERROR)}
 			return
 		}
 
@@ -75,11 +82,10 @@ func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.Res
 	res := ValidateResult{
 		IsValid: allValid,
 	}
-
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
-		out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", handler.ErrMarshalJson, logger.ERROR)}
+		t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", handler.ErrMarshalJson, logger.ERROR)}
 	} else {
-		out <- handler.ResultMessage{Result: marshaledRes, Err: nil}
+		t.outChan <- handler.ResultMessage{Result: marshaledRes, Err: nil}
 	}
 }

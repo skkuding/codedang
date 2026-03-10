@@ -21,8 +21,8 @@ import (
 )
 
 type Task struct {
-	factory   *Factory
 	req       *JudgeRequest
+	outChan   chan handler.ResultMessage
 	hidden    bool
 	tcManager testcase.TestcaseManager
 	sandbox   sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
@@ -38,7 +38,13 @@ func (t *Task) GetLanguage() string {
 	return t.req.Language
 }
 
-func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.ResultMessage) {
+func (t *Task) GetOutChan() chan handler.ResultMessage {
+	return t.outChan
+}
+
+func (t *Task) RunAction(ctx context.Context, dir string) {
+	defer close(t.outChan)
+
 	validReq := t.req
 
 	var tc testcase.Testcase
@@ -48,7 +54,7 @@ func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.Res
 	} else {
 		res, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), t.hidden)
 		if err != nil {
-			out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("handle", fmt.Errorf("%w: %s", handler.ErrTestcaseGet, err), logger.ERROR)}
+			t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("handle", fmt.Errorf("%w: %s", handler.ErrTestcaseGet, err), logger.ERROR)}
 			return
 		}
 
@@ -69,12 +75,12 @@ func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.Res
 	for i, tElement := range tc.Elements {
 		var judgeResultCode handler.ResultCode
 		if tElement.In != "" {
-			judgeResultCode = t.judgeTestcase(ctx, i, dir, validReq, tElement, out)
+			judgeResultCode = t.judgeTestcase(ctx, i, dir, validReq, tElement)
 		}
 
 		if validReq.StopOnNotAccepted && judgeResultCode != handler.ACCEPTED {
 			for idxToCancel := i + 1; idxToCancel < tcNum; idxToCancel++ {
-				t.sendCancelResult(tc.Elements[idxToCancel], out)
+				t.sendCancelResult(tc.Elements[idxToCancel])
 			}
 			break
 		}
@@ -82,7 +88,7 @@ func (t *Task) RunAction(ctx context.Context, dir string, out chan<- handler.Res
 }
 
 func (t *Task) judgeTestcase(ctx context.Context, idx int, dir string, validReq *JudgeRequest,
-	tc loader.Element, out chan<- handler.ResultMessage) handler.ResultCode {
+	tc loader.Element) handler.ResultCode {
 	_, childSpan := t.tracer.Start(
 		ctx,
 		instrumentation.GetSemanticSpanName("judge-handler", "judgeTestcase"),
@@ -137,14 +143,14 @@ func (t *Task) judgeTestcase(ctx context.Context, idx int, dir string, validReq 
 Send:
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
-		out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("Task.judgeTestcase", handler.ErrMarshalJson, logger.ERROR)}
+		t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("Task.judgeTestcase", handler.ErrMarshalJson, logger.ERROR)}
 	} else {
-		out <- handler.ResultMessage{Result: marshaledRes, Err: handler.ParseError(res, judgeResultCode)}
+		t.outChan <- handler.ResultMessage{Result: marshaledRes, Err: handler.ParseError(res, judgeResultCode)}
 	}
 	return judgeResultCode
 }
 
-func (t *Task) sendCancelResult(element loader.Element, out chan<- handler.ResultMessage) {
+func (t *Task) sendCancelResult(element loader.Element) {
 	canceledResult := JudgeResult{
 		TestcaseId: element.Id,
 		ErrorCode:  int(handler.CANCELED),
@@ -153,8 +159,8 @@ func (t *Task) sendCancelResult(element loader.Element, out chan<- handler.Resul
 
 	marshaledRes, err := json.Marshal(canceledResult)
 	if err != nil {
-		out <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("Task.sendCancelResult", handler.ErrMarshalJson, logger.ERROR)}
+		t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("Task.sendCancelResult", handler.ErrMarshalJson, logger.ERROR)}
 		return
 	}
-	out <- handler.ResultMessage{Result: marshaledRes, Err: handler.ParseError(canceledResult, handler.CANCELED)}
+	t.outChan <- handler.ResultMessage{Result: marshaledRes, Err: handler.ParseError(canceledResult, handler.CANCELED)}
 }

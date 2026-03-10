@@ -18,12 +18,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type Task interface {
-	GetCode() string
-	GetLanguage() string
-	RunAction(ctx context.Context, dir string, out chan<- ResultMessage)
-}
-
 type TaskRunner struct {
 	sandbox         sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
 	testcaseManager testcase.TestcaseManager
@@ -64,7 +58,7 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 	startedAt := time.Now()
 	handleCtx, childSpan := tr.tracer.Start(
 		ctx,
-		instrumentation.GetSemanticSpanName("base-handler", "handle"),
+		instrumentation.GetSemanticSpanName("taskRunner", "run"),
 		trace.WithAttributes(attribute.Int("submissionId", func() int {
 			submissionId, _ := strconv.Atoi(id)
 			return submissionId
@@ -150,8 +144,8 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 		return
 	}
 
-	// RUN_SUCCESS == 1
-	if compileResult.ExecResult.StatusCode != 1 {
+	// RUN_SUCCESS == 0
+	if compileResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 		out <- ResultMessage{Result: nil, Err: &HandlerError{
 			caller:  "handle",
 			err:     ErrCompile,
@@ -162,7 +156,10 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 	}
 
 	// Dispatch to implementer's behavior
-	validReq.RunAction(handleCtx, dir, out)
+	go validReq.RunAction(handleCtx, dir)
+	for output := range validReq.GetOutChan() {
+		out <- output
+	}
 }
 
 func (tr *TaskRunner) GetTestcase(ctx context.Context, out chan<- struct {

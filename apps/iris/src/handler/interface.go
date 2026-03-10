@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
+
+const MAX_BUF = 10
 
 type Handler interface {
 	Handle(data any) (json.RawMessage, error)
@@ -16,6 +19,13 @@ type Request interface {
 type ResultMessage struct {
 	Result json.RawMessage
 	Err    error
+}
+
+type Task interface {
+	GetCode() string
+	GetLanguage() string
+	GetOutChan() chan ResultMessage
+	RunAction(ctx context.Context, dir string)
 }
 
 func NewHandlerError(caller string, err error, level logger.Level) *HandlerError {

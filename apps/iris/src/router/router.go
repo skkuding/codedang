@@ -86,8 +86,7 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 		task, taskErr = r.judgeTaskFactory.Create(path, data)
 	case Run, UserTestCase:
 		task, taskErr = r.runTaskFactory.Create(path, data)
-	case SpecialJudge:
-	case Generate:
+	case SpecialJudge, Generate:
 		task, taskErr = r.generateTaskFactory.Create(path, data)
 	case Validate:
 		task, taskErr = r.validateTaskFactory.Create(path, data)
@@ -107,6 +106,7 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 	} else {
 		close(taskResultChan)
 	}
+
 	for result := range taskResultChan {
 		r.errHandle(result.Err)
 		out <- NewResponse(id, result.Result, result.Err).Marshal()

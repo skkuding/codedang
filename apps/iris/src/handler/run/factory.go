@@ -48,8 +48,8 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 	}
 
 	task := &Task{
-		factory:   f,
 		req:       validReq,
+		outChan:   make(chan handler.ResultMessage, handler.MAX_BUF),
 		hidden:    hidden,
 		tcManager: f.tcManager,
 		sandbox:   f.sandbox,
