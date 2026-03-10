@@ -250,7 +250,7 @@ export class StudyService {
         dto
 
       let tags: { tagId: number }[] = []
-      if (problemIds)
+      if (problemIds && problemIds.length > 0)
         tags = await tx.problemTag.findMany({
           where: {
             problemId: {
