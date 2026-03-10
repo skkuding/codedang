@@ -296,7 +296,8 @@ export class StudyService {
   async deleteStudyGroup(groupId: number) {
     const studyGroup = await this.prisma.group.findUnique({
       where: {
-        id: groupId
+        id: groupId,
+        groupType: GroupType.Study
       },
       select: { id: true }
     })
