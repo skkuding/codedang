@@ -48,7 +48,7 @@ export class StudyService {
           }
         },
         sharedProblems: {
-          connect: problemIds?.map((problmeId) => ({ id: problmeId }))
+          connect: problemIds?.map((problemId) => ({ id: problemId }))
         },
         groupTag: {
           createMany: {
