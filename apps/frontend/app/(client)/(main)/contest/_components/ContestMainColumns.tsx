@@ -14,7 +14,7 @@ export const columns: ColumnDef<Contest>[] = [
     cell: ({ row }) => (
       <span
         className={cn(
-          'overflow-hidden text-ellipsis whitespace-nowrap text-left text-base font-medium',
+          'block w-full overflow-hidden text-ellipsis whitespace-nowrap text-left text-base font-medium',
           row.original.status.toLowerCase().includes('upcoming') &&
             'text-primary-strong font-medium'
         )}
