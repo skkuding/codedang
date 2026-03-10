@@ -216,80 +216,83 @@ export class StudyService {
   }
 
   async updateStudyGroup(groupId: number, dto: UpdateStudyDto) {
-    const studyGroup = await this.prisma.group.findUnique({
-      where: {
-        id: groupId,
-        groupType: GroupType.Study
-      },
-      select: {
-        studyInfo: {
-          select: {
-            capacity: true
-          }
-        },
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        _count: {
-          select: {
-            userGroup: true
-          }
-        }
-      }
-    })
-
-    if (!studyGroup) {
-      throw new EntityNotExistException('StudyGroup')
-    }
-
-    if (dto.capacity && dto.capacity < studyGroup._count.userGroup)
-      throw new ConflictFoundException(
-        'Capacity cannot be less than current members'
-      )
-
-    const { groupName, description, capacity, problemIds, invitationCode } = dto
-
-    let tags: { tagId: number }[] = []
-    if (problemIds)
-      tags = await this.prisma.problemTag.findMany({
+    return await this.prisma.$transaction(async (tx) => {
+      const studyGroup = await tx.group.findUnique({
         where: {
-          problemId: {
-            in: problemIds
-          }
+          id: groupId,
+          groupType: GroupType.Study
         },
         select: {
-          tagId: true
-        },
-        distinct: ['tagId']
-      })
-
-    const studyInfoUpdate =
-      capacity !== undefined || invitationCode !== undefined
-
-    return await this.prisma.group.update({
-      where: {
-        id: groupId,
-        groupType: GroupType.Study
-      },
-      data: {
-        groupName,
-        description,
-        ...(studyInfoUpdate && {
           studyInfo: {
-            update: {
-              capacity,
-              invitationCode
+            select: {
+              capacity: true
+            }
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: {
+            select: {
+              userGroup: true
             }
           }
-        }),
-        ...(problemIds && {
-          groupTag: {
-            deleteMany: {},
-            create: tags.map((tag) => ({ tagId: tag.tagId }))
-          },
-          sharedProblems: {
-            set: problemIds.map((id) => ({ id }))
-          }
-        })
+        }
+      })
+
+      if (!studyGroup) {
+        throw new EntityNotExistException('StudyGroup')
       }
+
+      if (dto.capacity && dto.capacity < studyGroup._count.userGroup)
+        throw new ConflictFoundException(
+          'Capacity cannot be less than current members'
+        )
+
+      const { groupName, description, capacity, problemIds, invitationCode } =
+        dto
+
+      let tags: { tagId: number }[] = []
+      if (problemIds)
+        tags = await tx.problemTag.findMany({
+          where: {
+            problemId: {
+              in: problemIds
+            }
+          },
+          select: {
+            tagId: true
+          },
+          distinct: ['tagId']
+        })
+
+      const studyInfoUpdate =
+        capacity !== undefined || invitationCode !== undefined
+
+      return await tx.group.update({
+        where: {
+          id: groupId,
+          groupType: GroupType.Study
+        },
+        data: {
+          groupName,
+          description,
+          ...(studyInfoUpdate && {
+            studyInfo: {
+              update: {
+                capacity,
+                invitationCode
+              }
+            }
+          }),
+          ...(problemIds && {
+            groupTag: {
+              deleteMany: {},
+              create: tags.map((tag) => ({ tagId: tag.tagId }))
+            },
+            sharedProblems: {
+              set: problemIds.map((id) => ({ id }))
+            }
+          })
+        }
+      })
     })
   }
 
