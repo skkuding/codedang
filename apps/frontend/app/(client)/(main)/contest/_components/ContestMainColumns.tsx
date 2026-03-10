@@ -12,7 +12,7 @@ export const columns: ColumnDef<Contest>[] = [
     header: 'Title',
     accessorKey: 'title',
     cell: ({ row }) => (
-      <p
+      <span
         className={cn(
           'overflow-hidden text-ellipsis whitespace-nowrap text-left text-base font-medium',
           row.original.status.toLowerCase().includes('upcoming') &&
@@ -20,7 +20,7 @@ export const columns: ColumnDef<Contest>[] = [
         )}
       >
         {row.original.title}
-      </p>
+      </span>
     )
   },
   {

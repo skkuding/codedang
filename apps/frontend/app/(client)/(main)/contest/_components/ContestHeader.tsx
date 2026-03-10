@@ -31,7 +31,7 @@ export function ContestHeader() {
   return (
     <>
       <div>
-        <p className="mt-[116px] text-4xl font-bold">CONTEST</p>
+        <p className="mb-1 mt-[116px] text-4xl font-bold">CONTEST</p>
         <p className="mb-12 text-lg font-medium text-[#5F6566]">
           대회에 참가하여 최상위권에 도전해보세요!
         </p>
@@ -48,7 +48,7 @@ export function ContestHeader() {
             <p className="mb-2 truncate text-2xl font-semibold">
               {feature.title}
             </p>
-            <p className="mb-4 line-clamp-2 overflow-hidden text-base font-medium text-[#5F6566]">
+            <p className="mb-4 line-clamp-2 text-base font-medium text-[#5F6566]">
               {feature.desc}
             </p>
             <Image
