@@ -15,17 +15,20 @@ export class StudyService {
   async createStudyGroup(userId: number, dto: CreateStudyDto) {
     const { groupName, description, capacity, problemIds, invitationCode } = dto
 
-    const tags = await this.prisma.problemTag.findMany({
-      where: {
-        problemId: {
-          in: problemIds
-        }
-      },
-      select: {
-        tagId: true
-      },
-      distinct: ['tagId']
-    })
+    let tags: { tagId: number }[] = []
+
+    if (problemIds && problemIds.length > 0)
+      tags = await this.prisma.problemTag.findMany({
+        where: {
+          problemId: {
+            in: problemIds
+          }
+        },
+        select: {
+          tagId: true
+        },
+        distinct: ['tagId']
+      })
 
     return await this.prisma.group.create({
       data: {
