@@ -44,13 +44,11 @@ jobs:
           - target: runner-pod-manager
             file: ''
             context: apps/runner/pod-manager
-            build-args: |
-              app_env=stage
-          - target: runner-backend
+            build-args: ''
+          - target: runner
             file: ''
             context: apps/runner/backend
-            build-args: |
-              app_env=stage
+            build-args: ''
 
     steps:
       - name: Setup Docker Buildx

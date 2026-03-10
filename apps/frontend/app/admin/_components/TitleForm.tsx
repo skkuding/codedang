@@ -34,9 +34,10 @@ export function TitleForm({ placeholder, className }: TitleFormProps) {
           id="title"
           type="text"
           placeholder={placeholder}
+          sizeVariant="sm"
           className={cn(
             inputStyle,
-            'h-[36px] border-none px-4 placeholder:text-sm focus-visible:ring-0'
+            'border-none px-4 placeholder:text-sm focus-visible:ring-0'
           )}
           maxLength={120}
           {...register('title', {

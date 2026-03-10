@@ -8,6 +8,10 @@ resources:
   - deployment.yaml
   - service.yaml
   - configmap.yaml
+  - redis-service.yaml
+  - redis-pvc.yaml
+  - redis-deployment.yaml
+  - resourcequota.yaml
 
 commonAnnotations:
   managed-by: kustomize
