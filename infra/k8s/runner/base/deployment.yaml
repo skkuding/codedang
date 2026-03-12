@@ -22,6 +22,12 @@ spec:
           envFrom:
             - configMapRef:
                 name: pod-manager-env
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: runner-redis-auth
+                  key: password
           resources:
             requests:
               cpu: 100m
