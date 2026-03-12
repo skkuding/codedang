@@ -25,7 +25,7 @@ import {
   UpdateCourseNoticeInput
 } from './model/course-notice.input'
 import { UpdateCourseQnAInput } from './model/course-qna.input'
-import { CourseInput } from './model/group.input'
+import { CourseInput, CreateGroupInput } from './model/group.input'
 import { DuplicateCourse, FindGroup } from './model/group.output'
 
 @Resolver(() => Group)
@@ -66,6 +66,15 @@ export class GroupResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
     return await this.groupService.duplicateCourse(groupId, req.user.id)
+  }
+
+  @Mutation(() => Group)
+  @UseGroupLeaderGuard()
+  async createGroup(
+    @Args('input') input: CreateGroupInput,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.groupService.createGroup(input, req.user.id)
   }
 
   @Query(() => [FindGroup])

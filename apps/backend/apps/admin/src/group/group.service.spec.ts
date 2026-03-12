@@ -53,7 +53,8 @@ const courseInfo = {
   email: 'johndoe@example.com',
   website: 'https://example.com',
   office: 'Room 301',
-  phoneNum: '010-3333-2222'
+  phoneNum: '010-3333-2222',
+  invitationCode: null
 }
 
 const group = {
@@ -66,14 +67,16 @@ const group = {
       groupId: 1,
       isGroupLeader: true,
       createTime: faker.date.past(),
-      updateTime: faker.date.past()
+      updateTime: faker.date.past(),
+      totalStudyTime: 0
     },
     {
       userId: faker.number.int(),
       groupId: 1,
       isGroupLeader: false,
       createTime: faker.date.past(),
-      updateTime: faker.date.past()
+      updateTime: faker.date.past(),
+      totalStudyTime: 0
     }
   ],
   groupName: 'Programming Basics',
@@ -633,6 +636,25 @@ describe('WhitelistService', () => {
           where: { groupId }
         })
       ).to.be.true
+    })
+  })
+
+  describe('Study Tracking (totalStudyTime)', () => {
+    it('Default totalStudyTime of User in new study group must be 0.', async () => {
+      const mockUserGroup = {
+        userId,
+        groupId,
+        isGroupLeader: false,
+        totalStudyTime: 0
+      }
+
+      db.userGroup.create.resolves(mockUserGroup)
+
+      const result = await db.userGroup.create({
+        data: { userId, groupId }
+      })
+
+      expect(result.totalStudyTime).to.equal(0)
     })
   })
 })

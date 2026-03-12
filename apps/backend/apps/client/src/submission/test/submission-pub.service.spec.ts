@@ -24,7 +24,8 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
   submissionResult: [],
-  score: new Prisma.Decimal(100)
+  score: new Prisma.Decimal(100),
+  groupId: null
 }
 
 describe('SubmissionPublicationService', () => {

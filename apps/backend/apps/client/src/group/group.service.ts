@@ -81,7 +81,8 @@ export class GroupService {
                 email: true,
                 phoneNum: true,
                 office: true,
-                website: true
+                website: true,
+                invitationCode: true
               }
             }
           }
