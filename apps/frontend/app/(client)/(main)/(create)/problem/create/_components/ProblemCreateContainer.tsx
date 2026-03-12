@@ -1,8 +1,11 @@
 'use client'
 
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
+import CheckBlueIcon from '@/public/icons/check-blue.svg'
+import UploadIcon from '@/public/icons/upload-gray.svg'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Check, X } from 'lucide-react'
@@ -12,11 +15,9 @@ import { AiFillFile } from 'react-icons/ai'
 import { BsPeopleFill } from 'react-icons/bs'
 import { FaBook, FaPen } from 'react-icons/fa'
 import { FaSquareCheck } from 'react-icons/fa6'
-import { FiUpload } from 'react-icons/fi'
 import { PiMagnifyingGlassFill, PiWrenchFill } from 'react-icons/pi'
 import { CheckerPage } from './CheckerPage'
 import { CollaborationPage } from './CollaborationPage'
-import { DeployPage } from './DeployPage'
 import { GeneratorPage } from './GeneratorPage'
 import { JudgePage } from './JudgePage'
 import { ProblemCreateContentSkeleton } from './ProblemCreateSkeletons'
@@ -24,6 +25,7 @@ import { StatementPage } from './StatementPage'
 import { TestsPage } from './TestsPage'
 import { ValidatorPage } from './ValidatorPage'
 
+// TODO: 스켈레톤 UI 변경
 export function ProblemCreateContainer() {
   // 스켈레톤 확인을 위한 더미코드
   useSuspenseQuery({
@@ -37,46 +39,70 @@ export function ProblemCreateContainer() {
   })
 
   // TODO: useSuspenseQuery를 사용해서 백엔드에서 받아오는 데이터로 변경하기 (TAB_INFO는 state만)
+  // TODO: text와 subText 톨지 이용해서 키값 추가하기
   const TAB_INFO = [
     {
       Icon: AiFillFile,
       label: 'Statement',
+      text: '문제 본문',
+      subText: '제목, 내용, 입출력, 샘플',
       state: 1,
       Component: StatementPage
     },
-    { Icon: FaBook, label: 'Tests', state: 2, Component: TestsPage },
-    { Icon: FaPen, label: 'Judge', state: null, Component: JudgePage },
+    {
+      Icon: FaBook,
+      label: 'Tests',
+      text: '테스트 케이스',
+      subText: '입력 및 정답 (Input & Output)',
+      state: 2,
+      Component: TestsPage
+    },
+    {
+      Icon: FaPen,
+      label: 'Solution',
+      text: '솔루션',
+      subText: '솔루션 업로드 및 테스트 검증',
+      state: null,
+      Component: JudgePage
+    },
     {
       Icon: PiWrenchFill,
       label: 'Generator',
+      text: '테스트 생성',
+      subText: '테스트 입력 생성',
       state: true,
       Component: GeneratorPage
     },
     {
       Icon: PiMagnifyingGlassFill,
       label: 'Validator',
+      text: '입력 검증',
+      subText: '입력 및 검증',
       state: null,
       Component: ValidatorPage
     },
     {
       Icon: FaSquareCheck,
       label: 'Checker',
+      text: '특수 채점',
+      subText: '특수 채점 기능',
       state: null,
       Component: CheckerPage
     },
     {
       Icon: BsPeopleFill,
       label: 'Collaboration',
+      text: '협업',
+      subText: '요청 승인 및 거절',
       state: 3,
       Component: CollaborationPage
-    },
-    { Icon: FiUpload, label: 'Deploy', state: null, Component: DeployPage }
+    }
   ] as const
 
-  const problemTitle = '2026-01-31 19:00'
-  const problemProgress = 'ready' as 'draft' | 'ready' | 'published'
+  const problemProgress = 'published' as 'draft' | 'ready' | 'published'
   const checklistCnt = 1 as number
-  const checklistDone = checklistCnt === 6
+  const [disableUpload, setDisableUpload] = useState(true)
+  const [openUploadModal, setOpenUploadModal] = useState(false)
 
   // ---- TODO END ----
 
@@ -85,60 +111,60 @@ export function ProblemCreateContainer() {
   const [tab, setTab] = useState('Statement')
 
   return (
-    <div className="px-29 gap-17 mt-14 flex w-[1440px] flex-col">
-      <div className="flex flex-col gap-6">
-        <p className="text-4xl font-bold">{problemTitle}</p>
-        <div className="flex items-end justify-between">
-          <div className="flex flex-col gap-[6px]">
-            <div className="flex gap-2">
-              <Image
-                src={
-                  {
-                    draft: '/icons/progress.svg',
-                    ready: '/icons/progress-green.svg',
-                    published: '/icons/progress-blue.svg'
-                  }[problemProgress]
-                }
-                width={20}
-                height={20}
-                alt="progress icon"
-              />
-              <p
-                className={cn('text-base font-medium capitalize', {
-                  'text-color-green-40': problemProgress === 'ready',
-                  'text-primary': problemProgress === 'published'
-                })}
-              >
-                {problemProgress}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Image
-                src={
-                  checklistDone ? '/icons/check-blue.svg' : '/icons/info.svg'
-                }
-                width={20}
-                height={20}
-                alt="progress icon"
-              />
-              <p
-                className={cn('text-error text-base font-medium', {
-                  'text-primary-strong': checklistDone
-                })}
-              >
-                {`${checklistCnt}/6`}
-              </p>
+    <div className="px-29 mt-14 flex w-[1440px] flex-col gap-6">
+      <div className="flex items-center justify-between gap-5">
+        <div className="flex flex-col gap-2">
+          <p className="text-head2_b_32">PROBLEM CREATE</p>
+          <div className="flex items-end justify-between">
+            <div className="flex flex-col gap-[6px]">
+              <div className="flex items-center gap-3">
+                <div className="border-1 border-primary rounded-sm px-[6.5px] py-1">
+                  <p className="text-caption1_m_13 text-primary">
+                    {problemProgress.toUpperCase()}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-body2_m_14">Ready 체크리스트</p>
+                  <p className="text-sub4_sb_14 text-primary">{`${checklistCnt}/6`}</p>
+                </div>
+              </div>
             </div>
           </div>
-          <Button className="itmes-center flex h-[49px] gap-3 px-[22.5px] py-3">
-            <AiFillFile size={20} />
-            <p className="text-lg">Save</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            onClick={() => setDisableUpload((prev) => !prev)}
+            className="itmes-center border-primary-light hover:bg-color-blue-95 flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
+          >
+            <Image
+              src={CheckBlueIcon}
+              alt="check blue icon"
+              width={20}
+              height={20}
+            />
+            <p className="text-sub3_sb_16 text-primary">저장하기</p>
+          </Button>
+          <Button
+            onClick={() => setOpenUploadModal(true)}
+            disabled={disableUpload}
+            className="itmes-center border-primary-light hover:bg-color-blue-95 disabled:border-color-neutral-95 flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
+          >
+            <Image src={UploadIcon} alt="upload icon" width={20} height={20} />
+            <p
+              className={cn(
+                'text-sub3_sb_16',
+                disableUpload ? 'text-color-neutral-70' : 'text-primary'
+              )}
+            >
+              문제 업로드
+            </p>
           </Button>
         </div>
       </div>
       <div className="flex gap-10">
         <div className="border-1 border-color-neutral-90 flex h-fit w-64 flex-col gap-3 rounded-2xl bg-white p-3">
-          {TAB_INFO.map(({ Icon, label, state }) => {
+          {TAB_INFO.map(({ Icon, label, text, subText, state }) => {
             const curTab = tab === label
 
             return (
@@ -153,7 +179,7 @@ export function ProblemCreateContainer() {
                 key={label}
                 onClick={() => setTab(label)}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <div className="grid size-6 place-items-center">
                     <Icon
                       size={20}
@@ -165,14 +191,17 @@ export function ProblemCreateContainer() {
                       })}
                     />
                   </div>
-                  <p
-                    className={cn('text-lg font-medium', {
-                      'text-primary-strong': curTab,
-                      'text-color-neutral-30': !curTab
-                    })}
-                  >
-                    {label}
-                  </p>
+                  <div className="flex flex-col gap-[2px]">
+                    <p
+                      className={cn('text-sub3_sb_16 bg-blue', {
+                        'text-primary-strong': curTab,
+                        'text-color-neutral-30': !curTab
+                      })}
+                    >
+                      {text}
+                    </p>
+                    <p className="text-caption3_r_13">{subText}</p>
+                  </div>
                 </div>
                 {state !== null && (
                   <div
@@ -205,6 +234,17 @@ export function ProblemCreateContainer() {
           </div>
         ))}
       </div>
+      <Modal
+        open={openUploadModal}
+        onOpenChange={setOpenUploadModal}
+        size="lg"
+        type="custom"
+        title=""
+        className="text-head3_sb_28!"
+        primaryButton={{ text: '예', onClick: () => {} }}
+      >
+        <p className="text-head3_sb_28">안녕</p>
+      </Modal>
     </div>
   )
 }
