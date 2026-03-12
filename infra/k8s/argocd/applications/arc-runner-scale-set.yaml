@@ -18,6 +18,11 @@ spec:
     - repoURL: https://github.com/skkuding/codedang
       targetRevision: main
       ref: codedang
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: main
+      path: infra/k8s/arc
+      directory:
+        include: 'github-app-secret.yaml'
   destination:
     namespace: arc-runners
     name: stage
