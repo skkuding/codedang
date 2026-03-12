@@ -114,6 +114,7 @@ export const userGroups: UserGroup[] = [
     userId: 1,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
+    totalStudyTime: 0,
     isGroupLeader: true
   },
   {
@@ -121,6 +122,7 @@ export const userGroups: UserGroup[] = [
     userId: 2,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
+    totalStudyTime: 0,
     isGroupLeader: false
   },
   {
@@ -128,6 +130,7 @@ export const userGroups: UserGroup[] = [
     userId: 1,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
+    totalStudyTime: 0,
     isGroupLeader: true
   },
   {
@@ -135,6 +138,7 @@ export const userGroups: UserGroup[] = [
     userId: 2,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
+    totalStudyTime: 0,
     isGroupLeader: false
   }
 ]

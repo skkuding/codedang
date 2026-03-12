@@ -65,6 +65,7 @@ const group = {
       userId: faker.number.int(),
       groupId: 1,
       isGroupLeader: true,
+      totalStudyTime: 0,
       createTime: faker.date.past(),
       updateTime: faker.date.past()
     },
@@ -72,6 +73,7 @@ const group = {
       userId: faker.number.int(),
       groupId: 1,
       isGroupLeader: false,
+      totalStudyTime: 0,
       createTime: faker.date.past(),
       updateTime: faker.date.past()
     }

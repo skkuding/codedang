@@ -28,6 +28,7 @@ const userGroup: UserGroup = {
   userId: 1,
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
+  totalStudyTime: 0,
   isGroupLeader: true
 }
 

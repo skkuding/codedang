@@ -91,6 +91,7 @@ describe('GroupMemberResolver', () => {
         userId,
         groupId,
         isGroupLeader: false,
+        totalStudyTime: 0,
         createTime: faker.date.past(),
         updateTime: faker.date.past()
       }

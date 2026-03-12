@@ -256,7 +256,8 @@ describe('GroupService', () => {
       const userGroupData: UserGroupData = {
         userId,
         groupId,
-        isGroupLeader: false
+        isGroupLeader: false,
+        totalStudyTime: 0
       }
 
       expect(res)
@@ -317,6 +318,7 @@ describe('GroupService', () => {
         userId,
         groupId,
         isGroupLeader: false,
+        totalStudyTime: 0,
         createTime: undefined,
         updateTime: undefined
       })
