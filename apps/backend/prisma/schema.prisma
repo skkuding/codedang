@@ -158,6 +158,9 @@ model Group {
   sharedProblems Problem[]
   courseQnA      CourseQnA[]
   CourseNotice   CourseNotice[]
+  groupTag       GroupTag[]
+
+  studyInfo StudyInfo?
 
   @@map("group")
 }
@@ -395,6 +398,16 @@ model ProblemTag {
   @@map("problem_tag")
 }
 
+model GroupTag {
+  id      Int   @id @default(autoincrement())
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  groupId Int   @map("group_id")
+  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tagId   Int   @map("tag_id")
+
+  @@map("group_tag")
+}
+
 model Tag {
   id         Int      @id @default(autoincrement())
   name       String   @unique
@@ -402,6 +415,7 @@ model Tag {
   updateTime DateTime @updatedAt @map("update_time")
 
   problemTag ProblemTag[]
+  groupTag   GroupTag[]
 
   @@map("tag")
 }
@@ -1183,4 +1197,14 @@ model PolygonApprovalRequest {
   rejectionReason String? @map("rejection_reason")
 
   @@map("polygon_approval_request")
+}
+
+model StudyInfo {
+  groupId        Int     @id @map("group_id")
+  capacity       Int     @default(10)
+  invitationCode String? @map("invitation_code")
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@map("study_info")
 }
