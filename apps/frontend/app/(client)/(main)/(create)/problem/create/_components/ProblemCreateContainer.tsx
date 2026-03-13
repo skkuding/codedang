@@ -94,8 +94,8 @@ export function ProblemCreateContainer() {
   ] as const
 
   const problemProgress = 'published' as 'draft' | 'ready' | 'published'
-  const checklistCnt = 1 as number
-  const [disableUpload, setDisableUpload] = useState(true)
+  const [checklistCnt, setChecklistCnt] = useState(1)
+  const checklistDone = checklistCnt === 6
   const [openUploadModal, setOpenUploadModal] = useState(false)
 
   // ---- TODO END ----
@@ -128,7 +128,6 @@ export function ProblemCreateContainer() {
         <div className="flex gap-2">
           <Button
             type="button"
-            onClick={() => setDisableUpload((prev) => !prev)}
             className="itmes-center border-primary-light hover:bg-color-blue-95 flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
           >
             <Image
@@ -141,14 +140,14 @@ export function ProblemCreateContainer() {
           </Button>
           <Button
             onClick={() => setOpenUploadModal(true)}
-            disabled={disableUpload}
-            className="itmes-center border-primary-light hover:bg-color-blue-95 disabled:border-color-neutral-95 flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
+            disabled={!checklistDone}
+            className="itmes-center border-primary-light bg-primary! hover:bg-primary-strong! disabled:border-color-neutral-95 disabled:bg-color-neutral-95! flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
           >
             <Image src={UploadIcon} alt="upload icon" width={20} height={20} />
             <p
               className={cn(
                 'text-sub3_sb_16',
-                disableUpload ? 'text-color-neutral-70' : 'text-primary'
+                !checklistDone ? 'text-color-neutral-70' : 'text-white'
               )}
             >
               문제 업로드
