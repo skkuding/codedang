@@ -6,7 +6,8 @@ import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
 import ArrowRightIcon from '@/public/icons/arrow-right-gray.svg'
 import CheckBlueIcon from '@/public/icons/check-blue.svg'
-import UploadIcon from '@/public/icons/upload-gray.svg'
+import GrayUploadIcon from '@/public/icons/upload-gray.svg'
+import WhiteUploadIcon from '@/public/icons/upload-white.svg'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import Image from 'next/image'
@@ -166,7 +167,12 @@ export function ProblemCreateContainer() {
             disabled={!checklistDone}
             className="itmes-center border-primary-light bg-primary! hover:bg-primary-strong! disabled:border-color-neutral-95 disabled:bg-color-neutral-95! flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
           >
-            <Image src={UploadIcon} alt="upload icon" width={20} height={20} />
+            <Image
+              src={checklistDone ? WhiteUploadIcon : GrayUploadIcon}
+              alt="upload icon"
+              width={20}
+              height={20}
+            />
             <p
               className={cn(
                 'text-sub3_sb_16',
