@@ -14,7 +14,7 @@ import { useState } from 'react'
 import { AiFillFile } from 'react-icons/ai'
 import { BsPeopleFill } from 'react-icons/bs'
 import { FaBook, FaPen } from 'react-icons/fa'
-import { FaSquareCheck } from 'react-icons/fa6'
+import { FaChevronDown, FaChevronUp, FaSquareCheck } from 'react-icons/fa6'
 import { PiMagnifyingGlassFill, PiWrenchFill } from 'react-icons/pi'
 import { CheckerPage } from './CheckerPage'
 import { CollaborationPage } from './CollaborationPage'
@@ -120,6 +120,29 @@ export function ProblemCreateContainer() {
                     Ready 체크리스트
                   </p>
                   <p className="text-sub4_sb_14 text-primary">{`${checklistCnt}/6`}</p>
+                </div>
+                {/* TODO: 해당 버튼 삭제 */}
+                <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      setChecklistCnt((prev) => (prev < 6 ? prev + 1 : prev))
+                    }
+                    variant={'outline'}
+                    className="h-fit p-1"
+                  >
+                    <FaChevronUp />
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      setChecklistCnt((prev) => (prev >= 0 ? prev - 1 : prev))
+                    }
+                    variant={'outline'}
+                    className="h-fit p-1"
+                  >
+                    <FaChevronDown />
+                  </Button>
                 </div>
               </div>
             </div>
