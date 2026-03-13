@@ -1,23 +1,45 @@
 'use client'
 
-import { cn } from '@/libs/utils'
-import type { Route } from 'next'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
+import { usePathname, useRouter } from 'next/navigation'
 
 export function ProblemTabs() {
   const pathname = usePathname()
+  const router = useRouter()
 
-  const isCurrentTab = (tab: string) => {
-    if (tab === '') {
-      return pathname === `/problem`
-    }
-    return pathname.startsWith(`/problem/${tab}`)
+  let currentTab: string
+  if (pathname.includes('creating')) {
+    currentTab = 'creating'
+  } else if (pathname.includes('my-problem')) {
+    currentTab = 'my-problem'
+  } else {
+    currentTab = 'published'
   }
 
   return (
-    <div className="pb-15 flex w-full items-center justify-start">
-      <div className="flex h-16 text-[#333333] md:gap-[60px]">
+    <Tabs value={currentTab}>
+      <TabsList>
+        <TabsTrigger value="published" onClick={() => router.push(`/problem`)}>
+          Published
+        </TabsTrigger>
+        <TabsTrigger
+          value="creating"
+          onClick={() => router.push(`/problem/creating`)}
+        >
+          Creating
+        </TabsTrigger>
+        <TabsTrigger
+          value="my-problem"
+          onClick={() => router.push(`/problem/my-problem`)}
+        >
+          My problem
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
+
+    /*
+    <div className="bg-Common-100 outline-Line-Normal flex items-center justify-start rounded-full p-1 outline outline-1 outline-offset-[-0.50px]">
+      <div className="bg-Primary-Normal inline-flex w-40 flex-col items-center justify-center gap-2.5 rounded-full py-3">
         <Link
           href={`/problem` as Route}
           className={cn(
@@ -52,5 +74,6 @@ export function ProblemTabs() {
         </Link>
       </div>
     </div>
+    */
   )
 }
