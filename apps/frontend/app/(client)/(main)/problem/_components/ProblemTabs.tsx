@@ -36,44 +36,5 @@ export function ProblemTabs() {
         </TabsTrigger>
       </TabsList>
     </Tabs>
-
-    /*
-    <div className="bg-Common-100 outline-Line-Normal flex items-center justify-start rounded-full p-1 outline outline-1 outline-offset-[-0.50px]">
-      <div className="bg-Primary-Normal inline-flex w-40 flex-col items-center justify-center gap-2.5 rounded-full py-3">
-        <Link
-          href={`/problem` as Route}
-          className={cn(
-            'flex justify-center p-[18px] py-[22.5px] text-lg',
-            'whitespace-nowrap',
-            isCurrentTab('') &&
-              'text-primary border-b-primary border-b-4 font-semibold'
-          )}
-        >
-          Published
-        </Link>
-        <Link
-          href={`/problem/creating` as Route}
-          className={cn(
-            'flex justify-center p-[18px] py-[22.5px] text-lg',
-            'whitespace-nowrap',
-            isCurrentTab('creating') &&
-              'text-primary border-b-primary border-b-4 font-semibold'
-          )}
-        >
-          Creating
-        </Link>
-        <Link
-          href={`/problem/my-problems` as Route}
-          className={cn(
-            'flex justify-center whitespace-nowrap p-[18px] py-[22.5px] text-lg',
-            isCurrentTab('my-problems') &&
-              'text-primary border-b-primary border-b-4 font-semibold'
-          )}
-        >
-          My problems
-        </Link>
-      </div>
-    </div>
-    */
   )
 }
