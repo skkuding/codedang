@@ -238,7 +238,7 @@ export default {
             10: '#171717',
             5: '#0F0F0F'
           },
-          coolNeutral: {
+          'cool-neutral': {
             99: '#F2F6F7',
             95: '#E9EEF0',
             90: '#DCE3E5',
