@@ -26,8 +26,6 @@ import { TestsPage } from './TestsPage'
 import { UploadButton } from './UploadButton'
 import { ValidatorPage } from './ValidatorPage'
 
-// TODO: 스켈레톤 UI 변경
-// TODO: neutral -> cool neutral
 export function ProblemCreateContainer() {
   // 스켈레톤 확인을 위한 더미코드
   useSuspenseQuery({
@@ -165,7 +163,7 @@ export function ProblemCreateContainer() {
         </div>
       </div>
       <div className="flex gap-10">
-        <div className="border-1 border-color-neutral-90 flex h-fit w-72 flex-col rounded-2xl bg-white p-2">
+        <div className="border-1 border-color-cool-neutral-90 flex h-fit w-72 flex-col rounded-2xl bg-white p-2">
           {TAB_INFO.map(({ Icon, label, text, subText }) => {
             const curTab = tab === label
 
@@ -188,8 +186,8 @@ export function ProblemCreateContainer() {
                       className={cn({
                         'scale-x-[-1]':
                           label === 'Generator' || label === 'Collaboration',
-                        'text-color-neutral-40': curTab,
-                        'text-color-neutral-70': !curTab
+                        'text-color-cool-neutral-40': curTab,
+                        'text-color-cool-neutral-70': !curTab
                       })}
                     />
                   </div>
@@ -202,7 +200,7 @@ export function ProblemCreateContainer() {
                     >
                       {text}
                     </p>
-                    <p className="text-caption3_r_13 text-color-neutral-40">
+                    <p className="text-caption3_r_13 text-color-cool-neutral-40">
                       {subText}
                     </p>
                   </div>
