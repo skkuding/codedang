@@ -5,8 +5,6 @@ import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
 import ArrowRightIcon from '@/public/icons/arrow-right-gray.svg'
 import CheckBlueIcon from '@/public/icons/check-blue.svg'
-import GrayUploadIcon from '@/public/icons/upload-gray.svg'
-import WhiteUploadIcon from '@/public/icons/upload-white.svg'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import Image from 'next/image'
@@ -14,7 +12,7 @@ import { useState } from 'react'
 import { AiFillFile } from 'react-icons/ai'
 import { BsPeopleFill } from 'react-icons/bs'
 import { FaBook, FaPen } from 'react-icons/fa'
-import { FaChevronDown, FaChevronUp, FaSquareCheck } from 'react-icons/fa6'
+import { FaSquareCheck } from 'react-icons/fa6'
 import { PiMagnifyingGlassFill, PiWrenchFill } from 'react-icons/pi'
 import { CheckerPage } from './CheckerPage'
 import { CollaborationPage } from './CollaborationPage'
@@ -93,7 +91,7 @@ export function ProblemCreateContainer() {
   ] as const
 
   const problemProgress = 'published' as 'draft' | 'ready' | 'published'
-  const [checklistCnt, setChecklistCnt] = useState(1)
+  const [checklistCnt, setChecklistCnt] = useState(6)
   const checklistDone = checklistCnt === 6
 
   // ---- TODO END ----
@@ -114,40 +112,21 @@ export function ProblemCreateContainer() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="text-body2_m_14 text-color-coolNeutral-30">
+                  <p className="text-body2_m_14 text-color-cool-neutral-30">
                     Ready 체크리스트
                   </p>
                   <p className="text-sub4_sb_14 text-primary">{`${checklistCnt}/6`}</p>
-                </div>
-                {/* TODO: 해당 버튼 삭제 */}
-                <div className="flex gap-1">
-                  <Button
-                    type="button"
-                    onClick={() =>
-                      setChecklistCnt((prev) => (prev < 6 ? prev + 1 : prev))
-                    }
-                    variant={'outline'}
-                    className="h-fit p-1"
-                  >
-                    <FaChevronUp />
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() =>
-                      setChecklistCnt((prev) => (prev >= 0 ? prev - 1 : prev))
-                    }
-                    variant={'outline'}
-                    className="h-fit p-1"
-                  >
-                    <FaChevronDown />
-                  </Button>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div className="flex gap-2">
+          {/* TODO: 저장하기 버튼 로직 알맞게 수정하기 */}
           <Button
+            onClick={() =>
+              setChecklistCnt((prev) => (prev > 5 ? prev - 1 : prev + 1))
+            }
             type="button"
             className="itmes-center border-primary-light hover:bg-color-blue-95 flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
           >
@@ -159,7 +138,18 @@ export function ProblemCreateContainer() {
             />
             <p className="text-sub3_sb_16 text-primary">저장하기</p>
           </Button>
-          <UploadButton disabled={checklistDone} />
+          <UploadButton
+            disabled={checklistDone}
+            upload_target_texts={[
+              'meta.json// 제한시간, 메모리, 권한',
+              'statement.md// 문제 본문',
+              'Checker : checker.cpp (특수 채점)',
+              'Checker : checker.cpp (특수 채점)',
+              'Checker : checker.cpp (특수 채점)',
+              'Checker : checker.cpp (특수 채점)',
+              'Checker : checker.cpp (특수 채점)'
+            ]}
+          />
         </div>
       </div>
       <div className="flex gap-10">
