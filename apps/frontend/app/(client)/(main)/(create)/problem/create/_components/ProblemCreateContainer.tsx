@@ -1,7 +1,6 @@
 'use client'
 
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
 import ArrowRightIcon from '@/public/icons/arrow-right-gray.svg'
@@ -24,6 +23,7 @@ import { JudgePage } from './JudgePage'
 import { ProblemCreateContentSkeleton } from './ProblemCreateSkeletons'
 import { StatementPage } from './StatementPage'
 import { TestsPage } from './TestsPage'
+import { UploadButton } from './UploadButton'
 import { ValidatorPage } from './ValidatorPage'
 
 // TODO: 스켈레톤 UI 변경
@@ -97,7 +97,6 @@ export function ProblemCreateContainer() {
   const problemProgress = 'published' as 'draft' | 'ready' | 'published'
   const [checklistCnt, setChecklistCnt] = useState(1)
   const checklistDone = checklistCnt === 6
-  const [openUploadModal, setOpenUploadModal] = useState(false)
 
   // ---- TODO END ----
 
@@ -117,7 +116,7 @@ export function ProblemCreateContainer() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="text-body2_m_14 text-color-neutral-30">
+                  <p className="text-body2_m_14 text-color-coolNeutral-30">
                     Ready 체크리스트
                   </p>
                   <p className="text-sub4_sb_14 text-primary">{`${checklistCnt}/6`}</p>
@@ -162,26 +161,7 @@ export function ProblemCreateContainer() {
             />
             <p className="text-sub3_sb_16 text-primary">저장하기</p>
           </Button>
-          <Button
-            onClick={() => setOpenUploadModal(true)}
-            disabled={!checklistDone}
-            className="itmes-center border-primary-light bg-primary! hover:bg-primary-strong! disabled:border-color-neutral-95 disabled:bg-color-neutral-95! flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
-          >
-            <Image
-              src={checklistDone ? WhiteUploadIcon : GrayUploadIcon}
-              alt="upload icon"
-              width={20}
-              height={20}
-            />
-            <p
-              className={cn(
-                'text-sub3_sb_16',
-                !checklistDone ? 'text-color-neutral-70' : 'text-white'
-              )}
-            >
-              문제 업로드
-            </p>
-          </Button>
+          <UploadButton disabled={checklistDone} />
         </div>
       </div>
       <div className="flex gap-10">
@@ -217,7 +197,7 @@ export function ProblemCreateContainer() {
                     <p
                       className={cn('text-sub3_sb_16 bg-blue', {
                         'text-color-common-0': curTab,
-                        'text-color-neutral-30': !curTab
+                        'text-color-cool-neutral-30': !curTab
                       })}
                     >
                       {text}
@@ -247,17 +227,6 @@ export function ProblemCreateContainer() {
           </div>
         ))}
       </div>
-      <Modal
-        open={openUploadModal}
-        onOpenChange={setOpenUploadModal}
-        size="lg"
-        type="custom"
-        title=""
-        className="text-head3_sb_28!"
-        primaryButton={{ text: '예', onClick: () => {} }}
-      >
-        <p className="text-head3_sb_28">안녕</p>
-      </Modal>
     </div>
   )
 }
