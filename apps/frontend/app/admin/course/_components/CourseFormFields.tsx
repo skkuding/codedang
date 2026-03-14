@@ -16,8 +16,13 @@ export function CourseFormFields() {
   const currentYear = new Date().getFullYear()
   const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
   const month = new Date().getMonth() + 1
+  const weekOptions = Array.from({ length: 16 }, (_, i) => {
+    const week = i + 1
+    return { label: `${week} weeks`, value: week }
+  })
 
   let currentSeasonIdx = 0
+  let baseYear = currentYear
   if (month >= 3 && month <= 5) {
     currentSeasonIdx = 0
   } else if (month >= 6 && month <= 8) {
@@ -25,17 +30,20 @@ export function CourseFormFields() {
   } else if (month >= 9 && month <= 11) {
     currentSeasonIdx = 2
   } else {
+    if (month <= 2) {
+      baseYear = baseYear - 1
+    }
     currentSeasonIdx = 3
   }
 
   const semesterItems = Array.from({ length: 5 }, (_, i) => {
     const seasonIdx = (currentSeasonIdx + i) % 4
     const yearOffset = Math.floor((currentSeasonIdx + i) / 4)
-    return `${currentYear + yearOffset} ${seasons[seasonIdx]}`
+    return `${baseYear + yearOffset} ${seasons[seasonIdx]}`
   })
 
   return (
-    <div className="flex flex-col gap-[10px]">
+    <div className="flex flex-col gap-[10px] px-1">
       <FormSection isFlexColumn title="Professor" className="gap-[6px]">
         <InputForm placeholder="홍길동" name="professor" type="text" />
       </FormSection>
@@ -67,7 +75,7 @@ export function CourseFormFields() {
         />
       </FormSection>
       <FormSection isFlexColumn title="Week" className="gap-[6px]">
-        <DropdownForm name="week" items={[3, 6, 15]} />
+        <DropdownForm name="week" items={weekOptions} />
       </FormSection>
       <FormSection isFlexColumn title="Semester" className="gap-[6px]">
         <DropdownForm name="semester" items={semesterItems} />
@@ -81,7 +89,21 @@ export function CourseFormFields() {
           className="gap-[6px]"
           titleSize="base"
         >
-          <InputForm placeholder="example@skku.edu" name="email" type="email" />
+          <div className="flex items-center gap-2">
+            <InputForm
+              placeholder="example"
+              name="emailLocal"
+              type="text"
+              className="w-[45%]"
+            />
+            <span className="select-none">@</span>
+            <InputForm
+              placeholder="skku.edu"
+              name="emailDomain"
+              type="text"
+              className="w-[55%]"
+            />
+          </div>
         </FormSection>
         <FormSection
           isFlexColumn
@@ -90,7 +112,31 @@ export function CourseFormFields() {
           titleSize="base"
           isLabeled={false}
         >
-          <InputForm placeholder="010-1234-5678" name="phoneNum" type="text" />
+          <div className="flex items-center gap-2">
+            <InputForm
+              placeholder="010"
+              name="phoneNum1"
+              type="text"
+              maxLength={3}
+              className="w-[28%]"
+            />
+            <span className="select-none">-</span>
+            <InputForm
+              placeholder="1234"
+              name="phoneNum2"
+              type="text"
+              maxLength={4}
+              className="w-[36%]"
+            />
+            <span className="select-none">-</span>
+            <InputForm
+              placeholder="5678"
+              name="phoneNum3"
+              type="text"
+              maxLength={4}
+              className="w-[36%]"
+            />
+          </div>
         </FormSection>
         <FormSection
           isFlexColumn

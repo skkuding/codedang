@@ -1,28 +1,44 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
   name: minio-monitoring
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
   labels:
     app.kubernetes.io/environment: 'production'
 spec:
-  project: default
-  source:
-    path: infra/k8s/monitoring/minio
-    repoURL: https://github.com/skkuding/codedang
-    targetRevision: main
-    directory:
-      # kustomization.yaml is ignored if recurse is true
-      recurse: false
-  destination:
-    namespace: monitoring-minio
-    name: production
+  # Preserves deployed resources when ApplicationSet or Application is deleted (prevents data loss)
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - PrunePropagationPolicy=foreground
+    preserveResourcesOnDeletion: true
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: release
+  template:
+    metadata:
+      name: 'minio-monitoring-{{.env}}'
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+      project: default
+      source:
+        path: infra/k8s/monitoring/minio/overlays/{{.env}}
+        repoURL: https://github.com/skkuding/codedang
+        targetRevision: '{{.branch}}'
+        directory:
+          # kustomization.yaml is ignored if recurse is true
+          recurse: false
+      destination:
+        namespace: monitoring-minio
+        name: '{{.env}}'
+      syncPolicy:
+        automated:
+          prune: false
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground

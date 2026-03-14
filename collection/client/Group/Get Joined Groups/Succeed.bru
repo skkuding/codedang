@@ -24,7 +24,47 @@ script:pre-request {
 }
 
 docs {
-  # Get Joined Groups
+  # 📘 Get Joined Groups
+  
+  **GET** `/group/joined`
+  
+  Retrieve a list of groups that the current user has joined.
+  
+  현재 User가 속해있는 Group 정보를 반환합니다.
+  
+  - 현재 로그인한 유저(`req.user.id`)가 가입한 그룹 목록을 데이터베이스에서 조회합니다.
+  
+  - 기본 그룹(`id: 1`)은 목록에서 제외하며, `GroupType.Study` 타입의 그룹만 필터링하여 반환합니다.
+  
+  - 가입한 시간이 최신인 순서(`createTime: desc`)대로 정렬됩니다.
+  
+  - 각 그룹의 ID, 이름, 설명, 멤버 수(`memberNum`), 그리고 본인의 리더 여부(`isGroupLeader`) 정보를 포함합니다.
+  
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  별도의 `Guard`는 명시되지 않았으나, `AuthenticatedRequest`를 사용하여 로그인된 유저의 토큰 정보가 필요합니다.
+  
   ---
-  - 현재 User가 속해있는 Group 정보를 반환합니다.
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  
+  
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `none`
 }

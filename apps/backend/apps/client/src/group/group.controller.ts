@@ -11,26 +11,35 @@ import {
   Post,
   Query,
   Req,
-  UseGuards
+  UseGuards,
+  ParseIntPipe
 } from '@nestjs/common'
 import { GroupType } from '@prisma/client'
 import {
   AuthenticatedRequest,
   AuthNotNeededIfPublic,
-  GroupMemberGuard
+  GroupMemberGuard,
+  UserNullWhenAuthFailedIfPublic
 } from '@libs/auth'
 import {
   CourseNoticeOrderPipe,
   CursorValidationPipe,
   GroupIDPipe,
+  OptionalParseIntPipe,
   RequiredIntPipe
 } from '@libs/pipe'
 import type {
   CreateCourseNoticeCommentDto,
   UpdateCourseNoticeCommentDto
 } from './dto/courseNotice.dto'
+import {
+  CreateCourseQnADto,
+  CreateCourseQnACommentDto,
+  GetCourseQnAsFilterDto,
+  UpdateCourseQnADto
+} from './dto/qna.dto'
 import type { CourseNoticeOrder } from './enum/course-notice-order.enum'
-import { GroupService } from './group.service'
+import { GroupService, CourseService } from './group.service'
 
 @Controller('group')
 export class GroupController {
@@ -70,7 +79,10 @@ export class GroupController {
 export class CourseController {
   private readonly logger = new Logger(CourseController.name)
 
-  constructor(private readonly groupService: GroupService) {}
+  constructor(
+    private readonly groupService: GroupService,
+    private readonly courseService: CourseService
+  ) {}
 
   @Get('invite')
   async getCourseByInvitation(
@@ -269,7 +281,7 @@ export class CourseController {
    * @returns 삭제된 댓글의 내용을 반환합니다.
    */
   @Delete('notice/:id/comment/:commentId')
-  async deleteComment(
+  async deleteNoticeComment(
     @Req() req: AuthenticatedRequest,
     @Param('id', new RequiredIntPipe('id')) id: number,
     @Param('commentId', new RequiredIntPipe('commentId'))
@@ -280,5 +292,163 @@ export class CourseController {
       id,
       commentId
     })
+  }
+
+  /**
+   * Create a new Q&A for the course.
+   * @param req - Authenticated request object containing user info.
+   * @param courseId - The ID of the course (Group ID).
+   * @param createCourseQnADto - DTO containing title, content, and private setting.
+   * @param problemId - (Optional) The ID of the related problem.
+   * @returns The created Course Q&A.
+   */
+  @Post(':id/qna')
+  async createCourseQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', GroupIDPipe) courseId: number,
+    @Body() createCourseQnADto: CreateCourseQnADto,
+    @Query('problemId', OptionalParseIntPipe) problemId?: number
+  ) {
+    return await this.courseService.createCourseQnA(
+      req.user.id,
+      courseId,
+      createCourseQnADto,
+      problemId
+    )
+  }
+
+  /**
+   * Get a list of Q&As for the course.
+   * @param req - Request object (User is optional if the course is public).
+   * @param courseId - The ID of the course.
+   * @param filter - Filter options (e.g., specific week, category).
+   * @param cursor - Pagination cursor (last QnA ID).
+   * @param take - Number of items to retrieve (default: 10).
+   * @returns List of Course Q&As.
+   */
+  @Get(':id/qna')
+  @UserNullWhenAuthFailedIfPublic()
+  async getCourseQnAs(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', GroupIDPipe) courseId: number,
+    @Query() filter: GetCourseQnAsFilterDto,
+    @Query('cursor', new CursorValidationPipe()) cursor: number | null,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number
+  ) {
+    return await this.courseService.getCourseQnAs(
+      req.user?.id,
+      courseId,
+      filter,
+      cursor,
+      take
+    )
+  }
+
+  /**
+   * Get a specific Q&A details.
+   * @param req - Request object.
+   * @param courseId - The ID of the course.
+   * @param order - The order number of the Q&A within the course.
+   * @returns Detailed information of the Course Q&A.
+   */
+  @Get(':id/qna/:order')
+  @UserNullWhenAuthFailedIfPublic()
+  async getCourseQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', GroupIDPipe) courseId: number,
+    @Param('order', ParseIntPipe) order: number
+  ) {
+    return await this.courseService.getCourseQnA(req.user?.id, courseId, order)
+  }
+
+  /**
+   * Update an existing Course Q&A.
+   * @param req - Authenticated request object.
+   * @param courseId - The ID of the course.
+   * @param order - The order number of the Q&A to update.
+   * @param updateCourseQnADto - DTO containing fields to update.
+   * @returns The updated Course Q&A.
+   */
+  @Patch(':id/qna/:order')
+  async updateCourseQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', GroupIDPipe) courseId: number,
+    @Param('order', ParseIntPipe) order: number,
+    @Body() updateCourseQnADto: UpdateCourseQnADto
+  ) {
+    return await this.courseService.updateCourseQnA(
+      req.user.id,
+      courseId,
+      order,
+      updateCourseQnADto
+    )
+  }
+
+  /**
+   * Delete a Course Q&A.
+   * @param req - Authenticated request object.
+   * @param courseId - The ID of the course.
+   * @param order - The order number of the Q&A to delete.
+   * @returns The result of the deletion.
+   */
+  @Delete(':id/qna/:order')
+  async deleteCourseQnA(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', GroupIDPipe) courseId: number,
+    @Param('order', ParseIntPipe) order: number
+  ) {
+    return await this.courseService.deleteCourseQnA(
+      req.user.id,
+      courseId,
+      order
+    )
+  }
+
+  /**
+   * Create a comment for a specific Course Q&A.
+   * @param req - Authenticated request object.
+   * @param courseId - The ID of the course.
+   * @param order - The order number of the Q&A.
+   * @param createCommentDto - DTO containing the comment content.
+   * @returns The created comment.
+   */
+  @Post(':id/qna/:order/comment')
+  async createQnaComment(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', GroupIDPipe) courseId: number,
+    @Param('order', ParseIntPipe) order: number,
+    @Body() createCommentDto: CreateCourseQnACommentDto
+  ) {
+    return await this.courseService.createCourseQnAComment(
+      req.user.id,
+      courseId,
+      order,
+      createCommentDto.content
+    )
+  }
+
+  /**
+   * Delete a comment from a Course Q&A.
+   * @param req - Authenticated request object.
+   * @param courseId - The ID of the course.
+   * @param qnaOrder - The order number of the Q&A.
+   * @param commentOrder - The order number of the comment to delete.
+   * @returns The result of the deletion.
+   */
+  @Delete(':id/qna/:qnaOrder/comment/:commentOrder')
+  async deleteQnaComment(
+    // 메서드 이름 충돌 방지를 위해 deleteComment -> deleteQnaComment로 변경
+    @Req() req: AuthenticatedRequest,
+    @Param('id', GroupIDPipe) courseId: number,
+    @Param('qnaOrder', ParseIntPipe) qnaOrder: number,
+    @Param('commentOrder', ParseIntPipe) commentOrder: number
+  ) {
+    return await this.courseService.deleteCourseQnAComment(
+      req.user.id,
+      courseId,
+      qnaOrder,
+      commentOrder
+    )
   }
 }

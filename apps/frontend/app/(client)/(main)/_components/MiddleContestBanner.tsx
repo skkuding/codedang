@@ -14,7 +14,7 @@ export function MiddleContestBanner() {
         <ImageBox className={'h-full flex-1'} />
       </div>
       {/* Mobile View */}
-      <div className="w-full md:hidden">
+      <div className="w-full py-[30px] md:hidden">
         <Link href={`/notice/${contestNoticeId}`} className="block w-full">
           <div className="relative h-[132px] w-full overflow-hidden">
             <Image

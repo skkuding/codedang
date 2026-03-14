@@ -69,8 +69,9 @@ export function SearchBar({
       />
       <Input
         placeholder="Search"
+        sizeVariant="sm"
         className={cn(
-          'h-9 rounded-full px-8 placeholder:text-[#C4C4C4]',
+          'rounded-full px-8 placeholder:text-[#C4C4C4]',
           heightClassMap[height],
           fontSize === 'lg'
             ? 'text-lg placeholder:text-lg'

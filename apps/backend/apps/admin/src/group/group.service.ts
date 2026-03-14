@@ -16,6 +16,7 @@ import type {
   CreateCourseNoticeInput,
   UpdateCourseNoticeInput
 } from './model/course-notice.input'
+import type { UpdateCourseQnAInput } from './model/course-qna.input'
 import type { CourseInput } from './model/group.input'
 
 @Injectable()
@@ -25,6 +26,17 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
+  /**
+   * 새로운 강좌(Course)를 생성합니다.
+   *
+   * @param input - 강좌 생성 정보 (제목, 설명, 학기, 설정 등)
+   * @param user - 요청한 사용자 (생성 권한이 필요함)
+   * @returns 생성된 강좌 객체 (Partial)
+   *
+   * @throws EntityNotExistException - 사용자가 존재하지 않는 경우
+   * @throws ForbiddenAccessException - 사용자가 강좌 생성 권한(canCreateCourse)을 가지고 있지 않은 경우
+   * @throws UnprocessableDataException - 강좌 생성 중 DB 에러 발생 시
+   */
   async createCourse(
     input: CourseInput,
     user: AuthenticatedUser
@@ -89,39 +101,62 @@ export class GroupService {
     }
   }
 
+  /**
+   * 강좌(Course) 목록을 조회합니다.
+   *
+   * @param cursor - 페이지네이션 커서 (이전 페이지의 마지막 ID)
+   * @param take - 가져올 항목의 개수
+   * @returns 강좌 목록과 각 강좌의 멤버 수(memberNum)
+   *
+   * @remarks
+   * 성능 최적화를 위해 `userGroup` 전체 관계를 로드하는 대신 `_count`를 사용하여 멤버 수를 조회합니다.
+   */
   async getCourses(cursor: number | null, take: number) {
     const paginator = this.prisma.getPaginator(cursor)
 
-    return (
-      await this.prisma.group.findMany({
-        ...paginator,
-        take,
-        where: {
-          groupType: GroupType.Course
-        },
-        select: {
-          id: true,
-          groupName: true,
-          config: true,
-          userGroup: true,
-          courseInfo: true
+    const groups = await this.prisma.group.findMany({
+      ...paginator,
+      take,
+      where: {
+        groupType: GroupType.Course
+      },
+      select: {
+        id: true,
+        groupName: true,
+        config: true,
+        courseInfo: true,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: { userGroup: true }
         }
-      })
-    ).map((data) => {
-      const { userGroup, ...group } = data
-      return {
-        ...group,
-        memberNum: userGroup.length
       }
     })
+
+    return groups.map(({ _count, ...rest }) => ({
+      ...rest,
+      memberNum: _count.userGroup
+    }))
   }
 
+  /**
+   * 사용자가 리더(Leader)로 속해 있는 그룹 목록을 조회합니다.
+   *
+   * @param userId - 사용자 ID
+   * @param groupType - 조회할 그룹 타입 (예: GroupType.Course)
+   * @returns 그룹 목록과 각 그룹의 멤버 수(memberNum)
+   *
+   * @remarks
+   * `getCourses`와 마찬가지로 `_count`를 사용하여 멤버 수를 효율적으로 조회합니다.
+   */
   async getGroupsUserLead(userId: number, groupType: GroupType) {
     return (
       await this.prisma.userGroup.findMany({
         where: {
           userId,
-          isGroupLeader: true
+          isGroupLeader: true,
+          group: {
+            groupType
+          }
         },
         select: {
           group: {
@@ -136,14 +171,27 @@ export class GroupService {
           }
         }
       })
-    )
-      .filter(({ group }) => group.groupType === groupType)
-      .map(({ group }) => ({
-        ...group,
-        memberNum: group._count.userGroup
-      }))
+    ).map(({ group }) => {
+      const { _count, ...rest } = group
+      return {
+        ...rest,
+        memberNum: _count.userGroup
+      }
+    })
   }
 
+  /**
+   * 특정 강좌의 상세 정보를 조회합니다.
+   *
+   * @param id - 조회할 강좌 ID
+   * @returns 강좌 상세 정보, 멤버 수, 초대 코드(존재 시)
+   *
+   * @throws EntityNotExistException - 강좌가 존재하지 않는 경우
+   *
+   * @remarks
+   * - Redis 캐시를 확인하여 유효한 초대 코드(invitation)가 있다면 함께 반환합니다.
+   * - `include` 대신 `_count`를 사용하여 멤버 수를 조회합니다.
+   */
   async getCourse(id: number) {
     const group = await this.prisma.group.findUnique({
       where: { id, groupType: GroupType.Course },
@@ -179,6 +227,18 @@ export class GroupService {
     return group
   }
 
+  /**
+   * 강좌 정보를 수정합니다.
+   *
+   * @param id - 수정할 강좌 ID
+   * @param input - 변경할 강좌 정보 (설정, CourseInfo 포함)
+   * @returns 수정된 강좌 객체
+   *
+   * @throws UnprocessableDataException - 업데이트 중 DB 에러 발생 시
+   *
+   * @remarks
+   * `showOnList` 설정이 false일 경우 `allowJoinFromSearch`도 강제로 false로 설정됩니다.
+   */
   async updateCourse(id: number, input: CourseInput) {
     if (!input.config.showOnList) {
       input.config.allowJoinFromSearch = false
@@ -219,6 +279,19 @@ export class GroupService {
     }
   }
 
+  /**
+   * 그룹(또는 강좌)을 삭제합니다.
+   *
+   * @param id - 삭제할 그룹 ID
+   * @param groupType - 그룹 타입 (Course인 경우 연관된 CourseInfo도 함께 삭제 처리됨)
+   * @param user - 요청한 사용자
+   * @returns 삭제된 그룹 객체
+   *
+   * @throws ForbiddenAccessException - 요청한 사용자가 그룹 리더가 아닌 경우
+   *
+   * @remarks
+   * 그룹의 리더(Group Leader)만이 삭제 권한을 가집니다.
+   */
   async deleteGroup(id: number, groupType: GroupType, user: AuthenticatedUser) {
     const userGroup = await this.prisma.userGroup.findUnique({
       where: {
@@ -250,49 +323,62 @@ export class GroupService {
     })
   }
 
+  /**
+   * 기존 강좌를 복제하여 새로운 강좌를 생성합니다.
+   *
+   * @param groupId - 복제할 원본 강좌의 ID
+   * @param userId - 복제를 요청한 관리자(User)의 ID
+   * @returns 복제된 강좌 정보, 원본 과제 ID 목록, 복제된 과제 ID 목록
+   *
+   * @throws EntityNotExistException - 사용자가 존재하지 않는 경우
+   * @throws ForbiddenAccessException - 강좌 생성 권한이 없는 경우
+   * @throws UnprocessableDataException - 원본 강좌의 CourseInfo가 유효하지 않은 경우
+   *
+   * @remarks
+   * - `include`로 모든 연관 데이터를 가져온 후, 불필요한 필드(id, createTime 등)를 제외하고 복사합니다.
+   * - 과제(Assignment)와 문제(AssignmentProblem)도 함께 복제됩니다.
+   */
   async duplicateCourse(groupId: number, userId: number) {
     const userWithCanCreateCourse = await this.prisma.user.findUnique({
-      where: {
-        id: userId
-      },
-      select: {
-        canCreateCourse: true
-      }
+      where: { id: userId },
+      select: { canCreateCourse: true }
     })
     if (!userWithCanCreateCourse) {
       throw new EntityNotExistException('User not found')
     }
-
     if (!userWithCanCreateCourse.canCreateCourse) {
       throw new ForbiddenAccessException('No Access to create course')
     }
 
-    const { courseInfo, ...originCourse } =
-      await this.prisma.group.findUniqueOrThrow({
-        where: {
-          id: groupId
-        },
-        select: {
-          groupName: true,
-          groupType: true,
-          courseInfo: true,
-          config: true,
-          assignment: {
-            select: {
-              id: true
+    const originCourse = await this.prisma.group.findUniqueOrThrow({
+      where: { id: groupId },
+      select: {
+        groupName: true,
+        groupType: true,
+        courseInfo: true,
+        config: true,
+        assignment: {
+          include: {
+            assignmentProblem: {
+              select: {
+                order: true,
+                problemId: true,
+                score: true
+              }
             }
           }
         }
-      })
+      }
+    })
 
-    if (!courseInfo) {
+    if (!originCourse.courseInfo) {
       throw new UnprocessableDataException('Invalid groupId for a course')
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { groupId: _, ...duplicatedCourseInfo } = courseInfo
+    const { groupId: _, ...duplicatedCourseInfo } = originCourse.courseInfo
 
-    const duplicatedCourse = await this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx) => {
       const duplicatedCourse = await tx.group.create({
         data: {
           groupName: originCourse.groupName,
@@ -315,98 +401,62 @@ export class GroupService {
           courseInfo: true
         }
       })
+
       await tx.userGroup.create({
         data: {
-          user: {
-            connect: { id: userId }
-          },
-          group: {
-            connect: { id: duplicatedCourse.id }
-          },
+          user: { connect: { id: userId } },
+          group: { connect: { id: duplicatedCourse.id } },
           isGroupLeader: true
         }
       })
 
-      return duplicatedCourse
-    })
+      const now = new Date()
 
-    let result = await Promise.all(
-      originCourse.assignment.map(async ({ id: assignmentId }) => {
-        const [assignmentFound, assignmentProblemsFound] = await Promise.all([
-          this.prisma.assignment.findFirst({
-            where: {
-              id: assignmentId,
-              groupId
-            }
-          }),
-          this.prisma.assignmentProblem.findMany({
-            where: {
-              assignmentId
+      const results = await Promise.all(
+        originCourse.assignment.map(async (assignment) => {
+          const isVisible =
+            assignment.startTime <= now && now <= assignment.endTime
+
+          // prettier-ignore
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id: originId, createTime, updateTime, groupId: oldGroupId, assignmentProblem, ...assignmentData } = assignment
+
+          const newAssignment = await tx.assignment.create({
+            data: {
+              ...assignmentData,
+              createdById: userId,
+              groupId: duplicatedCourse.id,
+              isVisible
             }
           })
-        ])
 
-        if (!assignmentFound) {
-          throw new EntityNotExistException('assignment')
-        }
-
-        // if assignment status is ongoing, visible would be true. else, false
-        const now = new Date()
-        let newVisible = false
-        if (
-          assignmentFound.startTime <= now &&
-          now <= assignmentFound.endTime
-        ) {
-          newVisible = true
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { id, createTime, updateTime, title, ...assignmentDataToCopy } =
-          assignmentFound
-
-        try {
-          return await this.prisma.$transaction(async (tx) => {
-            const newAssignment = await tx.assignment.create({
-              data: {
-                ...assignmentDataToCopy,
-                title,
-                createdById: userId,
-                groupId: duplicatedCourse.id,
-                isVisible: newVisible
-              }
+          if (assignmentProblem && assignmentProblem.length > 0) {
+            await tx.assignmentProblem.createMany({
+              data: assignmentProblem.map((ap) => ({
+                order: ap.order,
+                assignmentId: newAssignment.id,
+                problemId: ap.problemId,
+                score: ap.score
+              }))
             })
+          }
 
-            // 2. copy assignment problems
-            await Promise.all(
-              assignmentProblemsFound.map((assignmentProblem) =>
-                tx.assignmentProblem.create({
-                  data: {
-                    order: assignmentProblem.order,
-                    assignmentId: newAssignment.id,
-                    problemId: assignmentProblem.problemId,
-                    score: assignmentProblem.score
-                  }
-                })
-              )
-            )
+          return {
+            originId,
+            newId: newAssignment.id
+          }
+        })
+      )
 
-            return id
-          })
-        } catch {
-          return null
-        }
-      })
-    )
+      const originAssignments = results.map((r) => r.originId)
+      const copiedAssignments = results.map((r) => r.newId)
 
-    result = result.filter((x) => x !== null)
-
-    return {
-      duplicatedCourse,
-      originAssignments: originCourse.assignment.map(
-        (assignment) => assignment.id
-      ),
-      copiedAssignments: result
-    }
+      return {
+        duplicatedCourse,
+        originAssignments,
+        copiedAssignments
+      }
+    })
   }
 }
 
@@ -770,5 +820,230 @@ export class WhitelistService {
         }
       })
     ).count
+  }
+}
+
+@Injectable()
+export class CourseService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getCourseQnAs(groupId: number, cursor: number | null, take: number) {
+    const paginator = this.prisma.getPaginator(cursor) // PrismaService의 헬퍼 사용
+
+    return await this.prisma.courseQnA.findMany({
+      ...paginator,
+      take,
+      where: { groupId },
+      include: { createdBy: { select: { username: true } } },
+      orderBy: { order: 'desc' }
+    })
+  }
+
+  async getCourseQnA(groupId: number, order: number) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: { groupId, order }
+      },
+      include: {
+        createdBy: { select: { username: true } },
+        comments: {
+          include: { createdBy: { select: { username: true } } },
+          orderBy: { order: 'asc' }
+        }
+      }
+    })
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+    return qna
+  }
+
+  async updateCourseQnA(groupId: number, input: UpdateCourseQnAInput) {
+    const { order, ...data } = input
+
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    return await this.prisma.courseQnA.update({
+      where: { id: qna.id },
+      data
+    })
+  }
+
+  async deleteCourseQnA(groupId: number, order: number) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    return await this.prisma.courseQnA.delete({ where: { id: qna.id } })
+  }
+
+  async createCourseQnAComment(
+    userId: number,
+    groupId: number,
+    order: number,
+    content: string
+  ) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order
+        }
+      },
+      select: { id: true, readBy: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const maxOrder = await tx.courseQnAComment.aggregate({
+        where: { courseQnAId: qna.id },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _max: { order: true }
+      })
+      const newOrder = (maxOrder._max?.order ?? 0) + 1
+
+      const comment = await tx.courseQnAComment.create({
+        data: {
+          content,
+          courseQnAId: qna.id,
+          createdById: userId,
+          isCourseStaff: true,
+          order: newOrder
+        }
+      })
+
+      const isAlreadyRead = qna.readBy.includes(userId)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updateData: any = { isResolved: true }
+
+      if (!isAlreadyRead) {
+        updateData.readBy = { push: userId }
+      }
+
+      await tx.courseQnA.update({
+        where: { id: qna.id },
+        data: updateData
+      })
+      return comment
+    })
+  }
+
+  async updateCourseQnAComment(
+    groupId: number,
+    qnaOrder: number,
+    commentOrder: number,
+    content: string
+  ) {
+    const qna = await this.prisma.courseQnA.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        groupId_order: {
+          groupId,
+          order: qnaOrder
+        }
+      },
+      select: { id: true }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+
+    // Comment ID 조회
+    const comment = await this.prisma.courseQnAComment.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        courseQnAId_order: { courseQnAId: qna.id, order: commentOrder }
+      },
+      select: { id: true }
+    })
+
+    if (!comment) {
+      throw new EntityNotExistException('CourseQnAComment')
+    }
+
+    return await this.prisma.courseQnAComment.update({
+      where: { id: comment.id },
+      data: { content }
+    })
+  }
+
+  async deleteCourseQnAComment(
+    groupId: number,
+    qnaOrder: number,
+    commentOrder: number
+  ) {
+    const qna = await this.prisma.courseQnA.findFirst({
+      where: {
+        groupId,
+        order: qnaOrder
+      },
+      select: {
+        id: true
+      }
+    })
+
+    if (!qna) {
+      throw new EntityNotExistException('CourseQnA')
+    }
+    const comment = await this.prisma.courseQnAComment.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        courseQnAId_order: { courseQnAId: qna.id, order: commentOrder }
+      }
+    })
+
+    if (!comment) {
+      throw new EntityNotExistException('CourseQnAComment')
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const deletedComment = await tx.courseQnAComment.delete({
+        where: { id: comment.id }
+      })
+
+      const lastComment = await tx.courseQnAComment.findFirst({
+        where: { courseQnAId: qna.id },
+        orderBy: { order: 'desc' },
+        select: { isCourseStaff: true }
+      })
+
+      const isResolved = lastComment ? lastComment.isCourseStaff : false
+      await tx.courseQnA.update({
+        where: { id: qna.id },
+        data: { isResolved }
+      })
+
+      return deletedComment
+    })
   }
 }

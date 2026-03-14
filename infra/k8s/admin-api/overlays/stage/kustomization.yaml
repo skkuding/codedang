@@ -6,7 +6,7 @@ resources:
   - ../../base
   - cors-middleware.yaml
   - secrets/database-credentials.yaml
-  - secrets/object-storage.yaml
+  - secrets/aws-credentials.yaml
   - secrets/security-keys.yaml
 
 patches:
@@ -18,3 +18,7 @@ patches:
     target:
       kind: Ingress
       name: admin-api-server-ingress
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: admin-api

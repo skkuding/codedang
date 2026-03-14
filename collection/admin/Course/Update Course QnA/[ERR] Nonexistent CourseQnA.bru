@@ -1,0 +1,46 @@
+
+meta {
+  name: [ERR] Nonexistent CourseQnA
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateCourseQnA($groupId: Int!, $input: UpdateCourseQnAInput!) {
+    updateCourseQnA(groupId: $groupId, input: $input) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "input": {
+      "order": 999,
+      "title": "Nonexistent QnA"
+    }
+  }
+}
+
+script:pre-request {
+  await require("./login").loginInstructor(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent CourseQnA
+
+  **POST** `/graphql (mutation: updateCourseQnA)`
+
+  The requested QnA does not exist in the course.
+
+  존재하지 않는 `order`로 Q&A 수정을 요청했을 때,
+
+  `EntityNotExistException('CourseQnA')`이 발생합니다.
+}

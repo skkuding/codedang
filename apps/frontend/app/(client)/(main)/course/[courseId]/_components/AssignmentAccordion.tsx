@@ -44,7 +44,7 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
 
   if (!assignments || assignments.length === 0) {
     return (
-      <div className="mt-4 lg:mt-8">
+      <div className="mt-13 lg:mt-8">
         <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">
           <p className="text-color-neutral-60 text-base">
             No assignments registered
@@ -146,7 +146,7 @@ function AssignmentAccordionItem({
             <div className="mr-6 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Badge
-                  variant="Course"
+                  variant="course"
                   className="min-w-fit px-2 py-1 text-xs font-medium lg:px-[10px] lg:text-sm"
                 >
                   Week {assignment.week.toString().padStart(2, '0')}
@@ -205,7 +205,7 @@ function AssignmentAccordionItem({
           <div className="hidden w-full items-center lg:flex">
             <div className="mr-4 w-[10%]">
               <Badge
-                variant="Course"
+                variant="course"
                 className="px-[10px] py-1 text-sm font-medium"
               >
                 Week {assignment.week.toString().padStart(2, '0')}
