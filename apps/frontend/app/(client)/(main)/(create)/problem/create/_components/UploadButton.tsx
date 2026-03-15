@@ -29,6 +29,7 @@ export function UploadButton({
     <Dialog>
       <DialogTrigger asChild>
         <Button
+          type="button"
           disabled={!disabled}
           className="itmes-center border-primary-light bg-primary! hover:bg-primary-strong! disabled:border-color-neutral-95 disabled:bg-color-neutral-95! flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
         >
