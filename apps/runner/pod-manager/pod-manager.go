@@ -69,6 +69,9 @@ type PodManager struct {
 	logger          Logger
 	namespace       string
 	imageTag        string
+	appEnv          string
+	otlpEndpoint    string
+	disableOTel     bool
 	targetPoolSize  int
 	leaseTimeout    time.Duration
 	readyTimeout    time.Duration
@@ -130,6 +133,9 @@ func NewPodManager(clientset *kubernetes.Clientset, logger Logger) (*PodManager,
 		logger:          logger,
 		namespace:       RunnerNamespace,
 		imageTag:        imageTag,
+		appEnv:          getenv("APP_ENV", "stage"),
+		otlpEndpoint:    strings.TrimSpace(getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "")),
+		disableOTel:     strings.EqualFold(getenv("DISABLE_INSTRUMENTATION", "false"), "true"),
 		targetPoolSize:  poolSize,
 		leaseTimeout:    time.Duration(leaseTimeoutSec) * time.Second,
 		readyTimeout:    time.Duration(readyTimeoutSec) * time.Second,
@@ -614,6 +620,21 @@ func (pm *PodManager) createAndWaitRunnerPod(nodeValue string) (*RunnerPod, erro
 
 func (pm *PodManager) createRunnerPod(nodeValue string) (*RunnerPod, error) {
 	privileged := true
+	runnerEnv := []corev1.EnvVar{
+		{Name: "APP_ENV", Value: pm.appEnv},
+	}
+	if pm.otlpEndpoint != "" {
+		runnerEnv = append(runnerEnv, corev1.EnvVar{
+			Name:  "OTEL_EXPORTER_OTLP_ENDPOINT_URL",
+			Value: pm.otlpEndpoint,
+		})
+	}
+	if pm.disableOTel {
+		runnerEnv = append(runnerEnv, corev1.EnvVar{
+			Name:  "DISABLE_INSTRUMENTATION",
+			Value: "true",
+		})
+	}
 
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
@@ -629,6 +650,7 @@ func (pm *PodManager) createRunnerPod(nodeValue string) (*RunnerPod, error) {
 					Name:            "runner",
 					Image:           fmt.Sprintf("%s:%s", "ghcr.io/skkuding/codedang-runner", pm.imageTag),
 					ImagePullPolicy: corev1.PullIfNotPresent,
+					Env:             runnerEnv,
 					Ports: []corev1.ContainerPort{
 						{ContainerPort: 8000},
 					},
