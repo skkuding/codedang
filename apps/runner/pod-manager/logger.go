@@ -114,3 +114,7 @@ func fieldsFromContext(ctx context.Context) []zap.Field {
 		zap.String("span_id", spanCtx.SpanID().String()),
 	}
 }
+
+func traceFields(ctx context.Context) []zap.Field {
+	return fieldsFromContext(ctx)
+}

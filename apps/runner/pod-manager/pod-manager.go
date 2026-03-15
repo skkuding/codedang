@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -14,7 +15,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"go.uber.org/zap"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -52,6 +55,7 @@ type requestLogContext struct {
 	RequestID  string
 	ClientAddr string
 	StartedAt  time.Time
+	TraceCtx   context.Context
 }
 
 type leaseAttemptSummary struct {
@@ -79,6 +83,7 @@ type PodManager struct {
 	managerPodUID  string
 	stateStore     RunnerStateStore
 	sharedLeaseTTL time.Duration
+	tracer         trace.Tracer
 }
 
 func NewPodManager(clientset *kubernetes.Clientset, logger Logger) (*PodManager, error) {
@@ -133,6 +138,7 @@ func NewPodManager(clientset *kubernetes.Clientset, logger Logger) (*PodManager,
 		busyPods:        make(map[string]*RunnerPod),
 		managerPodName:  strings.TrimSpace(os.Getenv("HOSTNAME")),
 		sharedLeaseTTL:  time.Duration(SharedLeaseTTLSeconds) * time.Second,
+		tracer:          otel.Tracer(podManagerServiceName),
 	}
 
 	pm.stateStore = NewRunnerStateStoreFromEnv(logger)
@@ -165,7 +171,7 @@ func getenv(key, fallback string) string {
 	return fallback
 }
 
-func newRequestLogContext(r *http.Request) *requestLogContext {
+func newRequestLogContext(r *http.Request, traceCtx context.Context) *requestLogContext {
 	seq := atomic.AddUint64(&requestSequence, 1)
 	now := time.Now().UTC()
 
@@ -173,6 +179,7 @@ func newRequestLogContext(r *http.Request) *requestLogContext {
 		RequestID:  fmt.Sprintf("run-%d-%d", now.UnixNano(), seq),
 		ClientAddr: clientAddress(r),
 		StartedAt:  now,
+		TraceCtx:   traceCtx,
 	}
 }
 
@@ -192,24 +199,26 @@ func (pm *PodManager) logRequestEventLevel(level LogLevel, ctx *requestLogContex
 		return
 	}
 
-	zapFields := []zap.Field{
-		zap.String("event", event),
-		zap.String("manager_pod", pm.managerPodName),
+	messageFields := map[string]any{
+		"manager_pod": pm.managerPodName,
 	}
 	if ctx != nil {
-		zapFields = append(zapFields,
-			zap.String("request_id", ctx.RequestID),
-			zap.String("client_addr", ctx.ClientAddr),
-			zap.Int64("duration_ms", time.Since(ctx.StartedAt).Milliseconds()),
-		)
+		messageFields["request_id"] = ctx.RequestID
+		messageFields["client_addr"] = ctx.ClientAddr
 	}
 	for key, value := range fields {
 		if value == nil {
 			continue
 		}
-		zapFields = append(zapFields, zap.Any(key, value))
+		messageFields[key] = value
 	}
-	pm.logger.LogFields(level, event, zapFields...)
+
+	message := formatLogMessage(event, messageFields)
+	if ctx != nil && ctx.TraceCtx != nil {
+		pm.logger.LogWithContext(level, message, ctx.TraceCtx)
+		return
+	}
+	pm.logger.Log(level, message)
 }
 
 func (pm *PodManager) logRequestEvent(ctx *requestLogContext, event string, fields map[string]any) {
@@ -235,6 +244,25 @@ func validationFailureReason(err error) string {
 	default:
 		return "validation_failed"
 	}
+}
+
+func formatLogMessage(event string, fields map[string]any) string {
+	if len(fields) == 0 {
+		return event
+	}
+
+	keys := make([]string, 0, len(fields))
+	for key := range fields {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	parts := make([]string, 0, len(keys)+1)
+	parts = append(parts, event)
+	for _, key := range keys {
+		parts = append(parts, fmt.Sprintf("%s=%v", key, fields[key]))
+	}
+	return strings.Join(parts, " ")
 }
 
 func loadRunnerNodePools(defaultPoolSize int) (string, []RunnerNodePool, error) {
@@ -762,6 +790,12 @@ func (pm *PodManager) useGlobalRedisScheduler() bool {
 }
 
 func (pm *PodManager) leasePodFromSharedPool(ctx *requestLogContext) (*RunnerPod, leaseAttemptSummary, error) {
+	leaseCtx, leaseSpan := pm.tracer.Start(
+		ctx.TraceCtx,
+		semanticSpanName(podManagerServiceName, "pod-manager", "leasePodFromSharedPool"),
+	)
+	defer leaseSpan.End()
+
 	deadline := time.Now().Add(pm.leaseTimeout)
 	summary := leaseAttemptSummary{}
 	for {
@@ -771,7 +805,7 @@ func (pm *PodManager) leasePodFromSharedPool(ctx *requestLogContext) (*RunnerPod
 
 		summary.Attempts++
 		lease, err := pm.stateStore.AcquireIdleRunnerLease(
-			context.Background(),
+			leaseCtx,
 			pm.managerPodName,
 			pm.managerPodUID,
 			pm.sharedLeaseTTL,
@@ -785,7 +819,7 @@ func (pm *PodManager) leasePodFromSharedPool(ctx *requestLogContext) (*RunnerPod
 			continue
 		}
 
-		pod, err := pm.loadLeasedRunnerPod(lease)
+		pod, err := pm.loadLeasedRunnerPod(leaseCtx, lease)
 		if err != nil {
 			summary.ValidationFailures++
 			pm.logRequestEvent(ctx, "run.validation_failed", map[string]any{
@@ -808,13 +842,23 @@ func (pm *PodManager) leasePodFromSharedPool(ctx *requestLogContext) (*RunnerPod
 	}
 }
 
-func (pm *PodManager) loadLeasedRunnerPod(lease *RunnerLease) (*RunnerPod, error) {
+func (pm *PodManager) loadLeasedRunnerPod(ctx context.Context, lease *RunnerLease) (*RunnerPod, error) {
+	validateCtx, validateSpan := pm.tracer.Start(
+		ctx,
+		semanticSpanName(podManagerServiceName, "pod-manager", "loadLeasedRunnerPod"),
+	)
+	defer validateSpan.End()
+
 	if lease == nil {
 		return nil, errors.New("nil lease")
 	}
+	validateSpan.SetAttributes(
+		attribute.String("runner.pod_name", lease.Record.PodName),
+		attribute.String("runner.node_pool", lease.Record.NodePoolID),
+	)
 
 	pod, err := pm.clientset.CoreV1().Pods(pm.namespace).Get(
-		context.Background(),
+		validateCtx,
 		lease.Record.PodName,
 		metav1.GetOptions{},
 	)
@@ -844,13 +888,24 @@ func (pm *PodManager) loadLeasedRunnerPod(lease *RunnerLease) (*RunnerPod, error
 }
 
 func (pm *PodManager) releasePod(ctx *requestLogContext, pod *RunnerPod, forceReplace bool) {
+	releaseCtx, releaseSpan := pm.tracer.Start(
+		ctx.TraceCtx,
+		semanticSpanName(podManagerServiceName, "pod-manager", "releasePod"),
+	)
+	defer releaseSpan.End()
+	releaseSpan.SetAttributes(
+		attribute.String("runner.pod_name", pod.Name),
+		attribute.String("runner.node_pool", pod.NodePoolID),
+		attribute.Bool("runner.force_replace", forceReplace),
+	)
+
 	pm.mu.Lock()
 	delete(pm.busyPods, pod.Name)
 	pm.mu.Unlock()
 
 	if !forceReplace && pm.isPodReusable(pod.Name) {
 		ok, err := pm.stateStore.ReleaseRunnerLease(
-			context.Background(),
+			releaseCtx,
 			pod.Name,
 			pod.LeaseToken,
 			RunnerStateIdle,
@@ -1071,6 +1126,16 @@ func (pm *PodManager) reapOrphanLeases() {
 }
 
 func (pm *PodManager) dialPodWebSocket(ctx *requestLogContext, pod *RunnerPod) (*websocket.Conn, int, error) {
+	_, dialSpan := pm.tracer.Start(
+		ctx.TraceCtx,
+		semanticSpanName(podManagerServiceName, "pod-manager", "dialPodWebSocket"),
+	)
+	defer dialSpan.End()
+	dialSpan.SetAttributes(
+		attribute.String("runner.pod_name", pod.Name),
+		attribute.String("runner.node_pool", pod.NodePoolID),
+	)
+
 	wsURL := fmt.Sprintf("ws://%s:8000/ws", pod.IP)
 	dialer := &websocket.Dialer{
 		HandshakeTimeout: 5 * time.Second,
@@ -1100,7 +1165,18 @@ func (pm *PodManager) dialPodWebSocket(ctx *requestLogContext, pod *RunnerPod) (
 }
 
 func (pm *PodManager) handleWebSocket(w http.ResponseWriter, r *http.Request) {
-	reqCtx := newRequestLogContext(r)
+	traceCtx, rootSpan := pm.tracer.Start(
+		r.Context(),
+		semanticSpanName(podManagerServiceName, "pod-manager", "handleWebSocket"),
+	)
+	defer rootSpan.End()
+
+	reqCtx := newRequestLogContext(r, traceCtx)
+	rootSpan.SetAttributes(
+		attribute.String("request.id", reqCtx.RequestID),
+		attribute.String("client.addr", reqCtx.ClientAddr),
+		attribute.String("http.route", "/run"),
+	)
 	pm.logRequestEvent(reqCtx, "run.request_started", map[string]any{
 		"result": "started",
 	})
@@ -1135,6 +1211,16 @@ func (pm *PodManager) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	forceReplace := false
 	defer func() {
 		pm.releasePod(reqCtx, pod, forceReplace)
+		rootSpan.SetAttributes(
+			attribute.String("runner.pod_name", pod.Name),
+			attribute.String("runner.node_pool", pod.NodePoolID),
+			attribute.String("result", result),
+			attribute.String("failure.reason", failureReason),
+			attribute.Int("lease.attempt", leaseSummary.Attempts),
+			attribute.Int("lease.nil_count", leaseSummary.NilCount),
+			attribute.Int("validation.fail_count", leaseSummary.ValidationFailures),
+			attribute.Int("dial.retry_count", dialRetryCount),
+		)
 		pm.logRequestEvent(reqCtx, "run.request_finished", map[string]any{
 			"runner_pod":            pod.Name,
 			"runner_node_pool":      pod.NodePoolID,

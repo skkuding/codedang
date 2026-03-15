@@ -127,3 +127,7 @@ func initInstrumentation(
 
 	return shutdown, initErr
 }
+
+func semanticSpanName(serviceName, component, function string) string {
+	return fmt.Sprintf("%s:%s:%s", serviceName, component, function)
+}
