@@ -1,17 +1,21 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
-	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
+	"time"
 
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 // 하나의 Pod - 하나의 isolate(boxID 0)
@@ -29,13 +33,68 @@ type Message struct {
 }
 
 type ConnectionContext struct {
-	conn *websocket.Conn
+	conn   *websocket.Conn
+	logger Logger
+
+	requestID  string
+	clientAddr string
+	startedAt  time.Time
 
 	stateMu   sync.Mutex
 	cmd       *exec.Cmd
 	stdinPipe io.WriteCloser
 
 	writeMu sync.Mutex
+}
+
+var (
+	upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+	backendLogger   Logger
+	requestSequence uint64
+)
+
+func newConnectionContext(conn *websocket.Conn, r *http.Request, logger Logger) *ConnectionContext {
+	seq := atomic.AddUint64(&requestSequence, 1)
+	now := time.Now().UTC()
+	return &ConnectionContext{
+		conn:       conn,
+		logger:     logger,
+		requestID:  fmt.Sprintf("runner-%d-%d", now.UnixNano(), seq),
+		clientAddr: clientAddress(r),
+		startedAt:  now,
+	}
+}
+
+func clientAddress(r *http.Request) string {
+	if r == nil {
+		return ""
+	}
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err == nil {
+		return host
+	}
+	return r.RemoteAddr
+}
+
+func (ctx *ConnectionContext) logEvent(event string, fields ...zap.Field) {
+	ctx.logEventLevel(LogLevelInfo, event, fields...)
+}
+
+func (ctx *ConnectionContext) logEventLevel(level LogLevel, event string, fields ...zap.Field) {
+	if ctx == nil || ctx.logger == nil {
+		return
+	}
+	base := []zap.Field{
+		zap.String("event", event),
+		zap.String("request_id", ctx.requestID),
+		zap.String("client_addr", ctx.clientAddr),
+		zap.Int64("duration_ms", time.Since(ctx.startedAt).Milliseconds()),
+	}
+	ctx.logger.LogFields(level, event, append(base, fields...)...)
 }
 
 func (ctx *ConnectionContext) write(v interface{}) {
@@ -81,20 +140,36 @@ func (ctx *ConnectionContext) stopProcess() {
 	}
 }
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
-
 func main() {
+	ctx := context.Background()
+	var shutdown func(context.Context) error
+	if getenv("DISABLE_INSTRUMENTATION", "false") != "true" {
+		endpoint := strings.TrimSpace(getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", ""))
+		if endpoint == "" {
+			panic("OTEL_EXPORTER_OTLP_ENDPOINT_URL must be set when instrumentation is enabled")
+		}
+		var err error
+		shutdown, err = initInstrumentation(ctx, backendServiceName, "0.1.0", endpoint)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to initialize instrumentation: %v", err))
+		}
+		defer func() {
+			if shutdownErr := shutdown(ctx); shutdownErr != nil {
+				fmt.Printf("instrumentation shutdown error: %v\n", shutdownErr)
+			}
+		}()
+	}
+
+	backendLogger = newLogger(backendServiceName, strings.EqualFold(getenv("APP_ENV", "stage"), "production"))
+	defer backendLogger.Sync()
+
 	http.HandleFunc("/ws", wsHandler)
 	http.HandleFunc("/healthz", healthHandler)
 
 	addr := ":8000"
-	log.Printf("WebSocket server running on %s\n", addr)
+	backendLogger.Printf("Runner backend running on %s", addr)
 	if err := http.ListenAndServe(addr, nil); err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
 
@@ -106,20 +181,29 @@ func healthHandler(w http.ResponseWriter, _ *http.Request) {
 func wsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("Upgrade error:", err)
+		if backendLogger != nil {
+			backendLogger.LogFields(LogLevelError, "runner.ws_upgrade_failed",
+				zap.String("event", "runner.ws_upgrade_failed"),
+				zap.String("client_addr", clientAddress(r)),
+				zap.String("error", err.Error()),
+			)
+		}
 		return
 	}
 
-	ctx := &ConnectionContext{conn: conn}
+	ctx := newConnectionContext(conn, r, backendLogger)
+	ctx.logEvent("runner.request_started")
 	defer func() {
 		ctx.stopProcess()
 		if cleanupErr := cleanupIsolate(); cleanupErr != nil {
-			log.Println("isolate cleanup error:", cleanupErr)
+			ctx.logEvent("runner.isolate_cleanup_failed", zap.String("error", cleanupErr.Error()))
 		}
+		ctx.logEvent("runner.request_finished")
 		_ = conn.Close()
 	}()
 
 	if err := initIsolate(); err != nil {
+		ctx.logEvent("runner.isolate_init_failed", zap.String("error", err.Error()))
 		ctx.write(map[string]interface{}{
 			"type":  "error",
 			"error": fmt.Sprintf("failed to init isolate: %v", err),
@@ -130,14 +214,17 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		var msg Message
 		if err := conn.ReadJSON(&msg); err != nil {
-			log.Println("ReadJSON error:", err)
+			ctx.logEvent("runner.read_json_error", zap.String("error", err.Error()))
 			break
 		}
 
 		switch msg.Type {
 		case "code":
 			if err := handleCode(ctx, &msg); err != nil {
-				log.Println("handleCode error:", err)
+				ctx.logEvent("runner.handle_code_failed",
+					zap.String("language", msg.Language),
+					zap.String("error", err.Error()),
+				)
 				return
 			}
 
@@ -152,7 +239,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 				inputData = "\r\n"
 			}
 			if _, writeErr := stdin.Write([]byte(inputData)); writeErr != nil {
-				log.Println("stdinPipe.Write error:", writeErr)
+				ctx.logEvent("runner.stdin_write_failed", zap.String("error", writeErr.Error()))
 				ctx.write(map[string]interface{}{
 					"type":  "error",
 					"error": fmt.Sprintf("stdin write error: %v", writeErr),
@@ -168,6 +255,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 		case "exit":
+			ctx.logEvent("runner.exit_requested")
 			ctx.write(map[string]interface{}{
 				"type": "exit",
 				"data": "Process exit",
@@ -175,6 +263,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 
 		default:
+			ctx.logEvent("runner.unknown_message_type", zap.String("message_type", msg.Type))
 			ctx.write(map[string]interface{}{
 				"type":  "error",
 				"error": "Unknown message type",
@@ -209,6 +298,10 @@ func handleCode(ctx *ConnectionContext, msg *Message) error {
 	if len(option.CompileCmd) > 0 {
 		output, compileErr := runCommand(option.CompileCmd)
 		if compileErr != nil {
+			ctx.logEvent("runner.compile_failed",
+				zap.String("language", msg.Language),
+				zap.String("error", compileErr.Error()),
+			)
 			ctx.write(map[string]interface{}{
 				"type":   "compile_error",
 				"stderr": output,
@@ -224,7 +317,7 @@ func handleCode(ctx *ConnectionContext, msg *Message) error {
 
 	if len(option.ExecuteCmd) > 0 {
 		if err := runInteractive(ctx, option.ExecuteCmd); err != nil {
-			log.Println("runInteractive error:", err)
+			ctx.logEvent("runner.execute_failed", zap.String("error", err.Error()))
 			return err
 		}
 	}
@@ -327,6 +420,12 @@ func runInteractive(ctx *ConnectionContext, commandArgs []string) error {
 		waitErr := cmd.Wait()
 		exitCode := cmd.ProcessState.ExitCode()
 		ctx.clearProcess()
+		if waitErr != nil {
+			ctx.logEvent("runner.process_exited",
+				zap.Int("return_code", exitCode),
+				zap.String("error", waitErr.Error()),
+			)
+		}
 
 		ctx.write(map[string]interface{}{
 			"type":        "exit",
@@ -361,6 +460,19 @@ func streamOutput(ctx *ConnectionContext, r io.ReadCloser, streamType string) {
 
 func sendJSON(conn *websocket.Conn, v interface{}) {
 	if err := conn.WriteJSON(v); err != nil {
-		log.Println("WriteJSON error:", err)
+		if backendLogger != nil {
+			backendLogger.LogFields(LogLevelError, "runner.write_json_failed",
+				zap.String("event", "runner.write_json_failed"),
+				zap.String("error", err.Error()),
+			)
+		}
 	}
+}
+
+func getenv(key, fallback string) string {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value != "" {
+		return value
+	}
+	return fallback
 }
