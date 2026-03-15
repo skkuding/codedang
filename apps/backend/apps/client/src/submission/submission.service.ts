@@ -58,15 +58,17 @@ export class SubmissionService {
   /**
    * 아직 채점되지 않은 제출 기록을 만들고, 채점 요청 큐에 메세지를 발행합니다.
    *
-   * 주어진 입력을 기반으로 문제의 유효성을 검사하고, 제출 후 결과를 반환
-   * 만약 문제가 존재하지 않거나 제출하는 사용자가 문제에 접근 권한이 없는 경우 예외를 발생
+   * 1. 주어진 입력을 기반으로 문제의 유효성을 검사하고, 제출 후 결과를 반환
+   * 2. 만약 문제가 존재하지 않거나 제출하는 사용자가 문제에 접근 권한이 없는 경우 예외를 발생
    *
-   * @param {CreateSubmissionDto} submissionDto - 코드 제출 DTO
-   * @param {string} userIp - 사용자의 IP 주소
-   * @param {number} userId - 제출하는 사용자의 ID
-   * @param {number} problemId - 제출할 문제의 ID
+   * @param {Object} params
+   * @param {CreateSubmissionDto} params.submissionDto - 코드 제출 DTO
+   * @param {string} params.userIp - 사용자의 IP 주소
+   * @param {number} params.userId - 제출하는 사용자의 ID
+   * @param {number} params.problemId - 제출할 문제의 ID
    * @returns {Promise<Submission>} 생성된 제출물 객체
-   * @throws {EntityNotExistException} 주어진 조건에 맞는 문제가 없는 경우
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 주어진 조건에 맞는 문제가 없는 경우
    */
   @Span()
   async submitToProblem({
@@ -109,17 +111,17 @@ export class SubmissionService {
   /**
    * 진행중인 대회 문제에 대해 아직 채점되지 않은 제출 기록을 만들고, 채점 요청 큐에 메세지를 발행합니다.
    *
-   * 1. 주어진 contestId와 groupId에 해당하는 진행 중인 대회가 있는지 확인
-   * 2. 사용자가 해당 대회에 등록되어 있는지 확인
-   * 3. 대회가 진행 중인지 및 그룹 조건을 만족하는지 확인
-   * 4. 제출하고자 하는 문제가 해당 대회에 속해 있는지 확인
-   * 5. 유효성이 검증된 경우 제출물을 생성하고 반환
+   * 1. contestId로 현재 시각 기준 진행 중인 Contest인지 확인
+   * 2. 사용자가 해당 대회에 참가 등록(ContestRecord)되어 있는지 확인
+   * 3. contestId와 problemId로 ContestProblem를 조회하여 문제 포함 여부를 확인
+   * 4. Submission에 제출 데이터 생성하고, 채점 요청을 발행한 뒤 결과를 반환
    *
-   * @param {CreateSubmissionDto} submissionDto - 코드 제출 DTO
-   * @param {string} userIp - 사용자의 IP 주소
-   * @param {number} userId - 제출을 수행하는 사용자의 ID
-   * @param {number} problemId - 제출할 문제의 ID
-   * @param {number} contestId - 문제가 속한 대회의 ID
+   * @param {Object} params
+   * @param {CreateSubmissionDto} params.submissionDto - 코드 제출 DTO
+   * @param {string} params.userIp - 사용자의 IP 주소
+   * @param {number} params.userId - 제출을 수행하는 사용자의 ID
+   * @param {number} params.problemId - 제출할 문제의 ID
+   * @param {number} params.contestId - 문제가 속한 대회의 ID
    * @returns {Promise<Submission>} 생성된 제출 객체
    * @throws {EntityNotExistException} 아래의 경우에 발생합니다
    *   - 유효한 진행 중인 대회가 없을 경우 (Contest)
@@ -225,18 +227,18 @@ export class SubmissionService {
   /**
    * 진행중인 과제 문제에 대해 아직 채점되지 않은 제출 기록을 만들고, 채점 요청 큐에 메세지를 발행합니다.
    *
-   * 1. 주어진 assignmentId와 groupId에 해당하는 진행 중인 과제가 있는지 확인
+   * 1. assignmentId로 현재 시각 기준 진행 중인 Assignment인지 확인
    * 2. 사용자가 해당 과제에 등록되어 있는지 확인
    * 3. 과제가 진행 중인지 및 그룹 조건을 만족하는지 확인
    * 4. 제출하고자 하는 문제가 해당 과제에 속해 있는지 확인
    * 5. 유효성이 검증된 경우 제출물을 생성하고 반환
    *
-   * @param {CreateSubmissionDto} submissionDto - 코드 제출 DTO
-   * @param {string} userIp - 사용자의 IP 주소
-   * @param {number} userId - 제출을 수행하는 사용자의 ID
-   * @param {number} problemId - 제출할 문제의 ID
-   * @param {number} assignmentId - 문제가 속한 과제의 ID
-   * @param {number} groupId - 사용자 및 과제가 속한 그룹 ID
+   * @param {Object} params
+   * @param {CreateSubmissionDto} params.submissionDto - 코드 제출 DTO
+   * @param {string} params.userIp - 사용자의 IP 주소
+   * @param {number} params.userId - 제출을 수행하는 사용자의 ID
+   * @param {number} params.problemId - 제출할 문제의 ID
+   * @param {number} params.assignmentId - 문제가 속한 과제의 ID
    * @returns {Promise<Submission>} 생성된 제출 객체
    * @throws {EntityNotExistException} 아래의 경우에 발생합니다
    *   - 유효한 진행 중인 과제가 없을 경우 (Assignment)
@@ -374,14 +376,14 @@ export class SubmissionService {
    * 3. 조건을 만족하지 않으면 예외를 발생
    * 4. 유효성이 검증된 경우 createSubmission 메서드를 호출하여 제출 기록을 생성하고 반환
    *
-   * @param {CreateSubmissionDto} submissionDto - 제출물 생성을 위한 데이터 전송 객체
-   * @param {string} userIp - 사용자의 IP 주소
-   * @param {number} userId - 제출을 수행하는 사용자의 ID
-   * @param {number} problemId - 제출할 문제의 ID
-   * @param {number} workbookId - 제출이 속한 워크북의 ID
-   * @param {number} groupId - 문제 그룹 ID
+   * @param {Object} params
+   * @param {CreateSubmissionDto} params.submissionDto - 제출물 생성을 위한 데이터 전송 객체
+   * @param {string} params.userIp - 사용자의 IP 주소
+   * @param {number} params.userId - 제출을 수행하는 사용자의 ID
+   * @param {number} params.problemId - 제출할 문제의 ID
+   * @param {number} params.workbookId - 제출이 속한 워크북의 ID
    * @returns {Promise<Submission>} 생성된 제출물 객체
-   * @throws {EntityNotExistException}
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    *   - 해당 workbookId와 problemId에 매칭되는 WorkbookProblem을 찾을 수 없는 경우
    *   - 문제의 groupId가 일치하지 않거나 visibleLockTime 조건을 만족하지 않는 경우
    */
@@ -440,11 +442,12 @@ export class SubmissionService {
    * 3. 제출 데이터를 구성하여 데이터베이스에 저장
    * 4. 제출 결과를 초기화하고 채점 요청 메시지를 발행하는 메서드를 호출
    *
-   * @param {CreateSubmissionDto} submissionDto - 코드 제출 DTO
-   * @param {Problem} problem - 제출 대상 문제 레코드
-   * @param {number} userId - 사용자의 ID
-   * @param {string} userIp - 사용자의 IP 주소
-   * @param {{ contestId?: number; assignmentId?: number; workbookId?: number }} [idOptions] 제출 종류에 따라 전달하는 옵셔널 파라미터
+   * @param {Object} params
+   * @param {CreateSubmissionDto} params.submissionDto - 코드 제출 DTO
+   * @param {Problem} params.problem - 제출 대상 문제 레코드
+   * @param {number} params.userId - 사용자의 ID
+   * @param {string} params.userIp - 사용자의 IP 주소
+   * @param {{ contestId?: number; assignmentId?: number; workbookId?: number }} [params.idOptions] 제출 종류에 따라 전달하는 옵셔널 파라미터
    *   - contestId: 대회 제출인 경우 제공해야 함
    *   - assignmentId: 과제 제출인 경우 제공해야 함
    *   - workbookId: 워크북 제출인 경우 제공해야 함
@@ -453,7 +456,7 @@ export class SubmissionService {
    *   - 문제에서 해당 언어를 지원하지 않을 경우
    *   - 제출한 코드가 템플릿이 변경 된 코드인 경우
    * @throws {UnprocessableDataException} 아래와 같은 경우에 발생합니다
-   *   - 제출물을 생성하는 도중 데이터 처리에 실패한 경우
+   *   - 제출물을 생성하는 도중 Prisma.PrismaClientKnownRequestError가 반환된 경우
    */
   @Span()
   async createSubmission({
@@ -533,10 +536,11 @@ export class SubmissionService {
   /**
    * 전달한 제출 기록에 대해 아직 채점되지 않은 테스트케이스 채점 결과들을 생성합니다.
    *
-   * 제출된 문제에 연결된 모든 테스트 케이스를 조회한 후,
-   * 각 테스트 케이스에 대해 제출 결과 레코드를 생성하고 초기 상태(ResultStatus.Judging)로 설정
+   * 1. 제출된 문제에 연결된 모든 테스트 케이스를 조회한 후,
+   * 2. 각 테스트 케이스에 대해 제출 결과 레코드를 생성하고 초기 상태(ResultStatus.Judging)로 설정
    *
    * @param {Submission} submission - 테스트 케이스 결과를 생성할 제출 기록
+   * @param {boolean} judgeOnlyHiddenTestcases - 히든 테스트케이스만 채점할지 여부
    * @returns {Promise<void>}
    */
   @Span()
@@ -640,11 +644,13 @@ export class SubmissionService {
    * 5. `isUserTest` 플래그에 따라 사용자 테스트 케이스와 공개 테스트 케이스를 구분하여 채점 요청 큐에 적절한 메시지를 발행
    *    - 사용자 테스트 케이스인 경우: `publishUserTestMessage`를 호출하여 사용자 테스트 케이스에 대해 제출을 처리
    *    - 공개 테스트 케이스인 경우: `publishTestMessage`를 호출하여 공개 테스트 케이스에 대해 제출을 처리
-   * 6. `containHiddenTestcases` 플래그에 따라 히든 테스트 케이스에 대한 결과를 포함할 지 결정
-   *    - isGroupLeader: 해당 문제가 속한 UserGroup의 GroupLeader인 경우 포함
-   *    - isContestStaff: 해당 문제가 속한 Contest의 Admin / Manager / Reviewer인 경우 포함
+   * 6. isUserTest = false인 경우
+   *    - `containHiddenTestcases` 플래그에 따라 히든 테스트 케이스에 대한 결과를 포함할 지 결정
+   *    1) isGroupLeader: 해당 문제가 속한 UserGroup의 GroupLeader인 경우 포함
+   *    2) isContestStaff: 해당 문제가 속한 Contest의 Admin / Manager / Reviewer인 경우 포함
    * @param {number} userId - 테스트 제출 기록을 생성할 사용자의 ID
    * @param {number} problemId - 테스트 제출 기록을 생성할 문제의 ID
+   * @param {string} userIp - 사용자의 IP 주소
    * @param {CreateSubmissionDto} submissionDto - 제출할 코드 및 관련 데이터
    * @param {boolean} [isUserTest=false] - 사용자 테스트 케이스인지 여부 (기본값: false)
    * @returns {Promise<TestSubmission>}
@@ -856,6 +862,24 @@ export class SubmissionService {
     })
   }
 
+  /**
+   * 테스트 제출 객체(TestSubmission)을 DB에 생성합니다.
+   *
+   * 1. problemId를 통해 Problem의 존재 여부 및 언어 지원 여부 검증
+   * 2. 제출 코드가 템플릿을 위반하지 않았는지(isValidCode) 검증
+   * 3. code, userId, userIp, problemId, codeSize, language를 포함한 submissionData를 구성
+   * 4. submissionData와 isUserTest를 포함하여 TestSubmission을 생성하고, 생성된 객체를 반환
+   *
+   * @param {Pick<Submission,'problemId' | 'language' | 'userId' | 'userIp'>} testSubmissionData 테스트 제출 객체 기본 정보 (problemId, language, userId, userIp)
+   * @param {Snippet[]} codeSnippet 제출된 코드 스니펫
+   * @param {boolean} [isUserTest=false] 사용자 테스트 케이스인지 여부 (기본값: false)
+   * @returns 생성된 테스트 제출 객체
+   * @throws {EntityNotExistException} 다음과 같은 경우에 발생합니다.
+   * - 주어진 ID에 해당하는 문제가 없을 경우
+   * @throws {ConflictFoundException} 다음과 같은 경우에 발생합니다.
+   * - 지원하지 않는 언어로 제출했을 경우
+   * - 제출된 코드가 템플릿을 준수하지 않은 경우
+   */
   @Span()
   async createTestSubmission(
     testSubmissionData: Pick<
@@ -909,6 +933,18 @@ export class SubmissionService {
     return submission
   }
 
+  /**
+   * 사용자의 가장 최근 테스트 제출에 대한 상세 채점 결과를 조회합니다.
+   *
+   * 1. DB에서 해당 사용자의 가장 최근 테스트 제출(TestSubmission) ID를 조회
+   * 2. 제출 ID가 없으면 빈 배열([])을 반환
+   * 3. 캐시에서 해당 제출에 포함된 전체 테스트케이스 ID 목록을 가져옴
+   * 4. 각 테스트케이스 ID를 순회하며, 캐시에 저장된 개별 상세 결과(상태, 출력값 등)를 수집
+   * 5. 최종적으로 수집된 테스트 결과 배열을 반환
+   * @param {number} userId 사용자 ID
+   * @param {boolean} [isUserTest=false] 사용자 정의 테스트 결과 여부
+   * @returns 테스트 결과 리스트
+   */
   async getTestResult(userId: number, isUserTest = false) {
     // 가장 최신의 Test Submission 불러오기
     const testSubmissionId = (
@@ -1000,21 +1036,39 @@ export class SubmissionService {
   }
 
   /**
-   * 주어진 문제에 대한 제출 기록 목록을 불러옵니다.
+   * 주어진 문제에 대한 제출 기록을 불러옵니다.
    *
-   * 1. 지정된 문제와 그룹에 대해 visibleLockTime이 초기값(MIN_DATE)인 문제를 조회
-   * 2. 페이징 옵션을 적용하여 해당 문제에 대한 제출 기록 목록을 조회
-   * 3. 해당 문제에 대한 총 제출 기록 수 계산
-   * 4. 제출물 목록과 총 개수를 포함하는 객체를 반환
+   * 1. contestId/assignmentId 유무에 따라 ContestRecord/AssignmentRecord 확인
+   * 2. contestId가 있는 경우 채점 결과 공개 여부(isJudgeResultVisible) 확인
+   * 3. assignmentId가 있는 경우 히든 테스트케이스 공개 여부(isJudgeResultVisible) 확인
+   * 4. contest/assignment가 아닌 일반 문제인 경우 visibleLockTime이 MIN_DATE인 문제(공개된 문제)만 허용
+   * 5. id, problemId, contestId, assignmentId 조건으로 제출 1건 조회
+   * 6. 본인/관리자가 아닌 경우 권한 검증
+   *    - 진행 중인 contest에서 다른 사람 제출 확인 불가
+   *    - 진행 중인 assignment에서 다른 사람의 제출 확인 불가
+   *    - contest/assignment가 종료되었거나 일반 문제인 경우 확인 가능
+   *    - assignment의 경우 문제를 풀어도 다른 사람 코드 확인 불가
+   * 7. contest 결과 비공개면 testcase 결과를 Blind 처리하고, assignment 결과 비공개면 히든 테스트케이스를 제외하여 결과 가공
+   * 8. problemId, username, code, language, createTime, result, testcaseResult를 포함한 상세 정보 반환
    *
-   * @param {number} id - Submission ID
-   * @param {number} problemId - 제출 기록을 조회할 문제 ID
-   * @param {number} userId - 제출 기록을 조회할 사용자 ID
-   * @param {Role} userRole - 사용자의 역할 (Admin, SuperAdmin 등)
-   * @param {number | null} contestId - 대회 ID (null인 경우 대회 제출 아님)
-   * @param {number | null} assignmentId - 과제 ID (null인 경우 과제 제출 아님)
-   * @returns 문제에 대한 제출 기록 목록과 총 제출 기록 수
-   * @throws {EntityNotExistException} 주어진 조건에 맞는 문제가 존재하지 않을 경우
+   * @param {Object} params
+   * @param {number} params.id - Submission ID
+   * @param {number} params.problemId - 제출 기록을 조회할 문제 ID
+   * @param {number} params.userId - 제출 기록을 조회할 사용자 ID
+   * @param {Role} params.userRole - 사용자의 역할 (Admin, SuperAdmin 등)
+   * @param {number | null} params.contestId - 대회 ID (null인 경우 대회 제출 아님)
+   * @param {number | null} params.assignmentId - 과제 ID (null인 경우 과제 제출 아님)
+   * @returns problemId, username, code, language, createTime, result, testcaseResult를 포함한 상세 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - contestId가 있는데 ContestRecord가 존재하지 않는 경우
+   * - assignmentId가 있는데 AssignmentRecord가 존재하지 않는 경우
+   * - 일반 문제 조회 시, visibleLockTime이 MIN_DATE인 Problem이 존재하지 않는 경우
+   * - problemId에 해당하는 Problem이 존재하지 않는 경우
+   * - 조건(id, problemId, contestId, assignmentId)에 맞는 Submission이 존재하지 않는 경우
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 본인/관리자가 아닌 사용자가 진행 중인 contest/assignment에서 다른 사람의 제출을 조회하려는 경우
+   * - contest/일반 문제에서 본인/관리자가 아닌 사용자가 문제를 풀지 않은 상태에서 다른 사람의 제출을 조회하려는 경우
+   * - assignment에서 본인/관리자가 아닌 사용자가 다른 사람의 제출을 조회하려는 경우(진행 중/종료 후 모두)
    */
   @Span()
   async getSubmission({
@@ -1246,6 +1300,23 @@ export class SubmissionService {
   }
 
   // FIXME: Workbook 구분
+  /**
+   * 특정 문제의 전체 제출 기록 리스트를 페이징하여 조회합니다.
+   *
+   * 1. problemId가 존재하고 visibleLockTime이 MIN_DATE인지 확인
+   * 2. cursor를 기반으로 페이징된 Submission 최신순으로 조회
+   * 3. 해당 문제의 전체 제출 개수를 count로 계산
+   * 4. 제출 목록(data)과 전체 개수(total)를 반환
+   *
+   * @param {Object} params
+   * @param {number} params.problemId 문제 ID
+   * @param {number | null} [params.cursor=null] 페이징용 커서
+   * @param {number} [params.take=10] 한 번에 가져올 기록 개수
+   * @returns 제출 목록과 전체 개수
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 문제가 존재하지 않은 경우
+   * - 문제의 visibleLockTime이 설정되어서 조회가 불가능한 경우
+   */
   @Span()
   async getSubmissions({
     problemId,
@@ -1296,6 +1367,33 @@ export class SubmissionService {
     return { data: submissions, total }
   }
 
+  /**
+   * 특정 대회 내에서 발생한 제출 기록 목록을 페이징하여 조회합니다.
+   *
+   * 1. cursor를 기반으로 paginator 생성
+   * 2. userId가 Admin인지 확인
+   * 3. Admin이 아니라면 contestRecord(대회 참가 기록)가 존재하는지 확인
+   * 4. contestId 내에 해당 problemId가 등록되어 있는지(contestProblem) 확인
+   * 5. contest를 조회하여 채점 결과 공개 여부(isJudgeResultVisible) 확인
+   * 6. submission 목록을 problemId/contestId 기준으로 페이징 조회
+   *    - Admin이면 모든 제출 조회 가능
+   *    - Admin이 아니면 본인(userId)의 제출만 조회
+   * 7. 채점 결과 비공개면 모든 제출의 result를 'Blind'로 마스킹 처리
+   * 8. 전체 제출 수(count)를 계산
+   * 9. 제출 목록(data)과 전체 개수(total)를 반환
+   *
+   * @param {Object} params
+   * @param {number} params.problemId 대회 내 문제 ID
+   * @param {number} params.contestId 대회 ID
+   * @param {number} params.userId 사용자 ID
+   * @param {number | null} [params.cursor=null] 페이징용 커서
+   * @param {number} [params.take=10] 한 번에 가져올 기록 개수
+   * @returns 제출 목록(Blind 처리 포함)과 전체 건수
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 대회 참가 기록(ContestRecord)이 존재하지 않을 경우
+   * - 대회 문제(ContestProblem)가 존재하지 않을 경우
+   * - 대회(Contest)가 존재하지 않을 경우
+   */
   @Span()
   async getContestSubmissions({
     problemId,
