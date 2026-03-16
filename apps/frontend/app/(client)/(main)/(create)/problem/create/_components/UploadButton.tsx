@@ -95,12 +95,14 @@ export function UploadButton({
           </div>
         </div>
         <DialogFooter className="mt-7 flex">
-          <Button
-            type="button"
-            className="itmes-center border-primary-light hover:bg-color-blue-95 h-12 w-[160px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
-          >
-            <p className="text-sub3_sb_16 text-primary">취소하기</p>
-          </Button>
+          <DialogClose asChild>
+            <Button
+              type="button"
+              className="itmes-center border-primary-light hover:bg-color-blue-95 h-12 w-[160px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
+            >
+              <p className="text-sub3_sb_16 text-primary">취소하기</p>
+            </Button>
+          </DialogClose>
           <Button
             type="button"
             className="itmes-center border-primary hover:bg-primary-strong bg-primary h-12 w-[160px] rounded-lg border-[1.4px] px-5 py-[13px]"
