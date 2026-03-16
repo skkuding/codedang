@@ -227,11 +227,11 @@ export class SubmissionService {
   /**
    * 진행중인 과제 문제에 대해 아직 채점되지 않은 제출 기록을 만들고, 채점 요청 큐에 메세지를 발행합니다.
    *
-   * 1. assignmentId로 현재 시각 기준 진행 중인 Assignment인지 확인
-   * 2. 사용자가 해당 과제에 등록되어 있는지 확인
-   * 3. 과제가 진행 중인지 및 그룹 조건을 만족하는지 확인
-   * 4. 제출하고자 하는 문제가 해당 과제에 속해 있는지 확인
-   * 5. 유효성이 검증된 경우 제출물을 생성하고 반환
+   * 1. assignmentId로 현재 시각 기준 진행 중인 과제(Assignment)인지 확인
+   * 2. 사용자가 해당 과제에 등록(AssignmentRecord)되어 있는지 확인
+   * 3. 제출하고자 하는 문제가 해당 과제에 속해 있는지 확인 (AssignmentProblem)
+   * 4. AssignmentProblemRecord에 제출 시도 여부(isSubmitted) upsert
+   * 5. 제출물(Submission) 생성 및 채점 요청 큐 발행 후 반환
    *
    * @param {Object} params
    * @param {CreateSubmissionDto} params.submissionDto - 코드 제출 DTO
@@ -242,8 +242,9 @@ export class SubmissionService {
    * @returns {Promise<Submission>} 생성된 제출 객체
    * @throws {EntityNotExistException} 아래의 경우에 발생합니다
    *   - 유효한 진행 중인 과제가 없을 경우 (Assignment)
-   *   - 사용자가 과제에 등록되어 있지 않은 경우 (AssignmentRecord)
    *   - 문제를 찾을 수 없거나 과제와 매칭되지 않는 경우 (AssignmentProblem)
+   * @throws {ForbiddenAccessException} 아래의 경우에 발생합니다
+   *   - 사용자가 해당 과제에 등록되어 있지 않은 경우 (AssignmentRecord)
    * @throws {ConflictFoundException} 아래의 경우에 발생합니다
    *   - 과제가 진행중이지 않을 경우
    */
@@ -447,10 +448,13 @@ export class SubmissionService {
    * @param {Problem} params.problem - 제출 대상 문제 레코드
    * @param {number} params.userId - 사용자의 ID
    * @param {string} params.userIp - 사용자의 IP 주소
-   * @param {{ contestId?: number; assignmentId?: number; workbookId?: number }} [params.idOptions] 제출 종류에 따라 전달하는 옵셔널 파라미터
+   * @param {{ contestId?: number; assignmentId?: number; workbookId?: number }} [params.idOptions] - 제출 종류에 따라 전달하는 옵셔널 파라미터
    *   - contestId: 대회 제출인 경우 제공해야 함
    *   - assignmentId: 과제 제출인 경우 제공해야 함
    *   - workbookId: 워크북 제출인 경우 제공해야 함
+   * @param {boolean} [params.stopOnNotAccepted=false] - 오답 발생 시 이후 테스트케이스 채점을 중단할지 여부
+   * * @param {boolean} [params.judgeOnlyHiddenTestcases=false] - 히든 테스트케이스만 채점할지 여부
+
    * @returns {Promise<Submission>} 생성된 제출 기록
    * @throws {ConflictFoundException} 아래와 같은 경우에 발생합니다
    *   - 문제에서 해당 언어를 지원하지 않을 경우
@@ -648,6 +652,7 @@ export class SubmissionService {
    *    - `containHiddenTestcases` 플래그에 따라 히든 테스트 케이스에 대한 결과를 포함할 지 결정
    *    1) isGroupLeader: 해당 문제가 속한 UserGroup의 GroupLeader인 경우 포함
    *    2) isContestStaff: 해당 문제가 속한 Contest의 Admin / Manager / Reviewer인 경우 포함
+   *
    * @param {number} userId - 테스트 제출 기록을 생성할 사용자의 ID
    * @param {number} problemId - 테스트 제출 기록을 생성할 문제의 ID
    * @param {string} userIp - 사용자의 IP 주소
@@ -941,6 +946,7 @@ export class SubmissionService {
    * 3. 캐시에서 해당 제출에 포함된 전체 테스트케이스 ID 목록을 가져옴
    * 4. 각 테스트케이스 ID를 순회하며, 캐시에 저장된 개별 상세 결과(상태, 출력값 등)를 수집
    * 5. 최종적으로 수집된 테스트 결과 배열을 반환
+   *
    * @param {number} userId 사용자 ID
    * @param {boolean} [isUserTest=false] 사용자 정의 테스트 결과 여부
    * @returns 테스트 결과 리스트
