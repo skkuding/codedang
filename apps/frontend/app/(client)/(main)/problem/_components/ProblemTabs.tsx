@@ -18,18 +18,24 @@ export function ProblemTabs() {
 
   return (
     <Tabs value={currentTab}>
-      <TabsList>
-        <TabsTrigger value="published" onClick={() => router.push(`/problem`)}>
+      <TabsList variant="problem">
+        <TabsTrigger
+          value="published"
+          variant="problem"
+          onClick={() => router.push(`/problem`)}
+        >
           Published
         </TabsTrigger>
         <TabsTrigger
           value="creating"
+          variant="problem"
           onClick={() => router.push(`/problem/creating`)}
         >
           Creating
         </TabsTrigger>
         <TabsTrigger
           value="my-problem"
+          variant="problem"
           onClick={() => router.push(`/problem/my-problem`)}
         >
           My problem
