@@ -69,7 +69,8 @@ const userGroup1: UserGroup = {
   groupId: 2,
   isGroupLeader: true,
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  totalStudyTime: 0
 }
 
 const userGroup2: UserGroup = {
@@ -77,7 +78,8 @@ const userGroup2: UserGroup = {
   groupId: 2,
   isGroupLeader: true,
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  totalStudyTime: 0
 }
 
 const userGroup3: UserGroup = {
@@ -85,7 +87,8 @@ const userGroup3: UserGroup = {
   groupId: 2,
   isGroupLeader: false,
   createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  updateTime: faker.date.past(),
+  totalStudyTime: 0
 }
 
 const updateFindResult = [

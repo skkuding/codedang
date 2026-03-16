@@ -16,5 +16,6 @@
   },
   "[caddyfile]": {
     "editor.defaultFormatter": "matthewpi.caddyfile-support"
-  }
+  },
+  "prisma.pinToPrisma6": true
 }
