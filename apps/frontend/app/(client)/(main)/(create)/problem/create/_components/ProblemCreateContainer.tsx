@@ -90,7 +90,7 @@ export function ProblemCreateContainer() {
     }
   ] as const
 
-  const problemProgress = 'published' as 'draft' | 'ready' | 'published'
+  const problemProgress = 'ready' as 'draft' | 'ready' | 'published'
   const [checklistCnt, setChecklistCnt] = useState(6)
   const checklistDone = checklistCnt === 6
 
@@ -106,8 +106,17 @@ export function ProblemCreateContainer() {
           <div className="flex items-end justify-between">
             <div className="flex flex-col gap-[6px]">
               <div className="flex items-center gap-3">
-                <div className="border-1 border-primary rounded-sm px-[6.5px] py-1">
-                  <p className="text-caption1_m_13 text-primary">
+                <div
+                  className={cn('border-1 rounded-sm px-[6.5px] py-1', {
+                    'border-primary text-primary':
+                      problemProgress === 'published',
+                    'border-color-green-50 text-color-green-40':
+                      problemProgress === 'ready',
+                    'border-line text-color-neutral-70 bg-color-neutral-99':
+                      problemProgress === 'draft'
+                  })}
+                >
+                  <p className="text-caption1_m_13">
                     {problemProgress.toUpperCase()}
                   </p>
                 </div>
