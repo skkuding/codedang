@@ -183,7 +183,7 @@ export function ProblemCreateContainer() {
                   </div>
                   <div className="flex flex-col gap-[2px]">
                     <p
-                      className={cn('text-sub3_sb_16 bg-blue', {
+                      className={cn('text-sub3_sb_16', {
                         'text-color-common-0': curTab,
                         'text-color-cool-neutral-30': !curTab
                       })}
