@@ -27,7 +27,44 @@ script:post-response {
 }
 
 docs {
-  # Log Out
+  # 📘 Log Out
+  
+  **POST** `/auth/logout`
+  
+  Invalidates the current session by clearing the refresh token and cookies.
   
   Refresh Token을 무효화하고 cookie에서 삭제합니다. Access Token은 만료되기 전까지 유효하며, client에서 직접 삭제해야합니다.
+  
+  - 요청 헤더의 쿠키에서 `refresh_token`을 추출합니다. 만약 토큰이 없다면 추가 로직 없이 종료합니다.
+  
+  - 서버 캐시(`cacheManager`)에 저장된 해당 유저의 Refresh Token 데이터를 삭제하여 해당 토큰을 무효화합니다.
+  
+  - 응답 시 `res.clearCookie`를 통해 사용자의 브라우저에 저장된 `refresh_token` 쿠키를 삭제합니다.
+  
+  - `AuthenticatedRequest`를 사용하여 `req.user.id`를 참조하므로, 유효한 Access Token을 가진 로그인 상태여야 합니다.
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `none`
 }

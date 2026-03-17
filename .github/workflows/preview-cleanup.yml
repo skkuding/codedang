@@ -25,9 +25,9 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const STALE_DAYS = 7;
+            const STALE_DAYS = 28;
 
-            const { data: prs } = await github.rest.pulls.list({
+            const prs = await github.paginate(github.rest.pulls.list, {
               owner,
               repo,
               state: 'open',
@@ -62,17 +62,24 @@ jobs:
                   name: 'preview'
                 });
 
+                await github.rest.issues.addLabels({
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  labels: ['no-preview']
+                });
+
                 await github.rest.issues.createComment({
                   owner,
                   repo,
                   issue_number: pr.number,
                   body: [
-                    '🛑 **Preview Removed**',
+                    '💀 **Preview Destroyed**',
                     '',
-                    `**Reason:** No commits for ${STALE_DAYS} days (stale)`,
-                    `**Last Activity:** ${lastActivity}`,
+                    `This PR has been inactive for ${STALE_DAYS} days.`,
+                    `Last activity: ${lastActivity}`,
                     '',
-                    'Push a new commit to restore the preview.'
+                    'Push a new commit if you want to use preview again.'
                   ].join('\n')
                 });
 

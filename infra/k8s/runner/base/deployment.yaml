@@ -4,7 +4,7 @@ metadata:
   name: pod-manager
   namespace: runner
 spec:
-  replicas: 6
+  replicas: 3
   selector:
     matchLabels:
       app: pod-manager
@@ -22,6 +22,12 @@ spec:
           envFrom:
             - configMapRef:
                 name: pod-manager-env
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: runner-redis-auth
+                  key: password
           resources:
             requests:
               cpu: 100m

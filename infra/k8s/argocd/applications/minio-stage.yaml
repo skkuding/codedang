@@ -3,8 +3,6 @@ kind: Application
 metadata:
   name: minio-stage
   namespace: argocd
-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
-  finalizers: []
   labels:
     app.kubernetes.io/environment: 'stage'
 spec:

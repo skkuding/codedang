@@ -3,9 +3,10 @@ kind: ApplicationSet
 metadata:
   name: tempo
   namespace: argocd
-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
-  finalizers: []
 spec:
+  # Preserves deployed resources when ApplicationSet or Application is deleted (prevents data loss)
+  syncPolicy:
+    preserveResourcesOnDeletion: true
   goTemplate: true
   goTemplateOptions: ['missingkey=error']
   generators:
@@ -18,8 +19,6 @@ spec:
   template:
     metadata:
       name: 'tempo-{{.env}}'
-      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
-      finalizers: []
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:
