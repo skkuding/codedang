@@ -52,9 +52,10 @@ export class AnnouncementService {
    * 특정 대회에 해당하는 모든 공지를 조회합니다
    *
    * 1. 해당 대회의 존재 여부를 확인
-   * 2. 대회에 포함된 모든 문제 정보를 가져와 매핑 테이블(problemOrderMap : problem - index)을 생성
-   * 3. 공지 목록을 최신순으로 조회한 후
-   * 4. 각 공지의 problemOrderMap 매핑 테이블을 통해 '문제 순서(problemOrder)'대로 반환
+   * 2. 대회에 포함된 모든 문제 정보를 가져온 수
+   * 3. problemId를 key로, 배열 인덱스를 value로 갖는 매핑 테이블(problemOrderMap) 생성
+   * 4. 공지 목록을 최신순으로 조회한 후
+   * 5. 각 공지에 매핑 테이블을 사용해 problemOrder(배열 인덱스)를 부여하여 반환
    *
    * @param {number} contestId 대회 ID
    * @returns 대회 공지 리스트 (공지는 문제 순서를 함께 반환)
@@ -107,7 +108,7 @@ export class AnnouncementService {
    * 특정 대회 내의 기존 공지 정보 수정
    *
    * 1. 대회 및 공지 존재 여부를 확인
-   * 2. input으로 기반으로 공지 내용을 업데이트
+   * 2. input을 기반으로 공지 내용을 업데이트
    *
    * @param {number} contestId 대회 ID
    * @param {UpdateAnnouncementInput} input 수정할 데이터
