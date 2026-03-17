@@ -75,7 +75,7 @@ export class AssignmentService {
    *
    * @param {number} assignmentId 과제 ID
    * @param {number} groupId 그룹 ID
-   * @returns 과제 상세 정보, 참가사 수
+   * @returns 과제 상세 정보, 참가자 수
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 해당 과제가 존재하지 않을 때
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
@@ -118,6 +118,7 @@ export class AssignmentService {
    * 1. 시작 시간, 종료 시간, 마감 시간의 유효성을 검증
    * 2. 과제를 생성한 후 (createdAssignment)
    * 3. 해당 그룹의 모든 멤버를 과제 참가자로 자동 등록 (inviteAllCourseMembersToAssignment 호출로)
+   * 4. assignment.created 이벤드 발생하여 과제 생성 알림
    *
    * @param {number} groupId 과제를 생성할 그룹 ID
    * @param {number} userId 생성자 ID
@@ -364,6 +365,8 @@ export class AssignmentService {
    * - 요청한 assigmentID를 가진 과제가 존재하지 않을 때
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * - 요청한 그룹 ID와 해당 과제 그룹 아이디와 일치하지 않을떄
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - 삭제 처리 중 데이터베이스 오류가 발생했을 때
    */
   async deleteAssignment(groupId: number, assignmentId: number) {
     const assignment = await this.prisma.assignment.findUnique({
@@ -693,7 +696,7 @@ export class AssignmentService {
   }
 
   /**
-   * 특정 유저의 과제 체출 내용 요약과 성적 요약을 통합 조회합니다.
+   * 특정 유저의 과제 제출 내용 요약과 성적 요약을 통합 조회합니다.
    *
    * 1. 제출 내역 페이지네이션 (제출 내역 최신순으로 조회)
    * 2. 데이터를 return 형식에 맞춰 변환 (mappedSubmission)
@@ -785,7 +788,9 @@ export class AssignmentService {
    * 제출 내역(Submission)은 복사되지 않습니다.
    *
    * 1. assignment, assignmentProblem, assignmentRecord을 병렬 조회
-   * 2. 현재 시간을 기준으로 과제가 진행 중이면 새 과제를 즉시 공개(isVisible: true)로, 그 외에는 MAX_DATE로 설정
+   * 2. 현재 시간을 기준으로
+   * - 과제가 진행 중이면 새 과제를 즉시 공개(isVisible: true)로 설정
+   * - 진행 중이 아니면 비공개(isVisible: false)로 설정
    * 3. 과제 복제(Transaction)
    * - 과제 기본 정보를 기반으로 새로운 과제 생성 ('Copy of' 접두어 추가)
    * - 원본 과제의 모든 문제 연결 정보를 새 과제 ID로 매핑하여 복사
@@ -898,7 +903,7 @@ export class AssignmentService {
    * 과제에 참여하는 유저의 Assignment 점수 요약을 계산하여 가져옵니다
    *
    * 1. 현재 과제에 등록되어 있는 문제들만을 대상으로 점수를 계산 (삭제된 문제는 제외)
-   * 2. 유저의 전체 제출 이력 중 Latest Submission)을 기준으로 최근 테스트케이스 통과 개수를 집계
+   * 2. 유저의 전체 제출 이력 중 Latest Submission을 기준으로 최근 테스트케이스 통과 개수를 집계
    * 3. 점수 합산
    * - 유저의 score와 finalScore를 Decimal 타입으로 정밀하게 합산
    * - 과제 전체 만점 대비 유저의 득점 현황을 산출 (제출 문제 수, 총 문제 수, 유저 합산 점수, 과제 만점, 문제별 상세 득점 리스트)
@@ -1081,7 +1086,7 @@ export class AssignmentService {
    * @param {number} groupId 그룹 ID
    * @param {number} take 가져올 레코드 개수
    * @param {number | null} cursor 페이지네이션 커서
-   * @param {string} searchingName 검색 유저 이름 (선택사항)
+   * @param {string} [searchingName] 검색 유저 이름
    * @returns 각 유저의 프로필 정보와 점수 요약이 결합된 배열
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * - 과제가 존재하지 않을 때
@@ -1496,7 +1501,7 @@ export class AssignmentService {
   }
 
   /**
-   * 특정 유저의 특정 과제 내 문제 기록(제출 기록 및 점수 등)을 조회합니다.
+   * 특정 유저의 과제 내 문제 문제가 채점 완료 되었는지 조회합니다.
    *
    * @param {number} assignmentId 과제 ID
    * @param {number} userId 유저 ID
@@ -1523,10 +1528,9 @@ export class AssignmentService {
   /**
    * 과제의 모든 참여 유저의 문제별 최종 점수(final_score)를 현재 획득 점수(score)로 자동 확정합니다.
    *
-   * 1. UserGroup 중 AssignmentRecord이 없는 유저를 필터링
-   * 2. 대량 생성(Batch Create)
-   * - 신규 참가자들의 AssignmentRecord을 일괄 생성
-   * - 해당 유저들이 풀어야 할 각 AssignmentProblemRecord을 일괄 생성
+   * 1. 대상 과제의 존재 여부 및 그룹 권한 검증
+   * 2. 과제의 마감 시간(dueTime 또는 endTime)이 지났는지 확인
+   * 3. Raw Query를 사용하여 해당 과제에 속한 모든 문제 기록의 'final_score' 컬럼 값을 현재 'score' 값으로 일괄 업데이트
    *
    * @param {number} groupId 그룹 ID
    * @param {number} assignmentId 과제 ID
