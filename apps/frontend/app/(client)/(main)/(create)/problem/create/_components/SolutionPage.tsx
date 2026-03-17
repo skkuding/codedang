@@ -1,7 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
-import BulletIcon from '@/public/icons/bullet-neutral-30.svg'
+import BulletIcon from '@/public/icons/bullet-gray.svg'
 import BlueBulletIcon from '@/public/icons/bullet.svg'
 import BlueCheckIcon from '@/public/icons/check-blue.svg'
 import CodingIcon from '@/public/icons/coding.svg'
