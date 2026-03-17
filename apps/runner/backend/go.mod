@@ -1,4 +1,4 @@
-module iris-runner
+module runner-backend
 
 go 1.22.0
 

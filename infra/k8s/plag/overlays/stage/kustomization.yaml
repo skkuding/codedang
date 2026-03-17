@@ -13,3 +13,7 @@ patches:
     target:
       kind: ConfigMap
       name: plag-env
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: plag
