@@ -57,10 +57,26 @@ jobs:
       pull-requests: read
 
     steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if frontend source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'apps/frontend/**'
+              - 'apps/backend/schema.gql'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+
       - name: Setup Docker Buildx
+        if: steps.filter.outputs.frontend == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
+        if: steps.filter.outputs.frontend == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -69,6 +85,7 @@ jobs:
 
       - name: Detect PR number
         id: pr
+        if: steps.filter.outputs.frontend == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -108,6 +125,7 @@ jobs:
             core.setOutput('number', prNumber);
 
       - name: Build and push image
+        if: steps.filter.outputs.frontend == 'true'
         uses: docker/build-push-action@v6
         with:
           file: ./apps/frontend/Dockerfile # build with root context
