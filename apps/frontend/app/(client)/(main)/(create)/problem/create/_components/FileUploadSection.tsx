@@ -72,8 +72,8 @@ export function FileUploadSection({
   }
 
   return (
-    <div className="border-1 px-6 py-7">
-      <div className="border-b-1 flex justify-between pb-5">
+    <div className="border-color-cool-neutral-90 rounded-[16px] border px-6 py-7">
+      <div className="flex justify-between border-b pb-5">
         <div>
           <p className="text-head5_sb_24 mb-1">{title}</p>
           <p className="text-body2_m_14 text-color-cool-neutral-40">
@@ -136,7 +136,7 @@ export function FileUploadSection({
                 </div>
                 <button
                   onClick={() => handleDelete(file.id)}
-                  className="border-1 border-color-neutral-90 bg-color-neutral-99 hover:bg-color-neutral-95/80 flex h-9 w-12 items-center justify-center rounded-full transition-all"
+                  className="border-color-neutral-90 bg-color-neutral-99 hover:bg-color-neutral-95/80 flex h-9 w-12 items-center justify-center rounded-full border transition-all"
                 >
                   <Image
                     src={trashcanIcon}
@@ -152,11 +152,11 @@ export function FileUploadSection({
       </div>
 
       <p className="text-sub1_sb_18 mb-2">포맷 예시</p>
-      <div className="bg-color-neutral-99 border-1 border-color-cool-neutral-90 flex flex-col gap-2 rounded-[8px] p-4">
+      <div className="bg-color-neutral-99 border-color-cool-neutral-90 flex flex-col gap-2 rounded-[8px] border p-4">
         {FORMAT_EXAMPLES.map((example, index) => (
           <div key={index} className="flex items-center gap-2">
-            <span className="h-1 w-1 shrink-0 rounded-full bg-black" />
-            <p className="text-body3_r_16">{example}</p>
+            <span className="bg-color-neutral-30 h-1 w-1 shrink-0 rounded-full" />
+            <p className="text-body3_r_16 text-color-neutral-30">{example}</p>
           </div>
         ))}
       </div>
