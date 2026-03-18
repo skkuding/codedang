@@ -24,7 +24,7 @@ export default async function Contest(props: ContestProps) {
   const search = searchParams.search ?? ''
 
   return (
-    <div className="flex w-full max-w-[1440px] flex-col sm:px-6 md:px-[116px]">
+    <div className="flex w-full max-w-[1440px] flex-col px-5 sm:px-6 md:px-[116px]">
       <ContestHeader />
       <div className="mb-12 flex w-full flex-col gap-12">
         <div className="flex-col">
