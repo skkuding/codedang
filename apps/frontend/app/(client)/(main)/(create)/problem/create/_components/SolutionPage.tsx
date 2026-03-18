@@ -171,7 +171,7 @@ export function SolutionPage() {
                       width={24}
                     />
                   </div>
-                  <div className="flex flex-1 justify-between">
+                  <div className="flex flex-1 items-center justify-between">
                     <div className="grid gap-[2px]">
                       <p className="text-sub1_sb_18">{fileName}</p>
                       <div className="flex items-center gap-[1px]">
