@@ -38,7 +38,7 @@ export function ProblemTabs() {
           variant="problem"
           onClick={() => router.push(`/problem/my-problem`)}
         >
-          My problem
+          My Problem
         </TabsTrigger>
       </TabsList>
     </Tabs>
