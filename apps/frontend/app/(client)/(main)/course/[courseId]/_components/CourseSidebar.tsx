@@ -11,7 +11,8 @@ import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
 import {
   AssignmentIcon,
   ExerciseIcon,
-  NoticeIcon
+  NoticeIcon,
+  QnaIcon
 } from '../../../../../../components/Icons'
 import { CourseInfoBox } from './CourseInfoBox'
 
@@ -38,6 +39,11 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
       name: 'Exercise',
       path: `/course/${courseId}/exercise` as const,
       icon: ExerciseIcon
+    },
+    {
+      name: 'Q&A',
+      path: `/course/${courseId}/qna` as const,
+      icon: QnaIcon
     }
   ]
 
