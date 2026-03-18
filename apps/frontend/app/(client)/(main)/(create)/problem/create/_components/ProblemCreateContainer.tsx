@@ -162,7 +162,7 @@ export function ProblemCreateContainer() {
         </div>
       </div>
       <div className="flex gap-10">
-        <div className="border-1 border-color-cool-neutral-90 flex h-fit w-72 flex-col rounded-2xl bg-white p-2">
+        <div className="border-1 border-color-cool-neutral-90 flex h-fit w-72 flex-col rounded-xl bg-white p-2">
           {TAB_INFO.map(({ Icon, label, text, subText }) => {
             const curTab = tab === label
 
