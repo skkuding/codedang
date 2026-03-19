@@ -19,14 +19,16 @@ export function ProblemInfiniteTable() {
 
   return (
     <>
-      <div className="flex items-center justify-between text-gray-500">
-        <div className="flex gap-1">
-          <p className="text-2xl font-bold text-gray-500">All</p>
-          <p className="text-2xl font-bold text-blue-500">{data.total}</p>
+      <div className="flex w-full items-center justify-between">
+        <div className="flex items-center justify-start gap-2">
+          <p className="text-head3_sb_28">Published Problems</p>
+          <p className="text-head3_sb_28 text-primary">{data.total}</p>
         </div>
-        <SearchBar />
+        <div className="flex items-center justify-start gap-2">
+          <SearchBar />
+        </div>
       </div>
-      <div className="flex flex-col items-center">
+      <div className="mt-5 flex flex-col items-center">
         <IntersectionArea
           disabled={!hasNextPage || isFetchingNextPage}
           onIntersect={fetchNextPage}
@@ -35,7 +37,7 @@ export function ProblemInfiniteTable() {
             data={data.items}
             columns={columns}
             headerStyle={{
-              title: 'text-left w-4/12',
+              Question: 'text-left w-4/12',
               difficulty: 'w-2/12',
               submissionCount: 'w-3/12',
               acceptedRate: 'w-2/12',
