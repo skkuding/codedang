@@ -119,7 +119,7 @@ describe('AssignmentService', () => {
   describe('getAssignment', () => {
     it('should throw error when assignment does not exist', async () => {
       await expect(service.getAssignment(999, user01Id)).to.be.rejectedWith(
-        ForbiddenAccessException
+        EntityNotExistException
       )
     })
 

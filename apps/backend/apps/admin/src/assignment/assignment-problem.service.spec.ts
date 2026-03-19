@@ -15,11 +15,13 @@ import { AssignmentProblemService } from './assignment-problem.service'
 
 const db = {
   assignment: {
-    findFirstOrThrow: stub()
+    findFirstOrThrow: stub(),
+    findUnique: stub()
   },
   assignmentProblem: {
     findFirstOrThrow: stub(),
     findMany: stub(),
+    findUnique: stub(),
     update: stub()
   },
   $transaction: stub()

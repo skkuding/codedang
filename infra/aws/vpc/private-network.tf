@@ -95,3 +95,17 @@ module "private_redis_subnets" {
     }
   }
 }
+
+module "private_mq_subnets" {
+  source = "./modules/subnet"
+
+  subnets = {
+    private_mq = {
+      cidr_block        = "10.0.101.0/24"
+      vpc_id            = aws_vpc.main.id
+      availability_zone = "ap-northeast-2a"
+      tags_name         = "Codedang-MQ-Subnet"
+      route_table_id    = aws_route_table.private.id
+    }
+  }
+}

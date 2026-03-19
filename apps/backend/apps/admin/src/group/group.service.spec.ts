@@ -223,11 +223,20 @@ describe('GroupService', () => {
   })
 
   describe('getCourses', () => {
-    const group = { ...simpleGroup, memberNum: userGroup.length }
+    const groupWithCount = {
+      ...simpleGroup,
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      _count: { userGroup: userGroup.length }
+    }
 
     it('should return groups', async () => {
+      db.group.findMany.resolves([groupWithCount])
+
       const res = await service.getCourses(0, 3)
-      expect(res).to.deep.equal([group])
+
+      expect(res).to.deep.equal([
+        { ...simpleGroup, memberNum: userGroup.length }
+      ])
     })
   })
 
@@ -249,15 +258,14 @@ describe('GroupService', () => {
       db.userGroup.findMany.resolves(userGroups)
 
       const result = await service.getGroupsUserLead(userId, GroupType.Course)
+
       expect(result).to.deep.equal([
         {
           id: 1,
           groupName: 'Test Group',
           groupType: GroupType.Course,
           courseInfo: null,
-          memberNum: 3,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          _count: { userGroup: 3 }
+          memberNum: 3
         }
       ])
     })
@@ -329,19 +337,26 @@ describe('GroupService', () => {
   })
 
   describe('duplicateCourse', () => {
+    const duplicateInput = {
+      courseNum: 'SWE3099',
+      semester: '2026 Spring',
+      classNum: 1
+    }
+
     it('should throw NotFoundException if user does not exist', async () => {
       db.user.findUnique.resolves(null)
 
-      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
-        EntityNotExistException,
-        'User not found'
-      )
+      await expect(
+        service.duplicateCourse(groupId, userId, duplicateInput)
+      ).to.be.rejectedWith(EntityNotExistException, 'User not found')
     })
 
     it('should throw ForbiddenAccessException if user cannot create course', async () => {
       db.user.findUnique.resolves({ canCreateCourse: false })
 
-      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+      await expect(
+        service.duplicateCourse(groupId, userId, duplicateInput)
+      ).to.be.rejectedWith(
         ForbiddenAccessException,
         'No Access to create course'
       )
@@ -351,7 +366,9 @@ describe('GroupService', () => {
       db.user.findUnique.resolves({ canCreateCourse: true })
       db.group.findUniqueOrThrow.resolves({ courseInfo: null })
 
-      await expect(service.duplicateCourse(groupId, userId)).to.be.rejectedWith(
+      await expect(
+        service.duplicateCourse(groupId, userId, duplicateInput)
+      ).to.be.rejectedWith(
         UnprocessableDataException,
         'Invalid groupId for a course'
       )
@@ -397,13 +414,29 @@ describe('GroupService', () => {
         id: 1000
       })
 
-      const result = await service.duplicateCourse(groupId, userId)
+      const result = await service.duplicateCourse(
+        groupId,
+        userId,
+        duplicateInput
+      )
 
       expect(result).to.deep.equal({
         duplicatedCourse: groupWithAssignment,
         originAssignments: [999, 1000],
         copiedAssignments: [999, 1000]
       })
+
+      // Verify that group.create was called with the input courseNum, semester, and classNum
+      const createCallArgs = db.group.create.lastCall.args[0]
+      expect(createCallArgs.data.courseInfo.create.courseNum).to.equal(
+        duplicateInput.courseNum
+      )
+      expect(createCallArgs.data.courseInfo.create.semester).to.equal(
+        duplicateInput.semester
+      )
+      expect(createCallArgs.data.courseInfo.create.classNum).to.equal(
+        duplicateInput.classNum
+      )
     })
   })
 })
