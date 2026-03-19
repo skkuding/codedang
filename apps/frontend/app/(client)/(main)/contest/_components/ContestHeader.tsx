@@ -31,13 +31,11 @@ export function ContestHeader() {
   return (
     <>
       <div>
-        <p className="mb-1 mt-[116px] text-4xl font-bold">CONTEST</p>
-        <p className="mb-12 text-lg font-medium text-[#5F6566]">
+        <p className="text-head1_b_40 mb-1 mt-[116px]">CONTEST</p>
+        <p className="text-sub2_m_18 mb-12 text-[#5F6566]">
           대회에 참가하여 최상위권에 도전해보세요!
         </p>
-        <p className="mb-5 text-3xl font-semibold">
-          대회에는 어떤 기능이 있나요?
-        </p>
+        <p className="text-head3_sb_28 mb-5">대회에는 어떤 기능이 있나요?</p>
       </div>
       <div className="mb-15 flex h-[192px] gap-2">
         {FEATURE_LIST.map((feature, idx) => (
@@ -45,10 +43,8 @@ export function ContestHeader() {
             key={idx}
             className="flex min-w-0 flex-1 flex-col rounded-md bg-white p-6 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]"
           >
-            <p className="mb-2 truncate text-2xl font-semibold">
-              {feature.title}
-            </p>
-            <p className="mb-4 line-clamp-2 text-base font-medium text-[#5F6566]">
+            <p className="text-head5_sb_24 mb-2 truncate">{feature.title}</p>
+            <p className="text-body1_m_16 mb-4 line-clamp-2 text-[#5F6566]">
               {feature.desc}
             </p>
             <Image

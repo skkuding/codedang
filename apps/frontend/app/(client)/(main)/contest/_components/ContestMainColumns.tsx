@@ -14,7 +14,7 @@ export const columns: ColumnDef<Contest>[] = [
     cell: ({ row }) => (
       <span
         className={cn(
-          'block w-full overflow-hidden text-ellipsis whitespace-nowrap text-left text-base font-medium',
+          'text-body1_m_16 block w-full overflow-hidden text-ellipsis whitespace-nowrap text-left',
           row.original.status.toLowerCase().includes('upcoming') &&
             'text-primary-strong font-medium'
         )}
@@ -27,7 +27,7 @@ export const columns: ColumnDef<Contest>[] = [
     header: 'Period',
     accessorKey: 'period',
     cell: ({ row }) => (
-      <p className="text-left text-base font-normal tracking-[-0.48px] text-[#484C4D]">
+      <p className="text-body3_r_16 text-left tracking-[-0.48px] text-[#484C4D]">
         {dateFormatter(row.original.startTime, 'YYYY-MM-DD HH:mm')} ~{' '}
         {dateFormatter(row.original.endTime, 'YYYY-MM-DD HH:mm')}
       </p>
@@ -39,7 +39,7 @@ export const columns: ColumnDef<Contest>[] = [
     cell: ({ row }) => (
       <p
         className={cn(
-          `mx-auto flex h-10 w-fit items-center justify-center rounded-full border border-solid px-[22px] text-sm uppercase`,
+          `text-body2_m_14 mx-auto flex h-10 w-fit items-center justify-center rounded-full border border-solid px-[22px] uppercase`,
           getStatusColor(row.original.status)
         )}
       >
