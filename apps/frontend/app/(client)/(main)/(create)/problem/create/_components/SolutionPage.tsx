@@ -216,10 +216,10 @@ export function SolutionPage() {
                 </div>
                 <div
                   className={cn(
-                    'flex justify-between rounded-xl p-4',
+                    'border-1 flex justify-between rounded-xl p-4',
                     testPassed
-                      ? 'border-1 border-primary-light bg-color-blue-95'
-                      : 'border-1 bg-color-neutral-99 border-transparent'
+                      ? 'border-primary-light bg-color-blue-95'
+                      : 'bg-color-neutral-99 border-transparent'
                   )}
                 >
                   <div className="flex items-start gap-2">
@@ -256,7 +256,7 @@ export function SolutionPage() {
                             </p>
                           </div>
                         ) : (
-                          '솔루션 테스트를 실행해주세요'
+                          <p className="h-5">솔루션 테스트를 실행해주세요</p>
                         )}
                       </div>
                     </div>
