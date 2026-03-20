@@ -61,7 +61,7 @@ export function SolutionPage() {
           testResult: { isPassed: false }
         }) as SolutionFile
     )
-    setSolutionFiles((prev) => solutionFiles.concat(prev))
+    setSolutionFiles((prev) => prev.concat(solutionFiles))
   }
 
   const DeleteFile = (solutionFile: SolutionFile) => {
