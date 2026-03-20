@@ -51,7 +51,7 @@ interface SolutionFile {
 export function SolutionPage() {
   // TODO: DB에서 가져온 기존 파일들로 초기화해야함
   const [solutionFiles, setSolutionFiles] = useState<SolutionFile[]>([])
-  const fileRef = useRef<HTMLInputElement | null>(null)
+  const inputFileRef = useRef<HTMLInputElement | null>(null)
 
   const UplaodFile = (inputFiles: FileList) => {
     const solutionFiles = Array.from(inputFiles).map(
@@ -95,7 +95,7 @@ export function SolutionPage() {
         onChange={(event) => {
           event.target.files && UplaodFile(event.target.files)
         }}
-        ref={fileRef}
+        ref={inputFileRef}
         multiple
         className="hidden"
         type="file"
@@ -114,7 +114,7 @@ export function SolutionPage() {
           </p>
         </div>
         <Button
-          onClick={() => fileRef.current?.click()}
+          onClick={() => inputFileRef.current?.click()}
           type="button"
           className="text-sub4_sb_14 text-primary border-primary-light hover:bg-color-blue-95 rounded-lg border-[1.4px] bg-white px-3 py-[10px]"
         >
