@@ -102,12 +102,7 @@ export function SolutionPage() {
       />
       <header className="flex justify-between">
         <div className="grid gap-1">
-          <div className="flex items-center gap-2">
-            <p className="text-head5_sb_24">솔루션 파일 업로드</p>
-            <div className="bg-color-blue-90 text-primary text-caption1_m_13 h-fit rounded-sm px-2 py-1">
-              필수
-            </div>
-          </div>
+          <p className="text-head5_sb_24">솔루션 파일 업로드</p>
           <p className="text-body2_m_14 text-color-cool-neutral-40">
             참고 솔루션 (정답 코드)을 업로드하고, 테스트 케이스와 함께
             검증하세요
