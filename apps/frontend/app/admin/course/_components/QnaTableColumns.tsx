@@ -2,33 +2,41 @@
 
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { dateFormatter } from '@/libs/utils'
+import lockGrayIcon from '@/public/icons/lock-gray.svg'
 import type { ColumnDef } from '@tanstack/react-table'
+import Image from 'next/image'
 
 export interface DataTableQna {
   id: number
   title: string
-  startTime: string
-  dueTime?: string
-  endTime: string
-  description: string
-  participants: number
-  isVisible: boolean
-  isRankVisible: boolean
-  week: number
+  order: number
+  isResolved: boolean
+  isPrivate: boolean
+  createTime: string
+  courseTitle: string
+  category: string
+  createdBy: {
+    username: string
+  }
 }
 
 export const columns: ColumnDef<DataTableQna>[] = [
   {
-    accessorKey: 'title',
+    accessorKey: 'courseTitle',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Course" className="w-30" />
     ),
     cell: ({ row }) => {
-      return <div className="max-w-30 truncate">{row.getValue('title')}</div>
-    }
+      return (
+        <div className="text-body1_m_16 max-w-30 truncate text-[#808080]">
+          {row.getValue('courseTitle')}
+        </div>
+      )
+    },
+    enableSorting: false
   },
   {
-    accessorKey: 'isRankVisible',
+    accessorKey: 'category',
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
@@ -37,20 +45,16 @@ export const columns: ColumnDef<DataTableQna>[] = [
       />
     ),
     cell: ({ row }) => {
-      return row.getValue('isRankVisible') ? 'Exercise' : 'Assignment'
-    }
+      return (
+        <span className="text-body1_m_16 text-[#808080]">
+          {row.original.category}
+        </span>
+      )
+    },
+    enableSorting: false
   },
   {
-    accessorKey: 'week',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Week" />
-    ),
-    cell: ({ row }) => {
-      return row.getValue('week')
-    }
-  },
-  {
-    accessorKey: 'description',
+    accessorKey: 'title',
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
@@ -59,12 +63,38 @@ export const columns: ColumnDef<DataTableQna>[] = [
       />
     ),
     cell: ({ row }) => {
-      return row.getValue('description')
+      const isPrivate = row.original.isPrivate
+      const title = row.original.title
+      const TEN_DAYS_IN_MS = 10 * 24 * 60 * 60 * 1000
+      const isNew =
+        new Date().getTime() - new Date(row.original.createTime).getTime() <
+        TEN_DAYS_IN_MS
+
+      return (
+        <div className="flex items-center gap-2">
+          {isPrivate && (
+            <Image
+              src={lockGrayIcon}
+              alt="lock icon"
+              className="h-4 w-4 shrink-0"
+            />
+          )}
+          <span
+            className="text-body1_m_16 max-w-[400px] truncate"
+            title={title}
+          >
+            {title}
+          </span>
+          {isNew && (
+            <div className="bg-primary h-1.5 w-1.5 shrink-0 rounded-full" />
+          )}
+        </div>
+      )
     },
     enableSorting: false
   },
   {
-    accessorKey: 'id',
+    accessorKey: 'createdBy',
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
@@ -73,12 +103,16 @@ export const columns: ColumnDef<DataTableQna>[] = [
       />
     ),
     cell: ({ row }) => {
-      return row.getValue('id')
+      return (
+        <span className="text-body1_m_16 text-[#808080]">
+          {row.original.createdBy?.username}
+        </span>
+      )
     },
     enableSorting: false
   },
   {
-    accessorKey: 'startTime',
+    accessorKey: 'createTime',
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
@@ -87,12 +121,16 @@ export const columns: ColumnDef<DataTableQna>[] = [
       />
     ),
     cell: ({ row }) => {
-      return dateFormatter(row.getValue('startTime'), 'YY-MM-DD HH:mm')
+      return (
+        <span className="text-body1_m_16 text-[#808080]">
+          {dateFormatter(row.original.createTime, 'YY-MM-DD HH:mm')}
+        </span>
+      )
     },
     enableSorting: false
   },
   {
-    accessorKey: 'isVisible',
+    accessorKey: 'isResolved',
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
@@ -103,12 +141,12 @@ export const columns: ColumnDef<DataTableQna>[] = [
     cell: ({ row }) => {
       return (
         <div>
-          {row.getValue('isVisible') ? (
-            <div className="bg-color-neutral-99 text-color-neutral-70 border-color-neutral-90 items-center justify-center rounded-full border px-5 py-2 font-medium">
+          {row.original.isResolved ? (
+            <div className="bg-color-neutral-99 text-color-neutral-70 border-color-neutral-90 text-body2_m_14 items-center justify-center rounded-full border px-5 py-2">
               Answered
             </div>
           ) : (
-            <div className="text-primary border-primary items-center justify-center rounded-full border px-5 py-2 font-medium">
+            <div className="text-primary border-primary text-body2_m_14 items-center justify-center rounded-full border px-5 py-2">
               Unanswered
             </div>
           )}
