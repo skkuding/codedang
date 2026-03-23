@@ -120,26 +120,19 @@ export class AssignmentService {
    * - 제공된 id를 가진 assignment를 찾을 수 없을 때
    */
   async getAssignment(id: number, userId: number) {
-    const isRegistered = await this.prisma.assignmentRecord.findUnique({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { assignmentId_userId: { assignmentId: id, userId } },
-      select: { id: true }
-    })
-
-    if (!isRegistered) {
-      throw new ForbiddenAccessException(
-        'User not participated in the assignment'
-      )
-    }
-
+    // TODO: optimize query
     const assignment = await this.prisma.assignment.findUnique({
-      where: { id },
+      where: {
+        id
+      },
       select: {
+        // TODO: drop useless fields for assignment select option
         ...assignmentSelectOption,
         description: true,
         isVisible: true,
         group: {
           select: {
+            id: true,
             userGroup: {
               where: { userId },
               take: 1,
@@ -152,6 +145,13 @@ export class AssignmentService {
 
     if (!assignment) {
       throw new EntityNotExistException('Assignment')
+    }
+
+    if (assignment.group.userGroup.length == 0) {
+      // TODO: aware of malicious user, just send 404(not specify error type for security reason)
+      throw new ForbiddenAccessException(
+        'User not participated in the assignment'
+      )
     }
 
     const { _count, group, ...assignmentDetails } = assignment

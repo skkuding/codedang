@@ -222,7 +222,7 @@ const useWebsocket = (
             terminal.writeln(data.stderr)
             break
           case RunnerMessageType.ECHO:
-            return
+            break
           case RunnerMessageType.STDOUT:
           case RunnerMessageType.STDERR:
             outputLength += (data.data || '').length

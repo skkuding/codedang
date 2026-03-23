@@ -1,3 +1,5 @@
+'use client'
+
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Input } from '@/components/shadcn/input'
 import { cn, fetcherWithAuth } from '@/libs/utils'

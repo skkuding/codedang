@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -78,11 +79,12 @@ func (bu *BuildUnit) Setup(
 	// compileErr is not nil when there is an error in the sandbox service itself (e.g., timeout, internal error, etc.)
 	// compileResult.ExecResult.ErrorCode is not 0 when the sandbox service successfully runs but there is an error in the user's code (e.g., compilation error, runtime error, etc.)
 	if compileErr != nil {
+		normalizedCompileErr := normalizeCompileError(compileErr, bu.Dir, bu.ParsedLang)
 		return &HandlerError{
 			caller:  caller,
 			err:     fmt.Errorf("compilation error(%s): %w", bu.Name, compileErr),
 			level:   logger.ERROR,
-			Message: compileErr.Error(),
+			Message: normalizedCompileErr,
 		}
 	}
 
@@ -96,15 +98,31 @@ func (bu *BuildUnit) Setup(
 	}
 
 	if compileResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
+		normalizedCompileErr := normalizeCompileError(
+			fmt.Errorf("%s", string(compileResult.ErrOutput)),
+			bu.Dir,
+			bu.ParsedLang,
+		)
 		return &HandlerError{
 			caller:  caller,
 			err:     ErrCompile,
 			level:   logger.INFO,
-			Message: fmt.Sprintf("%s (%s)", string(compileResult.ErrOutput), bu.Name),
+			Message: fmt.Sprintf("%s (%s)", normalizedCompileErr, bu.Name),
 		}
 	}
 
 	return nil
+}
+
+func normalizeCompileError(err error, dir string, lang sandbox.Language) string {
+	switch lang {
+	case sandbox.C, sandbox.CPP:
+		errMsg := err.Error()
+		sandboxPath := "/app/sandbox/results/" + dir + "/"
+		return strings.ReplaceAll(errMsg, sandboxPath, "")
+	default:
+		return err.Error()
+	}
 }
 
 func (bu *BuildUnit) Run(
