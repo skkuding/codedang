@@ -62,7 +62,7 @@ func (p *Postgres) Save(elements []ElementIn) error {
 
 	for idx, element := range elements {
 		p.logger.Log(
-			logger.INFO,
+			logger.DEBUG,
 			fmt.Sprintf(
 				"sql.save.exec.start index=%d problem_id=%s testcase_id=%d hidden=%t input_len=%d output_len=%d",
 				idx,
@@ -86,7 +86,7 @@ func (p *Postgres) Save(elements []ElementIn) error {
 			)
 		} else {
 			p.logger.Log(
-				logger.INFO,
+				logger.DEBUG,
 				fmt.Sprintf("sql.save.exec.done index=%d rows_affected=%d", idx, affected),
 			)
 		}
@@ -132,9 +132,9 @@ func (p *Postgres) Get(key string) ([]ElementOut, error) {
 		var id int
 		var input string
 		var output string
-		var is_hidden_testacase bool
+		var isHiddenTestcase bool
 
-		if err := rows.Scan(&id, &input, &output, &is_hidden_testacase); err != nil {
+		if err := rows.Scan(&id, &input, &output, &isHiddenTestcase); err != nil {
 			p.logger.Log(
 				logger.ERROR,
 				fmt.Sprintf("sql.get.failed stage=scan problem_id=%s err=%v", key, err),
@@ -146,7 +146,7 @@ func (p *Postgres) Get(key string) ([]ElementOut, error) {
 			Id:     id,
 			In:     input,
 			Out:    output,
-			Hidden: is_hidden_testacase,
+			Hidden: isHiddenTestcase,
 		})
 	}
 

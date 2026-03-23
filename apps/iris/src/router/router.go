@@ -83,11 +83,11 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 
 	r.logger.Log(logger.INFO, fmt.Sprintf("%s message received", path))
 	switch path {
-	case Judge:
+	case Judge, SpecialJudge:
 		task, taskErr = r.judgeTaskFactory.Create(path, data)
 	case Run, UserTestCase:
 		task, taskErr = r.runTaskFactory.Create(path, data)
-	case SpecialJudge, Generate:
+	case Generate:
 		task, taskErr = r.generateTaskFactory.Create(path, data)
 	case Validate:
 		task, taskErr = r.validateTaskFactory.Create(path, data)

@@ -1,8 +1,9 @@
 {
-  "submissionId": "msg-gen-001",
+  "submissionId": 1,
   "resultCode": 0,
   "judgeResult": {
-    "generatedTestcases": 3
+    "generatedTestcases": 3,
+    "totalTestcases": 3
   },
   "error": ""
 }

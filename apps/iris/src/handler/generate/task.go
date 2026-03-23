@@ -178,27 +178,22 @@ func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMess
 	}
 
 save:
-	for _, pair := range pairs {
-		if err := t.tcManager.SaveTestcase(
-			strconv.Itoa(validReq.ProblemId),
-			false,
-			[]loader.ElementIn{pair},
-		); err != nil {
-			t.logger.Log(logger.ERROR, fmt.Sprintf("Failed to save testcase %d: %s", pair.Id, err.Error()))
-			continue
-		}
-		successCount++
-	}
-	if successCount < len(pairs) {
+	if err := t.tcManager.SaveTestcase(
+		strconv.Itoa(validReq.ProblemId),
+		false,
+		pairs,
+	); err != nil {
 		t.logger.Log(
-			logger.WARN,
+			logger.ERROR,
 			fmt.Sprintf(
-				"Partial save: %d/%d testcases persisted for problemId %d",
-				successCount,
+				"Failed to save %d testcases for problemId %d: %s",
 				len(pairs),
 				validReq.ProblemId,
+				err.Error(),
 			),
 		)
+	} else {
+		successCount += len(pairs)
 	}
 
 	res := GenerateResult{

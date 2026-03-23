@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"reflect"
 
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
@@ -25,8 +26,6 @@ type Task interface {
 	RunAction(ctx context.Context, sendResult func(ResultMessage))
 }
 
-
-
 func NewHandlerError(caller string, err error, level logger.Level) *HandlerError {
 	return &HandlerError{
 		caller: caller,
@@ -37,28 +36,12 @@ func NewHandlerError(caller string, err error, level logger.Level) *HandlerError
 
 func ParseError(res any, resultCode ResultCode) error {
 	if resultCode != ACCEPTED {
-		// Attempt to extract typical Sandbox signals from Result if present
-		if j, ok := res.(struct {
-			Signal   int
-			RealTime int
-		}); ok {
-			if j.Signal == 11 && resultCode != MEMORY_LIMIT_EXCEEDED {
+		signal, realTime, ok := extractSignalAndRealTime(res)
+		if ok {
+			if signal == 11 && resultCode != MEMORY_LIMIT_EXCEEDED {
 				return resultCodeToError(SEGMENTATION_FAULT_ERROR)
 			}
-			if j.RealTime >= 2000 && j.Signal == 9 && resultCode == RUNTIME_ERROR {
-				return resultCodeToError(REAL_TIME_LIMIT_EXCEEDED)
-			}
-		}
-
-		// Attempt to extract by map for parsing if res comes as interface{} JSON decode
-		if m, ok := res.(map[string]any); ok {
-			signal, hasSignal := m["signal"].(float64)
-			realTime, hasRealTime := m["realTime"].(float64)
-
-			if hasSignal && int(signal) == 11 && resultCode != MEMORY_LIMIT_EXCEEDED {
-				return resultCodeToError(SEGMENTATION_FAULT_ERROR)
-			}
-			if hasRealTime && hasSignal && int(realTime) >= 2000 && int(signal) == 9 && resultCode == RUNTIME_ERROR {
+			if realTime >= 2000 && signal == 9 && resultCode == RUNTIME_ERROR {
 				return resultCodeToError(REAL_TIME_LIMIT_EXCEEDED)
 			}
 		}
@@ -66,6 +49,39 @@ func ParseError(res any, resultCode ResultCode) error {
 		return resultCodeToError(resultCode)
 	}
 	return nil
+}
+
+func extractSignalAndRealTime(res any) (int, int, bool) {
+	v := reflect.ValueOf(res)
+	if !v.IsValid() {
+		return 0, 0, false
+	}
+
+	if v.Kind() == reflect.Pointer {
+		if v.IsNil() {
+			return 0, 0, false
+		}
+		v = v.Elem()
+	}
+
+	if v.Kind() == reflect.Struct {
+		signalField := v.FieldByName("Signal")
+		realTimeField := v.FieldByName("RealTime")
+		if signalField.IsValid() && realTimeField.IsValid() &&
+			signalField.Kind() == reflect.Int && realTimeField.Kind() == reflect.Int {
+			return int(signalField.Int()), int(realTimeField.Int()), true
+		}
+	}
+
+	if m, ok := res.(map[string]any); ok {
+		signal, hasSignal := m["signal"].(float64)
+		realTime, hasRealTime := m["realTime"].(float64)
+		if hasSignal && hasRealTime {
+			return int(signal), int(realTime), true
+		}
+	}
+
+	return 0, 0, false
 }
 
 func resultCodeToError(code ResultCode) error {
