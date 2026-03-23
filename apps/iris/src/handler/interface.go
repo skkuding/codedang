@@ -7,7 +7,8 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
 
-const MAX_BUF = 10
+
+
 
 type Handler interface {
 	Handle(data any) (json.RawMessage, error)
@@ -22,11 +23,12 @@ type ResultMessage struct {
 }
 
 type Task interface {
-	GetCode() string
-	GetLanguage() string
-	GetOutChan() chan ResultMessage
-	RunAction(ctx context.Context, dir string)
+	GetBuildUnits() []*BuildUnit
+	GetDebugString() string
+	RunAction(ctx context.Context, sendResult func(ResultMessage))
 }
+
+
 
 func NewHandlerError(caller string, err error, level logger.Level) *HandlerError {
 	return &HandlerError{

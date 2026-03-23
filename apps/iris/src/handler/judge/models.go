@@ -9,16 +9,16 @@ import (
 )
 
 type JudgeRequest struct {
-	Code                     string            `json:"code"`
-	Language                 string            `json:"language"`
-	ProblemId                int               `json:"problemId"`
-	TimeLimit                int               `json:"timeLimit"`
-	MemoryLimit              int               `json:"memoryLimit"`
-	UserTestcases            *[]loader.Element `json:"userTestcases,omitempty"`            // 사용자 테스트 케이스
-	StopOnNotAccepted        bool              `json:"stopOnNotAccepted,omitempty"`        // 테스트 케이스가 틀리면 이후 테스트 케이스 실행 중단
-	JudgeOnlyHiddenTestcases bool              `json:"judgeOnlyHiddenTestcases,omitempty"` // Hidden 테스트 케이스만 채점
-	ContainHiddenTestcases   bool              `json:"containHiddenTestcases,omitempty"`   // Hidden 테스트 케이스도 포함하여 채점(Run의 경우)
-	IsInteractive            bool              `json:"isInteractive,omitempty"`
+	Code                     string               `json:"code"`
+	Language                 string               `json:"language"`
+	ProblemId                int                  `json:"problemId"`
+	TimeLimit                int                  `json:"timeLimit"`
+	MemoryLimit              int                  `json:"memoryLimit"`
+	UserTestcases            *[]loader.ElementOut `json:"userTestcases,omitempty"`            // 사용자 테스트 케이스
+	StopOnNotAccepted        bool                 `json:"stopOnNotAccepted,omitempty"`        // 테스트 케이스가 틀리면 이후 테스트 케이스 실행 중단
+	JudgeOnlyHiddenTestcases bool                 `json:"judgeOnlyHiddenTestcases,omitempty"` // Hidden 테스트 케이스만 채점
+	ContainHiddenTestcases   bool                 `json:"containHiddenTestcases,omitempty"`   // Hidden 테스트 케이스도 포함하여 채점(Run의 경우)
+	IsInteractive            bool                 `json:"isInteractive,omitempty"`
 }
 
 func (r JudgeRequest) Validate() (*JudgeRequest, error) {

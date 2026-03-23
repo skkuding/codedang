@@ -34,11 +34,26 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 		return nil, handler.NewHandlerError("handle-generate", fmt.Errorf("%w: %s", handler.ErrValidate, err), logger.ERROR)
 	}
 
+	buildUnits := []*handler.BuildUnit{
+		{
+			Name:     "generator",
+			Code:     validReq.GeneratorCode,
+			Language: validReq.Language,
+		},
+	}
+	if validReq.SolutionCode != "" {
+		buildUnits = append(buildUnits, &handler.BuildUnit{
+			Name:     "solution",
+			Code:     validReq.SolutionCode,
+			Language: validReq.SolutionLanguage,
+		})
+	}
+
 	task := &Task{
-		req:     validReq,
-		outChan: make(chan handler.ResultMessage, handler.MAX_BUF),
-		sandbox: f.sandbox,
-		logger:  f.logger,
+		req:        validReq,
+		buildUnits: buildUnits,
+		sandbox:    f.sandbox,
+		logger:     f.logger,
 	}
 
 	return task, nil

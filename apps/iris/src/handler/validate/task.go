@@ -15,33 +15,52 @@ import (
 )
 
 type Task struct {
-	req       *ValidateRequest
-	outChan   chan handler.ResultMessage
-	tcManager testcase.TestcaseManager
-	sandbox   sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
-	logger    logger.Logger
+	req        *ValidateRequest
+	buildUnits []*handler.BuildUnit
+	tcManager  testcase.TestcaseManager
+	sandbox    sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
+	logger     logger.Logger
 }
 
-func (t *Task) GetCode() string {
-	return t.req.ValidatorCode
+func (t *Task) GetDebugString() string {
+	if t == nil {
+		return "validate.Task<nil>"
+	}
+
+	reqDump := "nil"
+	if t.req != nil {
+		if data, err := json.Marshal(t.req); err == nil {
+			reqDump = string(data)
+		} else {
+			reqDump = fmt.Sprintf("%+v", *t.req)
+		}
+	}
+
+	return fmt.Sprintf("validate.Task{req:%s}", reqDump)
 }
 
-func (t *Task) GetLanguage() string {
-	return t.req.Language
+func (t *Task) GetBuildUnits() []*handler.BuildUnit {
+	return t.buildUnits
 }
 
-func (t *Task) GetOutChan() chan handler.ResultMessage {
-	return t.outChan
-}
-
-func (t *Task) RunAction(ctx context.Context, dir string) {
-	defer close(t.outChan)
-
+func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMessage)) {
 	validReq := t.req
+	var validatorUnit *handler.BuildUnit
+	for _, u := range t.buildUnits {
+		if u.Name == "validator" {
+			validatorUnit = u
+			break
+		}
+	}
+
+	if validatorUnit == nil || validatorUnit.Dir == "" {
+		sendResult(handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", fmt.Errorf("validator build unit not found"), logger.ERROR)})
+		return
+	}
 
 	tc, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), false)
 	if err != nil {
-		t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", err, logger.ERROR)}
+		sendResult(handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", err, logger.ERROR)})
 		return
 	}
 
@@ -49,10 +68,8 @@ func (t *Task) RunAction(ctx context.Context, dir string) {
 	allValid := true
 
 	for i, tElement := range tc.Elements {
-		runResult, err := t.sandbox.Run(sandbox.RunRequest{
+		runResult, err := validatorUnit.Run(t.sandbox, sandbox.RunRequest{
 			Order:       i,
-			Dir:         dir,
-			Language:    sandbox.Language(validReq.Language),
 			TimeLimit:   2000,
 			MemoryLimit: 512 * 1024 * 1024,
 			ExtraArgs:   []string{}, // validator code takes implicitly from stdin
@@ -62,13 +79,13 @@ func (t *Task) RunAction(ctx context.Context, dir string) {
 
 		if err != nil {
 			t.logger.Log(logger.ERROR, fmt.Sprintf("Error while validating testcase: %s", err.Error()))
-			t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", err, logger.ERROR)}
+			sendResult(handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", err, logger.ERROR)})
 			return
 		}
 
 		if runResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 			t.logger.Log(logger.ERROR, fmt.Sprintf("Validator execution failed at testcase %d", i))
-			t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", handler.ErrSandbox, logger.ERROR)}
+			sendResult(handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", handler.ErrSandbox, logger.ERROR)})
 			return
 		}
 
@@ -84,8 +101,8 @@ func (t *Task) RunAction(ctx context.Context, dir string) {
 	}
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
-		t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", handler.ErrMarshalJson, logger.ERROR)}
+		sendResult(handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("ValidateTask.RunAction", handler.ErrMarshalJson, logger.ERROR)})
 	} else {
-		t.outChan <- handler.ResultMessage{Result: marshaledRes, Err: nil}
+		sendResult(handler.ResultMessage{Result: marshaledRes, Err: nil})
 	}
 }

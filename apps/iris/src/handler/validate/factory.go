@@ -37,11 +37,20 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 		return nil, handler.NewHandlerError("handle-validate", fmt.Errorf("%w: %s", handler.ErrValidate, err), logger.ERROR)
 	}
 
+	buildUnits := []*handler.BuildUnit{
+		{
+			Name:     "validator",
+			Code:     validReq.ValidatorCode,
+			Language: validReq.Language,
+		},
+	}
+
 	task := &Task{
-		req:       validReq,
-		tcManager: f.tcManager,
-		sandbox:   f.sandbox,
-		logger:    f.logger,
+		req:        validReq,
+		buildUnits: buildUnits,
+		tcManager:  f.tcManager,
+		sandbox:    f.sandbox,
+		logger:     f.logger,
 	}
 
 	return task, nil

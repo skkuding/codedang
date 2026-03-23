@@ -42,14 +42,22 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 
 	hidden := true // Judge requests always contain hidden testcases
 
+	buildUnits := []*handler.BuildUnit{
+		{
+			Name:     "default",
+			Code:     validReq.Code,
+			Language: validReq.Language,
+		},
+	}
+
 	task := &Task{
-		req:       validReq,
-		outChan:   make(chan handler.ResultMessage, handler.MAX_BUF),
-		hidden:    hidden,
-		tcManager: f.tcManager,
-		sandbox:   f.sandbox,
-		logger:    f.logger,
-		tracer:    f.tracer,
+		req:        validReq,
+		hidden:     hidden,
+		buildUnits: buildUnits,
+		tcManager:  f.tcManager,
+		sandbox:    f.sandbox,
+		logger:     f.logger,
+		tracer:     f.tracer,
 	}
 
 	return task, nil

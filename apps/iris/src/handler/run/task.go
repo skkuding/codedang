@@ -21,31 +21,43 @@ import (
 )
 
 type Task struct {
-	req       *RunRequest
-	outChan   chan handler.ResultMessage
-	hidden    bool
-	tcManager testcase.TestcaseManager
-	sandbox   sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
-	logger    logger.Logger
-	tracer    trace.Tracer
+	req        *RunRequest
+	hidden     bool
+	buildUnits []*handler.BuildUnit
+	tcManager  testcase.TestcaseManager
+	sandbox    sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
+	logger     logger.Logger
+	tracer     trace.Tracer
 }
 
-func (t *Task) GetCode() string {
-	return t.req.Code
+func (t *Task) GetDebugString() string {
+	if t == nil {
+		return "run.Task<nil>"
+	}
+
+	reqDump := "nil"
+	if t.req != nil {
+		if data, err := json.Marshal(t.req); err == nil {
+			reqDump = string(data)
+		} else {
+			reqDump = fmt.Sprintf("%+v", *t.req)
+		}
+	}
+
+	return fmt.Sprintf("run.Task{req:%s, hidden:%t}", reqDump, t.hidden)
 }
 
-func (t *Task) GetLanguage() string {
-	return t.req.Language
+func (t *Task) GetBuildUnits() []*handler.BuildUnit {
+	return t.buildUnits
 }
 
-func (t *Task) GetOutChan() chan handler.ResultMessage {
-	return t.outChan
-}
-
-func (t *Task) RunAction(ctx context.Context, dir string) {
-	defer close(t.outChan)
-
+func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMessage)) {
 	validReq := t.req
+
+	var dir string
+	if len(t.buildUnits) > 0 {
+		dir = t.buildUnits[0].Dir
+	}
 
 	var tc testcase.Testcase
 	if validReq.UserTestcases != nil {
@@ -53,13 +65,14 @@ func (t *Task) RunAction(ctx context.Context, dir string) {
 	} else {
 		res, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), t.hidden)
 		if err != nil {
-			t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("handle", fmt.Errorf("%w: %s", handler.ErrTestcaseGet, err), logger.ERROR)}
+			sendResult(handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("handle", fmt.Errorf("%w: %s", handler.ErrTestcaseGet, err), logger.ERROR)})
+			return
 		}
 
 		tc = res
 
 		if validReq.JudgeOnlyHiddenTestcases {
-			hiddenTestcases := make([]loader.Element, 0)
+			hiddenTestcases := make([]loader.ElementOut, 0)
 			for _, testcase := range tc.Elements {
 				if testcase.Hidden {
 					hiddenTestcases = append(hiddenTestcases, testcase)
@@ -80,7 +93,7 @@ func (t *Task) RunAction(ctx context.Context, dir string) {
 			break
 		}
 
-		t.outChan <- judgeResult.message
+		sendResult(judgeResult.message)
 	}
 
 	if tcId < tcNum {
@@ -93,10 +106,10 @@ func (t *Task) RunAction(ctx context.Context, dir string) {
 
 			marshaledRes, err := json.Marshal(canceledResult)
 			if err != nil {
-				t.outChan <- handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("Task.sendCancelResult", handler.ErrMarshalJson, logger.ERROR)}
+				sendResult(handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("Task.sendCancelResult", handler.ErrMarshalJson, logger.ERROR)})
 				return
 			}
-			t.outChan <- handler.ResultMessage{Result: marshaledRes, Err: handler.ParseError(canceledResult, handler.CANCELED)}
+			sendResult(handler.ResultMessage{Result: marshaledRes, Err: handler.ParseError(canceledResult, handler.CANCELED)})
 		}
 	}
 }
@@ -107,7 +120,7 @@ type runTestcaseResult struct {
 }
 
 func (t *Task) runTestcase(ctx context.Context, idx int, dir string, validReq *RunRequest,
-	tc loader.Element) runTestcaseResult {
+	tc loader.ElementOut) runTestcaseResult {
 	_, childSpan := t.tracer.Start(
 		ctx,
 		instrumentation.GetSemanticSpanName("run-handler", "runTestcase"),

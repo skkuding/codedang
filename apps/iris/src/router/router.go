@@ -81,6 +81,7 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 	var task handler.Task
 	var taskErr error
 
+	r.logger.Log(logger.INFO, fmt.Sprintf("%s message received", path))
 	switch path {
 	case Judge:
 		task, taskErr = r.judgeTaskFactory.Create(path, data)
@@ -95,19 +96,23 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 	}
 
 	if taskErr != nil {
+		r.logger.Log(logger.ERROR, fmt.Sprintf("Error creating task for path %s: %v", path, taskErr))
 		r.errHandle(taskErr)
 		out <- NewResponse(id, nil, taskErr).Marshal()
 		close(out)
 		return
 	}
+	r.logger.Log(logger.INFO, fmt.Sprintf("Task successfully created for path %s with id %s: %s", path, id, task.GetDebugString()))
 
 	if task != nil {
+		r.logger.Log(logger.INFO, fmt.Sprintf("Running task for path %s with id %s", path, id))
 		go r.runner.Run(id, task, taskResultChan, newCtx)
 	} else {
 		close(taskResultChan)
 	}
 
 	for result := range taskResultChan {
+		r.logger.Log(logger.INFO, fmt.Sprintf("Task result received for path %s with id %s: %v", path, id, result))
 		r.errHandle(result.Err)
 		out <- NewResponse(id, result.Result, result.Err).Marshal()
 		// break

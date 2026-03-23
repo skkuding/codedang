@@ -28,7 +28,23 @@ func NewPostgresDataSource(ctx context.Context) (*Postgres, error) {
 	return &Postgres{ctx, db}, nil
 }
 
-func (p *Postgres) Get(key string) ([]Element, error) {
+// todo: need to introduce prisma like ORM
+func (p *Postgres) Save(elements []ElementIn) error {
+	script := "INSERT INTO public.problem_testcase (problem_id, input, output, is_hidden_testcase) VALUES "
+	for _, element := range elements {
+		script += fmt.Sprintf(`(%d, '%s', '%s', %t),`, element.Id, element.In, element.Out, element.Hidden)
+	}
+	script = strings.TrimSuffix(script, ",")
+
+	_, err := p.client.Exec(script)
+	if err != nil {
+		return fmt.Errorf("failed to save testcase: %w", err)
+	}
+
+	return nil
+}
+
+func (p *Postgres) Get(key string) ([]ElementOut, error) {
 	rows, err := p.client.Query(`
   SELECT id, input, output, is_hidden_testcase
   FROM public.problem_testcase
@@ -40,7 +56,7 @@ func (p *Postgres) Get(key string) ([]Element, error) {
 
 	defer rows.Close()
 
-	var result []Element
+	var result []ElementOut
 
 	for rows.Next() {
 		var id int
@@ -52,7 +68,7 @@ func (p *Postgres) Get(key string) ([]Element, error) {
 			return nil, fmt.Errorf("database fetch error: %w", err)
 		}
 
-		result = append(result, Element{
+		result = append(result, ElementOut{
 			Id:     id,
 			In:     input,
 			Out:    output,

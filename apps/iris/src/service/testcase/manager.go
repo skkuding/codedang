@@ -19,6 +19,14 @@ func NewTestcaseManager(s3reader *loader.S3reader, database *loader.Postgres) *t
 	return &testcaseManager{s3reader: s3reader, database: database}
 }
 
+func (t *testcaseManager) SaveTestcase(problemId string, hidden bool, data []loader.ElementIn) error {
+	// todo: save testcases
+	if err := t.database.Save(data); err != nil {
+		return fmt.Errorf("SaveTestcase: %w", err)
+	}
+	return nil
+}
+
 func (t *testcaseManager) GetTestcase(problemId string, hidden bool) (Testcase, error) {
 	data, err := t.s3reader.Get(problemId)
 	if err != nil {
@@ -29,7 +37,7 @@ func (t *testcaseManager) GetTestcase(problemId string, hidden bool) (Testcase, 
 	}
 
 	if !hidden {
-		var openTestcases []loader.Element
+		var openTestcases []loader.ElementOut
 
 		for _, testcase := range data {
 			if !testcase.Hidden {

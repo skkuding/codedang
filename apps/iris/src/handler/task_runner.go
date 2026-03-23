@@ -4,16 +4,15 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
-	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox/judger"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
-	"github.com/skkuding/codedang/apps/iris/src/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -66,144 +65,54 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 		),
 	)
 	defer childSpan.End()
+	tr.logger.Log(logger.INFO, fmt.Sprintf("TaskRunner started for message id: %s ", id))
 
-	dir := utils.RandString(constants.DIR_NAME_LEN) + id
+	units := validReq.GetBuildUnits()
+
+	// sendResult is scoped to this invocation, safe under concurrent Run calls.
+	sendResult := func(msg ResultMessage) {
+		out <- msg
+	}
+
 	defer func() {
-		tr.file.RemoveDir(dir)
+		for _, unit := range units {
+			if unit != nil && unit.Dir != "" {
+				tr.file.RemoveDir(unit.Dir)
+			}
+		}
 		close(out)
-		tr.logger.Log(logger.DEBUG, fmt.Sprintf("task %s done: total time: %s", dir, time.Since(startedAt)))
+		tr.logger.Log(logger.DEBUG, fmt.Sprintf("task done: total time: %s", time.Since(startedAt)))
 	}()
 
-	if err := tr.file.CreateDir(dir); err != nil {
-		out <- ResultMessage{Result: nil, Err: &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("creating base directory: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}}
+	errCh := make(chan *HandlerError, len(units))
+	var wg sync.WaitGroup
+
+	for idx, u := range units {
+		wg.Add(1)
+		go func(index int, unit *BuildUnit) {
+			defer wg.Done()
+			if unit == nil {
+				errCh <- &HandlerError{
+					caller:  "task_runner",
+					err:     fmt.Errorf("nil build unit at index %d", index),
+					level:   logger.ERROR,
+					Message: fmt.Sprintf("nil build unit at index %d", index),
+				}
+				return
+			}
+			if err := unit.Setup(index, len(units), tr.file, tr.sandbox); err != nil {
+				errCh <- err
+			}
+		}(idx, u)
+	}
+
+	wg.Wait()
+	close(errCh)
+
+	for hErr := range errCh {
+		sendResult(ResultMessage{Result: nil, Err: hErr})
 		return
 	}
 
-	srcPath, err := tr.sandbox.MakeSrcPath(dir, sandbox.Language(validReq.GetLanguage()))
-	if err != nil {
-		out <- ResultMessage{Result: nil, Err: &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("creating src path: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}}
-		return
-	}
-
-	if err := tr.file.CreateFile(srcPath, validReq.GetCode()); err != nil {
-		out <- ResultMessage{Result: nil, Err: &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("creating src file: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		}}
-		return
-	}
-
-	compileOutCh := make(chan struct {
-		Data interface{}
-		Err  error
-	})
-	go tr.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.GetLanguage())})
-
-	compileOut := <-compileOutCh
-
-	if compileOut.Err != nil {
-		out <- ResultMessage{Result: nil, Err: &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("%w: %s", ErrCompile, compileOut.Err),
-			level:   logger.ERROR,
-			Message: compileOut.Err.Error(),
-		}}
-		return
-	}
-
-	compileResult, ok := compileOut.Data.(sandbox.CompileResult)
-	if !ok {
-		out <- ResultMessage{Result: nil, Err: &HandlerError{
-			caller: "handle",
-			err:    fmt.Errorf("%w: CompileResult", ErrTypeAssertionFail),
-			level:  logger.ERROR,
-		}}
-		return
-	}
-
-	// TODO: check SUCCESS
-	if compileResult.ExecResult.ErrorCode != 0 {
-		out <- ResultMessage{Result: nil, Err: &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("%w: %s", ErrCompile, "sandbox error"),
-			level:   logger.ERROR,
-			Message: "sandbox error",
-		}}
-		return
-	}
-
-	// RUN_SUCCESS == 0
-	if compileResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
-		out <- ResultMessage{Result: nil, Err: &HandlerError{
-			caller:  "handle",
-			err:     ErrCompile,
-			level:   logger.INFO,
-			Message: string(compileResult.ErrOutput),
-		}}
-		return
-	}
-
-	// Dispatch to implementer's behavior
-	go validReq.RunAction(handleCtx, dir)
-	for output := range validReq.GetOutChan() {
-		out <- output
-	}
-}
-
-func (tr *TaskRunner) GetTestcase(ctx context.Context, out chan<- struct {
-	Data any
-	Err  error
-}, problemId string, hidden bool) {
-	_, childSpan := tr.tracer.Start(
-		ctx,
-		instrumentation.GetSemanticSpanName("TaskRunner", "GetTestcase"),
-	)
-	defer childSpan.End()
-
-	res, err := tr.testcaseManager.GetTestcase(problemId, hidden)
-
-	if err != nil {
-		out <- struct {
-			Data any
-			Err  error
-		}{Err: err}
-		return
-	}
-	out <- struct {
-		Data any
-		Err  error
-	}{Data: res}
-}
-
-func (tr *TaskRunner) compile(ctx context.Context, out chan<- struct {
-	Data any
-	Err  error
-}, req sandbox.CompileRequest) {
-	_, childSpan := tr.tracer.Start(ctx, instrumentation.GetSemanticSpanName("base-handler", "compile"))
-	defer childSpan.End()
-
-	res, err := tr.sandbox.Compile(req)
-	if err != nil {
-		out <- struct {
-			Data any
-			Err  error
-		}{Err: err}
-		return
-	}
-	out <- struct {
-		Data any
-		Err  error
-	}{Data: res}
+	validReq.RunAction(handleCtx, sendResult)
 }
