@@ -86,12 +86,18 @@ export class StudyService {
     take?: number
   }) {
     const paginator = this.prisma.getPaginator(cursor)
+    const now = new Date()
 
     const studyGroups = await this.prisma.group.findMany({
       ...paginator,
       take,
       where: {
-        groupType: GroupType.Study
+        groupType: GroupType.Study,
+        studyInfo: {
+          endTime: {
+            gt: now
+          }
+        }
       },
       select: {
         id: true,
@@ -129,8 +135,7 @@ export class StudyService {
         studyInfo: {
           select: {
             capacity: true,
-            invitationCode: true,
-            endTime: true
+            invitationCode: true
           }
         }
       },
@@ -138,8 +143,6 @@ export class StudyService {
         createTime: 'desc'
       }
     })
-
-    const now = new Date()
 
     return studyGroups.map((studyGroup) => ({
       id: studyGroup.id,
@@ -151,10 +154,7 @@ export class StudyService {
       capacity: studyGroup.studyInfo?.capacity,
       tags: studyGroup.groupTag.map((tag) => tag.tag.name),
       isPublic: !studyGroup.studyInfo?.invitationCode,
-      isJoined: userId ? studyGroup._count.userGroup > 0 : false,
-      isEnded: studyGroup.studyInfo?.endTime
-        ? now >= studyGroup.studyInfo.endTime
-        : false
+      isJoined: userId ? studyGroup._count.userGroup > 0 : false
     }))
   }
 
