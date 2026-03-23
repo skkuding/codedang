@@ -13,7 +13,14 @@ export class StudyService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createStudyGroup(userId: number, dto: CreateStudyDto) {
-    const { groupName, description, capacity, problemIds, invitationCode } = dto
+    const {
+      groupName,
+      description,
+      capacity,
+      problemIds,
+      invitationCode,
+      durationHours
+    } = dto
 
     let tags: { tagId: number }[] = []
 
@@ -29,6 +36,9 @@ export class StudyService {
         },
         distinct: ['tagId']
       })
+
+    const endTime = new Date()
+    endTime.setHours(endTime.getHours() + durationHours)
 
     return await this.prisma.group.create({
       data: {
@@ -58,7 +68,8 @@ export class StudyService {
         studyInfo: {
           create: {
             capacity,
-            invitationCode
+            invitationCode,
+            endTime
           }
         }
       }
