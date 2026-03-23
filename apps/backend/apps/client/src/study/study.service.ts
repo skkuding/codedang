@@ -240,9 +240,11 @@ export class StudyService {
           groupType: GroupType.Study
         },
         select: {
+          createTime: true,
           studyInfo: {
             select: {
-              capacity: true
+              capacity: true,
+              endTime: true
             }
           },
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -258,13 +260,26 @@ export class StudyService {
         throw new EntityNotExistException('StudyGroup')
       }
 
+      if (
+        studyGroup.studyInfo?.endTime &&
+        new Date() >= studyGroup.studyInfo.endTime
+      ) {
+        throw new ConflictFoundException('Cannot update an ended study group.')
+      }
+
       if (dto.capacity && dto.capacity < studyGroup._count.userGroup)
         throw new ConflictFoundException(
           'Capacity cannot be less than current members'
         )
 
-      const { groupName, description, capacity, problemIds, invitationCode } =
-        dto
+      const {
+        groupName,
+        description,
+        capacity,
+        problemIds,
+        invitationCode,
+        durationHours
+      } = dto
 
       let tags: { tagId: number }[] = []
       if (problemIds && problemIds.length > 0)
@@ -280,8 +295,21 @@ export class StudyService {
           distinct: ['tagId']
         })
 
+      let newEndTime: Date | undefined = undefined
+      if (durationHours !== undefined) {
+        newEndTime = new Date(studyGroup.createTime)
+        newEndTime.setHours(newEndTime.getHours() + durationHours)
+
+        if (new Date() >= newEndTime)
+          throw new ConflictFoundException(
+            'The updated end time cannot be in the past.'
+          )
+      }
+
       const studyInfoUpdate =
-        capacity !== undefined || invitationCode !== undefined
+        capacity !== undefined ||
+        invitationCode !== undefined ||
+        newEndTime !== undefined
 
       return await tx.group.update({
         where: {
@@ -295,7 +323,8 @@ export class StudyService {
             studyInfo: {
               update: {
                 capacity,
-                invitationCode
+                invitationCode,
+                endTime: newEndTime
               }
             }
           }),
