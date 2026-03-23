@@ -347,7 +347,8 @@ export class StudyService {
         studyInfo: {
           select: {
             capacity: true,
-            invitationCode: true
+            invitationCode: true,
+            endTime: true
           }
         },
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -387,6 +388,12 @@ export class StudyService {
       studyGroup.studyInfo.invitationCode !== invitation
     )
       throw new ConflictFoundException('Invalid invitation code')
+
+    if (
+      studyGroup.studyInfo?.endTime &&
+      studyGroup.studyInfo?.endTime <= new Date()
+    )
+      throw new ConflictFoundException('Cannot join an ended study group')
 
     return await this.prisma.userGroup.create({
       data: {
