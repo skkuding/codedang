@@ -8,17 +8,20 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox/judger"
+	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 )
 
 type Factory struct {
-	sandbox sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
-	logger  logger.Logger
+	tcManager testcase.TestcaseManager
+	sandbox   sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
+	logger    logger.Logger
 }
 
-func NewFactory(sandbox sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs], logger logger.Logger) *Factory {
+func NewFactory(tcManager testcase.TestcaseManager, sandbox sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs], logger logger.Logger) *Factory {
 	return &Factory{
-		sandbox: sandbox,
-		logger:  logger,
+		tcManager: tcManager,
+		sandbox:   sandbox,
+		logger:    logger,
 	}
 }
 
@@ -38,7 +41,7 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 		{
 			Name:     "generator",
 			Code:     validReq.GeneratorCode,
-			Language: validReq.Language,
+			Language: validReq.GeneratorLanguage,
 		},
 	}
 	if validReq.SolutionCode != "" {
@@ -52,6 +55,7 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 	task := &Task{
 		req:        validReq,
 		buildUnits: buildUnits,
+		tcManager:  f.tcManager,
 		sandbox:    f.sandbox,
 		logger:     f.logger,
 	}

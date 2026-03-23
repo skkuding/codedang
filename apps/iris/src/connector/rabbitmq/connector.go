@@ -3,7 +3,6 @@ package rabbitmq
 import (
 	"context"
 	"fmt"
-	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
@@ -31,9 +30,7 @@ func NewConnector(
 }
 
 func (c *connector) Connect(ctx context.Context) {
-	connectorCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer func() {
-		cancel()
 		c.consumer.CleanUp()
 		c.producer.CleanUp()
 	}()
@@ -58,7 +55,7 @@ func (c *connector) Connect(ctx context.Context) {
 	// [handler]													  | handler -> |
 	// i.consume(messageCh, i.Done)
 	for message := range messageCh {
-		go c.handle(message, connectorCtx)
+		go c.handle(message, ctx)
 	}
 
 	c.logger.Log(logger.DEBUG, "connector done")
@@ -86,7 +83,7 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	)
 	defer childSpan.End()
 
-	resultChan := make(chan []byte)
+	resultChan := make(chan []byte, 1)
 	if message.Type == "" {
 		resultChan <- router.NewResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal()
 		close(resultChan)

@@ -82,12 +82,12 @@ func main() {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
 		return
 	}
-	database, err := loader.NewPostgresDataSource(ctx)
+	database, err := loader.NewPostgresDataSource(ctx, logProvider)
 	if err != nil {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
 		return
 	}
-	testcaseManager := testcase.NewTestcaseManager(s3reader, database)
+	testcaseManager := testcase.NewTestcaseManager(s3reader, database, logProvider)
 
 	fileManager := file.NewFileManager("/app/sandbox/results")
 
@@ -105,7 +105,7 @@ func main() {
 
 	runTaskFactory := run.NewFactory(testcaseManager, sandbox, logProvider, defaultTracer)
 
-	generateTaskFactory := generate.NewFactory(sandbox, logProvider)
+	generateTaskFactory := generate.NewFactory(testcaseManager, sandbox, logProvider)
 
 	validateTaskFactory := validate.NewFactory(testcaseManager, sandbox, logProvider)
 

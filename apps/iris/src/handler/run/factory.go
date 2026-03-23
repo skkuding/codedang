@@ -41,10 +41,13 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 	}
 
 	hidden := false
-	if taskType == "run" {
+	switch taskType {
+	case "run":
 		hidden = validReq.ContainHiddenTestcases
-	} else if taskType == "user_test_case" {
+	case "userTestCase":
 		hidden = false
+	default:
+		return nil, handler.NewHandlerError("run.Factory.Create", fmt.Errorf("unknown taskType: %s", taskType), logger.ERROR)
 	}
 
 	buildUnits := []*handler.BuildUnit{

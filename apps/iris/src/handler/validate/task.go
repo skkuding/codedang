@@ -26,17 +26,10 @@ func (t *Task) GetDebugString() string {
 	if t == nil {
 		return "validate.Task<nil>"
 	}
-
-	reqDump := "nil"
-	if t.req != nil {
-		if data, err := json.Marshal(t.req); err == nil {
-			reqDump = string(data)
-		} else {
-			reqDump = fmt.Sprintf("%+v", *t.req)
-		}
+	if t.req == nil {
+		return "validate.Task{req:nil}"
 	}
-
-	return fmt.Sprintf("validate.Task{req:%s}", reqDump)
+	return fmt.Sprintf("validate.Task{problemId:%d,language:%s}", t.req.ProblemId, t.req.Language)
 }
 
 func (t *Task) GetBuildUnits() []*handler.BuildUnit {
@@ -64,8 +57,8 @@ func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMess
 		return
 	}
 
-	isValid := true
 	allValid := true
+	var results []ValidateTestcaseResult
 
 	for i, tElement := range tc.Elements {
 		runResult, err := validatorUnit.Run(t.sandbox, sandbox.RunRequest{
@@ -73,9 +66,7 @@ func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMess
 			TimeLimit:   2000,
 			MemoryLimit: 512 * 1024 * 1024,
 			ExtraArgs:   []string{}, // validator code takes implicitly from stdin
-		}, []byte(tElement.Out))
-
-		errorMsg := ""
+		}, []byte(tElement.In))
 
 		if err != nil {
 			t.logger.Log(logger.ERROR, fmt.Sprintf("Error while validating testcase: %s", err.Error()))
@@ -89,15 +80,21 @@ func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMess
 			return
 		}
 
+		isValid := runResult.ExecResult.ExitCode == 0
 		if !isValid {
 			allValid = false
-			t.logger.Log(logger.INFO, fmt.Sprintf("Validation failed at testcase %d: %s", i, errorMsg))
-			break
+			t.logger.Log(logger.INFO, fmt.Sprintf("Validation failed at testcase %d", i))
 		}
+		results = append(results, ValidateTestcaseResult{
+			Id:      tElement.Id,
+			IsValid: isValid,
+		})
 	}
 
 	res := ValidateResult{
-		IsValid: allValid,
+		IsValid:       allValid,
+		TestcaseCount: len(tc.Elements),
+		Results:       results,
 	}
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {

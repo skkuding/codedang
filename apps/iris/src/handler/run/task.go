@@ -34,17 +34,10 @@ func (t *Task) GetDebugString() string {
 	if t == nil {
 		return "run.Task<nil>"
 	}
-
-	reqDump := "nil"
-	if t.req != nil {
-		if data, err := json.Marshal(t.req); err == nil {
-			reqDump = string(data)
-		} else {
-			reqDump = fmt.Sprintf("%+v", *t.req)
-		}
+	if t.req == nil {
+		return "run.Task{req:nil}"
 	}
-
-	return fmt.Sprintf("run.Task{req:%s, hidden:%t}", reqDump, t.hidden)
+	return fmt.Sprintf("run.Task{problemId:%d,language:%s,hidden:%t}", t.req.ProblemId, t.req.Language, t.hidden)
 }
 
 func (t *Task) GetBuildUnits() []*handler.BuildUnit {
@@ -53,11 +46,6 @@ func (t *Task) GetBuildUnits() []*handler.BuildUnit {
 
 func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMessage)) {
 	validReq := t.req
-
-	var dir string
-	if len(t.buildUnits) > 0 {
-		dir = t.buildUnits[0].Dir
-	}
 
 	var tc testcase.Testcase
 	if validReq.UserTestcases != nil {
@@ -86,14 +74,13 @@ func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMess
 	for tcId = 0; tcId < tcNum; tcId++ {
 		var judgeResult runTestcaseResult
 		if tc.Elements[tcId].In != "" {
-			judgeResult = t.runTestcase(ctx, tcId, dir, validReq, tc.Elements[tcId])
-		}
-
-		if validReq.StopOnNotAccepted && judgeResult.code != handler.ACCEPTED {
-			break
+			judgeResult = t.runTestcase(ctx, tcId, validReq, tc.Elements[tcId])
 		}
 
 		sendResult(judgeResult.message)
+		if validReq.StopOnNotAccepted && judgeResult.code != handler.ACCEPTED {
+			break
+		}
 	}
 
 	if tcId < tcNum {
@@ -119,7 +106,7 @@ type runTestcaseResult struct {
 	message handler.ResultMessage
 }
 
-func (t *Task) runTestcase(ctx context.Context, idx int, dir string, validReq *RunRequest,
+func (t *Task) runTestcase(ctx context.Context, idx int, validReq *RunRequest,
 	tc loader.ElementOut) runTestcaseResult {
 	_, childSpan := t.tracer.Start(
 		ctx,
@@ -130,10 +117,8 @@ func (t *Task) runTestcase(ctx context.Context, idx int, dir string, validReq *R
 
 	res := RunResult{}
 
-	runResult, err := t.sandbox.Run(sandbox.RunRequest{
+	runResult, err := t.buildUnits[0].Run(t.sandbox, sandbox.RunRequest{
 		Order:       idx,
-		Dir:         dir,
-		Language:    sandbox.Language(validReq.Language),
 		TimeLimit:   validReq.TimeLimit,
 		MemoryLimit: validReq.MemoryLimit,
 	}, []byte(tc.In))

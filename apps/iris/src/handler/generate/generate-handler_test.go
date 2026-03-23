@@ -10,9 +10,9 @@ func TestGenerateValidate(t *testing.T) {
 	t.Run("invalid problemId", func(t *testing.T) {
 		t.Parallel()
 		req := GenerateRequest{
-			Language:      "C",
-			GeneratorCode: "print('')",
-			TestcaseCount: 5,
+			GeneratorLanguage: "C",
+			GeneratorCode:     "print('')",
+			TestcaseCount:     5,
 		}
 		result, err := req.Validate()
 
@@ -20,7 +20,7 @@ func TestGenerateValidate(t *testing.T) {
 		assert.EqualError(t, err, "problemId must not be empty or zero")
 	})
 
-	t.Run("invalid language", func(t *testing.T) {
+	t.Run("invalid generatorLanguage", func(t *testing.T) {
 		t.Parallel()
 		req := GenerateRequest{
 			ProblemId:     1,
@@ -30,15 +30,15 @@ func TestGenerateValidate(t *testing.T) {
 		result, err := req.Validate()
 
 		assert.Nil(t, result)
-		assert.EqualError(t, err, "language must not be empty")
+		assert.EqualError(t, err, "generatorLanguage must not be empty")
 	})
 
 	t.Run("invalid generatorCode", func(t *testing.T) {
 		t.Parallel()
 		req := GenerateRequest{
-			ProblemId:     1,
-			Language:      "C",
-			TestcaseCount: 5,
+			ProblemId:         1,
+			GeneratorLanguage: "C",
+			TestcaseCount:     5,
 		}
 		result, err := req.Validate()
 
@@ -49,10 +49,10 @@ func TestGenerateValidate(t *testing.T) {
 	t.Run("invalid testcaseCount", func(t *testing.T) {
 		t.Parallel()
 		req := GenerateRequest{
-			ProblemId:     1,
-			Language:      "C",
-			GeneratorCode: "print('')",
-			TestcaseCount: 0,
+			ProblemId:         1,
+			GeneratorLanguage: "C",
+			GeneratorCode:     "print('')",
+			TestcaseCount:     0,
 		}
 		result, err := req.Validate()
 
@@ -63,10 +63,10 @@ func TestGenerateValidate(t *testing.T) {
 	t.Run("valid request", func(t *testing.T) {
 		t.Parallel()
 		req := GenerateRequest{
-			ProblemId:     1,
-			Language:      "C",
-			GeneratorCode: "print('')",
-			TestcaseCount: 5,
+			ProblemId:         1,
+			GeneratorLanguage: "C",
+			GeneratorCode:     "print('')",
+			TestcaseCount:     5,
 		}
 		result, err := req.Validate()
 

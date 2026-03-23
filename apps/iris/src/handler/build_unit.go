@@ -20,8 +20,6 @@ type BuildUnit struct {
 	ParsedLang sandbox.Language
 }
 
-
-
 func (bu *BuildUnit) Setup(
 	idx int,
 	totalUnits int,
@@ -74,11 +72,11 @@ func (bu *BuildUnit) Setup(
 	bu.ParsedLang = language
 
 	compileResult, compileErr := sandboxService.Compile(sandbox.CompileRequest{
-    Dir:      bu.Dir,
-    Language: bu.ParsedLang,
-  })
-  // compileErr is not nil when there is an error in the sandbox service itself (e.g., timeout, internal error, etc.)
-  // compileResult.ExecResult.ErrorCode is not 0 when the sandbox service successfully runs but there is an error in the user's code (e.g., compilation error, runtime error, etc.)
+		Dir:      bu.Dir,
+		Language: bu.ParsedLang,
+	})
+	// compileErr is not nil when there is an error in the sandbox service itself (e.g., timeout, internal error, etc.)
+	// compileResult.ExecResult.ErrorCode is not 0 when the sandbox service successfully runs but there is an error in the user's code (e.g., compilation error, runtime error, etc.)
 	if compileErr != nil {
 		return &HandlerError{
 			caller:  caller,

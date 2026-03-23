@@ -1,7 +1,9 @@
 {
   "problemId": 1,
-  "language": "cpp",
+  "generatorLanguage": "Cpp",
   "generatorCode": "#include \"testlib.h\"\n#include <bits/stdc++.h>\n\nusing namespace std;\n\nint main(int argc, char* argv[]) {\n    registerGen(argc, argv, 1);\n    int n = atoi(argv[1]);\n    int t = atoi(argv[2]);\n    cout << rnd.wnext(1, n, t) << ' ' << n << endl;\n}\n",
   "generatorArgs": ["100", "5"],
+  "solutionLanguage": "cpp",
+  "solutionCode": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    int a, b;\n    if (!(cin >> a >> b)) return 0;\n    cout << a + b << '\\n';\n    return 0;\n}\n",
   "testcaseCount": 5
 }

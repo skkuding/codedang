@@ -7,9 +7,6 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
 
-
-
-
 type Handler interface {
 	Handle(data any) (json.RawMessage, error)
 }

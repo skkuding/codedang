@@ -112,7 +112,6 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 	}
 
 	for result := range taskResultChan {
-		r.logger.Log(logger.INFO, fmt.Sprintf("Task result received for path %s with id %s: %v", path, id, result))
 		r.errHandle(result.Err)
 		out <- NewResponse(id, result.Result, result.Err).Marshal()
 		// break
