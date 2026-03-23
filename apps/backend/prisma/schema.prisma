@@ -117,14 +117,13 @@ model UserProfile {
 }
 
 model UserGroup {
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         Int      @map("user_id")
-  group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId        Int      @map("group_id")
-  isGroupLeader  Boolean  @default(false) @map("is_group_leader")
-  totalStudyTime Int      @default(0) @map("total_study_time")
-  createTime     DateTime @default(now()) @map("create_time")
-  updateTime     DateTime @updatedAt @map("update_time")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int      @map("user_id")
+  group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId       Int      @map("group_id")
+  isGroupLeader Boolean  @default(false) @map("is_group_leader")
+  createTime    DateTime @default(now()) @map("create_time")
+  updateTime    DateTime @updatedAt @map("update_time")
 
   @@id([userId, groupId])
   @@map("user_group")
@@ -1201,9 +1200,10 @@ model PolygonApprovalRequest {
 }
 
 model StudyInfo {
-  groupId        Int     @id @map("group_id")
-  capacity       Int     @default(10)
-  invitationCode String? @map("invitation_code")
+  groupId        Int      @id @map("group_id")
+  capacity       Int      @default(10)
+  invitationCode String?  @map("invitation_code")
+  endTime        DateTime @map("end_time")
 
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
