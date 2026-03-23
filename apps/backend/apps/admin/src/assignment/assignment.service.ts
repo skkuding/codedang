@@ -118,7 +118,7 @@ export class AssignmentService {
    * 1. 시작 시간, 종료 시간, 마감 시간의 유효성을 검증
    * 2. 과제를 생성한 후 (createdAssignment)
    * 3. 해당 그룹의 모든 멤버를 과제 참가자로 자동 등록 (inviteAllCourseMembersToAssignment 호출로)
-   * 4. assignment.created 이벤드 발생하여 과제 생성 알림
+   * 4. assignment.created 이벤트 발생하여 과제 생성 알림
    *
    * @param {number} groupId 과제를 생성할 그룹 ID
    * @param {number} userId 생성자 ID
@@ -189,7 +189,7 @@ export class AssignmentService {
    *  - endTime 변경된 경우, 공개 제한 시간 수정
    *  - 문제는 여러 과제 중복 포함 가능하므로, 해당 문제가 속한 과제 중 가장 늦은 endTime으로 설정
    * 3. 이벤트 발생 :
-   *  - isFinalScoreVisible이 false에서 true 변경될 경우, assignment.graded 이벤트 발행
+   *  - isFinalScoreVisible이 false에서 true로 변경될 경우, assignment.graded 이벤트 발행
    *  - dueTime이 변경될 경우, assignment.updated 이벤트 발행
    *
    * @param {number} groupId 그룹 ID(수정을 요청한)
@@ -362,9 +362,9 @@ export class AssignmentService {
    * @param {number} assignmentId 삭제할 과제 ID
    * @returns 삭제된 과제 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * - 요청한 assigmentID를 가진 과제가 존재하지 않을 때
+   * - 요청한 assignmentId를 가진 과제가 존재하지 않을 때
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
-   * - 요청한 그룹 ID와 해당 과제 그룹 아이디와 일치하지 않을떄
+   * - 요청한 그룹 ID와 해당 과제 그룹 아이디와 일치하지 않을 떄
    * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
    * - 삭제 처리 중 데이터베이스 오류가 발생했을 때
    */
@@ -1501,7 +1501,7 @@ export class AssignmentService {
   }
 
   /**
-   * 특정 유저의 과제 내 문제 문제가 채점 완료 되었는지 조회합니다.
+   * 특정 유저의 과제 내 문제가 채점 완료 되었는지 조회합니다.
    *
    * @param {number} assignmentId 과제 ID
    * @param {number} userId 유저 ID
@@ -1585,7 +1585,7 @@ export class AssignmentService {
    * @param {number} assignmentId 초대할 과제의 ID
    * @param {number} groupId 그룹 ID
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * - 해당 course에 등록된 참가자가 없을때
+   * - 해당 course에 등록된 참가자가 없을 때
    */
   private async inviteAllCourseMembersToAssignment(
     assignmentId: number,
