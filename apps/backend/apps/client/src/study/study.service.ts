@@ -129,7 +129,8 @@ export class StudyService {
         studyInfo: {
           select: {
             capacity: true,
-            invitationCode: true
+            invitationCode: true,
+            endTime: true
           }
         }
       },
@@ -137,6 +138,8 @@ export class StudyService {
         createTime: 'desc'
       }
     })
+
+    const now = new Date()
 
     return studyGroups.map((studyGroup) => ({
       id: studyGroup.id,
@@ -148,7 +151,10 @@ export class StudyService {
       capacity: studyGroup.studyInfo?.capacity,
       tags: studyGroup.groupTag.map((tag) => tag.tag.name),
       isPublic: !studyGroup.studyInfo?.invitationCode,
-      isJoined: userId ? studyGroup._count.userGroup > 0 : false
+      isJoined: userId ? studyGroup._count.userGroup > 0 : false,
+      isEnded: studyGroup.studyInfo?.endTime
+        ? now >= studyGroup.studyInfo.endTime
+        : false
     }))
   }
 
