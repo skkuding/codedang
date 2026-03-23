@@ -74,16 +74,18 @@ function QnaDetailContent({
   const [commentContent, setCommentContent] = useState('')
   const [postCourseQnaComment] = useMutation(CREATE_COURSE_QNA_COMMENT)
   const [deleteCourseQnaComment] = useMutation(DELETE_COURSE_QNA_COMMENT)
-  const { data } = useSuspenseQuery(GET_COURSE_QNA, {
+
+  const { data: qnas } = useSuspenseQuery(GET_COURSE_QNA, {
     variables: {
       groupId: Number(params.courseId),
       order: Number(order)
     }
   })
 
-  const qna = data.getCourseQnA
+  const qna = qnas.getCourseQnA
 
   const [deleteCourseQna] = useMutation(DELETE_COURSE_QNA, {
+    variables: { groupId: Number(params.courseId), order: Number(order) },
     refetchQueries: [
       {
         query: GET_COURSE_QNAS,
@@ -94,8 +96,7 @@ function QnaDetailContent({
       toast.success('Question deleted successfully!')
       onOpenChange(false)
     },
-    onError: () =>
-      toast.error('Failed to delete the question. Please try again.')
+    onError: () => toast.error('Failed to delete.')
   })
 
   const postComment = (content: string) => {
@@ -171,14 +172,7 @@ function QnaDetailContent({
           <div className="flex gap-2">
             <DeleteButton
               subject="Question"
-              handleDelete={() =>
-                deleteCourseQna({
-                  variables: {
-                    groupId: Number(params.courseId),
-                    order: Number(order)
-                  }
-                })
-              }
+              handleDelete={() => deleteCourseQna()}
               type="default"
             />
           </div>
