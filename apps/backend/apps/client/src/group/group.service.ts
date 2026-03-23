@@ -431,8 +431,7 @@ export class GroupService {
       const userGroupData: UserGroupData = {
         userId,
         groupId,
-        isGroupLeader: false,
-        totalStudyTime: 0
+        isGroupLeader: false
       }
 
       return {
