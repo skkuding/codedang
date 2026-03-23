@@ -1,0 +1,60 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/contest/6/statistics/submissions
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  ## 📘 Get All Submissions By Contest
+
+  **GET** `/contest/:id/statistics/submissions`
+
+  특정 대회에 해당하는 모든 제출을 형식에 맞게 반환합니다.
+
+
+  ### 🔒 Authentication
+
+  종료되지 않은 대회의 경우 403 에러를 반환합니다.
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name      | Type   | Required | Description                      |
+  |-----------|--------|----------|----------------------------------|
+  | `id`      | number | ✅       | ID of the target contest         |
+
+  #### Response Body
+
+  | Name      | Type  | Description                |
+  |-----------|-------|----------------------------------|
+  | `problemId`| number   | 문제 ID |
+  | `userId` | number | 사용자 ID |
+  | `result` | string | 제출 결과 |
+  | `language` | string | 사용 언어 |
+  | `codeSize` | number | 코드 길이 |
+  | `id` | number | Submission의 ID |
+  | `createTime` | DateTime | 제출 시각 |
+  | `username` | string | 사용자 이름 |
+  | `title` | string | 문제 제목 |
+  | `order` | number | 대회 내에서 해당 문제의 순서(0-based) |
+
+
+
+
+}

@@ -193,8 +193,6 @@ export interface ContestTop {
     참여혜택?: string
   }
   enableCopyPaste: boolean
-  status: ContestStatus
-  participants: number
   isRegistered: boolean
   isPrivilegedRole: boolean
   invitationCodeExists: boolean
@@ -618,4 +616,35 @@ export interface QnaFormData {
 export interface ProblemOption {
   value: string
   label: string
+}
+
+export interface CourseQnAComment {
+  id: number
+  order: number
+  content: string
+  courseQnAId: number
+  createTime: Date
+  createdBy?: {
+    username: string
+  }
+}
+
+export interface CourseQnAItem {
+  id: number
+  order: number
+  groupId: number
+  problemId: number
+  assignmentId: number
+  assignmentTitle: string
+  isExercise: boolean
+  title: string
+  content: string
+  category: string
+  createTime: Date
+  isResolved: boolean
+  isPrivate: boolean
+  createdBy?: {
+    username: string
+  }
+  comments: CourseQnAComment[]
 }

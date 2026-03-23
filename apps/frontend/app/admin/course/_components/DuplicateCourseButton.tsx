@@ -20,11 +20,16 @@ export function DuplicateCourseButton({
 }: DuplicateCourseButtonProps) {
   const { table } = useDataTable<{ id: number; title: string }>()
   const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
+  const selectedCount = table.getSelectedRowModel().rows.length
+  const canDuplicate = selectedCount === 1
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [courseNum, setCourseNum] = useState('')
+  const [semester, setSemester] = useState('')
+  const [classNum, setClassNum] = useState('')
 
   const handleDuplicateButtonClick = () => {
-    if (table.getSelectedRowModel().rows.length === 0) {
+    if (table.getSelectedRowModel().rows.length !== 1) {
       return
     }
     setIsDialogOpen(true)
@@ -32,6 +37,11 @@ export function DuplicateCourseButton({
 
   const handleDuplicateRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows
+
+    console.log('selected row:', selectedRows)
+    console.log('selected row original:', selectedRows[0]?.original)
+    console.log('groupId:', selectedRows[0]?.original.id)
+
     const duplicatePromises = selectedRows.map((row) =>
       duplicateTarget(row.original.id)
     )
@@ -41,7 +51,14 @@ export function DuplicateCourseButton({
       table.resetRowSelection()
       table.resetPageIndex()
       onSuccess()
-    } catch {
+    } catch (error: unknown) {
+      console.error('duplicate error:', error)
+
+      if (error instanceof Error) {
+        toast.error(error.message)
+        return
+      }
+
       toast.error('Failed to duplicate course')
     }
   }
@@ -49,7 +66,12 @@ export function DuplicateCourseButton({
   const duplicateTarget = (id: number) => {
     return duplicateCourse({
       variables: {
-        groupId: id
+        groupId: id,
+        input: {
+          classNum: Number(classNum),
+          courseNum,
+          semester
+        }
       }
     })
   }
@@ -64,6 +86,7 @@ export function DuplicateCourseButton({
           variant="outline"
           type="button"
           onClick={handleDuplicateButtonClick}
+          disabled={!canDuplicate}
         >
           <IoCopy fontSize={13} color={'#8A8A8A'} />
         </Button>
@@ -90,6 +113,37 @@ export function DuplicateCourseButton({
         <span className="text-sm text-[#FF3B2F]">
           Course Info, Assignments and Exercises will be duplicated.
         </span>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Course Number</label>
+          <input
+            value={courseNum}
+            onChange={(e) => setCourseNum(e.target.value)}
+            placeholder="Enter course number"
+            className="w-full rounded-md border px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Semester</label>
+          <input
+            value={semester}
+            onChange={(e) => setSemester(e.target.value)}
+            placeholder="Enter semester"
+            className="w-full rounded-md border px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium">Class Number</label>
+        <input
+          value={classNum}
+          onChange={(e) => setClassNum(e.target.value)}
+          placeholder="Enter class number"
+          className="w-full rounded-md border px-3 py-2 text-sm"
+        />
       </div>
     </AlertModal>
   )

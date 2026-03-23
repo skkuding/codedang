@@ -86,11 +86,11 @@ export function ContestDataTable<TData extends Item, TValue>({
   })
   const router = useRouter()
   const currentPath = usePathname()
+  const filteredRows = table.getFilteredRowModel().rows
 
-  // Update filtered data whenever the filter changes
   useEffect(() => {
-    setFilteredData(table.getFilteredRowModel().rows.map((row) => row.original))
-  }, [table.getFilteredRowModel().rows, setFilteredData])
+    setFilteredData(filteredRows.map((row) => row.original))
+  }, [filteredRows, setFilteredData])
 
   // Calculate paginated items based on currentPage and itemsPerPage
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -99,8 +99,8 @@ export function ContestDataTable<TData extends Item, TValue>({
     .rows.slice(startIndex, startIndex + itemsPerPage)
 
   return (
-    <>
-      <div className="mb-11 flex justify-between">
+    <div className="flex flex-col gap-[41px]">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-700">CONTEST LIST</h1>
         <div className="flex gap-4">
           <ContestTitleFilter
@@ -174,7 +174,7 @@ export function ContestDataTable<TData extends Item, TValue>({
                   onClick={handleClick}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="align-top">
+                    <TableCell key={cell.id} className="align-middle">
                       <div className="text-center text-xs md:text-sm">
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -197,6 +197,6 @@ export function ContestDataTable<TData extends Item, TValue>({
           )}
         </TableBody>
       </Table>
-    </>
+    </div>
   )
 }

@@ -22,12 +22,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import {
-  ContestRole,
-  ResultStatus,
-  Role,
-  type Language
-} from '@admin/@generated'
+import { ContestRole, Language, ResultStatus, Role } from '@admin/@generated'
 import { Snippet } from '@admin/problem/model/template.input'
 import { JudgeRequest } from '@client/submission/class/judge-request'
 import { LanguageExtension } from './enum/language-extensions.enum'
@@ -38,6 +33,7 @@ import type {
 } from './model/get-submissions.input'
 import { RejudgeResult } from './model/rejudge-result.output'
 import { RejudgeInput, RejudgeMode } from './model/rejudge.input'
+import type { SubmissionCountByLanguage } from './model/submission-counts-by-language.output'
 import type { SubmissionResultOutput } from './model/submission-result.model'
 import type { SubmissionsWithTotal } from './model/submissions-with-total.output'
 
@@ -412,9 +408,11 @@ export class SubmissionService {
    * @param {number} problemId 문제의 id
    * @param {number} groupId group의 id
    * @returns 유저별 최신 제출의 테스트케이스 결과 목록
+   
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
    * -assignmentId에 해당하는 Assignment가 존재하지 않는 경우
    * -해당 과제/문제 조합에 대한 Submission이 존재하지 않는 경우
+   
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * -요청한 groupId가 해당 과제의 groupId와 일치하지 않는 경우
    */

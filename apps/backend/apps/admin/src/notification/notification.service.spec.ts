@@ -79,9 +79,6 @@ const db = {
   notification: {
     create: stub()
   },
-  notificationRecord: {
-    createMany: stub()
-  },
   pushSubscription: {
     findMany: stub(),
     delete: stub()
@@ -118,7 +115,6 @@ describe('NotificationService', () => {
     db.notice.findUnique.reset()
     db.user.findMany.reset()
     db.notification.create.reset()
-    db.notificationRecord.createMany.reset()
     db.pushSubscription.findMany.reset()
     db.pushSubscription.delete.reset()
     assignmentService.isAllAssignmentProblemGraded.reset()
@@ -133,7 +129,6 @@ describe('NotificationService', () => {
     it('should create notification for all graded users', async () => {
       db.assignment.findUnique.resolves(assignmentInfoForGraded)
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 2 })
       db.pushSubscription.findMany.resolves([])
 
       await service.notifyAssignmentGraded(assignmentId)
@@ -154,9 +149,11 @@ describe('NotificationService', () => {
         })
       ).to.be.true
       expect(db.notification.create.calledOnce).to.be.true
-      expect(db.notificationRecord.createMany.calledOnce).to.be.true
-      const createManyCall = db.notificationRecord.createMany.getCall(0)
-      expect(createManyCall.args[0].data).to.have.lengthOf(2)
+
+      const createCall = db.notification.create.getCall(0)
+      const inputData = createCall.args[0].data
+
+      expect(inputData.NotificationRecord.createMany.data).to.have.lengthOf(2)
     })
 
     it('should not create notification when no receivers found', async () => {
@@ -169,7 +166,6 @@ describe('NotificationService', () => {
 
       expect(db.assignment.findUnique.calledOnce).to.be.true
       expect(db.notification.create.called).to.be.false
-      expect(db.notificationRecord.createMany.called).to.be.false
     })
 
     it('should handle missing assignment info gracefully', async () => {
@@ -179,7 +175,6 @@ describe('NotificationService', () => {
 
       expect(db.assignment.findUnique.calledOnce).to.be.true
       expect(db.notification.create.called).to.be.false
-      expect(db.notificationRecord.createMany.called).to.be.false
     })
   })
 
@@ -187,7 +182,6 @@ describe('NotificationService', () => {
     it('should create notification for all group members when assignment is created', async () => {
       db.assignment.findUnique.resolves(assignmentInfo)
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 3 })
       db.pushSubscription.findMany.resolves([])
 
       await service.notifyAssignmentCreated(assignmentId)
@@ -210,17 +204,15 @@ describe('NotificationService', () => {
 
       expect(db.notification.create.calledOnce).to.be.true
       const createCall = db.notification.create.getCall(0)
+      const inputData = createCall.args[0].data
       expect(createCall.args[0].data.title).to.equal('Test Group')
       expect(createCall.args[0].data.message).to.equal(
         `A new assignment "${assignment.title}" has been created.`
       )
       expect(createCall.args[0].data.type).to.equal(NotificationType.Assignment)
 
-      expect(db.notificationRecord.createMany.calledOnce).to.be.true
-      const createManyCall = db.notificationRecord.createMany.getCall(0)
-      expect(createManyCall.args[0].data).to.have.lengthOf(3)
-      expect(createManyCall.args[0].data[0]).to.deep.include({
-        notificationId: notification.id,
+      expect(inputData.NotificationRecord.createMany.data).to.have.lengthOf(3)
+      expect(inputData.NotificationRecord.createMany.data).to.deep.include({
         userId: 1
       })
     })
@@ -241,7 +233,6 @@ describe('NotificationService', () => {
 
       expect(db.assignment.findUnique.calledOnce).to.be.true
       expect(db.notification.create.called).to.be.false
-      expect(db.notificationRecord.createMany.called).to.be.false
     })
 
     it('should handle missing assignment info gracefully', async () => {
@@ -251,7 +242,6 @@ describe('NotificationService', () => {
 
       expect(db.assignment.findUnique.calledOnce).to.be.true
       expect(db.notification.create.called).to.be.false
-      expect(db.notificationRecord.createMany.called).to.be.false
     })
   })
 
@@ -271,7 +261,6 @@ describe('NotificationService', () => {
       await service.notifyAssignmentCreated(assignmentId)
 
       expect(db.notification.create.called).to.be.false
-      expect(db.notificationRecord.createMany.called).to.be.false
     })
   })
 
@@ -279,7 +268,6 @@ describe('NotificationService', () => {
     it('should call findMany when notifying assignment graded', async () => {
       db.assignment.findUnique.resolves(assignmentInfoForGraded)
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 2 })
       db.pushSubscription.findMany.resolves([])
 
       await service.notifyAssignmentGraded(assignmentId)
@@ -290,7 +278,6 @@ describe('NotificationService', () => {
     it('should call findMany when notifying assignment created', async () => {
       db.assignment.findUnique.resolves(assignmentInfo)
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 3 })
       db.pushSubscription.findMany.resolves([])
 
       await service.notifyAssignmentCreated(assignmentId)
@@ -312,7 +299,6 @@ describe('NotificationService', () => {
         }
       })
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 2 })
       db.pushSubscription.findMany.resolves([])
 
       await service.notifyAssignmentDue(assignmentId)
@@ -335,7 +321,6 @@ describe('NotificationService', () => {
         }
       })
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 1 })
       db.pushSubscription.findMany.resolves([])
 
       await service.notifyAssignmentDue(assignmentId)
@@ -348,7 +333,6 @@ describe('NotificationService', () => {
       db.assignment.findUnique.resolves(null)
       await service.notifyAssignmentDue(assignmentId)
       expect(db.notification.create.called).to.be.false
-      expect(db.notificationRecord.createMany.called).to.be.false
     })
   })
 
@@ -359,7 +343,6 @@ describe('NotificationService', () => {
         message: 'x',
         type: NotificationType.Contest
       })
-      db.notificationRecord.createMany.resolves({ count: 1 })
       db.pushSubscription.findMany.resolves([])
 
       db.contest.findUnique.resolves({
@@ -394,7 +377,6 @@ describe('NotificationService', () => {
 
       db.assignment.findUnique.resolves(assignmentInfo)
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 3 })
 
       await service.notifyAssignmentCreated(assignmentId)
 
@@ -415,7 +397,6 @@ describe('NotificationService', () => {
       })
       db.user.findMany.resolves([{ id: 1 }, { id: 2 }, { id: 3 }])
       db.notification.create.resolves(notification)
-      db.notificationRecord.createMany.resolves({ count: 3 })
       db.pushSubscription.findMany.resolves([])
 
       await service.notifyNoticeCreated(noticeId)
@@ -430,14 +411,13 @@ describe('NotificationService', () => {
 
       expect(db.notification.create.calledOnce).to.be.true
       const createCall = db.notification.create.getCall(0)
+      const inputData = createCall.args[0].data
       expect(createCall.args[0].data.title).to.equal('Important Update')
       expect(createCall.args[0].data.message).to.equal('Body content here')
       expect(createCall.args[0].data.type).to.equal(NotificationType.Other)
       expect(createCall.args[0].data.url).to.equal(`/notice/${noticeId}`)
 
-      expect(db.notificationRecord.createMany.calledOnce).to.be.true
-      const createManyCall = db.notificationRecord.createMany.getCall(0)
-      expect(createManyCall.args[0].data).to.have.lengthOf(3)
+      expect(inputData.NotificationRecord.createMany.data).to.have.lengthOf(3)
       expect(db.pushSubscription.findMany.calledOnce).to.be.true
     })
 
@@ -449,7 +429,6 @@ describe('NotificationService', () => {
 
       expect(db.user.findMany.called).to.be.false
       expect(db.notification.create.called).to.be.false
-      expect(db.notificationRecord.createMany.called).to.be.false
       expect(db.pushSubscription.findMany.called).to.be.false
     })
   })

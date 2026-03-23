@@ -148,6 +148,15 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
     enableHiding: false
   },
   {
+    accessorKey: 'week',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Week" />
+    ),
+    cell: ({ row }) => {
+      return `Week ${row.original.week}`
+    }
+  },
+  {
     accessorKey: 'title',
     header: ({ column }) => (
       <DataTableColumnHeader
@@ -165,25 +174,24 @@ export const columns: ColumnDef<DataTableAssignment>[] = [
   {
     accessorKey: 'startTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Period" />
+      <DataTableColumnHeader
+        column={column}
+        className="w-[300px]"
+        title="Period"
+      />
     ),
     cell: ({ row }) => {
       return formatDateRange(row.original.startTime, row.original.endTime)
     }
   },
   {
-    accessorKey: 'week',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Week" />
-    ),
-    cell: ({ row }) => {
-      return `Week ${row.original.week}`
-    }
-  },
-  {
     accessorKey: 'isVisible',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Visible" />
+      <DataTableColumnHeader
+        column={column}
+        className="w-[116px]"
+        title="Visible"
+      />
     ),
     cell: ({ row }) => {
       return <VisibleCell row={row} />

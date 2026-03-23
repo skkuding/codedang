@@ -122,7 +122,10 @@ export function HeaderAuthPanel({
     <div className="ml-2 flex items-center gap-2">
       {session ? (
         <>
-          <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
+          <DropdownMenu
+            modal={false}
+            onOpenChange={(open) => setIsDropdownOpen(open)}
+          >
             <DropdownMenuTrigger
               className={cn(
                 'hidden items-center gap-2 rounded-md px-4 py-1 lg:flex',

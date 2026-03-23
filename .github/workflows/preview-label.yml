@@ -1,0 +1,55 @@
+name: Preview Label
+
+on:
+  pull_request:
+    types: [synchronize, closed]
+
+jobs:
+  manage-preview-label:
+    name: Manage Preview Label
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.SKKUDING_BOT_APP_ID }}
+          private-key: ${{ secrets.SKKUDING_BOT_PRIVATE_KEY }}
+
+      - name: Check labels and manage preview
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+
+            // When PR is closed, clean up preview labels
+            if (context.payload.action === 'closed') {
+              if (labels.includes('preview')) {
+                await github.rest.issues.removeLabel({
+                  owner, repo, issue_number: prNumber, name: 'preview'
+                });
+              }
+              if (labels.includes('no-preview')) {
+                await github.rest.issues.removeLabel({
+                  owner, repo, issue_number: prNumber, name: 'no-preview'
+                });
+              }
+              core.info(`Cleaned up preview labels from closed PR #${prNumber}`);
+              return;
+            }
+
+            // On new push, re-activate stale preview
+            if (context.payload.action === 'synchronize' && labels.includes('no-preview')) {
+              await github.rest.issues.removeLabel({
+                owner, repo, issue_number: prNumber, name: 'no-preview'
+              });
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: prNumber, labels: ['preview']
+              });
+              core.info(`Re-activated preview for PR #${prNumber} after new push`);
+            }
