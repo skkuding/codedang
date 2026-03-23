@@ -6,7 +6,8 @@ import {
   IsOptional,
   IsString,
   Length,
-  Min
+  Min,
+  Max
 } from 'class-validator'
 
 export class CreateStudyDto {
@@ -32,6 +33,11 @@ export class CreateStudyDto {
   @IsOptional()
   @Length(6, 6)
   invitationCode?: string | null
+
+  @IsInt()
+  @Min(1)
+  @Max(24)
+  durationHours: number
 }
 
 export class UpdateStudyDto extends PartialType(CreateStudyDto) {}
