@@ -6,6 +6,7 @@ import { Button } from '@/components/shadcn/button'
 import { DUPLICATE_COURSE } from '@/graphql/course/mutation'
 import { useMutation } from '@apollo/client'
 import { useState } from 'react'
+import { useMemo } from 'react'
 import { GoAlertFill } from 'react-icons/go'
 import { IoCopy } from 'react-icons/io5'
 import { toast } from 'sonner'
@@ -14,11 +15,18 @@ import { useDataTable } from '../../_components/table/context'
 interface DuplicateCourseButtonProps {
   onSuccess: () => void
 }
+type CourseRow = {
+  id: number
+  title: string
+  code: string
+  semester: string
+  studentCount: number
+}
 
 export function DuplicateCourseButton({
   onSuccess
 }: DuplicateCourseButtonProps) {
-  const { table } = useDataTable<{ id: number; title: string }>()
+  const { table } = useDataTable<CourseRow>()
   const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
   const selectedCount = table.getSelectedRowModel().rows.length
   const canDuplicate = selectedCount === 1
@@ -29,11 +37,32 @@ export function DuplicateCourseButton({
   const [classNum, setClassNum] = useState('')
 
   const handleDuplicateButtonClick = () => {
-    if (table.getSelectedRowModel().rows.length !== 1) {
+    const selectedRows = table.getSelectedRowModel().rows
+    if (selectedRows.length !== 1) {
       return
     }
+    const selectedCourse = selectedRows[0].original
+    console.log('selected Course: ', selectedCourse)
+    setCourseNum(selectedCourse.title ?? '')
+    setSemester(selectedCourse.semester ?? '')
+    setClassNum('')
     setIsDialogOpen(true)
   }
+
+  const classNumError = useMemo(() => {
+    if (classNum.trim() === ' ') {
+      return 'Class Number must be entered.'
+    }
+    if (!/^\d+$/.test(classNum)) {
+      return 'Class Number must be an integer between 1 and 99.'
+    }
+    const parsedClassNum = Number(classNum)
+    if (parsedClassNum < 1 || parsedClassNum > 99) {
+      return 'Class Number must be an integer between 1 and 99.'
+    }
+
+    return ''
+  }, [classNum])
 
   const handleDuplicateRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows
@@ -98,52 +127,74 @@ export function DuplicateCourseButton({
         onClick: handleDuplicateRows
       }}
     >
-      <ModalSection
-        title="Courses that will be Copied"
-        description="Make sure to review the courses that will be duplicated."
-        items={[
-          table
-            .getSelectedRowModel()
-            .rows.map((row) => row.original.title)
-            .join(', ')
-        ]}
-      />
-      <div className="flex h-[37px] w-full items-center gap-[6px] bg-[#FFEBEE] px-[18px] py-[8px]">
-        <GoAlertFill size={16} color="#FF3B2F" />
-        <span className="text-sm text-[#FF3B2F]">
-          Course Info, Assignments and Exercises will be duplicated.
-        </span>
-      </div>
-
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Course Number</label>
-          <input
-            value={courseNum}
-            onChange={(e) => setCourseNum(e.target.value)}
-            placeholder="Enter course number"
-            className="w-full rounded-md border px-3 py-2 text-sm"
+      <div className="max-h-[70vh] w-full min-w-0 overflow-y-auto overflow-x-hidden pr-1">
+        <div className="flex w-full min-w-0 flex-col gap-4">
+          <ModalSection
+            title="Courses that will be Copied"
+            description="Make sure to review the courses that will be duplicated."
+            items={[
+              table
+                .getSelectedRowModel()
+                .rows.map((row) => row.original.title)
+                .join(', ')
+            ]}
           />
-        </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Semester</label>
-          <input
-            value={semester}
-            onChange={(e) => setSemester(e.target.value)}
-            placeholder="Enter semester"
-            className="w-full rounded-md border px-3 py-2 text-sm"
-          />
+          <div className="flex w-full min-w-0 items-start gap-[6px] rounded-md bg-[#FFEBEE] px-[18px] py-[8px]">
+            <GoAlertFill
+              size={16}
+              color="#FF3B2F"
+              className="mt-[2px] shrink-0"
+            />
+            <span className="break-words text-sm text-[#FF3B2F]">
+              Course Info, Assignments and Exercises will be duplicated.
+            </span>
+          </div>
+
+          <div className="flex w-full min-w-0 flex-col gap-4">
+            <div className="flex w-full min-w-0 flex-col gap-2">
+              <label className="text-sm font-medium">Course Number</label>
+              <input
+                value={courseNum}
+                onChange={(e) => setCourseNum(e.target.value)}
+                placeholder="Enter course number"
+                className="box-border w-full min-w-0 rounded-md border border-gray-300 px-3 py-2 text-sm"
+              />
+            </div>
+
+            <div className="flex w-full min-w-0 flex-col gap-2">
+              <label className="text-sm font-medium">Semester</label>
+              <input
+                value={semester}
+                onChange={(e) => setSemester(e.target.value)}
+                placeholder="Enter semester"
+                className="box-border w-full min-w-0 rounded-md border border-gray-300 px-3 py-2 text-sm"
+              />
+            </div>
+
+            <div className="flex w-full min-w-0 flex-col gap-2">
+              <label className="text-sm font-medium">Class Number</label>
+              <input
+                value={classNum}
+                onChange={(e) => setClassNum(e.target.value)}
+                placeholder="Enter class number"
+                className={`box-border w-full min-w-0 rounded-md border px-3 py-2 text-sm ${
+                  classNumError
+                    ? 'border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500'
+                    : 'border-gray-300'
+                }`}
+              />
+
+              <p
+                className={`min-h-[20px] text-sm ${
+                  classNumError ? 'text-red-500' : 'invisible'
+                }`}
+              >
+                {classNumError || 'placeholder'}
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Class Number</label>
-        <input
-          value={classNum}
-          onChange={(e) => setClassNum(e.target.value)}
-          placeholder="Enter class number"
-          className="w-full rounded-md border px-3 py-2 text-sm"
-        />
       </div>
     </AlertModal>
   )
