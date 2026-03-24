@@ -146,8 +146,8 @@ alerting:
             labels:
               severity: warning
             annotations:
-              summary: "RDS FreeStorageSpace < 2GB"
-              description: "RDS 인스턴스의 남은 디스크가 2GB 미만입니다."
+              summary: 'RDS FreeStorageSpace < 2GB'
+              description: 'RDS 인스턴스의 남은 디스크가 2GB 미만입니다.'
 
 # help grafana to detect provisioned dashboards
 sidecar:

@@ -16,8 +16,8 @@ additionalPrometheusRulesMap:
             labels:
               severity: warning
             annotations:
-              summary: "Node {{ $labels.instance }} memory usage > 85%"
-              description: "Memory usage is {{ printf \"%.1f\" $value }}% for more than 5 minutes."
+              summary: 'Node {{ $labels.instance }} memory usage > 85%'
+              description: 'Memory usage is {{ printf "%.1f" $value }}% for more than 5 minutes.'
 
 prometheus:
   prometheusSpec:
