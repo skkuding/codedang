@@ -144,3 +144,6 @@ coverage
 *.pkg
 
 .idea
+
+### Kubernetes ###
+.kube/
