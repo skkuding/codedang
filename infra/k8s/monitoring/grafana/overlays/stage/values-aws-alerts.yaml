@@ -1,1 +1,3 @@
+# stage 환경은 AWS RDS를 사용하지 않으므로 alert rules 없음
+# production의 values-aws-alerts.yaml과 쌍으로 존재해야 ArgoCD valueFiles 로드 시 에러 방지
 {}
