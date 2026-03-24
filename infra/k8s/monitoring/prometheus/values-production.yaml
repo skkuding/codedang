@@ -1,6 +1,24 @@
 grafana:
   enabled: false
 
+alertmanager:
+  alertmanagerSpec:
+    alertmanagerConfigSecret: alertmanager-config
+
+additionalPrometheusRulesMap:
+  codedang-alerts:
+    groups:
+      - name: codedang.node
+        rules:
+          - alert: HighNodeMemoryUsage
+            expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 85
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Node {{ $labels.instance }} memory usage > 85%"
+              description: "Memory usage is {{ printf \"%.1f\" $value }}% for more than 5 minutes."
+
 prometheus:
   prometheusSpec:
     retention: 90d
