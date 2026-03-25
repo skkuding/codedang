@@ -5,12 +5,20 @@ import { TextEditor } from '@/app/admin/_components/TextEditor'
 import { Modal } from '@/components/Modal'
 import { Input } from '@/components/shadcn/input'
 import { Label } from '@/components/shadcn/label'
+import {
+  CREATE_COURSE_NOTICE,
+  UPDATE_COURSE_NOTICE
+} from '@/graphql/course/mutation'
+import { getClientSession } from '@/libs/auth/getClientSession'
+import { useMutation } from '@apollo/client'
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 interface CreateNoticeModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   courseId: string
+  onSuccess?: () => void
   editData?: {
     id: number
     title: string
@@ -21,8 +29,8 @@ interface CreateNoticeModalProps {
 export function CreateNoticeModal({
   open,
   onOpenChange,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   courseId,
+  onSuccess,
   editData
 }: CreateNoticeModalProps) {
   const [realName, setRealName] = useState('')
@@ -30,6 +38,11 @@ export function CreateNoticeModal({
   const [mainText, setMainText] = useState('')
   const [charCount, setCharCount] = useState(0)
   const isEditMode = Boolean(editData)
+
+  const [createNotice, { loading: isCreating }] =
+    useMutation(CREATE_COURSE_NOTICE)
+  const [updateNotice, { loading: isUpdating }] =
+    useMutation(UPDATE_COURSE_NOTICE)
 
   const loadProfile = useCallback(async () => {
     try {
@@ -72,31 +85,67 @@ export function CreateNoticeModal({
     onOpenChange(false)
   }
 
-  const handleSubmit = () => {
-    if (isEditMode && editData) {
-      window.dispatchEvent(
-        new CustomEvent('noticeUpdated', {
-          detail: {
-            type: 'edit',
-            id: editData.id,
-            title,
-            content: mainText
-          }
-        })
+  const handleSubmit = async () => {
+    const groupIdNum = Number(courseId)
+
+    if (!Number.isInteger(groupIdNum) || groupIdNum <= 0) {
+      console.error('Invalid courseId for CreateNotice:', courseId)
+      toast.error(
+        'Invalid course id. Please reopen the modal from a valid course page.'
       )
-    } else {
-      window.dispatchEvent(
-        new CustomEvent('noticeUpdated', {
-          detail: {
-            type: 'create',
-            title,
-            content: mainText,
-            createdBy: realName || 'Unknown'
-          }
+      return
+    }
+
+    try {
+      const getSession = getClientSession()
+      const session = await getSession()
+
+      if (isEditMode && editData) {
+        console.log('updateNotice variables', {
+          courseNoticeId: editData.id,
+          input: { title, content: mainText }
         })
+        await updateNotice({
+          variables: {
+            courseNoticeId: editData.id,
+            input: {
+              title,
+              content: mainText
+            }
+          },
+          context: session
+            ? { headers: { Authorization: session.token.accessToken } }
+            : undefined
+        })
+        toast.success('Notice updated!')
+      } else {
+        const inputVars = {
+          groupId: groupIdNum,
+          title,
+          content: mainText,
+          isPublic: true,
+          isFixed: false
+        }
+        console.log('createNotice variables', { input: inputVars })
+        await createNotice({
+          variables: {
+            input: inputVars
+          },
+          context: session
+            ? { headers: { Authorization: session.token.accessToken } }
+            : undefined
+        })
+        toast.success('Notice created!')
+      }
+
+      onSuccess?.()
+      resetAndClose()
+    } catch (error) {
+      console.error('Create/Update Notice Error:', error)
+      toast.error(
+        isEditMode ? 'Failed to update notice.' : 'Failed to create notice.'
       )
     }
-    resetAndClose()
   }
 
   return (
@@ -109,7 +158,12 @@ export function CreateNoticeModal({
       primaryButton={{
         text: isEditMode ? 'Update' : 'Create',
         onClick: handleSubmit,
-        disabled: !title.trim() || !mainText.trim() || charCount > 400,
+        disabled:
+          !title.trim() ||
+          !mainText.trim() ||
+          charCount > 400 ||
+          isCreating ||
+          isUpdating,
         className: 'bg-[#3581FA] text-white hover:bg-[#3581FA]/90'
       }}
       secondaryButton={{
@@ -138,6 +192,7 @@ export function CreateNoticeModal({
           </Label>
           <div className="relative">
             <TextEditor
+              key={editData?.id ?? 'create'}
               placeholder="Enter the Main Text"
               onChange={handleMainTextChange}
               defaultValue={editData?.content || ''}

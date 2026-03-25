@@ -1,7 +1,10 @@
 'use client'
 
 import { dateFormatter } from '@/libs/utils'
+import { cn } from '@/libs/utils'
 import type { CourseNoticeCommentItem } from '@/types/type'
+import { FaLock } from 'react-icons/fa6'
+import { IoTime } from 'react-icons/io5'
 
 interface NoticeCommentCardProps {
   comment: CourseNoticeCommentItem
@@ -58,11 +61,9 @@ export function NoticeCommentCard({
     if (comment.isDeleted) {
       return ''
     }
-
     if (!comment.createdBy && comment.isSecret) {
       return ''
     }
-
     return comment.createdBy?.username ?? ''
   })()
 
@@ -70,74 +71,52 @@ export function NoticeCommentCard({
     new Date(comment.createdTime).getTime() !==
     new Date(comment.updateTime).getTime()
 
+  const isMasked = comment.isDeleted || (!comment.createdBy && comment.isSecret)
+
   return (
     <div
-      style={{
-        marginTop: 16,
-        marginLeft: isReply ? 24 : 0,
-        border: '1px solid #E5E5E5',
-        borderRadius: 8,
-        padding: 16,
-        background: '#FFFFFF'
-      }}
+      className={cn(
+        'rounded-xl border border-[#E5E5E5] bg-white p-6',
+        isReply && 'ml-6 mt-4',
+        !isReply && 'mt-4',
+        !isMasked && isMine && 'border-[#3581FA]'
+      )}
     >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          gap: 12
-        }}
-      >
-        <div>
-          {displayWriter && (
-            <div style={{ fontWeight: 600 }}>{displayWriter}</div>
-          )}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          {displayWriter ? (
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-medium text-black">
+                {displayWriter}
+              </span>
+              {comment.isSecret &&
+                !comment.isDeleted &&
+                Boolean(comment.createdBy) && (
+                  <span className="rounded bg-[#EAF2FF] px-2 py-0.5 text-xs font-medium text-[#3581FA]">
+                    Hidden
+                  </span>
+                )}
+            </div>
+          ) : null}
 
-          <div
-            style={{
-              marginTop: 4,
-              fontSize: 13,
-              color: '#787E80',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              flexWrap: 'wrap'
-            }}
-          >
+          <div className="flex items-center gap-2 text-[13px] text-[#9A9A9A]">
+            <IoTime className="h-3.5 w-3.5 text-[#3581FA]" />
             <span>
               {dateFormatter(comment.createdTime, 'YYYY-MM-DD HH:mm:ss')}
             </span>
             {isEdited && !comment.isDeleted && <span>Modified</span>}
-            {comment.isSecret &&
-              !comment.isDeleted &&
-              Boolean(comment.createdBy) && <span>Hidden</span>}
           </div>
         </div>
 
         {(canReply || canEditOrDelete) && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              flexShrink: 0
-            }}
-          >
+          <div className="flex items-center gap-2">
             {canReply && (
               <button
                 type="button"
                 onClick={() => onReplyToggle(comment.id)}
-                style={{
-                  border: '1px solid #D9D9D9',
-                  background: '#FFFFFF',
-                  borderRadius: 9999,
-                  padding: '6px 12px',
-                  fontSize: 13,
-                  cursor: 'pointer'
-                }}
+                className="text-xs text-[#9A9A9A] hover:text-[#3581FA]"
               >
-                Reply
+                {replyTargetId === comment.id ? 'Hide Reply' : 'Reply'}
               </button>
             )}
 
@@ -146,30 +125,16 @@ export function NoticeCommentCard({
                 <button
                   type="button"
                   onClick={() => onEditStart(comment)}
-                  style={{
-                    border: '1px solid #D9D9D9',
-                    background: '#FFFFFF',
-                    borderRadius: 9999,
-                    padding: '6px 12px',
-                    fontSize: 13,
-                    cursor: 'pointer'
-                  }}
+                  className="rounded-full border border-[#3581FA] px-5 py-2 text-xs font-medium text-[#3581FA] hover:bg-[#3581FA]/5"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   onClick={() => onDelete(comment.id)}
-                  style={{
-                    border: '1px solid #D9D9D9',
-                    background: '#FFFFFF',
-                    borderRadius: 9999,
-                    padding: '6px 12px',
-                    fontSize: 13,
-                    cursor: 'pointer'
-                  }}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E5E5E5] text-[#9A9A9A] hover:bg-gray-50"
                 >
-                  Delete
+                  🗑
                 </button>
               </>
             )}
@@ -177,7 +142,16 @@ export function NoticeCommentCard({
         )}
       </div>
 
-      <div style={{ marginTop: 12, whiteSpace: 'pre-wrap' }}>
+      <div
+        className={cn(
+          'mt-4 whitespace-pre-wrap text-[15px] font-medium leading-6 text-black',
+          isMasked &&
+            'rounded-lg bg-[#F5F5F5] px-4 py-3 font-normal text-[#A8A8A8]'
+        )}
+      >
+        {comment.isSecret && !comment.isDeleted && !comment.createdBy && (
+          <FaLock className="mr-2 inline h-3.5 w-3.5" />
+        )}
         {displayContent}
       </div>
 

@@ -14,11 +14,9 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { usePagination } from '@/libs/hooks/usePaginationV2'
-import { getNotices, saveNotices } from '@/libs/noticeStore'
-import { cn, dateFormatter } from '@/libs/utils'
-import type { Route } from 'next'
-import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { cn, dateFormatter, safeFetcherWithAuth } from '@/libs/utils'
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import type { CourseNoticeItem } from './NoticeColumns'
 
 const ITEMS_PER_PAGE = 10
@@ -30,28 +28,79 @@ interface NoticeListProps {
   courseId: number
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- reserved for future use
+interface CourseNoticeListResponse {
+  data: Array<{
+    id: number
+    title: string
+    updateTime: string
+    isFixed: boolean
+    createdBy: string | null
+    isRead: boolean
+    commentCount: number
+  }>
+  total: number
+}
+
 export function NoticeList({ courseId }: NoticeListProps) {
   const [filter, setFilter] = useState<FilterType>('all')
   const [order, setOrder] = useState<OrderType>('latest')
   const [isOrderOpen, setIsOrderOpen] = useState(false)
-  const [notices, setNotices] = useState<CourseNoticeItem[]>([])
-  const pathname = usePathname()
-  const router = useRouter()
+  const apiOrder = order === 'latest' ? 'createTime-desc' : 'createTime-asc'
 
-  useEffect(() => {
-    const stored = getNotices()
-    setNotices(
-      stored.map((n) => ({
-        id: n.id,
-        title: n.title,
-        createTime: n.createTime,
-        createdBy: n.createdBy,
-        isRead: n.isRead,
-        isFixed: n.isFixed
-      }))
-    )
-  }, [])
+  const {
+    data: normalNoticeData,
+    isLoading: isNormalLoading,
+    isError: isNormalError
+  } = useQuery({
+    queryKey: ['courseNotices', courseId, filter, order],
+    queryFn: () =>
+      safeFetcherWithAuth
+        .get(`course/${courseId}/notice/all`, {
+          searchParams: {
+            take: '100',
+            fixed: 'false',
+            readFilter: filter,
+            order: apiOrder
+          }
+        })
+        .json<CourseNoticeListResponse>(),
+    enabled: Boolean(courseId)
+  })
+
+  const { data: fixedNoticeData, isLoading: isFixedLoading } = useQuery({
+    queryKey: ['courseFixedNotices', courseId, order],
+    queryFn: () =>
+      safeFetcherWithAuth
+        .get(`course/${courseId}/notice/all`, {
+          searchParams: {
+            take: '100',
+            fixed: 'true',
+            readFilter: 'all',
+            order: apiOrder
+          }
+        })
+        .json<CourseNoticeListResponse>(),
+    enabled: Boolean(courseId)
+  })
+
+  const notices: CourseNoticeItem[] = [
+    ...((fixedNoticeData?.data ?? []).map((notice) => ({
+      id: notice.id,
+      title: notice.title,
+      createTime: notice.updateTime,
+      createdBy: notice.createdBy ?? '',
+      isRead: notice.isRead,
+      isFixed: notice.isFixed
+    })) as CourseNoticeItem[]),
+    ...((normalNoticeData?.data ?? []).map((notice) => ({
+      id: notice.id,
+      title: notice.title,
+      createTime: notice.updateTime,
+      createdBy: notice.createdBy ?? '',
+      isRead: notice.isRead,
+      isFixed: notice.isFixed
+    })) as CourseNoticeItem[])
+  ]
 
   const creationOrder = new Map(
     [...notices]
@@ -96,12 +145,31 @@ export function NoticeList({ courseId }: NoticeListProps) {
     { key: 'createdBy', label: 'Writer', className: 'w-[100px]' }
   ]
 
+  if (isNormalLoading || isFixedLoading) {
+    return (
+      <div className="flex flex-col">
+        <div className="mt-8 text-sm text-gray-500">Loading...</div>
+      </div>
+    )
+  }
+
+  if (isNormalError) {
+    return (
+      <div className="flex flex-col">
+        <div className="mt-8 text-sm text-gray-500">
+          Failed to load notices.
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <p className="text-2xl font-bold">NOTICE</p>
-
+        <span className="text-2xl font-semibold leading-[33.6px] tracking-[-0.48px]">
+          NOTICE
+        </span>
         <div className="flex items-center gap-4">
           {/* Order Dropdown */}
           <div className="relative">
@@ -211,21 +279,6 @@ export function NoticeList({ courseId }: NoticeListProps) {
                   <TableRow
                     key={notice.id}
                     className="cursor-pointer hover:bg-neutral-200/30"
-                    onClick={() => {
-                      if (!notice.isRead) {
-                        const stored = getNotices()
-                        const updated = stored.map((n) =>
-                          n.id === notice.id ? { ...n, isRead: true } : n
-                        )
-                        saveNotices(updated)
-                        setNotices((prev) =>
-                          prev.map((n) =>
-                            n.id === notice.id ? { ...n, isRead: true } : n
-                          )
-                        )
-                      }
-                      router.push(`${pathname}/${notice.id}` as Route)
-                    }}
                   >
                     <TableCell
                       className={cn(

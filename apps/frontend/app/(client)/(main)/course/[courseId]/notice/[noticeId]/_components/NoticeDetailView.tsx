@@ -46,11 +46,7 @@ export function NoticeDetailView() {
     retry: false
   })
 
-  const {
-    data: noticeData,
-    isLoading: isNoticeLoading,
-    isError: isNoticeError
-  } = useQuery({
+  const { data: noticeData } = useQuery({
     queryKey: ['courseNoticeDetail', currentId],
     queryFn: () =>
       safeFetcherWithAuth
@@ -64,9 +60,7 @@ export function NoticeDetailView() {
     queryFn: () =>
       safeFetcherWithAuth
         .get(`course/notice/${currentId}/comment`, {
-          searchParams: {
-            take: '100'
-          }
+          searchParams: { take: '100' }
         })
         .json<CourseNoticeCommentGroup[]>(),
     enabled: Number.isFinite(currentId)
@@ -79,9 +73,7 @@ export function NoticeDetailView() {
     queryClient.invalidateQueries({
       queryKey: ['courseNoticeComments', currentId]
     })
-    queryClient.invalidateQueries({
-      queryKey: ['courseNotices', courseId]
-    })
+    queryClient.invalidateQueries({ queryKey: ['courseNotices', courseId] })
   }
 
   const { mutate: createComment, isPending: isCreatingComment } = useMutation({
@@ -91,9 +83,7 @@ export function NoticeDetailView() {
       replyOnId?: number
     }) =>
       safeFetcherWithAuth
-        .post(`course/notice/${currentId}/comment`, {
-          json: payload
-        })
+        .post(`course/notice/${currentId}/comment`, { json: payload })
         .json(),
     onSuccess: () => {
       toast.success('Comment posted!')
@@ -104,9 +94,7 @@ export function NoticeDetailView() {
       setReplySecret(false)
       invalidateNotice()
     },
-    onError: () => {
-      toast.error('Failed to post comment.')
-    }
+    onError: () => toast.error('Failed to post comment.')
   })
 
   const { mutate: updateComment, isPending: isUpdatingComment } = useMutation({
@@ -130,9 +118,7 @@ export function NoticeDetailView() {
       setEditingSecret(false)
       invalidateNotice()
     },
-    onError: () => {
-      toast.error('Failed to update comment.')
-    }
+    onError: () => toast.error('Failed to update comment.')
   })
 
   const { mutate: deleteComment } = useMutation({
@@ -144,9 +130,7 @@ export function NoticeDetailView() {
       toast.success('Comment deleted!')
       invalidateNotice()
     },
-    onError: () => {
-      toast.error('Failed to delete comment.')
-    }
+    onError: () => toast.error('Failed to delete comment.')
   })
 
   const notice = noticeData?.current
@@ -156,79 +140,65 @@ export function NoticeDetailView() {
   const commentCount = notice?._count?.CourseNoticeComment ?? 0
   const groupedComments = useMemo(() => comments, [comments])
 
-  if (isNoticeLoading) {
-    return (
-      <div className="flex h-64 items-center justify-center text-gray-500">
-        Loading...
-      </div>
-    )
-  }
-
-  if (isNoticeError || !notice) {
-    return (
-      <div className="flex h-64 items-center justify-center text-gray-500">
-        Notice not found.
-      </div>
-    )
+  if (!notice) {
+    return null
   }
 
   return (
-    <div className="flex w-full flex-col px-4 pb-12 pt-10 lg:mt-20 lg:px-6 lg:pt-0">
-      <div className="mb-5">
-        <span className="inline-block rounded-full bg-[#F5F5F5] px-4 py-1.5 text-sm text-[#787E80]">
-          No. {currentId}
-        </span>
+    <div className="mt-20 flex flex-col gap-6 pl-10 pr-[116px]">
+      <div className="bg-color-neutral-99 text-color-neutral-60 flex w-fit items-center gap-2 rounded-full px-4 py-[6px] text-sm">
+        No. {currentId}
       </div>
 
-      <h1 className="text-xl font-semibold leading-snug text-[#333333] lg:text-2xl">
-        {notice.title}
-      </h1>
+      <div className="flex flex-col gap-4 pb-8">
+        <h1 className="text-2xl font-semibold leading-[1.4]">{notice.title}</h1>
 
-      <div className="mt-4 flex flex-col gap-1.5 text-sm text-[#787E80]">
-        <div className="flex items-center gap-2">
-          <FaUser className="h-3.5 w-3.5 text-[#3581FA]" />
-          <span>{notice.createdBy ?? 'Unknown'}</span>
+        <div className="text-color-neutral-50 flex flex-col gap-[6px] text-[13px]">
+          <div className="flex items-center gap-[10px]">
+            <FaUser className="h-4 w-4 text-[#3581FA]" />
+            {notice.createdBy ?? 'Unknown'}
+          </div>
+          <div className="flex items-center gap-[10px]">
+            <IoTime className="h-4 w-4 text-[#3581FA]" />
+            {dateFormatter(notice.createTime, 'YYYY-MM-DD HH:mm:ss')}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <IoTime className="h-4 w-4 text-[#3581FA]" />
-          <span>{dateFormatter(notice.createTime, 'YYYY-MM-DD HH:mm:ss')}</span>
-        </div>
+
+        <div
+          className="prose mt-4 max-w-none whitespace-pre-wrap text-[16px]"
+          dangerouslySetInnerHTML={{ __html: notice.content }}
+        />
       </div>
 
-      <div
-        className="prose mt-8 max-w-full text-sm leading-relaxed text-gray-800 lg:text-base"
-        dangerouslySetInnerHTML={{ __html: notice.content }}
-      />
-
-      <div className="mt-12 overflow-hidden rounded-lg border border-[#E5E5E5]">
+      <div className="overflow-hidden rounded-xl border border-[#E5E5E5]">
         {prevNotice && (
           <Link
             href={`/course/${courseId}/notice/${prevNotice.id}`}
-            className="flex items-center border-b border-[#E5E5E5] px-6 py-4 hover:bg-gray-50"
+            className="flex items-center border-b border-[#E5E5E5] px-6 py-4"
           >
-            <span className="w-24 text-sm font-semibold text-gray-700">
+            <span className="w-[110px] text-sm font-semibold text-black">
               Previous
             </span>
-            <span className="text-sm text-gray-600">{prevNotice.title}</span>
+            <span className="text-sm text-black">{prevNotice.title}</span>
           </Link>
         )}
         {nextNotice && (
           <Link
             href={`/course/${courseId}/notice/${nextNotice.id}`}
-            className="flex items-center px-6 py-4 hover:bg-gray-50"
+            className="flex items-center px-6 py-4"
           >
-            <span className="w-24 text-sm font-semibold text-[#3581FA]">
+            <span className="w-[110px] text-sm font-semibold text-[#3581FA]">
               Next
             </span>
-            <span className="text-sm text-gray-600">{nextNotice.title}</span>
+            <span className="text-sm text-black">{nextNotice.title}</span>
           </Link>
         )}
       </div>
 
-      <div className="mt-4 flex justify-end">
+      <div className="flex justify-end">
         <Link
           href={basePath}
-          className="rounded-full border border-[#D9D9D9] px-5 py-2 text-sm text-gray-600 hover:bg-gray-50"
+          className="rounded-full border border-[#D9D9D9] px-6 py-3 text-xs text-black hover:bg-gray-50"
         >
           Back to the List
         </Link>

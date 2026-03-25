@@ -100,28 +100,23 @@ export function NoticeCommentsSection({
   const renderCommentsBody = () => {
     if (isCommentsLoading) {
       return (
-        <div className="mt-4 flex flex-col items-center justify-center rounded-lg bg-[#F5F5F5] py-12 text-[#B0B0B0]">
-          <div className="mb-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#D9D9D9] text-xs text-white">
-            !
-          </div>
-          <span className="text-sm">Loading comments...</span>
+        <div className="flex flex-col items-center justify-center rounded-lg bg-[#F5F5F5] py-10 text-[#B0B0B0]">
+          <span>Loading comments...</span>
         </div>
       )
     }
 
     if (groupedComments.length === 0) {
       return (
-        <div className="mt-4 flex flex-col items-center justify-center rounded-lg bg-[#F5F5F5] py-12 text-[#B0B0B0]">
-          <div className="mb-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#D9D9D9] text-xs text-white">
-            !
-          </div>
-          <span className="text-sm">Comments not registered</span>
+        <div className="bg-color-neutral-99 text-color-neutral-80 flex flex-col items-center justify-center gap-[6px] rounded-lg py-10">
+          <span className="text-2xl">!</span>
+          <span>Comments not registered</span>
         </div>
       )
     }
 
     return (
-      <div style={{ marginTop: 16 }}>
+      <div className="flex flex-col gap-4">
         {groupedComments.map((group) => (
           <div key={group.comment.id}>
             <NoticeCommentCard
@@ -194,10 +189,12 @@ export function NoticeCommentsSection({
   }
 
   return (
-    <div className="mt-12">
-      <h2 className="text-[24px] font-medium leading-[130%] tracking-[-0.03em]">
-        COMMENTS <span className="text-[#3581FA]">{commentCount}</span>
-      </h2>
+    <div className="mt-12 flex flex-col gap-4">
+      <span className="text-2xl font-medium">
+        COMMENTS <span className="text-primary">{commentCount}</span>
+      </span>
+
+      {renderCommentsBody()}
 
       <NoticeCommentEditor
         value={commentContent}
@@ -205,12 +202,10 @@ export function NoticeCommentsSection({
         secret={commentSecret}
         setSecret={setCommentSecret}
         onSubmit={onCreateComment}
-        placeholder="Write a comment"
+        placeholder="Enter Your Answer"
         submitText="Post"
         disabled={!commentContent.trim() || isCreatingComment}
       />
-
-      {renderCommentsBody()}
     </div>
   )
 }

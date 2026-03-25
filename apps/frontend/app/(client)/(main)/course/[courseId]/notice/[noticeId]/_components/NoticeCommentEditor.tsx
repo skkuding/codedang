@@ -1,5 +1,8 @@
 'use client'
 
+import { Button } from '@/components/shadcn/button'
+import { BiSolidPencil } from 'react-icons/bi'
+
 interface NoticeCommentEditorProps {
   value: string
   setValue: (value: string) => void
@@ -24,91 +27,51 @@ export function NoticeCommentEditor({
   disabled
 }: NoticeCommentEditorProps) {
   return (
-    <div style={{ marginTop: 16 }}>
-      <textarea
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
-        maxLength={1000}
-        style={{
-          width: '100%',
-          minHeight: 96,
-          resize: 'vertical',
-          padding: 12,
-          border: '1px solid #E5E5E5',
-          borderRadius: 8,
-          outline: 'none'
-        }}
-      />
-      <div
-        style={{
-          marginTop: 8,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: 12
-        }}
-      >
-        <label
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 14,
-            color: '#787E80'
-          }}
-        >
+    <div className="mt-4 rounded-xl border border-[#E5E5E5] bg-white p-4">
+      <div className="relative">
+        <textarea
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
+          maxLength={1000}
+          className="min-h-[96px] w-full resize-none border-none p-0 text-[14px] placeholder:text-[#C4C4C4] focus:outline-none focus:ring-0 focus-visible:ring-0"
+        />
+        <div className="absolute bottom-0 right-0 text-[13px] text-[#B0B0B0]">
+          {value.length}/1000
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-4">
+        <label className="flex items-center gap-2 text-xs text-[#B0B0B0]">
           <input
             type="checkbox"
             checked={secret}
             onChange={(e) => setSecret(e.target.checked)}
           />
-          Secret comment
+          Hide from other Students
         </label>
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8
-          }}
-        >
-          <span style={{ fontSize: 13, color: '#787E80' }}>
-            {value.length}/1000
-          </span>
-
+        <div className="flex items-center gap-2">
           {onCancel && (
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={onCancel}
-              style={{
-                border: '1px solid #D9D9D9',
-                background: '#FFFFFF',
-                borderRadius: 9999,
-                padding: '8px 14px',
-                fontSize: 14,
-                cursor: 'pointer'
-              }}
+              className="rounded-full border-[#D9D9D9] px-5 text-sm text-[#808080]"
             >
               Cancel
-            </button>
+            </Button>
           )}
 
-          <button
+          <Button
             type="button"
             onClick={onSubmit}
             disabled={disabled}
-            style={{
-              border: '1px solid #D9D9D9',
-              background: disabled ? '#F5F5F5' : '#FFFFFF',
-              borderRadius: 9999,
-              padding: '8px 14px',
-              fontSize: 14,
-              cursor: disabled ? 'not-allowed' : 'pointer'
-            }}
+            className="flex h-10 rounded-full px-5 text-sm font-medium"
           >
+            <BiSolidPencil className="mr-2 h-4 w-4" />
             {submitText}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
