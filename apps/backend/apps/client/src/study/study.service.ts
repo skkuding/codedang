@@ -199,7 +199,8 @@ export class StudyService {
         },
         studyInfo: {
           select: {
-            capacity: true
+            capacity: true,
+            endTime: true
           }
         }
       }
@@ -213,6 +214,13 @@ export class StudyService {
       throw new ForbiddenAccessException(
         'You must join this study group first.'
       )
+
+    if (
+      studyGroup.studyInfo?.endTime &&
+      new Date() >= studyGroup.studyInfo.endTime
+    ) {
+      throw new ForbiddenAccessException('This study group has already ended.')
+    }
 
     return {
       id: studyGroup.id,
