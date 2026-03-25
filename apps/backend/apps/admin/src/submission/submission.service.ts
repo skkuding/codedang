@@ -150,6 +150,8 @@ export class SubmissionService {
   /**
    * 특정 contest의 제출 목록을 조회합니다.
    * 문제 id와 제출자의 이름을 검색 조건으로 적용할 수 있습니다.
+   * SubmissionOrder에 따라 studentId, realName, 또는 username을 오름차순/내림차순으로 정렬할 수 있습니다.
+   * - studentIdASC, studentIdDESC, realNameASC, realNameDESC, usernameASC, usernameDESC
    *
    * @param {number} contestId
    * @param {GetContestSubmissionsInput} input 조회 조건 problemId, searchingName
