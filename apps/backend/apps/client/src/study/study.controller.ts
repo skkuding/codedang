@@ -17,7 +17,7 @@ import {
   UseGroupLeaderGuard
 } from '@libs/auth'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
-import { CreateStudyDto, type UpdateStudyDto } from './dto/study.dto'
+import { CreateStudyDto, UpdateStudyDto } from './dto/study.dto'
 import { StudyService } from './study.service'
 
 @Controller('study')

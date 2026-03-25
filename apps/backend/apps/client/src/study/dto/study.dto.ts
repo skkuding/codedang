@@ -7,7 +7,8 @@ import {
   IsString,
   Length,
   Min,
-  Max
+  Max,
+  IsNumberString
 } from 'class-validator'
 
 export class CreateStudyDto {
@@ -32,6 +33,7 @@ export class CreateStudyDto {
   @IsString()
   @IsOptional()
   @Length(6, 6)
+  @IsNumberString()
   invitationCode?: string | null
 
   @IsInt()
