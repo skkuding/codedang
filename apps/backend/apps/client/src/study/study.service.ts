@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { GroupType } from '@prisma/client'
+import { MILLISECONDS_PER_HOUR } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -305,9 +306,10 @@ export class StudyService {
 
       let newEndTime: Date | undefined = undefined
       if (durationHours !== undefined) {
-        newEndTime = new Date(studyGroup.createTime)
-        newEndTime.setHours(newEndTime.getHours() + durationHours)
-
+        newEndTime = new Date(
+          studyGroup.createTime.getTime() +
+            durationHours * MILLISECONDS_PER_HOUR
+        )
         if (new Date() >= newEndTime)
           throw new ConflictFoundException(
             'The updated end time cannot be in the past.'
