@@ -8,6 +8,7 @@ import (
 	"time"
 
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
+	"github.com/skkuding/codedang/apps/iris/src/service/build"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
@@ -84,19 +85,19 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 		tr.logger.Log(logger.DEBUG, fmt.Sprintf("task done: total time: %s", time.Since(startedAt)))
 	}()
 
-	errCh := make(chan *HandlerError, len(units))
+	errCh := make(chan *build.BuildUnitError, len(units))
 	var wg sync.WaitGroup
 
 	for idx, u := range units {
 		wg.Add(1)
-		go func(index int, unit *BuildUnit) {
+		go func(index int, unit *build.BuildUnit) {
 			defer wg.Done()
 			if unit == nil {
-				errCh <- &HandlerError{
-					caller:  "task_runner",
-					err:     fmt.Errorf("nil build unit at index %d", index),
-					level:   logger.ERROR,
-					Message: fmt.Sprintf("nil build unit at index %d", index),
+				errCh <- &build.BuildUnitError{
+					Unit:    fmt.Sprintf("unit-%d", index),
+					Phase:   "init",
+					Err:     fmt.Errorf("nil build unit at index %d", index),
+					UserMsg: fmt.Sprintf("nil build unit at index %d", index),
 				}
 				return
 			}
@@ -109,8 +110,8 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 	wg.Wait()
 	close(errCh)
 
-	for hErr := range errCh {
-		sendResult(ResultMessage{Result: nil, Err: hErr})
+	for buildErr := range errCh {
+		sendResult(ResultMessage{Result: nil, Err: buildUnitErrorToTaskError(buildErr)})
 		return
 	}
 

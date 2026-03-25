@@ -2,6 +2,7 @@ package router
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
@@ -123,8 +124,9 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 
 func (r *router) errHandle(err error) {
 	if err != nil {
-		if u, ok := err.(*handler.HandlerError); ok {
-			r.logger.Log(u.Level(), err.Error())
+		var te *handler.TaskError
+		if errors.As(err, &te) {
+			r.logger.Log(te.Level, err.Error())
 		} else {
 			r.logger.Log(logger.ERROR, fmt.Sprintf("router: %s", err.Error()))
 		}

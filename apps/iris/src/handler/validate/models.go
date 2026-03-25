@@ -37,5 +37,4 @@ type ValidateResult struct {
 	IsValid       bool                     `json:"isValid"`
 	TestcaseCount int                      `json:"testcaseCount"`
 	Results       []ValidateTestcaseResult `json:"results"`
-	Error         string                   `json:"error,omitempty"`
 }

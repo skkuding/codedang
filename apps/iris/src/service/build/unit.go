@@ -1,11 +1,10 @@
-package handler
+package build
 
 import (
 	"fmt"
 	"strings"
 
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
-	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox/judger"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
@@ -26,9 +25,7 @@ func (bu *BuildUnit) Setup(
 	totalUnits int,
 	fileManager file.FileManager,
 	sandboxService sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs],
-) *HandlerError {
-	caller := "BuildUnit.Setup"
-
+) *BuildUnitError {
 	name := bu.Name
 	if name == "" {
 		if totalUnits == 1 {
@@ -41,31 +38,31 @@ func (bu *BuildUnit) Setup(
 
 	unitDir := fmt.Sprintf("%s-%s", utils.RandString(8), name)
 	if err := fileManager.CreateDir(unitDir); err != nil {
-		return &HandlerError{
-			caller:  caller,
-			err:     fmt.Errorf("creating dir for build unit(%s): %w", bu.Name, err),
-			level:   logger.ERROR,
-			Message: err.Error(),
+		return &BuildUnitError{
+			Unit:    bu.Name,
+			Phase:   "create_dir",
+			Err:     fmt.Errorf("creating dir for build unit(%s): %w", bu.Name, err),
+			UserMsg: err.Error(),
 		}
 	}
 
 	language := sandbox.Language(bu.Language)
 	srcPath, err := sandboxService.MakeSrcPath(unitDir, language)
 	if err != nil {
-		return &HandlerError{
-			caller:  caller,
-			err:     fmt.Errorf("making src path for build unit(%s): %w", bu.Name, err),
-			level:   logger.ERROR,
-			Message: err.Error(),
+		return &BuildUnitError{
+			Unit:    bu.Name,
+			Phase:   "save_src",
+			Err:     fmt.Errorf("making src path for build unit(%s): %w", bu.Name, err),
+			UserMsg: err.Error(),
 		}
 	}
 
 	if err := fileManager.CreateFile(srcPath, bu.Code); err != nil {
-		return &HandlerError{
-			caller:  caller,
-			err:     fmt.Errorf("creating file for build unit(%s): %w", bu.Name, err),
-			level:   logger.ERROR,
-			Message: err.Error(),
+		return &BuildUnitError{
+			Unit:    bu.Name,
+			Phase:   "save_src",
+			Err:     fmt.Errorf("creating file for build unit(%s): %w", bu.Name, err),
+			UserMsg: err.Error(),
 		}
 	}
 
@@ -76,38 +73,33 @@ func (bu *BuildUnit) Setup(
 		Dir:      bu.Dir,
 		Language: bu.ParsedLang,
 	})
-	// compileErr is not nil when there is an error in the sandbox service itself (e.g., timeout, internal error, etc.)
-	// compileResult.ExecResult.ErrorCode is not 0 when the sandbox service successfully runs but there is an error in the user's code (e.g., compilation error, runtime error, etc.)
+	// compileErr: sandbox service itself failed (e.g., timeout, internal error)
+	// compileResult.ExecResult.ErrorCode != 0: sandbox ran but user code has errors
 	if compileErr != nil {
-		normalizedCompileErr := normalizeCompileError(compileErr, bu.Dir, bu.ParsedLang)
-		return &HandlerError{
-			caller:  caller,
-			err:     fmt.Errorf("compilation error(%s): %w", bu.Name, compileErr),
-			level:   logger.ERROR,
-			Message: normalizedCompileErr,
+		return &BuildUnitError{
+			Unit:    bu.Name,
+			Phase:   "compile",
+			Err:     fmt.Errorf("compilation error(%s): %w", bu.Name, compileErr),
+			UserMsg: normalizeCompileError(compileErr, bu.Dir, bu.ParsedLang),
 		}
 	}
 
 	if compileResult.ExecResult.ErrorCode != 0 {
-		return &HandlerError{
-			caller:  caller,
-			err:     fmt.Errorf("%w: %s (%s)", ErrCompile, "sandbox error", bu.Name),
-			level:   logger.ERROR,
-			Message: "sandbox error",
+		return &BuildUnitError{
+			Unit:    bu.Name,
+			Phase:   "compile",
+			Err:     fmt.Errorf("sandbox error (%s)", bu.Name),
+			UserMsg: "sandbox error",
 		}
 	}
 
 	if compileResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
-		normalizedCompileErr := normalizeCompileError(
-			fmt.Errorf("%s", string(compileResult.ErrOutput)),
-			bu.Dir,
-			bu.ParsedLang,
-		)
-		return &HandlerError{
-			caller:  caller,
-			err:     ErrCompile,
-			level:   logger.INFO,
-			Message: fmt.Sprintf("%s (%s)", normalizedCompileErr, bu.Name),
+		return &BuildUnitError{
+			Unit:        bu.Name,
+			Phase:       "compile",
+			Err:         fmt.Errorf("compile failed (%s)", bu.Name),
+			UserMsg:     fmt.Sprintf("%s (%s)", normalizeCompileError(fmt.Errorf("%s", string(compileResult.ErrOutput)), bu.Dir, bu.ParsedLang), bu.Name),
+			IsUserError: true,
 		}
 	}
 

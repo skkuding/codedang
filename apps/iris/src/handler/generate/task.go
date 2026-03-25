@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
+	"github.com/skkuding/codedang/apps/iris/src/service/build"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
@@ -16,7 +17,7 @@ import (
 
 type Task struct {
 	req        *GenerateRequest
-	buildUnits []*handler.BuildUnit
+	buildUnits []*build.BuildUnit
 	tcManager  testcase.TestcaseManager
 	sandbox    sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
 	logger     logger.Logger
@@ -37,14 +38,14 @@ func (t *Task) GetDebugString() string {
 	)
 }
 
-func (t *Task) GetBuildUnits() []*handler.BuildUnit {
+func (t *Task) GetBuildUnits() []*build.BuildUnit {
 	return t.buildUnits
 }
 
-func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMessage)) {
+func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Runner) {
 	validReq := t.req
-	var generatorUnit *handler.BuildUnit
-	var solutionUnit *handler.BuildUnit
+	var generatorUnit *build.BuildUnit
+	var solutionUnit *build.BuildUnit
 
 	for _, u := range t.buildUnits {
 		if u.Name == "generator" {
@@ -57,16 +58,16 @@ func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMess
 	if generatorUnit == nil || generatorUnit.Dir == "" {
 		sendResult(handler.ResultMessage{
 			Result: nil,
-			Err: handler.NewHandlerError(
-				"GenerateTask.RunAction",
-				fmt.Errorf("generator build unit not found"),
+			Err: handler.NewTaskError(
+				"generate",
+				handler.SERVER_ERROR,
 				logger.ERROR,
+				fmt.Errorf("generator build unit not found"),
 			),
 		})
 		return
 	}
 
-	hasSolutionUnit := solutionUnit != nil
 	successCount := 0
 	var pairs []loader.ElementIn
 
@@ -98,13 +99,10 @@ func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMess
 			t.logger.Log(logger.ERROR, fmt.Sprintf("Error while generating testcase: %s", err.Error()))
 			sendResult(handler.ResultMessage{
 				Result: nil,
-				Err:    handler.NewHandlerError("GenerateTask.RunAction", err, logger.ERROR),
+				Err:    handler.NewTaskError("generate", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("generator run failed: %w", err)),
 			})
 			return
 		}
-
-		// todo: run answer code to make output, and compare with expected output if needed
-		// save runResult.Output
 
 		if runResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 			t.logger.Log(
@@ -118,25 +116,13 @@ func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMess
 			)
 			sendResult(handler.ResultMessage{
 				Result: nil,
-				Err:    handler.NewHandlerError("GenerateTask.RunAction", handler.ErrSandbox, logger.ERROR),
+				Err:    handler.NewTaskError("generate", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("generator execution failed")),
 			})
 			return
 		}
 
 		out := []byte{}
 		if validReq.SolutionCode != "" {
-			if !hasSolutionUnit || solutionUnit.Dir == "" {
-				sendResult(handler.ResultMessage{
-					Result: nil,
-					Err: handler.NewHandlerError(
-						"GenerateTask.RunAction",
-						fmt.Errorf("solution build unit not found"),
-						logger.ERROR,
-					),
-				})
-				return
-			}
-
 			solutionRunResult, solutionErr := solutionUnit.Run(t.sandbox, sandbox.RunRequest{
 				Order:       i,
 				TimeLimit:   2000,
@@ -147,7 +133,7 @@ func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMess
 				t.logger.Log(logger.ERROR, fmt.Sprintf("Error while generating expected output: %s", solutionErr.Error()))
 				sendResult(handler.ResultMessage{
 					Result: nil,
-					Err:    handler.NewHandlerError("GenerateTask.RunAction", solutionErr, logger.ERROR),
+					Err:    handler.NewTaskError("generate", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("solution run failed: %w", solutionErr)),
 				})
 				return
 			}
@@ -163,7 +149,7 @@ func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMess
 				)
 				sendResult(handler.ResultMessage{
 					Result: nil,
-					Err:    handler.NewHandlerError("GenerateTask.RunAction", handler.ErrSandbox, logger.ERROR),
+					Err:    handler.NewTaskError("generate", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("solution execution failed")),
 				})
 				return
 			}
@@ -192,9 +178,13 @@ save:
 				err.Error(),
 			),
 		)
-	} else {
-		successCount += len(pairs)
+		sendResult(handler.ResultMessage{
+			Result: nil,
+			Err:    handler.NewTaskError("generate", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("save testcase failed: %w", err)),
+		})
+		return
 	}
+	successCount += len(pairs)
 
 	res := GenerateResult{
 		GeneratedTestcases: successCount,
@@ -204,7 +194,7 @@ save:
 	if err != nil {
 		sendResult(handler.ResultMessage{
 			Result: nil,
-			Err:    handler.NewHandlerError("GenerateTask.RunAction", handler.ErrMarshalJson, logger.ERROR),
+			Err:    handler.NewTaskError("generate", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("marshal failed")),
 		})
 	} else {
 		sendResult(handler.ResultMessage{Result: marshaledRes, Err: nil})

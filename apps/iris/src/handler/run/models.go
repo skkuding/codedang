@@ -1,7 +1,6 @@
 package run
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/skkuding/codedang/apps/iris/src/loader"
@@ -14,10 +13,10 @@ type RunRequest struct {
 	ProblemId                int                  `json:"problemId"`
 	TimeLimit                int                  `json:"timeLimit"`
 	MemoryLimit              int                  `json:"memoryLimit"`
-	UserTestcases            *[]loader.ElementOut `json:"userTestcases,omitempty"`            // 사용자 테스트 케이스
-	StopOnNotAccepted        bool                 `json:"stopOnNotAccepted,omitempty"`        // 테스트 케이스가 틀리면 이후 테스트 케이스 실행 중단
-	JudgeOnlyHiddenTestcases bool                 `json:"judgeOnlyHiddenTestcases,omitempty"` // Hidden 테스트 케이스만 채점
-	ContainHiddenTestcases   bool                 `json:"containHiddenTestcases,omitempty"`   // Hidden 테스트 케이스도 포함하여 채점(Run의 경우)
+	UserTestcases            *[]loader.ElementOut `json:"userTestcases,omitempty"`            // user-provided testcases
+	StopOnNotAccepted        bool                 `json:"stopOnNotAccepted,omitempty"`        // stop executing further testcases on first non-accepted result
+	JudgeOnlyHiddenTestcases bool                 `json:"judgeOnlyHiddenTestcases,omitempty"` // judge only hidden testcases
+	ContainHiddenTestcases   bool                 `json:"containHiddenTestcases,omitempty"`   // include hidden testcases when running
 	IsInteractive            bool                 `json:"isInteractive,omitempty"`
 }
 
@@ -54,8 +53,6 @@ type RunResult struct {
 	ErrorCode  int    `json:"errorCode"`
 	Error      string `json:"error"`
 }
-
-var ErrRunEnd = errors.New("run handle end")
 
 func (r *RunResult) SetRunExecResult(execResult sandbox.ExecResult) {
 	r.CpuTime = execResult.CpuTime

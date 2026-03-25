@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
+	"github.com/skkuding/codedang/apps/iris/src/service/build"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox/judger"
@@ -33,11 +34,11 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 
 	err := json.Unmarshal(data, &req)
 	if err != nil {
-		return nil, handler.NewHandlerError("handle", fmt.Errorf("%w: %s", handler.ErrValidate, err), logger.ERROR)
+		return nil, handler.NewTaskError("run", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("unmarshal failed: %w", err))
 	}
 	validReq, err := req.Validate()
 	if err != nil {
-		return nil, handler.NewHandlerError("request validate", fmt.Errorf("%w: %s", handler.ErrValidate, err), logger.ERROR)
+		return nil, handler.NewTaskError("run", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("validation failed: %w", err))
 	}
 
 	hidden := false
@@ -47,10 +48,10 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 	case "userTestCase":
 		hidden = false
 	default:
-		return nil, handler.NewHandlerError("run.Factory.Create", fmt.Errorf("unknown taskType: %s", taskType), logger.ERROR)
+		return nil, handler.NewTaskError("run", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("unknown taskType: %s", taskType))
 	}
 
-	buildUnits := []*handler.BuildUnit{
+	buildUnits := []*build.BuildUnit{
 		{
 			Name:     "default",
 			Code:     validReq.Code,

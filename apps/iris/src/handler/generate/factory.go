@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
+	"github.com/skkuding/codedang/apps/iris/src/service/build"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox/judger"
@@ -29,15 +30,15 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 	req := GenerateRequest{}
 	err := json.Unmarshal(data, &req)
 	if err != nil {
-		return nil, handler.NewHandlerError("handle-generate", fmt.Errorf("%w: %s", handler.ErrValidate, err), logger.ERROR)
+		return nil, handler.NewTaskError("generate", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("unmarshal failed: %w", err))
 	}
 
 	validReq, err := req.Validate()
 	if err != nil {
-		return nil, handler.NewHandlerError("handle-generate", fmt.Errorf("%w: %s", handler.ErrValidate, err), logger.ERROR)
+		return nil, handler.NewTaskError("generate", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("validation failed: %w", err))
 	}
 
-	buildUnits := []*handler.BuildUnit{
+	buildUnits := []*build.BuildUnit{
 		{
 			Name:     "generator",
 			Code:     validReq.GeneratorCode,
@@ -45,7 +46,7 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 		},
 	}
 	if validReq.SolutionCode != "" {
-		buildUnits = append(buildUnits, &handler.BuildUnit{
+		buildUnits = append(buildUnits, &build.BuildUnit{
 			Name:     "solution",
 			Code:     validReq.SolutionCode,
 			Language: validReq.SolutionLanguage,

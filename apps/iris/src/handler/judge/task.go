@@ -10,6 +10,7 @@ import (
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
+	"github.com/skkuding/codedang/apps/iris/src/service/build"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
 	"github.com/skkuding/codedang/apps/iris/src/service/grader"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -23,7 +24,7 @@ import (
 type Task struct {
 	req        *JudgeRequest
 	hidden     bool
-	buildUnits []*handler.BuildUnit
+	buildUnits []*build.BuildUnit
 	tcManager  testcase.TestcaseManager
 	sandbox    sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
 	logger     logger.Logger
@@ -40,11 +41,11 @@ func (t *Task) GetDebugString() string {
 	return fmt.Sprintf("judge.Task{problemId:%d,language:%s,hidden:%t}", t.req.ProblemId, t.req.Language, t.hidden)
 }
 
-func (t *Task) GetBuildUnits() []*handler.BuildUnit {
+func (t *Task) GetBuildUnits() []*build.BuildUnit {
 	return t.buildUnits
 }
 
-func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMessage)) {
+func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Runner) {
 	validReq := t.req
 
 	var tc testcase.Testcase
@@ -54,7 +55,7 @@ func (t *Task) RunAction(ctx context.Context, sendResult func(handler.ResultMess
 	} else {
 		res, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), t.hidden)
 		if err != nil {
-			sendResult(handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("handle", fmt.Errorf("%w: %s", handler.ErrTestcaseGet, err), logger.ERROR)})
+			sendResult(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("judge", handler.TESTCASE_ERROR, logger.ERROR, fmt.Errorf("get testcase failed: %w", err))})
 			return
 		}
 
@@ -141,7 +142,7 @@ func (t *Task) judgeTestcase(ctx context.Context, idx int, validReq *JudgeReques
 Send:
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
-		sendResult(handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("Task.judgeTestcase", handler.ErrMarshalJson, logger.ERROR)})
+		sendResult(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("judge", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("marshal failed"))})
 	} else {
 		sendResult(handler.ResultMessage{Result: marshaledRes, Err: handler.ParseError(res, judgeResultCode)})
 	}
@@ -157,7 +158,7 @@ func (t *Task) sendCancelResult(element loader.ElementOut, sendResult func(handl
 
 	marshaledRes, err := json.Marshal(canceledResult)
 	if err != nil {
-		sendResult(handler.ResultMessage{Result: nil, Err: handler.NewHandlerError("Task.sendCancelResult", handler.ErrMarshalJson, logger.ERROR)})
+		sendResult(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("judge", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("marshal failed"))})
 		return
 	}
 	sendResult(handler.ResultMessage{Result: marshaledRes, Err: handler.ParseError(canceledResult, handler.CANCELED)})
