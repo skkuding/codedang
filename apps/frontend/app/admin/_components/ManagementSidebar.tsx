@@ -212,43 +212,64 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
   )
 
   return (
-    <div className="mx-6 flex h-full gap-5">
+    <div className="flex h-full bg-white">
       {/* Main Sidebar */}
       <motion.div
-        initial={{ width: 190 }}
-        animate={{ width: isMainSidebarExpanded ? 190 : 48 }}
-        className="relative flex flex-col"
+        initial={{ width: 238 }}
+        animate={{ width: isMainSidebarExpanded ? 238 : 96 }}
+        className={cn(
+          'relative z-50 flex flex-col bg-[#FFFFFF] pb-[24px] pt-[40px] transition-all',
+          'shadow-[6px_0_20px_0_rgba(0,0,0,0.06)]',
+          isMainSidebarExpanded ? 'px-[24px]' : 'items-center px-0'
+        )}
         onAnimationStart={() => setIsAnimationComplete(false)}
         onAnimationComplete={() => setIsAnimationComplete(true)}
       >
-        <button
-          onClick={() => setIsMainSidebarExpanded(!isMainSidebarExpanded)}
-          className="absolute right-2 top-4 text-gray-500 hover:text-gray-700"
+        <div
+          className={cn(
+            'mb-[40px] flex w-full',
+            isMainSidebarExpanded ? 'justify-end' : 'justify-center'
+          )}
         >
-          {isMainSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
-        </button>
+          <button
+            onClick={() => setIsMainSidebarExpanded(!isMainSidebarExpanded)}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            {isMainSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
+          </button>
+        </div>
 
         <div
           className={cn(
-            'mb-6 mt-20 px-4',
-            isMainSidebarExpanded || 'flex justify-center'
+            'mb-6 flex items-center justify-center',
+            isMainSidebarExpanded ? 'w-full' : 'w-full'
           )}
         >
           {isMainSidebarExpanded ? (
             <Link href="/">
-              <Image src={codedangWithTextIcon} alt="코드당" />
+              <Image
+                src={codedangWithTextIcon}
+                alt="코드당"
+                className="h-auto w-full"
+              />
             </Link>
           ) : (
-            <Link href="/" className="h-5 w-10">
-              <Image src={codedangIcon} alt="코드당" className="max-w-[30px]" />
+            <Link
+              href="/"
+              className="flex h-5 w-10 items-center justify-center"
+            >
+              <Image
+                src={codedangIcon}
+                alt="코드당"
+                className="h-6 w-6 object-contain"
+              />
             </Link>
           )}
         </div>
-        <Separator className="mb-4" />
 
         <div className="flex flex-col gap-2">
           {getFilteredMainNavItems().map((item) => (
-            <div key={item.name}>
+            <div key={item.name} className="w-full text-center">
               <SidebarLink
                 item={item}
                 isActive={
@@ -284,7 +305,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
                 pathname.startsWith('/admin/course') && (
                   <div
                     className={cn(
-                      'mt-4 flex flex-col gap-3 pl-4',
+                      'mt-4 flex flex-col gap-3 pl-4 text-left',
                       isMainSidebarExpanded && isAnimationComplete
                         ? ''
                         : 'hidden'
@@ -311,42 +332,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
           ))}
         </div>
       </motion.div>
-
-      {/* Course Sidebar */}
-      {isCourseSidebarOpened && (
-        <motion.div
-          initial={{ width: 190 }}
-          animate={{ width: isCourseSidebarExpanded ? 190 : 48 }}
-          className="relative flex flex-col"
-        >
-          <button
-            onClick={() => setIsCourseSidebarExpanded(!isCourseSidebarExpanded)}
-            className="absolute right-2 top-4 text-gray-500 hover:text-gray-700"
-          >
-            {isCourseSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
-          </button>
-          <div className="h-[3.8rem]" />
-          {selectedCourse && isCourseSidebarExpanded && (
-            <div className="absolute mt-16 text-gray-500">
-              <div className="font-semibold text-gray-700">
-                [{selectedCourse.code}]
-              </div>
-              <div>{selectedCourse.name}</div>
-              <div className="mt-5 w-[190px]">
-                <Separator />
-              </div>
-            </div>
-          )}
-
-          <div className="mt-20 flex flex-col gap-2">
-            <SideBar
-              navItems={getCourseNavItems(selectedCourseId)}
-              isSidebarExpanded={isCourseSidebarExpanded}
-              defaultItem="Home"
-            />
-          </div>
-        </motion.div>
-      )}
     </div>
   )
 }
