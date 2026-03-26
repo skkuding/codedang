@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Assignment, AssignmentProblem } from '@generated'
-import { Prisma, ResultStatus } from '@prisma/client'
+import { ContestRole, Prisma, ResultStatus } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
@@ -1005,6 +1005,17 @@ export class AssignmentService {
   }
 
   async getAssignmentsByProblemId(problemId: number, userId: number) {
+    const assignmentProblemCount = await this.prisma.assignmentProblem.count({
+      where: { problemId }
+    })
+    if (assignmentProblemCount === 0) {
+      return {
+        upcoming: [],
+        ongoing: [],
+        finished: []
+      }
+    }
+
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: { id: problemId },
       include: {
@@ -1015,10 +1026,6 @@ export class AssignmentService {
         }
       }
     })
-
-    if (problem.sharedGroups.length === 0) {
-      return []
-    }
 
     if (problem.createdById !== userId) {
       const leaderGroupIds = (
@@ -1033,9 +1040,24 @@ export class AssignmentService {
       const hasShared = sharedGroupIds.some((v) =>
         new Set(leaderGroupIds).has(v)
       )
-      if (!hasShared) {
+      const contestProblem = await this.prisma.contestProblem.findFirst({
+        where: {
+          problemId,
+          contest: {
+            userContest: {
+              some: {
+                userId,
+                role: { in: [ContestRole.Admin, ContestRole.Manager] }
+              }
+            }
+          }
+        },
+        select: { id: true }
+      })
+      const hasContestPermission = contestProblem != null
+      if (!hasShared && !hasContestPermission) {
         throw new ForbiddenAccessException(
-          'User can only edit problems they created or were shared with'
+          'User can only edit problems they created, were shared with, or manage via contest role'
         )
       }
     }

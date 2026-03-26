@@ -474,40 +474,6 @@ export class ProblemService {
       ...data
     } = input
 
-    // Admin 이상 권한이 있으면 항상 visible 설정 가능
-    if (
-      userRole !== Role.SuperAdmin &&
-      userRole !== Role.Admin &&
-      isVisible == true
-    ) {
-      // Contest의 Admin/Manager인 경우에만 visible 설정 가능
-      const contestProblems = await this.prisma.contestProblem.findMany({
-        where: { problemId: id },
-        include: {
-          contest: {
-            include: {
-              userContest: {
-                where: {
-                  userId,
-                  role: {
-                    in: [ContestRole.Admin, ContestRole.Manager]
-                  }
-                }
-              }
-            }
-          }
-        }
-      })
-      const hasPermission = contestProblems.some(
-        (contestProblem) => contestProblem.contest.userContest.length > 0
-      )
-      if (!hasPermission) {
-        throw new UnprocessableDataException(
-          'Only SuperAdmin/Admin or Contest Admin/Manager can set a problem to public'
-        )
-      }
-    }
-
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: { id },
       include: {
@@ -518,7 +484,12 @@ export class ProblemService {
         }
       }
     })
-    if (userRole == Role.User && problem.createdById != userId) {
+
+    const canEditWithSharedGroups = async () => {
+      if (problem.createdById === userId) {
+        return true
+      }
+
       const leaderGroupIds = (
         await this.prisma.userGroup.findMany({
           where: {
@@ -527,13 +498,49 @@ export class ProblemService {
           }
         })
       ).map((group) => group.groupId)
+      const leaderGroupIdSet = new Set(leaderGroupIds)
       const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
-      const hasShared = sharedGroupIds.some((v) =>
-        new Set(leaderGroupIds).has(v)
-      )
-      if (!hasShared) {
+      const hasShared = sharedGroupIds.some((v) => leaderGroupIdSet.has(v))
+      if (hasShared) {
+        return true
+      }
+
+      const contestProblem = await this.prisma.contestProblem.findFirst({
+        where: {
+          problemId: id,
+          contest: {
+            userContest: {
+              some: {
+                userId,
+                role: { in: [ContestRole.Admin, ContestRole.Manager] }
+              }
+            }
+          }
+        },
+        select: { id: true }
+      })
+      return contestProblem != null
+    }
+
+    // Admin 이상 권한이 있으면 항상 visible 설정 가능
+    if (
+      userRole !== Role.SuperAdmin &&
+      userRole !== Role.Admin &&
+      isVisible == true
+    ) {
+      const hasPermission = await canEditWithSharedGroups()
+      if (!hasPermission) {
+        throw new UnprocessableDataException(
+          'Only SuperAdmin/Admin, shared group leader/creator, or Contest Admin/Manager can set a problem to public'
+        )
+      }
+    }
+
+    if (userRole == Role.User) {
+      const hasPermission = await canEditWithSharedGroups()
+      if (!hasPermission) {
         throw new ForbiddenException(
-          'User can only edit problems they created or were shared with'
+          'User can only edit problems they created, were shared with, or manage via contest role'
         )
       }
     }
@@ -589,25 +596,6 @@ export class ProblemService {
         )
       ) {
         updatedFields.push(ProblemField.testcase)
-      }
-    }
-    if (userRole == Role.User && problem.createdById != userId) {
-      const leaderGroupIds = (
-        await this.prisma.userGroup.findMany({
-          where: {
-            userId,
-            isGroupLeader: true
-          }
-        })
-      ).map((group) => group.groupId)
-      const sharedGroupIds = problem.sharedGroups.map((group) => group.id)
-      const hasShared = sharedGroupIds.some((v) =>
-        new Set(leaderGroupIds).has(v)
-      )
-      if (!hasShared) {
-        throw new ForbiddenException(
-          'User can only edit problems they created or were shared with'
-        )
       }
     }
 
