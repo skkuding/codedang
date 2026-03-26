@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col items-start justify-start gap-1">
           <p className="text-head1_b_40 justify-start self-stretch">PROBLEM</p>
           <p className="text-color-cool-neutral-40 text-sub2_m_18 justify-start">
-            Train Hard, Solve Fast, Code Like a Pro!
+            열심히 훈련하고, 빠르게 해결하며, 프로답게 코드를 작성하세요!
           </p>
         </div>
         <ProblemTabs />

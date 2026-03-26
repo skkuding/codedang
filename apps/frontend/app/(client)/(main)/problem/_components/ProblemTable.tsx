@@ -75,7 +75,7 @@ function ProblemPaginatedTable({
     <div className="flex w-full flex-col items-center">
       <div className="flex w-full items-center justify-between">
         <div className="flex items-center justify-start gap-2">
-          <p className="text-head3_sb_28">Published Problems</p>
+          <p className="text-head3_sb_28">등록된 문제</p>
           <p className="text-head3_sb_28 text-primary">{data.total}</p>
         </div>
         <div className="flex items-center justify-start gap-2">
@@ -87,10 +87,10 @@ function ProblemPaginatedTable({
           data={paginatedItems}
           columns={columns}
           tableClassName="border-line border-separate border-spacing-0"
-          headerClassName="border-line relative after:pointer-events-none after:absolute after:bottom-0 after:left-0 after:h-4 after:w-full after:translate-y-full after:bg-[linear-gradient(180deg,rgba(53,78,116,0.08)_0%,rgba(53,78,116,0)_100%)]"
+          headerClassName="border-line overflow-hidden rounded-[1000px] border-b"
           bodyClassName="[&_tr:last-child]:border-b [&_tr:last-child]:border-line"
           headerRowClassName="h-12"
-          headerCellClassName="border-line h-12 bg-white px-5 py-2 text-body1_m_16 text-color-cool-neutral-30 first:rounded-tl-[20px] last:rounded-tr-[20px]"
+          headerCellClassName="border-line h-12 bg-white px-5 py-2 text-body1_m_16 text-color-cool-neutral-30 first:rounded-l-[1000px] last:rounded-r-[1000px]"
           cellClassName="border-line h-16 px-5 py-0 align-middle"
           tableRowStyle="border-line h-16 border-b hover:bg-transparent"
           emptyCellClassName="border-line h-16 align-middle"
