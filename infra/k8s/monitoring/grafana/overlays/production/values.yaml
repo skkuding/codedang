@@ -138,7 +138,9 @@ dashboards:
     rabbitmq-overview:
       gnetId: 10991
       revision: 12
-      datasource: Prometheus
+      datasource:
+        - name: datasource
+          value: Prometheus
   # ── AWS CloudWatch (monitoringartist) ─────────
   aws-dashboards:
     # AWS RDS - https://grafana.com/grafana/dashboards/707

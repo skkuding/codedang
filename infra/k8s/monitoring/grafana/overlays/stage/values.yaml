@@ -118,7 +118,9 @@ dashboards:
     rabbitmq-overview:
       gnetId: 10991
       revision: 12
-      datasource: Prometheus
+      datasource:
+        - name: datasource
+          value: Prometheus
 
 # Grafana's primary configuration
 # http://docs.grafana.org/installation/configuration/
