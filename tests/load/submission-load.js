@@ -21,8 +21,6 @@ if (!USERNAME || !PASSWORD || !PROBLEM_ID) {
 }
 
 // ── Payloads ────────────────────────────────────────────────────
-const LANGUAGES = ['C', 'Cpp', 'Java', 'Python3', 'PyPy3']
-
 const normalPayloads = new SharedArray('normal', () => [
   { lang: 'C', code: open('./payloads/normal/solution.c') },
   { lang: 'Cpp', code: open('./payloads/normal/solution.cpp') },
@@ -119,7 +117,7 @@ function submitCode(token, language, code, tags) {
   if (!ok) {
     submissionErrors.add(1, tags)
     console.warn(
-      `Submission failed: status=${res.status} lang=${language} body=${res.body}`
+      `Submission failed: status=${res.status} lang=${language} body=${res.body.substring(0, 500)}`
     )
   }
 
