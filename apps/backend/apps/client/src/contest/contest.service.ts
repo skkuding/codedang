@@ -1854,10 +1854,10 @@ export class ContestService {
             username: true
           }
         },
-        finalScore: true, //TODO: 현재 contestRecord의 acceptedProblemNum 대신 finalScore가 맞힌 문제 수.
+        finalScore: true, // TODO: 현재 contestRecord의 acceptedProblemNum 대신 finalScore가 맞힌 문제 수.
         finalTotalPenalty: true
       },
-      orderBy: [{ acceptedProblemNum: 'desc' }, { finalTotalPenalty: 'asc' }]
+      orderBy: [{ finalScore: 'desc' }, { finalTotalPenalty: 'asc' }]
     })
 
     const validRecords = contestRecords
