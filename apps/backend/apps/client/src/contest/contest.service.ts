@@ -498,17 +498,26 @@ export class ContestService {
       }
     }
 
-    let rank = 1
+    const ranks = this.calculateRanks(
+      contestRecords.map((r) => ({
+        solved: isFrozen ? r.score : r.finalScore,
+        penalty: isFrozen ? r.totalPenalty : r.finalTotalPenalty
+      }))
+    )
+
     const leaderboard = contestRecords.map(
-      ({
-        contestProblemRecord,
-        userId,
-        score,
-        finalScore,
-        totalPenalty,
-        finalTotalPenalty,
-        user
-      }) => {
+      (
+        {
+          contestProblemRecord,
+          userId,
+          score,
+          finalScore,
+          totalPenalty,
+          finalTotalPenalty,
+          user
+        },
+        index
+      ) => {
         const getSubmissionCount = (problemId: number) => {
           const map = isFrozen
             ? submissionCountMapBeforeFreeze
@@ -574,7 +583,7 @@ export class ContestService {
           userId,
           totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
           problemRecords,
-          rank: rank++
+          rank: ranks[index]
         }
       }
     )
