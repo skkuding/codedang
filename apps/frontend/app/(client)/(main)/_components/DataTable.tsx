@@ -29,9 +29,16 @@ interface DataTableProps<TData, TValue> {
   headerStyle: {
     [key: string]: string
   }
+  tableClassName?: string
+  headerClassName?: string
+  bodyClassName?: string
+  headerRowClassName?: string
+  headerCellClassName?: string
+  cellClassName?: string
   tableRowStyle?: string
   linked?: boolean
   emptyMessage?: string
+  emptyCellClassName?: string
   pathSegment?: string | null
 }
 
@@ -76,9 +83,16 @@ export function DataTable<TData extends Item, TValue>({
   columns,
   data,
   headerStyle,
+  tableClassName,
+  headerClassName,
+  bodyClassName,
+  headerRowClassName,
+  headerCellClassName,
+  cellClassName,
   tableRowStyle,
   linked = false,
   emptyMessage = 'No results.',
+  emptyCellClassName,
   pathSegment
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
@@ -90,16 +104,25 @@ export function DataTable<TData extends Item, TValue>({
   const router = useRouter()
 
   return (
-    <Table className="table-fixed border-b-[1.5px] border-[#80808040]">
-      <TableHeader>
+    <Table
+      className={cn(
+        'table-fixed border-b-[1.5px] border-[#80808040]',
+        tableClassName
+      )}
+    >
+      <TableHeader className={headerClassName}>
         {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow className="hover:bg-white" key={headerGroup.id}>
+          <TableRow
+            className={cn('hover:bg-white', headerRowClassName)}
+            key={headerGroup.id}
+          >
             {headerGroup.headers.map((header) => {
               return (
                 <TableHead
                   key={header.id}
                   className={cn(
                     'whitespace-nowrap border-b-[1.5px] border-[#80808040] text-center text-sm font-normal md:text-base',
+                    headerCellClassName,
                     headerStyle[header.id]
                   )}
                 >
@@ -115,7 +138,7 @@ export function DataTable<TData extends Item, TValue>({
           </TableRow>
         ))}
       </TableHeader>
-      <TableBody>
+      <TableBody className={bodyClassName}>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
             const href = pathSegment
@@ -137,7 +160,10 @@ export function DataTable<TData extends Item, TValue>({
                 }
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="align-top">
+                  <TableCell
+                    key={cell.id}
+                    className={cn('align-top', cellClassName)}
+                  >
                     {linked ? (
                       <Link
                         href={href as Route}
@@ -165,7 +191,10 @@ export function DataTable<TData extends Item, TValue>({
           })
         ) : (
           <TableRow>
-            <TableCell colSpan={columns.length} className="h-24 text-center">
+            <TableCell
+              colSpan={columns.length}
+              className={cn('h-24 text-center', emptyCellClassName)}
+            >
               {emptyMessage}
             </TableCell>
           </TableRow>

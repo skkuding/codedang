@@ -7,7 +7,7 @@ import { SortButton } from './SortButton'
 
 export const columns: ColumnDef<Problem>[] = [
   {
-    header: 'Title',
+    header: 'Question',
     accessorKey: 'title',
     cell: ({ row }) => {
       return (
@@ -32,6 +32,17 @@ export const columns: ColumnDef<Problem>[] = [
   {
     header: () => <SortButton order="acrate">Success Rate</SortButton>,
     accessorKey: 'acceptedRate',
-    cell: ({ row }) => `${(row.original.acceptedRate * 100).toFixed(2)}%`
+    cell: ({ row }) => {
+      const acceptedRate = row.original.acceptedRate * 100
+      let textStyle = 'text-[#1F1F1F]'
+
+      if (acceptedRate === 100) {
+        textStyle = 'text-primary'
+      } else if (acceptedRate === 0) {
+        textStyle = 'text-color-neutral-50'
+      }
+
+      return <span className={textStyle}>{`${acceptedRate.toFixed(2)}%`}</span>
+    }
   }
 ]
