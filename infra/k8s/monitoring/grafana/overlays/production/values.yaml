@@ -134,6 +134,11 @@ dashboards:
       datasource:
         - name: DS__VICTORIAMETRICS-PROD-ALL
           value: Prometheus
+    # RabbitMQ Overview - https://grafana.com/grafana/dashboards/10991
+    rabbitmq-overview:
+      gnetId: 10991
+      revision: 12
+      datasource: Prometheus
   # ── AWS CloudWatch (monitoringartist) ─────────
   aws-dashboards:
     # AWS RDS - https://grafana.com/grafana/dashboards/707
