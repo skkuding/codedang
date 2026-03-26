@@ -1854,7 +1854,7 @@ export class ContestService {
             username: true
           }
         },
-        acceptedProblemNum: true,
+        finalScore: true, //TODO: 현재 contestRecord의 acceptedProblemNum 대신 finalScore가 맞힌 문제 수.
         finalTotalPenalty: true
       },
       orderBy: [{ acceptedProblemNum: 'desc' }, { finalTotalPenalty: 'asc' }]
@@ -1865,7 +1865,7 @@ export class ContestService {
       .map((record) => ({
         userId: record.userId!,
         username: record.user!.username,
-        solved: record.acceptedProblemNum,
+        solved: record.finalScore,
         penalty: record.finalTotalPenalty
       }))
 
@@ -1919,7 +1919,7 @@ export class ContestService {
               username: true
             }
           },
-          acceptedProblemNum: true,
+          finalScore: true,
           finalTotalPenalty: true,
           contestProblemRecord: {
             select: {
@@ -1972,15 +1972,15 @@ export class ContestService {
       where: { contestId },
       select: {
         userId: true,
-        acceptedProblemNum: true,
+        finalScore: true,
         finalTotalPenalty: true
       },
-      orderBy: [{ acceptedProblemNum: 'desc' }, { finalTotalPenalty: 'asc' }]
+      orderBy: [{ finalScore: 'desc' }, { finalTotalPenalty: 'asc' }]
     })
 
     const ranks = this.calculateRanks(
       allRecords.map((r) => ({
-        solved: r.acceptedProblemNum,
+        solved: r.finalScore,
         penalty: r.finalTotalPenalty
       }))
     )
@@ -2104,7 +2104,7 @@ export class ContestService {
       user: {
         rank: userRank,
         username: contestRecord.user.username,
-        totalSolved: contestRecord.acceptedProblemNum,
+        totalSolved: contestRecord.finalScore,
         totalPenalty: contestRecord.finalTotalPenalty,
         problemAnalysis,
         timeline,
