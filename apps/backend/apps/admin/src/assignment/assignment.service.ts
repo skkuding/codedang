@@ -551,6 +551,8 @@ export class AssignmentService {
             },
             data: {
               sharedGroups: {
+                // TODO: 하나의 Group에 2개의 assignment가 있고 이 두 과제가 같은 문제를 공유하는 경우, 하나의 assignment에서 problem을 삭제하면 sharedGroups도 삭제되지만 실제로는 나머지 하나의 assignment에 포함되어있으므로 sharedGroups를 disconnect하면 안됨.
+                // TODO: 해당 Group의 하나의 assignment에만 포함되어있을 때 sharedGroups를 삭제하도록 수정해야함.
                 disconnect: [{ id: groupId }]
               }
             }
@@ -1013,6 +1015,10 @@ export class AssignmentService {
         }
       }
     })
+
+    if (problem.sharedGroups.length === 0) {
+      return []
+    }
 
     if (problem.createdById !== userId) {
       const leaderGroupIds = (
