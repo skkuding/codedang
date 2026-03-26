@@ -420,9 +420,28 @@ export class ProblemService {
       const hasShared = sharedGroupIds.some((v) =>
         new Set(leaderGroupIds).has(v)
       )
-      if (!hasShared && problem.createdById != userId) {
+      const contestProblem = await this.prisma.contestProblem.findFirst({
+        where: {
+          problemId: id,
+          contest: {
+            userContest: {
+              some: {
+                userId,
+                role: { in: [ContestRole.Admin, ContestRole.Manager] }
+              }
+            }
+          }
+        },
+        select: { id: true }
+      })
+      const hasContestPermission = contestProblem != null
+      if (
+        !hasShared &&
+        !hasContestPermission &&
+        problem.createdById != userId
+      ) {
         throw new ForbiddenException(
-          'User can only retrieve problems they created or were shared with'
+          'User can only retrieve problems they created, were shared with, or manage via contest role'
         )
       }
     }
