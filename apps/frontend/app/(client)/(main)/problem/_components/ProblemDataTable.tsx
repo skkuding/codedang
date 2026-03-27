@@ -74,24 +74,16 @@ export function ProblemDataTable<TData extends Item, TValue>({
         </div>
       </div>
       <div className="bg-background border-line mb-10 mt-5 w-full overflow-hidden rounded-[20px] border">
-        <Table className="table-fixed border-separate border-spacing-0">
-          <TableHeader className="bg-muted/30">
+        <Table className="table-fixed">
+          <TableHeader className="bg-background border-b-0">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow
-                key={headerGroup.id}
-                className="border-b hover:bg-transparent"
-              >
-                {headerGroup.headers.map((header, index) => {
-                  const isFirst = index === 0
-                  const isLast = index === headerGroup.headers.length - 1
-
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
                       className={cn(
-                        'border-line h-13 border-b px-5 py-2 text-center',
-                        isFirst && 'rounded-tl-[20px]',
-                        isLast && 'rounded-tr-[20px]',
+                        'bg-background h-13 px-5 py-2 text-center',
                         headerStyle[header.id]
                       )}
                     >
@@ -107,7 +99,7 @@ export function ProblemDataTable<TData extends Item, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="[&_tr:last-child]:border-b-0">
+          <TableBody className="[&_tr:last-child>td]:border-b-0">
             {paginatedItems.length ? (
               paginatedItems.map((row) => {
                 const href =
@@ -125,13 +117,13 @@ export function ProblemDataTable<TData extends Item, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className="border-line h-16 cursor-pointer border-b hover:bg-transparent"
+                    className="border-line h-16 cursor-pointer border-b-[1px] hover:bg-transparent"
                     onClick={handleClick}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="border-line h-16 px-5 py-0 align-middle"
+                        className="border-line h-16 border-b-[1px] px-5 py-0 align-middle"
                       >
                         {linked ? (
                           <Link

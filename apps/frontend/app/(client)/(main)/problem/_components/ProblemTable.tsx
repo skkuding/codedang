@@ -79,10 +79,14 @@ function ProblemPaginatedTable({
         currentPage={currentPage}
         search={search}
         headerStyle={{
-          title: 'text-body1_m_16',
-          difficulty: 'text-body1_m_16 w-48',
-          submissionCount: 'text-body1_m_16 w-48',
-          acceptedRate: 'text-body1_m_16 w-48'
+          title:
+            'shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] rounded-l-full px-5 text-body1_m_16 text-color-neutral-30',
+          difficulty:
+            'shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] w-48 px-5 text-body1_m_16 text-color-neutral-30',
+          submissionCount:
+            'shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] w-48 px-5 text-body1_m_16 text-color-neutral-30',
+          acceptedRate:
+            'shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] rounded-r-full w-48 px-5 text-body1_m_16 text-color-neutral-30'
         }}
         linked
       />
