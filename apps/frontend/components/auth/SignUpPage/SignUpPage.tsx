@@ -16,7 +16,7 @@ export function SignUpField({
   placeholder
 }: SignUpFieldProps) {
   return (
-    <div className="flex w-full flex-col gap-2">
+    <div className="flex w-full flex-col gap-1">
       <label className="text-caption2_m_12">{label}</label>
       <input
         type={type}
@@ -68,7 +68,7 @@ export function SignUpPage() {
     <div className="flex w-[500px] flex-col items-start rounded-[20px] border border-[#DCE3E5] bg-white px-6 py-7 shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
       <div className="flex w-full flex-col gap-[48px]">
         <div className="flex w-full flex-col gap-5">
-          <p className="text-[24px] font-semibold text-black">회원가입</p>
+          <p className="text-head5_sb_24">회원가입</p>
           <div className="flex w-full flex-col gap-6">
             <SignUpField label="이름" type="text" placeholder="이름" />
             <SignUpField
