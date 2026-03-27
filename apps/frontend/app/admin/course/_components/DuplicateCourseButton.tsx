@@ -3,8 +3,8 @@
 import { AlertModal } from '@/components/AlertModal'
 import { ModalSection } from '@/components/ModalSection'
 import { Button } from '@/components/shadcn/button'
-import { DUPLICATE_COURSE } from '@/graphql/course/mutation'
-import { useMutation } from '@apollo/client'
+// eslint-disable-next-line no-restricted-imports
+import { useMutation, gql } from '@apollo/client'
 import { useState } from 'react'
 import { GoAlertFill } from 'react-icons/go'
 import { IoCopy } from 'react-icons/io5'
@@ -19,7 +19,29 @@ export function DuplicateCourseButton({
   onSuccess
 }: DuplicateCourseButtonProps) {
   const { table } = useDataTable<{ id: number; title: string }>()
-  const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
+  const [duplicateCourse] = useMutation<
+    unknown,
+    {
+      groupId: number
+      input: {
+        classNum: number
+        courseNum: string
+        semester: string
+      }
+    }
+  >(gql`
+    mutation duplicateCourseRemote(
+      $groupId: Int!
+      $input: DuplicateCourseInput!
+    ) {
+      duplicateCourse(groupId: $groupId, input: $input) {
+        duplicatedCourse {
+          id
+          groupName
+        }
+      }
+    }
+  `)
   const selectedCount = table.getSelectedRowModel().rows.length
   const canDuplicate = selectedCount === 1
 

@@ -41,59 +41,64 @@ export function DataTablePagination({
   )
 
   return (
-    <div className="relative flex items-center justify-between px-2">
+    <div className="relative flex h-10 items-center justify-between px-2">
       <div className="flex items-center text-xs text-neutral-600">
         {showSelection &&
           `${table.getFilteredSelectedRowModel().rows.length} of${' '}
           ${table.getFilteredRowModel().rows.length} row(s) selected`}
       </div>
-      <div className="absolute left-1/2 flex -translate-x-1/2 transform gap-[33px]">
+      <div className="absolute left-1/2 flex min-w-0 shrink -translate-x-1/2 items-center sm:gap-[30px]">
         <button
           type="button"
-          className="mr-[10px] flex items-center justify-center text-neutral-600 disabled:text-neutral-300"
+          className="relative flex h-6 w-6 shrink-0 items-center justify-center text-neutral-600 disabled:text-neutral-300"
           disabled={!table.getCanPreviousPage()}
           onClick={() => {
             table.previousPage()
           }}
         >
           {!table.getCanPreviousPage() && (
-            <div className="absolute z-0 h-6 w-6 rounded-full bg-[#C4C4C4]" />
+            <div className="absolute inset-0 rounded-full bg-[#C4C4C4]" />
           )}
           <FaCirclePlay
             color={table.getCanPreviousPage() ? '#3581FA' : '#EBEBEB'}
-            className="z-10 h-6 w-6 rotate-180"
+            className="relative z-10 h-full w-full rotate-180"
           />
         </button>
-        {pages.map((pageNumber) => (
-          <button
-            key={pageNumber}
-            type="button"
-            className={cn(
-              'text-base font-medium text-[#8A8A8A]',
-              table.getState().pagination.pageIndex === pageNumber - 1 &&
-                'text-primary-strong'
-            )}
-            onClick={() => {
-              table.setPageIndex(pageNumber - 1)
-            }}
-          >
-            {pageNumber}
-          </button>
-        ))}
+
+        <div className="flex min-w-0 items-center">
+          {pages.map((pageNumber) => (
+            <button
+              key={pageNumber}
+              type="button"
+              className={cn(
+                'flex h-[40px] items-center justify-center p-[8px] text-sm font-medium transition-colors',
+                'min-w-[42px]',
+                'text-base font-medium text-[#8A8A8A]',
+                table.getState().pagination.pageIndex === pageNumber - 1 &&
+                  'text-primary-strong'
+              )}
+              onClick={() => {
+                table.setPageIndex(pageNumber - 1)
+              }}
+            >
+              {pageNumber}
+            </button>
+          ))}
+        </div>
         <button
           type="button"
-          className="ml-[10px] flex items-center justify-center text-neutral-600 disabled:text-neutral-300"
+          className="relative flex h-6 w-6 shrink-0 items-center justify-center text-neutral-600 disabled:text-neutral-300"
           disabled={!table.getCanNextPage()}
           onClick={() => {
             table.nextPage()
           }}
         >
           {!table.getCanNextPage() && (
-            <div className="absolute z-0 h-6 w-6 rounded-full bg-[#C4C4C4]" />
+            <div className="absolute inset-0 z-0 rounded-full bg-[#C4C4C4]" />
           )}
           <FaCirclePlay
             color={table.getCanNextPage() ? '#3581FA' : '#EBEBEB'}
-            className="z-10 h-6 w-6"
+            className="z-10 h-full w-full"
           />
         </button>
       </div>
