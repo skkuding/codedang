@@ -44,7 +44,7 @@ export function CourseCardList({ title }: CourseCardListProps) {
           {title}
           <RegisterCourseButton />
         </div>
-        <div className="flex h-72 w-full flex-col items-center justify-center rounded-[20px] border border-[#DFDFDF] text-xl font-normal text-[#737373]">
+        <div className="mb-20 flex h-60 w-full flex-col items-center justify-center rounded-[20px] border border-[#DFDFDF] text-xl font-normal text-[#737373]">
           <p>There are no courses registered!</p>
           <p>
             Please click the register button at the top to enroll in a course.
