@@ -29,16 +29,9 @@ interface DataTableProps<TData, TValue> {
   headerStyle: {
     [key: string]: string
   }
-  tableClassName?: string
-  headerClassName?: string
-  bodyClassName?: string
-  headerRowClassName?: string
-  headerCellClassName?: string
-  cellClassName?: string
   tableRowStyle?: string
   linked?: boolean
   emptyMessage?: string
-  emptyCellClassName?: string
   pathSegment?: string | null
 }
 
@@ -83,16 +76,9 @@ export function DataTable<TData extends Item, TValue>({
   columns,
   data,
   headerStyle,
-  tableClassName,
-  headerClassName,
-  bodyClassName,
-  headerRowClassName,
-  headerCellClassName,
-  cellClassName,
   tableRowStyle,
   linked = false,
   emptyMessage = 'No results.',
-  emptyCellClassName,
   pathSegment
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
@@ -104,25 +90,16 @@ export function DataTable<TData extends Item, TValue>({
   const router = useRouter()
 
   return (
-    <Table
-      className={cn(
-        'table-fixed border-b-[1.5px] border-[#80808040]',
-        tableClassName
-      )}
-    >
-      <TableHeader className={headerClassName}>
+    <Table className="table-fixed border-b-[1.5px] border-[#80808040]">
+      <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow
-            className={cn('hover:bg-white', headerRowClassName)}
-            key={headerGroup.id}
-          >
+          <TableRow className="hover:bg-white" key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
                 <TableHead
                   key={header.id}
                   className={cn(
-                    'whitespace-nowrap border-b-[1.5px] border-[#80808040] text-center text-sm font-normal md:text-base',
-                    headerCellClassName,
+                    'whitespace-nowrap border-b-[1.5px] border-[#80808040] text-center text-base font-medium',
                     headerStyle[header.id]
                   )}
                 >
@@ -138,7 +115,7 @@ export function DataTable<TData extends Item, TValue>({
           </TableRow>
         ))}
       </TableHeader>
-      <TableBody className={bodyClassName}>
+      <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
             const href = pathSegment
@@ -160,10 +137,7 @@ export function DataTable<TData extends Item, TValue>({
                 }
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className={cn('align-top', cellClassName)}
-                  >
+                  <TableCell key={cell.id} className="align-top">
                     {linked ? (
                       <Link
                         href={href as Route}
@@ -191,10 +165,7 @@ export function DataTable<TData extends Item, TValue>({
           })
         ) : (
           <TableRow>
-            <TableCell
-              colSpan={columns.length}
-              className={cn('h-24 text-center', emptyCellClassName)}
-            >
+            <TableCell colSpan={columns.length} className="h-24 text-center">
               {emptyMessage}
             </TableCell>
           </TableRow>

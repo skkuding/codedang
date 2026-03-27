@@ -73,34 +73,41 @@ export function ProblemDataTable<TData extends Item, TValue>({
           <SearchBar className="w-60" />
         </div>
       </div>
-      <div className="mb-10 mt-5 w-full overflow-hidden rounded-[20px] bg-white">
-        <Table className="border-line table-fixed border-separate border-spacing-0 border-b">
-          <TableHeader className="overflow-hidden">
+      <div className="bg-background border-line mb-10 mt-5 w-full overflow-hidden rounded-[20px] border">
+        <Table className="table-fixed border-separate border-spacing-0">
+          <TableHeader className="bg-muted/30">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
-                className="border-line h-13 hover:bg-white"
                 key={headerGroup.id}
+                className="border-b hover:bg-transparent"
               >
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className={cn(
-                      'border-line h-13 text-body1_m_16 text-color-cool-neutral-30 bg-white px-5 py-[9px] first:rounded-l-xl last:rounded-r-xl',
-                      headerStyle[header.id]
-                    )}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header, index) => {
+                  const isFirst = index === 0
+                  const isLast = index === headerGroup.headers.length - 1
+
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className={cn(
+                        'border-line h-13 border-b px-5 py-2 text-center',
+                        isFirst && 'rounded-tl-[20px]',
+                        isLast && 'rounded-tr-[20px]',
+                        headerStyle[header.id]
+                      )}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  )
+                })}
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="[&_tr:last-child]:border-line [&_tr:last-child]:border-b">
+          <TableBody className="[&_tr:last-child]:border-b-0">
             {paginatedItems.length ? (
               paginatedItems.map((row) => {
                 const href =
@@ -118,13 +125,13 @@ export function ProblemDataTable<TData extends Item, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className="border-line h-18 cursor-pointer border-b hover:bg-transparent"
+                    className="border-line h-16 cursor-pointer border-b hover:bg-transparent"
                     onClick={handleClick}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="border-line h-18 px-5 py-0 align-middle"
+                        className="border-line h-16 px-5 py-0 align-middle"
                       >
                         {linked ? (
                           <Link

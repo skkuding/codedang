@@ -79,10 +79,10 @@ function ProblemPaginatedTable({
         currentPage={currentPage}
         search={search}
         headerStyle={{
-          title: 'w-3/6',
-          difficulty: 'w-1/6',
-          submissionCount: 'w-1/6',
-          acceptedRate: 'w-1/6'
+          title: 'text-body1_m_16',
+          difficulty: 'text-body1_m_16 w-48',
+          submissionCount: 'text-body1_m_16 w-48',
+          acceptedRate: 'text-body1_m_16 w-48'
         }}
         linked
       />
