@@ -1,6 +1,5 @@
 'use client'
 
-import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { problemQueries } from '@/app/(client)/_libs/queries/problem'
 import {
   PageNavigation,
@@ -12,8 +11,8 @@ import { getTakeQueryParam, usePagination } from '@/libs/hooks/usePaginationV2'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import { SearchBar } from '../../_components/SearchBar'
 import { columns } from './Columns'
+import { ProblemDataTable } from './ProblemDataTable'
 
 const ITEMS_PER_PAGE = 10
 const PAGES_PER_SLOT = 10
@@ -55,7 +54,6 @@ function ProblemPaginatedTable({
   )
 
   const {
-    paginatedItems,
     currentPage,
     firstPage,
     lastPage,
@@ -73,38 +71,22 @@ function ProblemPaginatedTable({
 
   return (
     <div className="flex w-full flex-col items-center">
-      <div className="flex w-full items-center justify-between">
-        <div className="flex items-center justify-start gap-2">
-          <p className="text-head3_sb_28">등록된 문제</p>
-          <p className="text-head3_sb_28 text-primary">{data.total}</p>
-        </div>
-        <div className="flex items-center justify-start gap-2">
-          <SearchBar className="w-60" />
-        </div>
-      </div>
-      <div className="mb-10 mt-5 w-full overflow-hidden rounded-[20px] bg-white">
-        <DataTable
-          data={paginatedItems}
-          columns={columns}
-          tableClassName="border-line border-separate border-spacing-0"
-          headerClassName="border-line overflow-hidden rounded-[1000px] border-b"
-          bodyClassName="[&_tr:last-child]:border-b [&_tr:last-child]:border-line"
-          headerRowClassName="h-12"
-          headerCellClassName="border-line h-12 bg-white px-5 py-2 text-body1_m_16 text-color-cool-neutral-30 first:rounded-l-[1000px] last:rounded-r-[1000px]"
-          cellClassName="border-line h-16 px-5 py-0 align-middle"
-          tableRowStyle="border-line h-16 border-b hover:bg-transparent"
-          emptyCellClassName="border-line h-16 align-middle"
-          headerStyle={{
-            title: 'w-4/12',
-            difficulty: 'w-2/12',
-            submissionCount: 'w-3/12',
-            acceptedRate: 'w-2/12',
-            info: 'w-1/12'
-          }}
-          linked
-        />
-      </div>
-      <Paginator contentClassName="gap-7 py-0">
+      <ProblemDataTable
+        data={data.data}
+        total={data.total}
+        columns={columns}
+        itemsPerPage={ITEMS_PER_PAGE}
+        currentPage={currentPage}
+        search={search}
+        headerStyle={{
+          title: 'w-3/6',
+          difficulty: 'w-1/6',
+          submissionCount: 'w-1/6',
+          acceptedRate: 'w-1/6'
+        }}
+        linked
+      />
+      <Paginator contentClassName="flex gap-[30px] items-center py-0">
         <SlotNavigation
           direction="prev"
           gotoSlot={gotoSlot}
@@ -116,9 +98,9 @@ function ProblemPaginatedTable({
           lastPage={lastPage}
           currentPage={currentPage}
           gotoPage={gotoPage}
-          buttonClassName="h-10 min-w-10 rounded-full px-2 text-base font-medium tracking-wide"
-          activeButtonClassName="bg-[#EDF4FF] text-primary hover:bg-[#EDF4FF]"
-          inactiveButtonClassName="text-[#737373] hover:bg-transparent"
+          buttonClassName="h-10 min-w-10 rounded-[45px] p-2 text-base font-medium font-['Roboto'] leading-4 tracking-wide"
+          activeButtonClassName="text-primary"
+          inactiveButtonClassName="text-neutral-60"
         />
         <SlotNavigation
           direction="next"
