@@ -17,8 +17,8 @@ import { PiMagnifyingGlassFill, PiWrenchFill } from 'react-icons/pi'
 import { CheckerPage } from './CheckerPage'
 import { CollaborationPage } from './CollaborationPage'
 import { GeneratorPage } from './GeneratorPage'
-import { JudgePage } from './JudgePage'
 import { ProblemCreateContentSkeleton } from './ProblemCreateSkeletons'
+import { SolutionPage } from './SolutionPage'
 import { StatementPage } from './StatementPage'
 import { TestsPage } from './TestsPage'
 import { UploadButton } from './UploadButton'
@@ -58,7 +58,7 @@ export function ProblemCreateContainer() {
       label: 'Solution',
       text: '솔루션',
       subText: '솔루션 업로드 및 테스트 검증',
-      Component: JudgePage
+      Component: SolutionPage
     },
     {
       Icon: PiWrenchFill,
@@ -162,7 +162,7 @@ export function ProblemCreateContainer() {
         </div>
       </div>
       <div className="flex gap-10">
-        <div className="border-1 border-color-cool-neutral-90 flex h-fit w-72 flex-col rounded-2xl bg-white p-2">
+        <div className="border-1 border-color-cool-neutral-90 flex h-fit w-72 flex-col rounded-xl bg-white p-2">
           {TAB_INFO.map(({ Icon, label, text, subText }) => {
             const curTab = tab === label
 
