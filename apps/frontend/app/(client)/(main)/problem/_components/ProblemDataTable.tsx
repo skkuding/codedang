@@ -109,7 +109,7 @@ export function ProblemDataTable<TData extends Item, TValue>({
                   ? () => {
                       router.push(href)
                     }
-                  : (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                  : (e: React.MouseEvent<HTMLTableRowElement>) => {
                       e.currentTarget.classList.toggle('expanded')
                     }
 
