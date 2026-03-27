@@ -57,7 +57,7 @@ func (t *Task) RunAction(ctx context.Context, resultSender handler.ResultSender2
 		return
 	}
 
-	tc, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), false)
+	tc, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), testcase.PUBLIC_ONLY)
 	if err != nil {
 		resultSender(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("validate", handler.TESTCASE_ERROR, logger.ERROR, fmt.Errorf("get testcase failed: %w", err))})
 		return

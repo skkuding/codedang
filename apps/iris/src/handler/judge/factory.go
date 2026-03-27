@@ -41,7 +41,10 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 		return nil, handler.NewTaskError("judge", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("validation failed: %w", err))
 	}
 
-	hidden := true // Judge requests always contain hidden testcases
+	tcFilter := testcase.TestcaseFilterCode(testcase.ALL)
+	if validReq.JudgeOnlyHiddenTestcases {
+		tcFilter = testcase.HIDDEN_ONLY
+	}
 
 	buildUnits := []*build.BuildUnit{
 		{
@@ -53,7 +56,7 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 
 	task := &Task{
 		req:        validReq,
-		hidden:     hidden,
+		tcFilter:   tcFilter,
 		buildUnits: buildUnits,
 		tcManager:  f.tcManager,
 		sandbox:    f.sandbox,

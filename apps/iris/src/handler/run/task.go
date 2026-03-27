@@ -23,7 +23,7 @@ import (
 
 type Task struct {
 	req        *RunRequest
-	hidden     bool
+	tcFilter   testcase.TestcaseFilterCode
 	buildUnits []*build.BuildUnit
 	tcManager  testcase.TestcaseManager
 	sandbox    sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
@@ -38,7 +38,7 @@ func (t *Task) GetDebugString() string {
 	if t.req == nil {
 		return "run.Task{req:nil}"
 	}
-	return fmt.Sprintf("run.Task{problemId:%d,language:%s,hidden:%t}", t.req.ProblemId, t.req.Language, t.hidden)
+	return fmt.Sprintf("run.Task{problemId:%d,language:%s,tcFilter:%d}", t.req.ProblemId, t.req.Language, t.tcFilter)
 }
 
 func (t *Task) GetBuildUnits() []*build.BuildUnit {
@@ -52,23 +52,13 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Ru
 	if validReq.UserTestcases != nil {
 		tc = testcase.Testcase{Elements: *validReq.UserTestcases}
 	} else {
-		res, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), t.hidden)
+		res, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), t.tcFilter)
 		if err != nil {
 			sendResult(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("run", handler.TESTCASE_ERROR, logger.ERROR, fmt.Errorf("get testcase failed: %w", err))})
 			return
 		}
 
 		tc = res
-
-		if validReq.JudgeOnlyHiddenTestcases {
-			hiddenTestcases := make([]loader.ElementOut, 0)
-			for _, testcase := range tc.Elements {
-				if testcase.Hidden {
-					hiddenTestcases = append(hiddenTestcases, testcase)
-				}
-			}
-			tc = testcase.Testcase{Elements: hiddenTestcases}
-		}
 	}
 
 	tcId, tcNum := 0, len(tc.Elements)

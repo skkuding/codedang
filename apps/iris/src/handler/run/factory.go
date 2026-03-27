@@ -41,12 +41,16 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 		return nil, handler.NewTaskError("run", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("validation failed: %w", err))
 	}
 
-	hidden := false
+	var tcFilter testcase.TestcaseFilterCode
 	switch taskType {
 	case "run":
-		hidden = validReq.ContainHiddenTestcases
+		if validReq.ContainHiddenTestcases {
+			tcFilter = testcase.ALL
+		} else {
+			tcFilter = testcase.PUBLIC_ONLY
+		}
 	case "userTestCase":
-		hidden = false
+		tcFilter = testcase.PUBLIC_ONLY
 	default:
 		return nil, handler.NewTaskError("run", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("unknown taskType: %s", taskType))
 	}
@@ -61,7 +65,7 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 
 	task := &Task{
 		req:        validReq,
-		hidden:     hidden,
+		tcFilter:   tcFilter,
 		buildUnits: buildUnits,
 		tcManager:  f.tcManager,
 		sandbox:    f.sandbox,
