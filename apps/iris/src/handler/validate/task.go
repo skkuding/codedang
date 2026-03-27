@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"sync"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
@@ -85,12 +85,6 @@ func (t *Task) RunAction(ctx context.Context, resultSender handler.ResultSender2
 	}
 }
 
-type validateTcResult struct {
-	id       int
-	isValid  bool
-	infraErr error
-}
-
 func (t *Task) runValidations(
 	ctx context.Context,
 	validatorUnit *build.BuildUnit,
@@ -102,40 +96,43 @@ func (t *Task) runValidations(
 		concurrencyLimit = 4
 	}
 
+	g, gCtx := errgroup.WithContext(ctx)
 	sem := make(chan struct{}, concurrencyLimit)
-	var wg sync.WaitGroup
-	resultsCh := make(chan validateTcResult, len(elements))
+	results := make([]ValidateTestcaseResult, len(elements))
+	errs := make([]error, len(elements))
 
-	for i, tElement := range elements {
-		wg.Add(1)
-		go func(idx int, element loader.ElementOut) {
-			defer wg.Done()
-			t.validateTestcase(ctx, idx, element, validatorUnit, sem, resultsCh)
-		}(i, tElement)
+	for i, el := range elements {
+		g.Go(func() error {
+			select {
+			case sem <- struct{}{}:
+			case <-gCtx.Done():
+				return nil
+			}
+			defer func() { <-sem }()
+			isValid, err := t.validateTestcase(gCtx, i, el, validatorUnit)
+			if err != nil {
+				errs[i] = err
+				return nil
+			}
+			results[i] = ValidateTestcaseResult{Id: el.Id, IsValid: isValid}
+			return nil
+		})
+	}
+	g.Wait() //nolint:errcheck // goroutines always return nil
+
+	var firstInfraErr error
+	for _, e := range errs {
+		if e != nil {
+			firstInfraErr = e
+			break
+		}
 	}
 
-	go func() {
-		wg.Wait()
-		close(resultsCh)
-	}()
-
 	allValid := true
-	results := make([]ValidateTestcaseResult, len(elements))
-	var firstInfraErr error
-
-	for r := range resultsCh {
-		if r.infraErr != nil {
-			if firstInfraErr == nil {
-				firstInfraErr = r.infraErr
-			}
-			continue
-		}
-		results[r.id] = ValidateTestcaseResult{
-			Id:      elements[r.id].Id,
-			IsValid: r.isValid,
-		}
-		if !r.isValid {
+	for _, r := range results {
+		if r.Id != 0 && !r.IsValid {
 			allValid = false
+			break
 		}
 	}
 
@@ -147,54 +144,35 @@ func (t *Task) validateTestcase(
 	idx int,
 	element loader.ElementOut,
 	validatorUnit *build.BuildUnit,
-	sem chan struct{},
-	resultsCh chan<- validateTcResult,
-) {
+) (isValid bool, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			resultsCh <- validateTcResult{
-				id:       idx,
-				infraErr: fmt.Errorf("panic in validate TC %d: %v", idx, r),
-			}
+			err = fmt.Errorf("panic in validate TC %d: %v", idx, r)
 		}
 	}()
 
-	select {
-	case sem <- struct{}{}:
-	case <-ctx.Done():
-		resultsCh <- validateTcResult{
-			id:       idx,
-			infraErr: fmt.Errorf("context canceled before validation: %w", ctx.Err()),
-		}
-		return
-	}
-	defer func() { <-sem }()
-
-	runResult, err := validatorUnit.Run(t.sandbox, sandbox.RunRequest{
+	runResult, runErr := validatorUnit.Run(t.sandbox, sandbox.RunRequest{
 		Order:       idx,
 		TimeLimit:   2000,
 		MemoryLimit: 512 * 1024 * 1024,
 		ExtraArgs:   []string{},
 	}, []byte(element.In))
 
-	if err != nil {
-		t.logger.Log(logger.ERROR, fmt.Sprintf("Error while validating testcase: %s", err.Error()))
-		resultsCh <- validateTcResult{id: idx, infraErr: err}
-		return
+	if runErr != nil {
+		t.logger.Log(logger.ERROR, fmt.Sprintf("Error while validating testcase: %s", runErr.Error()))
+		return false, runErr
 	}
 
 	if runResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 		t.logger.Log(logger.ERROR, fmt.Sprintf("Validator execution failed at testcase %d", idx))
-		resultsCh <- validateTcResult{id: idx, infraErr: fmt.Errorf("validator execution failed")}
-		return
+		return false, fmt.Errorf("validator execution failed")
 	}
 
-	isValid := runResult.ExecResult.ExitCode == 0
+	isValid = runResult.ExecResult.ExitCode == 0
 	if !isValid {
 		t.logger.Log(logger.INFO, fmt.Sprintf("Validation failed at testcase %d", idx))
 	}
-
-	resultsCh <- validateTcResult{id: idx, isValid: isValid}
+	return isValid, nil
 }
 
 
