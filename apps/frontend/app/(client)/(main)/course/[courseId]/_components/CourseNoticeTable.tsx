@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
+<<<<<<< HEAD
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import ArrowDownIcon from '@/public/icons/arrow-down.svg'
 import type {
@@ -19,6 +20,15 @@ import type {
 } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
+=======
+import { cn } from '@/libs/utils'
+import arrowDownIcon from '@/public/icons/arrow-down.svg'
+import type { CourseNoticeListItem } from '@/types/type'
+import { useQuery } from '@tanstack/react-query'
+import Image from 'next/image'
+import { useMemo, useState } from 'react'
+import { mockCourseNotices } from '../notice/_components/mock'
+>>>>>>> 534d850e1 (feat(fe): make notice frame)
 import {
   courseNoticeColumns,
   type CourseNoticeRow
@@ -47,6 +57,7 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
   }
 
   const { data: notices = [] } = useQuery<CourseNoticeListItem[]>({
+<<<<<<< HEAD
     queryKey: ['courseNotices', courseId],
     queryFn: async () => {
       const [fixedRes, normalRes] = await Promise.all([
@@ -85,6 +96,27 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
         .map((n, i) => [n.id, i + 1])
     )
     return [...filtered]
+=======
+    queryKey: ['courseNotices', courseId, filterType, orderType],
+    queryFn: () => mockCourseNotices,
+    enabled: Boolean(courseId),
+    retry: false
+  })
+
+  const tableData: CourseNoticeRow[] = useMemo(() => {
+    const filteredNotices =
+      filterType === 'unread'
+        ? notices.filter((notice) => !notice.isRead)
+        : notices
+
+    const noMap = new Map(
+      [...filteredNotices]
+        .sort((a, b) => getTime(a) - getTime(b))
+        .map((notice, index) => [notice.id, index + 1])
+    )
+
+    return [...filteredNotices]
+>>>>>>> 534d850e1 (feat(fe): make notice frame)
       .sort((a, b) => {
         if (a.isFixed !== b.isFixed) {
           return a.isFixed ? -1 : 1
@@ -93,6 +125,7 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
           ? getTime(a) - getTime(b)
           : getTime(b) - getTime(a)
       })
+<<<<<<< HEAD
       .map((n) => ({
         id: n.id,
         no: String(noMap.get(n.id) ?? 0).padStart(2, '0'),
@@ -101,6 +134,16 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
         date: n.createTime ?? n.updateTime ?? '',
         isRead: n.isRead,
         isFixed: n.isFixed
+=======
+      .map((notice) => ({
+        id: notice.id,
+        no: String(noMap.get(notice.id) ?? 0).padStart(2, '0'),
+        title: notice.title,
+        createdBy: notice.createdBy ?? 'Unknown',
+        date: notice.createTime ?? notice.updateTime ?? '',
+        isRead: notice.isRead,
+        isFixed: notice.isFixed
+>>>>>>> 534d850e1 (feat(fe): make notice frame)
       }))
   }, [notices, filterType, orderType])
 
@@ -121,16 +164,31 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
+<<<<<<< HEAD
                 className="text-color-neutral-50 w-30 border-line flex h-[46px] items-center justify-center gap-2 rounded-full border bg-white text-sm font-medium leading-[22.4px] tracking-[-0.48px] outline-none"
               >
                 <span>{orderLabel}</span>
                 <ArrowDownIcon className="h-4 w-4" />
+=======
+                className="flex h-[46px] min-w-[108px] items-center justify-center gap-2 rounded-full border bg-white text-sm leading-[22.4px] text-neutral-500 outline-none"
+              >
+                <span>{orderLabel}</span>
+                <Image
+                  src={arrowDownIcon}
+                  alt="arrow down"
+                  className="h-4 w-4"
+                />
+>>>>>>> 534d850e1 (feat(fe): make notice frame)
               </button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
               align="end"
+<<<<<<< HEAD
               className="border-line min-w-[108px] rounded-[16px] border bg-white p-1"
+=======
+              className="border-neutral-95 min-w-[108px] rounded-[16px] border bg-white p-1"
+>>>>>>> 534d850e1 (feat(fe): make notice frame)
             >
               <DropdownMenuItem
                 onClick={() => setOrderType('latest')}
@@ -147,14 +205,22 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
             </DropdownMenuContent>
           </DropdownMenu>
 
+<<<<<<< HEAD
           <div className="border-line flex h-[46px] w-[250px] items-center rounded-full border bg-white p-[5px]">
+=======
+          <div className="flex h-[46px] items-center rounded-full border p-[5px]">
+>>>>>>> 534d850e1 (feat(fe): make notice frame)
             {(['all', 'unread'] as const).map((type) => (
               <button
                 key={type}
                 type="button"
                 onClick={() => setFilterType(type)}
                 className={cn(
+<<<<<<< HEAD
                   'text-body1_m_16 w-30 flex h-9 items-center justify-center rounded-full',
+=======
+                  'text-body1_m_16 h-9 rounded-full px-8 py-[6px]',
+>>>>>>> 534d850e1 (feat(fe): make notice frame)
                   filterType === type
                     ? 'bg-primary text-white'
                     : 'text-[#808080]'
