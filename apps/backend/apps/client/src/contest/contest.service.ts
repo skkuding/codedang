@@ -407,7 +407,7 @@ export class ContestService {
     )
     const maxScore = sum._sum?.score ?? 0
 
-    const records = await this.prisma.contestRecord.findMany({
+    const recordsPromise = this.prisma.contestRecord.findMany({
       where: { contestId },
       select: {
         userId: true,
@@ -454,8 +454,8 @@ export class ContestService {
         })
       : Promise.resolve(undefined)
 
-    const [, beforeFreezeSubmissionCounts] = await Promise.all([
-      records,
+    const [records, beforeFreezeSubmissionCounts] = await Promise.all([
+      recordsPromise,
       beforeFreezePromise
     ])
 
@@ -593,10 +593,21 @@ export class ContestService {
     })
 
     let currentRank = 1
-    const rankedLeaderboard = leaderboard.map((record) => ({
-      ...record,
-      rank: currentRank++
-    }))
+    const rankedLeaderboard = leaderboard.map((record, index) => {
+      if (index > 0) {
+        const prevRecord = leaderboard[index - 1]
+        if (
+          record.solvedProblemCount !== prevRecord.solvedProblemCount ||
+          record.totalPenalty !== prevRecord.totalPenalty
+        ) {
+          currentRank = index + 1
+        }
+      }
+      return {
+        ...record,
+        rank: currentRank
+      }
+    })
 
     //필터
     const filteredLeaderboard = search

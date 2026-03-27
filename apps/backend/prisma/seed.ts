@@ -4868,40 +4868,45 @@ const createContestRecords = async () => {
   const testData = [
     {
       // user02 (2등) 3솔
-      scores: [50, 60, 70, 0],
-      penalties: [30, 30, 40, 0]
+      scores: [50, 60, 70, 0], //180점
+      penalties: [30, 30, 40, 0] //100
     },
     {
       // user03 (1등) 4솔
-      scores: [50, 60, 70, 80],
-      penalties: [15, 100, 55, 200]
+      scores: [50, 60, 70, 80], //260
+      penalties: [15, 100, 55, 200] //370
     },
     {
       // user04 (3등) 3솔
-      scores: [0, 60, 70, 80],
-      penalties: [0, 150, 20, 300]
+      scores: [0, 60, 70, 80], //210
+      penalties: [0, 150, 20, 300] //470
     },
     {
-      // user05 (5등) 2솔
-      scores: [0, 0, 70, 80],
-      penalties: [0, 0, 150, 100]
+      // user05 (6등) 2솔
+      scores: [0, 0, 70, 80], //150
+      penalties: [0, 0, 150, 100] //250
     },
     {
-      //user06 (6등) 1솔
-      scores: [50, 0, 70, 0],
-      penalties: [100, 0, 150, 0]
+      //user06 (7등) 1솔
+      scores: [0, 0, 70, 0], //70
+      penalties: [0, 0, 150, 0] //150
     },
     {
-      //user07 (4등) 2솔
-      scores: [50, 60, 0, 0],
-      penalties: [20, 35, 0, 0]
+      //user07 (공동 4등) 2솔
+      scores: [50, 60, 0, 0], //110
+      penalties: [20, 35, 0, 0] //55
+    },
+    {
+      //user08 (공동 4등) 2솔
+      scores: [0, 60, 70, 0], //130
+      penalties: [0, 35, 20, 0] //55
     }
   ]
 
   const contest7Records: ContestRecord[] = []
 
   //contestRecord 생성 (유저별로 하나씩)
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 7; i++) {
     let totalScore = 0
     let totalPenalty = 0
     let acceptedProblemNum = 0
@@ -4965,7 +4970,7 @@ const createContestRecords = async () => {
 
     contest7Records.push(updated)
   }
-  return contestRecords
+  return contestRecords.concat(contest7Records)
 }
 
 const createUserContests = async () => {
