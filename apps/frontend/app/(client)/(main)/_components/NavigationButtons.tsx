@@ -10,26 +10,39 @@ export function NavigationButtons() {
     <div className="flex w-full justify-center gap-[5px]">
       <Link href={'/notice'}>
         <div className="flex h-[98px] w-[80px] flex-col items-center justify-center gap-[2px] rounded-sm bg-white hover:shadow-md">
-          <Image src={notification} alt="Notification" width={27} height={33} />
-          <p className="text-color-neutral-40 text-sm font-medium">NOTICE</p>
+          <div className="flex size-9 items-center justify-center">
+            <Image
+              src={notification}
+              alt="Notification"
+              width={27}
+              height={33}
+            />
+          </div>
+          <p className="text-caption3_r_13 text-color-neutral-40">NOTICE</p>
         </div>
       </Link>
       <Link href={'/contest'}>
         <div className="flex h-[98px] w-[80px] flex-col items-center justify-center gap-[2px] rounded-sm bg-white hover:shadow-md">
-          <Image src={prize} alt="Prize" width={36} height={36} />
-          <p className="text-color-neutral-40 text-sm font-medium">CONTEST</p>
+          <div className="flex size-9 items-center justify-center">
+            <Image src={prize} alt="Prize" width={36} height={36} />
+          </div>
+          <p className="text-caption3_r_13 text-color-neutral-40">CONTEST</p>
         </div>
       </Link>
       <Link href={'/problem'}>
         <div className="flex h-[98px] w-[80px] flex-col items-center justify-center gap-[2px] rounded-sm bg-white hover:shadow-md">
-          <Image src={filledfile} alt="filledfile" width={36} height={36} />
-          <p className="text-color-neutral-40 text-sm font-medium">PROBLEM</p>
+          <div className="flex size-9 items-center justify-center">
+            <Image src={filledfile} alt="filledfile" width={36} height={36} />
+          </div>
+          <p className="text-caption3_r_13 text-color-neutral-40">PROBLEM</p>
         </div>
       </Link>
       <Link href={'/course'}>
         <div className="flex h-[98px] w-[80px] flex-col items-center justify-center gap-[2px] rounded-sm bg-white hover:shadow-md">
-          <Image src={graduation} alt="Graduation" width={36} height={36} />
-          <p className="text-color-neutral-40 text-sm font-medium">COURSE</p>
+          <div className="flex size-9 items-center justify-center">
+            <Image src={graduation} alt="Graduation" width={36} height={36} />
+          </div>
+          <p className="text-caption3_r_13 text-color-neutral-40">COURSE</p>
         </div>
       </Link>
     </div>

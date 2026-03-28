@@ -29,7 +29,7 @@ export function InstagramCards() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8">
-      <span className="mb-10 block text-3xl font-semibold leading-[120%] tracking-[-0.9px]">
+      <span className="text-head6_m_24 mb-10 block text-gray-700">
         TAKE OUR NEWS
       </span>
 
