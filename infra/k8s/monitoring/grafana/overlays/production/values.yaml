@@ -4,6 +4,7 @@
 envFromSecrets:
   - name: grafana-github-oauth
   - name: grafana-aws-cloudwatch
+  - name: grafana-discord-webhook
 
 replicas: 1
 autoscaling:
@@ -76,6 +77,28 @@ datasources:
           accessKey: $__env{AWS_ACCESS_KEY_ID}
           secretKey: $__env{AWS_SECRET_ACCESS_KEY}
         editable: false
+
+alerting:
+  contactpoints.yaml:
+    apiVersion: 1
+    contactPoints:
+      - orgId: 1
+        name: discord
+        receivers:
+          - uid: discord-default
+            type: discord
+            settings:
+              url: $__env{DISCORD_WEBHOOK_URL}
+
+  notification-policies.yaml:
+    apiVersion: 1
+    policies:
+      - orgId: 1
+        receiver: discord
+        group_by: ['grafana_folder', 'alertname']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
 
 # help grafana to detect provisioned dashboards
 sidecar:
