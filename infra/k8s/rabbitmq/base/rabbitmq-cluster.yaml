@@ -3,3 +3,7 @@ kind: RabbitmqCluster
 metadata:
   name: rabbitmq
   namespace: rabbitmq
+spec:
+  rabbitmq:
+    additionalPlugins:
+      - rabbitmq_prometheus
