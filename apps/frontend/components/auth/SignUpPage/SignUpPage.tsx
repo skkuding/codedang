@@ -26,6 +26,34 @@ export function SignUpField({
     </div>
   )
 }
+interface AgreementCheckboxProps {
+  checked: boolean
+  onChange: (checked: boolean) => void
+  children: React.ReactNode
+}
+
+function AgreementCheckbox({
+  checked,
+  onChange,
+  children
+}: AgreementCheckboxProps) {
+  return (
+    <label className="text-caption2_m_12 flex cursor-pointer items-center gap-[6px]">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="h-[20px] w-[20px] shrink-0 appearance-none rounded-[3px] border border-[#C4C4C4] bg-white bg-center bg-no-repeat checked:border-transparent checked:bg-[#3581FA]"
+        style={{
+          backgroundImage: checked
+            ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'><path d='M5.5 10L8.14645 12.6464C8.34171 12.8417 8.65829 12.8417 8.85355 12.6464L14.5 7' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>")`
+            : 'none'
+        }}
+      />
+      <span>{children}</span>
+    </label>
+  )
+}
 
 type Agreements = {
   terms: boolean
@@ -128,56 +156,41 @@ export function SignUpPage() {
 
         <div className="flex w-full flex-col gap-12">
           <div className="flex w-full flex-col gap-[10px]">
-            <label className="text-caption2_m_12 flex items-center gap-[6px]">
-              <input
-                type="checkbox"
-                checked={isAllChecked}
-                onChange={(e) => handleAllAgreementChange(e.target.checked)}
-              />
-              <span>전체동의</span>
-            </label>
-
+            <AgreementCheckbox
+              checked={isAllChecked}
+              onChange={handleAllAgreementChange}
+            >
+              전체동의
+            </AgreementCheckbox>
             <div className="border-b border-[#D8D8D8]" />
-            <label className="text-caption2_m_12 flex items-center gap-[6px]">
-              <input
-                type="checkbox"
-                checked={agreements.terms}
-                onChange={(e) =>
-                  handleAgreementChange('terms', e.target.checked)
-                }
-              />
-              <span>이용약관 동의</span>
-            </label>
-            <label className="text-caption2_m_12 flex items-center gap-[6px]">
-              <input
-                type="checkbox"
-                checked={agreements.privacy}
-                onChange={(e) =>
-                  handleAgreementChange('privacy', e.target.checked)
-                }
-              />
-              <span>코드당 개인정보 수집 및 이용 동의</span>
-            </label>
-            <label className="text-caption2_m_12 flex items-center gap-[6px]">
-              <input
-                type="checkbox"
-                checked={agreements.minorPrivacy}
-                onChange={(e) =>
-                  handleAgreementChange('minorPrivacy', e.target.checked)
-                }
-              />
-              <span>14세미만 개인정보 이용 보호</span>
-            </label>
-            <label className="text-caption2_m_12 flex items-center gap-[6px]">
-              <input
-                type="checkbox"
-                checked={agreements.marketing}
-                onChange={(e) =>
-                  handleAgreementChange('marketing', e.target.checked)
-                }
-              />
-              <span>[선택] 마케팅 활용 동의 및 광고 수신 동의</span>
-            </label>
+            <AgreementCheckbox
+              checked={agreements.terms}
+              onChange={(checked) => handleAgreementChange('terms', checked)}
+            >
+              이용약관 동의
+            </AgreementCheckbox>
+            <AgreementCheckbox
+              checked={agreements.privacy}
+              onChange={(checked) => handleAgreementChange('privacy', checked)}
+            >
+              코드당 개인정보 수집 및 이용 동의
+            </AgreementCheckbox>
+            <AgreementCheckbox
+              checked={agreements.minorPrivacy}
+              onChange={(checked) =>
+                handleAgreementChange('minorPrivacy', checked)
+              }
+            >
+              14세미만 개인정보 이용 보호
+            </AgreementCheckbox>
+            <AgreementCheckbox
+              checked={agreements.marketing}
+              onChange={(checked) =>
+                handleAgreementChange('marketing', checked)
+              }
+            >
+              [선택] 마케팅 활용 동의 및 광고 수신 동의
+            </AgreementCheckbox>
           </div>
 
           <button className="text-sub3_sb_16 flex h-[52px] w-full items-center justify-center rounded-[12px] bg-[#E5E5E5] text-[#9B9B9B]">
