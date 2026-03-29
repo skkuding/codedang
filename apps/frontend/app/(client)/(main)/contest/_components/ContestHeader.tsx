@@ -31,7 +31,7 @@ export function ContestHeader() {
   return (
     <>
       <div>
-        <p className="text-head1_b_40 mb-1 mt-[116px]">CONTEST</p>
+        <p className="text-head1_b_40 mb-1 mt-[120px]">CONTEST</p>
         <p className="text-sub2_m_18 mb-12 text-[#5F6566]">
           대회에 참가하여 최상위권에 도전해보세요!
         </p>
