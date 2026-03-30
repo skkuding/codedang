@@ -49,7 +49,7 @@ export function InputForm({
           sizeVariant="md"
           className={cn(
             inputStyle,
-            'border-none px-4 placeholder:text-sm focus-visible:ring-0'
+            'rounded-full border-none px-4 placeholder:text-sm focus-visible:ring-0'
           )}
           maxLength={maxLength || 120}
           {...register(name, {
