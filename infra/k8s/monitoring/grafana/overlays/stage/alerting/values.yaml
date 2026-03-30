@@ -100,3 +100,39 @@ alerting:
             annotations:
               summary: 'Node disk usage > 85%'
               description: '노드 디스크 사용률이 85%를 초과했습니다.'
+
+          - uid: node-not-ready
+            title: Node Not Ready
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+                  intervalMs: 60000
+                  maxDataPoints: 43200
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 0
+                        type: gt
+                      operator:
+                        type: and
+                      reducer:
+                        type: last
+                  type: classic_condition
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: 'Node not ready'
+              description: '노드가 Ready 상태가 아닙니다.'
