@@ -1,7 +1,14 @@
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBoundary'
+import { Suspense } from 'react'
+import { MyProblem, MyProblemFallback } from '../_components/MyProblem'
+
 export default function MyProblemsPage() {
   return (
-    <div className="flex h-[400px] items-center justify-center text-2xl font-bold text-gray-500">
-      My problems page is under construction.
-    </div>
+    <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
+      <Suspense fallback={<MyProblemFallback />}>
+        <MyProblem />
+      </Suspense>
+    </TanstackQueryErrorBoundary>
   )
 }
