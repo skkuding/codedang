@@ -109,7 +109,7 @@ export function ContestDataTable<TData extends Item, TValue>({
             options={status.map((item) => ({ value: item, label: item }))}
             resetPageIndex={resetPageIndex}
           />
-          <SearchBar className="w-60 [&_input]:h-[46px] [&_svg]:!top-[calc(50%-8px)]" />
+          <SearchBar height="lg" className="w-60" />
         </div>
       </div>
       <Table className="table-fixed">

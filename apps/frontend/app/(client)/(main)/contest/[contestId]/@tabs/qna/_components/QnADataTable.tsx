@@ -1,5 +1,6 @@
 'use client'
 
+import { SearchBar } from '@/app/(client)/(main)/_components/SearchBar'
 import {
   Table,
   TableBody,
@@ -24,7 +25,6 @@ import { useEffect, useState } from 'react'
 import { QnACategoryFilter } from './QnACategoryFilter'
 import type { QnAItem } from './QnAMainTable'
 import { QnAPostButton } from './QnAPostButton'
-import { SearchBar } from './SearchBar'
 
 interface QnADataTableProps<TData, TValue> {
   session: Session | null
