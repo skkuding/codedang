@@ -9,50 +9,21 @@ import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef } from 'react'
 import { IoFilter } from 'react-icons/io5'
 import type { MyProblemCardItem } from './MyProblem'
 
 interface MyProblemDataTableProps {
   data: MyProblemCardItem[]
   search: string
-  hasMore: boolean
-  onLoadMore: () => void
   emptyMessage?: string
 }
 
 export function MyProblemDataTable({
   data,
   search,
-  hasMore,
-  onLoadMore,
   emptyMessage = 'No results.'
 }: MyProblemDataTableProps) {
   const currentPath = usePathname()
-  const loadMoreRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    const node = loadMoreRef.current
-
-    if (!node || !hasMore) {
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          onLoadMore()
-        }
-      },
-      { rootMargin: '160px 0px' }
-    )
-
-    observer.observe(node)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [hasMore, onLoadMore, data.length])
 
   return (
     <div className="flex w-full flex-col items-center">

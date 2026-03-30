@@ -3,10 +3,7 @@
 import { Skeleton } from '@/components/shadcn/skeleton'
 import type { Problem } from '@/types/type'
 import { useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
 import { MyProblemDataTable } from './MyProblemDataTable'
-
-const ITEMS_PER_PAGE = 10
 
 export interface MyProblemCardItem extends Problem {
   state: 'ONGOING' | 'DRAFT' | 'REVIEW'
@@ -59,27 +56,10 @@ export function MyProblem() {
     )
   })
 
-  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
-
-  useEffect(() => {
-    setVisibleCount(ITEMS_PER_PAGE)
-  }, [normalizedSearch])
-
-  const visibleProblems = filteredProblems.slice(0, visibleCount)
-  const hasMore = visibleProblems.length < filteredProblems.length
-
-  const loadMore = useCallback(() => {
-    setVisibleCount((prev) =>
-      Math.min(prev + ITEMS_PER_PAGE, filteredProblems.length)
-    )
-  }, [filteredProblems.length])
-
   return (
     <MyProblemDataTable
-      data={visibleProblems}
+      data={filteredProblems}
       search={search}
-      hasMore={hasMore}
-      onLoadMore={loadMore}
       emptyMessage="아직 만든 문제가 없습니다."
     />
   )
