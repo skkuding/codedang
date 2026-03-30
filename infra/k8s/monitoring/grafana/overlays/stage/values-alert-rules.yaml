@@ -1,0 +1,46 @@
+# stage 환경은 AWS RDS를 사용하지 않으므로 AWS alert rules 없음
+# production의 values-alert-rules.yaml과 쌍으로 존재해야 ArgoCD valueFiles 로드 시 에러 방지
+alerting:
+  rules.yaml:
+    apiVersion: 1
+    groups:
+      - orgId: 1
+        name: K8s Node
+        folder: Infra Alerts
+        interval: 5m
+        rules:
+          - uid: node-high-memory-usage
+            title: High Node Memory Usage
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100
+                  intervalMs: 60000
+                  maxDataPoints: 43200
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 85
+                        type: gt
+                      operator:
+                        type: and
+                      reducer:
+                        type: last
+                  type: classic_condition
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: 'Node memory usage > 85%'
+              description: '노드 메모리 사용률이 85%를 초과했습니다.'

@@ -1,36 +1,6 @@
 grafana:
   enabled: false
 
-alertmanager:
-  config:
-    route:
-      receiver: discord
-      group_by: ['alertname', 'namespace']
-      group_wait: 30s
-      group_interval: 5m
-      repeat_interval: 4h
-    receivers:
-      - name: discord
-        webhook_configs:
-          - url_file: /etc/alertmanager/secrets/alertmanager-discord-webhook/webhook-url
-  alertmanagerSpec:
-    secrets:
-      - alertmanager-discord-webhook
-
-additionalPrometheusRulesMap:
-  codedang-alerts:
-    groups:
-      - name: codedang.node
-        rules:
-          - alert: HighNodeMemoryUsage
-            expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 85
-            for: 5m
-            labels:
-              severity: warning
-            annotations:
-              summary: 'Node {{ $labels.instance }} memory usage > 85%'
-              description: 'Memory usage is {{ printf "%.1f" $value }}% for more than 5 minutes.'
-
 prometheus:
   prometheusSpec:
     retention: 90d
