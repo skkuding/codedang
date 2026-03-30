@@ -77,7 +77,6 @@ export function MyProblem() {
   return (
     <MyProblemDataTable
       data={visibleProblems}
-      total={filteredProblems.length}
       search={search}
       hasMore={hasMore}
       onLoadMore={loadMore}

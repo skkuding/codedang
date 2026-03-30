@@ -4,16 +4,13 @@ import { SearchBar } from '@/app/(client)/(main)/_components/SearchBar'
 import { Button } from '@/components/shadcn/button'
 import { Clock3, Filter, Microchip, Plus } from 'lucide-react'
 import type { Route } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import type { ReactNode } from 'react'
 import { useEffect, useRef } from 'react'
 import type { MyProblemCardItem } from './MyProblem'
 
 interface MyProblemDataTableProps {
   data: MyProblemCardItem[]
-  total: number
   search: string
   hasMore: boolean
   onLoadMore: () => void
@@ -22,7 +19,6 @@ interface MyProblemDataTableProps {
 
 export function MyProblemDataTable({
   data,
-  total,
   search,
   hasMore,
   onLoadMore,
@@ -56,12 +52,9 @@ export function MyProblemDataTable({
 
   return (
     <div className="flex w-full flex-col items-center">
-      <div className="flex w-full flex-col gap-6">
-        <div className="flex w-full items-center justify-between">
-          <div className="flex items-center justify-start gap-2">
-            <p className="text-head3_sb_28">내가 만든 문제</p>
-            <p className="text-head3_sb_28 text-primary">{total}</p>
-          </div>
+      <div className="flex w-full items-center justify-between self-stretch">
+        <div className="flex shrink-0 items-center justify-start">
+          <p className="text-head3_sb_28 whitespace-nowrap">내가 만든 문제</p>
         </div>
         <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center lg:justify-end">
           <Button
@@ -71,16 +64,16 @@ export function MyProblemDataTable({
             <Filter className="h-4 w-4" />
             State
           </Button>
-          <SearchBar className="w-full lg:w-72" />
+          <SearchBar className="w-60" />
           <Button asChild className="text-body1_m_16 h-12 rounded-full px-6">
-            <Link href="/admin/problem/create">
+            <Link href="/problem/create">
               <Plus className="h-4 w-4" />새 문제 생성
             </Link>
           </Button>
         </div>
       </div>
       {data.length ? (
-        <div className="mt-5 grid w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mb-30 mt-5 grid w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
           {data.map((problem) => {
             const href =
               `${currentPath}/${problem.id}${search ? `?search=${search}` : ''}` as Route
@@ -89,43 +82,41 @@ export function MyProblemDataTable({
               <Link
                 key={problem.id}
                 href={href}
-                className="border-line group overflow-hidden rounded-[24px] border bg-white transition-transform duration-200 hover:-translate-y-1"
+                className="bg-background border-line outline-line inline-flex w-full flex-col items-start gap-5 rounded-2xl p-5 outline outline-1 outline-offset-[-1px] transition-transform duration-200 hover:-translate-y-1"
               >
-                <div className="bg-color-neutral-95 relative h-40 w-full overflow-hidden">
-                  <Image
-                    src={problem.thumbnailSrc}
-                    alt={problem.title}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                </div>
-                <div className="flex flex-col gap-4 p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-primary bg-[#EDF4FF] px-3 py-1 text-[14px] font-medium">
+                <div className="flex w-full flex-col items-start gap-3">
+                  <div className="inline-flex w-20 items-center justify-center gap-2.5 rounded bg-[#EDF4FF] px-2.5 py-1">
+                    <span className="text-primary text-center text-xs font-medium leading-5">
                       {problem.state}
                     </span>
-                    <span className="text-body3_r_16 text-color-cool-neutral-40">
-                      {problem.difficulty}
-                    </span>
                   </div>
-                  <div>
-                    <p className="text-body1_m_16 text-color-neutral-90 overflow-hidden text-ellipsis whitespace-nowrap">
-                      {problem.title}
-                    </p>
-                  </div>
-                  <div className="text-body3_r_16 text-color-neutral-80 flex items-center gap-4">
-                    <span className="flex items-center gap-1.5">
-                      <Clock3 className="text-color-cool-neutral-40 h-4 w-4" />
-                      {problem.timeLimit}ms
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Microchip className="text-color-cool-neutral-40 h-4 w-4" />
-                      {problem.memoryLimit}MB
-                    </span>
-                  </div>
-                  <p className="text-body3_r_16 text-color-cool-neutral-40">
-                    Last Modified: {problem.updatedAt}
+                  <p className="text-title1_sb_20 line-clamp-1 self-stretch">
+                    {problem.title}
                   </p>
+                </div>
+                <div className="flex w-full flex-col items-start gap-2">
+                  <div className="inline-flex items-start justify-start gap-2 self-stretch">
+                    <div className="flex items-center justify-start gap-1">
+                      <Clock3 className="h-5 w-5" />
+                      <span className="text-caption3_r_13">
+                        {problem.timeLimit}ms
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-start gap-1">
+                      <Microchip className="h-5 w-5" />
+                      <span className="text-caption3_r_13">
+                        {problem.memoryLimit}MB
+                      </span>
+                    </div>
+                  </div>
+                  <div className="inline-flex items-center justify-start gap-1">
+                    <span className="text-caption3_r_13 justify-start text-right text-gray-400">
+                      Last Modified:
+                    </span>
+                    <span className="text-caption3_r_13 justify-start text-right text-gray-500">
+                      {problem.updatedAt}
+                    </span>
+                  </div>
                 </div>
               </Link>
             )
