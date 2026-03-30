@@ -32,6 +32,7 @@ spec:
             releaseName: grafana
             valueFiles:
               - '$codedang/infra/k8s/monitoring/grafana/overlays/{{.env}}/values.yaml'
+              - '$codedang/infra/k8s/monitoring/grafana/base/alerting/values.yaml'
               - '$codedang/infra/k8s/monitoring/grafana/overlays/{{.env}}/alerting/values.yaml'
         # git ref for helm valueFiles
         - repoURL: https://github.com/skkuding/codedang
