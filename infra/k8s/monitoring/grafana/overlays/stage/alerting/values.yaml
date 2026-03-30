@@ -1,6 +1,26 @@
-# stage 환경은 AWS RDS를 사용하지 않으므로 AWS alert rules 없음
-# production의 values-alert-rules.yaml과 쌍으로 존재해야 ArgoCD valueFiles 로드 시 에러 방지
 alerting:
+  contactpoints.yaml:
+    apiVersion: 1
+    contactPoints:
+      - orgId: 1
+        name: discord
+        receivers:
+          - uid: discord-default
+            type: discord
+            settings:
+              url: $__env{DISCORD_WEBHOOK_URL}
+
+  notification-policies.yaml:
+    apiVersion: 1
+    policies:
+      - orgId: 1
+        receiver: discord
+        group_by: ['grafana_folder', 'alertname']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
+
+  # stage 환경은 AWS RDS를 사용하지 않으므로 AWS alert rules 없음
   rules.yaml:
     apiVersion: 1
     groups:

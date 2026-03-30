@@ -5,4 +5,4 @@ resources:
   - ../../base
   - admin-user.yaml
   - github-credentials.yaml
-  - discord-webhook.yaml
+  - alerting/discord-webhook.yaml
