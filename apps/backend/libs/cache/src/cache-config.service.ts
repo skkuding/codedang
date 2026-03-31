@@ -21,7 +21,9 @@ export class CacheConfigService implements CacheOptionsFactory {
       throw new Error('Redis host and port must be configured')
     }
 
-    const url = `redis://:${password}@${host}:${port}/${db}`
+    const url = password
+      ? `redis://:${password}@${host}:${port}/${db}`
+      : `redis://${host}:${port}/${db}`
 
     const store = createKeyv(url, {
       throwOnErrors: true,
