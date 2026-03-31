@@ -95,16 +95,18 @@ export function SignUpPage() {
   })
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+
   const watchPassword = watch('password')
   const watchPasswordConfirm = watch('passwordConfirm')
   const watchBirth = watch('birth')
 
-  const isPasswordMatched =
-    watchPassword === watchPasswordConfirm && watchPasswordConfirm.length > 0
+  const isPasswordMismatch =
+    watchPasswordConfirm.length > 0 && watchPassword !== watchPasswordConfirm
 
-  const isPasswordConfirmError =
-    Boolean(errors.passwordConfirm) ||
-    (watchPasswordConfirm.length > 0 && !isPasswordMatched)
+  const isPasswordAvailable =
+    watchPasswordConfirm.length > 0 &&
+    watchPassword === watchPasswordConfirm &&
+    !errors.password
 
   const isAllChecked =
     agreements.terms &&
@@ -139,13 +141,7 @@ export function SignUpPage() {
     setValue(key, checked, { shouldValidate: true })
   }
 
-  const onSubmit = (data: SignUpFormValues) => {
-    if (!isPasswordMatched) {
-      return
-    }
-
-    console.log(data)
-  }
+  const onSubmit = async (_data: SignUpFormValues) => {}
 
   return (
     <form
@@ -235,9 +231,9 @@ export function SignUpPage() {
                     setIsVisible={setIsPasswordVisible}
                   />
                 </div>
-                {errors.password && (
+                {errors.password?.message && (
                   <p className="text-caption3_r_13 text-[#FF3B2F]">
-                    {errors.password.message?.toString()}
+                    {errors.password.message}
                   </p>
                 )}
 
@@ -246,7 +242,7 @@ export function SignUpPage() {
                     type={isPasswordVisible ? 'text' : 'password'}
                     placeholder="비밀번호 확인"
                     className={`placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4] ${
-                      isPasswordConfirmError
+                      isPasswordMismatch
                         ? 'border-error focus:border-error'
                         : 'focus:border-primary border-[#D8D8D8]'
                     }`}
@@ -257,16 +253,17 @@ export function SignUpPage() {
                     setIsVisible={setIsPasswordVisible}
                   />
                 </div>
-                {watchPasswordConfirm &&
-                  (isPasswordMatched ? (
-                    <p className="text-caption3_r_13 text-[#3581FA]">
-                      비밀번호가 일치합니다.
-                    </p>
-                  ) : (
-                    <p className="text-caption3_r_13 text-[#FF3B2F]">
-                      비밀번호가 일치하지 않습니다.
-                    </p>
-                  ))}
+                {isPasswordMismatch && (
+                  <p className="text-caption3_r_13 text-[#FF3B2F]">
+                    비밀번호가 일치하지 않습니다.
+                  </p>
+                )}
+
+                {isPasswordAvailable && (
+                  <p className="text-caption3_r_13 text-[#3581FA]">
+                    사용할 수 있는 비밀번호입니다.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -373,7 +370,7 @@ export function SignUpPage() {
 
           <button
             type="submit"
-            disabled={!isValid || !isPasswordMatched}
+            disabled={!isValid}
             className="text-sub3_sb_16 flex h-[52px] w-full items-center justify-center rounded-[12px] bg-[#E5E5E5] text-[#9B9B9B] disabled:cursor-not-allowed"
           >
             가입하기
