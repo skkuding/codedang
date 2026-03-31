@@ -2,7 +2,9 @@ package rabbitmq
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"os"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -35,8 +37,16 @@ func NewConsumer(config ConsumerConfig, logger logger.Logger) (*consumer, error)
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
 	amqpConfig := amqp.Config{
-		Properties:      amqp.NewConnectionProperties(),
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		Properties: amqp.NewConnectionProperties(),
+	}
+	if os.Getenv("RABBITMQ_SSL") == "true" {
+		caCert, err := os.ReadFile("/etc/ssl/rabbitmq/ca.crt")
+		if err != nil {
+			return nil, fmt.Errorf("consumer: failed to read RabbitMQ CA cert: %w", err)
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+		amqpConfig.TLSClientConfig = &tls.Config{RootCAs: caCertPool}
 	}
 	amqpConfig.Properties.SetClientConnectionName(config.ConnectionName)
 	connection, err := amqp.DialConfig(config.AmqpURI, amqpConfig)

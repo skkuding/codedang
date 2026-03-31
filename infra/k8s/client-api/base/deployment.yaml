@@ -34,6 +34,10 @@ spec:
                 name: oauth-credentials
             - secretRef:
                 name: security-keys
+          volumeMounts:
+            - name: rabbitmq-ca-cert
+              mountPath: /etc/ssl/rabbitmq
+              readOnly: true
           env:
             - name: RABBITMQ_DEFAULT_USER
               valueFrom:
@@ -45,8 +49,18 @@ spec:
                 secretKeyRef:
                   name: rabbitmq-credentials
                   key: password
+<<<<<<< HEAD
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: redis-credentials
                   key: password
+=======
+      volumes:
+        - name: rabbitmq-ca-cert
+          secret:
+            secretName: rabbitmq-ca-cert
+            items:
+              - key: ca.crt
+                path: ca.crt
+>>>>>>> 018c102a (fix(infra): verify RabbitMQ TLS certificate using CA cert instead of skipping verification)

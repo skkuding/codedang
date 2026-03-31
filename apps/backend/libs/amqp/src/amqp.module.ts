@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { CONSUME_CHANNEL, PUBLISH_CHANNEL } from '@libs/constants'
 import { CheckAMQPService, JudgeAMQPService } from './amqp.service'
+import { readFileSync } from 'fs'
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import { CheckAMQPService, JudgeAMQPService } from './amqp.service'
           ...(config.get('RABBITMQ_SSL') === 'true' && {
             connectionManagerOptions: {
               connectionOptions: {
-                rejectUnauthorized: false
+                ca: [readFileSync('/etc/ssl/rabbitmq/ca.crt')]
               }
             }
           })

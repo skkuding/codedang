@@ -13,6 +13,10 @@ metadata:
   namespace: rabbitmq
 spec:
   secretName: rabbitmq-server-certs
+  secretTemplate:
+    annotations:
+      reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "iris,admin-api,client-api"
   issuerRef:
     name: rabbitmq-selfsigned-issuer
     kind: Issuer
