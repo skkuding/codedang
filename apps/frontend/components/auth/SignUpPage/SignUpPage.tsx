@@ -185,9 +185,9 @@ export function SignUpPage() {
                 }`}
                 {...register('birth')}
               />
-              {watchBirth && errors.birth && (
+              {watchBirth && errors.birth?.message && (
                 <p className="text-caption3_r_13 text-[#FF3B2F]">
-                  {errors.birth.message?.toString()}
+                  {errors.birth.message}
                 </p>
               )}
             </div>
@@ -204,9 +204,9 @@ export function SignUpPage() {
                 }`}
                 {...register('userId')}
               />
-              {errors.userId && (
+              {errors.userId?.message && (
                 <p className="text-caption3_r_13 text-[#FF3B2F]">
-                  {errors.userId.message?.toString()}
+                  {errors.userId.message}
                 </p>
               )}
             </div>
@@ -302,7 +302,7 @@ export function SignUpPage() {
               />
               {errors.job && (
                 <p className="text-caption3_r_13 text-red-500">
-                  {errors.job.message?.toString()}
+                  {errors.job.message}
                 </p>
               )}
             </div> */}
@@ -315,9 +315,9 @@ export function SignUpPage() {
                 className="placeholder:text-body1_m_16 focus:border-primary h-[46px] w-full rounded-[12px] border border-[#D8D8D8] bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]"
                 {...register('email')}
               />
-              {errors.email && (
+              {errors.email?.message && (
                 <p className="text-caption3_r_13 text-[#FF3B2F]">
-                  {errors.email.message?.toString()}
+                  {errors.email.message}
                 </p>
               )}
             </div>
