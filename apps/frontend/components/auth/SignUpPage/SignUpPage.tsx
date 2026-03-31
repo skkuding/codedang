@@ -38,6 +38,29 @@ function AgreementCheckbox({
   )
 }
 
+interface VisibleButtonProps {
+  isVisible: boolean
+  setIsVisible: (visible: boolean) => void
+}
+
+function VisibleButton({ isVisible, setIsVisible }: VisibleButtonProps) {
+  return (
+    <button
+      type="button"
+      tabIndex={-1}
+      onClick={() => setIsVisible(!isVisible)}
+      className="absolute inset-y-0 right-[21.67px] flex items-center text-[#909799]"
+      aria-label={isVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
+    >
+      {isVisible ? (
+        <FaEye className="text-gray-400" />
+      ) : (
+        <FaEyeSlash className="text-gray-400" />
+      )}
+    </button>
+  )
+}
+
 export function SignUpPage() {
   const [agreements, setAgreements] = useState({
     terms: false,
@@ -71,28 +94,6 @@ export function SignUpPage() {
     }
   })
 
-  interface VisibleButtonProps {
-    isVisible: boolean
-    setIsVisible: (visible: boolean) => void
-  }
-
-  function VisibleButton({ isVisible, setIsVisible }: VisibleButtonProps) {
-    return (
-      <button
-        type="button"
-        tabIndex={-1}
-        onClick={() => setIsVisible(!isVisible)}
-        className="absolute inset-y-0 right-[21.67px] flex items-center text-[#909799]"
-        aria-label={isVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
-      >
-        {isVisible ? (
-          <FaEye className="text-gray-400" />
-        ) : (
-          <FaEyeSlash className="text-gray-400" />
-        )}
-      </button>
-    )
-  }
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const watchPassword = watch('password')
   const watchPasswordConfirm = watch('passwordConfirm')
