@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
+import { readFileSync } from 'fs'
 import { CONSUME_CHANNEL, PUBLISH_CHANNEL } from '@libs/constants'
 import { CheckAMQPService, JudgeAMQPService } from './amqp.service'
-import { readFileSync } from 'fs'
 
 @Module({
   imports: [
