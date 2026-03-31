@@ -169,9 +169,9 @@ export function SignUpPage() {
                 }`}
                 {...register('name')}
               />
-              {errors.name && (
+              {errors.name?.message && (
                 <p className="text-caption3_r_13 text-[#FF3B2F]">
-                  {errors.name.message?.toString()}
+                  {errors.name.message}
                 </p>
               )}
             </div>
