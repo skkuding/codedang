@@ -15,14 +15,9 @@ import type { MyProblemCardItem } from './MyProblem'
 interface MyProblemDataTableProps {
   data: MyProblemCardItem[]
   search: string
-  emptyMessage?: string
 }
 
-export function MyProblemDataTable({
-  data,
-  search,
-  emptyMessage = 'No results.'
-}: MyProblemDataTableProps) {
+export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
   const currentPath = usePathname()
 
   return (
@@ -34,15 +29,15 @@ export function MyProblemDataTable({
         <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center lg:justify-end">
           <Button
             variant="outline"
-            className="border-line text-body1_m_16 h-12 min-w-28 justify-center rounded-full border px-5"
+            className="border-line text-body1_m_16 h-[46px] min-w-28 justify-center rounded-full border px-5 py-[11px] text-black"
           >
-            <IoFilter className="mr-2 h-5 w-5" />
+            <IoFilter className="text-color-cool-neutral-30 mr-2 h-5 w-5" />
             State
           </Button>
-          <SearchBar className="w-60" />
+          <SearchBar className="h-[46px] w-60" />
           <Button
             asChild
-            className="text-body1_m_16 bg-primary h-12 shrink-0 whitespace-nowrap rounded-full px-5 py-2.5"
+            className="text-body1_m_16 bg-primary h-[46px] shrink-0 whitespace-nowrap rounded-full px-5 py-2.5"
           >
             <Link
               href="/problem/create"
@@ -115,10 +110,28 @@ export function MyProblemDataTable({
           })}
         </div>
       ) : (
-        <div className="border-line text-color-cool-neutral-40 mt-5 flex h-60 w-full items-center justify-center rounded-[24px] border text-center">
-          {emptyMessage}
-        </div>
+        <MyProblemEmptyState />
       )}
+    </div>
+  )
+}
+
+function MyProblemEmptyState() {
+  return (
+    <div className="border-line mb-30 mt-5 flex h-[266px] w-full items-center justify-center rounded-xl border bg-white py-20">
+      <div className="flex flex-col items-center gap-[16px] text-center">
+        <p className="text-sub1_sb_18 text-color-neutral-30">
+          내가 만든 문제가
+          <br />
+          존재하지 않습니다.
+        </p>
+        <Button
+          asChild
+          className="text-sub4_sb_14 bg-primary h-10 shrink-0 whitespace-nowrap rounded-lg px-3 py-2.5"
+        >
+          <Link href="/problem/create">새 문제 생성하기</Link>
+        </Button>
+      </div>
     </div>
   )
 }

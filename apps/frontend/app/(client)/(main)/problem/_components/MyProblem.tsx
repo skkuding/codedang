@@ -7,10 +7,13 @@ import { MyProblemDataTable } from './MyProblemDataTable'
 
 export interface MyProblemCardItem extends Problem {
   state: 'ONGOING' | 'DRAFT' | 'REVIEW'
-  thumbnailSrc: string
   timeLimit: number
   memoryLimit: number
   updatedAt: string
+}
+
+interface MyProblemProps {
+  forceEmpty?: boolean
 }
 
 const MOCK_MY_PROBLEMS: MyProblemCardItem[] = Array.from(
@@ -32,7 +35,6 @@ const MOCK_MY_PROBLEMS: MyProblemCardItem[] = Array.from(
       languages: ['C', 'Cpp', 'Java', 'Python3'],
       hasPassed: null,
       state: states[index % states.length],
-      thumbnailSrc: '/banners/problemInnerBanner.png',
       timeLimit: 1000 + (index % 4) * 500,
       memoryLimit: 128 + (index % 3) * 64,
       updatedAt: `2024-01-${String((index % 24) + 1).padStart(2, '0')} 19:00`
@@ -40,7 +42,7 @@ const MOCK_MY_PROBLEMS: MyProblemCardItem[] = Array.from(
   }
 )
 
-export function MyProblem() {
+export function MyProblem({ forceEmpty = false }: MyProblemProps) {
   const searchParams = useSearchParams()
   const search = searchParams.get('search') ?? ''
   const normalizedSearch = search.trim().toLowerCase()
@@ -56,13 +58,9 @@ export function MyProblem() {
     )
   })
 
-  return (
-    <MyProblemDataTable
-      data={filteredProblems}
-      search={search}
-      emptyMessage="아직 만든 문제가 없습니다."
-    />
-  )
+  const data = forceEmpty ? [] : filteredProblems
+
+  return <MyProblemDataTable data={data} search={search} />
 }
 
 export function MyProblemFallback() {
