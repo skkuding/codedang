@@ -58,7 +58,7 @@ export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
         <div className="mb-30 mt-5 grid w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
           {data.map((problem) => {
             const href =
-              `${currentPath}/${problem.id}${search ? `?search=${search}` : ''}` as Route
+              `/problem/my-problem/${problem.id}${search ? `?search=${search}` : ''}` as Route
 
             return (
               <Link
