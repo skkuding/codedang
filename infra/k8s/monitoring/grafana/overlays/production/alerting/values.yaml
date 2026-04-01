@@ -46,7 +46,7 @@ alerting:
               severity: warning
             annotations:
               summary: 'RDS FreeStorageSpace < 2GB'
-              description: 'RDS 인스턴스의 남은 디스크가 {{ $values.A }}B 입니다.'
+              description: '{{ `{{ $values.A }}` }}B 남음'
 
           - uid: rds-database-connections-high
             title: RDS DatabaseConnections High
@@ -87,7 +87,7 @@ alerting:
               severity: warning
             annotations:
               summary: 'RDS DatabaseConnections > 150'
-              description: 'RDS 인스턴스의 DB 커넥션이 {{ $values.A }}개입니다.'
+              description: 'DB 커넥션 {{ `{{ $values.A }}` }}개'
 
       - orgId: 1
         name: K8s Node
@@ -128,7 +128,7 @@ alerting:
               severity: warning
             annotations:
               summary: 'Node memory usage > 85%'
-              description: '노드 {{ $labels.instance }}의 메모리 사용률이 {{ $values.A }}%입니다.'
+              description: '노드 {{ `{{ $labels.instance }}` }} 메모리 {{ `{{ $values.A }}` }}%'
 
           - uid: node-high-disk-usage
             title: High Node Disk Usage
@@ -164,7 +164,7 @@ alerting:
               severity: warning
             annotations:
               summary: 'Node disk usage > 85%'
-              description: '노드 {{ $labels.instance }}의 디스크 사용률이 {{ $values.A }}%입니다.'
+              description: '노드 {{ `{{ $labels.instance }}` }} 디스크 {{ `{{ $values.A }}` }}%'
 
           - uid: node-not-ready
             title: Node Not Ready
@@ -200,7 +200,7 @@ alerting:
               severity: critical
             annotations:
               summary: 'Node not ready'
-              description: '노드 {{ $labels.node }}가 Ready 상태가 아닙니다.'
+              description: '노드 {{ `{{ $labels.node }}` }}가 Ready 상태가 아닙니다.'
 
       - orgId: 1
         name: RabbitMQ
@@ -241,7 +241,7 @@ alerting:
               severity: warning
             annotations:
               summary: 'RabbitMQ ready messages > 100'
-              description: '큐 {{ $labels.queue }}에 Ready 메시지가 {{ $values.A }}개 쌓여있습니다.'
+              description: '큐 {{ `{{ $labels.queue }}` }}에 Ready 메시지 {{ `{{ $values.A }}` }}개'
 
           - uid: rabbitmq-unacked-messages-high
             title: RabbitMQ Unacked Messages High
@@ -277,4 +277,4 @@ alerting:
               severity: warning
             annotations:
               summary: 'RabbitMQ unacked messages > 50'
-              description: '큐 {{ $labels.queue }}에 미확인 메시지가 {{ $values.A }}개입니다.'
+              description: '큐 {{ `{{ $labels.queue }}` }}에 미확인 메시지 {{ `{{ $values.A }}` }}개'
