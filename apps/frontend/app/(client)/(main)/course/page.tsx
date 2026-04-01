@@ -24,7 +24,7 @@ export default async function Course() {
   const session = await auth()
   if (!session) {
     return (
-      <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
+      <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[120px]">
         <div className="flex flex-col pb-12">
           <span className="text-head1_b_40">COURSE</span>
           <span className="text-color-neutral-40 text-sub2_m_18">
@@ -55,7 +55,7 @@ export default async function Course() {
 
   return (
     <>
-      <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
+      <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[120px]">
         <div className="flex flex-col pb-12">
           <span className="text-head1_b_40">COURSE</span>
           <span className="text-color-neutral-40 text-sub2_m_18">
