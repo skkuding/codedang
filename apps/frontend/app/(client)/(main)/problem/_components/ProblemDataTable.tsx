@@ -58,10 +58,7 @@ export function ProblemDataTable<TData extends Item, TValue>({
   })
   const currentPath = usePathname()
 
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedItems = table
-    .getRowModel()
-    .rows.slice(startIndex, startIndex + itemsPerPage)
+  const paginatedItems = table.getRowModel().rows
 
   return (
     <div className="flex w-full flex-col items-center">

@@ -7,7 +7,7 @@ import (
 )
 
 type TestcaseManager interface {
-	GetTestcase(problemId string, hidden bool) (Testcase, error)
+	GetTestcase(problemId string, testcaseFilter TestcaseFilterCode) (Testcase, error)
 }
 
 type testcaseManager struct {
@@ -19,7 +19,7 @@ func NewTestcaseManager(s3reader *loader.S3reader, database *loader.Postgres) *t
 	return &testcaseManager{s3reader: s3reader, database: database}
 }
 
-func (t *testcaseManager) GetTestcase(problemId string, hidden bool) (Testcase, error) {
+func (t *testcaseManager) GetTestcase(problemId string, testcaseFilter TestcaseFilterCode) (Testcase, error) {
 	data, err := t.s3reader.Get(problemId)
 	if err != nil {
 		data, err = t.database.Get(problemId)
@@ -28,16 +28,23 @@ func (t *testcaseManager) GetTestcase(problemId string, hidden bool) (Testcase, 
 		}
 	}
 
-	if !hidden {
-		var openTestcases []loader.Element
+	var predicate func(element loader.Element) bool
 
+	switch testcaseFilter {
+	case PUBLIC_ONLY:
+		predicate = func(element loader.Element) bool { return !element.Hidden }
+	case HIDDEN_ONLY:
+		predicate = func(element loader.Element) bool { return element.Hidden }
+	}
+
+	if predicate != nil {
+		var filtered []loader.Element
 		for _, testcase := range data {
-			if !testcase.Hidden {
-				openTestcases = append(openTestcases, testcase)
+			if predicate(testcase) {
+				filtered = append(filtered, testcase)
 			}
 		}
-
-		data = openTestcases
+		data = filtered
 	}
 
 	testcase := Testcase{
