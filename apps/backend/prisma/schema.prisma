@@ -1136,9 +1136,9 @@ model PolygonTool {
   problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId Int            @map("problem_id")
 
-  toolType ToolType @map("tool_type") // 'generator' | 'validator' | 'checker'
-  fileName String   @map("file_name")
-  filePath String   @map("file_path") // S3 key
+  toolType    ToolType @map("tool_type") // 'generator' | 'validator' | 'checker'
+  fileName    String   @map("file_name")
+  fileContent Bytes    @map("file_content")
 
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
