@@ -1,6 +1,7 @@
 'use client'
 
 import { SearchBar } from '@/app/(client)/(main)/_components/SearchBar'
+import { Button } from '@/components/shadcn/button'
 import {
   Table,
   TableBody,
@@ -19,6 +20,7 @@ import {
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { IoFilter } from 'react-icons/io5'
 
 interface Item {
   id: number
@@ -70,6 +72,13 @@ export function ProblemDataTable<TData extends Item, TValue>({
           <p className="text-head3_sb_28 text-primary">{total}</p>
         </div>
         <div className="flex items-center justify-start gap-2">
+          <Button
+            variant="outline"
+            className="border-line text-body1_m_16 h-[46px] min-w-28 justify-center rounded-full border px-5 py-[11px] text-black"
+          >
+            <IoFilter className="text-color-cool-neutral-30 mr-2 h-5 w-5" />
+            State
+          </Button>
           <SearchBar className="w-60" />
         </div>
       </div>
