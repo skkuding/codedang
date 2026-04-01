@@ -19,7 +19,7 @@ import {
 } from '@tanstack/react-table'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { IoFilter } from 'react-icons/io5'
 
 interface Item {
@@ -56,7 +56,6 @@ export function ProblemDataTable<TData extends Item, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel()
   })
-  const router = useRouter()
   const currentPath = usePathname()
 
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -114,13 +113,11 @@ export function ProblemDataTable<TData extends Item, TValue>({
                 const href =
                   `${currentPath}/${row.original.id}${search ? `?search=${search}` : ''}` as Route
 
-                const handleClick = linked
-                  ? () => {
-                      router.push(href)
-                    }
-                  : (e: React.MouseEvent<HTMLTableRowElement>) => {
+                const handleClick = !linked
+                  ? (e: React.MouseEvent<HTMLTableRowElement>) => {
                       e.currentTarget.classList.toggle('expanded')
                     }
+                  : undefined
 
                 return (
                   <TableRow
