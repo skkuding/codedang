@@ -1,9 +1,11 @@
+import { Badge } from '@/components/shadcn/badge'
+import { cn } from '@/libs/utils'
 import infoIcon from '@/public/icons/file-info-gray.svg'
 import fileIcon from '@/public/icons/file_gray.svg'
 import trashcanIcon from '@/public/icons/trashcan2-gray.svg'
 import uploadIcon from '@/public/icons/upload-blue.svg'
 import Image from 'next/image'
-import type { ChangeEvent } from 'react'
+import type { ChangeEvent, ReactNode } from 'react'
 import { useState, useRef } from 'react'
 
 interface UploadedFile {
@@ -17,6 +19,9 @@ interface FileUploadSectionProps {
   description: string
   emptyMessages: string[]
   accept: string
+  optional?: boolean
+  children?: ReactNode
+  className?: string
 }
 
 const FORMAT_EXAMPLES = [
@@ -29,7 +34,10 @@ export function FileUploadSection({
   title,
   description,
   emptyMessages,
-  accept
+  accept,
+  optional,
+  children,
+  className
 }: FileUploadSectionProps) {
   const [files, setFiles] = useState<UploadedFile[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -72,10 +80,22 @@ export function FileUploadSection({
   }
 
   return (
-    <div className="border-color-cool-neutral-90 rounded-[16px] border px-6 py-7">
+    <div
+      className={cn(
+        'border-color-cool-neutral-90 rounded-[16px] border px-6 py-7',
+        className
+      )}
+    >
       <div className="flex justify-between border-b pb-5">
         <div>
-          <p className="text-head5_sb_24 mb-1">{title}</p>
+          <p className="text-head5_sb_24 mb-1 flex items-center gap-2">
+            {title}
+            {optional && (
+              <Badge className="text-primary hover:bg-color-blue-95 bg-color-blue-95 text-caption1_m_13 rounded-[4px] px-[10px] py-1">
+                선택
+              </Badge>
+            )}
+          </p>
           <p className="text-body2_m_14 text-color-cool-neutral-40">
             {description}
           </p>
@@ -160,6 +180,8 @@ export function FileUploadSection({
           </div>
         ))}
       </div>
+
+      {children}
     </div>
   )
 }
