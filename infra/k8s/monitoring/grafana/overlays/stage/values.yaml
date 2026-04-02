@@ -3,6 +3,7 @@
 
 envFromSecrets:
   - name: grafana-github-oauth
+  - name: grafana-discord-webhook
 
 replicas: 1
 autoscaling:
