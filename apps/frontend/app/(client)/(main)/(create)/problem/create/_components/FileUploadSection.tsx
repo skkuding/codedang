@@ -145,7 +145,7 @@ export function FileUploadSection({
               >
                 <div className="flex gap-4">
                   <span className="bg-color-neutral-99 flex h-12 w-12 items-center justify-center rounded-[6.4px] border">
-                    <Image src={fileIcon} alt="file" width={20} height={20} />
+                    <Image src={fileIcon} alt="file" width={24} height={24} />
                   </span>
                   <div>
                     <p className="text-sub1_sb_18">{file.name}</p>
@@ -171,7 +171,9 @@ export function FileUploadSection({
         )}
       </div>
 
-      <p className="text-sub1_sb_18 mb-2">포맷 예시</p>
+      <p className="text-sub1_sb_18 text-color-cool-neutral-30 mb-2">
+        포맷 예시
+      </p>
       <div className="bg-color-neutral-99 border-color-cool-neutral-90 flex flex-col gap-2 rounded-[8px] border p-4">
         {FORMAT_EXAMPLES.map((example, index) => (
           <div key={index} className="flex items-center gap-2">
