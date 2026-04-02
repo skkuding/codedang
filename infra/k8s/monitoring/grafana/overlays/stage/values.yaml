@@ -115,6 +115,13 @@ dashboards:
       datasource:
         - name: DS__VICTORIAMETRICS-PROD-ALL
           value: Prometheus
+    # RabbitMQ Overview - https://grafana.com/grafana/dashboards/10991
+    rabbitmq-overview:
+      gnetId: 10991
+      revision: 12
+      datasource:
+        - name: DS_PROMETHEUS
+          value: Prometheus
 
 # Grafana's primary configuration
 # http://docs.grafana.org/installation/configuration/
