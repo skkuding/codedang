@@ -1,0 +1,6 @@
+# 가입 학기별로 구분하여 "공개키 이름" 형식으로 추가해주세요.
+
+# 2025-2학기
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDorx44edxmBwrxj5t00gAhz4BPI4tYT/QnGzEf00Han 김도윤
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL8OFddRgoyrdRxopvoG308pyYkZLIE45iJivYsMKdx4 박태수
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHdnTLm/9BPxLNvcoIvP/9Y/yJ1Og8qv/fiaXSqCtf/7 천성현
