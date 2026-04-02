@@ -40,8 +40,8 @@ export function CourseCardList({ title }: CourseCardListProps) {
   if (courses.length === 0) {
     return (
       <div className="flex w-full flex-col gap-10 md:items-center md:justify-between">
-        <div className="flex gap-4 text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
-          {title}
+        <div className="flex w-full justify-between gap-4 text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
+          <span>{title}</span>
           <RegisterCourseButton />
         </div>
         <div className="mb-20 flex h-60 w-full flex-col items-center justify-center rounded-[20px] border border-[#DFDFDF] text-xl font-normal text-[#737373]">
