@@ -9,7 +9,6 @@ import type { ChangeEvent, ReactNode } from 'react'
 import { useState, useRef } from 'react'
 
 interface UploadedFile {
-  id: string
   name: string
   size: string
 }
@@ -39,44 +38,37 @@ export function FileUploadSection({
   children,
   className
 }: FileUploadSectionProps) {
-  const [files, setFiles] = useState<UploadedFile[]>([])
+  const [file, setFile] = useState<UploadedFile | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files
-    if (!selectedFiles) {
+    if (!selectedFiles || selectedFiles.length === 0) {
       return
     }
 
     const allowedExtensions = accept.split(',').map((ext) => ext.trim())
+    const selected = selectedFiles[0]
 
-    const newFiles: UploadedFile[] = Array.from(selectedFiles)
-      .filter((file) =>
-        allowedExtensions.some((ext) => file.name.endsWith(ext))
-      )
-      .map((file) => {
-        const uniqueId = `${file.name}-${file.size}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
-
-        return {
-          id: uniqueId,
-          name: file.name,
-          size: `${(file.size / 1024).toFixed(1)}KB`
-        }
-      })
-
-    if (newFiles.length === 0 && selectedFiles.length > 0) {
+    if (!allowedExtensions.some((ext) => selected.name.endsWith(ext))) {
       alert(`${accept} 파일만 업로드 가능합니다.`)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
       return
     }
 
-    setFiles((prev) => [...prev, ...newFiles])
+    setFile({
+      name: selected.name,
+      size: `${(selected.size / 1024).toFixed(1)}KB`
+    })
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
   }
 
-  const handleDelete = (id: string) => {
-    setFiles((prev) => prev.filter((file) => file.id !== id))
+  const handleDelete = () => {
+    setFile(null)
   }
 
   return (
@@ -118,7 +110,7 @@ export function FileUploadSection({
       </div>
 
       <div className="my-5 min-h-[160px]">
-        {files.length === 0 ? (
+        {file === null ? (
           <div className="bg-color-neutral-99 flex flex-col items-center rounded-[12px] py-20 text-center">
             <Image
               src={InfoIcon}
@@ -137,36 +129,24 @@ export function FileUploadSection({
             ))}
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            {files.map((file) => (
-              <div
-                key={file.id}
-                className="flex items-center justify-between rounded-[12px] bg-white p-4 shadow-[0_4px_20px_0_rgba(53,78,116,0.10)]"
-              >
-                <div className="flex gap-4">
-                  <span className="bg-color-neutral-99 flex h-12 w-12 items-center justify-center rounded-[6.4px] border">
-                    <Image src={fileIcon} alt="file" width={24} height={24} />
-                  </span>
-                  <div>
-                    <p className="text-sub1_sb_18">{file.name}</p>
-                    <p className="text-sub4_sb_14 text-color-cool-neutral-40">
-                      {file.size}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleDelete(file.id)}
-                  className="border-color-neutral-90 bg-color-neutral-99 hover:bg-color-neutral-95/80 flex h-9 w-12 items-center justify-center rounded-full border transition-all"
-                >
-                  <Image
-                    src={trashcanIcon}
-                    alt="trash"
-                    width={16}
-                    height={16}
-                  />
-                </button>
+          <div className="flex items-center justify-between rounded-[12px] bg-white p-4 shadow-[0_4px_20px_0_rgba(53,78,116,0.10)]">
+            <div className="flex gap-4">
+              <span className="bg-color-neutral-99 flex h-12 w-12 items-center justify-center rounded-[6.4px] border">
+                <Image src={fileIcon} alt="file" width={24} height={24} />
+              </span>
+              <div>
+                <p className="text-sub1_sb_18">{file.name}</p>
+                <p className="text-sub4_sb_14 text-color-cool-neutral-40">
+                  {file.size}
+                </p>
               </div>
-            ))}
+            </div>
+            <button
+              onClick={handleDelete}
+              className="border-color-neutral-90 bg-color-neutral-99 hover:bg-color-neutral-95/80 flex h-9 w-12 items-center justify-center rounded-full border transition-all"
+            >
+              <Image src={trashcanIcon} alt="trash" width={16} height={16} />
+            </button>
           </div>
         )}
       </div>
