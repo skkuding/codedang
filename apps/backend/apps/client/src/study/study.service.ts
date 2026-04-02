@@ -441,4 +441,44 @@ export class StudyService {
       }
     })
   }
+
+  /**
+   * 사용자가 해당 스터디 그룹 소속인지 검증하고, 회원 정보 반환합니다.
+   *
+   * @param {number} groupId 그룹ID
+   * @param {number} userId 유저ID
+   * @returns 사용자의 ID, 이름, 리더 여부를 포함한 객체
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 사용자가 해당 그룹에 속해있지 않을 경우 발생
+   */
+  async validateJoinableStudyGroup(groupId: number, userId: number) {
+    const membership = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
+      },
+      select: {
+        userId: true,
+        isGroupLeader: true,
+        user: {
+          select: {
+            username: true
+          }
+        }
+      }
+    })
+
+    if (!membership) {
+      throw new ForbiddenAccessException('User ID is not in the group')
+    }
+
+    return {
+      userId: membership.userId,
+      userName: membership.user.username,
+      isLeader: membership.isGroupLeader
+    }
+  }
 }
