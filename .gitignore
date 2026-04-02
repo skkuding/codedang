@@ -1,3 +1,7 @@
+### Load test results ###
+tests/load/results/*
+!tests/load/results/.gitkeep
+
 ### Node ###
 # Logs
 logs
