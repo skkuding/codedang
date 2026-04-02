@@ -1,8 +1,11 @@
 [k3s_server]
-server5.skkuding.dev ansible_port=21541
-server6.skkuding.dev ansible_port=21541
-server7.skkuding.dev ansible_port=21541
+server5.skkuding.dev
+server6.skkuding.dev
+server7.skkuding.dev
 
 [k3s_agent]
-server8.skkuding.dev ansible_port=21541
-server9.skkuding.dev ansible_port=21541
+server8.skkuding.dev
+server9.skkuding.dev
+
+[all:vars]
+ansible_port=21541
