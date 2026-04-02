@@ -1,0 +1,8 @@
+[k3s_server]
+server5.skkuding.dev
+server6.skkuding.dev
+server7.skkuding.dev
+
+[k3s_agent]
+server8.skkuding.dev
+server9.skkuding.dev
