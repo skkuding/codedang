@@ -42,7 +42,7 @@
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
         regexp: '^#?Port'
-        line: 'Port 21541'
+        line: 'Port {{ ansible_port }}'
         state: present
       notify: Restart sshd
 
