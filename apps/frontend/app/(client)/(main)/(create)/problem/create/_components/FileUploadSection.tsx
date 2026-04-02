@@ -1,7 +1,7 @@
 import { Badge } from '@/components/shadcn/badge'
 import { cn } from '@/libs/utils'
-import infoIcon from '@/public/icons/file-info-gray.svg'
 import fileIcon from '@/public/icons/file_gray.svg'
+import InfoIcon from '@/public/icons/info-icon-gray.svg'
 import trashcanIcon from '@/public/icons/trashcan2-gray.svg'
 import uploadIcon from '@/public/icons/upload-blue.svg'
 import Image from 'next/image'
@@ -121,7 +121,7 @@ export function FileUploadSection({
         {files.length === 0 ? (
           <div className="bg-color-neutral-99 flex flex-col items-center rounded-[12px] py-20 text-center">
             <Image
-              src={infoIcon}
+              src={InfoIcon}
               alt="info"
               width={24}
               height={24}
