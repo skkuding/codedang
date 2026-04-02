@@ -1,4 +1,4 @@
 [k3s_server]
-server1.skkuding.dev
-server2.skkuding.dev
-server3.skkuding.dev
+server1.skkuding.dev ansible_port=21541
+server2.skkuding.dev ansible_port=21541
+server3.skkuding.dev ansible_port=21541
