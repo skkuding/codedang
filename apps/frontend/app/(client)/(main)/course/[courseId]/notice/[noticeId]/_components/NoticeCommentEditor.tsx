@@ -24,6 +24,7 @@ export function NoticeCommentEditor({
   secret,
   setSecret,
   onSubmit,
+  onCancel,
   placeholder,
   compact = false,
   autoResize = false,
@@ -36,7 +37,6 @@ export function NoticeCommentEditor({
     if (!autoResize || !textareaRef.current) {
       return
     }
-
     textareaRef.current.style.height = 'auto'
     textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
   }, [value, autoResize])
@@ -86,15 +86,27 @@ export function NoticeCommentEditor({
           </div>
 
           {compact && (
-            <Button
-              type="button"
-              onClick={onSubmit}
-              disabled={disabled}
-              className="text-caption2_m_12 flex h-10 rounded-full px-6 py-3"
-            >
-              <BiSolidPencil className="mr-[6px] h-4 w-4" />
-              {submitText}
-            </Button>
+            <div className="flex items-center gap-2">
+              {onCancel && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onCancel}
+                  className="text-caption2_m_12 h-10 rounded-full px-4 py-3"
+                >
+                  Cancel
+                </Button>
+              )}
+              <Button
+                type="button"
+                onClick={onSubmit}
+                disabled={disabled}
+                className="text-caption2_m_12 flex h-10 rounded-full px-6 py-3"
+              >
+                <BiSolidPencil className="mr-[6px] h-4 w-4" />
+                {submitText}
+              </Button>
+            </div>
           )}
         </div>
 
@@ -112,12 +124,22 @@ export function NoticeCommentEditor({
         </label>
 
         {!compact && (
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            {onCancel && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                className="text-caption2_m_12 h-10 flex-1 rounded-full px-6 py-3"
+              >
+                Cancel
+              </Button>
+            )}
             <Button
               type="button"
               onClick={onSubmit}
               disabled={disabled}
-              className="text-caption2_m_12 flex h-10 w-full rounded-full px-6 py-3"
+              className="text-caption2_m_12 flex h-10 flex-1 rounded-full px-6 py-3"
             >
               <BiSolidPencil className="mr-[6px] h-4 w-4" />
               {submitText}

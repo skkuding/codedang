@@ -13,15 +13,15 @@ export default async function Page(props: {
   const { courseId } = await props.params
 
   return (
-    <div className="container mx-auto space-y-5 py-10">
+    <div className="container mx-auto py-10">
       <div className="flex justify-between">
-        <p className="text-4xl font-bold">Notice List</p>
-        <div className="flex gap-[8px]">
+        <p className="text-head3_sb_28">NOTICE LIST</p>
+        <div className="flex gap-2">
           <ImportNoticeModal courseId={courseId} />
           <CreateNoticeModal courseId={courseId} />
         </div>
       </div>
-      <p className="text-lg text-slate-500">
+      <p className="text-body1_m_16 text-color-neutral-50">
         Here&apos;s a notice list you made
       </p>
       <div className="mt-8">

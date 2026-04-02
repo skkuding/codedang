@@ -13,7 +13,7 @@ import {
 import { useMutation } from '@apollo/client'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FaPen } from 'react-icons/fa6'
 import { toast } from 'sonner'
 
@@ -59,10 +59,7 @@ export function CreateNoticeModal({
   const [updateCourseNotice, { loading: isUpdating }] =
     useMutation(UPDATE_COURSE_NOTICE)
 
-  const isPending = useMemo(
-    () => isCreating || isUpdating,
-    [isCreating, isUpdating]
-  )
+  const isPending = isCreating || isUpdating
 
   useEffect(() => {
     if (!isOpen) {

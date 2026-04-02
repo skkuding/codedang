@@ -11,13 +11,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
-import { cn } from '@/libs/utils'
+import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import arrowDownIcon from '@/public/icons/arrow-down.svg'
-import type { CourseNoticeListItem } from '@/types/type'
+import type {
+  CourseNoticeListItem,
+  CourseNoticeListResponse
+} from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
-import { mockCourseNotices } from '../notice/_components/mock'
 import {
   courseNoticeColumns,
   type CourseNoticeRow
@@ -46,25 +48,47 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
   }
 
   const { data: notices = [] } = useQuery<CourseNoticeListItem[]>({
-    queryKey: ['courseNotices', courseId, filterType, orderType],
-    queryFn: () => mockCourseNotices,
-    enabled: Boolean(courseId),
-    retry: false
+    queryKey: ['courseNotices', courseId],
+    queryFn: async () => {
+      const [fixedRes, normalRes] = await Promise.all([
+        safeFetcherWithAuth
+          .get(`course/${courseId}/notice/all`, {
+            searchParams: {
+              take: '100',
+              fixed: 'true',
+              readFilter: 'all',
+              order: 'createTime-desc'
+            }
+          })
+          .json<CourseNoticeListResponse>(),
+        safeFetcherWithAuth
+          .get(`course/${courseId}/notice/all`, {
+            searchParams: {
+              take: '100',
+              fixed: 'false',
+              readFilter: 'all',
+              order: 'createTime-desc'
+            }
+          })
+          .json<CourseNoticeListResponse>()
+      ])
+      return [...fixedRes.data, ...normalRes.data]
+    },
+    enabled: Boolean(courseId)
   })
 
   const tableData: CourseNoticeRow[] = useMemo(() => {
-    const filteredNotices =
-      filterType === 'unread'
-        ? notices.filter((notice) => !notice.isRead)
-        : notices
-
+    const filtered =
+      filterType === 'unread' ? notices.filter((n) => !n.isRead) : notices
+    // Build noMap from chronological order
     const noMap = new Map(
-      [...filteredNotices]
+      [...filtered]
         .sort((a, b) => getTime(a) - getTime(b))
-        .map((notice, index) => [notice.id, index + 1])
+        .map((n, i) => [n.id, i + 1])
     )
 
-    return [...filteredNotices]
+    // Sort once for display order
+    return [...filtered]
       .sort((a, b) => {
         if (a.isFixed !== b.isFixed) {
           return a.isFixed ? -1 : 1
@@ -73,14 +97,14 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
           ? getTime(a) - getTime(b)
           : getTime(b) - getTime(a)
       })
-      .map((notice) => ({
-        id: notice.id,
-        no: String(noMap.get(notice.id) ?? 0).padStart(2, '0'),
-        title: notice.title,
-        createdBy: notice.createdBy ?? 'Unknown',
-        date: notice.createTime ?? notice.updateTime ?? '',
-        isRead: notice.isRead,
-        isFixed: notice.isFixed
+      .map((n) => ({
+        id: n.id,
+        no: String(noMap.get(n.id) ?? 0).padStart(2, '0'),
+        title: n.title,
+        createdBy: n.createdBy ?? 'Unknown',
+        date: n.createTime ?? n.updateTime ?? '',
+        isRead: n.isRead,
+        isFixed: n.isFixed
       }))
   }, [notices, filterType, orderType])
 

@@ -46,6 +46,7 @@ export function NoticeCommentsSection({
   isCommentsLoading,
   groupedComments,
   profileUsername,
+  isInstructor = false,
   commentContent,
   setCommentContent,
   commentSecret,
@@ -92,7 +93,6 @@ export function NoticeCommentsSection({
       cancelReply()
       return
     }
-
     setReplyTargetId(commentId)
     setReplyContent('')
     setReplySecret(false)
@@ -129,6 +129,7 @@ export function NoticeCommentsSection({
                 replyCount={group.replys.length}
                 hasReplySection={hasReplySection}
                 profileUsername={profileUsername}
+                isAdmin={isInstructor}
                 replyTargetId={replyTargetId}
                 editingCommentId={editingCommentId}
                 onReplyToggle={toggleReply}
@@ -147,7 +148,6 @@ export function NoticeCommentsSection({
                     disabled={!editingContent.trim() || isUpdatingComment}
                   />
                 )}
-                renderReplyEditor={() => null}
               />
 
               {hasReplySection && (
@@ -160,6 +160,7 @@ export function NoticeCommentsSection({
                           comment={reply}
                           isReply
                           profileUsername={profileUsername}
+                          isAdmin={isInstructor}
                           replyTargetId={replyTargetId}
                           editingCommentId={editingCommentId}
                           onReplyToggle={toggleReply}
@@ -184,7 +185,6 @@ export function NoticeCommentsSection({
                               />
                             </div>
                           )}
-                          renderReplyEditor={() => null}
                         />
                       ))}
                     </div>

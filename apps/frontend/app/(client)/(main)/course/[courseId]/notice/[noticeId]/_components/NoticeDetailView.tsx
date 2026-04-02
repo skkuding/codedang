@@ -3,24 +3,19 @@
 import { profileQueries } from '@/app/(client)/_libs/queries/profile'
 import { AlertModal } from '@/components/AlertModal'
 import { safeFetcherWithAuth, dateFormatter } from '@/libs/utils'
-import type {
-  CourseNoticeCommentGroup,
-  CourseNoticeDetailResponse
-} from '@/types/type'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { Course, CourseNoticeDetailResponse } from '@/types/type'
+import { useQuery } from '@tanstack/react-query'
+import DOMPurify from 'isomorphic-dompurify'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
 import { FaUser } from 'react-icons/fa6'
 import { IoTime } from 'react-icons/io5'
-import { toast } from 'sonner'
 import { NoticeCommentsSection } from './NoticeCommentsSection'
+import { useNoticeComments } from './useNoticeComments'
 
 const profileInitialData = {
   username: '',
-  userProfile: {
-    realName: ''
-  },
+  userProfile: { realName: '' },
   studentId: '',
   college: '',
   major: '',
@@ -30,27 +25,18 @@ const profileInitialData = {
 export function NoticeDetailView() {
   const { courseId, noticeId } = useParams()
   const currentId = Number(noticeId)
-  const queryClient = useQueryClient()
   const basePath = `/course/${courseId}/notice`
-
-  const [commentContent, setCommentContent] = useState('')
-  const [commentSecret, setCommentSecret] = useState(false)
-
-  const [replyTargetId, setReplyTargetId] = useState<number | null>(null)
-  const [replyContent, setReplyContent] = useState('')
-  const [replySecret, setReplySecret] = useState(false)
-
-  const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
-  const [editingContent, setEditingContent] = useState('')
-  const [editingSecret, setEditingSecret] = useState(false)
-
-  const [deletingCommentId, setDeletingCommentId] = useState<number | null>(
-    null
-  )
 
   const { data: profile } = useQuery({
     ...profileQueries.fetch(),
     initialData: profileInitialData,
+    retry: false
+  })
+
+  const { data: courseInfo } = useQuery({
+    queryKey: ['courseInfo', courseId],
+    queryFn: () => safeFetcherWithAuth.get(`course/${courseId}`).json<Course>(),
+    enabled: Boolean(courseId),
     retry: false
   })
 
@@ -63,190 +49,36 @@ export function NoticeDetailView() {
     enabled: Number.isFinite(currentId)
   })
 
-  const { data: groupedComments = [], isLoading: isCommentsLoading } = useQuery(
-    {
-      queryKey: ['courseNoticeComments', currentId],
-      queryFn: () =>
-        safeFetcherWithAuth
-          .get(`course/notice/${currentId}/comment`, {
-            searchParams: { take: '100' }
-          })
-          .json<CourseNoticeCommentGroup[]>(),
-      enabled: Number.isFinite(currentId)
-    }
-  )
+  const {
+    groupedComments,
+    isCommentsLoading,
+    commentContent,
+    setCommentContent,
+    commentSecret,
+    setCommentSecret,
+    replyTargetId,
+    setReplyTargetId,
+    replyContent,
+    setReplyContent,
+    replySecret,
+    setReplySecret,
+    editingCommentId,
+    setEditingCommentId,
+    editingContent,
+    setEditingContent,
+    editingSecret,
+    setEditingSecret,
+    deletingCommentId,
+    setDeletingCommentId,
+    isCreatingComment,
+    isUpdatingComment,
+    isDeletingComment,
+    createComment,
+    updateComment,
+    deleteComment
+  } = useNoticeComments(currentId, courseId ?? '')
 
-  const invalidateNoticeDetail = () => {
-    queryClient.invalidateQueries({
-      queryKey: ['courseNoticeDetail', currentId]
-    })
-    queryClient.invalidateQueries({
-      queryKey: ['courseNotices', courseId]
-    })
-  }
-
-  const invalidateComments = () => {
-    queryClient.invalidateQueries({
-      queryKey: ['courseNoticeComments', currentId]
-    })
-  }
-
-  const markDeletedInGroups = (
-    groups: CourseNoticeCommentGroup[],
-    commentId: number
-  ): CourseNoticeCommentGroup[] =>
-    groups.map((group) => {
-      if (group.comment.id === commentId) {
-        return {
-          ...group,
-          comment: {
-            ...group.comment,
-            isDeleted: true
-          }
-        }
-      }
-
-      return {
-        ...group,
-        replys: group.replys.map((reply) =>
-          reply.id === commentId
-            ? {
-                ...reply,
-                isDeleted: true
-              }
-            : reply
-        )
-      }
-    })
-
-  const resetCreateState = () => {
-    setCommentContent('')
-    setCommentSecret(false)
-    setReplyTargetId(null)
-    setReplyContent('')
-    setReplySecret(false)
-  }
-
-  const resetEditState = () => {
-    setEditingCommentId(null)
-    setEditingContent('')
-    setEditingSecret(false)
-  }
-
-  const { mutate: createComment, isPending: isCreatingComment } = useMutation({
-    mutationFn: (payload: {
-      content: string
-      isSecret: boolean
-      replyOnId?: number
-    }) =>
-      safeFetcherWithAuth
-        .post(`course/notice/${currentId}/comment`, { json: payload })
-        .json(),
-    onSuccess: () => {
-      toast.success('Comment posted!')
-      resetCreateState()
-      invalidateComments()
-    },
-    onError: () => {
-      toast.error('Failed to post comment.')
-    }
-  })
-
-  const { mutate: updateComment, isPending: isUpdatingComment } = useMutation({
-    mutationFn: (payload: {
-      commentId: number
-      content: string
-      isSecret: boolean
-    }) =>
-      safeFetcherWithAuth
-        .patch(`course/notice/${currentId}/comment/${payload.commentId}`, {
-          json: {
-            content: payload.content,
-            isSecret: payload.isSecret
-          }
-        })
-        .json(),
-    onSuccess: () => {
-      toast.success('Comment updated!')
-      resetEditState()
-      invalidateComments()
-    },
-    onError: () => {
-      toast.error('Failed to update comment.')
-    }
-  })
-
-  const { mutate: deleteComment, isPending: isDeletingComment } = useMutation({
-    mutationFn: (commentId: number) =>
-      safeFetcherWithAuth.delete(
-        `course/notice/${currentId}/comment/${commentId}`
-      ),
-
-    onMutate: async (commentId: number) => {
-      await queryClient.cancelQueries({
-        queryKey: ['courseNoticeComments', currentId]
-      })
-
-      const previousComments = queryClient.getQueryData<
-        CourseNoticeCommentGroup[]
-      >(['courseNoticeComments', currentId])
-
-      queryClient.setQueryData<CourseNoticeCommentGroup[]>(
-        ['courseNoticeComments', currentId],
-        (old) => markDeletedInGroups(old ?? [], commentId)
-      )
-
-      setDeletingCommentId(null)
-
-      return { previousComments }
-    },
-
-    onSuccess: () => {
-      toast.success('Comment deleted!')
-      invalidateNoticeDetail()
-    },
-
-    onError: (_error, _commentId, context) => {
-      if (context?.previousComments) {
-        queryClient.setQueryData(
-          ['courseNoticeComments', currentId],
-          context.previousComments
-        )
-      }
-      toast.error('Failed to delete comment.')
-    }
-  })
-
-  const handleCreateComment = () => {
-    createComment({
-      content: commentContent,
-      isSecret: commentSecret
-    })
-  }
-
-  const handleCreateReply = (commentId: number) => {
-    createComment({
-      content: replyContent,
-      isSecret: replySecret,
-      replyOnId: commentId
-    })
-  }
-
-  const handleUpdateComment = (commentId: number) => {
-    updateComment({
-      commentId,
-      content: editingContent,
-      isSecret: editingSecret
-    })
-  }
-
-  const handleDeleteComment = () => {
-    if (deletingCommentId === null) {
-      return
-    }
-    deleteComment(deletingCommentId)
-  }
-
+  const isInstructor = courseInfo?.isGroupLeader ?? false
   const notice = noticeData?.current
   const prevNotice = noticeData?.prev ?? null
   const nextNotice = noticeData?.next ?? null
@@ -282,7 +114,9 @@ export function NoticeDetailView() {
 
             <div
               className="prose mt-4 max-w-none whitespace-pre-wrap text-[16px]"
-              dangerouslySetInnerHTML={{ __html: notice.content }}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(notice.content)
+              }}
             />
           </div>
 
@@ -328,19 +162,31 @@ export function NoticeDetailView() {
             isCommentsLoading={isCommentsLoading}
             groupedComments={groupedComments}
             profileUsername={profile?.username}
+            isInstructor={isInstructor}
             commentContent={commentContent}
             setCommentContent={setCommentContent}
             commentSecret={commentSecret}
             setCommentSecret={setCommentSecret}
             isCreatingComment={isCreatingComment}
-            onCreateComment={handleCreateComment}
+            onCreateComment={() =>
+              createComment({
+                content: commentContent,
+                isSecret: commentSecret
+              })
+            }
             replyTargetId={replyTargetId}
             setReplyTargetId={setReplyTargetId}
             replyContent={replyContent}
             setReplyContent={setReplyContent}
             replySecret={replySecret}
             setReplySecret={setReplySecret}
-            onCreateReply={handleCreateReply}
+            onCreateReply={(commentId) =>
+              createComment({
+                content: replyContent,
+                isSecret: replySecret,
+                replyOnId: commentId
+              })
+            }
             editingCommentId={editingCommentId}
             setEditingCommentId={setEditingCommentId}
             editingContent={editingContent}
@@ -348,7 +194,13 @@ export function NoticeDetailView() {
             editingSecret={editingSecret}
             setEditingSecret={setEditingSecret}
             isUpdatingComment={isUpdatingComment}
-            onUpdateComment={handleUpdateComment}
+            onUpdateComment={(commentId) =>
+              updateComment({
+                commentId,
+                content: editingContent,
+                isSecret: editingSecret
+              })
+            }
             onDeleteComment={setDeletingCommentId}
           />
         </div>
@@ -368,7 +220,11 @@ export function NoticeDetailView() {
         }
         primaryButton={{
           text: isDeletingComment ? 'Deleting...' : 'Delete',
-          onClick: handleDeleteComment
+          onClick: () => {
+            if (deletingCommentId !== null) {
+              deleteComment(deletingCommentId)
+            }
+          }
         }}
       />
     </>

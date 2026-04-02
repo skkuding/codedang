@@ -3,7 +3,11 @@
 import { CreateNoticeModal } from '@/app/admin/course/[courseId]/notice/_components/CreateNoticeModal'
 import { DeleteNoticeModal } from '@/app/admin/course/[courseId]/notice/_components/DeleteNoticeModal'
 import { DELETE_COURSE_NOTICE } from '@/graphql/course/mutation'
-import { cn, dateFormatter, safeFetcherWithAuth } from '@/libs/utils'
+import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import type {
+  CourseNoticeDetailResponse,
+  CourseNoticeListItem
+} from '@/types/type'
 import { useMutation } from '@apollo/client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react'
@@ -13,18 +17,6 @@ import { toast } from 'sonner'
 
 interface NoticeTableProps {
   groupId: string
-}
-
-interface CourseNoticeListItem {
-  id: number
-  title: string
-  content?: string
-  createTime?: string
-  updateTime?: string
-  createdBy: string | null
-  isRead: boolean
-  isFixed: boolean
-  isPublic?: boolean
 }
 
 interface CourseNoticeListResponse {
@@ -58,6 +50,7 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
     isPublic?: boolean
   } | null>(null)
   const [deletingNoticeId, setDeletingNoticeId] = useState<number | null>(null)
+  const [loadingEditId, setLoadingEditId] = useState<number | null>(null)
 
   const { data: notices = [], isLoading } = useQuery({
     queryKey: ['adminCourseNotices', Number(groupId)],
@@ -84,34 +77,7 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
           })
           .json<CourseNoticeListResponse>()
       ])
-
-      const combined = [...fixedResponse.data, ...normalResponse.data]
-
-      const detailResults = await Promise.all(
-        combined.map(async (notice) => {
-          const detail = await safeFetcherWithAuth
-            .get(`course/notice/${notice.id}`)
-            .json<{
-              current: {
-                title: string
-                content: string
-                isPublic: boolean
-                createTime: string
-                updateTime: string
-              }
-            }>()
-
-          return {
-            ...notice,
-            content: detail.current.content,
-            isPublic: detail.current.isPublic,
-            createTime: detail.current.createTime,
-            updateTime: detail.current.updateTime
-          }
-        })
-      )
-
-      return detailResults
+      return [...fixedResponse.data, ...normalResponse.data]
     }
   })
 
@@ -123,7 +89,6 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
       if (a.isFixed !== b.isFixed) {
         return a.isFixed ? -1 : 1
       }
-
       return getNoticeTime(b) - getNoticeTime(a)
     })
   }, [notices])
@@ -141,18 +106,31 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
     }
   }, [currentPage, totalPages])
 
-  const pageNumbers = useMemo(() => {
-    return Array.from({ length: totalPages }, (_, index) => index + 1)
-  }, [totalPages])
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1)
+
+  const handleEditClick = async (notice: CourseNoticeListItem) => {
+    setLoadingEditId(notice.id)
+    try {
+      const detail = await safeFetcherWithAuth
+        .get(`course/notice/${notice.id}`)
+        .json<CourseNoticeDetailResponse>()
+      setEditingNotice({
+        id: notice.id,
+        title: detail.current.title,
+        content: detail.current.content,
+        isFixed: notice.isFixed,
+        isPublic: detail.current.isPublic
+      })
+    } catch {
+      toast.error('Failed to load notice.')
+    } finally {
+      setLoadingEditId(null)
+    }
+  }
 
   const handleDelete = async (courseNoticeId: number) => {
     try {
-      await deleteCourseNotice({
-        variables: {
-          courseNoticeId
-        }
-      })
-
+      await deleteCourseNotice({ variables: { courseNoticeId } })
       toast.success('Notice deleted!')
       await queryClient.invalidateQueries({
         queryKey: ['adminCourseNotices', Number(groupId)]
@@ -173,21 +151,14 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
         <div className="overflow-x-auto">
           <div className="min-w-[920px]">
             <div className="grid grid-cols-[88px_minmax(0,1fr)_96px_96px_88px] gap-2">
-              <div className="flex h-[32px] items-center justify-center rounded-full bg-[#F3F4F6] text-sm font-medium text-[#9CA3AF]">
-                No
-              </div>
-              <div className="flex h-[32px] items-center justify-center rounded-full bg-[#F3F4F6] text-sm font-medium text-[#9CA3AF]">
-                Title
-              </div>
-              <div className="flex h-[32px] items-center justify-center rounded-full bg-[#F3F4F6] text-sm font-medium text-[#9CA3AF]">
-                Edit
-              </div>
-              <div className="flex h-[32px] items-center justify-center rounded-full bg-[#F3F4F6] text-sm font-medium text-[#9CA3AF]">
-                Delete
-              </div>
-              <div className="flex h-[32px] items-center justify-center rounded-full bg-[#F3F4F6] text-sm font-medium text-[#9CA3AF]">
-                Pin
-              </div>
+              {['No', 'Title', 'Edit', 'Delete', 'Pin'].map((label) => (
+                <div
+                  key={label}
+                  className="flex h-[32px] items-center justify-center rounded-full bg-[#F3F4F6] text-sm font-medium text-[#9CA3AF]"
+                >
+                  {label}
+                </div>
+              ))}
             </div>
 
             <div className="mt-3">
@@ -211,16 +182,9 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
                       <button
                         type="button"
                         aria-label={`Edit ${notice.title}`}
-                        onClick={() =>
-                          setEditingNotice({
-                            id: notice.id,
-                            title: notice.title,
-                            content: notice.content ?? '',
-                            isFixed: notice.isFixed,
-                            isPublic: notice.isPublic
-                          })
-                        }
-                        className="flex h-[36px] w-[40px] items-center justify-center rounded-full border border-[#D4D4D8] bg-[#F5F5F5] transition hover:bg-[#EBEBEB]"
+                        disabled={loadingEditId === notice.id}
+                        onClick={() => handleEditClick(notice)}
+                        className="flex h-[36px] w-[40px] items-center justify-center rounded-full border border-[#D4D4D8] bg-[#F5F5F5] transition hover:bg-[#EBEBEB] disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         <Pencil className="h-4 w-4 text-[#A1A1AA]" />
                       </button>
@@ -333,7 +297,6 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
           if (deletingNoticeId === null) {
             return
           }
-
           await handleDelete(deletingNoticeId)
           setDeletingNoticeId(null)
         }}

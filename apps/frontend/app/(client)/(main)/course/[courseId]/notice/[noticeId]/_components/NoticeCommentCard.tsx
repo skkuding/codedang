@@ -21,7 +21,6 @@ interface NoticeCommentCardProps {
   onEditStart: (comment: CourseNoticeCommentItem) => void
   onDelete: (commentId: number) => void
   renderEditEditor: () => React.ReactNode
-  renderReplyEditor: () => React.ReactNode
   hasReplySection?: boolean
 }
 
