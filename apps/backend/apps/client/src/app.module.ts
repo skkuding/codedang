@@ -12,6 +12,7 @@ import { ClientExceptionFilter } from '@libs/exception'
 import { openTelemetryModuleOption } from '@libs/instrumentation'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
+import { RedisModule } from '@libs/redis'
 import { AnnouncementModule } from './announcement/announcement.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -55,7 +56,8 @@ import { WorkbookModule } from './workbook/workbook.module'
     NotificationModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
     OpenTelemetryModule.forRoot(openTelemetryModuleOption),
-    StudyModule
+    StudyModule,
+    RedisModule
   ],
   controllers: [AppController],
   providers: [
