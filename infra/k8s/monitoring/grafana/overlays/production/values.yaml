@@ -139,7 +139,7 @@ dashboards:
       gnetId: 10991
       revision: 12
       datasource:
-        - name: datasource
+        - name: DS_PROMETHEUS
           value: Prometheus
   # ── AWS CloudWatch (monitoringartist) ─────────
   aws-dashboards:
