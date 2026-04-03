@@ -1,4 +1,4 @@
-name: CI-Infra
+name: CI - Infra
 
 on:
   push:
