@@ -33,3 +33,13 @@ export const CHECK_RESULT_KEY = 'check.result'
 export const CHECK_RESULT_QUEUE = 'plag.q.check.result'
 
 export const CHECK_MESSAGE_TYPE = 'check'
+
+/**
+ * Polygon Tool 업로드
+ */
+
+export const POLYGON_EXCHANGE = 'iris.e.direct.polygon'
+
+export const POLYGON_TOOL_KEY = 'polygon.tool'
+
+export const POLYGON_TOOL_MESSAGE_TYPE = 'polygonTool'
