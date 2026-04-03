@@ -8,7 +8,6 @@ import PlusCircle from '@/public/icons/plus-circle-blue.svg'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { IoFilter } from 'react-icons/io5'
 import type { MyProblemCardItem } from './MyProblem'
 
@@ -18,8 +17,6 @@ interface MyProblemDataTableProps {
 }
 
 export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
-  const currentPath = usePathname()
-
   return (
     <div className="flex w-full flex-col items-center">
       <div className="flex w-full items-center justify-between self-stretch">
@@ -55,7 +52,7 @@ export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
         </div>
       </div>
       {data.length ? (
-        <div className="mb-30 mt-5 grid w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mb-30 mt-5 grid w-full grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
           {data.map((problem) => {
             const href =
               `/problem/my-problem/${problem.id}${search ? `?search=${search}` : ''}` as Route
@@ -68,7 +65,7 @@ export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
               >
                 <div className="flex w-full flex-col items-start gap-3">
                   <div className="inline-flex w-20 items-center justify-center gap-2.5 rounded bg-[#EDF4FF] px-2.5 py-1">
-                    <span className="text-primary text-center text-xs font-medium leading-5">
+                    <span className="text-primary text-caption1_m_13 text-center">
                       {problem.state}
                     </span>
                   </div>
