@@ -14,6 +14,7 @@
         recurse: true
       delegate_to: localhost
       become: false
+      run_once: true
       register: pubkeys
 
     - name: Ensure .ssh directory exists
@@ -30,6 +31,7 @@
       loop: '{{ pubkeys.files }}'
       delegate_to: localhost
       become: false
+      run_once: true
 
     - name: Sync authorized_keys (add new, remove deleted)
       ansible.posix.authorized_key:
