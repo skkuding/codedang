@@ -24,21 +24,11 @@ jobs:
               - 'infra/ansible/**'
               - '.github/workflows/ci-infra.yml'
 
-      - name: Set up Python
-        if: steps.filter.outputs.infra == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install Ansible Lint
-        if: steps.filter.outputs.infra == 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install ansible-lint==24.12.2
-
       - name: Run Ansible Lint
         if: steps.filter.outputs.infra == 'true'
-        run: ansible-lint infra/ansible/
+        uses: ansible/ansible-lint@v25
+        with:
+          working_directory: infra/ansible/
 
   check-ssh-public-keys:
     name: Check SSH Public Keys
