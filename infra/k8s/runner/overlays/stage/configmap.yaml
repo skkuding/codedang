@@ -4,4 +4,9 @@ metadata:
   name: pod-manager-env
   namespace: runner
 data:
+  APP_ENV: 'stage'
+  OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'simplest-collector.monitoring-otel.svc.cluster.local:4317'
+  DISABLE_INSTRUMENTATION: 'false'
   RUNNER_IMAGE_TAG: 'stage'
+  RUNNER_POOL_SIZE: '60'
+  RUNNER_REDIS_PREFIX: 'codedang:runner:stage'

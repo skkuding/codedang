@@ -3,12 +3,15 @@
 import {
   Carousel,
   CarouselContent,
-  CarouselItem
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious
 } from '@/components/shadcn/carousel'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { JoinedCourse } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
+import { useMemo } from 'react'
 import { CourseCard } from '../_components/CourseCard'
 import { RegisterCourseButton } from './RegisterCourseButton'
 
@@ -24,14 +27,24 @@ export function CourseCardList({ title }: CourseCardListProps) {
     }
   })
 
+  const courseColumns = useMemo(() => {
+    const columns: JoinedCourse[][] = []
+
+    for (let i = 0; i < courses.length; i += 2) {
+      columns.push(courses.slice(i, i + 2))
+    }
+
+    return columns
+  }, [courses])
+
   if (courses.length === 0) {
     return (
       <div className="flex w-full flex-col gap-10 md:items-center md:justify-between">
-        <div className="flex gap-4 text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
-          {title}
+        <div className="flex w-full justify-between gap-4 text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
+          <span>{title}</span>
           <RegisterCourseButton />
         </div>
-        <div className="flex h-72 w-full flex-col items-center justify-center rounded-[20px] border border-[#DFDFDF] text-xl font-normal text-[#737373]">
+        <div className="mb-20 flex h-60 w-full flex-col items-center justify-center rounded-[20px] border border-[#DFDFDF] text-xl font-normal text-[#737373]">
           <p>There are no courses registered!</p>
           <p>
             Please click the register button at the top to enroll in a course.
@@ -47,17 +60,34 @@ export function CourseCardList({ title }: CourseCardListProps) {
         <span className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
           {title}
         </span>
-        <RegisterCourseButton />
+        <div className="flex items-center gap-3">
+          <CarouselPrevious className="h-6 w-6" />
+          <CarouselNext className="h-6 w-6" />
+          <RegisterCourseButton />
+        </div>
       </div>
-      <CarouselContent className="mb-[100px] ml-2 grid auto-cols-[240px] grid-flow-col grid-rows-2 gap-3 md:auto-cols-[293px]">
-        {courses.map((course, index) => (
-          <CarouselItem key={course.id} className="p-0">
-            <Link
-              href={`/course/${course.id}` as const}
-              className="block w-full"
-            >
-              <CourseCard course={course} index={index} />
-            </Link>
+
+      <CarouselContent className="mb-[100px] ml-2">
+        {courseColumns.map((column, columnIndex) => (
+          <CarouselItem
+            key={`course-column-${columnIndex}`}
+            className="basis-[240px] md:basis-[293px]"
+          >
+            <div className="flex flex-col gap-3">
+              {column.map((course, rowIndex) => {
+                const originalIndex = columnIndex * 2 + rowIndex
+
+                return (
+                  <Link
+                    key={course.id}
+                    href={`/course/${course.id}` as const}
+                    className="block w-full"
+                  >
+                    <CourseCard course={course} index={originalIndex} />
+                  </Link>
+                )
+              })}
+            </div>
           </CarouselItem>
         ))}
       </CarouselContent>

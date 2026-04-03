@@ -1,0 +1,5 @@
+[k3s_server]
+server10.skkuding.dev
+
+[all:vars]
+ansible_port=21541

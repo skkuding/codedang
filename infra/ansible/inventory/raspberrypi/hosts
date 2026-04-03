@@ -1,0 +1,5 @@
+[raspberrypi]
+server4.skkuding.dev
+
+[all:vars]
+ansible_port=21541
