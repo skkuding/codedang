@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: grafana-discord-webhook
+  namespace: monitoring-grafana
+spec:
+  encryptedData:
+    DISCORD_WEBHOOK_URL: AgAgVMfCHQYuoKmkG+3aZXySe1CS2k9g9rbCYVscXkQkPgYE/wslcvWK+FOIVxNXVtz2+ZfG2topEWr18Lswv02NUA7eVD8eXtwuQ21VjxIsJsnf7XdQ7MwRHL4KjSJOiaFcifR2PqGz78g+EL3RFVilBLfbD3lcaNvRFwLx77C6UZ4YRiLEfibOoRrhiVYvZjIwhDORHWczk8IaEK3F6DI7KVDyDTLH4eJlHNlCj9d6pMN42N/dqj6c24wd+X59E1apfH14yuxhaLFStKJr9rCkyYlA0I1TRkxHCdSxz4bUtaiMIR3/aVuFi34MhnDozuMcAbWzxJ6mleJZdnneQ0QVgSjR+ZDpWiBy0DBvx5Vpc2W/inmY0oTyW3CuWc1SKyGa3NP7Z6IfAnFcEfwqKXhAb81RHcuK6NdsjZ3iF9QiyV6ZX/WowkPJXxwCSZiFVpMfzCZdkds+K8S8fZzJX+z3kvMdv/irTZJ2YauV2tIQdAZnapE1o641DZfnN+SHAtlDOxxmKVX1C0T7XKjjU140K6SryRuB0Ur5ljAtN43Kb6miBhWSNu5Sq7BD+ovYXegQdQ9rk1ppm8t/YNVF+fndCH/8qTWelZXlXoQ1zXKO5HcX3ldyueYZ0eH2IciDhQsHFBOC9JGVrwiA0yhMOkWp91jvcEKTxSl/Qd3q4IvaZwPLdV74G3Fh8HpeDid2Uta+g0iuGmuM1o9QcVv8CGDI3fG0JhKDoFH3u/AQibYR7x72JO4deJjZSFdOd0gXpcLDJtf3Eo7R1zPLqBOPU2NPenDI8uk4BI/MLpJiiWXsg6j38t/4hmNA94Wfr9L/Yx8fzMvSm3hdSv20cFZpTDZ3VsXmF2xtGivM
+  template:
+    metadata:
+      name: grafana-discord-webhook
+      namespace: monitoring-grafana
