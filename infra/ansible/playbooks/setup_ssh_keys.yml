@@ -14,7 +14,6 @@
         recurse: true
       delegate_to: localhost
       become: false
-      run_once: true
       register: pubkeys
 
     - name: Ensure .ssh directory exists
@@ -25,18 +24,10 @@
         owner: '{{ ssh_user }}'
         group: '{{ ssh_user }}'
 
-    - name: Collect all public key contents
-      ansible.builtin.set_fact:
-        all_pubkeys: "{{ all_pubkeys | default([]) + [lookup('file', item.path)] }}"
-      loop: '{{ pubkeys.files }}'
-      delegate_to: localhost
-      become: false
-      run_once: true
-
     - name: Sync authorized_keys (add new, remove deleted)
       ansible.posix.authorized_key:
         user: '{{ ssh_user }}'
-        key: "{{ all_pubkeys | join('\n') }}"
+        key: "{{ query('file', pubkeys.files | map(attribute='path') | list) | join('\n') }}"
         state: present
         exclusive: true
 
