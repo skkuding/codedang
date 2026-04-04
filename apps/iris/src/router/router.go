@@ -2,13 +2,16 @@ package router
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
 
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
+	"github.com/skkuding/codedang/apps/iris/src/handler/generate"
+	"github.com/skkuding/codedang/apps/iris/src/handler/judge"
+	"github.com/skkuding/codedang/apps/iris/src/handler/run"
+	"github.com/skkuding/codedang/apps/iris/src/handler/validate"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
-	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -19,6 +22,8 @@ const (
 	Run          = "run"
 	Interactive  = "interactive"
 	UserTestCase = "userTestCase"
+	Generate     = "generate"
+	Validate     = "validate"
 )
 
 type Router interface {
@@ -26,21 +31,37 @@ type Router interface {
 	Route(path string, id string, data []byte, resultChan chan []byte, ctx context.Context)
 }
 
-type router[C any, E any] struct {
-	judgeHandler *handler.JudgeHandler[C, E]
-	logger       logger.Logger
-	tracer       trace.Tracer
+type router struct {
+	runner              *handler.TaskRunner
+	judgeTaskFactory    *judge.Factory
+	runTaskFactory      *run.Factory
+	generateTaskFactory *generate.Factory
+	validateTaskFactory *validate.Factory
+	logger              logger.Logger
+	tracer              trace.Tracer
 }
 
-func NewRouter[C any, E any](
-	judgeHandler *handler.JudgeHandler[C, E],
+func NewRouter(
+	runner *handler.TaskRunner,
+	judgeTaskFactory *judge.Factory,
+	runTaskFactory *run.Factory,
+	generateTaskFactory *generate.Factory,
+	validateTaskFactory *validate.Factory,
 	logger logger.Logger,
 	tracer trace.Tracer,
-) *router[C, E] {
-	return &router[C, E]{judgeHandler, logger, tracer}
+) Router {
+	return &router{
+		runner,
+		judgeTaskFactory,
+		runTaskFactory,
+		generateTaskFactory,
+		validateTaskFactory,
+		logger,
+		tracer,
+	}
 }
 
-func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byte, ctx context.Context) {
+func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx context.Context) {
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.GetTracerProvider().Tracer("Router Tracer")
 	newCtx, childSpan := tracer.Start(
@@ -57,32 +78,41 @@ func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byt
 	// var handlerResult json.RawMessage
 	// var err error
 
-	judgeChan := make(chan handler.JudgeResultMessage)
+	taskResultChan := make(chan handler.ResultMessage)
+	var task handler.Task
+	var taskErr error
+
+	r.logger.Log(logger.INFO, fmt.Sprintf("%s message received", path))
 	switch path {
-	case Judge:
-		filter := testcase.ALL
-		var req handler.Request
-		if err := json.Unmarshal(data, &req); err == nil && req.JudgeOnlyHiddenTestcases {
-			filter = testcase.HIDDEN_ONLY
-		}
-		go r.judgeHandler.Handle(id, data, filter, judgeChan, newCtx)
-	case Run:
-		filter := testcase.PUBLIC_ONLY
-		var req handler.Request
-		if err := json.Unmarshal(data, &req); err == nil && req.ContainHiddenTestcases {
-			filter = testcase.ALL
-		}
-		go r.judgeHandler.Handle(id, data, filter, judgeChan, newCtx)
-	case UserTestCase:
-		go r.judgeHandler.Handle(id, data, testcase.PUBLIC_ONLY, judgeChan, newCtx)
-	case SpecialJudge:
+	case Judge, SpecialJudge:
+		task, taskErr = r.judgeTaskFactory.Create(path, data)
+	case Run, UserTestCase:
+		task, taskErr = r.runTaskFactory.Create(path, data)
+	case Generate:
+		task, taskErr = r.generateTaskFactory.Create(path, data)
+	case Validate:
+		task, taskErr = r.validateTaskFactory.Create(path, data)
 	default:
-		err := fmt.Errorf("invalid request type: %s", path)
-		r.errHandle(err)
-		out <- NewResponse(id, nil, err).Marshal()
+		taskErr = fmt.Errorf("invalid request type: %s", path)
 	}
 
-	for result := range judgeChan {
+	if taskErr != nil {
+		r.logger.Log(logger.ERROR, fmt.Sprintf("Error creating task for path %s: %v", path, taskErr))
+		r.errHandle(taskErr)
+		out <- NewResponse(id, nil, taskErr).Marshal()
+		close(out)
+		return
+	}
+	r.logger.Log(logger.INFO, fmt.Sprintf("Task successfully created for path %s with id %s: %s", path, id, task.GetDebugString()))
+
+	if task != nil {
+		r.logger.Log(logger.INFO, fmt.Sprintf("Running task for path %s with id %s", path, id))
+		go r.runner.Run(id, task, taskResultChan, newCtx)
+	} else {
+		close(taskResultChan)
+	}
+
+	for result := range taskResultChan {
 		r.errHandle(result.Err)
 		out <- NewResponse(id, result.Result, result.Err).Marshal()
 		// break
@@ -92,10 +122,11 @@ func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byt
 	r.logger.Log(logger.DEBUG, "Router done...")
 }
 
-func (r *router[C, E]) errHandle(err error) {
-	if err != nil && err != handler.ErrJudgeEnd {
-		if u, ok := err.(*handler.HandlerError); ok {
-			r.logger.Log(u.Level(), err.Error())
+func (r *router) errHandle(err error) {
+	if err != nil {
+		var te *handler.TaskError
+		if errors.As(err, &te) {
+			r.logger.Log(te.Level, err.Error())
 		} else {
 			r.logger.Log(logger.ERROR, fmt.Sprintf("router: %s", err.Error()))
 		}

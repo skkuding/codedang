@@ -11,6 +11,10 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/connector"
 	"github.com/skkuding/codedang/apps/iris/src/connector/rabbitmq"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
+	"github.com/skkuding/codedang/apps/iris/src/handler/generate"
+	"github.com/skkuding/codedang/apps/iris/src/handler/judge"
+	"github.com/skkuding/codedang/apps/iris/src/handler/run"
+	"github.com/skkuding/codedang/apps/iris/src/handler/validate"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
@@ -78,18 +82,18 @@ func main() {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
 		return
 	}
-	database, err := loader.NewPostgresDataSource(ctx)
+	database, err := loader.NewPostgresDataSource(ctx, logProvider)
 	if err != nil {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
 		return
 	}
-	testcaseManager := testcase.NewTestcaseManager(s3reader, database)
+	testcaseManager := testcase.NewTestcaseManager(s3reader, database, logProvider)
 
 	fileManager := file.NewFileManager("/app/sandbox/results")
 
 	sandbox := judger.NewJudgerSandboxImpl(fileManager, logProvider)
 
-	judgeHandler := handler.NewJudgeHandler(
+	taskRunner := handler.NewTaskRunner(
 		sandbox,
 		testcaseManager,
 		fileManager,
@@ -97,7 +101,23 @@ func main() {
 		defaultTracer,
 	)
 
-	routeProvider := router.NewRouter(judgeHandler, logProvider, defaultTracer)
+	judgeTaskFactory := judge.NewFactory(testcaseManager, sandbox, logProvider, defaultTracer)
+
+	runTaskFactory := run.NewFactory(testcaseManager, sandbox, logProvider, defaultTracer)
+
+	generateTaskFactory := generate.NewFactory(testcaseManager, sandbox, logProvider)
+
+	validateTaskFactory := validate.NewFactory(testcaseManager, sandbox, logProvider)
+
+	routeProvider := router.NewRouter(
+		taskRunner,
+		judgeTaskFactory,
+		runTaskFactory,
+		generateTaskFactory,
+		validateTaskFactory,
+		logProvider,
+		defaultTracer,
+	)
 
 	logProvider.Log(logger.INFO, "Server Started")
 

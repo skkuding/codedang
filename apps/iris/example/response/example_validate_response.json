@@ -1,0 +1,19 @@
+{
+  "submissionId": 2,
+  "resultCode": 0,
+  "judgeResult": {
+    "isValid": true,
+    "testcaseCount": 2,
+    "results": [
+      {
+        "id": 1,
+        "isValid": true
+      },
+      {
+        "id": 2,
+        "isValid": true
+      }
+    ]
+  },
+  "error": ""
+}
