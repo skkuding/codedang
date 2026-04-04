@@ -10,4 +10,4 @@ patches:
     patch: |
       - op: replace
         path: /spec/jobTemplate/spec/template/spec/containers/0/env/0/value
-        value: Codedang-Sealed-Secrets-Prod
+        value: Codedang-Sealed-Secrets-Production
