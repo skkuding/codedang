@@ -21,18 +21,92 @@ script:pre-request {
 }
 
 docs {
-  # Get Submission by ID
+  # 📘 Get Submission by ID
   
-  문제의 제출 내역 정보를 가져옵니다.
+  **Get** `/submission/:id?:problemid`
   
-  ## Query
+  Get submission by its ID.
   
-  > 필수 query는 * 표시하였습니다.
+  ID를 통해 제출 기록을 가져옵니다.
   
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |problemId *|Integer|문제 ID|
-  |contestId|Integer|문제가 속한 Contest ID|
-  |assignmentId|Integer|문제가 속한 Assignment ID|
+  ---
   
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number |    ✅    | 문제 ID |
+  | `contestId` | number |        | contest의 ID |
+  | `assignmentId` | number |        | 문제 ID |
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `id` | number | ✅       | ID |
+  
+  ---
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "problemId": 1,
+    "username": "user01",
+    "code": "#include <stdio.h>\nint main(void) {\n    printf(\"Hello, World!\n\");\n    return 0;\n}",
+    "language": "C",
+    "createTime": "2026-01-07T11:03:16.730Z",
+    "result": "Accepted",
+    "testcaseResult": [
+      {
+        "id": 6,
+        "submissionId": 6,
+        "problemTestcaseId": 1,
+        "result": "Accepted",
+        "cpuTime": "12345",
+        "memoryUsage": 12345,
+        "output": "2\n",
+        "createTime": "2026-01-07T11:03:16.738Z",
+        "updateTime": "2026-01-07T11:03:16.738Z",
+        "problemTestcase": {
+          "isHidden": false
+        }
+      }
+    ]
+  }
+  
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number | ✅       | 문제의 id |
+  | `username` | string | ✅       | 제출자 이름 |
+  | `code` | array | ✅       | 제출 코드의 정보 |
+  | `id` | number | ✅       | 코드의 id |
+  | `text` | string | ✅       | 소스 코드의 내용 |
+  | `locked` | boolean | ✅       | 코드의 잠금상태 여부 |
+  | `language` | string | ✅       | 제출 언어 |
+  | `createTime` | date | ✅       | 제출 시간 |
+  | `result` | string | ✅       | 제출 결과 |
+  | `testcaseResult` | array | ✅       | 테스트케이스의 정보 |
+  | `id` | number | ✅       |  id |
+  | `submissionId` | number | ✅       | 제출 id |
+  | `problemTestcaseId` | number | ✅       | 테스트 케이스 id |
+  | `result` | string | ✅       | 제출 결과 |
+  | `cpuTime` | string | ✅       | 실행시간 |
+  | `memoryUsage` | number | ✅       | 메모리 사용량 |
+  | `output` | string | ✅       | 테스트 케이스 출력값 |
+  | `createTime` | date | ✅       | 생성 시간 |
+  | `updateTime` | date | ✅       | 수정 시간 |
+  | `problemTestcase` | array | ✅       | 테스트 케이스 공개 정보 |
+  | `isHidden` | boolean | ✅       | 테스트 케이스 공개 여부 |
 }
