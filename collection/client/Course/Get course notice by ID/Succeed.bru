@@ -27,32 +27,72 @@ script:pre-request {
 
 docs {
   # 📘 Get a Course Notice By ID
-
+  
   **GET** `/course/notice/:id`
-
+  
   Retrieve a single QnA for a specific contest.
-
+  
   강의 공지사항을 1개 조회합니다.
-
+  
   이 함수는 다음과 같은 조건에 따라 강의 공지사항을 조회합니다.
-
+  
   1. 운영진(Admin, Manager)
   - 모든 공지를 열람할 수 있습니다.
   3. 일반 사용자
    - 전체 공개인 공지를 열람할 수 있습니다.
    - 자신이 참여한 강의의 공지를 열람할 수 있습니다.
-
+  
   접근 권한이 없는 경우 예외를 발생시킵니다.
-
+  
   - 일반 사용자: 본인이 참여하지 않은 강의의 공지사항의 경우 ForbiddenAccessException 발생
-
+  ---
   ### 🔒 Authentication
-
+  ---
   ### 📥 Request Parameters
-
+  
   #### Path Parameters
-
+  
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `id` | number | ✅    | 가져오고자 하는 공지 아이디 |
+  
+  ---
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```
+  {
+    "current": {
+      "groupId": 1,
+      "isPublic": false,
+      "title": "첫 번째 강의 공지입니다.",
+      "content": "1번 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있지 않습니다.",
+      "createTime": "2025-12-30T10:43:47.479Z",
+      "updateTime": "2025-12-30T10:43:47.479Z",
+      "_count": {
+        "CourseNoticeComment": 9
+      }
+    },
+    "prev": null,
+    "next": {
+      "id": 2,
+      "title": "두 번째 강의 공지입니다."
+    }
+  }
+  ```
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|---------------------------|
+  | `groupId` | number |    ✅   | 그룹 id |
+  | `isPublic` | string |   ✅   | 전체 공개 여부 |
+  | `title` | number | ✅    | 공지 제목 |
+  | `content` | number | ✅    | 공지 내용 |
+  | `createTime` | string | ✅    | 최초 생성 시간 |
+  | `updateTime` | string | ✅    | 마지막 업데이트 시간 |
+  | `CourseNoticeComment` | number | ✅    | 공지 댓글 개수 |
+  | `prev` | | ✅    |  |
+  | `id` | number | ✅    |  |
+  | `title` | number | ✅    |  |
 }
