@@ -50,5 +50,5 @@
   handlers:
     - name: Restart sshd
       ansible.builtin.service:
-        name: ssh
+        name: "{{ 'ssh' if 'ssh.service' in ansible_facts.services else 'sshd' }}"
         state: restarted
