@@ -1,3 +1,4 @@
+# Run with --ask-become-pass if passwordless sudo is not configured on target hosts.
 - name: Setup SSH public key authentication
   hosts: all
   become: true
