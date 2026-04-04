@@ -3,7 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { readFileSync } from 'fs'
 import { CONSUME_CHANNEL, PUBLISH_CHANNEL } from '@libs/constants'
-import { CheckAMQPService, JudgeAMQPService } from './amqp.service'
+import {
+  CheckAMQPService,
+  JudgeAMQPService,
+  PolygonAMQPService
+} from './amqp.service'
 
 @Module({
   imports: [
@@ -49,7 +53,7 @@ import { CheckAMQPService, JudgeAMQPService } from './amqp.service'
       inject: [ConfigService]
     })
   ],
-  providers: [JudgeAMQPService, CheckAMQPService],
-  exports: [JudgeAMQPService, CheckAMQPService]
+  providers: [JudgeAMQPService, CheckAMQPService, PolygonAMQPService],
+  exports: [JudgeAMQPService, CheckAMQPService, PolygonAMQPService]
 })
 export class AMQPModule {}
