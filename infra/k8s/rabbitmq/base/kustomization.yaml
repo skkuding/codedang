@@ -9,6 +9,7 @@ resources:
   - namespace.yaml
   - rabbitmq-cluster.yaml
   - service-monitor.yaml
+  - tls-certificate.yaml
   - vhost.yaml
   - topology-judging.yaml
   - topology-plagiarism.yaml
