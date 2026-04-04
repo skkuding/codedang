@@ -183,13 +183,17 @@ else
   $KUBECTL create namespace argocd --dry-run=client -o yaml | $KUBECTL apply -f -
   echo -e "${GREEN}✓ Namespace created${NC}"
 
+  ARGOCD_VERSION=$(grep "targetRevision:" \
+  "${SCRIPT_DIR}/k8s/argocd/applications/argocd.yaml" \
+  | head -1 | awk -F"'" '{print $2}')
+
   # Initial ArgoCD install via Helm (creates CRDs + core components)
   echo "Installing ArgoCD via Helm (initial bootstrap)..."
   helm repo add argo https://argoproj.github.io/argo-helm
   helm repo update
   $HELM upgrade --install argocd argo/argo-cd \
     --namespace argocd \
-    --version 9.4.2 \
+    --version "${ARGOCD_VERSION}" \
     --wait \
     --timeout 10m
   echo -e "${GREEN}✓ ArgoCD installed via Helm${NC}"
