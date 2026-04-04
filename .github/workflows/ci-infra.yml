@@ -70,11 +70,23 @@ jobs:
               # Allowed key types: ed25519 and RSA(3072 or 4096 bits only)
               case "$type" in
                 ssh-ed25519)
+                  tmp=$(mktemp)
+                  printf '%s\n' "$line" > "$tmp"
+                  if ! ssh-keygen -lf "$tmp" > /dev/null 2>&1; then
+                    rm -f "$tmp"
+                    echo "Invalid ed25519 key in ${file}:${lineno}"
+                    exit 1
+                  fi
+                  rm -f "$tmp"
                   ;;
                 ssh-rsa)
                   tmp=$(mktemp)
                   printf '%s\n' "$line" > "$tmp"
-                  bits=$(ssh-keygen -lf "$tmp" | awk '{print $1}')
+                  if ! bits=$(ssh-keygen -lf "$tmp" | awk '{print $1}'); then
+                    rm -f "$tmp"
+                    echo "Wrong type of pubkey at ${file}:${lineno}"
+                    exit 1
+                  fi
                   rm -f "$tmp"
 
                   if [[ "$bits" -ne 3072 && "$bits" -ne 4096 ]]; then
