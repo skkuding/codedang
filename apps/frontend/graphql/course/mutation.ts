@@ -96,11 +96,68 @@ const DELETE_WHITE_LIST = gql(`
   }
 `)
 
+const CREATE_COURSE_NOTICE = gql(`
+  mutation CreateCourseNotice($input: CreateCourseNoticeInput!) {
+    createCourseNotice(input: $input) {
+      id
+      title
+      content
+      isFixed
+      isPublic
+      createTime
+      updateTime
+    }
+  }
+`)
+
+const UPDATE_COURSE_NOTICE = gql(`
+  mutation UpdateCourseNotice(
+    $courseNoticeId: Int!
+    $input: UpdateCourseNoticeInput!
+  ) {
+    updateCourseNotice(courseNoticeId: $courseNoticeId, input: $input) {
+      id
+      title
+      content
+      isFixed
+      isPublic
+      updateTime
+    }
+  }
+`)
+
+const DELETE_COURSE_NOTICE = gql(`
+  mutation DeleteCourseNotice($courseNoticeId: Int!) {
+    deleteCourseNotice(courseNoticeId: $courseNoticeId) {
+      id
+    }
+  }
+`)
+
+const CLONE_COURSE_NOTICES = gql(`
+  mutation CloneCourseNotices(
+    $courseNoticeIds: [Int!]!
+    $cloneToId: Int!
+  ) {
+    cloneCourseNotices(
+      courseNoticeIds: $courseNoticeIds
+      cloneToId: $cloneToId
+    ) {
+      id
+      title
+    }
+  }
+`)
+
 export {
   CREATE_COURSE,
   DELETE_COURSE,
   UPDATE_COURSE,
   DUPLICATE_COURSE,
   CREATE_WHITE_LIST,
-  DELETE_WHITE_LIST
+  DELETE_WHITE_LIST,
+  CREATE_COURSE_NOTICE,
+  UPDATE_COURSE_NOTICE,
+  DELETE_COURSE_NOTICE,
+  CLONE_COURSE_NOTICES
 }
