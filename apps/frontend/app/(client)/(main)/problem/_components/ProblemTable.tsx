@@ -119,15 +119,61 @@ function ProblemPaginatedTable({
 
 export function ProblemTableFallback() {
   return (
-    <>
-      <div className="mt-4 flex">
-        <span className="w-5/12">
-          <Skeleton className="h-6 w-20" />
-        </span>
+    <div className="flex w-full flex-col items-center">
+      <div className="flex w-full items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-9 w-28 rounded-md" />
+          <Skeleton className="h-9 w-12 rounded-md" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-[46px] w-28 rounded-full" />
+          <Skeleton className="h-[46px] w-60 rounded-full" />
+        </div>
       </div>
-      {[...Array(5)].map((_, i) => (
-        <Skeleton key={i} className="my-2 flex h-12 w-full rounded-xl" />
-      ))}
-    </>
+      <div className="bg-background border-line mb-10 mt-5 w-full overflow-hidden rounded-[20px] border">
+        <div className="bg-background h-13 grid grid-cols-[minmax(0,1fr)_12rem_12rem_12rem] px-5 py-2">
+          <div className="flex items-center">
+            <Skeleton className="h-5 w-20 rounded-md" />
+          </div>
+          <div className="flex items-center justify-center">
+            <Skeleton className="h-5 w-16 rounded-md" />
+          </div>
+          <div className="flex items-center justify-center">
+            <Skeleton className="h-5 w-12 rounded-md" />
+          </div>
+          <div className="flex items-center justify-center">
+            <Skeleton className="h-5 w-16 rounded-md" />
+          </div>
+        </div>
+        {[...Array(10)].map((_, i) => (
+          <div
+            key={i}
+            className="border-line grid h-16 grid-cols-[minmax(0,1fr)_12rem_12rem_12rem] border-t px-5"
+          >
+            <div className="flex items-center">
+              <Skeleton className="h-5 w-3/4 rounded-md" />
+            </div>
+            <div className="flex items-center justify-center">
+              <Skeleton className="h-6 w-16 rounded-full" />
+            </div>
+            <div className="flex items-center justify-center">
+              <Skeleton className="h-5 w-12 rounded-md" />
+            </div>
+            <div className="flex items-center justify-center">
+              <Skeleton className="h-5 w-16 rounded-md" />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center gap-[30px] py-0">
+        <Skeleton className="h-10 w-10 rounded-full" />
+        <div className="flex items-center gap-2">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-10 w-10 rounded-full" />
+          ))}
+        </div>
+        <Skeleton className="h-10 w-10 rounded-full" />
+      </div>
+    </div>
   )
 }

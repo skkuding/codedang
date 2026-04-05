@@ -1,13 +1,13 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBoundary'
 import { Suspense } from 'react'
-import { MyProblem, MyProblemFallback } from '../_components/MyProblem'
+import { MyProblem, MyProblemFallback } from '../../_components/MyProblem'
 
-export default function MyProblemsPage() {
+export default function MyProblemsEmptyPage() {
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
       <Suspense fallback={<MyProblemFallback />}>
-        <MyProblem />
+        <MyProblem forceEmpty />
       </Suspense>
     </TanstackQueryErrorBoundary>
   )
