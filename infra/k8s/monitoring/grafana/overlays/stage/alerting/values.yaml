@@ -21,22 +21,28 @@ alerting:
                   expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100
                   intervalMs: 60000
                   maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
               - refId: C
                 relativeTimeRange:
                   from: 600
                   to: 0
                 datasourceUid: __expr__
                 model:
+                  type: threshold
+                  expression: B
                   conditions:
                     - evaluator:
                         params:
                           - 85
                         type: gt
-                      operator:
-                        type: and
-                      reducer:
-                        type: last
-                  type: classic_condition
             for: 5m
             labels:
               severity: warning
@@ -57,22 +63,28 @@ alerting:
                   expr: (1 - node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"} / node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}) * 100
                   intervalMs: 60000
                   maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
               - refId: C
                 relativeTimeRange:
                   from: 600
                   to: 0
                 datasourceUid: __expr__
                 model:
+                  type: threshold
+                  expression: B
                   conditions:
                     - evaluator:
                         params:
                           - 85
                         type: gt
-                      operator:
-                        type: and
-                      reducer:
-                        type: last
-                  type: classic_condition
             for: 5m
             labels:
               severity: warning
@@ -93,22 +105,28 @@ alerting:
                   expr: kube_node_status_condition{condition="Ready",status="true"} == 0
                   intervalMs: 60000
                   maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
               - refId: C
                 relativeTimeRange:
                   from: 600
                   to: 0
                 datasourceUid: __expr__
                 model:
+                  type: threshold
+                  expression: B
                   conditions:
                     - evaluator:
                         params:
                           - 0
                         type: gt
-                      operator:
-                        type: and
-                      reducer:
-                        type: last
-                  type: classic_condition
             for: 5m
             labels:
               severity: critical
@@ -134,22 +152,28 @@ alerting:
                   expr: rabbitmq_queue_messages_ready
                   intervalMs: 60000
                   maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
               - refId: C
                 relativeTimeRange:
                   from: 600
                   to: 0
                 datasourceUid: __expr__
                 model:
+                  type: threshold
+                  expression: B
                   conditions:
                     - evaluator:
                         params:
                           - 100
                         type: gt
-                      operator:
-                        type: and
-                      reducer:
-                        type: last
-                  type: classic_condition
             for: 5m
             labels:
               severity: warning
@@ -170,22 +194,28 @@ alerting:
                   expr: rabbitmq_queue_messages_unacked
                   intervalMs: 60000
                   maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
               - refId: C
                 relativeTimeRange:
                   from: 600
                   to: 0
                 datasourceUid: __expr__
                 model:
+                  type: threshold
+                  expression: B
                   conditions:
                     - evaluator:
                         params:
                           - 50
                         type: gt
-                      operator:
-                        type: and
-                      reducer:
-                        type: last
-                  type: classic_condition
             for: 5m
             labels:
               severity: warning
