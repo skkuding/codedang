@@ -165,7 +165,7 @@ export function PlagiarismClusterDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="flex max-h-[85vh] max-w-4xl flex-col"
+        className="flex max-h-[90vh] max-w-4xl flex-col"
         style={
           view === 'comparison' ? { maxWidth: '95vw', height: '90vh' } : {}
         }
