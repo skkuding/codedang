@@ -4,6 +4,9 @@ metadata:
   name: rabbitmq
   namespace: rabbitmq
 spec:
+  tls:
+    secretName: rabbitmq-server-certs
+    disableNonTLSListeners: true
   rabbitmq:
     additionalPlugins:
       - rabbitmq_prometheus
@@ -12,6 +15,3 @@ spec:
       management.ssl.certfile = /etc/rabbitmq-tls/tls.crt
       management.ssl.keyfile = /etc/rabbitmq-tls/tls.key
       management.ssl.cacertfile = /etc/rabbitmq-tls/ca.crt
-  tls:
-    secretName: rabbitmq-server-certs
-    disableNonTLSListeners: true
