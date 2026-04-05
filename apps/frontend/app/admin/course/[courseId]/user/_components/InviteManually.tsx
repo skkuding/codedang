@@ -228,13 +228,21 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                   defaultValue="@skku.edu"
                 >
                   <SelectTrigger className="flex gap-[6px] border-none bg-transparent px-[14px] text-base focus-visible:ring-0 focus-visible:ring-offset-0">
-                    <div className="flex items-center gap-[6px]">
+                    <div className="flex flex-1 items-center gap-[6px]">
                       <Image src={emailIcon} alt="emailIcon" />
 
                       {selectDomain !== 'Enter directly' ? (
                         <SelectValue placeholder={ALLOWED_DOMAINS[0]} />
                       ) : (
-                        <div className="flex-grow" />
+                        <Input
+                          value={emailDomain.replace('@', '')}
+                          placeholder="Enter directly"
+                          onChange={handleInputChange}
+                          onClick={(e) => e.stopPropagation()}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onPointerDown={(e) => e.stopPropagation()}
+                          className="flex-1 border-none bg-transparent p-0 text-base shadow-none focus-visible:ring-0"
+                        />
                       )}
                     </div>
                   </SelectTrigger>
@@ -248,18 +256,6 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                     ))}
                   </SelectContent>
                 </Select>
-
-                {isDirectInputMode && (
-                  <div className="flex items-center rounded-lg text-base">
-                    <Input
-                      value={emailDomain.replace('@', '')}
-                      placeholder="Enter directly"
-                      onChange={handleInputChange}
-                      sizeVariant="md"
-                      className="w-35 absolute left-[20px] border-none bg-transparent text-base shadow-none focus-visible:ring-0"
-                    />
-                  </div>
-                )}
               </div>
 
               <div className="border-line w-30 flex h-10 items-start justify-center rounded-full border bg-white px-5">
