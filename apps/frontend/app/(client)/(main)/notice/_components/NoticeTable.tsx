@@ -1,7 +1,7 @@
-import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
 import { fetcher } from '@/libs/utils'
 import type { Notice } from '@/types/type'
 import { columns } from './Columns'
+import { NoticeDataTable } from './NoticeDataTable'
 
 interface Props {
   search: string
@@ -61,13 +61,16 @@ export async function NoticeTable({ search }: Props) {
   }
 
   return (
-    <DataTable
+    <NoticeDataTable
       data={currentPageData}
       columns={columns}
       headerStyle={{
-        title: 'text-left w-2/4 md:w-4/6',
-        createdBy: 'w-1/4 md:w-1/6',
-        createTime: 'w-1/4 md:w-1/6'
+        title:
+          'text-left shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] rounded-l-full px-5 text-body1_m_16 text-color-neutral-30',
+        createTime:
+          'text-left shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] w-[26%] px-5 text-body1_m_16 text-color-neutral-30',
+        createdBy:
+          'text-center shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] rounded-r-full w-[12%] px-5 text-body1_m_16 text-color-neutral-30'
       }}
       linked
     />
