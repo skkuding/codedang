@@ -5,8 +5,7 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/shadcn/carousel'
-import GrayRightArrow from '@/public/icons/arrow-right-gray.svg'
-import Image from 'next/image'
+import RightArrowIcon from '@/public/icons/arrow-right.svg'
 import Link from 'next/link'
 import { getProblemList } from '../../_libs/apis/problem'
 import { NewProblemCard } from './NewProblemCard'
@@ -51,7 +50,7 @@ export async function NewProblemCards() {
                 Go to Problem
               </p>
               <div className="relative size-[16px]">
-                <Image src={GrayRightArrow} alt="Right" fill />
+                <RightArrowIcon className="text-color-neutral-90 h-4 w-4" />
               </div>
             </div>
           </Link>
@@ -69,7 +68,7 @@ export async function NewProblemCards() {
                   Go to Problem
                 </p>
                 <div className="relative size-[12px]">
-                  <Image src={GrayRightArrow} alt="Right" fill />
+                  <RightArrowIcon className="text-color-neutral-90 h-4 w-4" />
                 </div>
               </div>
             </Link>

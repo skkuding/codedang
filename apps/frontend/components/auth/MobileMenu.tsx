@@ -8,10 +8,10 @@ import {
   SheetClose
 } from '@/components/shadcn/sheet'
 import courseIcon from '@/public/icons/course-sidebar.svg'
-import detailOnMobileIcon from '@/public/icons/detail-on-mobile.svg'
+import DetailOnMobileIcon from '@/public/icons/detail-on-mobile.svg'
 import loginMobileIcon from '@/public/icons/login-mobile.svg'
 import logoutMobileIcon from '@/public/icons/logout-mobile.svg'
-import noticeIcon from '@/public/icons/notice.svg'
+import noticeIcon from '@/public/icons/notification.svg'
 import prizeIcon from '@/public/icons/prize.svg'
 import problemIcon from '@/public/icons/problem-sidebar.svg'
 import settingsIcon from '@/public/icons/settings.svg'
@@ -43,12 +43,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
           aria-label="Open navigation menu"
           className="flex h-6 w-6 items-center justify-center"
         >
-          <Image
-            src={detailOnMobileIcon}
-            alt="Open menu"
-            width={24}
-            height={24}
-          />
+          <DetailOnMobileIcon className="h-6 w-6 text-neutral-400" />
         </button>
       </SheetTrigger>
 
