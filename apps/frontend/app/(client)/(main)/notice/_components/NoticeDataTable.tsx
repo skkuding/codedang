@@ -1,7 +1,13 @@
 'use client'
 
 import { SearchBar } from '@/app/(client)/(main)/_components/SearchBar'
-import { ContestTitleFilter } from '@/app/(client)/(main)/contest/_components/ContestTitleFilter'
+import { Button } from '@/components/shadcn/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/shadcn/dropdown-menu'
 import {
   Table,
   TableBody,
@@ -19,10 +25,13 @@ import {
 } from '@tanstack/react-table'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { IoChevronDownOutline } from 'react-icons/io5'
 
 interface Item {
   id: number | string
+  createTime?: string
+  isFixed?: boolean
 }
 
 interface NoticeDataTableProps<TData, TValue> {
@@ -35,6 +44,46 @@ interface NoticeDataTableProps<TData, TValue> {
   emptyMessage?: string
 }
 
+function DateSortDropdown() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
+  const sortOrder = searchParams.get('sort')
+
+  const handleSelect = (value: string) => {
+    const newParams = new URLSearchParams(searchParams.toString())
+    newParams.set('sort', value)
+    router.push(`${pathname}?${newParams.toString()}` as Route, {
+      scroll: false
+    })
+  }
+
+  const labelMap: Record<string, string> = { asc: 'Asc', desc: 'Desc' }
+  const label = (sortOrder && labelMap[sortOrder]) || 'State'
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          className="h-auto rounded-full border border-neutral-200 px-5 py-[11px] font-semibold text-black hover:bg-gray-50"
+        >
+          <p className="text-base font-medium">{label}</p>
+          <IoChevronDownOutline className="ml-2 h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-[100px]">
+        <DropdownMenuItem onClick={() => handleSelect('asc')}>
+          Asc
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleSelect('desc')}>
+          Desc
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 export function NoticeDataTable<TData extends Item, TValue>({
   columns,
   data,
@@ -42,8 +91,23 @@ export function NoticeDataTable<TData extends Item, TValue>({
   linked = false,
   emptyMessage = 'No results.'
 }: NoticeDataTableProps<TData, TValue>) {
+  const searchParams = useSearchParams()
+  const sortOrder = searchParams.get('sort') ?? 'desc'
+
+  const sortedData = [...data].sort((a, b) => {
+    if (a.isFixed && !b.isFixed) {
+      return -1
+    }
+    if (!a.isFixed && b.isFixed) {
+      return 1
+    }
+    const aTime = new Date(a.createTime ?? '').getTime()
+    const bTime = new Date(b.createTime ?? '').getTime()
+    return sortOrder === 'asc' ? aTime - bTime : bTime - aTime
+  })
+
   const table = useReactTable({
-    data,
+    data: sortedData,
     columns,
     getCoreRowModel: getCoreRowModel()
   })
@@ -55,11 +119,7 @@ export function NoticeDataTable<TData extends Item, TValue>({
       <div className="mt-15 mb-5 flex w-full items-center justify-between">
         <p className="text-head3_sb_28">전체 공지 리스트</p>
         <div className="flex items-center gap-2">
-          <ContestTitleFilter
-            title="State"
-            options={[]}
-            resetPageIndex={() => {}}
-          />
+          <DateSortDropdown />
           <SearchBar className="w-60 [&_input]:h-[46px] [&_svg]:!top-[calc(50%-8px)]" />
         </div>
       </div>

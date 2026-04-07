@@ -66,11 +66,11 @@ export async function NoticeTable({ search }: Props) {
       columns={columns}
       headerStyle={{
         title:
-          'text-left shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] rounded-l-full px-5 text-body1_m_16 text-color-neutral-30',
+          'text-left shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] px-5 text-body1_m_16 text-color-neutral-30',
         createTime:
           'text-left shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] w-[26%] px-5 text-body1_m_16 text-color-neutral-30',
         createdBy:
-          'text-center shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] rounded-r-full w-[12%] px-5 text-body1_m_16 text-color-neutral-30'
+          'text-center shadow-[inset_0_-1px_0_0_theme(colors.line.DEFAULT)] w-[12%] px-5 text-body1_m_16 text-color-neutral-30'
       }}
       linked
     />
