@@ -168,7 +168,7 @@ export function NoticeDataTable<TData extends Item, TValue>({
                               'flex min-w-0 items-center overflow-hidden',
                               (cell.column.id === 'createTime' ||
                                 cell.column.id === 'createdBy') &&
-                                'text-body3_r_16 text-color-coolneutral-30',
+                                'text-body3_r_16 text-color-cool-neutral-30',
                               cell.column.id === 'createdBy' && 'justify-center'
                             )}
                           >
