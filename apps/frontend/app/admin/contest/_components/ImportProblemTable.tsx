@@ -80,7 +80,7 @@ export function ImportProblemTable({
       defaultSortState={[{ id: 'select', desc: true }]}
     >
       <ImportProblemDescription />
-      <div className="flex justify-between">
+      <div className="mx-[1px] flex justify-between">
         <div className="flex gap-[8px]">
           <DataTableSearchBar
             columndId="title"

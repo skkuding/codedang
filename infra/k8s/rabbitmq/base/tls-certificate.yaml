@@ -1,0 +1,28 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: rabbitmq-selfsigned-issuer
+  namespace: rabbitmq
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: rabbitmq-server-cert
+  namespace: rabbitmq
+spec:
+  secretName: rabbitmq-server-certs
+  secretTemplate:
+    annotations:
+      reflector.v1.k8s.emberstack.com/reflection-allowed: 'true'
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: 'iris,plag,admin-api,client-api'
+  issuerRef:
+    name: rabbitmq-selfsigned-issuer
+    kind: Issuer
+  dnsNames:
+    - rabbitmq.rabbitmq.svc.cluster.local
+    - rabbitmq.rabbitmq.svc
+    - rabbitmq
+  duration: 8760h
+  renewBefore: 720h

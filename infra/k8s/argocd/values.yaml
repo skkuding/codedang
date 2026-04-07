@@ -57,8 +57,6 @@ server:
   service:
     # HTTP port for Traefik ingress (TLS termination at ingress)
     servicePortHttp: 80
-    # HTTPS port (not used in --insecure mode)
-    servicePortHttps: 443
 
   metrics:
     enabled: true

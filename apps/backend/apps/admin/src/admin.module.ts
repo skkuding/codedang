@@ -52,6 +52,7 @@ import { WorkbookModule } from './workbook/workbook.module'
         connection: {
           host: configService.get<string>('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
+          password: configService.get<string>('REDIS_PASSWORD'),
           db: 1 // use database 1 for BullMQ to avoid conflicts with other Redis clients
         },
         prefix: 'bull'

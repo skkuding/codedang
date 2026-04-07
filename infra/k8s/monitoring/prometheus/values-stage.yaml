@@ -5,6 +5,14 @@ prometheus:
   prometheusSpec:
     retention: 90d
     enableRemoteWriteReceiver: true
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: ['ReadWriteOnce']
+          resources:
+            requests:
+              storage: 10Gi
   ingress:
     enabled: true
     hosts:
