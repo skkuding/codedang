@@ -1,0 +1,55 @@
+# Run with --ask-become-pass if passwordless sudo is not configured on target hosts.
+- name: Setup SSH public key authentication
+  hosts: all
+  become: true
+
+  vars:
+    ssh_user: skkuding
+    pubkey_dir: '{{ playbook_dir }}/../ssh_publickey'
+
+  tasks:
+    - name: Find all public keys recursively
+      ansible.builtin.find:
+        paths: '{{ pubkey_dir }}'
+        patterns: '*.pub'
+        recurse: true
+      delegate_to: localhost
+      become: false
+      register: pubkeys
+
+    - name: Ensure .ssh directory exists
+      ansible.builtin.file:
+        path: '/home/{{ ssh_user }}/.ssh'
+        state: directory
+        mode: '0700'
+        owner: '{{ ssh_user }}'
+        group: '{{ ssh_user }}'
+
+    - name: Sync authorized_keys (add new, remove deleted)
+      ansible.posix.authorized_key:
+        user: '{{ ssh_user }}'
+        key: "{{ query('file', pubkeys.files | map(attribute='path') | list) | join('\n') }}"
+        state: present
+        exclusive: true
+
+    - name: Set SSH port
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?Port'
+        line: 'Port {{ ansible_port }}'
+        state: present
+      notify: Restart sshd
+
+    - name: Disable password authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+      notify: Restart sshd
+
+  handlers:
+    - name: Restart sshd
+      ansible.builtin.service:
+        name: "{{ 'ssh' if 'ssh.service' in ansible_facts.services else 'sshd' }}"
+        state: restarted

@@ -1,0 +1,280 @@
+alerting:
+  rules.yaml:
+    apiVersion: 1
+    groups:
+      - orgId: 1
+        name: AWS RDS
+        folder: AWS Alerts
+        interval: 5m
+        rules:
+          - uid: rds-free-storage-low
+            title: RDS FreeStorageSpace Low
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: cloudwatch
+                model:
+                  dimensions:
+                    DBInstanceIdentifier:
+                      - terraform-20250506182211604800000001
+                  metricName: FreeStorageSpace
+                  namespace: AWS/RDS
+                  period: '300'
+                  region: ap-northeast-2
+                  statistic: Average
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 2147483648
+                        type: lt
+                      operator:
+                        type: and
+                      reducer:
+                        type: last
+                  type: classic_condition
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: 'RDS FreeStorageSpace < 2GB'
+              description: '{{ `{{ $values.A }}` }}B 남음'
+
+          - uid: rds-database-connections-high
+            title: RDS DatabaseConnections High
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: cloudwatch
+                model:
+                  dimensions:
+                    DBInstanceIdentifier:
+                      - terraform-20250506182211604800000001
+                  metricName: DatabaseConnections
+                  namespace: AWS/RDS
+                  period: '300'
+                  region: ap-northeast-2
+                  statistic: Maximum
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 150
+                        type: gt
+                      operator:
+                        type: and
+                      reducer:
+                        type: last
+                  type: classic_condition
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: 'RDS DatabaseConnections > 150'
+              description: 'DB 커넥션 {{ `{{ $values.A }}` }}개'
+
+      - orgId: 1
+        name: K8s Node
+        folder: Infra Alerts
+        interval: 5m
+        rules:
+          - uid: node-high-memory-usage
+            title: High Node Memory Usage
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100
+                  intervalMs: 60000
+                  maxDataPoints: 43200
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 85
+                        type: gt
+                      operator:
+                        type: and
+                      reducer:
+                        type: last
+                  type: classic_condition
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: 'Node memory usage > 85%'
+              description: '노드 {{ `{{ $labels.instance }}` }} 메모리 {{ `{{ $values.A }}` }}%'
+
+          - uid: node-high-disk-usage
+            title: High Node Disk Usage
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: (1 - node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"} / node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}) * 100
+                  intervalMs: 60000
+                  maxDataPoints: 43200
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 85
+                        type: gt
+                      operator:
+                        type: and
+                      reducer:
+                        type: last
+                  type: classic_condition
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: 'Node disk usage > 85%'
+              description: '노드 {{ `{{ $labels.instance }}` }} 디스크 {{ `{{ $values.A }}` }}%'
+
+          - uid: node-not-ready
+            title: Node Not Ready
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+                  intervalMs: 60000
+                  maxDataPoints: 43200
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 0
+                        type: gt
+                      operator:
+                        type: and
+                      reducer:
+                        type: last
+                  type: classic_condition
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: 'Node not ready'
+              description: '노드 {{ `{{ $labels.node }}` }}가 Ready 상태가 아닙니다.'
+
+      - orgId: 1
+        name: RabbitMQ
+        folder: Infra Alerts
+        interval: 5m
+        rules:
+          - uid: rabbitmq-ready-messages-high
+            title: RabbitMQ Ready Messages High
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: rabbitmq_queue_messages_ready
+                  intervalMs: 60000
+                  maxDataPoints: 43200
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 100
+                        type: gt
+                      operator:
+                        type: and
+                      reducer:
+                        type: last
+                  type: classic_condition
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: 'RabbitMQ ready messages > 100'
+              description: '큐 {{ `{{ $labels.queue }}` }}에 Ready 메시지 {{ `{{ $values.A }}` }}개'
+
+          - uid: rabbitmq-unacked-messages-high
+            title: RabbitMQ Unacked Messages High
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: rabbitmq_queue_messages_unacked
+                  intervalMs: 60000
+                  maxDataPoints: 43200
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 50
+                        type: gt
+                      operator:
+                        type: and
+                      reducer:
+                        type: last
+                  type: classic_condition
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: 'RabbitMQ unacked messages > 50'
+              description: '큐 {{ `{{ $labels.queue }}` }}에 미확인 메시지 {{ `{{ $values.A }}` }}개'
