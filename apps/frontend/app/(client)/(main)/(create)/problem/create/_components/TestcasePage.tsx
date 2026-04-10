@@ -33,7 +33,7 @@ export function TestcasePage() {
   }
 
   const removeAll = () => {
-    id.current = 0
+    id.current = 1
     setTestcases([])
   }
 
@@ -44,7 +44,7 @@ export function TestcasePage() {
           <div className="flex flex-col gap-1">
             <p className="text-head5_sb_24">테스트 케이스</p>
             <p className="text-body2_m_14 text-color-cool-neutral-40">
-              Input과 Output 쌍을 직접 장성하는 방식입니다. (각 케이스는 하나의
+              Input과 Output 쌍을 직접 작성하는 방식입니다. (각 케이스는 하나의
               .in/.out 쌍으로 간주)
             </p>
           </div>
@@ -52,14 +52,14 @@ export function TestcasePage() {
             <Button
               type="button"
               onClick={removeAll}
-              className="text-sub4_sb_14 text-primary itmes-center border-primary-light hover:bg-color-blue-95 rounded-lg border-[1.4px] bg-white px-3 py-[10px]"
+              className="text-sub4_sb_14 text-primary border-primary-light hover:bg-color-blue-95 items-center rounded-lg border-[1.4px] bg-white px-3 py-[10px]"
             >
               전체 삭제
             </Button>
             <Button
               type="button"
               onClick={addTestcase}
-              className="text-sub4_sb_14 text-primary itmes-center border-primary-light hover:bg-color-blue-95 rounded-lg border-[1.4px] bg-white px-3 py-[10px]"
+              className="text-sub4_sb_14 text-primary border-primary-light hover:bg-color-blue-95 items-center rounded-lg border-[1.4px] bg-white px-3 py-[10px]"
             >
               테스트 케이스 추가
             </Button>
