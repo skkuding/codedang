@@ -117,13 +117,35 @@ export function TestcasePage() {
                   <p className="text-sub4_sb_14 text-color-cool-neutral-40 h-fit">
                     Input {tc.id}
                   </p>
-                  <textarea className="bg-editor-background-1 h-full min-h-[146px] rounded-lg px-3 py-2 font-mono text-white" />
+                  <textarea
+                    spellCheck={false}
+                    value={tc.input}
+                    onChange={(e) =>
+                      setTestcases((prev) =>
+                        prev.map((p) =>
+                          p.id !== tc.id ? p : { ...p, input: e.target.value }
+                        )
+                      )
+                    }
+                    className="bg-editor-background-1 h-full min-h-[146px] rounded-lg px-3 py-2 font-mono text-white"
+                  />
                 </div>
                 <div className="flex flex-1 flex-col gap-2">
                   <p className="text-sub4_sb_14 text-color-cool-neutral-40 h-fit">
                     Output {tc.id}
                   </p>
-                  <textarea className="bg-editor-background-1 h-full min-h-[146px] rounded-lg px-3 py-2 font-mono text-white" />
+                  <textarea
+                    spellCheck={false}
+                    value={tc.output}
+                    onChange={(e) =>
+                      setTestcases((prev) =>
+                        prev.map((p) =>
+                          p.id !== tc.id ? p : { ...p, output: e.target.value }
+                        )
+                      )
+                    }
+                    className="bg-editor-background-1 h-full min-h-[146px] rounded-lg px-3 py-2 font-mono text-white"
+                  />
                 </div>
               </div>
             </div>
