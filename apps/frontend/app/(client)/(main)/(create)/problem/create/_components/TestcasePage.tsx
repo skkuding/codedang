@@ -65,7 +65,7 @@ export function TestcasePage() {
             </Button>
           </div>
         </div>
-        <Separator />
+        <Separator className="bg-line" />
       </div>
       {testcases.length === 0 ? (
         <div className="bg-color-neutral-99 flex flex-col items-center gap-2 rounded-xl py-20">
