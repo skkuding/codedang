@@ -28,8 +28,8 @@ export function StatementPage() {
     defaultValues: {
       basicInfo: {
         title: '',
-        timeLimit: '' as unknown as number, //uncontroll -> controll로 바뀌는 에러 해결을 위한 타입 명시
-        memoryLimit: '' as unknown as number
+        timeLimit: undefined,
+        memoryLimit: undefined
       },
       problemInfo: {
         description: '',
