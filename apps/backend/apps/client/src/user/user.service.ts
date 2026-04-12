@@ -418,50 +418,6 @@ export class UserService {
   }
 
   /**
-   * 소셜 계정으로 회원가입 시 소셜 플랫폼에서 제공받은 계정 정보를 체크하고, user 객체를 생성 및 반환합니다.
-   *
-   * @param {SocialSignUpDto} socialSignUpDto 소셜 플랫폼에서 제공받은 계정 정보
-   * @throws {DuplicateFoundException} 이미 존재하는 사용자 이름일 경우 예외를 발생시킵니다.
-   * @throws {UnprocessableDataException} 사용자 이름이 잘못된 형식일 경우 예외를 발생시킵니다.
-   * @returns 사용자의 소셜 서비스 연동 정보를 DB에 생성하고, user 프로필을 만든 후 user 객체를 반환합니다.
-   */
-  async socialSignUp(socialSignUpDto: SocialSignUpDto): Promise<User> {
-    const duplicatedUser = await this.prisma.user.findUnique({
-      where: {
-        username: socialSignUpDto.username
-      }
-    })
-    if (duplicatedUser) {
-      this.logger.debug('socialSignUp - fail (username duplicated)')
-      throw new DuplicateFoundException('Username')
-    }
-
-    if (!this.isValidUsername(socialSignUpDto.username)) {
-      this.logger.debug('socialSignUp - fail (invalid username)')
-      throw new UnprocessableDataException('Bad username')
-    }
-
-    const user = await this.createUser({
-      username: socialSignUpDto.username,
-      password: generate({ length: 10, numbers: true }),
-      realName: socialSignUpDto.realName,
-      email: socialSignUpDto.email,
-      studentId: socialSignUpDto.studentId,
-      college: socialSignUpDto.college,
-      major: socialSignUpDto.major
-    })
-    const profile: CreateUserProfileData = {
-      userId: user.id,
-      realName: socialSignUpDto.realName
-    }
-
-    await this.createUserProfile(profile)
-    await this.createUserOAuth(socialSignUpDto, user.id)
-
-    return user
-  }
-
-  /**
    * 사용자 이름이 영어 소문자(a~z)/숫자 0~9/3자리 이상 10자리 이하를 만족하는지 체크합니다.
    *
    * @param {string} username 사용자 이름
