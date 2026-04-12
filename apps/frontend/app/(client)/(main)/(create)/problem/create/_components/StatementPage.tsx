@@ -224,7 +224,7 @@ export function StatementPage() {
                     htmlFor={`form-statement-sample${field.sampleId}-output`}
                     className="text-caption2_m_12 text-color-neutral-15 w-fit"
                   >
-                    출력 예제 #{field.sampleId}
+                    출력 예제 #{i + 1}
                   </label>
                   {/* TODO: sample 개별 삭제 버튼 디자인 반영 */}
                   <LucideCircleMinus
