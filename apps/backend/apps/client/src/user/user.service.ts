@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
-import type { User, UserProfile } from '@prisma/client'
+import type { Provider, User, UserProfile } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
@@ -512,16 +512,17 @@ export class UserService {
   /**
    * 사용자의 소셜 서비스(OAuth) 연동 정보를 DB에 생성합니다.
    *
-   * @param socialSignUpDto 소셜 플랫폼에서 제공받은 계정 정보
-   * @param {number} userId 사용자 Id
-   * @returns 생성된 소셜 연동 정보 userOAuth 객체를 반환합니다.
+   * @param {number} userId Codedang 사용자 Id
+   * @param {Provider} provider 소셜 플랫폼 종류 (예: kakao, github)
+   * @param {string} oauthId 소셜 플랫폼에서 제공하는 사용자 고유 Id
+   * @returns {Promise<UserOAuth>} 생성된 소셜 연동 정보 userOAuth 객체를 반환합니다.
    */
-  async createUserOAuth(socialSignUpDto: SocialSignUpDto, userId: number) {
+  async createUserOAuth(userId: number, provider: Provider, oauthId: string) {
     const userOAuth = await this.prisma.userOAuth.create({
       data: {
-        id: socialSignUpDto.id,
+        id: oauthId,
         userId,
-        provider: socialSignUpDto.provider
+        provider
       }
     })
     this.logger.debug(userOAuth, 'createUserOAuth')
