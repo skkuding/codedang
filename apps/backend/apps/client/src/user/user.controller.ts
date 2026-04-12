@@ -41,12 +41,6 @@ export class UserController {
     await this.userService.signUp(req, signUpDto)
   }
 
-  @Post('social-sign-up')
-  @AuthNotNeededIfPublic()
-  async socialSignUp(@Body() socialSignUpDto: SocialSignUpDto) {
-    return await this.userService.socialSignUp(socialSignUpDto)
-  }
-
   @Delete()
   async deleteUser(
     @Req() req: AuthenticatedRequest,
