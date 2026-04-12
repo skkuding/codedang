@@ -18,6 +18,7 @@ import {
 import { REFRESH_TOKEN_COOKIE_OPTIONS } from '@libs/constants'
 import { AuthService } from './auth.service'
 import { LoginUserDto } from './dto/login-user.dto'
+import type { SocialLinkDto } from './dto/social-link.dto'
 import type { GithubUser, KakaoUser } from './interface/social-user.interface'
 
 @Controller('auth')
@@ -45,6 +46,16 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ) {
     const jwtTokens = await this.authService.issueJwtTokens(loginUserDto)
+    this.setJwtResponse(res, jwtTokens)
+  }
+
+  @AuthNotNeededIfPublic()
+  @Post('social-link')
+  async socialLink(
+    @Body() socialLinkDto: SocialLinkDto,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const jwtTokens = await this.authService.socialLink(socialLinkDto)
     this.setJwtResponse(res, jwtTokens)
   }
 
