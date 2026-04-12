@@ -19,6 +19,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { UserService } from '@client/user/user.service'
 import type { LoginUserDto } from './dto/login-user.dto'
+import type { SocialLinkDto } from './dto/social-link.dto'
 import type { GithubUser, KakaoUser } from './interface/social-user.interface'
 
 @Injectable()
@@ -114,6 +115,15 @@ export class AuthService {
     return await this.cacheManager.del(
       refreshTokenCacheKey(userId, refreshToken)
     )
+  }
+
+  async socialLink(dto: SocialLinkDto) {
+    const user = await this.userService.getUserCredential(dto.username)
+    const tokens = await this.issueJwtTokens(dto)
+
+    await this.userService.createUserOAuth(user.id, dto.provider, dto.oauthId)
+
+    return tokens
   }
 
   async githubLogin(res: Response, githubUser: GithubUser) {
