@@ -411,6 +411,9 @@ export class UserService {
     }
     await this.createUserProfile(CreateUserProfileData)
 
+    if (signUpDto.provider && signUpDto.oauthId)
+      await this.createUserOAuth(user.id, signUpDto.provider, signUpDto.oauthId)
+
     return user
   }
 
