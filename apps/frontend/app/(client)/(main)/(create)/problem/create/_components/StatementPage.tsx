@@ -107,6 +107,7 @@ export function StatementPage() {
                     <Input
                       id="form-statement-basicInfo-timeLimit"
                       {...field}
+                      value={field.value ?? ''}
                       type="number"
                       className="placeholder:text-body1_m_16! text-body1_m_16 placeholder:text-color-neutral-90 px-5 py-[11px]"
                       placeholder="Enter"
@@ -128,6 +129,7 @@ export function StatementPage() {
                     <Input
                       id="form-statement-basicInfo-memoryLimit"
                       {...field}
+                      value={field.value ?? ''}
                       type="number"
                       className="text-body1_m_16 placeholder:text-color-neutral-90 px-5 py-[11px]"
                       placeholder="Enter"
