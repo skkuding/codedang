@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { Strategy, Profile } from 'passport-kakao'
-import { KAKAO_CALLBACK_URL } from '@libs/constants'
 
 @Injectable()
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
@@ -19,7 +18,6 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
     const id = profile.id
 
