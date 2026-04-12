@@ -99,7 +99,8 @@ export function ProblemCreateContainer() {
   const [tab, setTab] = useState('Statement')
 
   return (
-    <div className="px-29 mt-14 flex w-[1440px] flex-col gap-6">
+    // TODO: statement 머지하기 전에 bg 속성 삭제
+    <div className="bg-background-alternative px-29 mt-14 flex w-[1440px] flex-col gap-6">
       <div className="flex items-center justify-between gap-5">
         <div className="flex flex-col gap-2">
           <p className="text-head2_b_32">PROBLEM CREATE</p>
@@ -107,14 +108,17 @@ export function ProblemCreateContainer() {
             <div className="flex flex-col gap-[6px]">
               <div className="flex items-center gap-3">
                 <div
-                  className={cn('border-1 rounded-sm px-[6.5px] py-1', {
-                    'border-primary text-primary':
-                      problemProgress === 'published',
-                    'border-color-green-50 text-color-green-40':
-                      problemProgress === 'ready',
-                    'border-line text-color-neutral-70 bg-color-neutral-99':
-                      problemProgress === 'draft'
-                  })}
+                  className={cn(
+                    'border-1 rounded-sm bg-white px-[6.5px] py-1',
+                    {
+                      'border-primary text-primary':
+                        problemProgress === 'published',
+                      'border-color-green-50 text-color-green-40':
+                        problemProgress === 'ready',
+                      'border-line text-color-neutral-70 bg-color-neutral-99':
+                        problemProgress === 'draft'
+                    }
+                  )}
                 >
                   <p className="text-caption1_m_13">
                     {problemProgress.toUpperCase()}
@@ -137,7 +141,7 @@ export function ProblemCreateContainer() {
               setChecklistCnt((prev) => (prev > 5 ? prev - 1 : prev + 1))
             }
             type="button"
-            className="itmes-center border-primary-light hover:bg-color-blue-95 flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
+            className="border-primary-light hover:bg-color-blue-95 flex h-12 items-center gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
           >
             <Image
               src={CheckBlueIcon}
