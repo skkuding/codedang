@@ -160,12 +160,12 @@ export class AuthService {
     )
   }
 
-  async kakaoLogin(res: Response, kakaoUser: KakaoUser) {
+  async kakaoLogin(kakaoUser: KakaoUser) {
     const { kakaoId } = kakaoUser
 
     const userOAuth = await this.prisma.userOAuth.findFirst({
       where: {
-        id: kakaoId.toString(),
+        id: kakaoId,
         provider: 'kakao'
       }
     })
@@ -174,7 +174,7 @@ export class AuthService {
       // 소셜 회원가입 페이지 url 전달
       // TODO: 소셜 회원가입 페이지 url 확정되면 여기에 삽입
       return {
-        signUpUrl: `https://codedang.com/social-signup?provider=kakao&id=${kakaoUser.kakaoId}}`
+        signUpUrl: `https://codedang.com/social-signup?provider=kakao&oauthId=${kakaoUser.kakaoId}`
       }
     }
 
@@ -196,11 +196,6 @@ export class AuthService {
       true
     )
 
-    res.setHeader('authorization', `Bearer ${jwtTokens.accessToken}`)
-    res.cookie(
-      'refresh_token',
-      jwtTokens.refreshToken,
-      REFRESH_TOKEN_COOKIE_OPTIONS
-    )
+    return { jwtTokens }
   }
 }
