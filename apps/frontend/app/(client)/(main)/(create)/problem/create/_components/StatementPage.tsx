@@ -209,7 +209,7 @@ export function StatementPage() {
                   htmlFor={`form-statement-sample${field.sampleId}-input`}
                   className="text-caption2_m_12 text-color-neutral-15 w-fit"
                 >
-                  입력 예제 #{field.sampleId}
+                  입력 예제 #{i + 1}
                 </label>
                 <textarea
                   id={`form-statement-sample${field.sampleId}-input`}
