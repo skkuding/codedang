@@ -127,6 +127,10 @@ export class AuthController {
     @Req() req: Request
   ) {
     const kakaoUser = req.user as KakaoUser
-    return await this.authService.kakaoLogin(res, kakaoUser)
+    const result = await this.authService.kakaoLogin(kakaoUser)
+
+    if ('signUpUrl' in result) return result
+
+    this.setJwtResponse(res, result.jwtTokens)
   }
 }
