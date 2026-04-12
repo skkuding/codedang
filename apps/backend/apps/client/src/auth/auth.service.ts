@@ -13,6 +13,7 @@ import {
   REFRESH_TOKEN_EXPIRE_TIME
 } from '@libs/constants'
 import {
+  DuplicateFoundException,
   InvalidJwtTokenException,
   UnidentifiedException
 } from '@libs/exception'
@@ -121,6 +122,30 @@ export class AuthService {
     const user = await this.userService.getUserCredential(dto.username)
     const tokens = await this.issueJwtTokens(dto)
 
+    const existingProvider = await this.prisma.userOAuth.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_provider: {
+          userId: user.id,
+          provider: dto.provider
+        }
+      }
+    })
+    if (existingProvider)
+      throw new DuplicateFoundException(`${dto.provider} OAuth provider`)
+
+    const existingOAuth = await this.prisma.userOAuth.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        id_provider: {
+          id: dto.oauthId,
+          provider: dto.provider
+        }
+      }
+    })
+    if (existingOAuth)
+      throw new DuplicateFoundException(`${dto.provider} OAuth account`)
+
     await this.userService.createUserOAuth(user.id, dto.provider, dto.oauthId)
 
     return tokens
@@ -173,10 +198,13 @@ export class AuthService {
   async kakaoLogin(kakaoUser: KakaoUser) {
     const { kakaoId } = kakaoUser
 
-    const userOAuth = await this.prisma.userOAuth.findFirst({
+    const userOAuth = await this.prisma.userOAuth.findUnique({
       where: {
-        id: kakaoId,
-        provider: 'kakao'
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        id_provider: {
+          id: kakaoId,
+          provider: 'kakao'
+        }
       }
     })
 
@@ -184,11 +212,11 @@ export class AuthService {
       // 소셜 회원가입 페이지 url 전달
       // TODO: 소셜 회원가입 페이지 url 확정되면 여기에 삽입
       return {
-        signUpUrl: `https://codedang.com/social-signup?provider=kakao&oauthId=${kakaoUser.kakaoId}`
+        signUpUrl: `https://codedang.com/sign-up?provider=kakao&oauthId=${kakaoUser.kakaoId}`
       }
     }
 
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findUnique({
       where: {
         id: userOAuth.userId
       }
@@ -198,12 +226,11 @@ export class AuthService {
       throw new UnidentifiedException('user')
     }
 
-    const jwtTokens = await this.issueJwtTokens(
-      {
-        username: user.username,
-        password: user.password
-      },
-      true
+    await this.userService.updateLastLogin(user.username)
+    const jwtTokens = await this.createJwtTokens(
+      user.id,
+      user.username,
+      user.role
     )
 
     return { jwtTokens }
