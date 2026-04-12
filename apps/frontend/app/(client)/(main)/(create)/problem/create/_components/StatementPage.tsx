@@ -236,7 +236,7 @@ export function StatementPage() {
                 <textarea
                   id={`form-statement-sample${field.sampleId}-output`}
                   {...register(`samples.${i}.output`)}
-                  className="border-1 border-line text-body1_m_16 focus:outline-hidden focus:ring-primary placeholder:text-color-neutral-90 min-h-[179px] resize-none rounded-xl px-5 py-[11px] ring-transparent focus:ring-1 focus:ring-offset-0"
+                  className="border-1 border-line text-body1_m_16 focus-visible:outline-hidden focus-visible:ring-primary placeholder:text-color-neutral-90 min-h-[179px] resize-none rounded-xl px-5 py-[11px] focus-visible:ring-1 focus-visible:ring-offset-0"
                   placeholder="Enter"
                 />
               </div>
