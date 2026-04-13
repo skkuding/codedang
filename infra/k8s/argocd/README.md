@@ -14,8 +14,8 @@ cd codedang/infra
 # For production cluster
 ENVIRONMENT=production ./bootstrap-cluster.sh
 
-# For stage cluster
-ENVIRONMENT=stage CLUSTER_CONTEXT=stage ./bootstrap-cluster.sh
+# For stage cluster (sealed-secrets only, ArgoCD managed by production)
+ENVIRONMENT=stage CLUSTER_CONTEXT=stage SKIP_ARGOCD=true ./bootstrap-cluster.sh
 ```
 
 The script will:

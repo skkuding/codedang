@@ -1,0 +1,105 @@
+name: CI - Infra
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  ansible-lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if infra source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            infra:
+              - 'infra/ansible/**'
+              - '.github/workflows/ci-infra.yml'
+
+      - name: Run Ansible Lint
+        if: steps.filter.outputs.infra == 'true'
+        uses: ansible/ansible-lint@v25
+        with:
+          working_directory: infra/ansible/
+
+  check-ssh-public-keys:
+    name: Check SSH Public Keys
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if infra source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            infra:
+              - 'infra/ansible/ssh_publickey/**'
+              - '.github/workflows/ci-infra.yml'
+
+      - name: Check for SSH Public Keys
+        if: steps.filter.outputs.infra == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          files=(infra/ansible/ssh_publickey/*.pub)
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No public key files found"
+            exit 0
+          fi
+
+          for file in "${files[@]}"; do
+            lineno=0
+            while IFS= read -r line; do
+              lineno=$((lineno + 1))
+              [[ "$line" =~ ^[[:space:]]*$ || "$line" =~ ^[[:space:]]*# ]] && continue
+
+              read -r type key comment <<< "$line"
+
+              # Allowed key types: ed25519 and RSA(3072 or 4096 bits only)
+              case "$type" in
+                ssh-ed25519)
+                  tmp=$(mktemp)
+                  printf '%s\n' "$line" > "$tmp"
+                  if ! ssh-keygen -lf "$tmp" > /dev/null 2>&1; then
+                    rm -f "$tmp"
+                    echo "Invalid ed25519 key in ${file}:${lineno}"
+                    exit 1
+                  fi
+                  rm -f "$tmp"
+                  ;;
+                ssh-rsa)
+                  tmp=$(mktemp)
+                  printf '%s\n' "$line" > "$tmp"
+                  if ! bits=$(ssh-keygen -lf "$tmp" | awk '{print $1}'); then
+                    rm -f "$tmp"
+                    echo "Wrong type of pubkey at ${file}:${lineno}"
+                    exit 1
+                  fi
+                  rm -f "$tmp"
+
+                  if [[ "$bits" -ne 3072 && "$bits" -ne 4096 ]]; then
+                    echo "Invalid RSA key size (${bits} bits) in ${file}:${lineno}"
+                    exit 1
+                  fi
+                  ;;
+                *)
+                  echo "Unsupported key type (${type}) in ${file}:${lineno}"
+                  exit 1
+                  ;;
+              esac
+            done < "$file"
+          done
+
+          echo "All keys are valid"
