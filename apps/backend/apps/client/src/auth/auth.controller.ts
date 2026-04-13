@@ -6,9 +6,13 @@ import {
   Req,
   Res,
   UnauthorizedException,
-  UseGuards
+  UseGuards,
+  Delete,
+  Param,
+  ParseEnumPipe
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
+import { Provider } from '@prisma/client'
 import { Request, Response } from 'express'
 import {
   AuthenticatedRequest,
@@ -57,6 +61,14 @@ export class AuthController {
   ) {
     const jwtTokens = await this.authService.socialLink(socialLinkDto)
     this.setJwtResponse(res, jwtTokens)
+  }
+
+  @Delete('social-link/:provider')
+  async socialUnlink(
+    @Req() req: AuthenticatedRequest,
+    @Param('provider', new ParseEnumPipe(Provider)) provider: Provider
+  ) {
+    await this.authService.socialUnlink(req.user.id, provider)
   }
 
   /**
