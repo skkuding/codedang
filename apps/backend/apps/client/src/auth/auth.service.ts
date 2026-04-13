@@ -1,8 +1,9 @@
+import { HttpService } from '@nestjs/axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
-import { Role } from '@prisma/client'
+import { Role, type Provider } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import type { Response } from 'express'
 import { JwtAuthService, type JwtPayload } from '@libs/auth'
@@ -14,6 +15,7 @@ import {
 } from '@libs/constants'
 import {
   DuplicateFoundException,
+  EntityNotExistException,
   InvalidJwtTokenException,
   UnidentifiedException
 } from '@libs/exception'
@@ -31,6 +33,7 @@ export class AuthService {
     private readonly jwtAuthService: JwtAuthService,
     private readonly userService: UserService,
     private readonly prisma: PrismaService,
+    private readonly httpService: HttpService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -149,6 +152,49 @@ export class AuthService {
     await this.userService.createUserOAuth(user.id, dto.provider, dto.oauthId)
 
     return tokens
+  }
+
+  async socialUnlink(userId: number, provider: Provider) {
+    const userOAuth = await this.prisma.userOAuth.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_provider: {
+          userId,
+          provider
+        }
+      }
+    })
+
+    if (!userOAuth) throw new EntityNotExistException('OAuth')
+
+    if (provider === 'kakao') {
+      await this.httpService.axiosRef({
+        url: 'https://kapi.kakao.com/v1/user/unlink',
+        method: 'POST',
+        headers: {
+          Authorization: `KakaoAK ${this.config.getOrThrow('KAKAO_ADMIN_KEY')}`,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          'Content-Type': `application/x-www-form-urlencoded;charset=utf-8`
+        },
+
+        data: new URLSearchParams({
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          target_id_type: 'user_id',
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          target_id: userOAuth.id
+        })
+      })
+    }
+
+    await this.prisma.userOAuth.delete({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_provider: {
+          userId,
+          provider
+        }
+      }
+    })
   }
 
   async githubLogin(res: Response, githubUser: GithubUser) {
