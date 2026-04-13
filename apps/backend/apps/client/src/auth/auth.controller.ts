@@ -22,7 +22,7 @@ import {
 import { REFRESH_TOKEN_COOKIE_OPTIONS } from '@libs/constants'
 import { AuthService } from './auth.service'
 import { LoginUserDto } from './dto/login-user.dto'
-import type { SocialLinkDto } from './dto/social-link.dto'
+import { SocialLinkDto } from './dto/social-link.dto'
 import type { GithubUser, KakaoUser } from './interface/social-user.interface'
 
 @Controller('auth')
@@ -66,9 +66,10 @@ export class AuthController {
   @Delete('social-link/:provider')
   async socialUnlink(
     @Req() req: AuthenticatedRequest,
-    @Param('provider', new ParseEnumPipe(Provider)) provider: Provider
+    // NestJS Swagger의 Prisma Enum 순환 참조 에러 방지를 위해 string 타입 사용
+    @Param('provider', new ParseEnumPipe(Provider)) provider: string
   ) {
-    await this.authService.socialUnlink(req.user.id, provider)
+    await this.authService.socialUnlink(req.user.id, provider as Provider)
   }
 
   /**
