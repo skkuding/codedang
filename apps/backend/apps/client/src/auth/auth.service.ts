@@ -165,7 +165,8 @@ export class AuthService {
       }
     })
 
-    if (!userOAuth) throw new EntityNotExistException('OAuth')
+    if (!userOAuth)
+      throw new EntityNotExistException(`${provider} OAuth provider`)
 
     if (provider === 'kakao') {
       await this.httpService.axiosRef({
