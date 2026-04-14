@@ -30,7 +30,7 @@ export function CourseCardList({ title }: CourseCardListProps) {
   const courseColumns = useMemo(() => {
     const columns: JoinedCourse[][] = []
 
-    const itemsPerColumn = courses.length <= 8 ? 4 : 2
+    const itemsPerColumn = courses.length <= 4 ? 4 : 2
 
     for (let i = 0; i < courses.length; i += itemsPerColumn) {
       columns.push(courses.slice(i, i + itemsPerColumn))
@@ -42,11 +42,11 @@ export function CourseCardList({ title }: CourseCardListProps) {
   if (courses.length === 0) {
     return (
       <div className="flex w-full flex-col gap-10 md:items-center md:justify-between">
-        <div className="flex gap-4 text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
+        <div className="text-head5_sb_24 md:text-head3_sb_28 flex w-full justify-between gap-4">
           {title}
           <RegisterCourseButton />
         </div>
-        <div className="flex h-72 w-full flex-col items-center justify-center rounded-[20px] border border-[#DFDFDF] text-xl font-normal text-[#737373]">
+        <div className="text-title2_m_20 flex h-72 w-full flex-col items-center justify-center rounded-[20px] border border-[#DFDFDF] text-[#737373]">
           <p>There are no courses registered!</p>
           <p>
             Please click the register button at the top to enroll in a course.
@@ -58,15 +58,15 @@ export function CourseCardList({ title }: CourseCardListProps) {
 
   return (
     <div>
-      {courses.length <= 8 ? (
-        <div className="flex w-full flex-col">
+      {courses.length <= 4 ? (
+        <>
           <div className="mb-3 flex w-full items-center justify-between">
-            <span className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
+            <span className="text-head5_sb_24 md:text-head3_sb_28">
               {title}
             </span>
             <RegisterCourseButton />
           </div>
-          <div className="grid grid-cols-4 gap-3 pb-[100px]">
+          <div className="hidden gap-3 md:grid md:grid-cols-4">
             {courses.map((course) => (
               <Link
                 key={course.id}
@@ -77,14 +77,43 @@ export function CourseCardList({ title }: CourseCardListProps) {
               </Link>
             ))}
           </div>
-        </div>
+          <Carousel
+            opts={{ align: 'start', slidesToScroll: 1 }}
+            className="flex w-full flex-col md:hidden"
+          >
+            <CarouselContent className="mb-[15px] ml-2">
+              {courseColumns.map((column, columnIndex) => (
+                <CarouselItem
+                  key={`course-column-${columnIndex}`}
+                  className="basis-[240px]"
+                >
+                  <div className="flex flex-col gap-3">
+                    {column.map((course, rowIndex) => {
+                      const originalIndex = columnIndex * 4 + rowIndex
+
+                      return (
+                        <Link
+                          key={course.id}
+                          href={`/course/${course.id}` as const}
+                          className="block w-full"
+                        >
+                          <CourseCard course={course} index={originalIndex} />
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        </>
       ) : (
         <Carousel
           opts={{ align: 'start', slidesToScroll: 1 }}
           className="flex w-full flex-col"
         >
           <div className="mb-3 flex w-full items-center justify-between">
-            <span className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
+            <span className="text-head5_sb_24 md:text-head3_sb_28">
               {title}
             </span>
             <div className="flex items-center gap-3">
@@ -94,7 +123,7 @@ export function CourseCardList({ title }: CourseCardListProps) {
             </div>
           </div>
 
-          <CarouselContent className="mb-[100px] ml-2">
+          <CarouselContent className="mb-[15px] ml-2">
             {courseColumns.map((column, columnIndex) => (
               <CarouselItem
                 key={`course-column-${columnIndex}`}
