@@ -126,37 +126,37 @@ export class AuthService {
     )
   }
 
-  async socialLink(dto: SocialLinkDto) {
-    const user = await this.userService.getUserCredential(dto.username)
-    const tokens = await this.issueJwtTokens(dto)
+  async socialLink(userId: number, dto: SocialLinkDto) {
+    const { oauthId, provider } =
+      await this.jwtService.verifyAsync<OAuthTokenPayload>(dto.oauthToken, {
+        secret: this.config.get('JWT_SECRET')
+      })
 
     const existingProvider = await this.prisma.userOAuth.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         userId_provider: {
-          userId: user.id,
-          provider: dto.provider
+          userId,
+          provider
         }
       }
     })
     if (existingProvider)
-      throw new DuplicateFoundException(`${dto.provider} OAuth provider`)
+      throw new DuplicateFoundException(`${provider} OAuth provider`)
 
     const existingOAuth = await this.prisma.userOAuth.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         id_provider: {
-          id: dto.oauthId,
-          provider: dto.provider
+          id: oauthId,
+          provider
         }
       }
     })
     if (existingOAuth)
-      throw new DuplicateFoundException(`${dto.provider} OAuth account`)
+      throw new DuplicateFoundException(`${provider} OAuth account`)
 
-    await this.userService.createUserOAuth(user.id, dto.provider, dto.oauthId)
-
-    return tokens
+    await this.userService.createUserOAuth(userId, provider, oauthId)
   }
 
   async socialUnlink(userId: number, provider: Provider) {
