@@ -412,12 +412,19 @@ export class UserService {
     await this.createUserProfile(CreateUserProfileData)
 
     if (signUpDto.oauthToken) {
-      const { oauthId, provider } =
-        await this.jwtService.verifyAsync<OAuthTokenPayload>(
-          signUpDto.oauthToken,
-          { secret: this.config.get('JWT_SECRET') }
+      try {
+        const { oauthId, provider } =
+          await this.jwtService.verifyAsync<OAuthTokenPayload>(
+            signUpDto.oauthToken,
+            { secret: this.config.get('JWT_SECRET') }
+          )
+        await this.createUserOAuth(user.id, provider, oauthId)
+      } catch (error) {
+        this.logger.warn(
+          error,
+          'signUp - oauthToken verification failed, skipping OAuth link'
         )
-      await this.createUserOAuth(user.id, provider, oauthId)
+      }
     }
 
     return user
