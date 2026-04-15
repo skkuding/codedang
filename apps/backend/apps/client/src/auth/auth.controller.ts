@@ -53,6 +53,13 @@ export class AuthController {
     this.setJwtResponse(res, jwtTokens)
   }
 
+  /**
+   * 로그인된 유저의 계정에 소셜 계정을 연동함.
+   * @param {SocialLinkDto} socialLinkDto - 소셜 로그인 콜백에서 발급된 oauthToken
+   * @param {AuthenticatedRequest} req - 인증된 리퀘스트 객체
+   * @throws {InvalidJwtTokenException} oauthToken이 유효하지 않거나 만료된 경우
+   * @throws {DuplicateFoundException} 해당 provider가 이미 연동되어 있거나, 해당 소셜 계정이 다른 유저에게 이미 연동된 경우
+   */
   @Post('social-link')
   async socialLink(
     @Body() socialLinkDto: SocialLinkDto,
@@ -61,6 +68,13 @@ export class AuthController {
     await this.authService.socialLink(req.user.id, socialLinkDto)
   }
 
+  /**
+   * 로그인된 유저의 계정에서 소셜 계정 연동을 해제함.
+   * Kakao의 경우 Kakao Admin API를 통해 서버 측에서도 연동 해제 처리함.
+   * @param {AuthenticatedRequest} req - 인증된 리퀘스트 객체
+   * @param {Provider} provider - 연동 해제할 소셜 플랫폼
+   * @throws {EntityNotExistException} 해당 provider가 연동되어 있지 않은 경우
+   */
   @Delete('social-link/:provider')
   async socialUnlink(
     @Req() req: AuthenticatedRequest,
