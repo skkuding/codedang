@@ -14,9 +14,9 @@ resource "random_password" "postgres_password" {
 resource "aws_db_instance" "postgres" {
   identifier = "terraform-20250506182211604800000001"
 
-  db_name           = "codedang_db"
-  engine            = "postgres"
-  engine_version    = "14"
+  db_name               = "codedang_db"
+  engine                = "postgres"
+  engine_version        = "14.22"
   allocated_storage     = 10
   max_allocated_storage = 25
   instance_class        = "db.t4g.small"
@@ -35,7 +35,7 @@ resource "aws_db_instance" "postgres" {
 
   # Backup
   backup_retention_period = 7
-  backup_window           = "16:00-17:00"              # KST 01:00-02:00
+  backup_window           = "16:00-17:00" # KST 01:00-02:00
 
   # Monitoring
   performance_insights_enabled = true
