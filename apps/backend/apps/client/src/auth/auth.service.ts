@@ -10,6 +10,7 @@ import { JwtAuthService, type JwtPayload } from '@libs/auth'
 import { refreshTokenCacheKey } from '@libs/cache'
 import {
   ACCESS_TOKEN_EXPIRE_TIME,
+  OAUTH_TOKEN_EXPIRE_TIME,
   REFRESH_TOKEN_COOKIE_OPTIONS,
   REFRESH_TOKEN_EXPIRE_TIME
 } from '@libs/constants'
@@ -256,10 +257,13 @@ export class AuthService {
     })
 
     if (!userOAuth) {
-      // 소셜 회원가입 페이지 url 전달
-      // TODO: 소셜 회원가입 페이지 url 확정되면 여기에 삽입
+      const oauthToken = await this.jwtService.signAsync(
+        { oauthId: kakaoId, provider: 'kakao' },
+        { expiresIn: OAUTH_TOKEN_EXPIRE_TIME }
+      )
       return {
-        signUpUrl: `https://codedang.com/sign-up?provider=kakao&oauthId=${kakaoUser.kakaoId}`
+        signUpUrl: `https://codedang.com/sign-up?oauthToken=${oauthToken}`,
+        oauthToken
       }
     }
 
