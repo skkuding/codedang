@@ -22,6 +22,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { OAuthTokenPayload } from '@client/auth/interface/social-user.interface'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import type { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
@@ -410,8 +411,14 @@ export class UserService {
     }
     await this.createUserProfile(CreateUserProfileData)
 
-    if (signUpDto.provider && signUpDto.oauthId)
-      await this.createUserOAuth(user.id, signUpDto.provider, signUpDto.oauthId)
+    if (signUpDto.oauthToken) {
+      const { oauthId, provider } =
+        await this.jwtService.verifyAsync<OAuthTokenPayload>(
+          signUpDto.oauthToken,
+          { secret: this.config.get('JWT_SECRET') }
+        )
+      await this.createUserOAuth(user.id, provider, oauthId)
+    }
 
     return user
   }
