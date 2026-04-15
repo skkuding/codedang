@@ -53,14 +53,12 @@ export class AuthController {
     this.setJwtResponse(res, jwtTokens)
   }
 
-  @AuthNotNeededIfPublic()
   @Post('social-link')
   async socialLink(
     @Body() socialLinkDto: SocialLinkDto,
-    @Res({ passthrough: true }) res: Response
+    @Req() req: AuthenticatedRequest
   ) {
-    const jwtTokens = await this.authService.socialLink(socialLinkDto)
-    this.setJwtResponse(res, jwtTokens)
+    await this.authService.socialLink(req.user.id, socialLinkDto)
   }
 
   @Delete('social-link/:provider')
