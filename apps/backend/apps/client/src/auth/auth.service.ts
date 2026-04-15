@@ -24,7 +24,11 @@ import { PrismaService } from '@libs/prisma'
 import { UserService } from '@client/user/user.service'
 import type { LoginUserDto } from './dto/login-user.dto'
 import type { SocialLinkDto } from './dto/social-link.dto'
-import type { GithubUser, KakaoUser } from './interface/social-user.interface'
+import type {
+  GithubUser,
+  KakaoUser,
+  OAuthTokenPayload
+} from './interface/social-user.interface'
 
 @Injectable()
 export class AuthService {
@@ -258,7 +262,7 @@ export class AuthService {
 
     if (!userOAuth) {
       const oauthToken = await this.jwtService.signAsync(
-        { oauthId: kakaoId, provider: 'kakao' },
+        { oauthId: kakaoId, provider: 'kakao' } satisfies OAuthTokenPayload,
         { expiresIn: OAUTH_TOKEN_EXPIRE_TIME }
       )
       return {
