@@ -127,10 +127,7 @@ export class AuthService {
   }
 
   async socialLink(userId: number, dto: SocialLinkDto) {
-    const { oauthId, provider } =
-      await this.jwtService.verifyAsync<OAuthTokenPayload>(dto.oauthToken, {
-        secret: this.config.get('JWT_SECRET')
-      })
+    const { oauthId, provider } = await this.verifyOAuthToken(dto.oauthToken)
 
     const existingProvider = await this.prisma.userOAuth.findUnique({
       where: {
@@ -289,5 +286,15 @@ export class AuthService {
     )
 
     return { jwtTokens }
+  }
+
+  private async verifyOAuthToken(token: string) {
+    try {
+      return await this.jwtService.verifyAsync<OAuthTokenPayload>(token, {
+        secret: this.config.get('JWT_SECRET')
+      })
+    } catch (error) {
+      throw new InvalidJwtTokenException(error.message)
+    }
   }
 }
