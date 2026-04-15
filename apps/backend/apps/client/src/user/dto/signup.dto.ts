@@ -1,4 +1,3 @@
-import { Provider } from '@prisma/client'
 import {
   IsAlphanumeric,
   IsEmail,
@@ -6,8 +5,7 @@ import {
   IsNumberString,
   IsOptional,
   IsString,
-  Matches,
-  IsEnum
+  Matches
 } from 'class-validator'
 
 export class SignUpDto {
@@ -39,11 +37,7 @@ export class SignUpDto {
   @IsString()
   readonly major?: string
 
-  @IsEnum(Provider)
   @IsOptional()
-  readonly provider?: Provider
-
   @IsString()
-  @IsOptional()
-  readonly oauthId?: string
+  readonly oauthToken?: string
 }
