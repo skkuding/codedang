@@ -1,13 +1,7 @@
-import { Provider } from '@prisma/client'
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator'
-import { LoginUserDto } from './login-user.dto'
+import { IsNotEmpty, IsString } from 'class-validator'
 
-export class SocialLinkDto extends LoginUserDto {
-  @IsEnum(Provider)
-  @IsNotEmpty()
-  readonly provider: Provider
-
+export class SocialLinkDto {
   @IsString()
   @IsNotEmpty()
-  readonly oauthId: string
+  readonly oauthToken: string
 }
