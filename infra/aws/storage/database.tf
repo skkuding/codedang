@@ -14,12 +14,14 @@ resource "random_password" "postgres_password" {
 resource "aws_db_instance" "postgres" {
   identifier = "terraform-20250506182211604800000001"
 
-  db_name               = "codedang_db"
-  engine                = "postgres"
-  engine_version        = "14.22"
-  allocated_storage     = 10
-  max_allocated_storage = 25
-  instance_class        = "db.t4g.small"
+  db_name                    = "codedang_db"
+  engine                     = "postgres"
+  # Pinned version — check for updates quarterly: https://docs.aws.amazon.com/AmazonRDS/latest/PostgreSQLReleaseNotes/
+  engine_version             = "14.22"
+  auto_minor_version_upgrade = false
+  allocated_storage          = 10
+  max_allocated_storage      = 25
+  instance_class             = "db.t4g.small"
 
   username = var.postgres_username
   password = random_password.postgres_password.result
