@@ -18,8 +18,21 @@ import {
   MESSAGE_PRIORITY_HIGH,
   MESSAGE_PRIORITY_MIDDLE,
   MESSAGE_PRIORITY_LOW,
-  SUBMISSION_KEY
+  SUBMISSION_KEY,
+  POLYGON_EXCHANGE,
+  POLYGON_GENERATOR_MESSAGE_TYPE,
+  POLYGON_GENERATOR_KEY,
+  POLYGON_GENERATOR_RESULT_KEY,
+  POLYGON_GENERATOR_RESULT_QUEUE,
+  POLYGON_VALIDATOR_RESULT_KEY,
+  POLYGON_VALIDATOR_RESULT_QUEUE,
+  POLYGON_VALIDATOR_KEY,
+  POLYGON_VALIDATOR_MESSAGE_TYPE
 } from '@libs/constants'
+import type {
+  GeneratorRequest,
+  ValidatorRequest
+} from '@admin/polygon/interface/polygonToolRequest.interface'
 
 @Injectable()
 export class JudgeAMQPService {
@@ -210,5 +223,124 @@ export class CheckAMQPService {
 
   private messageHandlers?: {
     onCheckMessage?: (msg: object) => Promise<void>
+  }
+}
+
+@Injectable()
+export class PolygonAMQPService {
+  private readonly logger = new Logger(PolygonAMQPService.name)
+
+  constructor(
+    private readonly amqpConnection: AmqpConnection,
+    private readonly traceService: TraceService
+  ) {}
+
+  //1. 큐 구독
+  startGeneratorSubscription() {
+    //결과메시지 도착하면 콜백 실행됨
+    this.amqpConnection.createSubscriber(
+      //@golevelup/nestjs-rabbitmq 버전이 업데이트 되면서 생긴 문제?
+      async (msg: object | undefined) => {
+        try {
+          if (!msg) return //undefined인 경우 메시지 큐에서 제거
+          //onGenerateResult 핸들러가 등록되어 있으면
+          if (this.messageHandlers?.onGenerateResult) {
+            await this.messageHandlers.onGenerateResult(msg) //onGenerateResult() 실행
+          }
+        } catch (error) {
+          this.logger.error(
+            error,
+            'Unexpected error in handling generator result message'
+          )
+          return new Nack()
+        }
+      },
+      {
+        exchange: POLYGON_EXCHANGE,
+        routingKey: POLYGON_GENERATOR_RESULT_KEY, //결과 큐를 분리할건지 통합할건지 조율해야됨.
+        queue: POLYGON_GENERATOR_RESULT_QUEUE
+      },
+      ORIGIN_HANDLER_NAME
+    )
+  }
+
+  startValidatorSubscription() {
+    //결과메시지 도착하면 콜백 실행됨
+    this.amqpConnection.createSubscriber(
+      //@golevelup/nestjs-rabbitmq 버전이 업데이트 되면서 생긴 문제?
+      async (msg: object | undefined) => {
+        try {
+          if (!msg) return //undefined인 경우 메시지 큐에서 제거
+          //onValidateResult 핸들러가 등록되어 있으면
+          if (this.messageHandlers?.onValidateResult) {
+            await this.messageHandlers.onValidateResult(msg) //onValidateResult() 실행
+          }
+        } catch (error) {
+          this.logger.error(
+            error,
+            'Unexpected error in handling validator result message'
+          )
+          return new Nack()
+        }
+      },
+      {
+        exchange: POLYGON_EXCHANGE,
+        routingKey: POLYGON_VALIDATOR_RESULT_KEY, //결과 큐를 분리할건지 통합할건지 조율해야됨.
+        queue: POLYGON_VALIDATOR_RESULT_QUEUE
+      },
+      ORIGIN_HANDLER_NAME
+    )
+  }
+
+  /**
+   * Generator 실행 요청을 Iris로 publish합니다.
+   */
+  @Span()
+  async publishGeneratorMessage(request: GeneratorRequest): Promise<void> {
+    const span = this.traceService.startSpan('publishGeneratorMessage.publish')
+    await this.amqpConnection.publish(
+      POLYGON_EXCHANGE,
+      POLYGON_GENERATOR_KEY,
+      request,
+      {
+        messageId: `Generator-${request.problemId}`,
+        persistent: true,
+        type: POLYGON_GENERATOR_MESSAGE_TYPE
+      }
+    )
+    span.end()
+  }
+
+  /**
+   * Validator 실행 요청을 Iris로 publish합니다.
+   */
+  @Span()
+  async publishValidatorMessage(request: ValidatorRequest): Promise<void> {
+    const span = this.traceService.startSpan('publishValidatorMessage.publish')
+    await this.amqpConnection.publish(
+      POLYGON_EXCHANGE,
+      POLYGON_VALIDATOR_KEY,
+      request,
+      {
+        messageId: `Validator-${request.problemId}`,
+        persistent: true,
+        type: POLYGON_VALIDATOR_MESSAGE_TYPE,
+        priority: MESSAGE_PRIORITY_MIDDLE
+      }
+    )
+    span.end()
+  }
+
+  //handler 설정
+  setMessageHandlers(handlers: {
+    onGenerateResult?: (msg: object) => Promise<void>
+    onValidateResult?: (msg: object) => Promise<void>
+  }) {
+    this.messageHandlers = handlers
+  }
+
+  private messageHandlers?: {
+    onGenerateResult?: (msg: object) => Promise<void>
+    onValidateResult?: (msg: object) => Promise<void>
   }
 }
