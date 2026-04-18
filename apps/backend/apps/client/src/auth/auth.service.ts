@@ -263,7 +263,6 @@ export class AuthService {
         { expiresIn: OAUTH_TOKEN_EXPIRE_TIME }
       )
       return {
-        signUpUrl: `https://codedang.com/sign-up?oauthToken=${oauthToken}`,
         oauthToken
       }
     }

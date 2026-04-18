@@ -165,7 +165,7 @@ export class AuthController {
     const kakaoUser = req.user as KakaoUser
     const result = await this.authService.kakaoLogin(kakaoUser)
 
-    if ('signUpUrl' in result) return result
+    if ('oauthToken' in result) return result
 
     this.setJwtResponse(res, result.jwtTokens)
   }
