@@ -1,9 +1,10 @@
 import { HttpService } from '@nestjs/axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import { Role, type Provider } from '@prisma/client'
+import { AxiosError } from 'axios'
 import { Cache } from 'cache-manager'
 import type { Response } from 'express'
 import { JwtAuthService, type JwtPayload } from '@libs/auth'
@@ -32,6 +33,8 @@ import type {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name)
+
   constructor(
     private readonly config: ConfigService,
     private readonly jwtService: JwtService,
@@ -171,22 +174,36 @@ export class AuthService {
       throw new EntityNotExistException(`${provider} OAuth provider`)
 
     if (provider === 'kakao') {
-      await this.httpService.axiosRef({
-        url: 'https://kapi.kakao.com/v1/user/unlink',
-        method: 'POST',
-        headers: {
-          Authorization: `KakaoAK ${this.config.getOrThrow('KAKAO_ADMIN_KEY')}`,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          'Content-Type': `application/x-www-form-urlencoded;charset=utf-8`
-        },
+      try {
+        await this.httpService.axiosRef({
+          url: 'https://kapi.kakao.com/v1/user/unlink',
+          method: 'POST',
+          headers: {
+            Authorization: `KakaoAK ${this.config.getOrThrow('KAKAO_ADMIN_KEY')}`,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            'Content-Type': `application/x-www-form-urlencoded;charset=utf-8`
+          },
 
-        data: new URLSearchParams({
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          target_id_type: 'user_id',
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          target_id: userOAuth.id
+          data: new URLSearchParams({
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            target_id_type: 'user_id',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            target_id: userOAuth.id
+          })
         })
-      })
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          const errorCode = error.response?.data?.code
+          // -101: 카카오계정 미연결 사용자 (이미 연결 해제된 경우)
+          // https://developers.kakao.com/docs/ko/rest-api/error-code#kakaologin
+          if (errorCode === -101) {
+            this.logger.warn(`Kakao already unlinked for userId: ${userId}`)
+          } else {
+            this.logger.error(`Kakao unlink failed for userId: ${userId}`)
+            throw error
+          }
+        } else throw error
+      }
     }
 
     await this.prisma.userOAuth.delete({
