@@ -1,36 +1,70 @@
-import { Logger } from '@nestjs/common'
+import { Logger, UseGuards } from '@nestjs/common'
 import {
   WebSocketGateway,
   WebSocketServer,
+  OnGatewayInit,
   OnGatewayConnection,
-  OnGatewayDisconnect
+  OnGatewayDisconnect,
+  SubscribeMessage,
+  ConnectedSocket,
+  MessageBody,
+  WsException
 } from '@nestjs/websockets'
 import type { Server, Socket } from 'socket.io'
+import { JwtAuthGuard } from '@libs/auth'
+import type { JoinPayload } from './interface/study-socket.interface'
+import { StudyRoomService } from './study-room.service'
 
-// TODO 실제 서버 환경에 맞는 'cors' RedisIoAdapter 내부에 설정
+@UseGuards(JwtAuthGuard)
 @WebSocketGateway({
   namespace: 'study',
-  cors: { origin: true, credentials: true }
+  cors: {
+    // TODO 실제 서버 환경에 맞는 'cors' RedisIoAdapter 내부에 설정
+    // origin: ['ws://localhost:3002/api/room']
+    origin: true,
+    credentials: true
+  }
 })
-export class StudyGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class StudyGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server
 
   private readonly logger = new Logger(StudyGateway.name)
 
-  // ✅ Gateway 초기화 완료 확인용
-  // afterInit() {
-  //   this.logger.log('✅ StudyGateway initialized')
-  // }
+  constructor(private readonly studyRoomService: StudyRoomService) {}
+
+  afterInit(server: Server) {
+    this.studyRoomService.setServer(server)
+    this.logger.log('✅ StudyGateway initialized')
+  }
 
   // 클라이언트 연결
   handleConnection(client: Socket) {
-    this.logger.log(`Client connected: ${client.id}`)
+    this.logger.log(`🔥 Client connected: ${client.id}`)
   }
 
   // 클라이언트 연결 해제
   handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`)
+  }
+
+  // Room
+  @SubscribeMessage('room:join')
+  async handleJoin(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: JoinPayload
+  ) {
+    console.log('🔥 join 들어옴')
+
+    const userId = client.data.user?.id ?? client.data.userId
+    if (!userId) throw new WsException('Unauthorized')
+
+    const groupId = this.parsePositiveInt(payload?.groupId)
+    if (!groupId) throw new WsException('groupId must be a positive integer')
+
+    return this.studyRoomService.join(client, groupId)
   }
 
   // ✅ 연결 확인용 ping
@@ -39,4 +73,10 @@ export class StudyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //   this.logger.log(`Ping from ${client.id}`)
   //   return { event: 'pong', data: '✅ Gateway connected!' }
   // }
+
+  private parsePositiveInt(value: unknown): number | null {
+    const num = Number(value)
+    if (!Number.isInteger(num) || num <= 0) return null
+    return num
+  }
 }
