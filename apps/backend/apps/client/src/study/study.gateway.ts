@@ -12,7 +12,10 @@ import {
 } from '@nestjs/websockets'
 import type { Server, Socket } from 'socket.io'
 import { JwtAuthGuard } from '@libs/auth'
-import type { JoinPayload } from './interface/study-socket.interface'
+import type {
+  JoinPayload,
+  LeavePayload
+} from './interface/study-socket.interface'
 import { StudyRoomService } from './study-room.service'
 
 @UseGuards(JwtAuthGuard)
@@ -42,12 +45,12 @@ export class StudyGateway
 
   // 클라이언트 연결
   handleConnection(client: Socket) {
-    this.logger.log(`🔥 Client connected: ${client.id}`)
+    this.logger.log(`Client connected: socketId=${client.id}`)
   }
 
   // 클라이언트 연결 해제
   handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`)
+    this.logger.log(`Client disconnected: socketId=${client.id}`)
   }
 
   // Room
@@ -56,15 +59,29 @@ export class StudyGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: JoinPayload
   ) {
-    console.log('🔥 join 들어옴')
-
     const userId = client.data.user?.id ?? client.data.userId
     if (!userId) throw new WsException('Unauthorized')
+
+    console.log(`🔥 room:join 시작: userId=${userId}`)
 
     const groupId = this.parsePositiveInt(payload?.groupId)
     if (!groupId) throw new WsException('groupId must be a positive integer')
 
     return this.studyRoomService.join(client, groupId)
+  }
+
+  @SubscribeMessage('room:leave')
+  async handleLeave(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: LeavePayload
+  ) {
+    const userId = client.data.user?.id ?? client.data.userId
+    if (!userId) throw new WsException('Unauthorized')
+
+    const groupId = this.parsePositiveInt(payload?.groupId)
+    if (!groupId) throw new WsException('groupId must be a positive integer')
+    console.log(`🔥 room:leave 시작: userId=${client.data.userId}`)
+    return this.studyRoomService.leave(client, groupId)
   }
 
   // ✅ 연결 확인용 ping
