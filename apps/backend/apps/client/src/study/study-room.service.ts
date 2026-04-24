@@ -57,7 +57,7 @@ export class StudyRoomService {
     // TODO: reconnect 확인
 
     client.data = {
-      userId,
+      ...client.data,
       userName: membership.userName,
       isLeader: membership.isLeader,
       groupId
