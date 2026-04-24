@@ -19,6 +19,7 @@ export interface RoomState {
 // Member
 export interface RoomMember {
   userId: number
+  socketId: string
   userName: string
   isLeader: boolean
   joinedAt: number
@@ -42,5 +43,9 @@ export interface JoinResponse {
 
 // PayLoad
 export interface JoinPayload {
+  groupId: number
+}
+
+export interface LeavePayload {
   groupId: number
 }

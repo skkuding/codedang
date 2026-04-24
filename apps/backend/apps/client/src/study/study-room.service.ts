@@ -78,6 +78,7 @@ export class StudyRoomService {
 
     await this.addMember(groupId, userId, {
       userId,
+      socketId: client.id,
       userName: membership.userName,
       isLeader: membership.isLeader,
       joinedAt: now
@@ -85,7 +86,7 @@ export class StudyRoomService {
 
     const members = await this.getMembers(groupId)
 
-    if (isFirst) this.onFirstJoin(groupId, state, members)
+    if (isFirst) await this.onFirstJoin(groupId, state, members)
     else this.onSubsequentJoin(client, groupId, members)
 
     return {
@@ -131,7 +132,6 @@ export class StudyRoomService {
       'NX'
     ))
 
-    // isFirst가 ok이면 첫번째 / null이면 이미 룸 존재
     const state = isFirst ? activeState : await this.getRoomState(groupId)
     return { state, isFirst }
   }
@@ -178,6 +178,34 @@ export class StudyRoomService {
     client.to(roomKey(groupId)).emit('room:participantsChanged', { members })
   }
 
+  /**
+   * 사용자가 스터디 룸을 정상적으로 퇴장합니다.
+   *
+   * 1. client.data에서 groupId를 초기화
+   * 2. Redis Hash에서 해당 사용자의 멤버 정보 삭제
+   * 3. Socket.io 룸에서 클라이언트를 제외(leave)
+   * 4. 룸에 남아있는 참여자들에게 업데이트된 멤버 목록 브로드캐스트
+   *
+   * @param {Socket} client 현재 소켓
+   * @param {number} groupId 스터디 그룹 ID
+   * @returns 퇴장 성공 여부
+   */
+  async leave(client: Socket, groupId: number): Promise<SocketResponse> {
+    const { userId } = client.data
+
+    client.data.groupId = undefined
+
+    await this.removeMember(groupId, userId)
+    client.leave(roomKey(groupId))
+
+    this.server.to(roomKey(groupId)).emit('room:participantsChanged', {
+      members: await this.getMembers(groupId)
+    })
+
+    this.logger.log(`leave 👋 : userId=${userId}, groupId=${groupId}`)
+    return { success: true }
+  }
+
   // Redis
   /**
    * Redis에서 룸 상태를 조회합니다.
@@ -191,7 +219,7 @@ export class StudyRoomService {
   }
 
   /**
-   * Redis Hash에 소켓 기준으로 멤버를 추가합니다.
+   * Redis Hash에 멤버 정보를 사용자 ID를 키로 하여 추가합니다.
    *
    * @param {number} groupId 스터디 그룹 ID
    * @param {number} userId 사용자 ID
@@ -210,7 +238,17 @@ export class StudyRoomService {
   }
 
   /**
-   * Redis Hash에 저장된 모든 멤버를 조회합니다.
+   * Redis Hash에서 특정 사용자의 멤버 정보를 삭제합니다.
+   *
+   * @param {number} groupId 스터디 그룹 ID
+   * @param {number} userId 사용자 ID
+   */
+  private async removeMember(groupId: number, userId: number): Promise<void> {
+    await this.redis.hdel(membersKey(groupId), String(userId))
+  }
+
+  /**
+   * Redis Hash에 저장된 해당 스터디 룸의 모든 멤버를 조회합니다.
    *
    * @param {number} groupId 스터디 그룹 ID
    * @returns 스터디 룸에 있는 모든 멤버들
