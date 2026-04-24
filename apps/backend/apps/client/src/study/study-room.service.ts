@@ -72,7 +72,7 @@ export class StudyRoomService {
       return { success: false, message: '세션이 이미 종료되었습니다.' }
     }
 
-    await this.addMember(groupId, client.id, {
+    await this.addMember(groupId, userId, {
       userId,
       userName: membership.userName,
       isLeader: membership.isLeader,
@@ -190,15 +190,19 @@ export class StudyRoomService {
    * Redis Hash에 소켓 기준으로 멤버를 추가합니다.
    *
    * @param groupId 스터디 그룹 ID
-   * @param socketId Socket ID
+   * @param userId 사용자 ID
    * @param member 저장할 멤버 정보
    */
   private async addMember(
     groupId: number,
-    socketId: string,
+    userId: number,
     member: RoomMember
   ): Promise<void> {
-    await this.redis.hset(membersKey(groupId), socketId, JSON.stringify(member))
+    await this.redis.hset(
+      membersKey(groupId),
+      String(userId),
+      JSON.stringify(member)
+    )
   }
 
   /**
