@@ -61,8 +61,19 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     let groupId = request.query?.groupId
 
     if (context.getType() === 'ws') {
+      const client = context.switchToWs().getClient<Socket>()
       const data = context.switchToWs().getData()
       groupId = data?.groupId ?? groupId
+
+      if (err || !user) {
+        throw err || new UnauthorizedException()
+      }
+      client.data.user = user
+      client.data.userId = user.id ?? user.userId
+      client.data.userName = user.username
+      client.data.userRole = user.role ?? user.userRole
+
+      return user
     }
 
     const userNullWhenAuthFailed = this.reflector.getAllAndOverride<boolean>(
