@@ -40,8 +40,8 @@ export class StudyRoomService {
    *    그외 입장이면 room:participantsChanged 이벤트 emit
    * 8. 클라이언트에 현재 룸 상태 반환
    *
-   * @param client 연결된 Socket 인스턴스
-   * @param groupId 스터디 그룹 ID
+   * @param {Socket} client 연결된 Socket 인스턴스
+   * @param {number} groupId 스터디 그룹 ID
    * @returns 현재 룸 상태
    */
   async join(
@@ -67,7 +67,11 @@ export class StudyRoomService {
     const now = Date.now()
     const { state, isFirst } = await this.initOrGetRoom(groupId, userId, now)
 
-    if (!state || now >= state.endAt) {
+    if (!state) {
+      client.leave(roomKey(groupId))
+      return { success: false, message: '룸 상태 가져오지 못했습니다.' }
+    }
+    if (now >= state.endAt) {
       client.leave(roomKey(groupId))
       return { success: false, message: '세션이 이미 종료되었습니다.' }
     }
@@ -105,9 +109,9 @@ export class StudyRoomService {
    *    - 성공이면, 첫번째 입장자로 -> 생성한 activeState 사용
    *    - 실패이면, 이후 입장자로 -> Redis에서 기존 상태를 조회하여 사용
    *
-   * @param groupId 스터디 그룹 ID
-   * @param userId 현재 사용자 ID
-   * @param now 현재 시간
+   * @param {number} groupId 스터디 그룹 ID
+   * @param {number} userId 현재 사용자 ID
+   * @param {number} now 현재 시간
    * @returns 룸 상태값, 사용자의 입장이 첫번째인지
    */
   private async initOrGetRoom(
@@ -135,9 +139,9 @@ export class StudyRoomService {
   /**
    * 첫 번째 사용자가 룸을 생성했을 때 타이머를 시작하고 룸 전체에 room:started 브로드캐스트합니다.
    *
-   * @param groupId 스터디 그룹 ID
-   * @param state 룸 상태
-   * @param members 현재 참여자 목록
+   * @param {number} groupId 스터디 그룹 ID
+   * @param {RoomState} state 룸 상태
+   * @param {RoomMember[]} members 현재 참여자 목록
    */
   private async onFirstJoin(
     groupId: number,
@@ -162,9 +166,9 @@ export class StudyRoomService {
   /**
    * 두 번째 이후 사용자가 들어왔을 때 기존 참여자에게 새로운 참여자 입장을 알립니다.
    *
-   * @param client 현재 소켓
-   * @param groupId 스터디 그룹 ID
-   * @param members 최신 참여자 목록
+   * @param {Socket} client 현재 소켓
+   * @param {number} groupId 스터디 그룹 ID
+   * @param {RoomMember[]} members 최신 참여자 목록
    */
   private onSubsequentJoin(
     client: Socket,
@@ -178,7 +182,7 @@ export class StudyRoomService {
   /**
    * Redis에서 룸 상태를 조회합니다.
    *
-   * @param groupId 스터디 그룹 ID
+   * @param {number} groupId 스터디 그룹 ID
    * @returns 룸 상태값 | null
    */
   private async getRoomState(groupId: number): Promise<RoomState | null> {
@@ -189,9 +193,9 @@ export class StudyRoomService {
   /**
    * Redis Hash에 소켓 기준으로 멤버를 추가합니다.
    *
-   * @param groupId 스터디 그룹 ID
-   * @param userId 사용자 ID
-   * @param member 저장할 멤버 정보
+   * @param {number} groupId 스터디 그룹 ID
+   * @param {number} userId 사용자 ID
+   * @param {RoomMember} member 저장할 멤버 정보
    */
   private async addMember(
     groupId: number,
@@ -208,7 +212,7 @@ export class StudyRoomService {
   /**
    * Redis Hash에 저장된 모든 멤버를 조회합니다.
    *
-   * @param groupId 스터디 그룹 ID
+   * @param {number} groupId 스터디 그룹 ID
    * @returns 스터디 룸에 있는 모든 멤버들
    */
   async getMembers(groupId: number): Promise<RoomMember[]> {
