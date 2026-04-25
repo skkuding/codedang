@@ -1,7 +1,8 @@
 import { MailerModule } from '@nestjs-modules/mailer'
+import { BullModule } from '@nestjs/bullmq'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module, type OnApplicationBootstrap } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_GUARD, HttpAdapterHost } from '@nestjs/core'
 import type { Server } from 'http'
 import { OpenTelemetryModule } from 'nestjs-otel'
@@ -57,7 +58,18 @@ import { WorkbookModule } from './workbook/workbook.module'
     LoggerModule.forRoot(pinoLoggerModuleOption),
     OpenTelemetryModule.forRoot(openTelemetryModuleOption),
     StudyModule,
-    RedisModule
+    RedisModule,
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        connection: {
+          host: config.get<string>('REDIS_HOST'),
+          port: config.get<number>('REDIS_PORT'),
+          db: 1
+        },
+        prefix: 'bull-client'
+      })
+    })
   ],
   controllers: [AppController],
   providers: [
