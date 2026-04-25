@@ -59,14 +59,8 @@ export class StudyGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: JoinPayload
   ) {
-    const userId = client.data.user?.id ?? client.data.userId
-    if (!userId) throw new WsException('Unauthorized')
-
-    console.log(`🔥 room:join 시작: userId=${userId}`)
-
-    const groupId = this.parsePositiveInt(payload?.groupId)
-    if (!groupId) throw new WsException('groupId must be a positive integer')
-
+    const { userId, groupId } = this.parsePayload(client, payload?.groupId)
+    console.log(`🏠room:join 시작: userId=${userId}, groupId=${groupId}`)
     return this.studyRoomService.join(client, groupId)
   }
 
@@ -75,12 +69,8 @@ export class StudyGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: LeavePayload
   ) {
-    const userId = client.data.user?.id ?? client.data.userId
-    if (!userId) throw new WsException('Unauthorized')
-
-    const groupId = this.parsePositiveInt(payload?.groupId)
-    if (!groupId) throw new WsException('groupId must be a positive integer')
-    console.log(`🔥 room:leave 시작: userId=${client.data.userId}`)
+    const { userId, groupId } = this.parsePayload(client, payload?.groupId)
+    console.log(`🏠room:leave 시작: userId=${userId}, groupId=${groupId}`)
     return this.studyRoomService.leave(client, groupId)
   }
 
@@ -90,6 +80,19 @@ export class StudyGateway
   //   this.logger.log(`Ping from ${client.id}`)
   //   return { event: 'pong', data: '✅ Gateway connected!' }
   // }
+
+  private parsePayload(
+    client: Socket,
+    rawGroupId: unknown
+  ): { userId: number; groupId: number } {
+    const userId = client.data.user?.id ?? client.data.userId
+    if (!userId) throw new WsException('Unauthorized')
+
+    const groupId = this.parsePositiveInt(rawGroupId)
+    if (!groupId) throw new WsException('groupId must be a positive integer')
+
+    return { userId, groupId }
+  }
 
   private parsePositiveInt(value: unknown): number | null {
     const num = Number(value)
