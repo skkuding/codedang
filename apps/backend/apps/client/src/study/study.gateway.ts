@@ -12,10 +12,7 @@ import {
 } from '@nestjs/websockets'
 import type { Server, Socket } from 'socket.io'
 import { JwtAuthGuard } from '@libs/auth'
-import type {
-  JoinPayload,
-  LeavePayload
-} from './interface/study-socket.interface'
+import type { JoinPayload } from './interface/study-socket.interface'
 import { StudyRoomService } from './study-room.service'
 
 @UseGuards(JwtAuthGuard)
@@ -61,17 +58,16 @@ export class StudyGateway
     @MessageBody() payload: JoinPayload
   ) {
     const { userId, groupId } = this.parsePayload(client, payload?.groupId)
-    console.log(`🏠room:join 시작: userId=${userId}, groupId=${groupId}`)
     return this.studyRoomService.join(client, groupId)
   }
 
   @SubscribeMessage('room:leave')
-  async handleLeave(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: LeavePayload
-  ) {
-    const { userId, groupId } = this.parsePayload(client, payload?.groupId)
-    console.log(`🏠room:leave 시작: userId=${userId}, groupId=${groupId}`)
+  async handleLeave(@ConnectedSocket() client: Socket) {
+    const userId = client.data.user?.id ?? client.data.userId
+    if (!userId) throw new WsException('Unauthorized')
+    const groupId = client.data.groupId
+    if (!groupId) throw new WsException('룸에 참여 중이 아닙니다.')
+
     return this.studyRoomService.leave(client, groupId)
   }
 
