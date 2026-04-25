@@ -2,6 +2,7 @@ package rabbitmq
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 
@@ -39,7 +40,10 @@ type ProducerConfig struct {
 func NewProducer(config ProducerConfig, logger logger.Logger) (*producer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
-	amqpConfig := amqp.Config{Properties: amqp.NewConnectionProperties()}
+	amqpConfig := amqp.Config{
+		Properties:      amqp.NewConnectionProperties(),
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 	amqpConfig.Properties.SetClientConnectionName(config.ConnectionName)
 	connection, err := amqp.DialConfig(config.AmqpURI, amqpConfig)
 	if err != nil {
