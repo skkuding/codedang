@@ -67,7 +67,7 @@ export class StudyRoomService {
       this.logger.warn(
         `입장 거부: userId=${userId}, groupId=${groupId}, reason=${check.message}`
       )
-      return { success: false, code: check.code, message: check.message }
+      return { success: false, message: check.message }
     }
 
     const membership = await this.studyService.validateJoinableStudyGroup(
@@ -440,16 +440,7 @@ export class StudyRoomService {
     )
 
     const sockets = await this.server.in(roomKey(groupId)).fetchSockets()
-    await Promise.all(
-      sockets.map((s) => {
-        Object.assign(s.data, {
-          groupId: undefined,
-          userId: undefined,
-          userName: undefined
-        })
-        return s.leave(roomKey(groupId))
-      })
-    )
+    await Promise.all(sockets.map((s) => s.leave(roomKey(groupId))))
 
     await Promise.all([
       this.redis.del(roomKey(groupId)),
