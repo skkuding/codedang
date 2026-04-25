@@ -10,7 +10,9 @@ export const reconnectKey = (groupId: number, userId: number) =>
 
 // 상수
 export const SESSION_DURATION_MS = 2 * 60 * 60 * 1000 // 2시간
-export const RECONNECT_GRACE_SEC = 30 // 20초
+export const RECONNECT_GRACE_SEC = 30 // 30초
+export const REMINDER_BEFORE_END_MS = 10 * 60 * 1000 // 10분
+export const BUFFER_SEC = 10 // 10초
 
 // Room
 export interface RoomState {
@@ -19,7 +21,6 @@ export interface RoomState {
   hostUserId: number
 }
 
-// Member
 export interface RoomMember {
   userId: number
   socketId: string

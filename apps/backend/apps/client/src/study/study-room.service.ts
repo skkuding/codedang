@@ -10,6 +10,8 @@ import {
   membersKey,
   SESSION_DURATION_MS,
   RECONNECT_GRACE_SEC,
+  REMINDER_BEFORE_END_MS,
+  BUFFER_SEC,
   type RoomState,
   type RoomMember,
   type JoinResponse,
@@ -19,6 +21,8 @@ import { StudyService } from './study.service'
 
 export const STUDY_ROOM_QUEUE = 'study-room'
 export const JOB_RECONNECT_EXPIRE = 'reconnect-expire'
+export const JOB_ROOM_REMINDER = 'room-reminder'
+export const JOB_ROOM_END = 'room-end'
 
 @Injectable()
 export class StudyRoomService {
@@ -90,7 +94,7 @@ export class StudyRoomService {
         members,
         startedAt: state.startedAt,
         endAt: state.endAt,
-        remainMs: state.endAt - now,
+        remainMs: Math.max(0, state.endAt - now),
         hostUserId: state.hostUserId
       }
     }
@@ -102,8 +106,8 @@ export class StudyRoomService {
    * Redis의 멤버 목록과 reconnectKey 존재 여부를 조회하여
    * 이미 멤버로 등록되어 있으면서 재연결 대기 상태가 아니면 중복 입장으로 판단합니다.
    *
-   * @param groupId 스터디 그룹 ID
-   * @param userId 사용자 ID
+   * @param {number} groupId 스터디 그룹 ID
+   * @param {number} userId 사용자 ID
    * @returns 입장 가능 여부와 재연결 여부
    */
   private async checkJoinable(
@@ -173,12 +177,12 @@ export class StudyRoomService {
    * 3. Socket.IO 룸에 참여
    * 4. Redis 멤버 목록에 현재 소켓 정보 등록
    *
-   * @param client 연결된 Socket 인스턴스
-   * @param groupId 스터디 그룹 ID
-   * @param userId 사용자 ID
-   * @param membership 사용자 이름과 리더 여부
-   * @param now 입장 시각(ms)
-   * @param isRecovered 재연결 복구 여부
+   * @param {Socket} client 연결된 Socket 인스턴스
+   * @param {number} groupId 스터디 그룹 ID
+   * @param {number} userId 사용자 ID
+   * @param { userName: string; isLeader: boolean } membership 사용자 이름과 리더 여부
+   * @param {number} now 입장 시각(ms)
+   * @param {boolean} isRecovered 재연결 복구 여부
    */
   private async enterRoom(
     client: Socket,
@@ -195,6 +199,7 @@ export class StudyRoomService {
       )
       await job?.remove()
     }
+
     client.data = {
       ...client.data,
       userName: membership.userName,
@@ -211,6 +216,7 @@ export class StudyRoomService {
       joinedAt: now
     })
   }
+
   /**
    * 첫 번째 사용자가 룸을 생성했을 때 타이머를 시작하고 룸 전체에 room:started 브로드캐스트합니다.
    *
@@ -223,9 +229,7 @@ export class StudyRoomService {
     state: RoomState,
     members: RoomMember[]
   ): Promise<void> {
-    // 첫 번째: 타이머 시작 + 룸 전체(본인 포함)에 started emit
-
-    // TODO: await this.scheduleJobs()
+    await this.scheduleJobs(groupId, state.endAt)
 
     this.server.to(roomKey(groupId)).emit('room:started', {
       startedAt: state.startedAt,
@@ -267,6 +271,55 @@ export class StudyRoomService {
       members
     })
   }
+
+  /**
+   * 세션 시작 시 종료 리마인드 작업과 종료 작업을 BullMQ에 예약합니다.
+   *
+   * - room-reminder:{groupId}: 세션 종료 REMINDER_BEFORE_END_MS 전 실행
+   * - room-end:{groupId}: 세션 종료 시점에 실행
+   *
+   * @param {number} groupId 스터디 그룹 ID
+   * @param {number} endAt
+   */
+  private async scheduleJobs(groupId: number, endAt: number): Promise<void> {
+    const now = Date.now()
+    const delayToEnd = endAt - now
+    const delayToReminder = delayToEnd - REMINDER_BEFORE_END_MS
+
+    const reminderJobId = `${JOB_ROOM_REMINDER}:${groupId}`
+    const endJobId = `${JOB_ROOM_END}:${groupId}`
+
+    const [existingReminder, existingEnd] = await Promise.all([
+      this.queue.getJob(reminderJobId),
+      this.queue.getJob(endJobId)
+    ])
+    await Promise.all([existingReminder?.remove(), existingEnd?.remove()])
+
+    if (delayToReminder > 0) {
+      await this.queue.add(
+        JOB_ROOM_REMINDER,
+        { groupId },
+        {
+          jobId: reminderJobId,
+          delay: delayToReminder,
+          removeOnComplete: true,
+          removeOnFail: true
+        }
+      )
+    }
+
+    await this.queue.add(
+      JOB_ROOM_END,
+      { groupId },
+      {
+        jobId: endJobId,
+        delay: delayToEnd,
+        removeOnComplete: true,
+        removeOnFail: true
+      }
+    )
+  }
+
   /**
    * 사용자가 스터디 룸을 정상적으로 퇴장합니다.
    *
@@ -311,7 +364,7 @@ export class StudyRoomService {
       reconnectKey(groupId, userId),
       '1',
       'EX',
-      RECONNECT_GRACE_SEC + 10
+      RECONNECT_GRACE_SEC + BUFFER_SEC
     )
 
     const jobId = `${JOB_RECONNECT_EXPIRE}:${groupId}:${userId}`
@@ -332,6 +385,59 @@ export class StudyRoomService {
     this.server
       .to(roomKey(groupId))
       .emit('room:participantReconnecting', { userId, userName })
+  }
+
+  // BullMQ Processor 호출
+  /**
+   * 세션 종료 전 리마인드 이벤트를 룸 전체에 전송합니다.
+   * BullMQ Processor에서 예약된 room-reminder 작업이 실행될 때 호출됩니다.
+   *
+   * @param {number} groupId 스터디 그룹 ID
+   */
+  async reminderRoom(groupId: number): Promise<void> {
+    const state = await this.getRoomState(groupId)
+    if (!state) return
+
+    this.server.to(roomKey(groupId)).emit('room:reminder', {
+      groupId,
+      endAt: state.endAt,
+      remainMs: Math.max(0, state.endAt - Date.now())
+    })
+  }
+
+  /**
+   * 세션 종료 시 룸을 종료하고 서버 상태를 정리합니다.
+   *
+   * 1. 룸 전체에 room:ended 이벤트를 전송
+   * 2. 룸에 남아 있는 소켓을 Socket.IO 룸에서 강제 퇴장
+   * 3. Redis의 룸 상태와 멤버 목록을 삭제하여 다음 입장 시 새 세션을 시작할 수 있게 처리
+   *
+   * @param {number} groupId 스터디 그룹 ID
+   */
+  async endRoom(groupId: number): Promise<void> {
+    this.server.to(roomKey(groupId)).emit('room:ended', { groupId })
+
+    const members = await this.getMembers(groupId)
+    await Promise.all(
+      members.map((m) => this.redis.del(reconnectKey(groupId, m.userId)))
+    )
+
+    const sockets = await this.server.in(roomKey(groupId)).fetchSockets()
+    await Promise.all(
+      sockets.map((s) => {
+        Object.assign(s.data, {
+          groupId: undefined,
+          userId: undefined,
+          userName: undefined
+        })
+        return s.leave(roomKey(groupId))
+      })
+    )
+
+    await Promise.all([
+      this.redis.del(roomKey(groupId)),
+      this.redis.del(membersKey(groupId))
+    ])
   }
 
   /**
