@@ -4,7 +4,9 @@ import { Job } from 'bullmq'
 import {
   StudyRoomService,
   STUDY_ROOM_QUEUE,
-  JOB_RECONNECT_EXPIRE
+  JOB_RECONNECT_EXPIRE,
+  JOB_ROOM_REMINDER,
+  JOB_ROOM_END
 } from './study-room.service'
 
 @Processor(STUDY_ROOM_QUEUE)
@@ -17,9 +19,18 @@ export class StudyRoomProcessor extends WorkerHost {
 
   async process(job: Job): Promise<void> {
     switch (job.name) {
+      case JOB_ROOM_REMINDER:
+        await this.studyRoomService.reminderRoom(job.data.groupId)
+        break
+
+      case JOB_ROOM_END:
+        await this.studyRoomService.endRoom(job.data.groupId)
+        break
+
       case JOB_RECONNECT_EXPIRE:
         await this.studyRoomService.handleReconnectExpiry(job.data)
         break
+
       default:
         this.logger.warn(
           `Unknown job name: ${job.name}`,
