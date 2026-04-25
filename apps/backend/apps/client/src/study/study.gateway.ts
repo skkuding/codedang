@@ -63,7 +63,7 @@ export class StudyGateway
 
   @SubscribeMessage('room:leave')
   async handleLeave(@ConnectedSocket() client: Socket) {
-    const userId = client.data.user?.id ?? client.data.userId
+    const userId = client.data.userId
     if (!userId) throw new WsException('Unauthorized')
     const groupId = client.data.groupId
     if (!groupId) throw new WsException('룸에 참여 중이 아닙니다.')
@@ -82,7 +82,7 @@ export class StudyGateway
     client: Socket,
     rawGroupId: unknown
   ): { userId: number; groupId: number } {
-    const userId = client.data.user?.id ?? client.data.userId
+    const userId = client.data.userId
     if (!userId) throw new WsException('Unauthorized')
 
     const groupId = this.parsePositiveInt(rawGroupId)

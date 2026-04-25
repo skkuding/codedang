@@ -79,8 +79,8 @@ export class StudyRoomService {
     if (state && now >= state.endAt)
       return { success: false, message: '세션이 이미 종료되었습니다.' }
 
-    const isRecovered = check.isRecovered
-    await this.enterRoom(client, groupId, userId, membership, now, isRecovered!)
+    const isRecovered = check.isRecovered ?? false
+    await this.enterRoom(client, groupId, userId, membership, now, isRecovered)
 
     const members = await this.getMembers(groupId)
 
@@ -172,7 +172,7 @@ export class StudyRoomService {
   /**
    * 검증이 완료된 사용자를 실제 스터디 룸에 입장 처리합니다.
    *
-   * 1. 재연결 입장인 경우 Redis의 재연결 대기 키를 삭제하고 예약되어 있던 재연결 만료 작업 취소
+   * 1. 재연결 입장인 경우 reconnectKey 삭제를 시도하고, 예약되어 있던 재연결 만료 작업 취소
    * 2. socket.data에 사용자 메타데이터를 저장
    * 3. Socket.IO 룸에 참여
    * 4. Redis 멤버 목록에 현재 소켓 정보 등록
@@ -193,11 +193,13 @@ export class StudyRoomService {
     isRecovered: boolean
   ): Promise<void> {
     if (isRecovered) {
-      await this.redis.del(reconnectKey(groupId, userId))
-      const job = await this.queue.getJob(
-        `${JOB_RECONNECT_EXPIRE}:${groupId}:${userId}`
-      )
-      await job?.remove()
+      const deleted = await this.redis.del(reconnectKey(groupId, userId))
+      if (deleted) {
+        const job = await this.queue.getJob(
+          `${JOB_RECONNECT_EXPIRE}:${groupId}:${userId}`
+        )
+        await job?.remove()
+      }
     }
 
     client.data = {
@@ -275,6 +277,7 @@ export class StudyRoomService {
   /**
    * 세션 시작 시 종료 리마인드 작업과 종료 작업을 BullMQ에 예약합니다.
    *
+   * - delayToEnd <= 0이면 즉시 endRoom 호출 (이미 종료됐어야 하는 룸 처리)
    * - room-reminder:{groupId}: 세션 종료 REMINDER_BEFORE_END_MS 전 실행
    * - room-end:{groupId}: 세션 종료 시점에 실행
    *
@@ -294,6 +297,11 @@ export class StudyRoomService {
       this.queue.getJob(endJobId)
     ])
     await Promise.all([existingReminder?.remove(), existingEnd?.remove()])
+
+    if (delayToEnd <= 0) {
+      await this.endRoom(groupId)
+      return
+    }
 
     if (delayToReminder > 0) {
       await this.queue.add(
@@ -359,6 +367,7 @@ export class StudyRoomService {
   async handleDisconnect(client: Socket): Promise<void> {
     const { userId, groupId, userName } = client.data ?? {}
     if (!userId || !groupId) return
+    client.data.groupId = undefined
 
     await this.redis.set(
       reconnectKey(groupId, userId),
@@ -409,7 +418,7 @@ export class StudyRoomService {
    * 세션 종료 시 룸을 종료하고 서버 상태를 정리합니다.
    *
    * 1. 룸 전체에 room:ended 이벤트를 전송
-   * 2. 룸에 남아 있는 소켓을 Socket.IO 룸에서 강제 퇴장
+   * 2. 연결 중인 유저 Key 삭제 후 룸에 남아 있는 소켓을 Socket.IO 룸에서 강제 퇴장
    * 3. Redis의 룸 상태와 멤버 목록을 삭제하여 다음 입장 시 새 세션을 시작할 수 있게 처리
    *
    * @param {number} groupId 스터디 그룹 ID
@@ -444,10 +453,11 @@ export class StudyRoomService {
    * 재연결 유예 시간이 만료되었을 때 사용자를 완전히 퇴장 처리합니다.
    * BullMQ Processor에서 호출됩니다.
    *
-   * 1. Redis에서 재연결 대기 상태 키 확인
-   * 2. 키가 없으면 이미 복구된 것으로 보고 중단
-   * 3. 대기 상태 키와 멤버 정보를 삭제
-   * 4. 룸에 남아있는 참여자들에게 최신 멤버 목록 브로드캐스트
+   * 1. reconnectKey를 원자적으로 삭제 (DEL 반환값으로 복구 여부 판단)
+   *    - 반환값이 0이면 이미 재연결로 복구된 것 → 중단
+   *    - 반환값이 1이면 유예 시간 만료 → 완전 퇴장 처리
+   * 2. Redis 멤버 목록에서 해당 사용자 삭제
+   * 3. 룸에 남아있는 참여자들에게 최신 멤버 목록 브로드캐스트
    *
    * @param payload
    * @param {number} payload.userId 사용자 ID
@@ -459,11 +469,9 @@ export class StudyRoomService {
   }): Promise<void> {
     const { userId, groupId } = payload
 
-    const stillDisconnected = await this.redis.get(
-      reconnectKey(groupId, userId)
-    )
-    if (!stillDisconnected) return
-    await this.redis.del(reconnectKey(groupId, userId))
+    const deleted = await this.redis.del(reconnectKey(groupId, userId))
+    if (!deleted) return
+
     await this.removeMember(groupId, userId)
 
     this.server.to(roomKey(groupId)).emit('room:participantsChanged', {
