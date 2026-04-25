@@ -63,8 +63,12 @@ export class StudyRoomService {
     const userId: number = client.data.userId
 
     const check = await this.checkJoinable(groupId, userId)
-    if (!check.ok)
+    if (!check.ok) {
+      this.logger.warn(
+        `입장 거부: userId=${userId}, groupId=${groupId}, reason=${check.message}`
+      )
       return { success: false, code: check.code, message: check.message }
+    }
 
     const membership = await this.studyService.validateJoinableStudyGroup(
       groupId,
@@ -232,6 +236,10 @@ export class StudyRoomService {
     members: RoomMember[]
   ): Promise<void> {
     await this.scheduleJobs(groupId, state.endAt)
+
+    this.logger.log(
+      `룸 시작: groupId=${groupId}, endAt=${new Date(state.endAt).toISOString()}`
+    )
 
     this.server.to(roomKey(groupId)).emit('room:started', {
       startedAt: state.startedAt,
