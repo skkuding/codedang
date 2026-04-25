@@ -3,7 +3,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
   OnGatewayInit,
-  OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
   ConnectedSocket,
@@ -25,9 +24,7 @@ import { StudyRoomService } from './study-room.service'
     credentials: true
   }
 })
-export class StudyGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+export class StudyGateway implements OnGatewayInit, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server
 
@@ -37,17 +34,10 @@ export class StudyGateway
 
   afterInit(server: Server) {
     this.studyRoomService.setServer(server)
-    this.logger.log('✅ StudyGateway initialized')
+    this.logger.log('StudyGateway initialized')
   }
 
-  // 클라이언트 연결
-  handleConnection(client: Socket) {
-    this.logger.log(`Client connected: socketId=${client.id}`)
-  }
-
-  // 클라이언트 연결 해제
   async handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: socketId=${client.id}`)
     await this.studyRoomService.handleDisconnect(client)
   }
 
@@ -57,7 +47,7 @@ export class StudyGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: JoinPayload
   ) {
-    const { userId, groupId } = this.parsePayload(client, payload?.groupId)
+    const { groupId } = this.parsePayload(client, payload?.groupId)
     return this.studyRoomService.join(client, groupId)
   }
 
@@ -70,13 +60,6 @@ export class StudyGateway
 
     return this.studyRoomService.leave(client, groupId)
   }
-
-  // ✅ 연결 확인용 ping
-  // @SubscribeMessage('ping')
-  // handlePing(@ConnectedSocket() client: Socket, @MessageBody() data: unknown) {
-  //   this.logger.log(`Ping from ${client.id}`)
-  //   return { event: 'pong', data: '✅ Gateway connected!' }
-  // }
 
   private parsePayload(
     client: Socket,
