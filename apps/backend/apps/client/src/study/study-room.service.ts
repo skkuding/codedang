@@ -1,11 +1,15 @@
+import { InjectQueue } from '@nestjs/bullmq'
 import { Inject, Injectable, Logger } from '@nestjs/common'
+import type { Queue } from 'bullmq'
 import type Redis from 'ioredis'
 import type { Server, Socket } from 'socket.io'
 import { REDIS_CLIENT } from '@libs/redis'
 import {
   roomKey,
+  reconnectKey,
   membersKey,
   SESSION_DURATION_MS,
+  RECONNECT_GRACE_SEC,
   type RoomState,
   type RoomMember,
   type JoinResponse,
@@ -13,13 +17,17 @@ import {
 } from './interface/study-socket.interface'
 import { StudyService } from './study.service'
 
+export const STUDY_ROOM_QUEUE = 'study-room'
+export const JOB_RECONNECT_EXPIRE = 'reconnect-expire'
+
 @Injectable()
 export class StudyRoomService {
   private readonly logger = new Logger(StudyRoomService.name)
-  private server: Server
+  private server!: Server
 
   constructor(
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    @InjectQueue(STUDY_ROOM_QUEUE) private readonly queue: Queue,
     private readonly studyService: StudyService
   ) {}
 
@@ -28,65 +36,52 @@ export class StudyRoomService {
   }
 
   /**
-   * 사용자 WebSocket을 스터디 룸에 입장시킨다.
+   * 사용자 WebSocket을 스터디 룸에 입장시킵니다.
    *
-   * 1. 사용자의 그룹 참여 권한 검증
-   * 2. 재연결 복구 확인
-   * 3. socket.data에 사용자 메타데이터 저장하고 room에 join()
-   * 4. Redis에서 룸 상태 생성 또는 조회
-   * 5. 세션 종료 여부 검증
-   * 6. Redis에 멤버 등록하고 전체 멤버 조회
-   * 7. 첫번째 입장이면 room:started 이벤트 브로드케스트
-   *    그외 입장이면 room:participantsChanged 이벤트 emit
-   * 8. 클라이언트에 현재 룸 상태 반환
+   * 1. Redis 기준으로 사용자의 그룹 입장 가능 여부 확인
+   * 2. 사용자의 스터디 그룹 참여 권한 검증
+   * 3. Redis에서 룸 상태 생성 또는 기존 상태 조회하고 유효성 검증
+   * 4. Socket.IO 룸 입장 및 Redis 멤버 정보 등록
+   * 5. 입장 케이스에 따라 이벤트 emit
+   *    - 첫 번째 입장이면 room:started 이벤트 브로드캐스트
+   *    - 재연결 입장이면 room:participantReconnected 이벤트 emit
+   *    - 그 외 입장이면 room:participantsChanged 이벤트 emit
+   * 6. 클라이언트에 현재 룸 상태 반환
    *
    * @param {Socket} client 연결된 Socket 인스턴스
    * @param {number} groupId 스터디 그룹 ID
-   * @returns 현재 룸 상태
+   * @returns 입장 처리 결과와 현재 룸 상태
    */
   async join(
     client: Socket,
     groupId: number
   ): Promise<SocketResponse<JoinResponse>> {
     const userId: number = client.data.userId
+
+    const check = await this.checkJoinable(groupId, userId)
+    if (!check.ok)
+      return { success: false, code: check.code, message: check.message }
+
     const membership = await this.studyService.validateJoinableStudyGroup(
       groupId,
       userId
     )
 
-    // TODO: reconnect 확인
-
-    client.data = {
-      ...client.data,
-      userName: membership.userName,
-      isLeader: membership.isLeader,
-      groupId
-    }
-    client.join(roomKey(groupId))
-
     const now = Date.now()
     const { state, isFirst } = await this.initOrGetRoom(groupId, userId, now)
 
-    if (!state) {
-      client.leave(roomKey(groupId))
+    if (!state)
       return { success: false, message: '룸 상태 가져오지 못했습니다.' }
-    }
-    if (now >= state.endAt) {
-      client.leave(roomKey(groupId))
+    if (state && now >= state.endAt)
       return { success: false, message: '세션이 이미 종료되었습니다.' }
-    }
 
-    await this.addMember(groupId, userId, {
-      userId,
-      socketId: client.id,
-      userName: membership.userName,
-      isLeader: membership.isLeader,
-      joinedAt: now
-    })
+    const isRecovered = check.isRecovered
+    await this.enterRoom(client, groupId, userId, membership, now, isRecovered!)
 
     const members = await this.getMembers(groupId)
 
     if (isFirst) await this.onFirstJoin(groupId, state, members)
+    else if (isRecovered) this.onReconnectJoin(client, groupId, members)
     else this.onSubsequentJoin(client, groupId, members)
 
     return {
@@ -102,12 +97,44 @@ export class StudyRoomService {
   }
 
   /**
-   * 스터디 룸을 생성하거나 기존 상태를 조회한다.
+   * 사용자가 해당 스터디 그룹 룸에 입장 가능한지 확인합니다.
+   *
+   * Redis의 멤버 목록과 reconnectKey 존재 여부를 조회하여
+   * 이미 멤버로 등록되어 있으면서 재연결 대기 상태가 아니면 중복 입장으로 판단합니다.
+   *
+   * @param groupId 스터디 그룹 ID
+   * @param userId 사용자 ID
+   * @returns 입장 가능 여부와 재연결 여부
+   */
+  private async checkJoinable(
+    groupId: number,
+    userId: number
+  ): Promise<{
+    ok: boolean
+    isRecovered?: boolean
+    code?: string
+    message?: string
+  }> {
+    const [existingMember, reconnectRaw] = await Promise.all([
+      this.redis.hget(membersKey(groupId), String(userId)),
+      this.redis.get(reconnectKey(groupId, userId))
+    ])
+
+    const isRecovered = !!reconnectRaw
+
+    if (existingMember && !isRecovered)
+      return { ok: false, message: '이미 이 룸에 참여 중입니다.' }
+
+    return { ok: true, isRecovered }
+  }
+
+  /**
+   * 스터디 룸을 생성하거나 기존 상태를 조회합니다.
    *
    * 1. 현재 시간을 기준으로 RoomState 상태를 생성
    * 2. Redis에 SET NX로 roomKey 저장 시도
    * 3. 2의 결과 여부에 따라 State를 설정하여 isFirst와 함께 반환
-   *    - 성공이면, 첫번째 입장자로 -> 생성한 activeState 사용
+   *    - 성공이면, 첫 번째 입장자로 -> 생성한 activeState 사용
    *    - 실패이면, 이후 입장자로 -> Redis에서 기존 상태를 조회하여 사용
    *
    * @param {number} groupId 스터디 그룹 ID
@@ -129,6 +156,8 @@ export class StudyRoomService {
     const isFirst = !!(await this.redis.set(
       roomKey(groupId),
       JSON.stringify(activeState),
+      'PX',
+      SESSION_DURATION_MS + 60_000,
       'NX'
     ))
 
@@ -136,6 +165,52 @@ export class StudyRoomService {
     return { state, isFirst }
   }
 
+  /**
+   * 검증이 완료된 사용자를 실제 스터디 룸에 입장 처리합니다.
+   *
+   * 1. 재연결 입장인 경우 Redis의 재연결 대기 키를 삭제하고 예약되어 있던 재연결 만료 작업 취소
+   * 2. socket.data에 사용자 메타데이터를 저장
+   * 3. Socket.IO 룸에 참여
+   * 4. Redis 멤버 목록에 현재 소켓 정보 등록
+   *
+   * @param client 연결된 Socket 인스턴스
+   * @param groupId 스터디 그룹 ID
+   * @param userId 사용자 ID
+   * @param membership 사용자 이름과 리더 여부
+   * @param now 입장 시각(ms)
+   * @param isRecovered 재연결 복구 여부
+   */
+  private async enterRoom(
+    client: Socket,
+    groupId: number,
+    userId: number,
+    membership: { userName: string; isLeader: boolean },
+    now: number,
+    isRecovered: boolean
+  ): Promise<void> {
+    if (isRecovered) {
+      await this.redis.del(reconnectKey(groupId, userId))
+      const job = await this.queue.getJob(
+        `${JOB_RECONNECT_EXPIRE}:${groupId}:${userId}`
+      )
+      await job?.remove()
+    }
+    client.data = {
+      ...client.data,
+      userName: membership.userName,
+      isLeader: membership.isLeader,
+      groupId
+    }
+    client.join(roomKey(groupId))
+
+    await this.addMember(groupId, userId, {
+      userId,
+      socketId: client.id,
+      userName: membership.userName,
+      isLeader: membership.isLeader,
+      joinedAt: now
+    })
+  }
   /**
    * 첫 번째 사용자가 룸을 생성했을 때 타이머를 시작하고 룸 전체에 room:started 브로드캐스트합니다.
    *
@@ -157,16 +232,12 @@ export class StudyRoomService {
       endAt: state.endAt,
       members
     })
-
-    this.logger.log(
-      `room start🚀 : groupId=${groupId}, endAt=${new Date(state.endAt).toISOString()}`
-    )
   }
 
   /**
    * 두 번째 이후 사용자가 들어왔을 때 기존 참여자에게 새로운 참여자 입장을 알립니다.
    *
-   * @param {Socket} client 현재 소켓
+   * @param {Socket} client 연결된 Socket 인스턴스
    * @param {number} groupId 스터디 그룹 ID
    * @param {RoomMember[]} members 최신 참여자 목록
    */
@@ -179,6 +250,24 @@ export class StudyRoomService {
   }
 
   /**
+   * 재연결된 사용자가 들어왔을 때, 기존 참여자들에게 재연결 완료 사실을 알립니다.
+   *
+   * @param {Socket} client 연결된 Socket 인스턴스
+   * @param {number} groupId 스터디 그룹 ID
+   * @param {RoomMember[]} members 최신 참여자 목록
+   */
+  private onReconnectJoin(
+    client: Socket,
+    groupId: number,
+    members: RoomMember[]
+  ): void {
+    this.server.to(roomKey(groupId)).emit('room:participantReconnected', {
+      userId: client.data.userId,
+      userName: client.data.userName,
+      members
+    })
+  }
+  /**
    * 사용자가 스터디 룸을 정상적으로 퇴장합니다.
    *
    * 1. client.data에서 groupId를 초기화
@@ -186,7 +275,7 @@ export class StudyRoomService {
    * 3. Socket.io 룸에서 클라이언트를 제외(leave)
    * 4. 룸에 남아있는 참여자들에게 업데이트된 멤버 목록 브로드캐스트
    *
-   * @param {Socket} client 현재 소켓
+   * @param {Socket} client 연결된 Socket 인스턴스
    * @param {number} groupId 스터디 그룹 ID
    * @returns 퇴장 성공 여부
    */
@@ -202,8 +291,78 @@ export class StudyRoomService {
       members: await this.getMembers(groupId)
     })
 
-    this.logger.log(`leave 👋 : userId=${userId}, groupId=${groupId}`)
     return { success: true }
+  }
+
+  /**
+   * 웹소켓 연결이 끊어졌을 때 호출되며, 재연결 유예 기간(Grace Period)을 부여합니다.
+   *
+   * 1. Redis에 재연결 대기 상태 키 저장
+   * 2. BullMQ 큐에 예약된 기존 만료 작업(Job)이 있다면 제거 후, 새로운 만료 작업 예약
+   * 3. 동일한 룸에 있는 다른 참여자들에게 해당 사용자가 재연결 중임을 알림
+   *
+   * @param {Socket} client 연결된 Socket 인스턴스
+   */
+  async handleDisconnect(client: Socket): Promise<void> {
+    const { userId, groupId, userName } = client.data ?? {}
+    if (!userId || !groupId) return
+
+    await this.redis.set(
+      reconnectKey(groupId, userId),
+      '1',
+      'EX',
+      RECONNECT_GRACE_SEC + 10
+    )
+
+    const jobId = `${JOB_RECONNECT_EXPIRE}:${groupId}:${userId}`
+    const existingJob = await this.queue.getJob(jobId)
+    await existingJob?.remove()
+
+    await this.queue.add(
+      JOB_RECONNECT_EXPIRE,
+      { userId, groupId, userName },
+      {
+        jobId,
+        delay: RECONNECT_GRACE_SEC * 1000,
+        removeOnComplete: true,
+        removeOnFail: true
+      }
+    )
+
+    this.server
+      .to(roomKey(groupId))
+      .emit('room:participantReconnecting', { userId, userName })
+  }
+
+  /**
+   * 재연결 유예 시간이 만료되었을 때 사용자를 완전히 퇴장 처리합니다.
+   * BullMQ Processor에서 호출됩니다.
+   *
+   * 1. Redis에서 재연결 대기 상태 키 확인
+   * 2. 키가 없으면 이미 복구된 것으로 보고 중단
+   * 3. 대기 상태 키와 멤버 정보를 삭제
+   * 4. 룸에 남아있는 참여자들에게 최신 멤버 목록 브로드캐스트
+   *
+   * @param payload
+   * @param {number} payload.userId 사용자 ID
+   * @param {number} payload.groupId 스터디 그룹 ID
+   */
+  async handleReconnectExpiry(payload: {
+    userId: number
+    groupId: number
+  }): Promise<void> {
+    const { userId, groupId } = payload
+
+    const stillDisconnected = await this.redis.get(
+      reconnectKey(groupId, userId)
+    )
+    if (!stillDisconnected) return
+    await this.redis.del(reconnectKey(groupId, userId))
+    await this.removeMember(groupId, userId)
+
+    this.server.to(roomKey(groupId)).emit('room:participantsChanged', {
+      members: await this.getMembers(groupId)
+    })
   }
 
   // Redis

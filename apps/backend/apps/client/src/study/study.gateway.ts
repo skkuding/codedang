@@ -49,8 +49,9 @@ export class StudyGateway
   }
 
   // 클라이언트 연결 해제
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: socketId=${client.id}`)
+    await this.studyRoomService.handleDisconnect(client)
   }
 
   // Room
