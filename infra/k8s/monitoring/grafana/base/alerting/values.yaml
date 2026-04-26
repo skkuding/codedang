@@ -22,9 +22,9 @@ alerting:
         routes:
           - receiver: discord
             matchers:
-              - severity = "critical"
+              - severity = critical
             repeat_interval: 1h
           - receiver: discord
             matchers:
-              - grafana_state_reason = "Error"
+              - grafana_state_reason = Error
             repeat_interval: 7d

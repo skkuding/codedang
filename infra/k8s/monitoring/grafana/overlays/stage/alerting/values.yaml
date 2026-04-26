@@ -108,7 +108,7 @@ alerting:
                   to: 0
                 datasourceUid: prometheus
                 model:
-                  expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+                  expr: kube_node_status_condition{condition="Ready",status="true"}
                   intervalMs: 60000
                   maxDataPoints: 43200
               - refId: B
@@ -131,8 +131,8 @@ alerting:
                   conditions:
                     - evaluator:
                         params:
-                          - 0
-                        type: gt
+                          - 1
+                        type: lt
             for: 2m
             labels:
               severity: critical
