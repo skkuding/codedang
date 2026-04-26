@@ -7,10 +7,21 @@ service:
 resources:
   limits:
     cpu: 200m
-    memory: 128Mi
+    memory: 256Mi
   requests:
     cpu: 100m
     memory: 128Mi
+
+# Mount host journal directory so promtail can scrape systemd-journald
+extraVolumes:
+  - name: journal
+    hostPath:
+      path: /var/log/journal
+
+extraVolumeMounts:
+  - name: journal
+    mountPath: /var/log/journal
+    readOnly: true
 
 # enable Promtail ServiceMonitor for Prometheus Operator
 serviceMonitor:
@@ -28,3 +39,29 @@ config:
   serverPort: 3101
   clients:
     - url: http://loki.monitoring-loki.svc.cluster.local:3100/loki/api/v1/push
+  snippets:
+    extraScrapeConfigs: |
+      - job_name: systemd-journal
+        journal:
+          path: /var/log/journal
+          max_age: 12h
+          labels:
+            job: systemd-journal
+          # whitelist via journalctl match syntax: same field = OR, "+" = OR across fields
+          matches: >-
+            _SYSTEMD_UNIT=k3s.service
+            _SYSTEMD_UNIT=k3s-agent.service
+            _SYSTEMD_UNIT=containerd.service
+            _SYSTEMD_UNIT=sshd.service
+            _SYSTEMD_UNIT=systemd-logind.service
+            + _TRANSPORT=kernel
+            + _COMM=sudo
+        relabel_configs:
+          - source_labels: ['__journal__systemd_unit']
+            target_label: unit
+          - source_labels: ['__journal__hostname']
+            target_label: hostname
+          - source_labels: ['__journal__transport']
+            target_label: transport
+          - source_labels: ['__journal_priority_keyword']
+            target_label: level
