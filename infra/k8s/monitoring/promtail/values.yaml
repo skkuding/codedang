@@ -12,15 +12,25 @@ resources:
     cpu: 100m
     memory: 128Mi
 
-# Mount host journal directory so promtail can scrape systemd-journald
+# Mount host journal directory + machine-id so promtail can scrape systemd-journald.
+# /etc/machine-id is required because journald stores logs under
+# /var/log/journal/<machine-id>/ and the reader uses the in-process machine-id
+# to pick the directory; without the host file mounted, the container's own
+# machine-id is used and zero logs are ingested.
 extraVolumes:
   - name: journal
     hostPath:
       path: /var/log/journal
+  - name: machine-id
+    hostPath:
+      path: /etc/machine-id
 
 extraVolumeMounts:
   - name: journal
     mountPath: /var/log/journal
+    readOnly: true
+  - name: machine-id
+    mountPath: /etc/machine-id
     readOnly: true
 
 # enable Promtail ServiceMonitor for Prometheus Operator
