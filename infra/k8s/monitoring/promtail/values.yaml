@@ -54,7 +54,10 @@ config:
       - job_name: systemd-journal
         journal:
           path: /var/log/journal
-          max_age: 12h
+          # ceiling for catch-up after positions cursor is lost (e.g. node reboot
+          # — positions live on tmpfs /run/promtail/). 24h covers a weekday outage
+          # + next-morning recovery while keeping startup catch-up bounded.
+          max_age: 24h
           labels:
             job: systemd-journal
           # whitelist via journalctl match syntax: same field = OR, "+" = OR across fields
