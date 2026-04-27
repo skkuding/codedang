@@ -104,9 +104,260 @@ jobs:
 
           echo "All keys are valid"
 
-  monitoring-e2e:
-    name: Monitoring Stack E2E (kind)
+  yaml-lint:
+    name: L1 YAML lint
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if k8s manifests changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            k8s:
+              - 'infra/k8s/**'
+              - '.github/workflows/ci-infra.yml'
+
+      - name: Install yamllint
+        if: steps.filter.outputs.k8s == 'true'
+        run: pip install --quiet yamllint
+
+      - name: Lint
+        if: steps.filter.outputs.k8s == 'true'
+        run: |
+          yamllint -d "{extends: relaxed, rules: {line-length: disable, comments-indentation: disable}}" infra/k8s/
+
+  kustomize-build:
+    name: L2 Kustomize build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if k8s manifests changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            k8s:
+              - 'infra/k8s/**'
+              - '.github/workflows/ci-infra.yml'
+
+      - name: Install kustomize
+        if: steps.filter.outputs.k8s == 'true'
+        run: |
+          curl -fsSL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+
+      - name: Build all overlays
+        if: steps.filter.outputs.k8s == 'true'
+        shell: bash
+        run: |
+          set -uo pipefail
+          FAIL=0
+          while IFS= read -r kfile; do
+            dir=$(dirname "$kfile")
+            echo "::group::$dir"
+            if ! kustomize build "$dir" > /dev/null 2>&1; then
+              echo "::error file=$kfile::kustomize build 실패"
+              kustomize build "$dir" 2>&1 | tail -10
+              FAIL=1
+            fi
+            echo "::endgroup::"
+          done < <(find infra/k8s -name kustomization.yaml -type f)
+          if [[ $FAIL -ne 0 ]]; then
+            echo "::error::kustomize build 실패한 overlay 있음"
+            exit 1
+          fi
+          echo "모든 overlay 정상 빌드"
+
+  helm-template:
+    name: L3 Helm template (warn-only)
+    runs-on: ubuntu-latest
+    continue-on-error: true # 베이스라인 정리 후 blocking 으로 승격
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if helm values changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            helm:
+              - 'infra/k8s/monitoring/**'
+              - 'infra/k8s/argocd/**'
+              - '.github/workflows/ci-infra.yml'
+
+      - name: Setup helm
+        if: steps.filter.outputs.helm == 'true'
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.19.2'
+
+      - name: Render charts from ApplicationSet definitions
+        if: steps.filter.outputs.helm == 'true'
+        shell: bash
+        run: |
+          set -uo pipefail
+          # ApplicationSet에서 chart+version+valueFiles 추출 후 helm template
+          # (단순화: monitoring stack 의 핵심 chart만 우선. 다른 stack은 점진 추가)
+          declare -A CHARTS=(
+            ["prometheus-community/kube-prometheus-stack:79.5.0"]="infra/k8s/monitoring/prometheus/values-production.yaml"
+          )
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts >/dev/null
+          helm repo update >/dev/null
+          FAIL=0
+          for k in "${!CHARTS[@]}"; do
+            chart="${k%%:*}"
+            version="${k##*:}"
+            values="${CHARTS[$k]}"
+            echo "::group::$chart $version with $values"
+            if ! helm template test "$chart" --version "$version" -f "$values" > /dev/null 2>&1; then
+              echo "::error::helm template 실패: $chart $version"
+              helm template test "$chart" --version "$version" -f "$values" 2>&1 | tail -10
+              FAIL=1
+            fi
+            echo "::endgroup::"
+          done
+          [[ $FAIL -eq 0 ]]
+
+  kubeconform:
+    name: L4 Kubeconform (warn-only)
+    runs-on: ubuntu-latest
+    continue-on-error: true # 베이스라인 정리 후 blocking 으로 승격
+    needs: [kustomize-build]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if k8s manifests changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            k8s:
+              - 'infra/k8s/**'
+              - '.github/workflows/ci-infra.yml'
+
+      - name: Install kustomize + kubeconform
+        if: steps.filter.outputs.k8s == 'true'
+        run: |
+          curl -fsSL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+          curl -fsSL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz \
+            | tar -xz -C /tmp kubeconform
+          sudo mv /tmp/kubeconform /usr/local/bin/
+
+      - name: Validate kustomize-built manifests against CRD schemas
+        if: steps.filter.outputs.k8s == 'true'
+        shell: bash
+        run: |
+          set -uo pipefail
+          FAIL=0
+          while IFS= read -r kfile; do
+            dir=$(dirname "$kfile")
+            echo "::group::$dir"
+            if ! kustomize build "$dir" 2>/dev/null | kubeconform -strict \
+                -schema-location default \
+                -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+                -summary 2>&1; then
+              echo "::warning file=$kfile::kubeconform 검증 실패 (warn-only)"
+              FAIL=1
+            fi
+            echo "::endgroup::"
+          done < <(find infra/k8s -name kustomization.yaml -type f)
+          [[ $FAIL -eq 0 ]]
+
+  component-dryrun:
+    name: L5 Component dry-run (warn-only)
+    runs-on: ubuntu-latest
+    continue-on-error: true # 베이스라인 정리 후 blocking 으로 승격
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if monitoring source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            monitoring:
+              - 'infra/k8s/monitoring/**'
+              - '.github/workflows/ci-infra.yml'
+
+      - name: Setup helm
+        if: steps.filter.outputs.monitoring == 'true'
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.19.2'
+
+      - name: amtool check-config (alertmanager 0.29.0 — operator vendored 매칭)
+        if: steps.filter.outputs.monitoring == 'true'
+        shell: bash
+        run: |
+          set -uo pipefail
+          # CAUTION: amtool 버전을 prometheus-operator vendored alertmanager 버전과 정확히 맞춰야 함
+          # (mismatch 시 우리 PR #3543 같은 silent fail 못 잡음 — false negative)
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts >/dev/null
+          helm repo update >/dev/null
+          # alertmanager.config 만 추출
+          helm template test prometheus-community/kube-prometheus-stack --version 79.5.0 \
+            -f infra/k8s/monitoring/prometheus/values-production.yaml \
+            --set grafana.enabled=false 2>/dev/null \
+            | python3 -c "
+          import sys, yaml, base64, gzip
+          for doc in yaml.safe_load_all(sys.stdin):
+              if doc and doc.get('kind') == 'Alertmanager':
+                  cfg = doc.get('spec', {}).get('config', '')
+                  if cfg:
+                      print(cfg)
+                      sys.exit(0)
+          " > /tmp/am.yaml
+          if [[ ! -s /tmp/am.yaml ]]; then
+            echo "::warning::Alertmanager spec.config 추출 실패"
+            exit 0
+          fi
+          docker run --rm -v /tmp:/cfg quay.io/prometheus/alertmanager:v0.29.0 \
+            amtool check-config /cfg/am.yaml || {
+            echo "::warning::amtool check-config 실패 — Alertmanager config 문제 가능성"
+            exit 1
+          }
+
+      - name: promtool check rules (PrometheusRule)
+        if: steps.filter.outputs.monitoring == 'true'
+        shell: bash
+        run: |
+          set -uo pipefail
+          # 직접 정의한 PrometheusRule 파일 검증 (chart default 는 외부 검증 불필요)
+          FILES=$(find infra/k8s -name '*.yaml' -exec grep -l 'kind: PrometheusRule' {} \; 2>/dev/null || true)
+          if [[ -z "$FILES" ]]; then
+            echo "검증할 PrometheusRule 파일 없음"
+            exit 0
+          fi
+          for f in $FILES; do
+            echo "::group::$f"
+            docker run --rm -v "$(pwd)/$f:/rules.yaml" prom/prometheus:v3.5.0 \
+              promtool check rules /rules.yaml || true
+            echo "::endgroup::"
+          done
+
+      - name: promtail -dry-run
+        if: steps.filter.outputs.monitoring == 'true'
+        shell: bash
+        run: |
+          set -uo pipefail
+          # promtail config 추출 후 dry-run
+          if [[ ! -f infra/k8s/monitoring/promtail/values.yaml ]]; then
+            echo "promtail values.yaml 없음 - skip"
+            exit 0
+          fi
+          helm repo add grafana https://grafana.github.io/helm-charts >/dev/null
+          helm repo update >/dev/null
+          # promtail chart 자동 추출은 복잡 — 간단히 values.yaml 자체 검증만
+          echo "::warning::promtail dry-run 자동화 미구현 (수동 검증 필요)"
+
+  monitoring-e2e:
+    name: L7 Monitoring Stack E2E (kind)
+    runs-on: ubuntu-latest
+    needs: [yaml-lint, kustomize-build]
     steps:
       - uses: actions/checkout@v6
 
