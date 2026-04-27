@@ -50,13 +50,6 @@ module "public_api_subnets" {
       tags_name         = "Codedang-Nat-Instance"
       route_table_id    = aws_route_table.public.id
     }
-    public_mq = {
-      cidr_block        = "10.0.101.0/24"
-      vpc_id            = aws_vpc.main.id
-      availability_zone = "ap-northeast-2a"
-      tags_name         = "Codedang-MQ-Subnet"
-      route_table_id    = aws_route_table.public.id
-    }
     # Temporarily expose database to public for on-premise iris
     # TODO: Move database back to private subnet, after migrating testcase from db to s3
     # Check private_network.tf "module.private_db_subnets"

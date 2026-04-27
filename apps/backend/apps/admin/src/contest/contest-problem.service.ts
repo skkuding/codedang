@@ -12,6 +12,12 @@ import type { ProblemScoreInput } from './model/problem-score.input'
 export class ContestProblemService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * 특정 대회의 문제 리스트를 조회합니다.
+   *
+   * @param {number} contestId 대회 아이디
+   * @returns {ContestProblem[]} 문제 리스트 반환
+   */
   async getContestProblems(
     contestId: number
   ): Promise<Partial<ContestProblem>[]> {
@@ -30,6 +36,8 @@ export class ContestProblemService {
    *
    * @param {number} contestId 대회 ID
    * @param {ProblemScoreInput[]} problemIdsWithScore 추가할 문제 ID와 배점
+   * @throws {EntityNotExistException} error.code === 'P2003'일때 에러 발생 (FK에 존재하지 않는 부모 엔티티 ID가 있을때)
+   * @throws {UnprocessableDataException} service 레벨에서 처리 불가능한 에러 throw
    * @returns 'ContestProblem' 정보
    */
   async importProblemsToContest(
@@ -105,6 +113,10 @@ export class ContestProblemService {
    *
    * @param {number} contestId 대회 ID
    * @param {number[]} problemIds 제거할 문제 ID 배열
+   * @throws {EntityNotExistException}
+   * 1. ID로 조회시 대회가 존재하지 않을때
+   * 2. 요청한 ConstestProblem 엔티티가 존재하지 않을때
+   * @throws {UnprocessableDataException} service 레벨에서 처리 불가능한 에러 throw
    * @returns 삭제된 `ContestProblem` 정보
    */
   async removeProblemsFromContest(contestId: number, problemIds: number[]) {
@@ -209,6 +221,13 @@ export class ContestProblemService {
     return contestProblems
   }
 
+  /**
+   * 특정 대회에서 문제들의 점수를 업데이트 합니다.
+   *
+   * @param {number} contestId 대회 아이디
+   * @param {ProblemScoreInput[]} problemIdsWithScore 문제별 점수의 배열
+   * @returns {Partial<ContestProblem>[]} 점수가 업데이트 된 문제들의 배열을 반환합니다.
+   */
   async updateContestProblemsScore(
     contestId: number,
     problemIdsWithScore: ProblemScoreInput[]
@@ -233,6 +252,16 @@ export class ContestProblemService {
     return await this.prisma.$transaction(queries)
   }
 
+  /**
+   * 특정 대회의 문제들을 원하는 순서로 정렬(업데이트) 합니다.
+   *
+   * @param {number} contestId 대회 아이디
+   * @param {number[]} orders problemId 배열로 나타낸 순서
+   * @throws {UnprocessableDataException}
+   * 1. orders 배열의 길이가 problem 개수와 일치하지 않을때
+   * 2. orders 배열에 빼먹은 problem이 있을때
+   * @returns {Partial<ContestProblem[]>} 순서가 반영된 대회 문제 배열
+   */
   async updateContestProblemsOrder(
     contestId: number,
     orders: number[]

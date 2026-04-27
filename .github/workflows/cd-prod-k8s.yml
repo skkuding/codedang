@@ -40,15 +40,14 @@ jobs:
             context: apps/plag
             build-args: |
               app_env=stage
-          # TODO: stage 검증 후 prod 배포
-          # - target: runner-pod-manager
-          #   file: ''
-          #   context: apps/runner/pod-manager
-          #   build-args: ''
-          # - target: runner-backend
-          #   file: ''
-          #   context: apps/runner/backend
-          #   build-args: ''
+          - target: runner-pod-manager
+            file: ''
+            context: apps/runner/pod-manager
+            build-args: ''
+          - target: runner
+            file: ''
+            context: apps/runner/backend
+            build-args: ''
     steps:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3

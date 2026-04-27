@@ -1,0 +1,17 @@
+# ==== pubkey guide ====
+## 가입 학기별로 구분하여 "## 이름" 다음 줄에 공개키 1개를 작성해주세요.
+## 같은 학기 내에서는 가나다 순으로 작성해주세요.
+## 보안상 소유자가 명확하지 않은 키는 삭제될 수 있습니다.
+## 허용 키: ed25519, rsa-3072, rsa-4096
+## 공개키는 한 사람당 1줄씩 작성하며, 필요 시 같은 이름 아래에 여러 줄로 추가할 수 있습니다.
+
+
+# ==== 2025년 2학기 ====
+## 곽지승
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCNGOhVzMmzF7XLBpupnkYS0oREdBL3XEW7jRD3poeEaH8dA9hy1ucckISippnwmfT1QwpMZwXRaqjg7WEFd6gElpIMBETTpd4Kt1sv3QtfpTCCLlnRb5E2Dq6Syi9Qs04tPElMkQoBdQLSLg2P3ueN0sHL/a+x4VcE5C0w24vlBrBKMcKU/TI4k8vUkWx3wpG60Tgv1u59xaoRS0cf0neE+pQ93dseLsOS9706Pwn9wGrYYRXXTBAGUt23TyecerePSLpdyhoO9pBgbIdVXU7CE0FAGkHFrPxZmJ4LFhv75vlZ1JtZD8TsJJQf0m2GOMcnA61kYINn70/aldtGhmWh32EH29nhvDejC6qrQJNw1MHHomZhibvmBEUuTd9hi88VQ5hH11EeryqzfDm7s7KaOFbprYQLQAoONuMbQDuJDQXGCye73fw1AcKs4Al3T5zBEOSR48s7k/ABk1Ryk+koqWoCfAWi99L+9pP1UtVz7a6Z/S4phwK2KhbBFzwm0HeE8tCH/AK+99fxHq7r3N36JNKCKiU4fzNR10EWSTsIgftMwQCxaTaB7eglmbP0cw//guTXvESWemCpEgDo5dTItk4fNg8huV7l3EANm6+yM7+UoNtTyx1ZnUlyLHj3qFqWIP4h8yW4ZaYm1MgngTKpIN12lfIZgOqai3qBAvZh+Q==
+## 김도윤
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDorx44edxmBwrxj5t00gAhz4BPI4tYT/QnGzEf00Han
+## 박태수
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILf7TQbU/0FD3knvn9m55BSsP0nGWHZ9OXDaZYRF0JbH
+## 천성현
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHdnTLm/9BPxLNvcoIvP/9Y/yJ1Og8qv/fiaXSqCtf/7

@@ -1,116 +1,298 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
-	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"sort"
+	"strings"
 	"sync"
+	"sync/atomic"
+	"time"
 
 	"github.com/gorilla/websocket"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+)
+
+// 하나의 Pod - 하나의 isolate(boxID 0)
+const (
+	isolateBinary = "/usr/local/bin/isolate"
+	workspaceDir  = "/code"
+	boxID         = "0"
 )
 
 type Message struct {
-	Type       string `json:"type"`        // "code", "input", "echo" 등
-	Language   string `json:"language"`    // c, cpp, java, go, python, ...
-	Source     string `json:"source"`      // 소스코드
-	Data       string `json:"data"`        // "input" 메시지에서 사용 (stdin에 보낼 내용)
+	Type     string `json:"type"`
+	Language string `json:"language"`
+	Source   string `json:"source"`
+	Data     string `json:"data"`
 }
 
-// ConnectionContext: 한 WebSocket 커넥션에서 실행 중인 프로세스 정보를 저장
 type ConnectionContext struct {
-	conn      *websocket.Conn
+	conn   *websocket.Conn
+	logger Logger
+
+	requestID  string
+	clientAddr string
+	startedAt  time.Time
+	traceCtx   context.Context
+	tracer     trace.Tracer
+
+	stateMu   sync.Mutex
 	cmd       *exec.Cmd
 	stdinPipe io.WriteCloser
 
-	// 표준출력/표준에러를 중복해서 웹소켓에 보내지 않도록 보호하는 뮤텍스 등
-	mu sync.Mutex
+	writeMu sync.Mutex
 }
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
+var (
+	upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+	backendLogger   Logger
+	backendTracer   trace.Tracer
+	requestSequence uint64
+)
+
+func newConnectionContext(
+	conn *websocket.Conn,
+	r *http.Request,
+	logger Logger,
+	traceCtx context.Context,
+	tracer trace.Tracer,
+) *ConnectionContext {
+	seq := atomic.AddUint64(&requestSequence, 1)
+	now := time.Now().UTC()
+	return &ConnectionContext{
+		conn:       conn,
+		logger:     logger,
+		requestID:  fmt.Sprintf("runner-%d-%d", now.UnixNano(), seq),
+		clientAddr: clientAddress(r),
+		startedAt:  now,
+		traceCtx:   traceCtx,
+		tracer:     tracer,
+	}
+}
+
+func clientAddress(r *http.Request) string {
+	if r == nil {
+		return ""
+	}
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err == nil {
+		return host
+	}
+	return r.RemoteAddr
+}
+
+func (ctx *ConnectionContext) logEvent(event string, fields map[string]any) {
+	ctx.logEventLevel(LogLevelInfo, event, fields)
+}
+
+func (ctx *ConnectionContext) logEventLevel(level LogLevel, event string, fields map[string]any) {
+	if ctx == nil || ctx.logger == nil {
+		return
+	}
+	messageFields := map[string]any{
+		"request_id":  ctx.requestID,
+		"client_addr": ctx.clientAddr,
+	}
+	for key, value := range fields {
+		if value == nil {
+			continue
+		}
+		messageFields[key] = value
+	}
+	ctx.logger.LogWithContext(level, formatLogMessage(event, messageFields), ctx.traceCtx)
+}
+
+func (ctx *ConnectionContext) write(v interface{}) {
+	ctx.writeMu.Lock()
+	defer ctx.writeMu.Unlock()
+	sendJSON(ctx.conn, v)
+}
+
+// ctx 에 stdinPipe 연결해서, 입력 이벤트에서 사용
+func (ctx *ConnectionContext) setProcess(cmd *exec.Cmd, stdin io.WriteCloser) {
+	ctx.stateMu.Lock()
+	defer ctx.stateMu.Unlock()
+	ctx.cmd = cmd
+	ctx.stdinPipe = stdin
+}
+
+func (ctx *ConnectionContext) clearProcess() {
+	ctx.stateMu.Lock()
+	defer ctx.stateMu.Unlock()
+	ctx.cmd = nil
+	ctx.stdinPipe = nil
+}
+
+func (ctx *ConnectionContext) stdin() io.WriteCloser {
+	ctx.stateMu.Lock()
+	defer ctx.stateMu.Unlock()
+	return ctx.stdinPipe
+}
+
+func (ctx *ConnectionContext) stopProcess() {
+	ctx.stateMu.Lock()
+	cmd := ctx.cmd
+	stdin := ctx.stdinPipe
+	ctx.cmd = nil
+	ctx.stdinPipe = nil
+	ctx.stateMu.Unlock()
+
+	if stdin != nil {
+		_ = stdin.Close()
+	}
+	if cmd != nil && cmd.Process != nil {
+		_ = cmd.Process.Kill()
+	}
 }
 
 func main() {
+	ctx := context.Background()
+	var shutdown func(context.Context) error
+	if getenv("DISABLE_INSTRUMENTATION", "false") != "true" {
+		endpoint := strings.TrimSpace(getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", ""))
+		if endpoint == "" {
+			panic("OTEL_EXPORTER_OTLP_ENDPOINT_URL must be set when instrumentation is enabled")
+		}
+		var err error
+		shutdown, err = initInstrumentation(ctx, backendServiceName, "0.1.0", endpoint)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to initialize instrumentation: %v", err))
+		}
+		defer func() {
+			if shutdownErr := shutdown(ctx); shutdownErr != nil {
+				fmt.Printf("instrumentation shutdown error: %v\n", shutdownErr)
+			}
+		}()
+	}
+
+	backendLogger = newLogger(backendServiceName, strings.EqualFold(getenv("APP_ENV", "stage"), "production"))
+	defer backendLogger.Sync()
+	backendTracer = otel.Tracer(backendServiceName)
+
 	http.HandleFunc("/ws", wsHandler)
+	http.HandleFunc("/healthz", healthHandler)
 
 	addr := ":8000"
-	log.Printf("WebSocket server running on %s\n", addr)
+	backendLogger.Printf("Runner backend running on %s", addr)
 	if err := http.ListenAndServe(addr, nil); err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
+}
+
+func healthHandler(w http.ResponseWriter, _ *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte("ok"))
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("Upgrade error:", err)
+		if backendLogger != nil {
+			backendLogger.Log(LogLevelError, formatLogMessage("runner.ws_upgrade_failed", map[string]any{
+				"client_addr": clientAddress(r),
+				"error":       err.Error(),
+			}))
+		}
 		return
 	}
-	defer conn.Close()
 
-	ctx := &ConnectionContext{conn: conn}
+	traceCtx, rootSpan := backendTracer.Start(
+		r.Context(),
+		semanticSpanName(backendServiceName, "backend", "wsHandler"),
+	)
+	ctx := newConnectionContext(conn, r, backendLogger, traceCtx, backendTracer)
+	rootSpan.SetAttributes(
+		attribute.String("request.id", ctx.requestID),
+		attribute.String("client.addr", ctx.clientAddr),
+		attribute.String("http.route", "/ws"),
+	)
+	ctx.logEvent("runner.request_started", nil)
+	defer func() {
+		ctx.stopProcess()
+		if cleanupErr := cleanupIsolate(); cleanupErr != nil {
+			ctx.logEvent("runner.isolate_cleanup_failed", map[string]any{"error": cleanupErr.Error()})
+		}
+		rootSpan.End()
+		ctx.logEvent("runner.request_finished", nil)
+		_ = conn.Close()
+	}()
+
+	if err := initIsolate(); err != nil {
+		ctx.logEvent("runner.isolate_init_failed", map[string]any{"error": err.Error()})
+		ctx.write(map[string]interface{}{
+			"type":  "error",
+			"error": fmt.Sprintf("failed to init isolate: %v", err),
+		})
+		return
+	}
 
 	for {
 		var msg Message
-		err := conn.ReadJSON(&msg)
-		if err != nil {
-			log.Println("ReadJSON error:", err)
+		if err := conn.ReadJSON(&msg); err != nil {
+			ctx.logEvent("runner.read_json_error", map[string]any{"error": err.Error()})
 			break
 		}
 
 		switch msg.Type {
 		case "code":
-			err := handleCode(ctx, &msg)
-			if err != nil {
-				log.Println("handleCode error:", err)
-				// 에러 발생 시 연결 종료
-				conn.Close()
+			if err := handleCode(ctx, &msg); err != nil {
+				ctx.logEvent("runner.handle_code_failed", map[string]any{
+					"language": msg.Language,
+					"error":    err.Error(),
+				})
 				return
 			}
 
 		case "input":
-			if ctx.stdinPipe != nil {
-				inputData := msg.Data
-				if inputData == "\r" || inputData == "\n" {
-					inputData = "\r\n"
-				}
-				_, writeErr := ctx.stdinPipe.Write([]byte(inputData))
-				if writeErr != nil {
-					log.Println("stdinPipe.Write error:", writeErr)
-					sendJSON(conn, map[string]interface{}{
-						"type":  "error",
-						"error": fmt.Sprintf("stdin write error: %v", writeErr),
-					})
-					conn.Close()
-					return
-				}
+			stdin := ctx.stdin()
+			if stdin == nil {
+				continue
+			}
 
-				log.Println("input", inputData)
+			inputData := msg.Data
+			if inputData == "\r" || inputData == "\n" {
+				inputData = "\r\n"
+			}
+			if _, writeErr := stdin.Write([]byte(inputData)); writeErr != nil {
+				ctx.logEvent("runner.stdin_write_failed", map[string]any{"error": writeErr.Error()})
+				ctx.write(map[string]interface{}{
+					"type":  "error",
+					"error": fmt.Sprintf("stdin write error: %v", writeErr),
+				})
+				return
+			}
 
-				if inputData != "\r\n" {
-					sendJSON(conn, map[string]interface{}{
-						"type": "echo",
-						"data": inputData,
-					})
-				}
+			if inputData != "\r\n" {
+				ctx.write(map[string]interface{}{
+					"type": "echo",
+					"data": inputData,
+				})
 			}
 
 		case "exit":
-			sendJSON(conn, map[string]interface{}{
+			ctx.logEvent("runner.exit_requested", nil)
+			ctx.write(map[string]interface{}{
 				"type": "exit",
 				"data": "Process exit",
 			})
-			
-			conn.Close()
 			return
 
 		default:
-			sendJSON(conn, map[string]interface{}{
+			ctx.logEvent("runner.unknown_message_type", map[string]any{"message_type": msg.Type})
+			ctx.write(map[string]interface{}{
 				"type":  "error",
 				"error": "Unknown message type",
 			})
@@ -118,63 +300,94 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// "code" 타입 메시지를 처리 (코드 파일 생성 → 컴파일 → 실행)
 func handleCode(ctx *ConnectionContext, msg *Message) error {
-	if _, ok := CompileOptions[msg.Language]; !ok {
-		return fmt.Errorf("Unsupported language: %s", msg.Language)
+	handleCtx, handleSpan := ctx.tracer.Start(
+		ctx.traceCtx,
+		semanticSpanName(backendServiceName, "backend", "handleCode"),
+	)
+	defer handleSpan.End()
+	handleSpan.SetAttributes(attribute.String("runner.language", msg.Language))
+
+	option, ok := CompileOptions[msg.Language]
+	if !ok {
+		return fmt.Errorf("unsupported language: %s", msg.Language)
 	}
 
-	filename := CompileOptions[msg.Language].Filename
-
-	// 코드 파일 생성
-	err := os.WriteFile(filename, []byte(msg.Source), 0644)
-	if err != nil {
-		sendJSON(ctx.conn, map[string]interface{}{
+	ctx.stopProcess()
+	if err := resetWorkspace(); err != nil {
+		ctx.write(map[string]interface{}{
 			"type":  "error",
-			"error": fmt.Sprintf("Failed to write file: %v", err),
+			"error": fmt.Sprintf("failed to reset workspace: %v", err),
 		})
 		return err
 	}
 
-	// 컴파일
-	compileCmd := CompileOptions[msg.Language].CompileCmd
-	if len(compileCmd) > 0 {
-		output, compileErr := runCommand(compileCmd)
+	if err := os.WriteFile(option.Filename, []byte(msg.Source), 0o644); err != nil {
+		ctx.write(map[string]interface{}{
+			"type":  "error",
+			"error": fmt.Sprintf("failed to write file: %v", err),
+		})
+		return err
+	}
+
+	if len(option.CompileCmd) > 0 {
+		_, compileSpan := ctx.tracer.Start(
+			handleCtx,
+			semanticSpanName(backendServiceName, "backend", "compile"),
+		)
+		compileSpan.SetAttributes(attribute.String("runner.language", msg.Language))
+		output, compileErr := runCommand(option.CompileCmd)
+		compileSpan.End()
 		if compileErr != nil {
-			sendJSON(ctx.conn, map[string]interface{}{
+			ctx.logEvent("runner.compile_failed", map[string]any{
+				"language": msg.Language,
+				"error":    compileErr.Error(),
+			})
+			ctx.write(map[string]interface{}{
 				"type":   "compile_error",
 				"stderr": output,
 			})
-			// 컴파일 에러 발생 시 연결 종료
-			ctx.conn.Close()
 			return compileErr
 		}
 
-		sendJSON(ctx.conn, map[string]interface{}{
+		ctx.write(map[string]interface{}{
 			"type":   "compile_success",
 			"stdout": output,
 		})
 	}
 
-	executeCmd := CompileOptions[msg.Language].ExecuteCmd
-	if len(executeCmd) > 0 {
-		if ctx.cmd != nil {
-			_ = ctx.cmd.Process.Kill()
-		}
-
-		err := runInteractive(ctx, executeCmd)
-		if err != nil {
-			log.Println("runInteractive error:", err)
-			// 실행 중 오류 발생 시 연결 종료
-			ctx.conn.Close()
+	if len(option.ExecuteCmd) > 0 {
+		execCtx, execSpan := ctx.tracer.Start(
+			handleCtx,
+			semanticSpanName(backendServiceName, "backend", "execute"),
+		)
+		_ = execCtx
+		if err := runInteractive(ctx, option.ExecuteCmd); err != nil {
+			execSpan.End()
+			ctx.logEvent("runner.execute_failed", map[string]any{"error": err.Error()})
 			return err
 		}
+		execSpan.End()
 	}
 
 	return nil
 }
 
-// 명령어를 실행하고 결과(표준출력+표준에러)를 반환
+func resetWorkspace() error {
+	entries, err := os.ReadDir(workspaceDir)
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		target := filepath.Join(workspaceDir, entry.Name())
+		if err := os.RemoveAll(target); err != nil {
+			return fmt.Errorf("failed to remove %s: %w", target, err)
+		}
+	}
+	return nil
+}
+
 func runCommand(args []string) (string, error) {
 	if len(args) == 0 {
 		return "", fmt.Errorf("no command to run")
@@ -185,72 +398,94 @@ func runCommand(args []string) (string, error) {
 	return string(output), err
 }
 
-// 프로세스를 실행하고, stdout/stderr를 실시간으로 웹소켓에 전송. stdinPipe는 ctx에 저장
-func runInteractive(ctx *ConnectionContext, args []string) error {
-	if len(args) == 0 {
+func initIsolate() error {
+	args := append(isolateCommonArgs(), "--init")
+	output, err := exec.Command(isolateBinary, args...).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%v: %s", err, strings.TrimSpace(string(output)))
+	}
+	return nil
+}
+
+func cleanupIsolate() error {
+	args := append(isolateCommonArgs(), "--cleanup")
+	output, err := exec.Command(isolateBinary, args...).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%v: %s", err, strings.TrimSpace(string(output)))
+	}
+	return nil
+}
+
+func isolateCommonArgs() []string {
+	return []string{
+		"--box-id=" + boxID,
+		"--dir=/code",
+		"--dir=/usr/bin",
+	}
+}
+
+func runInteractive(ctx *ConnectionContext, commandArgs []string) error {
+	if len(commandArgs) == 0 {
 		return fmt.Errorf("no command to run")
 	}
 
-	// Details of isolate cmd: https://www.ucw.cz/moe/isolate.1.html
-	args = append([]string{"/usr/local/bin/isolate", "--dir=/code", "--dir=/usr/bin", "--run", "--"}, args...)
-	cmd := exec.Command(args[0], args[1:]...)
-	ctx.cmd = cmd
+	args := isolateCommonArgs()
+	args = append(args, "--silent", "--run", "--")
+	args = append(args, commandArgs...)
+
+	cmd := exec.Command(isolateBinary, args...)
 
 	stdinPipe, err := cmd.StdinPipe()
 	if err != nil {
 		return err
 	}
-	ctx.stdinPipe = stdinPipe
 
 	stdoutPipe, err := cmd.StdoutPipe()
 	if err != nil {
+		_ = stdinPipe.Close()
 		return err
 	}
 
 	stderrPipe, err := cmd.StderrPipe()
 	if err != nil {
+		_ = stdinPipe.Close()
+		_ = stdoutPipe.Close()
 		return err
 	}
 
 	if err := cmd.Start(); err != nil {
+		_ = stdinPipe.Close()
+		_ = stdoutPipe.Close()
+		_ = stderrPipe.Close()
 		return err
 	}
 
+	ctx.setProcess(cmd, stdinPipe)
 	go streamOutput(ctx, stdoutPipe, "stdout")
 	go streamOutput(ctx, stderrPipe, "stderr")
 
-	// 프로세스 종료 대기
 	go func() {
 		waitErr := cmd.Wait()
-		exitCode := 0
+		exitCode := cmd.ProcessState.ExitCode()
+		ctx.clearProcess()
 		if waitErr != nil {
-			exitCode = cmd.ProcessState.ExitCode()
-		} else {
-			exitCode = cmd.ProcessState.ExitCode()
+			ctx.logEvent("runner.process_exited", map[string]any{
+				"return_code": exitCode,
+				"error":       waitErr.Error(),
+			})
 		}
 
-		// 종료 메시지 전송
-		sendJSON(ctx.conn, map[string]interface{}{
+		ctx.write(map[string]interface{}{
 			"type":        "exit",
 			"return_code": exitCode,
 			"error":       fmt.Sprintf("%v", waitErr),
 		})
-
-		err := exec.Command("/usr/local/bin/isolate", "--dir=/code", "--cleanup").Run()
-		if err != nil {
-			log.Println("isolate cleanup error:", err)
-		}
-
-		// 종료 후 stdinPipe 닫기
-		ctx.stdinPipe = nil
-		ctx.cmd = nil
-		ctx.conn.Close()
+		_ = ctx.conn.Close()
 	}()
 
 	return nil
 }
 
-// r(표준출력/표준에러)에서 데이터를 읽어, 실시간으로 웹소켓 전송
 func streamOutput(ctx *ConnectionContext, r io.ReadCloser, streamType string) {
 	defer r.Close()
 	buf := make([]byte, 1024)
@@ -259,13 +494,10 @@ func streamOutput(ctx *ConnectionContext, r io.ReadCloser, streamType string) {
 		n, err := r.Read(buf)
 		if n > 0 {
 			line := string(buf[:n])
-			ctx.mu.Lock()
-			log.Println("output", line)
-			sendJSON(ctx.conn, map[string]interface{}{
+			ctx.write(map[string]interface{}{
 				"type": streamType,
 				"data": line,
 			})
-			ctx.mu.Unlock()
 		}
 
 		if err != nil {
@@ -274,9 +506,39 @@ func streamOutput(ctx *ConnectionContext, r io.ReadCloser, streamType string) {
 	}
 }
 
-// 웹소켓으로 JSON 전송
 func sendJSON(conn *websocket.Conn, v interface{}) {
 	if err := conn.WriteJSON(v); err != nil {
-		log.Println("WriteJSON error:", err)
+		if backendLogger != nil {
+			backendLogger.Log(LogLevelError, formatLogMessage("runner.write_json_failed", map[string]any{
+				"error": err.Error(),
+			}))
+		}
 	}
+}
+
+func getenv(key, fallback string) string {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value != "" {
+		return value
+	}
+	return fallback
+}
+
+func formatLogMessage(event string, fields map[string]any) string {
+	if len(fields) == 0 {
+		return event
+	}
+
+	keys := make([]string, 0, len(fields))
+	for key := range fields {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	parts := make([]string, 0, len(keys)+1)
+	parts = append(parts, event)
+	for _, key := range keys {
+		parts = append(parts, fmt.Sprintf("%s=%v", key, fields[key]))
+	}
+	return strings.Join(parts, " ")
 }

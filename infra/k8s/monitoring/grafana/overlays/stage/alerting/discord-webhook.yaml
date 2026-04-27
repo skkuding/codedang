@@ -1,0 +1,19 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: discord-webhook
+  namespace: monitoring-grafana
+spec:
+  encryptedData:
+    DISCORD_WEBHOOK_URL: AgAo7e3wi65fO+GfnY7sbl+nb+FjhPlkCDfgS3cGxDIvf2AY59dtZqzM//FMU5mud2ELEhVD+Su+/9uFwJ6JfiG24avqvaGI6++9RyqfoRsJQ20EMzlTFv3ThXxldxFIQtsBM2fKLRm20RMdWeelUxUXJERsb/tJxUX3D0xkC1sIZgK44jF40JiJisLOtn87P1rMcmb4SFyQqbmsOOefSiJlk4zHn0NR2IGjAkCM2W7q39xtounpJTly+VY4tUQD4L5rlsMaVp+Pne4Y/rvias4KC0kL07sqTuvjYVjjc2TQXNQPnYL+N6E3Uk+TX/E4vs9nosXKOo/e2454rIqs6e0fIDIxoGZLlH89IjH0jkOxXYEE6y3PyYk/PR/hLU+pVJeOEA6wQsoA/HW973NY976LjnVtMzbEf/T8Imuwi9JuNrlElW9UjLN6DnA0sAXp5Z9tVcTlWvbfONKGk5ayO1FQOzucfrYCGNfnjQf/R4oaMbQtEtiLxvj1NVNvn6Sl+WKsjnpE+7qKy7DR/jMhpcyD4OczMHYe2dih1VXrxLxNwVatldROI518bdDMLOvW1B4Hp+8YNaCaK0IVNA+kyjO1WQHXH/rk5Zk1Mgu4WxWr28WSuFi9xYerdMuFwf4CS3/gZ07l6gGPbnD+0N+iTA3nxuycTSXSAZVZ85nioe3rgKwcdPmZifDkVR0JWb6UfGxCHljO3fX448VZqN9NxiAh05TmOMAx+dBAMJE9EKcj4CLNbBEFRYt02P7noxL+wdGxHAPdV+SEzDQGkowmsIEvXcueL6yfyQmP0imYYWjw0qUDDwYF5IYcau4c42oJRFUVZ81gxCyCBBRM8VSLEOASP5sC8DrrJuRW
+  template:
+    metadata:
+      name: discord-webhook
+      namespace: monitoring-grafana
+      annotations:
+        # 같은 webhook을 alertmanager(monitoring-prometheus)에서도 사용 — reflector로 자동 복제
+        reflector.v1.k8s.emberstack.com/reflection-allowed: 'true'
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: monitoring-prometheus
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: 'true'
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: monitoring-prometheus

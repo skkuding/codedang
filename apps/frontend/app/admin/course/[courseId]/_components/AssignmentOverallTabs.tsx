@@ -52,19 +52,34 @@ export function AssignmentOverallTabs({
         SUBMISSION
       </Link>
       {!isExercise && (
-        <Link
-          href={
-            `/admin/course/${groupId}/assignment/${assignmentId}/assessment` as const
-          }
-          className={cn(
-            'flex h-12 flex-1 items-center justify-center font-semibold',
-            isCurrentTab('assessment')
-              ? 'border-b-2 border-[#3581FA] text-[#3581FA]'
-              : 'text-[#737373]'
-          )}
-        >
-          ASSESSMENT
-        </Link>
+        <>
+          <Link
+            href={
+              `/admin/course/${groupId}/assignment/${assignmentId}/assessment` as const
+            }
+            className={cn(
+              'flex h-12 flex-1 items-center justify-center font-semibold',
+              isCurrentTab('assessment')
+                ? 'border-b-2 border-[#3581FA] text-[#3581FA]'
+                : 'text-[#737373]'
+            )}
+          >
+            ASSESSMENT
+          </Link>
+          <Link
+            href={
+              `/admin/course/${groupId}/assignment/${assignmentId}/plagiarism` as const
+            }
+            className={cn(
+              'flex h-12 flex-1 items-center justify-center font-semibold',
+              isCurrentTab('plagiarism')
+                ? 'border-b-2 border-[#3581FA] text-[#3581FA]'
+                : 'text-[#737373]'
+            )}
+          >
+            PLAGIARISM
+          </Link>
+        </>
       )}
     </div>
   )

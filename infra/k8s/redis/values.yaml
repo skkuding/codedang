@@ -8,6 +8,8 @@ redisStandalone:
   image: quay.io/opstree/redis
   tag: v7.0.15
   imagePullPolicy: IfNotPresent
+  secretName: redis-credentials
+  secretKey: password
 # TODO: setup serviceMonitor and redis exporter for monitoring
 # # used by Prometheus Operator as a guidance
 # serviceMonitor:

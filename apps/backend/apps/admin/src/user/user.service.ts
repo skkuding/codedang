@@ -17,7 +17,14 @@ import type { UpdateCreationPermissionsInput } from './model/creationPermission.
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
-
+  /**
+   * 해당 아이디에 대한 유저 정보를 가져옵니다.
+   *
+   * @param {number} userId 유저의 아이디
+   * @returns {User}해당 유저의 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 해당 유저가 존재하지 않는 경우
+   */
   async getUser(userId: number) {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -31,6 +38,13 @@ export class UserService {
     return user
   }
 
+  /**
+   * 페이지에 해당하는 유저의 userProfile을 포함한 정보를 가져옵니다.
+   *
+   * @param {number} cursor 페이지 커서
+   * @param {number} take 가져올 유저의 수
+   * @returns {User[]} 해당 유저의 profile을 포함한 정보의 배열을 가져옵니다.
+   */
   async getUsers({ cursor, take }: { cursor: number | null; take: number }) {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -43,6 +57,13 @@ export class UserService {
     })
   }
 
+  /**
+   * email 또는 studentId를 기준으로 유저의 userProfile을 포함한 정보를 가져옵니다.
+   *
+   * @param {string} email 유저의 이메일 주소
+   * @param {string} studentId 학생 id
+   * @returns {User[]} 조건에 대항하는 유저의 목록
+   */
   async getUserByEmailOrStudentId(
     email?: string,
     studentId?: string
@@ -56,6 +77,12 @@ export class UserService {
     })
   }
 
+  /**
+   *  수정 대상 유저에 대해 contest, course 생성 권한을 true로 변경합니다.
+   *
+   * @param {UpdateCreationPermissionsInput} input 생성 권한 입력값
+   * @returns  수정된 유저의 권한 정보
+   */
   async updateCreationPermissions(input: UpdateCreationPermissionsInput) {
     const { userId, ...data } = input
     return await this.prisma.user.update({
@@ -80,6 +107,15 @@ export class GroupMemberService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
+  /**
+   * 특정 groupId의 그룹을 조회하여 멤버 목록을 가져옵니다.
+   *
+   * @param {number} groupId 대상 그룹의 id
+   * @param {number} cursor 페이지 커서
+   * @param {number} take 한 번에 조회할 멤버 수
+   * @param {boolean} leaderOnly 리더 여부
+   * @returns {GroupMember[]} 그룹 멤버 목록
+   */
   async getGroupMembers({
     groupId,
     cursor,
@@ -142,6 +178,15 @@ export class GroupMemberService {
     })
   }
 
+  /**
+   * 특정 그룹에 속한 특정 유저의 정보를 가져옵니다.
+   *
+   * @param {number} groupId 해당 그룹의 id
+   * @param {number} userId 해당 유저의 id
+   * @returns {usergroup} 해당 유저의 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - groupId와 userId에 대당하는 usergroup이 존재하지 않는 경우
+   */
   async getGroupMember(groupId: number, userId: number) {
     const userGroup = await this.prisma.userGroup.findFirst({
       where: {
@@ -184,6 +229,20 @@ export class GroupMemberService {
     }
   }
 
+  /**
+   *  그룹 내 특정 유저의  groupleader 여부를 변경합니다.
+   *
+   * @param {number} userId 해당 유저의 id
+   * @param {number} groupId 해당 그룹의 id
+   * @param {boolean} toGroupLeader 변경할 groupleader 여부
+   * @returns {userGroup} 업데이트된 userGroup 레코드
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 해당 userId가 해당 groupId의 그룹 멤버가 아닌 경우
+   * @throws {BadRequestException} 아래와 같은 경우 발생합니다.
+   * - groupleader의 수가 1명 이하인데 groupleader 해제하려는 경우
+   * - 이미 groupleader인 멤버를 다시 groupleader로 설정하려는 경우
+   * - 이미 groupleader가 아닌 멤버를 groupleader 해제하려는 경우
+   */
   async updateGroupRole(
     userId: number,
     groupId: number,
@@ -241,6 +300,18 @@ export class GroupMemberService {
     })
   }
 
+  /**
+   * 특정 그룹에서 특정 유저를 삭제합니다.
+   * 그룹 타입이 course인 경우 해당 유저의 assignmentRecord도 함께 삭제합니다.
+   *
+   * @param {number} groupId 삭제하려는 멤버의 그룹 id
+   * @param {number} userId 삭제하려는 멤버의 id
+   * @returns {userGroup} 삭제된 usergroup의 레코드
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * -해당 유저가 해당 그룹의 멤버가 아닌 경우
+   * @throws {BadRequestException} 아래와 같은 경우 발생합니다.
+   * -삭제하려는 유저가 해당 그룹의 유일한 groupleader인 경우
+   */
   async deleteGroupMember(groupId: number, userId: number): Promise<UserGroup> {
     const userGroup = await this.prisma.userGroup.findUnique({
       where: {
@@ -307,6 +378,12 @@ export class GroupMemberService {
     })
   }
 
+  /**
+   * 대상 그룹의 가입 요청 목록을 가져옵니다.
+   *
+   * @param {number} groupId 대상 그룹의 id
+   * @returns {user} 가입 요청한 유저의 목록
+   */
   async getJoinRequests(groupId: number) {
     const groupJoinRequests = await this.cacheManager.get<GroupJoinRequest[]>(
       joinGroupCacheKey(groupId)
@@ -328,6 +405,20 @@ export class GroupMemberService {
     })
   }
 
+  /**
+   * 특정 멤버의 특정 그룹 가입 요청을 처리합니다.
+   *
+   * @param {number} groupId 해당 그룹의 id
+   * @param {number} userId 가입 요청을 처리할 유저의 id
+   * @param {boolean} isAccepted 승인 거절 여부
+   * @returns {userGroup | userId}
+   * -승인 시: 생성된 userGroup의 레코드
+   * -거절 시: userId
+   * @throws {ConflictFoundException} 아래와 같은 경우 발생합니다.
+   * -해당 유저가 가입 요청을 보내지 않은 경우
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -해당 유저가 존재하지 않는 경우
+   */
   async handleJoinRequest(
     groupId: number,
     userId: number,
