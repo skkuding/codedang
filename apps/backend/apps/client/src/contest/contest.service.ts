@@ -407,7 +407,7 @@ export class ContestService {
     )
     const maxScore = sum._sum?.score ?? 0
 
-    const recordsPromise = this.prisma.contestRecord.findMany({
+    const contestRecordsPromise = this.prisma.contestRecord.findMany({
       where: { contestId },
       select: {
         userId: true,
@@ -430,6 +430,7 @@ export class ContestService {
             finalSubmitCountPenalty: true,
             finalTimePenalty: true,
             isFirstSolver: true,
+            finishTime: true,
             contestProblem: {
               select: {
                 id: true,
@@ -454,8 +455,8 @@ export class ContestService {
         })
       : Promise.resolve(undefined)
 
-    const [records, beforeFreezeSubmissionCounts] = await Promise.all([
-      recordsPromise,
+    const [contestRecords, beforeFreezeSubmissionCounts] = await Promise.all([
+      contestRecordsPromise,
       beforeFreezePromise
     ])
 
@@ -493,12 +494,13 @@ export class ContestService {
       }
     }
 
-    const leaderboard = records.map(
+    const leaderboard = contestRecords.map(
       ({ contestProblemRecord, userId, user }) => {
         //유저별 총 점수, 총 패널티
         let solvedProblemCount = 0
         let calculatedTotalScore = 0
         let calculatedTotalPenalty = 0
+        let lastAcceptedTime: Date | null = null
 
         const getSubmissionCount = (problemId: number) => {
           const map = isFrozen
@@ -541,7 +543,8 @@ export class ContestService {
             timePenalty,
             finalSubmitCountPenalty,
             finalTimePenalty,
-            isFirstSolver
+            isFirstSolver,
+            finishTime
           } = record
 
           const currentProblemScore = isFrozen ? freezeScore : finalScore
@@ -555,6 +558,12 @@ export class ContestService {
             solvedProblemCount += 1
             calculatedTotalScore += currentProblemScore
             calculatedTotalPenalty += currentProblemPenalty
+            if (
+              finishTime &&
+              (!lastAcceptedTime || finishTime > lastAcceptedTime)
+            ) {
+              lastAcceptedTime = finishTime
+            }
           }
 
           //problemRecords: []
@@ -571,25 +580,33 @@ export class ContestService {
 
         //leaderboard:[]
         return {
+          userId,
           username: user!.username,
           solvedProblemCount,
           totalScore: calculatedTotalScore,
-          userId,
           totalPenalty: calculatedTotalPenalty,
-          problemRecords,
-          rank: 1
+          lastAcceptedTime: lastAcceptedTime as Date | null,
+          problemRecords
         }
       }
     )
 
     //등수 정렬
     leaderboard.sort((a, b) => {
-      //1순위: 맞춘 문제 개수 내림차순
+      //1순위: 맞춘 문제 개수 많을수록 상위
       if (b.solvedProblemCount !== a.solvedProblemCount) {
         return b.solvedProblemCount - a.solvedProblemCount
       }
-      //2순위: 패널티 내림차순 (음수니까 작은수가 더 상위)
-      return a.totalPenalty - b.totalPenalty
+
+      //2순위: 패널티 작을수록 상위
+      if (a.totalPenalty !== b.totalPenalty) {
+        return a.totalPenalty - b.totalPenalty
+      }
+
+      //3순위: 맞춘문제, 패널티 모두 동점일 경우 마지막 정답 제출시간 빠를수록 상위
+      const timeA = a.lastAcceptedTime?.getTime() ?? 0
+      const timeB = b.lastAcceptedTime?.getTime() ?? 0
+      return timeA - timeB
     })
 
     let currentRank = 1
@@ -597,8 +614,11 @@ export class ContestService {
       if (index > 0) {
         const prevRecord = leaderboard[index - 1]
         if (
+          record.totalScore !== prevRecord.totalScore ||
           record.solvedProblemCount !== prevRecord.solvedProblemCount ||
-          record.totalPenalty !== prevRecord.totalPenalty
+          record.totalPenalty !== prevRecord.totalPenalty ||
+          record.lastAcceptedTime?.getTime() !==
+            prevRecord.lastAcceptedTime?.getTime()
         ) {
           currentRank = index + 1
         }
