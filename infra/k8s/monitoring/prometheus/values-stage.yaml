@@ -54,7 +54,9 @@ alertmanager:
       - discord-webhook
   config:
     route:
-      group_by: ['namespace', 'alertname']
+      # severity 포함: 같은 namespace/alertname 이라도 critical 과 warning 이 섞이지 않게
+      # (severity escalation 이 단일 메시지로 collapse 되어 가려지는 것 방지)
+      group_by: ['namespace', 'alertname', 'severity']
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 4h
@@ -64,6 +66,27 @@ alertmanager:
         - matchers:
             - alertname = "Watchdog"
           receiver: 'null'
+    # kube-prometheus-stack default inhibit_rules 명시 보존
+    # (alertmanager.config 를 통째로 override 하면 chart default 가 사라지므로 직접 선언)
+    # 효과: critical 발화 시 같은 사건의 warning/info 알람이 Discord 로 가지 않음 → alert storm 방지
+    inhibit_rules:
+      - source_matchers:
+          - severity = "critical"
+        target_matchers:
+          - severity =~ "warning|info"
+        equal: ['namespace', 'alertname']
+      - source_matchers:
+          - severity = "warning"
+        target_matchers:
+          - severity = "info"
+        equal: ['namespace', 'alertname']
+      - source_matchers:
+          - alertname = "InfoInhibitor"
+        target_matchers:
+          - severity = "info"
+        equal: ['namespace']
+      - target_matchers:
+          - alertname = "InfoInhibitor"
     receivers:
       - name: 'null'
       - name: discord
