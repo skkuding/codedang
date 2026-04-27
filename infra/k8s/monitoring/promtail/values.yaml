@@ -50,15 +50,19 @@ config:
   clients:
     - url: http://loki.monitoring-loki.svc.cluster.local:3100/loki/api/v1/push
   snippets:
-    # Three separate journal jobs because promtail's matches parser only accepts
+    # Two separate journal jobs because promtail's matches parser only accepts
     # FIELD=VALUE tokens (no '+' disjunction) AND sd-journal AND-combines matches
-    # across different fields. To OR across fields (units OR kernel OR sudo) we
-    # need a job per field. All jobs share `labels.job: systemd-journal` so a
+    # across different fields. To OR across fields (units OR kernel) we need
+    # a job per field. Both jobs share `labels.job: systemd-journal` so a
     # single LogQL selector `{job="systemd-journal"}` still works.
     #
     # ceiling for catch-up after positions cursor is lost (e.g. node reboot —
     # positions live on tmpfs /run/promtail/). 24h covers a weekday outage +
     # next-morning recovery while keeping startup catch-up bounded.
+    #
+    # Security signals (sshd, sudo) intentionally excluded — deferred to a
+    # dedicated L4 audit-log PR alongside k8s API audit log so they can be
+    # tuned together.
     extraScrapeConfigs: |
       - job_name: systemd-journal-units
         journal:
@@ -66,7 +70,11 @@ config:
           max_age: 24h
           labels:
             job: systemd-journal
-          matches: "_SYSTEMD_UNIT=k3s.service _SYSTEMD_UNIT=k3s-agent.service _SYSTEMD_UNIT=containerd.service _SYSTEMD_UNIT=sshd.service _SYSTEMD_UNIT=systemd-logind.service"
+          matches: >-
+            _SYSTEMD_UNIT=k3s.service
+            _SYSTEMD_UNIT=k3s-agent.service
+            _SYSTEMD_UNIT=containerd.service
+            _SYSTEMD_UNIT=systemd-logind.service
         relabel_configs:
           - source_labels: ['__journal__systemd_unit']
             target_label: unit
@@ -89,20 +97,5 @@ config:
             target_label: hostname
           - source_labels: ['__journal__transport']
             target_label: transport
-          - source_labels: ['__journal_priority_keyword']
-            target_label: level
-
-      - job_name: systemd-journal-sudo
-        journal:
-          path: /var/log/journal
-          max_age: 24h
-          labels:
-            job: systemd-journal
-          matches: "_COMM=sudo"
-        relabel_configs:
-          - source_labels: ['__journal__hostname']
-            target_label: hostname
-          - source_labels: ['__journal__comm']
-            target_label: comm
           - source_labels: ['__journal_priority_keyword']
             target_label: level
