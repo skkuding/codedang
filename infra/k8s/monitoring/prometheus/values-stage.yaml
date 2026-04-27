@@ -1,6 +1,23 @@
 grafana:
   enabled: false
 
+# K3s 호환성: kube-controller-manager / kube-scheduler / kube-proxy 는 별도 binary 가 아닌
+# k3s 단일 프로세스에 통합되어 있어 vanilla K8s가 가정하는 metrics endpoint 가 노출되지 않음.
+# kube-prometheus-stack의 default ServiceMonitor 가 target 을 못 찾아 영구 false positive
+# `KubeControllerManagerDown` / `KubeSchedulerDown` / `KubeProxyDown` 알람을 발생시키므로
+# 해당 컴포넌트의 ServiceMonitor + 관련 default rules 모두 비활성화한다.
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+defaultRules:
+  rules:
+    kubeControllerManager: false
+    kubeScheduler: false
+    kubeProxy: false
+
 prometheus:
   prometheusSpec:
     retention: 90d
