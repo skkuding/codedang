@@ -148,3 +148,8 @@ coverage
 *.pkg
 
 .idea
+
+# agent
+.agents/*
+.claude/*
+**/CLAUDE**
