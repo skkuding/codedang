@@ -103,3 +103,130 @@ jobs:
           done
 
           echo "All keys are valid"
+
+  monitoring-e2e:
+    name: Monitoring Stack E2E (kind)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if monitoring source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            monitoring:
+              - 'infra/k8s/monitoring/**'
+              - '.github/workflows/ci-infra.yml'
+
+      - name: Setup helm
+        if: steps.filter.outputs.monitoring == 'true'
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.19.2'
+
+      - name: Boot kind cluster
+        if: steps.filter.outputs.monitoring == 'true'
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: pr-validation
+          version: v0.24.0
+          wait: 60s
+
+      - name: Create namespaces and dummy discord webhook secret
+        if: steps.filter.outputs.monitoring == 'true'
+        run: |
+          set -euo pipefail
+          kubectl create namespace monitoring-grafana
+          kubectl create namespace monitoring-prometheus
+          # 진짜 Discord webhook 노출 X — dummy URL.
+          # alertmanager 가 secret 마운트만 가능하면 검증 목표 (operator config 생성) 달성.
+          # reflector controller 는 CI 에 미설치 — 양쪽 namespace 에 직접 생성.
+          for ns in monitoring-grafana monitoring-prometheus; do
+            kubectl create secret generic discord-webhook \
+              --namespace="$ns" \
+              --from-literal=DISCORD_WEBHOOK_URL='https://discord.com/api/webhooks/0/dummy'
+          done
+
+      - name: Install kube-prometheus-stack with prod values
+        if: steps.filter.outputs.monitoring == 'true'
+        run: |
+          set -uo pipefail
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+
+          # 환경별 호환 override:
+          # - grafana: 별도 chart 로 관리 (이 chart 의 grafana subchart 비활성)
+          # - ingress: cert-manager + 학교 DNS 의존 → CI 에서 비활성
+          # - storageSpec: kind 의 local-path 와 충돌 방지
+          helm install prom prometheus-community/kube-prometheus-stack \
+            --version 79.5.0 \
+            --namespace monitoring-prometheus \
+            -f infra/k8s/monitoring/prometheus/values-production.yaml \
+            --set grafana.enabled=false \
+            --set prometheus.ingress.enabled=false \
+            --set alertmanager.ingress.enabled=false \
+            --set 'prometheus.prometheusSpec.storageSpec=null' \
+            --wait --timeout 5m \
+            || echo "::warning::helm install timed out — assertion 단계로 계속 진행 (silent fail 가능성)"
+
+      - name: Wait for operator reconcile
+        if: steps.filter.outputs.monitoring == 'true'
+        run: sleep 30
+
+      - name: Assertion - prometheus-operator log에 silent reconcile fail 없음
+        if: steps.filter.outputs.monitoring == 'true'
+        run: |
+          set -uo pipefail
+          OP_POD=$(kubectl get pod -n monitoring-prometheus \
+            -l app=kube-prometheus-stack-operator -o name 2>/dev/null | head -1)
+          if [[ -z "$OP_POD" ]]; then
+            echo "::error::prometheus-operator pod not found"
+            exit 1
+          fi
+          ERR_LOG=$(kubectl logs -n monitoring-prometheus "$OP_POD" --tail=300 2>&1 \
+            | grep -E 'failed to (initialize|provision|sync)' || true)
+          if [[ -n "$ERR_LOG" ]]; then
+            echo "::error::prometheus-operator silent reconcile fail 감지"
+            echo "$ERR_LOG"
+            exit 1
+          fi
+          echo "operator log clean"
+
+      - name: Assertion - alertmanager-generated secret 에 우리 config 반영됨
+        if: steps.filter.outputs.monitoring == 'true'
+        run: |
+          set -uo pipefail
+          GEN_SECRET="alertmanager-prom-kube-prometheus-stack-alertmanager-generated"
+          SECRET_CONTENT=$(kubectl get secret -n monitoring-prometheus "$GEN_SECRET" \
+            -o jsonpath='{.data.alertmanager\.yaml\.gz}' 2>/dev/null \
+            | base64 -d | gunzip 2>/dev/null || true)
+          if [[ -z "$SECRET_CONTENT" ]]; then
+            echo "::error::alertmanager generated secret 비어있음 — operator 가 secret 생성 못 함"
+            exit 1
+          fi
+          if ! echo "$SECRET_CONTENT" | grep -q 'discord_configs'; then
+            echo "::error::discord_configs receiver 누락 — values.yaml 변경 미반영"
+            exit 1
+          fi
+          if ! echo "$SECRET_CONTENT" | grep -q 'inhibit_rules'; then
+            echo "::error::inhibit_rules 누락 (alert storm 위험)"
+            exit 1
+          fi
+          echo "alertmanager config 정상 반영"
+
+      - name: Diagnostics on failure
+        if: failure() && steps.filter.outputs.monitoring == 'true'
+        run: |
+          echo "=== pods ==="
+          kubectl get pod -n monitoring-prometheus
+          echo
+          echo "=== alertmanager describe ==="
+          kubectl describe pod -n monitoring-prometheus -l app.kubernetes.io/name=alertmanager || true
+          echo
+          echo "=== operator logs (tail 200) ==="
+          OP_POD=$(kubectl get pod -n monitoring-prometheus \
+            -l app=kube-prometheus-stack-operator -o name 2>/dev/null | head -1)
+          if [[ -n "$OP_POD" ]]; then
+            kubectl logs -n monitoring-prometheus "$OP_POD" --tail=200 || true
+          fi
