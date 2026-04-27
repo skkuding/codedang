@@ -38,17 +38,17 @@ export function DataTableSearchBar({
   }
 
   return (
-    <div className="relative">
+    <div className={cn('relative flex-1', className)}>
       <IoSearch className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#C4C4C4]" />
       <Input
         placeholder={placeholder ?? 'Search'}
         value={typeof filterValue === 'string' ? filterValue : ''}
         onChange={(e) => onChangeValue(e.currentTarget.value)}
         className={cn(
-          'bg-transparent pl-8',
+          'rounded-full border-gray-200 bg-white pl-9',
           sizeClassMap[size],
-          'min-w-[184px] max-w-[580px] lg:w-[390px]',
-          className
+          'w-full',
+          'focus:ring-primary transition-all focus:ring-1'
         )}
         {...props}
       />
