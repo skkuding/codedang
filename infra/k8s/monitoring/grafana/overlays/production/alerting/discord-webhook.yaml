@@ -2,12 +2,18 @@
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
-  name: grafana-discord-webhook
+  name: discord-webhook
   namespace: monitoring-grafana
 spec:
   encryptedData:
-    DISCORD_WEBHOOK_URL: AgATqlYRrEYkFt8eNJjoHB1LwWgT1K6Hpzk942IrBb414F49l0DhzXlxieWr/1Jc9kZoXiWaH0sIpfCDt/RtsadOmpjteMYTKdo96ggsmJCi/9s9UohNthVs+aQZrX77VOFkvKvv7hPUiWRctpf76PL4/SKCz0QXXaDhGobkfRy7c3fhC3HJlyLoNpiE8QWotd+3vBleotIJbz57NbWAk8ETuSv0rqs2XLOva3F+5Cqqp+yclP3/Zos8y847t8YVoEW/YGVHNfv6dpMITVrHciRjxKf8K9k/dYrDKDoDaWfUAsVEqyZMcK4Hb3lbWyT9UA9DDiY31hTYGwi/L7sf24XEJMFYaccXyW8mFa9u9wnIENwAF3p08ctCVpFFCHsPAXdSf7y7xCADylPVQf/zeN7uCzozrA6hiX/P18BEMmlnda9aVE5ndI4MUo2Ba5qgG+sRAU3655XOo8fjLzas8FRuy5YQHD/HKPlhTZYc68AC7ZDByxZxUbPzPfsePNcbgU5AH7vaBBI9KfnTIkAJbrIc1tm8Qtl1SsCwKSKzjGbwcAsnJNagFd28Cv6l8GvDB+qg12NeNBWd2jLZhsypWqqCsBtVPrs2ggmdPZ1/ppHKLOWkhaZ37d+XE+K89imx4MQg2py3pnmwafXM5EgPXVtW3KEqmeS2jTcJ9HRrZBgCah7eTEc2U7SAAehAjCucs2do32Wf7YYWONS+Bqz8Xe7Af8ZXYL4Do0ajPWJDZxllozwmhFvQlXbOBCkpeNeQ+MD5wfSoVVOljlX+gQ1d36Xpamn/rPzyxRZKvtHjyXYlWvqBk/QZbD/GzuRi1yctQZ9OhZyy/QlpMqVg/DHdG29vwyMFUO/0lZnR
+    DISCORD_WEBHOOK_URL: AgBMtZT+bCtDf6Y5ZSk1fiz+Ix7lZrw3+K7JMFKZxNGtkWy/vSRpZkx7e6UurORwEOwv9Dxqyss9ypPm1qs4T010cXrDuyowhCpWTGrijw+6qb83Vc3RYhn7vIh7JQs6t5wQKUy7WSiWJGXdIWarhQfq9Z4ZN3JYMKPAx3LnLU/PVPgQxsyT7zXA+J+FHBFls89dHWrOnG8s5NwDy1dTOX1ugvqRRSFVJmvmcSp3PLYD17W6bJaLFhPrPy4vv8CFuoDY8/hLIxJYA4FOowMIssjy81KrRCEqfVQle9S59q+dGVdDf3H1ta0edSKeb48FXvjviNEWpLZsNdu0Ql8/0Qkpa6b/QUf+IdiJlSfulwY0UmRmozXV3VsyFyOW4POibjqKvPLhYHym/y6l8rtTrb6WtJZdO12PhWJjdxQxbALtCzwCnjwx/e4YO8pvmEBmeIPfGtwH3tsXYq3s5WvaEQ3qOkJri0j/fcwdGDw+aRaaDRVe/Nyvc9b7ERMQfeyXrWm7rw3poGX3YuW8CFT2SwJpkN0AGfdE4fJB0uog0CF7iQ82IbnIbEJINFW7WHlxUDIqzjYEXqKEdnsVI+cxD6KN5E5AGTK8dw/57pK4GxYRqR78vBjRZsnFPATbU7Ju5Xw7Nj6p8Vu/v0/hcTFyZWmPSSwV7c66nRILSMOYEE7iJsnWYmcwTkxaMY1EEN2TidAaNnRqvkpLMU8fLDqZ8MCO/052TuHJz0W9i08fdr7sGTGVfZ64YrXs5ZB5fjIlNGDyVuzQRZ4H65KN+CC7FTG2k6EmoaiwHt2hBm0G7qCQDLzTXzWwrSO12NwYoHTYV8uJxcBrYcqwoORLYu8AVC+ZgF4pZrSIVkg6
   template:
     metadata:
-      name: grafana-discord-webhook
+      name: discord-webhook
       namespace: monitoring-grafana
+      annotations:
+        # 같은 webhook을 alertmanager(monitoring-prometheus)에서도 사용 — reflector로 자동 복제
+        reflector.v1.k8s.emberstack.com/reflection-allowed: 'true'
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: monitoring-prometheus
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: 'true'
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: monitoring-prometheus

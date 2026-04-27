@@ -27,3 +27,29 @@ prometheus:
       - hosts:
           - prometheus.codedang.com
         secretName: prometheus-tls
+
+alertmanager:
+  alertmanagerSpec:
+    # discord-webhook secret은 monitoring-grafana namespace에 source가 있고
+    # reflector가 monitoring-prometheus namespace로 자동 복제 (SSOT)
+    # 마운트 경로: /etc/alertmanager/secrets/discord-webhook/DISCORD_WEBHOOK_URL
+    secrets:
+      - discord-webhook
+  config:
+    route:
+      group_by: ['namespace', 'alertname']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      receiver: discord
+      routes:
+        # Watchdog: alertmanager 자체 살아있음을 알리는 heartbeat. 알림 발생 X.
+        - matchers:
+            - alertname = "Watchdog"
+          receiver: 'null'
+    receivers:
+      - name: 'null'
+      - name: discord
+        discord_configs:
+          - webhook_url_file: /etc/alertmanager/secrets/discord-webhook/DISCORD_WEBHOOK_URL
+            send_resolved: true
