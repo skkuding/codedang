@@ -48,11 +48,27 @@
         state: present
       notify: Restart sshd
 
-    - name: Disable password authentication
+    - name: Configure public key authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PubkeyAuthentication'
+        line: 'PubkeyAuthentication yes'
+        state: present
+      notify: Restart sshd
+
+    - name: Configure password authentication
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
         regexp: '^#?PasswordAuthentication'
-        line: 'PasswordAuthentication no'
+        line: "PasswordAuthentication {{ 'yes' if ssh_password_authentication | default(false) | bool else 'no' }}"
+        state: present
+      notify: Restart sshd
+
+    - name: Configure required authentication methods
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?AuthenticationMethods'
+        line: 'AuthenticationMethods {{ ssh_authentication_methods | default("publickey") }}'
         state: present
       notify: Restart sshd
 
