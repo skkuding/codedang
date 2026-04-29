@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
-import ArrowIcon from '@/public/icons/arrow-icon.svg'
+import ArrowIcon from '@/public/icons/arrow-left-narrow.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -77,7 +77,7 @@ export function Carousel({ slides }: CarouselProps) {
                       What is CODEDANG
                     </span>
                     <div className="relative flex size-[16px] scale-x-[-1] items-center justify-center">
-                      <Image src={ArrowIcon} alt="Right" fill />
+                      <ArrowIcon className="h-4 w-4 text-white" />
                     </div>
                   </Link>
                 </Button>
@@ -91,9 +91,7 @@ export function Carousel({ slides }: CarouselProps) {
             className="h-10 p-0 hover:bg-transparent active:bg-transparent"
             onClick={() => handleClick(facade - 1 + slides.length)}
           >
-            <div className="relative flex h-[40px] w-[40px] items-center justify-center">
-              <Image src={ArrowIcon} alt="Left" fill />
-            </div>
+            <ArrowIcon className="h-10 w-10 text-white" />
           </Button>
         </div>
         <div className="absolute right-[20px] top-0 z-20 flex h-[640px] w-[80px] items-center justify-center">
@@ -102,9 +100,7 @@ export function Carousel({ slides }: CarouselProps) {
             className="h-10 p-0 hover:bg-transparent active:bg-transparent"
             onClick={() => handleClick(facade + 1)}
           >
-            <div className="relative flex h-[40px] w-[40px] scale-x-[-1] items-center justify-center">
-              <Image src={ArrowIcon} alt="Right" fill />
-            </div>
+            <ArrowIcon className="h-10 w-10 scale-x-[-1] text-white" />
           </Button>
         </div>
         <div className="absolute right-[94px] top-[560px] z-20 flex h-[28px] w-[57px] items-center justify-center rounded-full bg-black/40 px-4 py-1 backdrop-blur-md">

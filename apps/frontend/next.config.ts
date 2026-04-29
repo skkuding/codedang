@@ -39,6 +39,49 @@ const nextConfig = {
   output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true
+  },
+  experimental: {
+    turbo: {
+      rules: {
+        // SVG 파일을 발견하면 @svgr/webpack 로더를 거치게 함.
+        '*.svg': {
+          loaders: [
+            {
+              loader: '@svgr/webpack',
+              options: {
+                typescript: true,
+                ext: 'tsx'
+              }
+            }
+          ],
+          as: '*.js'
+        }
+      }
+    }
+  },
+  webpack(config) {
+    const fileLoaderRule = config.module.rules.find((rule: any) =>
+      rule.test?.test?.('.svg')
+    )
+
+    if (fileLoaderRule) {
+      fileLoaderRule.exclude = /\.svg$/i
+    }
+
+    config.module.rules.push({
+      test: /\.svg$/i,
+      use: [
+        {
+          loader: '@svgr/webpack',
+          options: {
+            typescript: true,
+            ext: 'tsx'
+          }
+        }
+      ]
+    })
+
+    return config
   }
 } satisfies NextConfig
 
