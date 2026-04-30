@@ -10,3 +10,5 @@ server9.skkuding.dev
 [all:vars]
 ansible_port=21541
 ansible_user=skkuding
+ssh_password_authentication=true
+ssh_authentication_methods=publickey,password
