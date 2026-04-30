@@ -28,6 +28,7 @@ function ScoreInput({
     <Input
       type="number"
       min={0}
+      step={1}
       value={localValue}
       onChange={(e) => {
         setLocalValue(e.target.value)
@@ -84,7 +85,10 @@ export const createColumns = (
     footer: ({ table }) => {
       const total = table
         .getRowModel()
-        .rows.reduce((sum, row) => sum + (row.original.score ?? 0), 0)
+        .rows.reduce(
+          (sum, row) => sum + (row.original.score ?? DEFAULT_SCORE),
+          0
+        )
       return <p className="text-sm">{total}</p>
     },
     enableSorting: false
