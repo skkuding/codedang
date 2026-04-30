@@ -24,11 +24,6 @@ export function RealtimeSearchBar({
   const filterValue = table.getColumn(columndId)?.getFilterValue()
   const value = typeof filterValue === 'string' ? filterValue : ''
 
-  const onChange = (v: string) => {
-    table.getColumn(columndId)?.setFilterValue(v)
-    table.setPageIndex(0)
-  }
-
   return (
     <SearchInput
       placeholder={placeholder}
@@ -36,7 +31,10 @@ export function RealtimeSearchBar({
       containerClassName={containerClassName}
       className={className}
       value={value}
-      onChange={(e) => onChange(e.currentTarget.value)}
+      onChange={(e) => {
+        table.getColumn(columndId)?.setFilterValue(e.currentTarget.value)
+        table.setPageIndex(0)
+      }}
     />
   )
 }
