@@ -3,7 +3,7 @@
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { ProblemUsage } from '@/app/admin/problem/_components/ProblemUsage'
 import { Badge } from '@/components/shadcn/badge'
-// import { Input } from '@/components/shadcn/input'
+import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'
@@ -25,6 +25,37 @@ export const createColumns = (
     footer: () => <p className="w-[350px] text-left text-sm">Score Sum</p>,
     enableSorting: false,
     enableHiding: false
+  },
+  {
+    accessorKey: 'score',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Score" />
+    ),
+    cell: ({ row }) => (
+      <Input
+        type="number"
+        min={0}
+        value={row.original.score ?? 0}
+        onChange={(e) => {
+          const value = Math.max(0, parseInt(e.target.value) || 0)
+          setProblems((prev) =>
+            prev.map((p) =>
+              p.id === row.original.id ? { ...p, score: value } : p
+            )
+          )
+        }}
+        disabled={disableInput}
+        className="w-[80px]"
+        onClick={(e) => e.stopPropagation()}
+      />
+    ),
+    footer: ({ table }) => {
+      const total = table
+        .getRowModel()
+        .rows.reduce((sum, row) => sum + (row.original.score ?? 0), 0)
+      return <p className="text-sm">{total}</p>
+    },
+    enableSorting: false
   },
   {
     accessorKey: 'order',
