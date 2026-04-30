@@ -6,9 +6,48 @@ import { Badge } from '@/components/shadcn/badge'
 import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { DataTableColumnHeader } from '../../_components/table/DataTableColumnHeader'
 import type { ContestProblem } from '../_libs/schemas'
+
+const DEFAULT_SCORE = 1
+
+function ScoreInput({
+  value,
+  disabled,
+  onChange
+}: {
+  value: number
+  disabled: boolean
+  onChange: (score: number) => void
+}) {
+  const [localValue, setLocalValue] = useState(String(value))
+
+  return (
+    <Input
+      type="number"
+      min={0}
+      value={localValue}
+      onChange={(e) => {
+        setLocalValue(e.target.value)
+        const parsed = parseInt(e.target.value)
+        if (!isNaN(parsed) && parsed >= 0) {
+          onChange(parsed)
+        }
+      }}
+      onBlur={() => {
+        const parsed = parseInt(localValue)
+        if (isNaN(parsed) || parsed < 0) {
+          setLocalValue(String(value))
+        }
+      }}
+      disabled={disabled}
+      className="w-[80px]"
+      onClick={(e) => e.stopPropagation()}
+    />
+  )
+}
 
 export const createColumns = (
   setProblems: React.Dispatch<React.SetStateAction<ContestProblem[]>>,
@@ -32,21 +71,14 @@ export const createColumns = (
       <DataTableColumnHeader column={column} title="Score" />
     ),
     cell: ({ row }) => (
-      <Input
-        type="number"
-        min={0}
-        value={row.original.score ?? 0}
-        onChange={(e) => {
-          const value = Math.max(0, parseInt(e.target.value) || 0)
-          setProblems((prev) =>
-            prev.map((p) =>
-              p.id === row.original.id ? { ...p, score: value } : p
-            )
-          )
-        }}
+      <ScoreInput
+        value={row.original.score ?? DEFAULT_SCORE}
         disabled={disableInput}
-        className="w-[80px]"
-        onClick={(e) => e.stopPropagation()}
+        onChange={(score) =>
+          setProblems((prev) =>
+            prev.map((p) => (p.id === row.original.id ? { ...p, score } : p))
+          )
+        }
       />
     ),
     footer: ({ table }) => {

@@ -129,7 +129,7 @@ export function EditContestForm({
           title: problem.problem.title,
           order: problem.order,
           difficulty: problem.problem.difficulty,
-          score: problem.score ?? 0
+          score: problem.score ?? 1
         }
       })
       setProblems(contestProblems)
