@@ -604,8 +604,8 @@ export class ContestService {
       }
 
       //3순위: 맞춘문제, 패널티 모두 동점일 경우 마지막 정답 제출시간 빠를수록 상위
-      const timeA = a.lastAcceptedTime?.getTime() ?? 0
-      const timeB = b.lastAcceptedTime?.getTime() ?? 0
+      const timeA = a.lastAcceptedTime?.getTime() ?? Number.MAX_SAFE_INTEGER
+      const timeB = b.lastAcceptedTime?.getTime() ?? Number.MAX_SAFE_INTEGER
       return timeA - timeB
     })
 
@@ -614,7 +614,6 @@ export class ContestService {
       if (index > 0) {
         const prevRecord = leaderboard[index - 1]
         if (
-          record.totalScore !== prevRecord.totalScore ||
           record.solvedProblemCount !== prevRecord.solvedProblemCount ||
           record.totalPenalty !== prevRecord.totalPenalty ||
           record.lastAcceptedTime?.getTime() !==

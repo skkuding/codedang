@@ -4850,7 +4850,7 @@ const createContestRecords = async () => {
   }
 
   //contest7 리더보드 순위 테스트
-  //contestProbelm (problem 5,6,7,8 / 점수는 각각 50,60,70,80)
+  //contestProblem (problem 5,6,7,8 / 점수는 각각 50,60,70,80)
   const contestId7 = 7
   const contest7 = await prisma.contest.findUnique({
     where: { id: contestId7 },
@@ -4869,44 +4869,79 @@ const createContestRecords = async () => {
     {
       // user02 (2등) 3솔
       scores: [50, 60, 70, 0], //180점
-      penalties: [30, 30, 40, 0] //100
+      penalties: [30, 30, 40, 0], //100
+      finishTime: [
+        new Date('2026-03-01T09:20:00Z'),
+        new Date('2026-03-01T09:35:00Z'),
+        new Date('2026-03-01T10:20:00Z'),
+        null
+      ]
     },
     {
       // user03 (1등) 4솔
       scores: [50, 60, 70, 80], //260
-      penalties: [15, 100, 55, 200] //370
+      penalties: [15, 100, 55, 200], //370
+      finishTime: [
+        new Date('2026-03-01T09:15:00Z'),
+        new Date('2026-03-01T10:15:00Z'),
+        new Date('2026-03-01T10:00:00Z'),
+        new Date('2026-03-01T10:50:00Z')
+      ]
     },
     {
       // user04 (3등) 3솔
       scores: [0, 60, 70, 80], //210
-      penalties: [0, 150, 20, 300] //470
+      penalties: [0, 150, 20, 300], //470
+      finishTime: [
+        null,
+        new Date('2026-03-01T10:30:00Z'),
+        new Date('2026-03-01T09:30:00Z'),
+        new Date('2026-03-01T11:30:00Z')
+      ]
     },
     {
       // user05 (6등) 2솔
       scores: [0, 0, 70, 80], //150
-      penalties: [0, 0, 150, 100] //250
+      penalties: [0, 0, 150, 100], //250
+      finishTime: [
+        null,
+        null,
+        new Date('2026-03-01T10:40:00Z'),
+        new Date('2026-03-01T10:10:00Z')
+      ]
     },
     {
       //user06 (7등) 1솔
       scores: [0, 0, 70, 0], //70
-      penalties: [0, 0, 150, 0] //150
+      penalties: [0, 0, 150, 0], //150
+      finishTime: [null, null, new Date('2026-03-01T10:30:00Z'), null]
     },
     {
-      //user07 (공동 4등) 2솔
+      //user07 (4등) 2솔 - user08보다 lastAcceptedTime이 빠름
       scores: [50, 60, 0, 0], //110
-      penalties: [20, 35, 0, 0] //55
+      penalties: [20, 35, 0, 0], //55
+      finishTime: [
+        new Date('2026-03-01T09:20:00Z'),
+        new Date('2026-03-01T09:40:00Z'), // lastAccepted = 09:40
+        null,
+        null
+      ]
     },
     {
-      //user08 (공동 4등) 2솔
+      //user08 (5등) 2솔 - user07보다 lastAcceptedTime이 늦음
       scores: [0, 60, 70, 0], //130
-      penalties: [0, 35, 20, 0] //55
+      penalties: [0, 35, 20, 0], //55
+      finishTime: [
+        null,
+        new Date('2026-03-01T09:55:00Z'),
+        new Date('2026-03-01T10:05:00Z'), // lastAccepted = 10:05
+        null
+      ]
     }
   ]
 
-  const contest7Records: ContestRecord[] = []
-
   //contestRecord 생성 (유저별로 하나씩)
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < testData.length; i++) {
     let totalScore = 0
     let totalPenalty = 0
     let acceptedProblemNum = 0
@@ -4924,9 +4959,11 @@ const createContestRecords = async () => {
     })
 
     // 문제별 contestProblemRecord 생성
-    for (let p = 0; p < 4; p++) {
+    let lastAcceptedTime: Date | null = null
+    for (let p = 0; p < problems.length; p++) {
       const score = testData[i].scores[p]
       const penalty = testData[i].penalties[p]
+      const finishTime = testData[i].finishTime[p]
 
       const submitPenalty = Math.floor(penalty / 2)
       const timePenalty = penalty - submitPenalty
@@ -4935,6 +4972,12 @@ const createContestRecords = async () => {
         totalScore += score
         totalPenalty += penalty
         acceptedProblemNum += 1
+        if (
+          finishTime &&
+          (!lastAcceptedTime || finishTime > lastAcceptedTime)
+        ) {
+          lastAcceptedTime = finishTime
+        }
       }
 
       await prisma.contestProblemRecord.create({
@@ -4952,7 +4995,8 @@ const createContestRecords = async () => {
           finalSubmitCountPenalty: submitPenalty,
           finalTimePenalty: timePenalty,
 
-          isFirstSolver: false
+          isFirstSolver: false,
+          finishTime
         }
       })
     }
@@ -4964,13 +5008,13 @@ const createContestRecords = async () => {
         score: totalScore,
         finalScore: totalScore,
         totalPenalty,
-        finalTotalPenalty: totalPenalty
+        finalTotalPenalty: totalPenalty,
+        lastAcceptedTime
       }
     })
 
-    contest7Records.push(updated)
+    contestRecords.push(updated)
   }
-  return contestRecords.concat(contest7Records)
 }
 
 const createUserContests = async () => {
