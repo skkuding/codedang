@@ -3,7 +3,7 @@ import {
   DataTable,
   DataTablePagination,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '@/app/admin/_components/table'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import type { CourseQnAItem } from '@/types/type'
@@ -111,7 +111,7 @@ export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
           </button>
         </div>
 
-        <DataTableSearchBar columndId="title" />
+        <RealtimeSearchBar columndId="title" />
       </div>
       <DataTable
         getHref={(row: CourseQnAItem) => `/course/${courseId}/qna/${row.order}`}

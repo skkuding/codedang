@@ -5,7 +5,7 @@ import {
   DataTableFallback,
   DataTablePagination,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '@/app/admin/_components/table'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_CONTEST_SCORE_SUMMARIES } from '@/graphql/contest/queries'
@@ -37,7 +37,7 @@ export function ParticipantTable({ contestId }: { contestId: number }) {
         Participants
       </p>
       <DataTableRoot data={summariesData} columns={createColumns(problemData)}>
-        <DataTableSearchBar columndId="realName" placeholder="Search Name" />
+        <RealtimeSearchBar columndId="realName" placeholder="Search Name" />
         <DataTable
           getHref={(data) =>
             `/admin/contest/${contestId}/participant/${data.id}`

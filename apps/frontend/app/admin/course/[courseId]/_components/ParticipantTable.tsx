@@ -4,7 +4,7 @@ import {
   DataTable,
   DataTableFallback,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '@/app/admin/_components/table'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import {
@@ -176,10 +176,7 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
               </span>{' '}
               Participants
             </div>
-            <DataTableSearchBar
-              columndId="realName"
-              placeholder="Search Name"
-            />
+            <RealtimeSearchBar columndId="realName" placeholder="Search Name" />
           </div>
           <CSVLink
             data={csvData}

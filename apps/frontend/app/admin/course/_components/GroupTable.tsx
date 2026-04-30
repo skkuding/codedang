@@ -5,7 +5,7 @@ import {
   DataTableFallback,
   DataTablePagination,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '@/app/admin/_components/table'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useSuspenseQuery } from '@apollo/client'
@@ -56,7 +56,7 @@ export function GroupTable() {
       <DataTableRoot data={courses} columns={columns}>
         <div className="flex justify-between">
           <div className="flex gap-2">
-            <DataTableSearchBar columndId="title" className="rounded-full" />
+            <RealtimeSearchBar columndId="title" className="rounded-full" />
             <DataTableSemesterFilter semesters={semesters} />
           </div>
           <div className="flex gap-2">

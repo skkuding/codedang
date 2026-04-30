@@ -4,7 +4,7 @@ import {
   DataTable,
   DataTableFallback,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '@/app/admin/_components/table'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import {
@@ -242,7 +242,7 @@ export function ParticipantTableByProblem() {
             onSelect={(pid) => setSelectedProblemId(pid)}
           />
         </div>
-        <DataTableSearchBar
+        <RealtimeSearchBar
           columndId="studentId"
           placeholder="Search Student Id"
         />

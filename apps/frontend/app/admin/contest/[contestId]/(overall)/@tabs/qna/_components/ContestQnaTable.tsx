@@ -13,7 +13,7 @@ import {
   DataTableFallback,
   DataTablePagination,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '../../../../../../_components/table'
 import { createColumns } from './ContestQnaTableColumns'
 import type { DataTableQna } from './ContestQnaTableColumns'
@@ -100,7 +100,7 @@ export function ContestQnaTable() {
               </TabsList>
             </Tabs>
 
-            <DataTableSearchBar columndId="title" size="lg" />
+            <RealtimeSearchBar columndId="title" sizeVariant="lg" />
           </div>
         </div>
         <DataTable onRowClick={handleRowClick} bodyStyle={bodyStyle} />

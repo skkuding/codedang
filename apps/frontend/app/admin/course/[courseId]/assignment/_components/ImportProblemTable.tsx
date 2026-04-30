@@ -7,7 +7,7 @@ import {
   DataTableLevelFilter,
   DataTablePagination,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '@/app/admin/_components/table'
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
@@ -90,9 +90,9 @@ export function ImportProblemTable({
       <ImportProblemDescription />
       <div className="flex justify-between">
         <div className="flex gap-[8px]">
-          <DataTableSearchBar
+          <RealtimeSearchBar
             columndId="title"
-            size="sm"
+            sizeVariant="sm"
             className="w-[322px]! ring-inset"
           />
           <DataTableLevelFilter />

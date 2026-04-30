@@ -1,5 +1,6 @@
 'use client'
 
+import { URLSearchBar } from '@/components/URLSearchBar'
 import {
   Table,
   TableBody,
@@ -22,7 +23,6 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { SearchBar } from '../../_components/SearchBar'
 import { ContestTitleFilter } from './ContestTitleFilter'
 
 interface Item {
@@ -109,7 +109,7 @@ export function ContestDataTable<TData extends Item, TValue>({
             options={status.map((item) => ({ value: item, label: item }))}
             resetPageIndex={resetPageIndex}
           />
-          <SearchBar height="lg" className="w-60" />
+          <URLSearchBar sizeVariant="lg" className="w-60" />
         </div>
       </div>
       <Table className="table-fixed">

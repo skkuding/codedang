@@ -6,7 +6,7 @@ import {
   DataTableFallback,
   DataTablePagination,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '@/app/admin/_components/table'
 import { DELETE_ASSIGNMENT } from '@/graphql/assignment/mutations'
 import { GET_ASSIGNMENTS } from '@/graphql/assignment/queries'
@@ -42,7 +42,7 @@ export function AssignmentTable({
       defaultSortState={[{ id: 'startTime', desc: true }]}
     >
       <div className="flex justify-between gap-2">
-        <DataTableSearchBar columndId="title" />
+        <RealtimeSearchBar columndId="title" />
         <AssignmentsDeleteButton groupId={groupId} isExercise={isExercise} />
       </div>
       <DataTable

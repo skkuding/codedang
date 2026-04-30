@@ -8,7 +8,7 @@ import {
   DataTableLevelFilter,
   DataTablePagination,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '../../../_components/table'
 import { ProblemsDownload } from '../../_components/ProblemsDownload'
 import { columns } from '../_components/SharedProblemTableColumns'
@@ -52,7 +52,7 @@ export function SharedProblemTable() {
       defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <div className="flex gap-4">
-        <DataTableSearchBar columndId="title" />
+        <RealtimeSearchBar columndId="title" sizeVariant="sm" />
         <DataTableLangFilter />
         <DataTableLevelFilter />
         <div className="ml-auto flex gap-2">
