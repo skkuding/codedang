@@ -1,6 +1,6 @@
 export { DataTableRoot } from './DataTableRoot'
 export { DataTable } from './DataTable'
-export { DataTableSearchBar } from './DataTableSearchBar'
+export { RealtimeSearchBar } from './RealtimeSearchBar'
 export { DataTablePagination } from './DataTablePagination'
 export { DataTableFallback } from './DataTableFallback'
 export { DataTableLevelFilter } from './DataTableLevelFilter'

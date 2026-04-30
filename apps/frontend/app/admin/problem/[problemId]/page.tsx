@@ -13,7 +13,7 @@ import {
   DataTable,
   DataTablePagination,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '../../_components/table'
 import { columns } from './_components/Columns'
 
@@ -74,7 +74,7 @@ export default function Page() {
         <p className="text-xl font-bold">Submission</p>
         <DataTableRoot data={submissions} columns={columns}>
           <div className="flex gap-4">
-            <DataTableSearchBar columndId="username" />
+            <RealtimeSearchBar columndId="username" />
           </div>
           <DataTable />
           <DataTablePagination showSelection />

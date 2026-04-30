@@ -8,7 +8,7 @@ import {
   DataTableFallback,
   DataTablePagination,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '../../_components/table'
 import { columns } from './Columns'
 
@@ -38,7 +38,7 @@ export function UserTable() {
 
   return (
     <DataTableRoot data={mappedUsers} columns={columns}>
-      <DataTableSearchBar columndId="username" />
+      <RealtimeSearchBar columndId="username" />
       <div className="[&_tr]:cursor-default">
         <DataTable />
       </div>

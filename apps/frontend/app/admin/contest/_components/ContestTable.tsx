@@ -9,7 +9,7 @@ import {
   DataTableFallback,
   DataTablePagination,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '../../_components/table'
 import { columns } from './ContestTableColumns'
 
@@ -57,7 +57,7 @@ export function ContestTable() {
       defaultSortState={[{ id: 'status', desc: true }]}
     >
       <div className="mb-6 flex justify-between">
-        <DataTableSearchBar columndId="title" />
+        <RealtimeSearchBar columndId="title" />
         <ContestsDeleteButton />
       </div>
       <div className="space-y-[42px]">

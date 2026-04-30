@@ -5,7 +5,7 @@ import {
   DataTableFallback,
   DataTablePagination,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '@/app/admin/_components/table'
 import { SubmissionDetailAdmin } from '@/app/admin/course/[courseId]/assignment/[assignmentId]/_components/SubmissionDetailAdmin'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
@@ -59,7 +59,7 @@ export function SubmissionTable({ isExercise }: SubmissionTableProps) {
               assignmentId={assignmentId}
             />
           </div>
-          <DataTableSearchBar columndId="realname" placeholder="Search Name" />
+          <RealtimeSearchBar columndId="realname" placeholder="Search Name" />
         </div>
         <DataTable
           onRowClick={(_, row) => {

@@ -6,7 +6,7 @@ import {
   DataTablePagination,
   DataTableProblemFilter,
   DataTableRoot,
-  DataTableSearchBar
+  RealtimeSearchBar
 } from '@/app/admin/_components/table'
 import { DataTableSortButton } from '@/app/admin/_components/table/DataTableSortButton'
 import { useDataTable } from '@/app/admin/_components/table/context'
@@ -74,7 +74,7 @@ function SubmissionTableHeader() {
       </div>
       <div className="flex items-center gap-2">
         <DataTableSortButton columnIds={['problemTitle', 'submissionTime']} />
-        <DataTableSearchBar placeholder="Search User ID" columndId="username" />
+        <RealtimeSearchBar placeholder="Search User ID" columndId="username" />
       </div>
     </div>
   )
