@@ -6,6 +6,7 @@ import {
 import { Reflector } from '@nestjs/core'
 import { type GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
 import { AuthGuard } from '@nestjs/passport'
+import { Socket } from 'socket.io'
 import {
   AUTH_NOT_NEEDED_KEY,
   USER_NULL_WHEN_AUTH_FAILED
@@ -18,12 +19,19 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   canActivate(context: ExecutionContext) {
-    const request = this.getRequest(context)
     const isAuthNotNeeded = this.reflector.getAllAndOverride<boolean>(
       AUTH_NOT_NEEDED_KEY,
       [context.getHandler(), context.getClass()]
     )
-    if (isAuthNotNeeded && !request.query.groupId) {
+    const request = this.getRequest(context)
+    let groupId = request.query?.groupId
+
+    if (context.getType() === 'ws') {
+      const data = context.switchToWs().getData()
+      groupId = data?.groupId ?? groupId
+    }
+
+    if (isAuthNotNeeded && !groupId) {
       return true
     }
     return super.canActivate(context)
@@ -33,12 +41,41 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (context.getType<GqlContextType>() === 'graphql') {
       return GqlExecutionContext.create(context).getContext().req
     }
+
+    // ws 컨텍스트 — handshake에서 JWT 토큰 추출
+    if (context.getType() === 'ws') {
+      const client = context.switchToWs().getClient<Socket>()
+      const handshake = client.handshake
+
+      if (handshake.auth?.token) {
+        handshake.headers.authorization = `Bearer ${handshake.auth.token}`
+      }
+
+      return handshake
+    }
     return super.getRequest(context)
   }
 
   handleRequest(err, user, info, context: ExecutionContext) {
     const request = this.getRequest(context)
-    const groupId = request.query.groupId
+    let groupId = request.query?.groupId
+
+    if (context.getType() === 'ws') {
+      const client = context.switchToWs().getClient<Socket>()
+      const data = context.switchToWs().getData()
+      groupId = data?.groupId ?? groupId
+
+      if (err || !user) {
+        throw err || new UnauthorizedException()
+      }
+      client.data.user = user
+      client.data.userId = user.id ?? user.userId
+      client.data.userName = user.username
+      client.data.userRole = user.role ?? user.userRole
+
+      return user
+    }
+
     const userNullWhenAuthFailed = this.reflector.getAllAndOverride<boolean>(
       USER_NULL_WHEN_AUTH_FAILED,
       [context.getHandler(), context.getClass()]
