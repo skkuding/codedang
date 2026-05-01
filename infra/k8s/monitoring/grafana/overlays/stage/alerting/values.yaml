@@ -9,7 +9,7 @@ alerting:
         interval: 5m
         rules:
           - uid: node-high-memory-usage
-            title: High Node Memory Usage
+            title: 노드 메모리 사용률 높음
             condition: C
             data:
               - refId: A
@@ -21,31 +21,40 @@ alerting:
                   expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100
                   intervalMs: 60000
                   maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
               - refId: C
                 relativeTimeRange:
                   from: 600
                   to: 0
                 datasourceUid: __expr__
                 model:
+                  type: threshold
+                  expression: B
                   conditions:
                     - evaluator:
                         params:
                           - 85
                         type: gt
-                      operator:
-                        type: and
-                      reducer:
-                        type: last
-                  type: classic_condition
             for: 5m
             labels:
               severity: warning
             annotations:
-              summary: 'Node memory usage > 85%'
-              description: '노드 {{ `{{ $labels.instance }}` }} 메모리 {{ `{{ $values.A }}` }}%'
+              summary: '노드 {{ `{{ $labels.instance }}` }} 메모리 사용률 높음'
+              description: |
+                노드: {{ `{{ $labels.instance }}` }}
+                사용률: {{ `{{ printf "%.1f" $values.B.Value }}` }}% (임계 85%, 5분 지속)
+                조치: kubectl top pod -A로 메모리 점유 큰 pod 확인
 
           - uid: node-high-disk-usage
-            title: High Node Disk Usage
+            title: 노드 디스크 사용률 높음
             condition: C
             data:
               - refId: A
@@ -57,31 +66,40 @@ alerting:
                   expr: (1 - node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"} / node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}) * 100
                   intervalMs: 60000
                   maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
               - refId: C
                 relativeTimeRange:
                   from: 600
                   to: 0
                 datasourceUid: __expr__
                 model:
+                  type: threshold
+                  expression: B
                   conditions:
                     - evaluator:
                         params:
                           - 85
                         type: gt
-                      operator:
-                        type: and
-                      reducer:
-                        type: last
-                  type: classic_condition
             for: 5m
             labels:
               severity: warning
             annotations:
-              summary: 'Node disk usage > 85%'
-              description: '노드 {{ `{{ $labels.instance }}` }} 디스크 {{ `{{ $values.A }}` }}%'
+              summary: '노드 {{ `{{ $labels.instance }}` }} 디스크 사용률 높음'
+              description: |
+                노드: {{ `{{ $labels.instance }}` }}
+                사용률: {{ `{{ printf "%.1f" $values.B.Value }}` }}% (임계 85%, 5분 지속)
+                조치: SSH 접속 후 df -h로 점유 큰 경로 확인 및 정리
 
           - uid: node-not-ready
-            title: Node Not Ready
+            title: 노드 다운
             condition: C
             data:
               - refId: A
@@ -90,31 +108,43 @@ alerting:
                   to: 0
                 datasourceUid: prometheus
                 model:
-                  expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+                  expr: kube_node_status_condition{condition="Ready",status="true"}
                   intervalMs: 60000
                   maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
               - refId: C
                 relativeTimeRange:
                   from: 600
                   to: 0
                 datasourceUid: __expr__
                 model:
+                  type: threshold
+                  expression: B
                   conditions:
                     - evaluator:
                         params:
-                          - 0
-                        type: gt
-                      operator:
-                        type: and
-                      reducer:
-                        type: last
-                  type: classic_condition
-            for: 5m
+                          - 1
+                        type: lt
+            for: 2m
             labels:
               severity: critical
             annotations:
-              summary: 'Node not ready'
-              description: '노드 {{ `{{ $labels.node }}` }}가 Ready 상태가 아닙니다.'
+              summary: '노드 {{ `{{ $labels.node }}` }} Ready 상태 아님'
+              description: |
+                노드: {{ `{{ $labels.node }}` }}
+                상태: NotReady (2분+ 지속)
+                조치:
+                  1. SSH 접속 시도
+                  2. systemctl status k3s-agent
+                  3. df -h, free -h로 리소스 확인
 
       - orgId: 1
         name: RabbitMQ
@@ -122,7 +152,7 @@ alerting:
         interval: 5m
         rules:
           - uid: rabbitmq-ready-messages-high
-            title: RabbitMQ Ready Messages High
+            title: RabbitMQ 메시지 적체
             condition: C
             data:
               - refId: A
@@ -134,31 +164,41 @@ alerting:
                   expr: rabbitmq_queue_messages_ready
                   intervalMs: 60000
                   maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
               - refId: C
                 relativeTimeRange:
                   from: 600
                   to: 0
                 datasourceUid: __expr__
                 model:
+                  type: threshold
+                  expression: B
                   conditions:
                     - evaluator:
                         params:
                           - 100
                         type: gt
-                      operator:
-                        type: and
-                      reducer:
-                        type: last
-                  type: classic_condition
             for: 5m
             labels:
               severity: warning
             annotations:
-              summary: 'RabbitMQ ready messages > 100'
-              description: '큐 {{ `{{ $labels.queue }}` }}에 Ready 메시지 {{ `{{ $values.A }}` }}개'
+              summary: '큐 {{ `{{ $labels.queue }}` }} Ready 메시지 적체'
+              description: |
+                큐: {{ `{{ $labels.queue }}` }}
+                Ready 메시지: {{ `{{ $values.B.Value }}` }}개 (임계 100, 5분 지속)
+                의미: Consumer가 메시지 처리를 못 따라가고 있음
+                조치: Iris/Plag pod 상태 및 로그 확인
 
           - uid: rabbitmq-unacked-messages-high
-            title: RabbitMQ Unacked Messages High
+            title: RabbitMQ 미확인 메시지 적체
             condition: C
             data:
               - refId: A
@@ -170,25 +210,35 @@ alerting:
                   expr: rabbitmq_queue_messages_unacked
                   intervalMs: 60000
                   maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
               - refId: C
                 relativeTimeRange:
                   from: 600
                   to: 0
                 datasourceUid: __expr__
                 model:
+                  type: threshold
+                  expression: B
                   conditions:
                     - evaluator:
                         params:
                           - 50
                         type: gt
-                      operator:
-                        type: and
-                      reducer:
-                        type: last
-                  type: classic_condition
             for: 5m
             labels:
               severity: warning
             annotations:
-              summary: 'RabbitMQ unacked messages > 50'
-              description: '큐 {{ `{{ $labels.queue }}` }}에 미확인 메시지 {{ `{{ $values.A }}` }}개'
+              summary: '큐 {{ `{{ $labels.queue }}` }} 미확인 메시지 적체'
+              description: |
+                큐: {{ `{{ $labels.queue }}` }}
+                미확인 메시지: {{ `{{ $values.B.Value }}` }}개 (임계 50, 5분 지속)
+                의미: Consumer가 받았지만 ack 못 보냄 (처리 실패/hang 의심)
+                조치: Consumer pod 로그 및 재시작 검토
