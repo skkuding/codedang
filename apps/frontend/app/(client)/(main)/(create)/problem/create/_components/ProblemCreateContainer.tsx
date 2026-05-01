@@ -20,7 +20,7 @@ import { GeneratorPage } from './GeneratorPage'
 import { ProblemCreateContentSkeleton } from './ProblemCreateSkeletons'
 import { SolutionPage } from './SolutionPage'
 import { StatementPage } from './StatementPage'
-import { TestsPage } from './TestsPage'
+import { TestcasePage } from './TestcasePage'
 import { UploadButton } from './UploadButton'
 import { ValidatorPage } from './ValidatorPage'
 
@@ -51,7 +51,7 @@ export function ProblemCreateContainer() {
       label: 'Tests',
       text: '테스트 케이스',
       subText: '입력 및 정답 (Input & Output)',
-      Component: TestsPage
+      Component: TestcasePage
     },
     {
       Icon: FaPen,
