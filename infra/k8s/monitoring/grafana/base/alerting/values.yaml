@@ -18,4 +18,13 @@ alerting:
         group_by: ['grafana_folder', 'alertname']
         group_wait: 30s
         group_interval: 5m
-        repeat_interval: 4h
+        repeat_interval: 24h
+        routes:
+          - receiver: discord
+            matchers:
+              - severity = critical
+            repeat_interval: 1h
+          - receiver: discord
+            matchers:
+              - grafana_state_reason = Error
+            repeat_interval: 7d
