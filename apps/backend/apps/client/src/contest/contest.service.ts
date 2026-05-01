@@ -430,6 +430,7 @@ export class ContestService {
             finalSubmitCountPenalty: true,
             finalTimePenalty: true,
             isFirstSolver: true,
+            finishTime: true,
             contestProblem: {
               select: {
                 id: true,
@@ -439,12 +440,7 @@ export class ContestService {
             }
           }
         }
-      },
-      orderBy: [
-        { [isFrozen ? 'score' : 'finalScore']: 'desc' },
-        { [isFrozen ? 'totalPenalty' : 'finalTotalPenalty']: 'asc' },
-        { lastAcceptedTime: 'asc' }
-      ]
+      }
     })
 
     const beforeFreezePromise = contest.freezeTime
@@ -498,26 +494,14 @@ export class ContestService {
       }
     }
 
-    const ranks = this.calculateRanks(
-      contestRecords.map((r) => ({
-        solved: isFrozen ? r.score : r.finalScore,
-        penalty: isFrozen ? r.totalPenalty : r.finalTotalPenalty
-      }))
-    )
-
     const leaderboard = contestRecords.map(
-      (
-        {
-          contestProblemRecord,
-          userId,
-          score,
-          finalScore,
-          totalPenalty,
-          finalTotalPenalty,
-          user
-        },
-        index
-      ) => {
+      ({ contestProblemRecord, userId, user }) => {
+        //유저별 총 점수, 총 패널티
+        let solvedProblemCount = 0
+        let calculatedTotalScore = 0
+        let calculatedTotalPenalty = 0
+        let lastAcceptedTime: Date | null = null
+
         const getSubmissionCount = (problemId: number) => {
           const map = isFrozen
             ? submissionCountMapBeforeFreeze
@@ -559,40 +543,97 @@ export class ContestService {
             timePenalty,
             finalSubmitCountPenalty,
             finalTimePenalty,
-            isFirstSolver
+            isFirstSolver,
+            finishTime
           } = record
 
-          const penalty = isFrozen
+          const currentProblemScore = isFrozen ? freezeScore : finalScore
+
+          const currentProblemPenalty = isFrozen
             ? submitCountPenalty + timePenalty
             : finalSubmitCountPenalty + finalTimePenalty
 
+          //문제를 맞췄을 때만 총점과 총패널티에 합산
+          if (currentProblemScore > 0) {
+            solvedProblemCount += 1
+            calculatedTotalScore += currentProblemScore
+            calculatedTotalPenalty += currentProblemPenalty
+            if (
+              finishTime &&
+              (!lastAcceptedTime || finishTime > lastAcceptedTime)
+            ) {
+              lastAcceptedTime = finishTime
+            }
+          }
+
+          //problemRecords: []
           return {
             order,
             problemId,
-            penalty,
+            penalty: currentProblemPenalty,
             submissionCount: getSubmissionCount(problemId),
-            score: isFrozen ? freezeScore : finalScore,
+            score: currentProblemScore,
             isFrozen: getIsFrozen(problemId, freezeScore, finalScore),
             isFirstSolver
           }
         })
 
+        //leaderboard:[]
         return {
-          username: user!.username,
-          totalScore: isFrozen ? score : finalScore,
           userId,
-          totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
-          problemRecords,
-          rank: ranks[index]
+          username: user!.username,
+          solvedProblemCount,
+          totalScore: calculatedTotalScore,
+          totalPenalty: calculatedTotalPenalty,
+          lastAcceptedTime: lastAcceptedTime as Date | null,
+          problemRecords
         }
       }
     )
 
+    //등수 정렬
+    leaderboard.sort((a, b) => {
+      //1순위: 맞춘 문제 개수 많을수록 상위
+      if (b.solvedProblemCount !== a.solvedProblemCount) {
+        return b.solvedProblemCount - a.solvedProblemCount
+      }
+
+      //2순위: 패널티 작을수록 상위
+      if (a.totalPenalty !== b.totalPenalty) {
+        return a.totalPenalty - b.totalPenalty
+      }
+
+      //3순위: 맞춘문제, 패널티 모두 동점일 경우 마지막 정답 제출시간 빠를수록 상위
+      const timeA = a.lastAcceptedTime?.getTime() ?? Number.MAX_SAFE_INTEGER
+      const timeB = b.lastAcceptedTime?.getTime() ?? Number.MAX_SAFE_INTEGER
+      return timeA - timeB
+    })
+
+    let currentRank = 1
+    const rankedLeaderboard = leaderboard.map((record, index) => {
+      if (index > 0) {
+        const prevRecord = leaderboard[index - 1]
+        if (
+          record.solvedProblemCount !== prevRecord.solvedProblemCount ||
+          record.totalPenalty !== prevRecord.totalPenalty ||
+          record.lastAcceptedTime?.getTime() !==
+            prevRecord.lastAcceptedTime?.getTime()
+        ) {
+          currentRank = index + 1
+        }
+      }
+      return {
+        ...record,
+        rank: currentRank
+      }
+    })
+
+    //필터
     const filteredLeaderboard = search
-      ? leaderboard.filter(({ username }) =>
+      ? rankedLeaderboard.filter(({ username }) =>
           username.toLowerCase().includes(search.toLowerCase())
         )
-      : leaderboard
+      : rankedLeaderboard
 
     return {
       contestRole,
