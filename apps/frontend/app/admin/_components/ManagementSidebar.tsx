@@ -46,11 +46,11 @@ const getCourseNavItems = (courseId: string): NavItem[] => [
     path: `/admin/course/${courseId}` as const,
     icon: HomeIcon
   },
-  // {
-  //   name: 'Notice',
-  //   path: `/admin/course/${courseId}/notice`,
-  //   icon: FaBell
-  // },
+  {
+    name: 'Notice',
+    path: `/admin/course/${courseId}/notice`,
+    icon: FaBell
+  },
   {
     name: 'Member',
     path: `/admin/course/${courseId}/user` as const,
