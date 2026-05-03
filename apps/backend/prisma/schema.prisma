@@ -1135,9 +1135,9 @@ model PolygonSolution {
   problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId Int            @unique @map("problem_id")
 
-  fileName String   @map("file_name") // 원본 파일명 (solution.cpp)
-  filePath String   @map("file_path") // S3 key
-  language Language
+  fileName    String   @map("file_name") // 원본 파일명 (solution.cpp)
+  fileContent String   @map("file_content") //DB 저장
+  language    Language
 
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
@@ -1150,9 +1150,9 @@ model PolygonTool {
   problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId Int            @map("problem_id")
 
-  toolType ToolType @map("tool_type") // 'generator' | 'validator' | 'checker'
-  fileName String   @map("file_name")
-  filePath String   @map("file_path") // S3 key
+  toolType    ToolType @map("tool_type") // 'generator' | 'validator' | 'checker'
+  fileName    String   @map("file_name")
+  fileContent String   @map("file_content") //DB 저장
 
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
