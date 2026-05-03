@@ -6,9 +6,13 @@ import {
   Req,
   Res,
   UnauthorizedException,
-  UseGuards
+  UseGuards,
+  Delete,
+  Param,
+  ParseEnumPipe
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
+import { Provider } from '@prisma/client'
 import { Request, Response } from 'express'
 import {
   AuthenticatedRequest,
@@ -18,6 +22,7 @@ import {
 import { REFRESH_TOKEN_COOKIE_OPTIONS } from '@libs/constants'
 import { AuthService } from './auth.service'
 import { LoginUserDto } from './dto/login-user.dto'
+import { SocialLinkDto } from './dto/social-link.dto'
 import type { GithubUser, KakaoUser } from './interface/social-user.interface'
 
 @Controller('auth')
@@ -46,6 +51,37 @@ export class AuthController {
   ) {
     const jwtTokens = await this.authService.issueJwtTokens(loginUserDto)
     this.setJwtResponse(res, jwtTokens)
+  }
+
+  /**
+   * 로그인된 유저의 계정에 소셜 계정을 연동함.
+   * @param {SocialLinkDto} socialLinkDto - 소셜 로그인 콜백에서 발급된 oauthToken
+   * @param {AuthenticatedRequest} req - 인증된 리퀘스트 객체
+   * @throws {InvalidJwtTokenException} oauthToken이 유효하지 않거나 만료된 경우
+   * @throws {DuplicateFoundException} 해당 provider가 이미 연동되어 있거나, 해당 소셜 계정이 다른 유저에게 이미 연동된 경우
+   */
+  @Post('social-link')
+  async socialLink(
+    @Body() socialLinkDto: SocialLinkDto,
+    @Req() req: AuthenticatedRequest
+  ) {
+    await this.authService.socialLink(req.user.id, socialLinkDto)
+  }
+
+  /**
+   * 로그인된 유저의 계정에서 소셜 계정 연동을 해제함.
+   * Kakao의 경우 Kakao Admin API를 통해 서버 측에서도 연동 해제 처리함.
+   * @param {AuthenticatedRequest} req - 인증된 리퀘스트 객체
+   * @param {Provider} provider - 연동 해제할 소셜 플랫폼
+   * @throws {EntityNotExistException} 해당 provider가 연동되어 있지 않은 경우
+   */
+  @Delete('social-link/:provider')
+  async socialUnlink(
+    @Req() req: AuthenticatedRequest,
+    // NestJS Swagger의 Prisma Enum 순환 참조 에러 방지를 위해 string 타입 사용
+    @Param('provider', new ParseEnumPipe(Provider)) provider: string
+  ) {
+    await this.authService.socialUnlink(req.user.id, provider as Provider)
   }
 
   /**
@@ -127,6 +163,10 @@ export class AuthController {
     @Req() req: Request
   ) {
     const kakaoUser = req.user as KakaoUser
-    return await this.authService.kakaoLogin(res, kakaoUser)
+    const result = await this.authService.kakaoLogin(kakaoUser)
+
+    if ('oauthToken' in result) return result
+
+    this.setJwtResponse(res, result.jwtTokens)
   }
 }
