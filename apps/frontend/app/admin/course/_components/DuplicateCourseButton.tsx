@@ -1,9 +1,11 @@
 'use client'
 
+import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { AlertModal } from '@/components/AlertModal'
 import { ModalSection } from '@/components/ModalSection'
 import { Button } from '@/components/shadcn/button'
 import { DUPLICATE_COURSE } from '@/graphql/course/mutation'
+import type { SemesterSeason } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import { useState } from 'react'
 import { useMemo } from 'react'
@@ -42,12 +44,25 @@ export function DuplicateCourseButton({
       return
     }
     const selectedCourse = selectedRows[0].original
-    console.log('selected Course: ', selectedCourse)
     setCourseNum(selectedCourse.title ?? '')
-    setSemester(selectedCourse.semester ?? '')
+    setSemester('')
     setClassNum('')
     setIsDialogOpen(true)
   }
+
+  const courseNumError = useMemo(() => {
+    if (courseNum.trim() === '') {
+      return 'Course Number must be entered.'
+    }
+    return ''
+  }, [courseNum])
+
+  const semesterError = useMemo(() => {
+    if (semester.trim() === '') {
+      return 'Semester must be selected.'
+    }
+    return ''
+  }, [semester])
 
   const classNumError = useMemo(() => {
     if (classNum.trim() === '') {
@@ -63,6 +78,37 @@ export function DuplicateCourseButton({
 
     return ''
   }, [classNum])
+
+  const isFormValid = useMemo(() => {
+    return !courseNumError && !semesterError && !classNumError
+  }, [courseNumError, semesterError, classNumError])
+
+  const semesterItems = useMemo(() => {
+    const currentYear = new Date().getFullYear()
+    const seasons: SemesterSeason[] = ['Spring', 'Summer', 'Fall', 'Winter']
+    const month = new Date().getMonth() + 1
+
+    let currentSeasonIdx = 0
+    let baseYear = currentYear
+    if (month >= 3 && month <= 5) {
+      currentSeasonIdx = 0
+    } else if (month >= 6 && month <= 8) {
+      currentSeasonIdx = 1
+    } else if (month >= 9 && month <= 11) {
+      currentSeasonIdx = 2
+    } else {
+      if (month <= 2) {
+        baseYear = baseYear - 1
+      }
+      currentSeasonIdx = 3
+    }
+
+    return Array.from({ length: 5 }, (_, i) => {
+      const seasonIdx = (currentSeasonIdx + i) % 4
+      const yearOffset = Math.floor((currentSeasonIdx + i) / 4)
+      return `${baseYear + yearOffset} ${seasons[seasonIdx]}`
+    })
+  }, [])
 
   const handleDuplicateRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows
@@ -102,7 +148,7 @@ export function DuplicateCourseButton({
 
   return (
     <AlertModal
-      size="md"
+      size="lg"
       type="confirm"
       title="Duplicate Course"
       trigger={
@@ -119,10 +165,11 @@ export function DuplicateCourseButton({
       onOpenChange={setIsDialogOpen}
       primaryButton={{
         text: 'Duplicate',
-        onClick: handleDuplicateRows
+        onClick: handleDuplicateRows,
+        disabled: !isFormValid
       }}
     >
-      <div className="max-h-[70vh] w-full min-w-0 overflow-y-auto overflow-x-hidden pr-1">
+      <div className="max-h-[70vh] w-full min-w-0 overflow-y-auto overflow-x-hidden pr-2">
         <div className="flex w-full min-w-0 flex-col gap-4">
           <ModalSection
             title="Courses that will be Copied"
@@ -153,18 +200,29 @@ export function DuplicateCourseButton({
                 value={courseNum}
                 onChange={(e) => setCourseNum(e.target.value)}
                 placeholder="Enter course number"
-                className="box-border w-full min-w-0 rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className={`box-border w-full min-w-0 rounded-md border border-gray-300 px-3 py-2 text-sm ${
+                  courseNumError
+                    ? 'border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500'
+                    : 'border-gray-300'
+                }`}
               />
+              {courseNumError && (
+                <p className="text-sm text-red-500">{courseNumError}</p>
+              )}
             </div>
 
             <div className="flex w-full min-w-0 flex-col gap-2">
               <label className="text-sm font-medium">Semester</label>
-              <input
+              <OptionSelect
+                options={semesterItems}
                 value={semester}
-                onChange={(e) => setSemester(e.target.value)}
-                placeholder="Enter semester"
-                className="box-border w-full min-w-0 rounded-md border border-gray-300 px-3 py-2 text-sm"
+                onChange={(value) => setSemester(value)}
+                placeholder="Select semester"
+                className="rounded-md font-normal"
               />
+              {semesterError && (
+                <p className="text-sm text-red-500">{semesterError}</p>
+              )}
             </div>
 
             <div className="flex w-full min-w-0 flex-col gap-2">
@@ -180,13 +238,9 @@ export function DuplicateCourseButton({
                 }`}
               />
 
-              <p
-                className={`min-h-[20px] text-sm ${
-                  classNumError ? 'text-red-500' : 'invisible'
-                }`}
-              >
-                {classNumError || 'placeholder'}
-              </p>
+              {classNumError && (
+                <p className="text-sm text-red-500">{classNumError}</p>
+              )}
             </div>
           </div>
         </div>
