@@ -50,7 +50,7 @@ export function DuplicateCourseButton({
   }
 
   const classNumError = useMemo(() => {
-    if (classNum.trim() === ' ') {
+    if (classNum.trim() === '') {
       return 'Class Number must be entered.'
     }
     if (!/^\d+$/.test(classNum)) {
@@ -66,11 +66,6 @@ export function DuplicateCourseButton({
 
   const handleDuplicateRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows
-
-    console.log('selected row:', selectedRows)
-    console.log('selected row original:', selectedRows[0]?.original)
-    console.log('groupId:', selectedRows[0]?.original.id)
-
     const duplicatePromises = selectedRows.map((row) =>
       duplicateTarget(row.original.id)
     )
