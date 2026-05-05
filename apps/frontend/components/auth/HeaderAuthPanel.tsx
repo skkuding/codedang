@@ -203,8 +203,8 @@ export function HeaderAuthPanel({
             }}
             className="!h-[620px] !w-[380px] rounded-[10px]"
           >
-            <DialogHeader className="sr-only">
-              <DialogTitle>Authentication</DialogTitle>
+            <DialogHeader className="hidden">
+              <DialogTitle />
             </DialogHeader>
             <AuthModal />
           </DialogContent>
