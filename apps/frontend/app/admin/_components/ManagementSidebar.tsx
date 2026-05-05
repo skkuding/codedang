@@ -331,7 +331,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
               <div className="font-semibold text-gray-700">
                 [{selectedCourse.code}]
               </div>
-              <div>{selectedCourse.name}</div>
+              <div className="w-[190px] truncate">{selectedCourse.name}</div>
               <div className="mt-5 w-[190px]">
                 <Separator />
               </div>
