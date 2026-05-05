@@ -8,7 +8,6 @@ import {
   roomKey,
   reconnectKey,
   membersKey,
-  SESSION_DURATION_MS,
   RECONNECT_GRACE_SEC,
   REMINDER_BEFORE_END_MS,
   BUFFER_SEC,
@@ -76,12 +75,20 @@ export class StudyRoomService {
     )
 
     const now = Date.now()
-    const { state, isFirst } = await this.initOrGetRoom(groupId, userId, now)
+
+    if (membership.endTime.getTime() <= now) {
+      return { success: false, message: '세션이 이미 종료되었습니다.' }
+    }
+
+    const { state, isFirst } = await this.initOrGetRoom(
+      groupId,
+      userId,
+      now,
+      membership.endTime
+    )
 
     if (!state)
       return { success: false, message: '룸 상태 가져오지 못했습니다.' }
-    if (now >= state.endAt)
-      return { success: false, message: '세션이 이미 종료되었습니다.' }
 
     const isRecovered = check.isRecovered ?? false
     await this.enterRoom(client, groupId, userId, membership, now, isRecovered)
@@ -96,7 +103,6 @@ export class StudyRoomService {
       success: true,
       data: {
         members,
-        startedAt: state.startedAt,
         endAt: state.endAt,
         remainMs: Math.max(0, state.endAt - now),
         hostUserId: state.hostUserId
@@ -153,11 +159,11 @@ export class StudyRoomService {
   private async initOrGetRoom(
     groupId: number,
     userId: number,
-    now: number
+    now: number,
+    endTime: Date
   ): Promise<{ state: RoomState | null; isFirst: boolean }> {
     const activeState: RoomState = {
-      startedAt: now,
-      endAt: now + SESSION_DURATION_MS,
+      endAt: endTime.getTime(),
       hostUserId: userId
     }
 
@@ -165,7 +171,7 @@ export class StudyRoomService {
       roomKey(groupId),
       JSON.stringify(activeState),
       'PX',
-      SESSION_DURATION_MS + 60_000,
+      endTime.getTime() - now + 60_000,
       'NX'
     ))
 
@@ -242,7 +248,6 @@ export class StudyRoomService {
     )
 
     this.server.to(roomKey(groupId)).emit('room:started', {
-      startedAt: state.startedAt,
       endAt: state.endAt,
       members
     })
