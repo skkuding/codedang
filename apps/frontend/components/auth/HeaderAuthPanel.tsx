@@ -177,7 +177,10 @@ export function HeaderAuthPanel({
           </Dialog>
         </>
       ) : (
-        <Dialog open={currentModal !== ''} onOpenChange={hideModal}>
+        <Dialog
+          open={currentModal !== ''}
+          onOpenChange={(open) => !open && hideModal()}
+        >
           <DialogTrigger asChild>
             <Button
               onClick={() => showSignIn()}
@@ -200,8 +203,8 @@ export function HeaderAuthPanel({
             }}
             className="!h-[620px] !w-[380px] rounded-[10px]"
           >
-            <DialogHeader className="hidden">
-              <DialogTitle />
+            <DialogHeader className="sr-only">
+              <DialogTitle>Authentication</DialogTitle>
             </DialogHeader>
             <AuthModal />
           </DialogContent>
