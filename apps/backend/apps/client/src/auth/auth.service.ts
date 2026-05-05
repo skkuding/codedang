@@ -1,34 +1,47 @@
+import { HttpService } from '@nestjs/axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
-import { Role } from '@prisma/client'
+import { Role, type Provider } from '@prisma/client'
+import { AxiosError } from 'axios'
 import { Cache } from 'cache-manager'
 import type { Response } from 'express'
 import { JwtAuthService, type JwtPayload } from '@libs/auth'
 import { refreshTokenCacheKey } from '@libs/cache'
 import {
   ACCESS_TOKEN_EXPIRE_TIME,
+  OAUTH_TOKEN_EXPIRE_TIME,
   REFRESH_TOKEN_COOKIE_OPTIONS,
   REFRESH_TOKEN_EXPIRE_TIME
 } from '@libs/constants'
 import {
+  DuplicateFoundException,
+  EntityNotExistException,
   InvalidJwtTokenException,
   UnidentifiedException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { UserService } from '@client/user/user.service'
 import type { LoginUserDto } from './dto/login-user.dto'
-import type { GithubUser, KakaoUser } from './interface/social-user.interface'
+import type { SocialLinkDto } from './dto/social-link.dto'
+import type {
+  GithubUser,
+  KakaoUser,
+  OAuthTokenPayload
+} from './interface/social-user.interface'
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name)
+
   constructor(
     private readonly config: ConfigService,
     private readonly jwtService: JwtService,
     private readonly jwtAuthService: JwtAuthService,
     private readonly userService: UserService,
     private readonly prisma: PrismaService,
+    private readonly httpService: HttpService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -116,6 +129,94 @@ export class AuthService {
     )
   }
 
+  async socialLink(userId: number, dto: SocialLinkDto) {
+    const { oauthId, provider } = await this.verifyOAuthToken(dto.oauthToken)
+
+    const existingProvider = await this.prisma.userOAuth.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_provider: {
+          userId,
+          provider
+        }
+      }
+    })
+    if (existingProvider)
+      throw new DuplicateFoundException(`${provider} OAuth provider`)
+
+    const existingOAuth = await this.prisma.userOAuth.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        id_provider: {
+          id: oauthId,
+          provider
+        }
+      }
+    })
+    if (existingOAuth)
+      throw new DuplicateFoundException(`${provider} OAuth account`)
+
+    await this.userService.createUserOAuth(userId, provider, oauthId)
+  }
+
+  async socialUnlink(userId: number, provider: Provider) {
+    const userOAuth = await this.prisma.userOAuth.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_provider: {
+          userId,
+          provider
+        }
+      }
+    })
+
+    if (!userOAuth)
+      throw new EntityNotExistException(`${provider} OAuth provider`)
+
+    if (provider === 'kakao') {
+      try {
+        await this.httpService.axiosRef({
+          url: 'https://kapi.kakao.com/v1/user/unlink',
+          method: 'POST',
+          headers: {
+            Authorization: `KakaoAK ${this.config.getOrThrow('KAKAO_ADMIN_KEY')}`,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            'Content-Type': `application/x-www-form-urlencoded;charset=utf-8`
+          },
+
+          data: new URLSearchParams({
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            target_id_type: 'user_id',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            target_id: userOAuth.id
+          })
+        })
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          const errorCode = error.response?.data?.code
+          // -101: 카카오계정 미연결 사용자 (이미 연결 해제된 경우)
+          // https://developers.kakao.com/docs/ko/rest-api/error-code#kakaologin
+          if (errorCode === -101) {
+            this.logger.warn(`Kakao already unlinked for userId: ${userId}`)
+          } else {
+            this.logger.error(`Kakao unlink failed for userId: ${userId}`)
+            throw error
+          }
+        } else throw error
+      }
+    }
+
+    await this.prisma.userOAuth.delete({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_provider: {
+          userId,
+          provider
+        }
+      }
+    })
+  }
+
   async githubLogin(res: Response, githubUser: GithubUser) {
     const { githubId } = githubUser
 
@@ -160,25 +261,30 @@ export class AuthService {
     )
   }
 
-  async kakaoLogin(res: Response, kakaoUser: KakaoUser) {
+  async kakaoLogin(kakaoUser: KakaoUser) {
     const { kakaoId } = kakaoUser
 
-    const userOAuth = await this.prisma.userOAuth.findFirst({
+    const userOAuth = await this.prisma.userOAuth.findUnique({
       where: {
-        id: kakaoId.toString(),
-        provider: 'kakao'
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        id_provider: {
+          id: kakaoId,
+          provider: 'kakao'
+        }
       }
     })
 
     if (!userOAuth) {
-      // 소셜 회원가입 페이지 url 전달
-      // TODO: 소셜 회원가입 페이지 url 확정되면 여기에 삽입
+      const oauthToken = await this.jwtService.signAsync(
+        { oauthId: kakaoId, provider: 'kakao' } satisfies OAuthTokenPayload,
+        { expiresIn: OAUTH_TOKEN_EXPIRE_TIME }
+      )
       return {
-        signUpUrl: `https://codedang.com/social-signup?provider=kakao&id=${kakaoUser.kakaoId}}`
+        oauthToken
       }
     }
 
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findUnique({
       where: {
         id: userOAuth.userId
       }
@@ -188,19 +294,23 @@ export class AuthService {
       throw new UnidentifiedException('user')
     }
 
-    const jwtTokens = await this.issueJwtTokens(
-      {
-        username: user.username,
-        password: user.password
-      },
-      true
+    await this.userService.updateLastLogin(user.username)
+    const jwtTokens = await this.createJwtTokens(
+      user.id,
+      user.username,
+      user.role
     )
 
-    res.setHeader('authorization', `Bearer ${jwtTokens.accessToken}`)
-    res.cookie(
-      'refresh_token',
-      jwtTokens.refreshToken,
-      REFRESH_TOKEN_COOKIE_OPTIONS
-    )
+    return { jwtTokens }
+  }
+
+  private async verifyOAuthToken(token: string) {
+    try {
+      return await this.jwtService.verifyAsync<OAuthTokenPayload>(token, {
+        secret: this.config.get('JWT_SECRET')
+      })
+    } catch (error) {
+      throw new InvalidJwtTokenException(error.message)
+    }
   }
 }
