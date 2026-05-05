@@ -6,7 +6,7 @@ import { Badge } from '@/components/shadcn/badge'
 import { Input } from '@/components/shadcn/input'
 import type { Level } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { DataTableColumnHeader } from '../../_components/table/DataTableColumnHeader'
 import type { ContestProblem } from '../_libs/schemas'
@@ -24,6 +24,10 @@ function ScoreInput({
 }) {
   const [localValue, setLocalValue] = useState(String(value))
 
+  useEffect(() => {
+    setLocalValue(String(value))
+  }, [value])
+
   return (
     <Input
       type="number"
@@ -38,10 +42,7 @@ function ScoreInput({
         }
       }}
       onBlur={() => {
-        const parsed = parseInt(localValue)
-        if (isNaN(parsed) || parsed < 0) {
-          setLocalValue(String(value))
-        }
+        setLocalValue(String(value))
       }}
       disabled={disabled}
       className="w-[80px]"
@@ -84,7 +85,7 @@ export const createColumns = (
     ),
     footer: ({ table }) => {
       const total = table
-        .getRowModel()
+        .getCoreRowModel()
         .rows.reduce(
           (sum, row) => sum + (row.original.score ?? DEFAULT_SCORE),
           0
