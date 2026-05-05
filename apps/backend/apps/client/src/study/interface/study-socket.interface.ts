@@ -1,12 +1,15 @@
 // Redis Key
-export const ROOM_PREFIX = 'study-room'
-export const RECONNECT_PREFIX = 'study-reconnect'
+export const STUDY_KEY_PREFIX = 'study'
+export const STUDY_ROOM_PREFIX = `${STUDY_KEY_PREFIX}:room`
+export const STUDY_CHAT_PREFIX = `${STUDY_KEY_PREFIX}:chat`
 
-export const roomKey = (groupId: number) => `${ROOM_PREFIX}:${groupId}`
+export const roomKey = (groupId: number) => `${STUDY_ROOM_PREFIX}:${groupId}`
 export const membersKey = (groupId: number) =>
-  `${ROOM_PREFIX}:${groupId}:members`
+  `${STUDY_ROOM_PREFIX}:${groupId}:members`
 export const reconnectKey = (groupId: number, userId: number) =>
-  `${RECONNECT_PREFIX}:${groupId}:${userId}`
+  `${STUDY_ROOM_PREFIX}:${groupId}:reconnect:${userId}`
+
+export const chatKey = (groupId: number) => `${STUDY_CHAT_PREFIX}:${groupId}`
 
 // 상수
 export const RECONNECT_GRACE_SEC = 30 // 30초
