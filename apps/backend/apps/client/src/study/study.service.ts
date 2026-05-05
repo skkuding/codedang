@@ -447,7 +447,7 @@ export class StudyService {
    *
    * @param {number} groupId 그룹ID
    * @param {number} userId 유저ID
-   * @returns 사용자의 ID, 이름, 리더 여부를 포함한 객체
+   * @returns 사용자의 ID, 이름, 리더 여부, 만료 시간을 포함한 객체
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * - 사용자가 해당 그룹에 속해있지 않을 경우 발생
    */
@@ -464,8 +464,13 @@ export class StudyService {
         userId: true,
         isGroupLeader: true,
         user: {
+          select: { username: true }
+        },
+        group: {
           select: {
-            username: true
+            studyInfo: {
+              select: { endTime: true }
+            }
           }
         }
       }
@@ -478,7 +483,8 @@ export class StudyService {
     return {
       userId: membership.userId,
       userName: membership.user.username,
-      isLeader: membership.isGroupLeader
+      isLeader: membership.isGroupLeader,
+      endTime: membership.group.studyInfo!.endTime
     }
   }
 }
