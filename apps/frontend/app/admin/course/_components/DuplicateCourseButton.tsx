@@ -44,7 +44,7 @@ export function DuplicateCourseButton({
       return
     }
     const selectedCourse = selectedRows[0].original
-    setCourseNum(selectedCourse.title ?? '')
+    setCourseNum(selectedCourse.code ?? '')
     setSemester('')
     setClassNum('')
     setIsDialogOpen(true)
@@ -169,7 +169,7 @@ export function DuplicateCourseButton({
         disabled: !isFormValid
       }}
     >
-      <div className="max-h-[70vh] w-full min-w-0 overflow-y-auto overflow-x-hidden pr-2">
+      <div className="max-h-[70vh] w-full min-w-0 overflow-y-auto pl-[2px] pr-2">
         <div className="flex w-full min-w-0 flex-col gap-4">
           <ModalSection
             title="Courses that will be Copied"
@@ -195,17 +195,23 @@ export function DuplicateCourseButton({
 
           <div className="flex w-full min-w-0 flex-col gap-4">
             <div className="flex w-full min-w-0 flex-col gap-2">
-              <label className="text-sm font-medium">Course Number</label>
-              <input
-                value={courseNum}
-                onChange={(e) => setCourseNum(e.target.value)}
-                placeholder="Enter course number"
-                className={`box-border w-full min-w-0 rounded-md border border-gray-300 px-3 py-2 text-sm ${
-                  courseNumError
-                    ? 'border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500'
-                    : 'border-gray-300'
-                }`}
-              />
+              <label className="text-sm font-medium">Course Code</label>
+              <div className="relative w-full">
+                <input
+                  value={courseNum}
+                  onChange={(e) => setCourseNum(e.target.value)}
+                  placeholder="Enter course number"
+                  maxLength={7}
+                  className={`box-border w-full min-w-0 rounded-md border px-3 py-2 pr-12 text-sm ${
+                    courseNumError
+                      ? 'border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500'
+                      : 'border-gray-300'
+                  }`}
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                  {courseNum.length}/7
+                </span>
+              </div>
               {courseNumError && (
                 <p className="text-sm text-red-500">{courseNumError}</p>
               )}
@@ -226,17 +232,23 @@ export function DuplicateCourseButton({
             </div>
 
             <div className="flex w-full min-w-0 flex-col gap-2">
-              <label className="text-sm font-medium">Class Number</label>
-              <input
-                value={classNum}
-                onChange={(e) => setClassNum(e.target.value)}
-                placeholder="Enter class number"
-                className={`box-border w-full min-w-0 rounded-md border px-3 py-2 text-sm ${
-                  classNumError
-                    ? 'border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500'
-                    : 'border-gray-300'
-                }`}
-              />
+              <label className="text-sm font-medium">Course Section</label>
+              <div className="relative w-full">
+                <input
+                  value={classNum}
+                  onChange={(e) => setClassNum(e.target.value)}
+                  placeholder="Enter class number"
+                  maxLength={2}
+                  className={`box-border w-full min-w-0 rounded-md border px-3 py-2 pr-12 text-sm ${
+                    classNumError
+                      ? 'border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500'
+                      : 'border-gray-300'
+                  }`}
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                  {classNum.length}/2
+                </span>
+              </div>
 
               {classNumError && (
                 <p className="text-sm text-red-500">{classNumError}</p>
