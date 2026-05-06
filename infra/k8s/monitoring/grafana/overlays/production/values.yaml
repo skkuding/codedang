@@ -4,7 +4,7 @@
 envFromSecrets:
   - name: grafana-github-oauth
   - name: grafana-aws-cloudwatch
-  - name: grafana-discord-webhook
+  - name: discord-webhook
 
 replicas: 1
 autoscaling:

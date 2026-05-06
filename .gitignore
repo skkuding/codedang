@@ -148,3 +148,4 @@ coverage
 *.pkg
 
 .idea
+.codex

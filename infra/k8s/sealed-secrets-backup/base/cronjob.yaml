@@ -29,7 +29,7 @@ spec:
               env:
                 - name: SECRET_NAME
                   # Note: This value is overridden in overlays
-                  value: Codedang-Sealed-Secrets-Prod
+                  value: Codedang-Sealed-Secrets-Production
               volumeMounts:
                 - name: scripts
                   mountPath: /scripts

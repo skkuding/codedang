@@ -1,3 +1,4 @@
+# Run with --ask-become-pass if passwordless sudo is not configured on target hosts.
 - name: Setup SSH public key authentication
   hosts: all
   become: true
@@ -24,17 +25,18 @@
         owner: '{{ ssh_user }}'
         group: '{{ ssh_user }}'
 
-    - name: Collect all public key contents
-      ansible.builtin.set_fact:
-        all_pubkeys: "{{ all_pubkeys | default([]) + [lookup('file', item.path)] }}"
-      loop: '{{ pubkeys.files }}'
+    - name: Read public key file contents
+      ansible.builtin.slurp:
+        src: '{{ item.path }}'
       delegate_to: localhost
       become: false
+      loop: '{{ pubkeys.files }}'
+      register: pubkey_file_contents
 
     - name: Sync authorized_keys (add new, remove deleted)
       ansible.posix.authorized_key:
         user: '{{ ssh_user }}'
-        key: "{{ all_pubkeys | join('\n') }}"
+        key: "{{ pubkey_file_contents.results | map(attribute='content') | map('b64decode') | list | join('\n') }}"
         state: present
         exclusive: true
 
@@ -46,16 +48,32 @@
         state: present
       notify: Restart sshd
 
-    - name: Disable password authentication
+    - name: Configure public key authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PubkeyAuthentication'
+        line: 'PubkeyAuthentication yes'
+        state: present
+      notify: Restart sshd
+
+    - name: Configure password authentication
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
         regexp: '^#?PasswordAuthentication'
-        line: 'PasswordAuthentication no'
+        line: "PasswordAuthentication {{ 'yes' if ssh_password_authentication | default(false) | bool else 'no' }}"
+        state: present
+      notify: Restart sshd
+
+    - name: Configure required authentication methods
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?AuthenticationMethods'
+        line: 'AuthenticationMethods {{ ssh_authentication_methods | default("publickey") }}'
         state: present
       notify: Restart sshd
 
   handlers:
     - name: Restart sshd
       ansible.builtin.service:
-        name: ssh
+        name: "{{ 'ssh' if ansible_facts['os_family'] == 'Debian' else 'sshd' }}"
         state: restarted

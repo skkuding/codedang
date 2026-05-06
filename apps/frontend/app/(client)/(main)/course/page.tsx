@@ -57,20 +57,22 @@ export default async function Course() {
     <>
       <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[120px]">
         <div className="flex flex-col pb-12">
-          <span className="text-head1_b_40">COURSE</span>
-          <span className="text-color-neutral-40 text-sub2_m_18">
+          <span className="text-head2_b_32 md:text-head1_b_40">COURSE</span>
+          <span className="text-color-neutral-40 text-body2_m_14 md:text-sub2_m_18">
             전반적인 교육과정을 연계하여 관리해보세요
           </span>
         </div>
-        <ErrorBoundary fallback={FetchErrorFallback}>
-          <Suspense fallback={<CardListFallback />}>
-            <CourseCardList title="나의 강좌" />
-          </Suspense>
-        </ErrorBoundary>
-      </div>
+        <div className="gap-15 flex flex-col">
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<CardListFallback />}>
+              <CourseCardList title="나의 강좌" />
+            </Suspense>
+          </ErrorBoundary>
 
-      <div className="w-full px-5 md:px-[116px]">
-        <Dashboard />
+          <div className="w-full">
+            <Dashboard />
+          </div>
+        </div>
       </div>
 
       <CourseSubBanner />
