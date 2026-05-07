@@ -1,6 +1,6 @@
 'use client'
 
-import { SearchBar } from '@/app/(client)/(main)/_components/SearchBar'
+import { SearchBar } from '@/components/SearchBar'
 import { Button } from '@/components/shadcn/button'
 import {
   DropdownMenu,
@@ -26,6 +26,7 @@ import {
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useMemo } from 'react'
 import { IoChevronDownOutline } from 'react-icons/io5'
 
 interface Item {
@@ -94,17 +95,21 @@ export function NoticeDataTable<TData extends Item, TValue>({
   const searchParams = useSearchParams()
   const sortOrder = searchParams.get('sort') ?? 'desc'
 
-  const sortedData = [...data].sort((a, b) => {
-    if (a.isFixed && !b.isFixed) {
-      return -1
-    }
-    if (!a.isFixed && b.isFixed) {
-      return 1
-    }
-    const aTime = new Date(a.createTime ?? '').getTime()
-    const bTime = new Date(b.createTime ?? '').getTime()
-    return sortOrder === 'asc' ? aTime - bTime : bTime - aTime
-  })
+  const sortedData = useMemo(
+    () =>
+      [...data].sort((a, b) => {
+        if (a.isFixed && !b.isFixed) {
+          return -1
+        }
+        if (!a.isFixed && b.isFixed) {
+          return 1
+        }
+        const aTime = new Date(a.createTime ?? '').getTime()
+        const bTime = new Date(b.createTime ?? '').getTime()
+        return sortOrder === 'asc' ? aTime - bTime : bTime - aTime
+      }),
+    [data, sortOrder]
+  )
 
   const table = useReactTable({
     data: sortedData,
@@ -120,7 +125,7 @@ export function NoticeDataTable<TData extends Item, TValue>({
         <p className="text-head3_sb_28">전체 공지 리스트</p>
         <div className="flex items-center gap-2">
           <DateSortDropdown />
-          <SearchBar className="w-60 [&_input]:h-[46px] [&_svg]:!top-[calc(50%-8px)]" />
+          <SearchBar containerClassName="w-[280px]" sizeVariant="lg" />
         </div>
       </div>
       <div className="bg-background border-line mb-10 w-full overflow-hidden rounded-[20px] border">
