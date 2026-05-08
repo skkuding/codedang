@@ -1,6 +1,6 @@
 'use client'
 
-import { SearchBar } from '@/app/(client)/(main)/_components/SearchBar'
+import { SearchBar } from '@/components/SearchBar'
 import { Button } from '@/components/shadcn/button'
 import ClockGray from '@/public/icons/clock_gray.svg'
 import Memory from '@/public/icons/memory.svg'
