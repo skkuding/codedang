@@ -31,7 +31,7 @@ export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
             <IoFilter className="text-color-cool-neutral-30 mr-2 h-5 w-5" />
             State
           </Button>
-          <SearchBar className="h-[46px] w-60" />
+          <SearchBar className="w-60" sizeVariant="lg" />
           <Button
             asChild
             className="text-body1_m_16 bg-primary h-[46px] shrink-0 whitespace-nowrap rounded-full px-5 py-2.5"

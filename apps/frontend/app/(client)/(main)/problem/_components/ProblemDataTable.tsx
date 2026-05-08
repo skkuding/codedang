@@ -71,7 +71,7 @@ export function ProblemDataTable<TData extends Item, TValue>({
             <IoFilter className="text-color-cool-neutral-30 mr-2 h-5 w-5" />
             State
           </Button>
-          <SearchBar className="w-60" />
+          <SearchBar className="w-60" sizeVariant="lg" />
         </div>
       </div>
       <div className="bg-background border-line mb-10 mt-5 w-full overflow-hidden rounded-[20px] border">
