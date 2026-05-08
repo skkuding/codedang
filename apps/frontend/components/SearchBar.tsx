@@ -7,7 +7,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-interface URLSearchBarProps {
+interface SearchBarProps {
   placeholder?: string
   containerClassName?: string
   className?: string
@@ -21,12 +21,12 @@ interface Inputs {
 const buildUrl = (pathname: string, params: URLSearchParams): Route =>
   `${pathname}${params.size ? `?${params}` : ''}` as Route
 
-export function URLSearchBar({
+export function SearchBar({
   placeholder = 'Search',
   containerClassName,
   className,
   sizeVariant = 'sm'
-}: URLSearchBarProps) {
+}: SearchBarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()

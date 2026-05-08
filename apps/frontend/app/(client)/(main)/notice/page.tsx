@@ -1,5 +1,5 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { URLSearchBar } from '@/components/URLSearchBar'
+import { SearchBar } from '@/components/SearchBar'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import type { Notice } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
@@ -17,7 +17,7 @@ export default async function Notice(props: NoticeProps) {
   return (
     <>
       <div className="flex w-full justify-end">
-        <URLSearchBar />
+        <SearchBar />
       </div>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense

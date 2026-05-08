@@ -5,7 +5,7 @@ import {
   DataTableFallback,
   DataTablePagination,
   DataTableRoot,
-  RealtimeSearchBar
+  DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
 import { useSuspenseQuery } from '@apollo/client'
@@ -43,7 +43,7 @@ export function GroupTable() {
       </h1>
       <DataTableRoot data={members} columns={createColumns(groupId)}>
         <div className="flex justify-between">
-          <RealtimeSearchBar columndId="name" className="rounded-full" />
+          <DataTableSearchBar columndId="name" className="rounded-full" />
           <DeleteUserButton />
         </div>
         <DataTable />

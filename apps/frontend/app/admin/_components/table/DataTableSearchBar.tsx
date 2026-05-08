@@ -4,7 +4,7 @@ import type { InputProps } from '@/components/shadcn/input'
 import { SearchInput } from '@/components/shadcn/search-input'
 import { useDataTable } from './context'
 
-interface RealtimeSearchBarProps {
+interface DataTableSearchBarProps {
   columndId: string
   placeholder?: string
   containerClassName?: string
@@ -12,13 +12,13 @@ interface RealtimeSearchBarProps {
   sizeVariant?: InputProps['sizeVariant']
 }
 
-export function RealtimeSearchBar({
+export function DataTableSearchBar({
   columndId,
   placeholder = 'Search',
   containerClassName,
   className,
   sizeVariant = 'md'
-}: RealtimeSearchBarProps) {
+}: DataTableSearchBarProps) {
   const { table } = useDataTable()
 
   const filterValue = table.getColumn(columndId)?.getFilterValue()

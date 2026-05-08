@@ -1,6 +1,6 @@
 'use client'
 
-import { URLSearchBar } from '@/components/URLSearchBar'
+import { SearchBar } from '@/components/SearchBar'
 import {
   Table,
   TableBody,
@@ -109,7 +109,7 @@ export function ContestDataTable<TData extends Item, TValue>({
             options={status.map((item) => ({ value: item, label: item }))}
             resetPageIndex={resetPageIndex}
           />
-          <URLSearchBar sizeVariant="lg" className="w-60" />
+          <SearchBar sizeVariant="lg" className="w-60" />
         </div>
       </div>
       <Table className="table-fixed">

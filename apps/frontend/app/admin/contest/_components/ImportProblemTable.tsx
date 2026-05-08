@@ -10,7 +10,7 @@ import {
   DataTableLangFilter,
   DataTablePagination,
   DataTableRoot,
-  RealtimeSearchBar
+  DataTableSearchBar
 } from '../../_components/table'
 import type { ContestProblem } from '../_libs/schemas'
 import {
@@ -82,7 +82,7 @@ export function ImportProblemTable({
       <ImportProblemDescription />
       <div className="mx-[1px] flex justify-between">
         <div className="flex gap-[8px]">
-          <RealtimeSearchBar
+          <DataTableSearchBar
             columndId="title"
             sizeVariant="sm"
             className="w-[322px]!"

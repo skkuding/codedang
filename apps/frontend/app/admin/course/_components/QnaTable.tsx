@@ -4,7 +4,7 @@ import {
   DataTable,
   DataTablePagination,
   DataTableRoot,
-  RealtimeSearchBar,
+  DataTableSearchBar,
   DataTableFallback
 } from '@/app/admin/_components/table'
 import { Modal } from '@/components/Modal'
@@ -42,7 +42,7 @@ export function QnaTable({ groupId, isExercise = false }: QnaTableProps) {
       columns={columns}
       defaultSortState={[{ id: 'startTime', desc: true }]}
     >
-      <RealtimeSearchBar columndId="title" />
+      <DataTableSearchBar columndId="title" />
       <DataTable
         getHref={undefined}
         onRowClick={(_, row) => {

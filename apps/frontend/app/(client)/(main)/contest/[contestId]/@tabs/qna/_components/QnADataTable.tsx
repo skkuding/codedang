@@ -1,6 +1,6 @@
 'use client'
 
-import { URLSearchBar } from '@/components/URLSearchBar'
+import { SearchBar } from '@/components/SearchBar'
 import {
   Table,
   TableBody,
@@ -115,7 +115,7 @@ export function QnADataTable<TData extends QnAItem, TValue>({
           </p>
         </div>
         <div className="flex h-[46px] items-center items-stretch gap-2.5 self-stretch">
-          <URLSearchBar className="!w-full !max-w-none" sizeVariant="lg" />
+          <SearchBar className="!w-full !max-w-none" sizeVariant="lg" />
           <QnACategoryFilter
             column={table.getColumn('category')}
             options={options}

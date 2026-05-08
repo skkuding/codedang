@@ -5,7 +5,7 @@ import {
   DataTableFallback,
   DataTablePagination,
   DataTableRoot,
-  RealtimeSearchBar
+  DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { GET_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { useSuspenseQuery } from '@apollo/client'
@@ -36,7 +36,7 @@ export function GradeAssignmentTable({ groupId }: AssignmentTableProps) {
       defaultSortState={[{ id: 'startTime', desc: true }]}
     >
       <div className="flex justify-between gap-2">
-        <RealtimeSearchBar columndId="title" />
+        <DataTableSearchBar columndId="title" />
       </div>
       <DataTable
         getHref={(data) =>

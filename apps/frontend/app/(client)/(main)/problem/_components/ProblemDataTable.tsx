@@ -1,6 +1,6 @@
 'use client'
 
-import { URLSearchBar } from '@/components/URLSearchBar'
+import { SearchBar } from '@/components/SearchBar'
 import {
   Table,
   TableBody,
@@ -70,7 +70,7 @@ export function ProblemDataTable<TData extends Item, TValue>({
           <p className="text-head3_sb_28 text-primary">{total}</p>
         </div>
         <div className="flex items-center justify-start gap-2">
-          <URLSearchBar className="w-60" />
+          <SearchBar className="w-60" />
         </div>
       </div>
       <div className="bg-background border-line mb-10 mt-5 w-full overflow-hidden rounded-[20px] border">

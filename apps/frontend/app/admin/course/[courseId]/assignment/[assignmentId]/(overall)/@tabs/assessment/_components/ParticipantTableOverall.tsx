@@ -3,7 +3,7 @@
 import {
   DataTable,
   DataTableRoot,
-  RealtimeSearchBar
+  DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { Button } from '@/components/shadcn/button'
 import {
@@ -315,7 +315,7 @@ export function ParticipantTableOverall() {
         )}
         enablePagination={false}
       >
-        <RealtimeSearchBar columndId="realName" placeholder="Search Name" />
+        <DataTableSearchBar columndId="realName" placeholder="Search Name" />
         <DataTable />
       </DataTableRoot>
     </div>

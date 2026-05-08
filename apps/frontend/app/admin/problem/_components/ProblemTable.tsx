@@ -10,7 +10,7 @@ import {
   DataTableLevelFilter,
   DataTablePagination,
   DataTableRoot,
-  RealtimeSearchBar
+  DataTableSearchBar
 } from '../../_components/table'
 import { createColumns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
@@ -65,7 +65,7 @@ export function ProblemTable() {
       // defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <div className="flex flex-wrap gap-4">
-        <RealtimeSearchBar columndId="title" sizeVariant="sm" />
+        <DataTableSearchBar columndId="title" sizeVariant="sm" />
         <DataTableLangFilter />
         <DataTableLevelFilter />
         <div className="ml-auto flex gap-2">
