@@ -30,8 +30,6 @@ interface ProblemDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   total: number
-  itemsPerPage: number
-  currentPage: number
   headerStyle: {
     [key: string]: string
   }
@@ -44,8 +42,6 @@ export function ProblemDataTable<TData extends Item, TValue>({
   columns,
   data,
   total,
-  itemsPerPage,
-  currentPage,
   headerStyle,
   search,
   linked = false,

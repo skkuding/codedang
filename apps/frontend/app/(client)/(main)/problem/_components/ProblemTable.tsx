@@ -75,8 +75,6 @@ function ProblemPaginatedTable({
         data={data.data}
         total={data.total}
         columns={columns}
-        itemsPerPage={ITEMS_PER_PAGE}
-        currentPage={currentPage}
         search={search}
         headerStyle={{
           title:
