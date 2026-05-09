@@ -6,6 +6,8 @@ export interface SignUpFormValues {
   passwordConfirm: string
   nickname: string
   job: string
+  university: string
+  major: string
   email: string
   terms: boolean
   privacy: boolean
