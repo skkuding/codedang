@@ -1,13 +1,56 @@
 'use client'
 
-import asteriskGray from '@/public/icons/asterisk-gray.svg'
+import { allMajors } from '@/libs/constants'
+import { cn, safeFetcher } from '@/libs/utils'
+import resetGray from '@/public/icons/reset-gray.svg'
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { searchUniversities } from 'korea-universities'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { FaEye, FaEyeSlash } from 'react-icons/fa6'
+import { FaChevronDown, FaChevronUp, FaEye, FaEyeSlash } from 'react-icons/fa6'
+import { IoSearchOutline } from 'react-icons/io5'
 import { signupSchema } from './signup.schema'
 import type { SignUpFormValues } from './signup.type'
+
+const JOB_OPTIONS = [
+  '고등학생 이하',
+  '대학생',
+  '직장인',
+  '무직',
+  '기타'
+] as const
+
+const NICKNAME_ADJECTIVES = [
+  '신나는',
+  '빠른',
+  '멋진',
+  '귀여운',
+  '용감한',
+  '활발한',
+  '똑똑한',
+  '재미있는',
+  '행복한',
+  '따뜻한',
+  '씩씩한',
+  '유쾌한'
+]
+const NICKNAME_NOUNS = [
+  '청사과',
+  '고양이',
+  '펭귄',
+  '토끼',
+  '고래',
+  '독수리',
+  '호랑이',
+  '다람쥐',
+  '여우',
+  '늑대',
+  '곰',
+  '사자'
+]
+
+const PIN_EXPIRE_SECONDS = 300
 
 interface AgreementCheckboxProps {
   checked: boolean
@@ -74,7 +117,10 @@ export function SignUpPage() {
     handleSubmit,
     watch,
     setValue,
-    formState: { errors, isValid }
+    trigger,
+    setError,
+    clearErrors,
+    formState: { errors, touchedFields }
   } = useForm<SignUpFormValues>({
     resolver: valibotResolver(signupSchema),
     mode: 'onChange',
@@ -86,6 +132,8 @@ export function SignUpPage() {
       passwordConfirm: '',
       nickname: '',
       job: '',
+      university: '',
+      major: '',
       email: '',
       terms: false,
       privacy: false,
@@ -96,9 +144,42 @@ export function SignUpPage() {
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
 
+  // 아이디 중복 확인
+  const [isUserIdAvailable, setIsUserIdAvailable] = useState(false)
+
+  // 닉네임 중복 확인
+  const [isNicknameAvailable, setIsNicknameAvailable] = useState(false)
+  const [nicknameChecked, setNicknameChecked] = useState(false)
+
+  // 이메일 인증
+  const [emailLocal, setEmailLocal] = useState('')
+  const [emailSent, setEmailSent] = useState(false)
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [emailAuthToken, setEmailAuthToken] = useState('')
+  const [verificationCode, setVerificationCode] = useState('')
+  const [pinError, setPinError] = useState('')
+  const [codeExpired, setCodeExpired] = useState(false)
+  const [remaining, setRemaining] = useState(PIN_EXPIRE_SECONDS)
+  const [endTime, setEndTime] = useState(0)
+
+  // 직업 드롭다운
+  const [jobOpen, setJobOpen] = useState(false)
+
+  // 대학교 검색 드롭다운
+  const [universityQuery, setUniversityQuery] = useState('')
+  const [universityOpen, setUniversityOpen] = useState(false)
+
+  // 학과 검색 드롭다운 (성균관대학교만)
+  const [majorQuery, setMajorQuery] = useState('')
+  const [majorOpen, setMajorOpen] = useState(false)
+
   const watchPassword = watch('password')
   const watchPasswordConfirm = watch('passwordConfirm')
   const watchBirth = watch('birth')
+  const watchJob = watch('job')
+  const watchUserId = watch('userId')
+  const watchUniversity = watch('university')
+  const watchNickname = watch('nickname')
 
   const isPasswordMismatch =
     watchPasswordConfirm.length > 0 && watchPassword !== watchPasswordConfirm
@@ -108,40 +189,312 @@ export function SignUpPage() {
     watchPassword === watchPasswordConfirm &&
     !errors.password
 
+  const isSKKU = watchUniversity.startsWith('성균관대학교')
+
   const isAllChecked =
     agreements.terms &&
     agreements.privacy &&
     agreements.minorPrivacy &&
     agreements.marketing
 
+  // 타이머
+  useEffect(() => {
+    if (!emailSent || codeExpired || emailVerified) {
+      return
+    }
+    const id = setInterval(() => {
+      const rem = Math.max(0, Math.round((endTime - Date.now()) / 1000))
+      setRemaining(rem)
+      if (rem === 0) {
+        setCodeExpired(true)
+      }
+    }, 1000)
+    return () => clearInterval(id)
+  }, [emailSent, endTime, codeExpired, emailVerified])
+
+  // 아이디 변경 시 중복 확인 초기화
+  useEffect(() => {
+    setIsUserIdAvailable(false)
+  }, [watchUserId])
+
+  // 닉네임 변경 시 중복 확인 초기화
+  useEffect(() => {
+    setIsNicknameAvailable(false)
+    setNicknameChecked(false)
+  }, [watchNickname])
+
+  // emailLocal 변경 시 form email 동기화
+  useEffect(() => {
+    const fullEmail = isSKKU ? `${emailLocal}@skku.edu` : emailLocal
+    setValue('email', fullEmail, { shouldValidate: emailLocal.length > 0 })
+  }, [emailLocal, isSKKU, setValue])
+
+  // 이메일 변경 시 인증 초기화
+  useEffect(() => {
+    setEmailSent(false)
+    setEmailVerified(false)
+    setVerificationCode('')
+    setPinError('')
+    setCodeExpired(false)
+  }, [emailLocal])
+
+  // 대학교 구분 변경 시 이메일·학과 초기화
+  useEffect(() => {
+    setEmailLocal('')
+    setEmailSent(false)
+    setEmailVerified(false)
+    setVerificationCode('')
+    setPinError('')
+    setCodeExpired(false)
+    setValue('major', '')
+    setMajorQuery('')
+  }, [isSKKU, setValue])
+
+  const formatTimer = () => {
+    const min = Math.floor(remaining / 60)
+    const sec = remaining % 60
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`
+  }
+
+  const sendEmail = async () => {
+    if (!emailLocal) {
+      return
+    }
+    try {
+      const fullEmail = isSKKU ? `${emailLocal}@skku.edu` : emailLocal
+      await safeFetcher.post('email-auth/send-email/register-new', {
+        json: { email: fullEmail }
+      })
+      const now = Date.now()
+      setEndTime(now + PIN_EXPIRE_SECONDS * 1000)
+      setRemaining(PIN_EXPIRE_SECONDS)
+      setEmailSent(true)
+      setCodeExpired(false)
+      setEmailVerified(false)
+      setVerificationCode('')
+      setPinError('')
+    } catch {
+      setError('email', {
+        message: '이메일 전송에 실패했습니다. 다시 시도해주세요.'
+      })
+    }
+  }
+
+  const verifyPin = async (code: string) => {
+    if (code.length !== 6) {
+      return
+    }
+    try {
+      const response = await safeFetcher.post('email-auth/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          pin: code,
+          email: isSKKU ? `${emailLocal}@skku.edu` : emailLocal
+        })
+      })
+      if (response.status === 201) {
+        setEmailVerified(true)
+        setEmailAuthToken(response.headers.get('email-auth') || '')
+        setPinError('')
+      } else {
+        setPinError('인증 코드가 올바르지 않습니다.')
+        setEmailVerified(false)
+      }
+    } catch {
+      setPinError('인증 코드가 올바르지 않습니다.')
+      setEmailVerified(false)
+    }
+  }
+
+  const checkUserId = async () => {
+    const valid = await trigger('userId')
+    if (!valid) {
+      return
+    }
+    try {
+      await safeFetcher.get(`user/username-check?username=${watchUserId}`)
+      clearErrors('userId')
+      setIsUserIdAvailable(true)
+    } catch {
+      setError('userId', { message: '중복된 아이디입니다.' })
+      setIsUserIdAvailable(false)
+    }
+  }
+
+  const generateNickname = () => {
+    const adj =
+      NICKNAME_ADJECTIVES[
+        Math.floor(Math.random() * NICKNAME_ADJECTIVES.length)
+      ]
+    const noun =
+      NICKNAME_NOUNS[Math.floor(Math.random() * NICKNAME_NOUNS.length)]
+    setValue('nickname', `${adj} ${noun}`, { shouldValidate: true })
+  }
+
+  const checkNickname = async () => {
+    if (!watchNickname) {
+      return
+    }
+    try {
+      await safeFetcher.get(
+        `user/nickname-check?nickname=${encodeURIComponent(watchNickname)}`
+      )
+      setIsNicknameAvailable(true)
+      setNicknameChecked(true)
+    } catch {
+      setIsNicknameAvailable(false)
+      setNicknameChecked(true)
+    }
+  }
+
   const handleAllAgreementChange = (checked: boolean) => {
-    const nextAgreements = {
+    const next = {
       terms: checked,
       privacy: checked,
       minorPrivacy: checked,
       marketing: checked
     }
-
-    setAgreements(nextAgreements)
-    setValue('terms', checked, { shouldValidate: true })
-    setValue('privacy', checked, { shouldValidate: true })
-    setValue('minorPrivacy', checked, { shouldValidate: true })
-    setValue('marketing', checked, { shouldValidate: true })
+    setAgreements(next)
+    setValue('terms', checked)
+    setValue('privacy', checked)
+    setValue('minorPrivacy', checked)
+    setValue('marketing', checked)
   }
 
   const handleAgreementChange = (
     key: 'terms' | 'privacy' | 'minorPrivacy' | 'marketing',
     checked: boolean
   ) => {
-    setAgreements((prev) => ({
-      ...prev,
-      [key]: checked
-    }))
-
-    setValue(key, checked, { shouldValidate: true })
+    setAgreements((prev) => ({ ...prev, [key]: checked }))
+    setValue(key, checked)
   }
 
-  const onSubmit = async (_data: SignUpFormValues) => {}
+  const filteredUniversities =
+    universityQuery.length > 0 ? searchUniversities(universityQuery) : []
+
+  const filteredMajors =
+    majorQuery.length > 0
+      ? allMajors.filter((m) =>
+          m.toLowerCase().includes(majorQuery.toLowerCase())
+        )
+      : []
+
+  const getKoreanMajorName = (major: string) =>
+    major
+      .split(/\s*\/\s*/)
+      .at(-1)
+      ?.trim() ?? major
+
+  const CAMPUS_OVERRIDES: Record<string, Record<string, string>> = {
+    성균관대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '수원캠퍼스' },
+    연세대학교: { 제1캠퍼스: '신촌캠퍼스', 제2캠퍼스: '국제캠퍼스' },
+    경희대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '국제캠퍼스' },
+    중앙대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '안성캠퍼스' },
+    한국외국어대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '글로벌캠퍼스' },
+    단국대학교: { 제1캠퍼스: '죽전캠퍼스', 제2캠퍼스: '천안캠퍼스' },
+    부산대학교: {
+      제1캠퍼스: '부산캠퍼스',
+      제2캠퍼스: '밀양캠퍼스',
+      제3캠퍼스: '양산캠퍼스'
+    },
+    강원대학교: { 제1캠퍼스: '춘천캠퍼스', 제2캠퍼스: '삼척캠퍼스' }
+  }
+
+  const REGION_SHORT: Record<string, string> = {
+    서울특별시: '서울',
+    경기도: '경기',
+    인천광역시: '인천',
+    부산광역시: '부산',
+    대구광역시: '대구',
+    광주광역시: '광주',
+    대전광역시: '대전',
+    울산광역시: '울산',
+    세종특별자치시: '세종',
+    강원특별자치도: '강원',
+    충청북도: '충북',
+    충청남도: '충남',
+    전라남도: '전남',
+    전북특별자치도: '전북',
+    경상북도: '경북',
+    경상남도: '경남',
+    제주특별자치도: '제주'
+  }
+
+  const getUniversityDisplayName = (
+    uni: (typeof filteredUniversities)[number]
+  ) => {
+    const hasDuplicate =
+      filteredUniversities.filter((u) => u.nameKr === uni.nameKr).length > 1
+    if (!hasDuplicate) {
+      return uni.nameKr
+    }
+
+    const override = CAMPUS_OVERRIDES[uni.nameKr]?.[uni.campus ?? '']
+    if (override) {
+      return `${uni.nameKr} ${override}`
+    }
+
+    const sameRegion =
+      filteredUniversities.filter(
+        (u) => u.nameKr === uni.nameKr && u.region === uni.region
+      ).length > 1
+    if (sameRegion) {
+      return `${uni.nameKr} ${uni.campus}`
+    }
+
+    const short = REGION_SHORT[uni.region] ?? uni.region
+    return `${uni.nameKr} ${short}캠퍼스`
+  }
+
+  const canSubmit =
+    isUserIdAvailable &&
+    emailVerified &&
+    agreements.terms &&
+    agreements.privacy &&
+    agreements.minorPrivacy
+
+  const getUserIdBorderClass = () => {
+    if (errors.userId) {
+      return 'border-error focus:border-error'
+    }
+    if (isUserIdAvailable) {
+      return 'border-[#3581FA] focus:border-[#3581FA]'
+    }
+    return 'focus:border-primary border-[#D8D8D8]'
+  }
+
+  const getEmailBorderClass = () => {
+    if (errors.email) {
+      return 'border-error focus:border-error'
+    }
+    if (emailVerified) {
+      return 'border-[#3581FA] focus:border-[#3581FA]'
+    }
+    return 'focus:border-primary border-[#D8D8D8]'
+  }
+
+  const onSubmit = async (data: SignUpFormValues) => {
+    if (!canSubmit) {
+      return
+    }
+    try {
+      await safeFetcher.post('user/sign-up', {
+        headers: { 'email-auth': emailAuthToken },
+        json: {
+          username: data.userId,
+          password: data.password,
+          email: data.email,
+          realName: data.name,
+          college: data.university || undefined,
+          major: data.major || undefined
+        }
+      })
+    } catch {
+      // handle error
+    }
+  }
 
   return (
     <form
@@ -153,16 +506,18 @@ export function SignUpPage() {
           <p className="text-head5_sb_24">회원가입</p>
 
           <div className="flex w-full flex-col gap-6">
+            {/* 이름 */}
             <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">이름</label>
               <input
                 type="text"
                 placeholder="이름"
-                className={`placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4] ${
+                className={cn(
+                  'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
                   errors.name
                     ? 'border-error focus:border-error'
                     : 'focus:border-primary border-[#D8D8D8]'
-                }`}
+                )}
                 {...register('name')}
               />
               {errors.name?.message && (
@@ -172,17 +527,19 @@ export function SignUpPage() {
               )}
             </div>
 
+            {/* 생년월일 */}
             <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">생년월일 6자리</label>
               <input
                 type="text"
                 placeholder="YYMMDD"
                 maxLength={6}
-                className={`placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4] ${
+                className={cn(
+                  'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
                   errors.birth
                     ? 'border-error focus:border-error'
                     : 'focus:border-primary border-[#D8D8D8]'
-                }`}
+                )}
                 {...register('birth')}
               />
               {watchBirth && errors.birth?.message && (
@@ -192,38 +549,62 @@ export function SignUpPage() {
               )}
             </div>
 
+            {/* 아이디 + 중복 확인 */}
             <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">아이디</label>
-              <input
-                type="text"
-                placeholder="아이디"
-                className={`placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4] ${
-                  errors.userId
-                    ? 'border-error focus:border-error'
-                    : 'focus:border-primary border-[#D8D8D8]'
-                }`}
-                {...register('userId')}
-              />
+              <div className="flex gap-[6px]">
+                <input
+                  type="text"
+                  placeholder="아이디"
+                  className={cn(
+                    'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
+                    getUserIdBorderClass()
+                  )}
+                  {...register('userId')}
+                />
+                <button
+                  type="button"
+                  onClick={checkUserId}
+                  disabled={!watchUserId || watchUserId.length < 3}
+                  className="text-sub3_sb_16 border-primary text-primary h-[46px] shrink-0 rounded-[12px] border px-4 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  중복 확인
+                </button>
+              </div>
               {errors.userId?.message && (
                 <p className="text-caption3_r_13 text-[#FF3B2F]">
                   {errors.userId.message}
                 </p>
               )}
+              {!errors.userId &&
+                touchedFields.userId &&
+                !isUserIdAvailable &&
+                watchUserId.length >= 3 && (
+                  <p className="text-caption3_r_13 text-[#FF3B2F]">
+                    아이디 중복 확인을 해주세요.
+                  </p>
+                )}
+              {!errors.userId && isUserIdAvailable && (
+                <p className="text-caption4_r_12 text-primary">
+                  사용 가능한 아이디입니다.
+                </p>
+              )}
             </div>
 
+            {/* 비밀번호 */}
             <div className="flex w-full flex-col gap-2">
               <label className="text-caption2_m_12">비밀번호</label>
-
               <div className="flex w-full flex-col gap-[6px]">
                 <div className="relative">
                   <input
                     type={isPasswordVisible ? 'text' : 'password'}
-                    placeholder="영문자, 숫자, 특수문자 포함 8-20자"
-                    className={`placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4] ${
+                    placeholder="대문자, 소문자, 숫자 중 2종류 이상 포함 8-20자"
+                    className={cn(
+                      'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
                       errors.password
                         ? 'border-error focus:border-error'
                         : 'focus:border-primary border-[#D8D8D8]'
-                    }`}
+                    )}
                     {...register('password')}
                   />
                   <VisibleButton
@@ -236,16 +617,16 @@ export function SignUpPage() {
                     {errors.password.message}
                   </p>
                 )}
-
                 <div className="relative">
                   <input
                     type={isPasswordVisible ? 'text' : 'password'}
                     placeholder="비밀번호 확인"
-                    className={`placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4] ${
+                    className={cn(
+                      'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
                       isPasswordMismatch
                         ? 'border-error focus:border-error'
                         : 'focus:border-primary border-[#D8D8D8]'
-                    }`}
+                    )}
                     {...register('passwordConfirm')}
                   />
                   <VisibleButton
@@ -258,72 +639,381 @@ export function SignUpPage() {
                     비밀번호가 일치하지 않습니다.
                   </p>
                 )}
-
                 {isPasswordAvailable && (
                   <p className="text-caption3_r_13 text-[#3581FA]">
-                    사용할 수 있는 비밀번호입니다.
+                    사용 가능한 비밀번호입니다.
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="flex w-full flex-col gap-[9px]">
-              <div className="flex w-full flex-col gap-1">
-                <label className="text-caption2_m_12">닉네임</label>
-                <input
-                  type="text"
-                  placeholder="신나는 청사과"
-                  className="placeholder:text-body1_m_16 focus:border-primary h-[46px] w-full rounded-[12px] border border-[#D8D8D8] bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]"
-                  {...register('nickname')}
-                />
+            {/* 닉네임 */}
+            <div className="flex w-full flex-col gap-1">
+              <label className="text-caption2_m_12">닉네임</label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    placeholder="신나는 청사과"
+                    className="placeholder:text-body1_m_16 focus:border-primary h-[46px] w-full rounded-[12px] border border-[#D8D8D8] bg-white px-5 py-[11px] pr-11 outline-none placeholder:text-[#C4C4C4]"
+                    {...register('nickname')}
+                  />
+                  <button
+                    type="button"
+                    onClick={generateNickname}
+                    className="absolute inset-y-0 right-3 flex items-center text-[#909799] hover:text-[#3581FA]"
+                    aria-label="닉네임 자동 생성"
+                  >
+                    <Image
+                      src={resetGray}
+                      alt="닉네임 재생성"
+                      width={20}
+                      height={20}
+                    />
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={checkNickname}
+                  disabled={!watchNickname}
+                  className="text-sub3_sb_16 h-[46px] shrink-0 rounded-[12px] border border-[#619CFB] px-4 text-[#3581FA] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  중복 확인
+                </button>
               </div>
-
-              <div className="flex items-center gap-1">
-                <Image
-                  src={asteriskGray}
-                  alt=""
-                  width={12}
-                  height={12}
-                  className="shrink-0"
-                />
-                <p className="text-caption3_r_13 text-[#909799]">
-                  닉네임 미입력시, 코드당이 자동으로 닉네임을 추천해드려요!
+              {nicknameChecked && isNicknameAvailable && (
+                <p className="text-caption3_r_13 text-[#3581FA]">
+                  사용 가능한 닉네임입니다.
                 </p>
-              </div>
+              )}
+              {nicknameChecked && !isNicknameAvailable && (
+                <p className="text-caption3_r_13 text-[#FF3B2F]">
+                  이미 사용 중인 닉네임입니다.
+                </p>
+              )}
             </div>
 
-            {/* <div className="flex w-full flex-col gap-1">
+            {/* 직업 드롭다운 */}
+            <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">직업</label>
-              <input
-                type="text"
-                placeholder="직업"
-                className="placeholder:text-body1_m_16 focus:border-primary h-[46px] w-full rounded-[12px] border border-[#D8D8D8] bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]"
-                {...register('job')}
-              />
-              {errors.job && (
-                <p className="text-caption3_r_13 text-red-500">
+              <div
+                className="relative"
+                onBlur={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                    setJobOpen(false)
+                  }
+                }}
+                tabIndex={-1}
+              >
+                <button
+                  type="button"
+                  onClick={() => setJobOpen((prev) => !prev)}
+                  className={cn(
+                    'placeholder:text-body1_m_16 flex h-[46px] w-full items-center justify-between rounded-[12px] border bg-white px-5 py-[11px] outline-none',
+                    errors.job
+                      ? 'border-error'
+                      : 'focus:border-primary border-[#D8D8D8]'
+                  )}
+                >
+                  <span className={watchJob ? 'text-black' : 'text-[#C4C4C4]'}>
+                    {watchJob || '직업'}
+                  </span>
+                  {jobOpen ? (
+                    <FaChevronUp className="text-[#909799]" size={14} />
+                  ) : (
+                    <FaChevronDown className="text-[#909799]" size={14} />
+                  )}
+                </button>
+                {jobOpen && (
+                  <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-[12px] border border-[#D8D8D8] bg-white shadow-md">
+                    {JOB_OPTIONS.map((option) => (
+                      <li
+                        key={option}
+                        tabIndex={0}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => {
+                          setValue('job', option, { shouldValidate: true })
+                          if (option !== '대학생') {
+                            setValue('university', '')
+                            setValue('major', '')
+                            setUniversityQuery('')
+                          }
+                          setJobOpen(false)
+                        }}
+                        className={cn(
+                          'text-body1_m_16 cursor-pointer px-5 py-[13px] hover:bg-[#F5F5F5]',
+                          watchJob === option && 'bg-[#F0F5FF]'
+                        )}
+                      >
+                        {option}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              {errors.job?.message && (
+                <p className="text-caption3_r_13 text-[#FF3B2F]">
                   {errors.job.message}
                 </p>
               )}
-            </div> */}
+            </div>
 
-            <div className="flex w-full flex-col gap-1">
+            {/* 대학교 & 학과 (직업이 대학생일 때만) */}
+            {watchJob === '대학생' && (
+              <div className="flex w-full flex-col gap-3">
+                {/* 대학교 검색 */}
+                <div className="flex w-full flex-col gap-1">
+                  <label className="text-caption2_m_12">대학교</label>
+                  <div
+                    className="relative"
+                    onBlur={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                        setUniversityOpen(false)
+                      }
+                    }}
+                    tabIndex={-1}
+                  >
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="대학교 검색"
+                        value={universityQuery}
+                        onChange={(e) => {
+                          setUniversityQuery(e.target.value)
+                          setUniversityOpen(true)
+                          if (watchUniversity) {
+                            setValue('university', '', { shouldValidate: true })
+                          }
+                        }}
+                        onFocus={() => setUniversityOpen(true)}
+                        className="placeholder:text-body1_m_16 focus:border-primary h-[46px] w-full rounded-[12px] border border-[#D8D8D8] bg-white px-5 py-[11px] pr-11 outline-none placeholder:text-[#C4C4C4]"
+                      />
+                      <IoSearchOutline
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#909799]"
+                        size={18}
+                      />
+                    </div>
+                    {universityOpen && universityQuery.length > 0 && (
+                      <ul className="absolute z-10 mt-1 max-h-[200px] w-full overflow-y-auto rounded-[12px] border border-[#D8D8D8] bg-white shadow-md">
+                        {filteredUniversities.length > 0 ? (
+                          filteredUniversities.map((uni) => {
+                            const displayName = getUniversityDisplayName(uni)
+                            return (
+                              <li
+                                key={uni.id}
+                                tabIndex={0}
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => {
+                                  setValue('university', displayName, {
+                                    shouldValidate: true
+                                  })
+                                  setUniversityQuery(displayName)
+                                  setUniversityOpen(false)
+                                }}
+                                className={cn(
+                                  'text-body1_m_16 cursor-pointer px-5 py-[13px] hover:bg-[#F5F5F5]',
+                                  watchUniversity === displayName &&
+                                    'bg-[#F0F5FF]'
+                                )}
+                              >
+                                {displayName}
+                              </li>
+                            )
+                          })
+                        ) : (
+                          <li className="text-body1_m_16 px-5 py-[13px] text-[#909799]">
+                            검색 결과가 없습니다.
+                          </li>
+                        )}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+
+                {/* 학과 (성균관대학교만) */}
+                {isSKKU && (
+                  <div className="flex w-full flex-col gap-1">
+                    <label className="text-caption2_m_12">학과</label>
+                    <div
+                      className="relative"
+                      onBlur={(e) => {
+                        if (
+                          !e.currentTarget.contains(e.relatedTarget as Node)
+                        ) {
+                          setMajorOpen(false)
+                        }
+                      }}
+                      tabIndex={-1}
+                    >
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="학과 검색"
+                          value={majorQuery}
+                          onChange={(e) => {
+                            setMajorQuery(e.target.value)
+                            setMajorOpen(true)
+                            setValue('major', '', { shouldValidate: true })
+                          }}
+                          onFocus={() => setMajorOpen(true)}
+                          className="placeholder:text-body1_m_16 focus:border-primary h-[46px] w-full rounded-[12px] border border-[#D8D8D8] bg-white px-5 py-[11px] pr-11 outline-none placeholder:text-[#C4C4C4]"
+                        />
+                        <IoSearchOutline
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#909799]"
+                          size={18}
+                        />
+                      </div>
+                      {majorOpen && majorQuery.length > 0 && (
+                        <ul className="absolute z-10 mt-1 max-h-[200px] w-full overflow-y-auto rounded-[12px] border border-[#D8D8D8] bg-white shadow-md">
+                          {filteredMajors.length > 0 ? (
+                            filteredMajors.map((major) => {
+                              const displayName = getKoreanMajorName(major)
+                              return (
+                                <li
+                                  key={major}
+                                  tabIndex={0}
+                                  onMouseDown={(e) => e.preventDefault()}
+                                  onClick={() => {
+                                    setValue('major', displayName, {
+                                      shouldValidate: true
+                                    })
+                                    setMajorQuery(displayName)
+                                    setMajorOpen(false)
+                                  }}
+                                  className={cn(
+                                    'text-body1_m_16 cursor-pointer px-5 py-[13px] hover:bg-[#F5F5F5]',
+                                    majorQuery === displayName && 'bg-[#F0F5FF]'
+                                  )}
+                                >
+                                  {displayName}
+                                </li>
+                              )
+                            })
+                          ) : (
+                            <li className="text-body1_m_16 px-5 py-[13px] text-[#909799]">
+                              검색 결과가 없습니다.
+                            </li>
+                          )}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 이메일 + 인증 */}
+            <div className="flex w-full flex-col gap-[6px]">
               <label className="text-caption2_m_12">이메일</label>
-              <input
-                type="text"
-                placeholder="codedang@codedang.com"
-                className="placeholder:text-body1_m_16 focus:border-primary h-[46px] w-full rounded-[12px] border border-[#D8D8D8] bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]"
-                {...register('email')}
-              />
+              <div className="flex gap-[6px]">
+                {isSKKU ? (
+                  <div
+                    className={cn(
+                      'flex h-[46px] flex-1 items-center gap-1 rounded-[12px] border bg-white px-5',
+                      getEmailBorderClass()
+                    )}
+                  >
+                    <input
+                      type="text"
+                      placeholder="codedang"
+                      value={emailLocal}
+                      onChange={(e) => setEmailLocal(e.target.value)}
+                      disabled={emailVerified}
+                      className="placeholder:text-body1_m_16 min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#C4C4C4]"
+                    />
+                    <span className="text-body1_m_16 shrink-0 text-[#555]">
+                      @skku.edu
+                    </span>
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    placeholder="이메일을 입력해주세요"
+                    value={emailLocal}
+                    onChange={(e) => setEmailLocal(e.target.value)}
+                    disabled={emailVerified}
+                    className={cn(
+                      'placeholder:text-body1_m_16 h-[46px] flex-1 rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
+                      getEmailBorderClass()
+                    )}
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={sendEmail}
+                  disabled={!emailLocal || emailVerified}
+                  className="text-sub3_sb_16 border-primary text-primary h-[46px] shrink-0 rounded-[12px] border px-4 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {emailSent && !codeExpired && !emailVerified
+                    ? '재발송'
+                    : '인증 하기'}
+                </button>
+              </div>
               {errors.email?.message && (
                 <p className="text-caption3_r_13 text-[#FF3B2F]">
                   {errors.email.message}
                 </p>
               )}
+              {emailVerified && (
+                <p className="text-caption3_r_13 text-[#3581FA]">
+                  이메일 인증이 완료되었습니다.
+                </p>
+              )}
+
+              {/* PIN 입력 */}
+              {emailSent && !emailVerified && (
+                <div className="mt-1 flex gap-[6px]">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      placeholder="인증 코드 6자리"
+                      value={verificationCode}
+                      onChange={(e) => {
+                        const val = e.target.value
+                          .replace(/\D/g, '')
+                          .slice(0, 6)
+                        setVerificationCode(val)
+                        setPinError('')
+                      }}
+                      disabled={codeExpired}
+                      className={cn(
+                        'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-20 outline-none placeholder:text-[#C4C4C4]',
+                        pinError || codeExpired
+                          ? 'border-error focus:border-error'
+                          : 'focus:border-primary border-[#D8D8D8]'
+                      )}
+                    />
+                    {!codeExpired && (
+                      <span className="text-caption3_r_13 absolute right-4 top-1/2 -translate-y-1/2 text-[#FF3B2F]">
+                        {formatTimer()}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => verifyPin(verificationCode)}
+                    disabled={verificationCode.length !== 6 || codeExpired}
+                    className="text-caption2_m_12 h-[46px] shrink-0 rounded-[12px] bg-[#3581FA] px-4 text-white disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    인증 확인
+                  </button>
+                </div>
+              )}
+              {codeExpired && (
+                <p className="text-caption3_r_13 text-[#FF3B2F]">
+                  인증 코드가 만료되었습니다. 재발송 버튼을 눌러주세요.
+                </p>
+              )}
+              {pinError && (
+                <p className="text-caption3_r_13 text-[#FF3B2F]">{pinError}</p>
+              )}
             </div>
           </div>
         </div>
 
+        {/* 약관 동의 */}
         <div className="flex w-full flex-col gap-12">
           <div className="flex w-full flex-col gap-[10px]">
             <AgreementCheckbox
@@ -370,8 +1060,13 @@ export function SignUpPage() {
 
           <button
             type="submit"
-            disabled={!isValid}
-            className="text-sub3_sb_16 flex h-[52px] w-full items-center justify-center rounded-[12px] bg-[#E5E5E5] text-[#9B9B9B] disabled:cursor-not-allowed"
+            disabled={!canSubmit}
+            className={cn(
+              'text-sub3_sb_16 flex h-[52px] w-full items-center justify-center rounded-[12px] transition-colors',
+              canSubmit
+                ? 'bg-[#3581FA] text-white hover:bg-[#2a6bd5]'
+                : 'cursor-not-allowed bg-[#E5E5E5] text-[#9B9B9B]'
+            )}
           >
             가입하기
           </button>

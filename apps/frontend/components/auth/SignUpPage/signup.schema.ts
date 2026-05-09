@@ -22,11 +22,11 @@ export const signupSchema = v.pipe(
 
     password: v.pipe(
       v.string(),
-      v.minLength(8, '비밀번호는 8자 이상이어야 합니다.'),
-      v.maxLength(20, '비밀번호는 20자 이하여야 합니다.'),
+      v.minLength(8, '영문자, 숫자, 특수문자 포함 8-20자를 입력해주세요.'),
+      v.maxLength(20, '영문자, 숫자, 특수문자 포함 8-20자를 입력해주세요.'),
       v.regex(
-        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).*$/,
-        '비밀번호는 영문자, 숫자, 특수문자를 포함해야 합니다.'
+        /^(?=.*[a-z])(?=.*[A-Z])|(?=.*[a-z])(?=.*\d)|(?=.*[A-Z])(?=.*\d)/,
+        '영문자, 숫자, 특수문자 포함 8-20자를 입력해주세요.'
       )
     ),
 
@@ -37,13 +37,22 @@ export const signupSchema = v.pipe(
 
     nickname: v.string(),
 
-    job: v.pipe(v.string(), v.minLength(1, '직업을 입력해주세요.')),
+    job: v.pipe(v.string(), v.minLength(1, '직업을 선택해주세요.')),
+
+    university: v.string(),
+
+    major: v.string(),
 
     email: v.pipe(
       v.string(),
       v.minLength(1, '이메일을 입력해주세요.'),
       v.email('올바른 이메일 형식이 아닙니다.')
-    )
+    ),
+
+    terms: v.boolean(),
+    privacy: v.boolean(),
+    minorPrivacy: v.boolean(),
+    marketing: v.boolean()
   }),
   v.forward(
     v.check(
