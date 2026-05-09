@@ -1,6 +1,6 @@
 'use client'
 
-import { SearchBar } from '@/app/(client)/(main)/_components/SearchBar'
+import { SearchBar } from '@/components/SearchBar'
 import {
   Table,
   TableBody,

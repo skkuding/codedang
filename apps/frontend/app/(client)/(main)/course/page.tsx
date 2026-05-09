@@ -37,7 +37,7 @@ export default async function Course() {
             <p>나의 강좌를 살펴보려면</p>
             <p>코드당 로그인을 진행해주세요</p>
           </div>
-          <LoginButton className="text-sub4_sb_14 flex h-10 w-[106px] items-center justify-center" />
+          <LoginButton className="text-sub4_sb_14 flex h-10 w-[106px] items-center justify-center rounded-lg" />
         </div>
         <span className="text-head3_sb_28 mt-15 mb-6">나의 대시보드</span>
         <div className="border-line flex w-full flex-col items-center justify-center gap-4 rounded-[12px] border bg-white py-20">
@@ -45,7 +45,7 @@ export default async function Course() {
             <p>나의 대시보드를 살펴보려면</p>
             <p>코드당 로그인을 진행해주세요</p>
           </div>
-          <LoginButton className="text-sub4_sb_14 flex h-10 w-[106px] items-center justify-center" />
+          <LoginButton className="text-sub4_sb_14 flex h-10 w-[106px] items-center justify-center rounded-lg" />
         </div>
         <div className="py-5" />
         <div className="h-[100px]" />
@@ -74,8 +74,6 @@ export default async function Course() {
           </div>
         </div>
       </div>
-
-      <CourseSubBanner />
       <div className="h-[100px]" />
     </>
   )
