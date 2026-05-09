@@ -8,6 +8,7 @@ export interface SignUpFormValues {
   job: string
   university: string
   major: string
+  studentId: string
   email: string
   terms: boolean
   privacy: boolean

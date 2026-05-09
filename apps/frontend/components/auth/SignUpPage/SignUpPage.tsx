@@ -134,6 +134,7 @@ export function SignUpPage() {
       job: '',
       university: '',
       major: '',
+      studentId: '',
       email: '',
       terms: false,
       privacy: false,
@@ -143,15 +144,9 @@ export function SignUpPage() {
   })
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
-
-  // 아이디 중복 확인
   const [isUserIdAvailable, setIsUserIdAvailable] = useState(false)
-
-  // 닉네임 중복 확인
   const [isNicknameAvailable, setIsNicknameAvailable] = useState(false)
   const [nicknameChecked, setNicknameChecked] = useState(false)
-
-  // 이메일 인증
   const [emailLocal, setEmailLocal] = useState('')
   const [emailSent, setEmailSent] = useState(false)
   const [emailVerified, setEmailVerified] = useState(false)
@@ -161,15 +156,9 @@ export function SignUpPage() {
   const [codeExpired, setCodeExpired] = useState(false)
   const [remaining, setRemaining] = useState(PIN_EXPIRE_SECONDS)
   const [endTime, setEndTime] = useState(0)
-
-  // 직업 드롭다운
   const [jobOpen, setJobOpen] = useState(false)
-
-  // 대학교 검색 드롭다운
   const [universityQuery, setUniversityQuery] = useState('')
   const [universityOpen, setUniversityOpen] = useState(false)
-
-  // 학과 검색 드롭다운 (성균관대학교만)
   const [majorQuery, setMajorQuery] = useState('')
   const [majorOpen, setMajorOpen] = useState(false)
 
@@ -197,7 +186,6 @@ export function SignUpPage() {
     agreements.minorPrivacy &&
     agreements.marketing
 
-  // 타이머
   useEffect(() => {
     if (!emailSent || codeExpired || emailVerified) {
       return
@@ -212,24 +200,20 @@ export function SignUpPage() {
     return () => clearInterval(id)
   }, [emailSent, endTime, codeExpired, emailVerified])
 
-  // 아이디 변경 시 중복 확인 초기화
   useEffect(() => {
     setIsUserIdAvailable(false)
   }, [watchUserId])
 
-  // 닉네임 변경 시 중복 확인 초기화
   useEffect(() => {
     setIsNicknameAvailable(false)
     setNicknameChecked(false)
   }, [watchNickname])
 
-  // emailLocal 변경 시 form email 동기화
   useEffect(() => {
     const fullEmail = isSKKU ? `${emailLocal}@skku.edu` : emailLocal
     setValue('email', fullEmail, { shouldValidate: emailLocal.length > 0 })
   }, [emailLocal, isSKKU, setValue])
 
-  // 이메일 변경 시 인증 초기화
   useEffect(() => {
     setEmailSent(false)
     setEmailVerified(false)
@@ -238,7 +222,6 @@ export function SignUpPage() {
     setCodeExpired(false)
   }, [emailLocal])
 
-  // 대학교 구분 변경 시 이메일·학과 초기화
   useEffect(() => {
     setEmailLocal('')
     setEmailSent(false)
@@ -248,6 +231,7 @@ export function SignUpPage() {
     setCodeExpired(false)
     setValue('major', '')
     setMajorQuery('')
+    setValue('studentId', '')
   }, [isSKKU, setValue])
 
   const formatTimer = () => {
@@ -299,11 +283,11 @@ export function SignUpPage() {
         setEmailAuthToken(response.headers.get('email-auth') || '')
         setPinError('')
       } else {
-        setPinError('인증 코드가 올바르지 않습니다.')
+        setPinError('인증 번호가 일치하지 않습니다.')
         setEmailVerified(false)
       }
     } catch {
-      setPinError('인증 코드가 올바르지 않습니다.')
+      setPinError('인증 번호가 일치하지 않습니다.')
       setEmailVerified(false)
     }
   }
@@ -479,6 +463,14 @@ export function SignUpPage() {
     if (!canSubmit) {
       return
     }
+    if (data.job === '대학생' && !data.university) {
+      setError('university', { message: '대학교를 선택해주세요.' })
+      return
+    }
+    if (isSKKU && !data.major) {
+      setError('major', { message: '소속 학과를 선택해주세요.' })
+      return
+    }
     try {
       await safeFetcher.post('user/sign-up', {
         headers: { 'email-auth': emailAuthToken },
@@ -488,11 +480,12 @@ export function SignUpPage() {
           email: data.email,
           realName: data.name,
           college: data.university || undefined,
-          major: data.major || undefined
+          major: data.major || undefined,
+          studentId: data.studentId || undefined
         }
       })
     } catch {
-      // handle error
+      /* empty */
     }
   }
 
@@ -506,7 +499,6 @@ export function SignUpPage() {
           <p className="text-head5_sb_24">회원가입</p>
 
           <div className="flex w-full flex-col gap-6">
-            {/* 이름 */}
             <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">이름</label>
               <input
@@ -527,7 +519,6 @@ export function SignUpPage() {
               )}
             </div>
 
-            {/* 생년월일 */}
             <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">생년월일 6자리</label>
               <input
@@ -549,7 +540,6 @@ export function SignUpPage() {
               )}
             </div>
 
-            {/* 아이디 + 중복 확인 */}
             <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">아이디</label>
               <div className="flex gap-[6px]">
@@ -591,7 +581,6 @@ export function SignUpPage() {
               )}
             </div>
 
-            {/* 비밀번호 */}
             <div className="flex w-full flex-col gap-2">
               <label className="text-caption2_m_12">비밀번호</label>
               <div className="flex w-full flex-col gap-[6px]">
@@ -647,7 +636,6 @@ export function SignUpPage() {
               </div>
             </div>
 
-            {/* 닉네임 */}
             <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">닉네임</label>
               <div className="flex gap-2">
@@ -688,12 +676,11 @@ export function SignUpPage() {
               )}
               {nicknameChecked && !isNicknameAvailable && (
                 <p className="text-caption3_r_13 text-[#FF3B2F]">
-                  이미 사용 중인 닉네임입니다.
+                  중복된 닉네임입니다.
                 </p>
               )}
             </div>
 
-            {/* 직업 드롭다운 */}
             <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">직업</label>
               <div
@@ -758,10 +745,8 @@ export function SignUpPage() {
               )}
             </div>
 
-            {/* 대학교 & 학과 (직업이 대학생일 때만) */}
             {watchJob === '대학생' && (
               <div className="flex w-full flex-col gap-3">
-                {/* 대학교 검색 */}
                 <div className="flex w-full flex-col gap-1">
                   <label className="text-caption2_m_12">대학교</label>
                   <div
@@ -828,9 +813,13 @@ export function SignUpPage() {
                       </ul>
                     )}
                   </div>
+                  {errors.university?.message && (
+                    <p className="text-caption3_r_13 text-[#FF3B2F]">
+                      {errors.university.message}
+                    </p>
+                  )}
                 </div>
 
-                {/* 학과 (성균관대학교만) */}
                 {isSKKU && (
                   <div className="flex w-full flex-col gap-1">
                     <label className="text-caption2_m_12">학과</label>
@@ -897,12 +886,39 @@ export function SignUpPage() {
                         </ul>
                       )}
                     </div>
+                    {errors.major?.message && (
+                      <p className="text-caption3_r_13 text-[#FF3B2F]">
+                        {errors.major.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {isSKKU && (
+                  <div className="flex w-full flex-col gap-1">
+                    <label className="text-caption2_m_12">학번</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="학번 입력"
+                      className={cn(
+                        'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
+                        errors.studentId
+                          ? 'border-error focus:border-error'
+                          : 'focus:border-primary border-[#D8D8D8]'
+                      )}
+                      {...register('studentId')}
+                    />
+                    {errors.studentId?.message && (
+                      <p className="text-caption3_r_13 text-[#FF3B2F]">
+                        {errors.studentId.message}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
             )}
 
-            {/* 이메일 + 인증 */}
             <div className="flex w-full flex-col gap-[6px]">
               <label className="text-caption2_m_12">이메일</label>
               <div className="flex gap-[6px]">
@@ -960,7 +976,6 @@ export function SignUpPage() {
                 </p>
               )}
 
-              {/* PIN 입력 */}
               {emailSent && !emailVerified && (
                 <div className="mt-1 flex gap-[6px]">
                   <div className="relative flex-1">
@@ -1013,7 +1028,6 @@ export function SignUpPage() {
           </div>
         </div>
 
-        {/* 약관 동의 */}
         <div className="flex w-full flex-col gap-12">
           <div className="flex w-full flex-col gap-[10px]">
             <AgreementCheckbox
