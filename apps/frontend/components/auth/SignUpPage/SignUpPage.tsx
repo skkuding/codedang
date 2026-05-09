@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaChevronDown, FaChevronUp, FaEye, FaEyeSlash } from 'react-icons/fa6'
 import { IoSearchOutline } from 'react-icons/io5'
+import { toast } from 'sonner'
 import { signupSchema } from './signup.schema'
 import type { SignUpFormValues } from './signup.type'
 
@@ -270,13 +271,11 @@ export function SignUpPage() {
     }
     try {
       const response = await safeFetcher.post('email-auth/verify-pin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
+        json: {
           pin: code,
           email: isSKKU ? `${emailLocal}@skku.edu` : emailLocal
-        })
+        }
       })
       if (response.status === 201) {
         setEmailVerified(true)
@@ -485,7 +484,7 @@ export function SignUpPage() {
         }
       })
     } catch {
-      /* empty */
+      toast.error('회원가입에 실패했습니다. 다시 시도해주세요.')
     }
   }
 
@@ -587,7 +586,7 @@ export function SignUpPage() {
                 <div className="relative">
                   <input
                     type={isPasswordVisible ? 'text' : 'password'}
-                    placeholder="대문자, 소문자, 숫자 중 2종류 이상 포함 8-20자"
+                    placeholder="대문자, 소문자, 숫자 중 2종류 이상 포함 8-20자를 입력해주세요."
                     className={cn(
                       'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
                       errors.password
