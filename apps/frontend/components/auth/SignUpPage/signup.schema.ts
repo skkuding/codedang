@@ -6,8 +6,8 @@ export const signupSchema = v.pipe(
 
     birth: v.pipe(
       v.string(),
-      v.length(6, '생년월일 6자리를 입력해주세요.'),
-      v.regex(/^\d{6}$/, '생년월일은 숫자 6자리여야 합니다.')
+      v.length(6, '생년월일 6자리를 입력해 주세요.'),
+      v.regex(/^\d{6}$/, '생년월일 6자리를 입력해 주세요.')
     ),
 
     userId: v.pipe(
@@ -42,6 +42,14 @@ export const signupSchema = v.pipe(
     university: v.string(),
 
     major: v.string(),
+
+    studentId: v.pipe(
+      v.string(),
+      v.check(
+        (val) => val === '' || /^\d{10}$/.test(val),
+        '학번 10자리를 입력해주세요.'
+      )
+    ),
 
     email: v.pipe(
       v.string(),
