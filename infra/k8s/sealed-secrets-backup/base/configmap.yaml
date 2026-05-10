@@ -27,23 +27,27 @@ data:
       exit 1
     fi
 
-    # Step 2: Upload the keys to AWS Secrets Manager
-    echo "Uploading to AWS Secrets Manager: $SECRET_NAME..."
-    echo "$KEYS" | aws secretsmanager put-secret-value \
-      --region ap-northeast-2 \
-      --secret-id "$SECRET_NAME" \
-      --secret-string file:///dev/stdin
+    # Step 2: Upload to S3 — latest.json (overwritten; versioning keeps history)
+    #         and snapshots/<timestamp>.json (immutable point-in-time copy)
+    TIMESTAMP=$(date -u +%Y-%m-%dT%H-%M-%SZ)
+    LATEST_URI="s3://${S3_BUCKET}/${S3_KEY_PREFIX}/latest.json"
+    SNAPSHOT_URI="s3://${S3_BUCKET}/${S3_KEY_PREFIX}/snapshots/${TIMESTAMP}.json"
 
-    # Step 3: Verify the backup by comparing key counts
+    echo "$KEYS" > /tmp/keys.json
+
+    echo "Uploading latest: $LATEST_URI"
+    aws s3 cp /tmp/keys.json "$LATEST_URI" --region ap-northeast-2 --no-progress
+
+    echo "Uploading snapshot: $SNAPSHOT_URI"
+    aws s3 cp /tmp/keys.json "$SNAPSHOT_URI" --region ap-northeast-2 --no-progress
+
+    # Step 3: Verify by re-downloading latest and comparing key counts
     echo "Verifying backup integrity..."
-    REMOTE_COUNT=$(aws secretsmanager get-secret-value \
-      --region ap-northeast-2 \
-      --secret-id "$SECRET_NAME" \
-      --query SecretString --output text | jq '.items | length')
+    REMOTE_COUNT=$(aws s3 cp "$LATEST_URI" - --region ap-northeast-2 --no-progress | jq '.items | length')
 
     if [ "$KEY_COUNT" != "$REMOTE_COUNT" ]; then
       echo "ERROR: Integrity check failed (local=$KEY_COUNT, remote=$REMOTE_COUNT)"
       exit 1
     fi
 
-    echo "Backup complete: $REMOTE_COUNT keys saved to $SECRET_NAME"
+    echo "Backup complete: $REMOTE_COUNT keys saved to $LATEST_URI"

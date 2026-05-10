@@ -27,9 +27,11 @@ spec:
                 - secretRef:
                     name: aws-credentials
               env:
-                - name: SECRET_NAME
+                - name: S3_BUCKET
+                  value: codedang-sealed-secrets-backup
+                - name: S3_KEY_PREFIX
                   # Note: This value is overridden in overlays
-                  value: Codedang-Sealed-Secrets-Production
+                  value: production
               volumeMounts:
                 - name: scripts
                   mountPath: /scripts

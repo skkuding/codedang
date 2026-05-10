@@ -8,27 +8,57 @@
 
 ## Prerequisites
 
-- AWS CLI configured with access to Secrets Manager
+- AWS CLI configured with access to the backup S3 bucket
 - `kubectl` configured with the target cluster context
-- IAM permissions: `secretsmanager:GetSecretValue` on `Codedang-Sealed-Secrets-*`
+- IAM permissions: `s3:GetObject`, `s3:ListBucket` on `arn:aws:s3:::codedang-sealed-secrets-backup`
+
+## Backup Layout
+
+```
+s3://codedang-sealed-secrets-backup/
+├── production/
+│   ├── latest.json                              # always overwritten; versioning keeps history (1 year)
+│   └── snapshots/
+│       └── 2026-04-27T03-00-00Z.json            # immutable point-in-time copy (3 years)
+└── stage/
+    ├── latest.json
+    └── snapshots/
+        └── ...
+```
 
 ## Restore Steps
 
-### 1. Download keys from AWS Secrets Manager
+### 1. Download keys from S3
 
 ```bash
-# Codedang-Sealed-Secrets-Production or Codedang-Sealed-Secrets-Stage
-SECRET_NAME=Codedang-Sealed-Secrets-Production
-aws secretsmanager get-secret-value \
-  --secret-id "$SECRET_NAME" \
-  --query SecretString --output text > sealed-secrets-keys.json
+# production or stage
+ENV=production
+
+# Latest (most common case)
+aws s3 cp "s3://codedang-sealed-secrets-backup/${ENV}/latest.json" \
+  sealed-secrets-keys.json --region ap-northeast-2
+
+# Or a specific point-in-time snapshot
+aws s3 ls "s3://codedang-sealed-secrets-backup/${ENV}/snapshots/" --region ap-northeast-2
+aws s3 cp "s3://codedang-sealed-secrets-backup/${ENV}/snapshots/<timestamp>.json" \
+  sealed-secrets-keys.json --region ap-northeast-2
+
+# Or a previous version of latest.json (S3 versioning)
+aws s3api list-object-versions \
+  --bucket codedang-sealed-secrets-backup \
+  --prefix "${ENV}/latest.json" --region ap-northeast-2
+aws s3api get-object \
+  --bucket codedang-sealed-secrets-backup \
+  --key "${ENV}/latest.json" \
+  --version-id <VERSION_ID> \
+  sealed-secrets-keys.json --region ap-northeast-2
 ```
 
 ### 2. Verify the downloaded keys
 
 ```bash
 jq '.items | length' sealed-secrets-keys.json
-# Expected: prod=8, stage=6 (as of Jan 2026)
+# Expected: matches the number of keys present at the time the snapshot was taken
 ```
 
 ### 3. Apply keys to the cluster
@@ -68,3 +98,17 @@ rm sealed-secrets-keys.json
 - Key type: `kubernetes.io/tls` (contains `tls.crt` + `tls.key`)
 - The controller iterates all keys during decryption, so all past keys must be preserved
 - Backup CronJob runs on the 1st of each month at 03:00 UTC
+- Bucket retention: snapshots 3 years, latest noncurrent versions 1 year (see `infra/aws/sealed-secrets-backup/s3.tf`)
+
+## Legacy: AWS Secrets Manager (deprecated 2026-04)
+
+Older snapshots from before the S3 migration are still readable from Secrets Manager:
+
+```bash
+SECRET_NAME=Codedang-Sealed-Secrets-Production    # or -Stage
+aws secretsmanager get-secret-value \
+  --secret-id "$SECRET_NAME" \
+  --query SecretString --output text > sealed-secrets-keys.json
+```
+
+These snapshots are stale (last updated 2026-02-24) and missing recent cert rotations. Use only as fallback when S3 is unavailable. Will be removed in a follow-up cleanup PR.

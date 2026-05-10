@@ -9,5 +9,5 @@ patches:
       name: sealed-secrets-backup
     patch: |
       - op: replace
-        path: /spec/jobTemplate/spec/template/spec/containers/0/env/0/value
-        value: Codedang-Sealed-Secrets-Stage
+        path: /spec/jobTemplate/spec/template/spec/containers/0/env/1/value
+        value: stage
