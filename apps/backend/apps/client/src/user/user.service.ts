@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
-import type { User, UserProfile } from '@prisma/client'
+import type { Provider, User, UserProfile } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
@@ -22,12 +22,12 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { OAuthTokenPayload } from '@client/auth/interface/social-user.interface'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import type { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import type { NewPasswordDto } from './dto/newPassword.dto'
 import type { SignUpDto } from './dto/signup.dto'
-import type { SocialSignUpDto } from './dto/social-signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import type { UpdateUserDto } from './dto/updateUser.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
@@ -411,49 +411,21 @@ export class UserService {
     }
     await this.createUserProfile(CreateUserProfileData)
 
-    return user
-  }
-
-  /**
-   * 소셜 계정으로 회원가입 시 소셜 플랫폼에서 제공받은 계정 정보를 체크하고, user 객체를 생성 및 반환합니다.
-   *
-   * @param {SocialSignUpDto} socialSignUpDto 소셜 플랫폼에서 제공받은 계정 정보
-   * @throws {DuplicateFoundException} 이미 존재하는 사용자 이름일 경우 예외를 발생시킵니다.
-   * @throws {UnprocessableDataException} 사용자 이름이 잘못된 형식일 경우 예외를 발생시킵니다.
-   * @returns 사용자의 소셜 서비스 연동 정보를 DB에 생성하고, user 프로필을 만든 후 user 객체를 반환합니다.
-   */
-  async socialSignUp(socialSignUpDto: SocialSignUpDto): Promise<User> {
-    const duplicatedUser = await this.prisma.user.findUnique({
-      where: {
-        username: socialSignUpDto.username
+    if (signUpDto.oauthToken) {
+      try {
+        const { oauthId, provider } =
+          await this.jwtService.verifyAsync<OAuthTokenPayload>(
+            signUpDto.oauthToken,
+            { secret: this.config.get('JWT_SECRET') }
+          )
+        await this.createUserOAuth(user.id, provider, oauthId)
+      } catch (error) {
+        this.logger.warn(
+          error,
+          'signUp - oauthToken verification failed, skipping OAuth link'
+        )
       }
-    })
-    if (duplicatedUser) {
-      this.logger.debug('socialSignUp - fail (username duplicated)')
-      throw new DuplicateFoundException('Username')
     }
-
-    if (!this.isValidUsername(socialSignUpDto.username)) {
-      this.logger.debug('socialSignUp - fail (invalid username)')
-      throw new UnprocessableDataException('Bad username')
-    }
-
-    const user = await this.createUser({
-      username: socialSignUpDto.username,
-      password: generate({ length: 10, numbers: true }),
-      realName: socialSignUpDto.realName,
-      email: socialSignUpDto.email,
-      studentId: socialSignUpDto.studentId,
-      college: socialSignUpDto.college,
-      major: socialSignUpDto.major
-    })
-    const profile: CreateUserProfileData = {
-      userId: user.id,
-      realName: socialSignUpDto.realName
-    }
-
-    await this.createUserProfile(profile)
-    await this.createUserOAuth(socialSignUpDto, user.id)
 
     return user
   }
@@ -512,16 +484,17 @@ export class UserService {
   /**
    * 사용자의 소셜 서비스(OAuth) 연동 정보를 DB에 생성합니다.
    *
-   * @param socialSignUpDto 소셜 플랫폼에서 제공받은 계정 정보
-   * @param {number} userId 사용자 Id
-   * @returns 생성된 소셜 연동 정보 userOAuth 객체를 반환합니다.
+   * @param {number} userId Codedang 사용자 Id
+   * @param {Provider} provider 소셜 플랫폼 종류 (예: kakao, github)
+   * @param {string} oauthId 소셜 플랫폼에서 제공하는 사용자 고유 Id
+   * @returns {Promise<UserOAuth>} 생성된 소셜 연동 정보 userOAuth 객체를 반환합니다.
    */
-  async createUserOAuth(socialSignUpDto: SocialSignUpDto, userId: number) {
+  async createUserOAuth(userId: number, provider: Provider, oauthId: string) {
     const userOAuth = await this.prisma.userOAuth.create({
       data: {
-        id: socialSignUpDto.id,
+        id: oauthId,
         userId,
-        provider: socialSignUpDto.provider
+        provider
       }
     })
     this.logger.debug(userOAuth, 'createUserOAuth')

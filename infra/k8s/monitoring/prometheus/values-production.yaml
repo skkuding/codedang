@@ -1,6 +1,23 @@
 grafana:
   enabled: false
 
+# K3s 호환성: kube-controller-manager / kube-scheduler / kube-proxy 는 별도 binary 가 아닌
+# k3s 단일 프로세스에 통합되어 있어 vanilla K8s가 가정하는 metrics endpoint 가 노출되지 않음.
+# kube-prometheus-stack의 default ServiceMonitor 가 target 을 못 찾아 영구 false positive
+# `KubeControllerManagerDown` / `KubeSchedulerDown` / `KubeProxyDown` 알람을 발생시키므로
+# 해당 컴포넌트의 ServiceMonitor + 관련 default rules 모두 비활성화한다.
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+defaultRules:
+  rules:
+    kubeControllerManager: false
+    kubeScheduler: false
+    kubeProxy: false
+
 prometheus:
   prometheusSpec:
     retention: 90d
@@ -27,3 +44,52 @@ prometheus:
       - hosts:
           - prometheus.codedang.com
         secretName: prometheus-tls
+
+alertmanager:
+  alertmanagerSpec:
+    # discord-webhook secret은 monitoring-grafana namespace에 source가 있고
+    # reflector가 monitoring-prometheus namespace로 자동 복제 (SSOT)
+    # 마운트 경로: /etc/alertmanager/secrets/discord-webhook/DISCORD_WEBHOOK_URL
+    secrets:
+      - discord-webhook
+  config:
+    route:
+      # severity 포함: 같은 namespace/alertname 이라도 critical 과 warning 이 섞이지 않게
+      # (severity escalation 이 단일 메시지로 collapse 되어 가려지는 것 방지)
+      group_by: ['namespace', 'alertname', 'severity']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      receiver: discord
+      routes:
+        # Watchdog: alertmanager 자체 살아있음을 알리는 heartbeat. 알림 발생 X.
+        - matchers:
+            - alertname = "Watchdog"
+          receiver: 'null'
+    # kube-prometheus-stack default inhibit_rules 명시 보존
+    # (alertmanager.config 를 통째로 override 하면 chart default 가 사라지므로 직접 선언)
+    # 효과: critical 발화 시 같은 사건의 warning/info 알람이 Discord 로 가지 않음 → alert storm 방지
+    inhibit_rules:
+      - source_matchers:
+          - severity = "critical"
+        target_matchers:
+          - severity =~ "warning|info"
+        equal: ['namespace', 'alertname']
+      - source_matchers:
+          - severity = "warning"
+        target_matchers:
+          - severity = "info"
+        equal: ['namespace', 'alertname']
+      - source_matchers:
+          - alertname = "InfoInhibitor"
+        target_matchers:
+          - severity = "info"
+        equal: ['namespace']
+      - target_matchers:
+          - alertname = "InfoInhibitor"
+    receivers:
+      - name: 'null'
+      - name: discord
+        discord_configs:
+          - webhook_url_file: /etc/alertmanager/secrets/discord-webhook/DISCORD_WEBHOOK_URL
+            send_resolved: true
