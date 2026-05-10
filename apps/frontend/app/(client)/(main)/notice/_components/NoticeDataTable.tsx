@@ -26,7 +26,7 @@ import {
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { IoChevronDownOutline } from 'react-icons/io5'
 
 interface Item {
@@ -54,6 +54,7 @@ function DateSortDropdown() {
   const handleSelect = (value: string) => {
     const newParams = new URLSearchParams(searchParams.toString())
     newParams.set('sort', value)
+
     router.push(`${pathname}?${newParams.toString()}` as Route, {
       scroll: false
     })
@@ -93,22 +94,73 @@ export function NoticeDataTable<TData extends Item, TValue>({
   emptyMessage = 'No results.'
 }: NoticeDataTableProps<TData, TValue>) {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const currentPath = usePathname()
+
   const sortOrder = searchParams.get('sort') ?? 'desc'
+  const searchKeywordFromUrl =
+    searchParams.get('search')?.trim().toLowerCase() ?? ''
+
+  const [searchKeyword, setSearchKeyword] = useState(searchKeywordFromUrl)
+
+  useEffect(() => {
+    setSearchKeyword(searchKeywordFromUrl)
+  }, [searchKeywordFromUrl])
+
+  const handleSearchInputChange = (
+    event: React.ChangeEvent<HTMLDivElement>
+  ) => {
+    const target = event.target
+
+    if (!(target instanceof HTMLInputElement)) {
+      return
+    }
+
+    const nextSearchKeyword = target.value.trim().toLowerCase()
+    setSearchKeyword(nextSearchKeyword)
+
+    if (!nextSearchKeyword && searchParams.has('search')) {
+      const newParams = new URLSearchParams(searchParams.toString())
+      newParams.delete('search')
+
+      router.replace(
+        `${currentPath}${newParams.size ? `?${newParams.toString()}` : ''}` as Route,
+        { scroll: false }
+      )
+    }
+  }
+
+  const filteredData = useMemo(() => {
+    if (!searchKeyword) {
+      return data
+    }
+
+    return data.filter((item) =>
+      Object.values(item).some((value) =>
+        String(value ?? '')
+          .toLowerCase()
+          .includes(searchKeyword)
+      )
+    )
+  }, [data, searchKeyword])
 
   const sortedData = useMemo(
     () =>
-      [...data].sort((a, b) => {
+      [...filteredData].sort((a, b) => {
         if (a.isFixed && !b.isFixed) {
           return -1
         }
+
         if (!a.isFixed && b.isFixed) {
           return 1
         }
+
         const aTime = new Date(a.createTime ?? '').getTime()
         const bTime = new Date(b.createTime ?? '').getTime()
+
         return sortOrder === 'asc' ? aTime - bTime : bTime - aTime
       }),
-    [data, sortOrder]
+    [filteredData, sortOrder]
   )
 
   const table = useReactTable({
@@ -116,18 +168,21 @@ export function NoticeDataTable<TData extends Item, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel()
   })
-  const router = useRouter()
-  const currentPath = usePathname()
 
   return (
     <div className="flex w-full flex-col items-center">
       <div className="mt-15 mb-5 flex w-full items-center justify-between">
         <p className="text-head3_sb_28">전체 공지 리스트</p>
+
         <div className="flex items-center gap-2">
           <DateSortDropdown />
-          <SearchBar containerClassName="w-[280px]" sizeVariant="lg" />
+
+          <div onChangeCapture={handleSearchInputChange}>
+            <SearchBar className="w-[280px]" sizeVariant="lg" />
+          </div>
         </div>
       </div>
+
       <div className="bg-background border-line mb-10 w-full overflow-hidden rounded-[20px] border">
         <Table className="table-fixed">
           <TableHeader className="bg-background border-b-0">
@@ -152,6 +207,7 @@ export function NoticeDataTable<TData extends Item, TValue>({
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody className="[&_tr:last-child>td]:border-b-0">
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => {
