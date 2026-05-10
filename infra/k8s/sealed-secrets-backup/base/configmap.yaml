@@ -36,14 +36,14 @@ data:
     echo "$KEYS" > /tmp/keys.json
 
     echo "Uploading latest: $LATEST_URI"
-    aws s3 cp /tmp/keys.json "$LATEST_URI" --region ap-northeast-2 --no-progress
+    aws s3 cp /tmp/keys.json "$LATEST_URI" --no-progress
 
     echo "Uploading snapshot: $SNAPSHOT_URI"
-    aws s3 cp /tmp/keys.json "$SNAPSHOT_URI" --region ap-northeast-2 --no-progress
+    aws s3 cp /tmp/keys.json "$SNAPSHOT_URI" --no-progress
 
     # Step 3: Verify by re-downloading latest and comparing key counts
     echo "Verifying backup integrity..."
-    REMOTE_COUNT=$(aws s3 cp "$LATEST_URI" - --region ap-northeast-2 --no-progress | jq '.items | length')
+    REMOTE_COUNT=$(aws s3 cp "$LATEST_URI" - --no-progress | jq '.items | length')
 
     if [ "$KEY_COUNT" != "$REMOTE_COUNT" ]; then
       echo "ERROR: Integrity check failed (local=$KEY_COUNT, remote=$REMOTE_COUNT)"

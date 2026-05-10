@@ -10,20 +10,6 @@ resource "aws_iam_access_key" "sealed_secrets_backup" {
 }
 
 data "aws_iam_policy_document" "sealed_secrets_backup" {
-  # Legacy: Secrets Manager backup destination, kept read-only for fallback access
-  # during migration to S3. Removed in a follow-up cleanup PR.
-  statement {
-    sid = "SecretsManagerLegacyRead"
-    actions = [
-      "secretsmanager:GetSecretValue",
-      "secretsmanager:DescribeSecret",
-    ]
-    resources = [
-      aws_secretsmanager_secret.sealed_secrets_prod.arn,
-      aws_secretsmanager_secret.sealed_secrets_stage.arn,
-    ]
-  }
-
   statement {
     sid = "S3BackupBucketList"
     actions = [

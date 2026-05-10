@@ -14,7 +14,7 @@
 
 ## Backup Layout
 
-```
+```text
 s3://codedang-sealed-secrets-backup/
 ├── production/
 │   ├── latest.json                              # always overwritten; versioning keeps history (1 year)
@@ -99,16 +99,3 @@ rm sealed-secrets-keys.json
 - The controller iterates all keys during decryption, so all past keys must be preserved
 - Backup CronJob runs on the 1st of each month at 03:00 UTC
 - Bucket retention: snapshots 3 years, latest noncurrent versions 1 year (see `infra/aws/sealed-secrets-backup/s3.tf`)
-
-## Legacy: AWS Secrets Manager (deprecated 2026-04)
-
-Older snapshots from before the S3 migration are still readable from Secrets Manager:
-
-```bash
-SECRET_NAME=Codedang-Sealed-Secrets-Production    # or -Stage
-aws secretsmanager get-secret-value \
-  --secret-id "$SECRET_NAME" \
-  --query SecretString --output text > sealed-secrets-keys.json
-```
-
-These snapshots are stale (last updated 2026-02-24) and missing recent cert rotations. Use only as fallback when S3 is unavailable. Will be removed in a follow-up cleanup PR.

@@ -27,6 +27,8 @@ spec:
                 - secretRef:
                     name: aws-credentials
               env:
+                - name: AWS_DEFAULT_REGION
+                  value: ap-northeast-2
                 - name: S3_BUCKET
                   value: codedang-sealed-secrets-backup
                 - name: S3_KEY_PREFIX
