@@ -1,5 +1,5 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { CollaboratorStatus } from '@prisma/client'
+import { CollaboratorStatus, CollaboratorRole } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
 import { IDValidationPipe } from '@libs/pipe'
 import { CollaboratorService } from './collaborator.service'
@@ -94,6 +94,19 @@ export class CollaboratorResolver {
       req.user.id,
       polygonId,
       userId
+    )
+  }
+
+  @Mutation()
+  async requestCollaboration(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('polygonId', { type: () => Int }, IDValidationPipe) polygonId: number,
+    @Args('role') role: CollaboratorRole
+  ) {
+    return await this.collaboratorService.requestCollaboration(
+      req.user.id,
+      polygonId,
+      role
     )
   }
 }

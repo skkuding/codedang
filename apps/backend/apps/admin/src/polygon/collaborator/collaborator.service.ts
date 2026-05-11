@@ -313,4 +313,52 @@ export class CollaboratorService {
       where: { id: collaborator.id }
     })
   }
+
+  /**
+   * 사용자가 협업자가 되기 위해 요청합니다.
+   * -role: Viewer, Editor
+   *
+   * @param {number} userId 요청자의 id
+   * @param {number} polygonId 해당 문제의 polygonId
+   * @param {CollaboratorRole} role 요청하는 역할
+   * @returns {polygonCollaborator} 협업자 정보
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * -해당 polygonId에 해당하는 문제가 존재하지 않는 경우
+   * @throws {DuplicateFoundException} 아래와 같은 경우 발생합니다.
+   * - 문제 소유자가 요청을 하는 경우
+   * - 이미 등록된 협업자가 요청하는 경우
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - Owner role로 요청을 하는 경우
+   */
+  async requestCollaboration(
+    userId: number,
+    polygonId: number,
+    role: CollaboratorRole
+  ) {
+    const problem = await this.prisma.polygonProblem.findUnique({
+      where: { id: polygonId },
+      select: { createdById: true }
+    })
+    if (!problem) throw new EntityNotExistException('PolygonProblem not found')
+    if (userId === problem.createdById) {
+      throw new DuplicateFoundException('is owner')
+    }
+    if (role === CollaboratorRole.Owner) {
+      throw new ForbiddenAccessException('Cannot assign Owner role')
+    }
+    const existing = await this.prisma.polygonCollaborator.findFirst({
+      where: { problemId: polygonId, userId },
+      select: { id: true }
+    })
+    if (existing) throw new DuplicateFoundException('Collaborator')
+
+    return await this.prisma.polygonCollaborator.create({
+      data: {
+        problemId: polygonId,
+        userId,
+        role,
+        status: CollaboratorStatus.Pending
+      }
+    })
+  }
 }
