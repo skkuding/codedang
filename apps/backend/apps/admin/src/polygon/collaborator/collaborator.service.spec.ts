@@ -168,9 +168,13 @@ describe('CollaboratorService', () => {
 
   describe('getCollaboratorsByStatus', () => {
     it('return active collaborators', async () => {
+      db.polygonProblem.findUnique.resolves({
+        createdById: exampleProblem.createdById
+      })
       db.polygonCollaborator.findMany.resolves(exampleCollaboratorListByStatus)
 
       const result = await service.getCollaboratorsByStatus(
+        exampleOwner.id,
         exampleProblem.id,
         CollaboratorStatus.Active
       )
@@ -192,6 +196,9 @@ describe('CollaboratorService', () => {
     })
 
     it('returns pending collaborators', async () => {
+      db.polygonProblem.findUnique.resolves({
+        createdById: exampleProblem.createdById
+      })
       db.polygonCollaborator.findMany.resolves([
         {
           role: examplePendingCollaborator.role,
@@ -204,6 +211,7 @@ describe('CollaboratorService', () => {
       ])
 
       const result = await service.getCollaboratorsByStatus(
+        exampleOwner.id,
         exampleProblem.id,
         CollaboratorStatus.Pending
       )
