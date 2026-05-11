@@ -109,15 +109,30 @@ export class CollaboratorService {
    * Status에 따른 협업자 목록을 반환합니다.
    *
    * status : Pending(수락 대기 중), Active(활성화 됨)
-   *
+   * @param {number} userId 문제 소유자의 id
    * @param {number} polygonId 생성 문제의 id
    * @param {CollaboratorStatus} status 협업자의 상태
-   * @returns {olygonCollaborator[]} 협업자 목록
+   * @returns {PolygonCollaborator[]} 협업자 목록
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - 해당 polygonId에 해당하는 문제가 존재하지 않는 경우
+   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * - 협업자 목록 요청자가 문제 소유자가 아닌 경우
    */
   async getCollaboratorsByStatus(
+    userId: number,
     polygonId: number,
     status: CollaboratorStatus
   ) {
+    const problem = await this.prisma.polygonProblem.findUnique({
+      where: { id: polygonId },
+      select: { createdById: true }
+    })
+    if (!problem) throw new EntityNotExistException('PolygonProblem not found')
+
+    if (problem.createdById !== userId) {
+      throw new ForbiddenAccessException('No permission to view collaborators')
+    }
+
     const collaborators = await this.prisma.polygonCollaborator.findMany({
       where: {
         problemId: polygonId,

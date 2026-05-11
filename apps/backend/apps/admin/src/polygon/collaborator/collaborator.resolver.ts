@@ -27,9 +27,11 @@ export class CollaboratorResolver {
 
   @Query()
   async getActiveCollaborator(
+    @Context('req') req: AuthenticatedRequest,
     @Args('polygonId', { type: () => Int }, IDValidationPipe) polygonId: number
   ) {
     return await this.collaboratorService.getCollaboratorsByStatus(
+      req.user.id,
       polygonId,
       CollaboratorStatus.Active
     )
@@ -37,9 +39,11 @@ export class CollaboratorResolver {
 
   @Query()
   async getPendingCollaborator(
+    @Context('req') req: AuthenticatedRequest,
     @Args('polygonId', { type: () => Int }, IDValidationPipe) polygonId: number
   ) {
     return await this.collaboratorService.getCollaboratorsByStatus(
+      req.user.id,
       polygonId,
       CollaboratorStatus.Pending
     )
