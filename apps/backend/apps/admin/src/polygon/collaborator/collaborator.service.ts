@@ -32,6 +32,8 @@ export class CollaboratorService {
    * @throws {DuplicateFoundException} 아래와 같은 경우 발생합니다.
    * -이미 초대된 협업자를 초대한 경우
    * -문제 소유자를 초대한 경우
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - Owner role로 초대을 하는 경우
    */
   async inviteCollaborator(
     inviterId: number,
@@ -39,6 +41,11 @@ export class CollaboratorService {
     input: CollaboratorInput
   ) {
     const { userEmail, role } = input
+
+    if (role === CollaboratorRole.Owner) {
+      throw new UnprocessableDataException('Cannot assign Owner role')
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { email: userEmail },
       select: { id: true }
@@ -243,6 +250,8 @@ export class CollaboratorService {
    * -해당 userId에 해당하는 협업자가 존재하지 않는 경우
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * -invitorId가 해당 문제의 소유자가 아닌 경우
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
+   * - Owner role로 변경을 하는 경우
    */
   async updateCollaboratorRole(
     inviterId: number,
@@ -250,6 +259,9 @@ export class CollaboratorService {
     input: CollaboratorUpdateInput
   ) {
     const { userId, role } = input
+    if (role === CollaboratorRole.Owner) {
+      throw new UnprocessableDataException('Cannot assign Owner role')
+    }
     const problem = await this.prisma.polygonProblem.findUnique({
       where: { id: polygonId },
       select: { createdById: true }
@@ -327,7 +339,7 @@ export class CollaboratorService {
    * @throws {DuplicateFoundException} 아래와 같은 경우 발생합니다.
    * - 문제 소유자가 요청을 하는 경우
    * - 이미 등록된 협업자가 요청하는 경우
-   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+   * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
    * - Owner role로 요청을 하는 경우
    */
   async requestCollaboration(
@@ -344,7 +356,7 @@ export class CollaboratorService {
       throw new DuplicateFoundException('is owner')
     }
     if (role === CollaboratorRole.Owner) {
-      throw new ForbiddenAccessException('Cannot assign Owner role')
+      throw new UnprocessableDataException('Cannot assign Owner role')
     }
     const existing = await this.prisma.polygonCollaborator.findFirst({
       where: { problemId: polygonId, userId },
