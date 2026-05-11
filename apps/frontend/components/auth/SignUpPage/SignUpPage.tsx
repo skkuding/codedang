@@ -70,7 +70,7 @@ function AgreementCheckbox({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-[20px] w-[20px] shrink-0 appearance-none rounded-[3px] border border-[#C4C4C4] bg-white bg-center bg-no-repeat checked:border-transparent checked:bg-[#3581FA]"
+        className="border-color-neutral-90 checked:bg-primary h-[20px] w-[20px] shrink-0 appearance-none rounded-[3px] border bg-white bg-center bg-no-repeat checked:border-transparent"
         style={{
           backgroundImage: checked
             ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'><path d='M5.5 10L8.14645 12.6464C8.34171 12.8417 8.65829 12.8417 8.85355 12.6464L14.5 7' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>")`
@@ -93,7 +93,7 @@ function VisibleButton({ isVisible, setIsVisible }: VisibleButtonProps) {
       type="button"
       tabIndex={-1}
       onClick={() => setIsVisible(!isVisible)}
-      className="absolute inset-y-0 right-[21.67px] flex items-center text-[#909799]"
+      className="text-color-cool-neutral-60 absolute inset-y-0 right-[21.67px] flex items-center"
       aria-label={isVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
     >
       {isVisible ? (
@@ -260,7 +260,7 @@ export function SignUpPage() {
       setPinError('')
     } catch {
       setError('email', {
-        message: '이메일 전송에 실패했습니다. 다시 시도해주세요.'
+        message: '이메일 전송에 실패했습니다. 다시 시도해주세요'
       })
     }
   }
@@ -282,11 +282,11 @@ export function SignUpPage() {
         setEmailAuthToken(response.headers.get('email-auth') || '')
         setPinError('')
       } else {
-        setPinError('인증 번호가 일치하지 않습니다.')
+        setPinError('인증 번호가 일치하지 않습니다')
         setEmailVerified(false)
       }
     } catch {
-      setPinError('인증 번호가 일치하지 않습니다.')
+      setPinError('인증 번호가 일치하지 않습니다')
       setEmailVerified(false)
     }
   }
@@ -301,7 +301,7 @@ export function SignUpPage() {
       clearErrors('userId')
       setIsUserIdAvailable(true)
     } catch {
-      setError('userId', { message: '중복된 아이디입니다.' })
+      setError('userId', { message: '중복된 아이디입니다' })
       setIsUserIdAvailable(false)
     }
   }
@@ -443,9 +443,9 @@ export function SignUpPage() {
       return 'border-error focus:border-error'
     }
     if (isUserIdAvailable) {
-      return 'border-[#3581FA] focus:border-[#3581FA]'
+      return 'border-primary focus:border-primary'
     }
-    return 'focus:border-primary border-[#D8D8D8]'
+    return 'focus:border-primary border-line'
   }
 
   const getEmailBorderClass = () => {
@@ -453,9 +453,9 @@ export function SignUpPage() {
       return 'border-error focus:border-error'
     }
     if (emailVerified) {
-      return 'border-[#3581FA] focus:border-[#3581FA]'
+      return 'border-primary focus:border-primary'
     }
-    return 'focus:border-primary border-[#D8D8D8]'
+    return 'focus:border-primary border-line'
   }
 
   const onSubmit = async (data: SignUpFormValues) => {
@@ -463,11 +463,11 @@ export function SignUpPage() {
       return
     }
     if (data.job === '대학생' && !data.university) {
-      setError('university', { message: '대학교를 선택해주세요.' })
+      setError('university', { message: '대학교를 선택해주세요' })
       return
     }
     if (isSKKU && !data.major) {
-      setError('major', { message: '소속 학과를 선택해주세요.' })
+      setError('major', { message: '소속 학과를 선택해주세요' })
       return
     }
     try {
@@ -484,14 +484,14 @@ export function SignUpPage() {
         }
       })
     } catch {
-      toast.error('회원가입에 실패했습니다. 다시 시도해주세요.')
+      toast.error('회원가입에 실패했습니다. 다시 시도해주세요')
     }
   }
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex w-[500px] flex-col items-start rounded-[20px] border border-[#DCE3E5] bg-white px-6 py-7 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+      className="border-color-cool-neutral-90 flex w-[500px] flex-col items-start rounded-[20px] border bg-white px-6 py-7 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
     >
       <div className="flex w-full flex-col gap-[48px]">
         <div className="flex w-full flex-col gap-5">
@@ -504,15 +504,15 @@ export function SignUpPage() {
                 type="text"
                 placeholder="이름"
                 className={cn(
-                  'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
+                  'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
                   errors.name
                     ? 'border-error focus:border-error'
-                    : 'focus:border-primary border-[#D8D8D8]'
+                    : 'focus:border-primary border-line'
                 )}
                 {...register('name')}
               />
               {errors.name?.message && (
-                <p className="text-caption3_r_13 text-[#FF3B2F]">
+                <p className="text-caption3_r_13 text-color-red-50">
                   {errors.name.message}
                 </p>
               )}
@@ -525,15 +525,15 @@ export function SignUpPage() {
                 placeholder="YYMMDD"
                 maxLength={6}
                 className={cn(
-                  'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
+                  'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
                   errors.birth
                     ? 'border-error focus:border-error'
-                    : 'focus:border-primary border-[#D8D8D8]'
+                    : 'focus:border-primary border-line'
                 )}
                 {...register('birth')}
               />
               {watchBirth && errors.birth?.message && (
-                <p className="text-caption3_r_13 text-[#FF3B2F]">
+                <p className="text-caption3_r_13 text-color-red-50">
                   {errors.birth.message}
                 </p>
               )}
@@ -546,7 +546,7 @@ export function SignUpPage() {
                   type="text"
                   placeholder="아이디"
                   className={cn(
-                    'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
+                    'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
                     getUserIdBorderClass()
                   )}
                   {...register('userId')}
@@ -561,7 +561,7 @@ export function SignUpPage() {
                 </button>
               </div>
               {errors.userId?.message && (
-                <p className="text-caption3_r_13 text-[#FF3B2F]">
+                <p className="text-caption3_r_13 text-color-red-50">
                   {errors.userId.message}
                 </p>
               )}
@@ -569,13 +569,13 @@ export function SignUpPage() {
                 touchedFields.userId &&
                 !isUserIdAvailable &&
                 watchUserId.length >= 3 && (
-                  <p className="text-caption3_r_13 text-[#FF3B2F]">
-                    아이디 중복 확인을 해주세요.
+                  <p className="text-caption3_r_13 text-color-red-50">
+                    아이디 중복 확인을 해주세요
                   </p>
                 )}
               {!errors.userId && isUserIdAvailable && (
                 <p className="text-caption4_r_12 text-primary">
-                  사용 가능한 아이디입니다.
+                  사용 가능한 아이디입니다
                 </p>
               )}
             </div>
@@ -586,12 +586,12 @@ export function SignUpPage() {
                 <div className="relative">
                   <input
                     type={isPasswordVisible ? 'text' : 'password'}
-                    placeholder="대문자, 소문자, 숫자 중 2종류 이상 포함 8-20자를 입력해주세요."
+                    placeholder="대문자, 소문자, 숫자 중 2종류 이상 포함 8-20자"
                     className={cn(
-                      'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
+                      'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
                       errors.password
                         ? 'border-error focus:border-error'
-                        : 'focus:border-primary border-[#D8D8D8]'
+                        : 'focus:border-primary border-line'
                     )}
                     {...register('password')}
                   />
@@ -601,7 +601,7 @@ export function SignUpPage() {
                   />
                 </div>
                 {errors.password?.message && (
-                  <p className="text-caption3_r_13 text-[#FF3B2F]">
+                  <p className="text-caption3_r_13 text-color-red-50">
                     {errors.password.message}
                   </p>
                 )}
@@ -610,10 +610,10 @@ export function SignUpPage() {
                     type={isPasswordVisible ? 'text' : 'password'}
                     placeholder="비밀번호 확인"
                     className={cn(
-                      'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
+                      'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
                       isPasswordMismatch
                         ? 'border-error focus:border-error'
-                        : 'focus:border-primary border-[#D8D8D8]'
+                        : 'focus:border-primary border-line'
                     )}
                     {...register('passwordConfirm')}
                   />
@@ -623,13 +623,13 @@ export function SignUpPage() {
                   />
                 </div>
                 {isPasswordMismatch && (
-                  <p className="text-caption3_r_13 text-[#FF3B2F]">
-                    비밀번호가 일치하지 않습니다.
+                  <p className="text-caption3_r_13 text-color-red-50">
+                    비밀번호가 일치하지 않습니다
                   </p>
                 )}
                 {isPasswordAvailable && (
-                  <p className="text-caption3_r_13 text-[#3581FA]">
-                    사용 가능한 비밀번호입니다.
+                  <p className="text-caption3_r_13 text-primary">
+                    사용 가능한 비밀번호입니다
                   </p>
                 )}
               </div>
@@ -642,13 +642,13 @@ export function SignUpPage() {
                   <input
                     type="text"
                     placeholder="신나는 청사과"
-                    className="placeholder:text-body1_m_16 focus:border-primary h-[46px] w-full rounded-[12px] border border-[#D8D8D8] bg-white px-5 py-[11px] pr-11 outline-none placeholder:text-[#C4C4C4]"
+                    className="placeholder:text-body1_m_16 focus:border-primary border-line placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-[52px] outline-none"
                     {...register('nickname')}
                   />
                   <button
                     type="button"
                     onClick={generateNickname}
-                    className="absolute inset-y-0 right-3 flex items-center text-[#909799] hover:text-[#3581FA]"
+                    className="text-color-cool-neutral-60 hover:text-primary absolute inset-y-0 right-5 flex items-center"
                     aria-label="닉네임 자동 생성"
                   >
                     <Image
@@ -663,19 +663,24 @@ export function SignUpPage() {
                   type="button"
                   onClick={checkNickname}
                   disabled={!watchNickname}
-                  className="text-sub3_sb_16 h-[46px] shrink-0 rounded-[12px] border border-[#619CFB] px-4 text-[#3581FA] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="text-sub3_sb_16 border-primary-light text-primary h-[46px] shrink-0 rounded-[12px] border px-4 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   중복 확인
                 </button>
               </div>
+              {!watchNickname && (
+                <p className="text-caption3_r_13 text-color-cool-neutral-60">
+                  * 닉네임 미입력시, 코드당이 자동으로 닉네임을 추천해드려요!
+                </p>
+              )}
               {nicknameChecked && isNicknameAvailable && (
-                <p className="text-caption3_r_13 text-[#3581FA]">
-                  사용 가능한 닉네임입니다.
+                <p className="text-caption3_r_13 text-primary">
+                  사용 가능한 닉네임입니다
                 </p>
               )}
               {nicknameChecked && !isNicknameAvailable && (
-                <p className="text-caption3_r_13 text-[#FF3B2F]">
-                  중복된 닉네임입니다.
+                <p className="text-caption3_r_13 text-color-red-50">
+                  중복된 닉네임입니다
                 </p>
               )}
             </div>
@@ -695,23 +700,33 @@ export function SignUpPage() {
                   type="button"
                   onClick={() => setJobOpen((prev) => !prev)}
                   className={cn(
-                    'placeholder:text-body1_m_16 flex h-[46px] w-full items-center justify-between rounded-[12px] border bg-white px-5 py-[11px] outline-none',
+                    'placeholder:text-body1_m_16 flex h-[46px] w-full items-center justify-between rounded-[12px] border bg-white py-[11px] pl-5 pr-4 outline-none',
                     errors.job
                       ? 'border-error'
-                      : 'focus:border-primary border-[#D8D8D8]'
+                      : 'focus:border-primary border-line'
                   )}
                 >
-                  <span className={watchJob ? 'text-black' : 'text-[#C4C4C4]'}>
+                  <span
+                    className={
+                      watchJob ? 'text-black' : 'text-color-neutral-90'
+                    }
+                  >
                     {watchJob || '직업'}
                   </span>
                   {jobOpen ? (
-                    <FaChevronUp className="text-[#909799]" size={14} />
+                    <FaChevronUp
+                      className="text-color-cool-neutral-60"
+                      size={14}
+                    />
                   ) : (
-                    <FaChevronDown className="text-[#909799]" size={14} />
+                    <FaChevronDown
+                      className="text-color-cool-neutral-60"
+                      size={14}
+                    />
                   )}
                 </button>
                 {jobOpen && (
-                  <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-[12px] border border-[#D8D8D8] bg-white shadow-md">
+                  <ul className="border-line absolute z-10 mt-1 w-full overflow-hidden rounded-[12px] border bg-white shadow-md">
                     {JOB_OPTIONS.map((option) => (
                       <li
                         key={option}
@@ -727,8 +742,8 @@ export function SignUpPage() {
                           setJobOpen(false)
                         }}
                         className={cn(
-                          'text-body1_m_16 cursor-pointer px-5 py-[13px] hover:bg-[#F5F5F5]',
-                          watchJob === option && 'bg-[#F0F5FF]'
+                          'text-body1_m_16 hover:bg-color-neutral-99 cursor-pointer px-5 py-[13px]',
+                          watchJob === option && 'bg-fill'
                         )}
                       >
                         {option}
@@ -738,7 +753,7 @@ export function SignUpPage() {
                 )}
               </div>
               {errors.job?.message && (
-                <p className="text-caption3_r_13 text-[#FF3B2F]">
+                <p className="text-caption3_r_13 text-color-red-50">
                   {errors.job.message}
                 </p>
               )}
@@ -770,15 +785,15 @@ export function SignUpPage() {
                           }
                         }}
                         onFocus={() => setUniversityOpen(true)}
-                        className="placeholder:text-body1_m_16 focus:border-primary h-[46px] w-full rounded-[12px] border border-[#D8D8D8] bg-white px-5 py-[11px] pr-11 outline-none placeholder:text-[#C4C4C4]"
+                        className="placeholder:text-body1_m_16 focus:border-primary border-line placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-11 outline-none"
                       />
                       <IoSearchOutline
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#909799]"
+                        className="text-color-cool-neutral-60 absolute right-4 top-1/2 -translate-y-1/2"
                         size={18}
                       />
                     </div>
                     {universityOpen && universityQuery.length > 0 && (
-                      <ul className="absolute z-10 mt-1 max-h-[200px] w-full overflow-y-auto rounded-[12px] border border-[#D8D8D8] bg-white shadow-md">
+                      <ul className="border-line absolute z-10 mt-1 max-h-[200px] w-full overflow-y-auto rounded-[12px] border bg-white shadow-md">
                         {filteredUniversities.length > 0 ? (
                           filteredUniversities.map((uni) => {
                             const displayName = getUniversityDisplayName(uni)
@@ -795,9 +810,8 @@ export function SignUpPage() {
                                   setUniversityOpen(false)
                                 }}
                                 className={cn(
-                                  'text-body1_m_16 cursor-pointer px-5 py-[13px] hover:bg-[#F5F5F5]',
-                                  watchUniversity === displayName &&
-                                    'bg-[#F0F5FF]'
+                                  'text-body1_m_16 hover:bg-color-neutral-99 cursor-pointer px-5 py-[13px]',
+                                  watchUniversity === displayName && 'bg-fill'
                                 )}
                               >
                                 {displayName}
@@ -805,15 +819,15 @@ export function SignUpPage() {
                             )
                           })
                         ) : (
-                          <li className="text-body1_m_16 px-5 py-[13px] text-[#909799]">
-                            검색 결과가 없습니다.
+                          <li className="text-body1_m_16 text-color-cool-neutral-60 px-5 py-[13px]">
+                            검색 결과가 없습니다
                           </li>
                         )}
                       </ul>
                     )}
                   </div>
                   {errors.university?.message && (
-                    <p className="text-caption3_r_13 text-[#FF3B2F]">
+                    <p className="text-caption3_r_13 text-color-red-50">
                       {errors.university.message}
                     </p>
                   )}
@@ -844,15 +858,15 @@ export function SignUpPage() {
                             setValue('major', '', { shouldValidate: true })
                           }}
                           onFocus={() => setMajorOpen(true)}
-                          className="placeholder:text-body1_m_16 focus:border-primary h-[46px] w-full rounded-[12px] border border-[#D8D8D8] bg-white px-5 py-[11px] pr-11 outline-none placeholder:text-[#C4C4C4]"
+                          className="placeholder:text-body1_m_16 focus:border-primary border-line placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-11 outline-none"
                         />
                         <IoSearchOutline
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#909799]"
+                          className="text-color-cool-neutral-60 absolute right-4 top-1/2 -translate-y-1/2"
                           size={18}
                         />
                       </div>
                       {majorOpen && majorQuery.length > 0 && (
-                        <ul className="absolute z-10 mt-1 max-h-[200px] w-full overflow-y-auto rounded-[12px] border border-[#D8D8D8] bg-white shadow-md">
+                        <ul className="border-line absolute z-10 mt-1 max-h-[200px] w-full overflow-y-auto rounded-[12px] border bg-white shadow-md">
                           {filteredMajors.length > 0 ? (
                             filteredMajors.map((major) => {
                               const displayName = getKoreanMajorName(major)
@@ -869,8 +883,8 @@ export function SignUpPage() {
                                     setMajorOpen(false)
                                   }}
                                   className={cn(
-                                    'text-body1_m_16 cursor-pointer px-5 py-[13px] hover:bg-[#F5F5F5]',
-                                    majorQuery === displayName && 'bg-[#F0F5FF]'
+                                    'text-body1_m_16 hover:bg-color-neutral-99 cursor-pointer px-5 py-[13px]',
+                                    majorQuery === displayName && 'bg-fill'
                                   )}
                                 >
                                   {displayName}
@@ -878,15 +892,15 @@ export function SignUpPage() {
                               )
                             })
                           ) : (
-                            <li className="text-body1_m_16 px-5 py-[13px] text-[#909799]">
-                              검색 결과가 없습니다.
+                            <li className="text-body1_m_16 text-color-cool-neutral-60 px-5 py-[13px]">
+                              검색 결과가 없습니다
                             </li>
                           )}
                         </ul>
                       )}
                     </div>
                     {errors.major?.message && (
-                      <p className="text-caption3_r_13 text-[#FF3B2F]">
+                      <p className="text-caption3_r_13 text-color-red-50">
                         {errors.major.message}
                       </p>
                     )}
@@ -901,15 +915,15 @@ export function SignUpPage() {
                       inputMode="numeric"
                       placeholder="학번 입력"
                       className={cn(
-                        'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
+                        'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
                         errors.studentId
                           ? 'border-error focus:border-error'
-                          : 'focus:border-primary border-[#D8D8D8]'
+                          : 'focus:border-primary border-line'
                       )}
                       {...register('studentId')}
                     />
                     {errors.studentId?.message && (
-                      <p className="text-caption3_r_13 text-[#FF3B2F]">
+                      <p className="text-caption3_r_13 text-color-red-50">
                         {errors.studentId.message}
                       </p>
                     )}
@@ -934,9 +948,9 @@ export function SignUpPage() {
                       value={emailLocal}
                       onChange={(e) => setEmailLocal(e.target.value)}
                       disabled={emailVerified}
-                      className="placeholder:text-body1_m_16 min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#C4C4C4]"
+                      className="placeholder:text-body1_m_16 placeholder:text-color-neutral-90 min-w-0 flex-1 bg-transparent outline-none"
                     />
-                    <span className="text-body1_m_16 shrink-0 text-[#555]">
+                    <span className="text-body1_m_16 text-color-neutral-30 shrink-0">
                       @skku.edu
                     </span>
                   </div>
@@ -948,7 +962,7 @@ export function SignUpPage() {
                     onChange={(e) => setEmailLocal(e.target.value)}
                     disabled={emailVerified}
                     className={cn(
-                      'placeholder:text-body1_m_16 h-[46px] flex-1 rounded-[12px] border bg-white px-5 py-[11px] outline-none placeholder:text-[#C4C4C4]',
+                      'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] flex-1 rounded-[12px] border bg-white px-5 py-[11px] outline-none',
                       getEmailBorderClass()
                     )}
                   />
@@ -965,13 +979,13 @@ export function SignUpPage() {
                 </button>
               </div>
               {errors.email?.message && (
-                <p className="text-caption3_r_13 text-[#FF3B2F]">
+                <p className="text-caption3_r_13 text-color-red-50">
                   {errors.email.message}
                 </p>
               )}
               {emailVerified && (
-                <p className="text-caption3_r_13 text-[#3581FA]">
-                  이메일 인증이 완료되었습니다.
+                <p className="text-caption3_r_13 text-primary">
+                  이메일 인증이 완료되었습니다
                 </p>
               )}
 
@@ -993,14 +1007,14 @@ export function SignUpPage() {
                       }}
                       disabled={codeExpired}
                       className={cn(
-                        'placeholder:text-body1_m_16 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-20 outline-none placeholder:text-[#C4C4C4]',
+                        'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-20 outline-none',
                         pinError || codeExpired
                           ? 'border-error focus:border-error'
-                          : 'focus:border-primary border-[#D8D8D8]'
+                          : 'focus:border-primary border-line'
                       )}
                     />
                     {!codeExpired && (
-                      <span className="text-caption3_r_13 absolute right-4 top-1/2 -translate-y-1/2 text-[#FF3B2F]">
+                      <span className="text-caption3_r_13 text-color-red-50 absolute right-4 top-1/2 -translate-y-1/2">
                         {formatTimer()}
                       </span>
                     )}
@@ -1009,19 +1023,21 @@ export function SignUpPage() {
                     type="button"
                     onClick={() => verifyPin(verificationCode)}
                     disabled={verificationCode.length !== 6 || codeExpired}
-                    className="text-caption2_m_12 h-[46px] shrink-0 rounded-[12px] bg-[#3581FA] px-4 text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    className="text-caption2_m_12 bg-primary h-[46px] shrink-0 rounded-[12px] px-4 text-white disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     인증 확인
                   </button>
                 </div>
               )}
               {codeExpired && (
-                <p className="text-caption3_r_13 text-[#FF3B2F]">
-                  인증 코드가 만료되었습니다. 재발송 버튼을 눌러주세요.
+                <p className="text-caption3_r_13 text-color-red-50">
+                  인증 코드가 만료되었습니다. 재발송 버튼을 눌러주세요
                 </p>
               )}
               {pinError && (
-                <p className="text-caption3_r_13 text-[#FF3B2F]">{pinError}</p>
+                <p className="text-caption3_r_13 text-color-red-50">
+                  {pinError}
+                </p>
               )}
             </div>
           </div>
@@ -1036,7 +1052,7 @@ export function SignUpPage() {
               전체동의
             </AgreementCheckbox>
 
-            <div className="border-b border-[#D8D8D8]" />
+            <div className="border-line border-b" />
 
             <AgreementCheckbox
               checked={agreements.terms}
@@ -1077,8 +1093,8 @@ export function SignUpPage() {
             className={cn(
               'text-sub3_sb_16 flex h-[52px] w-full items-center justify-center rounded-[12px] transition-colors',
               canSubmit
-                ? 'bg-[#3581FA] text-white hover:bg-[#2a6bd5]'
-                : 'cursor-not-allowed bg-[#E5E5E5] text-[#9B9B9B]'
+                ? 'bg-primary hover:bg-primary-strong text-white'
+                : 'bg-color-neutral-95 text-color-neutral-70 cursor-not-allowed'
             )}
           >
             가입하기
