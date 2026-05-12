@@ -1,7 +1,6 @@
 import { Badge } from '@/components/shadcn/badge'
 import { Card, CardContent } from '@/components/shadcn/card'
 import GrayRightArrowIcon from '@/public/icons/arrow-right-gray.svg'
-import RightArrow from '@/public/icons/arrow-right-white.svg'
 import type { Problem } from '@/types/type'
 import Image from 'next/image'
 import Link from 'next/link'
