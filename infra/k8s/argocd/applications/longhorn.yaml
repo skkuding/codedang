@@ -26,7 +26,7 @@ spec:
           defaultClassReplicaCount: 3
           # No effect on local-path pods
           defaultClass: false
-          reclaimPolicy: Delete
+          reclaimPolicy: Retain
   destination:
     namespace: longhorn-system
     name: stage
