@@ -7,9 +7,7 @@ export function ServiceCards() {
   return (
     <section className="font-pretendard flex w-full flex-col items-center gap-10">
       <div className="flex w-full max-w-[1208px] flex-col items-start gap-10">
-        <h2 className="text-[30px] font-semibold leading-9 tracking-[-0.9px] text-black">
-          SERVICE WE PROVIDE
-        </h2>
+        <p className="text-head1_b_40">코드당에는 어떤 기능이 있나요?</p>
 
         <div className="grid w-full auto-rows-[330px] grid-cols-2 gap-3 [@media(min-width:1140px)]:grid-cols-[41%_29%_28%]">
           <Link

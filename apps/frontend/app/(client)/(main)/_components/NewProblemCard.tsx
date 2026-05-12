@@ -10,26 +10,21 @@ export function NewProblemCard({ problem }: { problem: Problem }) {
   return (
     <div>
       <Card className="hidden border-none shadow-[3px_3px_20px_0_rgba(17,17,17,0.1)] md:flex">
-        <CardContent className="flex h-[340px] w-[300px] flex-col justify-between rounded-xl bg-white p-7">
-          <div className="flex flex-col items-start gap-10">
+        <CardContent className="flex h-[240px] w-[320px] flex-col justify-between rounded-xl bg-white p-7">
+          <div className="flex flex-col items-start gap-5">
             <Badge variant={problem.difficulty}>
               Level {problem.difficulty.slice(-1)}
             </Badge>
-            <h3 className="line-clamp-2 break-normal break-keep text-xl font-semibold">
+            <h3 className="text-head5_sb_24 line-clamp-2 break-normal break-keep">
               {problem.title}
             </h3>
           </div>
 
           <Link href={`/problem/${problem.id}`}>
-            <div className="flex h-12 items-center justify-between rounded-full bg-[#F5F5F5] py-1 pl-[50px] pr-1">
-              <p className="text-[18px] font-medium tracking-[-0.54px] text-[#737373]">
-                Go to Problem
+            <div className="flex h-[42px] w-[110px] items-center justify-center rounded-lg bg-black px-5 py-2">
+              <p className="text-body1_m_16 whitespace-nowrap text-white">
+                자세히 보기
               </p>
-              <div className="flex items-center gap-2.5 rounded-full bg-black p-2">
-                <div className="relative size-[24px]">
-                  <Image src={RightArrow} alt="Right" fill />
-                </div>
-              </div>
             </div>
           </Link>
         </CardContent>
