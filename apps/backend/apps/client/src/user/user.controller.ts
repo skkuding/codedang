@@ -15,7 +15,6 @@ import { DeleteUserDto } from './dto/deleteUser.dto'
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { SignUpDto } from './dto/signup.dto'
-import { SocialSignUpDto } from './dto/social-signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import { UpdateUserDto } from './dto/updateUser.dto'
 import { UserEmailDto } from './dto/userEmail.dto'
@@ -39,12 +38,6 @@ export class UserController {
   @AuthNotNeededIfPublic()
   async signUp(@Body() signUpDto: SignUpDto, @Req() req: Request) {
     await this.userService.signUp(req, signUpDto)
-  }
-
-  @Post('social-sign-up')
-  @AuthNotNeededIfPublic()
-  async socialSignUp(@Body() socialSignUpDto: SocialSignUpDto) {
-    return await this.userService.socialSignUp(socialSignUpDto)
   }
 
   @Delete()
