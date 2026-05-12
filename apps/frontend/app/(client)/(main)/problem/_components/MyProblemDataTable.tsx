@@ -34,7 +34,7 @@ export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
           <SearchBar className="w-60" sizeVariant="lg" />
           <Button
             asChild
-            className="text-body1_m_16 bg-primary h-[46px] shrink-0 whitespace-nowrap rounded-full px-5 py-2.5"
+            className="text-body1_m_16 bg-primary h-[46px] shrink-0 whitespace-nowrap rounded-full px-[22px] py-2.5"
           >
             <Link
               href="/problem/create"
@@ -61,7 +61,7 @@ export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
               <Link
                 key={problem.id}
                 href={href}
-                className="bg-background border-line outline-line inline-flex w-full flex-col items-start gap-5 rounded-2xl p-5 outline outline-1 outline-offset-[-1px] transition-transform duration-200 hover:-translate-y-1"
+                className="bg-background outline-color-cool-neutral-90 inline-flex w-full flex-col items-start gap-5 rounded-2xl p-5 outline outline-1 outline-offset-[-1px] transition-transform duration-200 hover:-translate-y-1"
               >
                 <div className="flex w-full flex-col items-start gap-3">
                   <div className="inline-flex w-20 items-center justify-center gap-2.5 rounded bg-[#EDF4FF] px-2.5 py-1">
@@ -94,7 +94,7 @@ export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
                     </div>
                   </div>
                   <div className="inline-flex items-center justify-start gap-1">
-                    <span className="text-caption3_r_13 justify-start text-right text-gray-400">
+                    <span className="text-caption3_r_13 text-color-neutral-90 justify-start text-right">
                       Last Modified:
                     </span>
                     <span className="text-caption3_r_13 justify-start text-right text-gray-500">
