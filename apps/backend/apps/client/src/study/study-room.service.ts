@@ -38,6 +38,7 @@ export class StudyRoomService {
     this.server = server
   }
 
+  // Room
   /**
    * 사용자 WebSocket을 스터디 룸에 입장시킵니다.
    *
@@ -351,11 +352,10 @@ export class StudyRoomService {
    * 5. 룸에 남아있는 참여자들에게 업데이트된 멤버 목록 브로드캐스트
    *
    * @param {Socket} client 연결된 Socket 인스턴스
-   * @param {number} groupId 스터디 그룹 ID
    * @returns 퇴장 성공 여부
    */
-  async leave(client: Socket, groupId: number): Promise<SocketResponse> {
-    const { userId } = client.data
+  async leave(client: Socket): Promise<SocketResponse> {
+    const { userId, groupId } = client.data
 
     client.data.groupId = undefined
 
@@ -574,6 +574,13 @@ export class StudyRoomService {
   async getMembers(groupId: number): Promise<RoomMember[]> {
     const raw = await this.redis.hgetall(membersKey(groupId))
     if (!raw) return []
-    return Object.values(raw).map((v) => JSON.parse(v) as RoomMember)
+    return Object.values(raw).flatMap((v) => {
+      try {
+        return [JSON.parse(v) as RoomMember]
+      } catch {
+        this.logger.error(`멤버 데이터 파싱 실패`)
+        return []
+      }
+    })
   }
 }

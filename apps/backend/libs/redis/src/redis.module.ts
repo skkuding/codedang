@@ -30,7 +30,6 @@ export const REDIS_CLIENT = 'REDIS_CLIENT'
           throw new Error(`Redis connection failed: ${error.message}`)
         }
 
-        // console.log('✅ Redis connected')
         return redis
       },
       inject: [ConfigService]
