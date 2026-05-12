@@ -2,6 +2,7 @@
 
 import { SearchBar } from '@/components/SearchBar'
 import { Button } from '@/components/shadcn/button'
+import { cn } from '@/libs/utils'
 import ClockGray from '@/public/icons/clock_gray.svg'
 import Memory from '@/public/icons/memory.svg'
 import PlusCircle from '@/public/icons/plus-circle-blue.svg'
@@ -14,6 +15,33 @@ import type { MyProblemCardItem } from './MyProblem'
 interface MyProblemDataTableProps {
   data: MyProblemCardItem[]
   search: string
+}
+
+const stateBadgeClassName = {
+  Draft: {
+    container: 'border border-line bg-color-neutral-99',
+    text: 'text-color-neutral-70'
+  },
+  Ready: {
+    container: 'border border-color-green-50 bg-white',
+    text: 'text-color-green-40'
+  },
+  Published: {
+    container: 'bg-[#EDF4FF]',
+    text: 'text-primary'
+  }
+} as const
+
+function getStateBadgeClassName(state: string) {
+  if (state === 'Draft' || state === 'DRAFT') {
+    return stateBadgeClassName.Draft
+  }
+
+  if (state === 'Ready' || state === 'READY') {
+    return stateBadgeClassName.Ready
+  }
+
+  return stateBadgeClassName.Published
 }
 
 export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
@@ -56,6 +84,7 @@ export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
           {data.map((problem) => {
             const href =
               `/problem/my-problem/${problem.id}${search ? `?search=${search}` : ''}` as Route
+            const badgeClassName = getStateBadgeClassName(problem.state)
 
             return (
               <Link
@@ -64,8 +93,18 @@ export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
                 className="bg-background outline-color-cool-neutral-90 inline-flex w-full flex-col items-start gap-5 rounded-2xl p-5 outline outline-1 outline-offset-[-1px] transition-transform duration-200 hover:-translate-y-1"
               >
                 <div className="flex w-full flex-col items-start gap-3">
-                  <div className="inline-flex w-20 items-center justify-center gap-2.5 rounded bg-[#EDF4FF] px-2.5 py-1">
-                    <span className="text-primary text-caption1_m_13 text-center">
+                  <div
+                    className={cn(
+                      'inline-flex items-center justify-center gap-2.5 rounded px-2.5 py-1',
+                      badgeClassName.container
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'text-caption1_m_13 text-center',
+                        badgeClassName.text
+                      )}
+                    >
                       {problem.state}
                     </span>
                   </div>

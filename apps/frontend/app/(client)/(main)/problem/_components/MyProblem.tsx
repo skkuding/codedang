@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { MyProblemDataTable } from './MyProblemDataTable'
 
 export interface MyProblemCardItem extends Problem {
-  state: 'ONGOING' | 'DRAFT' | 'REVIEW'
+  state: 'Draft' | 'Ready' | 'Published'
   timeLimit: number
   memoryLimit: number
   updatedAt: string
@@ -23,7 +23,7 @@ const MOCK_MY_PROBLEMS: MyProblemCardItem[] = Array.from(
     const difficulty = `Level${(index % 5) + 1}` as Problem['difficulty']
     const submissionCount = 24 + index * 7
     const acceptedRate = ((index % 9) + 2) / 12
-    const states: MyProblemCardItem['state'][] = ['ONGOING', 'DRAFT', 'REVIEW']
+    const states: MyProblemCardItem['state'][] = ['Published', 'Draft', 'Ready']
 
     return {
       id,
