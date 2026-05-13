@@ -229,11 +229,11 @@ export class StudyRoomService {
       isLeader: membership.isLeader,
       groupId
     }
+
     client.join(roomKey(groupId))
 
     await this.addMember(groupId, userId, {
       userId,
-      socketId: client.id,
       userName: membership.userName,
       isLeader: membership.isLeader,
       joinedAt: now
@@ -413,7 +413,7 @@ export class StudyRoomService {
 
     await this.queue.add(
       JOB_RECONNECT_EXPIRE,
-      { userId, groupId, userName },
+      { userId, groupId },
       {
         jobId,
         delay: RECONNECT_GRACE_SEC * 1000,
