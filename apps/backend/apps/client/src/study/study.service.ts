@@ -450,6 +450,7 @@ export class StudyService {
    * @returns 사용자의 ID, 이름, 리더 여부, 만료 시간을 포함한 객체
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * - 사용자가 해당 그룹에 속해있지 않을 경우 발생
+   * - 해당 스터디 그룹의 endTime이 없을 경우 발생
    */
   async validateJoinableStudyGroup(groupId: number, userId: number) {
     const membership = await this.prisma.userGroup.findUnique({
@@ -480,11 +481,15 @@ export class StudyService {
       throw new ForbiddenAccessException('User ID is not in the group')
     }
 
+    if (!membership.group.studyInfo?.endTime) {
+      throw new ForbiddenAccessException('Study group session is not available')
+    }
+
     return {
       userId: membership.userId,
       userName: membership.user.username,
       isLeader: membership.isGroupLeader,
-      endTime: membership.group.studyInfo!.endTime
+      endTime: membership.group.studyInfo.endTime
     }
   }
 }

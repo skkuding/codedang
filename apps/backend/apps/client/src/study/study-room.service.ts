@@ -70,10 +70,15 @@ export class StudyRoomService {
       return { success: false, message: check.message }
     }
 
-    const membership = await this.studyService.validateJoinableStudyGroup(
-      groupId,
-      userId
-    )
+    let membership
+    try {
+      membership = await this.studyService.validateJoinableStudyGroup(
+        groupId,
+        userId
+      )
+    } catch {
+      return { success: false, message: '입장 권한이 없습니다.' }
+    }
 
     const now = Date.now()
 
@@ -94,6 +99,12 @@ export class StudyRoomService {
     const isRecovered = check.isRecovered ?? false
     await this.enterRoom(client, groupId, userId, membership, now, isRecovered)
 
+    if (isFirst)
+      await this.redis.expireat(
+        membersKey(groupId),
+        Math.ceil((membership.endTime.getTime() + 60_000) / 1000)
+      )
+
     const members = await this.getMembers(groupId)
 
     if (isFirst) await this.onFirstJoin(groupId, state, members)
@@ -105,7 +116,7 @@ export class StudyRoomService {
       data: {
         members,
         endAt: state.endAt,
-        remainMs: Math.max(0, state.endAt - now),
+        remainMs: Math.max(0, state.endAt - Date.now()),
         hostUserId: state.hostUserId
       }
     }
@@ -130,14 +141,14 @@ export class StudyRoomService {
     code?: string
     message?: string
   }> {
-    const [existingMember, reconnectRaw] = await Promise.all([
-      this.redis.hget(membersKey(groupId), String(userId)),
+    const [memberExists, reconnectRaw] = await Promise.all([
+      this.redis.hexists(membersKey(groupId), String(userId)),
       this.redis.get(reconnectKey(groupId, userId))
     ])
 
     const isRecovered = !!reconnectRaw
 
-    if (existingMember && !isRecovered)
+    if (memberExists && !isRecovered)
       return { ok: false, message: '이미 이 룸에 참여 중입니다.' }
 
     return { ok: true, isRecovered }
