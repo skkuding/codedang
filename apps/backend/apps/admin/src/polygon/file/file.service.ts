@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import type { ToolType } from '@prisma/client'
+import { Prisma, type ToolType } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
-import { UnprocessableDataException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 const MAX_TOOL_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -41,9 +44,19 @@ export class FileService {
   }
 
   async deletePolygonFile(problemId: number, toolType: ToolType) {
-    return await this.prisma.polygonTool.delete({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { problemId_toolType: { problemId, toolType } }
-    })
+    try {
+      return await this.prisma.polygonTool.delete({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { problemId_toolType: { problemId, toolType } }
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('PolygonTool')
+      }
+      throw error
+    }
   }
 }
