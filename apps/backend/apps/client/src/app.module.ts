@@ -61,10 +61,11 @@ import { WorkbookModule } from './workbook/workbook.module'
     RedisModule,
     BullModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         connection: {
-          host: config.get<string>('REDIS_HOST'),
-          port: config.get<number>('REDIS_PORT'),
+          host: configService.get<string>('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
+          password: configService.get<string>('REDIS_PASSWORD'),
           db: 1
         },
         prefix: 'bull-client'

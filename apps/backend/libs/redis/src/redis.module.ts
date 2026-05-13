@@ -10,16 +10,17 @@ export const REDIS_CLIENT = 'REDIS_CLIENT'
   providers: [
     {
       provide: REDIS_CLIENT,
-      useFactory: async (config: ConfigService) => {
-        const host = config.get<string>('REDIS_HOST')
-        const port = config.get<number>('REDIS_PORT')
+      useFactory: async (configService: ConfigService) => {
+        const host = configService.get<string>('REDIS_HOST')
+        const port = configService.get<number>('REDIS_PORT')
+        const password = configService.get<string>('REDIS_PASSWORD')
         const db = 1
 
         if (!host || !port) {
           throw new Error('Redis host and port must be configured')
         }
 
-        const redis = new Redis({ host, port, db })
+        const redis = new Redis({ host, port, password, db })
 
         try {
           const result = await redis.ping()
