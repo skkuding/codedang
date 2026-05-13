@@ -24,7 +24,6 @@ export interface RoomState {
 
 export interface RoomMember {
   userId: number
-  socketId: string
   userName: string
   isLeader: boolean
   joinedAt: number
