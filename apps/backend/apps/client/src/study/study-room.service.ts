@@ -355,7 +355,7 @@ export class StudyRoomService {
   /**
    * 사용자가 스터디 룸을 정상적으로 퇴장합니다.
    *
-   * 1. client.data에서 groupId를 초기화
+   * 1. client.data.room을 초기화하여 룸 데이터 제거
    * 2. Redis Hash에서 해당 사용자의 멤버 정보 삭제
    * 3. Socket.io 룸에서 클라이언트를 제외(leave)
    * 4. 호스트 퇴장 시 새 호스트 지정
