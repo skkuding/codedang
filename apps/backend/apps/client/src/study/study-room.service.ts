@@ -60,7 +60,7 @@ export class StudyRoomService {
     client: Socket,
     groupId: number
   ): Promise<SocketResponse<JoinResponse>> {
-    const userId: number = client.data.userId
+    const userId: number = client.data.user.id
 
     const check = await this.checkJoinable(groupId, userId)
     if (!check.ok) {
@@ -213,8 +213,7 @@ export class StudyRoomService {
       }
     }
 
-    client.data = {
-      ...client.data,
+    client.data.room = {
       userName: membership.userName,
       isLeader: membership.isLeader,
       groupId
@@ -282,8 +281,8 @@ export class StudyRoomService {
     members: RoomMember[]
   ): void {
     this.server.to(roomKey(groupId)).emit('room:participantReconnected', {
-      userId: client.data.userId,
-      userName: client.data.userName,
+      userId: client.data.user.id,
+      userName: client.data.room.userName,
       members
     })
   }
@@ -355,9 +354,10 @@ export class StudyRoomService {
    * @returns 퇴장 성공 여부
    */
   async leave(client: Socket): Promise<SocketResponse> {
-    const { userId, groupId } = client.data
+    const userId = client.data.user.id
+    const groupId = client.data.room.groupId
 
-    client.data.groupId = undefined
+    client.data.room = undefined
 
     await this.removeMember(groupId, userId)
     client.leave(roomKey(groupId))
@@ -381,9 +381,13 @@ export class StudyRoomService {
    * @param {Socket} client 연결된 Socket 인스턴스
    */
   async handleDisconnect(client: Socket): Promise<void> {
-    const { userId, groupId, userName } = client.data ?? {}
+    const userId = client.data.user?.id
+
+    const groupId = client.data.room?.groupId
     if (!userId || !groupId) return
-    client.data.groupId = undefined
+
+    const userName = client.data.room.userName
+    client.data.room = undefined
 
     await this.redis.set(
       reconnectKey(groupId, userId),
@@ -448,7 +452,12 @@ export class StudyRoomService {
     )
 
     const sockets = await this.server.in(roomKey(groupId)).fetchSockets()
-    await Promise.all(sockets.map((s) => s.leave(roomKey(groupId))))
+    await Promise.all(
+      sockets.map((s) => {
+        s.data.room = undefined
+        s.leave(roomKey(groupId))
+      })
+    )
 
     await Promise.all([
       this.redis.del(roomKey(groupId)),
