@@ -69,9 +69,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         throw err || new UnauthorizedException()
       }
       client.data.user = user
-      client.data.userId = user.id ?? user.userId
-      client.data.userName = user.username
-      client.data.userRole = user.role ?? user.userRole
 
       return user
     }

@@ -47,36 +47,27 @@ export class StudyGateway implements OnGatewayInit, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: JoinPayload
   ) {
-    const { groupId } = this.parsePayload(client, payload?.groupId)
+    const groupId = this.parseGroupId(payload?.groupId)
     return this.studyRoomService.join(client, groupId)
   }
 
   @SubscribeMessage('room:leave')
   async handleLeave(@ConnectedSocket() client: Socket) {
-    const userId = client.data.userId
-    if (!userId) throw new WsException('Unauthorized')
-    const groupId = client.data.groupId
-    if (!groupId) throw new WsException('룸에 참여 중이 아닙니다.')
-
-    return this.studyRoomService.leave(client, groupId)
+    this.assertInRoom(client)
+    return this.studyRoomService.leave(client)
   }
 
-  private parsePayload(
-    client: Socket,
-    rawGroupId: unknown
-  ): { userId: number; groupId: number } {
-    const userId = client.data.userId
-    if (!userId) throw new WsException('Unauthorized')
+  private parseGroupId(rawGroupId: unknown): number {
+    const groupId = Number(rawGroupId)
 
-    const groupId = this.parsePositiveInt(rawGroupId)
-    if (!groupId) throw new WsException('groupId must be a positive integer')
+    if (!Number.isInteger(groupId) || groupId <= 0)
+      throw new WsException('groupId must be a positive integer')
 
-    return { userId, groupId }
+    return groupId
   }
 
-  private parsePositiveInt(value: unknown): number | null {
-    const num = Number(value)
-    if (!Number.isInteger(num) || num <= 0) return null
-    return num
+  private assertInRoom(client: Socket): void {
+    if (!client.data.room?.groupId)
+      throw new WsException('룸에 참여 중이 아닙니다.')
   }
 }
