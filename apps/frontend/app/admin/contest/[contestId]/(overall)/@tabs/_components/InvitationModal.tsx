@@ -40,7 +40,7 @@ export function InvitationModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          className={`border-primary text-primary ml-5 h-[46px] w-[111px] border bg-white px-6 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px] hover:bg-white ${disabled ? 'pointer-events-none' : ''}`}
+          className={`border-primary text-primary text-body1_m_16 ml-5 h-[46px] w-[111px] border bg-white px-6 py-3 leading-[22.4px] tracking-[-0.48px] hover:bg-white ${disabled ? 'pointer-events-none' : ''}`}
           type="button"
         >
           Invitation
@@ -61,7 +61,7 @@ export function InvitationModal({
 
         <div className="mt-2 flex items-center justify-center text-center">
           <Image src={bulletIcon} alt="bullet" width={20} />
-          <span className="text-primary text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
+          <span className="text-primary text-body2_m_14 leading-[19.6px] tracking-[-0.42px]">
             Contest Admin
           </span>
           <span className="text-color-neutral-30 mx-1 text-sm font-normal leading-[21px] tracking-[-0.42px]">

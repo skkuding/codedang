@@ -71,9 +71,9 @@ export function DataTablePagination({
               key={pageNumber}
               type="button"
               className={cn(
-                'flex h-[40px] items-center justify-center p-[8px] text-sm font-medium transition-colors',
+                'text-body2_m_14 flex h-[40px] items-center justify-center p-[8px] transition-colors',
                 'min-w-[42px]',
-                'text-base font-medium text-[#8A8A8A]',
+                'text-body1_m_16 text-[#8A8A8A]',
                 table.getState().pagination.pageIndex === pageNumber - 1 &&
                   'text-primary-strong'
               )}

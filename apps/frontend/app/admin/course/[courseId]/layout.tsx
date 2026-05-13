@@ -1,6 +1,6 @@
 'use client'
 
-import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
+import { GET_COURSE } from '@/graphql/course/queries'
 import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import type { Route } from 'next'
@@ -16,11 +16,12 @@ export default function CourseDetailLayout({
   const params = useParams()
   const courseId = params?.courseId as string
 
-  const { data, loading } = useQuery(GET_COURSES_USER_LEAD)
+  const { data, loading } = useQuery(GET_COURSE, {
+    variables: { groupId: Number(courseId) },
+    skip: !courseId
+  })
 
-  const currentCourse = data?.getCoursesUserLead?.find(
-    (course: { id: string | number }) => String(course.id) === String(courseId)
-  )
+  const currentCourse = data?.getCourse
 
   const courseNum = currentCourse?.courseInfo?.courseNum
   const classNum = currentCourse?.courseInfo?.classNum
@@ -36,23 +37,24 @@ export default function CourseDetailLayout({
     { name: 'Exercise', href: `/admin/course/${courseId}/exercise` }
   ]
 
-  const activeTabName = `${tabs.find((tab) => pathname === tab.href)?.name || 'Home'} LIST`
+  const activeTabName =
+    tabs.find((tab) => pathname === tab.href)?.name || 'Home'
 
   return (
     <div className="flex min-h-screen w-full flex-col overflow-y-scroll bg-white">
       <div className="mx-auto w-full pb-[71px] pl-[86px] pr-[106px] pt-[80px]">
         <div className="w-full">
-          <h1 className="text-[28px] font-bold uppercase leading-[130%] tracking-[-0.84px] text-black">
+          <h1 className="text-head3_sb_28 uppercase text-black">
             {activeTabName}
           </h1>
-          <p className="text-[16px] font-medium leading-[150%] tracking-[-0.48px] text-[#737373]">
+          <p className="text-body1_m_16 text-[#737373]">
             [{displayCode}] {displayName}
           </p>
         </div>
 
         <div className="mx-auto my-10 w-full">
           <div className="w-full">
-            <nav className="flex w-full justify-start">
+            <nav className="flex w-full justify-start border-b border-gray-200">
               {tabs.map((tab) => {
                 const isActive = pathname === tab.href
                 return (
@@ -60,9 +62,9 @@ export default function CourseDetailLayout({
                     key={`tab-${tab.name}`}
                     href={tab.href as Route}
                     className={cn(
-                      'relative flex h-[40px] w-[285.5px] items-center justify-center pb-4 text-sm font-semibold transition-colors',
+                      'text-sub4_sb_14 relative flex h-[40px] w-[285.5px] items-center justify-center pb-4 transition-colors',
                       isActive
-                        ? 'text-blue-500 after:absolute after:bottom-[-1px] after:left-0 after:h-[2px] after:w-full after:bg-blue-500'
+                        ? 'text-primary after:bg-primary after:absolute after:bottom-[-1px] after:left-0 after:h-[2px] after:w-full'
                         : 'text-gray-400 hover:text-gray-600'
                     )}
                   >

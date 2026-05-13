@@ -3,8 +3,8 @@
 import { AlertModal } from '@/components/AlertModal'
 import { ModalSection } from '@/components/ModalSection'
 import { Button } from '@/components/shadcn/button'
-// eslint-disable-next-line no-restricted-imports
-import { useMutation, gql } from '@apollo/client'
+import { DUPLICATE_COURSE } from '@/graphql/course/mutation'
+import { useMutation } from '@apollo/client'
 import { useState } from 'react'
 import { GoAlertFill } from 'react-icons/go'
 import { IoCopy } from 'react-icons/io5'
@@ -19,29 +19,7 @@ export function DuplicateCourseButton({
   onSuccess
 }: DuplicateCourseButtonProps) {
   const { table } = useDataTable<{ id: number; title: string }>()
-  const [duplicateCourse] = useMutation<
-    unknown,
-    {
-      groupId: number
-      input: {
-        classNum: number
-        courseNum: string
-        semester: string
-      }
-    }
-  >(gql`
-    mutation duplicateCourseRemote(
-      $groupId: Int!
-      $input: DuplicateCourseInput!
-    ) {
-      duplicateCourse(groupId: $groupId, input: $input) {
-        duplicatedCourse {
-          id
-          groupName
-        }
-      }
-    }
-  `)
+  const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
   const selectedCount = table.getSelectedRowModel().rows.length
   const canDuplicate = selectedCount === 1
 
@@ -139,7 +117,7 @@ export function DuplicateCourseButton({
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Course Number</label>
+          <label className="text-body2_m_14">Course Number</label>
           <input
             value={courseNum}
             onChange={(e) => setCourseNum(e.target.value)}
@@ -149,7 +127,7 @@ export function DuplicateCourseButton({
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Semester</label>
+          <label className="text-body2_m_14">Semester</label>
           <input
             value={semester}
             onChange={(e) => setSemester(e.target.value)}
@@ -159,7 +137,7 @@ export function DuplicateCourseButton({
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Class Number</label>
+        <label className="text-body2_m_14">Class Number</label>
         <input
           value={classNum}
           onChange={(e) => setClassNum(e.target.value)}

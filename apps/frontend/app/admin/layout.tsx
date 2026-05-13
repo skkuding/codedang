@@ -73,7 +73,7 @@ export default async function Layout({
   return (
     <ClientApolloProvider session={session}>
       <div className="flex h-dvh overflow-hidden bg-white">
-        <nav className="shrink-0 bg-white text-sm font-medium">
+        <nav className="text-body2_m_14 shrink-0 bg-white">
           <ManagementSidebar session={session} />
         </nav>
         {/*NOTE: full width - sidebar width */}

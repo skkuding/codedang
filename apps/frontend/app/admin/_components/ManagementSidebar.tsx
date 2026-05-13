@@ -239,12 +239,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
           </button>
         </div>
 
-        <div
-          className={cn(
-            'mb-6 flex items-center justify-center',
-            isMainSidebarExpanded ? 'w-full' : 'w-full'
-          )}
-        >
+        <div className={cn('mb-6 flex items-center justify-center')}>
           {isMainSidebarExpanded ? (
             <Link href="/">
               <Image
@@ -267,6 +262,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
           )}
         </div>
 
+        <Separator className="mb-6" />
         <div className="flex flex-col gap-2">
           {getFilteredMainNavItems().map((item) => (
             <div key={item.name} className="w-full text-center">

@@ -229,7 +229,7 @@ export function PlagiarismClusterDialog({
                     type="button"
                     onClick={handleCompareSelected}
                     disabled={selectedSubmissionIds.length !== 2}
-                    className="bg-primary rounded-md px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+                    className="bg-primary text-body2_m_14 rounded-md px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
                   >
                     Compare selected submissions
                   </button>
