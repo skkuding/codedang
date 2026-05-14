@@ -59,10 +59,8 @@ jobs:
               - 'pnpm-workspace.yaml'
             infra_ansible:
               - 'infra/ansible/**'
-              - '.github/workflows/ci.yml'
             infra_ssh_keys:
               - 'infra/ansible/ssh_publickey/**'
-              - '.github/workflows/ci.yml'
 
   # ===========================================================================
   # Common
