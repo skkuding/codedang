@@ -1,7 +1,9 @@
+import { Injectable } from '@nestjs/common'
 import { Language, ToolType } from '@prisma/client'
-import type { PolygonAMQPService } from '@libs/amqp'
-import type { PrismaService } from '@libs/prisma'
+import { PolygonAMQPService } from '@libs/amqp'
+import { PrismaService } from '@libs/prisma'
 
+@Injectable()
 export class PolygonPublicationService {
   constructor(
     private readonly prisma: PrismaService,
