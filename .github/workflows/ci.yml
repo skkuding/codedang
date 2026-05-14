@@ -23,6 +23,7 @@ jobs:
       backend_test: ${{ steps.filter.outputs.backend_test }}
       iris: ${{ steps.filter.outputs.iris }}
       plag: ${{ steps.filter.outputs.plag }}
+      go_lint: ${{ steps.filter.outputs.go_lint }}
       frontend: ${{ steps.filter.outputs.frontend }}
       infra_ansible: ${{ steps.filter.outputs.infra_ansible }}
       infra_ssh_keys: ${{ steps.filter.outputs.infra_ssh_keys }}
@@ -58,6 +59,9 @@ jobs:
             iris:
               - 'apps/iris/**'
             plag:
+              - 'apps/plag/**'
+            go_lint:
+              - 'apps/iris/**'
               - 'apps/plag/**'
             frontend:
               - 'apps/frontend/**'
@@ -97,9 +101,32 @@ jobs:
       - name: Check types (frontend)
         run: pnpm --filter="@codedang/frontend" exec tsc --noEmit
 
-  lint:
-    name: Lint
+  lint-pr-title:
+    name: Lint PR Title
     needs: detect-changes
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        if: ${{ github.event_name == 'pull_request' }}
+
+      - uses: ./.github/actions/setup-pnpm
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          install: 'no'
+
+      - name: Install root dependencies
+        if: ${{ github.event_name == 'pull_request' }}
+        run: pnpm install -w --filter codedang
+
+      - name: Lint pull request title
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "${{ github.event.pull_request.title }}" | pnpm commitlint --verbose
+
+  lint-node:
+    name: Lint Node.js
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.typecheck == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -115,27 +142,8 @@ jobs:
       - name: Install root and frontend dependencies
         run: pnpm install -w --filter frontend
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: apps/iris/go.mod
-          cache-dependency-path: apps/iris/go.sum
-
-      - name: Lint pull request title
-        if: ${{ github.event_name == 'pull_request' }}
-        run: echo "${{ github.event.pull_request.title }}" | pnpm commitlint --verbose
-
       - name: Check style (Node.js)
         run: git diff --name-only --diff-filter=ACMRUXB origin/main | xargs -r pnpm prettier -c --ignore-unknown --no-error-on-unmatched-pattern
-
-      - name: Check Style (Go)
-        run: |
-          if [ -n "$(gofmt -l .)" ]; then
-            echo "Go files must be formatted with gofmt. Please run:"
-            echo "  go fmt ./..."
-            exit 1
-          fi
-        working-directory: ./apps/iris
 
       - name: Lint (Node.js)
         run: git diff --name-only --diff-filter=ACMRUXB origin/main | grep -E "(.ts$|.tsx$|.js$|.jsx$)" | grep -v 'next.config.js$' | xargs -r pnpm eslint
@@ -143,6 +151,29 @@ jobs:
   # ===========================================================================
   # Backend
   # ===========================================================================
+
+  lint-go:
+    name: Lint Go
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.go_lint == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/iris/go.mod
+          cache-dependency-path: apps/iris/go.sum
+
+      - name: Check Style (Go)
+        run: |
+          if [ -n "$(gofmt -l apps/iris apps/plag)" ]; then
+            echo "Go files must be formatted with gofmt. Please run:"
+            echo "  go fmt ./..."
+            exit 1
+          fi
 
   build-backend-client:
     name: Build Backend (client)
@@ -479,7 +510,9 @@ jobs:
     needs:
       - detect-changes
       - typecheck
-      - lint
+      - lint-pr-title
+      - lint-node
+      - lint-go
       - build-backend-client
       - build-backend-admin
       - test-backend
@@ -499,7 +532,9 @@ jobs:
           results=(
             "detect-changes:${{ needs['detect-changes'].result }}"
             "typecheck:${{ needs.typecheck.result }}"
-            "lint:${{ needs.lint.result }}"
+            "lint-pr-title:${{ needs['lint-pr-title'].result }}"
+            "lint-node:${{ needs['lint-node'].result }}"
+            "lint-go:${{ needs['lint-go'].result }}"
             "build-backend-client:${{ needs['build-backend-client'].result }}"
             "build-backend-admin:${{ needs['build-backend-admin'].result }}"
             "test-backend:${{ needs['test-backend'].result }}"
