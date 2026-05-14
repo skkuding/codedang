@@ -17,6 +17,7 @@ jobs:
     name: Detect Changes
     runs-on: ubuntu-latest
     outputs:
+      ci_workflow: ${{ steps.filter.outputs.ci_workflow }}
       typecheck: ${{ steps.filter.outputs.typecheck }}
       backend_client: ${{ steps.filter.outputs.backend_client }}
       backend_admin: ${{ steps.filter.outputs.backend_admin }}
@@ -35,6 +36,8 @@ jobs:
         id: filter
         with:
           filters: |
+            ci_workflow:
+              - '.github/workflows/ci.yml'
             typecheck:
               - 'apps/backend/**'
               - 'apps/frontend/**'
@@ -501,6 +504,67 @@ jobs:
 
           echo "All keys are valid"
 
+  validate-ci-workflow:
+    name: Validate CI Workflow
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.ci_workflow == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate CI gate wiring
+        shell: ruby {0}
+        run: |
+          require 'set'
+          require 'yaml'
+
+          workflow = YAML.load_file('.github/workflows/ci.yml')
+          jobs = workflow.fetch('jobs')
+          errors = []
+
+          detect_job = jobs.fetch('detect-changes')
+          detect_outputs = detect_job.fetch('outputs')
+          filter_step = detect_job.fetch('steps').find { |step| step['id'] == 'filter' }
+          filters = YAML.safe_load(filter_step.fetch('with').fetch('filters'), aliases: true)
+
+          detect_outputs.each do |name, expression|
+            match = expression.match(/\A\$\{\{\s*steps\.filter\.outputs\.([A-Za-z0-9_]+)\s*\}\}\z/)
+            errors << "detect-changes output #{name} does not map to steps.filter.outputs.#{name}" if match.nil? || match[1] != name
+            errors << "detect-changes output #{name} has no paths-filter entry" unless filters.key?(name)
+          end
+
+          gate_job = jobs.fetch('ci-gate')
+          gate_needs = Array(gate_job.fetch('needs'))
+          gate_script = gate_job.fetch('steps').map { |step| step['run'] }.compact.join("\n")
+          gate_results = gate_script.scan(/"([^":]+):\$\{\{\s*needs/).flatten.to_set
+
+          gate_needs.each do |job_name|
+            errors << "ci-gate needs unknown job #{job_name}" unless jobs.key?(job_name)
+            errors << "ci-gate does not check result for #{job_name}" unless gate_results.include?(job_name)
+          end
+
+          gate_results.each do |job_name|
+            errors << "ci-gate checks result for job not listed in needs: #{job_name}" unless gate_needs.include?(job_name)
+          end
+
+          jobs.each do |job_name, job|
+            next if ['detect-changes', 'ci-gate'].include?(job_name)
+
+            errors << "#{job_name} is not listed in ci-gate needs" unless gate_needs.include?(job_name)
+
+            condition = job['if'].to_s
+            condition.scan(/needs\[['"]detect-changes['"]\]\.outputs\.([A-Za-z0-9_]+)/).flatten.each do |output|
+              errors << "#{job_name} references unknown detect-changes output #{output}" unless detect_outputs.key?(output)
+            end
+          end
+
+          if errors.empty?
+            puts 'CI workflow wiring is valid'
+          else
+            errors.each { |error| warn "ERROR: #{error}" }
+            exit 1
+          end
+
   # ===========================================================================
   # Gate
   # ===========================================================================
@@ -521,6 +585,7 @@ jobs:
       - build-frontend
       - ansible-lint
       - check-ssh-public-keys
+      - validate-ci-workflow
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -543,6 +608,7 @@ jobs:
             "build-frontend:${{ needs['build-frontend'].result }}"
             "ansible-lint:${{ needs['ansible-lint'].result }}"
             "check-ssh-public-keys:${{ needs['check-ssh-public-keys'].result }}"
+            "validate-ci-workflow:${{ needs['validate-ci-workflow'].result }}"
           )
 
           failed=0
