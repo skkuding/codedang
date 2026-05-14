@@ -46,6 +46,8 @@ export class StudyRoomService {
    * 2. 사용자의 스터디 그룹 참여 권한 검증
    * 3. Redis에서 룸 상태 생성 또는 기존 상태 조회하고 유효성 검증
    * 4. Socket.IO 룸 입장 및 Redis 멤버 정보 등록
+   *    - 신규: HSETNX로 중복 입장 차단
+   *    - 재연결: reconnectKey DEL 성공 여부로 중복 재연결 차단
    * 5. 입장 케이스에 따라 이벤트 emit
    *    - 첫 번째 입장이면 room:started 이벤트 브로드캐스트
    *    - 재연결 입장이면 room:participantReconnected 이벤트 emit
@@ -97,7 +99,16 @@ export class StudyRoomService {
       return { success: false, message: '룸 상태 가져오지 못했습니다.' }
 
     const isRecovered = check.isRecovered ?? false
-    await this.enterRoom(client, groupId, userId, membership, now, isRecovered)
+    const entered = await this.enterRoom(
+      client,
+      groupId,
+      userId,
+      membership,
+      now,
+      isRecovered
+    )
+    if (!entered)
+      return { success: false, message: '이미 이 룸에 참여 중입니다.' }
 
     if (isFirst)
       await this.redis.expireat(
@@ -194,9 +205,13 @@ export class StudyRoomService {
   /**
    * 검증이 완료된 사용자를 실제 스터디 룸에 입장 처리합니다.
    *
-   * 1. 재연결 입장인 경우 reconnectKey 삭제를 시도하고, 예약되어 있던 재연결 만료 작업 취소
+   * 1. 재연결 입장인 경우 reconnectKey를 원자적으로 삭제
+   *    - 삭제 실패(0)이면 다른 요청이 이미 재연결 처리 중으로 보고 false 반환
+   *    - 삭제 성공(1)이면 예약된 재연결 만료 작업 취소
    * 2. socket.data에 사용자 메타데이터를 저장
-   * 3. Socket.IO 룸에 참여
+   * 3. 신규 입장인 경우 HSETNX로 원자적으로 멤버 등록
+   *    - 이미 존재하면(0) 중복 입장으로 판단 → false 반환
+   *    - 재연결 입장인 경우 HSET으로 멤버 정보 갱신
    * 4. Redis 멤버 목록에 현재 소켓 정보 등록
    *
    * @param {Socket} client 연결된 Socket 인스턴스
@@ -205,6 +220,7 @@ export class StudyRoomService {
    * @param { userName: string; isLeader: boolean } membership 사용자 이름과 리더 여부
    * @param {number} now 입장 시각(ms)
    * @param {boolean} isRecovered 재연결 복구 여부
+   * @returns 입장 성공 여부 (false면 중복 입장 또는 재연결 경쟁 패배)
    */
   private async enterRoom(
     client: Socket,
@@ -213,15 +229,15 @@ export class StudyRoomService {
     membership: { userName: string; isLeader: boolean },
     now: number,
     isRecovered: boolean
-  ): Promise<void> {
+  ): Promise<boolean> {
     if (isRecovered) {
       const deleted = await this.redis.del(reconnectKey(groupId, userId))
-      if (deleted) {
-        const job = await this.queue.getJob(
-          `${JOB_RECONNECT_EXPIRE}:${groupId}:${userId}`
-        )
-        await job?.remove()
-      }
+      if (!deleted) return false
+
+      const job = await this.queue.getJob(
+        `${JOB_RECONNECT_EXPIRE}:${groupId}:${userId}`
+      )
+      await job?.remove()
     }
 
     client.data.room = {
@@ -230,14 +246,30 @@ export class StudyRoomService {
       groupId
     }
 
-    client.join(roomKey(groupId))
-
-    await this.addMember(groupId, userId, {
+    const member: RoomMember = {
       userId,
       userName: membership.userName,
       isLeader: membership.isLeader,
       joinedAt: now
-    })
+    }
+
+    if (isRecovered) {
+      await this.redis.hset(
+        membersKey(groupId),
+        String(userId),
+        JSON.stringify(member)
+      )
+    } else {
+      const added = await this.redis.hsetnx(
+        membersKey(groupId),
+        String(userId),
+        JSON.stringify(member)
+      )
+      if (!added) return false
+    }
+
+    client.join(roomKey(groupId))
+    return true
   }
 
   /**
@@ -554,25 +586,6 @@ export class StudyRoomService {
   private async getRoomState(groupId: number): Promise<RoomState | null> {
     const raw = await this.redis.get(roomKey(groupId))
     return raw ? (JSON.parse(raw) as RoomState) : null
-  }
-
-  /**
-   * Redis Hash에 멤버 정보를 사용자 ID를 키로 하여 추가합니다.
-   *
-   * @param {number} groupId 스터디 그룹 ID
-   * @param {number} userId 사용자 ID
-   * @param {RoomMember} member 저장할 멤버 정보
-   */
-  private async addMember(
-    groupId: number,
-    userId: number,
-    member: RoomMember
-  ): Promise<void> {
-    await this.redis.hset(
-      membersKey(groupId),
-      String(userId),
-      JSON.stringify(member)
-    )
   }
 
   /**
