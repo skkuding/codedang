@@ -19,7 +19,11 @@ export class PolygonService {
     file: FileUpload
   ) {
     //DB에 파일 저장
-    await this.fileService.uploadPolygonToolFile(problemId, toolType, file)
+    return await this.fileService.uploadPolygonToolFile(
+      problemId,
+      toolType,
+      file
+    )
   }
 
   async deletePolygonTool(problemId: number, toolType: ToolType) {
