@@ -10,11 +10,67 @@ on:
 
 jobs:
   # ===========================================================================
+  # Detect Changes
+  # ===========================================================================
+
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend_client: ${{ steps.filter.outputs.backend_client }}
+      backend_admin: ${{ steps.filter.outputs.backend_admin }}
+      backend_test: ${{ steps.filter.outputs.backend_test }}
+      iris: ${{ steps.filter.outputs.iris }}
+      plag: ${{ steps.filter.outputs.plag }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      infra_ansible: ${{ steps.filter.outputs.infra_ansible }}
+      infra_ssh_keys: ${{ steps.filter.outputs.infra_ssh_keys }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Detect changed paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend_shared: &backend_shared
+              - 'apps/backend/libs/**'
+              - 'apps/backend/prisma/**'
+              - 'apps/backend/*.json'
+              - 'pnpm-lock.yaml'
+            backend_client:
+              - *backend_shared
+              - 'apps/backend/apps/client/**'
+            backend_admin:
+              - *backend_shared
+              - 'apps/backend/apps/admin/**'
+            backend_test:
+              - 'apps/backend/**'
+              - 'pnpm-lock.yaml'
+            iris:
+              - 'apps/iris/**'
+            plag:
+              - 'apps/plag/**'
+            frontend:
+              - 'apps/frontend/**'
+              - 'apps/backend/schema.gql'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+            infra_ansible:
+              - 'infra/ansible/**'
+              - '.github/workflows/ci.yml'
+            infra_ssh_keys:
+              - 'infra/ansible/ssh_publickey/**'
+              - '.github/workflows/ci.yml'
+
+  # ===========================================================================
   # Common
   # ===========================================================================
 
   typecheck:
     name: Typecheck
+    needs: detect-changes
     runs-on: ubuntu-latest
 
     steps:
@@ -36,6 +92,7 @@ jobs:
 
   lint:
     name: Lint
+    needs: detect-changes
     runs-on: ubuntu-latest
 
     steps:
@@ -80,47 +137,44 @@ jobs:
   # Backend
   # ===========================================================================
 
-  build-backend:
-    name: Build Backend
+  build-backend-client:
+    name: Build Backend (client)
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.backend_client == 'true'
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        target: [client, admin]
 
     steps:
       - uses: actions/checkout@v6
 
-      - name: Check if source code has changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            shared: &shared
-              - 'apps/backend/libs/**'
-              - 'apps/backend/prisma/**'
-              - 'apps/backend/*.json'
-              - 'pnpm-lock.yaml'
-            client:
-              - *shared
-              - 'apps/backend/apps/client/**'
-            admin:
-              - *shared
-              - 'apps/backend/apps/admin/**'
-
       - uses: ./.github/actions/setup-pnpm
-        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
 
       - name: Generate Prisma Client
-        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
         run: pnpm --filter="@codedang/backend" exec prisma generate
 
       - name: Build
-        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
-        run: pnpm --filter="@codedang/backend" build ${{ matrix.target }}
+        run: pnpm --filter="@codedang/backend" build client
+
+  build-backend-admin:
+    name: Build Backend (admin)
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.backend_admin == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-pnpm
+
+      - name: Generate Prisma Client
+        run: pnpm --filter="@codedang/backend" exec prisma generate
+
+      - name: Build
+        run: pnpm --filter="@codedang/backend" build admin
 
   test-backend:
     name: Test Backend
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.backend_test == 'true'
     runs-on: ubuntu-latest
 
     env:
@@ -168,20 +222,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Check if source code has changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            backend:
-              - 'apps/backend/**'
-              - 'pnpm-lock.yaml'
-
       - uses: ./.github/actions/setup-pnpm
-        if: steps.filter.outputs.backend == 'true'
 
       - name: Check Prisma Migration
-        if: steps.filter.outputs.backend == 'true'
         run: |
           pnpm --filter="@codedang/backend" exec prisma migrate diff \
             --from-migrations ./prisma/migrations \
@@ -192,71 +235,52 @@ jobs:
           "Please run 'pnpm prisma migrate dev' locally and commit the changes." && exit 1)
 
       - name: Migrate Prisma
-        if: steps.filter.outputs.backend == 'true'
         run: pnpm --filter="@codedang/backend" exec prisma migrate reset --force
 
       - name: Initialize MinIO
-        if: steps.filter.outputs.backend == 'true'
         run: pnpm run init:storage
         env:
           MINIO_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           MINIO_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
 
       - name: Test
-        if: steps.filter.outputs.backend == 'true'
         run: pnpm --filter="@codedang/backend" test
 
   test-iris:
     name: Test Iris
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.iris == 'true'
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
 
-      - name: Check if source code has changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            iris:
-              - 'apps/iris/**'
-
       - name: Set up Go
-        if: steps.filter.outputs.iris == 'true'
         uses: actions/setup-go@v5
         with:
           go-version-file: apps/iris/go.mod
           cache-dependency-path: apps/iris/go.sum
 
       - name: Test (Go)
-        if: steps.filter.outputs.iris == 'true'
         run: go test ./...
         working-directory: ./apps/iris
 
   test-plag:
     name: Test Plag
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.plag == 'true'
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
 
-      - name: Check if source code has changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            plag:
-              - 'apps/plag/**'
-
       - name: Set up Go
-        if: steps.filter.outputs.plag == 'true'
         uses: actions/setup-go@v5
         with:
           go-version-file: apps/plag/go.mod
           cache-dependency-path: apps/plag/go.sum
 
       - name: Test (Go)
-        if: steps.filter.outputs.plag == 'true'
         run: go test ./...
         working-directory: ./apps/plag
 
@@ -281,6 +305,8 @@ jobs:
 
   build-frontend:
     name: Build Frontend
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.frontend == 'true'
     runs-on: arc-runner
     permissions:
       contents: read
@@ -290,24 +316,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Check if frontend source code has changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            frontend:
-              - 'apps/frontend/**'
-              - 'apps/backend/schema.gql'
-              - 'package.json'
-              - 'pnpm-lock.yaml'
-              - 'pnpm-workspace.yaml'
-
       - name: Setup Docker Buildx
-        if: steps.filter.outputs.frontend == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
-        if: steps.filter.outputs.frontend == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -316,7 +328,6 @@ jobs:
 
       - name: Detect PR number
         id: pr
-        if: steps.filter.outputs.frontend == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -356,7 +367,6 @@ jobs:
             core.setOutput('number', prNumber);
 
       - name: Build and push image
-        if: steps.filter.outputs.frontend == 'true'
         uses: docker/build-push-action@v6
         with:
           file: ./apps/frontend/Dockerfile # build with root context
@@ -376,42 +386,26 @@ jobs:
 
   ansible-lint:
     name: Ansible Lint
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.infra_ansible == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
 
-      - name: Check if infra source code has changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            infra:
-              - 'infra/ansible/**'
-              - '.github/workflows/ci.yml'
-
       - name: Run Ansible Lint
-        if: steps.filter.outputs.infra == 'true'
         uses: ansible/ansible-lint@v25
         with:
           working_directory: infra/ansible/
 
   check-ssh-public-keys:
     name: Check SSH Public Keys
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.infra_ssh_keys == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
 
-      - name: Check if infra source code has changed
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            infra:
-              - 'infra/ansible/ssh_publickey/**'
-              - '.github/workflows/ci.yml'
-
       - name: Check for SSH Public Keys
-        if: steps.filter.outputs.infra == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -468,3 +462,58 @@ jobs:
           done
 
           echo "All keys are valid"
+
+  # ===========================================================================
+  # Gate
+  # ===========================================================================
+
+  ci-gate:
+    name: CI Gate
+    needs:
+      - detect-changes
+      - typecheck
+      - lint
+      - build-backend-client
+      - build-backend-admin
+      - test-backend
+      - test-iris
+      - test-plag
+      - build-frontend
+      - ansible-lint
+      - check-ssh-public-keys
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check CI results
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          results=(
+            "detect-changes:${{ needs['detect-changes'].result }}"
+            "typecheck:${{ needs.typecheck.result }}"
+            "lint:${{ needs.lint.result }}"
+            "build-backend-client:${{ needs['build-backend-client'].result }}"
+            "build-backend-admin:${{ needs['build-backend-admin'].result }}"
+            "test-backend:${{ needs['test-backend'].result }}"
+            "test-iris:${{ needs['test-iris'].result }}"
+            "test-plag:${{ needs['test-plag'].result }}"
+            "build-frontend:${{ needs['build-frontend'].result }}"
+            "ansible-lint:${{ needs['ansible-lint'].result }}"
+            "check-ssh-public-keys:${{ needs['check-ssh-public-keys'].result }}"
+          )
+
+          failed=0
+          for item in "${results[@]}"; do
+            name="${item%%:*}"
+            result="${item#*:}"
+            echo "${name}: ${result}"
+
+            if [[ "${result}" == "failure" || "${result}" == "cancelled" ]]; then
+              failed=1
+            fi
+          done
+
+          if [[ "${failed}" -ne 0 ]]; then
+            exit 1
+          fi
