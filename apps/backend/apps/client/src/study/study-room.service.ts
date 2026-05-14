@@ -388,10 +388,11 @@ export class StudyRoomService {
    * 사용자가 스터디 룸을 정상적으로 퇴장합니다.
    *
    * 1. client.data.room을 초기화하여 룸 데이터 제거
-   * 2. Redis Hash에서 해당 사용자의 멤버 정보 삭제
-   * 3. Socket.io 룸에서 클라이언트를 제외(leave)
-   * 4. 호스트 퇴장 시 새 호스트 지정
-   * 5. 룸에 남아있는 참여자들에게 업데이트된 멤버 목록 브로드캐스트
+   * 2. roomKey 존재 여부 확인 (없으면 이미 처리한 것으로 판단하고 중단)
+   * 3. Redis Hash에서 해당 사용자의 멤버 정보 삭제
+   * 4. Socket.io 룸에서 클라이언트를 제외(leave)
+   * 5. 호스트 퇴장 시 새 호스트 지정
+   * 6. 룸에 남아있는 참여자들에게 업데이트된 멤버 목록 브로드캐스트
    *
    * @param {Socket} client 연결된 Socket 인스턴스
    * @returns 퇴장 성공 여부
@@ -401,6 +402,9 @@ export class StudyRoomService {
     const groupId = client.data.room.groupId
 
     client.data.room = undefined
+
+    const roomExists = await this.redis.exists(roomKey(groupId))
+    if (!roomExists) return { success: true }
 
     await this.removeMember(groupId, userId)
     client.leave(roomKey(groupId))
@@ -417,9 +421,10 @@ export class StudyRoomService {
   /**
    * 웹소켓 연결이 끊어졌을 때 호출되며, 재연결 유예 기간(Grace Period)을 부여합니다.
    *
-   * 1. Redis에 재연결 대기 상태 키 저장
-   * 2. BullMQ 큐에 예약된 기존 만료 작업(Job)이 있다면 제거 후, 새로운 만료 작업 예약
-   * 3. 동일한 룸에 있는 다른 참여자들에게 해당 사용자가 재연결 중임을 알림
+   * 1. roomKey 존재 여부 확인 (없으면 이미 처리한 것으로 판단하고 중단)
+   * 2. Redis에 재연결 대기 상태 키 저장
+   * 3. BullMQ 큐에 예약된 기존 만료 작업(Job)이 있다면 제거 후, 새로운 만료 작업 예약
+   * 4. 동일한 룸에 있는 다른 참여자들에게 해당 사용자가 재연결 중임을 알림
    *
    * @param {Socket} client 연결된 Socket 인스턴스
    */
@@ -428,6 +433,9 @@ export class StudyRoomService {
 
     const groupId = client.data.room?.groupId
     if (!userId || !groupId) return
+
+    const roomExists = await this.redis.exists(roomKey(groupId))
+    if (!roomExists) return
 
     const userName = client.data.room.userName
     client.data.room = undefined
@@ -481,8 +489,10 @@ export class StudyRoomService {
    * 세션 종료 시 룸을 종료하고 서버 상태를 정리합니다.
    *
    * 1. 룸 전체에 room:ended 이벤트를 전송
-   * 2. 연결 중인 유저 Key 삭제 후 룸에 남아 있는 소켓을 Socket.IO 룸에서 강제 퇴장
-   * 3. Redis의 룸 상태와 멤버 목록을 삭제하여 다음 입장 시 새 세션을 시작할 수 있게 처리
+   * 2. 재연결 대기 중인 모든 멤버의 reconnectKey를 Redis에서 삭제
+   * 3. Redis의 룸 상태(roomKey)와 멤버 목록(membersKey)을 삭제
+   * 4. 룸에 남아 있는 모든 소켓의 WebSocket 연결을 끊음 (disconnectSockets)
+   *    — 멀티 노드 환경에서도 각 노드가 자신의 소켓을 직접 disconnect 처리함
    *
    * @param {number} groupId 스터디 그룹 ID
    */
@@ -494,18 +504,12 @@ export class StudyRoomService {
       members.map((m) => this.redis.del(reconnectKey(groupId, m.userId)))
     )
 
-    const sockets = await this.server.in(roomKey(groupId)).fetchSockets()
-    await Promise.all(
-      sockets.map((s) => {
-        s.data.room = undefined
-        s.leave(roomKey(groupId))
-      })
-    )
-
     await Promise.all([
       this.redis.del(roomKey(groupId)),
       this.redis.del(membersKey(groupId))
     ])
+
+    await this.server.in(roomKey(groupId)).disconnectSockets()
   }
 
   /**
@@ -606,7 +610,6 @@ export class StudyRoomService {
    */
   async getMembers(groupId: number): Promise<RoomMember[]> {
     const raw = await this.redis.hgetall(membersKey(groupId))
-    if (!raw) return []
     return Object.values(raw).flatMap((v) => {
       try {
         return [JSON.parse(v) as RoomMember]
