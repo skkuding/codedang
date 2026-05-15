@@ -4,4 +4,9 @@ namespace: redis
 
 resources:
   - ../../base
-  - credentials.yaml
+
+patches:
+  - path: credentials.yaml
+    target:
+      kind: SealedSecret
+      name: redis-credentials
