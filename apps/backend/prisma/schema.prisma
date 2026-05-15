@@ -145,7 +145,7 @@ model UserProfile {
 model UserConsent {
   id         Int         @id @default(autoincrement())
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String      @map("user_id")
+  userId     Int         @map("user_id")
   type       ConsentType
   version    String
   agreed     Boolean
