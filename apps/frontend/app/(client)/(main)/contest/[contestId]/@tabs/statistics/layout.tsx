@@ -5,14 +5,15 @@ import StatisticsError from './error'
 
 interface LayoutProps {
   children: React.ReactNode
-  params: { contestId: string }
+  params: Promise<{ contestId: string }>
 }
 
 export default async function StatisticsLayout({
   children,
   params
 }: LayoutProps) {
-  const contestId = parseInt(params.contestId)
+  const { contestId: rawContestId } = await params
+  const contestId = parseInt(rawContestId)
 
   const [contestLeaderboard, contest] = await Promise.all([
     getContestLeaderboard({ contestId }),
