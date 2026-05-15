@@ -35,9 +35,16 @@ enum JobType {
   Others
 }
 
+enum ConsentType {
+  TermsOfService
+  Privacy
+  MinorPrivacy
+  Marketing
+}
+
 enum ProfileImageType {
-  SYSTEM_GENERATED
-  UPLOAD
+  System
+  Custom
 }
 
 enum Provider {
@@ -78,6 +85,7 @@ model User {
   createdCourseQnAComments CourseQnAComment[] @relation("CreatedByUserCourseQnAComment")
 
   userProfile              UserProfile?
+  userConsent              UserConsent[]
   userGroup                UserGroup[]
   notice                   Notice[]
   problem                  Problem[]
@@ -103,6 +111,7 @@ model User {
   polygonCollaborations    PolygonCollaborator[]    @relation("PolygonCollaborator")
   polygonApprovalRequests  PolygonApprovalRequest[] @relation("PolygonApprovalRequester")
   polygonReviewedApprovals PolygonApprovalRequest[] @relation("PolygonApprovalReviewer")
+  userConsentId            Int
 
   @@map("user")
 }
@@ -120,13 +129,29 @@ model UserOAuth {
   @@map("user_oauth")
 }
 
+model UserConsent {
+  id         Int         @id @default(autoincrement())
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String      @map("user_id")
+  type       ConsentType
+  version    String
+  agreed     Boolean
+  agreedAt   DateTime?   @map("agreed_at")
+  revokedAt  DateTime?   @map("revoked_at")
+  createTime DateTime    @default(now()) @map("create_time")
+  updateTime DateTime    @updatedAt @map("update_time")
+
+  @@unique([userId, type, version])
+  @@map("user_consent")
+}
+
 model UserProfile {
   id       Int    @id @default(autoincrement())
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int    @unique @map("user_id")
   realName String @map("real_name")
 
-  profileImageType        ProfileImageType @default(SYSTEM_GENERATED) //프로필 이미지 종류
+  profileImageType        ProfileImageType @default(System) //프로필 이미지 종류
   profileImageKey         String? //시스템 생성 프로필 이미지 Key값
   uploadedProfileImageUrl String? //사용자가 업로드한 프로필 이미지 S3 Key값
   createTime              DateTime         @default(now()) @map("create_time")
