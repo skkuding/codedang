@@ -67,7 +67,7 @@ enum ProblemField {
 model User {
   id                       Int                @id @default(autoincrement())
   username                 String             @unique //회원가입할때 입력하는 ID
-  nickname                 String             @unique //활동 닉네임
+  nickname                 String?            @unique //활동 닉네임
   jobType                  JobType            @default(CollegeStudent)
   /// @HideField()
   password                 String
@@ -134,7 +134,7 @@ model UserProfile {
   userId           Int              @unique @map("user_id")
   realName         String           @map("real_name")
   profileImageType ProfileImageType @default(System) //프로필 이미지 종류
-  systemImageSeed  String //DiceBear 이미지 seed값 (시스템 생성 이미지)
+  systemImageSeed  String? //DiceBear 이미지 seed값 (시스템 생성 이미지)
   customImageKey   String? //사용자가 업로드한 프로필 이미지 S3 Key값
   createTime       DateTime         @default(now()) @map("create_time")
   updateTime       DateTime         @updatedAt @map("update_time")
@@ -149,8 +149,8 @@ model UserConsent {
   type       ConsentType
   version    String
   agreed     Boolean
-  agreedAt   DateTime    @map("agreed_at")
-  revokedAt  DateTime    @map("revoked_at")
+  agreedAt   DateTime?   @map("agreed_at")
+  revokedAt  DateTime?   @map("revoked_at")
   createTime DateTime    @default(now()) @map("create_time")
   updateTime DateTime    @updatedAt @map("update_time")
 
