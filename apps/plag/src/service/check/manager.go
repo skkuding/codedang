@@ -158,7 +158,7 @@ func (c *checkManager) SaveResult(
 		compJson,
 		fmt.Sprintf("comparison%s.json", checkId),
 	); err != nil {
-		return fmt.Errorf("comparsion object upload error: %w", err)
+		return fmt.Errorf("comparison object upload error: %w", err)
 	}
 
 	if clusters != nil {
