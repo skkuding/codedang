@@ -29,8 +29,10 @@ spec:
           targetRevision: 0.16.5
           helm:
             releaseName: redis
+            ignoreMissingValueFiles: true
             valueFiles:
               - $codedang/infra/k8s/redis/values.yaml
+              - $codedang/infra/k8s/redis/values-{{.env}}.yaml
         - repoURL: https://github.com/skkuding/codedang
           targetRevision: '{{.branch}}'
           ref: codedang
