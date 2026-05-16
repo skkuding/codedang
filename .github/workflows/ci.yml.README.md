@@ -1,7 +1,5 @@
 # CI Workflow
 
-## CI workflow
-
 `ci.yml` uses a gate-based structure so that pull requests can require one stable
 check while individual jobs run only when their related files change.
 
@@ -13,24 +11,33 @@ The workflow has three main parts:
 3. `CI Gate` always runs and fails if any CI job failed or was cancelled.
 
 Skipped jobs are treated as passing by `CI Gate`.
+When `.github/workflows/ci.yml` changes, every conditional CI job should run so
+workflow edits can exercise the jobs they may affect.
 
 ## Adding or changing CI jobs
 
 When adding a conditional CI job:
 
 1. Add a path filter under `Detect Changes`.
-2. Add the matching output to `detect-changes.outputs`.
-3. Use a job-level condition like:
+2. Include the shared CI workflow path in that filter:
+
+   ```yaml
+   - *ci_workflow_path
+   ```
+
+3. Add the matching output to `detect-changes.outputs`.
+4. Use a job-level condition like:
 
    ```yaml
    if: needs['detect-changes'].outputs.<output_name> == 'true'
    ```
 
-4. Add the job to `CI Gate`'s `needs`.
-5. Add the job result to the `results` array in `CI Gate`.
+5. Add the job to `CI Gate`'s `needs`.
+6. Add the job result to the `results` array in `CI Gate`.
 
 `Validate CI Workflow` runs when `.github/workflows/ci.yml` changes and checks
-that these links are not missing.
+that these links are not missing. It also checks that each conditional path
+filter includes the shared `ci_workflow_path`.
 
 ## Required checks
 

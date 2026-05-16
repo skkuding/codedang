@@ -38,8 +38,9 @@ jobs:
         with:
           filters: |
             ci_workflow:
-              - '.github/workflows/ci.yml'
+              - &ci_workflow_path '.github/workflows/ci.yml'
             typecheck:
+              - *ci_workflow_path
               - 'apps/backend/**'
               - 'apps/frontend/**'
               - 'package.json'
@@ -47,6 +48,7 @@ jobs:
               - 'pnpm-workspace.yaml'
               - 'tsconfig*.json'
             node_lint:
+              - *ci_workflow_path
               - 'apps/backend/**'
               - 'apps/frontend/**'
               - 'package.json'
@@ -60,6 +62,7 @@ jobs:
               - 'scripts/**/*.ts'
               - '.github/actions/setup-pnpm/**'
             backend_shared: &backend_shared
+              - *ci_workflow_path
               - 'apps/backend/libs/**'
               - 'apps/backend/prisma/**'
               - 'apps/backend/*.json'
@@ -71,24 +74,31 @@ jobs:
               - *backend_shared
               - 'apps/backend/apps/admin/**'
             backend_test:
+              - *ci_workflow_path
               - 'apps/backend/**'
               - 'pnpm-lock.yaml'
             iris:
+              - *ci_workflow_path
               - 'apps/iris/**'
             plag:
+              - *ci_workflow_path
               - 'apps/plag/**'
             go_lint:
+              - *ci_workflow_path
               - 'apps/iris/**'
               - 'apps/plag/**'
             frontend:
+              - *ci_workflow_path
               - 'apps/frontend/**'
               - 'apps/backend/schema.gql'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
             infra_ansible:
+              - *ci_workflow_path
               - 'infra/ansible/**'
             infra_ssh_keys:
+              - *ci_workflow_path
               - 'infra/ansible/ssh_publickey/**'
 
   # ===========================================================================
@@ -540,11 +550,19 @@ jobs:
           detect_outputs = detect_job.fetch('outputs')
           filter_step = detect_job.fetch('steps').find { |step| step['id'] == 'filter' }
           filters = YAML.safe_load(filter_step.fetch('with').fetch('filters'), aliases: true)
+          ci_workflow_paths = filters.fetch('ci_workflow')
 
           detect_outputs.each do |name, expression|
             match = expression.match(/\A\$\{\{\s*steps\.filter\.outputs\.([A-Za-z0-9_]+)\s*\}\}\z/)
             errors << "detect-changes output #{name} does not map to steps.filter.outputs.#{name}" if match.nil? || match[1] != name
             errors << "detect-changes output #{name} has no paths-filter entry" unless filters.key?(name)
+
+            next if name == 'ci_workflow'
+
+            missing_paths = ci_workflow_paths - filters.fetch(name).flatten
+            unless missing_paths.empty?
+              errors << "paths-filter #{name} does not include ci_workflow paths: #{missing_paths.join(', ')}"
+            end
           end
 
           gate_job = jobs.fetch('ci-gate')
