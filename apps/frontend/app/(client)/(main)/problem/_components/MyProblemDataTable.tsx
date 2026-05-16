@@ -9,8 +9,12 @@ import PlusCircle from '@/public/icons/plus-circle-blue.svg'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { IoFilter } from 'react-icons/io5'
+import { useState } from 'react'
 import type { MyProblemCardItem } from './MyProblem'
+import {
+  MyProblemStateFilter,
+  STATE_FILTER_OPTIONS
+} from './MyProblemStateFilter'
 
 interface MyProblemDataTableProps {
   data: MyProblemCardItem[]
@@ -45,6 +49,16 @@ function getStateBadgeClassName(state: string) {
 }
 
 export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
+  const [selectedStates, setSelectedStates] = useState<
+    MyProblemCardItem['state'][]
+  >([])
+
+  const filteredData =
+    selectedStates.length === 0 ||
+    selectedStates.length === STATE_FILTER_OPTIONS.length
+      ? data
+      : data.filter((problem) => selectedStates.includes(problem.state))
+
   return (
     <div className="flex w-full flex-col items-center">
       <div className="flex w-full items-center justify-between self-stretch">
@@ -52,13 +66,10 @@ export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
           <p className="text-head3_sb_28 whitespace-nowrap">내가 만든 문제</p>
         </div>
         <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center lg:justify-end">
-          <Button
-            variant="outline"
-            className="border-line text-body1_m_16 h-[46px] min-w-28 justify-center rounded-full border px-5 py-[11px] text-black"
-          >
-            <IoFilter className="text-color-cool-neutral-30 mr-2 h-5 w-5" />
-            State
-          </Button>
+          <MyProblemStateFilter
+            selectedStates={selectedStates}
+            onSelectedStatesChange={setSelectedStates}
+          />
           <SearchBar className="w-60" sizeVariant="lg" />
           <Button
             asChild
@@ -79,9 +90,9 @@ export function MyProblemDataTable({ data, search }: MyProblemDataTableProps) {
           </Button>
         </div>
       </div>
-      {data.length ? (
+      {filteredData.length ? (
         <div className="mb-30 mt-5 grid w-full grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {data.map((problem) => {
+          {filteredData.map((problem) => {
             const href =
               `/problem/my-problem/${problem.id}${search ? `?search=${search}` : ''}` as Route
             const badgeClassName = getStateBadgeClassName(problem.state)
