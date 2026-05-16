@@ -22,7 +22,7 @@ export async function NewProblemCards() {
     problems.length > 0 && (
       <div className="relative w-full">
         {/* Desktop View */}
-        <div className="hidden max-w-[1440px] flex-col items-start gap-7 px-[116px] md:flex">
+        <div className="hidden max-w-[1440px] flex-col items-start gap-7 px-10 md:flex">
           <Carousel className="flex w-full flex-col gap-10">
             <div className="flex w-full justify-between">
               <p className="text-head1_b_40">최신 코딩 문제를 연습해보세요</p>
@@ -33,7 +33,7 @@ export async function NewProblemCards() {
             </div>
 
             <div className="relative left-1/2 -my-8 -ml-2 w-screen -translate-x-1/2">
-              <CarouselContent className="mx-[116px] my-8 max-w-[1224px] md:mx-auto">
+              <CarouselContent className="mx-10 my-8 max-w-[1380px] md:mx-auto">
                 {problems.map((problem) => (
                   <CarouselItem key={problem.id}>
                     <NewProblemCard problem={problem} />
@@ -42,17 +42,6 @@ export async function NewProblemCards() {
               </CarouselContent>
             </div>
           </Carousel>
-
-          <Link href={'/problem'}>
-            <div className="border-color-neutral-50 flex items-center justify-center gap-[2px] border-b py-[4px]">
-              <p className="font-pretendard flex h-8 items-center text-[16px] font-medium leading-[22.4px] tracking-[-0.48px] text-[#5C5C5C]">
-                Go to Problem
-              </p>
-              <div className="relative size-[16px]">
-                <Image src={GrayRightArrow} alt="Right" fill />
-              </div>
-            </div>
-          </Link>
         </div>
         {/* Desktop View */}
         <div className="flex w-full flex-col gap-4 px-5 py-[30px] md:hidden">
