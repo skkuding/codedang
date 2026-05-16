@@ -86,7 +86,7 @@ export function MyProblemStateFilter({
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[150px] p-0" align="start">
+      <PopoverContent className="w-[112px] p-0" align="start">
         <Command>
           <CommandList>
             <CommandGroup>
@@ -94,7 +94,7 @@ export function MyProblemStateFilter({
                 <CommandItem
                   key={state}
                   value={state}
-                  className="gap-x-2"
+                  className="gap-x-1"
                   onSelect={() => handleFilterSelect(state)}
                 >
                   <Checkbox checked={selectedValues.has(state)} />
