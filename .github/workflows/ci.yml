@@ -19,6 +19,7 @@ jobs:
     outputs:
       ci_workflow: ${{ steps.filter.outputs.ci_workflow }}
       typecheck: ${{ steps.filter.outputs.typecheck }}
+      node_lint: ${{ steps.filter.outputs.node_lint }}
       backend_client: ${{ steps.filter.outputs.backend_client }}
       backend_admin: ${{ steps.filter.outputs.backend_admin }}
       backend_test: ${{ steps.filter.outputs.backend_test }}
@@ -45,6 +46,19 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
               - 'tsconfig*.json'
+            node_lint:
+              - 'apps/backend/**'
+              - 'apps/frontend/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig*.json'
+              - 'eslint.config.mjs'
+              - '.prettierrc'
+              - '.prettierignore'
+              - '.npmrc'
+              - 'scripts/**/*.ts'
+              - '.github/actions/setup-pnpm/**'
             backend_shared: &backend_shared
               - 'apps/backend/libs/**'
               - 'apps/backend/prisma/**'
@@ -129,7 +143,7 @@ jobs:
   lint-node:
     name: Lint Node.js
     needs: detect-changes
-    if: needs['detect-changes'].outputs.typecheck == 'true'
+    if: needs['detect-changes'].outputs.node_lint == 'true'
     runs-on: ubuntu-latest
 
     steps:
