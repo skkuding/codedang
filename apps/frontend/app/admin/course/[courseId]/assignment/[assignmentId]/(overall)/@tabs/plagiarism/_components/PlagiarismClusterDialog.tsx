@@ -165,7 +165,7 @@ export function PlagiarismClusterDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="flex max-h-[85vh] max-w-4xl flex-col"
+        className="flex max-h-[90vh] max-w-4xl flex-col overflow-hidden"
         style={
           view === 'comparison' ? { maxWidth: '95vw', height: '90vh' } : {}
         }
@@ -193,7 +193,7 @@ export function PlagiarismClusterDialog({
               </div>
             )}
             {!loading && !error && cluster && (
-              <div className="flex flex-col gap-4">
+              <div className="flex min-h-0 flex-1 flex-col gap-4">
                 <div className="flex gap-8 rounded-lg bg-gray-50 p-4 text-sm">
                   <div>
                     <div className="text-gray-600">
@@ -214,17 +214,18 @@ export function PlagiarismClusterDialog({
                 <p className="text-muted-foreground text-sm">
                   Select two submissions in this cluster to compare.
                 </p>
+                <div className="min-h-0 flex-1 overflow-y-auto">
+                  <DataTableRoot
+                    data={submissionRows}
+                    columns={submissionColumns}
+                    defaultPageSize={10}
+                  >
+                    <DataTable size="sm" />
+                    <DataTablePagination />
+                  </DataTableRoot>
+                </div>
 
-                <DataTableRoot
-                  data={submissionRows}
-                  columns={submissionColumns}
-                  defaultPageSize={10}
-                >
-                  <DataTable size="sm" />
-                  <DataTablePagination />
-                </DataTableRoot>
-
-                <div className="flex justify-end">
+                <div className="flex shrink-0 justify-end">
                   <button
                     type="button"
                     onClick={handleCompareSelected}
