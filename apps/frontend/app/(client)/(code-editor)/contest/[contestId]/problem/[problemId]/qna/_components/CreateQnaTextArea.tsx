@@ -5,8 +5,8 @@ import { Input } from '@/components/shadcn/input'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
 import { safeFetcherWithAuth } from '@/libs/utils'
+import PenIcon from '@/public/icons/pen.svg'
 import React, { useState } from 'react'
-import { FaPen } from 'react-icons/fa6'
 import { toast } from 'sonner'
 
 interface CreateQnaTextAreaProps {
@@ -75,15 +75,15 @@ export function CreateQnaTextArea({
         <button
           onClick={() => handleSubmit()}
           className={cn(
-            'h-9 w-20 rounded px-4 py-2 text-sm font-semibold text-white transition duration-300 ease-in-out hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
+            'h-9 rounded px-4 py-2 text-sm font-semibold text-white transition duration-300 ease-in-out hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
             loading || !qnaFormdata.title || !qnaFormdata.content
               ? 'border-1 border-[#4C5565] bg-gray-900'
               : 'bg-primary'
           )}
           disabled={loading || !qnaFormdata.title || !qnaFormdata.content}
         >
-          <div className="flex items-center justify-center">
-            <FaPen className="mr-1 inline h-3 w-3" />
+          <div className="flex items-center justify-center gap-1">
+            <PenIcon className="h-[18px]" />
             <p>Post</p>
           </div>
         </button>

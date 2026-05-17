@@ -9,6 +9,7 @@ import {
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import PenIcon from '@/public/icons/pen.svg'
 import codedangIcon from '@/public/logos/codedang-editor.svg'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
 import type { User } from '@/types/type'
@@ -27,7 +28,6 @@ import {
   FaAnglesRight,
   FaBell,
   FaBook,
-  FaPen,
   FaSquarePollHorizontal,
   FaTrophy,
   FaUser
@@ -173,7 +173,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
         { name: 'Notice', path: '/admin/notice', icon: FaBell }
       )
     }
-    items.push({ name: 'Problem', path: '/admin/problem', icon: FaPen })
+    items.push({ name: 'Problem', path: '/admin/problem', icon: PenIcon })
 
     if (userPermissions.canCreateCourse || hasLeadCourses) {
       items.push({ name: 'Course', path: '/admin/course', icon: FaBook })
