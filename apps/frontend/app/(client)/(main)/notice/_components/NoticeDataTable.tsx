@@ -60,7 +60,7 @@ function DateSortDropdown() {
   }
 
   const labelMap: Record<string, string> = { asc: 'Asc', desc: 'Desc' }
-  const label = (sortOrder && labelMap[sortOrder]) || 'State'
+  const label = (sortOrder && labelMap[sortOrder]) || 'Desc'
 
   return (
     <DropdownMenu>
