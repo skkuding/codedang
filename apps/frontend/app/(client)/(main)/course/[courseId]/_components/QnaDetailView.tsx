@@ -10,7 +10,7 @@ import arrowLeftIcon from '@/public/icons/arrow-left-black.svg'
 import checkBlueIcon from '@/public/icons/check-blue.svg'
 import infoGrayIcon from '@/public/icons/info-gray.svg'
 import lockGrayIcon from '@/public/icons/lock-gray.svg'
-import penIcon from '@/public/icons/pen.svg'
+import PenIcon from '@/public/icons/pen.svg'
 import userIcon from '@/public/icons/person-fill.svg'
 import type { CourseQnAItem } from '@/types/type'
 import {
@@ -238,7 +238,7 @@ export function QnaDetailView() {
             disabled={!commentContent.trim()}
             className="bg-primary flex h-12 w-full items-center justify-center gap-2 rounded-full hover:bg-blue-600"
           >
-            <Image src={penIcon} alt="penIcon" />
+            <PenIcon className="w-4 text-white" />
             Post
           </Button>
         </div>
