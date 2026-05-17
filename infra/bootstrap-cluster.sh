@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# Ansible로 전환 시 참고할 PR
+# https://github.com/skkuding/codedang/pull/3553
+
 #############################################
 # Codedang Cluster Bootstrap Script
 #

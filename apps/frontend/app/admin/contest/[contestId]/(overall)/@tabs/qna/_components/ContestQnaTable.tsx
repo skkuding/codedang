@@ -100,7 +100,7 @@ export function ContestQnaTable() {
               </TabsList>
             </Tabs>
 
-            <DataTableSearchBar columndId="title" size="lg" />
+            <DataTableSearchBar columndId="title" sizeVariant="lg" />
           </div>
         </div>
         <DataTable onRowClick={handleRowClick} bodyStyle={bodyStyle} />
