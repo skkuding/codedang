@@ -12,17 +12,14 @@ import { useState } from 'react'
 import { AiFillFile } from 'react-icons/ai'
 import { BsPeopleFill } from 'react-icons/bs'
 import { FaBook, FaPen } from 'react-icons/fa'
-import { FaSquareCheck } from 'react-icons/fa6'
-import { PiMagnifyingGlassFill, PiWrenchFill } from 'react-icons/pi'
-import { CheckerPage } from './CheckerPage'
+import { PiWrenchFill } from 'react-icons/pi'
 import { CollaborationPage } from './CollaborationPage'
-import { GeneratorPage } from './GeneratorPage'
 import { ProblemCreateContentSkeleton } from './ProblemCreateSkeletons'
 import { SolutionPage } from './SolutionPage'
 import { StatementPage } from './StatementPage'
 import { TestsPage } from './TestsPage'
+import { ToolsPage } from './ToolsPage'
 import { UploadButton } from './UploadButton'
-import { ValidatorPage } from './ValidatorPage'
 
 export function ProblemCreateContainer() {
   // 스켈레톤 확인을 위한 더미코드
@@ -62,24 +59,10 @@ export function ProblemCreateContainer() {
     },
     {
       Icon: PiWrenchFill,
-      label: 'Generator',
-      text: '테스트 생성',
-      subText: '테스트 입력 생성',
-      Component: GeneratorPage
-    },
-    {
-      Icon: PiMagnifyingGlassFill,
-      label: 'Validator',
-      text: '입력 검증',
-      subText: '입력 및 검증',
-      Component: ValidatorPage
-    },
-    {
-      Icon: FaSquareCheck,
-      label: 'Checker',
-      text: '특수 채점',
-      subText: '특수 채점 기능',
-      Component: CheckerPage
+      label: 'Tools',
+      text: '문제 생성 도구',
+      subText: '생성 및 입력 검증, 특수 채점',
+      Component: ToolsPage
     },
     {
       Icon: BsPeopleFill,
@@ -184,7 +167,7 @@ export function ProblemCreateContainer() {
                       height={15}
                       className={cn({
                         'scale-x-[-1]':
-                          label === 'Generator' || label === 'Collaboration',
+                          label === 'Tools' || label === 'Collaboration',
                         'text-color-cool-neutral-40': curTab,
                         'text-color-cool-neutral-70': !curTab
                       })}
