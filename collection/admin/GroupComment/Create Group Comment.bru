@@ -1,0 +1,40 @@
+meta {
+  name: Create Group Comment
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ($groupId: Int!, $input: CreateGroupCommentInput!) {
+    createGroupComment(groupId: $groupId, input: $input) {
+      id
+      content
+      isSecret
+      parentCommentId
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "input": {
+      "groupId": 1,
+      "content": "Hello, this is a test comment from Bruno",
+      "isSecret": false
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.createGroupComment: isDefined
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Delete Group Comment
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ($groupId: Int!, $commentId: Int!) {
+    deleteGroupComment(groupId: $groupId, commentId: $commentId) {
+      id
+      isDeleted
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "commentId": 1
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.deleteGroupComment: isDefined
+}

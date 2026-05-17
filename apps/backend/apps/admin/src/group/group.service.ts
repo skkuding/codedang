@@ -17,6 +17,10 @@ import type {
   UpdateCourseNoticeInput
 } from './model/course-notice.input'
 import type { UpdateCourseQnAInput } from './model/course-qna.input'
+import type {
+  CreateGroupCommentInput,
+  UpdateGroupCommentInput
+} from './model/group-comment.input'
 import type { CourseInput } from './model/group.input'
 import { CreateGroupInput } from './model/group.input'
 
@@ -1086,6 +1090,104 @@ export class CourseService {
       })
 
       return deletedComment
+    })
+  }
+}
+
+@Injectable()
+export class GroupCommentService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getGroupComments(groupId: number, cursor: number | null, take: number) {
+    const paginator = this.prisma.getPaginator(cursor)
+
+    return await this.prisma.groupComment.findMany({
+      ...paginator,
+      take,
+      where: {
+        groupId
+        // admin API: Returns all comments including deleted ones or handles it by UI.
+        // Usually, we might want to return everything to the host.
+      },
+      include: {
+        createdBy: { select: { username: true } },
+        children: {
+          include: {
+            createdBy: { select: { username: true } }
+          },
+          orderBy: { createTime: 'asc' }
+        }
+      },
+      orderBy: { createTime: 'desc' }
+    })
+  }
+
+  async createGroupComment(userId: number, input: CreateGroupCommentInput) {
+    const { groupId, content, isSecret, parentCommentId } = input
+
+    // Check if group exists
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId }
+    })
+
+    if (!group) {
+      throw new EntityNotExistException('Group')
+    }
+
+    if (parentCommentId) {
+      const parentComment = await this.prisma.groupComment.findUnique({
+        where: { id: parentCommentId }
+      })
+      if (!parentComment) {
+        throw new EntityNotExistException('ParentGroupComment')
+      }
+    }
+
+    return await this.prisma.groupComment.create({
+      data: {
+        groupId,
+        createdById: userId,
+        content,
+        isSecret,
+        parentCommentId
+      }
+    })
+  }
+
+  async updateGroupComment(commentId: number, input: UpdateGroupCommentInput) {
+    const comment = await this.prisma.groupComment.findUnique({
+      where: { id: commentId }
+    })
+
+    if (!comment) {
+      throw new EntityNotExistException('GroupComment')
+    }
+
+    // In admin app (Host), they can edit their own comment, but usually admin can do everything.
+    // Assuming host is editing their own comment or can edit any.
+    return await this.prisma.groupComment.update({
+      where: { id: commentId },
+      data: {
+        ...(input.content !== undefined && { content: input.content }),
+        ...(input.isSecret !== undefined && { isSecret: input.isSecret })
+      }
+    })
+  }
+
+  async deleteGroupComment(commentId: number) {
+    const comment = await this.prisma.groupComment.findUnique({
+      where: { id: commentId }
+    })
+
+    if (!comment) {
+      throw new EntityNotExistException('GroupComment')
+    }
+
+    return await this.prisma.groupComment.update({
+      where: { id: commentId },
+      data: {
+        isDeleted: true
+      }
     })
   }
 }

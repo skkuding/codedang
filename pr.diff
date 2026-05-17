@@ -1,0 +1,4374 @@
+diff --git a/.github/workflows/cd-prod-k8s.yml b/.github/workflows/cd-prod-k8s.yml
+index 944328f0..ef510f5d 100644
+--- a/.github/workflows/cd-prod-k8s.yml
++++ b/.github/workflows/cd-prod-k8s.yml
+@@ -40,14 +40,15 @@ jobs:
+             context: apps/plag
+             build-args: |
+               app_env=stage
+-          - target: runner-pod-manager
+-            file: ''
+-            context: apps/runner/pod-manager
+-            build-args: ''
+-          - target: runner
+-            file: ''
+-            context: apps/runner/backend
+-            build-args: ''
++          # TODO: stage 검증 후 prod 배포
++          # - target: runner-pod-manager
++          #   file: ''
++          #   context: apps/runner/pod-manager
++          #   build-args: ''
++          # - target: runner-backend
++          #   file: ''
++          #   context: apps/runner/backend
++          #   build-args: ''
+     steps:
+       - name: Setup Docker Buildx
+         uses: docker/setup-buildx-action@v3
+diff --git a/.github/workflows/preview-cleanup.yml b/.github/workflows/preview-cleanup.yml
+deleted file mode 100644
+index 2e12855a..00000000
+--- a/.github/workflows/preview-cleanup.yml
++++ /dev/null
+@@ -1,81 +0,0 @@
+-name: Preview Cleanup
+-
+-on:
+-  schedule:
+-    - cron: '0 19 * * *' # Daily at 4 AM KST (UTC+9)
+-  workflow_dispatch:
+-
+-jobs:
+-  cleanup-stale-previews:
+-    name: Cleanup Stale Previews
+-    runs-on: ubuntu-latest
+-
+-    steps:
+-      - name: Generate token
+-        id: generate-token
+-        uses: actions/create-github-app-token@v1
+-        with:
+-          app-id: ${{ secrets.SKKUDING_BOT_APP_ID }}
+-          private-key: ${{ secrets.SKKUDING_BOT_PRIVATE_KEY }}
+-
+-      - name: Remove preview label from stale PRs
+-        uses: actions/github-script@v7
+-        with:
+-          github-token: ${{ steps.generate-token.outputs.token }}
+-          script: |
+-            const owner = context.repo.owner;
+-            const repo = context.repo.repo;
+-            const STALE_DAYS = 7;
+-
+-            const { data: prs } = await github.rest.pulls.list({
+-              owner,
+-              repo,
+-              state: 'open',
+-              per_page: 100
+-            });
+-
+-            const previewPRs = prs.filter(pr =>
+-              pr.labels.some(l => l.name === 'preview')
+-            );
+-
+-            core.info(`Found ${previewPRs.length} open PRs with 'preview' label`);
+-
+-            const now = new Date();
+-
+-            for (const pr of previewPRs) {
+-              const { data: commit } = await github.rest.git.getCommit({
+-                owner,
+-                repo,
+-                commit_sha: pr.head.sha
+-              });
+-
+-              const commitDate = new Date(commit.committer.date);
+-              const daysSinceCommit = (now - commitDate) / (1000 * 60 * 60 * 24);
+-
+-              if (daysSinceCommit > STALE_DAYS) {
+-                const lastActivity = commitDate.toISOString().split('T')[0];
+-
+-                await github.rest.issues.removeLabel({
+-                  owner,
+-                  repo,
+-                  issue_number: pr.number,
+-                  name: 'preview'
+-                });
+-
+-                await github.rest.issues.createComment({
+-                  owner,
+-                  repo,
+-                  issue_number: pr.number,
+-                  body: [
+-                    '🛑 **Preview Removed**',
+-                    '',
+-                    `**Reason:** No commits for ${STALE_DAYS} days (stale)`,
+-                    `**Last Activity:** ${lastActivity}`,
+-                    '',
+-                    'Push a new commit to restore the preview.'
+-                  ].join('\n')
+-                });
+-
+-                core.info(`Removed 'preview' from stale PR #${pr.number} (last commit: ${lastActivity})`);
+-              }
+-            }
+diff --git a/.github/workflows/preview-label.yml b/.github/workflows/preview-label.yml
+deleted file mode 100644
+index 17118d77..00000000
+--- a/.github/workflows/preview-label.yml
++++ /dev/null
+@@ -1,62 +0,0 @@
+-name: Preview Label
+-
+-on:
+-  pull_request:
+-    types: [opened, labeled, unlabeled, synchronize]
+-
+-jobs:
+-  manage-preview-label:
+-    name: Manage Preview Label
+-    runs-on: ubuntu-latest
+-
+-    steps:
+-      - name: Generate token
+-        id: generate-token
+-        uses: actions/create-github-app-token@v1
+-        with:
+-          app-id: ${{ secrets.SKKUDING_BOT_APP_ID }}
+-          private-key: ${{ secrets.SKKUDING_BOT_PRIVATE_KEY }}
+-
+-      - name: Check labels and manage preview
+-        uses: actions/github-script@v7
+-        with:
+-          github-token: ${{ steps.generate-token.outputs.token }}
+-          script: |
+-            const prNumber = context.payload.pull_request.number;
+-            const owner = context.repo.owner;
+-            const repo = context.repo.repo;
+-
+-            const labels = context.payload.pull_request.labels.map(l => l.name);
+-            const hasFrontendLabel = labels.includes('⛳️ team-design') || labels.includes('⛳️ team-frontend');
+-            const hasPreviewLabel = labels.includes('preview');
+-
+-            if (hasFrontendLabel && !hasPreviewLabel) {
+-              await github.rest.issues.addLabels({
+-                owner,
+-                repo,
+-                issue_number: prNumber,
+-                labels: ['preview']
+-              });
+-              core.info(`Added 'preview' label to PR #${prNumber}`);
+-            } else if (!hasFrontendLabel && hasPreviewLabel) {
+-              await github.rest.issues.removeLabel({
+-                owner,
+-                repo,
+-                issue_number: prNumber,
+-                name: 'preview'
+-              });
+-              core.info(`Removed 'preview' label from PR #${prNumber}`);
+-
+-              await github.rest.issues.createComment({
+-                owner,
+-                repo,
+-                issue_number: prNumber,
+-                body: [
+-                  '🛑 **Preview Removed**',
+-                  '',
+-                  '**Reason:** PR does not have a frontend-related label (`⛳️ team-design` or `⛳️ team-frontend`)',
+-                  '',
+-                  'Add one of these labels to enable the preview.'
+-                ].join('\n')
+-              });
+-            }
+diff --git a/.vscode/settings.json b/.vscode/settings.json
+index 99fea9b6..fe6d4b7b 100644
+--- a/.vscode/settings.json
++++ b/.vscode/settings.json
+@@ -16,5 +16,6 @@
+   },
+   "[caddyfile]": {
+     "editor.defaultFormatter": "matthewpi.caddyfile-support"
+-  }
++  },
++  "prisma.pinToPrisma6": true
+ }
+diff --git a/apps/backend/apps/admin/src/group/group.resolver.ts b/apps/backend/apps/admin/src/group/group.resolver.ts
+index 64a19bae..287c585e 100644
+--- a/apps/backend/apps/admin/src/group/group.resolver.ts
++++ b/apps/backend/apps/admin/src/group/group.resolver.ts
+@@ -25,7 +25,7 @@ import {
+   UpdateCourseNoticeInput
+ } from './model/course-notice.input'
+ import { UpdateCourseQnAInput } from './model/course-qna.input'
+-import { CourseInput } from './model/group.input'
++import { CourseInput, CreateGroupInput } from './model/group.input'
+ import { DuplicateCourse, FindGroup } from './model/group.output'
+ 
+ @Resolver(() => Group)
+@@ -68,6 +68,15 @@ export class GroupResolver {
+     return await this.groupService.duplicateCourse(groupId, req.user.id)
+   }
+ 
++  @Mutation(() => Group)
++  @UseGroupLeaderGuard()
++  async createGroup(
++    @Args('input') input: CreateGroupInput,
++    @Context('req') req: AuthenticatedRequest
++  ) {
++    return await this.groupService.createGroup(input, req.user.id)
++  }
++
+   @Query(() => [FindGroup])
+   @UseDisableAdminGuard()
+   async getCoursesUserLead(@Context('req') req: AuthenticatedRequest) {
+diff --git a/apps/backend/apps/admin/src/group/group.service.spec.ts b/apps/backend/apps/admin/src/group/group.service.spec.ts
+index d5a252fc..17a58129 100644
+--- a/apps/backend/apps/admin/src/group/group.service.spec.ts
++++ b/apps/backend/apps/admin/src/group/group.service.spec.ts
+@@ -66,14 +66,16 @@ const group = {
+       groupId: 1,
+       isGroupLeader: true,
+       createTime: faker.date.past(),
+-      updateTime: faker.date.past()
++      updateTime: faker.date.past(),
++      totalStudyTime: 0
+     },
+     {
+       userId: faker.number.int(),
+       groupId: 1,
+       isGroupLeader: false,
+       createTime: faker.date.past(),
+-      updateTime: faker.date.past()
++      updateTime: faker.date.past(),
++      totalStudyTime: 0
+     }
+   ],
+   groupName: 'Programming Basics',
+@@ -635,4 +637,23 @@ describe('WhitelistService', () => {
+       ).to.be.true
+     })
+   })
++
++  describe('Study Tracking (totalStudyTime)', () => {
++    it('Default totalStudyTime of User in new study group must be 0.', async () => {
++      const mockUserGroup = {
++        userId,
++        groupId,
++        isGroupLeader: false,
++        totalStudyTime: 0
++      }
++
++      db.userGroup.create.resolves(mockUserGroup)
++
++      const result = await db.userGroup.create({
++        data: { userId, groupId }
++      })
++
++      expect(result.totalStudyTime).to.equal(0)
++    })
++  })
+ })
+diff --git a/apps/backend/apps/admin/src/group/group.service.ts b/apps/backend/apps/admin/src/group/group.service.ts
+index 1fd1af67..28d0c62b 100644
+--- a/apps/backend/apps/admin/src/group/group.service.ts
++++ b/apps/backend/apps/admin/src/group/group.service.ts
+@@ -18,6 +18,7 @@ import type {
+ } from './model/course-notice.input'
+ import type { UpdateCourseQnAInput } from './model/course-qna.input'
+ import type { CourseInput } from './model/group.input'
++import { CreateGroupInput } from './model/group.input'
+ 
+ @Injectable()
+ export class GroupService {
+@@ -101,6 +102,47 @@ export class GroupService {
+     }
+   }
+ 
++  async createGroup(input: CreateGroupInput, userId: number) {
++    const { groupName, description, isPrivate, capacity, invitationCode } =
++      input
++
++    const existingGroup = await this.prisma.group.findFirst({
++      where: { groupName }
++    })
++    if (existingGroup) {
++      throw new ConflictFoundException('Group name already exists')
++    }
++
++    const group = await this.prisma.group.create({
++      data: {
++        groupName,
++        description: description ?? '',
++        config: {
++          type: 'Study',
++          isPrivate,
++          showOnList: true,
++          allowJoinFromSearch: true,
++          allowJoinWithURL: true,
++          requireApprovalBeforeJoin: false
++        },
++        userGroup: {
++          create: {
++            userId,
++            isGroupLeader: true
++          }
++        },
++        studyInfo: {
++          create: {
++            capacity: capacity ?? 10,
++            invitationCode: isPrivate ? invitationCode : null
++          }
++        }
++      }
++    })
++
++    return group
++  }
++
+   /**
+    * 강좌(Course) 목록을 조회합니다.
+    *
+diff --git a/apps/backend/apps/admin/src/group/model/group.input.ts b/apps/backend/apps/admin/src/group/model/group.input.ts
+index 26b96634..1db1a2de 100644
+--- a/apps/backend/apps/admin/src/group/model/group.input.ts
++++ b/apps/backend/apps/admin/src/group/model/group.input.ts
+@@ -1,6 +1,6 @@
+ import { Field, Int } from '@nestjs/graphql'
+ import { InputType } from '@nestjs/graphql'
+-import { GroupCreateInput, GroupUpdateInput } from '@generated'
++import { GroupUpdateInput } from '@generated'
+ 
+ @InputType()
+ class Config {
+@@ -18,9 +18,24 @@ class Config {
+ }
+ 
+ @InputType()
+-export class CreateGroupInput extends GroupCreateInput {
+-  @Field(() => Config, { nullable: false })
+-  declare config: Config
++export class CreateGroupInput {
++  @Field(() => String)
++  groupName: string
++
++  @Field(() => String, { nullable: true })
++  description?: string
++
++  @Field(() => Boolean, { defaultValue: false })
++  isPrivate: boolean
++
++  @Field(() => Int, { nullable: true, description: 'Max people (default: 10)' })
++  capacity?: number
++
++  @Field(() => String, {
++    nullable: true,
++    description: 'Private invitation code'
++  })
++  invitationCode?: string
+ }
+ 
+ @InputType()
+diff --git a/apps/backend/apps/admin/src/group/model/group.output.ts b/apps/backend/apps/admin/src/group/model/group.output.ts
+index 05e5a86b..bd1a2f35 100644
+--- a/apps/backend/apps/admin/src/group/model/group.output.ts
++++ b/apps/backend/apps/admin/src/group/model/group.output.ts
+@@ -1,5 +1,4 @@
+-import { Field, Int } from '@nestjs/graphql'
+-import { ObjectType } from '@nestjs/graphql'
++import { Field, Int, ObjectType } from '@nestjs/graphql'
+ import { Group } from '@generated'
+ 
+ @ObjectType()
+@@ -17,10 +16,10 @@ export class DuplicateCourse {
+   duplicatedCourse!: Group
+ 
+   @Field(() => [Int], { nullable: false })
+-  originAssignments!: number
++  originAssignments!: number[]
+ 
+   @Field(() => [Int], { nullable: false })
+-  copiedAssignments!: number
++  copiedAssignments!: number[]
+ }
+ 
+ @ObjectType()
+diff --git a/apps/backend/apps/admin/src/user/user.resolver.spec.ts b/apps/backend/apps/admin/src/user/user.resolver.spec.ts
+index 3373a390..0c24c096 100644
+--- a/apps/backend/apps/admin/src/user/user.resolver.spec.ts
++++ b/apps/backend/apps/admin/src/user/user.resolver.spec.ts
+@@ -92,7 +92,8 @@ describe('GroupMemberResolver', () => {
+         groupId,
+         isGroupLeader: false,
+         createTime: faker.date.past(),
+-        updateTime: faker.date.past()
++        updateTime: faker.date.past(),
++        totalStudyTime: 0
+       }
+ 
+       // Mock the service method
+diff --git a/apps/backend/apps/admin/src/user/user.service.spec.ts b/apps/backend/apps/admin/src/user/user.service.spec.ts
+index cc844b03..1c484413 100644
+--- a/apps/backend/apps/admin/src/user/user.service.spec.ts
++++ b/apps/backend/apps/admin/src/user/user.service.spec.ts
+@@ -69,7 +69,8 @@ const userGroup1: UserGroup = {
+   groupId: 2,
+   isGroupLeader: true,
+   createTime: faker.date.past(),
+-  updateTime: faker.date.past()
++  updateTime: faker.date.past(),
++  totalStudyTime: 0
+ }
+ 
+ const userGroup2: UserGroup = {
+@@ -77,7 +78,8 @@ const userGroup2: UserGroup = {
+   groupId: 2,
+   isGroupLeader: true,
+   createTime: faker.date.past(),
+-  updateTime: faker.date.past()
++  updateTime: faker.date.past(),
++  totalStudyTime: 0
+ }
+ 
+ const userGroup3: UserGroup = {
+@@ -85,7 +87,8 @@ const userGroup3: UserGroup = {
+   groupId: 2,
+   isGroupLeader: false,
+   createTime: faker.date.past(),
+-  updateTime: faker.date.past()
++  updateTime: faker.date.past(),
++  totalStudyTime: 0
+ }
+ 
+ const updateFindResult = [
+diff --git a/apps/backend/apps/client/src/email/email.service.ts b/apps/backend/apps/client/src/email/email.service.ts
+index fb54f8f7..0065f4a5 100644
+--- a/apps/backend/apps/client/src/email/email.service.ts
++++ b/apps/backend/apps/client/src/email/email.service.ts
+@@ -7,12 +7,6 @@ export class EmailService {
+ 
+   constructor(private readonly mailerService: MailerService) {}
+ 
+-  /**
+-   * 생성된 pin번호를 입력된 이메일 주소로 메일을 전송하고, 로그를 기록합니다.
+-   *
+-   * @param {string} email 이메일 주소
+-   * @param {number} pin pin번호
+-   */
+   async sendEmailAuthenticationPin(email: string, pin: string) {
+     const sentMessageInfo = await this.mailerService.sendMail({
+       to: email,
+diff --git a/apps/backend/apps/client/src/group/mock/group.mock.ts b/apps/backend/apps/client/src/group/mock/group.mock.ts
+index fb1cca87..f0164abe 100644
+--- a/apps/backend/apps/client/src/group/mock/group.mock.ts
++++ b/apps/backend/apps/client/src/group/mock/group.mock.ts
+@@ -114,28 +114,32 @@ export const userGroups: UserGroup[] = [
+     userId: 1,
+     createTime: new Date('2023-02-22T00:00:00.000Z'),
+     updateTime: new Date('2023-02-22T10:00:00.000Z'),
+-    isGroupLeader: true
++    isGroupLeader: true,
++    totalStudyTime: 0
+   },
+   {
+     groupId: 1,
+     userId: 2,
+     createTime: new Date('2023-02-22T00:00:00.000Z'),
+     updateTime: new Date('2023-02-22T10:00:00.000Z'),
+-    isGroupLeader: false
++    isGroupLeader: false,
++    totalStudyTime: 0
+   },
+   {
+     groupId: 2,
+     userId: 1,
+     createTime: new Date('2023-02-22T00:00:00.000Z'),
+     updateTime: new Date('2023-02-22T10:00:00.000Z'),
+-    isGroupLeader: true
++    isGroupLeader: true,
++    totalStudyTime: 0
+   },
+   {
+     groupId: 2,
+     userId: 2,
+     createTime: new Date('2023-02-22T00:00:00.000Z'),
+     updateTime: new Date('2023-02-22T10:00:00.000Z'),
+-    isGroupLeader: false
++    isGroupLeader: false,
++    totalStudyTime: 0
+   }
+ ]
+ 
+diff --git a/apps/backend/apps/client/src/problem/problem.service.ts b/apps/backend/apps/client/src/problem/problem.service.ts
+index 354514ed..64e92598 100644
+--- a/apps/backend/apps/client/src/problem/problem.service.ts
++++ b/apps/backend/apps/client/src/problem/problem.service.ts
+@@ -57,11 +57,6 @@ export class ProblemService {
+   /**
+    * 주어진 옵션에 따라 문제 목록을 가져옵니다.
+    * 문제, 태그를 가져오고 사용자가 각 문제를 통과했는지 확인합니다.
+-   * @param {number | null} userId 요청 유저의 id
+-   * @param {number | null} cursor 커서 값
+-   * @param {number} take 가져올 문제 개수
+-   * @param {ProblemOrder} order 정렬 기준 지정
+-   * @param {string} search 검색 키워드 지정
+    * @returns {ProblemsResponseDto} data: 문제 목록, total: 문제 총 개수
+    */
+   async getProblems(options: {
+@@ -201,15 +196,6 @@ export class ProblemService {
+     }
+   }
+ 
+-  /**
+-   * 특정 문제의 상세 정보를 조회합니다.
+-   * 문제의 기본 정보와 태그 목록, 업데이트 히스토리를 함께 반환합니다.
+-   *
+-   * @param {number} problemId 문제의 id
+-   * @returns {ProblemResponseDto} 문제 상세 정보(태그, 업데이트 히스토리 포함)
+-   * @throws {Prisma.PrismaClientKnownRequestError} 아래와 같은 경우 발생할 수 있습니다.
+-   * 해당 problemId에 대한 문제가 존재하지 않는 경우
+-   */
+   async getProblem(problemId: number): Promise<ProblemResponseDto> {
+     // const data = await this.problemRepository.getProblem(problemId, groupId)
+     const data = await this.prisma.problem.findUniqueOrThrow({
+@@ -245,12 +231,6 @@ export class ProblemService {
+     }
+   }
+ 
+-  /**
+-   * 특정 문제의 업데이트 히스토리를 최신순으로 조회합니다.
+-   *
+-   * @param {number} problemId 문제의 id
+-   * @returns {updateHistory} 해당 문제의 업데이트 히스토리 목록
+-   */
+   async getProblemUpdateHistory(problemId: number) {
+     // 업데이트 히스토리 조회
+     const updateHistory = await this.prisma.updateHistory.findMany({
+@@ -265,17 +245,6 @@ export class ProblemService {
+     return updateHistory
+   }
+ 
+-  /**
+-   * 문제 조회 시 사용할 where 조건을 mode에 따라 생성합니다.
+-   * my 모드에서는 본인이 생성한 문제만 조회하도록 조건을 만들고,
+-   * shared 모드에서는 본인이 groupleader인 그룹에 공유된 문제만 조회하도록 조건을 만듭니다.
+-   *
+-   * @param {number} userId 유저 아이디
+-   * @param {'my' | 'shared'} mode 모드 조건
+-   * @returns mode에 따른 where 조건
+-   * @throws {ForbiddenException} 아래와 같은 경우 발생합니다.
+-   * -mode가 'my' 또는 'shared'가 아닌 경우
+-   */
+   async buildProblemWhereOptionsWithMode({
+     userId,
+     mode
+@@ -309,15 +278,6 @@ export class ProblemService {
+     }
+   }
+ 
+-  /**
+-   * 다운로드 가능한 문제 목록을 조회합니다.
+-   * my 모드에서는 본인이 생성한 문제를 조회합니다.
+-   * shared 모드에서는 본인이 groupleader인 그룹에 공유된 문제를 조회합니다.
+-   *
+-   * @param {number} userId 유저 아이디
+-   * @param {'my' | 'shared'} mode 모드 조건
+-   * @returns {problems} 다운로드 가능 문제 목록
+-   */
+   async getDownloadableProblems({
+     userId,
+     mode
+@@ -382,14 +342,7 @@ export class ContestProblemService {
+    * 대회 진행 중: Register한 경우 문제 액세스 가능 //
+    * 대회 종료 후: 누구나 문제 액세스 가능
+    * @see [Contest Problem 정책](https://www.notion.so/skkuding/Contest-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
+-   * @param {number} contestId contest의 id
+-   * @param {number | null} userId 요청 유저의 id
+-   * @param {number | null} cursor 커서 값
+-   * @param {number} take 가져올 문제 개수
+    * @returns {RelatedProblemsResponseDto} data: 대회 문제 목록, total: 대회 문제 총 개수
+-   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+-   * -권한이 없는 유저가 콘테스트 시작 전 문제에 접근하려는 경우
+-   * -등록하지 않은 유저가 콘테스트 종료 전 문제에 접근하려는 경우
+    */
+   async getContestProblems({
+     contestId,
+@@ -530,15 +483,7 @@ export class ContestProblemService {
+    * 대회 진행 중: Register한 경우 문제 액세스 가능 //
+    * 대회 종료 후: 누구나 문제 액세스 가능
+    * @see [Contest Problem 정책](https://www.notion.so/skkuding/Contest-Problem-list-ad4f2718af1748bdaff607abb958ba0b?pvs=4)
+-   * @param {number} contestId contest의 id
+-   * @param {number} problemId 문제의 id
+-   * @param {number} userId 요청 유저의 id
+    * @returns {RelatedProblemResponseDto} problem: 대회 문제 정보, order: 대회 문제 순서
+-   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+-   * -운영진 권한이 없는 유저가 콘테스트 시작 전/종료 후 문제에 접근하려는 경우
+-   * -등록하지 않은 유저가 문제에 접근하려는 경우
+-   * @throws {Prisma.PrismaClientKnownRequestError} 아래와 같은 경우 발생할 수 있습니다.
+-   * -contestId/problemId에 해당하는 ContestProblem이 존재하지 않는 경우
+    */
+   async getContestProblem({
+     contestId,
+@@ -643,14 +588,6 @@ export class ContestProblemService {
+     }
+   }
+ 
+-  /**
+-   * 특정 contest의 특정 문제에 대한 업데이트 히스토리를 최신순으로 조회합니다.
+-   *
+-   * @param {number} contestId contest의 id
+-   * @param {number} problemId 문제의 id
+-   * @param {number} userId 요청 유저의 id
+-   * @returns {updateHistory} 업데이트 히스토리 목록
+-   */
+   async getContestProblemUpdateHistory({
+     contestId,
+     problemId,
+@@ -697,10 +634,6 @@ export class AssignmentProblemService {
+    * 과제 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
+    * 과제 진행 중: Participate한 경우 문제 액세스 가능 //
+    * 과제 종료 후: Participate한 경우 문제 액세스 가능
+-   * @param {number} assignmentId 과제의 id
+-   * @param {number} userId 요청 유저의 id
+-   * @param {number | null} cursor 커서 값
+-   * @param {number} take 가져올 문제 개수
+    * @returns {RelatedProblemsResponseDto} data: 과제 문제 목록, total: 과제 문제 총 개수
+    */
+   async getAssignmentProblems({
+@@ -772,14 +705,7 @@ export class AssignmentProblemService {
+    * 대회 시작 전: 문제 액세스 불가 (Register 안하면 에러 메시지가 다름) //
+    * 대회 진행 중: Register한 경우 문제 액세스 가능 //
+    * 대회 종료 후: 누구나 문제 액세스 가능
+-   * @param {number} assignmentId 과제의 id
+-   * @param {number} problemId 문제의 id
+-   * @param {number} userId 요청 유저의 id
+    * @returns {RelatedProblemResponseDto} problem: 과제 문제 정보, order: 과제 문제 순서
+-   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+-   * -과제가 종료된 이후 해당 과제 문제에 접근하려는 경우
+-   * @throws {Prisma.PrismaClientKnownRequestError} 아래와 같은 경우 발생할 수 있습니다.
+-   * -assignmentId/problemId에 해당하는 AssignmentProblem이 존재하지 않는 경우
+    */
+   async getAssignmentProblem({
+     assignmentId,
+@@ -871,17 +797,6 @@ export class WorkbookProblemService {
+     private readonly workbookService: WorkbookService
+   ) {}
+ 
+-  /**
+-   * 특정 워크북에 포함된 문제 목록을 조회합니다.
+-   *
+-   * @param {number} workbookId workbook의 id
+-   * @param {number} cursor 커서 값
+-   * @param {number} take 가져올 문제 개수
+-   * @param {number | null} groupId 그룹의 id
+-   * @returns data:워크북 문제 목록 total:전체 개수
+-   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+-   * -해당 그룹이 워크북에 접근할 수 없는 경우
+-   */
+   async getWorkbookProblems({
+     workbookId,
+     cursor,
+@@ -978,18 +893,6 @@ export class WorkbookProblemService {
+     }
+   }
+ 
+-  /**
+-   * 특정 워크북에 포함된 특정 문제를 조회합니다.
+-   *
+-   * @param {number} workbookId workbook의 id
+-   * @param {number} problemId 문제의 id
+-   * @param {number} groupId 그룹의 id
+-   * @returns {RelatedProblemResponseDto} 워크북 문제의 상세 정보
+-   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
+-   * -해당 그룹이 워크북에 접근할 수 없는 경우
+-   * @throws {Prisma.PrismaClientKnownRequestError} 아래와 같은 경우 발생할 수 있습니다.
+-   * -workbookId/problemId에 해당하는 WorkbookProblem이 존재하지 않는 경우
+-   */
+   async getWorkbookProblem(
+     workbookId: number,
+     problemId: number,
+diff --git a/apps/backend/apps/client/src/user/user.service.ts b/apps/backend/apps/client/src/user/user.service.ts
+index 6f3dabae..241b3a74 100644
+--- a/apps/backend/apps/client/src/user/user.service.ts
++++ b/apps/backend/apps/client/src/user/user.service.ts
+@@ -53,12 +53,6 @@ export class UserService {
+     private readonly jwtAuthService: JwtAuthService
+   ) {}
+ 
+-  /**
+-   * 이메일 주소에 해당하는 사용자 이름을 조회합니다.
+-   *
+-   * @param {string} email
+-   * @returns 조회한 사용자 이름
+-   */
+   async getUsernameByEmail({ email }: UserEmailDto) {
+     const username = await this.prisma.user.findUniqueOrThrow({
+       where: {
+@@ -79,11 +73,6 @@ export class UserService {
+     return username
+   }
+ 
+-  /**
+-   * 사용자의 마지막 로그인 시간을 현재 시점으로 업데이트 합니다.
+-   *
+-   * @param {string} username 사용자 이름
+-   */
+   async updateLastLogin(username: string) {
+     const user = await this.prisma.user.update({
+       where: { username },
+@@ -92,14 +81,6 @@ export class UserService {
+     this.logger.debug(user, 'updateLastLogin')
+   }
+ 
+-  /**
+-   * 회원가입시 이메일 주소가 중복되지 않고/형식이 올바른지 체크하고 인증을 위한 pin번호를 전송합니다.
+-   *
+-   * @param {string} email 이메일 주소
+-   * @throws {DuplicateFoundException} 기존에 존재하는 이메일 주소면 예외 발생
+-   * @throws {UnprocessableDataException} @skku.edu로 끝나지 않는 메일이면 예외 발생
+-   * @return {Promise<string>} pin번호 전송 성공 메시지
+-   */
+   async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
+     const duplicatedUser = await this.getUserCredentialByEmail(email)
+     if (duplicatedUser) {
+@@ -115,13 +96,6 @@ export class UserService {
+     return this.createPinAndSendEmail(email)
+   }
+ 
+-  /**
+-   * 비밀번호 재설정을 위한 pin번호를 사용자 이메일로 전송합니다.
+-   *
+-   * @param {string} email 사용자 이메일 주소
+-   * @throws {UnidentifiedException} DB에 이메일 주소와 일치하는 사용자가 없으면 예외를 발생시킵니다.
+-   * @returns {Promise<string>} pin 번호 전송 성공 메시지
+-   */
+   async sendPinForPasswordReset({ email }: UserEmailDto): Promise<string> {
+     const user = await this.getUserCredentialByEmail(email)
+     if (!user) {
+@@ -132,12 +106,6 @@ export class UserService {
+     return this.createPinAndSendEmail(user.email)
+   }
+ 
+-  /**
+-   * 이메일 주소에 해당하는 사용자를 반환합니다.
+-   *
+-   * @param {string} email 이메일 주소
+-   * @returns 조회된 사용자
+-   */
+   async getUserCredentialByEmail(email: string) {
+     const user = await this.prisma.user.findUnique({
+       where: { email }
+@@ -146,12 +114,6 @@ export class UserService {
+     return user
+   }
+ 
+-  /**
+-   * pin 번호를 생성해 이메일로 전송하고, 인증을 위해 캐시에 저장합니다.
+-   *
+-   * @param {string} email pin 번호를 받을 사용자 이메일 주소
+-   * @returns {Promise<string>} pin 번호 전송 성공 메시지
+-   */
+   async createPinAndSendEmail(email: string): Promise<string> {
+     const pin = this.createPinRandomly(6)
+ 
+@@ -166,12 +128,6 @@ export class UserService {
+     return 'Email authentication pin is sent to your email address'
+   }
+ 
+-  /**
+-   * 랜덤으로 pin 번호를 생성합니다.
+-   *
+-   * @param {number} numberOfDigits 생성하려는 pin 번호의 자릿수
+-   * @returns 입력한 자릿수의 랜덤 pin 번호를 반환합니다.
+-   */
+   createPinRandomly(numberOfDigits: number): string {
+     const pin = randomInt(0, Number('1'.padEnd(numberOfDigits + 1, '0')))
+       .toString()
+@@ -180,14 +136,6 @@ export class UserService {
+     return pin
+   }
+ 
+-  /**
+-   * 사용자 비밀번호가 올바른 형식인지 체크하고 업데이트합니다.
+-   *
+-   * @param {string} newPassword 변경하려는 새로운 비밀번호
+-   * @param {Request} req 클라이언트 HTTP 요청 객체
+-   * @throws {UnprocessableDataException} 새로운 비밀번호가 잘못된 형식일 경우 예외를 발생시킵니다.
+-   * @returns {Promise<string>} 비밀번호 변경이 성공했다는 메시지를 반환합니다.
+-   */
+   async updatePassword(
+     { newPassword }: NewPasswordDto,
+     req: Request
+@@ -203,14 +151,6 @@ export class UserService {
+     return 'Password Reset successfully'
+   }
+ 
+-  /**
+-   * 클라이언트 요청 헤더에서 JWT 토큰을 추출해 검증하고, 성공시 pin 인증이 완료되었던 email(payload 객체 내용물)을 반환합니다.
+-   *
+-   * @param {Request} req 클라이언트 HTTP 요청 객체
+-   * @param {JwtVerifyOptions} jwtVerifyOption 추가로 검증할 조건 (없을 경우 빈 객체)
+-   * @throws {InvalidJwtTokenException} jwt 토큰이 없거나, 만료 되었거나, 서명이 일치하지 않을 경우, 예외를 발생시킵니다.
+-   * @returns {Promise<EmailAuthJwtObject>} jwt 검증 성공시 payload 객체 내용물 (pin 인증 완료된 이메일 주소)를 반환합니다.
+-   */
+   async verifyJwtFromRequestHeader(
+     req: Request,
+     jwtVerifyOptions: JwtVerifyOptions = {}
+@@ -243,13 +183,6 @@ export class UserService {
+     }
+   }
+ 
+-  /**
+-   * DB상에서 변경된 사용자 비밀번호를 암호화하여 업데이트합니다.
+-   *
+-   * @param {string} email 사용자 이메일 주소
+-   * @param {string} newPassword 새로운 비밀번호
+-   * @returns {Promise<User>} 비밀번호가 업데이트 된 user 객체
+-   */
+   async updateUserPasswordInPrisma(
+     email: string,
+     newPassword: string
+@@ -259,7 +192,7 @@ export class UserService {
+         email
+       },
+       data: {
+-        password: await hash(newPassword, ARGON2_HASH_OPTION) //암호화
++        password: await hash(newPassword, ARGON2_HASH_OPTION)
+       }
+     })
+     this.logger.debug(user, 'updateUserPasswordInPrisma')
+@@ -267,12 +200,6 @@ export class UserService {
+     return user
+   }
+ 
+-  /**
+-   * 입력한 pin번호를 검증하고 jwt 토큰을 발행합니다.
+-   *
+-   * @param {EmailAuthenticationPinDto} input pin번호, 이메일 주소 정보가 포함된 객체
+-   * @returns {Promise<string>} 발행된 jwt 토큰을 반환합니다.
+-   */
+   async verifyPinAndIssueJwt({
+     pin,
+     email
+@@ -285,14 +212,6 @@ export class UserService {
+     return token
+   }
+ 
+-  /**
+-   * 사용자가 입력한 pin번호와 캐시에 저장된 pin번호가 일치하는지 검증합니다.
+-   *
+-   * @param {string} pin 핀번호
+-   * @param {string} email 이메일 주소
+-   * @throws {UnidentifiedException} 입력한 pin번호와 캐시에 저장된 pin번호가 일치하지 않을 경우 예외를 발생시킵니다.
+-   * @returns {boolean} pin번호가 검증되었음을 의미하는 true를 반환합니다.
+-   */
+   async verifyPin(pin: string, email: string): Promise<boolean> | never {
+     const storedResetPin = await this.getPinFromCache(
+       emailAuthenticationPinCacheKey(email)
+@@ -311,46 +230,22 @@ export class UserService {
+     return true
+   }
+ 
+-  /**
+-   * 캐시 key를 이용해 저장된 pin번호를 조회합니다.
+-   *
+-   * @param {string} key 캐시에 저장된 pin번호를 찾기 위한 key값
+-   * @returns 캐시에 저장된 pin번호를 반환합니다.
+-   */
+   async getPinFromCache(key: string) {
+     const storedPin = await this.cacheManager.get<string>(key)
+     this.logger.debug({ key, value: storedPin }, 'getPinFromCache')
+     return storedPin
+   }
+ 
+-  /**
+-   * 캐시 key를 이용해 저장된 pin번호를 삭제합니다.
+-   *
+-   * @param {string} key 캐시에 저장된 pin번호를 삭제하기 위한 key값
+-   */
+   async deletePinFromCache(key: string) {
+     await this.cacheManager.del(key)
+     this.logger.debug({ key }, 'deletePinFromCache')
+   }
+ 
+-  /**
+-   * 사용자 식별을 위해 이메일 주소를 key, pin번호를 value로 하여 유효 시간(TTL) 5분 동안 서버에 캐시(cache)합니다.
+-   *
+-   * @param {string} key 사용자 식별을 위한 key값 (이메일 주소)
+-   * @param {string} value 캐시하는 value값 (pin 번호)
+-   * @param {number} ttl 인증이 유효한 시간 (TTL) : 5분
+-   */
+   async setPinInCache(key: string, value: string, ttl: number) {
+     await this.cacheManager.set(key, value, ttl)
+     this.logger.debug({ key, value, ttl }, 'setPinInCache')
+   }
+ 
+-  /**
+-   * 사용자 이메일 주소가 담겨있는 payload 객체를 인코딩 및 암호화하여 서명이 생성된 jwt 토큰을 생성합니다.
+-   *
+-   * @param {EmailAuthJwtPayload} payload 이메일 주소가 담긴 데이터 객체
+-   * @returns payload 객체를 인코딩 및 암호화하여 서명이 생성된 jwt 토큰을 생성합니다.
+-   */
+   async createJwt(payload: EmailAuthJwtPayload) {
+     const jwt = await this.jwtService.signAsync(payload, {
+       expiresIn: EMAIL_AUTH_EXPIRE_TIME
+@@ -359,18 +254,6 @@ export class UserService {
+     return jwt
+   }
+ 
+-  /**
+-   * 신규 회원가입 시 다양한 조건을 체크하고 통과하면 새로 생성된 user 객체를 반환합니다.
+-   * (이메일 인증 여부 / 사용자 이름,비밀번호 형식 / 중복된 사용자 이름 여부 체크)
+-   * @param {Request} req 클라이언트에서 보내는 HTTP 요청 객체
+-   * @param {SignUpDto} signUpDto 회원가입 정보가 담긴 객체
+-   * @throws {UnprocessableDataException}
+-   * 1. 인증되지 않은 이메일로 가입을 시도하면 예외를 발생시킵니다.
+-   * 2. 올바르지 않은 형식의 사용자 이름으로 가입을 시도하면 예외를 발생시킵니다.
+-   * 3. 올바르지 않은 형식의 비밀번호로 가입을 시도하면 예외를 발생시킵니다.
+-   * @throws {DuplicateFoundException} 이미 존재하는 사용자 이름으로 가입을 시도할 경우 예외를 발생시킵니다.
+-   * @returns 회원가입 성공 시 새로 가입된 user 객체를 반환합니다.
+-   */
+   async signUp(req: Request, signUpDto: SignUpDto) {
+     const { email } = await this.verifyJwtFromRequestHeader(req)
+     if (email != signUpDto.email) {
+@@ -414,14 +297,6 @@ export class UserService {
+     return user
+   }
+ 
+-  /**
+-   * 소셜 계정으로 회원가입 시 소셜 플랫폼에서 제공받은 계정 정보를 체크하고, user 객체를 생성 및 반환합니다.
+-   *
+-   * @param {SocialSignUpDto} socialSignUpDto 소셜 플랫폼에서 제공받은 계정 정보
+-   * @throws {DuplicateFoundException} 이미 존재하는 사용자 이름일 경우 예외를 발생시킵니다.
+-   * @throws {UnprocessableDataException} 사용자 이름이 잘못된 형식일 경우 예외를 발생시킵니다.
+-   * @returns 사용자의 소셜 서비스 연동 정보를 DB에 생성하고, user 프로필을 만든 후 user 객체를 반환합니다.
+-   */
+   async socialSignUp(socialSignUpDto: SocialSignUpDto): Promise<User> {
+     const duplicatedUser = await this.prisma.user.findUnique({
+       where: {
+@@ -458,12 +333,6 @@ export class UserService {
+     return user
+   }
+ 
+-  /**
+-   * 사용자 이름이 영어 소문자(a~z)/숫자 0~9/3자리 이상 10자리 이하를 만족하는지 체크합니다.
+-   *
+-   * @param {string} username 사용자 이름
+-   * @returns 사용자 이름 체크 후 통과하면 true를 반환합니다.
+-   */
+   isValidUsername(username: string): boolean {
+     const validUsername = /^[a-z0-9]{3,10}$/
+     if (!validUsername.test(username)) {
+@@ -472,12 +341,6 @@ export class UserService {
+     return true
+   }
+ 
+-  /**
+-   * 입력된 비밀번호가 잘못된 형식인지 검증합니다.
+-   * (영어 대문자로만 or 영어 소문자로만 or 특수문자 또는 공백으로만 or 길이가 0~7자리)인 비밀번호는 잘못된 형식
+-   * @param {string} password 비밀번호
+-   * @returns {boolean} 올바른 형식의 비밀번호일 경우 true를 반환합니다.
+-   */
+   isValidPassword(password: string): boolean {
+     const invalidPassword = /^(.{0,7}|[a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
+     if (invalidPassword.test(password)) {
+@@ -486,14 +349,8 @@ export class UserService {
+     return true
+   }
+ 
+-  /**
+-   * DB상에 새로 회원가입한 사용자(및 정보)를 추가합니다.
+-   *
+-   * @param signUpDto 회원가입 정보 DTO 객체
+-   * @returns {Promise<User>} 새로 추가된 user 객체를 반환합니다.
+-   */
+   async createUser(signUpDto: SignUpDto): Promise<User> {
+-    const encryptedPassword = await hash(signUpDto.password, ARGON2_HASH_OPTION) //암호화
++    const encryptedPassword = await hash(signUpDto.password, ARGON2_HASH_OPTION)
+ 
+     const user = await this.prisma.user.create({
+       data: {
+@@ -509,13 +366,6 @@ export class UserService {
+     return user
+   }
+ 
+-  /**
+-   * 사용자의 소셜 서비스(OAuth) 연동 정보를 DB에 생성합니다.
+-   *
+-   * @param socialSignUpDto 소셜 플랫폼에서 제공받은 계정 정보
+-   * @param {number} userId 사용자 Id
+-   * @returns 생성된 소셜 연동 정보 userOAuth 객체를 반환합니다.
+-   */
+   async createUserOAuth(socialSignUpDto: SocialSignUpDto, userId: number) {
+     const userOAuth = await this.prisma.userOAuth.create({
+       data: {
+@@ -528,12 +378,6 @@ export class UserService {
+     return userOAuth
+   }
+ 
+-  /**
+-   * DB에 새로운 user 프로필을 생성합니다.
+-   *
+-   * @param createUserProfileData user 프로필 정보
+-   * @returns {Promise<UserProfile>} 생성된 user 프로필 객체를 반환합니다.
+-   */
+   async createUserProfile(
+     createUserProfileData: CreateUserProfileData
+   ): Promise<UserProfile> {
+@@ -549,14 +393,6 @@ export class UserService {
+     return userProfile
+   }
+ 
+-  /**
+-   * 탈퇴 전 비밀번호를 확인하고 탈퇴하려는 사용자가 그룹의 유일한 리더인지 체크한 후, 탈퇴를 진행합니다.
+-   *
+-   * @param {string} username 사용자 이름
+-   * @param {string} password 비밀번호
+-   * @throws {UnidentifiedException} 잘못된 비밀번호를 입력했을 경우 예외를 발생시킵니다.
+-   * @throws {ConflictFoundException} 탈퇴하려는 user가 그룹의 유일한 리더일 경우 예외를 발생시킵니다.
+-   */
+   async deleteUser(username: string, password: string) {
+     const user = await this.getUserCredential(username)
+     if (!(user && (await this.jwtAuthService.isValidUser(user, password)))) {
+@@ -624,13 +460,6 @@ export class UserService {
+     this.logger.debug(deletedUser, 'deleted user')
+   }
+ 
+-  /**
+-   * 사용자 이름이 DB에 저장되어 있을 경우 조회합니다.
+-   *
+-   * @param {string} username 사용자 이름
+-   * @throws {EntityNotExistException} 사용자 이름이 DB상에 존재하지 않을 경우, 예외를 발생시킵니다.
+-   * @returns 사용자 이름을 반환합니다.
+-   */
+   async getUserCredential(username: string) {
+     const user = await this.prisma.user.findUnique({
+       where: { username }
+@@ -642,13 +471,6 @@ export class UserService {
+     return user
+   }
+ 
+-  /**
+-   * 사용자의 프로필 정보를 조회합니다.
+-   *
+-   * @param {string} username 사용자 이름
+-   * @throws {EntityNotExistException} 사용자의 프로필 정보가 DB상에 존재하지 않을 경우, 예외를 발생시킵니다.
+-   * @returns 사용자의 프로필 정보를 반환합니다.
+-   */
+   async getUserProfile(username: string) {
+     const userWithProfile = await this.prisma.user.findUnique({
+       where: { username },
+@@ -677,15 +499,6 @@ export class UserService {
+     return userWithProfile
+   }
+ 
+-  /**
+-   * 사용자의 이메일을 업데이트합니다.
+-   *
+-   * @param {AuthenticatedRequest} req 인증된 사용자 정보가 포함된 HTTP 요청 객체
+-   * @param updateUserEmailDto 업데이트 하려는 사용자의 이메일 주소가 담긴 DTO 객체
+-   * @throws {UnprocessableDataException} 인증되지 않은 이메일로 변경을 시도할 경우 예외를 발생시킵니다.
+-   * @throws {EntityNotExistException} 사용자가 DB상에 존재하지 않을 경우 예외를 발생시킵니다.
+-   * @returns 이메일이 업데이트 된 user 객체를 반환합니다.
+-   */
+   async updateUserEmail(
+     req: AuthenticatedRequest,
+     updateUserEmailDto: UpdateUserEmailDto
+@@ -723,12 +536,6 @@ export class UserService {
+     }
+   }
+ 
+-  /**
+-   * 이미 존재하는 사용자 이름인지 확인합니다.
+-   *
+-   * @param {string} usernameDto 사용자 이름
+-   * @throws {DuplicateFoundException} 이미 중복되는 사용자 이름이 있으면 예외를 발생시킵니다.
+-   */
+   async checkDuplicatedUsername(usernameDto: UsernameDto) {
+     const duplicatedUser = await this.prisma.user.findUnique({
+       where: {
+@@ -742,17 +549,7 @@ export class UserService {
+     }
+   }
+ 
+-  /**
+-   * 사용자의 정보를 업데이트합니다.
+-   *
+-   * @param {AuthenticatedRequest} req 인증된 사용자 정보가 포함된 HTTP 요청 객체
+-   * @param updateUserDto 업데이트 하려는 사용자의 정보가 담긴 DTO 객체 (password, studentId, college, major, realName)
+-   * @throws {UnprocessableDataException} 현재 비밀번호를 입력하지 않으면 (빈 필드이면) 예외를 발생시킵니다.
+-   * @throws {EntityNotExistException} 사용자가 DB상에 존재하지 않을 경우 예외를 발생시킵니다.
+-   * @throws {UnidentifiedException} 잘못된 비밀번호를 입력했을 경우 예외를 발생시킵니다.
+-   * @throws {UnprocessableDataException} 새로운 비밀번호가 잘못된 형식일 경우 예외를 발생시킵니다.
+-   * @returns 업데이트 된 user 객체를 반환합니다. (studentId, college, major, realName 필드만)
+-   */
++  // update user field (password, studentId, college, major, realName)
+   async updateUser(req: AuthenticatedRequest, updateUserDto: UpdateUserDto) {
+     let encryptedNewPassword: string | undefined = undefined
+ 
+diff --git a/apps/backend/libs/auth/src/roles/roles.service.spec.ts b/apps/backend/libs/auth/src/roles/roles.service.spec.ts
+index fdefd154..835c88f2 100644
+--- a/apps/backend/libs/auth/src/roles/roles.service.spec.ts
++++ b/apps/backend/libs/auth/src/roles/roles.service.spec.ts
+@@ -28,7 +28,8 @@ const userGroup: UserGroup = {
+   userId: 1,
+   createTime: faker.date.past(),
+   updateTime: faker.date.past(),
+-  isGroupLeader: true
++  isGroupLeader: true,
++  totalStudyTime: 0
+ }
+ 
+ const db = {
+diff --git a/apps/backend/prisma/migrations/20260213141806_add_study_group_features/migration.sql b/apps/backend/prisma/migrations/20260213141806_add_study_group_features/migration.sql
+new file mode 100644
+index 00000000..d2af20c4
+--- /dev/null
++++ b/apps/backend/prisma/migrations/20260213141806_add_study_group_features/migration.sql
+@@ -0,0 +1,14 @@
++-- AlterTable
++ALTER TABLE "public"."user_group" ADD COLUMN     "total_study_time" INTEGER DEFAULT 0;
++
++-- CreateTable
++CREATE TABLE "public"."study_info" (
++    "group_id" INTEGER NOT NULL,
++    "capacity" INTEGER NOT NULL DEFAULT 10,
++    "invitation_code" TEXT,
++
++    CONSTRAINT "study_info_pkey" PRIMARY KEY ("group_id")
++);
++
++-- AddForeignKey
++ALTER TABLE "public"."study_info" ADD CONSTRAINT "study_info_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "public"."group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+diff --git a/apps/backend/prisma/schema.prisma b/apps/backend/prisma/schema.prisma
+index c2fe9266..0bdec2be 100644
+--- a/apps/backend/prisma/schema.prisma
++++ b/apps/backend/prisma/schema.prisma
+@@ -121,6 +121,8 @@ model UserGroup {
+   createTime    DateTime @default(now()) @map("create_time")
+   updateTime    DateTime @updatedAt @map("update_time")
+ 
++  totalStudyTime Int? @default(0) @map("total_study_time")
++
+   @@id([userId, groupId])
+   @@map("user_group")
+ }
+@@ -155,6 +157,8 @@ model Group {
+   courseQnA      CourseQnA[]
+   CourseNotice   CourseNotice[]
+ 
++  studyInfo StudyInfo?
++
+   @@map("group")
+ }
+ 
+@@ -1013,3 +1017,13 @@ model CourseQnAComment {
+   @@unique([courseQnAId, order])
+   @@map("course_qna_comment")
+ }
++
++model StudyInfo {
++  groupId        Int     @id @map("group_id")
++  capacity       Int     @default(10)
++  invitationCode String? @map("invitation_code")
++
++  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
++
++  @@map("study_info")
++}
+diff --git a/apps/frontend/app/(client)/(main)/_components/StatusBadge.tsx b/apps/frontend/app/(client)/(main)/_components/StatusBadge.tsx
+index eb4b9327..eae50902 100644
+--- a/apps/frontend/app/(client)/(main)/_components/StatusBadge.tsx
++++ b/apps/frontend/app/(client)/(main)/_components/StatusBadge.tsx
+@@ -2,6 +2,7 @@ import { cn } from '@/libs/utils'
+ import finishedIcon from '@/public/icons/finished.svg'
+ import ongoingIcon from '@/public/icons/ongoing.svg'
+ import upcomingIcon from '@/public/icons/upcoming.svg'
++import Image from 'next/image'
+ import React from 'react'
+ 
+ const variants = {
+@@ -37,10 +38,11 @@ interface Props {
+ }
+ 
+ export function StatusBadge({ variant }: Props) {
+-  const { text, color } = variants[variant]
++  const { image, text, color } = variants[variant]
+   return (
+     <div className="inline-flex items-center gap-[6px]">
+-      <p className={cn('font-sans text-base font-medium', color)}>{text}</p>
++      <Image src={image} alt={text} />
++      <p className={cn('font-sans text-sm font-semibold', color)}>{text}</p>
+     </div>
+   )
+ }
+diff --git a/apps/frontend/app/(client)/(main)/course/[courseId]/_components/AssignmentLink.tsx b/apps/frontend/app/(client)/(main)/course/[courseId]/_components/AssignmentLink.tsx
+index 7306bc64..1db4ccd2 100644
+--- a/apps/frontend/app/(client)/(main)/course/[courseId]/_components/AssignmentLink.tsx
++++ b/apps/frontend/app/(client)/(main)/course/[courseId]/_components/AssignmentLink.tsx
+@@ -75,7 +75,7 @@ export function AssignmentLink({
+       onClick={handleClick}
+       className="w-fit"
+     >
+-      <p className="line-clamp-1 truncate text-sm font-normal lg:text-base">
++      <p className="line-clamp-1 text-sm font-normal lg:text-base">
+         {assignment.title}
+       </p>
+     </Link>
+diff --git a/apps/frontend/app/(client)/(main)/course/_components/CourseCard.tsx b/apps/frontend/app/(client)/(main)/course/_components/CourseCard.tsx
+index 79787f75..f52166b2 100644
+--- a/apps/frontend/app/(client)/(main)/course/_components/CourseCard.tsx
++++ b/apps/frontend/app/(client)/(main)/course/_components/CourseCard.tsx
+@@ -1,7 +1,8 @@
+ 'use client'
+ 
+-import calendarIcon from '@/public/icons/calendar-gray.svg'
+-import personFillIcon from '@/public/icons/person-gray.svg'
++import { cn } from '@/libs/utils'
++import calendarIcon from '@/public/icons/calendar.svg'
++import personFillIcon from '@/public/icons/person-fill.svg'
+ import type { JoinedCourse } from '@/types/type'
+ import Image from 'next/image'
+ import 'react-circular-progressbar/dist/styles.css'
+@@ -9,25 +10,26 @@ import { StatusBadge } from '../../../(main)/_components/StatusBadge'
+ 
+ interface CourseCardProps {
+   course: JoinedCourse
++  color: string
+   index: number
+ }
+ 
+-export function CourseCard({ course }: CourseCardProps) {
++export function CourseCard({ course, color }: CourseCardProps) {
+   return (
+-    <div className="mt-3 flex h-[200px] flex-col justify-between overflow-hidden rounded-xl shadow-[0_4px_20px_rgba(53,78,116,0.1)]">
+-      <div className="flex w-full flex-col justify-between gap-2 px-5 pt-4">
++    <div className="flex h-[300px] w-[310px] flex-col justify-between overflow-hidden rounded-lg border border-gray-200 shadow-none">
++      <div className={cn('h-[108px]', color)} />
++      <div className="flex h-[192px] w-full flex-col justify-between gap-3 px-6 pb-8 pt-[26px]">
+         <StatusBadge variant={'ongoing'} />
+-        <div className="h-[62px] text-ellipsis whitespace-pre-wrap text-xl font-medium leading-tight tracking-[-0.72px] md:text-2xl">
++        <div className="text-ellipsis whitespace-pre-wrap text-lg font-semibold leading-tight tracking-[-0.54px] text-black">
+           [{course?.courseInfo?.courseNum}_{course?.courseInfo?.classNum}]{' '}
+-          <br className="md:hidden" />
+           {course.groupName}
+         </div>
+-        <div className="flex flex-col gap-[6px] pb-8 pt-4">
++        <div className="flex flex-col gap-1 pt-1">
+           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
+             <Image src={calendarIcon} alt="calendar" width={16} height={16} />
+-            <span className="text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
++            <p className="my-2 text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
+               {course?.courseInfo?.semester}
+-            </span>
++            </p>
+           </div>
+           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
+             <Image
+@@ -36,9 +38,9 @@ export function CourseCard({ course }: CourseCardProps) {
+               width={16}
+               height={16}
+             />
+-            <span className="text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
+-              Prof. {course?.courseInfo?.professor}
+-            </span>
++            <p className="text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
++              Prof. {course?.courseInfo?.professor}{' '}
++            </p>
+           </div>
+         </div>
+       </div>
+diff --git a/apps/frontend/app/(client)/(main)/course/_components/CourseCardList.tsx b/apps/frontend/app/(client)/(main)/course/_components/CourseCardList.tsx
+index 4a01e10c..8317ffae 100644
+--- a/apps/frontend/app/(client)/(main)/course/_components/CourseCardList.tsx
++++ b/apps/frontend/app/(client)/(main)/course/_components/CourseCardList.tsx
+@@ -3,20 +3,78 @@
+ import {
+   Carousel,
+   CarouselContent,
+-  CarouselItem
++  CarouselItem,
++  CarouselNext,
++  CarouselPrevious,
++  type CarouselApi
+ } from '@/components/shadcn/carousel'
+-import { fetcherWithAuth } from '@/libs/utils'
++import { cn, fetcherWithAuth, safeFetcherWithAuth } from '@/libs/utils'
+ import type { JoinedCourse } from '@/types/type'
+ import { useQuery } from '@tanstack/react-query'
++import type { Route } from 'next'
+ import Link from 'next/link'
++import { useEffect, useMemo, useState } from 'react'
+ import { CourseCard } from '../_components/CourseCard'
+ import { RegisterCourseButton } from './RegisterCourseButton'
+ 
++const bgVariants = [
++  'bg-[#fed7de]',
++  'bg-[#c4f2de]',
++  'bg-[#e6ffe2]',
++  'bg-[#e7d9fe]',
++  'bg-[#c4d8f7]',
++  'bg-[#ffef98]'
++]
++
++interface Profile {
++  username: string // ID
++  userProfile: {
++    realName: string
++  }
++  studentId: string
++  major: string
++}
++
++function getRandomColorArray(username: string) {
++  let hash = 0
++  for (let i = 0; i < username.length; i++) {
++    hash = (hash << 5) - hash + username.charCodeAt(i)
++    hash |= 0
++  }
++
++  function pseudoRandom(seed: number) {
++    seed = (seed * 9301 + 49297) % 233280
++    return seed / 233280
++  }
++
++  const array = [...bgVariants]
++
++  let seed = Math.abs(hash)
++  for (let i = array.length - 1; i > 0; i--) {
++    const j = Math.floor(pseudoRandom(seed) * (i + 1))
++    ;[array[i], array[j]] = [array[j], array[i]]
++    seed = seed * 9301 + 49297
++  }
++
++  return array
++}
++
+ interface CourseCardListProps {
+   title: string
+ }
+ 
+ export function CourseCardList({ title }: CourseCardListProps) {
++  // Get username and generate colors
++  const { data: username = 'unknown' } = useQuery({
++    queryKey: ['username'],
++    queryFn: async () => {
++      const data: Profile = await safeFetcherWithAuth.get('user').json()
++      return data.username
++    }
++  })
++
++  const colors = useMemo(() => getRandomColorArray(username), [username])
++
+   const { data: courses = [] } = useQuery({
+     queryKey: ['joinedCourses'],
+     queryFn: async () => {
+@@ -24,10 +82,38 @@ export function CourseCardList({ title }: CourseCardListProps) {
+     }
+   })
+ 
++  const [carouselApi, setCarouselApi] = useState<CarouselApi>()
++  const [current, setCurrent] = useState(0)
++  const [count, setCount] = useState(0)
++
++  useEffect(() => {
++    if (!carouselApi) {
++      return
++    }
++
++    const onInit = () => {
++      setCount(carouselApi.scrollSnapList().length)
++      setCurrent(carouselApi.selectedScrollSnap() + 1)
++    }
++
++    const onSelect = () => {
++      setCurrent(carouselApi.selectedScrollSnap() + 1)
++    }
++
++    onInit()
++    carouselApi.on('reInit', onInit)
++    carouselApi.on('select', onSelect)
++
++    return () => {
++      carouselApi.off('reInit', onInit)
++      carouselApi.off('select', onSelect)
++    }
++  }, [carouselApi])
++
+   if (courses.length === 0) {
+     return (
+-      <div className="flex w-full flex-col gap-10 md:items-center md:justify-between">
+-        <div className="flex gap-4 text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
++      <div className="flex w-full flex-col gap-10">
++        <div className="flex gap-4 text-2xl font-semibold text-black">
+           {title}
+           <RegisterCourseButton />
+         </div>
+@@ -42,25 +128,69 @@ export function CourseCardList({ title }: CourseCardListProps) {
+   }
+ 
+   return (
+-    <Carousel opts={{ align: 'start' }} className="flex w-full flex-col">
+-      <div className="mb-3 flex w-full items-center justify-between">
+-        <span className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
+-          {title}
+-        </span>
+-        <RegisterCourseButton />
++    <>
++      <Carousel
++        setApi={setCarouselApi}
++        opts={{ align: 'start' }}
++        className="flex w-full flex-col gap-6"
++      >
++        <div className="flex w-full items-center justify-center sm:justify-between">
++          <div className="flex gap-4 text-2xl font-semibold text-black">
++            {title}
++            <div className="hidden sm:flex">
++              <RegisterCourseButton />
++            </div>
++          </div>
++          <div className="hidden items-center justify-end gap-2 sm:flex">
++            <CarouselPrevious />
++            <CarouselNext />
++          </div>
++        </div>
++        <div className="-mx-4 sm:-mx-[116px]">
++          <CarouselContent className="mx-[calc((100%-310px)/2)] my-[14px] sm:ml-28 sm:mr-3">
++            {courses.map((course, index) => (
++              <CarouselItem
++                key={course.groupName}
++                className={cn(
++                  'flex pl-0 pr-4 transition hover:scale-105 hover:opacity-80',
++                  index === courses.length - 1 && 'sm:pr-0'
++                )}
++              >
++                <Link
++                  key={course.id}
++                  href={`/course/${course.id}` as Route}
++                  className={cn('block overflow-hidden')}
++                >
++                  <CourseCard
++                    index={index}
++                    course={course}
++                    color={colors[index]}
++                  />
++                </Link>
++              </CarouselItem>
++            ))}
++            <CarouselItem className="flex pl-0 transition hover:scale-105 hover:opacity-80">
++              <div className="flex h-[300px] w-[310px] items-center justify-center rounded-lg border sm:-ml-4 sm:hidden">
++                <RegisterCourseButton />
++              </div>
++            </CarouselItem>
++          </CarouselContent>
++        </div>
++      </Carousel>
++      <div className="py-4 text-center text-sm sm:hidden">
++        <div className="mb-2 flex items-center justify-center gap-2">
++          {Array.from({ length: count }).map((_, index) => (
++            <button
++              key={index}
++              onClick={() => carouselApi?.scrollTo(index)}
++              className={`h-2 w-2 rounded-full ${
++                index + 1 === current ? 'bg-slate-900' : 'bg-slate-300'
++              }`}
++              aria-label={`Go to slide ${index + 1}`}
++            />
++          ))}
++        </div>
+       </div>
+-      <CarouselContent className="mb-[100px] ml-2 grid auto-cols-[240px] grid-flow-col grid-rows-2 gap-3 md:auto-cols-[293px]">
+-        {courses.map((course, index) => (
+-          <CarouselItem key={course.id} className="p-0">
+-            <Link
+-              href={`/course/${course.id}` as const}
+-              className="block w-full"
+-            >
+-              <CourseCard course={course} index={index} />
+-            </Link>
+-          </CarouselItem>
+-        ))}
+-      </CarouselContent>
+-    </Carousel>
++    </>
+   )
+ }
+diff --git a/apps/frontend/app/(client)/(main)/course/_components/Dashboard.tsx b/apps/frontend/app/(client)/(main)/course/_components/Dashboard.tsx
+index 2da04062..553204ec 100644
+--- a/apps/frontend/app/(client)/(main)/course/_components/Dashboard.tsx
++++ b/apps/frontend/app/(client)/(main)/course/_components/Dashboard.tsx
+@@ -1,14 +1,16 @@
+ 'use client'
+ 
+ import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
+-import { ScrollArea } from '@/components/shadcn/scroll-area'
+-import { fetcherWithAuth } from '@/libs/utils'
+-import type { Assignment, AssignmentSummary, JoinedCourse } from '@/types/type'
++import { AssignmentIcon, ExerciseIcon } from '@/components/Icons'
+ import {
+-  useQueries,
+-  useQuery,
+-  type UseQueryOptions
+-} from '@tanstack/react-query'
++  Drawer,
++  DrawerContent,
++  DrawerHeader,
++  DrawerTitle
++} from '@/components/shadcn/drawer'
++import { ScrollArea } from '@/components/shadcn/scroll-area'
++import type { Assignment, AssignmentSummary } from '@/types/type'
++import { useQueries, type UseQueryOptions } from '@tanstack/react-query'
+ import { useMemo, useState } from 'react'
+ import { AssignmentLink } from '../[courseId]/_components/AssignmentLink'
+ import { DashboardCalendar } from './DashboardCalendar'
+@@ -36,14 +38,12 @@ interface WorkItem {
+ }
+ 
+ interface GroupedRows {
+-  courseId: number
+   courseTitle: string
+-  courseNum?: string
+-  classNum?: number
+   rows: WorkItem[]
+ }
+ 
+ interface CardSectionProps {
++  icon: React.ReactNode
+   title: string
+   groups: GroupedRows[]
+   selectedDate?: Date
+@@ -75,6 +75,8 @@ const isActiveOnDate = (selectedDate: Date | undefined, workItem: WorkItem) => {
+ }
+ 
+ const formatDueMd = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
++const progressPct = (submitted: number, total: number) =>
++  total > 0 ? Math.min(100, Math.round((submitted / total) * 100)) : 0
+ 
+ const isDueToday = (selectedDate?: Date, dueDate?: Date) =>
+   Boolean(selectedDate && dueDate && sameDay(selectedDate, dueDate))
+@@ -108,17 +110,9 @@ const makeAssignmentQueries = (
+     }
+   })
+ 
+-export function Dashboard() {
+-  const { data: courses = [] } = useQuery({
+-    queryKey: ['joinedCourses'],
+-    queryFn: async () => {
+-      return await fetcherWithAuth.get('course/joined').json<JoinedCourse[]>()
+-    }
+-  })
+-
+-  const validCourseIds = useMemo(
+-    () => courses.map((c) => c.id).filter((n) => Number.isFinite(n) && n > 0),
+-    [courses]
++export function Dashboard({ courseIds }: { courseIds: number[] }) {
++  const validCourseIds = (courseIds ?? []).filter(
++    (n) => Number.isFinite(n) && n > 0
+   )
+ 
+   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+@@ -146,6 +140,15 @@ export function Dashboard() {
+     }
+   }
+ 
++  const [drawerOpen, setDrawerOpen] = useState(false)
++
++  const onSelectDateMobile = (nextDate: Date | undefined) => {
++    onSelectDate(nextDate)
++    if (nextDate) {
++      setDrawerOpen(true)
++    }
++  }
++
+   const assignmentQueriesResult = useQueries({
+     queries: makeAssignmentQueries(validCourseIds, false)
+   })
+@@ -225,9 +228,9 @@ export function Dashboard() {
+   )
+ 
+   const groupedByCourse: GroupedRows[] = useMemo(() => {
+-    const map = new Map<number, WorkItem[]>()
++    const map = new Map<string, WorkItem[]>()
+     for (const row of visibleRows) {
+-      const key = row.group.id || 0
++      const key = row.group.groupName || 'Unknown'
+       let bucket = map.get(key)
+       if (!bucket) {
+         bucket = []
+@@ -236,19 +239,9 @@ export function Dashboard() {
+       bucket.push(row)
+     }
+     return [...map]
+-      .map(([courseId, rows]) => {
+-        const detail = courses.find((c) => c.id === courseId)
+-
+-        return {
+-          courseId,
+-          courseNum: detail?.courseInfo.courseNum,
+-          classNum: detail?.courseInfo.classNum,
+-          courseTitle: rows[0].group.groupName || 'Unknown',
+-          rows
+-        }
+-      })
+-      .sort((a, b) => a.courseTitle.localeCompare(b.courseTitle))
+-  }, [visibleRows, courses])
++      .sort(([a], [b]) => a.localeCompare(b))
++      .map(([courseTitle, rows]) => ({ courseTitle, rows }))
++  }, [visibleRows])
+ 
+   const deadlineDateList = useMemo(() => {
+     const uniq = new Set<number>()
+@@ -262,64 +255,111 @@ export function Dashboard() {
+ 
+   return (
+     <section className="mx-auto max-w-[1208px]">
+-      <div className="pb-4 sm:pb-[30px]">
+-        <h2 className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
+-          나의 대시보드
++      <div className="pb-[30px]">
++        <h2 className="text-[30px] font-semibold leading-9 tracking-[-0.9px] text-black">
++          DASHBOARD
+         </h2>
+       </div>
+ 
+-      <div className="grid grid-cols-1 gap-[14px] md:grid md:grid-cols-2 lg:grid-cols-3">
+-        <div className="order-2 flex max-h-[460px] flex-col md:order-1">
+-          <CardSection
+-            title="Assignment"
+-            groups={groupedByCourse.map((group) => ({
+-              ...group,
+-              rows: group.rows.filter((r) => !r.isExercise)
+-            }))}
+-            selectedDate={selectedDate}
+-            courseIdResolver={courseIdResolver}
+-          />
+-        </div>
++      <div className="hidden gap-[14px] sm:grid md:grid-cols-2 lg:grid-cols-3">
++        <CardSection
++          icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
++          title="Assignment"
++          groups={groupedByCourse.map(({ courseTitle, rows }) => ({
++            courseTitle,
++            rows: rows.filter((r) => !r.isExercise)
++          }))}
++          selectedDate={selectedDate}
++          courseIdResolver={courseIdResolver}
++        />
++
++        <CardSection
++          icon={<ExerciseIcon className="h-7 w-7 fill-violet-600" />}
++          title="Exercise"
++          groups={groupedByCourse.map(({ courseTitle, rows }) => ({
++            courseTitle,
++            rows: rows.filter((r) => r.isExercise)
++          }))}
++          selectedDate={selectedDate}
++          courseIdResolver={courseIdResolver}
++        />
++
++        <DashboardCalendar
++          selectedDate={selectedDate}
++          onSelect={onSelectDate}
++          deadlineDateList={deadlineDateList}
++          viewMonth={viewMonth}
++          setViewMonth={setViewMonth}
++        />
++      </div>
+ 
+-        <div className="order-3 flex max-h-[460px] flex-col md:order-2">
+-          <CardSection
+-            title="Exercise"
+-            groups={groupedByCourse.map((group) => ({
+-              ...group,
+-              rows: group.rows.filter((r) => r.isExercise)
+-            }))}
+-            selectedDate={selectedDate}
+-            courseIdResolver={courseIdResolver}
+-          />
+-        </div>
+-        <div className="order-1 flex flex-col md:order-3">
++      <div className="sm:hidden">
++        <div className="w-full origin-top">
+           <DashboardCalendar
+             selectedDate={selectedDate}
+-            onSelect={onSelectDate}
++            onSelect={onSelectDateMobile}
+             deadlineDateList={deadlineDateList}
+             viewMonth={viewMonth}
+             setViewMonth={setViewMonth}
+           />
+         </div>
++
++        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
++          <DrawerContent className="max-h-[90vh] pb-0">
++            <DrawerHeader>
++              <DrawerTitle>
++                {selectedDate?.toLocaleDateString() ?? ''}
++              </DrawerTitle>
++            </DrawerHeader>
++
++            <div className="mx-auto w-full items-center space-y-6">
++              <CardSection
++                icon={<AssignmentIcon className="h-6 w-6 fill-violet-600" />}
++                title="Assignment"
++                groups={groupedByCourse.map(({ courseTitle, rows }) => ({
++                  courseTitle,
++                  rows: rows.filter((r) => !r.isExercise)
++                }))}
++                selectedDate={selectedDate}
++                courseIdResolver={courseIdResolver}
++              />
++
++              <CardSection
++                icon={<ExerciseIcon className="h-7 w-7 fill-violet-600" />}
++                title="Exercise"
++                groups={groupedByCourse.map(({ courseTitle, rows }) => ({
++                  courseTitle,
++                  rows: rows.filter((r) => r.isExercise)
++                }))}
++                selectedDate={selectedDate}
++                courseIdResolver={courseIdResolver}
++              />
++            </div>
++          </DrawerContent>
++        </Drawer>
+       </div>
+     </section>
+   )
+ }
+ 
+ function CardSection({
++  icon,
+   title,
+   groups,
+   selectedDate,
+   courseIdResolver
+ }: CardSectionProps) {
+   return (
+-    <section className="flex h-full rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
+-      <div className="flex w-full max-w-[100vw] flex-col overflow-hidden py-[30px] pl-6 pr-2 md:max-w-[390px]">
+-        <span className="mb-6 text-[24px] font-semibold leading-[33.6px] tracking-[-0.72px]">
+-          {title}
+-        </span>
++    <section className="flex justify-center rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
++      <div className="flex max-h-[40vh] w-full max-w-[100vw] flex-col py-[30px] pl-6 pr-2 sm:max-h-[460px] sm:max-w-[390px]">
++        <div className="mb-6 flex items-center gap-2">
++          {icon}
++          <div className="text-[24px] font-semibold leading-[33.6px] tracking-[-0.72px]">
++            {title}
++          </div>
++        </div>
+ 
+-        <ScrollArea className="flex-1 pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
++        <ScrollArea className="pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
+           {groups
+             .slice()
+             .sort(
+@@ -339,7 +379,7 @@ function CardSection({
+             .map((group, idx) => (
+               <div key={group.courseTitle} className="w-full">
+                 <p className="mb-3 pl-[6px] text-[14px] font-semibold leading-[19.6px] tracking-[-0.42px] text-black">
+-                  <span className="bg-primary-light mr-2 inline-block h-[22px] w-[6px] rounded-[1px] align-middle" />
++                  <span className="mr-2 inline-block h-[22px] w-[6px] rounded-[1px] bg-violet-300 align-middle" />
+                   {group.courseTitle}
+                 </p>
+ 
+@@ -363,6 +403,10 @@ function CardSection({
+                       return a.title.localeCompare(b.title)
+                     })
+                     .map((row) => {
++                      const progress = progressPct(
++                        row.submittedCount,
++                        row.problemCount
++                      )
+                       const courseId = courseIdResolver(row)
+ 
+                       return (
+@@ -370,10 +414,16 @@ function CardSection({
+                           key={row.id}
+                           className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
+                         >
++                          <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-neutral-200/40" />
++                          <div
++                            className="pointer-events-none absolute inset-y-0 left-0 rounded-r-md bg-violet-200"
++                            style={{ width: `${progress}%` }}
++                          />
++
+                           <div className="relative flex items-center py-[10px]">
+                             <div className="flex min-w-0 flex-1 items-center">
+                               <div className="pl-[18px] pr-[10px]">
+-                                <span className="bg-primary inline-block h-2 w-2 shrink-0 rounded-full" />
++                                <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-violet-500" />
+                               </div>
+ 
+                               <div className="min-w-0">
+@@ -385,7 +435,7 @@ function CardSection({
+                               </div>
+                             </div>
+ 
+-                            <span className="text-primary ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm font-medium tabular-nums">
++                            <span className="ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm tabular-nums text-violet-600">
+                               {'~ '}
+                               {formatDueMd(row.dueTime ?? row.endTime)}
+                             </span>
+diff --git a/apps/frontend/app/(client)/(main)/course/_components/DashboardCalendar.tsx b/apps/frontend/app/(client)/(main)/course/_components/DashboardCalendar.tsx
+index fdd75f92..fd530d5d 100644
+--- a/apps/frontend/app/(client)/(main)/course/_components/DashboardCalendar.tsx
++++ b/apps/frontend/app/(client)/(main)/course/_components/DashboardCalendar.tsx
+@@ -6,31 +6,28 @@ import {
+   type DayPickerSingleProps
+ } from 'react-day-picker'
+ 
+-interface DashboardCalendarProps {
+-  selectedDate?: Date
+-  onSelect: (date: Date | undefined) => void
+-  deadlineDateList: Date[]
+-  viewMonth: Date
+-  setViewMonth: (m: Date) => void
+-  children?: React.ReactNode
+-}
+-
+ export function DashboardCalendar({
+   selectedDate,
+   onSelect,
+   deadlineDateList,
+   viewMonth,
+   setViewMonth
+-}: DashboardCalendarProps) {
++}: {
++  selectedDate?: Date
++  onSelect: (date: Date | undefined) => void
++  deadlineDateList: Date[]
++  viewMonth: Date
++  setViewMonth: (m: Date) => void
++}) {
+   const isOutside = (d: Date) =>
+     d.getFullYear() !== viewMonth.getFullYear() ||
+     d.getMonth() !== viewMonth.getMonth()
+ 
+   return (
+-    <section className="h-full rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
+-      <div className="flex flex-col px-[30px] pb-5 pt-[30px]">
++    <section className="rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
++      <div className="flex justify-center px-[30px] pb-5 pt-[30px]">
+         <DayPicker
+-          className="mx-auto"
++          className="m-0"
+           mode="single"
+           showOutsideDays
+           weekStartsOn={0}
+@@ -65,7 +62,7 @@ export function DashboardCalendar({
+                   '0'
+                 )
+                 return (
+-                  <div className="flex items-center justify-start gap-2 pb-[6px]">
++                  <div className="flex items-center justify-start gap-2 pb-[14px]">
+                     <button
+                       type="button"
+                       className="rounded-full hover:bg-neutral-200 disabled:opacity-40"
+@@ -87,7 +84,7 @@ export function DashboardCalendar({
+                         />
+                       </svg>
+                     </button>
+-                    <div className="text-[16px] font-semibold leading-[33.6px] tracking-[-0.72px] text-black md:text-2xl">{`${y}. ${m}`}</div>
++                    <div className="text-[24px] font-semibold leading-[33.6px] tracking-[-0.72px] text-black">{`${y}. ${m}`}</div>
+                     <button
+                       type="button"
+                       className="rounded-full hover:bg-neutral-200 disabled:opacity-40"
+@@ -115,24 +112,23 @@ export function DashboardCalendar({
+             } as DayPickerSingleProps['components']
+           }
+           classNames={{
+-            caption: 'py-2 mb-4',
++            caption: 'py-2',
+             nav: 'hidden',
+             head_row: 'grid grid-cols-7 text-center',
+             head_cell:
+               'py-2 text-[16px] leading-6 tracking-[-0.48px] font-normal text-neutral-500 first:text-red-500',
+             row: 'grid grid-cols-7',
+             cell: 'relative p-1 text-center',
+-            day: 'mx-auto my-1 flex hover:bg-color-blue-95 hover:text-black h-9 w-9 items-center justify-center rounded-full font-normal transition',
+-            day_outside: 'text-neutral-400',
+-            table: 'w-full border-collapse table-fixed'
++            day: 'mx-auto my-1 flex hover:bg-violet-200 h-9 w-9 items-center justify-center rounded-full font-normal transition',
++            day_outside: 'text-neutral-400'
+           }}
+           modifiersClassNames={{
+-            today: 'bg-primary text-white border border-primary',
+-            selected: 'bg-color-blue-95 border border-primary-light',
++            today: 'bg-violet-700 text-white border border-violet-700',
++            selected: 'bg-violet-200 border border-violet-400',
+             sunday: 'text-red-500',
+             sundayOutside: '!text-red-300',
+             deadline:
+-              'relative after:absolute after:bottom-[-8px] after:left-1/2 after:h-1.5 after:w-1.5 after:-translate-x-1/2 after:rounded-full after:bg-primary'
++              'relative after:absolute after:bottom-[-8px] after:left-1/2 after:h-1.5 after:w-1.5 after:-translate-x-1/2 after:rounded-full after:bg-violet-700'
+           }}
+         />
+       </div>
+diff --git a/apps/frontend/app/(client)/(main)/course/_components/RegisterCourseButton.tsx b/apps/frontend/app/(client)/(main)/course/_components/RegisterCourseButton.tsx
+index f9100747..7b992682 100644
+--- a/apps/frontend/app/(client)/(main)/course/_components/RegisterCourseButton.tsx
++++ b/apps/frontend/app/(client)/(main)/course/_components/RegisterCourseButton.tsx
+@@ -5,6 +5,7 @@ import { Modal } from '@/components/Modal'
+ import { Button } from '@/components/shadcn/button'
+ import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
+ import personFillIcon from '@/public/icons/person-fill.svg'
++import plusCircleIcon from '@/public/icons/plus-circle.svg'
+ import type { Course } from '@/types/type'
+ import { useQueryClient } from '@tanstack/react-query'
+ import Image from 'next/image'
+@@ -93,11 +94,10 @@ export function RegisterCourseButton() {
+         trigger={
+           <Button
+             variant="outline"
+-            className="border-primary flex h-9 w-[90px] items-center justify-center rounded-full border hover:bg-[#EAF3FF]"
++            className="border-primary flex h-8 w-[127px] items-center justify-center gap-2 rounded-full border hover:bg-[#EAF3FF]"
+           >
+-            <span className="text-primary text-sm font-medium tracking-[-0.42px]">
+-              Register
+-            </span>
++            <Image src={plusCircleIcon} alt="plusIcon" />
++            <span className="text-primary text-lg font-semibold">Register</span>
+           </Button>
+         }
+         open={isRegisterDialogOpen}
+diff --git a/apps/frontend/app/(client)/(main)/course/page.tsx b/apps/frontend/app/(client)/(main)/course/page.tsx
+index 63debca8..dbf68f5f 100644
+--- a/apps/frontend/app/(client)/(main)/course/page.tsx
++++ b/apps/frontend/app/(client)/(main)/course/page.tsx
+@@ -1,6 +1,7 @@
+ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+ import { Skeleton } from '@/components/shadcn/skeleton'
+ import { auth } from '@/libs/auth'
++import { safeFetcherWithAuth } from '@/libs/utils'
+ import welcomeLogo from '@/public/logos/welcome.png'
+ import { ErrorBoundary } from '@suspensive/react'
+ import Image from 'next/image'
+@@ -23,6 +24,51 @@ function CardListFallback() {
+   )
+ }
+ 
++async function getMyCourseIds(): Promise<number[]> {
++  type SearchParams = Record<string, string | number | boolean>
++  type Endpoint = { path: string; params: SearchParams }
++
++  const endpoints: Endpoint[] = [
++    { path: 'course/joined', params: { take: 100 } },
++    { path: 'course', params: { joined: 'true', take: 100 } }
++  ]
++
++  const isRecord = (v: unknown): v is Record<string, unknown> =>
++    typeof v === 'object' && v !== null
++
++  const isPositiveNumber = (v: unknown): v is number =>
++    typeof v === 'number' && Number.isFinite(v) && v > 0
++
++  for (const { path, params } of endpoints) {
++    try {
++      const res = await safeFetcherWithAuth.get(path, { searchParams: params })
++      if (!res.ok) {
++        continue
++      }
++
++      const json = await res.json()
++      const ids = Array.isArray(json)
++        ? json.flatMap((item) => {
++            if (!isRecord(item)) {
++              return []
++            }
++            const key = (['id', 'groupId', 'courseId'] as const).find((k) =>
++              isPositiveNumber(item[k])
++            )
++            return key ? [item[key] as number] : []
++          })
++        : []
++
++      if (ids.length) {
++        return ids
++      }
++    } catch {
++      // 실패 시 다음 endpoint 시도
++    }
++  }
++  return []
++}
++
+ export default async function Course() {
+   const session = await auth()
+   if (!session) {
+@@ -43,28 +89,23 @@ export default async function Course() {
+     )
+   }
+ 
++  const courseIds = await getMyCourseIds()
++
+   return (
+     <>
+-      <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
+-        <div className="flex flex-col pb-12">
+-          <span className="text-[40px] font-bold leading-[130%] tracking-[-1.2px]">
+-            COURSE
+-          </span>
+-          <span className="text-color-neutral-40 text-lg font-medium">
+-            전반적인 교육과정을 연계하여 관리해보세요
+-          </span>
+-        </div>
++      <CourseMainBanner course={null} />
++      <div className="w-full px-6 pt-[100px] sm:px-[116px]">
++        <Dashboard courseIds={courseIds} />
++      </div>
++
++      <div className="flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-[100px] sm:px-[116px]">
+         <ErrorBoundary fallback={FetchErrorFallback}>
+           <Suspense fallback={<CardListFallback />}>
+-            <CourseCardList title="나의 강좌" />
++            <CourseCardList title="MY COURSE" />
+           </Suspense>
+         </ErrorBoundary>
+       </div>
+ 
+-      <div className="w-full px-5 md:px-[116px]">
+-        <Dashboard />
+-      </div>
+-
+       <CourseSubBanner />
+       <div className="h-[100px]" />
+     </>
+diff --git a/apps/frontend/components/Icons.tsx b/apps/frontend/components/Icons.tsx
+index 991b5ece..db05fa24 100644
+--- a/apps/frontend/components/Icons.tsx
++++ b/apps/frontend/components/Icons.tsx
+@@ -11,10 +11,7 @@ export function AssignmentIcon({ className }: IconProps) {
+       className={className}
+       xmlns="http://www.w3.org/2000/svg"
+     >
+-      <path
+-        d="M1.15332 3.05131C1.15332 2.14126 1.89322 1.40137 2.80327 1.40137H6.92813V4.70126C6.92813 5.15757 7.29679 5.52623 7.7531 5.52623H11.053V9.12517L8.61159 11.5666C8.40019 11.778 8.25066 12.0435 8.17848 12.3323L7.79177 13.8817C7.73248 14.124 7.74537 14.3715 7.82786 14.5984H2.80327C1.89322 14.5984 1.15332 13.8585 1.15332 12.9484V3.05131ZM11.053 4.70126H7.7531V1.40137L11.053 4.70126ZM15.3274 7.47781L15.6986 7.84904C16.1008 8.25122 16.1008 8.90346 15.6986 9.30821L14.9407 10.0662L13.1103 8.23575L13.8682 7.47781C14.2704 7.07563 14.9226 7.07563 15.3274 7.47781ZM9.19423 12.1518L12.5251 8.82096L14.3555 10.6514L11.0246 13.9796C10.9189 14.0853 10.7875 14.1601 10.6405 14.1962L9.0911 14.5829C8.94931 14.619 8.80236 14.5777 8.69924 14.4746C8.59612 14.3715 8.55487 14.2245 8.59096 14.0827L8.97767 12.5333C9.01376 12.389 9.08853 12.2549 9.19423 12.1492V12.1518Z"
+-        fill="currentColor"
+-      />
++      <path d="M1.15332 3.05131C1.15332 2.14126 1.89322 1.40137 2.80327 1.40137H6.92813V4.70126C6.92813 5.15757 7.29679 5.52623 7.7531 5.52623H11.053V9.12517L8.61159 11.5666C8.40019 11.778 8.25066 12.0435 8.17848 12.3323L7.79177 13.8817C7.73248 14.124 7.74537 14.3715 7.82786 14.5984H2.80327C1.89322 14.5984 1.15332 13.8585 1.15332 12.9484V3.05131ZM11.053 4.70126H7.7531V1.40137L11.053 4.70126ZM15.3274 7.47781L15.6986 7.84904C16.1008 8.25122 16.1008 8.90346 15.6986 9.30821L14.9407 10.0662L13.1103 8.23575L13.8682 7.47781C14.2704 7.07563 14.9226 7.07563 15.3274 7.47781ZM9.19423 12.1518L12.5251 8.82096L14.3555 10.6514L11.0246 13.9796C10.9189 14.0853 10.7875 14.1601 10.6405 14.1962L9.0911 14.5829C8.94931 14.619 8.80236 14.5777 8.69924 14.4746C8.59612 14.3715 8.55487 14.2245 8.59096 14.0827L8.97767 12.5333C9.01376 12.389 9.08853 12.2549 9.19423 12.1492V12.1518Z" />
+     </svg>
+   )
+ }
+@@ -31,7 +28,6 @@ export function ExerciseIcon({ className }: IconProps) {
+       <path
+         fillRule="evenodd"
+         clipRule="evenodd"
+-        fill="currentColor"
+         d="M2.05713 4.41833C2.05713 3.58991 2.7287 2.91833 3.55713 2.91833H12.4423C13.2707 2.91833 13.9423 3.58991 13.9423 4.41833V8.84998C13.9423 9.6784 13.2707 10.35 12.4423 10.35H3.55713C2.7287 10.35 2.05713 9.6784 2.05713 8.84998V4.41833ZM6.37192 6.63562L7.0923 5.91523V5.91291C7.31074 5.69679 7.30842 5.34357 7.0923 5.12513C6.87619 4.90669 6.52297 4.90669 6.30453 5.12513L5.1891 6.24057C4.97066 6.45668 4.97066 6.8099 5.1891 7.02834L6.30453 8.14377C6.52065 8.36221 6.87387 8.35989 7.0923 8.14377C7.31074 7.92766 7.31074 7.57444 7.0923 7.356L6.37192 6.63562ZM10.8104 6.24057L9.69498 5.12513V5.12746C9.47887 4.90902 9.12565 4.91134 8.90721 5.12746C8.68877 5.34357 8.68877 5.69679 8.90721 5.91523L9.62759 6.63562L8.90721 7.356C8.68877 7.57211 8.69109 7.92533 8.90721 8.14377C9.12332 8.36221 9.47654 8.36221 9.69498 8.14377L10.8104 7.02834C11.0289 6.81222 11.0289 6.459 10.8104 6.24057ZM1.00965 11.098C0.763325 11.098 0.563477 11.2979 0.563477 11.5442C0.563477 12.5295 1.36287 13.0816 2.34817 13.0816H13.6512C14.6365 13.0816 15.4359 12.5295 15.4359 11.5442C15.4359 11.2979 15.2361 11.098 14.9897 11.098H1.00965Z"
+       />
+     </svg>
+diff --git a/apps/frontend/public/icons/calendar-gray.svg b/apps/frontend/public/icons/calendar-gray.svg
+deleted file mode 100644
+index b213028f..00000000
+--- a/apps/frontend/public/icons/calendar-gray.svg
++++ /dev/null
+@@ -1,5 +0,0 @@
+-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+-<path d="M6.62891 6.00293C6.62929 7.07551 7.49865 7.94615 8.57129 7.94629C9.64389 7.94611 10.5143 7.07549 10.5146 6.00293V4.85938H13.4863V6.00293C13.4865 7.07568 14.356 7.94615 15.4287 7.94629C16.5015 7.94618 17.3719 7.07569 17.3721 6.00293V4.85938H17.8662C19.0443 4.85938 20 5.81406 20 6.99219V17.584C19.9996 18.7618 19.0441 19.7178 17.8662 19.7178H6.13281C4.95509 19.7175 4.00039 18.7617 4 17.584V6.99219C4.00003 5.8142 4.95487 4.8596 6.13281 4.85938H6.62891V6.00293ZM15.8828 9.13672C15.7485 9.13676 15.6154 9.16514 15.4922 9.21875C15.3691 9.27236 15.2576 9.34997 15.165 9.44727L10.707 14.1299L8.83691 12.166C8.74581 12.0681 8.63654 11.9887 8.51465 11.9336C8.39096 11.8778 8.25677 11.848 8.12109 11.8467C7.98532 11.8455 7.85033 11.8731 7.72559 11.9268C7.60102 11.9804 7.48809 12.059 7.39453 12.1572C7.30114 12.2554 7.22798 12.3716 7.17871 12.498C7.12941 12.6247 7.10434 12.7605 7.10547 12.8965C7.10664 13.0324 7.13414 13.1673 7.18555 13.293C7.23625 13.4169 7.31099 13.5292 7.4043 13.625L7.40332 13.626L9.95801 16.3096C10.0548 16.4113 10.1712 16.4928 10.2998 16.5488C10.4285 16.6048 10.5677 16.6338 10.708 16.6338C10.8482 16.6338 10.9867 16.6047 11.1152 16.5488C11.2439 16.4928 11.3602 16.4113 11.457 16.3096L16.5996 10.9082C16.7863 10.712 16.8886 10.4487 16.8887 10.1777C16.8887 9.90674 16.7863 9.64348 16.5996 9.44727C16.507 9.35001 16.3955 9.27233 16.2725 9.21875C16.1494 9.16527 16.017 9.13677 15.8828 9.13672ZM7.63574 13.4053L10.1904 16.0889L7.63477 13.4053C7.60217 13.3721 7.57253 13.3359 7.54688 13.2969C7.57264 13.3361 7.60295 13.372 7.63574 13.4053ZM7.47754 12.6143C7.46032 12.6585 7.44703 12.7043 7.43848 12.751C7.44695 12.7043 7.45937 12.6584 7.47656 12.6143C7.49381 12.57 7.51578 12.5278 7.54102 12.4883C7.51596 12.5279 7.49477 12.5701 7.47754 12.6143ZM16.3682 9.66797C16.4003 9.70171 16.4293 9.7382 16.4541 9.77734C16.4789 9.81642 16.4995 9.85818 16.5166 9.90137C16.4997 9.85838 16.4787 9.81724 16.4541 9.77832C16.4292 9.73897 16.4004 9.70189 16.3682 9.66797ZM9.71484 6.00293L9.71387 6.00391V4.85938H9.71484V6.00293ZM16.5723 6.00293L16.5713 6.00391V4.85938H16.5723V6.00293Z" fill="#909799"/>
+-<rect x="7.42773" y="2.57422" width="2.28566" height="4.5718" rx="1.14283" fill="#909799"/>
+-<rect x="14.2852" y="2.57422" width="2.28566" height="4.5718" rx="1.14283" fill="#909799"/>
+-</svg>
+diff --git a/apps/frontend/public/icons/person-gray.svg b/apps/frontend/public/icons/person-gray.svg
+deleted file mode 100644
+index adf5f1e1..00000000
+--- a/apps/frontend/public/icons/person-gray.svg
++++ /dev/null
+@@ -1,3 +0,0 @@
+-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+-<path fill-rule="evenodd" clip-rule="evenodd" d="M11.969 13.3135C13.0769 13.3135 14.1739 13.4997 15.1975 13.8604C16.2211 14.2211 17.1514 14.7496 17.9348 15.416C18.7183 16.0825 19.3399 16.8743 19.7639 17.7451C20.4519 19.1582 19.1324 20.4922 17.5608 20.4922H6.37624C4.80482 20.4919 3.48523 19.158 4.17312 17.7451C4.59716 16.8742 5.21872 16.0826 6.00222 15.416C6.78565 14.7495 7.71595 14.2211 8.73952 13.8604C9.76325 13.4996 10.8609 13.3135 11.969 13.3135ZM11.969 3.49219C14.3185 3.49219 16.2229 5.39759 16.2229 7.74707C16.2227 10.0964 14.3184 12.001 11.969 12.001C9.61967 12.001 7.7153 10.0964 7.71511 7.74707C7.71511 5.3976 9.61955 3.49221 11.969 3.49219Z" fill="#909799"/>
+-</svg>
+diff --git a/infra/bootstrap-cluster.sh b/infra/bootstrap-cluster.sh
+deleted file mode 100755
+index 54cd544c..00000000
+--- a/infra/bootstrap-cluster.sh
++++ /dev/null
+@@ -1,257 +0,0 @@
+-#!/bin/bash
+-set -euo pipefail
+-
+-#############################################
+-# Codedang Cluster Bootstrap Script
+-#
+-# This script sets up a complete Kubernetes cluster from scratch:
+-# 1. Checks/installs required tools (via install-tools.sh)
+-# 2. Installs sealed-secrets controller
+-# 3. Restores sealed-secrets encryption keys from AWS Secrets Manager
+-# 4. Installs ArgoCD
+-# 5. Configures ArgoCD to self-manage and deploy all infrastructure
+-#
+-# Prerequisites:
+-# - Kubernetes cluster running and accessible
+-# - AWS credentials configured (for Secrets Manager access)
+-#
+-# To install tools manually: ./install-tools.sh
+-# To skip auto-install: AUTO_INSTALL_TOOLS=false ./bootstrap-cluster.sh
+-#############################################
+-
+-# Color output
+-RED='\033[0;31m'
+-GREEN='\033[0;32m'
+-YELLOW='\033[1;33m'
+-NC='\033[0m' # No Color
+-
+-# Configuration
+-CLUSTER_CONTEXT="${CLUSTER_CONTEXT:-}"
+-ENVIRONMENT="${ENVIRONMENT:-production}"  # production or stage
+-SEALED_SECRETS_SECRET_NAME="Codedang-Sealed-Secrets-${ENVIRONMENT^}"  # Capitalize first letter
+-AUTO_INSTALL_TOOLS="${AUTO_INSTALL_TOOLS:-true}"  # Set to false to skip auto-installation
+-
+-echo "========================================="
+-echo "Codedang Cluster Bootstrap"
+-echo "========================================="
+-echo "Environment: ${ENVIRONMENT}"
+-echo "Sealed Secrets Secret: ${SEALED_SECRETS_SECRET_NAME}"
+-if [ -n "${CLUSTER_CONTEXT}" ]; then
+-  echo "Cluster Context: ${CLUSTER_CONTEXT}"
+-fi
+-echo "========================================="
+-echo
+-
+-# Prepare kubectl command with optional context
+-KUBECTL="kubectl"
+-if [ -n "${CLUSTER_CONTEXT}" ]; then
+-  KUBECTL="kubectl --context ${CLUSTER_CONTEXT}"
+-fi
+-
+-# Check prerequisites
+-echo "Checking prerequisites..."
+-MISSING_TOOLS=()
+-command -v kubectl >/dev/null 2>&1 || MISSING_TOOLS+=("kubectl")
+-command -v helm >/dev/null 2>&1 || MISSING_TOOLS+=("helm")
+-command -v aws >/dev/null 2>&1 || MISSING_TOOLS+=("aws")
+-command -v kubeseal >/dev/null 2>&1 || MISSING_TOOLS+=("kubeseal")
+-command -v jq >/dev/null 2>&1 || MISSING_TOOLS+=("jq")
+-
+-if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
+-  echo -e "${YELLOW}⚠ Missing tools: ${MISSING_TOOLS[*]}${NC}"
+-
+-  if [ "$AUTO_INSTALL_TOOLS" = "true" ]; then
+-    # Get current directory (where script is located)
+-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+-
+-    echo "Running install-tools.sh..."
+-    "${SCRIPT_DIR}/install-tools.sh" || {
+-      echo -e "${RED}✗ Failed to install tools${NC}"
+-      exit 1
+-    }
+-
+-    # Verify installation
+-    for tool in "${MISSING_TOOLS[@]}"; do
+-      if ! command -v "$tool" >/dev/null 2>&1; then
+-        echo -e "${RED}✗ Failed to install $tool${NC}"
+-        exit 1
+-      fi
+-    done
+-  else
+-    echo -e "${RED}✗ Please install missing tools manually or set AUTO_INSTALL_TOOLS=true${NC}"
+-    echo "To install tools automatically, run: ./install-tools.sh"
+-    exit 1
+-  fi
+-fi
+-
+-echo -e "${GREEN}✓ All prerequisites met${NC}"
+-echo
+-
+-# Verify cluster access
+-echo "Verifying cluster access..."
+-$KUBECTL cluster-info >/dev/null 2>&1 || { echo -e "${RED}✗ Cannot access cluster${NC}"; exit 1; }
+-echo -e "${GREEN}✓ Cluster access verified${NC}"
+-echo
+-
+-#############################################
+-# Step 1: Install Sealed Secrets Controller
+-#############################################
+-echo "========================================="
+-echo "Step 1: Installing Sealed Secrets"
+-echo "========================================="
+-
+-# Add Helm repository
+-echo "Adding sealed-secrets Helm repository..."
+-helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+-helm repo update
+-echo -e "${GREEN}✓ Helm repository added${NC}"
+-
+-# Install sealed-secrets controller
+-echo "Installing sealed-secrets controller..."
+-helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
+-  --namespace kube-system \
+-  --wait \
+-  --timeout 5m
+-echo -e "${GREEN}✓ Sealed-secrets controller installed${NC}"
+-echo
+-
+-#############################################
+-# Step 2: Restore Sealed Secrets Keys
+-#############################################
+-echo "========================================="
+-echo "Step 2: Restoring Sealed Secrets Keys"
+-echo "========================================="
+-
+-# Create temporary directory for keys
+-TEMP_DIR=$(mktemp -d)
+-trap "rm -rf ${TEMP_DIR}" EXIT
+-
+-echo "Downloading keys from AWS Secrets Manager..."
+-aws secretsmanager get-secret-value \
+-  --secret-id "${SEALED_SECRETS_SECRET_NAME}" \
+-  --query SecretString --output text > "${TEMP_DIR}/sealed-secrets-keys.json"
+-
+-# Verify downloaded keys
+-KEY_COUNT=$(jq '.items | length' "${TEMP_DIR}/sealed-secrets-keys.json")
+-echo -e "${GREEN}✓ Downloaded ${KEY_COUNT} encryption keys${NC}"
+-
+-# Apply keys to cluster
+-echo "Applying encryption keys to cluster..."
+-jq -c '.items[]' "${TEMP_DIR}/sealed-secrets-keys.json" | while read -r key; do
+-  echo "$key" | $KUBECTL apply -f -
+-done
+-echo -e "${GREEN}✓ Encryption keys restored${NC}"
+-
+-# Restart sealed-secrets controller to load new keys
+-echo "Restarting sealed-secrets controller..."
+-$KUBECTL rollout restart deployment sealed-secrets-controller -n kube-system
+-$KUBECTL rollout status deployment sealed-secrets-controller -n kube-system --timeout=2m
+-echo -e "${GREEN}✓ Sealed-secrets controller restarted${NC}"
+-
+-# Verify sealed-secrets is working
+-echo "Verifying sealed-secrets functionality..."
+-kubeseal --fetch-cert \
+-  --controller-name=sealed-secrets-controller \
+-  --controller-namespace=kube-system \
+-  $([ -n "${CLUSTER_CONTEXT}" ] && echo "--kubeconfig ${HOME}/.kube/config --context ${CLUSTER_CONTEXT}") \
+-  >/dev/null 2>&1 || { echo -e "${RED}✗ Failed to fetch certificate${NC}"; exit 1; }
+-echo -e "${GREEN}✓ Sealed-secrets is working correctly${NC}"
+-echo
+-
+-#############################################
+-# Step 3: Install ArgoCD
+-#############################################
+-echo "========================================="
+-echo "Step 3: Installing ArgoCD"
+-echo "========================================="
+-
+-# Create argocd namespace
+-echo "Creating argocd namespace..."
+-$KUBECTL create namespace argocd --dry-run=client -o yaml | $KUBECTL apply -f -
+-echo -e "${GREEN}✓ Namespace created${NC}"
+-
+-# Get current directory (where script is located)
+-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+-
+-# Apply ArgoCD self-management Application
+-echo "Applying ArgoCD self-management Application..."
+-$KUBECTL apply -f "${SCRIPT_DIR}/k8s/argocd/applications/argocd.yaml"
+-echo -e "${GREEN}✓ ArgoCD Application created${NC}"
+-
+-# Wait for ArgoCD to be ready
+-echo "Waiting for ArgoCD to be ready..."
+-echo "(This may take several minutes as ArgoCD syncs all infrastructure components)"
+-
+-# Wait for ArgoCD server deployment
+-$KUBECTL wait --for=condition=available --timeout=10m \
+-  deployment/argocd-server -n argocd 2>/dev/null || {
+-  echo -e "${YELLOW}⚠ ArgoCD server is still syncing, continuing...${NC}"
+-}
+-
+-# Wait for ArgoCD application controller
+-$KUBECTL wait --for=condition=available --timeout=10m \
+-  deployment/argocd-application-controller -n argocd 2>/dev/null || {
+-  echo -e "${YELLOW}⚠ ArgoCD application controller is still syncing, continuing...${NC}"
+-}
+-
+-echo -e "${GREEN}✓ ArgoCD core components are ready${NC}"
+-echo
+-
+-#############################################
+-# Step 4: Verification
+-#############################################
+-echo "========================================="
+-echo "Step 4: Verification"
+-echo "========================================="
+-
+-# Check ArgoCD pods
+-echo "ArgoCD pods status:"
+-$KUBECTL get pods -n argocd
+-echo
+-
+-# Get ArgoCD admin password
+-echo "========================================="
+-echo "ArgoCD Admin Credentials"
+-echo "========================================="
+-echo "URL: https://argocd.codedang.com"
+-echo
+-echo "The admin password is stored in sealed secrets and will be available after sync."
+-echo "To retrieve the password, wait for the argocd-secret to be created, then run:"
+-echo "  $KUBECTL -n argocd get secret argocd-secret -o jsonpath='{.data.admin\\.password}' | base64 -d"
+-echo
+-
+-# List ArgoCD applications
+-echo "========================================="
+-echo "ArgoCD Applications"
+-echo "========================================="
+-echo "Waiting for ArgoCD CRDs to be available..."
+-sleep 10
+-
+-$KUBECTL get applications -n argocd 2>/dev/null || {
+-  echo -e "${YELLOW}⚠ ArgoCD Application CRD not yet available${NC}"
+-  echo "ArgoCD is still syncing. Check status with:"
+-  echo "  $KUBECTL get applications -n argocd"
+-}
+-echo
+-
+-#############################################
+-# Completion
+-#############################################
+-echo "========================================="
+-echo "✅ Bootstrap script completed!"
+-echo "========================================="
+-echo
+-echo "Next steps:"
+-echo "1. Monitor ArgoCD sync progress:"
+-echo "   $KUBECTL get applications -n argocd -w"
+-echo
+-echo "2. Access ArgoCD UI:"
+-echo "   URL: https://argocd.codedang.com"
+-echo
+-echo "3. Verify all applications are synced:"
+-echo "   $KUBECTL get applications -n argocd"
+-echo
+-echo "4. Check infrastructure components:"
+-echo "   $KUBECTL get pods --all-namespaces"
+-echo
+-echo "========================================="
+diff --git a/infra/k8s/sealed-secrets-backup/README.md b/infra/docs/sealed-secrets-restore.md
+similarity index 100%
+rename from infra/k8s/sealed-secrets-backup/README.md
+rename to infra/docs/sealed-secrets-restore.md
+diff --git a/infra/install-tools.sh b/infra/install-tools.sh
+deleted file mode 100755
+index ff4e2d7f..00000000
+--- a/infra/install-tools.sh
++++ /dev/null
+@@ -1,99 +0,0 @@
+-#!/bin/bash
+-set -euo pipefail
+-
+-#############################################
+-# Install Required Tools for Cluster Bootstrap
+-#
+-# This script installs the following tools:
+-# - kubectl (Kubernetes CLI)
+-# - helm (Kubernetes package manager)
+-# - aws (AWS CLI)
+-# - kubeseal (SealedSecrets CLI)
+-# - jq (JSON processor)
+-#
+-# Supported OS: Ubuntu/Debian
+-#############################################
+-
+-# Color output
+-RED='\033[0;31m'
+-GREEN='\033[0;32m'
+-YELLOW='\033[1;33m'
+-NC='\033[0m' # No Color
+-
+-echo "========================================="
+-echo "Installing Required Tools"
+-echo "========================================="
+-
+-# Verify apt-get is available
+-if ! command -v apt-get >/dev/null 2>&1; then
+-  echo -e "${RED}✗ apt-get not found. Only Debian/Ubuntu supported.${NC}"
+-  exit 1
+-fi
+-
+-# Install kubectl
+-if ! command -v kubectl >/dev/null 2>&1; then
+-  echo "Installing kubectl..."
+-  sudo apt-get install -y apt-transport-https ca-certificates curl
+-  curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+-  echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+-  sudo apt-get update && sudo apt-get install -y kubectl
+-  echo -e "${GREEN}✓ kubectl installed${NC}"
+-else
+-  echo -e "${YELLOW}⊙ kubectl already installed${NC}"
+-fi
+-
+-# Install helm
+-if ! command -v helm >/dev/null 2>&1; then
+-  echo "Installing helm..."
+-  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+-  echo -e "${GREEN}✓ helm installed${NC}"
+-else
+-  echo -e "${YELLOW}⊙ helm already installed${NC}"
+-fi
+-
+-# Install aws CLI
+-if ! command -v aws >/dev/null 2>&1; then
+-  echo "Installing aws CLI..."
+-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+-  unzip -q /tmp/awscliv2.zip -d /tmp
+-  sudo /tmp/aws/install
+-  rm -rf /tmp/awscliv2.zip /tmp/aws
+-  echo -e "${GREEN}✓ aws CLI installed${NC}"
+-else
+-  echo -e "${YELLOW}⊙ aws CLI already installed${NC}"
+-fi
+-
+-# Install kubeseal
+-if ! command -v kubeseal >/dev/null 2>&1; then
+-  echo "Installing kubeseal..."
+-  KUBESEAL_VERSION="0.30.0"
+-  wget "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz" -O /tmp/kubeseal.tar.gz
+-  tar xfz /tmp/kubeseal.tar.gz -C /tmp
+-  sudo install -m 755 /tmp/kubeseal /usr/local/bin/kubeseal
+-  rm /tmp/kubeseal.tar.gz /tmp/kubeseal
+-  echo -e "${GREEN}✓ kubeseal installed${NC}"
+-else
+-  echo -e "${YELLOW}⊙ kubeseal already installed${NC}"
+-fi
+-
+-# Install jq
+-if ! command -v jq >/dev/null 2>&1; then
+-  echo "Installing jq..."
+-  sudo apt-get install -y jq
+-  echo -e "${GREEN}✓ jq installed${NC}"
+-else
+-  echo -e "${YELLOW}⊙ jq already installed${NC}"
+-fi
+-
+-echo
+-echo "========================================="
+-echo "✅ All tools installed successfully!"
+-echo "========================================="
+-echo
+-echo "Installed versions:"
+-kubectl version --client --short 2>/dev/null || kubectl version --client
+-helm version --short
+-aws --version
+-kubeseal --version
+-jq --version
+-echo
+diff --git a/infra/k8s/arc/values.yaml b/infra/k8s/arc/values.yaml
+index 7a328b37..62321acf 100644
+--- a/infra/k8s/arc/values.yaml
++++ b/infra/k8s/arc/values.yaml
+@@ -1,6 +1,3 @@
+-controllerServiceAccount:
+-  name: gha-runner-scale-set-controller-gha-rs-controller
+-  namespace: arc-systems
+ githubConfigUrl: 'https://github.com/skkuding/codedang'
+ githubConfigSecret: 'github-app-secret'
+ minRunners: 2
+diff --git a/infra/k8s/argocd/README.md b/infra/k8s/argocd/README.md
+index fb72a5de..e8584729 100644
+--- a/infra/k8s/argocd/README.md
++++ b/infra/k8s/argocd/README.md
+@@ -1,73 +1,97 @@
+-# ArgoCD Setup
+-
+ ## How to setup Argo CD to a new cluster
+ 
+-### Option 1: Automated Bootstrap (Recommended)
++### 1. Argo CD
++
++```
++kubectl create namespace argocd
++kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
++```
++
++### 2. Argo CD Image Updater
+ 
+-Use the automated bootstrap script for complete cluster setup from scratch:
++```
++kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml
++```
+ 
+-```bash
+-# Clone the repository first
+-git clone https://github.com/skkuding/codedang.git
+-cd codedang/infra
++### 3. Setup Ingress
+ 
+-# For production cluster
+-ENVIRONMENT=production ./bootstrap-cluster.sh
++To access Argo CD via ingress, internal argocd-server should be edited to allow insecure connections.
++
++```
++kubectl -n argocd edit deployment argocd-server
++```
+ 
+-# For stage cluster
+-ENVIRONMENT=stage CLUSTER_CONTEXT=stage ./bootstrap-cluster.sh
++```yaml
++args:
++- /usr/local/bin/argocd-server
++- --insecure  # Add this line
+ ```
+ 
+-The script will:
++and then apply the ingress manifest:
+ 
+-1. Check/install required tools (`kubectl`, `helm`, `aws`, `kubeseal`, `jq`)
+-2. Install sealed-secrets controller
+-3. Restore encryption keys from AWS Secrets Manager
+-4. Install ArgoCD with self-management
+-5. Deploy all infrastructure components via GitOps
++```
++kubectl apply -f ingress.yaml
++```
+ 
+-**Prerequisites:**
++### 4. Assign Cluster
+ 
+-- Repository cloned locally (scripts reference local files)
+-- Kubernetes cluster running and accessible
+-- AWS credentials configured with access to `Codedang-Sealed-Secrets-*` secrets
++Open the Argo CD UI, and go to `Settings` > `Clusters`.
+ 
+-**Tool Installation:**
++Add two clusters: production and stage, with appropriate URL.
+ 
+-```bash
+-# Install tools separately (recommended)
+-cd infra
+-./install-tools.sh
++### 5. Enable GitHub Login
+ 
+-# Or let bootstrap script auto-install (default)
+-AUTO_INSTALL_TOOLS=true ./bootstrap-cluster.sh
++To enable GitHub login, type following command to edit the Argo CD config map:
++
++```
++kubectl -n argocd edit configmap argocd-cm
++```
+ 
+-# Skip auto-install if tools already exist
+-AUTO_INSTALL_TOOLS=false ./bootstrap-cluster.sh
++Add the following lines to the `data` section:
++
++```yaml
++data:
++  dex.config: |
++    connectors:
++      - type: github
++        id: github
++        name: GitHub
++        config:
++          clientID: <your-client-id>
++          clientSecret: <your-client-secret>
++          useLoginAsID: true
++          orgs:
++            - name: skkuding
+ ```
+ 
+-### Option 2: Manual Setup
++Also edit the `argocd-rbac-cm` config map to allow GitHub users to access Argo CD:
+ 
+-#### 1. Install Sealed Secrets
++```
++kubectl -n argocd edit configmap argocd-rbac-cm
++```
+ 
+-ArgoCD depends on the SealedSecret CRD (its `values.yaml` contains SealedSecret resources). Install the sealed-secrets controller before bootstrapping ArgoCD:
++Add the following lines to the `data` section:
+ 
+-```bash
+-helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+-helm install sealed-secrets sealed-secrets/sealed-secrets -n kube-system
++```yaml
++data:
++  policy.csv: |
++    p, role:admin, applications, *, */*, allow
++    p, role:admin, clusters, *, *, allow
++    p, role:admin, repositories, *, *, allow
++  policy.default: role:admin
+ ```
+ 
+-If restoring an existing cluster, restore the encryption keys first. See [Sealed Secrets Key Restore Procedure](../sealed-secrets-backup/README.md).
++## How to test a change
+ 
+-#### 2. Install Argo CD via Helm
++By default, applications/argocd.yaml tries to sync all applications to main branch's yaml manifests.
+ 
+-ArgoCD is managed via the official [Helm chart](https://artifacthub.io/packages/helm/argo/argo-cd) (`argo-cd`). Configuration is defined in `values.yaml`.
++To test a change, you should disable the auto-sync feature of the application, and then `kubectl apply -f` your modified yaml manifests to the cluster.
+ 
+-For the initial bootstrap, manually apply the ArgoCD Application:
++```yaml
++# applications/argocd.yaml
+ 
+-```bash
+-kubectl create namespace argocd
+-kubectl apply -f applications/argocd.yaml
++spec:
++  syncPolicy: null  # Disable auto-sync
++    # prune: true
++    # selfHeal: true
+ ```
+-
+-ArgoCD will then self-manage via the Helm chart and `values.yaml`.
+diff --git a/infra/k8s/argocd/applications/actions-runner-controller.yaml b/infra/k8s/argocd/applications/actions-runner-controller.yaml
+index 7e92df9b..c32d7814 100644
+--- a/infra/k8s/argocd/applications/actions-runner-controller.yaml
++++ b/infra/k8s/argocd/applications/actions-runner-controller.yaml
+@@ -8,9 +8,11 @@ metadata:
+ spec:
+   project: default
+   source:
+-    repoURL: ghcr.io/actions/actions-runner-controller-charts
++    repoURL: oci://ghcr.io/actions/actions-runner-controller-charts
+     chart: gha-runner-scale-set-controller
+     targetRevision: 0.13.1
++    helm:
++      oci: true
+   destination:
+     namespace: arc-systems
+     name: stage
+diff --git a/infra/k8s/argocd/applications/arc-runner-scale-set.yaml b/infra/k8s/argocd/applications/arc-runner-scale-set.yaml
+index 5f67cef2..de5496d3 100644
+--- a/infra/k8s/argocd/applications/arc-runner-scale-set.yaml
++++ b/infra/k8s/argocd/applications/arc-runner-scale-set.yaml
+@@ -8,16 +8,20 @@ metadata:
+ spec:
+   project: default
+   sources:
+-    - repoURL: ghcr.io/actions/actions-runner-controller-charts
++    - repoURL: oci://ghcr.io/actions/actions-runner-controller-charts
+       chart: gha-runner-scale-set
+       targetRevision: 0.13.1
+       helm:
++        oci: true
+         releaseName: arc-runner
+         valueFiles:
+           - $codedang/infra/k8s/arc/values.yaml
+     - repoURL: https://github.com/skkuding/codedang
+       targetRevision: main
+       ref: codedang
++    - repoURL: https://github.com/skkuding/codedang
++      targetRevision: main
++      path: infra/k8s/arc/github-app-secret.yaml
+   destination:
+     namespace: arc-runners
+     name: stage
+diff --git a/infra/k8s/argocd/applications/argocd-image-updater.yaml b/infra/k8s/argocd/applications/argocd-image-updater.yaml
+deleted file mode 100644
+index f9e1863e..00000000
+--- a/infra/k8s/argocd/applications/argocd-image-updater.yaml
++++ /dev/null
+@@ -1,26 +0,0 @@
+-apiVersion: argoproj.io/v1alpha1
+-kind: Application
+-metadata:
+-  name: argocd-image-updater
+-  namespace: argocd
+-  finalizers:
+-    - resources-finalizer.argocd.argoproj.io
+-  labels:
+-    app.kubernetes.io/environment: production
+-spec:
+-  project: default
+-  source:
+-    repoURL: https://argoproj.github.io/argo-helm
+-    chart: argocd-image-updater
+-    targetRevision: '0.12.3'
+-    helm:
+-      releaseName: argocd-image-updater
+-  destination:
+-    namespace: argocd
+-    name: production
+-  syncPolicy:
+-    automated:
+-      prune: true
+-      selfHeal: true
+-    syncOptions:
+-      - CreateNamespace=true
+diff --git a/infra/k8s/argocd/applications/argocd.yaml b/infra/k8s/argocd/applications/argocd.yaml
+index 8b60c2d4..591ef7cc 100644
+--- a/infra/k8s/argocd/applications/argocd.yaml
++++ b/infra/k8s/argocd/applications/argocd.yaml
+@@ -9,23 +9,12 @@ metadata:
+     app.kubernetes.io/environment: 'production'
+ spec:
+   project: default
+-  sources:
+-    - repoURL: https://argoproj.github.io/argo-helm
+-      chart: argo-cd
+-      targetRevision: '9.4.2'
+-      helm:
+-        releaseName: argocd
+-        valueFiles:
+-          - $codedang/infra/k8s/argocd/values.yaml
+-    - repoURL: https://github.com/skkuding/codedang
+-      targetRevision: main
+-      ref: codedang
+-    - repoURL: https://github.com/skkuding/codedang
+-      targetRevision: main
+-      path: infra/k8s/argocd/applications
+-      directory:
+-        recurse: true
+-        exclude: 'argocd.yaml'
++  source:
++    path: infra/k8s/argocd
++    repoURL: https://github.com/skkuding/codedang
++    targetRevision: main
++    directory:
++      recurse: true
+   destination:
+     namespace: argocd
+     name: production
+@@ -36,4 +25,3 @@ spec:
+     syncOptions:
+       - CreateNamespace=true
+       - PrunePropagationPolicy=foreground
+-      - ServerSideApply=true
+diff --git a/infra/k8s/argocd/applications/cert-manager.yaml b/infra/k8s/argocd/applications/cert-manager.yaml
+deleted file mode 100644
+index 276c49a9..00000000
+--- a/infra/k8s/argocd/applications/cert-manager.yaml
++++ /dev/null
+@@ -1,47 +0,0 @@
+-apiVersion: argoproj.io/v1alpha1
+-kind: ApplicationSet
+-metadata:
+-  name: cert-manager
+-  namespace: argocd
+-  finalizers:
+-    - resources-finalizer.argocd.argoproj.io
+-spec:
+-  goTemplate: true
+-  goTemplateOptions: ['missingkey=error']
+-  generators:
+-    - list:
+-        elements:
+-          - env: stage
+-            branch: main
+-          - env: production
+-            branch: release
+-  template:
+-    metadata:
+-      name: 'cert-manager-{{.env}}'
+-      finalizers:
+-        - resources-finalizer.argocd.argoproj.io
+-      labels:
+-        app.kubernetes.io/environment: '{{.env}}'
+-    spec:
+-      project: default
+-      sources:
+-        - repoURL: https://charts.jetstack.io
+-          chart: cert-manager
+-          targetRevision: 'v1.18.2'
+-          helm:
+-            releaseName: cert-manager
+-            valueFiles:
+-              - $codedang/infra/k8s/cert-manager/values.yaml
+-        - repoURL: https://github.com/skkuding/codedang
+-          targetRevision: '{{.branch}}'
+-          ref: codedang
+-      destination:
+-        namespace: cert-manager
+-        name: '{{.env}}'
+-      syncPolicy:
+-        automated:
+-          prune: true
+-          selfHeal: true
+-        syncOptions:
+-          - CreateNamespace=true
+-          - ServerSideApply=true
+diff --git a/infra/k8s/argocd/applications/frontend-preview.yaml b/infra/k8s/argocd/applications/frontend-preview.yaml
+index f43482b9..5f4423fa 100644
+--- a/infra/k8s/argocd/applications/frontend-preview.yaml
++++ b/infra/k8s/argocd/applications/frontend-preview.yaml
+@@ -14,8 +14,6 @@ spec:
+           owner: skkuding
+           repo: codedang
+           appSecretName: github-app-secret # Required for higher API rate limit
+-          labels:
+-            - preview
+         requeueAfterSeconds: 10
+   template:
+     metadata:
+diff --git a/infra/k8s/argocd/applications/headlamp.yaml b/infra/k8s/argocd/applications/headlamp.yaml
+deleted file mode 100644
+index b21b13be..00000000
+--- a/infra/k8s/argocd/applications/headlamp.yaml
++++ /dev/null
+@@ -1,51 +0,0 @@
+-apiVersion: argoproj.io/v1alpha1
+-kind: ApplicationSet
+-metadata:
+-  name: headlamp
+-  namespace: argocd
+-  finalizers:
+-    - resources-finalizer.argocd.argoproj.io
+-spec:
+-  goTemplate: true
+-  goTemplateOptions: ['missingkey=error']
+-  generators:
+-    - list:
+-        elements:
+-          - env: stage
+-            branch: main
+-          - env: production
+-            branch: release
+-  template:
+-    metadata:
+-      name: 'headlamp-{{.env}}'
+-      finalizers:
+-        - resources-finalizer.argocd.argoproj.io
+-      labels:
+-        app.kubernetes.io/environment: '{{.env}}'
+-    spec:
+-      project: default
+-      sources:
+-        # Headlamp Helm chart
+-        - repoURL: https://kubernetes-sigs.github.io/headlamp/
+-          chart: headlamp
+-          targetRevision: '0.40.0'
+-          helm:
+-            releaseName: headlamp
+-            valueFiles:
+-              - $codedang/infra/k8s/headlamp/overlays/{{.env}}/values.yaml
+-        # ref for helm valueFiles
+-        - repoURL: https://github.com/skkuding/codedang
+-          targetRevision: '{{.branch}}'
+-          path: infra/k8s/headlamp
+-          ref: codedang
+-      destination:
+-        name: '{{.env}}'
+-        namespace: headlamp
+-      # TODO: Single Headlamp multi-cluster management (prod managing stage)
+-      syncPolicy:
+-        automated:
+-          prune: true
+-          selfHeal: true
+-        syncOptions:
+-          - CreateNamespace=true
+-          - PrunePropagationPolicy=foreground
+diff --git a/infra/k8s/argocd/applications/kubernetes-dashboard.yaml b/infra/k8s/argocd/applications/kubernetes-dashboard.yaml
+deleted file mode 100644
+index 22b24bcb..00000000
+--- a/infra/k8s/argocd/applications/kubernetes-dashboard.yaml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-apiVersion: argoproj.io/v1alpha1
+-kind: ApplicationSet
+-metadata:
+-  name: kubernetes-dashboard
+-  namespace: argocd
+-  finalizers:
+-    - resources-finalizer.argocd.argoproj.io
+-spec:
+-  goTemplate: true
+-  goTemplateOptions: ['missingkey=error']
+-  generators:
+-    - list:
+-        elements:
+-          - env: stage
+-            branch: main
+-            host: k8s.stage.codedang.com
+-          - env: production
+-            branch: release
+-            host: k8s.codedang.com
+-  template:
+-    metadata:
+-      name: 'kubernetes-dashboard-{{.env}}'
+-      finalizers:
+-        - resources-finalizer.argocd.argoproj.io
+-      labels:
+-        app.kubernetes.io/environment: '{{.env}}'
+-    spec:
+-      project: default
+-      sources:
+-        - repoURL: https://kubernetes.github.io/dashboard/
+-          chart: kubernetes-dashboard
+-          targetRevision: '7.14.0'
+-          helm:
+-            releaseName: kubernetes-dashboard
+-            valueFiles:
+-              - $codedang/infra/k8s/kubernetes-dashboard/values.yaml
+-            parameters:
+-              - name: 'app.ingress.hosts[0]'
+-                value: '{{.host}}'
+-        - repoURL: https://github.com/skkuding/codedang
+-          targetRevision: '{{.branch}}'
+-          ref: codedang
+-      destination:
+-        namespace: kubernetes-dashboard
+-        name: '{{.env}}'
+-      syncPolicy:
+-        automated:
+-          prune: true
+-          selfHeal: true
+-        syncOptions:
+-          - CreateNamespace=true
+-          - ServerSideApply=true
+diff --git a/infra/k8s/argocd/applications/minio-stage.yaml b/infra/k8s/argocd/applications/minio-stage.yaml
+index bbcde743..2c03461a 100644
+--- a/infra/k8s/argocd/applications/minio-stage.yaml
++++ b/infra/k8s/argocd/applications/minio-stage.yaml
+@@ -3,8 +3,8 @@ kind: Application
+ metadata:
+   name: minio-stage
+   namespace: argocd
+-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-  finalizers: []
++  # finalizers:
++  #   - resources-finalizer.argocd.argoproj.io
+   labels:
+     app.kubernetes.io/environment: 'stage'
+ spec:
+@@ -21,8 +21,7 @@ spec:
+     name: stage
+   syncPolicy:
+     automated:
+-      # Prune disabled: requires manual review before removing resources
+-      prune: false
++      prune: true
+       selfHeal: true
+     syncOptions:
+       - CreateNamespace=true
+diff --git a/infra/k8s/argocd/applications/monitoring/grafana.yaml b/infra/k8s/argocd/applications/monitoring/grafana.yaml
+index 1296c336..43371c8b 100644
+--- a/infra/k8s/argocd/applications/monitoring/grafana.yaml
++++ b/infra/k8s/argocd/applications/monitoring/grafana.yaml
+@@ -3,8 +3,8 @@ kind: ApplicationSet
+ metadata:
+   name: grafana
+   namespace: argocd
+-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-  finalizers: []
++  # finalizers:
++  #   - resources-finalizer.argocd.argoproj.io
+ spec:
+   goTemplate: true
+   goTemplateOptions: ['missingkey=error']
+@@ -18,8 +18,8 @@ spec:
+   template:
+     metadata:
+       name: 'grafana-{{.env}}'
+-      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-      finalizers: []
++      # finalizers:
++      #   - resources-finalizer.argocd.argoproj.io
+       labels:
+         app.kubernetes.io/environment: '{{.env}}'
+     spec:
+@@ -46,7 +46,7 @@ spec:
+         namespace: monitoring-grafana
+       syncPolicy:
+         automated:
+-          prune: false
++          prune: true
+           selfHeal: true
+         syncOptions:
+           - CreateNamespace=true
+diff --git a/infra/k8s/argocd/applications/monitoring/loki.yaml b/infra/k8s/argocd/applications/monitoring/loki.yaml
+index 613e7354..43476356 100644
+--- a/infra/k8s/argocd/applications/monitoring/loki.yaml
++++ b/infra/k8s/argocd/applications/monitoring/loki.yaml
+@@ -3,8 +3,8 @@ kind: ApplicationSet
+ metadata:
+   name: loki
+   namespace: argocd
+-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-  finalizers: []
++  # finalizers:
++  #   - resources-finalizer.argocd.argoproj.io
+ spec:
+   goTemplate: true
+   goTemplateOptions: ['missingkey=error']
+@@ -18,8 +18,8 @@ spec:
+   template:
+     metadata:
+       name: 'loki-{{.env}}'
+-      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-      finalizers: []
++      # finalizers:
++      #   - resources-finalizer.argocd.argoproj.io
+       labels:
+         app.kubernetes.io/environment: '{{.env}}'
+     spec:
+@@ -27,7 +27,7 @@ spec:
+       sources:
+         - repoURL: https://grafana.github.io/helm-charts
+           chart: loki
+-          targetRevision: 6.53.0
++          targetRevision: 6.38.0
+           helm:
+             releaseName: loki
+             valueFiles:
+@@ -40,7 +40,7 @@ spec:
+         namespace: monitoring-loki
+       syncPolicy:
+         automated:
+-          prune: false
++          prune: true
+           selfHeal: true
+         syncOptions:
+           - CreateNamespace=true
+diff --git a/infra/k8s/argocd/applications/monitoring/minio.yaml b/infra/k8s/argocd/applications/monitoring/minio.yaml
+index f9319c2f..78d16308 100644
+--- a/infra/k8s/argocd/applications/monitoring/minio.yaml
++++ b/infra/k8s/argocd/applications/monitoring/minio.yaml
+@@ -1,45 +1,28 @@
+ apiVersion: argoproj.io/v1alpha1
+-kind: ApplicationSet
++kind: Application
+ metadata:
+   name: minio-monitoring
+   namespace: argocd
+-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-  finalizers: []
++  # finalizers:
++  #   - resources-finalizer.argocd.argoproj.io
+   labels:
+     app.kubernetes.io/environment: 'production'
+ spec:
+-  goTemplate: true
+-  goTemplateOptions: ['missingkey=error']
+-  generators:
+-    - list:
+-        elements:
+-          - env: stage
+-            branch: main
+-          - env: production
+-            branch: release
+-  template:
+-    metadata:
+-      name: 'minio-monitoring-{{.env}}'
+-      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-      finalizers: []
+-      labels:
+-        app.kubernetes.io/environment: '{{.env}}'
+-    spec:
+-      project: default
+-      source:
+-        path: infra/k8s/monitoring/minio/overlays/{{.env}}
+-        repoURL: https://github.com/skkuding/codedang
+-        targetRevision: '{{.branch}}'
+-        directory:
+-          # kustomization.yaml is ignored if recurse is true
+-          recurse: false
+-      destination:
+-        namespace: monitoring-minio
+-        name: '{{.env}}'
+-      syncPolicy:
+-        automated:
+-          prune: false
+-          selfHeal: true
+-        syncOptions:
+-          - CreateNamespace=true
+-          - PrunePropagationPolicy=foreground
++  project: default
++  source:
++    path: infra/k8s/monitoring/minio
++    repoURL: https://github.com/skkuding/codedang
++    targetRevision: main
++    directory:
++      # kustomization.yaml is ignored if recurse is true
++      recurse: false
++  destination:
++    namespace: monitoring-minio
++    name: production
++  syncPolicy:
++    automated:
++      prune: true
++      selfHeal: true
++    syncOptions:
++      - CreateNamespace=true
++      - PrunePropagationPolicy=foreground
+diff --git a/infra/k8s/argocd/applications/monitoring/prometheus.yaml b/infra/k8s/argocd/applications/monitoring/prometheus.yaml
+index eaf20a19..d9501397 100644
+--- a/infra/k8s/argocd/applications/monitoring/prometheus.yaml
++++ b/infra/k8s/argocd/applications/monitoring/prometheus.yaml
+@@ -5,8 +5,8 @@ metadata:
+   namespace: argocd
+   labels:
+     app.kubernetes.io/environment: production
+-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-  finalizers: []
++  # finalizers:
++  #   - resources-finalizer.argocd.argoproj.io
+ spec:
+   goTemplate: true
+   goTemplateOptions: ['missingkey=error']
+@@ -20,8 +20,8 @@ spec:
+   template:
+     metadata:
+       name: 'prometheus-{{.env}}'
+-      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-      finalizers: []
++      # finalizers:
++      #   - resources-finalizer.argocd.argoproj.io
+       labels:
+         app.kubernetes.io/environment: '{{.env}}'
+     spec:
+@@ -42,8 +42,7 @@ spec:
+         namespace: monitoring-prometheus
+       syncPolicy:
+         automated:
+-          # Prune disabled: requires manual review before removing resources
+-          prune: false
++          prune: true
+           selfHeal: true
+         syncOptions:
+           - CreateNamespace=true
+diff --git a/infra/k8s/argocd/applications/monitoring/tempo.yaml b/infra/k8s/argocd/applications/monitoring/tempo.yaml
+index 3597bfca..56d6d984 100644
+--- a/infra/k8s/argocd/applications/monitoring/tempo.yaml
++++ b/infra/k8s/argocd/applications/monitoring/tempo.yaml
+@@ -3,8 +3,8 @@ kind: ApplicationSet
+ metadata:
+   name: tempo
+   namespace: argocd
+-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-  finalizers: []
++  # finalizers:
++  #   - resources-finalizer.argocd.argoproj.io
+ spec:
+   goTemplate: true
+   goTemplateOptions: ['missingkey=error']
+@@ -18,8 +18,8 @@ spec:
+   template:
+     metadata:
+       name: 'tempo-{{.env}}'
+-      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-      finalizers: []
++      # finalizers:
++      #   - resources-finalizer.argocd.argoproj.io
+       labels:
+         app.kubernetes.io/environment: '{{.env}}'
+     spec:
+@@ -40,8 +40,7 @@ spec:
+         namespace: monitoring-tempo
+       syncPolicy:
+         automated:
+-          # Prune disabled: requires manual review before removing resources
+-          prune: false
++          prune: true
+           selfHeal: true
+         syncOptions:
+           - CreateNamespace=true
+diff --git a/infra/k8s/argocd/applications/postgres-stage.yaml b/infra/k8s/argocd/applications/postgres-stage.yaml
+index 494b1f07..60c58afa 100644
+--- a/infra/k8s/argocd/applications/postgres-stage.yaml
++++ b/infra/k8s/argocd/applications/postgres-stage.yaml
+@@ -3,8 +3,8 @@ kind: Application
+ metadata:
+   name: postgres-stage
+   namespace: argocd
+-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-  finalizers: []
++  # finalizers:
++  #   - resources-finalizer.argocd.argoproj.io
+   labels:
+     app.kubernetes.io/environment: 'stage'
+ spec:
+@@ -20,8 +20,7 @@ spec:
+     name: stage
+   syncPolicy:
+     automated:
+-      # Prune disabled: requires manual review before removing resources
+-      prune: false
++      prune: true
+       selfHeal: true
+     syncOptions:
+       - CreateNamespace=true
+diff --git a/infra/k8s/argocd/applications/rabbitmq.yaml b/infra/k8s/argocd/applications/rabbitmq.yaml
+index 29129402..dc29eabf 100644
+--- a/infra/k8s/argocd/applications/rabbitmq.yaml
++++ b/infra/k8s/argocd/applications/rabbitmq.yaml
+@@ -3,8 +3,8 @@ kind: ApplicationSet
+ metadata:
+   name: rabbitmq
+   namespace: argocd
+-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-  finalizers: []
++  # finalizers:
++  #   - resources-finalizer.argocd.argoproj.io
+ spec:
+   goTemplate: true
+   goTemplateOptions: ['missingkey=error']
+@@ -18,8 +18,8 @@ spec:
+   template:
+     metadata:
+       name: 'rabbitmq-{{.env}}'
+-      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-      finalizers: []
++      # finalizers:
++      #   - resources-finalizer.argocd.argoproj.io
+       labels:
+         app.kubernetes.io/environment: '{{.env}}'
+     spec:
+@@ -36,7 +36,7 @@ spec:
+         name: '{{.env}}'
+       syncPolicy:
+         automated:
+-          prune: false
++          prune: true
+           selfHeal: true
+         syncOptions:
+           - CreateNamespace=true
+diff --git a/infra/k8s/argocd/applications/redis.yaml b/infra/k8s/argocd/applications/redis.yaml
+index 9146b378..c67e337f 100644
+--- a/infra/k8s/argocd/applications/redis.yaml
++++ b/infra/k8s/argocd/applications/redis.yaml
+@@ -3,8 +3,8 @@ kind: ApplicationSet
+ metadata:
+   name: redis
+   namespace: argocd
+-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-  finalizers: []
++  # finalizers:
++  #   - resources-finalizer.argocd.argoproj.io
+ spec:
+   goTemplate: true
+   goTemplateOptions: ['missingkey=error']
+@@ -18,8 +18,8 @@ spec:
+   template:
+     metadata:
+       name: 'redis-{{.env}}'
+-      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-      finalizers: []
++      # finalizers:
++      #   - resources-finalizer.argocd.argoproj.io
+       labels:
+         app.kubernetes.io/environment: '{{.env}}'
+     spec:
+@@ -40,7 +40,7 @@ spec:
+         name: '{{.env}}'
+       syncPolicy:
+         automated:
+-          prune: false
++          prune: true
+           selfHeal: true
+         syncOptions:
+           - CreateNamespace=true
+diff --git a/infra/k8s/argocd/applications/runner.yaml b/infra/k8s/argocd/applications/runner.yaml
+index e91292cc..61e94123 100644
+--- a/infra/k8s/argocd/applications/runner.yaml
++++ b/infra/k8s/argocd/applications/runner.yaml
+@@ -18,8 +18,9 @@ spec:
+         elements:
+           - env: stage
+             branch: main
+-          - env: production
+-            branch: release
++          # Stage 검증 후 활성화
++          # - env: production
++          #   branch: release
+   template:
+     metadata:
+       name: 'runner-{{.env}}'
+diff --git a/infra/k8s/argocd/applications/sealed-secrets-backup.yaml b/infra/k8s/argocd/applications/sealed-secrets-backup.yaml
+index f42c13e6..6e06d18a 100644
+--- a/infra/k8s/argocd/applications/sealed-secrets-backup.yaml
++++ b/infra/k8s/argocd/applications/sealed-secrets-backup.yaml
+@@ -3,8 +3,8 @@ kind: ApplicationSet
+ metadata:
+   name: sealed-secrets-backup
+   namespace: argocd
+-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-  finalizers: []
++  finalizers:
++    - resources-finalizer.argocd.argoproj.io
+ spec:
+   goTemplate: true
+   goTemplateOptions: ['missingkey=error']
+@@ -18,8 +18,8 @@ spec:
+   template:
+     metadata:
+       name: 'sealed-secrets-backup-{{.env}}'
+-      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-      finalizers: []
++      finalizers:
++        - resources-finalizer.argocd.argoproj.io
+       labels:
+         app.kubernetes.io/environment: '{{.env}}'
+     spec:
+@@ -35,8 +35,7 @@ spec:
+         name: '{{.env}}'
+       syncPolicy:
+         automated:
+-          # Prune disabled: requires manual review before removing resources
+-          prune: false
++          prune: true
+           selfHeal: true
+         syncOptions:
+           - CreateNamespace=true
+diff --git a/infra/k8s/argocd/applications/sealed-secrets.yaml b/infra/k8s/argocd/applications/sealed-secrets.yaml
+deleted file mode 100644
+index 177c87ff..00000000
+--- a/infra/k8s/argocd/applications/sealed-secrets.yaml
++++ /dev/null
+@@ -1,43 +0,0 @@
+-apiVersion: argoproj.io/v1alpha1
+-kind: ApplicationSet
+-metadata:
+-  name: sealed-secrets
+-  namespace: argocd
+-  # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-  finalizers: []
+-spec:
+-  goTemplate: true
+-  goTemplateOptions: ['missingkey=error']
+-  generators:
+-    - list:
+-        elements:
+-          - env: stage
+-            branch: main
+-          - env: production
+-            branch: release
+-  template:
+-    metadata:
+-      name: 'sealed-secrets-{{.env}}'
+-      # Finalizer disabled: prevents accidental deletion of stateful resources and data loss
+-      finalizers: []
+-      labels:
+-        app.kubernetes.io/environment: '{{.env}}'
+-    spec:
+-      project: default
+-      source:
+-        repoURL: https://bitnami-labs.github.io/sealed-secrets
+-        chart: sealed-secrets
+-        targetRevision: '2.17.3'
+-        helm:
+-          releaseName: sealed-secrets
+-      destination:
+-        namespace: kube-system
+-        name: '{{.env}}'
+-      syncPolicy:
+-        automated:
+-          # Prune disabled: requires manual review before removing resources
+-          prune: false
+-          selfHeal: true
+-        syncOptions:
+-          - CreateNamespace=true
+-          - ServerSideApply=true
+diff --git a/infra/k8s/argocd/github-app-repo-creds.yaml b/infra/k8s/argocd/github-app-repo-creds.yaml
+new file mode 100644
+index 00000000..64d35423
+--- /dev/null
++++ b/infra/k8s/argocd/github-app-repo-creds.yaml
+@@ -0,0 +1,15 @@
++apiVersion: bitnami.com/v1alpha1
++kind: SealedSecret
++metadata:
++  name: github-app-secret
++  namespace: argocd
++spec:
++  # GitHub App: skkuding-bot
++  encryptedData:
++    githubAppID: AgAKpes0TssbvgKrpg3/IGj7S8ztGm84JvD5xuknKkn3VtNbAPyyuJpmWw1PggSAbTV3ZfwEiaWAisUuEKbhd9hWv5VCJir8tr+50ZI3EG7BtRxMUERPERc1S/vgrW3UHwq2zco2Zec0xCCS1/8hozVS0VCC+4AYQcm7hQ6ZdfU5THuwIl9y3LIh8ePu2YCmhaknu6rTlO/23eKGtfcDIPQg7R6LRt0xhGrswIH8bOLB4nV0teG9VqnyctLHxXIvta03g9qLhdCt/aJcchgNS6nYl4nU1Lgn4QDNkTG4T0oC4eTkcL2BvWWReFWxeZz2qPYiF89m4dW5tK6uANJwx7O2P74pzfCm+qjR1qfX2YsTRDD6Wz2HCdcXedSKFvN2lOJ41AkagiOxMDXNsIgzguQlZfdlaqYL0zHQIcMM1No/QU5iu8dQq6FwtQq8QDFxokKNY5iimjW2m1/wZfdHzb5VEaT6hNbYDauIF53mG/o/WfC6CiKIpWyynW8SDId3F+Bja/9/uViWLa/5V95f64/x8/eMrSNLub9FOj6o9c+jbeGNYjI3bCRUCQe4GMD1Fm9AcTVPfQaSdu9HT2yZ0KFK7Jxm4rxrtnErTJhUR1PQKIdfeWjYLKVH959Wcl6AjEDChxPFZKZcGXVtOamuFgI1xZGPWghQk20q1GtC0TMDI5/ugKhbgkudhHEbOE2xsNOT9uIa+pV0
++    githubAppInstallationID: AgC4HqA6XX+z/t16kznxRbx4hJ3JK9zoQJzKgGff7JsA+/Uyepo5pyDMzk1F38zmsbW4MFQBDkAFxygRWEae0FvjR/Nt3wk0Q0IZ8ZG6LqOm2PErn7FH7cqcWU8abu1J6xQVJ8Ry5rwJIO949/GYgxQj6kRPJSR2pzcRhBidFxTtIWaHI5gfnt8yJdp/uWQNsF6/Tlsk5TMuz/ruoDuRwxJQEtsTcMjhvE01jPpiCTSM39oj7NnqeS1dwy2/EN+bqBjBv9lWW50LpAMiV+CoQ3kOD7I6Unk98sQklA8KHviFjBI2GOdddAQWHFJHmwccTNfi2fvxhwK6YH5DK5cbVKD/zrGNl02r0OiHmp4Tag3VwGvCDOKJrI0KCqh4XY5HKEg5gJQ03cwP37baOM78fZ0NEEGSx8aeuMdz2U11lDYxGBx5q58toq7GCM7QSQGIInP77U/tsEZ80N9tdYeDyhTLK5T+wK3vNF7K8o+xsflCjO38gcY0wpge3G874UaBZAlZkl8BFnbJsd3m+PvdwJIs7WMRKP13XU7cdRN08fJoChS/aEqFb+wbBVRhw/r+yRh/CX8dwZuxd+c5GaUY5iLbb7hbs0K0BiO4ec99YJ/27UryDuIJp0qevctoBG9jYgO69IwJmbThiwBuJULYmGRARN97D4nz9+Dg2SP5fWaDdW6erCknIvLntNXsK1RYIEDqV7d8hoZ4EA==
++    githubAppPrivateKey: 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
++  template:
++    metadata:
++      name: github-app-secret
++      namespace: argocd
+diff --git a/infra/k8s/argocd/ingress.yaml b/infra/k8s/argocd/ingress.yaml
+new file mode 100644
+index 00000000..9a1bacc1
+--- /dev/null
++++ b/infra/k8s/argocd/ingress.yaml
+@@ -0,0 +1,25 @@
++apiVersion: networking.k8s.io/v1
++kind: Ingress
++metadata:
++  name: argocd-server-ingress
++  namespace: argocd
++  annotations:
++    cert-manager.io/cluster-issuer: letsencrypt-dns01
++    traefik.ingress.kubernetes.io/redirect-entry-point: https
++spec:
++  ingressClassName: traefik
++  tls:
++    - hosts:
++        - argocd.codedang.com
++      secretName: argocd-server-tls
++  rules:
++    - host: argocd.codedang.com
++      http:
++        paths:
++          - path: /
++            pathType: Prefix
++            backend:
++              service:
++                name: argocd-server
++                port:
++                  number: 80
+diff --git a/infra/k8s/argocd/notifications-secret.yaml b/infra/k8s/argocd/notifications-secret.yaml
+new file mode 100644
+index 00000000..f32dd1cf
+--- /dev/null
++++ b/infra/k8s/argocd/notifications-secret.yaml
+@@ -0,0 +1,22 @@
++apiVersion: bitnami.com/v1alpha1
++kind: SealedSecret
++metadata:
++  creationTimestamp: null
++  name: argocd-notifications-secret
++  namespace: argocd
++spec:
++  # GitHub App: skkuding-bot
++  encryptedData:
++    github-app-id: AgAlAQ5slbvDHTV2KCEheuJrqBE1+0auzsIv8IyAd6czGVEHf6MlsaDLE+dT0ejX1w2lwQtQJ7BIuBJckwtqdMPjPJ2LKI+w/8yaPCBsvbA/LiPWCGReJgL2a5JfxR+0bLnQPJOvwhWitALtgRxgDheq2VX4gXlrTswGDLsK6UoXlXCzhZ+UiByLU8HMcdOHi5YbptPLtuuaPCsqPxLnCmu/T82HlM0kEKPGuo1dH3KbTiFSBJtVqqFHlhtBAgnc0nLuEvgP3GiaOw6i3MvVomfqYyM6+u0WZqBBY59A+NLKr4BEDrqGLHKBRSDVzmCmSs3M3npfiyBfx+h86N2kY3QyGVU8wjiQJu0HtuKo2zJntX/cj3N7UfGmAXEfmC0FzjoFaZ8BY04U6HxFXJU6bLXZKwrz0INph/QDUDXckOQZJhSQqF2sfxyDb4/TXiw2g9xPvYTG1hIXhuasJ/sJKimQJHPqe5FRWA9MSB7Nhnw3VRt+A2NpGuM1BirB6e3IGQKj5w6cBds0q2jmbBPJuCSlW14lGLGvNkBNNg/lut01t/fPG+NQSlw0/fWhTHGMMw6WCtYn717ODSsxdVFQxrHL65GVkLbp9ydKag5jXmQ/b0M4V/BSVfAeS+giJjxrd4/SifOaBnI07MtwuDhbIOsxhQa0kq6Y+weKncl5XAySvZNIW05PhAKU5bb5eYa1eAJgW0F0yG9C
++    github-installation-id: AgAKKBaWcH+KghHrAPHEIDXHTyGFWq+Tcr/TD+/9wFiMTyrJ/66Q6vPg5jln5nVzLO76jUQXkM3UtCkXxBc+oqEUOMxbXJQZv+blullfR1CX60FI2aOmLRvbWrnYghoYUqS843JmjJD0lTzjS0CxEexmeyJxQVOtxrIHdPTp95UlTHe6iTEhvS7IxjkAJqxrgi4vXUKekBIhBEKzyY+L8TTMRZZ5r+x7RPwQp64SoQow5uZIq6yj7a94O5fb2cpUtQApy9ec2mFcHGQC0+0ynRCgZrttloLFWI+IXVRf5mAZYQI1G4xNcIskCWCCdfrgvLxOBX72Vu6ug6RqofCNPrpcoagaNBFXtzyliclGwvdVtHxSEku4mtKIgZD8eUS5QTsyFU5+tiw0RunthHOkSr/2p+F5opXx94CYFaR6PlyMOna6KAgcP+htuotNv3G7JSS93ZgI091O8xPwhjrO9kOjCU/ZPlDbVf96IFfFm1Jnwncqa1zxXd+IlcaUMZ6oLY4KksO5Am50tos1PRRsOFil+pgWyrnEyeh7x0Jgh58bgA0O+17yehd9hO9T09/6FtzoQ3j7zGq/7IY50U0Ijhd4MDuZovFSKxqFWhR1vegq16UlPYfmXej40DzkwZyPgaLO9pe03NIwgMNAMKHMNh2EqNaqNJ0cfHX8fsQ3lmobK6oDejLOT7iPviP6/7ZHBDVbVD6bZAHOew==
++    github-private-key: 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
++  template:
++    metadata:
++      creationTimestamp: null
++      labels:
++        app.kubernetes.io/component: notifications-controller
++        app.kubernetes.io/name: argocd-notifications-controller
++        app.kubernetes.io/part-of: argocd
++      name: argocd-notifications-secret
++      namespace: argocd
++    type: Opaque
+diff --git a/infra/k8s/argocd/notifications.yaml b/infra/k8s/argocd/notifications.yaml
+new file mode 100644
+index 00000000..6f16407f
+--- /dev/null
++++ b/infra/k8s/argocd/notifications.yaml
+@@ -0,0 +1,76 @@
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: argocd-notifications-cm
++  namespace: argocd
++data:
++  context: |
++    argocdUrl: https://argocd.codedang.com
++
++  service.github: |
++    appID: $github-app-id
++    installationID: $github-installation-id
++    privateKey: $github-private-key
++
++  trigger.on-sync-failed: |
++    - when: app.status.sync.status != 'Synced'
++      oncePer: app.status.sync.revision
++      send: [github-failed]
++
++  trigger.on-sync-running: |
++    - when: app.status.sync.status == 'Syncing'
++      oncePer: app.status.sync.revision
++      send: [github-running]
++
++  trigger.on-sync-succeeded: |
++    - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Progressing'
++      oncePer: app.status.operationState.syncResult.revision
++      send: [github-running]
++    - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Healthy'
++      oncePer: app.status.operationState.syncResult.revision
++      send: [github-succeed]
++    - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Degraded'
++      oncePer: app.status.operationState.syncResult.revision
++      send: [github-failed]
++
++  template.github-running: |
++    message: 'Syncing {{ .app.metadata.name }}'
++    github:
++      status:
++        state: pending
++        label: "Argo CD / {{ .app.metadata.annotations.appName }}"
++        targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
++
++  template.github-succeed: |
++    message: 'Successfully synced {{ .app.metadata.name }}'
++    github:
++      status:
++        state: success
++        label: "Argo CD / {{ .app.metadata.annotations.appName }}"
++        targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
++      pullRequestComment:
++        content: |
++          ✅ **Syncing Preview App Succeeded**
++
++          **Application:** `{{ .app.metadata.annotations.appName }}`
++          **Revision:** `{{ .app.status.sync.revision }}`
++          **Health Status:** {{ .app.status.health.status }}
++
++          [Open Preview]({{ .app.metadata.annotations.previewURL }}) | [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})
++
++  template.github-failed: |
++    message: 'Failed to sync {{ .app.metadata.name }}'
++    github:
++      status:
++        state: failure
++        label: "Argo CD / {{ .app.metadata.annotations.appName }}"
++        targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
++      pullRequestComment:
++        content: |
++          ❗ **Syncing Preview App Failed**
++
++          **Application:** `{{ .app.metadata.annotations.appName }}`
++          **Revision:** `{{ .app.status.sync.revision }}`
++          **Health Status:** {{ .app.status.health.status }}
++
++          [Open Preview]({{ .app.metadata.annotations.previewURL }}) | [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})
+diff --git a/infra/k8s/argocd/values.yaml b/infra/k8s/argocd/values.yaml
+deleted file mode 100644
+index fe639dcd..00000000
+--- a/infra/k8s/argocd/values.yaml
++++ /dev/null
+@@ -1,259 +0,0 @@
+-global:
+-  domain: argocd.codedang.com
+-
+-configs:
+-  secret:
+-    # Don't create argocd-secret - managed by SealedSecret in extraObjects
+-    createSecret: false
+-  params:
+-    # Run server in insecure mode (TLS termination at Traefik ingress)
+-    server.insecure: 'true'
+-  cm:
+-    url: https://argocd.codedang.com
+-    dex.config: |
+-      connectors:
+-        - type: github
+-          id: github
+-          name: GitHub
+-          config:
+-            clientID: $clientID
+-            clientSecret: $clientSecret
+-            useLoginAsID: true
+-            orgs:
+-              - name: skkuding
+-  rbac:
+-    policy.csv: |
+-      p, role:admin, applications, *, */*, allow
+-      p, role:admin, clusters, *, *, allow
+-      p, role:admin, repositories, *, *, allow
+-    policy.default: role:admin
+-  repositories:
+-    codedang:
+-      url: https://github.com/skkuding/codedang
+-      name: codedang
+-      type: git
+-
+-controller:
+-  metrics:
+-    enabled: true
+-    serviceMonitor:
+-      enabled: true
+-      additionalLabels:
+-        release: prometheus
+-
+-dex:
+-  enabled: true
+-  envFrom:
+-    - secretRef:
+-        name: argocd-dex-github-oauth
+-  metrics:
+-    enabled: true
+-    serviceMonitor:
+-      enabled: true
+-      additionalLabels:
+-        release: prometheus
+-
+-server:
+-  service:
+-    # HTTP port for Traefik ingress (TLS termination at ingress)
+-    servicePortHttp: 80
+-    # HTTPS port (not used in --insecure mode)
+-    servicePortHttps: 443
+-
+-  metrics:
+-    enabled: true
+-    serviceMonitor:
+-      enabled: true
+-      additionalLabels:
+-        release: prometheus
+-
+-  ingress:
+-    enabled: true
+-    annotations:
+-      cert-manager.io/cluster-issuer: letsencrypt-dns01
+-      traefik.ingress.kubernetes.io/redirect-entry-point: https
+-    ingressClassName: traefik
+-    # TLS termination at Traefik, backend uses HTTP (server.insecure: true)
+-    tls: true
+-
+-  extraArgs:
+-    - --insecure
+-
+-notifications:
+-  enabled: true
+-  context:
+-    argocdUrl: https://argocd.codedang.com
+-  notifiers:
+-    service.github: |
+-      appID: $github-app-id
+-      installationID: $github-installation-id
+-      privateKey: $github-private-key
+-  triggers:
+-    trigger.on-sync-failed: |
+-      - when: app.status.sync.status != 'Synced'
+-        oncePer: app.status.sync.revision
+-        send: [github-failed]
+-    trigger.on-sync-running: |
+-      - when: app.status.sync.status == 'Syncing'
+-        oncePer: app.status.sync.revision
+-        send: [github-running]
+-    trigger.on-sync-succeeded: |
+-      - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Progressing'
+-        oncePer: app.status.operationState.syncResult.revision
+-        send: [github-running]
+-      - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Healthy'
+-        oncePer: app.status.operationState.syncResult.revision
+-        send: [github-succeed]
+-      - when: app.status.sync.status == 'Synced' and app.status.health.status == 'Degraded'
+-        oncePer: app.status.operationState.syncResult.revision
+-        send: [github-failed]
+-  templates:
+-    template.github-running: |
+-      message: 'Syncing {{ .app.metadata.name }}'
+-      github:
+-        status:
+-          state: pending
+-          label: "Argo CD / {{ .app.metadata.annotations.appName }}"
+-          targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
+-    template.github-succeed: |
+-      message: 'Successfully synced {{ .app.metadata.name }}'
+-      github:
+-        status:
+-          state: success
+-          label: "Argo CD / {{ .app.metadata.annotations.appName }}"
+-          targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
+-        pullRequestComment:
+-          content: |
+-            ✅ **Syncing Preview App Succeeded**
+-
+-            **Application:** `{{ .app.metadata.annotations.appName }}`
+-            **Revision:** `{{ .app.status.sync.revision }}`
+-            **Health Status:** {{ .app.status.health.status }}
+-
+-            [Open Preview]({{ .app.metadata.annotations.previewURL }}) | [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})
+-    template.github-failed: |
+-      message: 'Failed to sync {{ .app.metadata.name }}'
+-      github:
+-        status:
+-          state: failure
+-          label: "Argo CD / {{ .app.metadata.annotations.appName }}"
+-          targetURL: "{{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}?operation=true"
+-        pullRequestComment:
+-          content: |
+-            ❗ **Syncing Preview App Failed**
+-
+-            **Application:** `{{ .app.metadata.annotations.appName }}`
+-            **Revision:** `{{ .app.status.sync.revision }}`
+-            **Health Status:** {{ .app.status.health.status }}
+-
+-            [Open Preview]({{ .app.metadata.annotations.previewURL }}) | [View in Argo CD]({{ .context.argocdUrl }}/applications/{{ .app.metadata.name }})
+-
+-extraObjects:
+-  # Notifications Secret (GitHub App: skkuding-bot)
+-  - apiVersion: bitnami.com/v1alpha1
+-    kind: SealedSecret
+-    metadata:
+-      creationTimestamp: null
+-      name: argocd-notifications-secret
+-      namespace: argocd
+-    spec:
+-      encryptedData:
+-        github-app-id: AgAlAQ5slbvDHTV2KCEheuJrqBE1+0auzsIv8IyAd6czGVEHf6MlsaDLE+dT0ejX1w2lwQtQJ7BIuBJckwtqdMPjPJ2LKI+w/8yaPCBsvbA/LiPWCGReJgL2a5JfxR+0bLnQPJOvwhWitALtgRxgDheq2VX4gXlrTswGDLsK6UoXlXCzhZ+UiByLU8HMcdOHi5YbptPLtuuaPCsqPxLnCmu/T82HlM0kEKPGuo1dH3KbTiFSBJtVqqFHlhtBAgnc0nLuEvgP3GiaOw6i3MvVomfqYyM6+u0WZqBBY59A+NLKr4BEDrqGLHKBRSDVzmCmSs3M3npfiyBfx+h86N2kY3QyGVU8wjiQJu0HtuKo2zJntX/cj3N7UfGmAXEfmC0FzjoFaZ8BY04U6HxFXJU6bLXZKwrz0INph/QDUDXckOQZJhSQqF2sfxyDb4/TXiw2g9xPvYTG1hIXhuasJ/sJKimQJHPqe5FRWA9MSB7Nhnw3VRt+A2NpGuM1BirB6e3IGQKj5w6cBds0q2jmbBPJuCSlW14lGLGvNkBNNg/lut01t/fPG+NQSlw0/fWhTHGMMw6WCtYn717ODSsxdVFQxrHL65GVkLbp9ydKag5jXmQ/b0M4V/BSVfAeS+giJjxrd4/SifOaBnI07MtwuDhbIOsxhQa0kq6Y+weKncl5XAySvZNIW05PhAKU5bb5eYa1eAJgW0F0yG9C
+-        github-installation-id: AgAKKBaWcH+KghHrAPHEIDXHTyGFWq+Tcr/TD+/9wFiMTyrJ/66Q6vPg5jln5nVzLO76jUQXkM3UtCkXxBc+oqEUOMxbXJQZv+blullfR1CX60FI2aOmLRvbWrnYghoYUqS843JmjJD0lTzjS0CxEexmeyJxQVOtxrIHdPTp95UlTHe6iTEhvS7IxjkAJqxrgi4vXUKekBIhBEKzyY+L8TTMRZZ5r+x7RPwQp64SoQow5uZIq6yj7a94O5fb2cpUtQApy9ec2mFcHGQC0+0ynRCgZrttloLFWI+IXVRf5mAZYQI1G4xNcIskCWCCdfrgvLxOBX72Vu6ug6RqofCNPrpcoagaNBFXtzyliclGwvdVtHxSEku4mtKIgZD8eUS5QTsyFU5+tiw0RunthHOkSr/2p+F5opXx94CYFaR6PlyMOna6KAgcP+htuotNv3G7JSS93ZgI091O8xPwhjrO9kOjCU/ZPlDbVf96IFfFm1Jnwncqa1zxXd+IlcaUMZ6oLY4KksO5Am50tos1PRRsOFil+pgWyrnEyeh7x0Jgh58bgA0O+17yehd9hO9T09/6FtzoQ3j7zGq/7IY50U0Ijhd4MDuZovFSKxqFWhR1vegq16UlPYfmXej40DzkwZyPgaLO9pe03NIwgMNAMKHMNh2EqNaqNJ0cfHX8fsQ3lmobK6oDejLOT7iPviP6/7ZHBDVbVD6bZAHOew==
+-        github-private-key: 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
+-      template:
+-        metadata:
+-          creationTimestamp: null
+-          labels:
+-            app.kubernetes.io/component: notifications-controller
+-            app.kubernetes.io/name: argocd-notifications-controller
+-            app.kubernetes.io/part-of: argocd
+-          name: argocd-notifications-secret
+-          namespace: argocd
+-        type: Opaque
+-
+-  # ArgoCD Admin Password
+-  - apiVersion: bitnami.com/v1alpha1
+-    kind: SealedSecret
+-    metadata:
+-      name: argocd-secret
+-      namespace: argocd
+-    spec:
+-      encryptedData:
+-        admin.password: AgCQngkbs0rdNHM0RvVX6yN+ove+AssqYsiz7BNREmJtq77MIRjW87ztD8H4jIqEC1AmggCUIq2uuV8TUGevWA7nCsHDtG8cW/ZcCzFNJt3j6cqxnDCw+cTYi8fWsJ45gb8gn4of5dzTQ63/427KfGK/Bxld7gqJoH6j2R8MVJbRj+alNgI3stMWVY7g2wWOwf0Ja/hMsxHOroRxROT8Oi6nwrglHIwllvQZLpDfEUfHBd0HkeGp9wqQOAWrWBAC+WXqTpEUFYlH5UmDQEIcqszubQlSie5cRJde8VesgePQ8K/QdJ38SXg9eoLDRKVaGCt1zFFgXkos3tT1EGW0bM1WJCjbK3oNq7FqUzXCyfsUwDOChhOypB84U7sjHaiXgh+db3/vbIPNCgNqxzoWM4z4YU+MmJrGaqzhYvC0H5dmusc77/ZDbuC5aokCPSCXG1O3rVLdO9MKDXzvhRpjqy9zq3rcXs4h4MwYp7rrP4OxyJcQpec/7RUHEtE107iuSfNVBzfgKWR4nwBeXcjdX7p7aPeS0Us9wuqK/zpCZ61IzXAeunt2QNrEq+7mLH3ZhfYYD3NeszCWHxikmbsw05RjUba4O1/Rv1aMV5QjISgSgDzuF6zdrEP4FCgisZ4VybF8M+6/cwrfjSCw/ewPMXD7RosFkdY/pFsDofHvEJqCZutu3NlqLJsSVmwKSCuKPPjXb8ai8YpBXh7LNRSpT4b55+tEflmlQt04BlyNjHEqqyxPuPnKr4CXFAz6YN1gD9I3NElDCjS1J6bT37A=
+-        admin.passwordMtime: AgC/aGJ+lsVe62wnyY5256cPiuLIz8/bklSbWaMmfSYbpiFbC3GSb27FiCvJkckIegtHTBCYaja/iGsggG3TQaoeEX76Kh6YZGJjeFLVCk7q8FNnEd3u2uBd+ZR/sfF60btT/3uwtCefZdwAHCcG6g4+dxkRQMFHli6s+ahqEK6SeZAe2gHNLyFIu/yPQr871BjoZy8EQw5kyjIMnOPRlEL8bAwtnan2F1FeAH6+oBzsNSUfKfS0LX5RLgFRws4/O21vbNpx+me5QpEmCIBTn7wJezumvfrQCX5+Prbcp/ZQJujwZ5ZWxsSHGbMZs1KvKc86/PH9t1dw2+e9uG53xwS2eY6xUpfQW+Ds3clMqpJDlyAA/TdEtEG5vKkNPOwn9cBmb3ceb8NzjW2kJkRXQsbzReDdJvfPl5le/zqrEeJTyynWw5lT9ad0AFRKS5Bbxd1+PSvGoWU2fbUIC8hpnTmn38ExnF5I4wxkwN+AA543sQsRoZ8Woi3KHSjiYwyLSWCpgA/SlkkmKjndj0FKEDtzFkMxxnQPF8yrHEmPxZnNMl4Ge7Z20pGIfWpjuue/GPqbyX1fEd1mu4LSkTzimuVJOYL9Foz93tJQwZwid/GSLmmEE7yxilalld/QLlSpBw75sbMOrTX1dJF68p7YPs75pHmKyyiSpIjrl2FyodHXFyZUzgHotzgeV6RzWx6scenW0B1xGGXQ0I+IymFZ2xqi6dAHSw==
+-        server.secretkey: AgC+5sWFzXj3Of3LkMIZphbQPXz/Cm2YROzV8/SWk5zN3XRhGwrJG/+weXA89foCndqAkLj6VFhcYblFJcvKr7kKsZuTA0D+AX2Olu/u7CYw+nLHllG7fI+7rhi2AsoyJcF4OIuR3ZEVdzBp/Nt3GFDxSZSZ7/52Owt/NVHGioN9CtlMH/of7s7t8AJd2WD2w5gRZNUtT1lVQH0wELBkCHJoL29zwNA7hoXVhS/Embjp0Oqs1aJw4zJmfQ9o/H0KBC6DR3xdjmWaZoYVs5xh22L0STI9EZ0tjAZa+YniKduWxMVcOwS+JjCpa8uqFCz5io9MsdHAb/RpN230PNPERBLGSAxb/gCqqyP9WdwVGmtpQf8Y0zBqrOjG7vVICF8gLKTEmWhNSbULP7EWRZ+IfAJ/AnMXXNKSpNj36xmTPQ4wVzw7J3eIiCx3MG4NkNWGE8Mald9tE1MriERRpTz94HyHkenKB4J7AMq9AmE5Ry1yShb51DBSF5XgzGmESZMiXUodTMD9gPJyZefAf5fLkaTrIocCHiMjksiwkFoFGcOTPwbqghSc4vX47n5MBwtCcHRhiI9LTeDtVC8qHpic2PZesYMYH5dAUe1Xg73WNDFZIAV1fgp+25cf4eYmyu4RPu1ITqoj1AR2XuH51+9bnUxPBfTFRMJ/A/tKjr8HJqEcmKqQMFs1f950ZgzyYR/kA3YGRVGwXS9A0uKy7+3ubVOGkvwKZHlVv3cb1kTolMRHTA==
+-      template:
+-        metadata:
+-          labels:
+-            app.kubernetes.io/part-of: argocd
+-          name: argocd-secret
+-          namespace: argocd
+-        type: Opaque
+-
+-  # GitHub App Repo Credentials (GitHub App: skkuding-bot)
+-  - apiVersion: bitnami.com/v1alpha1
+-    kind: SealedSecret
+-    metadata:
+-      name: github-app-secret
+-      namespace: argocd
+-    spec:
+-      encryptedData:
+-        githubAppID: AgAKpes0TssbvgKrpg3/IGj7S8ztGm84JvD5xuknKkn3VtNbAPyyuJpmWw1PggSAbTV3ZfwEiaWAisUuEKbhd9hWv5VCJir8tr+50ZI3EG7BtRxMUERPERc1S/vgrW3UHwq2zco2Zec0xCCS1/8hozVS0VCC+4AYQcm7hQ6ZdfU5THuwIl9y3LIh8ePu2YCmhaknu6rTlO/23eKGtfcDIPQg7R6LRt0xhGrswIH8bOLB4nV0teG9VqnyctLHxXIvta03g9qLhdCt/aJcchgNS6nYl4nU1Lgn4QDNkTG4T0oC4eTkcL2BvWWReFWxeZz2qPYiF89m4dW5tK6uANJwx7O2P74pzfCm+qjR1qfX2YsTRDD6Wz2HCdcXedSKFvN2lOJ41AkagiOxMDXNsIgzguQlZfdlaqYL0zHQIcMM1No/QU5iu8dQq6FwtQq8QDFxokKNY5iimjW2m1/wZfdHzb5VEaT6hNbYDauIF53mG/o/WfC6CiKIpWyynW8SDId3F+Bja/9/uViWLa/5V95f64/x8/eMrSNLub9FOj6o9c+jbeGNYjI3bCRUCQe4GMD1Fm9AcTVPfQaSdu9HT2yZ0KFK7Jxm4rxrtnErTJhUR1PQKIdfeWjYLKVH959Wcl6AjEDChxPFZKZcGXVtOamuFgI1xZGPWghQk20q1GtC0TMDI5/ugKhbgkudhHEbOE2xsNOT9uIa+pV0
+-        githubAppInstallationID: AgC4HqA6XX+z/t16kznxRbx4hJ3JK9zoQJzKgGff7JsA+/Uyepo5pyDMzk1F38zmsbW4MFQBDkAFxygRWEae0FvjR/Nt3wk0Q0IZ8ZG6LqOm2PErn7FH7cqcWU8abu1J6xQVJ8Ry5rwJIO949/GYgxQj6kRPJSR2pzcRhBidFxTtIWaHI5gfnt8yJdp/uWQNsF6/Tlsk5TMuz/ruoDuRwxJQEtsTcMjhvE01jPpiCTSM39oj7NnqeS1dwy2/EN+bqBjBv9lWW50LpAMiV+CoQ3kOD7I6Unk98sQklA8KHviFjBI2GOdddAQWHFJHmwccTNfi2fvxhwK6YH5DK5cbVKD/zrGNl02r0OiHmp4Tag3VwGvCDOKJrI0KCqh4XY5HKEg5gJQ03cwP37baOM78fZ0NEEGSx8aeuMdz2U11lDYxGBx5q58toq7GCM7QSQGIInP77U/tsEZ80N9tdYeDyhTLK5T+wK3vNF7K8o+xsflCjO38gcY0wpge3G874UaBZAlZkl8BFnbJsd3m+PvdwJIs7WMRKP13XU7cdRN08fJoChS/aEqFb+wbBVRhw/r+yRh/CX8dwZuxd+c5GaUY5iLbb7hbs0K0BiO4ec99YJ/27UryDuIJp0qevctoBG9jYgO69IwJmbThiwBuJULYmGRARN97D4nz9+Dg2SP5fWaDdW6erCknIvLntNXsK1RYIEDqV7d8hoZ4EA==
+-        githubAppPrivateKey: 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
+-      template:
+-        metadata:
+-          name: github-app-secret
+-          namespace: argocd
+-        type: Opaque
+-
+-  # GitHub OAuth Secret for Dex (GitHub OAuth App: codedang-argocd)
+-  - apiVersion: bitnami.com/v1alpha1
+-    kind: SealedSecret
+-    metadata:
+-      name: argocd-dex-github-oauth
+-      namespace: argocd
+-    spec:
+-      encryptedData:
+-        clientID: AgA6weCXUljSvrS+FAOsfaNkUmchAiUshQjZYkWt9wsJa7MZJ9KVLx40FqrbLyWaQ7ypzgiLPZpbhezlABwUZoUrJGC/spEI6psAwJmHmA3dY6cvBrVHoDMiVbjBTK3+JKwFJtoQr0dpKD8K9CXLgT7xTVIGVtz9jkGh0t92xR8SOqwMlnMgBigs4aYBg5qa8B8BqLXPf9I7qy3pe5jPTTqtRGJTqFes2C5wQURPhL9f0Lpz850/JIhd/1jM4/1D5Zzx006jyzjI4s7X9hEfu4SrmF55As9c2km2GJF2/3NwUnvgvvGGSjMzR+mGMok1hlcRPTvZWHC3C6QaSsTAbIIq6VA34GNZFfoHTwfqVsJsaRiWZ2uwWuG2OOrVR72dKAjhWOlRuSZtu+OO3TL67mrj3ErO7PN6kvtHwhjPf/oFpDrASURJSgHx4sN+Ckp3g1QCJ/A8QhSjqwKcOYmLmCKwQyWP9r84muaWkdHZQ2RDQhGgtBhE0znRZZURAbe4OgDX27E5MOC6QUp54+VJ1r0npYSWLZ6nQnJ++MggxTpt/e8Phgt80zhvs+MvdVlCxXQpitRjsLBOpgjI1xfyX2ZobjUwVATS+wyukZuGObbeJfCkK/5KLAknqgWjEgrB2PpvKXpoN7b6L8IoRjVinv422XIHSdy9x7lNPLyHfIwy2YqA5m74HhGzOTCXxq+TXKfAzTvd9LANIilyE/ektFnLwW19HQ==
+-        clientSecret: AgAH6O+r33UPKn0ZrLkZA69T8bnroC/SI/blPoRMhd2NYO/f5j3rKHq+DomgRGDZh9s8ZxDaG3UP5LDAYkgjJbf01SNQZ0hEXGQlMjdya3mnkcElx2UG/Gh3SH6poD7oUGr+FxyaT/D8crNDVuK7G9jUJB1eRYI//63bF0WjMZsgg1umoTJg8MEQhS3Q0rPRm0sCSpsB4YmvJNbfdZLMWfTPozZijbJuZjN4mpu/BApRR62O10UlIsxYdB7QvlUnutIGqWLVPNlxyPuJJWNN3Jb6T3EOlSgFmaGWDN19KgO+XnPr4RcJMMScv0dRH38sUvMNp5ujMdEtPfDexAsixpNuzr9Oimvc4vM+GTUAn77Xrq4wL253YoWeRguquFvYeQlbKsDxNdXEelV6JmRbBEGGNyBPTcbRoflW14/jwTt3XtGtBc6O5jgffCjmnsiCZPsmcWlNym8bcKsfBZivRmGvzYqabiYQOgUDd/K5lpD/6iVVhDxS0VzEcLkTkEX4z5HDWLgzF/uciTzv+35VLmmb9oaWZ4av+KaJtS1Jg+/0fAqRFd8Kf6eVTUJ6mTnJKRxwqhjdbxrkuUdE/zA5IHWc2rv1E583YUqtuzYXe2o1fL+tb3Kvmi5xcNN1VDaKEJ4Q9ZV47IhiuLMkEYlx2a2lg2Vq12rlcmIXj7wLR8M63LgC93OLe/wrITo7uAunSyeh7iL3cqhgbdOtEXf7ceWSDRp4X1CopcK4IPhup0CX+dDqV/LxIqVM
+-      template:
+-        metadata:
+-          name: argocd-dex-github-oauth
+-          namespace: argocd
+-        type: Opaque
+-
+-  # Cluster: production (in-cluster)
+-  - apiVersion: v1
+-    kind: Secret
+-    metadata:
+-      name: cluster-production
+-      namespace: argocd
+-      labels:
+-        argocd.argoproj.io/secret-type: cluster
+-    type: Opaque
+-    stringData:
+-      name: production
+-      server: https://kubernetes.default.svc
+-      config: |
+-        {"tlsClientConfig": {"insecure": false}}
+-
+-  # Cluster: stage (sealed)
+-  - apiVersion: bitnami.com/v1alpha1
+-    kind: SealedSecret
+-    metadata:
+-      name: cluster-stage
+-      namespace: argocd
+-    spec:
+-      encryptedData:
+-        name: AgAJpl7nvdcFedFnR0pRPpXSDQrI5XGv+RWxfczmGwHnW69hlVYQLLPYYeRwLi3sfyPnaeVAmFlYyYVLbl+sLCOd58RaFHMBm/TRIfmx+py9IPGuJ15gJiQZGxjK8kvwe2FK4ashxzjaWhs6AIeWGF9+LgUtc0vVmIDMVl+3KHtT48BjhOlZiDDRhgWM0UGJzfzotz3hykw0V3wB+kKDSwB40M4Z8brjhrG88dWgqJRPV5ScWfk000fhbM5EkATC5prlCoa0NozLDS23MmOrND/B7Z9z4xQdnfE0hw9VRnUa+InkgoaUG3ZNcDDbnjNx5djOZBuLQjL4+4nOto5bTQh+BxGkt8GmxbF4T9zuI+FuidtlbgVTpGFK31PrIyvkyqlbo2iUaw4Yu8CCp6Kuz0JaHV43i8Nw2Tk8IcrwS2PGRtrdRWbH9egtY5rbP6aZ9KOXFJTQTB/KpEr0AyKoP9BeJ8CMfkYBbp+yHzh+UFPPIY7v+aBhVm6jPMT/vudD9IsvRGtRD3PBFJTMfuuCH5CgcE6rmYP8v540KVSYTBkQj5I43xZjJ7T9lrRu6ao6kU/MgqHSWXL+AABeeYHGTSOpJ9dEgE5wFvRBoQMc+mf3OYQ8iTEESBzEGHRBppVstJdGGCUwmB6DWftlpTzPwU0MSuLpoY0/2C7nEVHjTXNPzIZ+VdGdZ8lve6fqprQ2nFxen75kaQ==
+-        server: AgAmMDJa/7Z/tQ9Z08VhMGCib6b/DpFvZGIiPRO2E5hmT0XYJ32bGHuE+jsZgmj/EBQpsN77ASBWtFQWC7PkYQS5FmA5jM7DWFegD9hTuCd+I+jYKhhE148slG1UZHM1cHzM1Dc1Sd0WQj4tN94Ah8uWZxSE5KrVGf0cMGvreUhxupfhshSoHoPwlznGwEVDUES+W9QqSfR7DMDvS4gcdOuCOsrKM75C1iivbBfdzNkd6YV2Vi5Ju8VbEYveK54gkZ1yj2PDdN7rlKJpt2RuS0DHTSz47M2+KH707i1NIekJSSRz88qWtY06NNQhYDxxTZmuNcGcWAymE5AuMSNjQijywKO8IQhWujBuiXSoTdEL0A5VVuhXP/Zr3IU1iTnwOPbXT+6DJBscd/GVr0hcvAxApI5yf3AyeIys56sN7n5FeHATP1ntTTLgNNktNurcCHAFGgvF+epLdrjJYYmPP/fZq5pH6WWVMyfvefJHtyUHCItRr/EJqLe4zj3VhPRuocpvv2WRMajpNDskwNohr1GsNGE4wqsStagaozYm+3GiG7SbdeZTOlQ5hpM0Fd2OTrUcgOfMkZ/PuaXhCwTNeeSZiPxli4dox0XiXR0GGHXTK9ccNYjIfMbKJjeMq+AkbSDNLedB27cY5DNHbV5wdWNjBR3bjXz8PsZisqvCtZdYZQWTkokei0qozh8qzkv5GS3eoqQ9nW45NNTLrM74pzoTpo5iC6aYcH3cSe3x
+-        config: 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
+-      template:
+-        metadata:
+-          name: cluster-stage
+-          namespace: argocd
+-          labels:
+-            argocd.argoproj.io/secret-type: cluster
+-        type: Opaque
+diff --git a/infra/k8s/cert-manager/values.yaml b/infra/k8s/cert-manager/values.yaml
+deleted file mode 100644
+index 660998ec..00000000
+--- a/infra/k8s/cert-manager/values.yaml
++++ /dev/null
+@@ -1,16 +0,0 @@
+-# cert-manager Helm chart values
+-# https://artifacthub.io/packages/helm/cert-manager/cert-manager
+-
+-# Install CRDs with Helm
+-crds:
+-  enabled: true
+-
+-replicaCount: 1
+-
+-# Enable prometheus metrics
+-prometheus:
+-  enabled: true
+-  servicemonitor:
+-    enabled: true
+-    labels:
+-      release: prometheus
+diff --git a/infra/k8s/headlamp/overlays/production/values.yaml b/infra/k8s/headlamp/overlays/production/values.yaml
+deleted file mode 100644
+index a3570c52..00000000
+--- a/infra/k8s/headlamp/overlays/production/values.yaml
++++ /dev/null
+@@ -1,40 +0,0 @@
+-config:
+-  inClusterContextName: 'production'
+-
+-clusterRoleBinding:
+-  create: true
+-
+-ingress:
+-  enabled: true
+-  ingressClassName: traefik
+-  annotations:
+-    cert-manager.io/cluster-issuer: letsencrypt-dns01
+-    traefik.ingress.kubernetes.io/redirect-entry-point: https
+-  hosts:
+-    - host: k8s.codedang.com
+-      paths:
+-        - path: /
+-          type: Prefix
+-  tls:
+-    - hosts:
+-        - k8s.codedang.com
+-      secretName: headlamp-tls
+-
+-# TODO: Configure OIDC for GitHub OAuth login
+-# config:
+-#   oidc:
+-#     clientID: ""
+-#     clientSecret: ""
+-#     issuerURL: ""
+-#     scopes: ""
+-
+-extraManifests:
+-  - |
+-    apiVersion: v1
+-    kind: Secret
+-    metadata:
+-      name: headlamp-token
+-      namespace: headlamp
+-      annotations:
+-        kubernetes.io/service-account.name: headlamp
+-    type: kubernetes.io/service-account-token
+diff --git a/infra/k8s/headlamp/overlays/stage/values.yaml b/infra/k8s/headlamp/overlays/stage/values.yaml
+deleted file mode 100644
+index 2ce6c39d..00000000
+--- a/infra/k8s/headlamp/overlays/stage/values.yaml
++++ /dev/null
+@@ -1,40 +0,0 @@
+-config:
+-  inClusterContextName: 'stage'
+-
+-clusterRoleBinding:
+-  create: true
+-
+-ingress:
+-  enabled: true
+-  ingressClassName: traefik
+-  annotations:
+-    cert-manager.io/cluster-issuer: letsencrypt-dns01
+-    traefik.ingress.kubernetes.io/redirect-entry-point: https
+-  hosts:
+-    - host: k8s.stage.codedang.com
+-      paths:
+-        - path: /
+-          type: Prefix
+-  tls:
+-    - hosts:
+-        - k8s.stage.codedang.com
+-      secretName: headlamp-tls
+-
+-# TODO: Configure OIDC for GitHub OAuth login
+-# config:
+-#   oidc:
+-#     clientID: ""
+-#     clientSecret: ""
+-#     issuerURL: ""
+-#     scopes: ""
+-
+-extraManifests:
+-  - |
+-    apiVersion: v1
+-    kind: Secret
+-    metadata:
+-      name: headlamp-token
+-      namespace: headlamp
+-      annotations:
+-        kubernetes.io/service-account.name: headlamp
+-    type: kubernetes.io/service-account-token
+diff --git a/infra/k8s/internal/base/admin-user.yaml b/infra/k8s/internal/base/admin-user.yaml
+new file mode 100644
+index 00000000..d3669a20
+--- /dev/null
++++ b/infra/k8s/internal/base/admin-user.yaml
+@@ -0,0 +1,28 @@
++# Admin user for accessing the Kubernetes Dashboard
++apiVersion: v1
++kind: ServiceAccount
++metadata:
++  name: admin-user
++  namespace: kubernetes-dashboard
++---
++apiVersion: rbac.authorization.k8s.io/v1
++kind: ClusterRoleBinding
++metadata:
++  name: admin-user
++roleRef:
++  apiGroup: rbac.authorization.k8s.io
++  kind: ClusterRole
++  name: cluster-admin
++subjects:
++  - kind: ServiceAccount
++    name: admin-user
++    namespace: kubernetes-dashboard
++---
++apiVersion: v1
++kind: Secret
++metadata:
++  name: admin-user-token
++  namespace: kubernetes-dashboard
++  annotations:
++    kubernetes.io/service-account.name: admin-user
++type: kubernetes.io/service-account-token
+diff --git a/infra/k8s/internal/base/dashboard-ingress.yaml b/infra/k8s/internal/base/dashboard-ingress.yaml
+new file mode 100644
+index 00000000..abdb5c11
+--- /dev/null
++++ b/infra/k8s/internal/base/dashboard-ingress.yaml
+@@ -0,0 +1,25 @@
++apiVersion: networking.k8s.io/v1
++kind: Ingress
++metadata:
++  name: dashboard-ingress
++  namespace: kubernetes-dashboard
++  annotations:
++    cert-manager.io/cluster-issuer: letsencrypt-dns01
++    traefik.ingress.kubernetes.io/redirect-entry-point: https
++spec:
++  ingressClassName: traefik
++  tls:
++    - hosts:
++        - k8s.codedang.com
++      secretName: dashboard-tls
++  rules:
++    - host: k8s.codedang.com
++      http:
++        paths:
++          - path: /
++            pathType: Prefix
++            backend:
++              service:
++                name: kubernetes-dashboard
++                port:
++                  number: 80
+diff --git a/infra/k8s/internal/base/kustomization.yaml b/infra/k8s/internal/base/kustomization.yaml
+index 822538a1..6160c1a2 100644
+--- a/infra/k8s/internal/base/kustomization.yaml
++++ b/infra/k8s/internal/base/kustomization.yaml
+@@ -2,8 +2,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
+ kind: Kustomization
+ 
+ resources:
++  - admin-user.yaml
+   - cluster-issuer-dns01.yaml
+   - cluster-issuer-http01.yaml
++  - dashboard-ingress.yaml
+ 
+ commonAnnotations:
+   managed-by: kustomize
+diff --git a/infra/k8s/internal/overlays/stage/kustomization.yaml b/infra/k8s/internal/overlays/stage/kustomization.yaml
+index f0d61544..7b753333 100644
+--- a/infra/k8s/internal/overlays/stage/kustomization.yaml
++++ b/infra/k8s/internal/overlays/stage/kustomization.yaml
+@@ -5,5 +5,17 @@ resources:
+   - ../../base
+   - route53-credentials.yaml
+ 
++patches:
++  - target:
++      kind: Ingress
++      name: dashboard-ingress
++    patch: |-
++      - op: replace
++        path: /spec/tls/0/hosts/0
++        value: k8s.stage.codedang.com
++      - op: replace
++        path: /spec/rules/0/host
++        value: k8s.stage.codedang.com
++
+ commonAnnotations:
+   managed-by: kustomize
+diff --git a/infra/k8s/kubernetes-dashboard/values.yaml b/infra/k8s/kubernetes-dashboard/values.yaml
+deleted file mode 100644
+index ac3b5027..00000000
+--- a/infra/k8s/kubernetes-dashboard/values.yaml
++++ /dev/null
+@@ -1,51 +0,0 @@
+-# kubernetes-dashboard Helm chart values
+-# https://artifacthub.io/packages/helm/k8s-dashboard/kubernetes-dashboard
+-
+-app:
+-  ingress:
+-    enabled: true
+-    ingressClassName: traefik
+-    useDefaultAnnotations: false
+-    pathType: Prefix
+-    path: /
+-    tls:
+-      enabled: true
+-      secretName: kubernetes-dashboard-tls
+-    annotations:
+-      cert-manager.io/cluster-issuer: letsencrypt-dns01
+-      traefik.ingress.kubernetes.io/redirect-entry-point: https
+-
+-  # Session timeout settings
+-  settings:
+-    # 0 = session stays active as long as browser window is open
+-    # Default is 900 (15 minutes)
+-    tokenTTL: 43200 # 12 hours in seconds
+-
+-# Admin user for accessing the dashboard
+-extras:
+-  manifests:
+-    - apiVersion: v1
+-      kind: ServiceAccount
+-      metadata:
+-        name: admin-user
+-        namespace: kubernetes-dashboard
+-    - apiVersion: rbac.authorization.k8s.io/v1
+-      kind: ClusterRoleBinding
+-      metadata:
+-        name: admin-user
+-      roleRef:
+-        apiGroup: rbac.authorization.k8s.io
+-        kind: ClusterRole
+-        name: cluster-admin
+-      subjects:
+-        - kind: ServiceAccount
+-          name: admin-user
+-          namespace: kubernetes-dashboard
+-    - apiVersion: v1
+-      kind: Secret
+-      metadata:
+-        name: admin-user-token
+-        namespace: kubernetes-dashboard
+-        annotations:
+-          kubernetes.io/service-account.name: admin-user
+-      type: kubernetes.io/service-account-token
+diff --git a/infra/k8s/monitoring/loki/values.yaml b/infra/k8s/monitoring/loki/values.yaml
+index 98a66a8b..af23e8b2 100644
+--- a/infra/k8s/monitoring/loki/values.yaml
++++ b/infra/k8s/monitoring/loki/values.yaml
+@@ -14,17 +14,21 @@ loki:
+   ring:
+     kvstore:
+       store: inmemory
++  # TODO: connect minio
++  # could not find way to inject env variables with helm chart
++  # need to reference minio access key and secret
++  # instead, we will use the default minio provided by this chart
+   storage:
+     bucketNames:
+       chunks: loki
+       ruler: loki
+-    type: s3
+-    s3:
+-      endpoint: http://minio.monitoring-minio.svc.cluster.local:80
+-      accessKeyId: ${AWS_ACCESS_KEY_ID}
+-      secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
+-      s3ForcePathStyle: true
+-      insecure: true
++  #   type: s3
++  #   s3:
++  #     endpoint: http://minio.monitoring-minio.svc.cluster.local:9000
++  #     accessKeyId: # TODO: inject from secret
++  #     secretAccessKey: # TODO: inject from secret
++  #     s3ForcePathStyle: true
++  #     insecure: true
+   schemaConfig:
+     configs:
+       - from: 2025-08-15
+@@ -34,35 +38,20 @@ loki:
+         index:
+           prefix: loki_index_
+           period: 24h
+-  distributor:
+-    otlp_config:
+-      default_resource_attributes_as_index_labels:
+-        # these keys will be indexed
+-        ['service.name', 'service.version', 'service.environment']
+-
+-singleBinary:
+-  extraArgs:
+-    - '--config.expand-env=true'
+-  extraEnv:
+-    - name: AWS_ACCESS_KEY_ID
+-      valueFrom:
+-        secretKeyRef:
+-          name: monitoring-user
+-          key: CONSOLE_ACCESS_KEY
+-    - name: AWS_SECRET_ACCESS_KEY
+-      valueFrom:
+-        secretKeyRef:
+-          name: monitoring-user
+-          key: CONSOLE_SECRET_KEY
++  distributor: {otlp_config: {default_resource_attributes_as_index_labels:
++            # these keys will be indexed
++            ['service.name', 'service.version', 'service.environment']}}
+ 
+ gateway:
+   enabled: false
+ 
+-# Disabled - using central monitoring-minio instead
++# default minio by loki chart
++# need to be replaced by custom minio(monitoring-minio) for centralized storage
+ minio:
+-  enabled: false
+-
+-# Fix canary URL bug (trailing dot before port)
+-lokiCanary:
+   enabled: true
+-  lokiurl: loki.monitoring-loki.svc.cluster.local:3100
++  resources:
++    requests:
++      cpu: 200m
++      memory: 256Mi
++  persistence:
++    size: 50Gi
+diff --git a/infra/k8s/monitoring/minio/overlays/production/ingress.yaml b/infra/k8s/monitoring/minio/ingress.yaml
+similarity index 100%
+rename from infra/k8s/monitoring/minio/overlays/production/ingress.yaml
+rename to infra/k8s/monitoring/minio/ingress.yaml
+diff --git a/infra/k8s/monitoring/minio/base/kustomization.yaml b/infra/k8s/monitoring/minio/kustomization.yaml
+similarity index 79%
+rename from infra/k8s/monitoring/minio/base/kustomization.yaml
+rename to infra/k8s/monitoring/minio/kustomization.yaml
+index f77c8e97..1e00c7fe 100644
+--- a/infra/k8s/monitoring/minio/base/kustomization.yaml
++++ b/infra/k8s/monitoring/minio/kustomization.yaml
+@@ -2,7 +2,11 @@
+ # Kustomization has its own ordering logic, so we don't need to worry about the order of resources.
+ apiVersion: kustomize.config.k8s.io/v1beta1
+ kind: Kustomization
++namespace: monitoring-minio
+ 
+ resources:
+   - namespace.yaml
++  - ingress.yaml
++  - tenant-config.yaml
+   - tenant.yaml
++  - users.yaml
+diff --git a/infra/k8s/monitoring/minio/base/namespace.yaml b/infra/k8s/monitoring/minio/namespace.yaml
+similarity index 100%
+rename from infra/k8s/monitoring/minio/base/namespace.yaml
+rename to infra/k8s/monitoring/minio/namespace.yaml
+diff --git a/infra/k8s/monitoring/minio/overlays/production/kustomization.yaml b/infra/k8s/monitoring/minio/overlays/production/kustomization.yaml
+deleted file mode 100644
+index d2bf5d00..00000000
+--- a/infra/k8s/monitoring/minio/overlays/production/kustomization.yaml
++++ /dev/null
+@@ -1,9 +0,0 @@
+-apiVersion: kustomize.config.k8s.io/v1beta1
+-kind: Kustomization
+-namespace: monitoring-minio
+-
+-resources:
+-  - ../../base
+-  - ingress.yaml
+-  - tenant-config.yaml
+-  - users.yaml
+diff --git a/infra/k8s/monitoring/minio/overlays/production/tenant-config.yaml b/infra/k8s/monitoring/minio/overlays/production/tenant-config.yaml
+deleted file mode 100644
+index 69f770e8..00000000
+--- a/infra/k8s/monitoring/minio/overlays/production/tenant-config.yaml
++++ /dev/null
+@@ -1,13 +0,0 @@
+----
+-apiVersion: bitnami.com/v1alpha1
+-kind: SealedSecret
+-metadata:
+-  name: tenant-config
+-  namespace: monitoring-minio
+-spec:
+-  encryptedData:
+-    config.env: AgBJaRC0R9h//5tq6gfMlda1VM/VOom6Oh5un+AaA0zZ847GWyJjEcaiVKdRJTUIsE5IpPznyNgLg/7p54P4H6Jtk6OT4k3sb50xUMuyIjc2kTVNd6rm/R/9IDZ6Hfi5QkJ6Ez+E7Wz7M4/eYjYTjGJVrP3lwLfO8U9MvxPAbMTALP2oARtggcPVP13lPmaPrbocRP1W1WpVfXdNKzjYVMyOgIIJt3ziKOLAGumsdtMf54l/2pczCkyHqpJOlk1P7Y+ZOdO69Q9lNqHxchB0YEE9DezSjH0Te3YT7j+Y2NpZjuAOjsiXAAhV7TKzqsTKBWFAbHMrpOb4cGFcdr8AYRU63/K0pwN5/LcrFWC024VkyU+DKXO8xRIg88rHki6VIvVoYPBszflAEIbcnLhyB3AJv3N85RJZbQLhj8JeWJQcD4fA2s+9cXNzJh6/KPlLBrWMTkvs0a89CBR/mRWUVi8xR99ULOynCAK8RQsfJVPosQQxDWiroKEfyxa5ye2Sawi0zqKdPlznVzTFOaymfeX30eqUlz/PY3bu/0aMTrEl7Z7hQXH6IFwJ8/Jt3Mn/pdL5TD5OfjN8Bnmb3y4jld4Jo3OOzK0csBRmKR5qJKlqwenrphx2SP68p6nnl62soCihL4rfodyN/aU33MqMYEYsccYViy3Kkzei5n+uiS14tB+piocPItFBwFYq2Sita6atGSRY4RpmhiIxfnLjryM4qFIOWQeCJyRZnY4m5Ht5rQCw8hiQiRS/YfV3R7hnjBhriiaJMMHuohhK+Gd08GCTYNlZj6LLv49zYIDRLiPd0YK3U2gQb51UFQY+MzHRiba2tleAE08OnNYca2G7UZxByr7MoDAGFescbOEzDY5PeVfTE1QcHDrSXTpF/7PMeVPTdi4=
+-  template:
+-    metadata:
+-      name: tenant-config
+-      namespace: monitoring-minio
+diff --git a/infra/k8s/monitoring/minio/overlays/production/users.yaml b/infra/k8s/monitoring/minio/overlays/production/users.yaml
+deleted file mode 100644
+index fb8c9d00..00000000
+--- a/infra/k8s/monitoring/minio/overlays/production/users.yaml
++++ /dev/null
+@@ -1,20 +0,0 @@
+----
+-apiVersion: bitnami.com/v1alpha1
+-kind: SealedSecret
+-metadata:
+-  name: monitoring-user
+-  namespace: monitoring-minio
+-spec:
+-  encryptedData:
+-    CONSOLE_ACCESS_KEY: AgBuQAYzX68i4MPy2m07YBFpahkV6rE4gZtj8luwhSAcNnPf4Ds0I74XmXm2w7fpvdljdftzg/2qoj79ksSolTWSqg/j3upXuk7Unq11KLTNVHSoszJwdJdk6JNi6BBXH6Hf1BCpRaxj+gFQFHAndGs9rVpMgm6ZkNk2dowdanR117cqgpbc/1QMRHEa89vyEyz/ZltSPAhK8/v3FiKvOfOM334tChSVaptDYbDfk3jEMYyktM43YLfAKYg7uZIqXr4DkaZSkbXrBfo+/4seSLHc2bCvcP2HGTUd0qGko+Y+tR6Sg4M5xVjXntveElPhq9DeRJmhxrQz//bGwKkA4cm6n4hdJ1Mq9IAPQLHsGFvJ07mmejUu8rn47ckCcJWTjQOC+KHBdFOOYyYgD0v0Zx+liik/lI1RX6PW8Rba2nSP39qMj/fo7DNX23/3NhsqXcNrjRak8ckO5YWbKCPzLdzZXb8rrcBJrQNq2dxdDXIYAdTf3/NysLF2Ar9EisO5c40nsiYcTZrnB49qIQTb6WKydGNpKLNzwtYPiXpEV5h9YZzJOl8mrpjX1wRnfHEG1nf+JM43gGK2ph2/Eyrkl8c6y+CTBoKosfCcq9b1EAuXFCgW83uXcAOv0iYtHEXmjHTROtU+05+o/Xq4FInb7m6RlUFFxks0CapCSa+XQYI2+vk8i63Q+iWIfIk77gg+Mxlj2d1afU0nsVfsw8TG491+esDjUkNYpjmcUWhuAEJjlg==
+-    CONSOLE_SECRET_KEY: AgBapcWkGYrG4MZWihPB2NhoGqTos4A5rycbhkReeFEfXusZv3U9JCunSenCLSwiBoIvLpvjggpjvrzKIX7dFrcaLTvEiC/MxmMnTf0GGjDg3unNn1l9ohy7mwB8JkERbSLHweLBAzegX2TcIh6uOdI0U31Qgol8rp9pD7tPUQbB8/SKf5W/FiCD/r9RmJLzXxSyPwLhnnUIA170yr8r3xSE+WDDMTB3Dk2vjcLB3i7TawzUs/pKMDSrU1cfqJa043LJBYo4nPBn3/niY3C25gkXfQjjbOWqwduZLkBhVpP/JPN7DamjOTsmfdMwDnf5GX6CQST6rtSUXlYjavO0moKxmvhmnQkzqeyM18b/XgM4vgaArZ3ipXKkF6SZ74V6rD5lDACvOXrDJs4wqyLXT4eCCRK5+C2iHEXg93QUUpDqUvft1Iec2bw6f3s1PGkc1BvlvDhXmHwVYl0xFYdmjG+1zKgOHwSVtt5OL6pE8hQGsDxq7ucaI25WVE9jDs8gJ+epkO/kWJeD5D7H08TN6OX++/yHcOCtC1UNVQIrusGVUhG/EXIJCfmtSkyC3wX91fAd6AOTE191u0aOij5UJxsXU9d8g5u9hEyr0wcomgSVL1L2nnkcivW82IbgxhgJT5bsBY56gOt2ZwS4I7O4paSO6J1liX/GMVE0vsqMqd0CpBdvcEm2naUFK4jhzM+PyfGuCgBdhWhQ2u0WBaGGkawYNnk3xCbmElLZqz+3Iqjgh8tZrTj5grSdjBhFhEH0gin4irTSCGhU3MxIK64pYlxL
+-  template:
+-    metadata:
+-      name: monitoring-user
+-      namespace: monitoring-minio
+-      annotations:
+-        reflector.v1.k8s.emberstack.com/reflection-allowed: 'true'
+-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: 'monitoring-loki,monitoring-tempo'
+-        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: 'true'
+-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: 'monitoring-loki,monitoring-tempo'
+-    type: Opaque
+diff --git a/infra/k8s/monitoring/minio/overlays/stage/kustomization.yaml b/infra/k8s/monitoring/minio/overlays/stage/kustomization.yaml
+deleted file mode 100644
+index 038f8d75..00000000
+--- a/infra/k8s/monitoring/minio/overlays/stage/kustomization.yaml
++++ /dev/null
+@@ -1,8 +0,0 @@
+-apiVersion: kustomize.config.k8s.io/v1beta1
+-kind: Kustomization
+-namespace: monitoring-minio
+-
+-resources:
+-  - ../../base
+-  - tenant-config.yaml
+-  - users.yaml
+diff --git a/infra/k8s/monitoring/minio/overlays/stage/tenant-config.yaml b/infra/k8s/monitoring/minio/overlays/stage/tenant-config.yaml
+deleted file mode 100644
+index 98e4926d..00000000
+--- a/infra/k8s/monitoring/minio/overlays/stage/tenant-config.yaml
++++ /dev/null
+@@ -1,13 +0,0 @@
+----
+-apiVersion: bitnami.com/v1alpha1
+-kind: SealedSecret
+-metadata:
+-  name: tenant-config
+-  namespace: monitoring-minio
+-spec:
+-  encryptedData:
+-    config.env: AgBaatLnrguSZuZDWQvFwG9xRN9pctjStTsq/5Oxt5Ppgb0Iwl5W5lZ6pcM3N3ktaaqcYdxlrSkm/u5u9r45YcZfzWxi4XeOeA2ZuqP2EjQeYW30IXqLjvRmzpwtAO5873rLx8wVcZd5+wRsiCuN5K1hIIJzQHGBTRNhQiTwK0/NY0qheW5g3x2JIwcjdXBdsrfIPKXrUVOhHJCCuyTiC1YlT05c/02nX47OOCXqG53UJXuR40wScnMaZGFJgGINHDeWYqmgq+d9dljmCeGK37cDRVxXB+DmcRPQlj8A8z4Ec31lS195Cpqs1cSDzsi0CjyGLfNwF9KWhIydIhvb24DmklCxpJO5mBXWNPvD1h3fWA9K8HAY0Tyi4Sl0NRhoPBTOZwMZbHLVkS+V0A4+QYxe+frtdnrsixVhisnRg1MyiB8ZAd0FBwaLaTFG+0LC8tbnvfoUBR9TgAe5e0aQj2led6WGypF6YHmJRIw6Br9WdgcCpdGIoH6iAxx0h2QAhUoKmRLyi2RF2X3zvg70iDh5FhXMKEG4nBtQI3KX9zdgJ89XQ6vn7my2w8aSdIlTH617pwXoMtfAQFlVBXru+p2Az0vJ7z8NUIzYujrU2ijNlUqhJPQO1SIgixHAQq6/G5YMyjCvuexMaYe4gcRaAcH0V04NkeuJV5KVlJ1B458wdq1danDgWCUB8FKhm1FTkgWtLKAvcPGN8XlOPg5izD7DPVrLsnuulsGwgtc3PSf2LNgRImEodvXrCyWfvZ2NwB+a5KaauxGuPZwkEw/bHC9wYZigvRlMD3ztUy6zC7PXQIhPcv+S4F5bAErSunqPti71JlxuT2efS/8D+3qA3fv49JmnjxDuXh3IS5XN8JAbh+Gw/OsctPy86SVv3nVZMVNsA7U=
+-  template:
+-    metadata:
+-      name: tenant-config
+-      namespace: monitoring-minio
+diff --git a/infra/k8s/monitoring/minio/overlays/stage/users.yaml b/infra/k8s/monitoring/minio/overlays/stage/users.yaml
+deleted file mode 100644
+index b80cd8ca..00000000
+--- a/infra/k8s/monitoring/minio/overlays/stage/users.yaml
++++ /dev/null
+@@ -1,20 +0,0 @@
+----
+-apiVersion: bitnami.com/v1alpha1
+-kind: SealedSecret
+-metadata:
+-  name: monitoring-user
+-  namespace: monitoring-minio
+-spec:
+-  encryptedData:
+-    CONSOLE_ACCESS_KEY: AgDGGSFpD/7eZqRfLw98ZDGm8oACXeCjnTx/OEMFPbi7FTfmOOOa5dA2HLl/aRZ94LBsK0LBpps9BWfGY/XxaOKO3SCzItBtIAXWpG8Na3veIKZ8yfq95kAzmMAOtHop2F2VwVzAXjQqJt11f5CuMm9zwYCGqsyi4j5a+mcKBr7pnvLUIIs2kOiVuwBw03padwkG8JM/AEXb8U7lIOAABdX8R5szvfAPtqziIrZalkPDEbZ0O7b0K3zqz5FZj80xDTVvB7upQJVKihHalj7HjfEIROpW8svHuiN7IiTmHLLJoeKpGz9OEU82CBydh4PP/dJroV3L8RVlai5KZUfMGGnMXDvKkoSYMdmaW2WihDtFlI0OQ/SCupG1D7SnAU6FY8WjngnIQee3WfyESUojAPFPGIYNlGrJpNG5DANvHt+lLkL77v2efdTnnFO+/WhNAsFEvecwxxLxELsIDxJb2d2XChZCeLPnEbBmAsql7UGcV9PYtIUqbfjjwzOiP5vxh6MO84WG0oA06sujTHeFLfm3xIh3MZnneUZdY+PNexkiSTo6thpp4v67i1VcFh4yXoqeRgVRNGsYwla3Yxrc+NcygQURQ+ZI+d1hi8l089bI2vsI4X5Yd8tCbNghwADFgKTExF7XTfn3yXT0sjfM/Tv/QkR22IBcOi6aZ8aB+GUtNjEVRweL9FGD1YFV7VoVgiYXNnoo8qbKZ92DJuwizz0xPjD2+tfOSRVmYZv+21V3Sw==
+-    CONSOLE_SECRET_KEY: AgBRXUyUNvGlGMb8JjAoEvwOOHsZr6PJkVD0gajHU0wS5NB/wkUQyIy7q+IOIVNqg6GhT+t/9x+0/hd0P7+oojNBXjovOfPXNP0lvvgjZ+hb2GlRVCvMtkyQjYeODs3fnK1KAjcIJvhsCt+8coAka4HxpmmRlEh1gyhy/cm2wzjNXbDyBkZ0+1lPXJBZ23VaBlkgR7nOSEQRHtn2FhZebz0bJGglU3Z7MAmDcj0C9HsnNr5xHWcBnOwynGBppgnU351l4S7EDJyAXQkI7dOJpkr6wQWW69naVH/O2JE81ZQaGX5xg3o01+bLyijoyA1CfURA0r/ID2dtKp14ehDEO+tWpe8btF7jUAiS9LsKobj8MmW4/2+hrwRdw/9WAKtZIxJGrSN8J67BlQP7RxMl/iadOhpVLlk1q3ZNhCfozzQXETpRLyMQEOj1g1RUnRh4wDqqjIXBqL+E8gNDeLu1y49esS8U4Klb5frxRHNeLjoSyMnqOTq2dg//WNe6EKVin5FHqgqVU/02yiJ53vOBduzdDMQc9R531ivWsXq4PjLJ6xUOGGT4qfFtitBoBlz6HoRN8BkaPh2ZLAlz28jnhS2Awc0F+QQ9PsBcdaee8cvo7NW3Q/lMrfz41s1X6HIuDW13ohJNk7yZ4t2IZMZjm1L29EI9MtCoVIn0IwHIuhcdMVnKm17Q6Fc23MeWkp+yaC7dNjp1ZYhCMfAbBwTSH9bkVKYmjHrNJeEzx57/mXfkRaM6jKARQeucGHhMyf/XCiRNS/EPJ8O+5Cp21Bo+Ryay
+-  template:
+-    metadata:
+-      name: monitoring-user
+-      namespace: monitoring-minio
+-      annotations:
+-        reflector.v1.k8s.emberstack.com/reflection-allowed: 'true'
+-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: 'monitoring-loki,monitoring-tempo'
+-        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: 'true'
+-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: 'monitoring-loki,monitoring-tempo'
+-    type: Opaque
+diff --git a/infra/k8s/monitoring/minio/tenant-config.yaml b/infra/k8s/monitoring/minio/tenant-config.yaml
+new file mode 100644
+index 00000000..fa18af10
+--- /dev/null
++++ b/infra/k8s/monitoring/minio/tenant-config.yaml
+@@ -0,0 +1,16 @@
++---
++apiVersion: bitnami.com/v1alpha1
++kind: SealedSecret
++metadata:
++  creationTimestamp: null
++  name: tenant-config
++  namespace: monitoring-minio
++spec:
++  encryptedData:
++    config.env: AgCpTMQZB2ZqAntULu8wz68odFbYjk1CMN3i/IGkJqEbkdD51teXtCVIfe03Pr9kL61eSw0hOk5RXLetgYsCmXWadN41xCZ1hJS1ozOe4JYHTPo54ExUgYKdiFes8wQow8x6F4pfgL5WypPHtpV41CiyCovolFX7eKbv93LjOtNZ4R/KUCPxOhxO5HuZnx/ooccgo3Z0HEjFkcH0MWgGrm2MAlajEkBDCKDOSfSGL9LJb519TrORDl3Ec6Ducd0vvOk07OqkN2sP7oEkxJcHJMIhRjnRfgUL4UCB/yXnJ6qsgeycjhx1WMkyVvItZ2dURzbqBOhRgM8Wj/m7raZufG/Wl64v/6Zl2NvmE33hhAHpmHrbx/AFTf0MOOeMkI/EnliabucMlXBGQv8PklalVNu3DPDK3aCA9bf8z6oMs9L/AXUfEmzplhhwku9MmbANsuHXkkJo/efuZKHDVmmixI7Gz1IghmofUkWorvO2Y3rU/Hh70fjV2zxJ30hL0g1tVJFmhvP94zgJhsnoT4FuU73p/4i5D0oDbxnl0YZ6x6/SUqXxvDS7RuyL5evnpnipBlCJHZvdRzBcriyNSLCNDrnMfV+jURsJIuHjguc/427Eiah41wwwac2nhGphYQh2a65RCje/ngLwmHFiMm/EmOWD+sn4S0mhQqeLam98Ndl/eAZBlJ51TG1rRm3iePGJszFclegfUXDlvHj3x2omMnHf/+UvgHXuTpV+iFS0EEFtIwcqodo0/brdwdZ2wkYiFIoPTM53pHvgFSCeUc/8+RND7vQl5GmUvd9YinREslFzdQ==
++  template:
++    metadata:
++      creationTimestamp: null
++      name: tenant-config
++      namespace: monitoring-minio
++    type: Opaque
+diff --git a/infra/k8s/monitoring/minio/base/tenant.yaml b/infra/k8s/monitoring/minio/tenant.yaml
+similarity index 92%
+rename from infra/k8s/monitoring/minio/base/tenant.yaml
+rename to infra/k8s/monitoring/minio/tenant.yaml
+index a7359a04..b56b551d 100644
+--- a/infra/k8s/monitoring/minio/base/tenant.yaml
++++ b/infra/k8s/monitoring/minio/tenant.yaml
+@@ -9,7 +9,7 @@ metadata:
+     app: minio
+ spec:
+   features:
+-    bucketDNS: false # use path-style access to be compatible with Loki/Tempo S3 config
++    bucketDNS: true
+   users:
+     - name: monitoring-user
+   buckets:
+diff --git a/infra/k8s/monitoring/minio/users.yaml b/infra/k8s/monitoring/minio/users.yaml
+new file mode 100644
+index 00000000..2c9037f0
+--- /dev/null
++++ b/infra/k8s/monitoring/minio/users.yaml
+@@ -0,0 +1,17 @@
++---
++apiVersion: bitnami.com/v1alpha1
++kind: SealedSecret
++metadata:
++  creationTimestamp: null
++  name: monitoring-user
++  namespace: monitoring-minio
++spec:
++  encryptedData:
++    CONSOLE_ACCESS_KEY: AgAN9KxkAJg3dirr9fOJpdEFUMa6k337kekqNg8P8+XboPG3fSY1QKdy4FgB3dXc2GoEdSf5KAunmblwH7lShs6S4jyByKLkp8Fh4I2w70tJpo3zpcRVcBmXq03K5etQDGBA9iEGqYxWnum8S/4rvvmh39iwXI/7plWrYPUNSre/QwIZmXZpUYV2nsCBMIHTDo3X3mljEZizQW2qtYPZYTAwyF7KPMqNIAe6r/gQYJGwnZ+LxoUGRiCGI2FNnlTa8WjqKqtih+RSKj7zJ+h34wRZR+2+r/D4YYMxwwQqncgJ/UN1aK/eaq2zxhTuukwe82B3h4wgsALip0hxbDEB+vg91Pb2BYVaXOBYHXYdGCYQNQQcLjEnaFGaI9ixLD1j1D4nXAgyEKgBZ7OgKtKOupPLMZWmV9zYO+O9u6ywd0pEINLhHW2LppNqhGwD+IX6/yrrnUqMa1hJ4b5ZTLCFYsfIJ32yYa8ILcR9XhKnh476ayyYSZVXYMpZwdoW0v7y2srB7xMWqqFbDTILhLB+t4uLT/tMiHZZmSlfhAv7Au2L1icMBGc9GXiZNhzV3SIXWSV6T3r4dAPbvXSs9W4LcqHIJJ94UuQeThHMGQ7CpwIujcbr1hBDq+3i6KfKEeVUKQUJ64fYMwdL/WRQhsJ2Po+f8T6OY0p4nVMKBx5CCSC9hyZe+kuUj6b1SEAJTgtRxM7qoHany4PFvJSG
++    CONSOLE_SECRET_KEY: AgCCUn5bbnpX4Pk1LBphX88LTIfaFgpa95HvzZDt2iCA/G0H1vOL9Fn696Z1IMCtRejf+gjQUmvnl14vDf/Md9YgjrO6gd4upRuzF4yyglH5hkKyJ+V5YWDzkyoNf2Cfc/66NMutMeayORGw2+pT4sLX1DjtBR7+Z0KsKyPZY/Olc+g580W2X9i6nAo4eJ3E8FSau4yAlcfru7GdXJ7tLO1diW0h14tjRsZ3xRbXoVV5ylciwjp9/yA+8WtjCOCkODKg5OR6ypm0u4qXskwJN8h0vmh7hmmfYUs/y/llqo97ct6lUbOJStFTX/5cu140E9pC6bS9i48EqRT3cfdFO/dp9EKsOwbeg54QPO4kTn046yhKsSudPrQg7MqgAlnKMS4jBaoWcII07DHa/CW3uYW6/rc4Bi/+f+wmMcfSYpNL4ETQgiuohy2nXg3iK5FvjxXHxXyDyp/WALWw7yQwr6JVvwKjOArNg9SF9BjA1Wx1Q496CFloNPZjceMb9h9EJOZV+8oZyimpSio6Bo8c4nBjtpfx1neIVf7RMSNuWbJWvh/TnoQQ9xyYY43rNEmvJgao3b4KlodVpMjY+hSepJu5J3eD6qQNAMyT4QRmbnXB32lJhwBQBE7KdNE8JU5uuTn9atuGfDjtsXmr5dVa8GhrdxfCXxsn38BGf9//PtIq+b5W+xqvIndwcNgdza0j0q4ORXQN3OwNAsIoGyU=
++  template:
++    metadata:
++      creationTimestamp: null
++      name: monitoring-user
++      namespace: monitoring-minio
++    type: Opaque
+diff --git a/infra/k8s/monitoring/tempo/values.yaml b/infra/k8s/monitoring/tempo/values.yaml
+index 9d6193f7..825dfb8b 100644
+--- a/infra/k8s/monitoring/tempo/values.yaml
++++ b/infra/k8s/monitoring/tempo/values.yaml
+@@ -4,32 +4,7 @@ traces:
+       enabled: true
+ 
+ tempo:
+-  extraArgs:
+-    config.expand-env: 'true'
+-  extraEnv:
+-    - name: AWS_ACCESS_KEY_ID
+-      valueFrom:
+-        secretKeyRef:
+-          name: monitoring-user
+-          key: CONSOLE_ACCESS_KEY
+-    - name: AWS_SECRET_ACCESS_KEY
+-      valueFrom:
+-        secretKeyRef:
+-          name: monitoring-user
+-          key: CONSOLE_SECRET_KEY
+   retention: 2160h # 90 days
+-  storage:
+-    trace:
+-      backend: s3
+-      s3:
+-        bucket: tempo
+-        endpoint: minio.monitoring-minio.svc.cluster.local:80
+-        access_key: ${AWS_ACCESS_KEY_ID}
+-        secret_key: ${AWS_SECRET_ACCESS_KEY}
+-        insecure: true
+-        forcepathstyle: true
+-      wal:
+-        path: /var/tempo/wal
+   structuredConfig:
+     ingester:
+       max_block_bytes: 104857600

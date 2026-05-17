@@ -1,0 +1,45 @@
+meta {
+  name: Get Group Comments
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query ($groupId: Int!, $take: Int) {
+    getGroupComments(groupId: $groupId, take: $take) {
+      id
+      content
+      isSecret
+      isDeleted
+      createdBy {
+        username
+      }
+      children {
+        id
+        content
+        createdBy {
+          username
+        }
+      }
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "take": 10
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.getGroupComments: isDefined
+}

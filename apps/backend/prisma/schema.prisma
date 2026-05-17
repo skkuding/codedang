@@ -4,6 +4,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearchPostgres"]
+  binaryTargets   = ["native", "linux-arm64-openssl-1.1.x"]
 }
 
 generator graphql {

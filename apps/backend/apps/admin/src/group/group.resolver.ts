@@ -5,7 +5,8 @@ import {
   GroupType,
   UserGroup,
   CourseQnA,
-  CourseQnAComment
+  CourseQnAComment,
+  GroupComment
 } from '@generated'
 import {
   AuthenticatedRequest,
@@ -18,13 +19,18 @@ import {
   InvitationService,
   WhitelistService,
   CourseNoticeService,
-  CourseService
+  CourseService,
+  GroupCommentService
 } from './group.service'
 import {
   CreateCourseNoticeInput,
   UpdateCourseNoticeInput
 } from './model/course-notice.input'
 import { UpdateCourseQnAInput } from './model/course-qna.input'
+import {
+  CreateGroupCommentInput,
+  UpdateGroupCommentInput
+} from './model/group-comment.input'
 import { CourseInput, CreateGroupInput } from './model/group.input'
 import { DuplicateCourse, FindGroup } from './model/group.output'
 
@@ -304,5 +310,55 @@ export class CourseResolver {
       commentOrder,
       content
     )
+  }
+}
+
+@Resolver(() => GroupComment)
+@UseGroupLeaderGuard()
+export class GroupCommentResolver {
+  constructor(private readonly groupCommentService: GroupCommentService) {}
+
+  @Query(() => [GroupComment])
+  async getGroupComments(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null,
+    @Args('take', { defaultValue: 10, type: () => Int }) take: number
+  ) {
+    return await this.groupCommentService.getGroupComments(
+      groupId,
+      cursor,
+      take
+    )
+  }
+
+  @Mutation(() => GroupComment)
+  async createGroupComment(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Context('req') req: AuthenticatedRequest,
+    @Args('input') input: CreateGroupCommentInput
+  ) {
+    // Ensure groupId in input matches the path variable
+    if (input.groupId !== groupId) {
+      input.groupId = groupId
+    }
+    return await this.groupCommentService.createGroupComment(req.user.id, input)
+  }
+
+  @Mutation(() => GroupComment)
+  async updateGroupComment(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('commentId', { type: () => Int }, IDValidationPipe) commentId: number,
+    @Args('input') input: UpdateGroupCommentInput
+  ) {
+    return await this.groupCommentService.updateGroupComment(commentId, input)
+  }
+
+  @Mutation(() => GroupComment)
+  async deleteGroupComment(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('commentId', { type: () => Int }, IDValidationPipe) commentId: number
+  ) {
+    return await this.groupCommentService.deleteGroupComment(commentId)
   }
 }

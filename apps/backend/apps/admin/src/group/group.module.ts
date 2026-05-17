@@ -5,14 +5,16 @@ import {
   GroupResolver,
   InvitationResolver,
   WhitelistResolver,
-  CourseResolver
+  CourseResolver,
+  GroupCommentResolver
 } from './group.resolver'
 import {
   CourseNoticeService,
   GroupService,
   InvitationService,
   WhitelistService,
-  CourseService
+  CourseService,
+  GroupCommentService
 } from './group.service'
 
 @Module({
@@ -27,7 +29,9 @@ import {
     WhitelistResolver,
     WhitelistService,
     CourseResolver,
-    CourseService
+    CourseService,
+    GroupCommentResolver,
+    GroupCommentService
   ],
   exports: [
     GroupService,

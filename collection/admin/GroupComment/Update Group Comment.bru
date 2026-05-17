@@ -1,0 +1,38 @@
+meta {
+  name: Update Group Comment
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ($groupId: Int!, $commentId: Int!, $input: UpdateGroupCommentInput!) {
+    updateGroupComment(groupId: $groupId, commentId: $commentId, input: $input) {
+      id
+      content
+      isSecret
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "commentId": 1,
+    "input": {
+      "content": "Updated comment content",
+      "isSecret": true
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.updateGroupComment: isDefined
+}
