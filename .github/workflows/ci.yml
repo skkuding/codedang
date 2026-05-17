@@ -107,6 +107,7 @@ jobs:
               - 'infra/k8s/**'
             infra_terraform:
               - *ci_workflow_path
+              - '.tflint.hcl'
               - 'infra/aws/**/*.tf'
 
   # ===========================================================================
@@ -521,8 +522,8 @@ jobs:
           find infra/aws -name '*.tf' -printf '%h\n' | sort -u |
             while read -r dir; do
               echo "Linting ${dir}"
-              tflint --chdir="$dir" --init
-              tflint --chdir="$dir"
+              tflint --chdir="$dir" --config "$GITHUB_WORKSPACE/.tflint.hcl" --init
+              tflint --chdir="$dir" --config "$GITHUB_WORKSPACE/.tflint.hcl"
             done
 
   check-ssh-public-keys:
