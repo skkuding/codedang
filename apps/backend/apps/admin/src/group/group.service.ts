@@ -1105,7 +1105,8 @@ export class GroupCommentService {
       ...paginator,
       take,
       where: {
-        groupId
+        groupId,
+        parentCommentId: null
         // admin API: Returns all comments including deleted ones or handles it by UI.
         // Usually, we might want to return everything to the host.
       },
