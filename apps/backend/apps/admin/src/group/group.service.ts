@@ -1139,7 +1139,7 @@ export class GroupCommentService {
       const parentComment = await this.prisma.groupComment.findUnique({
         where: { id: parentCommentId }
       })
-      if (!parentComment) {
+      if (!parentComment || parentComment.groupId !== groupId) {
         throw new EntityNotExistException('ParentGroupComment')
       }
     }
