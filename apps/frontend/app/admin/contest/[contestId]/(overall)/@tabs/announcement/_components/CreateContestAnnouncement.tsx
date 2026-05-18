@@ -7,8 +7,7 @@ import { Textarea } from '@/components/shadcn/textarea'
 import { CREATE_CONTEST_ANNOUNCEMENT } from '@/graphql/contest/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { cn } from '@/libs/utils'
-import checkBoxGrayIcon from '@/public/icons/checkbox_gray.svg'
-import checkBoxWhiteIcon from '@/public/icons/checkbox_white.svg'
+import CheckBoxIcon from '@/public/icons/check-box.svg'
 import infoBlueIcon from '@/public/icons/icon-info-blue.svg'
 import { useQuery, useMutation } from '@apollo/client'
 import type { CreateAnnouncementInput } from '@generated/graphql'
@@ -138,9 +137,9 @@ export function CreateContestAnnouncement({
           className={`mb-[100px] h-[46px] w-full rounded-[1000px] border px-[22px] pb-[11px] pt-[10px] text-lg font-medium leading-[25.2px] tracking-[-0.54px] ${txtlength > 0 ? 'bg-primary text-white' : 'bg-color-neutral-95 text-color-neutral-70'}`}
         >
           {txtlength > 0 ? (
-            <Image src={checkBoxWhiteIcon} alt="checkbox-white" width={20} />
+            <CheckBoxIcon className="h-5 w-5 text-white" />
           ) : (
-            <Image src={checkBoxGrayIcon} alt="checkbox-gray" width={20} />
+            <CheckBoxIcon className="text-color-neutral-80 h-5 w-5" />
           )}
           <span className="ml-[6px]">Post</span>
         </Button>

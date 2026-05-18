@@ -311,7 +311,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               className="text-md flex h-9 w-[76px] items-center gap-1 rounded-[4px] border border-blue-500 bg-blue-500 py-[7px] pl-3 pr-[14px] font-normal disabled:opacity-60"
             >
               <span className="flex h-4 w-4 items-center justify-center">
-                <Image src={CheckboxIcon} alt="test" width={16} height={16} />
+                <CheckboxIcon className="h-4 w-4 text-white" />
               </span>
               <span className="translate-y-[0.5px] leading-none">
                 {isTesting ? 'Testing...' : 'Test'}
