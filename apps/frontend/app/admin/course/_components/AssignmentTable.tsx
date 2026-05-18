@@ -46,7 +46,7 @@ export function AssignmentTable({
     >
       <div className="flex h-[46px] w-full items-center justify-start gap-[10px]">
         <div className="min-w-0 flex-1">
-          <DataTableSearchBar columndId="title" size="lg" />
+          <DataTableSearchBar columndId="title" sizeVariant="lg" />
         </div>
 
         <div className="flex shrink-0 items-center gap-[10px]">
