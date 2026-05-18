@@ -273,9 +273,7 @@ export function Dashboard() {
   return (
     <section className="mx-auto max-w-[1208px]">
       <div className="pb-4 sm:pb-[30px]">
-        <h2 className="text-2xl font-semibold leading-9 tracking-[-0.9px] md:text-[28px]">
-          나의 대시보드
-        </h2>
+        <h2 className="text-head5_sb_24 md:text-head3_sb_28">나의 대시보드</h2>
       </div>
 
       <div className="grid grid-cols-1 gap-[14px] md:grid md:grid-cols-2 lg:grid-cols-3">

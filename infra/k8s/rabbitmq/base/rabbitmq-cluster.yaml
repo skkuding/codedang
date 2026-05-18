@@ -3,3 +3,15 @@ kind: RabbitmqCluster
 metadata:
   name: rabbitmq
   namespace: rabbitmq
+spec:
+  tls:
+    secretName: rabbitmq-server-certs
+    disableNonTLSListeners: true
+  rabbitmq:
+    additionalPlugins:
+      - rabbitmq_prometheus
+    additionalConfig: |
+      management.ssl.port = 15671
+      management.ssl.certfile = /etc/rabbitmq-tls/tls.crt
+      management.ssl.keyfile = /etc/rabbitmq-tls/tls.key
+      management.ssl.cacertfile = /etc/rabbitmq-tls/ca.crt

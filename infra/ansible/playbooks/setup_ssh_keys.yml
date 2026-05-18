@@ -1,0 +1,79 @@
+# Run with --ask-become-pass if passwordless sudo is not configured on target hosts.
+- name: Setup SSH public key authentication
+  hosts: all
+  become: true
+
+  vars:
+    ssh_user: skkuding
+    pubkey_dir: '{{ playbook_dir }}/../ssh_publickey'
+
+  tasks:
+    - name: Find all public keys recursively
+      ansible.builtin.find:
+        paths: '{{ pubkey_dir }}'
+        patterns: '*.pub'
+        recurse: true
+      delegate_to: localhost
+      become: false
+      register: pubkeys
+
+    - name: Ensure .ssh directory exists
+      ansible.builtin.file:
+        path: '/home/{{ ssh_user }}/.ssh'
+        state: directory
+        mode: '0700'
+        owner: '{{ ssh_user }}'
+        group: '{{ ssh_user }}'
+
+    - name: Read public key file contents
+      ansible.builtin.slurp:
+        src: '{{ item.path }}'
+      delegate_to: localhost
+      become: false
+      loop: '{{ pubkeys.files }}'
+      register: pubkey_file_contents
+
+    - name: Sync authorized_keys (add new, remove deleted)
+      ansible.posix.authorized_key:
+        user: '{{ ssh_user }}'
+        key: "{{ pubkey_file_contents.results | map(attribute='content') | map('b64decode') | list | join('\n') }}"
+        state: present
+        exclusive: true
+
+    - name: Set SSH port
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?Port'
+        line: 'Port {{ ansible_port }}'
+        state: present
+      notify: Restart sshd
+
+    - name: Configure public key authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PubkeyAuthentication'
+        line: 'PubkeyAuthentication yes'
+        state: present
+      notify: Restart sshd
+
+    - name: Configure password authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: "PasswordAuthentication {{ 'yes' if ssh_password_authentication | default(false) | bool else 'no' }}"
+        state: present
+      notify: Restart sshd
+
+    - name: Configure required authentication methods
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?AuthenticationMethods'
+        line: 'AuthenticationMethods {{ ssh_authentication_methods | default("publickey") }}'
+        state: present
+      notify: Restart sshd
+
+  handlers:
+    - name: Restart sshd
+      ansible.builtin.service:
+        name: "{{ 'ssh' if ansible_facts['os_family'] == 'Debian' else 'sshd' }}"
+        state: restarted

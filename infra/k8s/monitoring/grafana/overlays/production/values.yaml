@@ -4,6 +4,7 @@
 envFromSecrets:
   - name: grafana-github-oauth
   - name: grafana-aws-cloudwatch
+  - name: discord-webhook
 
 replicas: 1
 autoscaling:
@@ -133,6 +134,13 @@ dashboards:
       revision: 2
       datasource:
         - name: DS__VICTORIAMETRICS-PROD-ALL
+          value: Prometheus
+    # RabbitMQ Overview - https://grafana.com/grafana/dashboards/10991
+    rabbitmq-overview:
+      gnetId: 10991
+      revision: 12
+      datasource:
+        - name: DS_PROMETHEUS
           value: Prometheus
   # ── AWS CloudWatch (monitoringartist) ─────────
   aws-dashboards:

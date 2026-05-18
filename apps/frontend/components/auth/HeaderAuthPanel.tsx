@@ -177,7 +177,10 @@ export function HeaderAuthPanel({
           </Dialog>
         </>
       ) : (
-        <Dialog open={currentModal !== ''} onOpenChange={hideModal}>
+        <Dialog
+          open={currentModal !== ''}
+          onOpenChange={(open) => !open && hideModal()}
+        >
           <DialogTrigger asChild>
             <Button
               onClick={() => showSignIn()}
@@ -189,19 +192,6 @@ export function HeaderAuthPanel({
               )}
             >
               Log In
-            </Button>
-          </DialogTrigger>
-          <DialogTrigger asChild>
-            <Button
-              onClick={() => {
-                showSignUp()
-              }}
-              className={cn(
-                'hidden px-5 py-1 text-sm font-semibold lg:block',
-                isEditor && 'h-8 text-[11px]'
-              )}
-            >
-              Sign Up
             </Button>
           </DialogTrigger>
           <DialogContent
@@ -218,6 +208,17 @@ export function HeaderAuthPanel({
             </DialogHeader>
             <AuthModal />
           </DialogContent>
+          <DialogTrigger asChild>
+            <Button
+              onClick={() => showSignUp()}
+              className={cn(
+                'hidden px-5 py-1 text-sm font-semibold lg:block',
+                isEditor && 'h-8 text-[11px]'
+              )}
+            >
+              Sign Up
+            </Button>
+          </DialogTrigger>
         </Dialog>
       )}
     </div>

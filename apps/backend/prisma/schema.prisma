@@ -74,7 +74,7 @@ model User {
   contestRecord            ContestRecord[]
   workbook                 Workbook[]
   submission               Submission[]
-  useroauth                UserOAuth?
+  useroauth                UserOAuth[]
   file                     File[]
   testSubmission           TestSubmission[]
   UpdateHistory            UpdateHistory[]
@@ -96,12 +96,13 @@ model User {
 model UserOAuth {
   id         String // social ID (OAuth 서비스로부터 제공받는 id)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int      @unique @map("user_id")
+  userId     Int      @map("user_id")
   provider   Provider
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
   @@id([id, provider])
+  @@unique([userId, provider])
   @@map("user_oauth")
 }
 

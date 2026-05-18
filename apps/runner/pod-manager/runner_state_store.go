@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -64,7 +63,7 @@ type RunnerStateStore interface {
 	HasRunnerLease(ctx context.Context, podName string) (bool, error)
 }
 
-func NewRunnerStateStoreFromEnv(logger *log.Logger) RunnerStateStore {
+func NewRunnerStateStoreFromEnv(logger Logger) RunnerStateStore {
 	addr := strings.TrimSpace(os.Getenv("REDIS_ADDR"))
 	if addr == "" {
 		logger.Printf("REDIS_ADDR is empty, shared runner state disabled")
