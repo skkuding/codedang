@@ -27,7 +27,7 @@ export function NotificationOptionsMenu({
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger disabled={isLoading}>
-        <Image src={MoreIcon} alt="filter" width={24} height={24} />
+        <MoreIcon width={24} height={24} />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"

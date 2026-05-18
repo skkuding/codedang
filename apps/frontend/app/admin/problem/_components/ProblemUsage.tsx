@@ -8,7 +8,7 @@ import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import ArrowRightIcon from '@/public/icons/arrow-right.svg'
 import FileInfoIcon from '@/public/icons/file-info.svg'
 import FilePenIcon from '@/public/icons/file-pen.svg'
-import infoGrayIcon from '@/public/icons/info-gray.svg'
+import InfoGrayIcon from '@/public/icons/info-gray.svg'
 import prizeIcon from '@/public/icons/prize.svg'
 import taskCompleteIcon from '@/public/icons/task-complete.svg'
 import { useQuery } from '@apollo/client'
@@ -163,11 +163,7 @@ function NoContentsSection({ label }: { label: string }) {
   return (
     <div className="bg-color-neutral-99 flex flex-col items-center justify-center gap-1 self-stretch rounded-lg px-5 pb-10 pt-7">
       <div className="text-color-neutral-80 relative h-7 w-7 overflow-hidden">
-        <Image
-          src={infoGrayIcon}
-          alt="infoGrayIcon"
-          className="absolute left-[2.40px] top-[2.40px] h-6 w-6"
-        />
+        <InfoGrayIcon className="absolute left-[2.40px] top-[2.40px] h-6 w-6" />
       </div>
       <div className="text-color-neutral-80 justify-start self-stretch text-center text-base font-medium">
         No {label} have used this problem

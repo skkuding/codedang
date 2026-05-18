@@ -120,12 +120,7 @@ export function SolutionPage() {
       <main className="grid gap-6">
         {solutionFiles.length === 0 ? (
           <div className="bg-color-neutral-99 flex flex-col items-center gap-[10px] rounded-xl py-20">
-            <Image
-              src={InfoIconGray}
-              alt="info icon gray"
-              height={24}
-              width={24}
-            />
+            <InfoIconGray height={24} width={24} />
             <p className="text-color-cool-neutral-50 text-body1_m_16 whitespace-pre-wrap text-center">
               {
                 '아직 솔루션이 업로드 되지 않았습니다.\n배포/Ready 상태 전환을 위해 솔루션 파일 업로드가 필수입니다.'
@@ -216,12 +211,7 @@ export function SolutionPage() {
                     {testPassed ? (
                       <CheckCircleIcon className="text-primary h-5 w-5" />
                     ) : (
-                      <Image
-                        src={InfoIconGray}
-                        alt="test passed icon"
-                        height={20}
-                        width={20}
-                      />
+                      <InfoIconGray height={20} width={20} />
                     )}
                     <div className="grid gap-[2px]">
                       <p

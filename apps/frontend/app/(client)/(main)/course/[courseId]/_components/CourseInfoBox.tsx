@@ -3,10 +3,9 @@
 import { useHeaderTitle } from '@/app/(client)/(main)/_contexts/HeaderTitleContext'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import CalendarIcon from '@/public/icons/calendar.svg'
-import ongoingIcon from '@/public/icons/ongoing.svg'
+import OngoingIcon from '@/public/icons/ongoing.svg'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
 import type { Course } from '@/types/type'
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 interface CourseInfoBoxProps {
@@ -38,7 +37,7 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
   return (
     <div className="flex flex-col gap-3 px-2 pt-24">
       <div className="flex gap-1">
-        <Image src={ongoingIcon} alt="ongoing" width={20} height={20} />
+        <OngoingIcon width={20} height={20} />
         {/* FIXME: 하드코딩된 ONGOING 대신 데이터를 받아와주세요 */}
         <p className="text-primary text-sm font-semibold">
           {course && 'ONGOING'}

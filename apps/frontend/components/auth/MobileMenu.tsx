@@ -9,9 +9,9 @@ import {
 } from '@/components/shadcn/sheet'
 import CourseSidebarIcon from '@/public/icons/course-sidebar.svg'
 import DetailOnMobileIcon from '@/public/icons/detail-on-mobile.svg'
-import loginMobileIcon from '@/public/icons/login-mobile.svg'
-import logoutMobileIcon from '@/public/icons/logout-mobile.svg'
-import noticeIcon from '@/public/icons/notification.svg'
+import LoginMobileIcon from '@/public/icons/login-mobile.svg'
+import LogoutMobileIcon from '@/public/icons/logout-mobile.svg'
+import NotificationIcon from '@/public/icons/notification.svg'
 import prizeIcon from '@/public/icons/prize.svg'
 import problemIcon from '@/public/icons/problem-sidebar.svg'
 import settingsIcon from '@/public/icons/settings.svg'
@@ -29,7 +29,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
   const { showSignIn, showSignUp } = useAuthModalStore((state) => state)
 
   const navItems = [
-    { href: '/notice', label: 'Notice', icon: noticeIcon },
+    { href: '/notice', label: 'Notice', icon: NotificationIcon },
     { href: '/problem', label: 'Problem', icon: problemIcon },
     { href: '/course', label: 'Course', icon: CourseSidebarIcon },
     { href: '/contest', label: 'Contest', icon: prizeIcon }
@@ -141,13 +141,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                   }}
                 >
                   <span className="flex items-center gap-[10px]">
-                    <Image
-                      src={logoutMobileIcon}
-                      alt=""
-                      width={20}
-                      height={20}
-                      aria-hidden
-                    />
+                    <LogoutMobileIcon width={20} height={20} aria-hidden />
                     <span>Log Out</span>
                   </span>
                 </button>
@@ -174,13 +168,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                   onClick={() => showSignIn()}
                 >
                   <span className="flex items-center gap-[10px]">
-                    <Image
-                      src={loginMobileIcon}
-                      alt=""
-                      width={20}
-                      height={20}
-                      aria-hidden
-                    />
+                    <LoginMobileIcon width={20} height={20} aria-hidden />
                     <span>Log In</span>
                   </span>
                 </button>

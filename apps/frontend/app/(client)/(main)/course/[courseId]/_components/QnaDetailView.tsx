@@ -8,8 +8,8 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import ArrowLeftBlackIcon from '@/public/icons/arrow-left-black.svg'
 import CheckCircleIcon from '@/public/icons/check-circle.svg'
-import infoGrayIcon from '@/public/icons/info-gray.svg'
-import lockGrayIcon from '@/public/icons/lock-gray.svg'
+import InfoGrayIcon from '@/public/icons/info-gray.svg'
+import LockGrayIcon from '@/public/icons/lock-gray.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import UserIcon from '@/public/icons/person-fill.svg'
 import type { CourseQnAItem } from '@/types/type'
@@ -19,7 +19,6 @@ import {
   useQueryClient,
   useQuery
 } from '@tanstack/react-query'
-import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -138,9 +137,7 @@ export function QnaDetailView() {
 
       <div className="flex flex-col gap-4 pb-8">
         <h1 className="flex items-center gap-2 text-2xl font-semibold">
-          {qna.isPrivate && (
-            <Image src={lockGrayIcon} alt="lockGrayIcon" className="h-6 w-6" />
-          )}
+          {qna.isPrivate && <LockGrayIcon className="h-6 w-6" />}
           {qna.title}
         </h1>
         <div className="text-color-neutral-50 flex flex-col gap-[6px] text-[13px]">
@@ -162,7 +159,7 @@ export function QnaDetailView() {
         </span>
         {!qna.comments || qna.comments.length === 0 ? (
           <div className="bg-color-neutral-99 text-color-neutral-80 flex flex-col items-center justify-center gap-[6px] rounded-lg py-10">
-            <Image src={infoGrayIcon} alt="infoGrayIcon" />
+            <InfoGrayIcon />
             <span>Comments not registered</span>
           </div>
         ) : (

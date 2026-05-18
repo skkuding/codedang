@@ -8,7 +8,7 @@ import {
 } from '@/libs/push-subscription'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { formatTimeAgo } from '@/libs/utils'
-import NotiIcon from '@/public/icons/notification.svg'
+import NotificationIcon from '@/public/icons/notification.svg'
 import type { Notification } from '@/types/type'
 import { X } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
@@ -235,7 +235,7 @@ export function NotificationDropdown({
           isEditor ? 'text-gray-300 hover:text-white' : 'text-primary'
         )}
       >
-        <NotiIcon className="text-primary h-[18px] w-[21px]" />
+        <NotificationIcon className="text-primary h-[18px] w-[21px]" />
         {unreadApiCount > 0 && (
           <div className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-red-500 shadow-md" />
         )}

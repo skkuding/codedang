@@ -3,8 +3,7 @@
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
 import CheckCircleIcon from '@/public/icons/check-circle.svg'
-import warningIcon from '@/public/icons/info.svg'
-import Image from 'next/image'
+import InfoIcon from '@/public/icons/info.svg'
 import { useState } from 'react'
 import {
   AlertDialog,
@@ -77,7 +76,7 @@ export function AlertModal({
         <AlertDialogHeader className="flex flex-col items-center justify-center">
           {showIcon &&
             (type === 'warning' ? (
-              <Image src={warningIcon} alt="warning" width={42} height={42} />
+              <InfoIcon width={42} height={42} />
             ) : (
               <CheckCircleIcon className="text-primary h-[42px] w-[42px]" />
             ))}

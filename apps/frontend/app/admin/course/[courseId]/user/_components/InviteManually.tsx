@@ -14,11 +14,10 @@ import { INVITE_USER } from '@/graphql/user/mutation'
 import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { fetcherWithAuth } from '@/libs/utils'
 import EmailSymbolIcon from '@/public/icons/email-symbol.svg'
-import plusIcon from '@/public/icons/plus-line.svg'
+import PlusLineIcon from '@/public/icons/plus-line.svg'
 import type { MemberRole } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import Image from 'next/image'
 import { useCallback, useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { IoMdCloseCircle } from 'react-icons/io'
@@ -288,7 +287,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
               className="border-primary flex cursor-pointer items-center justify-center gap-1 rounded-full border bg-white px-[22px] py-[10px] duration-200 hover:bg-blue-50"
               onClick={() => findHandleSubmit(onFind)()}
             >
-              <Image src={plusIcon} alt="plusIcon" />
+              <PlusLineIcon />
               <span className="text-primary text-[14px] font-medium">Add</span>
             </div>
           </div>
