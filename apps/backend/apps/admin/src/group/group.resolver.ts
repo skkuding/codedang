@@ -351,7 +351,11 @@ export class GroupCommentResolver {
     @Args('commentId', { type: () => Int }, IDValidationPipe) commentId: number,
     @Args('input') input: UpdateGroupCommentInput
   ) {
-    return await this.groupCommentService.updateGroupComment(commentId, input)
+    return await this.groupCommentService.updateGroupComment(
+      groupId,
+      commentId,
+      input
+    )
   }
 
   @Mutation(() => GroupComment)
@@ -359,6 +363,6 @@ export class GroupCommentResolver {
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('commentId', { type: () => Int }, IDValidationPipe) commentId: number
   ) {
-    return await this.groupCommentService.deleteGroupComment(commentId)
+    return await this.groupCommentService.deleteGroupComment(groupId, commentId)
   }
 }
