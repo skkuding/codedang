@@ -1,5 +1,6 @@
 import bundleAnalyzer from '@next/bundle-analyzer'
 import type { NextConfig } from 'next'
+import path from 'path'
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true'
@@ -43,8 +44,8 @@ const nextConfig = {
   experimental: {
     turbo: {
       rules: {
-        // SVG 파일을 발견하면 @svgr/webpack 로더를 거치게 함.
-        '*.svg': {
+        // public/icons 경로 아래에 SVG 파일을 발견하면 @svgr/webpack 로더를 거치게 함.
+        '*/public/icons/*.svg': {
           loaders: [
             {
               loader: '@svgr/webpack',
@@ -65,11 +66,17 @@ const nextConfig = {
     )
 
     if (fileLoaderRule) {
-      fileLoaderRule.exclude = /\.svg$/i
+      fileLoaderRule.exclude = (resourcePath: string) => {
+        return (
+          resourcePath.includes(path.join('public', 'icons')) &&
+          /\.svg$/i.test(resourcePath)
+        )
+      }
     }
 
     config.module.rules.push({
       test: /\.svg$/i,
+      include: path.resolve(__dirname, 'public/icons'),
       use: [
         {
           loader: '@svgr/webpack',
