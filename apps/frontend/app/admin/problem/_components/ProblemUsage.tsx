@@ -6,8 +6,8 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_BELONGED_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import ArrowRightIcon from '@/public/icons/arrow-right.svg'
-import fileInfoIcon from '@/public/icons/file-info.svg'
-import filePenIcon from '@/public/icons/file-pen.svg'
+import FileInfoIcon from '@/public/icons/file-info.svg'
+import FilePenIcon from '@/public/icons/file-pen.svg'
 import infoGrayIcon from '@/public/icons/info-gray.svg'
 import prizeIcon from '@/public/icons/prize.svg'
 import taskCompleteIcon from '@/public/icons/task-complete.svg'
@@ -72,11 +72,7 @@ function AssignmentProblemSection({ contents }: ProblemSectionProps) {
             >
               <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
                 <div className="flex items-start gap-[10px]">
-                  <Image
-                    src={filePenIcon}
-                    alt="filePenIcon"
-                    className="h-6 w-6"
-                  />
+                  <FilePenIcon className="h-6 w-6" />
 
                   <div className="flex flex-col">
                     <div className="flex items-center gap-[2px]">
@@ -232,7 +228,7 @@ export function ProblemUsage({ problemId }: ProblemUsageProps) {
       type="custom"
       title="Using this problem"
       headerDescription="This problem is used in the following contexts"
-      trigger={<Image src={fileInfoIcon} alt="fileinfo" />}
+      trigger={<FileInfoIcon />}
     >
       <ScrollArea className="h-full w-full pr-2">
         <div className="border-line flex min-h-0 flex-col items-start gap-[30px] self-stretch rounded-[16px] border bg-white p-[30px]">

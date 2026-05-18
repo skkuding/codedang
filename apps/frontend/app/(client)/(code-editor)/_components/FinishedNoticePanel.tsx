@@ -1,6 +1,6 @@
 import { Button } from '@/components/shadcn/button'
 import { fetcher } from '@/libs/utils'
-import exitIcon from '@/public/icons/exit2.svg'
+import Exit2Icon from '@/public/icons/exit2.svg'
 import visitIcon from '@/public/icons/visit.svg'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -94,7 +94,7 @@ function ExitButton({
         type="button"
         className="ml-4 h-10 shrink-0 gap-[5px] bg-blue-500 font-sans hover:bg-blue-700"
       >
-        <Image src={exitIcon} alt="exit" width={20} height={20} />
+        <Exit2Icon width={20} height={20} />
         {target === 'contest' ? 'View Leaderboard' : 'Exit'}
       </Button>
     </Link>

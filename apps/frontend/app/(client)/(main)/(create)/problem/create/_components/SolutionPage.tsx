@@ -157,12 +157,7 @@ export function SolutionPage() {
               >
                 <div className="flex gap-4">
                   <div className="bg-color-neutral-99 border-line w-fit rounded-[6.4px] border-[0.8px] p-3">
-                    <Image
-                      src={CodingIcon}
-                      alt="coding icon"
-                      height={24}
-                      width={24}
-                    />
+                    <CodingIcon height={24} width={24} />
                   </div>
                   <div className="flex flex-1 items-center justify-between">
                     <div className="grid gap-[2px]">

@@ -11,7 +11,7 @@ import {
 } from '@/components/shadcn/dialog'
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
-import GrayFileIcon from '@/public/icons/file_gray.svg'
+import FileGrayIcon from '@/public/icons/file_gray.svg'
 import GrayUploadIcon from '@/public/icons/upload-gray.svg'
 import WhiteUploadIcon from '@/public/icons/upload-white.svg'
 import XIcon from '@/public/icons/x.svg'
@@ -82,12 +82,7 @@ export function UploadButton({
             >
               {upload_target_texts.map((v, idx) => (
                 <div className="flex items-center gap-2" key={idx}>
-                  <Image
-                    src={GrayFileIcon}
-                    alt="gray file icon"
-                    height={20}
-                    width={20}
-                  />
+                  <FileGrayIcon height={20} width={20} />
                   <p className="text-color-neutral-30 text-body3_r_16">{v}</p>
                 </div>
               ))}

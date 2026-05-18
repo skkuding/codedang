@@ -13,7 +13,7 @@ import {
 import { INVITE_USER } from '@/graphql/user/mutation'
 import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { fetcherWithAuth } from '@/libs/utils'
-import emailIcon from '@/public/icons/email-symbol.svg'
+import EmailSymbolIcon from '@/public/icons/email-symbol.svg'
 import plusIcon from '@/public/icons/plus-line.svg'
 import type { MemberRole } from '@/types/type'
 import { useMutation } from '@apollo/client'
@@ -229,7 +229,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                 >
                   <SelectTrigger className="flex gap-[6px] border-none bg-transparent px-[14px] text-base focus-visible:ring-0 focus-visible:ring-offset-0">
                     <div className="flex flex-1 items-center gap-[6px]">
-                      <Image src={emailIcon} alt="emailIcon" />
+                      <EmailSymbolIcon />
 
                       {selectDomain !== 'Enter directly' ? (
                         <SelectValue placeholder={ALLOWED_DOMAINS[0]} />
