@@ -18,7 +18,7 @@ import {
 } from '@/components/shadcn/tooltip'
 import { fetcherWithAuth } from '@/libs/utils'
 import { cn } from '@/libs/utils'
-import bottomCenterIcon from '@/public/icons/bottom-center.svg'
+import BottomCenterIcon from '@/public/icons/bottom-center.svg'
 import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import { useSidePanelTabStore } from '@/stores/editorTabs'
@@ -250,11 +250,7 @@ export function EditorMainResizablePanel({
                           side="bottom"
                           className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
                         >
-                          <Image
-                            src={bottomCenterIcon}
-                            alt="Tooltip arrow"
-                            className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
-                          />
+                          <BottomCenterIcon className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform" />
                           <p className="text-xs">Leaderboard is frozen</p>
                         </TooltipContent>
                       )}

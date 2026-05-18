@@ -1,8 +1,7 @@
 'use client'
 
-import arrowBottomIcon from '@/public/icons/arrow-bottom.svg'
+import ArrowBottomIcon from '@/public/icons/arrow-bottom.svg'
 import type { CreateAnnouncementInput } from '@generated/graphql'
-import Image from 'next/image'
 import type { UseFormWatch } from 'react-hook-form'
 
 interface ProblemOption {
@@ -38,7 +37,7 @@ export function ProblemSelector({
       <span className="text-color-neutral-40 text-base font-medium leading-[22.4px] tracking-[-0.48px]">
         {selectedProblem ? `${selectedProblem.label}` : 'General'}
       </span>
-      <Image src={arrowBottomIcon} alt="arrowbottom" width={18} />
+      <ArrowBottomIcon width={18} />
     </button>
   )
 }

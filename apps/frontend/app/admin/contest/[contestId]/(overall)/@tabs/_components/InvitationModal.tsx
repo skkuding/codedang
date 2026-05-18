@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/shadcn/dialog'
-import bulletIcon from '@/public/icons/bullet.svg'
+import BulletIcon from '@/public/icons/bullet.svg'
 import copyWhiteIcon from '@/public/icons/copy_white.svg'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -60,7 +60,7 @@ export function InvitationModal({
         </div>
 
         <div className="mt-2 flex items-center justify-center text-center">
-          <Image src={bulletIcon} alt="bullet" width={20} />
+          <BulletIcon width={20} />
           <span className="text-primary text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
             Contest Admin
           </span>

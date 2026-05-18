@@ -6,7 +6,7 @@ import { DeleteButton } from '@/components/DeleteButton'
 import { Button } from '@/components/shadcn/button'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
-import arrowLeftIcon from '@/public/icons/arrow-left-black.svg'
+import ArrowLeftBlackIcon from '@/public/icons/arrow-left-black.svg'
 import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import infoGrayIcon from '@/public/icons/info-gray.svg'
 import lockGrayIcon from '@/public/icons/lock-gray.svg'
@@ -112,11 +112,7 @@ export function QnaDetailView() {
           onClick={() => router.back()}
           className="flex items-center gap-2 text-2xl font-semibold"
         >
-          <Image
-            src={arrowLeftIcon}
-            alt="arrowLeftIcon"
-            className="h-6 w-6 text-black"
-          />{' '}
+          <ArrowLeftBlackIcon className="h-6 w-6 text-black" />
           Question & Answer
         </button>
         <DeleteButton

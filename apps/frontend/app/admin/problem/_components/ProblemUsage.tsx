@@ -5,7 +5,7 @@ import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_BELONGED_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
-import arrowRightIcon from '@/public/icons/arrow-right.svg'
+import ArrowRightIcon from '@/public/icons/arrow-right.svg'
 import fileInfoIcon from '@/public/icons/file-info.svg'
 import filePenIcon from '@/public/icons/file-pen.svg'
 import infoGrayIcon from '@/public/icons/info-gray.svg'
@@ -83,11 +83,7 @@ function AssignmentProblemSection({ contents }: ProblemSectionProps) {
                       <span>
                         [{content.title}] Week {content.week}
                       </span>
-                      <Image
-                        src={arrowRightIcon}
-                        alt="arrowRightIcon"
-                        className="text-color-black h-3 w-3"
-                      />
+                      <ArrowRightIcon className="text-color-black h-3 w-3" />
                     </div>
 
                     <span className="text-color-neutral-50 text-sm">
@@ -116,11 +112,7 @@ function ContestProblemSection({ contents }: ContestSectionProps) {
 
               <div className="flex items-center gap-[2px] self-stretch hover:brightness-110">
                 <span>{content.title}</span>
-                <Image
-                  src={arrowRightIcon}
-                  alt="arrowRightIcon"
-                  className="text-color-black h-3 w-3"
-                />
+                <ArrowRightIcon className="text-color-black h-3 w-3" />
               </div>
             </div>
           </div>
@@ -153,11 +145,7 @@ function ExerciseProblemSection({ contents }: ProblemSectionProps) {
                       <span>
                         [{content.title}] Week {content.week}
                       </span>
-                      <Image
-                        src={arrowRightIcon}
-                        alt="arrowRightIcon"
-                        className="text-color-black h-3 w-3"
-                      />
+                      <ArrowRightIcon className="text-color-black h-3 w-3" />
                     </div>
 
                     <span className="text-color-neutral-50 text-sm">

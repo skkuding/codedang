@@ -12,7 +12,7 @@ import {
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { cn, convertToLetter } from '@/libs/utils'
-import arrowBottomIcon from '@/public/icons/arrow-bottom.svg'
+import ArrowBottomIcon from '@/public/icons/arrow-bottom.svg'
 import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import { useSuspenseQuery } from '@apollo/client'
@@ -82,9 +82,7 @@ export function AssignmentHeader() {
         <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
           <DropdownMenuTrigger className="outline-hidden flex gap-2 text-lg text-white">
             <h1>{`${convertToLetter(currentProblem?.order ?? 0)}. ${currentProblem?.problem.title}`}</h1>
-            <Image
-              src={arrowBottomIcon}
-              alt="open dropdown"
+            <ArrowBottomIcon
               width={16}
               height={16}
               className={cn(

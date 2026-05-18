@@ -2,7 +2,7 @@
 
 import { useHeaderTitle } from '@/app/(client)/(main)/_contexts/HeaderTitleContext'
 import { safeFetcherWithAuth } from '@/libs/utils'
-import calendarIcon from '@/public/icons/calendar.svg'
+import CalendarIcon from '@/public/icons/calendar.svg'
 import ongoingIcon from '@/public/icons/ongoing.svg'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
 import type { Course } from '@/types/type'
@@ -51,7 +51,7 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
       </p>
       <div className="mt-2 flex flex-col gap-2">
         <div className="flex gap-[14px]">
-          <Image src={calendarIcon} alt="calendar" width={16} height={16} />
+          <CalendarIcon width={16} height={16} />
           <p className="text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
             {course ? course.courseInfo.semester : ''}
           </p>

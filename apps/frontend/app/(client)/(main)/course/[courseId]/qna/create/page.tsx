@@ -9,10 +9,9 @@ import {
   SelectTrigger
 } from '@/components/shadcn/select'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import arrowLeftIcon from '@/public/icons/arrow-left-black.svg'
+import ArrowLeftBlackIcon from '@/public/icons/arrow-left-black.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useState, useMemo } from 'react'
@@ -137,11 +136,7 @@ export default function Page() {
     <div className="mx-[116px] mt-20 flex flex-col gap-6">
       <div className="flex items-center gap-[10px]">
         <Link href={`/course/${courseId}/qna` as const}>
-          <Image
-            src={arrowLeftIcon}
-            alt="arrow left icon"
-            className="h-6 w-6"
-          />
+          <ArrowLeftBlackIcon className="h-6 w-6" />
         </Link>
         <span className="text-2xl font-medium leading-[28.8px] tracking-[-0.72px]">
           Post New Question

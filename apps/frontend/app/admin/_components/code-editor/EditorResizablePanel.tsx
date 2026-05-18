@@ -19,9 +19,9 @@ import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
 import { GET_PROBLEM_TESTCASE_WITHOUT_IO } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import arrowBottomIcon from '@/public/icons/arrow-bottom.svg'
-import arrowLeftFullIcon from '@/public/icons/arrow-left-full.svg'
-import arrowRightFullIcon from '@/public/icons/arrow-right-full.svg'
+import ArrowBottomIcon from '@/public/icons/arrow-bottom.svg'
+import ArrowLeftFullIcon from '@/public/icons/arrow-left-full.svg'
+import ArrowRightFullIcon from '@/public/icons/arrow-right-full.svg'
 import CheckboxIcon from '@/public/icons/check-box.svg'
 import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
@@ -191,9 +191,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                   <p className="text-[14px]">
                     {currentMember?.realName}({currentMember?.studentId})
                   </p>
-                  <Image
-                    src={arrowBottomIcon}
-                    alt="open dropdown"
+                  <ArrowBottomIcon
                     width={16}
                     height={16}
                     className={cn(
@@ -244,12 +242,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                     'pointer-events-none opacity-40'
                 )}
               >
-                <Image
-                  src={arrowLeftFullIcon}
-                  alt="Previous"
-                  width={16}
-                  height={16}
-                />
+                <ArrowLeftFullIcon width={16} height={16} />
               </Link>
 
               <Link
@@ -262,12 +255,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                     'pointer-events-none opacity-40'
                 )}
               >
-                <Image
-                  src={arrowRightFullIcon}
-                  alt="Next"
-                  width={16}
-                  height={16}
-                />
+                <ArrowRightFullIcon width={16} height={16} />
               </Link>
             </div>
           </div>
