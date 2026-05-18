@@ -4,11 +4,10 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
 import ArrowRightNarrowIcon from '@/public/icons/arrow-right-narrow.svg'
-import CheckBlueIcon from '@/public/icons/check-blue.svg'
+import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import { useState } from 'react'
 import { AiFillFile } from 'react-icons/ai'
 import { BsPeopleFill } from 'react-icons/bs'
@@ -140,12 +139,7 @@ export function ProblemCreateContainer() {
             type="button"
             className="itmes-center border-primary-light hover:bg-color-blue-95 flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
           >
-            <Image
-              src={CheckBlueIcon}
-              alt="check blue icon"
-              width={20}
-              height={20}
-            />
+            <CheckCircleIcon className="text-primary h-5 w-5" />
             <p className="text-sub3_sb_16 text-primary">저장하기</p>
           </Button>
           <UploadButton

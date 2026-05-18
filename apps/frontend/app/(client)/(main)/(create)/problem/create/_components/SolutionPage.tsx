@@ -1,7 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
-import BlueCheckIcon from '@/public/icons/check-blue.svg'
+import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import CodingIcon from '@/public/icons/coding.svg'
 import InfoIconGray from '@/public/icons/info-icon-gray.svg'
 import TrashCanIconGray from '@/public/icons/trashcan2-gray.svg'
@@ -218,12 +218,16 @@ export function SolutionPage() {
                   )}
                 >
                   <div className="flex items-start gap-2">
-                    <Image
-                      src={testPassed ? BlueCheckIcon : InfoIconGray}
-                      alt="test passed icon"
-                      height={20}
-                      width={20}
-                    />
+                    {testPassed ? (
+                      <CheckCircleIcon className="text-primary h-5 w-5" />
+                    ) : (
+                      <Image
+                        src={InfoIconGray}
+                        alt="test passed icon"
+                        height={20}
+                        width={20}
+                      />
+                    )}
                     <div className="grid gap-[2px]">
                       <p
                         className={cn(

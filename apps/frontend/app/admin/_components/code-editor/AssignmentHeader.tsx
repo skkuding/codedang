@@ -13,7 +13,7 @@ import {
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { cn, convertToLetter } from '@/libs/utils'
 import arrowBottomIcon from '@/public/icons/arrow-bottom.svg'
-import checkIcon from '@/public/icons/check-green.svg'
+import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import { useSuspenseQuery } from '@apollo/client'
 import type { Route } from 'next'
@@ -116,12 +116,7 @@ export function AssignmentHeader() {
                       score.finalScore !== null
                   ) && (
                     <div className="flex items-center justify-center pl-2">
-                      <Image
-                        src={checkIcon}
-                        alt="check"
-                        width={16}
-                        height={16}
-                      />
+                      <CheckCircleIcon className="text-color-green-50 h-4 w-4" />
                     </div>
                   )}
                 </DropdownMenuItem>

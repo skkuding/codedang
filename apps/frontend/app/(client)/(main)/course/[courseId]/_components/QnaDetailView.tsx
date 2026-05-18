@@ -7,7 +7,7 @@ import { Button } from '@/components/shadcn/button'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import arrowLeftIcon from '@/public/icons/arrow-left-black.svg'
-import checkBlueIcon from '@/public/icons/check-blue.svg'
+import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import infoGrayIcon from '@/public/icons/info-gray.svg'
 import lockGrayIcon from '@/public/icons/lock-gray.svg'
 import PenIcon from '@/public/icons/pen.svg'
@@ -186,11 +186,7 @@ export function QnaDetailView() {
                           {comment.createdBy?.username}
                         </span>
                         {isWriter && (
-                          <Image
-                            src={checkBlueIcon}
-                            alt="checkBlueIcon"
-                            className="h-5 w-5"
-                          />
+                          <CheckCircleIcon className="text-primary h-5 w-5" />
                         )}
                       </div>
                       <div className="text-color-neutral-50 flex items-center gap-1 text-[13px]">

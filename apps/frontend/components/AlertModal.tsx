@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
-import confirmIcon from '@/public/icons/check-blue.svg'
+import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import warningIcon from '@/public/icons/info.svg'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -75,14 +75,12 @@ export function AlertModal({
         onEscapeKeyDown={onClose}
       >
         <AlertDialogHeader className="flex flex-col items-center justify-center">
-          {showIcon && (
-            <Image
-              src={type === 'warning' ? warningIcon : confirmIcon}
-              alt={type === 'warning' ? 'warning' : 'confirm'}
-              width={42}
-              height={42}
-            />
-          )}
+          {showIcon &&
+            (type === 'warning' ? (
+              <Image src={warningIcon} alt="warning" width={42} height={42} />
+            ) : (
+              <CheckCircleIcon className="text-primary h-[42px] w-[42px]" />
+            ))}
           <AlertDialogTitle
             className={cn(
               'w-full text-2xl font-semibold',

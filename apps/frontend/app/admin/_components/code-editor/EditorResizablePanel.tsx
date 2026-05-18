@@ -23,7 +23,7 @@ import arrowBottomIcon from '@/public/icons/arrow-bottom.svg'
 import arrowLeftFullIcon from '@/public/icons/arrow-left-full.svg'
 import arrowRightFullIcon from '@/public/icons/arrow-right-full.svg'
 import CheckboxIcon from '@/public/icons/check-box.svg'
-import checkIcon from '@/public/icons/check-green.svg'
+import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
 import trashcanIcon from '@/public/icons/trashcan2-red.svg'
 import { useTestcaseStore } from '@/stores/testcaseStore'
@@ -224,12 +224,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                             score.finalScore !== null
                         ) && (
                           <div className="flex items-center justify-center pl-2">
-                            <Image
-                              src={checkIcon}
-                              alt="check"
-                              width={16}
-                              height={16}
-                            />
+                            <CheckCircleIcon className="text-color-green-50 h-4 w-4" />
                           </div>
                         )}
                       </DropdownMenuItem>
