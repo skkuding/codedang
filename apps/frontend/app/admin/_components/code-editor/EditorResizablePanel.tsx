@@ -24,6 +24,7 @@ import arrowLeftFullIcon from '@/public/icons/arrow-left-full.svg'
 import arrowRightFullIcon from '@/public/icons/arrow-right-full.svg'
 import CheckboxIcon from '@/public/icons/check-box.svg'
 import checkIcon from '@/public/icons/check-green.svg'
+import PersonFillIcon from '@/public/icons/person-fill.svg'
 import trashcanIcon from '@/public/icons/trashcan2-red.svg'
 import { useTestcaseStore } from '@/stores/testcaseStore'
 import type { Language } from '@/types/type'
@@ -34,7 +35,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
-import { BiSolidUser } from 'react-icons/bi'
 import { TestcasePanel } from './TestcasePanel'
 import { mapTestResults } from './libs/util'
 
@@ -185,7 +185,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
         <div className="grid-rows-editor bg-editor-background-2 grid h-full grid-cols-1">
           <div className="flex h-12 w-full items-center justify-between border-b border-slate-700 px-3">
             <div className="flex items-center gap-1">
-              <BiSolidUser className="h-4 w-4 rounded-none text-gray-300" />
+              <PersonFillIcon className="h-6 rounded-none text-gray-300" />
               <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
                 <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
                   <p className="text-[14px]">

@@ -4,7 +4,7 @@ import { useHeaderTitle } from '@/app/(client)/(main)/_contexts/HeaderTitleConte
 import { safeFetcherWithAuth } from '@/libs/utils'
 import calendarIcon from '@/public/icons/calendar.svg'
 import ongoingIcon from '@/public/icons/ongoing.svg'
-import personFillIcon from '@/public/icons/person-fill.svg'
+import PersonFillIcon from '@/public/icons/person-fill.svg'
 import type { Course } from '@/types/type'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
@@ -56,13 +56,8 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
             {course ? course.courseInfo.semester : ''}
           </p>
         </div>
-        <div className="flex gap-[14px]">
-          <Image
-            src={personFillIcon}
-            alt="person-fill"
-            width={16}
-            height={16}
-          />
+        <div className="flex items-center gap-[14px]">
+          <PersonFillIcon className="text-primary h-4" />
           <p className="text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
             {course ? `${course.courseInfo.professor} 교수` : ''}
           </p>

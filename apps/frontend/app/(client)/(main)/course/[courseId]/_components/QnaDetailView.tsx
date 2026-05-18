@@ -11,7 +11,7 @@ import checkBlueIcon from '@/public/icons/check-blue.svg'
 import infoGrayIcon from '@/public/icons/info-gray.svg'
 import lockGrayIcon from '@/public/icons/lock-gray.svg'
 import PenIcon from '@/public/icons/pen.svg'
-import userIcon from '@/public/icons/person-fill.svg'
+import UserIcon from '@/public/icons/person-fill.svg'
 import type { CourseQnAItem } from '@/types/type'
 import {
   useSuspenseQuery,
@@ -149,7 +149,7 @@ export function QnaDetailView() {
         </h1>
         <div className="text-color-neutral-50 flex flex-col gap-[6px] text-[13px]">
           <div className="flex items-center gap-[10px]">
-            <Image src={userIcon} alt="userIcon" className="h-4 w-4" />
+            <UserIcon className="text-primary h-4 w-4" />
             {qna.createdBy?.username}
           </div>
           <div className="flex items-center gap-[10px]">

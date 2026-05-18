@@ -1,7 +1,6 @@
 import { dateFormatter } from '@/libs/utils'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
 import type { GetContestQnaQuery } from '@generated/graphql'
-import Image from 'next/image'
 import type { ReactElement } from 'react'
 import { FaClock } from 'react-icons/fa6'
 
@@ -44,9 +43,7 @@ export function AdminQnaContentArea({
         {/* userID & time */}
         <div className="flex flex-col gap-[6px] font-medium text-[#787E80]">
           <div className="flex items-center gap-[10px]">
-            <div className="size-[13.5px]">
-              <Image src={PersonFillIcon} alt="person" />
-            </div>
+            <PersonFillIcon className="text-primary h-[13.5px]" />
             <p className="text-sm">{createdBy?.username}</p>
           </div>
           <div className="flex items-center gap-[10px]">
