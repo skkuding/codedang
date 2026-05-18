@@ -22,6 +22,7 @@ interface ButtonProps {
   text: string
   onClick: () => void
   variant?: 'default' | 'outline'
+  disabled?: boolean
 }
 
 interface AlertModalProps {
@@ -118,6 +119,7 @@ export function AlertModal({
                 type === 'warning' ? 'bg-error hover:bg-red-500/90' : null
               )}
               variant={primaryButton.variant}
+              disabled={primaryButton.disabled}
             >
               {primaryButton.text}
             </Button>
