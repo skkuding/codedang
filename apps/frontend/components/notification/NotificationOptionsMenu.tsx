@@ -43,7 +43,7 @@ export function NotificationOptionsMenu({
             isEditor && '!bg-slate-700 !text-gray-300 hover:!bg-slate-800'
           )}
         >
-          <Image src={CheckIcon} alt="check" width={16} height={16} />
+          <CheckIcon className="text-color-neutral-80 h-4 w-4" />
           Mark all as read
         </DropdownMenuItem>
         <DropdownMenuItem
