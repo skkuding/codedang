@@ -1156,14 +1156,14 @@ export class GroupCommentService {
   }
 
   async updateGroupComment(
-    groudId: number,
+    groupId: number,
     commentId: number,
     input: UpdateGroupCommentInput
   ) {
-    const comment = await this.prisma.groupComment.findUnique({
+    const comment = await this.prisma.groupComment.findFirst({
       where: {
         id: commentId,
-        groupId: groudId
+        groupId: groupId
       }
     })
 
@@ -1182,9 +1182,12 @@ export class GroupCommentService {
     })
   }
 
-  async deleteGroupComment(groudId: number, commentId: number) {
-    const comment = await this.prisma.groupComment.findUnique({
-      where: { id: commentId, groupId: groudId }
+  async deleteGroupComment(groupId: number, commentId: number) {
+    const comment = await this.prisma.groupComment.findFirst({
+      where: {
+        id: commentId,
+        groupId: groupId
+      }
     })
 
     if (!comment) {
