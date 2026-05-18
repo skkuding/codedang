@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Assignment, AssignmentProblem } from '@generated'
-import { Prisma, ResultStatus } from '@prisma/client'
+import { ContestRole, Prisma, ResultStatus } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
@@ -551,6 +551,8 @@ export class AssignmentService {
             },
             data: {
               sharedGroups: {
+                // TODO: 하나의 Group에 2개의 assignment가 있고 이 두 과제가 같은 문제를 공유하는 경우, 하나의 assignment에서 problem을 삭제하면 sharedGroups도 삭제되지만 실제로는 나머지 하나의 assignment에 포함되어있으므로 sharedGroups를 disconnect하면 안됨.
+                // TODO: 해당 Group의 하나의 assignment에만 포함되어있을 때 sharedGroups를 삭제하도록 수정해야함.
                 disconnect: [{ id: groupId }]
               }
             }
@@ -1003,6 +1005,17 @@ export class AssignmentService {
   }
 
   async getAssignmentsByProblemId(problemId: number, userId: number) {
+    const assignmentProblemCount = await this.prisma.assignmentProblem.count({
+      where: { problemId }
+    })
+    if (assignmentProblemCount === 0) {
+      return {
+        upcoming: [],
+        ongoing: [],
+        finished: []
+      }
+    }
+
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: { id: problemId },
       include: {
@@ -1027,9 +1040,24 @@ export class AssignmentService {
       const hasShared = sharedGroupIds.some((v) =>
         new Set(leaderGroupIds).has(v)
       )
-      if (!hasShared) {
+      const contestProblem = await this.prisma.contestProblem.findFirst({
+        where: {
+          problemId,
+          contest: {
+            userContest: {
+              some: {
+                userId,
+                role: { in: [ContestRole.Admin, ContestRole.Manager] }
+              }
+            }
+          }
+        },
+        select: { id: true }
+      })
+      const hasContestPermission = contestProblem != null
+      if (!hasShared && !hasContestPermission) {
         throw new ForbiddenAccessException(
-          'User can only edit problems they created or were shared with'
+          'User can only edit problems they created, were shared with, or manage via contest role'
         )
       }
     }

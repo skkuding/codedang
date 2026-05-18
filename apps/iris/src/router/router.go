@@ -8,6 +8,7 @@ import (
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
+	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -59,18 +60,21 @@ func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byt
 	judgeChan := make(chan handler.JudgeResultMessage)
 	switch path {
 	case Judge:
-		go r.judgeHandler.Handle(id, data, true, judgeChan, newCtx)
-	case Run:
-		// JudgeRequest에서 받아온 containHiddenTestcases 여부에 따라 구분
+		filter := testcase.ALL
 		var req handler.Request
-		if err := json.Unmarshal(data, &req); err == nil {
-			hidden := req.ContainHiddenTestcases
-			go r.judgeHandler.Handle(id, data, hidden, judgeChan, newCtx)
-		} else {
-			go r.judgeHandler.Handle(id, data, false, judgeChan, newCtx) // 파싱 실패 시 공개 테스트 문제만 실행
+		if err := json.Unmarshal(data, &req); err == nil && req.JudgeOnlyHiddenTestcases {
+			filter = testcase.HIDDEN_ONLY
 		}
+		go r.judgeHandler.Handle(id, data, filter, judgeChan, newCtx)
+	case Run:
+		filter := testcase.PUBLIC_ONLY
+		var req handler.Request
+		if err := json.Unmarshal(data, &req); err == nil && req.ContainHiddenTestcases {
+			filter = testcase.ALL
+		}
+		go r.judgeHandler.Handle(id, data, filter, judgeChan, newCtx)
 	case UserTestCase:
-		go r.judgeHandler.Handle(id, data, false, judgeChan, newCtx)
+		go r.judgeHandler.Handle(id, data, testcase.PUBLIC_ONLY, judgeChan, newCtx)
 	case SpecialJudge:
 	default:
 		err := fmt.Errorf("invalid request type: %s", path)

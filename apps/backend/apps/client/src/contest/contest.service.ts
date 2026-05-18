@@ -498,17 +498,26 @@ export class ContestService {
       }
     }
 
-    let rank = 1
+    const ranks = this.calculateRanks(
+      contestRecords.map((r) => ({
+        solved: isFrozen ? r.score : r.finalScore,
+        penalty: isFrozen ? r.totalPenalty : r.finalTotalPenalty
+      }))
+    )
+
     const leaderboard = contestRecords.map(
-      ({
-        contestProblemRecord,
-        userId,
-        score,
-        finalScore,
-        totalPenalty,
-        finalTotalPenalty,
-        user
-      }) => {
+      (
+        {
+          contestProblemRecord,
+          userId,
+          score,
+          finalScore,
+          totalPenalty,
+          finalTotalPenalty,
+          user
+        },
+        index
+      ) => {
         const getSubmissionCount = (problemId: number) => {
           const map = isFrozen
             ? submissionCountMapBeforeFreeze
@@ -574,7 +583,7 @@ export class ContestService {
           userId,
           totalPenalty: isFrozen ? totalPenalty : finalTotalPenalty,
           problemRecords,
-          rank: rank++
+          rank: ranks[index]
         }
       }
     )
@@ -1854,10 +1863,10 @@ export class ContestService {
             username: true
           }
         },
-        acceptedProblemNum: true,
+        finalScore: true, // TODO: 현재 contestRecord의 acceptedProblemNum 대신 finalScore가 맞힌 문제 수.
         finalTotalPenalty: true
       },
-      orderBy: [{ acceptedProblemNum: 'desc' }, { finalTotalPenalty: 'asc' }]
+      orderBy: [{ finalScore: 'desc' }, { finalTotalPenalty: 'asc' }]
     })
 
     const validRecords = contestRecords
@@ -1865,7 +1874,7 @@ export class ContestService {
       .map((record) => ({
         userId: record.userId!,
         username: record.user!.username,
-        solved: record.acceptedProblemNum,
+        solved: record.finalScore,
         penalty: record.finalTotalPenalty
       }))
 
@@ -1919,7 +1928,7 @@ export class ContestService {
               username: true
             }
           },
-          acceptedProblemNum: true,
+          finalScore: true,
           finalTotalPenalty: true,
           contestProblemRecord: {
             select: {
@@ -1972,15 +1981,15 @@ export class ContestService {
       where: { contestId },
       select: {
         userId: true,
-        acceptedProblemNum: true,
+        finalScore: true,
         finalTotalPenalty: true
       },
-      orderBy: [{ acceptedProblemNum: 'desc' }, { finalTotalPenalty: 'asc' }]
+      orderBy: [{ finalScore: 'desc' }, { finalTotalPenalty: 'asc' }]
     })
 
     const ranks = this.calculateRanks(
       allRecords.map((r) => ({
-        solved: r.acceptedProblemNum,
+        solved: r.finalScore,
         penalty: r.finalTotalPenalty
       }))
     )
@@ -2104,7 +2113,7 @@ export class ContestService {
       user: {
         rank: userRank,
         username: contestRecord.user.username,
-        totalSolved: contestRecord.acceptedProblemNum,
+        totalSolved: contestRecord.finalScore,
         totalPenalty: contestRecord.finalTotalPenalty,
         problemAnalysis,
         timeline,
