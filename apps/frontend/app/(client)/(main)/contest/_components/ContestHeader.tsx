@@ -1,29 +1,28 @@
-import dashboardIcon from '@/public/icons/dashboard-blue.svg'
-import gradeIcon from '@/public/icons/grade-blue.svg'
-import laptopCodingIcon from '@/public/icons/laptop-coding-blue.svg'
-import penIcon from '@/public/icons/pen-blue.svg'
-import Image from 'next/image'
+import DashboardIcon from '@/public/icons/dashboard.svg'
+import GradeIcon from '@/public/icons/grade-A.svg'
+import LaptopCodingIcon from '@/public/icons/laptop-coding.svg'
+import PenIcon from '@/public/icons/pen.svg'
 
 const FEATURE_LIST = [
   {
     title: '실시간 리더보드',
     desc: '콘테스트 중 IDE 내에서 직접 순위를 확인하세요.',
-    icon: dashboardIcon
+    icon: DashboardIcon
   },
   {
     title: '유동적인 특수 채점',
     desc: '특정 조건 문제에 대해서도 다양한 답변을 평가할 수 있어요.',
-    icon: penIcon
+    icon: PenIcon
   },
   {
     title: '사용자 정의 테스트케이스',
     desc: '제출 전, 페널티에 영향을 주지 않는 다양한 입력을 추가하세요.',
-    icon: laptopCodingIcon
+    icon: LaptopCodingIcon
   },
   {
     title: '대회 내 통계',
     desc: '성공률, 제출 횟수 및 더 많은 통계를 확인하세요.',
-    icon: gradeIcon
+    icon: GradeIcon
   }
 ]
 
@@ -47,9 +46,8 @@ export function ContestHeader() {
             <p className="text-body1_m_16 mb-4 line-clamp-2 text-[#5F6566]">
               {feature.desc}
             </p>
-            <Image
-              className="mt-auto self-end"
-              src={feature.icon}
+            <feature.icon
+              className="text-primary mt-auto self-end"
               alt={feature.title}
               width={44}
               height={44}

@@ -116,7 +116,7 @@ export function DataTableProblemFilterMini({
         type="button"
       >
         <IoFilter className="text-lg text-gray-400" />
-        <span className="text-sm font-medium text-gray-700">Problem</span>
+        <span className="text-body2_m_14 text-gray-700">Problem</span>
         <span className="ml-2 text-xs font-semibold text-gray-500">
           {getSelectedLabel()}
         </span>

@@ -46,17 +46,17 @@ func NewS3DataSource(bucket string) (*S3reader, error) {
 }
 
 func (s *S3reader) Save(data []byte, fileName string) error {
-  input := &s3.PutObjectInput{
-    Bucket: &s.bucket,
-    Key: &fileName,
-    Body: bytes.NewReader(data),
-  }
+	input := &s3.PutObjectInput{
+		Bucket: &s.bucket,
+		Key:    &fileName,
+		Body:   bytes.NewReader(data),
+	}
 
-  _, err := s.client.PutObject(context.TODO(), input)
+	_, err := s.client.PutObject(context.TODO(), input)
 
-  if err != nil {
-    return fmt.Errorf("cannot write in bucket: %w", err)
-  }
+	if err != nil {
+		return fmt.Errorf("cannot write in bucket: %w", err)
+	}
 
-  return nil
+	return nil
 }
