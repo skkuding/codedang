@@ -19,12 +19,11 @@ import {
 import { fetcherWithAuth } from '@/libs/utils'
 import { cn } from '@/libs/utils'
 import BottomCenterIcon from '@/public/icons/bottom-center.svg'
-import syncIcon from '@/public/icons/sync.svg'
+import SyncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import { useSidePanelTabStore } from '@/stores/editorTabs'
 import type { ProblemDetail, Contest } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
@@ -234,9 +233,7 @@ export function EditorMainResizablePanel({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Image
-                          src={syncIcon}
-                          alt="Sync"
+                        <SyncIcon
                           className={`${isFrozen ? '' : 'cursor-pointer'} ml-auto`}
                           onClick={() => {
                             if (!isFrozen) {
@@ -261,9 +258,7 @@ export function EditorMainResizablePanel({
             )}
             {tabValue === 'Submission' && contestId && (
               <div className="flex w-full gap-x-4">
-                <Image
-                  src={syncIcon}
-                  alt="Sync"
+                <SyncIcon
                   className={'ml-auto cursor-pointer'}
                   onClick={() => {
                     isSubmissionDetail
@@ -275,9 +270,7 @@ export function EditorMainResizablePanel({
             )}
             {tabValue === 'Qna' && contestId && (
               <div className="ml-auto flex gap-x-4">
-                <Image
-                  src={syncIcon}
-                  alt="Sync"
+                <SyncIcon
                   className={'ml-4 cursor-pointer'}
                   onClick={() => {
                     triggerQnaRefresh()

@@ -8,7 +8,6 @@ import { cn } from '@/libs/utils'
 import CheckIcon from '@/public/icons/check.svg'
 import MoreIcon from '@/public/icons/more.svg'
 import SettingsIcon from '@/public/icons/settings.svg'
-import Image from 'next/image'
 import Link from 'next/link'
 
 interface NotificationOptionsMenuProps {
@@ -52,7 +51,7 @@ export function NotificationOptionsMenu({
             isEditor && '!bg-slate-700 !text-gray-300 hover:!bg-slate-800'
           )}
         >
-          <Image src={SettingsIcon} alt="settings" width={13} height={12} />
+          <SettingsIcon width={13} height={12} />
           <Link onClick={() => setIsOpen(false)} href="/settings">
             Notification settings
           </Link>

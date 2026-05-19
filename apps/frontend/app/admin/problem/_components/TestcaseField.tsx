@@ -11,9 +11,10 @@ import {
 } from '@/components/shadcn/tooltip'
 import { cn } from '@/libs/utils'
 import PlusCircleWhiteIcon from '@/public/icons/plus-circle-white.svg'
+import SearchIcon from '@/public/icons/search.svg'
+import TrashcanIcon from '@/public/icons/trashcan.svg'
 import type { ZipUploadedTestcase } from '@/types/type'
 import type { Testcase } from '@generated/graphql'
-import Image from 'next/image'
 import {
   useEffect,
   useMemo,
@@ -580,12 +581,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             </Label>
             <div className="flex w-full items-center justify-between">
               <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
-                <Image
-                  src="/icons/search.svg"
-                  alt="Search Icon"
-                  width={16}
-                  height={16}
-                />
+                <SearchIcon width={16} height={16} />
                 <input
                   type="text"
                   placeholder="Search"
@@ -611,12 +607,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         className="bg-flowkit-red flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]"
                         disabled={blockEdit}
                       >
-                        <Image
-                          src="/icons/trashcan.svg"
-                          alt="trashcan Icon"
-                          width={18}
-                          height={18}
-                        />
+                        <TrashcanIcon width={18} height={18} />
                         <span className="ml-[6px] flex items-center text-center text-white">
                           Delete
                         </span>
@@ -641,12 +632,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             hasZipUploaded.sample
                           }
                         >
-                          <Image
-                            src="/icons/trashcan.svg"
-                            alt="trashcan Icon"
-                            width={18}
-                            height={18}
-                          />
+                          <TrashcanIcon width={18} height={18} />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Delete
                           </span>
@@ -719,12 +705,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             </Label>
             <div className="flex w-full items-center justify-between">
               <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
-                <Image
-                  src="/icons/search.svg"
-                  alt="Search Icon"
-                  width={16}
-                  height={16}
-                />
+                <SearchIcon width={16} height={16} />
                 <input
                   type="text"
                   placeholder="Search"
@@ -750,12 +731,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         className="bg-flowkit-red flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]"
                         disabled={blockEdit}
                       >
-                        <Image
-                          src="/icons/trashcan.svg"
-                          alt="trashcan Icon"
-                          width={18}
-                          height={18}
-                        />
+                        <TrashcanIcon width={18} height={18} />
                         <span className="ml-[6px] flex items-center text-center text-white">
                           Delete
                         </span>
@@ -780,12 +756,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             hasZipUploaded.hidden
                           }
                         >
-                          <Image
-                            src="/icons/trashcan.svg"
-                            alt="trashcan Icon"
-                            width={18}
-                            height={18}
-                          />
+                          <TrashcanIcon width={18} height={18} />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Delete
                           </span>

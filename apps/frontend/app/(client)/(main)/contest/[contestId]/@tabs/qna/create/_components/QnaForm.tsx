@@ -11,7 +11,6 @@ import type {
 } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useSession } from 'next-auth/react'
-import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'

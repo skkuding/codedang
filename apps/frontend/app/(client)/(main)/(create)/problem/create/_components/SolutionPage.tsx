@@ -5,7 +5,6 @@ import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import CodingIcon from '@/public/icons/coding.svg'
 import InfoIconGray from '@/public/icons/info-icon-gray.svg'
 import TrashCanIconGray from '@/public/icons/trashcan2-gray.svg'
-import Image from 'next/image'
 import { useRef, useState } from 'react'
 
 const LANGUAGE_DISPLAY_MAP: Record<string, string> = {
@@ -172,12 +171,7 @@ export function SolutionPage() {
                       type="button"
                       className="border-color-neutral-90 hover:bg-color-neutral-95 border-1 bg-color-neutral-99 rounded-full px-4 py-[10px]"
                     >
-                      <Image
-                        src={TrashCanIconGray}
-                        alt="trashcan icon gray"
-                        height={16}
-                        width={16}
-                      />
+                      <TrashCanIconGray height={16} width={16} />
                     </Button>
                   </div>
                 </div>

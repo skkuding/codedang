@@ -9,10 +9,9 @@ import ArrowRightIcon from '@/public/icons/arrow-right.svg'
 import FileInfoIcon from '@/public/icons/file-info.svg'
 import FilePenIcon from '@/public/icons/file-pen.svg'
 import InfoGrayIcon from '@/public/icons/info-gray.svg'
-import prizeIcon from '@/public/icons/prize.svg'
-import taskCompleteIcon from '@/public/icons/task-complete.svg'
+import PrizeIcon from '@/public/icons/prize.svg'
+import TaskCompleteIcon from '@/public/icons/task-complete.svg'
 import { useQuery } from '@apollo/client'
-import Image from 'next/image'
 import Link from 'next/link'
 
 interface ProblemUsageProps {
@@ -104,7 +103,7 @@ function ContestProblemSection({ contents }: ContestSectionProps) {
         <Link key={content.id} href={`/contest/${content.id}`}>
           <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
             <div className="flex items-start gap-[10px]">
-              <Image src={prizeIcon} alt="prizeIcon" />
+              <PrizeIcon />
 
               <div className="flex items-center gap-[2px] self-stretch hover:brightness-110">
                 <span>{content.title}</span>
@@ -130,11 +129,7 @@ function ExerciseProblemSection({ contents }: ProblemSectionProps) {
             >
               <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
                 <div className="flex items-start gap-[10px]">
-                  <Image
-                    src={taskCompleteIcon}
-                    alt="taskCompleteIcon"
-                    className="h-6 w-6"
-                  />
+                  <TaskCompleteIcon className="h-6 w-6" />
 
                   <div className="flex flex-col">
                     <div className="flex items-center gap-[2px]">
