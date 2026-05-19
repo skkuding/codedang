@@ -107,4 +107,3 @@ func (c *consumer) CleanUp() error {
 	// wait for handle() to exit
 	return <-c.Done
 }
-

@@ -91,15 +91,20 @@ function SidebarLink({
       href={item.path as Route}
       onClick={onClick}
       className={cn(
-        'flex items-center px-4 py-2 transition',
-        isActive ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100',
+        'flex items-center px-4 py-3 transition',
+        isActive
+          ? 'bg-primary text-white'
+          : 'text-color-neutral-30 hover:bg-gray-100',
         isExpanded ? 'rounded-full' : 'rounded-xs'
       )}
     >
       <item.icon
-        className={cn('h-4 w-4', isActive ? 'fill-white' : 'fill-gray-600')}
+        className={cn(
+          'h-4 w-4',
+          isActive ? 'fill-white' : 'fill-color-neutral-70'
+        )}
       />
-      {isExpanded && <span className="ml-3 text-sm">{item.name}</span>}
+      {isExpanded && <span className="text-sub3_sb_16 ml-3">{item.name}</span>}
     </Link>
   )
 }
@@ -223,11 +228,10 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
       >
         <button
           onClick={() => setIsMainSidebarExpanded(!isMainSidebarExpanded)}
-          className="absolute right-2 top-4 text-gray-500 hover:text-gray-700"
+          className="absolute right-0 top-6 text-gray-500 hover:text-gray-700"
         >
           {isMainSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
         </button>
-
         <div
           className={cn(
             'mb-6 mt-20 px-4',
@@ -245,7 +249,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
           )}
         </div>
         <Separator className="mb-4" />
-
         <div className="flex flex-col gap-2">
           {getFilteredMainNavItems().map((item) => (
             <div key={item.name}>
@@ -284,7 +287,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
                 pathname.startsWith('/admin/course') && (
                   <div
                     className={cn(
-                      'mt-4 flex flex-col gap-3 pl-4',
+                      'mt-4 flex flex-col gap-3 pl-4 text-left',
                       isMainSidebarExpanded && isAnimationComplete
                         ? ''
                         : 'hidden'
@@ -311,42 +314,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
           ))}
         </div>
       </motion.div>
-
-      {/* Course Sidebar */}
-      {isCourseSidebarOpened && (
-        <motion.div
-          initial={{ width: 190 }}
-          animate={{ width: isCourseSidebarExpanded ? 190 : 48 }}
-          className="relative flex flex-col"
-        >
-          <button
-            onClick={() => setIsCourseSidebarExpanded(!isCourseSidebarExpanded)}
-            className="absolute right-2 top-4 text-gray-500 hover:text-gray-700"
-          >
-            {isCourseSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
-          </button>
-          <div className="h-[3.8rem]" />
-          {selectedCourse && isCourseSidebarExpanded && (
-            <div className="absolute mt-16 text-gray-500">
-              <div className="font-semibold text-gray-700">
-                [{selectedCourse.code}]
-              </div>
-              <div>{selectedCourse.name}</div>
-              <div className="mt-5 w-[190px]">
-                <Separator />
-              </div>
-            </div>
-          )}
-
-          <div className="mt-20 flex flex-col gap-2">
-            <SideBar
-              navItems={getCourseNavItems(selectedCourseId)}
-              isSidebarExpanded={isCourseSidebarExpanded}
-              defaultItem="Home"
-            />
-          </div>
-        </motion.div>
-      )}
     </div>
   )
 }
