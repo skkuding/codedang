@@ -41,22 +41,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   },
-  experimental: {
-    turbo: {
-      rules: {
-        // public/icons 경로 아래에 SVG 파일을 발견하면 @svgr/webpack 로더를 거치게 함.
-        '*/public/icons/*.svg': {
-          loaders: [
-            {
-              loader: '@svgr/webpack',
-              options: {
-                typescript: true,
-                ext: 'tsx'
-              }
-            }
-          ],
-          as: '*.js'
-        }
+  turbopack: {
+    rules: {
+      './public/icons/*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js'
       }
     }
   },
