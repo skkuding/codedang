@@ -30,7 +30,7 @@ export function AdminQnaContentArea({
       {/* TITLE */}
       <div className="border-line flex flex-col gap-[16px] border-b-[1px] pb-[20px]">
         <div className="flex flex-col gap-[4px]">
-          <div className="round-full text-color-neutral-60 bg-color-neutral-99 flex w-fit items-center rounded-xl px-[16px] py-[4px] text-sm font-medium">
+          <div className="round-full text-color-neutral-60 bg-color-neutral-99 text-body2_m_14 flex w-fit items-center rounded-xl px-[16px] py-[4px]">
             {`No. ${order}`}
           </div>
           <div className="flex items-center justify-between gap-[20px]">

@@ -108,7 +108,7 @@ export function createPlagiarismResultColumns(
           <button
             type="button"
             onClick={() => onClusterClick(clusterId)}
-            className="text-primary text-sm font-medium hover:underline"
+            className="text-primary text-body2_m_14 hover:underline"
           >
             #{displayNo}
           </button>
@@ -124,7 +124,7 @@ export function createPlagiarismResultColumns(
         <button
           type="button"
           onClick={() => onCompareClick(row.original)}
-          className="text-primary text-sm font-medium hover:underline"
+          className="text-primary text-body2_m_14 hover:underline"
         >
           Compare
         </button>

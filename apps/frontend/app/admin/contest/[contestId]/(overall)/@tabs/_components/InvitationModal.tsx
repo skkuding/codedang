@@ -39,7 +39,7 @@ export function InvitationModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          className={`border-primary text-primary ml-5 h-[46px] w-[111px] border bg-white px-6 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px] hover:bg-white ${disabled ? 'pointer-events-none' : ''}`}
+          className={`border-primary text-primary text-body1_m_16 ml-5 h-[46px] w-[111px] border bg-white px-6 py-3 leading-[22.4px] tracking-[-0.48px] hover:bg-white ${disabled ? 'pointer-events-none' : ''}`}
           type="button"
         >
           Invitation

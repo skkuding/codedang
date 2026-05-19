@@ -849,16 +849,14 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             </Tooltip>
           </TooltipProvider>
           <div className="flex items-center">
-            <span className="text-base font-medium text-[#474747]">
-              Total of
-            </span>
+            <span className="text-body1_m_16 text-[#474747]">Total of</span>
             <span className="ml-1 mr-5 font-medium text-[#3581FA]">
               {filteredItems.length}
             </span>
-            <div className="hide-spin-button mr-1 flex h-7 w-20 items-center justify-center rounded-[1000px] border border-[#D8D8D8] bg-[#F5F5F5] px-2 py-1 text-center text-base font-medium text-[#000000]">
+            <div className="hide-spin-button text-body1_m_16 mr-1 flex h-7 w-20 items-center justify-center rounded-[1000px] border border-[#D8D8D8] bg-[#F5F5F5] px-2 py-1 text-center text-[#000000]">
               {totalScore}
             </div>
-            <span className="text-sm font-semibold text-[#737373]">(%)</span>
+            <span className="text-sub4_sb_14 text-[#737373]">(%)</span>
           </div>
         </div>
         <div className="mt-5 flex w-full justify-end gap-3">
