@@ -44,7 +44,7 @@ export class ContestService {
         where: {
           userId,
           role: {
-            in: [ContestRole.Admin, ContestRole.Manager, ContestRole.Reviewer]
+            in: [ContestRole.Admin, ContestRole.Manager]
           }
         },
         select: { contestId: true }
@@ -71,11 +71,7 @@ export class ContestService {
                 some: {
                   userId,
                   role: {
-                    in: [
-                      ContestRole.Admin,
-                      ContestRole.Manager,
-                      ContestRole.Reviewer
-                    ]
+                    in: [ContestRole.Admin, ContestRole.Manager]
                   }
                 }
               }
