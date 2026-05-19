@@ -63,30 +63,38 @@ export function QnaTable({ groupId }: QnaTableProps) {
       columns={columns}
       defaultSortState={[{ id: 'createTime', desc: true }]}
     >
-      <div className="mt-15 mb-4 flex items-center gap-2">
-        <span className="text-primary text-[30px] font-extrabold">
-          {qnas.length}
-        </span>
-        <span className="text-[26px] font-semibold text-black">Questions</span>
-      </div>
-      <div className="mb-4 flex items-center justify-between">
-        <div className="bg-color-commmon-100 border-line flex rounded-full border p-[5px]">
-          {['General', 'Problem'].map((tab) => (
-            <Button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={cn(
-                'h-9 w-[190px] flex-1 py-2 text-base font-normal',
-                activeTab === tab
-                  ? 'bg-primary border-primary text-white hover:border-blue-600'
-                  : 'bg-color-commmon-100 hover:bg-color-neutral-99 text-[#808080]'
-              )}
-            >
-              {tab}
-            </Button>
-          ))}
+      <div className="mb-4 flex w-full items-center justify-between">
+        <div className="flex gap-5">
+          <div className="flex items-center gap-2">
+            <span className="text-primary text-[30px] font-extrabold">
+              {qnas.length}
+            </span>
+            <span className="text-[26px] font-semibold text-black">
+              {qnas.length <= 1 ? 'Question' : 'Questions'}
+            </span>
+          </div>
+          <div className="bg-color-commmon-100 border-line flex rounded-full border p-[5px]">
+            {['General', 'Problem'].map((tab) => (
+              <Button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  'h-9 w-[190px] flex-1 py-2 text-base font-normal',
+                  activeTab === tab
+                    ? 'bg-primary border-primary text-white hover:border-blue-600'
+                    : 'bg-color-commmon-100 hover:bg-color-neutral-99 text-[#808080]'
+                )}
+              >
+                {tab}
+              </Button>
+            ))}
+          </div>
         </div>
-        <DataTableSearchBar columndId="title" />
+        <DataTableSearchBar
+          columndId="title"
+          sizeVariant="lg"
+          className="w-[350px]"
+        />
       </div>
       <DataTable
         getHref={undefined}

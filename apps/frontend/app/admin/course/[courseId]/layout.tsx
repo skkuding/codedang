@@ -5,6 +5,8 @@ import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
+import { title } from 'process'
+import { description } from 'valibot'
 
 export default function CourseDetailLayout({
   children
@@ -30,24 +32,47 @@ export default function CourseDetailLayout({
     currentCourse?.groupName || (loading ? '로딩 중...' : '과목 정보 없음')
 
   const tabs = [
-    { name: 'Home', href: `/admin/course/${courseId}` },
-    { name: 'Member', href: `/admin/course/${courseId}/user` },
-    { name: 'Assignment', href: `/admin/course/${courseId}/assignment` },
-    { name: 'Exercise', href: `/admin/course/${courseId}/exercise` }
+    { name: 'Home', title: 'HOME', href: `/admin/course/${courseId}` },
+    {
+      name: 'Member',
+      title: 'MEMBER',
+      description:
+        "Here's a list of the instructors and students of the course",
+      href: `/admin/course/${courseId}/user`
+    },
+    {
+      name: 'Assignment',
+      title: 'ASSIGNMENT',
+      description: "Here's a assignment list you made",
+      href: `/admin/course/${courseId}/assignment`
+    },
+    {
+      name: 'Exercise',
+      title: 'EXERCISE',
+      description: "Here's a exercise list you made",
+      href: `/admin/course/${courseId}/exercise`
+    },
+    {
+      name: 'Q&A',
+      title: 'Question & Answer',
+      description:
+        'Assignment와 Exercise 문제와 관련된 질문과 답변을 제공합니다.',
+      href: `/admin/course/${courseId}/qna`
+    }
   ]
 
   const activeTabName =
-    tabs.find((tab) => pathname === tab.href)?.name || 'Home'
+    tabs.find((tab) => pathname === tab.href)?.title || 'HOME'
 
   return (
     <div className="flex w-full flex-col">
-      <div className="mx-auto w-full pb-[71px] pl-[86px] pr-[106px] pt-[80px]">
-        <div className="w-full">
-          <h1 className="text-head3_sb_28 uppercase">{activeTabName}</h1>
-          <p className="text-body1_m_16 text-color-neutral-50">
-            [{courseCode}] {courseTitle}
-          </p>
-        </div>
+      <div className="pb-[71px] pl-[86px] pr-[106px] pt-[80px]">
+        <h1 className="text-head3_sb_28">{activeTabName}</h1>
+        <p className="text-body1_m_16 text-color-neutral-50">
+          {activeTabName === 'HOME'
+            ? `[${courseCode}] ${courseTitle}`
+            : tabs.find((tab) => tab.title === activeTabName)?.description}
+        </p>
 
         <div className="mx-auto my-10 w-full">
           <div className="w-full">
