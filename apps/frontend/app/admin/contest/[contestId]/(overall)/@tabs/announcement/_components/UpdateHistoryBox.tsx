@@ -126,7 +126,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
             width={18}
             className={cn(!openHistory && 'rotate-180')}
           />
-          <p className="text-primary ml-[6px] text-base font-medium leading-[22.4px] tracking-[0.48px]">
+          <p className="text-primary text-body1_m_16 ml-[6px] leading-[22.4px] tracking-[0.48px]">
             {seemore}
           </p>
         </Button>
@@ -139,7 +139,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
           }}
         >
           <Image src={arrowThinIcon} alt="arrow_bottom_thin" width={18} />
-          <p className="text-color-neutral-70 ml-[6px] text-base font-medium leading-[22.4px] tracking-[0.48px]">
+          <p className="text-color-neutral-70 text-body1_m_16 ml-[6px] leading-[22.4px] tracking-[0.48px]">
             {seemore}
           </p>
         </Button>

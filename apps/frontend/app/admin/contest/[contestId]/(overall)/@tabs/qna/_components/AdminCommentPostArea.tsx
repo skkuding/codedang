@@ -40,7 +40,7 @@ export function AdminCommentPostArea({
         className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-[6px]"
       >
         <BiSolidPencil className="white" />
-        <p className="text-base font-medium text-white">Post</p>
+        <p className="text-body1_m_16 text-white">Post</p>
       </Button>
     </div>
   )

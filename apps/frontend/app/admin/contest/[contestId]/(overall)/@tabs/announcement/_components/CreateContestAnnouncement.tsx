@@ -122,7 +122,7 @@ export function CreateContestAnnouncement({
             )}
           />
           {errors.content && <ErrorMessage />}
-          <p className="text-color-neutral-80 absolute bottom-[30px] right-[30px] text-base font-medium leading-[22.4px] tracking-[-0.48px]">
+          <p className="text-color-neutral-80 text-body1_m_16 absolute bottom-[30px] right-[30px] leading-[22.4px] tracking-[-0.48px]">
             {txtlength}/400
           </p>
         </div>
