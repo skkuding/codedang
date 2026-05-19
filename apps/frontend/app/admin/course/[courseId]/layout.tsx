@@ -40,7 +40,7 @@ export default function CourseDetailLayout({
     tabs.find((tab) => pathname === tab.href)?.name || 'Home'
 
   return (
-    <div className="flex min-h-screen w-full flex-col overflow-y-scroll bg-white">
+    <div className="flex w-full flex-col">
       <div className="mx-auto w-full pb-[71px] pl-[86px] pr-[106px] pt-[80px]">
         <div className="w-full">
           <h1 className="text-head3_sb_28 uppercase">{activeTabName}</h1>
