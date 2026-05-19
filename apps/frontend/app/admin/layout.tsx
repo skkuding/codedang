@@ -72,12 +72,35 @@ export default async function Layout({
 
   return (
     <ClientApolloProvider session={session}>
-      <div className="flex h-dvh overflow-hidden bg-white">
-        <nav className="text-body2_m_14 shrink-0 bg-white">
+      <div className="flex h-dvh bg-white">
+        <nav className="text-body2_m_14 bg-white p-2 pb-6 shadow-[8px_0_24px_rgba(0,0,0,0.06)]">
+          {/* Todo: Group 기능 추가 시, Public Button 대신 GroupSelect 컴포넌트로 변경 */}
+          {/* <GroupSelect /> */}
+          {/* <Link href="/" className="ml-6">
+            <Image
+              src={codedangLogo}
+              alt="코드당"
+              width={135.252}
+              height={28}
+            />
+          </Link>
+          <Separator className="my-4 transition" /> */}
+          {/* <GroupAdminSideBar /> */}
+          {/* <SideBar /> */}
+          {/*TODO: role이 groupAdmin인지 확인하고 아니면 그냥 SideBar를 보여주도록 할 예정 */}
+          {/* <Link
+            href={'/' as Route}
+            className="mt-auto rounded-xs px-4 py-2 text-slate-600 transition hover:bg-slate-100"
+          >
+            <FaArrowRightFromBracket className="mr-2 inline-block" />
+            Quit
+          </Link> */}
           <ManagementSidebar session={session} />
         </nav>
         {/*NOTE: full width - sidebar width */}
-        <div className="relative flex-1 overflow-y-auto">{children}</div>
+        <div className="relative w-[calc(100%-15rem)] flex-1 overflow-y-auto [scrollbar-gutter:stable]">
+          {children}
+        </div>
       </div>
     </ClientApolloProvider>
   )

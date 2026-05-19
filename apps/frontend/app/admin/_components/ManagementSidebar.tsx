@@ -91,15 +91,20 @@ function SidebarLink({
       href={item.path as Route}
       onClick={onClick}
       className={cn(
-        'flex items-center px-4 py-2 transition',
-        isActive ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100',
+        'flex items-center px-4 py-3 transition',
+        isActive
+          ? 'bg-primary text-white'
+          : 'text-color-neutral-30 hover:bg-gray-100',
         isExpanded ? 'rounded-full' : 'rounded-xs'
       )}
     >
       <item.icon
-        className={cn('h-4 w-4', isActive ? 'fill-white' : 'fill-gray-600')}
+        className={cn(
+          'h-4 w-4',
+          isActive ? 'fill-white' : 'fill-color-neutral-70'
+        )}
       />
-      {isExpanded && <span className="ml-3 text-sm">{item.name}</span>}
+      {isExpanded && <span className="text-sub3_sb_16 ml-3">{item.name}</span>}
     </Link>
   )
 }
@@ -212,60 +217,41 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
   )
 
   return (
-    <div className="flex h-full bg-white">
+    <div className="mx-6 flex h-full gap-5">
       {/* Main Sidebar */}
       <motion.div
-        initial={{ width: 238 }}
-        animate={{ width: isMainSidebarExpanded ? 238 : 96 }}
-        className={cn(
-          'relative z-50 flex flex-col bg-[#FFFFFF] pb-[24px] pt-[40px] transition-all',
-          'shadow-[6px_0_20px_0_rgba(0,0,0,0.06)]',
-          isMainSidebarExpanded ? 'px-[24px]' : 'items-center px-0'
-        )}
+        initial={{ width: 190 }}
+        animate={{ width: isMainSidebarExpanded ? 190 : 48 }}
+        className="relative flex flex-col"
         onAnimationStart={() => setIsAnimationComplete(false)}
         onAnimationComplete={() => setIsAnimationComplete(true)}
       >
+        <button
+          onClick={() => setIsMainSidebarExpanded(!isMainSidebarExpanded)}
+          className="absolute right-0 top-6 text-gray-500 hover:text-gray-700"
+        >
+          {isMainSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
+        </button>
         <div
           className={cn(
-            'mb-[40px] flex w-full',
-            isMainSidebarExpanded ? 'justify-end' : 'justify-center'
+            'mb-6 mt-20 px-4',
+            isMainSidebarExpanded || 'flex justify-center'
           )}
         >
-          <button
-            onClick={() => setIsMainSidebarExpanded(!isMainSidebarExpanded)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            {isMainSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
-          </button>
-        </div>
-
-        <div className={cn('mb-6 flex items-center justify-center')}>
           {isMainSidebarExpanded ? (
             <Link href="/">
-              <Image
-                src={codedangWithTextIcon}
-                alt="코드당"
-                className="h-auto w-full"
-              />
+              <Image src={codedangWithTextIcon} alt="코드당" />
             </Link>
           ) : (
-            <Link
-              href="/"
-              className="flex h-5 w-10 items-center justify-center"
-            >
-              <Image
-                src={codedangIcon}
-                alt="코드당"
-                className="h-6 w-6 object-contain"
-              />
+            <Link href="/" className="h-5 w-10">
+              <Image src={codedangIcon} alt="코드당" className="max-w-[30px]" />
             </Link>
           )}
         </div>
-
-        <Separator className="mb-6" />
+        <Separator className="mb-4" />
         <div className="flex flex-col gap-2">
           {getFilteredMainNavItems().map((item) => (
-            <div key={item.name} className="w-full text-center">
+            <div key={item.name}>
               <SidebarLink
                 item={item}
                 isActive={

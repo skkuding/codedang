@@ -3,7 +3,6 @@
 import { GET_COURSE } from '@/graphql/course/queries'
 import { cn } from '@/libs/utils'
 import { useQuery } from '@apollo/client'
-import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 
@@ -26,8 +25,8 @@ export default function CourseDetailLayout({
   const courseNum = currentCourse?.courseInfo?.courseNum
   const classNum = currentCourse?.courseInfo?.classNum
 
-  const displayCode = courseNum ? `${courseNum}-${classNum}` : courseId
-  const displayName =
+  const courseCode = courseNum ? `${courseNum}-${classNum}` : courseId
+  const courseTitle =
     currentCourse?.groupName || (loading ? '로딩 중...' : '과목 정보 없음')
 
   const tabs = [
@@ -44,11 +43,9 @@ export default function CourseDetailLayout({
     <div className="flex min-h-screen w-full flex-col overflow-y-scroll bg-white">
       <div className="mx-auto w-full pb-[71px] pl-[86px] pr-[106px] pt-[80px]">
         <div className="w-full">
-          <h1 className="text-head3_sb_28 uppercase text-black">
-            {activeTabName}
-          </h1>
-          <p className="text-body1_m_16 text-[#737373]">
-            [{displayCode}] {displayName}
+          <h1 className="text-head3_sb_28 uppercase">{activeTabName}</h1>
+          <p className="text-body1_m_16 text-color-neutral-50">
+            [{courseCode}] {courseTitle}
           </p>
         </div>
 
@@ -60,12 +57,12 @@ export default function CourseDetailLayout({
                 return (
                   <Link
                     key={`tab-${tab.name}`}
-                    href={tab.href as Route}
+                    href={tab.href}
                     className={cn(
-                      'text-sub4_sb_14 relative flex h-[40px] w-[285.5px] items-center justify-center pb-4 transition-colors',
+                      'text-sub3_sb_16 relative flex h-[40px] w-[285.5px] items-center justify-center pb-4 transition-colors',
                       isActive
                         ? 'text-primary after:bg-primary after:absolute after:bottom-[-1px] after:left-0 after:h-[2px] after:w-full'
-                        : 'text-gray-400 hover:text-gray-600'
+                        : 'text-color-neutral-40 hover:text-color-neutral-70'
                     )}
                   >
                     {tab.name}

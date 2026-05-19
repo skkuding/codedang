@@ -93,7 +93,7 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
 
   return (
     <Provider value={{ table }}>
-      <div className="flex w-full flex-col">{children}</div>
+      <div className="w-full space-y-4">{children}</div>
     </Provider>
   )
 }
