@@ -101,7 +101,9 @@ function SidebarLink({
       <item.icon
         className={cn(
           'h-4 w-4',
-          isActive ? 'fill-white' : 'fill-color-neutral-70'
+          isActive
+            ? 'fill-white'
+            : 'fill-color-neutral-70 text-color-neutral-70'
         )}
       />
       {isExpanded && <span className="text-sub3_sb_16 ml-3">{item.name}</span>}
