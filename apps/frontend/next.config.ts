@@ -67,13 +67,11 @@ const nextConfig = {
 
     if (fileLoaderRule) {
       fileLoaderRule.exclude = (resourcePath: string) => {
-        return (
-          resourcePath.includes(path.join('public', 'icons')) &&
-          /\.svg$/i.test(resourcePath)
-        )
+        return /\.svg$/i.test(resourcePath)
       }
     }
 
+    // public/icons: SVGR로 처리 (React component)
     config.module.rules.push({
       test: /\.svg$/i,
       include: path.resolve(__dirname, 'public/icons'),
@@ -86,6 +84,13 @@ const nextConfig = {
           }
         }
       ]
+    })
+
+    // public/icons 제외한 다른 SVG: URL asset으로 처리
+    config.module.rules.push({
+      test: /\.svg$/i,
+      exclude: path.resolve(__dirname, 'public/icons'),
+      type: 'asset/resource'
     })
 
     return config
