@@ -35,18 +35,6 @@ enum JobType {
   Other
 }
 
-enum ConsentType {
-  TermsOfService
-  Privacy
-  MinorPrivacy
-  Marketing
-}
-
-enum ProfileImageType {
-  System
-  Custom
-}
-
 enum Provider {
   github
   kakao
@@ -66,11 +54,11 @@ enum ProblemField {
 
 model User {
   id                       Int                @id @default(autoincrement())
-  username                 String             @unique //회원가입할때 입력하는 ID
+  username                 String             @unique //회원가입 ID
   nickname                 String             @unique //활동 닉네임
-  jobType                  JobType            @default(CollegeStudent)
   /// @HideField()
   password                 String
+  jobType                  JobType            @default(CollegeStudent)
   role                     Role               @default(User)
   email                    String             @unique
   studentId                String             @default("0000000000") @map("student_id")
@@ -85,7 +73,6 @@ model User {
   createdCourseQnAComments CourseQnAComment[] @relation("CreatedByUserCourseQnAComment")
 
   userProfile              UserProfile?
-  userConsent              UserConsent[]
   userGroup                UserGroup[]
   notice                   Notice[]
   problem                  Problem[]
@@ -129,33 +116,15 @@ model UserOAuth {
 }
 
 model UserProfile {
-  id               Int              @id @default(autoincrement())
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId           Int              @unique @map("user_id")
-  realName         String           @map("real_name")
-  profileImageType ProfileImageType @default(System) //프로필 이미지 종류
-  systemImageSeed  String //DiceBear 이미지 seed값 (시스템 생성 이미지)
-  customImageKey   String? //사용자가 업로드한 프로필 이미지 S3 Key값
-  createTime       DateTime         @default(now()) @map("create_time")
-  updateTime       DateTime         @updatedAt @map("update_time")
+  id              Int      @id @default(autoincrement())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          Int      @unique @map("user_id")
+  realName        String   @map("real_name")
+  profileImageRef String   @map("profile_image_ref")
+  createTime      DateTime @default(now()) @map("create_time")
+  updateTime      DateTime @updatedAt @map("update_time")
 
   @@map("user_profile")
-}
-
-model UserConsent {
-  id         Int         @id @default(autoincrement())
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int         @map("user_id")
-  type       ConsentType
-  version    String
-  agreed     Boolean
-  agreedAt   DateTime?   @map("agreed_at")
-  revokedAt  DateTime?   @map("revoked_at")
-  createTime DateTime    @default(now()) @map("create_time")
-  updateTime DateTime    @updatedAt @map("update_time")
-
-  @@unique([userId, type, version])
-  @@map("user_consent")
 }
 
 model UserGroup {
