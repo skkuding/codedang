@@ -5,10 +5,11 @@ import { Button } from '@/components/shadcn/button'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { GET_PROBLEM_DETAIL } from '@/graphql/problem/queries'
 import { GET_SUBMISSIONS } from '@/graphql/submission/queries'
+import PenIcon from '@/public/icons/pen.svg'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { FaAngleLeft, FaEye, FaPencil } from 'react-icons/fa6'
+import { FaAngleLeft, FaEye } from 'react-icons/fa6'
 import {
   DataTable,
   DataTablePagination,
@@ -60,7 +61,7 @@ export default function Page() {
             </Link>
             <Link href={`/admin/problem/${problemId}/edit`}>
               <Button variant="default">
-                <FaPencil className="mr-2 h-4 w-4" />
+                <PenIcon className="mr-2 h-4 w-4 text-white" />
                 Edit
               </Button>
             </Link>

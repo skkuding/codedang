@@ -1,9 +1,8 @@
 import { Badge } from '@/components/shadcn/badge'
 import { Card, CardContent } from '@/components/shadcn/card'
-import GrayRightArrowIcon from '@/public/icons/arrow-right-gray.svg'
-import RightArrow from '@/public/icons/arrow-right-white.svg'
+import RightArrow from '@/public/icons/arrow-right-narrow.svg'
+import GrayRightArrowIcon from '@/public/icons/arrow-right.svg'
 import type { Problem } from '@/types/type'
-import Image from 'next/image'
 import Link from 'next/link'
 
 export function NewProblemCard({ problem }: { problem: Problem }) {
@@ -27,7 +26,7 @@ export function NewProblemCard({ problem }: { problem: Problem }) {
               </p>
               <div className="flex items-center gap-2.5 rounded-full bg-black p-2">
                 <div className="relative size-[24px]">
-                  <Image src={RightArrow} alt="Right" fill />
+                  <RightArrow className="text-white" />
                 </div>
               </div>
             </div>
@@ -52,12 +51,7 @@ export function NewProblemCard({ problem }: { problem: Problem }) {
                   {problem.title}
                 </p>
 
-                <Image
-                  src={GrayRightArrowIcon}
-                  alt="Right"
-                  width={16}
-                  height={16}
-                />
+                <GrayRightArrowIcon className="text-color-neutral-90 h-4 w-4" />
               </div>
             </div>
           </CardContent>

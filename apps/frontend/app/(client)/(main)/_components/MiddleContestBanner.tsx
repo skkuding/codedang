@@ -1,6 +1,6 @@
 import { Button } from '@/components/shadcn/button'
 import { contestNoticeId } from '@/libs/constants'
-import RightIcon from '@/public/icons/arrow-right-white.svg'
+import RightIcon from '@/public/icons/arrow-right.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { JSX } from 'react'
@@ -103,7 +103,7 @@ function BarButton() {
         </Text>
         <div className="flex h-full max-h-[46px] w-full max-w-[46px] items-center justify-center rounded-full bg-black">
           <div className="text-background relative flex size-[30px] items-center justify-center">
-            <Image src={RightIcon} alt="Right" fill />
+            <RightIcon className="m-2 w-full text-white" />
           </div>
         </div>
       </Link>

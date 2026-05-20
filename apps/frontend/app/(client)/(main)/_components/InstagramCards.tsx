@@ -1,8 +1,7 @@
 'use client'
 
-import rightArrow from '@/public/icons/arrow-right-white.svg'
+import RightArrowIcon from '@/public/icons/arrow-right-narrow.svg'
 import type { Post, InstagramApiResponse } from '@/types/instagram'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { InstagramCard } from './InstagramCard'
@@ -47,11 +46,7 @@ export function InstagramCards() {
           className="flex items-center justify-center gap-1 rounded-full bg-black py-[10px] pl-[30px] pr-5 text-xl text-white hover:opacity-75"
         >
           <span>Go to Instagram</span>
-          <Image
-            src={rightArrow}
-            alt="rightArrow"
-            className="h-[18px] w-[18px]"
-          />
+          <RightArrowIcon className="text-color-neutral-90 h-[18px] w-[18px]" />
         </Link>
       </div>
     </div>
