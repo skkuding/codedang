@@ -52,7 +52,7 @@ export function InstagramCards() {
           ))}
         </div>
       ) : (
-        <div className="mb-[78px] grid place-items-center">
+        <div className="text-caprion1_m_13 mb-[78px] grid place-items-center">
           게시물을 불러오는 데 실패했습니다
         </div>
       )}
