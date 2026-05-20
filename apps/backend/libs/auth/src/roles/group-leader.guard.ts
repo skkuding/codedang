@@ -26,12 +26,10 @@ export class GroupLeaderGuard implements CanActivate {
     let groupId: number
     if (context.getType<GqlContextType>() === 'graphql') {
       request = GqlExecutionContext.create(context).getContext().req
-      groupId = parseInt(
-        context
-          .getArgs()
-          .find((arg) => typeof arg === 'object' && 'groupId' in arg)
-          ?.groupId ?? 0
-      )
+      const gqlArg = context
+        .getArgs()
+        .find((arg) => typeof arg === 'object' && arg !== null)
+      groupId = parseInt(gqlArg?.groupId ?? gqlArg?.input?.groupId ?? 0)
     } else {
       request = context.switchToHttp().getRequest()
       groupId = parseInt(request.params.groupId)
