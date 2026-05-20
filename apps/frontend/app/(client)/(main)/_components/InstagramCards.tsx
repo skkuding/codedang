@@ -34,7 +34,7 @@ export function InstagramCards() {
   }, [])
 
   return (
-    <div className="w-full max-w-[1360px]">
+    <div className="mx-auto w-full max-w-[1360px]">
       <div className="mb-7 flex items-center justify-between">
         <span className="text-head1_b_40">
           우리의 최신 소식은 여기에 있어요
@@ -55,7 +55,7 @@ export function InstagramCards() {
       {isLoading && <InstagramCardsSkeleton />}
 
       {!isLoading && isError && (
-        <div className="text-caprion1_m_13 text-color-neutral-20 mb-[78px] grid place-items-center">
+        <div className="text-caption1_m_13 text-color-neutral-20 mb-[78px] grid place-items-center">
           게시물을 불러오는 데 실패했습니다
         </div>
       )}
