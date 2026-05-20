@@ -103,9 +103,11 @@ const { userGroup, ...simpleGroup } = group
 const user: User = {
   id: 1,
   username: 'user',
+  nickname: 'user',
   email: 'example@codedang.com',
   password: 'password',
   role: Role.Admin,
+  jobType: 'CollegeStudent',
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),

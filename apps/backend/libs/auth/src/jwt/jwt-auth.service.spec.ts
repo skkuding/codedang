@@ -7,8 +7,10 @@ import * as proxyquire from 'proxyquire'
 const user: User = {
   id: 1,
   username: 'user',
+  nickname: 'user',
   password: 'thisIsPassword',
   role: 'User',
+  jobType: 'CollegeStudent',
   email: 'email@codedang.com',
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
