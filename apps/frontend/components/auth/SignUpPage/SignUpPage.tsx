@@ -14,13 +14,7 @@ import { toast } from 'sonner'
 import { signupSchema } from './signup.schema'
 import type { SignUpFormValues } from './signup.type'
 
-const JOB_OPTIONS = [
-  '고등학생 이하',
-  '대학생',
-  '직장인',
-  '무직',
-  '기타'
-] as const
+const JOB_OPTIONS = ['고등학생', '대학생', '직장인', '기타'] as const
 
 const NICKNAME_ADJECTIVES = [
   '신나는',
@@ -127,7 +121,6 @@ export function SignUpPage() {
     mode: 'onChange',
     defaultValues: {
       name: '',
-      birth: '',
       userId: '',
       password: '',
       passwordConfirm: '',
@@ -146,6 +139,7 @@ export function SignUpPage() {
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isUserIdAvailable, setIsUserIdAvailable] = useState(false)
+  const [isCheckingUserId, setIsCheckingUserId] = useState(false)
   const [isNicknameAvailable, setIsNicknameAvailable] = useState(false)
   const [nicknameChecked, setNicknameChecked] = useState(false)
   const [emailLocal, setEmailLocal] = useState('')
@@ -165,7 +159,6 @@ export function SignUpPage() {
 
   const watchPassword = watch('password')
   const watchPasswordConfirm = watch('passwordConfirm')
-  const watchBirth = watch('birth')
   const watchJob = watch('job')
   const watchUserId = watch('userId')
   const watchUniversity = watch('university')
@@ -296,6 +289,7 @@ export function SignUpPage() {
     if (!valid) {
       return
     }
+    setIsCheckingUserId(true)
     try {
       await safeFetcher.get(`user/username-check?username=${watchUserId}`)
       clearErrors('userId')
@@ -303,6 +297,8 @@ export function SignUpPage() {
     } catch {
       setError('userId', { message: '중복된 아이디입니다' })
       setIsUserIdAvailable(false)
+    } finally {
+      setIsCheckingUserId(false)
     }
   }
 
@@ -442,9 +438,6 @@ export function SignUpPage() {
     if (errors.userId) {
       return 'border-error focus:border-error'
     }
-    if (isUserIdAvailable) {
-      return 'border-primary focus:border-primary'
-    }
     return 'focus:border-primary border-line'
   }
 
@@ -519,27 +512,6 @@ export function SignUpPage() {
             </div>
 
             <div className="flex w-full flex-col gap-1">
-              <label className="text-caption2_m_12">생년월일 6자리</label>
-              <input
-                type="text"
-                placeholder="YYMMDD"
-                maxLength={6}
-                className={cn(
-                  'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
-                  errors.birth
-                    ? 'border-error focus:border-error'
-                    : 'focus:border-primary border-line'
-                )}
-                {...register('birth')}
-              />
-              {watchBirth && errors.birth?.message && (
-                <p className="text-caption3_r_13 text-color-red-50">
-                  {errors.birth.message}
-                </p>
-              )}
-            </div>
-
-            <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">아이디</label>
               <div className="flex gap-[6px]">
                 <input
@@ -566,6 +538,7 @@ export function SignUpPage() {
                 </p>
               )}
               {!errors.userId &&
+                !isCheckingUserId &&
                 touchedFields.userId &&
                 !isUserIdAvailable &&
                 watchUserId.length >= 3 && (
@@ -975,7 +948,7 @@ export function SignUpPage() {
                 >
                   {emailSent && !codeExpired && !emailVerified
                     ? '재발송'
-                    : '인증 하기'}
+                    : '인증하기'}
                 </button>
               </div>
               {errors.email?.message && (
@@ -1023,7 +996,7 @@ export function SignUpPage() {
                     type="button"
                     onClick={() => verifyPin(verificationCode)}
                     disabled={verificationCode.length !== 6 || codeExpired}
-                    className="text-caption2_m_12 bg-primary h-[46px] shrink-0 rounded-[12px] px-4 text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    className="text-sub3_sb_16 bg-primary h-[46px] shrink-0 rounded-[12px] px-4 text-white disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     인증 확인
                   </button>
