@@ -2,9 +2,8 @@
 
 import { ContestStatusTimeDiff } from '@/components/ContestStatusTimeDiff'
 import { cn, dateFormatter } from '@/libs/utils'
-import calendarIcon from '@/public/icons/calendar.svg'
+import CalendarIcon from '@/public/icons/calendar.svg'
 import type { Contest } from '@/types/type'
-import Image from 'next/image'
 import 'react-circular-progressbar/dist/styles.css'
 import { StatusBadge } from './StatusBadge'
 
@@ -52,7 +51,7 @@ export function ContestCard({ contest }: Props) {
       <div className="mb-4 flex items-center justify-between">
         <div className="line-clamp-2 flex flex-col gap-2">
           <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
-            <Image src={calendarIcon} alt="calendar" width={16} height={16} />
+            <CalendarIcon width={16} height={16} />
             <p className="overflow-hidden text-ellipsis whitespace-pre-wrap">
               {startTime} ~ {endTime}
             </p>
