@@ -14,12 +14,12 @@ import { GET_COURSE_QNA } from '@/graphql/qna/queries'
 import { GET_COURSE_QNAS } from '@/graphql/qna/queries'
 import { useSession } from '@/libs/hooks/useSession'
 import { dateFormatter } from '@/libs/utils'
-import checkBlueIcon from '@/public/icons/check-blue.svg'
-import clockIcon from '@/public/icons/clock_blue.svg'
-import infoGrayIcon from '@/public/icons/info-gray.svg'
-import lockGrayIcon from '@/public/icons/lock-gray.svg'
-import penIcon from '@/public/icons/pen.svg'
-import userIcon from '@/public/icons/person-fill.svg'
+import CheckIcon from '@/public/icons/check-circle.svg'
+import ClockIcon from '@/public/icons/clock.svg'
+import InfoGrayIcon from '@/public/icons/info-gray.svg'
+import LockGrayIcon from '@/public/icons/lock-gray.svg'
+import PenIcon from '@/public/icons/pen.svg'
+import UserIcon from '@/public/icons/person-fill.svg'
 import type { CourseQnAComment } from '@/types/type'
 import { useMutation, useSuspenseQuery } from '@apollo/client'
 import { Suspense } from '@suspensive/react'
@@ -161,11 +161,7 @@ function QnaDetailContent({
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-2">
             {qna.isPrivate && (
-              <Image
-                src={lockGrayIcon}
-                alt="lockGrayIcon"
-                className="h-6 w-6"
-              />
+              <LockGrayIcon className="text-color-neutral-60 h-6 w-6" />
             )}
             <h2 className="text-head5_sb_24">{qna.title}</h2>
           </div>
@@ -181,22 +177,14 @@ function QnaDetailContent({
         <div className="gap-1 pt-4">
           <div className="flex items-center gap-[6px]">
             <div className="flex h-5 w-5 items-center justify-center rounded-full">
-              <Image
-                src={userIcon}
-                alt="userIcon"
-                className="h-[18px] w-[18px]"
-              />
+              <UserIcon className="text-primary h-[18px] w-[18px]" />
             </div>
             <span className="text-caption3_r_13 text-color-cool-neutral-50">
               {qna.createdBy?.username}
             </span>
           </div>
           <div className="flex items-center gap-[6px]">
-            <Image
-              src={clockIcon}
-              alt="clockIcon"
-              className="h-[18px] w-[18px]"
-            />
+            <ClockIcon className="text-primary h-[18px] w-[18px]" />
             <span className="text-caption3_r_13 text-color-cool-neutral-50">
               {dateFormatter(qna.createTime, 'YYYY-MM-DD HH:mm:ss')}
             </span>
@@ -222,11 +210,7 @@ function QnaDetailContent({
                   <div className="text-sub2_m_18 flex items-center gap-1">
                     {comment.createdBy?.username}
                     {comment.isCourseStaff && (
-                      <Image
-                        src={checkBlueIcon}
-                        alt="checkBlueIcon"
-                        className="h-4 w-4"
-                      />
+                      <CheckIcon className="text-primary h-4 w-4" />
                     )}
                   </div>
                   <div className="text-body2_m_14 text-color-cool-neutral-50">
@@ -248,7 +232,7 @@ function QnaDetailContent({
           ))
         ) : (
           <div className="bg-color-neutral-99 text-color-neutral-80 flex w-full flex-col items-center justify-center gap-[6px] rounded-lg py-10">
-            <Image src={infoGrayIcon} alt="infoGrayIcon" />
+            <InfoGrayIcon />
             <span>Comments not registered</span>
           </div>
         )}
@@ -273,7 +257,7 @@ function QnaDetailContent({
           disabled={!commentContent.trim()}
           className="bg-primary text-caption2_m_12 flex h-[38px] w-full items-center justify-center gap-2 rounded-full hover:bg-blue-600"
         >
-          <Image src={penIcon} alt="penIcon" />
+          <PenIcon className="h-4 w-4" />
           Post
         </Button>
       </div>
