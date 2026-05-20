@@ -69,6 +69,7 @@ const createUsers = async () => {
   superAdminUser = await prisma.user.create({
     data: {
       username: 'super',
+      nickname: 'super',
       password: await hash('Supersuper'),
       email: 'skkuding@gmail.com',
       lastLogin: new Date(),
@@ -83,6 +84,7 @@ const createUsers = async () => {
   adminUser = await prisma.user.create({
     data: {
       username: 'admin',
+      nickname: 'admin',
       password: await hash('Adminadmin'),
       email: 'admin@example.com',
       lastLogin: new Date(),
@@ -97,6 +99,7 @@ const createUsers = async () => {
   instructorUser = await prisma.user.create({
     data: {
       username: 'instructor',
+      nickname: 'instructor',
       password: await hash('Instructorinstructor'),
       email: 'inst@example.com',
       lastLogin: new Date(),
@@ -113,6 +116,7 @@ const createUsers = async () => {
   contestAdminUser = await prisma.user.create({
     data: {
       username: 'contestAdmin',
+      nickname: 'contestAdmin',
       password: await hash('ContestAdmin'),
       email: 'contestAdmin@example.com',
       lastLogin: new Date(),
@@ -128,6 +132,7 @@ const createUsers = async () => {
   contestManagerUser = await prisma.user.create({
     data: {
       username: 'contestManager',
+      nickname: 'contestManager',
       password: await hash('ContestManager'),
       email: 'contestManager@example.com',
       lastLogin: new Date(),
@@ -142,6 +147,7 @@ const createUsers = async () => {
   contestReviewerUser = await prisma.user.create({
     data: {
       username: 'contestReviewer',
+      nickname: 'contestReviewer',
       password: await hash('ContestReviewer'),
       email: 'contestReviewer@example.com',
       lastLogin: new Date(),
@@ -158,6 +164,7 @@ const createUsers = async () => {
     const user = await prisma.user.create({
       data: {
         username: `user${specifier}`,
+        nickname: `user${specifier}`,
         password: await hash('Useruser'),
         email: `user${specifier}@example.com`,
         lastLogin: new Date(),
@@ -174,14 +181,16 @@ const createUsers = async () => {
   await prisma.userProfile.create({
     data: {
       userId: superAdminUser.id,
-      realName: 'Yuljeon Kim'
+      realName: 'Yuljeon Kim',
+      profileImageRef: 'dicebear:super'
     }
   })
 
   await prisma.userProfile.create({
     data: {
       userId: adminUser.id,
-      realName: 'Admin Kim'
+      realName: 'Admin Kim',
+      profileImageRef: 'dicebear:admin'
     }
   })
 
@@ -189,7 +198,8 @@ const createUsers = async () => {
   await prisma.userProfile.create({
     data: {
       userId: users[0].id,
-      realName: 'Myeongryun Lee'
+      realName: 'Myeongryun Lee',
+      profileImageRef: 'dicebear:user01'
     }
   })
 }
