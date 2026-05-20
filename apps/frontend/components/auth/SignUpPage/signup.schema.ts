@@ -4,12 +4,6 @@ export const signupSchema = v.pipe(
   v.object({
     name: v.pipe(v.string(), v.minLength(1, '이름을 입력해주세요')),
 
-    birth: v.pipe(
-      v.string(),
-      v.length(6, '생년월일 6자리를 입력해 주세요'),
-      v.regex(/^\d{6}$/, '생년월일 6자리를 입력해 주세요')
-    ),
-
     userId: v.pipe(
       v.string(),
       v.minLength(3, '아이디는 3자 이상이어야 합니다'),
