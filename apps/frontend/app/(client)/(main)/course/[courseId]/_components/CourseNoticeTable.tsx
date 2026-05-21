@@ -12,13 +12,12 @@ import {
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import arrowDownIcon from '@/public/icons/arrow-down.svg'
+import ArrowDownIcon from '@/public/icons/arrow-down.svg'
 import type {
   CourseNoticeListItem,
   CourseNoticeListResponse
 } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import {
   courseNoticeColumns,
@@ -128,11 +127,7 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
                 className="flex h-[46px] min-w-[108px] items-center justify-center gap-2 rounded-full border bg-white text-sm leading-[22.4px] text-neutral-500 outline-none"
               >
                 <span>{orderLabel}</span>
-                <Image
-                  src={arrowDownIcon}
-                  alt="arrow down"
-                  className="h-4 w-4"
-                />
+                <ArrowDownIcon className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
 

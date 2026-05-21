@@ -45,11 +45,11 @@ export function NoticeCommentEditor({
     <div
       className={
         compact
-          ? 'rounded-xl bg-white py-2'
+          ? 'rounded-xl bg-white'
           : 'rounded-xl border border-[#E5E5E5] bg-white p-6'
       }
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col">
         <div className={compact ? 'flex items-center gap-2' : 'relative gap-3'}>
           <div
             className={
@@ -67,52 +67,40 @@ export function NoticeCommentEditor({
               maxLength={1000}
               className={
                 compact
-                  ? 'h-6 min-h-0 flex-1 resize-none overflow-hidden border-none bg-transparent p-0 text-sm leading-6 placeholder:text-[#C4C4C4] focus:outline-none'
-                  : 'min-h-[96px] w-full resize-none text-sm placeholder:text-[#C4C4C4] focus:outline-none'
+                  ? 'text-body1_m_16 h-6 min-h-0 flex-1 resize-none overflow-hidden border-none bg-transparent p-0 placeholder:text-[#C4C4C4] focus:outline-none'
+                  : 'text-body1_m_16 min-h-[96px] w-full resize-none placeholder:text-[#C4C4C4] focus:outline-none'
               }
             />
 
             {compact && (
-              <div className="shrink-0 text-sm text-neutral-300">
+              <div className="text-caption1_m_13 text-color-cool-neutral-50 shrink-0">
                 {value.length}/1000
               </div>
             )}
 
             {!compact && (
-              <div className="absolute right-0 text-sm text-neutral-300">
+              <div className="text-caption1_m_13 text-color-neutral-90 absolute right-0">
                 {value.length}/1000
               </div>
             )}
           </div>
 
           {compact && (
-            <div className="flex items-center gap-2">
-              {onCancel && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onCancel}
-                  className="text-caption2_m_12 h-10 rounded-full px-4 py-3"
-                >
-                  Cancel
-                </Button>
-              )}
-              <Button
-                type="button"
-                onClick={onSubmit}
-                disabled={disabled}
-                className="text-caption2_m_12 flex h-10 rounded-full px-6 py-3"
-              >
-                <BiSolidPencil className="mr-[6px] h-4 w-4" />
-                {submitText}
-              </Button>
-            </div>
+            <Button
+              type="button"
+              onClick={onSubmit}
+              disabled={disabled}
+              className="text-caption2_m_12 flex h-10 rounded-full px-6 py-3"
+            >
+              <BiSolidPencil className="mr-[6px] h-4 w-4" />
+              {submitText}
+            </Button>
           )}
         </div>
 
         <label
-          className={`text-caption2_m_12 flex items-center gap-[6px] ${
-            secret ? 'text-blue-500' : 'text-neutral-300'
+          className={`text-caption2_m_12 flex items-center gap-[6px] ${compact ? 'mt-2' : 'mt-3'} ${
+            secret ? 'text-primary' : 'text-color-neutral-80'
           }`}
         >
           <input
@@ -124,17 +112,7 @@ export function NoticeCommentEditor({
         </label>
 
         {!compact && (
-          <div className="flex items-center gap-2">
-            {onCancel && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                className="text-caption2_m_12 h-10 flex-1 rounded-full px-6 py-3"
-              >
-                Cancel
-              </Button>
-            )}
+          <div className="mt-4 flex items-center gap-2">
             <Button
               type="button"
               onClick={onSubmit}

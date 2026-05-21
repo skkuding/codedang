@@ -1,12 +1,12 @@
 'use client'
 
+import { ArticleNavigation } from '@/app/(client)/(main)/_components/ArticleNavigation'
 import { profileQueries } from '@/app/(client)/_libs/queries/profile'
 import { AlertModal } from '@/components/AlertModal'
 import { safeFetcherWithAuth, dateFormatter } from '@/libs/utils'
 import type { Course, CourseNoticeDetailResponse } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import DOMPurify from 'isomorphic-dompurify'
-import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { FaUser } from 'react-icons/fa6'
 import { IoTime } from 'react-icons/io5'
@@ -120,40 +120,19 @@ export function NoticeDetailView() {
             />
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-[#E5E5E5]">
-            {prevNotice && (
-              <Link
-                href={`/course/${courseId}/notice/${prevNotice.id}`}
-                className="flex items-center border-b border-[#E5E5E5] px-6 py-4"
-              >
-                <span className="w-[110px] text-sm font-semibold text-black">
-                  Previous
-                </span>
-                <span className="text-sm text-black">{prevNotice.title}</span>
-              </Link>
-            )}
-
-            {nextNotice && (
-              <Link
-                href={`/course/${courseId}/notice/${nextNotice.id}`}
-                className="flex items-center px-6 py-4"
-              >
-                <span className="w-[110px] text-sm font-semibold text-[#3581FA]">
-                  Next
-                </span>
-                <span className="text-sm text-black">{nextNotice.title}</span>
-              </Link>
-            )}
-          </div>
-
-          <div className="flex justify-end">
-            <Link
-              href={basePath}
-              className="rounded-full border border-[#D9D9D9] px-6 py-3 text-xs text-black hover:bg-gray-50"
-            >
-              Back to the List
-            </Link>
-          </div>
+          <ArticleNavigation
+            prev={
+              prevNotice
+                ? { id: String(prevNotice.id), title: prevNotice.title }
+                : undefined
+            }
+            next={
+              nextNotice
+                ? { id: String(nextNotice.id), title: nextNotice.title }
+                : undefined
+            }
+            basePath={basePath}
+          />
         </div>
 
         <div>

@@ -28,7 +28,7 @@ export function useNoticeComments(
       queryFn: () =>
         safeFetcherWithAuth
           .get(`course/notice/${currentId}/comment`, {
-            searchParams: { take: '100' }
+            searchParams: { take: '100', includeDeleted: 'true' }
           })
           .json<CourseNoticeCommentGroup[]>(),
       enabled: Number.isFinite(currentId)

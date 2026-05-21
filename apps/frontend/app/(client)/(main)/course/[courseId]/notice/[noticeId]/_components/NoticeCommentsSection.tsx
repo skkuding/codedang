@@ -101,7 +101,7 @@ export function NoticeCommentsSection({
   const renderCommentsBody = () => {
     if (isCommentsLoading) {
       return (
-        <div className="flex flex-col items-center justify-center rounded-lg bg-[#F5F5F5] py-10 text-[#B0B0B0]">
+        <div className="bg-color-neutral-99 text-color-neutral-60 flex flex-col items-center justify-center rounded-lg py-10">
           <span>Loading comments...</span>
         </div>
       )
@@ -109,7 +109,7 @@ export function NoticeCommentsSection({
 
     if (groupedComments.length === 0) {
       return (
-        <div className="bg-color-neutral-99 text-color-neutral-80 flex flex-col items-center justify-center gap-[6px] rounded-lg py-10">
+        <div className="bg-color-neutral-99 text-color-neutral-60 flex flex-col items-center justify-center gap-[6px] rounded-lg py-10">
           <span className="text-2xl">!</span>
           <span>Comments not registered</span>
         </div>
@@ -119,8 +119,7 @@ export function NoticeCommentsSection({
     return (
       <div className="flex flex-col gap-[10px]">
         {groupedComments.map((group) => {
-          const hasReplySection =
-            group.replys.length > 0 || replyTargetId === group.comment.id
+          const hasReplySection = replyTargetId === group.comment.id
 
           return (
             <div key={group.comment.id}>
@@ -152,7 +151,7 @@ export function NoticeCommentsSection({
 
               {hasReplySection && (
                 <>
-                  <div className="bg-[#F5F5F5] py-3 pl-10 pr-4">
+                  <div className="bg-color-neutral-99 py-3 pl-10 pr-4">
                     <div className="flex flex-col gap-12 p-6">
                       {group.replys.map((reply) => (
                         <NoticeCommentCard
@@ -167,7 +166,7 @@ export function NoticeCommentsSection({
                           onEditStart={startEdit}
                           onDelete={onDeleteComment}
                           renderEditEditor={() => (
-                            <div className="mt-4 rounded-xl bg-[#F5F5F5] p-0">
+                            <div className="bg-color-neutral-99 mt-4 rounded-xl p-0">
                               <NoticeCommentEditor
                                 value={editingContent}
                                 setValue={setEditingContent}
@@ -191,7 +190,7 @@ export function NoticeCommentsSection({
                   </div>
 
                   {replyTargetId === group.comment.id && (
-                    <div className="rounded-b-xl border border-t-0 border-[#E5E5E5] bg-white px-6 py-4">
+                    <div className="border-line rounded-b-xl border border-t-0 bg-white px-6 py-4">
                       <NoticeCommentEditor
                         value={replyContent}
                         setValue={setReplyContent}

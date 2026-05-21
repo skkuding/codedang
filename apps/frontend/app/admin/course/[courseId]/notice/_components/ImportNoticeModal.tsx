@@ -5,10 +5,9 @@ import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { CLONE_COURSE_NOTICES } from '@/graphql/course/mutation'
 import { safeFetcherWithAuth } from '@/libs/utils'
-import plusIcon from '@/public/icons/plus-line.svg'
+import PlusIcon from '@/public/icons/plus-line.svg'
 import { useMutation } from '@apollo/client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { ImportNoticeTableContent } from './ImportNoticeTableContent'
@@ -125,7 +124,7 @@ export function ImportNoticeModal({ courseId }: ImportNoticeModalProps) {
         onClick={() => setOpen(true)}
       >
         <span className="text-sub2_m_18 flex items-center gap-[6px]">
-          <Image src={plusIcon} alt="Import" />
+          <PlusIcon />
           Import
         </span>
       </Button>

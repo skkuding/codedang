@@ -33,7 +33,8 @@ export default function CourseDetailLayout({
     { name: 'Home', href: `/admin/course/${courseId}` },
     { name: 'Member', href: `/admin/course/${courseId}/user` },
     { name: 'Assignment', href: `/admin/course/${courseId}/assignment` },
-    { name: 'Exercise', href: `/admin/course/${courseId}/exercise` }
+    { name: 'Exercise', href: `/admin/course/${courseId}/exercise` },
+    { name: 'Notice', href: `/admin/course/${courseId}/notice` }
   ]
 
   const activeTabName =

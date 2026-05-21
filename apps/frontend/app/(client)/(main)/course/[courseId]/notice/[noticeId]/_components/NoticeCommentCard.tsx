@@ -1,11 +1,10 @@
 'use client'
 
 import { cn, dateFormatter } from '@/libs/utils'
-import exclamationMarkIcon from '@/public/icons/exclamation_mark.svg'
-import lockBlueIcon from '@/public/icons/lock_blue.svg'
-import trashcanIcon from '@/public/icons/trashcan2_grey.svg'
+import ExclamationMarkIcon from '@/public/icons/exclamation_mark.svg'
+import LockBlueIcon from '@/public/icons/lock_blue.svg'
+import TrashcanIcon from '@/public/icons/trashcan2_grey.svg'
 import type { CourseNoticeCommentItem } from '@/types/type'
-import Image from 'next/image'
 import { BiSolidPencil } from 'react-icons/bi'
 import { IoTime } from 'react-icons/io5'
 
@@ -64,7 +63,7 @@ export function NoticeCommentCard({
     !isDeleted && Boolean(comment.createdBy) && (isMine || isAdmin)
 
   const displayWriter = (() => {
-    if (isDeleted || isHiddenMasked) {
+    if (isDeleted) {
       return ''
     }
 
@@ -97,30 +96,28 @@ export function NoticeCommentCard({
 
   if (isReply && isDeleted) {
     return (
-      <div className="rounded-xl bg-[#ECECEC] px-4 py-4 text-[15px] leading-6 text-[#9A9A9A]">
-        <Image
-          src={exclamationMarkIcon}
-          alt="deleted"
-          width={18}
-          height={18}
-          className="mr-2 inline-block align-[-3px]"
-        />
-        {displayContent}
+      <div className="bg-color-neutral-95 rounded-xl px-6 py-4">
+        {displayWriter && (
+          <div className="text-sub2_m_18 mb-2">{displayWriter}</div>
+        )}
+        <div className="text-body1_m_16 text-color-neutral-60 flex items-center gap-2">
+          <ExclamationMarkIcon className="relative top-[-4px] mr-3 h-4 w-4 shrink-0 overflow-visible" />
+          {displayContent}
+        </div>
       </div>
     )
   }
 
   if (isReply && isHiddenMasked) {
     return (
-      <div className="rounded-xl bg-[#ECECEC] px-4 py-4 text-[15px] leading-6 text-[#9A9A9A]">
-        <Image
-          src={exclamationMarkIcon}
-          alt="hidden"
-          width={18}
-          height={18}
-          className="mr-2 inline-block align-[-3px]"
-        />
-        {displayContent}
+      <div className="bg-color-neutral-95 rounded-xl px-6 py-4">
+        {displayWriter && (
+          <div className="text-sub2_m_18 mb-2">{displayWriter}</div>
+        )}
+        <div className="text-body1_m_16 text-color-neutral-60 flex items-center gap-2">
+          <ExclamationMarkIcon className="relative top-[-4px] mr-3 h-4 w-4 shrink-0 overflow-visible" />
+          {displayContent}
+        </div>
       </div>
     )
   }
@@ -131,7 +128,7 @@ export function NoticeCommentCard({
         isReply
           ? 'bg-transparent px-0 py-0'
           : cn(
-              'border bg-white px-6 py-6',
+              'border px-6 py-6',
               hasReplySection ? 'rounded-b-none rounded-t-xl' : 'rounded-xl'
             ),
         !isReply && !isMasked && isMine
@@ -147,13 +144,11 @@ export function NoticeCommentCard({
                 <span className="text-sub2_m_18">{displayWriter}</span>
 
                 {comment.isSecret && Boolean(comment.createdBy) && (
-                  <span className="rounded-[4px] bg-[#EAF2FF] px-2 py-1 text-xs font-medium leading-none text-[#3581FA]">
-                    <Image
-                      src={lockBlueIcon}
-                      alt="hidden"
-                      width={12}
-                      height={12}
-                      className="mr-1 inline-block align-[-1px]"
+                  <span className="bg-color-blue-90 text-caption1_m_13 text-primary rounded-[4px] px-2 py-1">
+                    <LockBlueIcon
+                      width={14}
+                      height={14}
+                      className="mr-1 inline-block align-[-2px]"
                     />
                     Hidden
                   </span>
@@ -161,8 +156,8 @@ export function NoticeCommentCard({
               </div>
             ) : null}
 
-            <div className="text-caption3_r_13 flex items-center gap-1 text-neutral-400">
-              <IoTime className="h-[14px] w-[14px] text-[#3581FA]" />
+            <div className="text-caption3_r_13 text-color-cool-neutral-50 flex items-center gap-1">
+              <IoTime className="text-color-blue-50 h-[14px] w-[14px]" />
               <span>
                 {dateFormatter(
                   isEdited ? comment.updateTime : comment.createdTime,
@@ -171,7 +166,7 @@ export function NoticeCommentCard({
               </span>
 
               {isEdited && (
-                <span className="rounded-[4px] bg-[#EEF1F4] px-2 py-1 text-[12px] leading-none text-[#8B8B8B]">
+                <span className="bg-color-cool-neutral-95 text-color-cool-neutral-60 text-caption3_r_13 rounded-[4px] px-2 py-1">
                   Modified
                 </span>
               )}
@@ -184,9 +179,9 @@ export function NoticeCommentCard({
                 <button
                   type="button"
                   onClick={() => onEditStart(comment)}
-                  className="text-caption2_m_125 flex h-9 items-center justify-center gap-1 rounded-full border border-blue-500 py-[9px] pl-[18px] pr-[22px] text-blue-500"
+                  className="text-caption2_m_12 border-primary text-primary flex h-9 items-center justify-center gap-1 rounded-full border py-[9px] pl-[18px] pr-[22px]"
                 >
-                  <BiSolidPencil className="mr-1" />
+                  <BiSolidPencil className="mr-1 h-[18px] w-[18px]" />
                   Edit
                 </button>
               )}
@@ -195,14 +190,9 @@ export function NoticeCommentCard({
                 <button
                   type="button"
                   onClick={() => onDelete(comment.id)}
-                  className="w-13 flex h-10 items-center justify-center rounded-full border border-neutral-300 bg-neutral-200 px-4 py-[10px]"
+                  className="w-13 border-color-neutral-90 bg-color-neutral-99 flex h-10 items-center justify-center rounded-full border px-4 py-[10px]"
                 >
-                  <Image
-                    src={trashcanIcon}
-                    alt="delete"
-                    width={16}
-                    height={16}
-                  />
+                  <TrashcanIcon width={20} height={20} />
                 </button>
               )}
             </div>
@@ -213,20 +203,24 @@ export function NoticeCommentCard({
       {!isReply && (
         <div
           className={cn(
-            'mt-5 whitespace-pre-wrap text-[15px] leading-8',
+            'whitespace-pre-wrap',
             isMasked
-              ? 'rounded-xl bg-[#F5F5F5] px-4 py-3 font-normal text-[#A8A8A8]'
-              : 'font-medium text-black'
+              ? 'text-color-neutral-60 text-body1_m_16 flex items-center'
+              : 'text-body1_m_16 mt-5'
           )}
         >
-          {comment.isSecret && !comment.isDeleted && !comment.createdBy && (
-            <Image
-              src={lockBlueIcon}
-              alt="hidden"
-              width={14}
-              height={14}
-              className="mr-2 inline-block align-[-2px]"
-            />
+          {isMasked ? (
+            <ExclamationMarkIcon className="relative top-[-4px] mr-3 h-4 w-4 shrink-0 overflow-visible" />
+          ) : (
+            comment.isSecret &&
+            !comment.isDeleted &&
+            !comment.createdBy && (
+              <LockBlueIcon
+                width={14}
+                height={14}
+                className="mr-2 inline-block align-[-2px]"
+              />
+            )
           )}
           {displayContent}
         </div>
@@ -238,15 +232,18 @@ export function NoticeCommentCard({
         </div>
       )}
 
-      {!isReply && !comment.isDeleted && (
+      {!isReply && (
         <button
           type="button"
           onClick={() => onReplyToggle(comment.id)}
-          className="text-caption3_r_13 mt-5 text-neutral-700"
+          className={cn(
+            'text-caption3_r_13 text-color-neutral-70 border-line border-b',
+            isMasked ? 'mt-2' : 'mt-5'
+          )}
         >
           {replyTargetId === comment.id ? 'Hide Reply' : 'Reply'}
           {replyTargetId !== comment.id && (
-            <span className="ml-1 text-blue-500">{replyCount}</span>
+            <span className="text-primary ml-1">{replyCount}</span>
           )}
         </button>
       )}
