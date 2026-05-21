@@ -391,14 +391,23 @@ export class CollaboratorService {
       select: { id: true }
     })
     if (existing) throw new DuplicateFoundException('Collaborator')
-
-    return await this.prisma.polygonCollaborator.create({
-      data: {
-        problemId: polygonId,
-        userId,
-        role,
-        status: CollaboratorStatus.Pending
+    try {
+      return await this.prisma.polygonCollaborator.create({
+        data: {
+          problemId: polygonId,
+          userId,
+          role,
+          status: CollaboratorStatus.Pending
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new DuplicateFoundException('Collaborator is already requested')
       }
-    })
+      throw error
+    }
   }
 }
