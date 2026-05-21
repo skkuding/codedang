@@ -28,6 +28,13 @@ enum Role {
   SuperAdmin
 }
 
+enum JobType {
+  CollegeStudent
+  HighSchoolStudent
+  Employee
+  Other
+}
+
 enum Provider {
   github
   kakao
@@ -51,6 +58,8 @@ model User {
   /// @HideField()
   password                 String
   role                     Role               @default(User)
+  jobType                  JobType            @default(CollegeStudent) @map("job_type")
+  nickname                 String?            @unique
   email                    String             @unique
   studentId                String             @default("0000000000") @map("student_id")
   college                  String?            @default("none")
@@ -107,12 +116,13 @@ model UserOAuth {
 }
 
 model UserProfile {
-  id         Int      @id @default(autoincrement())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int      @unique @map("user_id")
-  realName   String   @map("real_name")
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
+  id              Int      @id @default(autoincrement())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          Int      @unique @map("user_id")
+  realName        String   @map("real_name")
+  profileImageUrl String?  @map("profile_image_url")
+  createTime      DateTime @default(now()) @map("create_time")
+  updateTime      DateTime @updatedAt @map("update_time")
 
   @@map("user_profile")
 }

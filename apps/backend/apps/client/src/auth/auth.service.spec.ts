@@ -31,8 +31,10 @@ describe('AuthService', () => {
   const user: User = {
     id: 1,
     username: 'user',
+    nickname: 'user',
     password: VALID_PASSWORD,
     role: 'User',
+    jobType: 'CollegeStudent',
     email: '',
     lastLogin: faker.date.past(),
     createTime: faker.date.past(),

@@ -42,8 +42,10 @@ const authRequestObject = {
 const user: User = {
   id: ID,
   username: 'user',
+  nickname: 'user',
   password: 'thisIsPassword',
   role: 'User',
+  jobType: 'CollegeStudent',
   email: EMAIL_ADDRESS,
   lastLogin: faker.date.past(),
   createTime: faker.date.past(),
@@ -58,6 +60,7 @@ const profile: UserProfile = {
   id: ID,
   userId: ID,
   realName: 'real name',
+  profileImageUrl: null,
   createTime: faker.date.past(),
   updateTime: faker.date.past()
 }
