@@ -1125,8 +1125,8 @@ export class SubmissionService {
       where: {
         id,
         problemId,
-        contestId,
-        assignmentId
+        ...(contestId !== null ? { contestId } : {}),
+        ...(assignmentId !== null ? { assignmentId } : {})
       },
       select: {
         userId: true,
