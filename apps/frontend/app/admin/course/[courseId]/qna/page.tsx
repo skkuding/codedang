@@ -35,7 +35,7 @@ export default async function Page(props: {
       <div className="flex w-full items-start justify-between">
         <CourseQnaAnsweredTab />
 
-        {/* <div className="bg-color-commmon-100 text-color-neutral-90 w-[340px] rounded-full border border-[#D8D8D8] px-3 py-[12px]">
+        {/* <div className="bg-color-common-100 text-color-neutral-90 w-[340px] rounded-full border border-[#D8D8D8] px-3 py-[12px]">
           <span>...Search</span>
         </div> */}
       </div>
