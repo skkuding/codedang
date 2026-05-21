@@ -56,6 +56,7 @@ export class ContestResolver {
   ) {}
 
   @Query(() => [ContestWithParticipants])
+  @UseDisableContestRolesGuard()
   @UseManagerGuard()
   async getContests(
     @Args(
