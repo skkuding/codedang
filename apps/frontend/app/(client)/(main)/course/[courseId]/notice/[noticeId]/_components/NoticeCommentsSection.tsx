@@ -4,8 +4,45 @@ import type {
   CourseNoticeCommentGroup,
   CourseNoticeCommentItem
 } from '@/types/type'
+import { useState } from 'react'
 import { NoticeCommentCard } from './NoticeCommentCard'
 import { NoticeCommentEditor } from './NoticeCommentEditor'
+
+interface ReplyInputSectionProps {
+  commentId: number
+  onCreateReply: (commentId: number, content: string, isSecret: boolean) => void
+  isCreatingComment: boolean
+}
+
+function ReplyInputSection({
+  commentId,
+  onCreateReply,
+  isCreatingComment
+}: ReplyInputSectionProps) {
+  const [content, setContent] = useState('')
+  const [secret, setSecret] = useState(false)
+
+  const handleSubmit = () => {
+    onCreateReply(commentId, content, secret)
+    setContent('')
+    setSecret(false)
+  }
+
+  return (
+    <NoticeCommentEditor
+      value={content}
+      setValue={setContent}
+      secret={secret}
+      setSecret={setSecret}
+      compact
+      autoResize
+      onSubmit={handleSubmit}
+      placeholder="Write a reply"
+      submitText="Post"
+      disabled={!content.trim() || isCreatingComment}
+    />
+  )
+}
 
 interface NoticeCommentsSectionProps {
   commentCount: number
@@ -21,13 +58,9 @@ interface NoticeCommentsSectionProps {
   isCreatingComment: boolean
   onCreateComment: () => void
 
-  replyTargetId: number | null
-  setReplyTargetId: (value: number | null) => void
-  replyContent: string
-  setReplyContent: (value: string) => void
-  replySecret: boolean
-  setReplySecret: (value: boolean) => void
-  onCreateReply: (commentId: number) => void
+  openReplyIds: Set<number>
+  toggleReplyId: (id: number) => void
+  onCreateReply: (commentId: number, content: string, isSecret: boolean) => void
 
   editingCommentId: number | null
   setEditingCommentId: (value: number | null) => void
@@ -53,12 +86,8 @@ export function NoticeCommentsSection({
   setCommentSecret,
   isCreatingComment,
   onCreateComment,
-  replyTargetId,
-  setReplyTargetId,
-  replyContent,
-  setReplyContent,
-  replySecret,
-  setReplySecret,
+  openReplyIds,
+  toggleReplyId,
   onCreateReply,
   editingCommentId,
   setEditingCommentId,
@@ -70,12 +99,6 @@ export function NoticeCommentsSection({
   onUpdateComment,
   onDeleteComment
 }: NoticeCommentsSectionProps) {
-  const cancelReply = () => {
-    setReplyTargetId(null)
-    setReplyContent('')
-    setReplySecret(false)
-  }
-
   const startEdit = (comment: CourseNoticeCommentItem) => {
     setEditingCommentId(comment.id)
     setEditingContent(comment.content)
@@ -86,16 +109,6 @@ export function NoticeCommentsSection({
     setEditingCommentId(null)
     setEditingContent('')
     setEditingSecret(false)
-  }
-
-  const toggleReply = (commentId: number) => {
-    if (replyTargetId === commentId) {
-      cancelReply()
-      return
-    }
-    setReplyTargetId(commentId)
-    setReplyContent('')
-    setReplySecret(false)
   }
 
   const renderCommentsBody = () => {
@@ -119,19 +132,21 @@ export function NoticeCommentsSection({
     return (
       <div className="flex flex-col gap-[10px]">
         {groupedComments.map((group) => {
-          const hasReplySection = replyTargetId === group.comment.id
+          const hasReplySection = openReplyIds.has(group.comment.id)
+          const deletedReplies = group.replys.filter((r) => r.isDeleted)
+          const hasDeletedReplies = deletedReplies.length > 0
 
           return (
             <div key={group.comment.id}>
               <NoticeCommentCard
                 comment={group.comment}
                 replyCount={group.replys.length}
-                hasReplySection={hasReplySection}
+                hasReplySection={hasReplySection || hasDeletedReplies}
                 profileUsername={profileUsername}
                 isAdmin={isInstructor}
-                replyTargetId={replyTargetId}
+                isReplyOpen={hasReplySection}
                 editingCommentId={editingCommentId}
-                onReplyToggle={toggleReply}
+                onReplyToggle={toggleReplyId}
                 onEditStart={startEdit}
                 onDelete={onDeleteComment}
                 renderEditEditor={() => (
@@ -141,7 +156,6 @@ export function NoticeCommentsSection({
                     secret={editingSecret}
                     setSecret={setEditingSecret}
                     onSubmit={() => onUpdateComment(group.comment.id)}
-                    onCancel={cancelEdit}
                     placeholder="Edit comment"
                     submitText="Save"
                     disabled={!editingContent.trim() || isUpdatingComment}
@@ -149,10 +163,32 @@ export function NoticeCommentsSection({
                 )}
               />
 
+              {hasDeletedReplies && !hasReplySection && (
+                <div className="bg-color-neutral-99 py-3 pl-10 pr-4">
+                  <div className="flex flex-col">
+                    {deletedReplies.map((reply) => (
+                      <NoticeCommentCard
+                        key={reply.id}
+                        comment={reply}
+                        isReply
+                        profileUsername={profileUsername}
+                        isAdmin={isInstructor}
+                        isReplyOpen={false}
+                        editingCommentId={editingCommentId}
+                        onReplyToggle={toggleReplyId}
+                        onEditStart={startEdit}
+                        onDelete={onDeleteComment}
+                        renderEditEditor={() => null}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {hasReplySection && (
                 <>
                   <div className="bg-color-neutral-99 py-3 pl-10 pr-4">
-                    <div className="flex flex-col gap-12 p-6">
+                    <div className="flex flex-col">
                       {group.replys.map((reply) => (
                         <NoticeCommentCard
                           key={reply.id}
@@ -160,52 +196,40 @@ export function NoticeCommentsSection({
                           isReply
                           profileUsername={profileUsername}
                           isAdmin={isInstructor}
-                          replyTargetId={replyTargetId}
+                          isReplyOpen={false}
                           editingCommentId={editingCommentId}
-                          onReplyToggle={toggleReply}
+                          onReplyToggle={toggleReplyId}
                           onEditStart={startEdit}
                           onDelete={onDeleteComment}
                           renderEditEditor={() => (
-                            <div className="bg-color-neutral-99 mt-4 rounded-xl p-0">
-                              <NoticeCommentEditor
-                                value={editingContent}
-                                setValue={setEditingContent}
-                                secret={editingSecret}
-                                setSecret={setEditingSecret}
-                                compact
-                                autoResize
-                                onSubmit={() => onUpdateComment(reply.id)}
-                                onCancel={cancelEdit}
-                                placeholder="Edit comment"
-                                submitText="Save"
-                                disabled={
-                                  !editingContent.trim() || isUpdatingComment
-                                }
-                              />
-                            </div>
+                            <NoticeCommentEditor
+                              value={editingContent}
+                              setValue={setEditingContent}
+                              secret={editingSecret}
+                              setSecret={setEditingSecret}
+                              compact
+                              autoResize
+                              isReplyEdit
+                              onSubmit={() => onUpdateComment(reply.id)}
+                              placeholder="Edit comment"
+                              submitText="Save"
+                              disabled={
+                                !editingContent.trim() || isUpdatingComment
+                              }
+                            />
                           )}
                         />
                       ))}
                     </div>
                   </div>
 
-                  {replyTargetId === group.comment.id && (
-                    <div className="border-line rounded-b-xl border border-t-0 bg-white px-6 py-4">
-                      <NoticeCommentEditor
-                        value={replyContent}
-                        setValue={setReplyContent}
-                        secret={replySecret}
-                        setSecret={setReplySecret}
-                        compact
-                        autoResize
-                        onSubmit={() => onCreateReply(group.comment.id)}
-                        onCancel={cancelReply}
-                        placeholder="Write a reply"
-                        submitText="Post"
-                        disabled={!replyContent.trim() || isCreatingComment}
-                      />
-                    </div>
-                  )}
+                  <div className="border-line rounded-b-xl border border-t-0 bg-white px-6 py-4">
+                    <ReplyInputSection
+                      commentId={group.comment.id}
+                      onCreateReply={onCreateReply}
+                      isCreatingComment={isCreatingComment}
+                    />
+                  </div>
                 </>
               )}
             </div>

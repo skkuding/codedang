@@ -12,9 +12,19 @@ export function useNoticeComments(
 
   const [commentContent, setCommentContent] = useState('')
   const [commentSecret, setCommentSecret] = useState(false)
-  const [replyTargetId, setReplyTargetId] = useState<number | null>(null)
-  const [replyContent, setReplyContent] = useState('')
-  const [replySecret, setReplySecret] = useState(false)
+  const [openReplyIds, setOpenReplyIds] = useState<Set<number>>(new Set())
+
+  const toggleReplyId = (id: number) => {
+    setOpenReplyIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
   const [editingContent, setEditingContent] = useState('')
   const [editingSecret, setEditingSecret] = useState(false)
@@ -67,9 +77,6 @@ export function useNoticeComments(
   const resetCreateState = () => {
     setCommentContent('')
     setCommentSecret(false)
-    setReplyTargetId(null)
-    setReplyContent('')
-    setReplySecret(false)
   }
 
   const resetEditState = () => {
@@ -155,12 +162,8 @@ export function useNoticeComments(
     setCommentContent,
     commentSecret,
     setCommentSecret,
-    replyTargetId,
-    setReplyTargetId,
-    replyContent,
-    setReplyContent,
-    replySecret,
-    setReplySecret,
+    openReplyIds,
+    toggleReplyId,
     editingCommentId,
     setEditingCommentId,
     editingContent,

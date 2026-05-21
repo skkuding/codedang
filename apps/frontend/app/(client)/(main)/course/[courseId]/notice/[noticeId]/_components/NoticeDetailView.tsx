@@ -56,12 +56,8 @@ export function NoticeDetailView() {
     setCommentContent,
     commentSecret,
     setCommentSecret,
-    replyTargetId,
-    setReplyTargetId,
-    replyContent,
-    setReplyContent,
-    replySecret,
-    setReplySecret,
+    openReplyIds,
+    toggleReplyId,
     editingCommentId,
     setEditingCommentId,
     editingContent,
@@ -103,11 +99,11 @@ export function NoticeDetailView() {
 
             <div className="text-color-neutral-50 flex flex-col gap-[6px] text-[13px]">
               <div className="flex items-center gap-[10px]">
-                <FaUser className="h-4 w-4 text-[#3581FA]" />
+                <FaUser className="text-primary h-4 w-4" />
                 {notice.createdBy ?? 'Unknown'}
               </div>
               <div className="flex items-center gap-[10px]">
-                <IoTime className="h-4 w-4 text-[#3581FA]" />
+                <IoTime className="text-primary h-4 w-4" />
                 {dateFormatter(notice.createTime, 'YYYY-MM-DD HH:mm:ss')}
               </div>
             </div>
@@ -153,16 +149,12 @@ export function NoticeDetailView() {
                 isSecret: commentSecret
               })
             }
-            replyTargetId={replyTargetId}
-            setReplyTargetId={setReplyTargetId}
-            replyContent={replyContent}
-            setReplyContent={setReplyContent}
-            replySecret={replySecret}
-            setReplySecret={setReplySecret}
-            onCreateReply={(commentId) =>
+            openReplyIds={openReplyIds}
+            toggleReplyId={toggleReplyId}
+            onCreateReply={(commentId, content, isSecret) =>
               createComment({
-                content: replyContent,
-                isSecret: replySecret,
+                content,
+                isSecret,
                 replyOnId: commentId
               })
             }

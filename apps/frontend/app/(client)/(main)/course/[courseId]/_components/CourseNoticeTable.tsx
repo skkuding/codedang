@@ -124,7 +124,7 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="flex h-[46px] min-w-[108px] items-center justify-center gap-2 rounded-full border bg-white text-sm leading-[22.4px] text-neutral-500 outline-none"
+                className="text-color-neutral-50 w-30 border-line flex h-[46px] items-center justify-center gap-2 rounded-full border bg-white text-sm font-medium leading-[22.4px] tracking-[-0.48px] outline-none"
               >
                 <span>{orderLabel}</span>
                 <ArrowDownIcon className="h-4 w-4" />
@@ -133,7 +133,7 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
 
             <DropdownMenuContent
               align="end"
-              className="border-neutral-95 min-w-[108px] rounded-[16px] border bg-white p-1"
+              className="border-line min-w-[108px] rounded-[16px] border bg-white p-1"
             >
               <DropdownMenuItem
                 onClick={() => setOrderType('latest')}
@@ -150,14 +150,14 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="flex h-[46px] items-center rounded-full border p-[5px]">
+          <div className="border-line flex h-[46px] w-[250px] items-center rounded-full border bg-white p-[5px]">
             {(['all', 'unread'] as const).map((type) => (
               <button
                 key={type}
                 type="button"
                 onClick={() => setFilterType(type)}
                 className={cn(
-                  'text-body1_m_16 h-9 rounded-full px-8 py-[6px]',
+                  'text-body1_m_16 w-30 flex h-9 items-center justify-center rounded-full',
                   filterType === type
                     ? 'bg-primary text-white'
                     : 'text-[#808080]'

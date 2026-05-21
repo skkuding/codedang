@@ -14,7 +14,7 @@ interface NoticeCommentCardProps {
   isReply?: boolean
   profileUsername?: string
   isAdmin?: boolean
-  replyTargetId: number | null
+  isReplyOpen: boolean
   editingCommentId: number | null
   onReplyToggle: (commentId: number) => void
   onEditStart: (comment: CourseNoticeCommentItem) => void
@@ -30,7 +30,7 @@ export function NoticeCommentCard({
   profileUsername,
   isAdmin = false,
   hasReplySection = false,
-  replyTargetId,
+  isReplyOpen,
   editingCommentId,
   onReplyToggle,
   onEditStart,
@@ -122,20 +122,37 @@ export function NoticeCommentCard({
     )
   }
 
+  const isEditing = editingCommentId === comment.id
+
+  const containerClassName = (() => {
+    if (isReply && isEditing) {
+      return 'bg-color-neutral-99 rounded-xl px-6 py-6'
+    }
+
+    if (isReply) {
+      return 'bg-transparent p-6'
+    }
+
+    return cn(
+      'border px-6 py-6',
+      hasReplySection ? 'rounded-b-none rounded-t-xl' : 'rounded-xl'
+    )
+  })()
+
+  const borderClassName = (() => {
+    if (isReply) {
+      return ''
+    }
+
+    if (!isMasked && isMine) {
+      return 'border-primary'
+    }
+
+    return 'border-color-neutral-95'
+  })()
+
   return (
-    <div
-      className={cn(
-        isReply
-          ? 'bg-transparent px-0 py-0'
-          : cn(
-              'border px-6 py-6',
-              hasReplySection ? 'rounded-b-none rounded-t-xl' : 'rounded-xl'
-            ),
-        !isReply && !isMasked && isMine
-          ? 'border-[#3581FA]'
-          : !isReply && 'border-[#E5E5E5]'
-      )}
-    >
+    <div className={cn(containerClassName, borderClassName)}>
       {!isDeleted && (
         <div className="flex items-start justify-between gap-6">
           <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
@@ -241,8 +258,8 @@ export function NoticeCommentCard({
             isMasked ? 'mt-2' : 'mt-5'
           )}
         >
-          {replyTargetId === comment.id ? 'Hide Reply' : 'Reply'}
-          {replyTargetId !== comment.id && (
+          {isReplyOpen ? 'Hide Reply' : 'Reply'}
+          {!isReplyOpen && (
             <span className="text-primary ml-1">{replyCount}</span>
           )}
         </button>

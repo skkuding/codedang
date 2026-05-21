@@ -10,12 +10,12 @@ interface NoticeCommentEditorProps {
   secret: boolean
   setSecret: (value: boolean) => void
   onSubmit: () => void
-  onCancel?: () => void
   placeholder: string
   submitText: string
   disabled: boolean
   compact?: boolean
   autoResize?: boolean
+  isReplyEdit?: boolean
 }
 
 export function NoticeCommentEditor({
@@ -24,12 +24,12 @@ export function NoticeCommentEditor({
   secret,
   setSecret,
   onSubmit,
-  onCancel,
   placeholder,
   compact = false,
   autoResize = false,
   submitText = 'Post',
-  disabled = false
+  disabled = false,
+  isReplyEdit = false
 }: NoticeCommentEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -45,8 +45,8 @@ export function NoticeCommentEditor({
     <div
       className={
         compact
-          ? 'rounded-xl bg-white'
-          : 'rounded-xl border border-[#E5E5E5] bg-white p-6'
+          ? `rounded-xl ${isReplyEdit ? 'bg-color-neutral-99' : 'bg-white'}`
+          : 'border-color-neutral-95 rounded-xl border bg-white p-6'
       }
     >
       <div className="flex flex-col">
@@ -54,7 +54,7 @@ export function NoticeCommentEditor({
           <div
             className={
               compact
-                ? 'flex flex-1 items-center justify-between gap-2 rounded-xl border border-[#E5E5E5] px-4 py-[11px]'
+                ? 'border-color-neutral-95 flex flex-1 items-center justify-between gap-2 rounded-xl border px-4 py-[11px]'
                 : 'relative gap-3'
             }
           >
@@ -67,8 +67,8 @@ export function NoticeCommentEditor({
               maxLength={1000}
               className={
                 compact
-                  ? 'text-body1_m_16 h-6 min-h-0 flex-1 resize-none overflow-hidden border-none bg-transparent p-0 placeholder:text-[#C4C4C4] focus:outline-none'
-                  : 'text-body1_m_16 min-h-[96px] w-full resize-none placeholder:text-[#C4C4C4] focus:outline-none'
+                  ? 'text-body1_m_16 placeholder:text-color-neutral-90 h-6 min-h-0 flex-1 resize-none overflow-hidden border-none bg-transparent p-0 focus:outline-none'
+                  : 'text-body1_m_16 placeholder:text-color-neutral-90 min-h-[96px] w-full resize-none focus:outline-none'
               }
             />
 
