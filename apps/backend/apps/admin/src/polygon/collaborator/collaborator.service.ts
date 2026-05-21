@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { CollaboratorRole, CollaboratorStatus } from '@prisma/client'
+import { CollaboratorRole, CollaboratorStatus, Prisma } from '@prisma/client'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -88,21 +88,34 @@ export class CollaboratorService {
       },
       select: { id: true }
     })
-    if (existing || userId === problem.createdById) {
-      throw new DuplicateFoundException('Collaborator')
+    if (existing) {
+      throw new DuplicateFoundException('invited existing Collaborator')
+    }
+    if (userId === problem.createdById) {
+      throw new DuplicateFoundException('invited owner to collaborator')
     }
     const status = isOwner
       ? CollaboratorStatus.Active
       : CollaboratorStatus.Pending
 
-    return await this.prisma.polygonCollaborator.create({
-      data: {
-        problemId: polygonId,
-        userId,
-        role,
-        status
+    try {
+      return await this.prisma.polygonCollaborator.create({
+        data: {
+          problemId: polygonId,
+          userId,
+          role,
+          status
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new DuplicateFoundException('Collaborator is already invited')
       }
-    })
+      throw error
+    }
   }
 
   /**
