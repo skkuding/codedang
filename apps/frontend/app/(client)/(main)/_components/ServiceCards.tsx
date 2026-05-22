@@ -1,12 +1,13 @@
-'use client'
-
-import { cn } from '@/libs/utils'
-import dashboardIcon from '@/public/icons/dashboard-blue.svg'
-import gradeIcon from '@/public/icons/grade-blue.svg'
+// 'use client'
+// import { cn } from '@/libs/utils'
+import graduationIcon from '@/public/icons/graduation_blue.svg'
 import laptopCodingIcon from '@/public/icons/laptop-coding-blue.svg'
-import penIcon from '@/public/icons/pen-blue.svg'
+import notificationIcon from '@/public/icons/notification.svg'
+import prizeIcon from '@/public/icons/prize_blue.svg'
 import Image from 'next/image'
-import { useState } from 'react'
+import type { StaticImageData } from 'next/image'
+
+// import { useState } from 'react'
 
 const SERVICE_TABS = [
   'NOTICE',
@@ -18,45 +19,54 @@ const SERVICE_TABS = [
 
 type ServiceTab = (typeof SERVICE_TABS)[number]
 
-const FEATURE_LIST: Record<
-  ServiceTab,
-  {
-    title: string
-    desc: string
-    icon: string
-  }[]
-> = {
-  NOTICE: [],
-  CONTEST: [
+interface Feature {
+  title: string
+  desc: string
+  icon: StaticImageData
+  iconSize: number
+}
+
+const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
+  NOTICE: [
     {
-      title: '실시간 리더보드',
-      desc: '콘테스트 중에도, 실시간 리더보드를 통해 나의 순위를 파악할 수 있어요',
-      icon: dashboardIcon
-    },
-    {
-      title: '유동적인 특수 채점',
-      desc: '특정 조건 문제에 대해서도 다양한 답변을 평가할 수 있어요',
-      icon: penIcon
-    },
-    {
-      title: '사용자 정의 테스트케이스',
-      desc: '제출 전, 페널티 시스템에 영향을 주지 않는 다양한 입력을 추가할 수 있어요',
-      icon: laptopCodingIcon
-    },
-    {
-      title: '대회 내 통계',
-      desc: '성공률, 제출 횟수 및 더 많은 통계를 확인하고 더욱 성장하세요!',
-      icon: gradeIcon
+      title: '공지사항',
+      desc: '최신 업데이트와 공지사항을 빠르게 확인할 수 있어요.',
+      icon: notificationIcon,
+      iconSize: 36
     }
   ],
-  PROBLEM: [],
-  COURSE: [],
+  CONTEST: [
+    {
+      title: '대회',
+      desc: '대회 개최와 참가를 통해 실력을 겨루고 성장해보세요.',
+      icon: prizeIcon,
+      iconSize: 48
+    }
+  ],
+  PROBLEM: [
+    {
+      title: '문제 풀이',
+      desc: '다양한 난이도와 주제별 문제를 풀며 실전 감각을 키울 수 있어요.',
+      icon: laptopCodingIcon,
+      iconSize: 48
+    }
+  ],
+  COURSE: [
+    {
+      title: '강의 지원',
+      desc: '강의와 연계된 과제 및 실습으로 체계적으로 학습해보세요.',
+      icon: graduationIcon,
+      iconSize: 48
+    }
+  ],
   STUDY: []
 }
 
+const features = SERVICE_TABS.flatMap((tab) => FEATURE_LIST[tab])
+
 export function ServiceCards() {
-  const [selectedTab, setSelectedTab] = useState<ServiceTab>('CONTEST')
-  const features = FEATURE_LIST[selectedTab]
+  // const [selectedTab, setSelectedTab] = useState<ServiceTab>('CONTEST')
+  // const features = FEATURE_LIST[selectedTab]
 
   return (
     <section className="font-pretendard flex w-full flex-col items-center px-5 md:px-0">
@@ -66,32 +76,36 @@ export function ServiceCards() {
             코드당에는 어떤 기능이 있나요?
           </p>
 
+          {/*
           <div className="h-[58px] w-full items-center rounded-full bg-white p-1.5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)] md:w-auto">
             <div className="flex w-max items-center">
-              {SERVICE_TABS.map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  className={cn(
-                    'text-body1__m_16 w-30 flex h-[46px] items-center justify-center rounded-full px-4 py-2.5 transition-colors',
-                    selectedTab === tab
-                      ? 'bg-color-cool-neutral-15 text-white'
-                      : 'hover:bg-[#F1F4F6]'
-                  )}
-                  onClick={() => setSelectedTab(tab)}
-                >
-                  {tab}
-                </button>
-              ))}
+              {SERVICE_TABS.filter((tab) => FEATURE_LIST[tab].length > 0).map(
+                (tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    className={cn(
+                      'text-body1_m_16 w-30 flex h-[46px] items-center justify-center rounded-full px-4 py-2.5 transition-colors',
+                      selectedTab === tab
+                        ? 'bg-color-cool-neutral-15 text-white'
+                        : 'hover:bg-[#F1F4F6]'
+                    )}
+                    onClick={() => setSelectedTab(tab)}
+                  >
+                    {tab}
+                  </button>
+                )
+              )}
             </div>
           </div>
+          */}
         </div>
 
         <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="flex min-h-[203px] w-[331px] flex-col rounded-xl bg-white px-[26px] py-6 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]"
+              className="flex min-h-[203px] w-full flex-col rounded-xl bg-white px-[26px] py-6 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)]"
             >
               <p className="text-head3_sb_28 mb-2 whitespace-nowrap break-keep">
                 {feature.title}
@@ -100,11 +114,11 @@ export function ServiceCards() {
                 {feature.desc}
               </p>
               <Image
-                className="mt-auto self-end"
+                className="mt-auto self-end object-contain"
                 src={feature.icon}
                 alt={feature.title}
-                width={48}
-                height={48}
+                width={feature.iconSize}
+                height={feature.iconSize}
               />
             </div>
           ))}
