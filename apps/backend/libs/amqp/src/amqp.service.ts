@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
-import type { ConsumeMessage } from 'amqplib'
+import {
+  AmqpConnection,
+  Nack,
+  type SubscriberHandler
+} from '@golevelup/nestjs-rabbitmq'
 import { Span, TraceService } from 'nestjs-otel'
 import {
   CONSUME_CHANNEL,
@@ -32,36 +35,38 @@ export class JudgeAMQPService {
   ) {}
 
   startSubscription() {
+    const handleJudgeMessage: SubscriberHandler<object> = async (msg, raw) => {
+      if (!msg) {
+        this.logger.error('Received empty judge message')
+        return new Nack(false)
+      }
+
+      try {
+        // 메시지 타입에 따라 적절한 핸들러로 라우팅
+        if (
+          raw?.properties.type === RUN_MESSAGE_TYPE ||
+          raw?.properties.type === USER_TESTCASE_MESSAGE_TYPE
+        ) {
+          if (this.messageHandlers?.onRunMessage) {
+            await this.messageHandlers.onRunMessage(
+              msg,
+              raw?.properties.type === USER_TESTCASE_MESSAGE_TYPE
+            )
+          }
+          return
+        }
+
+        if (this.messageHandlers?.onJudgeMessage) {
+          await this.messageHandlers.onJudgeMessage(msg)
+        }
+      } catch (error) {
+        this.logger.error(error, 'Unexpected error in message handler')
+        return new Nack(false)
+      }
+    }
+
     this.amqpConnection.createSubscriber<object>(
-      async (msg: object | undefined, raw?: ConsumeMessage) => {
-        if (!msg) {
-          this.logger.error('Received empty judge message')
-          return new Nack()
-        }
-
-        try {
-          // 메시지 타입에 따라 적절한 핸들러로 라우팅
-          if (
-            raw?.properties.type === RUN_MESSAGE_TYPE ||
-            raw?.properties.type === USER_TESTCASE_MESSAGE_TYPE
-          ) {
-            if (this.messageHandlers?.onRunMessage) {
-              await this.messageHandlers.onRunMessage(
-                msg,
-                raw?.properties.type === USER_TESTCASE_MESSAGE_TYPE
-              )
-            }
-            return
-          }
-
-          if (this.messageHandlers?.onJudgeMessage) {
-            await this.messageHandlers.onJudgeMessage(msg)
-          }
-        } catch (error) {
-          this.logger.error(error, 'Unexpected error in message handler')
-          return new Nack()
-        }
-      },
+      handleJudgeMessage,
       {
         exchange: EXCHANGE,
         routingKey: RESULT_KEY,
@@ -160,22 +165,24 @@ export class CheckAMQPService {
   ) {}
 
   startSubscription() {
-    this.amqpConnection.createSubscriber<object>(
-      async (msg: object | undefined) => {
-        if (!msg) {
-          this.logger.error('Received empty check message')
-          return new Nack()
-        }
+    const handleCheckMessage: SubscriberHandler<object> = async (msg) => {
+      if (!msg) {
+        this.logger.error('Received empty check message')
+        return new Nack(false)
+      }
 
-        try {
-          if (this.messageHandlers?.onCheckMessage) {
-            await this.messageHandlers?.onCheckMessage(msg)
-          }
-        } catch (error) {
-          this.logger.error(error, 'Unexpected error in handling check message')
-          return new Nack()
+      try {
+        if (this.messageHandlers?.onCheckMessage) {
+          await this.messageHandlers?.onCheckMessage(msg)
         }
-      },
+      } catch (error) {
+        this.logger.error(error, 'Unexpected error in handling check message')
+        return new Nack(false)
+      }
+    }
+
+    this.amqpConnection.createSubscriber<object>(
+      handleCheckMessage,
       {
         exchange: CHECK_EXCHANGE,
         routingKey: CHECK_RESULT_KEY,
