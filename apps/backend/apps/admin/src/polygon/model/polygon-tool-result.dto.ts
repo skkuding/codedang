@@ -16,8 +16,8 @@ export class GeneratorJudgeResultDto {
 }
 
 export class GeneratorResultDto {
-  @IsNumber()
-  submissionId!: number
+  @IsString()
+  messageId!: string
 
   @IsNumber()
   resultCode!: number
@@ -52,8 +52,8 @@ export class ValidatorJudgeResultDto {
 }
 
 export class ValidatorResultDto {
-  @IsNumber()
-  submissionId!: number
+  @IsString()
+  messageId!: string
 
   @IsNumber()
   resultCode!: number
