@@ -1,8 +1,20 @@
 import { auth } from '@/libs/auth'
-import { safeFetcherWithAuth } from '@/libs/utils'
-import type { Course, JoinedCourse } from '@/types/type'
+import { adminBaseUrl } from '@/libs/constants'
 import { redirect } from 'next/navigation'
 import { CourseDetailTabs } from './_components/CourseDetailTabs'
+
+const GET_COURSE_QUERY = `
+  query GetCourse($groupId: Int!) {
+    getCourse(groupId: $groupId) {
+      id
+      groupName
+      courseInfo {
+        courseNum
+        classNum
+      }
+    }
+  }
+`
 
 export default async function CourseDetailLayout({
   children,
@@ -14,41 +26,39 @@ export default async function CourseDetailLayout({
   const { courseId } = await params
   const session = await auth()
 
-  // Admin/SuperAdmin은 groupLeader 체크 없이 통과 (GroupLeaderGuard와 동일한 로직)
-  const isAdmin = session?.user?.role !== 'User'
-  if (!isAdmin) {
-    try {
-      const joinedCourses: JoinedCourse[] = await safeFetcherWithAuth
-        .get('course/joined')
-        .json()
-
-      const isGroupLeaderOfThisCourse = joinedCourses.some(
-        (course) =>
-          course.id === Number(courseId) && course.isGroupLeader === true
-      )
-
-      if (!isGroupLeaderOfThisCourse) {
-        redirect('/')
-      }
-    } catch {
-      redirect('/')
-    }
+  if (!session) {
+    redirect('/')
   }
 
-  // course 정보 fetch (이름, 과목코드 표시용)
-  let courseCode = courseId
-  let courseTitle = ''
+  let json
   try {
-    const course: Course = await safeFetcherWithAuth
-      .get(`course/${courseId}`)
-      .json()
-    const courseNum = course.courseInfo?.courseNum
-    const classNum = course.courseInfo?.classNum
-    courseCode = courseNum ? `${courseNum}-${classNum}` : courseId
-    courseTitle = course.groupName
+    const res = await fetch(adminBaseUrl as string, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: session.token.accessToken
+      },
+      body: JSON.stringify({
+        query: GET_COURSE_QUERY,
+        variables: { groupId: Number(courseId) }
+      })
+    })
+    json = await res.json()
   } catch {
-    // fetch 실패 시 fallback: courseId를 코드로, 빈 제목 사용
+    redirect('/')
   }
+
+  // If the user doesn't have permission, the backend's GroupLeaderGuard
+  // will throw a ForbiddenException and return errors here.
+  if (json.errors || !json.data?.getCourse) {
+    redirect('/')
+  }
+
+  const course = json.data.getCourse
+  const courseNum = course.courseInfo?.courseNum
+  const classNum = course.courseInfo?.classNum
+  const courseCode = courseNum ? `${courseNum}-${classNum}` : courseId
+  const courseTitle = course.groupName || ''
 
   return (
     <div className="flex w-full flex-col">
