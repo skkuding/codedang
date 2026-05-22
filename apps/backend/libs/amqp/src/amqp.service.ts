@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
+import type { ConsumeMessage } from 'amqplib'
 import { Span, TraceService } from 'nestjs-otel'
 import {
   CONSUME_CHANNEL,
@@ -31,19 +32,23 @@ export class JudgeAMQPService {
   ) {}
 
   startSubscription() {
-    this.amqpConnection.createSubscriber(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async (msg: object, raw: any) => {
+    this.amqpConnection.createSubscriber<object>(
+      async (msg: object | undefined, raw?: ConsumeMessage) => {
+        if (!msg) {
+          this.logger.error('Received empty judge message')
+          return new Nack()
+        }
+
         try {
           // 메시지 타입에 따라 적절한 핸들러로 라우팅
           if (
-            raw.properties.type === RUN_MESSAGE_TYPE ||
-            raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
+            raw?.properties.type === RUN_MESSAGE_TYPE ||
+            raw?.properties.type === USER_TESTCASE_MESSAGE_TYPE
           ) {
             if (this.messageHandlers?.onRunMessage) {
               await this.messageHandlers.onRunMessage(
                 msg,
-                raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
+                raw?.properties.type === USER_TESTCASE_MESSAGE_TYPE
               )
             }
             return
@@ -155,9 +160,13 @@ export class CheckAMQPService {
   ) {}
 
   startSubscription() {
-    this.amqpConnection.createSubscriber(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async (msg: object, _: any) => {
+    this.amqpConnection.createSubscriber<object>(
+      async (msg: object | undefined) => {
+        if (!msg) {
+          this.logger.error('Received empty check message')
+          return new Nack()
+        }
+
         try {
           if (this.messageHandlers?.onCheckMessage) {
             await this.messageHandlers?.onCheckMessage(msg)
