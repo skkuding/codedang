@@ -1,77 +1,63 @@
-'use client'
+import { auth } from '@/libs/auth'
+import { safeFetcherWithAuth } from '@/libs/utils'
+import type { Course, JoinedCourse } from '@/types/type'
+import { redirect } from 'next/navigation'
+import { CourseDetailTabs } from './_components/CourseDetailTabs'
 
-import { GET_COURSE } from '@/graphql/course/queries'
-import { cn } from '@/libs/utils'
-import { useQuery } from '@apollo/client'
-import Link from 'next/link'
-import { useParams, usePathname } from 'next/navigation'
-
-export default function CourseDetailLayout({
-  children
+export default async function CourseDetailLayout({
+  children,
+  params
 }: {
   children: React.ReactNode
+  params: Promise<{ courseId: string }>
 }) {
-  const pathname = usePathname()
-  const params = useParams()
-  const courseId = params?.courseId as string
+  const { courseId } = await params
+  const session = await auth()
 
-  const { data, loading } = useQuery(GET_COURSE, {
-    variables: { groupId: Number(courseId) },
-    skip: !courseId
-  })
+  // Admin/SuperAdmin은 groupLeader 체크 없이 통과 (GroupLeaderGuard와 동일한 로직)
+  const isAdmin = session?.user?.role !== 'User'
+  if (!isAdmin) {
+    try {
+      const joinedCourses: JoinedCourse[] = await safeFetcherWithAuth
+        .get('course/joined')
+        .json()
 
-  const currentCourse = data?.getCourse
+      const isGroupLeaderOfThisCourse = joinedCourses.some(
+        (course) =>
+          course.id === Number(courseId) && course.isGroupLeader === true
+      )
 
-  const courseNum = currentCourse?.courseInfo?.courseNum
-  const classNum = currentCourse?.courseInfo?.classNum
+      if (!isGroupLeaderOfThisCourse) {
+        redirect('/')
+      }
+    } catch {
+      redirect('/')
+    }
+  }
 
-  const courseCode = courseNum ? `${courseNum}-${classNum}` : courseId
-  const courseTitle =
-    currentCourse?.groupName || (loading ? '로딩 중...' : '과목 정보 없음')
-
-  const tabs = [
-    { name: 'Home', href: `/admin/course/${courseId}` },
-    { name: 'Member', href: `/admin/course/${courseId}/user` },
-    { name: 'Assignment', href: `/admin/course/${courseId}/assignment` },
-    { name: 'Exercise', href: `/admin/course/${courseId}/exercise` }
-  ]
-
-  const activeTabName =
-    tabs.find((tab) => pathname === tab.href)?.name || 'Home'
+  // course 정보 fetch (이름, 과목코드 표시용)
+  let courseCode = courseId
+  let courseTitle = ''
+  try {
+    const course: Course = await safeFetcherWithAuth
+      .get(`course/${courseId}`)
+      .json()
+    const courseNum = course.courseInfo?.courseNum
+    const classNum = course.courseInfo?.classNum
+    courseCode = courseNum ? `${courseNum}-${classNum}` : courseId
+    courseTitle = course.groupName
+  } catch {
+    // fetch 실패 시 fallback: courseId를 코드로, 빈 제목 사용
+  }
 
   return (
     <div className="flex w-full flex-col">
       <div className="mx-auto w-full pb-[71px] pl-[86px] pr-[106px] pt-[80px]">
-        <div className="w-full">
-          <h1 className="text-head3_sb_28 uppercase">{activeTabName}</h1>
-          <p className="text-body1_m_16 text-color-neutral-50">
-            [{courseCode}] {courseTitle}
-          </p>
-        </div>
-
-        <div className="mx-auto my-10 w-full">
-          <div className="w-full">
-            <nav className="flex w-full justify-start border-b border-gray-200">
-              {tabs.map((tab) => {
-                const isActive = pathname === tab.href
-                return (
-                  <Link
-                    key={`tab-${tab.name}`}
-                    href={tab.href}
-                    className={cn(
-                      'text-sub3_sb_16 relative flex h-[40px] w-[285.5px] items-center justify-center pb-4 transition-colors',
-                      isActive
-                        ? 'text-primary after:bg-primary after:absolute after:bottom-[-1px] after:left-0 after:h-[2px] after:w-full'
-                        : 'text-color-neutral-40 hover:text-color-neutral-70'
-                    )}
-                  >
-                    {tab.name}
-                  </Link>
-                )
-              })}
-            </nav>
-          </div>
-        </div>
+        <CourseDetailTabs
+          courseId={courseId}
+          courseCode={courseCode}
+          courseTitle={courseTitle}
+        />
 
         <main className="w-full flex-1">{children}</main>
       </div>
