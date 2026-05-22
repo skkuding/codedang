@@ -21,7 +21,7 @@ export function NewProblemCard({ problem }: { problem: Problem }) {
 
           <Link href={`/problem/${problem.id}`}>
             <div className="flex h-[42px] w-[110px] items-center justify-center rounded-lg bg-black px-5 py-2">
-              <p className="text-body1__m_16 whitespace-nowrap text-white">
+              <p className="text-body1_m_16 whitespace-nowrap text-white">
                 자세히 보기
               </p>
             </div>
