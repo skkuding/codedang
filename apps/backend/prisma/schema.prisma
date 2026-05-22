@@ -59,7 +59,7 @@ model User {
   password                 String
   role                     Role               @default(User)
   jobType                  JobType            @default(CollegeStudent) @map("job_type")
-  nickname                 String?            @unique
+  nickname                 String?
   email                    String             @unique
   studentId                String             @default("0000000000") @map("student_id")
   college                  String?            @default("none")
