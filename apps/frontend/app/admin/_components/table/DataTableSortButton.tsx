@@ -97,7 +97,7 @@ export function DataTableSortButton({
       <PopoverContent className="w-72 p-4">
         <div className="space-y-4">
           <div>
-            <h4 className="mb-2 text-sm font-medium">Column</h4>
+            <h4 className="text-body2_m_14 mb-2">Column</h4>
             <div className="space-y-2">
               {columns.map(({ id, label }) => (
                 <div key={id} className="flex items-center space-x-2">
@@ -119,7 +119,7 @@ export function DataTableSortButton({
           </div>
 
           <div>
-            <h4 className="mb-2 text-sm font-medium">Direction</h4>
+            <h4 className="text-body2_m_14 mb-2">Direction</h4>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <input

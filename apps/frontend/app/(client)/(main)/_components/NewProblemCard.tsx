@@ -2,7 +2,6 @@ import { Badge } from '@/components/shadcn/badge'
 import { Card, CardContent } from '@/components/shadcn/card'
 import GrayRightArrowIcon from '@/public/icons/arrow-right-gray.svg'
 import type { Problem } from '@/types/type'
-import Image from 'next/image'
 import Link from 'next/link'
 
 export function NewProblemCard({ problem }: { problem: Problem }) {
@@ -46,12 +45,7 @@ export function NewProblemCard({ problem }: { problem: Problem }) {
                   {problem.title}
                 </p>
 
-                <Image
-                  src={GrayRightArrowIcon}
-                  alt="Right"
-                  width={16}
-                  height={16}
-                />
+                <GrayRightArrowIcon className="text-color-neutral-90 h-4 w-4" />
               </div>
             </div>
           </CardContent>

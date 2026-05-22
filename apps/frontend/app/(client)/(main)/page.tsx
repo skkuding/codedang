@@ -2,7 +2,7 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
 import { Carousel } from './_components/Carousel'
 import { InstagramCards } from './_components/InstagramCards'
-import { MiddleContestBanner } from './_components/MiddleContestBanner'
+import { MiddleBanner } from './_components/MiddleBanner'
 import { NavigationButtons } from './_components/NavigationButtons'
 import { NewProblemCards } from './_components/NewProblemCards'
 import { ServiceCards } from './_components/ServiceCards'
@@ -38,7 +38,7 @@ export default function Home() {
           <NewProblemCards />
         </ErrorBoundary>
         <ErrorBoundary fallback={FetchErrorFallback}>
-          <MiddleContestBanner />
+          <MiddleBanner />
         </ErrorBoundary>
         <ErrorBoundary fallback={FetchErrorFallback}>
           <InstagramCards />
