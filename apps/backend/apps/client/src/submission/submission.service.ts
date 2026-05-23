@@ -1125,11 +1125,15 @@ export class SubmissionService {
       where: {
         id,
         problemId,
-        contestId,
-        assignmentId
+        // contestId/assignmentId가 null인 경우 해당 필드를 필터에서 제외한다.
+        // null로 그대로 넘기면 Prisma가 WHERE contest_id IS NULL 조건을 생성하여
+        // 대회 종료 후 공개된 문제에서 과거 대회 제출 기록을 조회할 수 없게 되는 버그가 발생한다.
+        contestId: contestId ?? undefined,
+        assignmentId: assignmentId ?? undefined
       },
       select: {
         userId: true,
+        contestId: true,
         user: {
           select: {
             username: true
@@ -1151,6 +1155,34 @@ export class SubmissionService {
     })
     if (!submission) {
       throw new EntityNotExistException('Submission')
+    }
+
+    // contestId가 요청에 포함되지 않았지만 실제 submission에는 contestId가 있는 경우
+    // (대회 종료 후 공개된 문제에서 과거 대회 제출 기록을 조회하는 케이스)
+    // 해당 submission이 속한 대회 정보를 로드하여 진행 중인 대회의 타인 제출 열람을 차단한다.
+    if (!contestId && submission.contestId) {
+      const contestRecord = await this.prisma.contestRecord.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_userId: {
+            contestId: submission.contestId,
+            userId
+          }
+        },
+        select: {
+          contest: {
+            select: {
+              startTime: true,
+              endTime: true,
+              isJudgeResultVisible: true
+            }
+          }
+        }
+      })
+      if (contestRecord) {
+        contest = contestRecord.contest
+        isJudgeResultVisible = contestRecord.contest.isJudgeResultVisible
+      }
     }
 
     // 본인이나 관리자가 아닐 경우
