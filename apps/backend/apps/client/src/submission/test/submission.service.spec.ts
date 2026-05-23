@@ -606,7 +606,7 @@ describe('SubmissionService', () => {
 
     it('should return own past-contest submission when accessed from public problem page (contestId=null)', async () => {
       // 대회 종료 후 공개된 문제에서 본인이 대회 당시 제출한 submission을 조회하는 케이스
-      // submission의 contestId가 CONTEST_ID이지만 요청에서 contestId=null로 호출됨
+      // submission의 contest 릴레이션을 통해 대회 정보를 직접 가져옴
       const endedContest = {
         ...mockContest,
         startTime: new Date(Date.now() - 20000),
@@ -626,12 +626,9 @@ describe('SubmissionService', () => {
       db.problem.findFirst.resolves(problems[0])
       db.submission.findFirst.resolves({
         ...submissions[0],
-        contestId: CONTEST_ID, // 대회 당시 제출이므로 contestId가 채워져 있음
+        contest: endedContest, // 대회 당시 제출이므로 contest 릴레이션이 존재
         user: { username: 'username' },
         submissionResult: submissionResults
-      })
-      db.contestRecord.findUnique.resolves({
-        contest: endedContest
       })
 
       expect(
@@ -654,9 +651,10 @@ describe('SubmissionService', () => {
       })
     })
 
-    it('should block viewing other users past-contest submission via public page when contest is still ongoing', async () => {
+    it('should block viewing other users submission from ongoing contest via public page', async () => {
       // contestId=null로 공개 엔드포인트를 호출하더라도
-      // submission의 실제 contestId가 진행 중인 대회이면 타인 제출 열람을 차단해야 함
+      // submission의 contest가 진행 중인 대회이면 타인 제출 열람을 차단해야 함
+      // submission의 릴레이션 데이터를 직접 사용하므로 contestRecord 유무와 무관하게 차단됨
       const ongoingContest = {
         ...mockContest,
         startTime: new Date(Date.now() - 10000),
@@ -666,11 +664,8 @@ describe('SubmissionService', () => {
       db.problem.findFirst.resolves(problems[0])
       db.submission.findFirst.resolves({
         ...submissions[0],
-        contestId: CONTEST_ID, // 진행 중인 대회의 submission
+        contest: ongoingContest, // 진행 중인 대회의 릴레이션 데이터
         userId: 2 // 타인의 submission
-      })
-      db.contestRecord.findUnique.resolves({
-        contest: ongoingContest
       })
 
       await expect(
@@ -680,6 +675,37 @@ describe('SubmissionService', () => {
           userId: 1, // 다른 유저가 조회 시도
           userRole: Role.User,
           contestId: null, // contestId 없이 공개 엔드포인트 호출
+          assignmentId: null
+        })
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+
+    it('should block non-participant from viewing submission of ongoing contest via public page', async () => {
+      // 대회에 참가하지 않은 유저가 공개 엔드포인트를 통해
+      // 진행 중인 대회의 타인 제출물을 조회 시도하는 케이스
+      // contestRecord가 없어도 submission.contest 릴레이션으로 차단되어야 함
+      const ongoingContest = {
+        ...mockContest,
+        startTime: new Date(Date.now() - 10000),
+        endTime: new Date(Date.now() + 10000)
+      }
+
+      db.problem.findFirst.resolves(problems[0])
+      db.submission.findFirst.resolves({
+        ...submissions[0],
+        contest: ongoingContest, // 진행 중인 대회의 릴레이션 데이터
+        userId: 2 // 타인의 submission
+      })
+      // 비참가자이므로 contestRecord가 없음
+      db.contestRecord.findUnique.resolves(null)
+
+      await expect(
+        service.getSubmission({
+          id: submissions[0].id,
+          problemId: problems[0].id,
+          userId: 1, // 대회에 참가하지 않은 유저
+          userRole: Role.User,
+          contestId: null,
           assignmentId: null
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
