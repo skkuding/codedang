@@ -1,11 +1,9 @@
 // 'use client'
 // import { cn } from '@/libs/utils'
-import graduationIcon from '@/public/icons/graduation_blue.svg'
-import laptopCodingIcon from '@/public/icons/laptop-coding-blue.svg'
-import notificationIcon from '@/public/icons/notification.svg'
-import prizeIcon from '@/public/icons/prize_blue.svg'
-import Image from 'next/image'
-import type { StaticImageData } from 'next/image'
+import GraduationIcon from '@/public/icons/graduation_blue.svg'
+import LaptopCodingIcon from '@/public/icons/laptop-coding.svg'
+import NotificationIcon from '@/public/icons/notification.svg'
+import PrizeIcon from '@/public/icons/prize_blue.svg'
 
 // import { useState } from 'react'
 
@@ -22,7 +20,7 @@ type ServiceTab = (typeof SERVICE_TABS)[number]
 interface Feature {
   title: string
   desc: string
-  icon: StaticImageData
+  icon: React.ReactNode
   iconSize: number
 }
 
@@ -31,7 +29,7 @@ const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
     {
       title: '공지사항',
       desc: '최신 업데이트와 공지사항을 빠르게 확인할 수 있어요.',
-      icon: notificationIcon,
+      icon: <NotificationIcon className="text-primary h-8 w-8" />,
       iconSize: 36
     }
   ],
@@ -39,7 +37,7 @@ const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
     {
       title: '대회',
       desc: '대회 개최와 참가를 통해 실력을 겨루고 성장해보세요.',
-      icon: prizeIcon,
+      icon: <PrizeIcon />,
       iconSize: 48
     }
   ],
@@ -47,7 +45,7 @@ const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
     {
       title: '문제 풀이',
       desc: '다양한 난이도와 주제별 문제를 풀며 실전 감각을 키울 수 있어요.',
-      icon: laptopCodingIcon,
+      icon: <LaptopCodingIcon className="text-primary h-9 w-9" />,
       iconSize: 48
     }
   ],
@@ -55,7 +53,7 @@ const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
     {
       title: '강의 지원',
       desc: '강의와 연계된 과제 및 실습으로 체계적으로 학습해보세요.',
-      icon: graduationIcon,
+      icon: <GraduationIcon />,
       iconSize: 48
     }
   ],
@@ -113,13 +111,7 @@ export function ServiceCards() {
               <p className="text-sub2_m_18 mb-4 line-clamp-2 break-keep text-[#5F6566]">
                 {feature.desc}
               </p>
-              <Image
-                className="mt-auto self-end object-contain"
-                src={feature.icon}
-                alt={feature.title}
-                width={feature.iconSize}
-                height={feature.iconSize}
-              />
+              {feature.icon}
             </div>
           ))}
         </div>

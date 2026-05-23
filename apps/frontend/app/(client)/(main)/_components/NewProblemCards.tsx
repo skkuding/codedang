@@ -31,15 +31,13 @@ export async function NewProblemCards() {
               </div>
             </div>
 
-            <div className="relative left-1/2 -my-8 -ml-2 w-screen -translate-x-1/2">
-              <CarouselContent className="mx-10 my-8 max-w-[1380px] md:mx-auto">
-                {problems.map((problem) => (
-                  <CarouselItem key={problem.id}>
-                    <NewProblemCard problem={problem} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </div>
+            <CarouselContent className="mx-0 my-8">
+              {problems.map((problem) => (
+                <CarouselItem key={problem.id}>
+                  <NewProblemCard problem={problem} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
           </Carousel>
         </div>
         {/* Desktop View */}
