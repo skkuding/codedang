@@ -67,10 +67,10 @@ export function QnaTable({ groupId }: QnaTableProps) {
         <div className="flex gap-5">
           <div className="flex items-center gap-2">
             <span className="text-primary text-[30px] font-extrabold">
-              {qnas.length}
+              {qnaData.getCourseQnAs.length}
             </span>
             <span className="text-[26px] font-semibold text-black">
-              {qnas.length <= 1 ? 'Question' : 'Questions'}
+              {qnaData.getCourseQnAs.length <= 1 ? 'Question' : 'Questions'}
             </span>
           </div>
           <div className="bg-color-commmon-100 border-line flex rounded-full border p-[5px]">
