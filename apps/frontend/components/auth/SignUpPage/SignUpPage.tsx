@@ -911,7 +911,7 @@ export function SignUpPage() {
                 {isSKKU ? (
                   <div
                     className={cn(
-                      'flex h-[46px] flex-1 items-center gap-1 rounded-[12px] border bg-white px-5',
+                      'flex h-[46px] min-w-0 flex-1 items-center gap-1 rounded-[12px] border bg-white px-5',
                       getEmailBorderClass()
                     )}
                   >
@@ -935,7 +935,7 @@ export function SignUpPage() {
                     onChange={(e) => setEmailLocal(e.target.value)}
                     disabled={emailVerified}
                     className={cn(
-                      'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] flex-1 rounded-[12px] border bg-white px-5 py-[11px] outline-none',
+                      'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] min-w-0 flex-1 rounded-[12px] border bg-white px-5 py-[11px] outline-none',
                       getEmailBorderClass()
                     )}
                   />
