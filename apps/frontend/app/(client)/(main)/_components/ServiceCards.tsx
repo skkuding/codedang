@@ -21,7 +21,6 @@ interface Feature {
   title: string
   desc: string
   icon: React.ReactNode
-  iconSize: number
 }
 
 const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
@@ -29,32 +28,28 @@ const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
     {
       title: '공지사항',
       desc: '최신 업데이트와 공지사항을 빠르게 확인할 수 있어요.',
-      icon: <NotificationIcon className="text-primary h-8 w-8" />,
-      iconSize: 36
+      icon: <NotificationIcon className="text-primary h-8 w-8" />
     }
   ],
   CONTEST: [
     {
       title: '대회',
       desc: '대회 개최와 참가를 통해 실력을 겨루고 성장해보세요.',
-      icon: <PrizeIcon />,
-      iconSize: 48
+      icon: <PrizeIcon />
     }
   ],
   PROBLEM: [
     {
       title: '문제 풀이',
       desc: '다양한 난이도와 주제별 문제를 풀며 실전 감각을 키울 수 있어요.',
-      icon: <LaptopCodingIcon className="text-primary h-9 w-9" />,
-      iconSize: 48
+      icon: <LaptopCodingIcon className="text-primary h-9 w-9" />
     }
   ],
   COURSE: [
     {
       title: '강의 지원',
       desc: '강의와 연계된 과제 및 실습으로 체계적으로 학습해보세요.',
-      icon: <GraduationIcon />,
-      iconSize: 48
+      icon: <GraduationIcon />
     }
   ],
   STUDY: []
