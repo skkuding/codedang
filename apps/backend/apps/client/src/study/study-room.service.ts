@@ -3,25 +3,26 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 import type { Queue } from 'bullmq'
 import type Redis from 'ioredis'
 import type { Server, Socket } from 'socket.io'
-import { REDIS_CLIENT } from '@libs/redis'
 import {
   roomKey,
   reconnectKey,
   membersKey,
+  STUDY_ROOM_QUEUE,
+  JOB_RECONNECT_EXPIRE,
+  JOB_ROOM_REMINDER,
+  JOB_ROOM_END,
   RECONNECT_GRACE_SEC,
   REMINDER_BEFORE_END_MS,
-  BUFFER_SEC,
-  type RoomState,
-  type RoomMember,
-  type JoinResponse,
-  type SocketResponse
+  BUFFER_SEC
+} from '@libs/constants'
+import { REDIS_CLIENT } from '@libs/redis'
+import type {
+  RoomState,
+  RoomMember,
+  JoinResponse,
+  SocketResponse
 } from './interface/study-socket.interface'
 import { StudyService } from './study.service'
-
-export const STUDY_ROOM_QUEUE = 'study-room'
-export const JOB_RECONNECT_EXPIRE = 'reconnect-expire'
-export const JOB_ROOM_REMINDER = 'room-reminder'
-export const JOB_ROOM_END = 'room-end'
 
 @Injectable()
 export class StudyRoomService {
