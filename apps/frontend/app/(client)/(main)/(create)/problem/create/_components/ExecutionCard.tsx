@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from '@/components/shadcn/button'
 import { cn, dateFormatter } from '@/libs/utils'
 import CheckCircle from '@/public/icons/check-circle.svg'
