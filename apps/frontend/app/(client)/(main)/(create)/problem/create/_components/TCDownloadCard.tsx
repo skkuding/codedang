@@ -14,7 +14,7 @@ export function TCDownloadCard({
   disabled = false
 }: TCDownloadCardProps) {
   return (
-    <div className="border-color-cool-neutral-90 bg-color-common-100 flex flex-col items-start rounded-2xl border px-6 py-7">
+    <div className="border-color-cool-neutral-90 bg-color-common-100 rounded-2xl border px-6 py-7">
       <div className="flex w-full items-center justify-between">
         <div className="flex flex-col gap-1">
           <h3 className="text-head5_sb_24 text-color-common-0">
