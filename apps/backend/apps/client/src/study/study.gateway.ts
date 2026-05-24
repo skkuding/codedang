@@ -18,9 +18,13 @@ import { StudyRoomService } from './study-room.service'
 @WebSocketGateway({
   namespace: 'study',
   cors: {
-    // TODO 실제 서버 환경에 맞는 'cors' RedisIoAdapter 내부에 설정
-    // origin: ['ws://localhost:3002/api/room']
-    origin: true,
+    origin:
+      process.env.APP_ENV === 'production' || process.env.APP_ENV === 'stage'
+        ? true
+        : [
+            /^https:\/\/\d+\.preview\.codedang\.com$/, // preview
+            /^http:\/\/localhost(:\d+)?$/ // local
+          ],
     credentials: true
   }
 })
