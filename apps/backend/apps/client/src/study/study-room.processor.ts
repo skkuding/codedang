@@ -2,12 +2,12 @@ import { Processor, WorkerHost } from '@nestjs/bullmq'
 import { Logger } from '@nestjs/common'
 import { Job } from 'bullmq'
 import {
-  StudyRoomService,
   STUDY_ROOM_QUEUE,
   JOB_RECONNECT_EXPIRE,
   JOB_ROOM_REMINDER,
   JOB_ROOM_END
-} from './study-room.service'
+} from '@libs/constants'
+import { StudyRoomService } from './study-room.service'
 
 @Processor(STUDY_ROOM_QUEUE)
 export class StudyRoomProcessor extends WorkerHost {
