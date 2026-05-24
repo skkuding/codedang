@@ -3,15 +3,15 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
-import ArrowRightIcon from '@/public/icons/arrow-right-gray.svg'
-import CheckBlueIcon from '@/public/icons/check-blue.svg'
+import ArrowRightNarrowIcon from '@/public/icons/arrow-right-narrow.svg'
+import CheckCircleIcon from '@/public/icons/check-circle.svg'
+import PenIcon from '@/public/icons/pen.svg'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import { useState } from 'react'
 import { AiFillFile } from 'react-icons/ai'
 import { BsPeopleFill } from 'react-icons/bs'
-import { FaBook, FaPen } from 'react-icons/fa'
+import { FaBook } from 'react-icons/fa'
 import { FaSquareCheck } from 'react-icons/fa6'
 import { PiMagnifyingGlassFill, PiWrenchFill } from 'react-icons/pi'
 import { CheckerPage } from './CheckerPage'
@@ -32,7 +32,7 @@ export function ProblemCreateContainer() {
       new Promise((resolve) => {
         setTimeout(() => {
           resolve('hi')
-        }, 3000)
+        }, 500)
       })
   })
 
@@ -54,7 +54,7 @@ export function ProblemCreateContainer() {
       Component: TestsPage
     },
     {
-      Icon: FaPen,
+      Icon: PenIcon,
       label: 'Solution',
       text: '솔루션',
       subText: '솔루션 업로드 및 테스트 검증',
@@ -139,12 +139,7 @@ export function ProblemCreateContainer() {
             type="button"
             className="itmes-center border-primary-light hover:bg-color-blue-95 flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
           >
-            <Image
-              src={CheckBlueIcon}
-              alt="check blue icon"
-              width={20}
-              height={20}
-            />
+            <CheckCircleIcon className="text-primary h-5 w-5" />
             <p className="text-sub3_sb_16 text-primary">저장하기</p>
           </Button>
           <UploadButton
@@ -204,11 +199,9 @@ export function ProblemCreateContainer() {
                     </p>
                   </div>
                 </div>
-                <Image
-                  src={ArrowRightIcon}
+                <ArrowRightNarrowIcon
                   alt="arrow right dimgray"
-                  width={20}
-                  height={20}
+                  className="text-color-cool-neutral-30 h-5"
                 />
               </div>
             )

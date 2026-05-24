@@ -9,6 +9,7 @@ import {
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import PenIcon from '@/public/icons/pen.svg'
 import codedangIcon from '@/public/logos/codedang-editor.svg'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
 import type { User } from '@/types/type'
@@ -27,7 +28,6 @@ import {
   FaAnglesRight,
   FaBell,
   FaBook,
-  FaPen,
   FaSquarePollHorizontal,
   FaTrophy,
   FaUser
@@ -39,39 +39,39 @@ interface NavItem {
   path: string
   icon: IconType | ComponentType<{ className: string }>
 }
-
-const getCourseNavItems = (courseId: string): NavItem[] => [
-  {
-    name: 'Home',
-    path: `/admin/course/${courseId}` as const,
-    icon: HomeIcon
-  },
-  // {
-  //   name: 'Notice',
-  //   path: `/admin/course/${courseId}/notice`,
-  //   icon: FaBell
-  // },
-  {
-    name: 'Member',
-    path: `/admin/course/${courseId}/user` as const,
-    icon: MemberIcon
-  },
-  {
-    name: 'Assignment',
-    path: `/admin/course/${courseId}/assignment` as const,
-    icon: AssignmentIcon
-  },
-  {
-    name: 'Exercise',
-    path: `/admin/course/${courseId}/exercise` as const,
-    icon: ExerciseIcon
-  },
-  {
-    name: 'Q&A',
-    path: `/admin/course/${courseId}/qna` as const,
-    icon: ExerciseIcon
-  }
-]
+// Pending : 2중 사이드바 구조 철회
+// const getCourseNavItems = (courseId: string): NavItem[] => [
+//   {
+//     name: 'Home',
+//     path: `/admin/course/${courseId}` as const,
+//     icon: HomeIcon
+//   },
+//   // {
+//   //   name: 'Notice',
+//   //   path: `/admin/course/${courseId}/notice`,
+//   //   icon: FaBell
+//   // },
+//   {
+//     name: 'Member',
+//     path: `/admin/course/${courseId}/user` as const,
+//     icon: MemberIcon
+//   },
+//   {
+//     name: 'Assignment',
+//     path: `/admin/course/${courseId}/assignment` as const,
+//     icon: AssignmentIcon
+//   },
+//   {
+//     name: 'Exercise',
+//     path: `/admin/course/${courseId}/exercise` as const,
+//     icon: ExerciseIcon
+//   },
+//   {
+//     name: 'Q&A',
+//     path: `/admin/course/${courseId}/qna` as const,
+//     icon: ExerciseIcon
+//   }
+// ]
 
 interface SidebarLinkProps {
   item: NavItem
@@ -101,7 +101,9 @@ function SidebarLink({
       <item.icon
         className={cn(
           'h-4 w-4',
-          isActive ? 'fill-white' : 'fill-color-neutral-70'
+          isActive
+            ? 'fill-white'
+            : 'fill-color-neutral-70 text-color-neutral-70'
         )}
       />
       {isExpanded && <span className="text-sub3_sb_16 ml-3">{item.name}</span>}
@@ -117,7 +119,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isAnimationComplete, setIsAnimationComplete] = useState(true)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
-  const [isCourseSidebarExpanded, setIsCourseSidebarExpanded] = useState(true)
   const [selectedCourseId, setSelectedCourseId] = useState<string>('')
   const [userPermissions, setUserPermissions] = useState({
     canCreateCourse: false,
@@ -178,7 +179,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
         { name: 'Notice', path: '/admin/notice', icon: FaBell }
       )
     }
-    items.push({ name: 'Problem', path: '/admin/problem', icon: FaPen })
+    items.push({ name: 'Problem', path: '/admin/problem', icon: PenIcon })
 
     if (userPermissions.canCreateCourse || hasLeadCourses) {
       items.push({ name: 'Course', path: '/admin/course', icon: FaBook })
