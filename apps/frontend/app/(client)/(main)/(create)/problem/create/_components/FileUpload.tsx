@@ -20,7 +20,6 @@ export function FileUpload({
   className
 }: FileUploadProps) {
   const [files, setFiles] = useState<File[]>([])
-  const [isDragOver, setIsDragOver] = useState(false)
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const handleFiles = (incoming: FileList | null) => {
@@ -35,21 +34,13 @@ export function FileUpload({
   return (
     <div
       onClick={() => inputRef.current?.click()}
-      onDragOver={(e) => {
-        e.preventDefault()
-        setIsDragOver(true)
-      }}
-      onDragLeave={() => setIsDragOver(false)}
+      onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault()
-        setIsDragOver(false)
         handleFiles(e.dataTransfer.files)
       }}
       className={cn(
-        'flex cursor-pointer flex-col items-center justify-center rounded-[12px] py-20',
-        isDragOver
-          ? 'border-primary bg-color-blue-95'
-          : 'border-color-cool-neutral-80 bg-color-neutral-99',
+        'border-color-cool-neutral-80 bg-color-neutral-99 flex cursor-pointer flex-col items-center justify-center rounded-[12px] py-20',
         className
       )}
     >
