@@ -149,7 +149,7 @@ export function ExecutionCard({
 
 function StateSkeleton() {
   return (
-    <div className="border-line bg-color-neutral-99 border-1 flex animate-pulse items-start gap-2 rounded-xl p-4">
+    <div className="border-line bg-color-neutral-99 border flex animate-pulse items-start gap-2 rounded-xl p-4">
       <div className="bg-color-neutral-90 mt-[2px] h-5 w-5 rounded-full" />
       <div className="flex flex-col gap-2">
         <div className="bg-color-neutral-90 h-5 w-32 rounded-md" />
