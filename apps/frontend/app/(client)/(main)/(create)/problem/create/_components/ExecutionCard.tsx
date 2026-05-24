@@ -67,7 +67,7 @@ export function ExecutionCard({
       ) : (
         <div
           className={cn(
-            'border-1 flex items-start gap-2 rounded-xl p-4',
+            'border flex items-start gap-2 rounded-xl p-4',
             {
               SUCCESS: 'border-primary-light bg-color-blue-95',
               FAIL: 'border-error bg-color-red-95',
