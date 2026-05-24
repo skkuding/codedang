@@ -34,9 +34,9 @@ export function ExecutionCard({
     <div className="border-color-cool-neutral-90 bg-color-common-100 grid gap-7 rounded-2xl border px-6 py-7">
       <div className="flex justify-between">
         <div className="grid gap-1">
-          <span className="text-head5_sb_24 text-color-common-0">
+          <h3 className="text-head5_sb_24 text-color-common-0">
             자동 생성 실행하기
-          </span>
+          </h3>
           <span className="text-color-cool-neutral-40 text-body2_m_14">
             업로드한 파일을 이용해서 생성을 시도합니다
           </span>
