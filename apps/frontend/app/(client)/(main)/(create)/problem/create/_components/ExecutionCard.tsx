@@ -6,6 +6,43 @@ import CheckCircle from '@/public/icons/check-circle.svg'
 
 export type StateType = 'SUCCESS' | 'FAIL' | 'NONE'
 
+const STATE_MAP = {
+  SUCCESS: {
+    container: 'border-primary-light bg-color-blue-95',
+    icon: 'text-primary',
+    text: 'text-primary-strong',
+    description: 'text-primary',
+    dot: 'bg-primary',
+    title: '아웃풋 생성 성공'
+  },
+  FAIL: {
+    container: 'border-error bg-color-red-95',
+    icon: 'text-error',
+    text: 'text-error',
+    description: 'text-error',
+    dot: 'bg-error',
+    title: '아웃풋 생성 실패'
+  },
+  NONE: {
+    container: 'border-line bg-color-neutral-99',
+    icon: 'text-color-neutral-50',
+    text: 'text-color-neutral-30',
+    description: '',
+    dot: 'bg-color-neutral-30',
+    title: '파일 업로드 이후 실행 필요'
+  }
+} as const satisfies Record<
+  StateType,
+  {
+    container: string
+    icon: string
+    text: string
+    description: string
+    dot: string
+    title: string
+  }
+>
+
 export interface GeneratedResult {
   state: StateType
   date?: Date
@@ -67,47 +104,22 @@ export function ExecutionCard({
       ) : (
         <div
           className={cn(
-            'border flex items-start gap-2 rounded-xl p-4',
-            {
-              SUCCESS: 'border-primary-light bg-color-blue-95',
-              FAIL: 'border-error bg-color-red-95',
-              NONE: 'border-line bg-color-neutral-99'
-            }[genResult.state]
+            'flex items-start gap-2 rounded-xl border p-4',
+            STATE_MAP[genResult.state].container
           )}
         >
           <CheckCircle
-            className={cn(
-              'mt-[1px] h-5',
-              {
-                SUCCESS: 'text-primary',
-                FAIL: 'text-error',
-                NONE: 'text-color-neutral-50'
-              }[genResult.state]
-            )}
+            className={cn('mt-[1px] h-5', STATE_MAP[genResult.state].icon)}
           />
-          <div
-            className={cn(
-              {
-                SUCCESS: 'text-primary-strong',
-                FAIL: 'text-error',
-                NONE: 'text-color-neutral-30'
-              }[genResult.state]
-            )}
-          >
+          <div className={cn(STATE_MAP[genResult.state].text)}>
             <span className="text-sub3_sb_16">
-              {
-                {
-                  SUCCESS: '아웃풋 생성 성공',
-                  FAIL: '아웃풋 생성 실패',
-                  NONE: '파일 업로드 이후 실행 필요'
-                }[genResult.state]
-              }
+              {STATE_MAP[genResult.state].title}
             </span>
             <div
-              className={cn('text-caption1_m_13 flex', {
-                'text-primary': genResult.state === 'SUCCESS',
-                'text-error': genResult.state === 'FAIL'
-              })}
+              className={cn(
+                'text-caption1_m_13 flex',
+                STATE_MAP[genResult.state].description
+              )}
             >
               {genResult.state !== 'NONE' ? (
                 <>
@@ -118,9 +130,7 @@ export function ExecutionCard({
                     <div
                       className={cn(
                         'h-1 w-1 rounded-full',
-                        genResult.state === 'SUCCESS'
-                          ? 'bg-primary'
-                          : 'bg-error'
+                        STATE_MAP[genResult.state].dot
                       )}
                     />
                   </div>
@@ -134,7 +144,12 @@ export function ExecutionCard({
                 <>
                   <span>-</span>
                   <div className="grid h-5 w-5 place-items-center">
-                    <div className="bg-color-neutral-30 h-1 w-1 rounded-full" />
+                    <div
+                      className={cn(
+                        'h-1 w-1 rounded-full',
+                        STATE_MAP[genResult.state].dot
+                      )}
+                    />
                   </div>
                   <span>-</span>
                 </>
@@ -149,7 +164,7 @@ export function ExecutionCard({
 
 function StateSkeleton() {
   return (
-    <div className="border-line bg-color-neutral-99 border flex animate-pulse items-start gap-2 rounded-xl p-4">
+    <div className="border-line bg-color-neutral-99 flex animate-pulse items-start gap-2 rounded-xl border p-4">
       <div className="bg-color-neutral-90 mt-[2px] h-5 w-5 rounded-full" />
       <div className="flex flex-col gap-2">
         <div className="bg-color-neutral-90 h-5 w-32 rounded-md" />
