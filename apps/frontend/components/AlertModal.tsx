@@ -76,7 +76,7 @@ export function AlertModal({
         <AlertDialogHeader className="flex flex-col items-center justify-center">
           {showIcon &&
             (type === 'warning' ? (
-              <InfoIcon width={42} height={42} />
+              <InfoIcon className="h-[42px] w-[42px]" />
             ) : (
               <CheckCircleIcon className="text-primary h-[42px] w-[42px]" />
             ))}
