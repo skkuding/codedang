@@ -62,7 +62,7 @@ export default async function CourseDetailLayout({
 
   return (
     <div className="flex w-full flex-col">
-      <div className="mx-auto w-full pb-[71px] pl-[86px] pr-[106px] pt-[80px]">
+      <div className="pb-[71px] pl-[86px] pr-[106px] pt-[80px]">
         <CourseDetailTabs
           courseId={courseId}
           courseCode={courseCode}
