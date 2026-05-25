@@ -1179,10 +1179,6 @@ export class SubmissionService {
       contest = submission.contest
       isJudgeResultVisible = submission.contest.isJudgeResultVisible
     }
-    if (!assignment && submission.assignment) {
-      assignment = submission.assignment
-      isHiddenTestcaseVisible = submission.assignment.isJudgeResultVisible
-    }
 
     // 본인이나 관리자가 아닐 경우
     if (
