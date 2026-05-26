@@ -29,6 +29,7 @@ RUN wget -P /tmp https://github.com/ioi/isolate/archive/refs/tags/v2.2.1.tar.gz 
     && mkdir -p /usr/local/etc \
     && cp /tmp/isolate-2.2.1/default.cf /usr/local/etc/isolate \
     && install /tmp/isolate-2.2.1/isolate /usr/local/bin/isolate \
+    && rm -rf /tmp/v2.2.1.tar.gz /tmp/isolate-2.2.1 \
     && isolate --init
 
 # Create a sandbox directory
