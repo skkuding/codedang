@@ -79,14 +79,11 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
   const tableData: CourseNoticeRow[] = useMemo(() => {
     const filtered =
       filterType === 'unread' ? notices.filter((n) => !n.isRead) : notices
-    // Build noMap from chronological order
     const noMap = new Map(
       [...filtered]
         .sort((a, b) => getTime(a) - getTime(b))
         .map((n, i) => [n.id, i + 1])
     )
-
-    // Sort once for display order
     return [...filtered]
       .sort((a, b) => {
         if (a.isFixed !== b.isFixed) {
