@@ -36,7 +36,7 @@ export class JudgeAMQPService {
 
   startSubscription() {
     const handleJudgeMessage: SubscriberHandler<object> = async (msg, raw) => {
-      if (!msg) {
+      if (!msg || !raw) {
         this.logger.error('Received empty judge message')
         return new Nack(false)
       }
@@ -44,13 +44,13 @@ export class JudgeAMQPService {
       try {
         // 메시지 타입에 따라 적절한 핸들러로 라우팅
         if (
-          raw?.properties.type === RUN_MESSAGE_TYPE ||
-          raw?.properties.type === USER_TESTCASE_MESSAGE_TYPE
+          raw.properties.type === RUN_MESSAGE_TYPE ||
+          raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
         ) {
           if (this.messageHandlers?.onRunMessage) {
             await this.messageHandlers.onRunMessage(
               msg,
-              raw?.properties.type === USER_TESTCASE_MESSAGE_TYPE
+              raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
             )
           }
           return
