@@ -3,6 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
+  ContestRole,
   Language,
   Prisma,
   Problem,
@@ -147,47 +148,54 @@ export class SubmissionService {
     // 진행 중인 대회인지 확인합니다.
     const contest = await this.prisma.contest.findFirst({
       where: {
-        id: contestId,
-        startTime: {
-          lte: now
-        },
-        endTime: {
-          gt: now
-        }
+        id: contestId
       }
     })
     if (!contest) {
       throw new EntityNotExistException('Contest')
     }
 
-    // 대회에 등록되어 있는지 확인합니다.
-    const contestRecord = await this.prisma.contestRecord.findUnique({
+    // 대회 관리자면 진행 여부와 관계없이 bypass합니다
+    const contestStaff = await this.prisma.userContest.findFirst({
       where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_userId: {
-          contestId,
-          userId
-        }
-      },
-      select: {
-        contest: {
-          select: {
-            startTime: true,
-            endTime: true
-          }
+        contestId,
+        userId,
+        role: {
+          in: [ContestRole.Admin, ContestRole.Manager, ContestRole.Reviewer]
         }
       }
     })
-    if (!contestRecord) {
-      throw new EntityNotExistException('ContestRecord')
-    }
-    if (
-      contestRecord.contest.startTime > now ||
-      contestRecord.contest.endTime <= now
-    ) {
-      throw new ConflictFoundException(
-        'Submission is only allowed to ongoing contests'
-      )
+
+    if (!contestStaff) {
+      // 대회에 등록되어 있는지 확인합니다.
+      const contestRecord = await this.prisma.contestRecord.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_userId: {
+            contestId,
+            userId
+          }
+        },
+        select: {
+          contest: {
+            select: {
+              startTime: true,
+              endTime: true
+            }
+          }
+        }
+      })
+      if (!contestRecord) {
+        throw new EntityNotExistException('ContestRecord')
+      }
+      if (
+        contestRecord.contest.startTime > now ||
+        contestRecord.contest.endTime <= now
+      ) {
+        throw new ConflictFoundException(
+          'Submission is only allowed to ongoing contests'
+        )
+      }
     }
 
     const contestProblem = await this.prisma.contestProblem.findUnique({
