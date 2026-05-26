@@ -1,3 +1,6 @@
 - op: replace
+  path: /spec/template/spec/topologySpreadConstraints/0/maxSkew
+  value: 3
+- op: replace
   path: /spec/template/spec/topologySpreadConstraints/0/whenUnsatisfiable
   value: DoNotSchedule
