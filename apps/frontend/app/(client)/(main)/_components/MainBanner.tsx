@@ -1,7 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import mainBannerImg from '@/public/banners/main_banner.png'
 import mobileMainBannerImg from '@/public/banners/mobile_main_banner.svg'
-import Link from 'next/dist/client/link'
+import Link from 'next/link'
 import Image from 'next/image'
 
 export function MainBanner() {
