@@ -1,13 +1,12 @@
 // Room
 export interface RoomState {
   endAt: number
-  hostUserId: number
+  leaderId: number | null
 }
 
 export interface RoomMember {
   userId: number
   userName: string
-  isLeader: boolean
   joinedAt: number
 }
 
@@ -23,7 +22,7 @@ export interface JoinResponse {
   members: RoomMember[]
   endAt: number
   remainMs: number
-  hostUserId: number
+  leaderId: number | null
 }
 
 // PayLoad
