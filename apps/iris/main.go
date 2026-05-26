@@ -95,7 +95,6 @@ func main() {
 
 	taskRunner := handler.NewTaskRunner(
 		sandbox,
-		testcaseManager,
 		fileManager,
 		logProvider,
 		defaultTracer,

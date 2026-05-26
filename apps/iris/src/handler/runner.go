@@ -13,32 +13,28 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox/judger"
-	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
 
 type TaskRunner struct {
-	sandbox         sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
-	testcaseManager testcase.TestcaseManager
-	file            file.FileManager
-	logger          logger.Logger
-	tracer          trace.Tracer
+	sandbox sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
+	file    file.FileManager
+	logger  logger.Logger
+	tracer  trace.Tracer
 }
 
 func NewTaskRunner(
 	sandbox sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs],
-	testcaseManager testcase.TestcaseManager,
 	file file.FileManager,
 	logger logger.Logger,
 	tracer trace.Tracer,
 ) *TaskRunner {
 	return &TaskRunner{
-		sandbox:         sandbox,
-		testcaseManager: testcaseManager,
-		file:            file,
-		logger:          logger,
-		tracer:          tracer,
+		sandbox: sandbox,
+		file:    file,
+		logger:  logger,
+		tracer:  tracer,
 	}
 }
 

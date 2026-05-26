@@ -64,10 +64,7 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Ru
 
 	tcNum := len(tc.Elements)
 	for i, tElement := range tc.Elements {
-		var judgeResultCode handler.ResultCode
-		if tElement.In != "" {
-			judgeResultCode = t.judgeTestcase(ctx, i, validReq, tElement, sendResult)
-		}
+		judgeResultCode := t.judgeTestcase(ctx, i, validReq, tElement, sendResult)
 
 		if validReq.StopOnNotAccepted && judgeResultCode != handler.ACCEPTED {
 			for idxToCancel := i + 1; idxToCancel < tcNum; idxToCancel++ {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
 	"golang.org/x/sync/errgroup"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
@@ -73,7 +74,7 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Ru
 
 	count := validReq.TestcaseCount
 
-	collected, _ := t.runGenerations(ctx, count, generatorUnit, solutionUnit)
+	collected := t.runGenerations(ctx, count, generatorUnit, solutionUnit)
 
 	if len(collected) == 0 {
 		sendResult(handler.ResultMessage{
@@ -124,7 +125,7 @@ func (t *Task) runGenerations(
 	count         int,
 	generatorUnit *build.BuildUnit,
 	solutionUnit  *build.BuildUnit,
-) ([]loader.ElementIn, error) {
+) []loader.ElementIn {
 	limit, _ := strconv.Atoi(os.Getenv("GENERATE_CONCURRENCY"))
 	if limit <= 0 {
 		limit = 4
@@ -170,7 +171,7 @@ func (t *Task) runGenerations(
 			collected = append(collected, pairs[i])
 		}
 	}
-	return collected, nil
+	return collected
 }
 
 func (t *Task) generateOne(
@@ -197,7 +198,7 @@ func (t *Task) generateOne(
 	}
 
 	out := []byte{}
-	if t.req.SolutionCode != "" {
+	if solutionUnit != nil && t.req.SolutionCode != "" {
 		solutionRunResult, solutionErr := solutionUnit.Run(t.sandbox, sandbox.RunRequest{
 			Order:       index,
 			TimeLimit:   2000,

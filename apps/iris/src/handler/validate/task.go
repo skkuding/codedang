@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
 	"golang.org/x/sync/errgroup"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
@@ -119,6 +120,10 @@ func (t *Task) runValidations(
 		})
 	}
 	g.Wait() //nolint:errcheck // goroutines always return nil
+
+	if ctx.Err() != nil {
+		return false, nil, fmt.Errorf("validation cancelled: %w", ctx.Err())
+	}
 
 	var firstInfraErr error
 	for _, e := range errs {

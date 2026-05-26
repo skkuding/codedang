@@ -28,7 +28,7 @@ func TestValidate(t *testing.T) {
 		assert.EqualError(t, err, "language must not be empty")
 	})
 
-	t.Run("invalid language", func(t *testing.T) {
+	t.Run("unsupported language", func(t *testing.T) {
 		t.Parallel()
 		req := RunRequest{
 			Code:     "print('')",

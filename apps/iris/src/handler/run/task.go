@@ -63,11 +63,7 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Ru
 
 	tcId, tcNum := 0, len(tc.Elements)
 	for tcId = 0; tcId < tcNum; tcId++ {
-		var judgeResult runTestcaseResult
-		if tc.Elements[tcId].In != "" {
-			judgeResult = t.runTestcase(ctx, tcId, validReq, tc.Elements[tcId])
-		}
-
+		judgeResult := t.runTestcase(ctx, tcId, validReq, tc.Elements[tcId])
 		sendResult(judgeResult.message)
 		if validReq.StopOnNotAccepted && judgeResult.code != handler.ACCEPTED {
 			break

@@ -43,6 +43,19 @@ func TestValidateValidate(t *testing.T) {
 		assert.EqualError(t, err, "validatorCode must not be empty")
 	})
 
+	t.Run("unsupported language", func(t *testing.T) {
+		t.Parallel()
+		req := ValidateRequest{
+			ProblemId:     1,
+			Language:      "COBOL",
+			ValidatorCode: "print('')",
+		}
+		result, err := req.Validate()
+
+		assert.Nil(t, result)
+		assert.EqualError(t, err, "unsupported language: COBOL")
+	})
+
 	t.Run("valid request", func(t *testing.T) {
 		t.Parallel()
 		req := ValidateRequest{
