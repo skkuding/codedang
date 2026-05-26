@@ -343,7 +343,11 @@ export class CollaboratorService {
     }
 
     const collaborator = await this.prisma.polygonCollaborator.findFirst({
-      where: { problemId: polygonId, userId },
+      where: {
+        problemId: polygonId,
+        userId,
+        status: CollaboratorStatus.Active
+      },
       select: { id: true }
     })
     if (!collaborator) {
