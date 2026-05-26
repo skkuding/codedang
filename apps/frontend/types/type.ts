@@ -619,14 +619,14 @@ export interface ProblemOption {
 }
 
 export interface CourseQnAComment {
-  id: number
+  id: string
   order: number
   content: string
-  courseQnAId: number
+  isCourseStaff: boolean
   createTime: Date
   createdBy?: {
     username: string
-  }
+  } | null
 }
 
 export interface CourseQnAItem {
