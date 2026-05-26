@@ -280,6 +280,7 @@ export class CollaboratorService {
    * -invitorId가 해당 문제의 소유자가 아닌 경우
    * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
    * - Owner role로 변경을 하는 경우
+   * - 변경하려는 협업자가 active하지 않는 경우
    */
   async updateCollaboratorRole(
     inviterId: number,
@@ -307,6 +308,11 @@ export class CollaboratorService {
     if (!collaborator) {
       throw new EntityNotExistException('Collaborator not found')
     }
+
+    if (collaborator.status !== CollaboratorStatus.Active) {
+      throw new UnprocessableDataException('Collaborator is not active')
+    }
+
     return await this.prisma.polygonCollaborator.update({
       where: { id: collaborator.id },
       data: { role }
